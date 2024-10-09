@@ -12,12 +12,12 @@
   <nodegraph name="NG_adsk_bitmap_color3" nodedef="adsk:ND_adsk_bitmap_color3" namespace="adsk">
     <divide name="total_scale" type="vector2">
       <input name="in1" type="vector2" interfacename="realworld_scale"/>
-      <input name="in2" type="vector2" value="1.0, 1.0" interfacename="uv_scale"/>
+      <input name="in2" type="vector2" interfacename="uv_scale"/>
     </divide>
     <!-- offset -->
     <add name="total_offset" type="vector2">
       <input name="in1" type="vector2" interfacename="realworld_offset"/>
-      <input name="in2" type="vector2" value="0.0, 0.0" interfacename="uv_offset"/>
+      <input name="in2" type="vector2" interfacename="uv_offset"/>
     </add>
 
     <!-- rotation angle - positive angle rotate counterclockwise -->
@@ -35,7 +35,7 @@
       <input name="offset" type="vector2" nodename="total_offset" />
       <input name="scale" type="vector2" nodename="total_scale" />
       <input name="pivot" type="vector2" value="0.0, 0.0" />
-      <input name="rotate" type="float" value="0" nodename="rotation_angle_param" />
+      <input name="rotate" type="float" nodename="rotation_angle_param" />
       <input name="operationorder" type="integer" value="1" />
     </place2d>
     <image name="b_image" type="color3">
@@ -71,12 +71,12 @@
   <nodegraph name="NG_adsk_bitmap_color4" nodedef="adsk:ND_adsk_bitmap_color4" namespace="adsk">
     <divide name="total_scale" type="vector2">
       <input name="in1" type="vector2" interfacename="realworld_scale"/>
-      <input name="in2" type="vector2" value="1.0, 1.0" interfacename="uv_scale"/>
+      <input name="in2" type="vector2" interfacename="uv_scale"/>
     </divide>
     <!-- offset -->
     <add name="total_offset" type="vector2">
       <input name="in1" type="vector2" interfacename="realworld_offset"/>
-      <input name="in2" type="vector2" value="0.0, 0.0" interfacename="uv_offset"/>
+      <input name="in2" type="vector2" interfacename="uv_offset"/>
     </add>
 
     <!-- rotation angle - positive angle rotate counterclockwise -->
@@ -94,7 +94,7 @@
       <input name="offset" type="vector2" nodename="total_offset" />
       <input name="scale" type="vector2" nodename="total_scale" />
       <input name="pivot" type="vector2" value="0.0, 0.0" />
-      <input name="rotate" type="float" value="0" nodename="rotation_angle_param" />
+      <input name="rotate" type="float" nodename="rotation_angle_param" />
       <input name="operationorder" type="integer" value="1" />
     </place2d>
     <image name="b_image" type="color4">
@@ -130,12 +130,12 @@
     <!-- divide unit converted realworldscale by scale -->
     <divide name="total_scale" type="vector2">
       <input name="in1" type="vector2" interfacename="realworld_scale"/>
-      <input name="in2" type="vector2" value="1.0, 1.0" interfacename="uv_scale"/>
+      <input name="in2" type="vector2" interfacename="uv_scale"/>
     </divide>
     <!-- offset -->
     <add name="total_offset" type="vector2">
       <input name="in1" type="vector2" interfacename="realworld_offset"/>
-      <input name="in2" type="vector2" value="0.0, 0.0" interfacename="uv_offset"/>
+      <input name="in2" type="vector2" interfacename="uv_offset"/>
     </add>
 
     <!-- rotation angle - positive angle rotate counterclockwise -->
@@ -153,7 +153,7 @@
       <input name="offset" type="vector2" nodename="total_offset" />
       <input name="scale" type="vector2" nodename="total_scale" />
       <input name="pivot" type="vector2" value="0.0, 0.0" />
-      <input name="rotate" type="float" value="0" nodename="rotation_angle_param" />
+      <input name="rotate" type="float" nodename="rotation_angle_param" />
       <input name="operationorder" type="integer" value="1" />
     </place2d>
     <image name="b_image" type="color3">
@@ -195,12 +195,12 @@
     <!-- divide unit converted realworldscale by scale -->
     <divide name="total_scale" type="vector2">
       <input name="in1" type="vector2" interfacename="realworld_scale"/>
-      <input name="in2" type="vector2" value="1.0, 1.0" interfacename="uv_scale"/>
+      <input name="in2" type="vector2" interfacename="uv_scale"/>
     </divide>
     <!-- offset -->
     <add name="total_offset" type="vector2">
       <input name="in1" type="vector2" interfacename="realworld_offset"/>
-      <input name="in2" type="vector2" value="0.0, 0.0" interfacename="uv_offset"/>
+      <input name="in2" type="vector2" interfacename="uv_offset"/>
     </add>
 
     <!-- rotation angle - positive angle rotate counterclockwise -->
@@ -218,7 +218,7 @@
       <input name="offset" type="vector2" nodename="total_offset" />
       <input name="scale" type="vector2" nodename="total_scale" />
       <input name="pivot" type="vector2" value="0.0, 0.0" />
-      <input name="rotate" type="float" value="0" nodename="rotation_angle_param" />
+      <input name="rotate" type="float" nodename="rotation_angle_param" />
       <input name="operationorder" type="integer" value="1" />
     </place2d>
     <image name="b_image" type="color3">
@@ -271,12 +271,12 @@
     <!-- divide unit converted realworldscale by scale -->
     <divide name="total_scale" type="vector2">
       <input name="in1" type="vector2" interfacename="realworld_scale"/>
-      <input name="in2" type="vector2" value="1.0, 1.0" interfacename="uv_scale"/>
+      <input name="in2" type="vector2" interfacename="uv_scale"/>
     </divide>
     <!-- offset -->
     <add name="total_offset" type="vector2">
       <input name="in1" type="vector2" interfacename="realworld_offset"/>
-      <input name="in2" type="vector2" value="0.0, 0.0" interfacename="uv_offset"/>
+      <input name="in2" type="vector2" interfacename="uv_offset"/>
     </add>
 
     <!-- rotation angle - positive angle rotate counterclockwise -->
@@ -294,7 +294,7 @@
       <input name="offset" type="vector2" nodename="total_offset" />
       <input name="scale" type="vector2" nodename="total_scale" />
       <input name="pivot" type="vector2" value="0.0, 0.0" />
-      <input name="rotate" type="float" value="0" nodename="rotation_angle_param" />
+      <input name="rotate" type="float" nodename="rotation_angle_param" />
       <input name="operationorder" type="integer" value="1" />
     </place2d>
     <image name="b_image" type="vector3" >
@@ -330,11 +330,11 @@
     <!-- divide unit converted realworldscale by scale -->
     <divide name="total_scale" type="vector2">
       <input name="in1" type="vector2" interfacename="realworld_scale"/>
-      <input name="in2" type="vector2" value="1.0, 1.0" interfacename="uv_scale"/>
+      <input name="in2" type="vector2" interfacename="uv_scale"/>
     </divide>
     <add name="total_offset" type="vector2">
       <input name="in1" type="vector2" interfacename="realworld_offset"/>
-      <input name="in2" type="vector2" value="0.0, 0.0" interfacename="uv_offset"/>
+      <input name="in2" type="vector2" interfacename="uv_offset"/>
     </add>
 
     <!-- rotation angle - positive angle rotate counterclockwise -->
@@ -351,7 +351,7 @@
       <input name="offset" type="vector2" nodename="total_offset" />
       <input name="scale" type="vector2" nodename="total_scale" />
       <input name="pivot" type="vector2" value="0.0, 0.0" />
-      <input name="rotate" type="float" value="0" nodename="rotation_angle_param" />
+      <input name="rotate" type="float" nodename="rotation_angle_param" />
       <input name="operationorder" type="integer" value="1" />
     </place2d>
     <image name="b_image" type="float" >
@@ -368,7 +368,7 @@
     <!-- use std::normal_map -->
     <normalmap name="impl_normalmap" type="vector3">
       <input name="in" type="vector3" nodename="impl_heighttonormalmap" />
-      <input name="scale" type="float"  value="1.0" interfacename="depth" />
+      <input name="scale" type="float" interfacename="depth" />
       <input name="space" type="string" value="tangent" />
     </normalmap>
     <output name="out" type="vector3" nodename="impl_normalmap" />
@@ -428,8 +428,8 @@
     <!-- map values to standard surface -->
     <output name="out" type="surfaceshader" nodename="standard_surface0" />
     <standard_surface name="standard_surface0" type="surfaceshader" version="1.0.1">
-      <input name="normal" type="vector3" value="1, 1, 1" interfacename="surface_normal" />
-      <input name="opacity" type="color3" value="1, 1, 1" interfacename="surface_cutout" />
+      <input name="normal" type="vector3" interfacename="surface_normal" />
+      <input name="opacity" type="color3" interfacename="surface_cutout" />
       <input name="metalness" type="float" value="1" />
       <input name="base" type="float" value="1.0" />
       <input name="base_color" type="color3" nodename="base_color_value" />
@@ -471,7 +471,7 @@
     </subtract>
 
     <constant name="surface_rotation_param" type="float">
-      <input name="value" type="float" value="0" interfacename="surface_rotation" />
+      <input name="value" type="float" interfacename="surface_rotation" />
     </constant>
     <!-- specular_rotation = fmod(surface_rotation / 360.0, 1.0) -->
     <divide name="div_rotation0" type="float">
@@ -485,7 +485,7 @@
 
     <!-- specular_IOR = (1.0 + sqrt(opaque_f0)) / (1.0 - sqrt(opaque_f0)) -->
     <constant name="opaque_f0_param" type="float">
-      <input name="value" type="float" value="1" interfacename="opaque_f0" />
+      <input name="value" type="float" interfacename="opaque_f0" />
     </constant>
     <sqrt name="sqrt_opaquef0" type="float">
       <input name="in" type="float" nodename="opaque_f0_param" />
@@ -526,15 +526,15 @@
 
     <!-- emission_color  = opaque_luminance_modifier -->
     <constant name="emission_color_value" type="color3">
-      <input name="value" type="color3" value="0, 0, 0" interfacename="opaque_luminance_modifier"/>
+      <input name="value" type="color3" interfacename="opaque_luminance_modifier"/>
     </constant>
 
     <!-- map values to standard surface -->
     <output name="out" type="surfaceshader" nodename="standard_surface0" />
     <standard_surface name="standard_surface0" type="surfaceshader" version="1.0.1">
-      <input name="normal" type="vector3" value="1, 1, 1" interfacename="surface_normal" />
-      <input name="opacity" type="color3" value="1, 1, 1" interfacename="surface_cutout" />
-      <input name="specular_color" type="color3" value="1, 1, 1" interfacename="surface_albedo" />
+      <input name="normal" type="vector3" interfacename="surface_normal" />
+      <input name="opacity" type="color3" interfacename="surface_cutout" />
+      <input name="specular_color" type="color3" interfacename="surface_albedo" />
       <input name="specular_roughness" type="float" nodename="specular_roughness_value" />
       <input name="specular_anisotropy" type="float" nodename="specular_anisotropy_value" />
       <input name="specular_rotation" type="float" nodename="specular_rotation_value" />
@@ -581,7 +581,7 @@
     </subtract>
 
     <constant name="surface_rotation_param" type="float">
-      <input name="value" type="float" value="0" interfacename="surface_rotation" />
+      <input name="value" type="float" interfacename="surface_rotation" />
     </constant>
 
     <!-- specular_rotation = fmod(surface_rotation / 360.0, 1.0) -->
@@ -596,11 +596,11 @@
     <!-- map values to standard surface -->
     <output name="out" type="surfaceshader" nodename="standard_surface0" />
     <standard_surface name="standard_surface0" type="surfaceshader" version="1.0.1">
-      <input name="normal" type="vector3" value="1, 1, 1" interfacename="surface_normal" />
-      <input name="opacity" type="color3" value="1, 1, 1" interfacename="surface_cutout" />
+      <input name="normal" type="vector3" interfacename="surface_normal" />
+      <input name="opacity" type="color3" interfacename="surface_cutout" />
       <input name="specular" type="float" value="1.0" />
       <input name="transmission" type="float" value="1.0" />
-      <input name="specular_color" type="color3" value="1, 1, 1" interfacename="surface_albedo" />
+      <input name="specular_color" type="color3" interfacename="surface_albedo" />
       <input name="specular_roughness" type="float" nodename="specular_roughness_value" />
       <input name="specular_anisotropy" type="float" nodename="specular_anisotropy_value" />
       <input name="specular_rotation" type="float" nodename="specular_rotation_value" />
@@ -656,7 +656,7 @@
 
 
     <constant name="surface_rotation_param" type="float">
-      <input name="value" type="float" value="0" interfacename="surface_rotation" />
+      <input name="value" type="float" interfacename="surface_rotation" />
     </constant>
 
     <!-- coat_rotation = fmod(surface_rotation / 360.0, 1.0) -->
@@ -670,7 +670,7 @@
 
     <!-- coat_IOR = (1.0 + sqrt(layered_f0)) / (1.0 - sqrt(layered_f0)) -->
     <constant name="layered_f0_param" type="float">
-      <input name="value" type="float" value="1" interfacename="layered_f0" />
+      <input name="value" type="float" interfacename="layered_f0" />
     </constant>
     <sqrt name="sqrt_layeredf0" type="float">
       <input name="in" type="float" nodename="layered_f0_param" />
@@ -690,11 +690,11 @@
 
 
     <constant name="layered_roughness_param" type="float">
-      <input name="value" type="float" value="1" interfacename="layered_roughness" />
+      <input name="value" type="float" interfacename="layered_roughness" />
     </constant>
 
     <constant name="layered_anisotropy_param" type="float">
-      <input name="value" type="float" value="1" interfacename="layered_anisotropy" />
+      <input name="value" type="float" interfacename="layered_anisotropy" />
     </constant>
 
     <!-- specular_roughness = layered_roughness * sqrt(1 - layered_anisotropy) -->
@@ -726,7 +726,7 @@
 
 
     <constant name="layered_rotation_param" type="float">
-      <input name="value" type="float" value="0" interfacename="layered_rotation" />
+      <input name="value" type="float" interfacename="layered_rotation" />
     </constant>
     <!-- specular_rotation = fmod(layered_rotation / 360.0, 1.0) -->
     <divide name="div_rotation1" type="float">
@@ -738,15 +738,15 @@
     </modulo>
 
     <constant name="layered_fraction_param" type="float">
-      <input name="value" type="float" value="0" interfacename="layered_fraction" />
+      <input name="value" type="float" interfacename="layered_fraction" />
     </constant>
 
     <constant name="layered_diffuse_param" type="color3">
-      <input name="value" type="color3" value="1, 1, 1" interfacename="layered_diffuse" />
+      <input name="value" type="color3" interfacename="layered_diffuse" />
     </constant>
 
     <constant name="layered_bottom_f0_param" type="color3">
-      <input name="value" type="color3" value="1, 1, 1" interfacename="layered_bottom_f0" />
+      <input name="value" type="color3" interfacename="layered_bottom_f0" />
     </constant>
 
     <!-- base_color = layered_fraction * layered_bottom_f0 + (1.0 - layered_fraction) * layered_diffuse -->
@@ -779,9 +779,9 @@
     <!-- map values to standard surface -->
     <output name="out" type="surfaceshader" nodename="standard_surface0" />
     <standard_surface name="standard_surface0" type="surfaceshader" version="1.0.1">
-      <input name="normal" type="vector3" value="1, 1, 1" interfacename="layered_normal" />
-      <input name="coat_normal" type="vector3" value="1, 1, 1" interfacename="surface_normal" />
-      <input name="opacity" type="color3" value="1, 1, 1" interfacename="surface_cutout" />
+      <input name="normal" type="vector3" interfacename="layered_normal" />
+      <input name="coat_normal" type="vector3" interfacename="surface_normal" />
+      <input name="opacity" type="color3" interfacename="surface_cutout" />
       <input name="coat" type="float" nodename="coat_value" />
       <input name="metalness" type="float" nodename="layered_fraction_value" />
       <input name="specular" type="float" value="0.0" />
@@ -858,7 +858,7 @@
 
 
     <constant name="surface_rotation_param" type="float">
-      <input name="value" type="float" value="0" interfacename="surface_rotation" />
+      <input name="value" type="float" interfacename="surface_rotation" />
     </constant>
 
     <!-- specular_rotation = fmod(surface_rotation / 360.0, 1.0) -->
@@ -872,7 +872,7 @@
 
     <!-- specular_IOR = (1.0 + sqrt(x)) / (1.0 - sqrt(x)), where x = luminance(glazing_f0) -->
     <constant name="glazing_f0_param" type="color3">
-      <input name="value" type="color3" value="0.08,0.08,0.08" interfacename="glazing_f0" />
+      <input name="value" type="color3" interfacename="glazing_f0" />
     </constant>
     <luminance name="lum_glazing_f0" type="color3">
       <input name="in" type="color3" nodename="glazing_f0_param"/>
@@ -919,7 +919,7 @@
 
     <!-- opacity = surface_cutout || (backfacing && glazing_backface_culling) -->
     <constant name="surface_cutout_param" type="color3">
-      <input name="value" type="color3" value="1, 1, 1" interfacename="surface_cutout" />
+      <input name="value" type="color3" interfacename="surface_cutout" />
     </constant>
 
     <!-- extract red channel -->
@@ -936,7 +936,7 @@
     <!-- map values to standard surface -->
     <output name="out" type="surfaceshader" nodename="standard_surface0" />
     <standard_surface name="standard_surface0" type="surfaceshader" version="1.0.1">
-      <input name="normal" type="vector3" value="1, 1, 1" interfacename="surface_normal" />
+      <input name="normal" type="vector3" interfacename="surface_normal" />
       <input name="opacity" type="color3" nodename="opacity_value" />
       <input name="specular" type="float" value="1.0" />
       <input name="transmission" type="float" value="1.0" />
