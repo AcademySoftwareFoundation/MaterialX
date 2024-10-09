@@ -50,6 +50,8 @@ class MX_CORE_API Document : public GraphElement
     {
         DocumentPtr doc = createDocument<Document>();
         doc->copyContentFrom(getSelf());
+        if (hasDataLibrary())
+            doc->registerDataLibrary(getRegisteredDataLibrary());
         return doc;
     }
 

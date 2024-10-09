@@ -404,6 +404,7 @@ bool Document::validate(string* message) const
 void Document::invalidateCache()
 {
     _cache->valid = false;
+    _dataLibrary = nullptr;
 }
 
 //
