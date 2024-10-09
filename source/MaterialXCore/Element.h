@@ -444,7 +444,7 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     /// Return the child element from data library , if any, with the given name and subclass.
     /// If a child with the given name exists, but belongs to a different
     /// subclass, then an empty shared pointer is returned.
-    template <class T> shared_ptr<T> getChildOfType(ConstDocumentPtr datalibrary, const string& name) const
+    template <class T> shared_ptr<T> getChildOfType(ConstElementPtr datalibrary, const string& name) const
     {
         ElementPtr child = datalibrary->getChild(name);
         if (!child)
@@ -483,7 +483,7 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     /// Return a combined vector of all child elements including the Data Library that are instances of the given
     /// subclass, optionally filtered by the given category string.  The returned
     /// vector maintains the order in which children were added.
-    template <class T> vector<shared_ptr<T>> getChildrenOfType(ConstDocumentPtr datalibrary, const string& category = EMPTY_STRING) const
+    template <class T> vector<shared_ptr<T>> getChildrenOfType(ConstElementPtr datalibrary, const string& category = EMPTY_STRING) const
     {
         vector<shared_ptr<T>> libraryChildren = datalibrary->getChildrenOfType<T>(category);
         vector<shared_ptr<T>> children = getChildrenOfType<T>(category);

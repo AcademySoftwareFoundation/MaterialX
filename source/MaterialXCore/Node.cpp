@@ -70,6 +70,7 @@ string Node::getConnectedNodeName(const string& inputName) const
 
 NodeDefPtr Node::getNodeDef(const string& target, bool allowRoughMatch) const
 {
+    // Collect document nodes
     vector<NodeDefPtr> nodeDefs = getDocument()->getMatchingNodeDefs(getQualifiedName(getCategory()));
     vector<NodeDefPtr> secondary = getDocument()->getMatchingNodeDefs(getCategory());
     nodeDefs.insert(nodeDefs.end(), secondary.begin(), secondary.end());

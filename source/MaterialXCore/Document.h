@@ -546,7 +546,7 @@ class MX_CORE_API Document : public GraphElement
     /// Return the UnitDef, if any, with the given name.
     UnitDefPtr getUnitDef(const string& name) const
     {
-        return getChildOfType<UnitDef>(name);
+        return hasDataLibrary() ? getChildOfType<UnitDef>(getRegisteredDataLibrary(), name) : getChildOfType<UnitDef>(name);
     }
 
     /// Return a vector of all Member elements in the TypeDef.
@@ -577,7 +577,7 @@ class MX_CORE_API Document : public GraphElement
     /// Return the UnitTypeDef, if any, with the given name.
     UnitTypeDefPtr getUnitTypeDef(const string& name) const
     {
-        return getChildOfType<UnitTypeDef>(name);
+        return hasDataLibrary() ? getChildOfType<UnitTypeDef>(getRegisteredDataLibrary(), name) : getChildOfType<UnitTypeDef>(name);
     }
 
     /// Return a vector of all UnitTypeDef elements in the document.

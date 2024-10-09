@@ -564,10 +564,7 @@ bool ValueElement::validate(string* message) const
         const string& unittype = getUnitType();
         if (!unittype.empty())
         {
-
-            unitTypeDef = getDocument()->hasDataLibrary() ? 
-                          getDocument()->getRegisteredDataLibrary()->getUnitTypeDef(unittype) : 
-                          getDocument()->getUnitTypeDef(unittype);
+            unitTypeDef = getDocument()->getUnitTypeDef(unittype);
             validateRequire(unitTypeDef != nullptr, res, message, "Unit type definition does not exist in document");
         }
     }
