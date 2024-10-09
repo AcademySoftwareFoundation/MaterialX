@@ -286,8 +286,8 @@ void mx_fresnel_conductor_phase_polarized(float cosTheta, float eta1, vec3 eta2,
     vec3 U = sqrt((A+B)/2.0);
     vec3 V = max(vec3(0.0), sqrt((B-A)/2.0));
 
-    phiS = mx_atan(2.0 * eta1 * V * cosTheta, U * U + V * V - mx_square(eta1 * cosTheta));
-    phiP = mx_atan(2.0 * eta1 * eta2 * eta2 * cosTheta * (2.0 * k2 * U - (vec3(1.0) - k2 * k2) * V),
+    phiS = mx_atan(2.0*eta1*V*cosTheta, U*U + V*V - mx_square(eta1*cosTheta));
+    phiP = mx_atan(2.0*eta1*eta2*eta2*cosTheta * (2.0*k2*U - (vec3(1.0)-k2*k2) * V),
                    mx_square(eta2*eta2*(vec3(1.0)+k2*k2)*cosTheta) - eta1*eta1*(U*U+V*V));
 }
 
