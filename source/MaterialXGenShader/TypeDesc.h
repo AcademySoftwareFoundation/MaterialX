@@ -10,6 +10,7 @@
 /// Type descriptor for a MaterialX data type.
 
 #include <MaterialXGenShader/Export.h>
+#include <MaterialXCore/Value.h>
 
 #include <string_view>
 
@@ -60,15 +61,15 @@ class MX_GENSHADER_API TypeDesc
     };
 
     /// Empty constructor.
-    constexpr TypeDesc() noexcept :
-        _id(0), _basetype(BASETYPE_NONE), _semantic(SEMANTIC_NONE), _size(0) { }
+    constexpr TypeDesc() noexcept : _id(0), _basetype(BASETYPE_NONE), _semantic(SEMANTIC_NONE), _size(0), _structIndex(0) {}
 
     /// Constructor.
-    constexpr TypeDesc(std::string_view name, uint8_t basetype, uint8_t semantic = SEMANTIC_NONE, uint16_t size = 1) noexcept :
+    constexpr TypeDesc(std::string_view name, uint8_t basetype, uint8_t semantic = SEMANTIC_NONE, uint8_t size = 1, uint8_t structIndex = 0) noexcept :
         _id(constexpr_hash(name)), // Note: We only store the hash to keep the class size minimal.
         _basetype(basetype),
         _semantic(semantic),
-        _size(size)
+        _size(size),
+        _structIndex(structIndex)
     {
     }
 
@@ -84,6 +85,9 @@ class MX_GENSHADER_API TypeDesc
 
     /// Return the semantic for the type.
     unsigned char getSemantic() const { return _semantic; }
+
+    /// Return the index for the struct member information in StructTypeDesc, the result is invalid if `isStruct()` returns false.
+    uint8_t getStructIndex() const { return _structIndex; }
 
     /// Return the number of elements the type is composed of.
     /// Will return 1 for scalar types and a size greater than 1 for aggregate type.
@@ -111,6 +115,9 @@ class MX_GENSHADER_API TypeDesc
 
     /// Return true if the type represents a closure.
     bool isClosure() const { return (_semantic == SEMANTIC_CLOSURE || _semantic == SEMANTIC_SHADER || _semantic == SEMANTIC_MATERIAL); }
+
+    /// Return true if the type represents a struct.
+    bool isStruct() const { return _basetype == BASETYPE_STRUCT; }
 
     /// Equality operator
     bool operator==(TypeDesc rhs) const
@@ -143,7 +150,13 @@ class MX_GENSHADER_API TypeDesc
     /// If no type is found Type::NONE is returned.
     static TypeDesc get(const string& name);
 
+    /// Remove a type description by name, if it exists.
+    static void remove(const string& name);
+
     static const string NONE_TYPE_NAME;
+
+    /// Create a Value from a string for a given typeDesc
+    ValuePtr createValueFromStrings(const string& value) const;
 
   private:
     /// Simple constexpr hash function, good enough for the small set of short strings that
@@ -156,14 +169,15 @@ class MX_GENSHADER_API TypeDesc
     uint32_t _id;
     uint8_t _basetype;
     uint8_t _semantic;
-    uint16_t _size;
+    uint8_t _size;
+    uint8_t _structIndex;
 };
 
 /// @class TypeDescRegistry
 /// Helper class for type registration.
 class MX_GENSHADER_API TypeDescRegistry
 {
-  public:
+public:
     TypeDescRegistry(TypeDesc type, const string& name);
 };
 
@@ -207,6 +221,56 @@ TYPEDESC_DEFINE_TYPE(LIGHTSHADER, "lightshader", TypeDesc::BASETYPE_NONE, TypeDe
 TYPEDESC_DEFINE_TYPE(MATERIAL, "material", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_MATERIAL, 1)
 
 } // namespace Type
+
+
+/// @class StructTypeDesc
+/// A type descriptor for MaterialX struct types.
+///
+/// All types need to have a type descriptor registered in order for shader generators
+/// to know about the type. If the type represented is of basetype=BASETYPE_STRUCT then
+/// the type also needs to have an associated StructTypeDesc that describes the members
+/// of the struct.
+///
+class MX_GENSHADER_API StructTypeDesc
+{
+  public:
+    struct StructMemberTypeDesc {
+        StructMemberTypeDesc(string name, TypeDesc typeDesc, string defaultValueStr) :
+            _name(name), _typeDesc(typeDesc), _defaultValueStr(defaultValueStr)
+        {}
+        string _name;
+        TypeDesc _typeDesc;
+        string _defaultValueStr;
+    };
+
+    /// Empty constructor.
+    StructTypeDesc() noexcept{}
+
+    void addMember(const string& name, TypeDesc type, string defaultValueStr);
+    void setTypeDesc(TypeDesc typedesc) { _typedesc = typedesc; }
+
+    /// Return a type description by index.
+    static StructTypeDesc& get(unsigned int index);
+    static vector<string> getStructTypeNames();
+    static uint8_t emplace_back(StructTypeDesc structTypeDesc);
+    static void clear();
+
+    TypeDesc typeDesc() const { return _typedesc; }
+
+    const string& getName() const;
+
+    const vector<StructMemberTypeDesc>& getMembers() const;
+
+  private:
+    TypeDesc _typedesc;
+    vector<StructMemberTypeDesc> _members;
+};
+
+class MX_GENSHADER_API StructTypeDescRegistry
+{
+  public:
+    StructTypeDescRegistry();
+};
 
 MATERIALX_NAMESPACE_END
 

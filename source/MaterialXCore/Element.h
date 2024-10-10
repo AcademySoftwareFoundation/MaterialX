@@ -1054,12 +1054,7 @@ class MX_CORE_API ValueElement : public TypedElement
     ///
     /// @return A shared pointer to the typed value of this element, or an
     ///    empty shared pointer if no value is present.
-    ValuePtr getValue() const
-    {
-        if (!hasValue())
-            return ValuePtr();
-        return Value::createValueFromStrings(getValueString(), getType());
-    }
+    ValuePtr getValue() const;
 
     /// Return the resolved value of an element as a generic value object, which
     /// may be queried to access its data.
@@ -1069,12 +1064,7 @@ class MX_CORE_API ValueElement : public TypedElement
     ///    will be created at this scope and applied to the return value.
     /// @return A shared pointer to the typed value of this element, or an
     ///    empty shared pointer if no value is present.
-    ValuePtr getResolvedValue(StringResolverPtr resolver = nullptr) const
-    {
-        if (!hasValue())
-            return ValuePtr();
-        return Value::createValueFromStrings(getResolvedValueString(resolver), getType());
-    }
+    ValuePtr getResolvedValue(StringResolverPtr resolver = nullptr) const;
 
     /// Return the default value for this element as a generic value object, which
     /// may be queried to access its data.
