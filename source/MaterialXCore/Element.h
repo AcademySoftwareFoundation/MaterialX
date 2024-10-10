@@ -849,6 +849,19 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
         return child ? child : scope->getChildOfType<T>(name);
     }
 
+    // Resolve a reference to a named element at the scope of the given datalibrary and parent
+    // taking the namespace at the scope of this element into account.  If no datalibrary or parent
+    // is provided, then the root scope of the document is used.
+    template <class T> shared_ptr<T> resolveNameReference(ConstElementPtr datalibrary, const string& name, ConstElementPtr parent = nullptr) const
+    {
+        shared_ptr<T> child = datalibrary ? datalibrary->getChildOfType<T>(getQualifiedName(name)) : nullptr;
+
+        if (child)
+            return child;
+
+        return resolveNameReference<T>(name, parent);
+    }
+
     // Enforce a requirement within a validate method, updating the validation
     // state and optional output text if the requirement is not met.
     void validateRequire(bool expression, bool& res, string* message, const string& errorDesc) const;

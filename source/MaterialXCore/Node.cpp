@@ -70,6 +70,19 @@ string Node::getConnectedNodeName(const string& inputName) const
 
 NodeDefPtr Node::getNodeDef(const string& target, bool allowRoughMatch) const
 {
+    if (hasNodeDefString())
+    {
+        NodeDefPtr resolvedNode = resolveNameReference<NodeDef>(getNodeDefString());
+        if (!resolvedNode && getDocument()->hasDataLibrary())
+        {
+            return resolveNameReference<NodeDef>(getDocument()->getRegisteredDataLibrary(), getNodeDefString());
+        }
+        else
+        {
+            return resolvedNode;
+        }
+    }
+    
     // Collect document nodes
     vector<NodeDefPtr> nodeDefs = getDocument()->getMatchingNodeDefs(getQualifiedName(getCategory()));
     vector<NodeDefPtr> secondary = getDocument()->getMatchingNodeDefs(getCategory());
