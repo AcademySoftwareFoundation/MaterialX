@@ -679,7 +679,17 @@ class MX_CORE_API Document : public GraphElement
     /// @param Data Library document to register.
     void registerDataLibrary(ConstDocumentPtr dataLibrary)
     {
+        if (!dataLibrary)
+        {
+            throw Exception("A valid Data library is required for registration");
+        }
         _dataLibrary = dataLibrary;
+    }
+
+    /// Clears the registered data library reference
+    void clearRegisteredDataLibrary()
+    {
+        _dataLibrary = nullptr;
     }
 
     /// Gets the registered data library

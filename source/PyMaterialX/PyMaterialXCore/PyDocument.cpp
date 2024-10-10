@@ -32,6 +32,7 @@ void bindPyDocument(py::module& mod)
         .def("importLibrary", &mx::Document::importLibrary)
         .def("registerDataLibrary", &mx::Document::registerDataLibrary)
         .def("getRegisteredDataLibrary", &mx::Document::getRegisteredDataLibrary)
+        .def("clearRegisteredDataLibrary", &mx::Document::clearRegisteredDataLibrary)
         .def("hasDataLibrary", &mx::Document::hasDataLibrary)
         .def("getReferencedSourceUris", &mx::Document::getReferencedSourceUris)
         .def("addNodeGraph", &mx::Document::addNodeGraph,

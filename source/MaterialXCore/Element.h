@@ -450,7 +450,7 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     /// subclass, then an empty shared pointer is returned.
     template <class T> shared_ptr<T> getChildOfType(ConstElementPtr datalibrary, const string& name) const
     {
-        ElementPtr child = datalibrary->getChild(name);
+        ElementPtr child = datalibrary ? datalibrary->getChild(name) : nullptr;
         if (!child)
         {
             child = getChild(name);
@@ -489,7 +489,7 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     /// vector maintains the order in which children were added.
     template <class T> vector<shared_ptr<T>> getChildrenOfType(ConstElementPtr datalibrary, const string& category = EMPTY_STRING) const
     {
-        vector<shared_ptr<T>> libraryChildren = datalibrary->getChildrenOfType<T>(category);
+        vector<shared_ptr<T>> libraryChildren = datalibrary ? datalibrary->getChildrenOfType<T>(category) : vector<shared_ptr<T>>();
         vector<shared_ptr<T>> children = getChildrenOfType<T>(category);
         libraryChildren.insert(libraryChildren.end(), children.begin(), children.end());
         return libraryChildren;

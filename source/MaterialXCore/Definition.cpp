@@ -186,13 +186,6 @@ StringVec TargetDef::getMatchingTargets() const
 vector<UnitDefPtr> UnitTypeDef::getUnitDefs() const
 {
     vector<UnitDefPtr> unitDefs;
-    for (UnitDefPtr unitDef : getDocument()->getChildrenOfType<UnitDef>())
-    {
-        if (unitDef->getUnitType() == _name)
-        {
-            unitDefs.push_back(unitDef);
-        }
-    }
     // Gather unitdefs from Data library
     if (getDocument()->hasDataLibrary())
     {
@@ -203,8 +196,16 @@ vector<UnitDefPtr> UnitTypeDef::getUnitDefs() const
                 unitDefs.push_back(unitDef);
             }
         }
-        
     }
+    // Gather unitdefs from document
+    for (UnitDefPtr unitDef : getDocument()->getChildrenOfType<UnitDef>())
+    {
+        if (unitDef->getUnitType() == _name)
+        {
+            unitDefs.push_back(unitDef);
+        }
+    }
+
     return unitDefs;
 }
 
