@@ -4,12 +4,10 @@ float mx_square(float x)
 {
     return x*x;
 }
-
 vec2 mx_square(vec2 x)
 {
     return x*x;
 }
-
 vec3 mx_square(vec3 x)
 {
     return x*x;
@@ -26,11 +24,12 @@ float mx_inversesqrt(float x)
     return ::rsqrt(x);
 }
 
-#ifdef __DECL_GL_MATH_FUNCTIONS__
+float mx_radians(float degree)
+{
+    return (degree * M_PI_F / 180.0f);
+}
 
-float radians(float degree) { return (degree * M_PI_F / 180.0f); }
-
-float3x3 inverse(float3x3 m)
+float3x3 mx_inverse(float3x3 m)
 {
     float n11 = m[0][0], n12 = m[1][0], n13 = m[2][0];
     float n21 = m[0][1], n22 = m[1][1], n23 = m[2][1];
@@ -56,7 +55,7 @@ float3x3 inverse(float3x3 m)
     return ret;
 }
 
-float4x4 inverse(float4x4 m)
+float4x4 mx_inverse(float4x4 m)
 {
     float n11 = m[0][0], n12 = m[1][0], n13 = m[2][0], n14 = m[3][0];
     float n21 = m[0][1], n22 = m[1][1], n23 = m[2][1], n24 = m[3][1];
@@ -96,17 +95,108 @@ float4x4 inverse(float4x4 m)
     return ret;
 }
 
-template <typename T>
-T atan(T y_over_x) { return ::atan(y_over_x); }
+float mx_sin(float x)
+{
+    return sin(x);
+}
+vec2 mx_sin(vec2 x)
+{
+    return sin(x);
+}
+vec3 mx_sin(vec3 x)
+{
+    return sin(x);
+}
+vec4 mx_sin(vec4 x)
+{
+    return sin(x);
+}
 
-template <typename T>
-T atan(T y, T x) { return ::atan2(y, x); }
+float mx_cos(float x)
+{
+    return cos(x);
+}
+vec2 mx_cos(vec2 x)
+{
+    return cos(x);
+}
+vec3 mx_cos(vec3 x)
+{
+    return cos(x);
+}
+vec4 mx_cos(vec4 x)
+{
+    return cos(x);
+}
 
-#define lessThan(a, b) ((a) < (b))
-#define lessThanEqual(a, b) ((a) <= (b))
-#define greaterThan(a, b) ((a) > (b))
-#define greaterThanEqual(a, b) ((a) >= (b))
-#define equal(a, b) ((a) == (b))
-#define notEqual(a, b) ((a) != (b))
+float mx_tan(float x)
+{
+    return tan(x);
+}
+vec2 mx_tan(vec2 x)
+{
+    return tan(x);
+}
+vec3 mx_tan(vec3 x)
+{
+    return tan(x);
+}
+vec4 mx_tan(vec4 x)
+{
+    return tan(x);
+}
 
-#endif
+float mx_asin(float x)
+{
+    return asin(x);
+}
+vec2 mx_asin(vec2 x)
+{
+    return asin(x);
+}
+vec3 mx_asin(vec3 x)
+{
+    return asin(x);
+}
+vec4 mx_asin(vec4 x)
+{
+    return asin(x);
+}
+
+float mx_acos(float x)
+{
+    return acos(x);
+}
+vec2 mx_acos(vec2 x)
+{
+    return acos(x);
+}
+vec3 mx_acos(vec3 x)
+{
+    return acos(x);
+}
+vec4 mx_acos(vec4 x)
+{
+    return acos(x);
+}
+
+float mx_atan(float y_over_x)
+{
+    return ::atan(y_over_x);
+}
+float mx_atan(float y, float x)
+{
+    return ::atan2(y, x);
+}
+vec2 mx_atan(vec2 y, vec2 x)
+{
+    return ::atan2(y, x);
+}
+vec3 mx_atan(vec3 y, vec3 x)
+{
+    return ::atan2(y, x);
+}
+vec4 mx_atan(vec4 y, vec4 x)
+{
+    return ::atan2(y, x);
+}

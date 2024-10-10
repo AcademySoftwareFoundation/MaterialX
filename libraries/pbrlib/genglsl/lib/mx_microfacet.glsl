@@ -77,8 +77,8 @@ vec3 mx_uniform_sample_hemisphere(vec2 Xi)
     float phi = 2.0 * M_PI * Xi.x;
     float cosTheta = 1.0 - Xi.y;
     float sinTheta = sqrt(1.0 - mx_square(cosTheta));
-    return vec3(cos(phi) * sinTheta,
-                sin(phi) * sinTheta,
+    return vec3(mx_cos(phi) * sinTheta,
+                mx_sin(phi) * sinTheta,
                 cosTheta);
 }
 
@@ -88,8 +88,8 @@ vec3 mx_cosine_sample_hemisphere(vec2 Xi)
     float phi = 2.0 * M_PI * Xi.x;
     float cosTheta = sqrt(Xi.y);
     float sinTheta = sqrt(1.0 - Xi.y);
-    return vec3(cos(phi) * sinTheta,
-                sin(phi) * sinTheta,
+    return vec3(mx_cos(phi) * sinTheta,
+                mx_sin(phi) * sinTheta,
                 cosTheta);
 }
 
