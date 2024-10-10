@@ -672,7 +672,7 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
 
     mx::DocumentPtr doc = mx::createDocument();
     mx::readFromXmlFile(doc, "resources/Materials/TestSuite/stdlib/definition/definition_from_nodegraph.mtlx", searchPath);
-    doc->importLibrary(stdlib);
+    doc->registerDataLibrary(stdlib);
 
     mx::NodeGraphPtr graph = doc->getNodeGraph("test_colorcorrect");
     REQUIRE(graph);

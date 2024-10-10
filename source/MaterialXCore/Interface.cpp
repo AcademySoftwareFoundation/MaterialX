@@ -283,7 +283,10 @@ GeomPropDefPtr Input::getDefaultGeomProp() const
     if (!defaultGeomProp.empty())
     {
         ConstDocumentPtr doc = getDocument();
-        return doc->getChildOfType<GeomPropDef>(defaultGeomProp);
+        if (doc->hasDataLibrary())
+            return doc->getChildOfType<GeomPropDef>(doc->getRegisteredDataLibrary(),defaultGeomProp);
+        else
+            return doc->getChildOfType<GeomPropDef>(defaultGeomProp);
     }
     return nullptr;
 }

@@ -445,6 +445,20 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
         return child ? child->asA<T>() : shared_ptr<T>();
     }
 
+    /// Return the child element from data library , if any, with the given name and subclass.
+    /// If a child with the given name exists, but belongs to a different
+    /// subclass, then an empty shared pointer is returned.
+    template <class T> shared_ptr<T> getChildOfType(ConstElementPtr datalibrary, const string& name) const
+    {
+        ElementPtr child = datalibrary ? datalibrary->getChild(name) : nullptr;
+        if (!child)
+        {
+            child = getChild(name);
+        }
+        return child ? child->asA<T>() : shared_ptr<T>();
+    }
+
+
     /// Return a constant vector of all child elements.
     /// The returned vector maintains the order in which children were added.
     const vector<ElementPtr>& getChildren() const
@@ -468,6 +482,17 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
             children.push_back(instance);
         }
         return children;
+    }
+
+    /// Return a combined vector of all child elements including the Data Library that are instances of the given
+    /// subclass, optionally filtered by the given category string.  The returned
+    /// vector maintains the order in which children were added.
+    template <class T> vector<shared_ptr<T>> getChildrenOfType(ConstElementPtr datalibrary, const string& category = EMPTY_STRING) const
+    {
+        vector<shared_ptr<T>> libraryChildren = datalibrary ? datalibrary->getChildrenOfType<T>(category) : vector<shared_ptr<T>>();
+        vector<shared_ptr<T>> children = getChildrenOfType<T>(category);
+        libraryChildren.insert(libraryChildren.end(), children.begin(), children.end());
+        return libraryChildren;
     }
 
     /// Set the index of the child, if any, with the given name.
@@ -822,6 +847,19 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
         ConstElementPtr scope = parent ? parent : getRoot();
         shared_ptr<T> child = scope->getChildOfType<T>(getQualifiedName(name));
         return child ? child : scope->getChildOfType<T>(name);
+    }
+
+    // Resolve a reference to a named element at the scope of the given datalibrary and parent
+    // taking the namespace at the scope of this element into account.  If no datalibrary or parent
+    // is provided, then the root scope of the document is used.
+    template <class T> shared_ptr<T> resolveNameReference(ConstElementPtr datalibrary, const string& name, ConstElementPtr parent = nullptr) const
+    {
+        shared_ptr<T> child = datalibrary ? datalibrary->getChildOfType<T>(getQualifiedName(name)) : nullptr;
+
+        if (child)
+            return child;
+
+        return resolveNameReference<T>(name, parent);
     }
 
     // Enforce a requirement within a validate method, updating the validation
