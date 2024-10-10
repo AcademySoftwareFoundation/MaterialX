@@ -24,6 +24,14 @@ void bindPyGeom(py::module& mod)
         .def("getCollectionString", &mx::GeomElement::getCollectionString)
         .def("setCollection", &mx::GeomElement::setCollection)
         .def("getCollection", &mx::GeomElement::getCollection);
+    mod.attr("GeomElement").doc() = R"docstring(
+    The base class for geometric elements, which support bindings to geometries
+    and geometric collections.
+
+    Inherited by: `GeomInfo`, `MaterialAssign`, `PropertySetAssign`, and
+    `Visibility`.
+
+    :see: https://materialx.org/docs/api/class_geom_element.html)docstring";
 
     py::class_<mx::GeomInfo, mx::GeomInfoPtr, mx::GeomElement>(mod, "GeomInfo")
         .def("addGeomProp", &mx::GeomInfo::addGeomProp)
@@ -52,9 +60,18 @@ void bindPyGeom(py::module& mod)
         BIND_GEOMINFO_FUNC_INSTANCE(floatarray, mx::FloatVec)
         BIND_GEOMINFO_FUNC_INSTANCE(stringarray, mx::StringVec)
         .def_readonly_static("CATEGORY", &mx::GeomInfo::CATEGORY);
+    mod.attr("GeomInfo").doc() = R"docstring(
+    A geometry info element within a `Document`.
+
+    :see: https://materialx.org/docs/api/class_geom_info.html)docstring";
 
     py::class_<mx::GeomProp, mx::GeomPropPtr, mx::ValueElement>(mod, "GeomProp")
         .def_readonly_static("CATEGORY", &mx::GeomProp::CATEGORY);
+    mod.attr("GeomProp").doc() = R"docstring(
+    A geometric property element within a `GeomInfo`.
+
+    :see: https://materialx.org/docs/api/class_geom_prop.html
+    )docstring";
 
     py::class_<mx::GeomPropDef, mx::GeomPropDefPtr, mx::TypedElement>(mod, "GeomPropDef")
         .def("setGeomProp", &mx::GeomPropDef::setGeomProp)
@@ -70,6 +87,18 @@ void bindPyGeom(py::module& mod)
         .def("hasGeomProp", &mx::GeomPropDef::hasGeomProp)
         .def("getGeomProp", &mx::GeomPropDef::getGeomProp)
         .def_readonly_static("CATEGORY", &mx::GeomPropDef::CATEGORY);
+    mod.attr("GeomPropDef").doc() = R"docstring(
+    An element representing a declaration of geometric property data.
+
+    A `GeomPropDef` element contains a reference to a geometric node and a set
+    of modifiers for that node. For example, a world-space normal can be
+    declared as a reference to the `"normal"` geometric node with a space
+    setting of `"world"`, or a specific set of texture coordinates can be
+    declared as a reference to the `"texcoord"` geometric node with an index
+    setting of `"1"`.
+
+    :see: https://materialx.org/docs/api/class_geom_prop_def.html
+    )docstring";
 
     py::class_<mx::Collection, mx::CollectionPtr, mx::Element>(mod, "Collection")
         .def("setIncludeGeom", &mx::Collection::setIncludeGeom)
@@ -87,6 +116,10 @@ void bindPyGeom(py::module& mod)
         .def("hasIncludeCycle", &mx::Collection::hasIncludeCycle)
         .def("matchesGeomString", &mx::Collection::matchesGeomString)
         .def_readonly_static("CATEGORY", &mx::Collection::CATEGORY);
+    mod.attr("Collection").doc() = R"docstring(
+    A collection element within a `Document`.
+
+    :see: https://materialx.org/docs/api/class_collection.html)docstring";
 
     mod.def("geomStringsMatch", &mx::geomStringsMatch);
 

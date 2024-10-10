@@ -47,6 +47,10 @@ void bindPyLook(py::module& mod)
         .def("getActiveVisibilities", &mx::Look::getActiveVisibilities)
         .def("removeVisibility", &mx::Look::removeVisibility)
         .def_readonly_static("CATEGORY", &mx::Look::CATEGORY);
+    mod.attr("Look").doc() = R"docstring(
+    A look element within a `Document`.
+
+    :see: https://materialx.org/docs/api/class_look.html)docstring";
 
     py::class_<mx::LookGroup, mx::LookGroupPtr, mx::Element>(mod, "LookGroup")
         .def("getLooks", &mx::LookGroup::getLooks)
@@ -56,6 +60,10 @@ void bindPyLook(py::module& mod)
         .def_readonly_static("CATEGORY", &mx::LookGroup::CATEGORY)
         .def_readonly_static("LOOKS_ATTRIBUTE", &mx::LookGroup::LOOKS_ATTRIBUTE)
         .def_readonly_static("ACTIVE_ATTRIBUTE", &mx::LookGroup::ACTIVE_ATTRIBUTE);
+    mod.attr("LookGroup").doc() = R"docstring(
+    A look group element within a `Document`.
+
+    :see: https://materialx.org/docs/api/class_look_group.html)docstring";
 
     py::class_<mx::MaterialAssign, mx::MaterialAssignPtr, mx::GeomElement>(mod, "MaterialAssign")
         .def("setMaterial", &mx::MaterialAssign::setMaterial)
@@ -66,6 +74,10 @@ void bindPyLook(py::module& mod)
         .def("getExclusive", &mx::MaterialAssign::getExclusive)
         .def("getReferencedMaterial", &mx::MaterialAssign::getReferencedMaterial)
         .def_readonly_static("CATEGORY", &mx::MaterialAssign::CATEGORY);
+    mod.attr("MaterialAssign").doc() = R"docstring(
+    A material assignment element within a `Look`.
+
+    :see: https://materialx.org/docs/api/class_material_assign.html)docstring";
 
     py::class_<mx::Visibility, mx::VisibilityPtr, mx::GeomElement>(mod, "Visibility")
         .def("setViewerGeom", &mx::Visibility::setViewerGeom)
@@ -80,6 +92,15 @@ void bindPyLook(py::module& mod)
         .def("setVisible", &mx::Visibility::setVisible)
         .def("getVisible", &mx::Visibility::getVisible)
         .def_readonly_static("CATEGORY", &mx::Visibility::CATEGORY);
+    mod.attr("Visibility").doc() = R"docstring(
+    A visibility element within a `Look`.
+
+    Describes the visibility relationship between two geometries or geometric
+    collections.
+
+    :todo: Add a `Look.geomIsVisible()` method that computes the visibility
+        between two geometries in the context of a specific `Look`.
+    :see: https://materialx.org/docs/api/class_visibility.html)docstring";
 
     mod.def("getGeometryBindings", &mx::getGeometryBindings,
         py::arg("materialNode") , py::arg("geom") = mx::UNIVERSAL_GEOM_NAME);
