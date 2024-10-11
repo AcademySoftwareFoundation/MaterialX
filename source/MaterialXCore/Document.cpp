@@ -380,6 +380,7 @@ vector<InterfaceElementPtr> Document::getMatchingImplementations(const string& n
     vector<InterfaceElementPtr> matchingImplementations = hasDataLibrary() ?
                                                           getDataLibrary()->getMatchingImplementations(nodeDef) :
                                                           vector<InterfaceElementPtr>();
+    
     // Refresh the cache.
     _cache->refresh();
 
