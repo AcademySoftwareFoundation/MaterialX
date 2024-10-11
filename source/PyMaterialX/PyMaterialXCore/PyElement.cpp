@@ -15,7 +15,7 @@
 #define BIND_ELEMENT_FUNC_INSTANCE(T)                                                                           \
 .def("_addChild" #T, &mx::Element::addChild<mx::T>)                                                             \
 .def("_getChildOfType" #T, &mx::Element::getChildOfType<mx::T>)                                                 \
-.def("_getChildrenOfType" #T, &mx::Element::getChildrenOfType<mx::T>, py::arg("category") = mx::EMPTY_STRING)   \
+.def("_getChildrenOfType" #T, &mx::Element::getChildrenOfType<mx::T>, py::arg("category") = mx::EMPTY_STRING, py::arg("datalibrary") = nullptr)  \
 .def("_removeChildOfType" #T, &mx::Element::removeChildOfType<mx::T>)
 
 #define BIND_VALUE_ELEMENT_FUNC_INSTANCE(NAME, T)                                                               \

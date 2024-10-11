@@ -79,13 +79,13 @@ class MX_CORE_API Document : public GraphElement
     /// Return the NodeGraph, if any, with the given name.
     NodeGraphPtr getNodeGraph(const string& name) const
     {
-        return getChildOfTypeWithLibrary<NodeGraph>(getDataLibrary(), name);
+        return getChildOfType<NodeGraph>(name, getDataLibrary());
     }
 
     /// Return a vector of all NodeGraph elements in the document.
     vector<NodeGraphPtr> getNodeGraphs() const
     {
-        return getChildrenOfTypeWithLibrary<NodeGraph>(getDataLibrary());
+        return getChildrenOfType<NodeGraph>(EMPTY_STRING, getDataLibrary());
     }
 
     /// Remove the NodeGraph, if any, with the given name.
@@ -346,13 +346,13 @@ class MX_CORE_API Document : public GraphElement
     /// Return the NodeDef, if any, with the given name.
     NodeDefPtr getNodeDef(const string& name) const
     {
-        return getChildOfTypeWithLibrary<NodeDef>(getDataLibrary(), name);
+        return getChildOfType<NodeDef>(name, getDataLibrary());
     }
 
     /// Return a vector of all NodeDef elements in the document.
     vector<NodeDefPtr> getNodeDefs() const
     {
-        return getChildrenOfTypeWithLibrary<NodeDef>(getDataLibrary());
+        return getChildrenOfType<NodeDef>(EMPTY_STRING, getDataLibrary());
     }
 
     /// Remove the NodeDef, if any, with the given name.
@@ -381,13 +381,13 @@ class MX_CORE_API Document : public GraphElement
     /// Return the AttributeDef, if any, with the given name.
     AttributeDefPtr getAttributeDef(const string& name) const
     {
-        return getChildOfTypeWithLibrary<AttributeDef>(getDataLibrary(), name);
+        return getChildOfType<AttributeDef>(name, getDataLibrary());
     }
 
     /// Return a vector of all AttributeDef elements in the document.
     vector<AttributeDefPtr> getAttributeDefs() const
     {
-        return getChildrenOfTypeWithLibrary<AttributeDef>(getDataLibrary());
+        return getChildrenOfType<AttributeDef>(EMPTY_STRING, getDataLibrary());
     }
 
     /// Remove the AttributeDef, if any, with the given name.
@@ -413,13 +413,13 @@ class MX_CORE_API Document : public GraphElement
     /// Return the AttributeDef, if any, with the given name.
     TargetDefPtr getTargetDef(const string& name) const
     {
-        return getChildOfTypeWithLibrary<TargetDef>(getDataLibrary(), name);
+        return getChildOfType<TargetDef>(name, getDataLibrary());
     }
 
     /// Return a vector of all TargetDef elements in the document.
     vector<TargetDefPtr> getTargetDefs() const
     {
-        return getChildrenOfTypeWithLibrary<TargetDef>(getDataLibrary());
+        return getChildrenOfType<TargetDef>(EMPTY_STRING, getDataLibrary());
     }
 
     /// Remove the TargetDef, if any, with the given name.
@@ -509,13 +509,13 @@ class MX_CORE_API Document : public GraphElement
     /// Return the Implementation, if any, with the given name.
     ImplementationPtr getImplementation(const string& name) const
     {
-        return getChildOfTypeWithLibrary<Implementation>(getDataLibrary(), name);
+        return getChildOfType<Implementation>(name, getDataLibrary());
     }
 
     /// Return a vector of all Implementation elements in the document.
     vector<ImplementationPtr> getImplementations() const
     {
-        return getChildrenOfTypeWithLibrary<Implementation>(getDataLibrary());
+        return getChildrenOfType<Implementation>(EMPTY_STRING, getDataLibrary());
     }
 
     /// Remove the Implementation, if any, with the given name.
@@ -545,13 +545,13 @@ class MX_CORE_API Document : public GraphElement
     /// Return the UnitDef, if any, with the given name.
     UnitDefPtr getUnitDef(const string& name) const
     {
-        return getChildOfTypeWithLibrary<UnitDef>(getDataLibrary(), name);
+        return getChildOfType<UnitDef>(name, getDataLibrary());
     }
 
     /// Return a vector of all Member elements in the TypeDef.
     vector<UnitDefPtr> getUnitDefs() const
     {
-        return getChildrenOfTypeWithLibrary<UnitDef>(getDataLibrary());
+        return getChildrenOfType<UnitDef>(EMPTY_STRING, getDataLibrary());
     }
 
     /// Remove the UnitDef, if any, with the given name.
@@ -576,13 +576,13 @@ class MX_CORE_API Document : public GraphElement
     /// Return the UnitTypeDef, if any, with the given name.
     UnitTypeDefPtr getUnitTypeDef(const string& name) const
     {
-        return getChildOfTypeWithLibrary<UnitTypeDef>(getDataLibrary(), name);
+        return getChildOfType<UnitTypeDef>(name, getDataLibrary());
     }
 
     /// Return a vector of all UnitTypeDef elements in the document.
     vector<UnitTypeDefPtr> getUnitTypeDefs() const
     {
-        return getChildrenOfTypeWithLibrary<UnitTypeDef>(getDataLibrary());
+        return getChildrenOfType<UnitTypeDef>(EMPTY_STRING, getDataLibrary());
     }
 
     /// Remove the UnitTypeDef, if any, with the given name.
