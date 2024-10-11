@@ -357,7 +357,7 @@ vector<OutputPtr> Document::getMaterialOutputs() const
 
 vector<NodeDefPtr> Document::getMatchingNodeDefs(const string& nodeName) const
 {
-    // Gather all nodedefs from datalibrary if available
+    // Recurse to data library if present.
     vector<NodeDefPtr> matchingNodeDefs = hasDataLibrary() ? 
                                           getDataLibrary()->getMatchingNodeDefs(nodeName) :
                                           vector<NodeDefPtr>();
@@ -376,7 +376,7 @@ vector<NodeDefPtr> Document::getMatchingNodeDefs(const string& nodeName) const
 
 vector<InterfaceElementPtr> Document::getMatchingImplementations(const string& nodeDef) const
 {
-    // Gather all implementations from datalibrary if available
+    // Recurse to data library if present.
     vector<InterfaceElementPtr> matchingImplementations = hasDataLibrary() ?
                                                           getDataLibrary()->getMatchingImplementations(nodeDef) :
                                                           vector<InterfaceElementPtr>();
