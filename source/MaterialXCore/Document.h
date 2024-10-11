@@ -592,6 +592,28 @@ class MX_CORE_API Document : public GraphElement
     }
 
     /// @}
+    /// @name Data Libraries
+    /// @{
+
+    /// Store a reference to a data library in this document.
+    void setDataLibrary(ConstDocumentPtr dataLibrary)
+    {
+        _dataLibrary = dataLibrary;
+    }
+
+    /// Return true if this document has a data library.
+    bool hasDataLibrary() const
+    {
+        return (_dataLibrary != nullptr);
+    }
+
+    /// Return the data library, if any, referenced by this document.
+    ConstDocumentPtr getDataLibrary() const
+    {
+        return _dataLibrary;
+    }
+
+    /// @}
     /// @name Version
     /// @{
 
@@ -664,32 +686,6 @@ class MX_CORE_API Document : public GraphElement
     /// Invalidate cached data for optimized lookups within the given document.
     void invalidateCache();
 
-    /// @}
-
-    /// @name MaterialX data library
-    /// @{
-
-    /// Set the given document as MaterialX data library for document
-    /// The MaterialX data library can be created using the loadLibraries utility
-    /// For improved performance it is recommended the data library 
-    /// is on the document instead of importing it
-    /// @param Data Library document to register.
-    void setDataLibrary(ConstDocumentPtr dataLibrary)
-    {
-        _dataLibrary = dataLibrary;
-    }
-
-    /// Gets the data library assinged to the document
-    ConstDocumentPtr getDataLibrary() const
-    {
-        return _dataLibrary;
-    }
-
-    /// Returns true if a data library is set for the document.
-    bool hasDataLibrary() const
-    {
-        return (_dataLibrary != nullptr);
-    }
     /// @}
 
     //
