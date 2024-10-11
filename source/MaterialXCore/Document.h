@@ -362,8 +362,6 @@ class MX_CORE_API Document : public GraphElement
     }
 
     /// Return a vector of all NodeDef elements that match the given node name.
-    /// Nodedefs are first searched in the registered data library. 
-    /// If the registered data library search returns empty, the current document is searched.
     vector<NodeDefPtr> getMatchingNodeDefs(const string& nodeName) const;
 
     /// @}
