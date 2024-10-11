@@ -189,7 +189,7 @@ vector<UnitDefPtr> UnitTypeDef::getUnitDefs() const
     // Gather unitdefs from Data library
     if (getDocument()->hasDataLibrary())
     {
-        for (UnitDefPtr unitDef : getDocument()->getRegisteredDataLibrary()->getChildrenOfType<UnitDef>())
+        for (UnitDefPtr unitDef : getDocument()->getDataLibrary()->getChildrenOfType<UnitDef>())
         {
             if (unitDef->getUnitType() == _name)
             {

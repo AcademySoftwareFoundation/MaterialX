@@ -359,7 +359,7 @@ vector<NodeDefPtr> Document::getMatchingNodeDefs(const string& nodeName) const
 {
     // Gather all nodedefs from datalibrary if available
     vector<NodeDefPtr> matchingNodeDefs = hasDataLibrary() ? 
-                                          getRegisteredDataLibrary()->getMatchingNodeDefs(nodeName) :
+                                          getDataLibrary()->getMatchingNodeDefs(nodeName) :
                                           vector<NodeDefPtr>();
 
     // Refresh the cache.
@@ -378,7 +378,7 @@ vector<InterfaceElementPtr> Document::getMatchingImplementations(const string& n
 {
     // Gather all implementations from datalibrary if available
     vector<InterfaceElementPtr> matchingImplementations = hasDataLibrary() ?
-                                                          getRegisteredDataLibrary()->getMatchingImplementations(nodeDef) :
+                                                          getDataLibrary()->getMatchingImplementations(nodeDef) :
                                                           vector<InterfaceElementPtr>();
     // Refresh the cache.
     _cache->refresh();

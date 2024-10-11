@@ -372,7 +372,7 @@ void shaderGenPerformanceTest(mx::GenContext& context)
     std::shuffle(loadedDocuments.begin(), loadedDocuments.end(), rng);
     for (const auto& doc : loadedDocuments)
     {
-        doc->registerDataLibrary(nodeLibrary);
+        doc->setDataLibrary(nodeLibrary);
         std::vector<mx::TypedElementPtr> elements = mx::findRenderableElements(doc);
 
         REQUIRE(elements.size() > 0);
@@ -721,7 +721,7 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
         bool importedLibrary = false;
         try
         {
-            doc->registerDataLibrary(_dependLib);
+            doc->setDataLibrary(_dependLib);
             importedLibrary = true;
         }
         catch (mx::Exception& e)
