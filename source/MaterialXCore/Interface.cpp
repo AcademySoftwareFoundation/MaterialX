@@ -284,7 +284,7 @@ GeomPropDefPtr Input::getDefaultGeomProp() const
     {
         ConstDocumentPtr doc = getDocument();
         if (doc->hasDataLibrary())
-            return doc->getChildOfType<GeomPropDef>(doc->getRegisteredDataLibrary(),defaultGeomProp);
+            return doc->getChildofTypeFromLibrary<GeomPropDef>(doc->getRegisteredDataLibrary(),defaultGeomProp);
         else
             return doc->getChildOfType<GeomPropDef>(defaultGeomProp);
     }
