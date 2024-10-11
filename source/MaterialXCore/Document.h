@@ -719,9 +719,10 @@ class MX_CORE_API Document : public GraphElement
 
   private:
     class Cache;
-    std::unique_ptr<Cache> _cache;
-    // Data library for the document
+
+  private:
     ConstDocumentPtr _dataLibrary;
+    std::unique_ptr<Cache> _cache;
 };
 
 /// Create a new Document.
