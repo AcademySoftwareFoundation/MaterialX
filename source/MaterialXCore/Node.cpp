@@ -735,11 +735,11 @@ NodeDefPtr NodeGraph::getNodeDef() const
             }
         }
     }
-    // Check datalibrary if available
+    
+    // Check data library if available
     if (!nodedef && getDocument()->hasDataLibrary())
     {
-        const auto datalibray = getDocument()->getDataLibrary();
-        for (auto impl : datalibray->getImplementations())
+        for (auto impl : getDocument()->getDataLibrary()->getImplementations())
         {
             if (impl->getNodeGraph() == getQualifiedName(getName()))
             {
