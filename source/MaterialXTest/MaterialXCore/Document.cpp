@@ -105,12 +105,8 @@ TEST_CASE("Document", "[document]")
     customImpl->setNodeDef(customNodeDef);
     REQUIRE(customLibrary->validate());
 
-    // Import the custom library.
-    mx::DocumentPtr customdatalibrary = mx::createDocument();
-    customdatalibrary->importLibrary(customLibrary);
-
-    // Set data library
-    doc->setDataLibrary(customdatalibrary);
+    // Set data library reference.
+    doc->setDataLibrary(customLibrary);
     mx::NodeGraphPtr importedNodeGraph = doc->getNodeGraph("custom:NG_custom");
     mx::NodeDefPtr importedNodeDef = doc->getNodeDef("custom:ND_simpleSrf");
     mx::ImplementationPtr importedImpl = doc->getImplementation("custom:IM_custom");
