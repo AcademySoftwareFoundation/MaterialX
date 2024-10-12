@@ -186,21 +186,8 @@ StringVec TargetDef::getMatchingTargets() const
 vector<UnitDefPtr> UnitTypeDef::getUnitDefs() const
 {
     vector<UnitDefPtr> unitDefs;
-    
-    // Gather from data library.
-    if (getDocument()->hasDataLibrary())
-    {
-        for (UnitDefPtr unitDef : getDocument()->getDataLibrary()->getChildrenOfType<UnitDef>())
-        {
-            if (unitDef->getUnitType() == _name)
-            {
-                unitDefs.push_back(unitDef);
-            }
-        }
-    }
-    
-    // Gather from content document.
-    for (UnitDefPtr unitDef : getDocument()->getChildrenOfType<UnitDef>())
+
+    for (UnitDefPtr unitDef : getDocument()->getChildrenOfType<UnitDef>(EMPTY_STRING, getDocument()->getDataLibrary()))
     {
         if (unitDef->getUnitType() == _name)
         {
@@ -210,5 +197,4 @@ vector<UnitDefPtr> UnitTypeDef::getUnitDefs() const
 
     return unitDefs;
 }
-
 MATERIALX_NAMESPACE_END
