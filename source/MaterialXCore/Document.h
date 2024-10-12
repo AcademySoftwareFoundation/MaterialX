@@ -54,17 +54,11 @@ class MX_CORE_API Document : public GraphElement
         return doc;
     }
 
-    /// Get a list of source URI's referenced by the document
+    /// Get a list of source URIs referenced by the document
     StringSet getReferencedSourceUris() const;
 
     /// @name Data Libraries
     /// @{
-
-    /// Import the given document as a library within this document.
-    /// The contents of the library document are copied into this one, and
-    /// are assigned the source URI of the library.
-    /// @param library The library document to be imported.
-    void importLibrary(const ConstDocumentPtr& library);
 
     /// Store a reference to a data library in this document.
     void setDataLibrary(ConstDocumentPtr dataLibrary)
@@ -83,6 +77,12 @@ class MX_CORE_API Document : public GraphElement
     {
         return _dataLibrary;
     }
+
+    /// Import the given data library into this document.
+    /// The contents of the data library are copied into this one, and
+    /// are assigned the source URI of the library.
+    /// @param library The data library to be imported.
+    void importLibrary(const ConstDocumentPtr& library);
 
     /// @}
     /// @name NodeGraph Elements
