@@ -237,7 +237,29 @@ void MslShaderGenerator::MetalizeGeneratedShader(ShaderStage& shaderStage) const
                     }
                     size_t typename_end = pos;
                     std::string typeName = sourceCode.substr(typename_beg, typename_end - typename_beg);
-                    sourceCode.replace(beg, typename_end - beg, "thread " + typeName + "&");
+
+                    while (std::isspace(sourceCode[pos]))
+                    {
+                        ++pos;
+                    }
+                    size_t varname_beg = pos;
+                    while (!std::isspace(sourceCode[pos]) && sourceCode[pos] != '\n' && sourceCode[pos] != ',' && sourceCode[pos] != ')' )
+                    {
+                        ++pos;
+                    }
+                    size_t varname_end = pos;
+                    std::string varName = sourceCode.substr(varname_beg, varname_end - varname_beg);
+
+                    if (varName.find('[') != std::string::npos)
+                    {
+                        // if the variable is an array then we don't need to declare it as a reference,
+                        // we will effectively just be passing the pointer to the array
+                        sourceCode.replace(beg, typename_end - beg, "thread " + typeName);
+                    }
+                    else
+                    {
+                        sourceCode.replace(beg, typename_end - beg, "thread " + typeName + "&");
+                    }
                 }
                 pos = sourceCode.find(keyword, pos);
             }

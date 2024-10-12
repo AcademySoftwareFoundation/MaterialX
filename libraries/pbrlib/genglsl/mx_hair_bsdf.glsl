@@ -213,7 +213,7 @@ vec3 mx_chiang_hair_bsdf(
     float x1 = dot(L, Y);
     float y2 = dot(V, N);
     float x2 = dot(V, Y);
-    float phi = atan(y1 * x2 - y2 * x1, x1 * x2 + y1 * y2);
+    float phi = mx_atan(y1 * x2 - y2 * x1, x1 * x2 + y1 * y2);
 
     vec3 k1_p = normalize(V - X * dot(V, X));
     float cosGammaO = dot(N, k1_p);
@@ -240,12 +240,21 @@ vec3 mx_chiang_hair_bsdf(
     float alpha = cuticle_angle * M_PI - (M_PI / 2.0);  // remap [0, 1] to [-PI/2, PI/2]
     mx_hair_alpha_angles(alpha, sinThetaI, cosThetaI, angles);
 
-    vec3 tint[4] = vec3[](tint_R, tint_TT, tint_TRT, tint_TRT);
+    vec3 tint[4];
+    tint[0] = tint_R;
+    tint[1] = tint_TT;
+    tint[2] = tint_TRT;
+    tint[3] = tint_TRT;
 
     roughness_R = clamp(roughness_R, 0.001, 1.0);
     roughness_TT = clamp(roughness_TT, 0.001, 1.0);
     roughness_TRT = clamp(roughness_TRT, 0.001, 1.0);
-    vec2 vs[4] = vec2[](roughness_R, roughness_TT, roughness_TRT, roughness_TRT);
+
+    vec2 vs[4];
+    vs[0] = roughness_R;
+    vs[1] = roughness_TT;
+    vs[2] = roughness_TRT;
+    vs[3] = roughness_TRT;
 
     // R, TT, TRT, TRRT+
     vec3 F = vec3(0.0);

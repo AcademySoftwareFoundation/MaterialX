@@ -1,5 +1,11 @@
 #define M_FLOAT_EPS 1e-8
 
+#define mx_sin sin
+#define mx_cos cos
+#define mx_tan tan
+#define mx_asin asin
+#define mx_acos acos
+
 float mx_square(float x)
 {
     return x*x;
@@ -15,22 +21,18 @@ vec3 mx_square(vec3 x)
     return x*x;
 }
 
+float mx_inversesqrt(float x)
+{
+    return ::rsqrt(x);
+}
+
 template<class T1, class T2>
 T1 mx_mod(T1 x, T2 y)
 {
     return x - y * floor(x/y);
 }
 
-float mx_inversesqrt(float x)
-{
-    return ::rsqrt(x);
-}
-
-#ifdef __DECL_GL_MATH_FUNCTIONS__
-
-float radians(float degree) { return (degree * M_PI_F / 180.0f); }
-
-float3x3 inverse(float3x3 m)
+float3x3 mx_inverse(float3x3 m)
 {
     float n11 = m[0][0], n12 = m[1][0], n13 = m[2][0];
     float n21 = m[0][1], n22 = m[1][1], n23 = m[2][1];
@@ -56,7 +58,7 @@ float3x3 inverse(float3x3 m)
     return ret;
 }
 
-float4x4 inverse(float4x4 m)
+float4x4 mx_inverse(float4x4 m)
 {
     float n11 = m[0][0], n12 = m[1][0], n13 = m[2][0], n14 = m[3][0];
     float n21 = m[0][1], n22 = m[1][1], n23 = m[2][1], n24 = m[3][1];
@@ -96,17 +98,32 @@ float4x4 inverse(float4x4 m)
     return ret;
 }
 
-template <typename T>
-T atan(T y_over_x) { return ::atan(y_over_x); }
+float mx_atan(float y_over_x)
+{
+    return ::atan(y_over_x);
+}
 
-template <typename T>
-T atan(T y, T x) { return ::atan2(y, x); }
+float mx_atan(float y, float x)
+{
+    return ::atan2(y, x);
+}
 
-#define lessThan(a, b) ((a) < (b))
-#define lessThanEqual(a, b) ((a) <= (b))
-#define greaterThan(a, b) ((a) > (b))
-#define greaterThanEqual(a, b) ((a) >= (b))
-#define equal(a, b) ((a) == (b))
-#define notEqual(a, b) ((a) != (b))
+vec2 mx_atan(vec2 y, vec2 x)
+{
+    return ::atan2(y, x);
+}
 
-#endif
+vec3 mx_atan(vec3 y, vec3 x)
+{
+    return ::atan2(y, x);
+}
+
+vec4 mx_atan(vec4 y, vec4 x)
+{
+    return ::atan2(y, x);
+}
+
+float mx_radians(float degree)
+{
+    return (degree * M_PI_F / 180.0f);
+}
