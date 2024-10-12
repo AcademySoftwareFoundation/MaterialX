@@ -213,7 +213,7 @@ vec3 mx_chiang_hair_bsdf(
     float x1 = dot(L, Y);
     float y2 = dot(V, N);
     float x2 = dot(V, Y);
-    float phi = atan(y1 * x2 - y2 * x1, x1 * x2 + y1 * y2);
+    float phi = mx_atan(y1 * x2 - y2 * x1, x1 * x2 + y1 * y2);
 
     vec3 k1_p = normalize(V - X * dot(V, X));
     float cosGammaO = dot(N, k1_p);
