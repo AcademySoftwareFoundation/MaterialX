@@ -195,4 +195,5 @@ vector<UnitDefPtr> UnitTypeDef::getUnitDefs() const
     }
     return unitDefs;
 }
+
 MATERIALX_NAMESPACE_END
