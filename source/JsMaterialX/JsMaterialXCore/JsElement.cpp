@@ -23,9 +23,6 @@ namespace mx = MaterialX;
 
 #define BIND_ELEMENT_CHILD_FUNC_INSTANCE(NAME, T)                                                 \
     BIND_MEMBER_FUNC("addChild" #NAME, mx::Element, addChild<T>, 0, 1, stRef)                     \
-    BIND_MEMBER_FUNC("getChildOfType" #NAME, mx::Element, getChildOfType<T>, 1, 2, stRef)         \
-    BIND_MEMBER_FUNC("getChildrenOfType" #NAME, mx::Element, getChildrenOfType<T>, 0, 2, stRef)   \
-    .function("removeChildOfType" #NAME, &mx::Element::removeChildOfType<T>)                      \
     BIND_MEMBER_FUNC("isA" #NAME, mx::Element, isA<T>, 0, 1, stRef)                               \
     .function("asA" #NAME, ems::select_overload<std::shared_ptr<T>()>(&mx::Element::asA<T>))
   
