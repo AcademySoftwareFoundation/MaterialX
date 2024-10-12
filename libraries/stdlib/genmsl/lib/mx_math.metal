@@ -1,22 +1,24 @@
 #define M_FLOAT_EPS 1e-8
 
+#define mx_sin sin
+#define mx_cos cos
+#define mx_tan tan
+#define mx_asin asin
+#define mx_acos acos
+
 float mx_square(float x)
 {
     return x*x;
 }
+
 vec2 mx_square(vec2 x)
 {
     return x*x;
 }
+
 vec3 mx_square(vec3 x)
 {
     return x*x;
-}
-
-template<class T1, class T2>
-T1 mx_mod(T1 x, T2 y)
-{
-    return x - y * floor(x/y);
 }
 
 float mx_inversesqrt(float x)
@@ -24,9 +26,10 @@ float mx_inversesqrt(float x)
     return ::rsqrt(x);
 }
 
-float mx_radians(float degree)
+template<class T1, class T2>
+T1 mx_mod(T1 x, T2 y)
 {
-    return (degree * M_PI_F / 180.0f);
+    return x - y * floor(x/y);
 }
 
 float3x3 mx_inverse(float3x3 m)
@@ -95,108 +98,32 @@ float4x4 mx_inverse(float4x4 m)
     return ret;
 }
 
-float mx_sin(float x)
-{
-    return sin(x);
-}
-vec2 mx_sin(vec2 x)
-{
-    return sin(x);
-}
-vec3 mx_sin(vec3 x)
-{
-    return sin(x);
-}
-vec4 mx_sin(vec4 x)
-{
-    return sin(x);
-}
-
-float mx_cos(float x)
-{
-    return cos(x);
-}
-vec2 mx_cos(vec2 x)
-{
-    return cos(x);
-}
-vec3 mx_cos(vec3 x)
-{
-    return cos(x);
-}
-vec4 mx_cos(vec4 x)
-{
-    return cos(x);
-}
-
-float mx_tan(float x)
-{
-    return tan(x);
-}
-vec2 mx_tan(vec2 x)
-{
-    return tan(x);
-}
-vec3 mx_tan(vec3 x)
-{
-    return tan(x);
-}
-vec4 mx_tan(vec4 x)
-{
-    return tan(x);
-}
-
-float mx_asin(float x)
-{
-    return asin(x);
-}
-vec2 mx_asin(vec2 x)
-{
-    return asin(x);
-}
-vec3 mx_asin(vec3 x)
-{
-    return asin(x);
-}
-vec4 mx_asin(vec4 x)
-{
-    return asin(x);
-}
-
-float mx_acos(float x)
-{
-    return acos(x);
-}
-vec2 mx_acos(vec2 x)
-{
-    return acos(x);
-}
-vec3 mx_acos(vec3 x)
-{
-    return acos(x);
-}
-vec4 mx_acos(vec4 x)
-{
-    return acos(x);
-}
-
 float mx_atan(float y_over_x)
 {
     return ::atan(y_over_x);
 }
+
 float mx_atan(float y, float x)
 {
     return ::atan2(y, x);
 }
+
 vec2 mx_atan(vec2 y, vec2 x)
 {
     return ::atan2(y, x);
 }
+
 vec3 mx_atan(vec3 y, vec3 x)
 {
     return ::atan2(y, x);
 }
+
 vec4 mx_atan(vec4 y, vec4 x)
 {
     return ::atan2(y, x);
+}
+
+float mx_radians(float degree)
+{
+    return (degree * M_PI_F / 180.0f);
 }
