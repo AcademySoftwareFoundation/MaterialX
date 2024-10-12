@@ -186,7 +186,6 @@ StringVec TargetDef::getMatchingTargets() const
 vector<UnitDefPtr> UnitTypeDef::getUnitDefs() const
 {
     vector<UnitDefPtr> unitDefs;
-
     for (UnitDefPtr unitDef : getDocument()->getChildrenOfType<UnitDef>(EMPTY_STRING, getDocument()->getDataLibrary()))
     {
         if (unitDef->getUnitType() == _name)
@@ -194,7 +193,6 @@ vector<UnitDefPtr> UnitTypeDef::getUnitDefs() const
             unitDefs.push_back(unitDef);
         }
     }
-
     return unitDefs;
 }
 MATERIALX_NAMESPACE_END
