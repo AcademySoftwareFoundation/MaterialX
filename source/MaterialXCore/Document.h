@@ -54,15 +54,37 @@ class MX_CORE_API Document : public GraphElement
         return doc;
     }
 
+    /// Get a list of source URI's referenced by the document
+    StringSet getReferencedSourceUris() const;
+
+    /// @name Data Libraries
+    /// @{
+
     /// Import the given document as a library within this document.
     /// The contents of the library document are copied into this one, and
     /// are assigned the source URI of the library.
     /// @param library The library document to be imported.
     void importLibrary(const ConstDocumentPtr& library);
 
-    /// Get a list of source URI's referenced by the document
-    StringSet getReferencedSourceUris() const;
+    /// Store a reference to a data library in this document.
+    void setDataLibrary(ConstDocumentPtr dataLibrary)
+    {
+        _dataLibrary = dataLibrary;
+    }
 
+    /// Return true if this document has a data library.
+    bool hasDataLibrary() const
+    {
+        return (_dataLibrary != nullptr);
+    }
+
+    /// Return the data library, if any, referenced by this document.
+    ConstDocumentPtr getDataLibrary() const
+    {
+        return _dataLibrary;
+    }
+
+    /// @}
     /// @name NodeGraph Elements
     /// @{
 
@@ -589,28 +611,6 @@ class MX_CORE_API Document : public GraphElement
     void removeUnitTypeDef(const string& name)
     {
         removeChildOfType<UnitTypeDef>(name);
-    }
-
-    /// @}
-    /// @name Data Libraries
-    /// @{
-
-    /// Store a reference to a data library in this document.
-    void setDataLibrary(ConstDocumentPtr dataLibrary)
-    {
-        _dataLibrary = dataLibrary;
-    }
-
-    /// Return true if this document has a data library.
-    bool hasDataLibrary() const
-    {
-        return (_dataLibrary != nullptr);
-    }
-
-    /// Return the data library, if any, referenced by this document.
-    ConstDocumentPtr getDataLibrary() const
-    {
-        return _dataLibrary;
     }
 
     /// @}
