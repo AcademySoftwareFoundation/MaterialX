@@ -48,8 +48,8 @@ vec3 mx_ggx_importance_sample_VNDF(vec2 Xi, vec3 V, vec2 alpha)
     float phi = 2.0 * M_PI * Xi.x;
     float z = (1.0 - Xi.y) * (1.0 + V.z) - V.z;
     float sinTheta = sqrt(clamp(1.0 - z * z, 0.0, 1.0));
-    float x = sinTheta * cos(phi);
-    float y = sinTheta * sin(phi);
+    float x = sinTheta * mx_cos(phi);
+    float y = sinTheta * mx_sin(phi);
     vec3 c = vec3(x, y, z);
 
     // Compute the microfacet normal.
@@ -286,9 +286,9 @@ void mx_fresnel_conductor_phase_polarized(float cosTheta, float eta1, vec3 eta2,
     vec3 U = sqrt((A+B)/2.0);
     vec3 V = max(vec3(0.0), sqrt((B-A)/2.0));
 
-    phiS = atan(2.0*eta1*V*cosTheta, U*U + V*V - mx_square(eta1*cosTheta));
-    phiP = atan(2.0*eta1*eta2*eta2*cosTheta * (2.0*k2*U - (vec3(1.0)-k2*k2) * V),
-                mx_square(eta2*eta2*(vec3(1.0)+k2*k2)*cosTheta) - eta1*eta1*(U*U+V*V));
+    phiS = mx_atan(2.0*eta1*V*cosTheta, U*U + V*V - mx_square(eta1*cosTheta));
+    phiP = mx_atan(2.0*eta1*eta2*eta2*cosTheta * (2.0*k2*U - (vec3(1.0)-k2*k2) * V),
+                   mx_square(eta2*eta2*(vec3(1.0)+k2*k2)*cosTheta) - eta1*eta1*(U*U+V*V));
 }
 
 // https://belcour.github.io/blog/research/publication/2017/05/01/brdf-thin-film.html
@@ -299,8 +299,8 @@ vec3 mx_eval_sensitivity(float opd, vec3 shift)
     vec3 val = vec3(5.4856e-13, 4.4201e-13, 5.2481e-13);
     vec3 pos = vec3(1.6810e+06, 1.7953e+06, 2.2084e+06);
     vec3 var = vec3(4.3278e+09, 9.3046e+09, 6.6121e+09);
-    vec3 xyz = val * sqrt(2.0*M_PI * var) * cos(pos * phase + shift) * exp(- var * phase*phase);
-    xyz.x   += 9.7470e-14 * sqrt(2.0*M_PI * 4.5282e+09) * cos(2.2399e+06 * phase + shift[0]) * exp(- 4.5282e+09 * phase*phase);
+    vec3 xyz = val * sqrt(2.0*M_PI * var) * mx_cos(pos * phase + shift) * exp(- var * phase*phase);
+    xyz.x   += 9.7470e-14 * sqrt(2.0*M_PI * 4.5282e+09) * mx_cos(2.2399e+06 * phase + shift[0]) * exp(- 4.5282e+09 * phase*phase);
     return xyz / 1.0685e-7;
 }
 
@@ -341,7 +341,7 @@ vec3 mx_fresnel_airy(float cosTheta, FresnelData fd)
     }
 
     // Phase shift
-    float cosB = cos(atan(eta2 / eta1));
+    float cosB = mx_cos(mx_atan(eta2 / eta1));
     vec2 phi21 = vec2(cosTheta < cosB ? 0.0 : M_PI, M_PI);
     vec3 phi23p, phi23s;
     if (fd.model == FRESNEL_MODEL_SCHLICK)
@@ -486,8 +486,8 @@ vec3 mx_refraction_solid_sphere(vec3 R, vec3 N, float ior)
 
 vec2 mx_latlong_projection(vec3 dir)
 {
-    float latitude = -asin(dir.y) * M_PI_INV + 0.5;
-    float longitude = atan(dir.x, -dir.z) * M_PI_INV * 0.5 + 0.5;
+    float latitude = -mx_asin(dir.y) * M_PI_INV + 0.5;
+    float longitude = mx_atan(dir.x, -dir.z) * M_PI_INV * 0.5 + 0.5;
     return vec2(longitude, latitude);
 }
 
