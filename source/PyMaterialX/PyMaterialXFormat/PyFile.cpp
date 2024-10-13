@@ -12,16 +12,33 @@ namespace mx = MaterialX;
 
 void bindPyFile(py::module& mod)
 {
-    py::enum_<mx::FilePath::Type>(mod, "Type")
-        .value("TypeRelative", mx::FilePath::Type::TypeRelative)
-        .value("TypeAbsolute", mx::FilePath::Type::TypeAbsolute)
-        .value("TypeNetwork", mx::FilePath::Type::TypeNetwork)
+    // Quirk: The `Type` enum is exposed at the module level, not as part of
+    // the `FilePath` class
+    py::enum_<mx::FilePath::Type>(mod, "Type", R"docstring(
+    Enumeration of `FilePath` types.
+
+    :see: https://materialx.org/docs/api/class_file_path.html#pub-types)docstring")
+        .value("TypeRelative", mx::FilePath::Type::TypeRelative,
+               "Type indicating a relative path, e.g. `'a/b'`. "
+               "This is the default file path type.")
+        .value("TypeAbsolute", mx::FilePath::Type::TypeAbsolute,
+               "Type indicating an absolute path, e.g. `'/a/b'`.")
+        .value("TypeNetwork", mx::FilePath::Type::TypeNetwork,
+               "Type indicating a network path on Windows, e.g. `'\\\\a\\b'`.")
         .export_values();
 
-    py::enum_<mx::FilePath::Format>(mod, "Format")
-        .value("FormatWindows", mx::FilePath::Format::FormatWindows)
-        .value("FormatPosix", mx::FilePath::Format::FormatPosix)
-        .value("FormatNative", mx::FilePath::Format::FormatNative)
+    // Quirk: The `Format` enum is exposed at the module level, not as part of
+    // the `FilePath` class
+    py::enum_<mx::FilePath::Format>(mod, "Format", R"docstring(
+    Enumeration of `FilePath` formats.
+
+    :see: https://materialx.org/docs/api/class_file_path.html#pub-types)docstring")
+        .value("FormatWindows", mx::FilePath::Format::FormatWindows,
+               "Format indicating a Windows environment.")
+        .value("FormatPosix", mx::FilePath::Format::FormatPosix,
+               "Format indicating a Linux or Mac environment.")
+        .value("FormatNative", mx::FilePath::Format::FormatNative,
+               "Format indicating the format used on the system for which the library was built.")
         .export_values();
 
     py::class_<mx::FilePath>(mod, "FilePath")
@@ -48,6 +65,10 @@ void bindPyFile(py::module& mod)
         .def("createDirectory", &mx::FilePath::createDirectory)
         .def_static("getCurrentPath", &mx::FilePath::getCurrentPath)
         .def_static("getModulePath", &mx::FilePath::getModulePath);
+    mod.attr("FilePath").doc() = R"docstring(
+    A generic file path, supporting both syntactic and file system operations.
+
+    :see: https://materialx.org/docs/api/class_file_path.html)docstring";
 
     py::class_<mx::FileSearchPath>(mod, "FileSearchPath")
         .def(py::init<>())
@@ -62,6 +83,11 @@ void bindPyFile(py::module& mod)
         .def("size", &mx::FileSearchPath::size)
         .def("isEmpty", &mx::FileSearchPath::isEmpty)
         .def("find", &mx::FileSearchPath::find);
+    mod.attr("FileSearchPath").doc() = R"docstring(
+    A sequence of file paths, which may be queried to find the first instance
+    of a given filename on the file system.
+
+    :see: https://materialx.org/docs/api/class_file_search_path.html)docstring";
 
     py::implicitly_convertible<std::string, mx::FilePath>();
     py::implicitly_convertible<std::string, mx::FileSearchPath>();
