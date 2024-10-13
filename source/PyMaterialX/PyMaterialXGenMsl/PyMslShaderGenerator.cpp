@@ -23,6 +23,10 @@ void bindPyMslShaderGenerator(py::module& mod)
         .def("generate", &mx::MslShaderGenerator::generate)
         .def("getTarget", &mx::MslShaderGenerator::getTarget)
         .def("getVersion", &mx::MslShaderGenerator::getVersion);
+    mod.attr("MslShaderGenerator").doc() = R"docstring(
+    Base class for MSL (Metal Shading Language) code generation.
+
+    A generator for a specific MSL target should be derived from this class.)docstring";
 }
 
 void bindPyMslResourceBindingContext(py::module &mod)
@@ -32,4 +36,6 @@ void bindPyMslResourceBindingContext(py::module &mod)
         .def(py::init<size_t, size_t>())
         .def("emitDirectives", &mx::MslResourceBindingContext::emitDirectives)
         .def("emitResourceBindings", &mx::MslResourceBindingContext::emitResourceBindings);
+    mod.attr("MslResourceBindingContext").doc() = R"docstring(
+    Class representing a resource binding for MSL shader resources.)docstring";
 }

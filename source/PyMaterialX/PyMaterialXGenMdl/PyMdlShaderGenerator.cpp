@@ -17,4 +17,8 @@ void bindPyMdlShaderGenerator(py::module& mod)
         .def_static("create", &mx::MdlShaderGenerator::create)
         .def(py::init<>())
         .def("getTarget", &mx::MdlShaderGenerator::getTarget);
+    mod.attr("MdlShaderGenerator").doc() = R"docstring(
+    Shader generator for MDL (Material Definition Language).
+
+    :see: https://materialx.org/docs/api/class_mdl_shader_generator.html)docstring";
 }

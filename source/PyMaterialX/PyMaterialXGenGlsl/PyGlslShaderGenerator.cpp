@@ -25,6 +25,12 @@ void bindPyGlslShaderGenerator(py::module& mod)
         .def("generate", &mx::GlslShaderGenerator::generate)
         .def("getTarget", &mx::GlslShaderGenerator::getTarget)
         .def("getVersion", &mx::GlslShaderGenerator::getVersion);
+    mod.attr("GlslShaderGenerator").doc() = R"docstring(
+    Base class for GLSL (OpenGL Shading Language) code generation.
+
+    A generator for a specific GLSL target should be derived from this class.
+
+    :see: https://materialx.org/docs/api/class_glsl_shader_generator.html)docstring";
 }
 
 void bindPyGlslResourceBindingContext(py::module &mod)
@@ -34,6 +40,11 @@ void bindPyGlslResourceBindingContext(py::module &mod)
         .def(py::init<size_t, size_t>())
         .def("emitDirectives", &mx::GlslResourceBindingContext::emitDirectives)
         .def("emitResourceBindings", &mx::GlslResourceBindingContext::emitResourceBindings);
+    mod.attr("GlslResourceBindingContext").doc() = R"docstring(
+    Class representing a resource binding for GLSL (OpenGL Shading Language)
+    shader resources.
+
+    :see: https://materialx.org/docs/api/class_glsl_resource_binding_context.html)docstring";
 }
 
 // Essl shader generator bindings
@@ -46,6 +57,10 @@ void bindPyEsslShaderGenerator(py::module& mod)
         .def("generate", &mx::EsslShaderGenerator::generate)
         .def("getTarget", &mx::EsslShaderGenerator::getTarget)
         .def("getVersion", &mx::EsslShaderGenerator::getVersion);
+    mod.attr("EsslShaderGenerator").doc() = R"docstring(
+    An ESSL (OpenGL ES Shading Language) shader generator.
+
+    :see: https://materialx.org/docs/api/class_essl_shader_generator.html)docstring";
 }
 
 // Glsl Vulkan shader generator bindings
@@ -58,4 +73,8 @@ void bindPyVkShaderGenerator(py::module& mod)
         .def("generate", &mx::VkShaderGenerator::generate)
         .def("getTarget", &mx::VkShaderGenerator::getTarget)
         .def("getVersion", &mx::VkShaderGenerator::getVersion);
+    mod.attr("VkShaderGenerator").doc() = R"docstring(
+    A Vulkan GLSL (OpenGL Shading Language) shader generator.
+
+    :see: https://materialx.org/docs/api/class_vk_shader_generator.html)docstring";
 }
