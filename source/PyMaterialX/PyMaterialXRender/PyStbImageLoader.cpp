@@ -16,4 +16,8 @@ void bindPyStbImageLoader(py::module& mod)
         .def_static("create", &mx::StbImageLoader::create)
         .def("saveImage", &mx::StbImageLoader::saveImage)
         .def("loadImage", &mx::StbImageLoader::loadImage);
+    mod.attr("StbImageLoader").doc() = R"docstring(
+    Stb image file loader.
+
+    :see: https://materialx.org/docs/api/class_stb_image_loader.html)docstring";
 }

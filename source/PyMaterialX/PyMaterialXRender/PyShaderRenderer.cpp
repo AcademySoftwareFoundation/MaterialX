@@ -28,6 +28,10 @@ void bindPyShaderRenderer(py::module& mod)
         .def("updateUniform", &mx::ShaderRenderer::updateUniform)
         .def("setSize", &mx::ShaderRenderer::setSize)
         .def("render", &mx::ShaderRenderer::render);
+    mod.attr("ShaderRenderer").doc() = R"docstring(
+    Base class for renderers that generate shader code to produce images.
+
+    :see: https://materialx.org/docs/api/class_shader_renderer.html)docstring";
 
     static py::exception<mx::ExceptionRenderError> pyExceptionRenderError(mod, "ExceptionRenderError");
 

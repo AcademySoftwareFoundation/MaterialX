@@ -15,4 +15,8 @@ void bindPyCgltfLoader(py::module& mod)
         .def_static("create", &mx::CgltfLoader::create)
         .def(py::init<>())
         .def("load", &mx::CgltfLoader::load);
+    mod.attr("CgltfLoader").doc() = R"docstring(
+    Wrapper for loader to read in GLTF files using the Cgltf library.
+
+    :see: https://materialx.org/docs/api/class_cgltf_loader.html)docstring";
 }
