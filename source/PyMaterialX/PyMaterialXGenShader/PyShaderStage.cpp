@@ -15,6 +15,8 @@ void bindPyShaderStage(py::module& mod)
     mod.attr("PIXEL_STAGE") = &mx::Stage::PIXEL;
 
     py::class_<mx::ShaderPortPredicate>(mod, "ShaderPortPredicate");
+    mod.attr("ShaderPortPredicate").doc() = R"docstring(
+    A function predicate taking a `ShaderPort` and returning a `bool`.)docstring";
 
     py::class_<mx::VariableBlock, mx::VariableBlockPtr>(mod, "VariableBlock")
         .def(py::init<const std::string&, const std::string&>())
@@ -30,6 +32,10 @@ void bindPyShaderStage(py::module& mod)
             if (i >= vb.size()) throw py::index_error();
             return vb[i];
         }, py::return_value_policy::reference_internal);
+    mod.attr("VariableBlock").doc() = R"docstring(
+    A block of variables in a shader stage.
+
+    :see: https://materialx.org/docs/api/class_variable_block.html)docstring";
 
     py::class_<mx::ShaderStage>(mod, "ShaderStage")
         .def(py::init<const std::string&, mx::ConstSyntaxPtr>())
@@ -45,4 +51,8 @@ void bindPyShaderStage(py::module& mod)
         .def("getIncludes", &mx::ShaderStage::getIncludes)
         .def("getSourceDependencies", &mx::ShaderStage::getSourceDependencies)
         .def("getOutputBlocks", &mx::ShaderStage::getOutputBlocks);
+    mod.attr("ShaderStage").doc() = R"docstring(
+    A shader stage, containing the state and resulting source code for the stage.
+
+    :see: https://materialx.org/docs/api/class_shader_stage.html)docstring";
 }

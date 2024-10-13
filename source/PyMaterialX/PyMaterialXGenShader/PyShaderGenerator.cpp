@@ -23,4 +23,13 @@ void bindPyShaderGenerator(py::module& mod)
         .def("getUnitSystem", &mx::ShaderGenerator::getUnitSystem)
         .def("getTokenSubstitutions", &mx::ShaderGenerator::getTokenSubstitutions)
         .def("registerShaderMetadata", &mx::ShaderGenerator::registerShaderMetadata);
+    mod.attr("ShaderGenerator").doc() = R"docstring(
+    Base class for shader generators.
+
+    All third-party shader generators should derive from this class.
+
+    Derived classes should use `DECLARE_SHADER_GENERATOR` / `DEFINE_SHADER_GENERATOR`
+    in their declaration / definition, and register with the `Registry` class.
+
+    :see: https://materialx.org/docs/api/class_shader_generator.html)docstring";
 }

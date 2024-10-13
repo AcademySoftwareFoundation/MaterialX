@@ -14,6 +14,10 @@ namespace mx = MaterialX;
 void bindPyGenContext(py::module& mod)
 {
     py::class_<mx::ApplicationVariableHandler>(mod, "ApplicationVariableHandler");
+    mod.attr("ApplicationVariableHandler").doc() = R"docstring(
+    A function to allow for handling of application variables for a given node.
+
+    Is expected to take a `ShaderNode` and a `GenContext`, and not return anything.)docstring";
 
     py::class_<mx::GenContext, mx::GenContextPtr>(mod, "GenContext")
         .def(py::init<mx::ShaderGeneratorPtr>())
@@ -25,10 +29,20 @@ void bindPyGenContext(py::module& mod)
         .def("pushUserData", &mx::GenContext::pushUserData)
         .def("setApplicationVariableHandler", &mx::GenContext::setApplicationVariableHandler)
         .def("getApplicationVariableHandler", &mx::GenContext::getApplicationVariableHandler);
+    mod.attr("GenContext").doc() = R"docstring(
+    A context class for shader generation.
+
+    Used for thread local storage of data needed during shader generation.
+
+    :see: https://materialx.org/docs/api/class_gen_context.html)docstring";
 }
 
 void bindPyGenUserData(py::module& mod)
 {
     py::class_<mx::GenUserData, mx::GenUserDataPtr>(mod, "GenUserData")
         .def("getSelf", static_cast<mx::GenUserDataPtr(mx::GenUserData::*)()>(&mx::GenUserData::getSelf));
+    mod.attr("GenUserData").doc() = R"docstring(
+    Base class for custom user data needed during shader generation.
+
+    :see: https://materialx.org/docs/api/class_gen_user_data.html)docstring";
 }

@@ -35,4 +35,8 @@ void bindPyShaderPort(py::module& mod)
         .def("getColorSpace", &mx::ShaderPort::getColorSpace)
         .def("isUniform", &mx::ShaderPort::isUniform)
         .def("isEmitted", &mx::ShaderPort::isEmitted);
+    mod.attr("ShaderPort").doc() = R"docstring(
+    An input or output port on a `ShaderNode`.
+
+    :see: https://materialx.org/docs/api/class_shader_port.html)docstring";
 }
