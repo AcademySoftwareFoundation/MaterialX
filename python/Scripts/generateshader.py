@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 '''
-Utility to generate the shader for materials found in a MaterialX document. One file will be generated
-for each material / shader found. The currently supported target languages are GLSL, OSL, MDL and ESSL.
+Generate shader code for each renderable element in a MaterialX document or folder.
+The currently supported target languages are GLSL, ESSL, MSL, OSL, and MDL.
 '''
 
 import sys, os, argparse, subprocess
@@ -43,7 +43,7 @@ def getMaterialXFiles(rootPath):
     return filelist
 
 def main():
-    parser = argparse.ArgumentParser(description='Generate shader code for each material / shader in a document.')
+    parser = argparse.ArgumentParser(description='Generate shader code for each renderable element in a MaterialX document or folder.')
     parser.add_argument('--path', dest='paths', action='append', nargs='+', help='An additional absolute search path location (e.g. "/projects/MaterialX")')
     parser.add_argument('--library', dest='libraries', action='append', nargs='+', help='An additional relative path to a custom data library folder (e.g. "libraries/custom")')
     parser.add_argument('--target', dest='target', default='glsl', help='Target shader generator to use (e.g. "glsl, osl, mdl, essl, vulkan"). Default is glsl.')
