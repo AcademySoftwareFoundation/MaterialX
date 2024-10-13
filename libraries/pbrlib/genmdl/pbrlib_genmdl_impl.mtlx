@@ -100,6 +100,6 @@
   <implementation name="IM_chiang_hair_absorption_from_color_genmdl" nodedef="ND_chiang_hair_absorption_from_color" sourcecode="materialx::pbrlib_{{MDL_VERSION_SUFFIX}}::mx_chiang_hair_absorption_from_color(mxp_color:{{color}}, mxp_azimuthal_roughness:{{azimuthal_roughness}})" function="mx_chiang_hair_absorption_from_color" target="genmdl" />
 
   <!-- <chiang_hair_roughness> -->
-  <implementation name="IM_chiang_hair_roughness_genmdl" nodedef="ND_chiang_hair_roughness" file="mx_hair_bsdf.glsl" sourcecode="materialx::pbrlib_{{MDL_VERSION_SUFFIX}}::mx_chiang_hair_roughness(mxp_longitudinal:{{longitudinal}}, mxp_azimuthal:{{azimuthal}}, mxp_scale_TT:{{scale_TT}}, mxp_scale_TRT:{{scale_TRT}})" target="genmdl" />
+  <implementation name="IM_chiang_hair_roughness_genmdl" nodedef="ND_chiang_hair_roughness" sourcecode="materialx::pbrlib_{{MDL_VERSION_SUFFIX}}::mx_chiang_hair_roughness(mxp_longitudinal:{{longitudinal}}, mxp_azimuthal:{{azimuthal}}, mxp_scale_TT:{{scale_TT}}, mxp_scale_TRT:{{scale_TRT}})" target="genmdl" />
 
 </materialx>
