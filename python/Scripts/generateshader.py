@@ -139,13 +139,6 @@ def main():
         shadergen.setUnitSystem(unitsystem)
         genoptions.targetDistanceUnit = 'meter'
 
-        # Look for renderable nodes
-        nodes = mx_gen_shader.findRenderableElements(doc)
-        if not nodes:
-            nodes = doc.getMaterialNodes()
-            if not nodes:
-                nodes = doc.getNodesOfType(mx.SURFACE_SHADER_TYPE_STRING)
-
         pathPrefix = ''
         if opts.outputPath and os.path.exists(opts.outputPath):
             pathPrefix = opts.outputPath + os.path.sep
@@ -154,11 +147,11 @@ def main():
         print('- Shader output path: ' + pathPrefix)
 
         failedShaders = ""
-        for node in nodes:
-            nodeName = node.getName()
-            print('-- Generate code for node: ' + nodeName)
-            nodeName = mx.createValidName(nodeName)
-            shader = shadergen.generate(nodeName, node, context)        
+        for elem in mx_gen_shader.findRenderableElements(doc):
+            elemName = elem.getName()
+            print('-- Generate code for element: ' + elemName)
+            elemName = mx.createValidName(elemName)
+            shader = shadergen.generate(elemName, elem, context)        
             if shader:
                 # Use extension of .vert and .frag as it's type is
                 # recognized by glslangValidator
@@ -189,17 +182,17 @@ def main():
                     errors = validateCode(filename, opts.validator, opts.validatorArgs)
 
                 if errors != "":
-                    print("--- Validation failed for node: ", nodeName)
+                    print("--- Validation failed for element: ", elemName)
                     print("----------------------------")
                     print('--- Error log: ', errors)
                     print("----------------------------")
-                    failedShaders += (nodeName + ' ')
+                    failedShaders += (elemName + ' ')
                 else:
-                    print("--- Validation passed for node:", nodeName)
+                    print("--- Validation passed for element:", elemName)
 
             else:
-                print("--- Validation failed for node:", nodeName)
-                failedShaders += (nodeName + ' ')
+                print("--- Validation failed for element:", elemName)
+                failedShaders += (elemName + ' ')
 
         if failedShaders != "":
             sys.exit(-1)
