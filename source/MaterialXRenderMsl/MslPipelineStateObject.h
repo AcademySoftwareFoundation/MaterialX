@@ -278,7 +278,7 @@ class MX_RENDERMSL_API MslProgram
     // Delete any currently created pso
     void reset();
 
-    // Utility to map a MaterialX type to an METAL type
+    // Utility to map a MaterialX type to a Metal type
     static MTLDataType mapTypeToMetalType(TypeDesc type);
 
   private:

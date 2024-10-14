@@ -20,11 +20,11 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-/// Shared pointer to an Metal texture handler
+/// Shared pointer to a Metal texture handler
 using MetalTextureHandlerPtr = std::shared_ptr<class MetalTextureHandler>;
 
 /// @class MetalTextureHandler
-/// An Metal texture handler class
+/// A Metal texture handler class
 class MX_RENDERMSL_API MetalTextureHandler : public ImageHandler
 {
     friend class MslProgram;
@@ -67,10 +67,10 @@ class MX_RENDERMSL_API MetalTextureHandler : public ImageHandler
     /// Return the bound texture location for a given resource
     int getBoundTextureLocation(unsigned int resourceId);
 
-    /// Utility to map an address mode enumeration to an Metal address mode
+    /// Utility to map an address mode enumeration to a Metal address mode
     static MTLSamplerAddressMode mapAddressModeToMetal(ImageSamplingProperties::AddressMode addressModeEnum);
 
-    /// Utility to map a filter type enumeration to an Metal filter type
+    /// Utility to map a filter type enumeration to a Metal filter type
     static void mapFilterTypeToMetal(ImageSamplingProperties::FilterType filterTypeEnum, bool enableMipmaps, MTLSamplerMinMagFilter& minMagFilter, MTLSamplerMipFilter& mipFilter);
 
     /// Utility to map generic texture properties to Metal texture formats.

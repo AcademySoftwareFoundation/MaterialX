@@ -19,4 +19,8 @@ void bindPyGLTextureHandler(py::module& mod)
         .def("createRenderResources", &mx::GLTextureHandler::createRenderResources)
         .def("releaseRenderResources", &mx::GLTextureHandler::releaseRenderResources,
             py::arg("image") = nullptr);
+    mod.attr("GLTextureHandler").doc() = R"docstring(
+    An OpenGL texture handler class.
+
+    :see: https://materialx.org/docs/api/class_g_l_texture_handler.html)docstring";
 }
