@@ -439,11 +439,7 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     /// Return the child element, if any, with the given name and subclass.
     /// If a child with the given name exists, but belongs to a different
     /// subclass, then an empty shared pointer is returned.
-    template <class T> shared_ptr<T> getChildOfType(const string& name) const
-    {
-        ElementPtr child = getChild(name);
-        return child ? child->asA<T>() : shared_ptr<T>();
-    }
+    template <class T> shared_ptr<T> getChildOfType(const string& name) const;
 
     /// Return a constant vector of all child elements.
     /// The returned vector maintains the order in which children were added.
@@ -455,20 +451,7 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     /// Return a vector of all child elements that are instances of the given
     /// subclass, optionally filtered by the given category string.  The returned
     /// vector maintains the order in which children were added.
-    template <class T> vector<shared_ptr<T>> getChildrenOfType(const string& category = EMPTY_STRING) const
-    {
-        vector<shared_ptr<T>> children;
-        for (ElementPtr child : _childOrder)
-        {
-            shared_ptr<T> instance = child->asA<T>();
-            if (!instance)
-                continue;
-            if (!category.empty() && child->getCategory() != category)
-                continue;
-            children.push_back(instance);
-        }
-        return children;
-    }
+    template <class T> vector<shared_ptr<T>> getChildrenOfType(const string& category = EMPTY_STRING) const;
 
     /// Set the index of the child, if any, with the given name.
     /// If the given index is out of bounds, then an exception is thrown.
