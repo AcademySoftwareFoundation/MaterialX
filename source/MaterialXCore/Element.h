@@ -814,17 +814,13 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     /// @}
 
   protected:
-    // Resolve a reference to a named element at the scope of the given datalibrary and parent,
+    // Resolve a reference to a named element at the scope of the given parent,
     // taking the namespace at the scope of this element into account.  If no parent
     // is provided, then the root scope of the document is used.
-    template <class T> shared_ptr<T> resolveNameReference(const string& name, ConstElementPtr parent = nullptr, ConstElementPtr datalibrary = nullptr) const
+    template <class T> shared_ptr<T> resolveNameReference(const string& name, ConstElementPtr parent = nullptr) const
     {
-        shared_ptr<T> child = datalibrary ? datalibrary->getChildOfType<T>(getQualifiedName(name)) : nullptr;
-        if (child)
-            return child;
-
         ConstElementPtr scope = parent ? parent : getRoot();
-        child = scope->getChildOfType<T>(getQualifiedName(name));
+        shared_ptr<T> child = scope->getChildOfType<T>(getQualifiedName(name));
         return child ? child : scope->getChildOfType<T>(name);
     }
 

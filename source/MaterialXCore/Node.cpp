@@ -75,9 +75,8 @@ NodeDefPtr Node::getNodeDef(const string& target, bool allowRoughMatch) const
         NodeDefPtr resolvedNode = resolveNameReference<NodeDef>(getNodeDefString());
         if (!resolvedNode && getDocument()->hasDataLibrary())
         {
-            return resolveNameReference<NodeDef>(getNodeDefString(), nullptr, getDocument()->getDataLibrary());
+            return (getDocument()->getNodeDef(getNodeDefString()));
         }
-
         return resolvedNode;
     }
     
