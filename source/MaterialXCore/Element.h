@@ -436,16 +436,12 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
         return (it != _childMap.end()) ? it->second : ElementPtr();
     }
 
-    /// Return the child element from data library or content, if any, with the given name and subclass.
+    /// Return the child element, if any, with the given name and subclass.
     /// If a child with the given name exists, but belongs to a different
     /// subclass, then an empty shared pointer is returned.
-    template <class T> shared_ptr<T> getChildOfType(const string& name, ConstElementPtr dataLibrary = nullptr) const
+    template <class T> shared_ptr<T> getChildOfType(const string& name) const
     {
-        ElementPtr child = dataLibrary ? dataLibrary->getChild(name) : nullptr;
-        if (!child)
-        {
-            child = getChild(name);
-        }
+        ElementPtr child = getChild(name);
         return child ? child->asA<T>() : shared_ptr<T>();
     }
 
@@ -459,9 +455,9 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     /// Return a vector of all child elements that are instances of the given
     /// subclass, optionally filtered by the given category string.  The returned
     /// vector maintains the order in which children were added.
-    template <class T> vector<shared_ptr<T>> getChildrenOfType(const string& category = EMPTY_STRING, ConstElementPtr dataLibrary = nullptr) const
+    template <class T> vector<shared_ptr<T>> getChildrenOfType(const string& category = EMPTY_STRING) const
     {
-        vector<shared_ptr<T>> children = dataLibrary ? dataLibrary->getChildrenOfType<T>(category) : vector<shared_ptr<T>>();
+        vector<shared_ptr<T>> children;
         for (ElementPtr child : _childOrder)
         {
             shared_ptr<T> instance = child->asA<T>();

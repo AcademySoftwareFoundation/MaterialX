@@ -186,7 +186,7 @@ StringVec TargetDef::getMatchingTargets() const
 vector<UnitDefPtr> UnitTypeDef::getUnitDefs() const
 {
     vector<UnitDefPtr> unitDefs;
-    for (UnitDefPtr unitDef : getDocument()->getChildrenOfType<UnitDef>(EMPTY_STRING, getDocument()->getDataLibrary()))
+    for (UnitDefPtr unitDef : getDocument()->getChildrenOfType<UnitDef>())
     {
         if (unitDef->getUnitType() == _name)
         {

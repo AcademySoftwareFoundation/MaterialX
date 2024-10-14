@@ -101,13 +101,13 @@ class MX_CORE_API Document : public GraphElement
     /// Return the NodeGraph, if any, with the given name.
     NodeGraphPtr getNodeGraph(const string& name) const
     {
-        return getChildOfType<NodeGraph>(name, getDataLibrary());
+        return getChildOfType<NodeGraph>(name);
     }
 
     /// Return a vector of all NodeGraph elements in the document.
     vector<NodeGraphPtr> getNodeGraphs() const
     {
-        return getChildrenOfType<NodeGraph>(EMPTY_STRING, getDataLibrary());
+        return getChildrenOfType<NodeGraph>();
     }
 
     /// Remove the NodeGraph, if any, with the given name.
@@ -120,6 +120,33 @@ class MX_CORE_API Document : public GraphElement
     /// Port elements support spatially-varying upstream connections to
     /// nodes, and include both Input and Output elements.
     vector<PortElementPtr> getMatchingPorts(const string& nodeName) const;
+
+    /// Return the child element, if any, with the given document and data library
+    template <class T> shared_ptr<T> getChildOfType(const string& name) const
+    {
+        ElementPtr child = hasDataLibrary() ? getDataLibrary()->getChild(name) : nullptr;
+        if (!child)
+        {
+            child = getChild(name);
+        }
+        return child ? child->asA<T>() : shared_ptr<T>();
+    }
+
+    /// Return a vector of all child elements within the document and data library
+    template <class T> vector<shared_ptr<T>> getChildrenOfType(const string& category = EMPTY_STRING) const
+    {
+        vector<shared_ptr<T>> children = hasDataLibrary() ? getDataLibrary()->getChildrenOfType<T>(category) : vector<shared_ptr<T>>();
+        for (ElementPtr child : _childOrder)
+        {
+            shared_ptr<T> instance = child->asA<T>();
+            if (!instance)
+                continue;
+            if (!category.empty() && child->getCategory() != category)
+                continue;
+            children.push_back(instance);
+        }
+        return children;
+    }
 
     /// @}
     /// @name GeomInfo Elements
@@ -368,13 +395,13 @@ class MX_CORE_API Document : public GraphElement
     /// Return the NodeDef, if any, with the given name.
     NodeDefPtr getNodeDef(const string& name) const
     {
-        return getChildOfType<NodeDef>(name, getDataLibrary());
+        return getChildOfType<NodeDef>(name);
     }
 
     /// Return a vector of all NodeDef elements in the document.
     vector<NodeDefPtr> getNodeDefs() const
     {
-        return getChildrenOfType<NodeDef>(EMPTY_STRING, getDataLibrary());
+        return getChildrenOfType<NodeDef>();
     }
 
     /// Remove the NodeDef, if any, with the given name.
@@ -403,13 +430,13 @@ class MX_CORE_API Document : public GraphElement
     /// Return the AttributeDef, if any, with the given name.
     AttributeDefPtr getAttributeDef(const string& name) const
     {
-        return getChildOfType<AttributeDef>(name, getDataLibrary());
+        return getChildOfType<AttributeDef>(name);
     }
 
     /// Return a vector of all AttributeDef elements in the document.
     vector<AttributeDefPtr> getAttributeDefs() const
     {
-        return getChildrenOfType<AttributeDef>(EMPTY_STRING, getDataLibrary());
+        return getChildrenOfType<AttributeDef>();
     }
 
     /// Remove the AttributeDef, if any, with the given name.
@@ -435,13 +462,13 @@ class MX_CORE_API Document : public GraphElement
     /// Return the AttributeDef, if any, with the given name.
     TargetDefPtr getTargetDef(const string& name) const
     {
-        return getChildOfType<TargetDef>(name, getDataLibrary());
+        return getChildOfType<TargetDef>(name);
     }
 
     /// Return a vector of all TargetDef elements in the document.
     vector<TargetDefPtr> getTargetDefs() const
     {
-        return getChildrenOfType<TargetDef>(EMPTY_STRING, getDataLibrary());
+        return getChildrenOfType<TargetDef>();
     }
 
     /// Remove the TargetDef, if any, with the given name.
@@ -531,13 +558,13 @@ class MX_CORE_API Document : public GraphElement
     /// Return the Implementation, if any, with the given name.
     ImplementationPtr getImplementation(const string& name) const
     {
-        return getChildOfType<Implementation>(name, getDataLibrary());
+        return getChildOfType<Implementation>(name);
     }
 
     /// Return a vector of all Implementation elements in the document.
     vector<ImplementationPtr> getImplementations() const
     {
-        return getChildrenOfType<Implementation>(EMPTY_STRING, getDataLibrary());
+        return getChildrenOfType<Implementation>();
     }
 
     /// Remove the Implementation, if any, with the given name.
@@ -567,13 +594,13 @@ class MX_CORE_API Document : public GraphElement
     /// Return the UnitDef, if any, with the given name.
     UnitDefPtr getUnitDef(const string& name) const
     {
-        return getChildOfType<UnitDef>(name, getDataLibrary());
+        return getChildOfType<UnitDef>(name);
     }
 
     /// Return a vector of all Member elements in the TypeDef.
     vector<UnitDefPtr> getUnitDefs() const
     {
-        return getChildrenOfType<UnitDef>(EMPTY_STRING, getDataLibrary());
+        return getChildrenOfType<UnitDef>();
     }
 
     /// Remove the UnitDef, if any, with the given name.
@@ -598,13 +625,13 @@ class MX_CORE_API Document : public GraphElement
     /// Return the UnitTypeDef, if any, with the given name.
     UnitTypeDefPtr getUnitTypeDef(const string& name) const
     {
-        return getChildOfType<UnitTypeDef>(name, getDataLibrary());
+        return getChildOfType<UnitTypeDef>(name);
     }
 
     /// Return a vector of all UnitTypeDef elements in the document.
     vector<UnitTypeDefPtr> getUnitTypeDefs() const
     {
-        return getChildrenOfType<UnitTypeDef>(EMPTY_STRING, getDataLibrary());
+        return getChildrenOfType<UnitTypeDef>();
     }
 
     /// Remove the UnitTypeDef, if any, with the given name.
