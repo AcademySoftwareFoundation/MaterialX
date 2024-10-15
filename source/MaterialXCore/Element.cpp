@@ -287,9 +287,10 @@ ElementPtr Element::changeChildCategory(ElementPtr child, const string& category
 template <class T> shared_ptr<T> Element::getChildOfType(const string& name) const
 {
     ElementPtr child;
-    if (isA<Document>() && asA<Document>()->hasDataLibrary())
+    DocumentPtr doc = asA<Document>();
+    if (doc && doc->hasDataLibrary())
     {
-        child = asA<Document>()->getDataLibrary()->getChild(name);
+        child = doc->getDataLibrary()->getChild(name);
     }
     if (!child)
     {
@@ -301,9 +302,10 @@ template <class T> shared_ptr<T> Element::getChildOfType(const string& name) con
 template <class T> vector<shared_ptr<T>> Element::getChildrenOfType(const string& category) const
 {
     vector<shared_ptr<T>> children;
-    if (isA<Document>() && asA<Document>()->hasDataLibrary())
+    DocumentPtr doc = asA<Document>();
+    if (doc && doc->hasDataLibrary())
     {
-        children = asA<Document>()->getDataLibrary()->getChildrenOfType<T>(category);
+        children = doc->getDataLibrary()->getChildrenOfType<T>(category);
     }
     for (ElementPtr child : _childOrder)
     {
