@@ -74,13 +74,11 @@ NodeDefPtr Node::getNodeDef(const string& target, bool allowRoughMatch) const
     {
         return resolveNameReference<NodeDef>(getNodeDefString());
     }
-    
-    // Collect document nodes
     vector<NodeDefPtr> nodeDefs = getDocument()->getMatchingNodeDefs(getQualifiedName(getCategory()));
     vector<NodeDefPtr> secondary = getDocument()->getMatchingNodeDefs(getCategory());
     nodeDefs.insert(nodeDefs.end(), secondary.begin(), secondary.end());
 
-    // Collect data library nodes if available
+    // Recurse to data library if present.
     if (getDocument()->hasDataLibrary())
     {
         vector<NodeDefPtr> libraryNodeDefs = getDocument()->getDataLibrary()->getMatchingNodeDefs(getQualifiedName(getCategory()));
@@ -90,7 +88,6 @@ NodeDefPtr Node::getNodeDef(const string& target, bool allowRoughMatch) const
     }
 
     vector<NodeDefPtr> roughMatches;
-    
     for (NodeDefPtr nodeDef : nodeDefs)
     {
         if (!targetStringsMatch(nodeDef->getTarget(), target) ||
