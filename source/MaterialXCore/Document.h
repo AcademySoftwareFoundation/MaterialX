@@ -121,33 +121,6 @@ class MX_CORE_API Document : public GraphElement
     /// nodes, and include both Input and Output elements.
     vector<PortElementPtr> getMatchingPorts(const string& nodeName) const;
 
-    /// Return the child element, if any, with the given document and data library
-    template <class T> shared_ptr<T> getChildOfType(const string& name) const
-    {
-        ElementPtr child = hasDataLibrary() ? getDataLibrary()->getChild(name) : nullptr;
-        if (!child)
-        {
-            child = getChild(name);
-        }
-        return child ? child->asA<T>() : shared_ptr<T>();
-    }
-
-    /// Return a vector of all child elements within the document and data library
-    template <class T> vector<shared_ptr<T>> getChildrenOfType(const string& category = EMPTY_STRING) const
-    {
-        vector<shared_ptr<T>> children = hasDataLibrary() ? getDataLibrary()->getChildrenOfType<T>(category) : vector<shared_ptr<T>>();
-        for (ElementPtr child : _childOrder)
-        {
-            shared_ptr<T> instance = child->asA<T>();
-            if (!instance)
-                continue;
-            if (!category.empty() && child->getCategory() != category)
-                continue;
-            children.push_back(instance);
-        }
-        return children;
-    }
-
     /// @}
     /// @name GeomInfo Elements
     /// @{

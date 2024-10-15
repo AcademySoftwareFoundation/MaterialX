@@ -286,13 +286,27 @@ ElementPtr Element::changeChildCategory(ElementPtr child, const string& category
 
 template <class T> shared_ptr<T> Element::getChildOfType(const string& name) const
 {
-    ElementPtr child = getChild(name);
+    ElementPtr child = nullptr;
+    if (isA<Document>() && asA<Document>()->hasDataLibrary())
+    {
+        child = asA<Document>()->getDataLibrary()->getChild(name);
+    }
+    
+    if (!child)
+    {
+        child = getChild(name);
+    }
     return child ? child->asA<T>() : shared_ptr<T>();
 }
 
 template <class T> vector<shared_ptr<T>> Element::getChildrenOfType(const string& category) const
 {
     vector<shared_ptr<T>> children;
+    if (isA<Document>() && asA<Document>()->hasDataLibrary())
+    {
+        children = asA<Document>()->getDataLibrary()->getChildrenOfType<T>(category);
+    }
+
     for (ElementPtr child : _childOrder)
     {
         shared_ptr<T> instance = child->asA<T>();
