@@ -20,6 +20,10 @@ void bindPyUnitSystem(py::module& mod)
         .def_readwrite("targetUnit", &mx::UnitTransform::targetUnit)
         .def_readwrite("type", &mx::UnitTransform::type)
         .def_readwrite("unitType", &mx::UnitTransform::type);
+    mod.attr("UnitTransform").doc() = R"docstring(
+    Structure that represents unit transform information.
+
+    :see: https://materialx.org/docs/api/struct_unit_transform.html)docstring";
 
     py::class_<mx::UnitSystem, mx::UnitSystemPtr>(mod, "UnitSystem")
         .def_static("create", &mx::UnitSystem::create)
@@ -28,4 +32,8 @@ void bindPyUnitSystem(py::module& mod)
         .def("supportsTransform", &mx::UnitSystem::supportsTransform)
         .def("setUnitConverterRegistry", &mx::UnitSystem::setUnitConverterRegistry)
         .def("getUnitConverterRegistry", &mx::UnitSystem::getUnitConverterRegistry);
+    mod.attr("UnitSystem").doc() = R"docstring(
+    Base unit system support.
+
+    :see: https://materialx.org/docs/api/class_unit_system.html)docstring";
 }
