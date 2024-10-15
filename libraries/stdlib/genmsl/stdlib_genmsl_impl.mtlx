@@ -41,10 +41,6 @@
     <input name="default" type="vector4" implname="default_value" />
   </implementation>
 
-  <!-- <normalmap> -->
-  <implementation name="IM_normalmap_float_genmsl" nodedef="ND_normalmap_float" file="mx_normalmap.metal" function="mx_normalmap_float" target="genmsl" />
-  <implementation name="IM_normalmap_vector2_genmsl" nodedef="ND_normalmap_vector2" file="mx_normalmap.metal" function="mx_normalmap_vector2" target="genmsl" />
-
   <!-- ======================================================================== -->
   <!-- Procedural nodes                                                         -->
   <!-- ======================================================================== -->
@@ -134,22 +130,9 @@
   <!-- Adjustment nodes                                                         -->
   <!-- ======================================================================== -->
 
-  <!-- <smoothstep> -->
-  <implementation name="IM_smoothstep_float_genmsl" nodedef="ND_smoothstep_float" file="mx_smoothstep_float.metal" function="mx_smoothstep_float" target="genmsl" />
-
   <!-- ======================================================================== -->
   <!-- Compositing nodes                                                        -->
   <!-- ======================================================================== -->
-
-  <!-- <burn> -->
-  <implementation name="IM_burn_float_genmsl" nodedef="ND_burn_float" file="mx_burn_float.metal" function="mx_burn_float" target="genmsl" />
-  <implementation name="IM_burn_color3_genmsl" nodedef="ND_burn_color3" file="mx_burn_color3.metal" function="mx_burn_color3" target="genmsl" />
-  <implementation name="IM_burn_color4_genmsl" nodedef="ND_burn_color4" file="mx_burn_color4.metal" function="mx_burn_color4" target="genmsl" />
-
-  <!-- <dodge> -->
-  <implementation name="IM_dodge_float_genmsl" nodedef="ND_dodge_float" file="mx_dodge_float.metal" function="mx_dodge_float" target="genmsl" />
-  <implementation name="IM_dodge_color3_genmsl" nodedef="ND_dodge_color3" file="mx_dodge_color3.metal" function="mx_dodge_color3" target="genmsl" />
-  <implementation name="IM_dodge_color4_genmsl" nodedef="ND_dodge_color4" file="mx_dodge_color4.metal" function="mx_dodge_color4" target="genmsl" />
 
   <!-- ======================================================================== -->
   <!-- Conditional nodes                                                        -->
