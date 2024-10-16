@@ -76,18 +76,8 @@ NodeDefPtr Node::getNodeDef(const string& target, bool allowRoughMatch) const
     }
     vector<NodeDefPtr> nodeDefs = getDocument()->getMatchingNodeDefs(getQualifiedName(getCategory()));
     vector<NodeDefPtr> secondary = getDocument()->getMatchingNodeDefs(getCategory());
-    nodeDefs.insert(nodeDefs.end(), secondary.begin(), secondary.end());
-
-    // Recurse to data library if present.
-    if (getDocument()->hasDataLibrary())
-    {
-        vector<NodeDefPtr> libraryNodeDefs = getDocument()->getDataLibrary()->getMatchingNodeDefs(getQualifiedName(getCategory()));
-        vector<NodeDefPtr> librarySecondardNodeDefs = getDocument()->getDataLibrary()->getMatchingNodeDefs(getCategory());
-        nodeDefs.insert(nodeDefs.end(), libraryNodeDefs.begin(), libraryNodeDefs.end());
-        nodeDefs.insert(nodeDefs.end(), librarySecondardNodeDefs.begin(), librarySecondardNodeDefs.end());
-    }
-
     vector<NodeDefPtr> roughMatches;
+    nodeDefs.insert(nodeDefs.end(), secondary.begin(), secondary.end());
     for (NodeDefPtr nodeDef : nodeDefs)
     {
         if (!targetStringsMatch(nodeDef->getTarget(), target) ||
@@ -717,18 +707,6 @@ NodeDefPtr NodeGraph::getNodeDef() const
     if (!nodedef)
     {
         for (auto impl : getDocument()->getImplementations())
-        {
-            if (impl->getNodeGraph() == getQualifiedName(getName()))
-            {
-                nodedef = impl->getNodeDef();
-            }
-        }
-    }
-    
-    // Check data library if available
-    if (!nodedef && getDocument()->hasDataLibrary())
-    {
-        for (auto impl : getDocument()->getDataLibrary()->getImplementations())
         {
             if (impl->getNodeGraph() == getQualifiedName(getName()))
             {
