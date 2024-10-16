@@ -61,7 +61,7 @@ class MX_RENDERMSL_API MslRenderer : public ShaderRenderer
     /// @name Setup
     /// @{
 
-    /// Internal initialization of stages and OpenGL constructs
+    /// Internal initialization of stages and Metal constructs
     /// required for program validation and rendering.
     /// An exception is thrown on failure.
     /// The exception will contain a list of initialization errors.
