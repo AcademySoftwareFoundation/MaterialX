@@ -52,6 +52,8 @@ Select the `MATERIALX_BUILD_VIEWER` option to build the MaterialX Viewer.  Insta
 
 To generate HTML documentation for the MaterialX C++ API, make sure a version of [Doxygen](https://www.doxygen.org/) is on your path, and select the advanced option `MATERIALX_BUILD_DOCS` in CMake.  This option will add a target named `MaterialXDocs` to your project, which can be built as an independent step from your development environment.
 
+To generate HTML documentation for the MaterialX Python API, make sure a version of [Sphinx](https://www.sphinx-doc.org/) is on your path, and select the advanced option `MATERIALX_BUILD_PYTHON_DOCS` in CMake.  This option will add a target named `MaterialXDocsPython` to your project, which can be built as an independent step from your development environment.
+
 ## Installing MaterialX
 
 Building the `install` target of your project will install the MaterialX C++ and Python libraries to the folder specified by the `CMAKE_INSTALL_PREFIX` setting, and will install MaterialX Python as a third-party library in your Python environment.  Installation of MaterialX Python as a third-party library can be disabled by setting `MATERIALX_INSTALL_PYTHON` to `OFF`.
