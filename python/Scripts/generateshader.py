@@ -55,37 +55,32 @@ def main():
     parser.add_argument(dest='inputFilename', help='Path to input document or folder containing input documents.')
     opts = parser.parse_args()
 
-    filelist = getMaterialXFiles(opts.inputFilename)
+    # Load standard and custom data libraries.
+    stdlib = mx.createDocument()
+    searchPath = mx.getDefaultDataSearchPath()
+    libraryFolders = []
+    if opts.paths:
+        for pathList in opts.paths:
+            for path in pathList:
+                searchPath.append(path)
+    if opts.libraries:
+        for libraryList in opts.libraries:
+            for library in libraryList:
+                libraryFolders.append(library)
+    libraryFolders.extend(mx.getDefaultDataLibraryFolders())
+    mx.loadLibraries(libraryFolders, searchPath, stdlib)
 
-    for inputFilename in filelist:        
+    # Generate shaders for each input document.
+    for inputFilename in getMaterialXFiles(opts.inputFilename):        
         doc = mx.createDocument()
         try:
             mx.readFromXmlFile(doc, inputFilename)
+            doc.setDataLibrary(stdlib)
         except mx.ExceptionFileMissing as err:
             print('Generation failed: "', err, '"')
             sys.exit(-1)
 
         print('---------- Generate code for file: ', inputFilename, '--------------------')
-
-        stdlib = mx.createDocument()
-        searchPath = mx.getDefaultDataSearchPath()
-        searchPath.append(os.path.dirname(inputFilename))
-        libraryFolders = []
-        if opts.paths:
-            for pathList in opts.paths:
-                for path in pathList:
-                    searchPath.append(path)
-        if opts.libraries:
-            for libraryList in opts.libraries:
-                for library in libraryList:
-                    libraryFolders.append(library)
-        libraryFolders.extend(mx.getDefaultDataLibraryFolders())
-        try:
-            mx.loadLibraries(libraryFolders, searchPath, stdlib)
-            doc.importLibrary(stdlib)
-        except Exception as err:
-            print('Generation failed: "', err, '"')
-            sys.exit(-1)
 
         valid, msg = doc.validate()
         if not valid:
@@ -108,8 +103,10 @@ def main():
         else:
             shadergen = mx_gen_glsl.GlslShaderGenerator.create()
                 
+        codeSearchPath = searchPath
+        codeSearchPath.append(os.path.dirname(inputFilename))
         context = mx_gen_shader.GenContext(shadergen)
-        context.registerSourceCodeSearchPath(searchPath)
+        context.registerSourceCodeSearchPath(codeSearchPath)
 
         # If we're generating Vulkan-compliant GLSL then set the binding context
         if opts.vulkanCompliantGlsl:
