@@ -1,4 +1,4 @@
-#include "libraries/pbrlib/genglsl/lib/mx_microfacet.glsl"
+#include "mx_microfacet.glsl"
 
 float mx39_pow6(float x)
 {

@@ -1,5 +1,5 @@
 #include "mx39_microfacet.glsl"
-#include "libraries/pbrlib/genglsl/lib/mx_microfacet_specular.glsl"
+#include "mx_microfacet_specular.glsl"
 
 const int MX39_FRESNEL_MODEL_DIELECTRIC = 0;
 const int MX39_FRESNEL_MODEL_CONDUCTOR = 1;

@@ -1,5 +1,5 @@
 #include "mx39_microfacet.glsl"
-#include "libraries/pbrlib/genglsl/lib/mx_microfacet_sheen.glsl"
+#include "mx_microfacet_sheen.glsl"
 
 // The following functions are adapted from https://github.com/tizian/ltc-sheen.
 // "Practical Multiple-Scattering Sheen Using Linearly Transformed Cosines", Zeltner et al.

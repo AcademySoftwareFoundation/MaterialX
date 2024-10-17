@@ -1,5 +1,5 @@
 #include "mx39_microfacet.glsl"
-#include "libraries/pbrlib/genglsl/lib/mx_microfacet_diffuse.glsl"
+#include "mx_microfacet_diffuse.glsl"
 
 const float FUJII_CONSTANT_1 = 0.5 - 2.0 / (3.0 * M_PI);
 const float FUJII_CONSTANT_2 = 2.0 / 3.0 - 28.0 / (15.0 * M_PI);
