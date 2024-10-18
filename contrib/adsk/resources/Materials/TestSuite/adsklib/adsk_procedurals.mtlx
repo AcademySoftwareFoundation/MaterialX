@@ -14,7 +14,7 @@
       <input name="glazing_f0" type="color3" value="0.25214, 0.246979, 0.242965" colorspace="gamma24" />
     </adsk:glazing>
     <adsk:normal_map name="normal_map" type="vector3" version="1.0.1" xpos="315" ypos="642">
-      <input name="file" type="filename" uniform="true" interfacename="normalmap_filename" value="resources/Images/mesh_wire_norm.png" />
+      <input name="file" type="filename" uniform="true" interfacename="normalmap_filename"/>
       <input name="realworld_scale" type="vector2" value="4, 4" />
       <input name="uv_scale" type="vector2" value="0.5, 0.5" />
       <input name="normal_scale" type="float" value="1" />
@@ -38,11 +38,11 @@
       <input name="layered_fraction_invert" type="boolean" value="true" />
     </adsk:layered>
     <adsk:bitmap name="bitmap" type="color3" version="1.0.1" xpos="620" ypos="790">
-      <input name="file" type="filename" uniform="true" interfacename="bitmap_filename" value="resources/Images/grid.png" />
+      <input name="file" type="filename" uniform="true" interfacename="bitmap_filename"/>
       <input name="realworld_scale" type="vector2" value="1, 1" />
     </adsk:bitmap>
     <adsk:bitmap name="bitmap1" type="float" version="1.0.1" xpos="620" ypos="985">
-      <input name="file" type="filename" uniform="true" interfacename="bitmap_filename" value="resources/Images/grid.png" />
+      <input name="file" type="filename" uniform="true" interfacename="bitmap_filename"/>
       <input name="realworld_scale" type="vector2" value="1, 1" />
     </adsk:bitmap>
     <adsk:transparent name="transparent" type="surfaceshader" version="1.0.1" xpos="620" ypos="1180">
