@@ -50,18 +50,41 @@ class MX_CORE_API Document : public GraphElement
     {
         DocumentPtr doc = createDocument<Document>();
         doc->copyContentFrom(getSelf());
+        doc->setDataLibrary(getDataLibrary());
         return doc;
     }
 
-    /// Import the given document as a library within this document.
-    /// The contents of the library document are copied into this one, and
-    /// are assigned the source URI of the library.
-    /// @param library The library document to be imported.
-    void importLibrary(const ConstDocumentPtr& library);
-
-    /// Get a list of source URI's referenced by the document
+    /// Get a list of source URIs referenced by the document
     StringSet getReferencedSourceUris() const;
 
+    /// @name Data Libraries
+    /// @{
+
+    /// Store a reference to a data library in this document.
+    void setDataLibrary(ConstDocumentPtr dataLibrary)
+    {
+        _dataLibrary = dataLibrary;
+    }
+
+    /// Return true if this document has a data library.
+    bool hasDataLibrary() const
+    {
+        return (_dataLibrary != nullptr);
+    }
+
+    /// Return the data library, if any, referenced by this document.
+    ConstDocumentPtr getDataLibrary() const
+    {
+        return _dataLibrary;
+    }
+
+    /// Import the given data library into this document.
+    /// The contents of the data library are copied into this one, and
+    /// are assigned the source URI of the library.
+    /// @param library The data library to be imported.
+    void importLibrary(const ConstDocumentPtr& library);
+
+    /// @}
     /// @name NodeGraph Elements
     /// @{
 
@@ -333,18 +356,14 @@ class MX_CORE_API Document : public GraphElement
         return child;
     }
 
-    /// Create a NodeDef declaration which is based on a NodeGraph.
-    /// @param nodeGraph NodeGraph used to create NodeDef
-    /// @param nodeDefName Declaration name
-    /// @param node Node type for the new declaration
-    /// @param version Version for the new declaration
-    /// @param isDefaultVersion If a version is specified is thie definition the default version
-    /// @param newGraphName Make a copy of this NodeGraph with the given name if a non-empty name is provided. Otherwise
-    ///        modify the existing NodeGraph. Default value is an empty string.
-    /// @param nodeGroup Optional node group for the new declaration. The Default value is an emptry string.
+    /// Create a NodeDef and Functional Graph based on a Compound NodeGraph
+    /// @param nodeGraph Compound NodeGraph.
+    /// @param newGraphName Name of new functional NodeGraph.
+    /// @param nodeDefName Name of new NodeDef
+    /// @param category Category of the new NodeDef
     /// @return New declaration if successful.
-    NodeDefPtr addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const string& nodeDefName, const string& node, const string& version,
-                                   bool isDefaultVersion, const string& nodeGroup, const string& newGraphName);
+    NodeDefPtr addNodeDefFromGraph(NodeGraphPtr nodeGraph, const string& nodeDefName,
+                                   const string& category, const string& newGraphName);
 
     /// Return the NodeDef, if any, with the given name.
     NodeDefPtr getNodeDef(const string& name) const
@@ -669,6 +688,13 @@ class MX_CORE_API Document : public GraphElement
 
     /// @}
 
+    //
+    // These are deprecated wrappers for older versions of the function interfaces in this module.
+    // Clients using these interfaces should update them to the latest API.
+    //
+    [[deprecated]] NodeDefPtr addNodeDefFromGraph(NodeGraphPtr nodeGraph, const string& nodeDefName, const string& node, const string& version,
+                                                  bool isDefaultVersion, const string& nodeGroup, const string& newGraphName);
+
   public:
     static const string CATEGORY;
     static const string CMS_ATTRIBUTE;
@@ -676,6 +702,9 @@ class MX_CORE_API Document : public GraphElement
 
   private:
     class Cache;
+
+  private:
+    ConstDocumentPtr _dataLibrary;
     std::unique_ptr<Cache> _cache;
 };
 

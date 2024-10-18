@@ -27,8 +27,8 @@ TEST_CASE("GenShader: OSL Syntax", "[genosl]")
     REQUIRE(syntax->getTypeName(mx::Type::VECTOR3) == "vector");
     REQUIRE(syntax->getTypeName(mx::Type::FLOATARRAY) == "float");
     REQUIRE(syntax->getTypeName(mx::Type::INTEGERARRAY) == "int");
-    REQUIRE(mx::Type::FLOATARRAY->isArray());
-    REQUIRE(mx::Type::INTEGERARRAY->isArray());
+    REQUIRE(mx::Type::FLOATARRAY.isArray());
+    REQUIRE(mx::Type::INTEGERARRAY.isArray());
 
     REQUIRE(syntax->getTypeName(mx::Type::BSDF) == "BSDF");
     REQUIRE(syntax->getOutputTypeName(mx::Type::BSDF) == "output BSDF");
@@ -87,9 +87,14 @@ TEST_CASE("GenShader: OSL Implementation Check", "[genosl]")
 
     mx::StringSet generatorSkipNodeTypes;
     generatorSkipNodeTypes.insert("light");
-    mx::StringSet generatorSkipNodeDefs;
 
-    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 48);
+    mx::StringSet generatorSkipNodeDefs;
+    generatorSkipNodeDefs.insert("ND_chiang_hair_roughness");
+    generatorSkipNodeDefs.insert("ND_chiang_hair_absorption_from_color");
+    generatorSkipNodeDefs.insert("ND_deon_hair_absorption_from_melanin");
+    generatorSkipNodeDefs.insert("ND_chiang_hair_bsdf");
+
+    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 35);
 }
 
 TEST_CASE("GenShader: OSL Unique Names", "[genosl]")

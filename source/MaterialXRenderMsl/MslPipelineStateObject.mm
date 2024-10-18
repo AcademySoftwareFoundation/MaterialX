@@ -30,7 +30,7 @@ const float PI = std::acos(-1.0f);
 // Metal Constants
 unsigned int MslProgram::UNDEFINED_METAL_RESOURCE_ID = 0;
 int MslProgram::UNDEFINED_METAL_PROGRAM_LOCATION = -1;
-int MslProgram::Input::INVALID_METAL_TYPE = -1;
+MTLDataType MslProgram::Input::INVALID_METAL_TYPE = MTLDataTypeNone;
 
 //
 // MslProgram methods
@@ -61,7 +61,7 @@ void MslProgram::setStages(ShaderPtr shader)
 
     // Extract out the shader code per stage
     _shader = shader;
-    for (size_t i =0; i<shader->numStages(); ++i)
+    for (size_t i = 0; i < shader->numStages(); ++i)
     {
         const ShaderStage& stage = shader->getStage(i);
         addStage(stage.getName(), stage.getSourceCode());
@@ -96,7 +96,7 @@ void MslProgram::clearStages()
 
 MTLVertexFormat GetMetalFormatFromMetalType(MTLDataType type)
 {
-    switch(type)
+    switch (type)
     {
         case MTLDataTypeFloat : return MTLVertexFormatFloat;
         case MTLDataTypeFloat2: return MTLVertexFormatFloat2;
@@ -113,10 +113,10 @@ MTLVertexFormat GetMetalFormatFromMetalType(MTLDataType type)
 
 int GetStrideOfMetalType(MTLDataType type)
 {
-    switch(type)
+    switch (type)
     {
         case MTLDataTypeInt:
-        case MTLDataTypeFloat : return 1 * 4;
+        case MTLDataTypeFloat:  return 1 * 4;
         case MTLDataTypeInt2:
         case MTLDataTypeFloat2: return 2 * 4;
         case MTLDataTypeInt3:
@@ -125,7 +125,7 @@ int GetStrideOfMetalType(MTLDataType type)
         case MTLDataTypeFloat4: return 4 * 4;
         default:                return 0;
     }
-    
+
     return 0;
 }
 
@@ -135,9 +135,9 @@ id<MTLRenderPipelineState> MslProgram::build(id<MTLDevice> device, MetalFramebuf
     const string errorType("MSL program creation error.");
 
     NSError* error = nil;
-    
+
     reset();
-    
+
     _device = device;
 
     unsigned int stagesBuilt = 0;
@@ -147,7 +147,7 @@ id<MTLRenderPipelineState> MslProgram::build(id<MTLDevice> device, MetalFramebuf
         if (it.second.length())
             desiredStages++;
     }
-    
+
     MTLCompileOptions* options = [MTLCompileOptions new];
 #ifdef MAC_OS_VERSION_11_0
     if (@available(macOS 11.0, ios 14.0, *))
@@ -160,31 +160,31 @@ id<MTLRenderPipelineState> MslProgram::build(id<MTLDevice> device, MetalFramebuf
     // Create vertex shader
     id<MTLFunction> vertexShaderId = nil;
     {
-        string &vertexShaderSource = _stages[Stage::VERTEX];
+        string& vertexShaderSource = _stages[Stage::VERTEX];
         if (vertexShaderSource.length() < 1)
         {
             errors.push_back("Vertex Shader is empty.");
             return nil;
         }
-        
+
         NSString* sourcCode = [NSString stringWithUTF8String:vertexShaderSource.c_str()];
         id<MTLLibrary> library = [device newLibraryWithSource:sourcCode
                                                       options:options
                                                         error:&error];
-        
-        if(library == nil)
+
+        if (library == nil)
         {
             errors.push_back("Error in compiling vertex shader:");
-            if(error)
+            if (error)
             {
                 errors.push_back([[error localizedDescription] UTF8String]);
             }
             return nil;
         }
-        
+
         vertexShaderId = [library newFunctionWithName:@"VertexMain"];
-        
-        if(vertexShaderId)
+
+        if (vertexShaderId)
         {
             stagesBuilt++;
         }
@@ -197,16 +197,16 @@ id<MTLRenderPipelineState> MslProgram::build(id<MTLDevice> device, MetalFramebuf
         errors.push_back("Fragment Shader is empty.");
         return nil;
     }
-    
+
     // Fragment shader compilation code
     id<MTLFunction> fragmentShaderId = nil;
     {
-        NSString* sourcCode = [NSString stringWithUTF8String:fragmentShaderSource.c_str()];       
+        NSString* sourcCode = [NSString stringWithUTF8String:fragmentShaderSource.c_str()];
         id<MTLLibrary> library = [device newLibraryWithSource:sourcCode options:options error:&error];
-        if(!library)
+        if (!library)
         {
             errors.push_back("Error in compiling fragment shader:");
-            if(error)
+            if (error)
             {
                 std::string libCompilationError = [[error localizedDescription] UTF8String];
                 printf("Compilation Errors:%s\n", libCompilationError.c_str());
@@ -214,16 +214,15 @@ id<MTLRenderPipelineState> MslProgram::build(id<MTLDevice> device, MetalFramebuf
                 return nil;
             }
         }
-        
+
         fragmentShaderId = [library newFunctionWithName:@"FragmentMain"];
         assert(fragmentShaderId);
-        
-        if(library)
+
+        if (library)
         {
             stagesBuilt++;
         }
     }
-    
 
     // Link stages to a programs
     if (stagesBuilt == desiredStages)
@@ -231,28 +230,28 @@ id<MTLRenderPipelineState> MslProgram::build(id<MTLDevice> device, MetalFramebuf
         MTLRenderPipelineDescriptor* psoDesc = [MTLRenderPipelineDescriptor new];
         psoDesc.vertexFunction = vertexShaderId;
         psoDesc.fragmentFunction = fragmentShaderId;
-        psoDesc.colorAttachments[0].pixelFormat =  framebuffer->getColorTexture().pixelFormat;
+        psoDesc.colorAttachments[0].pixelFormat = framebuffer->getColorTexture().pixelFormat;
         psoDesc.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
-        
+
         if (_shader->hasAttribute(HW::ATTR_TRANSPARENT))
         {
             psoDesc.colorAttachments[0].blendingEnabled = YES;
-            psoDesc.colorAttachments[0].rgbBlendOperation           = MTLBlendOperationAdd;
-            psoDesc.colorAttachments[0].alphaBlendOperation         = MTLBlendOperationAdd;
-            psoDesc.colorAttachments[0].sourceRGBBlendFactor        = MTLBlendFactorSourceAlpha;
-            psoDesc.colorAttachments[0].sourceAlphaBlendFactor      = MTLBlendFactorSourceAlpha;
-            psoDesc.colorAttachments[0].destinationRGBBlendFactor   = MTLBlendFactorOneMinusSourceAlpha;
+            psoDesc.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
+            psoDesc.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
+            psoDesc.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
+            psoDesc.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorSourceAlpha;
+            psoDesc.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
             psoDesc.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
-            
+
             _alphaBlendingEnabled = true;
         }
-        
-        MTLVertexDescriptor *vd = [MTLVertexDescriptor new];
-        
-        for( int i = 0; i < vertexShaderId.vertexAttributes.count; ++i)
+
+        MTLVertexDescriptor* vd = [MTLVertexDescriptor new];
+
+        for (int i = 0; i < vertexShaderId.vertexAttributes.count; ++i)
         {
             MTLVertexAttribute* vertexAttrib = vertexShaderId.vertexAttributes[i];
-            
+
             vd.attributes[i].bufferIndex = i;
             vd.attributes[i].format = GetMetalFormatFromMetalType(vertexAttrib.attributeType);
             vd.attributes[i].offset = 0;
@@ -275,23 +274,22 @@ id<MTLRenderPipelineState> MslProgram::build(id<MTLDevice> device, MetalFramebuf
             }
 
             _attributeList[sattributeName] = inputPtr;
-            
-            vd.layouts[i].stride = GetStrideOfMetalType(vertexAttrib.attributeType);;
+
+            vd.layouts[i].stride = GetStrideOfMetalType(vertexAttrib.attributeType);
             vd.layouts[i].stepFunction = MTLVertexStepFunctionPerVertex;
-            
         }
-        
+
         psoDesc.vertexDescriptor = vd;
-                
+
         _pso = [device newRenderPipelineStateWithDescriptor:psoDesc
-                options:MTLPipelineOptionArgumentInfo|MTLPipelineOptionBufferTypeInfo
-                reflection:&_psoReflection error:&error];
-        
+                                                    options:MTLPipelineOptionArgumentInfo | MTLPipelineOptionBufferTypeInfo
+                                                 reflection:&_psoReflection
+                                                      error:&error];
+
         [_pso retain];
         [_psoReflection retain];
-        
-        
-        if(error)
+
+        if (error)
         {
             errors.push_back("Error in linking program:");
             errors.push_back([[error localizedDescription] UTF8String]);
@@ -327,10 +325,10 @@ bool MslProgram::bind(id<MTLRenderCommandEncoder> renderCmdEncoder)
 }
 
 void MslProgram::prepareUsedResources(id<MTLRenderCommandEncoder> renderCmdEncoder,
-                                 CameraPtr cam,
-                                 GeometryHandlerPtr geometryHandler,
-                                 ImageHandlerPtr imageHandler,
-                                 LightHandlerPtr lightHandler)
+                                      CameraPtr cam,
+                                      GeometryHandlerPtr geometryHandler,
+                                      ImageHandlerPtr imageHandler,
+                                      LightHandlerPtr lightHandler)
 {
     // Bind the program to use
     if (!bind(renderCmdEncoder))
@@ -344,7 +342,7 @@ void MslProgram::prepareUsedResources(id<MTLRenderCommandEncoder> renderCmdEncod
     // Parse for uniforms and attributes
     getUniformsList();
     getAttributesList();
-    
+
     // Bind based on inputs found
     bindViewInformation(cam);
     bindTimeAndFrame();
@@ -392,25 +390,25 @@ void MslProgram::bindAttribute(id<MTLRenderCommandEncoder> renderCmdEncoder, con
             std::vector<unsigned char> restructuredData;
             const void* bufferData = nullptr;
             size_t bufferSize = 0;
-            
+
             int shaderStride = input.second->size / FLOAT_SIZE;
-            
-            if(shaderStride == stride)
+
+            if (shaderStride == stride)
             {
                 bufferData = &attributeData[0];
-                bufferSize = attributeData.size()*FLOAT_SIZE;
+                bufferSize = attributeData.size() * FLOAT_SIZE;
             }
             else
             {
-                size_t nElements = attributeData.size()/stride;
-                bufferSize = nElements*shaderStride*FLOAT_SIZE;
+                size_t nElements = attributeData.size() / stride;
+                bufferSize = nElements * shaderStride * FLOAT_SIZE;
                 restructuredData.resize(bufferSize, 0.0f);
                 size_t j = 0;
-                for(int i = 0; i < nElements; ++i)
+                for (int i = 0; i < nElements; ++i)
                 {
                     memcpy(&restructuredData[j],
-                           &attributeData[i*stride],
-                           stride*FLOAT_SIZE);
+                           &attributeData[i * stride],
+                           stride * FLOAT_SIZE);
                     j += shaderStride * FLOAT_SIZE;
                 }
                 bufferData = &restructuredData[0];
@@ -420,7 +418,7 @@ void MslProgram::bindAttribute(id<MTLRenderCommandEncoder> renderCmdEncoder, con
             id<MTLBuffer> buffer = [_device newBufferWithBytes:bufferData length:bufferSize options:MTLResourceStorageModeShared];
             _attributeBufferIds[input.first] = buffer;
         }
-        
+
         [renderCmdEncoder setVertexBuffer:_attributeBufferIds[input.first] offset:0 atIndex:location];
     }
 }
@@ -490,6 +488,13 @@ void MslProgram::bindMesh(id<MTLRenderCommandEncoder> renderCmdEncoder, MeshPtr 
         bindAttribute(renderCmdEncoder, foundList, mesh);
     }
 
+    // Bind bitangents
+    findInputs(HW::IN_BITANGENT, attributeList, foundList, true);
+    if (foundList.size())
+    {
+        bindAttribute(renderCmdEncoder, foundList, mesh);
+    }
+
     // Bind colors
     // Search for anything that starts with the color prefix
     findInputs(HW::IN_COLOR + "_", attributeList, foundList, false);
@@ -554,17 +559,15 @@ ImagePtr MslProgram::bindTexture(id<MTLRenderCommandEncoder> renderCmdEncoder,
 {
     // Acquire the image.
     string error;
-    if (static_cast<MetalTextureHandler*>(imageHandler.get())->bindImage(
-            renderCmdEncoder, uniformLocation, image))
+    if (static_cast<MetalTextureHandler*>(imageHandler.get())->bindImage(renderCmdEncoder, uniformLocation, image))
     {
         return image;
     }
     return nullptr;
 }
 
-MaterialX::ValuePtr MslProgram::findUniformValue(
-                                    const string& uniformName,
-                                    const MslProgram::InputMap& uniformList)
+MaterialX::ValuePtr MslProgram::findUniformValue(const string& uniformName,
+                                                 const MslProgram::InputMap& uniformList)
 {
     auto uniform = uniformList.find(uniformName);
     if (uniform != uniformList.end())
@@ -583,71 +586,69 @@ void MslProgram::bindTextures(id<MTLRenderCommandEncoder> renderCmdEncoder,
                               ImageHandlerPtr imageHandler)
 {
     const VariableBlock& publicUniforms = _shader->getStage(Stage::PIXEL).getUniformBlock(HW::PUBLIC_UNIFORMS);
-    for (MTLArgument *arg in _psoReflection.fragmentArguments)
+    for (MTLArgument* arg in _psoReflection.fragmentArguments)
     {
         if (arg.type == MTLArgumentTypeTexture)
         {
             bool found = false;
-            
-            if(lightHandler)
+
+            if (lightHandler)
             {
                 // Bind environment lights.
                 ImageMap envLights =
                 {
-                    { HW::ENV_RADIANCE,   lightHandler->getUsePrefilteredMap() ? lightHandler->getEnvPrefilteredMap() : lightHandler->getEnvRadianceMap() },
+                    { HW::ENV_RADIANCE, lightHandler->getUsePrefilteredMap() ? lightHandler->getEnvPrefilteredMap() : lightHandler->getEnvRadianceMap() },
                     { HW::ENV_IRRADIANCE, lightHandler->getEnvIrradianceMap() }
                 };
                 for (const auto& env : envLights)
                 {
                     std::string str(arg.name.UTF8String);
                     size_t loc = str.find(env.first);
-                    if(loc != std::string::npos && env.second)
+                    if (loc != std::string::npos && env.second)
                     {
                         ImageSamplingProperties samplingProperties;
                         samplingProperties.uaddressMode = ImageSamplingProperties::AddressMode::PERIODIC;
                         samplingProperties.vaddressMode = ImageSamplingProperties::AddressMode::CLAMP;
                         samplingProperties.filterType = ImageSamplingProperties::FilterType::LINEAR;
-                        
-                        static_cast<MaterialX::MetalTextureHandler*>
-                        (imageHandler.get())->bindImage(env.second, samplingProperties);
-                        bindTexture(renderCmdEncoder, (unsigned int)arg.index, env.second, imageHandler);
+
+                        static_cast<MaterialX::MetalTextureHandler*>(imageHandler.get())->bindImage(env.second, samplingProperties);
+                        bindTexture(renderCmdEncoder, (unsigned int) arg.index, env.second, imageHandler);
                         found = true;
                     }
-                    
                 }
             }
-            
-            if(!found)
+
+            if (!found)
             {
                 ImagePtr image = nullptr;
-                if(_explicitBoundImages.find(arg.name.UTF8String) != _explicitBoundImages.end())
+                if (_explicitBoundImages.find(arg.name.UTF8String) != _explicitBoundImages.end())
                 {
                     image = _explicitBoundImages[arg.name.UTF8String];
                 }
 
-                if(image && (image->getWidth() > 1 || image->getHeight() > 1))
+                if (image && (image->getWidth() > 1 || image->getHeight() > 1))
                 {
-                    bindTexture(renderCmdEncoder, (unsigned int)arg.index, image, imageHandler);
+                    bindTexture(renderCmdEncoder, (unsigned int) arg.index, image, imageHandler);
                     found = true;
                 }
             }
-            
-            if(!found)
+
+            if (!found)
             {
                 auto uniform = _uniformList.find(arg.name.UTF8String);
-                if(uniform != _uniformList.end())
+                if (uniform != _uniformList.end())
                 {
                     string fileName = uniform->second->value ? uniform->second->value->getValueString() : "";
                     ImageSamplingProperties samplingProperties;
                     string uniformNameWithoutPostfix = uniform->first;
                     {
                         size_t pos = uniformNameWithoutPostfix.find_last_of(IMAGE_PROPERTY_SEPARATOR);
-                        if(pos != std::string::npos)
+                        if (pos != std::string::npos)
                             uniformNameWithoutPostfix = uniformNameWithoutPostfix.substr(0, pos);
                     }
                     samplingProperties.setProperties(uniformNameWithoutPostfix, publicUniforms);
                     samplingProperties.enableMipmaps = _enableMipMapping;
-                    bindTexture(renderCmdEncoder, (unsigned int)arg.index, fileName, samplingProperties, imageHandler);
+                    bindTexture(renderCmdEncoder, (unsigned int) arg.index, fileName, samplingProperties, imageHandler);
                 }
             }
         }
@@ -659,7 +660,7 @@ void MslProgram::bindTexture(ImageHandlerPtr imageHandler,
                              ImagePtr imagePtr,
                              ImageSamplingProperties samplingProperties)
 {
-    if(imageHandler->bindImage(imagePtr, samplingProperties))
+    if (imageHandler->bindImage(imagePtr, samplingProperties))
     {
         _explicitBoundImages[shaderTextureName] = imagePtr;
     }
@@ -813,9 +814,9 @@ void MslProgram::bindLighting(LightHandlerPtr lightHandler, ImageHandlerPtr imag
 bool MslProgram::hasUniform(const string& name)
 {
     const MslProgram::InputMap& uniformList = getUniformsList();
-    if(uniformList.find(name) != uniformList.end())
+    if (uniformList.find(name) != uniformList.end())
         return true;
-    if(_globalUniformNameList.find(name) != _globalUniformNameList.end() && uniformList.find(_globalUniformNameList[name]) != uniformList.end())
+    if (_globalUniformNameList.find(name) != _globalUniformNameList.end() && uniformList.find(_globalUniformNameList[name]) != uniformList.end())
         return true;
     return false;
 }
@@ -831,7 +832,7 @@ void MslProgram::bindUniform(const string& name, ConstValuePtr value, bool error
     else
     {
         auto globalNameMapping = _globalUniformNameList.find(name);
-        if(globalNameMapping != _globalUniformNameList.end())
+        if (globalNameMapping != _globalUniformNameList.end())
         {
             bindUniform(globalNameMapping->second, value, errorIfMissing);
         }
@@ -904,45 +905,45 @@ const MslProgram::InputMap& MslProgram::updateUniformsList()
         errors.push_back("Cannot parse for uniforms without a valid program");
         throw ExceptionRenderError(errorType, errors);
     }
-        
-    for (MTLArgument *arg in _psoReflection.vertexArguments)
+
+    for (MTLArgument* arg in _psoReflection.vertexArguments)
     {
         if (arg.bufferDataType == MTLDataTypeStruct)
         {
             for (MTLStructMember* member in arg.bufferStructType.members)
             {
                 InputPtr inputPtr = std::make_shared<Input>(arg.index, member.dataType, arg.bufferDataSize, EMPTY_STRING);
-                std::string memberName =  member.name.UTF8String;
+                std::string memberName = member.name.UTF8String;
                 std::string uboDotMemberName = std::string(arg.name.UTF8String) + "." + member.name.UTF8String;
                 _uniformList[uboDotMemberName] = inputPtr;
                 _globalUniformNameList[member.name.UTF8String] = uboDotMemberName;
             }
         }
     }
-    
-    for (MTLArgument *arg in _psoReflection.fragmentArguments)
+
+    for (MTLArgument* arg in _psoReflection.fragmentArguments)
     {
         if (arg.type == MTLArgumentTypeBuffer && arg.bufferDataType == MTLDataTypeStruct)
         {
             for (MTLStructMember* member in arg.bufferStructType.members)
             {
                 std::string uboObjectName = std::string(arg.name.UTF8String);
-                std::string memberName =  member.name.UTF8String;
+                std::string memberName = member.name.UTF8String;
                 std::string uboDotMemberName = uboObjectName + "." + memberName;
-                
+
                 InputPtr inputPtr = std::make_shared<Input>(arg.index, member.dataType, arg.bufferDataSize, EMPTY_STRING);
                 _uniformList[uboDotMemberName] = inputPtr;
                 _globalUniformNameList[memberName] = uboDotMemberName;
-                
-                if(MTLArrayType* arrayMember = member.arrayType)
+
+                if (MTLArrayType* arrayMember = member.arrayType)
                 {
-                    for(int i = 0; i < arrayMember.arrayLength; ++i)
+                    for (int i = 0; i < arrayMember.arrayLength; ++i)
                     {
                         for (MTLStructMember* ArrayOfStructMember in arrayMember.elementStructType.members)
                         {
                             std::string memberNameDotSubmember = memberName + "[" + std::to_string(i) + "]." + ArrayOfStructMember.name.UTF8String;
                             std::string uboDotMemberNameDotSubmemberName = uboObjectName + "." + memberNameDotSubmember;
-                            
+
                             InputPtr inputPtr = std::make_shared<Input>(ArrayOfStructMember.argumentIndex, ArrayOfStructMember.dataType, ArrayOfStructMember.offset, EMPTY_STRING);
                             _uniformList[uboDotMemberNameDotSubmemberName] = inputPtr;
                             _globalUniformNameList[memberNameDotSubmember] = uboDotMemberNameDotSubmemberName;
@@ -951,13 +952,13 @@ const MslProgram::InputMap& MslProgram::updateUniformsList()
                 }
             }
         }
-        
-        if(arg.type == MTLArgumentTypeTexture)
+
+        if (arg.type == MTLArgumentTypeTexture)
         {
-            if(HW::ENV_RADIANCE != arg.name.UTF8String && HW::ENV_IRRADIANCE != arg.name.UTF8String)
+            if (HW::ENV_RADIANCE != arg.name.UTF8String && HW::ENV_IRRADIANCE != arg.name.UTF8String)
             {
                 std::string texture_name = arg.name.UTF8String;
-                InputPtr inputPtr = std::make_shared<Input>(arg.index, 58, -1, EMPTY_STRING);
+                InputPtr inputPtr = std::make_shared<Input>(arg.index, MTLDataTypeTexture, -1, EMPTY_STRING);
                 _uniformList[texture_name] = inputPtr;
             }
         }
@@ -974,7 +975,7 @@ const MslProgram::InputMap& MslProgram::updateUniformsList()
 
         // Process constants
         const VariableBlock& constants = ps.getConstantBlock();
-        for (size_t i=0; i< constants.size(); ++i)
+        for (size_t i = 0; i < constants.size(); ++i)
         {
             const ShaderPort* v = constants[i];
             // There is no way to match with an unnamed variable
@@ -983,12 +984,12 @@ const MslProgram::InputMap& MslProgram::updateUniformsList()
                 continue;
             }
 
-            // TODO: Shoud we really create new ones here each update?
-            InputPtr inputPtr = std::make_shared<Input>(-1, -1, int(v->getType()->getSize()), EMPTY_STRING);
+            // TODO: Should we really create new ones here each update?
+            InputPtr inputPtr = std::make_shared<Input>(-1, MTLDataTypeNone, int(v->getType().getSize()), EMPTY_STRING);
             _uniformList[v->getVariable()] = inputPtr;
             inputPtr->isConstant = true;
             inputPtr->value = v->getValue();
-            inputPtr->typeString = v->getType()->getName();
+            inputPtr->typeString = v->getType().getName();
             inputPtr->path = v->getPath();
         }
 
@@ -1019,44 +1020,39 @@ const MslProgram::InputMap& MslProgram::updateUniformsList()
                     continue;
                 }
 
-                int tries = 0;
                 auto inputIt = _uniformList.find(v->getVariable());
-try_again:      if (inputIt != _uniformList.end())
+                if (inputIt == _uniformList.end())
+                {
+                    if (v->getType() == Type::FILENAME)
+                    {
+                        inputIt = _uniformList.find(TEXTURE_NAME(v->getVariable()));
+                    }
+                    else
+                    {
+                        inputIt = _uniformList.find(uniforms.getInstance() + "." + v->getVariable());
+                    }
+                }
+
+                if (inputIt != _uniformList.end())
                 {
                     Input* input = inputIt->second.get();
                     input->path = v->getPath();
                     input->value = v->getValue();
                     if (input->resourceType == resourceType)
                     {
-                        input->typeString = v->getType()->getName();
+                        input->typeString = v->getType().getName();
                     }
                     else
                     {
                         errors.push_back(
                             "Pixel shader uniform block type mismatch [" + uniforms.getName() + "]. "
                             + "Name: \"" + v->getVariable()
-                            + "\". Type: \"" + v->getType()->getName()
+                            + "\". Type: \"" + v->getType().getName()
                             + "\". Semantic: \"" + v->getSemantic()
                             + "\". Value: \"" + (v->getValue() ? v->getValue()->getValueString() : "<none>")
                             + "\". resourceType: " + std::to_string(mapTypeToMetalType(v->getType()))
                         );
                         uniformTypeMismatchFound = true;
-                    }
-                }
-                else
-                {
-                    if(tries == 0)
-                    {
-                        ++tries;
-                        if(v->getType() == Type::FILENAME)
-                        {
-                            inputIt = _uniformList.find(TEXTURE_NAME(v->getVariable()));
-                        }
-                        else
-                        {
-                            inputIt = _uniformList.find(uniforms.getInstance() + "." + v->getVariable());
-                        }
-                        goto try_again;
                     }
                 }
             }
@@ -1075,7 +1071,7 @@ try_again:      if (inputIt != _uniformList.end())
                     Input* input = inputIt->second.get();
                     if (input->resourceType == mapTypeToMetalType(v->getType()))
                     {
-                        input->typeString = v->getType()->getName();
+                        input->typeString = v->getType().getName();
                         input->value = v->getValue();
                         input->path = v->getPath();
                         input->unit = v->getUnit();
@@ -1085,7 +1081,7 @@ try_again:      if (inputIt != _uniformList.end())
                         errors.push_back(
                             "Vertex shader uniform block type mismatch [" + uniforms.getName() + "]. "
                             + "Name: \"" + v->getVariable()
-                            + "\". Type: \"" + v->getType()->getName()
+                            + "\". Type: \"" + v->getType().getName()
                             + "\". Semantic: \"" + v->getSemantic()
                             + "\". Value: \"" + (v->getValue() ? v->getValue()->getValueString() : "<none>")
                             + "\". Unit: \"" + (!v->getUnit().empty() ? v->getUnit() : "<none>")
@@ -1116,73 +1112,72 @@ void MslProgram::bindUniformBuffers(id<MTLRenderCommandEncoder> renderCmdEncoder
         {
             Matrix44 viewInverse = cam->getViewMatrix().getInverse();
             MaterialX::Vector3 viewPosition(viewInverse[3][0], viewInverse[3][1], viewInverse[3][2]);
-            memcpy((void*)&data[offset], viewPosition.data(), 3 * sizeof(float));
+            memcpy((void*) &data[offset], viewPosition.data(), 3 * sizeof(float));
             return true;
         }
         if (uniformName == HW::VIEW_DIRECTION)
         {
-            memcpy((void*)&data[offset], cam->getViewPosition().data(), 3 * sizeof(float));
+            memcpy((void*) &data[offset], cam->getViewPosition().data(), 3 * sizeof(float));
             return true;
         }
-        
+
         // World matrix variants
         const Matrix44& world = cam->getWorldMatrix();
         Matrix44 invWorld = world.getInverse();
         Matrix44 invTransWorld = invWorld.getTranspose();
         if (uniformName == HW::WORLD_MATRIX)
         {
-            memcpy((void*)&data[offset], world.data(), 4 * 4 * sizeof(float));
+            memcpy((void*) &data[offset], world.data(), 4 * 4 * sizeof(float));
             return false;
         }
         if (uniformName == HW::WORLD_TRANSPOSE_MATRIX)
         {
-            memcpy((void*)&data[offset], world.getTranspose().data(), 4 * 4 * sizeof(float));
+            memcpy((void*) &data[offset], world.getTranspose().data(), 4 * 4 * sizeof(float));
             return true;
         }
         if (uniformName == HW::WORLD_INVERSE_MATRIX)
         {
-            memcpy((void*)&data[offset], invWorld.getTranspose().data(), 4 * 4 * sizeof(float));
+            memcpy((void*) &data[offset], invWorld.getTranspose().data(), 4 * 4 * sizeof(float));
             return true;
         }
         if (uniformName == HW::WORLD_INVERSE_TRANSPOSE_MATRIX)
         {
-            memcpy((void*)&data[offset], invTransWorld.getTranspose().data(), 4 * 4 * sizeof(float));
+            memcpy((void*) &data[offset], invTransWorld.getTranspose().data(), 4 * 4 * sizeof(float));
             return true;
         }
-        if(uniformName == HW::FRAME)
+        if (uniformName == HW::FRAME)
         {
-            memcpy((void*)&data[offset], (const void*)&_frame, sizeof(float));
+            memcpy((void*) &data[offset], (const void*) &_frame, sizeof(float));
             return true;
         }
-        if(uniformName == HW::TIME)
+        if (uniformName == HW::TIME)
         {
-            memcpy((void*)&data[offset], (const void*)&_time, sizeof(float));
+            memcpy((void*) &data[offset], (const void*) &_time, sizeof(float));
             return true;
         }
-
 
         // Projection matrix variants
         const Matrix44& proj = cam->getProjectionMatrix();
         if (uniformName == HW::PROJ_MATRIX)
         {
-            memcpy((void*)&data[offset], proj.data(), 4 * 4 * sizeof(float));
+            memcpy((void*) &data[offset], proj.data(), 4 * 4 * sizeof(float));
             return true;
         }
         if (uniformName == HW::PROJ_TRANSPOSE_MATRIX)
         {
-            memcpy((void*)&data[offset], proj.getTranspose().data(), 4 * 4 * sizeof(float));
+            memcpy((void*) &data[offset], proj.getTranspose().data(), 4 * 4 * sizeof(float));
             return true;
         }
 
-        const Matrix44& projInverse= proj.getInverse();
+        const Matrix44& projInverse = proj.getInverse();
         if (uniformName == HW::PROJ_INVERSE_MATRIX)
         {
-            memcpy((void*)&data[offset], projInverse.data(), 4 * 4 * sizeof(float));
+            memcpy((void*) &data[offset], projInverse.data(), 4 * 4 * sizeof(float));
             return true;
         }
         if (uniformName == HW::PROJ_INVERSE_TRANSPOSE_MATRIX)
         {
-            memcpy((void*)&data[offset], projInverse.getTranspose().data(), 4 * 4 * sizeof(float));
+            memcpy((void*) &data[offset], projInverse.getTranspose().data(), 4 * 4 * sizeof(float));
             return true;
         }
 
@@ -1191,48 +1186,48 @@ void MslProgram::bindUniformBuffers(id<MTLRenderCommandEncoder> renderCmdEncoder
         Matrix44 viewInverse = view.getInverse();
         if (uniformName == HW::VIEW_MATRIX)
         {
-            memcpy((void*)&data[offset], view.data(), 4 * 4 * sizeof(float));
+            memcpy((void*) &data[offset], view.data(), 4 * 4 * sizeof(float));
             return true;
         }
         if (uniformName == HW::VIEW_TRANSPOSE_MATRIX)
         {
-            memcpy((void*)&data[offset], view.getTranspose().data(), 4 * 4 * sizeof(float));
+            memcpy((void*) &data[offset], view.getTranspose().data(), 4 * 4 * sizeof(float));
             return true;
         }
         if (uniformName == HW::VIEW_INVERSE_MATRIX)
         {
-            memcpy((void*)&data[offset], viewInverse.data(), 4 * 4 * sizeof(float));
+            memcpy((void*) &data[offset], viewInverse.data(), 4 * 4 * sizeof(float));
             return true;
         }
         if (uniformName == HW::VIEW_INVERSE_TRANSPOSE_MATRIX)
         {
-            memcpy((void*)&data[offset], viewInverse.getTranspose().data(), 4 * 4 * sizeof(float));
+            memcpy((void*) &data[offset], viewInverse.getTranspose().data(), 4 * 4 * sizeof(float));
             return true;
         }
-        
+
         // View-projection matrix
         const Matrix44& viewProj = view * proj;
         if (uniformName == HW::VIEW_PROJECTION_MATRIX)
         {
-            memcpy((void*)&data[offset], viewProj.data(), 4 * 4 * sizeof(float));
+            memcpy((void*) &data[offset], viewProj.data(), 4 * 4 * sizeof(float));
             return true;
         }
-        
+
         // View-projection-world matrix
         const Matrix44& viewProjWorld = viewProj * world;
         if (uniformName == HW::WORLD_VIEW_PROJECTION_MATRIX)
         {
-            memcpy((void*)&data[offset], viewProjWorld.data(), 4 * 4 * sizeof(float));
+            memcpy((void*) &data[offset], viewProjWorld.data(), 4 * 4 * sizeof(float));
             return true;
         }
-        
+
         if (uniformName == HW::ENV_RADIANCE_MIPS)
         {
             unsigned int maxMipCount = lightHandler->getEnvRadianceMap()->getMaxMipCount();
-            memcpy((void*)&data[offset], &maxMipCount, sizeof(maxMipCount));
+            memcpy((void*) &data[offset], &maxMipCount, sizeof(maxMipCount));
             return true;
         }
-        
+
         return false;
     };
 
@@ -1241,55 +1236,55 @@ void MslProgram::bindUniformBuffers(id<MTLRenderCommandEncoder> renderCmdEncoder
         if (value->getTypeString() == "float")
         {
             float v = value->asA<float>();
-            memcpy((void*)&data[offset], &v, sizeof(float));
+            memcpy((void*) &data[offset], &v, sizeof(float));
         }
         else if (value->getTypeString() == "integer")
         {
             int v = value->asA<int>();
-            memcpy((void*)&data[offset], &v, sizeof(int));
+            memcpy((void*) &data[offset], &v, sizeof(int));
         }
         else if (value->getTypeString() == "boolean")
         {
             bool v = value->asA<bool>();
-            memcpy((void*)&data[offset], &v, sizeof(bool));
+            memcpy((void*) &data[offset], &v, sizeof(bool));
         }
         else if (value->getTypeString() == "color3")
         {
             Color3 v = value->asA<Color3>();
-            memcpy((void*)&data[offset], &v, sizeof(Color3));
+            memcpy((void*) &data[offset], &v, sizeof(Color3));
         }
         else if (value->getTypeString() == "color4")
         {
             Color4 v = value->asA<Color4>();
-            memcpy((void*)&data[offset], &v, sizeof(Color4));
+            memcpy((void*) &data[offset], &v, sizeof(Color4));
         }
         else if (value->getTypeString() == "vector2")
         {
             Vector2 v = value->asA<Vector2>();
-            memcpy((void*)&data[offset], &v, sizeof(Vector2));
+            memcpy((void*) &data[offset], &v, sizeof(Vector2));
         }
         else if (value->getTypeString() == "vector3")
         {
             Vector3 v = value->asA<Vector3>();
-            memcpy((void*)&data[offset], &v, sizeof(Vector3));
+            memcpy((void*) &data[offset], &v, sizeof(Vector3));
         }
         else if (value->getTypeString() == "vector4")
         {
             Vector4 v = value->asA<Vector4>();
-            memcpy((void*)&data[offset], &v, sizeof(Vector4));
+            memcpy((void*) &data[offset], &v, sizeof(Vector4));
         }
         else if (value->getTypeString() == "matrix33")
         {
             Matrix33 m = value->asA<Matrix33>();
-            float tmp[12] = {m[0][0], m[0][1], m[0][2], 0.0f,
-                             m[1][0], m[1][1], m[1][2], 0.0f,
-                             m[2][0], m[2][1], m[2][2], 0.0f};
-            memcpy((void*)&data[offset], &tmp, sizeof(tmp));
+            float tmp[12] = { m[0][0], m[0][1], m[0][2], 0.0f,
+                              m[1][0], m[1][1], m[1][2], 0.0f,
+                              m[2][0], m[2][1], m[2][2], 0.0f };
+            memcpy((void*) &data[offset], &tmp, sizeof(tmp));
         }
         else if (value->getTypeString() == "matrix44")
         {
             Matrix44 m = value->asA<Matrix44>();
-            memcpy((void*)&data[offset], &m, sizeof(Matrix44));
+            memcpy((void*) &data[offset], &m, sizeof(Matrix44));
         }
         else if (value->getTypeString() == "string")
         {
@@ -1299,63 +1294,61 @@ void MslProgram::bindUniformBuffers(id<MTLRenderCommandEncoder> renderCmdEncoder
         {
             throw ExceptionRenderError(
                 "MSL input binding error.",
-                { "Unsupported data type when setting uniform value" }
-            );
+                { "Unsupported data type when setting uniform value" });
         }
     };
-    
-    for (MTLArgument *arg in _psoReflection.vertexArguments)
+
+    for (MTLArgument* arg in _psoReflection.vertexArguments)
     {
         if (arg.type == MTLArgumentTypeBuffer && arg.bufferDataType == MTLDataTypeStruct)
         {
             std::vector<unsigned char> uniformBufferData(arg.bufferDataSize);
             for (MTLStructMember* member in arg.bufferStructType.members)
             {
-                if(!setCommonUniform(lightHandler, cam, member.name.UTF8String, uniformBufferData, member.offset))
+                if (!setCommonUniform(lightHandler, cam, member.name.UTF8String, uniformBufferData, member.offset))
                 {
                     MaterialX::ValuePtr value = _uniformList[string(arg.name.UTF8String) + "." + member.name.UTF8String]->value;
-                    if(value)
+                    if (value)
                     {
                         setValue(value, uniformBufferData, member.offset);
                     }
                 }
             }
-            
-            if(arg.bufferStructType)
-                [renderCmdEncoder setVertexBytes:(void*)uniformBufferData.data() length:arg.bufferDataSize atIndex:arg.index];
+
+            if (arg.bufferStructType)
+                [renderCmdEncoder setVertexBytes:(void*) uniformBufferData.data() length:arg.bufferDataSize atIndex:arg.index];
         }
     }
-    
-    for (MTLArgument *arg in _psoReflection.fragmentArguments)
+
+    for (MTLArgument* arg in _psoReflection.fragmentArguments)
     {
         if (arg.type == MTLArgumentTypeBuffer && arg.bufferDataType == MTLDataTypeStruct)
         {
             std::vector<unsigned char> uniformBufferData(arg.bufferDataSize);
-    
+
             for (MTLStructMember* member in arg.bufferStructType.members)
             {
                 string uniformName = string(arg.name.UTF8String) + "." + member.name.UTF8String;
-                    
-                if(!setCommonUniform(lightHandler, cam, member.name.UTF8String, uniformBufferData, member.offset))
+
+                if (!setCommonUniform(lightHandler, cam, member.name.UTF8String, uniformBufferData, member.offset))
                 {
                     auto uniformInfo = _uniformList.find(uniformName);
                     if (uniformInfo != _uniformList.end())
                     {
                         MaterialX::ValuePtr value = uniformInfo->second->value;
-                        if(value)
+                        if (value)
                         {
                             setValue(value, uniformBufferData, member.offset);
                         }
                     }
                     else
                     {
-                        
                     }
                 }
-                    
-                if(MTLArrayType* arrayMember = member.arrayType)
+
+                if (MTLArrayType* arrayMember = member.arrayType)
                 {
-                    for(int i = 0; i < arrayMember.arrayLength; ++i)
+                    for (int i = 0; i < arrayMember.arrayLength; ++i)
                     {
                         for (MTLStructMember* ArrayOfStructMember in arrayMember.elementStructType.members)
                         {
@@ -1365,7 +1358,7 @@ void MslProgram::bindUniformBuffers(id<MTLRenderCommandEncoder> renderCmdEncoder
                             if (uniformInfo != _uniformList.end())
                             {
                                 MaterialX::ValuePtr value = uniformInfo->second->value;
-                                if(value)
+                                if (value)
                                 {
                                     setValue(value, uniformBufferData, member.offset + i * arrayMember.stride + ArrayOfStructMember.offset);
                                 }
@@ -1374,9 +1367,9 @@ void MslProgram::bindUniformBuffers(id<MTLRenderCommandEncoder> renderCmdEncoder
                     }
                 }
             }
-            
-            if(arg.bufferStructType)
-                [renderCmdEncoder setFragmentBytes:(void*)uniformBufferData.data() length:arg.bufferDataSize atIndex:arg.index];
+
+            if (arg.bufferStructType)
+                [renderCmdEncoder setFragmentBytes:(void*) uniformBufferData.data() length:arg.bufferDataSize atIndex:arg.index];
         }
     }
 }
@@ -1385,13 +1378,13 @@ void MslProgram::reset()
 {
     if (_pso != nil)
     {
-       [_pso release];
+        [_pso release];
     }
     _pso = nil;
-    
-    if(_psoReflection != nil)
+
+    if (_psoReflection != nil)
     {
-       [_psoReflection release];
+        [_psoReflection release];
     }
     _psoReflection = nil;
 
@@ -1399,7 +1392,7 @@ void MslProgram::reset()
     clearInputLists();
 }
 
-MTLDataType MslProgram::mapTypeToMetalType(const TypeDesc* type)
+MTLDataType MslProgram::mapTypeToMetalType(TypeDesc type)
 {
     if (type == Type::INTEGER)
         return MTLDataTypeInt;
@@ -1407,11 +1400,11 @@ MTLDataType MslProgram::mapTypeToMetalType(const TypeDesc* type)
         return MTLDataTypeBool;
     else if (type == Type::FLOAT)
         return MTLDataTypeFloat;
-    else if (type->isFloat2())
+    else if (type.isFloat2())
         return MTLDataTypeFloat2;
-    else if (type->isFloat3())
+    else if (type.isFloat3())
         return MTLDataTypeFloat3;
-    else if (type->isFloat4())
+    else if (type.isFloat4())
         return MTLDataTypeFloat4;
     else if (type == Type::MATRIX33)
         return MTLDataTypeFloat3x3;
@@ -1422,13 +1415,13 @@ MTLDataType MslProgram::mapTypeToMetalType(const TypeDesc* type)
         // A "filename" is not indicative of type, so just return a 2d sampler.
         return MTLDataTypeTexture;
     }
-    else if (type == Type::BSDF               ||
-             type == Type::MATERIAL           ||
+    else if (type == Type::BSDF ||
+             type == Type::MATERIAL ||
              type == Type::DISPLACEMENTSHADER ||
-             type == Type::EDF                ||
-             type == Type::VDF                ||
-             type == Type::SURFACESHADER      ||
-             type == Type::LIGHTSHADER        ||
+             type == Type::EDF ||
+             type == Type::VDF ||
+             type == Type::SURFACESHADER ||
+             type == Type::LIGHTSHADER ||
              type == Type::VOLUMESHADER)
         return MTLDataTypeStruct;
 
@@ -1458,11 +1451,11 @@ const MslProgram::InputMap& MslProgram::updateAttributesList()
             for (size_t i = 0; i < vertexInputs.size(); ++i)
             {
                 const ShaderPort* v = vertexInputs[i];
-                
+
                 string variableName = v->getVariable();
                 size_t dotPos = variableName.find('.');
                 string variableMemberName = variableName.substr(dotPos + 1);
-                
+
                 auto inputIt = _attributeList.find(variableMemberName);
                 if (inputIt != _attributeList.end())
                 {
@@ -1470,13 +1463,13 @@ const MslProgram::InputMap& MslProgram::updateAttributesList()
                     input->value = v->getValue();
                     if (input->resourceType == mapTypeToMetalType(v->getType()))
                     {
-                        input->typeString = v->getType()->getName();
+                        input->typeString = v->getType().getName();
                     }
                     else
                     {
                         errors.push_back(
                             "Vertex shader attribute type mismatch in block. Name: \"" + v->getVariable()
-                            + "\". Type: \"" + v->getType()->getName()
+                            + "\". Type: \"" + v->getType().getName()
                             + "\". Semantic: \"" + v->getSemantic()
                             + "\". Value: \"" + (v->getValue() ? v->getValue()->getValueString() : "<none>")
                             + "\". resourceType: " + std::to_string(mapTypeToMetalType(v->getType()))
@@ -1498,9 +1491,9 @@ const MslProgram::InputMap& MslProgram::updateAttributesList()
 }
 
 void MslProgram::findInputs(const string& variable,
-                             const InputMap& variableList,
-                             InputMap& foundList,
-                             bool exactMatch)
+                            const InputMap& variableList,
+                            InputMap& foundList,
+                            bool exactMatch)
 {
     foundList.clear();
 
@@ -1547,9 +1540,9 @@ void MslProgram::printUniforms(std::ostream& outputStream)
         string colorspace = input.second->colorspace;
         bool isConstant = input.second->isConstant;
         outputStream << "Program Uniform: \"" << input.first
-            << "\". Location:" << location
-            << ". ResourceType: " << std::hex << resourceType
-            << ". Size: " << std::dec << size;
+                     << "\". Location:" << location
+                     << ". ResourceType: " << std::hex << resourceType
+                     << ". Size: " << std::dec << size;
         if (!type.empty())
             outputStream << ". TypeString: \"" << type << "\"";
         if (!value.empty())
@@ -1567,7 +1560,6 @@ void MslProgram::printUniforms(std::ostream& outputStream)
     }
 }
 
-
 void MslProgram::printAttributes(std::ostream& outputStream)
 {
     updateAttributesList();
@@ -1579,9 +1571,9 @@ void MslProgram::printAttributes(std::ostream& outputStream)
         string type = input.second->typeString;
         string value = input.second->value ? input.second->value->getValueString() : EMPTY_STRING;
         outputStream << "Program Attribute: \"" << input.first
-            << "\". Location:" << location
-            << ". ResourceType: " << std::hex << resourceType
-            << ". Size: " << std::dec << size;
+                     << "\". Location:" << location
+                     << ". ResourceType: " << std::hex << resourceType
+                     << ". Size: " << std::dec << size;
         if (!type.empty())
             outputStream << ". TypeString: \"" << type << "\"";
         if (!value.empty())

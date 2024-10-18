@@ -68,30 +68,6 @@ string Node::getConnectedNodeName(const string& inputName) const
     return input->getNodeName();
 }
 
-void Node::setConnectedOutput(const string& inputName, OutputPtr output)
-{
-    InputPtr input = getInput(inputName);
-    if (!input)
-    {
-        input = addInput(inputName, DEFAULT_TYPE_STRING);
-    }
-    if (output)
-    {
-        input->setType(output->getType());
-    }
-    input->setConnectedOutput(output);
-}
-
-OutputPtr Node::getConnectedOutput(const string& inputName) const
-{
-    InputPtr input = getInput(inputName);
-    if (!input)
-    {
-        return OutputPtr();
-    }
-    return input->getConnectedOutput();
-}
-
 NodeDefPtr Node::getNodeDef(const string& target, bool allowRoughMatch) const
 {
     if (hasNodeDefString())
@@ -366,8 +342,8 @@ void GraphElement::flattenSubgraphs(const string& target, NodePredicate filter)
                                     }
                                 }
                             }
+                            destInput->removeAttribute(ValueElement::INTERFACE_NAME_ATTRIBUTE);
                         }
-                        destInput->removeAttribute(ValueElement::INTERFACE_NAME_ATTRIBUTE);
                     }
                 }
             }
@@ -647,34 +623,33 @@ void Node::addInputsFromNodeDef()
     }
 }
 
-void NodeGraph::addInterfaceName(const string& inputPath, const string& interfaceName)
+InputPtr NodeGraph::addInterfaceName(const string& inputPath, const string& interfaceName)
 {
     NodeDefPtr nodeDef = getNodeDef();
-    if (!nodeDef)
+    InterfaceElementPtr interfaceElement = nodeDef ? nodeDef->asA<InterfaceElement>() : getSelf()->asA<InterfaceElement>();
+    if (interfaceElement->getChild(interfaceName))
     {
-        throw Exception("Cannot declare an interface for a nodegraph which is not associated with a node definition: " + getName());
-    }
-    if (nodeDef->getChild(interfaceName))
-    {
-        throw Exception("Interface: " + interfaceName + " has already been declared on the node definition: " + nodeDef->getName());
+        throw Exception("Interface: " + interfaceName + " has already been declared on the interface: " + interfaceElement->getNamePath());
     }
 
+    InputPtr interfaceInput;
     ElementPtr elem = getDescendant(inputPath);
     InputPtr input = elem ? elem->asA<Input>() : nullptr;
     if (input && !input->getConnectedNode())
     {
         input->setInterfaceName(interfaceName);
-        InputPtr nodeDefInput = nodeDef->getInput(interfaceName);
-        if (!nodeDefInput)
+        interfaceInput = interfaceElement->getInput(interfaceName);
+        if (!interfaceInput)
         {
-            nodeDefInput = nodeDef->addInput(interfaceName, input->getType());
+            interfaceInput = interfaceElement->addInput(interfaceName, input->getType());
         }
         if (input->hasValue())
         {
-            nodeDefInput->setValueString(input->getValueString());
+            interfaceInput->setValueString(input->getValueString());
             input->removeAttribute(Input::VALUE_ATTRIBUTE);
         }
     }
+    return interfaceInput;
 }
 
 void NodeGraph::removeInterfaceName(const string& inputPath)
@@ -684,24 +659,44 @@ void NodeGraph::removeInterfaceName(const string& inputPath)
     if (input)
     {
         const string& interfaceName = input->getInterfaceName();
-        getNodeDef()->removeChild(interfaceName);
-        input->setInterfaceName(EMPTY_STRING);
+        if (!interfaceName.empty())
+        {
+            NodeDefPtr nodeDef = getNodeDef();
+            InterfaceElementPtr interface = nodeDef ? nodeDef->asA<InterfaceElement>() : getSelf()->asA<InterfaceElement>();
+            ElementPtr interfacePort = interface->getChild(interfaceName);
+            if (interfacePort)
+            {
+                InputPtr interfaceInput = interfacePort->asA<Input>();
+                if (interfaceInput && interfaceInput->hasValue())
+                {
+                    input->setValueString(interfaceInput->getValueString());
+                }
+                interface->removeChild(interfaceName);
+            }
+            input->setInterfaceName(EMPTY_STRING);
+        }
     }
 }
 
 void NodeGraph::modifyInterfaceName(const string& inputPath, const string& interfaceName)
 {
+    NodeDefPtr nodeDef = getNodeDef();
+    InterfaceElementPtr interfaceElement = nodeDef ? nodeDef->asA<InterfaceElement>() : getSelf()->asA<InterfaceElement>();
+
     ElementPtr desc = getDescendant(inputPath);
     InputPtr input = desc ? desc->asA<Input>() : nullptr;
     if (input)
     {
         const string& previousName = input->getInterfaceName();
-        ElementPtr previousChild = getNodeDef()->getChild(previousName);
-        if (previousChild)
+        if (previousName != interfaceName)
         {
-            previousChild->setName(interfaceName);
+            ElementPtr previousChild = interfaceElement->getChild(previousName);
+            if (previousChild)
+            {
+                previousChild->setName(interfaceName);
+            }
+            input->setInterfaceName(interfaceName);
         }
-        input->setInterfaceName(interfaceName);
     }
 }
 

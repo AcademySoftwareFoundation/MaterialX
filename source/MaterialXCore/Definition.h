@@ -147,6 +147,13 @@ class MX_CORE_API NodeDef : public InterfaceElement
     InterfaceElementPtr getImplementation(const string& target = EMPTY_STRING) const;
 
     /// @}
+    /// @name Hints
+    /// @{
+
+    /// Return list of input hint pairs of the form { input_name, hint_string }
+    StringMap getInputHints() const;
+
+    /// @}
     /// @name Validation
     /// @{
 
@@ -179,6 +186,7 @@ class MX_CORE_API NodeDef : public InterfaceElement
     static const string GEOMETRIC_NODE_GROUP;
     static const string ADJUSTMENT_NODE_GROUP;
     static const string CONDITIONAL_NODE_GROUP;
+    static const string CHANNEL_NODE_GROUP;
     static const string ORGANIZATION_NODE_GROUP;
     static const string TRANSLATION_NODE_GROUP;
 };

@@ -87,12 +87,12 @@ class MX_RENDERMSL_API MslProgram
     /// optimized out if they are unused.
     struct MX_RENDERMSL_API Input
     {
-        static int INVALID_METAL_TYPE;
+        static MTLDataType INVALID_METAL_TYPE;
 
         /// Program location. -1 means an invalid location
         int location;
-        /// Metal type of the input. -1 means an invalid type
-        int resourceType;
+        /// Metal type of the input.
+        MTLDataType resourceType;
         /// Size.
         int size;
         /// Input type string. Will only be non-empty if initialized stages with a HwShader
@@ -106,17 +106,18 @@ class MX_RENDERMSL_API MslProgram
         string path;
         /// Unit
         string unit;
-        /// Colorspace 
+        /// Colorspace
         string colorspace;
 
         /// Program input constructor
-        Input(int inputLocation, int inputType, int inputSize, const string& inputPath) :
+        Input(int inputLocation, MTLDataType inputType, int inputSize, const string& inputPath) :
             location(inputLocation),
             resourceType(inputType),
             size(inputSize),
             isConstant(false),
             path(inputPath)
-        { }
+        {
+        }
     };
     /// Program input structure shared pointer type
     using InputPtr = std::shared_ptr<Input>;
@@ -153,7 +154,7 @@ class MX_RENDERMSL_API MslProgram
     /// @param renderCmdEncoder encoder that binds the pipeline state object.
     /// @return False if failed
     bool bind(id<MTLRenderCommandEncoder> renderCmdEncoder);
-    
+
     /// Bind inputs
     ///  @param renderCmdEncoder encoder that inputs will be bound to.
     ///  @param cam Camera object use to view the object
@@ -162,10 +163,10 @@ class MX_RENDERMSL_API MslProgram
     ///  @param lightHandler
     ///  @return void - No return value
     void prepareUsedResources(id<MTLRenderCommandEncoder> renderCmdEncoder,
-                        CameraPtr cam,
-                        GeometryHandlerPtr geometryHandler,
-                        ImageHandlerPtr imageHandler,
-                        LightHandlerPtr lightHandler);
+                              CameraPtr cam,
+                              GeometryHandlerPtr geometryHandler,
+                              ImageHandlerPtr imageHandler,
+                              LightHandlerPtr lightHandler);
 
     /// Return true if a uniform with the given name is present.
     bool hasUniform(const string& name);
@@ -188,14 +189,14 @@ class MX_RENDERMSL_API MslProgram
 
     /// Bind input geometry streams
     void bindMesh(id<MTLRenderCommandEncoder> renderCmdEncoder, MeshPtr mesh);
-    
+
     /// Queries the index buffer assinged to a mesh partition
-    id<MTLBuffer> getIndexBuffer(MeshPartitionPtr mesh) {
-        if(_indexBufferIds.find(mesh) != _indexBufferIds.end())
+    id<MTLBuffer> getIndexBuffer(MeshPartitionPtr mesh)
+    {
+        if (_indexBufferIds.find(mesh) != _indexBufferIds.end())
             return _indexBufferIds[mesh];
         return nil;
     }
-
 
     /// Unbind any bound geometry
     void unbindGeometry();
@@ -204,7 +205,7 @@ class MX_RENDERMSL_API MslProgram
     void bindTextures(id<MTLRenderCommandEncoder> renderCmdEncoder,
                       LightHandlerPtr lightHandler,
                       ImageHandlerPtr imageHandler);
-    
+
     void bindTexture(ImageHandlerPtr imageHandler,
                      string shaderTextureName,
                      ImagePtr imagePtr,
@@ -215,17 +216,17 @@ class MX_RENDERMSL_API MslProgram
 
     /// Bind view information
     void bindViewInformation(CameraPtr camera);
-    
+
     /// Bind time and frame
     void bindTimeAndFrame(float time = 1.0f, float frame = 1.0f);
 
     /// @}
     /// @name Utilities
     /// @{
-    
+
     /// Returns if alpha blending is enabled.
     bool isTransparent() const { return _alphaBlendingEnabled; }
-    
+
     /// Specify textures bound to this program shouldn't be mip mapped.
     void setEnableMipMaps(bool enableMipMapping) { _enableMipMapping = enableMipMapping; }
 
@@ -263,13 +264,13 @@ class MX_RENDERMSL_API MslProgram
                          const FilePath& filePath,
                          ImageSamplingProperties samplingProperties,
                          ImageHandlerPtr imageHandler);
-    
+
     // Bind an individual texture to a program uniform location
     ImagePtr bindTexture(id<MTLRenderCommandEncoder> renderCmdEncoder,
                          unsigned int uniformLocation,
                          ImagePtr imagePtr,
                          ImageHandlerPtr imageHandler);
-        
+
     void bindUniformBuffers(id<MTLRenderCommandEncoder> renderCmdEncoder,
                             LightHandlerPtr lightHandler,
                             CameraPtr camera);
@@ -278,7 +279,7 @@ class MX_RENDERMSL_API MslProgram
     void reset();
 
     // Utility to map a MaterialX type to an METAL type
-    static MTLDataType mapTypeToMetalType(const TypeDesc* type);
+    static MTLDataType mapTypeToMetalType(TypeDesc type);
 
   private:
     // Stages used to create program
@@ -294,7 +295,7 @@ class MX_RENDERMSL_API MslProgram
     std::unordered_map<std::string, std::string> _globalUniformNameList;
     // List of program input attributes
     InputMap _attributeList;
-    
+
     std::unordered_map<std::string, ImagePtr> _explicitBoundImages;
 
     // Hardware shader (if any) used for program creation
@@ -309,18 +310,18 @@ class MX_RENDERMSL_API MslProgram
 
     // Program texture map
     std::unordered_map<string, unsigned int> _programTextures;
-    
+
     // Metal Device Object
     id<MTLDevice> _device = nil;
-    
+
     // Currently bound mesh
     MeshPtr _boundMesh = nullptr;
 
     bool _alphaBlendingEnabled = false;
-    
+
     float _time = 0.0f;
     float _frame = 0.0f;
-    
+
     bool _enableMipMapping = true;
 };
 

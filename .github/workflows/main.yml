@@ -18,85 +18,85 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - name: Linux_GCC_9_Python37
-          os: ubuntu-20.04
-          compiler: gcc
-          compiler_version: "9"
-          python: 3.7
-          cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
-
-        - name: Linux_GCC_12_Python311
+        - name: Linux_GCC_10_Python37
           os: ubuntu-22.04
           compiler: gcc
-          compiler_version: "12"
+          compiler_version: "10"
+          python: 3.7
+          cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON -DMATERIALX_BUILD_MONOLITHIC=ON
+
+        - name: Linux_GCC_13_Python311
+          os: ubuntu-24.04
+          compiler: gcc
+          compiler_version: "13"
           python: 3.11
           build_javascript: ON
 
-        - name: Linux_GCC_13_Python312
-          os: ubuntu-22.04
+        - name: Linux_GCC_14_Python312
+          os: ubuntu-24.04
           compiler: gcc
-          compiler_version: "13"
+          compiler_version: "14"
           python: 3.12
-          static_analysis: ON
-          cmake_config: -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
         - name: Linux_GCC_CoverageAnalysis
-          os: ubuntu-22.04
+          os: ubuntu-24.04
           compiler: gcc
           compiler_version: "None"
           python: None
           coverage_analysis: ON
           cmake_config: -DMATERIALX_COVERAGE_ANALYSIS=ON -DMATERIALX_BUILD_RENDER=OFF -DMATERIALX_BUILD_PYTHON=OFF
 
-        - name: Linux_Clang_10_Python37
-          os: ubuntu-20.04
+        - name: Linux_Clang_13_Python37
+          os: ubuntu-22.04
           compiler: clang
-          compiler_version: "10"
+          compiler_version: "13"
           python: 3.7
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
 
-        - name: Linux_Clang_15_Python312
-          os: ubuntu-22.04
+        - name: Linux_Clang_18_Python312
+          os: ubuntu-24.04
           compiler: clang
-          compiler_version: "15"
+          compiler_version: "18"
           python: 3.12
           test_render: ON
           clang_format: ON
 
-        - name: Linux_Clang_DynamicAnalysis
-          os: ubuntu-22.04
-          compiler: clang
-          compiler_version: "15"
-          python: None
-          cmake_config: -DMATERIALX_DYNAMIC_ANALYSIS=ON
-          dynamic_analysis: ON
-
-        - name: MacOS_Xcode_13_Python37
-          os: macos-12
+        - name: MacOS_Xcode_14_Python39
+          os: macos-13
           compiler: xcode
-          compiler_version: "13.1"
+          compiler_version: "14.1"
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
-          python: 3.7
+          python: 3.9
 
         - name: MacOS_Xcode_14_Python311
-          os: macos-13
+          os: macos-14
           compiler: xcode
           compiler_version: "14.3"
           python: 3.11
+          static_analysis: ON
+          cmake_config: -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
         - name: MacOS_Xcode_15_Python312
           os: macos-14
           compiler: xcode
-          compiler_version: "15.0"
+          compiler_version: "15.4"
           python: 3.12
           test_shaders: ON
+
+        - name: MacOS_Xcode_DynamicAnalysis
+          os: macos-14
+          compiler: xcode
+          compiler_version: "15.4"
+          python: None
+          dynamic_analysis: ON
+          cmake_config: -DMATERIALX_DYNAMIC_ANALYSIS=ON
 
         - name: iOS_Xcode_15
           os: macos-14
           compiler: xcode
-          compiler_version: "15.0"
+          compiler_version: "15.4"
           python: None
-          cmake_config: -DMATERIALX_BUILD_IOS=ON -DCMAKE_OSX_SYSROOT=`xcrun --sdk iphoneos --show-sdk-path` -DCMAKE_OSX_ARCHITECTURES=arm64
+          cmake_config: -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_SYSROOT=`xcrun --sdk iphoneos --show-sdk-path` -DCMAKE_OSX_ARCHITECTURES=arm64
 
         - name: Windows_VS2019_Win32_Python37
           os: windows-2019
@@ -128,14 +128,14 @@ jobs:
       if: runner.os == 'Linux'
       run: |
         sudo apt-get update
-        sudo apt-get install xorg-dev mesa-utils
+        sudo apt-get install xorg-dev
         if [ "${{ matrix.compiler_version }}" != 'None' ]; then
           if [ "${{ matrix.compiler }}" = "gcc" ]; then
-            sudo apt-get install -y g++-${{ matrix.compiler_version }} g++-${{ matrix.compiler_version }}-multilib
+            sudo apt-get install -y g++-${{ matrix.compiler_version }}
             echo "CC=gcc-${{ matrix.compiler_version }}" >> $GITHUB_ENV
             echo "CXX=g++-${{ matrix.compiler_version }}" >> $GITHUB_ENV
           else
-            sudo apt-get install -y clang-${{ matrix.compiler_version }} libc++-${{ matrix.compiler_version }}-dev libc++abi-${{ matrix.compiler_version }}-dev
+            sudo apt-get install -y clang-${{ matrix.compiler_version }}
             echo "CC=clang-${{ matrix.compiler_version }}" >> $GITHUB_ENV
             echo "CXX=clang++-${{ matrix.compiler_version }}" >> $GITHUB_ENV
           fi
@@ -198,7 +198,7 @@ jobs:
       run: find source \( -name *.h -o -name *.cpp -o -name *.mm -o -name *.inl \) ! -path "*/External/*" ! -path "*/NanoGUI/*" | xargs clang-format -i --verbose
 
     - name: CMake Generate
-      run: cmake -S . -B build -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{matrix.cmake_config}}
+      run: cmake -S . -B build -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_BUILD_TESTS=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{matrix.cmake_config}}
 
     - name: CMake Build
       run: cmake --build build --target install --config Release --parallel 2
@@ -212,6 +212,8 @@ jobs:
       run: |
         python MaterialXTest/main.py
         python MaterialXTest/genshader.py
+        python Scripts/creatematerial.py ../resources/Materials/Examples/StandardSurface/chess_set --texturePrefix chessboard --shadingModel standard_surface
+        python Scripts/creatematerial.py ../resources/Materials/Examples/GltfPbr/boombox --shadingModel gltf_pbr
         python Scripts/mxformat.py ../resources/Materials/TestSuite/stdlib/upgrade --yes --upgrade
         python Scripts/mxvalidate.py ../resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --stdlib --verbose
         python Scripts/mxdoc.py --docType md ../libraries/pbrlib/pbrlib_defs.mtlx
@@ -227,13 +229,14 @@ jobs:
       run: |
         vcpkg/vcpkg install glslang --triplet=x64-windows
         glslangValidator.exe -v
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target glsl --validator glslangValidator.exe --vulkanGlsl True --validatorArgs="-V --aml"
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target essl --validator glslangValidator.exe
+        python python/Scripts/generateshader.py resources/Materials/Examples --target glsl --validator glslangValidator.exe
+        python python/Scripts/generateshader.py resources/Materials/Examples --target essl --validator glslangValidator.exe
 
     - name: Shader Validation Tests (MacOS)
       if: matrix.test_shaders == 'ON' && runner.os == 'macOS'
       run: |
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target msl --validator "xcrun metal --language=metal" --validatorArgs="-w"
+        python python/Scripts/generateshader.py resources/Materials/Examples --target msl --validator "xcrun metal --language=metal" --validatorArgs="-w"
+        python python/Scripts/generateshader.py resources/Materials/TestSuite/stdlib --target msl --validator "xcrun metal --language=metal" --validatorArgs="-w"
 
     - name: Coverage Analysis Tests
       if: matrix.coverage_analysis == 'ON'
@@ -244,10 +247,14 @@ jobs:
       working-directory: build
 
     - name: Static Analysis Tests
-      if: matrix.static_analysis == 'ON' && runner.os == 'Linux'
+      if: matrix.static_analysis == 'ON'
       run: |
-        sudo apt-get install cppcheck
-        cppcheck --project=build/compile_commands.json --error-exitcode=1 --suppress=*:*/External/* --suppress=*:*/NanoGUI/*
+        if [ "${{ runner.os }}" = "Linux" ]; then
+          sudo apt-get install cppcheck
+        else
+          brew install cppcheck
+        fi
+        cppcheck --project=build/compile_commands.json --error-exitcode=1 --suppress=normalCheckLevelMaxBranches --suppress=*:*/External/* --suppress=*:*/NanoGUI/*
 
     - name: Initialize Virtual Framebuffer
       if: matrix.test_render == 'ON' && runner.os == 'Linux'
@@ -255,7 +262,6 @@ jobs:
         Xvfb :1 -screen 0 1280x960x24 &
         echo "DISPLAY=:1" >> $GITHUB_ENV
         echo "LIBGL_ALWAYS_SOFTWARE=1" >> $GITHUB_ENV
-        echo "GALLIUM_DRIVER=llvmpipe" >> $GITHUB_ENV
 
     - name: Render Script Tests
       if: matrix.test_render == 'ON'
@@ -331,8 +337,8 @@ jobs:
       working-directory: javascript/MaterialXView
 
     - name: Deploy Web Viewer
-      if: matrix.build_javascript == 'ON' && github.ref == 'refs/heads/main'
-      uses: JamesIves/github-pages-deploy-action@v4
+      if: matrix.build_javascript == 'ON' && github.event_name != 'pull_request'
+      uses: JamesIves/github-pages-deploy-action@v4.6.4
       with:
         branch: gh-pages
         folder: javascript/MaterialXView/dist
@@ -344,11 +350,10 @@ jobs:
       with:
         name: MaterialX_JavaScript
         path: javascript/build/installed/JavaScript/MaterialX        
-        if-no-files-found: ignore   
 
   sdist:
     name: Python SDist
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     if: github.repository == 'AcademySoftwareFoundation/MaterialX'
     outputs:
       sdist_filename: ${{ steps.generate.outputs.filename }}
@@ -383,8 +388,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-minor: ['7', '8', '9', '10', '11']
-        os: ['ubuntu-latest', 'macos-latest', 'windows-latest']
+        python-minor: ['7', '8', '9', '10', '11', '12']
+        os: ['ubuntu-22.04', 'windows-2022', 'macos-13']
 
     steps:
     - name: Sync Repository
@@ -402,7 +407,7 @@ jobs:
         path: sdist
 
     - name: Build Wheel
-      uses: pypa/cibuildwheel@v2.16.5
+      uses: pypa/cibuildwheel@v2.19.2
       with:
         package-dir: ${{ github.workspace }}/sdist/${{ needs.sdist.outputs.sdist_filename }}
       env:
@@ -413,7 +418,6 @@ jobs:
         # manylinux2014 is CentOS 7 based. Which means GCC 10 and glibc 2.17.
         CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
         CIBW_BEFORE_ALL_LINUX: yum install -y libXt-devel
-        CIBW_BEFORE_ALL_MACOS: sudo xcode-select -switch /Applications/Xcode_13.4.app
         CIBW_BUILD_VERBOSITY: 1
         CIBW_ENVIRONMENT: CMAKE_BUILD_PARALLEL_LEVEL=2
         # CIBW_BUILD_FRONTEND: build  # https://github.com/pypa/build

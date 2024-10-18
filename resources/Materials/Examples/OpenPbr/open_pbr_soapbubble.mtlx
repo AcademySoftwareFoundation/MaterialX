@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<materialx version="1.39" colorspace="lin_rec709">
+  <surfacematerial name="Soap_Bubble" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="open_pbr_surface_surfaceshader" />
+  </surfacematerial>
+  <open_pbr_surface name="open_pbr_surface_surfaceshader" type="surfaceshader">
+    <input name="specular_roughness" type="float" value="0" />
+    <input name="specular_ior" type="float" value="1.0" />
+    <input name="transmission_weight" type="float" value="1.0" />
+    <input name="thin_film_weight" type="float" value="1.0" />
+    <input name="thin_film_thickness" type="float" value="0.5" />
+    <input name="thin_film_ior" type="float" value="1.4" />
+    <input name="geometry_thin_walled" type="boolean" value="true" />
+  </open_pbr_surface>
+</materialx>

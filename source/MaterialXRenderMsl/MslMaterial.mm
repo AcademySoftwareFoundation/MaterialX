@@ -38,7 +38,7 @@ bool MslMaterial::loadSource(const FilePath& vertexShaderFile, const FilePath& p
     }
 
     // TODO:
-    // Here we set new source code on the _glProgram without rebuilding 
+    // Here we set new source code on the _glProgram without rebuilding
     // the _hwShader instance. So the _hwShader is not in sync with the
     // _glProgram after this operation.
     _glProgram = MslProgram::create();
@@ -105,19 +105,19 @@ bool MslMaterial::bindShader() const
 }
 
 void MslMaterial::prepareUsedResources(CameraPtr cam,
-                          GeometryHandlerPtr geometryHandler,
-                          ImageHandlerPtr imageHandler,
-                          LightHandlerPtr lightHandler)
+                                       GeometryHandlerPtr geometryHandler,
+                                       ImageHandlerPtr imageHandler,
+                                       LightHandlerPtr lightHandler)
 {
     if (!_glProgram)
     {
         return;
     }
-    
+
     _glProgram->prepareUsedResources(MTL(renderCmdEncoder),
-                           cam, geometryHandler,
-                           imageHandler,
-                           lightHandler);
+                                     cam, geometryHandler,
+                                     imageHandler,
+                                     lightHandler);
 }
 
 void MslMaterial::bindMesh(MeshPtr mesh)
@@ -176,14 +176,14 @@ void MslMaterial::bindImages(ImageHandlerPtr imageHandler, const FileSearchPath&
 
     _boundImages.clear();
     _glProgram->setEnableMipMaps(enableMipmaps);
-    
+
     // Texture and Samplers being bound to the right texture and sampler in MslPipelineStateObject automatically.
 }
 
 ImagePtr MslMaterial::bindImage(const FilePath& filePath,
-                                 const std::string& uniformName,
-                                 ImageHandlerPtr imageHandler,
-                                 const ImageSamplingProperties& samplingProperties)
+                                const std::string& uniformName,
+                                ImageHandlerPtr imageHandler,
+                                const ImageSamplingProperties& samplingProperties)
 {
     if (!_glProgram)
     {
@@ -203,8 +203,8 @@ ImagePtr MslMaterial::bindImage(const FilePath& filePath,
 }
 
 void MslMaterial::bindLighting(LightHandlerPtr lightHandler,
-                            ImageHandlerPtr imageHandler,
-                            const ShadowState& shadowState)
+                               ImageHandlerPtr imageHandler,
+                               const ShadowState& shadowState)
 {
     if (!_glProgram)
     {
@@ -239,7 +239,7 @@ void MslMaterial::bindLighting(LightHandlerPtr lightHandler,
         _glProgram->bindTexture(imageHandler, TEXTURE_NAME(HW::AMB_OCC_MAP),
                                 shadowState.ambientOcclusionMap,
                                 samplingProperties);
-        
+
         _glProgram->bindUniform(HW::AMB_OCC_GAIN, Value::createValue(shadowState.ambientOcclusionGain));
     }
 }
@@ -253,10 +253,10 @@ void MslMaterial::drawPartition(MeshPartitionPtr part) const
     MeshIndexBuffer& indexData = part->getIndices();
 
     [MTL(renderCmdEncoder) drawIndexedPrimitives:MTLPrimitiveTypeTriangle
-                                 indexCount:indexData.size()
-                                  indexType:MTLIndexTypeUInt32
-                                indexBuffer:_glProgram->getIndexBuffer(part)
-                          indexBufferOffset:0];
+                                      indexCount:indexData.size()
+                                       indexType:MTLIndexTypeUInt32
+                                     indexBuffer:_glProgram->getIndexBuffer(part)
+                               indexBufferOffset:0];
 }
 
 void MslMaterial::unbindGeometry()
@@ -288,16 +288,15 @@ ShaderPort* MslMaterial::findUniform(const std::string& path) const
     if (publicUniforms)
     {
         // Scan block based on path match predicate
-        port = publicUniforms->find(
-            [path](ShaderPort* port)
-            {
-                return (port && stringEndsWith(port->getPath(), path));
-            });
+        port = publicUniforms->find([path](ShaderPort* port)
+        {
+            return (port && stringEndsWith(port->getPath(), path));
+        });
 
         // Check if the uniform exists in the shader program
         if (port && !_glProgram->getUniformsList().count(
-                publicUniforms->getInstance() + "." +
-                port->getVariable()))
+                        publicUniforms->getInstance() + "." +
+                        port->getVariable()))
         {
             port = nullptr;
         }
@@ -319,7 +318,7 @@ void MslMaterial::modifyUniform(const std::string& path, ConstValuePtr value, st
     {
         valueString = value->getValueString();
     }
-    uniform->setValue(Value::createValueFromStrings(valueString, uniform->getType()->getName()));
+    uniform->setValue(Value::createValueFromStrings(valueString, uniform->getType().getName()));
     if (_doc)
     {
         ElementPtr element = _doc->getDescendant(uniform->getPath());
@@ -335,4 +334,3 @@ void MslMaterial::modifyUniform(const std::string& path, ConstValuePtr value, st
 }
 
 MATERIALX_NAMESPACE_END
-

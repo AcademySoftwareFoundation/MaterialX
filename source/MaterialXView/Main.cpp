@@ -42,6 +42,7 @@ const std::string options =
     "    --bakeHeight [INTEGER]         Specify the target height for texture baking (defaults to maximum image height of the source document)\n"
     "    --bakeFilename [STRING]        Specify the output document filename for texture baking\n"
     "    --refresh [FLOAT]              Specify the refresh period for the viewer in milliseconds (defaults to 50, set to -1 to disable)\n"
+    "    --frameTiming [BOOLEAN]        Specify whether the frame timing display is enabled (defaults to false)\n"
     "    --remap [TOKEN1:TOKEN2]        Specify the remapping from one token to another when MaterialX document is loaded\n"
     "    --skip [NAME]                  Specify to skip elements matching the given name attribute\n"
     "    --terminator [STRING]          Specify to enforce the given terminator string for file prefixes\n"
@@ -101,6 +102,7 @@ int main(int argc, char* const argv[])
     int bakeHeight = 0;
     std::string bakeFilename;
     float refresh = 50.0f;
+    bool frameTiming = false;
 
     for (size_t i = 0; i < tokens.size(); i++)
     {
@@ -218,6 +220,14 @@ int main(int argc, char* const argv[])
         {
             parseToken(nextToken, "float", refresh);
         }
+        else if (token == "--frameTiming")
+        {
+            parseToken(nextToken, "boolean", frameTiming);
+            if (frameTiming)
+            {
+                refresh = 0;
+            }
+        }
         else if (token == "--remap")
         {
             mx::StringVec vec = mx::splitString(nextToken, ":");
@@ -292,6 +302,7 @@ int main(int argc, char* const argv[])
         viewer->setBakeWidth(bakeWidth);
         viewer->setBakeHeight(bakeHeight);
         viewer->setBakeFilename(bakeFilename);
+        viewer->setFrameTiming(frameTiming);
         viewer->initialize();
 
         if (!captureFilename.empty())

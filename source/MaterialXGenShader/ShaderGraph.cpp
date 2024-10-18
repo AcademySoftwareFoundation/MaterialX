@@ -36,9 +36,9 @@ void ShaderGraph::addInputSockets(const InterfaceElement& elem, GenContext& cont
         ShaderGraphInputSocket* inputSocket = nullptr;
         ValuePtr portValue = input->getResolvedValue();
         const string& portValueString = portValue ? portValue->getValueString() : EMPTY_STRING;
-        std::pair<const TypeDesc*, ValuePtr> enumResult;
+        std::pair<TypeDesc, ValuePtr> enumResult;
         const string& enumNames = input->getAttribute(ValueElement::ENUM_ATTRIBUTE);
-        const TypeDesc* portType = TypeDesc::get(input->getType());
+        const TypeDesc portType = TypeDesc::get(input->getType());
         if (context.getShaderGenerator().getSyntax().remapEnumeration(portValueString, portType, enumNames, enumResult))
         {
             inputSocket = addInputSocket(input->getName(), enumResult.first);
@@ -68,8 +68,7 @@ void ShaderGraph::addOutputSockets(const InterfaceElement& elem)
 {
     for (const OutputPtr& output : elem.getActiveOutputs())
     {
-        ShaderGraphOutputSocket* outputSocket = addOutputSocket(output->getName(), TypeDesc::get(output->getType()));
-        outputSocket->setChannels(output->getChannels());
+        addOutputSocket(output->getName(), TypeDesc::get(output->getType()));
     }
     if (numOutputSockets() == 0)
     {
@@ -201,7 +200,7 @@ void ShaderGraph::addDefaultGeomNode(ShaderInput* input, const GeomPropDef& geom
     {
         // Find the nodedef for the geometric node referenced by the geomprop. Use the type of the
         // input here and ignore the type of the geomprop. They are required to have the same type.
-        string geomNodeDefName = "ND_" + geomprop.getGeomProp() + "_" + input->getType()->getName();
+        string geomNodeDefName = "ND_" + geomprop.getGeomProp() + "_" + input->getType().getName();
         NodeDefPtr geomNodeDef = _document->getNodeDef(geomNodeDefName);
         if (!geomNodeDef)
         {
@@ -221,9 +220,9 @@ void ShaderGraph::addDefaultGeomNode(ShaderInput* input, const GeomPropDef& geom
             ValueElementPtr nodeDefSpaceInput = geomNodeDef->getActiveValueElement(GeomPropDef::SPACE_ATTRIBUTE);
             if (spaceInput && nodeDefSpaceInput)
             {
-                std::pair<const TypeDesc*, ValuePtr> enumResult;
+                std::pair<TypeDesc, ValuePtr> enumResult;
                 const string& enumNames = nodeDefSpaceInput->getAttribute(ValueElement::ENUM_ATTRIBUTE);
-                const TypeDesc* portType = TypeDesc::get(nodeDefSpaceInput->getType());
+                const TypeDesc portType = TypeDesc::get(nodeDefSpaceInput->getType());
                 if (context.getShaderGenerator().getSyntax().remapEnumeration(space, portType, enumNames, enumResult))
                 {
                     spaceInput->setValue(enumResult.second);
@@ -490,7 +489,6 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
         // Create the given output socket
         ShaderGraphOutputSocket* outputSocket = graph->addOutputSocket(output->getName(), TypeDesc::get(output->getType()));
         outputSocket->setPath(output->getNamePath());
-        outputSocket->setChannels(output->getChannels());
         const string& outputUnit = output->getUnit();
         if (!outputUnit.empty())
         {
@@ -556,8 +554,8 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
                 if (value)
                 {
                     const string& valueString = value->getValueString();
-                    std::pair<const TypeDesc*, ValuePtr> enumResult;
-                    const TypeDesc* type = TypeDesc::get(nodedefInput->getType());
+                    std::pair<TypeDesc, ValuePtr> enumResult;
+                    const TypeDesc type = TypeDesc::get(nodedefInput->getType());
                     const string& enumNames = nodedefInput->getAttribute(ValueElement::ENUM_ATTRIBUTE);
                     if (context.getShaderGenerator().getSyntax().remapEnumeration(valueString, type, enumNames, enumResult))
                     {
@@ -635,14 +633,14 @@ void ShaderGraph::applyInputTransforms(ConstNodePtr node, ShaderNodePtr shaderNo
         if (input->hasValue() || input->hasInterfaceName())
         {
             string sourceColorSpace = input->getActiveColorSpace();
-            if (input->getType() == FILENAME_TYPE_STRING && node->isColorType())
+            if (input->getType() == FILENAME_TYPE_STRING && (node->isColorType() || node->isMultiOutputType()))
             {
                 // Adjust the source color space for filename interface names.
                 if (input->hasInterfaceName())
                 {
                     for (ConstNodePtr parentNode : context.getParentNodes())
                     {
-                        if (!parentNode->isColorType())
+                        if (!parentNode->isColorType() && !parentNode->isMultiOutputType())
                         {
                             InputPtr interfaceInput = parentNode->getInput(input->getInterfaceName());
                             string interfaceColorSpace = interfaceInput ? interfaceInput->getActiveColorSpace() : EMPTY_STRING;
@@ -654,9 +652,11 @@ void ShaderGraph::applyInputTransforms(ConstNodePtr node, ShaderNodePtr shaderNo
                     }
                 }
 
-                ShaderOutput* shaderOutput = shaderNode->getOutput();
-                populateColorTransformMap(colorManagementSystem, shaderOutput, sourceColorSpace, targetColorSpace, false);
-                populateUnitTransformMap(unitSystem, shaderOutput, input, targetDistanceUnit, false);
+                for (ShaderOutput* shaderOutput : shaderNode->getOutputs())
+                {
+                    populateColorTransformMap(colorManagementSystem, shaderOutput, sourceColorSpace, targetColorSpace, false);
+                    populateUnitTransformMap(unitSystem, shaderOutput, input, targetDistanceUnit, false);
+                }
             }
             else
             {
@@ -727,12 +727,12 @@ ShaderNode* ShaderGraph::createNode(ConstNodePtr node, GenContext& context)
     return newNode.get();
 }
 
-ShaderGraphInputSocket* ShaderGraph::addInputSocket(const string& name, const TypeDesc* type)
+ShaderGraphInputSocket* ShaderGraph::addInputSocket(const string& name, TypeDesc type)
 {
     return ShaderNode::addOutput(name, type);
 }
 
-ShaderGraphOutputSocket* ShaderGraph::addOutputSocket(const string& name, const TypeDesc* type)
+ShaderGraphOutputSocket* ShaderGraph::addOutputSocket(const string& name, TypeDesc type)
 {
     return ShaderNode::addInput(name, type);
 }
@@ -803,7 +803,7 @@ void ShaderGraph::finalize(GenContext& context)
     _outputUnitTransformMap.clear();
 
     // Optimize the graph, removing redundant paths.
-    optimize(context);
+    optimize();
 
     // Sort the nodes in topological order.
     topologicalSort();
@@ -819,7 +819,7 @@ void ShaderGraph::finalize(GenContext& context)
                 {
                     // Check if the type is editable otherwise we can't
                     // publish the input as an editable uniform.
-                    if (input->getType()->isEditable() && node->isEditable(*input))
+                    if (!input->getType().isClosure() && node->isEditable(*input))
                     {
                         // Use a consistent naming convention: <nodename>_<inputname>
                         // so application side can figure out what uniforms to set
@@ -863,7 +863,7 @@ void ShaderGraph::disconnect(ShaderNode* node) const
     }
 }
 
-void ShaderGraph::optimize(GenContext& context)
+void ShaderGraph::optimize()
 {
     size_t numEdits = 0;
     for (ShaderNode* node : getNodes())
@@ -871,16 +871,16 @@ void ShaderGraph::optimize(GenContext& context)
         if (node->hasClassification(ShaderNode::Classification::CONSTANT))
         {
             // Constant nodes can be elided by moving their value downstream.
-            bypass(context, node, 0);
+            bypass(node, 0);
             ++numEdits;
         }
         else if (node->hasClassification(ShaderNode::Classification::DOT))
         {
             // Filename dot nodes must be elided so they do not create extra samplers.
             ShaderInput* in = node->getInput("in");
-            if (in->getChannels().empty() && *in->getType() == *Type::FILENAME)
+            if (in->getType() == Type::FILENAME)
             {
-                bypass(context, node, 0);
+                bypass(node, 0);
                 ++numEdits;
             }
         }
@@ -929,7 +929,7 @@ void ShaderGraph::optimize(GenContext& context)
     }
 }
 
-void ShaderGraph::bypass(GenContext& context, ShaderNode* node, size_t inputIndex, size_t outputIndex)
+void ShaderGraph::bypass(ShaderNode* node, size_t inputIndex, size_t outputIndex)
 {
     ShaderInput* input = node->getInput(inputIndex);
     ShaderOutput* output = node->getOutput(outputIndex);
@@ -968,19 +968,6 @@ void ShaderGraph::bypass(GenContext& context, ShaderNode* node, size_t inputInde
             if (!inputColorSpace.empty())
             {
                 downstream->setColorSpace(inputColorSpace);
-            }
-
-            // Swizzle the input value. Once done clear the channel to indicate
-            // no further swizzling is reqiured.
-            const string& channels = downstream->getChannels();
-            if (!channels.empty())
-            {
-                downstream->setValue(context.getShaderGenerator().getSyntax().getSwizzledValue(input->getValue(),
-                                                                                               input->getType(),
-                                                                                               channels,
-                                                                                               downstream->getType()));
-                downstream->setType(downstream->getType());
-                downstream->setChannels(EMPTY_STRING);
             }
         }
     }
@@ -1084,12 +1071,14 @@ void ShaderGraph::populateColorTransformMap(ColorManagementSystemPtr colorManage
     if (!shaderPort ||
         sourceColorSpace.empty() ||
         targetColorSpace.empty() ||
-        sourceColorSpace == targetColorSpace)
+        sourceColorSpace == targetColorSpace ||
+        sourceColorSpace == "none" ||
+        targetColorSpace == "none")
     {
         return;
     }
 
-    if (*(shaderPort->getType()) == *Type::COLOR3 || *(shaderPort->getType()) == *Type::COLOR4)
+    if (shaderPort->getType() == Type::COLOR3 || shaderPort->getType() == Type::COLOR4)
     {
         // Store the source color space on the shader port.
         shaderPort->setColorSpace(sourceColorSpace);
@@ -1154,10 +1143,10 @@ void ShaderGraph::populateUnitTransformMap(UnitSystemPtr unitSystem, ShaderPort*
 
     // Only support convertion for float and vectors. arrays, matrices are not supported.
     // TODO: This should be provided by the UnitSystem.
-    bool supportedType = (*shaderPort->getType() == *Type::FLOAT ||
-                          *shaderPort->getType() == *Type::VECTOR2 ||
-                          *shaderPort->getType() == *Type::VECTOR3 ||
-                          *shaderPort->getType() == *Type::VECTOR4);
+    bool supportedType = (shaderPort->getType() == Type::FLOAT ||
+                          shaderPort->getType() == Type::VECTOR2 ||
+                          shaderPort->getType() == Type::VECTOR3 ||
+                          shaderPort->getType() == Type::VECTOR4);
     if (supportedType)
     {
         UnitTransform transform(sourceUnitSpace, targetUnitSpace, shaderPort->getType(), unitType);

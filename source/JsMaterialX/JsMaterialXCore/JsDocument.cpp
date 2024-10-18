@@ -23,6 +23,9 @@ EMSCRIPTEN_BINDINGS(document)
         .class_function("createDocument", &mx::Document::createDocument<mx::Document>)
         .function("initialize", &mx::Document::initialize)
         .function("copy", &mx::Document::copy)
+        .function("setDataLibrary", &mx::Document::setDataLibrary)
+        .function("getDataLibrary", &mx::Document::getDataLibrary)
+        .function("hasDataLibrary", &mx::Document::hasDataLibrary)
         .function("importLibrary", &mx::Document::importLibrary)
         .function("getReferencedSourceUris", ems::optional_override([](mx::Document &self) {
             mx::StringSet set = self.getReferencedSourceUris();
@@ -59,8 +62,8 @@ EMSCRIPTEN_BINDINGS(document)
         .function("getTypeDefs", &mx::Document::getTypeDefs)
         .function("removeTypeDef", &mx::Document::removeTypeDef)
         BIND_MEMBER_FUNC("addNodeDef", mx::Document, addNodeDef, 0, 3, stRef, stRef, stRef)
-        BIND_MEMBER_FUNC("addNodeDefFromGraph", mx::Document, addNodeDefFromGraph, 7, 7, const mx::NodeGraphPtr, 
-            stRef, stRef, stRef, bool, stRef, std::string)
+        BIND_MEMBER_FUNC("addNodeDefFromGraph", mx::Document, addNodeDefFromGraph, 4, 4, mx::NodeGraphPtr,
+            const std::string&, const std::string&, const std::string&)
         .function("getNodeDef", &mx::Document::getNodeDef)
         .function("getNodeDefs", &mx::Document::getNodeDefs)
         .function("removeNodeDef", &mx::Document::removeNodeDef)

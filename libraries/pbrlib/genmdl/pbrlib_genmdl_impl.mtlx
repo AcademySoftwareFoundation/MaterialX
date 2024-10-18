@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
 
   <!-- <oren_nayar_diffuse_bsdf> -->
   <implementation name="IM_oren_nayar_diffuse_bsdf_genmdl" nodedef="ND_oren_nayar_diffuse_bsdf" sourcecode="materialx::pbrlib_{{MDL_VERSION_SUFFIX}}::mx_oren_nayar_diffuse_bsdf(mxp_weight:{{weight}}, mxp_color:{{color}}, mxp_roughness:{{roughness}}, mxp_normal:{{normal}})" target="genmdl" />
@@ -11,13 +11,13 @@
   <implementation name="IM_translucent_bsdf_genmdl" nodedef="ND_translucent_bsdf" sourcecode="materialx::pbrlib_{{MDL_VERSION_SUFFIX}}::mx_translucent_bsdf(mxp_weight:{{weight}}, mxp_color:{{color}}, mxp_normal:{{normal}})" target="genmdl" />
 
   <!-- <dielectric_bsdf> -->
-  <implementation name="IM_dielectric_bsdf_genmdl" nodedef="ND_dielectric_bsdf" sourcecode="materialx::pbrlib_{{MDL_VERSION_SUFFIX}}::mx_dielectric_bsdf(mxp_weight:{{weight}}, mxp_tint:{{tint}}, mxp_ior:{{ior}}, mxp_roughness:{{roughness}}, mxp_normal:{{normal}}, mxp_tangent:{{tangent}}, mxp_distribution:{{distribution}}, mxp_scatter_mode:{{scatter_mode}}, mxp_base:{{base}}, mxp_thinfilm_thickness:{{thinfilm_thickness}}, mxp_thinfilm_ior:{{thinfilm_ior}})" target="genmdl" />
+  <implementation name="IM_dielectric_bsdf_genmdl" nodedef="ND_dielectric_bsdf" sourcecode="materialx::pbrlib_{{MDL_VERSION_SUFFIX}}::mx_dielectric_bsdf(mxp_weight:{{weight}}, mxp_tint:{{tint}}, mxp_ior:{{ior}}, mxp_roughness:{{roughness}}, mxp_thinfilm_thickness:{{thinfilm_thickness}}, mxp_thinfilm_ior:{{thinfilm_ior}}, mxp_normal:{{normal}}, mxp_tangent:{{tangent}}, mxp_distribution:{{distribution}}, mxp_scatter_mode:{{scatter_mode}}, mxp_base:{{base}})" target="genmdl" />
 
   <!-- <conductor_bsdf> -->
-  <implementation name="IM_conductor_bsdf_genmdl" nodedef="ND_conductor_bsdf" sourcecode="materialx::pbrlib_{{MDL_VERSION_SUFFIX}}::mx_conductor_bsdf(mxp_weight:{{weight}}, mxp_ior:{{ior}}, mxp_extinction:{{extinction}}, mxp_roughness:{{roughness}}, mxp_normal:{{normal}}, mxp_tangent:{{tangent}}, mxp_distribution:{{distribution}}, mxp_thinfilm_thickness:{{thinfilm_thickness}}, mxp_thinfilm_ior:{{thinfilm_ior}})" target="genmdl" />
+  <implementation name="IM_conductor_bsdf_genmdl" nodedef="ND_conductor_bsdf" sourcecode="materialx::pbrlib_{{MDL_VERSION_SUFFIX}}::mx_conductor_bsdf(mxp_weight:{{weight}}, mxp_ior:{{ior}}, mxp_extinction:{{extinction}}, mxp_roughness:{{roughness}}, mxp_thinfilm_thickness:{{thinfilm_thickness}}, mxp_thinfilm_ior:{{thinfilm_ior}}, mxp_normal:{{normal}}, mxp_tangent:{{tangent}}, mxp_distribution:{{distribution}})" target="genmdl" />
 
   <!-- <generalized_schlick_bsdf> -->
-  <implementation name="IM_generalized_schlick_bsdf_genmdl" nodedef="ND_generalized_schlick_bsdf" sourcecode="materialx::pbrlib_{{MDL_VERSION_SUFFIX}}::mx_generalized_schlick_bsdf(mxp_weight:{{weight}}, mxp_color0:{{color0}}, mxp_color90:{{color90}}, mxp_exponent:{{exponent}},mxp_roughness:{{roughness}}, mxp_normal:{{normal}}, mxp_tangent:{{tangent}}, mxp_distribution:{{distribution}}, mxp_scatter_mode:{{scatter_mode}}, mxp_base:{{base}}, mxp_thinfilm_thickness:{{thinfilm_thickness}}, mxp_thinfilm_ior:{{thinfilm_ior}})" target="genmdl" />
+  <implementation name="IM_generalized_schlick_bsdf_genmdl" nodedef="ND_generalized_schlick_bsdf" sourcecode="materialx::pbrlib_{{MDL_VERSION_SUFFIX}}::mx_generalized_schlick_bsdf(mxp_weight:{{weight}}, mxp_color0:{{color0}}, mxp_color90:{{color90}}, mxp_exponent:{{exponent}},mxp_roughness:{{roughness}}, mxp_thinfilm_thickness:{{thinfilm_thickness}}, mxp_thinfilm_ior:{{thinfilm_ior}}, mxp_normal:{{normal}}, mxp_tangent:{{tangent}}, mxp_distribution:{{distribution}}, mxp_scatter_mode:{{scatter_mode}}, mxp_base:{{base}})" target="genmdl" />
 
   <!-- <subsurface_bsdf> -->
   <implementation name="IM_subsurface_bsdf_genmdl" nodedef="ND_subsurface_bsdf" sourcecode="materialx::pbrlib_{{MDL_VERSION_SUFFIX}}::mx_subsurface_bsdf(mxp_weight:{{weight}}, mxp_color:{{color}}, mxp_radius:{{radius}}, mxp_anisotropy:{{anisotropy}}, mxp_normal:{{normal}})" target="genmdl" />
@@ -25,8 +25,8 @@
   <!-- <sheen_bsdf> -->
   <implementation name="IM_sheen_bsdf_genmdl" nodedef="ND_sheen_bsdf" sourcecode="materialx::pbrlib_{{MDL_VERSION_SUFFIX}}::mx_sheen_bsdf(mxp_weight:{{weight}}, mxp_color:{{color}}, mxp_roughness:{{roughness}}, mxp_normal:{{normal}}, mxp_base:{{base}})" target="genmdl" />
 
-  <!-- <thin_film_bsdf> -->
-  <implementation name="IM_thin_film_bsdf_genmdl" nodedef="ND_thin_film_bsdf" sourcecode="materialx::pbrlib_{{MDL_VERSION_SUFFIX}}::mx_thin_film_bsdf(mxp_thickness:{{thickness}}, mxp_ior:{{ior}}, mxp_base:{{base}})" target="genmdl" />
+  <!-- <chiang_hair_bsdf> -->
+  <implementation name="IM_chiang_hair_bsdf_genmdl" nodedef="ND_chiang_hair_bsdf" sourcecode="materialx::pbrlib_{{MDL_VERSION_SUFFIX}}::mx_chiang_hairbsdf(mxp_tint_R:{{tint_R}}, mxp_tint_TT:{{tint_TT}}, mxp_tint_TRT:{{tint_TRT}}, mxp_ior:{{ior}}, mxp_roughness_R:{{roughness_R}}, mxp_roughness_TT:{{roughness_TT}}, mxp_roughness_TRT:{{roughness_TRT}}, mxp_cuticle_angle:{{cuticle_angle}}, mxp_absorption_coefficient:{{absorption_coefficient}}, mxp_curve_direction:{{curve_direction}})" target="genmdl" />
 
   <!-- <uniform_edf> -->
   <implementation name="IM_uniform_edf_genmdl" nodedef="ND_uniform_edf" sourcecode="materialx::pbrlib_{{MDL_VERSION_SUFFIX}}::mx_uniform_edf(mxp_color:{{color}})" target="genmdl" />
@@ -48,9 +48,6 @@
 
   <!-- <surface> -->
   <implementation name="IM_surface_genmdl" nodedef="ND_surface" target="genmdl" />
-
-  <!-- <thin_surface> -->
-  <implementation name="IM_thin_surface_genmdl" nodedef="ND_thin_surface" sourcecode="materialx::pbrlib_{{MDL_VERSION_SUFFIX}}::mx_thin_surface(mxp_front_bsdf:{{front_bsdf}}, mxp_front_edf:{{front_edf}}, mxp_back_bsdf:{{back_bsdf}}, mxp_back_edf:{{back_edf}}, mxp_opacity:{{opacity}})" target="genmdl" />
 
   <!-- <volume> -->
   <implementation name="IM_volume_genmdl" nodedef="ND_volume" sourcecode="materialx::pbrlib_{{MDL_VERSION_SUFFIX}}::mx_volume(mxp_vdf:{{vdf}}, mxp_edf:{{edf}})" target="genmdl" />
@@ -95,5 +92,14 @@
 
   <!-- <blackbody> -->
   <implementation name="IM_blackbody_genmdl" nodedef="ND_blackbody" sourcecode="materialx::pbrlib_{{MDL_VERSION_SUFFIX}}::mx_blackbody(mxp_temperature:{{temperature}})" target="genmdl" />
+
+  <!-- <deon_hair_absorption_from_melanin> -->
+  <implementation name="IM_deon_hair_absorption_from_melanin_genmdl" nodedef="ND_deon_hair_absorption_from_melanin" sourcecode="materialx::pbrlib_{{MDL_VERSION_SUFFIX}}::mx_deon_hair_absorption_from_melanin(mxp_melanin_concentration:{{melanin_concentration}}, mxp_melanin_redness:{{melanin_redness}}, mxp_eumelanin_color:{{eumelanin_color}}, mxp_pheomelanin_color:{{pheomelanin_color}})" function="mx_deon_hair_absorption_from_melanin" target="genmdl" />
+
+  <!-- <chiang_hair_absorption_from_color> -->
+  <implementation name="IM_chiang_hair_absorption_from_color_genmdl" nodedef="ND_chiang_hair_absorption_from_color" sourcecode="materialx::pbrlib_{{MDL_VERSION_SUFFIX}}::mx_chiang_hair_absorption_from_color(mxp_color:{{color}}, mxp_azimuthal_roughness:{{azimuthal_roughness}})" function="mx_chiang_hair_absorption_from_color" target="genmdl" />
+
+  <!-- <chiang_hair_roughness> -->
+  <implementation name="IM_chiang_hair_roughness_genmdl" nodedef="ND_chiang_hair_roughness" sourcecode="materialx::pbrlib_{{MDL_VERSION_SUFFIX}}::mx_chiang_hair_roughness(mxp_longitudinal:{{longitudinal}}, mxp_azimuthal:{{azimuthal}}, mxp_scale_TT:{{scale_TT}}, mxp_scale_TRT:{{scale_TRT}})" target="genmdl" />
 
 </materialx>

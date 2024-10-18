@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<materialx version="1.39" colorspace="acescg">
+
+  <!-- LamaSSS -->
+  <LamaSSS name="LamaSSS" type="BSDF">
+    <input name="color" type="color3" value="0.18, 0.18, 0.18" />
+    <input name="sssRadius" type="color3" value="0, 0, 0" />
+    <input name="sssScale" type="float" value="1.0" />
+    <input name="sssMode" type="integer" value="0" />
+    <input name="sssIOR" type="float" value="1.0" />
+    <input name="sssContinuationRays" type="integer" value="0" />
+    <input name="sssUnitLength" type="float" value="0.00328" />
+    <input name="mode" type="integer" value="0" />
+    <input name="albedoInversionMethod" type="integer" value="0" />
+  </LamaSSS>
+  <surface name="LamaSSSSurface" type="surfaceshader">
+    <input name="bsdf" type="BSDF" nodename="LamaSSS" />
+  </surface>
+  <surfacematerial name="LamaSSSTest" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="LamaSSSSurface" />
+  </surfacematerial>
+
+</materialx>

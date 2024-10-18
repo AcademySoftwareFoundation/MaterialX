@@ -129,44 +129,13 @@ class MX_CORE_API PortElement : public ValueElement
     void setConnectedOutput(ConstOutputPtr output);
 
     /// Return the output, if any, to which this input is connected.
-    virtual OutputPtr getConnectedOutput() const;
+    OutputPtr getConnectedOutput() const;
 
     /// Return the output string of this element.
     const string& getOutputString() const
     {
         return getAttribute(OUTPUT_ATTRIBUTE);
     }
-
-    /// @}
-    /// @name Channels
-    /// @{
-
-    /// Set the channels string of this element, defining a channel swizzle
-    /// that will be applied to the upstream result if this port is connected.
-    void setChannels(const string& channels)
-    {
-        setAttribute(CHANNELS_ATTRIBUTE, channels);
-    }
-
-    /// Return true if this element has a channels string.
-    bool hasChannels() const
-    {
-        return hasAttribute(CHANNELS_ATTRIBUTE);
-    }
-
-    /// Return the channels string of this element.
-    const string& getChannels() const
-    {
-        return getAttribute(CHANNELS_ATTRIBUTE);
-    }
-
-    /// Return true if the given channels characters are valid for the given
-    /// source type string.
-    static bool validChannelsCharacters(const string& channels, const string& sourceType);
-
-    /// Return true if the given channels string is valid for the given source
-    /// and destination type strings.
-    static bool validChannelsString(const string& channels, const string& sourceType, const string& destinationType);
 
     /// @}
     /// @name Connections
@@ -194,11 +163,6 @@ class MX_CORE_API PortElement : public ValueElement
     static const string NODE_NAME_ATTRIBUTE;
     static const string NODE_GRAPH_ATTRIBUTE;
     static const string OUTPUT_ATTRIBUTE;
-    static const string CHANNELS_ATTRIBUTE;
-
-  private:
-    static const std::unordered_map<string, CharSet> CHANNELS_CHARACTER_SET;
-    static const std::unordered_map<string, size_t> CHANNELS_PATTERN_LENGTH;
 };
 
 /// @class Input
@@ -247,9 +211,35 @@ class MX_CORE_API Input : public PortElement
     /// Return the node, if any, to which this input is connected.
     NodePtr getConnectedNode() const override;
 
+    /// Connects this input to a corresponding interface with the given name.
+    /// If the interface name specified is an empty string then any existing connection is removed.
+    void setConnectedInterfaceName(const string& interfaceName);
+
     /// Return the input on the parent graph corresponding to the interface name
     /// for this input.
     InputPtr getInterfaceInput() const;
+
+    /// @}
+    /// @name Hints
+    /// @{
+
+    /// Return true if the input has a hint
+    bool hasHint() const
+    {
+        return hasAttribute(HINT_ATTRIBUTE);
+    }
+
+    /// Return the code generation hint
+    const string& getHint() const
+    {
+        return getAttribute(HINT_ATTRIBUTE);
+    }
+
+    // Set the code generation hint
+    void setHint(const string& hint)
+    {
+        setAttribute(HINT_ATTRIBUTE, hint);
+    }
 
     /// @}
     /// @name Validation
@@ -264,6 +254,10 @@ class MX_CORE_API Input : public PortElement
   public:
     static const string CATEGORY;
     static const string DEFAULT_GEOM_PROP_ATTRIBUTE;
+    static const string HINT_ATTRIBUTE;
+    static const string TRANSPARENCY_HINT;
+    static const string OPACITY_HINT;
+    static const string ANISOTROPY_HINT;
 };
 
 /// @class Output

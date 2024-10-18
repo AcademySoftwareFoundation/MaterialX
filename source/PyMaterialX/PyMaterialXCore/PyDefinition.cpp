@@ -32,7 +32,9 @@ void bindPyDefinition(py::module& mod)
         .def_readonly_static("GEOMETRIC_NODE_GROUP", &mx::NodeDef::GEOMETRIC_NODE_GROUP)
         .def_readonly_static("ADJUSTMENT_NODE_GROUP", &mx::NodeDef::ADJUSTMENT_NODE_GROUP)
         .def_readonly_static("CONDITIONAL_NODE_GROUP", &mx::NodeDef::CONDITIONAL_NODE_GROUP)
-        .def_readonly_static("ORGANIZATION_NODE_GROUP", &mx::NodeDef::ORGANIZATION_NODE_GROUP);
+        .def_readonly_static("CHANNEL_NODE_GROUP", &mx::NodeDef::CHANNEL_NODE_GROUP)
+        .def_readonly_static("ORGANIZATION_NODE_GROUP", &mx::NodeDef::ORGANIZATION_NODE_GROUP)
+        .def_readonly_static("TRANSLATION_NODE_GROUP", &mx::NodeDef::TRANSLATION_NODE_GROUP);
 
     py::class_<mx::Implementation, mx::ImplementationPtr, mx::InterfaceElement>(mod, "Implementation")
         .def("setFile", &mx::Implementation::setFile)
@@ -73,7 +75,7 @@ void bindPyDefinition(py::module& mod)
         .def_readonly_static("CATEGORY", &mx::Unit::CATEGORY);
 
     py::class_<mx::UnitDef, mx::UnitDefPtr, mx::Element>(mod, "UnitDef")
-        .def("setUnitType", &mx::UnitDef::hasUnitType)
+        .def("setUnitType", &mx::UnitDef::setUnitType)
         .def("hasUnitType", &mx::UnitDef::hasUnitType)
         .def("getUnitType", &mx::UnitDef::getUnitType)
         .def("addUnit", &mx::UnitDef::addUnit)

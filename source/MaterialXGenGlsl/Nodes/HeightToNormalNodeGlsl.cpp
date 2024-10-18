@@ -51,10 +51,10 @@ void HeightToNormalNodeGlsl::computeSampleOffsetStrings(const string& sampleSize
     }
 }
 
-bool HeightToNormalNodeGlsl::acceptsInputType(const TypeDesc* type) const
+bool HeightToNormalNodeGlsl::acceptsInputType(TypeDesc type) const
 {
     // Only support inputs which are float scalar
-    return (*type == *Type::FLOAT && type->isScalar());
+    return (type == Type::FLOAT && type.isScalar());
 }
 
 void HeightToNormalNodeGlsl::emitFunctionDefinition(const ShaderNode&, GenContext& context, ShaderStage& stage) const

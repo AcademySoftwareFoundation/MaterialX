@@ -9,10 +9,6 @@
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/ShaderStage.h>
-#include <MaterialXGenShader/Nodes/SwizzleNode.h>
-#include <MaterialXGenShader/Nodes/ConvertNode.h>
-#include <MaterialXGenShader/Nodes/CombineNode.h>
-#include <MaterialXGenShader/Nodes/SwitchNode.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
 #include <MaterialXGenShader/Nodes/ClosureAddNode.h>
 #include <MaterialXGenShader/Nodes/ClosureMixNode.h>
@@ -35,94 +31,6 @@ OslShaderGenerator::OslShaderGenerator() :
     ShaderGenerator(OslSyntax::create())
 {
     // Register build-in implementations
-
-    // <!-- <switch> -->
-    // <!-- 'which' type : float -->
-    registerImplementation("IM_switch_float_" + OslShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_color3_" + OslShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_color4_" + OslShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_vector2_" + OslShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_vector3_" + OslShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_vector4_" + OslShaderGenerator::TARGET, SwitchNode::create);
-    // <!-- 'which' type : integer -->
-    registerImplementation("IM_switch_floatI_" + OslShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_color3I_" + OslShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_color4I_" + OslShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_vector2I_" + OslShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_vector3I_" + OslShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_vector4I_" + OslShaderGenerator::TARGET, SwitchNode::create);
-
-    // <!-- <swizzle> -->
-    // <!-- from type : float -->
-    registerImplementation("IM_swizzle_float_color3_" + OslShaderGenerator::TARGET, SwizzleNode::create);
-    registerImplementation("IM_swizzle_float_color4_" + OslShaderGenerator::TARGET, SwizzleNode::create);
-    registerImplementation("IM_swizzle_float_vector2_" + OslShaderGenerator::TARGET, SwizzleNode::create);
-    registerImplementation("IM_swizzle_float_vector3_" + OslShaderGenerator::TARGET, SwizzleNode::create);
-    registerImplementation("IM_swizzle_float_vector4_" + OslShaderGenerator::TARGET, SwizzleNode::create);
-    // <!-- from type : color3 -->
-    registerImplementation("IM_swizzle_color3_float_" + OslShaderGenerator::TARGET, SwizzleNode::create);
-    registerImplementation("IM_swizzle_color3_color3_" + OslShaderGenerator::TARGET, SwizzleNode::create);
-    registerImplementation("IM_swizzle_color3_color4_" + OslShaderGenerator::TARGET, SwizzleNode::create);
-    registerImplementation("IM_swizzle_color3_vector2_" + OslShaderGenerator::TARGET, SwizzleNode::create);
-    registerImplementation("IM_swizzle_color3_vector3_" + OslShaderGenerator::TARGET, SwizzleNode::create);
-    registerImplementation("IM_swizzle_color3_vector4_" + OslShaderGenerator::TARGET, SwizzleNode::create);
-    // <!-- from type : color4 -->
-    registerImplementation("IM_swizzle_color4_float_" + OslShaderGenerator::TARGET, SwizzleNode::create);
-    registerImplementation("IM_swizzle_color4_color3_" + OslShaderGenerator::TARGET, SwizzleNode::create);
-    registerImplementation("IM_swizzle_color4_color4_" + OslShaderGenerator::TARGET, SwizzleNode::create);
-    registerImplementation("IM_swizzle_color4_vector2_" + OslShaderGenerator::TARGET, SwizzleNode::create);
-    registerImplementation("IM_swizzle_color4_vector3_" + OslShaderGenerator::TARGET, SwizzleNode::create);
-    registerImplementation("IM_swizzle_color4_vector4_" + OslShaderGenerator::TARGET, SwizzleNode::create);
-    // <!-- from type : vector2 -->
-    registerImplementation("IM_swizzle_vector2_float_" + OslShaderGenerator::TARGET, SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector2_color3_" + OslShaderGenerator::TARGET, SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector2_color4_" + OslShaderGenerator::TARGET, SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector2_vector2_" + OslShaderGenerator::TARGET, SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector2_vector3_" + OslShaderGenerator::TARGET, SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector2_vector4_" + OslShaderGenerator::TARGET, SwizzleNode::create);
-    // <!-- from type : vector3 -->
-    registerImplementation("IM_swizzle_vector3_float_" + OslShaderGenerator::TARGET, SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector3_color3_" + OslShaderGenerator::TARGET, SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector3_color4_" + OslShaderGenerator::TARGET, SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector3_vector2_" + OslShaderGenerator::TARGET, SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector3_vector3_" + OslShaderGenerator::TARGET, SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector3_vector4_" + OslShaderGenerator::TARGET, SwizzleNode::create);
-    // <!-- from type : vector4 -->
-    registerImplementation("IM_swizzle_vector4_float_" + OslShaderGenerator::TARGET, SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector4_color3_" + OslShaderGenerator::TARGET, SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector4_color4_" + OslShaderGenerator::TARGET, SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector4_vector2_" + OslShaderGenerator::TARGET, SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector4_vector3_" + OslShaderGenerator::TARGET, SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector4_vector4_" + OslShaderGenerator::TARGET, SwizzleNode::create);
-
-    // <!-- <convert> -->
-    registerImplementation("IM_convert_float_color3_" + OslShaderGenerator::TARGET, ConvertNode::create);
-    registerImplementation("IM_convert_float_color4_" + OslShaderGenerator::TARGET, ConvertNode::create);
-    registerImplementation("IM_convert_float_vector2_" + OslShaderGenerator::TARGET, ConvertNode::create);
-    registerImplementation("IM_convert_float_vector3_" + OslShaderGenerator::TARGET, ConvertNode::create);
-    registerImplementation("IM_convert_float_vector4_" + OslShaderGenerator::TARGET, ConvertNode::create);
-    registerImplementation("IM_convert_vector2_vector3_" + OslShaderGenerator::TARGET, ConvertNode::create);
-    registerImplementation("IM_convert_vector3_vector2_" + OslShaderGenerator::TARGET, ConvertNode::create);
-    registerImplementation("IM_convert_vector3_color3_" + OslShaderGenerator::TARGET, ConvertNode::create);
-    registerImplementation("IM_convert_vector3_vector4_" + OslShaderGenerator::TARGET, ConvertNode::create);
-    registerImplementation("IM_convert_vector4_vector3_" + OslShaderGenerator::TARGET, ConvertNode::create);
-    registerImplementation("IM_convert_vector4_color4_" + OslShaderGenerator::TARGET, ConvertNode::create);
-    registerImplementation("IM_convert_color3_vector3_" + OslShaderGenerator::TARGET, ConvertNode::create);
-    registerImplementation("IM_convert_color4_vector4_" + OslShaderGenerator::TARGET, ConvertNode::create);
-    registerImplementation("IM_convert_color3_color4_" + OslShaderGenerator::TARGET, ConvertNode::create);
-    registerImplementation("IM_convert_color4_color3_" + OslShaderGenerator::TARGET, ConvertNode::create);
-    registerImplementation("IM_convert_boolean_float_" + OslShaderGenerator::TARGET, ConvertNode::create);
-    registerImplementation("IM_convert_integer_float_" + OslShaderGenerator::TARGET, ConvertNode::create);
-
-    // <!-- <combine> -->
-    registerImplementation("IM_combine2_vector2_" + OslShaderGenerator::TARGET, CombineNode::create);
-    registerImplementation("IM_combine2_color4CF_" + OslShaderGenerator::TARGET, CombineNode::create);
-    registerImplementation("IM_combine2_vector4VF_" + OslShaderGenerator::TARGET, CombineNode::create);
-    registerImplementation("IM_combine2_vector4VV_" + OslShaderGenerator::TARGET, CombineNode::create);
-    registerImplementation("IM_combine3_color3_" + OslShaderGenerator::TARGET, CombineNode::create);
-    registerImplementation("IM_combine3_vector3_" + OslShaderGenerator::TARGET, CombineNode::create);
-    registerImplementation("IM_combine4_color4_" + OslShaderGenerator::TARGET, CombineNode::create);
-    registerImplementation("IM_combine4_vector4_" + OslShaderGenerator::TARGET, CombineNode::create);
 
     // <!-- <blur> -->
     registerImplementation("IM_blur_float_" + OslShaderGenerator::TARGET, BlurNodeOsl::create);
@@ -151,9 +59,6 @@ OslShaderGenerator::OslShaderGenerator() :
     registerImplementation("IM_multiply_edfF_" + OslShaderGenerator::TARGET, ClosureMultiplyNode::create);
 
 #endif // MATERIALX_OSL_LEGACY_CLOSURES
-
-    // <!-- <thin_film> -->
-    registerImplementation("IM_thin_film_bsdf_" + OslShaderGenerator::TARGET, NopNode::create);
 
     // <!-- <surface> -->
     registerImplementation("IM_surface_" + OslShaderGenerator::TARGET, SurfaceNodeOsl::create);
@@ -196,11 +101,11 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     // Emit shader type, determined from the first
     // output if there are multiple outputs.
     const ShaderGraphOutputSocket* outputSocket0 = graph.getOutputSocket(0);
-    if (*outputSocket0->getType() == *Type::SURFACESHADER)
+    if (outputSocket0->getType() == Type::SURFACESHADER)
     {
         emitString("surface ", stage);
     }
-    else if (*outputSocket0->getType() == *Type::VOLUMESHADER)
+    else if (outputSocket0->getType() == Type::VOLUMESHADER)
     {
         emitString("volume ", stage);
     }
@@ -250,10 +155,10 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     const VariableBlock& outputs = stage.getOutputBlock(OSL::OUTPUTS);
     const ShaderPort* singleOutput = outputs.size() == 1 ? outputs[0] : NULL;
 
-    const bool isSurfaceShaderOutput = singleOutput && *singleOutput->getType() == *Type::SURFACESHADER;
+    const bool isSurfaceShaderOutput = singleOutput && singleOutput->getType() == Type::SURFACESHADER;
 
 #ifdef MATERIALX_OSL_LEGACY_CLOSURES
-    const bool isBsdfOutput = singleOutput && *singleOutput->getType() == *Type::BSDF;
+    const bool isBsdfOutput = singleOutput && singleOutput->getType() == Type::BSDF;
 #endif
 
     if (isSurfaceShaderOutput)
@@ -301,7 +206,7 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     for (size_t i = 0; i < inputs.size(); ++i)
     {
         ShaderPort* input = inputs[i];
-        if (*input->getType() == *Type::FILENAME)
+        if (input->getType() == Type::FILENAME)
         {
             // Construct the textureresource variable.
             const string newVariableName = input->getVariable() + "_";
@@ -529,7 +434,7 @@ void OslShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderSta
         const ShaderPort* input = inputs[i];
         const string& type = _syntax->getTypeName(input->getType());
 
-        if (*input->getType() == *Type::FILENAME)
+        if (input->getType() == Type::FILENAME)
         {
             // Shader inputs of type 'filename' (textures) need special handling.
             // In OSL codegen a 'filename' is translated to the custom type 'textureresource',
@@ -593,7 +498,7 @@ void OslShaderGenerator::emitShaderOutputs(const VariableBlock& outputs, ShaderS
     for (size_t i = 0; i < outputs.size(); ++i)
     {
         const ShaderPort* output = outputs[i];
-        const TypeDesc* outputType = output->getType();
+        const TypeDesc outputType = output->getType();
         const string type = _syntax->getOutputTypeName(outputType);
         const string value = _syntax->getDefaultValue(outputType, true);
         const string& delim = (i == outputs.size() - 1) ? EMPTY_STRING : Syntax::COMMA;
@@ -603,15 +508,15 @@ void OslShaderGenerator::emitShaderOutputs(const VariableBlock& outputs, ShaderS
 
 void OslShaderGenerator::emitMetadata(const ShaderPort* port, ShaderStage& stage) const
 {
-    static const std::unordered_map<const TypeDesc*, ShaderMetadata> UI_WIDGET_METADATA =
+    static const std::unordered_map<TypeDesc, ShaderMetadata, TypeDesc::Hasher> UI_WIDGET_METADATA =
     {
-        { Type::FLOAT, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("number", Type::STRING->getName())) },
-        { Type::INTEGER, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("number", Type::STRING->getName())) },
-        { Type::FILENAME, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("filename", Type::STRING->getName())) },
-        { Type::BOOLEAN, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("checkBox", Type::STRING->getName())) }
+        { Type::FLOAT, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("number", Type::STRING.getName())) },
+        { Type::INTEGER, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("number", Type::STRING.getName())) },
+        { Type::FILENAME, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("filename", Type::STRING.getName())) },
+        { Type::BOOLEAN, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("checkBox", Type::STRING.getName())) }
     };
 
-    static const std::set<const TypeDesc*> METADATA_TYPE_BLACKLIST =
+    static const std::set<TypeDesc> METADATA_TYPE_BLACKLIST =
     {
         Type::VECTOR2,  // Custom struct types doesn't support metadata declarations.
         Type::VECTOR4,  //

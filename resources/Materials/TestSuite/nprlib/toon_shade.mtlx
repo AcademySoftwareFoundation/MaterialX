@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
   <surface_unlit name="surface_unlit" type="surfaceshader">
     <input name="emission_color" type="color3" nodename="toon_shade1" />
   </surface_unlit>
@@ -27,7 +27,7 @@
   </npr_test:toon_shade>
   <nodegraph name="NG_toon_sample" namespace="npr_test" nodedef="ND_toon_sample">
     <output name="output_color3" type="color3" nodename="multiply_color3" />
-    <normal name="normal" type="vector3" >
+    <normal name="normal" type="vector3">
       <input name="space" type="string" value="world" />
     </normal>
     <dotproduct name="NdotL" type="float">
@@ -49,7 +49,7 @@
       <input name="in" type="float" nodename="NdotL" />
       <input name="high" type="float" value="0.001" />
     </smoothstep>
-    <viewdirection name="viewdirection_vector3" type="vector3" >
+    <viewdirection name="viewdirection_vector3" type="vector3">
       <input name="space" type="string" value="world" />
     </viewdirection>
     <normalize name="unit_viewdirection" type="vector3">

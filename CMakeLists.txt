@@ -1,12 +1,12 @@
 # MaterialX Version
 set(MATERIALX_MAJOR_VERSION 1)
-set(MATERIALX_MINOR_VERSION 38)
-set(MATERIALX_BUILD_VERSION 10)
+set(MATERIALX_MINOR_VERSION 39)
+set(MATERIALX_BUILD_VERSION 2)
 set(MATERIALX_LIBRARY_VERSION ${MATERIALX_MAJOR_VERSION}.${MATERIALX_MINOR_VERSION}.${MATERIALX_BUILD_VERSION})
 
 # Cmake setup
-cmake_minimum_required(VERSION 3.16)
-set(CMAKE_CXX_STANDARD 14)
+cmake_minimum_required(VERSION 3.24)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 set(CMAKE_MACOSX_RPATH ON)
 enable_testing()
@@ -44,10 +44,12 @@ option(MATERIALX_BUILD_GEN_MDL "Build the MDL shader generator back-end." ON)
 option(MATERIALX_BUILD_GEN_MSL "Build the MSL shader generator back-end." ON)
 option(MATERIALX_BUILD_RENDER "Build the MaterialX Render modules." ON)
 option(MATERIALX_BUILD_OIIO "Build OpenImageIO support for MaterialXRender." OFF)
-option(MATERIALX_BUILD_TESTS "Build unit tests." ON)
+option(MATERIALX_BUILD_TESTS "Build unit tests." OFF)
 option(MATERIALX_BUILD_BENCHMARK_TESTS "Build benchmark tests." OFF)
 
 option(MATERIALX_BUILD_SHARED_LIBS "Build MaterialX libraries as shared rather than static." OFF)
+option(MATERIALX_BUILD_MONOLITHIC "Build a single monolithic MaterialX library." OFF)
+option(MATERIALX_BUILD_USE_CCACHE "Enable the use of ccache to speed up build time, if present." ON)
 option(MATERIALX_PYTHON_LTO "Enable link-time optimizations for MaterialX Python." ON)
 option(MATERIALX_INSTALL_PYTHON "Install the MaterialX Python package as a third-party library when the install target is built." ON)
 option(MATERIALX_INSTALL_RESOURCES "Install the resources folder when building render modules." ON)
@@ -57,10 +59,28 @@ option(MATERIALX_COVERAGE_ANALYSIS "Build MaterialX libraries with coverage anal
 option(MATERIALX_DYNAMIC_ANALYSIS "Build MaterialX libraries with dynamic analysis on supporting platforms." OFF)
 option(MATERIALX_OSL_LEGACY_CLOSURES "Build OSL shader generation supporting the legacy OSL closures." OFF)
 
-option(MATERIALX_BUILD_IOS "Build MaterialX for iOS." OFF)
+option(MATERIALX_BUILD_IOS "Build MaterialX for iOS. (Deprecated. Set CMAKE_SYSTEM_NAME instead)" OFF)
+set(MATERIALX_BUILD_APPLE_EMBEDDED OFF)
 if (MATERIALX_BUILD_IOS)
+    MESSAGE(WARNING "The MATERIALX_BUILD_IOS is deprecated. Set the CMAKE_SYSTEM_NAME to the platform instead")
     set(CMAKE_SYSTEM_NAME iOS)
-    add_definitions(-DTARGET_OS_IOS=1)
+endif()
+
+# Cross Compilation detection as defined in CMake docs
+# https://cmake.org/cmake/help/latest/manual/cmake-toolchains.7.html#cross-compiling-for-ios-tvos-visionos-or-watchos
+# Note: All these SDKs may not be supported by MaterialX
+set(__build_apple_framework OFF)
+if (CMAKE_SYSTEM_NAME MATCHES "iOS"
+        OR CMAKE_SYSTEM_NAME MATCHES "tvOS"
+        OR CMAKE_SYSTEM_NAME MATCHES "visionOS"
+        OR CMAKE_SYSTEM_NAME MATCHES "watchOS")
+    set(MATERIALX_BUILD_APPLE_EMBEDDED ON)
+    set(__build_apple_framework ${MATERIALX_BUILD_SHARED_LIBS})
+    # TARGET_OS_IPHONE refers to all IPHONE derived platforms
+    # https://chaosinmotion.com/2021/08/02/things-to-remember-compiler-conditionals-for-macos-ios-etc/
+    # This should be auto-defined, but leaving it in here because it was historically defined
+    add_definitions(-DTARGET_OS_IPHONE=1)
+    set(MATERIALX_BUILD_MONOLITHIC ON)
     set(MATERIALX_BUILD_PYTHON OFF)
     set(MATERIALX_BUILD_VIEWER OFF)
     set(MATERIALX_BUILD_GRAPH_EDITOR OFF)
@@ -70,10 +90,19 @@ if (MATERIALX_BUILD_IOS)
     set(MATERIALX_BUILD_TESTS OFF)
 endif()
 
+set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "-" CACHE STRING "The Codesigning identity needed to sign compiled objects")
+option(MATERIALX_BUILD_APPLE_FRAMEWORK "Build MaterialX as an Apple Framework" ${__build_apple_framework})
+if (MATERIALX_BUILD_APPLE_FRAMEWORK)
+    add_definitions(-DBUILD_APPLE_FRAMEWORK)
+    set(MATERIALX_BUILD_MONOLITHIC ON)
+    set(MATERIALX_BUILD_PYTHON OFF)
+    set(MATERIALX_BUILD_VIEWER OFF)
+    set(MATERIALX_BUILD_GRAPH_EDITOR OFF)
+    set(MATERIALX_BUILD_TESTS OFF)
+    set(MATERIALX_BUILD_SHARED_LIBS ON)
+endif()
+
 if (MATERIALX_BUILD_JS)
-    set(MATERIALX_BUILD_GEN_OSL OFF)
-    set(MATERIALX_BUILD_GEN_MSL OFF)
-    set(MATERIALX_BUILD_GEN_MDL OFF)
     set(MATERIALX_BUILD_RENDER OFF)
     set(MATERIALX_BUILD_TESTS OFF)
 endif()
@@ -137,9 +166,10 @@ mark_as_advanced(MATERIALX_BUILD_GEN_MDL)
 mark_as_advanced(MATERIALX_BUILD_GEN_MSL)
 mark_as_advanced(MATERIALX_BUILD_RENDER)
 mark_as_advanced(MATERIALX_BUILD_OIIO)
-mark_as_advanced(MATERIALX_BUILD_TESTS)
 mark_as_advanced(MATERIALX_BUILD_BENCHMARK_TESTS)
 mark_as_advanced(MATERIALX_BUILD_SHARED_LIBS)
+mark_as_advanced(MATERIALX_BUILD_MONOLITHIC)
+mark_as_advanced(MATERIALX_BUILD_USE_CCACHE)
 mark_as_advanced(MATERIALX_NAMESPACE_SUFFIX)
 mark_as_advanced(MATERIALX_LIBNAME_SUFFIX)
 mark_as_advanced(MATERIALX_PYTHON_LTO)
@@ -164,6 +194,7 @@ mark_as_advanced(MATERIALX_INSTALL_STDLIB_PATH)
 mark_as_advanced(MATERIALX_BUILD_JS)
 mark_as_advanced(MATERIALX_EMSDK_PATH)
 mark_as_advanced(MATERIALX_BUILD_IOS)
+mark_as_advanced(MATERIALX_BUILD_APPLE_FRAMEWORK)
 if (MATERIALX_BUILD_GEN_MDL)
     mark_as_advanced(MATERIALX_MDLC_EXECUTABLE)
     mark_as_advanced(MATERIALX_MDL_RENDER_EXECUTABLE)
@@ -172,10 +203,34 @@ if (MATERIALX_BUILD_GEN_MDL)
     mark_as_advanced(MATERIALX_INSTALL_MDL_MODULE_PATH)
 endif()
 
+if (MATERIALX_BUILD_USE_CCACHE)
+    # Setup CCache for C/C++ compilation
+    find_program(CCACHE_PROGRAM ccache)
+    if(CCACHE_PROGRAM)
+        set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+        set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+    endif()
+endif()
+
+# Attempt to configure OSL testing if it can be found by cmake.
+# This will not override any explicitly provided oslc and testrender
+if(MATERIALX_BUILD_RENDER AND MATERIALX_BUILD_GEN_OSL AND MATERIALX_BUILD_TESTS)
+    # We currently only need the actual OSL binaries if we're running tests with Render and GenOSL enabled.
+    find_package(OSL QUIET)
+    if(OSL_FOUND)
+        if(NOT MATERIALX_OSL_BINARY_OSLC)
+            set(MATERIALX_OSL_BINARY_OSLC $<TARGET_FILE:OSL::oslc>)
+        endif()
+        if(NOT MATERIALX_OSL_BINARY_TESTRENDER)
+            # currently OSL does not export a cmake target for testrender, but once that's added this can be simplified.
+            set(MATERIALX_OSL_BINARY_TESTRENDER $<TARGET_FILE_DIR:OSL::oslc>/testrender)
+        endif()
+        # NOTE : we do not derive a value for MATERIALX_OSL_INCLUDE_PATH here, as a a cmake installed OSL package
+        # should have the shader includes in the expected location.
+    endif()
+endif()
+
 # Add global definitions
-add_definitions(-DMATERIALX_OSL_BINARY_OSLC=\"${MATERIALX_OSL_BINARY_OSLC}\")
-add_definitions(-DMATERIALX_OSL_BINARY_TESTRENDER=\"${MATERIALX_OSL_BINARY_TESTRENDER}\")
-add_definitions(-DMATERIALX_OSL_INCLUDE_PATH=\"${MATERIALX_OSL_INCLUDE_PATH}\")
 if (MATERIALX_OSL_LEGACY_CLOSURES)
     add_definitions(-DMATERIALX_OSL_LEGACY_CLOSURES)
 endif()
@@ -228,6 +283,9 @@ endif()
 # Adjust compiler settings
 if(MSVC)
     add_compile_options(/MP)
+    if(MATERIALX_BUILD_MONOLITHIC)
+        add_compile_options(/bigobj)
+    endif()
     if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
         string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
     else()
@@ -246,7 +304,7 @@ else()
         add_link_options(--coverage)
     endif()
     if(MATERIALX_DYNAMIC_ANALYSIS)
-        set(DYNAMIC_ANALYSIS_OPTIONS -fsanitize=address -fsanitize=leak -fsanitize=undefined -fno-sanitize-recover=all)
+        set(DYNAMIC_ANALYSIS_OPTIONS -fsanitize=address -fsanitize=undefined -fno-sanitize-recover=all)
         add_compile_options(${DYNAMIC_ANALYSIS_OPTIONS})
         add_link_options(${DYNAMIC_ANALYSIS_OPTIONS})
     endif()
@@ -269,11 +327,122 @@ function(assign_source_group prefix)
     endforeach()
 endfunction(assign_source_group)
 
+function(mx_add_library MATERIALX_MODULE_NAME)
+    set(options ADD_OBJECTIVE_C_CODE)
+    set(oneValueArgs EXPORT_DEFINE)
+    set(multiValueArgs
+            SOURCE_FILES
+            HEADER_FILES
+            INLINED_FILES
+            MTLX_MODULES)
+    cmake_parse_arguments(args
+            "${options}"
+            "${oneValueArgs}"
+            "${multiValueArgs}"
+            ${ARGN})
+
+    if (APPLE AND args_ADD_OBJECTIVE_C_CODE)
+        file(GLOB_RECURSE materialx_source_oc "${CMAKE_CURRENT_SOURCE_DIR}/*.m*")
+        set_source_files_properties(${materialx_source_oc} PROPERTIES
+                COMPILE_FLAGS "-x objective-c++")
+        set(args_SOURCE_FILES ${args_SOURCE_FILES} ${materialx_source_oc})
+    endif()
+
+    assign_source_group("Source Files" ${args_SOURCE_FILES})
+    assign_source_group("Source Files" ${args_INLINED_FILES})
+    assign_source_group("Header Files" ${args_HEADER_FILES})
+
+    if (NOT MATERIALX_BUILD_MONOLITHIC)
+        set(TARGET_NAME ${MATERIALX_MODULE_NAME})
+        add_library(${TARGET_NAME})
+
+        # Create version resource
+        if(MATERIALX_BUILD_SHARED_LIBS AND MSVC)
+            configure_file(${CMAKE_SOURCE_DIR}/cmake/modules/MaterialXVersion.rc.in ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
+            target_sources(${TARGET_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
+        endif()
+
+        target_link_libraries(${TARGET_NAME}
+            PUBLIC
+                ${args_MTLX_MODULES}
+                ${CMAKE_DL_LIBS})
+
+        target_include_directories(${TARGET_NAME}
+                PUBLIC
+                $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>
+                $<INSTALL_INTERFACE:${MATERIALX_INSTALL_INCLUDE_PATH}>
+                PRIVATE
+                ${EXTERNAL_INCLUDE_DIRS})
+
+        set_target_properties(
+                ${TARGET_NAME} PROPERTIES
+                OUTPUT_NAME ${MATERIALX_MODULE_NAME}${MATERIALX_LIBNAME_SUFFIX}
+                COMPILE_FLAGS "${EXTERNAL_COMPILE_FLAGS}"
+                LINK_FLAGS "${EXTERNAL_LINK_FLAGS}"
+                INSTALL_RPATH "${MATERIALX_SAME_DIR_RPATH}"
+                VERSION "${MATERIALX_LIBRARY_VERSION}"
+                SOVERSION "${MATERIALX_MAJOR_VERSION}")
+    else()
+        set(TARGET_NAME ${MATERIALX_MONOLITHIC_TARGET})
+
+        add_library(${MATERIALX_MODULE_NAME} ALIAS ${MATERIALX_MONOLITHIC_TARGET})
+
+        # Store the aliased MaterialX modules name to create cmake export aliases later.
+        set_property(GLOBAL APPEND PROPERTY MATERIALX_MODULES ${MATERIALX_MODULE_NAME})
+    endif()
+
+    set_target_properties(${TARGET_NAME} PROPERTIES CXX_VISIBILITY_PRESET hidden)
+    set_target_properties(${TARGET_NAME} PROPERTIES CMAKE_VISIBILITY_INLINES_HIDDEN 1)
+
+    target_sources(${TARGET_NAME}
+        PRIVATE
+            ${args_SOURCE_FILES}
+        PUBLIC
+            FILE_SET
+                mxHeaders
+            TYPE
+                HEADERS
+            BASE_DIRS
+                ${CMAKE_CURRENT_SOURCE_DIR}/..
+                ${CMAKE_CURRENT_BINARY_DIR}/..
+            FILES
+                ${args_HEADER_FILES}
+                ${args_INLINED_FILES})
+
+    target_include_directories(${TARGET_NAME} PUBLIC
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>)
+
+    target_compile_definitions(${TARGET_NAME} PRIVATE "-D${args_EXPORT_DEFINE}")
+
+    if(NOT SKBUILD)
+        if(NOT MATERIALX_BUILD_MONOLITHIC)
+            install(TARGETS ${MATERIALX_MODULE_NAME}
+                    EXPORT MaterialX
+                    ARCHIVE DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
+                    LIBRARY DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
+                    RUNTIME DESTINATION bin
+                    FILE_SET mxHeaders)
+        endif()
+
+        install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${MATERIALX_MODULE_NAME}.pdb"
+                DESTINATION "${MATERIALX_INSTALL_LIB_PATH}/" OPTIONAL)
+    endif()
+
+    # pass TARGET_NAME back to call site - so caller can modify the build target
+    set(TARGET_NAME ${TARGET_NAME} PARENT_SCOPE)
+endfunction()
+
 # Propagate shared library setting to NanoGUI:
 if(MATERIALX_BUILD_SHARED_LIBS)
     set(BUILD_SHARED_LIBS "ON")
 else()
     set(BUILD_SHARED_LIBS "OFF")
+endif()
+
+# Build a monolithic target - needs to be added before the other build targets that may be included.
+if (MATERIALX_BUILD_MONOLITHIC)
+    set(MATERIALX_MONOLITHIC_TARGET MaterialX)
+    add_subdirectory(source)
 endif()
 
 # Add core subdirectories
@@ -349,6 +518,41 @@ if(MATERIALX_CONTRIB)
     add_subdirectory(contrib)
 endif()
 
+if (MATERIALX_BUILD_MONOLITHIC)
+    # MaterialX monolithic build target needs to be installed after any other included
+    # modules to ensure the correct files are in mxHeaders
+    if(NOT SKBUILD)
+        install(TARGETS ${MATERIALX_MONOLITHIC_TARGET}
+                EXPORT MaterialX
+                ARCHIVE DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
+                LIBRARY DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
+                RUNTIME DESTINATION bin
+                FILE_SET mxHeaders)
+
+        # Note : we don't install the headers etc. here, and rely on each separate modules CMakeLists.txt
+        # to do that installation, thus we respect the build options configuration, and only install
+        # the headers for the modules we've built in to the monolithic build.
+
+        # Finally do the framework build if requested
+        # This uses a zsh script since zsh is guaranteed to exist on systems
+        if(MATERIALX_BUILD_APPLE_FRAMEWORK)
+            # Conform cmake formats to zsh expected formats
+            set(__embedded_build "false")
+            if (MATERIALX_BUILD_APPLE_EMBEDDED)
+                set(__embedded_build "true")
+            endif()
+
+            # Install the Info.plist and shell script
+            math(EXPR CFBUNDLEVERSION "${MATERIALX_MAJOR_VERSION} * 10000 + ${MATERIALX_MINOR_VERSION} * 100 + ${MATERIALX_BUILD_VERSION}")
+            configure_file(cmake/modules/Info.plist.in "${PROJECT_BINARY_DIR}/Info.plist" @ONLY)
+            configure_file(cmake/modules/AppleFrameworkBuild.zsh.in "${PROJECT_BINARY_DIR}/AppleFrameworkBuild.zsh" @ONLY)
+
+            # Run the shell script for the primary configuration
+            install(CODE "execute_process(COMMAND zsh ${PROJECT_BINARY_DIR}/AppleFrameworkBuild.zsh )")
+        endif()
+    endif()
+endif()
+
 if(MATERIALX_BUILD_VIEWER)
     set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT MaterialXView)
 elseif(MATERIALX_BUILD_GRAPH_EDITOR)
@@ -365,6 +569,21 @@ if(NOT SKBUILD)
     set(MATERIALX_GEN_CONFIG_PATH "${MATERIALX_INSTALL_LIB_PATH}/cmake/${CMAKE_PROJECT_NAME}")
 
     include(CMakePackageConfigHelpers)
+
+    if (MATERIALX_BUILD_MONOLITHIC)
+        # export aliases for the MaterialX modules built in this monolithic build to be
+        # less disruptive to downstream probjects.
+        get_property(MATERIALX_MODULES GLOBAL PROPERTY MATERIALX_MODULES)
+        set(EXPORT_ALIASES "# Aliased targets for the the monolithic build\n")
+        foreach (MODULE ${MATERIALX_MODULES})
+            string(APPEND EXPORT_ALIASES "add_library(${MODULE} ALIAS MaterialX)\n")
+        endforeach ()
+
+        if (NOT MATERIALX_MODULES)
+            message(FATAL_ERROR "Building MaterialX as a monolithic library, but did not find any libraries to alias.")
+        endif()
+    endif()
+
     configure_package_config_file(cmake/modules/MaterialXConfig.cmake.in
                                 ${CMAKE_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}Config.cmake
                                 INSTALL_DESTINATION "${MATERIALX_GEN_CONFIG_PATH}"

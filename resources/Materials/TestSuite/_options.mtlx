@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
   <!--
     Test suite options file which is parsed when the "render" category units tests are executed.
 
@@ -21,7 +21,7 @@
 
     <!-- Comma separated list of target" specifiers to indicate which
          code generators to use. -->
-    <input name="targets" type="string" value="genglsl,genosl,genmdl,genmsl" />
+    <input name="targets" type="string" value="genglsl,genosl,genmdl,genessl,genmsl" />
 
     <!-- Check the count of number of implementations used for a given generator -->
     <input name="checkImplCount" type="boolean" value="true" />

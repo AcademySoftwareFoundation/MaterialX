@@ -71,6 +71,10 @@ using ElementMap = std::unordered_map<string, ElementPtr>;
 /// A standard function taking an ElementPtr and returning a boolean.
 using ElementPredicate = std::function<bool(ConstElementPtr)>;
 
+class ElementEquivalenceOptions;
+class ElementEquivalenceResult;
+using ElementEquivalenceResultVec = vector<ElementEquivalenceResult>;
+
 /// @class Element
 /// The base class for MaterialX elements.
 ///
@@ -435,11 +439,7 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     /// Return the child element, if any, with the given name and subclass.
     /// If a child with the given name exists, but belongs to a different
     /// subclass, then an empty shared pointer is returned.
-    template <class T> shared_ptr<T> getChildOfType(const string& name) const
-    {
-        ElementPtr child = getChild(name);
-        return child ? child->asA<T>() : shared_ptr<T>();
-    }
+    template <class T> shared_ptr<T> getChildOfType(const string& name) const;
 
     /// Return a constant vector of all child elements.
     /// The returned vector maintains the order in which children were added.
@@ -451,20 +451,7 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     /// Return a vector of all child elements that are instances of the given
     /// subclass, optionally filtered by the given category string.  The returned
     /// vector maintains the order in which children were added.
-    template <class T> vector<shared_ptr<T>> getChildrenOfType(const string& category = EMPTY_STRING) const
-    {
-        vector<shared_ptr<T>> children;
-        for (ElementPtr child : _childOrder)
-        {
-            shared_ptr<T> instance = child->asA<T>();
-            if (!instance)
-                continue;
-            if (!category.empty() && child->getCategory() != category)
-                continue;
-            children.push_back(instance);
-        }
-        return children;
-    }
+    template <class T> vector<shared_ptr<T>> getChildrenOfType(const string& category = EMPTY_STRING) const;
 
     /// Set the index of the child, if any, with the given name.
     /// If the given index is out of bounds, then an exception is thrown.
@@ -584,6 +571,21 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
 
     /// Return the first ancestor of the given subclass, or an empty shared
     /// pointer if no ancestor of this subclass is found.
+    template <class T> shared_ptr<T> getAncestorOfType()
+    {
+        for (ElementPtr elem = getSelf(); elem; elem = elem->getParent())
+        {
+            shared_ptr<T> typedElem = elem->asA<T>();
+            if (typedElem)
+            {
+                return typedElem;
+            }
+        }
+        return nullptr;
+    }
+
+    /// Return the first ancestor of the given subclass, or an empty shared
+    /// pointer if no ancestor of this subclass is found.
     template <class T> shared_ptr<const T> getAncestorOfType() const
     {
         for (ConstElementPtr elem = getSelf(); elem; elem = elem->getParent())
@@ -596,6 +598,31 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
         }
         return nullptr;
     }
+
+    /// @}
+    /// @name Functional Equivalence
+    /// @{
+
+    /// Return true if the given element tree, including all descendents,
+    /// is considered to be equivalent to this one based on the equivalence
+    /// criteria provided.
+    /// @param rhs Element to compare against
+    /// @param options Equivalence criteria
+    /// @param results Results of comparison if argument is specified.
+    /// @return True if the elements are equivalent. False otherwise.
+    bool isEquivalent(ConstElementPtr rhs, const ElementEquivalenceOptions& options, 
+                      ElementEquivalenceResultVec* results = nullptr) const;
+
+    /// Return true if the attribute on a given element is equivalent
+    /// based on the equivalence criteria provided.
+    /// @param rhs Element to compare against
+    /// @param attributeName Name of attribute to compare
+    /// @param options Equivalence criteria
+    /// @param results Results of comparison if argument is specified.
+    /// @return True if the attribute on the elements are equivalent. False otherwise.
+    virtual bool isAttributeEquivalent(ConstElementPtr rhs, const string& attributeName,
+                                       const ElementEquivalenceOptions& options, 
+                                       ElementEquivalenceResultVec* results = nullptr) const;
 
     /// @}
     /// @name Traversal
@@ -792,6 +819,8 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     static const string INHERIT_ATTRIBUTE;
     static const string NAMESPACE_ATTRIBUTE;
     static const string DOC_ATTRIBUTE;
+    static const string XPOS_ATTRIBUTE;
+    static const string YPOS_ATTRIBUTE;
 
   protected:
     virtual void registerChildElement(ElementPtr child);
@@ -1098,6 +1127,21 @@ class MX_CORE_API ValueElement : public TypedElement
     }
 
     /// @}
+    /// @name Functional Equivalence
+    /// @{
+
+    /// Return true if the attribute on a given element is equivalent
+    /// based on the equivalence criteria provided.
+    /// @param rhs Element to compare against
+    /// @param attributeName Name of attribute to compare
+    /// @param options Equivalence criteria
+    /// @param results Results of comparison if argument is specified.
+    /// @return True if the attribute on the elements are equivalent. False otherwise.
+    bool isAttributeEquivalent(ConstElementPtr rhs, const string& attributeName,
+                               const ElementEquivalenceOptions& options, 
+                               ElementEquivalenceResultVec* results = nullptr) const override;
+
+    /// @}
     /// @name Validation
     /// @{
 
@@ -1317,6 +1361,72 @@ class MX_CORE_API StringResolver
     string _geomPrefix;
     StringMap _filenameMap;
     StringMap _geomNameMap;
+};
+
+/// @class ElementEquivalenceResult
+/// A comparison result for the functional equivalence of two elements.
+class MX_CORE_API ElementEquivalenceResult
+{
+  public:
+    ElementEquivalenceResult(const string& p1, const string& p2, const string& type,
+                             const string& attrName = EMPTY_STRING)
+    {
+        path1 = p1;
+        path2 = p2;
+        differenceType = type;
+        attributeName = attrName;
+    }
+    ElementEquivalenceResult() = delete;
+    ~ElementEquivalenceResult() = default;
+
+    string path1;
+    string path2;
+    string differenceType;
+    string attributeName;
+
+    static const string ATTRIBUTE;
+    static const string ATTRIBUTE_NAMES;
+    static const string CHILD_COUNT;
+    static const string CHILD_NAME;
+    static const string NAME;
+    static const string CATEGORY;
+};
+
+/// @class ElementEquivalenceOptions
+/// A set of options for comparing the functional equivalence of elements.
+class MX_CORE_API ElementEquivalenceOptions
+{
+  public:
+    ElementEquivalenceOptions()
+    {
+        format = Value::getFloatFormat();
+        precision = Value::getFloatPrecision();
+        skipAttributes = {};
+        skipValueComparisons = false;
+    };
+    ~ElementEquivalenceOptions() { }
+
+    /// Floating point format option for floating point value comparisons
+    Value::FloatFormat format;
+
+    /// Floating point precision option for floating point value comparisons
+    int precision;
+
+    /// Attribute filtering options. By default all attributes are considered.
+    /// Name, category attributes cannot be skipped.
+    /// 
+    /// For example UI attribute comparision be skipped by setting:
+    /// skipAttributes = { 
+    ///     ValueElement::UI_MIN_ATTRIBUTE, ValueElement::UI_MAX_ATTRIBUTE,
+    ///     ValueElement::UI_SOFT_MIN_ATTRIBUTE, ValueElement::UI_SOFT_MAX_ATTRIBUTE,
+    ///     ValueElement::UI_STEP_ATTRIBUTE, Element::XPOS_ATTRIBUTE, 
+    ///     Element::YPOS_ATTRIBUTE };
+    StringSet skipAttributes;
+
+    /// Do not perform any value comparisions. Instead perform exact string comparisons for attributes
+    /// Default is false. The operator==() method can be used instead as it always performs
+    /// a strict comparison. Default is false.
+    bool skipValueComparisons;
 };
 
 /// @class ExceptionOrphanedElement

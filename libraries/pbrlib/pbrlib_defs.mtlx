@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
   <!--
     Copyright Contributors to the MaterialX Project
     SPDX-License-Identifier: Apache-2.0
@@ -28,6 +28,7 @@
     <input name="color" type="color3" value="0.18, 0.18, 0.18" />
     <input name="roughness" type="float" value="0.0" />
     <input name="normal" type="vector3" defaultgeomprop="Nworld" />
+    <input name="energy_compensation" type="boolean" value="false" uniform="true" />
     <output name="out" type="BSDF" />
   </nodedef>
 
@@ -63,6 +64,8 @@
     <input name="tint" type="color3" value="1.0, 1.0, 1.0" />
     <input name="ior" type="float" value="1.5" />
     <input name="roughness" type="vector2" value="0.05, 0.05" />
+    <input name="thinfilm_thickness" type="float" value="0" unittype="distance" unit="nanometer" />
+    <input name="thinfilm_ior" type="float" value="1.5" />
     <input name="normal" type="vector3" defaultgeomprop="Nworld" />
     <input name="tangent" type="vector3" defaultgeomprop="Tworld" />
     <input name="distribution" type="string" value="ggx" enum="ggx" uniform="true" />
@@ -76,9 +79,11 @@
   -->
   <nodedef name="ND_conductor_bsdf" node="conductor_bsdf" bsdf="R" nodegroup="pbr" doc="A reflection BSDF node based on a microfacet model and a Fresnel curve for conductors/metals.">
     <input name="weight" type="float" value="1.0" uimin="0.0" uimax="1.0" />
-    <input name="ior" type="color3" value="0.183, 0.421, 1.373" colorspace="none" />
-    <input name="extinction" type="color3" value="3.424, 2.346, 1.770" colorspace="none" />
+    <input name="ior" type="color3" value="0.183, 0.421, 1.373" />
+    <input name="extinction" type="color3" value="3.424, 2.346, 1.770" />
     <input name="roughness" type="vector2" value="0.05, 0.05" />
+    <input name="thinfilm_thickness" type="float" value="0" unittype="distance" unit="nanometer" />
+    <input name="thinfilm_ior" type="float" value="1.5" />
     <input name="normal" type="vector3" defaultgeomprop="Nworld" />
     <input name="tangent" type="vector3" defaultgeomprop="Tworld" />
     <input name="distribution" type="string" value="ggx" enum="ggx" uniform="true" />
@@ -92,9 +97,12 @@
   <nodedef name="ND_generalized_schlick_bsdf" node="generalized_schlick_bsdf" nodegroup="pbr" doc="A reflection/transmission BSDF node based on a microfacet model and a generalized Schlick Fresnel curve.">
     <input name="weight" type="float" value="1.0" uimin="0.0" uimax="1.0" />
     <input name="color0" type="color3" value="1.0, 1.0, 1.0" />
+    <input name="color82" type="color3" value="1.0, 1.0, 1.0" />
     <input name="color90" type="color3" value="1.0, 1.0, 1.0" />
     <input name="exponent" type="float" value="5.0" />
     <input name="roughness" type="vector2" value="0.05, 0.05" />
+    <input name="thinfilm_thickness" type="float" value="0" unittype="distance" unit="nanometer" />
+    <input name="thinfilm_ior" type="float" value="1.5" />
     <input name="normal" type="vector3" defaultgeomprop="Nworld" />
     <input name="tangent" type="vector3" defaultgeomprop="Tworld" />
     <input name="distribution" type="string" value="ggx" enum="ggx" uniform="true" />
@@ -109,7 +117,7 @@
   <nodedef name="ND_subsurface_bsdf" node="subsurface_bsdf" bsdf="R" nodegroup="pbr" doc="A subsurface scattering BSDF for true subsurface scattering.">
     <input name="weight" type="float" value="1.0" uimin="0.0" uimax="1.0" />
     <input name="color" type="color3" value="0.18, 0.18, 0.18" />
-    <input name="radius" type="vector3" value="1.0, 1.0, 1.0" />
+    <input name="radius" type="color3" value="1.0, 1.0, 1.0" />
     <input name="anisotropy" type="float" value="0.0" />
     <input name="normal" type="vector3" defaultgeomprop="Nworld" />
     <output name="out" type="BSDF" />
@@ -124,16 +132,26 @@
     <input name="color" type="color3" value="1.0, 1.0, 1.0" />
     <input name="roughness" type="float" value="0.3" />
     <input name="normal" type="vector3" defaultgeomprop="Nworld" />
+    <input name="mode" type="string" value="conty_kulla" enum="conty_kulla, zeltner" uniform="true" />
     <output name="out" type="BSDF" />
   </nodedef>
 
   <!--
-    Node: <thin_film_bsdf>
-    Adds an iridescent thin film layer over a microfacet base BSDF.
+    Node: <chiang_hair_bsdf>
+    A BSDF node for Chiang hair shading model.
   -->
-  <nodedef name="ND_thin_film_bsdf" node="thin_film_bsdf" bsdf="R" nodegroup="pbr" doc="Adds an iridescent thin film layer over a microfacet base BSDF.">
-    <input name="thickness" type="float" value="550" unittype="distance" unit="nanometer" />
-    <input name="ior" type="float" value="1.5" />
+  <nodedef name="ND_chiang_hair_bsdf" node="chiang_hair_bsdf" bsdf="R" nodegroup="pbr" doc="A BSDF node for Chiang hair shading model.">
+    <input name="tint_R" type="color3" value="1, 1, 1" />
+    <input name="tint_TT" type="color3" value="1, 1, 1" />
+    <input name="tint_TRT" type="color3" value="1, 1, 1" />
+    <input name="ior" type="float" value="1.55" />
+    <input name="roughness_R" type="vector2" value="0.1, 0.1" />
+    <input name="roughness_TT" type="vector2" value="0.05, 0.05" />
+    <input name="roughness_TRT" type="vector2" value="0.2, 0.2" />
+    <input name="cuticle_angle" type="float" value="0.5" />
+    <input name="absorption_coefficient" type="vector3" value="0.0, 0.0, 0.0" />
+    <input name="normal" type="vector3" defaultgeomprop="Nworld" />
+    <input name="curve_direction" type="vector3" defaultgeomprop="Tworld" />
     <output name="out" type="BSDF" />
   </nodedef>
 
@@ -223,19 +241,7 @@
     <input name="bsdf" type="BSDF" value="" doc="Distribution function for surface scattering." />
     <input name="edf" type="EDF" value="" doc="Distribution function for surface emission." />
     <input name="opacity" type="float" value="1.0" doc="Surface cutout opacity" />
-    <output name="out" type="surfaceshader" />
-  </nodedef>
-
-  <!--
-    Node: <thin_surface>
-    Construct a surface shader from scattering and emission distribution functions for non-closed "thin" objects.
-  -->
-  <nodedef name="ND_thin_surface" node="thin_surface" nodegroup="pbr" doc="A constructor node for the surfaceshader type for non-closed 'thin' objects.">
-    <input name="front_bsdf" type="BSDF" value="" doc="Distribution function for front-side surface scattering." />
-    <input name="front_edf" type="EDF" value="" doc="Distribution function for front-side surface emission." />
-    <input name="back_bsdf" type="BSDF" value="" doc="Distribution function for back-side surface scattering." />
-    <input name="back_edf" type="EDF" value="" doc="Distribution function for back-side surface emission." />
-    <input name="opacity" type="float" value="1.0" doc="Surface cutout opacity" />
+    <input name="thin_walled" type="boolean" value="false" uniform="true" doc="Option to make the surface thin-walled." />
     <output name="out" type="surfaceshader" />
   </nodedef>
 
@@ -415,6 +421,42 @@
     <input name="edge_color" type="color3" value="0.998, 0.981, 0.751" colorspace="lin_rec709" />
     <output name="ior" type="color3" />
     <output name="extinction" type="color3" />
+  </nodedef>
+
+  <!--
+    Node: <deon_hair_absorption_from_melanin>
+    Calculates hair absorption from melanin parameters.
+  -->
+  <nodedef name="ND_deon_hair_absorption_from_melanin" node="deon_hair_absorption_from_melanin" nodegroup="pbr" doc="Calculates hair absorption from melanin parameters.">
+    <input name="melanin_concentration" type="float" value="0.25" />
+    <input name="melanin_redness" type="float" value="0.5" />
+    <input name="eumelanin_color" type="color3" value="0.657704, 0.498077, 0.254107" colorspace="lin_rec709" doc="constant from d'Eon et al. 2011, converted to color via exp(-c)" uiadvanced="true"/>
+    <input name="pheomelanin_color" type="color3" value="0.829444, 0.67032, 0.349938" colorspace="lin_rec709" doc="constant from d'Eon et al. 2011, converted to color via exp(-c)" uiadvanced="true"/>
+    <output name="absorption" type="vector3" />
+  </nodedef>
+
+  <!--
+    Node: <chiang_hair_absorption_from_color>
+    Calculates hair absorption from a color.
+  -->
+  <nodedef name="ND_chiang_hair_absorption_from_color" node="chiang_hair_absorption_from_color" nodegroup="pbr" doc="Calculates hair absorption from a color.">
+    <input name="color" type="color3" value="1.0, 1.0, 1.0" />
+    <input name="azimuthal_roughness" type="float" value="0.2" />
+    <output name="absorption" type="vector3" />
+  </nodedef>
+
+  <!--
+    Node: <chiang_hair_roughness>
+    Calculates hair roughness for R, TT and TRT component.
+  -->
+  <nodedef name="ND_chiang_hair_roughness" node="chiang_hair_roughness" nodegroup="pbr" doc="Calculates hair roughness for R, TT and TRT component.">
+    <input name="longitudinal" type="float" value="0.1" />
+    <input name="azimuthal" type="float" value="0.2" />
+    <input name="scale_TT" type="float" value="0.5" uiadvanced="true" />
+    <input name="scale_TRT" type="float" value="2.0" uiadvanced="true" />
+    <output name="roughness_R" type="vector2" />
+    <output name="roughness_TT" type="vector2" />
+    <output name="roughness_TRT" type="vector2" />
   </nodedef>
 
 </materialx>

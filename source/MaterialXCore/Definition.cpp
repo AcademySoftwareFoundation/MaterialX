@@ -17,6 +17,7 @@ const string NodeDef::PROCEDURAL_NODE_GROUP = "procedural";
 const string NodeDef::GEOMETRIC_NODE_GROUP = "geometric";
 const string NodeDef::ADJUSTMENT_NODE_GROUP = "adjustment";
 const string NodeDef::CONDITIONAL_NODE_GROUP = "conditional";
+const string NodeDef::CHANNEL_NODE_GROUP = "channel";
 const string NodeDef::ORGANIZATION_NODE_GROUP = "organization";
 const string NodeDef::TRANSLATION_NODE_GROUP = "translation";
 
@@ -97,6 +98,19 @@ InterfaceElementPtr NodeDef::getImplementation(const string& target) const
     }
 
     return InterfaceElementPtr();
+}
+
+StringMap NodeDef::getInputHints() const
+{
+    StringMap hints;
+    for (InputPtr input : getActiveInputs())
+    {
+        if (input->hasHint())
+        {
+            hints[input->getName()] = input->getHint();
+        }
+    }
+    return hints;
 }
 
 bool NodeDef::validate(string* message) const

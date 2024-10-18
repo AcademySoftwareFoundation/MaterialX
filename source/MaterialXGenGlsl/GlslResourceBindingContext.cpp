@@ -50,7 +50,7 @@ void GlslResourceBindingContext::emitDirectives(GenContext& context, ShaderStage
         }
     }
 
-    for (auto& extension : _requiredExtensions)
+    for (const string& extension : _requiredExtensions)
     {
         generator.emitLine("#extension " + extension + " : enable", stage, false);
     }
@@ -93,7 +93,7 @@ void GlslResourceBindingContext::emitResourceBindings(GenContext& context, const
     // Second, emit all sampler uniforms as separate uniforms with separate layout bindings
     for (auto uniform : uniforms.getVariableOrder())
     {
-        if (*uniform->getType() == *Type::FILENAME)
+        if (uniform->getType() == Type::FILENAME)
         {
             generator.emitString("layout (binding=" + std::to_string(_separateBindingLocation ? _hwUniformBindLocation++ : _hwSamplerBindLocation++) + ") " + syntax.getUniformQualifier() + " ", stage);
             generator.emitVariableDeclaration(uniform, EMPTY_STRING, context, stage, false);
@@ -116,16 +116,16 @@ void GlslResourceBindingContext::emitStructuredResourceBindings(GenContext& cont
     // https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_uniform_buffer_object.txt
 
     const size_t baseAlignment = 16;
-    std::unordered_map<const TypeDesc*, size_t> alignmentMap({ { Type::FLOAT, baseAlignment / 4 },
-                                                               { Type::INTEGER, baseAlignment / 4 },
-                                                               { Type::BOOLEAN, baseAlignment / 4 },
-                                                               { Type::COLOR3, baseAlignment },
-                                                               { Type::COLOR4, baseAlignment },
-                                                               { Type::VECTOR2, baseAlignment },
-                                                               { Type::VECTOR3, baseAlignment },
-                                                               { Type::VECTOR4, baseAlignment },
-                                                               { Type::MATRIX33, baseAlignment * 4 },
-                                                               { Type::MATRIX44, baseAlignment * 4 } });
+    const std::unordered_map<TypeDesc, size_t, TypeDesc::Hasher> alignmentMap({ { Type::FLOAT, baseAlignment / 4 },
+                                                                                { Type::INTEGER, baseAlignment / 4 },
+                                                                                { Type::BOOLEAN, baseAlignment / 4 },
+                                                                                { Type::COLOR3, baseAlignment },
+                                                                                { Type::COLOR4, baseAlignment },
+                                                                                { Type::VECTOR2, baseAlignment },
+                                                                                { Type::VECTOR3, baseAlignment },
+                                                                                { Type::VECTOR4, baseAlignment },
+                                                                                { Type::MATRIX33, baseAlignment * 4 },
+                                                                                { Type::MATRIX44, baseAlignment * 4 } });
 
     // Get struct alignment and size
     // alignment, uniform member index
@@ -153,9 +153,9 @@ void GlslResourceBindingContext::emitStructuredResourceBindings(GenContext& cont
     // Sort order from largest to smallest
     std::sort(memberOrder.begin(), memberOrder.end(),
               [](const std::pair<size_t, size_t>& a, const std::pair<size_t, size_t>& b)
-              {
-                  return a.first > b.first;
-              });
+    {
+        return a.first > b.first;
+    });
 
     // Emit the struct
     generator.emitLine("struct " + uniforms.getName(), stage, false);
@@ -181,8 +181,9 @@ void GlslResourceBindingContext::emitStructuredResourceBindings(GenContext& cont
     // Emit binding information
     generator.emitLineBreak(stage);
     generator.emitLine("layout (std140, binding=" + std::to_string(_hwUniformBindLocation++) +
-                       ") " + syntax.getUniformQualifier() + " " + uniforms.getName() + "_" +
-                       stage.getName(), stage, false);
+                           ") " + syntax.getUniformQualifier() + " " + uniforms.getName() + "_" +
+                           stage.getName(),
+                       stage, false);
     generator.emitScopeBegin(stage);
     generator.emitLine(uniforms.getName() + " " + structInstanceName + arraySuffix, stage);
     generator.emitScopeEnd(stage, true);
