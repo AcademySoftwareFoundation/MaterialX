@@ -99,15 +99,15 @@ void ShaderGraph::createConnectedNodes(const ElementPtr& downstreamElement,
     // Handle defaultgeomprops
     //
 
-    const vector<InputPtr> activeInputs = upstreamNode->getActiveInputs();
-    for (const InputPtr& activeInput : activeInputs)
+    for (InputPtr activeInput : upstreamNode->getActiveInputs())
     {
         if (!activeInput->hasInterfaceName() || activeInput->getConnectedNode())
         {
             continue;
         }
-        const auto graphInput = activeInput->getInterfaceInput();
-        // We have an input connected to an interface. See if it has defaultgeomprop
+        
+        // Handle interface inputs with default geometric properties.
+        InputPtr graphInput = activeInput->getInterfaceInput();
         if (graphInput && graphInput->hasDefaultGeomPropString())
         {
             ShaderInput* shaderInput = getNode(upstreamNode->getName())->getInput(activeInput->getName());
