@@ -120,4 +120,10 @@ void bindPyDocument(py::module& mod)
         .def("setColorManagementConfig", &mx::Document::setColorManagementConfig)
         .def("hasColorManagementConfig", &mx::Document::hasColorManagementConfig)
         .def("getColorManagementConfig", &mx::Document::getColorManagementConfig);
+    mod.attr("Document").doc() = R"docstring(
+    A MaterialX document, which represents the top-level element in the MaterialX ownership hierarchy.
+
+    Use the factory function `createDocument()` to create a `Document` instance.
+
+    :see: https://materialx.org/docs/api/class_document.html)docstring";
 }
