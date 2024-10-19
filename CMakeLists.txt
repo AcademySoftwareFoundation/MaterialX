@@ -60,25 +60,21 @@ option(MATERIALX_DYNAMIC_ANALYSIS "Build MaterialX libraries with dynamic analys
 option(MATERIALX_OSL_LEGACY_CLOSURES "Build OSL shader generation supporting the legacy OSL closures." OFF)
 
 option(MATERIALX_BUILD_IOS "Build MaterialX for iOS. (Deprecated. Set CMAKE_SYSTEM_NAME instead)" OFF)
-set(MATERIALX_BUILD_APPLE_EMBEDDED OFF)
+option(MATERIALX_BUILD_APPLE_FRAMEWORK "Build MaterialX as an Apple Framework" ${__build_apple_framework})
 if (MATERIALX_BUILD_IOS)
     MESSAGE(WARNING "The MATERIALX_BUILD_IOS is deprecated. Set the CMAKE_SYSTEM_NAME to the platform instead")
     set(CMAKE_SYSTEM_NAME iOS)
 endif()
 
-# Cross Compilation detection as defined in CMake docs
+# Apple ecosystem cross-compilation
 # https://cmake.org/cmake/help/latest/manual/cmake-toolchains.7.html#cross-compiling-for-ios-tvos-visionos-or-watchos
-# Note: All these SDKs may not be supported by MaterialX
+set(MATERIALX_BUILD_APPLE_EMBEDDED OFF)
 set(__build_apple_framework OFF)
-if (CMAKE_SYSTEM_NAME MATCHES "iOS"
-        OR CMAKE_SYSTEM_NAME MATCHES "tvOS"
-        OR CMAKE_SYSTEM_NAME MATCHES "visionOS"
-        OR CMAKE_SYSTEM_NAME MATCHES "watchOS")
+if (CMAKE_SYSTEM_NAME MATCHES "iOS" OR CMAKE_SYSTEM_NAME MATCHES "tvOS" OR CMAKE_SYSTEM_NAME MATCHES "visionOS" OR CMAKE_SYSTEM_NAME MATCHES "watchOS")
     set(MATERIALX_BUILD_APPLE_EMBEDDED ON)
     set(__build_apple_framework ${MATERIALX_BUILD_SHARED_LIBS})
     # TARGET_OS_IPHONE refers to all IPHONE derived platforms
     # https://chaosinmotion.com/2021/08/02/things-to-remember-compiler-conditionals-for-macos-ios-etc/
-    # This should be auto-defined, but leaving it in here because it was historically defined
     add_definitions(-DTARGET_OS_IPHONE=1)
     set(MATERIALX_BUILD_MONOLITHIC ON)
     set(MATERIALX_BUILD_PYTHON OFF)
@@ -90,8 +86,10 @@ if (CMAKE_SYSTEM_NAME MATCHES "iOS"
     set(MATERIALX_BUILD_TESTS OFF)
 endif()
 
-set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "-" CACHE STRING "The Codesigning identity needed to sign compiled objects")
-option(MATERIALX_BUILD_APPLE_FRAMEWORK "Build MaterialX as an Apple Framework" ${__build_apple_framework})
+# Apple framework handling
+if(APPLE)
+    set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "-" CACHE STRING "The Codesigning identity needed to sign compiled objects")
+endif()
 if (MATERIALX_BUILD_APPLE_FRAMEWORK)
     add_definitions(-DBUILD_APPLE_FRAMEWORK)
     set(MATERIALX_BUILD_MONOLITHIC ON)
