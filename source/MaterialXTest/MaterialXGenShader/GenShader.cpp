@@ -161,7 +161,7 @@ TEST_CASE("GenShader: Transparency Regression Check", "[genshader]")
         bool testValue = transparencyTest[i];
 
         mx::DocumentPtr testDoc = mx::createDocument();
-        testDoc->importLibrary(libraries);
+        testDoc->setDataLibrary(libraries);
 
         try
         {
@@ -207,7 +207,7 @@ void testDeterministicGeneration(mx::DocumentPtr libraries, mx::GenContext& cont
     {
         mx::DocumentPtr testDoc = mx::createDocument();
         mx::readFromXmlFile(testDoc, testFile);
-        testDoc->importLibrary(libraries);
+        testDoc->setDataLibrary(libraries);
 
         // Keep the document alive to make sure
         // new memory is allocated for each run
@@ -272,7 +272,7 @@ void checkPixelDependencies(mx::DocumentPtr libraries, mx::GenContext& context)
 
     mx::DocumentPtr testDoc = mx::createDocument();
     mx::readFromXmlFile(testDoc, testFile);
-    testDoc->importLibrary(libraries);
+    testDoc->setDataLibrary(libraries);
 
     mx::ElementPtr element = testDoc->getChild(testElement);
     CHECK(element);
@@ -385,7 +385,7 @@ TEST_CASE("GenShader: Track Application Variables", "[genshader]")
 
     mx::DocumentPtr testDoc = mx::createDocument();
     mx::readFromXmlString(testDoc, testDocumentString);
-    testDoc->importLibrary(libraries);
+    testDoc->setDataLibrary(libraries);
 
     mx::ElementPtr element = testDoc->getChild(testElement);
     CHECK(element);
