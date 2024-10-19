@@ -252,17 +252,17 @@
   <implementation name="IM_divide_matrix44_genglsl" nodedef="ND_divide_matrix44" target="genglsl" sourcecode="{{in1}} / {{in2}}" />
 
   <!-- <modulo> -->
-  <implementation name="IM_modulo_float_genglsl" nodedef="ND_modulo_float" target="genglsl" sourcecode="mod({{in1}}, {{in2}})" />
-  <implementation name="IM_modulo_color3_genglsl" nodedef="ND_modulo_color3" target="genglsl" sourcecode="mod({{in1}}, {{in2}})" />
-  <implementation name="IM_modulo_color3FA_genglsl" nodedef="ND_modulo_color3FA" target="genglsl" sourcecode="mod({{in1}}, {{in2}})" />
-  <implementation name="IM_modulo_color4_genglsl" nodedef="ND_modulo_color4" target="genglsl" sourcecode="mod({{in1}}, {{in2}})" />
-  <implementation name="IM_modulo_color4FA_genglsl" nodedef="ND_modulo_color4FA" target="genglsl" sourcecode="mod({{in1}}, {{in2}})" />
-  <implementation name="IM_modulo_vector2_genglsl" nodedef="ND_modulo_vector2" target="genglsl" sourcecode="mod({{in1}}, {{in2}})" />
-  <implementation name="IM_modulo_vector2FA_genglsl" nodedef="ND_modulo_vector2FA" target="genglsl" sourcecode="mod({{in1}}, {{in2}})" />
-  <implementation name="IM_modulo_vector3_genglsl" nodedef="ND_modulo_vector3" target="genglsl" sourcecode="mod({{in1}}, {{in2}})" />
-  <implementation name="IM_modulo_vector3FA_genglsl" nodedef="ND_modulo_vector3FA" target="genglsl" sourcecode="mod({{in1}}, {{in2}})" />
-  <implementation name="IM_modulo_vector4_genglsl" nodedef="ND_modulo_vector4" target="genglsl" sourcecode="mod({{in1}}, {{in2}})" />
-  <implementation name="IM_modulo_vector4FA_genglsl" nodedef="ND_modulo_vector4FA" target="genglsl" sourcecode="mod({{in1}}, {{in2}})" />
+  <implementation name="IM_modulo_float_genglsl" nodedef="ND_modulo_float" target="genglsl" sourcecode="mx_mod({{in1}}, {{in2}})" />
+  <implementation name="IM_modulo_color3_genglsl" nodedef="ND_modulo_color3" target="genglsl" sourcecode="mx_mod({{in1}}, {{in2}})" />
+  <implementation name="IM_modulo_color3FA_genglsl" nodedef="ND_modulo_color3FA" target="genglsl" sourcecode="mx_mod({{in1}}, {{in2}})" />
+  <implementation name="IM_modulo_color4_genglsl" nodedef="ND_modulo_color4" target="genglsl" sourcecode="mx_mod({{in1}}, {{in2}})" />
+  <implementation name="IM_modulo_color4FA_genglsl" nodedef="ND_modulo_color4FA" target="genglsl" sourcecode="mx_mod({{in1}}, {{in2}})" />
+  <implementation name="IM_modulo_vector2_genglsl" nodedef="ND_modulo_vector2" target="genglsl" sourcecode="mx_mod({{in1}}, {{in2}})" />
+  <implementation name="IM_modulo_vector2FA_genglsl" nodedef="ND_modulo_vector2FA" target="genglsl" sourcecode="mx_mod({{in1}}, {{in2}})" />
+  <implementation name="IM_modulo_vector3_genglsl" nodedef="ND_modulo_vector3" target="genglsl" sourcecode="mx_mod({{in1}}, {{in2}})" />
+  <implementation name="IM_modulo_vector3FA_genglsl" nodedef="ND_modulo_vector3FA" target="genglsl" sourcecode="mx_mod({{in1}}, {{in2}})" />
+  <implementation name="IM_modulo_vector4_genglsl" nodedef="ND_modulo_vector4" target="genglsl" sourcecode="mx_mod({{in1}}, {{in2}})" />
+  <implementation name="IM_modulo_vector4FA_genglsl" nodedef="ND_modulo_vector4FA" target="genglsl" sourcecode="mx_mod({{in1}}, {{in2}})" />
 
   <!-- <invert> -->
   <implementation name="IM_invert_float_genglsl" nodedef="ND_invert_float" target="genglsl" sourcecode="{{amount}} - {{in}}" />
@@ -458,8 +458,8 @@
   <implementation name="IM_determinant_matrix44_genglsl" nodedef="ND_determinant_matrix44" target="genglsl" sourcecode="determinant({{in}})" />
 
   <!-- <invertmatrix> -->
-  <implementation name="IM_invertmatrix_matrix33_genglsl" nodedef="ND_invertmatrix_matrix33" target="genglsl" sourcecode="inverse({{in}})" />
-  <implementation name="IM_invertmatrix_matrix44_genglsl" nodedef="ND_invertmatrix_matrix44" target="genglsl" sourcecode="inverse({{in}})" />
+  <implementation name="IM_invertmatrix_matrix33_genglsl" nodedef="ND_invertmatrix_matrix33" target="genglsl" sourcecode="mx_inverse({{in}})" />
+  <implementation name="IM_invertmatrix_matrix44_genglsl" nodedef="ND_invertmatrix_matrix44" target="genglsl" sourcecode="mx_inverse({{in}})" />
 
   <!-- <rotate2d> -->
   <implementation name="IM_rotate2d_vector2_genglsl" nodedef="ND_rotate2d_vector2" file="mx_rotate_vector2.glsl" function="mx_rotate_vector2" target="genglsl" />
