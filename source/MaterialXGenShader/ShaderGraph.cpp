@@ -81,7 +81,7 @@ void ShaderGraph::createConnectedNodes(const ElementPtr& downstreamElement,
                                        ElementPtr connectingElement,
                                        GenContext& context)
 {
-    // Create the node if it doesn't exists
+    // Create the node if it doesn't exist.
     NodePtr upstreamNode = upstreamElement->asA<Node>();
     if (!upstreamNode)
     {
@@ -95,10 +95,7 @@ void ShaderGraph::createConnectedNodes(const ElementPtr& downstreamElement,
         newNode = createNode(upstreamNode, context);
     }
 
-    //
-    // Handle defaultgeomprops
-    //
-
+    // Handle interface inputs with default geometric properties.
     for (InputPtr activeInput : upstreamNode->getActiveInputs())
     {
         if (!activeInput->hasInterfaceName() || activeInput->getConnectedNode())
@@ -106,7 +103,6 @@ void ShaderGraph::createConnectedNodes(const ElementPtr& downstreamElement,
             continue;
         }
         
-        // Handle interface inputs with default geometric properties.
         InputPtr graphInput = activeInput->getInterfaceInput();
         if (graphInput && graphInput->hasDefaultGeomPropString())
         {
