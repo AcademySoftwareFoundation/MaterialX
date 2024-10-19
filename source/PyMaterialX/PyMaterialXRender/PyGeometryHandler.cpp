@@ -37,6 +37,12 @@ void bindPyGeometryHandler(py::module& mod)
         .def(py::init<>())
         .def("supportedExtensions", &mx::GeometryLoader::supportedExtensions)
         .def("load", &mx::GeometryLoader::load);
+    mod.attr("GeometryLoader").doc() = R"docstring(
+    Base class representing a geometry loader.
+
+    A loader can be associated with one or more file extensions.
+
+    :see: https://materialx.org/docs/api/class_geometry_loader.html)docstring";
 
     py::class_<mx::GeometryHandler, mx::GeometryHandlerPtr>(mod, "GeometryHandler")
         .def(py::init<>())
@@ -50,4 +56,10 @@ void bindPyGeometryHandler(py::module& mod)
         .def("findParentMesh", &mx::GeometryHandler::findParentMesh)
         .def("getMinimumBounds", &mx::GeometryHandler::getMinimumBounds)
         .def("getMaximumBounds", &mx::GeometryHandler::getMaximumBounds);
+    mod.attr("GeometryHandler").doc() = R"docstring(
+    Class which holds a set of geometry loaders.
+
+    Each loader is associated with a given set of file extensions.
+
+    :see: https://materialx.org/docs/api/class_geometry_handler.html)docstring";
 }
