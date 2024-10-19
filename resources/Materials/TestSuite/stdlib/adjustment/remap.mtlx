@@ -1,0 +1,113 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+  <nodegraph name="remap_float">
+    <remap name="remap1" type="float">
+      <input name="in" type="float" value="0.2000" />
+      <input name="inlow" type="float" value="0.1000" />
+      <input name="inhigh" type="float" value="0.9000" />
+      <input name="outlow" type="float" value="0.4000" />
+      <input name="outhigh" type="float" value="0.6000" />
+    </remap>
+    <output name="remap_float_out" type="float" nodename="remap1" />
+  </nodegraph>
+  <nodegraph name="remap_color3">
+    <remap name="remap1" type="color3">
+      <input name="in" type="color3" value="0.2000, 0.6000, 0.8000" />
+      <input name="inlow" type="color3" value="0.1000, -0.2000, 0.4000" />
+      <input name="inhigh" type="color3" value="0.9000, 1.2000, 0.6000" />
+      <input name="outlow" type="color3" value="0.4000, 0.2000, 0.3000" />
+      <input name="outhigh" type="color3" value="0.6000, 0.8000, 0.7000" />
+    </remap>
+    <output name="remap_color3_out" type="color3" nodename="remap1" />
+  </nodegraph>
+  <nodegraph name="remap_color3FA">
+    <remap name="remap1" type="color3">
+      <input name="in" type="color3" value="0.2000, 0.6000, 0.8000" />
+      <input name="inlow" type="float" value="0.1000" />
+      <input name="inhigh" type="float" value="0.9000" />
+      <input name="outlow" type="float" value="0.4000" />
+      <input name="outhigh" type="float" value="0.6000" />
+    </remap>
+    <output name="remap_color3FA_out" type="color3" nodename="remap1" />
+  </nodegraph>
+  <nodegraph name="remap_color4">
+    <remap name="remap1" type="color4">
+      <input name="in" type="color4" value="0.2000, 0.6000, 0.8000, 1.0" />
+      <input name="inlow" type="color4" value="0.1000, -0.2000, 0.4000, 0.0" />
+      <input name="inhigh" type="color4" value="0.9000, 1.2000, 0.6000, 1.0" />
+      <input name="outlow" type="color4" value="0.4000, 0.2000, 0.3000, 0.0" />
+      <input name="outhigh" type="color4" value="0.6000, 0.8000, 0.7000, 1.0" />
+    </remap>
+    <output name="remap_color4_out" type="color4" nodename="remap1" />
+  </nodegraph>
+  <nodegraph name="remap_color4FA">
+    <remap name="remap1" type="color4">
+      <input name="in" type="color4" value="0.2000, 0.6000, 0.8000, 1.0000" />
+      <input name="inlow" type="float" value="0.1000" />
+      <input name="inhigh" type="float" value="0.9000" />
+      <input name="outlow" type="float" value="0.4000" />
+      <input name="outhigh" type="float" value="0.6000" />
+    </remap>
+    <output name="remap_color4FA_out" type="color4" nodename="remap1" />
+  </nodegraph>
+  <nodegraph name="remap_vector2">
+    <remap name="remap1" type="vector2">
+      <input name="in" type="vector2" value="0.2000, 0.5000" />
+      <input name="inlow" type="vector2" value="0.1000, -0.2000" />
+      <input name="inhigh" type="vector2" value="0.9000, 1.2000" />
+      <input name="outlow" type="vector2" value="0.4000, 0.2000" />
+      <input name="outhigh" type="vector2" value="0.6000, 0.8000" />
+    </remap>
+    <output name="remap_vector2_out" type="vector2" nodename="remap1" />
+  </nodegraph>
+  <nodegraph name="remap_vector2FA">
+    <remap name="remap1" type="vector2">
+      <input name="in" type="vector2" value="0.2000, 0.5000" />
+      <input name="inlow" type="float" value="0.1000" />
+      <input name="inhigh" type="float" value="0.9000" />
+      <input name="outlow" type="float" value="0.4000" />
+      <input name="outhigh" type="float" value="0.6000" />
+    </remap>
+    <output name="remap_vector2FA_out" type="vector2" nodename="remap1" />
+  </nodegraph>
+  <nodegraph name="remap_vector3">
+    <remap name="remap1" type="vector3">
+      <input name="in" type="vector3" value="0.2000, 0.6000, 0.8000" />
+      <input name="inlow" type="vector3" value="0.1000, -0.2000, 0.4000" />
+      <input name="inhigh" type="vector3" value="0.9000, 1.2000, 0.6000" />
+      <input name="outlow" type="vector3" value="0.4000, 0.2000, 0.3000" />
+      <input name="outhigh" type="vector3" value="0.6000, 0.8000, 0.7000" />
+    </remap>
+    <output name="remap_vector3_out" type="vector3" nodename="remap1" />
+  </nodegraph>
+  <nodegraph name="remap_vector3FA">
+    <remap name="remap1" type="vector3">
+      <input name="in" type="vector3" value="0.2000, 0.6000, 0.8000" />
+      <input name="inlow" type="float" value="0.1000" />
+      <input name="inhigh" type="float" value="0.9000" />
+      <input name="outlow" type="float" value="0.4000" />
+      <input name="outhigh" type="float" value="0.6000" />
+    </remap>
+    <output name="remap_vector3FA_out" type="vector3" nodename="remap1" />
+  </nodegraph>
+  <nodegraph name="remap_vector4">
+    <remap name="remap1" type="vector4">
+      <input name="in" type="vector4" value="0.2000, 0.6000, 0.8000, 1.0" />
+      <input name="inlow" type="vector4" value="0.1000, -0.2000, 0.4000, 0.0" />
+      <input name="inhigh" type="vector4" value="0.9000, 1.2000, 0.6000, 1.0" />
+      <input name="outlow" type="vector4" value="0.4000, 0.2000, 0.3000, 0.0" />
+      <input name="outhigh" type="vector4" value="0.6000, 0.8000, 0.7000, 1.0" />
+    </remap>
+    <output name="remap_vector4_out" type="vector4" nodename="remap1" />
+  </nodegraph>
+  <nodegraph name="remap_vector4FA">
+    <remap name="remap1" type="vector4">
+      <input name="in" type="vector4" value="0.2000, 0.6000, 0.8000, 1.0" />
+      <input name="inlow" type="float" value="0.1000" />
+      <input name="inhigh" type="float" value="0.9000" />
+      <input name="outlow" type="float" value="0.4000" />
+      <input name="outhigh" type="float" value="0.6000" />
+    </remap>
+    <output name="remap_vector4FA_out" type="vector4" nodename="remap1" />
+  </nodegraph>
+</materialx>
