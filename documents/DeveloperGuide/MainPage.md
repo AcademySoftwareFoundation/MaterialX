@@ -50,7 +50,7 @@ Select the `MATERIALX_BUILD_VIEWER` option to build the MaterialX Viewer.  Insta
 
 ### Building API Documentation
 
-To generate HTML documentation for the MaterialX C++ API, make sure a version of [Doxygen](https://www.doxygen.org/) is on your path, and select the advanced option `MATERIALX_BUILD_CPP_DOCS` in CMake.  This option will add a target named `MaterialXDocs` to your project, which can be built as an independent step from your development environment.
+To generate HTML documentation for the MaterialX C++ API, make sure a version of [Doxygen](https://www.doxygen.org/) is on your path, and select the advanced option `MATERIALX_BUILD_CPP_DOCS` in CMake.  This option will add a target named `MaterialXDocsCpp` to your project, which can be built as an independent step from your development environment.
 
 To generate HTML documentation for the MaterialX Python API, make sure a version of [Sphinx](https://www.sphinx-doc.org/) is on your path, and select the advanced option `MATERIALX_BUILD_PYTHON_DOCS` in CMake.  This option will add a target named `MaterialXDocsPython` to your project, which can be built as an independent step from your development environment.
 
