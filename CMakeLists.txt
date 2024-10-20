@@ -201,7 +201,7 @@ mark_as_advanced(MATERIALX_INSTALL_LIB_PATH)
 mark_as_advanced(MATERIALX_INSTALL_STDLIB_PATH)
 mark_as_advanced(MATERIALX_BUILD_JS)
 mark_as_advanced(MATERIALX_EMSDK_PATH)
-mark_as_advanced(MATERIALX_BUILD_IOS)  # deprecated
+mark_as_advanced(MATERIALX_BUILD_IOS)
 mark_as_advanced(MATERIALX_BUILD_APPLE_FRAMEWORK)
 if (MATERIALX_BUILD_GEN_MDL)
     mark_as_advanced(MATERIALX_MDLC_EXECUTABLE)
