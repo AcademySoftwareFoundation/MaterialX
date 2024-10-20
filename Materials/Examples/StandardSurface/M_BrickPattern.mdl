@@ -1,0 +1,681 @@
+mdl 1.8;
+
+import ::df::*;
+import ::base::*;
+import ::math::*;
+import ::state::*;
+import ::anno::*;
+import ::tex::*;
+using ::materialx::core import *;
+using ::materialx::sampling import *;
+using ::materialx::stdlib_1_8 import *;
+using ::materialx::pbrlib_1_8 import *;
+
+float2 NG_convert_float_vector2
+(
+    float in1 = 0.000000
+)
+{
+    float2 combine_out = float2( in1,in1 );
+    return combine_out;
+}
+
+float NG_tiledimage_float
+(
+    uniform texture_2d file = texture_2d(),
+    float default1 = 0.000000,
+    float2 texcoord = float2(state::texture_coordinate(0).x, state::texture_coordinate(0).y),
+    float2 uvtiling = float2(1.000000, 1.000000),
+    float2 uvoffset = float2(0.000000, 0.000000),
+    float2 realworldimagesize = float2(1.000000, 1.000000),
+    float2 realworldtilesize = float2(1.000000, 1.000000),
+    uniform mx_filterlookup_type filtertype = mx_filterlookup_type_linear,
+    uniform string framerange = "",
+    uniform int frameoffset = 0,
+    uniform mx_addressmode_type frameendaction = mx_addressmode_type_constant
+)
+{
+    float2 N_mult_float_out = texcoord * uvtiling;
+    float2 N_sub_float_out = N_mult_float_out - uvoffset;
+    float2 N_divtilesize_float_out = N_sub_float_out / realworldimagesize;
+    float2 N_multtilesize_float_out = N_divtilesize_float_out * realworldtilesize;
+    float N_img_float_out = materialx::stdlib_1_8::mx_image_float(file, "", default1, N_multtilesize_float_out, mx_addressmode_type_periodic, mx_addressmode_type_periodic, filtertype, framerange, frameoffset, frameendaction, mxp_flip_v:false);
+    return N_img_float_out;
+}
+
+float3 NG_tiledimage_vector3
+(
+    uniform texture_2d file = texture_2d(),
+    float3 default1 = float3(0.000000, 0.000000, 0.000000),
+    float2 texcoord = float2(state::texture_coordinate(0).x, state::texture_coordinate(0).y),
+    float2 uvtiling = float2(1.000000, 1.000000),
+    float2 uvoffset = float2(0.000000, 0.000000),
+    float2 realworldimagesize = float2(1.000000, 1.000000),
+    float2 realworldtilesize = float2(1.000000, 1.000000),
+    uniform mx_filterlookup_type filtertype = mx_filterlookup_type_linear,
+    uniform string framerange = "",
+    uniform int frameoffset = 0,
+    uniform mx_addressmode_type frameendaction = mx_addressmode_type_constant
+)
+{
+    float2 N_mult_vector3_out = texcoord * uvtiling;
+    float2 N_sub_vector3_out = N_mult_vector3_out - uvoffset;
+    float2 N_divtilesize_vector3_out = N_sub_vector3_out / realworldimagesize;
+    float2 N_multtilesize_vector3_out = N_divtilesize_vector3_out * realworldtilesize;
+    float3 N_img_vector3_out = materialx::stdlib_1_8::mx_image_vector3(file, "", default1, N_multtilesize_vector3_out, mx_addressmode_type_periodic, mx_addressmode_type_periodic, filtertype, framerange, frameoffset, frameendaction, mxp_flip_v:false);
+    return N_img_vector3_out;
+}
+
+color NG_convert_float_color3
+(
+    float in1 = 0.000000
+)
+{
+    color combine_out = color( in1,in1,in1 );
+    return combine_out;
+}
+
+material NG_standard_surface_surfaceshader_100
+(
+    float base = 0.800000,
+    color base_color = color(1.000000, 1.000000, 1.000000),
+    float diffuse_roughness = 0.000000,
+    float metalness = 0.000000,
+    float specular = 1.000000,
+    color specular_color = color(1.000000, 1.000000, 1.000000),
+    float specular_roughness = 0.200000,
+    uniform float specular_IOR = 1.500000,
+    float specular_anisotropy = 0.000000,
+    float specular_rotation = 0.000000,
+    float transmission = 0.000000,
+    color transmission_color = color(1.000000, 1.000000, 1.000000),
+    float transmission_depth = 0.000000,
+    color transmission_scatter = color(0.000000, 0.000000, 0.000000),
+    float transmission_scatter_anisotropy = 0.000000,
+    float transmission_dispersion = 0.000000,
+    float transmission_extra_roughness = 0.000000,
+    float subsurface = 0.000000,
+    color subsurface_color = color(1.000000, 1.000000, 1.000000),
+    color subsurface_radius = color(1.000000, 1.000000, 1.000000),
+    float subsurface_scale = 1.000000,
+    float subsurface_anisotropy = 0.000000,
+    float sheen = 0.000000,
+    color sheen_color = color(1.000000, 1.000000, 1.000000),
+    float sheen_roughness = 0.300000,
+    float coat = 0.000000,
+    color coat_color = color(1.000000, 1.000000, 1.000000),
+    float coat_roughness = 0.100000,
+    float coat_anisotropy = 0.000000,
+    float coat_rotation = 0.000000,
+    uniform float coat_IOR = 1.500000,
+    float3 coat_normal = state::transform_normal(state::coordinate_internal, state::coordinate_world, state::normal()),
+    float coat_affect_color = 0.000000,
+    float coat_affect_roughness = 0.000000,
+    float thin_film_thickness = 0.000000,
+    float thin_film_IOR = 1.500000,
+    float emission = 0.000000,
+    color emission_color = color(1.000000, 1.000000, 1.000000),
+    color opacity = color(1.000000, 1.000000, 1.000000),
+    bool thin_walled = false,
+    float3 normal = state::transform_normal(state::coordinate_internal, state::coordinate_world, state::normal()),
+    float3 tangent = state::transform_vector(state::coordinate_internal, state::coordinate_world, state::texture_tangent_u(0))
+)
+ = let
+{
+    float2 coat_roughness_vector_out = materialx::pbrlib_1_8::mx_roughness_anisotropy(mxp_roughness:coat_roughness, mxp_anisotropy:coat_anisotropy);
+    float coat_tangent_rotate_degree_out = coat_rotation * 360.000000;
+    color metal_reflectivity_out = base_color * base;
+    color metal_edgecolor_out = specular_color * specular;
+    float coat_affect_roughness_multiply1_out = coat_affect_roughness * coat;
+    float tangent_rotate_degree_out = specular_rotation * 360.000000;
+    float transmission_roughness_add_out = specular_roughness + transmission_extra_roughness;
+    color subsurface_color_nonnegative_out = math::max(subsurface_color, 0.000000);
+    float coat_clamped_out = math::clamp(coat, 0.000000, 1.000000);
+    color subsurface_radius_scaled_out = subsurface_radius * subsurface_scale;
+    float subsurface_selector_out = float(thin_walled);
+    color base_color_nonnegative_out = math::max(base_color, 0.000000);
+    color coat_attenuation_out = math::lerp(color(1.000000, 1.000000, 1.000000), coat_color, coat);
+    float one_minus_coat_ior_out = 1.000000 - coat_IOR;
+    float one_plus_coat_ior_out = 1.000000 + coat_IOR;
+    color emission_weight_out = emission_color * emission;
+    color opacity_luminance_out = materialx::stdlib_1_8::mx_luminance_color3(opacity);
+    float3 coat_tangent_rotate_out = materialx::stdlib_1_8::mx_rotate3d_vector3(mxp_in:tangent, mxp_amount:coat_tangent_rotate_degree_out, mxp_axis:coat_normal);
+    materialx::pbrlib_1_8::mx_artistic_ior__result artistic_ior_result = materialx::pbrlib_1_8::mx_artistic_ior(mxp_reflectivity:metal_reflectivity_out, mxp_edge_color:metal_edgecolor_out);
+    float coat_affect_roughness_multiply2_out = coat_affect_roughness_multiply1_out * coat_roughness;
+    float3 tangent_rotate_out = materialx::stdlib_1_8::mx_rotate3d_vector3(mxp_in:tangent, mxp_amount:tangent_rotate_degree_out, mxp_axis:normal);
+    float transmission_roughness_clamped_out = math::clamp(transmission_roughness_add_out, 0.000000, 1.000000);
+    float coat_gamma_multiply_out = coat_clamped_out * coat_affect_color;
+    float coat_ior_to_F0_sqrt_out = one_minus_coat_ior_out / one_plus_coat_ior_out;
+    float opacity_luminance_float_out = materialx::stdlib_1_8::mx_extract_color3(opacity_luminance_out, 0);
+    float3 coat_tangent_rotate_normalize_out = math::normalize(coat_tangent_rotate_out);
+    float coat_affected_roughness_out = math::lerp(specular_roughness, 1.000000, coat_affect_roughness_multiply2_out);
+    float3 tangent_rotate_normalize_out = math::normalize(tangent_rotate_out);
+    float coat_affected_transmission_roughness_out = math::lerp(transmission_roughness_clamped_out, 1.000000, coat_affect_roughness_multiply2_out);
+    float coat_gamma_out = coat_gamma_multiply_out + 1.000000;
+    float coat_ior_to_F0_out = coat_ior_to_F0_sqrt_out * coat_ior_to_F0_sqrt_out;
+    float3 coat_tangent_out = materialx::stdlib_1_8::mx_ifgreater_vector3(coat_anisotropy, 0.000000, coat_tangent_rotate_normalize_out, tangent);
+    float2 main_roughness_out = materialx::pbrlib_1_8::mx_roughness_anisotropy(mxp_roughness:coat_affected_roughness_out, mxp_anisotropy:specular_anisotropy);
+    float3 main_tangent_out = materialx::stdlib_1_8::mx_ifgreater_vector3(specular_anisotropy, 0.000000, tangent_rotate_normalize_out, tangent);
+    float2 transmission_roughness_out = materialx::pbrlib_1_8::mx_roughness_anisotropy(mxp_roughness:coat_affected_transmission_roughness_out, mxp_anisotropy:specular_anisotropy);
+    color coat_affected_subsurface_color_out = math::pow(subsurface_color_nonnegative_out, coat_gamma_out);
+    color coat_affected_diffuse_color_out = math::pow(base_color_nonnegative_out, coat_gamma_out);
+    float one_minus_coat_ior_to_F0_out = 1.000000 - coat_ior_to_F0_out;
+    color emission_color0_out = NG_convert_float_color3(one_minus_coat_ior_to_F0_out);
+    material metal_bsdf_out = materialx::pbrlib_1_8::mx_conductor_bsdf(mxp_weight:1.000000, mxp_ior:artistic_ior_result.mxp_ior, mxp_extinction:artistic_ior_result.mxp_extinction, mxp_roughness:main_roughness_out, mxp_thinfilm_thickness:thin_film_thickness, mxp_thinfilm_ior:thin_film_IOR, mxp_normal:normal, mxp_tangent:main_tangent_out, mxp_distribution:mx_distribution_type_ggx);
+    material transmission_bsdf_out = materialx::pbrlib_1_8::mx_dielectric_bsdf(mxp_weight:1.000000, mxp_tint:transmission_color, mxp_ior:specular_IOR, mxp_roughness:transmission_roughness_out, mxp_thinfilm_thickness:0.000000, mxp_thinfilm_ior:1.500000, mxp_normal:normal, mxp_tangent:main_tangent_out, mxp_distribution:mx_distribution_type_ggx, mxp_scatter_mode:mx_scatter_mode_T, mxp_base:material());
+    material translucent_bsdf_out = materialx::pbrlib_1_8::mx_translucent_bsdf(mxp_weight:1.000000, mxp_color:coat_affected_subsurface_color_out, mxp_normal:normal);
+    material subsurface_bsdf_out = materialx::pbrlib_1_8::mx_subsurface_bsdf(mxp_weight:1.000000, mxp_color:coat_affected_subsurface_color_out, mxp_radius:subsurface_radius_scaled_out, mxp_anisotropy:subsurface_anisotropy, mxp_normal:normal);
+    material selected_subsurface_bsdf_out = materialx::pbrlib_1_8::mx_mix_bsdf(mxp_fg:translucent_bsdf_out, mxp_bg:subsurface_bsdf_out, mxp_mix:subsurface_selector_out);
+    material diffuse_bsdf_out = materialx::pbrlib_1_8::mx_oren_nayar_diffuse_bsdf(mxp_weight:base, mxp_color:coat_affected_diffuse_color_out, mxp_roughness:diffuse_roughness, mxp_normal:normal);
+    material subsurface_mix_out = materialx::pbrlib_1_8::mx_mix_bsdf(mxp_fg:selected_subsurface_bsdf_out, mxp_bg:diffuse_bsdf_out, mxp_mix:subsurface);
+    material sheen_layer_out = materialx::pbrlib_1_8::mx_sheen_bsdf(mxp_weight:sheen, mxp_color:sheen_color, mxp_roughness:sheen_roughness, mxp_normal:normal, mxp_base:subsurface_mix_out);
+    material transmission_mix_out = materialx::pbrlib_1_8::mx_mix_bsdf(mxp_fg:transmission_bsdf_out, mxp_bg:sheen_layer_out, mxp_mix:transmission);
+    material specular_layer_out = materialx::pbrlib_1_8::mx_dielectric_bsdf(mxp_weight:specular, mxp_tint:specular_color, mxp_ior:specular_IOR, mxp_roughness:main_roughness_out, mxp_thinfilm_thickness:thin_film_thickness, mxp_thinfilm_ior:thin_film_IOR, mxp_normal:normal, mxp_tangent:main_tangent_out, mxp_distribution:mx_distribution_type_ggx, mxp_scatter_mode:mx_scatter_mode_R, mxp_base:transmission_mix_out);
+    material metalness_mix_out = materialx::pbrlib_1_8::mx_mix_bsdf(mxp_fg:metal_bsdf_out, mxp_bg:specular_layer_out, mxp_mix:metalness);
+    material thin_film_layer_attenuated_out = materialx::pbrlib_1_8::mx_multiply_bsdf_color3(mxp_in1:metalness_mix_out, mxp_in2:coat_attenuation_out);
+    material coat_layer_out = materialx::pbrlib_1_8::mx_dielectric_bsdf(mxp_weight:coat, mxp_tint:color(1.000000, 1.000000, 1.000000), mxp_ior:coat_IOR, mxp_roughness:coat_roughness_vector_out, mxp_thinfilm_thickness:0.000000, mxp_thinfilm_ior:1.500000, mxp_normal:coat_normal, mxp_tangent:coat_tangent_out, mxp_distribution:mx_distribution_type_ggx, mxp_scatter_mode:mx_scatter_mode_R, mxp_base:thin_film_layer_attenuated_out);
+    material emission_edf_out = materialx::pbrlib_1_8::mx_uniform_edf(mxp_color:emission_weight_out);
+    material coat_tinted_emission_edf_out = materialx::pbrlib_1_8::mx_multiply_edf_color3(mxp_in1:emission_edf_out, mxp_in2:coat_color);
+    material coat_emission_edf_out = materialx::pbrlib_1_8::mx_generalized_schlick_edf(mxp_color0:emission_color0_out, mxp_color90:color(0.000000, 0.000000, 0.000000), mxp_exponent:5.000000, mxp_base:coat_tinted_emission_edf_out);
+    material blended_coat_emission_edf_out = materialx::pbrlib_1_8::mx_mix_edf(mxp_fg:coat_emission_edf_out, mxp_bg:emission_edf_out, mxp_mix:coat);
+    material shader_constructor_out = materialx::pbrlib_1_8::mx_surface(coat_layer_out, blended_coat_emission_edf_out, opacity_luminance_float_out, false, specular_IOR);
+}
+in material(shader_constructor_out);
+
+export material M_BrickPattern
+(
+    material backsurfaceshader = material()
+    [[
+    	materialx::core::origin("")
+    ]],
+    material displacementshader = material()
+    [[
+    	materialx::core::origin("")
+    ]],
+    uniform int geomprop_UV0_index = 0
+    [[
+    	materialx::core::origin("UV0")
+    ]],
+    float node_convert_1_in = 3.000000
+    [[
+    	materialx::core::origin("NG_BrickPattern/uvtiling")
+    ]],
+    color node_rgbtohsv_12_in = color(0.661876, 0.190880, 0.000000)
+    [[
+    	materialx::core::origin("NG_BrickPattern/brick_color")
+    ]],
+    uniform mx_coordinatespace_type geomprop_Nworld_space = mx_coordinatespace_type_world
+    [[
+    	materialx::core::origin("Nworld")
+    ]],
+    uniform mx_coordinatespace_type geomprop_Tworld_space = mx_coordinatespace_type_world
+    [[
+    	materialx::core::origin("Tworld")
+    ]],
+    uniform int geomprop_Tworld_index = 0
+    [[
+    	materialx::core::origin("Tworld")
+    ]],
+    uniform mx_coordinatespace_type geomprop_Bworld_space = mx_coordinatespace_type_world
+    [[
+    	materialx::core::origin("Bworld")
+    ]],
+    uniform int geomprop_Bworld_index = 0
+    [[
+    	materialx::core::origin("Bworld")
+    ]],
+    uniform texture_2d node_tiledimage_float_26_file = texture_2d("../../../Images/brick_variation_mask.jpg", tex::gamma_linear)
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_float_26/file")
+    ]],
+    float node_tiledimage_float_26_default = 0.000000
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_float_26/default")
+    ]],
+    float2 node_tiledimage_float_26_uvoffset = float2(0.000000, 0.000000)
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_float_26/uvoffset")
+    ]],
+    float2 node_tiledimage_float_26_realworldimagesize = float2(1.000000, 1.000000)
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_float_26/realworldimagesize")
+    ]],
+    float2 node_tiledimage_float_26_realworldtilesize = float2(1.000000, 1.000000)
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_float_26/realworldtilesize")
+    ]],
+    uniform mx_filterlookup_type node_tiledimage_float_26_filtertype = mx_filterlookup_type_linear
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_float_26/filtertype")
+    ]],
+    uniform string node_tiledimage_float_26_framerange = ""
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_float_26/framerange")
+    ]],
+    uniform int node_tiledimage_float_26_frameoffset = 0
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_float_26/frameoffset")
+    ]],
+    uniform mx_addressmode_type node_tiledimage_float_26_frameendaction = mx_addressmode_type_constant
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_float_26/frameendaction")
+    ]],
+    uniform texture_2d node_tiledimage_float_7_file = texture_2d("../../../Images/brick_base_gray.jpg", tex::gamma_linear)
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_float_7/file")
+    ]],
+    float node_tiledimage_float_7_default = 0.000000
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_float_7/default")
+    ]],
+    float2 node_tiledimage_float_7_uvoffset = float2(0.000000, 0.000000)
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_float_7/uvoffset")
+    ]],
+    float2 node_tiledimage_float_7_realworldimagesize = float2(1.000000, 1.000000)
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_float_7/realworldimagesize")
+    ]],
+    float2 node_tiledimage_float_7_realworldtilesize = float2(1.000000, 1.000000)
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_float_7/realworldtilesize")
+    ]],
+    uniform mx_filterlookup_type node_tiledimage_float_7_filtertype = mx_filterlookup_type_linear
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_float_7/filtertype")
+    ]],
+    uniform string node_tiledimage_float_7_framerange = ""
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_float_7/framerange")
+    ]],
+    uniform int node_tiledimage_float_7_frameoffset = 0
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_float_7/frameoffset")
+    ]],
+    uniform mx_addressmode_type node_tiledimage_float_7_frameendaction = mx_addressmode_type_constant
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_float_7/frameendaction")
+    ]],
+    uniform texture_2d node_tiledimage_float_24_file = texture_2d("../../../Images/brick_dirt_mask.jpg", tex::gamma_linear)
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_float_24/file")
+    ]],
+    float node_tiledimage_float_24_default = 0.000000
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_float_24/default")
+    ]],
+    float2 node_tiledimage_float_24_uvoffset = float2(0.000000, 0.000000)
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_float_24/uvoffset")
+    ]],
+    float2 node_tiledimage_float_24_realworldimagesize = float2(1.000000, 1.000000)
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_float_24/realworldimagesize")
+    ]],
+    float2 node_tiledimage_float_24_realworldtilesize = float2(1.000000, 1.000000)
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_float_24/realworldtilesize")
+    ]],
+    uniform mx_filterlookup_type node_tiledimage_float_24_filtertype = mx_filterlookup_type_linear
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_float_24/filtertype")
+    ]],
+    uniform string node_tiledimage_float_24_framerange = ""
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_float_24/framerange")
+    ]],
+    uniform int node_tiledimage_float_24_frameoffset = 0
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_float_24/frameoffset")
+    ]],
+    uniform mx_addressmode_type node_tiledimage_float_24_frameendaction = mx_addressmode_type_constant
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_float_24/frameendaction")
+    ]],
+    uniform texture_2d node_tiledimage_float_10_file = texture_2d("../../../Images/brick_mask.jpg", tex::gamma_linear)
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_float_10/file")
+    ]],
+    float node_tiledimage_float_10_default = 0.000000
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_float_10/default")
+    ]],
+    float2 node_tiledimage_float_10_uvoffset = float2(0.000000, 0.000000)
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_float_10/uvoffset")
+    ]],
+    float2 node_tiledimage_float_10_realworldimagesize = float2(1.000000, 1.000000)
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_float_10/realworldimagesize")
+    ]],
+    float2 node_tiledimage_float_10_realworldtilesize = float2(1.000000, 1.000000)
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_float_10/realworldtilesize")
+    ]],
+    uniform mx_filterlookup_type node_tiledimage_float_10_filtertype = mx_filterlookup_type_linear
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_float_10/filtertype")
+    ]],
+    uniform string node_tiledimage_float_10_framerange = ""
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_float_10/framerange")
+    ]],
+    uniform int node_tiledimage_float_10_frameoffset = 0
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_float_10/frameoffset")
+    ]],
+    uniform mx_addressmode_type node_tiledimage_float_10_frameendaction = mx_addressmode_type_constant
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_float_10/frameendaction")
+    ]],
+    uniform texture_2d node_tiledimage_float_22_file = texture_2d("../../../Images/brick_roughness.jpg", tex::gamma_linear)
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_float_22/file")
+    ]],
+    float node_tiledimage_float_22_default = 0.000000
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_float_22/default")
+    ]],
+    float2 node_tiledimage_float_22_uvoffset = float2(0.000000, 0.000000)
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_float_22/uvoffset")
+    ]],
+    float2 node_tiledimage_float_22_realworldimagesize = float2(1.000000, 1.000000)
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_float_22/realworldimagesize")
+    ]],
+    float2 node_tiledimage_float_22_realworldtilesize = float2(1.000000, 1.000000)
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_float_22/realworldtilesize")
+    ]],
+    uniform mx_filterlookup_type node_tiledimage_float_22_filtertype = mx_filterlookup_type_linear
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_float_22/filtertype")
+    ]],
+    uniform string node_tiledimage_float_22_framerange = ""
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_float_22/framerange")
+    ]],
+    uniform int node_tiledimage_float_22_frameoffset = 0
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_float_22/frameoffset")
+    ]],
+    uniform mx_addressmode_type node_tiledimage_float_22_frameendaction = mx_addressmode_type_constant
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_float_22/frameendaction")
+    ]],
+    uniform texture_2d node_tiledimage_vector3_27_file = texture_2d("../../../Images/brick_normal.jpg", tex::gamma_linear)
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_vector3_27/file")
+    ]],
+    float3 node_tiledimage_vector3_27_default = float3(0.000000, 0.000000, 0.000000)
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_vector3_27/default")
+    ]],
+    float2 node_tiledimage_vector3_27_uvoffset = float2(0.000000, 0.000000)
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_vector3_27/uvoffset")
+    ]],
+    float2 node_tiledimage_vector3_27_realworldimagesize = float2(1.000000, 1.000000)
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_vector3_27/realworldimagesize")
+    ]],
+    float2 node_tiledimage_vector3_27_realworldtilesize = float2(1.000000, 1.000000)
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_vector3_27/realworldtilesize")
+    ]],
+    uniform mx_filterlookup_type node_tiledimage_vector3_27_filtertype = mx_filterlookup_type_linear
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_vector3_27/filtertype")
+    ]],
+    uniform string node_tiledimage_vector3_27_framerange = ""
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_vector3_27/framerange")
+    ]],
+    uniform int node_tiledimage_vector3_27_frameoffset = 0
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_vector3_27/frameoffset")
+    ]],
+    uniform mx_addressmode_type node_tiledimage_vector3_27_frameendaction = mx_addressmode_type_constant
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_tiledimage_vector3_27/frameendaction")
+    ]],
+    float node_multiply_25_in1 = 0.083000
+    [[
+    	materialx::core::origin("NG_BrickPattern/hue_variation")
+    ]],
+    float node_multiply_20_in1 = 0.787000
+    [[
+    	materialx::core::origin("NG_BrickPattern/value_variation")
+    ]],
+    color node_multiply_9_in1 = color(0.263273, 0.263273, 0.263273)
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_color_11/value")
+    ]],
+    float node_multiply_23_in1 = 0.248000
+    [[
+    	materialx::core::origin("NG_BrickPattern/dirt_amount")
+    ]],
+    float node_max_1_in2 = 0.000010
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_max_1/in2")
+    ]],
+    float node_normalmap_3_scale = 1.000000
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_normalmap_3/scale")
+    ]],
+    float node_divide_21_in1 = 0.853000
+    [[
+    	materialx::core::origin("NG_BrickPattern/roughness_amount")
+    ]],
+    float node_subtract_18_in2 = 0.350000
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_subtract_18/in2")
+    ]],
+    float node_multiply_14_in2 = 0.083000
+    [[
+    	materialx::core::origin("NG_BrickPattern/hue_variation")
+    ]],
+    float node_combine3_color3_13_in2 = 0.000000
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_combine3_color3_13/in2")
+    ]],
+    color node_mix_6_fg = color(0.563720, 0.563720, 0.563720)
+    [[
+    	materialx::core::origin("NG_BrickPattern/dirt_color")
+    ]],
+    color node_clamp_0_low = color(0.000000, 0.000000, 0.000000)
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_clamp_0/low")
+    ]],
+    color node_clamp_0_high = color(1.000000, 1.000000, 1.000000)
+    [[
+    	materialx::core::origin("NG_BrickPattern/node_clamp_0/high")
+    ]],
+    float N_StandardSurface_base = 1.000000
+    [[
+    	materialx::core::origin("N_StandardSurface/base")
+    ]],
+    float N_StandardSurface_diffuse_roughness = 0.000000
+    [[
+    	materialx::core::origin("N_StandardSurface/diffuse_roughness")
+    ]],
+    float N_StandardSurface_metalness = 0.000000
+    [[
+    	materialx::core::origin("N_StandardSurface/metalness")
+    ]],
+    float N_StandardSurface_specular = 1.000000
+    [[
+    	materialx::core::origin("N_StandardSurface/specular")
+    ]],
+    color N_StandardSurface_specular_color = color(1.000000, 1.000000, 1.000000)
+    [[
+    	materialx::core::origin("N_StandardSurface/specular_color")
+    ]],
+    uniform float N_StandardSurface_specular_IOR = 1.500000
+    [[
+    	materialx::core::origin("N_StandardSurface/specular_IOR")
+    ]],
+    float N_StandardSurface_specular_anisotropy = 0.000000
+    [[
+    	materialx::core::origin("N_StandardSurface/specular_anisotropy")
+    ]],
+    float N_StandardSurface_specular_rotation = 0.000000
+    [[
+    	materialx::core::origin("N_StandardSurface/specular_rotation")
+    ]],
+    float N_StandardSurface_transmission = 0.000000
+    [[
+    	materialx::core::origin("N_StandardSurface/transmission")
+    ]],
+    color N_StandardSurface_transmission_color = color(1.000000, 1.000000, 1.000000)
+    [[
+    	materialx::core::origin("N_StandardSurface/transmission_color")
+    ]],
+    float N_StandardSurface_transmission_depth = 0.000000
+    [[
+    	materialx::core::origin("N_StandardSurface/transmission_depth")
+    ]],
+    color N_StandardSurface_transmission_scatter = color(0.000000, 0.000000, 0.000000)
+    [[
+    	materialx::core::origin("N_StandardSurface/transmission_scatter")
+    ]],
+    float N_StandardSurface_transmission_scatter_anisotropy = 0.000000
+    [[
+    	materialx::core::origin("N_StandardSurface/transmission_scatter_anisotropy")
+    ]],
+    float N_StandardSurface_transmission_dispersion = 0.000000
+    [[
+    	materialx::core::origin("N_StandardSurface/transmission_dispersion")
+    ]],
+    float N_StandardSurface_transmission_extra_roughness = 0.000000
+    [[
+    	materialx::core::origin("N_StandardSurface/transmission_extra_roughness")
+    ]],
+    float N_StandardSurface_subsurface = 0.000000
+    [[
+    	materialx::core::origin("N_StandardSurface/subsurface")
+    ]],
+    color N_StandardSurface_subsurface_color = color(1.000000, 1.000000, 1.000000)
+    [[
+    	materialx::core::origin("N_StandardSurface/subsurface_color")
+    ]],
+    color N_StandardSurface_subsurface_radius = color(1.000000, 1.000000, 1.000000)
+    [[
+    	materialx::core::origin("N_StandardSurface/subsurface_radius")
+    ]],
+    float N_StandardSurface_subsurface_scale = 1.000000
+    [[
+    	materialx::core::origin("N_StandardSurface/subsurface_scale")
+    ]],
+    float N_StandardSurface_subsurface_anisotropy = 0.000000
+    [[
+    	materialx::core::origin("N_StandardSurface/subsurface_anisotropy")
+    ]],
+    float N_StandardSurface_sheen = 0.000000
+    [[
+    	materialx::core::origin("N_StandardSurface/sheen")
+    ]],
+    color N_StandardSurface_sheen_color = color(1.000000, 1.000000, 1.000000)
+    [[
+    	materialx::core::origin("N_StandardSurface/sheen_color")
+    ]],
+    float N_StandardSurface_sheen_roughness = 0.300000
+    [[
+    	materialx::core::origin("N_StandardSurface/sheen_roughness")
+    ]],
+    float N_StandardSurface_coat = 0.000000
+    [[
+    	materialx::core::origin("N_StandardSurface/coat")
+    ]],
+    color N_StandardSurface_coat_color = color(1.000000, 1.000000, 1.000000)
+    [[
+    	materialx::core::origin("N_StandardSurface/coat_color")
+    ]],
+    float N_StandardSurface_coat_roughness = 0.100000
+    [[
+    	materialx::core::origin("N_StandardSurface/coat_roughness")
+    ]],
+    float N_StandardSurface_coat_anisotropy = 0.000000
+    [[
+    	materialx::core::origin("N_StandardSurface/coat_anisotropy")
+    ]],
+    float N_StandardSurface_coat_rotation = 0.000000
+    [[
+    	materialx::core::origin("N_StandardSurface/coat_rotation")
+    ]],
+    uniform float N_StandardSurface_coat_IOR = 1.500000
+    [[
+    	materialx::core::origin("N_StandardSurface/coat_IOR")
+    ]],
+    float N_StandardSurface_coat_affect_color = 0.000000
+    [[
+    	materialx::core::origin("N_StandardSurface/coat_affect_color")
+    ]],
+    float N_StandardSurface_coat_affect_roughness = 0.000000
+    [[
+    	materialx::core::origin("N_StandardSurface/coat_affect_roughness")
+    ]],
+    float N_StandardSurface_thin_film_thickness = 0.000000
+    [[
+    	materialx::core::origin("N_StandardSurface/thin_film_thickness")
+    ]],
+    float N_StandardSurface_thin_film_IOR = 1.500000
+    [[
+    	materialx::core::origin("N_StandardSurface/thin_film_IOR")
+    ]],
+    float N_StandardSurface_emission = 0.000000
+    [[
+    	materialx::core::origin("N_StandardSurface/emission")
+    ]],
+    color N_StandardSurface_emission_color = color(1.000000, 1.000000, 1.000000)
+    [[
+    	materialx::core::origin("N_StandardSurface/emission_color")
+    ]],
+    color N_StandardSurface_opacity = color(1.000000, 1.000000, 1.000000)
+    [[
+    	materialx::core::origin("N_StandardSurface/opacity")
+    ]],
+    bool N_StandardSurface_thin_walled = false
+    [[
+    	materialx::core::origin("N_StandardSurface/thin_walled")
+    ]]
+)
+= let
+{
+    float2 geomprop_UV0_out1 = materialx::stdlib_1_8::mx_texcoord_vector2(mxp_index:geomprop_UV0_index);
+    float2 node_convert_1_out = NG_convert_float_vector2(node_convert_1_in);
+    color node_rgbtohsv_12_out = materialx::stdlib_1_8::mx_rgbtohsv_color3(node_rgbtohsv_12_in);
+    float3 geomprop_Nworld_out1 = materialx::stdlib_1_8::mx_normal_vector3(mxp_space:geomprop_Nworld_space);
+    float3 geomprop_Tworld_out1 = materialx::stdlib_1_8::mx_tangent_vector3(mxp_space:geomprop_Tworld_space, mxp_index:geomprop_Tworld_index);
+    float3 geomprop_Bworld_out1 = materialx::stdlib_1_8::mx_bitangent_vector3(mxp_space:geomprop_Bworld_space, mxp_index:geomprop_Bworld_index);
+    float node_tiledimage_float_26_out = NG_tiledimage_float(node_tiledimage_float_26_file, node_tiledimage_float_26_default, geomprop_UV0_out1, node_convert_1_out, node_tiledimage_float_26_uvoffset, node_tiledimage_float_26_realworldimagesize, node_tiledimage_float_26_realworldtilesize, node_tiledimage_float_26_filtertype, node_tiledimage_float_26_framerange, node_tiledimage_float_26_frameoffset, node_tiledimage_float_26_frameendaction);
+    float node_tiledimage_float_7_out = NG_tiledimage_float(node_tiledimage_float_7_file, node_tiledimage_float_7_default, geomprop_UV0_out1, node_convert_1_out, node_tiledimage_float_7_uvoffset, node_tiledimage_float_7_realworldimagesize, node_tiledimage_float_7_realworldtilesize, node_tiledimage_float_7_filtertype, node_tiledimage_float_7_framerange, node_tiledimage_float_7_frameoffset, node_tiledimage_float_7_frameendaction);
+    float node_tiledimage_float_24_out = NG_tiledimage_float(node_tiledimage_float_24_file, node_tiledimage_float_24_default, geomprop_UV0_out1, node_convert_1_out, node_tiledimage_float_24_uvoffset, node_tiledimage_float_24_realworldimagesize, node_tiledimage_float_24_realworldtilesize, node_tiledimage_float_24_filtertype, node_tiledimage_float_24_framerange, node_tiledimage_float_24_frameoffset, node_tiledimage_float_24_frameendaction);
+    float node_tiledimage_float_10_out = NG_tiledimage_float(node_tiledimage_float_10_file, node_tiledimage_float_10_default, geomprop_UV0_out1, node_convert_1_out, node_tiledimage_float_10_uvoffset, node_tiledimage_float_10_realworldimagesize, node_tiledimage_float_10_realworldtilesize, node_tiledimage_float_10_filtertype, node_tiledimage_float_10_framerange, node_tiledimage_float_10_frameoffset, node_tiledimage_float_10_frameendaction);
+    float node_tiledimage_float_22_out = NG_tiledimage_float(node_tiledimage_float_22_file, node_tiledimage_float_22_default, geomprop_UV0_out1, node_convert_1_out, node_tiledimage_float_22_uvoffset, node_tiledimage_float_22_realworldimagesize, node_tiledimage_float_22_realworldtilesize, node_tiledimage_float_22_filtertype, node_tiledimage_float_22_framerange, node_tiledimage_float_22_frameoffset, node_tiledimage_float_22_frameendaction);
+    float3 node_tiledimage_vector3_27_out = NG_tiledimage_vector3(node_tiledimage_vector3_27_file, node_tiledimage_vector3_27_default, geomprop_UV0_out1, node_convert_1_out, node_tiledimage_vector3_27_uvoffset, node_tiledimage_vector3_27_realworldimagesize, node_tiledimage_vector3_27_realworldtilesize, node_tiledimage_vector3_27_filtertype, node_tiledimage_vector3_27_framerange, node_tiledimage_vector3_27_frameoffset, node_tiledimage_vector3_27_frameendaction);
+    float node_multiply_25_out = node_multiply_25_in1 * node_tiledimage_float_26_out;
+    float node_multiply_20_out = node_multiply_20_in1 * node_tiledimage_float_26_out;
+    color node_multiply_9_out = node_multiply_9_in1 * node_tiledimage_float_7_out;
+    float node_multiply_23_out = node_multiply_23_in1 * node_tiledimage_float_24_out;
+    float node_max_1_out = math::max(node_tiledimage_float_10_out, node_max_1_in2);
+    float3 node_normalmap_3_out = materialx::stdlib_1_8::mx_normalmap_float(mxp_in:node_tiledimage_vector3_27_out, mxp_scale:node_normalmap_3_scale, mxp_normal:geomprop_Nworld_out1, mxp_tangent:geomprop_Tworld_out1, mxp_bitangent:geomprop_Bworld_out1);
+    float node_add_19_out = node_multiply_25_out + node_tiledimage_float_7_out;
+    float node_divide_21_out = node_divide_21_in1 / node_max_1_out;
+    float node_subtract_18_out = node_add_19_out - node_subtract_18_in2;
+    float node_multiply_15_out = node_add_19_out * node_multiply_20_out;
+    float node_multiply_1_out = node_divide_21_out * node_tiledimage_float_22_out;
+    float node_multiply_14_out = node_subtract_18_out * node_multiply_14_in2;
+    color node_combine3_color3_13_out = color( node_multiply_14_out,node_combine3_color3_13_in2,node_multiply_15_out );
+    color node_add_16_out = node_combine3_color3_13_out + node_rgbtohsv_12_out;
+    color node_hsvtorgb_17_out = materialx::stdlib_1_8::mx_hsvtorgb_color3(node_add_16_out);
+    color node_mix_6_out = math::lerp(node_hsvtorgb_17_out, node_mix_6_fg, node_multiply_23_out);
+    color node_multiply_5_out = node_mix_6_out * node_tiledimage_float_7_out;
+    color node_mix_8_out = math::lerp(node_multiply_9_out, node_multiply_5_out, node_tiledimage_float_10_out);
+    color node_clamp_0_out = math::clamp(node_mix_8_out, node_clamp_0_low, node_clamp_0_high);
+    material N_StandardSurface_out = NG_standard_surface_surfaceshader_100(N_StandardSurface_base, node_clamp_0_out, N_StandardSurface_diffuse_roughness, N_StandardSurface_metalness, N_StandardSurface_specular, N_StandardSurface_specular_color, node_multiply_1_out, N_StandardSurface_specular_IOR, N_StandardSurface_specular_anisotropy, N_StandardSurface_specular_rotation, N_StandardSurface_transmission, N_StandardSurface_transmission_color, N_StandardSurface_transmission_depth, N_StandardSurface_transmission_scatter, N_StandardSurface_transmission_scatter_anisotropy, N_StandardSurface_transmission_dispersion, N_StandardSurface_transmission_extra_roughness, N_StandardSurface_subsurface, N_StandardSurface_subsurface_color, N_StandardSurface_subsurface_radius, N_StandardSurface_subsurface_scale, N_StandardSurface_subsurface_anisotropy, N_StandardSurface_sheen, N_StandardSurface_sheen_color, N_StandardSurface_sheen_roughness, N_StandardSurface_coat, N_StandardSurface_coat_color, N_StandardSurface_coat_roughness, N_StandardSurface_coat_anisotropy, N_StandardSurface_coat_rotation, N_StandardSurface_coat_IOR, geomprop_Nworld_out1, N_StandardSurface_coat_affect_color, N_StandardSurface_coat_affect_roughness, N_StandardSurface_thin_film_thickness, N_StandardSurface_thin_film_IOR, N_StandardSurface_emission, N_StandardSurface_emission_color, N_StandardSurface_opacity, N_StandardSurface_thin_walled, node_normalmap_3_out, geomprop_Tworld_out1);
+    material M_BrickPattern_out = materialx::stdlib_1_8::mx_surfacematerial(mxp_surfaceshader: N_StandardSurface_out, mxp_backsurfaceshader: backsurfaceshader, mxp_displacementshader: displacementshader);
+    material finalOutput__ = M_BrickPattern_out;
+}
+in material(finalOutput__);
