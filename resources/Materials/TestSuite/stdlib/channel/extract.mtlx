@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+  <nodegraph name="extract_color3">
+    <extract name="extract1" type="float">
+      <input name="in" type="color3" value="0.0, 0.5000, 1.0000" />
+      <input name="index" type="integer" value="1" />
+    </extract>
+    <output name="out" type="float" nodename="extract1" />
+  </nodegraph>
+  <nodegraph name="extract_color4">
+    <extract name="extract1" type="float">
+      <input name="in" type="color4" value="0.0000, 0.2500, 0.7500, 1.0" />
+      <input name="index" type="integer" value="1" />
+    </extract>
+    <output name="out" type="float" nodename="extract1" />
+  </nodegraph>
+  <nodegraph name="extract_vector2">
+    <extract name="extract1" type="float">
+      <input name="in" type="vector2" value="0.5000, 1.0000" />
+      <input name="index" type="integer" value="1" />
+    </extract>
+    <output name="out" type="float" nodename="extract1" />
+  </nodegraph>
+  <nodegraph name="extract_vector3">
+    <extract name="extract1" type="float">
+      <input name="in" type="vector3" value="0.0, 0.5000, 1.0000" />
+      <input name="index" type="integer" value="1" />
+    </extract>
+    <output name="out" type="float" nodename="extract1" />
+  </nodegraph>
+  <nodegraph name="extract_vector4">
+    <extract name="extract1" type="float">
+      <input name="in" type="vector4" value="0.0, 0.2500, 0.7500, 1.0" />
+      <input name="index" type="integer" value="1" />
+    </extract>
+    <output name="out" type="float" nodename="extract1" />
+  </nodegraph>
+</materialx>
