@@ -35,19 +35,21 @@ add_custom_target(MaterialXDocsPython
                   ${SPHINX_HTML_OUTPUT_DIR}
                   WORKING_DIRECTORY ${SPHINX_OUTPUT_DIR}
                   DEPENDS ${MATERIALX_PYTHON_DOCS_TARGET_DEPENDENCIES}
-                  COMMENT "Building MaterialX Python API Documentation: ${SPHINX_HTML_OUTPUT_DIR}/index.html")
+                  COMMENT "Building MaterialX Python API Documentation in ${SPHINX_HTML_OUTPUT_DIR}/ ...")
 
-# Add post-build commands to copy our logo and custom style sheet to the "_static" folder
+# Add post-build commands to copy our logo and style sheets to the "_static" folder
 add_custom_command(TARGET MaterialXDocsPython
-                   POST_BUILD COMMAND
-                   ${CMAKE_COMMAND} -E copy
-                       ${SPHINX_SOURCE_DIR}/custom.css
-                       ${SPHINX_HTML_OUTPUT_DIR}/_static/custom.css)
-add_custom_command(TARGET MaterialXDocsPython
-                   POST_BUILD COMMAND
-                   ${CMAKE_COMMAND} -E copy
+                   POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy
                        ${CMAKE_SOURCE_DIR}/documents/Images/${MATERIALX_LOGO_FILENAME}
-                       ${SPHINX_HTML_OUTPUT_DIR}/_static/)
+                       ${SPHINX_HTML_OUTPUT_DIR}/_static/
+                   COMMAND ${CMAKE_COMMAND} -E copy
+                       ${SPHINX_SOURCE_DIR}/custom.css
+                       ${SPHINX_HTML_OUTPUT_DIR}/_static/custom.css
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory
+                       ${CMAKE_SOURCE_DIR}/documents/DoxygenAwesome
+                       ${SPHINX_HTML_OUTPUT_DIR}/_static/DoxygenAwesome
+                   COMMENT "Python API Documentation built: open ${SPHINX_HTML_OUTPUT_DIR}/index.html to view")
 
 install(DIRECTORY ${SPHINX_OUTPUT_DIR}
         DESTINATION "documents/PythonAPI" MESSAGE_NEVER)

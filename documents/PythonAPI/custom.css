@@ -1,87 +1,8 @@
 /*
-Dark Mode colors and other variables copied from "doxygen-awesome.css".
-We could potentially import the entire style sheet here, but we're only
-interested in the color definitions and a select few other styles.
 DoxygenAwesome is licensed under the MIT License.
 */
+@import "DoxygenAwesome/doxygen-awesome.css";
 html {
-    /* font-families. will affect all text on the website
-     * font-family: the normal font for text, headlines, menus
-     * font-family-monospace: used for preformatted text in memtitle, code, fragments
-     */
-    --font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;
-    --font-family-monospace: ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace;
-
-    /* font sizes */
-    --page-font-size: 15.6px;
-    --navigation-font-size: 14.4px;
-    --toc-font-size: 13.4px;
-    --code-font-size: 14px; /* affects code, fragment */
-    --title-font-size: 22px;
-
-    /* border radius for all rounded components. Will affect many components, like dropdowns, memitems, codeblocks, ... */
-    --border-radius-large: 8px;
-    --border-radius-small: 4px;
-    --border-radius-medium: 6px;
-
-    color-scheme: dark;
-
-    --primary-color: #1982d2;
-    --primary-dark-color: #86a9c4;
-    --primary-light-color: #4779ac;
-
-    --box-shadow: 0 2px 8px 0 rgba(0,0,0,.30);
-
-    --odd-color: rgba(100,100,100,.06);
-
-    --menu-selected-background: rgba(0,0,0,.4);
-
-    --page-background-color: #1C1D1F;
-    --page-foreground-color: #d2dbde;
-    --page-secondary-foreground-color: #859399;
-    --separator-color: #38393b;
-    --side-nav-background: #252628;
-
-    --code-background: #2a2c2f;
-    --code-background-brighter: #3a3c3f;
-
-    --tablehead-background: #2a2c2f;
-
-    --blockquote-background: #222325;
-    --blockquote-foreground: #7e8c92;
-
-    --warning-color: #2e1917;
-    --warning-color-dark: #ad2617;
-    --warning-color-darker: #f5b1aa;
-    --note-color: #3b2e04;
-    --note-color-dark: #f1b602;
-    --note-color-darker: #ceb670;
-    --todo-color: #163750;
-    --todo-color-dark: #1982D2;
-    --todo-color-darker: #dcf0fa;
-    --deprecated-color: #2e323b;
-    --deprecated-color-dark: #738396;
-    --deprecated-color-darker: #abb0bd;
-    --bug-color: #2a2536;
-    --bug-color-dark: #7661b3;
-    --bug-color-darker: #ae9ed6;
-    --invariant-color: #303a35;
-    --invariant-color-dark: #76ce96;
-    --invariant-color-darker: #cceed5;
-
-    --fragment-background: #282c34;
-    --fragment-foreground: #dbe4eb;
-    --fragment-keyword: #cc99cd;
-    --fragment-keywordtype: #ab99cd;
-    --fragment-keywordflow: #e08000;
-    --fragment-token: #7ec699;
-    --fragment-comment: #999999;
-    --fragment-link: #98c0e3;
-    --fragment-preprocessor: #65cabe;
-    --fragment-linenumber-color: #cccccc;
-    --fragment-linenumber-background: #35393c;
-    --fragment-linenumber-border: #1f1f1f;
-
     /* Additional custom color variables */
     --highlight-color: #fbe54e;
     --target-color: #204D79;
@@ -103,7 +24,16 @@ div.sphinxsidebar {
     border: 1px solid var(--separator-color);
     border-radius: var(--border-radius-large);
 }
+div.sphinxsidebar h1,
+div.sphinxsidebar h2,
+div.sphinxsidebar h3,
+div.sphinxsidebar h4,
+div.sphinxsidebar h5,
+div.sphinxsidebar h6 {
+    line-height: 1.5;
+}
 div.sphinxsidebar p {
+    font-size: 14px;
     margin-bottom: 14px;
 }
 div.sphinxsidebar p,
@@ -114,6 +44,17 @@ div.sphinxsidebar h4 {
 }
 div.sphinxsidebar ul {
     color: inherit !important;
+}
+div.sphinxsidebar ul li.toctree-l1 > a {
+    font-size: 107%;
+}
+div.sphinxsidebar ul li.toctree-l2 > a {
+    font-size: 100%;
+}
+div.sphinxsidebar hr {
+    margin-top: auto;
+    margin-bottom: auto;
+    width: 100%;
 }
 div.sphinxsidebar input {
     font-family: var(--font-family);
@@ -222,6 +163,9 @@ code.xref,
 a code {
     font-weight: normal;
 }
+a code {
+    color: var(--primary-color);
+}
 a:hover tt,
 a:hover code {
     background-color: var(--code-background-brighter);
@@ -314,6 +258,7 @@ div.body form input[type="submit"],
 .blueButton {
     background: #204D79;
     border: 1px solid black !important;
+    border-radius: 5px;
     box-shadow: 0 1px 0px #3471aa inset;
     color: #ccc !important;
     font-family: Arial, Helvetica, sans-serif !important;
@@ -340,6 +285,9 @@ div.body form input[type="submit"],
     background: -moz-linear-gradient(bottom, #003260, #204D79);
     -moz-border-radius: 5px;
     -moz-box-shadow: 0 1px 0 #3471aa inset;
+}
+.blueButton:visited {
+    color: #ccc !important;
 }
 div.body form input[type="submit"],
 .blueButton:hover {
