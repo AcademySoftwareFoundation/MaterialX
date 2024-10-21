@@ -376,8 +376,8 @@ bool GlslSyntax::remapEnumeration(const string& value, TypeDesc type, const stri
 }
 
 StructTypeSyntaxPtr GlslSyntax::createStructSyntax(const string& structTypeName, const string& defaultValue,
-                                       const string& uniformDefaultValue, const string& typeAlias,
-                                       const string& typeDefinition) const
+                                                   const string& uniformDefaultValue, const string& typeAlias,
+                                                   const string& typeDefinition) const
 {
     return std::make_shared<GlslStructTypeSyntax>(
         this,
