@@ -395,14 +395,15 @@ string GlslStructTypeSyntax::getValue(const Value& value, bool /* uniform */) co
     string result = aggValue.getTypeString() + "(";
 
     string separator = "";
-    for (const auto& memberValue : aggValue.getMembers()) {
+    for (const auto& memberValue : aggValue.getMembers())
+    {
         result += separator;
         separator = ",";
 
         auto memberTypeName = memberValue->getTypeString();
         auto memberTypeDesc = TypeDesc::get(memberTypeName);
 
-        // recursively use the syntax to generate the output, so we can supported nested structs.
+        // Recursively use the syntax to generate the output, so we can supported nested structs.
         result += _parentSyntax->getValue(memberTypeDesc, *memberValue, true);
     }
 
