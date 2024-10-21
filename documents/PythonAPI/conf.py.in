@@ -35,7 +35,7 @@ default_role = 'py:obj'
 
 # List of Sphinx Python modules to make available
 extensions = [
-    'myst_parser',
+    'myst_parser',  # https://pypi.org/project/myst-parser/
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
 ]
