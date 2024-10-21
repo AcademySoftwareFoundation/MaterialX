@@ -321,7 +321,6 @@ class MX_GENSHADER_API StructTypeSyntax : public TypeSyntax
     string getValue(const Value& value, bool uniform) const override;
 
   protected:
-
     const Syntax* _parentSyntax;
 };
 
