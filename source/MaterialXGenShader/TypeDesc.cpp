@@ -84,13 +84,15 @@ ValuePtr TypeDesc::createValueFromStrings(const string& value) const
     auto structTypeDesc = StructTypeDesc::get(getStructIndex());
     const auto& members = structTypeDesc.getMembers();
 
-    if (subValues.size() != members.size()) {
+    if (subValues.size() != members.size())
+    {
         std::stringstream ss;
         ss << "Wrong number of initializers - expect " << members.size();
         throw ExceptionShaderGenError(ss.str());
     }
 
-    for (size_t i = 0; i < members.size(); ++i) {
+    for (size_t i = 0; i < members.size(); ++i)
+    {
         result->appendValue( members[i]._typeDesc.createValueFromStrings(subValues[i]));
     }
 
