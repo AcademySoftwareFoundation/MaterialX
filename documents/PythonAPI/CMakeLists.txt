@@ -1,7 +1,18 @@
 # Use `CMAKE_MODULE_PATH` to be able to find the Sphinx executables
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
 
+find_package(Python3 REQUIRED)
 find_package(Sphinx REQUIRED)
+
+execute_process(COMMAND ${Python3_EXECUTABLE} -m pip show myst-parser
+                RESULT_VARIABLE RESULT
+                OUTPUT_QUIET)
+if(NOT ${RESULT} EQUAL 0)
+    message(FATAL_ERROR
+            "The `myst-parser` Python package does not appear to be available for `${Python3_EXECUTABLE}`.\n"
+            "Consider installing it via `pip install myst-parser`.\n"
+            "PyPI: https://pypi.org/project/myst-parser/")
+endif()
 
 set(SPHINX_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(SPHINX_RST_SOURCE_DIR ${SPHINX_SOURCE_DIR}/sources)
