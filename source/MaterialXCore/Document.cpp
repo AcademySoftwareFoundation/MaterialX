@@ -357,34 +357,40 @@ vector<OutputPtr> Document::getMaterialOutputs() const
 
 vector<NodeDefPtr> Document::getMatchingNodeDefs(const string& nodeName) const
 {
+    // Recurse to data library if present.
+    vector<NodeDefPtr> matchingNodeDefs = hasDataLibrary() ? 
+                                          getDataLibrary()->getMatchingNodeDefs(nodeName) :
+                                          vector<NodeDefPtr>();
+
     // Refresh the cache.
     _cache->refresh();
 
     // Return all nodedefs matching the given node name.
     if (_cache->nodeDefMap.count(nodeName))
     {
-        return _cache->nodeDefMap.at(nodeName);
+        matchingNodeDefs.insert(matchingNodeDefs.end(), _cache->nodeDefMap.at(nodeName).begin(), _cache->nodeDefMap.at(nodeName).end());
     }
-    else
-    {
-        return vector<NodeDefPtr>();
-    }
+    
+    return matchingNodeDefs;
 }
 
 vector<InterfaceElementPtr> Document::getMatchingImplementations(const string& nodeDef) const
 {
+    // Recurse to data library if present.
+    vector<InterfaceElementPtr> matchingImplementations = hasDataLibrary() ?
+                                                          getDataLibrary()->getMatchingImplementations(nodeDef) :
+                                                          vector<InterfaceElementPtr>();
+    
     // Refresh the cache.
     _cache->refresh();
 
     // Return all implementations matching the given nodedef string.
     if (_cache->implementationMap.count(nodeDef))
     {
-        return _cache->implementationMap.at(nodeDef);
+        matchingImplementations.insert(matchingImplementations.end(), _cache->implementationMap.at(nodeDef).begin(), _cache->implementationMap.at(nodeDef).end());
     }
-    else
-    {
-        return vector<InterfaceElementPtr>();
-    }
+
+    return matchingImplementations;
 }
 
 bool Document::validate(string* message) const

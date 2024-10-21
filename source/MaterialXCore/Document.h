@@ -50,18 +50,41 @@ class MX_CORE_API Document : public GraphElement
     {
         DocumentPtr doc = createDocument<Document>();
         doc->copyContentFrom(getSelf());
+        doc->setDataLibrary(getDataLibrary());
         return doc;
     }
 
-    /// Import the given document as a library within this document.
-    /// The contents of the library document are copied into this one, and
-    /// are assigned the source URI of the library.
-    /// @param library The library document to be imported.
-    void importLibrary(const ConstDocumentPtr& library);
-
-    /// Get a list of source URI's referenced by the document
+    /// Get a list of source URIs referenced by the document
     StringSet getReferencedSourceUris() const;
 
+    /// @name Data Libraries
+    /// @{
+
+    /// Store a reference to a data library in this document.
+    void setDataLibrary(ConstDocumentPtr dataLibrary)
+    {
+        _dataLibrary = dataLibrary;
+    }
+
+    /// Return true if this document has a data library.
+    bool hasDataLibrary() const
+    {
+        return (_dataLibrary != nullptr);
+    }
+
+    /// Return the data library, if any, referenced by this document.
+    ConstDocumentPtr getDataLibrary() const
+    {
+        return _dataLibrary;
+    }
+
+    /// Import the given data library into this document.
+    /// The contents of the data library are copied into this one, and
+    /// are assigned the source URI of the library.
+    /// @param library The data library to be imported.
+    void importLibrary(const ConstDocumentPtr& library);
+
+    /// @}
     /// @name NodeGraph Elements
     /// @{
 
@@ -679,6 +702,9 @@ class MX_CORE_API Document : public GraphElement
 
   private:
     class Cache;
+
+  private:
+    ConstDocumentPtr _dataLibrary;
     std::unique_ptr<Cache> _cache;
 };
 

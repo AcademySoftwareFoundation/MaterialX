@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+  <nodegraph name="combine_vector2">
+    <combine2 name="combine1" type="vector2">
+      <input name="in1" type="float" value="0.5000" />
+      <input name="in2" type="float" value="1.0000" />
+    </combine2>
+    <output name="out" type="vector2" nodename="combine1" />
+  </nodegraph>
+  <nodegraph name="combine_color3">
+    <combine3 name="combine1" type="color3">
+      <input name="in1" type="float" value="0.5000" />
+      <input name="in2" type="float" value="1.0000" />
+      <input name="in3" type="float" value="0.2500" />
+    </combine3>
+    <output name="out" type="color3" nodename="combine1" />
+  </nodegraph>
+  <nodegraph name="combine_vector3">
+    <combine3 name="combine1" type="vector3">
+      <input name="in1" type="float" value="0.5000" />
+      <input name="in2" type="float" value="1.0000" />
+      <input name="in3" type="float" value="0.2500" />
+    </combine3>
+    <output name="out" type="vector3" nodename="combine1" />
+  </nodegraph>
+  <nodegraph name="combine_color4">
+    <combine4 name="combine1" type="color4">
+      <input name="in1" type="float" value="0.5000" />
+      <input name="in2" type="float" value="1.0000" />
+      <input name="in3" type="float" value="0.2500" />
+      <input name="in4" type="float" value="0.7500" />
+    </combine4>
+    <output name="out" type="color4" nodename="combine1" />
+  </nodegraph>
+  <nodegraph name="combine_vector4">
+    <combine4 name="combine1" type="vector4">
+      <input name="in1" type="float" value="0.5000" />
+      <input name="in2" type="float" value="1.0000" />
+      <input name="in3" type="float" value="0.2500" />
+      <input name="in4" type="float" value="0.7500" />
+    </combine4>
+    <output name="out" type="vector4" nodename="combine1" />
+  </nodegraph>
+  <nodegraph name="combine_color4CF">
+    <combine2 name="combine1" type="color4">
+      <input name="in1" type="color3" value="0.5000, 1.0000, 0.2500" />
+      <input name="in2" type="float" value="0.7500" />
+    </combine2>
+    <output name="out" type="color4" nodename="combine1" />
+  </nodegraph>
+  <nodegraph name="combine_vector4VF">
+    <combine2 name="combine1" type="vector4">
+      <input name="in1" type="vector3" value="0.5000, 1.0000, 0.2500" />
+      <input name="in2" type="float" value="0.7500" />
+    </combine2>
+    <output name="out" type="vector4" nodename="combine1" />
+  </nodegraph>
+  <nodegraph name="combine_vector4VV">
+    <combine2 name="combine1" type="vector4">
+      <input name="in1" type="vector2" value="0.5000, 1.0000" />
+      <input name="in2" type="vector2" value="0.2500, 1.0000" />
+    </combine2>
+    <output name="out" type="vector4" nodename="combine1" />
+  </nodegraph>
+</materialx>

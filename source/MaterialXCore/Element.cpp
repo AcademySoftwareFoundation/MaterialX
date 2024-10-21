@@ -284,6 +284,41 @@ ElementPtr Element::changeChildCategory(ElementPtr child, const string& category
     return newChild;
 }
 
+template <class T> shared_ptr<T> Element::getChildOfType(const string& name) const
+{
+    ElementPtr child;
+    ConstDocumentPtr doc = asA<Document>();
+    if (doc && doc->hasDataLibrary())
+    {
+        child = doc->getDataLibrary()->getChild(name);
+    }
+    if (!child)
+    {
+        child = getChild(name);
+    }
+    return child ? child->asA<T>() : shared_ptr<T>();
+}
+
+template <class T> vector<shared_ptr<T>> Element::getChildrenOfType(const string& category) const
+{
+    vector<shared_ptr<T>> children;
+    ConstDocumentPtr doc = asA<Document>();
+    if (doc && doc->hasDataLibrary())
+    {
+        children = doc->getDataLibrary()->getChildrenOfType<T>(category);
+    }
+    for (ElementPtr child : _childOrder)
+    {
+        shared_ptr<T> instance = child->asA<T>();
+        if (!instance)
+            continue;
+        if (!category.empty() && child->getCategory() != category)
+            continue;
+        children.push_back(instance);
+    }
+    return children;
+}
+
 ElementPtr Element::getRoot()
 {
     ElementPtr root = _root.lock();
@@ -866,9 +901,11 @@ template <class T> class ElementRegistry
 // Template instantiations
 //
 
-#define INSTANTIATE_SUBCLASS(T)                           \
-    template MX_CORE_API shared_ptr<T> Element::asA<T>(); \
-    template MX_CORE_API shared_ptr<const T> Element::asA<T>() const;
+#define INSTANTIATE_SUBCLASS(T)                                                                             \
+    template MX_CORE_API shared_ptr<T> Element::asA<T>();                                                   \
+    template MX_CORE_API shared_ptr<const T> Element::asA<T>() const;                                       \
+    template MX_CORE_API shared_ptr<T> Element::getChildOfType<T>(const string& name) const;                \
+    template MX_CORE_API vector<shared_ptr<T>> Element::getChildrenOfType<T>(const string& category) const;
 
 INSTANTIATE_SUBCLASS(Element)
 INSTANTIATE_SUBCLASS(GeomElement)

@@ -23,6 +23,9 @@ EMSCRIPTEN_BINDINGS(document)
         .class_function("createDocument", &mx::Document::createDocument<mx::Document>)
         .function("initialize", &mx::Document::initialize)
         .function("copy", &mx::Document::copy)
+        .function("setDataLibrary", &mx::Document::setDataLibrary)
+        .function("getDataLibrary", &mx::Document::getDataLibrary)
+        .function("hasDataLibrary", &mx::Document::hasDataLibrary)
         .function("importLibrary", &mx::Document::importLibrary)
         .function("getReferencedSourceUris", ems::optional_override([](mx::Document &self) {
             mx::StringSet set = self.getReferencedSourceUris();
