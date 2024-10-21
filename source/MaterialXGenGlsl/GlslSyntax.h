@@ -48,8 +48,8 @@ class MX_GENGLSL_API GlslSyntax : public Syntax
 
   protected:
     StructTypeSyntaxPtr createStructSyntax(const string& structTypeName, const string& defaultValue,
-                                                       const string& uniformDefaultValue, const string& typeAlias,
-                                                       const string& typeDefinition) const override;
+                                           const string& uniformDefaultValue, const string& typeAlias,
+                                           const string& typeDefinition) const override;
 };
 
 /// Specialization of TypeSyntax for aggregate types.
