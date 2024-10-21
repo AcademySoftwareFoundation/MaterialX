@@ -352,7 +352,7 @@ void ShaderGenerator::loadStructTypeDefs(const DocumentPtr& doc)
         const auto& typeDefName = mxTypeDef->getName();
         const auto& members = mxTypeDef->getMembers();
 
-        // if we don't have any member children then we're not going to consider ourselves a struct.
+        // If we don't have any member children then we're not going to consider ourselves a struct.
         if (members.empty())
             continue;
 

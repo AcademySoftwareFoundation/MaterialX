@@ -74,7 +74,7 @@ class MX_CORE_API Value
     /// Create a new value instance from value and type strings.
     /// @return A shared pointer to a typed value, or an empty shared pointer
     ///    if the conversion to the given data type cannot be performed.
-    static ValuePtr createValueFromStrings(const string& value, const string& type, ConstTypeDefPtr typeDefPtr = nullptr);
+    static ValuePtr createValueFromStrings(const string& value, const string& type, ConstTypeDefPtr typeDef = nullptr);
 
     /// Create a deep copy of the value.
     virtual ValuePtr copy() const = 0;
@@ -216,21 +216,24 @@ class MX_CORE_API AggregateValue : public Value
     }
 
     /// Append a member value to the aggregate.
-    void appendValue(ConstValuePtr valuePtr) {
+    void appendValue(ConstValuePtr valuePtr)
+    {
         _data.emplace_back(valuePtr);
     }
 
-    const vector<ConstValuePtr>&  getMembers() const {
+    const vector<ConstValuePtr>& getMembers() const
+    {
         return _data;
     }
 
     /// Query an indexed member value from the aggregate.
-    ConstValuePtr getMemberValue(size_t index) const {
+    ConstValuePtr getMemberValue(size_t index) const
+    {
         return _data[index];
     }
 
     /// Return type string.
-    const string& getTypeString() const override  { return _typeName; }
+    const string& getTypeString() const override { return _typeName; }
 
     /// Return value string.
     string getValueString() const override;

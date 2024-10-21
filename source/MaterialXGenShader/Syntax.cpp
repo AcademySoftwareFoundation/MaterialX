@@ -197,17 +197,17 @@ void Syntax::registerStructTypeDescSyntax()
         const auto& typeDesc = TypeDesc::get(typeName);
         const auto& structTypeDesc = StructTypeDesc::get(typeDesc.getStructIndex());
 
-        std::string structTypeName = typeName;
-        std::string defaultValue = typeName + "( ";
-        std::string uniformDefaultValue = EMPTY_STRING;
-        std::string typeAlias = EMPTY_STRING;
-        std::string typeDefinition = "struct " + structTypeName + " { ";
+        string structTypeName = typeName;
+        string defaultValue = typeName + "( ";
+        string uniformDefaultValue = EMPTY_STRING;
+        string typeAlias = EMPTY_STRING;
+        string typeDefinition = "struct " + structTypeName + " { ";
 
         for (const auto& x : structTypeDesc.getMembers())
         {
-            std::string memberName = x._name;
-            std::string memberType = x._typeDesc.getName();
-            std::string memberDefaultValue = x._defaultValueStr;
+            string memberName = x._name;
+            string memberType = x._typeDesc.getName();
+            string memberDefaultValue = x._defaultValueStr;
 
             defaultValue += memberDefaultValue + ", ";
             typeDefinition += memberType + " " + memberName + "; ";
@@ -299,7 +299,7 @@ string StructTypeSyntax::getValue(const Value& value, bool /*uniform*/) const
         auto memberTypeName = memberValue->getTypeString();
         auto memberTypeDesc = TypeDesc::get(memberTypeName);
 
-        // recursively use the syntax to generate the output, so we can supported nested structs.
+        // Recursively use the syntax to generate the output, so we can support nested structs.
         const string valueStr = _parentSyntax->getValue(memberTypeDesc, *memberValue, true);
 
         result += valueStr;

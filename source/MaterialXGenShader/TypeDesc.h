@@ -61,7 +61,14 @@ class MX_GENSHADER_API TypeDesc
     };
 
     /// Empty constructor.
-    constexpr TypeDesc() noexcept : _id(0), _basetype(BASETYPE_NONE), _semantic(SEMANTIC_NONE), _size(0), _structIndex(0) {}
+    constexpr TypeDesc() noexcept :
+        _id(0),
+        _basetype(BASETYPE_NONE),
+        _semantic(SEMANTIC_NONE),
+        _size(0),
+        _structIndex(0)
+    {
+    }
 
     /// Constructor.
     constexpr TypeDesc(std::string_view name, uint8_t basetype, uint8_t semantic = SEMANTIC_NONE, uint8_t size = 1, uint8_t structIndex = 0) noexcept :
@@ -177,7 +184,7 @@ class MX_GENSHADER_API TypeDesc
 /// Helper class for type registration.
 class MX_GENSHADER_API TypeDescRegistry
 {
-public:
+  public:
     TypeDescRegistry(TypeDesc type, const string& name);
 };
 
@@ -237,7 +244,8 @@ class MX_GENSHADER_API StructTypeDesc
     struct StructMemberTypeDesc {
         StructMemberTypeDesc(string name, TypeDesc typeDesc, string defaultValueStr) :
             _name(name), _typeDesc(typeDesc), _defaultValueStr(defaultValueStr)
-        {}
+        {
+        }
         string _name;
         TypeDesc _typeDesc;
         string _defaultValueStr;

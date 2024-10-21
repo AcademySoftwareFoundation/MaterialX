@@ -7,8 +7,6 @@
 
 #include <MaterialXGenShader/ShaderGenerator.h>
 
-#include <sstream>
-
 MATERIALX_NAMESPACE_BEGIN
 
 namespace
@@ -30,17 +28,12 @@ TypeDescNameMap& typeNameMap()
     return map;
 }
 
-
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
-
-    using StructTypeDescStorage = vector<StructTypeDesc>;
-    StructTypeDescStorage& structTypeStorage()
-    {
-        static StructTypeDescStorage  storage;
-        return storage;
-    }
-
+using StructTypeDescStorage = vector<StructTypeDesc>;
+StructTypeDescStorage& structTypeStorage()
+{
+    static StructTypeDescStorage  storage;
+    return storage;
+}
 
 } // anonymous namespace
 
@@ -144,23 +137,22 @@ TYPEDESC_REGISTER_TYPE(MATERIAL, "material")
 
 } // namespace Type
 
-
-
-///////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////
+//
+// StructTypeDesc methods
+//
 
 void StructTypeDesc::addMember(const string& name, TypeDesc type, string defaultValueStr)
 {
-    _members.emplace_back( StructTypeDesc::StructMemberTypeDesc(name, type, defaultValueStr) );
+    _members.emplace_back(StructTypeDesc::StructMemberTypeDesc(name, type, defaultValueStr));
 }
 
 vector<string> StructTypeDesc::getStructTypeNames()
 {
     StructTypeDescStorage& structs = structTypeStorage();
     vector<string> structNames;
-    for (const auto& x : structs) {
-        structNames.emplace_back( x.typeDesc().getName() );
+    for (const auto& x : structs)
+    {
+        structNames.emplace_back(x.typeDesc().getName());
     }
     return structNames;
 }
@@ -190,7 +182,7 @@ void StructTypeDesc::clear()
     StructTypeDescStorage& structs = structTypeStorage();
     for (const auto& structType: structs)
     {
-        // need to add typeID to structTypeDesc - and use it here to reference back to typeDesc obj and remove it.
+        // Need to add typeID to structTypeDesc - and use it here to reference back to typeDesc obj and remove it.
         TypeDesc::remove(structType.typeDesc().getName());
     }
     structs.clear();

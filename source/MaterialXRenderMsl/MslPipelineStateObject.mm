@@ -925,7 +925,7 @@ const MslProgram::InputMap& MslProgram::updateUniformsList()
     {
         if (arg.type == MTLArgumentTypeBuffer && arg.bufferDataType == MTLDataTypeStruct)
         {
-            const std::string uboObjectName = std::string(arg.name.UTF8String);
+            const auto uboObjectName = string(arg.name.UTF8String);
 
             const auto addUniformToList =
                 [this, uboObjectName]
@@ -935,19 +935,19 @@ const MslProgram::InputMap& MslProgram::updateUniformsList()
                     [this, uboObjectName]
                     (MTLStructMember* member, int index, int size, const string& memberNamePrefix, auto& addUniformToList_ref) -> void
                 {
-                    std::string memberName = memberNamePrefix + member.name.UTF8String;
+                    auto memberName = memberNamePrefix + member.name.UTF8String;
 
                     if (MTLStructType* structMember = member.structType)
                     {
                         for (MTLStructMember* subMember in structMember.members)
                         {
-                            string namePrefix = memberName + ".";
+                            auto namePrefix = memberName + ".";
                             addUniformToList_ref(subMember, subMember.argumentIndex, subMember.offset, namePrefix, addUniformToList_ref);
                         }
                     }
                     else
                     {
-                        std::string uboDotMemberName = uboObjectName + "." + memberName;
+                        auto uboDotMemberName = uboObjectName + "." + memberName;
 
                         InputPtr inputPtr = std::make_shared<Input>(index, member.dataType, size, EMPTY_STRING);
                         this->_uniformList[uboDotMemberName] = inputPtr;
@@ -959,7 +959,7 @@ const MslProgram::InputMap& MslProgram::updateUniformsList()
                             {
                                 for (MTLStructMember* ArrayOfStructMember in arrayMember.elementStructType.members)
                                 {
-                                    string namePrefix = memberName + "[" + std::to_string(i) + "].";
+                                    auto namePrefix = memberName + "[" + std::to_string(i) + "].";
                                     addUniformToList_ref(ArrayOfStructMember, ArrayOfStructMember.argumentIndex, ArrayOfStructMember.offset, namePrefix, addUniformToList_ref);
                                 }
                             }

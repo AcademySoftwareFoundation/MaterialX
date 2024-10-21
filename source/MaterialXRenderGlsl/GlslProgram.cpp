@@ -962,7 +962,7 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
                     {
                         if (!typedesc.isStruct())
                         {
-                            // handle non-struct types
+                            // Handle non-struct types
                             int glType = mapTypeToOpenGLType(typedesc);
 
                             // There is no way to match with an unnamed variable
@@ -1006,7 +1006,7 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
                         }
                         else
                         {
-                            // if we're a struct - we need to loop over each member
+                            // If we're a struct - we need to loop over each member
                             auto structTypeDesc = StructTypeDesc::get(typedesc.getStructIndex());
                             auto aggregateValue = std::static_pointer_cast<const AggregateValue>(variableValue);
 

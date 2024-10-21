@@ -269,16 +269,16 @@ template <class T> ValuePtr TypedValue<T>::createFromString(const string& value)
 // Value methods
 //
 
-ValuePtr Value::createValueFromStrings(const string& value, const string& type, ConstTypeDefPtr typeDefPtr)
+ValuePtr Value::createValueFromStrings(const string& value, const string& type, ConstTypeDefPtr typeDef)
 {
     CreatorMap::iterator it = _creatorMap.find(type);
     if (it != _creatorMap.end())
         return it->second(value);
 
-    if (typeDefPtr && !typeDefPtr->getMembers().empty())
+    if (typeDef && !typeDef->getMembers().empty())
     {
         // If we're given a TypeDef pointer that has child members, then we can create a new AggregateValue.
-        return AggregateValue::createAggregateValueFromString(value, type, typeDefPtr);
+        return AggregateValue::createAggregateValueFromString(value, type, typeDef);
     }
 
     return TypedValue<string>::createFromString(value);
