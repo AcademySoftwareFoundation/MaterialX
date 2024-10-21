@@ -41,12 +41,5 @@ add_custom_command(OUTPUT ${DOXYGEN_HTML_OUTPUT_DIR}/index.html
                    COMMENT "Building MaterialX C++ API Documentation in ${DOXYGEN_HTML_OUTPUT_DIR}/ ...")
 add_custom_target(MaterialXDocsCpp ALL DEPENDS ${DOXYGEN_HTML_OUTPUT_DIR}/index.html)
 
-# Display a deprecation warning if the old name of the target is used, but
-# build the target using its new name instead, by making MaterialXDocs depend
-# on MaterialXDocsCpp
-add_custom_target(MaterialXDocs
-                  DEPENDS MaterialXDocsCpp
-                  COMMENT "WARNING: The MaterialXDocs target name is deprecated. The MaterialXDocsCpp target was built instead.")
-
 install(DIRECTORY ${DOXYGEN_HTML_OUTPUT_DIR}
         DESTINATION "documents" MESSAGE_NEVER)
