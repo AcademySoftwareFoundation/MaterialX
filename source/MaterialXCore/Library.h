@@ -6,6 +6,11 @@
 #ifndef MATERIALX_LIBRARY_H
 #define MATERIALX_LIBRARY_H
 
+#define MATERIALX_GENERATE_INDEX(major, minor, build) \
+    ((((uint32_t)(major)) << 22U) | (((uint32_t)(minor)) << 12U) | ((uint32_t)(build)))
+#define MATERIALX_VERSION_INDEX \
+    MATERIALX_GENERATE_INDEX(MATERIALX_MAJOR_VERSION, MATERIALX_MINOR_VERSION, MATERIALX_BUILD_VERSION)
+
 /// @file
 /// Library-wide includes and types.  This file should be the first include for
 /// any public header in the MaterialX library.
