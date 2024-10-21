@@ -292,7 +292,8 @@ string StructTypeSyntax::getValue(const Value& value, bool /*uniform*/) const
     string result = "{";
 
     string separator = "";
-    for (const auto& memberValue : aggValue.getMembers()) {
+    for (const auto& memberValue : aggValue.getMembers())
+    {
         result += separator;
         separator = ";";
 
