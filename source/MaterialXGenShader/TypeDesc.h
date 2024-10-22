@@ -93,9 +93,6 @@ class MX_GENSHADER_API TypeDesc
     /// Return the semantic for the type.
     unsigned char getSemantic() const { return _semantic; }
 
-    /// Return the index for the struct member information in StructTypeDesc, the result is invalid if `isStruct()` returns false.
-    uint16_t getStructIndex() const { return _structIndex; }
-
     /// Return the number of elements the type is composed of.
     /// Will return 1 for scalar types and a size greater than 1 for aggregate type.
     /// For array types 0 is returned since the number of elements is undefined
@@ -125,6 +122,9 @@ class MX_GENSHADER_API TypeDesc
 
     /// Return true if the type represents a struct.
     bool isStruct() const { return _basetype == BASETYPE_STRUCT; }
+
+    /// Return the index for the struct member information in StructTypeDesc, the result is invalid if `isStruct()` returns false.
+    uint16_t getStructIndex() const { return _structIndex; }
 
     /// Equality operator
     bool operator==(TypeDesc rhs) const
