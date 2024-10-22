@@ -72,7 +72,7 @@ int main(int argc, char* const argv[])
         tokens.emplace_back(argv[i]);
     }
 
-    std::string materialFilename = "resources/Materials/Examples/StandardSurface/standard_surface_default.mtlx";
+    std::string materialFilename = "resources/Materials/Examples/OpenPbr/open_pbr_default.mtlx";
     std::string meshFilename = "resources/Geometry/shaderball.glb";
     std::string envRadianceFilename = "resources/Lights/san_giuseppe_bridge_split.hdr";
     mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
