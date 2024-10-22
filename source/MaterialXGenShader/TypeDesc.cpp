@@ -164,15 +164,15 @@ StructTypeDesc& StructTypeDesc::get(unsigned int index)
     return structs[index];
 }
 
-uint8_t StructTypeDesc::emplace_back(StructTypeDesc structTypeDesc)
+uint16_t StructTypeDesc::emplace_back(StructTypeDesc structTypeDesc)
 {
     StructTypeDescStorage& structs = structTypeStorage();
 
-    if (structs.size() > 255)
+    if (structs.size() > 65025)
     {
-        throw ExceptionShaderGenError("Limit of 256 custom struct types has been exceeded.");
+        throw ExceptionShaderGenError("Limit of 65025 custom struct types has been exceeded.");
     }
-    uint8_t index = static_cast<uint8_t>(structs.size());
+    uint16_t index = static_cast<uint8_t>(structs.size());
 
     structs.emplace_back(structTypeDesc);
     return index;

@@ -71,7 +71,7 @@ class MX_GENSHADER_API TypeDesc
     }
 
     /// Constructor.
-    constexpr TypeDesc(std::string_view name, uint8_t basetype, uint8_t semantic = SEMANTIC_NONE, uint8_t size = 1, uint8_t structIndex = 0) noexcept :
+    constexpr TypeDesc(std::string_view name, uint8_t basetype, uint8_t semantic = SEMANTIC_NONE, uint16_t size = 1, uint16_t structIndex = 0) noexcept :
         _id(constexpr_hash(name)), // Note: We only store the hash to keep the class size minimal.
         _basetype(basetype),
         _semantic(semantic),
@@ -94,7 +94,7 @@ class MX_GENSHADER_API TypeDesc
     unsigned char getSemantic() const { return _semantic; }
 
     /// Return the index for the struct member information in StructTypeDesc, the result is invalid if `isStruct()` returns false.
-    uint8_t getStructIndex() const { return _structIndex; }
+    uint16_t getStructIndex() const { return _structIndex; }
 
     /// Return the number of elements the type is composed of.
     /// Will return 1 for scalar types and a size greater than 1 for aggregate type.
@@ -176,8 +176,8 @@ class MX_GENSHADER_API TypeDesc
     uint32_t _id;
     uint8_t _basetype;
     uint8_t _semantic;
-    uint8_t _size;
-    uint8_t _structIndex;
+    uint16_t _size;
+    uint16_t _structIndex;
 };
 
 /// @class TypeDescRegistry
@@ -260,7 +260,7 @@ class MX_GENSHADER_API StructTypeDesc
     /// Return a type description by index.
     static StructTypeDesc& get(unsigned int index);
     static vector<string> getStructTypeNames();
-    static uint8_t emplace_back(StructTypeDesc structTypeDesc);
+    static uint16_t emplace_back(StructTypeDesc structTypeDesc);
     static void clear();
 
     TypeDesc typeDesc() const { return _typedesc; }
