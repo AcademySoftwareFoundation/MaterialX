@@ -70,14 +70,13 @@ void TypeDesc::remove(const string& name)
 ValuePtr TypeDesc::createValueFromStrings(const string& value) const
 {
     ValuePtr newValue = Value::createValueFromStrings(value, getName());
-
-    // Value::createValueFromStrings() will return a value (including potentially a nullptr) if the
-    // type has been registered, otherwise
-
     if (!isStruct())
         return newValue;
 
-    // otherwise we are a struct type - and need to create a new aggregate value
+    // Value::createValueFromStrings() can only create a valid Value for a struct if it is passed
+    // the optional TypeDef argument, otherwise it just returns a "string" typed Value.
+    // So if this is a struct type we need to create a new AggregateValue.
+
     StringVec subValues = parseStructValueString(value);
 
     AggregateValuePtr  result = AggregateValue::createAggregateValue(getName());
