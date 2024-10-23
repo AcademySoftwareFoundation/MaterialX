@@ -229,13 +229,14 @@ jobs:
       run: |
         vcpkg/vcpkg install glslang --triplet=x64-windows
         glslangValidator.exe -v
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target glsl --validator glslangValidator.exe --vulkanGlsl True --validatorArgs="-V --aml"
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target essl --validator glslangValidator.exe
+        python python/Scripts/generateshader.py resources/Materials/Examples --target glsl --validator glslangValidator.exe
+        python python/Scripts/generateshader.py resources/Materials/Examples --target essl --validator glslangValidator.exe
 
     - name: Shader Validation Tests (MacOS)
       if: matrix.test_shaders == 'ON' && runner.os == 'macOS'
       run: |
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target msl --validator "xcrun metal --language=metal" --validatorArgs="-w"
+        python python/Scripts/generateshader.py resources/Materials/Examples --target msl --validator "xcrun metal --language=metal" --validatorArgs="-w"
+        python python/Scripts/generateshader.py resources/Materials/TestSuite/stdlib --target msl --validator "xcrun metal --language=metal" --validatorArgs="-w"
 
     - name: Coverage Analysis Tests
       if: matrix.coverage_analysis == 'ON'

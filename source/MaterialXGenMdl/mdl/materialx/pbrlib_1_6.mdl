@@ -428,6 +428,35 @@ export material mx_thin_film_bsdf(
     volume: mxp_base.volume
 );
 
+export material mx_chiang_hair_bsdf(
+    // TODO: MDL's chiang_hair BSDF has no support tinting each lobes
+    color mxp_tint_R = color(1.0),
+    color mxp_tint_TT = color(1.0),
+    color mxp_tint_TRT = color(1.0),
+    float mxp_ior = 1.55,
+    float2 mxp_roughness_R = float2(0.1, 0.1),
+    float2 mxp_roughness_TT = float2(0.05, 0.05),
+    float2 mxp_roughness_TRT = float2(0.2, 0.2),
+    float mxp_cuticle_angle = 0.5,
+    float3 mxp_absorption_coefficient = float3(0.0),
+    // TODO: MDL's chiang_hair BSDF has no support user tangent vector
+    float3 mxp_curve_direction = state::texture_tangent_u(0)
+) [[
+    anno::usage( "materialx:bsdf")
+]]
+= material(
+    hair: df::chiang_hair_bsdf(
+        diffuse_reflection_weight: 0.0,
+        diffuse_reflection_tint: color(0.0),
+        roughness_R: mxp_roughness_R,
+        roughness_TT: mxp_roughness_TT,
+        roughness_TRT: mxp_roughness_TRT,
+        cuticle_angle: mxp_cuticle_angle,
+        absorption_coefficient: mxp_absorption_coefficient,
+        ior: mxp_ior
+    )
+);
+
 // EDF Nodes
 
 export material mx_uniform_edf(
@@ -979,4 +1008,65 @@ export mx_artistic_ior__result mx_artistic_ior(
     k2 = math::max(k2, 0.0);
     color k = math::sqrt(k2);
     return mx_artistic_ior__result(n,k);
+}
+
+export float3 mx_dion_hair_absorption_from_melanin(
+    float mxp_melanin_concentration = 0.25,
+    float mxp_melanin_redness = 0.5,
+    color mxp_eumelanin_color = color(0.657704, 0.498077, 0.254107),
+    color mxp_pheomelanin_color = color(0.829444, 0.67032, 0.349938)
+) {
+    float melanin = -math::log(math::max(1.0 - mxp_melanin_concentration, 0.0001));
+    float eumelanin = melanin * (1.0 = mxp_melanin_redness);
+    float pheomelanin = melanin * mxp_melanin_redness;
+    return math::max(
+        eumelanin * -math::log(mxp_eumelanin_color) + pheomelanin * -math::log(mxp_pheomelanin_color),
+        float3(0.0)
+    );
+}
+
+export float3 mx_chiang_hair_absorption_from_color(
+    color mxp_color = color(1.0, 1.0, 1.0),
+    float mxp_azimuthal_roughness = 0.2
+) {
+    float r2 = mxp_azimuthal_roughness * mxp_azimuthal_roughness;
+    float r4 = r2 * r2;
+    float r_fac =
+        5.969 - 
+    (0.215 * mxp_azimuthal_roughness) + 
+    (2.532 * r2) -
+    (10.73 * r2 * mxp_azimuthal_roughness) + 
+    (5.574 * r4) +
+    (0.245 * r4 * mxp_azimuthal_roughness);
+    float3 sigma = math::log(math::min(math::max(mxp_color, 0.001), float3(1.0))) / r_fac;
+    return (sigma * sigma);
+}
+
+// Supportive struct type for the three outputs of mx_chiang_hair_roughness
+export struct mx_chiang_hair_roughness__result {
+    float2 mxp_roughness_R;
+    float2 mxp_roughness_TT;
+    float2 mxp_roughness_TRT;
+};
+
+export mx_chiang_hair_roughness__result mx_chiang_hair_roughness(
+    float mxp_longitudinal = 0.1,
+    float mxp_azimuthal = 0.2,
+    float mxp_scale_TT = 0.5,
+    float mxp_scale_TRT = 2.0
+) {
+    float lr = math::clamp(mxp_longitudinal, 0.001, 1.0);
+    float ar = math::clamp(mxp_azimuthal, 0.001, 1.0);
+
+    // longitudinal variance
+    float v = 0.726 * lr + 0.812 * lr * lr + 3.7 * math::pow(lr, 20);
+    v = v * v;
+
+    float s = 0.265 * ar + 1.194 * ar * ar + 5.372 * math::pow(ar, 22);
+
+    float2 roughness_R = float2(v, s);
+    float2 roughness_TT = float2(v * mxp_scale_TT * mxp_scale_TT, s);
+    float2 roughness_TRT = float2(v * mxp_scale_TRT * mxp_scale_TRT, s);
+
+    return mx_chiang_hair_roughness__result(roughness_R, roughness_TT, roughness_TRT);
 }

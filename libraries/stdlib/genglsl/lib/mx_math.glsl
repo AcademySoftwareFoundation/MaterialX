@@ -1,5 +1,7 @@
 #define M_FLOAT_EPS 1e-8
 
+#define mx_mod mod
+#define mx_inverse inverse
 #define mx_inversesqrt inversesqrt
 #define mx_sin sin
 #define mx_cos cos
