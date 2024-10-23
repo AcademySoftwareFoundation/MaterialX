@@ -23,7 +23,7 @@
   <implementation name="IM_subsurface_bsdf_genmdl" nodedef="ND_subsurface_bsdf" sourcecode="materialx::pbrlib_{{MDL_VERSION_SUFFIX}}::mx_subsurface_bsdf(mxp_weight:{{weight}}, mxp_color:{{color}}, mxp_radius:{{radius}}, mxp_anisotropy:{{anisotropy}}, mxp_normal:{{normal}})" target="genmdl" />
 
   <!-- <sheen_bsdf> -->
-  <implementation name="IM_sheen_bsdf_genmdl" nodedef="ND_sheen_bsdf" sourcecode="materialx::pbrlib_{{MDL_VERSION_SUFFIX}}::mx_sheen_bsdf(mxp_weight:{{weight}}, mxp_color:{{color}}, mxp_roughness:{{roughness}}, mxp_normal:{{normal}}, mxp_base:{{weight}})" target="genmdl" />
+  <implementation name="IM_sheen_bsdf_genmdl" nodedef="ND_sheen_bsdf" sourcecode="materialx::pbrlib_{{MDL_VERSION_SUFFIX}}::mx_sheen_bsdf(mxp_weight:{{weight}}, mxp_color:{{color}}, mxp_roughness:{{roughness}}, mxp_normal:{{normal}}, mxp_base:{{base}})" target="genmdl" />
 
   <!-- <thin_film_bsdf> -->
   <implementation name="IM_thin_film_bsdf_genmdl" nodedef="ND_thin_film_bsdf" sourcecode="materialx::pbrlib_{{MDL_VERSION_SUFFIX}}::mx_thin_film_bsdf(mxp_thickness:{{thickness}}, mxp_ior:{{ior}}, mxp_base:{{base}})" target="genmdl" />
