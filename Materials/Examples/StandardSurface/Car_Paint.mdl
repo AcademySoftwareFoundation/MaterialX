@@ -1,0 +1,317 @@
+mdl 1.8;
+
+import ::df::*;
+import ::base::*;
+import ::math::*;
+import ::state::*;
+import ::anno::*;
+import ::tex::*;
+using ::materialx::core import *;
+using ::materialx::sampling import *;
+using ::materialx::stdlib_1_8 import *;
+using ::materialx::pbrlib_1_8 import *;
+
+color NG_convert_float_color3
+(
+    float in1 = 0.000000
+)
+{
+    color combine_out = color( in1,in1,in1 );
+    return combine_out;
+}
+
+material NG_standard_surface_surfaceshader_100
+(
+    float base = 0.800000,
+    color base_color = color(1.000000, 1.000000, 1.000000),
+    float diffuse_roughness = 0.000000,
+    float metalness = 0.000000,
+    float specular = 1.000000,
+    color specular_color = color(1.000000, 1.000000, 1.000000),
+    float specular_roughness = 0.200000,
+    uniform float specular_IOR = 1.500000,
+    float specular_anisotropy = 0.000000,
+    float specular_rotation = 0.000000,
+    float transmission = 0.000000,
+    color transmission_color = color(1.000000, 1.000000, 1.000000),
+    float transmission_depth = 0.000000,
+    color transmission_scatter = color(0.000000, 0.000000, 0.000000),
+    float transmission_scatter_anisotropy = 0.000000,
+    float transmission_dispersion = 0.000000,
+    float transmission_extra_roughness = 0.000000,
+    float subsurface = 0.000000,
+    color subsurface_color = color(1.000000, 1.000000, 1.000000),
+    color subsurface_radius = color(1.000000, 1.000000, 1.000000),
+    float subsurface_scale = 1.000000,
+    float subsurface_anisotropy = 0.000000,
+    float sheen = 0.000000,
+    color sheen_color = color(1.000000, 1.000000, 1.000000),
+    float sheen_roughness = 0.300000,
+    float coat = 0.000000,
+    color coat_color = color(1.000000, 1.000000, 1.000000),
+    float coat_roughness = 0.100000,
+    float coat_anisotropy = 0.000000,
+    float coat_rotation = 0.000000,
+    uniform float coat_IOR = 1.500000,
+    float3 coat_normal = state::transform_normal(state::coordinate_internal, state::coordinate_world, state::normal()),
+    float coat_affect_color = 0.000000,
+    float coat_affect_roughness = 0.000000,
+    float thin_film_thickness = 0.000000,
+    float thin_film_IOR = 1.500000,
+    float emission = 0.000000,
+    color emission_color = color(1.000000, 1.000000, 1.000000),
+    color opacity = color(1.000000, 1.000000, 1.000000),
+    bool thin_walled = false,
+    float3 normal = state::transform_normal(state::coordinate_internal, state::coordinate_world, state::normal()),
+    float3 tangent = state::transform_vector(state::coordinate_internal, state::coordinate_world, state::texture_tangent_u(0))
+)
+ = let
+{
+    float2 coat_roughness_vector_out = materialx::pbrlib_1_8::mx_roughness_anisotropy(mxp_roughness:coat_roughness, mxp_anisotropy:coat_anisotropy);
+    float coat_tangent_rotate_degree_out = coat_rotation * 360.000000;
+    color metal_reflectivity_out = base_color * base;
+    color metal_edgecolor_out = specular_color * specular;
+    float coat_affect_roughness_multiply1_out = coat_affect_roughness * coat;
+    float tangent_rotate_degree_out = specular_rotation * 360.000000;
+    float transmission_roughness_add_out = specular_roughness + transmission_extra_roughness;
+    color subsurface_color_nonnegative_out = math::max(subsurface_color, 0.000000);
+    float coat_clamped_out = math::clamp(coat, 0.000000, 1.000000);
+    color subsurface_radius_scaled_out = subsurface_radius * subsurface_scale;
+    float subsurface_selector_out = float(thin_walled);
+    color base_color_nonnegative_out = math::max(base_color, 0.000000);
+    color coat_attenuation_out = math::lerp(color(1.000000, 1.000000, 1.000000), coat_color, coat);
+    float one_minus_coat_ior_out = 1.000000 - coat_IOR;
+    float one_plus_coat_ior_out = 1.000000 + coat_IOR;
+    color emission_weight_out = emission_color * emission;
+    color opacity_luminance_out = materialx::stdlib_1_8::mx_luminance_color3(opacity);
+    float3 coat_tangent_rotate_out = materialx::stdlib_1_8::mx_rotate3d_vector3(mxp_in:tangent, mxp_amount:coat_tangent_rotate_degree_out, mxp_axis:coat_normal);
+    materialx::pbrlib_1_8::mx_artistic_ior__result artistic_ior_result = materialx::pbrlib_1_8::mx_artistic_ior(mxp_reflectivity:metal_reflectivity_out, mxp_edge_color:metal_edgecolor_out);
+    float coat_affect_roughness_multiply2_out = coat_affect_roughness_multiply1_out * coat_roughness;
+    float3 tangent_rotate_out = materialx::stdlib_1_8::mx_rotate3d_vector3(mxp_in:tangent, mxp_amount:tangent_rotate_degree_out, mxp_axis:normal);
+    float transmission_roughness_clamped_out = math::clamp(transmission_roughness_add_out, 0.000000, 1.000000);
+    float coat_gamma_multiply_out = coat_clamped_out * coat_affect_color;
+    float coat_ior_to_F0_sqrt_out = one_minus_coat_ior_out / one_plus_coat_ior_out;
+    float opacity_luminance_float_out = materialx::stdlib_1_8::mx_extract_color3(opacity_luminance_out, 0);
+    float3 coat_tangent_rotate_normalize_out = math::normalize(coat_tangent_rotate_out);
+    float coat_affected_roughness_out = math::lerp(specular_roughness, 1.000000, coat_affect_roughness_multiply2_out);
+    float3 tangent_rotate_normalize_out = math::normalize(tangent_rotate_out);
+    float coat_affected_transmission_roughness_out = math::lerp(transmission_roughness_clamped_out, 1.000000, coat_affect_roughness_multiply2_out);
+    float coat_gamma_out = coat_gamma_multiply_out + 1.000000;
+    float coat_ior_to_F0_out = coat_ior_to_F0_sqrt_out * coat_ior_to_F0_sqrt_out;
+    float3 coat_tangent_out = materialx::stdlib_1_8::mx_ifgreater_vector3(coat_anisotropy, 0.000000, coat_tangent_rotate_normalize_out, tangent);
+    float2 main_roughness_out = materialx::pbrlib_1_8::mx_roughness_anisotropy(mxp_roughness:coat_affected_roughness_out, mxp_anisotropy:specular_anisotropy);
+    float3 main_tangent_out = materialx::stdlib_1_8::mx_ifgreater_vector3(specular_anisotropy, 0.000000, tangent_rotate_normalize_out, tangent);
+    float2 transmission_roughness_out = materialx::pbrlib_1_8::mx_roughness_anisotropy(mxp_roughness:coat_affected_transmission_roughness_out, mxp_anisotropy:specular_anisotropy);
+    color coat_affected_subsurface_color_out = math::pow(subsurface_color_nonnegative_out, coat_gamma_out);
+    color coat_affected_diffuse_color_out = math::pow(base_color_nonnegative_out, coat_gamma_out);
+    float one_minus_coat_ior_to_F0_out = 1.000000 - coat_ior_to_F0_out;
+    color emission_color0_out = NG_convert_float_color3(one_minus_coat_ior_to_F0_out);
+    material metal_bsdf_out = materialx::pbrlib_1_8::mx_conductor_bsdf(mxp_weight:1.000000, mxp_ior:artistic_ior_result.mxp_ior, mxp_extinction:artistic_ior_result.mxp_extinction, mxp_roughness:main_roughness_out, mxp_thinfilm_thickness:thin_film_thickness, mxp_thinfilm_ior:thin_film_IOR, mxp_normal:normal, mxp_tangent:main_tangent_out, mxp_distribution:mx_distribution_type_ggx);
+    material transmission_bsdf_out = materialx::pbrlib_1_8::mx_dielectric_bsdf(mxp_weight:1.000000, mxp_tint:transmission_color, mxp_ior:specular_IOR, mxp_roughness:transmission_roughness_out, mxp_thinfilm_thickness:0.000000, mxp_thinfilm_ior:1.500000, mxp_normal:normal, mxp_tangent:main_tangent_out, mxp_distribution:mx_distribution_type_ggx, mxp_scatter_mode:mx_scatter_mode_T, mxp_base:material());
+    material translucent_bsdf_out = materialx::pbrlib_1_8::mx_translucent_bsdf(mxp_weight:1.000000, mxp_color:coat_affected_subsurface_color_out, mxp_normal:normal);
+    material subsurface_bsdf_out = materialx::pbrlib_1_8::mx_subsurface_bsdf(mxp_weight:1.000000, mxp_color:coat_affected_subsurface_color_out, mxp_radius:subsurface_radius_scaled_out, mxp_anisotropy:subsurface_anisotropy, mxp_normal:normal);
+    material selected_subsurface_bsdf_out = materialx::pbrlib_1_8::mx_mix_bsdf(mxp_fg:translucent_bsdf_out, mxp_bg:subsurface_bsdf_out, mxp_mix:subsurface_selector_out);
+    material diffuse_bsdf_out = materialx::pbrlib_1_8::mx_oren_nayar_diffuse_bsdf(mxp_weight:base, mxp_color:coat_affected_diffuse_color_out, mxp_roughness:diffuse_roughness, mxp_normal:normal);
+    material subsurface_mix_out = materialx::pbrlib_1_8::mx_mix_bsdf(mxp_fg:selected_subsurface_bsdf_out, mxp_bg:diffuse_bsdf_out, mxp_mix:subsurface);
+    material sheen_layer_out = materialx::pbrlib_1_8::mx_sheen_bsdf(mxp_weight:sheen, mxp_color:sheen_color, mxp_roughness:sheen_roughness, mxp_normal:normal, mxp_base:subsurface_mix_out);
+    material transmission_mix_out = materialx::pbrlib_1_8::mx_mix_bsdf(mxp_fg:transmission_bsdf_out, mxp_bg:sheen_layer_out, mxp_mix:transmission);
+    material specular_layer_out = materialx::pbrlib_1_8::mx_dielectric_bsdf(mxp_weight:specular, mxp_tint:specular_color, mxp_ior:specular_IOR, mxp_roughness:main_roughness_out, mxp_thinfilm_thickness:thin_film_thickness, mxp_thinfilm_ior:thin_film_IOR, mxp_normal:normal, mxp_tangent:main_tangent_out, mxp_distribution:mx_distribution_type_ggx, mxp_scatter_mode:mx_scatter_mode_R, mxp_base:transmission_mix_out);
+    material metalness_mix_out = materialx::pbrlib_1_8::mx_mix_bsdf(mxp_fg:metal_bsdf_out, mxp_bg:specular_layer_out, mxp_mix:metalness);
+    material thin_film_layer_attenuated_out = materialx::pbrlib_1_8::mx_multiply_bsdf_color3(mxp_in1:metalness_mix_out, mxp_in2:coat_attenuation_out);
+    material coat_layer_out = materialx::pbrlib_1_8::mx_dielectric_bsdf(mxp_weight:coat, mxp_tint:color(1.000000, 1.000000, 1.000000), mxp_ior:coat_IOR, mxp_roughness:coat_roughness_vector_out, mxp_thinfilm_thickness:0.000000, mxp_thinfilm_ior:1.500000, mxp_normal:coat_normal, mxp_tangent:coat_tangent_out, mxp_distribution:mx_distribution_type_ggx, mxp_scatter_mode:mx_scatter_mode_R, mxp_base:thin_film_layer_attenuated_out);
+    material emission_edf_out = materialx::pbrlib_1_8::mx_uniform_edf(mxp_color:emission_weight_out);
+    material coat_tinted_emission_edf_out = materialx::pbrlib_1_8::mx_multiply_edf_color3(mxp_in1:emission_edf_out, mxp_in2:coat_color);
+    material coat_emission_edf_out = materialx::pbrlib_1_8::mx_generalized_schlick_edf(mxp_color0:emission_color0_out, mxp_color90:color(0.000000, 0.000000, 0.000000), mxp_exponent:5.000000, mxp_base:coat_tinted_emission_edf_out);
+    material blended_coat_emission_edf_out = materialx::pbrlib_1_8::mx_mix_edf(mxp_fg:coat_emission_edf_out, mxp_bg:emission_edf_out, mxp_mix:coat);
+    material shader_constructor_out = materialx::pbrlib_1_8::mx_surface(coat_layer_out, blended_coat_emission_edf_out, opacity_luminance_float_out, false, specular_IOR);
+}
+in material(shader_constructor_out);
+
+export material Car_Paint
+(
+    material backsurfaceshader = material()
+    [[
+    	materialx::core::origin("")
+    ]],
+    material displacementshader = material()
+    [[
+    	materialx::core::origin("")
+    ]],
+    uniform mx_coordinatespace_type geomprop_Nworld_space = mx_coordinatespace_type_world
+    [[
+    	materialx::core::origin("Nworld")
+    ]],
+    uniform mx_coordinatespace_type geomprop_Tworld_space = mx_coordinatespace_type_world
+    [[
+    	materialx::core::origin("Tworld")
+    ]],
+    uniform int geomprop_Tworld_index = 0
+    [[
+    	materialx::core::origin("Tworld")
+    ]],
+    float SR_carpaint_base = 0.500000
+    [[
+    	materialx::core::origin("SR_carpaint/base")
+    ]],
+    color SR_carpaint_base_color = color(0.103779, 0.592120, 0.850649)
+    [[
+    	materialx::core::origin("SR_carpaint/base_color")
+    ]],
+    float SR_carpaint_diffuse_roughness = 0.000000
+    [[
+    	materialx::core::origin("SR_carpaint/diffuse_roughness")
+    ]],
+    float SR_carpaint_metalness = 0.000000
+    [[
+    	materialx::core::origin("SR_carpaint/metalness")
+    ]],
+    float SR_carpaint_specular = 1.000000
+    [[
+    	materialx::core::origin("SR_carpaint/specular")
+    ]],
+    color SR_carpaint_specular_color = color(1.000000, 1.000000, 1.000000)
+    [[
+    	materialx::core::origin("SR_carpaint/specular_color")
+    ]],
+    float SR_carpaint_specular_roughness = 0.400000
+    [[
+    	materialx::core::origin("SR_carpaint/specular_roughness")
+    ]],
+    uniform float SR_carpaint_specular_IOR = 1.500000
+    [[
+    	materialx::core::origin("SR_carpaint/specular_IOR")
+    ]],
+    float SR_carpaint_specular_anisotropy = 0.500000
+    [[
+    	materialx::core::origin("SR_carpaint/specular_anisotropy")
+    ]],
+    float SR_carpaint_specular_rotation = 0.000000
+    [[
+    	materialx::core::origin("SR_carpaint/specular_rotation")
+    ]],
+    float SR_carpaint_transmission = 0.000000
+    [[
+    	materialx::core::origin("SR_carpaint/transmission")
+    ]],
+    color SR_carpaint_transmission_color = color(1.000000, 1.000000, 1.000000)
+    [[
+    	materialx::core::origin("SR_carpaint/transmission_color")
+    ]],
+    float SR_carpaint_transmission_depth = 0.000000
+    [[
+    	materialx::core::origin("SR_carpaint/transmission_depth")
+    ]],
+    color SR_carpaint_transmission_scatter = color(0.000000, 0.000000, 0.000000)
+    [[
+    	materialx::core::origin("SR_carpaint/transmission_scatter")
+    ]],
+    float SR_carpaint_transmission_scatter_anisotropy = 0.000000
+    [[
+    	materialx::core::origin("SR_carpaint/transmission_scatter_anisotropy")
+    ]],
+    float SR_carpaint_transmission_dispersion = 0.000000
+    [[
+    	materialx::core::origin("SR_carpaint/transmission_dispersion")
+    ]],
+    float SR_carpaint_transmission_extra_roughness = 0.000000
+    [[
+    	materialx::core::origin("SR_carpaint/transmission_extra_roughness")
+    ]],
+    float SR_carpaint_subsurface = 0.000000
+    [[
+    	materialx::core::origin("SR_carpaint/subsurface")
+    ]],
+    color SR_carpaint_subsurface_color = color(1.000000, 1.000000, 1.000000)
+    [[
+    	materialx::core::origin("SR_carpaint/subsurface_color")
+    ]],
+    color SR_carpaint_subsurface_radius = color(1.000000, 1.000000, 1.000000)
+    [[
+    	materialx::core::origin("SR_carpaint/subsurface_radius")
+    ]],
+    float SR_carpaint_subsurface_scale = 1.000000
+    [[
+    	materialx::core::origin("SR_carpaint/subsurface_scale")
+    ]],
+    float SR_carpaint_subsurface_anisotropy = 0.000000
+    [[
+    	materialx::core::origin("SR_carpaint/subsurface_anisotropy")
+    ]],
+    float SR_carpaint_sheen = 0.000000
+    [[
+    	materialx::core::origin("SR_carpaint/sheen")
+    ]],
+    color SR_carpaint_sheen_color = color(1.000000, 1.000000, 1.000000)
+    [[
+    	materialx::core::origin("SR_carpaint/sheen_color")
+    ]],
+    float SR_carpaint_sheen_roughness = 0.300000
+    [[
+    	materialx::core::origin("SR_carpaint/sheen_roughness")
+    ]],
+    float SR_carpaint_coat = 1.000000
+    [[
+    	materialx::core::origin("SR_carpaint/coat")
+    ]],
+    color SR_carpaint_coat_color = color(1.000000, 1.000000, 1.000000)
+    [[
+    	materialx::core::origin("SR_carpaint/coat_color")
+    ]],
+    float SR_carpaint_coat_roughness = 0.000000
+    [[
+    	materialx::core::origin("SR_carpaint/coat_roughness")
+    ]],
+    float SR_carpaint_coat_anisotropy = 0.000000
+    [[
+    	materialx::core::origin("SR_carpaint/coat_anisotropy")
+    ]],
+    float SR_carpaint_coat_rotation = 0.000000
+    [[
+    	materialx::core::origin("SR_carpaint/coat_rotation")
+    ]],
+    uniform float SR_carpaint_coat_IOR = 1.500000
+    [[
+    	materialx::core::origin("SR_carpaint/coat_IOR")
+    ]],
+    float SR_carpaint_coat_affect_color = 0.000000
+    [[
+    	materialx::core::origin("SR_carpaint/coat_affect_color")
+    ]],
+    float SR_carpaint_coat_affect_roughness = 0.000000
+    [[
+    	materialx::core::origin("SR_carpaint/coat_affect_roughness")
+    ]],
+    float SR_carpaint_thin_film_thickness = 0.000000
+    [[
+    	materialx::core::origin("SR_carpaint/thin_film_thickness")
+    ]],
+    float SR_carpaint_thin_film_IOR = 1.500000
+    [[
+    	materialx::core::origin("SR_carpaint/thin_film_IOR")
+    ]],
+    float SR_carpaint_emission = 0.000000
+    [[
+    	materialx::core::origin("SR_carpaint/emission")
+    ]],
+    color SR_carpaint_emission_color = color(1.000000, 1.000000, 1.000000)
+    [[
+    	materialx::core::origin("SR_carpaint/emission_color")
+    ]],
+    color SR_carpaint_opacity = color(1.000000, 1.000000, 1.000000)
+    [[
+    	materialx::core::origin("SR_carpaint/opacity")
+    ]],
+    bool SR_carpaint_thin_walled = false
+    [[
+    	materialx::core::origin("SR_carpaint/thin_walled")
+    ]]
+)
+= let
+{
+    float3 geomprop_Nworld_out1 = materialx::stdlib_1_8::mx_normal_vector3(mxp_space:geomprop_Nworld_space);
+    float3 geomprop_Tworld_out1 = materialx::stdlib_1_8::mx_tangent_vector3(mxp_space:geomprop_Tworld_space, mxp_index:geomprop_Tworld_index);
+    material SR_carpaint_out = NG_standard_surface_surfaceshader_100(SR_carpaint_base, SR_carpaint_base_color, SR_carpaint_diffuse_roughness, SR_carpaint_metalness, SR_carpaint_specular, SR_carpaint_specular_color, SR_carpaint_specular_roughness, SR_carpaint_specular_IOR, SR_carpaint_specular_anisotropy, SR_carpaint_specular_rotation, SR_carpaint_transmission, SR_carpaint_transmission_color, SR_carpaint_transmission_depth, SR_carpaint_transmission_scatter, SR_carpaint_transmission_scatter_anisotropy, SR_carpaint_transmission_dispersion, SR_carpaint_transmission_extra_roughness, SR_carpaint_subsurface, SR_carpaint_subsurface_color, SR_carpaint_subsurface_radius, SR_carpaint_subsurface_scale, SR_carpaint_subsurface_anisotropy, SR_carpaint_sheen, SR_carpaint_sheen_color, SR_carpaint_sheen_roughness, SR_carpaint_coat, SR_carpaint_coat_color, SR_carpaint_coat_roughness, SR_carpaint_coat_anisotropy, SR_carpaint_coat_rotation, SR_carpaint_coat_IOR, geomprop_Nworld_out1, SR_carpaint_coat_affect_color, SR_carpaint_coat_affect_roughness, SR_carpaint_thin_film_thickness, SR_carpaint_thin_film_IOR, SR_carpaint_emission, SR_carpaint_emission_color, SR_carpaint_opacity, SR_carpaint_thin_walled, geomprop_Nworld_out1, geomprop_Tworld_out1);
+    material Car_Paint_out = materialx::stdlib_1_8::mx_surfacematerial(mxp_surfaceshader: SR_carpaint_out, mxp_backsurfaceshader: backsurfaceshader, mxp_displacementshader: displacementshader);
+    material finalOutput__ = Car_Paint_out;
+}
+in material(finalOutput__);
