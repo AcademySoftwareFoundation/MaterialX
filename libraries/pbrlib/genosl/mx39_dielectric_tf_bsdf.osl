@@ -1,0 +1,15 @@
+void mx39_dielectric_tf_bsdf(float weight, color tint, float ior, vector2 roughness, float thinfilm_thickness, float thinfilm_ior, normal N, vector U, string distribution, string scatter_mode, output BSDF bsdf)
+{
+    if (scatter_mode == "R")
+    {
+        bsdf = weight * dielectric_bsdf(N, U, tint, color(0.0), roughness.x, roughness.y, ior, distribution, "thinfilm_thickness", thinfilm_thickness, "thinfilm_ior", thinfilm_ior);
+    }
+    else if (scatter_mode == "T")
+    {
+        bsdf = weight * dielectric_bsdf(N, U, color(0.0), tint, roughness.x, roughness.y, ior, distribution, "thinfilm_thickness", thinfilm_thickness, "thinfilm_ior", thinfilm_ior);
+    }
+    else
+    {
+        bsdf = weight * dielectric_bsdf(N, U, tint, tint, roughness.x, roughness.y, ior, distribution, "thinfilm_thickness", thinfilm_thickness, "thinfilm_ior", thinfilm_ior);
+    }
+}

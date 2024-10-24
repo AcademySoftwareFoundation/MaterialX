@@ -355,6 +355,7 @@ void shaderGenPerformanceTest(mx::GenContext& context)
     // Read mtlx documents
     mx::FilePathVec testRootPaths;
     testRootPaths.push_back("resources/Materials/Examples/StandardSurface");
+    testRootPaths.push_back("resources/Materials/Examples/OpenPbr");
 
     std::vector<mx::DocumentPtr> loadedDocuments;
     mx::StringVec documentsPaths;

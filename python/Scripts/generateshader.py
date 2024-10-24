@@ -143,8 +143,6 @@ def main():
         nodes = mx_gen_shader.findRenderableElements(doc)
         if not nodes:
             nodes = doc.getMaterialNodes()
-            if not nodes:
-                nodes = doc.getNodesOfType(mx.SURFACE_SHADER_TYPE_STRING)
 
         pathPrefix = ''
         if opts.outputPath and os.path.exists(opts.outputPath):

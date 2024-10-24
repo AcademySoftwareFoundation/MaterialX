@@ -417,4 +417,78 @@
     <output name="extinction" type="color3" />
   </nodedef>
 
+  <!-- ======================================================================== -->
+  <!-- OpenPBR Surface Nodes backported from 1.39                               -->
+  <!--                                                                          -->
+  <!-- PLEASE DO NOT USE THESE NODES IN YOUR SHADERS. DCCs, PLEASE HIDE THEM.   -->
+  <!--   Otherwise we will have to provide upgrade paths in 1.39.               -->
+  <!-- ======================================================================== -->
+
+  <!--
+    Node: <compensating_oren_nayar_diffuse_bsdf>
+    A BSDF node for diffuse reflection.
+    This node acquired energy compensation in 1.39.
+  -->
+  <nodedef name="ND_compensating_oren_nayar_diffuse_bsdf" node="compensating_oren_nayar_diffuse_bsdf" bsdf="R" nodegroup="OpenPBR" uivisible="false" doc="A BSDF node for diffuse reflections.">
+    <input name="weight" type="float" value="1.0" uimin="0.0" uimax="1.0" />
+    <input name="color" type="color3" value="0.18, 0.18, 0.18" />
+    <input name="roughness" type="float" value="0.0" />
+    <input name="normal" type="vector3" defaultgeomprop="Nworld" />
+    <input name="energy_compensation" type="boolean" value="false" uniform="true" />
+    <output name="out" type="BSDF" />
+  </nodedef>
+
+  <!--
+    Node: <dielectric_tf_bsdf>
+    A reflection/transmission BSDF node based on a microfacet model and a Fresnel curve for dielectrics.
+    This node became thin-film aware in 1.39
+  -->
+  <nodedef name="ND_dielectric_tf_bsdf" node="dielectric_tf_bsdf" nodegroup="OpenPBR" uivisible="false" doc="A reflection/transmission BSDF node based on a microfacet model and a Fresnel curve for dielectrics.">
+    <input name="weight" type="float" value="1.0" uimin="0.0" uimax="1.0" />
+    <input name="tint" type="color3" value="1.0, 1.0, 1.0" />
+    <input name="ior" type="float" value="1.5" />
+    <input name="roughness" type="vector2" value="0.05, 0.05" />
+    <input name="thinfilm_thickness" type="float" value="0" unittype="distance" unit="nanometer" />
+    <input name="thinfilm_ior" type="float" value="1.5" />
+    <input name="normal" type="vector3" defaultgeomprop="Nworld" />
+    <input name="tangent" type="vector3" defaultgeomprop="Tworld" />
+    <input name="distribution" type="string" value="ggx" enum="ggx" uniform="true" />
+    <input name="scatter_mode" type="string" value="R" enum="R,T,RT" uniform="true" />
+    <output name="out" type="BSDF" />
+  </nodedef>
+
+  <!--
+    Node: <generalized_schlick_tf_82_bsdf>
+    A reflection/transmission BSDF node based on a microfacet model and a generalized Schlick Fresnel curve.
+    This node gained a 82 degree color and thin film awareness in 1.39
+  -->
+  <nodedef name="ND_generalized_schlick_tf_82_bsdf" node="generalized_schlick_tf_82_bsdf" nodegroup="OpenPBR" uivisible="false" doc="A reflection/transmission BSDF node based on a microfacet model and a generalized Schlick Fresnel curve.">
+    <input name="weight" type="float" value="1.0" uimin="0.0" uimax="1.0" />
+    <input name="color0" type="color3" value="1.0, 1.0, 1.0" />
+    <input name="color82" type="color3" value="1.0, 1.0, 1.0" />
+    <input name="color90" type="color3" value="1.0, 1.0, 1.0" />
+    <input name="exponent" type="float" value="5.0" />
+    <input name="roughness" type="vector2" value="0.05, 0.05" />
+    <input name="thinfilm_thickness" type="float" value="0" unittype="distance" unit="nanometer" />
+    <input name="thinfilm_ior" type="float" value="1.5" />
+    <input name="normal" type="vector3" defaultgeomprop="Nworld" />
+    <input name="tangent" type="vector3" defaultgeomprop="Tworld" />
+    <input name="distribution" type="string" value="ggx" enum="ggx" uniform="true" />
+    <input name="scatter_mode" type="string" value="R" enum="R,T,RT" uniform="true" />
+    <output name="out" type="BSDF" />
+  </nodedef>
+
+  <!--
+    Node: <sheen_zeltner_bsdf>
+    A microfacet BSDF for the back-scattering properties of cloth-like materials.
+    This node gained a Zeltner mode in MaterialX 1.39. We split the code to only expose Zeltner case.
+  -->
+  <nodedef name="ND_sheen_zeltner_bsdf" node="sheen_zeltner_bsdf" bsdf="R" nodegroup="OpenPBR" uivisible="false" doc="A microfacet BSDF for the back-scattering properties of cloth-like materials.">
+    <input name="weight" type="float" value="1.0" uimin="0.0" uimax="1.0" />
+    <input name="color" type="color3" value="1.0, 1.0, 1.0" />
+    <input name="roughness" type="float" value="0.3" />
+    <input name="normal" type="vector3" defaultgeomprop="Nworld" />
+    <output name="out" type="BSDF" />
+  </nodedef>
+
 </materialx>

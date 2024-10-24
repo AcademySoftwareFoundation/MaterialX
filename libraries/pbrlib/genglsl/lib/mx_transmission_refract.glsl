@@ -12,3 +12,5 @@ vec3 mx_surface_transmission(vec3 N, vec3 V, vec3 X, vec2 alpha, int distributio
     }
     return mx_environment_radiance(N, V, X, alpha, distribution, fd) * tint;
 }
+
+#define MX39_USING_TRANSMISSION_REFRACT

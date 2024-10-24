@@ -98,6 +98,9 @@ if(MATERIALX_OSL_LEGACY_CLOSURES)
     add_custom_command(TARGET MaterialXTest POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E rename
         ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/libraries/pbrlib/genosl/pbrlib_genosl_impl.legacy ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/libraries/pbrlib/genosl/pbrlib_genosl_impl.mtlx)
+    add_custom_command(TARGET MaterialXTest POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E rename
+        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/libraries/pbrlib/genosl/mx39_pbrlib_genosl_impl.legacy ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/libraries/pbrlib/genosl/mx39_pbrlib_genosl_impl.mtlx)
 endif()
 
 if(MATERIALX_BUILD_GEN_MDL)

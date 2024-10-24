@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+
+  <!-- <compensating_oren_nayar_diffuse_bsdf> -->
+  <implementation name="IM_compensating_oren_nayar_diffuse_bsdf_genosl" nodedef="ND_compensating_oren_nayar_diffuse_bsdf" file="legacy/mx39_compensating_oren_nayar_diffuse_bsdf.osl" function="mx39_compensating_oren_nayar_diffuse_bsdf" target="genosl" />
+
+  <!-- <dielectric_tf_bsdf> -->
+  <implementation name="IM_dielectric_tf_bsdf_genosl" nodedef="ND_dielectric_tf_bsdf" file="legacy/mx39_dielectric_tf_bsdf.osl" function="mx39_dielectric_tf_bsdf" target="genosl" />
+
+  <!-- <generalized_schlick_tf_82_bsdf> -->
+  <implementation name="IM_generalized_schlick_tf_82_bsdf_genosl" nodedef="ND_generalized_schlick_tf_82_bsdf" file="legacy/mx39_generalized_schlick_tf_82_bsdf.osl" function="mx39_generalized_schlick_tf_82_bsdf" target="genosl" />
+
+  <!-- <sheen_zeltner_bsdf> -->
+  <implementation name="IM_sheen_zeltner_bsdf_genosl" nodedef="ND_sheen_zeltner_bsdf" file="legacy/mx_sheen_bsdf.osl" function="mx_sheen_bsdf" target="genosl" />
+
+</materialx>

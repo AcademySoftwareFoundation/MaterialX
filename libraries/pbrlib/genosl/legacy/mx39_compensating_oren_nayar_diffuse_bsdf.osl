@@ -1,0 +1,5 @@
+void mx39_compensating_oren_nayar_diffuse_bsdf(float weight, color _color, float roughness, normal N, int energy_compensation, output BSDF bsdf)
+{
+    bsdf.response = _color * weight * oren_nayar(N, roughness);
+    bsdf.throughput = color(0.0);
+}
