@@ -59,11 +59,6 @@ bool getShaderSource(mx::GenContext& context,
         mx::FilePath resolvedPath = context.resolveSourceFile(sourcePath, localPath);
         sourceContents = mx::readFile(resolvedPath);
         resolvedSource = resolvedPath.asString();
-        if (sourcePath.asString().find("mx39_") != std::string::npos) {
-            std::cerr << "Resolving: " << sourcePath.asString() << std::endl;
-            std::cerr << "localPath: " << localPath.asString() << std::endl;
-            std::cerr << "resolvedPath: " << resolvedPath.asString() << std::endl;
-        }
         return !sourceContents.empty();
     }
     return false;
