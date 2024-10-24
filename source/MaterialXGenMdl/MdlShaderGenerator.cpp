@@ -52,9 +52,11 @@ const string IMPORT_ALL = " import *";
 const string MDL_VERSION_1_6 = "1.6";
 const string MDL_VERSION_1_7 = "1.7";
 const string MDL_VERSION_1_8 = "1.8";
+const string MDL_VERSION_1_9 = "1.9";
 const string MDL_VERSION_SUFFIX_1_6 = "1_6";
 const string MDL_VERSION_SUFFIX_1_7 = "1_7";
 const string MDL_VERSION_SUFFIX_1_8 = "1_8";
+const string MDL_VERSION_SUFFIX_1_9 = "1_9";
 
 } // anonymous namespace
 
@@ -215,6 +217,7 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
     const string result = getUpstreamResult(outputSocket, context);
 
     const TypeDesc outputType = outputSocket->getType();
+    // Try to return some meaningful color in case the output is not a material
     if (graph.hasClassification(ShaderNode::Classification::TEXTURE))
     {
         if (outputType == Type::DISPLACEMENTSHADER)
@@ -229,7 +232,25 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
         else
         {
             emitLine("float3 displacement__ = float3(0.0)", stage);
-            emitLine("color finalOutput__ = mk_color3(" + result + ")", stage);
+            std::string finalOutput = "mk_color3(0.0)";
+            if (outputType == Type::BOOLEAN)
+                finalOutput = result + " ? mk_color3(0.0, 1.0, 0.0) : mk_color3(1.0, 0.0, 0.0)";
+            else if (outputType == Type::INTEGER)
+                finalOutput = "mk_color3(" + result + " / 100)"; // arbitrary
+            else if (outputType == Type::FLOAT)
+                finalOutput = "mk_color3(" + result + ")";
+            else if (outputType == Type::VECTOR2)
+                finalOutput = "mk_color3(" + result + ".x, " + result + ".y, 0.0)";
+            else if (outputType == Type::VECTOR3)
+                finalOutput = "mk_color3(" + result + ")";
+            else if (outputType == Type::COLOR3)
+                finalOutput = result;
+            else if (outputType == Type::COLOR4)
+                finalOutput = result + ".rgb";
+            else if (outputType == Type::MATRIX33 || outputType == Type::MATRIX44)
+                finalOutput = "mk_color3(" + result + "[0][0], " + result + "[1][1], " + result + "[2][2])";
+
+            emitLine("color finalOutput__ = " + finalOutput, stage);
         }
 
         // End shader body
@@ -537,7 +558,7 @@ ShaderPtr MdlShaderGenerator::createShader(const string& name, ElementPtr elemen
         outputs->add(outputSocket->getSelf());
     }
 
-    // MDL does not allow varying data connected to transmission IOR.
+    // MDL does not allow varying data connected to transmission IOR until MDL 1.9.
     // We must find all uses of transmission IOR and make sure we don't
     // have a varying connection to it. If a varying connection is found
     // we break that connection and revert to using default value on that
@@ -552,8 +573,14 @@ ShaderPtr MdlShaderGenerator::createShader(const string& name, ElementPtr elemen
     // this fix will disconnect the transmission IOR on the inside, but
     // still support the connection to reflection IOR.
     //
-    if (graph->hasClassification(ShaderNode::Classification::SHADER) ||
-        graph->hasClassification(ShaderNode::Classification::CLOSURE))
+    GenMdlOptions::MdlVersion version = getMdlVersion(context);
+    bool uniformIorRequired =
+        version == GenMdlOptions::MdlVersion::MDL_1_6 ||
+        version == GenMdlOptions::MdlVersion::MDL_1_7 ||
+        version == GenMdlOptions::MdlVersion::MDL_1_8;
+    if (uniformIorRequired && (
+        graph->hasClassification(ShaderNode::Classification::SHADER) ||
+        graph->hasClassification(ShaderNode::Classification::CLOSURE)))
     {
         // Find dependencies on transmission IOR.
         std::set<ShaderGraph*> graphsWithIorDependency;
@@ -641,10 +668,15 @@ void MdlShaderGenerator::emitShaderInputs(const DocumentPtr doc, const VariableB
     }
 }
 
-void MdlShaderGenerator::emitMdlVersionNumber(GenContext& context, ShaderStage& stage) const
+GenMdlOptions::MdlVersion MdlShaderGenerator::getMdlVersion(GenContext& context) const
 {
     GenMdlOptionsPtr options = context.getUserData<GenMdlOptions>(GenMdlOptions::GEN_CONTEXT_USER_DATA_KEY);
-    GenMdlOptions::MdlVersion version = options ? options->targetVersion : GenMdlOptions::MdlVersion::MDL_LATEST;
+    return options ? options->targetVersion : GenMdlOptions::MdlVersion::MDL_LATEST;
+}
+
+void MdlShaderGenerator::emitMdlVersionNumber(GenContext& context, ShaderStage& stage) const
+{
+    GenMdlOptions::MdlVersion version = getMdlVersion(context);
 
     emitLineBegin(stage);
     emitString("mdl ", stage);
@@ -656,19 +688,22 @@ void MdlShaderGenerator::emitMdlVersionNumber(GenContext& context, ShaderStage& 
         case GenMdlOptions::MdlVersion::MDL_1_7:
             emitString(MDL_VERSION_1_7, stage);
             break;
-        default:
-            // GenMdlOptions::MdlVersion::MDL_1_8
-            // GenMdlOptions::MdlVersion::MDL_LATEST
+        case GenMdlOptions::MdlVersion::MDL_1_8:
             emitString(MDL_VERSION_1_8, stage);
+            break;
+        default:
+            // GenMdlOptions::MdlVersion::MDL_1_9
+            // GenMdlOptions::MdlVersion::MDL_LATEST
+            emitString(MDL_VERSION_1_9, stage);
             break;
     }
     emitLineEnd(stage, true);
 }
 
+
 const string& MdlShaderGenerator::getMdlVersionFilenameSuffix(GenContext& context) const
 {
-    GenMdlOptionsPtr options = context.getUserData<GenMdlOptions>(GenMdlOptions::GEN_CONTEXT_USER_DATA_KEY);
-    GenMdlOptions::MdlVersion version = options ? options->targetVersion : GenMdlOptions::MdlVersion::MDL_LATEST;
+    GenMdlOptions::MdlVersion version = getMdlVersion(context);
 
     switch (version)
     {
@@ -676,10 +711,12 @@ const string& MdlShaderGenerator::getMdlVersionFilenameSuffix(GenContext& contex
             return MDL_VERSION_SUFFIX_1_6;
         case GenMdlOptions::MdlVersion::MDL_1_7:
             return MDL_VERSION_SUFFIX_1_7;
-        default:
-            // GenMdlOptions::MdlVersion::MDL_1_8
-            // GenMdlOptions::MdlVersion::MDL_LATEST
+        case GenMdlOptions::MdlVersion::MDL_1_8:
             return MDL_VERSION_SUFFIX_1_8;
+        default:
+            // GenMdlOptions::MdlVersion::MDL_1_9
+            // GenMdlOptions::MdlVersion::MDL_LATEST
+            return MDL_VERSION_SUFFIX_1_9;
     }
 }
 
