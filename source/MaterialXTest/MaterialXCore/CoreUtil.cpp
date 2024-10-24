@@ -10,6 +10,12 @@
 
 namespace mx = MaterialX;
 
+TEST_CASE("Version comparison", "[coreutil]")
+{
+    // Test for version comparison
+    REQUIRE(MATERIALX_VERSION_INDEX > MATERIALX_GENERATE_INDEX(1, 38, 8));
+}
+
 TEST_CASE("String utilities", "[coreutil]")
 {
     std::string invalidName("test.name");
