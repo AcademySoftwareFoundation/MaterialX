@@ -5,7 +5,7 @@
   <implementation name="IM_compensating_oren_nayar_diffuse_bsdf_genmsl" nodedef="ND_compensating_oren_nayar_diffuse_bsdf" file="../genglsl/mx39_compensating_oren_nayar_diffuse_bsdf.glsl" function="mx39_compensating_oren_nayar_diffuse_bsdf" target="genmsl" />
 
   <!-- <dielectric_tf_bsdf> -->
-  <implementation name="IM_dielectric_tf_bsdf_genmsl" nodedef="ND_dielectric_tf_bsdf" file="../genglsl/mx39_dielectric_tf_bsdf.glsl" function="../genglsl/mx39_dielectric_tf_bsdf" target="genmsl" />
+  <implementation name="IM_dielectric_tf_bsdf_genmsl" nodedef="ND_dielectric_tf_bsdf" file="../genglsl/mx39_dielectric_tf_bsdf.glsl" function="mx39_dielectric_tf_bsdf" target="genmsl" />
 
   <!-- <generalized_schlick_tf_82_bsdf> -->
   <implementation name="IM_generalized_schlick_tf_82_bsdf_genmsl" nodedef="ND_generalized_schlick_tf_82_bsdf" file="../genglsl/mx39_generalized_schlick_tf_82_bsdf.glsl" function="mx39_generalized_schlick_tf_82_bsdf" target="genmsl" />
