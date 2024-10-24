@@ -487,6 +487,11 @@ GraphIterator Element::traverseGraph() const
     return GraphIterator(getSelfNonConst());
 }
 
+GraphIterator Element::uniqueTraverseGraph() const
+{
+    return GraphIterator(getSelfNonConst(), true);
+}
+
 Edge Element::getUpstreamEdge(size_t) const
 {
     return NULL_EDGE;
