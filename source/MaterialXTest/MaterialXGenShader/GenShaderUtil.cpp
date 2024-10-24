@@ -59,6 +59,11 @@ bool getShaderSource(mx::GenContext& context,
         mx::FilePath resolvedPath = context.resolveSourceFile(sourcePath, localPath);
         sourceContents = mx::readFile(resolvedPath);
         resolvedSource = resolvedPath.asString();
+        if (sourcePath.asString().find("mx39_") != std::string::npos) {
+            std::cerr << "Resolving: " << sourcePath.asString() << std::endl;
+            std::cerr << "localPath: " << localPath.asString() << std::endl;
+            std::cerr << "resolvedPath: " << resolvedPath.asString() << std::endl;
+        }
         return !sourceContents.empty();
     }
     return false;
@@ -75,19 +80,7 @@ void checkImplementations(mx::GenContext& context,
 
     mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
     mx::DocumentPtr doc = mx::createDocument();
-    std::cerr << "Loading libraries" << std::endl;
-    const auto alllibs = loadLibraries({ "libraries/targets", "libraries/stdlib", "libraries/pbrlib" }, searchPath, doc);
-    for (const auto& mxlib: alllibs) {
-        std::cout << "\t" << mxlib << std::endl;
-        if (mxlib.find("genglsl/mx39_pbrlib") != std::string::npos) {
-            std::cerr << "\tAlso in this folder:" << std::endl;
-            mx::FilePath path(mxlib);
-            for (const auto& file : path.getParentPath().getFilesInDirectory("glsl"))
-            {
-                std::cerr << "\t\t" << file.asString() << std::endl;
-            }
-        }
-    }
+    loadLibraries({ "libraries/targets", "libraries/stdlib", "libraries/pbrlib" }, searchPath, doc);
 
     const std::string& target = shadergen.getTarget();
 
