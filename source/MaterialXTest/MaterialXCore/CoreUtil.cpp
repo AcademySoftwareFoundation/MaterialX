@@ -7,6 +7,7 @@
 
 #include <MaterialXCore/Util.h>
 #include <MaterialXCore/Document.h>
+#include <MaterialXCore/Library.h>
 
 namespace mx = MaterialX;
 
@@ -110,4 +111,10 @@ TEST_CASE("Print utilities", "[coreutil]")
         "}\n";
 
     REQUIRE(nodeGraph->asStringDot() == blessed);
+}
+
+TEST_CASE("Version comparison", "[coreutil]")
+{
+    // Test for version comparison
+    REQUIRE(MATERIALX_VERSION_INDEX > MATERIALX_GENERATE_INDEX(1, 38, 8));
 }
