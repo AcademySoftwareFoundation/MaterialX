@@ -190,6 +190,36 @@ bool Syntax::remapEnumeration(const string&, TypeDesc, const string&, std::pair<
     return false;
 }
 
+void Syntax::registerStructTypeDescSyntax()
+{
+    for (const auto& typeName : StructTypeDesc::getStructTypeNames())
+    {
+        const auto& typeDesc = TypeDesc::get(typeName);
+        const auto& structTypeDesc = StructTypeDesc::get(typeDesc.getStructIndex());
+
+        string structTypeName = typeName;
+        string defaultValue = typeName + "( ";
+        string uniformDefaultValue = EMPTY_STRING;
+        string typeAlias = EMPTY_STRING;
+        string typeDefinition = "struct " + structTypeName + " { ";
+
+        for (const auto& x : structTypeDesc.getMembers())
+        {
+            string memberName = x._name;
+            string memberType = x._typeDesc.getName();
+            string memberDefaultValue = x._defaultValueStr;
+
+            defaultValue += memberDefaultValue + ", ";
+            typeDefinition += memberType + " " + memberName + "; ";
+        }
+
+        typeDefinition += " };";
+        defaultValue += " )";
+
+        registerTypeSyntax(typeDesc, createStructSyntax(structTypeName, defaultValue, uniformDefaultValue, typeAlias, typeDefinition));
+    }
+}
+
 const StringVec TypeSyntax::EMPTY_MEMBERS;
 
 TypeSyntax::TypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
@@ -244,6 +274,41 @@ string AggregateTypeSyntax::getValue(const Value& value, bool /*uniform*/) const
 {
     const string valueString = value.getValueString();
     return valueString.empty() ? valueString : getName() + "(" + valueString + ")";
+}
+
+StructTypeSyntax::StructTypeSyntax(const Syntax* parentSyntax, const string& name, const string& defaultValue, const string& uniformDefaultValue,
+                                   const string& typeAlias, const string& typeDefinition, const StringVec& members) :
+    TypeSyntax(name, defaultValue, uniformDefaultValue, typeAlias, typeDefinition, members), _parentSyntax(parentSyntax)
+{
+}
+
+string StructTypeSyntax::getValue(const Value& value, bool /*uniform*/) const
+{
+    const AggregateValue& aggValue = static_cast<const AggregateValue&>(value);
+
+    auto typeDesc = TypeDesc::get(aggValue.getTypeString());
+    auto structTypeDesc = StructTypeDesc::get(typeDesc.getStructIndex());
+
+    string result = "{";
+
+    string separator = "";
+    for (const auto& memberValue : aggValue.getMembers())
+    {
+        result += separator;
+        separator = ";";
+
+        auto memberTypeName = memberValue->getTypeString();
+        auto memberTypeDesc = TypeDesc::get(memberTypeName);
+
+        // Recursively use the syntax to generate the output, so we can support nested structs.
+        const string valueStr = _parentSyntax->getValue(memberTypeDesc, *memberValue, true);
+
+        result += valueStr;
+    }
+
+    result += "}";
+
+    return result;
 }
 
 MATERIALX_NAMESPACE_END

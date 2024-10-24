@@ -375,4 +375,41 @@ bool GlslSyntax::remapEnumeration(const string& value, TypeDesc type, const stri
     return true;
 }
 
+StructTypeSyntaxPtr GlslSyntax::createStructSyntax(const string& structTypeName, const string& defaultValue,
+                                                   const string& uniformDefaultValue, const string& typeAlias,
+                                                   const string& typeDefinition) const
+{
+    return std::make_shared<GlslStructTypeSyntax>(
+        this,
+        structTypeName,
+        defaultValue,
+        uniformDefaultValue,
+        typeAlias,
+        typeDefinition);
+}
+
+string GlslStructTypeSyntax::getValue(const Value& value, bool /* uniform */) const
+{
+    const AggregateValue& aggValue = static_cast<const AggregateValue&>(value);
+
+    string result = aggValue.getTypeString() + "(";
+
+    string separator = "";
+    for (const auto& memberValue : aggValue.getMembers())
+    {
+        result += separator;
+        separator = ",";
+
+        auto memberTypeName = memberValue->getTypeString();
+        auto memberTypeDesc = TypeDesc::get(memberTypeName);
+
+        // Recursively use the syntax to generate the output, so we can supported nested structs.
+        result += _parentSyntax->getValue(memberTypeDesc, *memberValue, true);
+    }
+
+    result += ")";
+
+    return result;
+}
+
 MATERIALX_NAMESPACE_END
