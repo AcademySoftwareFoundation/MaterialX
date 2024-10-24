@@ -75,7 +75,11 @@ void checkImplementations(mx::GenContext& context,
 
     mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
     mx::DocumentPtr doc = mx::createDocument();
-    loadLibraries({ "libraries/targets", "libraries/stdlib", "libraries/pbrlib" }, searchPath, doc);
+    std::cerr << "Loading libraries" << std::endl;
+    const auto alllibs = loadLibraries({ "libraries/targets", "libraries/stdlib", "libraries/pbrlib" }, searchPath, doc);
+    for (const auto& mxlib: alllibs) {
+        std::cout << "\t" << mxlib << std::endl;
+    }
 
     const std::string& target = shadergen.getTarget();
 
