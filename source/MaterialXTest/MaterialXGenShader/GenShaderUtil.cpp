@@ -79,6 +79,14 @@ void checkImplementations(mx::GenContext& context,
     const auto alllibs = loadLibraries({ "libraries/targets", "libraries/stdlib", "libraries/pbrlib" }, searchPath, doc);
     for (const auto& mxlib: alllibs) {
         std::cout << "\t" << mxlib << std::endl;
+        if (mxlib.find("genglsl/mx39_pbrlib") != std::string::npos) {
+            std::cerr << "\tAlso in this folder:" << std::endl;
+            mx::FilePath path(mxlib);
+            for (const auto& file : path.getParentPath().getFilesInDirectory("glsl"))
+            {
+                std::cerr << "\t\t" << file.asString() << std::endl;
+            }
+        }
     }
 
     const std::string& target = shadergen.getTarget();
