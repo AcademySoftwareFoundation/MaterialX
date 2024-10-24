@@ -288,8 +288,8 @@
       <input name="in2" type="float" value="0" />
     </ifgreatereq>
     <ifgreater name="opacity" type="float">
-      <input name="value1" type="integer" interfacename="opacityThreshold" />
-      <input name="value2" type="integer" value="0" />
+      <input name="value1" type="float" interfacename="opacityThreshold" />
+      <input name="value2" type="float" value="0" />
       <input name="in1" type="float" nodename="cutout_opacity" />
       <input name="in2" type="float" interfacename="opacity" />
     </ifgreater>
