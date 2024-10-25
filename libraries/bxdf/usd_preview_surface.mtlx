@@ -290,8 +290,8 @@
     <ifequal name="opacity" type="float">
       <input name="value1" type="float" interfacename="opacity" />
       <input name="value2" type="float" value="0.0" />
-      <input name="in2" type="float" nodename="cutout_opacity" />
       <input name="in1" type="float" value="0.0" />
+      <input name="in2" type="float" nodename="cutout_opacity" />
     </ifequal>
     <surface name="surface_constructor" type="surfaceshader">
       <input name="bsdf" type="BSDF" nodename="coat_bsdf" />
