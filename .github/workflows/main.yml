@@ -83,20 +83,12 @@ jobs:
           python: 3.12
           test_shaders: ON
 
-        - name: MacOS_Xcode_DynamicAnalysis
-          os: macos-14
-          compiler: xcode
-          compiler_version: "15.4"
-          python: None
-          dynamic_analysis: ON
-          cmake_config: -DMATERIALX_DYNAMIC_ANALYSIS=ON
-
         - name: iOS_Xcode_15
           os: macos-14
           compiler: xcode
           compiler_version: "15.4"
           python: None
-          cmake_config: -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_SYSROOT=`xcrun --sdk iphoneos --show-sdk-path` -DCMAKE_OSX_ARCHITECTURES=arm64
+          cmake_config: -DMATERIALX_BUILD_IOS=ON -DCMAKE_OSX_SYSROOT=`xcrun --sdk iphoneos --show-sdk-path` -DCMAKE_OSX_ARCHITECTURES=arm64
 
         - name: Windows_VS2019_Win32_Python37
           os: windows-2019

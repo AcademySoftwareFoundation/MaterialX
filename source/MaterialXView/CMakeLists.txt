@@ -70,7 +70,7 @@ else()
     elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         add_compile_options(-Wno-deprecated)
     elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-        add_compile_options(-Wno-format-truncation -Wno-use-after-free)
+        add_compile_options(-Wno-format-truncation -Wno-stringop-overflow -Wno-use-after-free)
     endif()
 
     # Disable NanoGUI compiler modifications for Clang
