@@ -19,7 +19,7 @@ assign_source_group("Header Files" ${materialx_headers})
 if(UNIX)
     add_compile_options(-Wno-unused-function)
     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-        target_compile_options(${TARGET_NAME} PRIVATE -Wno-stringop-overflow)
+        add_compile_options(-Wno-stringop-overflow)
     endif()
 endif()
 
