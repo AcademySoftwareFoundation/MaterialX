@@ -194,7 +194,7 @@ template <class T> class MX_CORE_API TypedValue : public Value
     T _data;
 };
 
-/// The class template for typed subclasses of Value
+/// A subclass for aggregate values with multiple members
 class MX_CORE_API AggregateValue : public Value
 {
   public:
