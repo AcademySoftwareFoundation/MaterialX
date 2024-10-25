@@ -82,3 +82,13 @@ When rendering tests are enabled through the `MATERIALX_TEST_RENDER` option, the
 #### HTML Render Comparisons
 - A `tests_to_html` Python script is provided in the [`python/MaterialXTest`](../../python/MaterialXTest) folder, which can be run to generate an HTML file comparing the rendered results in each shading language.
 - Example render comparisons may be found in [commits to the MaterialX repository](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1164), and we encourage developers to post their own results when making changes that have the potential to impact generated shaders.
+
+#### Benchmark Tests
+
+Processing MaterialX documents and generating shaders is an integral part of many pipelines. MaterialX benchmark testing using [Catch2 benchmark framework](https://github.com/catchorg/Catch2/blob/devel/docs/benchmarks.md) and can be enabled using `MATERIALX_BUILD_BENCHMARK_TESTS` CMake macro.
+
+Here is an example of how to run the benchmark test
+
+ `MaterialXTest.exe "GenShader: GLSL Performance Test" --benchmark-samples 10` 
+ 
+This will iterate and gather 10 samples of the test case and report low, mean and high timing results.

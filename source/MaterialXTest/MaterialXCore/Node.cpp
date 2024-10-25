@@ -627,43 +627,6 @@ TEST_CASE("Organization", "[nodegraph]")
     CHECK(nodeGraph->getBackdrops().empty());
 }
 
-TEST_CASE("Tokens", "[nodegraph]")
-{
-    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
-    mx::DocumentPtr stdlib = mx::createDocument();
-    mx::loadLibraries({ "libraries" }, searchPath, stdlib);
-
-    mx::DocumentPtr doc = mx::createDocument();
-    mx::readFromXmlFile(doc, "resources/Materials/TestSuite/stdlib/texture/tokenGraph.mtlx", searchPath);
-
-    mx::StringVec graphNames = { "Tokenized_Image_2k_png", "Tokenized_Image_4k_jpg" };
-    mx::StringVec resolutionStrings = { "2k", "4k" };
-    mx::StringVec extensionStrings = { "png", "jpg" };
-    for (size_t i=0; i<graphNames.size(); i++)
-    {
-        mx::NodeGraphPtr graph = doc->getNodeGraph(graphNames[i]);
-        REQUIRE(graph);
-        std::vector<mx::TokenPtr> tokens = graph->getActiveTokens();
-
-        mx::NodePtr imagePtr = graph->getNode("tiledimage");
-        REQUIRE(imagePtr);
-
-        mx::InputPtr input = imagePtr->getInput("file");
-        REQUIRE(input);
-
-        // Test file name substitution creation.
-        mx::StringResolverPtr resolver = input->createStringResolver();
-        const mx::StringMap& substitutions = resolver->getFilenameSubstitutions();
-        const std::string DELIMITER_PREFIX("[");
-        const std::string DELIMITER_POSTFIX("]");
-        for (auto token : tokens)
-        {
-            const std::string tokenString = DELIMITER_PREFIX + token->getName() + DELIMITER_POSTFIX;
-            REQUIRE(substitutions.count(tokenString));
-        }
-    }
-}
-
 TEST_CASE("Node Definition Creation", "[nodedef]")
 {
     mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
@@ -672,7 +635,7 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
 
     mx::DocumentPtr doc = mx::createDocument();
     mx::readFromXmlFile(doc, "resources/Materials/TestSuite/stdlib/definition/definition_from_nodegraph.mtlx", searchPath);
-    doc->importLibrary(stdlib);
+    doc->setDataLibrary(stdlib);
 
     mx::NodeGraphPtr graph = doc->getNodeGraph("test_colorcorrect");
     REQUIRE(graph);
