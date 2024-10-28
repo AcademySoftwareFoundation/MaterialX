@@ -31,7 +31,7 @@ TypeDescNameMap& typeNameMap()
 using StructTypeDescStorage = vector<StructTypeDesc>;
 StructTypeDescStorage& structTypeStorage()
 {
-    static StructTypeDescStorage  storage;
+    static StructTypeDescStorage storage;
     return storage;
 }
 
