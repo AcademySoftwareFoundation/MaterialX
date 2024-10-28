@@ -319,7 +319,7 @@ MX_CORE_API const AggregateValue& Value::asA<AggregateValue>() const
 string AggregateValue::getValueString() const
 {
     if (_data.empty())
-        return "";
+        return EMPTY_STRING;
 
     std::string result = "{";
     std::string separator = "";
