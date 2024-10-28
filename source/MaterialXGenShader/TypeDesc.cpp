@@ -31,6 +31,9 @@ TypeDescNameMap& typeNameMap()
 using StructTypeDescStorage = vector<StructTypeDesc>;
 StructTypeDescStorage& structTypeStorage()
 {
+    // TODO: Our use of the singleton pattern for TypeDescMap and StructTypeDestStorage
+    //       is not thread-safe, and we should consider replacing this with thread-local
+    //       data in the GenContext object.
     static StructTypeDescStorage storage;
     return storage;
 }
