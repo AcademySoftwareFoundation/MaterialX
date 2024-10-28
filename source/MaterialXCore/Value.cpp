@@ -333,12 +333,12 @@ string AggregateValue::getValueString() const
     return result;
 }
 
-AggregateValuePtr AggregateValue::createAggregateValueFromString(const string& value, const string& type, ConstTypeDefPtr typeDefPtr)
+AggregateValuePtr AggregateValue::createAggregateValueFromString(const string& value, const string& type, ConstTypeDefPtr typeDef)
 {
     StringVec subValues = parseStructValueString(value);
 
     AggregateValuePtr result = AggregateValue::createAggregateValue(type);
-    const auto& members = typeDefPtr->getMembers();
+    const auto& members = typeDef->getMembers();
 
     if (subValues.size() != members.size())
     {
@@ -347,7 +347,7 @@ AggregateValuePtr AggregateValue::createAggregateValueFromString(const string& v
         throw Exception(ss.str());
     }
 
-    auto doc = typeDefPtr->getDocument();
+    auto doc = typeDef->getDocument();
     for (size_t i = 0; i < members.size(); ++i)
     {
         const auto& member = members[i];
