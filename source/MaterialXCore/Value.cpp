@@ -316,7 +316,6 @@ MX_CORE_API const AggregateValue& Value::asA<AggregateValue>() const
     return *typedVal;
 }
 
-/// Return value string.
 string AggregateValue::getValueString() const
 {
     if (_data.empty())
