@@ -168,11 +168,11 @@ uint16_t StructTypeDesc::emplace_back(StructTypeDesc structTypeDesc)
 {
     StructTypeDescStorage& structs = structTypeStorage();
 
-    if (structs.size() > 65025)
+    if (structs.size() >= std::numeric_limits<uint16_t>::max())
     {
-        throw ExceptionShaderGenError("Limit of 65025 custom struct types has been exceeded.");
+        throw ExceptionShaderGenError("Limit of "+std::to_string(std::numeric_limits<uint16_t>::max())+" custom struct types has been exceeded.");
     }
-    uint16_t index = static_cast<uint8_t>(structs.size());
+    uint16_t index = static_cast<uint16_t>(structs.size());
 
     structs.emplace_back(structTypeDesc);
     return index;
