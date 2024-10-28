@@ -24,7 +24,7 @@ void bindPyUnitSystem(py::module& mod);
 
 PYBIND11_MODULE(PyMaterialXGenShader, mod)
 {
-    mod.doc() = "Module containing Python bindings for the MaterialXGenShader library";
+    mod.doc() = "Core shader generation support for MaterialX.";
 
     bindPyColorManagement(mod);
     bindPyShaderPort(mod);

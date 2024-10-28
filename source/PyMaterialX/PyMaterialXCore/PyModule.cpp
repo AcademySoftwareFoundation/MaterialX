@@ -26,7 +26,7 @@ void bindPyVariant(py::module& mod);
 
 PYBIND11_MODULE(PyMaterialXCore, mod)
 {
-    mod.doc() = "Module containing Python bindings for the MaterialXCore library";
+    mod.doc() = "Core MaterialX elements and graph traversal.";
 
     bindPyElement(mod);
     bindPyTraversal(mod);

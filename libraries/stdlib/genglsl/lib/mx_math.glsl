@@ -1,5 +1,16 @@
 #define M_FLOAT_EPS 1e-8
 
+#define mx_mod mod
+#define mx_inverse inverse
+#define mx_inversesqrt inversesqrt
+#define mx_sin sin
+#define mx_cos cos
+#define mx_tan tan
+#define mx_asin asin
+#define mx_acos acos
+#define mx_atan atan
+#define mx_radians radians
+
 float mx_square(float x)
 {
     return x*x;

@@ -5,7 +5,7 @@
 
 #if defined (__APPLE__)
 
-#ifndef TARGET_OS_IOS
+#ifndef TARGET_OS_IPHONE
 
 #import <Cocoa/Cocoa.h>
 #import <AppKit/NSApplication.h>

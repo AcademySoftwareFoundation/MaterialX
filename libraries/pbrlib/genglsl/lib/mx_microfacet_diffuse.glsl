@@ -89,7 +89,7 @@ float mx_oren_nayar_fujii_diffuse_dir_albedo(float cosTheta, float roughness)
     float A = 1.0 / (1.0 + FUJII_CONSTANT_1 * roughness);
     float B = roughness * A;
     float Si = sqrt(max(0.0, 1.0 - mx_square(cosTheta)));
-    float G = Si * (acos(clamp(cosTheta, -1.0, 1.0)) - Si * cosTheta) +
+    float G = Si * (mx_acos(clamp(cosTheta, -1.0, 1.0)) - Si * cosTheta) +
               2.0 * ((Si / cosTheta) * (1.0 - Si * Si * Si) - Si) / 3.0;
     return A + (B * G * M_PI_INV);
 }
@@ -169,7 +169,7 @@ vec3 mx_burley_diffusion_profile(float dist, vec3 shape)
 // Inspired by Eric Penner's presentation in http://advances.realtimerendering.com/s2011/
 vec3 mx_integrate_burley_diffusion(vec3 N, vec3 L, float radius, vec3 mfp)
 {
-    float theta = acos(dot(N, L));
+    float theta = mx_acos(dot(N, L));
 
     // Estimate the Burley diffusion shape from mean free path.
     vec3 shape = vec3(1.0) / max(mfp, 0.1);
@@ -182,9 +182,9 @@ vec3 mx_integrate_burley_diffusion(vec3 N, vec3 L, float radius, vec3 mfp)
     for (int i = 0; i < SAMPLE_COUNT; i++)
     {
         float x = -M_PI + (float(i) + 0.5) * SAMPLE_WIDTH;
-        float dist = radius * abs(2.0 * sin(x * 0.5));
+        float dist = radius * abs(2.0 * mx_sin(x * 0.5));
         vec3 R = mx_burley_diffusion_profile(dist, shape);
-        sumD += R * max(cos(theta + x), 0.0);
+        sumD += R * max(mx_cos(theta + x), 0.0);
         sumR += R;
     }
 

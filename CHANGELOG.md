@@ -1,6 +1,8 @@
 # Change Log
 
-## [1.39.1] - Release Candidate
+## [1.39.2] - Development
+
+## [1.39.1] - 2024-09-03
 
 ### Added
 - Added initial shader translation graphs between [Standard Surface](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1934) and [OpenPBR Surface](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1949).
@@ -14,6 +16,7 @@
 ### Fixed
 - Fixed errors in the [installation steps](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1923) for CMake builds.
 - Fixed the computation of [Fresnel transmission](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1962) in GLSL.
+- Fixed an implementation of the [combine2 node](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1975) in MDL.
 - Fixed transposed matrices in color transforms for the [displayp3 space](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1960).
 - Fixed edge cases in the version upgrade process for [swizzle](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1945) [nodes](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1957).
 - Fixed a crash in the Graph Editor when [renaming a node graph](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1930).

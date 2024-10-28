@@ -13,7 +13,7 @@ mx_add_library(MaterialXRender
         ${materialx_inlined}
     HEADER_FILES
         ${materialx_headers}
-    LIBRARIES
+    MTLX_MODULES
         MaterialXGenShader
     EXPORT_DEFINE
         MATERIALX_RENDER_EXPORTS)

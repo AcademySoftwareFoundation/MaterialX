@@ -78,6 +78,15 @@ TEST_CASE("Value strings", "[value]")
     REQUIRE_THROWS_AS(mx::fromValueString<float>("text"), mx::ExceptionTypeError);
     REQUIRE_THROWS_AS(mx::fromValueString<bool>("1"), mx::ExceptionTypeError);
     REQUIRE_THROWS_AS(mx::fromValueString<mx::Color3>("1"), mx::ExceptionTypeError);
+
+    // Parse value strings using structure syntax features.
+    REQUIRE(mx::parseStructValueString("{{1;2;3};4}") == (std::vector<std::string>{"{1;2;3}","4"}));
+    REQUIRE(mx::parseStructValueString("{1;2;3;4}") == (std::vector<std::string>{"1","2","3","4"}));
+    REQUIRE(mx::parseStructValueString("{1;{2;3};4}") == (std::vector<std::string>{"1","{2;3}","4"}));
+    REQUIRE(mx::parseStructValueString("{1;{2;3;4}}") == (std::vector<std::string>{"1","{2;3;4}"}));
+    REQUIRE(mx::parseStructValueString("{1;{2;{3;4}}}") == (std::vector<std::string>{"1","{2;{3;4}}"}));
+    REQUIRE(mx::parseStructValueString("{1;2;{3};4}") == (std::vector<std::string>{"1","2","{3}","4"}));
+    REQUIRE(mx::parseStructValueString("{1;2;{3};4}") == (std::vector<std::string>{"1","2","{3}","4"}));
 }
 
 TEST_CASE("Typed values", "[value]")
