@@ -192,15 +192,18 @@ MdlShaderGenerator::MdlShaderGenerator() :
 
     // <!-- <dielectric_bsdf> -->
     registerImplementation("IM_dielectric_bsdf_" + MdlShaderGenerator::TARGET, ThinFilmReceiverNodeMdl::create);
+    registerImplementation("IM_dielectric_tf_bsdf_" + MdlShaderGenerator::TARGET, LayerableNodeMdl::create);
 
     // <!-- <conductor_bsdf> -->
     registerImplementation("IM_conductor_bsdf_" + MdlShaderGenerator::TARGET, ThinFilmReceiverNodeMdl::create);
 
     // <!-- <generalized_schlick_bsdf> -->
     registerImplementation("IM_generalized_schlick_bsdf_" + MdlShaderGenerator::TARGET, ThinFilmReceiverNodeMdl::create);
+    registerImplementation("IM_generalized_schlick_tf_82_bsdf_" + MdlShaderGenerator::TARGET, LayerableNodeMdl::create);
 
     // <!-- <sheen_bsdf> -->
     registerImplementation("IM_sheen_bsdf_" + MdlShaderGenerator::TARGET, LayerableNodeMdl::create);
+    registerImplementation("IM_sheen_zeltner_bsdf_" + MdlShaderGenerator::TARGET, LayerableNodeMdl::create);
 
     // <!-- <image> -->
     registerImplementation("IM_image_float_" + MdlShaderGenerator::TARGET, ImageNodeMdl::create);

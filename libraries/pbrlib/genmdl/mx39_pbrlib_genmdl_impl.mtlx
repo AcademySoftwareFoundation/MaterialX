@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+
+  <!-- <compensating_oren_nayar_diffuse_bsdf> -->
+  <implementation name="IM_compensating_oren_nayar_diffuse_bsdf_genmdl" nodedef="ND_compensating_oren_nayar_diffuse_bsdf" sourcecode="materialx::pbrlib_{{MDL_VERSION_SUFFIX}}::mx_oren_nayar_diffuse_bsdf(mxp_weight:{{weight}}, mxp_color:{{color}}, mxp_roughness:{{roughness}}, mxp_normal:{{normal}})" target="genmdl" />
+
+  <!-- <dielectric_tf_bsdf> -->
+  <implementation name="IM_dielectric_tf_bsdf_genmdl" nodedef="ND_dielectric_tf_bsdf" sourcecode="materialx::pbrlib_{{MDL_VERSION_SUFFIX}}::mx_dielectric_bsdf(mxp_weight:{{weight}}, mxp_tint:{{tint}}, mxp_ior:{{ior}}, mxp_roughness:{{roughness}}, mxp_thinfilm_thickness:{{thinfilm_thickness}}, mxp_thinfilm_ior:{{thinfilm_ior}}, mxp_normal:{{normal}}, mxp_tangent:{{tangent}}, mxp_distribution:{{distribution}}, mxp_scatter_mode:{{scatter_mode}}, mxp_base:{{base}})" target="genmdl" />
+
+  <!-- <generalized_schlick_tf_82_bsdf> -->
+  <implementation name="IM_generalized_schlick_tf_82_bsdf_genmdl" nodedef="ND_generalized_schlick_tf_82_bsdf" sourcecode="materialx::pbrlib_{{MDL_VERSION_SUFFIX}}::mx_generalized_schlick_bsdf(mxp_weight:{{weight}}, mxp_color0:{{color0}}, mxp_color90:{{color90}}, mxp_exponent:{{exponent}},mxp_roughness:{{roughness}}, mxp_thinfilm_thickness:{{thinfilm_thickness}}, mxp_thinfilm_ior:{{thinfilm_ior}}, mxp_normal:{{normal}}, mxp_tangent:{{tangent}}, mxp_distribution:{{distribution}}, mxp_scatter_mode:{{scatter_mode}}, mxp_base:{{base}})" target="genmdl" />
+
+  <!-- <sheen_zeltner_bsdf> -->
+  <implementation name="IM_sheen_zeltner_bsdf_genmdl" nodedef="ND_sheen_zeltner_bsdf" sourcecode="materialx::pbrlib_{{MDL_VERSION_SUFFIX}}::mx_sheen_bsdf(mxp_weight:{{weight}}, mxp_color:{{color}}, mxp_roughness:{{roughness}}, mxp_normal:{{normal}}, mxp_base:{{base}})" target="genmdl" />
+
+</materialx>

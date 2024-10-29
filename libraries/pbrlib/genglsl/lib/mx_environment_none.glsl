@@ -9,3 +9,5 @@ vec3 mx_environment_irradiance(vec3 N)
 {
     return vec3(0.0);
 }
+
+#define MX39_USING_ENVIRONMENT_NONE

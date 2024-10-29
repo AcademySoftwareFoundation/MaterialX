@@ -18,6 +18,9 @@ assign_source_group("Header Files" ${materialx_headers})
 
 if(UNIX)
     add_compile_options(-Wno-unused-function)
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+        add_compile_options(-Wno-stringop-overflow)
+    endif()
 endif()
 
 add_library(${MATERIALX_MODULE_NAME} ${materialx_source} ${materialx_headers} ${materialx_inlined})

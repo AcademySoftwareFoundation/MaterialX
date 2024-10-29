@@ -235,7 +235,8 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
     }
     else if (*primaryOutput->getType() == *Type::SURFACESHADER)
     {
-        if (nodeDefName == "ND_surface_unlit")
+        if (nodeDefName == "ND_surface_unlit" ||
+            (stringStartsWith(nodeDefName, "ND_convert_") && stringEndsWith(nodeDefName, "_surfaceshader")))
         {
             newNode->_classification = Classification::SHADER | Classification::SURFACE | Classification::UNLIT;
         }

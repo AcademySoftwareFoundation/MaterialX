@@ -67,3 +67,5 @@ vec3 mx_environment_irradiance(vec3 N)
     vec3 Li = mx_latlong_map_lookup(N, $envMatrix, 0.0, $envIrradiance);
     return Li * $envLightIntensity;
 }
+
+#define MX39_USING_ENVIRONMENT_FIS

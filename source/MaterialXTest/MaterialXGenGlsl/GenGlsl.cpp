@@ -158,6 +158,7 @@ static void generateGlslCode(GlslType type = GlslType::Glsl400)
     mx::FilePathVec testRootPaths;
     testRootPaths.push_back(searchPath.find("resources/Materials/TestSuite"));
     testRootPaths.push_back(searchPath.find("resources/Materials/Examples/StandardSurface"));
+    testRootPaths.push_back(searchPath.find("resources/Materials/Examples/OpenPbr"));
 
     const mx::FilePath logPath("genglsl_" + GlslTypeToString(type) + "_generate_test.txt");
 
