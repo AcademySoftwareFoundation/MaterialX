@@ -241,7 +241,8 @@ TYPEDESC_DEFINE_TYPE(MATERIAL, "material", TypeDesc::BASETYPE_NONE, TypeDesc::SE
 class MX_GENSHADER_API StructTypeDesc
 {
   public:
-    struct StructMemberTypeDesc {
+    struct StructMemberTypeDesc
+    {
         StructMemberTypeDesc(string name, TypeDesc typeDesc, string defaultValueStr) :
             _name(name), _typeDesc(typeDesc), _defaultValueStr(defaultValueStr)
         {
