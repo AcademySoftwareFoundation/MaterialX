@@ -152,10 +152,16 @@
       <input name="normal" type="vector3" nodename="surface_normal" />
       <input name="scatter_mode" type="string" value="T" />
     </dielectric_bsdf>
+    <ifgreater name="transmission_mix_amount" type="float">
+      <input name="value1" type="float" interfacename="opacityThreshold" />
+      <input name="value2" type="float" value="0" />
+      <input name="in1" type="float" value="1" />
+      <input name="in2" type="float" interfacename="opacity" />
+    </ifgreater>
     <mix name="transmission_mix" type="BSDF">
       <input name="fg" type="BSDF" nodename="diffuse_bsdf" />
       <input name="bg" type="BSDF" nodename="transmission_bsdf" />
-      <input name="mix" type="float" interfacename="opacity" />
+      <input name="mix" type="float" nodename="transmission_mix_amount" />
     </mix>
 
     <!-- Specular Workflow -->
