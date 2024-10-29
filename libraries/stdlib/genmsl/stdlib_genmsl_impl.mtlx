@@ -100,19 +100,6 @@
   <!-- Math nodes                                                               -->
   <!-- ======================================================================== -->
 
-  <!-- <modulo> -->
-  <implementation name="IM_modulo_float_genmsl" nodedef="ND_modulo_float" target="genmsl" sourcecode="mx_mod({{in1}}, {{in2}})" />
-  <implementation name="IM_modulo_color3_genmsl" nodedef="ND_modulo_color3" target="genmsl" sourcecode="mx_mod({{in1}}, {{in2}})" />
-  <implementation name="IM_modulo_color3FA_genmsl" nodedef="ND_modulo_color3FA" target="genmsl" sourcecode="mx_mod({{in1}}, {{in2}})" />
-  <implementation name="IM_modulo_color4_genmsl" nodedef="ND_modulo_color4" target="genmsl" sourcecode="mx_mod({{in1}}, {{in2}})" />
-  <implementation name="IM_modulo_color4FA_genmsl" nodedef="ND_modulo_color4FA" target="genmsl" sourcecode="mx_mod({{in1}}, {{in2}})" />
-  <implementation name="IM_modulo_vector2_genmsl" nodedef="ND_modulo_vector2" target="genmsl" sourcecode="mx_mod({{in1}}, {{in2}})" />
-  <implementation name="IM_modulo_vector2FA_genmsl" nodedef="ND_modulo_vector2FA" target="genmsl" sourcecode="mx_mod({{in1}}, {{in2}})" />
-  <implementation name="IM_modulo_vector3_genmsl" nodedef="ND_modulo_vector3" target="genmsl" sourcecode="mx_mod({{in1}}, {{in2}})" />
-  <implementation name="IM_modulo_vector3FA_genmsl" nodedef="ND_modulo_vector3FA" target="genmsl" sourcecode="mx_mod({{in1}}, {{in2}})" />
-  <implementation name="IM_modulo_vector4_genmsl" nodedef="ND_modulo_vector4" target="genmsl" sourcecode="mx_mod({{in1}}, {{in2}})" />
-  <implementation name="IM_modulo_vector4FA_genmsl" nodedef="ND_modulo_vector4FA" target="genmsl" sourcecode="mx_mod({{in1}}, {{in2}})" />
-
   <!-- <transformpoint> -->
   <implementation name="IM_transformpoint_vector3_genmsl" nodedef="ND_transformpoint_vector3" target="genmsl" />
 
@@ -121,10 +108,6 @@
 
   <!-- <transformnormal> -->
   <implementation name="IM_transformnormal_vector3_genmsl" nodedef="ND_transformnormal_vector3" target="genmsl" />
-
-  <!-- <invertmatrix> -->
-  <implementation name="IM_invertmatrix_matrix33_genmsl" nodedef="ND_invertmatrix_matrix33" target="genmsl" sourcecode="mx_inverse({{in}})" />
-  <implementation name="IM_invertmatrix_matrix44_genmsl" nodedef="ND_invertmatrix_matrix44" target="genmsl" sourcecode="mx_inverse({{in}})" />
 
   <!-- ======================================================================== -->
   <!-- Adjustment nodes                                                         -->

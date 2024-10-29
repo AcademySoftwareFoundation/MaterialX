@@ -42,6 +42,7 @@ export material mx_surfacematerial(
 = material(
     thin_walled: mxp_surfaceshader.thin_walled || mxp_backsurfaceshader.thin_walled,
     surface: mxp_surfaceshader.surface,
+	hair: mxp_surfaceshader.hair,
     backface: mxp_backsurfaceshader.surface,
     geometry: material_geometry(
         cutout_opacity: mxp_surfaceshader.geometry.cutout_opacity,
