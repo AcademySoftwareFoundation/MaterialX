@@ -3242,6 +3242,15 @@ void Graph::graphButtons()
     ImGui::BeginChild("Selection", ImVec2(paneWidth, 0), false, windowFlags);
     ImVec2 windowPos = ImGui::GetWindowPos();
 
+    // Update cursorInRenderView to account for other windows overlapping the Render View (e.g. Menu dropdown).
+    cursorInRenderView &= ImGui::IsWindowHovered(ImGuiHoveredFlags_None);
+
+    // Update cursorInRenderView to account for visible scrollbar and scroll amount.
+    ImGuiContext* context = ImGui::GetCurrentContext();
+    bool hasScrollbar = context->CurrentWindow->ScrollbarY;
+    cursorInRenderView &= hasScrollbar ? mousePos.x < (tempWindowPos.x + screenSize.x - ImGui::GetStyle().ScrollbarSize) : true;
+    cursorInRenderView &= hasScrollbar ? mousePos.y < (tempWindowPos.y + screenSize.y - ImGui::GetScrollY()) : true;
+
     // RenderView window
     ImVec2 wsize = ImVec2((float) _renderer->getViewWidth(), (float) _renderer->getViewHeight());
     _renderer->setViewWidth((int) screenSize[0]);
