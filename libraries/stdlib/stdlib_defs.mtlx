@@ -1347,7 +1347,7 @@
     <output name="out" type="string" default="" uniform="true" />
   </nodedef>
   <nodedef name="ND_geompropvalueuniform_filename" node="geompropvalueuniform" nodegroup="geometric">
-    <input name="geomprop" type="filename" value="" uniform="true" />
+    <input name="geomprop" type="string" value="" uniform="true" />
     <input name="default" type="filename" value="" uniform="true" />
     <output name="out" type="filename" default="" uniform="true" />
   </nodedef>

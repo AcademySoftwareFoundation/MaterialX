@@ -364,17 +364,17 @@
     <output name="out" type="boolean" nodename="primvar" />
   </nodegraph>
   <nodegraph name="IMP_UsdPrimvarReader_string" nodedef="ND_UsdPrimvarReader_string">
-    <geompropvalue name="primvar" type="string">
+    <geompropvalueuniform name="primvar" type="string">
       <input name="geomprop" type="string" interfacename="varname" />
       <input name="default" type="string" interfacename="fallback" />
-    </geompropvalue>
+    </geompropvalueuniform>
     <output name="out" type="string" nodename="primvar" uniform="true" />
   </nodegraph>
   <nodegraph name="IMP_UsdPrimvarReader_filename" nodedef="ND_UsdPrimvarReader_filename">
-    <geompropvalue name="primvar" type="string">
+    <geompropvalueuniform name="primvar" type="filename">
       <input name="geomprop" type="string" interfacename="varname" />
       <input name="default" type="filename" interfacename="fallback" />
-    </geompropvalue>
+    </geompropvalueuniform>
     <output name="out" type="filename" nodename="primvar" uniform="true" />
   </nodegraph>
   <nodegraph name="IMP_UsdPrimvarReader_float" nodedef="ND_UsdPrimvarReader_float">

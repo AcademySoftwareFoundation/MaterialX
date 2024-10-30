@@ -85,7 +85,7 @@
   <implementation name="IM_geompropvalue_vector4_genmsl" nodedef="ND_geompropvalue_vector4" function="mx_geompropvalue_vector4" target="genmsl" />
 
   <!-- <geompropvalueuniform> -->
-  <implementation name="IM_geompropvalue_string_genmsl" nodedef="ND_geompropvalueuniform_string" function="mx_geompropvalueuniform_string" target="genmsl" />
+  <implementation name="IM_geompropvalue_string_genmsl" nodedef="ND_geompropvalueuniform_string" function="mx_geompropvalue_string" target="genmsl" />
   <implementation name="IM_geompropvalue_filename_genmsl" nodedef="ND_geompropvalueuniform_filename" function="mx_geompropvalue_string" target="genmsl" />
 
   <!-- ======================================================================== -->

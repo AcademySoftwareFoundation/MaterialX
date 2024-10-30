@@ -174,8 +174,8 @@
   <implementation name="IM_geompropvalue_vector4_genmdl" nodedef="ND_geompropvalue_vector4" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_geompropvalue_vector4(mxp_geomprop:{{geomprop}}, mxp_default:{{default}})" target="genmdl" />
 
   <!-- <geompropvalueuniform> -->
-  <implementation name="IM_geompropvalueuniform_string_genmdl" nodedef="ND_geompropvalueuniform_string" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_geompropvalue_string(mxp_geomprop:{{geomprop}}, mxp_default:{{default}})" target="genmdl" />
-  <implementation name="IM_geompropvalueuniform_filename_genmdl" nodedef="ND_geompropvalueuniform_filename" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_geompropvalue_string(mxp_geomprop:{{geomprop}}, mxp_default:{{default}})" target="genmdl" />
+  <implementation name="IM_geompropvalue_string_genmdl" nodedef="ND_geompropvalueuniform_string" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_geompropvalue_string(mxp_geomprop:{{geomprop}}, mxp_default:{{default}})" target="genmdl" />
+  <implementation name="IM_geompropvalue_filename_genmdl" nodedef="ND_geompropvalueuniform_filename" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_geompropvalue_string(mxp_geomprop:{{geomprop}}, mxp_default:{{default}})" target="genmdl" />
 
   <!-- ======================================================================== -->
   <!-- Application nodes                                                        -->
