@@ -223,7 +223,7 @@ mx::ElementPredicate RenderView::getElementPredicate()
             return (_xincludeFiles.count(elem->getSourceUri()) == 0);
         }
         return true;
-        };
+    };
 }
 
 void RenderView::updateGeometrySelections()
@@ -630,6 +630,9 @@ void RenderView::initContext(mx::GenContext& context)
     unitSystem->setUnitConverterRegistry(_unitRegistry);
     context.getShaderGenerator().setUnitSystem(unitSystem);
     context.getOptions().targetDistanceUnit = "meter";
+
+    // Register struct type definitions
+    context.getShaderGenerator().loadStructTypeDefs(_document);
 }
 
 void RenderView::drawContents()

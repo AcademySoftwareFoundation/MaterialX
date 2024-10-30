@@ -78,9 +78,9 @@ void SourceCodeNodeMdl::initialize(const InterfaceElement& element, GenContext& 
             const MdlShaderGenerator& shadergenMdl = static_cast<const MdlShaderGenerator&>(shadergen);
             const string versionSuffix = shadergenMdl.getMdlVersionFilenameSuffix(context);
             StringVec code = replaceSourceCodeMarkers(getName(), functionName, [&versionSuffix](const string& marker)
-                {
-                    return marker == MARKER_MDL_VERSION_SUFFIX ? versionSuffix : EMPTY_STRING;
-                });
+            {
+                return marker == MARKER_MDL_VERSION_SUFFIX ? versionSuffix : EMPTY_STRING;
+            });
             functionName = std::accumulate(code.begin(), code.end(), EMPTY_STRING);
             _returnStruct = functionName + "__result";
         }
@@ -105,26 +105,26 @@ void SourceCodeNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& con
         {
             const string versionSuffix = shadergenMdl.getMdlVersionFilenameSuffix(context);
             StringVec code = replaceSourceCodeMarkers(node.getName(), _functionSource,
-                [&shadergenMdl, &context, &node, &versionSuffix](const string& marker)
+                                                      [&shadergenMdl, &context, &node, &versionSuffix](const string& marker)
+            {
+                // Special handling for the version suffix of MDL source code modules.
+                if (marker == MARKER_MDL_VERSION_SUFFIX)
                 {
-                    // Special handling for the version suffix of MDL source code modules.
-                    if (marker == MARKER_MDL_VERSION_SUFFIX)
+                    return versionSuffix;
+                }
+                // Insert inputs based on parameter names.
+                else
+                {
+                    const ShaderInput* input = node.getInput(marker);
+                    if (!input)
                     {
-                        return versionSuffix;
+                        throw ExceptionShaderGenError("Could not find an input named '" + marker +
+                                                      "' on node '" + node.getName() + "'");
                     }
-                    // Insert inputs based on parameter names.
-                    else
-                    {
-                        const ShaderInput* input = node.getInput(marker);
-                        if (!input)
-                        {
-                            throw ExceptionShaderGenError("Could not find an input named '" + marker +
-                                                          "' on node '" + node.getName() + "'");
-                        }
 
-                        return shadergenMdl.getUpstreamResult(input, context);
-                    }
-                });
+                    return shadergenMdl.getUpstreamResult(input, context);
+                }
+            });
 
             if (!_returnStruct.empty())
             {

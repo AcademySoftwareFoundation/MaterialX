@@ -50,3 +50,11 @@ HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
+
+----------------------------------------------------------------
+
+These files are taken from https://github.com/zeux/pugixml/tree/v1.9
+
+The following MaterialX-specific modifications have been applied the original source:
+   * Adding tracking for new-line characters
+   * Adding support for serialization of `<` and `>` instead of `&lt` and `&gt`

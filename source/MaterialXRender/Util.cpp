@@ -77,8 +77,8 @@ ShaderPtr createAlbedoTableShader(GenContext& context,
 }
 
 ShaderPtr createEnvPrefilterShader(GenContext& context,
-                                        DocumentPtr stdLib,
-                                        const string& shaderName)
+                                   DocumentPtr stdLib,
+                                   const string& shaderName)
 {
     // Construct a dummy nodegraph.
     DocumentPtr doc = createDocument();
@@ -170,7 +170,7 @@ unsigned int getUIProperties(InputPtr input, const string& target, UIProperties&
                 else
                 {
                     valueString += val;
-                    uiProperties.enumerationValues.push_back(Value::createValueFromStrings(valueString, input->getType()));
+                    uiProperties.enumerationValues.push_back(typeDesc.createValueFromStrings(valueString));
                     valueString.clear();
                     index = 0;
                 }

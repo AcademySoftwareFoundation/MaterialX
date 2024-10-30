@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38" colorspace="srgb_texture">
+<materialx version="1.39" colorspace="srgb_texture">
   <!--
   Basic image unit test with one image node for each variation in input type.
   -->

@@ -100,6 +100,19 @@ InterfaceElementPtr NodeDef::getImplementation(const string& target) const
     return InterfaceElementPtr();
 }
 
+StringMap NodeDef::getInputHints() const
+{
+    StringMap hints;
+    for (InputPtr input : getActiveInputs())
+    {
+        if (input->hasHint())
+        {
+            hints[input->getName()] = input->getHint();
+        }
+    }
+    return hints;
+}
+
 bool NodeDef::validate(string* message) const
 {
     bool res = true;
@@ -181,6 +194,14 @@ vector<UnitDefPtr> UnitTypeDef::getUnitDefs() const
         }
     }
     return unitDefs;
+}
+
+ValuePtr AttributeDef::getValue() const
+{
+    if (!hasValue())
+        return ValuePtr();
+
+    return Value::createValueFromStrings(getValueString(), getType(), getDocument()->getTypeDef(getType()));
 }
 
 MATERIALX_NAMESPACE_END

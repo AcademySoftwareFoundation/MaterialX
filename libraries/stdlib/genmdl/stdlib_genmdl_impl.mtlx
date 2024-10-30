@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
   <!--
     Copyright Contributors to the MaterialX Project
     SPDX-License-Identifier: Apache-2.0
@@ -44,8 +44,8 @@
   <!-- <triplanarprojection> -->
 
   <!-- <normalmap> -->
-  <implementation name="IM_normalmap_float_genmdl" nodedef="ND_normalmap_float" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_normalmap_float(mxp_in:{{in}}, mxp_space:{{space}}, mxp_scale:{{scale}}, mxp_normal:{{normal}}, mxp_tangent:{{tangent}})" target="genmdl" />
-  <implementation name="IM_normalmap_vector2_genmdl" nodedef="ND_normalmap_vector2" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_normalmap_vector2(mxp_in:{{in}}, mxp_space:{{space}}, mxp_scale:{{scale}}, mxp_normal:{{normal}}, mxp_tangent:{{tangent}})" target="genmdl" />
+  <implementation name="IM_normalmap_float_genmdl" nodedef="ND_normalmap_float" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_normalmap_float(mxp_in:{{in}}, mxp_scale:{{scale}}, mxp_normal:{{normal}}, mxp_tangent:{{tangent}}, mxp_bitangent:{{bitangent}})" target="genmdl" />
+  <implementation name="IM_normalmap_vector2_genmdl" nodedef="ND_normalmap_vector2" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_normalmap_vector2(mxp_in:{{in}}, mxp_scale:{{scale}}, mxp_normal:{{normal}}, mxp_tangent:{{tangent}}, mxp_bitangent:{{bitangent}})" target="genmdl" />
 
   <!-- ======================================================================== -->
   <!-- Procedural nodes                                                         -->
@@ -681,37 +681,22 @@
   <!-- ======================================================================== -->
 
   <!-- <convert> -->
-  <implementation name="IM_convert_float_color3_genmdl" nodedef="ND_convert_float_color3" target="genmdl" sourcecode="color({{in}},{{in}},{{in}})" />
-  <implementation name="IM_convert_float_color4_genmdl" nodedef="ND_convert_float_color4" target="genmdl" sourcecode="color4({{in}},{{in}},{{in}},{{in}})" />
-  <implementation name="IM_convert_float_vector2_genmdl" nodedef="ND_convert_float_vector2" target="genmdl" sourcecode="float2({{in}},{{in}})" />
-  <implementation name="IM_convert_float_vector3_genmdl" nodedef="ND_convert_float_vector3" target="genmdl" sourcecode="float3({{in}},{{in}},{{in}})" />
-  <implementation name="IM_convert_float_vector4_genmdl" nodedef="ND_convert_float_vector4" target="genmdl" sourcecode="float4({{in}},{{in}},{{in}},{{in}})" />
-  <implementation name="IM_convert_vector2_vector3_genmdl" nodedef="ND_convert_vector2_vector3" target="genmdl" sourcecode="float3({{in}}[0],{{in}}[1],0)" />
-  <implementation name="IM_convert_vector3_color3_genmdl" nodedef="ND_convert_vector3_color3" target="genmdl" sourcecode="color({{in}})" />
-  <implementation name="IM_convert_vector3_vector2_genmdl" nodedef="ND_convert_vector3_vector2" target="genmdl" sourcecode="float2({{in}}[0],{{in}}[1])" />
-  <implementation name="IM_convert_vector3_vector4_genmdl" nodedef="ND_convert_vector3_vector4" target="genmdl" sourcecode="float4({{in}}[0],{{in}}[1],{{in}}[2],1)" />
-  <implementation name="IM_convert_vector4_color4_genmdl" nodedef="ND_convert_vector4_color4" target="genmdl" sourcecode="color4({{in}}[0],{{in}}[1],{{in}}[2],{{in}}[3])" />
-  <implementation name="IM_convert_vector4_vector3_genmdl" nodedef="ND_convert_vector4_vector3" target="genmdl" sourcecode="float3({{in}}[0],{{in}}[1],{{in}}[2])" />
-  <implementation name="IM_convert_color3_vector3_genmdl" nodedef="ND_convert_color3_vector3" target="genmdl" sourcecode="float3({{in}})" />
-  <implementation name="IM_convert_color4_vector4_genmdl" nodedef="ND_convert_color4_vector4" target="genmdl" sourcecode="float4({{in}})" />
-  <implementation name="IM_convert_color3_color4_genmdl" nodedef="ND_convert_color3_color4" target="genmdl" sourcecode="color4({{in}}[0],{{in}}[1],{{in}}[2],1)" />
-  <implementation name="IM_convert_color4_color3_genmdl" nodedef="ND_convert_color4_color3" target="genmdl" sourcecode="color({{in}}[0],{{in}}[1],{{in}}[2])" />
   <implementation name="IM_convert_boolean_float_genmdl" nodedef="ND_convert_boolean_float" target="genmdl" sourcecode="float({{in}})" />
   <implementation name="IM_convert_integer_float_genmdl" nodedef="ND_convert_integer_float" target="genmdl" sourcecode="float({{in}})" />
 
   <!-- <combine2> -->
-  <implementation name="IM_combine2_vector2_genmdl" nodedef="ND_combine2_vector2" target="genmdl" sourcecode="float2( {{in1}},{{in2}} )"/>
-  <implementation name="IM_combine2_color4CF_genmdl" nodedef="ND_combine2_color4CF" target="genmdl" sourcecode="color4( {{in1}}[0],{{in1}}[1],{{in1}}[2],{{in2}} )"/>
-  <implementation name="IM_combine2_vector4VF_genmdl" nodedef="ND_combine2_vector4VF" target="genmdl" sourcecode="float4( {{in1}}[0],{{in1}}[1],{{in1}}[2],{{in2}} )"/>
-  <implementation name="IM_combine2_vector4VV_genmdl" nodedef="ND_combine2_vector4VV" target="genmdl" sourcecode="float4( {{in1}}[0],{{in1}}[1],{{in2}}[0],{{in2}}[1] )"/>
+  <implementation name="IM_combine2_vector2_genmdl" nodedef="ND_combine2_vector2" target="genmdl" sourcecode="float2( {{in1}},{{in2}} )" />
+  <implementation name="IM_combine2_color4CF_genmdl" nodedef="ND_combine2_color4CF" target="genmdl" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_combine2_color4CF({{in1}}, {{in2}})" />
+  <implementation name="IM_combine2_vector4VF_genmdl" nodedef="ND_combine2_vector4VF" target="genmdl" sourcecode="float4( {{in1}}[0],{{in1}}[1],{{in1}}[2],{{in2}} )" />
+  <implementation name="IM_combine2_vector4VV_genmdl" nodedef="ND_combine2_vector4VV" target="genmdl" sourcecode="float4( {{in1}}[0],{{in1}}[1],{{in2}}[0],{{in2}}[1] )" />
 
   <!-- <combine3> -->
-  <implementation name="IM_combine3_color3_genmdl" nodedef="ND_combine3_color3" target="genmdl" sourcecode="color( {{in1}},{{in2}},{{in3}} )"/>
-  <implementation name="IM_combine3_vector3_genmdl" nodedef="ND_combine3_vector3" target="genmdl" sourcecode="float3( {{in1}},{{in2}},{{in3}} )"/>
+  <implementation name="IM_combine3_color3_genmdl" nodedef="ND_combine3_color3" target="genmdl" sourcecode="color( {{in1}},{{in2}},{{in3}} )" />
+  <implementation name="IM_combine3_vector3_genmdl" nodedef="ND_combine3_vector3" target="genmdl" sourcecode="float3( {{in1}},{{in2}},{{in3}} )" />
 
   <!-- <combine4> -->
-  <implementation name="IM_combine4_color4_genmdl" nodedef="ND_combine4_color4" target="genmdl" sourcecode="color4( {{in1}},{{in2}},{{in3}},{{in4}} )"/>
-  <implementation name="IM_combine4_vector4_genmdl" nodedef="ND_combine4_vector4" target="genmdl" sourcecode="float4( {{in1}},{{in2}},{{in3}},{{in4}} )"/>
+  <implementation name="IM_combine4_color4_genmdl" nodedef="ND_combine4_color4" target="genmdl" sourcecode="color4( {{in1}},{{in2}},{{in3}},{{in4}} )" />
+  <implementation name="IM_combine4_vector4_genmdl" nodedef="ND_combine4_vector4" target="genmdl" sourcecode="float4( {{in1}},{{in2}},{{in3}},{{in4}} )" />
 
   <!-- <creatematrix> -->
   <implementation name="IM_creatematrix_vector3_matrix33_genmdl" nodedef="ND_creatematrix_vector3_matrix33" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_creatematrix_vector3_matrix33({{in1}}, {{in2}}, {{in3}})" target="genmdl" />
@@ -739,6 +724,14 @@
 
   <!-- <heighttonormal> -->
   <implementation name="IM_heighttonormal_vector3_genmdl" nodedef="ND_heighttonormal_vector3" target="genmdl" />
+
+  <!-- ======================================================================== -->
+  <!-- Logical operator nodes                                                   -->
+  <!-- ======================================================================== -->
+
+  <implementation name="IM_logical_and_genmdl" nodedef="ND_logical_and" target="genmdl" sourcecode="{{in1}} && {{in2}}"/>
+  <implementation name="IM_logical_or_genmdl" nodedef="ND_logical_or" target="genmdl" sourcecode="{{in1}} || {{in2}}"/>
+  <implementation name="IM_logical_not_genmdl" nodedef="ND_logical_not" target="genmdl" sourcecode="!{{in}}"/>
 
   <!-- ======================================================================== -->
   <!-- Organization nodes                                                       -->

@@ -1,0 +1,309 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+
+  <nodedef name="ND_standard_surface_to_open_pbr_surface" node="standard_surface_to_open_pbr_surface" nodegroup="translation">
+    <input name="base" type="float" value="0.8" />
+    <input name="base_color" type="color3" value="1.0, 1.0, 1.0" />
+    <input name="diffuse_roughness" type="float" value="0" />
+    <input name="metalness" type="float" value="0" />
+
+    <input name="specular" type="float" value="1" />
+    <input name="specular_color" type="color3" value="1, 1, 1" />
+    <input name="specular_roughness" type="float" value="0.2" />
+    <input name="specular_IOR" type="float" value="1.5" />
+    <input name="specular_anisotropy" type="float" value="0" />
+
+    <input name="transmission" type="float" value="0" />
+    <input name="transmission_color" type="color3" value="1, 1, 1"/>
+    <input name="transmission_depth" type="float" value="0" />
+    <input name="transmission_scatter" type="color3" value="0, 0, 0" />
+    <input name="transmission_scatter_anisotropy" type="float" value="0" />
+    <input name="transmission_dispersion" type="float" value="0" />
+    
+    <input name="subsurface" type="float" value="0" uimin="0.0" />
+    <input name="subsurface_color" type="color3" value="1, 1, 1" />
+    <input name="subsurface_radius" type="color3" value="1, 1, 1" />
+    <input name="subsurface_scale" type="float" value="1" />
+    <input name="subsurface_anisotropy" type="float" value="0" />
+
+    <input name="sheen" type="float" value="0" uimin="0.0" />
+    <input name="sheen_color" type="color3" value="1, 1, 1" />
+    <input name="sheen_roughness" type="float" value="0.3" />
+
+    <input name="coat" type="float" value="0" />
+    <input name="coat_color" type="color3" value="1, 1, 1" />
+    <input name="coat_roughness" type="float" value="0.1" />
+    <input name="coat_anisotropy" type="float" value="0.0" />
+    <input name="coat_IOR" type="float" value="1.5" />
+    <input name="coat_affect_roughness" type="float" value="0" />
+    
+    <input name="thin_film_thickness" type="float" value="0" />
+    <input name="thin_film_IOR" type="float" value="1.5" />
+
+    <input name="emission" type="float" value="0" />
+    <input name="emission_color" type="color3" value="1, 1, 1" />
+
+    <input name="opacity" type="color3" value="1, 1, 1" />
+    <input name="thin_walled" type="boolean" value="false" />
+
+    <!--Outputs-->
+    <output name="base_weight_out" type="float" />
+    <output name="base_color_out" type="color3" />
+    <output name="base_diffuse_roughness_out" type="float" />
+    <output name="base_metalness_out" type="float" />
+
+    <output name="specular_weight_out" type="float" />
+    <output name="specular_color_out" type="color3" />
+    <output name="specular_roughness_out" type="float" />
+    <output name="specular_ior_out" type="float" />
+    <output name="specular_roughness_anisotropy_out" type="float" />
+
+    <output name="transmission_weight_out" type="float" />
+    <output name="transmission_color_out" type="color3" />
+    <output name="transmission_depth_out" type="float" />
+    <output name="transmission_scatter_out" type="color3" />
+    <output name="transmission_scatter_anisotropy_out" type="float" />
+    <output name="transmission_dispersion_scale_out" type="float" />
+    
+    <output name="subsurface_weight_out" type="float" />
+    <output name="subsurface_color_out" type="color3" />
+    <output name="subsurface_radius_out" type="float" />
+    <output name="subsurface_radius_scale_out" type="color3" />
+    <output name="subsurface_scatter_anisotropy_out" type="float" />
+
+    <output name="fuzz_weight_out" type="float" />
+    <output name="fuzz_color_out" type="color3" />
+    <output name="fuzz_roughness_out" type="float" />
+
+    <output name="coat_weight_out" type="float" />
+    <output name="coat_color_out" type="color3" />
+    <output name="coat_roughness_out" type="float" />
+    <output name="coat_roughness_anisotropy_out" type="float" />
+    <output name="coat_ior_out" type="float" />
+    <output name="coat_darkening_out" type="float" />
+
+    <output name="thin_film_weight_out" type="float" />
+    <output name="thin_film_thickness_out" type="float" />
+    <output name="thin_film_ior_out" type="float" />
+
+    <output name="emission_luminance_out" type="float" />
+    <output name="emission_color_out" type="color3" />
+
+    <output name="geometry_opacity_out" type="float" />
+    <output name="geometry_thin_walled_out" type="boolean" />
+  </nodedef>
+
+  <nodegraph name="NG_standard_surface_to_open_pbr_surface" nodedef="ND_standard_surface_to_open_pbr_surface">
+
+    <!--Base-->
+    <dot name="baseWeight" type="float">
+      <input name="in" type="float" interfacename="base" />
+    </dot>
+    <mix name="coatAttenuation" type="color3">
+      <input name="fg" type="color3" interfacename="coat_color" />
+      <input name="bg" type="color3" value="1.0, 1.0, 1.0" />
+      <input name="mix" type="float" interfacename="coat" />
+    </mix>
+    <multiply name="baseColor" type="color3">
+      <input name="in1" type="color3" interfacename="base_color" />
+      <input name="in2" type="color3" nodename="coatAttenuation" />
+    </multiply>
+    <dot name="baseDiffuseRoughness" type="float">
+      <input name="in" type="float" interfacename="diffuse_roughness" />
+    </dot>
+    <dot name="baseMetalness" type="float">
+      <input name="in" type="float" interfacename="metalness" />
+    </dot>
+
+    <!--Specular-->
+    <!--In OpenPBR Surface, specular_weight controls the strength of the metallic layer, while it Standard Surface it has no effect on the metallic layer.-->
+    <ifgreater name="specWeight" type="float">
+      <input name="value1" type="float" interfacename="metalness" />
+      <input name="value2" type="float" value="0.0" />
+      <input name="in1" type="float" value="1.0" />
+      <input name="in2" type="float" interfacename="specular" />
+    </ifgreater>
+    <convert name="specVector" type="vector3">
+      <input name="in" type="color3" interfacename="specular_color" />
+    </convert>
+    <dotproduct name="dotProd" type="float">
+      <input name="in1" type="vector3" nodename="specVector" />
+      <input name="in2" type="vector3" value="1.0, 1.0, 1.0" />
+    </dotproduct>
+    <!--Intentionally ignoring the original specular_color input for metals, since the translation between these concepts will take more thought.-->
+    <ifequal name="specColor" type="color3">
+      <input name="value1" type="float" value="0.0"  />
+      <input name="value2" type="float" nodename="dotProd" />
+      <input name="in1" type="color3" value="1.0, 1.0, 1.0" />
+      <input name="in2" type="color3" interfacename="specular_color" />
+    </ifequal>
+    <dot name="specRoughness" type="float">
+      <input name="in" type="float" interfacename="specular_roughness" />
+    </dot>
+    <dot name="specIOR" type="float">
+      <input name="in" type="float" interfacename="specular_IOR" />
+    </dot>
+    <dot name="specRoughnessAnisotropy" type="float">
+      <input name="in" type="float" interfacename="specular_anisotropy" />
+    </dot>
+
+    <!--Transmission-->
+    <dot name="transmissionWeight" type="float">
+      <input name="in" type="float" interfacename="transmission" />
+    </dot>
+    <dot name="transmissionColor" type="color3">
+      <input name="in" type="color3" interfacename="transmission_color" />
+    </dot>
+    <dot name="transmissionDepth" type="float">
+      <input name="in" type="float" interfacename="transmission_depth" />
+    </dot>
+    <dot name="transmissionScatter" type="color3">
+      <input name="in" type="color3" interfacename="transmission_scatter" />
+    </dot>
+    <dot name="transmissionScatterAnisotropy" type="float">
+      <input name="in" type="float" interfacename="transmission_scatter_anisotropy" />
+    </dot>
+    <dot name="transmissionDispersion" type="float">
+      <input name="in" type="float" interfacename="transmission_dispersion" />
+    </dot>
+
+    <!--Subsurface-->
+    <dot name="subsurfaceWeight" type="float">
+      <input name="in" type="float" interfacename="subsurface" />
+    </dot>
+    <dot name="subsurfaceColor" type="color3">
+      <input name="in" type="color3" interfacename="subsurface_color" />
+    </dot>
+    <dot name="subsurfaceRadius" type="float">
+      <input name="in" type="float" interfacename="subsurface_scale" />
+    </dot>
+    <dot name="subsurfaceRadiusScale" type="color3">
+      <input name="in" type="color3" interfacename="subsurface_radius" />
+    </dot>
+    <dot name="subsurfaceAnisotropy" type="float">
+      <input name="in" type="float" interfacename="subsurface_anisotropy" />
+    </dot>
+
+    <!--Fuzz-->
+    <dot name="fuzzWeight" type="float">
+      <input name="in" type="float" interfacename="sheen" />
+    </dot>
+    <dot name="fuzzColor" type="color3">
+      <input name="in" type="color3" interfacename="sheen_color" />
+    </dot>
+    <!--Fuzz roughness translation is approximated by eye, and could potentially be improved with an analytic or ML-based solution.-->
+    <power name="fuzzRoughness" type="float">
+      <input name="in1" type="float" interfacename="sheen_roughness" />
+      <input name="in2" type="float" value="0.4" />
+    </power>
+
+    <!--Coat-->
+    <!--Standard Surface takes the approach of tinting the surface underneath by the color of this clearcoat, and that technique is how artists often create colored metals in Standard Surface. If this approach was taken, then coat_weight is set to 0 so that the color is not added redundantly.-->
+    <multiply name="coatMetallic" type="float">
+      <input name="in1" type="float" interfacename="coat" />
+      <input name="in2" type="float" interfacename="metalness" />
+    </multiply>
+    <ifgreater name="coatWeight" type="float">
+      <input name="value1" type="float" nodename="coatMetallic" />
+      <input name="value2" type="float" value="0.0" />
+      <input name="in1" type="float" value="0.0" />
+      <input name="in2" type="float" interfacename="coat" />
+    </ifgreater>
+    <dot name="coatColor" type="color3">
+      <input name="in" type="color3" interfacename="coat_color" />
+    </dot>
+    <dot name="coatRoughness" type="float">
+      <input name="in" type="float" interfacename="coat_roughness" />
+    </dot>
+    <dot name="coatAnisotropy" type="float">
+      <input name="in" type="float" interfacename="coat_anisotropy" />
+    </dot>
+    <dot name="coatIOR" type="float">
+      <input name="in" type="float" interfacename="coat_IOR" />
+    </dot>
+    <dot name="coatDarkening" type="float">
+      <input name="in" type="float" interfacename="coat_affect_roughness" />
+    </dot>
+
+    <!--ThinFilm-->
+    <multiply name="thinFilmThicknessConversion" type="float">
+      <input name="in1" type="float" interfacename="thin_film_thickness" />
+      <input name="in2" type="float" value="0.001" />
+    </multiply>
+    <ifgreater name="thinFilmWeight" type="float">
+      <input name="value1" type="float" nodename="thinFilmThicknessConversion" />
+      <input name="value2" type="float" value="0.0" />
+      <input name="in1" type="float" value="1.0" />
+      <input name="in2" type="float" value="0.0" />
+    </ifgreater>
+    <dot name="thinFilmThickness" type="float">
+      <input name="in" type="float" nodename="thinFilmThicknessConversion" />
+    </dot>
+    <dot name="thinFilmIOR" type="float">
+      <input name="in" type="float" interfacename="thin_film_IOR" />
+    </dot>
+
+    <!--Emission-->
+    <dot name="emissionLuminance" type="float">
+      <input name="in" type="float" interfacename="emission" />
+    </dot>
+    <dot name="emissionColor" type="color3">
+      <input name="in" type="color3" interfacename="emission_color" />
+    </dot>
+
+    <!--Geometry-->
+    <extract name="geometryOpacity" type="float">
+      <input name="in" type="color3" interfacename="opacity" />
+      <input name="index" type="integer" value="0" />
+    </extract>
+    <dot name="geometryThinWalled" type="boolean">
+      <input name="in" type="boolean" interfacename="thin_walled" />
+    </dot>
+
+    <!--Outputs-->
+    <output name="base_weight_out" type="float" nodename="baseWeight" />
+    <output name="base_color_out" type="color3" nodename="baseColor" />
+    <output name="base_diffuse_roughness_out" type="float" nodename="baseDiffuseRoughness" />
+    <output name="base_metalness_out" type="float" nodename="baseMetalness" />
+
+    <output name="specular_weight_out" type="float" nodename="specWeight" />
+    <output name="specular_color_out" type="color3" nodename="specColor" />
+    <output name="specular_roughness_out" type="float" nodename="specRoughness" />
+    <output name="specular_ior_out" type="float" nodename="specIOR" />
+    <output name="specular_roughness_anisotropy_out" type="float" nodename="specRoughnessAnisotropy" />
+    
+    <output name="transmission_weight_out" type="float" nodename="transmissionWeight" />
+    <output name="transmission_color_out" type="color3" nodename="transmissionColor" />
+    <output name="transmission_depth_out" type="float" nodename="transmissionDepth" />
+    <output name="transmission_scatter_out" type="color3" nodename="transmissionScatter" />
+    <output name="transmission_scatter_anisotropy_out" type="float" nodename="transmissionScatterAnisotropy" />
+    <output name="transmission_dispersion_scale_out" type="float" nodename="transmissionDispersion" />
+
+    <output name="subsurface_weight_out" type="float" nodename="subsurfaceWeight" />
+    <output name="subsurface_color_out" type="color3" nodename="subsurfaceColor" />
+    <output name="subsurface_radius_out" type="float" nodename="subsurfaceRadius" />
+    <output name="subsurface_radius_scale_out" type="color3" nodename="subsurfaceRadiusScale" />
+    <output name="subsurface_scatter_anisotropy_out" type="float" nodename="subsurfaceAnisotropy" />
+
+    <output name="fuzz_weight_out" type="float" nodename="fuzzWeight" />
+    <output name="fuzz_color_out" type="color3" nodename="fuzzColor" />
+    <output name="fuzz_roughness_out" type="float" nodename="fuzzRoughness" />
+
+    <output name="coat_weight_out" type="float" nodename="coatWeight" />
+    <output name="coat_color_out" type="color3" nodename="coatColor" />
+    <output name="coat_roughness_out" type="float" nodename="coatRoughness" />
+    <output name="coat_roughness_anisotropy_out" type="float" nodename="coatAnisotropy" />
+    <output name="coat_ior_out" type="float" nodename="coatIOR" />
+    <output name="coat_darkening_out" type="float" nodename="coatDarkening" />
+
+    <output name="thin_film_weight_out" type="float" nodename="thinFilmWeight" />
+    <output name="thin_film_thickness_out" type="float" nodename="thinFilmThickness" />
+    <output name="thin_film_ior_out" type="float" nodename="thinFilmIOR" />
+
+    <output name="emission_luminance_out" type="float" nodename="emissionLuminance" />
+    <output name="emission_color_out" type="color3" nodename="emissionColor" />
+
+    <output name="geometry_opacity_out" type="float" nodename="geometryOpacity" />
+    <output name="geometry_thin_walled_out" type="boolean" nodename="geometryThinWalled" />
+  </nodegraph>
+</materialx>

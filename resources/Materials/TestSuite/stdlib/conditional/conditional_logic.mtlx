@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+  <!--
+  Basic conditional logic function tests each test is in a separate graph.
+  -->
+  <nodegraph name="and_boolean">
+    <and name="and" type="boolean">
+      <input name="in1" type="boolean" value="true" />
+      <input name="in2" type="boolean" value="true" />
+    </and>
+    <output name="out" type="boolean" nodename="and" />
+  </nodegraph>
+  <nodegraph name="or_boolean">
+    <or name="or" type="boolean">
+      <input name="in1" type="boolean" value="true" />
+      <input name="in2" type="boolean" value="false" />
+    </or>
+    <output name="out" type="boolean" nodename="or" />
+  </nodegraph>
+  <nodegraph name="xor_boolean">
+    <xor name="xor" type="boolean">
+      <input name="in1" type="boolean" value="true" />
+      <input name="in2" type="boolean" value="false" />
+    </xor>
+    <output name="out" type="boolean" nodename="xor" />
+  </nodegraph>
+  <nodegraph name="and_boolean">
+    <not name="not" type="boolean">
+      <input name="in" type="boolean" value="false" />
+    </not>
+    <output name="out" type="boolean" nodename="not" />
+  </nodegraph>
+
+</materialx>

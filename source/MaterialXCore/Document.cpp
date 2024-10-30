@@ -12,7 +12,6 @@ MATERIALX_NAMESPACE_BEGIN
 const string Document::CMS_ATTRIBUTE = "cms";
 const string Document::CMS_CONFIG_ATTRIBUTE = "cmsconfig";
 
-
 //
 // Document factory function
 //
@@ -164,7 +163,7 @@ NodeDefPtr Document::addNodeDefFromGraph(NodeGraphPtr nodeGraph, const string& n
     {
         throw Exception("Cannot create duplicate nodegraph: " + newGraphName);
     }
-    
+
     // Create a new functional nodegraph, and copy over the
     // contents from the compound nodegraph
     NodeGraphPtr graph = addNodeGraph(newGraphName);
@@ -174,7 +173,7 @@ NodeDefPtr Document::addNodeDefFromGraph(NodeGraphPtr nodeGraph, const string& n
     {
         graphChild->removeAttribute(Element::XPOS_ATTRIBUTE);
         graphChild->removeAttribute(Element::YPOS_ATTRIBUTE);
-    }        
+    }
     graph->setNodeDefString(nodeDefName);
 
     // Create a new nodedef and set its category
@@ -182,11 +181,11 @@ NodeDefPtr Document::addNodeDefFromGraph(NodeGraphPtr nodeGraph, const string& n
     nodeDef->setNodeString(category);
 
     // Expose any existing interfaces from the graph.
-    // Any connection attributes ("nodegraph", "nodename", "interfacename") on the 
+    // Any connection attributes ("nodegraph", "nodename", "interfacename") on the
     // existing interface should be removed from the definition as well as any source URI.
 
     // Attributes which should not be copied over
-    StringSet filterAttributes = { PortElement::NODE_GRAPH_ATTRIBUTE, PortElement::NODE_NAME_ATTRIBUTE, 
+    StringSet filterAttributes = { PortElement::NODE_GRAPH_ATTRIBUTE, PortElement::NODE_NAME_ATTRIBUTE,
                                    PortElement::INTERFACE_NAME_ATTRIBUTE, Element::XPOS_ATTRIBUTE, Element::YPOS_ATTRIBUTE };
 
     // Transfer input interface from the graph to the nodedef
@@ -196,13 +195,13 @@ NodeDefPtr Document::addNodeDefFromGraph(NodeGraphPtr nodeGraph, const string& n
         if (nodeDefInput)
         {
             nodeDefInput->copyContentFrom(input);
-            for (const string& filterAttribute : filterAttributes )
+            for (const string& filterAttribute : filterAttributes)
             {
                 nodeDefInput->removeAttribute(filterAttribute);
             }
             nodeDefInput->setSourceUri(EMPTY_STRING);
             input->setInterfaceName(nodeDefInput->getName());
-        }        
+        }
     }
     // Remove interfaces from the nodegraph
     for (InputPtr input : graph->getInputs())
@@ -358,34 +357,40 @@ vector<OutputPtr> Document::getMaterialOutputs() const
 
 vector<NodeDefPtr> Document::getMatchingNodeDefs(const string& nodeName) const
 {
+    // Recurse to data library if present.
+    vector<NodeDefPtr> matchingNodeDefs = hasDataLibrary() ? 
+                                          getDataLibrary()->getMatchingNodeDefs(nodeName) :
+                                          vector<NodeDefPtr>();
+
     // Refresh the cache.
     _cache->refresh();
 
     // Return all nodedefs matching the given node name.
     if (_cache->nodeDefMap.count(nodeName))
     {
-        return _cache->nodeDefMap.at(nodeName);
+        matchingNodeDefs.insert(matchingNodeDefs.end(), _cache->nodeDefMap.at(nodeName).begin(), _cache->nodeDefMap.at(nodeName).end());
     }
-    else
-    {
-        return vector<NodeDefPtr>();
-    }
+    
+    return matchingNodeDefs;
 }
 
 vector<InterfaceElementPtr> Document::getMatchingImplementations(const string& nodeDef) const
 {
+    // Recurse to data library if present.
+    vector<InterfaceElementPtr> matchingImplementations = hasDataLibrary() ?
+                                                          getDataLibrary()->getMatchingImplementations(nodeDef) :
+                                                          vector<InterfaceElementPtr>();
+    
     // Refresh the cache.
     _cache->refresh();
 
     // Return all implementations matching the given nodedef string.
     if (_cache->implementationMap.count(nodeDef))
     {
-        return _cache->implementationMap.at(nodeDef);
+        matchingImplementations.insert(matchingImplementations.end(), _cache->implementationMap.at(nodeDef).begin(), _cache->implementationMap.at(nodeDef).end());
     }
-    else
-    {
-        return vector<InterfaceElementPtr>();
-    }
+
+    return matchingImplementations;
 }
 
 bool Document::validate(string* message) const
@@ -411,6 +416,5 @@ NodeDefPtr Document::addNodeDefFromGraph(NodeGraphPtr nodeGraph, const string& n
 {
     return addNodeDefFromGraph(nodeGraph, nodeDefName, node, newGraphName);
 }
-
 
 MATERIALX_NAMESPACE_END

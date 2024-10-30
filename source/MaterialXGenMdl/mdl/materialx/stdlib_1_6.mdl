@@ -42,6 +42,7 @@ export material mx_surfacematerial(
 = material(
     thin_walled: mxp_surfaceshader.thin_walled || mxp_backsurfaceshader.thin_walled,
     surface: mxp_surfaceshader.surface,
+	hair: mxp_surfaceshader.hair,
     backface: mxp_backsurfaceshader.surface,
     geometry: material_geometry(
         cutout_opacity: mxp_surfaceshader.geometry.cutout_opacity,
@@ -88,6 +89,24 @@ export material mx_surface_unlit(
     }
 }
 
+// Helper function provides texture lookup coordinate with `closest` lookup type support
+float2 tex_lookup_coord(float2 st, int tex_width, int tex_height, core::mx_filterlookup_type lookup_type, bool flip_v)
+{
+    float2 coord = st;
+
+    // `closest` lookup
+    if (lookup_type == core::mx_filterlookup_type_closest)
+    {
+        int2 tex_size(tex_width, tex_height);
+        coord = (math::floor(coord * tex_size) + float2(0.5)) / tex_size;
+    }
+
+    // `linear` and `cubic` uses the original coord
+    coord = flip_v ? float2(coord.x, 1.0 - coord.y) : coord;
+
+    return coord;
+}
+
 // NOTE: need to map MaterialX return type overloads to different function names
 //       or we require the mx_default to be always set explicitly
 
@@ -121,8 +140,7 @@ export float mx_image_float(
 	uniform core::mx_filterlookup_type mxp_filtertype = core::mx_filterlookup_type(core::mx_filterlookup_type_linear)	
 	[[
 		anno::description("Enumeration {closest,linear,cubic}."),
-		anno::display_name("Filter Type"),
-        anno::unused()
+		anno::display_name("Filter Type")
 	]],
 	uniform string mxp_framerange = string("")	
 	[[
@@ -160,9 +178,12 @@ export float mx_image_float(
 		return mxp_default;
 
 	float returnValue = ::tex::lookup_float(tex: mxp_file, 
-						coord: mxp_flip_v
-							? float2(mxp_texcoord.x, 1.0f - mxp_texcoord.y) 
-							: mxp_texcoord,
+						coord: tex_lookup_coord(
+							mxp_texcoord,
+							tex::width(mxp_file),
+							tex::height(mxp_file),
+							mxp_filtertype,
+							mxp_flip_v),
 						wrap_u: map_addressmode(mxp_uaddressmode),
 						wrap_v: map_addressmode(mxp_vaddressmode));
 	return returnValue;
@@ -198,8 +219,7 @@ export color mx_image_color3(
 	uniform core::mx_filterlookup_type mxp_filtertype = core::mx_filterlookup_type(core::mx_filterlookup_type_linear)	
 	[[
 		anno::description("Enumeration {closest,linear,cubic}."),
-		anno::display_name("Filter Type"),
-        anno::unused()
+		anno::display_name("Filter Type")
 	]],
 	uniform string mxp_framerange = string("")	
 	[[
@@ -237,9 +257,12 @@ export color mx_image_color3(
 		return mxp_default;
 
 	color returnValue = ::tex::lookup_color(tex: mxp_file, 
-						coord: mxp_flip_v
-							? float2(mxp_texcoord.x, 1.0f - mxp_texcoord.y) 
-							: mxp_texcoord,
+						coord: tex_lookup_coord(
+							mxp_texcoord,
+							tex::width(mxp_file),
+							tex::height(mxp_file),
+							mxp_filtertype,
+							mxp_flip_v),
 						wrap_u: map_addressmode(mxp_uaddressmode),
 						wrap_v: map_addressmode(mxp_vaddressmode));
 	return returnValue;
@@ -275,8 +298,7 @@ export core::color4 mx_image_color4(
 	uniform core::mx_filterlookup_type mxp_filtertype = core::mx_filterlookup_type(core::mx_filterlookup_type_linear)	
 	[[
 		anno::description("Enumeration {closest,linear,cubic}."),
-		anno::display_name("Filter Type"),
-        anno::unused()
+		anno::display_name("Filter Type")
 	]],
 	uniform string mxp_framerange = string("")	
 	[[
@@ -314,9 +336,12 @@ export core::color4 mx_image_color4(
 		return mxp_default;
 
 	core::color4 returnValue = core::mk_color4(::tex::lookup_float4(tex: mxp_file, 
-						coord: mxp_flip_v
-							? float2(mxp_texcoord.x, 1.0f - mxp_texcoord.y) 
-							: mxp_texcoord,
+						coord: tex_lookup_coord(
+							mxp_texcoord,
+							tex::width(mxp_file),
+							tex::height(mxp_file),
+							mxp_filtertype,
+							mxp_flip_v),
 						wrap_u: map_addressmode(mxp_uaddressmode),
 						wrap_v: map_addressmode(mxp_vaddressmode)));
 	return returnValue;
@@ -352,8 +377,7 @@ export float2 mx_image_vector2(
 	uniform core::mx_filterlookup_type mxp_filtertype = core::mx_filterlookup_type(core::mx_filterlookup_type_linear)	
 	[[
 		anno::description("Enumeration {closest,linear,cubic}."),
-		anno::display_name("Filter Type"),
-        anno::unused()
+		anno::display_name("Filter Type")
 	]],
 	uniform string mxp_framerange = string("")	
 	[[
@@ -391,9 +415,12 @@ export float2 mx_image_vector2(
 		return mxp_default;
 
 	float2 returnValue = ::tex::lookup_float2(tex: mxp_file, 
-						coord: mxp_flip_v
-							? float2(mxp_texcoord.x, 1.0f - mxp_texcoord.y) 
-							: mxp_texcoord,
+						coord: tex_lookup_coord(
+							mxp_texcoord,
+							tex::width(mxp_file),
+							tex::height(mxp_file),
+							mxp_filtertype,
+							mxp_flip_v),
 						wrap_u: map_addressmode(mxp_uaddressmode),
 						wrap_v: map_addressmode(mxp_vaddressmode));
 	return returnValue;
@@ -429,8 +456,7 @@ export float3 mx_image_vector3(
 	uniform core::mx_filterlookup_type mxp_filtertype = core::mx_filterlookup_type(core::mx_filterlookup_type_linear)	
 	[[
 		anno::description("Enumeration {closest,linear,cubic}."),
-		anno::display_name("Filter Type"),
-        anno::unused()
+		anno::display_name("Filter Type")
 	]],
 	uniform string mxp_framerange = string("")	
 	[[
@@ -468,9 +494,12 @@ export float3 mx_image_vector3(
 		return mxp_default;
 
 	float3 returnValue = ::tex::lookup_float3(tex: mxp_file, 
-						coord: mxp_flip_v
-							? float2(mxp_texcoord.x, 1.0f - mxp_texcoord.y) 
-							: mxp_texcoord,
+						coord: tex_lookup_coord(
+							mxp_texcoord,
+							tex::width(mxp_file),
+							tex::height(mxp_file),
+							mxp_filtertype,
+							mxp_flip_v),
 						wrap_u: map_addressmode(mxp_uaddressmode),
 						wrap_v: map_addressmode(mxp_vaddressmode));
 	return returnValue;
@@ -506,8 +535,7 @@ export float4 mx_image_vector4(
 	uniform core::mx_filterlookup_type mxp_filtertype = core::mx_filterlookup_type(core::mx_filterlookup_type_linear)	
 	[[
 		anno::description("Enumeration {closest,linear,cubic}."),
-		anno::display_name("Filter Type"),
-        anno::unused()
+		anno::display_name("Filter Type")
 	]],
 	uniform string mxp_framerange = string("")	
 	[[
@@ -545,9 +573,12 @@ export float4 mx_image_vector4(
 		return mxp_default;
 
 	float4 returnValue = ::tex::lookup_float4(tex: mxp_file, 
-						coord: mxp_flip_v
-							? float2(mxp_texcoord.x, 1.0f - mxp_texcoord.y) 
-							: mxp_texcoord,
+						coord: tex_lookup_coord(
+							mxp_texcoord,
+							tex::width(mxp_file),
+							tex::height(mxp_file),
+							mxp_filtertype,
+							mxp_flip_v),
 						wrap_u: map_addressmode(mxp_uaddressmode),
 						wrap_v: map_addressmode(mxp_vaddressmode));
 	return returnValue;
@@ -2094,46 +2125,32 @@ export float4 mx_transformmatrix_vector4(
 
 export float3 mx_normalmap_vector2(
 	float3 mxp_in = float3(0.5, 0.5, 1.0),
-	uniform string mxp_space = string("tangent")
-	[[
-		anno::description("Enumeration {tangent, object}.")
-	]],
 	float2 mxp_scale = float2(1.0, 1.0),
 	float3 mxp_normal = float3(::state::transform_normal(::state::coordinate_internal,::state::coordinate_world,::state::normal())),
-	float3 mxp_tangent = float3(state::transform_vector(::state::coordinate_internal,::state::coordinate_world,::state::texture_tangent_u(0)))
+	float3 mxp_tangent = float3(state::transform_vector(::state::coordinate_internal,::state::coordinate_world,::state::texture_tangent_u(0))),
+	float3 mxp_bitangent = float3(state::transform_vector(::state::coordinate_internal,::state::coordinate_world,::state::texture_tangent_v(0)))
 )
 	[[
 		anno::description("Node Group: math")
 	]]
 {
-	if (mxp_space == "tangent")
-	{
-		float3 v = mxp_in * 2.0 - 1.0;
-		float3 binormal = ::math::normalize(::math::cross(mxp_normal, mxp_tangent));
-		return ::math::normalize(mxp_tangent * v.x * mxp_scale.x + binormal * v.y * mxp_scale.y + mxp_normal * v.z);
-	}
-	else
-	{
-		float3 n = mxp_in * 2.0 - 1.0;
-		return ::math::normalize(n);
-	}
+	float3 v = (mxp_in == float3(0.0)) ? float3(0.0, 0.0, 1.0) : mxp_in * 2.0 - 1.0;
+
+	return ::math::normalize(mxp_tangent * v.x * mxp_scale.x + mxp_bitangent * v.y * mxp_scale.y + mxp_normal * v.z);
 }
 
 export float3 mx_normalmap_float(
 	float3 mxp_in = float3(0.5, 0.5, 1.0),
-	uniform string mxp_space = string("tangent")
-	[[
-		anno::description("Enumeration {tangent, object}.")
-	]],
 	float mxp_scale = float(1.0),
 	float3 mxp_normal = float3(::state::transform_normal(::state::coordinate_internal,::state::coordinate_world,::state::normal())),
-	float3 mxp_tangent = float3(state::transform_vector(::state::coordinate_internal,::state::coordinate_world,::state::texture_tangent_u(0)))
+	float3 mxp_tangent = float3(state::transform_vector(::state::coordinate_internal,::state::coordinate_world,::state::texture_tangent_u(0))),
+	float3 mxp_bitangent = float3(state::transform_vector(::state::coordinate_internal,::state::coordinate_world,::state::texture_tangent_v(0)))
 )
 	[[
 		anno::description("Node Group: math")
 	]]
 {
-	return mx_normalmap_vector2(mxp_in, mxp_space, float2(mxp_scale, mxp_scale), mxp_normal, mxp_tangent);
+	return mx_normalmap_vector2(mxp_in, float2(mxp_scale, mxp_scale), mxp_normal, mxp_tangent, mxp_bitangent);
 }
 
 export float3x3 mx_transpose_matrix33(
@@ -3716,7 +3733,7 @@ export float4x4 mx_ifequal_matrix44(
 	if (mxp_value1 == mxp_value2) { return mxp_in1; } return mxp_in2;
 }
 
-export bool mx_ifequal_float(
+export bool mx_ifequal_boolean(
 	float mxp_value1 = float(0.0),
 	float mxp_value2 = float(0.0)
 )
@@ -4450,4 +4467,10 @@ export float3 mx_worleynoise3d_float3(
 )
 {
     return noise::mx_worley_noise_float3(mxp_position, mxp_jitter, 0);
+}
+
+export core::color4 mx_combine2_color4CF(color in1, float in2)
+{
+    float3 in1_as_float3 = float3(in1);
+    return core::mk_color4(in1_as_float3.x, in1_as_float3.y, in1_as_float3.z, in2);	
 }

@@ -20,6 +20,10 @@ const string InterfaceElement::TARGET_ATTRIBUTE = "target";
 const string InterfaceElement::VERSION_ATTRIBUTE = "version";
 const string InterfaceElement::DEFAULT_VERSION_ATTRIBUTE = "isdefaultversion";
 const string Input::DEFAULT_GEOM_PROP_ATTRIBUTE = "defaultgeomprop";
+const string Input::HINT_ATTRIBUTE = "hint";
+const string Input::TRANSPARENCY_HINT = "transparency";
+const string Input::OPACITY_HINT = "opacity";
+const string Input::ANISOTROPY_HINT = "anisotropy";
 const string Output::DEFAULT_INPUT_ATTRIBUTE = "defaultinput";
 
 //
@@ -31,6 +35,9 @@ void PortElement::setConnectedNode(ConstNodePtr node)
     if (node)
     {
         setNodeName(node->getName());
+        removeAttribute(VALUE_ATTRIBUTE);
+        removeAttribute(NODE_GRAPH_ATTRIBUTE);
+        removeAttribute(INTERFACE_NAME_ATTRIBUTE);
     }
     else
     {
@@ -60,6 +67,8 @@ void PortElement::setConnectedOutput(ConstOutputPtr output)
             setNodeName(parent->getName());
             removeAttribute(NODE_GRAPH_ATTRIBUTE);
         }
+
+        removeAttribute(VALUE_ATTRIBUTE);
     }
     else
     {
@@ -235,6 +244,26 @@ NodePtr Input::getConnectedNode() const
     return PortElement::getConnectedNode();
 }
 
+void Input::setConnectedInterfaceName(const string& interfaceName)
+{
+    if (!interfaceName.empty())
+    {
+        ConstGraphElementPtr graph = getAncestorOfType<GraphElement>();
+        if (graph && graph->getInput(interfaceName))
+        {
+            setInterfaceName(interfaceName);
+            removeAttribute(VALUE_ATTRIBUTE);
+            removeAttribute(OUTPUT_ATTRIBUTE);
+            removeAttribute(NODE_GRAPH_ATTRIBUTE);
+            removeAttribute(NODE_NAME_ATTRIBUTE);
+        }
+    }
+    else
+    {
+        removeAttribute(INTERFACE_NAME_ATTRIBUTE);
+    }
+}
+
 InputPtr Input::getInterfaceInput() const
 {
     if (hasInterfaceName())
@@ -266,14 +295,19 @@ bool Input::validate(string* message) const
 
     if (hasDefaultGeomPropString())
     {
-        validateRequire(parent->isA<NodeDef>(), res, message, "Invalid defaultgeomprop on non-definition input");
+        validateRequire(parent->isA<NodeDef>() || parent->isA<NodeGraph>(), res, message, "Invalid defaultgeomprop on non-definition and non-nodegraph input");
         validateRequire(getDefaultGeomProp() != nullptr, res, message, "Invalid defaultgeomprop string");
     }
     if (parent->isA<Node>())
     {
-        bool hasValueBinding = hasValue();
-        bool hasConnection = hasNodeName() || hasNodeGraphString() || hasOutputString() || hasInterfaceName();
-        validateRequire(hasValueBinding || hasConnection, res, message, "Node input binds no value or connection");
+        int numBindings = 0;
+        if (hasValue()) numBindings++;
+        if (hasNodeName()) numBindings++;
+        if (hasNodeGraphString()) numBindings++;
+        if (hasInterfaceName()) numBindings++;
+        if (hasOutputString() && !(hasNodeName() || hasNodeGraphString()))  numBindings++;
+        validateRequire(numBindings, res, message, "Node input binds no value or connection");
+        validateRequire(numBindings <= 1, res, message, "Node input has too many bindings");
     }
     else if (parent->isA<NodeGraph>())
     {

@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
   <!-- point space transform -->
   <nodegraph name="tf_point_vector3">
     <transformpoint name="transformpoint1" type="vector3">
@@ -68,11 +68,29 @@
     </position>
   </nodegraph>
   <nodegraph name="tf_matrix4_vector4">
+    <separate3 name="separate_normal" type="multioutput">
+      <input name="in" type="vector3" nodename="normal1" />
+    </separate3>
+    <combine4 name="combine_normal" type="vector4">
+      <input name="in1" type="float" nodename="separate_normal" output="outx" />
+      <input name="in2" type="float" nodename="separate_normal" output="outy" />
+      <input name="in3" type="float" nodename="separate_normal" output="outz" />
+      <input name="in4" type="float" value="0" />
+    </combine4>
     <transformmatrix name="transformvector1" type="vector4">
-      <input name="in" type="vector4" nodename="normal1" channels="xyz0" />
+      <input name="in" type="vector4" nodename="combine_normal" />
       <input name="mat" type="matrix44" value="0.5, 0.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0" />
     </transformmatrix>
-    <output name="out" type="vector4" nodename="transformvector1" channels="xyz1" />
+    <separate4 name="separate_vector" type="multioutput">
+      <input name="in" type="vector4" nodename="transformvector1" />
+    </separate4>
+    <combine4 name="combine_vector" type="vector4">
+      <input name="in1" type="float" nodename="separate_vector" output="outx" />
+      <input name="in2" type="float" nodename="separate_vector" output="outy" />
+      <input name="in3" type="float" nodename="separate_vector" output="outz" />
+      <input name="in4" type="float" value="1" />
+    </combine4>
+    <output name="out" type="vector4" nodename="combine_vector" />
     <normal name="normal1" type="vector3">
       <input name="space" type="string" value="object" />
     </normal>
@@ -101,13 +119,17 @@
     <transformmatrix name="N_transformpt" type="vector4">
       <input name="in" type="vector4" nodename="N_convtov4" />
       <input name="mat" type="matrix44" value="1.0,0.0,0.0,0.0, 0.0,1.0,0.0,0.0, 0.0,0.0,1.0,0.0, 0.0,0.0,0.0,1.0" />
-      <!--
-         />
-      -->
     </transformmatrix>
+    <convert name="in_vector3" type="vector3">
+      <input name="in" type="vector4" nodename="N_transformpt" />
+    </convert>
+    <extract name="in_alpha" type="float">
+      <input name="in" type="vector4" nodename="N_transformpt" />
+      <input name="index" type="integer" value="3" />
+    </extract>
     <divide name="N_convtov3" type="vector3">
-      <input name="in1" type="vector3" nodename="N_transformpt" channels="xyz" />
-      <input name="in2" type="float" nodename="N_transformpt" channels="w" />
+      <input name="in1" type="vector3" nodename="in_vector3" />
+      <input name="in2" type="float" nodename="in_alpha" />
     </divide>
     <output name="N_out_vec3" type="vector3" nodename="N_convtov3" />
   </nodegraph>

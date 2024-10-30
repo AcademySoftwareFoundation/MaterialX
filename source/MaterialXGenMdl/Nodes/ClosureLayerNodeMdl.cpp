@@ -69,8 +69,9 @@ void ClosureLayerNodeMdl::emitFunctionCall(const ShaderNode& _node, GenContext& 
 
         // Join the BSDF and VDF into a single material.
         shadergen.emitLine("material " + output->getVariable() +
-                           " = material(surface: " + t + ".surface, backface: " + t +
-                           ".backface, ior: " + t + ".ior, volume: " + b + ".volume)", stage);
+                               " = material(surface: " + t + ".surface, backface: " + t +
+                               ".backface, ior: " + t + ".ior, volume: " + b + ".volume)",
+                           stage);
 
         return;
     }

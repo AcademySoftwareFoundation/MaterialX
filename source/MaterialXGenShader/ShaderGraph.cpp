@@ -81,7 +81,7 @@ void ShaderGraph::createConnectedNodes(const ElementPtr& downstreamElement,
                                        ElementPtr connectingElement,
                                        GenContext& context)
 {
-    // Create the node if it doesn't exists
+    // Create the node if it doesn't exist.
     NodePtr upstreamNode = upstreamElement->asA<Node>();
     if (!upstreamNode)
     {
@@ -93,6 +93,22 @@ void ShaderGraph::createConnectedNodes(const ElementPtr& downstreamElement,
     if (!newNode)
     {
         newNode = createNode(upstreamNode, context);
+    }
+
+    // Handle interface inputs with default geometric properties.
+    for (InputPtr activeInput : upstreamNode->getActiveInputs())
+    {
+        if (!activeInput->hasInterfaceName() || activeInput->getConnectedNode())
+        {
+            continue;
+        }
+        
+        InputPtr graphInput = activeInput->getInterfaceInput();
+        if (graphInput && graphInput->hasDefaultGeomPropString())
+        {
+            ShaderInput* shaderInput = getNode(upstreamNode->getName())->getInput(activeInput->getName());
+            addDefaultGeomNode(shaderInput, *graphInput->getDefaultGeomProp(), context);
+        }
     }
 
     //
@@ -633,14 +649,14 @@ void ShaderGraph::applyInputTransforms(ConstNodePtr node, ShaderNodePtr shaderNo
         if (input->hasValue() || input->hasInterfaceName())
         {
             string sourceColorSpace = input->getActiveColorSpace();
-            if (input->getType() == FILENAME_TYPE_STRING && node->isColorType())
+            if (input->getType() == FILENAME_TYPE_STRING && (node->isColorType() || node->isMultiOutputType()))
             {
                 // Adjust the source color space for filename interface names.
                 if (input->hasInterfaceName())
                 {
                     for (ConstNodePtr parentNode : context.getParentNodes())
                     {
-                        if (!parentNode->isColorType())
+                        if (!parentNode->isColorType() && !parentNode->isMultiOutputType())
                         {
                             InputPtr interfaceInput = parentNode->getInput(input->getInterfaceName());
                             string interfaceColorSpace = interfaceInput ? interfaceInput->getActiveColorSpace() : EMPTY_STRING;
@@ -652,9 +668,11 @@ void ShaderGraph::applyInputTransforms(ConstNodePtr node, ShaderNodePtr shaderNo
                     }
                 }
 
-                ShaderOutput* shaderOutput = shaderNode->getOutput();
-                populateColorTransformMap(colorManagementSystem, shaderOutput, sourceColorSpace, targetColorSpace, false);
-                populateUnitTransformMap(unitSystem, shaderOutput, input, targetDistanceUnit, false);
+                for (ShaderOutput* shaderOutput : shaderNode->getOutputs())
+                {
+                    populateColorTransformMap(colorManagementSystem, shaderOutput, sourceColorSpace, targetColorSpace, false);
+                    populateUnitTransformMap(unitSystem, shaderOutput, input, targetDistanceUnit, false);
+                }
             }
             else
             {
@@ -1069,7 +1087,9 @@ void ShaderGraph::populateColorTransformMap(ColorManagementSystemPtr colorManage
     if (!shaderPort ||
         sourceColorSpace.empty() ||
         targetColorSpace.empty() ||
-        sourceColorSpace == targetColorSpace)
+        sourceColorSpace == targetColorSpace ||
+        sourceColorSpace == "none" ||
+        targetColorSpace == "none")
     {
         return;
     }

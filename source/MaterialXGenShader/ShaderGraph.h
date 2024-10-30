@@ -104,7 +104,7 @@ class MX_GENSHADER_API ShaderGraph : public ShaderNode
 
     /// Add output sockets
     ShaderGraphOutputSocket* addOutputSocket(const string& name, TypeDesc type);
-    [[deprecated]] ShaderGraphOutputSocket* addOutputSocket(const string& name, const TypeDesc* type) { return addOutputSocket(name, *type);  }
+    [[deprecated]] ShaderGraphOutputSocket* addOutputSocket(const string& name, const TypeDesc* type) { return addOutputSocket(name, *type); }
 
     /// Add a default geometric node and connect to the given input.
     void addDefaultGeomNode(ShaderInput* input, const GeomPropDef& geomprop, GenContext& context);
