@@ -437,7 +437,7 @@ void ShaderNode::createMetadata(const NodeDef& nodeDef, GenContext& context)
             const string& attrValue = nodeDef.getAttribute(nodedefAttr);
             if (!attrValue.empty())
             {
-                ValuePtr value = Value::createValueFromStrings(attrValue, metadataEntry->type.getName());
+                ValuePtr value = metadataEntry->type.createValueFromStrings(attrValue);
                 if (!value)
                 {
                     value = metadataEntry->value;
@@ -472,7 +472,7 @@ void ShaderNode::createMetadata(const NodeDef& nodeDef, GenContext& context)
                     if (!attrValue.empty())
                     {
                         const TypeDesc type = metadataEntry->type != Type::NONE ? metadataEntry->type : input->getType();
-                        ValuePtr value = Value::createValueFromStrings(attrValue, type.getName());
+                        ValuePtr value = type.createValueFromStrings(attrValue);
                         if (!value)
                         {
                             value = metadataEntry->value;

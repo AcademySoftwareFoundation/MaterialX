@@ -1,6 +1,8 @@
-void mx_anisotropic_vdf(vector absorption, vector scattering, float anisotropy, output VDF vdf)
+void mx_anisotropic_vdf(color absorption, color scattering, float anisotropy, output VDF vdf)
 {
-    // TODO: Need to remap parameters to match the new closure, 
-    // or change the MaterialX spec to OSL parameterization.
-    vdf = 0;
+    // Convert from absorption and scattering coefficients to
+    // extinction coefficient and single-scattering albedo.
+    color extinction = absorption + scattering;
+    color albedo = scattering / extinction;
+    vdf = anisotropic_vdf(albedo, extinction, anisotropy);
 }

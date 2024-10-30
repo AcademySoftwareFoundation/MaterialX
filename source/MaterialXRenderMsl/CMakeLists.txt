@@ -6,7 +6,7 @@ if(POLICY CMP0072)
 endif()
 
 if(APPLE)
-    if(NOT MATERIALX_BUILD_IOS)
+    if(NOT MATERIALX_BUILD_APPLE_EMBEDDED)
         find_library(COCOA_FRAMEWORK Cocoa)
         find_package(OpenGL REQUIRED)
     endif()
@@ -26,7 +26,7 @@ mx_add_library(MaterialXRenderMsl
         ${materialx_source}
     HEADER_FILES
         ${materialx_headers}
-    LIBRARIES
+    MTLX_MODULES
         MaterialXRenderHw
         MaterialXGenMsl
     EXPORT_DEFINE
@@ -50,7 +50,7 @@ if(MSVC)
             PUBLIC
             Opengl32)
 elseif(APPLE)
-    if(NOT MATERIALX_BUILD_IOS)
+    if(NOT MATERIALX_BUILD_APPLE_EMBEDDED)
         target_link_libraries(${TARGET_NAME}
                 PUBLIC
                 "-framework Cocoa"
@@ -59,7 +59,8 @@ elseif(APPLE)
     target_link_libraries(${TARGET_NAME}
             PUBLIC
             "-framework Foundation"
-            "-framework Metal")
+            "-framework Metal"
+            "-framework MetalPerformanceShaders")
 elseif(UNIX)
     target_link_libraries(${TARGET_NAME}
             PUBLIC

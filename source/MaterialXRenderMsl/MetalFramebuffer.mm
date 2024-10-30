@@ -81,7 +81,7 @@ void MetalFramebuffer::resize(unsigned int width, unsigned int height, bool forc
                                         height:height
                                      mipmapped:NO];
         [texDescriptor setStorageMode:MTLStorageModePrivate];
-        [texDescriptor setUsage:MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead];
+        [texDescriptor setUsage:MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead | MTLTextureUsageShaderWrite];
 
         if (extColorTexture == nil)
         {

@@ -61,6 +61,7 @@ set(GLFW_INSTALL OFF)
 set(BUILD_SHARED_LIBS OFF)
 
 add_subdirectory(External/Glfw)
+set_property(TARGET glfw_minimal PROPERTY FOLDER "External")
 
 if(MSVC)
     SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /ENTRY:mainCRTStartup")
