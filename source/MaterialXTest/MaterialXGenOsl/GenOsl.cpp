@@ -93,8 +93,11 @@ TEST_CASE("GenShader: OSL Implementation Check", "[genosl]")
     generatorSkipNodeDefs.insert("ND_chiang_hair_absorption_from_color");
     generatorSkipNodeDefs.insert("ND_deon_hair_absorption_from_melanin");
     generatorSkipNodeDefs.insert("ND_chiang_hair_bsdf");
+    generatorSkipNodeDefs.insert("ND_hextiledimage_color3");
+    generatorSkipNodeDefs.insert("ND_hextiledimage_color4");
+    generatorSkipNodeDefs.insert("ND_hextilednormalmap_vector3");
 
-    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 35);
+    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 38);
 }
 
 TEST_CASE("GenShader: OSL Unique Names", "[genosl]")

@@ -50,6 +50,8 @@ class MdlShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
             _skipFiles.insert("heighttonormal_in_nodegraph.mtlx");
         }
 
+        _skipFiles.insert("hextiled.mtlx");
+
         ShaderGeneratorTester::addSkipFiles();
     }
 
