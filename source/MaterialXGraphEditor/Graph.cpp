@@ -4031,91 +4031,78 @@ void Graph::drawGraph(ImVec2 mousePos)
                 }
             }
         }
-
+        
         // shift + C is pressed
-        // build nodegraph from selected node
+        // build nodegraph from selected nodes
+        #include <iostream>
+        
         if (ImGui::IsKeyReleased(ImGuiKey_C) && 
-            io2.KeyShift &&
-            !io2.KeyCtrl) 
+            io2.KeyShift && 
+            !io2.KeyCtrl && 
+            _currUiNode != nullptr &&
+            !readOnly()) 
         {
-            // cut nodes
-            if (!readOnly())
-            {
-                _copiedNodes.clear();
+             // cut nodes
+            _copiedNodes.clear();
 
+            // since we can't have a node graph inside a node graph
+            // we check if we are already inside one or if
+            // any of the selected nodes is a nodegraph
+                
+            bool isNodeGraph = _currUiNode->getNode() == nullptr;
+
+            isNodeGraph |= _isNodeGraph;
+            
+            if (!isNodeGraph)
+            {
+
+                isNodeGraph |= _currUiNode->getNode()->getImplementation()->isA<mx::NodeGraph>();
+            
                 for (ed::NodeId selected : selectedNodes)
                 {
                     int pos = findNode((int) selected.Get());
                     if (pos >= 0)
                     {
-                        _copiedNodes.insert(std::pair<UiNodePtr, UiNodePtr>(_graphNodes[pos], nullptr));
+                        UiNodePtr node = _graphNodes[pos];
+                        
+                        if (node->getNode() != nullptr)
+                        {
+                            isNodeGraph |= node->getNode()->getImplementation()->isA<mx::NodeGraph>();
+                        }
+                        
+                        _copiedNodes.insert(
+                                std::pair<UiNodePtr, UiNodePtr>(_graphNodes[pos], 
+                                                                nullptr));                                      
                     }
                 }
-            }
-            else
-            {
-                _popup = true;
+
             }
 
             // delete nodes we just copied
-            // _isCut did not seem to work
-            // this feels scuffed ? 
-            
-            if (!readOnly())
+
+            if (!_copiedNodes.empty() && !isNodeGraph)
+
             {
+            
                 for (std::map<UiNodePtr, UiNodePtr>::iterator iter = _copiedNodes.begin(); iter != _copiedNodes.end(); iter++)
                 {
                     UiNodePtr node = iter->first;
                     deleteNode(node);
                 }
-            }
+        
+                // create subgraph
             
-            // create subgraph
-            
-            UiNodePtr nodegraphnodeptr = addNode("nodegraph", "", "");
+                UiNodePtr nodegraphnodeptr = addNode("nodegraph", "", "");
                             
-            _currUiNode = nodegraphnodeptr;
+                _currUiNode = nodegraphnodeptr;
 
-            ed::SetNodePosition(_currUiNode->getId(), mousePos);                
+                ed::SetNodePosition(_currUiNode->getId(), mousePos);                
 
-            // dive inside
+                // dive inside
             
-            if (_currUiNode != nullptr)
-            {
-                if (_currUiNode->getNode() != nullptr)
+                if (_currUiNode->getNodeGraph() != nullptr)
                 {
-                    mx::InterfaceElementPtr impl = _currUiNode->getNode()->getImplementation();
-
-                    // Only dive if current node is a node graph
-                    if (impl && impl->isA<mx::NodeGraph>())
-                    {
-                        savePosition();
-                        _graphStack.push(_graphNodes);
-                        _pinStack.push(_currPins);
-                        _sizeStack.push(_graphTotalSize);
-                        mx::NodeGraphPtr implGraph = impl->asA<mx::NodeGraph>();
-                        _initial = true;
-                        _graphNodes.clear();
-                        ed::DeselectNode(_currUiNode->getId());
-                        _currUiNode = nullptr;
-                        _currGraphElem = implGraph;
-                        if (readOnly())
-                        {
-                            std::string graphName = implGraph->getName() + " (Read Only)";
-                            _currGraphName.push_back(graphName);
-                            _popup = true;
-                        }
-                        else
-                        {
-
-                            _currGraphName.push_back(implGraph->getName());
-                        }
-                        buildUiNodeGraph(implGraph);
-                        ed::NavigateToContent();
-                    }
-                }
-                else if (_currUiNode->getNodeGraph() != nullptr)
-                {
+                
                     savePosition();
                     _graphStack.push(_graphNodes);
                     _pinStack.push(_currPins);
@@ -4128,37 +4115,22 @@ void Graph::drawGraph(ImVec2 mousePos)
                     ed::DeselectNode(_currUiNode->getId());
                     _currUiNode = nullptr;
                     _currGraphElem = implGraph;
-                    if (readOnly())
-                    {
-
-                        std::string graphName = implGraph->getName() + " (Read Only)";
-                        _currGraphName.push_back(graphName);
-                        _popup = true;
-                    }
-                    else
-                    {
-                        _currGraphName.push_back(implGraph->getName());
-                    }
+                    _currGraphName.push_back(implGraph->getName());
                     buildUiNodeGraph(implGraph);
                     ed::NavigateToContent();
                 }
-            }
             
-            // paste                                
+                // paste                                
             
-            if (!readOnly())
-            {
                 for (std::map<UiNodePtr, UiNodePtr>::iterator iter = _copiedNodes.begin(); iter != _copiedNodes.end(); iter++)
                 {
                     copyUiNode(iter->first);
                 }
                 _addNewNode = true;
             }
-            else
-            {
-                _popup = true;
-            }
-        }                
+
+        }
+                        
 
         // Set y-position of first node
         std::vector<int> outputNum = createNodes(_isNodeGraph);
