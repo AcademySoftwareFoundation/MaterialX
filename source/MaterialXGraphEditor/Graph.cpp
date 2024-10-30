@@ -1897,7 +1897,7 @@ void Graph::copyInputs()
     }
 }
 
-void Graph::addNode(const std::string& category, const std::string& name, const std::string& type)
+UiNodePtr Graph::addNode(const std::string& category, const std::string& name, const std::string& type)
 {
     mx::NodePtr node = nullptr;
     std::vector<mx::NodeDefPtr> matchingNodeDefs;
@@ -1913,7 +1913,7 @@ void Graph::addNode(const std::string& category, const std::string& name, const 
         auto outputNode = std::make_shared<UiNode>(outName, int(++_graphTotalSize));
         outputNode->setOutput(newOut);
         setUiNodeInfo(outputNode, type, category);
-        return;
+        return outputNode;
     }
     if (category == "input")
     {
@@ -1927,7 +1927,7 @@ void Graph::addNode(const std::string& category, const std::string& name, const 
         setDefaults(newIn);
         inputNode->setInput(newIn);
         setUiNodeInfo(inputNode, type, category);
-        return;
+        return inputNode;
     }
     else if (category == "group")
     {
@@ -1939,7 +1939,7 @@ void Graph::addNode(const std::string& category, const std::string& name, const 
 
         // Create ui portions of group node
         buildGroupNode(_graphNodes.back());
-        return;
+        return groupNode;
     }
     else if (category == "nodegraph")
     {
@@ -1952,7 +1952,7 @@ void Graph::addNode(const std::string& category, const std::string& name, const 
         nodeGraphNode->setNodeGraph(_graphDoc->getNodeGraphs().back());
 
         setUiNodeInfo(nodeGraphNode, type, "nodegraph");
-        return;
+        return nodeGraphNode;
     }
     else
     {
@@ -2008,7 +2008,9 @@ void Graph::addNode(const std::string& category, const std::string& name, const 
 
         _graphNodes.push_back(std::move(newNode));
         updateMaterials();
+        return newNode;
     }
+        return nullptr;
 }
 
 int Graph::getNodeId(ed::PinId pinId)
@@ -3240,15 +3242,6 @@ void Graph::graphButtons()
     ImGui::BeginChild("Selection", ImVec2(paneWidth, 0), false, windowFlags);
     ImVec2 windowPos = ImGui::GetWindowPos();
 
-    // Update cursorInRenderView to account for other windows overlapping the Render View (e.g. Menu dropdown).
-    cursorInRenderView &= ImGui::IsWindowHovered(ImGuiHoveredFlags_None);
-
-    // Update cursorInRenderView to account for visible scrollbar and scroll amount.
-    ImGuiContext* context = ImGui::GetCurrentContext();
-    bool hasScrollbar = context->CurrentWindow->ScrollbarY;
-    cursorInRenderView &= hasScrollbar ? mousePos.x < (tempWindowPos.x + screenSize.x - ImGui::GetStyle().ScrollbarSize) : true;
-    cursorInRenderView &= hasScrollbar ? mousePos.y < (tempWindowPos.y + screenSize.y - ImGui::GetScrollY()) : true;
-
     // RenderView window
     ImVec2 wsize = ImVec2((float) _renderer->getViewWidth(), (float) _renderer->getViewHeight());
     _renderer->setViewWidth((int) screenSize[0]);
@@ -4029,6 +4022,134 @@ void Graph::drawGraph(ImVec2 mousePos)
                 }
             }
         }
+
+        // shift + C is pressed
+        // build nodegraph from selected node
+        if (ImGui::IsKeyReleased(ImGuiKey_C) && 
+            io2.KeyShift &&
+            !io2.KeyCtrl) 
+        {
+            // cut nodes
+            if (!readOnly())
+            {
+                _copiedNodes.clear();
+
+                for (ed::NodeId selected : selectedNodes)
+                {
+                    int pos = findNode((int) selected.Get());
+                    if (pos >= 0)
+                    {
+                        _copiedNodes.insert(std::pair<UiNodePtr, UiNodePtr>(_graphNodes[pos], nullptr));
+                    }
+                }
+            }
+            else
+            {
+                _popup = true;
+            }
+
+            // delete nodes we just copied
+            // _isCut did not seem to work
+            // this feels scuffed ? 
+            
+            if (!readOnly())
+            {
+                for (std::map<UiNodePtr, UiNodePtr>::iterator iter = _copiedNodes.begin(); iter != _copiedNodes.end(); iter++)
+                {
+                    UiNodePtr node = iter->first;
+                    deleteNode(node);
+                }
+            }
+            
+            // create subgraph
+            
+            UiNodePtr nodegraphnodeptr = addNode("nodegraph", "", "");
+                            
+            _currUiNode = nodegraphnodeptr;
+
+            ed::SetNodePosition(_currUiNode->getId(), mousePos);                
+
+            // dive inside
+            
+            if (_currUiNode != nullptr)
+            {
+                if (_currUiNode->getNode() != nullptr)
+                {
+                    mx::InterfaceElementPtr impl = _currUiNode->getNode()->getImplementation();
+
+                    // Only dive if current node is a node graph
+                    if (impl && impl->isA<mx::NodeGraph>())
+                    {
+                        savePosition();
+                        _graphStack.push(_graphNodes);
+                        _pinStack.push(_currPins);
+                        _sizeStack.push(_graphTotalSize);
+                        mx::NodeGraphPtr implGraph = impl->asA<mx::NodeGraph>();
+                        _initial = true;
+                        _graphNodes.clear();
+                        ed::DeselectNode(_currUiNode->getId());
+                        _currUiNode = nullptr;
+                        _currGraphElem = implGraph;
+                        if (readOnly())
+                        {
+                            std::string graphName = implGraph->getName() + " (Read Only)";
+                            _currGraphName.push_back(graphName);
+                            _popup = true;
+                        }
+                        else
+                        {
+
+                            _currGraphName.push_back(implGraph->getName());
+                        }
+                        buildUiNodeGraph(implGraph);
+                        ed::NavigateToContent();
+                    }
+                }
+                else if (_currUiNode->getNodeGraph() != nullptr)
+                {
+                    savePosition();
+                    _graphStack.push(_graphNodes);
+                    _pinStack.push(_currPins);
+                    _sizeStack.push(_graphTotalSize);
+                    mx::NodeGraphPtr implGraph = _currUiNode->getNodeGraph();
+                    _initial = true;
+                    _graphNodes.clear();
+                    _isNodeGraph = true;
+                    setRenderMaterial(_currUiNode);
+                    ed::DeselectNode(_currUiNode->getId());
+                    _currUiNode = nullptr;
+                    _currGraphElem = implGraph;
+                    if (readOnly())
+                    {
+
+                        std::string graphName = implGraph->getName() + " (Read Only)";
+                        _currGraphName.push_back(graphName);
+                        _popup = true;
+                    }
+                    else
+                    {
+                        _currGraphName.push_back(implGraph->getName());
+                    }
+                    buildUiNodeGraph(implGraph);
+                    ed::NavigateToContent();
+                }
+            }
+            
+            // paste                                
+            
+            if (!readOnly())
+            {
+                for (std::map<UiNodePtr, UiNodePtr>::iterator iter = _copiedNodes.begin(); iter != _copiedNodes.end(); iter++)
+                {
+                    copyUiNode(iter->first);
+                }
+                _addNewNode = true;
+            }
+            else
+            {
+                _popup = true;
+            }
+        }                
 
         // Set y-position of first node
         std::vector<int> outputNum = createNodes(_isNodeGraph);
