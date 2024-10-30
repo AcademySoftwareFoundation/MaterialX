@@ -1,4 +1,3 @@
-#include "mx_math.glsl"
 
 // blend 3 normals by blending the gradients
 // Morten S. Mikkelsen, Surface Gradient–Based Bump Mapping Framework, Journal of

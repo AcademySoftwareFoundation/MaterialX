@@ -127,3 +127,8 @@ float mx_radians(float degree)
 {
     return (degree * M_PI_F / 180.0f);
 }
+
+vec2 mx_radians(vec2 degree)
+{
+    return (degree * M_PI_F / 180.0f);
+}

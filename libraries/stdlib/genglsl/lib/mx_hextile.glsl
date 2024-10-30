@@ -87,7 +87,7 @@ HextileData mx_hextile_coord(
     vec2 rand3 = mx_hextile_hash(vec2(id3) + seed_offset);
 
     // randomized rotation matrix
-    vec2 rr = radians(rotation_range);
+    vec2 rr = mx_radians(rotation_range);
     float rv1 = mix(rr.x, rr.y, rand1.x * rotation);
     float rv2 = mix(rr.x, rr.y, rand2.x * rotation);
     float rv3 = mix(rr.x, rr.y, rand3.x * rotation);
@@ -101,10 +101,13 @@ HextileData mx_hextile_coord(
     mat2 rm2 = mat2(cos_r2, -sin_r2, sin_r2, cos_r2);
     mat2 rm3 = mat2(cos_r3, -sin_r3, sin_r3, cos_r3);
 
+    HextileData tile_data;
+    tile_data.weights = vec3(w1, w2, w3);
+
     // rotation matrix for tangent vectors
-    mat3 trm1 = mat3(cos_r1, 0.0, sin_r1, 0.0, 1.0, 0.0, -sin_r1, 0.0, cos_r1);
-    mat3 trm2 = mat3(cos_r2, 0.0, sin_r2, 0.0, 1.0, 0.0, -sin_r2, 0.0, cos_r2);
-    mat3 trm3 = mat3(cos_r3, 0.0, sin_r3, 0.0, 1.0, 0.0, -sin_r3, 0.0, cos_r3);
+    tile_data.tangent_rot_mat1 = mat3(cos_r1, 0.0, sin_r1, 0.0, 1.0, 0.0, -sin_r1, 0.0, cos_r1);
+    tile_data.tangent_rot_mat2 = mat3(cos_r2, 0.0, sin_r2, 0.0, 1.0, 0.0, -sin_r2, 0.0, cos_r2);
+    tile_data.tangent_rot_mat3 = mat3(cos_r3, 0.0, sin_r3, 0.0, 1.0, 0.0, -sin_r3, 0.0, cos_r3);
 
     // randomized scale
     vec2 sr = scale_range;
@@ -118,27 +121,19 @@ HextileData mx_hextile_coord(
     vec2 offset3 = mix(vec2(offset_range.x), vec2(offset_range.y), rand3 * offset);
 
     // get coord
-    vec2 st1 = ((coord - ctr1) * rm1 / scale1) + ctr1 + offset1;
-    vec2 st2 = ((coord - ctr2) * rm2 / scale2) + ctr2 + offset2;
-    vec2 st3 = ((coord - ctr3) * rm3 / scale3) + ctr3 + offset3;
+    tile_data.coord1 = ((coord - ctr1) * rm1 / scale1) + ctr1 + offset1;
+    tile_data.coord2 = ((coord - ctr2) * rm2 / scale2) + ctr2 + offset2;
+    tile_data.coord3 = ((coord - ctr3) * rm3 / scale3) + ctr3 + offset3;
 
     // derivatives
     vec2 ddx = dFdx(coord);
     vec2 ddy = dFdy(coord);
-    vec2 ddx1 = ddx * rm1 / scale1;
-    vec2 ddx2 = ddx * rm2 / scale2;
-    vec2 ddx3 = ddx * rm3 / scale3;
-    vec2 ddy1 = ddy * rm1 / scale1;
-    vec2 ddy2 = ddy * rm2 / scale2;
-    vec2 ddy3 = ddy * rm3 / scale3;
-
-    HextileData tile_data = HextileData(
-        st1, st2, st3,
-        vec3(w1, w2, w3),
-        trm1, trm2, trm3,
-        ddx1, ddx2, ddx3,
-        ddy1, ddy2, ddy3
-    );
+    tile_data.ddx1 = ddx * rm1 / scale1;
+    tile_data.ddx2 = ddx * rm2 / scale2;
+    tile_data.ddx3 = ddx * rm3 / scale3;
+    tile_data.ddy1 = ddy * rm1 / scale1;
+    tile_data.ddy2 = ddy * rm2 / scale2;
+    tile_data.ddy3 = ddy * rm3 / scale3;
 
     return tile_data;
 }
