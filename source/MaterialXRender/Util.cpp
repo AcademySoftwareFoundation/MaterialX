@@ -318,7 +318,7 @@ void createUIPropertyGroups(DocumentPtr doc, const VariableBlock& block, UIPrope
 
         // Prepend a parent label for unlabeled node inputs.
         ElementPtr parent = pair.first->getParent();
-        if (item.ui.uiFolder.empty() && parent && parent->isA<Node>())
+        if (item.ui.uiName.empty() && parent && parent->isA<Node>())
         {
             item.label = parent->getName() + pathSeparator + item.label;
         }
