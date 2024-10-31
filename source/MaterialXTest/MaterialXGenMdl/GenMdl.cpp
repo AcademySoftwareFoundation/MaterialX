@@ -94,7 +94,7 @@ TEST_CASE("GenShader: MDL Implementation Check", "[genmdl]")
 
     mx::StringSet generatorSkipNodeDefs;
 
-    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 31);
+    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 30);
 }
 
 
