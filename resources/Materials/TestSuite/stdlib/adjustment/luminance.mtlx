@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+  <nodegraph name="luminance_color3">
+    <luminance name="luminance1" type="color3">
+      <input name="in" type="color3" value="1.0000, 0.7500, 0.5000" />
+    </luminance>
+    <output name="luminance_color3_out" type="color3" nodename="luminance1" />
+  </nodegraph>
+  <nodegraph name="luminance_color4">
+    <luminance name="luminance1" type="color4">
+      <input name="in" type="color4" value="1.0000, 0.7500, 0.5000, 0.2500" />
+    </luminance>
+    <output name="luminance_color4_out" type="color4" nodename="luminance1" />
+  </nodegraph>
+</materialx>

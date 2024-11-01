@@ -49,10 +49,10 @@ void mx_chiang_hair_roughness(
     float ar = clamp(azimuthal, 0.001, 1.0);
 
     // longitudinal variance
-    float v = 0.726 * lr + 0.812 * lr * lr + 3.7 * pow(lr, 20);
+    float v = 0.726 * lr + 0.812 * lr * lr + 3.7 * pow(lr, 20.0);
     v = v * v;
 
-    float s = 0.265 * ar + 1.194 * ar * ar + 5.372 * pow(ar, 22);
+    float s = 0.265 * ar + 1.194 * ar * ar + 5.372 * pow(ar, 22.0);
 
     roughness_R = vec2(v, s);
     roughness_TT = vec2(v * scale_TT * scale_TT, s);
@@ -111,7 +111,8 @@ float mx_hair_trimmed_logistic(float x, float s, float a, float b)
 
 float mx_hair_phi(int p, float gammaO, float gammaT)
 {
-    return 2.0 * p * gammaT - 2.0 * gammaO + p * M_PI;
+    float fP = float(p);
+    return 2.0 * fP * gammaT - 2.0 * gammaO + fP * M_PI;
 }
 
 float mx_hair_longitudinal_scattering(  // Mp
@@ -213,7 +214,7 @@ vec3 mx_chiang_hair_bsdf(
     float x1 = dot(L, Y);
     float y2 = dot(V, N);
     float x2 = dot(V, Y);
-    float phi = atan(y1 * x2 - y2 * x1, x1 * x2 + y1 * y2);
+    float phi = mx_atan(y1 * x2 - y2 * x1, x1 * x2 + y1 * y2);
 
     vec3 k1_p = normalize(V - X * dot(V, X));
     float cosGammaO = dot(N, k1_p);
@@ -240,20 +241,27 @@ vec3 mx_chiang_hair_bsdf(
     float alpha = cuticle_angle * M_PI - (M_PI / 2.0);  // remap [0, 1] to [-PI/2, PI/2]
     mx_hair_alpha_angles(alpha, sinThetaI, cosThetaI, angles);
 
-    vec3 tint[4] = vec3[](tint_R, tint_TT, tint_TRT, tint_TRT);
+    vec3 tint[4];
+    tint[0] = tint_R;
+    tint[1] = tint_TT;
+    tint[2] = tint_TRT;
+    tint[3] = tint_TRT;
 
     roughness_R = clamp(roughness_R, 0.001, 1.0);
     roughness_TT = clamp(roughness_TT, 0.001, 1.0);
     roughness_TRT = clamp(roughness_TRT, 0.001, 1.0);
-    vec2 vs[4] = vec2[](roughness_R, roughness_TT, roughness_TRT, roughness_TRT);
+
+    vec2 vs[4];
+    vs[0] = roughness_R;
+    vs[1] = roughness_TT;
+    vs[2] = roughness_TRT;
+    vs[3] = roughness_TRT;
 
     // R, TT, TRT, TRRT+
     vec3 F = vec3(0.0);
     for (int i = 0; i <= 3; ++i)
     {
-        if (all(lessThanEqual(tint[i], vec3(0.0))))
-            continue;
-
+        tint[i] = max(tint[i], vec3(0.0));
         float Mp = mx_hair_longitudinal_scattering(angles[i].x, angles[i].y, sinThetaO, cosThetaO, vs[i].x);
         float Np = (i == 3) ?  (1.0 / 2.0 * M_PI) : mx_hair_azimuthal_scattering(phi, i, vs[i].y, gammaO, gammaT);
         F += Mp * Np * tint[i] * Ap[i];

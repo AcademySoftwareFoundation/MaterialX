@@ -233,8 +233,11 @@ FileSearchPath getDefaultDataSearchPath()
 
     FileSearchPath searchPath;
     #if defined(BUILD_APPLE_FRAMEWORK)
+        #if defined(TARGET_OS_IPHONE)
+        const FilePath FRAMEWORK_RESOURCES("Assets");
+        #else
         const FilePath FRAMEWORK_RESOURCES("Resources");
-
+        #endif
         Dl_info info;
         if (dladdr(reinterpret_cast<void*>(&getDefaultDataSearchPath), &info))
         {
