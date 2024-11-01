@@ -1,4 +1,5 @@
 #include "lib/$fileTransformUv"
+#include "lib/mx_math.glsl"
 #include "lib/mx_hextile.glsl"
 #include "lib/mx_geometry.glsl"
 
@@ -40,12 +41,15 @@ void mx_hextilednormalmap_vector3(
     nm1 = 2.0 * nm1 - 1.0;
     nm2 = 2.0 * nm2 - 1.0;
     nm3 = 2.0 * nm3 - 1.0;
-    vec3 T1 = T * tile_data.tangent_rot_mat1 * strength;
-    vec3 T2 = T * tile_data.tangent_rot_mat2 * strength;
-    vec3 T3 = T * tile_data.tangent_rot_mat3 * strength;
-    vec3 B1 = B * tile_data.tangent_rot_mat1 * strength;
-    vec3 B2 = B * tile_data.tangent_rot_mat2 * strength;
-    vec3 B3 = B * tile_data.tangent_rot_mat3 * strength;
+    mat3 tangent_rot_mat1 = mx_axis_rotation_matrix(N, -tile_data.rot_radian1);
+    mat3 tangent_rot_mat2 = mx_axis_rotation_matrix(N, -tile_data.rot_radian2);
+    mat3 tangent_rot_mat3 = mx_axis_rotation_matrix(N, -tile_data.rot_radian3);
+    vec3 T1 = tangent_rot_mat1 * T * strength;
+    vec3 T2 = tangent_rot_mat2 * T * strength;
+    vec3 T3 = tangent_rot_mat3 * T * strength;
+    vec3 B1 = tangent_rot_mat1 * B * strength;
+    vec3 B2 = tangent_rot_mat2 * B * strength;
+    vec3 B3 = tangent_rot_mat3 * B * strength;
     vec3 N1 = normalize(T1 * nm1.x + B1 * nm1.y + N * nm1.z);
     vec3 N2 = normalize(T2 * nm2.x + B2 * nm2.y + N * nm2.z);
     vec3 N3 = normalize(T3 * nm3.x + B3 * nm3.y + N * nm3.z);

@@ -22,9 +22,9 @@ struct HextileData
     vec2 coord2;
     vec2 coord3;
     vec3 weights;
-    mat3 tangent_rot_mat1;
-    mat3 tangent_rot_mat2;
-    mat3 tangent_rot_mat3;
+    float rot_radian1;
+    float rot_radian2;
+    float rot_radian3;
     vec2 ddx1;
     vec2 ddx2;
     vec2 ddx3;
@@ -101,14 +101,6 @@ HextileData mx_hextile_coord(
     mat2 rm2 = mat2(cos_r2, -sin_r2, sin_r2, cos_r2);
     mat2 rm3 = mat2(cos_r3, -sin_r3, sin_r3, cos_r3);
 
-    HextileData tile_data;
-    tile_data.weights = vec3(w1, w2, w3);
-
-    // rotation matrix for tangent vectors
-    tile_data.tangent_rot_mat1 = mat3(cos_r1, 0.0, sin_r1, 0.0, 1.0, 0.0, -sin_r1, 0.0, cos_r1);
-    tile_data.tangent_rot_mat2 = mat3(cos_r2, 0.0, sin_r2, 0.0, 1.0, 0.0, -sin_r2, 0.0, cos_r2);
-    tile_data.tangent_rot_mat3 = mat3(cos_r3, 0.0, sin_r3, 0.0, 1.0, 0.0, -sin_r3, 0.0, cos_r3);
-
     // randomized scale
     vec2 sr = scale_range;
     vec2 scale1 = vec2(mix(1.0, mix(sr.x, sr.y, rand1.y), scale));
@@ -119,6 +111,12 @@ HextileData mx_hextile_coord(
     vec2 offset1 = mix(vec2(offset_range.x), vec2(offset_range.y), rand1 * offset);
     vec2 offset2 = mix(vec2(offset_range.x), vec2(offset_range.y), rand2 * offset);
     vec2 offset3 = mix(vec2(offset_range.x), vec2(offset_range.y), rand3 * offset);
+
+    HextileData tile_data;
+    tile_data.weights = vec3(w1, w2, w3);
+    tile_data.rot_radian1 = rv1;
+    tile_data.rot_radian2 = rv2;
+    tile_data.rot_radian3 = rv3;
 
     // get coord
     tile_data.coord1 = ((coord - ctr1) * rm1 / scale1) + ctr1 + offset1;

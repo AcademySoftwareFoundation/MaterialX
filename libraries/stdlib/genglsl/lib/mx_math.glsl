@@ -33,3 +33,15 @@ vec3 mx_srgb_encode(vec3 color)
     vec3 powSeg = 1.055 * pow(max(color, vec3(0.0)), vec3(1.0 / 2.4)) - 0.055;
     return mix(linSeg, powSeg, isAbove);
 }
+
+mat3 mx_axis_rotation_matrix(vec3 a, float r)
+{
+    float s = sin(r);
+    float c = cos(r);
+    float omc = 1.0 - c;
+    return mat3(
+        a.x*a.x*omc + c,     a.x*a.y*omc - a.x*s, a.x*a.z*omc + a.y*s,
+        a.y*a.x*omc + a.z*s, a.y*a.y*omc + c,     a.y*a.z*omc - a.x*s,
+        a.z*a.x*omc - a.y*s, a.z*a.y*omc + a.x*s, a.z*a.z*omc + c
+    );
+}
