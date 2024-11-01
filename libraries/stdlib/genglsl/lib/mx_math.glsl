@@ -1,3 +1,6 @@
+#ifndef MX_MATH_GLSL
+#define MX_MATH_GLSL
+
 #define M_FLOAT_EPS 1e-8
 
 #define mx_mod mod
@@ -45,3 +48,5 @@ mat3 mx_axis_rotation_matrix(vec3 a, float r)
         a.z*a.x*omc - a.y*s, a.z*a.y*omc + a.x*s, a.z*a.z*omc + c
     );
 }
+
+#endif // MX_MATH_GLSL

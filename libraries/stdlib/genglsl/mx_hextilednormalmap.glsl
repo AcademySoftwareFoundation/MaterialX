@@ -1,4 +1,5 @@
 #include "lib/$fileTransformUv"
+#include "lib/mx_math.glsl"
 #include "lib/mx_hextile.glsl"
 #include "lib/mx_geometry.glsl"
 
