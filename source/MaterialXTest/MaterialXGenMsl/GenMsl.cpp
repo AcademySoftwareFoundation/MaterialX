@@ -84,15 +84,11 @@ TEST_CASE("GenShader: MSL Implementation Check", "[genmsl]")
 
     mx::StringSet generatorSkipNodeTypes;
     mx::StringSet generatorSkipNodeDefs;
-    generatorSkipNodeDefs.insert("ND_chiang_hair_roughness");
-    generatorSkipNodeDefs.insert("ND_chiang_hair_absorption_from_color");
-    generatorSkipNodeDefs.insert("ND_deon_hair_absorption_from_melanin");
-    generatorSkipNodeDefs.insert("ND_chiang_hair_bsdf");
     generatorSkipNodeDefs.insert("ND_hextiledimage_color3");
     generatorSkipNodeDefs.insert("ND_hextiledimage_color4");
     generatorSkipNodeDefs.insert("ND_hextilednormalmap_vector3");
 
-    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 37);
+    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 33);
 }
 
 TEST_CASE("GenShader: MSL Unique Names", "[genmsl]")

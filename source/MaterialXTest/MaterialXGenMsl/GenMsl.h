@@ -43,8 +43,6 @@ class MslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
 
     void addSkipFiles() override
     {
-        _skipFiles.insert("hair_bsdf.mtlx");
-        _skipFiles.insert("hair_surfaceshader.mtlx");
         _skipFiles.insert("hextiled.mtlx");
     }
 
