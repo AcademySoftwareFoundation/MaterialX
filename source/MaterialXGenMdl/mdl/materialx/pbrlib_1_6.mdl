@@ -266,7 +266,7 @@ export material mx_conductor_bsdf(
 export material mx_generalized_schlick_bsdf(
     float  mxp_weight    = 1.0,
     color  mxp_color0    = color(1.0),
-    color  mxp_color82   = color(1.0) [[ anno::unused() ]], // MDL 1.10
+    color  mxp_color82   = color(1.0), // MDL 1.10
     color  mxp_color90   = color(1.0),
     float  mxp_exponent  = 5.0,
     float2 mxp_roughness = float2(0.05),
@@ -306,7 +306,7 @@ export material mx_generalized_schlick_bsdf(
             layer: mxp_scatter_mode == mx_scatter_mode_T
                 ? df::color_custom_curve_layer(
                     normal_reflectivity: mxp_color0,
-                    grazing_reflectivity: mxp_color90,
+                    grazing_reflectivity: mxp_color82 * mxp_color90,
                     exponent: mxp_exponent,
                     layer: bsdf(),
                     base: ggx_model_T,
@@ -316,7 +316,7 @@ export material mx_generalized_schlick_bsdf(
                     ior: color(coatIor),
                     base: df::color_custom_curve_layer(
                         normal_reflectivity: mxp_color0,
-                        grazing_reflectivity: mxp_color90,
+                        grazing_reflectivity: mxp_color82 * mxp_color90,
                         exponent: mxp_exponent,
                         layer: ggx_model_R,
                         base: mxp_scatter_mode == mx_scatter_mode_R 
