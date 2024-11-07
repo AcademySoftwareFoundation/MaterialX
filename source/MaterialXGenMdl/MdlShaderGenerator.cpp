@@ -193,6 +193,27 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
         emitLineBreak(stage);
     }
 
+    // Emit shader inputs that have been filtered during printing of the public interface
+    const string uniformPrefix = _syntax->getUniformQualifier() + " ";
+    for (ShaderGraphInputSocket* inputSocket : graph.getInputSockets())
+    {
+        if (inputSocket->getConnections().size() &&
+            (inputSocket->getType().getSemantic() == TypeDesc::SEMANTIC_SHADER ||
+             inputSocket->getType().getSemantic() == TypeDesc::SEMANTIC_CLOSURE ||
+             inputSocket->getType().getSemantic() == TypeDesc::SEMANTIC_MATERIAL))
+        {
+            const string& qualifier = inputSocket->isUniform() || inputSocket->getType() == Type::FILENAME 
+                ? uniformPrefix 
+                : EMPTY_STRING;
+            const string& type = _syntax->getTypeName(inputSocket->getType());
+
+            emitLineBegin(stage);
+            emitString(qualifier + type + " " + inputSocket->getVariable() + " = ", stage);
+            emitString(_syntax->getDefaultValue(inputSocket->getType(), true), stage);
+            emitLineEnd(stage, true);
+        }
+    }
+
     // Emit all texturing nodes. These are inputs to any
     // closure/shader nodes and need to be emitted first.
     emitFunctionCalls(graph, context, stage, ShaderNode::Classification::TEXTURE);
@@ -548,6 +569,13 @@ ShaderPtr MdlShaderGenerator::createShader(const string& name, ElementPtr elemen
         // and are editable by users.
         if (inputSocket->getConnections().size() && graph->isEditable(*inputSocket))
         {
+            if (inputSocket->getType().getSemantic() == TypeDesc::SEMANTIC_SHADER ||
+                inputSocket->getType().getSemantic() == TypeDesc::SEMANTIC_CLOSURE ||
+                inputSocket->getType().getSemantic() == TypeDesc::SEMANTIC_MATERIAL)
+            {
+                continue;
+            }
+
             inputs->add(inputSocket->getSelf());
         }
     }
