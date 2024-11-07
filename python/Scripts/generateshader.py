@@ -107,6 +107,7 @@ def main():
         codeSearchPath.append(os.path.dirname(inputFilename))
         context = mx_gen_shader.GenContext(shadergen)
         context.registerSourceCodeSearchPath(codeSearchPath)
+        shadergen.registerTypeDefs(doc, context)
 
         # If we're generating Vulkan-compliant GLSL then set the binding context
         if opts.vulkanCompliantGlsl:
