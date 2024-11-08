@@ -1012,7 +1012,7 @@ const MslProgram::InputMap& MslProgram::updateUniformsList()
             _uniformList[v->getVariable()] = inputPtr;
             inputPtr->isConstant = true;
             inputPtr->value = v->getValue();
-            inputPtr->typeString = v->getType().getName();
+            inputPtr->typeString = v->getTypeName();
             inputPtr->path = v->getPath();
         }
 
@@ -1035,11 +1035,11 @@ const MslProgram::InputMap& MslProgram::updateUniformsList()
 
                 const auto populateUniformInput =
                     [this, uniforms, variablePath, variableSemantic, &errors, &uniformTypeMismatchFound]
-                    (TypeDesc variableTypeDesc, const StructMemberDescVec* variableStructMembers, const string& variableName, ConstValuePtr variableValue) -> void
+                    (TypeDesc variableTypeDesc, const string& variableTypeName, const StructMemberDescVec* variableStructMembers, const string& variableName, ConstValuePtr variableValue) -> void
                 {
                     auto populateUniformInput_impl =
                         [this, uniforms, variablePath, variableSemantic, &errors, &uniformTypeMismatchFound]
-                        (TypeDesc variableTypeDesc, const StructMemberDescVec* variableStructMembers, const string& variableName, ConstValuePtr variableValue, auto& populateUniformInput_ref) -> void
+                        (TypeDesc variableTypeDesc, const string& variableTypeName, const StructMemberDescVec* variableStructMembers, const string& variableName, ConstValuePtr variableValue, auto& populateUniformInput_ref) -> void
                     {
                         // There is no way to match with an unnamed variable
                         if (variableName.empty())
@@ -1076,14 +1076,14 @@ const MslProgram::InputMap& MslProgram::updateUniformsList()
                                 input->value = variableValue;
                                 if (input->resourceType == resourceType)
                                 {
-                                    input->typeString = variableTypeDesc.getName();
+                                    input->typeString = variableTypeName;
                                 }
                                 else
                                 {
                                     errors.push_back(
                                         "Pixel shader uniform block type mismatch [" + uniforms.getName() + "]. "
                                         + "Name: \"" + variableName
-                                        + "\". Type: \"" + variableTypeDesc.getName()
+                                        + "\". Type: \"" + variableTypeName
                                         + "\". Semantic: \"" + variableSemantic
                                         + "\". Value: \"" + (variableValue ? variableValue->getValueString() : "<none>")
                                         + "\". resourceType: " + std::to_string(mapTypeToMetalType(variableTypeDesc))
@@ -1101,15 +1101,15 @@ const MslProgram::InputMap& MslProgram::updateUniformsList()
                                 auto memberVariableName = variableName+"."+structMember.getName();
                                 auto memberVariableValue = aggregateValue->getMemberValue(i);
 
-                                populateUniformInput_ref(structMember.getTypeDesc(), structMember.getSubMembers().get(), memberVariableName, memberVariableValue, populateUniformInput_ref);
+                                populateUniformInput_ref(structMember.getTypeDesc(), structMember.getTypeName(), structMember.getSubMembers().get(), memberVariableName, memberVariableValue, populateUniformInput_ref);
                             }
                         }
                     };
 
-                    return populateUniformInput_impl(variableTypeDesc, variableStructMembers, variableName, variableValue, populateUniformInput_impl);
+                    return populateUniformInput_impl(variableTypeDesc, variableTypeName, variableStructMembers, variableName, variableValue, populateUniformInput_impl);
                 };
 
-                populateUniformInput(v->getType(), v->getStructMembers(), v->getVariable(), v->getValue());
+                populateUniformInput(v->getType(), v->getTypeName(), v->getStructMembers(), v->getVariable(), v->getValue());
             }
         }
 
@@ -1126,7 +1126,7 @@ const MslProgram::InputMap& MslProgram::updateUniformsList()
                     Input* input = inputIt->second.get();
                     if (input->resourceType == mapTypeToMetalType(v->getType()))
                     {
-                        input->typeString = v->getType().getName();
+                        input->typeString = v->getTypeName();
                         input->value = v->getValue();
                         input->path = v->getPath();
                         input->unit = v->getUnit();
@@ -1136,7 +1136,7 @@ const MslProgram::InputMap& MslProgram::updateUniformsList()
                         errors.push_back(
                             "Vertex shader uniform block type mismatch [" + uniforms.getName() + "]. "
                             + "Name: \"" + v->getVariable()
-                            + "\". Type: \"" + v->getType().getName()
+                            + "\". Type: \"" + v->getTypeName()
                             + "\". Semantic: \"" + v->getSemantic()
                             + "\". Value: \"" + (v->getValue() ? v->getValue()->getValueString() : "<none>")
                             + "\". Unit: \"" + (!v->getUnit().empty() ? v->getUnit() : "<none>")
@@ -1540,13 +1540,13 @@ const MslProgram::InputMap& MslProgram::updateAttributesList()
                     input->value = v->getValue();
                     if (input->resourceType == mapTypeToMetalType(v->getType()))
                     {
-                        input->typeString = v->getType().getName();
+                        input->typeString = v->getTypeName();
                     }
                     else
                     {
                         errors.push_back(
                             "Vertex shader attribute type mismatch in block. Name: \"" + v->getVariable()
-                            + "\". Type: \"" + v->getType().getName()
+                            + "\". Type: \"" + v->getTypeName()
                             + "\". Semantic: \"" + v->getSemantic()
                             + "\". Value: \"" + (v->getValue() ? v->getValue()->getValueString() : "<none>")
                             + "\". resourceType: " + std::to_string(mapTypeToMetalType(v->getType()))

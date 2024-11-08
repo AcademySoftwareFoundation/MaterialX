@@ -929,7 +929,7 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
             _uniformList[v->getVariable()] = inputPtr;
             inputPtr->isConstant = true;
             inputPtr->value = v->getValue();
-            inputPtr->typeString = v->getType().getName();
+            inputPtr->typeString = v->getTypeName();
             inputPtr->path = v->getPath();
         }
 
@@ -954,16 +954,16 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
 
                 const auto populateUniformInput =
                     [this, variablePath, variableUnit, variableColorspace, variableSemantic, &errors, uniforms, &uniformTypeMismatchFound]
-                    (TypeDesc typedesc, const StructMemberDescVec* variableStructMembers, const string& variableName, ConstValuePtr variableValue) -> void
+                    (TypeDesc variableTypedesc, const string& variableTypeName, const StructMemberDescVec* variableStructMembers, const string& variableName, ConstValuePtr variableValue) -> void
                 {
                     auto populateUniformInput_impl =
                         [this, variablePath, variableUnit, variableColorspace, variableSemantic, &errors, uniforms, &uniformTypeMismatchFound]
-                        (TypeDesc typedesc, const StructMemberDescVec* variableStructMembers, const string& variableName, ConstValuePtr variableValue, auto& populateUniformInput_ref) -> void
+                        (TypeDesc variableTypedesc, const string& variableTypeName, const StructMemberDescVec* variableStructMembers, const string& variableName, ConstValuePtr variableValue, auto& populateUniformInput_ref) -> void
                     {
-                        if (!typedesc.isStruct() || !variableStructMembers)
+                        if (!variableTypedesc.isStruct() || !variableStructMembers)
                         {
                             // Handle non-struct types
-                            int glType = mapTypeToOpenGLType(typedesc);
+                            int glType = mapTypeToOpenGLType(variableTypedesc);
 
                             // There is no way to match with an unnamed variable
                             if (variableName.empty())
@@ -987,14 +987,14 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
                                 input->value = variableValue;
                                 if (input->gltype == glType)
                                 {
-                                    input->typeString = typedesc.getName();
+                                    input->typeString = variableTypeName;
                                 }
                                 else
                                 {
                                     errors.push_back(
                                         "Pixel shader uniform block type mismatch [" + uniforms.getName() + "]. "
                                         + "Name: \"" + variableName
-                                        + "\". Type: \"" + typedesc.getName()
+                                        + "\". Type: \"" + variableTypeName
                                         + "\". Semantic: \"" + variableSemantic
                                         + "\". Value: \"" + (variableValue ? variableValue->getValueString() : "<none>")
                                         + "\". Unit: \"" + (!variableUnit.empty() ? variableUnit : "<none>")
@@ -1011,19 +1011,18 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
                             for (size_t i = 0, n = variableStructMembers->size(); i < n; ++i)
                             {
                                 const auto& structMember = variableStructMembers->at(i);
-                                auto memberTypeDesc = structMember.getTypeDesc();
                                 auto memberVariableName = variableName + "." + structMember.getName();
                                 auto memberVariableValue = aggregateValue->getMemberValue(i);
 
-                                populateUniformInput_ref(memberTypeDesc, structMember.getSubMembers().get(), memberVariableName, memberVariableValue, populateUniformInput_ref);
+                                populateUniformInput_ref(structMember.getTypeDesc(), structMember.getTypeName(), structMember.getSubMembers().get(), memberVariableName, memberVariableValue, populateUniformInput_ref);
                             }
                         }
                     };
 
-                    return populateUniformInput_impl(typedesc, variableStructMembers, variableName, variableValue, populateUniformInput_impl);
+                    return populateUniformInput_impl(variableTypedesc, variableTypeName, variableStructMembers, variableName, variableValue, populateUniformInput_impl);
                 };
 
-                populateUniformInput(v->getType(), v->getStructMembers(), v->getVariable(), v->getValue());
+                populateUniformInput(v->getType(), v->getTypeName(), v->getStructMembers(), v->getVariable(), v->getValue());
             }
         }
 
@@ -1040,7 +1039,7 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
                     Input* input = inputIt->second.get();
                     if (input->gltype == mapTypeToOpenGLType(v->getType()))
                     {
-                        input->typeString = v->getType().getName();
+                        input->typeString = v->getTypeName();
                         input->value = v->getValue();
                         input->path = v->getPath();
                         input->unit = v->getUnit();
@@ -1051,7 +1050,7 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
                         errors.push_back(
                             "Vertex shader uniform block type mismatch [" + uniforms.getName() + "]. "
                             + "Name: \"" + v->getVariable()
-                            + "\". Type: \"" + v->getType().getName()
+                            + "\". Type: \"" + v->getTypeName()
                             + "\". Semantic: \"" + v->getSemantic()
                             + "\". Value: \"" + (v->getValue() ? v->getValue()->getValueString() : "<none>")
                             + "\". Unit: \"" + (!v->getUnit().empty() ? v->getUnit() : "<none>")
@@ -1169,13 +1168,13 @@ const GlslProgram::InputMap& GlslProgram::updateAttributesList()
                     input->value = v->getValue();
                     if (input->gltype == mapTypeToOpenGLType(v->getType()))
                     {
-                        input->typeString = v->getType().getName();
+                        input->typeString = v->getTypeName();
                     }
                     else
                     {
                         errors.push_back(
                             "Vertex shader attribute type mismatch in block. Name: \"" + v->getVariable()
-                            + "\". Type: \"" + v->getType().getName()
+                            + "\". Type: \"" + v->getTypeName()
                             + "\". Semantic: \"" + v->getSemantic()
                             + "\". Value: \"" + (v->getValue() ? v->getValue()->getValueString() : "<none>")
                             + "\". GLType: " + std::to_string(mapTypeToOpenGLType(v->getType()))

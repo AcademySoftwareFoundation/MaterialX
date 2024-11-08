@@ -24,7 +24,7 @@ TEST_CASE("GenShader: OSL Syntax", "[genosl]")
     mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
     mx::DocumentPtr libraries = mx::createDocument();
     mx::loadLibraries({ "libraries" }, searchPath, libraries);
-    context.getShaderGenerator().registerTypeDefs(libraries, context);
+    context.registerTypeDefs(libraries);
 
     mx::SyntaxPtr syntax = mx::OslSyntax::create();
 
@@ -173,7 +173,7 @@ TEST_CASE("GenShader: OSL Metadata", "[genosl]")
     mx::ShaderGeneratorPtr generator = mx::OslShaderGenerator::create();
     mx::GenContext context(mx::OslShaderGenerator::create());
     context.registerSourceCodeSearchPath(searchPath);
-    context.getShaderGenerator().registerTypeDefs(doc, context);
+    context.registerTypeDefs(doc);
 
     // Metadata to export must be registered in the context before shader generation starts.
     // Custom generators can override this method to customize which metadata gets registered.

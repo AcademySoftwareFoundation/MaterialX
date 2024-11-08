@@ -15,10 +15,11 @@ MATERIALX_NAMESPACE_BEGIN
 // ColorSpaceTransform methods
 //
 
-ColorSpaceTransform::ColorSpaceTransform(const string& ss, const string& ts, TypeDesc t) :
+ColorSpaceTransform::ColorSpaceTransform(const string& ss, const string& ts, TypeDesc t, const string& tn) :
     sourceSpace(ss),
     targetSpace(ts),
-    type(t)
+    type(t),
+    typeName(tn)
 {
     if (type != Type::COLOR3 && type != Type::COLOR4)
     {

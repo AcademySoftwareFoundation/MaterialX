@@ -44,7 +44,7 @@ class PyColorManagementSystem : public mx::ColorManagementSystem
 void bindPyColorManagement(py::module& mod)
 {
     py::class_<mx::ColorSpaceTransform>(mod, "ColorSpaceTransform")
-        .def(py::init<const std::string&, const std::string&, mx::TypeDesc>())
+        .def(py::init<const std::string&, const std::string&, mx::TypeDesc, const std::string&>())
         .def_readwrite("sourceSpace", &mx::ColorSpaceTransform::sourceSpace)
         .def_readwrite("targetSpace", &mx::ColorSpaceTransform::targetSpace)
         .def_readwrite("type", &mx::ColorSpaceTransform::type);

@@ -4,6 +4,7 @@
 //
 
 #include <MaterialXGenShader/TypeDesc.h>
+#include <MaterialXGenShader/GenContext.h>
 
 #include <emscripten/bind.h>
 

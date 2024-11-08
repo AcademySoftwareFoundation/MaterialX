@@ -72,7 +72,8 @@ const TypeSyntax& Syntax::getTypeSyntax(TypeDesc type) const
     auto it = _typeSyntaxIndexByType.find(type);
     if (it == _typeSyntaxIndexByType.end())
     {
-        throw ExceptionShaderGenError("No syntax is defined for the given type '" + type.getName() + "'.");
+        // todo - decide if we want to add a GenContext here report the type name in the error
+        throw ExceptionShaderGenError("No syntax is defined for the given type '" + std::to_string(type.typeId()) + "'.");
     }
     return *_typeSyntaxes[it->second];
 }
@@ -208,7 +209,7 @@ void Syntax::registerStructTypeDescSyntax(const GenContext& context)
         if (!typeDesc.isStruct() || !structMemberDescs)
             continue;
 
-        string structTypeName = typeDesc.getName();
+        string structTypeName = typeDesc.getName(context);
         string defaultValue = structTypeName + "( ";
         string uniformDefaultValue = EMPTY_STRING;
         string typeAlias = EMPTY_STRING;
@@ -217,7 +218,7 @@ void Syntax::registerStructTypeDescSyntax(const GenContext& context)
         for (const auto& structMemberDesc : *structMemberDescs)
         {
             string memberName = structMemberDesc.getName();
-            string memberType = structMemberDesc.getTypeDesc().getName();
+            string memberType = structMemberDesc.getTypeDesc().getName(context);
             string memberDefaultValue = structMemberDesc.getDefaultValueStr();
 
             defaultValue += memberDefaultValue + ", ";

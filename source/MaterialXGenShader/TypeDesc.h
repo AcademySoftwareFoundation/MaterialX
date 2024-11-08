@@ -31,10 +31,7 @@ MATERIALX_NAMESPACE_BEGIN
 /// must be done in order to access the type's name later using getName() and to find the
 /// type by name using TypeDesc::get().
 ///
-
-// TODO - This is no longer true - should this be removed? or edited?
-
-/// The class is a POD type of 64-bits and can efficiently be stored and passed by value.
+/// The class is a POD type and can efficiently be stored and passed by value.
 /// Type compare operations and hash operations are done using a precomputed hash value.
 ///
 class MX_GENSHADER_API TypeDesc
@@ -90,7 +87,7 @@ class MX_GENSHADER_API TypeDesc
     uint32_t typeId() const { return _id; }
 
     /// Return the name of the type.
-    const string& getName() const;
+    const string& getName(const GenContext& context) const;
 
     /// Return the basetype for the type.
     unsigned char getBaseType() const { return _basetype; }
@@ -182,7 +179,8 @@ class MX_GENSHADER_API TypeDesc
 
 /// Macro to define global type descriptions for commonly used types.
 #define TYPEDESC_DEFINE_TYPE(T, name, basetype, semantic, size) \
-    static constexpr TypeDesc T(name, basetype, semantic, size);
+    static constexpr TypeDesc T(name, basetype, semantic, size);\
+    inline const string& T##_typeName() { static string typeName = name; return typeName; }
 
 namespace Type
 {
@@ -234,74 +232,30 @@ using ConstStructMemberDescVecPtr = shared_ptr<const StructMemberDescVec>;
 class StructMemberDesc
 {
   public:
-    StructMemberDesc(string name, TypeDesc typeDesc, string defaultValueStr, ConstStructMemberDescVecPtr submembers) :
+    StructMemberDesc(string name, TypeDesc typeDesc, string typeName, string defaultValueStr, ConstStructMemberDescVecPtr submembers) :
         _name(name),
         _typeDesc(typeDesc),
+        _typeName(typeName),
         _defaultValueStr(defaultValueStr),
         _subMembers(submembers)
     {
     }
     const string& getName() const { return _name; }
     TypeDesc getTypeDesc() const { return _typeDesc; }
+    const string& getTypeName() const { return _typeName; }
     const string& getDefaultValueStr() const { return _defaultValueStr; }
     ConstStructMemberDescVecPtr getSubMembers() const { return _subMembers; }
 
   private:
     string _name;
     TypeDesc _typeDesc;
+    string _typeName;
     string _defaultValueStr;
 
     // Its necessary for a member to recursively store its submembers to allow for
     // downstream uses of the StructMemberTypeDesc when there is no type registry
     // in GenContext object available.
     ConstStructMemberDescVecPtr _subMembers;
-};
-
-// TODO - this class is only used once inside GenContext.
-// we need to decide if we want to fold this inside GenContext.
-// One advantage of folding it in would be to reduce the API surface.
-
-class MX_GENSHADER_API TypeDescStorage
-{
-  public:
-    using TypeDescMap = std::unordered_map<string, TypeDesc>;
-
-    TypeDescStorage() noexcept {}
-
-    void registerTypeDesc(TypeDesc type, const string& name);
-    TypeDesc getTypeDesc(const string& name) const
-    {
-        auto it = _typeMap.find(name);
-        return it != _typeMap.end() ? it->second : Type::NONE;
-    }
-    vector<TypeDesc> getStructTypeDescs() const
-    {
-        vector<TypeDesc> result;
-        for (const auto& it : _typeMap)
-        {
-            if (it.second.isStruct())
-            {
-                result.emplace_back(it.second);
-            }
-        }
-        return result;
-    }
-
-    uint16_t registerStructMembers(ConstStructMemberDescVecPtr structTypeDesc);
-    ConstStructMemberDescVecPtr getStructMembers(TypeDesc typeDesc) const
-    {
-        if (!typeDesc.isStruct())
-            return nullptr;
-
-        return _structTypeStorage[typeDesc.getStructIndex()];
-    }
-
-  private:
-    using StructMemberDescVecStorage = vector<ConstStructMemberDescVecPtr>;
-
-    // Internal storage of registered type descriptors
-    TypeDescMap _typeMap;
-    StructMemberDescVecStorage _structTypeStorage;
 };
 
 MATERIALX_NAMESPACE_END

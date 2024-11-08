@@ -25,7 +25,7 @@ TEST_CASE("GenShader: MSL Syntax Check", "[genmsl]")
     mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
     mx::DocumentPtr libraries = mx::createDocument();
     mx::loadLibraries({ "libraries" }, searchPath, libraries);
-    context.getShaderGenerator().registerTypeDefs(libraries, context);
+    context.registerTypeDefs(libraries);
 
     mx::SyntaxPtr syntax = mx::MslSyntax::create();
 
@@ -113,7 +113,7 @@ TEST_CASE("GenShader: MSL Bind Light Shaders", "[genmsl]")
 
     mx::GenContext context(mx::MslShaderGenerator::create());
     context.registerSourceCodeSearchPath(searchPath);
-    context.getShaderGenerator().registerTypeDefs(doc, context);
+    context.registerTypeDefs(doc);
 
     mx::HwShaderGenerator::bindLightShader(*pointLightShader, 42, context);
     REQUIRE_THROWS(mx::HwShaderGenerator::bindLightShader(*spotLightShader, 42, context));

@@ -409,7 +409,7 @@ void ShaderGenerator::registerStructTypeDefs(const DocumentPtr& doc, GenContext&
             // such as the MaterialXRender.
             ConstStructMemberDescVecPtr submembers = context.getStructMembers(memberType);
 
-            structMemberDescs->emplace_back( StructMemberDesc(memberName, memberType, memberDefaultValue, submembers) );
+            structMemberDescs->emplace_back( StructMemberDesc(memberName, memberType, memberTypeName, memberDefaultValue, submembers) );
         }
 
         auto structIndex = context.registerStructMembers(structMemberDescs);

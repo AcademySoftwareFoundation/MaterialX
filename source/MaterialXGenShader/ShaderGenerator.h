@@ -191,6 +191,8 @@ class MX_GENSHADER_API ShaderGenerator
         return _tokenSubstitutions;
     }
 
+    // TODO - revist const-ness here - i don't think we really mean "const DocumentPtr" I think we mean "ConstDocumentPtr"
+    // or perhaps even just "const Document&"
     void registerTypeDefs(const DocumentPtr& doc, GenContext& context);
 
     /// Register metadata that should be exported to the generated shaders.

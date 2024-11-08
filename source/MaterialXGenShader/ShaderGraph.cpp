@@ -216,7 +216,7 @@ void ShaderGraph::addDefaultGeomNode(ShaderInput* input, const GeomPropDef& geom
     {
         // Find the nodedef for the geometric node referenced by the geomprop. Use the type of the
         // input here and ignore the type of the geomprop. They are required to have the same type.
-        string geomNodeDefName = "ND_" + geomprop.getGeomProp() + "_" + input->getType().getName();
+        string geomNodeDefName = "ND_" + geomprop.getGeomProp() + "_" + input->getTypeName();
         NodeDefPtr geomNodeDef = _document->getNodeDef(geomNodeDefName);
         if (!geomNodeDef)
         {
@@ -1102,7 +1102,7 @@ void ShaderGraph::populateColorTransformMap(ColorManagementSystemPtr colorManage
         // Update the color transform map, if a color management system is provided.
         if (colorManagementSystem)
         {
-            ColorSpaceTransform transform(sourceColorSpace, targetColorSpace, shaderPort->getType());
+            ColorSpaceTransform transform(sourceColorSpace, targetColorSpace, shaderPort->getType(), shaderPort->getTypeName());
             if (colorManagementSystem->supportsTransform(transform))
             {
                 if (asInput)
@@ -1165,7 +1165,7 @@ void ShaderGraph::populateUnitTransformMap(UnitSystemPtr unitSystem, ShaderPort*
                           shaderPort->getType() == Type::VECTOR4);
     if (supportedType)
     {
-        UnitTransform transform(sourceUnitSpace, targetUnitSpace, shaderPort->getType(), unitType);
+        UnitTransform transform(sourceUnitSpace, targetUnitSpace, shaderPort->getType(), shaderPort->getTypeName(), unitType);
         if (unitSystem->supportsTransform(transform))
         {
             shaderPort->setUnit(sourceUnitSpace);

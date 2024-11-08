@@ -27,7 +27,7 @@ TEST_CASE("GenShader: MDL Syntax", "[genmdl]")
     mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
     mx::DocumentPtr libraries = mx::createDocument();
     mx::loadLibraries({ "libraries" }, searchPath, libraries);
-    context.getShaderGenerator().registerTypeDefs(libraries, context);
+    context.registerTypeDefs(libraries);
 
     mx::SyntaxPtr syntax = mx::MdlSyntax::create();
 

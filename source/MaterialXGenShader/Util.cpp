@@ -228,7 +228,7 @@ bool isTransparentShaderGraph(OutputPtr output, const string& target, NodePtr in
             NodeDefPtr nodeDef = node->getNodeDef();
             if (nodeDef)
             {
-                if (nodeDef->getType() == Type::BSDF.getName())
+                if (nodeDef->getType() == Type::BSDF_typeName())
                 {
                     InterfaceElementPtr impl = nodeDef->getImplementation(target);
                     if (impl && impl->isA<NodeGraph>())

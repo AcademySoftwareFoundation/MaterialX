@@ -280,7 +280,7 @@ void testUniqueNames(mx::GenContext& context, const std::string& stage)
     mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
     loadLibraries({ "libraries/targets", "libraries/stdlib" }, searchPath, doc);
 
-    context.getShaderGenerator().registerTypeDefs(doc, context);
+    context.registerTypeDefs(doc);
 
     const std::string exampleName = "unique_names";
 
@@ -582,7 +582,7 @@ void ShaderGeneratorTester::findLights(mx::DocumentPtr doc, std::vector<mx::Node
     lights.clear();
     for (mx::NodePtr node : doc->getNodes())
     {
-        if (node->getType() == mx::Type::LIGHTSHADER.getName())
+        if (node->getType() == mx::Type::LIGHTSHADER_typeName())
         {
             lights.push_back(node);
         }

@@ -109,6 +109,80 @@ void GenContext::getOutputSuffix(const ShaderOutput* output, string& suffix) con
     }
 }
 
+//
+// TypeDesc storage methods
+//
+
+void GenContext::registerTypeDefs(const DocumentPtr doc)
+{
+    getShaderGenerator().registerTypeDefs(doc, *this);
+}
+
+void GenContext::registerTypeDesc(TypeDesc typeDesc, const string& name)
+{
+    _typeDescMap[name] = typeDesc;
+
+    // TODO - decide if we need to make this more threadsafe
+    // typeID is just a hash of the string value - so while
+    // we might set this entry multiple times - it's always going to be
+    // the same value...
+    // TODO - consider using OIIO::ustring?
+
+    // TODO - decide what it means to re-register the same type over again.
+    // We could...
+    // 1) Just blindly register this type on top of the existing type name.
+    // 2) Ignore any types where the names are already registered
+    // 3) When a type is re-registered we could go compare the existing registered type against the
+    // new candidate type, and raise an error if they differ.
+
+    _typeDescNameMap[typeDesc.typeId()] = name;
+}
+
+TypeDesc GenContext::getTypeDesc(const string& name) const
+{
+    auto it = _typeDescMap.find(name);
+    return it != _typeDescMap.end() ? it->second : Type::NONE;
+}
+
+const string& GenContext::getTypeDescName(TypeDesc typeDesc) const
+{
+    auto it = _typeDescNameMap.find(typeDesc.typeId());
+    return it != _typeDescNameMap.end() ? it->second : TypeDesc::NONE_TYPE_NAME;
+}
+
+uint16_t GenContext::registerStructMembers(ConstStructMemberDescVecPtr structTypeDesc)
+{
+    if (_structMemberDescStorage.size() >= std::numeric_limits<uint16_t>::max())
+    {
+        throw ExceptionShaderGenError("Maximum number of custom struct types has been exceeded.");
+    }
+    uint16_t index = static_cast<uint16_t>(_structMemberDescStorage.size());
+    _structMemberDescStorage.emplace_back(structTypeDesc);
+    return index;
+}
+
+ConstStructMemberDescVecPtr GenContext::getStructMembers(TypeDesc typeDesc) const
+{
+    if (!typeDesc.isStruct())
+        return nullptr;
+
+    return GenContext::_structMemberDescStorage[typeDesc.getStructIndex()];
+}
+
+vector<TypeDesc> GenContext::getStructTypeDescs() const
+{
+    vector<TypeDesc> result;
+    for (const auto& it : _typeDescMap)
+    {
+        if (it.second.isStruct())
+        {
+            result.emplace_back(it.second);
+        }
+    }
+    return result;
+}
+
+
 ScopedSetClosureParams::ScopedSetClosureParams(const ClosureContext::ClosureParams* params, const ShaderNode* node, ClosureContext* cct) :
     _cct(cct),
     _node(node),

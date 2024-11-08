@@ -82,13 +82,13 @@ ShaderPort* VariableBlock::add(TypeDesc type, const GenContext& context, const s
         else if (type != it->second->getType())
         {
             throw ExceptionShaderGenError("Trying to add shader port '" + name + "' with type '" +
-                                          type.getName() + "', but existing shader port with type '" +
-                                          it->second->getType().getName() + "' was found");
+                                          type.getName(context) + "', but existing shader port with type '" +
+                                          it->second->getTypeName() + "' was found");
         }
         return it->second.get();
     }
 
-    ShaderPortPtr port = std::make_shared<ShaderPort>(nullptr, type, name, context.getStructMembers(type), value);
+    ShaderPortPtr port = std::make_shared<ShaderPort>(nullptr, type, type.getName(context), name, context.getStructMembers(type), value);
     _variableMap[name] = port;
     _variableOrder.push_back(port.get());
 

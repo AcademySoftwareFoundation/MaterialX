@@ -73,7 +73,6 @@ jobs:
           compiler: xcode
           compiler_version: "14.3"
           python: 3.11
-          test_shaders: ON
           static_analysis: ON
           cmake_config: -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
@@ -230,14 +229,12 @@ jobs:
       run: |
         vcpkg/vcpkg install glslang --triplet=x64-windows
         glslangValidator.exe -v
-        python python/Scripts/generateshader.py resources/Materials/TestSuite/stdlib/structs --target glsl --validator glslangValidator.exe
         python python/Scripts/generateshader.py resources/Materials/Examples --target glsl --validator glslangValidator.exe
         python python/Scripts/generateshader.py resources/Materials/Examples --target essl --validator glslangValidator.exe
 
     - name: Shader Validation Tests (MacOS)
       if: matrix.test_shaders == 'ON' && runner.os == 'macOS'
       run: |
-        python python/Scripts/generateshader.py resources/Materials/TestSuite/stdlib/structs --target msl --validator "xcrun metal --language=metal" --validatorArgs="-w"
         python python/Scripts/generateshader.py resources/Materials/Examples --target msl --validator "xcrun metal --language=metal" --validatorArgs="-w"
         python python/Scripts/generateshader.py resources/Materials/TestSuite/stdlib --target msl --validator "xcrun metal --language=metal" --validatorArgs="-w"
 

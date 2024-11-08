@@ -318,7 +318,7 @@ void MslMaterial::modifyUniform(const std::string& path, ConstValuePtr value, st
     {
         valueString = value->getValueString();
     }
-    uniform->setValue(Value::createValueFromStrings(valueString, uniform->getType().getName()));
+    uniform->setValue(Value::createValueFromStrings(valueString, uniform->getTypeName()));
     if (_doc)
     {
         ElementPtr element = _doc->getDescendant(uniform->getPath());

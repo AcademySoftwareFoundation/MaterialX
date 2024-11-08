@@ -59,7 +59,7 @@ NodeDefPtr DefaultColorManagementSystem::getNodeDef(const ColorSpaceTransform& t
     {
         for (OutputPtr output : nodeDef->getOutputs())
         {
-            if (output->getType() == transform.type.getName())
+            if (output->getType() == transform.typeName)
             {
                 return nodeDef;
             }

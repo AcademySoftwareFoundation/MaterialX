@@ -15,7 +15,7 @@ namespace mx = MaterialX;
 void bindPyUnitSystem(py::module& mod)
 {
     py::class_<mx::UnitTransform>(mod, "UnitTransform")
-        .def(py::init<const std::string&, const std::string&, mx::TypeDesc, const std::string&>())
+        .def(py::init<const std::string&, const std::string&, mx::TypeDesc, const std::string&, const std::string&>())
         .def_readwrite("sourceUnit", &mx::UnitTransform::sourceUnit)
         .def_readwrite("targetUnit", &mx::UnitTransform::targetUnit)
         .def_readwrite("type", &mx::UnitTransform::type)

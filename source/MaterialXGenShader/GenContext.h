@@ -21,6 +21,9 @@ MATERIALX_NAMESPACE_BEGIN
 
 class ClosureContext;
 
+class Document;
+using DocumentPtr = shared_ptr<Document>;
+
 /// A standard function to allow for handling of application variables for a given node
 using ApplicationVariableHandler = std::function<void(ShaderNode*, GenContext&)>;
 
@@ -224,30 +227,20 @@ class MX_GENSHADER_API GenContext
     // TypeDesc methods
     //
 
-    TypeDesc getTypeDesc(const string& name) const
-    {
-        return _typeDescs.getTypeDesc(name);
-    }
+    void registerTypeDefs(const DocumentPtr doc);
 
-    void registerTypeDesc(TypeDesc T, const string& name)
-    {
-        _typeDescs.registerTypeDesc(T, name);
-    }
+    void registerTypeDesc(TypeDesc typeDesc, const string& name);
 
-    uint16_t registerStructMembers(ConstStructMemberDescVecPtr structTypeDesc)
-    {
-        return _typeDescs.registerStructMembers(structTypeDesc);
-    }
+    TypeDesc getTypeDesc(const string& name) const;
 
-    ConstStructMemberDescVecPtr getStructMembers(TypeDesc typeDesc) const
-    {
-        return _typeDescs.getStructMembers(typeDesc);
-    }
+    const string& getTypeDescName(TypeDesc typeDesc) const;
 
-    vector<TypeDesc> getStructTypeDescs() const
-    {
-        return _typeDescs.getStructTypeDescs();
-    }
+    uint16_t registerStructMembers(ConstStructMemberDescVecPtr structTypeDesc);
+
+    ConstStructMemberDescVecPtr getStructMembers(TypeDesc typeDesc) const;
+
+    vector<TypeDesc> getStructTypeDescs() const;
+
 
   protected:
     GenContext() = delete;
@@ -268,11 +261,14 @@ class MX_GENSHADER_API GenContext
     ApplicationVariableHandler _applicationVariableHandler;
 
   private:
-    // TODO - Decide if we want to keep this object - or unfold its contents inside this class.
-    // This object contains all the TypeDesc and StructMemberDescs.
-    // The methods above just wrap and expose this storage.
-    // This is useful as a separate object if we ever think we might want to use it outside of Shader Generation.
-    TypeDescStorage _typeDescs;
+    // Internal storage of registered type descriptors
+    using TypeDescMap = std::unordered_map<string, TypeDesc>;
+    using TypeDescNameMap = std::unordered_map<uint32_t, string>;
+    using StructMemberDescVecStorage = vector<ConstStructMemberDescVecPtr>;
+
+    TypeDescMap _typeDescMap;
+    TypeDescNameMap _typeDescNameMap;
+    StructMemberDescVecStorage _structMemberDescStorage;
 };
 
 /// @class ClosureContext
