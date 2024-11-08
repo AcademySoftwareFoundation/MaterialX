@@ -417,7 +417,17 @@ void ShaderGenerator::registerStructTypeDefs(const DocumentPtr& doc, GenContext&
         context.registerTypeDesc(TypeDesc(typeDefName, TypeDesc::BASETYPE_STRUCT, TypeDesc::SEMANTIC_NONE, 1, structIndex), typeDefName);
     }
 
+    for (const auto& typeDesc : context.getStructTypeDescs())
+    {
+        printf("STRUCT TYPEDEF '%s'\n", typeDesc.getName().c_str());
+    }
+
     _syntax->registerStructTypeDescSyntax(context);
+
+    for (const auto& it : _syntax->getTypeSyntaxes())
+    {
+        printf("SYNTAX : '%s'\n", it->getName().c_str());
+    }
 }
 
 namespace
