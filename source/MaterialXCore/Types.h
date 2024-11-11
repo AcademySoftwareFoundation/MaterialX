@@ -34,6 +34,7 @@ extern MX_CORE_API const string SURFACE_MATERIAL_NODE_STRING;
 extern MX_CORE_API const string VOLUME_MATERIAL_NODE_STRING;
 extern MX_CORE_API const string MULTI_OUTPUT_TYPE_STRING;
 extern MX_CORE_API const string NONE_TYPE_STRING;
+extern MX_CORE_API const string COMMENT_TYPE_STRING;
 extern MX_CORE_API const string VALUE_STRING_TRUE;
 extern MX_CORE_API const string VALUE_STRING_FALSE;
 extern MX_CORE_API const string NAME_PREFIX_SEPARATOR;

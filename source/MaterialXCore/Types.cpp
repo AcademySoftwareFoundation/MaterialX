@@ -23,6 +23,7 @@ const string SURFACE_MATERIAL_NODE_STRING = "surfacematerial";
 const string VOLUME_MATERIAL_NODE_STRING = "volumematerial";
 const string MULTI_OUTPUT_TYPE_STRING = "multioutput";
 const string NONE_TYPE_STRING = "none";
+const string COMMENT_TYPE_STRING = "comment";
 const string VALUE_STRING_TRUE = "true";
 const string VALUE_STRING_FALSE = "false";
 const string NAME_PREFIX_SEPARATOR = ":";
