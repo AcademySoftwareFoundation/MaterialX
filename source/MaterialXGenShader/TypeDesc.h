@@ -16,6 +16,10 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
+class StructMemberDesc;
+using StructMemberDescVec = vector<StructMemberDesc>;
+using ConstStructMemberDescVecPtr = shared_ptr<const StructMemberDescVec>;
+
 // TODO - update this documentation once the code has been reviewed...
 
 /// @class TypeDesc
@@ -63,22 +67,22 @@ class MX_GENSHADER_API TypeDesc
     };
 
     /// Empty constructor.
-    constexpr TypeDesc() noexcept :
+    TypeDesc() noexcept :
         _id(0),
         _basetype(BASETYPE_NONE),
         _semantic(SEMANTIC_NONE),
         _size(0),
-        _structIndex(0)
+        _structMembers(nullptr)
     {
     }
 
     /// Constructor.
-    constexpr TypeDesc(std::string_view name, uint8_t basetype, uint8_t semantic = SEMANTIC_NONE, uint16_t size = 1, uint16_t structIndex = 0) noexcept :
+    TypeDesc(std::string_view name, uint8_t basetype, uint8_t semantic = SEMANTIC_NONE, uint16_t size = 1, ConstStructMemberDescVecPtr structMembers = nullptr) noexcept :
         _id(constexpr_hash(name)), // Note: We only store the hash to keep the class size minimal.
         _basetype(basetype),
         _semantic(semantic),
         _size(size),
-        _structIndex(structIndex)
+        _structMembers(structMembers)
     {
     }
 
@@ -125,10 +129,7 @@ class MX_GENSHADER_API TypeDesc
     /// Return true if the type represents a struct.
     bool isStruct() const { return _basetype == BASETYPE_STRUCT; }
 
-    uint16_t getStructIndex() const
-    {
-        return _structIndex;
-    }
+    ConstStructMemberDescVecPtr getStructMembers() const { return _structMembers; }
 
     /// Equality operator
     bool operator==(TypeDesc rhs) const
@@ -174,12 +175,12 @@ class MX_GENSHADER_API TypeDesc
     uint8_t _basetype;
     uint8_t _semantic;
     uint16_t _size;
-    uint16_t _structIndex;
+    ConstStructMemberDescVecPtr _structMembers;
 };
 
 /// Macro to define global type descriptions for commonly used types.
 #define TYPEDESC_DEFINE_TYPE(T, name, basetype, semantic, size) \
-    static constexpr TypeDesc T(name, basetype, semantic, size);\
+    static const TypeDesc T(name, basetype, semantic, size);\
     inline const string& T##_typeName() { static string typeName = name; return typeName; }
 
 namespace Type
@@ -225,37 +226,26 @@ TYPEDESC_DEFINE_TYPE(MATERIAL, "material", TypeDesc::BASETYPE_NONE, TypeDesc::SE
 /// of the struct.
 ///
 
-class StructMemberDesc;
-using StructMemberDescVec = vector<StructMemberDesc>;
-using ConstStructMemberDescVecPtr = shared_ptr<const StructMemberDescVec>;
-
 class StructMemberDesc
 {
   public:
-    StructMemberDesc(string name, TypeDesc typeDesc, string typeName, string defaultValueStr, ConstStructMemberDescVecPtr submembers) :
+    StructMemberDesc(string name, TypeDesc typeDesc, string typeName, string defaultValueStr):
         _name(name),
         _typeDesc(typeDesc),
         _typeName(typeName),
-        _defaultValueStr(defaultValueStr),
-        _subMembers(submembers)
+        _defaultValueStr(defaultValueStr)
     {
     }
     const string& getName() const { return _name; }
     TypeDesc getTypeDesc() const { return _typeDesc; }
     const string& getTypeName() const { return _typeName; }
     const string& getDefaultValueStr() const { return _defaultValueStr; }
-    ConstStructMemberDescVecPtr getSubMembers() const { return _subMembers; }
 
   private:
     string _name;
     TypeDesc _typeDesc;
     string _typeName;
     string _defaultValueStr;
-
-    // Its necessary for a member to recursively store its submembers to allow for
-    // downstream uses of the StructMemberTypeDesc when there is no type registry
-    // in GenContext object available.
-    ConstStructMemberDescVecPtr _subMembers;
 };
 
 MATERIALX_NAMESPACE_END

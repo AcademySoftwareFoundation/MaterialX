@@ -235,12 +235,7 @@ class MX_GENSHADER_API GenContext
 
     const string& getTypeDescName(TypeDesc typeDesc) const;
 
-    uint16_t registerStructMembers(ConstStructMemberDescVecPtr structTypeDesc);
-
-    ConstStructMemberDescVecPtr getStructMembers(TypeDesc typeDesc) const;
-
-    vector<TypeDesc> getStructTypeDescs() const;
-
+    const vector<string>& getStructTypeDescNames() const;
 
   protected:
     GenContext() = delete;
@@ -264,11 +259,14 @@ class MX_GENSHADER_API GenContext
     // Internal storage of registered type descriptors
     using TypeDescMap = std::unordered_map<string, TypeDesc>;
     using TypeDescNameMap = std::unordered_map<uint32_t, string>;
-    using StructMemberDescVecStorage = vector<ConstStructMemberDescVecPtr>;
 
     TypeDescMap _typeDescMap;
     TypeDescNameMap _typeDescNameMap;
-    StructMemberDescVecStorage _structMemberDescStorage;
+    // It's important to record the order of the struct types and register their syntax entries in the order
+    // they were added (this is reflected in the struct index).  This ensures that any struct
+    // types used for members of another struct are declared in the correct order in the
+    // generated shader code.
+    vector<string> _structTypeDescOrder;
 };
 
 /// @class ClosureContext

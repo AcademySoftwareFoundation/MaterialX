@@ -954,16 +954,18 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
 
                 const auto populateUniformInput =
                     [this, variablePath, variableUnit, variableColorspace, variableSemantic, &errors, uniforms, &uniformTypeMismatchFound]
-                    (TypeDesc variableTypedesc, const string& variableTypeName, const StructMemberDescVec* variableStructMembers, const string& variableName, ConstValuePtr variableValue) -> void
+                    (TypeDesc variableTypeDesc, const string& variableTypeName, const string& variableName, ConstValuePtr variableValue) -> void
                 {
                     auto populateUniformInput_impl =
                         [this, variablePath, variableUnit, variableColorspace, variableSemantic, &errors, uniforms, &uniformTypeMismatchFound]
-                        (TypeDesc variableTypedesc, const string& variableTypeName, const StructMemberDescVec* variableStructMembers, const string& variableName, ConstValuePtr variableValue, auto& populateUniformInput_ref) -> void
+                        (TypeDesc variableTypeDesc, const string& variableTypeName, const string& variableName, ConstValuePtr variableValue, auto& populateUniformInput_ref) -> void
                     {
-                        if (!variableTypedesc.isStruct() || !variableStructMembers)
+
+                        auto variableStructMembers = variableTypeDesc.getStructMembers();
+                        if (!variableTypeDesc.isStruct() || !variableStructMembers)
                         {
                             // Handle non-struct types
-                            int glType = mapTypeToOpenGLType(variableTypedesc);
+                            int glType = mapTypeToOpenGLType(variableTypeDesc);
 
                             // There is no way to match with an unnamed variable
                             if (variableName.empty())
@@ -1014,15 +1016,15 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
                                 auto memberVariableName = variableName + "." + structMember.getName();
                                 auto memberVariableValue = aggregateValue->getMemberValue(i);
 
-                                populateUniformInput_ref(structMember.getTypeDesc(), structMember.getTypeName(), structMember.getSubMembers().get(), memberVariableName, memberVariableValue, populateUniformInput_ref);
+                                populateUniformInput_ref(structMember.getTypeDesc(), structMember.getTypeName(), memberVariableName, memberVariableValue, populateUniformInput_ref);
                             }
                         }
                     };
 
-                    return populateUniformInput_impl(variableTypedesc, variableTypeName, variableStructMembers, variableName, variableValue, populateUniformInput_impl);
+                    return populateUniformInput_impl(variableTypeDesc, variableTypeName, variableName, variableValue, populateUniformInput_impl);
                 };
 
-                populateUniformInput(v->getType(), v->getTypeName(), v->getStructMembers(), v->getVariable(), v->getValue());
+                populateUniformInput(v->getType(), v->getTypeName(), v->getVariable(), v->getValue());
             }
         }
 

@@ -88,7 +88,7 @@ ShaderPort* VariableBlock::add(TypeDesc type, const GenContext& context, const s
         return it->second.get();
     }
 
-    ShaderPortPtr port = std::make_shared<ShaderPort>(nullptr, type, type.getName(context), name, context.getStructMembers(type), value);
+    ShaderPortPtr port = std::make_shared<ShaderPort>(nullptr, type, type.getName(context), name, value);
     _variableMap[name] = port;
     _variableOrder.push_back(port.get());
 

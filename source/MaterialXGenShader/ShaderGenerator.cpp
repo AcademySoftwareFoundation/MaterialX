@@ -407,14 +407,9 @@ void ShaderGenerator::registerStructTypeDefs(const DocumentPtr& doc, GenContext&
             // If the member type is a struct itself - then we need to collect the submember information
             // this is to ensure we can access it later in a context where the GenContext isn't available,
             // such as the MaterialXRender.
-            ConstStructMemberDescVecPtr submembers = context.getStructMembers(memberType);
-
-            structMemberDescs->emplace_back( StructMemberDesc(memberName, memberType, memberTypeName, memberDefaultValue, submembers) );
+            structMemberDescs->emplace_back( StructMemberDesc(memberName, memberType, memberTypeName, memberDefaultValue) );
         }
-
-        auto structIndex = context.registerStructMembers(structMemberDescs);
-
-        context.registerTypeDesc(TypeDesc(typeDefName, TypeDesc::BASETYPE_STRUCT, TypeDesc::SEMANTIC_NONE, 1, structIndex), typeDefName);
+        context.registerTypeDesc(TypeDesc(typeDefName, TypeDesc::BASETYPE_STRUCT, TypeDesc::SEMANTIC_NONE, 1, structMemberDescs), typeDefName);
     }
 
     _syntax->registerStructTypeDescSyntax(context);

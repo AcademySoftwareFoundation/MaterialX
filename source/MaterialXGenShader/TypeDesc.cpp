@@ -21,7 +21,7 @@ ValuePtr TypeDesc::createValueFromStrings(const string& value, const GenContext&
 {
     const auto& typeName = getName(context);
     ValuePtr newValue = Value::createValueFromStrings(value, typeName);
-    auto structMemberDescs = context.getStructMembers(*this);
+    auto structMemberDescs = getStructMembers();
     if (!isStruct() || !structMemberDescs)
         return newValue;
 
