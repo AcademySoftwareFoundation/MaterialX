@@ -403,15 +403,6 @@ void RenderView::updateMaterials(mx::TypedElementPtr typedElem)
         // Check for any udim set.
         mx::ValuePtr udimSetValue = _document->getGeomPropValue(mx::UDIM_SET_PROPERTY);
 
-        // Skip material nodes without upstream shaders.
-        mx::NodePtr node = typedElem ? typedElem->asA<mx::Node>() : nullptr;
-        if (node &&
-            node->getCategory() == mx::SURFACE_MATERIAL_NODE_STRING &&
-            mx::getShaderNodes(node).empty())
-        {
-            typedElem = nullptr;
-        }
-
         // Create new materials.
         if (!typedElem)
         {
@@ -420,6 +411,15 @@ void RenderView::updateMaterials(mx::TypedElementPtr typedElem)
             {
                 typedElem = elems[0];
             }
+        }
+
+        // Skip material nodes without upstream shaders.
+        mx::NodePtr node = typedElem ? typedElem->asA<mx::Node>() : nullptr;
+        if (node &&
+            node->getCategory() == mx::SURFACE_MATERIAL_NODE_STRING &&
+            mx::getShaderNodes(node).empty())
+        {
+            typedElem = nullptr;
         }
 
         mx::TypedElementPtr udimElement = nullptr;
