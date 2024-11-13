@@ -426,7 +426,7 @@ bool Element::isEquivalent(ConstElementPtr rhs, const ElementEquivalenceOptions&
         }
     }
 
-    // Compare children. Skip children which are comments
+    // Compare all child elements that affect functional equivalence.
     vector<ElementPtr> children;
     for (ElementPtr child : getChildren())
     {
