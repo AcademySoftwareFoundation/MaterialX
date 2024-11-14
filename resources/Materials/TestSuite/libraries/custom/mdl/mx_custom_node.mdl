@@ -1,0 +1,30 @@
+//
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
+//
+
+// Note,
+// This module has to be placed in an MDL search path in order to get picked up correctly
+
+
+// MDL language version number
+mdl 1.6;
+
+// MDL standard modules
+import ::anno::*;
+import ::df::*;
+import ::math::*;
+import ::scene::*;
+import ::state::*;
+
+// MaterialX implementation modules
+import ::materialx::core::*;
+import ::materialx::noise::*;
+import ::materialx::hsv::*;
+
+
+// a simple example of a custom node implementation in MDL 
+export color mx_custom_node(float red, float green, float blue)
+{
+    return color(red * 0.5, green * 0.5, blue * 0.75);
+}
