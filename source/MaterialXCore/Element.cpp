@@ -426,9 +426,25 @@ bool Element::isEquivalent(ConstElementPtr rhs, const ElementEquivalenceOptions&
         }
     }
 
-    // Compare children.
-    const vector<ElementPtr>& children = getChildren();
-    const vector<ElementPtr>& rhsChildren = rhs->getChildren();
+    // Compare all child elements that affect functional equivalence.
+    vector<ElementPtr> children;
+    for (ElementPtr child : getChildren())
+    {
+        if (child->getCategory() == CommentElement::CATEGORY)
+        {
+            continue;
+        }
+        children.push_back(child);
+    }
+    vector <ElementPtr> rhsChildren;
+    for (ElementPtr child : rhs->getChildren())
+    {
+        if (child->getCategory() == CommentElement::CATEGORY)
+        {
+            continue;
+        }
+        rhsChildren.push_back(child);
+    }
     if (children.size() != rhsChildren.size())
     {
         if (results)
