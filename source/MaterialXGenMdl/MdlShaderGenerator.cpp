@@ -15,6 +15,7 @@
 #include <MaterialXGenMdl/Nodes/ClosureLayerNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/ClosureCompoundNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/ClosureSourceCodeNodeMdl.h>
+#include <MaterialXGenMdl/Nodes/CustomNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/ImageNodeMdl.h>
 
 #include <MaterialXGenShader/GenContext.h>
@@ -155,6 +156,21 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
         emitMdlVersionFilenameSuffix(context, stage);
         emitString(IMPORT_ALL, stage);
         emitLineEnd(stage, true);
+    }
+
+    // emit custom node imports for nodes in the graph
+    for (ShaderNode* node : graph.getNodes())
+    {
+        const ShaderNodeImpl& impl = node->getImplementation();
+        const CustomCodeNodeMdl* customNode = dynamic_cast<const CustomCodeNodeMdl*>(&impl);
+        if (customNode)
+        {
+            const string& importName = customNode->getQualifiedModuleName();
+            emitString("import ", stage);
+            emitString(importName, stage);
+            emitString("::*", stage);
+            emitLineEnd(stage, true);
+        }
     }
 
     // Add global constants and type definitions
@@ -353,14 +369,24 @@ ShaderNodeImplPtr MdlShaderGenerator::getImplementation(const NodeDef& nodedef, 
         impl = _implFactory.create(name);
         if (!impl)
         {
-            // Fall back to source code implementation.
-            if (outputType.isClosure())
+            // When `file` and `function` are provided we consider this node a user node
+            const std::string file = implElement->getTypedAttribute<std::string>("file");
+            const std::string function = implElement->getTypedAttribute<std::string>("function");
+            if (!file.empty() && !function.empty())
             {
-                impl = ClosureSourceCodeNodeMdl::create();
+                impl = CustomCodeNodeMdl::create();
             }
             else
             {
-                impl = SourceCodeNodeMdl::create();
+                // Fall back to source code implementation.
+                if (outputType.isClosure())
+                {
+                    impl = ClosureSourceCodeNodeMdl::create();
+                }
+                else
+                {
+                    impl = SourceCodeNodeMdl::create();
+                }
             }
         }
     }

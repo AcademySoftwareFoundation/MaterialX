@@ -13,6 +13,8 @@
 #include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/Util.h>
 
+#include <MaterialXFormat/Util.h>
+
 #include <numeric>
 
 MATERIALX_NAMESPACE_BEGIN

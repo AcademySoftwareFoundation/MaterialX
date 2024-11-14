@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+
+  <!-- definition -->
+  <!-- specifies the interface of the node, including:
+    - the `node` that defines the name of the element during instanciation
+    - all input parameter types and names, all inputs have defaults
+    - all output parmaeter types and names
+    - the `name` that needs to referenced when adding the implementation with the actual script
+  -->
+  <nodedef name="ND_custom_node" node="custom_node" nodegroup="custom" doc="A simple example that creates a color.">
+    <input name="red" type="float" value="0.0f" />
+    <input name="green" type="float" value="0.0f" />
+    <input name="blue" type="float" value="0.0f" />
+    <output name="out1" type="color3" />
+  </nodedef>
+
+  <!-- implementation -->
+  <!-- specifies where to find the implementation of the custom node.
+    There is no need to add a signature because it will be generated from the defintion.
+  -->
+  <implementation 
+    name="IM_custom_node"
+    nodedef="ND_custom_node"
+    file="mx_custom_node.mdl"
+    function="mx_custom_node"
+    target="genmdl"/>
+
+  <!-- instanciation -->
+  <!-- creates an instance of a custom node to be called.
+    Can appear multiple times for the same node.
+    Parameters can be overridden or default values are used.
+  -->
+  <custom_node name="custom_node1" type="color3">
+    <input name="red" type="float" value="0.35f" />
+    <input name="green" type="float" value="0.45f" />
+    <input name="blue" type="float" value="0.55f" />
+  </custom_node>
+
+  <burley_diffuse_bsdf name="burley_brdf1" type="BSDF">
+    <input name="color" type="color3" nodename="custom_node1" />
+    <input name="roughness" type="float" value="0.2" />
+  </burley_diffuse_bsdf>
+
+  <surface name="surface1" type="surfaceshader">
+    <input name="bsdf" type="BSDF" nodename="burley_brdf1" />
+    <input name="opacity" type="float" value="1.0" />
+  </surface>
+
+  <surfacematerial name="code_constant_color" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="surface1" />
+  </surfacematerial>
+
+</materialx>
