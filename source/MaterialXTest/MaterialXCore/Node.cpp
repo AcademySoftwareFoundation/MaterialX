@@ -809,7 +809,7 @@ TEST_CASE("Input Ordering", "[nodegraph]")
 
     mx::StringVec desiredChildOrdering = { "two", "node_0", "one", "node_1", "four", "node_3", "three" };
     mx::StringVec resultingChildOrdering;
-    for (const mx::ElementPtr child : graph->getChildren())
+    for (auto child : graph->getChildren())
     {
         resultingChildOrdering.push_back(child->getName());
     }

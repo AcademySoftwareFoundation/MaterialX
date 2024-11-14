@@ -702,7 +702,6 @@ void NodeGraph::modifyInterfaceName(const string& inputPath, const string& inter
 
 void NodeGraph::setInputOrdering(const StringVec& inputNames)
 {
-    vector<InputPtr> inputs;
     StringSet childInputNames;
     std::vector<unsigned int> childInputIndicies;
         
@@ -712,15 +711,14 @@ void NodeGraph::setInputOrdering(const StringVec& inputNames)
         if (!input)
             continue;
 
-        inputs.push_back(input);
         const string& inputName = input->getName();
         childInputNames.insert(inputName);
         childInputIndicies.push_back(getChildIndex(inputName));
     }
 
     // Check that all names exist in the inputs
-    StringSet orderedNameSet(inputNames.begin(), inputNames.end());
-    if (childInputNames != orderedNameSet)
+    StringSet orderedInputNames(inputNames.begin(), inputNames.end());
+    if (childInputNames != orderedInputNames)
     {
         throw Exception("The set of names provided does not match the existing set of input names");
     }
@@ -730,8 +728,7 @@ void NodeGraph::setInputOrdering(const StringVec& inputNames)
     std::sort(childInputIndicies.begin(), childInputIndicies.end());
     for (size_t i = 0; i < childInputIndicies.size(); i++)
     {
-        unsigned int newLocation = childInputIndicies[i];
-        setChildIndex(inputNames[i], newLocation);
+        setChildIndex(inputNames[i], childInputIndicies[i]);
     }
 }
 
