@@ -430,7 +430,7 @@ bool Element::isEquivalent(ConstElementPtr rhs, const ElementEquivalenceOptions&
     vector<ElementPtr> children;
     for (ElementPtr child : getChildren())
     {
-        if (child->getCategory() == COMMENT_TYPE_STRING)
+        if (child->getCategory() == CommentElement::CATEGORY)
         {
             continue;
         }
@@ -439,7 +439,7 @@ bool Element::isEquivalent(ConstElementPtr rhs, const ElementEquivalenceOptions&
     vector <ElementPtr> rhsChildren;
     for (ElementPtr child : rhs->getChildren())
     {
-        if (child->getCategory() == COMMENT_TYPE_STRING)
+        if (child->getCategory() == CommentElement::CATEGORY)
         {
             continue;
         }

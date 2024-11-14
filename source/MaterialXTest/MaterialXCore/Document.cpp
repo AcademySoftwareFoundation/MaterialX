@@ -151,7 +151,7 @@ TEST_CASE("Document equivalence", "[document]")
     mx::ElementPtr child = doc->addNodeGraph("mygraph");
     mx::NodeGraphPtr graph = child->asA<mx::NodeGraph>();
     // Add comment block at the start of the first doc to check skipping
-    mx::ElementPtr comment = doc->addChildOfCategory(mx::COMMENT_TYPE_STRING);
+    mx::ElementPtr comment = doc->addChildOfCategory(mx::CommentElement::CATEGORY);
     comment->setDocString("Comment 1");
     for (auto it = inputMap.begin(); it != inputMap.end(); ++it)
     {
@@ -209,9 +209,9 @@ TEST_CASE("Document equivalence", "[document]")
         }
     }
     // Add comment blocks at end of second doc to check value and count checks
-    comment = doc2->addChildOfCategory(mx::COMMENT_TYPE_STRING);
+    comment = doc2->addChildOfCategory(mx::CommentElement::CATEGORY);
     comment->setDocString("Comment 2");
-    comment = doc2->addChildOfCategory(mx::COMMENT_TYPE_STRING);
+    comment = doc2->addChildOfCategory(mx::CommentElement::CATEGORY);
     comment->setDocString("Comment 3");
 
     mx::ElementEquivalenceOptions options;
