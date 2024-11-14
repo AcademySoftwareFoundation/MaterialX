@@ -23,7 +23,7 @@
     name="IM_custom_node"
     nodedef="ND_custom_node"
     file="mx_custom_node.mdl"
-    function="mx_custom_node"
+    function="custom_node_function"
     target="genmdl"/>
 
   <!-- instanciation -->
@@ -47,7 +47,7 @@
     <input name="opacity" type="float" value="1.0" />
   </surface>
 
-  <surfacematerial name="code_constant_color" type="material">
+  <surfacematerial name="custom_node_test" type="material">
     <input name="surfaceshader" type="surfaceshader" nodename="surface1" />
   </surfacematerial>
 
