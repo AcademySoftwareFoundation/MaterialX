@@ -25,43 +25,7 @@ const string& CustomCodeNodeMdl::getQualifiedModuleName() const
 
 void CustomCodeNodeMdl::initialize(const InterfaceElement& element, GenContext& context)
 {
-    // TODO this is missing struct return support!
-    // SourceCodeNode::initialize without fetching the source code from file
-    // this is part of the MDL compiler work later
-    {
-        ShaderNodeImpl::initialize(element, context);
-
-        if (!element.isA<Implementation>())
-        {
-            throw ExceptionShaderGenError("Element '" + element.getName() + "' is not an Implementation element");
-        }
-
-        const Implementation& impl = static_cast<const Implementation&>(element);
-
-        // Find the function name to use
-        // If no function is given the source will be inlined.
-        _functionName = impl.getAttribute("function");
-        _inlined = _functionName.empty();
-        if (!_inlined)
-        {
-            // Make sure the function name is valid.
-            string validFunctionName = _functionName;
-            context.getShaderGenerator().getSyntax().makeValidName(validFunctionName);
-            if (_functionName != validFunctionName)
-            {
-                throw ExceptionShaderGenError("Function name '" + _functionName +
-                                              "' used by implementation '" + impl.getName() + "' is not a valid identifier.");
-            }
-        }
-        else
-        {
-            _functionSource = replaceSubstrings(_functionSource, { { "\n", "" } });
-        }
-
-        // Set hash using the function name.
-        // TODO: Could be improved to include the full function signature.
-        _hash = std::hash<string>{}(_functionName);
-    }
+    SourceCodeNodeMdl::initialize(element, context);
 
     // format the function source in a way that the ShaderCodeNodeMdl (the base class of the current one) can deal with it
     const ShaderGenerator& shadergen = context.getShaderGenerator();
@@ -69,7 +33,7 @@ void CustomCodeNodeMdl::initialize(const InterfaceElement& element, GenContext& 
     const string uniformPrefix = syntax.getUniformQualifier() + " ";
 
     const Implementation& impl = static_cast<const Implementation&>(element);
-    string moduleName = impl.getAttribute("function");
+    string moduleName = impl.getAttribute("file");
     string mdlModuleName = replaceSubstrings(moduleName, { { "/", "::" } });
     if (!stringStartsWith(mdlModuleName, "::"))
     {
@@ -82,7 +46,7 @@ void CustomCodeNodeMdl::initialize(const InterfaceElement& element, GenContext& 
     }
     else
     {
-        mdlModuleName = mdlModuleName.substr(mdlModuleName.size() - 4);
+        mdlModuleName = mdlModuleName.substr(0, mdlModuleName.size() - 4);
     }
     _qualifiedModuleName = mdlModuleName;
 
@@ -90,12 +54,18 @@ void CustomCodeNodeMdl::initialize(const InterfaceElement& element, GenContext& 
     _functionSource = _qualifiedModuleName.substr(2) + "::" + _functionName + "(";
 
     // function parameters
+    const StringSet& reservedWords = syntax.getReservedWords();
     const NodeDefPtr node = impl.getNodeDef();
     string delim = EMPTY_STRING;
     for (const InputPtr input : node->getInputs())
     {
-        const string& inputName = input->getName();
-        _functionSource += delim + input->getName() + ": {{" + inputName + "}}";
+        string inputName = input->getName();
+        if (reservedWords.find(inputName) != reservedWords.end())
+        {
+            // add an "mxp_" prefix in case the field name is a reserved word
+            inputName = "mxp_" + inputName;
+        }
+        _functionSource += delim + inputName + ": {{" + input->getName() + "}}";
         if (delim == EMPTY_STRING)
             delim = Syntax::COMMA + " ";
     }

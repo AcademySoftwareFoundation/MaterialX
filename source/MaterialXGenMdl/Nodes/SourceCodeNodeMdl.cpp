@@ -57,6 +57,13 @@ ShaderNodeImplPtr SourceCodeNodeMdl::create()
     return std::make_shared<SourceCodeNodeMdl>();
 }
 
+void SourceCodeNodeMdl::resolveSourceCode(const InterfaceElement& /*element*/, GenContext& /*context*/)
+{
+    // Initialize without fetching the source code from file.
+    // The resolution of MDL modules is done by the MDL compiler when loading the generated source code.
+    // All references MDL modules must be accessible via MDL search paths set up by the consuming application.
+}
+
 void SourceCodeNodeMdl::initialize(const InterfaceElement& element, GenContext& context)
 {
     SourceCodeNode::initialize(element, context);
@@ -133,7 +140,7 @@ void SourceCodeNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& con
                 // Emit the struct multioutput.
                 const string resultVariableName = node.getName() + "_result";
                 shadergen.emitLineBegin(stage);
-                shadergen.emitString(_returnStruct + " " + resultVariableName + " = ", stage);
+                shadergen.emitString("auto " + resultVariableName + " = ", stage);
             }
             else
             {
@@ -158,7 +165,7 @@ void SourceCodeNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& con
                 // Emit the struct multioutput.
                 const string resultVariableName = node.getName() + "_result";
                 shadergen.emitLineBegin(stage);
-                shadergen.emitString(_returnStruct + " " + resultVariableName + " = ", stage);
+                shadergen.emitString("auto " + resultVariableName + " = ", stage);
             }
             else
             {

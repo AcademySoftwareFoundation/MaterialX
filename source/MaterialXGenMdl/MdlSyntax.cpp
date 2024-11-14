@@ -202,22 +202,40 @@ const StringVec MdlSyntax::SCATTER_MODE_MEMBERS = { "R", "T", "RT" };
 MdlSyntax::MdlSyntax()
 {
     // Add in all reserved words and keywords in MDL
+    // formated as in the MDL Specification 1.9.2 for easy comparing
     registerReservedWords(
-        { // Reserved words
-          "annotation", "bool", "bool2", "bool3", "bool4", "break", "bsdf", "bsdf_measurement", "case", "cast", "color", "const",
-          "continue", "default", "do", "double", "double2", "double2x2", "double2x3", "double3", "double3x2", "double3x3", "double3x4",
-          "double4", "double4x3", "double4x4", "double4x2", "double2x4", "edf", "else", "enum", "export", "false", "float", "float2",
-          "float2x2", "float2x3", "float3", "float3x2", "float3x3", "float3x4", "float4", "float4x3", "float4x4", "float4x2", "float2x4",
-          "for", "hair_bsdf", "if", "import", "in", "int", "int2", "int3", "int4", "intensity_mode", "intensity_power", "intensity_radiant_exitance",
-          "let", "light_profile", "material", "material_emission", "material_geometry", "material_surface", "material_volume", "mdl", "module",
-          "package", "return", "string", "struct", "switch", "texture_2d", "texture_3d", "texture_cube", "texture_ptex", "true", "typedef", "uniform",
-          "using", "varying", "vdf", "while",
-          // Reserved for future use
-          "auto", "catch", "char", "class", "const_cast", "delete", "dynamic_cast", "explicit", "extern", "external", "foreach", "friend", "goto",
-          "graph", "half", "half2", "half2x2", "half2x3", "half3", "half3x2", "half3x3", "half3x4", "half4", "half4x3", "half4x4", "half4x2", "half2x4",
-          "inline", "inout", "lambda", "long", "mutable", "namespace", "native", "new", "operator", "out", "phenomenon", "private", "protected", "public",
-          "reinterpret_cast", "sampler", "shader", "short", "signed", "sizeof", "static", "static_cast", "technique", "template", "this", "throw", "try",
-          "typeid", "typename", "union", "unsigned", "virtual", "void", "volatile", "wchar_t" });
+        {   // Reserved words
+            "annotation",       "double2",      "float",        "in",                           "operator",
+            "auto",             "double2x2",    "float2",       "int",                          "package",
+            "bool",             "double2x3",    "float2x2",     "int2",                         "return",
+            "bool2",            "double3",      "float2x3",     "int3",                         "string",
+            "bool3",            "double3x2",    "float3",       "int4",                         "struct",
+            "bool4",            "double3x3",    "float3x2",     "intensity_mode",               "struct_category",
+            "break",            "double3x4",    "float3x3",     "intensity_power",              "switch",
+            "bsdf",             "double4",      "float3x4",     "intensity_radiant_exitance",   "texture_2d",
+            "bsdf_measurement", "double4x3",    "float4",       "let",                          "texture_3d",
+            "case",             "double4x4",    "float4x3",     "light_profile",                "texture_cube",
+            "cast",             "double4x2",    "float4x4",     "material",                     "texture_ptex",
+            "color",            "double2x4",    "float4x2",     "material_emission",            "true",
+            "const",            "edf",          "float2x4",     "material_geometry",            "typedef",
+            "continue",         "else",         "for",          "material_surface",             "uniform",
+            "declarative",      "enum",         "hair_bsdf",    "material_volume",              "using",
+            "default",          "export",       "if",           "mdl",                          "varying",
+            "do",               "false",        "import",       "module",                       "vdf",
+            "double",                                                                           "while",
+
+            // Reserved for future use
+            "catch",        "friend",   "half3x4",  "mutable",          "sampler",      "throw",
+            "char",         "goto",     "half4",    "namespace",        "shader",       "try",
+            "class",        "graph",    "half4x3",  "native",           "short",        "typeid",
+            "const_cast",   "half",     "half4x4",  "new",              "signed",       "typename",
+            "delete",       "half2",    "half4x2",  "out",              "sizeof",       "union",
+            "dynamic_cast", "half2x2",  "half2x4",  "phenomenon",       "static",       "unsigned",
+            "explicit",     "half2x3",  "inline",   "private",          "static_cast",  "virtual",
+            "extern",       "half3",    "inout",    "protected",        "technique",    "void",
+            "external",     "half3x2",  "lambda",   "public",           "template",     "volatile",
+            "foreach",      "half3x3",  "long",     "reinterpret_cast", "this",         "wchar_t",
+        });
 
     // Register restricted tokens in MDL
     StringMap tokens;

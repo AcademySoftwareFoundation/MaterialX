@@ -405,6 +405,7 @@ ShaderNodeImplPtr MdlShaderGenerator::getImplementation(const NodeDef& nodedef, 
 
 string MdlShaderGenerator::getUpstreamResult(const ShaderInput* input, GenContext& context) const
 {
+    const Syntax& syntax = getSyntax();
     const ShaderOutput* upstreamOutput = input->getConnection();
 
     if (!upstreamOutput || upstreamOutput->getNode()->isAGraph())
@@ -412,6 +413,7 @@ string MdlShaderGenerator::getUpstreamResult(const ShaderInput* input, GenContex
         return ShaderGenerator::getUpstreamResult(input, context);
     }
 
+    const StringSet& reservedWords = getSyntax().getReservedWords();
     string variable;
     const ShaderNode* upstreamNode = upstreamOutput->getNode();
     if (!upstreamNode->isAGraph() && upstreamNode->numOutputs() > 1)
@@ -423,7 +425,20 @@ string MdlShaderGenerator::getUpstreamResult(const ShaderInput* input, GenContex
         }
         else
         {
-            variable = upstreamNode->getName() + "_result.mxp_" + upstreamOutput->getName();
+            const string& fieldName = upstreamOutput->getName();
+            const CustomCodeNodeMdl* upstreamCustomNodeMdl = dynamic_cast<const CustomCodeNodeMdl*>(&upstreamNode->getImplementation());
+            if (upstreamCustomNodeMdl)
+            {
+                // add an "mxp_" prefix in case the field name is a reserved word
+                variable = upstreamNode->getName() + "_result." +
+                           (reservedWords.find(fieldName) == reservedWords.end() ? fieldName : ("mxp_" + fieldName));
+            }
+            else
+            {
+                // existing implementations and none user defined structs will keep the prefix always to not break existing content
+                variable = upstreamNode->getName() + "_result.mxp_" + upstreamOutput->getName();
+            }
+
         }
     }
     else
