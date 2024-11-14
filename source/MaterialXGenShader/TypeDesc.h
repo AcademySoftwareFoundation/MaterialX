@@ -77,7 +77,7 @@ class MX_GENSHADER_API TypeDesc
 
     /// Constructor.
     TypeDesc(const string* name, uint8_t basetype, uint8_t semantic = SEMANTIC_NONE, uint8_t size = 1, ConstStructMemberDescVecPtr structMembers = nullptr) noexcept :
-        _id(constexpr_hash(*name)),
+        _id(string_hash(*name)),
         _basetype(basetype),
         _semantic(semantic),
         _size(size),
@@ -164,11 +164,11 @@ class MX_GENSHADER_API TypeDesc
     ValuePtr createValueFromStrings(const string& value) const;
 
   private:
-    /// Simple constexpr hash function, good enough for the small set of short strings that
+    /// Simple hash function, good enough for the small set of short strings that
     /// are used for our data type names.
-    constexpr uint32_t constexpr_hash(const string& str, uint32_t n = 0, uint32_t h = 2166136261)
+    uint32_t string_hash(const string& str, uint32_t n = 0, uint32_t h = 2166136261)
     {
-        return n == uint32_t(str.size()) ? h : constexpr_hash(str, n + 1, (h * 16777619) ^ (str[n]));
+        return n == uint32_t(str.size()) ? h : string_hash(str, n + 1, (h * 16777619) ^ (str[n]));
     }
 
     uint32_t _id;
