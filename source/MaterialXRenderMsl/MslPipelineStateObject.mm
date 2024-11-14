@@ -1110,7 +1110,7 @@ const MslProgram::InputMap& MslProgram::updateUniformsList()
                     return populateUniformInput_impl(variableTypeDesc, variableTypeName, variableName, variableValue, populateUniformInput_impl);
                 };
 
-                populateUniformInput(v->getType(), v->getTypeName(), v->getVariable(), v->getValue());
+                populateUniformInput(v->getType(), v->getType().getName(), v->getVariable(), v->getValue());
             }
         }
 
@@ -1127,7 +1127,7 @@ const MslProgram::InputMap& MslProgram::updateUniformsList()
                     Input* input = inputIt->second.get();
                     if (input->resourceType == mapTypeToMetalType(v->getType()))
                     {
-                        input->typeString = v->getTypeName();
+                        input->typeString = v->getType().getName();
                         input->value = v->getValue();
                         input->path = v->getPath();
                         input->unit = v->getUnit();
@@ -1137,7 +1137,7 @@ const MslProgram::InputMap& MslProgram::updateUniformsList()
                         errors.push_back(
                             "Vertex shader uniform block type mismatch [" + uniforms.getName() + "]. "
                             + "Name: \"" + v->getVariable()
-                            + "\". Type: \"" + v->getTypeName()
+                            + "\". Type: \"" + v->getType().getName()
                             + "\". Semantic: \"" + v->getSemantic()
                             + "\". Value: \"" + (v->getValue() ? v->getValue()->getValueString() : "<none>")
                             + "\". Unit: \"" + (!v->getUnit().empty() ? v->getUnit() : "<none>")
@@ -1541,13 +1541,13 @@ const MslProgram::InputMap& MslProgram::updateAttributesList()
                     input->value = v->getValue();
                     if (input->resourceType == mapTypeToMetalType(v->getType()))
                     {
-                        input->typeString = v->getTypeName();
+                        input->typeString = v->getType().getName();
                     }
                     else
                     {
                         errors.push_back(
                             "Vertex shader attribute type mismatch in block. Name: \"" + v->getVariable()
-                            + "\". Type: \"" + v->getTypeName()
+                            + "\". Type: \"" + v->getType().getName()
                             + "\". Semantic: \"" + v->getSemantic()
                             + "\". Value: \"" + (v->getValue() ? v->getValue()->getValueString() : "<none>")
                             + "\". resourceType: " + std::to_string(mapTypeToMetalType(v->getType()))

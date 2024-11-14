@@ -14,12 +14,7 @@ const string TypeDesc::NONE_TYPE_NAME = "none";
 
 ValuePtr TypeDesc::createValueFromStrings(const string& value) const
 {
-    // TODO: This string copy can probably be avoided?
-    //       Perhaps by using std::string_view for all 
-    //       passing of type names instead of const string&
-    const string typeName(getName());
-
-    ValuePtr newValue = Value::createValueFromStrings(value, typeName);
+    ValuePtr newValue = Value::createValueFromStrings(value, getName());
     auto structMemberDescs = getStructMembers();
     if (!isStruct() || !structMemberDescs)
         return newValue;
@@ -29,7 +24,7 @@ ValuePtr TypeDesc::createValueFromStrings(const string& value) const
     // So if this is a struct type we need to create a new AggregateValue.
 
     StringVec subValues = parseStructValueString(value);
-    AggregateValuePtr result = AggregateValue::createAggregateValue(typeName);
+    AggregateValuePtr result = AggregateValue::createAggregateValue(getName());
 
     if (subValues.size() != structMemberDescs->size())
     {
