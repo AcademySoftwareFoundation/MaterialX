@@ -379,6 +379,10 @@ class MX_CORE_API NodeGraph : public GraphElement
     /// @param interfaceName The new interface name.
     void modifyInterfaceName(const string& inputPath, const string& interfaceName);
 
+    /// Set the ordering of inputs
+    /// @param inputNames List of names of all inputs in the desired order from start to end.
+    void setInputOrdering(const StringVec& inputNames);
+
     /// @}
     /// @name Validation
     /// @{
