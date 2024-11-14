@@ -12,14 +12,13 @@ MATERIALX_NAMESPACE_BEGIN
 
 const string TypeDesc::NONE_TYPE_NAME = "none";
 
-const string& TypeDesc::getName(const GenContext& context) const
+ValuePtr TypeDesc::createValueFromStrings(const string& value) const
 {
-    return context.getTypeDescName(*this);
-}
+    // TODO: This string copy can probably be avoided?
+    //       Perhaps by using std::string_view for all 
+    //       passing of type names instead of const string&
+    const string typeName(getName());
 
-ValuePtr TypeDesc::createValueFromStrings(const string& value, const GenContext& context) const
-{
-    const auto& typeName = getName(context);
     ValuePtr newValue = Value::createValueFromStrings(value, typeName);
     auto structMemberDescs = getStructMembers();
     if (!isStruct() || !structMemberDescs)
@@ -41,7 +40,7 @@ ValuePtr TypeDesc::createValueFromStrings(const string& value, const GenContext&
 
     for (size_t i = 0; i < structMemberDescs->size(); ++i)
     {
-        result->appendValue( structMemberDescs->at(i).getTypeDesc().createValueFromStrings(subValues[i], context));
+        result->appendValue( structMemberDescs->at(i).getTypeDesc().createValueFromStrings(subValues[i]));
     }
 
     return result;

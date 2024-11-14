@@ -99,12 +99,12 @@ class MX_GENSHADER_API ShaderGraph : public ShaderNode
     ShaderNode* createNode(ConstNodePtr node, GenContext& context);
 
     /// Add input sockets
-    ShaderGraphInputSocket* addInputSocket(const string& name, TypeDesc type, const GenContext& context);
-    [[deprecated]] ShaderGraphInputSocket* addInputSocket(const string& name, const TypeDesc* type, const GenContext& context) { return addInputSocket(name, *type, context); }
+    ShaderGraphInputSocket* addInputSocket(const string& name, TypeDesc type);
+    [[deprecated]] ShaderGraphInputSocket* addInputSocket(const string& name, const TypeDesc* type) { return addInputSocket(name, *type); }
 
     /// Add output sockets
-    ShaderGraphOutputSocket* addOutputSocket(const string& name, TypeDesc type, const GenContext& context);
-    [[deprecated]] ShaderGraphOutputSocket* addOutputSocket(const string& name, const TypeDesc* type, const GenContext& context) { return addOutputSocket(name, *type, context); }
+    ShaderGraphOutputSocket* addOutputSocket(const string& name, TypeDesc type);
+    [[deprecated]] ShaderGraphOutputSocket* addOutputSocket(const string& name, const TypeDesc* type) { return addOutputSocket(name, *type); }
 
     /// Add a default geometric node and connect to the given input.
     void addDefaultGeomNode(ShaderInput* input, const GeomPropDef& geomprop, GenContext& context);

@@ -17,10 +17,9 @@ const string ShaderMetadataRegistry::USER_DATA_NAME = "ShaderMetadataRegistry";
 // ShaderPort methods
 //
 
-ShaderPort::ShaderPort(ShaderNode* node, TypeDesc type, const string& typeName, const string& name, ValuePtr value) :
+ShaderPort::ShaderPort(ShaderNode* node, TypeDesc type, const string& name, ValuePtr value) :
     _node(node),
     _type(type),
-    _typeName(typeName),
     _name(name),
     _variable(name),
     _value(value),
@@ -42,8 +41,8 @@ string ShaderPort::getValueString() const
 // ShaderInput methods
 //
 
-ShaderInput::ShaderInput(ShaderNode* node, TypeDesc type, const string& typeName, const string& name) :
-    ShaderPort(node, type, typeName, name),
+ShaderInput::ShaderInput(ShaderNode* node, TypeDesc type, const string& name) :
+    ShaderPort(node, type, name),
     _connection(nullptr)
 {
 }
@@ -93,8 +92,8 @@ ShaderNode* ShaderInput::getConnectedSibling() const
 // ShaderOutput methods
 //
 
-ShaderOutput::ShaderOutput(ShaderNode* node, TypeDesc type, const string& typeName, const string& name) :
-    ShaderPort(node, type, typeName, name)
+ShaderOutput::ShaderOutput(ShaderNode* node, TypeDesc type, const string& name) :
+    ShaderPort(node, type, name)
 {
 }
 
@@ -183,7 +182,7 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
         const TypeDesc portType = context.getTypeDesc(port->getType());
         if (port->isA<Output>())
         {
-            newNode->addOutput(port->getName(), portType, context);
+            newNode->addOutput(port->getName(), portType);
         }
         else if (port->isA<Input>())
         {
@@ -193,12 +192,12 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
             const string& enumNames = port->getAttribute(ValueElement::ENUM_ATTRIBUTE);
             if (context.getShaderGenerator().getSyntax().remapEnumeration(portValue, portType, enumNames, enumResult))
             {
-                input = newNode->addInput(port->getName(), enumResult.first, context);
+                input = newNode->addInput(port->getName(), enumResult.first);
                 input->setValue(enumResult.second);
             }
             else
             {
-                input = newNode->addInput(port->getName(), portType, context);
+                input = newNode->addInput(port->getName(), portType);
                 if (!portValue.empty())
                 {
                     input->setValue(port->getResolvedValue());
@@ -217,7 +216,7 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
     // Add a default output if needed
     if (newNode->numOutputs() == 0)
     {
-        newNode->addOutput("out", context.getTypeDesc(nodeDef.getType()), context);
+        newNode->addOutput("out", context.getTypeDesc(nodeDef.getType()));
     }
 
     const string& nodeDefName = nodeDef.getName();
@@ -438,7 +437,7 @@ void ShaderNode::createMetadata(const NodeDef& nodeDef, GenContext& context)
             const string& attrValue = nodeDef.getAttribute(nodedefAttr);
             if (!attrValue.empty())
             {
-                ValuePtr value = metadataEntry->type.createValueFromStrings(attrValue, context);
+                ValuePtr value = metadataEntry->type.createValueFromStrings(attrValue);
                 if (!value)
                 {
                     value = metadataEntry->value;
@@ -473,7 +472,7 @@ void ShaderNode::createMetadata(const NodeDef& nodeDef, GenContext& context)
                     if (!attrValue.empty())
                     {
                         const TypeDesc type = metadataEntry->type != Type::NONE ? metadataEntry->type : input->getType();
-                        ValuePtr value = type.createValueFromStrings(attrValue, context);
+                        ValuePtr value = type.createValueFromStrings(attrValue);
                         if (!value)
                         {
                             value = metadataEntry->value;
@@ -518,28 +517,28 @@ const ShaderOutput* ShaderNode::getOutput(const string& name) const
     return it != _outputMap.end() ? it->second.get() : nullptr;
 }
 
-ShaderInput* ShaderNode::addInput(const string& name, TypeDesc type, const GenContext& context)
+ShaderInput* ShaderNode::addInput(const string& name, TypeDesc type)
 {
     if (getInput(name))
     {
         throw ExceptionShaderGenError("An input named '" + name + "' already exists on node '" + _name + "'");
     }
 
-    ShaderInputPtr input = std::make_shared<ShaderInput>(this, type, type.getName(context), name);
+    ShaderInputPtr input = std::make_shared<ShaderInput>(this, type, name);
     _inputMap[name] = input;
     _inputOrder.push_back(input.get());
 
     return input.get();
 }
 
-ShaderOutput* ShaderNode::addOutput(const string& name, TypeDesc type, const GenContext& context)
+ShaderOutput* ShaderNode::addOutput(const string& name, TypeDesc type)
 {
     if (getOutput(name))
     {
         throw ExceptionShaderGenError("An output named '" + name + "' already exists on node '" + _name + "'");
     }
 
-    ShaderOutputPtr output = std::make_shared<ShaderOutput>(this, type, type.getName(context), name);
+    ShaderOutputPtr output = std::make_shared<ShaderOutput>(this, type, name);
     _outputMap[name] = output;
     _outputOrder.push_back(output.get());
 

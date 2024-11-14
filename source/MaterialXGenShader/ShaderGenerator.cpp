@@ -359,29 +359,29 @@ void ShaderGenerator::registerBuiltinTypes(GenContext& context)
     // we may consider fully specifying the type in the <typedef>
 
     // Register type descriptors for standard types.
-    context.registerTypeDesc(Type::NONE, "none");
-    context.registerTypeDesc(Type::BOOLEAN, "boolean");
-    context.registerTypeDesc(Type::INTEGER, "integer");
-    context.registerTypeDesc(Type::INTEGERARRAY, "integerarray");
-    context.registerTypeDesc(Type::FLOAT, "float");
-    context.registerTypeDesc(Type::FLOATARRAY, "floatarray");
-    context.registerTypeDesc(Type::VECTOR2, "vector2");
-    context.registerTypeDesc(Type::VECTOR3, "vector3");
-    context.registerTypeDesc(Type::VECTOR4, "vector4");
-    context.registerTypeDesc(Type::COLOR3, "color3");
-    context.registerTypeDesc(Type::COLOR4, "color4");
-    context.registerTypeDesc(Type::MATRIX33, "matrix33");
-    context.registerTypeDesc(Type::MATRIX44, "matrix44");
-    context.registerTypeDesc(Type::STRING, "string");
-    context.registerTypeDesc(Type::FILENAME, "filename");
-    context.registerTypeDesc(Type::BSDF, "BSDF");
-    context.registerTypeDesc(Type::EDF, "EDF");
-    context.registerTypeDesc(Type::VDF, "VDF");
-    context.registerTypeDesc(Type::SURFACESHADER, "surfaceshader");
-    context.registerTypeDesc(Type::VOLUMESHADER, "volumeshader");
-    context.registerTypeDesc(Type::DISPLACEMENTSHADER, "displacementshader");
-    context.registerTypeDesc(Type::LIGHTSHADER, "lightshader");
-    context.registerTypeDesc(Type::MATERIAL, "material");
+    context.registerTypeDesc(Type::NONE);
+    context.registerTypeDesc(Type::BOOLEAN);
+    context.registerTypeDesc(Type::INTEGER);
+    context.registerTypeDesc(Type::INTEGERARRAY);
+    context.registerTypeDesc(Type::FLOAT);
+    context.registerTypeDesc(Type::FLOATARRAY);
+    context.registerTypeDesc(Type::VECTOR2);
+    context.registerTypeDesc(Type::VECTOR3);
+    context.registerTypeDesc(Type::VECTOR4);
+    context.registerTypeDesc(Type::COLOR3);
+    context.registerTypeDesc(Type::COLOR4);
+    context.registerTypeDesc(Type::MATRIX33);
+    context.registerTypeDesc(Type::MATRIX44);
+    context.registerTypeDesc(Type::STRING);
+    context.registerTypeDesc(Type::FILENAME);
+    context.registerTypeDesc(Type::BSDF);
+    context.registerTypeDesc(Type::EDF);
+    context.registerTypeDesc(Type::VDF);
+    context.registerTypeDesc(Type::SURFACESHADER);
+    context.registerTypeDesc(Type::VOLUMESHADER);
+    context.registerTypeDesc(Type::DISPLACEMENTSHADER);
+    context.registerTypeDesc(Type::LIGHTSHADER);
+    context.registerTypeDesc(Type::MATERIAL);
 }
 
 /// Load any struct type definitions from the document in to the type cache.
@@ -409,7 +409,7 @@ void ShaderGenerator::registerStructTypeDefs(const DocumentPtr& doc, GenContext&
             // such as the MaterialXRender.
             structMemberDescs->emplace_back( StructMemberDesc(memberName, memberType, memberTypeName, memberDefaultValue) );
         }
-        context.registerTypeDesc(TypeDesc(typeDefName, TypeDesc::BASETYPE_STRUCT, TypeDesc::SEMANTIC_NONE, 1, structMemberDescs), typeDefName);
+        context.registerTypeDesc(typeDefName, TypeDesc::BASETYPE_STRUCT, TypeDesc::SEMANTIC_NONE, 1, structMemberDescs);
     }
 
     _syntax->registerStructTypeDescSyntax(context);

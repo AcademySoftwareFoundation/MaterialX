@@ -38,7 +38,7 @@ ShaderNodeImplPtr ScalarUnitNode::create(LinearUnitConverterPtr scalarUnitConver
     return std::make_shared<ScalarUnitNode>(scalarUnitConverter);
 }
 
-void ScalarUnitNode::initialize(const InterfaceElement& element, GenContext& /*context*/)
+void ScalarUnitNode::initialize(const InterfaceElement& element, GenContext&)
 {
     _name = element.getName();
 
@@ -65,7 +65,7 @@ void ScalarUnitNode::emitFunctionDefinition(const ShaderNode& node, GenContext& 
         const string VAR_UNIT_SCALE = "u_" + _scalarUnitConverter->getUnitType() + "_unit_scales";
         VariableBlock unitLUT("unitLUT", EMPTY_STRING);
         ScopedFloatFormatting fmt(Value::FloatFormatFixed, 15);
-        unitLUT.add(Type::FLOATARRAY, context, VAR_UNIT_SCALE, Value::createValue<vector<float>>(unitScales));
+        unitLUT.add(Type::FLOATARRAY, VAR_UNIT_SCALE, Value::createValue<vector<float>>(unitScales));
 
         const ShaderGenerator& shadergen = context.getShaderGenerator();
         shadergen.emitLine("float " + _unitRatioFunctionName + "(int unit_from, int unit_to)", stage, false);
@@ -104,11 +104,10 @@ void ScalarUnitNode::emitFunctionCall(const ShaderNode& node, GenContext& contex
 // Unit transform methods
 //
 
-UnitTransform::UnitTransform(const string& ss, const string& ts, TypeDesc t, const string& typeName, const string& unittype) :
+UnitTransform::UnitTransform(const string& ss, const string& ts, TypeDesc t, const string& unittype) :
     sourceUnit(ss),
     targetUnit(ts),
     type(t),
-    typeName(typeName),
     unitType(unittype)
 {
     if (type != Type::FLOAT && type != Type::VECTOR2 && type != Type::VECTOR3 && type != Type::VECTOR4)
@@ -158,7 +157,7 @@ NodeDefPtr UnitSystem::getNodeDef(const UnitTransform& transform) const
         {
             vector<InputPtr> nodeInputs = nodeDef->getInputs();
             if (nodeInputs.size() == 2 &&
-                nodeInputs[0]->getType() == transform.typeName &&
+                nodeInputs[0]->getType() == transform.type.getName() &&
                 nodeInputs[1]->getType() == "float")
             {
                 return nodeDef;

@@ -41,12 +41,12 @@ void ShaderGraph::addInputSockets(const InterfaceElement& elem, GenContext& cont
         const TypeDesc portType = context.getTypeDesc(input->getType());
         if (context.getShaderGenerator().getSyntax().remapEnumeration(portValueString, portType, enumNames, enumResult))
         {
-            inputSocket = addInputSocket(input->getName(), enumResult.first, context);
+            inputSocket = addInputSocket(input->getName(), enumResult.first);
             inputSocket->setValue(enumResult.second);
         }
         else
         {
-            inputSocket = addInputSocket(input->getName(), portType, context);
+            inputSocket = addInputSocket(input->getName(), portType);
             if (!portValueString.empty())
             {
                 inputSocket->setValue(portValue);
@@ -68,11 +68,11 @@ void ShaderGraph::addOutputSockets(const InterfaceElement& elem, const GenContex
 {
     for (const OutputPtr& output : elem.getActiveOutputs())
     {
-        addOutputSocket(output->getName(), context.getTypeDesc(output->getType()), context);
+        addOutputSocket(output->getName(), context.getTypeDesc(output->getType()));
     }
     if (numOutputSockets() == 0)
     {
-        addOutputSocket("out", context.getTypeDesc(elem.getType()), context);
+        addOutputSocket("out", context.getTypeDesc(elem.getType()));
     }
 }
 
@@ -216,7 +216,7 @@ void ShaderGraph::addDefaultGeomNode(ShaderInput* input, const GeomPropDef& geom
     {
         // Find the nodedef for the geometric node referenced by the geomprop. Use the type of the
         // input here and ignore the type of the geomprop. They are required to have the same type.
-        string geomNodeDefName = "ND_" + geomprop.getGeomProp() + "_" + input->getTypeName();
+        string geomNodeDefName = "ND_" + geomprop.getGeomProp() + "_" + input->getType().getName();
         NodeDefPtr geomNodeDef = _document->getNodeDef(geomNodeDefName);
         if (!geomNodeDef)
         {
@@ -503,7 +503,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
         graph->addInputSockets(*interface, context);
 
         // Create the given output socket
-        ShaderGraphOutputSocket* outputSocket = graph->addOutputSocket(output->getName(), context.getTypeDesc(output->getType()), context);
+        ShaderGraphOutputSocket* outputSocket = graph->addOutputSocket(output->getName(), context.getTypeDesc(output->getType()));
         outputSocket->setPath(output->getNamePath());
         const string& outputUnit = output->getUnit();
         if (!outputUnit.empty())
@@ -743,14 +743,14 @@ ShaderNode* ShaderGraph::createNode(ConstNodePtr node, GenContext& context)
     return newNode.get();
 }
 
-ShaderGraphInputSocket* ShaderGraph::addInputSocket(const string& name, TypeDesc type, const GenContext& context)
+ShaderGraphInputSocket* ShaderGraph::addInputSocket(const string& name, TypeDesc type)
 {
-    return ShaderNode::addOutput(name, type, context);
+    return ShaderNode::addOutput(name, type);
 }
 
-ShaderGraphOutputSocket* ShaderGraph::addOutputSocket(const string& name, TypeDesc type, const GenContext& context)
+ShaderGraphOutputSocket* ShaderGraph::addOutputSocket(const string& name, TypeDesc type)
 {
-    return ShaderNode::addInput(name, type, context);
+    return ShaderNode::addInput(name, type);
 }
 
 ShaderGraphEdgeIterator ShaderGraph::traverseUpstream(ShaderOutput* output)
@@ -845,7 +845,7 @@ void ShaderGraph::finalize(GenContext& context)
                         ShaderGraphInputSocket* inputSocket = getInputSocket(interfaceName);
                         if (!inputSocket)
                         {
-                            inputSocket = addInputSocket(interfaceName, input->getType(), context);
+                            inputSocket = addInputSocket(interfaceName, input->getType());
                             inputSocket->setPath(input->getPath());
                             inputSocket->setValue(input->getValue());
                             inputSocket->setUnit(input->getUnit());
@@ -1102,7 +1102,7 @@ void ShaderGraph::populateColorTransformMap(ColorManagementSystemPtr colorManage
         // Update the color transform map, if a color management system is provided.
         if (colorManagementSystem)
         {
-            ColorSpaceTransform transform(sourceColorSpace, targetColorSpace, shaderPort->getType(), shaderPort->getTypeName());
+            ColorSpaceTransform transform(sourceColorSpace, targetColorSpace, shaderPort->getType());
             if (colorManagementSystem->supportsTransform(transform))
             {
                 if (asInput)
@@ -1165,7 +1165,7 @@ void ShaderGraph::populateUnitTransformMap(UnitSystemPtr unitSystem, ShaderPort*
                           shaderPort->getType() == Type::VECTOR4);
     if (supportedType)
     {
-        UnitTransform transform(sourceUnitSpace, targetUnitSpace, shaderPort->getType(), shaderPort->getTypeName(), unitType);
+        UnitTransform transform(sourceUnitSpace, targetUnitSpace, shaderPort->getType(), unitType);
         if (unitSystem->supportsTransform(transform))
         {
             shaderPort->setUnit(sourceUnitSpace);

@@ -29,12 +29,11 @@ using UnitSystemPtr = shared_ptr<class UnitSystem>;
 /// Structure that represents unit transform information
 struct MX_GENSHADER_API UnitTransform
 {
-    UnitTransform(const string& ss, const string& ts, TypeDesc t, const string& typeName, const string& unittype);
+    UnitTransform(const string& ss, const string& ts, TypeDesc t, const string& unittype);
 
     string sourceUnit;
     string targetUnit;
-    TypeDesc type;  // todo - decide if we need to keep this - now we store the type name.
-    string typeName;
+    TypeDesc type;
     string unitType;
 
     /// Comparison operator

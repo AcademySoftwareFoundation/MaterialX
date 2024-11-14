@@ -321,10 +321,10 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
 
     // Create required variables for vertex stage
     VariableBlock& vsInputs = vs->getInputBlock(HW::VERTEX_INPUTS);
-    vsInputs.add(Type::VECTOR3, context, HW::T_IN_POSITION);
+    vsInputs.add(Type::VECTOR3, HW::T_IN_POSITION);
     VariableBlock& vsPrivateUniforms = vs->getUniformBlock(HW::PRIVATE_UNIFORMS);
-    vsPrivateUniforms.add(Type::MATRIX44, context, HW::T_WORLD_MATRIX);
-    vsPrivateUniforms.add(Type::MATRIX44, context, HW::T_VIEW_PROJECTION_MATRIX);
+    vsPrivateUniforms.add(Type::MATRIX44, HW::T_WORLD_MATRIX);
+    vsPrivateUniforms.add(Type::MATRIX44, HW::T_VIEW_PROJECTION_MATRIX);
 
     // Create pixel stage.
     ShaderStagePtr ps = createStage(Stage::PIXEL, *shader);
@@ -334,7 +334,7 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     VariableBlockPtr psPrivateUniforms = ps->createUniformBlock(HW::PRIVATE_UNIFORMS, "u_prv");
     VariableBlockPtr psPublicUniforms = ps->createUniformBlock(HW::PUBLIC_UNIFORMS, "u_pub");
     VariableBlockPtr lightData = ps->createUniformBlock(HW::LIGHT_DATA, HW::T_LIGHT_DATA_INSTANCE);
-    lightData->add(Type::INTEGER, context, "type");
+    lightData->add(Type::INTEGER, "type");
 
     // Add a block for data from vertex to pixel shader.
     addStageConnectorBlock(HW::VERTEX_DATA, HW::T_VERTEX_DATA_INSTANCE, *vs, *ps);
@@ -342,23 +342,23 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     // Add uniforms for transparent rendering.
     if (context.getOptions().hwTransparency)
     {
-        psPrivateUniforms->add(Type::FLOAT, context, HW::T_ALPHA_THRESHOLD, Value::createValue(0.001f));
+        psPrivateUniforms->add(Type::FLOAT, HW::T_ALPHA_THRESHOLD, Value::createValue(0.001f));
     }
 
     // Add uniforms for shadow map rendering.
     if (context.getOptions().hwShadowMap)
     {
-        psPrivateUniforms->add(Type::FILENAME, context, HW::T_SHADOW_MAP);
-        psPrivateUniforms->add(Type::MATRIX44, context, HW::T_SHADOW_MATRIX, Value::createValue(Matrix44::IDENTITY));
+        psPrivateUniforms->add(Type::FILENAME, HW::T_SHADOW_MAP);
+        psPrivateUniforms->add(Type::MATRIX44, HW::T_SHADOW_MATRIX, Value::createValue(Matrix44::IDENTITY));
     }
 
     // Add inputs and uniforms for ambient occlusion.
     if (context.getOptions().hwAmbientOcclusion)
     {
-        addStageInput(HW::VERTEX_INPUTS, Type::VECTOR2, context, HW::T_IN_TEXCOORD + "_0", *vs);
-        addStageConnector(HW::VERTEX_DATA, Type::VECTOR2, context, HW::T_TEXCOORD + "_0", *vs, *ps);
-        psPrivateUniforms->add(Type::FILENAME, context, HW::T_AMB_OCC_MAP);
-        psPrivateUniforms->add(Type::FLOAT, context, HW::T_AMB_OCC_GAIN, Value::createValue(1.0f));
+        addStageInput(HW::VERTEX_INPUTS, Type::VECTOR2, HW::T_IN_TEXCOORD + "_0", *vs);
+        addStageConnector(HW::VERTEX_DATA, Type::VECTOR2, HW::T_TEXCOORD + "_0", *vs, *ps);
+        psPrivateUniforms->add(Type::FILENAME, HW::T_AMB_OCC_MAP);
+        psPrivateUniforms->add(Type::FLOAT, HW::T_AMB_OCC_GAIN, Value::createValue(1.0f));
     }
 
     // Add uniforms for environment lighting.
@@ -367,32 +367,32 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     if (lighting && context.getOptions().hwSpecularEnvironmentMethod != SPECULAR_ENVIRONMENT_NONE)
     {
         const Matrix44 yRotationPI = Matrix44::createScale(Vector3(-1, 1, -1));
-        psPrivateUniforms->add(Type::MATRIX44, context, HW::T_ENV_MATRIX, Value::createValue(yRotationPI));
-        psPrivateUniforms->add(Type::FILENAME, context, HW::T_ENV_RADIANCE);
-        psPrivateUniforms->add(Type::FLOAT, context, HW::T_ENV_LIGHT_INTENSITY, Value::createValue(1.0f));
-        psPrivateUniforms->add(Type::INTEGER, context, HW::T_ENV_RADIANCE_MIPS, Value::createValue<int>(1));
-        psPrivateUniforms->add(Type::INTEGER, context, HW::T_ENV_RADIANCE_SAMPLES, Value::createValue<int>(16));
-        psPrivateUniforms->add(Type::FILENAME, context, HW::T_ENV_IRRADIANCE);
-        psPrivateUniforms->add(Type::BOOLEAN, context, HW::T_REFRACTION_TWO_SIDED);
+        psPrivateUniforms->add(Type::MATRIX44, HW::T_ENV_MATRIX, Value::createValue(yRotationPI));
+        psPrivateUniforms->add(Type::FILENAME, HW::T_ENV_RADIANCE);
+        psPrivateUniforms->add(Type::FLOAT, HW::T_ENV_LIGHT_INTENSITY, Value::createValue(1.0f));
+        psPrivateUniforms->add(Type::INTEGER, HW::T_ENV_RADIANCE_MIPS, Value::createValue<int>(1));
+        psPrivateUniforms->add(Type::INTEGER, HW::T_ENV_RADIANCE_SAMPLES, Value::createValue<int>(16));
+        psPrivateUniforms->add(Type::FILENAME, HW::T_ENV_IRRADIANCE);
+        psPrivateUniforms->add(Type::BOOLEAN, HW::T_REFRACTION_TWO_SIDED);
     }
 
     // Add uniforms for the directional albedo table.
     if (context.getOptions().hwDirectionalAlbedoMethod == DIRECTIONAL_ALBEDO_TABLE ||
         context.getOptions().hwWriteAlbedoTable)
     {
-        psPrivateUniforms->add(Type::FILENAME, context, HW::T_ALBEDO_TABLE);
-        psPrivateUniforms->add(Type::INTEGER, context, HW::T_ALBEDO_TABLE_SIZE, Value::createValue<int>(64));
+        psPrivateUniforms->add(Type::FILENAME, HW::T_ALBEDO_TABLE);
+        psPrivateUniforms->add(Type::INTEGER, HW::T_ALBEDO_TABLE_SIZE, Value::createValue<int>(64));
     }
 
     // Add uniforms for environment prefiltering.
     if (context.getOptions().hwWriteEnvPrefilter)
     {
-        psPrivateUniforms->add(Type::FILENAME, context, HW::T_ENV_RADIANCE);
-        psPrivateUniforms->add(Type::FLOAT, context, HW::T_ENV_LIGHT_INTENSITY, Value::createValue(1.0f));
-        psPrivateUniforms->add(Type::INTEGER, context, HW::T_ENV_PREFILTER_MIP, Value::createValue<int>(1));
+        psPrivateUniforms->add(Type::FILENAME, HW::T_ENV_RADIANCE);
+        psPrivateUniforms->add(Type::FLOAT, HW::T_ENV_LIGHT_INTENSITY, Value::createValue(1.0f));
+        psPrivateUniforms->add(Type::INTEGER, HW::T_ENV_PREFILTER_MIP, Value::createValue<int>(1));
         const Matrix44 yRotationPI = Matrix44::createScale(Vector3(-1, 1, -1));
-        psPrivateUniforms->add(Type::MATRIX44, context, HW::T_ENV_MATRIX, Value::createValue(yRotationPI));
-        psPrivateUniforms->add(Type::INTEGER, context, HW::T_ENV_RADIANCE_MIPS, Value::createValue<int>(1));
+        psPrivateUniforms->add(Type::MATRIX44, HW::T_ENV_MATRIX, Value::createValue(yRotationPI));
+        psPrivateUniforms->add(Type::INTEGER, HW::T_ENV_RADIANCE_MIPS, Value::createValue<int>(1));
     }
 
     // Create uniforms for the published graph interface
@@ -410,7 +410,7 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     // so copy name and variable from the graph output but set type to color4.
     // TODO: Improve this to support multiple outputs and other data types.
     ShaderGraphOutputSocket* outputSocket = graph->getOutputSocket();
-    ShaderPort* output = psOutputs->add(Type::COLOR4, context, outputSocket->getName());
+    ShaderPort* output = psOutputs->add(Type::COLOR4, outputSocket->getName());
     output->setVariable(outputSocket->getVariable());
     output->setPath(outputSocket->getPath());
 
@@ -465,7 +465,7 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
                     if (!input->getConnection() && input->getType() == Type::FILENAME)
                     {
                         // Create the uniform using the filename type to make this uniform into a texture sampler.
-                        ShaderPort* filename = psPublicUniforms->add(Type::FILENAME, context, input->getVariable(), input->getValue());
+                        ShaderPort* filename = psPublicUniforms->add(Type::FILENAME, input->getVariable(), input->getValue());
                         filename->setPath(input->getPath());
 
                         // Assing the uniform name to the input value
@@ -637,7 +637,7 @@ void HwShaderGenerator::addStageLightingUniforms(GenContext& context, ShaderStag
     // Create uniform for number of active light sources
     if (context.getOptions().hwMaxActiveLightSources > 0)
     {
-        ShaderPort* numActiveLights = addStageUniform(HW::PRIVATE_UNIFORMS, Type::INTEGER, context, HW::T_NUM_ACTIVE_LIGHT_SOURCES, stage);
+        ShaderPort* numActiveLights = addStageUniform(HW::PRIVATE_UNIFORMS, Type::INTEGER, HW::T_NUM_ACTIVE_LIGHT_SOURCES, stage);
         numActiveLights->setValue(Value::createValue<int>(0));
     }
 }

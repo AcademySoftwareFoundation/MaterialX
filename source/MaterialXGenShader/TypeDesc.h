@@ -12,8 +12,6 @@
 #include <MaterialXGenShader/Export.h>
 #include <MaterialXCore/Value.h>
 
-#include <string_view>
-
 MATERIALX_NAMESPACE_BEGIN
 
 class StructMemberDesc;
@@ -72,16 +70,18 @@ class MX_GENSHADER_API TypeDesc
         _basetype(BASETYPE_NONE),
         _semantic(SEMANTIC_NONE),
         _size(0),
+        _name(nullptr),
         _structMembers(nullptr)
     {
     }
 
     /// Constructor.
-    TypeDesc(std::string_view name, uint8_t basetype, uint8_t semantic = SEMANTIC_NONE, uint16_t size = 1, ConstStructMemberDescVecPtr structMembers = nullptr) noexcept :
-        _id(constexpr_hash(name)), // Note: We only store the hash to keep the class size minimal.
+    TypeDesc(const string* name, uint8_t basetype, uint8_t semantic = SEMANTIC_NONE, uint8_t size = 1, ConstStructMemberDescVecPtr structMembers = nullptr) noexcept :
+        _id(constexpr_hash(*name)),
         _basetype(basetype),
         _semantic(semantic),
         _size(size),
+        _name(name),
         _structMembers(structMembers)
     {
     }
@@ -91,7 +91,7 @@ class MX_GENSHADER_API TypeDesc
     uint32_t typeId() const { return _id; }
 
     /// Return the name of the type.
-    const string& getName(const GenContext& context) const;
+    const string& getName() const { return *_name; }
 
     /// Return the basetype for the type.
     unsigned char getBaseType() const { return _basetype; }
@@ -160,13 +160,13 @@ class MX_GENSHADER_API TypeDesc
 
     static const string NONE_TYPE_NAME;
 
-    /// Create a Value from a string for a given typeDesc
-    ValuePtr createValueFromStrings(const string& value, const GenContext& context) const;
+    /// Create a Value from a string for this TypeDesc
+    ValuePtr createValueFromStrings(const string& value) const;
 
   private:
     /// Simple constexpr hash function, good enough for the small set of short strings that
     /// are used for our data type names.
-    constexpr uint32_t constexpr_hash(std::string_view str, uint32_t n = 0, uint32_t h = 2166136261)
+    constexpr uint32_t constexpr_hash(const string& str, uint32_t n = 0, uint32_t h = 2166136261)
     {
         return n == uint32_t(str.size()) ? h : constexpr_hash(str, n + 1, (h * 16777619) ^ (str[n]));
     }
@@ -175,13 +175,14 @@ class MX_GENSHADER_API TypeDesc
     uint8_t _basetype;
     uint8_t _semantic;
     uint16_t _size;
+    const string* _name;
     ConstStructMemberDescVecPtr _structMembers;
 };
 
 /// Macro to define global type descriptions for commonly used types.
 #define TYPEDESC_DEFINE_TYPE(T, name, basetype, semantic, size) \
-    static const TypeDesc T(name, basetype, semantic, size);\
-    inline const string& T##_typeName() { static string typeName = name; return typeName; }
+    inline const string* T##_typeName() { static const string _typeNameStorage = name; return &_typeNameStorage; } \
+    static const TypeDesc T(T##_typeName(), basetype, semantic, size);
 
 namespace Type
 {

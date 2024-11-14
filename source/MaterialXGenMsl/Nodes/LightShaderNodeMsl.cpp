@@ -44,7 +44,7 @@ void LightShaderNodeMsl::initialize(const InterfaceElement& element, GenContext&
     NodeDefPtr nodeDef = impl.getNodeDef();
     for (InputPtr input : nodeDef->getActiveInputs())
     {
-        _lightUniforms.add(context.getTypeDesc(input->getType()), context, input->getName(), input->getValue());
+        _lightUniforms.add(context.getTypeDesc(input->getType()), input->getName(), input->getValue());
     }
 }
 
@@ -57,7 +57,7 @@ void LightShaderNodeMsl::createVariables(const ShaderNode&, GenContext& context,
     for (size_t i = 0; i < _lightUniforms.size(); ++i)
     {
         const ShaderPort* u = _lightUniforms[i];
-        lightData.add(u->getType(), context, u->getName());
+        lightData.add(u->getType(), u->getName());
     }
 
     const MslShaderGenerator& shadergen = static_cast<const MslShaderGenerator&>(context.getShaderGenerator());

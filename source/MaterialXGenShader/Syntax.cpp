@@ -200,7 +200,7 @@ void Syntax::registerStructTypeDescSyntax(const GenContext& context)
         if (!typeDesc.isStruct() || !structMemberDescs)
             continue;
 
-        string structTypeName = typeDesc.getName(context);
+        string structTypeName = typeDesc.getName();
         string defaultValue = structTypeName + "( ";
         string uniformDefaultValue = EMPTY_STRING;
         string typeAlias = EMPTY_STRING;
@@ -209,7 +209,7 @@ void Syntax::registerStructTypeDescSyntax(const GenContext& context)
         for (const auto& structMemberDesc : *structMemberDescs)
         {
             string memberName = structMemberDesc.getName();
-            string memberType = structMemberDesc.getTypeDesc().getName(context);
+            string memberType = structMemberDesc.getTypeDesc().getName();
             string memberDefaultValue = structMemberDesc.getDefaultValueStr();
 
             defaultValue += memberDefaultValue + ", ";

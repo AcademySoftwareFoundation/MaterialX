@@ -693,12 +693,12 @@ void MdlShaderGenerator::registerBuiltinTypes(GenContext& context)
     ShaderGenerator::registerBuiltinTypes(context);
 
     // Custom types to handle enumeration output
-    context.registerTypeDesc(Type::MDL_COORDINATESPACE, "coordinatespace");
-    context.registerTypeDesc(Type::MDL_ADDRESSMODE, "addressmode");
-    context.registerTypeDesc(Type::MDL_FILTERLOOKUPMODE, "filterlookup");
-    context.registerTypeDesc(Type::MDL_FILTERTYPE, "filtertype");
-    context.registerTypeDesc(Type::MDL_DISTRIBUTIONTYPE, "distributiontype");
-    context.registerTypeDesc(Type::MDL_SCATTER_MODE, "scatter_mode");
+    context.registerTypeDesc(Type::MDL_COORDINATESPACE);
+    context.registerTypeDesc(Type::MDL_ADDRESSMODE);
+    context.registerTypeDesc(Type::MDL_FILTERLOOKUPMODE);
+    context.registerTypeDesc(Type::MDL_FILTERTYPE);
+    context.registerTypeDesc(Type::MDL_DISTRIBUTIONTYPE);
+    context.registerTypeDesc(Type::MDL_SCATTER_MODE);
 }
 
 namespace MDL
