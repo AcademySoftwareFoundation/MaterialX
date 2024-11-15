@@ -405,7 +405,6 @@ ShaderNodeImplPtr MdlShaderGenerator::getImplementation(const NodeDef& nodedef, 
 
 string MdlShaderGenerator::getUpstreamResult(const ShaderInput* input, GenContext& context) const
 {
-    const Syntax& syntax = getSyntax();
     const ShaderOutput* upstreamOutput = input->getConnection();
 
     if (!upstreamOutput || upstreamOutput->getNode()->isAGraph())
@@ -438,7 +437,6 @@ string MdlShaderGenerator::getUpstreamResult(const ShaderInput* input, GenContex
                 // existing implementations and none user defined structs will keep the prefix always to not break existing content
                 variable = upstreamNode->getName() + "_result.mxp_" + upstreamOutput->getName();
             }
-
         }
     }
     else
