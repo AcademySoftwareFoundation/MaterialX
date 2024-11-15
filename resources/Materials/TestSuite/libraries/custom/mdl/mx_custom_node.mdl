@@ -23,7 +23,7 @@ import ::state::*;
 // A simple example of a custom node implementation in MDL.
 export color custom_node_function(float red, float green, float blue)
 {
-    return color(red * 0.5, green * 0.5, blue * 0.75);
+    return color(red * 0.25, green * 0.5, blue * 0.75);
 }
 
 // Example to illustrate implementations fpr multiple output nodes in MDL.
