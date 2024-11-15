@@ -4,6 +4,8 @@
 //
 
 #include <MaterialXGenMdl/Nodes/CustomNodeMdl.h>
+#include <MaterialXGenMdl/MdlSyntax.h>
+#include <MaterialXGenMdl/MdlShaderGenerator.h>
 
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
@@ -29,11 +31,17 @@ void CustomCodeNodeMdl::initialize(const InterfaceElement& element, GenContext& 
 
     // format the function source in a way that the ShaderCodeNodeMdl (the base class of the current one) can deal with it
     const ShaderGenerator& shadergen = context.getShaderGenerator();
-    const Syntax& syntax = shadergen.getSyntax();
+    const MdlShaderGenerator& shadergenMdl = static_cast<const MdlShaderGenerator&>(shadergen);
+    const MdlSyntax& syntax = static_cast<const MdlSyntax&>(shadergen.getSyntax());
     const string uniformPrefix = syntax.getUniformQualifier() + " ";
 
     const Implementation& impl = static_cast<const Implementation&>(element);
     string moduleName = impl.getAttribute("file");
+    if (moduleName.empty())
+    {
+        throw ExceptionShaderGenError("No source file was specified for the implementation '" + impl.getName() + "'");
+    }
+
     string mdlModuleName = replaceSubstrings(moduleName, { { "/", "::" } });
     if (!stringStartsWith(mdlModuleName, "::"))
     {
@@ -42,13 +50,19 @@ void CustomCodeNodeMdl::initialize(const InterfaceElement& element, GenContext& 
 
     if (!stringEndsWith(mdlModuleName, ".mdl"))
     {
-        // error
+        throw ExceptionShaderGenError("Referenced source file is not an MDL module: '" + moduleName +
+                                      "' used by implementation '" + impl.getName() + "'");
     }
     else
     {
         mdlModuleName = mdlModuleName.substr(0, mdlModuleName.size() - 4);
     }
-    _qualifiedModuleName = mdlModuleName;
+    const string versionSuffix = shadergenMdl.getMdlVersionFilenameSuffix(context);
+    _qualifiedModuleName = syntax.replaceSourceCodeMarkers(element.getName(), mdlModuleName,
+        [&mdlModuleName, versionSuffix, &syntax](const string& marker)
+    {
+        return marker == syntax.getMdlVersionSuffixMarker() ? versionSuffix : marker;
+    });
 
     // construct the fully qualified function name
     _functionSource = _qualifiedModuleName.substr(2) + "::" + _functionName + "(";

@@ -1,0 +1,14 @@
+//
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
+//
+
+// Note, this module has to be placed in an MDL search path in order to get picked up correctly.
+
+// MDL language version number
+// This is NOT a version or revision number of the module content itself.
+mdl 1.7;
+
+// no changes when upgrading the code generator to produce MDL 1.8 code
+// forward all unchanged definitions from the previous version
+export using .::mx_custom_library_1_6 import custom_library_function;

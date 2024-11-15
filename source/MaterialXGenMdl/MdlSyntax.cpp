@@ -28,6 +28,12 @@ TYPEDESC_REGISTER_TYPE(MDL_SCATTER_MODE, "scatter_mode")
 
 namespace
 {
+    const string MARKER_MDL_VERSION_SUFFIX = "MDL_VERSION_SUFFIX";
+} // anonymous namespace
+
+namespace
+{
+
 
 class MdlFilenameTypeSyntax : public ScalarTypeSyntax
 {
@@ -550,5 +556,38 @@ void MdlSyntax::makeValidName(string& name) const
         name = "v" + name;
     }
 }
+
+string MdlSyntax::replaceSourceCodeMarkers(const string& nodeName, const string& soureCode, std::function<string(const string&)> lambda) const
+{
+    // An inline function call
+    // Replace tokens of the format "{{<var>}}"
+    static const string prefix("{{");
+    static const string postfix("}}");
+
+    size_t pos = 0;
+    size_t i = soureCode.find_first_of(prefix);
+    StringVec code;
+    while (i != string::npos)
+    {
+        code.push_back(soureCode.substr(pos, i - pos));
+        size_t j = soureCode.find_first_of(postfix, i + 2);
+        if (j == string::npos)
+        {
+            throw ExceptionShaderGenError("Malformed inline expression in implementation for node " + nodeName);
+        }
+        const string marker = soureCode.substr(i + 2, j - i - 2);
+        code.push_back(lambda(marker));
+        pos = j + 2;
+        i = soureCode.find_first_of(prefix, pos);
+    }
+    code.push_back(soureCode.substr(pos));
+    return joinStrings(code, EMPTY_STRING);
+}
+
+const string MdlSyntax::getMdlVersionSuffixMarker() const
+{
+    return MARKER_MDL_VERSION_SUFFIX;
+}
+
 
 MATERIALX_NAMESPACE_END
