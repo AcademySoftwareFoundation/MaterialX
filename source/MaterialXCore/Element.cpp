@@ -396,14 +396,14 @@ bool Element::isEquivalent(ConstElementPtr rhs, const ElementEquivalenceOptions&
     StringVec rhsAttributeNames = rhs->getAttributeNames();
 
     // Filter out any attributes specified in the options.
-    const StringSet& skipAttributes = options.skipAttributes;
-    if (!skipAttributes.empty())
+    const StringSet& attributeExclusionList = options.attributeExclusionList;
+    if (!attributeExclusionList.empty())
     {
         attributeNames.erase(std::remove_if(attributeNames.begin(), attributeNames.end(),
-            [&skipAttributes](const string& attr) { return skipAttributes.find(attr) != skipAttributes.end(); }),
+            [&attributeExclusionList](const string& attr) { return attributeExclusionList.find(attr) != attributeExclusionList.end(); }),
             attributeNames.end());
         rhsAttributeNames.erase(std::remove_if(rhsAttributeNames.begin(), rhsAttributeNames.end(),
-            [&skipAttributes](const string& attr) { return skipAttributes.find(attr) != skipAttributes.end(); }),
+            [&attributeExclusionList](const string& attr) { return attributeExclusionList.find(attr) != attributeExclusionList.end(); }),
             rhsAttributeNames.end());
     }    
 
@@ -714,7 +714,7 @@ bool ValueElement::isAttributeEquivalent(ConstElementPtr rhs, const string& attr
 {    
     // Perform value comparisons
     bool performedValueComparison = false;
-    if (!options.skipValueComparisons)
+    if (options.performValueComparisons)
     {
         const StringSet uiAttributes = 
         {
@@ -724,7 +724,7 @@ bool ValueElement::isAttributeEquivalent(ConstElementPtr rhs, const string& attr
         };
 
         // Get precision and format options
-        ScopedFloatFormatting fmt(options.format, options.precision);
+        ScopedFloatFormatting fmt(options.floatFormat, options.floatPrecision);
 
         ConstValueElementPtr rhsValueElement = rhs->asA<ValueElement>();
 

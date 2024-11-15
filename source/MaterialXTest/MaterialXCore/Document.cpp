@@ -217,27 +217,27 @@ TEST_CASE("Document equivalence", "[document]")
     mx::ElementEquivalenceOptions options;
     mx::ElementEquivalenceResultVec results;
 
-    // Check skipping all value compares
-    options.skipValueComparisons = true;
+    // Check that this fails when not performing value comparisons
+    options.performValueComparisons = false;
     bool equivalent = doc->isEquivalent(doc2, options, &results);
     REQUIRE(!equivalent);
 
     // Check attibute values 
-    options.skipValueComparisons = false;
+    options.performValueComparisons = true;
     results.clear();
     equivalent = doc->isEquivalent(doc2, options, &results);
     REQUIRE(equivalent);
 
     unsigned int currentPrecision = mx::Value::getFloatPrecision();
     // This will compare 0.012345608 versus: 1, 0.012345611 for input10
-    options.precision = 8;
+    options.floatPrecision = 8;
     equivalent = doc->isEquivalent(doc2, options);
     REQUIRE(!equivalent);
-    options.precision = currentPrecision;
+    options.floatPrecision = currentPrecision;
 
     // Check attribute filtering of inputs
     results.clear();
-    options.skipAttributes = { mx::ValueElement::UI_MIN_ATTRIBUTE, mx::ValueElement::UI_MAX_ATTRIBUTE };
+    options.attributeExclusionList = { mx::ValueElement::UI_MIN_ATTRIBUTE, mx::ValueElement::UI_MAX_ATTRIBUTE };
     for (mx::InputPtr floatInput : floatInputs)
     {
         floatInput->setAttribute(mx::ValueElement::UI_MIN_ATTRIBUTE, "0.9");
