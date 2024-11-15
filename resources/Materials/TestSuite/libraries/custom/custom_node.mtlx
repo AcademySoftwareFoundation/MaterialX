@@ -12,7 +12,7 @@
     <input name="red" type="float" value="0.0f" />
     <input name="green" type="float" value="0.0f" />
     <input name="blue" type="float" value="0.0f" />
-    <output name="out1" type="color3" />
+    <output name="out" type="color3" />
   </nodedef>
 
   <!-- implementation -->
