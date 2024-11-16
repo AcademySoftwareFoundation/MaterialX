@@ -4034,7 +4034,6 @@ void Graph::drawGraph(ImVec2 mousePos)
         
         // shift + C is pressed
         // build nodegraph from selected nodes
-        #include <iostream>
         
         if (ImGui::IsKeyReleased(ImGuiKey_C) && 
             io2.KeyShift && 
@@ -4129,6 +4128,8 @@ void Graph::drawGraph(ImVec2 mousePos)
                 _addNewNode = true;
             }
 
+            _copiedNodes.clear();
+            
         }
                         
 
