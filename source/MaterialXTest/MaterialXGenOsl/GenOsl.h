@@ -45,8 +45,6 @@ class OslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
 
     void addSkipFiles() override
     {
-        _skipFiles.insert("hair_bsdf.mtlx");
-        _skipFiles.insert("hair_surfaceshader.mtlx");
     }
 
     // Ignore light shaders in the document for OSL

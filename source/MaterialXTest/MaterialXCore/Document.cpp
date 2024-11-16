@@ -150,6 +150,9 @@ TEST_CASE("Document equivalence", "[document]")
     unsigned int index = 0;
     mx::ElementPtr child = doc->addNodeGraph("mygraph");
     mx::NodeGraphPtr graph = child->asA<mx::NodeGraph>();
+    // Add comment block at the start of the first doc to check skipping
+    mx::ElementPtr comment = doc->addChildOfCategory(mx::CommentElement::CATEGORY);
+    comment->setDocString("Comment 1");
     for (auto it = inputMap.begin(); it != inputMap.end(); ++it)
     {
         const std::string inputType = (*it).first;
@@ -205,6 +208,11 @@ TEST_CASE("Document equivalence", "[document]")
             input->setName("input_" + inputType);
         }
     }
+    // Add comment blocks at end of second doc to check value and count checks
+    comment = doc2->addChildOfCategory(mx::CommentElement::CATEGORY);
+    comment->setDocString("Comment 2");
+    comment = doc2->addChildOfCategory(mx::CommentElement::CATEGORY);
+    comment->setDocString("Comment 3");
 
     mx::ElementEquivalenceOptions options;
     mx::ElementEquivalenceResultVec results;
