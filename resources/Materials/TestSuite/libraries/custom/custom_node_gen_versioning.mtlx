@@ -3,7 +3,7 @@
 
   <!-- definition -->
   <nodedef name="ND_custom_node_gen_versioning" node="custom_node_gen_versioning" nodegroup="custom" doc="A simple function in a module with MDL language versioning.">
-    <input name="scale" type="float" value="1.0f" />
+    <input name="scale" type="float" value="1.0" />
     <output name="out" type="color3" />
   </nodedef>
   <!-- implementation -->

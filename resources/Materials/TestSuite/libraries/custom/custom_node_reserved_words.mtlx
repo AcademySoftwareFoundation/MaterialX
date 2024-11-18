@@ -3,7 +3,7 @@
 
   <!-- definition -->
   <nodedef name="ND_custom_node_reserved_param_name" node="custom_node_reserved_param_name" nodegroup="custom" doc="Shows how to handle reserved names in the parameter list">
-    <input name="auto" type="float" value="0.8f" /> <!-- "auto" is reserved in MDL. The code generator will prepend "mxp_" -->
+    <input name="auto" type="float" value="0.8" /> <!-- "auto" is reserved in MDL. The code generator will prepend "mxp_" -->
     <output name="out" type="color3" />
   </nodedef>
   <!-- implementation -->
@@ -15,7 +15,7 @@
     target="genmdl"/>
   <!-- instanciation -->
   <custom_node_reserved_param_name name="custom_node_reserved_param_name1" type="color3">
-    <input name="auto" type="float" value="0.9f" />
+    <input name="auto" type="float" value="0.9" />
   </custom_node_reserved_param_name>
   <burley_diffuse_bsdf name="burley_brdf1" type="BSDF">
     <input name="color" type="color3" nodename="custom_node_reserved_param_name1"/>
@@ -44,7 +44,7 @@
     target="genmdl"/>
   <!-- instanciation -->
   <custom_node_reserved_output_name name="custom_node_reserved_output_name1" type="multioutput">
-    <input name="scale" type="float" value="0.9f" />
+    <input name="scale" type="float" value="0.9" />
   </custom_node_reserved_output_name>
   <burley_diffuse_bsdf name="burley_brdf2" type="BSDF">
     <input name="color" type="color3" nodename="custom_node_reserved_output_name1" output="out" />
