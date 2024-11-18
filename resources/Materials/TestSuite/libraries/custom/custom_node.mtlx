@@ -9,9 +9,9 @@
     - the `name` that needs to referenced when adding the implementation with the actual script
   -->
   <nodedef name="ND_custom_node" node="custom_node" nodegroup="custom" doc="A simple example that creates a color.">
-    <input name="red" type="float" value="0.0f" />
-    <input name="green" type="float" value="0.0f" />
-    <input name="blue" type="float" value="0.0f" />
+    <input name="red" type="float" value="0.0" />
+    <input name="green" type="float" value="0.0" />
+    <input name="blue" type="float" value="0.0" />
     <output name="out" type="color3" />
   </nodedef>
 
@@ -32,9 +32,9 @@
     Parameters can be overridden or default values are used.
   -->
   <custom_node name="custom_node1" type="color3">
-    <input name="red" type="float" value="0.35f" />
-    <input name="green" type="float" value="0.45f" />
-    <input name="blue" type="float" value="0.55f" />
+    <input name="red" type="float" value="0.35" />
+    <input name="green" type="float" value="0.45" />
+    <input name="blue" type="float" value="0.55" />
   </custom_node>
 
   <burley_diffuse_bsdf name="burley_brdf1" type="BSDF">
