@@ -122,7 +122,12 @@ static void generateMslCode()
     mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
 
     mx::FilePathVec testRootPaths;
-    testRootPaths.push_back(searchPath.find("resources/Materials/TestSuite"));
+    testRootPaths.push_back(searchPath.find("resources/Materials/TestSuite/libraries/metal"));
+    testRootPaths.push_back(searchPath.find("resources/Materials/TestSuite/lights"));
+    testRootPaths.push_back(searchPath.find("resources/Materials/TestSuite/locale"));
+    testRootPaths.push_back(searchPath.find("resources/Materials/TestSuite/nprlib"));
+    testRootPaths.push_back(searchPath.find("resources/Materials/TestSuite/pbrlib"));
+    testRootPaths.push_back(searchPath.find("resources/Materials/TestSuite/stdlib"));
     testRootPaths.push_back(searchPath.find("resources/Materials/Examples/StandardSurface"));
 
     const mx::FilePath logPath("genmsl_msl23_layout_generate_test.txt");
