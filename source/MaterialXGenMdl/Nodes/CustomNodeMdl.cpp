@@ -59,7 +59,7 @@ void CustomCodeNodeMdl::initialize(const InterfaceElement& element, GenContext& 
     }
     const string versionSuffix = shadergenMdl.getMdlVersionFilenameSuffix(context);
     _qualifiedModuleName = syntax.replaceSourceCodeMarkers(element.getName(), mdlModuleName,
-        [&mdlModuleName, versionSuffix, &syntax](const string& marker)
+        [&versionSuffix, &syntax](const string& marker)
     {
         return marker == syntax.getMdlVersionSuffixMarker() ? versionSuffix : marker;
     });
@@ -71,7 +71,7 @@ void CustomCodeNodeMdl::initialize(const InterfaceElement& element, GenContext& 
     const StringSet& reservedWords = syntax.getReservedWords();
     const NodeDefPtr node = impl.getNodeDef();
     string delim = EMPTY_STRING;
-    for (const InputPtr input : node->getInputs())
+    for (const InputPtr& input : node->getInputs())
     {
         string inputName = input->getName();
         if (reservedWords.find(inputName) != reservedWords.end())
