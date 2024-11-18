@@ -4,7 +4,7 @@
   <!-- definition -->
   <nodedef name="ND_custom_node_image_luminance" node="custom_node_image_luminance" nodegroup="custom" doc="A simple example uses a filename parameter.">
     <input name="file" type="filename" value="" />
-    <input name="texcoord" type="vector2" value="0.0f, 0.0f" />
+    <input name="texcoord" type="vector2" value="0.0, 0.0" />
     <output name="out" type="color3" />
   </nodedef>
   <!-- implementation -->

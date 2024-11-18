@@ -18,7 +18,7 @@
 
   <!-- instanciation -->
   <custom_node_multiple_output name="custom_node_multiple_output1" type="multioutput">
-    <input name="scale" type="float" value="0.9f" />
+    <input name="scale" type="float" value="0.9" />
   </custom_node_multiple_output>
 
   <burley_diffuse_bsdf name="burley_brdf1" type="BSDF">
