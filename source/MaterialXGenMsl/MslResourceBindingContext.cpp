@@ -38,7 +38,7 @@ void MslResourceBindingContext::emitResourceBindings(GenContext& context, const 
     bool hasValueUniforms = false;
     for (auto uniform : uniforms.getVariableOrder())
     {
-        if (uniform->getType() != Type::FILENAME)
+        if (!uniform->getType().isFilename())
         {
             hasValueUniforms = true;
             break;
@@ -51,7 +51,7 @@ void MslResourceBindingContext::emitResourceBindings(GenContext& context, const 
         generator.emitScopeBegin(stage);
         for (auto uniform : uniforms.getVariableOrder())
         {
-            if (uniform->getType() != Type::FILENAME)
+            if (!uniform->getType().isFilename())
             {
                 generator.emitLineBegin(stage);
                 generator.emitVariableDeclaration(uniform, EMPTY_STRING, context, stage, false);

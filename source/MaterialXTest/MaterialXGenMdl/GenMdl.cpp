@@ -91,6 +91,7 @@ TEST_CASE("GenShader: MDL Implementation Check", "[genmdl]")
 
     mx::StringSet generatorSkipNodeTypes;
     generatorSkipNodeTypes.insert("light");
+    generatorSkipNodeTypes.insert("imagearray");
 
     mx::StringSet generatorSkipNodeDefs;
 
