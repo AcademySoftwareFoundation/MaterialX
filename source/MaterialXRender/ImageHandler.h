@@ -196,7 +196,7 @@ class MX_RENDER_API ImageHandler
     /// Bind an image for rendering.
     /// @param image The image to bind.
     /// @param samplingProperties Sampling properties for the image.
-    virtual bool bindImage(ImagePtr image, const ImageSamplingProperties& samplingProperties);
+    virtual bool bindImage(ImagePtr image, const ImageSamplingProperties& samplingProperties, vector<ImagePtr> additionalImages = {});
 
     /// Unbind an image, making it no longer active for rendering.
     /// @param image The image to unbind.
@@ -230,7 +230,7 @@ class MX_RENDER_API ImageHandler
     }
 
     /// Create rendering resources for the given image.
-    virtual bool createRenderResources(ImagePtr image, bool generateMipMaps, bool useAsRenderTarget = false);
+    virtual bool createRenderResources(ImagePtr image, bool generateMipMaps, bool useAsRenderTarget = false, vector<ImagePtr> additionalImages = {});
 
     /// Release rendering resources for the given image, or for all cached images
     /// if no image pointer is specified.

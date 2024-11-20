@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<materialx version="1.39" colorspace="srgb_texture">
+  <!--
+  Basic image unit test with one image node for each variation in input type.
+  -->
+  <imagearray name="imagearray_color4" type="color4">
+    <input name="files" type="filenamearray" value="resources/Images/udim_bunny/grid_1001.png,resources/Images/udim_bunny/grid_1002.png, resources/Images/udim_bunny/grid_1003.png" />
+    <input name="index" type="integer" value="1"/>
+  </imagearray>
+  <output name="imagearray_color4_output" type="color4" nodename="imagearray_color4" />
+
+  <imagearray name="imagearray_color3" type="color3">
+    <input name="files" type="filenamearray" value="resources/Images/udim_bunny/grid_1001.png,resources/Images/udim_bunny/grid_1002.png, resources/Images/udim_bunny/grid_1003.png" />
+    <input name="index" type="integer" value="1"/>
+  </imagearray>
+  <output name="imagearray_color3_output" type="color3" nodename="imagearray_color3" />
+
+  <imagearray name="imagearray_vector4" type="vector4">
+    <input name="files" type="filenamearray" value="resources/Images/udim_bunny/grid_1001.png,resources/Images/udim_bunny/grid_1002.png, resources/Images/udim_bunny/grid_1003.png" />
+    <input name="index" type="integer" value="1"/>
+  </imagearray>
+  <output name="imagearray_vector4_output" type="vector4" nodename="imagearray_vector4" />
+
+  <imagearray name="imagearray_vector3" type="vector3">
+    <input name="files" type="filenamearray" value="resources/Images/udim_bunny/grid_1001.png,resources/Images/udim_bunny/grid_1002.png, resources/Images/udim_bunny/grid_1003.png" />
+    <input name="index" type="integer" value="1"/>
+  </imagearray>
+  <output name="imagearray_vector3_output" type="vector3" nodename="imagearray_vector3" />
+
+  <imagearray name="imagearray_vector2" type="vector2">
+    <input name="files" type="filenamearray" value="resources/Images/udim_bunny/grid_1001.png,resources/Images/udim_bunny/grid_1002.png, resources/Images/udim_bunny/grid_1003.png" />
+    <input name="index" type="integer" value="1"/>
+  </imagearray>
+  <output name="imagearray_vector2_output" type="vector2" nodename="imagearray_vector2" />
+
+  <imagearray name="imagearray_float" type="float">
+    <input name="files" type="filenamearray" value="resources/Images/udim_bunny/grid_1001.png,resources/Images/udim_bunny/grid_1002.png, resources/Images/udim_bunny/grid_1003.png" />
+    <input name="index" type="integer" value="1"/>
+  </imagearray>
+  <output name="imagearray_float_output" type="float" nodename="imagearray_float" />
+  
+</materialx>

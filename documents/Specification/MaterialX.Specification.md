@@ -696,6 +696,17 @@ The type of the &lt;image> node determines the number of channels output, which 
     * `vaddressmode` (uniform string): determines how V coordinates outside the 0-1 range are processed before sampling the image; see below.  Default is "periodic".
     * `filtertype` (uniform string): the type of texture filtering to use; standard values include "closest" (nearest-neighbor single-sample), "linear", and "cubic".  If not specified, an application may use its own default texture filtering method.
 
+<a id="node-imagearray"> </a>
+
+* **`imagearray`**: samples data from an array of images, the image to be used is selected by index in to the array. The selected image is mapped on the geometry using the same process as described above for <image>.
+    * `files` (uniform filenamearray): an array of URI of image files.
+    * `index` (integer): the index of the image to use from the array of images provided.  If the value for `index` is outside the range of the provided image filenames, then the behavior is undefined.
+    * `default` (float or color<em>N</em> or vector<em>N</em>): a default value to use if the indexed filename from `files` can not be resolved (e.g. if  the resolved file URI cannot be read).  The `default` value must be the same type as the `<imagearray>` element itself.  If `default` is not defined, the default color value will be 0.0 in all channels.
+    * `texcoord` (vector2): the name of a vector2-type node specifying the 2D texture coordinate at which the image data is read.  Default is to use the current u,v coordinate.
+    * `uaddressmode` (uniform string): determines how U coordinates outside the 0-1 range are processed before sampling the image; see below.  Default is "periodic".
+    * `vaddressmode` (uniform string): determines how V coordinates outside the 0-1 range are processed before sampling the image; see below.  Default is "periodic".
+    * `filtertype` (uniform string): the type of texture filtering to use; standard values include "closest" (nearest-neighbor single-sample), "linear", and "cubic".  If not specified, an application may use its own default texture filtering method.
+
 <a id="node-tiledimage"> </a>
 
 * **`tiledimage`** (NG): samples data from a single image, with provisions for tiling and offsetting the image across uv space.

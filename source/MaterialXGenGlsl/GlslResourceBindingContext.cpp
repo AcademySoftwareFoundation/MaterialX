@@ -65,7 +65,7 @@ void GlslResourceBindingContext::emitResourceBindings(GenContext& context, const
     bool hasValueUniforms = false;
     for (auto uniform : uniforms.getVariableOrder())
     {
-        if (uniform->getType() != Type::FILENAME)
+        if (!uniform->getType().isFilename())
         {
             hasValueUniforms = true;
             break;
@@ -79,7 +79,7 @@ void GlslResourceBindingContext::emitResourceBindings(GenContext& context, const
         generator.emitScopeBegin(stage);
         for (auto uniform : uniforms.getVariableOrder())
         {
-            if (uniform->getType() != Type::FILENAME)
+            if (!uniform->getType().isFilename())
             {
                 generator.emitLineBegin(stage);
                 generator.emitVariableDeclaration(uniform, EMPTY_STRING, context, stage, false);
@@ -93,7 +93,7 @@ void GlslResourceBindingContext::emitResourceBindings(GenContext& context, const
     // Second, emit all sampler uniforms as separate uniforms with separate layout bindings
     for (auto uniform : uniforms.getVariableOrder())
     {
-        if (uniform->getType() == Type::FILENAME)
+        if (uniform->getType().isFilename())
         {
             generator.emitString("layout (binding=" + std::to_string(_separateBindingLocation ? _hwUniformBindLocation++ : _hwSamplerBindLocation++) + ") " + syntax.getUniformQualifier() + " ", stage);
             generator.emitVariableDeclaration(uniform, EMPTY_STRING, context, stage, false);

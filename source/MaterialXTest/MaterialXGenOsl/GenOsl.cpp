@@ -87,6 +87,7 @@ TEST_CASE("GenShader: OSL Implementation Check", "[genosl]")
 
     mx::StringSet generatorSkipNodeTypes;
     generatorSkipNodeTypes.insert("light");
+    generatorSkipNodeTypes.insert("imagearray");
 
     mx::StringSet generatorSkipNodeDefs;
 
