@@ -890,6 +890,7 @@ Standard Noise nodes:
     * `metric` (uniform string): the distance metric to return, one of "distance" (Euclidean distance to feature), "distance2" (Euclidean distance squared), "manhattan" or "chebyshev".  Default is "distance".
     * `period` (float or vector3): the positive integer distance at which the noise function returns the same value for texture coordinates repeated at that step.  Default is 0, meaning the noise is not periodic.
     * `jitter` (float): amount to jitter the cell center position, with smaller values creating a more regular pattern.  Default is 1.0.
+    * `style` (integer): the output style, one of "distance" (distance to the cell center), or "solid" (constant value for each cell).
     * `texcoord` (vector2): the 2D position at which the noise is evaluated.  Default is to use the first set of texture coordinates.
 
 <a id="node-worleynoise3d"> </a>
@@ -898,6 +899,7 @@ Standard Noise nodes:
     * `metric` (uniform string): the distance metric to return, one of "distance" (Euclidean distance to feature), "distance2" (Euclidean distance squared), "manhattan" or "chebyshev".  Default is "distance".
     * `period` (float or vector3): the positive integer distance at which the noise function returns the same value for position coordinates repeated at that step.  Default is 0, meaning the noise is not periodic.
     * `jitter` (float): amount to jitter the cell center position, with smaller values creating a more regular pattern.  Default is 1.0.
+    * `style` (integer): the output style, one of "distance" (distance to the cell center), or "solid" (constant value for each cell). Default is "distance".
     * `position` (vector3): the 3D position at which the noise is evaluated.  Default is to use the current 3D object-space coordinate.
 
 <a id="node-unifiednoise2d"> </a>
