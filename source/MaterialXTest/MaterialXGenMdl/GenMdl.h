@@ -6,6 +6,8 @@
 #ifndef GENMDL_H
 #define GENMDL_H
 
+#include <memory>
+
 #include <MaterialXTest/External/Catch/catch.hpp>
 
 #include <MaterialXTest/MaterialXGenShader/GenShaderUtil.h>
@@ -14,6 +16,37 @@ namespace mx = MaterialX;
 
 class MdlStringResolver;
 using MdlStringResolverPtr = std::shared_ptr<MdlStringResolver>;
+
+/// Resolve MaterialX file paths to MDL resource paths,
+/// which is done in preprocessDocument before generator and renderer tests.
+class MdlStringResolver : public mx::StringResolver
+{
+  public:
+    /// Create a new string resolver.
+    static MdlStringResolverPtr create();
+    ~MdlStringResolver() = default;
+
+    /// Setup the resolver for a given document
+    void initialize(
+        mx::DocumentPtr document,
+        std::ostream* logFile,
+        std::initializer_list<mx::FilePath> additionalSearchpaths);
+
+    /// Given an input string and type, apply all appropriate modifiers and
+    /// return the resulting string.
+    std::string resolve(const std::string& str, const std::string& type) const override;
+
+    /// Get the list of MDL search paths from which we can locate resources.
+    const mx::FileSearchPath& getMdlSearchPaths() const { return _mdl_searchPaths; }
+
+  private:
+    /// search paths computed during `initialize`
+    mx::FileSearchPath _mdl_searchPaths;
+
+    /// log stream of the tester
+    std::ostream* _logFile;
+};
+
 
 class MdlShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
 {
@@ -40,19 +73,12 @@ class MdlShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
         ParentClass::addSkipNodeDefs();
     }
 
-    // Ignore files using derivatives
+    // Ignore certain .mtlx files
     void addSkipFiles() override
     {
-        std::string renderExec(MATERIALX_MDL_RENDER_EXECUTABLE);
-        if (std::string::npos != renderExec.find("df_cuda"))
-        {
-            // df_cuda will currently hang on rendering one of the shaders in this file
-            _skipFiles.insert("heighttonormal_in_nodegraph.mtlx");
-        }
-
+        // no additional files are skipped
         ShaderGeneratorTester::addSkipFiles();
     }
-
 
     // Ignore light shaders in the document for MDL
     void findLights(mx::DocumentPtr /*doc*/, std::vector<mx::NodePtr>& lights) override
