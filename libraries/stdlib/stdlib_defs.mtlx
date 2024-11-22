@@ -1355,21 +1355,6 @@
   </nodedef>
 
   <!-- ======================================================================== -->
-  <!-- Global nodes                                                             -->
-  <!-- ======================================================================== -->
-
-  <!--
-    Node: <ambientocclusion>
-    Computes the ambient occlusion (0-1 float) at the current surface point.  Larger
-    values represent greater accessibility to ambient light, 0 means "fully occluded".
-  -->
-  <nodedef name="ND_ambientocclusion_float" node="ambientocclusion" nodegroup="global">
-    <input name="coneangle" type="float" value="90.0" unittype="angle" unit="degree" />
-    <input name="maxdistance" type="float" value="1e38" />
-    <output name="out" type="float" default="1.0" />
-  </nodedef>
-
-  <!-- ======================================================================== -->
   <!-- Application nodes                                                        -->
   <!-- ======================================================================== -->
 
@@ -2896,44 +2881,6 @@
     <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="low" type="float" value="0.0" />
     <input name="high" type="float" value="1.0" />
-    <output name="out" type="vector4" defaultinput="in" />
-  </nodedef>
-
-  <!--
-    Node: <curveadjust>
-    Outputs a smooth remapping of input values using the centripetal Catmull-Rom
-    cubic spline curve defined by specified knot values, using an inverse spline
-    lookup on input knot values and a forward spline through output knot values.
-    All channels of the input will be remapped using the same curve.
-  -->
-  <nodedef name="ND_curveadjust_float" node="curveadjust" nodegroup="adjustment">
-    <input name="in" type="float" value="0.0" />
-    <input name="knots" type="vector2array" value="" />
-    <output name="out" type="float" defaultinput="in" />
-  </nodedef>
-  <nodedef name="ND_curveadjust_color3" node="curveadjust" nodegroup="adjustment">
-    <input name="in" type="color3" value="0.0, 0.0, 0.0" />
-    <input name="knots" type="vector2array" value="" />
-    <output name="out" type="color3" defaultinput="in" />
-  </nodedef>
-  <nodedef name="ND_curveadjust_color4" node="curveadjust" nodegroup="adjustment">
-    <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0" />
-    <input name="knots" type="vector2array" value="" />
-    <output name="out" type="color4" defaultinput="in" />
-  </nodedef>
-  <nodedef name="ND_curveadjust_vector2" node="curveadjust" nodegroup="adjustment">
-    <input name="in" type="vector2" value="0.0, 0.0" />
-    <input name="knots" type="vector2array" value="" />
-    <output name="out" type="vector2" defaultinput="in" />
-  </nodedef>
-  <nodedef name="ND_curveadjust_vector3" node="curveadjust" nodegroup="adjustment">
-    <input name="in" type="vector3" value="0.0, 0.0, 0.0" />
-    <input name="knots" type="vector2array" value="" />
-    <output name="out" type="vector3" defaultinput="in" />
-  </nodedef>
-  <nodedef name="ND_curveadjust_vector4" node="curveadjust" nodegroup="adjustment">
-    <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
-    <input name="knots" type="vector2array" value="" />
     <output name="out" type="vector4" defaultinput="in" />
   </nodedef>
 
