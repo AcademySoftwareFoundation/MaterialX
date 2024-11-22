@@ -1,0 +1,579 @@
+/******************************************************************************
+ * Copyright 2025 NVIDIA Corporation. All rights reserved.
+ *****************************************************************************/
+
+// MaterialXRenderMdlStandalone/content/path_trace.comp
+
+// Expected defines:
+//   LOCAL_SIZE_X : The local work group size in the x dimension
+//   LOCAL_SIZE_Y : The local work group size in the y dimension
+//
+//   BINDING_RENDER_PARAMS         : Binding index for Render_params
+//   BINDING_ENV_MAP               : Binding index for uEnvironmentMap
+//   BINDING_ENV_MAP_SAMPLING_DATA : Binding index for Environment_sample_data_buffer
+//   BINDING_BEAUTY_BUFFER         : Binding index for uBeautyBuffer
+//
+//   MDL_HAS_BACKFACE_BSDF               : Only defined if backface.scattering is non-default and different than surface.scattering
+//   MDL_HAS_BACKFACE_EDF                : Only defined if backface.emission.emission is non-default and different than surface.emission.emission
+//   MDL_HAS_BACKFACE_EMISSION_INTENSITY : Only defined if backface.emission.intensity is non-default and different than surface.emission.intensity
+
+#version 450
+#extension GL_GOOGLE_include_directive : require
+
+
+layout(local_size_x = LOCAL_SIZE_X, local_size_y = LOCAL_SIZE_Y, local_size_z = 1) in;
+
+layout(std140, set = 0, binding = BINDING_RENDER_PARAMS) uniform Render_params
+{
+    // Camera
+    vec3 uCamPos;
+    vec3 uCamDir;
+    vec3 uCamRight;
+    vec3 uCamUp;
+    float uCamFocal;
+
+    // Point light
+    vec3 uPointLightPos;
+    vec3 uPointLightColor;
+    float uPointLightIntensity;
+
+    // Environment
+    float uEnvironmentIntensityFactor;
+    float uEnvironmentInvIntegral;
+    float uEnvironmentRotation;
+    uint uBackgroundColorEnabled;
+    vec3 uBackgroundColor;
+
+    // Render params
+    uint uMaxPathLength;
+    uint uSamplesPerIteration;
+    uint uProgressiveIteration;
+    uint uFlipTexCoordV;
+};
+
+layout(set = 0, binding = BINDING_ENV_MAP) uniform sampler2D uEnvironmentMap;
+
+struct Environment_sample_data
+{
+    uint alias;
+    float q;
+};
+
+layout(set = 0, binding = BINDING_ENV_MAP_SAMPLING_DATA)
+readonly restrict buffer Environment_sample_data_buffer
+{
+    Environment_sample_data uEnvMapSampleData[];
+};
+
+layout(rgba32f, set = 0, binding = BINDING_BEAUTY_BUFFER)
+uniform restrict image2D uBeautyBuffer;
+
+struct Ray_state
+{
+    vec3 contribution;
+    vec3 weight;
+    vec3 origin;
+    vec3 dir;
+    float last_bsdf_pdf;
+    bool is_inside;
+    bool is_camera_ray;
+};
+
+struct Ray_hit_info
+{
+    float dist;
+    vec3 position;
+    vec3 normal;
+    vec3 tex_coord;
+    vec3 tangent_u;
+    vec3 tangent_v;
+};
+
+const float M_PI = 3.14159265358979323846;
+const float M_ONE_OVER_PI = 0.318309886183790671538;
+const float DIRAC = -1.0;
+
+//-------------------------------------------------------------------------------------------------
+// MDL Runtime for resource access
+//-------------------------------------------------------------------------------------------------
+#include "MaterialXRenderMdlStandalone/mdl_runtime.glsl"
+
+
+//-------------------------------------------------------------------------------------------------
+// MDL function prototypes
+//-------------------------------------------------------------------------------------------------
+void mdl_init(inout State state);
+bool mdl_thin_walled(in State state);
+
+void mdl_bsdf_sample(inout Bsdf_sample_data sret_ptr, in State state);
+void mdl_bsdf_evaluate(inout Bsdf_evaluate_data sret_ptr, in State state);
+void mdl_bsdf_pdf(inout Bsdf_pdf_data sret_ptr, in State state);
+void mdl_bsdf_auxiliary(inout Bsdf_auxiliary_data sret_ptr, in State state);
+
+void mdl_edf_sample(inout Edf_sample_data sret_ptr, in State state);
+void mdl_edf_evaluate(inout Edf_evaluate_data sret_ptr, in State state);
+void mdl_edf_pdf(inout Edf_pdf_data sret_ptr, in State state);
+void mdl_edf_auxiliary(inout Edf_auxiliary_data sret_ptr, inout State state);
+vec3 mdl_emission_intensity(in State state);
+
+#ifdef MDL_HAS_BACKFACE_BSDF
+void mdl_backface_bsdf_sample(inout Bsdf_sample_data sret_ptr, in State state);
+void mdl_backface_bsdf_evaluate(inout Bsdf_evaluate_data sret_ptr, in State state);
+void mdl_backface_bsdf_pdf(inout Bsdf_pdf_data sret_ptr, in State state);
+void mdl_backface_bsdf_auxiliary(inout Bsdf_auxiliary_data sret_ptr, in State state);
+#else
+#define mdl_backface_bsdf_sample    mdl_bsdf_sample
+#define mdl_backface_bsdf_evaluate  mdl_bsdf_evaluate
+#define mdl_backface_bsdf_pdf       mdl_bsdf_pdf
+#define mdl_backface_bsdf_auxiliary mdl_bsdf_auxiliary
+#endif // HAS_BACKFACE_BSDF
+
+#ifdef MDL_HAS_BACKFACE_EDF
+void mdl_backface_edf_sample(inout Edf_sample_data sret_ptr, in State state);
+void mdl_backface_edf_evaluate(inout Edf_evaluate_data sret_ptr, in State state);
+void mdl_backface_edf_pdf(inout Edf_pdf_data sret_ptr, in State state);
+void mdl_backface_edf_auxiliary(inout Edf_auxiliary_data sret_ptr, inout State state);
+#else
+#define mdl_backface_edf_sample    mdl_edf_sample
+#define mdl_backface_edf_evaluate  mdl_edf_evaluate
+#define mdl_backface_edf_pdf       mdl_edf_pdf
+#define mdl_backface_edf_auxiliary mdl_edf_auxiliary
+#endif // HAS_BACKFACE_EDF
+
+#ifdef MDL_HAS_BACKFACE_EMISSION_INTENSITY
+vec3 mdl_backface_emission_intensity(in State state);
+#else
+#define mdl_backface_emission_intensity mdl_emission_intensity
+#endif // HAS_BACKFACE_EMISSION_INTENSITY
+
+vec3 mdl_absorption_coefficient(in State state);
+float mdl_standalone_cutout_opacity(in State state);
+
+
+//-------------------------------------------------------------------------------------------------
+// random number generator based on the Optix SDK
+//-------------------------------------------------------------------------------------------------
+uint tea(uint N, uint val0, uint val1)
+{
+    uint v0 = val0;
+    uint v1 = val1;
+    uint s0 = 0;
+
+    for (uint n = 0; n < N; n++)
+    {
+        s0 += 0x9e3779b9;
+        v0 += ((v1 << 4) + 0xa341316c) ^ (v1 + s0) ^ ((v1 >> 5) + 0xc8013ea4);
+        v1 += ((v0 << 4) + 0xad90777d) ^ (v0 + s0) ^ ((v0 >> 5) + 0x7e95761e);
+    }
+
+    return v0;
+}
+
+// Generate random uint in [0, 2^24)
+uint lcg(inout uint prev)
+{
+    const uint LCG_A = 1664525u;
+    const uint LCG_C = 1013904223u;
+    prev = (LCG_A * prev + LCG_C);
+    return prev & 0x00FFFFFF;
+}
+
+// Generate random float in [0, 1)
+float rnd(inout uint prev)
+{
+    return float(lcg(prev)) / float(0x01000000);
+}
+
+
+//-------------------------------------------------------------------------------------------------
+// environment map importance sampling
+//-------------------------------------------------------------------------------------------------
+vec3 environment_evaluate(vec3 normalized_dir, out float pdf)
+{
+    // assuming lat long
+    float u = atan(normalized_dir.z, normalized_dir.x) * 0.5 * M_ONE_OVER_PI + 0.5;
+    u -= uEnvironmentRotation;
+    if (u < 0.0f)
+        u += 1.0f;
+    const float v = acos(-normalized_dir.y) * M_ONE_OVER_PI;
+
+    // get radiance and calculate pdf
+    vec3 t = textureLod(uEnvironmentMap, vec2(u, v), /*lod=*/0).xyz;
+    pdf = max(t.x, max(t.y, t.z)) * uEnvironmentInvIntegral;
+    return t * uEnvironmentIntensityFactor;
+}
+
+vec3 environment_sample(inout uint seed, out vec3 to_light, out float pdf)
+{
+    vec3 xi = vec3(rnd(seed), rnd(seed), rnd(seed));
+
+    // importance sample an envmap pixel using an alias map
+    ivec2 tex_size = textureSize(uEnvironmentMap, /*lod=*/0);
+    const uint size = tex_size.x * tex_size.y;
+    const uint idx = min(uint(xi.x * float(size)), size - 1);
+    uint env_idx;
+    float xi_y = xi.y;
+    if (xi_y < uEnvMapSampleData[idx].q)
+    {
+        env_idx = idx;
+        xi_y /= uEnvMapSampleData[idx].q;
+    }
+    else
+    {
+        env_idx = uEnvMapSampleData[idx].alias;
+        xi_y = (xi_y - uEnvMapSampleData[idx].q) / (1.0 - uEnvMapSampleData[idx].q);
+    }
+
+    const uint py = env_idx / tex_size.x;
+    const uint px = env_idx % tex_size.x;
+    
+    // uniformly sample spherical area of pixel
+    const float u = float(px + xi_y) / float(tex_size.x);
+    float u_rot = u + uEnvironmentRotation;
+    if (u_rot > 1.0f)
+        u_rot -= 1.0f;
+    const float phi = u_rot * 2.0 * M_PI - M_PI;
+    const float sin_phi = sin(phi);
+    const float cos_phi = cos(phi);
+    const float step_theta = M_PI / float(tex_size.y);
+    const float theta0 = float(py) * step_theta;
+    const float cos_theta = cos(theta0) * (1.0 - xi.z) + cos(theta0 + step_theta) * xi.z;
+    const float theta = acos(cos_theta);
+    const float sin_theta = sin(theta);
+    to_light = vec3(cos_phi * sin_theta, -cos_theta, sin_phi * sin_theta);
+    
+    // lookup filtered beauty
+    const float v = theta * M_ONE_OVER_PI;
+    const vec4 t = textureLod(uEnvironmentMap, vec2(u, v), /*lod=*/0);
+    pdf = max(t.x, max(t.y, t.z)) * uEnvironmentInvIntegral;
+    return vec3(t.x, t.y, t.z) * uEnvironmentIntensityFactor;
+}
+
+vec3 sample_lights(State state, inout uint seed, out vec3 to_light, out float light_pdf)
+{
+    float p_select_light = 1.0;
+
+    if (uPointLightIntensity > 0.0)
+    {
+        p_select_light = uEnvironmentIntensityFactor > 0.0 ? 0.5 : 1.0;
+
+        if (rnd(seed) <= p_select_light)
+        {
+            light_pdf = DIRAC; // infinity
+
+            to_light = uPointLightPos - state.position;
+            const float inv_distance2 = 1.0 / dot(to_light, to_light);
+            to_light *= sqrt(inv_distance2);
+            return uPointLightColor * uPointLightIntensity * inv_distance2 * 0.25 * M_ONE_OVER_PI / p_select_light;
+        }
+
+        // Probability to select the environment instead
+        p_select_light = (1.0 - p_select_light);
+    }
+
+    vec3 radiance = environment_sample(seed, to_light, light_pdf);
+
+    // Return radiance over pdf
+    light_pdf *= p_select_light;
+    return radiance / light_pdf;
+}
+
+
+// Intersects the unit sphere that is located at the world origin.
+bool intersect_sphere(vec3 ray_origin, vec3 ray_dir, out Ray_hit_info out_info)
+{
+    const float sphere_radius = 1.0;
+    const float a = dot(ray_dir, ray_dir);
+    const float half_b = dot(ray_dir, ray_origin);
+    const float c = dot(ray_origin, ray_origin) - sphere_radius * sphere_radius;
+    const float discriminant = half_b * half_b - a * c;
+    if (discriminant < 0.0)
+        return false;
+
+    const float sqrt_discr = sqrt(discriminant);
+    float t = (-half_b - sqrt_discr) / a;
+    if (t < 0.0)
+        t = (-half_b + sqrt_discr) / a;
+
+    if (t < 0.0)
+        return false;
+
+    out_info.dist = t;
+    out_info.position = ray_origin + ray_dir * t;
+    out_info.normal = normalize(out_info.position);
+
+    const float phi = atan(out_info.normal.x, out_info.normal.z);
+    const float theta = acos(out_info.normal.y);
+    out_info.tex_coord = vec3(
+        (phi * M_ONE_OVER_PI + 1.0) * 0.5,
+        (uFlipTexCoordV == 0) ? (1.0 - theta * M_ONE_OVER_PI) : theta * M_ONE_OVER_PI,
+        0.0);
+
+    const float sin_phi = sin(phi);
+    const float cos_phi = cos(phi);
+    const float sin_theta = sin(theta);
+
+    out_info.tangent_u = vec3(cos_phi * sin_theta, 0.0, -sin_phi * sin_theta) * M_PI * sphere_radius;
+    out_info.tangent_u = normalize(out_info.tangent_u);
+
+    out_info.tangent_v = vec3(sin_phi * out_info.normal.y, -sin_theta, cos_phi * out_info.normal.y) * -M_PI * sphere_radius;
+    out_info.tangent_v = normalize(out_info.tangent_v);
+
+    return true;
+}
+
+vec3 offset_ray(const vec3 p, const vec3 n)
+{
+    const float origin = 1.0 / 32.0;
+    const float float_scale = 1.0 / 65536.0;
+    const float int_scale = 256.0;
+    const ivec3 of_i = ivec3(int_scale * n);
+
+    vec3 p_i = vec3(intBitsToFloat(floatBitsToInt(p.x) + ((p.x < 0.0) ? -of_i.x : of_i.x)),
+                    intBitsToFloat(floatBitsToInt(p.y) + ((p.y < 0.0) ? -of_i.y : of_i.y)),
+                    intBitsToFloat(floatBitsToInt(p.z) + ((p.z < 0.0) ? -of_i.z : of_i.z)));
+
+    return vec3(abs(p.x) < origin ? p.x + float_scale * n.x : p_i.x,
+                abs(p.y) < origin ? p.y + float_scale * n.y : p_i.y,
+                abs(p.z) < origin ? p.z + float_scale * n.z : p_i.z);
+}
+
+State make_mdl_state(Ray_hit_info hit_info, bool inside)
+{
+    const vec3 oriented_normal = inside ? -hit_info.normal : hit_info.normal;
+#ifdef NUM_TEX_RESULTS
+    vec4 tex_results[NUM_TEX_RESULTS]; // no need to initialize
+#endif
+
+    return State(
+        /*normal=*/                 oriented_normal,
+        /*geom_normal=*/            oriented_normal,
+        /*position=*/               hit_info.position,
+        /*animation_time=*/         0.0,
+        /*text_coords[1]=*/         vec3[1](hit_info.tex_coord),
+        /*tangent_u[1]=*/           vec3[1](hit_info.tangent_u),
+        /*tangent_v[1]=*/           vec3[1](hit_info.tangent_v),
+    #ifdef NUM_TEX_RESULTS
+        /*text_results[NUM_TEX_RESULTS]=*/ tex_results,
+    #endif
+        /*ro_data_segment_offset=*/ 0,
+        /*world_to_object=*/        mat4(1.0),
+        /*object_to_world=*/        mat4(1.0),
+        /*object_id=*/              0,
+        /*meters_per_scene_unit=*/  1.0,
+        /*arg_block_offset=*/       0
+    );
+    
+}
+
+
+void trace_path(inout Ray_state ray_state, inout uint seed)
+{
+    for (int bounce = 0; bounce < uMaxPathLength; bounce++)
+    {
+        Ray_hit_info hit_info;
+        if (!intersect_sphere(ray_state.origin, ray_state.dir, hit_info))
+        {
+            // Ray missed
+            float light_pdf;
+            vec3 light_radiance = environment_evaluate(ray_state.dir, light_pdf);
+
+            // Incorporate point light selection probability
+            if (uPointLightIntensity > 0.0)
+                light_pdf *= 0.5;
+
+            float mis_weight = ray_state.last_bsdf_pdf == DIRAC
+                ? 1.0
+                : ray_state.last_bsdf_pdf / (ray_state.last_bsdf_pdf + light_pdf);
+
+            ray_state.contribution += light_radiance * ray_state.weight * mis_weight;
+            break;
+        }
+        // Ray hit the sphere
+        ray_state.is_camera_ray = false;
+
+        State state = make_mdl_state(hit_info, ray_state.is_inside);
+        
+        // Handle cutout opacity
+        float x_anyhit = rnd(seed);
+        if (x_anyhit > mdl_standalone_cutout_opacity(state))
+        {
+            // Don't count this as a bounce
+            bounce--;
+
+            ray_state.is_inside = !ray_state.is_inside;
+            ray_state.origin = offset_ray(state.position, -state.geom_normal);
+
+            continue;
+        }
+
+        // Pre-compute and cache data used by generated MDL *_sample, *_evaluate functions
+        // NOTE: Would also cache data for cutout_opacity, but in this example we compile the
+        //       cutout_opacity function standalone so no expensive pre-comupation is done if
+        //       the cutout opacity causes this hit to be ignored.
+        mdl_init(state);
+
+        const bool thin_walled = mdl_thin_walled(state);
+        const bool is_backface = ray_state.is_inside && thin_walled;
+        const vec3 ior1 = vec3((ray_state.is_inside && !thin_walled) ? BSDF_USE_MATERIAL_IOR : 1.0);
+        const vec3 ior2 = vec3((ray_state.is_inside && !thin_walled) ? 1.0 : BSDF_USE_MATERIAL_IOR);
+
+        // Apply volume attenuation
+        if (ray_state.is_inside && !thin_walled)
+        {
+            const vec3 abs_coeff = mdl_absorption_coefficient(state);
+            ray_state.weight.x *= abs_coeff.x > 0.0 ? exp(-abs_coeff.x * hit_info.dist) : 1.0;
+            ray_state.weight.y *= abs_coeff.y > 0.0 ? exp(-abs_coeff.y * hit_info.dist) : 1.0;
+            ray_state.weight.z *= abs_coeff.z > 0.0 ? exp(-abs_coeff.z * hit_info.dist) : 1.0;
+        }
+
+        // Add emission
+        Edf_evaluate_data edf_evaluate_data;
+        edf_evaluate_data.k1 = -ray_state.dir;
+        
+        if (is_backface)
+        {
+            mdl_backface_edf_evaluate(edf_evaluate_data, state);
+            const vec3 emission_intensity = mdl_backface_emission_intensity(state);
+            ray_state.contribution += ray_state.weight * emission_intensity * edf_evaluate_data.edf;
+        }
+        else if (!ray_state.is_inside)
+        {
+            mdl_edf_evaluate(edf_evaluate_data, state);
+            const vec3 emission_intensity = mdl_emission_intensity(state);
+            ray_state.contribution += ray_state.weight * emission_intensity * edf_evaluate_data.edf;
+        }
+
+        // Sample lights
+        if (bounce < uMaxPathLength - 1)
+        {
+            vec3 to_light;
+            float light_pdf;
+            vec3 light_radiance_over_pdf = sample_lights(state, seed, to_light, light_pdf);
+
+            float offset_dir = sign(dot(state.geom_normal, to_light));
+            vec3 shadow_ray_origin = offset_ray(state.position, state.geom_normal * offset_dir);
+
+            Ray_hit_info shadow_hit;
+            bool shadow_ray_hit = intersect_sphere(shadow_ray_origin, to_light, shadow_hit);
+            float x_light_anyhit = rnd(seed);
+            if (shadow_ray_hit)
+            {
+                State shadow_hit_state = make_mdl_state(shadow_hit, ray_state.is_inside);
+                shadow_ray_hit = (x_light_anyhit <= mdl_standalone_cutout_opacity(shadow_hit_state));
+            }
+
+            if (!shadow_ray_hit && light_pdf != 0.0)
+            {
+                Bsdf_evaluate_data bsdf_eval_data;
+                bsdf_eval_data.ior1 = ior1;
+                bsdf_eval_data.ior2 = ior2;
+                bsdf_eval_data.k1 = -ray_state.dir;
+                bsdf_eval_data.k2 = to_light;
+
+                if (is_backface)
+                    mdl_backface_bsdf_evaluate(bsdf_eval_data, state);
+                else
+                    mdl_bsdf_evaluate(bsdf_eval_data, state);
+                
+                if (bsdf_eval_data.pdf > 0.0)
+                {
+                    const vec3 bsdf = bsdf_eval_data.bsdf_diffuse + bsdf_eval_data.bsdf_glossy;
+                    const float mis_weight = (light_pdf == DIRAC)
+                        ? 1.0
+                        : light_pdf / (light_pdf + bsdf_eval_data.pdf);
+                    ray_state.contribution += ray_state.weight * light_radiance_over_pdf * bsdf * mis_weight;
+                }
+            }
+        }
+
+        // Sample BSDF
+        Bsdf_sample_data bsdf_sample_data;
+        bsdf_sample_data.ior1 = ior1;
+        bsdf_sample_data.ior2 = ior2;
+        bsdf_sample_data.k1 = -ray_state.dir;
+        bsdf_sample_data.xi = vec4(rnd(seed), rnd(seed), rnd(seed), rnd(seed));
+
+        if (is_backface)
+            mdl_backface_bsdf_sample(bsdf_sample_data, state);
+        else
+            mdl_bsdf_sample(bsdf_sample_data, state);
+
+        if (bsdf_sample_data.event_type == BSDF_EVENT_ABSORB)
+            break;
+        
+        // Continue path
+        bool is_specular = (bsdf_sample_data.event_type & BSDF_EVENT_SPECULAR) != 0;
+        bool is_transmission = (bsdf_sample_data.event_type & BSDF_EVENT_TRANSMISSION) != 0;
+
+        if (is_transmission)
+        {
+            ray_state.is_inside = !ray_state.is_inside;
+            ray_state.origin = offset_ray(state.position, -state.geom_normal);
+        }
+        else
+        {
+            ray_state.origin = offset_ray(state.position, state.geom_normal);
+        }
+
+        ray_state.weight *= bsdf_sample_data.bsdf_over_pdf;
+        ray_state.dir = bsdf_sample_data.k2;
+        ray_state.last_bsdf_pdf = is_specular ? DIRAC : bsdf_sample_data.pdf;
+    }
+}
+
+
+//-------------------------------------------------------------------------------------------------
+// entry point
+//-------------------------------------------------------------------------------------------------
+void main()
+{
+    ivec2 image_size = imageSize(uBeautyBuffer);
+    if (gl_GlobalInvocationID.x > image_size.x || gl_GlobalInvocationID.y > image_size.y)
+        return;
+
+    vec3 contribution = vec3(0.0);
+
+    for (uint iteration = 0; iteration < uSamplesPerIteration; iteration++)
+    {
+        uint seed = tea(
+            16, /*magic (see OptiX path tracing example)*/
+            gl_GlobalInvocationID.y * uint(image_size.x) + gl_GlobalInvocationID.x,
+            uProgressiveIteration + iteration);
+
+        vec2 resolution = vec2(image_size);
+        vec2 jitter = vec2(rnd(seed), rnd(seed));
+        vec2 uv = (vec2(gl_GlobalInvocationID.xy) + jitter) / resolution * 2.0 - 1.0;
+        float aspect = resolution.y / resolution.x;
+
+        vec3 ray_origin = uCamPos;
+        vec3 ray_dir = normalize(uCamDir * uCamFocal + uCamRight * uv.x + uCamUp * uv.y * aspect);
+
+        Ray_state ray_state;
+        ray_state.contribution = vec3(0.0);
+        ray_state.weight = vec3(1.0);
+        ray_state.origin = ray_origin;
+        ray_state.dir = ray_dir;
+        ray_state.last_bsdf_pdf = DIRAC;
+        ray_state.is_inside = dot(ray_origin, ray_origin) < 1.0;
+        ray_state.is_camera_ray = true;
+
+        trace_path(ray_state, seed);
+
+        // replace the background with a constant color when visible to the camera
+        if (uBackgroundColorEnabled != 0 && ray_state.is_camera_ray)
+            contribution += uBackgroundColor;
+        else
+            contribution += ray_state.contribution;
+    }
+
+    contribution *= 1.0 / float(uSamplesPerIteration);
+
+    const ivec2 image_coord = ivec2(gl_GlobalInvocationID.xy);
+
+    float blend_weight = float(uSamplesPerIteration) / float(uProgressiveIteration + uSamplesPerIteration);
+    vec3 old_beauty = imageLoad(uBeautyBuffer, image_coord).xyz;
+    vec3 new_beauty = mix(old_beauty, contribution, blend_weight);
+
+    imageStore(uBeautyBuffer, image_coord, vec4(new_beauty, 0.0));
+}
