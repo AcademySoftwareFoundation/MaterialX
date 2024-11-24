@@ -80,9 +80,13 @@
     </dot>
 
     <!-- Emissive -->
-    <multiply name="emissiveColor" type="color3">
+    <multiply name="scaledEmissionColor" type="color3">
       <input name="in1" type="color3" interfacename="emission_color" />
       <input name="in2" type="float" interfacename="emission" />
+    </multiply>
+    <multiply name="emissiveColor" type="color3">
+      <input name="in1" type="color3" nodename="scaledEmissionColor" />
+      <input name="in2" type="color3" nodename="coatAttenuation" />
     </multiply>
 
     <!-- Opacity -->
