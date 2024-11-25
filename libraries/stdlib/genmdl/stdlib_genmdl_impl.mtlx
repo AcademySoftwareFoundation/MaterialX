@@ -132,13 +132,6 @@
   <implementation name="IM_worleynoise3d_vector3_genmdl" nodedef="ND_worleynoise3d_vector3" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_worleynoise3d_float3(mxp_position:{{position}}, mxp_jitter:{{jitter}})" target="genmdl" />
 
   <!-- ======================================================================== -->
-  <!-- Global nodes                                                             -->
-  <!-- ======================================================================== -->
-
-  <!-- <ambientocclusion> -->
-  <implementation name="IM_ambientocclusion_float_genmdl" nodedef="ND_ambientocclusion_float" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_ambientocclusion_float(mxp_coneangle:{{coneangle}}, mxp_maxdistance:{{maxdistance}})" target="genmdl" />
-
-  <!-- ======================================================================== -->
   <!-- Geometric nodes                                                          -->
   <!-- ======================================================================== -->
 
