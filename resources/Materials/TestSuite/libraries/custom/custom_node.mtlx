@@ -3,10 +3,10 @@
 
   <!-- definition -->
   <!-- specifies the interface of the node, including:
-    - the `node` that defines the name of the element during instanciation
+    - the `node` that defines the name of the element during instantiation
     - all input parameter types and names, all inputs have defaults
-    - all output parmaeter types and names
-    - the `name` that needs to referenced when adding the implementation with the actual script
+    - all output parameter types and names
+    - the `name` that needs to br referenced when adding the implementation with the actual source code
   -->
   <nodedef name="ND_custom_node" node="custom_node" nodegroup="custom" doc="A simple example that creates a color.">
     <input name="red" type="float" value="0.0" />
@@ -17,7 +17,7 @@
 
   <!-- implementation -->
   <!-- specifies where to find the implementation of the custom node.
-    There is no need to add a signature because it will be generated from the defintion.
+    There is no need to add a signature because it will be generated from the definition.
   -->
   <implementation 
     name="IM_custom_node"
@@ -26,7 +26,7 @@
     function="custom_node_function"
     target="genmdl"/>
 
-  <!-- instanciation -->
+  <!-- instantiations -->
   <!-- creates an instance of a custom node to be called.
     Can appear multiple times for the same node.
     Parameters can be overridden or default values are used.

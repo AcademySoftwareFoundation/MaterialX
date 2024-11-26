@@ -23,6 +23,7 @@
 #include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/Nodes/ClosureCompoundNode.h>
 #include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
+#include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
 #include <MaterialXGenShader/Util.h>
 
 MATERIALX_NAMESPACE_BEGIN
@@ -166,10 +167,13 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
         if (customNode)
         {
             const string& importName = customNode->getQualifiedModuleName();
-            emitString("import ", stage);
-            emitString(importName, stage);
-            emitString("::*", stage);
-            emitLineEnd(stage, true);
+            if (!importName.empty())
+            {
+                emitString("import ", stage);
+                emitString(importName, stage);
+                emitString("::*", stage);
+                emitLineEnd(stage, true);
+            }
         }
     }
 
@@ -365,14 +369,18 @@ ShaderNodeImplPtr MdlShaderGenerator::getImplementation(const NodeDef& nodedef, 
     }
     else if (implElement->isA<Implementation>())
     {
+
         // Try creating a new in the factory.
         impl = _implFactory.create(name);
         if (!impl)
         {
             // When `file` and `function` are provided we consider this node a user node
-            const std::string file = implElement->getTypedAttribute<std::string>("file");
-            const std::string function = implElement->getTypedAttribute<std::string>("function");
-            if (!file.empty() && !function.empty())
+            const string file = implElement->getTypedAttribute<string>("file");
+            const string function = implElement->getTypedAttribute<string>("function");
+            // Or, if `sourcecode` is provided we consider this node a user node with inline implementation
+            // inline implementations are not supposed to have replacement markers
+            const string sourcecode = implElement->getTypedAttribute<string>("sourcecode");
+            if ((!file.empty() && !function.empty()) || (!sourcecode.empty() && sourcecode.find("{{") == string::npos))
             {
                 impl = CustomCodeNodeMdl::create();
             }
