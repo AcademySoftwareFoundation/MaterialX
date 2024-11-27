@@ -20,7 +20,7 @@ class MX_GENMDL_API CustomCodeNodeMdl : public SourceCodeNodeMdl
 
     void initialize(const InterfaceElement& element, GenContext& context) override;
     void emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
-    void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const;
+    void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
     const string& getQualifiedModuleName() const;
 
