@@ -15,13 +15,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-namespace
-{
-
-
-
-} // anonymous
-
 ShaderNodeImplPtr CustomCodeNodeMdl::create()
 {
     return std::make_shared<CustomCodeNodeMdl>();
@@ -31,7 +24,6 @@ const string& CustomCodeNodeMdl::getQualifiedModuleName() const
 {
     return _qualifiedModuleName;
 }
-
 
 void CustomCodeNodeMdl::initialize(const InterfaceElement& element, GenContext& context)
 {
@@ -134,16 +126,10 @@ void CustomCodeNodeMdl::initializeFunctionCallTemplateString(const MdlSyntax& sy
     }
 
     // function parameters
-    const StringSet& reservedWords = syntax.getReservedWords();
     string delim = EMPTY_STRING;
     for (const InputPtr& input : nodeDef.getInputs())
     {
-        string inputName = input->getName();
-        if (reservedWords.find(inputName) != reservedWords.end())
-        {
-            // add an "mxp_" prefix in case the field name is a reserved word
-            inputName = "mxp_" + inputName;
-        }
+        string inputName = syntax.modifyReservedParameterName(input->getName());
         _functionSource += delim + inputName + ": {{" + input->getName() + "}}";
         if (delim == EMPTY_STRING)
             delim = Syntax::COMMA + " ";
@@ -154,7 +140,7 @@ void CustomCodeNodeMdl::initializeFunctionCallTemplateString(const MdlSyntax& sy
 
 void CustomCodeNodeMdl::initializeOutputDefaults(const MdlSyntax&, const NodeDef& nodeDef)
 {
-    for (const OutputPtr output : nodeDef.getOutputs())
+    for (const OutputPtr& output : nodeDef.getOutputs())
     {
         _outputDefaults.push_back(output->getValue());
     }
@@ -169,7 +155,7 @@ void CustomCodeNodeMdl::emitFunctionDefinition(const ShaderNode& node, GenContex
     }
 
     const ShaderGenerator& shadergen = context.getShaderGenerator();
-    const Syntax& syntax = shadergen.getSyntax();
+    const MdlSyntax& syntax = static_cast<const MdlSyntax&>(shadergen.getSyntax());
 
     size_t numOutputs = node.getOutputs().size();
 
@@ -192,7 +178,7 @@ void CustomCodeNodeMdl::emitFunctionDefinition(const ShaderNode& node, GenContex
     size_t i = 0;
     for (const ShaderOutput* output : node.getOutputs())
     {
-        const string& name = output->getName();
+        string name = syntax.modifyReservedOutputName(output->getName());
         TypeDesc type = output->getType();
         const ValuePtr defaultValue = _outputDefaults[i];
         outputs.push_back({
@@ -229,8 +215,9 @@ void CustomCodeNodeMdl::emitFunctionDefinition(const ShaderNode& node, GenContex
         {
             const string& qualifier = input->isUniform() || input->getType() == Type::FILENAME ? uniformPrefix : EMPTY_STRING;
             const string& type = syntax.getTypeName(input->getType());
+            const string name = syntax.modifyReservedParameterName(input->getName());
             const string& delim = --paramCount == 0 ? EMPTY_STRING : Syntax::COMMA;
-            shadergen.emitString("    " + qualifier + type + " " + input->getName() + delim + Syntax::NEWLINE, stage);
+            shadergen.emitString("    " + qualifier + type + " " + name + delim + Syntax::NEWLINE, stage);
         }
         shadergen.emitScopeEnd(stage, false, true);
     }

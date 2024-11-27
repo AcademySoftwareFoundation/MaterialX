@@ -9,9 +9,9 @@
     - the `name` that needs to br referenced when adding the implementation with the actual source code
   -->
   <nodedef name="ND_custom_inline_node" node="custom_inline_node" nodegroup="custom" doc="A simple custom inline node.">
-    <input name="red" type="float" value="0.0f" />
-    <input name="green" type="float" value="0.0f" />
-    <input name="blue" type="float" value="0.0f" />
+    <input name="red" type="float" value="0.0" />
+    <input name="green" type="float" value="0.0" />
+    <input name="blue" type="float" value="0.0" />
     <output name="out1" type="color3" />
   </nodedef>
 
@@ -26,7 +26,7 @@
     nodedef="ND_custom_inline_node"
     target="genmdl"
     sourcecode="
-      float green2 = 2.0f * green;
+      float green2 = 2.0 * green;
       out1 = color(red, green2, blue);
     "/>
 
