@@ -53,10 +53,7 @@ class MX_GENMDL_API MdlSyntax : public Syntax
     static const StringVec FILTERTYPE_MEMBERS;
     static const StringVec DISTRIBUTIONTYPE_MEMBERS;
     static const StringVec SCATTER_MODE_MEMBERS;
-    static const string RESERVED_WORD_PARAMETER_PREFIX; ///< applied when parameter names match words reserved in MDL
-    static const string RESERVED_WORD_PARAMETER_SUFFIX; ///< applied when parameter names match words reserved in MDL
-    static const string RESERVED_WORD_OUTPUT_PREFIX;    ///< applied when output names match words reserved in MDL
-    static const string RESERVED_WORD_OUTPUT_SUFFIX;    ///< applied when output names match words reserved in MDL
+    static const string PORT_NAME_PREFIX; ///< applied to input and output names to avoid collisions with reserved words in MDL
 
     /// Get an type description for an enumeration based on member value
     TypeDesc getEnumeratedType(const string& value) const;
@@ -68,8 +65,8 @@ class MX_GENMDL_API MdlSyntax : public Syntax
     /// Modify the given name string to remove any invalid characters or tokens.
     void makeValidName(string& name) const override;
 
-    string modifyReservedParameterName(const string word) const;
-    string modifyReservedOutputName(const string word) const;
+    /// To avoid collisions with reserved names in MDL, input and output names are prefixed.
+    string modifyPortName(const string word) const;
 
     /// Replaces all markers in a source code string indicated by {{...}}.
     /// The replacement is defined by a callback function.

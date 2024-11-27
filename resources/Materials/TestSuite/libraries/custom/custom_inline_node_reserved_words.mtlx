@@ -3,19 +3,20 @@
 
   <!-- definition -->
   <nodedef name="ND_custom_inline_node_reserved_words" node="custom_inline_node_reserved_words" nodegroup="custom" doc="A simple custom inline node.">
-    <input name="auto" type="float" value="0.8" />    <!-- "auto" is reserved in MDL. The code generator will prepend "mxp_" -->
-    <output name="out" type="color3" />               <!-- "out" is a reserved word in MDL-->
-    <output name="shader" type="float" value="1.0" /> <!-- "shader" is a reserved word in MDL-->
+    <input name="a" type="float" value="0.8" />       <!-- "a" is NOT reserved in MDL -->
+    <input name="auto" type="float" value="0.8" />    <!-- "auto" is reserved in MDL -->
+    <output name="out" type="color3" />               <!-- "out" is a reserved word in MDL -->
+    <output name="shader" type="float" value="1.0" /> <!-- "shader" is a reserved word in MDL -->
   </nodedef>
 
   <!-- implementation -->
-  <!-- Note, parameter names and output names that match reserved words in MDL (see MDL specification) are prefixed -->
+  <!-- Note, ALL input and output port names are prefixed with "mxp_" to avoid collisions with reserved names -->
   <implementation 
     name="IM_custom_inline_node_reserved_words"
     nodedef="ND_custom_inline_node_reserved_words"
     target="genmdl"
     sourcecode="
-      mxp_out = color(mxp_auto);
+      mxp_out = color(0.1, mxp_a, mxp_auto);
       mxp_shader = math::max(mxp_auto, 0.5);
     "/>
 

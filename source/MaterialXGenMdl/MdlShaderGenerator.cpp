@@ -420,7 +420,7 @@ string MdlShaderGenerator::getUpstreamResult(const ShaderInput* input, GenContex
         return ShaderGenerator::getUpstreamResult(input, context);
     }
 
-    const StringSet& reservedWords = getSyntax().getReservedWords();
+    const MdlSyntax& mdlSyntax = static_cast<const MdlSyntax&>(getSyntax());
     string variable;
     const ShaderNode* upstreamNode = upstreamOutput->getNode();
     if (!upstreamNode->isAGraph() && upstreamNode->numOutputs() > 1)
@@ -436,14 +436,13 @@ string MdlShaderGenerator::getUpstreamResult(const ShaderInput* input, GenContex
             const CustomCodeNodeMdl* upstreamCustomNodeMdl = dynamic_cast<const CustomCodeNodeMdl*>(&upstreamNode->getImplementation());
             if (upstreamCustomNodeMdl)
             {
-                // add an "mxp_" prefix in case the field name is a reserved word
-                variable = upstreamNode->getName() + "_result." +
-                           (reservedWords.find(fieldName) == reservedWords.end() ? fieldName : ("mxp_" + fieldName));
+                // prefix the port name depending on the CustomCodeNode
+                variable = upstreamNode->getName() + "_result." + upstreamCustomNodeMdl->modifyPortName(fieldName, mdlSyntax);
             }
             else
             {
                 // existing implementations and none user defined structs will keep the prefix always to not break existing content
-                variable = upstreamNode->getName() + "_result.mxp_" + upstreamOutput->getName();
+                variable = upstreamNode->getName() + "_result." + mdlSyntax.modifyPortName(upstreamOutput->getName());
             }
         }
     }

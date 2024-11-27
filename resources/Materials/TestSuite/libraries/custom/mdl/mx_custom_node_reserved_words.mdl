@@ -11,9 +11,10 @@ mdl 1.6;
 // "auto" is a reserved word in MDL.
 // if the MaterialX node definition has a parameter that conflicts with such a reserved word,
 // a prefix "mxp_" needs to be added.
-export color reserved_parmeter_name_function(float mxp_auto)
+// "a" is not a reserved word and no prefix is added. This allow to integrate existing MDL modules without changes.
+export color reserved_parmeter_name_function(float a, float mxp_auto)
 {
-    return color(mxp_auto * 0.25, mxp_auto * 0.5, mxp_auto * 1.0);
+    return a * color(mxp_auto * 0.25, mxp_auto * 0.5, mxp_auto * 1.0);
 }
 
 // "out" and "private" are also reserved words.
