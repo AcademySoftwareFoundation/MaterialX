@@ -35,18 +35,6 @@ namespace mx = MaterialX;
 
 EMSCRIPTEN_BINDINGS(element)
 {
-    ems::class_<mx::ElementEquivalenceResult>("ElementEquivalenceResult")
-        .class_property("ATTRIBUTE", &mx::ElementEquivalenceResult::ATTRIBUTE)
-        .class_property("ATTRIBUTE_NAMES", &mx::ElementEquivalenceResult::ATTRIBUTE_NAMES)
-        .class_property("CHILD_COUNT", &mx::ElementEquivalenceResult::CHILD_COUNT)
-        .class_property("CHILD_NAME", &mx::ElementEquivalenceResult::CHILD_NAME)
-        .class_property("NAME", &mx::ElementEquivalenceResult::NAME)
-        .class_property("CATEGORY", &mx::ElementEquivalenceResult::CATEGORY)
-        .property("path1", &mx::ElementEquivalenceResult::path1)
-        .property("path2", &mx::ElementEquivalenceResult::path2)
-        .property("differenceType", &mx::ElementEquivalenceResult::differenceType)
-        .property("attributeName", &mx::ElementEquivalenceResult::attributeName);
-
     ems::class_<mx::ElementEquivalenceOptions>("ElementEquivalenceOptions")
         .constructor<>()
         .property("performValueComparisons", &mx::ElementEquivalenceOptions::performValueComparisons)
@@ -62,10 +50,29 @@ EMSCRIPTEN_BINDINGS(element)
         .smart_ptr<std::shared_ptr<const mx::Element>>("Element") // mx::ConstElementPtr
         .function("equals", ems::optional_override([](mx::Element& self, const mx::Element& rhs) { return self == rhs; }))
         .function("notEquals", ems::optional_override([](mx::Element& self, const mx::Element& rhs) { return self != rhs; }))
-        .function("isEquivalent", ems::optional_override([](mx::Element &self, const mx::Element& rhs, const mx::ElementEquivalenceOptions& options) 
+        .function("isEquivalent", ems::optional_override([](mx::Element &self, const mx::Element& rhs, const mx::ElementEquivalenceOptions& options, 
+                                                            ems::val message) 
         {
             mx::ConstElementPtr rhsPtr = rhs.getSelf();
-            bool res = self.isEquivalent(rhsPtr, options /**, &results*/);
+            mx::ElementEquivalenceResultVec differences;
+            bool res = self.isEquivalent(rhsPtr, options, &differences);
+            bool handleMessage = message.typeOf().as<std::string>() == "object";            
+            if (handleMessage && !differences.empty())
+            {
+                std::string nativeMessage;
+                for (const auto& difference : differences)
+                {
+                    nativeMessage += "- Path: " + difference.path1 + " differs from path: " + 
+                                difference.path2 + ". Difference Type: " + difference.differenceType +
+                                ".";
+                    if (!difference.attributeName.empty())
+                    {
+                        nativeMessage += " Attribute: " + difference.attributeName + ".";                     
+                    }
+                    nativeMessage += "\n";
+                }
+                message.set("message", nativeMessage);
+            }
             return res;
         }))
         .function("setCategory", &mx::Element::setCategory)
