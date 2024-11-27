@@ -700,6 +700,10 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     size_t documentIndex = 0;
     for (const auto& doc : _documents)
     {
+        std::string uri = doc->getSourceUri();
+        // if (uri.find("custom_inline_node_reserved_words") == std::string::npos)
+        //     continue;
+
         // Apply optional preprocessing.
         preprocessDocument(doc);
         _shaderGenerator->registerShaderMetadata(doc, context);

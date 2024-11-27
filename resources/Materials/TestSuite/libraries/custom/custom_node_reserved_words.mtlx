@@ -3,10 +3,12 @@
 
   <!-- definition -->
   <nodedef name="ND_custom_node_reserved_param_name" node="custom_node_reserved_param_name" nodegroup="custom" doc="Shows how to handle reserved names in the parameter list">
-    <input name="auto" type="float" value="0.8" /> <!-- "auto" is reserved in MDL. The code generator will prepend "mxp_" -->
+    <input name="a" type="float" value="0.8" />       <!-- "a" is NOT reserved in MDL -->
+    <input name="auto" type="float" value="0.8" />    <!-- "auto" is reserved in MDL -->
     <output name="out" type="color3" />
   </nodedef>
   <!-- implementation -->
+  <!-- Note, ALL input and output port names are prefixed with "mxp_" to avoid collisions with reserved names -->
   <implementation 
     name="IM_custom_node_reserved_param_name"
     nodedef="ND_custom_node_reserved_param_name"

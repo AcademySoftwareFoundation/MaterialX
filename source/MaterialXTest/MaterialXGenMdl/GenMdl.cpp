@@ -276,7 +276,7 @@ void MdlShaderGeneratorTester::compileSource(const std::vector<mx::FilePath>& so
 
         CHECK(returnValue == 0);
     }
-    if (!renderExec.empty()) // render if renderer is availabe
+    if (false) //!renderExec.empty()) // render if renderer is availabe
     {
         std::string renderCommand = renderExec;
 

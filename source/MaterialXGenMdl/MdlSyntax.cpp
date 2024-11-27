@@ -201,10 +201,7 @@ const StringVec MdlSyntax::FILTERTYPE_MEMBERS = { "box", "gaussian" };
 const StringVec MdlSyntax::DISTRIBUTIONTYPE_MEMBERS = { "ggx" };
 const StringVec MdlSyntax::SCATTER_MODE_MEMBERS = { "R", "T", "RT" };
 
-const string MdlSyntax::RESERVED_WORD_PARAMETER_PREFIX = "mxp_";
-const string MdlSyntax::RESERVED_WORD_PARAMETER_SUFFIX = "";
-const string MdlSyntax::RESERVED_WORD_OUTPUT_PREFIX = "mxp_";
-const string MdlSyntax::RESERVED_WORD_OUTPUT_SUFFIX = "";
+const string MdlSyntax::PORT_NAME_PREFIX = "mxp_";
 
 //
 // MdlSyntax methods
@@ -562,22 +559,9 @@ void MdlSyntax::makeValidName(string& name) const
     }
 }
 
-string MdlSyntax::modifyReservedParameterName(const string word) const
+string MdlSyntax::modifyPortName(const string word) const
 {
-    if (_reservedWords.find(word) != _reservedWords.end())
-    {
-        return RESERVED_WORD_PARAMETER_PREFIX + word + RESERVED_WORD_PARAMETER_SUFFIX;
-    }
-    return word;
-}
-
-string MdlSyntax::modifyReservedOutputName(const string word) const
-{
-    if (_reservedWords.find(word) != _reservedWords.end())
-    {
-        return RESERVED_WORD_OUTPUT_PREFIX + word + RESERVED_WORD_OUTPUT_SUFFIX;
-    }
-    return word;
+    return PORT_NAME_PREFIX + word;
 }
 
 string MdlSyntax::replaceSourceCodeMarkers(const string& nodeName, const string& soureCode, std::function<string(const string&)> lambda) const

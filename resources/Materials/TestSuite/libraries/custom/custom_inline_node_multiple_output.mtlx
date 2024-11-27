@@ -17,9 +17,9 @@
     nodedef="ND_custom_inline_node_multiple_output"
     target="genmdl"
     sourcecode="
-      float green2 = 2.0f * green;
-      out_color = color(red, green2, blue);
-      out_alpha = alpha * 0.5;
+      float green2 = 2.0f * mxp_green;
+      mxp_out_color = color(mxp_red, green2, mxp_blue);
+      mxp_out_alpha = mxp_alpha * 0.5;
     "/>
 
   <!-- instantiations -->

@@ -25,6 +25,21 @@ const string& CustomCodeNodeMdl::getQualifiedModuleName() const
     return _qualifiedModuleName;
 }
 
+string CustomCodeNodeMdl::modifyPortName(const string& name, const MdlSyntax& syntax) const
+{
+    if (_useExternalSourceCode)
+    {
+        const StringSet& reservedWords = syntax.getReservedWords();
+        if (reservedWords.find(name) == reservedWords.end())
+        {
+            // use existing MDL parameter names if they don't collide with a reserved word
+            // this allow to reference MDL existing functions without changing the MDL source code
+            return name;
+        }
+    }
+    return syntax.modifyPortName(name);
+}
+
 void CustomCodeNodeMdl::initialize(const InterfaceElement& element, GenContext& context)
 {
     SourceCodeNodeMdl::initialize(element, context);
@@ -129,7 +144,7 @@ void CustomCodeNodeMdl::initializeFunctionCallTemplateString(const MdlSyntax& sy
     string delim = EMPTY_STRING;
     for (const InputPtr& input : nodeDef.getInputs())
     {
-        string inputName = syntax.modifyReservedParameterName(input->getName());
+        string inputName = modifyPortName(input->getName(), syntax);
         _functionSource += delim + inputName + ": {{" + input->getName() + "}}";
         if (delim == EMPTY_STRING)
             delim = Syntax::COMMA + " ";
@@ -156,15 +171,6 @@ void CustomCodeNodeMdl::emitFunctionDefinition(const ShaderNode& node, GenContex
 
     const ShaderGenerator& shadergen = context.getShaderGenerator();
     const MdlSyntax& syntax = static_cast<const MdlSyntax&>(shadergen.getSyntax());
-
-    size_t numOutputs = node.getOutputs().size();
-
-    if (numOutputs > 1)
-    {
-        // TODO, create a structure, potentially anonymous
-    }
-
-    const string uniformPrefix = syntax.getUniformQualifier() + " ";
     shadergen.emitComment("generated code for implementation: '" + node.getImplementation().getName() + "'", stage);
 
     // function return type
@@ -178,7 +184,7 @@ void CustomCodeNodeMdl::emitFunctionDefinition(const ShaderNode& node, GenContex
     size_t i = 0;
     for (const ShaderOutput* output : node.getOutputs())
     {
-        string name = syntax.modifyReservedOutputName(output->getName());
+        string name = modifyPortName(output->getName(), syntax);
         TypeDesc type = output->getType();
         const ValuePtr defaultValue = _outputDefaults[i];
         outputs.push_back({
@@ -188,6 +194,8 @@ void CustomCodeNodeMdl::emitFunctionDefinition(const ShaderNode& node, GenContex
         });
         ++i;
     }
+
+    size_t numOutputs = node.getOutputs().size();
     string returnTypeName;
     if (numOutputs == 1)
     {
@@ -200,7 +208,8 @@ void CustomCodeNodeMdl::emitFunctionDefinition(const ShaderNode& node, GenContex
         shadergen.emitScopeBegin(stage, Syntax::CURLY_BRACKETS);
         for (const auto& field : outputs)
         {
-            shadergen.emitLine(field.type_name + " " + field.name + " = " + field.default_value, stage);
+            // ignore the default values here, they have to be initialized in the body
+            shadergen.emitLine(field.type_name + " " + field.name, stage);
         }
         shadergen.emitScopeEnd(stage, Syntax::CURLY_BRACKETS);
         shadergen.emitLineEnd(stage, false);
@@ -211,11 +220,12 @@ void CustomCodeNodeMdl::emitFunctionDefinition(const ShaderNode& node, GenContex
         // function parameters
         shadergen.emitScopeBegin(stage, Syntax::PARENTHESES);
         size_t paramCount = node.getInputs().size();
+        const string uniformPrefix = syntax.getUniformQualifier() + " ";
         for (const ShaderInput* input : node.getInputs())
         {
             const string& qualifier = input->isUniform() || input->getType() == Type::FILENAME ? uniformPrefix : EMPTY_STRING;
             const string& type = syntax.getTypeName(input->getType());
-            const string name = syntax.modifyReservedParameterName(input->getName());
+            const string name = modifyPortName(input->getName(), syntax);
             const string& delim = --paramCount == 0 ? EMPTY_STRING : Syntax::COMMA;
             shadergen.emitString("    " + qualifier + type + " " + name + delim + Syntax::NEWLINE, stage);
         }
@@ -226,18 +236,21 @@ void CustomCodeNodeMdl::emitFunctionDefinition(const ShaderNode& node, GenContex
         shadergen.emitScopeBegin(stage, Syntax::CURLY_BRACKETS);
 
         // out variable initialization
+        shadergen.emitComment("initialize outputs:", stage);
         for (const auto& field : outputs)
         {
             shadergen.emitLine(field.type_name + " " + field.name + " = " + field.default_value, stage);
         }
 
         // user defined code
+        shadergen.emitComment("inlined shader source code:", stage);
         shadergen.emitLine(_inlineSourceCode, stage, false);
 
         // output packing
+        shadergen.emitComment("pack (in case of multiple outputs) and return outputs:", stage);
         if (numOutputs == 1)
         {
-            shadergen.emitLine("    return " + outputs.back().name, stage, true);
+            shadergen.emitLine("return " + outputs.back().name, stage, true);
         }
         else
         {
@@ -257,20 +270,5 @@ void CustomCodeNodeMdl::emitFunctionDefinition(const ShaderNode& node, GenContex
     }
     shadergen.emitLine("", stage, false); // empty line for spacing
 }
-
-
-void CustomCodeNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
-{
-    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
-    {
-        const ShaderGenerator& shadergen = context.getShaderGenerator();
-
-        // Emit calls for any closure dependencies upstream from this node.
-        shadergen.emitDependentFunctionCalls(node, context, stage, ShaderNode::Classification::CLOSURE);
-
-        SourceCodeNodeMdl::emitFunctionCall(node, context, stage);
-    }
-}
-
 
 MATERIALX_NAMESPACE_END
