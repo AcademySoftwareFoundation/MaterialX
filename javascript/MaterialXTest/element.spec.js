@@ -164,3 +164,146 @@ describe('Element', () =>
         });
     });
 });
+
+describe('Equivalence', () =>
+{
+    let mx, doc, doc2, inputMap, inputMap2, floatInputs;
+
+    before(async () => {
+        mx = await Module();
+
+        doc = mx.createDocument();
+        inputMap = new Map([
+            ["color3", "  1.0,   +2.0,  3.0   "],
+            ["color4", "1.0,   2.00, 0.3000, -4"],
+            ["integer", "  12 "],
+            ["matrix33", "01.0, 2.0, 0000.2310, 01.0, 2.0, 0000.2310, 01.0, 2.0, 0000.2310"],
+            ["matrix44", "01.0, 2.0, 0000.2310, 0.100, 01.0, 2.0, 0000.2310, 0.100, 01.0, 2.0, 0000.2310, 0.100, 01.0, 2.0, 0000.2310, 0.100"],
+            ["vector2", "1.0, 0.012345608"],
+            ["vector3", "  1.0,   +2.0,  3.0   "],
+            ["vector4", "1.0,   2.00, 0.3000, -4"],
+            ["string", "mystring"],
+            ["boolean", "false"],
+            ["filename", "filename1"],
+            ["float", "  1.2e-10  "],
+            ["float", "  00.1000  "]
+        ]);
+
+        let index = 0;
+        let child = doc.addNodeGraph("mygraph");
+        let graph = child;
+        const comment = doc.addChildOfCategory(mx.CommentElement.CATEGORY);
+        comment.setDocString("Comment 1");
+
+        inputMap.forEach((value, key) => {
+            if (index == 0)
+            {
+                let input = graph.addInput(`input_${index}`, key);
+                if (key === "float") {
+                    input.setAttribute(mx.ValueElement.UI_MIN_ATTRIBUTE, "  0.0100 ");
+                    input.setAttribute(mx.ValueElement.UI_MAX_ATTRIBUTE, "  01.0100 ");
+                    index++;
+                } else {
+                    input.setName(`input_${key}`);
+                }
+                input.setValueString(value, key);
+            }
+        });
+
+        doc2 = mx.createDocument();
+        inputMap2 = new Map([
+            ["color3", "  1.0, 2.0,  3.0   "],
+            ["color4", "1, 2, 0.3, -4"],
+            
+            ["integer", "12"],
+            ["matrix33", "1, 2, 0.231, 1, 2, 0.231, 1, 2, 0.231, 1, 2, 0.231"],
+            ["matrix44", "1, 2, 0.231, 0.1, 1, 2, 0.231, 0.1, 1, 2, 0.231, 0.1, 1, 2, 0.231, 0.1"],
+            ["vector2", "1, 0.012345611"],
+            ["string", "mystring"],
+            ["boolean", "false"],
+            ["color3", "1, 2, 3"],
+            ["vector3", "1, 2, 3"],
+            ["vector4", "1, 2, 0.3, -4"],
+            ["filename", "filename1"],
+            ["float", "1.2e-10"],
+            ["float", "0.1"] 
+        ]);
+
+        index = 0;
+        let child2 = doc2.addNodeGraph("mygraph");
+        let graph2 = child2;
+        floatInputs = [];
+
+        inputMap2.forEach((value, key) => {
+            if (index == 0) {
+                let input = graph2.addInput(`input_${index}`, key);
+                input.setValueString(value, key);
+                if (key === "float") {
+                    input.setAttribute(mx.ValueElement.UI_MIN_ATTRIBUTE, "  0.01");
+                    input.setAttribute(mx.ValueElement.UI_MAX_ATTRIBUTE, "  1.01");
+                    floatInputs.push(input);
+                    index++;
+                } else {
+                    input.setName(`input_${key}`);
+                }
+            }
+        });
+
+        const comment2 = doc2.addChildOfCategory(mx.CommentElement.CATEGORY);
+        comment2.setDocString("Comment 2");
+        const comment3 = doc2.addChildOfCategory(mx.CommentElement.CATEGORY);
+        comment3.setDocString("Comment 3");         
+    });
+
+    it('compare documents', () =>
+    {
+        let options = new mx.ElementEquivalenceOptions();
+
+        options.performValueComparisons = false;
+        let result = doc.isEquivalent(doc2, options);
+        expect(result).to.be.false;
+
+        options.performValueComparisons = true;
+        result = doc.isEquivalent(doc2, options);
+        expect(result).to.be.true;
+
+        let currentPrecision = mx.Value.getFloatPrecision();
+        options.floatPrecision = 8;
+        result = doc.isEquivalent(doc2, options);
+        expect(result).to.be.false;
+        options.floatPrecision = currentPrecision;
+
+        options.setAttributeExclusionList([mx.ValueElement.UI_MIN_ATTRIBUTE, mx.ValueElement.UI_MAX_ATTRIBUTE]);
+        floatInputs.forEach(input => {
+            input.setAttribute(mx.ValueElement.UI_MIN_ATTRIBUTE, "0.9");
+            input.setAttribute(mx.ValueElement.UI_MAX_ATTRIBUTE, "100.0");
+        });
+        result = doc.isEquivalent(doc2, options);
+        expect(result).to.be.true;
+        floatInputs.forEach(input => {
+            input.setAttribute(mx.ValueElement.UI_MIN_ATTRIBUTE, "  0.01");
+            input.setAttribute(mx.ValueElement.UI_MAX_ATTRIBUTE, "  1.01");
+        });
+
+        let mismatchElement = doc.getDescendant("mygraph/input_color4");
+        let previousName = mismatchElement.getName();
+        mismatchElement.setName("mismatch_color4");
+        result = doc.isEquivalent(doc2, options);
+        expect(result).to.be.false;
+
+        mismatchElement.setName(previousName);
+        result = doc.isEquivalent(doc2, options);
+        expect(result).to.be.true;
+
+        let nodeGraph = doc.getNodeGraph("mygraph");
+        expect(nodeGraph).to.exist;
+        doc.addNodeDef("ND_mygraph");
+        nodeGraph.setNodeDefString("ND_mygraph");
+        let nodeGraph2 = doc2.getNodeGraph("mygraph");
+        expect(nodeGraph2).to.exist;
+        doc2.addNodeDef("ND_mygraph");
+        nodeGraph2.setNodeDefString("ND_mygraph");
+        result = doc.isEquivalent(doc2, options);
+        expect(result).to.be.false;
+    });
+});
