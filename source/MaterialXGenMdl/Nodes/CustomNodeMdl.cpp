@@ -65,6 +65,10 @@ void CustomCodeNodeMdl::initializeForInlineSourceCode(const InterfaceElement& el
     {
         throw ExceptionShaderGenError("No source code was specified for the implementation '" + impl.getName() + "'");
     }
+    if (_inlineSourceCode.find("//") != string::npos)
+    {
+        throw ExceptionShaderGenError("Source code contains unsupported comments '//', please use '/* comment */' instead in '" + impl.getName() + "'");
+    }
 
     NodeDefPtr nodeDef = impl.getNodeDef();
     _inlineFunctionName = nodeDef->getName();

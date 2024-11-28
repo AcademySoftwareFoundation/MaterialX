@@ -51,11 +51,7 @@ void SourceCodeNode::initialize(const InterfaceElement& element, GenContext& con
     const Implementation& impl = static_cast<const Implementation&>(element);
 
     // Get source code from either an attribute or a file.
-    if (_functionSource.empty())
-    {
-        // only read the attribute if empty to allow inherited classes to override
-        _functionSource = impl.getAttribute("sourcecode");
-    }
+    _functionSource = impl.getAttribute("sourcecode");
     if (_functionSource.empty())
     {
         resolveSourceCode(element, context);
@@ -63,11 +59,8 @@ void SourceCodeNode::initialize(const InterfaceElement& element, GenContext& con
 
     // Find the function name to use
     // If no function is given the source will be inlined.
-    if (_functionName.empty())
-    {
-        // only read the attribute if empty to allow inherited classes to override
-        _functionName = impl.getAttribute("function");
-    }
+    _functionName = impl.getAttribute("function");
+
     _inlined = _functionName.empty();
     if (!_inlined)
     {

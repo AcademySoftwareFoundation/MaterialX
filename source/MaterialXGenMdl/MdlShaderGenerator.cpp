@@ -384,6 +384,10 @@ ShaderNodeImplPtr MdlShaderGenerator::getImplementation(const NodeDef& nodedef, 
             {
                 impl = CustomCodeNodeMdl::create();
             }
+            else if (file.empty() && sourcecode.empty())
+            {
+                throw ExceptionShaderGenError("No valid MDL implementation found for '" + name + "'");
+            }
             else
             {
                 // Fall back to source code implementation.

@@ -22,6 +22,7 @@
     Input and output variables can just be used as if they where declared and initialized with the corresponding defaults before.
     Functions are not allowed to return, also no early returns allowed.
     All input and output names in the MDL implementation have a "mxp_" prefix in order to avoid collisions with reserved names.
+    When adding comments in the inline sourcecode, use `/* comment */` as `//` is not supported at this point.
   -->
   <implementation 
     name="IM_custom_inline_node"

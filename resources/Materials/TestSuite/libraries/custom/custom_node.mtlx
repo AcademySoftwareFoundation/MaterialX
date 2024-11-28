@@ -18,8 +18,7 @@
 
   <!-- implementation -->
   <!-- specifies where to find the implementation of the custom node.
-    There is no need to add a signature because it will be generated from the definition.
-    All input and output names in the MDL implementation have a "mxp_" prefix in order to avoid collisions with reserved names.
+    Input and output names in the MDL implementation have a "mxp_" prefix in case they would collide with reserved names.
     Note, the defaults for output parameters (if present) must be matched in the MDL implementation
     in case the outputs remain unchanged in at least one code path.
   -->
