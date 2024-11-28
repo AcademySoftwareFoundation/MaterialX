@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+
+  <!-- definition -->
+  <!-- specifies the interface of the node, including:
+    - the `node` that defines the name of the element during instantiation
+    - all input parameter types and names
+    - all output parameter types and names
+    - all inputs and outputs can have defaults
+    - the `name` that needs to br referenced when adding the implementation with the actual source code
+  -->
+  <nodedef name="ND_example_procedural" node="example_procedural" nodegroup="custom" doc="A simple example that creates a color.">
+    <input name="texcoord" type="vector2" />
+    <input name="thickness" type="float" value="1.0" />
+    <input name="power" type="float" value="1.0" />
+    <input name="time" type="float" value="0.0" />
+    <input name="iterations" type="integer" value="5" />
+    <input name="offset" type="float" value="1.85" />
+    <output name="out" type="color3" />
+  </nodedef>
+
+  <!-- implementation -->
+  <!-- specifies the body of the function.
+    There is no need to add a signature because it will be generated from the definition.
+    Input and output variables can just be used as if they where declared and initialized with the corresponding defaults before.
+    Functions are not allowed to return, also no early returns allowed.
+    All input and output names in the MDL implementation have a "mxp_" prefix in order to avoid collisions with reserved names.
+    When adding comments in the inline sourcecode, use `/* comment */` as `//` is not supported at this point.
+  -->
+  <implementation 
+    name="IM_example_procedural"
+    nodedef="ND_example_procedural"
+    target="genmdl"
+    sourcecode="
+      /* uv with origin in the center */
+      float2 uv = math::frac(mxp_texcoord) * 2.0 - 1.0;
+
+      /* accumulate rings of different size */
+      mxp_out = color(0.0);
+      for (int i = 0; i < mxp_iterations; ++i)
+      {
+          /* signed distance function for the color selection */
+          float d = math::length(uv);
+
+          /* cosine based coloring */
+          float phi = d + i * 0.33;
+          color tint_contrib = math::cos(math::TWO_PI * (float3(0.0, 0.1, 0.2) + phi)) * 0.5 + 0.5;
+
+          /* signed distance function for a ring + add some contrast */
+          d = math::abs(math::sin(d * 16 + mxp_time) * 0.0625);
+          d = math::pow(0.005 * mxp_thickness / math::max(d, 0.0001), mxp_power);
+
+          /* add contribution */
+          mxp_out += tint_contrib * d;
+          /* offset the coordinate for the next iteration */
+          uv = math::frac(uv * mxp_offset) - 0.5;
+      }
+    " />
+
+  <!-- instantiations -->
+  <!-- uses the node above in material graph -->
+  <texcoord name="texcoord1" type="vector2" />
+
+  <example_procedural name="example_procedural1" type="color3">
+    <input name="texcoord" type="vector2" nodename="texcoord1" />
+    <input name="power" type="float" value="1.25" />
+  </example_procedural>
+
+  <multiply name="emission_intensity" type="color3">
+    <input name="in1" type="color3" nodename="example_procedural1" />
+    <input name="in2" type="color3" value="0.3183 0.3183 0.3183" />
+  </multiply>
+  <uniform_edf name="emission" type="EDF">
+    <input name="color" type="color3" nodename="emission_intensity" />
+  </uniform_edf>
+  <surface name="surface1" type="surfaceshader">
+    <input name="edf" type="EDF" nodename="emission" />
+  </surface>
+  <surfacematerial name="example_procedural_test" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="surface1" />
+  </surfacematerial>
+
+</materialx>
