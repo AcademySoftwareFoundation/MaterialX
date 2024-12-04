@@ -63,7 +63,7 @@ class OslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
     {
         whiteList =
         {
-            "ambientocclusion", "arrayappend", "backfacing", "screen", "curveadjust", "displacementshader",
+            "backfacing", "screen", "displacementshader",
             "volumeshader", "IM_constant_", "IM_dot_", "IM_geompropvalue", "IM_angle", "ND_backface_util"
         };
         ShaderGeneratorTester::getImplementationWhiteList(whiteList);

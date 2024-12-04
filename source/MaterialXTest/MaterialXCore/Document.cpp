@@ -150,6 +150,9 @@ TEST_CASE("Document equivalence", "[document]")
     unsigned int index = 0;
     mx::ElementPtr child = doc->addNodeGraph("mygraph");
     mx::NodeGraphPtr graph = child->asA<mx::NodeGraph>();
+    // Add comment block at the start of the first doc to check skipping
+    mx::ElementPtr comment = doc->addChildOfCategory(mx::CommentElement::CATEGORY);
+    comment->setDocString("Comment 1");
     for (auto it = inputMap.begin(); it != inputMap.end(); ++it)
     {
         const std::string inputType = (*it).first;
@@ -205,31 +208,36 @@ TEST_CASE("Document equivalence", "[document]")
             input->setName("input_" + inputType);
         }
     }
+    // Add comment blocks at end of second doc to check value and count checks
+    comment = doc2->addChildOfCategory(mx::CommentElement::CATEGORY);
+    comment->setDocString("Comment 2");
+    comment = doc2->addChildOfCategory(mx::CommentElement::CATEGORY);
+    comment->setDocString("Comment 3");
 
     mx::ElementEquivalenceOptions options;
     mx::ElementEquivalenceResultVec results;
 
-    // Check skipping all value compares
-    options.skipValueComparisons = true;
+    // Check that this fails when not performing value comparisons
+    options.performValueComparisons = false;
     bool equivalent = doc->isEquivalent(doc2, options, &results);
     REQUIRE(!equivalent);
 
     // Check attibute values 
-    options.skipValueComparisons = false;
+    options.performValueComparisons = true;
     results.clear();
     equivalent = doc->isEquivalent(doc2, options, &results);
     REQUIRE(equivalent);
 
     unsigned int currentPrecision = mx::Value::getFloatPrecision();
     // This will compare 0.012345608 versus: 1, 0.012345611 for input10
-    options.precision = 8;
+    options.floatPrecision = 8;
     equivalent = doc->isEquivalent(doc2, options);
     REQUIRE(!equivalent);
-    options.precision = currentPrecision;
+    options.floatPrecision = currentPrecision;
 
     // Check attribute filtering of inputs
     results.clear();
-    options.skipAttributes = { mx::ValueElement::UI_MIN_ATTRIBUTE, mx::ValueElement::UI_MAX_ATTRIBUTE };
+    options.attributeExclusionList = { mx::ValueElement::UI_MIN_ATTRIBUTE, mx::ValueElement::UI_MAX_ATTRIBUTE };
     for (mx::InputPtr floatInput : floatInputs)
     {
         floatInput->setAttribute(mx::ValueElement::UI_MIN_ATTRIBUTE, "0.9");

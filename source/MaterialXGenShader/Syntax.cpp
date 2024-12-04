@@ -286,9 +286,6 @@ string StructTypeSyntax::getValue(const Value& value, bool /*uniform*/) const
 {
     const AggregateValue& aggValue = static_cast<const AggregateValue&>(value);
 
-    auto typeDesc = TypeDesc::get(aggValue.getTypeString());
-    auto structTypeDesc = StructTypeDesc::get(typeDesc.getStructIndex());
-
     string result = "{";
 
     string separator = "";
@@ -297,8 +294,8 @@ string StructTypeSyntax::getValue(const Value& value, bool /*uniform*/) const
         result += separator;
         separator = ";";
 
-        auto memberTypeName = memberValue->getTypeString();
-        auto memberTypeDesc = TypeDesc::get(memberTypeName);
+        const string& memberTypeName = memberValue->getTypeString();
+        TypeDesc memberTypeDesc = TypeDesc::get(memberTypeName);
 
         // Recursively use the syntax to generate the output, so we can support nested structs.
         const string valueStr = _parentSyntax->getValue(memberTypeDesc, *memberValue, true);

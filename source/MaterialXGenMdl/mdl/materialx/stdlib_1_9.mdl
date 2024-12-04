@@ -4,17 +4,18 @@
 //
 // MDL implementation of all Standard Source Nodes of
 //     MaterialX: An Open Standard for Network-Based CG Object Looks
-//     Document v1.37 REV2, January 19, 2020
+//     Document version 1.39, September 15, 2024
 //     www.materialx.org 
 // in
-//     NVIDIA Material Definition Language 1.8
+//     NVIDIA Material Definition Language 1.9
 //     Language Specification
-//     Document version 1.8.2, May 24, 2023
+//     Document version 1.9.2, September 16, 2024
 //     www.nvidia.com/mdl
 
-mdl 1.8;
+mdl 1.9;
 
 import ::anno::*;
+import ::df::*;
 import ::math::*;
 import ::scene::*;
 import ::state::*;
@@ -23,10 +24,10 @@ import .::core::*;
 import .::noise::*;
 import .::hsv::*;
 
-// Changes since MDL 1.7
-// - Scene data lookups used for PrimVar readers allow non-literal string names
+// Changes since MDL 1.8
+// - lift the restriction of uniform IORs
 
-// forward all unchanged definitions from the previous version
+// forward unchanged definitions from the previous version
 export using .::stdlib_1_7 import mx_surfacematerial;
 export using .::stdlib_1_7 import mx_surface_unlit;
 export using .::stdlib_1_7 import mx_image_float;
@@ -212,7 +213,6 @@ export using .::stdlib_1_7 import mx_out_color4;
 export using .::stdlib_1_7 import mx_over_color4;
 export using .::stdlib_1_7 import mx_mix_color4;
 export using .::stdlib_1_7 import mx_mix_color4_color4;
-export using .::stdlib_1_7 import mx_mix_surfaceshader;
 export using .::stdlib_1_7 import mx_mix_volumeshader;
 export using .::stdlib_1_7 import mx_mix_displacementshader;
 export using .::stdlib_1_7 import mx_ifgreater_float;
@@ -322,121 +322,65 @@ export using .::stdlib_1_7 import mx_worleynoise3d_float2;
 export using .::stdlib_1_7 import mx_worleynoise3d_float3;
 export using .::stdlib_1_7 import mx_combine2_color4CF;
 
-// NOTE: Not planned to be implemented.
 export using .::stdlib_1_7 import mx_geompropvalue_string;
+export using .::stdlib_1_8 import mx_geompropvalue_boolean;
+export using .::stdlib_1_8 import mx_geompropvalue_integer;
+export using .::stdlib_1_8 import mx_geompropvalue_float;
+export using .::stdlib_1_8 import mx_geompropvalue_color3;
+export using .::stdlib_1_8 import mx_geompropvalue_color4;
+export using .::stdlib_1_8 import mx_geompropvalue_vector2;
+export using .::stdlib_1_8 import mx_geompropvalue_vector3;
+export using .::stdlib_1_8 import mx_geompropvalue_vector4;
+export using .::stdlib_1_8 import mx_viewdirection_vector3;
 
-// NOTE: No boolean scene data in MDL so it's mapped to integer.
-//       Returns false if the scene data is zero, true otherwise.
-export bool mx_geompropvalue_boolean(
-	uniform string mxp_geomprop = string(""),
-	bool mxp_default = bool(false)
-)
-	[[
-		anno::description("Node Group: geometric")
-	]]
-{
-	int defaultValue = mxp_default ? 1 : 0;
-	return scene::data_lookup_int(mxp_geomprop, defaultValue) == 0 ? false : true;
-}
 
-export int mx_geompropvalue_integer(
-	uniform string mxp_geomprop = string(""),
-	int mxp_default = int(0)
-)
-	[[
-		anno::description("Node Group: geometric")
-	]]
-{
-	return scene::data_lookup_int(mxp_geomprop, mxp_default);
-}
 
-export float mx_geompropvalue_float(
-	uniform string mxp_geomprop = string(""),
-	float mxp_default = float(0.0)
-)
-	[[
-		anno::description("Node Group: geometric")
-	]]
-{
-	return scene::data_lookup_float(mxp_geomprop, mxp_default);
-}
+// mix all parts of the material, bsdf, edf, and vdf, geometry
+export material mx_mix_surfaceshader(
+    material mxp_fg = material() [[ anno::usage( "materialx:surfaceshader") ]],
+    material mxp_bg = material() [[ anno::usage( "materialx:surfaceshader") ]],
+    float    mxp_mix = 0.0
+) [[
+    anno::description("Node Group: compositing"),
+    anno::usage( "materialx:surfaceshader") 
+]]
+= material(
+    surface: material_surface( 
+        scattering: df::weighted_layer(
+            weight: mxp_mix,
+            layer:  mxp_fg.surface.scattering,
+            base:   mxp_bg.surface.scattering
+        ),
+        emission: material_emission(
+            emission: df::clamped_mix(
+            df::edf_component[]( 
+                df::edf_component( mxp_mix, mxp_fg.surface.emission.emission), 
+                df::edf_component( 1.0 - mxp_mix, mxp_bg.surface.emission.emission))
+            ),
+            intensity: mxp_mix * mxp_fg.surface.emission.intensity +
+                       (1.0 - mxp_mix) * mxp_bg.surface.emission.intensity
+        )
+    ),
 
-export color mx_geompropvalue_color3(
-	uniform string mxp_geomprop = string(""),
-	color mxp_default = color(0.0, 0.0, 0.0)
-)
-	[[
-		anno::description("Node Group: geometric")
-	]]
-{
-	return scene::data_lookup_color(mxp_geomprop, mxp_default);
-}
-
-export core::color4 mx_geompropvalue_color4(
-	uniform string mxp_geomprop = string(""),
-	core::color4 mxp_default = core::mk_color4(0.0, 0.0, 0.0, 0.0)
-)
-	[[
-		anno::description("Node Group: geometric")
-	]]
-{
-    float3 rgbValue = float3(mxp_default.rgb);
-    float4 defaultValue = float4(rgbValue.x, rgbValue.y, rgbValue.z, mxp_default.a);
-	float4 value = scene::data_lookup_float4(mxp_geomprop, defaultValue);
-	return core::mk_color4(value.x, value.y, value.z, value.w);
-}
-
-export float2 mx_geompropvalue_vector2(
-	uniform string mxp_geomprop = string(""),
-	float2 mxp_default = float2(0.0, 0.0)
-)
-	[[
-		anno::description("Node Group: geometric")
-	]]
-{
-	return scene::data_lookup_float2(mxp_geomprop, mxp_default);
-}
-
-export float3 mx_geompropvalue_vector3(
-	uniform string mxp_geomprop = string(""),
-	float3 mxp_default = float3(0.0, 0.0, 0.0)
-)
-	[[
-		anno::description("Node Group: geometric")
-	]]
-{
-	return scene::data_lookup_float3(mxp_geomprop, mxp_default);
-}
-
-export float4 mx_geompropvalue_vector4(
-	uniform string mxp_geomprop = string(""),
-	float4 mxp_default = float4(0.0, 0.0, 0.0, 0.0)
-)
-{
-    return scene::data_lookup_float4(mxp_geomprop, mxp_default);
-}
-
-export float3 mx_viewdirection_vector3(
-	uniform core::mx_coordinatespace_type mxp_space = core::mx_coordinatespace_type_world
-	[[
-		anno::description("Enumeration {model,object,world}.")
-	]]
-)
-	[[
-		anno::description("Node Group: nprlib")
-	]]
-{
-	float3 internal_space_direction =
-		state::position() - scene::data_lookup_float3("CAMERA_POSITION", float3(0.0, 0.0, 0.0));
-
-	if (mxp_space == core::mx_coordinatespace_type_world)
-		return math::normalize(state::transform_vector(
-			::state::coordinate_internal,
-			::state::coordinate_world,
-			internal_space_direction));
-	else
-		return math::normalize(state::transform_vector(
-			::state::coordinate_internal,
-			::state::coordinate_object,
-			internal_space_direction));
-}
+    // we need to carry volume properties along for SSS
+    ior: mxp_mix * mxp_fg.ior + (1.0 - mxp_mix) * mxp_bg.ior,
+    volume: material_volume(
+        scattering: df::clamped_mix(
+            df::vdf_component[]( 
+                df::vdf_component( mxp_mix, mxp_fg.volume.scattering), 
+                df::vdf_component( 1.0 - mxp_mix, mxp_bg.volume.scattering))
+        ),
+        absorption_coefficient: mxp_mix * mxp_fg.volume.absorption_coefficient + 
+                    (1.0 - mxp_mix) * mxp_bg.volume.absorption_coefficient,
+        scattering_coefficient: mxp_mix * mxp_fg.volume.scattering_coefficient + 
+                    (1.0 - mxp_mix) * mxp_bg.volume.scattering_coefficient
+    ),
+    geometry: material_geometry(
+        displacement: mxp_mix * mxp_fg.geometry.displacement + 
+                    (1.0 - mxp_mix) * mxp_bg.geometry.displacement,
+        cutout_opacity: mxp_mix * mxp_fg.geometry.cutout_opacity + 
+                    (1.0 - mxp_mix) * mxp_bg.geometry.cutout_opacity,
+        normal: mxp_mix * mxp_fg.geometry.normal + 
+                    (1.0 - mxp_mix) * mxp_bg.geometry.normal
+    )
+);

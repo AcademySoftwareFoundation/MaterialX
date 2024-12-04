@@ -224,10 +224,10 @@ void bindPyElement(py::module& mod)
         .def_readwrite("attributeName", &mx::ElementEquivalenceResult::attributeName);
 
     py::class_<mx::ElementEquivalenceOptions>(mod, "ElementEquivalenceOptions")
-        .def_readwrite("format", &mx::ElementEquivalenceOptions::format)
-        .def_readwrite("precision", &mx::ElementEquivalenceOptions::precision)
-        .def_readwrite("skipAttributes", &mx::ElementEquivalenceOptions::skipAttributes)
-        .def_readwrite("skipValueComparisons", &mx::ElementEquivalenceOptions::skipValueComparisons)
+        .def_readwrite("performValueComparisons", &mx::ElementEquivalenceOptions::performValueComparisons)
+        .def_readwrite("floatFormat", &mx::ElementEquivalenceOptions::floatFormat)
+        .def_readwrite("floatPrecision", &mx::ElementEquivalenceOptions::floatPrecision)
+        .def_readwrite("attributeExclusionList", &mx::ElementEquivalenceOptions::attributeExclusionList)
         .def(py::init<>());
 
     py::class_<mx::StringResolver, mx::StringResolverPtr>(mod, "StringResolver")

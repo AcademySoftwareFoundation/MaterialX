@@ -17,6 +17,7 @@ def main():
     opts = parser.parse_args()
 
     # Load standard libraries if requested.
+    stdlib = None
     if opts.stdlib:
         stdlib = mx.createDocument()
         try:
@@ -29,7 +30,8 @@ def main():
     doc = mx.createDocument()
     try:
         mx.readFromXmlFile(doc, opts.inputFilename)
-        doc.setDataLibrary(stdlib)
+        if stdlib:
+            doc.setDataLibrary(stdlib)
     except mx.ExceptionFileMissing as err:
         print(err)
         sys.exit(0)

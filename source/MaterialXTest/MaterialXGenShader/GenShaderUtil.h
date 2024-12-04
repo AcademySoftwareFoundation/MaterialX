@@ -46,8 +46,7 @@ bool generateCode(mx::GenContext& context, const std::string& shaderName, mx::Ty
 // Check that implementations exist for all nodedefs supported per generator
 void checkImplementations(mx::GenContext& context,
                             const mx::StringSet& generatorSkipNodeTypes,
-                            const mx::StringSet& generatorSkipNodeDefs,
-                            unsigned int expectedSkipCount);
+                            const mx::StringSet& generatorSkipNodeDefs);
 
 // Utility test to  check unique name generation on a shader generator
 void testUniqueNames(mx::GenContext& context, const std::string& stage);

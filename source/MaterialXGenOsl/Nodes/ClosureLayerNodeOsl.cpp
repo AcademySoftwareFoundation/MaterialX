@@ -37,51 +37,6 @@ void ClosureLayerNodeOsl::emitFunctionCall(const ShaderNode& _node, GenContext& 
     ShaderNode* top = topInput->getConnection()->getNode();
     ShaderNode* base = baseInput->getConnection()->getNode();
 
-#ifdef MATERIALX_OSL_LEGACY_CLOSURES
-
-    ClosureContext* cct = context.getClosureContext();
-
-    // Evaluate top and base nodes and combine their result
-    // according to throughput.
-    //
-    // TODO: In the BSDF over BSDF case should we emit code
-    //       to check the top throughput amount before calling
-    //       the base BSDF?
-
-    // Make sure the connections are sibling nodes and not the graph interface.
-    if (top->getParent() == node.getParent())
-    {
-        // If this layer node has closure parameters set,
-        // we pass this on to the top component only.
-        ScopedSetClosureParams setParams(&node, top, cct);
-        shadergen.emitFunctionCall(*top, context, stage);
-    }
-    if (base->getParent() == node.getParent())
-    {
-        shadergen.emitFunctionCall(*base, context, stage);
-    }
-
-    // Get the result variables.
-    const string& topResult = topInput->getConnection()->getVariable();
-    const string& baseResult = baseInput->getConnection()->getVariable();
-
-    // Calculate the layering result.
-    emitOutputVariables(node, context, stage);
-    if (base->getOutput()->getType() == Type::VDF)
-    {
-        // Combining a surface closure with a volumetric closure is simply done with the add operator in OSL.
-        shadergen.emitLine(output->getVariable() + ".response = " + topResult + ".response + " + baseResult, stage);
-        // Just pass the throughput along.
-        shadergen.emitLine(output->getVariable() + ".throughput = " + topResult + ".throughput", stage);
-    }
-    else
-    {
-        shadergen.emitLine(output->getVariable() + ".response = " + topResult + ".response + " + baseResult + ".response * " + topResult + ".throughput", stage);
-        shadergen.emitLine(output->getVariable() + ".throughput = " + topResult + ".throughput * " + baseResult + ".throughput", stage);
-    }
-
-#else
-
     // Emit the function call for top and base layer.
     // Make sure the connections are sibling nodes and not the graph interface.
     if (top->getParent() == node.getParent())
@@ -102,8 +57,6 @@ void ClosureLayerNodeOsl::emitFunctionCall(const ShaderNode& _node, GenContext& 
     shadergen.emitOutput(output, true, false, context, stage);
     shadergen.emitString(" = layer(" + topResult + ", " + baseResult + ")", stage);
     shadergen.emitLineEnd(stage);
-
-#endif // MATERIALX_OSL_LEGACY_CLOSURES
 }
 
 MATERIALX_NAMESPACE_END

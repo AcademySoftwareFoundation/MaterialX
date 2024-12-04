@@ -94,7 +94,7 @@ TEST_CASE("GenShader: MDL Implementation Check", "[genmdl]")
 
     mx::StringSet generatorSkipNodeDefs;
 
-    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 31);
+    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs);
 }
 
 
@@ -225,15 +225,9 @@ void MdlShaderGeneratorTester::compileSource(const std::vector<mx::FilePath>& so
     moduleToTest = moduleToTest.substr(0, moduleToTest.size() - sourceCodePaths[0].getExtension().length() - 1);
 
     std::string renderExec(MATERIALX_MDL_RENDER_EXECUTABLE);
-    bool testMDLC = renderExec.empty();
-    if (testMDLC)
+    std::string mdlcExec(MATERIALX_MDLC_EXECUTABLE);
+    if (!mdlcExec.empty()) // always run compiler
     {
-        std::string mdlcExec(MATERIALX_MDLC_EXECUTABLE);
-        if (mdlcExec.empty())
-        {
-            return;
-        }
-
         std::string mdlcCommand = mdlcExec;
 
         // use the same paths as the resolver
@@ -264,12 +258,19 @@ void MdlShaderGeneratorTester::compileSource(const std::vector<mx::FilePath>& so
                 _logFile << "\tReturn code: " << std::to_string(returnValue) << std::endl;
                 writeErrorCode = true;
             }
-            _logFile << "\tError: " << line << std::endl;
+            if (line.find(": Warning ") != std::string::npos)
+            {
+                _logFile << "\tWarning: " << line << std::endl;
+            }
+            else
+            {
+                _logFile << "\tError: " << line << std::endl;
+            }
         }
 
         CHECK(returnValue == 0);
     }
-    else
+    if (!renderExec.empty()) // render if renderer is availabe
     {
         std::string renderCommand = renderExec;
 
@@ -358,6 +359,7 @@ TEST_CASE("GenShader: MDL Shader Generation", "[genmdl]")
     mx::FilePathVec testRootPaths;
     testRootPaths.push_back(searchPath.find("resources/Materials/TestSuite"));
     testRootPaths.push_back(searchPath.find("resources/Materials/Examples/StandardSurface"));
+    testRootPaths.push_back(searchPath.find("resources/Materials/Examples/UsdPreviewSurface"));
 
     const mx::FilePath logPath("genmdl_mdl_generate_test.txt");
 

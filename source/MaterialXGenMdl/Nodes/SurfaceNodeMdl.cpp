@@ -59,12 +59,17 @@ void SurfaceNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& contex
         // Emit calls for the closure dependencies upstream from this node.
         shadergen.emitDependentFunctionCalls(node, context, stage, ShaderNode::Classification::CLOSURE);
 
-        // Check if transmission IOR is used for this shader.
+        // Check if transmission IOR is used for this shader for MDL versions before 1.9.
         // MDL only supports a single transmission IOR per material and
         // it is given as an input on the 'material' constructor.
         // So if used we must forward this value/connection to the surface
         // constructor. It's set as an extra input below.
-        const ShaderInput* ior = findTransmissionIOR(node);
+        GenMdlOptions::MdlVersion version = shadergen.getMdlVersion(context);
+        bool uniformIorRequired =
+            version == GenMdlOptions::MdlVersion::MDL_1_6 ||
+            version == GenMdlOptions::MdlVersion::MDL_1_7 ||
+            version == GenMdlOptions::MdlVersion::MDL_1_8;
+        const ShaderInput* ior = uniformIorRequired ? findTransmissionIOR(node) : nullptr;
 
         shadergen.emitLineBegin(stage);
 
@@ -79,6 +84,9 @@ void SurfaceNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& contex
         for (ShaderInput* input : node.getInputs())
         {
             shadergen.emitString(delim, stage);
+            shadergen.emitString("mxp_", stage);
+            shadergen.emitString(input->getName(), stage);
+            shadergen.emitString(": ", stage);
             shadergen.emitInput(input, context, stage);
             delim = ", ";
         }
@@ -87,6 +95,7 @@ void SurfaceNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& contex
         {
             // Emit the extra input for transmission IOR.
             shadergen.emitString(delim, stage);
+            shadergen.emitString("mxp_transmission_ior: ", stage);
             shadergen.emitInput(ior, context, stage);
         }
 

@@ -132,13 +132,6 @@
   <implementation name="IM_worleynoise3d_vector3_genosl" nodedef="ND_worleynoise3d_vector3" file="mx_worleynoise3d_vector3.osl" function="mx_worleynoise3d_vector3" target="genosl" />
 
   <!-- ======================================================================== -->
-  <!-- Global nodes                                                             -->
-  <!-- ======================================================================== -->
-
-  <!-- <ambientocclusion> -->
-  <implementation name="IM_ambientocclusion_float_genosl" nodedef="ND_ambientocclusion_float" file="mx_ambientocclusion_float.osl" function="mx_ambientocclusion_float" target="genosl" />
-
-  <!-- ======================================================================== -->
   <!-- Geometric nodes                                                          -->
   <!-- ======================================================================== -->
 
