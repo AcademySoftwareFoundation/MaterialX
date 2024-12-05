@@ -1040,12 +1040,7 @@ class MX_CORE_API ValueElement : public TypedElement
     ///
     /// @return A shared pointer to the typed value of this element, or an
     ///    empty shared pointer if no value is present.
-    ValuePtr getValue() const
-    {
-        if (!hasValue())
-            return ValuePtr();
-        return Value::createValueFromStrings(getValueString(), getType());
-    }
+    ValuePtr getValue() const;
 
     /// Return the resolved value of an element as a generic value object, which
     /// may be queried to access its data.
@@ -1055,12 +1050,7 @@ class MX_CORE_API ValueElement : public TypedElement
     ///    will be created at this scope and applied to the return value.
     /// @return A shared pointer to the typed value of this element, or an
     ///    empty shared pointer if no value is present.
-    ValuePtr getResolvedValue(StringResolverPtr resolver = nullptr) const
-    {
-        if (!hasValue())
-            return ValuePtr();
-        return Value::createValueFromStrings(getResolvedValueString(resolver), getType());
-    }
+    ValuePtr getResolvedValue(StringResolverPtr resolver = nullptr) const;
 
     /// Return the default value for this element as a generic value object, which
     /// may be queried to access its data.
@@ -1402,34 +1392,33 @@ class MX_CORE_API ElementEquivalenceOptions
   public:
     ElementEquivalenceOptions()
     {
-        format = Value::getFloatFormat();
-        precision = Value::getFloatPrecision();
-        skipAttributes = {};
-        skipValueComparisons = false;
+        performValueComparisons = true;
+        floatFormat = Value::getFloatFormat();
+        floatPrecision = Value::getFloatPrecision();
+        attributeExclusionList = {};
     };
     ~ElementEquivalenceOptions() { }
 
-    /// Floating point format option for floating point value comparisons
-    Value::FloatFormat format;
+    /// Perform value comparisons as opposed to literal string comparisons.
+    /// Default is true.
+    bool performValueComparisons;
 
-    /// Floating point precision option for floating point value comparisons
-    int precision;
+    /// Floating point format to use for floating point value comparisons
+    Value::FloatFormat floatFormat;
 
-    /// Attribute filtering options. By default all attributes are considered.
-    /// Name, category attributes cannot be skipped.
+    /// Floating point precision to use for floating point value comparisons
+    int floatPrecision;
+
+    /// Specifies the set of attributes that should be excluded when performing a comparison. 
+    /// By default all attributes are considered. Name and category attributes cannot be excluded.
     /// 
-    /// For example UI attribute comparision be skipped by setting:
-    /// skipAttributes = { 
+    /// For example, to exclude UI and documentation attributes from consideration the follow may be set:
+    /// attributeExclusionList = {
     ///     ValueElement::UI_MIN_ATTRIBUTE, ValueElement::UI_MAX_ATTRIBUTE,
     ///     ValueElement::UI_SOFT_MIN_ATTRIBUTE, ValueElement::UI_SOFT_MAX_ATTRIBUTE,
     ///     ValueElement::UI_STEP_ATTRIBUTE, Element::XPOS_ATTRIBUTE, 
-    ///     Element::YPOS_ATTRIBUTE };
-    StringSet skipAttributes;
-
-    /// Do not perform any value comparisions. Instead perform exact string comparisons for attributes
-    /// Default is false. The operator==() method can be used instead as it always performs
-    /// a strict comparison. Default is false.
-    bool skipValueComparisons;
+    ///     Element::YPOS_ATTRIBUTE, Element::DOC_ATTRIBUTE };
+    StringSet attributeExclusionList;
 };
 
 /// @class ExceptionOrphanedElement

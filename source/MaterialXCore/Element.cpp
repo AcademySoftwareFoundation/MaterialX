@@ -396,14 +396,14 @@ bool Element::isEquivalent(ConstElementPtr rhs, const ElementEquivalenceOptions&
     StringVec rhsAttributeNames = rhs->getAttributeNames();
 
     // Filter out any attributes specified in the options.
-    const StringSet& skipAttributes = options.skipAttributes;
-    if (!skipAttributes.empty())
+    const StringSet& attributeExclusionList = options.attributeExclusionList;
+    if (!attributeExclusionList.empty())
     {
         attributeNames.erase(std::remove_if(attributeNames.begin(), attributeNames.end(),
-            [&skipAttributes](const string& attr) { return skipAttributes.find(attr) != skipAttributes.end(); }),
+            [&attributeExclusionList](const string& attr) { return attributeExclusionList.find(attr) != attributeExclusionList.end(); }),
             attributeNames.end());
         rhsAttributeNames.erase(std::remove_if(rhsAttributeNames.begin(), rhsAttributeNames.end(),
-            [&skipAttributes](const string& attr) { return skipAttributes.find(attr) != skipAttributes.end(); }),
+            [&attributeExclusionList](const string& attr) { return attributeExclusionList.find(attr) != attributeExclusionList.end(); }),
             rhsAttributeNames.end());
     }    
 
@@ -426,9 +426,25 @@ bool Element::isEquivalent(ConstElementPtr rhs, const ElementEquivalenceOptions&
         }
     }
 
-    // Compare children.
-    const vector<ElementPtr>& children = getChildren();
-    const vector<ElementPtr>& rhsChildren = rhs->getChildren();
+    // Compare all child elements that affect functional equivalence.
+    vector<ElementPtr> children;
+    for (ElementPtr child : getChildren())
+    {
+        if (child->getCategory() == CommentElement::CATEGORY)
+        {
+            continue;
+        }
+        children.push_back(child);
+    }
+    vector <ElementPtr> rhsChildren;
+    for (ElementPtr child : rhs->getChildren())
+    {
+        if (child->getCategory() == CommentElement::CATEGORY)
+        {
+            continue;
+        }
+        rhsChildren.push_back(child);
+    }
     if (children.size() != rhsChildren.size())
     {
         if (results)
@@ -643,6 +659,22 @@ string ValueElement::getResolvedValueString(StringResolverPtr resolver) const
     return resolver->resolve(getValueString(), getType());
 }
 
+ValuePtr ValueElement::getValue() const
+{
+    if (!hasValue())
+        return ValuePtr();
+
+    return Value::createValueFromStrings(getValueString(), getType(), getDocument()->getTypeDef(getType()));
+}
+
+ValuePtr ValueElement::getResolvedValue(StringResolverPtr resolver) const
+{
+    if (!hasValue())
+        return ValuePtr();
+
+    return Value::createValueFromStrings(getResolvedValueString(resolver), getType(), getDocument()->getTypeDef(getType()));
+}
+
 ValuePtr ValueElement::getDefaultValue() const
 {
     ConstElementPtr parent = getParent();
@@ -687,7 +719,7 @@ bool ValueElement::isAttributeEquivalent(ConstElementPtr rhs, const string& attr
 {    
     // Perform value comparisons
     bool performedValueComparison = false;
-    if (!options.skipValueComparisons)
+    if (options.performValueComparisons)
     {
         const StringSet uiAttributes = 
         {
@@ -697,7 +729,7 @@ bool ValueElement::isAttributeEquivalent(ConstElementPtr rhs, const string& attr
         };
 
         // Get precision and format options
-        ScopedFloatFormatting fmt(options.format, options.precision);
+        ScopedFloatFormatting fmt(options.floatFormat, options.floatPrecision);
 
         ConstValueElementPtr rhsValueElement = rhs->asA<ValueElement>();
 
@@ -722,7 +754,7 @@ bool ValueElement::isAttributeEquivalent(ConstElementPtr rhs, const string& attr
         else if (uiAttributes.find(attributeName) != uiAttributes.end())
         {
             const string& uiAttribute = getAttribute(attributeName);
-            const string& rhsUiAttribute = getAttribute(attributeName);
+            const string& rhsUiAttribute = rhs->getAttribute(attributeName);
             ValuePtr uiValue = !rhsUiAttribute.empty() ? Value::createValueFromStrings(uiAttribute, getType()) : nullptr;
             ValuePtr rhsUiValue = !rhsUiAttribute.empty() ? Value::createValueFromStrings(rhsUiAttribute, getType()) : nullptr;
             if (uiValue && rhsUiValue)

@@ -188,7 +188,25 @@ We have a standard 3d fractal noise, but a 2d variant would be useful as well.
     * `period` (float or vector3): the positive integer distance at which the noise function returns the same value for input coordinate repeated at that step.  Default is 0, meaning the noise is not periodic.
     * `in` (float): the 1D coordinate at which the noise is evaluated.
 
+<a id="node-worleynoise2d"> </a>
 
+Expanded 2D Worley noise to support different distance metrics and periodicity. 
+
+* **`worleynoise2d`**: 2D Worley noise using centered jitter, outputting float (distance metric to closest feature), vector2 (distance metrics to closest 2 features) or vector3 (distance metrics to closest 3 features).
+    * `metric` (uniform string): the distance metric to return, one of "distance" (Euclidean distance to feature), "distance2" (Euclidean distance squared), "manhattan" or "chebyshev".  Default is "distance".
+    * `period` (float or vector3): the positive integer distance at which the noise function returns the same value for texture coordinates repeated at that step.  Default is 0, meaning the noise is not periodic.
+
+<a id="node-worleynoise3d"> </a>
+
+Expanded 3D Worley noise to support different distance metrics and periodicity.
+
+* **`worleynoise3d`**: 3D Worley noise using centered jitter, outputting float (distance metric to closest feature), vector2 (distance metrics to closest 2 features) or vector3 (distance metrics to closest 3 features).
+    * `metric` (uniform string): the distance metric to return, one of "distance" (Euclidean distance to feature), "distance2" (Euclidean distance squared), "manhattan" or "chebyshev".  Default is "distance".
+    * `period` (float or vector3): the positive integer distance at which the noise function returns the same value for position coordinates repeated at that step.  Default is 0, meaning the noise is not periodic.
+
+#### Periodic Noises
+
+In #1201 it was decided that separate periodic versions of all of the noises is preferred to adding it to the existing noises.
 
 ### Shape Nodes
 

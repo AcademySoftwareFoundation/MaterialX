@@ -5,7 +5,9 @@
 
 mdl 1.6;
 
+import ::anno::*;
 import ::math::*;
+import ::state::*;
 
 import .::core::*;
 
@@ -15,14 +17,14 @@ export const int MX_MAX_SAMPLE_COUNT = 49;
 export const int MX_WEIGHT_ARRAY_SIZE = 84;
 
 // This is not available in MDL so just use a "small" number
-float2 dFdx(float2 uv)
+float2 dFdx(float2 uv [[anno::unused()]])
 {
-    return uv+0.0001;
+    return float2(0.001, 0);
 }
 
-float2 dFdy(float2 uv)
+float2 dFdy(float2 uv [[anno::unused()]])
 {
-    return uv+0.0001;
+    return float2(0, 0.001);
 }
 
 //
@@ -49,11 +51,10 @@ export float2 mx_compute_sample_size_uv(float2 uv, float filterSize, float filte
 //
 export float3 mx_normal_from_samples_sobel(float[9] S, float scale)
 {
-   float nx = S[0] - S[2] + (2.0*S[3]) - (2.0*S[5]) + S[6] - S[8];
-   float ny = S[0] + (2.0*S[1]) + S[2] - S[6] - (2.0*S[7]) - S[8];
-   float nz = scale * ::math::sqrt(1.0 - nx*nx - ny*ny);
-   float3 norm = ::math::normalize(float3(nx, ny, nz));
-   return (norm + 1.0) * 0.5;
+    float nx = S[0] - S[2] + (2.0*S[3]) - (2.0*S[5]) + S[6] - S[8];
+    float ny = S[0] + (2.0*S[1]) + S[2] - S[6] - (2.0*S[7]) - S[8];
+    float3 norm = math::normalize(float3(nx * scale, ny * scale, 0.125));
+    return (norm + 1.0) * 0.5;
 }
 
 // Kernel weights for box filter
