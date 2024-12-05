@@ -87,8 +87,7 @@ TEST_CASE("GenShader: MSL Implementation Check", "[genmsl]")
     generatorSkipNodeDefs.insert("ND_hextiledimage_color3");
     generatorSkipNodeDefs.insert("ND_hextiledimage_color4");
     generatorSkipNodeDefs.insert("ND_hextilednormalmap_vector3");
-
-    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 33);
+    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs);
 }
 
 TEST_CASE("GenShader: MSL Unique Names", "[genmsl]")

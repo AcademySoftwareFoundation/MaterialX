@@ -702,7 +702,7 @@ void Viewer::createDocumentationInterface(ng::ref<Widget> parent)
                                                              ng::Alignment::Minimum, 2, 2);
     gridLayout2->set_col_alignment({ ng::Alignment::Minimum, ng::Alignment::Maximum });
 
-    const std::vector<std::pair<std::string, std::string>> KEYBOARD_SHORTCUTS =
+    const std::array<std::pair<std::string, std::string>, 16> KEYBOARD_SHORTCUTS =
     {
         std::make_pair("R", "Reload the current material from file. "
                             "Hold SHIFT to reload all standard libraries as well."),
