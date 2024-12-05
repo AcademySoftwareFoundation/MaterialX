@@ -128,7 +128,7 @@ void ClosureLayerNodeMdl::emitFunctionCall(const ShaderNode& _node, GenContext& 
                 ShaderNode* fg = fgOutput ? fgOutput->getNode() : nullptr;
                 ShaderNode* bg = bgOutput ? bgOutput->getNode() : nullptr;
                 ShaderNode* mix = mixOutput ? mixOutput->getNode() : nullptr;
-                if ((fg && !bg) || (!fg && bg))
+                if ((bool) fg != (bool) bg)
                 {
                     baseReceiverNode = fg ? fg : bg; // take the node that is valid
                     top = baseReceiverNode;

@@ -749,7 +749,7 @@ bool ValueElement::isAttributeEquivalent(ConstElementPtr rhs, const string& attr
         else if (uiAttributes.find(attributeName) != uiAttributes.end())
         {
             const string& uiAttribute = getAttribute(attributeName);
-            const string& rhsUiAttribute = getAttribute(attributeName);
+            const string& rhsUiAttribute = rhs->getAttribute(attributeName);
             ValuePtr uiValue = !rhsUiAttribute.empty() ? Value::createValueFromStrings(uiAttribute, getType()) : nullptr;
             ValuePtr rhsUiValue = !rhsUiAttribute.empty() ? Value::createValueFromStrings(rhsUiAttribute, getType()) : nullptr;
             if (uiValue && rhsUiValue)
