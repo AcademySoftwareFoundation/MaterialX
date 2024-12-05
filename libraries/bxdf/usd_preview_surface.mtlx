@@ -6,7 +6,7 @@
   <!-- ======================================================================== -->
 
   <!-- Node: UsdPreviewSurface -->
-  <nodedef name="ND_UsdPreviewSurface_surfaceshader" node="UsdPreviewSurface" nodegroup="pbr" doc="UsdPreviewSurface shader" version="2.5" isdefaultversion="true">
+  <nodedef name="ND_UsdPreviewSurface_surfaceshader" node="UsdPreviewSurface" nodegroup="pbr" doc="UsdPreviewSurface shader" version="2.6" isdefaultversion="true">
     <input name="diffuseColor" type="color3" value="0.18, 0.18, 0.18" uimin="0,0,0" uimax="1,1,1" uiname="Diffuse Color" />
     <input name="emissiveColor" type="color3" value="0, 0, 0" uimin="0,0,0" uisoftmax="1,1,1" uiname="Emissive Color" />
     <input name="useSpecularWorkflow" type="integer" value="0" uimin="0" uimax="1" uistep="1" uiname="Use Specular Workflow" />
