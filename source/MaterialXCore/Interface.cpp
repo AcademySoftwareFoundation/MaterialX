@@ -334,7 +334,7 @@ bool Output::hasUpstreamCycle() const
 {
     try
     {
-        for (Edge edge : uniqueTraverseGraph()) { }
+        for (Edge edge : traverseGraph()) { }
     }
     catch (ExceptionFoundCycle&)
     {

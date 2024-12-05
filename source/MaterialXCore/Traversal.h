@@ -191,10 +191,9 @@ class MX_CORE_API TreeIterator
 class MX_CORE_API GraphIterator
 {
   public:
-    explicit GraphIterator(ElementPtr elem, bool skipVisitedEdges = false) :
+    explicit GraphIterator(ElementPtr elem) :
         _upstreamElem(elem),
         _prune(false),
-        _skipVisitedEdges(skipVisitedEdges),
         _holdCount(0)
     {
         _pathElems.insert(elem);
@@ -326,7 +325,6 @@ class MX_CORE_API GraphIterator
     vector<StackFrame> _stack;
     std::set<Edge> _visitedEdges;
     bool _prune;
-    bool _skipVisitedEdges;
     size_t _holdCount;
 };
 

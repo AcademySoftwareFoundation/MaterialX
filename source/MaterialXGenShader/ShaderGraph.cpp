@@ -168,7 +168,7 @@ void ShaderGraph::addUpstreamDependencies(const Element& root, GenContext& conte
 {
     std::set<ElementPtr> processedOutputs;
 
-    for (Edge edge : root.uniqueTraverseGraph())
+    for (Edge edge : root.traverseGraph())
     {
         ElementPtr upstreamElement = edge.getUpstreamElement();
         if (!upstreamElement)
