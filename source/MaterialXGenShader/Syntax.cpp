@@ -297,8 +297,8 @@ string StructTypeSyntax::getValue(const Value& value, const GenContext& context,
         result += separator;
         separator = ";";
 
-        auto memberTypeName = memberValue->getTypeString();
-        auto memberTypeDesc = context.getTypeDesc(memberTypeName);
+        const string& memberTypeName = memberValue->getTypeString();
+        TypeDesc memberTypeDesc = context.getTypeDesc(memberTypeName);
 
         // Recursively use the syntax to generate the output, so we can support nested structs.
         const string valueStr = _parentSyntax->getValue(memberTypeDesc, *memberValue, context, true);

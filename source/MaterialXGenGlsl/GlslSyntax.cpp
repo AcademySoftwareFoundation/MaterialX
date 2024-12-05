@@ -401,8 +401,8 @@ string GlslStructTypeSyntax::getValue(const Value& value, const GenContext& cont
         result += separator;
         separator = ",";
 
-        auto memberTypeName = memberValue->getTypeString();
-        auto memberTypeDesc = context.getTypeDesc(memberTypeName);
+        const string& memberTypeName = memberValue->getTypeString();
+        TypeDesc memberTypeDesc = context.getTypeDesc(memberTypeName);
 
         // Recursively use the syntax to generate the output, so we can supported nested structs.
         result += _parentSyntax->getValue(memberTypeDesc, *memberValue, context, true);
