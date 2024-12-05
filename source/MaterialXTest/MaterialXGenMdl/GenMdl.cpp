@@ -18,7 +18,6 @@
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Util.h>
 
-
 namespace mx = MaterialX;
 
 TEST_CASE("GenShader: MDL Syntax", "[genmdl]")

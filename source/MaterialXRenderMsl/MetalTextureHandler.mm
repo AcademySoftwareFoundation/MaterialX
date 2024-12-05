@@ -162,7 +162,7 @@ bool MetalTextureHandler::createRenderResources(ImagePtr image, bool generateMip
         else
         {
             [texDesc setTextureType:MTLTextureType2DArray];
-            texDesc.arrayLength = additionalImages.size()+1;
+            texDesc.arrayLength = additionalImages.size() + 1;
         }
 
         texDesc.width = image->getWidth();
@@ -211,8 +211,7 @@ bool MetalTextureHandler::createRenderResources(ImagePtr image, bool generateMip
     std::vector<float> rearrangedDataF;
     std::vector<unsigned char> rearrangedDataC;
 
-    auto addImageToTexture = [texture, &blitCmdEncoder, &rearrangedDataC, &rearrangedDataF, pixelFormat]
-        (id<MTLDevice> device, ImagePtr image, NSUInteger sliceIndex)
+    auto addImageToTexture = [texture, &blitCmdEncoder, &rearrangedDataC, &rearrangedDataF, pixelFormat](id<MTLDevice> device, ImagePtr image, NSUInteger sliceIndex)
     {
         NSUInteger channelCount = image->getChannelCount();
 
@@ -276,9 +275,9 @@ bool MetalTextureHandler::createRenderResources(ImagePtr image, bool generateMip
         if (imageData)
         {
             id<MTLBuffer> buffer = [device newBufferWithBytesNoCopy:imageData
-                                                              length:sourceBytesPerImage
-                                                             options:MTLStorageModeShared
-                                                         deallocator:nil];
+                                                             length:sourceBytesPerImage
+                                                            options:MTLStorageModeShared
+                                                        deallocator:nil];
             [blitCmdEncoder copyFromBuffer:buffer
                               sourceOffset:0
                          sourceBytesPerRow:sourceBytesPerRow
