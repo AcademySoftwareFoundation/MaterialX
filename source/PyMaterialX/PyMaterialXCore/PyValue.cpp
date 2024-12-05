@@ -6,6 +6,7 @@
 #include <PyMaterialX/PyMaterialX.h>
 
 #include <MaterialXCore/Value.h>
+#include <MaterialXCore/Definition.h>
 
 #define BIND_TYPE_INSTANCE(NAME, T)                                                                         \
 py::class_<mx::TypedValue<T>, std::shared_ptr< mx::TypedValue<T> >, mx::Value>(mod, "TypedValue_" #NAME)    \
@@ -22,7 +23,10 @@ void bindPyValue(py::module& mod)
     py::class_<mx::Value, mx::ValuePtr>(mod, "Value")
         .def("getValueString", &mx::Value::getValueString)
         .def("getTypeString", &mx::Value::getTypeString)
-        .def_static("createValueFromStrings", &mx::Value::createValueFromStrings);
+        .def_static("createValueFromStrings", &mx::Value::createValueFromStrings,
+                    py::arg("value"),
+                    py::arg("type"),
+                    py::arg("typeDefPtr") = nullptr);
 
     BIND_TYPE_INSTANCE(integer, int)
     BIND_TYPE_INSTANCE(boolean, bool)

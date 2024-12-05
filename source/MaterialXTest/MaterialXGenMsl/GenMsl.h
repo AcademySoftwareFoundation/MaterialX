@@ -43,8 +43,6 @@ class MslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
 
     void addSkipFiles() override
     {
-        _skipFiles.insert("hair_bsdf.mtlx");
-        _skipFiles.insert("hair_surfaceshader.mtlx");
     }
 
     void setupDependentLibraries() override
@@ -72,7 +70,7 @@ class MslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
     {
         whiteList =
         {
-            "ambientocclusion", "arrayappend", "backfacing", "screen", "curveadjust", "displacementshader",
+            "backfacing", "screen", "displacementshader",
             "volumeshader", "IM_constant_", "IM_dot_", "IM_geompropvalue_boolean", "IM_geompropvalue_string", "IM_geompropvalue_filename",
             "IM_light_genmsl", "IM_point_light_genmsl", "IM_spot_light_genmsl", "IM_directional_light_genmsl",
             "IM_angle", "surfacematerial", "volumematerial", "ND_surfacematerial", "ND_volumematerial", "ND_backface_util", "IM_backface_util_genmsl"

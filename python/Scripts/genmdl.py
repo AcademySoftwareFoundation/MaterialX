@@ -439,13 +439,7 @@ def main():
 
         # TODO: Skip array definitions for now
         nodeCategory = nodedef.getAttribute('node')
-        if  nodeCategory == 'arrayappend':
-            print('Skip ' + nodeDefName + ' implementation. Not supported yet')
-            continue
-        if  nodeCategory == 'curveadjust':
-            print('Skip ' + nodeDefName + ' implementation. Not supported yet')
-            #continue
-        elif nodeCategory == 'geomcolor':
+        if nodeCategory == 'geomcolor':
             print('Skip ' + nodeDefName + ' implementation. Not supported in MDL')
             #continue
         elif nodeCategory == 'geomattrvalue':
