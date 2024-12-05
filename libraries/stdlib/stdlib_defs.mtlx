@@ -953,16 +953,19 @@
   <nodedef name="ND_worleynoise2d_float" node="worleynoise2d" nodegroup="procedural2d">
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <input name="jitter" type="float" value="1.0" />
+    <input name="style" uiname="Cell Style" type="integer" value="0" enum="Distance,Solid" enumvalues="0,1" />
     <output name="out" type="float" default="0.0" />
   </nodedef>
   <nodedef name="ND_worleynoise2d_vector2" node="worleynoise2d" nodegroup="procedural2d">
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <input name="jitter" type="float" value="1.0" />
+    <input name="style" uiname="Cell Style" type="integer" value="0" enum="Distance,Solid" enumvalues="0,1" />
     <output name="out" type="vector2" default="0.0, 0.0" />
   </nodedef>
   <nodedef name="ND_worleynoise2d_vector3" node="worleynoise2d" nodegroup="procedural2d">
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <input name="jitter" type="float" value="1.0" />
+    <input name="style" uiname="Cell Style" type="integer" value="0" enum="Distance,Solid" enumvalues="0,1" />
     <output name="out" type="vector3" default="0.0, 0.0, 0.0" />
   </nodedef>
 
@@ -973,16 +976,19 @@
   <nodedef name="ND_worleynoise3d_float" node="worleynoise3d" nodegroup="procedural3d">
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="jitter" type="float" value="1.0" />
+    <input name="style" uiname="Cell Style" type="integer" value="0" enum="Distance,Solid" enumvalues="0,1" />
     <output name="out" type="float" default="0.0" />
   </nodedef>
   <nodedef name="ND_worleynoise3d_vector2" node="worleynoise3d" nodegroup="procedural3d">
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="jitter" type="float" value="1.0" />
+    <input name="style" uiname="Cell Style" type="integer" value="0" enum="Distance,Solid" enumvalues="0,1" />
     <output name="out" type="vector2" default="0.0, 0.0" />
   </nodedef>
   <nodedef name="ND_worleynoise3d_vector3" node="worleynoise3d" nodegroup="procedural3d">
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="jitter" type="float" value="1.0" />
+    <input name="style" uiname="Cell Style" type="integer" value="0" enum="Distance,Solid" enumvalues="0,1" />
     <output name="out" type="vector3" default="0.0, 0.0, 0.0" />
   </nodedef>
 

@@ -888,12 +888,14 @@ Standard Noise nodes:
 
 * **`worleynoise2d`**: 2D Worley noise using centered jitter, outputting float (distance metric to closest feature), vector2 (distance metrics to closest 2 features) or vector3 (distance metrics to closest 3 features).
     * `jitter` (float): amount to jitter the cell center position, with smaller values creating a more regular pattern.  Default is 1.0.
+    * `style` (integer): the output style, one of "distance" (distance to the cell center), or "solid" (constant value for each cell).
     * `texcoord` (vector2): the 2D position at which the noise is evaluated.  Default is to use the first set of texture coordinates.
 
 <a id="node-worleynoise3d"> </a>
 
 * **`worleynoise3d`**: 3D Worley noise using centered jitter, outputting float (distance metric to closest feature), vector2 (distance metrics to closest 2 features) or vector3 (distance metrics to closest 3 features).
     * `jitter` (float): amount to jitter the cell center position, with smaller values creating a more regular pattern.  Default is 1.0.
+    * `style` (integer): the output style, one of "distance" (distance to the cell center), or "solid" (constant value for each cell). Default is "distance".
     * `position` (vector3): the 3D position at which the noise is evaluated.  Default is to use the current 3D object-space coordinate.
 
 <a id="node-unifiednoise2d"> </a>
