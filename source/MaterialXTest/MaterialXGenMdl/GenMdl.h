@@ -55,7 +55,6 @@ class MdlShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
         ShaderGeneratorTester::addSkipFiles();
     }
 
-
     // Ignore light shaders in the document for MDL
     void findLights(mx::DocumentPtr /*doc*/, std::vector<mx::NodePtr>& lights) override
     {

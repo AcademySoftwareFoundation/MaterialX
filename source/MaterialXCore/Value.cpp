@@ -434,7 +434,7 @@ class ValueAliasRegistry
     template MX_CORE_API T fromValueString(const string& value);                                 \
     ValueRegistry<T> registry##T;
 
-#define ALIAS_TYPE(alias, name)                                                                \
+#define ALIAS_TYPE(alias, name)                                                                  \
     ValueAliasRegistry registry##alias(#alias, name);
 
 // Base types

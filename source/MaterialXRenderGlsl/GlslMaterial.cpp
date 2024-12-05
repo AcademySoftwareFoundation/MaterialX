@@ -193,7 +193,7 @@ void GlslMaterial::bindImages(ImageHandlerPtr imageHandler, const FileSearchPath
                 filenamesStr = uniform->getValue()->asA<StringVec>();
             }
             vector<FilePath> filenames;
-            for (const auto& filename: filenamesStr)
+            for (const auto& filename : filenamesStr)
             {
                 filenames.emplace_back(filename);
             }
@@ -244,7 +244,7 @@ ImagePtr GlslMaterial::bindImage(const FilePath& filePath, const std::string& un
 }
 
 ImagePtr GlslMaterial::bindImageArray(const vector<FilePath>& filePaths, const std::string& uniformName, ImageHandlerPtr imageHandler,
-                                 const ImageSamplingProperties& samplingProperties)
+                                      const ImageSamplingProperties& samplingProperties)
 {
     if (!_glProgram)
     {

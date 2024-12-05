@@ -151,7 +151,7 @@ bool GLTextureHandler::createRenderResources(ImagePtr image, bool generateMipMap
     {
         int i = 0;
         glTexImage3D(textureTarget, 0, glInternalFormat, image->getWidth(), image->getHeight(),
-                     (GLsizei)(additionalImages.size()+1), 0, glFormat, glType, NULL);
+                     (GLsizei) (additionalImages.size() + 1), 0, glFormat, glType, NULL);
         glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i++, image->getWidth(), image->getHeight(),
                         1, glFormat, glType, image->getResourceBuffer());
         for (const auto& additionalImage : additionalImages)

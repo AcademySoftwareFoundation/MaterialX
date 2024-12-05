@@ -564,14 +564,15 @@ ImagePtr MslProgram::bindTexture(id<MTLRenderCommandEncoder> renderCmdEncoder,
 }
 
 ImagePtr MslProgram::bindTextureArray(id<MTLRenderCommandEncoder> renderCmdEncoder,
-                                        unsigned int uniformLocation,
-                                        vector<const FilePath> filePaths,
-                                        ImageSamplingProperties samplingProperties,
-                                        ImageHandlerPtr imageHandler)
+                                      unsigned int uniformLocation,
+                                      vector<const FilePath> filePaths,
+                                      ImageSamplingProperties samplingProperties,
+                                      ImageHandlerPtr imageHandler)
 {
     ImagePtr mainImage = nullptr;
     vector<ImagePtr> additionalImages;
-    for (const auto& filePath : filePaths) {
+    for (const auto& filePath : filePaths)
+    {
         ImagePtr image = imageHandler->acquireImage(filePath, samplingProperties.defaultColor);
         if (!mainImage)
         {
@@ -678,7 +679,7 @@ void MslProgram::bindTextures(id<MTLRenderCommandEncoder> renderCmdEncoder,
                     {
                         StringVec filenamesStr = uniform->second->value ? uniform->second->value->asA<StringVec>() : StringVec();
                         vector<const FilePath> filenames;
-                        for (const auto& filename: filenamesStr)
+                        for (const auto& filename : filenamesStr)
                         {
                             filenames.emplace_back(filename);
                         }
@@ -1093,12 +1094,13 @@ const MslProgram::InputMap& MslProgram::updateUniformsList()
                         {
                             auto inputIt = _uniformList.find(variableName);
 
-                            if (inputIt == _uniformList.end()) {
-                                if(variableTypeDesc == Type::FILENAME)
+                            if (inputIt == _uniformList.end())
+                            {
+                                if (variableTypeDesc == Type::FILENAME)
                                 {
                                     inputIt = _uniformList.find(TEXTURE_NAME(variableName));
                                 }
-                                else if(variableTypeDesc == Type::FILENAMEARRAY)
+                                else if (variableTypeDesc == Type::FILENAMEARRAY)
                                 {
                                     inputIt = _uniformList.find(TEXTUREARRAY_NAME(variableName));
                                 }
@@ -1140,7 +1142,7 @@ const MslProgram::InputMap& MslProgram::updateUniformsList()
                             for (size_t i = 0, n = members.size(); i < n; ++i)
                             {
                                 const auto& structMember = members[i];
-                                auto memberVariableName = variableName+"."+structMember._name;
+                                auto memberVariableName = variableName + "." + structMember._name;
                                 auto memberVariableValue = aggregateValue->getMemberValue(i);
 
                                 populateUniformInput_ref(structMember._typeDesc, memberVariableName, memberVariableValue, populateUniformInput_ref);
