@@ -316,12 +316,14 @@ class MX_CORE_API GraphIterator
   private:
     void extendPathUpstream(ElementPtr upstreamElem, ElementPtr connectingElem);
     void returnPathDownstream(ElementPtr upstreamElem);
+    bool skipOrMarkAsVisited(const Edge&);
 
   private:
     ElementPtr _upstreamElem;
     ElementPtr _connectingElem;
     ElementSet _pathElems;
     vector<StackFrame> _stack;
+    std::set<Edge> _visitedEdges;
     bool _prune;
     size_t _holdCount;
 };

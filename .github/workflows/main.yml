@@ -68,10 +68,10 @@ jobs:
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
           python: 3.9
 
-        - name: MacOS_Xcode_14_Python311
+        - name: MacOS_Xcode_15_Python311
           os: macos-14
           compiler: xcode
-          compiler_version: "14.3"
+          compiler_version: "15.1"
           python: 3.11
           static_analysis: ON
           cmake_config: -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
@@ -389,7 +389,7 @@ jobs:
       fail-fast: false
       matrix:
         python-minor: ['7', '8', '9', '10', '11', '12']
-        os: ['ubuntu-22.04', 'windows-2022', 'macos-13']
+        os: ['ubuntu-22.04', 'windows-2022', 'macos-14-large']
 
     steps:
     - name: Sync Repository
