@@ -113,7 +113,6 @@ class MX_GENSHADER_API ShaderGraph : public ShaderNode
     void topologicalSort();
 
     /// Return an iterator for traversal upstream from the given output.
-    /// Edges are visited only once.
     static ShaderGraphEdgeIterator traverseUpstream(ShaderOutput* output);
 
     /// Return the map of unique identifiers used in the scope of this graph.
