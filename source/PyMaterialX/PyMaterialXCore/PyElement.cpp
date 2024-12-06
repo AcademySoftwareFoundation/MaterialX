@@ -31,9 +31,9 @@ void bindPyElement(py::module& mod)
         .def(py::self != py::self)
         .def("isEquivalent", [](const mx::Element& elem, mx::ConstElementPtr& rhs, const mx::ElementEquivalenceOptions& options)
         {
-            mx::ElementEquivalenceResultVec results;
-            bool res = elem.isEquivalent(rhs, options, &results);
-            return std::pair<bool, mx::ElementEquivalenceResultVec>(res, results);
+            std::string message;
+            bool res = elem.isEquivalent(rhs, options, &message);
+            return std::pair<bool, std::string>(res, message);
         })        
         .def("setCategory", &mx::Element::setCategory)
         .def("getCategory", &mx::Element::getCategory)
@@ -210,18 +210,6 @@ void bindPyElement(py::module& mod)
 
     py::class_<mx::GenericElement, mx::GenericElementPtr, mx::Element>(mod, "GenericElement")
         .def_readonly_static("CATEGORY", &mx::GenericElement::CATEGORY);
-
-    py::class_<mx::ElementEquivalenceResult>(mod, "ElementEquivalenceResult")
-        .def_readonly_static("ATTRIBUTE", &mx::ElementEquivalenceResult::ATTRIBUTE)
-        .def_readonly_static("ATTRIBUTE_NAMES", &mx::ElementEquivalenceResult::ATTRIBUTE_NAMES)
-        .def_readonly_static("CHILD_COUNT", &mx::ElementEquivalenceResult::CHILD_COUNT)
-        .def_readonly_static("CHILD_NAME", &mx::ElementEquivalenceResult::CHILD_NAME)
-        .def_readonly_static("NAME", &mx::ElementEquivalenceResult::NAME)
-        .def_readonly_static("CATEGORY", &mx::ElementEquivalenceResult::CATEGORY)
-        .def_readwrite("path1", &mx::ElementEquivalenceResult::path1)
-        .def_readwrite("path2", &mx::ElementEquivalenceResult::path2)
-        .def_readwrite("differenceType", &mx::ElementEquivalenceResult::differenceType)
-        .def_readwrite("attributeName", &mx::ElementEquivalenceResult::attributeName);
 
     py::class_<mx::ElementEquivalenceOptions>(mod, "ElementEquivalenceOptions")
         .def_readwrite("performValueComparisons", &mx::ElementEquivalenceOptions::performValueComparisons)
