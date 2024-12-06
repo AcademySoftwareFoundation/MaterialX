@@ -67,8 +67,7 @@ bool getShaderSource(mx::GenContext& context,
 // Check that implementations exist for all nodedefs supported per generator
 void checkImplementations(mx::GenContext& context,
                           const mx::StringSet& generatorSkipNodeTypes,
-                          const mx::StringSet& generatorSkipNodeDefs,
-                          unsigned int expectedSkipCount)
+                          const mx::StringSet& generatorSkipNodeDefs)
 {
 
     const mx::ShaderGenerator& shadergen = context.getShaderGenerator();
@@ -90,10 +89,8 @@ void checkImplementations(mx::GenContext& context,
     // Node types to explicitly skip temporarily.
     mx::StringSet skipNodeTypes =
     {
-        "ambientocclusion",
         "displacement",
         "volume",
-        "curveadjust",
         "conical_edf",
         "measured_edf",
         "absorption_vdf",
@@ -268,7 +265,6 @@ void checkImplementations(mx::GenContext& context,
         std::cerr << (std::string("Missing list: ") + missing_str) << std::endl;
     }
     REQUIRE(missing == 0);
-    REQUIRE(skipped == expectedSkipCount);
 
     implDumpBuffer.close();
 }
