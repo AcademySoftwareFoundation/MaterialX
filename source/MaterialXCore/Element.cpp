@@ -39,12 +39,6 @@ const string ValueElement::UI_ADVANCED_ATTRIBUTE = "uiadvanced";
 const string ValueElement::UNIT_ATTRIBUTE = "unit";
 const string ValueElement::UNITTYPE_ATTRIBUTE = "unittype";
 const string ValueElement::UNIFORM_ATTRIBUTE = "uniform";
-const string ElementEquivalenceResult::ATTRIBUTE = "attribute";
-const string ElementEquivalenceResult::ATTRIBUTE_NAMES = "attribute names";
-const string ElementEquivalenceResult::CHILD_COUNT = "child count";
-const string ElementEquivalenceResult::CHILD_NAME = "child name";
-const string ElementEquivalenceResult::NAME = "name";
-const string ElementEquivalenceResult::CATEGORY = "category";
 
 Element::CreatorMap Element::_creatorMap;
 
@@ -375,19 +369,22 @@ bool Element::hasInheritanceCycle() const
     return false;
 }
 
-bool Element::isEquivalent(ConstElementPtr rhs, const ElementEquivalenceOptions& options,
-                           ElementEquivalenceResultVec* results) const
+bool Element::isEquivalent(ConstElementPtr rhs, const ElementEquivalenceOptions& options, string* message) const
 {
     if (getName() != rhs->getName())
     {
-        if (results)
-            results->push_back(ElementEquivalenceResult(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::NAME));
+        if (message)
+        {
+            *message += "Name of " + getNamePath() + " differs from " + rhs->getNamePath() + "\n";
+        }
         return false;
     }
     if (getCategory() != rhs->getCategory())
     {
-        if (results)
-            results->push_back(ElementEquivalenceResult(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::CATEGORY));
+        if (message)
+        {
+            *message += "Category of " + getNamePath() + " differs from " + rhs->getNamePath() + "\n";
+        }
         return false;
     }
 
@@ -413,14 +410,16 @@ bool Element::isEquivalent(ConstElementPtr rhs, const ElementEquivalenceOptions&
 
     if (attributeNames != rhsAttributeNames)
     {
-        if (results)
-            results->push_back(ElementEquivalenceResult(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::ATTRIBUTE_NAMES));
+        if (message)
+        {
+            *message += "Attribute names of '" + getNamePath() + "' differ from '" + rhs->getNamePath() + "\n";
+        }
         return false;
     }
 
     for (const string& attr : rhsAttributeNames)
     {
-        if (!isAttributeEquivalent(rhs, attr, options, results))
+        if (!isAttributeEquivalent(rhs, attr, options, message))
         {
             return false;
         }
@@ -447,8 +446,10 @@ bool Element::isEquivalent(ConstElementPtr rhs, const ElementEquivalenceOptions&
     }
     if (children.size() != rhsChildren.size())
     {
-        if (results)
-            results->push_back(ElementEquivalenceResult(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::CHILD_COUNT));
+        if (message)
+        {
+            *message += "Child count of " + getNamePath() + " differs from " + rhs->getNamePath() + "\n";
+        }
         return false;
     }
     for (size_t i = 0; i < children.size(); i++)
@@ -468,26 +469,29 @@ bool Element::isEquivalent(ConstElementPtr rhs, const ElementEquivalenceOptions&
                 rhsElement = rhs->getChild(childName);
                 if (!rhsElement)
                 {
-                    if (results)
-                        results->push_back(ElementEquivalenceResult(children[i]->getNamePath(), "<NONE>", 
-                                                                   ElementEquivalenceResult::CHILD_NAME, childName));
+                    if (message)
+                    {
+                        *message += "Child name `" + childName + "` of " + getNamePath() + " differs from " + rhs->getNamePath() + "\n";
+                    }
                     return false;
                 }
             }
         }
-        if (!children[i]->isEquivalent(rhsElement, options, results))
+        if (!children[i]->isEquivalent(rhsElement, options, message))
             return false;
     }
     return true;
 }
 
 bool Element::isAttributeEquivalent(ConstElementPtr rhs, const string& attributeName,
-                                    const ElementEquivalenceOptions& /*options*/, ElementEquivalenceResultVec* results) const
+                                    const ElementEquivalenceOptions& /*options*/, string* message) const
 {
     if (getAttribute(attributeName) != rhs->getAttribute(attributeName))
     {
-        if (results)
-            results->push_back(ElementEquivalenceResult(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::ATTRIBUTE, attributeName));
+        if (message)
+        {
+            *message += "Attribute name `" + attributeName + "` of " + getNamePath() + " differs from " + rhs->getNamePath() + "\n";
+        }
         return false;
     }
     return true;
@@ -710,7 +714,7 @@ const string& ValueElement::getActiveUnit() const
 }
 
 bool ValueElement::isAttributeEquivalent(ConstElementPtr rhs, const string& attributeName, 
-                                         const ElementEquivalenceOptions& options, ElementEquivalenceResultVec* results) const
+                                         const ElementEquivalenceOptions& options, string* message) const
 {    
     // Perform value comparisons
     bool performedValueComparison = false;
@@ -737,8 +741,10 @@ bool ValueElement::isAttributeEquivalent(ConstElementPtr rhs, const string& attr
             {
                 if (thisValue->getValueString() != rhsValue->getValueString())
                 {
-                    if (results)
-                        results->push_back(ElementEquivalenceResult(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::ATTRIBUTE, attributeName));
+                    if (message)
+                    {
+                        *message += "Attribute `" + attributeName + "` of " + getNamePath() + " differs from " + rhs->getNamePath() + "\n";
+                    }
                     return false;
                 }
             }
@@ -756,8 +762,10 @@ bool ValueElement::isAttributeEquivalent(ConstElementPtr rhs, const string& attr
             {
                 if (uiValue->getValueString() != rhsUiValue->getValueString())
                 {
-                    if (results)
-                        results->push_back(ElementEquivalenceResult(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::ATTRIBUTE, attributeName));
+                    if (message)
+                    {
+                        *message += "Attribute `" + attributeName + "` of " + getNamePath() + " differs from " + rhs->getNamePath() + "\n";
+                    }
                     return false;
                 }
             }
@@ -769,7 +777,7 @@ bool ValueElement::isAttributeEquivalent(ConstElementPtr rhs, const string& attr
     // If did not peform a value comparison, perform the default comparison
     if (!performedValueComparison)
     {
-        return Element::isAttributeEquivalent(rhs, attributeName, options, results);
+        return Element::isAttributeEquivalent(rhs, attributeName, options, message);
     }
 
     return true;
