@@ -2010,7 +2010,8 @@ UiNodePtr Graph::addNode(const std::string& category, const std::string& name, c
         updateMaterials();
         return newNode;
     }
-        return nullptr;
+    
+    return nullptr;
 }
 
 int Graph::getNodeId(ed::PinId pinId)
