@@ -90,14 +90,14 @@ export class Scene
         }
 
         this.#_rootNode = null;
-        const model = gltfData.scene;
+        let model = gltfData.scene;
         if (!model)
         {
             const geometry = new THREE.BoxGeometry(1, 1, 1);
             const material = new THREE.MeshBasicMaterial({ color: 0xdddddd });
             const cube = new THREE.Mesh(geometry, material);
-            obj = new Group();
-            obj.add(geometry);
+            model = new Group();
+            model.add(cube);
         }
         else
         {

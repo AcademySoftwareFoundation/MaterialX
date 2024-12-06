@@ -6,21 +6,21 @@
   <!-- ======================================================================== -->
 
   <!-- Node: UsdPreviewSurface -->
-  <nodedef name="ND_UsdPreviewSurface_surfaceshader" node="UsdPreviewSurface" nodegroup="pbr" doc="USD preview surface shader" version="2.6" isdefaultversion="true">
-    <input name="diffuseColor" type="color3" value="0.18, 0.18, 0.18" uimin="0,0,0" uimax="1,1,1" />
-    <input name="emissiveColor" type="color3" value="0, 0, 0" uimin="0,0,0" uisoftmax="1,1,1" />
-    <input name="useSpecularWorkflow" type="integer" value="0" uimin="0" uimax="1" uistep="1" />
-    <input name="specularColor" type="color3" value="0, 0, 0" uimin="0,0,0" uimax="1,1,1" />
-    <input name="metallic" type="float" value="0" uimin="0.0" uimax="1.0" />
-    <input name="roughness" type="float" value="0.5" uimin="0.0" uimax="1.0" />
-    <input name="clearcoat" type="float" value="0" uimin="0.0" uimax="1.0" />
-    <input name="clearcoatRoughness" type="float" value="0.01" uimin="0.0" uimax="1.0" />
-    <input name="opacity" type="float" value="1" uimin="0.0" uimax="1.0" />
-    <input name="opacityThreshold" type="float" value="0" uimin="0.0" uimax="1.0" />
-    <input name="ior" type="float" value="1.5" uimin="0.0" uisoftmin="1.0" uisoftmax="3.0" />
-    <input name="normal" type="vector3" value="0, 0, 1" uimin="-1.0,-1.0,-1.0" uimax="1.0,1.0,1.0" uistep="0.01" />
-    <input name="displacement" type="float" value="0" />
-    <input name="occlusion" type="float" value="1" uimin="0.0" uimax="1.0" />
+  <nodedef name="ND_UsdPreviewSurface_surfaceshader" node="UsdPreviewSurface" nodegroup="pbr" doc="UsdPreviewSurface shader" version="2.5" isdefaultversion="true">
+    <input name="diffuseColor" type="color3" value="0.18, 0.18, 0.18" uimin="0,0,0" uimax="1,1,1" uiname="Diffuse Color" />
+    <input name="emissiveColor" type="color3" value="0, 0, 0" uimin="0,0,0" uisoftmax="1,1,1" uiname="Emissive Color" />
+    <input name="useSpecularWorkflow" type="integer" value="0" uimin="0" uimax="1" uistep="1" uiname="Use Specular Workflow" />
+    <input name="specularColor" type="color3" value="0, 0, 0" uimin="0,0,0" uimax="1,1,1" uiname="Specular Color" />
+    <input name="metallic" type="float" value="0" uimin="0.0" uimax="1.0" uiname="Metallic" />
+    <input name="roughness" type="float" value="0.5" uimin="0.0" uimax="1.0" uiname="Roughness" />
+    <input name="clearcoat" type="float" value="0" uimin="0.0" uimax="1.0" uiname="Clearcoat" />
+    <input name="clearcoatRoughness" type="float" value="0.01" uimin="0.0" uimax="1.0" uiname="Clearcoat Roughness" />
+    <input name="opacity" type="float" value="1" uimin="0.0" uimax="1.0" uiname="Opacity" />
+    <input name="opacityThreshold" type="float" value="0" uimin="0.0" uimax="1.0" uiname="Opacity Threshold" />
+    <input name="ior" type="float" value="1.5" uimin="0.0" uisoftmin="1.0" uisoftmax="3.0" uiname="Index of Refraction" />
+    <input name="normal" type="vector3" value="0, 0, 1" uimin="-1.0,-1.0,-1.0" uimax="1.0,1.0,1.0" uistep="0.01" uiname="Normal" />
+    <input name="displacement" type="float" value="0" uiname="Displacement" />
+    <input name="occlusion" type="float" value="1" uimin="0.0" uimax="1.0" uiname="Occlusion" />
     <output name="out" type="surfaceshader" />
   </nodedef>
 
@@ -152,16 +152,10 @@
       <input name="normal" type="vector3" nodename="surface_normal" />
       <input name="scatter_mode" type="string" value="T" />
     </dielectric_bsdf>
-    <ifgreater name="transmission_mix_amount" type="float">
-      <input name="value1" type="float" interfacename="opacityThreshold" />
-      <input name="value2" type="float" value="0" />
-      <input name="in1" type="float" value="1" />
-      <input name="in2" type="float" interfacename="opacity" />
-    </ifgreater>
     <mix name="transmission_mix" type="BSDF">
       <input name="fg" type="BSDF" nodename="diffuse_bsdf" />
       <input name="bg" type="BSDF" nodename="transmission_bsdf" />
-      <input name="mix" type="float" nodename="transmission_mix_amount" />
+      <input name="mix" type="float" interfacename="opacity" />
     </mix>
 
     <!-- Specular Workflow -->
@@ -176,12 +170,8 @@
       <input name="roughness" type="vector2" nodename="specular_roughness" />
       <input name="normal" type="vector3" nodename="surface_normal" />
     </generalized_schlick_bsdf>
-    <mix name="specular_bsdf1_mix" type="BSDF">
-      <input name="bg" type="BSDF" nodename="specular_bsdf1" />
-      <input name="mix" type="float" nodename="transmission_mix_amount" />
-    </mix>
     <layer name="specular_workflow_bsdf" type="BSDF">
-      <input name="top" type="BSDF" nodename="specular_bsdf1_mix" />
+      <input name="top" type="BSDF" nodename="specular_bsdf1" />
       <input name="base" type="BSDF" nodename="transmission_mix" />
     </layer>
 
@@ -223,12 +213,8 @@
       <input name="roughness" type="vector2" nodename="specular_roughness" />
       <input name="normal" type="vector3" nodename="surface_normal" />
     </generalized_schlick_bsdf>
-    <mix name="specular_bsdf2_mix" type="BSDF">
-      <input name="bg" type="BSDF" nodename="specular_bsdf2" />
-      <input name="mix" type="float" nodename="transmission_mix_amount" />
-    </mix>
     <layer name="metalness_specular_bsdf" type="BSDF">
-      <input name="top" type="BSDF" nodename="specular_bsdf2_mix" />
+      <input name="top" type="BSDF" nodename="specular_bsdf2" />
       <input name="base" type="BSDF" nodename="transmission_mix" />
     </layer>
     <artistic_ior name="artistic_ior" type="multioutput">
