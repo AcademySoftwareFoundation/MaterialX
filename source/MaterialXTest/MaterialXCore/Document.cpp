@@ -150,6 +150,9 @@ TEST_CASE("Document equivalence", "[document]")
     unsigned int index = 0;
     mx::ElementPtr child = doc->addNodeGraph("mygraph");
     mx::NodeGraphPtr graph = child->asA<mx::NodeGraph>();
+    // Add comment block at the start of the first doc to check skipping
+    mx::ElementPtr comment = doc->addChildOfCategory(mx::CommentElement::CATEGORY);
+    comment->setDocString("Comment 1");
     for (auto it = inputMap.begin(); it != inputMap.end(); ++it)
     {
         const std::string inputType = (*it).first;
@@ -205,37 +208,40 @@ TEST_CASE("Document equivalence", "[document]")
             input->setName("input_" + inputType);
         }
     }
+    // Add comment blocks at end of second doc to check value and count checks
+    comment = doc2->addChildOfCategory(mx::CommentElement::CATEGORY);
+    comment->setDocString("Comment 2");
+    comment = doc2->addChildOfCategory(mx::CommentElement::CATEGORY);
+    comment->setDocString("Comment 3");
 
     mx::ElementEquivalenceOptions options;
-    mx::ElementEquivalenceResultVec results;
+    std::string message;
 
-    // Check skipping all value compares
-    options.skipValueComparisons = true;
-    bool equivalent = doc->isEquivalent(doc2, options, &results);
+    // Check that this fails when not performing value comparisons
+    options.performValueComparisons = false;
+    bool equivalent = doc->isEquivalent(doc2, options, &message);
     REQUIRE(!equivalent);
 
     // Check attibute values 
-    options.skipValueComparisons = false;
-    results.clear();
-    equivalent = doc->isEquivalent(doc2, options, &results);
+    options.performValueComparisons = true;
+    equivalent = doc->isEquivalent(doc2, options, &message);
     REQUIRE(equivalent);
 
     unsigned int currentPrecision = mx::Value::getFloatPrecision();
     // This will compare 0.012345608 versus: 1, 0.012345611 for input10
-    options.precision = 8;
+    options.floatPrecision = 8;
     equivalent = doc->isEquivalent(doc2, options);
     REQUIRE(!equivalent);
-    options.precision = currentPrecision;
+    options.floatPrecision = currentPrecision;
 
     // Check attribute filtering of inputs
-    results.clear();
-    options.skipAttributes = { mx::ValueElement::UI_MIN_ATTRIBUTE, mx::ValueElement::UI_MAX_ATTRIBUTE };
+    options.attributeExclusionList = { mx::ValueElement::UI_MIN_ATTRIBUTE, mx::ValueElement::UI_MAX_ATTRIBUTE };
     for (mx::InputPtr floatInput : floatInputs)
     {
         floatInput->setAttribute(mx::ValueElement::UI_MIN_ATTRIBUTE, "0.9");
         floatInput->setAttribute(mx::ValueElement::UI_MAX_ATTRIBUTE, "100.0");
     }
-    equivalent = doc->isEquivalent(doc2, options, &results);
+    equivalent = doc->isEquivalent(doc2, options, &message);
     REQUIRE(equivalent);
     for (mx::InputPtr floatInput : floatInputs)
     {
@@ -247,12 +253,10 @@ TEST_CASE("Document equivalence", "[document]")
     mx::ElementPtr mismatchElement = doc->getDescendant("mygraph/input_color4");
     std::string previousName = mismatchElement->getName();
     mismatchElement->setName("mismatch_color4");
-    results.clear();
-    equivalent = doc->isEquivalent(doc2, options, &results);
+    equivalent = doc->isEquivalent(doc2, options, &message);
     REQUIRE(!equivalent);
     mismatchElement->setName(previousName);
-    results.clear();
-    equivalent = doc->isEquivalent(doc2, options, &results);
+    equivalent = doc->isEquivalent(doc2, options, &message);
     REQUIRE(equivalent);
 
     // Check for functional nodegraphs
@@ -264,7 +268,6 @@ TEST_CASE("Document equivalence", "[document]")
     REQUIRE(nodeGraph2);
     doc2->addNodeDef("ND_mygraph");
     nodeGraph2->setNodeDefString("ND_mygraph");
-    results.clear();
-    equivalent = doc->isEquivalent(doc2, options, &results);
+    equivalent = doc->isEquivalent(doc2, options, &message);
     REQUIRE(!equivalent);
 }

@@ -209,6 +209,22 @@ class MX_GENSHADER_API ShaderGraphEdge
         downstream(down)
     {
     }
+
+    bool operator==(const ShaderGraphEdge& rhs) const
+    {
+        return upstream == rhs.upstream && downstream == rhs.downstream;
+    }
+
+    bool operator!=(const ShaderGraphEdge& rhs) const
+    {
+        return !(*this == rhs);
+    }
+
+    bool operator<(const ShaderGraphEdge& rhs) const
+    {
+        return std::tie(upstream, downstream) < std::tie(rhs.upstream, rhs.downstream);
+    }
+
     ShaderOutput* upstream;
     ShaderInput* downstream;
 };
@@ -254,12 +270,14 @@ class MX_GENSHADER_API ShaderGraphEdgeIterator
   private:
     void extendPathUpstream(ShaderOutput* upstream, ShaderInput* downstream);
     void returnPathDownstream(ShaderOutput* upstream);
+    bool skipOrMarkAsVisited(ShaderGraphEdge);
 
     ShaderOutput* _upstream;
     ShaderInput* _downstream;
     using StackFrame = std::pair<ShaderOutput*, size_t>;
     std::vector<StackFrame> _stack;
     std::set<ShaderOutput*> _path;
+    std::set<ShaderGraphEdge> _visitedEdges;
 };
 
 MATERIALX_NAMESPACE_END
