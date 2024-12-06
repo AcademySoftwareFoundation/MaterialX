@@ -606,7 +606,7 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     /// criteria provided.
     /// @param rhs Element to compare against
     /// @param options Equivalence criteria
-    /// @param results Results of comparison if argument is specified.
+    /// @param message Optional text description of differences
     /// @return True if the elements are equivalent. False otherwise.
     bool isEquivalent(ConstElementPtr rhs, const ElementEquivalenceOptions& options,
                       string* message = nullptr) const;
@@ -616,7 +616,7 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     /// @param rhs Element to compare against
     /// @param attributeName Name of attribute to compare
     /// @param options Equivalence criteria
-    /// @param results Results of comparison if argument is specified.
+    /// @param message Optional text description of differences
     /// @return True if the attribute on the elements are equivalent. False otherwise.
     virtual bool isAttributeEquivalent(ConstElementPtr rhs, const string& attributeName,
                                        const ElementEquivalenceOptions& options, 
@@ -1123,7 +1123,7 @@ class MX_CORE_API ValueElement : public TypedElement
     /// @param rhs Element to compare against
     /// @param attributeName Name of attribute to compare
     /// @param options Equivalence criteria
-    /// @param results Results of comparison if argument is specified.
+    /// @param message Optional text description of differences
     /// @return True if the attribute on the elements are equivalent. False otherwise.
     bool isAttributeEquivalent(ConstElementPtr rhs, const string& attributeName,
                                const ElementEquivalenceOptions& options, 
