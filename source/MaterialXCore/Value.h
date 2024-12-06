@@ -124,6 +124,7 @@ class MX_CORE_API Value
 
   protected:
     template <class T> friend class ValueRegistry;
+    friend class ValueAliasRegistry;
 
     using CreatorFunction = ValuePtr (*)(const string&);
     using CreatorMap = std::unordered_map<string, CreatorFunction>;
