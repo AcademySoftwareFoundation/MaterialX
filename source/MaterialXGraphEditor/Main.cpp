@@ -69,9 +69,9 @@ int main(int argc, char* const argv[])
     int viewWidth = 256;
     int viewHeight = 256;
     float uiScale = 0.0f;
-    std::string captureFilename;
     std::string fontFilename;
     int fontSize = 18;
+    std::string captureFilename;
 
     for (size_t i = 0; i < tokens.size(); i++)
     {
@@ -106,10 +106,6 @@ int main(int argc, char* const argv[])
         {
             parseToken(nextToken, "float", uiScale);
         }
-        else if (token == "--captureFilename")
-        {
-            parseToken(nextToken, "string", captureFilename);
-        }
         else if (token == "--font")
         {
             parseToken(nextToken, "string", fontFilename);
@@ -117,10 +113,10 @@ int main(int argc, char* const argv[])
         else if (token == "--fontSize")
         {
             parseToken(nextToken, "integer", fontSize);
-            if (fontSize < 12)
-            {
-                fontSize = 12;
-            }
+        }
+        else if (token == "--captureFilename")
+        {
+            parseToken(nextToken, "string", captureFilename);
         }
         else if (token == "--help")
         {
