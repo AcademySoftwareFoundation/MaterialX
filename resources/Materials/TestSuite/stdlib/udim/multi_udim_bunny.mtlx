@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+
+  <image name="image_color" type="color3">
+    <input name="file" type="filename" value="resources/Images/udim_bunny/grid_<UDIM>.png" colorspace="srgb_texture" />
+  </image>
+
+  <geominfo name="G_Bunny" geom="/">
+    <geomprop name="udimset" type="stringarray" value="1001, 1002, 1003" />
+  </geominfo>
+
+  <standard_surface name="S_Bunny" type="surfaceshader">
+    <input name="base_color" type="color3" nodename="image_color" />
+  </standard_surface>
+
+  <surfacematerial name="M_Bunny" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="S_Bunny" />
+  </surfacematerial>
+
+</materialx>
+
+<!--
+<materialx version="1.38">
+<nodegraph name="NG_Bunny">
+  <image name="image_color" type="color3">
+    <input name="file" type="filename" value="resources/Images/udim_bunny/grid_<UDIM>.png" colorspace="srgb_texture" />
+  </image>
+  <output name="out_color" type="color3" nodename="image_color" />
+</nodegraph>
+<geominfo name="G_Bunny" geom="/">
+  <geomprop name="udimset" type="stringarray" value="1001, 1002, 1003" />
+</geominfo>
+<standard_surface name="S_Bunny" type="surfaceshader">
+  <input name="base_color" type="color3" nodegraph="NG_Bunny" output="out_color" />
+</standard_surface>
+<surfacematerial name="M_Bunny" type="material">
+  <input name="surfaceshader" type="surfaceshader" nodename="S_Bunny" />
+</surfacematerial>
+</materialx>
+-->
