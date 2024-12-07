@@ -4,7 +4,7 @@
 @echo on
 @rem Edit the following paths to match your local locations for the Emscripten and MaterialX projects.
 set EMSDK_LOCATION=C:/GitHub/emsdk
-set MATERIALX_LOCATION=C:/GitHub/MaterialX
+set MATERIALX_LOCATION=.
 call %EMSDK_LOCATION%/emsdk.bat install latest
 call %EMSDK_LOCATION%/emsdk.bat activate latest
 if NOT ["%errorlevel%"]==["0"] pause

@@ -54,24 +54,12 @@ EMSCRIPTEN_BINDINGS(element)
                                                             ems::val message) 
         {
             mx::ConstElementPtr rhsPtr = rhs.getSelf();
-            mx::ElementEquivalenceResultVec differences;
+            std::string differences;
             bool res = self.isEquivalent(rhsPtr, options, &differences);
             bool handleMessage = message.typeOf().as<std::string>() == "object";            
             if (handleMessage && !differences.empty())
             {
-                std::string nativeMessage;
-                for (const auto& difference : differences)
-                {
-                    nativeMessage += "- Path: " + difference.path1 + " differs from path: " + 
-                                difference.path2 + ". Difference Type: " + difference.differenceType +
-                                ".";
-                    if (!difference.attributeName.empty())
-                    {
-                        nativeMessage += " Attribute: " + difference.attributeName + ".";                     
-                    }
-                    nativeMessage += "\n";
-                }
-                message.set("message", nativeMessage);
+                message.set("message", differences);
             }
             return res;
         }))
