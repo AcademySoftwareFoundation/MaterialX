@@ -3278,7 +3278,20 @@ void Graph::graphButtons()
 
 void Graph::propertyEditor()
 {
+    // Get parent dimensions
+    ImVec2 textPos = ImGui::GetCursorScreenPos(); // Position for the background
+    float parentWidth = ImGui::GetContentRegionAvail().x; // Available width in the parent
+    
+    // Draw the title bar
+    const ImGuiStyle& style = ImGui::GetStyle();
+    ImVec4 menuBarBgColor = style.Colors[ImGuiCol_MenuBarBg]; 
+    ImU32 bgColor = ImGui::ColorConvertFloat4ToU32(menuBarBgColor); // Convert to 32-bit color
+    ImDrawList* drawList = ImGui::GetWindowDrawList();
+    drawList->AddRectFilled(textPos,
+                            ImVec2(textPos.x + parentWidth, textPos.y + ImGui::GetTextLineHeight()),
+                            bgColor);
     ImGui::Text("Node Property Editor");
+
     if (_currUiNode)
     {
         // Set and edit name
@@ -3286,7 +3299,11 @@ void Graph::propertyEditor()
         ImGui::SameLine();
         std::string original = _currUiNode->getName();
         std::string temp = original;
+        float availableWidth = ImGui::GetContentRegionAvail().x; 
+        ImGui::PushItemWidth(availableWidth); 
         ImGui::InputText("##edit", &temp);
+        ImGui::PopItemWidth(); 
+
         std::string docString = "NodeDef Doc String: \n";
         if (_currUiNode->getNode())
         {
@@ -3413,7 +3430,8 @@ void Graph::propertyEditor()
                 ImGui::SetTooltip("%s", _currUiNode->getNode()->getNodeDef()->getDocString().c_str());
             }
 
-            ImGui::Text("Inputs:");
+            ImGui::Checkbox("Show all inputs", &_currUiNode->_showAllInputs);
+
             int count = 0;
             for (UiPinPtr input : _currUiNode->inputPins)
             {
@@ -3477,14 +3495,12 @@ void Graph::propertyEditor()
                     ImGui::SetWindowFontScale(1.0f);
                 }
             }
-            ImGui::Checkbox("Show all inputs", &_currUiNode->_showAllInputs);
         }
 
         else if (_currUiNode->getInput() != nullptr)
         {
             ImGui::Text("%s", _currUiNode->getCategory().c_str());
             std::vector<UiPinPtr> inputs = _currUiNode->inputPins;
-            ImGui::Text("Inputs:");
 
             int count = static_cast<int>(inputs.size());
             if (count)
@@ -3535,7 +3551,6 @@ void Graph::propertyEditor()
         {
             std::vector<UiPinPtr> inputs = _currUiNode->inputPins;
             ImGui::Text("%s", _currUiNode->getCategory().c_str());
-            ImGui::Text("Inputs:");
             int count = 0;
             for (UiPinPtr input : inputs)
             {
