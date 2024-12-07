@@ -138,6 +138,11 @@ void ShaderGraph::createConnectedNodes(const ElementPtr& downstreamElement,
     {
         // We have a node downstream
         ShaderNode* downstream = getNode(downstreamNode->getName());
+        if (downstream == newNode)
+        {
+            throw ExceptionShaderGenError("Upstream node '" + downstream->getName() + "' has itself as downstream node, creating a loop");
+        }
+
         if (downstream && connectingElement)
         {
             ShaderInput* input = downstream->getInput(connectingElement->getName());
@@ -916,7 +921,7 @@ void ShaderGraph::optimize()
             ShaderOutput* upstreamPort = outputSocket->getConnection();
             if (upstreamPort && upstreamPort->getNode() != this)
             {
-                for (ShaderGraphEdge edge : ShaderGraph::traverseUpstream(upstreamPort))
+                for (ShaderGraphEdge edge : traverseUpstream(upstreamPort))
                 {
                     ShaderNode* node = edge.upstream->getNode();
                     if (usedNodesSet.count(node) == 0)
@@ -1206,7 +1211,7 @@ ShaderGraphEdgeIterator& ShaderGraphEdgeIterator::operator++()
         ShaderInput* input = _upstream->getNode()->getInput(0);
         ShaderOutput* output = input->getConnection();
 
-        if (output && !output->getNode()->isAGraph())
+        if (output && !output->getNode()->isAGraph() && !skipOrMarkAsVisited({ output, input }))
         {
             extendPathUpstream(output, input);
             return *this;
@@ -1234,7 +1239,7 @@ ShaderGraphEdgeIterator& ShaderGraphEdgeIterator::operator++()
             ShaderInput* input = parentFrame.first->getNode()->getInput(++parentFrame.second);
             ShaderOutput* output = input->getConnection();
 
-            if (output && !output->getNode()->isAGraph())
+            if (output && !output->getNode()->isAGraph() && !skipOrMarkAsVisited({ output, input }))
             {
                 extendPathUpstream(output, input);
                 return *this;
@@ -1273,6 +1278,12 @@ void ShaderGraphEdgeIterator::returnPathDownstream(ShaderOutput* upstream)
     _path.erase(upstream);
     _upstream = nullptr;
     _downstream = nullptr;
+}
+
+bool ShaderGraphEdgeIterator::skipOrMarkAsVisited(ShaderGraphEdge edge)
+{
+    auto [it, inserted] = _visitedEdges.emplace(edge);
+    return !inserted;
 }
 
 MATERIALX_NAMESPACE_END

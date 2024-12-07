@@ -45,6 +45,7 @@
       <input name="tint_R" type="color3" interfacename="tint_R" />
       <input name="tint_TT" type="color3" interfacename="tint_TT" />
       <input name="tint_TRT" type="color3" interfacename="tint_TRT" />
+      <input name="ior" type="float" interfacename="ior" />
       <input name="roughness_R" type="vector2" nodename="spec_roughness" output="roughness_R" />
       <input name="roughness_TT" type="vector2" nodename="spec_roughness" output="roughness_TT" />
       <input name="roughness_TRT" type="vector2" nodename="spec_roughness" output="roughness_TRT" />

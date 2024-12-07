@@ -57,6 +57,13 @@ void ShaderInput::makeConnection(ShaderOutput* src)
         if (src)
         {
             // Make the new connection.
+            if (src->getNode() == getNode() && !getNode()->isAGraph())
+            {
+                throw ExceptionShaderGenError(
+                    "Tried to create looping connection on node " + getNode()->getName()
+                        + " from output: " + src->getFullName() + " to input: " + getFullName());
+            }
+
             _connection = src;
             src->_connections.push_back(this);
         }
@@ -437,7 +444,7 @@ void ShaderNode::createMetadata(const NodeDef& nodeDef, GenContext& context)
             const string& attrValue = nodeDef.getAttribute(nodedefAttr);
             if (!attrValue.empty())
             {
-                ValuePtr value = Value::createValueFromStrings(attrValue, metadataEntry->type.getName());
+                ValuePtr value = metadataEntry->type.createValueFromStrings(attrValue);
                 if (!value)
                 {
                     value = metadataEntry->value;
@@ -472,7 +479,7 @@ void ShaderNode::createMetadata(const NodeDef& nodeDef, GenContext& context)
                     if (!attrValue.empty())
                     {
                         const TypeDesc type = metadataEntry->type != Type::NONE ? metadataEntry->type : input->getType();
-                        ValuePtr value = Value::createValueFromStrings(attrValue, type.getName());
+                        ValuePtr value = type.createValueFromStrings(attrValue);
                         if (!value)
                         {
                             value = metadataEntry->value;
