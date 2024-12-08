@@ -926,7 +926,8 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         if (val && val->isA<float>())
         {
             // Update the value to the default for new nodes
-            float prev = val->asA<float>(), temp = val->asA<float>();
+            float prev, temp;
+            prev = temp = val->asA<float>();
             float min = minVal ? minVal->asA<float>() : 0.f;
             float max = maxVal ? maxVal->asA<float>() : 100.f;
             float speed = (max - min) / 1000.0f;
@@ -946,7 +947,8 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         mx::ValuePtr val = input->getValue();
         if (val && val->isA<int>())
         {
-            int prev = val->asA<int>(), temp = val->asA<int>();
+            int prev, temp;
+            prev = temp = val->asA<int>();
             int min = minVal ? minVal->asA<int>() : 0;
             int max = maxVal ? maxVal->asA<int>() : 100;
             float speed = (max - min) / 100.0f;
@@ -966,7 +968,8 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         mx::ValuePtr val = input->getValue();
         if (val && val->isA<mx::Color3>())
         {
-            mx::Color3 prev = val->asA<mx::Color3>(), temp = val->asA<mx::Color3>();
+            mx::Color3 prev, temp;
+            prev = temp = val->asA<mx::Color3>();
             float min = minVal ? minVal->asA<mx::Color3>()[0] : 0.f;
             float max = maxVal ? maxVal->asA<mx::Color3>()[0] : 100.f;
             float speed = (max - min) / 1000.0f;
@@ -990,7 +993,8 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         mx::ValuePtr val = input->getValue();
         if (val && val->isA<mx::Color4>())
         {
-            mx::Color4 prev = val->asA<mx::Color4>(), temp = val->asA<mx::Color4>();
+            mx::Color4 prev, temp;
+            prev = temp = val->asA<mx::Color4>();
             float min = minVal ? minVal->asA<mx::Color4>()[0] : 0.f;
             float max = maxVal ? maxVal->asA<mx::Color4>()[0] : 100.f;
             float speed = (max - min) / 1000.0f;
@@ -1016,7 +1020,8 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         mx::ValuePtr val = input->getValue();
         if (val && val->isA<mx::Vector2>())
         {
-            mx::Vector2 prev = val->asA<mx::Vector2>(), temp = val->asA<mx::Vector2>();
+            mx::Vector2 prev, temp;
+            prev = temp = val->asA<mx::Vector2>();
             float min = minVal ? minVal->asA<mx::Vector2>()[0] : 0.f;
             float max = maxVal ? maxVal->asA<mx::Vector2>()[0] : 100.f;
             float speed = (max - min) / 1000.0f;
@@ -1036,7 +1041,8 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         mx::ValuePtr val = input->getValue();
         if (val && val->isA<mx::Vector3>())
         {
-            mx::Vector3 prev = val->asA<mx::Vector3>(), temp = val->asA<mx::Vector3>();
+            mx::Vector3 prev, temp;
+            prev = temp = val->asA<mx::Vector3>();
             float min = minVal ? minVal->asA<mx::Vector3>()[0] : 0.f;
             float max = maxVal ? maxVal->asA<mx::Vector3>()[0] : 100.f;
             float speed = (max - min) / 1000.0f;
@@ -1056,7 +1062,8 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         mx::ValuePtr val = input->getValue();
         if (val && val->isA<mx::Vector4>())
         {
-            mx::Vector4 prev = val->asA<mx::Vector4>(), temp = val->asA<mx::Vector4>();
+            mx::Vector4 prev, temp;
+            prev = temp = val->asA<mx::Vector4>();
             float min = minVal ? minVal->asA<mx::Vector4>()[0] : 0.f;
             float max = maxVal ? maxVal->asA<mx::Vector4>()[0] : 100.f;
             float speed = (max - min) / 1000.0f;
@@ -1076,7 +1083,8 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         mx::ValuePtr val = input->getValue();
         if (val && val->isA<std::string>())
         {
-            std::string prev = val->asA<std::string>(), temp = val->asA<std::string>();
+            std::string prev, temp;
+            prev = temp = val->asA<std::string>();
             ImGui::InputText("##constant", &temp);
 
             // Set input value and update materials if different from previous value
@@ -1094,7 +1102,8 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
 
         if (val && val->isA<std::string>())
         {
-            std::string temp = val->asA<std::string>(), prev = val->asA<std::string>();
+            std::string prev, temp;
+            prev = temp = val->asA<std::string>();
             ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(.15f, .15f, .15f, 1.0f));
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(.2f, .4f, .6f, 1.0f));
 
@@ -1142,7 +1151,8 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         mx::ValuePtr val = input->getValue();
         if (val && val->isA<bool>())
         {
-            bool prev = val->asA<bool>(), temp = val->asA<bool>();
+            bool prev, temp;
+            prev = temp = val->asA<bool>();
             ImGui::Checkbox("", &temp);
 
             // Set input value and update materials if different from previous value
