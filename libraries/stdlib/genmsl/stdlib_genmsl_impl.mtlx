@@ -73,13 +73,16 @@
   <!-- <geompropvalue> -->
   <implementation name="IM_geompropvalue_integer_genmsl" nodedef="ND_geompropvalue_integer" function="mx_geompropvalue_int" target="genmsl" />
   <implementation name="IM_geompropvalue_boolean_genmsl" nodedef="ND_geompropvalue_boolean" function="mx_geompropvalue_bool" target="genmsl" />
-  <implementation name="IM_geompropvalue_string_genmsl" nodedef="ND_geompropvalue_string" function="mx_geompropvalue_string" target="genmsl" />
   <implementation name="IM_geompropvalue_float_genmsl" nodedef="ND_geompropvalue_float" function="mx_geompropvalue_float" target="genmsl" />
   <implementation name="IM_geompropvalue_color3_genmsl" nodedef="ND_geompropvalue_color3" function="mx_geompropvalue_color" target="genmsl" />
   <implementation name="IM_geompropvalue_color4_genmsl" nodedef="ND_geompropvalue_color4" function="mx_geompropvalue_color4" target="genmsl" />
   <implementation name="IM_geompropvalue_vector2_genmsl" nodedef="ND_geompropvalue_vector2" function="mx_geompropvalue_vector2" target="genmsl" />
   <implementation name="IM_geompropvalue_vector3_genmsl" nodedef="ND_geompropvalue_vector3" function="mx_geompropvalue_vector" target="genmsl" />
   <implementation name="IM_geompropvalue_vector4_genmsl" nodedef="ND_geompropvalue_vector4" function="mx_geompropvalue_vector4" target="genmsl" />
+
+  <!-- <geompropvalueuniform> -->
+  <implementation name="IM_geompropvalue_string_genmsl" nodedef="ND_geompropvalueuniform_string" function="mx_geompropvalue_string" target="genmsl" />
+  <implementation name="IM_geompropvalue_filename_genmsl" nodedef="ND_geompropvalueuniform_filename" function="mx_geompropvalue_string" target="genmsl" />
 
   <!-- ======================================================================== -->
   <!-- Application nodes                                                        -->

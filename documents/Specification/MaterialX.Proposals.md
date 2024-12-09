@@ -219,12 +219,6 @@ In #1201 it was decided that separate periodic versions of all of the noises is 
 
 * **`bump`**: Existing node, proposal to add a vector3 `bitangent` input
 
-<a id="node-geompropvalueuniform"> </a>
-
-* **`geompropvalueuniform`**: the value of the specified uniform geometric property (defined using &lt;geompropdef>) of the currently-bound geometry.  This node's type must match that of the referenced geomprop.
-    * `geomprop` (uniform string): the geometric property to be referenced.
-    * `default` (same type as the geomprop's value): a value to return if the specified `geomprop` is not defined on the current geometry.
-
 Note: when &lt;geompropvalueuniform> is added, the text in the first paragraph of the Specification about Node Inputs should be revised to include "&lt;geompropvalueuniform>" as an example of "or any other node whose output is explicitly declared to be uniform".
 
 
