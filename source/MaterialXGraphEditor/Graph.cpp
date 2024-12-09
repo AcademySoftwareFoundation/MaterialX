@@ -171,7 +171,7 @@ Graph::Graph(const std::string& materialFilename,
     // Create a renderer using the initial startup document.
     mx::FilePath captureFilename = "resources/Materials/Examples/example.png";
     std::string envRadianceFilename = "resources/Lights/san_giuseppe_bridge_split.hdr";
-    _renderer = std::make_shared<RenderView>(_graphDoc, meshFilename, envRadianceFilename,
+    _renderer = std::make_shared<RenderView>(_graphDoc, _stdLib, meshFilename, envRadianceFilename,
                                              _searchPath, viewWidth, viewHeight);
     _renderer->initialize();
     for (const std::string& ext : _renderer->getImageHandler()->supportedExtensions())
@@ -249,7 +249,7 @@ mx::DocumentPtr Graph::loadDocument(const mx::FilePath& filename)
         if (!filename.isEmpty())
         {
             mx::readFromXmlFile(doc, filename, _searchPath, &readOptions);
-            doc->importLibrary(_stdLib);
+            doc->setDataLibrary(_stdLib);
             std::string message;
             if (!doc->validate(&message))
             {
@@ -3050,7 +3050,7 @@ void Graph::clearGraph()
     _newLinks.clear();
     _currPins.clear();
     _graphDoc = mx::createDocument();
-    _graphDoc->importLibrary(_stdLib);
+    _graphDoc->setDataLibrary(_stdLib);
     _currGraphElem = _graphDoc;
 
     if (_currUiNode != nullptr)
