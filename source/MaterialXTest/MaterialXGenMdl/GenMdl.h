@@ -50,9 +50,10 @@ class MdlShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
             _skipFiles.insert("heighttonormal_in_nodegraph.mtlx");
         }
 
+        _skipFiles.insert("imagearray.mtlx");
+
         ShaderGeneratorTester::addSkipFiles();
     }
-
 
     // Ignore light shaders in the document for MDL
     void findLights(mx::DocumentPtr /*doc*/, std::vector<mx::NodePtr>& lights) override

@@ -539,6 +539,18 @@ void MslProgram::unbindGeometry()
     _indexBufferIds.clear();
 }
 
+ImagePtr MslProgram::bindMetalTexture(id<MTLRenderCommandEncoder> renderCmdEncoder,
+                                      unsigned int uniformLocation,
+                                      ImagePtr image,
+                                      ImageHandlerPtr imageHandler)
+{
+    if (static_cast<MetalTextureHandler*>(imageHandler.get())->bindImage(renderCmdEncoder, uniformLocation, image))
+    {
+        return image;
+    }
+    return nullptr;
+}
+
 ImagePtr MslProgram::bindTexture(id<MTLRenderCommandEncoder> renderCmdEncoder,
                                  unsigned int uniformLocation,
                                  const FilePath& filePath,
@@ -546,24 +558,34 @@ ImagePtr MslProgram::bindTexture(id<MTLRenderCommandEncoder> renderCmdEncoder,
                                  ImageHandlerPtr imageHandler)
 {
     // Acquire the image.
-    string error;
     ImagePtr image = imageHandler->acquireImage(filePath, samplingProperties.defaultColor);
     imageHandler->bindImage(image, samplingProperties);
-    return bindTexture(renderCmdEncoder, uniformLocation, image, imageHandler);
+    return bindMetalTexture(renderCmdEncoder, uniformLocation, image, imageHandler);
 }
 
-ImagePtr MslProgram::bindTexture(id<MTLRenderCommandEncoder> renderCmdEncoder,
-                                 unsigned int uniformLocation,
-                                 ImagePtr image,
-                                 ImageHandlerPtr imageHandler)
+ImagePtr MslProgram::bindTextureArray(id<MTLRenderCommandEncoder> renderCmdEncoder,
+                                      unsigned int uniformLocation,
+                                      vector<const FilePath> filePaths,
+                                      ImageSamplingProperties samplingProperties,
+                                      ImageHandlerPtr imageHandler)
 {
-    // Acquire the image.
-    string error;
-    if (static_cast<MetalTextureHandler*>(imageHandler.get())->bindImage(renderCmdEncoder, uniformLocation, image))
+    ImagePtr mainImage = nullptr;
+    vector<ImagePtr> additionalImages;
+    for (const auto& filePath : filePaths)
     {
-        return image;
+        ImagePtr image = imageHandler->acquireImage(filePath, samplingProperties.defaultColor);
+        if (!mainImage)
+        {
+            mainImage = image;
+        }
+        else
+        {
+            additionalImages.emplace_back(image);
+        }
     }
-    return nullptr;
+
+    imageHandler->bindImage(mainImage, samplingProperties, additionalImages);
+    return bindMetalTexture(renderCmdEncoder, uniformLocation, mainImage, imageHandler);
 }
 
 MaterialX::ConstValuePtr MslProgram::findUniformValue(const string& uniformName,
@@ -612,7 +634,7 @@ void MslProgram::bindTextures(id<MTLRenderCommandEncoder> renderCmdEncoder,
                         samplingProperties.filterType = ImageSamplingProperties::FilterType::LINEAR;
 
                         static_cast<MaterialX::MetalTextureHandler*>(imageHandler.get())->bindImage(env.second, samplingProperties);
-                        bindTexture(renderCmdEncoder, (unsigned int) arg.index, env.second, imageHandler);
+                        bindMetalTexture(renderCmdEncoder, (unsigned int) arg.index, env.second, imageHandler);
                         found = true;
                     }
                 }
@@ -628,7 +650,7 @@ void MslProgram::bindTextures(id<MTLRenderCommandEncoder> renderCmdEncoder,
 
                 if (image && (image->getWidth() > 1 || image->getHeight() > 1))
                 {
-                    bindTexture(renderCmdEncoder, (unsigned int) arg.index, image, imageHandler);
+                    bindMetalTexture(renderCmdEncoder, (unsigned int) arg.index, image, imageHandler);
                     found = true;
                 }
             }
@@ -638,7 +660,6 @@ void MslProgram::bindTextures(id<MTLRenderCommandEncoder> renderCmdEncoder,
                 auto uniform = _uniformList.find(arg.name.UTF8String);
                 if (uniform != _uniformList.end())
                 {
-                    string fileName = uniform->second->value ? uniform->second->value->getValueString() : "";
                     ImageSamplingProperties samplingProperties;
                     string uniformNameWithoutPostfix = uniform->first;
                     {
@@ -648,7 +669,22 @@ void MslProgram::bindTextures(id<MTLRenderCommandEncoder> renderCmdEncoder,
                     }
                     samplingProperties.setProperties(uniformNameWithoutPostfix, publicUniforms);
                     samplingProperties.enableMipmaps = _enableMipMapping;
-                    bindTexture(renderCmdEncoder, (unsigned int) arg.index, fileName, samplingProperties, imageHandler);
+
+                    if (uniform->second->typeString == "filename")
+                    {
+                        string fileName = uniform->second->value ? uniform->second->value->getValueString() : "";
+                        bindTexture(renderCmdEncoder, (unsigned int) arg.index, fileName, samplingProperties, imageHandler);
+                    }
+                    else if (uniform->second->typeString == "filenamearray")
+                    {
+                        StringVec filenamesStr = uniform->second->value ? uniform->second->value->asA<StringVec>() : StringVec();
+                        vector<const FilePath> filenames;
+                        for (const auto& filename : filenamesStr)
+                        {
+                            filenames.emplace_back(filename);
+                        }
+                        bindTextureArray(renderCmdEncoder, (unsigned int) arg.index, filenames, samplingProperties, imageHandler);
+                    }
                 }
             }
         }
@@ -1058,10 +1094,15 @@ const MslProgram::InputMap& MslProgram::updateUniformsList()
                         {
                             auto inputIt = _uniformList.find(variableName);
 
-                            if (inputIt == _uniformList.end()) {
-                                if(variableTypeDesc == Type::FILENAME)
+                            if (inputIt == _uniformList.end())
+                            {
+                                if (variableTypeDesc == Type::FILENAME)
                                 {
                                     inputIt = _uniformList.find(TEXTURE_NAME(variableName));
+                                }
+                                else if (variableTypeDesc == Type::FILENAMEARRAY)
+                                {
+                                    inputIt = _uniformList.find(TEXTUREARRAY_NAME(variableName));
                                 }
                                 else
                                 {
@@ -1101,7 +1142,7 @@ const MslProgram::InputMap& MslProgram::updateUniformsList()
                             for (size_t i = 0, n = members.size(); i < n; ++i)
                             {
                                 const auto& structMember = members[i];
-                                auto memberVariableName = variableName+"."+structMember._name;
+                                auto memberVariableName = variableName + "." + structMember._name;
                                 auto memberVariableValue = aggregateValue->getMemberValue(i);
 
                                 populateUniformInput_ref(structMember._typeDesc, memberVariableName, memberVariableValue, populateUniformInput_ref);
@@ -1492,6 +1533,11 @@ MTLDataType MslProgram::mapTypeToMetalType(TypeDesc type)
     else if (type == Type::FILENAME)
     {
         // A "filename" is not indicative of type, so just return a 2d sampler.
+        return MTLDataTypeTexture;
+    }
+    else if (type == Type::FILENAMEARRAY)
+    {
+        // A "filenamearray" is not indicative of type, so just return a 2d sampler.
         return MTLDataTypeTexture;
     }
     else if (type == Type::BSDF               ||

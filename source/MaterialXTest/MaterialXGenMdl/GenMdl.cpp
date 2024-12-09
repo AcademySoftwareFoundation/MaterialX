@@ -18,7 +18,6 @@
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Util.h>
 
-
 namespace mx = MaterialX;
 
 TEST_CASE("GenShader: MDL Syntax", "[genmdl]")
@@ -91,6 +90,7 @@ TEST_CASE("GenShader: MDL Implementation Check", "[genmdl]")
 
     mx::StringSet generatorSkipNodeTypes;
     generatorSkipNodeTypes.insert("light");
+    generatorSkipNodeTypes.insert("imagearray");
 
     mx::StringSet generatorSkipNodeDefs;
 
