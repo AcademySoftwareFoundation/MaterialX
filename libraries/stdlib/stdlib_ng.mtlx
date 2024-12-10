@@ -1131,6 +1131,168 @@
   <!-- ======================================================================== -->
 
   <!--
+    Node: <ramp>
+    A ramp that supports up to 10 control points.
+  -->
+  <nodegraph name="NG_ramp" nodedef="ND_ramp">
+    <separate2 name="separate1" type="multioutput" nodedef="ND_separate2_vector2">
+      <input name="in" type="vector2" interfacename="texcoord" />
+    </separate2>
+    <ramp_gradient name="ramp_gradient1" type="color4" nodedef="ND_ramp_gradient">
+      <input name="interpolation" type="integer" interfacename="interpolation" />
+      <input name="num_intervals" type="integer" interfacename="num_intervals" />
+      <input name="interval_num" type="integer" value="1" />
+      <input name="interval1" type="float" interfacename="interval1" />
+      <input name="interval2" type="float" interfacename="interval2" />
+      <input name="color1" type="color4" interfacename="color1" />
+      <input name="prev_color" type="color4" interfacename="color1" />
+      <input name="color2" type="color4" interfacename="color2" />
+      <input name="x" type="float" nodename="ramp_type_selector" />
+    </ramp_gradient> 
+    <ramp_gradient name="ramp_gradient2" type="color4" nodedef="ND_ramp_gradient">
+      <input name="prev_color" type="color4" nodename="ramp_gradient1" />
+      <input name="interpolation" type="integer" interfacename="interpolation" />
+      <input name="interval_num" type="integer" value="2" />
+      <input name="num_intervals" type="integer" interfacename="num_intervals" />
+      <input name="interval1" type="float" interfacename="interval2" />
+      <input name="interval2" type="float" interfacename="interval3" />
+      <input name="color1" type="color4" interfacename="color2" />
+      <input name="color2" type="color4" interfacename="color3" />
+      <input name="x" type="float" nodename="ramp_type_selector" />
+    </ramp_gradient> 
+    <ramp_gradient name="ramp_gradient3" type="color4" nodedef="ND_ramp_gradient">
+      <input name="prev_color" type="color4" nodename="ramp_gradient2" />
+      <input name="interpolation" type="integer" interfacename="interpolation" />
+      <input name="interval_num" type="integer" value="3" />
+      <input name="num_intervals" type="integer" interfacename="num_intervals" />
+      <input name="interval1" type="float" interfacename="interval3" />
+      <input name="interval2" type="float" interfacename="interval4" />
+      <input name="color1" type="color4" interfacename="color3" />
+      <input name="color2" type="color4" interfacename="color4" />
+      <input name="x" type="float" nodename="ramp_type_selector" />
+    </ramp_gradient>
+    <ramp_gradient name="ramp_gradient4" type="color4" nodedef="ND_ramp_gradient">
+      <input name="prev_color" type="color4" nodename="ramp_gradient3" />
+      <input name="interpolation" type="integer" interfacename="interpolation" />
+      <input name="interval_num" type="integer" value="4" />
+      <input name="num_intervals" type="integer" interfacename="num_intervals" />
+      <input name="interval1" type="float" interfacename="interval4" />
+      <input name="interval2" type="float" interfacename="interval5" />
+      <input name="color1" type="color4" interfacename="color4" />
+      <input name="color2" type="color4" interfacename="color5" />
+      <input name="x" type="float" nodename="ramp_type_selector" />
+    </ramp_gradient>
+    <ramp_gradient name="ramp_gradient5" type="color4" nodedef="ND_ramp_gradient">
+      <input name="prev_color" type="color4" nodename="ramp_gradient4" />
+      <input name="interpolation" type="integer" interfacename="interpolation" />
+      <input name="interval_num" type="integer" value="5" />
+      <input name="num_intervals" type="integer" interfacename="num_intervals" />
+      <input name="interval1" type="float" interfacename="interval5" />
+      <input name="interval2" type="float" interfacename="interval6" />
+      <input name="color1" type="color4" interfacename="color5" />
+      <input name="color2" type="color4" interfacename="color6" />
+      <input name="x" type="float" nodename="ramp_type_selector" />
+    </ramp_gradient>
+    <ramp_gradient name="ramp_gradient6" type="color4" nodedef="ND_ramp_gradient">
+      <input name="interpolation" type="integer" interfacename="interpolation" />
+      <input name="prev_color" type="color4" nodename="ramp_gradient5" />
+      <input name="interval_num" type="integer" value="6" />
+      <input name="num_intervals" type="integer" interfacename="num_intervals" />
+      <input name="interval1" type="float" interfacename="interval6" />
+      <input name="interval2" type="float" interfacename="interval7" />
+      <input name="color1" type="color4" interfacename="color6" />
+      <input name="color2" type="color4" interfacename="color7" />
+      <input name="x" type="float" nodename="ramp_type_selector" />
+    </ramp_gradient>
+    <ramp_gradient name="ramp_gradient7" type="color4" nodedef="ND_ramp_gradient">
+      <input name="prev_color" type="color4" nodename="ramp_gradient6" />
+      <input name="interpolation" type="integer" interfacename="interpolation" />
+      <input name="interval_num" type="integer" value="7" />
+      <input name="num_intervals" type="integer" interfacename="num_intervals" />
+      <input name="interval1" type="float" interfacename="interval7" />
+      <input name="interval2" type="float" interfacename="interval8" />
+      <input name="color1" type="color4" interfacename="color7" />
+      <input name="color2" type="color4" interfacename="color8" />
+      <input name="x" type="float" nodename="ramp_type_selector" />
+    </ramp_gradient>
+    <ramp_gradient name="ramp_gradient8" type="color4" nodedef="ND_ramp_gradient">
+      <input name="interpolation" type="integer" interfacename="interpolation" />
+      <input name="prev_color" type="color4" nodename="ramp_gradient7" />
+      <input name="interval_num" type="integer" value="8" />
+      <input name="num_intervals" type="integer" interfacename="num_intervals" />
+      <input name="interval1" type="float" interfacename="interval8" />
+      <input name="interval2" type="float" interfacename="interval9" />
+      <input name="color1" type="color4" interfacename="color8" />
+      <input name="color2" type="color4" interfacename="color9" />
+      <input name="x" type="float" nodename="ramp_type_selector" />
+    </ramp_gradient>
+    <ramp_gradient name="ramp_gradient9" type="color4" nodedef="ND_ramp_gradient">
+      <input name="interpolation" type="integer" interfacename="interpolation" />
+      <input name="prev_color" type="color4" nodename="ramp_gradient8" />
+      <input name="interval_num" type="integer" value="9" />
+      <input name="num_intervals" type="integer" interfacename="num_intervals" />
+      <input name="interval1" type="float" interfacename="interval9" />
+      <input name="interval2" type="float" interfacename="interval10" />
+      <input name="color1" type="color4" interfacename="color9" />
+      <input name="color2" type="color4" interfacename="color10" />
+      <input name="x" type="float" nodename="ramp_type_selector" />
+    </ramp_gradient>
+    <switch name="ramp_type_selector" type="float" nodedef="ND_switch_floatI">
+      <input name="which" type="integer" interfacename="type" />
+      <input name="in1" type="float" nodename="separate1" output="outx" />
+      <input name="in2" type="float" nodename="radial_add" />
+      <input name="in3" type="float" nodename="circular_magnitude" />
+      <input name="in4" type="float" nodename="box_ifgreater" />
+    </switch>
+    <multiply name="box_multiply" type="vector2" nodedef="ND_multiply_vector2FA">
+      <input name="in1" type="vector2" nodename="box_absval" />
+      <input name="in2" type="float" value="2" />
+    </multiply>
+    <ifgreater name="box_ifgreater" type="float" nodedef="ND_ifgreater_float">
+      <input name="value1" type="float" nodename="separate6" output="outx" />
+      <input name="value2" type="float" nodename="separate6" output="outy" />
+      <input name="in1" type="float" nodename="separate7" output="outx" />
+      <input name="in2" type="float" nodename="separate7" output="outy" />
+    </ifgreater>
+    <absval name="box_absval" type="vector2" nodedef="ND_absval_vector2">
+      <input name="in" type="vector2" nodename="subtract_half" />
+    </absval>
+    <separate2 name="separate7" type="multioutput" nodedef="ND_separate2_vector2">
+      <input name="in" type="vector2" nodename="box_multiply" />
+    </separate2>
+    <separate2 name="separate6" type="multioutput" nodedef="ND_separate2_vector2">
+      <input name="in" type="vector2" nodename="box_absval" />
+    </separate2>
+    <atan2 name="radial_atan2" type="float" nodedef="ND_atan2_float">
+      <input name="inx" type="float" nodename="separate9" output="outy" />
+      <input name="iny" type="float" nodename="separate9" output="outx" />
+    </atan2>
+    <divide name="radial_divide" type="float" nodedef="ND_divide_float">
+      <input name="in1" type="float" nodename="radial_atan2" />
+      <input name="in2" type="float" value="6.28319" />
+    </divide>
+    <add name="radial_add" type="float" nodedef="ND_add_float">
+      <input name="in1" type="float" nodename="radial_divide" />
+      <input name="in2" type="float" value="0.5" />
+    </add>
+    <multiply name="circular_multiply" type="vector2" nodedef="ND_multiply_vector2FA">
+      <input name="in1" type="vector2" nodename="subtract_half" />
+      <input name="in2" type="float" value="1.414" />
+    </multiply>
+    <magnitude name="circular_magnitude" type="float" nodedef="ND_magnitude_vector2">
+      <input name="in" type="vector2" nodename="circular_multiply" />
+    </magnitude>
+    <subtract name="subtract_half" type="vector2" nodedef="ND_subtract_vector2FA">
+      <input name="in1" type="vector2" interfacename="texcoord" />
+      <input name="in2" type="float" value="0.5" />
+    </subtract>
+    <separate2 name="separate9" type="multioutput" nodedef="ND_separate2_vector2">
+      <input name="in" type="vector2" nodename="subtract_half" />
+    </separate2>
+    <output name="out" type="color4" nodename="ramp_gradient9" />
+  </nodegraph>
+
+  <!--
     Node: <ramp4>
     A 4-corner bilinear value ramp.
   -->
@@ -1307,6 +1469,65 @@
       <input name="mix" type="float" nodename="N_t_vector4" />
     </mix>
     <output name="out" type="vector4" nodename="N_mix_vector4" />
+  </nodegraph>
+
+  <!--
+    Node <ramp_gradient>
+    A helper node that handles a single control point within a <ramp>.
+  -->
+  <nodegraph name="NG_ramp_gradient" nodedef="ND_ramp_gradient">
+    <clamp name="linear_clamp" type="float" nodedef="ND_clamp_float">
+      <input name="in" type="float" interfacename="x" />
+      <input name="low" type="float" interfacename="interval1" />
+      <input name="high" type="float" interfacename="interval2" />
+    </clamp>
+    <remap name="linear_remap" type="float" nodedef="ND_remap_float">
+      <input name="in" type="float" nodename="linear_clamp" />
+      <input name="inlow" type="float" interfacename="interval1" />
+      <input name="inhigh" type="float" interfacename="interval2" />
+      <input name="outlow" type="float" value="0" />
+      <input name="outhigh" type="float" value="1" />
+    </remap>
+    <smoothstep name="smoothstep" type="float" nodedef="ND_smoothstep_float">
+      <input name="in" type="float" interfacename="x" />
+      <input name="low" type="float" interfacename="interval1" />
+      <input name="high" type="float" interfacename="interval2" />
+    </smoothstep>
+    <switch name="interpolation_selector" type="float" nodedef="ND_switch_floatI">
+      <input name="which" type="integer" interfacename="interpolation" />
+      <input name="in1" type="float" nodename="linear_remap" />
+      <input name="in2" type="float" nodename="smoothstep" />
+    </switch>
+    <mix name="mix3" type="color4" nodedef="ND_mix_color4">
+      <input name="fg" type="color4" interfacename="color2" />
+      <input name="bg" type="color4" interfacename="color1" />
+      <input name="mix" type="float" nodename="interpolation_selector" />
+    </mix>
+    <ifgreater name="step_ifgreater" type="color4" nodedef="ND_ifgreater_color4">
+      <input name="value2" type="float" interfacename="x" />
+      <input name="in1" type="color4" interfacename="color1" />
+      <input name="in2" type="color4" interfacename="color2" />
+      <input name="value1" type="float" interfacename="interval2" />
+    </ifgreater>
+    <switch name="interpolation_selector2" type="color4" nodedef="ND_switch_color4I">
+      <input name="in1" type="color4" nodename="mix3" />
+      <input name="in2" type="color4" nodename="mix3" />
+      <input name="which" type="integer" interfacename="interpolation" />
+      <input name="in3" type="color4" nodename="step_ifgreater" />
+    </switch>
+    <ifgreater name="ifgreater3" type="color4" nodedef="ND_ifgreater_color4">
+      <input name="value1" type="float" interfacename="x" />
+      <input name="value2" type="float" interfacename="interval1" />
+      <input name="in1" type="color4" nodename="interpolation_selector2" />
+      <input name="in2" type="color4" interfacename="prev_color" />
+    </ifgreater>
+    <ifgreater name="ifgreatereq1" type="color4" nodedef="ND_ifgreatereq_color4I">
+      <input name="value1" type="integer" interfacename="interval_num" />
+      <input name="value2" type="integer" interfacename="num_intervals" />
+      <input name="in1" type="color4" interfacename="prev_color" />
+      <input name="in2" type="color4" nodename="ifgreater3" />
+    </ifgreater>
+    <output name="out" type="color4" nodename="ifgreatereq1" />
   </nodegraph>
 
   <!--
