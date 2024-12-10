@@ -1473,7 +1473,7 @@
 
   <!--
     Node <ramp_gradient>
-    Used by the ramp node to support up to 30 control points.
+    A helper node that handles a single control point within a <ramp>.
   -->
   <nodegraph name="NG_ramp_gradient" nodedef="ND_ramp_gradient">
     <clamp name="linear_clamp" type="float" nodedef="ND_clamp_float">
