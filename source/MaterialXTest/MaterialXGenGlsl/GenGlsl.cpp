@@ -139,12 +139,7 @@ static void generateGlslCode(GlslType type)
     mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
 
     mx::FilePathVec testRootPaths;
-    testRootPaths.push_back(searchPath.find("resources/Materials/TestSuite/libraries/metal"));
-    testRootPaths.push_back(searchPath.find("resources/Materials/TestSuite/lights"));
-    testRootPaths.push_back(searchPath.find("resources/Materials/TestSuite/locale"));
-    testRootPaths.push_back(searchPath.find("resources/Materials/TestSuite/nprlib"));
-    testRootPaths.push_back(searchPath.find("resources/Materials/TestSuite/pbrlib"));
-    testRootPaths.push_back(searchPath.find("resources/Materials/TestSuite/stdlib"));
+    testRootPaths.push_back(searchPath.find("resources/Materials/TestSuite"));
     testRootPaths.push_back(searchPath.find("resources/Materials/Examples/StandardSurface"));
 
     // Create the requested shader generator.
