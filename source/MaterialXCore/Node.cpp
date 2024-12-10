@@ -700,6 +700,38 @@ void NodeGraph::modifyInterfaceName(const string& inputPath, const string& inter
     }
 }
 
+void NodeGraph::setInputOrdering(const StringVec& inputNames)
+{
+    StringSet childInputNames;
+    std::vector<unsigned int> childInputIndicies;
+        
+    for (ElementPtr child : _childOrder)
+    {
+        InputPtr input = child->asA<Input>();
+        if (!input)
+            continue;
+
+        const string& inputName = input->getName();
+        childInputNames.insert(inputName);
+        childInputIndicies.push_back(getChildIndex(inputName));
+    }
+
+    // Check that all names exist in the inputs
+    StringSet orderedInputNames(inputNames.begin(), inputNames.end());
+    if (childInputNames != orderedInputNames)
+    {
+        throw Exception("The set of names provided does not match the existing set of input names");
+    }
+
+    // Use the existing input child indices to set the locations for the
+    // named list. Pre-sort to add from lowest index to highest
+    std::sort(childInputIndicies.begin(), childInputIndicies.end());
+    for (size_t i = 0; i < childInputIndicies.size(); i++)
+    {
+        setChildIndex(inputNames[i], childInputIndicies[i]);
+    }
+}
+
 NodeDefPtr NodeGraph::getNodeDef() const
 {
     NodeDefPtr nodedef = resolveNameReference<NodeDef>(getNodeDefString());
