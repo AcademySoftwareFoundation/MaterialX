@@ -138,19 +138,27 @@ void ShaderGraph::createConnectedNodes(const ElementPtr& downstreamElement,
     {
         // We have a node downstream
         ShaderNode* downstream = getNode(downstreamNode->getName());
-        if (downstream && connectingElement)
+        if (downstream)
         {
-            ShaderInput* input = downstream->getInput(connectingElement->getName());
-            if (!input)
+            if (downstream == newNode)
             {
-                throw ExceptionShaderGenError("Could not find an input named '" + connectingElement->getName() +
-                                              "' on downstream node '" + downstream->getName() + "'");
+                throw ExceptionShaderGenError("Upstream node '" + downstream->getName() + "' has itself as downstream node, creating a loop");
             }
-            input->makeConnection(output);
-        }
-        else
-        {
-            throw ExceptionShaderGenError("Could not find downstream node ' " + downstreamNode->getName() + "'");
+
+            if (connectingElement)
+            {
+                ShaderInput* input = downstream->getInput(connectingElement->getName());
+                if (!input)
+                {
+                    throw ExceptionShaderGenError("Could not find an input named '" + connectingElement->getName() +
+                                                  "' on downstream node '" + downstream->getName() + "'");
+                }
+                input->makeConnection(output);
+            }
+            else
+            {
+                throw ExceptionShaderGenError("Could not find downstream node ' " + downstreamNode->getName() + "'");
+            }
         }
     }
     else
