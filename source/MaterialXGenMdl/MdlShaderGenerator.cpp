@@ -159,7 +159,7 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
         emitLineEnd(stage, true);
     }
 
-    // emit custom node imports for nodes in the graph
+    // Emit custom node imports for nodes in the graph
     for (ShaderNode* node : graph.getNodes())
     {
         const ShaderNodeImpl& impl = node->getImplementation();
