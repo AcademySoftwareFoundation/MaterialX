@@ -439,12 +439,12 @@ string MdlShaderGenerator::getUpstreamResult(const ShaderInput* input, GenContex
             const CustomCodeNodeMdl* upstreamCustomNodeMdl = dynamic_cast<const CustomCodeNodeMdl*>(&upstreamNode->getImplementation());
             if (upstreamCustomNodeMdl)
             {
-                // prefix the port name depending on the CustomCodeNode
+                // Prefix the port name depending on the CustomCodeNode
                 variable = upstreamNode->getName() + "_result." + upstreamCustomNodeMdl->modifyPortName(fieldName, mdlSyntax);
             }
             else
             {
-                // existing implementations and none user defined structs will keep the prefix always to not break existing content
+                // Existing implementations and none user defined structs will keep the prefix always to not break existing content
                 variable = upstreamNode->getName() + "_result." + mdlSyntax.modifyPortName(upstreamOutput->getName());
             }
         }
