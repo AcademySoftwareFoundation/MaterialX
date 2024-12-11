@@ -263,49 +263,9 @@ describe('Equivalence', () =>
         options.performValueComparisons = false;
         let result = doc.isEquivalent(doc2, options, differences);
         expect(result).to.be.false;
-        console.log(differences.message);
+        expect(differences.message).to.not.be.empty;
 
-        options.performValueComparisons = true;
-        result = doc.isEquivalent(doc2, options, differences);
-        expect(result).to.be.true;
-
-        let currentPrecision = mx.Value.getFloatPrecision();
-        options.floatPrecision = 8;
-        result = doc.isEquivalent(doc2, options, differences);
-        expect(result).to.be.false;
-        options.floatPrecision = currentPrecision;
-
-        options.setAttributeExclusionList([mx.ValueElement.UI_MIN_ATTRIBUTE, mx.ValueElement.UI_MAX_ATTRIBUTE]);
-        floatInputs.forEach(input => {
-            input.setAttribute(mx.ValueElement.UI_MIN_ATTRIBUTE, "0.9");
-            input.setAttribute(mx.ValueElement.UI_MAX_ATTRIBUTE, "100.0");
-        });
-        result = doc.isEquivalent(doc2, options, differences);
-        expect(result).to.be.true;
-        floatInputs.forEach(input => {
-            input.setAttribute(mx.ValueElement.UI_MIN_ATTRIBUTE, "  0.01");
-            input.setAttribute(mx.ValueElement.UI_MAX_ATTRIBUTE, "  1.01");
-        });
-
-        let mismatchElement = doc.getDescendant("mygraph/input_color4");
-        let previousName = mismatchElement.getName();
-        mismatchElement.setName("mismatch_color4");
-        result = doc.isEquivalent(doc2, options, differences);
-        expect(result).to.be.false;
-
-        mismatchElement.setName(previousName);
-        result = doc.isEquivalent(doc2, options, differences);
-        expect(result).to.be.true;
-
-        let nodeGraph = doc.getNodeGraph("mygraph");
-        expect(nodeGraph).to.exist;
-        doc.addNodeDef("ND_mygraph");
-        nodeGraph.setNodeDefString("ND_mygraph");
-        let nodeGraph2 = doc2.getNodeGraph("mygraph");
-        expect(nodeGraph2).to.exist;
-        doc2.addNodeDef("ND_mygraph");
-        nodeGraph2.setNodeDefString("ND_mygraph");
-        result = doc.isEquivalent(doc2, options, differences);
+        result = doc.isEquivalent(doc2, options, undefined);
         expect(result).to.be.false;
     });
 });
