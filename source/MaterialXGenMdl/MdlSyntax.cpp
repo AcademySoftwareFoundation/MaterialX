@@ -28,12 +28,8 @@ TYPEDESC_REGISTER_TYPE(MDL_SCATTER_MODE, "scatter_mode")
 
 namespace
 {
-    const string MARKER_MDL_VERSION_SUFFIX = "MDL_VERSION_SUFFIX";
-} // anonymous namespace
 
-namespace
-{
-
+const string MARKER_MDL_VERSION_SUFFIX = "MDL_VERSION_SUFFIX";
 
 class MdlFilenameTypeSyntax : public ScalarTypeSyntax
 {
