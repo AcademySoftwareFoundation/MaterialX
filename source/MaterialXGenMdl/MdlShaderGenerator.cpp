@@ -23,7 +23,6 @@
 #include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/Nodes/ClosureCompoundNode.h>
 #include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
-#include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
 #include <MaterialXGenShader/Util.h>
 
 MATERIALX_NAMESPACE_BEGIN
