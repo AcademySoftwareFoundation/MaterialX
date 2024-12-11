@@ -369,7 +369,6 @@ ShaderNodeImplPtr MdlShaderGenerator::getImplementation(const NodeDef& nodedef, 
     }
     else if (implElement->isA<Implementation>())
     {
-
         // Try creating a new in the factory.
         impl = _implFactory.create(name);
         if (!impl)
