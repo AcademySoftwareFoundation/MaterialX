@@ -596,5 +596,4 @@ const string MdlSyntax::getMdlVersionSuffixMarker() const
     return MARKER_MDL_VERSION_SUFFIX;
 }
 
-
 MATERIALX_NAMESPACE_END
