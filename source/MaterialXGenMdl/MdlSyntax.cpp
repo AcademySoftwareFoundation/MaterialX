@@ -206,7 +206,7 @@ const string MdlSyntax::PORT_NAME_PREFIX = "mxp_";
 MdlSyntax::MdlSyntax()
 {
     // Add in all reserved words and keywords in MDL
-    // formated as in the MDL Specification 1.9.2 for easy comparing
+    // Formatted as in the MDL Specification 1.9.2 for easy comparing
     registerReservedWords(
         {   // Reserved words
             "annotation",       "double2",      "float",        "in",                           "operator",
