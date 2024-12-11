@@ -510,7 +510,7 @@
     <input name="interpolation" type="integer" value="1" enum="linear,smooth,step" enumvalues="0,1,2" />
     <input name="prev_color" type="color4" value="0,0,0,1" uimin="0,0,0,0" uimax="1,1,1,1" />
     <input name="interval_num" type="integer" value="1" />
-    <input name="num_intervals" type="integer" value="10" />
+    <input name="num_intervals" type="integer" value="2" />
     <output name="out" type="color4" />
   </nodedef>
 
