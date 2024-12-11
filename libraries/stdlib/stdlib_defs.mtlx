@@ -499,7 +499,7 @@
 
   <!--
     Node <ramp_gradient>
-    Used by the ramp node to support up to 10 control points.
+    A helper node that handles a single control point within a <ramp>.
   -->
   <nodedef name="ND_ramp_gradient" node="ramp_gradient" nodegroup="procedural2d">
     <input name="x" type="float" value="0" uimin="0" uimax="1" />
