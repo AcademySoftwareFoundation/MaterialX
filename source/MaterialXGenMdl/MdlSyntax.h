@@ -53,7 +53,7 @@ class MX_GENMDL_API MdlSyntax : public Syntax
     static const StringVec FILTERTYPE_MEMBERS;
     static const StringVec DISTRIBUTIONTYPE_MEMBERS;
     static const StringVec SCATTER_MODE_MEMBERS;
-    static const string PORT_NAME_PREFIX; ///< applied to input and output names to avoid collisions with reserved words in MDL
+    static const string PORT_NAME_PREFIX; // Applied to input and output names to avoid collisions with reserved words in MDL
 
     /// Get an type description for an enumeration based on member value
     TypeDesc getEnumeratedType(const string& value) const;
