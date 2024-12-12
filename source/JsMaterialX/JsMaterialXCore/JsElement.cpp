@@ -35,11 +35,35 @@ namespace mx = MaterialX;
 
 EMSCRIPTEN_BINDINGS(element)
 {
+    ems::class_<mx::ElementEquivalenceOptions>("ElementEquivalenceOptions")
+        .constructor<>()
+        .property("performValueComparisons", &mx::ElementEquivalenceOptions::performValueComparisons)
+        .property("floatFormat", &mx::ElementEquivalenceOptions::floatFormat)
+        .property("floatPrecision", &mx::ElementEquivalenceOptions::floatPrecision)
+        .function("setAttributeExclusionList", ems::optional_override([](mx::ElementEquivalenceOptions& self, const std::vector<std::string>& exclusionList) 
+        {
+            self.attributeExclusionList = std::set<std::string>(exclusionList.begin(), exclusionList.end());
+        }));
+
     ems::class_<mx::Element>("Element")
         .smart_ptr<std::shared_ptr<mx::Element>>("Element")
         .smart_ptr<std::shared_ptr<const mx::Element>>("Element") // mx::ConstElementPtr
         .function("equals", ems::optional_override([](mx::Element& self, const mx::Element& rhs) { return self == rhs; }))
         .function("notEquals", ems::optional_override([](mx::Element& self, const mx::Element& rhs) { return self != rhs; }))
+        .function("isEquivalent", ems::optional_override([](mx::Element &self, const mx::Element& rhs, 
+                                                            const mx::ElementEquivalenceOptions& options, 
+                                                            ems::val message = ems::val::undefined()) 
+        {
+            mx::ConstElementPtr rhsPtr = rhs.getSelf();
+            std::string nativeMessage;
+            bool handleMessage = !message.isUndefined() && message.typeOf().as<std::string>() == "object";
+            bool res = self.isEquivalent(rhsPtr, options, handleMessage ? &nativeMessage : nullptr);
+            if (!res && handleMessage)
+            {
+                message.set("message", nativeMessage);
+            }
+            return res;
+        }))
         .function("setCategory", &mx::Element::setCategory)
         .function("getCategory", &mx::Element::getCategory)
         .function("setName", &mx::Element::setName)
