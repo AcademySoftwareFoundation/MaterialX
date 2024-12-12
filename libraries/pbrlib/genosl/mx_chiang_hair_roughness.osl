@@ -1,0 +1,7 @@
+void mx_chiang_hair_roughness(float longitudinal, float azimuthal, float scale_TT, float scale_TRT, output vector2 roughness_R, output vector2 roughness_TT, output vector2 roughness_TRT)
+{
+    // TODO: Write OSL implementation of this node.
+    roughness_R = vector2(0.0, 0.0);
+    roughness_TT = vector2(0.0, 0.0);
+    roughness_TRT = vector2(0.0, 0.0);
+}

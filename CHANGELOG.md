@@ -2,6 +2,34 @@
 
 ## [1.39.2] - Development
 
+### Added
+- Added support for the [Chiang Hair BSDF](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1968), with initial implementations in hardware shading languages and MDL.
+- Added support for the [Disney Principled](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2004) shading model, implemented as a language-independent graph.
+- Added support for [data library referencing](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2054), enabling improved performance in shader generation.
+- Added support for [custom structure types](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1831) in MaterialX.
+- Added support for [functional equivalence](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2003) tests between MaterialX elements.
+- Added support for [transmission effects](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2027) in the translation graph from Standard Surface to glTF PBR.
+- Added support for [coated emission](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2087) in the translation graph from Standard Surface to UsdPreviewSurface.
+- Added support for [Apple framework builds](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2020).
+- Added support for [MDL 1.9](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2102) in shader generation.
+- Added support for [viewdirection space](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2036) in hardware shading languages.
+- Added a [combined version define](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2031) to MaterialX C++.
+- Added a [release signing workflow](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2009) to GitHub Actions.
+- Added documentation for [keyboard shortcuts](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2026) in the MaterialX Viewer.
+
+### Changed
+- Improved the performance of [graph traversal](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2023) by skipping edges that have already been visited.
+- Reduced duplication between the [MSL and GLSL implementations](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2068) of nodes.
+
+### Fixed
+- Fixed [unintentional camera orbiting](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2032) in the render view of the MaterialX Graph Editor.
+- Fixed [banding artifacts](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1977) in the MaterialX Viewer on MacOS.
+- Fixed the handling of [missing scenes](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2124) in the MaterialX Web Viewer.
+- Fixed a call to the [anisotropic_vdf closure](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2016) in OSL shader generation.
+
+### Removed
+- Removed support for the [legacy OSL closures](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2121), focusing exclusively on the MaterialX-synchronized closures in OSL 1.12 and beyond.
+
 ## [1.39.1] - 2024-09-03
 
 ### Added

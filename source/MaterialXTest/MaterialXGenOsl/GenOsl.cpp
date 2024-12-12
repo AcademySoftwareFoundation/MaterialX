@@ -89,12 +89,8 @@ TEST_CASE("GenShader: OSL Implementation Check", "[genosl]")
     generatorSkipNodeTypes.insert("light");
 
     mx::StringSet generatorSkipNodeDefs;
-    generatorSkipNodeDefs.insert("ND_chiang_hair_roughness");
-    generatorSkipNodeDefs.insert("ND_chiang_hair_absorption_from_color");
-    generatorSkipNodeDefs.insert("ND_deon_hair_absorption_from_melanin");
-    generatorSkipNodeDefs.insert("ND_chiang_hair_bsdf");
 
-    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 35);
+    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs);
 }
 
 TEST_CASE("GenShader: OSL Unique Names", "[genosl]")

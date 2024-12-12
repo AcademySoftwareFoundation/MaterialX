@@ -45,8 +45,6 @@ class OslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
 
     void addSkipFiles() override
     {
-        _skipFiles.insert("hair_bsdf.mtlx");
-        _skipFiles.insert("hair_surfaceshader.mtlx");
     }
 
     // Ignore light shaders in the document for OSL
@@ -65,8 +63,8 @@ class OslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
     {
         whiteList =
         {
-            "ambientocclusion", "arrayappend", "backfacing", "screen", "curveadjust", "displacementshader",
-            "volumeshader", "IM_constant_", "IM_dot_", "IM_geompropvalue", "IM_angle", "ND_backface_util"
+            "displacementshader", "volumeshader",
+            "IM_constant_", "IM_dot_", "IM_angle", "IM_geompropvalue"
         };
         ShaderGeneratorTester::getImplementationWhiteList(whiteList);
     }

@@ -82,7 +82,8 @@ export material mx_oren_nayar_diffuse_bsdf(
     float  mxp_weight    = 1.0,
     color  mxp_color     = color(0.18),
     float  mxp_roughness = 0.0,
-    float3 mxp_normal    = state::normal()
+    float3 mxp_normal    = state::normal(),
+    uniform bool mxp_energy_compensation = false [[ anno::unused() ]] // MDL 1.10
 ) [[ 
     anno::usage( "materialx:bsdf") 
 ]]
@@ -152,7 +153,8 @@ export material mx_dielectric_bsdf(
     float3 mxp_tangent   = state::texture_tangent_u(0),
     uniform core::mx_distribution_type mxp_distribution = core::mx_distribution_type_ggx [[ anno::unused() ]],
     uniform mx_scatter_mode mxp_scatter_mode = mx_scatter_mode_R,
-    material mxp_base = material() [[ anno::usage( "materialx:bsdf") ]],
+    material mxp_base = material() [[ anno::usage( "materialx:bsdf") ]], // layering
+    float mxp_top_weight = 1.0, // layering for cases where top is scaled using a mix
     float mxp_thinfilm_thickness = 0.0,
     float mxp_thinfilm_ior = 1.0
 ) [[ 
@@ -174,8 +176,8 @@ export material mx_dielectric_bsdf(
             layer: df::microfacet_ggx_smith_bsdf(
                 roughness_u: mxp_roughness.x,
                 roughness_v: mxp_roughness.y,
-                tint: mxp_tint,
-                multiscatter_tint: mxp_tint,
+                tint: mxp_tint * mxp_top_weight,
+                multiscatter_tint: mxp_tint * mxp_top_weight,
                 tangent_u: mxp_tangent,
                 mode: df::scatter_reflect),
             base: mxp_base.surface.scattering,
@@ -186,8 +188,8 @@ export material mx_dielectric_bsdf(
         layer: df::microfacet_ggx_smith_bsdf(
             roughness_u: mxp_roughness.x,
             roughness_v: mxp_roughness.y,
-            tint: mxp_tint,
-            multiscatter_tint: mxp_tint,
+            tint: mxp_tint * mxp_top_weight,
+            multiscatter_tint: mxp_tint * mxp_top_weight,
             tangent_u: mxp_tangent,
             mode: df::scatter_transmit),
         normal: mxp_normal);
@@ -200,8 +202,8 @@ export material mx_dielectric_bsdf(
             base: df::microfacet_ggx_smith_bsdf(
                 roughness_u: mxp_roughness.x,
                 roughness_v: mxp_roughness.y,
-                tint: mxp_tint,
-                multiscatter_tint: mxp_tint,
+                tint: mxp_tint * mxp_top_weight,
+                multiscatter_tint: mxp_tint * mxp_top_weight,
                 tangent_u: mxp_tangent,
                 mode: df::scatter_reflect_transmit)),
         normal: mxp_normal);
@@ -258,12 +260,13 @@ export material mx_conductor_bsdf(
     )
 );
 
-// TODO MDL 1.8 
+// MDL 1.8 
 // * will add support for thin film above a color_custom_curve_layer node until then, thin_film will have no effect
 // * thin_film(thickness: 0.0, ior: < 1.0) will be handled properly
 export material mx_generalized_schlick_bsdf(
     float  mxp_weight    = 1.0,
     color  mxp_color0    = color(1.0),
+    color  mxp_color82   = color(1.0), // MDL 1.10
     color  mxp_color90   = color(1.0),
     float  mxp_exponent  = 5.0,
     float2 mxp_roughness = float2(0.05),
@@ -271,7 +274,8 @@ export material mx_generalized_schlick_bsdf(
     float3 mxp_tangent   = state::texture_tangent_u(0),
     uniform core::mx_distribution_type mxp_distribution = core::mx_distribution_type_ggx [[ anno::unused() ]],
     uniform mx_scatter_mode mxp_scatter_mode = mx_scatter_mode_R,
-    material mxp_base = material() [[ anno::usage( "materialx:bsdf") ]],
+    material mxp_base = material() [[ anno::usage( "materialx:bsdf") ]], // layering
+    float mxp_top_weight = 1.0, // layering for cases where top is scaled using a mix
     float mxp_thinfilm_thickness = 0.0,
     float mxp_thinfilm_ior = 1.0
 ) [[ 
@@ -283,8 +287,8 @@ export material mx_generalized_schlick_bsdf(
     bsdf ggx_model_R = df::microfacet_ggx_smith_bsdf(
         roughness_u: mxp_roughness.x,
         roughness_v: mxp_roughness.y,
-        tint: color(1.0),
-        multiscatter_tint: color(1.0),
+        tint: color(1.0) * mxp_top_weight,
+        multiscatter_tint: color(1.0) * mxp_top_weight,
         tangent_u: mxp_tangent,
         mode: df::scatter_reflect);
 
@@ -302,7 +306,7 @@ export material mx_generalized_schlick_bsdf(
             layer: mxp_scatter_mode == mx_scatter_mode_T
                 ? df::color_custom_curve_layer(
                     normal_reflectivity: mxp_color0,
-                    grazing_reflectivity: mxp_color90,
+                    grazing_reflectivity: mxp_color82 * mxp_color90,
                     exponent: mxp_exponent,
                     layer: bsdf(),
                     base: ggx_model_T,
@@ -312,7 +316,7 @@ export material mx_generalized_schlick_bsdf(
                     ior: color(coatIor),
                     base: df::color_custom_curve_layer(
                         normal_reflectivity: mxp_color0,
-                        grazing_reflectivity: mxp_color90,
+                        grazing_reflectivity: mxp_color82 * mxp_color90,
                         exponent: mxp_exponent,
                         layer: ggx_model_R,
                         base: mxp_scatter_mode == mx_scatter_mode_R 
@@ -440,7 +444,7 @@ export material mx_chiang_hair_bsdf(
     float mxp_cuticle_angle = 0.5,
     float3 mxp_absorption_coefficient = float3(0.0),
     // TODO: MDL's chiang_hair BSDF has no support user tangent vector
-    float3 mxp_curve_direction = state::texture_tangent_u(0)
+    float3 mxp_curve_direction = state::texture_tangent_u(0) [[ anno::unused() ]]
 ) [[
     anno::usage( "materialx:bsdf")
 ]]

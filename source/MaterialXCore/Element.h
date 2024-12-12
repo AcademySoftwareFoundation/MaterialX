@@ -72,8 +72,6 @@ using ElementMap = std::unordered_map<string, ElementPtr>;
 using ElementPredicate = std::function<bool(ConstElementPtr)>;
 
 class ElementEquivalenceOptions;
-class ElementEquivalenceResult;
-using ElementEquivalenceResultVec = vector<ElementEquivalenceResult>;
 
 /// @class Element
 /// The base class for MaterialX elements.
@@ -608,21 +606,21 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     /// criteria provided.
     /// @param rhs Element to compare against
     /// @param options Equivalence criteria
-    /// @param results Results of comparison if argument is specified.
+    /// @param message Optional text description of differences
     /// @return True if the elements are equivalent. False otherwise.
-    bool isEquivalent(ConstElementPtr rhs, const ElementEquivalenceOptions& options, 
-                      ElementEquivalenceResultVec* results = nullptr) const;
+    bool isEquivalent(ConstElementPtr rhs, const ElementEquivalenceOptions& options,
+                      string* message = nullptr) const;
 
     /// Return true if the attribute on a given element is equivalent
     /// based on the equivalence criteria provided.
     /// @param rhs Element to compare against
     /// @param attributeName Name of attribute to compare
     /// @param options Equivalence criteria
-    /// @param results Results of comparison if argument is specified.
+    /// @param message Optional text description of differences
     /// @return True if the attribute on the elements are equivalent. False otherwise.
     virtual bool isAttributeEquivalent(ConstElementPtr rhs, const string& attributeName,
                                        const ElementEquivalenceOptions& options, 
-                                       ElementEquivalenceResultVec* results = nullptr) const;
+                                       string* message = nullptr) const;
 
     /// @}
     /// @name Traversal
@@ -1037,12 +1035,7 @@ class MX_CORE_API ValueElement : public TypedElement
     ///
     /// @return A shared pointer to the typed value of this element, or an
     ///    empty shared pointer if no value is present.
-    ValuePtr getValue() const
-    {
-        if (!hasValue())
-            return ValuePtr();
-        return Value::createValueFromStrings(getValueString(), getType());
-    }
+    ValuePtr getValue() const;
 
     /// Return the resolved value of an element as a generic value object, which
     /// may be queried to access its data.
@@ -1052,12 +1045,7 @@ class MX_CORE_API ValueElement : public TypedElement
     ///    will be created at this scope and applied to the return value.
     /// @return A shared pointer to the typed value of this element, or an
     ///    empty shared pointer if no value is present.
-    ValuePtr getResolvedValue(StringResolverPtr resolver = nullptr) const
-    {
-        if (!hasValue())
-            return ValuePtr();
-        return Value::createValueFromStrings(getResolvedValueString(resolver), getType());
-    }
+    ValuePtr getResolvedValue(StringResolverPtr resolver = nullptr) const;
 
     /// Return the default value for this element as a generic value object, which
     /// may be queried to access its data.
@@ -1135,11 +1123,11 @@ class MX_CORE_API ValueElement : public TypedElement
     /// @param rhs Element to compare against
     /// @param attributeName Name of attribute to compare
     /// @param options Equivalence criteria
-    /// @param results Results of comparison if argument is specified.
+    /// @param message Optional text description of differences
     /// @return True if the attribute on the elements are equivalent. False otherwise.
     bool isAttributeEquivalent(ConstElementPtr rhs, const string& attributeName,
                                const ElementEquivalenceOptions& options, 
-                               ElementEquivalenceResultVec* results = nullptr) const override;
+                               string* message = nullptr) const override;
 
     /// @}
     /// @name Validation
@@ -1363,35 +1351,6 @@ class MX_CORE_API StringResolver
     StringMap _geomNameMap;
 };
 
-/// @class ElementEquivalenceResult
-/// A comparison result for the functional equivalence of two elements.
-class MX_CORE_API ElementEquivalenceResult
-{
-  public:
-    ElementEquivalenceResult(const string& p1, const string& p2, const string& type,
-                             const string& attrName = EMPTY_STRING)
-    {
-        path1 = p1;
-        path2 = p2;
-        differenceType = type;
-        attributeName = attrName;
-    }
-    ElementEquivalenceResult() = delete;
-    ~ElementEquivalenceResult() = default;
-
-    string path1;
-    string path2;
-    string differenceType;
-    string attributeName;
-
-    static const string ATTRIBUTE;
-    static const string ATTRIBUTE_NAMES;
-    static const string CHILD_COUNT;
-    static const string CHILD_NAME;
-    static const string NAME;
-    static const string CATEGORY;
-};
-
 /// @class ElementEquivalenceOptions
 /// A set of options for comparing the functional equivalence of elements.
 class MX_CORE_API ElementEquivalenceOptions
@@ -1399,34 +1358,33 @@ class MX_CORE_API ElementEquivalenceOptions
   public:
     ElementEquivalenceOptions()
     {
-        format = Value::getFloatFormat();
-        precision = Value::getFloatPrecision();
-        skipAttributes = {};
-        skipValueComparisons = false;
+        performValueComparisons = true;
+        floatFormat = Value::getFloatFormat();
+        floatPrecision = Value::getFloatPrecision();
+        attributeExclusionList = {};
     };
     ~ElementEquivalenceOptions() { }
 
-    /// Floating point format option for floating point value comparisons
-    Value::FloatFormat format;
+    /// Perform value comparisons as opposed to literal string comparisons.
+    /// Default is true.
+    bool performValueComparisons;
 
-    /// Floating point precision option for floating point value comparisons
-    int precision;
+    /// Floating point format to use for floating point value comparisons
+    Value::FloatFormat floatFormat;
 
-    /// Attribute filtering options. By default all attributes are considered.
-    /// Name, category attributes cannot be skipped.
+    /// Floating point precision to use for floating point value comparisons
+    int floatPrecision;
+
+    /// Specifies the set of attributes that should be excluded when performing a comparison. 
+    /// By default all attributes are considered. Name and category attributes cannot be excluded.
     /// 
-    /// For example UI attribute comparision be skipped by setting:
-    /// skipAttributes = { 
+    /// For example, to exclude UI and documentation attributes from consideration the follow may be set:
+    /// attributeExclusionList = {
     ///     ValueElement::UI_MIN_ATTRIBUTE, ValueElement::UI_MAX_ATTRIBUTE,
     ///     ValueElement::UI_SOFT_MIN_ATTRIBUTE, ValueElement::UI_SOFT_MAX_ATTRIBUTE,
     ///     ValueElement::UI_STEP_ATTRIBUTE, Element::XPOS_ATTRIBUTE, 
-    ///     Element::YPOS_ATTRIBUTE };
-    StringSet skipAttributes;
-
-    /// Do not perform any value comparisions. Instead perform exact string comparisons for attributes
-    /// Default is false. The operator==() method can be used instead as it always performs
-    /// a strict comparison. Default is false.
-    bool skipValueComparisons;
+    ///     Element::YPOS_ATTRIBUTE, Element::DOC_ATTRIBUTE };
+    StringSet attributeExclusionList;
 };
 
 /// @class ExceptionOrphanedElement

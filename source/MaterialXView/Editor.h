@@ -39,7 +39,7 @@ class PropertyEditor
         }
     }
 
-    ng::Window* getWindow()
+    ng::ref<ng::Window> getWindow()
     {
         return _window;
     }
@@ -47,19 +47,19 @@ class PropertyEditor
   protected:
     void create(Viewer& parent);
     void addItemToForm(const mx::UIPropertyItem& item, const std::string& group,
-                       ng::Widget* container, Viewer* viewer, bool editable);
+                       ng::ref<ng::Widget> container, Viewer* viewer, bool editable);
 
-    ng::Window* _window;
-    ng::Widget* _container;
-    ng::GridLayout* _gridLayout2;
-    ng::GridLayout* _gridLayout3;
+    ng::ref<ng::Window> _window;
+    ng::ref<ng::Widget> _container;
+    ng::ref<ng::GridLayout> _gridLayout2;
+    ng::ref<ng::GridLayout> _gridLayout3;
     bool _visible;
     bool _fileDialogsForImages;
 };
 
-ng::FloatBox<float>* createFloatWidget(ng::Widget* parent, const std::string& label, float value,
-                                       const mx::UIProperties* ui, std::function<void(float)> callback = nullptr);
-ng::IntBox<int>* createIntWidget(ng::Widget* parent, const std::string& label, int value,
-                                 const mx::UIProperties* ui, std::function<void(int)> callback);
+ng::ref<ng::FloatBox<float>> createFloatWidget(ng::ref<ng::Widget> parent, const std::string& label, float value,
+                                               const mx::UIProperties* ui, std::function<void(float)> callback = nullptr);
+ng::ref<ng::IntBox<int>> createIntWidget(ng::ref<ng::Widget> parent, const std::string& label, int value,
+                                         const mx::UIProperties* ui, std::function<void(int)> callback);
 
 #endif // MATERIALXVIEW_EDITOR_H
