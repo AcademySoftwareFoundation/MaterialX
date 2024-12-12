@@ -14,6 +14,7 @@
 #include <MaterialXGenShader/HwShaderGenerator.h>
 
 #define TEXTURE_NAME(t) ((t) + "_tex")
+#define TEXTUREARRAY_NAME(t) ((t) + "_texArray")
 #define SAMPLER_NAME(t) ((t) + "_sampler")
 
 MATERIALX_NAMESPACE_BEGIN

@@ -120,6 +120,8 @@ class MX_GENSHADER_API TypeDesc
     /// Return true if the type represents a closure.
     bool isClosure() const { return (_semantic == SEMANTIC_CLOSURE || _semantic == SEMANTIC_SHADER || _semantic == SEMANTIC_MATERIAL); }
 
+    bool isFilename() const { return _semantic == SEMANTIC_FILENAME; }
+
     /// Return true if the type represents a struct.
     bool isStruct() const { return _basetype == BASETYPE_STRUCT; }
 
@@ -218,6 +220,7 @@ TYPEDESC_DEFINE_TYPE(MATRIX33, "matrix33", TypeDesc::BASETYPE_FLOAT, TypeDesc::S
 TYPEDESC_DEFINE_TYPE(MATRIX44, "matrix44", TypeDesc::BASETYPE_FLOAT, TypeDesc::SEMANTIC_MATRIX, 16)
 TYPEDESC_DEFINE_TYPE(STRING, "string", TypeDesc::BASETYPE_STRING, TypeDesc::SEMANTIC_NONE, 1)
 TYPEDESC_DEFINE_TYPE(FILENAME, "filename", TypeDesc::BASETYPE_STRING, TypeDesc::SEMANTIC_FILENAME, 1)
+TYPEDESC_DEFINE_TYPE(FILENAMEARRAY, "filenamearray", TypeDesc::BASETYPE_STRING, TypeDesc::SEMANTIC_FILENAME, 0)
 TYPEDESC_DEFINE_TYPE(BSDF, "BSDF", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_CLOSURE, 1)
 TYPEDESC_DEFINE_TYPE(EDF, "EDF", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_CLOSURE, 1)
 TYPEDESC_DEFINE_TYPE(VDF, "VDF", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_CLOSURE, 1)
