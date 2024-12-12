@@ -72,7 +72,7 @@ class MX_GENMDL_API MdlSyntax : public Syntax
     /// The replacement is defined by a callback function.
     string replaceSourceCodeMarkers(const string& nodeName, const string& soureCode, std::function<string(const string&)> lambda) const;
 
-    // Get the MDL language versing marker: {{MDL_VERSION_SUFFIX}}.
+    /// Get the MDL language versing marker: {{MDL_VERSION_SUFFIX}}.
     const string getMdlVersionSuffixMarker() const;
 };
 
