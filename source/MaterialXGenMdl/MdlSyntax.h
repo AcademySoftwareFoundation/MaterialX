@@ -66,7 +66,7 @@ class MX_GENMDL_API MdlSyntax : public Syntax
     void makeValidName(string& name) const override;
 
     /// To avoid collisions with reserved names in MDL, input and output names are prefixed.
-    string modifyPortName(const string word) const;
+    string modifyPortName(const string& word) const;
 
     /// Replaces all markers in a source code string indicated by {{...}}.
     /// The replacement is defined by a callback function.
