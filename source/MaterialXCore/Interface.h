@@ -129,7 +129,7 @@ class MX_CORE_API PortElement : public ValueElement
     void setConnectedOutput(ConstOutputPtr output);
 
     /// Return the output, if any, to which this input is connected.
-    virtual OutputPtr getConnectedOutput() const;
+    OutputPtr getConnectedOutput() const;
 
     /// Return the output string of this element.
     const string& getOutputString() const
@@ -211,9 +211,35 @@ class MX_CORE_API Input : public PortElement
     /// Return the node, if any, to which this input is connected.
     NodePtr getConnectedNode() const override;
 
+    /// Connects this input to a corresponding interface with the given name.
+    /// If the interface name specified is an empty string then any existing connection is removed.
+    void setConnectedInterfaceName(const string& interfaceName);
+
     /// Return the input on the parent graph corresponding to the interface name
     /// for this input.
     InputPtr getInterfaceInput() const;
+
+    /// @}
+    /// @name Hints
+    /// @{
+
+    /// Return true if the input has a hint
+    bool hasHint() const
+    {
+        return hasAttribute(HINT_ATTRIBUTE);
+    }
+
+    /// Return the code generation hint
+    const string& getHint() const
+    {
+        return getAttribute(HINT_ATTRIBUTE);
+    }
+
+    // Set the code generation hint
+    void setHint(const string& hint)
+    {
+        setAttribute(HINT_ATTRIBUTE, hint);
+    }
 
     /// @}
     /// @name Validation
@@ -228,6 +254,10 @@ class MX_CORE_API Input : public PortElement
   public:
     static const string CATEGORY;
     static const string DEFAULT_GEOM_PROP_ATTRIBUTE;
+    static const string HINT_ATTRIBUTE;
+    static const string TRANSPARENCY_HINT;
+    static const string OPACITY_HINT;
+    static const string ANISOTROPY_HINT;
 };
 
 /// @class Output

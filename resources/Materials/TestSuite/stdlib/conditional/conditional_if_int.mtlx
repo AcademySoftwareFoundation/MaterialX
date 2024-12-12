@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
   <!--
   Basic conditional if* function tests each test is in a separate graph for each variation in input type.
   Tests are for integer and boolean comparisons.
@@ -87,6 +87,13 @@
     </ifgreater>
     <output name="out" type="matrix44" nodename="ifgreater1" />
   </nodegraph>
+  <nodegraph name="ifgreater_boolean">
+    <ifgreater name="ifgreater1" type="boolean">
+      <input name="value1" type="integer" value="8" />
+      <input name="value2" type="integer" value="6" />
+    </ifgreater>
+    <output name="out" type="boolean" nodename="ifgreater1" />
+  </nodegraph>
 
   <!-- equal int condition -->
   <nodegraph name="ifequal_float">
@@ -169,6 +176,13 @@
       <input name="in2" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
     </ifequal>
     <output name="out" type="matrix44" nodename="ifequal1" />
+  </nodegraph>
+  <nodegraph name="ifequal_boolean">
+    <ifequal name="ifequal1" type="boolean">
+      <input name="value1" type="integer" value="8" />
+      <input name="value2" type="integer" value="6" />
+    </ifequal>
+    <output name="out" type="boolean" nodename="ifequal1" />
   </nodegraph>
 
   <!-- equal boolean condition -->
@@ -253,6 +267,13 @@
     </ifequal>
     <output name="out" type="matrix44" nodename="ifequal1" />
   </nodegraph>
+  <nodegraph name="ifequalB_boolean">
+    <ifequal name="ifequal1" type="boolean">
+      <input name="value1" type="boolean" value="true" />
+      <input name="value2" type="boolean" value="true" />
+    </ifequal>
+    <output name="out" type="boolean" nodename="ifequal1" />
+  </nodegraph>
 
   <!-- greatereq int condition -->
   <nodegraph name="ifgreatereq_float">
@@ -335,5 +356,12 @@
       <input name="in2" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
     </ifgreatereq>
     <output name="out" type="matrix44" nodename="ifgreatereq1" />
+  </nodegraph>
+  <nodegraph name="ifgreatereq_boolean">
+    <ifgreatereq name="ifgreatereq1" type="boolean">
+      <input name="value1" type="integer" value="8" />
+      <input name="value2" type="integer" value="6" />
+    </ifgreatereq>
+    <output name="out" type="boolean" nodename="ifgreatereq1" />
   </nodegraph>
 </materialx>

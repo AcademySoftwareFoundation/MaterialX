@@ -154,10 +154,10 @@ int LinearUnitConverter::getUnitAsInteger(const string& unitName) const
 string LinearUnitConverter::getUnitFromInteger(int index) const
 {
     auto it = std::find_if(_unitEnumeration.begin(), _unitEnumeration.end(),
-        [&index](const std::pair<string, int> &e)->bool
-        {
-            return (e.second == index);
-        });
+                           [&index](const std::pair<string, int>& e) -> bool
+    {
+        return (e.second == index);
+    });
 
     if (it != _unitEnumeration.end())
     {

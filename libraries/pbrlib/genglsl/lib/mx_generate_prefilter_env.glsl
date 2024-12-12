@@ -13,9 +13,9 @@ vec3 mx_latlong_map_projection_inverse(vec2 uv)
     float latitude = (uv.y - 0.5) * M_PI;
     float longitude = (uv.x - 0.5) * M_PI * 2.0;
 
-    float x = -cos(latitude) * sin(longitude);
-    float y = -sin(latitude);
-    float z = cos(latitude) * cos(longitude);
+    float x = -mx_cos(latitude) * mx_sin(longitude);
+    float y = -mx_sin(latitude);
+    float z = mx_cos(latitude) * mx_cos(longitude);
 
     return vec3(x, y, z);
 }

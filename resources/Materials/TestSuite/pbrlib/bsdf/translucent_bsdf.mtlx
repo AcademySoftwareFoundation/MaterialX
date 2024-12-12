@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
   <nodegraph name="translucent_bsdf">
     <translucent_bsdf name="translucent_bsdf" type="BSDF">
       <input name="weight" type="float" value="0.6" />

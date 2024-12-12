@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+  <surfacematerial name="defaultgeomprop" type="material" nodedef="ND_surfacematerial">
+    <input name="surfaceshader" type="surfaceshader" nodename="standard_surface1" />
+  </surfacematerial>
+  <standard_surface name="standard_surface1" type="surfaceshader" nodedef="ND_standard_surface_surfaceshader">
+    <input name="base_color" type="color3" output="out" nodegraph="checkerboard1" />
+  </standard_surface>
+  <nodegraph name="checkerboard1">
+    <input name="color1" type="color3" uiname="Color 1" value="1, 1, 1" doc="The first color used in the checkerboard pattern." />
+    <input name="color2" type="color3" uiname="Color 2" value="0.0, 0.0, 0.0" doc="The second color used in the checkerboard pattern." />
+    <input name="uvtiling" type="vector2" uiname="UV Tiling" value="8, 8" doc="The tiling of the checkerboard pattern along each axis, with higher values producing smaller squares. Default is (8, 8)." />
+    <input name="uvoffset" type="vector2" uiname="UV Offset" value="0, 0" doc="The offset of the checkerboard pattern along each axis. Default is (0, 0)." />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" uiname="Texture Coordinates" doc="The input 2d space. Default is the first texture coordinates." />
+    <multiply name="N_mtlxmult" type="vector2">
+      <input name="in1" type="vector2" interfacename="texcoord" />
+      <input name="in2" type="vector2" interfacename="uvtiling" />
+    </multiply>
+    <subtract name="N_mtlxsubtract" type="vector2">
+      <input name="in1" type="vector2" nodename="N_mtlxmult" />
+      <input name="in2" type="vector2" interfacename="uvoffset" />
+    </subtract>
+    <floor name="N_mtlxfloor" type="vector2">
+      <input name="in" type="vector2" nodename="N_mtlxsubtract" />
+    </floor>
+    <dotproduct name="N_mtlxdotproduct" type="float">
+      <input name="in1" type="vector2" nodename="N_mtlxfloor" />
+      <input name="in2" type="vector2" value="1, 1" />
+    </dotproduct>
+    <modulo name="N_modulo" type="float">
+      <input name="in1" type="float" nodename="N_mtlxdotproduct" />
+      <input name="in2" type="float" value="2" />
+    </modulo>
+    <mix name="N_mtlxmix" type="color3">
+      <input name="bg" type="color3" interfacename="color2" />
+      <input name="fg" type="color3" interfacename="color1" />
+      <input name="mix" type="float" nodename="N_modulo" />
+    </mix>
+    <output name="out" type="color3" nodename="N_mtlxmix" />
+  </nodegraph>
+</materialx>

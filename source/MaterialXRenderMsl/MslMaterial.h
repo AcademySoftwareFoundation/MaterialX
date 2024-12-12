@@ -26,7 +26,8 @@ using MslMaterialPtr = std::shared_ptr<class MslMaterial>;
 class MX_RENDERMSL_API MslMaterial : public ShaderMaterial
 {
   public:
-    MslMaterial() : ShaderMaterial()
+    MslMaterial() :
+        ShaderMaterial()
     {
     }
     ~MslMaterial() { }
@@ -47,7 +48,7 @@ class MX_RENDERMSL_API MslMaterial : public ShaderMaterial
 
     /// Generate a shader from the given hardware shader.
     bool generateShader(ShaderPtr hwShader) override;
-    
+
     /// Copy shader from one material to this one
     void copyShader(MaterialPtr material) override
     {
@@ -113,9 +114,10 @@ class MX_RENDERMSL_API MslMaterial : public ShaderMaterial
                               GeometryHandlerPtr geometryHandler,
                               ImageHandlerPtr imageHandler,
                               LightHandlerPtr lightHandler);
+
   protected:
     void clearShader() override;
-    
+
   protected:
     MslProgramPtr _glProgram;
 };

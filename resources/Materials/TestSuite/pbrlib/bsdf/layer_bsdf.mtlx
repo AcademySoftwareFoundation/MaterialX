@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
   <nodegraph name="layer_bsdf_test1">
     <oren_nayar_diffuse_bsdf name="diffuse_brdf_1" type="BSDF" />
     <sheen_bsdf name="sheen_brdf_1" type="BSDF" />

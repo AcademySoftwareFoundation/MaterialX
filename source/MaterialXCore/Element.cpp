@@ -278,6 +278,41 @@ ElementPtr Element::changeChildCategory(ElementPtr child, const string& category
     return newChild;
 }
 
+template <class T> shared_ptr<T> Element::getChildOfType(const string& name) const
+{
+    ElementPtr child;
+    ConstDocumentPtr doc = asA<Document>();
+    if (doc && doc->hasDataLibrary())
+    {
+        child = doc->getDataLibrary()->getChild(name);
+    }
+    if (!child)
+    {
+        child = getChild(name);
+    }
+    return child ? child->asA<T>() : shared_ptr<T>();
+}
+
+template <class T> vector<shared_ptr<T>> Element::getChildrenOfType(const string& category) const
+{
+    vector<shared_ptr<T>> children;
+    ConstDocumentPtr doc = asA<Document>();
+    if (doc && doc->hasDataLibrary())
+    {
+        children = doc->getDataLibrary()->getChildrenOfType<T>(category);
+    }
+    for (ElementPtr child : _childOrder)
+    {
+        shared_ptr<T> instance = child->asA<T>();
+        if (!instance)
+            continue;
+        if (!category.empty() && child->getCategory() != category)
+            continue;
+        children.push_back(instance);
+    }
+    return children;
+}
+
 ElementPtr Element::getRoot()
 {
     ElementPtr root = _root.lock();
@@ -332,6 +367,134 @@ bool Element::hasInheritanceCycle() const
         return true;
     }
     return false;
+}
+
+bool Element::isEquivalent(ConstElementPtr rhs, const ElementEquivalenceOptions& options, string* message) const
+{
+    if (getName() != rhs->getName())
+    {
+        if (message)
+        {
+            *message += "Name of " + getNamePath() + " differs from " + rhs->getNamePath() + "\n";
+        }
+        return false;
+    }
+    if (getCategory() != rhs->getCategory())
+    {
+        if (message)
+        {
+            *message += "Category of " + getNamePath() + " differs from " + rhs->getNamePath() + "\n";
+        }
+        return false;
+    }
+
+    // Compare attribute names. 
+    StringVec attributeNames = getAttributeNames();
+    StringVec rhsAttributeNames = rhs->getAttributeNames();
+
+    // Filter out any attributes specified in the options.
+    const StringSet& attributeExclusionList = options.attributeExclusionList;
+    if (!attributeExclusionList.empty())
+    {
+        attributeNames.erase(std::remove_if(attributeNames.begin(), attributeNames.end(),
+            [&attributeExclusionList](const string& attr) { return attributeExclusionList.find(attr) != attributeExclusionList.end(); }),
+            attributeNames.end());
+        rhsAttributeNames.erase(std::remove_if(rhsAttributeNames.begin(), rhsAttributeNames.end(),
+            [&attributeExclusionList](const string& attr) { return attributeExclusionList.find(attr) != attributeExclusionList.end(); }),
+            rhsAttributeNames.end());
+    }    
+
+    // Ignore attribute ordering by sorting names
+    std::sort(attributeNames.begin(), attributeNames.end());
+    std::sort(rhsAttributeNames.begin(), rhsAttributeNames.end());
+
+    if (attributeNames != rhsAttributeNames)
+    {
+        if (message)
+        {
+            *message += "Attribute names of '" + getNamePath() + "' differ from '" + rhs->getNamePath() + "\n";
+        }
+        return false;
+    }
+
+    for (const string& attr : rhsAttributeNames)
+    {
+        if (!isAttributeEquivalent(rhs, attr, options, message))
+        {
+            return false;
+        }
+    }
+
+    // Compare all child elements that affect functional equivalence.
+    vector<ElementPtr> children;
+    for (ElementPtr child : getChildren())
+    {
+        if (child->getCategory() == CommentElement::CATEGORY)
+        {
+            continue;
+        }
+        children.push_back(child);
+    }
+    vector <ElementPtr> rhsChildren;
+    for (ElementPtr child : rhs->getChildren())
+    {
+        if (child->getCategory() == CommentElement::CATEGORY)
+        {
+            continue;
+        }
+        rhsChildren.push_back(child);
+    }
+    if (children.size() != rhsChildren.size())
+    {
+        if (message)
+        {
+            *message += "Child count of " + getNamePath() + " differs from " + rhs->getNamePath() + "\n";
+        }
+        return false;
+    }
+    for (size_t i = 0; i < children.size(); i++)
+    {
+        ElementPtr rhsElement = rhsChildren[i];
+        // Handle unordered children if parent is a compound graph (NodeGraph, Document).
+        // (Functional graphs have a "nodedef" reference and define node interfaces
+        // so require strict interface ordering.)
+        ConstGraphElementPtr graph = this->getSelf()->asA<GraphElement>();
+        if (graph)
+        {
+            ConstNodeGraphPtr nodeGraph = graph->asA<NodeGraph>();
+            ConstDocumentPtr document = graph->asA<Document>();
+            if (document || (nodeGraph && !nodeGraph->getNodeDef()))
+            {
+                const string& childName = children[i]->getName();
+                rhsElement = rhs->getChild(childName);
+                if (!rhsElement)
+                {
+                    if (message)
+                    {
+                        *message += "Child name `" + childName + "` of " + getNamePath() + " differs from " + rhs->getNamePath() + "\n";
+                    }
+                    return false;
+                }
+            }
+        }
+        if (!children[i]->isEquivalent(rhsElement, options, message))
+            return false;
+    }
+    return true;
+}
+
+bool Element::isAttributeEquivalent(ConstElementPtr rhs, const string& attributeName,
+                                    const ElementEquivalenceOptions& /*options*/, string* message) const
+{
+    if (getAttribute(attributeName) != rhs->getAttribute(attributeName))
+    {
+        if (message)
+        {
+            *message += "Attribute name `" + attributeName + "` of " + getNamePath() + " differs from " + rhs->getNamePath() + "\n";
+        }
+        return false;
+    }
+    return true;
 }
 
 TreeIterator Element::traverseTree() const
@@ -495,6 +658,22 @@ string ValueElement::getResolvedValueString(StringResolverPtr resolver) const
     return resolver->resolve(getValueString(), getType());
 }
 
+ValuePtr ValueElement::getValue() const
+{
+    if (!hasValue())
+        return ValuePtr();
+
+    return Value::createValueFromStrings(getValueString(), getType(), getDocument()->getTypeDef(getType()));
+}
+
+ValuePtr ValueElement::getResolvedValue(StringResolverPtr resolver) const
+{
+    if (!hasValue())
+        return ValuePtr();
+
+    return Value::createValueFromStrings(getResolvedValueString(resolver), getType(), getDocument()->getTypeDef(getType()));
+}
+
 ValuePtr ValueElement::getDefaultValue() const
 {
     ConstElementPtr parent = getParent();
@@ -532,6 +711,76 @@ const string& ValueElement::getActiveUnit() const
         }
     }
     return EMPTY_STRING;
+}
+
+bool ValueElement::isAttributeEquivalent(ConstElementPtr rhs, const string& attributeName, 
+                                         const ElementEquivalenceOptions& options, string* message) const
+{    
+    // Perform value comparisons
+    bool performedValueComparison = false;
+    if (options.performValueComparisons)
+    {
+        const StringSet uiAttributes = 
+        {
+           ValueElement::UI_MIN_ATTRIBUTE, ValueElement::UI_MAX_ATTRIBUTE,
+           ValueElement::UI_SOFT_MIN_ATTRIBUTE, ValueElement::UI_SOFT_MAX_ATTRIBUTE,
+           ValueElement::UI_STEP_ATTRIBUTE
+        };
+
+        // Get precision and format options
+        ScopedFloatFormatting fmt(options.floatFormat, options.floatPrecision);
+
+        ConstValueElementPtr rhsValueElement = rhs->asA<ValueElement>();
+
+        // Check value equality
+        if (attributeName == ValueElement::VALUE_ATTRIBUTE)
+        {
+            ValuePtr thisValue = getValue();
+            ValuePtr rhsValue = rhsValueElement->getValue();
+            if (thisValue && rhsValue)
+            {
+                if (thisValue->getValueString() != rhsValue->getValueString())
+                {
+                    if (message)
+                    {
+                        *message += "Attribute `" + attributeName + "` of " + getNamePath() + " differs from " + rhs->getNamePath() + "\n";
+                    }
+                    return false;
+                }
+            }
+            performedValueComparison = true;
+        }
+
+        // Check ui attribute value equality
+        else if (uiAttributes.find(attributeName) != uiAttributes.end())
+        {
+            const string& uiAttribute = getAttribute(attributeName);
+            const string& rhsUiAttribute = rhs->getAttribute(attributeName);
+            ValuePtr uiValue = !rhsUiAttribute.empty() ? Value::createValueFromStrings(uiAttribute, getType()) : nullptr;
+            ValuePtr rhsUiValue = !rhsUiAttribute.empty() ? Value::createValueFromStrings(rhsUiAttribute, getType()) : nullptr;
+            if (uiValue && rhsUiValue)
+            {
+                if (uiValue->getValueString() != rhsUiValue->getValueString())
+                {
+                    if (message)
+                    {
+                        *message += "Attribute `" + attributeName + "` of " + getNamePath() + " differs from " + rhs->getNamePath() + "\n";
+                    }
+                    return false;
+                }
+            }
+
+            performedValueComparison = true;
+        }
+    }
+
+    // If did not peform a value comparison, perform the default comparison
+    if (!performedValueComparison)
+    {
+        return Element::isAttributeEquivalent(rhs, attributeName, options, message);
+    }
+
+    return true;
 }
 
 bool ValueElement::validate(string* message) const
@@ -692,9 +941,11 @@ template <class T> class ElementRegistry
 // Template instantiations
 //
 
-#define INSTANTIATE_SUBCLASS(T)                           \
-    template MX_CORE_API shared_ptr<T> Element::asA<T>(); \
-    template MX_CORE_API shared_ptr<const T> Element::asA<T>() const;
+#define INSTANTIATE_SUBCLASS(T)                                                                             \
+    template MX_CORE_API shared_ptr<T> Element::asA<T>();                                                   \
+    template MX_CORE_API shared_ptr<const T> Element::asA<T>() const;                                       \
+    template MX_CORE_API shared_ptr<T> Element::getChildOfType<T>(const string& name) const;                \
+    template MX_CORE_API vector<shared_ptr<T>> Element::getChildrenOfType<T>(const string& category) const;
 
 INSTANTIATE_SUBCLASS(Element)
 INSTANTIATE_SUBCLASS(GeomElement)

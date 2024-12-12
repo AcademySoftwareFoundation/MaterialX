@@ -29,6 +29,12 @@ void bindPyElement(py::module& mod)
     py::class_<mx::Element, mx::ElementPtr>(mod, "Element")
         .def(py::self == py::self)
         .def(py::self != py::self)
+        .def("isEquivalent", [](const mx::Element& elem, mx::ConstElementPtr& rhs, const mx::ElementEquivalenceOptions& options)
+        {
+            std::string message;
+            bool res = elem.isEquivalent(rhs, options, &message);
+            return std::pair<bool, std::string>(res, message);
+        })        
         .def("setCategory", &mx::Element::setCategory)
         .def("getCategory", &mx::Element::getCategory)
         .def("setName", &mx::Element::setName)
@@ -103,6 +109,15 @@ void bindPyElement(py::module& mod)
              py::arg("geom") = mx::EMPTY_STRING)
         .def("asString", &mx::Element::asString)
         .def("__str__", &mx::Element::asString)
+        .def_readonly_static("NAME_ATTRIBUTE", &mx::Element::NAME_ATTRIBUTE)
+        .def_readonly_static("FILE_PREFIX_ATTRIBUTE", &mx::Element::FILE_PREFIX_ATTRIBUTE)
+        .def_readonly_static("GEOM_PREFIX_ATTRIBUTE", &mx::Element::GEOM_PREFIX_ATTRIBUTE)
+        .def_readonly_static("COLOR_SPACE_ATTRIBUTE", &mx::Element::COLOR_SPACE_ATTRIBUTE)
+        .def_readonly_static("INHERIT_ATTRIBUTE", &mx::Element::INHERIT_ATTRIBUTE)
+        .def_readonly_static("NAMESPACE_ATTRIBUTE", &mx::Element::NAMESPACE_ATTRIBUTE)
+        .def_readonly_static("DOC_ATTRIBUTE", &mx::Element::DOC_ATTRIBUTE)
+        .def_readonly_static("XPOS_ATTRIBUTE", &mx::Element::XPOS_ATTRIBUTE)
+        .def_readonly_static("YPOS_ATTRIBUTE", &mx::Element::YPOS_ATTRIBUTE)
         BIND_ELEMENT_FUNC_INSTANCE(Collection)
         BIND_ELEMENT_FUNC_INSTANCE(Document)
         BIND_ELEMENT_FUNC_INSTANCE(GeomInfo)
@@ -195,6 +210,13 @@ void bindPyElement(py::module& mod)
 
     py::class_<mx::GenericElement, mx::GenericElementPtr, mx::Element>(mod, "GenericElement")
         .def_readonly_static("CATEGORY", &mx::GenericElement::CATEGORY);
+
+    py::class_<mx::ElementEquivalenceOptions>(mod, "ElementEquivalenceOptions")
+        .def_readwrite("performValueComparisons", &mx::ElementEquivalenceOptions::performValueComparisons)
+        .def_readwrite("floatFormat", &mx::ElementEquivalenceOptions::floatFormat)
+        .def_readwrite("floatPrecision", &mx::ElementEquivalenceOptions::floatPrecision)
+        .def_readwrite("attributeExclusionList", &mx::ElementEquivalenceOptions::attributeExclusionList)
+        .def(py::init<>());
 
     py::class_<mx::StringResolver, mx::StringResolverPtr>(mod, "StringResolver")
         .def("setFilePrefix", &mx::StringResolver::setFilePrefix)

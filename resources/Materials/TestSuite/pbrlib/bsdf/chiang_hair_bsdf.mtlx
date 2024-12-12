@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+
+  <nodegraph name="test_chiang_hair1">
+    <chiang_hair_bsdf name="chiang_hair_bsdf1" type="BSDF">
+      <input name="ior" type="float" value="1.5" />
+      <input name="tint_R" type="color3" value="0.9, 0.8, 0.7" />
+      <input name="tint_TT" type="color3" value="1.0, 0.9, 0.7" />
+      <input name="tint_TRT" type="color3" value="0.5, 0.5, 1.0" />
+      <input name="roughness_R" type="vector2" value="0.1, 0.2" />
+      <input name="roughness_TT" type="vector2" value="0.05, 0.07" />
+      <input name="roughness_TRT" type="vector2" value="0.2, 0.4" />
+      <input name="cuticle_angle" type="float" value="0.6" />
+      <input name="absorption_coefficient" type="vector3" value="0.2, 0.5, 0.8" />
+    </chiang_hair_bsdf>
+
+    <surface name="surface1" type="surfaceshader">
+      <input name="bsdf" type="BSDF" nodename="chiang_hair_bsdf1" />
+      <input name="opacity" type="float" value="1.0" />
+    </surface>
+
+    <output name="out" type="surfaceshader" nodename="surface1" />
+  </nodegraph>
+
+</materialx>

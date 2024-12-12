@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
   <!-- Test multioutput node artistic_ior connected directly to output -->
   <nodegraph name="multioutput_test2">
     <artistic_ior name="artistic_ior1" type="multioutput">
@@ -35,17 +35,16 @@
     <output name="colour" type="color3" />
     <output name="alpha" type="float" />
   </nodedef>
-  <nodegraph name="IM_color4split" nodedef="ND_color4split">
-    <swizzle name="swizz_color3" type="color3">
+  <nodegraph name="NG_color4split" nodedef="ND_color4split">
+    <convert name="in_colour" type="color3">
       <input name="in" type="color4" interfacename="in" />
-      <input name="channels" type="string" value="rgb" />
-    </swizzle>
-    <swizzle name="swizz_float" type="float">
+    </convert>
+    <extract name="in_alpha" type="float">
       <input name="in" type="color4" interfacename="in" />
-      <input name="channels" type="string" value="a" />
-    </swizzle>
-    <output name="colour" type="color3" nodename="swizz_color3" />
-    <output name="alpha" type="float" nodename="swizz_float" />
+      <input name="index" type="integer" value="3" />
+    </extract>
+    <output name="colour" type="color3" nodename="in_colour" />
+    <output name="alpha" type="float" nodename="in_alpha" />
   </nodegraph>
   <nodegraph name="multioutput_test4">
     <color4split name="color4split1" type="multioutput">

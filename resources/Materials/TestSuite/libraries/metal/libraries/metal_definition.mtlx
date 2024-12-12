@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
   <!--- Test metal node definition -->
   <nodedef name="ND_TestMetal" node="testmetal">
     <input name="MetalF0" type="color3" value="1, 1, 1" uiname="Color" uifolder="Basic Parameters" />

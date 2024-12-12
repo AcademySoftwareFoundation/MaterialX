@@ -1,4 +1,4 @@
-void mx_surface(BSDF bsdf, EDF edf, float opacity, output surfaceshader result)
+void mx_surface(BSDF bsdf, EDF edf, float opacity, int thin_walled, output surfaceshader result)
 {
     result.bsdf    = bsdf;
     result.edf     = edf;

@@ -49,6 +49,7 @@ class MdlShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
             // df_cuda will currently hang on rendering one of the shaders in this file
             _skipFiles.insert("heighttonormal_in_nodegraph.mtlx");
         }
+
         ShaderGeneratorTester::addSkipFiles();
     }
 
@@ -75,12 +76,11 @@ class MdlShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
     {
         whiteList =
         {
-            "ambientocclusion", "arrayappend", "backfacing", "screen", "curveadjust", "displacementshader",
-            "volumeshader", "IM_constant_", "IM_dot_", "IM_geomattrvalue", "IM_angle",
-            "geompropvalue", "surfacematerial", "volumematerial", 
+            "displacementshader", "volumeshader", "surfacematerial", "volumematerial", "geompropvalue",
+            "IM_constant_", "IM_dot_", "IM_angle", "IM_geomattrvalue",
             "IM_absorption_vdf_", "IM_mix_vdf_", "IM_add_vdf_", "IM_multiply_vdf",
             "IM_measured_edf_", "IM_blackbody_", "IM_conical_edf_", 
-            "IM_displacement_", "IM_thin_surface_", "IM_volume_", "IM_light_"
+            "IM_displacement_", "IM_volume_", "IM_light_"
         };
         ShaderGeneratorTester::getImplementationWhiteList(whiteList);
     }

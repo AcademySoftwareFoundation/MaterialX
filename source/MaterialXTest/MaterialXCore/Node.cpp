@@ -32,6 +32,57 @@ bool isTopologicalOrder(const std::vector<mx::ElementPtr>& elems)
     return true;
 }
 
+TEST_CASE("Interface Input Validation", "[node]")
+{
+    std::string validationErrors;
+
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::DocumentPtr doc = mx::createDocument();
+    mx::loadLibraries({ "libraries" }, searchPath, doc);
+
+    // Test inside nodegraph
+    mx::GraphElementPtr nodegraph = doc->addNodeGraph("graph1");
+
+    std::vector<mx::GraphElementPtr> graphs = { doc, nodegraph };
+    for (auto graph : graphs)
+    {
+        mx::InputPtr graphInput = graph->addInput(mx::EMPTY_STRING, "color3");
+        mx::NodePtr addNode = graph->addNode("add", mx::EMPTY_STRING, "color3");
+        mx::InputPtr addInput = addNode->addInput("in1");
+
+        addInput->setValueString("3, 3, 3");
+        addInput->setInterfaceName(graphInput->getName());
+        bool valid = doc->validate(&validationErrors);
+        if (!valid)
+        {
+            INFO(validationErrors);
+        }
+        REQUIRE(!valid);
+
+        addInput->setConnectedInterfaceName(graphInput->getName());
+        mx::InputPtr interfaceInput = addInput->getInterfaceInput();
+        REQUIRE((interfaceInput && interfaceInput->getNamePath() == graphInput->getNamePath()));
+        REQUIRE(!addInput->getValue());
+        valid = doc->validate(&validationErrors);
+        if (!valid)
+        {
+            INFO(validationErrors);
+        }
+        REQUIRE(valid);
+
+        addInput->setConnectedInterfaceName(mx::EMPTY_STRING);
+        addInput->setValueString("2, 2, 2");
+        interfaceInput = addInput->getInterfaceInput();
+        REQUIRE(!interfaceInput);
+        valid = doc->validate(&validationErrors);
+        if (!valid)
+        {
+            INFO(validationErrors);
+        }
+        REQUIRE(valid);
+    }
+}
+
 TEST_CASE("Node", "[node]")
 {
     // Create a document.
@@ -108,12 +159,12 @@ TEST_CASE("Node", "[node]")
     REQUIRE(typeDef->getMembers().size() == scalarCount);
 
     // Reference the custom type.
-    std::string d65("400.0,82.75,500.0,109.35,600.0,90.01,700.0,71.61,800.0,59.45");
+    std::string d65("{400;82.75;500;109.35;600;90.01;700;71.61;800;59.45}");
     constant->setInputValue<std::string>("value", d65, "spectrum");
     REQUIRE(constant->getInput("value")->getType() == "spectrum");
     REQUIRE(constant->getInput("value")->getValueString() == d65);
-    REQUIRE(constant->getInputValue("value")->isA<std::string>());
-    REQUIRE(constant->getInputValue("value")->asA<std::string>() == d65);
+    REQUIRE(constant->getInputValue("value")->isA<mx::AggregateValue>());
+    REQUIRE(constant->getInputValue("value")->asA<mx::AggregateValue>().getValueString() == d65);
 
     // Validate the document.
     REQUIRE(doc->validate());
@@ -576,43 +627,6 @@ TEST_CASE("Organization", "[nodegraph]")
     CHECK(nodeGraph->getBackdrops().empty());
 }
 
-TEST_CASE("Tokens", "[nodegraph]")
-{
-    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
-    mx::DocumentPtr stdlib = mx::createDocument();
-    mx::loadLibraries({ "libraries" }, searchPath, stdlib);
-
-    mx::DocumentPtr doc = mx::createDocument();
-    mx::readFromXmlFile(doc, "resources/Materials/TestSuite/stdlib/texture/tokenGraph.mtlx", searchPath);
-
-    mx::StringVec graphNames = { "Tokenized_Image_2k_png", "Tokenized_Image_4k_jpg" };
-    mx::StringVec resolutionStrings = { "2k", "4k" };
-    mx::StringVec extensionStrings = { "png", "jpg" };
-    for (size_t i=0; i<graphNames.size(); i++)
-    {
-        mx::NodeGraphPtr graph = doc->getNodeGraph(graphNames[i]);
-        REQUIRE(graph);
-        std::vector<mx::TokenPtr> tokens = graph->getActiveTokens();
-
-        mx::NodePtr imagePtr = graph->getNode("tiledimage");
-        REQUIRE(imagePtr);
-
-        mx::InputPtr input = imagePtr->getInput("file");
-        REQUIRE(input);
-
-        // Test file name substitution creation.
-        mx::StringResolverPtr resolver = input->createStringResolver();
-        const mx::StringMap& substitutions = resolver->getFilenameSubstitutions();
-        const std::string DELIMITER_PREFIX("[");
-        const std::string DELIMITER_POSTFIX("]");
-        for (auto token : tokens)
-        {
-            const std::string tokenString = DELIMITER_PREFIX + token->getName() + DELIMITER_POSTFIX;
-            REQUIRE(substitutions.count(tokenString));
-        }
-    }
-}
-
 TEST_CASE("Node Definition Creation", "[nodedef]")
 {
     mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
@@ -621,7 +635,7 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
 
     mx::DocumentPtr doc = mx::createDocument();
     mx::readFromXmlFile(doc, "resources/Materials/TestSuite/stdlib/definition/definition_from_nodegraph.mtlx", searchPath);
-    doc->importLibrary(stdlib);
+    doc->setDataLibrary(stdlib);
 
     mx::NodeGraphPtr graph = doc->getNodeGraph("test_colorcorrect");
     REQUIRE(graph);

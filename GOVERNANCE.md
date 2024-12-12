@@ -64,9 +64,9 @@ The current Stakeholders of the MaterialX TSC are:
 
 - Henrik Edstrom - Autodesk
 - Fran González García - Pixar RenderMan
-- Dhruv Govil - Apple
-- Rafal Jaroszkiewicz - SideFX
 - Ole Gulbrandsen - Sony Pictures Imageworks
+- Rafal Jaroszkiewicz - SideFX
+- Lee Kerley - Apple
 - Lutz Kettner - NVIDIA
 - Chris Kulla - Epic Games
 - Bernard Kwok - Khronos Group

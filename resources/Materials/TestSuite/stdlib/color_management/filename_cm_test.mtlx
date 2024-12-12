@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38" colorspace="lin_rec709">
+<materialx version="1.39" colorspace="lin_rec709">
   <!-- create tm_retest node to wrap Image Node -->
   <nodedef name="ND_tm_retest" node="tm_retest">
     <input name="texture_file" type="filename" uniform="true" />

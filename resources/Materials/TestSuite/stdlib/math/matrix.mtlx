@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
   <nodegraph name="creatematrix_vector3_matrix33">
     <creatematrix name="creatematrix_vector3_matrix33" type="matrix33">
       <input name="in1" type="vector3" value="1, 0, 0" />

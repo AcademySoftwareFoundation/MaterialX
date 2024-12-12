@@ -24,7 +24,7 @@ ShaderPtr createConstantShader(GenContext& context,
 {
     // Construct the constant color nodegraph
     DocumentPtr doc = createDocument();
-    doc->importLibrary(stdLib);
+    doc->setDataLibrary(stdLib);
     NodeGraphPtr nodeGraph = doc->addNodeGraph();
     NodePtr constant = nodeGraph->addNode("constant");
     constant->setInputValue("value", color);
@@ -41,7 +41,7 @@ ShaderPtr createDepthShader(GenContext& context,
 {
     // Construct a dummy nodegraph.
     DocumentPtr doc = createDocument();
-    doc->importLibrary(stdLib);
+    doc->setDataLibrary(stdLib);
     NodeGraphPtr nodeGraph = doc->addNodeGraph();
     NodePtr constant = nodeGraph->addNode("constant");
     OutputPtr output = nodeGraph->addOutput();
@@ -61,7 +61,7 @@ ShaderPtr createAlbedoTableShader(GenContext& context,
 {
     // Construct a dummy nodegraph.
     DocumentPtr doc = createDocument();
-    doc->importLibrary(stdLib);
+    doc->setDataLibrary(stdLib);
     NodeGraphPtr nodeGraph = doc->addNodeGraph();
     NodePtr constant = nodeGraph->addNode("constant");
     OutputPtr output = nodeGraph->addOutput();
@@ -77,12 +77,12 @@ ShaderPtr createAlbedoTableShader(GenContext& context,
 }
 
 ShaderPtr createEnvPrefilterShader(GenContext& context,
-                                        DocumentPtr stdLib,
-                                        const string& shaderName)
+                                   DocumentPtr stdLib,
+                                   const string& shaderName)
 {
     // Construct a dummy nodegraph.
     DocumentPtr doc = createDocument();
-    doc->importLibrary(stdLib);
+    doc->setDataLibrary(stdLib);
     NodeGraphPtr nodeGraph = doc->addNodeGraph();
     NodePtr constant = nodeGraph->addNode("constant");
     OutputPtr output = nodeGraph->addOutput();
@@ -104,7 +104,7 @@ ShaderPtr createBlurShader(GenContext& context,
 {
     // Construct the blur nodegraph
     DocumentPtr doc = createDocument();
-    doc->importLibrary(stdLib);
+    doc->setDataLibrary(stdLib);
     NodeGraphPtr nodeGraph = doc->addNodeGraph();
     NodePtr imageNode = nodeGraph->addNode("image", "image");
     NodePtr blurNode = nodeGraph->addNode("blur", "blur");
@@ -170,7 +170,7 @@ unsigned int getUIProperties(InputPtr input, const string& target, UIProperties&
                 else
                 {
                     valueString += val;
-                    uiProperties.enumerationValues.push_back(Value::createValueFromStrings(valueString, input->getType()));
+                    uiProperties.enumerationValues.push_back(typeDesc.createValueFromStrings(valueString));
                     valueString.clear();
                     index = 0;
                 }
@@ -318,7 +318,7 @@ void createUIPropertyGroups(DocumentPtr doc, const VariableBlock& block, UIPrope
 
         // Prepend a parent label for unlabeled node inputs.
         ElementPtr parent = pair.first->getParent();
-        if (item.ui.uiFolder.empty() && parent && parent->isA<Node>())
+        if (item.ui.uiName.empty() && parent && parent->isA<Node>())
         {
             item.label = parent->getName() + pathSeparator + item.label;
         }

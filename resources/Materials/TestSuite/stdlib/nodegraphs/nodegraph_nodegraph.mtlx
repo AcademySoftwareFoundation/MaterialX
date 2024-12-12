@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
   <!-- Nodegraph to nodegraph connections -->
   <nodegraph name="upstream_graph">
     <input name="file" type="filename" value="resources/Images/grid.png" />

@@ -18,7 +18,7 @@ ShaderNodeImplPtr MaterialNodeOsl::create()
 void MaterialNodeOsl::emitFunctionDefinition(const ShaderNode&, GenContext& context, ShaderStage& stage) const
 {
     const static string FUNCTION_DEFINITION =
-        "MATERIAL mx_surfacematerial(surfaceshader surface, displacementshader disp)\n"
+        "MATERIAL mx_surfacematerial(surfaceshader surface, surfaceshader backsurface, displacementshader disp)\n"
         "{\n"
         "    float opacity_weight = clamp(surface.opacity, 0.0, 1.0);\n"
         "    return (surface.bsdf + surface.edf) * opacity_weight + transparent() * (1.0 - opacity_weight);\n"

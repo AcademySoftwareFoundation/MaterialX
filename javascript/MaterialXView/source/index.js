@@ -4,17 +4,11 @@
 //
 
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
-import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
-import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
-
-import { GammaCorrectionShader } from 'three/examples/jsm/shaders/GammaCorrectionShader.js';
-
 import { Viewer } from './viewer.js'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { dropHandler, dragOverHandler, setLoadingCallback, setSceneLoadingCallback } from './dropHandling.js';
 
-let renderer, composer, orbitControls;
+let renderer, orbitControls;
 
 // Turntable option. For now the step size is fixed.
 let turntableEnabled = false;
@@ -49,7 +43,6 @@ function captureFrame()
 function init()
 {
     let canvas = document.getElementById('webglcanvas');
-    let context = canvas.getContext('webgl2');
 
     // Handle material selection changes
     let materialsSelect = document.getElementById('materials');
@@ -78,21 +71,9 @@ function init()
     scene.initialize();
 
     // Set up renderer
-    renderer = new THREE.WebGLRenderer({ canvas, context });
+    renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    // Disable introspection for shader debugging for deployment. 
-    // - The code associated with getting program information can be very slow when 
-    //   dealing with shaders with lots of input uniforms (such as standard surface, openpbr shading models)
-    //   as each call is blocking.
-    // - Adding this avoids the chess set scene from "hanging" the Chrome browser on Windows to a few second load.
-    // - Documentation for this flag: https://threejs.org/docs/index.html#api/en/renderers/WebGLRenderer.debug
     renderer.debug.checkShaderErrors = false;
-
-    composer = new EffectComposer(renderer);
-    const renderPass = new RenderPass(scene.getScene(), scene.getCamera());
-    composer.addPass(renderPass);
-    const gammaCorrectionPass = new ShaderPass(GammaCorrectionShader);
-    composer.addPass(gammaCorrectionPass);
 
     window.addEventListener('resize', onWindowResize);
 
@@ -198,7 +179,7 @@ function animate()
         viewer.getScene().setUpdateTransforms();
     }
 
-    composer.render();
+    renderer.render(viewer.getScene().getScene(), viewer.getScene().getCamera());
     viewer.getScene().updateTransforms();
 
     if (captureRequested)

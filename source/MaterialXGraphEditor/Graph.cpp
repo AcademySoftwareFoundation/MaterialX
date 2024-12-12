@@ -171,7 +171,7 @@ Graph::Graph(const std::string& materialFilename,
     // Create a renderer using the initial startup document.
     mx::FilePath captureFilename = "resources/Materials/Examples/example.png";
     std::string envRadianceFilename = "resources/Lights/san_giuseppe_bridge_split.hdr";
-    _renderer = std::make_shared<RenderView>(_graphDoc, meshFilename, envRadianceFilename,
+    _renderer = std::make_shared<RenderView>(_graphDoc, _stdLib, meshFilename, envRadianceFilename,
                                              _searchPath, viewWidth, viewHeight);
     _renderer->initialize();
     for (const std::string& ext : _renderer->getImageHandler()->supportedExtensions())
@@ -249,7 +249,7 @@ mx::DocumentPtr Graph::loadDocument(const mx::FilePath& filename)
         if (!filename.isEmpty())
         {
             mx::readFromXmlFile(doc, filename, _searchPath, &readOptions);
-            doc->importLibrary(_stdLib);
+            doc->setDataLibrary(_stdLib);
             std::string message;
             if (!doc->validate(&message))
             {
@@ -926,7 +926,8 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         if (val && val->isA<float>())
         {
             // Update the value to the default for new nodes
-            float prev = val->asA<float>(), temp = val->asA<float>();
+            float prev, temp;
+            prev = temp = val->asA<float>();
             float min = minVal ? minVal->asA<float>() : 0.f;
             float max = maxVal ? maxVal->asA<float>() : 100.f;
             float speed = (max - min) / 1000.0f;
@@ -946,7 +947,8 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         mx::ValuePtr val = input->getValue();
         if (val && val->isA<int>())
         {
-            int prev = val->asA<int>(), temp = val->asA<int>();
+            int prev, temp;
+            prev = temp = val->asA<int>();
             int min = minVal ? minVal->asA<int>() : 0;
             int max = maxVal ? maxVal->asA<int>() : 100;
             float speed = (max - min) / 100.0f;
@@ -966,7 +968,8 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         mx::ValuePtr val = input->getValue();
         if (val && val->isA<mx::Color3>())
         {
-            mx::Color3 prev = val->asA<mx::Color3>(), temp = val->asA<mx::Color3>();
+            mx::Color3 prev, temp;
+            prev = temp = val->asA<mx::Color3>();
             float min = minVal ? minVal->asA<mx::Color3>()[0] : 0.f;
             float max = maxVal ? maxVal->asA<mx::Color3>()[0] : 100.f;
             float speed = (max - min) / 1000.0f;
@@ -990,7 +993,8 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         mx::ValuePtr val = input->getValue();
         if (val && val->isA<mx::Color4>())
         {
-            mx::Color4 prev = val->asA<mx::Color4>(), temp = val->asA<mx::Color4>();
+            mx::Color4 prev, temp;
+            prev = temp = val->asA<mx::Color4>();
             float min = minVal ? minVal->asA<mx::Color4>()[0] : 0.f;
             float max = maxVal ? maxVal->asA<mx::Color4>()[0] : 100.f;
             float speed = (max - min) / 1000.0f;
@@ -1016,7 +1020,8 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         mx::ValuePtr val = input->getValue();
         if (val && val->isA<mx::Vector2>())
         {
-            mx::Vector2 prev = val->asA<mx::Vector2>(), temp = val->asA<mx::Vector2>();
+            mx::Vector2 prev, temp;
+            prev = temp = val->asA<mx::Vector2>();
             float min = minVal ? minVal->asA<mx::Vector2>()[0] : 0.f;
             float max = maxVal ? maxVal->asA<mx::Vector2>()[0] : 100.f;
             float speed = (max - min) / 1000.0f;
@@ -1036,7 +1041,8 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         mx::ValuePtr val = input->getValue();
         if (val && val->isA<mx::Vector3>())
         {
-            mx::Vector3 prev = val->asA<mx::Vector3>(), temp = val->asA<mx::Vector3>();
+            mx::Vector3 prev, temp;
+            prev = temp = val->asA<mx::Vector3>();
             float min = minVal ? minVal->asA<mx::Vector3>()[0] : 0.f;
             float max = maxVal ? maxVal->asA<mx::Vector3>()[0] : 100.f;
             float speed = (max - min) / 1000.0f;
@@ -1056,7 +1062,8 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         mx::ValuePtr val = input->getValue();
         if (val && val->isA<mx::Vector4>())
         {
-            mx::Vector4 prev = val->asA<mx::Vector4>(), temp = val->asA<mx::Vector4>();
+            mx::Vector4 prev, temp;
+            prev = temp = val->asA<mx::Vector4>();
             float min = minVal ? minVal->asA<mx::Vector4>()[0] : 0.f;
             float max = maxVal ? maxVal->asA<mx::Vector4>()[0] : 100.f;
             float speed = (max - min) / 1000.0f;
@@ -1076,7 +1083,8 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         mx::ValuePtr val = input->getValue();
         if (val && val->isA<std::string>())
         {
-            std::string prev = val->asA<std::string>(), temp = val->asA<std::string>();
+            std::string prev, temp;
+            prev = temp = val->asA<std::string>();
             ImGui::InputText("##constant", &temp);
 
             // Set input value and update materials if different from previous value
@@ -1094,7 +1102,8 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
 
         if (val && val->isA<std::string>())
         {
-            std::string temp = val->asA<std::string>(), prev = val->asA<std::string>();
+            std::string prev, temp;
+            prev = temp = val->asA<std::string>();
             ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(.15f, .15f, .15f, 1.0f));
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(.2f, .4f, .6f, 1.0f));
 
@@ -1121,7 +1130,7 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
                 temp = fileName;
 
                 // Need to clear the file prefix so that it can find the new file
-                input->setAttribute(input->FILE_PREFIX_ATTRIBUTE, "");
+                input->setFilePrefix(mx::EMPTY_STRING);
                 _fileDialogImage.clearSelected();
                 _fileDialogImage.setTypeFilters(std::vector<std::string>());
                 _fileDialogImageInputName = "";
@@ -1142,7 +1151,8 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         mx::ValuePtr val = input->getValue();
         if (val && val->isA<bool>())
         {
-            bool prev = val->asA<bool>(), temp = val->asA<bool>();
+            bool prev, temp;
+            prev = temp = val->asA<bool>();
             ImGui::Checkbox("", &temp);
 
             // Set input value and update materials if different from previous value
@@ -1834,7 +1844,7 @@ void Graph::copyInputs()
                             else if (upNode->getInput())
                             {
 
-                                copyNode->inputPins[count]->_input->setInterfaceName(upNode->getName());
+                                copyNode->inputPins[count]->_input->setConnectedInterfaceName(upNode->getName());
                             }
                             else
                             {
@@ -1860,7 +1870,7 @@ void Graph::copyInputs()
                         {
                             if (upNode->getInput())
                             {
-                                copyNode->inputPins[count]->_input->setInterfaceName(upNode->getName());
+                                copyNode->inputPins[count]->_input->setConnectedInterfaceName(upNode->getName());
                             }
                             else
                             {
@@ -1869,7 +1879,6 @@ void Graph::copyInputs()
                         }
 
                         copyNode->inputPins[count]->setConnected(true);
-                        copyNode->inputPins[count]->_input->removeAttribute(mx::ValueElement::VALUE_ATTRIBUTE);
                     }
                     else if (copyNode->getOutput() != nullptr)
                     {
@@ -1885,7 +1894,7 @@ void Graph::copyInputs()
                 {
                     if (pin->_input->getInterfaceInput())
                     {
-                        copyNode->inputPins[count]->_input->removeAttribute(mx::ValueElement::INTERFACE_NAME_ATTRIBUTE);
+                        copyNode->inputPins[count]->_input->setConnectedInterfaceName(mx::EMPTY_STRING);
                     }
                     copyNode->inputPins[count]->setConnected(false);
                     setDefaults(copyNode->inputPins[count]->_input);
@@ -2625,7 +2634,7 @@ void Graph::addLink(ed::PinId startPinId, ed::PinId endPinId)
                         }
                         else if (uiUpNode->getInput() != nullptr)
                         {
-                            pin->_input->setInterfaceName(uiUpNode->getName());
+                            pin->_input->setConnectedInterfaceName(uiUpNode->getName());
                         }
                         else
                         {
@@ -2651,7 +2660,7 @@ void Graph::addLink(ed::PinId startPinId, ed::PinId endPinId)
                     {
                         if (uiUpNode->getInput())
                         {
-                            pin->_input->setInterfaceName(uiUpNode->getName());
+                            pin->_input->setConnectedInterfaceName(uiUpNode->getName());
                         }
                         else
                         {
@@ -2697,7 +2706,6 @@ void Graph::addLink(ed::PinId startPinId, ed::PinId endPinId)
                     }
 
                     pin->setConnected(true);
-                    pin->_input->removeAttribute(mx::ValueElement::VALUE_ATTRIBUTE);
                     connectingInput = pin->_input;
                     break;
                 }
@@ -2754,6 +2762,10 @@ void Graph::deleteLinkInfo(int startAttr, int endAttr)
 {
     int upNode = getNodeId(startAttr);
     int downNode = getNodeId(endAttr);
+    if (upNode == -1 || downNode == -1)
+    {
+        return;
+    }
 
     // Change input to default value
     if (_graphNodes[downNode]->getNode())
@@ -2777,7 +2789,7 @@ void Graph::deleteLinkInfo(int startAttr, int endAttr)
                 if (_graphNodes[upNode]->getInput())
                 {
                     // Remove interface value in order to set the default of the input
-                    pin->_input->removeAttribute(mx::ValueElement::INTERFACE_NAME_ATTRIBUTE);
+                    pin->_input->setConnectedInterfaceName(mx::EMPTY_STRING);
                     setDefaults(pin->_input);
                     setDefaults(_graphNodes[upNode]->getInput());
                 }
@@ -2810,7 +2822,7 @@ void Graph::deleteLinkInfo(int startAttr, int endAttr)
                 removeEdge(downNode, upNode, pin);
                 if (_graphNodes[upNode]->getInput())
                 {
-                    _graphNodes[downNode]->getNodeGraph()->getInput(pin->_name)->removeAttribute(mx::ValueElement::INTERFACE_NAME_ATTRIBUTE);
+                    _graphNodes[downNode]->getNodeGraph()->getInput(pin->_name)->setConnectedInterfaceName(mx::EMPTY_STRING);
                     setDefaults(_graphNodes[upNode]->getInput());
                 }
                 for (UiPinPtr connect : pin->_connections)
@@ -2906,8 +2918,8 @@ void Graph::deleteNode(UiNodePtr node)
                 }
                 if (node->getInput())
                 {
-                    // Remove interface value in order to set the default of the input
-                    pin->_input->removeAttribute(mx::ValueElement::INTERFACE_NAME_ATTRIBUTE);
+                    // Remove interface in order to set the default of the input
+                    pin->_input->setConnectedInterfaceName(mx::EMPTY_STRING);
                     setDefaults(pin->_input);
                     setDefaults(node->getInput());
                 }
@@ -2916,7 +2928,7 @@ void Graph::deleteNode(UiNodePtr node)
             {
                 if (node->getInput())
                 {
-                    pin->_pinNode->getNodeGraph()->getInput(pin->_name)->removeAttribute(mx::ValueElement::INTERFACE_NAME_ATTRIBUTE);
+                    pin->_pinNode->getNodeGraph()->getInput(pin->_name)->setConnectedInterfaceName(mx::EMPTY_STRING);
                     setDefaults(node->getInput());
                 }
                 pin->_input->setConnectedNode(nullptr);
@@ -3038,7 +3050,7 @@ void Graph::clearGraph()
     _newLinks.clear();
     _currPins.clear();
     _graphDoc = mx::createDocument();
-    _graphDoc->importLibrary(_stdLib);
+    _graphDoc->setDataLibrary(_stdLib);
     _currGraphElem = _graphDoc;
 
     if (_currUiNode != nullptr)
@@ -3238,6 +3250,15 @@ void Graph::graphButtons()
     ImGui::BeginChild("Selection", ImVec2(paneWidth, 0), false, windowFlags);
     ImVec2 windowPos = ImGui::GetWindowPos();
 
+    // Update cursorInRenderView to account for other windows overlapping the Render View (e.g. Menu dropdown).
+    cursorInRenderView &= ImGui::IsWindowHovered(ImGuiHoveredFlags_None);
+
+    // Update cursorInRenderView to account for visible scrollbar and scroll amount.
+    ImGuiContext* context = ImGui::GetCurrentContext();
+    bool hasScrollbar = context->CurrentWindow->ScrollbarY;
+    cursorInRenderView &= hasScrollbar ? mousePos.x < (tempWindowPos.x + screenSize.x - ImGui::GetStyle().ScrollbarSize) : true;
+    cursorInRenderView &= hasScrollbar ? mousePos.y < (tempWindowPos.y + screenSize.y - ImGui::GetScrollY()) : true;
+
     // RenderView window
     ImVec2 wsize = ImVec2((float) _renderer->getViewWidth(), (float) _renderer->getViewHeight());
     _renderer->setViewWidth((int) screenSize[0]);
@@ -3267,7 +3288,20 @@ void Graph::graphButtons()
 
 void Graph::propertyEditor()
 {
+    // Get parent dimensions
+    ImVec2 textPos = ImGui::GetCursorScreenPos(); // Position for the background
+    float parentWidth = ImGui::GetContentRegionAvail().x; // Available width in the parent
+    
+    // Draw the title bar
+    const ImGuiStyle& style = ImGui::GetStyle();
+    ImVec4 menuBarBgColor = style.Colors[ImGuiCol_MenuBarBg]; 
+    ImU32 bgColor = ImGui::ColorConvertFloat4ToU32(menuBarBgColor); // Convert to 32-bit color
+    ImDrawList* drawList = ImGui::GetWindowDrawList();
+    drawList->AddRectFilled(textPos,
+                            ImVec2(textPos.x + parentWidth, textPos.y + ImGui::GetTextLineHeight()),
+                            bgColor);
     ImGui::Text("Node Property Editor");
+
     if (_currUiNode)
     {
         // Set and edit name
@@ -3275,7 +3309,11 @@ void Graph::propertyEditor()
         ImGui::SameLine();
         std::string original = _currUiNode->getName();
         std::string temp = original;
+        float availableWidth = ImGui::GetContentRegionAvail().x; 
+        ImGui::PushItemWidth(availableWidth); 
         ImGui::InputText("##edit", &temp);
+        ImGui::PopItemWidth(); 
+
         std::string docString = "NodeDef Doc String: \n";
         if (_currUiNode->getNode())
         {
@@ -3320,7 +3358,7 @@ void Graph::propertyEditor()
                                 {
                                     _currUiNode->getInput()->setName(name);
                                     mx::ValuePtr val = _currUiNode->getInput()->getValue();
-                                    input->setInterfaceName(name);
+                                    input->setConnectedInterfaceName(name);
                                     mx::InputPtr pt = input->getInterfaceInput();
                                 }
                             }
@@ -3356,6 +3394,23 @@ void Graph::propertyEditor()
                 std::string name = _currUiNode->getNodeGraph()->getParent()->createValidChildName(temp);
                 _currUiNode->getNodeGraph()->setName(name);
                 _currUiNode->setName(name);
+
+                for (UiNodePtr node : _graphNodes)
+                {
+                    if (!node->getInput())
+                    {
+                        std::vector<UiPinPtr> inputs = node->inputPins;
+                        for (size_t i = 0; i < inputs.size(); i++)
+                        {
+                            const std::string& inputName = inputs[i]->_name;
+                            UiNodePtr inputNode = node->getConnectedNode(inputName);
+                            if (inputNode && inputNode->getName() == name && node->getNode())
+                            {
+                                node->getNode()->getInput(inputName)->setAttribute("nodegraph", name);
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -3385,7 +3440,8 @@ void Graph::propertyEditor()
                 ImGui::SetTooltip("%s", _currUiNode->getNode()->getNodeDef()->getDocString().c_str());
             }
 
-            ImGui::Text("Inputs:");
+            ImGui::Checkbox("Show all inputs", &_currUiNode->_showAllInputs);
+
             int count = 0;
             for (UiPinPtr input : _currUiNode->inputPins)
             {
@@ -3449,14 +3505,12 @@ void Graph::propertyEditor()
                     ImGui::SetWindowFontScale(1.0f);
                 }
             }
-            ImGui::Checkbox("Show all inputs", &_currUiNode->_showAllInputs);
         }
 
         else if (_currUiNode->getInput() != nullptr)
         {
             ImGui::Text("%s", _currUiNode->getCategory().c_str());
             std::vector<UiPinPtr> inputs = _currUiNode->inputPins;
-            ImGui::Text("Inputs:");
 
             int count = static_cast<int>(inputs.size());
             if (count)
@@ -3507,7 +3561,6 @@ void Graph::propertyEditor()
         {
             std::vector<UiPinPtr> inputs = _currUiNode->inputPins;
             ImGui::Text("%s", _currUiNode->getCategory().c_str());
-            ImGui::Text("Inputs:");
             int count = 0;
             for (UiPinPtr input : inputs)
             {
@@ -3624,7 +3677,7 @@ void Graph::showHelp() const
 
 void Graph::addNodePopup(bool cursor)
 {
-    bool open_AddPopup = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::IsKeyReleased(ImGuiKey_Tab);
+    bool open_AddPopup = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootWindow) && ImGui::IsKeyReleased(ImGuiKey_Tab);
     static char input[32]{ "" };
     if (open_AddPopup)
     {
@@ -4070,55 +4123,58 @@ void Graph::drawGraph(ImVec2 mousePos)
         _initial = false;
         _autoLayout = false;
 
-        // Delete selected nodes and their links if delete key is pressed
-        // or if the shortcut for cut is used
-        if (ImGui::IsKeyReleased(ImGuiKey_Delete) || _isCut)
-        {
-            if (selectedNodes.size() > 0)
-            {
-                _frameCount = ImGui::GetFrameCount();
-                _renderer->setMaterialCompilation(true);
-                for (ed::NodeId id : selectedNodes)
-                {
-
-                    if (int(id.Get()) > 0)
-                    {
-                        int pos = findNode(int(id.Get()));
-                        if (pos >= 0 && !readOnly())
-                        {
-                            deleteNode(_graphNodes[pos]);
-                            _delete = true;
-                            ed::DeselectNode(id);
-                            ed::DeleteNode(id);
-                            _currUiNode = nullptr;
-                        }
-                        else if (readOnly())
-                        {
-                            _popup = true;
-                        }
-                    }
-                }
-                linkGraph();
-            }
-            _isCut = false;
-        }
-
         // Start the session with content centered
         if (ImGui::GetFrameCount() == 2)
         {
             ed::NavigateToContent(0.0f);
         }
 
-        // Hotkey to frame selected node(s)
-        if (ImGui::IsKeyReleased(ImGuiKey_F) && !_fileDialogSave.isOpened())
+        // Delete selected nodes and their links if delete key is pressed
+        // or if the shortcut for cut is used
+        if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootWindow))
         {
-            ed::NavigateToSelection();
-        }
+            if (ImGui::IsKeyReleased(ImGuiKey_Delete) || _isCut)
+            {
+                if (selectedNodes.size() > 0)
+                {
+                    _frameCount = ImGui::GetFrameCount();
+                    _renderer->setMaterialCompilation(true);
+                    for (ed::NodeId id : selectedNodes)
+                    {
 
-        // Go back up from inside a subgraph
-        if (ImGui::IsKeyReleased(ImGuiKey_U) && (!ImGui::IsPopupOpen("add node")) && (!ImGui::IsPopupOpen("search")) && !_fileDialogSave.isOpened())
-        {
-            upNodeGraph();
+                        if (int(id.Get()) > 0)
+                        {
+                            int pos = findNode(int(id.Get()));
+                            if (pos >= 0 && !readOnly())
+                            {
+                                deleteNode(_graphNodes[pos]);
+                                _delete = true;
+                                ed::DeselectNode(id);
+                                ed::DeleteNode(id);
+                                _currUiNode = nullptr;
+                            }
+                            else if (readOnly())
+                            {
+                                _popup = true;
+                            }
+                        }
+                    }
+                    linkGraph();
+                }
+                _isCut = false;
+            }
+
+            // Hotkey to frame selected node(s)
+            if (ImGui::IsKeyReleased(ImGuiKey_F) && !_fileDialogSave.isOpened())
+            {
+                ed::NavigateToSelection();
+            }
+
+            // Go back up from inside a subgraph
+            if (ImGui::IsKeyReleased(ImGuiKey_U) && (!ImGui::IsPopupOpen("add node")) && (!ImGui::IsPopupOpen("search")) && !_fileDialogSave.isOpened())
+            {
+                upNodeGraph();
+            }
         }
 
         // Add new link

@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<materialx version="1.38" colorspace="acescg">
+
+  <!-- LamaGeneralizedSchlick -->
+  <LamaGeneralizedSchlick name="LamaGeneralizedSchlick" type="BSDF">
+    <input name="reflectionTint" type="color3" value="1.0, 1.0, 1.0" />
+    <input name="transmissionTint" type="color3" value="1.0, 1.0, 1.0" />
+    <input name="fresnelMode" type="integer" value="0" />
+    <input name="IOR" type="vector3" value="1.5,1.5,1.5" />
+    <input name="reflectivity" type="color3" value="0.04, 0.04, 0.04" />
+    <input name="reflectivity90" type="color3" value="1.0, 1.0, 1.0" />
+    <input name="reflectivityProfile" type="float" value="0.2" />
+    <input name="roughness" type="float" value="0.1" />
+    <input name="anisotropy" type="float" value="-1.0" />
+    <input name="anisotropyRotation" type="float" value="0.0" />
+    <input name="absorptionColor" type="color3" value="1.0, 1.0, 1.0" />
+    <input name="absorptionRadius" type="float" value="1.0" />
+    <input name="scatterColor" type="color3" value="0.0, 0.0, 0.0" />
+    <input name="scatterAnisotropy" type="float" value="0.0" />
+  </LamaGeneralizedSchlick>
+  <surface name="LamaGeneralizedSchlickSurface" type="surfaceshader">
+    <input name="bsdf" type="BSDF" nodename="LamaGeneralizedSchlick" />
+  </surface>
+  <surfacematerial name="LamaGeneralizedSchlickTest" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="LamaGeneralizedSchlickSurface" />
+  </surfacematerial>
+
+</materialx>

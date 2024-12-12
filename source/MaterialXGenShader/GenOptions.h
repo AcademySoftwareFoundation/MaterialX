@@ -80,10 +80,12 @@ class MX_GENSHADER_API GenOptions
         fileTextureVerticalFlip(false),
         addUpstreamDependencies(true),
         libraryPrefix("libraries"),
+        emitColorTransforms(true),
         hwTransparency(false),
         hwSpecularEnvironmentMethod(SPECULAR_ENVIRONMENT_FIS),
         hwDirectionalAlbedoMethod(DIRECTIONAL_ALBEDO_ANALYTIC),
         hwTransmissionRenderMethod(TRANSMISSION_REFRACTION),
+        hwSrgbEncodeOutput(false),
         hwWriteDepthMoments(false),
         hwShadowMap(false),
         hwAmbientOcclusion(false),
@@ -91,8 +93,7 @@ class MX_GENSHADER_API GenOptions
         hwNormalizeUdimTexCoords(false),
         hwWriteAlbedoTable(false),
         hwWriteEnvPrefilter(false),
-        hwImplicitBitangents(true),
-        emitColorTransforms(true)
+        hwImplicitBitangents(true)
     {
     }
     virtual ~GenOptions() { }
@@ -129,6 +130,10 @@ class MX_GENSHADER_API GenOptions
     /// Defaults to "libraries".
     FilePath libraryPrefix;
 
+    /// Enable emitting colorspace transform code if a color management
+    /// system is defined. Defaults to true.
+    bool emitColorTransforms;
+
     /// Sets if transparency is needed or not for HW shaders.
     /// If a surface shader has potential of being transparent
     /// this must be set to true, otherwise no transparency
@@ -147,6 +152,10 @@ class MX_GENSHADER_API GenOptions
     /// Sets the method to use for transmission rendering
     /// for HW shader targets.
     HwTransmissionRenderMethod hwTransmissionRenderMethod;
+
+    /// Enables an sRGB encoding for the color output on HW shader targets.
+    /// Defaults to false.
+    bool hwSrgbEncodeOutput;
 
     /// Enables the writing of depth moments for HW shader targets.
     /// Defaults to false.
@@ -182,10 +191,6 @@ class MX_GENSHADER_API GenOptions
     /// Calculate fallback bitangents from existing normals and tangents
     /// inside the bitangent node.
     bool hwImplicitBitangents;
-
-    /// Enable emitting colorspace transform code if a color management
-    /// system is defined. Defaults to true.
-    bool emitColorTransforms;
 };
 
 MATERIALX_NAMESPACE_END

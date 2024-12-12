@@ -19,7 +19,6 @@
 #include <MaterialXGenMsl/Nodes/BlurNodeMsl.h>
 
 #include <MaterialXGenShader/Nodes/MaterialNode.h>
-#include <MaterialXGenShader/Nodes/SwitchNode.h>
 #include <MaterialXGenShader/Nodes/HwImageNode.h>
 #include <MaterialXGenShader/Nodes/HwTexCoordNode.h>
 #include <MaterialXGenShader/Nodes/HwTransformNode.h>
@@ -58,30 +57,6 @@ MslShaderGenerator::MslShaderGenerator() :
     //
 
     StringVec elementNames;
-
-    // <!-- <switch> -->
-    elementNames = {
-        // <!-- 'which' type : float -->
-        "IM_switch_float_" + MslShaderGenerator::TARGET,
-        "IM_switch_color3_" + MslShaderGenerator::TARGET,
-        "IM_switch_color4_" + MslShaderGenerator::TARGET,
-        "IM_switch_vector2_" + MslShaderGenerator::TARGET,
-        "IM_switch_vector3_" + MslShaderGenerator::TARGET,
-        "IM_switch_vector4_" + MslShaderGenerator::TARGET,
-        "IM_switch_matrix33_" + MslShaderGenerator::TARGET,
-        "IM_switch_matrix44_" + MslShaderGenerator::TARGET,
-
-        // <!-- 'which' type : integer -->
-        "IM_switch_floatI_" + MslShaderGenerator::TARGET,
-        "IM_switch_color3I_" + MslShaderGenerator::TARGET,
-        "IM_switch_color4I_" + MslShaderGenerator::TARGET,
-        "IM_switch_vector2I_" + MslShaderGenerator::TARGET,
-        "IM_switch_vector3I_" + MslShaderGenerator::TARGET,
-        "IM_switch_vector4I_" + MslShaderGenerator::TARGET,
-        "IM_switch_matrix33I_" + MslShaderGenerator::TARGET,
-        "IM_switch_matrix44I_" + MslShaderGenerator::TARGET,
-    };
-    registerImplementation(elementNames, SwitchNode::create);
 
     // <!-- <position> -->
     registerImplementation("IM_position_vector3_" + MslShaderGenerator::TARGET, HwPositionNode::create);
@@ -262,7 +237,29 @@ void MslShaderGenerator::MetalizeGeneratedShader(ShaderStage& shaderStage) const
                     }
                     size_t typename_end = pos;
                     std::string typeName = sourceCode.substr(typename_beg, typename_end - typename_beg);
-                    sourceCode.replace(beg, typename_end - beg, "thread " + typeName + "&");
+
+                    while (std::isspace(sourceCode[pos]))
+                    {
+                        ++pos;
+                    }
+                    size_t varname_beg = pos;
+                    while (!std::isspace(sourceCode[pos]) && sourceCode[pos] != '\n' && sourceCode[pos] != ',' && sourceCode[pos] != ')' )
+                    {
+                        ++pos;
+                    }
+                    size_t varname_end = pos;
+                    std::string varName = sourceCode.substr(varname_beg, varname_end - varname_beg);
+
+                    if (varName.find('[') != std::string::npos)
+                    {
+                        // if the variable is an array then we don't need to declare it as a reference,
+                        // we will effectively just be passing the pointer to the array
+                        sourceCode.replace(beg, typename_end - beg, "thread " + typeName);
+                    }
+                    else
+                    {
+                        sourceCode.replace(beg, typename_end - beg, "thread " + typeName + "&");
+                    }
                 }
                 pos = sourceCode.find(keyword, pos);
             }
@@ -947,7 +944,6 @@ void MslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& co
         emitLine("{}", stage, false);
 
         // Add common math functions
-        emitLine("#define __DECL_GL_MATH_FUNCTIONS__", stage, false);
         emitLibraryInclude("stdlib/genmsl/lib/mx_math.metal", context, stage);
         emitLineBreak(stage);
 

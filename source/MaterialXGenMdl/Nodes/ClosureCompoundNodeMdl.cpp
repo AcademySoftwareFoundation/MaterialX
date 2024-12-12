@@ -4,6 +4,7 @@
 //
 
 #include <MaterialXGenMdl/Nodes/ClosureCompoundNodeMdl.h>
+#include <MaterialXGenMdl/MdlSyntax.h>
 
 #include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
@@ -29,6 +30,7 @@ void ClosureCompoundNodeMdl::emitFunctionDefinition(const ShaderNode& node, GenC
     DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
     {
         const ShaderGenerator& shadergen = context.getShaderGenerator();
+        const MdlSyntax& mdlSyntax = static_cast<const MdlSyntax&>(shadergen.getSyntax());
 
         // Emit functions for all child nodes
         shadergen.emitFunctionDefinitions(*_rootGraph, context, stage);
@@ -146,7 +148,7 @@ void ClosureCompoundNodeMdl::emitFunctionDefinition(const ShaderNode& node, GenC
                 for (const ShaderGraphOutputSocket* output : _rootGraph->getOutputSockets())
                 {
                     const string result = shadergen.getUpstreamResult(output, context);
-                    shadergen.emitLine(resultVariableName + ".mxp_" + output->getName() + " = " + result, stage);
+                    shadergen.emitLine(resultVariableName + mdlSyntax.modifyPortName(output->getName()) + " = " + result, stage);
                 }
                 shadergen.emitLine("return " + resultVariableName, stage);
             }

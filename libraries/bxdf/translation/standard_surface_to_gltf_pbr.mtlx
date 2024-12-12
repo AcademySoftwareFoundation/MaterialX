@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
 
   <nodedef name="ND_standard_surface_to_gltf_pbr" node="standard_surface_to_gltf_pbr" nodegroup="translation">
     <input name="base" type="float" value="1" />
@@ -33,10 +33,22 @@
 
   <nodegraph name="NG_standard_surface_to_gltf_pbr" nodedef="ND_standard_surface_to_gltf_pbr">
 
+    <!-- Constants -->
+    <divide name="constantOneThird" type="float">
+      <input name="in1" type="float" value="1" />
+      <input name="in2" type="float" value="3" />
+    </divide>
+    <convert name="constantOneThirdVector" type="vector3">
+      <input name="in" type="float" nodename="constantOneThird" />
+    </convert>
+
     <!-- Coat attenuation -->
-    <dotproduct name="has_coat_color" type="float">
-      <input name="in1" type="vector3" interfacename="coat_color" channels="rgb" />
-      <input name="in2" type="vector3" value="1,1,1" />
+    <convert name="coatColorVector" type="vector3">
+      <input name="in" type="color3" interfacename="coat_color" />
+    </convert>
+    <dotproduct name="hasCoatColor" type="float">
+      <input name="in1" type="vector3" nodename="coatColorVector" />
+      <input name="in2" type="vector3" value="1, 1, 1" />
     </dotproduct>
     <multiply name="scaledBaseColor" type="color3">
       <input name="in1" type="color3" interfacename="base_color" />
@@ -44,33 +56,44 @@
     </multiply>
     <mix name="coatAttenuation" type="color3">
       <input name="fg" type="color3" interfacename="coat_color" />
-      <input name="bg" type="color3" value="1.0, 1.0, 1.0" />
+      <input name="bg" type="color3" value="1, 1, 1" />
       <input name="mix" type="float" interfacename="coat" />
     </mix>
     <multiply name="mixedBaseColor" type="color3">
       <input name="in1" type="color3" nodename="scaledBaseColor" />
       <input name="in2" type="color3" nodename="coatAttenuation" />
     </multiply>
-    <divide name="constantOneThird" type="float">
-      <input name="in1" type="float" value="1" />
-      <input name="in2" type="float" value="3" />
-    </divide>
-    <multiply name="coatColor" type="color3">
+    <multiply name="coatColorScaled" type="color3">
       <input name="in1" type="color3" interfacename="coat_color" />
       <input name="in2" type="float" interfacename="coat" />
     </multiply>
+    <convert name="coatColorScaledVector" type="vector3">
+      <input name="in" type="color3" nodename="coatColorScaled" />
+    </convert>
     <dotproduct name="weightedCoat" type="float">
-      <input name="in1" type="vector3" nodename="coatColor" channels="rgb" />
-      <input name="in2" type="vector3" nodename="constantOneThird" channels="xxx" />
+      <input name="in1" type="vector3" nodename="coatColorScaledVector" />
+      <input name="in2" type="vector3" nodename="constantOneThirdVector" />
     </dotproduct>
 
     <!-- Metallic roughness -->
-    <ifequal name="base_color" type="color3">
-      <input name="value1" type="float" nodename="has_coat_color" />
+    <ifequal name="baseColor" type="color3">
+      <input name="value1" type="float" nodename="hasCoatColor" />
       <input name="value2" type="float" value="0" />
       <input name="in1" type="color3" nodename="scaledBaseColor" />
       <input name="in2" type="color3" nodename="mixedBaseColor" />
     </ifequal>
+    <ifgreater name="transmissionBaseColor" type="color3">
+      <input name="value1" type="float" interfacename="transmission_depth" />
+      <input name="value2" type="float" value="0" />
+      <input name="in1" type="color3" value="1, 1, 1" />
+      <input name="in2" type="color3" interfacename="transmission_color" />
+    </ifgreater>
+    <ifgreater name="base_color" type="color3">
+      <input name="value1" type="float" interfacename="transmission" />
+      <input name="value2" type="float" value="0" />
+      <input name="in1" type="color3" nodename="transmissionBaseColor" />
+      <input name="in2" type="color3" nodename="baseColor" />
+    </ifgreater>
     <dot name="metallic" type="float">
       <input name="in" type="float" interfacename="metalness" />
     </dot>
@@ -85,9 +108,18 @@
     <dot name="thickness" type="float">
       <input name="in" type="float" interfacename="transmission_depth" />
     </dot>
-    <dot name="attenuation_color" type="color3">
-      <input name="in" type="color3" interfacename="transmission_color" />
-    </dot>
+    <ifgreater name="transmissionAttenuationColor" type="color3">
+      <input name="value1" type="float" interfacename="transmission_depth" />
+      <input name="value2" type="float" value="0" />
+      <input name="in1" type="color3" interfacename="transmission_color" />
+      <input name="in2" type="color3" value="1, 1, 1" />
+    </ifgreater>
+    <ifgreater name="attenuation_color" type="color3">
+      <input name="value1" type="float" interfacename="transmission" />
+      <input name="value2" type="float" value="0" />
+      <input name="in1" type="color3" nodename="transmissionAttenuationColor" />
+      <input name="in2" type="color3" value="1, 1, 1" />
+    </ifgreater>
 
     <!-- Sheen -->
     <multiply name="sheen_color" type="color3">
@@ -103,7 +135,7 @@
 
     <!-- Clearcoat -->
     <ifequal name="clearcoat" type="float">
-      <input name="value1" type="float" nodename="has_coat_color" />
+      <input name="value1" type="float" nodename="hasCoatColor" />
       <input name="value2" type="float" value="0" />
       <input name="in1" type="float" interfacename="coat" />
       <input name="in2" type="float" nodename="weightedCoat" />

@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
 
   <nodedef name="ND_standard_surface_to_UsdPreviewSurface" node="standard_surface_to_UsdPreviewSurface" nodegroup="translation">
     <input name="metalness" type="float" value="0" />
@@ -12,6 +12,8 @@
     <input name="coat" type="float" value="0" />
     <input name="coat_color" type="color3" value="1, 1, 1" />
     <input name="coat_roughness" type="float" value="0.1" />
+    <input name="subsurface" type="float" value="0" />
+    <input name="subsurface_color" type="color3" value="1, 1, 1" />
     <input name="emission" type="float" value="0" />
     <input name="emission_color" type="color3" value="1, 1, 1" />
     <input name="opacity" type="color3" value="1, 1, 1" />
@@ -35,6 +37,9 @@
       <input name="in1" type="float" value="1" />
       <input name="in2" type="float" value="3" />
     </divide>
+    <convert name="constantOneThirdVector" type="vector3">
+      <input name="in" type="float" nodename="constantOneThird" />
+    </convert>
 
     <!-- Diffuse/Specular -->
     <dot name="metallic" type="float">
@@ -44,13 +49,18 @@
       <input name="in1" type="color3" interfacename="base_color" />
       <input name="in2" type="float" interfacename="base" />
     </multiply>
+    <mix name="albedoOpaqueDielectric" type="color3">
+      <input name="fg" type="color3" interfacename="subsurface_color" />
+      <input name="bg" type="color3" nodename="scaledBaseColor" />
+      <input name="mix" type="float" interfacename="subsurface" />
+    </mix>
     <mix name="coatAttenuation" type="color3">
       <input name="fg" type="color3" interfacename="coat_color" />
       <input name="bg" type="color3" value="1.0, 1.0, 1.0" />
       <input name="mix" type="float" interfacename="coat" />
     </mix>
     <multiply name="diffuseColor" type="color3">
-      <input name="in1" type="color3" nodename="scaledBaseColor" />
+      <input name="in1" type="color3" nodename="albedoOpaqueDielectric" />
       <input name="in2" type="color3" nodename="coatAttenuation" />
     </multiply>
     <dot name="roughness" type="float">
@@ -65,24 +75,34 @@
       <input name="in1" type="color3" interfacename="coat_color" />
       <input name="in2" type="float" interfacename="coat" />
     </multiply>
+    <convert name="coatColorVector" type="vector3">
+      <input name="in" type="color3" nodename="coatColor" />
+    </convert>
     <dotproduct name="clearcoat" type="float">
-      <input name="in1" type="vector3" nodename="coatColor" channels="rgb" />
-      <input name="in2" type="vector3" nodename="constantOneThird" channels="xxx" />
+      <input name="in1" type="vector3" nodename="coatColorVector" />
+      <input name="in2" type="vector3" nodename="constantOneThirdVector" />
     </dotproduct>
     <dot name="clearcoatRoughness" type="float">
       <input name="in" type="float" interfacename="coat_roughness" />
     </dot>
 
     <!-- Emissive -->
-    <multiply name="emissiveColor" type="color3">
+    <multiply name="scaledEmissionColor" type="color3">
       <input name="in1" type="color3" interfacename="emission_color" />
       <input name="in2" type="float" interfacename="emission" />
     </multiply>
+    <multiply name="emissiveColor" type="color3">
+      <input name="in1" type="color3" nodename="scaledEmissionColor" />
+      <input name="in2" type="color3" nodename="coatAttenuation" />
+    </multiply>
 
     <!-- Opacity -->
+    <convert name="opacityVector" type="vector3">
+      <input name="in" type="color3" interfacename="opacity" />
+    </convert>
     <dotproduct name="opacity" type="float">
-      <input name="in1" type="vector3" interfacename="opacity" channels="rgb" />
-      <input name="in2" type="vector3" nodename="constantOneThird" channels="xxx" />
+      <input name="in1" type="vector3" nodename="opacityVector" />
+      <input name="in2" type="vector3" nodename="constantOneThirdVector" />
     </dotproduct>
 
     <!-- Normal Map -->

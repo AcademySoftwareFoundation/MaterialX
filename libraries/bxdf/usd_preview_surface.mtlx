@@ -1,26 +1,26 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
 
   <!-- ======================================================================== -->
   <!-- USD Preview Surface node definitions                                     -->
   <!-- ======================================================================== -->
 
   <!-- Node: UsdPreviewSurface -->
-  <nodedef name="ND_UsdPreviewSurface_surfaceshader" node="UsdPreviewSurface" nodegroup="pbr" doc="USD preview surface shader" version="2.3" isdefaultversion="true">
-    <input name="diffuseColor" type="color3" value="0.18, 0.18, 0.18" uimin="0,0,0" uimax="1,1,1" />
-    <input name="emissiveColor" type="color3" value="0, 0, 0" uimin="0,0,0" uisoftmax="1,1,1" />
-    <input name="useSpecularWorkflow" type="integer" value="0" uimin="0" uimax="1" uistep="1" />
-    <input name="specularColor" type="color3" value="0, 0, 0" uimin="0,0,0" uimax="1,1,1" />
-    <input name="metallic" type="float" value="0" uimin="0.0" uimax="1.0" />
-    <input name="roughness" type="float" value="0.5" uimin="0.0" uimax="1.0" />
-    <input name="clearcoat" type="float" value="0" uimin="0.0" uimax="1.0" />
-    <input name="clearcoatRoughness" type="float" value="0.01" uimin="0.0" uimax="1.0" />
-    <input name="opacity" type="float" value="1" uimin="0.0" uimax="1.0" />
-    <input name="opacityThreshold" type="float" value="0" uimin="0.0" uimax="1.0" />
-    <input name="ior" type="float" value="1.5" uimin="0.0" uisoftmin="1.0" uisoftmax="3.0" />
-    <input name="normal" type="vector3" value="0, 0, 1" uimin="-1.0,-1.0,-1.0" uimax="1.0,1.0,1.0" uistep="0.01" />
-    <input name="displacement" type="float" value="0" />
-    <input name="occlusion" type="float" value="1" uimin="0.0" uimax="1.0" />
+  <nodedef name="ND_UsdPreviewSurface_surfaceshader" node="UsdPreviewSurface" nodegroup="pbr" doc="UsdPreviewSurface shader" version="2.5" isdefaultversion="true">
+    <input name="diffuseColor" type="color3" value="0.18, 0.18, 0.18" uimin="0,0,0" uimax="1,1,1" uiname="Diffuse Color" />
+    <input name="emissiveColor" type="color3" value="0, 0, 0" uimin="0,0,0" uisoftmax="1,1,1" uiname="Emissive Color" />
+    <input name="useSpecularWorkflow" type="integer" value="0" uimin="0" uimax="1" uistep="1" uiname="Use Specular Workflow" />
+    <input name="specularColor" type="color3" value="0, 0, 0" uimin="0,0,0" uimax="1,1,1" uiname="Specular Color" />
+    <input name="metallic" type="float" value="0" uimin="0.0" uimax="1.0" uiname="Metallic" />
+    <input name="roughness" type="float" value="0.5" uimin="0.0" uimax="1.0" uiname="Roughness" />
+    <input name="clearcoat" type="float" value="0" uimin="0.0" uimax="1.0" uiname="Clearcoat" />
+    <input name="clearcoatRoughness" type="float" value="0.01" uimin="0.0" uimax="1.0" uiname="Clearcoat Roughness" />
+    <input name="opacity" type="float" value="1" uimin="0.0" uimax="1.0" uiname="Opacity" />
+    <input name="opacityThreshold" type="float" value="0" uimin="0.0" uimax="1.0" uiname="Opacity Threshold" />
+    <input name="ior" type="float" value="1.5" uimin="0.0" uisoftmin="1.0" uisoftmax="3.0" uiname="Index of Refraction" />
+    <input name="normal" type="vector3" value="0, 0, 1" uimin="-1.0,-1.0,-1.0" uimax="1.0,1.0,1.0" uistep="0.01" uiname="Normal" />
+    <input name="displacement" type="float" value="0" uiname="Displacement" />
+    <input name="occlusion" type="float" value="1" uimin="0.0" uimax="1.0" uiname="Occlusion" />
     <output name="out" type="surfaceshader" />
   </nodedef>
 
@@ -300,11 +300,17 @@
       <input name="in1" type="color4" nodename="image_scale" />
       <input name="in2" type="color4" interfacename="bias" />
     </add>
-    <output name="r" type="float" nodename="image_bias" channels="r" />
-    <output name="g" type="float" nodename="image_bias" channels="g" />
-    <output name="b" type="float" nodename="image_bias" channels="b" />
-    <output name="a" type="float" nodename="image_bias" channels="a" />
-    <output name="rgb" type="color3" nodename="image_bias" channels="rgb" />
+    <separate4 name="image_bias_separate" type="multioutput">
+      <input name="in" type="color4" nodename="image_bias" />
+    </separate4>
+    <convert name="image_bias_color3" type="color3">
+      <input name="in" type="color4" nodename="image_bias" />
+    </convert>
+    <output name="r" type="float" nodename="image_bias_separate" output="outr" />
+    <output name="g" type="float" nodename="image_bias_separate" output="outg" />
+    <output name="b" type="float" nodename="image_bias_separate" output="outb" />
+    <output name="a" type="float" nodename="image_bias_separate" output="outa" />
+    <output name="rgb" type="color3" nodename="image_bias_color3" />
     <output name="rgba" type="color4" nodename="image_bias" />
   </nodegraph>
 
@@ -324,11 +330,17 @@
       <input name="in1" type="color4" nodename="image_scale" />
       <input name="in2" type="color4" interfacename="bias" />
     </add>
-    <output name="r" type="float" nodename="image_bias" channels="r" />
-    <output name="g" type="float" nodename="image_bias" channels="g" />
-    <output name="b" type="float" nodename="image_bias" channels="b" />
-    <output name="a" type="float" nodename="image_bias" channels="a" />
-    <output name="rgb" type="color3" nodename="image_bias" channels="rgb" />
+    <separate4 name="image_bias_separate" type="multioutput">
+      <input name="in" type="color4" nodename="image_bias" />
+    </separate4>
+    <convert name="image_bias_color3" type="color3">
+      <input name="in" type="color4" nodename="image_bias" />
+    </convert>
+    <output name="r" type="float" nodename="image_bias_separate" output="outr" />
+    <output name="g" type="float" nodename="image_bias_separate" output="outg" />
+    <output name="b" type="float" nodename="image_bias_separate" output="outb" />
+    <output name="a" type="float" nodename="image_bias_separate" output="outa" />
+    <output name="rgb" type="color3" nodename="image_bias_color3" />
   </nodegraph>
 
   <!-- Node: UsdPrimvarReader -->

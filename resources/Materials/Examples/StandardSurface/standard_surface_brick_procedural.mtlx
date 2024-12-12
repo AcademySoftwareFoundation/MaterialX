@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38" colorspace="lin_rec709" fileprefix="../../../Images/">
+<materialx version="1.39" colorspace="lin_rec709" fileprefix="../../../Images/">
   <nodegraph name="NG_BrickPattern">
     <input name="brick_color" type="color3" value="0.661876, 0.19088, 0" uiname="Brick Color" uifolder="Color" />
     <input name="hue_variation" type="float" value="0.083" uimin="0" uimax="1" uiname="Hue Variation" uifolder="Color" />

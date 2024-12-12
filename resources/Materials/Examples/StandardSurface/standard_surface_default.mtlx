@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38" colorspace="lin_rec709">
+<materialx version="1.39" colorspace="lin_rec709">
   <standard_surface name="SR_default" type="surfaceshader">
     <input name="base" type="float" value="1.0" />
     <input name="base_color" type="color3" value="0.8, 0.8, 0.8" />
