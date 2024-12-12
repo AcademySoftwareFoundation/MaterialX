@@ -70,10 +70,10 @@ class MslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
     {
         whiteList =
         {
-            "backfacing", "screen", "displacementshader",
-            "volumeshader", "IM_constant_", "IM_dot_", "IM_geompropvalue_boolean", "IM_geompropvalue_string", "IM_geompropvalue_filename",
-            "IM_light_genmsl", "IM_point_light_genmsl", "IM_spot_light_genmsl", "IM_directional_light_genmsl",
-            "IM_angle", "surfacematerial", "volumematerial", "ND_surfacematerial", "ND_volumematerial", "ND_backface_util", "IM_backface_util_genmsl"
+            "displacementshader", "volumeshader", "surfacematerial", "volumematerial",
+            "IM_constant_", "IM_dot_", "IM_angle", "IM_geompropvalue_boolean", "IM_geompropvalue_string", "IM_geompropvalue_filename",
+            "IM_light_", "IM_point_light_", "IM_spot_light_", "IM_directional_light_",
+            "ND_surfacematerial", "ND_volumematerial"
         };
     }
 };

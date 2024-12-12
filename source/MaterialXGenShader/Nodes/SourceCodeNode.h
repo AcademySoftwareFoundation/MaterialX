@@ -26,6 +26,9 @@ class MX_GENSHADER_API SourceCodeNode : public ShaderNodeImpl
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
   protected:
+    /// Resolve the source file and read the source code during the initialization of the node.
+    virtual void resolveSourceCode(const InterfaceElement& element, GenContext& context);
+
     bool _inlined;
     string _functionName;
     string _functionSource;

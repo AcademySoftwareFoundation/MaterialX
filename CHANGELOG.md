@@ -18,11 +18,13 @@
 - Added documentation for [keyboard shortcuts](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2026) in the MaterialX Viewer.
 
 ### Changed
+- Improved the performance of [graph traversal](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2023) by skipping edges that have already been visited.
 - Reduced duplication between the [MSL and GLSL implementations](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2068) of nodes.
 
 ### Fixed
 - Fixed [unintentional camera orbiting](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2032) in the render view of the MaterialX Graph Editor.
 - Fixed [banding artifacts](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1977) in the MaterialX Viewer on MacOS.
+- Fixed the handling of [missing scenes](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2124) in the MaterialX Web Viewer.
 - Fixed a call to the [anisotropic_vdf closure](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2016) in OSL shader generation.
 
 ### Removed
