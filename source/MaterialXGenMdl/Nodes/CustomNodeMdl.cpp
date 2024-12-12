@@ -32,8 +32,8 @@ string CustomCodeNodeMdl::modifyPortName(const string& name, const MdlSyntax& sy
         const StringSet& reservedWords = syntax.getReservedWords();
         if (reservedWords.find(name) == reservedWords.end())
         {
-            // use existing MDL parameter names if they don't collide with a reserved word
-            // this allow to reference MDL existing functions without changing the MDL source code
+            // Use existing MDL parameter names if they don't collide with a reserved word.
+            // This allows us to reference MDL existing functions without changing the MDL source code.
             return name;
         }
     }
@@ -58,7 +58,7 @@ void CustomCodeNodeMdl::initialize(const InterfaceElement& element, GenContext& 
 void CustomCodeNodeMdl::initializeForInlineSourceCode(const InterfaceElement& element, GenContext& context)
 {
     const Implementation& impl = static_cast<const Implementation&>(element);
-    // store the inline source because the `_functionSource` is used for the function call template string
+    // Store the inline source because the `_functionSource` is used for the function call template string
     // that matched the regular MaterialX to MDL function mapping.
     _inlineSourceCode = impl.getAttribute("sourcecode");
     if (_inlineSourceCode.empty())
@@ -76,21 +76,21 @@ void CustomCodeNodeMdl::initializeForInlineSourceCode(const InterfaceElement& el
 
     const ShaderGenerator& shadergen = context.getShaderGenerator();
     const MdlSyntax& syntax = static_cast<const MdlSyntax&>(shadergen.getSyntax());
-    // construct the function call template string
+    // Construct the function call template string
     initializeFunctionCallTemplateString(syntax, *nodeDef);
-    // collect information about output names and defaults
+    // Collect information about output names and defaults
     initializeOutputDefaults(syntax, *nodeDef);
 }
 
 void CustomCodeNodeMdl::initializeForExternalSourceCode(const InterfaceElement& element, GenContext& context)
 {
-    // format the function source in a way that the ShaderCodeNodeMdl (the base class of the current one) can deal with it
+    // Format the function source in a way that the ShaderCodeNodeMdl (the base class of the current one) can deal with it
     const ShaderGenerator& shadergen = context.getShaderGenerator();
     const MdlShaderGenerator& shadergenMdl = static_cast<const MdlShaderGenerator&>(shadergen);
     const MdlSyntax& syntax = static_cast<const MdlSyntax&>(shadergen.getSyntax());
     const string uniformPrefix = syntax.getUniformQualifier() + " ";
 
-    // map `file` to a qualified MDL module name
+    // Map `file` to a qualified MDL module name
     const Implementation& impl = static_cast<const Implementation&>(element);
     string moduleName = impl.getAttribute("file");
     if (moduleName.empty())
@@ -125,15 +125,15 @@ void CustomCodeNodeMdl::initializeForExternalSourceCode(const InterfaceElement& 
     });
 
     NodeDefPtr nodeDef = impl.getNodeDef();
-    // construct the function call template string
+    // Construct the function call template string
     initializeFunctionCallTemplateString(syntax, *nodeDef);
-    // collect information about output names and defaults
+    // Collect information about output names and defaults
     initializeOutputDefaults(syntax, *nodeDef);
 }
 
 void CustomCodeNodeMdl::initializeFunctionCallTemplateString(const MdlSyntax& syntax, const NodeDef& nodeDef)
 {
-    // construct the fully qualified function name for external functions
+    // Construct the fully qualified function name for external functions
     if (_useExternalSourceCode)
     {
         _functionSource = _qualifiedModuleName.substr(2) + "::" + _functionName + "(";
@@ -144,7 +144,7 @@ void CustomCodeNodeMdl::initializeFunctionCallTemplateString(const MdlSyntax& sy
         _functionSource = _inlineFunctionName + "(";
     }
 
-    // function parameters
+    // Function parameters
     string delim = EMPTY_STRING;
     for (const InputPtr& input : nodeDef.getInputs())
     {
@@ -167,7 +167,7 @@ void CustomCodeNodeMdl::initializeOutputDefaults(const MdlSyntax&, const NodeDef
 
 void CustomCodeNodeMdl::emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    // no source code printing for externally defined functions
+    // No source code printing for externally defined functions
     if (_useExternalSourceCode)
     {
         return;
@@ -177,7 +177,7 @@ void CustomCodeNodeMdl::emitFunctionDefinition(const ShaderNode& node, GenContex
     const MdlSyntax& syntax = static_cast<const MdlSyntax&>(shadergen.getSyntax());
     shadergen.emitComment("generated code for implementation: '" + node.getImplementation().getName() + "'", stage);
 
-    // function return type
+    // Function return type
     struct Field
     {
         string name;
@@ -218,10 +218,10 @@ void CustomCodeNodeMdl::emitFunctionDefinition(const ShaderNode& node, GenContex
         shadergen.emitScopeEnd(stage, Syntax::CURLY_BRACKETS);
         shadergen.emitLineEnd(stage, false);
     }
-    // signature
+    // Signature
     shadergen.emitString(returnTypeName + " " + _inlineFunctionName, stage);
     {
-        // function parameters
+        // Function parameters
         shadergen.emitScopeBegin(stage, Syntax::PARENTHESES);
         size_t paramCount = node.getInputs().size();
         const string uniformPrefix = syntax.getUniformQualifier() + " ";
@@ -236,21 +236,21 @@ void CustomCodeNodeMdl::emitFunctionDefinition(const ShaderNode& node, GenContex
         shadergen.emitScopeEnd(stage, false, true);
     }
     {
-        // function body
+        // Function body
         shadergen.emitScopeBegin(stage, Syntax::CURLY_BRACKETS);
 
-        // out variable initialization
+        // Out variable initialization
         shadergen.emitComment("initialize outputs:", stage);
         for (const auto& field : outputs)
         {
             shadergen.emitLine(field.type_name + " " + field.name + " = " + field.default_value, stage);
         }
 
-        // user defined code
+        // User defined code
         shadergen.emitComment("inlined shader source code:", stage);
         shadergen.emitLine(_inlineSourceCode, stage, false);
 
-        // output packing
+        // Output packing
         shadergen.emitComment("pack (in case of multiple outputs) and return outputs:", stage);
         if (numOutputs == 1)
         {
@@ -258,7 +258,7 @@ void CustomCodeNodeMdl::emitFunctionDefinition(const ShaderNode& node, GenContex
         }
         else
         {
-            // return a constructor call of the return struct type
+            // Return a constructor call of the return struct type
             shadergen.emitString("    return " + returnTypeName + "(", stage);
             string delim = EMPTY_STRING;
             for (const auto& field : outputs)
