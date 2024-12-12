@@ -555,7 +555,7 @@ void MdlSyntax::makeValidName(string& name) const
     }
 }
 
-string MdlSyntax::modifyPortName(const string word) const
+string MdlSyntax::modifyPortName(const string& word) const
 {
     return PORT_NAME_PREFIX + word;
 }
