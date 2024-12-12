@@ -31,24 +31,24 @@ class MX_GENMDL_API CustomCodeNodeMdl : public SourceCodeNodeMdl
     string modifyPortName(const string& name, const MdlSyntax& syntax) const;
 
   protected:
-    /// initialize function for nodes that use the inline `sourcecode` attribute.
+    /// Initialize function for nodes that use the inline `sourcecode` attribute.
     void initializeForInlineSourceCode(const InterfaceElement& element, GenContext& context);
 
-    /// initialize function for nodes that use the `file` and `function` attribute. 
+    /// Initialize function for nodes that use the `file` and `function` attribute. 
     void initializeForExternalSourceCode(const InterfaceElement& element, GenContext& context);
 
-    /// computes the function call string with replacement markers use by base class.
+    /// Computes the function call string with replacement markers use by base class.
     void initializeFunctionCallTemplateString(const MdlSyntax& syntax, const NodeDef& node);
 
-    /// keep track of the default values needed for the inline `sourcecode` case.
+    /// Keep track of the default values needed for the inline `sourcecode` case.
     void initializeOutputDefaults(const MdlSyntax& syntax, const NodeDef& node);
 
     std::vector<ValuePtr> _outputDefaults; ///< store default values of the node definition
 
-    bool _useExternalSourceCode; ///< indicates that `file` and `function` are used by this node implementation
-    string _inlineFunctionName; ///< name of the functionDefinition to emit
-    string _inlineSourceCode; ///< the actual inline source code
-    string _qualifiedModuleName; ///< MDL qualified name derived from the `file` attribute
+    bool _useExternalSourceCode; // Indicates that `file` and `function` are used by this node implementation
+    string _inlineFunctionName; // Name of the functionDefinition to emit
+    string _inlineSourceCode; // The actual inline source code
+    string _qualifiedModuleName; // MDL qualified name derived from the `file` attribute
 };
 
 MATERIALX_NAMESPACE_END
