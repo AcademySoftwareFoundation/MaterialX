@@ -644,6 +644,36 @@ TypeDefPtr TypedElement::getTypeDef() const
 //
 // ValueElement methods
 //
+/// Get the value string of a element.
+const string ValueElement::getValueString() const
+{
+#if MATERIALX_BUILD_BAKE_NAMED_VALUES
+    return getAttribute(VALUE_ATTRIBUTE);
+#else
+    const string typeValuePrefix = "Value:";
+
+    auto valueStr = getAttribute(VALUE_ATTRIBUTE);
+    if (!stringStartsWith(valueStr, typeValuePrefix))
+    {
+        return valueStr;
+    }
+
+    auto typeDef = getTypeDef();
+    if (!typeDef)
+    {
+        throw Exception("Unable to find typeDef '"+getType()+"'");
+    }
+
+    auto valueNameStr = valueStr.substr(typeValuePrefix.size());
+    if (!typeDef->hasAttribute(valueNameStr))
+    {
+        throw Exception("Unable to find named value '"+valueNameStr+"' for type '"+typeDef->getName()+"'");
+    }
+
+    return typeDef->getAttribute(valueNameStr);
+#endif
+}
+
 
 string ValueElement::getResolvedValueString(StringResolverPtr resolver) const
 {

@@ -87,7 +87,7 @@ else()
 endif()
 
 
-set(JS_LINK_FLAGS_GENSHADER "${JS_LINK_FLAGS_CORE} --preload-file ${PROJECT_SOURCE_DIR}/libraries@libraries ")
+set(JS_LINK_FLAGS_GENSHADER "${JS_LINK_FLAGS_CORE} --preload-file ${PROJECT_BINARY_DIR}/libraries/DataLibraryBuild@libraries ")
 
 add_executable(JsMaterialXCore MaterialXLib.cpp
     ${CORE_DEPS}
@@ -131,6 +131,8 @@ set_target_properties(JsMaterialXGenShader
     LINK_FLAGS "${JS_LINK_FLAGS_GENSHADER}"
     INSTALL_RPATH "${MATERIALX_UP_TWO_RPATH}"
     SOVERSION "${MATERIALX_MAJOR_VERSION}")
+
+add_dependencies(JsMaterialXGenShader MaterialXBuildData)
 
 target_link_libraries(JsMaterialXCore
     PUBLIC MaterialXCore
