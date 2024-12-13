@@ -1,0 +1,172 @@
+<?xml version="1.0"?>
+<materialx version="1.39" colorspace="acescg">
+  <nodedef name="ND_lama_generalized_schlick" node="LamaGeneralizedSchlick" nodegroup="pbr" doc="Lama generalized schlick" version="1.0" isdefaultversion="true">
+    <input name="reflectionTint" type="color3" value="1.0, 1.0, 1.0" uiname="Reflection Tint" uifolder="Main"
+           doc="Color multiplier for external reflection. It should be used with parsimony, as a non-white value breaks physicality." />
+    <input name="transmissionTint" type="color3" value="1.0, 1.0, 1.0" uiname="Transmission Tint" uifolder="Main"
+           doc="Color multiplier for rays going inside the medium (covers external transmission and internal reflection). It should be used sparingly, as a non-white value breaks physicality. The preferred way to define the color of a dielectric is through the Interior attributes right below." />
+    <input name="fresnelMode" type="integer" uniform="true" enum="Artistic,Scientific" enumvalues="0,1" value="0" uiname="Fresnel Mode" uifolder="Main"
+           doc="Switches the Fresnel between Artistic and Scientific parameters. The Artistic mode offers reflectivity in the normal direction and reflectivity90 at the grazing angle. The Scientific mode provides an index of refraction for each rgb component. Note that IOR is only used to calculate the reflectivity value used by the Schlick approximation. When reflectivity90 is 1, then both modes achieve identical results, as one can be mapped to the other." />
+    <input name="IOR" type="vector3" value="1.5,1.5,1.5" uiname="IOR" uifolder="Main"
+           doc="Index of refraction (often denoted by eta), defining the amount reflected by the surface in the normal direction, and how the rays are bent by refraction. A separate value can be specified for each color channel, if desired." />
+    <input name="reflectivity" type="color3" value="0.04, 0.04, 0.04" uiname="Reflectivity" uifolder="Main"
+           doc="Color reflected by the surface in the normal direction." />
+    <input name="reflectivity90" type="color3" value="1.0, 1.0, 1.0" uiname="Reflectivity 90" uifolder="Main"
+           doc="Color reflected by the surface at the grazing angle. Should be kept at 1,1,1 for most materials." />
+    <input name="reflectivityProfile" type="float" value="0.2" uimin="0.0" uimax="1.0" uiname="ReflectivityProfile" uifolder="Main"
+           doc="The inverse of the exponent to use for Schlick." />
+    <input name="roughness" type="float" value="0.1" uimin="0.0" uimax="1.0" uiname="Roughness" uifolder="Main"
+           doc="Micro-facet distribution roughness." />
+    <input name="normal" type="vector3" defaultgeomprop="Nworld" uiname="Normal" uifolder="Main"
+           doc="Shading normal, typically defined by bump or normal mapping. Defaults to the smooth surface normal if not set." />
+    <input name="anisotropy" type="float" value="-1.0" uimin="-1.0" uimax="1.0" uiname="Anisotropy" uifolder="Anisotropy"
+           doc="Defines the roughness in the co-tangent direction, giving anisotropic reflection if the value differs from the roughness parameter value. A negative value (the default) means use the original roughness value, i.e. no anisotropy. " />
+    <input name="anisotropyDirection" type="vector3" defaultgeomprop="Tworld" uiname="Direction" uifolder="Anisotropy"
+           doc="Overrides the surface tangent as the anisotropy direction." />
+    <input name="anisotropyRotation" type="float" value="0.0" uisoftmin="0.0" uisoftmax="1.0" uiname="Rotation" uifolder="Anisotropy"
+           doc="Rotates the anisotropy direction (possibly overridden by the previous attribute) around the normal, from 0 to 360 degrees." />
+    <input name="absorptionColor" type="color3" value="1.0, 1.0, 1.0" uiname="Absorption Color" uifolder="Interior"
+           doc="Interior volume absorption color. It is defined as the negative logarithm of the extinction coefficient, with values between 0 and 1, such that the object itself and its shadows are tinted proportionally. If set to 1, there is no absorption, and if set to 0, the object will be completely opaque. Note that for single scattering to kick in, the value must be inferior to 1. This value will also act as coating color, when this node is used as top layer in a stack." />
+    <input name="absorptionRadius" type="float" value="1.0" uimin="0.0" uiname="Absorption Radius" uifolder="Interior"
+           doc="Distance, in world space units, at which the Absorption Color is assumed to be reached. Can be used to control the rate of absorption." />
+    <input name="scatterColor" type="color3" value="0.0, 0.0, 0.0" uiname="Scatter Color" uifolder="Interior"
+           doc="Color (aka scattering albedo) of the medium, defines what proportion of the light hitting volumetric particles is scattered around by the phase function (as opposed to just absorbed), for each color channel. Only takes effect if the corresponding channel has a non-null density, in other words if the Absorption Color value for that channel is inferior to 1." />
+    <input name="scatterAnisotropy" type="float" value="0.0" uimin="-1.0" uimax="1.0" uiname="Scatter Anisotropy" uifolder="Interior"
+           doc="Anisotropy of the medium's phase function, ranging from full backward scattering at -1 to forward scattering at 1. Only takes effect if the Scatter Color is non-null." />
+    <output name="out" type="BSDF" />
+  </nodedef>
+
+  <nodegraph name="IMPL_lama_generalized_schlick" nodedef="ND_lama_generalized_schlick">
+
+    <!-- Color0 and Color90 -->
+    <convert name="convert_ior" type="color3">
+      <input name="in" type="vector3" interfacename="IOR" />
+    </convert>
+    <add name="ior_plus_one" type="color3">
+      <input name="in1" type="color3" nodename="convert_ior" />
+      <input name="in2" type="float" value="1" />
+    </add>
+    <subtract name="ior_sub_one" type="color3">
+      <input name="in1" type="color3" nodename="convert_ior" />
+      <input name="in2" type="float" value="1" />
+    </subtract>
+    <divide name="ior_divide" type="color3">
+      <input name="in1" type="color3" nodename="ior_sub_one" />
+      <input name="in2" type="color3" nodename="ior_plus_one" />
+    </divide>
+    <multiply name="ior_multiply" type="color3">
+      <input name="in1" type="color3" nodename="ior_divide" />
+      <input name="in2" type="color3" nodename="ior_divide" />
+    </multiply>
+    <switch name="fresnel_mode_switch" type="color3">
+      <input name="in1" type="color3" interfacename="reflectivity" />
+      <input name="in2" type="color3" nodename="ior_multiply" />
+      <input name="which" type="integer" interfacename="fresnelMode" />
+    </switch>
+
+    <!-- Exponent -->
+    <divide name="exponent" type="float">
+      <input name="in1" type="float" value="1" />
+      <input name="in2" type="float" interfacename="reflectivityProfile" />
+    </divide>
+
+    <!-- Roughness -->
+    <ifgreater name="anisotropy_switch" type="float">
+      <input name="value1" type="float" interfacename="anisotropy" />
+      <input name="value2" type="float" value="0.0" />
+      <input name="in1" type="float" interfacename="anisotropy" />
+      <input name="in2" type="float" interfacename="roughness" />
+    </ifgreater>
+    <combine2 name="roughness_linear" type="vector2">
+      <input name="in1" type="float" interfacename="roughness" />
+      <input name="in2" type="float" nodename="anisotropy_switch" />
+    </combine2>
+    <power name="roughness_anisotropic_squared" type="vector2">
+      <input name="in1" type="vector2" nodename="roughness_linear" />
+      <input name="in2" type="float" value="2" />
+    </power>
+    <max name="roughness_anisotropic_squared_clamped" type="vector2">
+      <input name="in1" type="vector2" nodename="roughness_anisotropic_squared" />
+      <input name="in2" type="float" value="0.000001" />
+    </max>
+
+    <!-- Tangent -->
+    <multiply name="tangent_rotate_degree" type="float">
+      <input name="in1" type="float" interfacename="anisotropyRotation" />
+      <input name="in2" type="float" value="-360" />
+    </multiply>
+    <rotate3d name="tangent_rotate" type="vector3">
+      <input name="in" type="vector3" interfacename="anisotropyDirection" />
+      <input name="amount" type="float" nodename="tangent_rotate_degree" />
+      <input name="axis" type="vector3" interfacename="normal" />
+    </rotate3d>
+    <normalize name="tangent_rotate_normalize" type="vector3">
+      <input name="in" type="vector3" nodename="tangent_rotate" />
+    </normalize>
+
+    <!-- Interior -->
+    <divide name="absorption" type="color3">
+      <input name="in1" type="color3" interfacename="absorptionColor" />
+      <input name="in2" type="float" interfacename="absorptionRadius" />
+    </divide>
+    <convert name="absorption_vector" type="vector3">
+      <input name="in" type="color3" nodename="absorption" />
+    </convert>
+    <convert name="scatter_vector" type="vector3">
+      <input name="in" type="color3" interfacename="scatterColor" />
+    </convert>
+    <anisotropic_vdf name="interior_vdf" type="VDF">
+      <input name="absorption" type="vector3" nodename="absorption_vector" />
+      <input name="scattering" type="vector3" nodename="scatter_vector" />
+      <input name="anisotropy" type="float" interfacename="scatterAnisotropy" />
+    </anisotropic_vdf>
+
+    <!-- Transmission -->
+    <generalized_schlick_bsdf name="transmission_bsdf" type="BSDF">
+      <input name="weight" type="float" value="1.0" />
+      <input name="color0" type="color3" nodename="fresnel_mode_switch" />
+      <input name="color90" type="color3" interfacename="reflectivity90" />
+      <input name="exponent" type="float" nodename="exponent" />
+      <input name="roughness" type="vector2" nodename="roughness_anisotropic_squared_clamped" />
+      <input name="normal" type="vector3" interfacename="normal" />
+      <input name="tangent" type="vector3" nodename="tangent_rotate_normalize" />
+      <input name="distribution" type="string" value="ggx" />
+      <input name="scatter_mode" type="string" value="T" />
+    </generalized_schlick_bsdf>
+    <layer name="transmission_interior" type="BSDF">
+      <input name="top" type="BSDF" nodename="transmission_bsdf" />
+      <input name="base" type="VDF" nodename="interior_vdf" />
+    </layer>
+    <multiply name="transmission_layer" type="BSDF">
+      <input name="in1" type="BSDF" nodename="transmission_interior" />
+      <input name="in2" type="color3" interfacename="transmissionTint" />
+    </multiply>
+
+    <!-- Reflection -->
+    <generalized_schlick_bsdf name="reflection_generalized_schlick_bsdf" type="BSDF">
+      <input name="weight" type="float" value="1.0" />
+      <input name="color0" type="color3" nodename="fresnel_mode_switch" />
+      <input name="color90" type="color3" interfacename="reflectivity90" />
+      <input name="exponent" type="float" nodename="exponent" />
+      <input name="roughness" type="vector2" nodename="roughness_anisotropic_squared_clamped" />
+      <input name="normal" type="vector3" interfacename="normal" />
+      <input name="tangent" type="vector3" nodename="tangent_rotate_normalize" />
+      <input name="distribution" type="string" value="ggx" />
+      <input name="scatter_mode" type="string" value="R" />
+    </generalized_schlick_bsdf>
+    <multiply name="reflection_layer" type="BSDF">
+      <input name="in1" type="BSDF" nodename="reflection_generalized_schlick_bsdf" />
+      <input name="in2" type="color3" interfacename="reflectionTint" />
+    </multiply>
+
+    <!-- BSDF -->
+    <layer name="generalized_schlick_bsdf" type="BSDF">
+      <input name="top" type="BSDF" nodename="reflection_layer" />
+      <input name="base" type="BSDF" nodename="transmission_layer" />
+    </layer>
+
+    <!-- Output -->
+    <output name="out" type="BSDF" nodename="generalized_schlick_bsdf" />
+
+  </nodegraph>
+</materialx>
