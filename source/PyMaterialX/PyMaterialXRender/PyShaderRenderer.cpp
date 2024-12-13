@@ -28,8 +28,19 @@ void bindPyShaderRenderer(py::module& mod)
         .def("updateUniform", &mx::ShaderRenderer::updateUniform)
         .def("setSize", &mx::ShaderRenderer::setSize)
         .def("render", &mx::ShaderRenderer::render);
+    mod.attr("ShaderRenderer").doc() = R"docstring(
+    Base class for renderers that generate shader code to produce images.
+
+    :see: https://materialx.org/docs/api/class_shader_renderer.html)docstring";
 
     static py::exception<mx::ExceptionRenderError> pyExceptionRenderError(mod, "ExceptionRenderError");
+    mod.attr("ExceptionRenderError").doc() = R"docstring(
+    A type of exception that is raised when a rendering operation fails.
+
+    Optionally stores an additional error log, which can be used to
+    store and retrieve shader compilation errors.
+
+    :see: https://materialx.org/docs/api/class_exception_render_error.html)docstring";
 
     py::register_exception_translator(
         [](std::exception_ptr errPtr)
