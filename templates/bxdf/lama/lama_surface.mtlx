@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<materialx version="1.39" colorspace="acescg">
+  <nodedef name="ND_lama_surface" node="LamaSurface" nodegroup="pbr" version="1.0" isdefaultversion="true">
+    <input name="materialFront" uiname="Material Front" type="BSDF" 
+           doc="Material used on the front side (as defined by the geometric normal)." />
+    <input name="materialBack" uiname="Material Back" type="BSDF" 
+           doc="Material used on the back side (as defined by the geometric normal)." />
+    <input name="presence" type="float" value="1.0"
+           doc="Connect a mask here to apply a cutout pattern to your object. This is useful for cutouts like creating leaves and other thin, complex shapes. It can also be used as opacity for gray values for semi-opaque results when seen directly by the camera." />
+    <output name="out" type="material" />
+  </nodedef>
+
+  <nodegraph name="NG_lama_surface" nodedef="ND_lama_surface">
+    <surface name="front" type="surfaceshader">
+      <input name="bsdf" type="BSDF" interfacename="materialFront" />
+      <input name="opacity" type="float" interfacename="presence" />
+    </surface>
+    <surface name="back" type="surfaceshader">
+      <input name="bsdf" type="BSDF" interfacename="materialBack" />
+      <input name="opacity" type="float" interfacename="presence" />
+    </surface>
+    <surfacematerial name="surface_material" type="material">
+      <input name="surfaceshader" type="surfaceshader" nodename="front" />
+      <input name="backsurfaceshader" type="surfaceshader" nodename="back" />
+    </surfacematerial>
+    <output name="out" type="material" nodename="surface_material" />
+  </nodegraph>
+</materialx>

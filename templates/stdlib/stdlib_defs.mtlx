@@ -1,0 +1,2393 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+  <!--
+    Copyright Contributors to the MaterialX Project
+    SPDX-License-Identifier: Apache-2.0
+
+    Declarations of standard data types and nodes included in the MaterialX specification.
+  -->
+
+  <!-- ======================================================================== -->
+  <!-- Data types                                                               -->
+  <!-- ======================================================================== -->
+
+  <typedef name="boolean">
+    <constant name="zero" value="false"/>
+    <constant name="one" value="true"/>
+  </typedef>
+  <typedef name="integer" >
+    <constant name="zero" value="0"/>
+    <constant name="one" value="1"/>
+    <constant name="ten" value="10"/>
+  </typedef>
+  <typedef name="float" >
+    <constant name="zero" value="0.0"/>
+    <constant name="half" value="0.5"/>
+    <constant name="one" value="1.0"/>
+    <constant name="ten" value="10.0"/>
+  </typedef>
+  <typedef name="color3" semantic="color" >
+    <constant name="zero" value="0.0, 0.0, 0.0"/>
+    <constant name="half" value="0.5, 0.5, 0.5"/>
+    <constant name="one" value="1.0, 1.0, 1.0"/>
+  </typedef>
+  <typedef name="color4" semantic="color" >
+    <constant name="zero" value="0.0, 0.0, 0.0, 0.0"/>
+    <constant name="half" value="0.5, 0.5, 0.5, 0.5"/>
+    <constant name="one" value="1.0, 1.0, 1.0, 1.0"/>
+  </typedef>
+  <typedef name="vector2" >
+    <constant name="zero" value="0.0, 0.0"/>
+    <constant name="half" value="0.5, 0.5"/>
+    <constant name="one" value="1.0, 1.0"/>
+  </typedef>
+  <typedef name="vector3" >
+    <constant name="zero" value="0.0, 0.0, 0.0"/>
+    <constant name="half" value="0.5, 0.5, 0.5"/>
+    <constant name="one" value="1.0, 1.0, 1.0"/>
+  </typedef>
+  <typedef name="vector4" >
+    <constant name="zero" value="0.0, 0.0, 0.0, 0.0"/>
+    <constant name="half" value="0.5, 0.5, 0.5, 0.5"/>
+    <constant name="one" value="1.0, 1.0, 1.0, 1.0"/>
+  </typedef>
+  <typedef name="matrix33">
+    <constant name="zero" value="0.0,0.0,0.0, 0.0,0.0,0.0, 0.0,0.0,0.0"/>
+    <constant name="one" value="1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0"/>
+  </typedef>
+  <typedef name="matrix44">
+    <constant name="zero" value="0.0,0.0,0.0,0.0, 0.0,0.0,0.0,0.0, 0.0,0.0,0.0,0.0, 0.0,0.0,0.0,0.0"/>
+    <constant name="one" value="1.0,0.0,0.0,0.0, 0.0,1.0,0.0,0.0, 0.0,0.0,1.0,0.0, 0.0,0.0,0.0,1.0"/>
+  </typedef>
+  <typedef name="string">
+    <constant name="zero" value=""/>
+    <constant name="empty" value=""/>
+  </typedef>
+  <typedef name="filename">
+    <constant name="zero" value=""/>
+    <constant name="empty" value=""/>
+  </typedef>
+  <typedef name="geomname" />
+  <typedef name="surfaceshader" semantic="shader" context="surface">
+    <constant name="zero" value=""/>
+  </typedef>
+  <typedef name="displacementshader" semantic="shader" context="displacement">
+    <constant name="zero" value=""/>
+  </typedef>
+  <typedef name="volumeshader" semantic="shader" context="volume">
+    <constant name="zero" value=""/>
+  </typedef>
+  <typedef name="lightshader" semantic="shader" context="light">
+    <constant name="zero" value=""/>
+  </typedef>
+  <typedef name="material" semantic="material" />
+  <typedef name="none" />
+
+  <typedef name="integerarray" />
+  <typedef name="floatarray" />
+  <typedef name="color3array" semantic="color" />
+  <typedef name="color4array" semantic="color" />
+  <typedef name="vector2array" />
+  <typedef name="vector3array" />
+  <typedef name="vector4array" />
+  <typedef name="stringarray" />
+  <typedef name="geomnamearray" />
+
+  <!-- ======================================================================== -->
+  <!-- Units and unit types                                                     -->
+  <!-- ======================================================================== -->
+
+  <unittypedef name="distance" />
+  <unitdef name="UD_stdlib_distance" unittype="distance">
+    <unit name="nanometer" scale="0.000000001" />
+    <unit name="micron" scale="0.000001" />
+    <unit name="millimeter" scale="0.001" />
+    <unit name="centimeter" scale="0.01" />
+    <unit name="inch" scale="0.0254" />
+    <unit name="foot" scale="0.3048" />
+    <unit name="yard" scale="0.9144" />
+    <unit name="meter" scale="1.0" />
+    <unit name="kilometer" scale="1000.0" />
+    <unit name="mile" scale="1609.344" />
+  </unitdef>
+
+  <unittypedef name="angle" />
+  <unitdef name="UD_stdlib_angle" unittype="angle">
+    <unit name="degree" scale="1.0" />
+    <unit name="radian" scale="57.295779513" />
+  </unitdef>
+
+  <!-- ======================================================================== -->
+  <!-- Geometric Properties                                                     -->
+  <!-- ======================================================================== -->
+
+  <geompropdef name="Pobject" type="vector3" geomprop="position" space="object" />
+  <geompropdef name="Nobject" type="vector3" geomprop="normal" space="object" />
+  <geompropdef name="Tobject" type="vector3" geomprop="tangent" space="object" index="0" />
+  <geompropdef name="Bobject" type="vector3" geomprop="bitangent" space="object" index="0" />
+  <geompropdef name="Pworld" type="vector3" geomprop="position" space="world" />
+  <geompropdef name="Nworld" type="vector3" geomprop="normal" space="world" />
+  <geompropdef name="Tworld" type="vector3" geomprop="tangent" space="world" index="0" />
+  <geompropdef name="Bworld" type="vector3" geomprop="bitangent" space="world" index="0" />
+  <geompropdef name="UV0" type="vector2" geomprop="texcoord" index="0" />
+
+  <!-- ======================================================================== -->
+  <!-- Materials                                                                -->
+  <!-- ======================================================================== -->
+
+  <!-- Surface material -->
+  <nodedef name="ND_surfacematerial" node="surfacematerial" nodegroup="material">
+    <input name="surfaceshader" type="surfaceshader" value="" />
+    <input name="backsurfaceshader" type="surfaceshader" value="" />
+    <input name="displacementshader" type="displacementshader" value="" />
+    <output name="out" type="material" />
+  </nodedef>
+
+  <!-- Volume material -->
+  <nodedef name="ND_volumematerial" node="volumematerial" nodegroup="material">
+    <input name="volumeshader" type="volumeshader" value="" />
+    <output name="out" type="material" />
+  </nodedef>
+
+  <!-- ======================================================================== -->
+  <!-- Shader nodes                                                             -->
+  <!-- ======================================================================== -->
+
+  <!--
+    Node: <surface_unlit>
+    An unlit surface shader node. Represents a surface that can emit and transmit light, 
+    but does not receive illumination from light sources or other surfaces.
+  -->
+  <nodedef name="ND_surface_unlit" node="surface_unlit" nodegroup="shader" doc="Construct a surface shader from emission and transmission values.">
+    <input name="emission" type="float" value="1.0" doc="Surface emission amount." />
+    <input name="emission_color" type="color3" value="1,1,1" doc="Surface emission color." />
+    <input name="transmission" type="float" value="0.0" doc="Surface transmission amount." />
+    <input name="transmission_color" type="color3" value="1,1,1" doc="Surface transmission color." />
+    <input name="opacity" type="float" value="1.0" doc="Surface cutout opacity." />
+    <output name="out" type="surfaceshader" />
+  </nodedef>
+
+  <!-- ======================================================================== -->
+  <!-- Texture nodes                                                            -->
+  <!-- ======================================================================== -->
+
+  <!--
+    Node: <image>
+    Samples data from a single image, or from a layer within a multi-layer image.
+  -->
+  <template name="TP_ND_image" varnames="typeName" options="(float, color3, color4, vector2, vector3, vector4)">
+    <nodedef name="ND_image_@typeName@" node="image" nodegroup="texture2d">
+      <input name="file" type="filename" value="" uiname="Filename" uniform="true" spec_desc="The URI of an image file" />
+      <input name="layer" type="string" value="" uiname="Layer" uniform="true" spec_desc="The name of the layer to extract from a multi-layer input file"/>
+      <input name="default" type="@typeName@" value="Constant:zero" uiname="Default Color" spec_desc="A default value to use if the file reference can not be resolved" />
+      <input name="texcoord" type="vector2" defaultgeomprop="UV0" uiname="Texture Coordinates" spec_desc="The 2D texture coordinate at which the image data is read" />
+      <input name="uaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode U" uniform="true" spec_desc="Determines how U coordinates outside the 0-1 range are processed before sampling the image" spec_acceptedvalues="constant, clamp, periodic, mirror" />
+      <input name="vaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode V" uniform="true" spec_desc="Determines how V coordinates outside the 0-1 range are processed before sampling the image" spec_acceptedvalues="constant, clamp, periodic, mirror"/>
+      <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uiname="Filter Type" uniform="true" spec_desc="The type of texture filtering to use" />
+      <input name="framerange" type="string" value="" uiname="Frame Range" uniform="true" spec_desc="A string 'minframe-maxframe', e.g. '10-99', to specify the range of frames that the image file is allowed to have" />
+      <input name="frameoffset" type="integer" value="0" uiname="Frame Offset" uniform="true" spec_desc="A number that is added to the current frame number to get the image file frame number" />
+      <input name="frameendaction" type="string" value="constant" enum="constant,clamp,periodic,mirror" uiname="Frame End Action" uniform="true" spec_desc="What to do when the resolved image frame number is outside the `framerange` range" spec_acceptedvalues="constant, clamp, periodic, mirror" />
+      <output name="out" type="@typeName@" default="Constant:zero" spec_desc="the sampled texture value" />
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <tiledimage> Supplemental Node
+    Samples data from a single image, with provisions for tiling and offsetting the image
+    across uv space.
+  -->
+  <template name="TP_ND_tiledimage" varnames="typeName" options="(float, color3, color4, vector2, vector3, vector4)">
+    <nodedef name="ND_tiledimage_@typeName@" node="tiledimage" nodegroup="texture2d">
+      <input name="file" type="filename" value="" uniform="true" spec_desc="The URI of an image file"/>
+      <input name="default" type="@typeName@" value="Constant:zero" spec_desc="A default value to use if the file reference can not be resolved" />
+      <input name="texcoord" type="vector2" defaultgeomprop="UV0" spec_desc="The 2D texture coordinate at which the image data is read" />
+      <input name="uvtiling" type="vector2" value="1.0, 1.0" spec_desc="The tiling rate for the given image along the U and V axes" />
+      <input name="uvoffset" type="vector2" value="0.0, 0.0" spec_desc="The offset for the given image along the U and V axes" />
+      <input name="realworldimagesize" type="vector2" value="1.0, 1.0" unittype="distance" spec_desc="The real-world size represented by the file image" />
+      <input name="realworldtilesize" type="vector2" value="1.0, 1.0" unittype="distance" spec_desc="The real-world size of a single square 0-1 UV tile" />
+      <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uniform="true" spec_desc="The type of texture filtering to use" />
+      <input name="framerange" type="string" value="" uniform="true" spec_desc="A string 'minframe-maxframe', e.g. '10-99', to specify the range of frames that the image file is allowed to have" />
+      <input name="frameoffset" type="integer" value="0" uniform="true" spec_desc="A number that is added to the current frame number to get the image file frame number" />
+      <input name="frameendaction" type="string" value="constant" enum="constant,clamp,periodic,mirror" uniform="true" spec_desc="What to do when the resolved image frame number is outside the `framerange` range" spec_acceptedvalues="constant, clamp, periodic, mirror" />
+      <output name="out" type="@typeName@" default="Constant:zero" spec_desc="the sampled texture value" />
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <latlongimage> Supplemental Node
+    Samples an equiangular map with adjustable rotation offset.
+  -->
+  <nodedef name="ND_latlongimage" node="latlongimage" nodegroup="texture2d">
+    <input name="file" type="filename" value="" uniform="true" uiname="Filename" spec_desc="The URI of an image file"/>
+    <input name="default" type="color3" value="0.0, 0.0, 0.0" uiname="Default Color" spec_desc="A default value to use if the file reference can not be resolved" />
+    <input name="viewdir" type="vector3" value="0.0, 0.0, 1.0" uiname="View Direction" spec_desc="The view direction determining the value sampled from the projected equiangular map" />
+    <input name="rotation" type="float" value="0.0" unittype="angle" unit="degree" uimin="0" uimax="360" uiname="Longitude Offset" spec_desc="The longitudinal sampling offset, in degrees" />
+    <output name="out" type="color3" default="0.0, 0.0, 0.0" spec_desc="the sampled texture value"/>
+  </nodedef>
+  
+  <!--
+    Node: <hextiledimage> Supplemental Node
+    Samples data from a single image, with provisions for hex-tiling and randomizing the image
+    across uv space.
+  -->
+  <template name="TP_ND_hextiledimage" varnames="typeName" options="(color3, color4)">
+    <nodedef name="ND_hextiledimage_@typeName@" node="hextiledimage" nodegroup="texture2d">
+      <input name="file" type="filename" value="" uniform="true" />
+      <input name="default" type="@typeName@" value="Constant:zero" />
+      <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+      <input name="tiling" type="vector2" value="1.0, 1.0" />
+      <input name="rotation" type="float" value="1.0" />
+      <input name="rotationrange" type="vector2" value="0.0, 360.0" />
+      <input name="scale" type="float" value="1.0" />
+      <input name="scalerange" type="vector2" value="0.5, 2.0" />
+      <input name="offset" type="float" value="1.0" />
+      <input name="offsetrange" type="vector2" value="0.0, 1.0" />
+      <input name="falloff" type="float" value="0.5" />
+      <input name="falloffcontrast" type="float" value="0.5" />
+      <input name="lumacoeffs" type="color3" value="0.2722287, 0.6740818, 0.0536895" enum="acescg, rec709, rec2020, rec2100" enumvalues="0.2722287,0.6740818,0.0536895, 0.2126,0.7152,0.0722, 0.2627,0.6780,0.0593, 0.2627,0.6780,0.0593" />
+      <output name="out" type="@typeName@" default="Constant:zero" />
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <triplanarprojection> Supplemental Node
+    Samples data from three images, or layers within multi-layer images, and projects a tiled
+    representation of the images along each of the three respective coordinate axes, computing
+    an adjustable weighted blend of the three samples using the geometric normal.
+  -->
+  <template name="TP_ND_triplanarprojection" varnames="typeName" options="(float, color3, color4, vector2, vector3, vector4)">
+    <nodedef name="ND_triplanarprojection_@typeName@" node="triplanarprojection" nodegroup="texture3d">
+      <input name="filex" type="filename" value="" uniform="true" spec_desc="The URI of an image file to be projected in the direction from the +X axis back toward the origin" />
+      <input name="filey" type="filename" value="" uniform="true" spec_desc="The URI of an image file to be projected in the direction from the +Y axis back toward the origin"/>
+      <input name="filez" type="filename" value="" uniform="true" spec_desc="The URI of an image file to be projected in the direction from the +Z axis back toward the origin"/>
+      <input name="layerx" type="string" value="" uniform="true" spec_desc="The name of the layer to extract from a multi-layer input file for the X-axis projection" />
+      <input name="layery" type="string" value="" uniform="true" spec_desc="The name of the layer to extract from a multi-layer input file for the Y-axis projection"/>
+      <input name="layerz" type="string" value="" uniform="true" spec_desc="The name of the layer to extract from a multi-layer input file for the Z-axis projection"/>
+      <input name="default" type="@typeName@" value="Constant:zero" spec_desc="A default value to use if the file reference can not be resolved" />
+      <input name="position" type="vector3" defaultgeomprop="Pobject" spec_desc="A spatially-varying input specifying the 3D position at which the projection is evaluated" />
+      <input name="normal" type="vector3" defaultgeomprop="Nobject" spec_desc="A spatially-varying input specifying the 3D normal vector used for blending" />
+      <input name="upaxis" type="integer" value="2" enum="X,Y,Z" enumvalues="0,1,2" uniform="true" spec_desc="Which axis is considered to be 'up', either 0 for X, 1 for Y, or 2 for Z" spec_acceptedvalues="0, 1, 2" />
+      <input name="blend" type="float" value="1.0" uimin="0.0" uimax="1.0" spec_desc="Weighting factor for blending samples using the geometric normal, with higher values giving softer blending" />
+      <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uniform="true" spec_desc="The type of texture filtering to use" />
+      <input name="framerange" type="string" value="" uniform="true" spec_desc="A string 'minframe-maxframe', e.g. '10-99', to specify the range of frames that the image file is allowed to have" />
+      <input name="frameoffset" type="integer" value="0" uniform="true" spec_desc="A number that is added to the current frame number to get the image file frame number" />
+      <input name="frameendaction" type="string" value="constant" enum="constant,clamp,periodic,mirror" uniform="true" spec_desc="What to do when the resolved image frame number is outside the `framerange` range" spec_acceptedvalues="constant, clamp, periodic, mirror" />
+      <output name="out" type="@typeName@" default="Constant:zero" spec_desc="the blended texture value" />
+    </nodedef>
+  </template>
+
+  <!-- ======================================================================== -->
+  <!-- Procedural nodes                                                         -->
+  <!-- ======================================================================== -->
+
+  <!--
+    Node: <constant>
+    A constant value. When exposed as a public parameter, this is a way to create a
+    value that can be accessed in multiple places in the opgraph.
+  -->
+  <template name="TP_ND_constant" varnames="typeName" options="(float, color3, color4, vector2, vector3, vector4, boolean, integer)">
+    <nodedef name="ND_constant_@typeName@" node="constant" nodegroup="procedural">
+      <input name="value" type="@typeName@" value="Constant:zero" spec_desc="The value that will be sent to `out`" />
+      <output name="out" type="@typeName@" default="Constant:zero" spec_desc="`value`" />
+    </nodedef>
+  </template>
+  <template name="TP_ND_constant_matrix" varnames="typeName" options="(matrix33, matrix44)">
+    <nodedef name="ND_constant_@typeName@" node="constant" nodegroup="procedural">
+      <input name="value" type="@typeName@" value="Constant:one" spec_desc="The value that will be sent to `out`"/>
+      <output name="out" type="@typeName@" default="Constant:one" spec_desc="`value`"/>
+    </nodedef>
+  </template>
+  <template name="TP_ND_constant_uniform" varnames="typeName" options="(string, filename)">
+    <nodedef name="ND_constant_@typeName@" node="constant" nodegroup="procedural">
+      <input name="value" type="@typeName@" value="Constant:empty" uniform="true" spec_desc="The value that will be sent to `out`"/>
+      <output name="out" type="@typeName@" default="Constant:empty" spec_desc="`value`"/>
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <ramp>
+    A ramp that supports up to 10 control points.
+  -->
+  <nodedef name="ND_ramp" node="ramp" nodegroup="procedural2d">
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <input name="type" type="integer" value="0" enum="standard,radial,circular,box" enumvalues="0,1,2,3" />
+    <input name="interpolation" type="integer" value="1" enum="linear,smooth,step" enumvalues="0,1,2" />
+    <input name="num_intervals" type="integer" value="2" uimin="2" uimax="10" />
+    <input name="interval1" type="float" value="0" uimin="0" uimax="1" />
+    <input name="color1" type="color4" value="0,0,0,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval2" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color2" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval3" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color3" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval4" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color4" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval5" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color5" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval6" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color6" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval7" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color7" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval8" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color8" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval9" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color9" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval10" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color10" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <output name="out" type="color4" />
+  </nodedef>
+
+  <!--
+    Node <ramp_gradient>
+    A helper node that handles a single control point within a <ramp>.
+  -->
+  <nodedef name="ND_ramp_gradient" node="ramp_gradient" nodegroup="procedural2d">
+    <input name="x" type="float" value="0" uimin="0" uimax="1" />
+    <input name="interval1" type="float" value="0" uimin="0" uimax="1" />
+    <input name="interval2" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color1" type="color4" value="0,0,0,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="color2" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interpolation" type="integer" value="1" enum="linear,smooth,step" enumvalues="0,1,2" />
+    <input name="prev_color" type="color4" value="0,0,0,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval_num" type="integer" value="1" />
+    <input name="num_intervals" type="integer" value="2" />
+    <output name="out" type="color4" />
+  </nodedef>
+
+  <!--
+    Node: <ramplr>
+    A left-to-right bilinear value ramp.
+  -->
+  <template name="TP_ND_ramplr" varnames="typeName" options="(float, color3, color4, vector2, vector3, vector4)">
+    <nodedef name="ND_ramplr_@typeName@" node="ramplr" nodegroup="procedural2d">
+      <input name="valuel" type="@typeName@" value="Constant:zero" spec_desc="Value at the left (U=0) edge" />
+      <input name="valuer" type="@typeName@" value="Constant:zero" spec_desc="Value at the right (U=1) edge " />
+      <input name="texcoord" type="vector2" defaultgeomprop="UV0" spec_desc="2D texture coordinate at which the ramp interpolation is evaluated " />
+      <output name="out" type="@typeName@" default="Constant:zero" spec_desc="interpolated ramp value" />
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <ramptb>
+    A top-to-bottom bilinear value ramp.
+  -->
+  <template name="TP_ND_ramptb" varnames="typeName" options="(float, color3, color4, vector2, vector3, vector4)">
+    <nodedef name="ND_ramptb_@typeName@" node="ramptb" nodegroup="procedural2d">
+      <input name="valuet" type="@typeName@" value="Constant:zero" spec_desc="Value at the top (V=1) edge"/>
+      <input name="valueb" type="@typeName@" value="Constant:zero" spec_desc="Value at the bottom (V=0) edge "/>
+      <input name="texcoord" type="vector2" defaultgeomprop="UV0" spec_desc="2D texture coordinate at which the ramp interpolation is evaluated " />
+      <output name="out" type="@typeName@" default="Constant:zero" spec_desc="interpolated ramp value" />
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <ramp4> Supplemental Node
+    A 4-corner bilinear value ramp.
+  -->
+  <template name="TP_ND_ramp4" varnames="typeName" options="(float, color3, color4, vector2, vector3, vector4)">
+    <nodedef name="ND_ramp4_@typeName@" node="ramp4" nodegroup="procedural2d">
+      <input name="valuetl" type="@typeName@" value="Constant:zero" spec_desc="Value at the top-left (U=0, V=1) corner" />
+      <input name="valuetr" type="@typeName@" value="Constant:zero" spec_desc="Value at the top-right (U=1, V=1) corner" />
+      <input name="valuebl" type="@typeName@" value="Constant:zero" spec_desc="Value at the bottom-left (U=0, V=0) corner" />
+      <input name="valuebr" type="@typeName@" value="Constant:zero" spec_desc="Value at the bottom-right (U=1, V=0) corner"/>
+      <input name="texcoord" type="vector2" defaultgeomprop="UV0" spec_desc="2D texture coordinate at which the ramp interpolation is evaluated " />
+      <output name="out" type="@typeName@" default="Constant:zero" spec_desc="interpolated ramp value" />
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <splitlr>
+    A left-right split matte, split at a specified u value.
+  -->
+  <template name="TP_ND_splitlr" varnames="typeName" options="(float, color3, color4, vector2, vector3, vector4)">
+    <nodedef name="ND_splitlr_@typeName@" node="splitlr" nodegroup="procedural2d">
+      <input name="valuel" type="@typeName@" value="Constant:zero" uiname="Left" spec_desc="Value at the left (U=0) edge" />
+      <input name="valuer" type="@typeName@" value="Constant:zero" uiname="Right" spec_desc="Value at the right (U=1) edge " />
+      <input name="center" type="float" value="0.5" uiname="Center" uimin="0.0" uimax="1.0" spec_desc="U-coordinate of the split; left of it is `valuel`, right is `valuer`" />
+      <input name="texcoord" type="vector2" defaultgeomprop="UV0" spec_desc="2D texture coordinate at which the ramp interpolation is evaluated " />
+      <output name="out" type="@typeName@" default="Constant:zero" spec_desc="interpolated split value" />
+    </nodedef>
+  </template>
+  <!--
+    Node: <splittb>
+    A top-bottom split matte, split at a specified v value.
+  -->
+  <template name="TP_ND_splittb" varnames="typeName" options="(float, color3, color4, vector2, vector3, vector4)">
+    <nodedef name="ND_splittb_@typeName@" node="splittb" nodegroup="procedural2d">
+      <input name="valuet" type="@typeName@" value="Constant:zero" uiname="Top" spec_desc="Value at the top (V=1) edge"/>
+      <input name="valueb" type="@typeName@" value="Constant:zero" uiname="Bottom" spec_desc="Value at the bottom (V=0) edge "/>
+      <input name="center" type="float" value="0.5" uiname="Center" uimin="0.0" uimax="1.0" />
+      <input name="texcoord" type="vector2" defaultgeomprop="UV0" spec_desc="2D texture coordinate at which the ramp interpolation is evaluated " />
+      <output name="out" type="@typeName@" default="Constant:zero" spec_desc="interpolated split value" />
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <noise2d>
+    2D Perlin noise in 1, 2, 3 or 4 channels.
+  -->
+  <template name="TP_ND_noise2d" varnames="typeName" options="(float, vector2, vector3, vector4)">
+    <nodedef name="ND_noise2d_@typeName@" node="noise2d" nodegroup="procedural2d">
+      <input name="amplitude" type="@typeName@" value="Constant:one" spec_desc="The center-to-peak amplitude of the noise"/>
+      <input name="pivot" type="float" value="0.0" spec_desc="The center value of the output noise"/>
+      <input name="texcoord" type="vector2" defaultgeomprop="UV0" spec_desc="The 2D texture coordinate at which the noise is evaluated"/>
+      <output name="out" type="@typeName@" default="Constant:zero" spec_desc="the computed noise value" />
+    </nodedef>
+  </template>
+
+  <nodedef name="ND_noise2d_color3" node="noise2d" nodegroup="procedural2d">
+    <input name="amplitude" type="vector3" value="1.0, 1.0, 1.0" spec_desc="The center-to-peak amplitude of the noise"/>
+    <input name="pivot" type="float" value="0.0" spec_desc="The center value of the output noise"/>
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" spec_desc="The 2D texture coordinate at which the noise is evaluated"/>
+    <output name="out" type="color3" default="0.0, 0.0, 0.0" spec_desc="the computed noise value"/>
+  </nodedef>
+  <nodedef name="ND_noise2d_color4" node="noise2d" nodegroup="procedural2d">
+    <input name="amplitude" type="vector4" value="1.0, 1.0, 1.0, 1.0" spec_desc="The center-to-peak amplitude of the noise"/>
+    <input name="pivot" type="float" value="0.0" spec_desc="The center value of the output noise"/>
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" spec_desc="The 2D texture coordinate at which the noise is evaluated"/>
+    <output name="out" type="color4" default="0.0, 0.0, 0.0, 0.0" spec_desc="the computed noise value"/>
+  </nodedef>
+
+  <template name="TP_ND_noise2d_FA" varnames="typeName" options="(color3, color4, vector2, vector3, vector4)">
+    <nodedef name="ND_noise2d_@typeName@FA" node="noise2d" nodegroup="procedural2d">
+      <input name="amplitude" type="float" value="1.0" spec_desc="The center-to-peak amplitude of the noise"/>
+      <input name="pivot" type="float" value="0.0" spec_desc="The center value of the output noise"/>
+      <input name="texcoord" type="vector2" defaultgeomprop="UV0" spec_desc="The 2D texture coordinate at which the noise is evaluated"/>
+      <output name="out" type="@typeName@" default="Constant:zero" spec_desc="the computed noise value"/>
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <noise3d>
+    3D Perlin noise in 1, 2, 3 or 4 channels.
+  -->
+  <template name="TP_ND_noise3d" varnames="typeName" options="(float, vector2, vector3, vector4)">
+    <nodedef name="ND_noise3d_@typeName@" node="noise3d" nodegroup="procedural3d">
+      <input name="amplitude" type="@typeName@" value="Constant:one" spec_desc="The center-to-peak amplitude of the noise"/>
+      <input name="pivot" type="float" value="0.0" spec_desc="The center value of the output noise"/>
+      <input name="position" type="vector3" defaultgeomprop="Pobject" spec_desc="The 3D position at which the noise is evaluated"/>
+      <output name="out" type="@typeName@" default="Constant:zero" spec_desc="the computed noise value"/>
+    </nodedef>
+  </template>
+
+  <nodedef name="ND_noise3d_color3" node="noise3d" nodegroup="procedural3d">
+    <input name="amplitude" type="vector3" value="1.0, 1.0, 1.0" spec_desc="The center-to-peak amplitude of the noise"/>
+    <input name="pivot" type="float" value="0.0" spec_desc="The center value of the output noise"/>
+    <input name="position" type="vector3" defaultgeomprop="Pobject" spec_desc="The 3D position at which the noise is evaluated"/>
+    <output name="out" type="color3" default="0.0, 0.0, 0.0" spec_desc="the computed noise value"/>
+  </nodedef>
+  <nodedef name="ND_noise3d_color4" node="noise3d" nodegroup="procedural3d">
+    <input name="amplitude" type="vector4" value="1.0, 1.0, 1.0, 1.0" spec_desc="The center-to-peak amplitude of the noise"/>
+    <input name="pivot" type="float" value="0.0" spec_desc="The center value of the output noise"/>
+    <input name="position" type="vector3" defaultgeomprop="Pobject" spec_desc="The 3D position at which the noise is evaluated"/>
+    <output name="out" type="color4" default="0.0, 0.0, 0.0, 0.0" spec_desc="the computed noise value"/>
+  </nodedef>
+
+  <template name="TP_ND_noise3d_FA" varnames="typeName" options="(color3, color4, vector2, vector3, vector4)">
+    <nodedef name="ND_noise3d_@typeName@FA" node="noise3d" nodegroup="procedural3d">
+      <input name="amplitude" type="float" value="1.0" spec_desc="The center-to-peak amplitude of the noise"/>
+      <input name="pivot" type="float" value="0.0" spec_desc="The center value of the output noise"/>
+      <input name="position" type="vector3" defaultgeomprop="Pobject" spec_desc="The 3D position at which the noise is evaluated"/>
+      <output name="out" type="@typeName@" default="Constant:zero" spec_desc="the computed noise value"/>
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <fractal2d>
+    2D Fractal noise in 1, 2, 3 or 4 channels.
+  -->
+  <template name="TP_ND_fractal2d" varnames="typeName" options="(float, vector2, vector3, vector4)">
+    <nodedef name="ND_fractal2d_@typeName@" node="fractal2d" nodegroup="procedural2d">
+      <input name="amplitude" type="@typeName@" value="Constant:one" spec_desc="The center-to-peak amplitude of the noise"/>
+      <input name="octaves" type="integer" value="3" spec_desc="The number of octaves of noise to be summed"/>
+      <input name="lacunarity" type="float" value="2.0" spec_desc="The exponential scale between successive octaves of noise "/>
+      <input name="diminish" type="float" value="0.5" spec_desc="The rate at which noise amplitude is diminished for each octave"/>
+      <input name="texcoord" type="vector2" defaultgeomprop="UV0" spec_desc="The 2D texture coordinate at which the noise is evaluated"/>
+      <output name="out" type="@typeName@" default="Constant:zero" spec_desc="the computed noise value"/>
+    </nodedef>
+  </template>
+
+  <nodedef name="ND_fractal2d_color3" node="fractal2d" nodegroup="procedural2d">
+    <input name="amplitude" type="vector3" value="1.0, 1.0, 1.0" spec_desc="The center-to-peak amplitude of the noise"/>
+    <input name="octaves" type="integer" value="3" spec_desc="The number of octaves of noise to be summed"/>
+    <input name="lacunarity" type="float" value="2.0" spec_desc="The exponential scale between successive octaves of noise "/>
+    <input name="diminish" type="float" value="0.5" spec_desc="The rate at which noise amplitude is diminished for each octave"/>
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" spec_desc="The 2D texture coordinate at which the noise is evaluated"/>
+    <output name="out" type="color3" default="0.0, 0.0, 0.0" spec_desc="the computed noise value"/>
+  </nodedef>
+  <nodedef name="ND_fractal2d_color4" node="fractal2d" nodegroup="procedural2d">
+    <input name="amplitude" type="vector4" value="1.0, 1.0, 1.0, 1.0" spec_desc="The center-to-peak amplitude of the noise"/>
+    <input name="octaves" type="integer" value="3" spec_desc="The number of octaves of noise to be summed"/>
+    <input name="lacunarity" type="float" value="2.0" spec_desc="The exponential scale between successive octaves of noise "/>
+    <input name="diminish" type="float" value="0.5" spec_desc="The rate at which noise amplitude is diminished for each octave"/>
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" spec_desc="The 2D texture coordinate at which the noise is evaluated"/>
+    <output name="out" type="color4" default="0.0, 0.0, 0.0, 0.0" spec_desc="the computed noise value"/>
+  </nodedef>
+
+  <template name="TP_ND_fractal2d_FA" varnames="typeName" options="(color3, color4, vector2, vector3, vector4)">
+    <nodedef name="ND_fractal2d_@typeName@FA" node="fractal2d" nodegroup="procedural2d">
+      <input name="amplitude" type="float" value="1.0" spec_desc="The center-to-peak amplitude of the noise"/>
+      <input name="octaves" type="integer" value="3" spec_desc="The number of octaves of noise to be summed"/>
+      <input name="lacunarity" type="float" value="2.0" spec_desc="The exponential scale between successive octaves of noise "/>
+      <input name="diminish" type="float" value="0.5" spec_desc="The rate at which noise amplitude is diminished for each octave"/>
+      <input name="texcoord" type="vector2" defaultgeomprop="UV0" spec_desc="The 2D texture coordinate at which the noise is evaluated"/>
+      <output name="out" type="@typeName@" default="Constant:zero" spec_desc="the computed noise value"/>
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <fractal3d>
+    3D Fractal noise in 1, 2, 3 or 4 channels.
+  -->
+  <template name="TP_ND_fractal3d" varnames="typeName" options="(float, vector2, vector3, vector4)">
+    <nodedef name="ND_fractal3d_@typeName@" node="fractal3d" nodegroup="procedural3d">
+      <input name="amplitude" type="@typeName@" value="Constant:one" spec_desc="The center-to-peak amplitude of the noise"/>
+      <input name="octaves" type="integer" value="3" spec_desc="The number of octaves of noise to be summed"/>
+      <input name="lacunarity" type="float" value="2.0" spec_desc="The exponential scale between successive octaves of noise "/>
+      <input name="diminish" type="float" value="0.5" spec_desc="The rate at which noise amplitude is diminished for each octave"/>
+      <input name="position" type="vector3" defaultgeomprop="Pobject" spec_desc="The 3D position at which the noise is evaluated"/>
+      <output name="out" type="@typeName@" default="Constant:zero" spec_desc="the computed noise value"/>
+    </nodedef>
+  </template>
+
+  <nodedef name="ND_fractal3d_color3" node="fractal3d" nodegroup="procedural3d">
+    <input name="amplitude" type="vector3" value="1.0, 1.0, 1.0" spec_desc="The center-to-peak amplitude of the noise"/>
+    <input name="octaves" type="integer" value="3" spec_desc="The number of octaves of noise to be summed"/>
+    <input name="lacunarity" type="float" value="2.0" spec_desc="The exponential scale between successive octaves of noise "/>
+    <input name="diminish" type="float" value="0.5" spec_desc="The rate at which noise amplitude is diminished for each octave"/>
+    <input name="position" type="vector3" defaultgeomprop="Pobject" spec_desc="The 3D position at which the noise is evaluated"/>
+    <output name="out" type="color3" default="0.0, 0.0, 0.0" spec_desc="the computed noise value"/>
+  </nodedef>
+  <nodedef name="ND_fractal3d_color4" node="fractal3d" nodegroup="procedural3d">
+    <input name="amplitude" type="vector4" value="1.0, 1.0, 1.0, 1.0" spec_desc="The center-to-peak amplitude of the noise"/>
+    <input name="octaves" type="integer" value="3" spec_desc="The number of octaves of noise to be summed"/>
+    <input name="lacunarity" type="float" value="2.0" spec_desc="The exponential scale between successive octaves of noise "/>
+    <input name="diminish" type="float" value="0.5" spec_desc="The rate at which noise amplitude is diminished for each octave"/>
+    <input name="position" type="vector3" defaultgeomprop="Pobject" spec_desc="The 3D position at which the noise is evaluated"/>
+    <output name="out" type="color4" default="0.0, 0.0, 0.0, 0.0" spec_desc="the computed noise value"/>
+  </nodedef>
+
+  <template name="TP_ND_fractal3d_FA" varnames="typeName" options="(color3, color4, vector2, vector3, vector4)">
+    <nodedef name="ND_fractal3d_@typeName@FA" node="fractal3d" nodegroup="procedural3d">
+      <input name="amplitude" type="float" value="1.0" spec_desc="The center-to-peak amplitude of the noise"/>
+      <input name="octaves" type="integer" value="3" spec_desc="The number of octaves of noise to be summed"/>
+      <input name="lacunarity" type="float" value="2.0" spec_desc="The exponential scale between successive octaves of noise "/>
+      <input name="diminish" type="float" value="0.5" spec_desc="The rate at which noise amplitude is diminished for each octave"/>
+      <input name="position" type="vector3" defaultgeomprop="Pobject" spec_desc="The 3D position at which the noise is evaluated"/>
+      <output name="out" type="@typeName@" default="Constant:zero" spec_desc="the computed noise value"/>
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <cellnoise2d>
+    2D cellular noise in 1 channel.
+  -->
+  <nodedef name="ND_cellnoise2d_float" node="cellnoise2d" nodegroup="procedural2d">
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" spec_desc="The 2D texture coordinate at which the noise is evaluated"/>
+    <output name="out" type="float" default="0.0" spec_desc="the computed noise value"/>
+  </nodedef>
+
+  <!--
+    Node: <cellnoise3d>
+    3D cellular noise in 1 channel.
+  -->
+  <nodedef name="ND_cellnoise3d_float" node="cellnoise3d" nodegroup="procedural3d">
+    <input name="position" type="vector3" defaultgeomprop="Pobject" spec_desc="The 3D position at which the noise is evaluated"/>
+    <output name="out" type="float" default="0.0" spec_desc="the computed noise value"/>
+  </nodedef>
+
+  <!--
+    Node: <worleynoise2d>
+    2D Worley (voronoi) noise in 1, 2 or 3 channels.
+  -->
+  <template name="TP_ND_worleynoise2d" varnames="typeName" options="(float, vector2, vector3)">
+    <nodedef name="ND_worleynoise2d_@typeName@" node="worleynoise2d" nodegroup="procedural2d">
+      <input name="texcoord" type="vector2" defaultgeomprop="UV0" spec_desc="The 2D texture coordinate at which the noise is evaluated"/>
+      <input name="jitter" type="float" value="1.0" spec_desc="The amount to jitter the cell center position"/>
+      <input name="style" uiname="Cell Style" type="integer" value="0" enum="Distance,Solid" enumvalues="0,1" spec_desc="The output style "/>
+      <output name="out" type="@typeName@" default="Constant:zero" spec_desc="the computed noise value"/>
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <worleynoise3d>
+    3D Worley (voronoi) noise in 1, 2 or 3 channels.
+  -->
+  <template name="TP_ND_worleynoise3d" varnames="typeName" options="(float, vector2, vector3)">
+    <nodedef name="ND_worleynoise3d_@typeName@" node="worleynoise3d" nodegroup="procedural3d">
+      <input name="position" type="vector3" defaultgeomprop="Pobject" spec_desc="The 3D position at which the noise is evaluated"/>
+      <input name="jitter" type="float" value="1.0" spec_desc="The amount to jitter the cell center position"/>
+      <input name="style" uiname="Cell Style" type="integer" value="0" enum="Distance,Solid" enumvalues="0,1" spec_desc="The output style "/>
+      <output name="out" type="@typeName@" default="Constant:zero" spec_desc="the computed noise value"/>
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <unifiednoise2d>
+    Combines the available noises into an artist-friendly node, adding controls
+    to adjust frequency, offset, jitter, etc... Where possible controls have
+    been unified between noises; any noise-specific controls should live in a
+    dedicated folder. These folders should be hidden by artist tools, unless their
+    corresponding noise type is selected.
+    
+    The noise types are:
+    
+       0 - Perlin (noise2d/noise3d)
+       1 - Cell (cellnoise2d/cellnoise3d)
+       2 - Worley (worley2d/worley3d)
+       3 - Fractal (fractal3d)
+    
+    The output is 1 channel, with controls to adjust the output range.
+  -->
+  <nodedef name="ND_unifiednoise2d_float" node="unifiednoise2d" nodegroup="procedural2d">
+    <input name="texcoord" type="vector2" uifolder="Common" defaultgeomprop="UV0" doc="The input 2d space. Default is the first texture coordinates." spec_desc="The 2D texture coordinate at which the noise is evaluated"/>
+    <input name="freq" type="vector2" uiname="Frequency" uifolder="Common" value="1, 1" doc="Adjusts the noise frequency, with higher values producing smaller noise shapes. Default is (1,1)." spec_desc="The noise frequency, with higher values producing smaller noise shapes."/>
+    <input name="offset" type="vector2" uiname="Offset" uifolder="Common" value="0, 0" doc="Shift the noise in 2d space. Default is (0,0)." spec_desc="The amount to offset 2d space"/>
+    <input name="jitter" type="float" uiname="Jitter" uifolder="Common" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Adjust uniformity of Worley noise; for other noise types jitters the results." spec_desc="The amount to jitter the cell center position"/>
+    <input name="outmin" type="float" uiname="Output Min" uifolder="Post Process" value="0" doc="The lowest values fit to the noise. Default is 0.0." spec_desc="The lowest output value "/>
+    <input name="outmax" type="float" uiname="Output Max" uifolder="Post Process" value="1" doc="The highest values fit to the noise. Default is 1.0." spec_desc="The highest output value"/>
+    <input name="clampoutput" type="boolean" uiname="Clamp Output" uifolder="Post Process" value="true" doc="Clamp the output to the min and max output values." spec_desc="If enabled the output is clamped between the min and max output values"/>
+    <input name="octaves" type="integer" uiname="Octaves" uifolder="Fractal" value="3" doc="The number of octaves of Fractal noise to be generated. Default is 3." spec_desc="The number of octaves of noise to be summed"/>
+    <input name="lacunarity" type="float" uiname="Lacunarity" uifolder="Fractal" value="2" doc="The exponential scale between successive octaves of Fractal noise. Default is 2.0." spec_desc="The exponential scale between successive octaves of noise "/>
+    <input name="diminish" type="float" uiname="Diminish" uifolder="Fractal" uisoftmin="0.0" uisoftmax="1.0" value="0.5" doc="The rate at which noise amplitude is diminished for each octave of Fractal noise. Default is 0.5." spec_desc="The rate at which noise amplitude is diminished for each octave"/>
+    <input name="type" type="integer" uiname="Noise Type" uifolder="Common" uisoftmin="0" uisoftmax="3" value="0" enum="Perlin,Cell,Worley,Fractal" enumvalues="0,1,2,3" doc="Menu to select the type of noise: Perlin, Cell, Worley, or Fractal. Default is Perlin." spec_desc="The type of noise function to use.  One of 0 (Perlin), 1 (Cell), 2 (Worley), or 3 (Fractal)"/>
+    <input name="style" uiname="Worley Cell Style" type="integer" value="0" enum="Distance,Solid" enumvalues="0,1" doc="Sets the style of cell used when Noise Type is set to Worley." spec_desc="The output style "/>
+    <output name="out" type="float" spec_desc="the computed noise value"/>
+  </nodedef>
+
+  <!--
+    Node: <unifiednoise3d>
+    The 3d flavor of <unifiednoise2d>.
+  -->
+  <nodedef name="ND_unifiednoise3d_float" node="unifiednoise3d" nodegroup="procedural3d">
+    <input name="position" type="vector3" uifolder="Common" defaultgeomprop="Pobject" doc="The input 3d space. Default is position in object-space." spec_desc="The 3D position at which the noise is evaluated"/>
+    <input name="freq" type="vector3" uiname="Frequency" uifolder="Common" value="1, 1, 1" doc="Adjusts the noise frequency, with higher values producing smaller noise shapes. Default is (1,1,1)." spec_desc="The noise frequency, with higher values producing smaller noise shapes."/>
+    <input name="offset" type="vector3" uiname="Offset" uifolder="Common" value="0, 0, 0" doc="Shift the noise in 3d space. Default is (0,0,0)." spec_desc="The amount to offset 3d space"/>
+    <input name="jitter" type="float" uiname="Jitter" uifolder="Common" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Adjust uniformity of Worley noise; for other noise types jitters the results." spec_desc="The amount to jitter the cell center position"/>
+    <input name="outmin" type="float" uiname="Output Min" uifolder="Post Process" value="0" doc="The lowest values fit to the noise. Default is 0.0." spec_desc="The lowest output value "/>
+    <input name="outmax" type="float" uiname="Output Max" uifolder="Post Process" value="1" doc="The highest values fit to the noise. Default is 1.0." spec_desc="The highest output value"/>
+    <input name="clampoutput" type="boolean" uiname="Clamp Output" uifolder="Post Process" value="true" doc="Clamp the output to the min and max output values." spec_desc="If enabled the output is clamped between the min and max output values"/>
+    <input name="octaves" type="integer" uiname="Octaves" uifolder="Fractal" value="3" doc="The number of octaves of Fractal noise to be generated. Default is 3." spec_desc="The number of octaves of noise to be summed"/>
+    <input name="lacunarity" type="float" uiname="Lacunarity" uifolder="Fractal" value="2" doc="The exponential scale between successive octaves of Fractal noise. Default is 2.0." spec_desc="The exponential scale between successive octaves of noise "/>
+    <input name="diminish" type="float" uiname="Diminish" uifolder="Fractal" uisoftmin="0.0" uisoftmax="1.0" value="0.5" doc="The rate at which noise amplitude is diminished for each octave of Fractal noise. Default is 0.5." spec_desc="The rate at which noise amplitude is diminished for each octave"/>
+    <input name="type" type="integer" uiname="Noise Type" uifolder="Common" uisoftmin="0" uisoftmax="3" value="0" enum="Perlin,Cell,Worley,Fractal" enumvalues="0,1,2,3" doc="Menu to select the type of noise: Perlin, Cell, Worley, or Fractal. Default is Perlin." spec_desc="The type of noise function to use.  One of 0 (Perlin), 1 (Cell), 2 (Worley), or 3 (Fractal)"/>
+    <input name="style" uiname="Worley Cell Style" type="integer" value="0" enum="Distance,Solid" enumvalues="0,1" doc="Sets the style of cell used when Noise Type is set to Worley." spec_desc="The output style "/>
+    <output name="out" type="float" spec_desc="the computed noise value"/>
+  </nodedef>
+
+  <!--
+    Node: <randomfloat>
+    Produces a randomized float, based on an 'input' signal and 'seed' value.
+  -->
+  <template name="TP_ND_randomfloat" varnames="typeName" options="(float, integer)">
+    <nodedef name="ND_randomfloat_@typeName@" node="randomfloat" nodegroup="procedural">
+      <input name="in" type="@typeName@" uiname="Input" value="Constant:zero" doc="Initial randomization seed." spec_desc="Initial randomization seed." />
+      <input name="min" type="float" uiname="Minimum" value="0.0" doc="The minimum output value." spec_desc="The minimum output value." />
+      <input name="max" type="float" uiname="Maximum" value="1.0" doc="The maximum output value." spec_desc="The maximum output value."/>
+      <input name="seed" type="integer" uiname="Seed" value="0" doc="Additional seed." spec_desc="Additional seed." />
+      <output name="out" type="float" spec_desc="the random value"/>
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <randomcolor>
+    Produces a randomized RGB color, based on an 'input' signal and 'seed' value.
+  -->
+  <template name="TP_ND_randomcolor" varnames="typeName" options="(float, integer)">
+    <nodedef name="ND_randomcolor_@typeName@" node="randomcolor" nodegroup="procedural3d">
+      <input name="in" type="@typeName@" uiname="Input" uisoftmin="Constant:zero" uisoftmax="Constant:ten" value="Constant:zero" spec_desc="Initial randomization seed"/>
+      <input name="huelow" type="float" uiname="Hue Low" uisoftmin="0.0" uisoftmax="1.0" value="0" spec_desc="Minimum hue value" />
+      <input name="huehigh" type="float" uiname="Hue High" uisoftmin="0.0" uisoftmax="1.0" value="1" spec_desc="Maximum hue value" />
+      <input name="saturationlow" type="float" uiname="Saturation Low" uisoftmin="0.0" uisoftmax="1.0" value="0.825" spec_desc="Minimum saturation value" />
+      <input name="saturationhigh" type="float" uiname="Saturation High" uisoftmin="0.0" uisoftmax="1.0" value="1" spec_desc="Maximum saturation value" />
+      <input name="brightnesslow" type="float" uiname="Brightness Low" uisoftmin="0.0" uisoftmax="1.0" value="1" spec_desc="Minimum brightness value" />
+      <input name="brightnesshigh" type="float" uiname="Brightness High" uisoftmin="0.0" uisoftmax="1.0" value="1" spec_desc="Maximum brightness value" />
+      <input name="seed" type="integer" uiname="Seed" value="0" spec_desc="Additional randomization seed" />
+      <output name="out" type="color3" spec_desc="the random value"/>
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <checkerboard>
+    A 2D checkerboard pattern.
+  -->
+  <nodedef name="ND_checkerboard_color3" node="checkerboard" nodegroup="procedural2d">
+    <input name="color1" type="color3" uiname="Color 1" value="1.0, 1.0, 1.0" doc="The first color used in the checkerboard pattern." spec_desc="The first color used in the checkerboard pattern." />
+    <input name="color2" type="color3" uiname="Color 2" value="0.0, 0.0, 0.0" doc="The second color used in the checkerboard pattern." spec_desc="The second color used in the checkerboard pattern." />
+    <input name="uvtiling" type="vector2" uiname="UV Tiling" value="8, 8" doc="The tiling of the checkerboard pattern along each axis, with higher values producing smaller squares. Default is (8, 8)." spec_desc="The tiling of the checkerboard pattern along each axis, with higher values producing smaller squares." />
+    <input name="uvoffset" type="vector2" uiname="UV Offset" value="0, 0" doc="The offset of the checkerboard pattern along each axis. Default is (0, 0)." spec_desc="The offset of the checkerboard pattern along each axis" />
+    <input name="texcoord" type="vector2" uiname="Texture Coordinates" defaultgeomprop="UV0" doc="The input 2d space. Default is the first texture coordinates." spec_desc="The input 2d space." />
+    <output name="out" type="color3" spec_desc="the checkerboard pattern" />
+  </nodedef>
+
+  <!--
+    Node: <line>
+    Returns 1 if texcoord is at less than radius distance from a line segment defined by point1 and point2; otherwise returns 0.
+    Segment ends will be rounded.
+    Uses formulas from Inigo Quilez SDF samples (iquilezles.org)
+  -->
+  <nodedef name="ND_line_float" node="line" nodegroup="procedural2d">
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" spec_desc="The input 2d space" />
+    <input name="center" type="vector2" value="0, 0" spec_desc="An offset value added to both the point1 and point2 coordinates" />
+    <input name="radius" type="float" value="0.1" spec_desc="The radius or 'half thickness' of the line" />
+    <input name="point1" type="vector2" value="0.25, 0.25" spec_desc="The UV coordinate of the first endpoint" />
+    <input name="point2" type="vector2" value="0.75, 0.75" spec_desc="The UV coordinate of the second endpoint" />
+    <output name="out" type="float" spec_desc="the line pattern" />
+  </nodedef>
+
+  <!--
+    Node: <circle>
+    Returns 1 if texcoord is inside a circle defined by center and radius; otherwise returns 0.
+  -->
+  <nodedef name="ND_circle_float" node="circle" nodegroup="procedural2d">
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" spec_desc="The input 2d space" />
+    <input name="center" type="vector2" value="0, 0" spec_desc="The center coordinate of the circle" />
+    <input name="radius" type="float" value="0.5" spec_desc="The radius of the circle" />
+    <output name="out" type="float" spec_desc="the circle pattern" />
+  </nodedef>
+
+  <!--
+    Node: <cloverleaf>
+    Returns 1 if texcoord is inside a cloverleaf shape inscribed by a circle defined by center and radius; otherwise returns 0.
+  -->
+  <nodedef name="ND_cloverleaf_float" node="cloverleaf" nodegroup="procedural2d">
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" spec_desc="The input 2d space" />
+    <input name="center" type="vector2" value="0, 0" spec_desc="The center coordinate of the cloverleaf" />
+    <input name="radius" type="float" value="0.5" spec_desc="The radius of the cloverleaf" />
+    <output name="out" type="float" spec_desc="the cloverleaf pattern" />
+  </nodedef>
+
+  <!--
+    Node: <hexagon>
+    Returns 1 if texcoord is inside a hexagon shape inscribed by a circle defined by center and radius; otherwise returns 0.
+    Uses formulas from Inigo Quilez SDF samples (iquilezles.org)
+  -->
+  <nodedef name="ND_hexagon_float" node="hexagon" nodegroup="procedural2d">
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" spec_desc="The input 2d space" />
+    <input name="center" type="vector2" value="0, 0" spec_desc="The center coordinate of the hexagon" />
+    <input name="radius" type="float" value="0.5" spec_desc="The radius of the hexagon" />
+    <output name="out" type="float" spec_desc="the hexagon pattern" />
+  </nodedef>
+
+  <!--
+    Node: <grid>
+    Creates a grid pattern with the given tiling, offset, and line thickness.
+    Pattern can be regular or staggered.
+  -->
+  <nodedef name="ND_grid_color3" node="grid" nodegroup="procedural2d">
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" spec_desc="The input 2d space" />
+    <input name="uvtiling" type="vector2" value="1.0, 1.0" spec_desc="Tiling factor, with higher values producing a denser grid." />
+    <input name="uvoffset" type="vector2" value="0.0, 0.0" spec_desc="UV Offset" />
+    <input name="thickness" type="float" value="0.05" spec_desc="The thickness of the grid lines" />
+    <input name="staggered" type="boolean" value="false" spec_desc="If true, every other row will be offset 50% to produce a 'brick wall' pattern" />
+    <output name="out" type="color3" spec_desc="the grid pattern" />
+  </nodedef>
+
+  <!--
+    Node: <crosshatch>
+    Creates a crosshatch pattern with the given tiling, offset, and line thickness.
+    Pattern can be regular or staggered.
+  -->
+  <nodedef name="ND_crosshatch_color3" node="crosshatch" nodegroup="procedural2d">
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" spec_desc="The input 2d space" />
+    <input name="uvtiling" type="vector2" value="1.0, 1.0" spec_desc="Tiling factor, with higher values producing a denser grid." />
+    <input name="uvoffset" type="vector2" value="0.0, 0.0" spec_desc="UV Offset" />
+    <input name="thickness" type="float" value="0.05" spec_desc="The thickness of the grid lines" />
+    <input name="staggered" type="boolean" value="false" spec_desc="If true, every other row will be offset 50% to produce an 'alternating diamond' pattern" />
+    <output name="out" type="color3" spec_desc="the crosshatch pattern" />
+  </nodedef>
+
+  <!--
+    Node: <tiledcircles>
+    Creates a black and white pattern of circles with a defined tiling and size (diameter).
+    Pattern can be regular or staggered.
+  -->
+  <nodedef name="ND_tiledcircles_color3" node="tiledcircles" nodegroup="procedural2d">
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" spec_desc="The input 2d space" />
+    <input name="uvtiling" type="vector2" value="1.0, 1.0" spec_desc="Tiling factor, with higher values producing a denser grid." />
+    <input name="uvoffset" type="vector2" value="0.0, 0.0" spec_desc="UV Offset" />
+    <input name="size" type="float" value="0.5" spec_desc="The diameter of the circles in the tiled pattern. If `size` is 1.0, the edges of adjacent circles in the tiling will exactly touch." />
+    <input name="staggered" type="boolean" value="false" spec_desc="If true, every other row will be offset 50%, and the spacing of the tiling will be adjusted in the V direction to center the circles on the vertices of an equilateral triangle grid" />
+    <output name="out" type="color3" spec_desc="the tiled circle pattern" />
+  </nodedef>
+
+  <!--
+    Node: <tiledcloverleafs>
+    Creates a black and white pattern of cloverleafs with a defined tiling and size (diameter of the circles circumscribing the shape).
+    Pattern can be regular or staggered.
+  -->
+  <nodedef name="ND_tiledcloverleafs_color3" node="tiledcloverleafs" nodegroup="procedural2d">
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" spec_desc="The input 2d space" />
+    <input name="uvtiling" type="vector2" value="1.0, 1.0" spec_desc="Tiling factor, with higher values producing a denser grid." />
+    <input name="uvoffset" type="vector2" value="0.0, 0.0" spec_desc="UV Offset" />
+    <input name="size" type="float" value="0.5" spec_desc="The outer diameter of the cloverleafs in the tiled pattern. If size is 1.0, the edges of adjacent cloverleafs in the tiling will exactly touch." />
+    <input name="staggered" type="boolean" value="false" spec_desc="If true, an additional pattern of cloverleafs will be generated in between the originals offset by 50% in both U and V" />
+    <output name="out" type="color3" spec_desc="the tiled cloverleaf pattern" />
+  </nodedef>
+
+  <!--
+    Node: <tiledhexagons>
+    Creates a black and white pattern of hexagons with a defined tiling and size (diameter of the circles circumscribing the shape).
+    Pattern can be regular or staggered.
+  -->
+  <nodedef name="ND_tiledhexagons_color3" node="tiledhexagons" nodegroup="procedural2d">
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" spec_desc="The input 2d space" />
+    <input name="uvtiling" type="vector2" value="1.0, 1.0" spec_desc="Tiling factor, with higher values producing a denser grid." />
+    <input name="uvoffset" type="vector2" value="0.0, 0.0" spec_desc="UV Offset" />
+    <input name="size" type="float" value="0.5" spec_desc="The inner diameter of the hexagons in the tiled pattern. if size is 1.0, the edges of adjacent hexagons in the U-direcction tiling will exactly touch"/>
+    <input name="staggered" type="boolean" value="false" spec_desc="If true, every other row will be offset 50%, and the spacing of the tiling will be adjusted in the V direction to center the hexagons on the vertices of an equilateral triangle grid." />
+    <output name="out" type="color3" spec_desc="the tiled hexagon pattern" />
+  </nodedef>
+
+  <!-- ======================================================================== -->
+  <!-- Geometric nodes                                                          -->
+  <!-- ======================================================================== -->
+
+  <!--
+    Node: <position>
+    The geometric position associated with the currently processed data,
+    as defined in a specific coordinate space.
+  -->
+  <nodedef name="ND_position_vector3" node="position" nodegroup="geometric">
+    <input name="space" type="string" value="object" enum="model,object,world" uniform="true"  spec_desc="The coordinate space of the output position" spec_acceptedvalues="model, object, world"/>
+    <output name="out" type="vector3" default="0.0, 0.0, 0.0" spec_desc="the position in `space`" />
+  </nodedef>
+
+  <!--
+    Node: <normal>
+    The geometric normal associated with the currently processed data,
+    as defined in a specific coordinate space.
+  -->
+  <nodedef name="ND_normal_vector3" node="normal" nodegroup="geometric">
+    <input name="space" type="string" value="object" enum="model,object,world" uniform="true"  spec_desc="The coordinate space of the output position" spec_acceptedvalues="model, object, world"/>
+    <output name="out" type="vector3" default="0.0, 1.0, 0.0" spec_desc="the normal in `space`" />
+  </nodedef>
+
+  <!--
+    Node: <tangent>
+    The geometric tangent vector associated with the currently processed data,
+    as defined in a specific coordinate space.
+  -->
+  <nodedef name="ND_tangent_vector3" node="tangent" nodegroup="geometric">
+    <input name="space" type="string" value="object" enum="model,object,world" uniform="true"  spec_desc="The coordinate space of the output position" spec_acceptedvalues="model, object, world"/>
+    <input name="index" type="integer" value="0" uniform="true" spec_desc="The index of the texcoord space to use to compute the tangent vector" />
+    <output name="out" type="vector3" default="1.0, 0.0, 0.0" spec_desc="the tangent vector associated with the `index`th coordinate space, in `space`" />
+  </nodedef>
+
+  <!--
+    Node: <bitangent>
+    The geometric bitangent vector associated with the currently processed data,
+    as defined in a specific coordinate space.
+  -->
+  <nodedef name="ND_bitangent_vector3" node="bitangent" nodegroup="geometric">
+    <input name="space" type="string" value="object" enum="model,object,world" uniform="true"  spec_desc="The coordinate space of the output position" spec_acceptedvalues="model, object, world"/>
+    <input name="index" type="integer" value="0" uniform="true" spec_desc="The index of the texcoord space to use to compute the bitangent vector"/>
+    <output name="out" type="vector3" default="0.0, 0.0, 1.0" spec_desc="the bitangent vector associated with the `index`th coordinate space, in `space`"/>
+  </nodedef>
+
+  <!--
+    Node: <texcoord>
+    The full 2D or 3D texture coordinates associated with the currently processed data.
+  -->
+  <template name="TP_ND_texcoord" varnames="typeName" options="(vector2, vector3)">
+    <nodedef name="ND_texcoord_@typeName@" node="texcoord" nodegroup="geometric">
+      <input name="index" type="integer" value="0" uniform="true" spec_desc="Texcoord index" />
+      <output name="out" type="@typeName@" default="Constant:zero" spec_desc="texture coordinates" />
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <geomcolor>
+    The color associated with the current geometry at the current position, generally
+    bound via per-vertex color values.
+  -->
+  <template name="TP_ND_geomcolor" varnames="typeName" options="(float, color3, color4)">
+    <nodedef name="ND_geomcolor_@typeName@" node="geomcolor" nodegroup="geometric">
+      <input name="index" type="integer" value="0" uniform="true" spec_desc="index of the geometric color" />
+      <output name="out" type="@typeName@" default="Constant:zero" spec_desc="geometric color" />
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <geompropvalue>
+    The value of the specified geometric property for the current geometry.
+  -->
+  <template name="TP_ND_geompropvalue" varnames="typeName" options="(integer, boolean, float, color3, color4, vector2, vector3, vector4)">
+    <nodedef name="ND_geompropvalue_@typeName@" node="geompropvalue" nodegroup="geometric">
+      <input name="geomprop" type="string" value="" uniform="true" spec_desc="The geometric property to be referenced" />
+      <input name="default" type="@typeName@" value="Constant:zero" spec_desc="A value to return if the specified `geomprop` is not defined on the current geometry" />
+      <output name="out" type="@typeName@" default="Constant:zero" spec_desc="the `geomprop` value" />
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <geompropvalueuniform>
+    The uniform, non-varying value of the specified geometric property for the current geometry.
+  -->
+  <template name="TP_ND_geompropvalueuniform" varnames="typeName" options="(string, filename)">
+    <nodedef name="ND_geompropvalueuniform_@typeName@" node="geompropvalueuniform" nodegroup="geometric">
+      <input name="geomprop" type="string" value="" uniform="true" spec_desc="The geometric property to be referenced"/>
+      <input name="default" type="@typeName@" value="Constant:zero" uniform="true" spec_desc="A value to return if the specified `geomprop` is not defined on the current geometry"/>
+      <output name="out" type="@typeName@" default="Constant:zero" uniform="true" spec_desc="A value to return if the specified `geomprop` is not defined on the current geometry"/>
+    </nodedef>
+  </template>
+
+
+  <!--
+    Node: <bump>
+    Offset the surface normal by a scalar value.
+  -->
+  <nodedef name="ND_bump_vector3" node="bump" nodegroup="geometric">
+    <input name="height" type="float" uiname="Height" uisoftmin="0.0" uisoftmax="1.0" value="0" doc="Amount to offset the surface normal." spec_desc="Amount to offset the surface normal." />
+    <input name="scale" type="float" uiname="Scale" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Scalar to adjust the height amount."  spec_desc="Scalar to adjust the height amount." />
+    <input name="normal" type="vector3" uiname="Normal" defaultgeomprop="Nworld" doc="Surface normal; defaults to the current world-space normal." spec_desc="Surface normal" />
+    <input name="tangent" type="vector3" uiname="Tangent" defaultgeomprop="Tworld" doc="Surface tangent vector, defaults to the current world-space tangent vector." spec_desc="Surface tangent vector" />
+    <input name="bitangent" type="vector3" uiname="Bitangent" defaultgeomprop="Bworld" doc="Surface bitangent vector, defaults to the current world-space bitangent vector." spec_desc="Surface bitangent vector" />
+    <output name="out" type="vector3" doc="Offset surface normal; connect this to a shader's 'normal' input." spec_desc="offset surface normal" />
+  </nodedef>
+
+  <!-- ======================================================================== -->
+  <!-- Application nodes                                                        -->
+  <!-- ======================================================================== -->
+
+  <!--
+    Node: <frame>
+    The current frame number as defined by the host environment.
+  -->
+  <nodedef name="ND_frame_float" node="frame" nodegroup="application">
+    <output name="out" type="float" default="1.0" spec_desc="frame number as defined by the host environment" />
+  </nodedef>
+
+  <!--
+    Node: <time>
+    The current time in seconds as defined by the host environment.
+  -->
+  <nodedef name="ND_time_float" node="time" nodegroup="application">
+    <input name="fps" type="float" value="24.0" /> <!-- An unused input, to be removed in a future specification version -->
+    <output name="out" type="float" default="0.0" spec_desc="current time in secondsas defined by the host environment" />
+  </nodedef>
+
+  <!-- ======================================================================== -->
+  <!-- Math nodes                                                               -->
+  <!-- ======================================================================== -->
+
+  <!--
+    Node: <add>
+    Add "in2" value/stream to the incoming float/integer/color/vector/matrix.
+  -->
+  <template name="TP_ND_add" varnames="typeName" options="(float, integer, color3, color4, vector2, vector3, vector4)">
+    <nodedef name="ND_add_@typeName@" node="add" nodegroup="math">
+      <input name="in1" type="@typeName@" value="Constant:zero" spec_desc="The primary input stream"/>
+      <input name="in2" type="@typeName@" value="Constant:zero" spec_desc="The stream to add to `in1`"/>
+      <output name="out" type="@typeName@" defaultinput="in1" spec_desc="sum of `in1` and `in2`" />
+    </nodedef>
+  </template>
+  <template name="TP_ND_addFA" varnames="typeName" options="(color3, color4, vector2, vector3, vector4)">
+    <nodedef name="ND_add_@typeName@FA" node="add" nodegroup="math">
+      <input name="in1" type="@typeName@" value="Constant:zero" spec_desc="The primary input stream"/>
+      <input name="in2" type="float" value="Constant:zero" spec_desc="The stream to add to `in1`"/>
+      <output name="out" type="@typeName@" defaultinput="in1" spec_desc="sum of `in1` and `in2`"/>
+    </nodedef>
+  </template>
+
+  <template name="TP_ND_add_matrix" varnames="typeName" options="(matrix33, matrix44)">
+    <template name="TP_ND_add_@typeName@FA" varnames="nodeDefExt,floatTypeName" options="(@typeName@,@typeName@FA), (@typeName@,float)">
+      <nodedef name="ND_add_@nodeDefExt@" node="add" nodegroup="math">
+        <input name="in1" type="@typeName@" value="Constant:one" spec_desc="The primary input stream"/>
+        <input name="in2" type="@floatTypeName@" value="Constant:zero" spec_desc="The stream to add to `in1`"/>
+        <output name="out" type="@typeName@" defaultinput="in1" spec_desc="sum of `in1` and `in2`"/>
+      </nodedef>
+    </template>
+  </template>
+
+  <!--
+    Node: <subtract>
+    Subtract "in2" value/stream from the incoming float/integer/color/vector/matrix.
+  -->
+  <template name="TP_ND_subtract" varnames="typeName" options="(float, integer, color3, color4, vector2, vector3, vector4)">
+    <nodedef name="ND_subtract_@typeName@" node="subtract" nodegroup="math">
+      <input name="in1" type="@typeName@" value="Constant:zero" spec_desc="The primary input stream"/>
+      <input name="in2" type="@typeName@" value="Constant:zero" spec_desc="The stream to subtract from `in1`"/>
+      <output name="out" type="@typeName@" defaultinput="in1" spec_desc="`in1` minus `in2`" />
+    </nodedef>
+  </template>
+  <template name="TP_ND_subtractFA" varnames="typeName" options="(color3, color4, vector2, vector3, vector4)">
+    <nodedef name="ND_subtract_@typeName@FA" node="subtract" nodegroup="math">
+      <input name="in1" type="@typeName@" value="Constant:zero" spec_desc="The primary input stream"/>
+      <input name="in2" type="float" value="Constant:zero" spec_desc="The stream to subtract from `in1`"/>
+      <output name="out" type="@typeName@" defaultinput="in1" spec_desc="`in1` minus `in2`"/>
+    </nodedef>
+  </template>
+  <template name="TP_ND_subtract_matrix" varnames="typeName" options="(matrix33, matrix44)">
+    <template name="TP_ND_subtract_@typeName@FA" varnames="nodeDefExt,floatTypeName" options="(@typeName@,@typeName@FA), (@typeName@,float)">
+      <nodedef name="ND_subtract_@nodeDefExt@" node="subtract" nodegroup="math">
+        <input name="in1" type="@typeName@" value="Constant:one" spec_desc="The primary input stream"/>
+        <input name="in2" type="@floatTypeName@" value="Constant:zero" spec_desc="The stream to subtract from `in1`"/>
+        <output name="out" type="@typeName@" defaultinput="in1" spec_desc="`in1` minus `in2`"/>
+      </nodedef>
+    </template>
+  </template>
+
+  <!--
+    Node: <multiply>
+    Multiply the incoming float/color/vector by the "in2" value/stream, or multiply
+    two matrices.
+  -->
+  <template name="TP_ND_multiplyFA" varnames="nodeDefExt,floatTypeName,typeList" options="(@typeName@,@typeName@FA), (@typeName@,float), ('float, color3, color4, vector2, vector3, vector4', 'color3, color4, vector2, vector3, vector4')">
+    <template name="TP_ND_multiply_@nodeDefExt@" varnames="typeName" options="(@typeList@)">
+      <nodedef name="ND_multiply_@nodeDefExt@" node="multiply" nodegroup="math">
+        <input name="in1" type="@typeName@" value="Constant:zero" spec_desc="The primary input stream"/>
+        <input name="in2" type="@floatTypeName@" value="Constant:one" spec_desc="The stream to multiply `in1` by"/>
+        <output name="out" type="@typeName@" defaultinput="in1" spec_desc="product of `in1` and `in2`"/>
+      </nodedef>
+    </template>
+  </template>
+  <template name="TP_ND_multiply_matrix" varnames="typeName" options="(matrix33, matrix44)">
+    <nodedef name="ND_multiply_@typeName@" node="multiply" nodegroup="math">
+      <input name="in1" type="@typeName@" value="Constant:one" spec_desc="The primary input stream"/>
+      <input name="in2" type="@typeName@" value="Constant:one" spec_desc="The stream to multiply `in1` by"/>
+      <output name="out" type="@typeName@" defaultinput="in1" spec_desc="product of `in1` and `in2`" />
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <divide>
+    Divide an incoming float/color/vector by the "in2" value/stream; dividing a channel
+    value by 0 results in floating-point "NaN".  Or, multiply one matrix by the
+    inverse of a second matrix.
+  -->
+  <template name="TP_ND_divideFA" varnames="nodeDefExt,floatTypeName,typeList" options="(@typeName@,@typeName@FA), (@typeName@,float), ('float, color3, color4, vector2, vector3, vector4', 'color3, color4, vector2, vector3, vector4')">
+    <template name="TP_ND_divide_@nodeDefExt@" varnames="typeName" options="(@typeList@)">
+      <nodedef name="ND_divide_@nodeDefExt@" node="divide" nodegroup="math">
+        <input name="in1" type="@typeName@" value="Constant:zero" spec_desc="The primary input stream"/>
+        <input name="in2" type="@floatTypeName@" value="Constant:one" spec_desc="The stream to divide `in1` by"/>
+        <output name="out" type="@typeName@" defaultinput="in1" spec_desc="`in1` divided by `in2`" />
+      </nodedef>
+    </template>
+  </template>
+  <template name="TP_ND_divide_matrix" varnames="typeName" options="(matrix33, matrix44)">
+    <nodedef name="ND_divide_@typeName@" node="divide" nodegroup="math">
+      <input name="in1" type="@typeName@" value="Constant:one" spec_desc="The primary input stream"/>
+      <input name="in2" type="@typeName@" value="Constant:one" spec_desc="The stream to divide `in1` by"/>
+      <output name="out" type="@typeName@" defaultinput="in1" spec_desc="`in1` divided by `in2`"/>
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <modulo>
+    The remaining fraction after dividing one float/color/vector by another and
+    subtracting the integer portion. The modula "in2" value cannot be 0.
+  -->
+  <template name="TP_ND_moduloFA" varnames="nodeDefExt,floatTypeName,typeList" options="(@typeName@,@typeName@FA), (@typeName@,float), ('float, color3, color4, vector2, vector3, vector4', 'color3, color4, vector2, vector3, vector4')">
+    <template name="TP_ND_modulo_@nodeDefExt@" varnames="typeName" options="(@typeList@)">
+      <nodedef name="ND_modulo_@nodeDefExt@" node="modulo" nodegroup="math">
+        <input name="in1" type="@typeName@" value="Constant:zero" spec_desc="The primary input stream"/>
+        <input name="in2" type="@floatTypeName@" value="Constant:one" spec_desc="The stream to modulo `in1` by" spec_acceptedvalues="`in2` != 0"/>
+        <output name="out" type="@typeName@" defaultinput="in1" spec_desc="`in1` modulo `in2`" />
+      </nodedef>
+    </template>
+  </template>
+
+  <!--
+    Node: <fract>
+    The fraction of a float or vector.
+  -->
+  <template name="TP_ND_fract" varnames="typeName" options="(float, color3, color4, vector2, vector3, vector4)">
+    <nodedef name="ND_fract_@typeName@" node="fract" nodegroup="math">
+      <input name="in" type="@typeName@" value="Constant:zero" spec_desc="The primary input stream"/>
+      <output name="out" type="@typeName@" defaultinput="in" spec_desc="The fractional part of `in`" />
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <invert>
+    Subtract the incoming float/color/vector from "amount" in all channels,
+    outputting: amount - in.
+  -->
+  <template name="TP_ND_invertFA" varnames="nodeDefExt,floatTypeName,typeList" options="(@typeName@,@typeName@FA), (@typeName@,float), ('float, color3, color4, vector2, vector3, vector4', 'color3, color4, vector2, vector3, vector4')">
+    <template name="TP_ND_invert_@nodeDefExt@" varnames="typeName" options="(@typeList@)">
+      <nodedef name="ND_invert_@nodeDefExt@" node="invert" nodegroup="math">
+        <input name="in" type="@typeName@" value="Constant:zero"  spec_desc="The primary input stream"/>
+        <input name="amount" type="@floatTypeName@" value="Constant:one" spec_desc="The value to subtract `in` from"/>
+        <output name="out" type="@typeName@" defaultinput="in" spec_desc="`amount` minus `in`" />
+      </nodedef>
+    </template>
+  </template>
+
+  <!--
+    Node: <absval>
+    The per-channel absolute value of the incoming float/color/vector.
+  -->
+  <template name="TP_ND_absval" varnames="typeName" options="(float, color3, color4, vector2, vector3, vector4)">
+    <nodedef name="ND_absval_@typeName@" node="absval" nodegroup="math">
+      <input name="in" type="@typeName@" value="Constant:zero" spec_desc="The primary input stream" />
+      <output name="out" type="@typeName@" defaultinput="in" spec_desc="absolute value of `in`" />
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <floor>
+    Find the nearest integer less than or equal to the parameter.
+  -->
+  <template name="TP_ND_floor" varnames="typeName" options="(float, color3, color4, vector2, vector3, vector4)">
+    <nodedef name="ND_floor_@typeName@" node="floor" nodegroup="math">
+      <input name="in" type="@typeName@" value="Constant:zero" spec_desc="The primary input stream"/>
+      <output name="out" type="@typeName@" defaultinput="in" spec_desc="nearest integer less than or equal to `in`" />
+    </nodedef>
+  </template>
+  <nodedef name="ND_floor_integer" node="floor" nodegroup="math">
+    <input name="in" type="float" value="0.0" spec_desc="The primary input stream" />
+    <output name="out" type="integer" defaultinput="in" spec_desc="nearest integer less than or equal to `in`"/>
+  </nodedef>
+
+  <!--
+    Node: <ceil>
+    Find the nearest integer greater than or equal to the parameter.
+  -->
+  <template name="TP_ND_ceil" varnames="typeName" options="(float, color3, color4, vector2, vector3, vector4)">
+    <nodedef name="ND_ceil_@typeName@" node="ceil" nodegroup="math">
+      <input name="in" type="@typeName@" value="Constant:zero" spec_desc="The primary input stream" />
+      <output name="out" type="@typeName@" defaultinput="in" spec_desc="nearest integer greater than or equal to `in`" />
+    </nodedef>
+  </template>
+  <nodedef name="ND_ceil_integer" node="ceil" nodegroup="math">
+    <input name="in" type="float" value="0.0" spec_desc="The primary input stream" />
+    <output name="out" type="integer" defaultinput="in"  spec_desc="nearest integer greater than or equal to `in`"/>
+  </nodedef>
+
+  <!--
+    Node: <round>
+    Round incoming float/color/vector values.
+  -->
+  <template name="TP_ND_round" varnames="typeName" options="(float, color3, color4, vector2, vector3, vector4)">
+    <nodedef name="ND_round_@typeName@" node="round" nodegroup="math">
+      <input name="in" type="@typeName@" value="Constant:zero" spec_desc="The primary input stream" />
+      <output name="out" type="@typeName@" defaultinput="in" spec_desc="`in` rounded to the nearest integer" />
+    </nodedef>
+  </template>
+  <nodedef name="ND_round_integer" node="round" nodegroup="math">
+    <input name="in" type="float" value="0.0" spec_desc="The primary input stream" />
+    <output name="out" type="integer" defaultinput="in"  spec_desc="`in` rounded to the nearest integer"/>
+  </nodedef>
+
+  <!--
+    Node: <power>
+    Raise incoming float/color/vector values to the "in2" power.
+  -->
+  <template name="TP_ND_powerFA" varnames="nodeDefExt,floatTypeName,typeList" options="(@typeName@,@typeName@FA), (@typeName@,float), ('float, color3, color4, vector2, vector3, vector4', 'color3, color4, vector2, vector3, vector4')">
+    <template name="TP_ND_power_@nodeDefExt@" varnames="typeName" options="(@typeList@)">
+      <nodedef name="ND_power_@nodeDefExt@" node="power" nodegroup="math">
+        <input name="in1" type="@typeName@" value="Constant:zero" spec_desc="The primary input stream" />
+        <input name="in2" type="@floatTypeName@" value="Constant:one" spec_desc="The exponent to raise `in1` to"/>
+        <output name="out" type="@typeName@" defaultinput="in1" spec_desc="`in1` raised to `in2`" />
+      </nodedef>
+    </template>
+  </template>
+
+  <!--
+    Node: <safepower>
+    Raise incoming float/color/vector values to the "in2" power.
+    Negative "in1" values will result in negative output values. ie. out = sign(in1)*pow(abs(in1),in2)
+  -->
+  <template name="TP_ND_safepowerFA" varnames="nodeDefExt,floatTypeName,typeList" options="(@typeName@,@typeName@FA), (@typeName@,float), ('float, color3, color4, vector2, vector3, vector4', 'color3, color4, vector2, vector3, vector4')">
+    <template name="TP_ND_safepower_@nodeDefExt@" varnames="typeName" options="(@typeList@)">
+      <nodedef name="ND_safepower_@nodeDefExt@" node="safepower" nodegroup="math">
+        <input name="in1" type="@typeName@" value="Constant:zero" spec_desc="The primary input stream" />
+        <input name="in2" type="@floatTypeName@" value="Constant:one" spec_desc="The exponent to raise `in1` to"/>
+        <output name="out" type="@typeName@" defaultinput="in1" spec_desc="`in1` raised to `in2`"/>
+      </nodedef>
+    </template>
+  </template>
+
+  <!--
+    Nodes: <sin>, <cos>, <tan>, <asin>, <acos>, <atan2>
+    Standard trigonometric functions; angles are given in radians.
+  -->
+  <template name="TP_ND_sin" varnames="typeName" options="(float, vector2, vector3, vector4)">
+    <nodedef name="ND_sin_@typeName@" node="sin" nodegroup="math">
+      <input name="in" type="@typeName@" value="Constant:zero" spec_desc="The primary input stream" />
+      <output name="out" type="@typeName@" defaultinput="in" spec_desc="sin of `in1`" />
+    </nodedef>
+  </template>
+  <template name="TP_ND_cos" varnames="typeName" options="(float, vector2, vector3, vector4)">
+    <nodedef name="ND_cos_@typeName@" node="cos" nodegroup="math">
+      <input name="in" type="@typeName@" value="Constant:zero" spec_desc="The primary input stream" />
+      <output name="out" type="@typeName@" defaultinput="in" spec_desc="cos of `in1`" />
+    </nodedef>
+  </template>
+  <template name="TP_ND_tan" varnames="typeName" options="(float, vector2, vector3, vector4)">
+    <nodedef name="ND_tan_@typeName@" node="tan" nodegroup="math">
+      <input name="in" type="@typeName@" value="Constant:zero" spec_desc="The primary input stream" />
+      <output name="out" type="@typeName@" defaultinput="in" spec_desc="cos of `in1`" />
+    </nodedef>
+  </template>
+  <template name="TP_ND_asin" varnames="typeName" options="(float, vector2, vector3, vector4)">
+    <nodedef name="ND_asin_@typeName@" node="asin" nodegroup="math">
+      <input name="in" type="@typeName@" value="Constant:zero" spec_desc="The primary input stream" spec_acceptedvalues="[-__one__, __one__)" />
+      <output name="out" type="@typeName@" defaultinput="in" spec_desc="asin of `in1`" />
+    </nodedef>
+  </template>
+  <template name="TP_ND_acos" varnames="typeName" options="(float, vector2, vector3, vector4)">
+    <nodedef name="ND_acos_@typeName@" node="acos" nodegroup="math">
+      <input name="in" type="@typeName@" value="Constant:zero" spec_desc="The primary input stream" spec_acceptedvalues="[-__one__, __one__)" />
+      <output name="out" type="@typeName@" defaultinput="in" spec_desc="acos of `in1`" />
+    </nodedef>
+  </template>
+  <template name="TP_ND_atan2" varnames="typeName" options="(float, vector2, vector3, vector4)">
+    <nodedef name="ND_atan2_@typeName@" node="atan2" nodegroup="math">
+      <input name="iny" type="@typeName@" value="Constant:zero" spec_desc="Vertical component of the point to which the the angle is to be found" />
+      <input name="inx" type="@typeName@" value="Constant:one" spec_desc="Horizontal component of the point to which the angle is to be found" />
+      <output name="out" type="@typeName@" defaultinput="iny" spec_desc="angle relative to the X-axis of the line joining the origin and the point (`inx`, `iny`)" />
+    </nodedef>
+  </template>
+
+  <!--
+    Nodes: <sqrt>, <ln>, <exp>
+    Standard math functions.
+  -->
+  <template name="TP_ND_sqrt" varnames="typeName" options="(float, vector2, vector3, vector4)">
+    <nodedef name="ND_sqrt_@typeName@" node="sqrt" nodegroup="math">
+      <input name="in" type="@typeName@" value="Constant:zero" spec_desc="The primary input stream" spec_acceptedvalues="[__zero__, __+inf__)" />
+      <output name="out" type="@typeName@" defaultinput="in" spec_desc="square root of `in`" />
+    </nodedef>
+  </template>
+  <template name="TP_ND_ln" varnames="typeName" options="(float, vector2, vector3, vector4)">
+    <nodedef name="ND_ln_@typeName@" node="ln" nodegroup="math">
+      <input name="in" type="@typeName@" value="Constant:one"  spec_desc="The primary input stream" spec_acceptedvalues=" (__zero__, __+inf__) "/>
+      <output name="out" type="@typeName@" defaultinput="in" spec_desc="natural logarithm of `in`" />
+    </nodedef>
+  </template>
+  <template name="TP_ND_exp" varnames="typeName" options="(float, vector2, vector3, vector4)">
+    <nodedef name="ND_exp_@typeName@" node="exp" nodegroup="math">
+      <input name="in" type="@typeName@" value="Constant:zero" spec_desc="The primary input stream" />
+      <output name="out" type="@typeName@" defaultinput="in" spec_desc="exponential of `in`" />
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <sign>
+    Sign of eachinput channel: -1, 0 or +1
+  -->
+  <template name="TP_ND_sign" varnames="typeName" options="(float, color3, color4, vector2, vector3, vector4)">
+    <nodedef name="ND_sign_@typeName@" node="sign" nodegroup="math">
+      <input name="in" type="@typeName@" value="Constant:zero"  spec_desc="The primary input stream"/>
+      <output name="out" type="@typeName@" defaultinput="in" spec_desc="sign of `in`" />
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <clamp>
+    Clamp incoming value to a specified range of values.
+  -->
+  <template name="TP_ND_clampFA" varnames="nodeDefExt,floatTypeName,typeList" options="(@typeName@,@typeName@FA), (@typeName@,float), ('float, color3, color4, vector2, vector3, vector4', 'color3, color4, vector2, vector3, vector4')">
+    <template name="TP_ND_clamp_@nodeDefExt@" varnames="typeName" options="(@typeList@)">
+      <nodedef name="ND_clamp_@nodeDefExt@" node="clamp" nodegroup="math">
+        <input name="in" type="@typeName@" value="Constant:zero" spec_desc="The input stream to be clamped"/>
+        <input name="low" type="@floatTypeName@" value="Constant:zero" spec_desc="Any value of `in` lower than this value will be set to this value"/>
+        <input name="high" type="@floatTypeName@" value="Constant:one" spec_desc="Any value of `in` higher than this value will be set to this value" />
+        <output name="out" type="@typeName@" defaultinput="in" spec_desc="clamped `in`" />
+      </nodedef>
+    </template>
+  </template>
+
+  <!--
+    Node: <min>
+    Select the minimum among incoming values.
+  -->
+  <template name="TP_ND_minFA" varnames="nodeDefExt,floatTypeName,typeList" options="(@typeName@,@typeName@FA), (@typeName@,float), ('float, color3, color4, vector2, vector3, vector4', 'color3, color4, vector2, vector3, vector4')">
+    <template name="TP_ND_min_@nodeDefExt@" varnames="typeName" options="(@typeList@)">
+      <nodedef name="ND_min_@nodeDefExt@" node="min" nodegroup="math">
+        <input name="in1" type="@typeName@" value="Constant:zero" spec_desc="The first input stream" />
+        <input name="in2" type="@floatTypeName@" value="Constant:zero" spec_desc="The second input stream" />
+        <output name="out" type="@typeName@" defaultinput="in1" spec_desc="minimum of `in1` and `in2`"/>
+      </nodedef>
+    </template>
+  </template>
+
+  <!--
+    Node: <max>
+    Select the maximum among incoming values.
+  -->
+  <template name="TP_ND_maxFA" varnames="nodeDefExt,floatTypeName,typeList" options="(@typeName@,@typeName@FA), (@typeName@,float), ('float, color3, color4, vector2, vector3, vector4', 'color3, color4, vector2, vector3, vector4')">
+    <template name="TP_ND_max_@nodeDefExt@" varnames="typeName" options="(@typeList@)">
+      <nodedef name="ND_max_@nodeDefExt@" node="max" nodegroup="math">
+        <input name="in1" type="@typeName@" value="Constant:zero" spec_desc="The first input stream" />
+        <input name="in2" type="@floatTypeName@" value="Constant:zero" spec_desc="The second input stream" />
+        <output name="out" type="@typeName@" defaultinput="in1" spec_desc="maximum of `in1` and `in2`"/>
+      </nodedef>
+    </template>
+  </template>
+
+  <!--
+    Node: <normalize>
+    Outputs the normalized vector from the incoming vector stream.
+  -->
+  <template name="TP_ND_normalize" varnames="typeName" options="(vector2, vector3, vector4)">
+    <nodedef name="ND_normalize_@typeName@" node="normalize" nodegroup="math">
+      <input name="in" type="@typeName@" value="Constant:zero" spec_desc="Vector to be normalized" />
+      <output name="out" type="@typeName@" defaultinput="in" spec_desc="normalized `in`" />
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <magnitude>
+    Outputs the float magnitude (vector length) of the incoming vector stream.
+  -->
+  <template name="TP_ND_magnitude" varnames="typeName" options="(vector2, vector3, vector4)">
+    <nodedef name="ND_magnitude_@typeName@" node="magnitude" nodegroup="math">
+      <input name="in" type="@typeName@" value="Constant:zero" spec_desc="Input vector stream"/>
+      <output name="out" type="float" default="0.0" spec_desc="magnitude of `in`" />
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <distance>
+    Measures the distance between two points in 2D, 3D, or 4D.
+  -->
+  <template name="TP_ND_distance" varnames="typeName" options="(vector2, vector3, vector4)">
+    <nodedef name="ND_distance_@typeName@" node="distance" nodegroup="math">
+      <input name="in1" type="@typeName@" uiname="in1" value="Constant:zero" spec_desc="Point to calculate distance from" />
+      <input name="in2" type="@typeName@" uiname="in2" value="Constant:zero" spec_desc="Point to calculate distance to"/>
+      <output name="out" type="float" spec_desc="distance between `in1` and `in2`" />
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <dotproduct>
+    Perform a dot product of two 2-4 channel vectors
+  -->
+  <template name="TP_ND_dotproduct" varnames="typeName" options="(vector2, vector3, vector4)">
+    <nodedef name="ND_dotproduct_@typeName@" node="dotproduct" nodegroup="math">
+      <input name="in1" type="@typeName@" value="Constant:zero" spec_desc="The first input vector stream" />
+      <input name="in2" type="@typeName@" value="Constant:zero"  spec_desc="The second input vector stream"/>
+      <output name="out" type="float" default="0.0" spec_desc="dot product of `in1` and `in2`"  />
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <crossproduct>
+    Perform a cross product of two vectors
+  -->
+  <nodedef name="ND_crossproduct_vector3" node="crossproduct" nodegroup="math">
+    <input name="in1" type="vector3" value="0.0, 0.0, 0.0"  spec_desc="The first input vector stream"/>
+    <input name="in2" type="vector3" value="0.0, 0.0, 0.0"  spec_desc="The second input vector stream"/>
+    <output name="out" type="vector3" defaultinput="in1" spec_desc="cross product of `in1` and `in2`" />
+  </nodedef>
+
+  <!--
+    Node: <transformpoint>
+    Transform a vector3 coordinate from one named space to another.
+  -->
+  <nodedef name="ND_transformpoint_vector3" node="transformpoint" nodegroup="math">
+    <input name="in" type="vector3" value="0.0, 0.0, 0.0" spec_desc="The point to be transformed" />
+    <input name="fromspace" type="string" value="" uniform="true" spec_desc="The name of a vector space understood by the rendering target to transform the `in` point from; may be empty to specify the renderer's working space." />
+    <input name="tospace" type="string" value="" uniform="true" spec_desc="The name of a vector space understood by the rendering target for the space to transform the `in` point to." />
+    <output name="out" type="vector3" defaultinput="in" spec_desc="point transformed from `fromspace` to `tospace`" />
+  </nodedef>
+
+  <!--
+    Node: <transformvector>
+    Transform a vector from one named space to another.
+  -->
+  <nodedef name="ND_transformvector_vector3" node="transformvector" nodegroup="math">
+    <input name="in" type="vector3" value="0.0, 0.0, 0.0" spec_desc="The vector to be transformed"/>
+    <input name="fromspace" type="string" value="" uniform="true" spec_desc="The name of a vector space understood by the rendering target to transform the `in` vector from; may be empty to specify the renderer's working space."/>
+    <input name="tospace" type="string" value="" uniform="true" spec_desc="The name of a vector space understood by the rendering target for the space to transform the `in` vector to." />
+    <output name="out" type="vector3" defaultinput="in" spec_desc="point transformed from `fromspace` to `tospace`"/>
+  </nodedef>
+  <!--
+    Node: <transformnormal>
+    Transform a normal vector from one named space to another.
+  -->
+  <nodedef name="ND_transformnormal_vector3" node="transformnormal" nodegroup="math">
+    <input name="in" type="vector3" value="0.0, 0.0, 1.0" spec_desc="The normal to be transformed" />
+    <input name="fromspace" type="string" value="" uniform="true" spec_desc="The name of a vector space understood by the rendering target to transform the `in` normal from; may be empty to specify the renderer's working space."/>
+    <input name="tospace" type="string" value="" uniform="true" spec_desc="The name of a vector space understood by the rendering target for the space to transform the `in` normal to."/>
+    <output name="out" type="vector3" defaultinput="in" spec_desc="point transformed from `fromspace` to `tospace`"/>
+  </nodedef>
+
+  <!--
+    Node: <transformmatrix>
+    Transform a vector by a matrix.
+  -->
+  <nodedef name="ND_transformmatrix_vector2M3" node="transformmatrix" nodegroup="math">
+    <input name="in" type="vector2" value="Constant:zero" spec_desc="Vector to be transformed" />
+    <input name="mat" type="matrix33" value="Constant:one" spec_desc="Matrix to transform `in` by" />
+    <output name="out" type="vector2" defaultinput="in" spec_desc="`in` transformed by `mat`" />
+  </nodedef>
+  <template name="TP_ND_transformmatrix_vector3" varnames="typeName, nodeDefExt" options="(matrix33, matrix44), (vector3,vector3M4)">
+    <nodedef name="ND_transformmatrix_@nodeDefExt@" node="transformmatrix" nodegroup="math">
+      <input name="in" type="vector3" value="Constant:zero" spec_desc="Vector to be transformed" />
+      <input name="mat" type="@typeName@" value="Constant:one"  spec_desc="Matrix to transform `in` by"/>
+      <output name="out" type="vector3" defaultinput="in" spec_desc="`in` transformed by `mat`"/>
+    </nodedef>
+  </template>
+  <nodedef name="ND_transformmatrix_vector4" node="transformmatrix" nodegroup="math">
+    <input name="in" type="vector4" value="Constant:zero" spec_desc="Vector to be transformed" />
+    <input name="mat" type="matrix44" value="Constant:one" spec_desc="Matrix to transform `in` by" />
+    <output name="out" type="vector4" defaultinput="in" spec_desc="`in` transformed by `mat`"/>
+  </nodedef>
+
+  <!--
+    Node: <normalmap>
+    Transform a normal vector from object or tangent space into "world" space.
+  -->
+  <template name="TP_ND_normalmap" varnames="typeName" options="(float, vector2)">
+    <nodedef name="ND_normalmap_@typeName@" node="normalmap" nodegroup="math">
+      <input name="in" type="vector3" value="0.5, 0.5, 1.0" spec_desc="Input normal in space of frame defined by `normal`, `tangent`, `bitangent` ports" />
+      <input name="scale" type="@typeName@" value="Constant:one" spec_desc="Scaling factor to apply to the normal" />
+      <input name="normal" type="vector3" defaultgeomprop="Nworld" spec_desc="Normal of the local frame from which to transform `in`" />
+      <input name="tangent" type="vector3" defaultgeomprop="Tworld" spec_desc="Tangent of the local frame from which to transform `in`" />
+      <input name="bitangent" type="vector3" defaultgeomprop="Bworld" spec_desc="Bitangent of the local frame from which to transform `in`"/>
+      <output name="out" type="vector3" defaultinput="normal" spec_desc="Ouptut normal in world space" />
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <hextilednormalmap> Supplemental Node
+    Samples data from a single normalmap, with provisions for hex-tiling and randomizing the normalmap 
+    across uv space.
+  -->
+  <nodedef name="ND_hextilednormalmap_vector3" node="hextilednormalmap" nodegroup="math">
+    <input name="file" type="filename" value="" uniform="true" spec_desc="Texture file to tile containing tangent-space normals" />
+    <input name="default" type="vector3" value="0.5, 0.5, 1.0" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" spec_desc="Texture coordinates" />
+    <input name="tiling" type="vector2" value="1.0, 1.0" spec_desc="Rate at which to tile `file` in each of the `texcoord` directions" />
+    <input name="rotation" type="float" value="1.0" spec_desc="Constant rotation applied to each tile, in degrees" />
+    <input name="rotationrange" type="vector2" value="0.0, 360.0" spec_desc="Range of random rotation applied to each tile" />
+    <input name="scale" type="float" value="1.0" spec_desc="Constant scaling factor applied to each tile" />
+    <input name="scalerange" type="vector2" value="0.5, 2.0" spec_desc="Range of random scaling factors applied to each tile" />
+    <input name="offset" type="float" value="1.0" spec_desc="Constant translation offset applied to all tiles" />
+    <input name="offsetrange" type="vector2" value="0.0, 1.0" spec_desc="Range of random translation offsets applied to each tile" />
+    <input name="falloff" type="float" value="0.5" spec_desc="Falloff" />
+    <input name="strength" type="float" value="1.0" spec_desc="Strength" />
+    <input name="flip_g" type="boolean" value="false" spec_desc="Whether to flip the green channel of the texture to conform to either DirectX or OpenGL convention" />
+    <input name="normal" type="vector3" defaultgeomprop="Nworld" spec_desc="Normal of the local frame from which to transform `in`"/>
+    <input name="tangent" type="vector3" defaultgeomprop="Tworld" spec_desc="Tangent of the local frame from which to transform `in`"/>
+    <input name="bitangent" type="vector3" defaultgeomprop="Bworld" spec_desc="Bitangent of the local frame from which to transform `in`"/>
+    <output name="out" type="vector3" default="0.5, 0.5, 1.0" spec_desc="Ouptut normal in world space"/>
+  </nodedef>
+
+  <!--
+    Node: <transpose>
+    Output the transpose of the incoming matrix.
+  -->
+  <template name="TP_ND_transpose" varnames="typeName" options="(matrix33, matrix44)">
+    <nodedef name="ND_transpose_@typeName@" node="transpose" nodegroup="math">
+      <input name="in" type="@typeName@" value="Constant:one" spec_desc="The input matrix" />
+      <output name="out" type="@typeName@" defaultinput="in" spec_desc="transpose of `in`" />
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <determinant>
+    Output the determinant of the incoming matrix.
+  -->
+  <template name="TP_ND_determinant" varnames="typeName" options="(matrix33, matrix44)">
+    <nodedef name="ND_determinant_@typeName@" node="determinant" nodegroup="math">
+      <input name="in" type="@typeName@" value="Constant:one" spec_desc="The input matrix"/>
+      <output name="out" type="float" default="1.0" spec_desc="determinant of `in`" />
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <invertmatrix>
+    Invert an incoming matrix.
+  -->
+  <template name="TP_ND_invertmatrix" varnames="typeName" options="(matrix33, matrix44)">
+    <nodedef name="ND_invertmatrix_@typeName@" node="invertmatrix" nodegroup="math">
+      <input name="in" type="@typeName@" value="Constant:one" spec_desc="The input matrix"/>
+      <output name="out" type="@typeName@" defaultinput="in" spec_desc="inverse of `in`" />
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <rotate2d>
+    Rotate a vector2 value about the origin.
+  -->
+  <nodedef name="ND_rotate2d_vector2" node="rotate2d" nodegroup="math">
+    <input name="in" type="vector2" value="0.0, 0.0" spec_desc="The input vector to rotate" />
+    <input name="amount" type="float" value="0.0" unittype="angle" unit="degree" spec_desc="The angle to rotate, specified in degrees. Positive values rotate counter-clockwise" />
+    <output name="out" type="vector2" defaultinput="in" spec_desc="rotated vector" />
+  </nodedef>
+
+  <!--
+    Node: <rotate3d>
+    Rotate a vector3 value about a specified unit axis vector
+  -->
+  <nodedef name="ND_rotate3d_vector3" node="rotate3d" nodegroup="math">
+    <input name="in" type="vector3" value="0.0, 0.0, 0.0" spec_desc="The input vector to rotate" />
+    <input name="amount" type="float" value="0.0" unittype="angle" unit="degree" spec_desc="The angle to rotate, specified in degrees. Positive values rotate counter-clockwise"/>
+    <input name="axis" type="vector3" value="0.0, 1.0, 0.0" spec_desc="The unit axis vector to rotate `in` around" />
+    <output name="out" type="vector3" defaultinput="in" spec_desc="rotated vector" />
+  </nodedef>
+
+  <!--
+    Node: <place2d> Supplemental Node
+    Transform incoming UV texture coordinates from one 2D frame of reference to another.
+    operationorder (integer enum): the order in which to perform the transform operations.
+    "0" or "SRT" performs -pivot, scale, rotate, translate, +pivot as per the original
+    implementation matching the behavior of certain DCC packages, and "1" or "TRS" performs
+    -pivot, translate, rotate, scale, +pivot which does not introduce texture shear.
+    Default is 0 "SRT" for backward compatibility.
+  -->
+  <nodedef name="ND_place2d_vector2" node="place2d" nodegroup="math">
+    <input name="texcoord" type="vector2" value="0.0, 0.0" spec_desc="Input texture coordinates to transform" />
+    <input name="pivot" type="vector2" value="0.0,0.0" spec_desc="Pivot point around which to rotate and scale `texcoord`" />
+    <input name="scale" type="vector2" value="1.0,1.0" spec_desc="Scaling factor to apply to `in`" />
+    <input name="rotate" type="float" value="0.0" unittype="angle" unit="degree" spec_desc="Amount to rotate `in`, in degrees" />
+    <input name="offset" type="vector2" value="0.0,0.0" spec_desc="Amount to translate `in`" />
+    <input name="operationorder" type="integer" value="0" enum="SRT, TRS" enumvalues="0, 1" spec_desc="The order in which to perform the transform operations<br>- SRT/0: Performs -pivot, scale, rotate, translate, +pivot <br>- TRS/1: Performs -pivot, translate, rotate, scale, +pivot " spec_acceptedvalues="SRT, TRS, 0, 1" />
+    <output name="out" type="vector2" defaultinput="texcoord" spec_desc="transformed texture coordinates" />
+  </nodedef>
+
+  <!--
+    Node: <trianglewave>
+    Generate a triangle wave from the given scalar input.
+    The generated wave ranges from zero to one and repeats on integer boundaries.
+  -->
+  <nodedef name="ND_trianglewave_float" node="trianglewave" nodegroup="math">
+    <input name="in" type="float" value="0" spec_desc="The primary input stream" />
+    <output name="out" type="float" spec_desc="generated wave signal" />
+  </nodedef>
+
+  <!--
+    Node: <reflect>
+    Compute the reflection vector given an incident vector and unit surface normal.
+  -->
+  <nodedef name="ND_reflect_vector3" node="reflect" nodegroup="math" doc="Compute the reflection vector">
+    <input name="in" type="vector3" value="1.0, 0.0, 0.0" doc="Incident vector" spec_desc="Input vector to reflect" />
+    <input name="normal" type="vector3" defaultgeomprop="Nworld" doc="Surface normal" spec_desc="Vector normal to the surface about which to reflect `in`" />
+    <output name="out" type="vector3" spec_desc="reflection of `in` about `normal`" />
+  </nodedef>
+
+  <!--
+    Node: <refract>
+    Compute the refraction vector given an incident vector, unit surface normal,
+    and index of refraction.
+  -->
+  <nodedef name="ND_refract_vector3" node="refract" nodegroup="math" doc="Compute the refraction vector">
+    <input name="in" type="vector3" value="1.0, 0.0, 0.0" doc="Incident vector" spec_desc="Input vector to refract" />
+    <input name="normal" type="vector3" defaultgeomprop="Nworld" doc="Surface normal" spec_desc="Vector normal to the surface through which to refract `in`" />
+    <input name="ior" type="float" value="1.0" doc="Index of refraction" spec_desc="The relative index of refraction of the interior of the surface to the exterior" />
+    <output name="out" type="vector3" spec_desc="refraction of `in` through `normal`" />
+  </nodedef>
+
+  <!-- ======================================================================== -->
+  <!-- Adjustment nodes                                                         -->
+  <!-- ======================================================================== -->
+
+  <!--
+    Node: <remap>
+    Remap a value from one range of float/color/vector values to another.
+  -->
+  <template name="TP_ND_remapFA" varnames="nodeDefExt,floatTypeName,typeList" options="(@typeName@,@typeName@FA), (@typeName@,float), ('float, color3, color4, vector2, vector3, vector4', 'color3, color4, vector2, vector3, vector4')">
+    <template name="TP_ND_remap_@nodeDefExt@" varnames="typeName" options="(@typeList@)">
+      <nodedef name="ND_remap_@nodeDefExt@" node="remap" nodegroup="adjustment">
+        <input name="in" type="@typeName@" value="Constant:zero" spec_desc="The input stream to be adjusted" />
+        <input name="inlow" type="@floatTypeName@" value="Constant:zero" spec_desc="Low value for the input range" />
+        <input name="inhigh" type="@floatTypeName@" value="Constant:one" spec_desc="High value for the input range" />
+        <input name="outlow" type="@floatTypeName@" value="Constant:zero" spec_desc="Low value for the output range" />
+        <input name="outhigh" type="@floatTypeName@" value="Constant:one" spec_desc="High value for the output range" />
+        <output name="out" type="@typeName@" defaultinput="in" spec_desc="the adjusted value" />
+      </nodedef>
+    </template>
+  </template>
+
+  <!--
+    Node: <smoothstep>
+    Outputs a smooth (hermite-interpolated) remapping of input values from low-high
+    to output 0-1.
+  -->
+  <template name="TP_ND_smoothstepFA" varnames="nodeDefExt,floatTypeName,typeList" options="(@typeName@,@typeName@FA), (@typeName@,float), ('float, color3, color4, vector2, vector3, vector4', 'color3, color4, vector2, vector3, vector4')">
+    <template name="TP_ND_smoothstep_@nodeDefExt@" varnames="typeName" options="(@typeList@)">
+      <nodedef name="ND_smoothstep_@nodeDefExt@" node="smoothstep" nodegroup="adjustment">
+        <input name="in" type="@typeName@" value="Constant:zero" spec_desc="The input value to the smoothstep function" />
+        <input name="low" type="@floatTypeName@" value="Constant:zero" spec_desc="Low value for the input range"/>
+        <input name="high" type="@floatTypeName@" value="Constant:one" spec_desc="Low value for the output range"/>
+        <output name="out" type="@typeName@" defaultinput="in" spec_desc="the adjusted value"/>
+      </nodedef>
+    </template>
+  </template>
+
+  <!--
+    Node: <luminance>
+    Output a grayscale image containing the luminance of the incoming RGB color in all color channels;
+    the alpha channel is left unchanged if present.
+  -->
+  <template name="TP_ND_luminance" varnames="typeName" options="(color3, color4)">
+    <nodedef name="ND_luminance_@typeName@" node="luminance" nodegroup="adjustment">
+      <input name="in" type="@typeName@" value="Constant:zero" spec_desc="The input color stream to be converted"/>
+      <input name="lumacoeffs" type="color3" value="0.2722287, 0.6740818, 0.0536895" enum="acescg, rec709, rec2020, rec2100" enumvalues="0.2722287,0.6740818,0.0536895, 0.2126,0.7152,0.0722, 0.2627,0.6780,0.0593, 0.2627,0.6780,0.0593" spec_desc="The luma coefficients of the current working color space"/>
+      <output name="out" type="@typeName@" defaultinput="in" spec_desc="the luminance of `in`" />
+    </nodedef>
+  </template>
+
+  <!--
+    Nodes: <rgbtohsv> and <hsvtorgb>
+    Convert an incoming color between RGB and HSV space, with H and S ranging from 0-1.
+  -->
+  <template name="TP_ND_rgbtohsv" varnames="typeName" options="(color3, color4)">
+    <nodedef name="ND_rgbtohsv_@typeName@" node="rgbtohsv" nodegroup="adjustment">
+      <input name="in" type="@typeName@" value="Constant:zero" spec_desc="The input color stream to be converted"/>
+      <output name="out" type="@typeName@" defaultinput="in" spec_desc="`in` converted from RGB to HSV"/>
+    </nodedef>
+  </template>
+  <template name="TP_ND_hsvtorgb" varnames="typeName" options="(color3, color4)">
+    <nodedef name="ND_hsvtorgb_@typeName@" node="hsvtorgb" nodegroup="adjustment">
+      <input name="in" type="@typeName@" value="Constant:zero" spec_desc="The input color stream to be converted"/>
+      <output name="out" type="@typeName@" defaultinput="in" spec_desc="`in` converted from HSV to RGB" />
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <contrast> Supplemental Node
+    Increase or decrease contrast of a float/color value using a linear slope multiplier.
+  -->
+  <template name="TP_ND_contrastFA" varnames="nodeDefExt,floatTypeName,typeList" options="(@typeName@,@typeName@FA), (@typeName@,float), ('float, color3, color4, vector2, vector3, vector4', 'color3, color4, vector2, vector3, vector4')">
+    <template name="TP_ND_contrast_@nodeDefExt@" varnames="typeName" options="(@typeList@)">
+      <nodedef name="ND_contrast_@nodeDefExt@" node="contrast" nodegroup="adjustment">
+        <input name="in" type="@typeName@" value="Constant:zero" spec_desc="The input color stream to be adjusted" />
+        <input name="amount" type="@floatTypeName@" value="Constant:one" spec_desc="Slope multiplier for contrast adjustment. Values greater than 1.0 increase contrast, values between 0.0 and 1.0 reduce contrast." spec_acceptedvalues="[__zero__, __+inf__)" />
+        <input name="pivot" type="@floatTypeName@" value="Constant:half" spec_desc="Center pivot value of contrast adjustment; this is the value that will not change as contrast is adjusted. " />
+        <output name="out" type="@typeName@" defaultinput="in" spec_desc="the adjusted color value" />
+      </nodedef>
+    </template>
+  </template>
+
+  <!--
+    Node: <range> Supplemental Node
+    Remap a value from one range of float/color/vector values to another, optionally
+    applying a gamma correction in the middle, and optionally clamping output values.
+  -->
+  <template name="TP_ND_rangeFA" varnames="nodeDefExt,floatTypeName,typeList" options="(@typeName@,@typeName@FA), (@typeName@,float), ('float, color3, color4, vector2, vector3, vector4', 'color3, color4, vector2, vector3, vector4')">
+    <template name="TP_ND_range_@nodeDefExt@" varnames="typeName" options="(@typeList@)">
+      <nodedef name="ND_range_@nodeDefExt@" node="range" nodegroup="adjustment">
+        <input name="in" type="@typeName@" value="Constant:zero" spec_desc="The input stream to be adjusted"/>
+        <input name="inlow" type="@floatTypeName@" value="Constant:zero" spec_desc="Low value for the input range" />
+        <input name="inhigh" type="@floatTypeName@" value="Constant:one" spec_desc="High value for the input range" />
+        <input name="gamma" type="@floatTypeName@" value="Constant:one" spec_desc="Reciprocal of the exponent applied to the remapped input" />
+        <input name="outlow" type="@floatTypeName@" value="Constant:zero" spec_desc="Low value for the output range"/>
+        <input name="outhigh" type="@floatTypeName@" value="Constant:one" spec_desc="High value for the output range"/>
+        <input name="doclamp" type="boolean" value="false" spec_desc="If true, the output is clamped to [`outlow`, `outhigh`]" />
+        <output name="out" type="@typeName@" defaultinput="in" spec_desc="the adjusted value" />
+      </nodedef>
+    </template>
+  </template>
+
+  <!--
+    Node: <hsvadjust> Supplemental Node
+    Adjust the hue, saturation and value of an RGB color by converting the input color
+    to HSV, adding amount.x to the hue, multiplying the saturation by amount.y,
+    multiplying the value by amount.z, then converting back to RGB.
+  -->
+  <template name="TP_ND_hsvadjust" varnames="typeName" options="(color3, color4)">
+    <nodedef name="ND_hsvadjust_@typeName@" node="hsvadjust" nodegroup="adjustment">
+      <input name="in" type="@typeName@" value="Constant:zero" spec_desc="The input color stream to be adjusted" />
+      <input name="amount" type="vector3" value="0.0, 1.0, 1.0" spec_desc="Hue offset, saturation scale, and luminance scale in (x, y, z), respectively"/>
+      <output name="out" type="@typeName@" defaultinput="in" spec_desc="the adjusted value" />
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <saturate> Supplemental Node
+    Adjust the saturation of a color using a linear interpolation between the incoming
+    color and the grayscale luminance of the input computed using the provided luma
+    coefficients; the alpha channel will be unchanged if present.
+  -->
+  <template name="TP_ND_saturate" varnames="typeName" options="(color3, color4)">
+    <nodedef name="ND_saturate_@typeName@" node="saturate" nodegroup="adjustment">
+      <input name="in" type="@typeName@" value="Constant:zero" spec_desc="The input color stream to be adjusted"/>
+      <input name="amount" type="float" value="1.0" spec_desc="Multiplier on the saturation `in`" />
+      <input name="lumacoeffs" type="color3" value="0.2722287, 0.6740818, 0.0536895" enum="acescg, rec709, rec2020, rec2100" enumvalues="0.2722287,0.6740818,0.0536895, 0.2126,0.7152,0.0722, 0.2627,0.6780,0.0593, 0.2627,0.6780,0.0593" spec_desc="The luma coefficients to use to calculate the desaturated value" />
+      <output name="out" type="@typeName@" defaultinput="in" spec_desc="the adjusted value"/>
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <colorcorrect> Supplemental Node
+    Combines various adjustment nodes into one, artist-friendly color correction node.
+    The color4 signature does not touch the alpha channel.
+  -->
+  <nodedef name="ND_colorcorrect_color3" node="colorcorrect" nodegroup="adjustment">
+    <input name="in" type="color3" uiname="Input Color" value="1.0, 1.0, 1.0" doc="The input color to be adjusted." spec_desc="The input color stream"/>
+    <input name="hue" type="float" uiname="Hue" uisoftmin="0.0" uisoftmax="1.0" value="0" doc="Rotates the color hue, with values wrapping at 0-1 boundaries." spec_desc="Rotates the color hue" />
+    <input name="saturation" type="float" uiname="Saturation" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Adjusts the input color saturation level." spec_desc="Multiplies the input color saturation level" />
+    <input name="gamma" type="float" uiname="Gamma" uisoftmin="0.0" uisoftmax="3.0" value="1" doc="Applies a gamma correction to the color." spec_desc="Applies a gamma correction to the color" />
+    <input name="lift" type="float" uiname="Lift" uisoftmin="0.0" uisoftmax="1.0" value="0" doc="Raise the dark color values, leaving the white values unchanged." spec_desc="Raises the dark color values, leaving the white values unchanged" />
+    <input name="gain" type="float" uiname="Gain" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Multiplier increases lighter color values, leaving black values unchanged." spec_desc="Multiplier increases lighter color values, leaving black values unchanged" />
+    <input name="contrast" type="float" uiname="Contrast" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Linearly increase or decrease the color contrast." spec_desc="Linearly increase or decrease the color contrast" />
+    <input name="contrastpivot" type="float" uiname="Contrast Pivot" uisoftmin="0.0" uisoftmax="1.0" value="0.5" doc="Pivot value around which contrast applies. This value will not change as contrast is adjusted." spec_desc="Pivot value around which contrast applies"/>
+    <input name="exposure" type="float" uiname="Exposure" uisoftmin="-1.0" uisoftmax="1.0" value="0" doc="Multiplier which increases or decreases color brightness by 2^value." spec_desc="Logarithmic brightness multiplier as 2^`exposure`" />
+    <output name="out" type="color3" spec_desc="the color-corrected value" />
+  </nodedef>
+  <nodedef name="ND_colorcorrect_color4" node="colorcorrect" nodegroup="adjustment">
+    <input name="in" type="color4" uiname="Input Color" value="1.0, 1.0, 1.0, 0.0" doc="The input color to be adjusted." spec_desc="The input color stream"/>
+    <input name="hue" type="float" uiname="Hue" uisoftmin="0.0" uisoftmax="1.0" value="0" doc="Rotates the color hue, with values wrapping at 0-1 boundaries." spec_desc="Rotates the color hue" />
+    <input name="saturation" type="float" uiname="Saturation" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Adjusts the input color saturation level." spec_desc="Multiplies the input color saturation level" />
+    <input name="gamma" type="float" uiname="Gamma" uisoftmin="0.0" uisoftmax="3.0" value="1" doc="Applies a gamma correction to the color." spec_desc="Applies a gamma correction to the color" />
+    <input name="lift" type="float" uiname="Lift" uisoftmin="0.0" uisoftmax="1.0" value="0" doc="Raise the dark color values, leaving the white values unchanged." spec_desc="Raises the dark color values, leaving the white values unchanged" />
+    <input name="gain" type="float" uiname="Gain" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Multiplier increases lighter color values, leaving black values unchanged." spec_desc="Multiplier increases lighter color values, leaving black values unchanged" />
+    <input name="contrast" type="float" uiname="Contrast" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Linearly increase or decrease the color contrast." spec_desc="Linearly increase or decrease the color contrast" />
+    <input name="contrastpivot" type="float" uiname="Contrast Pivot" uisoftmin="0.0" uisoftmax="1.0" value="0.5" doc="Pivot value around which contrast applies. This value will not change as contrast is adjusted." spec_desc="Pivot value around which contrast applies"/>
+    <input name="exposure" type="float" uiname="Exposure" uisoftmin="-1.0" uisoftmax="1.0" value="0" doc="Multiplier which increases or decreases color brightness by 2^value." spec_desc="Logarithmic brightness multiplier as 2^`exposure`" />
+    <output name="out" type="color4" spec_desc="the color-corrected value" />
+  </nodedef>
+
+  <!-- ======================================================================== -->
+  <!-- Compositing nodes                                                        -->
+  <!-- ======================================================================== -->
+
+  <!--
+    Node: <premult>
+    Multiply the R or RGB channels of the input by the Alpha channel of the input.
+  -->
+  <nodedef name="ND_premult_color4" node="premult" nodegroup="compositing">
+    <input name="in" type="color4" value="0.0, 0.0, 0.0, 1.0" spec_desc="The input stream to be premultiplied" />
+    <output name="out" type="color4" defaultinput="in" spec_desc="premultiplied `in`" />
+  </nodedef>
+
+  <!--
+    Node: <unpremult>
+    Divide the R or RGB channels of the input by the Alpha channel of the input.
+    If the Alpha value is zero, it is passed through unchanged.
+  -->
+  <nodedef name="ND_unpremult_color4" node="unpremult" nodegroup="compositing">
+    <input name="in" type="color4" value="0.0, 0.0, 0.0, 1.0" spec_desc="The input stream to be unpremultiplied" />
+    <output name="out" type="color4" defaultinput="in" spec_desc="unpremultiplied `in`" />
+  </nodedef>
+
+  <!--
+    Node: <plus>
+    Add two 1-4 channel inputs, with optional mixing between the bg input and the result.
+  -->
+  <template name="TP_ND_plus" varnames="typeName" options="(float, color3, color4)">
+    <nodedef name="ND_plus_@typeName@" node="plus" nodegroup="compositing">
+      <input name="fg" type="@typeName@" value="Constant:zero" spec_desc="The foreground input stream" />
+      <input name="bg" type="@typeName@" value="Constant:zero" spec_desc="The background input stream" />
+      <input name="mix" type="float" value="1.0" spec_desc="A mixing value between `bg` (mix=0) and the result of the 'plus' operation (mix=1)" spec_acceptedvalues="[0, 1]" />
+      <output name="out" type="@typeName@" defaultinput="bg" spec_desc="`fg` plus `bg`" />
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <minus>
+    Subtract two 1-4 channel inputs, with optional mixing between the bg input and the result.
+  -->
+  <template name="TP_ND_minus" varnames="typeName" options="(float, color3, color4)">
+    <nodedef name="ND_minus_@typeName@" node="minus" nodegroup="compositing">
+      <input name="fg" type="@typeName@" value="Constant:zero" spec_desc="The foreground input stream" />
+      <input name="bg" type="@typeName@" value="Constant:zero" spec_desc="The background input stream" />
+      <input name="mix" type="float" value="1.0" spec_desc="A mixing value between `bg` (mix=0) and the result of the 'minus' operation (mix=1)" spec_acceptedvalues="[0, 1]" />
+      <output name="out" type="@typeName@" defaultinput="bg" />
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <difference>
+    Absolute-value difference of two 1-4 channel inputs, with optional mixing between
+    the bg input and the result.
+  -->
+  <template name="TP_ND_difference" varnames="typeName" options="(float, color3, color4)">
+    <nodedef name="ND_difference_@typeName@" node="difference" nodegroup="compositing">
+      <input name="fg" type="@typeName@" value="Constant:zero" spec_desc="The foreground input stream" />
+      <input name="bg" type="@typeName@" value="Constant:zero" spec_desc="The background input stream" />
+      <input name="mix" type="float" value="1.0" spec_desc="A mixing value between `bg` (mix=0) and the result of the 'difference' operation (mix=1)" spec_acceptedvalues="[0, 1]" />
+      <output name="out" type="@typeName@" defaultinput="bg" />
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <burn>
+    Take two 1-4 channel inputs and apply the same operator to all channels: 1-(1-B)/F
+  -->
+  <template name="TP_ND_burn" varnames="typeName" options="(float, color3, color4)">
+    <nodedef name="ND_burn_@typeName@" node="burn" nodegroup="compositing">
+      <input name="fg" type="@typeName@" value="Constant:zero" spec_desc="The foreground input stream" />
+      <input name="bg" type="@typeName@" value="Constant:zero" spec_desc="The background input stream" />
+      <input name="mix" type="float" value="1.0" spec_desc="A mixing value between `bg` (mix=0) and the result of the 'burn' operation (mix=1)" spec_acceptedvalues="[0, 1]" />
+      <output name="out" type="@typeName@" defaultinput="bg" />
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <dodge>
+    Take two 1-4 channel inputs and apply the same operator to all channels: B/(1-F)
+  -->
+  <template name="TP_ND_dodge" varnames="typeName" options="(float, color3, color4)">
+    <nodedef name="ND_dodge_@typeName@" node="dodge" nodegroup="compositing">
+      <input name="fg" type="@typeName@" value="Constant:zero" spec_desc="The foreground input stream" />
+      <input name="bg" type="@typeName@" value="Constant:zero" spec_desc="The background input stream" />
+      <input name="mix" type="float" value="1.0" spec_desc="A mixing value between `bg` (mix=0) and the result of the 'dodge' operation (mix=1)" spec_acceptedvalues="[0, 1]" />
+      <output name="out" type="@typeName@" defaultinput="bg" />
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <screen>
+    Take two 1-4 channel inputs and apply the same operator to all channels: 1-(1-F)*(1-B)
+  -->
+  <template name="TP_ND_screen" varnames="typeName" options="(float, color3, color4)">
+    <nodedef name="ND_screen_@typeName@" node="screen" nodegroup="compositing">
+      <input name="fg" type="@typeName@" value="Constant:zero" spec_desc="The foreground input stream" />
+      <input name="bg" type="@typeName@" value="Constant:zero" spec_desc="The background input stream" />
+      <input name="mix" type="float" value="1.0" spec_desc="A mixing value between `bg` (mix=0) and the result of the 'screen' operation (mix=1)" spec_acceptedvalues="[0, 1]" />
+      <output name="out" type="@typeName@" defaultinput="bg" />
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <overlay>
+    Take two 1-4 channel inputs and apply the same operator to all channels:
+      2FB if B<0.5;
+      1-2(1-F)(1-B) if B>=0.5
+  -->
+  <template name="TP_ND_overlay" varnames="typeName" options="(float, color3, color4)">
+    <nodedef name="ND_overlay_@typeName@" node="overlay" nodegroup="compositing">
+      <input name="fg" type="@typeName@" value="Constant:zero" spec_desc="The foreground input stream" />
+      <input name="bg" type="@typeName@" value="Constant:zero" spec_desc="The background input stream" />
+      <input name="mix" type="float" value="1.0" spec_desc="A mixing value between `bg` (mix=0) and the result of the 'overlay' operation (mix=1)" spec_acceptedvalues="[0, 1]" />
+      <output name="out" type="@typeName@" defaultinput="bg" />
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <disjointover>
+    Take two color4 inputs and use the built-in alpha
+    channel(s) to control the compositing of the fg and bg inputs:
+      F+B         if f+b<=1
+      F+B(1-f)/b  if f+b>1
+      alpha: min(f+b,1)
+  -->
+  <nodedef name="ND_disjointover_color4" node="disjointover" nodegroup="compositing">
+    <input name="fg" type="color4" value="0.0, 0.0, 0.0, 0.0" spec_desc="The foreground input stream"/>
+    <input name="bg" type="color4" value="0.0, 0.0, 0.0, 0.0" spec_desc="The background input stream"/>
+    <input name="mix" type="float" value="1.0" spec_desc="A mixing value between `bg` (mix=0) and the result of the 'disjointover' operation (mix=1)" spec_acceptedvalues="[0, 1]" />
+    <output name="out" type="color4" defaultinput="bg" />
+  </nodedef>
+
+  <!--
+    Node: <in>
+    Take two color4 inputs and use the built-in alpha
+    channel(s) to control the compositing of the fg and bg inputs: Fb  (alpha: fb)
+  -->
+  <nodedef name="ND_in_color4" node="in" nodegroup="compositing">
+    <input name="fg" type="color4" value="0.0, 0.0, 0.0, 0.0" spec_desc="The foreground input stream"/>
+    <input name="bg" type="color4" value="0.0, 0.0, 0.0, 0.0" spec_desc="The background input stream"/>
+    <input name="mix" type="float" value="1.0" spec_desc="A mixing value between `bg` (mix=0) and the result of the 'in' operation (mix=1)" spec_acceptedvalues="[0, 1]" />
+    <output name="out" type="color4" defaultinput="bg" />
+  </nodedef>
+
+  <!--
+    Node: <mask>
+    Take two color4 inputs and use the built-in alpha
+    channel(s) to control the compositing of the fg and bg inputs: Bf  (alpha: bf)
+  -->
+  <nodedef name="ND_mask_color4" node="mask" nodegroup="compositing">
+    <input name="fg" type="color4" value="0.0, 0.0, 0.0, 0.0" spec_desc="The foreground input stream"/>
+    <input name="bg" type="color4" value="0.0, 0.0, 0.0, 0.0" spec_desc="The background input stream"/>
+    <input name="mix" type="float" value="1.0" spec_desc="A mixing value between `bg` (mix=0) and the result of the 'mask' operation (mix=1)" spec_acceptedvalues="[0, 1]" />
+    <output name="out" type="color4" defaultinput="bg" />
+  </nodedef>
+
+  <!--
+    Node: <matte>
+    Take two color4 inputs and use the built-in alpha
+    channel(s) to control the compositing of the fg and bg inputs: Ff+B(1-f)  (alpha: f+b(1-f))
+  -->
+  <nodedef name="ND_matte_color4" node="matte" nodegroup="compositing">
+    <input name="fg" type="color4" value="0.0, 0.0, 0.0, 0.0" spec_desc="The foreground input stream"/>
+    <input name="bg" type="color4" value="0.0, 0.0, 0.0, 0.0" spec_desc="The background input stream"/>
+    <input name="mix" type="float" value="1.0" spec_desc="A mixing value between `bg` (mix=0) and the result of the 'matte' operation (mix=1)" spec_acceptedvalues="[0, 1]" />
+    <output name="out" type="color4" defaultinput="bg" />
+  </nodedef>
+
+  <!--
+    Node: <out>
+    Take two color4 inputs and use the built-in alpha
+    channel(s) to control the compositing of the fg and bg inputs: F(1-b)  (alpha: f(1-b))
+  -->
+  <nodedef name="ND_out_color4" node="out" nodegroup="compositing">
+    <input name="fg" type="color4" value="0.0, 0.0, 0.0, 0.0" spec_desc="The foreground input stream"/>
+    <input name="bg" type="color4" value="0.0, 0.0, 0.0, 0.0" spec_desc="The background input stream"/>
+    <input name="mix" type="float" value="1.0" spec_desc="A mixing value between `bg` (mix=0) and the result of the 'out' operation (mix=1)" spec_acceptedvalues="[0, 1]" />
+    <output name="out" type="color4" defaultinput="bg" />
+  </nodedef>
+
+  <!--
+    Node: <over>
+    Take two color4 inputs and use the built-in alpha
+    channel(s) to control the compositing of the fg and bg inputs: F+B(1-f)  (alpha: f+b(1-f))
+  -->
+  <nodedef name="ND_over_color4" node="over" nodegroup="compositing">
+    <input name="fg" type="color4" value="0.0, 0.0, 0.0, 0.0" spec_desc="The foreground input stream"/>
+    <input name="bg" type="color4" value="0.0, 0.0, 0.0, 0.0" spec_desc="The background input stream"/>
+    <input name="mix" type="float" value="1.0" spec_desc="A mixing value between `bg` (mix=0) and the result of the 'over' operation (mix=1)" spec_acceptedvalues="[0, 1]" />
+    <output name="out" type="color4" defaultinput="bg" />
+  </nodedef>
+
+  <!--
+    Node: <inside>
+    Take one 1-4 channel input "in" plus a separate float "mask" input and apply the same
+    operator to all channels: in * mask
+  -->
+  <template name="TP_ND_inside" varnames="typeName" options="(float, color3, color4)">
+    <nodedef name="ND_inside_@typeName@" node="inside" nodegroup="compositing">
+    <input name="in" type="@typeName@" value="Constant:zero" spec_desc="The input stream to be masked"/>
+    <input name="mask" type="float" value="1.0" spec_desc="The masking input signal" spec_acceptedvalues="[0, 1]" />
+    <output name="out" type="@typeName@" defaultinput="in" spec_desc="`in` multiplied by `mask`" />
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <outside>
+    Take one 1-4 channel input "in" plus a separate float "mask" input and apply the same
+    operator to all channels: in * (1-mask)
+  -->
+  <template name="TP_ND_outside" varnames="typeName" options="(float, color3, color4)">
+    <nodedef name="ND_outside_@typeName@" node="outside" nodegroup="compositing">
+      <input name="in" type="@typeName@" value="Constant:zero" spec_desc="The input stream to be masked"/>
+      <input name="mask" type="float" value="Constant:zero" spec_desc="The masking input signal" spec_acceptedvalues="[0, 1]" />
+      <output name="out" type="@typeName@" defaultinput="in" spec_desc="`in` multiplied by 1-`mask`"/>
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <mix>
+    Mix two inputs according to an input mix amount.
+  -->
+  <template name="TP_ND_mix" varnames="typeName" options="(float, color3, color4, vector2, vector3, vector4, surfaceshader, displacementshader, volumeshader)">
+    <nodedef name="ND_mix_@typeName@" node="mix" nodegroup="compositing">
+      <input name="fg" type="@typeName@" value="Constant:zero" spec_desc="The foreground input stream" />
+      <input name="bg" type="@typeName@" value="Constant:zero" spec_desc="The background input stream" />
+      <input name="mix" type="float" value="0.0" uisoftmin="0.0" uisoftmax="1.0" spec_desc="The amount to mix `bg` to `fg`" spec_acceptedvalues="[0, 1]" />
+      <output name="out" type="@typeName@" defaultinput="bg" spec_desc="the result of the mix operation" />
+    </nodedef>
+  </template>
+  <template name="TP_ND_mix_self" varnames="typeName" options="(color3, color4, vector2, vector3, vector4)">
+    <nodedef name="ND_mix_@typeName@_@typeName@" node="mix" nodegroup="compositing">
+      <input name="fg" type="@typeName@" value="Constant:zero" spec_desc="The foreground input stream" />
+      <input name="bg" type="@typeName@" value="Constant:zero" spec_desc="The background input stream" />
+      <input name="mix" type="@typeName@" value="Constant:zero" uisoftmin="Constant:zero" uisoftmax="Constant:one" />
+      <output name="out" type="@typeName@" defaultinput="bg" />
+    </nodedef>
+  </template>
+
+  <!-- ======================================================================== -->
+  <!-- Conditional nodes                                                        -->
+  <!-- ======================================================================== -->
+
+  <!--
+    Node: <ifgreater>
+    Output the value of in1 if value1>value2, or the value of in2 if value1<=value2.
+  -->
+  <template name="TP_ND_ifgreater_I" varnames="nodeDefExt,valueTypeName" options="(@typeName@,@typeName@I), (float, integer)">
+    <template name="TP_ND_ifgreater_@nodeDefExt@" varnames="typeName" options="(float, integer, color3, color4, vector2, vector3, vector4, matrix33, matrix44)">
+      <nodedef name="ND_ifgreater_@nodeDefExt@" node="ifgreater" nodegroup="conditional">
+        <input name="value1" type="@valueTypeName@" value="Constant:one" spec_desc="The first value to be compared" />
+        <input name="value2" type="@valueTypeName@" value="Constant:zero" spec_desc="The second value to be compared" />
+        <input name="in1" type="@typeName@" value="Constant:zero" spec_desc="The value stream to output if `value1` > `value2`" />
+        <input name="in2" type="@typeName@" value="Constant:zero" spec_desc="The value stream to output if `value1` <= `value2`" />
+        <output name="out" type="@typeName@" defaultinput="in1" spec_desc="the result of the comparison" />
+      </nodedef>
+    </template>
+  </template>
+  <template name="TP_ND_ifgreater_boolean" varnames="nodeDefExt,valueTypeName" options="(boolean,booleanI), (float, integer)">
+    <nodedef name="ND_ifgreater_@nodeDefExt@" node="ifgreater" nodegroup="conditional">
+      <input name="value1" type="@valueTypeName@" value="Constant:one" spec_desc="The first value to be compared" />
+      <input name="value2" type="@valueTypeName@" value="Constant:zero" spec_desc="The second value to be compared" />
+      <output name="out" type="boolean" default="false" spec_desc="true if `value` > `value2" />
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <ifgreatereq>
+    Output the value of in1 if value1>=value2, or the value of in2 if value1<value2.
+  -->
+  <template name="TP_ND_ifgreatereq_I" varnames="nodeDefExt,valueTypeName" options="(@typeName@,@typeName@I), (float, integer)">
+    <template name="TP_ND_ifgreatereq_@nodeDefExt@" varnames="typeName" options="(float, integer, color3, color4, vector2, vector3, vector4, matrix33, matrix44)">
+      <nodedef name="ND_ifgreatereq_@nodeDefExt@" node="ifgreatereq" nodegroup="conditional">
+        <input name="value1" type="@valueTypeName@" value="Constant:one" spec_desc="The first value to be compared" />
+        <input name="value2" type="@valueTypeName@" value="Constant:zero" spec_desc="The second value to be compared" />
+        <input name="in1" type="@typeName@" value="Constant:zero" spec_desc="The value stream to output if `value1` >= `value2`"/>
+        <input name="in2" type="@typeName@" value="Constant:zero" spec_desc="The value stream to output if `value1` < `value2`" />
+        <output name="out" type="@typeName@" defaultinput="in1" spec_desc="the result of the comparison" />
+      </nodedef>
+    </template>
+  </template>
+  <template name="TP_ND_ifgreatereq_boolean" varnames="nodeDefExt,valueTypeName" options="(boolean,booleanI), (float, integer)">
+    <nodedef name="ND_ifgreatereq_@nodeDefExt@" node="ifgreatereq" nodegroup="conditional">
+      <input name="value1" type="@valueTypeName@" value="Constant:one" spec_desc="The first value to be compared" />
+      <input name="value2" type="@valueTypeName@" value="Constant:zero" spec_desc="The second value to be compared" />
+      <output name="out" type="boolean" default="false" spec_desc="true if `value` >= `value2" />
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <ifequal>
+    Output the value of in1 if value1==value2, or the value of in2 if value1!=value2.
+  -->
+  <template name="TP_ND_ifequal_IB" varnames="nodeDefExt,valueTypeName" options="(@typeName@,@typeName@I,@typeName@B), (float, integer, boolean)">
+    <template name="TP_ND_ifequal_@nodeDefExt@" varnames="typeName" options="(float, integer, color3, color4, vector2, vector3, vector4, matrix33, matrix44)">
+      <nodedef name="ND_ifequal_@nodeDefExt@" node="ifequal" nodegroup="conditional">
+        <input name="value1" type="@valueTypeName@" value="Constant:zero" spec_desc="The first value to be compared" />
+        <input name="value2" type="@valueTypeName@" value="Constant:zero" spec_desc="The second value to be compared" />
+        <input name="in1" type="@typeName@" value="Constant:zero" spec_desc="The value stream to output if `value1` = `value2`"/>
+        <input name="in2" type="@typeName@" value="Constant:zero" spec_desc="The value stream to output if `value1` != `value2`" />
+        <output name="out" type="@typeName@" defaultinput="in1" spec_desc="the result of the comparison" />
+      </nodedef>
+    </template>
+  </template>
+  <nodedef name="ND_ifequal_boolean" node="ifequal" nodegroup="conditional">
+    <input name="value1" type="float" value="1.0" spec_desc="The first value to be compared" />
+    <input name="value2" type="float" value="0.0" spec_desc="The second value to be compared" />
+    <output name="out" type="boolean" default="false" spec_desc="true if `value1` = `value2" />
+  </nodedef>
+  <nodedef name="ND_ifequal_booleanI" node="ifequal" nodegroup="conditional">
+    <input name="value1" type="integer" value="1" spec_desc="The first value to be compared"/>
+    <input name="value2" type="integer" value="0" spec_desc="The second value to be compared"/>
+    <output name="out" type="boolean" default="false" spec_desc="true if `value1` = `value2" />
+  </nodedef>
+  <nodedef name="ND_ifequal_booleanB" node="ifequal" nodegroup="conditional">
+    <input name="value1" type="boolean" value="false" spec_desc="The first value to be compared"/>
+    <input name="value2" type="boolean" value="false" spec_desc="The first value to be compared"/>
+    <output name="out" type="boolean" default="false" spec_desc="true if `value1` = `value2" />
+  </nodedef>
+
+  <!--
+    Node: <switch>
+    Pass on the value of one of five input streams, according to the value of a selector parameter.
+  -->
+  <template name="TP_ND_switch_I" varnames="nodeDefExt,whichTypeName" options="(@typeName@, @typeName@I), (float, integer)">
+    <template name="TP_ND_switch_@nodeDefExt@" varnames="typeName" options="(float, color3, color4, vector2, vector3, vector4, matrix33, matrix44)">
+      <nodedef name="ND_switch_@nodeDefExt@" node="switch" nodegroup="conditional">
+        <input name="in1" type="@typeName@" value="Constant:zero"  spec_desc="Input stream to select from using `which`"/>
+        <input name="in2" type="@typeName@" value="Constant:zero"  spec_desc="Input stream to select from using `which`"/>
+        <input name="in3" type="@typeName@" value="Constant:zero"  spec_desc="Input stream to select from using `which`"/>
+        <input name="in4" type="@typeName@" value="Constant:zero"  spec_desc="Input stream to select from using `which`"/>
+        <input name="in5" type="@typeName@" value="Constant:zero"  spec_desc="Input stream to select from using `which`"/>
+        <input name="in6" type="@typeName@" value="Constant:zero"  spec_desc="Input stream to select from using `which`"/>
+        <input name="in7" type="@typeName@" value="Constant:zero"  spec_desc="Input stream to select from using `which`"/>
+        <input name="in8" type="@typeName@" value="Constant:zero"  spec_desc="Input stream to select from using `which`"/>
+        <input name="in9" type="@typeName@" value="Constant:zero"  spec_desc="Input stream to select from using `which`"/>
+        <input name="in10" type="@typeName@" value="Constant:zero" spec_desc="Input stream to select from using `which`" />
+        <input name="which" type="@whichTypeName@" value="Constant:zero" spec_desc="Selector to choose which input to take values from; the output comes from input floor(`which`)+1, clamped to the 1-10 range" />
+        <output name="out" type="@typeName@" defaultinput="in1" spec_desc="the selected input" />
+      </nodedef>
+    </template>
+  </template>
+
+  <!-- ======================================================================== -->
+  <!-- Channel nodes                                                            -->
+  <!-- ======================================================================== -->
+
+  <!--
+    Node: <convert>
+    Convert a stream from one type to another; only certain unambiguous conversion
+    types are supported.
+  -->
+  <template name="TP_ND_convert_float" varnames="typeName" options="(color3, color4, vector2, vector3, vector4)">
+    <nodedef name="ND_convert_float_@typeName@" node="convert" nodegroup="channel">
+      <input name="in" type="float" value="0.0" />
+      <output name="out" type="@typeName@" default="Constant:zero" />
+    </nodedef>
+  </template>
+
+  <template name="TP_ND_convert_color3" varnames="typeName" options="(color4, vector2, vector3, vector4)">
+    <nodedef name="ND_convert_color3_@typeName@" node="convert" nodegroup="channel">
+      <input name="in" type="color3" value="0.0, 0.0, 0.0" />
+      <output name="out" type="@typeName@" default="Constant:zero" />
+    </nodedef>
+  </template>
+
+  <template name="TP_ND_convert_color4" varnames="typeName" options="(color3, vector2, vector3, vector4)">
+    <nodedef name="ND_convert_color4_@typeName@" node="convert" nodegroup="channel">
+      <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0" />
+      <output name="out" type="@typeName@" default="Constant:zero" />
+    </nodedef>
+  </template>
+
+  <template name="TP_ND_convert_vector2" varnames="typeName" options="(color3, color4, vector3, vector4)">
+    <nodedef name="ND_convert_vector2_@typeName@" node="convert" nodegroup="channel">
+      <input name="in" type="vector2" value="0.0, 0.0" />
+      <output name="out" type="@typeName@" default="Constant:zero" />
+    </nodedef>
+  </template>
+
+  <template name="TP_ND_convert_vector3" varnames="typeName" options="(color3, color4, vector2, vector4)">
+    <nodedef name="ND_convert_vector3_@typeName@" node="convert" nodegroup="channel">
+      <input name="in" type="vector3" value="0.0, 0.0, 0.0" />
+      <output name="out" type="@typeName@" default="Constant:zero" />
+    </nodedef>
+  </template>
+
+  <template name="TP_ND_convert_vector4" varnames="typeName" options="(color3, color4, vector2, vector3)">
+    <nodedef name="ND_convert_vector4_@typeName@" node="convert" nodegroup="channel">
+      <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
+      <output name="out" type="@typeName@" default="Constant:zero" />
+    </nodedef>
+  </template>
+
+  <template name="TP_ND_convert_boolean" varnames="typeName" options="(float, color3, color4, vector2, vector3, vector4, integer)">
+    <nodedef name="ND_convert_boolean_@typeName@" node="convert" nodegroup="channel">
+      <input name="in" type="boolean" value="false" />
+      <output name="out" type="@typeName@" default="Constant:zero" />
+    </nodedef>
+  </template>
+
+  <template name="TP_ND_convert_integer" varnames="typeName" options="(float, color3, color4, vector2, vector3, vector4, boolean)">
+    <nodedef name="ND_convert_integer_@typeName@" node="convert" nodegroup="channel">
+      <input name="in" type="integer" value="0" />
+      <output name="out" type="@typeName@" default="Constant:zero" />
+    </nodedef>
+  </template>
+
+  <template name="TP_ND_convert_surfaceshader" varnames="typeName" options="(float, color3, color4, vector2, vector3, vector4, integer, boolean)">
+    <nodedef name="ND_convert_@typeName@_surfaceshader" node="convert" version="1.0" isdefaultversion="true" nodegroup="shader" doc="Convert @typeName@ to shader">
+      <input name="in" type="@typeName@" value="Constant:zero" />
+      <output name="out" type="surfaceshader" />
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <combine2>
+    Combine the channels from two streams into the same number of channels of a
+    single output stream of a specified compatible type.
+  -->
+  <nodedef name="ND_combine2_vector2" node="combine2" nodegroup="channel">
+    <input name="in1" type="float" value="0.0" spec_desc="The input stream that will be sent to the first channel of `out`"/>
+    <input name="in2" type="float" value="0.0" spec_desc="The input stream that will be sent to the second channel of `out`"/>
+    <output name="out" type="vector2" default="0.0, 0.0" spec_desc="the combined value" />
+  </nodedef>
+  <nodedef name="ND_combine2_color4CF" node="combine2" nodegroup="channel">
+    <input name="in1" type="color3" value="0.0, 0.0, 0.0" spec_desc="The input stream that will be sent to the first channel of `out`"/>
+    <input name="in2" type="float" value="0.0" spec_desc="The input stream that will be sent to the second channel of `out`"/>
+    <output name="out" type="color4" default="0.0, 0.0, 0.0, 0.0" spec_desc="the combined value" />
+  </nodedef>
+  <nodedef name="ND_combine2_vector4VF" node="combine2" nodegroup="channel">
+    <input name="in1" type="vector3" value="0.0, 0.0, 0.0" spec_desc="The input stream that will be sent to the first channel of `out`"/>
+    <input name="in2" type="float" value="0.0" spec_desc="The input stream that will be sent to the second channel of `out`"/>
+    <output name="out" type="vector4" default="0.0, 0.0, 0.0, 0.0" spec_desc="the combined value" />
+  </nodedef>
+  <nodedef name="ND_combine2_vector4VV" node="combine2" nodegroup="channel">
+    <input name="in1" type="vector2" value="0.0, 0.0" spec_desc="The input stream that will be sent to the first channel of `out`"/>
+    <input name="in2" type="vector2" value="0.0, 0.0" spec_desc="The input stream that will be sent to the second channel of `out`"/>
+    <output name="out" type="vector4" default="0.0, 0.0, 0.0, 0.0" spec_desc="the combined value" />
+  </nodedef>
+
+  <!--
+    Node: <combine3>
+    Combine the channels from three streams into the same number of channels of a
+    single output stream of a specified compatible type.
+  -->
+  <template name="TP_ND_combine3" varnames="typeName" options="(color3, vector3)">
+    <nodedef name="ND_combine3_@typeName@" node="combine3" nodegroup="channel">
+      <input name="in1" type="float" value="0.0" spec_desc="The input stream that will be sent to the first channel of `out`"/>
+      <input name="in2" type="float" value="0.0" spec_desc="The input stream that will be sent to the second channel of `out`"/>
+      <input name="in3" type="float" value="0.0" spec_desc="The input stream that will be sent to the third channel of `out`"/>
+      <output name="out" type="@typeName@" default="Constant:zero" spec_desc="the combined value" />
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <combine4>
+    Combine the channels from four streams into the same number of channels of a
+    single output stream of a specified compatible type.
+  -->
+  <template name="TP_ND_combine4" varnames="typeName" options="(color4, vector4)">
+    <nodedef name="ND_combine4_@typeName@" node="combine4" nodegroup="channel">
+      <input name="in1" type="float" value="0.0" spec_desc="The input stream that will be sent to the first channel of `out`"/>
+      <input name="in2" type="float" value="0.0" spec_desc="The input stream that will be sent to the second channel of `out`"/>
+      <input name="in3" type="float" value="0.0" spec_desc="The input stream that will be sent to the third channel of `out`"/>
+      <input name="in4" type="float" value="0.0" spec_desc="The input stream that will be sent to the fourth channel of `out`"/>
+      <output name="out" type="@typeName@" default="Constant:zero" spec_desc="the combined value" />
+    </nodedef>
+  </template>
+
+  <!--
+    Node <creatematrix>
+    Combine the the three vectors3 from stream into a matrix 33.
+  -->
+  <nodedef name="ND_creatematrix_vector3_matrix33" node="creatematrix" nodegroup="math">
+    <input name="in1" type="vector3" value="1.0, 0.0, 0.0" spec_desc="The first row of `out`" />
+    <input name="in2" type="vector3" value="0.0, 1.0, 0.0" spec_desc="The second row of `out`"/>
+    <input name="in3" type="vector3" value="0.0, 0.0, 1.0" spec_desc="The third row of `out`"/>
+    <output name="out" type="matrix33" default="Constant:one" />
+  </nodedef>
+
+  <nodedef name="ND_creatematrix_vector3_matrix44" node="creatematrix" nodegroup="math">
+    <input name="in1" type="vector3" value="1.0, 0.0, 0.0" spec_desc="The first row of `out`, appended with 0"/>
+    <input name="in2" type="vector3" value="0.0, 1.0, 0.0" spec_desc="The second row of `out`, appended with 0"/>
+    <input name="in3" type="vector3" value="0.0, 0.0, 1.0" spec_desc="The third row of `out`, appended with 0"/>
+    <input name="in4" type="vector3" value="0.0, 0.0, 0.0" spec_desc="The fourth row of `out`, appended with 1"/>
+    <output name="out" type="matrix44" default="Constant:one" />
+  </nodedef>
+
+  <nodedef name="ND_creatematrix_vector4_matrix44" node="creatematrix" nodegroup="math">
+    <input name="in1" type="vector4" value="1.0, 0.0, 0.0, 0.0" spec_desc="The first row of `out`"/>
+    <input name="in2" type="vector4" value="0.0, 1.0, 0.0, 0.0" spec_desc="The second row of `out`"/>
+    <input name="in3" type="vector4" value="0.0, 0.0, 1.0, 0.0" spec_desc="The third row of `out`"/>
+    <input name="in4" type="vector4" value="0.0, 0.0, 0.0, 1.0" spec_desc="The fourth row of `out`"/>
+    <output name="out" type="matrix44" default="Constant:one" />
+  </nodedef>
+
+  <!--
+    Node: <extract>
+    Extract a single channel from a colorN or vectorN stream, outputting a float.
+  -->
+  <nodedef name="ND_extract_color3" node="extract" nodegroup="channel">
+    <input name="in" type="color3" value="0.0, 0.0, 0.0" spec_desc="The input stream from which to extract `out`" />
+    <input name="index" type="integer" value="0" uimin="0" uimax="2" uniform="true" spec_desc="The index of the channel in `in` to extract" />
+    <output name="out" type="float" default="0.0" spec_desc="the `index`th channel of `in`" />
+  </nodedef>
+  <nodedef name="ND_extract_color4" node="extract" nodegroup="channel">
+    <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0" spec_desc="The input stream from which to extract `out`" />
+    <input name="index" type="integer" value="0" uimin="0" uimax="3" uniform="true" spec_desc="The index of the channel in `in` to extract"/>
+    <output name="out" type="float" default="0.0" spec_desc="the `index`th channel of `in`" />
+  </nodedef>
+  <nodedef name="ND_extract_vector2" node="extract" nodegroup="channel">
+    <input name="in" type="vector2" value="0.0, 0.0" spec_desc="The input stream from which to extract `out`"/>
+    <input name="index" type="integer" value="0" uimin="0" uimax="1" uniform="true" spec_desc="The index of the channel in `in` to extract"/>
+    <output name="out" type="float" default="0.0" spec_desc="the `index`th channel of `in`"/>
+  </nodedef>
+  <nodedef name="ND_extract_vector3" node="extract" nodegroup="channel">
+    <input name="in" type="vector3" value="0.0, 0.0, 0.0" spec_desc="The input stream from which to extract `out`"/>
+    <input name="index" type="integer" value="0" uimin="0" uimax="2" uniform="true" spec_desc="The index of the channel in `in` to extract"/>
+    <output name="out" type="float" default="0.0" spec_desc="the `index`th channel of `in`"/>
+  </nodedef>
+  <nodedef name="ND_extract_vector4" node="extract" nodegroup="channel">
+    <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0" spec_desc="The input stream from which to extract `out`"/>
+    <input name="index" type="integer" value="0" uimin="0" uimax="3" uniform="true" spec_desc="The index of the channel in `in` to extract"/>
+    <output name="out" type="float" default="0.0" spec_desc="the `index`th channel of `in`"/>
+  </nodedef>
+
+  <!--
+    Node: <separate2>, <separate3>, <separate4> Supplemental Nodes
+    Output each of the channels of a color/vector stream as a separate float output.
+  -->
+  <nodedef name="ND_separate2_vector2" node="separate2" nodegroup="channel">
+    <input name="in" type="vector2" value="0.0, 0.0" spec_desc="The input stream to be separated" />
+    <output name="outx" type="float" default="0.0" spec_desc="the x channel of `in`" />
+    <output name="outy" type="float" default="0.0" spec_desc="the y channel of `in`"/>
+  </nodedef>
+  <nodedef name="ND_separate3_color3" node="separate3" nodegroup="channel">
+    <input name="in" type="color3" value="0.0, 0.0, 0.0" spec_desc="The input stream to be separated"/>
+    <output name="outr" type="float" default="0.0" spec_desc="the r channel of `in`"/>
+    <output name="outg" type="float" default="0.0" spec_desc="the g channel of `in`"/>
+    <output name="outb" type="float" default="0.0" spec_desc="the b channel of `in`"/>
+  </nodedef>
+  <nodedef name="ND_separate3_vector3" node="separate3" nodegroup="channel">
+    <input name="in" type="vector3" value="0.0, 0.0, 0.0" spec_desc="The input stream to be separated"/>
+    <output name="outx" type="float" default="0.0" spec_desc="the x channel of `in`"/>
+    <output name="outy" type="float" default="0.0" spec_desc="the y channel of `in`"/>
+    <output name="outz" type="float" default="0.0" spec_desc="the z channel of `in`"/>
+  </nodedef>
+  <nodedef name="ND_separate4_color4" node="separate4" nodegroup="channel">
+    <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0" spec_desc="The input stream to be separated"/>
+    <output name="outr" type="float" default="0.0" spec_desc="the r channel of `in`"/>
+    <output name="outg" type="float" default="0.0" spec_desc="the g channel of `in`"/>
+    <output name="outb" type="float" default="0.0" spec_desc="the b channel of `in`"/>
+    <output name="outa" type="float" default="0.0" spec_desc="the a channel of `in`"/>
+  </nodedef>
+  <nodedef name="ND_separate4_vector4" node="separate4" nodegroup="channel">
+    <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0" spec_desc="The input stream to be separated"/>
+    <output name="outx" type="float" default="0.0" spec_desc="the x channel of `in`"/>
+    <output name="outy" type="float" default="0.0" spec_desc="the y channel of `in`"/>
+    <output name="outz" type="float" default="0.0" spec_desc="the z channel of `in`"/>
+    <output name="outw" type="float" default="0.0" spec_desc="the w channel of `in`"/>
+  </nodedef>
+
+  <!-- ======================================================================== -->
+  <!-- Convolution nodes                                                        -->
+  <!-- ======================================================================== -->
+
+  <!--
+    Node: <blur>
+    A gaussian-falloff blur.
+  -->
+  <template name="TP_ND_blur" varnames="typeName" options="(float, color3, color4, vector2, vector3, vector4)">
+    <nodedef name="ND_blur_@typeName@" node="blur" nodegroup="convolution2d">
+      <input name="in" type="@typeName@" value="Constant:zero" spec_desc="The input stream to be blurred" />
+      <input name="size" type="float" value="0.0" spec_desc="The size of the blur kernel in 0-1 UV space" />
+      <input name="filtertype" type="string" value="box" enum="box,gaussian" uniform="true" spec_desc="The spatial filter used in the blur" spec_acceptedvalues="box, gaussian" />
+      <output name="out" type="@typeName@" defaultinput="in" spec_desc="the blurred `in`" />
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <heighttonormal>
+    Convert a scalar height map to a normal map of type vector3.
+  -->
+  <nodedef name="ND_heighttonormal_vector3" node="heighttonormal" nodegroup="convolution2d">
+    <input name="in" type="float" value="0.0" spec_desc="The input scalar height map " />
+    <input name="scale" type="float" value="1.0" uimin="0.0" uisoftmax="5.0" spec_desc="Multiplier applied to the `in` signal"/>
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" spec_desc="The texture coordinates that the heightfield gradient is computed with respect to" />
+    <output name="out" type="vector3" default="0.5, 0.5, 1.0" spec_desc="tangent-space normal computed from `in`" />
+  </nodedef>
+
+  <!-- ======================================================================== -->
+  <!-- Logical operator nodes                                                   -->
+  <!-- ======================================================================== -->
+
+  <!--
+    Node: <and>
+    Logical And operation for two boolean values.
+  -->
+  <nodedef name="ND_logical_and" node="and" nodegroup="conditional">
+    <input name="in1" type="boolean" value="false" spec_desc="The first input stream" />
+    <input name="in2" type="boolean" value="false" spec_desc="The second input stream" />
+    <output name="out" type="boolean" defaultinput="in1" spec_desc="`in1` AND `in2`" />
+  </nodedef>
+
+  <!--
+    Node: <or>
+    Logical Inclusive Or operation for two boolean values.
+  -->
+  <nodedef name="ND_logical_or" node="or" nodegroup="conditional">
+    <input name="in1" type="boolean" value="false" spec_desc="The first input stream" />
+    <input name="in2" type="boolean" value="false" spec_desc="The second input stream" />
+    <output name="out" type="boolean" defaultinput="in1" spec_desc="`in1` OR `in2`" />
+  </nodedef>
+
+  <!--
+    Node: <xor>
+    Logical Exclusive Or operation for two boolean values.
+  -->
+  <nodedef name="ND_logical_xor" node="xor" nodegroup="conditional">
+    <input name="in1" type="boolean" value="false" spec_desc="The first input stream" />
+    <input name="in2" type="boolean" value="false" spec_desc="The second input stream" />
+    <output name="out" type="boolean" defaultinput="in1" spec_desc="`in1` XOR `in2`" />
+  </nodedef>
+
+  <!--
+    Node: <not>
+    Returns logical Not of input.
+  -->
+  <nodedef name="ND_logical_not" node="not" nodegroup="conditional">
+    <input name="in" type="boolean" value="false" spec_desc="The input stream" />
+    <output name="out" type="boolean" default="true" spec_desc="NOT `in`"  />
+  </nodedef>
+
+  <!-- ======================================================================== -->
+  <!-- Organization nodes                                                       -->
+  <!-- ======================================================================== -->
+
+  <!--
+    Node: <dot>
+    No-op; passes its input to the output unchanged.
+  -->
+  <template name="TP_ND_dot" varnames="typeName" options="(float, color3, color4, vector2, vector3, vector4, boolean, integer, string, filename, surfaceshader, displacementshader, volumeshader, lightshader)">
+    <nodedef name="ND_dot_@typeName@" node="dot" nodegroup="organization">
+      <input name="in" type="@typeName@" value="Constant:zero" spec_desc="The input stream to be passed through unmodified to `out`" />
+      <input name="note" type="string" value="" uniform="true" />
+      <output name="out" type="@typeName@" defaultinput="in" spec_desc="`in`" />
+    </nodedef>
+  </template>
+  <template name="TP_ND_dot_matrix" varnames="typeName" options="(matrix33, matrix44)">
+    <nodedef name="ND_dot_@typeName@" node="dot" nodegroup="organization">
+      <input name="in" type="@typeName@" value="Constant:one" spec_desc="The input stream to be passed through unmodified to `out`" />
+      <input name="note" type="string" value="" uniform="true" />
+      <output name="out" type="@typeName@" defaultinput="in" spec_desc="`in`" />
+    </nodedef>
+  </template>
+
+</materialx>

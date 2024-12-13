@@ -1,0 +1,4 @@
+void mx_worleynoise3d_float(vector position, float jitter, int style, output float result)
+{
+    result = mx_worley_noise_float(position, jitter, style, 0);
+}

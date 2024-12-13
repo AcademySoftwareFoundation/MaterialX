@@ -644,6 +644,15 @@ TypeDefPtr TypedElement::getTypeDef() const
 //
 // ValueElement methods
 //
+/// Get the value string of a element.
+const string ValueElement::getValueString() const
+{
+#if MATERIALX_BUILD_BAKE_NAMED_VALUES
+    return getAttribute(VALUE_ATTRIBUTE);
+#else
+    return replaceConstantValues(valueStr, getType(), getDocument());
+#endif
+}
 
 string ValueElement::getResolvedValueString(StringResolverPtr resolver) const
 {

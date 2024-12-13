@@ -1,0 +1,462 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+  <!--
+    Copyright Contributors to the MaterialX Project
+    SPDX-License-Identifier: Apache-2.0
+
+    Declarations of standard data types and nodes included in the MaterialX specification.
+  -->
+
+  <!-- ======================================================================== -->
+  <!-- Data Types                                                               -->
+  <!-- ======================================================================== -->
+
+  <typedef name="BSDF" doc="Bidirectional scattering distribution function" />
+  <typedef name="EDF" doc="Emission distribution function" />
+  <typedef name="VDF" doc="Volume distribution function" />
+
+  <!-- ======================================================================== -->
+  <!-- BSDF Nodes                                                               -->
+  <!-- ======================================================================== -->
+
+  <!--
+    Node: <oren_nayar_diffuse_bsdf>
+    A BSDF node for diffuse reflection.
+  -->
+  <nodedef name="ND_oren_nayar_diffuse_bsdf" node="oren_nayar_diffuse_bsdf" bsdf="R" nodegroup="pbr" doc="A BSDF node for diffuse reflections.">
+    <input name="weight" type="float" value="1.0" uimin="0.0" uimax="1.0" spec_desc="Weight of the BSDF contribution" spec_acceptedvalues="[0, 1]" />
+    <input name="color" type="color3" value="0.18, 0.18, 0.18" spec_desc="Diffuse reflectivity or albedo" />
+    <input name="roughness" type="float" value="0.0" spec_desc="Surface roughness" spec_acceptedvalues="[0, 1]" />
+    <input name="normal" type="vector3" defaultgeomprop="Nworld" spec_desc="Normal vector of the surface" />
+    <input name="energy_compensation" type="boolean" value="false" uniform="true" spec_desc="Enable energy compensation for the BSDF" />
+    <output name="out" type="BSDF" spec_desc="diffuse reflection BSDF" />
+  </nodedef>
+
+  <!--
+    Node: <burley_diffuse_bsdf>
+    A BSDF node for Burley diffuse reflection.
+  -->
+  <nodedef name="ND_burley_diffuse_bsdf" node="burley_diffuse_bsdf" bsdf="R" nodegroup="pbr" doc="A BSDF node for Burley diffuse reflections.">
+    <input name="weight" type="float" value="1.0" uimin="0.0" uimax="1.0" />
+    <input name="color" type="color3" value="0.18, 0.18, 0.18" />
+    <input name="roughness" type="float" value="0.0" />
+    <input name="normal" type="vector3" defaultgeomprop="Nworld" />
+    <output name="out" type="BSDF" />
+  </nodedef>
+
+  <!--
+    Node: <translucent_bsdf>
+    A BSDF node for diffuse transmission.
+  -->
+  <nodedef name="ND_translucent_bsdf" node="translucent_bsdf" bsdf="R" nodegroup="pbr" doc="A BSDF node for pure diffuse transmission.">
+    <input name="weight" type="float" value="1.0" uimin="0.0" uimax="1.0" />
+    <input name="color" type="color3" value="1.0, 1.0, 1.0" />
+    <input name="normal" type="vector3" defaultgeomprop="Nworld" />
+    <output name="out" type="BSDF" />
+  </nodedef>
+
+  <!--
+    Node: <dielectric_bsdf>
+    A reflection/transmission BSDF node based on a microfacet model and a Fresnel curve for dielectrics.
+  -->
+  <nodedef name="ND_dielectric_bsdf" node="dielectric_bsdf" nodegroup="pbr" doc="A reflection/transmission BSDF node based on a microfacet model and a Fresnel curve for dielectrics.">
+    <input name="weight" type="float" value="1.0" uimin="0.0" uimax="1.0" spec_desc="Weight of the BSDF contribution" spec_acceptedvalues="[0, 1]" />
+    <input name="tint" type="color3" value="1.0, 1.0, 1.0" spec_desc="Color weight to tint the reflected and transmitted light" />
+    <input name="ior" type="float" value="1.5" spec_desc="Index of refraction of the surface" />
+    <input name="roughness" type="vector2" value="0.05, 0.05" spec_desc="Surface roughness along the tangent and bitangent" />
+    <input name="thinfilm_thickness" type="float" value="0" unittype="distance" unit="nanometer" />
+    <input name="thinfilm_ior" type="float" value="1.5" />
+    <input name="normal" type="vector3" defaultgeomprop="Nworld" spec_desc="Normal vector of the surface" />
+    <input name="tangent" type="vector3" defaultgeomprop="Tworld" spec_desc="Tangent vector of the surface"/>
+    <input name="distribution" type="string" value="ggx" enum="ggx" uniform="true" />
+    <input name="scatter_mode" type="string" value="R" enum="R,T,RT" uniform="true" spec_desc="Surface Scatter mode, specifying reflection and/or transmission"  />
+    <output name="out" type="BSDF" spec_desc="dielectric BSDF" />
+  </nodedef>
+
+  <!--
+    Node: <conductor_bsdf>
+    A reflection BSDF node based on a microfacet model and a Fresnel curve for conductors/metals.
+  -->
+  <nodedef name="ND_conductor_bsdf" node="conductor_bsdf" bsdf="R" nodegroup="pbr" doc="A reflection BSDF node based on a microfacet model and a Fresnel curve for conductors/metals.">
+    <input name="weight" type="float" value="1.0" uimin="0.0" uimax="1.0" />
+    <input name="ior" type="color3" value="0.183, 0.421, 1.373" />
+    <input name="extinction" type="color3" value="3.424, 2.346, 1.770" />
+    <input name="roughness" type="vector2" value="0.05, 0.05" />
+    <input name="thinfilm_thickness" type="float" value="0" unittype="distance" unit="nanometer" />
+    <input name="thinfilm_ior" type="float" value="1.5" />
+    <input name="normal" type="vector3" defaultgeomprop="Nworld" />
+    <input name="tangent" type="vector3" defaultgeomprop="Tworld" />
+    <input name="distribution" type="string" value="ggx" enum="ggx" uniform="true" />
+    <output name="out" type="BSDF" />
+  </nodedef>
+
+  <!--
+    Node: <generalized_schlick_bsdf>
+    A reflection/transmission BSDF node based on a microfacet model and a generalized Schlick Fresnel curve.
+  -->
+  <nodedef name="ND_generalized_schlick_bsdf" node="generalized_schlick_bsdf" nodegroup="pbr" doc="A reflection/transmission BSDF node based on a microfacet model and a generalized Schlick Fresnel curve.">
+    <input name="weight" type="float" value="1.0" uimin="0.0" uimax="1.0" spec_desc="Weight of the BSDF contribution" spec_acceptedvalues="[0, 1]"/>
+    <input name="color0" type="color3" value="1.0, 1.0, 1.0" spec_desc="Reflectivity per color component at facing angles" />
+    <input name="color82" type="color3" value="1.0, 1.0, 1.0" spec_desc="Multiplier on the reflectivity per color component at 82 degrees" />
+    <input name="color90" type="color3" value="1.0, 1.0, 1.0" spec_desc="Reflectivity per color component at grazing angles" />
+    <input name="exponent" type="float" value="5.0" spec_desc="Exponent for Schlick blending between color0 and color90" />
+    <input name="roughness" type="vector2" value="0.05, 0.05" spec_desc="Surface roughness along the tangent and bitangent" />
+    <input name="thinfilm_thickness" type="float" value="0" unittype="distance" unit="nanometer" />
+    <input name="thinfilm_ior" type="float" value="1.5" />
+    <input name="normal" type="vector3" defaultgeomprop="Nworld" spec_desc="Normal vector of the surface" />
+    <input name="tangent" type="vector3" defaultgeomprop="Tworld" spec_desc="Tangent vector of the surface"/>
+    <input name="distribution" type="string" value="ggx" enum="ggx" uniform="true" />
+    <input name="scatter_mode" type="string" value="R" enum="R,T,RT" uniform="true" spec_desc="Surface Scatter mode, specifying reflection and/or transmission" />
+    <output name="out" type="BSDF" spec_desc="generalized Schlick BSDF" />
+  </nodedef>
+
+  <!--
+    Node: <subsurface_bsdf>
+    A subsurface scattering BSDF for true subsurface scattering.
+  -->
+  <nodedef name="ND_subsurface_bsdf" node="subsurface_bsdf" bsdf="R" nodegroup="pbr" doc="A subsurface scattering BSDF for true subsurface scattering.">
+    <input name="weight" type="float" value="1.0" uimin="0.0" uimax="1.0" />
+    <input name="color" type="color3" value="0.18, 0.18, 0.18" />
+    <input name="radius" type="color3" value="1.0, 1.0, 1.0" />
+    <input name="anisotropy" type="float" value="0.0" />
+    <input name="normal" type="vector3" defaultgeomprop="Nworld" />
+    <output name="out" type="BSDF" />
+  </nodedef>
+
+  <!--
+    Node: <sheen_bsdf>
+    A microfacet BSDF for the back-scattering properties of cloth-like materials.
+  -->
+  <nodedef name="ND_sheen_bsdf" node="sheen_bsdf" bsdf="R" nodegroup="pbr" doc="A microfacet BSDF for the back-scattering properties of cloth-like materials.">
+    <input name="weight" type="float" value="1.0" uimin="0.0" uimax="1.0" spec_desc="Weight of the BSDF contribution" spec_acceptedvalues="[0, 1]"/>
+    <input name="color" type="color3" value="1.0, 1.0, 1.0" spec_desc="Sheen reflectivity" />
+    <input name="roughness" type="float" value="0.3" spec_desc="Surface roughness" />
+    <input name="normal" type="vector3" defaultgeomprop="Nworld" spec_desc="Normal vector of the surface" />
+    <input name="mode" type="string" value="conty_kulla" enum="conty_kulla, zeltner" uniform="true" spec_desc="Selects between `conty_kulla` and `zeltner` sheen models" />
+    <output name="out" type="BSDF" spec_desc="sheen BSDF" />
+  </nodedef>
+
+  <!--
+    Node: <chiang_hair_bsdf>
+    A BSDF node for Chiang hair shading model.
+  -->
+  <nodedef name="ND_chiang_hair_bsdf" node="chiang_hair_bsdf" bsdf="R" nodegroup="pbr" doc="A BSDF node for Chiang hair shading model.">
+    <input name="tint_R" type="color3" value="1, 1, 1" />
+    <input name="tint_TT" type="color3" value="1, 1, 1" />
+    <input name="tint_TRT" type="color3" value="1, 1, 1" />
+    <input name="ior" type="float" value="1.55" />
+    <input name="roughness_R" type="vector2" value="0.1, 0.1" />
+    <input name="roughness_TT" type="vector2" value="0.05, 0.05" />
+    <input name="roughness_TRT" type="vector2" value="0.2, 0.2" />
+    <input name="cuticle_angle" type="float" value="0.5" />
+    <input name="absorption_coefficient" type="vector3" value="0.0, 0.0, 0.0" />
+    <input name="normal" type="vector3" defaultgeomprop="Nworld" />
+    <input name="curve_direction" type="vector3" defaultgeomprop="Tworld" />
+    <output name="out" type="BSDF" />
+  </nodedef>
+
+  <!-- ======================================================================== -->
+  <!-- EDF Nodes                                                                -->
+  <!-- ======================================================================== -->
+
+  <!--
+    Node: <uniform_edf>
+    An EDF node for uniform emission.
+  -->
+  <nodedef name="ND_uniform_edf" node="uniform_edf" nodegroup="pbr" doc="An EDF node for uniform emission.">
+    <input name="color" type="color3" value="1.0, 1.0, 1.0" />
+    <output name="out" type="EDF" />
+  </nodedef>
+
+  <!--
+    Node: <conical_edf>
+    Constructs an EDF emitting light inside a cone around the normal direction.
+  -->
+  <nodedef name="ND_conical_edf" node="conical_edf" nodegroup="pbr" doc="Constructs an EDF emitting light inside a cone around the normal direction.">
+    <input name="color" type="color3" value="1.0, 1.0, 1.0" />
+    <input name="normal" type="vector3" defaultgeomprop="Nworld" />
+    <input name="inner_angle" type="float" value="60.0" />
+    <input name="outer_angle" type="float" value="0.0" />
+    <output name="out" type="EDF" />
+  </nodedef>
+
+  <!--
+    Node: <measured_edf>
+    Constructs an EDF emitting light according to a measured IES light profile.
+  -->
+  <nodedef name="ND_measured_edf" node="measured_edf" nodegroup="pbr" doc="Constructs an EDF emitting light according to a measured IES light profile.">
+    <input name="color" type="color3" value="1.0, 1.0, 1.0" />
+    <input name="normal" type="vector3" defaultgeomprop="Nworld" />
+    <input name="file" type="filename" value="" uniform="true" />
+    <output name="out" type="EDF" />
+  </nodedef>
+
+  <!--
+    Node: <generalized_schlick_edf>
+    Modifies an EDF with a directional factor. Attenuates the emission distribution of the base EDF according to
+    a generalized Schlick fresnel function.
+  -->
+  <nodedef name="ND_generalized_schlick_edf" node="generalized_schlick_edf" nodegroup="pbr" doc="Modifies an EDF with a directional factor.">
+    <input name="color0" type="color3" value="1.0, 1.0, 1.0" />
+    <input name="color90" type="color3" value="1.0, 1.0, 1.0" />
+    <input name="exponent" type="float" value="5.0" />
+    <input name="base" type="EDF" value="" />
+    <output name="out" type="EDF" />
+  </nodedef>
+
+  <!-- ======================================================================== -->
+  <!-- VDF Nodes                                                                -->
+  <!-- ======================================================================== -->
+
+  <!--
+    Node: <absorption_vdf>
+    Constructs a VDF for pure light absorption.
+  -->
+  <nodedef name="ND_absorption_vdf" node="absorption_vdf" nodegroup="pbr" doc="Constructs a VDF for pure light absorption.">
+    <input name="absorption" type="vector3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="VDF" />
+  </nodedef>
+
+  <!--
+    Node: <anisotropic_vdf>
+    Constructs a VDF scattering light for a participating medium, based on the
+    Henyey-Greenstein phase function.
+  -->
+  <nodedef name="ND_anisotropic_vdf" node="anisotropic_vdf" nodegroup="pbr" doc="Constructs a VDF scattering light for a participating medium, based on the Henyey-Greenstein phase function.">
+    <input name="absorption" type="vector3" value="0.0, 0.0, 0.0" />
+    <input name="scattering" type="vector3" value="0.0, 0.0, 0.0" />
+    <input name="anisotropy" type="float" value="0.0" />
+    <output name="out" type="VDF" />
+  </nodedef>
+
+  <!-- ======================================================================== -->
+  <!-- Shader Nodes                                                             -->
+  <!-- ======================================================================== -->
+
+  <!--
+    Node: <surface>
+    Construct a surface shader from scattering and emission distribution functions.
+  -->
+  <nodedef name="ND_surface" node="surface" nodegroup="pbr" doc="A constructor node for the surfaceshader type.">
+    <input name="bsdf" type="BSDF" value="" doc="Distribution function for surface scattering." />
+    <input name="edf" type="EDF" value="" doc="Distribution function for surface emission." />
+    <input name="opacity" type="float" value="1.0" doc="Surface cutout opacity" />
+    <input name="thin_walled" type="boolean" value="false" uniform="true" doc="Option to make the surface thin-walled." />
+    <output name="out" type="surfaceshader" />
+  </nodedef>
+
+  <!--
+    Node: <volume>
+    Construct a volume shader describing a participating medium.
+  -->
+  <nodedef name="ND_volume" node="volume" nodegroup="pbr" doc="A constructor node for the volumeshader type.">
+    <input name="vdf" type="VDF" value="" doc="Volume distribution function for the medium." />
+    <input name="edf" type="EDF" value="" doc="Emission distribution function for the medium." />
+    <output name="out" type="volumeshader" />
+  </nodedef>
+
+  <!--
+    Node: <light>
+    Construct a light shader from emission distribution functions.
+  -->
+  <nodedef name="ND_light" node="light" nodegroup="pbr" doc="A constructor node for the lightshader type.">
+    <input name="edf" type="EDF" value="" doc="Distribution function for light emission." />
+    <input name="intensity" type="float" value="1.0" doc="Multiplier for the light intensity" />
+    <input name="exposure" type="float" value="0.0" doc="Exposure control for the light intensity" />
+    <output name="out" type="lightshader" />
+  </nodedef>
+
+  <!--
+    Node: <displacement>
+    Construct a displacement shader.
+  -->
+  <nodedef name="ND_displacement_float" node="displacement" nodegroup="pbr" doc="A constructor node for the displacementshader type.">
+    <input name="displacement" type="float" value="0.0" doc="Scalar displacement amount along the surface normal direction." />
+    <input name="scale" type="float" value="1.0" doc="Scale factor for the displacement vector" />
+    <output name="out" type="displacementshader" />
+  </nodedef>
+  <nodedef name="ND_displacement_vector3" node="displacement" nodegroup="pbr" doc="A constructor node for the displacementshader type.">
+    <input name="displacement" type="vector3" value="0.0, 0.0, 0.0" doc="Vector displacement in (dPdu, dPdv, N) tangent/normal space." />
+    <input name="scale" type="float" value="1.0" doc="Scale factor for the displacement vector" />
+    <output name="out" type="displacementshader" />
+  </nodedef>
+
+  <!-- ======================================================================== -->
+  <!-- Utility Nodes                                                            -->
+  <!-- ======================================================================== -->
+
+  <!--
+    Node: <layer>
+  -->
+  <nodedef name="ND_layer_bsdf" node="layer" nodegroup="pbr" defaultinput="top" doc="Layer two BSDF's with vertical layering.">
+    <input name="top" type="BSDF" value="" />
+    <input name="base" type="BSDF" value="" />
+    <output name="out" type="BSDF" />
+  </nodedef>
+  <nodedef name="ND_layer_vdf" node="layer" nodegroup="pbr" defaultinput="top" doc="Layer a BSDF over a VDF describing the interior media.">
+    <input name="top" type="BSDF" value="" />
+    <input name="base" type="VDF" value="" />
+    <output name="out" type="BSDF" />
+  </nodedef>
+
+  <!--
+    Node: <mix>
+  -->
+  <nodedef name="ND_mix_bsdf" node="mix" nodegroup="pbr" defaultinput="bg" doc="Mix two BSDF's according to an input mix amount.">
+    <input name="fg" type="BSDF" value="" />
+    <input name="bg" type="BSDF" value="" />
+    <input name="mix" type="float" value="0.0" uimin="0.0" uimax="1.0" doc="Mixing weight, range [0, 1]." />
+    <output name="out" type="BSDF" />
+  </nodedef>
+  <nodedef name="ND_mix_edf" node="mix" nodegroup="pbr" defaultinput="bg" doc="Mix two EDF's according to an input mix amount.">
+    <input name="fg" type="EDF" value="" />
+    <input name="bg" type="EDF" value="" />
+    <input name="mix" type="float" value="0.0" uimin="0.0" uimax="1.0" doc="Mixing weight, range [0, 1]." />
+    <output name="out" type="EDF" />
+  </nodedef>
+  <nodedef name="ND_mix_vdf" node="mix" nodegroup="pbr" defaultinput="bg" doc="Mix two VDF's according to an input mix amount.">
+    <input name="fg" type="VDF" value="" />
+    <input name="bg" type="VDF" value="" />
+    <input name="mix" type="float" value="0.0" uimin="0.0" uimax="1.0" doc="Mixing weight, range [0, 1]." />
+    <output name="out" type="VDF" />
+  </nodedef>
+
+  <!--
+    Node: <add>
+  -->
+  <nodedef name="ND_add_bsdf" node="add" nodegroup="pbr" defaultinput="bg" doc="A node for additive blending of BSDF's.">
+    <input name="in1" type="BSDF" value="" doc="First BSDF." />
+    <input name="in2" type="BSDF" value="" doc="Second BSDF." />
+    <output name="out" type="BSDF" />
+  </nodedef>
+  <nodedef name="ND_add_edf" node="add" nodegroup="pbr" defaultinput="bg" doc="A node for additive blending of EDF's.">
+    <input name="in1" type="EDF" value="" doc="First EDF." />
+    <input name="in2" type="EDF" value="" doc="Second EDF." />
+    <output name="out" type="EDF" />
+  </nodedef>
+  <nodedef name="ND_add_vdf" node="add" nodegroup="pbr" defaultinput="bg" doc="A node for additive blending of VDF's.">
+    <input name="in1" type="VDF" value="" doc="First VDF." />
+    <input name="in2" type="VDF" value="" doc="Second VDF." />
+    <output name="out" type="VDF" />
+  </nodedef>
+
+  <!--
+    Node: <multiply>
+  -->
+  <nodedef name="ND_multiply_bsdfC" node="multiply" nodegroup="pbr" defaultinput="in1" doc="A node for adjusting the contribution of a BSDF with a weight.">
+    <input name="in1" type="BSDF" value="" doc="The BSDF to scale." />
+    <input name="in2" type="color3" value="1.0, 1.0, 1.0" doc="Scaling weight." />
+    <output name="out" type="BSDF" />
+  </nodedef>
+  <nodedef name="ND_multiply_bsdfF" node="multiply" nodegroup="pbr" defaultinput="in1" doc="A node for adjusting the contribution of a BSDF with a weight.">
+    <input name="in1" type="BSDF" value="" doc="The BSDF to scale." />
+    <input name="in2" type="float" value="1.0" doc="Scaling weight." />
+    <output name="out" type="BSDF" />
+  </nodedef>
+  <nodedef name="ND_multiply_edfC" node="multiply" nodegroup="pbr" defaultinput="in1" doc="A node for adjusting the contribution of an EDF with a weight.">
+    <input name="in1" type="EDF" value="" doc="The EDF to scale." />
+    <input name="in2" type="color3" value="1.0, 1.0, 1.0" doc="Scaling weight." />
+    <output name="out" type="EDF" />
+  </nodedef>
+  <nodedef name="ND_multiply_edfF" node="multiply" nodegroup="pbr" defaultinput="in1" doc="A node for adjusting the contribution of an EDF with a weight.">
+    <input name="in1" type="EDF" value="" doc="The EDF to scale." />
+    <input name="in2" type="float" value="1.0" doc="Scaling weight." />
+    <output name="out" type="EDF" />
+  </nodedef>
+  <nodedef name="ND_multiply_vdfC" node="multiply" nodegroup="pbr" defaultinput="in1" doc="A node for adjusting the contribution of an VDF with a weight.">
+    <input name="in1" type="VDF" value="" doc="The VDF to scale." />
+    <input name="in2" type="color3" value="1.0, 1.0, 1.0" doc="Scaling weight." />
+    <output name="out" type="VDF" />
+  </nodedef>
+  <nodedef name="ND_multiply_vdfF" node="multiply" nodegroup="pbr" defaultinput="in1" doc="A node for adjusting the contribution of an VDF with a weight.">
+    <input name="in1" type="VDF" value="" doc="The VDF to scale." />
+    <input name="in2" type="float" value="1.0" doc="Scaling weight." />
+    <output name="out" type="VDF" />
+  </nodedef>
+
+  <!--
+    Node: <roughness_anisotropy>
+    Calculates anisotropic surface roughness from a scalar roughness and anisotropy parameterization.
+  -->
+  <nodedef name="ND_roughness_anisotropy" node="roughness_anisotropy" nodegroup="pbr" doc="Calculates anisotropic surface roughness from a scalar roughness/anisotropy parameterization.">
+    <input name="roughness" type="float" value="0.0" />
+    <input name="anisotropy" type="float" value="0.0" />
+    <output name="out" type="vector2" />
+  </nodedef>
+
+  <!--
+    Node: <roughness_dual>
+    Calculates anisotropic surface roughness from a dual surface roughness parameterization.
+  -->
+  <nodedef name="ND_roughness_dual" node="roughness_dual" nodegroup="pbr" doc="Calculates anisotropic surface roughness from a dual surface roughness parameterization.">
+    <input name="roughness" type="vector2" value="0.0, 0.0" />
+    <output name="out" type="vector2" />
+  </nodedef>
+
+  <!--
+    Node: <glossiness_anisotropy>
+    Calculates anisotropic surface roughness from a scalar glossiness and anisotropy parameterization.
+  -->
+  <nodedef name="ND_glossiness_anisotropy" node="glossiness_anisotropy" nodegroup="pbr" doc="Calculates anisotropic surface roughness from a scalar glossiness/anisotropy parameterization.">
+    <input name="glossiness" type="float" value="1.0" uimin="0.0" uimax="1.0" />
+    <input name="anisotropy" type="float" value="0.0" uimin="0.0" uimax="1.0" />
+    <output name="out" type="vector2" />
+  </nodedef>
+
+  <!--
+    Node: <blackbody>
+    Returns the radiant emittance of a blackbody radiator with the given temperature.
+  -->
+  <nodedef name="ND_blackbody" node="blackbody" nodegroup="pbr" doc="Returns the radiant emittance of a blackbody radiator with the given temperature.">
+    <input name="temperature" type="float" value="5000.0" />
+    <output name="out" type="color3" />
+  </nodedef>
+
+  <!--
+    Node: <artistic_ior>
+    Converts the artistic parameterization reflectivity and edge_color to  complex IOR values.
+  -->
+  <nodedef name="ND_artistic_ior" node="artistic_ior" nodegroup="pbr" doc="Converts the artistic parameterization reflectivity and edge_color to  complex IOR values.">
+    <input name="reflectivity" type="color3" value="0.944, 0.776, 0.373" colorspace="lin_rec709" />
+    <input name="edge_color" type="color3" value="0.998, 0.981, 0.751" colorspace="lin_rec709" />
+    <output name="ior" type="color3" />
+    <output name="extinction" type="color3" />
+  </nodedef>
+
+  <!--
+    Node: <deon_hair_absorption_from_melanin>
+    Calculates hair absorption from melanin parameters.
+  -->
+  <nodedef name="ND_deon_hair_absorption_from_melanin" node="deon_hair_absorption_from_melanin" nodegroup="pbr" doc="Calculates hair absorption from melanin parameters.">
+    <input name="melanin_concentration" type="float" value="0.25" />
+    <input name="melanin_redness" type="float" value="0.5" />
+    <input name="eumelanin_color" type="color3" value="0.657704, 0.498077, 0.254107" colorspace="lin_rec709" doc="constant from d'Eon et al. 2011, converted to color via exp(-c)" uiadvanced="true"/>
+    <input name="pheomelanin_color" type="color3" value="0.829444, 0.67032, 0.349938" colorspace="lin_rec709" doc="constant from d'Eon et al. 2011, converted to color via exp(-c)" uiadvanced="true"/>
+    <output name="absorption" type="vector3" />
+  </nodedef>
+
+  <!--
+    Node: <chiang_hair_absorption_from_color>
+    Calculates hair absorption from a color.
+  -->
+  <nodedef name="ND_chiang_hair_absorption_from_color" node="chiang_hair_absorption_from_color" nodegroup="pbr" doc="Calculates hair absorption from a color.">
+    <input name="color" type="color3" value="1.0, 1.0, 1.0" />
+    <input name="azimuthal_roughness" type="float" value="0.2" />
+    <output name="absorption" type="vector3" />
+  </nodedef>
+
+  <!--
+    Node: <chiang_hair_roughness>
+    Calculates hair roughness for R, TT and TRT component.
+  -->
+  <nodedef name="ND_chiang_hair_roughness" node="chiang_hair_roughness" nodegroup="pbr" doc="Calculates hair roughness for R, TT and TRT component.">
+    <input name="longitudinal" type="float" value="0.1" />
+    <input name="azimuthal" type="float" value="0.2" />
+    <input name="scale_TT" type="float" value="0.5" uiadvanced="true" />
+    <input name="scale_TRT" type="float" value="2.0" uiadvanced="true" />
+    <output name="roughness_R" type="vector2" />
+    <output name="roughness_TT" type="vector2" />
+    <output name="roughness_TRT" type="vector2" />
+  </nodedef>
+
+</materialx>
