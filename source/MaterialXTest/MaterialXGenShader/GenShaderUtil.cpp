@@ -67,8 +67,7 @@ bool getShaderSource(mx::GenContext& context,
 // Check that implementations exist for all nodedefs supported per generator
 void checkImplementations(mx::GenContext& context,
                           const mx::StringSet& generatorSkipNodeTypes,
-                          const mx::StringSet& generatorSkipNodeDefs,
-                          unsigned int expectedSkipCount)
+                          const mx::StringSet& generatorSkipNodeDefs)
 {
 
     const mx::ShaderGenerator& shadergen = context.getShaderGenerator();
@@ -90,10 +89,8 @@ void checkImplementations(mx::GenContext& context,
     // Node types to explicitly skip temporarily.
     mx::StringSet skipNodeTypes =
     {
-        "ambientocclusion",
         "displacement",
         "volume",
-        "curveadjust",
         "conical_edf",
         "measured_edf",
         "absorption_vdf",
@@ -268,7 +265,6 @@ void checkImplementations(mx::GenContext& context,
         std::cerr << (std::string("Missing list: ") + missing_str) << std::endl;
     }
     REQUIRE(missing == 0);
-    REQUIRE(skipped == expectedSkipCount);
 
     implDumpBuffer.close();
 }
@@ -316,8 +312,7 @@ void testUniqueNames(mx::GenContext& context, const std::string& stage)
 void shaderGenPerformanceTest(mx::GenContext& context)
 {
     mx::DocumentPtr nodeLibrary = mx::createDocument();
-    mx::FilePath currentPath = mx::FilePath::getCurrentPath();
-    const mx::FileSearchPath libSearchPath(currentPath);
+    const mx::FileSearchPath libSearchPath(mx::getDefaultDataSearchPath());
 
     // Load the standard libraries.
     loadLibraries({ "libraries" }, libSearchPath, nodeLibrary);
@@ -351,8 +346,9 @@ void shaderGenPerformanceTest(mx::GenContext& context)
     }
 
     // Read mtlx documents
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
     mx::FilePathVec testRootPaths;
-    testRootPaths.push_back("resources/Materials/Examples/StandardSurface");
+    testRootPaths.push_back(searchPath.find("resources/Materials/Examples/StandardSurface"));
 
     std::vector<mx::DocumentPtr> loadedDocuments;
     mx::StringVec documentsPaths;
@@ -367,12 +363,12 @@ void shaderGenPerformanceTest(mx::GenContext& context)
     REQUIRE(loadedDocuments.size() > 0);
     REQUIRE(loadedDocuments.size() == documentsPaths.size());
 
-    // Shuffle the order of documents and perform document library import validatation and shadergen
+    // Shuffle the order of documents and perform document library import validation and shadergen
     std::mt19937 rng(0);
     std::shuffle(loadedDocuments.begin(), loadedDocuments.end(), rng);
     for (const auto& doc : loadedDocuments)
     {
-        doc->importLibrary(nodeLibrary);
+        doc->setDataLibrary(nodeLibrary);
         std::vector<mx::TypedElementPtr> elements = mx::findRenderableElements(doc);
 
         REQUIRE(elements.size() > 0);
@@ -649,6 +645,9 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     addColorManagement();
     addUnitSystem();
 
+    // Register struct typedefs from the library files.
+    _shaderGenerator->loadStructTypeDefs(_dependLib);
+
     // Test suite setup
     addSkipFiles();
 
@@ -705,6 +704,8 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
         preprocessDocument(doc);
         _shaderGenerator->registerShaderMetadata(doc, context);
 
+        _shaderGenerator->loadStructTypeDefs(doc);
+
         // For each new file clear the implementation cache.
         // Since the new file might contain implementations with names
         // colliding with implementations in previous test cases.
@@ -721,7 +722,7 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
         bool importedLibrary = false;
         try
         {
-            doc->importLibrary(_dependLib);
+            doc->setDataLibrary(_dependLib);
             importedLibrary = true;
         }
         catch (mx::Exception& e)
@@ -734,8 +735,8 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
         }
 
         // Find and register lights
-        findLights(doc, _lights);
-        registerLights(doc, _lights, context);
+        findLights(_dependLib, _lights);
+        registerLights(_dependLib, _lights, context);
 
         // Find elements to render in the document
         std::vector<mx::TypedElementPtr> elements;

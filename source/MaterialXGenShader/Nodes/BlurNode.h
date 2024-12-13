@@ -35,8 +35,8 @@ class MX_GENSHADER_API BlurNode : public ConvolutionNode
     virtual void outputSampleArray(const ShaderGenerator& shadergen, ShaderStage& stage, TypeDesc inputType,
                                    const string& sampleName, const StringVec& sampleStrings) const;
     [[deprecated]] void outputSampleArray(const ShaderGenerator& shadergen, ShaderStage& stage, const TypeDesc* inputType,
-                                          const string& sampleName, const StringVec& sampleStrings) const 
-    { 
+                                          const string& sampleName, const StringVec& sampleStrings) const
+    {
         return outputSampleArray(shadergen, stage, *inputType, sampleName, sampleStrings);
     }
 

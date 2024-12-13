@@ -52,6 +52,11 @@ const float DEFAULT_CAMERA_ZOOM = 1.0f;
 
 namespace
 {
+#ifdef MATERIALXVIEW_METAL_BACKEND
+const bool USE_FLOAT_BUFFER = true;
+#else
+const bool USE_FLOAT_BUFFER = false;
+#endif
 
 const int MIN_ENV_SAMPLE_COUNT = 4;
 const int MAX_ENV_SAMPLE_COUNT = 1024;
@@ -152,8 +157,7 @@ Viewer::Viewer(const std::string& materialFilename,
                int screenHeight,
                const mx::Color3& screenColor) :
     ng::Screen(ng::Vector2i(screenWidth, screenHeight), "MaterialXView",
-        true, false, true, true, false, 4, 0),
-    _window(nullptr),
+        true, false, true, true, USE_FLOAT_BUFFER, 4, 0),
     _materialFilename(materialFilename),
     _meshFilename(meshFilename),
     _envRadianceFilename(envRadianceFilename),
@@ -179,11 +183,7 @@ Viewer::Viewer(const std::string& materialFilename,
     _shadowSoftness(1),
     _ambientOcclusionGain(0.6f),
     _selectedGeom(0),
-    _geomLabel(nullptr),
-    _geometrySelectionBox(nullptr),
     _selectedMaterial(0),
-    _materialLabel(nullptr),
-    _materialSelectionBox(nullptr),
     _identityCamera(mx::Camera::create()),
     _viewCamera(mx::Camera::create()),
     _envCamera(mx::Camera::create()),
@@ -227,9 +227,6 @@ Viewer::Viewer(const std::string& materialFilename,
     _bakeHeight(0),
     _bakeDocumentPerMaterial(false),
     _frameTiming(false),
-    _timingLabel(nullptr),
-    _timingPanel(nullptr),
-    _timingText(nullptr),
     _avgFrameTime(0.0)
 {
     // Resolve input filenames, taking both the provided search path and
@@ -290,11 +287,11 @@ void Viewer::initialize()
     _imageHandler->setSearchPath(_searchPath);
 
     // Initialize user interfaces.
-    createLoadMeshInterface(_window, "Load Mesh");
-    createLoadMaterialsInterface(_window, "Load Material");
-    createLoadEnvironmentInterface(_window, "Load Environment");
-    createPropertyEditorInterface(_window, "Property Editor");
-    createAdvancedSettings(_window);
+    createLoadMeshInterface((ng::ref<ng::Widget>) _window, "Load Mesh");
+    createLoadMaterialsInterface((ng::ref<ng::Widget>) _window, "Load Material");
+    createLoadEnvironmentInterface((ng::ref<ng::Widget>) _window, "Load Environment");
+    createPropertyEditorInterface((ng::ref<ng::Widget>) _window, "Property Editor");
+    createAdvancedSettings((ng::ref<ng::Widget>) _window);
 
     // Create geometry selection box.
     _geomLabel = new ng::Label(_window, "Select Geometry");
@@ -557,10 +554,11 @@ mx::ElementPredicate Viewer::getElementPredicate()
     };
 }
 
-void Viewer::createLoadMeshInterface(Widget* parent, const std::string& label)
+void Viewer::createLoadMeshInterface(ng::ref<Widget> parent, const std::string& label)
 {
-    ng::Button* meshButton = new ng::Button(parent, label);
+    ng::ref<ng::Button> meshButton = new ng::Button(parent, label);
     meshButton->set_icon(FA_FOLDER);
+    meshButton->set_tooltip("Load a new geometry in the OBJ or glTF format.");
     meshButton->set_callback([this]()
     {
         m_process_events = false;
@@ -584,10 +582,11 @@ void Viewer::createLoadMeshInterface(Widget* parent, const std::string& label)
     });
 }
 
-void Viewer::createLoadMaterialsInterface(Widget* parent, const std::string& label)
+void Viewer::createLoadMaterialsInterface(ng::ref<Widget> parent, const std::string& label)
 {
-    ng::Button* materialButton = new ng::Button(parent, label);
+    ng::ref<ng::Button> materialButton = new ng::Button(parent, label);
     materialButton->set_icon(FA_FOLDER);
+    materialButton->set_tooltip("Load a material document in the MTLX format.");
     materialButton->set_callback([this]()
     {
         m_process_events = false;
@@ -601,10 +600,11 @@ void Viewer::createLoadMaterialsInterface(Widget* parent, const std::string& lab
     });
 }
 
-void Viewer::createLoadEnvironmentInterface(Widget* parent, const std::string& label)
+void Viewer::createLoadEnvironmentInterface(ng::ref<Widget> parent, const std::string& label)
 {
-    ng::Button* envButton = new ng::Button(parent, label);
+    ng::ref<ng::Button> envButton = new ng::Button(parent, label);
     envButton->set_icon(FA_FOLDER);
+    envButton->set_tooltip("Load a lat-long environment light in the HDR format.");
     envButton->set_callback([this]()
     {
         m_process_events = false;
@@ -626,10 +626,11 @@ void Viewer::createLoadEnvironmentInterface(Widget* parent, const std::string& l
     });
 }
 
-void Viewer::createSaveMaterialsInterface(Widget* parent, const std::string& label)
+void Viewer::createSaveMaterialsInterface(ng::ref<Widget> parent, const std::string& label)
 {
-    ng::Button* materialButton = new ng::Button(parent, label);
+    ng::ref<ng::Button> materialButton = new ng::Button(parent, label);
     materialButton->set_icon(FA_SAVE);
+    materialButton->set_tooltip("Save a material document in the MTLX format.");
     materialButton->set_callback([this]()
     {
         m_process_events = false;
@@ -655,10 +656,11 @@ void Viewer::createSaveMaterialsInterface(Widget* parent, const std::string& lab
     });
 }
 
-void Viewer::createPropertyEditorInterface(Widget* parent, const std::string& label)
+void Viewer::createPropertyEditorInterface(ng::ref<Widget> parent, const std::string& label)
 {
-    ng::Button* editorButton = new ng::Button(parent, label);
+    ng::ref<ng::Button> editorButton = new ng::Button(parent, label);
     editorButton->set_flags(ng::Button::ToggleButton);
+    editorButton->set_tooltip("View or edit properties of the current material.");
     editorButton->set_change_callback([this](bool state)
     {
         _propertyEditor.setVisible(state);
@@ -666,56 +668,136 @@ void Viewer::createPropertyEditorInterface(Widget* parent, const std::string& la
     });
 }
 
-void Viewer::createAdvancedSettings(Widget* parent)
+void Viewer::createDocumentationInterface(ng::ref<Widget> parent)
 {
-    ng::PopupButton* advancedButton = new ng::PopupButton(parent, "Advanced Settings");
+    ng::ref<ng::GridLayout> documentationLayout = new ng::GridLayout(ng::Orientation::Vertical, 3,
+                                                                     ng::Alignment::Minimum, 13, 5);
+    documentationLayout->set_row_alignment({ ng::Alignment::Minimum, ng::Alignment::Maximum });
+
+    ng::ref<ng::Widget> documentationGroup = new ng::Widget(parent);
+    documentationGroup->set_layout(documentationLayout);
+    ng::ref<ng::Label> documentationLabel = new ng::Label(documentationGroup, "Documentation");
+    documentationLabel->set_font_size(20);
+    documentationLabel->set_font("sans-bold");
+
+    _shortcutsButton = new ng::Button(documentationGroup, "Keyboard Shortcuts");
+    _shortcutsButton->set_flags(ng::Button::ToggleButton);
+    _shortcutsButton->set_icon(FA_CARET_RIGHT);
+    _shortcutsButton->set_fixed_width(230);
+
+    _shortcutsTable = new ng::Widget(documentationGroup);
+    _shortcutsTable->set_layout(new ng::GroupLayout(13));
+    _shortcutsTable->set_visible(false);
+
+    // Recompute layout when showing/hiding shortcuts.
+    _shortcutsButton->set_change_callback([this](bool state)
+    {
+        _shortcutsButton->set_icon(state ? FA_CARET_DOWN : FA_CARET_RIGHT);
+        _shortcutsTable->set_visible(state);
+        perform_layout();
+    });
+
+    // 2 cell layout for (key, description) pair.
+    ng::ref<ng::GridLayout> gridLayout2 = new ng::GridLayout(ng::Orientation::Horizontal, 2,
+                                                             ng::Alignment::Minimum, 2, 2);
+    gridLayout2->set_col_alignment({ ng::Alignment::Minimum, ng::Alignment::Maximum });
+
+    const std::array<std::pair<std::string, std::string>, 16> KEYBOARD_SHORTCUTS =
+    {
+        std::make_pair("R", "Reload the current material from file. "
+                            "Hold SHIFT to reload all standard libraries as well."),
+        std::make_pair("G", "Save the current GLSL shader source to file."),
+        std::make_pair("O", "Save the current OSL shader source to file."),
+        std::make_pair("M", "Save the current MDL shader source to file."),
+        std::make_pair("L", "Load GLSL shader source from file. "
+                            "Editing the source files before loading provides a way "
+                            "to debug and experiment with shader source code."),
+        std::make_pair("D", "Save each node graph in the current material as a DOT file. "
+                            "See www.graphviz.org for more details on this format."),
+        std::make_pair("F", "Capture the current frame and save to file."),
+        std::make_pair("W", "Create a wedge rendering and save to file. "
+                            "See Advanced Settings for additional controls."),
+        std::make_pair("T", "Translate the current material to a different shading model. "
+                            "See Advanced Settings for additional controls."),
+        std::make_pair("B", "Bake the current material to textures. "
+                            "See Advanced Settings for additional controls."),
+        std::make_pair("UP","Select the previous geometry."),
+        std::make_pair("DOWN","Select the next geometry."),
+        std::make_pair("RIGHT", "Switch to the next material."),
+        std::make_pair("LEFT", "Switch to the previous material."),
+        std::make_pair("+", "Zoom in with the camera."),
+        std::make_pair("-", "Zoom out with the camera.")
+    };
+
+    for (const auto& shortcut : KEYBOARD_SHORTCUTS)
+    {
+        ng::ref<ng::Widget> twoColumns = new ng::Widget(_shortcutsTable);
+        twoColumns->set_layout(gridLayout2);
+
+        ng::ref<ng::Label> keyLabel = new ng::Label(twoColumns, shortcut.first);
+        keyLabel->set_font("sans-bold");
+        keyLabel->set_font_size(16);
+        keyLabel->set_fixed_width(40);
+
+        ng::ref<ng::Label> descriptionLabel = new ng::Label(twoColumns, shortcut.second);
+        descriptionLabel->set_font_size(16);
+        descriptionLabel->set_fixed_width(160);
+    }
+}
+
+void Viewer::createAdvancedSettings(ng::ref<Widget> parent)
+{
+    ng::ref<ng::PopupButton> advancedButton = new ng::PopupButton(parent, "Advanced Settings");
     advancedButton->set_icon(FA_TOOLS);
     advancedButton->set_chevron_icon(-1);
-    ng::Popup* advancedPopupParent = advancedButton->popup();
+    advancedButton->set_tooltip("Asset and rendering options.");
+    ng::ref<ng::Popup> advancedPopupParent = advancedButton->popup();
     advancedPopupParent->set_layout(new ng::GroupLayout());
 
-    ng::VScrollPanel* scrollPanel = new ng::VScrollPanel(advancedPopupParent);
+    ng::ref<ng::VScrollPanel> scrollPanel = new ng::VScrollPanel(advancedPopupParent);
     scrollPanel->set_fixed_height(500);
-    ng::Widget* advancedPopup = new ng::Widget(scrollPanel);
-    advancedPopup->set_layout(new ng::GroupLayout(13));
+    ng::ref<ng::Widget> advancedPopup = new ng::Widget(scrollPanel);
+    advancedPopup->set_layout(new ng::BoxLayout(ng::Orientation::Vertical));
 
-    ng::Label* viewLabel = new ng::Label(advancedPopup, "Viewing Options");
+    ng::ref<ng::Widget> settingsGroup = new ng::Widget(advancedPopup);
+    settingsGroup->set_layout(new ng::GroupLayout(13));
+    ng::ref<ng::Label> viewLabel = new ng::Label(settingsGroup, "Viewing Options");
     viewLabel->set_font_size(20);
     viewLabel->set_font("sans-bold");
 
-    ng::CheckBox* drawEnvironmentBox = new ng::CheckBox(advancedPopup, "Draw Environment");
+    ng::ref<ng::CheckBox> drawEnvironmentBox = new ng::CheckBox(settingsGroup, "Draw Environment");
     drawEnvironmentBox->set_checked(_drawEnvironment);
     drawEnvironmentBox->set_callback([this](bool enable)
     {
         _drawEnvironment = enable;
     });
 
-    ng::CheckBox* outlineSelectedGeometryBox = new ng::CheckBox(advancedPopup, "Outline Selected Geometry");
+    ng::ref<ng::CheckBox> outlineSelectedGeometryBox = new ng::CheckBox(settingsGroup, "Outline Selected Geometry");
     outlineSelectedGeometryBox->set_checked(_outlineSelection);
     outlineSelectedGeometryBox->set_callback([this](bool enable)
     {
         _outlineSelection = enable;
     });
 
-    ng::Label* renderLabel = new ng::Label(advancedPopup, "Render Options");
+    ng::ref<ng::Label> renderLabel = new ng::Label(settingsGroup, "Render Options");
     renderLabel->set_font_size(20);
     renderLabel->set_font("sans-bold");
 
-    ng::CheckBox* transparencyBox = new ng::CheckBox(advancedPopup, "Render Transparency");
+    ng::ref<ng::CheckBox> transparencyBox = new ng::CheckBox(settingsGroup, "Render Transparency");
     transparencyBox->set_checked(_renderTransparency);
     transparencyBox->set_callback([this](bool enable)
     {
         _renderTransparency = enable;
     });
 
-    ng::CheckBox* doubleSidedBox = new ng::CheckBox(advancedPopup, "Render Double-Sided");
+    ng::ref<ng::CheckBox> doubleSidedBox = new ng::CheckBox(settingsGroup, "Render Double-Sided");
     doubleSidedBox->set_checked(_renderDoubleSided);
     doubleSidedBox->set_callback([this](bool enable)
     {
         _renderDoubleSided = enable;
     });
 
-    ng::CheckBox* importanceSampleBox = new ng::CheckBox(advancedPopup, "Environment FIS");
+    ng::ref<ng::CheckBox> importanceSampleBox = new ng::CheckBox(settingsGroup, "Environment FIS");
     importanceSampleBox->set_checked(_genContext.getOptions().hwSpecularEnvironmentMethod == mx::SPECULAR_ENVIRONMENT_FIS);
     _lightHandler->setUsePrefilteredMap(_genContext.getOptions().hwSpecularEnvironmentMethod != mx::SPECULAR_ENVIRONMENT_FIS);
     importanceSampleBox->set_callback([this](bool enable)
@@ -728,7 +810,7 @@ void Viewer::createAdvancedSettings(Widget* parent)
         reloadShaders();
     });
 
-    ng::CheckBox* refractionBox = new ng::CheckBox(advancedPopup, "Transmission Refraction");
+    ng::ref<ng::CheckBox> refractionBox = new ng::CheckBox(settingsGroup, "Transmission Refraction");
     refractionBox->set_checked(_genContext.getOptions().hwTransmissionRenderMethod == mx::TRANSMISSION_REFRACTION);
     refractionBox->set_callback([this](bool enable)
     {
@@ -739,14 +821,14 @@ void Viewer::createAdvancedSettings(Widget* parent)
         reloadShaders();
     });
 
-    ng::CheckBox* refractionSidedBox = new ng::CheckBox(advancedPopup, "Refraction Two-Sided");
+    ng::ref<ng::CheckBox> refractionSidedBox = new ng::CheckBox(settingsGroup, "Refraction Two-Sided");
     refractionSidedBox->set_checked(_lightHandler->getRefractionTwoSided());
     refractionSidedBox->set_callback([this](bool enable)
     {
         _lightHandler->setRefractionTwoSided(enable);
     });
 
-    ng::CheckBox* shaderInterfaceBox = new ng::CheckBox(advancedPopup, "Reduce Shader Interface");
+    ng::ref<ng::CheckBox> shaderInterfaceBox = new ng::CheckBox(settingsGroup, "Reduce Shader Interface");
     shaderInterfaceBox->set_checked(_genContext.getOptions().shaderInterfaceType == mx::SHADER_INTERFACE_REDUCED);
     shaderInterfaceBox->set_callback([this](bool enable)
     {
@@ -754,11 +836,11 @@ void Viewer::createAdvancedSettings(Widget* parent)
         setShaderInterfaceType(interfaceType);
     });
 
-    Widget* albedoGroup = new Widget(advancedPopup);
+    ng::ref<ng::Widget> albedoGroup = new Widget(settingsGroup);
     albedoGroup->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
     new ng::Label(albedoGroup, "Albedo Method:");
     mx::StringVec albedoOptions = { "Analytic", "Table", "MC" };
-    ng::ComboBox* albedoBox = new ng::ComboBox(albedoGroup, albedoOptions);
+    ng::ref<ng::ComboBox> albedoBox = new ng::ComboBox(albedoGroup, albedoOptions);
     albedoBox->set_chevron_icon(-1);
     albedoBox->set_selected_index((int) _genContext.getOptions().hwDirectionalAlbedoMethod );
     albedoBox->set_callback([this](int index)
@@ -785,7 +867,7 @@ void Viewer::createAdvancedSettings(Widget* parent)
         }
     });
 
-    Widget* sampleGroup = new Widget(advancedPopup);
+    ng::ref<ng::Widget> sampleGroup = new Widget(settingsGroup);
     sampleGroup->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
     new ng::Label(sampleGroup, "Environment Samples:");
     mx::StringVec sampleOptions;
@@ -795,7 +877,7 @@ void Viewer::createAdvancedSettings(Widget* parent)
         sampleOptions.push_back(std::to_string(i));
         m_process_events = true;
     }
-    ng::ComboBox* sampleBox = new ng::ComboBox(sampleGroup, sampleOptions);
+    ng::ref<ng::ComboBox> sampleBox = new ng::ComboBox(sampleGroup, sampleOptions);
     sampleBox->set_chevron_icon(-1);
     sampleBox->set_selected_index((int)std::log2(_lightHandler->getEnvSampleCount() / MIN_ENV_SAMPLE_COUNT) / 2);
     sampleBox->set_callback([this](int index)
@@ -803,30 +885,30 @@ void Viewer::createAdvancedSettings(Widget* parent)
         _lightHandler->setEnvSampleCount(MIN_ENV_SAMPLE_COUNT * (int) std::pow(4, index));
     });
 
-    ng::Label* lightingLabel = new ng::Label(advancedPopup, "Lighting Options");
+    ng::ref<ng::Label> lightingLabel = new ng::Label(settingsGroup, "Lighting Options");
     lightingLabel->set_font_size(20);
     lightingLabel->set_font("sans-bold");
 
-    ng::CheckBox* directLightingBox = new ng::CheckBox(advancedPopup, "Direct Lighting");
+    ng::ref<ng::CheckBox> directLightingBox = new ng::CheckBox(settingsGroup, "Direct Lighting");
     directLightingBox->set_checked(_lightHandler->getDirectLighting());
     directLightingBox->set_callback([this](bool enable)
     {
         _lightHandler->setDirectLighting(enable);
     });
 
-    ng::CheckBox* indirectLightingBox = new ng::CheckBox(advancedPopup, "Indirect Lighting");
+    ng::ref<ng::CheckBox> indirectLightingBox = new ng::CheckBox(settingsGroup, "Indirect Lighting");
     indirectLightingBox->set_checked(_lightHandler->getIndirectLighting());
     indirectLightingBox->set_callback([this](bool enable)
     {
         _lightHandler->setIndirectLighting(enable);
     });
 
-    ng::Widget* lightRotationRow = new ng::Widget(advancedPopup);
+    ng::ref<ng::Widget> lightRotationRow = new ng::Widget(settingsGroup);
     lightRotationRow->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
     mx::UIProperties ui;
     ui.uiMin = mx::Value::createValue(0.0f);
     ui.uiMax = mx::Value::createValue(360.0f);
-    ng::FloatBox<float>* lightRotationBox = createFloatWidget(lightRotationRow, "Light Rotation:",
+    ng::ref<ng::FloatBox<float>> lightRotationBox = createFloatWidget(lightRotationRow, "Light Rotation:",
         _lightRotation, &ui, [this](float value)
     {
         _lightRotation = value;
@@ -834,11 +916,11 @@ void Viewer::createAdvancedSettings(Widget* parent)
     });
     lightRotationBox->set_editable(true);
 
-    ng::Label* shadowingLabel = new ng::Label(advancedPopup, "Shadowing Options");
+    ng::ref<ng::Label> shadowingLabel = new ng::Label(settingsGroup, "Shadowing Options");
     shadowingLabel->set_font_size(20);
     shadowingLabel->set_font("sans-bold");
 
-    ng::CheckBox* shadowMapBox = new ng::CheckBox(advancedPopup, "Shadow Map");
+    ng::ref<ng::CheckBox> shadowMapBox = new ng::CheckBox(settingsGroup, "Shadow Map");
     shadowMapBox->set_checked(_genContext.getOptions().hwShadowMap);
     shadowMapBox->set_callback([this](bool enable)
     {
@@ -846,7 +928,7 @@ void Viewer::createAdvancedSettings(Widget* parent)
         reloadShaders();
     });
 
-    ng::CheckBox* ambientOcclusionBox = new ng::CheckBox(advancedPopup, "Ambient Occlusion");
+    ng::ref<ng::CheckBox> ambientOcclusionBox = new ng::CheckBox(settingsGroup, "Ambient Occlusion");
     ambientOcclusionBox->set_checked(_genContext.getOptions().hwAmbientOcclusion);
     ambientOcclusionBox->set_callback([this](bool enable)
     {
@@ -854,23 +936,23 @@ void Viewer::createAdvancedSettings(Widget* parent)
         reloadShaders();
     });
 
-    ng::Widget* ambientOcclusionGainRow = new ng::Widget(advancedPopup);
+    ng::ref<ng::Widget> ambientOcclusionGainRow = new ng::Widget(settingsGroup);
     ambientOcclusionGainRow->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
-    ng::FloatBox<float>* ambientOcclusionGainBox = createFloatWidget(ambientOcclusionGainRow, "AO Gain:",
+    ng::ref<ng::FloatBox<float>> ambientOcclusionGainBox = createFloatWidget(ambientOcclusionGainRow, "AO Gain:",
         _ambientOcclusionGain, nullptr, [this](float value)
     {
         _ambientOcclusionGain = value;
     });
     ambientOcclusionGainBox->set_editable(true);
 
-    ng::Label* sceneLabel = new ng::Label(advancedPopup, "Scene Options");
+    ng::ref<ng::Label> sceneLabel = new ng::Label(settingsGroup, "Scene Options");
     sceneLabel->set_font_size(20);
     sceneLabel->set_font("sans-bold");
 
-    Widget* unitGroup = new Widget(advancedPopup);
+    ng::ref<Widget> unitGroup = new Widget(settingsGroup);
     unitGroup->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
     new ng::Label(unitGroup, "Distance Unit:");
-    ng::ComboBox* distanceUnitBox = new ng::ComboBox(unitGroup, _distanceUnitOptions);
+    ng::ref<ng::ComboBox> distanceUnitBox = new ng::ComboBox(unitGroup, _distanceUnitOptions);
     distanceUnitBox->set_fixed_size(ng::Vector2i(100, 20));
     distanceUnitBox->set_chevron_icon(-1);
     if (_distanceUnitConverter)
@@ -894,68 +976,68 @@ void Viewer::createAdvancedSettings(Widget* parent)
         m_process_events = true;
     });
 
-    ng::Label* meshLoading = new ng::Label(advancedPopup, "Mesh Loading Options");
+    ng::ref<ng::Label> meshLoading = new ng::Label(settingsGroup, "Mesh Loading Options");
     meshLoading->set_font_size(20);
     meshLoading->set_font("sans-bold");
 
-    ng::CheckBox* splitUdimsBox = new ng::CheckBox(advancedPopup, "Split By UDIMs");
+    ng::ref<ng::CheckBox> splitUdimsBox = new ng::CheckBox(settingsGroup, "Split By UDIMs");
     splitUdimsBox->set_checked(_splitByUdims);
     splitUdimsBox->set_callback([this](bool enable)
     {
         _splitByUdims = enable;
     });
 
-    ng::Label* materialLoading = new ng::Label(advancedPopup, "Material Loading Options");
+    ng::ref<ng::Label> materialLoading = new ng::Label(settingsGroup, "Material Loading Options");
     materialLoading->set_font_size(20);
     materialLoading->set_font("sans-bold");
 
-    ng::CheckBox* mergeMaterialsBox = new ng::CheckBox(advancedPopup, "Merge Materials");
+    ng::ref<ng::CheckBox> mergeMaterialsBox = new ng::CheckBox(settingsGroup, "Merge Materials");
     mergeMaterialsBox->set_checked(_mergeMaterials);
     mergeMaterialsBox->set_callback([this](bool enable)
     {
         _mergeMaterials = enable;
     });
 
-    ng::CheckBox* showInputsBox = new ng::CheckBox(advancedPopup, "Show All Inputs");
+    ng::ref<ng::CheckBox> showInputsBox = new ng::CheckBox(settingsGroup, "Show All Inputs");
     showInputsBox->set_checked(_showAllInputs);
     showInputsBox->set_callback([this](bool enable)
     {
         _showAllInputs = enable;
     });
 
-    ng::CheckBox* flattenBox = new ng::CheckBox(advancedPopup, "Flatten Subgraphs");
+    ng::ref<ng::CheckBox> flattenBox = new ng::CheckBox(settingsGroup, "Flatten Subgraphs");
     flattenBox->set_checked(_flattenSubgraphs);
     flattenBox->set_callback([this](bool enable)
     {
         _flattenSubgraphs = enable;
     });
 
-    ng::Label* envLoading = new ng::Label(advancedPopup, "Environment Loading Options");
+    ng::ref<ng::Label> envLoading = new ng::Label(settingsGroup, "Environment Loading Options");
     envLoading->set_font_size(20);
     envLoading->set_font("sans-bold");
 
-    ng::CheckBox* normalizeEnvBox = new ng::CheckBox(advancedPopup, "Normalize Environment");
+    ng::ref<ng::CheckBox> normalizeEnvBox = new ng::CheckBox(settingsGroup, "Normalize Environment");
     normalizeEnvBox->set_checked(_normalizeEnvironment);
     normalizeEnvBox->set_callback([this](bool enable)
     {
         _normalizeEnvironment = enable;
     });
 
-    ng::CheckBox* splitDirectLightBox = new ng::CheckBox(advancedPopup, "Split Direct Light");
+    ng::ref<ng::CheckBox> splitDirectLightBox = new ng::CheckBox(settingsGroup, "Split Direct Light");
     splitDirectLightBox->set_checked(_splitDirectLight);
     splitDirectLightBox->set_callback([this](bool enable)
     {
         _splitDirectLight = enable;
     });
 
-    ng::Label* translationLabel = new ng::Label(advancedPopup, "Translation Options (T)");
+    ng::ref<ng::Label> translationLabel = new ng::Label(settingsGroup, "Translation Options (T)");
     translationLabel->set_font_size(20);
     translationLabel->set_font("sans-bold");
 
-    ng::Widget* targetShaderGroup = new ng::Widget(advancedPopup);
+    ng::ref<ng::Widget> targetShaderGroup = new ng::Widget(settingsGroup);
     targetShaderGroup->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
     new ng::Label(targetShaderGroup, "Target Shader");
-    ng::TextBox* targetShaderBox = new ng::TextBox(targetShaderGroup, _targetShader);
+    ng::ref<ng::TextBox> targetShaderBox = new ng::TextBox(targetShaderGroup, _targetShader);
     targetShaderBox->set_callback([this](const std::string& choice)
     {
         _targetShader = choice;
@@ -964,46 +1046,46 @@ void Viewer::createAdvancedSettings(Widget* parent)
     targetShaderBox->set_font_size(16);
     targetShaderBox->set_editable(true);
 
-    ng::Label* textureLabel = new ng::Label(advancedPopup, "Texture Baking Options (B)");
+    ng::ref<ng::Label> textureLabel = new ng::Label(settingsGroup, "Texture Baking Options (B)");
     textureLabel->set_font_size(20);
     textureLabel->set_font("sans-bold");
 
-    ng::CheckBox* bakeHdrBox = new ng::CheckBox(advancedPopup, "Bake HDR Textures");
+    ng::ref<ng::CheckBox> bakeHdrBox = new ng::CheckBox(settingsGroup, "Bake HDR Textures");
     bakeHdrBox->set_checked(_bakeHdr);
     bakeHdrBox->set_callback([this](bool enable)
     {
         _bakeHdr = enable;
     });
 
-    ng::CheckBox* bakeAverageBox = new ng::CheckBox(advancedPopup, "Bake Averaged Textures");
+    ng::ref<ng::CheckBox> bakeAverageBox = new ng::CheckBox(settingsGroup, "Bake Averaged Textures");
     bakeAverageBox->set_checked(_bakeAverage);
     bakeAverageBox->set_callback([this](bool enable)
     {
         _bakeAverage = enable;
     });
 
-    ng::CheckBox* bakeOptimized = new ng::CheckBox(advancedPopup, "Optimize Baked Constants");
+    ng::ref<ng::CheckBox> bakeOptimized = new ng::CheckBox(settingsGroup, "Optimize Baked Constants");
     bakeOptimized->set_checked(_bakeOptimize);
     bakeOptimized->set_callback([this](bool enable)
     {
         _bakeOptimize = enable;
     });
 
-    ng::CheckBox* bakeDocumentPerMaterial= new ng::CheckBox(advancedPopup, "Bake Document Per Material");
+    ng::ref<ng::CheckBox> bakeDocumentPerMaterial= new ng::CheckBox(settingsGroup, "Bake Document Per Material");
     bakeDocumentPerMaterial->set_checked(_bakeDocumentPerMaterial);
     bakeDocumentPerMaterial->set_callback([this](bool enable)
     {
         _bakeDocumentPerMaterial = enable;
     });    
 
-    ng::Label* wedgeLabel = new ng::Label(advancedPopup, "Wedge Render Options (W)");
+    ng::ref<ng::Label> wedgeLabel = new ng::Label(settingsGroup, "Wedge Render Options (W)");
     wedgeLabel->set_font_size(20);
     wedgeLabel->set_font("sans-bold");
 
-    ng::Widget* wedgeNameGroup = new ng::Widget(advancedPopup);
+    ng::ref<ng::Widget> wedgeNameGroup = new ng::Widget(settingsGroup);
     wedgeNameGroup->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
     new ng::Label(wedgeNameGroup, "Property Name");
-    ng::TextBox* wedgeNameBox = new ng::TextBox(wedgeNameGroup, _wedgePropertyName);
+    ng::ref<ng::TextBox> wedgeNameBox = new ng::TextBox(wedgeNameGroup, _wedgePropertyName);
     wedgeNameBox->set_callback([this](const std::string& choice)
     {
         _wedgePropertyName = choice;
@@ -1012,12 +1094,12 @@ void Viewer::createAdvancedSettings(Widget* parent)
     wedgeNameBox->set_font_size(16);
     wedgeNameBox->set_editable(true);
 
-    ng::Widget* wedgeMinGroup = new ng::Widget(advancedPopup);
+    ng::ref<ng::Widget> wedgeMinGroup = new ng::Widget(settingsGroup);
     wedgeMinGroup->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
     mx::UIProperties wedgeProp;
     wedgeProp.uiSoftMin = mx::Value::createValue(0.0f);
     wedgeProp.uiSoftMax = mx::Value::createValue(1.0f);
-    ng::FloatBox<float>* wedgeMinBox = createFloatWidget(wedgeMinGroup, "Property Min:",
+    ng::ref<ng::FloatBox<float>> wedgeMinBox = createFloatWidget(wedgeMinGroup, "Property Min:",
         _wedgePropertyMax, &wedgeProp, [this](float value)
     {
         _wedgePropertyMin = value;
@@ -1025,9 +1107,9 @@ void Viewer::createAdvancedSettings(Widget* parent)
     wedgeMinBox->set_value(0.0);
     wedgeMinBox->set_editable(true);
 
-    ng::Widget* wedgeMaxGroup = new ng::Widget(advancedPopup);
+    ng::ref<ng::Widget> wedgeMaxGroup = new ng::Widget(settingsGroup);
     wedgeMaxGroup->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
-    ng::FloatBox<float>* wedgeMaxBox = createFloatWidget(wedgeMaxGroup, "Property Max:",
+    ng::ref<ng::FloatBox<float>> wedgeMaxBox = createFloatWidget(wedgeMaxGroup, "Property Max:",
         _wedgePropertyMax, &wedgeProp, [this](float value)
     {
         _wedgePropertyMax = value;
@@ -1035,19 +1117,21 @@ void Viewer::createAdvancedSettings(Widget* parent)
     wedgeMaxBox->set_value(1.0);
     wedgeMaxBox->set_editable(true);
 
-    ng::Widget* wedgeCountGroup = new ng::Widget(advancedPopup);
+    ng::ref<ng::Widget> wedgeCountGroup = new ng::Widget(settingsGroup);
     wedgeCountGroup->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
     mx::UIProperties wedgeCountProp;
     wedgeCountProp.uiMin = mx::Value::createValue(1);
     wedgeCountProp.uiSoftMax = mx::Value::createValue(8);
     wedgeCountProp.uiStep = mx::Value::createValue(1);
-    ng::IntBox<int>* wedgeCountBox = createIntWidget(wedgeCountGroup, "Image Count:",
+    ng::ref<ng::IntBox<int>> wedgeCountBox = createIntWidget(wedgeCountGroup, "Image Count:",
         _wedgeImageCount, &wedgeCountProp, [this](int value)
     {
         _wedgeImageCount = value;
     });
     wedgeCountBox->set_value(8);
     wedgeCountBox->set_editable(true);
+
+    createDocumentationInterface(advancedPopup);
 }
 
 void Viewer::updateGeometrySelections()
@@ -1222,8 +1306,8 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
         mx::readFromXmlFile(doc, filename, _searchPath, &readOptions);
         _materialSearchPath = mx::getSourceSearchPath(doc);
 
-        // Import libraries.
-        doc->importLibrary(libraries);
+        // Store data library reference.
+        doc->setDataLibrary(libraries);
 
         // Apply direct lights.
         applyDirectLights(doc);
@@ -1675,6 +1759,9 @@ void Viewer::initContext(mx::GenContext& context)
     unitSystem->setUnitConverterRegistry(_unitRegistry);
     context.getShaderGenerator().setUnitSystem(unitSystem);
     context.getOptions().targetDistanceUnit = "meter";
+
+    // Initialize the struct typedefs from the stdlib
+    context.getShaderGenerator().loadStructTypeDefs(_stdLib);
 }
 
 void Viewer::loadStandardLibraries()
@@ -2344,7 +2431,7 @@ void Viewer::updateCameras()
 void Viewer::updateDisplayedProperties()
 {
     _propertyEditor.updateContents(this);
-    createSaveMaterialsInterface(_propertyEditor.getWindow(), "Save Material");
+    createSaveMaterialsInterface((ng::ref<ng::Widget>) _propertyEditor.getWindow(), "Save Material");
     perform_layout();
 }
 

@@ -66,7 +66,7 @@ void mx_generalized_schlick_bsdf_transmission(vec3 V, float weight, vec3 color0,
     {
         float avgF0 = dot(safeColor0, vec3(1.0 / 3.0));
         fd.ior = vec3(mx_f0_to_ior(avgF0));
-        bsdf.response = mx_surface_transmission(N, V, X, safeAlpha, distribution, fd, safeColor0) * weight;
+        bsdf.response = mx_surface_transmission(N, V, X, safeAlpha, distribution, fd, vec3(1.0)) * weight;
     }
 }
 

@@ -147,6 +147,13 @@ class MX_CORE_API NodeDef : public InterfaceElement
     InterfaceElementPtr getImplementation(const string& target = EMPTY_STRING) const;
 
     /// @}
+    /// @name Hints
+    /// @{
+
+    /// Return list of input hint pairs of the form { input_name, hint_string }
+    StringMap getInputHints() const;
+
+    /// @}
     /// @name Validation
     /// @{
 
@@ -416,11 +423,11 @@ class MX_CORE_API TargetDef : public TypedElement
 
 /// @class Member
 /// A member element within a TypeDef.
-class MX_CORE_API Member : public TypedElement
+class MX_CORE_API Member : public ValueElement
 {
   public:
     Member(ElementPtr parent, const string& name) :
-        TypedElement(parent, CATEGORY, name)
+        ValueElement(parent, CATEGORY, name)
     {
     }
     virtual ~Member() { }
@@ -618,12 +625,7 @@ class MX_CORE_API AttributeDef : public TypedElement
     ///
     /// @return A shared pointer to the typed value of this element, or an
     ///    empty shared pointer if no value is present.
-    ValuePtr getValue() const
-    {
-        if (!hasValue())
-            return ValuePtr();
-        return Value::createValueFromStrings(getValueString(), getType());
-    }
+    ValuePtr getValue() const;
 
     /// @}
     /// @name Elements

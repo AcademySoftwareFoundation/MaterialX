@@ -125,7 +125,7 @@ class MX_GENSHADER_API GenContext
         return _closureContexts.size() ? _closureContexts.back() : nullptr;
     }
 
-    /// Push a parent node onto the stack 
+    /// Push a parent node onto the stack
     void pushParentNode(ConstNodePtr node)
     {
         _parentNodes.push_back(node);
@@ -292,7 +292,7 @@ class MX_GENSHADER_API ClosureContext
         auto it = _suffix.find(nodeType);
         return it != _suffix.end() ? it->second : EMPTY_STRING;
     }
-    [[deprecated]] const string& getSuffix(const TypeDesc* nodeType) const { return getSuffix(*nodeType);  }
+    [[deprecated]] const string& getSuffix(const TypeDesc* nodeType) const { return getSuffix(*nodeType); }
 
     /// Set extra parameters to use for evaluating a closure.
     void setClosureParams(const ShaderNode* closure, const ClosureParams* params)

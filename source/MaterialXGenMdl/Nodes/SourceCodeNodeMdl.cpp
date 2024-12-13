@@ -13,51 +13,28 @@
 #include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/Util.h>
 
+#include <MaterialXFormat/Util.h>
+
 #include <numeric>
 
 MATERIALX_NAMESPACE_BEGIN
-
-namespace // anonymous
-{
-const string MARKER_MDL_VERSION_SUFFIX = "MDL_VERSION_SUFFIX";
-
-StringVec replaceSourceCodeMarkers(const string& nodeName, const string& soureCode, std::function<string(const string&)> lambda)
-{
-    // An inline function call
-    // Replace tokens of the format "{{<var>}}"
-    static const string prefix("{{");
-    static const string postfix("}}");
-
-    size_t pos = 0;
-    size_t i = soureCode.find_first_of(prefix);
-    StringVec code;
-    while (i != string::npos)
-    {
-        code.push_back(soureCode.substr(pos, i - pos));
-        size_t j = soureCode.find_first_of(postfix, i + 2);
-        if (j == string::npos)
-        {
-            throw ExceptionShaderGenError("Malformed inline expression in implementation for node " + nodeName);
-        }
-        const string marker = soureCode.substr(i + 2, j - i - 2);
-        code.push_back(lambda(marker));
-        pos = j + 2;
-        i = soureCode.find_first_of(prefix, pos);
-    }
-    code.push_back(soureCode.substr(pos));
-    return code;
-}
-
-} // anonymous namespace
 
 ShaderNodeImplPtr SourceCodeNodeMdl::create()
 {
     return std::make_shared<SourceCodeNodeMdl>();
 }
 
+void SourceCodeNodeMdl::resolveSourceCode(const InterfaceElement& /*element*/, GenContext& /*context*/)
+{
+    // Initialize without fetching the source code from file.
+    // The resolution of MDL modules is done by the MDL compiler when loading the generated source code.
+    // All references MDL modules must be accessible via MDL search paths set up by the consuming application.
+}
+
 void SourceCodeNodeMdl::initialize(const InterfaceElement& element, GenContext& context)
 {
     SourceCodeNode::initialize(element, context);
+    const MdlSyntax& syntax = static_cast<const MdlSyntax&>(context.getShaderGenerator().getSyntax());
 
     const Implementation& impl = static_cast<const Implementation&>(element);
     NodeDefPtr nodeDef = impl.getNodeDef();
@@ -77,11 +54,10 @@ void SourceCodeNodeMdl::initialize(const InterfaceElement& element, GenContext& 
             const ShaderGenerator& shadergen = context.getShaderGenerator();
             const MdlShaderGenerator& shadergenMdl = static_cast<const MdlShaderGenerator&>(shadergen);
             const string versionSuffix = shadergenMdl.getMdlVersionFilenameSuffix(context);
-            StringVec code = replaceSourceCodeMarkers(getName(), functionName, [&versionSuffix](const string& marker)
-                {
-                    return marker == MARKER_MDL_VERSION_SUFFIX ? versionSuffix : EMPTY_STRING;
-                });
-            functionName = std::accumulate(code.begin(), code.end(), EMPTY_STRING);
+            functionName = syntax.replaceSourceCodeMarkers(getName(), functionName, [&versionSuffix, syntax](const string& marker)
+            {
+                return marker == syntax.getMdlVersionSuffixMarker() ? versionSuffix : EMPTY_STRING;
+            });
             _returnStruct = functionName + "__result";
         }
         else
@@ -103,35 +79,36 @@ void SourceCodeNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& con
         const MdlShaderGenerator& shadergenMdl = static_cast<const MdlShaderGenerator&>(shadergen);
         if (_inlined)
         {
+            const MdlSyntax& syntax = static_cast<const MdlSyntax&>(shadergenMdl.getSyntax());
             const string versionSuffix = shadergenMdl.getMdlVersionFilenameSuffix(context);
-            StringVec code = replaceSourceCodeMarkers(node.getName(), _functionSource,
-                [&shadergenMdl, &context, &node, &versionSuffix](const string& marker)
+            string code = syntax.replaceSourceCodeMarkers(node.getName(), _functionSource,
+                                                             [&shadergenMdl, &context, &node, &versionSuffix, syntax](const string& marker)
+            {
+                // Special handling for the version suffix of MDL source code modules.
+                if (marker == syntax.getMdlVersionSuffixMarker())
                 {
-                    // Special handling for the version suffix of MDL source code modules.
-                    if (marker == MARKER_MDL_VERSION_SUFFIX)
+                    return versionSuffix;
+                }
+                // Insert inputs based on parameter names.
+                else
+                {
+                    const ShaderInput* input = node.getInput(marker);
+                    if (!input)
                     {
-                        return versionSuffix;
+                        throw ExceptionShaderGenError("Could not find an input named '" + marker +
+                                                      "' on node '" + node.getName() + "'");
                     }
-                    // Insert inputs based on parameter names.
-                    else
-                    {
-                        const ShaderInput* input = node.getInput(marker);
-                        if (!input)
-                        {
-                            throw ExceptionShaderGenError("Could not find an input named '" + marker +
-                                                          "' on node '" + node.getName() + "'");
-                        }
 
-                        return shadergenMdl.getUpstreamResult(input, context);
-                    }
-                });
+                    return shadergenMdl.getUpstreamResult(input, context);
+                }
+            });
 
             if (!_returnStruct.empty())
             {
                 // Emit the struct multioutput.
                 const string resultVariableName = node.getName() + "_result";
                 shadergen.emitLineBegin(stage);
-                shadergen.emitString(_returnStruct + " " + resultVariableName + " = ", stage);
+                shadergen.emitString("auto " + resultVariableName + " = ", stage);
             }
             else
             {
@@ -141,10 +118,7 @@ void SourceCodeNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& con
                 shadergen.emitString(" = ", stage);
             }
 
-            for (const string& c : code)
-            {
-                shadergen.emitString(c, stage);
-            }
+            shadergen.emitString(code, stage);
             shadergen.emitLineEnd(stage);
         }
         else
@@ -156,7 +130,7 @@ void SourceCodeNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& con
                 // Emit the struct multioutput.
                 const string resultVariableName = node.getName() + "_result";
                 shadergen.emitLineBegin(stage);
-                shadergen.emitString(_returnStruct + " " + resultVariableName + " = ", stage);
+                shadergen.emitString("auto " + resultVariableName + " = ", stage);
             }
             else
             {

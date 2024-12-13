@@ -16,6 +16,10 @@ MATERIALX_NAMESPACE_BEGIN
 
 const string StringConstantsMdl::TOP = "top";
 const string StringConstantsMdl::BASE = "base";
+const string StringConstantsMdl::FG = "fg";
+const string StringConstantsMdl::BG = "bg";
+const string StringConstantsMdl::MIX = "mix";
+const string StringConstantsMdl::TOP_WEIGHT = "top_weight";
 
 ShaderNodeImplPtr ClosureLayerNodeMdl::create()
 {
@@ -69,8 +73,9 @@ void ClosureLayerNodeMdl::emitFunctionCall(const ShaderNode& _node, GenContext& 
 
         // Join the BSDF and VDF into a single material.
         shadergen.emitLine("material " + output->getVariable() +
-                           " = material(surface: " + t + ".surface, backface: " + t +
-                           ".backface, ior: " + t + ".ior, volume: " + b + ".volume)", stage);
+                               " = material(surface: " + t + ".surface, backface: " + t +
+                               ".backface, ior: " + t + ".ior, volume: " + b + ".volume)",
+                           stage);
 
         return;
     }
@@ -100,6 +105,7 @@ void ClosureLayerNodeMdl::emitFunctionCall(const ShaderNode& _node, GenContext& 
 
     // Transport the base bsdf further than one layer
     ShaderNode* baseReceiverNode = top;
+    ShaderNode* mixTopWeightNode = nullptr;
     while (true)
     {
         // If the top node is again a layer, we don't want to override the base
@@ -110,6 +116,26 @@ void ClosureLayerNodeMdl::emitFunctionCall(const ShaderNode& _node, GenContext& 
         }
         else
         {
+            // TODO is there a more efficient way to check if the node is a mix_bsdf?
+            std::string name = top->getImplementation().getName();
+            if (name == "IM_mix_bsdf_genmdl")
+            {
+                // handle one special case: the top node is a mix where either fg or bg is empty
+                // so basically a scale factor
+                ShaderOutput* fgOutput = top->getInput(StringConstantsMdl::FG)->getConnection();
+                ShaderOutput* bgOutput = top->getInput(StringConstantsMdl::BG)->getConnection();
+                ShaderOutput* mixOutput = top->getInput(StringConstantsMdl::MIX)->getConnection();
+                ShaderNode* fg = fgOutput ? fgOutput->getNode() : nullptr;
+                ShaderNode* bg = bgOutput ? bgOutput->getNode() : nullptr;
+                ShaderNode* mix = mixOutput ? mixOutput->getNode() : nullptr;
+                if ((bool) fg != (bool) bg)
+                {
+                    baseReceiverNode = fg ? fg : bg; // take the node that is valid
+                    top = baseReceiverNode;
+                    mixTopWeightNode = mix;
+                }
+                break;
+            }
             // we stop at elemental bsdfs
             // TODO handle mix, add, and multiply
             break;
@@ -149,6 +175,11 @@ void ClosureLayerNodeMdl::emitFunctionCall(const ShaderNode& _node, GenContext& 
     // base BSDF connection and output variable name from the
     // layer operator itself.
     topNodeBaseInput->makeConnection(base->getOutput());
+    if (mixTopWeightNode)
+    {
+        ShaderInput* topNodeTopWeightInput = baseReceiverNode->getInput(StringConstantsMdl::TOP_WEIGHT);
+        topNodeTopWeightInput->makeConnection(mixTopWeightNode->getOutput());
+    }
     ScopedSetVariableName setVariable(output->getVariable(), top->getOutput());
 
     // Make the call.
@@ -170,6 +201,21 @@ void LayerableNodeMdl::addInputs(ShaderNode& node, GenContext& /*context*/) cons
 {
     // Add the input to hold base layer BSDF.
     node.addInput(StringConstantsMdl::BASE, Type::BSDF);
+
+    // Set the top level weight default to 1.0
+    ShaderInput* topWeightNode = node.addInput(StringConstantsMdl::TOP_WEIGHT, Type::FLOAT);
+    ValuePtr value = TypedValue<float>::createValue(1.0f);
+    topWeightNode->setValue(value);
+}
+
+bool LayerableNodeMdl::isEditable(const ShaderInput& input) const
+{
+    if (input.getName() == StringConstantsMdl::BASE ||
+        input.getName() == StringConstantsMdl::TOP_WEIGHT)
+    {
+        return false;
+    }
+    return BASE::isEditable(input);
 }
 
 MATERIALX_NAMESPACE_END

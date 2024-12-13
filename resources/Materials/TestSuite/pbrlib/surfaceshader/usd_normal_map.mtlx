@@ -14,7 +14,6 @@
   </convert>
   <normalmap name="N_normalmap" type="vector3">
     <input name="in" type="vector3" nodename="N_convert" />
-    <input name="space" type="string" value="object" />
   </normalmap>
   <UsdPreviewSurface name="N_surface" type="surfaceshader">
     <input name="normal" type="vector3" nodename="N_normalmap" />

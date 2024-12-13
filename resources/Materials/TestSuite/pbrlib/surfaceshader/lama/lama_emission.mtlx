@@ -3,7 +3,7 @@
 
   <!-- LamaEmission -->
   <LamaEmission name="LamaEmission" type="EDF">
-    <input name="color" type="color3" value="0.0, 1.0, 0.0" />
+    <input name="color" type="color3" value="0.0, 0.0, 0.0" />
   </LamaEmission>
   <surface name="LamaEmissionSurface" type="surfaceshader">
     <input name="edf" type="EDF" nodename="LamaEmission" />

@@ -74,7 +74,4 @@ This folder contains the standard data libraries for MaterialX, providing declar
 - Basic GLSL and MSL `lightshader` node definitions and implementations are provided for the following light types:
     - point, directional, spot
 - Shader generation does not currently support:
-    - `ambientocclusion` node.
-    - `arrayappend` node.
-    - `curveadjust` node.
     - `displacementshader` and `volumeshader` nodes for hardware shading targets (GLSL, MSL).

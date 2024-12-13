@@ -71,6 +71,8 @@ using ElementMap = std::unordered_map<string, ElementPtr>;
 /// A standard function taking an ElementPtr and returning a boolean.
 using ElementPredicate = std::function<bool(ConstElementPtr)>;
 
+class ElementEquivalenceOptions;
+
 /// @class Element
 /// The base class for MaterialX elements.
 ///
@@ -435,11 +437,7 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     /// Return the child element, if any, with the given name and subclass.
     /// If a child with the given name exists, but belongs to a different
     /// subclass, then an empty shared pointer is returned.
-    template <class T> shared_ptr<T> getChildOfType(const string& name) const
-    {
-        ElementPtr child = getChild(name);
-        return child ? child->asA<T>() : shared_ptr<T>();
-    }
+    template <class T> shared_ptr<T> getChildOfType(const string& name) const;
 
     /// Return a constant vector of all child elements.
     /// The returned vector maintains the order in which children were added.
@@ -451,20 +449,7 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     /// Return a vector of all child elements that are instances of the given
     /// subclass, optionally filtered by the given category string.  The returned
     /// vector maintains the order in which children were added.
-    template <class T> vector<shared_ptr<T>> getChildrenOfType(const string& category = EMPTY_STRING) const
-    {
-        vector<shared_ptr<T>> children;
-        for (ElementPtr child : _childOrder)
-        {
-            shared_ptr<T> instance = child->asA<T>();
-            if (!instance)
-                continue;
-            if (!category.empty() && child->getCategory() != category)
-                continue;
-            children.push_back(instance);
-        }
-        return children;
-    }
+    template <class T> vector<shared_ptr<T>> getChildrenOfType(const string& category = EMPTY_STRING) const;
 
     /// Set the index of the child, if any, with the given name.
     /// If the given index is out of bounds, then an exception is thrown.
@@ -611,6 +596,31 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
         }
         return nullptr;
     }
+
+    /// @}
+    /// @name Functional Equivalence
+    /// @{
+
+    /// Return true if the given element tree, including all descendents,
+    /// is considered to be equivalent to this one based on the equivalence
+    /// criteria provided.
+    /// @param rhs Element to compare against
+    /// @param options Equivalence criteria
+    /// @param message Optional text description of differences
+    /// @return True if the elements are equivalent. False otherwise.
+    bool isEquivalent(ConstElementPtr rhs, const ElementEquivalenceOptions& options,
+                      string* message = nullptr) const;
+
+    /// Return true if the attribute on a given element is equivalent
+    /// based on the equivalence criteria provided.
+    /// @param rhs Element to compare against
+    /// @param attributeName Name of attribute to compare
+    /// @param options Equivalence criteria
+    /// @param message Optional text description of differences
+    /// @return True if the attribute on the elements are equivalent. False otherwise.
+    virtual bool isAttributeEquivalent(ConstElementPtr rhs, const string& attributeName,
+                                       const ElementEquivalenceOptions& options, 
+                                       string* message = nullptr) const;
 
     /// @}
     /// @name Traversal
@@ -1025,12 +1035,7 @@ class MX_CORE_API ValueElement : public TypedElement
     ///
     /// @return A shared pointer to the typed value of this element, or an
     ///    empty shared pointer if no value is present.
-    ValuePtr getValue() const
-    {
-        if (!hasValue())
-            return ValuePtr();
-        return Value::createValueFromStrings(getValueString(), getType());
-    }
+    ValuePtr getValue() const;
 
     /// Return the resolved value of an element as a generic value object, which
     /// may be queried to access its data.
@@ -1040,12 +1045,7 @@ class MX_CORE_API ValueElement : public TypedElement
     ///    will be created at this scope and applied to the return value.
     /// @return A shared pointer to the typed value of this element, or an
     ///    empty shared pointer if no value is present.
-    ValuePtr getResolvedValue(StringResolverPtr resolver = nullptr) const
-    {
-        if (!hasValue())
-            return ValuePtr();
-        return Value::createValueFromStrings(getResolvedValueString(resolver), getType());
-    }
+    ValuePtr getResolvedValue(StringResolverPtr resolver = nullptr) const;
 
     /// Return the default value for this element as a generic value object, which
     /// may be queried to access its data.
@@ -1113,6 +1113,21 @@ class MX_CORE_API ValueElement : public TypedElement
     {
         return getTypedAttribute<bool>(UNIFORM_ATTRIBUTE);
     }
+
+    /// @}
+    /// @name Functional Equivalence
+    /// @{
+
+    /// Return true if the attribute on a given element is equivalent
+    /// based on the equivalence criteria provided.
+    /// @param rhs Element to compare against
+    /// @param attributeName Name of attribute to compare
+    /// @param options Equivalence criteria
+    /// @param message Optional text description of differences
+    /// @return True if the attribute on the elements are equivalent. False otherwise.
+    bool isAttributeEquivalent(ConstElementPtr rhs, const string& attributeName,
+                               const ElementEquivalenceOptions& options, 
+                               string* message = nullptr) const override;
 
     /// @}
     /// @name Validation
@@ -1334,6 +1349,42 @@ class MX_CORE_API StringResolver
     string _geomPrefix;
     StringMap _filenameMap;
     StringMap _geomNameMap;
+};
+
+/// @class ElementEquivalenceOptions
+/// A set of options for comparing the functional equivalence of elements.
+class MX_CORE_API ElementEquivalenceOptions
+{
+  public:
+    ElementEquivalenceOptions()
+    {
+        performValueComparisons = true;
+        floatFormat = Value::getFloatFormat();
+        floatPrecision = Value::getFloatPrecision();
+        attributeExclusionList = {};
+    };
+    ~ElementEquivalenceOptions() { }
+
+    /// Perform value comparisons as opposed to literal string comparisons.
+    /// Default is true.
+    bool performValueComparisons;
+
+    /// Floating point format to use for floating point value comparisons
+    Value::FloatFormat floatFormat;
+
+    /// Floating point precision to use for floating point value comparisons
+    int floatPrecision;
+
+    /// Specifies the set of attributes that should be excluded when performing a comparison. 
+    /// By default all attributes are considered. Name and category attributes cannot be excluded.
+    /// 
+    /// For example, to exclude UI and documentation attributes from consideration the follow may be set:
+    /// attributeExclusionList = {
+    ///     ValueElement::UI_MIN_ATTRIBUTE, ValueElement::UI_MAX_ATTRIBUTE,
+    ///     ValueElement::UI_SOFT_MIN_ATTRIBUTE, ValueElement::UI_SOFT_MAX_ATTRIBUTE,
+    ///     ValueElement::UI_STEP_ATTRIBUTE, Element::XPOS_ATTRIBUTE, 
+    ///     Element::YPOS_ATTRIBUTE, Element::DOC_ATTRIBUTE };
+    StringSet attributeExclusionList;
 };
 
 /// @class ExceptionOrphanedElement

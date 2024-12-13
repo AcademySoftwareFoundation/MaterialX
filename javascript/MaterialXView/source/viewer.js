@@ -90,14 +90,14 @@ export class Scene
         }
 
         this.#_rootNode = null;
-        const model = gltfData.scene;
+        let model = gltfData.scene;
         if (!model)
         {
             const geometry = new THREE.BoxGeometry(1, 1, 1);
             const material = new THREE.MeshBasicMaterial({ color: 0xdddddd });
             const cube = new THREE.Mesh(geometry, material);
-            obj = new Group();
-            obj.add(geometry);
+            model = new Group();
+            model.add(cube);
         }
         else
         {
@@ -221,9 +221,14 @@ export class Scene
         orbitControls.update();
     }
 
-    setUpdateTransforms()
+    setUpdateTransforms(val=true)
     {
-        this.#_updateTransforms = true;
+        this.#_updateTransforms = val;
+    }
+
+    getUpdateTransforms()
+    {
+        return this.#_updateTransforms;
     }
 
     updateTransforms()
@@ -235,7 +240,7 @@ export class Scene
         {
             return;
         }
-        this.#_updateTransforms = false;
+        this.setUpdateTransforms(false);
 
         const scene = this.getScene();
         const camera = this.getCamera();
@@ -601,7 +606,7 @@ export class Material
         // Re-initialize document
         var startDocTime = performance.now();
         var doc = mx.createDocument();
-        doc.importLibrary(viewer.getLibrary());
+        doc.setDataLibrary(viewer.getLibrary());
         viewer.setDocument(doc);
 
         const fileloader = viewer.getFileLoader();
@@ -622,7 +627,12 @@ export class Material
 
         // Load material
         if (mtlxMaterial)
-            await mx.readFromXmlString(doc, mtlxMaterial, searchPath);
+            try {                
+                await mx.readFromXmlString(doc, mtlxMaterial, searchPath);
+            }
+            catch (error) {
+                console.log('Error loading material file: ', error);
+            }
         else
             Material.createFallbackMaterial(doc);
 
@@ -1481,7 +1491,7 @@ export class Viewer
 
         this.document = this.mx.createDocument();
         this.stdlib = this.mx.loadStandardLibraries(this.genContext);
-        this.document.importLibrary(this.stdlib);
+        this.document.setDataLibrary(this.stdlib);
 
         this.initializeLighting(renderer, radianceTexture, irradianceTexture, lightRigXml);
 

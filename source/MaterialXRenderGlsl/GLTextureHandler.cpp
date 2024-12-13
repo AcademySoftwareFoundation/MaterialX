@@ -53,7 +53,7 @@ bool GLTextureHandler::bindImage(ImagePtr image, const ImageSamplingProperties& 
     {
         std::cerr << "Exceeded maximum number of bound textures in GLTextureHandler::bindImage" << std::endl;
         return false;
-    }      
+    }
     _boundTextureLocations[textureUnit] = image->getResourceId();
 
     glActiveTexture(GL_TEXTURE0 + textureUnit);
@@ -116,10 +116,10 @@ bool GLTextureHandler::createRenderResources(ImagePtr image, bool generateMipMap
 
     int glType, glFormat, glInternalFormat;
     mapTextureFormatToGL(image->getBaseType(), image->getChannelCount(), false,
-        glType, glFormat, glInternalFormat);
+                         glType, glFormat, glInternalFormat);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glTexImage2D(GL_TEXTURE_2D, 0, glInternalFormat, image->getWidth(), image->getHeight(),
-        0, glFormat, glType, image->getResourceBuffer());
+                 0, glFormat, glType, image->getResourceBuffer());
     if (image->getChannelCount() == 1)
     {
         GLint swizzleMask[] = { GL_RED, GL_RED, GL_RED, GL_ONE };
@@ -134,7 +134,7 @@ bool GLTextureHandler::createRenderResources(ImagePtr image, bool generateMipMap
 
     return true;
 }
-    
+
 void GLTextureHandler::releaseRenderResources(ImagePtr image)
 {
     if (!image)

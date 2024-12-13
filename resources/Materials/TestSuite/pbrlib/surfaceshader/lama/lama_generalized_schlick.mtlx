@@ -11,7 +11,7 @@
     <input name="reflectivity90" type="color3" value="1.0, 1.0, 1.0" />
     <input name="reflectivityProfile" type="float" value="0.2" />
     <input name="roughness" type="float" value="0.1" />
-    <input name="anisotropy" type="float" value="0.0" />
+    <input name="anisotropy" type="float" value="-1.0" />
     <input name="anisotropyRotation" type="float" value="0.0" />
     <input name="absorptionColor" type="color3" value="1.0, 1.0, 1.0" />
     <input name="absorptionRadius" type="float" value="1.0" />

@@ -6,7 +6,7 @@ if(POLICY CMP0072)
 endif()
 
 if(APPLE)
-    if(NOT MATERIALX_BUILD_IOS)
+    if(NOT MATERIALX_BUILD_APPLE_EMBEDDED)
         find_library(COCOA_FRAMEWORK Cocoa)
         find_package(OpenGL REQUIRED)
     endif()
@@ -26,7 +26,7 @@ mx_add_library(MaterialXRenderMsl
         ${materialx_source}
     HEADER_FILES
         ${materialx_headers}
-    LIBRARIES
+    MTLX_MODULES
         MaterialXRenderHw
         MaterialXGenMsl
     EXPORT_DEFINE
@@ -46,23 +46,24 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 if(MSVC)
-    target_link_libraries(
-            ${TARGET_NAME}
+    target_link_libraries(${TARGET_NAME}
+            PUBLIC
             Opengl32)
 elseif(APPLE)
-    if(NOT MATERIALX_BUILD_IOS)
-        target_link_libraries(
-                ${TARGET_NAME}
+    if(NOT MATERIALX_BUILD_APPLE_EMBEDDED)
+        target_link_libraries(${TARGET_NAME}
+                PUBLIC
                 "-framework Cocoa"
                 "-framework OpenGL")
     endif()
-    target_link_libraries(
-            ${TARGET_NAME}
+    target_link_libraries(${TARGET_NAME}
+            PUBLIC
             "-framework Foundation"
-            "-framework Metal")
+            "-framework Metal"
+            "-framework MetalPerformanceShaders")
 elseif(UNIX)
-    target_link_libraries(
-            ${TARGET_NAME}
+    target_link_libraries(${TARGET_NAME}
+            PUBLIC
             OpenGL::GL
             X11::X11
             X11::Xt)

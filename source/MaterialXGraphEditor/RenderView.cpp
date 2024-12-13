@@ -108,6 +108,7 @@ void RenderView::setDocument(mx::DocumentPtr document)
 }
 
 RenderView::RenderView(mx::DocumentPtr doc,
+                       mx::DocumentPtr stdLib,
                        const std::string& meshFilename,
                        const std::string& envRadianceFilename,
                        const mx::FileSearchPath& searchPath,
@@ -162,6 +163,7 @@ RenderView::RenderView(mx::DocumentPtr doc,
     _genContext.getOptions().shaderInterfaceType = mx::SHADER_INTERFACE_COMPLETE;
 
     setDocument(doc);
+    _stdLib = stdLib;
 }
 
 void RenderView::initialize()
@@ -212,18 +214,6 @@ void RenderView::assignMaterial(mx::MeshPartitionPtr geometry, mx::GlslMaterialP
     {
         _materialAssignments.erase(geometry);
     }
-}
-
-mx::ElementPredicate RenderView::getElementPredicate()
-{
-    return [this](mx::ConstElementPtr elem)
-    {
-        if (elem->hasSourceUri())
-        {
-            return (_xincludeFiles.count(elem->getSourceUri()) == 0);
-        }
-        return true;
-        };
 }
 
 void RenderView::updateGeometrySelections()
@@ -630,6 +620,9 @@ void RenderView::initContext(mx::GenContext& context)
     unitSystem->setUnitConverterRegistry(_unitRegistry);
     context.getShaderGenerator().setUnitSystem(unitSystem);
     context.getOptions().targetDistanceUnit = "meter";
+
+    // Register struct type definitions
+    context.getShaderGenerator().loadStructTypeDefs(_document);
 }
 
 void RenderView::drawContents()
@@ -932,7 +925,7 @@ mx::ImagePtr RenderView::getShadowMap()
         {
             try
             {
-                mx::ShaderPtr hwShader = mx::createDepthShader(_genContext, _document, "__SHADOW_SHADER__");
+                mx::ShaderPtr hwShader = mx::createDepthShader(_genContext, _stdLib, "__SHADOW_SHADER__");
                 _shadowMaterial = mx::GlslMaterial::create();
                 _shadowMaterial->generateShader(hwShader);
             }
@@ -946,7 +939,7 @@ mx::ImagePtr RenderView::getShadowMap()
         {
             try
             {
-                mx::ShaderPtr hwShader = mx::createBlurShader(_genContext, _document, "__SHADOW_BLUR_SHADER__", "gaussian", 1.0f);
+                mx::ShaderPtr hwShader = mx::createBlurShader(_genContext, _stdLib, "__SHADOW_BLUR_SHADER__", "gaussian", 1.0f);
                 _shadowBlurMaterial = mx::GlslMaterial::create();
                 _shadowBlurMaterial->generateShader(hwShader);
             }

@@ -20,6 +20,10 @@ const string InterfaceElement::TARGET_ATTRIBUTE = "target";
 const string InterfaceElement::VERSION_ATTRIBUTE = "version";
 const string InterfaceElement::DEFAULT_VERSION_ATTRIBUTE = "isdefaultversion";
 const string Input::DEFAULT_GEOM_PROP_ATTRIBUTE = "defaultgeomprop";
+const string Input::HINT_ATTRIBUTE = "hint";
+const string Input::TRANSPARENCY_HINT = "transparency";
+const string Input::OPACITY_HINT = "opacity";
+const string Input::ANISOTROPY_HINT = "anisotropy";
 const string Output::DEFAULT_INPUT_ATTRIBUTE = "defaultinput";
 
 //
@@ -291,7 +295,7 @@ bool Input::validate(string* message) const
 
     if (hasDefaultGeomPropString())
     {
-        validateRequire(parent->isA<NodeDef>(), res, message, "Invalid defaultgeomprop on non-definition input");
+        validateRequire(parent->isA<NodeDef>() || parent->isA<NodeGraph>(), res, message, "Invalid defaultgeomprop on non-definition and non-nodegraph input");
         validateRequire(getDefaultGeomProp() != nullptr, res, message, "Invalid defaultgeomprop string");
     }
     if (parent->isA<Node>())

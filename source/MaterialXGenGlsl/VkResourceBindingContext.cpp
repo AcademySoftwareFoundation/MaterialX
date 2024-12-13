@@ -140,7 +140,7 @@ void VkResourceBindingContext::emitStructuredResourceBindings(GenContext& contex
     // Sort order from largest to smallest
     std::sort(memberOrder.begin(), memberOrder.end(),
               [](const std::pair<size_t, size_t>& a, const std::pair<size_t, size_t>& b)
-              {
+    {
         return a.first > b.first;
     });
 

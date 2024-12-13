@@ -45,13 +45,13 @@ class MX_RENDERMSL_API MslRenderer : public ShaderRenderer
   public:
     /// Create a MSL renderer instance
     static MslRendererPtr create(unsigned int width = 512, unsigned int height = 512, Image::BaseType baseType = Image::BaseType::UINT8);
-    
+
     /// Create a texture handler for Metal textures
     ImageHandlerPtr createImageHandler(ImageLoaderPtr imageLoader)
     {
         return MetalTextureHandler::create(_device, imageLoader);
     }
-    
+
     /// Returns Metal Device used for rendering
     id<MTLDevice> getMetalDevice() const;
 
@@ -84,13 +84,13 @@ class MX_RENDERMSL_API MslRenderer : public ShaderRenderer
 
     /// Update the program with value of the uniform.
     void updateUniform(const string& name, ConstValuePtr value) override;
-    
+
     /// Set the size of the rendered image
     void setSize(unsigned int width, unsigned int height) override;
 
     /// Render the current program to an offscreen buffer.
     void render() override;
-    
+
     /// Render the current program in texture space to an off-screen buffer.
     void renderTextureSpace(const Vector2& uvMin, const Vector2& uvMax);
 
@@ -126,23 +126,23 @@ class MX_RENDERMSL_API MslRenderer : public ShaderRenderer
     }
 
     /// @}
-    
+
   protected:
     MslRenderer(unsigned int width, unsigned int height, Image::BaseType baseType);
-    
+
     void triggerProgrammaticCapture();
     void stopProgrammaticCapture();
-    
-    void createFrameBuffer(bool encodeSrgb);
-    
-  private:
-    MslProgramPtr        _program;
 
-    id<MTLDevice>        _device = nil;
-    id<MTLCommandQueue>  _cmdQueue = nil;
+    void createFrameBuffer(bool encodeSrgb);
+
+  private:
+    MslProgramPtr _program;
+
+    id<MTLDevice> _device = nil;
+    id<MTLCommandQueue> _cmdQueue = nil;
     id<MTLCommandBuffer> _cmdBuffer = nil;
-    
-    MetalFramebufferPtr  _framebuffer;
+
+    MetalFramebufferPtr _framebuffer;
 
     bool _initialized;
 
