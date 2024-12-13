@@ -280,7 +280,7 @@ XmlReadOptions::XmlReadOptions() :
 //
 
 XmlWriteOptions::XmlWriteOptions() :
-    writeXIncludeEnable(true)
+    writeXIncludeEnable(true), createDirectories(false)
 {
 }
 
@@ -355,6 +355,13 @@ void writeToXmlStream(DocumentPtr doc, std::ostream& stream, const XmlWriteOptio
 
 void writeToXmlFile(DocumentPtr doc, const FilePath& filename, const XmlWriteOptions* writeOptions)
 {
+    if (writeOptions->createDirectories)
+    {
+        if (!filename.getParentPath().isDirectory())
+        {
+            filename.getParentPath().createDirectory();
+        }
+    }
     std::ofstream ofs(filename.asString());
     writeToXmlStream(doc, ofs, writeOptions);
 }
