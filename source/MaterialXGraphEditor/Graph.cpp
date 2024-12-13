@@ -4060,14 +4060,13 @@ void Graph::drawGraph(ImVec2 mousePos)
         
         // shift + C is pressed
         // build nodegraph from selected nodes
-        
         if (ImGui::IsKeyReleased(ImGuiKey_C) && 
             io2.KeyShift && 
             !io2.KeyCtrl && 
             _currUiNode != nullptr &&
             !readOnly()) 
         {
-             // cut nodes
+            // cut nodes
             _copiedNodes.clear();
 
             // since we can't have a node graph inside a node graph
@@ -4097,7 +4096,6 @@ void Graph::drawGraph(ImVec2 mousePos)
                                                                 nullptr));                                      
                     }
                 }
-
             }
 
             // delete nodes we just copied
@@ -4119,7 +4117,6 @@ void Graph::drawGraph(ImVec2 mousePos)
                 // dive inside
                 if (_currUiNode->getNodeGraph() != nullptr)
                 {
-                
                     savePosition();
                     _graphStack.push(_graphNodes);
                     _pinStack.push(_currPins);
