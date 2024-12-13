@@ -4058,23 +4058,19 @@ void Graph::drawGraph(ImVec2 mousePos)
             }
         }
         
-        // shift + C is pressed
-        // build nodegraph from selected nodes
+        // Build a nodegraph from the selected nodes.
         if (ImGui::IsKeyReleased(ImGuiKey_C) && 
             io2.KeyShift && 
             !io2.KeyCtrl && 
             _currUiNode != nullptr &&
             !readOnly()) 
         {
-            // cut nodes
+            // Cut nodes
             _copiedNodes.clear();
 
-            // since we can't have a node graph inside a node graph
-            // we check if we are already inside one or if
-            // any of the selected nodes is a nodegraph
-                
-            bool isNodeGraph = _currUiNode->getNode() == nullptr;
-            isNodeGraph |= _isNodeGraph;
+            // Since we can't have a node graph inside a node graph, we check if we are already
+            // inside one or if any of the selected nodes is a nodegraph.
+            bool isNodeGraph = !_currUiNode->getNode() || _isNodeGraph;
             if (!isNodeGraph)
             {
                 isNodeGraph |= _currUiNode->getNode()->getImplementation()->isA<mx::NodeGraph>();
@@ -4092,13 +4088,12 @@ void Graph::drawGraph(ImVec2 mousePos)
                         }
                         
                         _copiedNodes.insert(
-                                std::pair<UiNodePtr, UiNodePtr>(_graphNodes[pos], 
-                                                                nullptr));                                      
+                                std::pair<UiNodePtr, UiNodePtr>(_graphNodes[pos], nullptr));                                      
                     }
                 }
             }
 
-            // delete nodes we just copied
+            // Delete nodes we just copied
             if (!_copiedNodes.empty() && !isNodeGraph)
             {
                 for (std::map<UiNodePtr, UiNodePtr>::iterator iter = _copiedNodes.begin(); iter != _copiedNodes.end(); iter++)
@@ -4107,14 +4102,14 @@ void Graph::drawGraph(ImVec2 mousePos)
                     deleteNode(node);
                 }
         
-                // create subgraph
+                // Create subgraph
                 UiNodePtr nodegraphnodeptr = addNode("nodegraph", "", "");
                             
                 _currUiNode = nodegraphnodeptr;
 
                 ed::SetNodePosition(_currUiNode->getId(), mousePos);                
 
-                // dive inside
+                // Dive inside
                 if (_currUiNode->getNodeGraph() != nullptr)
                 {
                     savePosition();
@@ -4134,7 +4129,7 @@ void Graph::drawGraph(ImVec2 mousePos)
                     ed::NavigateToContent();
                 }
             
-                // paste                                
+                // Paste                                
                 for (std::map<UiNodePtr, UiNodePtr>::iterator iter = _copiedNodes.begin(); iter != _copiedNodes.end(); iter++)
                 {
                     copyUiNode(iter->first);
@@ -4143,7 +4138,6 @@ void Graph::drawGraph(ImVec2 mousePos)
             }
 
             _copiedNodes.clear();
-            
         }
                         
 
