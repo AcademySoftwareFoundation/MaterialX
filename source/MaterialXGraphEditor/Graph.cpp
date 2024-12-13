@@ -4075,12 +4075,9 @@ void Graph::drawGraph(ImVec2 mousePos)
             // any of the selected nodes is a nodegraph
                 
             bool isNodeGraph = _currUiNode->getNode() == nullptr;
-
             isNodeGraph |= _isNodeGraph;
-            
             if (!isNodeGraph)
             {
-
                 isNodeGraph |= _currUiNode->getNode()->getImplementation()->isA<mx::NodeGraph>();
             
                 for (ed::NodeId selected : selectedNodes)
@@ -4104,11 +4101,8 @@ void Graph::drawGraph(ImVec2 mousePos)
             }
 
             // delete nodes we just copied
-
             if (!_copiedNodes.empty() && !isNodeGraph)
-
             {
-            
                 for (std::map<UiNodePtr, UiNodePtr>::iterator iter = _copiedNodes.begin(); iter != _copiedNodes.end(); iter++)
                 {
                     UiNodePtr node = iter->first;
@@ -4116,7 +4110,6 @@ void Graph::drawGraph(ImVec2 mousePos)
                 }
         
                 // create subgraph
-            
                 UiNodePtr nodegraphnodeptr = addNode("nodegraph", "", "");
                             
                 _currUiNode = nodegraphnodeptr;
@@ -4124,7 +4117,6 @@ void Graph::drawGraph(ImVec2 mousePos)
                 ed::SetNodePosition(_currUiNode->getId(), mousePos);                
 
                 // dive inside
-            
                 if (_currUiNode->getNodeGraph() != nullptr)
                 {
                 
@@ -4146,7 +4138,6 @@ void Graph::drawGraph(ImVec2 mousePos)
                 }
             
                 // paste                                
-            
                 for (std::map<UiNodePtr, UiNodePtr>::iterator iter = _copiedNodes.begin(); iter != _copiedNodes.end(); iter++)
                 {
                     copyUiNode(iter->first);
