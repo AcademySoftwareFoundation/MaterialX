@@ -145,7 +145,7 @@ TYPEDESC_REGISTER_TYPE(MATERIAL, "material")
 // StructTypeDesc methods
 //
 
-void StructTypeDesc::addMember(const string& name, TypeDesc type, string defaultValueStr)
+void StructTypeDesc::addMember(const string& name, TypeDesc type, const string& defaultValueStr)
 {
     _members.emplace_back(StructTypeDesc::StructMemberTypeDesc(name, type, defaultValueStr));
 }

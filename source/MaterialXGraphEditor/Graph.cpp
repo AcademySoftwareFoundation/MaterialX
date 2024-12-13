@@ -171,7 +171,7 @@ Graph::Graph(const std::string& materialFilename,
     // Create a renderer using the initial startup document.
     mx::FilePath captureFilename = "resources/Materials/Examples/example.png";
     std::string envRadianceFilename = "resources/Lights/san_giuseppe_bridge_split.hdr";
-    _renderer = std::make_shared<RenderView>(_graphDoc, meshFilename, envRadianceFilename,
+    _renderer = std::make_shared<RenderView>(_graphDoc, _stdLib, meshFilename, envRadianceFilename,
                                              _searchPath, viewWidth, viewHeight);
     _renderer->initialize();
     for (const std::string& ext : _renderer->getImageHandler()->supportedExtensions())
@@ -249,7 +249,7 @@ mx::DocumentPtr Graph::loadDocument(const mx::FilePath& filename)
         if (!filename.isEmpty())
         {
             mx::readFromXmlFile(doc, filename, _searchPath, &readOptions);
-            doc->importLibrary(_stdLib);
+            doc->setDataLibrary(_stdLib);
             std::string message;
             if (!doc->validate(&message))
             {
@@ -926,7 +926,8 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         if (val && val->isA<float>())
         {
             // Update the value to the default for new nodes
-            float prev = val->asA<float>(), temp = val->asA<float>();
+            float prev, temp;
+            prev = temp = val->asA<float>();
             float min = minVal ? minVal->asA<float>() : 0.f;
             float max = maxVal ? maxVal->asA<float>() : 100.f;
             float speed = (max - min) / 1000.0f;
@@ -946,7 +947,8 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         mx::ValuePtr val = input->getValue();
         if (val && val->isA<int>())
         {
-            int prev = val->asA<int>(), temp = val->asA<int>();
+            int prev, temp;
+            prev = temp = val->asA<int>();
             int min = minVal ? minVal->asA<int>() : 0;
             int max = maxVal ? maxVal->asA<int>() : 100;
             float speed = (max - min) / 100.0f;
@@ -966,7 +968,8 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         mx::ValuePtr val = input->getValue();
         if (val && val->isA<mx::Color3>())
         {
-            mx::Color3 prev = val->asA<mx::Color3>(), temp = val->asA<mx::Color3>();
+            mx::Color3 prev, temp;
+            prev = temp = val->asA<mx::Color3>();
             float min = minVal ? minVal->asA<mx::Color3>()[0] : 0.f;
             float max = maxVal ? maxVal->asA<mx::Color3>()[0] : 100.f;
             float speed = (max - min) / 1000.0f;
@@ -990,7 +993,8 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         mx::ValuePtr val = input->getValue();
         if (val && val->isA<mx::Color4>())
         {
-            mx::Color4 prev = val->asA<mx::Color4>(), temp = val->asA<mx::Color4>();
+            mx::Color4 prev, temp;
+            prev = temp = val->asA<mx::Color4>();
             float min = minVal ? minVal->asA<mx::Color4>()[0] : 0.f;
             float max = maxVal ? maxVal->asA<mx::Color4>()[0] : 100.f;
             float speed = (max - min) / 1000.0f;
@@ -1016,7 +1020,8 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         mx::ValuePtr val = input->getValue();
         if (val && val->isA<mx::Vector2>())
         {
-            mx::Vector2 prev = val->asA<mx::Vector2>(), temp = val->asA<mx::Vector2>();
+            mx::Vector2 prev, temp;
+            prev = temp = val->asA<mx::Vector2>();
             float min = minVal ? minVal->asA<mx::Vector2>()[0] : 0.f;
             float max = maxVal ? maxVal->asA<mx::Vector2>()[0] : 100.f;
             float speed = (max - min) / 1000.0f;
@@ -1036,7 +1041,8 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         mx::ValuePtr val = input->getValue();
         if (val && val->isA<mx::Vector3>())
         {
-            mx::Vector3 prev = val->asA<mx::Vector3>(), temp = val->asA<mx::Vector3>();
+            mx::Vector3 prev, temp;
+            prev = temp = val->asA<mx::Vector3>();
             float min = minVal ? minVal->asA<mx::Vector3>()[0] : 0.f;
             float max = maxVal ? maxVal->asA<mx::Vector3>()[0] : 100.f;
             float speed = (max - min) / 1000.0f;
@@ -1056,7 +1062,8 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         mx::ValuePtr val = input->getValue();
         if (val && val->isA<mx::Vector4>())
         {
-            mx::Vector4 prev = val->asA<mx::Vector4>(), temp = val->asA<mx::Vector4>();
+            mx::Vector4 prev, temp;
+            prev = temp = val->asA<mx::Vector4>();
             float min = minVal ? minVal->asA<mx::Vector4>()[0] : 0.f;
             float max = maxVal ? maxVal->asA<mx::Vector4>()[0] : 100.f;
             float speed = (max - min) / 1000.0f;
@@ -1076,7 +1083,8 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         mx::ValuePtr val = input->getValue();
         if (val && val->isA<std::string>())
         {
-            std::string prev = val->asA<std::string>(), temp = val->asA<std::string>();
+            std::string prev, temp;
+            prev = temp = val->asA<std::string>();
             ImGui::InputText("##constant", &temp);
 
             // Set input value and update materials if different from previous value
@@ -1094,7 +1102,8 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
 
         if (val && val->isA<std::string>())
         {
-            std::string temp = val->asA<std::string>(), prev = val->asA<std::string>();
+            std::string prev, temp;
+            prev = temp = val->asA<std::string>();
             ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(.15f, .15f, .15f, 1.0f));
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(.2f, .4f, .6f, 1.0f));
 
@@ -1142,7 +1151,8 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         mx::ValuePtr val = input->getValue();
         if (val && val->isA<bool>())
         {
-            bool prev = val->asA<bool>(), temp = val->asA<bool>();
+            bool prev, temp;
+            prev = temp = val->asA<bool>();
             ImGui::Checkbox("", &temp);
 
             // Set input value and update materials if different from previous value
@@ -3043,7 +3053,7 @@ void Graph::clearGraph()
     _newLinks.clear();
     _currPins.clear();
     _graphDoc = mx::createDocument();
-    _graphDoc->importLibrary(_stdLib);
+    _graphDoc->setDataLibrary(_stdLib);
     _currGraphElem = _graphDoc;
 
     if (_currUiNode != nullptr)
@@ -3281,7 +3291,20 @@ void Graph::graphButtons()
 
 void Graph::propertyEditor()
 {
+    // Get parent dimensions
+    ImVec2 textPos = ImGui::GetCursorScreenPos(); // Position for the background
+    float parentWidth = ImGui::GetContentRegionAvail().x; // Available width in the parent
+    
+    // Draw the title bar
+    const ImGuiStyle& style = ImGui::GetStyle();
+    ImVec4 menuBarBgColor = style.Colors[ImGuiCol_MenuBarBg]; 
+    ImU32 bgColor = ImGui::ColorConvertFloat4ToU32(menuBarBgColor); // Convert to 32-bit color
+    ImDrawList* drawList = ImGui::GetWindowDrawList();
+    drawList->AddRectFilled(textPos,
+                            ImVec2(textPos.x + parentWidth, textPos.y + ImGui::GetTextLineHeight()),
+                            bgColor);
     ImGui::Text("Node Property Editor");
+
     if (_currUiNode)
     {
         // Set and edit name
@@ -3289,7 +3312,11 @@ void Graph::propertyEditor()
         ImGui::SameLine();
         std::string original = _currUiNode->getName();
         std::string temp = original;
+        float availableWidth = ImGui::GetContentRegionAvail().x; 
+        ImGui::PushItemWidth(availableWidth); 
         ImGui::InputText("##edit", &temp);
+        ImGui::PopItemWidth(); 
+
         std::string docString = "NodeDef Doc String: \n";
         if (_currUiNode->getNode())
         {
@@ -3416,7 +3443,8 @@ void Graph::propertyEditor()
                 ImGui::SetTooltip("%s", _currUiNode->getNode()->getNodeDef()->getDocString().c_str());
             }
 
-            ImGui::Text("Inputs:");
+            ImGui::Checkbox("Show all inputs", &_currUiNode->_showAllInputs);
+
             int count = 0;
             for (UiPinPtr input : _currUiNode->inputPins)
             {
@@ -3480,14 +3508,12 @@ void Graph::propertyEditor()
                     ImGui::SetWindowFontScale(1.0f);
                 }
             }
-            ImGui::Checkbox("Show all inputs", &_currUiNode->_showAllInputs);
         }
 
         else if (_currUiNode->getInput() != nullptr)
         {
             ImGui::Text("%s", _currUiNode->getCategory().c_str());
             std::vector<UiPinPtr> inputs = _currUiNode->inputPins;
-            ImGui::Text("Inputs:");
 
             int count = static_cast<int>(inputs.size());
             if (count)
@@ -3538,7 +3564,6 @@ void Graph::propertyEditor()
         {
             std::vector<UiPinPtr> inputs = _currUiNode->inputPins;
             ImGui::Text("%s", _currUiNode->getCategory().c_str());
-            ImGui::Text("Inputs:");
             int count = 0;
             for (UiPinPtr input : inputs)
             {
