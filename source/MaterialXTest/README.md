@@ -62,7 +62,7 @@ When rendering tests are enabled through the `MATERIALX_TEST_RENDER` option, the
         - `MATERIALX_OSL_BINARY_OSLC`: Path to the OSL compiler binary (e.g. `oslc.exe`).
         - `MATERIALX_OSL_BINARY_TESTRENDER`: Path to the OSL test render binary (e.g. `testrender.exe`).
         - `MATERIALX_OSL_INCLUDE_PATH`: Path to the OSL shader include folder, which contains headers such as `stdosl.h`.
-    - OSL versions 1.9.10 and later are supported.
+    - OSL versions 1.12.6 and later are supported.
 - `MDL` :
     - Set the following build options to enable MDL support:
         - `MATERIALX_MDLC_EXECUTABLE`: Full path to the MDL compiler binary (e.g. `mdlc.exe').
