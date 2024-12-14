@@ -62,8 +62,13 @@
   </nodedef>
   <nodedef name="ND_UsdPrimvarReader_string" nodegroup="geometric" node="UsdPrimvarReader">
     <input name="varname" type="string" value="" uniform="true" />
-    <input name="fallback" type="string" value="" />
-    <output name="out" type="string" />
+    <input name="fallback" type="string" value="" uniform="true" />
+    <output name="out" type="string" uniform="true"/>
+  </nodedef>
+  <nodedef name="ND_UsdPrimvarReader_filename" nodegroup="geometric" node="UsdPrimvarReader">
+    <input name="varname" type="string" value="" uniform="true" />
+    <input name="fallback" type="filename" value="" uniform="true" />
+    <output name="out" type="filename" uniform="true"/>
   </nodedef>
   <nodedef name="ND_UsdPrimvarReader_float" nodegroup="geometric" node="UsdPrimvarReader">
     <input name="varname" type="string" value="" uniform="true" />
@@ -359,11 +364,18 @@
     <output name="out" type="boolean" nodename="primvar" />
   </nodegraph>
   <nodegraph name="IMP_UsdPrimvarReader_string" nodedef="ND_UsdPrimvarReader_string">
-    <geompropvalue name="primvar" type="string">
+    <geompropvalueuniform name="primvar" type="string">
       <input name="geomprop" type="string" interfacename="varname" />
       <input name="default" type="string" interfacename="fallback" />
-    </geompropvalue>
-    <output name="out" type="string" nodename="primvar" />
+    </geompropvalueuniform>
+    <output name="out" type="string" nodename="primvar" uniform="true" />
+  </nodegraph>
+  <nodegraph name="IMP_UsdPrimvarReader_filename" nodedef="ND_UsdPrimvarReader_filename">
+    <geompropvalueuniform name="primvar" type="filename">
+      <input name="geomprop" type="string" interfacename="varname" />
+      <input name="default" type="filename" interfacename="fallback" />
+    </geompropvalueuniform>
+    <output name="out" type="filename" nodename="primvar" uniform="true" />
   </nodegraph>
   <nodegraph name="IMP_UsdPrimvarReader_float" nodedef="ND_UsdPrimvarReader_float">
     <geompropvalue name="primvar" type="float">

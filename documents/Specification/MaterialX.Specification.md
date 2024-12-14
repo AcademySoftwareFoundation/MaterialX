@@ -1093,6 +1093,12 @@ Standard Geometric nodes:
     * `geomprop` (uniform string): the geometric property to be referenced.
     * `default` (same type as the geomprop's value): a value to return if the specified `geomprop` is not defined on the current geometry.
 
+<a id="node-geompropvalueuniform"> </a>
+
+* **`geompropvalueuniform`**: the value of the specified uniform geometric property (defined using &lt;geompropdef>) of the currently-bound geometry.  This node's type must match that of the referenced geomprop.
+    * `geomprop` (uniform string): the geometric property to be referenced.
+    * `default` (same type as the geomprop's value): a value to return if the specified `geomprop` is not defined on the current geometry.
+
 Additionally, the `geomcolor` and `geompropvalue` nodes for color3/color4-type properties can take a `colorspace` attribute to declare what colorspace the color property value is in; the default is "none" for no colorspace declaration (and hence no colorspace conversion).
 
 

@@ -1361,11 +1361,6 @@
     <input name="default" type="boolean" value="false" />
     <output name="out" type="boolean" default="false" />
   </nodedef>
-  <nodedef name="ND_geompropvalue_string" node="geompropvalue" nodegroup="geometric">
-    <input name="geomprop" type="string" value="" uniform="true" />
-    <input name="default" type="string" value="" uniform="true" />
-    <output name="out" type="string" default="" />
-  </nodedef>
   <nodedef name="ND_geompropvalue_float" node="geompropvalue" nodegroup="geometric">
     <input name="geomprop" type="string" value="" uniform="true" />
     <input name="default" type="float" value="0.0" />
@@ -1396,6 +1391,22 @@
     <input name="default" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <output name="out" type="vector4" default="0.0, 0.0, 0.0, 0.0" />
   </nodedef>
+
+  <!--
+    Node: <geompropvalueuniform>
+    The uniform, non-varying value of the specified geometric property for the current geometry.
+  -->
+  <nodedef name="ND_geompropvalueuniform_string" node="geompropvalueuniform" nodegroup="geometric">
+    <input name="geomprop" type="string" value="" uniform="true" />
+    <input name="default" type="string" value="" uniform="true" />
+    <output name="out" type="string" default="" uniform="true" />
+  </nodedef>
+  <nodedef name="ND_geompropvalueuniform_filename" node="geompropvalueuniform" nodegroup="geometric">
+    <input name="geomprop" type="string" value="" uniform="true" />
+    <input name="default" type="filename" value="" uniform="true" />
+    <output name="out" type="filename" default="" uniform="true" />
+  </nodedef>
+
 
   <!--
     Node: <bump>
