@@ -23,6 +23,13 @@ void ImageNodeMdl::addInputs(ShaderNode& node, GenContext& context) const
     node.addInput(ImageNodeMdl::FLIP_V, Type::BOOLEAN)->setUniform();
 }
 
+StringVec ImageNodeMdl::addedInputNames() const
+{
+    auto retVal = BASE::addedInputNames();
+    retVal.push_back(ImageNodeMdl::FLIP_V);
+    return retVal;
+}
+
 bool ImageNodeMdl::isEditable(const ShaderInput& input) const
 {
     if (input.getName() == ImageNodeMdl::FLIP_V)

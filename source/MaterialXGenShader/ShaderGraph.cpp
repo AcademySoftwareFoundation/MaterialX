@@ -93,6 +93,7 @@ void ShaderGraph::createConnectedNodes(const ElementPtr& downstreamElement,
     if (!newNode)
     {
         newNode = createNode(upstreamNode, context);
+        propagateAddedInputs(*newNode, newNode->addedInputNames());
     }
 
     // Handle interface inputs with default geometric properties.
@@ -448,6 +449,9 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const NodeGraph& n
     // Clear classification
     graph->_classification = 0;
 
+    // Allow added input propagation since this ShaderGraph is for a CompoundNode
+    graph->_propagateAddedInputs = true;
+
     // Create input sockets from the nodedef
     graph->addInputSockets(*nodeDef, context);
 
@@ -464,6 +468,35 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const NodeGraph& n
     graph->finalize(context);
 
     return graph;
+}
+
+void ShaderGraph::propagateAddedInputs(ShaderNode& node, const StringVec& addedInputs)
+{
+    if (!_propagateAddedInputs) {
+        return;
+    }
+
+    for (auto const& name: addedInputs) {
+        auto* nodeInput = node.getInput(name);
+        if (nodeInput) {
+            auto* inputSocket = getInputSocket(name);
+            if (!inputSocket) {
+                // Only add an input socket once. This means that a NodeGraph
+                // with three embedded image nodes will only get a single
+                // pair of uv_scale and uv_offset inputs shared between
+                // all three nodes.
+                // TODO: Have as many uv_scale inputs as there are embedded image
+                //       nodes. Requires a scheme to make their names unique. Bonus
+                //       points if that name can be related to the filename input.
+                // NOTE: This is enough to have UDIMs working with ND_gltf_colorimage
+                //       and ND_UsdUVTexture, so we stop here at this time.
+                inputSocket = addInputSocket(name, nodeInput->getType());
+                _propagatedAddedInputs.push_back(name);
+            }
+            inputSocket->makeConnection(nodeInput);
+            inputSocket->setValue(nodeInput->getValue());
+        }
+    }
 }
 
 ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name, ElementPtr element, GenContext& context)

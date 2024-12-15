@@ -28,6 +28,11 @@ void HwImageNode::addInputs(ShaderNode& node, GenContext&) const
     input->setValue(Value::createValue<Vector2>(Vector2(0.0f, 0.0f)));
 }
 
+StringVec HwImageNode::addedInputNames() const
+{
+    return {UV_SCALE, UV_OFFSET};
+}
+
 void HwImageNode::setValues(const Node& node, ShaderNode& shaderNode, GenContext& context) const
 {
     // Remap uvs to normalized 0..1 space if the original UDIMs in a UDIM set
