@@ -292,6 +292,13 @@ ShaderPort* MslMaterial::findUniform(const std::string& path) const
         {
             return (port && stringEndsWith(port->getPath(), path));
         });
+        if (!port)
+        {
+            port = publicUniforms->find([path](ShaderPort* port)
+            {
+                return (port && stringEndsWith(path, port->getName()));
+            });
+        }
 
         // Check if the uniform exists in the shader program
         if (port && !_glProgram->getUniformsList().count(
