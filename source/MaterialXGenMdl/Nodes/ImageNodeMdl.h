@@ -18,7 +18,7 @@ class MX_GENMDL_API ImageNodeMdl : public SourceCodeNodeMdl
     using BASE = SourceCodeNodeMdl;
 
   public:
-    static const string FLIP_V; ///< the empty string ""
+    static const string FLIP_V; ///< name of the additional parameter "flip_v"
 
     static ShaderNodeImplPtr create();
 

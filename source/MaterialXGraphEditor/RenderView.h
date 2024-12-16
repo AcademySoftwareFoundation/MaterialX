@@ -29,6 +29,7 @@ class RenderView
 {
   public:
     RenderView(mx::DocumentPtr doc,
+               mx::DocumentPtr stdLib,
                const std::string& meshFilename,
                const std::string& envRadianceFilename,
                const mx::FileSearchPath& searchPath,
@@ -159,7 +160,6 @@ class RenderView
     {
         return _xincludeFiles;
     }
-    mx::ElementPredicate getElementPredicate();
 
     // Request a capture of the current frame, writing it to the given filename.
     void requestFrameCapture(const mx::FilePath& filename)
@@ -232,7 +232,6 @@ class RenderView
     void updateGeometrySelections();
 
     mx::ImagePtr getShadowMap();
-    mx::ImagePtr _renderMap;
 
     void renderFrame();
     void renderScreenSpaceQuad(mx::GlslMaterialPtr material);
@@ -268,6 +267,7 @@ class RenderView
 
     // Document management
     mx::DocumentPtr _document;
+    mx::DocumentPtr _stdLib;
     DocumentModifiers _modifiers;
     mx::StringSet _xincludeFiles;
 

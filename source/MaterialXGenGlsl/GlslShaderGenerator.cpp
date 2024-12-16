@@ -82,6 +82,7 @@ GlslShaderGenerator::GlslShaderGenerator() :
     registerImplementation(elementNames, GeomPropValueNodeGlsl::create);
     registerImplementation("IM_geompropvalue_boolean_" + GlslShaderGenerator::TARGET, GeomPropValueNodeGlslAsUniform::create);
     registerImplementation("IM_geompropvalue_string_" + GlslShaderGenerator::TARGET, GeomPropValueNodeGlslAsUniform::create);
+    registerImplementation("IM_geompropvalue_filename_" + GlslShaderGenerator::TARGET, GeomPropValueNodeGlslAsUniform::create);
 
     // <!-- <frame> -->
     registerImplementation("IM_frame_float_" + GlslShaderGenerator::TARGET, HwFrameNode::create);
