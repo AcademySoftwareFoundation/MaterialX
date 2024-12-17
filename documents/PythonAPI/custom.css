@@ -60,7 +60,6 @@ div.sphinxsidebar input {
     font-family: var(--font-family);
 }
 a {
-    color: var(--primary-color) !important;
     text-decoration: none;
 }
 a:link, a:visited, a:hover, a:focus, a:active {
@@ -76,6 +75,11 @@ div.sphinxsidebar a:hover {
     border-bottom: none;
     color: var(--page-foreground-color) !important;
     text-decoration: none !important;
+}
+@media (prefers-color-scheme: dark) {
+    a {
+        color: var(--primary-color) !important;
+    }
 }
 div.body h1,
 div.body h2,
@@ -220,6 +224,18 @@ table.docutils th {
 .highlight {
     background: inherit !important;
 }
+@media (prefers-color-scheme: light) {
+    .highlight .n,
+    .highlight .nn {
+        color-scheme: light;
+        color: var(--page-foreground-color);
+    }
+    .highlight .go,
+    .highlight .k {
+        color-scheme: light;
+        color: var(--primary-light-color);
+    }
+}
 
 /* Make the MaterialX logo a little smaller */
 img.logo {
@@ -320,4 +336,16 @@ div.body form input[type="submit"],
     /* for Firefox */
     background: -moz-linear-gradient(bottom, #204D79, #002345);
     -moz-box-shadow: 0px 1px 0px #444;
+}
+
+div.body form input[type="submit"],
+div.sphinxsidebar #searchbox input[type="submit"],
+div.sphinxsidebar a.blueButton,
+div.sphinxsidebar a.blueButton:visited {
+    color: #d2dbde !important;
+}
+div.body form input[type="submit"]:hover,
+div.sphinxsidebar #searchbox input[type="submit"]:hover,
+div.sphinxsidebar a.blueButton:hover {
+    color: #fbfbfb !important;
 }
