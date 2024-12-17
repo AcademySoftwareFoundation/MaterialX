@@ -67,14 +67,14 @@ function(build_data_library TARGET_NAME SOURCE_DIR DEST_DIR)
                 ${SOURCE_DIR}/
                 ${DEST_DIR}
                 COMMAND MaterialXBuildLibrary --sourceLibraryRoot ${SOURCE_DIR} --destLibraryRoot ${DEST_DIR}
-                COMMAND ${CMAKE_COMMAND} -E rm ${DEST_DIR}/CmakeLists.txt
+                COMMAND ${CMAKE_COMMAND} -E rm -f ${DEST_DIR}/CmakeLists.txt
         )
     else()
         add_custom_target(${TARGET_NAME} ALL
                 COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
                 ${SOURCE_DIR}/
                 ${DEST_DIR}
-                COMMAND ${CMAKE_COMMAND} -E rm ${DEST_DIR}/CmakeLists.txt
+                COMMAND ${CMAKE_COMMAND} -E rm -f ${DEST_DIR}/CmakeLists.txt
         )
     endif()
 
