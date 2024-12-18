@@ -60,23 +60,37 @@ class MX_GENSHADER_API TypeDesc
         SEMANTIC_LAST
     };
 
+    /// Data block holding large data needed by the type description.
+    class DataBlock
+    {
+    public:
+        DataBlock(const string& name, size_t structIndex = 0) noexcept : _name(name), _structIndex(structIndex) {}
+
+        const string& getName() const { return _name; }
+        const size_t getStructIndex() const { return _structIndex; }
+
+    private:
+        const string _name;
+        const size_t _structIndex;
+    };
+
     /// Empty constructor.
     constexpr TypeDesc() noexcept :
         _id(0),
         _basetype(BASETYPE_NONE),
         _semantic(SEMANTIC_NONE),
         _size(0),
-        _structIndex(0)
+        _data(nullptr)
     {
     }
 
     /// Constructor.
-    constexpr TypeDesc(std::string_view name, uint8_t basetype, uint8_t semantic = SEMANTIC_NONE, uint16_t size = 1, uint16_t structIndex = 0) noexcept :
+    constexpr TypeDesc(std::string_view name, uint8_t basetype, uint8_t semantic = SEMANTIC_NONE, uint16_t size = 1, const DataBlock* data = nullptr) noexcept :
         _id(constexpr_hash(name)), // Note: We only store the hash to keep the class size minimal.
         _basetype(basetype),
         _semantic(semantic),
         _size(size),
-        _structIndex(structIndex)
+        _data(data)
     {
     }
 
@@ -124,7 +138,7 @@ class MX_GENSHADER_API TypeDesc
     bool isStruct() const { return _basetype == BASETYPE_STRUCT; }
 
     /// Return the index for the struct member information in StructTypeDesc, the result is invalid if `isStruct()` returns false.
-    uint16_t getStructIndex() const { return _structIndex; }
+    size_t getStructIndex() const { return _data ? _data->getStructIndex() : 0; }
 
     /// Equality operator
     bool operator==(TypeDesc rhs) const
@@ -177,7 +191,7 @@ class MX_GENSHADER_API TypeDesc
     uint8_t _basetype;
     uint8_t _semantic;
     uint16_t _size;
-    uint16_t _structIndex;
+    const DataBlock* _data;
 };
 
 /// @class TypeDescRegistry
@@ -190,7 +204,8 @@ class MX_GENSHADER_API TypeDescRegistry
 
 /// Macro to define global type descriptions for commonly used types.
 #define TYPEDESC_DEFINE_TYPE(T, name, basetype, semantic, size) \
-    static constexpr TypeDesc T(name, basetype, semantic, size);
+       inline const TypeDesc::DataBlock* T##_data() { static const TypeDesc::DataBlock _data(name); return &_data; } \
+       static const TypeDesc T(name, basetype, semantic, size, T##_data());
 
 /// Macro to register a previously defined type in the type registry.
 /// Registration must be done in order for the type to be searchable by name.
@@ -259,7 +274,7 @@ class MX_GENSHADER_API StructTypeDesc
     void setTypeDesc(TypeDesc typedesc) { _typedesc = typedesc; }
 
     /// Return a type description by index.
-    static StructTypeDesc& get(unsigned int index);
+    static StructTypeDesc& get(size_t index);
     static vector<string> getStructTypeNames();
     static uint16_t emplace_back(StructTypeDesc structTypeDesc);
     static void clear();

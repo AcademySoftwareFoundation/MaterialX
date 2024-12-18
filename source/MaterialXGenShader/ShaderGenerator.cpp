@@ -369,7 +369,12 @@ void ShaderGenerator::loadStructTypeDefs(const DocumentPtr& doc)
 
         auto structIndex = StructTypeDesc::emplace_back(newStructTypeDesc);
 
-        TypeDesc structTypeDesc(typeDefName, TypeDesc::BASETYPE_STRUCT, TypeDesc::SEMANTIC_NONE, 1, structIndex);
+
+        // TODO:FIXME Leaking this pointer
+        TypeDesc::DataBlock* data = new TypeDesc::DataBlock(typeDefName, structIndex);
+
+
+        TypeDesc structTypeDesc(typeDefName, TypeDesc::BASETYPE_STRUCT, TypeDesc::SEMANTIC_NONE, 1, data);
 
         TypeDescRegistry(structTypeDesc, typeDefName);
 

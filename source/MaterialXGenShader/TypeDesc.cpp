@@ -22,13 +22,8 @@ TypeDescMap& typeMap()
     return map;
 }
 
-TypeDescNameMap& typeNameMap()
-{
-    static TypeDescNameMap map;
-    return map;
-}
-
 using StructTypeDescStorage = vector<StructTypeDesc>;
+
 StructTypeDescStorage& structTypeStorage()
 {
     // TODO: Our use of the singleton pattern for TypeDescMap and StructTypeDestStorage
@@ -44,9 +39,7 @@ const string TypeDesc::NONE_TYPE_NAME = "none";
 
 const string& TypeDesc::getName() const
 {
-    TypeDescNameMap& typenames = typeNameMap();
-    auto it = typenames.find(_id);
-    return it != typenames.end() ? it->second : NONE_TYPE_NAME;
+    return _data ? _data->getName() : NONE_TYPE_NAME;
 }
 
 TypeDesc TypeDesc::get(const string& name)
@@ -58,15 +51,12 @@ TypeDesc TypeDesc::get(const string& name)
 
 void TypeDesc::remove(const string& name)
 {
-    TypeDescNameMap& typenames = typeNameMap();
-
     TypeDescMap& types = typeMap();
 
     auto it = types.find(name);
     if (it == types.end())
         return;
 
-    typenames.erase(it->second.typeId());
     types.erase(it);
 }
 
@@ -104,9 +94,7 @@ ValuePtr TypeDesc::createValueFromStrings(const string& value) const
 TypeDescRegistry::TypeDescRegistry(TypeDesc type, const string& name)
 {
     TypeDescMap& types = typeMap();
-    TypeDescNameMap& typenames = typeNameMap();
     types[name] = type;
-    typenames[type.typeId()] = name;
 }
 
 namespace Type
@@ -161,7 +149,7 @@ vector<string> StructTypeDesc::getStructTypeNames()
     return structNames;
 }
 
-StructTypeDesc& StructTypeDesc::get(unsigned int index)
+StructTypeDesc& StructTypeDesc::get(size_t index)
 {
     StructTypeDescStorage& structs = structTypeStorage();
     return structs[index];
