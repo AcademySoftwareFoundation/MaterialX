@@ -70,8 +70,6 @@ class MX_GENSHADER_API Syntax
     /// Multiple calls will add to the internal set of tokens.
     void registerInvalidTokens(const StringMap& tokens);
 
-    virtual void registerStructTypeDescSyntax();
-
     /// Returns a set of names that are reserved words for this language syntax.
     const StringSet& getReservedWords() const { return _reservedWords; }
 
@@ -195,6 +193,11 @@ class MX_GENSHADER_API Syntax
     virtual bool remapEnumeration(const string& value, TypeDesc type, const string& enumNames,
                                   std::pair<TypeDesc, ValuePtr>& result) const;
 
+    // Create and return a type syntax for a struct type.
+    virtual StructTypeSyntaxPtr createStructSyntax(const string& structTypeName, const string& defaultValue,
+                                                   const string& uniformDefaultValue, const string& typeAlias,
+                                                   const string& typeDefinition) const;
+
     /// Constants with commonly used strings.
     static const string NEWLINE;
     static const string SEMICOLON;
@@ -203,19 +206,6 @@ class MX_GENSHADER_API Syntax
   protected:
     /// Protected constructor
     Syntax();
-
-    virtual StructTypeSyntaxPtr createStructSyntax(const string& structTypeName, const string& defaultValue,
-                                                   const string& uniformDefaultValue, const string& typeAlias,
-                                                   const string& typeDefinition) const
-    {
-        return std::make_shared<StructTypeSyntax>(
-            this,
-            structTypeName,
-            defaultValue,
-            uniformDefaultValue,
-            typeAlias,
-            typeDefinition);
-    }
 
     vector<TypeSyntaxPtr> _typeSyntaxes;
     std::unordered_map<TypeDesc, size_t, TypeDesc::Hasher> _typeSyntaxIndexByType;

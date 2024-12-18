@@ -96,7 +96,7 @@ TEST_CASE("GenShader: TypeDesc Check", "[genshader]")
 
     // Make sure we can register a new custom type
     const std::string fooTypeName = "foo";
-    mx::TypeDescRegistry reg(mx::TypeDesc(fooTypeName, mx::TypeDesc::BASETYPE_FLOAT, mx::TypeDesc::SEMANTIC_COLOR, 5), fooTypeName);
+    mx::TypeDesc::registerType(mx::TypeDesc(fooTypeName, mx::TypeDesc::BASETYPE_FLOAT, mx::TypeDesc::SEMANTIC_COLOR, 5));
     const mx::TypeDesc fooType = mx::TypeDesc::get(fooTypeName);
     REQUIRE(fooType != mx::Type::NONE);
 

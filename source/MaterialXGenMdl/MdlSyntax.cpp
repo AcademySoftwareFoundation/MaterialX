@@ -13,19 +13,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-// Custom types to handle enumeration output
-namespace Type
-{
-
-TYPEDESC_REGISTER_TYPE(MDL_COORDINATESPACE, "coordinatespace")
-TYPEDESC_REGISTER_TYPE(MDL_ADDRESSMODE, "addressmode")
-TYPEDESC_REGISTER_TYPE(MDL_FILTERLOOKUPMODE, "filterlookup")
-TYPEDESC_REGISTER_TYPE(MDL_FILTERTYPE, "filtertype")
-TYPEDESC_REGISTER_TYPE(MDL_DISTRIBUTIONTYPE, "distributiontype")
-TYPEDESC_REGISTER_TYPE(MDL_SCATTER_MODE, "scatter_mode")
-
-} // namespace Type
-
 namespace
 {
 

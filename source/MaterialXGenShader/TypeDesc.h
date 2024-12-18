@@ -16,6 +16,13 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
+class TypeDesc;
+class StructMemberDesc;
+
+using TypeDescVec = vector<TypeDesc>;
+using StructMemberDescVec = vector<StructMemberDesc>;
+using StructMemberDescVecPtr = shared_ptr<const StructMemberDescVec>;
+
 /// @class TypeDesc
 /// A type descriptor for MaterialX data types.
 ///
@@ -64,14 +71,14 @@ class MX_GENSHADER_API TypeDesc
     class DataBlock
     {
     public:
-        DataBlock(const string& name, size_t structIndex = 0) noexcept : _name(name), _structIndex(structIndex) {}
+        DataBlock(const string& name, const StructMemberDescVecPtr members = nullptr) noexcept : _name(name), _members(members) {}
 
         const string& getName() const { return _name; }
-        const size_t getStructIndex() const { return _structIndex; }
+        const StructMemberDescVecPtr getStructMembers() const { return _members; }
 
     private:
         const string _name;
-        const size_t _structIndex;
+        const StructMemberDescVecPtr _members;
     };
 
     /// Empty constructor.
@@ -137,8 +144,9 @@ class MX_GENSHADER_API TypeDesc
     /// Return true if the type represents a struct.
     bool isStruct() const { return _basetype == BASETYPE_STRUCT; }
 
-    /// Return the index for the struct member information in StructTypeDesc, the result is invalid if `isStruct()` returns false.
-    size_t getStructIndex() const { return _data ? _data->getStructIndex() : 0; }
+    /// Return a pointer to the struct member description.
+    /// Will return nullptr if this is not a struct type.
+    const StructMemberDescVecPtr getStructMembers() const;
 
     /// Equality operator
     bool operator==(TypeDesc rhs) const
@@ -167,12 +175,19 @@ class MX_GENSHADER_API TypeDesc
         }
     };
 
+
+    /// Register a type.
+    static void registerType(TypeDesc type);
+
+    /// Create and register a new type.
+    static void registerType(const string& name, uint8_t basetype, uint8_t semantic, uint16_t size, StructMemberDescVecPtr members = nullptr);
+
+    /// Return all registered types.
+    static const TypeDescVec& getTypes();
+
     /// Return a type description by name.
     /// If no type is found Type::NONE is returned.
     static TypeDesc get(const string& name);
-
-    /// Remove a type description by name, if it exists.
-    static void remove(const string& name);
 
     static const string NONE_TYPE_NAME;
 
@@ -194,23 +209,32 @@ class MX_GENSHADER_API TypeDesc
     const DataBlock* _data;
 };
 
-/// @class TypeDescRegistry
-/// Helper class for type registration.
-class MX_GENSHADER_API TypeDescRegistry
+/// @class StructMemberDesc
+/// Type descriptor for member of a struct type.
+class StructMemberDesc
 {
-  public:
-    TypeDescRegistry(TypeDesc type, const string& name);
+public:
+    StructMemberDesc(TypeDesc type, const string& name, const string& defaultValueStr) :
+        _type(type),
+        _name(name),
+        _defaultValueStr(defaultValueStr)
+    {
+    }
+
+    TypeDesc getType() const { return _type; }
+    const string& getName() const { return _name; }
+    const string& getDefaultValueStr() const { return _defaultValueStr; }
+
+private:
+    const TypeDesc _type;
+    const string _name;
+    const string _defaultValueStr;
 };
 
 /// Macro to define global type descriptions for commonly used types.
 #define TYPEDESC_DEFINE_TYPE(T, name, basetype, semantic, size) \
        inline const TypeDesc::DataBlock* T##_data() { static const TypeDesc::DataBlock _data(name); return &_data; } \
        static const TypeDesc T(name, basetype, semantic, size, T##_data());
-
-/// Macro to register a previously defined type in the type registry.
-/// Registration must be done in order for the type to be searchable by name.
-#define TYPEDESC_REGISTER_TYPE(T, name) \
-    TypeDescRegistry register_##T(T, name);
 
 namespace Type
 {
@@ -243,58 +267,6 @@ TYPEDESC_DEFINE_TYPE(LIGHTSHADER, "lightshader", TypeDesc::BASETYPE_NONE, TypeDe
 TYPEDESC_DEFINE_TYPE(MATERIAL, "material", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_MATERIAL, 1)
 
 } // namespace Type
-
-
-/// @class StructTypeDesc
-/// A type descriptor for MaterialX struct types.
-///
-/// All types need to have a type descriptor registered in order for shader generators
-/// to know about the type. If the type represented is of basetype=BASETYPE_STRUCT then
-/// the type also needs to have an associated StructTypeDesc that describes the members
-/// of the struct.
-///
-class MX_GENSHADER_API StructTypeDesc
-{
-  public:
-    struct StructMemberTypeDesc
-    {
-        StructMemberTypeDesc(string name, TypeDesc typeDesc, string defaultValueStr) :
-            _name(name), _typeDesc(typeDesc), _defaultValueStr(defaultValueStr)
-        {
-        }
-        string _name;
-        TypeDesc _typeDesc;
-        string _defaultValueStr;
-    };
-
-    /// Empty constructor.
-    StructTypeDesc() noexcept{}
-
-    void addMember(const string& name, TypeDesc type, const string& defaultValueStr);
-    void setTypeDesc(TypeDesc typedesc) { _typedesc = typedesc; }
-
-    /// Return a type description by index.
-    static StructTypeDesc& get(size_t index);
-    static vector<string> getStructTypeNames();
-    static uint16_t emplace_back(StructTypeDesc structTypeDesc);
-    static void clear();
-
-    TypeDesc typeDesc() const { return _typedesc; }
-
-    const string& getName() const;
-
-    const vector<StructMemberTypeDesc>& getMembers() const;
-
-  private:
-    TypeDesc _typedesc;
-    vector<StructMemberTypeDesc> _members;
-};
-
-class MX_GENSHADER_API StructTypeDescRegistry
-{
-  public:
-    StructTypeDescRegistry();
-};
 
 MATERIALX_NAMESPACE_END
 

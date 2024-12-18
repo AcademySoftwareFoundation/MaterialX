@@ -464,6 +464,19 @@ string MdlShaderGenerator::getUpstreamResult(const ShaderInput* input, GenContex
     return variable;
 }
 
+void MdlShaderGenerator::registerTypeDefs(const DocumentPtr& doc)
+{
+    ShaderGenerator::registerTypeDefs(doc);
+
+    // Add custom types to handle enumeration output
+    TypeDesc::registerType(Type::MDL_COORDINATESPACE);
+    TypeDesc::registerType(Type::MDL_ADDRESSMODE);
+    TypeDesc::registerType(Type::MDL_FILTERLOOKUPMODE);
+    TypeDesc::registerType(Type::MDL_FILTERTYPE);
+    TypeDesc::registerType(Type::MDL_DISTRIBUTIONTYPE);
+    TypeDesc::registerType(Type::MDL_SCATTER_MODE);
+}
+
 namespace
 {
 

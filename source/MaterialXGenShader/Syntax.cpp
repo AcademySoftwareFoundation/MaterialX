@@ -190,34 +190,17 @@ bool Syntax::remapEnumeration(const string&, TypeDesc, const string&, std::pair<
     return false;
 }
 
-void Syntax::registerStructTypeDescSyntax()
+StructTypeSyntaxPtr Syntax::createStructSyntax(const string& structTypeName, const string& defaultValue,
+                                               const string& uniformDefaultValue, const string& typeAlias,
+                                               const string& typeDefinition) const
 {
-    for (const auto& typeName : StructTypeDesc::getStructTypeNames())
-    {
-        const auto& typeDesc = TypeDesc::get(typeName);
-        const auto& structTypeDesc = StructTypeDesc::get(typeDesc.getStructIndex());
-
-        string structTypeName = typeName;
-        string defaultValue = typeName + "( ";
-        string uniformDefaultValue = EMPTY_STRING;
-        string typeAlias = EMPTY_STRING;
-        string typeDefinition = "struct " + structTypeName + " { ";
-
-        for (const auto& x : structTypeDesc.getMembers())
-        {
-            string memberName = x._name;
-            string memberType = x._typeDesc.getName();
-            string memberDefaultValue = x._defaultValueStr;
-
-            defaultValue += memberDefaultValue + ", ";
-            typeDefinition += memberType + " " + memberName + "; ";
-        }
-
-        typeDefinition += " };";
-        defaultValue += " )";
-
-        registerTypeSyntax(typeDesc, createStructSyntax(structTypeName, defaultValue, uniformDefaultValue, typeAlias, typeDefinition));
-    }
+    return std::make_shared<StructTypeSyntax>(
+        this,
+        structTypeName,
+        defaultValue,
+        uniformDefaultValue,
+        typeAlias,
+        typeDefinition);
 }
 
 const StringVec TypeSyntax::EMPTY_MEMBERS;

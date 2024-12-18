@@ -35,6 +35,10 @@ class MX_GENGLSL_API GlslSyntax : public Syntax
     /// the shader generator. The enumeration may be converted to a different type than the input.
     bool remapEnumeration(const string& value, TypeDesc type, const string& enumNames, std::pair<TypeDesc, ValuePtr>& result) const override;
 
+    StructTypeSyntaxPtr createStructSyntax(const string& structTypeName, const string& defaultValue,
+                                           const string& uniformDefaultValue, const string& typeAlias,
+                                           const string& typeDefinition) const override;
+
     static const string INPUT_QUALIFIER;
     static const string OUTPUT_QUALIFIER;
     static const string UNIFORM_QUALIFIER;
@@ -45,11 +49,6 @@ class MX_GENGLSL_API GlslSyntax : public Syntax
     static const StringVec VEC2_MEMBERS;
     static const StringVec VEC3_MEMBERS;
     static const StringVec VEC4_MEMBERS;
-
-  protected:
-    StructTypeSyntaxPtr createStructSyntax(const string& structTypeName, const string& defaultValue,
-                                           const string& uniformDefaultValue, const string& typeAlias,
-                                           const string& typeDefinition) const override;
 };
 
 /// Specialization of TypeSyntax for aggregate types.

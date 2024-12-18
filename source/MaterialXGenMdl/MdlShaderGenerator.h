@@ -71,6 +71,9 @@ class MX_GENMDL_API MdlShaderGenerator : public ShaderGenerator
     /// Return the result of an upstream connection or value for an input.
     string getUpstreamResult(const ShaderInput* input, GenContext& context) const override;
 
+    /// Register type definitions from the document.
+    void registerTypeDefs(const DocumentPtr& doc) override;
+
     /// Unique identifier for this generator target
     static const string TARGET;
 
