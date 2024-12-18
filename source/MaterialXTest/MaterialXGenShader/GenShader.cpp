@@ -242,6 +242,7 @@ TEST_CASE("GenShader: Deterministic Generation", "[genshader]")
     {
         mx::GenContext context(mx::GlslShaderGenerator::create());
         context.registerSourceCodeSearchPath(searchPath);
+        context.getShaderGenerator().registerTypeDefs(libraries);
         testDeterministicGeneration(libraries, context);
     }
 #endif
@@ -249,6 +250,7 @@ TEST_CASE("GenShader: Deterministic Generation", "[genshader]")
     {
         mx::GenContext context(mx::OslShaderGenerator::create());
         context.registerSourceCodeSearchPath(searchPath);
+        context.getShaderGenerator().registerTypeDefs(libraries);
         testDeterministicGeneration(libraries, context);
     }
 #endif
@@ -256,6 +258,7 @@ TEST_CASE("GenShader: Deterministic Generation", "[genshader]")
     {
         mx::GenContext context(mx::MdlShaderGenerator::create());
         context.registerSourceCodeSearchPath(searchPath);
+        context.getShaderGenerator().registerTypeDefs(libraries);
         testDeterministicGeneration(libraries, context);
     }
 #endif
@@ -263,6 +266,7 @@ TEST_CASE("GenShader: Deterministic Generation", "[genshader]")
     {
         mx::GenContext context(mx::MslShaderGenerator::create());
         context.registerSourceCodeSearchPath(searchPath);
+        context.getShaderGenerator().registerTypeDefs(libraries);
         testDeterministicGeneration(libraries, context);
     }
 #endif
