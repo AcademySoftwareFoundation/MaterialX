@@ -73,6 +73,10 @@ TEST_CASE("GenShader: Valid Libraries", "[genshader]")
 
 TEST_CASE("GenShader: TypeDesc Check", "[genshader]")
 {
+    mx::DocumentPtr doc = mx::createDocument();
+    mx::GenContext context(mx::GlslShaderGenerator::create());
+    context.getShaderGenerator().registerTypeDefs(doc);
+
     // Make sure the standard types are registered
     const mx::TypeDesc floatType = mx::TypeDesc::get("float");
     REQUIRE(floatType != mx::Type::NONE);
@@ -96,7 +100,7 @@ TEST_CASE("GenShader: TypeDesc Check", "[genshader]")
 
     // Make sure we can register a new custom type
     const std::string fooTypeName = "foo";
-    mx::TypeDesc::registerType(mx::TypeDesc(fooTypeName, mx::TypeDesc::BASETYPE_FLOAT, mx::TypeDesc::SEMANTIC_COLOR, 5));
+    mx::TypeDesc::registerType(fooTypeName, mx::TypeDesc::BASETYPE_FLOAT, mx::TypeDesc::SEMANTIC_COLOR, 5);
     const mx::TypeDesc fooType = mx::TypeDesc::get(fooTypeName);
     REQUIRE(fooType != mx::Type::NONE);
 

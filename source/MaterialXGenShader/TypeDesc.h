@@ -92,7 +92,7 @@ class MX_GENSHADER_API TypeDesc
     }
 
     /// Constructor.
-    constexpr TypeDesc(std::string_view name, uint8_t basetype, uint8_t semantic = SEMANTIC_NONE, uint16_t size = 1, const DataBlock* data = nullptr) noexcept :
+    constexpr TypeDesc(std::string_view name, uint8_t basetype, uint8_t semantic, uint16_t size, const DataBlock* data) noexcept :
         _id(constexpr_hash(name)), // Note: We only store the hash to keep the class size minimal.
         _basetype(basetype),
         _semantic(semantic),
