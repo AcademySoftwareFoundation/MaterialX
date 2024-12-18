@@ -80,7 +80,6 @@ export using .::stdlib_1_7 import mx_texcoord_vector3;
 export using .::stdlib_1_7 import mx_geomcolor_float;
 export using .::stdlib_1_7 import mx_geomcolor_color3;
 export using .::stdlib_1_7 import mx_geomcolor_color4;
-export using .::stdlib_1_7 import mx_ambientocclusion_float;
 export using .::stdlib_1_7 import mx_frame_float;
 export using .::stdlib_1_7 import mx_time_float;
 export using .::stdlib_1_7 import mx_modulo_color3;
