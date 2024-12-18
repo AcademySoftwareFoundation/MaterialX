@@ -47,6 +47,8 @@ TEST_CASE("GenReference: OSL Reference", "[genreference]")
 
     // Create shader generator.
     mx::ShaderGeneratorPtr generator = mx::OslShaderGenerator::create();
+    generator->registerTypeDefs(stdlib);
+
     mx::GenContext context(generator);
     context.getOptions().addUpstreamDependencies = false;
     context.registerSourceCodeSearchPath(searchPath);

@@ -290,7 +290,8 @@ void testUniqueNames(mx::GenContext& context, const std::string& stage)
 
     output1->setConnectedNode(node1);
 
-    const mx::ShaderGenerator& shadergen = context.getShaderGenerator();
+    mx::ShaderGenerator& shadergen = context.getShaderGenerator();
+    shadergen.registerTypeDefs(doc);
 
     // Set the output to a restricted name
     const std::string& outputQualifier = shadergen.getSyntax().getOutputQualifier();
@@ -377,6 +378,8 @@ void shaderGenPerformanceTest(mx::GenContext& context)
         bool docValid = doc->validate(&message);
 
         REQUIRE(docValid == true);
+
+        context.getShaderGenerator().registerTypeDefs(doc);
 
         mx::StringVec sourceCode;
         mx::ShaderPtr shader = nullptr;

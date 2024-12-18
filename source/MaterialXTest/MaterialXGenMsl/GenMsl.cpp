@@ -107,6 +107,7 @@ TEST_CASE("GenShader: MSL Bind Light Shaders", "[genmsl]")
 
     mx::GenContext context(mx::MslShaderGenerator::create());
     context.registerSourceCodeSearchPath(searchPath);
+    context.getShaderGenerator().registerTypeDefs(doc);
 
     mx::HwShaderGenerator::bindLightShader(*pointLightShader, 42, context);
     REQUIRE_THROWS(mx::HwShaderGenerator::bindLightShader(*spotLightShader, 42, context));

@@ -278,6 +278,8 @@ void checkPixelDependencies(mx::DocumentPtr libraries, mx::GenContext& context)
     mx::readFromXmlFile(testDoc, testFile);
     testDoc->setDataLibrary(libraries);
 
+    context.getShaderGenerator().registerTypeDefs(testDoc);
+
     mx::ElementPtr element = testDoc->getChild(testElement);
     CHECK(element);
 
@@ -397,6 +399,7 @@ TEST_CASE("GenShader: Track Application Variables", "[genshader]")
 #ifdef MATERIALX_BUILD_GEN_GLSL
     {
         mx::GenContext context(mx::GlslShaderGenerator::create());
+        context.getShaderGenerator().registerTypeDefs(testDoc);
         context.registerSourceCodeSearchPath(searchPath);
         context.setApplicationVariableHandler(variableTracker);
         mx::ShaderPtr shader = context.getShaderGenerator().generate(testElement, element, context);
@@ -405,6 +408,7 @@ TEST_CASE("GenShader: Track Application Variables", "[genshader]")
 #ifdef MATERIALX_BUILD_GEN_OSL
     {
         mx::GenContext context(mx::OslShaderGenerator::create());
+        context.getShaderGenerator().registerTypeDefs(testDoc);
         context.registerSourceCodeSearchPath(searchPath);
         context.setApplicationVariableHandler(variableTracker);
         mx::ShaderPtr shader = context.getShaderGenerator().generate(testElement, element, context);
@@ -413,6 +417,7 @@ TEST_CASE("GenShader: Track Application Variables", "[genshader]")
 #ifdef MATERIALX_BUILD_GEN_MDL
     {
         mx::GenContext context(mx::MdlShaderGenerator::create());
+        context.getShaderGenerator().registerTypeDefs(testDoc);
         context.registerSourceCodeSearchPath(searchPath);
         context.setApplicationVariableHandler(variableTracker);
         mx::ShaderPtr shader = context.getShaderGenerator().generate(testElement, element, context);

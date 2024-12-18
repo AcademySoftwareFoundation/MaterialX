@@ -165,6 +165,8 @@ TEST_CASE("GenShader: OSL Metadata", "[genosl]")
     REQUIRE(stdSurf1 != nullptr);
 
     mx::ShaderGeneratorPtr generator = mx::OslShaderGenerator::create();
+    generator->registerTypeDefs(doc);
+
     mx::GenContext context(mx::OslShaderGenerator::create());
     context.registerSourceCodeSearchPath(searchPath);
 
