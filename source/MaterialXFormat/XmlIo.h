@@ -70,6 +70,10 @@ class MX_FORMAT_API XmlWriteOptions
     /// If provided, this function will be used to exclude specific elements
     /// (those returning false) from the write operation.  Defaults to nullptr.
     ElementPredicate elementPredicate;
+
+    /// If true, any necessary directories will be created to write the
+    /// file.
+    bool createDirectories;
 };
 
 /// @class ExceptionParseError

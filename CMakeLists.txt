@@ -38,6 +38,8 @@ option(MATERIALX_BUILD_VIEWER "Build the MaterialX Viewer." OFF)
 option(MATERIALX_BUILD_GRAPH_EDITOR "Build the MaterialX Graph Editor." OFF)
 option(MATERIALX_BUILD_DOCS "Create HTML documentation using Doxygen. Requires that Doxygen be installed." OFF)
 
+option(MATERIALX_BUILD_BAKE_NAMED_VALUES "Process the data library files at build time to bake out the named values." ON)
+
 option(MATERIALX_BUILD_GEN_GLSL "Build the GLSL shader generator back-end." ON)
 option(MATERIALX_BUILD_GEN_OSL "Build the OSL shader generator back-end." ON)
 option(MATERIALX_BUILD_GEN_MDL "Build the MDL shader generator back-end." ON)
@@ -439,6 +441,7 @@ endif()
 # Add core subdirectories
 add_subdirectory(source/MaterialXCore)
 add_subdirectory(source/MaterialXFormat)
+add_subdirectory(source/MaterialXBuildTools/buildLibrary)
 
 # Add shader generation subdirectories
 add_subdirectory(source/MaterialXGenShader)
