@@ -164,3 +164,28 @@ describe('Element', () =>
         });
     });
 });
+
+describe('Equivalence', () =>
+{
+    let mx, doc, doc2
+
+    before(async () => {
+        mx = await Module();
+        doc = mx.createDocument();
+        doc.addNodeGraph("graph");
+        doc2 = mx.createDocument();
+        doc2.addNodeGraph("graph1");
+    });
+
+    it('Compare document equivalency', () =>
+    {
+        let options = new mx.ElementEquivalenceOptions();
+        let differences = {};
+        options.performValueComparisons = false;
+        let result = doc.isEquivalent(doc2, options, differences);
+        expect(result).to.be.false;
+        expect(differences.message).to.not.be.empty;
+        result = doc.isEquivalent(doc2, options, undefined);
+        expect(result).to.be.false;
+    });
+});

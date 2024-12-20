@@ -255,7 +255,7 @@ class MX_GENSHADER_API StructTypeDesc
     /// Empty constructor.
     StructTypeDesc() noexcept{}
 
-    void addMember(const string& name, TypeDesc type, string defaultValueStr);
+    void addMember(const string& name, TypeDesc type, const string& defaultValueStr);
     void setTypeDesc(TypeDesc typedesc) { _typedesc = typedesc; }
 
     /// Return a type description by index.

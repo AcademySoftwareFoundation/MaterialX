@@ -606,7 +606,7 @@ export class Material
         // Re-initialize document
         var startDocTime = performance.now();
         var doc = mx.createDocument();
-        doc.importLibrary(viewer.getLibrary());
+        doc.setDataLibrary(viewer.getLibrary());
         viewer.setDocument(doc);
 
         const fileloader = viewer.getFileLoader();
@@ -1491,7 +1491,7 @@ export class Viewer
 
         this.document = this.mx.createDocument();
         this.stdlib = this.mx.loadStandardLibraries(this.genContext);
-        this.document.importLibrary(this.stdlib);
+        this.document.setDataLibrary(this.stdlib);
 
         this.initializeLighting(renderer, radianceTexture, irradianceTexture, lightRigXml);
 

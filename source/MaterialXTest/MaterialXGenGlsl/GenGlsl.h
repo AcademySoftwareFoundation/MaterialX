@@ -51,10 +51,9 @@ class GlslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
     {
         whiteList =
         {
-            "screen", "displacementshader", "volumeshader", 
-            "IM_constant_", "IM_dot_", "IM_geompropvalue_boolean", "IM_geompropvalue_string",
-            "IM_light_genglsl", "IM_point_light_genglsl", "IM_spot_light_genglsl", "IM_directional_light_genglsl",
-            "IM_angle", "volumematerial", "ND_volumematerial"
+            "volumeshader", "volumematerial",
+            "IM_constant_", "IM_dot_", "IM_angle", "IM_geompropvalue_boolean", "IM_geompropvalue_string", "IM_geompropvalue_filename",
+            "IM_light_", "IM_point_light_", "IM_spot_light_", "IM_directional_light_"
         };
         ShaderGeneratorTester::getImplementationWhiteList(whiteList);
     }

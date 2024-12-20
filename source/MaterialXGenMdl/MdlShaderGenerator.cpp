@@ -15,6 +15,7 @@
 #include <MaterialXGenMdl/Nodes/ClosureLayerNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/ClosureCompoundNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/ClosureSourceCodeNodeMdl.h>
+#include <MaterialXGenMdl/Nodes/CustomNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/ImageNodeMdl.h>
 
 #include <MaterialXGenShader/GenContext.h>
@@ -155,6 +156,24 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
         emitMdlVersionFilenameSuffix(context, stage);
         emitString(IMPORT_ALL, stage);
         emitLineEnd(stage, true);
+    }
+
+    // Emit custom node imports for nodes in the graph
+    for (ShaderNode* node : graph.getNodes())
+    {
+        const ShaderNodeImpl& impl = node->getImplementation();
+        const CustomCodeNodeMdl* customNode = dynamic_cast<const CustomCodeNodeMdl*>(&impl);
+        if (customNode)
+        {
+            const string& importName = customNode->getQualifiedModuleName();
+            if (!importName.empty())
+            {
+                emitString("import ", stage);
+                emitString(importName, stage);
+                emitString("::*", stage);
+                emitLineEnd(stage, true);
+            }
+        }
     }
 
     // Add global constants and type definitions
@@ -353,14 +372,31 @@ ShaderNodeImplPtr MdlShaderGenerator::getImplementation(const NodeDef& nodedef, 
         impl = _implFactory.create(name);
         if (!impl)
         {
-            // Fall back to source code implementation.
-            if (outputType.isClosure())
+            // When `file` and `function` are provided we consider this node a user node
+            const string file = implElement->getTypedAttribute<string>("file");
+            const string function = implElement->getTypedAttribute<string>("function");
+            // Or, if `sourcecode` is provided we consider this node a user node with inline implementation
+            // inline implementations are not supposed to have replacement markers
+            const string sourcecode = implElement->getTypedAttribute<string>("sourcecode");
+            if ((!file.empty() && !function.empty()) || (!sourcecode.empty() && sourcecode.find("{{") == string::npos))
             {
-                impl = ClosureSourceCodeNodeMdl::create();
+                impl = CustomCodeNodeMdl::create();
+            }
+            else if (file.empty() && sourcecode.empty())
+            {
+                throw ExceptionShaderGenError("No valid MDL implementation found for '" + name + "'");
             }
             else
             {
-                impl = SourceCodeNodeMdl::create();
+                // Fall back to source code implementation.
+                if (outputType.isClosure())
+                {
+                    impl = ClosureSourceCodeNodeMdl::create();
+                }
+                else
+                {
+                    impl = SourceCodeNodeMdl::create();
+                }
             }
         }
     }
@@ -386,6 +422,7 @@ string MdlShaderGenerator::getUpstreamResult(const ShaderInput* input, GenContex
         return ShaderGenerator::getUpstreamResult(input, context);
     }
 
+    const MdlSyntax& mdlSyntax = static_cast<const MdlSyntax&>(getSyntax());
     string variable;
     const ShaderNode* upstreamNode = upstreamOutput->getNode();
     if (!upstreamNode->isAGraph() && upstreamNode->numOutputs() > 1)
@@ -397,7 +434,18 @@ string MdlShaderGenerator::getUpstreamResult(const ShaderInput* input, GenContex
         }
         else
         {
-            variable = upstreamNode->getName() + "_result.mxp_" + upstreamOutput->getName();
+            const string& fieldName = upstreamOutput->getName();
+            const CustomCodeNodeMdl* upstreamCustomNodeMdl = dynamic_cast<const CustomCodeNodeMdl*>(&upstreamNode->getImplementation());
+            if (upstreamCustomNodeMdl)
+            {
+                // Prefix the port name depending on the CustomCodeNode
+                variable = upstreamNode->getName() + "_result." + upstreamCustomNodeMdl->modifyPortName(fieldName, mdlSyntax);
+            }
+            else
+            {
+                // Existing implementations and none user defined structs will keep the prefix always to not break existing content
+                variable = upstreamNode->getName() + "_result." + mdlSyntax.modifyPortName(upstreamOutput->getName());
+            }
         }
     }
     else

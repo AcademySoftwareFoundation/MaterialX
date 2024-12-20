@@ -265,42 +265,45 @@ TEST_CASE("Comments and newlines", "[xmlio]")
 TEST_CASE("Fuzz testing", "[xmlio]")
 {
     mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
-    mx::FilePath examplesPath = searchPath.find("resources/Materials/Examples/StandardSurface");
+    mx::FilePath examplesPath = searchPath.find("resources/Materials/Examples");
 
     std::mt19937 rng(0);
     std::uniform_int_distribution<size_t> randChar(0, 255);
 
-    for (const mx::FilePath& filename : examplesPath.getFilesInDirectory(mx::MTLX_EXTENSION))
+    for (const mx::FilePath& path : examplesPath.getSubDirectories())
     {
-        // Read the example file into an XML string buffer.
-        const std::string origString = mx::readFile(examplesPath / filename);
-        REQUIRE(origString.size() > 0);
-        std::uniform_int_distribution<size_t> randPos(0, origString.size() - 1);
-
-        // Iterate over test runs.
-        for (size_t testRun = 0; testRun < 256; testRun++)
+        for (const mx::FilePath& filename : path.getFilesInDirectory(mx::MTLX_EXTENSION))
         {
-            std::string editString = origString;
+            // Read the example file into an XML string buffer.
+            const std::string origString = mx::readFile(path / filename);
+            REQUIRE(origString.size() > 0);
+            std::uniform_int_distribution<size_t> randPos(0, origString.size() - 1);
 
-            // Iterate over string edits.
-            for (size_t editIndex = 0; editIndex < 32; editIndex++)
+            // Iterate over test runs.
+            for (size_t testRun = 0; testRun < 256; testRun++)
             {
-                // Randomly alter one character in the document.
-                size_t charIndex = randPos(rng);
-                size_t newChar = randChar(rng);
-                editString[charIndex] = (char) newChar;
+                std::string editString = origString;
 
-                // Attempt to interpret the edited string as a document, allowing only MaterialX exceptions.
-                mx::DocumentPtr doc = mx::createDocument();
-                try
+                // Iterate over string edits.
+                for (size_t editIndex = 0; editIndex < 32; editIndex++)
                 {
-                    mx::readFromXmlString(doc, editString, searchPath);
-                    doc->validate();
-                }
-                catch (const mx::Exception&)
-                {
-                    // On a MaterialX exception, proceed to the next test run.
-                    break;
+                    // Randomly alter one character in the document.
+                    size_t charIndex = randPos(rng);
+                    size_t newChar = randChar(rng);
+                    editString[charIndex] = (char) newChar;
+
+                    // Attempt to interpret the edited string as a document, allowing only MaterialX exceptions.
+                    mx::DocumentPtr doc = mx::createDocument();
+                    try
+                    {
+                        mx::readFromXmlString(doc, editString, searchPath);
+                        doc->validate();
+                    }
+                    catch (const mx::Exception&)
+                    {
+                        // On a MaterialX exception, proceed to the next test run.
+                        break;
+                    }
                 }
             }
         }
