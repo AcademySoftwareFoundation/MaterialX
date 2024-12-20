@@ -107,10 +107,7 @@ if (MATERIALX_BUILD_JS)
 endif()
 
 if (MATERIALX_BUILD_GEN_MSL)
-    # The MSL shader generation has a 'libraries' dependancy on GLSL, so it is necessary to build the GLSL shader
-    # generator - to allow for consumers (OpenUSD) to use MaterialX::GlslShaderGenerator::TARGET to locate those
-    # resources.
-    # Once the GLSL and MSL libraries are separated, this can be removed.
+    # All hardware shading languages currently depend on the GLSL shader generator.
     set(MATERIALX_BUILD_GEN_GLSL ON)
 endif ()
 
