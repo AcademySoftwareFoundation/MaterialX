@@ -106,10 +106,10 @@ if (MATERIALX_BUILD_JS)
     set(MATERIALX_BUILD_TESTS OFF)
 endif()
 
-if (MATERIALX_BUILD_GEN_MSL)
+if(MATERIALX_BUILD_GEN_MSL)
     # All hardware shading languages currently depend on the GLSL shader generator.
     set(MATERIALX_BUILD_GEN_GLSL ON)
-endif ()
+endif()
 
 set(MATERIALX_PYTHON_VERSION "" CACHE STRING
     "Python version to be used in building the MaterialX Python package (e.g. '3.9').")
