@@ -12,6 +12,102 @@
   <!-- ======================================================================== -->
 
   <!--
+    Node: <imagearray>
+    Samples data from a single image, or from a layer within a multi-layer image.
+  -->
+  <nodegraph name="NG_imagearray_float" nodedef="ND_imagearray_float">
+    <elementat name="selectFilename" type="filename">
+      <input name="in" type="filenamearray" interfacename="files"/>
+      <input name="index" type="integer" interfacename="index"/>
+    </elementat>
+    <image name="image" type="float">
+      <input name="file" type="filename" nodename="selectFilename" />
+      <input name="default" type="float" interfacename="default" />
+      <input name="texcoord" type="vector2" interfacename="texcoord" />
+      <input name="uaddressmode" type="string" interfacename="uaddressmode" />
+      <input name="vaddressmode" type="string" interfacename="vaddressmode" />
+      <input name="filtertype" type="string" interfacename="filtertype" />
+    </image>
+    <output name="out" type="float" nodename="image"/>
+  </nodegraph>
+  <nodegraph name="NG_imagearray_color3" nodedef="ND_imagearray_color3">
+    <elementat name="selectFilename" type="filename">
+      <input name="in" type="filenamearray" interfacename="files"/>
+      <input name="index" type="integer" interfacename="index"/>
+    </elementat>
+    <image name="image" type="color3">
+      <input name="file" type="filename" nodename="selectFilename" />
+      <input name="default" type="color3" interfacename="default" />
+      <input name="texcoord" type="vector2" interfacename="texcoord" />
+      <input name="uaddressmode" type="string" interfacename="uaddressmode" />
+      <input name="vaddressmode" type="string" interfacename="vaddressmode" />
+      <input name="filtertype" type="string" interfacename="filtertype" />
+    </image>
+    <output name="out" type="color3" nodename="image"/>
+  </nodegraph>
+  <nodegraph name="NG_imagearray_color4" nodedef="ND_imagearray_color4">
+    <elementat name="selectFilename" type="filename">
+      <input name="in" type="filenamearray" interfacename="files"/>
+      <input name="index" type="integer" interfacename="index"/>
+    </elementat>
+    <image name="image" type="color4">
+      <input name="file" type="filename" nodename="selectFilename" />
+      <input name="default" type="color4" interfacename="default" />
+      <input name="texcoord" type="vector2" interfacename="texcoord" />
+      <input name="uaddressmode" type="string" interfacename="uaddressmode" />
+      <input name="vaddressmode" type="string" interfacename="vaddressmode" />
+      <input name="filtertype" type="string" interfacename="filtertype" />
+    </image>
+    <output name="out" type="color4" nodename="image"/>
+  </nodegraph>
+  <nodegraph name="NG_imagearray_vector2" nodedef="ND_imagearray_vector2">
+    <elementat name="selectFilename" type="filename">
+      <input name="in" type="filenamearray" interfacename="files"/>
+      <input name="index" type="integer" interfacename="index"/>
+    </elementat>
+    <image name="image" type="vector2">
+      <input name="file" type="filename" nodename="selectFilename" />
+      <input name="default" type="vector2" interfacename="default" />
+      <input name="texcoord" type="vector2" interfacename="texcoord" />
+      <input name="uaddressmode" type="string" interfacename="uaddressmode" />
+      <input name="vaddressmode" type="string" interfacename="vaddressmode" />
+      <input name="filtertype" type="string" interfacename="filtertype" />
+    </image>
+    <output name="out" type="vector2" nodename="image"/>
+  </nodegraph>
+  <nodegraph name="NG_imagearray_vector3" nodedef="ND_imagearray_vector3">
+    <elementat name="selectFilename" type="filename">
+      <input name="in" type="filenamearray" interfacename="files"/>
+      <input name="index" type="integer" interfacename="index"/>
+    </elementat>
+    <image name="image" type="vector3">
+      <input name="file" type="filename" nodename="selectFilename" />
+      <input name="default" type="vector3" interfacename="default" />
+      <input name="texcoord" type="vector2" interfacename="texcoord" />
+      <input name="uaddressmode" type="string" interfacename="uaddressmode" />
+      <input name="vaddressmode" type="string" interfacename="vaddressmode" />
+      <input name="filtertype" type="string" interfacename="filtertype" />
+    </image>
+    <output name="out" type="vector3" nodename="image"/>
+  </nodegraph>
+  <nodegraph name="NG_imagearray_vector4" nodedef="ND_imagearray_vector4">
+    <elementat name="selectFilename" type="filename">
+      <input name="in" type="filenamearray" interfacename="files"/>
+      <input name="index" type="integer" interfacename="index"/>
+    </elementat>
+    <image name="image" type="vector4">
+      <input name="file" type="filename" nodename="selectFilename" />
+      <input name="default" type="vector4" interfacename="default" />
+      <input name="texcoord" type="vector2" interfacename="texcoord" />
+      <input name="uaddressmode" type="string" interfacename="uaddressmode" />
+      <input name="vaddressmode" type="string" interfacename="vaddressmode" />
+      <input name="filtertype" type="string" interfacename="filtertype" />
+    </image>
+    <output name="out" type="vector4" nodename="image"/>
+  </nodegraph>
+
+
+  <!--
     Node: <tiledimage>
   -->
   <nodegraph name="NG_tiledimage_float" nodedef="ND_tiledimage_float">

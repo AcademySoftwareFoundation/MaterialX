@@ -268,6 +268,12 @@
     <output name="out" type="vector4" default="0.0, 0.0, 0.0, 0.0" />
   </nodedef>
 
+  <nodedef name="ND_elementat_filenamearray" node="elementat" nodegroup="procedural">
+    <input name="in" type="filenamearray" value="" uniform="true"/>
+    <input name="index" type="integer" value="0"/>
+    <output name="out" type="filename" default=""/>
+  </nodedef>
+
   <!--
     Node: <tiledimage> Supplemental Node
     Samples data from a single image, with provisions for tiling and offsetting the image
