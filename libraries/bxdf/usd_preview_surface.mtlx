@@ -16,6 +16,7 @@
     <input name="clearcoat" type="float" value="0" uimin="0.0" uimax="1.0" uiname="Clearcoat" />
     <input name="clearcoatRoughness" type="float" value="0.01" uimin="0.0" uimax="1.0" uiname="Clearcoat Roughness" />
     <input name="opacity" type="float" value="1" uimin="0.0" uimax="1.0" uiname="Opacity" />
+    <input name="opacityMode" type="integer" enum="transparent,presence" enumvalues="0,1" value="0" uiname="Opacity Mode" />
     <input name="opacityThreshold" type="float" value="0" uimin="0.0" uimax="1.0" uiname="Opacity Threshold" />
     <input name="ior" type="float" value="1.5" uimin="0.0" uisoftmin="1.0" uisoftmax="3.0" uiname="Index of Refraction" />
     <input name="normal" type="vector3" value="0, 0, 1" uimin="-1.0,-1.0,-1.0" uimax="1.0,1.0,1.0" uistep="0.01" uiname="Normal" />
@@ -279,16 +280,21 @@
       <input name="in1" type="float" value="1" />
       <input name="in2" type="float" value="0" />
     </ifgreatereq>
-    <ifequal name="opacity" type="float">
+    <ifequal name="opacity_presence" type="float">
       <input name="value1" type="float" interfacename="opacity" />
       <input name="value2" type="float" value="0.0" />
       <input name="in1" type="float" value="0.0" />
       <input name="in2" type="float" nodename="cutout_opacity" />
     </ifequal>
+    <switch name="opacity_switch" type="float">
+      <input name="in1" type="float" nodename="cutout_opacity" />
+      <input name="in2" type="float" nodename="opacity_presence" />
+      <input name="which" type="integer" interfacename="opacityMode" />
+    </switch>
     <surface name="surface_constructor" type="surfaceshader">
       <input name="bsdf" type="BSDF" nodename="coat_bsdf" />
       <input name="edf" type="EDF" nodename="emission_edf" />
-      <input name="opacity" type="float" nodename="opacity" />
+      <input name="opacity" type="float" nodename="opacity_switch" />
     </surface>
 
     <!-- Output -->
