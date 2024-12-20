@@ -1,0 +1,8 @@
+void mx_elementat_filenamearray(textureresources in, int index, output textureresource out)
+{
+    // we currently need the intermediate variable to use the list initializer syntax
+    // this was reported to OSL project in issue #1906 - if that gets fixed we may be able
+    // to revert to direct assignment to the output variable.
+    textureresource tmp = { in.filename[index], in.colorspace };
+    out = tmp;
+}
