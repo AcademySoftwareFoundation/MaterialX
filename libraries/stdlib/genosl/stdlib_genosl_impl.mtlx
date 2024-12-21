@@ -41,6 +41,8 @@
     <input name="default" type="vector4" implname="default_value" />
   </implementation>
 
+  <implementation name="IM_elementat_filenamearray_genosl" nodedef="ND_elementat_filenamearray" file="mx_elementat_filenamearray.osl" function="mx_elementat_filenamearray" target="genosl"/>
+
   <!-- <triplanarprojection> -->
 
   <!-- <normalmap> -->
