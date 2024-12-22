@@ -3795,11 +3795,11 @@
       <input name="in" type="float" interfacename="in" />
       <input name="inlow" type="float" interfacename="inlow" />
       <input name="inhigh" type="float" interfacename="inhigh" />
-      <input name="outlow" type="float" value="0.0" />
-      <input name="outhigh" type="float" value="1.0" />
+      <input name="outlow" type="float" value="Value:zero" />
+      <input name="outhigh" type="float" value="Value:one" />
     </remap>
     <divide name="N_recip_float" type="float">
-      <input name="in1" type="float" value="1.0" />
+      <input name="in1" type="float" value="Value:one" />
       <input name="in2" type="float" interfacename="gamma" />
     </divide>
     <absval name="N_abs_float" type="float">
@@ -3818,8 +3818,8 @@
     </multiply>
     <remap name="N_remap2_float" type="float">
       <input name="in" type="float" nodename="N_gamma_float" />
-      <input name="inlow" type="float" value="0.0" />
-      <input name="inhigh" type="float" value="1.0" />
+      <input name="inlow" type="float" value="Value:zero" />
+      <input name="inhigh" type="float" value="Value:one" />
       <input name="outlow" type="float" interfacename="outlow" />
       <input name="outhigh" type="float" interfacename="outhigh" />
     </remap>
@@ -3841,11 +3841,11 @@
       <input name="in" type="color3" interfacename="in" />
       <input name="inlow" type="color3" interfacename="inlow" />
       <input name="inhigh" type="color3" interfacename="inhigh" />
-      <input name="outlow" type="color3" value="0.0, 0.0, 0.0" />
-      <input name="outhigh" type="color3" value="1.0, 1.0, 1.0" />
+      <input name="outlow" type="color3" value="Value:zero" />
+      <input name="outhigh" type="color3" value="Value:one" />
     </remap>
     <divide name="N_recip_color3" type="color3">
-      <input name="in1" type="color3" value="1.0, 1.0, 1.0" />
+      <input name="in1" type="color3" value="Value:one" />
       <input name="in2" type="color3" interfacename="gamma" />
     </divide>
     <absval name="N_abs_color3" type="color3">
@@ -3864,8 +3864,8 @@
     </multiply>
     <remap name="N_remap2_color3" type="color3">
       <input name="in" type="color3" nodename="N_gamma_color3" />
-      <input name="inlow" type="color3" value="0.0, 0.0, 0.0" />
-      <input name="inhigh" type="color3" value="1.0, 1.0, 1.0" />
+      <input name="inlow" type="color3" value="Value:zero" />
+      <input name="inhigh" type="color3" value="Value:one" />
       <input name="outlow" type="color3" interfacename="outlow" />
       <input name="outhigh" type="color3" interfacename="outhigh" />
     </remap>
@@ -3887,11 +3887,11 @@
       <input name="in" type="color4" interfacename="in" />
       <input name="inlow" type="color4" interfacename="inlow" />
       <input name="inhigh" type="color4" interfacename="inhigh" />
-      <input name="outlow" type="color4" value="0.0, 0.0, 0.0, 0.0" />
-      <input name="outhigh" type="color4" value="1.0, 1.0, 1.0, 1.0" />
+      <input name="outlow" type="color4" value="Value:zero" />
+      <input name="outhigh" type="color4" value="Value:one" />
     </remap>
     <divide name="N_recip_color4" type="color4">
-      <input name="in1" type="color4" value="1.0, 1.0, 1.0, 1.0" />
+      <input name="in1" type="color4" value="Value:one" />
       <input name="in2" type="color4" interfacename="gamma" />
     </divide>
     <absval name="N_abs_color4" type="color4">
@@ -3910,8 +3910,8 @@
     </multiply>
     <remap name="N_remap2_color4" type="color4">
       <input name="in" type="color4" nodename="N_gamma_color4" />
-      <input name="inlow" type="color4" value="0.0, 0.0, 0.0, 0.0" />
-      <input name="inhigh" type="color4" value="1.0, 1.0, 1.0, 1.0" />
+      <input name="inlow" type="color4" value="Value:zero" />
+      <input name="inhigh" type="color4" value="Value:one" />
       <input name="outlow" type="color4" interfacename="outlow" />
       <input name="outhigh" type="color4" interfacename="outhigh" />
     </remap>
@@ -3933,11 +3933,11 @@
       <input name="in" type="vector2" interfacename="in" />
       <input name="inlow" type="vector2" interfacename="inlow" />
       <input name="inhigh" type="vector2" interfacename="inhigh" />
-      <input name="outlow" type="vector2" value="0.0, 0.0" />
-      <input name="outhigh" type="vector2" value="1.0, 1.0" />
+      <input name="outlow" type="vector2" value="Value:zero" />
+      <input name="outhigh" type="vector2" value="Value:one" />
     </remap>
     <divide name="N_recip_vector2" type="vector2">
-      <input name="in1" type="vector2" value="1.0, 1.0" />
+      <input name="in1" type="vector2" value="Value:one" />
       <input name="in2" type="vector2" interfacename="gamma" />
     </divide>
     <absval name="N_abs_vector2" type="vector2">
@@ -3956,8 +3956,8 @@
     </multiply>
     <remap name="N_remap2_vector2" type="vector2">
       <input name="in" type="vector2" nodename="N_gamma_vector2" />
-      <input name="inlow" type="vector2" value="0.0, 0.0" />
-      <input name="inhigh" type="vector2" value="1.0, 1.0" />
+      <input name="inlow" type="vector2" value="Value:zero" />
+      <input name="inhigh" type="vector2" value="Value:one" />
       <input name="outlow" type="vector2" interfacename="outlow" />
       <input name="outhigh" type="vector2" interfacename="outhigh" />
     </remap>
@@ -3979,11 +3979,11 @@
       <input name="in" type="vector3" interfacename="in" />
       <input name="inlow" type="vector3" interfacename="inlow" />
       <input name="inhigh" type="vector3" interfacename="inhigh" />
-      <input name="outlow" type="vector3" value="0.0, 0.0, 0.0" />
-      <input name="outhigh" type="vector3" value="1.0, 1.0, 1.0" />
+      <input name="outlow" type="vector3" value="Value:zero" />
+      <input name="outhigh" type="vector3" value="Value:one" />
     </remap>
     <divide name="N_recip_vector3" type="vector3">
-      <input name="in1" type="vector3" value="1.0, 1.0, 1.0" />
+      <input name="in1" type="vector3" value="Value:one" />
       <input name="in2" type="vector3" interfacename="gamma" />
     </divide>
     <absval name="N_abs_vector3" type="vector3">
@@ -4002,8 +4002,8 @@
     </multiply>
     <remap name="N_remap2_vector3" type="vector3">
       <input name="in" type="vector3" nodename="N_gamma_vector3" />
-      <input name="inlow" type="vector3" value="0.0, 0.0, 0.0" />
-      <input name="inhigh" type="vector3" value="1.0, 1.0, 1.0" />
+      <input name="inlow" type="vector3" value="Value:zero" />
+      <input name="inhigh" type="vector3" value="Value:one" />
       <input name="outlow" type="vector3" interfacename="outlow" />
       <input name="outhigh" type="vector3" interfacename="outhigh" />
     </remap>
@@ -4025,11 +4025,11 @@
       <input name="in" type="vector4" interfacename="in" />
       <input name="inlow" type="vector4" interfacename="inlow" />
       <input name="inhigh" type="vector4" interfacename="inhigh" />
-      <input name="outlow" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
-      <input name="outhigh" type="vector4" value="1.0, 1.0, 1.0, 1.0" />
+      <input name="outlow" type="vector4" value="Value:zero" />
+      <input name="outhigh" type="vector4" value="Value:one" />
     </remap>
     <divide name="N_recip_vector4" type="vector4">
-      <input name="in1" type="vector4" value="1.0, 1.0, 1.0, 1.0" />
+      <input name="in1" type="vector4" value="Value:one" />
       <input name="in2" type="vector4" interfacename="gamma" />
     </divide>
     <absval name="N_abs_vector4" type="vector4">
@@ -4048,8 +4048,8 @@
     </multiply>
     <remap name="N_remap2_vector4" type="vector4">
       <input name="in" type="vector4" nodename="N_gamma_vector4" />
-      <input name="inlow" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
-      <input name="inhigh" type="vector4" value="1.0, 1.0, 1.0, 1.0" />
+      <input name="inlow" type="vector4" value="Value:zero" />
+      <input name="inhigh" type="vector4" value="Value:one" />
       <input name="outlow" type="vector4" interfacename="outlow" />
       <input name="outhigh" type="vector4" interfacename="outhigh" />
     </remap>
@@ -4071,11 +4071,11 @@
       <input name="in" type="color3" interfacename="in" />
       <input name="inlow" type="float" interfacename="inlow" />
       <input name="inhigh" type="float" interfacename="inhigh" />
-      <input name="outlow" type="float" value="0.0" />
-      <input name="outhigh" type="float" value="1.0" />
+      <input name="outlow" type="float" value="Value:zero" />
+      <input name="outhigh" type="float" value="Value:one" />
     </remap>
     <divide name="N_recip_color3FA" type="float">
-      <input name="in1" type="float" value="1.0" />
+      <input name="in1" type="float" value="Value:one" />
       <input name="in2" type="float" interfacename="gamma" />
     </divide>
     <absval name="N_abs_color3FA" type="color3">
@@ -4094,8 +4094,8 @@
     </multiply>
     <remap name="N_remap2_color3FA" type="color3">
       <input name="in" type="color3" nodename="N_gamma_color3FA" />
-      <input name="inlow" type="float" value="0.0" />
-      <input name="inhigh" type="float" value="1.0" />
+      <input name="inlow" type="float" value="Value:zero" />
+      <input name="inhigh" type="float" value="Value:one" />
       <input name="outlow" type="float" interfacename="outlow" />
       <input name="outhigh" type="float" interfacename="outhigh" />
     </remap>
@@ -4117,11 +4117,11 @@
       <input name="in" type="color4" interfacename="in" />
       <input name="inlow" type="float" interfacename="inlow" />
       <input name="inhigh" type="float" interfacename="inhigh" />
-      <input name="outlow" type="float" value="0.0" />
-      <input name="outhigh" type="float" value="1.0" />
+      <input name="outlow" type="float" value="Value:zero" />
+      <input name="outhigh" type="float" value="Value:one" />
     </remap>
     <divide name="N_recip_color4FA" type="float">
-      <input name="in1" type="float" value="1.0" />
+      <input name="in1" type="float" value="Value:one" />
       <input name="in2" type="float" interfacename="gamma" />
     </divide>
     <absval name="N_abs_color4FA" type="color4">
@@ -4140,8 +4140,8 @@
     </multiply>
     <remap name="N_remap2_color4FA" type="color4">
       <input name="in" type="color4" nodename="N_gamma_color4FA" />
-      <input name="inlow" type="float" value="0.0" />
-      <input name="inhigh" type="float" value="1.0" />
+      <input name="inlow" type="float" value="Value:zero" />
+      <input name="inhigh" type="float" value="Value:one" />
       <input name="outlow" type="float" interfacename="outlow" />
       <input name="outhigh" type="float" interfacename="outhigh" />
     </remap>
@@ -4163,11 +4163,11 @@
       <input name="in" type="vector2" interfacename="in" />
       <input name="inlow" type="float" interfacename="inlow" />
       <input name="inhigh" type="float" interfacename="inhigh" />
-      <input name="outlow" type="float" value="0.0" />
-      <input name="outhigh" type="float" value="1.0" />
+      <input name="outlow" type="float" value="Value:zero" />
+      <input name="outhigh" type="float" value="Value:one" />
     </remap>
     <divide name="N_recip_vector2FA" type="float">
-      <input name="in1" type="float" value="1.0" />
+      <input name="in1" type="float" value="Value:one" />
       <input name="in2" type="float" interfacename="gamma" />
     </divide>
     <absval name="N_abs_vector2FA" type="vector2">
@@ -4186,8 +4186,8 @@
     </multiply>
     <remap name="N_remap2_vector2FA" type="vector2">
       <input name="in" type="vector2" nodename="N_gamma_vector2FA" />
-      <input name="inlow" type="float" value="0.0" />
-      <input name="inhigh" type="float" value="1.0" />
+      <input name="inlow" type="float" value="Value:zero" />
+      <input name="inhigh" type="float" value="Value:one" />
       <input name="outlow" type="float" interfacename="outlow" />
       <input name="outhigh" type="float" interfacename="outhigh" />
     </remap>
@@ -4209,11 +4209,11 @@
       <input name="in" type="vector3" interfacename="in" />
       <input name="inlow" type="float" interfacename="inlow" />
       <input name="inhigh" type="float" interfacename="inhigh" />
-      <input name="outlow" type="float" value="0.0" />
-      <input name="outhigh" type="float" value="1.0" />
+      <input name="outlow" type="float" value="Value:zero" />
+      <input name="outhigh" type="float" value="Value:one" />
     </remap>
     <divide name="N_recip_vector3FA" type="float">
-      <input name="in1" type="float" value="1.0" />
+      <input name="in1" type="float" value="Value:one" />
       <input name="in2" type="float" interfacename="gamma" />
     </divide>
     <absval name="N_abs_vector3FA" type="vector3">
@@ -4232,8 +4232,8 @@
     </multiply>
     <remap name="N_remap2_vector3FA" type="vector3">
       <input name="in" type="vector3" nodename="N_gamma_vector3FA" />
-      <input name="inlow" type="float" value="0.0" />
-      <input name="inhigh" type="float" value="1.0" />
+      <input name="inlow" type="float" value="Value:zero" />
+      <input name="inhigh" type="float" value="Value:one" />
       <input name="outlow" type="float" interfacename="outlow" />
       <input name="outhigh" type="float" interfacename="outhigh" />
     </remap>
@@ -4255,11 +4255,11 @@
       <input name="in" type="vector4" interfacename="in" />
       <input name="inlow" type="float" interfacename="inlow" />
       <input name="inhigh" type="float" interfacename="inhigh" />
-      <input name="outlow" type="float" value="0.0" />
-      <input name="outhigh" type="float" value="1.0" />
+      <input name="outlow" type="float" value="Value:zero" />
+      <input name="outhigh" type="float" value="Value:one" />
     </remap>
     <divide name="N_recip_vector4FA" type="float">
-      <input name="in1" type="float" value="1.0" />
+      <input name="in1" type="float" value="Value:one" />
       <input name="in2" type="float" interfacename="gamma" />
     </divide>
     <absval name="N_abs_vector4FA" type="vector4">
@@ -4278,8 +4278,8 @@
     </multiply>
     <remap name="N_remap2_vector4FA" type="vector4">
       <input name="in" type="vector4" nodename="N_gamma_vector4FA" />
-      <input name="inlow" type="float" value="0.0" />
-      <input name="inhigh" type="float" value="1.0" />
+      <input name="inlow" type="float" value="Value:zero" />
+      <input name="inhigh" type="float" value="Value:one" />
       <input name="outlow" type="float" interfacename="outlow" />
       <input name="outhigh" type="float" interfacename="outhigh" />
     </remap>
