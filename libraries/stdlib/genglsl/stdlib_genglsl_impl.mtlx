@@ -61,7 +61,7 @@
     <input name="default" type="vector4" implname="default_value" />
   </implementation>
 
-  <implementation name="IM_elementat_filenamearray_genglsl" nodedef="ND_elementat_filenamearray" target="genglsl" sourcecode="{{in}}[{{index}}]" />
+  <implementation name="IM_elementat_filenamearray_genglsl" nodedef="ND_elementat_filenamearray" file="mx_elementat_filenamearray.glsl" function="mx_elementat_filenamearray" target="genglsl"/>
 
   <!-- <normalmap> -->
   <implementation name="IM_normalmap_float_genglsl" nodedef="ND_normalmap_float" file="mx_normalmap.glsl" function="mx_normalmap_float" target="genglsl" />
