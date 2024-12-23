@@ -41,6 +41,28 @@
     <input name="default" type="vector4" implname="default_value" />
   </implementation>
 
+  <!-- <imagearray> -->
+  <implementation name="IM_imagearray_float_genmsl" nodedef="ND_imagearray_float" file="../genglsl/mx_imagearray_float.glsl" function="mx_imagearray_float" target="genmsl">
+    <input name="default" type="float" implname="default_value" />
+  </implementation>
+  <implementation name="IM_imagearray_color3_genmsl" nodedef="ND_imagearray_color3" file="../genglsl/mx_imagearray_color3.glsl" function="mx_imagearray_color3" target="genmsl">
+    <input name="default" type="color3" implname="default_value" />
+  </implementation>
+  <implementation name="IM_imagearray_color4_genmsl" nodedef="ND_imagearray_color4" file="../genglsl/mx_imagearray_color4.glsl" function="mx_imagearray_color4" target="genmsl">
+    <input name="default" type="color4" implname="default_value" />
+  </implementation>
+  <implementation name="IM_imagearray_vector2_genmsl" nodedef="ND_imagearray_vector2" file="../genglsl/mx_imagearray_vector2.glsl" function="mx_imagearray_vector2" target="genmsl">
+    <input name="default" type="vector2" implname="default_value" />
+  </implementation>
+  <implementation name="IM_imagearray_vector3_genmsl" nodedef="ND_imagearray_vector3" file="../genglsl/mx_imagearray_vector3.glsl" function="mx_imagearray_vector3" target="genmsl">
+    <input name="default" type="vector3" implname="default_value" />
+  </implementation>
+  <implementation name="IM_imagearray_vector4_genmsl" nodedef="ND_imagearray_vector4" file="../genglsl/mx_imagearray_vector4.glsl" function="mx_imagearray_vector4" target="genmsl">
+    <input name="default" type="vector4" implname="default_value" />
+  </implementation>
+
+  <implementation name="IM_elementat_filenamearray_genmsl" nodedef="ND_elementat_filenamearray" file="mx_elementat_filenamearray.msl" function="mx_elementat_filenamearray" target="genmsl"/>
+
   <!-- ======================================================================== -->
   <!-- Procedural nodes                                                         -->
   <!-- ======================================================================== -->

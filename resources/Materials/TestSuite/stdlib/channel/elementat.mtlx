@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+  <nodegraph name="elementat_filenamearrayy">
+    <elementat name="elementat" type="filename">
+      <input name="in" type="filenamearray" value="resources/Images/cloth.png,resources/Images/grid.png,resources/Images/marble.png" />
+      <input name="index" type="integer" value="1" />
+    </elementat>
+    <output name="out" type="filename" nodename="elementat" />
+  </nodegraph>
+</materialx>

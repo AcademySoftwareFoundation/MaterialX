@@ -266,10 +266,17 @@ class MX_RENDERMSL_API MslProgram
                          ImageHandlerPtr imageHandler);
 
     // Bind an individual texture to a program uniform location
-    ImagePtr bindTexture(id<MTLRenderCommandEncoder> renderCmdEncoder,
-                         unsigned int uniformLocation,
-                         ImagePtr imagePtr,
-                         ImageHandlerPtr imageHandler);
+    ImagePtr bindMetalTexture(id<MTLRenderCommandEncoder> renderCmdEncoder,
+                              unsigned int uniformLocation,
+                              ImagePtr imagePtr,
+                              ImageHandlerPtr imageHandler);
+
+    // Bind an individual texture to a program uniform location
+    ImagePtr bindTextureArray(id<MTLRenderCommandEncoder> renderCmdEncoder,
+                              unsigned int uniformLocation,
+                              vector<const FilePath> filePaths,
+                              ImageSamplingProperties samplingProperties,
+                              ImageHandlerPtr imageHandler);
 
     void bindUniformBuffers(id<MTLRenderCommandEncoder> renderCmdEncoder,
                             LightHandlerPtr lightHandler,

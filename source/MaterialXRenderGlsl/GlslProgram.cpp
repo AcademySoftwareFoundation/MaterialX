@@ -1100,6 +1100,11 @@ int GlslProgram::mapTypeToOpenGLType(TypeDesc type)
         // A "filename" is not indicative of type, so just return a 2d sampler.
         return GL_SAMPLER_2D;
     }
+    else if (type == Type::FILENAMEARRAY)
+    {
+        // A "filenamearray" is not indicative of type, so just return a 2d array sampler.
+        return GL_SAMPLER_2D_ARRAY;
+    }
 
     return GlslProgram::Input::INVALID_OPENGL_TYPE;
 }

@@ -39,6 +39,7 @@
   <typedef name="vector3array" />
   <typedef name="vector4array" />
   <typedef name="stringarray" />
+  <typedef name="filenamearray" />
   <typedef name="geomnamearray" />
 
   <!-- ======================================================================== -->
@@ -200,6 +201,77 @@
     <input name="frameoffset" type="integer" value="0" uiname="Frame Offset" uniform="true" />
     <input name="frameendaction" type="string" value="constant" enum="constant,clamp,periodic,mirror" uiname="Frame End Action" uniform="true" />
     <output name="out" type="vector4" default="0.0, 0.0, 0.0, 0.0" />
+  </nodedef>
+
+  <!--
+    Node: <imagearray>
+    Samples data from a single image, or from a layer within a multi-layer image.
+  -->
+  <nodedef name="ND_imagearray_float" node="imagearray" nodegroup="texture2d">
+    <input name="files" type="filenamearray" value="" uiname="Filenames" uniform="true" />
+    <input name="index" type="integer" value="0"/>
+    <input name="default" type="float" value="0.0" uiname="Default Value" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" uiname="Texture Coordinates" />
+    <input name="uaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode U" uniform="true" />
+    <input name="vaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode V" uniform="true" />
+    <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uiname="Filter Type" uniform="true" />
+    <output name="out" type="float" default="0.0" />
+  </nodedef>
+  <nodedef name="ND_imagearray_color3" node="imagearray" nodegroup="texture2d">
+    <input name="files" type="filenamearray" value="" uiname="Filenames" uniform="true" />
+    <input name="index" type="integer" value="0"/>
+    <input name="default" type="color3" value="0.0, 0.0, 0.0" uiname="Default Value" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" uiname="Texture Coordinates" />
+    <input name="uaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode U" uniform="true" />
+    <input name="vaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode V" uniform="true" />
+    <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uiname="Filter Type" uniform="true" />
+    <output name="out" type="color3" default="0.0, 0.0, 0.0" />
+  </nodedef>
+  <nodedef name="ND_imagearray_color4" node="imagearray" nodegroup="texture2d">
+    <input name="files" type="filenamearray" value="" uiname="Filenames" uniform="true" />
+    <input name="index" type="integer" value="0"/>
+    <input name="default" type="color4" value="0.0, 0.0, 0.0, 0.0" uiname="Default Value" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" uiname="Texture Coordinates" />
+    <input name="uaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode U" uniform="true" />
+    <input name="vaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode V" uniform="true" />
+    <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uiname="Filter Type" uniform="true" />
+    <output name="out" type="color4" default="0.0, 0.0, 0.0, 0.0" />
+  </nodedef>
+  <nodedef name="ND_imagearray_vector2" node="imagearray" nodegroup="texture2d">
+    <input name="files" type="filenamearray" value="" uiname="Filenames" uniform="true" />
+    <input name="index" type="integer" value="0"/>
+    <input name="default" type="vector2" value="0.0, 0.0" uiname="Default Value" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" uiname="Texture Coordinates" />
+    <input name="uaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode U" uniform="true" />
+    <input name="vaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode V" uniform="true" />
+    <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uiname="Filter Type" uniform="true" />
+    <output name="out" type="vector2" default="0.0, 0.0" />
+  </nodedef>
+  <nodedef name="ND_imagearray_vector3" node="imagearray" nodegroup="texture2d">
+    <input name="files" type="filenamearray" value="" uiname="Filenames" uniform="true" />
+    <input name="index" type="integer" value="0"/>
+    <input name="default" type="vector3" value="0.0, 0.0, 0.0" uiname="Default Value" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" uiname="Texture Coordinates" />
+    <input name="uaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode U" uniform="true" />
+    <input name="vaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode V" uniform="true" />
+    <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uiname="Filter Type" uniform="true" />
+    <output name="out" type="vector3" default="0.0, 0.0, 0.0" />
+  </nodedef>
+  <nodedef name="ND_imagearray_vector4" node="imagearray" nodegroup="texture2d">
+    <input name="files" type="filenamearray" value="" uiname="Filenames" uniform="true" />
+    <input name="index" type="integer" value="0"/>
+    <input name="default" type="vector4" value="0.0, 0.0, 0.0, 0.0" uiname="Default Value" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" uiname="Texture Coordinates" />
+    <input name="uaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode U" uniform="true" />
+    <input name="vaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode V" uniform="true" />
+    <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uiname="Filter Type" uniform="true" />
+    <output name="out" type="vector4" default="0.0, 0.0, 0.0, 0.0" />
+  </nodedef>
+
+  <nodedef name="ND_elementat_filenamearray" node="elementat" nodegroup="procedural">
+    <input name="in" type="filenamearray" value="" uniform="true"/>
+    <input name="index" type="integer" value="0"/>
+    <output name="out" type="filename" default=""/>
   </nodedef>
 
   <!--
