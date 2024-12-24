@@ -307,6 +307,8 @@ class Graph
     int _frameCount;
     // used for filtering pins when connecting links
     std::string _pinFilterType;
+    // used for filtering pins when adding a node from a link
+    std::string _menuFilterType;
 
     // DPI scaling for fonts
     float _fontScale;

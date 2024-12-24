@@ -3677,12 +3677,14 @@ void Graph::showHelp() const
 
 void Graph::addNodePopup(bool cursor)
 {
-    bool open_AddPopup = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootWindow) && ImGui::IsKeyReleased(ImGuiKey_Tab);
+    bool open_AddPopup = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootWindow) && ImGui::IsKeyReleased(ImGuiKey_Tab) ||
+        (_pinFilterType != mx::EMPTY_STRING && ImGui::IsMouseReleased(0));
     static char input[32]{ "" };
     if (open_AddPopup)
     {
         cursor = true;
         ImGui::OpenPopup("add node");
+        _menuFilterType = _pinFilterType;
     }
     if (ImGui::BeginPopup("add node"))
     {
@@ -3703,7 +3705,7 @@ void Graph::addNodePopup(bool cursor)
         for (auto node : _nodesToAdd)
         {
             // Filter out list of nodes
-            if (subs.size() > 0)
+            if (subs.size() > 0 || _menuFilterType != mx::EMPTY_STRING)
             {
                 ImGui::SetNextWindowSizeConstraints(ImVec2(250.0f, 300.0f), ImVec2(-1.0f, 500.0f));
                 std::string str(node.getName());
@@ -3718,7 +3720,7 @@ void Graph::addNodePopup(bool cursor)
                 // Allow spaces to be used to search for node names
                 std::replace(subs.begin(), subs.end(), ' ', '_');
 
-                if (str.find(subs) != std::string::npos)
+                if ((subs.size() == 0 || str.find(subs) != std::string::npos) && (_menuFilterType == mx::EMPTY_STRING || node.getType() == _menuFilterType))
                 {
                     if (ImGui::MenuItem(getUserNodeDefName(nodeName).c_str()) || (ImGui::IsItemFocused() && ImGui::IsKeyPressedMap(ImGuiKey_Enter)))
                     {
@@ -4198,6 +4200,8 @@ void Graph::drawGraph(ImVec2 mousePos)
                 {
                     _pinFilterType = getPin(filterPinId)->_type;
                 }
+
+                showLabel("Release Mouse to Add a New Node", ImColor(50, 50, 50, 255));
             }
         }
         else
