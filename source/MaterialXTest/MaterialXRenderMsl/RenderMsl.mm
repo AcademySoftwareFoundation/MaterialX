@@ -104,6 +104,7 @@ void MslShaderRenderTester::registerLights(mx::DocumentPtr document,
     _lightHandler->setEnvRadianceMap(envRadiance);
     _lightHandler->setEnvIrradianceMap(envIrradiance);
     _lightHandler->setEnvSampleCount(options.enableReferenceQuality ? 4096 : 1024);
+    _lightHandler->setRefractionTwoSided(true);
 }
 
 //
@@ -175,17 +176,6 @@ bool MslShaderRenderTester::runRenderer(const std::string& shaderName,
 
     const mx::ShaderGenerator& shadergen = context.getShaderGenerator();
 
-    // Perform validation if requested
-    if (testOptions.validateElementToRender)
-    {
-        std::string message;
-        if (!element->validate(&message))
-        {
-            log << "Element is invalid: " << message << std::endl;
-            return false;
-        }
-    }
-
     std::vector<mx::GenOptions> optionsList;
     getGenerationOptions(testOptions, context.getOptions(), optionsList);
 
@@ -252,11 +242,6 @@ bool MslShaderRenderTester::runRenderer(const std::string& shaderName,
                 file.open(shaderPath + "_ps.metal");
                 file << pixelSourceCode;
                 file.close();
-            }
-
-            if (!testOptions.compileCode)
-            {
-                return false;
             }
 
             // Validate
@@ -362,27 +347,31 @@ bool MslShaderRenderTester::runRenderer(const std::string& shaderName,
                     }
                 }
 
-                if (testOptions.renderImages)
-                {
-                    {
-                        mx::ScopedTimer renderTimer(&profileTimes.languageTimes.renderTime);
-                        _renderer->getImageHandler()->setSearchPath(mx::getDefaultDataSearchPath());
-                        _renderer->setSize(static_cast<unsigned int>(testOptions.renderSize[0]), static_cast<unsigned int>(testOptions.renderSize[1]));
-                        _renderer->render();
-                    }
+                int supersampleFactor = testOptions.enableReferenceQuality ? 8 : 1;
 
-                    if (testOptions.saveImages)
+                {
+                    mx::ScopedTimer renderTimer(&profileTimes.languageTimes.renderTime);
+                    _renderer->getImageHandler()->setSearchPath(mx::getDefaultDataSearchPath());
+                    unsigned int width = (unsigned int) testOptions.renderSize[0] * supersampleFactor;
+                    unsigned int height = (unsigned int) testOptions.renderSize[1] * supersampleFactor;
+                    _renderer->setSize(width, height);
+                    _renderer->render();
+                }
+
+                {
+                    mx::ScopedTimer ioTimer(&profileTimes.languageTimes.imageSaveTime);
+                    std::string fileName = shaderPath + "_msl.png";
+                    mx::ImagePtr image = _renderer->captureImage();
+                    if (image)
                     {
-                        mx::ScopedTimer ioTimer(&profileTimes.languageTimes.imageSaveTime);
-                        std::string fileName = shaderPath + "_msl.png";
-                        mx::ImagePtr image = _renderer->captureImage();
-                        if (image)
+                        if (supersampleFactor > 1)
                         {
-                            _renderer->getImageHandler()->saveImage(fileName, image, true);
-                            if (imageVec)
-                            {
-                                imageVec->push_back(image);
-                            }
+                            image = image->applyBoxDownsample(supersampleFactor);
+                        }
+                        _renderer->getImageHandler()->saveImage(fileName, image, true);
+                        if (imageVec)
+                        {
+                            imageVec->push_back(image);
                         }
                     }
                 }
