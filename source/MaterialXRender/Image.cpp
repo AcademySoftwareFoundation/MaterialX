@@ -528,6 +528,35 @@ ImagePtr Image::applyGaussianBlur()
     return blurImage2;
 }
 
+ImagePtr Image::applyBoxDownsample(unsigned int factor)
+{
+    factor = std::max(factor, (unsigned int) 2);
+
+    ImagePtr sampleImage = Image::create(getWidth() / factor, getHeight() / factor, getChannelCount(), getBaseType());
+    sampleImage->createResourceBuffer();
+
+    for (int y = 0; y < (int) sampleImage->getHeight(); y++)
+    {
+        for (int x = 0; x < (int) sampleImage->getWidth(); x++)
+        {
+            Color4 sampleColor;
+            for (int dy = 0; dy < (int) factor; dy++)
+            {
+                int sy = std::min(std::max(y * (int) factor + dy, 0), (int) getHeight() - 1);
+                for (int dx = 0; dx < (int) factor; dx++)
+                {
+                    int sx = std::min(std::max(x * (int) factor + dx, 0), (int) getWidth() - 1);
+                    sampleColor += getTexelColor(sx, sy);
+                }
+            }
+            sampleColor /= (float) (factor * factor);
+            sampleImage->setTexelColor(x, y, sampleColor);
+        }
+    }
+
+    return sampleImage;
+}
+
 ImagePair Image::splitByLuminance(float luminance)
 {
     ImagePtr underflowImage = Image::create(getWidth(), getHeight(), getChannelCount(), getBaseType());
