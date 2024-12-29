@@ -33,20 +33,8 @@
     -->
     <input name="shaderInterfaces" type="integer" value="2" />
 
-    <!-- Validate element before attempting to generate code. Default is false  -->
-    <input name="validateElementToRender" type="boolean" value="false" />
-
-    <!-- Perform source code compilation validation test -->
-    <input name="compileCode" type="boolean" value="true" />
-
-    <!-- Perform rendering validation test -->
-    <input name="renderImages" type="boolean" value="true" />
-
     <!-- Rendered image size if render validation test enabled -->
     <input name="renderSize" type="vector2" value="512, 512" />
-
-    <!-- Perform saving of image. Can only be disabled for GLSL tests -->
-    <input name="saveImages" type="boolean" value="true" />
 
     <!-- Set this to be true if it is desired to dump out uniform and attribut information to the logging file -->
     <input name="dumpUniformsAndAttributes" type="boolean" value="true" />
@@ -76,7 +64,11 @@
     <!-- List of document paths for render tests -->
     <input name="renderTestPaths" type="string" value="resources/Materials/Examples/StandardSurface,resources/Materials/TestSuite/stdlib/color_management,resources/Materials/TestSuite/stdlib/convolution,resources/Materials/TestSuite/stdlib/geometric,resources/Materials/TestSuite/stdlib/procedural,resources/Materials/TestSuite/pbrlib,resources/Materials/TestSuite/nprlib" />
 
-    <!-- Enable reference quality rendering. Default is false. -->
+    <!-- Enable reference quality rendering.
+         This option enables higher sample counts and supersampling in render tests,
+         allowing for visual comparisons and differencing across shading languages,
+         but requiring a more powerful GPU and longer CPU render times.
+    -->
     <input name="enableReferenceQuality" type="boolean" value="false" />
   </nodedef>
 </materialx>
