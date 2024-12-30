@@ -157,13 +157,16 @@
   <!-- <geompropvalue> -->
   <implementation name="IM_geompropvalue_integer_genglsl" nodedef="ND_geompropvalue_integer" function="mx_geompropvalue_int" target="genglsl" />
   <implementation name="IM_geompropvalue_boolean_genglsl" nodedef="ND_geompropvalue_boolean" function="mx_geompropvalue_bool" target="genglsl" />
-  <implementation name="IM_geompropvalue_string_genglsl" nodedef="ND_geompropvalue_string" function="mx_geompropvalue_string" target="genglsl" />
   <implementation name="IM_geompropvalue_float_genglsl" nodedef="ND_geompropvalue_float" function="mx_geompropvalue_float" target="genglsl" />
   <implementation name="IM_geompropvalue_color3_genglsl" nodedef="ND_geompropvalue_color3" function="mx_geompropvalue_color" target="genglsl" />
   <implementation name="IM_geompropvalue_color4_genglsl" nodedef="ND_geompropvalue_color4" function="mx_geompropvalue_color4" target="genglsl" />
   <implementation name="IM_geompropvalue_vector2_genglsl" nodedef="ND_geompropvalue_vector2" function="mx_geompropvalue_vector2" target="genglsl" />
   <implementation name="IM_geompropvalue_vector3_genglsl" nodedef="ND_geompropvalue_vector3" function="mx_geompropvalue_vector" target="genglsl" />
   <implementation name="IM_geompropvalue_vector4_genglsl" nodedef="ND_geompropvalue_vector4" function="mx_geompropvalue_vector4" target="genglsl" />
+
+  <!-- <geompropvalueuniform> -->
+  <implementation name="IM_geompropvalue_string_genglsl" nodedef="ND_geompropvalueuniform_string" function="mx_geompropvalue_string" target="genglsl" />
+  <implementation name="IM_geompropvalue_filename_genglsl" nodedef="ND_geompropvalueuniform_filename" function="mx_geompropvalue_string" target="genglsl" />
 
   <!-- ======================================================================== -->
   <!-- Application nodes                                                        -->

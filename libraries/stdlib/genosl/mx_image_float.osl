@@ -12,6 +12,9 @@ void mx_image_float(textureresource file, string layer, float default_value, vec
 
     color missingColor = color(default_value);
     vector2 st = mx_transform_uv(texcoord);
-    color rgb = texture(file.filename, st.x, st.y, "subimage", layer, "missingcolor", missingColor, "swrap", uaddressmode, "twrap", vaddressmode);
+    color rgb = texture(file.filename, st.x, st.y,
+                        "subimage", layer, "interp", filtertype,
+                        "missingcolor", missingColor,
+                        "swrap", uaddressmode, "twrap", vaddressmode);
     out = rgb[0];
 }

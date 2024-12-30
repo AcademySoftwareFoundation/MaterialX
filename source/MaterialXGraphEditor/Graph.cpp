@@ -4048,8 +4048,8 @@ void Graph::drawGraph(ImVec2 mousePos)
                     for (std::map<UiNodePtr, UiNodePtr>::iterator iter = _copiedNodes.begin(); iter != _copiedNodes.end(); iter++)
                     {
                         copyUiNode(iter->first);
+                        _addNewNode = true;
                     }
-                    _addNewNode = true;
                 }
                 else
                 {

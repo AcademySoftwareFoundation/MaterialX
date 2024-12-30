@@ -1002,16 +1002,19 @@
   <nodedef name="ND_worleynoise2d_float" node="worleynoise2d" nodegroup="procedural2d">
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <input name="jitter" type="float" value="1.0" />
+    <input name="style" uiname="Cell Style" type="integer" value="0" enum="Distance,Solid" enumvalues="0,1" />
     <output name="out" type="float" default="0.0" />
   </nodedef>
   <nodedef name="ND_worleynoise2d_vector2" node="worleynoise2d" nodegroup="procedural2d">
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <input name="jitter" type="float" value="1.0" />
+    <input name="style" uiname="Cell Style" type="integer" value="0" enum="Distance,Solid" enumvalues="0,1" />
     <output name="out" type="vector2" default="0.0, 0.0" />
   </nodedef>
   <nodedef name="ND_worleynoise2d_vector3" node="worleynoise2d" nodegroup="procedural2d">
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <input name="jitter" type="float" value="1.0" />
+    <input name="style" uiname="Cell Style" type="integer" value="0" enum="Distance,Solid" enumvalues="0,1" />
     <output name="out" type="vector3" default="0.0, 0.0, 0.0" />
   </nodedef>
 
@@ -1022,16 +1025,19 @@
   <nodedef name="ND_worleynoise3d_float" node="worleynoise3d" nodegroup="procedural3d">
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="jitter" type="float" value="1.0" />
+    <input name="style" uiname="Cell Style" type="integer" value="0" enum="Distance,Solid" enumvalues="0,1" />
     <output name="out" type="float" default="0.0" />
   </nodedef>
   <nodedef name="ND_worleynoise3d_vector2" node="worleynoise3d" nodegroup="procedural3d">
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="jitter" type="float" value="1.0" />
+    <input name="style" uiname="Cell Style" type="integer" value="0" enum="Distance,Solid" enumvalues="0,1" />
     <output name="out" type="vector2" default="0.0, 0.0" />
   </nodedef>
   <nodedef name="ND_worleynoise3d_vector3" node="worleynoise3d" nodegroup="procedural3d">
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="jitter" type="float" value="1.0" />
+    <input name="style" uiname="Cell Style" type="integer" value="0" enum="Distance,Solid" enumvalues="0,1" />
     <output name="out" type="vector3" default="0.0, 0.0, 0.0" />
   </nodedef>
 
@@ -1355,11 +1361,6 @@
     <input name="default" type="boolean" value="false" />
     <output name="out" type="boolean" default="false" />
   </nodedef>
-  <nodedef name="ND_geompropvalue_string" node="geompropvalue" nodegroup="geometric">
-    <input name="geomprop" type="string" value="" uniform="true" />
-    <input name="default" type="string" value="" uniform="true" />
-    <output name="out" type="string" default="" />
-  </nodedef>
   <nodedef name="ND_geompropvalue_float" node="geompropvalue" nodegroup="geometric">
     <input name="geomprop" type="string" value="" uniform="true" />
     <input name="default" type="float" value="0.0" />
@@ -1390,6 +1391,22 @@
     <input name="default" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <output name="out" type="vector4" default="0.0, 0.0, 0.0, 0.0" />
   </nodedef>
+
+  <!--
+    Node: <geompropvalueuniform>
+    The uniform, non-varying value of the specified geometric property for the current geometry.
+  -->
+  <nodedef name="ND_geompropvalueuniform_string" node="geompropvalueuniform" nodegroup="geometric">
+    <input name="geomprop" type="string" value="" uniform="true" />
+    <input name="default" type="string" value="" uniform="true" />
+    <output name="out" type="string" default="" uniform="true" />
+  </nodedef>
+  <nodedef name="ND_geompropvalueuniform_filename" node="geompropvalueuniform" nodegroup="geometric">
+    <input name="geomprop" type="string" value="" uniform="true" />
+    <input name="default" type="filename" value="" uniform="true" />
+    <output name="out" type="filename" default="" uniform="true" />
+  </nodedef>
+
 
   <!--
     Node: <bump>
