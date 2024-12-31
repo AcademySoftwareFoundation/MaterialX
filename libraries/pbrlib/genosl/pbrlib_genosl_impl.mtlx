@@ -23,7 +23,7 @@
   <implementation name="IM_subsurface_bsdf_genosl" nodedef="ND_subsurface_bsdf" file="mx_subsurface_bsdf.osl" function="mx_subsurface_bsdf" target="genosl" />
 
   <!-- <chiang_hair_bsdf> -->
-  <implementation name="IM_chiang_hair_bsdf_genosl" nodedef="ND_chiang_hair_bsdf" sourcecode="oren_nayar_diffuse_bsdf({{normal}}, {{tint_R}}, 0.0)" target="genosl" />
+  <implementation name="IM_chiang_hair_bsdf_genosl" nodedef="ND_chiang_hair_bsdf" sourcecode="dielectric_bsdf({{normal}}, {{curve_direction}}, color(1), color(0), 0.1, 0.1, {{ior}}, &quot;ggx&quot;)" target="genosl" />
 
   <!-- <sheen_bsdf> -->
   <implementation name="IM_sheen_bsdf_genosl" nodedef="ND_sheen_bsdf" sourcecode="{{weight}} * sheen_bsdf({{normal}}, {{color}}, {{roughness}})" target="genosl" />
