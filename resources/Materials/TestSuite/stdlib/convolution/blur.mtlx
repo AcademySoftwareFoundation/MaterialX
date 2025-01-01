@@ -12,7 +12,7 @@
       <input name="size" type="float" value="0.5" />
       <input name="filtertype" type="string" value="gaussian" />
     </blur>
-    <output name="blur_color3_out" type="color3" nodename="blur_color3" />
+    <output name="out" type="color3" nodename="blur_color3" />
   </nodegraph>
   <nodegraph name="blur_color4">
     <tiledimage name="tiledimage1" type="color4">
@@ -23,7 +23,7 @@
       <input name="size" type="float" value="0.5" />
       <input name="filtertype" type="string" value="gaussian" />
     </blur>
-    <output name="blur_color4_out" type="color4" nodename="blur_color4" />
+    <output name="out" type="color4" nodename="blur_color4" />
   </nodegraph>
   <nodegraph name="blur_float">
     <image name="image1" type="float">
@@ -34,7 +34,7 @@
       <input name="size" type="float" value="0.5" />
       <input name="filtertype" type="string" value="box" />
     </blur>
-    <output name="blur_float_out" type="float" nodename="blur_float" />
+    <output name="out" type="float" nodename="blur_float" />
   </nodegraph>
   <nodegraph name="blur_vector2">
     <tiledimage name="tiledimage1" type="vector2">
@@ -45,7 +45,7 @@
       <input name="size" type="float" value="0.5" />
       <input name="filtertype" type="string" value="box" />
     </blur>
-    <output name="blur_vector2_out" type="vector2" nodename="blur_vector2" />
+    <output name="out" type="vector2" nodename="blur_vector2" />
   </nodegraph>
   <nodegraph name="blur_vector3">
     <tiledimage name="tiledimage1" type="vector3">
@@ -56,7 +56,7 @@
       <input name="size" type="float" value="0.5" />
       <input name="filtertype" type="string" value="box" />
     </blur>
-    <output name="blur_vector3_out" type="vector3" nodename="blur_vector3" />
+    <output name="out" type="vector3" nodename="blur_vector3" />
   </nodegraph>
   <nodegraph name="blur_vector4">
     <tiledimage name="tiledimage1" type="vector4">
@@ -67,7 +67,7 @@
       <input name="size" type="float" value="0.5" />
       <input name="filtertype" type="string" value="box" />
     </blur>
-    <output name="blur_vector4_out" type="vector4" nodename="blur_vector4" />
+    <output name="out" type="vector4" nodename="blur_vector4" />
   </nodegraph>
   <nodegraph name="blur_cellnoise">
     <texcoord name="texcoord1" type="vector2" />
@@ -83,6 +83,6 @@
       <input name="size" type="float" value="0.5" />
       <input name="filtertype" type="string" value="gaussian" />
     </blur>
-    <output name="blur_cellnoise_out" type="float" nodename="blur_cellnoise" />
+    <output name="out" type="float" nodename="blur_cellnoise" />
   </nodegraph>
 </materialx>
