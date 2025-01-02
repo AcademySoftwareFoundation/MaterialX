@@ -210,7 +210,13 @@ void MdlShaderGeneratorTester::preprocessDocument(mx::DocumentPtr doc)
     if (!_mdlCustomResolver)
         _mdlCustomResolver = MdlStringResolver::create();
 
-    _mdlCustomResolver->initialize(doc, &_logFile, { _searchPath.asString() });
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+
+    // add an additional search path for the custom MDL
+    // in an real-world application, the custom modules would be located in an already MDL search path
+    mx::FilePath customNodeTestSearchPath = searchPath.find("resources/Materials/TestSuite/libraries/custom/mdl");
+
+    _mdlCustomResolver->initialize(doc, &_logFile, { _searchPath.asString(), customNodeTestSearchPath.asString() });
     mx::flattenFilenames(doc, _mdlCustomResolver->getMdlSearchPaths(), _mdlCustomResolver);
 }
 
@@ -357,7 +363,13 @@ TEST_CASE("GenShader: MDL Shader Generation", "[genmdl]")
     mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
 
     mx::FilePathVec testRootPaths;
-    testRootPaths.push_back(searchPath.find("resources/Materials/TestSuite"));
+    testRootPaths.push_back(searchPath.find("resources/Materials/TestSuite/libraries/custom"));
+    testRootPaths.push_back(searchPath.find("resources/Materials/TestSuite/libraries/metal"));
+    testRootPaths.push_back(searchPath.find("resources/Materials/TestSuite/lights"));
+    testRootPaths.push_back(searchPath.find("resources/Materials/TestSuite/locale"));
+    testRootPaths.push_back(searchPath.find("resources/Materials/TestSuite/nprlib"));
+    testRootPaths.push_back(searchPath.find("resources/Materials/TestSuite/pbrlib"));
+    testRootPaths.push_back(searchPath.find("resources/Materials/TestSuite/stdlib"));
     testRootPaths.push_back(searchPath.find("resources/Materials/Examples/StandardSurface"));
     testRootPaths.push_back(searchPath.find("resources/Materials/Examples/UsdPreviewSurface"));
 

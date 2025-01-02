@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+
+  <!-- definition -->
+  <nodedef name="ND_custom_node_multiple_output" node="custom_node_multiple_output" nodegroup="custom" doc="A simple example that illustrates multiple outputs.">
+    <input name="scale" type="float" value="1.0" />
+    <output name="tint" type="color3" default="0.0, 0.0, 0.0"/>
+    <output name="roughness" type="float" value="0.0"/>
+  </nodedef>
+
+  <!-- implementation -->
+  <implementation 
+    name="IM_custom_node_multiple_output"
+    nodedef="ND_custom_node_multiple_output"
+    file="mx_custom_node.mdl"
+    function="custom_node_multiple_output_function"
+    target="genmdl"/>
+
+  <!-- instanciation -->
+  <custom_node_multiple_output name="custom_node_multiple_output1" type="multioutput">
+    <input name="scale" type="float" value="0.9" />
+  </custom_node_multiple_output>
+
+  <burley_diffuse_bsdf name="burley_brdf1" type="BSDF">
+    <input name="color" type="color3" nodename="custom_node_multiple_output1" output="tint" />
+    <input name="roughness" type="float" nodename="custom_node_multiple_output1" output="roughness" />
+  </burley_diffuse_bsdf>
+
+  <surface name="surface1" type="surfaceshader">
+    <input name="bsdf" type="BSDF" nodename="burley_brdf1" />
+    <input name="opacity" type="float" value="1.0" />
+  </surface>
+
+  <surfacematerial name="custom_node_multiple_output_test" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="surface1" />
+  </surfacematerial>
+
+</materialx>
