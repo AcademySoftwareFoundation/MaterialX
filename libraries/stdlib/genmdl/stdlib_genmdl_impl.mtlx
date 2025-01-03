@@ -41,6 +41,8 @@
     <input name="default" type="vector4" implname="default_value" />
   </implementation>
 
+  <implementation name="IM_elementat_filenamearray_genmdl" nodedef="ND_elementat_filenamearray" target="genmdl" sourcecode="{{in}}[{{index}}]" />
+
   <!-- <triplanarprojection> -->
 
   <!-- <normalmap> -->

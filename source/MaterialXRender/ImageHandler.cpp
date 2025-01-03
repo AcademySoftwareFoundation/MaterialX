@@ -147,7 +147,7 @@ ImagePtr ImageHandler::acquireImage(const FilePath& filePath, const Color4& defa
     return defaultImage;
 }
 
-bool ImageHandler::bindImage(ImagePtr, const ImageSamplingProperties&)
+bool ImageHandler::bindImage(ImagePtr, const ImageSamplingProperties&, vector<ImagePtr> additionalImages)
 {
     return false;
 }
@@ -165,7 +165,7 @@ void ImageHandler::unbindImages()
     }
 }
 
-bool ImageHandler::createRenderResources(ImagePtr, bool, bool)
+bool ImageHandler::createRenderResources(ImagePtr, bool, bool, vector<ImagePtr>)
 {
     return false;
 }
