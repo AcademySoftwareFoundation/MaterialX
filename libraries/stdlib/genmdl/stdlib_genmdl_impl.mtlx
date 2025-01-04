@@ -263,6 +263,12 @@
   <implementation name="IM_modulo_vector4_genmdl" nodedef="ND_modulo_vector4" sourcecode="mx_mod({{in1}}, {{in2}})" target="genmdl" />
   <implementation name="IM_modulo_vector4FA_genmdl" nodedef="ND_modulo_vector4FA" sourcecode="mx_mod({{in1}}, {{in2}})" target="genmdl" />
 
+  <!-- <fract> -->
+  <implementation name="IM_fract_float_genmdl" nodedef="ND_fract_float" target="genmdl" sourcecode="math::frac({{in}})" />
+  <implementation name="IM_fract_vector2_genmdl" nodedef="ND_fract_vector2" target="genmdl" sourcecode="math::frac({{in}})" />
+  <implementation name="IM_fract_vector3_genmdl" nodedef="ND_fract_vector3" target="genmdl" sourcecode="math::frac({{in}})" />
+  <implementation name="IM_fract_vector4_genmdl" nodedef="ND_fract_vector4" target="genmdl" sourcecode="math::frac({{in}})" />
+
   <!-- <invert> -->
   <implementation name="IM_invert_float_genmdl" nodedef="ND_invert_float" sourcecode="{{amount}} - {{in}}" target="genmdl" />
   <implementation name="IM_invert_color3_genmdl" nodedef="ND_invert_color3" sourcecode="{{amount}} - {{in}}" target="genmdl" />

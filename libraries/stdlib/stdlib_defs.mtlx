@@ -1821,6 +1821,27 @@
   </nodedef>
 
   <!--
+    Node: <fract>
+    The fraction of a float or vector.
+  -->
+  <nodedef name="ND_fract_float" node="fract" nodegroup="math">
+    <input name="in" type="float" value="0.0" />
+    <output name="out" type="float" defaultinput="in" />
+  </nodedef>
+  <nodedef name="ND_fract_vector2" node="fract" nodegroup="math">
+    <input name="in" type="vector2" value="0.0, 0.0" />
+    <output name="out" type="vector2" defaultinput="in" />
+  </nodedef>
+  <nodedef name="ND_fract_vector3" node="fract" nodegroup="math">
+    <input name="in" type="vector3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="vector3" defaultinput="in" />
+  </nodedef>
+  <nodedef name="ND_fract_vector4" node="fract" nodegroup="math">
+    <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
+    <output name="out" type="vector4" defaultinput="in" />
+  </nodedef>
+
+  <!--
     Node: <invert>
     Subtract the incoming float/color/vector from "amount" in all channels,
     outputting: amount - in.
