@@ -1776,7 +1776,7 @@ Convolution nodes have one input named "in", and apply a defined convolution fun
 
 <a id="node-heighttonormal"> </a>
 
-* **`heighttonormal`**: convert a scalar height map to a normal map of type vector3.
+* **`heighttonormal`**: convert a scalar height map to a tangent-space normal map of type vector3.  The output normal map is encoded with all channels in the [0-1] range, enabling its storage in unsigned image formats.
     * `in` (float): the input value or nodename
     * `scale` (float): the scale of normal map deflections relative to the gradient of the height map.  Default is 1.0.
 
