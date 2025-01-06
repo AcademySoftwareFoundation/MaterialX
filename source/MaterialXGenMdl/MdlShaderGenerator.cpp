@@ -692,7 +692,7 @@ ShaderPtr MdlShaderGenerator::createShader(const string& name, ElementPtr elemen
 namespace
 {
 
-void emitInputAnnotations(const MdlShaderGenerator& _this, const DocumentPtr doc, const ShaderPort* variable, ShaderStage& stage)
+void emitInputAnnotations(const MdlShaderGenerator& _this, ConstDocumentPtr doc, const ShaderPort* variable, ShaderStage& stage)
 {
     // allows to relate between MaterialX and MDL parameters when looking at the MDL code.
     const std::string mtlxParameterPathAnno = "materialx::core::origin(\"" + variable->getPath() + "\")";
@@ -706,7 +706,7 @@ void emitInputAnnotations(const MdlShaderGenerator& _this, const DocumentPtr doc
 
 } // anonymous namespace
 
-void MdlShaderGenerator::emitShaderInputs(const DocumentPtr doc, const VariableBlock& inputs, ShaderStage& stage) const
+void MdlShaderGenerator::emitShaderInputs(ConstDocumentPtr doc, const VariableBlock& inputs, ShaderStage& stage) const
 {
     const string uniformPrefix = _syntax->getUniformQualifier() + " ";
     for (size_t i = 0; i < inputs.size(); ++i)
