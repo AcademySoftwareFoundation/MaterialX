@@ -20,9 +20,9 @@ using EsslShaderGeneratorPtr = shared_ptr<class EsslShaderGenerator>;
 class MX_GENGLSL_API EsslShaderGenerator : public GlslShaderGenerator
 {
   public:
-    EsslShaderGenerator();
+    EsslShaderGenerator(TypeSystemPtr typeSystem = TypeSystem::create());
 
-    static ShaderGeneratorPtr create() { return std::make_shared<EsslShaderGenerator>(); }
+    static ShaderGeneratorPtr create(TypeSystemPtr typeSystem = TypeSystem::create()) { return std::make_shared<EsslShaderGenerator>(typeSystem); }
 
     /// Return a unique identifier for the target this generator is for
     const string& getTarget() const override { return TARGET; }

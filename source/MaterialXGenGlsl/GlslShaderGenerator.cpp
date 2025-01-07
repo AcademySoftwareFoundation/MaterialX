@@ -45,8 +45,8 @@ const string GlslShaderGenerator::VERSION = "400";
 // GlslShaderGenerator methods
 //
 
-GlslShaderGenerator::GlslShaderGenerator() :
-    HwShaderGenerator(GlslSyntax::create())
+GlslShaderGenerator::GlslShaderGenerator(TypeSystemPtr typeSystem) :
+    HwShaderGenerator(typeSystem, GlslSyntax::create(typeSystem))
 {
     //
     // Register all custom node implementation classes
@@ -757,7 +757,7 @@ ShaderNodeImplPtr GlslShaderGenerator::getImplementation(const NodeDef& nodedef,
         throw ExceptionShaderGenError("NodeDef '" + nodedef.getName() + "' has no outputs defined");
     }
 
-    const TypeDesc outputType = TypeDesc::get(outputs[0]->getType());
+    const TypeDesc outputType = context.getShaderGenerator().getTypeSystem()->getType(outputs[0]->getType());
 
     if (implElement->isA<NodeGraph>())
     {

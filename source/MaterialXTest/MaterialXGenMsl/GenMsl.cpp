@@ -21,12 +21,12 @@ namespace mx = MaterialX;
 
 TEST_CASE("GenShader: MSL Syntax Check", "[genmsl]")
 {
-    mx::SyntaxPtr syntax = mx::MslSyntax::create();
+    mx::TypeSystemPtr ts = mx::TypeSystem::create();
+    mx::SyntaxPtr syntax = mx::MslSyntax::create(ts);
 
     REQUIRE(syntax->getTypeName(mx::Type::FLOAT) == "float");
     REQUIRE(syntax->getTypeName(mx::Type::COLOR3) == "vec3");
     REQUIRE(syntax->getTypeName(mx::Type::VECTOR3) == "vec3");
-
     REQUIRE(syntax->getTypeName(mx::Type::BSDF) == "BSDF");
     REQUIRE(syntax->getOutputTypeName(mx::Type::BSDF) == "thread BSDF&");
 
@@ -107,7 +107,6 @@ TEST_CASE("GenShader: MSL Bind Light Shaders", "[genmsl]")
 
     mx::GenContext context(mx::MslShaderGenerator::create());
     context.registerSourceCodeSearchPath(searchPath);
-    context.getShaderGenerator().registerTypeDefs(doc);
 
     mx::HwShaderGenerator::bindLightShader(*pointLightShader, 42, context);
     REQUIRE_THROWS(mx::HwShaderGenerator::bindLightShader(*spotLightShader, 42, context));

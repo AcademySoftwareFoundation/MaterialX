@@ -225,7 +225,7 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
 
             doc->setDataLibrary(dependLib);
 
-            // Register struct typedefs from the document.
+            // Register types from the document.
             _shaderGenerator->registerTypeDefs(doc);
 
             ioTimer.endTimer();

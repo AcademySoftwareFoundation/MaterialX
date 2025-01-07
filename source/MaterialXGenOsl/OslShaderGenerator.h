@@ -23,9 +23,9 @@ using OslShaderGeneratorPtr = shared_ptr<class OslShaderGenerator>;
 class MX_GENOSL_API OslShaderGenerator : public ShaderGenerator
 {
   public:
-    OslShaderGenerator();
+    OslShaderGenerator(TypeSystemPtr typeSystem = TypeSystem::create());
 
-    static ShaderGeneratorPtr create() { return std::make_shared<OslShaderGenerator>(); }
+    static ShaderGeneratorPtr create(TypeSystemPtr typeSystem = TypeSystem::create()) { return std::make_shared<OslShaderGenerator>(typeSystem); }
 
     /// Return a unique identifier for the target this generator is for
     const string& getTarget() const override { return TARGET; }

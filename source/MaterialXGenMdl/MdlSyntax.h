@@ -25,9 +25,9 @@ using MdlSyntaxPtr = shared_ptr<MdlSyntax>;
 class MX_GENMDL_API MdlSyntax : public Syntax
 {
   public:
-    MdlSyntax();
+    MdlSyntax(TypeSystemPtr typeSystem);
 
-    static SyntaxPtr create() { return std::make_shared<MdlSyntax>(); }
+    static SyntaxPtr create(TypeSystemPtr typeSystem) { return std::make_shared<MdlSyntax>(typeSystem); }
 
     const string& getConstantQualifier() const override { return CONST_QUALIFIER; };
     const string& getUniformQualifier() const override { return UNIFORM_QUALIFIER; };

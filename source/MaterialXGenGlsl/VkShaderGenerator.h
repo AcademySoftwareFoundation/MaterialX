@@ -21,9 +21,9 @@ using VkShaderGeneratorPtr = shared_ptr<class VkShaderGenerator>;
 class MX_GENGLSL_API VkShaderGenerator : public GlslShaderGenerator
 {
   public:
-    VkShaderGenerator();
+    VkShaderGenerator(TypeSystemPtr typeSystem = TypeSystem::create());
 
-    static ShaderGeneratorPtr create() { return std::make_shared<VkShaderGenerator>(); }
+    static ShaderGeneratorPtr create(TypeSystemPtr typeSystem = TypeSystem::create()) { return std::make_shared<VkShaderGenerator>(typeSystem); }
 
     /// Return a unique identifier for the target this generator is for
     const string& getTarget() const override { return TARGET; }

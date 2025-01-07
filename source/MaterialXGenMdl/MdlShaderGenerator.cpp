@@ -82,9 +82,17 @@ const std::unordered_map<string, string> MdlShaderGenerator::GEOMPROP_DEFINITION
 // MdlShaderGenerator methods
 //
 
-MdlShaderGenerator::MdlShaderGenerator() :
-    ShaderGenerator(MdlSyntax::create())
+MdlShaderGenerator::MdlShaderGenerator(TypeSystemPtr typeSystem) :
+    ShaderGenerator(typeSystem, MdlSyntax::create(typeSystem))
 {
+    // Register custom types to handle enumeration output
+    _typeSystem->registerType(Type::MDL_COORDINATESPACE);
+    _typeSystem->registerType(Type::MDL_ADDRESSMODE);
+    _typeSystem->registerType(Type::MDL_FILTERLOOKUPMODE);
+    _typeSystem->registerType(Type::MDL_FILTERTYPE);
+    _typeSystem->registerType(Type::MDL_DISTRIBUTIONTYPE);
+    _typeSystem->registerType(Type::MDL_SCATTER_MODE);
+
     // Register build-in implementations
 
     // <!-- <surfacematerial> -->
@@ -352,7 +360,7 @@ ShaderNodeImplPtr MdlShaderGenerator::getImplementation(const NodeDef& nodedef, 
         throw ExceptionShaderGenError("NodeDef '" + nodedef.getName() + "' has no outputs defined");
     }
 
-    const TypeDesc outputType = TypeDesc::get(outputs[0]->getType());
+    const TypeDesc outputType = _typeSystem->getType(outputs[0]->getType());
 
     if (implElement->isA<NodeGraph>())
     {
@@ -462,19 +470,6 @@ string MdlShaderGenerator::getUpstreamResult(const ShaderInput* input, GenContex
     }
 
     return variable;
-}
-
-void MdlShaderGenerator::registerTypeDefs(const DocumentPtr& doc)
-{
-    ShaderGenerator::registerTypeDefs(doc);
-
-    // Add custom types to handle enumeration output
-    TypeDesc::registerType(Type::MDL_COORDINATESPACE);
-    TypeDesc::registerType(Type::MDL_ADDRESSMODE);
-    TypeDesc::registerType(Type::MDL_FILTERLOOKUPMODE);
-    TypeDesc::registerType(Type::MDL_FILTERTYPE);
-    TypeDesc::registerType(Type::MDL_DISTRIBUTIONTYPE);
-    TypeDesc::registerType(Type::MDL_SCATTER_MODE);
 }
 
 namespace

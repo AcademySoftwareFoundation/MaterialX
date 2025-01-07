@@ -19,7 +19,7 @@ void bindPyMslShaderGenerator(py::module& mod)
 {
     py::class_<mx::MslShaderGenerator, mx::HwShaderGenerator, mx::MslShaderGeneratorPtr>(mod, "MslShaderGenerator")
         .def_static("create", &mx::MslShaderGenerator::create)
-        .def(py::init<>())
+        .def(py::init<mx::TypeSystemPtr>())
         .def("generate", &mx::MslShaderGenerator::generate)
         .def("getTarget", &mx::MslShaderGenerator::getTarget)
         .def("getVersion", &mx::MslShaderGenerator::getVersion);

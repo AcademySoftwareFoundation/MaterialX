@@ -17,8 +17,8 @@ namespace
 class GlslStringTypeSyntax : public StringTypeSyntax
 {
   public:
-    GlslStringTypeSyntax() :
-        StringTypeSyntax("int", "0", "0") { }
+    GlslStringTypeSyntax(const Syntax* parent) :
+        StringTypeSyntax(parent, "int", "0", "0") { }
 
     string getValue(const Value& /*value*/, bool /*uniform*/) const override
     {
@@ -29,8 +29,8 @@ class GlslStringTypeSyntax : public StringTypeSyntax
 class GlslArrayTypeSyntax : public ScalarTypeSyntax
 {
   public:
-    GlslArrayTypeSyntax(const string& name) :
-        ScalarTypeSyntax(name, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING)
+    GlslArrayTypeSyntax(const Syntax* parent, const string& name) :
+        ScalarTypeSyntax(parent, name, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING)
     {
     }
 
@@ -51,8 +51,8 @@ class GlslArrayTypeSyntax : public ScalarTypeSyntax
 class GlslFloatArrayTypeSyntax : public GlslArrayTypeSyntax
 {
   public:
-    explicit GlslFloatArrayTypeSyntax(const string& name) :
-        GlslArrayTypeSyntax(name)
+    explicit GlslFloatArrayTypeSyntax(const Syntax* parent, const string& name) :
+        GlslArrayTypeSyntax(parent, name)
     {
     }
 
@@ -67,8 +67,8 @@ class GlslFloatArrayTypeSyntax : public GlslArrayTypeSyntax
 class GlslIntegerArrayTypeSyntax : public GlslArrayTypeSyntax
 {
   public:
-    explicit GlslIntegerArrayTypeSyntax(const string& name) :
-        GlslArrayTypeSyntax(name)
+    explicit GlslIntegerArrayTypeSyntax(const Syntax* parent, const string& name) :
+        GlslArrayTypeSyntax(parent, name)
     {
     }
 
@@ -96,7 +96,8 @@ const StringVec GlslSyntax::VEC4_MEMBERS = { ".x", ".y", ".z", ".w" };
 // GlslSyntax methods
 //
 
-GlslSyntax::GlslSyntax()
+GlslSyntax::GlslSyntax(TypeSystemPtr typeSystem) :
+    Syntax(typeSystem)
 {
     // Add in all reserved words and keywords in GLSL
     registerReservedWords(
@@ -157,6 +158,7 @@ GlslSyntax::GlslSyntax()
     registerTypeSyntax(
         Type::FLOAT,
         std::make_shared<ScalarTypeSyntax>(
+            this,
             "float",
             "0.0",
             "0.0"));
@@ -164,11 +166,13 @@ GlslSyntax::GlslSyntax()
     registerTypeSyntax(
         Type::FLOATARRAY,
         std::make_shared<GlslFloatArrayTypeSyntax>(
+            this,
             "float"));
 
     registerTypeSyntax(
         Type::INTEGER,
         std::make_shared<ScalarTypeSyntax>(
+            this,
             "int",
             "0",
             "0"));
@@ -176,11 +180,13 @@ GlslSyntax::GlslSyntax()
     registerTypeSyntax(
         Type::INTEGERARRAY,
         std::make_shared<GlslIntegerArrayTypeSyntax>(
+            this,
             "int"));
 
     registerTypeSyntax(
         Type::BOOLEAN,
         std::make_shared<ScalarTypeSyntax>(
+            this,
             "bool",
             "false",
             "false"));
@@ -188,6 +194,7 @@ GlslSyntax::GlslSyntax()
     registerTypeSyntax(
         Type::COLOR3,
         std::make_shared<AggregateTypeSyntax>(
+            this,
             "vec3",
             "vec3(0.0)",
             "vec3(0.0)",
@@ -198,6 +205,7 @@ GlslSyntax::GlslSyntax()
     registerTypeSyntax(
         Type::COLOR4,
         std::make_shared<AggregateTypeSyntax>(
+            this,
             "vec4",
             "vec4(0.0)",
             "vec4(0.0)",
@@ -208,6 +216,7 @@ GlslSyntax::GlslSyntax()
     registerTypeSyntax(
         Type::VECTOR2,
         std::make_shared<AggregateTypeSyntax>(
+            this,
             "vec2",
             "vec2(0.0)",
             "vec2(0.0)",
@@ -218,6 +227,7 @@ GlslSyntax::GlslSyntax()
     registerTypeSyntax(
         Type::VECTOR3,
         std::make_shared<AggregateTypeSyntax>(
+            this,
             "vec3",
             "vec3(0.0)",
             "vec3(0.0)",
@@ -228,6 +238,7 @@ GlslSyntax::GlslSyntax()
     registerTypeSyntax(
         Type::VECTOR4,
         std::make_shared<AggregateTypeSyntax>(
+            this,
             "vec4",
             "vec4(0.0)",
             "vec4(0.0)",
@@ -238,6 +249,7 @@ GlslSyntax::GlslSyntax()
     registerTypeSyntax(
         Type::MATRIX33,
         std::make_shared<AggregateTypeSyntax>(
+            this,
             "mat3",
             "mat3(1.0)",
             "mat3(1.0)"));
@@ -245,17 +257,19 @@ GlslSyntax::GlslSyntax()
     registerTypeSyntax(
         Type::MATRIX44,
         std::make_shared<AggregateTypeSyntax>(
+            this,
             "mat4",
             "mat4(1.0)",
             "mat4(1.0)"));
 
     registerTypeSyntax(
         Type::STRING,
-        std::make_shared<GlslStringTypeSyntax>());
+        std::make_shared<GlslStringTypeSyntax>(this));
 
     registerTypeSyntax(
         Type::FILENAME,
         std::make_shared<ScalarTypeSyntax>(
+            this,
             "sampler2D",
             EMPTY_STRING,
             EMPTY_STRING));
@@ -263,6 +277,7 @@ GlslSyntax::GlslSyntax()
     registerTypeSyntax(
         Type::BSDF,
         std::make_shared<AggregateTypeSyntax>(
+            this,
             "BSDF",
             "BSDF(vec3(0.0),vec3(1.0))",
             EMPTY_STRING,
@@ -272,6 +287,7 @@ GlslSyntax::GlslSyntax()
     registerTypeSyntax(
         Type::EDF,
         std::make_shared<AggregateTypeSyntax>(
+            this,
             "EDF",
             "EDF(0.0)",
             "EDF(0.0)",
@@ -281,6 +297,7 @@ GlslSyntax::GlslSyntax()
     registerTypeSyntax(
         Type::VDF,
         std::make_shared<AggregateTypeSyntax>(
+            this,
             "BSDF",
             "BSDF(vec3(0.0),vec3(1.0))",
             EMPTY_STRING));
@@ -288,6 +305,7 @@ GlslSyntax::GlslSyntax()
     registerTypeSyntax(
         Type::SURFACESHADER,
         std::make_shared<AggregateTypeSyntax>(
+            this,
             "surfaceshader",
             "surfaceshader(vec3(0.0),vec3(0.0))",
             EMPTY_STRING,
@@ -297,6 +315,7 @@ GlslSyntax::GlslSyntax()
     registerTypeSyntax(
         Type::VOLUMESHADER,
         std::make_shared<AggregateTypeSyntax>(
+            this,
             "volumeshader",
             "volumeshader(vec3(0.0),vec3(0.0))",
             EMPTY_STRING,
@@ -306,6 +325,7 @@ GlslSyntax::GlslSyntax()
     registerTypeSyntax(
         Type::DISPLACEMENTSHADER,
         std::make_shared<AggregateTypeSyntax>(
+            this,
             "displacementshader",
             "displacementshader(vec3(0.0),1.0)",
             EMPTY_STRING,
@@ -315,6 +335,7 @@ GlslSyntax::GlslSyntax()
     registerTypeSyntax(
         Type::LIGHTSHADER,
         std::make_shared<AggregateTypeSyntax>(
+            this,
             "lightshader",
             "lightshader(vec3(0.0),vec3(0.0))",
             EMPTY_STRING,
@@ -324,6 +345,7 @@ GlslSyntax::GlslSyntax()
     registerTypeSyntax(
         Type::MATERIAL,
         std::make_shared<AggregateTypeSyntax>(
+            this,
             "material",
             "material(vec3(0.0),vec3(0.0))",
             EMPTY_STRING,
@@ -401,10 +423,10 @@ string GlslStructTypeSyntax::getValue(const Value& value, bool /* uniform */) co
         separator = ",";
 
         const string& memberTypeName = memberValue->getTypeString();
-        TypeDesc memberTypeDesc = TypeDesc::get(memberTypeName);
+        const TypeDesc memberTypeDesc = _parent->getType(memberTypeName);
 
         // Recursively use the syntax to generate the output, so we can supported nested structs.
-        result += _parentSyntax->getValue(memberTypeDesc, *memberValue, true);
+        result += _parent->getValue(memberTypeDesc, *memberValue, true);
     }
 
     result += ")";

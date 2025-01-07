@@ -53,9 +53,9 @@ using MdlShaderGeneratorPtr = shared_ptr<class MdlShaderGenerator>;
 class MX_GENMDL_API MdlShaderGenerator : public ShaderGenerator
 {
   public:
-    MdlShaderGenerator();
+    MdlShaderGenerator(TypeSystemPtr typeSystem = TypeSystem::create());
 
-    static ShaderGeneratorPtr create() { return std::make_shared<MdlShaderGenerator>(); }
+    static ShaderGeneratorPtr create(TypeSystemPtr typeSystem = TypeSystem::create()) { return std::make_shared<MdlShaderGenerator>(typeSystem); }
 
     /// Return a unique identifier for the target this generator is for
     const string& getTarget() const override { return TARGET; }
@@ -70,9 +70,6 @@ class MX_GENMDL_API MdlShaderGenerator : public ShaderGenerator
 
     /// Return the result of an upstream connection or value for an input.
     string getUpstreamResult(const ShaderInput* input, GenContext& context) const override;
-
-    /// Register type definitions from the document.
-    void registerTypeDefs(const DocumentPtr& doc) override;
 
     /// Unique identifier for this generator target
     static const string TARGET;

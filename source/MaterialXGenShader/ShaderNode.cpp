@@ -186,7 +186,7 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
     // Create interface from nodedef
     for (const ValueElementPtr& port : nodeDef.getActiveValueElements())
     {
-        const TypeDesc portType = TypeDesc::get(port->getType());
+        const TypeDesc portType = context.getShaderGenerator().getTypeSystem()->getType(port->getType());
         if (port->isA<Output>())
         {
             newNode->addOutput(port->getName(), portType);
@@ -223,7 +223,7 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
     // Add a default output if needed
     if (newNode->numOutputs() == 0)
     {
-        newNode->addOutput("out", TypeDesc::get(nodeDef.getType()));
+        newNode->addOutput("out", context.getShaderGenerator().getTypeSystem()->getType(nodeDef.getType()));
     }
 
     const string& nodeDefName = nodeDef.getName();
@@ -356,7 +356,7 @@ void ShaderNode::initialize(const Node& node, const NodeDef& nodeDef, GenContext
             const string& valueString = portValue ? portValue->getValueString() : EMPTY_STRING;
             std::pair<TypeDesc, ValuePtr> enumResult;
             const string& enumNames = nodeDefInput->getAttribute(ValueElement::ENUM_ATTRIBUTE);
-            const TypeDesc type = TypeDesc::get(nodeDefInput->getType());
+            const TypeDesc type = context.getShaderGenerator().getTypeSystem()->getType(nodeDefInput->getType());
             if (context.getShaderGenerator().getSyntax().remapEnumeration(valueString, type, enumNames, enumResult))
             {
                 input->setValue(enumResult.second);

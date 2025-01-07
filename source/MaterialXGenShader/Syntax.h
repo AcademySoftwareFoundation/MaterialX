@@ -84,6 +84,9 @@ class MX_GENSHADER_API Syntax
     /// Returns an array of all registered type syntax objects
     const vector<TypeSyntaxPtr>& getTypeSyntaxes() const { return _typeSyntaxes; }
 
+    /// Return a type description for the given type name.
+    TypeDesc getType(const string& name) const { return _typeSystem->getType(name); }
+
     /// Returns the name syntax of the given type
     const string& getTypeName(TypeDesc type) const;
     [[deprecated]] const string& getTypeName(const TypeDesc* type) const { return getTypeName(*type); }
@@ -205,8 +208,9 @@ class MX_GENSHADER_API Syntax
 
   protected:
     /// Protected constructor
-    Syntax();
+    Syntax(TypeSystemPtr typeSystem);
 
+    TypeSystemPtr _typeSystem;
     vector<TypeSyntaxPtr> _typeSyntaxes;
     std::unordered_map<TypeDesc, size_t, TypeDesc::Hasher> _typeSyntaxIndexByType;
 
@@ -256,9 +260,10 @@ class MX_GENSHADER_API TypeSyntax
 
   protected:
     /// Protected constructor
-    TypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
+    TypeSyntax(const Syntax* parent, const string& name, const string& defaultValue, const string& uniformDefaultValue,
                const string& typeAlias, const string& typeDefinition, const StringVec& members);
 
+    const Syntax* _parent;       // parent syntax class
     string _name;                // type name
     string _defaultValue;        // default value syntax
     string _uniformDefaultValue; // default value syntax when assigned to uniforms
@@ -273,7 +278,7 @@ class MX_GENSHADER_API TypeSyntax
 class MX_GENSHADER_API ScalarTypeSyntax : public TypeSyntax
 {
   public:
-    ScalarTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
+    ScalarTypeSyntax(const Syntax* parent, const string& name, const string& defaultValue, const string& uniformDefaultValue,
                      const string& typeAlias = EMPTY_STRING, const string& typeDefinition = EMPTY_STRING);
 
     string getValue(const Value& value, bool uniform) const override;
@@ -283,7 +288,7 @@ class MX_GENSHADER_API ScalarTypeSyntax : public TypeSyntax
 class MX_GENSHADER_API StringTypeSyntax : public ScalarTypeSyntax
 {
   public:
-    StringTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
+    StringTypeSyntax(const Syntax* parent, const string& name, const string& defaultValue, const string& uniformDefaultValue,
                      const string& typeAlias = EMPTY_STRING, const string& typeDefinition = EMPTY_STRING);
 
     string getValue(const Value& value, bool uniform) const override;
@@ -293,25 +298,22 @@ class MX_GENSHADER_API StringTypeSyntax : public ScalarTypeSyntax
 class MX_GENSHADER_API AggregateTypeSyntax : public TypeSyntax
 {
   public:
-    AggregateTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
+    AggregateTypeSyntax(const Syntax* parent, const string& name, const string& defaultValue, const string& uniformDefaultValue,
                         const string& typeAlias = EMPTY_STRING, const string& typeDefinition = EMPTY_STRING,
                         const StringVec& members = EMPTY_MEMBERS);
 
     string getValue(const Value& value, bool uniform) const override;
 };
 
-/// Specialization of TypeSyntax for aggregate types.
+/// Specialization of TypeSyntax for struct types.
 class MX_GENSHADER_API StructTypeSyntax : public TypeSyntax
 {
   public:
-    StructTypeSyntax(const Syntax* parentSyntax, const string& name, const string& defaultValue, const string& uniformDefaultValue,
+    StructTypeSyntax(const Syntax* parent, const string& name, const string& defaultValue, const string& uniformDefaultValue,
                      const string& typeAlias = EMPTY_STRING, const string& typeDefinition = EMPTY_STRING,
                      const StringVec& members = EMPTY_MEMBERS);
 
     string getValue(const Value& value, bool uniform) const override;
-
-  protected:
-    const Syntax* _parentSyntax;
 };
 
 MATERIALX_NAMESPACE_END

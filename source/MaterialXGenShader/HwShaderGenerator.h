@@ -330,7 +330,7 @@ class MX_GENSHADER_API HwShaderGenerator : public ShaderGenerator
     static const string CLOSURE_CONTEXT_SUFFIX_INDIRECT;
 
   protected:
-    HwShaderGenerator(SyntaxPtr syntax);
+    HwShaderGenerator(TypeSystemPtr typeSystem, SyntaxPtr syntax);
 
     /// Create and initialize a new HW shader for shader generation.
     virtual ShaderPtr createShader(const string& name, ElementPtr element, GenContext& context) const;

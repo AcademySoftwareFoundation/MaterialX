@@ -18,7 +18,8 @@ namespace mx = MaterialX;
 
 TEST_CASE("GenShader: GLSL Syntax Check", "[genglsl]")
 {
-    mx::SyntaxPtr syntax = mx::GlslSyntax::create();
+    mx::TypeSystemPtr ts = mx::TypeSystem::create();
+    mx::SyntaxPtr syntax = mx::GlslSyntax::create(ts);
 
     REQUIRE(syntax->getTypeName(mx::Type::FLOAT) == "float");
     REQUIRE(syntax->getTypeName(mx::Type::COLOR3) == "vec3");

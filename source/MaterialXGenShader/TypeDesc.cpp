@@ -9,54 +9,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-namespace
-{
-
-using DataBlockPtr = std::shared_ptr<TypeDesc::DataBlock>;
-using TypeDescMap = std::unordered_map<string, TypeDesc>;
-
-class TypeDescRegistryImpl
-{
-public:
-    void registerType(TypeDesc type)
-    {
-        _types.push_back(type);
-        _typesByName[type.getName()] = type;
-    }
-
-    void registerType(const string& name, uint8_t basetype, uint8_t semantic, uint16_t size, StructMemberDescVecPtr members)
-    {
-        // Allocate a data block and use to initialize a new type description.
-        DataBlockPtr data = std::make_shared<TypeDesc::DataBlock>(name, members);
-        const TypeDesc type(name, basetype, semantic, size, data.get());
-
-        _dataBlocks.push_back(data);
-        _types.push_back(type);
-        _typesByName[name] = type;
-    }
-
-    void clear()
-    {
-        _types.clear();
-        _typesByName.clear();
-        _dataBlocks.clear();
-    }
-
-    TypeDesc get(const string& name)
-    {
-        auto it = _typesByName.find(name);
-        return (it != _typesByName.end() ? it->second : Type::NONE);
-    }
-
-    TypeDescVec _types;
-    TypeDescMap _typesByName;
-    vector<DataBlockPtr> _dataBlocks;
-};
-
-static TypeDescRegistryImpl s_registryImpl;
-
-} // anonymous namespace
-
 const string TypeDesc::NONE_TYPE_NAME = "none";
 
 const string& TypeDesc::getName() const
@@ -68,28 +20,6 @@ const StructMemberDescVecPtr TypeDesc::getStructMembers() const
 {
     return _data ? _data->getStructMembers() : StructMemberDescVecPtr();
 }
-
-void TypeDesc::registerType(TypeDesc type)
-{
-    s_registryImpl.registerType(type);
-}
-
-void TypeDesc::registerType(const string& name, uint8_t basetype, uint8_t semantic, uint16_t size, StructMemberDescVecPtr members)
-{
-    s_registryImpl.registerType(name, basetype, semantic, size, members);
-}
-
-const TypeDescVec& TypeDesc::getTypes()
-{
-    return s_registryImpl._types;
-}
-
-TypeDesc TypeDesc::get(const string& name)
-{
-    return s_registryImpl.get(name);
-}
-
-
 
 ValuePtr TypeDesc::createValueFromStrings(const string& value) const
 {
@@ -118,6 +48,50 @@ ValuePtr TypeDesc::createValueFromStrings(const string& value) const
     }
 
     return result;
+}
+
+TypeSystem::TypeSystem()
+{
+    // Register all the standard types.
+    registerType(Type::BOOLEAN);
+    registerType(Type::INTEGER);
+    registerType(Type::INTEGERARRAY);
+    registerType(Type::FLOAT);
+    registerType(Type::FLOATARRAY);
+    registerType(Type::VECTOR2);
+    registerType(Type::VECTOR3);
+    registerType(Type::VECTOR4);
+    registerType(Type::COLOR3);
+    registerType(Type::COLOR4);
+    registerType(Type::MATRIX33);
+    registerType(Type::MATRIX44);
+    registerType(Type::STRING);
+    registerType(Type::FILENAME);
+    registerType(Type::BSDF);
+    registerType(Type::EDF);
+    registerType(Type::VDF);
+    registerType(Type::SURFACESHADER);
+    registerType(Type::VOLUMESHADER);
+    registerType(Type::DISPLACEMENTSHADER);
+    registerType(Type::LIGHTSHADER);
+    registerType(Type::MATERIAL);
+}
+
+void TypeSystem::registerType(TypeDesc type)
+{
+    _types.push_back(type);
+    _typesByName[type.getName()] = type;
+}
+
+void TypeSystem::registerType(const string& name, uint8_t basetype, uint8_t semantic, uint16_t size, StructMemberDescVecPtr members)
+{
+    // Allocate a data block and use to initialize a new type description.
+    TypeDesc::DataBlockPtr data = std::make_shared<TypeDesc::DataBlock>(name, members);
+    const TypeDesc type(name, basetype, semantic, size, data.get());
+
+    _dataBlocks.push_back(data);
+    _types.push_back(type);
+    _typesByName[name] = type;
 }
 
 MATERIALX_NAMESPACE_END

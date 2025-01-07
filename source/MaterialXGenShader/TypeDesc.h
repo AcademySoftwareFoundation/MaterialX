@@ -11,6 +11,7 @@
 
 #include <MaterialXGenShader/Export.h>
 #include <MaterialXCore/Value.h>
+#include <MaterialXCore/Document.h>
 
 #include <string_view>
 
@@ -18,8 +19,8 @@ MATERIALX_NAMESPACE_BEGIN
 
 class TypeDesc;
 class StructMemberDesc;
-
 using TypeDescVec = vector<TypeDesc>;
+using TypeDescMap = std::unordered_map<string, TypeDesc>;
 using StructMemberDescVec = vector<StructMemberDesc>;
 using StructMemberDescVecPtr = shared_ptr<const StructMemberDescVec>;
 
@@ -80,6 +81,8 @@ class MX_GENSHADER_API TypeDesc
         const string _name;
         const StructMemberDescVecPtr _members;
     };
+
+    using DataBlockPtr = std::shared_ptr<DataBlock>;
 
     /// Empty constructor.
     constexpr TypeDesc() noexcept :
@@ -175,20 +178,6 @@ class MX_GENSHADER_API TypeDesc
         }
     };
 
-
-    /// Register a type.
-    static void registerType(TypeDesc type);
-
-    /// Create and register a new type.
-    static void registerType(const string& name, uint8_t basetype, uint8_t semantic, uint16_t size, StructMemberDescVecPtr members = nullptr);
-
-    /// Return all registered types.
-    static const TypeDescVec& getTypes();
-
-    /// Return a type description by name.
-    /// If no type is found Type::NONE is returned.
-    static TypeDesc get(const string& name);
-
     static const string NONE_TYPE_NAME;
 
     /// Create a Value from a string for a given typeDesc
@@ -267,6 +256,44 @@ TYPEDESC_DEFINE_TYPE(LIGHTSHADER, "lightshader", TypeDesc::BASETYPE_NONE, TypeDe
 TYPEDESC_DEFINE_TYPE(MATERIAL, "material", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_MATERIAL, 1)
 
 } // namespace Type
+
+class TypeSystem;
+using TypeSystemPtr = shared_ptr<TypeSystem>;
+
+class TypeSystem
+{
+public:
+    /// Constructor.
+    TypeSystem();
+
+    /// Create a new type system.
+    static TypeSystemPtr create() { return std::make_shared<TypeSystem>(); }
+
+    /// Register an existing type decription.
+    void registerType(TypeDesc type);
+
+    /// Create and register a new type description.
+    void registerType(const string& name, uint8_t basetype, uint8_t semantic, uint16_t size, StructMemberDescVecPtr members = nullptr);
+
+    /// Return a type description by name.
+    /// If no type is found Type::NONE is returned.
+    TypeDesc getType(const string& name) const
+    {
+        auto it = _typesByName.find(name);
+        return (it != _typesByName.end() ? it->second : Type::NONE);
+    }
+
+    /// Return all registered type descriptions.
+    const TypeDescVec& getTypes() const
+    {
+        return _types;
+    }
+
+private:
+    TypeDescVec _types;
+    TypeDescMap _typesByName;
+    vector<TypeDesc::DataBlockPtr> _dataBlocks;
+};
 
 MATERIALX_NAMESPACE_END
 

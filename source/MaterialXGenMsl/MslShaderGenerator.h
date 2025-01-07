@@ -25,9 +25,9 @@ using MslShaderGeneratorPtr = shared_ptr<class MslShaderGenerator>;
 class MX_GENMSL_API MslShaderGenerator : public HwShaderGenerator
 {
   public:
-    MslShaderGenerator();
+    MslShaderGenerator(TypeSystemPtr typeSystem = TypeSystem::create());
 
-    static ShaderGeneratorPtr create() { return std::make_shared<MslShaderGenerator>(); }
+    static ShaderGeneratorPtr create(TypeSystemPtr typeSystem = TypeSystem::create()) { return std::make_shared<MslShaderGenerator>(typeSystem); }
 
     /// Generate a shader starting from the given element, translating
     /// the element and all dependencies upstream into shader code.

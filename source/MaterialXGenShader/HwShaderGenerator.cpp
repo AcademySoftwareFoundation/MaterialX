@@ -181,8 +181,8 @@ const string HwShaderGenerator::CLOSURE_CONTEXT_SUFFIX_REFLECTION("_reflection")
 const string HwShaderGenerator::CLOSURE_CONTEXT_SUFFIX_TRANSMISSION("_transmission");
 const string HwShaderGenerator::CLOSURE_CONTEXT_SUFFIX_INDIRECT("_indirect");
 
-HwShaderGenerator::HwShaderGenerator(SyntaxPtr syntax) :
-    ShaderGenerator(syntax),
+HwShaderGenerator::HwShaderGenerator(TypeSystemPtr typeSystem, SyntaxPtr syntax) :
+    ShaderGenerator(typeSystem, syntax),
     _defDefault(HwShaderGenerator::ClosureContextType::DEFAULT),
     _defReflection(HwShaderGenerator::ClosureContextType::REFLECTION),
     _defTransmission(HwShaderGenerator::ClosureContextType::TRANSMISSION),
@@ -544,7 +544,7 @@ void HwShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& con
 
 void HwShaderGenerator::bindLightShader(const NodeDef& nodeDef, unsigned int lightTypeId, GenContext& context)
 {
-    if (TypeDesc::get(nodeDef.getType()) != Type::LIGHTSHADER)
+    if (context.getShaderGenerator().getTypeSystem()->getType(nodeDef.getType()) != Type::LIGHTSHADER)
     {
         throw ExceptionShaderGenError("Error binding light shader. Given nodedef '" + nodeDef.getName() + "' is not of lightshader type");
     }
