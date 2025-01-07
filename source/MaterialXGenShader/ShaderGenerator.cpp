@@ -33,48 +33,6 @@ ShaderGenerator::ShaderGenerator(TypeSystemPtr typeSystem, SyntaxPtr syntax) :
     _typeSystem(typeSystem),
     _syntax(syntax)
 {
-    // TODO: MOVE THIS TO THE SYNTAX CLASSES???
-    //
-    // Create a type syntax for all struct types.
-    for (TypeDesc typeDesc : _typeSystem->getTypes())
-    {
-        if (!typeDesc.isStruct())
-        {
-            continue;
-        }
-
-        const string& structTypeName = typeDesc.getName();
-        string defaultValue = structTypeName + "( ";
-        string uniformDefaultValue = EMPTY_STRING;
-        string typeAlias = EMPTY_STRING;
-        string typeDefinition = "struct " + structTypeName + " { ";
-
-        auto structMembers = typeDesc.getStructMembers();
-        if (structMembers)
-        {
-            for (const auto& structMember : *structMembers)
-            {
-                const string& memberType = structMember.getType().getName();
-                const string& memberName = structMember.getName();
-                const string& memberDefaultValue = structMember.getDefaultValueStr();
-
-                defaultValue += memberDefaultValue + ", ";
-                typeDefinition += memberType + " " + memberName + "; ";
-            }
-        }
-
-        typeDefinition += " };";
-        defaultValue += " )";
-
-        StructTypeSyntaxPtr structTypeSyntax = _syntax->createStructSyntax(
-            structTypeName,
-            defaultValue,
-            uniformDefaultValue,
-            typeAlias,
-            typeDefinition);
-
-        _syntax->registerTypeSyntax(typeDesc, structTypeSyntax);
-    }
 }
 
 void ShaderGenerator::emitScopeBegin(ShaderStage& stage, Syntax::Punctuation punc) const
