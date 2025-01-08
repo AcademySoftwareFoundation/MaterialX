@@ -34,7 +34,7 @@ void LightCompoundNodeMsl::initialize(const InterfaceElement& element, GenContex
     NodeDefPtr nodeDef = graph.getNodeDef();
     for (InputPtr input : nodeDef->getActiveInputs())
     {
-        _lightUniforms.add(context.getShaderGenerator().getTypeSystem()->getType(input->getType()), input->getName());
+        _lightUniforms.add(context.getTypeDesc(input->getType()), input->getName());
     }
 }
 

@@ -544,7 +544,7 @@ void HwShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& con
 
 void HwShaderGenerator::bindLightShader(const NodeDef& nodeDef, unsigned int lightTypeId, GenContext& context)
 {
-    if (context.getShaderGenerator().getTypeSystem()->getType(nodeDef.getType()) != Type::LIGHTSHADER)
+    if (context.getTypeDesc(nodeDef.getType()) != Type::LIGHTSHADER)
     {
         throw ExceptionShaderGenError("Error binding light shader. Given nodedef '" + nodeDef.getName() + "' is not of lightshader type");
     }

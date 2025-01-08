@@ -15,6 +15,6 @@ void bindPyMdlShaderGenerator(py::module& mod)
 {
     py::class_<mx::MdlShaderGenerator, mx::ShaderGenerator, mx::MdlShaderGeneratorPtr>(mod, "MdlShaderGenerator")
         .def_static("create", &mx::MdlShaderGenerator::create)
-        .def(py::init<mx::TypeSystemPtr>())
+        .def(py::init<mx::TypeSystemPtr>(), py::arg("typeSystem") = mx::TypeSystem::create())
         .def("getTarget", &mx::MdlShaderGenerator::getTarget);
 }
