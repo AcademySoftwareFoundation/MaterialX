@@ -30,15 +30,11 @@ using StructMemberDescVecPtr = shared_ptr<const StructMemberDescVec>;
 /// All types need to have a type descriptor registered in order for shader generators
 /// to know about the type. It can be used for type comparisons as well as getting more
 /// information about the type. Type descriptors for all standard library data types are
-/// registered by default and can be accessed from the Type namespace, e.g. Type::FLOAT.
-///
-/// To register custom types use the macro TYPEDESC_DEFINE_TYPE to define it in a header
-/// and the macro TYPEDESC_REGISTER_TYPE to register it in the type registry. Registration
-/// must be done in order to access the type's name later using getName() and to find the
-/// type by name using TypeDesc::get().
-///
-/// The class is a POD type of 64-bits and can efficiently be stored and passed by value.
-/// Type compare operations and hash operations are done using a precomputed hash value.
+/// defined by default and can be accessed from the Type namespace, e.g. Type::FLOAT.
+/// Custom struct types defined through typedef elements in a data library are loaded in 
+/// and registered by calling the ShaderGenerator::registerTypeDefs method. The TypeSystem
+/// class, see below, is used to manage all type descriptions. It can be used to query the 
+/// registered types.
 ///
 class MX_GENSHADER_API TypeDesc
 {
@@ -220,6 +216,42 @@ private:
     const string _defaultValueStr;
 };
 
+using TypeSystemPtr = shared_ptr<class TypeSystem>;
+
+/// @class TypeSystem
+/// Class handling registration, storage and query of type descriptors.
+class MX_GENSHADER_API TypeSystem
+{
+public:
+    /// Create a new type system.
+    static TypeSystemPtr create();
+
+    /// Register an existing type decription.
+    void registerType(TypeDesc type);
+
+    /// Create and register a new type description.
+    void registerType(const string& name, uint8_t basetype, uint8_t semantic, uint16_t size, StructMemberDescVecPtr members = nullptr);
+
+    /// Return a type description by name.
+    /// If no type is found Type::NONE is returned.
+    TypeDesc getType(const string& name) const;
+
+    /// Return all registered type descriptions.
+    const TypeDescVec& getTypes() const
+    {
+        return _types;
+    }
+
+protected:
+    // Protected constructor
+    TypeSystem();
+
+private:
+    TypeDescVec _types;
+    TypeDescMap _typesByName;
+    vector<TypeDesc::DataBlockPtr> _dataBlocks;
+};
+
 /// Macro to define global type descriptions for commonly used types.
 #define TYPEDESC_DEFINE_TYPE(T, name, basetype, semantic, size) \
        inline const TypeDesc::DataBlock* T##_data() { static const TypeDesc::DataBlock _data(name); return &_data; } \
@@ -257,43 +289,6 @@ TYPEDESC_DEFINE_TYPE(MATERIAL, "material", TypeDesc::BASETYPE_NONE, TypeDesc::SE
 
 } // namespace Type
 
-class TypeSystem;
-using TypeSystemPtr = shared_ptr<TypeSystem>;
-
-class TypeSystem
-{
-public:
-    /// Constructor.
-    TypeSystem();
-
-    /// Create a new type system.
-    static TypeSystemPtr create() { return std::make_shared<TypeSystem>(); }
-
-    /// Register an existing type decription.
-    void registerType(TypeDesc type);
-
-    /// Create and register a new type description.
-    void registerType(const string& name, uint8_t basetype, uint8_t semantic, uint16_t size, StructMemberDescVecPtr members = nullptr);
-
-    /// Return a type description by name.
-    /// If no type is found Type::NONE is returned.
-    TypeDesc getType(const string& name) const
-    {
-        auto it = _typesByName.find(name);
-        return (it != _typesByName.end() ? it->second : Type::NONE);
-    }
-
-    /// Return all registered type descriptions.
-    const TypeDescVec& getTypes() const
-    {
-        return _types;
-    }
-
-private:
-    TypeDescVec _types;
-    TypeDescMap _typesByName;
-    vector<TypeDesc::DataBlockPtr> _dataBlocks;
-};
 
 MATERIALX_NAMESPACE_END
 

@@ -77,6 +77,11 @@ TypeSystem::TypeSystem()
     registerType(Type::MATERIAL);
 }
 
+TypeSystemPtr TypeSystem::create()
+{
+    return TypeSystemPtr(new TypeSystem());
+}
+
 void TypeSystem::registerType(TypeDesc type)
 {
     _types.push_back(type);
@@ -92,6 +97,12 @@ void TypeSystem::registerType(const string& name, uint8_t basetype, uint8_t sema
     _dataBlocks.push_back(data);
     _types.push_back(type);
     _typesByName[name] = type;
+}
+
+TypeDesc TypeSystem::getType(const string& name) const
+{
+    auto it = _typesByName.find(name);
+    return (it != _typesByName.end() ? it->second : Type::NONE);
 }
 
 MATERIALX_NAMESPACE_END
