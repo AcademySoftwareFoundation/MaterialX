@@ -290,7 +290,7 @@ void testUniqueNames(mx::GenContext& context, const std::string& stage)
 
     output1->setConnectedNode(node1);
 
-    mx::ShaderGenerator& shadergen = context.getShaderGenerator();
+    const mx::ShaderGenerator& shadergen = context.getShaderGenerator();
 
     // Set the output to a restricted name
     const std::string& outputQualifier = shadergen.getSyntax().getOutputQualifier();

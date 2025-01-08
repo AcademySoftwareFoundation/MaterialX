@@ -163,13 +163,7 @@ unsigned int getUIProperties(InputPtr input, const string& target, UIProperties&
 
             // Infer the size of the type by making an assumption the correct number of elements
             // are provided in the value.
-            // TODO - This assumption can ultimately be avoided if we move to a more complete description
-            // of the base types in the data library.
-            // ie. <typedef name="color3" semantic="color" basetype="float" size="3" />
-            // which might allow us to move away from the hardcoded internal definition found in
-            // TypeDesc.h
-            // TYPEDESC_DEFINE_TYPE(COLOR3, "color3", TypeDesc::BASETYPE_FLOAT, TypeDesc::SEMANTIC_COLOR, 3)
-            auto typeDescSize = enumValuesParts.size() / uiProperties.enumeration.size();
+            size_t typeDescSize = enumValuesParts.size() / uiProperties.enumeration.size();
 
             for (const string& val : enumValuesParts)
             {
