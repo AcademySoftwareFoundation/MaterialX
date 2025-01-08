@@ -1452,6 +1452,26 @@ export core::color4 mx_modulo_color4FA(
 	return core::mk_color4(core::mx_mod(core::mk_float4(mxp_in1), float4(mxp_in2)));
 }
 
+export color mx_fract_color3(
+	color mxp_in = color(0.0, 0.0, 0.0)
+)
+	[[
+		anno::description("Node Group: math")
+	]]
+{
+	return color(math::fract(float3(mxp_in)));
+}
+
+export core::color4 mx_fract_color4(
+	core::color4 mxp_in = core::mk_color4(0.0, 0.0, 0.0, 0.0)
+)
+	[[
+		anno::description("Node Group: math")
+	]]
+{
+	return core::mk_color4(math::fract(core::mk_float4(mxp_in)));
+}
+
 export core::color4 mx_invert_color4(
 	core::color4 mxp_in = core::mk_color4(0.0, 0.0, 0.0, 0.0),
 	core::color4 mxp_amount = core::mk_color4(1.0, 1.0, 1.0, 1.0)

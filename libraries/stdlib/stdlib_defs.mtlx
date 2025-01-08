@@ -1828,6 +1828,14 @@
     <input name="in" type="float" value="0.0" />
     <output name="out" type="float" defaultinput="in" />
   </nodedef>
+  <nodedef name="ND_fract_color3" node="fract" nodegroup="math">
+    <input name="in" type="color3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="color3" defaultinput="in" />
+  </nodedef>
+  <nodedef name="ND_fract_color4" node="fract" nodegroup="math">
+    <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0" />
+    <output name="out" type="color4" defaultinput="in" />
+  </nodedef>
   <nodedef name="ND_fract_vector2" node="fract" nodegroup="math">
     <input name="in" type="vector2" value="0.0, 0.0" />
     <output name="out" type="vector2" defaultinput="in" />

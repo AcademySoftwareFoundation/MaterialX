@@ -265,6 +265,8 @@
 
   <!-- <fract> -->
   <implementation name="IM_fract_float_genosl" nodedef="ND_fract_float" target="genosl" sourcecode="{{in}} - floor({{in}})" />
+  <implementation name="IM_fract_color3_genosl" nodedef="ND_fract_color3" target="genosl" sourcecode="{{in}} - floor({{in}})" />
+  <implementation name="IM_fract_color4_genosl" nodedef="ND_fract_color4" target="genosl" sourcecode="{{in}} - floor({{in}})" />
   <implementation name="IM_fract_vector2_genosl" nodedef="ND_fract_vector2" target="genosl" sourcecode="{{in}} - floor({{in}})" />
   <implementation name="IM_fract_vector3_genosl" nodedef="ND_fract_vector3" target="genosl" sourcecode="{{in}} - floor({{in}})" />
   <implementation name="IM_fract_vector4_genosl" nodedef="ND_fract_vector4" target="genosl" sourcecode="{{in}} - floor({{in}})" />
