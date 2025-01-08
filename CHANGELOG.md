@@ -1,11 +1,11 @@
 # Change Log
 
-## [1.39.2] - Development
+## [1.39.2] - Release Candidate
 
 ### Added
 - Added support for the [Chiang Hair BSDF](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1968), with initial implementations in hardware shading languages and MDL.
 - Added support for the [Disney Principled](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2004) shading model, implemented as a language-independent graph.
-- Added support for [ramp curve adjustments](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1884), using a graph-based ramp node with ten control points.
+- Added support for [generic color ramps](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1884), using a graph-based ramp node with ten control points.
 - Added support for [Worley noise with solid cells](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2119), opening up new artistic options for metal flake shaders.
 - Added support for [data library referencing](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2054), enabling improved performance in shader generation.
 - Added support for [custom structure types](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1831) in MaterialX.
@@ -32,7 +32,7 @@
 - Fixed [unintentional camera orbiting](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2032) in the render view of the MaterialX Graph Editor.
 - Fixed [banding artifacts](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1977) in the MaterialX Viewer on MacOS.
 - Fixed the handling of [missing scenes](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2124) in the MaterialX Web Viewer.
-- Fixed an edge case for [node pasting](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2145) in the Graph Editor.
+- Fixed an edge case for [node pasting](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2145) in the MaterialX Graph Editor.
 - Fixed the implementation of [texture filtering](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2158) in OSL shader generation.
 - Fixed the implementation of the [heighttonormal node](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2165) in OSL shader generation.
 - Fixed a call to the [anisotropic_vdf closure](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2016) in OSL shader generation.
