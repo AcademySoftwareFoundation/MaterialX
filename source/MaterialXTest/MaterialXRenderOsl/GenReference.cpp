@@ -69,7 +69,8 @@ TEST_CASE("GenReference: OSL Reference", "[genreference]")
     // Generate reference shaders.
     // Ignore the following nodes:
     const mx::StringSet ignoreNodeList = { "surfacematerial", "volumematerial",
-                                           "constant_filename", "dot_filename"};
+                                           "constant_filename", "dot_filename",
+                                           "geompropvalueuniform_filename" };
 
     bool failedGeneration = false;
     for (const mx::NodeDefPtr& nodedef : stdlib->getNodeDefs())

@@ -125,11 +125,11 @@ bool isTransparentShaderNode(NodePtr node, NodePtr interfaceNode)
         string inputName = item.first;
         if (item.second == Input::TRANSPARENCY_HINT)
         {
-            inputPairList.push_back(std::make_pair(inputName, 0.0f) );
+            inputPairList.emplace_back(inputName, 0.0f);
         }
         else if (item.second == Input::OPACITY_HINT)
         {
-            inputPairList.push_back(std::make_pair(inputName, 1.0f));
+            inputPairList.emplace_back(inputName, 1.0f);
         }
     }
 
@@ -145,7 +145,7 @@ bool isTransparentShaderNode(NodePtr node, NodePtr interfaceNode)
                 const string& interfaceName = checkInput->getInterfaceName();
                 if (!interfaceName.empty())
                 {
-                    interfaceNames.push_back(std::make_pair(interfaceName, inputPair.second));
+                    interfaceNames.emplace_back(interfaceName, inputPair.second);
                 }
             }
         }

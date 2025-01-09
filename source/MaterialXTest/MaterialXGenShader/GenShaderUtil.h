@@ -88,20 +88,8 @@ class TestSuiteOptions
     // - 1 = run reduced only.
     int shaderInterfaces = 2;
 
-    // Validate element before attempting to generate code. Default is false.
-    bool validateElementToRender = false;
-
-    // Perform source code compilation validation test
-    bool compileCode = true;
-
-    // Perform rendering validation test
-    bool renderImages = true;
-
     // Render size
     mx::Vector2 renderSize = { 512, 512 };
-
-    // Perform saving of image.
-    bool saveImages = true;
 
     // Set this to be true if it is desired to dump out uniform and attribut information to the logging file.
     bool dumpUniformsAndAttributes = true;

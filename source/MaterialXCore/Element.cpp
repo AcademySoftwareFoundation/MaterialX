@@ -730,10 +730,9 @@ bool ValueElement::isAttributeEquivalent(ConstElementPtr rhs, const string& attr
         // Get precision and format options
         ScopedFloatFormatting fmt(options.floatFormat, options.floatPrecision);
 
-        ConstValueElementPtr rhsValueElement = rhs->asA<ValueElement>();
-
         // Check value equality
-        if (attributeName == ValueElement::VALUE_ATTRIBUTE)
+        ConstValueElementPtr rhsValueElement = rhs->asA<ValueElement>();
+        if (rhsValueElement && attributeName == ValueElement::VALUE_ATTRIBUTE)
         {
             ValuePtr thisValue = getValue();
             ValuePtr rhsValue = rhsValueElement->getValue();
