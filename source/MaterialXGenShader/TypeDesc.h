@@ -219,7 +219,7 @@ private:
 using TypeSystemPtr = shared_ptr<class TypeSystem>;
 
 /// @class TypeSystem
-/// Class handling registration, storage and query of type descriptors.
+/// Class handling registration, storage and query of type descriptions.
 class MX_GENSHADER_API TypeSystem
 {
 public:

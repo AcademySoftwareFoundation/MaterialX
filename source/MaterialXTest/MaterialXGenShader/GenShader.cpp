@@ -104,7 +104,7 @@ TEST_CASE("GenShader: TypeDesc Check", "[genshader]")
     REQUIRE(fooType != mx::Type::NONE);
     REQUIRE(fooType.getSemantic() == mx::TypeDesc::SEMANTIC_COLOR);
 
-    // Make sure we register a new type replacing an old type
+    // Make sure we can register a new type replacing an old type
     ts->registerType(fooTypeName, mx::TypeDesc::BASETYPE_INTEGER, mx::TypeDesc::SEMANTIC_VECTOR, 3);
     fooType = ts->getType(fooTypeName);
     REQUIRE(fooType != mx::Type::NONE);
