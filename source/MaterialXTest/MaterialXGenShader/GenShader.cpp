@@ -100,8 +100,15 @@ TEST_CASE("GenShader: TypeDesc Check", "[genshader]")
     // Make sure we can register a new custom type
     const std::string fooTypeName = "foo";
     ts->registerType(fooTypeName, mx::TypeDesc::BASETYPE_FLOAT, mx::TypeDesc::SEMANTIC_COLOR, 5);
-    const mx::TypeDesc fooType = ts->getType(fooTypeName);
+    mx::TypeDesc fooType = ts->getType(fooTypeName);
     REQUIRE(fooType != mx::Type::NONE);
+    REQUIRE(fooType.getSemantic() == mx::TypeDesc::SEMANTIC_COLOR);
+
+    // Make sure we register a new type replacing an old type
+    ts->registerType(fooTypeName, mx::TypeDesc::BASETYPE_INTEGER, mx::TypeDesc::SEMANTIC_VECTOR, 3);
+    fooType = ts->getType(fooTypeName);
+    REQUIRE(fooType != mx::Type::NONE);
+    REQUIRE(fooType.getSemantic() == mx::TypeDesc::SEMANTIC_VECTOR);
 
     // Make sure we can't request an unknown type
     REQUIRE(ts->getType("bar") == mx::Type::NONE);

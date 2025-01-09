@@ -84,19 +84,38 @@ TypeSystemPtr TypeSystem::create()
 
 void TypeSystem::registerType(TypeDesc type)
 {
-    _types.push_back(type);
-    _typesByName[type.getName()] = type;
+    auto it = _typesByName.find(type.getName());
+    if (it != _typesByName.end())
+    {
+        // A type with this name is already registered,
+        // so replace it with the new registration.
+        size_t i = 0;
+        for (const TypeDesc t : _types)
+        {
+            if (t == type)
+            {
+                _types[i] = type;
+                _typesByName[type.getName()] = type;
+                break;
+            }
+            ++i;
+        }
+    }
+    else
+    {
+        _types.push_back(type);
+        _typesByName[type.getName()] = type;
+    }
 }
 
 void TypeSystem::registerType(const string& name, uint8_t basetype, uint8_t semantic, uint16_t size, StructMemberDescVecPtr members)
 {
-    // Allocate a data block and use to initialize a new type description.
+    // Allocate a data block for the new type description.
     TypeDesc::DataBlockPtr data = std::make_shared<TypeDesc::DataBlock>(name, members);
-    const TypeDesc type(name, basetype, semantic, size, data.get());
-
     _dataBlocks.push_back(data);
-    _types.push_back(type);
-    _typesByName[name] = type;
+
+    // Register the new type
+    registerType(TypeDesc(name, basetype, semantic, size, data.get()));
 }
 
 TypeDesc TypeSystem::getType(const string& name) const
