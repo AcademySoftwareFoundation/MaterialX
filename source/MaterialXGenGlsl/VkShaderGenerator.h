@@ -21,8 +21,16 @@ using VkShaderGeneratorPtr = shared_ptr<class VkShaderGenerator>;
 class MX_GENGLSL_API VkShaderGenerator : public GlslShaderGenerator
 {
   public:
+    /// Constructor.
+    /// Optionally pass in an externally created TypeSystem here, 
+    /// if you want to keep type descriptions alive after the lifetime
+    /// of the shader generator.
     VkShaderGenerator(TypeSystemPtr typeSystem = TypeSystem::create());
 
+    /// Creator function.
+    /// Optionally pass in an externally created TypeSystem here, 
+    /// if you want to keep type descriptions alive after the lifetime
+    /// of the shader generator.
     static ShaderGeneratorPtr create(TypeSystemPtr typeSystem = TypeSystem::create()) { return std::make_shared<VkShaderGenerator>(typeSystem); }
 
     /// Return a unique identifier for the target this generator is for
