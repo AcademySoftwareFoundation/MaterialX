@@ -26,7 +26,7 @@ export color custom_node_function(float red, float green, float blue)
     return color(red * 0.25, green * 0.5, blue * 0.75);
 }
 
-// Example to illustrate implementations fpr multiple output nodes in MDL.
+// Example to illustrate implementations for multiple output nodes in MDL.
 // It uses a structure that might be defined locally.
 // The actual name of struct is anonymous to the code code generator.
 export struct custom_struct

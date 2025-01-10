@@ -15,7 +15,7 @@
     file="mx_custom_node_reserved_words.mdl"
     function="reserved_parmeter_name_function"
     target="genmdl"/>
-  <!-- instanciation -->
+  <!-- instantiation -->
   <custom_node_reserved_param_name name="custom_node_reserved_param_name1" type="color3">
     <input name="auto" type="float" value="0.9" />
   </custom_node_reserved_param_name>
@@ -44,7 +44,7 @@
     file="mx_custom_node_reserved_words.mdl"
     function="reserved_output_name_function"
     target="genmdl"/>
-  <!-- instanciation -->
+  <!-- instantiation -->
   <custom_node_reserved_output_name name="custom_node_reserved_output_name1" type="multioutput">
     <input name="scale" type="float" value="0.9" />
   </custom_node_reserved_output_name>
