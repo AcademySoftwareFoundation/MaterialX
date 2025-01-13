@@ -307,6 +307,57 @@ vector4 mx_noise(string noisetype, point position)
     return vector4 (cnoise[0], cnoise[1], cnoise[2], fnoise);
 }
 
+float mx_fbm(float x, float y, int octaves, float lacunarity, float diminish, string noisetype)
+{
+    float out = 0;
+    float amp = 1.0;
+    float xx = x;
+    float yy = y;
+
+    for (int i = 0;  i < octaves;  i += 1) {
+        out += amp * noise(noisetype, xx, yy);
+        amp *= diminish;
+        xx *= lacunarity;
+        yy *= lacunarity;
+    }
+    return out;
+}
+
+color mx_fbm(float x, float y, int octaves, float lacunarity, float diminish, string noisetype)
+{
+    color out = 0;
+    float amp = 1.0;
+    float xx = x;
+    float yy = y;
+
+    for (int i = 0;  i < octaves;  i += 1) {
+        out += amp * (color)noise(noisetype, xx, yy);
+        amp *= diminish;
+        xx *= lacunarity;
+        yy *= lacunarity;
+    }
+    return out;
+}
+
+vector2 mx_fbm(float x, float y, int octaves, float lacunarity, float diminish, string noisetype)
+{
+    return vector2((float) mx_fbm(x, y, octaves, lacunarity, diminish, noisetype),
+                   (float) mx_fbm(x+19, y+193, octaves, lacunarity, diminish, noisetype));
+}
+
+color4 mx_fbm(float x, float y, int octaves, float lacunarity, float diminish, string noisetype)
+{
+    color c = (color) mx_fbm(x, y, octaves, lacunarity, diminish, noisetype);
+    float f = (float) mx_fbm(x+19, y+193, octaves, lacunarity, diminish, noisetype);
+    return color4 (c, f);
+}
+
+vector4 mx_fbm(float x, float y, int octaves, float lacunarity, float diminish, string noisetype)
+{
+    color c = (color) mx_fbm(x, y, octaves, lacunarity, diminish, noisetype);
+    float f = (float) mx_fbm(x+19, y+193, octaves, lacunarity, diminish, noisetype);
+    return vector4 (c[0], c[1], c[2], f);
+}
 
 float mx_fbm(point position, int octaves, float lacunarity, float diminish, string noisetype)
 {

@@ -1,0 +1,5 @@
+void mx_fractal2d_vector2(vector2 amplitude, int octaves, float lacunarity, float diminish, vector2 texcoord, output vector2 result)
+{
+    vector2 f = mx_fbm(texcoord.x, texcoord.y, octaves, lacunarity, diminish, "snoise");
+    result = f * amplitude;
+}
