@@ -1,4 +1,0 @@
-void mx_turbulence3d_float(float amplitude, float octaves, vector position, output float result)
-{
-    result = 0.5;
-}

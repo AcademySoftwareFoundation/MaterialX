@@ -67,9 +67,9 @@
     <input name="color1" type="color3" value="1, 1, 1" xpos="-2.652174" ypos="-3.724138" uivisible="true" uiname="Color 1" />
     <input name="color2" type="color3" value="0, 0, 0" xpos="-2.652174" ypos="-2.500000" uivisible="true" uiname="Color 2" />
     <input name="noise_type" type="integer" value="0" xpos="-2.615942" ypos="-4.982759" uivisible="true" uiname="Noise Type" uimin="0" uimax="2" />
-    <input name="threshold_low" type="float" value="0.49" xpos="-2.688406" ypos="-0.681035" uivisible="true" uiname="Threshold Low" uimin="0" uimax="1" />
-    <input name="threshold_high" type="float" value="0.51" xpos="-2.688406" ypos="0.698276" uivisible="true" uiname="Threshold High" uimin="0" uimax="1" />
-    <input name="levels" type="float" value="3" xpos="-2.572464" ypos="-6.344828" uivisible="true" uiname="Levels" uimin="0" uisoftmax="10" />
+    <input name="threshold_low" type="float" value="0.0" xpos="-2.688406" ypos="-0.681035" uivisible="true" uiname="Threshold Low" uimin="0" uimax="1" />
+    <input name="threshold_high" type="float" value="1.0" xpos="-2.688406" ypos="0.698276" uivisible="true" uiname="Threshold High" uimin="0" uimax="1" />
+    <input name="levels" type="float" value="4" xpos="-2.572464" ypos="-6.344828" uivisible="true" uiname="Levels" uimin="0" uisoftmax="10" />
     <input name="phase" type="float" value="0" xpos="-2.572464" ypos="3.706897" uivisible="true"  uiname="Phase" uimin="0" uisoftmax="10" />
     <input name="size" type="float" value="1" xpos="-2.572464" ypos="6.336207" uivisible="true" uiname="Size" unittype="distance" uimin="0" uisoftmax="10" />
     <input name="offset_x" type="float" value="0" xpos="-2.688406" ypos="8.284483" uivisible="true" uiname="Offset X" unittype="distance" />
@@ -80,29 +80,43 @@
     <input name="rotate_z" type="float" value="0" xpos="-2.652174" ypos="14.474138" uivisible="true" uiname="Rotate Z" unittype="angle" unit="degree" uisoftmin="0" uisoftmax="360" />
     <output name="output_color3" type="color3" xpos="12.717391" ypos="-2.206897" />
   </nodedef>
-  
-  <nodedef name="ND_turbulence2d_float" node="turbulence2d" nodegroup="procedural2d">
-    <input name="amplitude" type="float" value="1.0" uimin="0" uisoftmax="1" />
-    <input name="octaves" type="float" value="3.0" uimin="0" uisoftmax="10" />
+
+  <nodedef name="ND_turbulence2d_max8_float" node="turbulence2d" nodegroup="texture2d" version="1.0.1" isdefaultversion="true" >
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
-    <output name="out" type="float" default="0.0" />
+    <input name="octaves" type="float" value="4" uimin="0" uimax="8" />
+    <input name="amplitude" type="float" value="1" uisoftmin="0.0" uisoftmax="2" />
+    <output name="out" type="float" />
   </nodedef>
 
-  <nodedef name="ND_turbulence3d_float" node="turbulence3d" nodegroup="procedural3d">
-    <input name="amplitude" type="float" value="1.0" uimin="0" uisoftmax="1" />
-    <input name="octaves" type="float" value="3.0" uimin="0" uisoftmax="10" />
+  <nodedef name="ND_turbulence3d_max8_float" node="turbulence3d" nodegroup="texture3d" version="1.0.1" isdefaultversion="true" >
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
-    <output name="out" type="float" default="0.0" />
+    <input name="octaves" type="float" value="4" uimin="0" uimax="8" />
+    <input name="amplitude" type="float" value="1" uisoftmin="0.0" uisoftmax="2" />
+    <output name="out" type="float" />
   </nodedef>
 
+  <nodedef name="ND_fractal2d_max8_float" node="fractal2d_max8" nodegroup="texture2d" version="1.0.1" isdefaultversion="true">
+    <input name="texcoord" type="vector2" uisoftmin="0,0" uisoftmax="1,1" />
+    <input name="octaves" type="float" value="4.0" uimin="0.0" uisoftmax="8" />
+    <input name="amplitude" type="float" value="1" uimin="0.0" uisoftmax="2" />
+    <output name="out" type="float" />
+  </nodedef>
+
+  <nodedef name="ND_fractal3d_max8_float" node="fractal3d_max8" nodegroup="texture3d" version="1.0.1" isdefaultversion="true">
+    <input name="position" type="vector3" uisoftmin="0,0,0" uisoftmax="1,1,1" />
+    <input name="octaves" type="float" value="4.0" uimin="0.0" uisoftmax="8" />
+    <input name="amplitude" type="float" value="1" uimin="0.0" uisoftmax="2" />
+    <output name="out" type="float" />
+  </nodedef>
+  
   <nodedef name="ND_util_specklenoise_float" node="util_specklenoise" nodegroup="adsk_legacy">
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <output name="out" type="float" default="0.0" />
   </nodedef>
 
-  <nodedef name="ND_legacy_speckle_color3" node="legacy_speckle_color3" nodegroup="adsk_legacy" version="1.0.1" isdefaultversion="true" >
-    <input name="color1" type="color3" value="1, 1, 1" uisoftmin="0,0,0" uisoftmax="1,1,1" />
-    <input name="color2" type="color3" value="0, 0, 0" uisoftmin="0,0,0" uisoftmax="1,1,1" />
+  <nodedef name="ND_legacy_speckle_color3" node="legacy_speckle" nodegroup="adsk_legacy" version="1.0.1" isdefaultversion="true" >
+    <input name="color1" type="color3" value="0, 0, 0" uisoftmin="0,0,0" uisoftmax="1,1,1" />
+    <input name="color2" type="color3" value="1, 1, 1" uisoftmin="0,0,0" uisoftmax="1,1,1" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="size" type="float" value="1" uisoftmin="0.0" uisoftmax="10.0" />
     <input name="octaves" type="float" value="4.0" uisoftmin="0.0" uisoftmax="8.0" />
@@ -115,7 +129,7 @@
     <output name="out" type="color3" />
   </nodedef>
 
-  <nodedef name="ND_legacy_marble_color3" node="legacy_marble_color3" nodegroup="adsk_legacy" version="1.0.1" isdefaultversion="true" >
+  <nodedef name="ND_legacy_marble_color3" node="legacy_marble" nodegroup="adsk_legacy" version="1.0.1" isdefaultversion="true" >
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="size" type="float" value="0.7636" uimin="0.0" uisoftmax="10.0" />
     <input name="width" type="float" value="0.070283" uimin="0.0" uisoftmax="10.0" />

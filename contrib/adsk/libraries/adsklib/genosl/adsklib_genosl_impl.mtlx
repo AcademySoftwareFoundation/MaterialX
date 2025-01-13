@@ -9,7 +9,4 @@
   <!-- <backface_util> -->
   <implementation name="IM_backface_util_genosl" nodedef="adsk:ND_backface_util" file="mx_backface_util.osl" function="mx_backface_util" target="genosl"/>
   
-  <implementation name="IM_turbulence2d_float_genosl" nodedef="ND_turbulence2d_float" file="mx_turbulence2d_float.osl" function="mx_turbulence2d_float" target="genosl" />
-  <implementation name="IM_turbulence3d_float_genosl" nodedef="ND_turbulence3d_float" file="mx_turbulence3d_float.osl" function="mx_turbulence3d_float" target="genosl" />
-
 </materialx>

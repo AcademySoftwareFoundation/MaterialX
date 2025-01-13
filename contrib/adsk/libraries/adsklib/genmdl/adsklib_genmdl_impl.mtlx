@@ -9,7 +9,4 @@
   <!-- <backface_util> todo: temporary implementation -->
   <implementation name="IM_backface_util_genmdl" nodedef="adsk:ND_backface_util" sourcecode="color(1, 1, 1)" target="genmdl"/>
   
-  <implementation name="IM_turbulence2d_float_genmdl" nodedef="ND_turbulence2d_float" sourcecode="color(0.5, 0.5, 0.5)" target="genmdl" />
-  <implementation name="IM_turbulence3d_float_genmdl" nodedef="ND_turbulence3d_float" sourcecode="color(0.5, 0.5, 0.5)" target="genmdl" />
-
 </materialx>
