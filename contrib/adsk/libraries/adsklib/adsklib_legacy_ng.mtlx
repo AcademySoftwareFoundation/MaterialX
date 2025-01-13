@@ -1885,6 +1885,436 @@
     </separate3>
   </nodegraph>
 
+  <nodegraph name="NG_util_sinewave_float" Autodesk-ldx_inputPos="-1596.85 -767.481" Autodesk-ldx_outputPos="802.901 -707.866" nodedef="ND_util_sinewave_float">
+    <output name="out" type="float" nodename="multiply2" />
+    <magnitude name="distance" type="float" nodedef="ND_magnitude_vector3" xpos="-6.6215" ypos="-4.80143">
+      <input name="in" type="vector3" interfacename="position" />
+    </magnitude>
+    <subtract name="distance_adj" type="float" nodedef="ND_subtract_float" xpos="-4.76041" ypos="-4.14386">
+      <input name="in1" type="float" nodename="distance" />
+      <input name="in2" type="float" nodename="multiply_shift" />
+    </subtract>
+    <multiply name="multiply_shift" type="float" nodedef="ND_multiply_float" xpos="-6.59044" ypos="-3.61036">
+      <input name="in1" type="float" interfacename="phase" />
+      <input name="in2" type="float" interfacename="rate" />
+    </multiply>
+    <multiply name="multiply_2PI" type="float" nodedef="ND_multiply_float" xpos="-2.9643" ypos="-3.97637">
+      <input name="in1" type="float" nodename="distance_adj" />
+      <input name="in2" type="float" value="6.28318" />
+    </multiply>
+    <sin name="sin1" type="float" nodedef="ND_sin_float" xpos="-1.23281" ypos="-3.94701">
+      <input name="in" type="float" nodename="multiply_2PI" />
+    </sin>
+    <add name="add1" type="float" nodedef="ND_add_float" xpos="0.428587" ypos="-3.91433">
+      <input name="in1" type="float" nodename="sin1" />
+      <input name="in2" type="float" value="1" />
+    </add>
+    <multiply name="multiply2" type="float" nodedef="ND_multiply_float" xpos="1.9402" ypos="-3.94536">
+      <input name="in1" type="float" nodename="add1" />
+      <input name="in2" type="float" value="0.5" />
+    </multiply>
+  </nodegraph>
+  
+  <nodegraph name="NG_util_wave_float" Autodesk-ldx_inputPos="-2835.69 -690.639" Autodesk-ldx_outputPos="2054.86 2.60872" nodedef="ND_util_wave_float">
+    <randomfloat name="randomfloat_Y" type="float" nodedef="ND_randomfloat_float" xpos="-8.04133" ypos="0.722494">
+      <input name="seed" type="integer" nodename="floor2" />
+      <input name="min" type="float" value="-1" />
+    </randomfloat>
+    <randomfloat name="randomfloat_X" type="float" nodedef="ND_randomfloat_float" xpos="-8.02672" ypos="-1.09067">
+      <input name="seed" type="integer" nodename="floor1" />
+      <input name="min" type="float" value="-1" />
+    </randomfloat>
+    <dot name="dot_seed" type="float" nodedef="ND_dot_float" xpos="-13.8151" ypos="-0.0572111">
+      <input name="in" type="float" interfacename="seed" ldx_value="8.9971" />
+    </dot>
+    <floor name="floor1" type="integer" nodedef="ND_floor_integer" xpos="-10.2116" ypos="-0.790772">
+      <input name="in" type="float" nodename="dot_seed" />
+    </floor>
+    <add name="add_seed2" type="float" nodedef="ND_add_float" xpos="-11.8199" ypos="0.626606">
+      <input name="in1" type="float" nodename="dot_seed" />
+      <input name="in2" type="float" value="1" />
+    </add>
+    <floor name="floor2" type="integer" nodedef="ND_floor_integer" xpos="-10.2972" ypos="0.703572">
+      <input name="in" type="float" nodename="add_seed2" />
+    </floor>
+    <NG_util_sinewave_float_rename name="util_sinewave" type="float" nodedef="ND_util_sinewave_float" xpos="2.43826" ypos="0.985306">
+      <input name="rate" type="float" ldx_value="1" nodename="divide3" />
+      <input name="phase" type="float" ldx_value="0" nodename="add_phase" />
+      <input name="position" type="vector3" nodename="divide2" />
+    </NG_util_sinewave_float_rename>
+    <randomfloat name="randomfloat_Z" type="float" nodedef="ND_randomfloat_float" xpos="-7.93344" ypos="2.9123">
+      <input name="seed" type="integer" nodename="floor3" />
+      <input name="min" type="float" value="-1" />
+    </randomfloat>
+    <add name="add_seed3" type="float" nodedef="ND_add_float" xpos="-11.8164" ypos="3.28708">
+      <input name="in2" type="float" value="1" />
+      <input name="in1" type="float" nodename="add_seed2" />
+    </add>
+    <floor name="floor3" type="integer" nodedef="ND_floor_integer" xpos="-10.3641" ypos="3.37287">
+      <input name="in" type="float" nodename="add_seed3" />
+    </floor>
+    <randomfloat name="randomfloat_size" type="float" nodedef="ND_randomfloat_float" xpos="-7.95017" ypos="5.02119">
+      <input name="seed" type="integer" nodename="floor4" />
+      <input name="min" type="float" value="0" />
+    </randomfloat>
+    <floor name="floor4" type="integer" nodedef="ND_floor_integer" xpos="-10.3179" ypos="5.29126">
+      <input name="in" type="float" nodename="add_seed4" />
+    </floor>
+    <add name="add_seed4" type="float" nodedef="ND_add_float" xpos="-11.7703" ypos="5.20548">
+      <input name="in2" type="float" value="1" />
+      <input name="in1" type="float" nodename="add_seed3" />
+    </add>
+    <multiply name="multiply_radius" type="vector3" nodedef="ND_multiply_vector3FA" xpos="-2.99452" ypos="0.670422">
+      <input name="in2" type="float" interfacename="radius" ldx_value="0.5" />
+      <input name="in1" type="vector3" nodename="combine_origin" />
+    </multiply>
+    <subtract name="subtract_position" type="vector3" nodedef="ND_subtract_vector3" xpos="-1.59656" ypos="-0.260557">
+      <input name="in2" type="vector3" nodename="multiply_radius" />
+      <input name="in1" type="vector3" interfacename="position" />
+    </subtract>
+    <remap name="remap_min_max" type="float" nodedef="ND_remap_float" xpos="-6.15406" ypos="4.87718">
+      <input name="in" type="float" nodename="randomfloat_size" />
+      <input name="outlow" type="float" interfacename="wavemin" />
+      <input name="outhigh" type="float" interfacename="wavemax" />
+      <input name="inlow" type="float" value="0" />
+    </remap>
+    <ifequal name="distrib_2D_3D_select" type="float" nodedef="ND_ifequal_floatB" xpos="-6.413" ypos="1.91854">
+      <input name="value2" type="boolean" value="true" />
+      <input name="value1" type="boolean" interfacename="distribution3d" />
+      <input name="in1" type="float" nodename="randomfloat_Z" />
+    </ifequal>
+    <ifequal name="fade_enable" type="float" nodedef="ND_ifequal_floatB" xpos="8.91944" ypos="-0.593322">
+      <input name="value2" type="boolean" value="true" />
+      <input name="value1" type="boolean" interfacename="fade" />
+      <input name="in2" type="float" nodename="util_sinewave" />
+      <input name="in1" type="float" nodename="fade_decay" />
+    </ifequal>
+    <output name="out" type="float" nodename="fade_enable" />
+    <multiply name="mag_square" type="float" nodedef="ND_multiply_float" xpos="2.05349" ypos="3.6197">
+      <input name="in1" type="float" nodename="center_magnitude" />
+      <input name="in2" type="float" nodename="center_magnitude" />
+    </multiply>
+    <magnitude name="center_magnitude" type="float" nodedef="ND_magnitude_vector3" xpos="0.549196" ypos="3.66852">
+      <input name="in" type="vector3" nodename="subtract_position" />
+    </magnitude>
+    <divide name="divide2" type="vector3" nodedef="ND_divide_vector3FA" xpos="0.804556" ypos="0.444577">
+      <input name="in1" type="vector3" nodename="subtract_position" />
+      <input name="in2" type="float" nodename="remap_min_max" />
+    </divide>
+    <randomfloat name="randomfloat_phase" type="float" nodedef="ND_randomfloat_float" xpos="-7.96617" ypos="6.97806">
+      <input name="seed" type="integer" nodename="floor5" />
+      <input name="min" type="float" value="0" />
+    </randomfloat>
+    <floor name="floor5" type="integer" nodedef="ND_floor_integer" xpos="-10.4044" ypos="7.25694">
+      <input name="in" type="float" nodename="add_seed5" />
+    </floor>
+    <add name="add_seed5" type="float" nodedef="ND_add_float" xpos="-11.8568" ypos="7.17117">
+      <input name="in2" type="float" value="1" />
+      <input name="in1" type="float" nodename="add_seed4" />
+    </add>
+    <add name="add_phase" type="float" nodedef="ND_add_float" xpos="-6.21117" ypos="7.18483">
+      <input name="in1" type="float" nodename="randomfloat_phase" />
+      <input name="in2" type="float" interfacename="phase" />
+    </add>
+    <divide name="divide3" type="float" nodedef="ND_divide_float" xpos="-3.46036" ypos="4.59263">
+      <input name="in2" type="float" nodename="remap_min_max" />
+      <input name="in1" type="float" value="1" />
+    </divide>
+    <add name="add_one" type="float" nodedef="ND_add_float" xpos="3.86421" ypos="3.64861">
+      <input name="in2" type="float" nodename="mag_square" />
+      <input name="in1" type="float" value="1" />
+    </add>
+    <multiply name="fade_decay" type="float" nodedef="ND_multiply_float" xpos="7.07767" ypos="1.44874">
+      <input name="in1" type="float" nodename="util_sinewave" />
+      <input name="in2" type="float" nodename="divide1" />
+    </multiply>
+    <backdrop name="modified_square_decay" xpos="0.408429" ypos="3.21572" width="6.34283" height="1.6" />
+    <combine3 name="combine_origin" type="vector3" nodedef="ND_combine3_vector3" xpos="-4.55658" ypos="1.41672">
+      <input name="in1" type="float" nodename="randomfloat_X" />
+      <input name="in2" type="float" nodename="randomfloat_Y" />
+      <input name="in3" type="float" nodename="distrib_2D_3D_select" />
+    </combine3>
+    <divide name="divide1" type="float" nodedef="ND_divide_float" xpos="5.37223" ypos="3.61667">
+      <input name="in1" type="float" value="1" />
+      <input name="in2" type="float" nodename="add_one" />
+    </divide>
+  </nodegraph>
+
+  <nodegraph name="NG_legacy_waves" Autodesk-ldx_inputPos="-2093.23 -126.692" Autodesk-ldx_outputPos="4536.41 1806.75" nodedef="ND_legacy_waves">
+    <convert name="convert_color3" type="color3" nodedef="ND_convert_float_color3" xpos="23.5308" ypos="9.98517">
+      <input name="in" type="float" nodename="wave_limit" />
+    </convert>
+    <output name="out" type="color3" nodename="convert_color3" />
+    <add name="add_seed2" type="float" nodedef="ND_add_float" xpos="-1.65477" ypos="2.82344">
+      <input name="in1" type="float" interfacename="seed" />
+      <input name="in2" type="float" value="10" />
+    </add>
+    <add name="add_wave2" type="float" nodedef="ND_add_float" xpos="2.64004" ypos="2.48784">
+      <input name="in1" type="float" nodename="util_wave1" />
+      <input name="in2" type="float" nodename="util_wave2" />
+    </add>
+    <add name="add_seed3" type="float" nodedef="ND_add_float" xpos="-1.655" ypos="5.15221">
+      <input name="in2" type="float" value="10" />
+      <input name="in1" type="float" nodename="add_seed2" />
+    </add>
+    <add name="add_wave3" type="float" nodedef="ND_add_float" xpos="2.67716" ypos="4.68642">
+      <input name="in2" type="float" nodename="util_wave3" />
+      <input name="in1" type="float" nodename="add_wave2" />
+    </add>
+    <switch name="switch_waves1" type="float" nodedef="ND_switch_float" xpos="13.4547" ypos="4.25243">
+      <input name="which" type="float" nodename="modulo_waves" />
+      <input name="in2" type="float" nodename="util_wave1" />
+      <input name="in3" type="float" nodename="add_wave2" />
+      <input name="in4" type="float" nodename="add_wave3" />
+      <input name="in5" type="float" nodename="add_wave4" />
+    </switch>
+    <switch name="switch_waves2" type="float" nodedef="ND_switch_float" xpos="13.4134" ypos="6.16072">
+      <input name="which" type="float" nodename="modulo_waves" />
+      <input name="in1" type="float" nodename="add_wave5" />
+      <input name="in2" type="float" nodename="add_wave6" />
+      <input name="in3" type="float" nodename="add_wave7" />
+      <input name="in4" type="float" nodename="add_wave8" />
+    </switch>
+    <switch name="switch_waves" type="float" nodedef="ND_switch_float" xpos="14.9309" ypos="5.13333">
+      <input name="which" type="float" nodename="divide_waves" />
+      <input name="in1" type="float" nodename="switch_waves1" />
+      <input name="in2" type="float" nodename="switch_waves2" />
+    </switch>
+    <modulo name="modulo_waves" type="float" nodedef="ND_modulo_float" xpos="10.9257" ypos="6.56661">
+      <input name="in1" type="float" interfacename="waves" />
+      <input name="in2" type="float" value="5" />
+    </modulo>
+    <divide name="divide_waves" type="float" nodedef="ND_divide_float" xpos="10.8732" ypos="7.806">
+      <input name="in1" type="float" interfacename="waves" />
+      <input name="in2" type="float" value="5" />
+    </divide>
+    <modulo name="modulo_frac" type="float" nodedef="ND_modulo_float" xpos="-1.55965" ypos="18.826">
+      <input name="in1" type="float" interfacename="waves" />
+    </modulo>
+    <multiply name="multiply_frac1" type="float" nodedef="ND_multiply_float" xpos="2.84918" ypos="18.6626">
+      <input name="in2" type="float" nodename="modulo_frac" />
+      <input name="in1" type="float" nodename="util_wave1" />
+    </multiply>
+    <add name="add_fractional" type="float" nodedef="ND_add_float" xpos="18.9269" ypos="7.39917">
+      <input name="in1" type="float" nodename="divide_wavenum" />
+      <input name="in2" type="float" nodename="divide_fract" />
+    </add>
+    <switch name="switch_frac2" type="float" nodedef="ND_switch_float" xpos="13.307" ypos="10.3316">
+      <input name="which" type="float" nodename="modulo_waves" />
+      <input name="in1" type="float" nodename="multiply_frac6" />
+      <input name="in2" type="float" nodename="multiply_frac7" />
+      <input name="in3" type="float" nodename="multiply_frac8" />
+    </switch>
+    <switch name="switch_frac" type="float" nodedef="ND_switch_float" xpos="14.8247" ypos="9.30428">
+      <input name="in1" type="float" nodename="switch_fract1" />
+      <input name="in2" type="float" nodename="switch_frac2" />
+      <input name="which" type="float" nodename="divide_waves" />
+    </switch>
+    <switch name="switch_fract1" type="float" nodedef="ND_switch_float" xpos="13.3484" ypos="8.42339">
+      <input name="which" type="float" nodename="modulo_waves" />
+      <input name="in1" type="float" nodename="multiply_frac1" />
+      <input name="in2" type="float" nodename="multiply_frac2" />
+      <input name="in3" type="float" nodename="multiply_frac3" />
+      <input name="in4" type="float" nodename="multiply_frac4" />
+      <input name="in5" type="float" nodename="multiply_frac5" />
+    </switch>
+    <multiply name="multiply_frac2" type="float" nodedef="ND_multiply_float" xpos="2.879" ypos="20.1341">
+      <input name="in2" type="float" nodename="modulo_frac" />
+      <input name="in1" type="float" nodename="util_wave2" />
+    </multiply>
+    <multiply name="multiply_frac3" type="float" nodedef="ND_multiply_float" xpos="2.84127" ypos="21.4338">
+      <input name="in2" type="float" nodename="modulo_frac" />
+      <input name="in1" type="float" nodename="util_wave3" />
+    </multiply>
+    <multiply name="multiply_frac4" type="float" nodedef="ND_multiply_float" xpos="2.81092" ypos="22.6418">
+      <input name="in2" type="float" nodename="modulo_frac" />
+      <input name="in1" type="float" nodename="util_wave4" />
+    </multiply>
+    <add name="add_wave4" type="float" nodedef="ND_add_float" xpos="2.66431" ypos="6.60272">
+      <input name="in2" type="float" nodename="util_wave4" />
+      <input name="in1" type="float" nodename="add_wave3" />
+    </add>
+    <add name="add_seed4" type="float" nodedef="ND_add_float" xpos="-1.66784" ypos="7.0685">
+      <input name="in2" type="float" value="10" />
+      <input name="in1" type="float" nodename="add_seed3" />
+    </add>
+    <divide name="divide_wavenum" type="float" nodedef="ND_divide_float" xpos="16.7822" ypos="6.66828">
+      <input name="in2" type="float" interfacename="waves" ldx_value="2" />
+      <input name="in1" type="float" nodename="switch_waves" />
+    </divide>
+    <add name="add_wave5" type="float" nodedef="ND_add_float" xpos="2.67679" ypos="8.81583">
+      <input name="in2" type="float" nodename="util_wave5" />
+      <input name="in1" type="float" nodename="add_wave4" />
+    </add>
+    <add name="add_seed5" type="float" nodedef="ND_add_float" xpos="-1.65537" ypos="9.28156">
+      <input name="in2" type="float" value="10" />
+    </add>
+    <add name="add_wave6" type="float" nodedef="ND_add_float" xpos="2.73932" ypos="11.142">
+      <input name="in2" type="float" nodename="util_wave6" />
+      <input name="in1" type="float" nodename="add_wave5" />
+    </add>
+    <add name="add_seed6" type="float" nodedef="ND_add_float" xpos="-1.59283" ypos="11.6078">
+      <input name="in2" type="float" value="10" />
+      <input name="in1" type="float" nodename="add_seed5" />
+    </add>
+    <add name="add_wave7" type="float" nodedef="ND_add_float" xpos="2.70306" ypos="13.3539">
+      <input name="in2" type="float" nodename="util_wave7" />
+      <input name="in1" type="float" nodename="add_wave6" />
+    </add>
+    <add name="add_seed7" type="float" nodedef="ND_add_float" xpos="-1.6291" ypos="13.8199">
+      <input name="in2" type="float" value="10" />
+      <input name="in1" type="float" nodename="add_seed6" />
+    </add>
+    <add name="add_wave8" type="float" nodedef="ND_add_float" xpos="2.7514" ypos="15.6628">
+      <input name="in2" type="float" nodename="util_wave8" />
+      <input name="in1" type="float" nodename="add_wave7" />
+    </add>
+    <divide name="divide_last_wave" type="float" nodedef="ND_divide_float" xpos="5.49241" ypos="15.6572">
+      <input name="in2" type="float" value="8" />
+      <input name="in1" type="float" nodename="add_wave8" />
+    </divide>
+    <add name="add_seed8" type="float" nodedef="ND_add_float" xpos="-1.58075" ypos="16.1286">
+      <input name="in2" type="float" value="10" />
+      <input name="in1" type="float" nodename="add_seed7" />
+    </add>
+    <multiply name="multiply_frac5" type="float" nodedef="ND_multiply_float" xpos="2.80833" ypos="24.0404">
+      <input name="in2" type="float" nodename="modulo_frac" />
+      <input name="in1" type="float" nodename="util_wave5" />
+    </multiply>
+    <multiply name="multiply_frac6" type="float" nodedef="ND_multiply_float" xpos="2.85666" ypos="25.3096">
+      <input name="in2" type="float" nodename="modulo_frac" />
+      <input name="in1" type="float" nodename="util_wave6" />
+    </multiply>
+    <multiply name="multiply_frac7" type="float" nodedef="ND_multiply_float" xpos="2.88083" ypos="26.6151">
+      <input name="in2" type="float" nodename="modulo_frac" />
+      <input name="in1" type="float" nodename="util_wave7" />
+    </multiply>
+    <multiply name="multiply_frac8" type="float" nodedef="ND_multiply_float" xpos="2.90501" ypos="27.7029">
+      <input name="in2" type="float" nodename="modulo_frac" />
+      <input name="in1" type="float" nodename="util_wave8" />
+    </multiply>
+    <ifgreatereq name="wave_limit" type="float" nodedef="ND_ifgreatereq_float" xpos="21.339" ypos="9.91756">
+      <input name="value2" type="float" value="8" />
+      <input name="value1" type="float" interfacename="waves" />
+      <input name="in2" type="float" nodename="add_fractional" />
+      <input name="in1" type="float" nodename="divide_last_wave" />
+    </ifgreatereq>
+    <combine3 name="combine_offset" type="vector3" xpos="-9.55967" ypos="4.15887">
+      <input name="in1" type="float" interfacename="offset_x" />
+      <input name="in2" type="float" interfacename="offset_y" />
+      <input name="in3" type="float" interfacename="offset_z" />
+    </combine3>
+    <subtract name="add_offset" type="vector3" xpos="-6.89772" ypos="7.19378">
+      <input name="in2" type="vector3" nodename="combine_offset" />
+      <input name="in1" type="vector3" nodename="rotate3d_z" />
+    </subtract>
+    <rotate3d name="rotate3d_x" type="vector3" xpos="-9.44372" ypos="7.90889">
+      <input name="axis" type="vector3" value="1, 0, 0" />
+      <input name="in" type="vector3" interfacename="position" />
+      <input name="amount" type="float" interfacename="rotate_x" />
+    </rotate3d>
+    <rotate3d name="rotate3d_y" type="vector3" xpos="-9.44372" ypos="9.39156">
+      <input name="in" type="vector3" nodename="rotate3d_x" />
+      <input name="amount" type="float" interfacename="rotate_y" />
+    </rotate3d>
+    <rotate3d name="rotate3d_z" type="vector3" xpos="-9.44372" ypos="10.6502">
+      <input name="in" type="vector3" nodename="rotate3d_y" />
+      <input name="axis" type="vector3" value="0, 0, 1" />
+      <input name="amount" type="float" interfacename="rotate_z" />
+    </rotate3d>
+    <add name="add_wave_one" type="float" nodedef="ND_add_float" xpos="14.5673" ypos="14.2152">
+      <input name="in2" type="float" value="1" />
+      <input name="in1" type="float" nodename="floor_wavenum" />
+    </add>
+    <divide name="divide_fract" type="float" nodedef="ND_divide_float" xpos="16.7582" ypos="8.37489">
+      <input name="in2" type="float" nodename="add_wave_one" ldx_value="2" />
+      <input name="in1" type="float" nodename="switch_frac" />
+    </divide>
+    <floor name="floor_wavenum" type="float" nodedef="ND_floor_float" xpos="12.9219" ypos="14.2749">
+      <input name="in" type="float" interfacename="waves" />
+    </floor>
+    <util_wave name="util_wave1" type="float" nodedef="ND_util_wave_float" xpos="0.523108" ypos="0.0769156">
+      <input name="position" type="vector3" nodename="add_offset" />
+      <input name="radius" type="float" interfacename="radius" />
+      <input name="seed" type="float" interfacename="seed" />
+      <input name="wavemin" type="float" interfacename="wavemin" />
+      <input name="wavemax" type="float" interfacename="wavemax" />
+      <input name="phase" type="float" interfacename="phase" />
+      <input name="distribution3d" type="boolean" interfacename="distribution3d" />
+      <input name="fade" type="boolean" interfacename="fade" />
+    </util_wave>
+    <util_wave name="util_wave2" type="float" nodedef="ND_util_wave_float" xpos="0.495169" ypos="2.53349">
+      <input name="position" type="vector3" nodename="add_offset" />
+      <input name="radius" type="float" interfacename="radius" />
+      <input name="seed" type="float" nodename="add_seed2" />
+      <input name="wavemin" type="float" interfacename="wavemin" />
+      <input name="wavemax" type="float" interfacename="wavemax" />
+      <input name="phase" type="float" interfacename="phase" />
+      <input name="distribution3d" type="boolean" interfacename="distribution3d" />
+      <input name="fade" type="boolean" interfacename="fade" />
+    </util_wave>
+    <util_wave name="util_wave3" type="float" nodedef="ND_util_wave_float" xpos="0.454951" ypos="4.67011">
+      <input name="position" type="vector3" nodename="add_offset" />
+      <input name="radius" type="float" interfacename="radius" />
+      <input name="seed" type="float" nodename="add_seed3" />
+      <input name="wavemin" type="float" interfacename="wavemin" />
+      <input name="wavemax" type="float" interfacename="wavemax" />
+      <input name="phase" type="float" interfacename="phase" />
+      <input name="distribution3d" type="boolean" interfacename="distribution3d" />
+      <input name="fade" type="boolean" interfacename="fade" />
+    </util_wave>
+    <util_wave name="util_wave4" type="float" nodedef="ND_util_wave_float" xpos="0.479313" ypos="6.797">
+      <input name="position" type="vector3" nodename="add_offset" />
+      <input name="radius" type="float" interfacename="radius" />
+      <input name="seed" type="float" nodename="add_seed4" />
+      <input name="wavemin" type="float" interfacename="wavemin" />
+      <input name="wavemax" type="float" interfacename="wavemax" />
+      <input name="phase" type="float" interfacename="phase" />
+      <input name="distribution3d" type="boolean" interfacename="distribution3d" />
+      <input name="fade" type="boolean" interfacename="fade" />
+    </util_wave>
+    <util_wave name="util_wave5" type="float" nodedef="ND_util_wave_float" xpos="0.517389" ypos="9.00917">
+      <input name="position" type="vector3" nodename="add_offset" />
+      <input name="radius" type="float" interfacename="radius" />
+      <input name="seed" type="float" nodename="add_seed5" />
+      <input name="wavemin" type="float" interfacename="wavemin" />
+      <input name="wavemax" type="float" interfacename="wavemax" />
+      <input name="phase" type="float" interfacename="phase" />
+      <input name="distribution3d" type="boolean" interfacename="distribution3d" />
+      <input name="fade" type="boolean" interfacename="fade" />
+    </util_wave>
+    <util_wave name="util_wave6" type="float" nodedef="ND_util_wave_float" xpos="0.515475" ypos="11.1384">
+      <input name="position" type="vector3" nodename="add_offset" />
+      <input name="radius" type="float" interfacename="radius" />
+      <input name="seed" type="float" nodename="add_seed6" />
+      <input name="wavemin" type="float" interfacename="wavemin" />
+      <input name="wavemax" type="float" interfacename="wavemax" />
+      <input name="phase" type="float" interfacename="phase" />
+      <input name="distribution3d" type="boolean" interfacename="distribution3d" />
+      <input name="fade" type="boolean" interfacename="fade" />
+    </util_wave>
+    <util_wave name="util_wave7" type="float" nodedef="ND_util_wave_float" xpos="0.522695" ypos="13.4342">
+      <input name="position" type="vector3" nodename="add_offset" />
+      <input name="radius" type="float" interfacename="radius" />
+      <input name="seed" type="float" nodename="add_seed7" />
+      <input name="wavemin" type="float" interfacename="wavemin" />
+      <input name="wavemax" type="float" interfacename="wavemax" />
+      <input name="phase" type="float" interfacename="phase" />
+      <input name="distribution3d" type="boolean" interfacename="distribution3d" />
+      <input name="fade" type="boolean" interfacename="fade" />
+    </util_wave>
+    <util_wave name="util_wave8" type="float" nodedef="ND_util_wave_float" xpos="0.528434" ypos="15.5709">
+      <input name="position" type="vector3" nodename="add_offset" />
+      <input name="radius" type="float" interfacename="radius" />
+      <input name="seed" type="float" nodename="add_seed8" />
+      <input name="wavemin" type="float" interfacename="wavemin" />
+      <input name="wavemax" type="float" interfacename="wavemax" />
+      <input name="phase" type="float" interfacename="phase" />
+      <input name="distribution3d" type="boolean" interfacename="distribution3d" />
+      <input name="fade" type="boolean" interfacename="fade" />
+    </util_wave>
+  </nodegraph>
+
   <!-- 
       ===============================================
       Nodegraphs for Autodesk Legacy Material Classes
