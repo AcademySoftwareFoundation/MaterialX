@@ -924,7 +924,7 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
                 continue;
             }
 
-            // TODO: Shoud we really create new ones here each update?
+            // TODO: Should we really create new ones here each update?
             InputPtr inputPtr = std::make_shared<Input>(-1, -1, int(v->getType().getSize()), EMPTY_STRING);
             _uniformList[v->getVariable()] = inputPtr;
             inputPtr->isConstant = true;

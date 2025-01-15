@@ -60,7 +60,7 @@ void ClosureCompoundNode::emitFunctionDefinition(ClosureContext* cct, GenContext
     if (cct)
     {
         // Use the first output for classifying node type for the closure context.
-        // This is only relevent for closures, and they only have a single output.
+        // This is only relevant for closures, and they only have a single output.
         const TypeDesc closureType = _rootGraph->getOutputSocket()->getType();
 
         shadergen.emitString("void " + _functionName + cct->getSuffix(closureType) + "(", stage);
@@ -165,7 +165,7 @@ void ClosureCompoundNode::emitFunctionCall(const ShaderNode& node, GenContext& c
         if (cct)
         {
             // Use the first output for classifying node type for the closure context.
-            // This is only relevent for closures, and they only have a single output.
+            // This is only relevant for closures, and they only have a single output.
             const ShaderGraphOutputSocket* outputSocket = _rootGraph->getOutputSocket();
             const TypeDesc closureType = outputSocket->getType();
 

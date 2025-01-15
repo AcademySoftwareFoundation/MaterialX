@@ -315,7 +315,7 @@ void ShaderStage::addBlock(const string& str, const FilePath& sourceFilename, Ge
     const string& INCLUDE = _syntax->getIncludeStatement();
     const string& QUOTE   = _syntax->getStringQuote();
 
-    // Add each line in the block seperately to get correct indentation.
+    // Add each line in the block separately to get correct indentation.
     StringStream stream(str);
     for (string line; std::getline(stream, line);)
     {

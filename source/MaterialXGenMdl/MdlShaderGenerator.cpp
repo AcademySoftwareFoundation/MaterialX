@@ -85,7 +85,7 @@ const std::unordered_map<string, string> MdlShaderGenerator::GEOMPROP_DEFINITION
 MdlShaderGenerator::MdlShaderGenerator() :
     ShaderGenerator(MdlSyntax::create())
 {
-    // Register build-in implementations
+    // Register built-in implementations
 
     // <!-- <surfacematerial> -->
     registerImplementation("IM_surfacematerial_" + MdlShaderGenerator::TARGET, MaterialNodeMdl::create);
@@ -571,7 +571,7 @@ bool checkTransmissionIorDependencies(ShaderGraph* g, std::set<ShaderGraph*>& gr
     return result;
 }
 
-// Disconnect any incomming connections to transmission IOR
+// Disconnect any incoming connections to transmission IOR
 // inside a graph.
 void disconnectTransmissionIor(ShaderGraph* g)
 {
@@ -673,7 +673,7 @@ ShaderPtr MdlShaderGenerator::createShader(const string& name, ElementPtr elemen
 
         // For graphs that has a dependency with transmission IOR on the inside,
         // we can declare the corresponding inputs as being uniform and preserve
-        // the internal connection to transmssion IOR.
+        // the internal connection to transmission IOR.
         for (ShaderGraph* g : graphsWithIorDependency)
         {
             for (ShaderOutput* socket : g->getInputSockets())

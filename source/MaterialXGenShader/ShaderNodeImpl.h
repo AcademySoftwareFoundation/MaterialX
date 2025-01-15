@@ -97,7 +97,7 @@ class MX_GENSHADER_API ShaderNodeImpl
     /// Returns true if a graph input is accessible by users.
     /// Accessible inputs are allowed to be published as shader uniforms
     /// and hence must be presentable in a user interface.
-    /// By default all graph inputs are considered to be acessible.
+    /// By default all graph inputs are considered to be accessible.
     virtual bool isEditable(const ShaderGraphInputSocket& /*input*/) const
     {
         return true;
