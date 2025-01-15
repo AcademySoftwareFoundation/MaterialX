@@ -11,9 +11,6 @@
 #include <MaterialXGenShader/TypeDesc.h>
 #include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
-#include <MaterialXGenShader/Nodes/ClosureAddNode.h>
-#include <MaterialXGenShader/Nodes/ClosureMixNode.h>
-#include <MaterialXGenShader/Nodes/ClosureMultiplyNode.h>
 
 #include <MaterialXGenOsl/Nodes/BlurNodeOsl.h>
 #include <MaterialXGenOsl/Nodes/SurfaceNodeOsl.h>
