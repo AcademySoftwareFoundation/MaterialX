@@ -34,6 +34,7 @@ class MX_GENSHADER_API HwTransformNode : public ShaderNodeImpl
     static const string WORLD;
 };
 
+/// Vector transform implementation for hardware languages
 class MX_GENSHADER_API HwTransformVectorNode : public HwTransformNode
 {
   public:
@@ -45,6 +46,7 @@ class MX_GENSHADER_API HwTransformVectorNode : public HwTransformNode
     string getHomogeneousCoordinate() const override { return "0.0"; }
 };
 
+/// Point transform implementation for hardware languages
 class MX_GENSHADER_API HwTransformPointNode : public HwTransformVectorNode
 {
   public:
@@ -54,6 +56,7 @@ class MX_GENSHADER_API HwTransformPointNode : public HwTransformVectorNode
     string getHomogeneousCoordinate() const override { return "1.0"; }
 };
 
+/// Normal transform implementation for hardware languages
 class MX_GENSHADER_API HwTransformNormalNode : public HwTransformNode
 {
   public:
