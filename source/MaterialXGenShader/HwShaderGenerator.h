@@ -343,7 +343,7 @@ class MX_GENSHADER_API HwShaderGenerator : public ShaderGenerator
     mutable ClosureContext _defEmission;
 };
 
-/// @class HwShaderGenerator
+/// @class HwImplementation
 /// Base class for HW node implementations.
 class MX_GENSHADER_API HwImplementation : public ShaderNodeImpl
 {
