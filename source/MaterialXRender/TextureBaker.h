@@ -258,7 +258,7 @@ class TextureBaker : public Renderer
     // Populate file template variable naming map
     StringMap initializeFileTemplateMap(InputPtr input, NodePtr shader, const string& udim = EMPTY_STRING);
 
-    // Find first occurence of variable in filename from start index onwards
+    // Find first occurrence of variable in filename from start index onwards
     size_t findVarInTemplate(const string& filename, const string& var, size_t start = 0);
 
     // Generate a texture filename for the given graph output.

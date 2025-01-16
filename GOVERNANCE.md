@@ -10,12 +10,12 @@ TSC responsibilities include, but are not limited to:
 
 - Discussions, seeking consensus, and where necessary, voting on technical
   matters relating to MaterialX that affect multiple projects.
-- Maintainance and administration of the MaterialX GitHub repository.
+- Maintenance and administration of the MaterialX GitHub repository.
 - Coordinating technical direction of the project.
-- Coordinatng marketing, events, and communications regarding MaterialX.
+- Coordinating marketing, events, and communications regarding MaterialX.
 
 Within the TSC there are two key subgroups: **Voting Members**, who take on
-formal responsibiities for maintaining the MaterialX project and vote when
+formal responsibilities for maintaining the MaterialX project and vote when
 decisions are required; and **Stakeholders**, who represent specific teams and
 companies in the industry and speak on their behalf in MaterialX discussions.
 

@@ -1,4 +1,4 @@
-option(MATERIALX_NANOGUI_EXTERNAL "Build aginst an external install of NanoGUI (NANOGUI_ROOT may also need to be set)" OFF)
+option(MATERIALX_NANOGUI_EXTERNAL "Build against an external install of NanoGUI (NANOGUI_ROOT may also need to be set)" OFF)
 
 set(MATERIALXVIEW_RENDER_BACKEND_DEFINITIONS "")
 

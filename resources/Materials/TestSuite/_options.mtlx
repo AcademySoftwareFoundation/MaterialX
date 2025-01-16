@@ -36,7 +36,7 @@
     <!-- Rendered image size if render validation test enabled -->
     <input name="renderSize" type="vector2" value="512, 512" />
 
-    <!-- Set this to be true if it is desired to dump out uniform and attribut information to the logging file -->
+    <!-- Set this to be true if it is desired to dump out uniform and attribute information to the logging file -->
     <input name="dumpUniformsAndAttributes" type="boolean" value="true" />
 
     <!-- Set this to be true if it is desired to always dump out generated source code to disk instead of just on compile errors -->

@@ -1,7 +1,7 @@
 /*
 Color transform functions.
 
-These funcions are modified versions of the color operators found in Open Shading Language:
+These functions are modified versions of the color operators found in Open Shading Language:
 github.com/imageworks/OpenShadingLanguage/blob/master/src/liboslexec/opcolor.cpp
 
 It contains the subset of color operators needed to implement the MaterialX

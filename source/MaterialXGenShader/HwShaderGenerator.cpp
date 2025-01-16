@@ -330,7 +330,7 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     ShaderStagePtr ps = createStage(Stage::PIXEL, *shader);
     VariableBlockPtr psOutputs = ps->createOutputBlock(HW::PIXEL_OUTPUTS, "o_ps");
 
-    // Create required Uniform blocks and any additonal blocks if needed.
+    // Create required Uniform blocks and any additional blocks if needed.
     VariableBlockPtr psPrivateUniforms = ps->createUniformBlock(HW::PRIVATE_UNIFORMS, "u_prv");
     VariableBlockPtr psPublicUniforms = ps->createUniformBlock(HW::PUBLIC_UNIFORMS, "u_pub");
     VariableBlockPtr lightData = ps->createUniformBlock(HW::LIGHT_DATA, HW::T_LIGHT_DATA_INSTANCE);
@@ -468,7 +468,7 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
                         ShaderPort* filename = psPublicUniforms->add(Type::FILENAME, input->getVariable(), input->getValue());
                         filename->setPath(input->getPath());
 
-                        // Assing the uniform name to the input value
+                        // Assign the uniform name to the input value
                         // so we can reference it during code generation.
                         input->setValue(Value::createValue(input->getVariable()));
                     }

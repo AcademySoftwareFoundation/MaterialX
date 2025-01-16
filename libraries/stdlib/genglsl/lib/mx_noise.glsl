@@ -90,7 +90,7 @@ vec3 mx_trilerp(vec3 v0, vec3 v1, vec3 v2, vec3 v3, vec3 v4, vec3 v5, vec3 v6, v
 
 // 2 and 3 dimensional gradient functions - perform a dot product against a
 // randomly chosen vector. Note that the gradient vector is not normalized, but
-// this only affects the overal "scale" of the result, so we simply account for
+// this only affects the overall "scale" of the result, so we simply account for
 // the scale by multiplying in the corresponding "perlin" function.
 float mx_gradient_float(uint hash, float x, float y)
 {
@@ -468,7 +468,7 @@ float mx_worley_distance(vec2 p, int x, int y, int xoff, int yoff, float jitter,
         return abs(diff.x) + abs(diff.y);       // Manhattan distance
     if (metric == 3)
         return max(abs(diff.x), abs(diff.y));   // Chebyshev distance
-    // Either Euclidian or Distance^2
+    // Either Euclidean or Distance^2
     return dot(diff, diff);
 }
 
@@ -480,7 +480,7 @@ float mx_worley_distance(vec3 p, int x, int y, int z, int xoff, int yoff, int zo
         return abs(diff.x) + abs(diff.y) + abs(diff.z); // Manhattan distance
     if (metric == 3)
         return max(max(abs(diff.x), abs(diff.y)), abs(diff.z)); // Chebyshev distance
-    // Either Euclidian or Distance^2
+    // Either Euclidean or Distance^2
     return dot(diff, diff);
 }
 

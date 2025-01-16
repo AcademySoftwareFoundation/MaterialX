@@ -48,7 +48,7 @@ void ClosureCompoundNodeMdl::emitFunctionDefinition(const ShaderNode& node, GenC
                 const bool isMaterialExpr = (upstream->hasClassification(ShaderNode::Classification::CLOSURE) ||
                                              upstream->hasClassification(ShaderNode::Classification::SHADER));
 
-                // since the emit fuctions are const, the field name to generate a function for is passed via context
+                // since the emit functions are const, the field name to generate a function for is passed via context
                 const std::string& fieldName = outputSocket->getName();
                 GenUserDataStringPtr fieldNamePtr = std::make_shared<GenUserDataString>(fieldName);
                 context.pushUserData(CompoundNodeMdl::GEN_USER_DATA_RETURN_STRUCT_FIELD_NAME, fieldNamePtr);
@@ -57,7 +57,7 @@ void ClosureCompoundNodeMdl::emitFunctionDefinition(const ShaderNode& node, GenC
                 shadergen.emitComment("unrolled structure field: " + _returnStruct + "." + fieldName + " (name=\"" + node.getName() + "\")", stage);
                 emitFunctionSignature(node, context, stage);
 
-                // Special case for material expresions.
+                // Special case for material expressions.
                 if (isMaterialExpr)
                 {
                     shadergen.emitLine(" = let", stage, false);
@@ -103,7 +103,7 @@ void ClosureCompoundNodeMdl::emitFunctionDefinition(const ShaderNode& node, GenC
         // Emit function signature.
         emitFunctionSignature(node, context, stage);
 
-        // Special case for material expresions.
+        // Special case for material expressions.
         if (isMaterialExpr)
         {
             shadergen.emitLine(" = let", stage, false);

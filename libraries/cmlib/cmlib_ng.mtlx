@@ -166,7 +166,7 @@
   </nodegraph>
 
   <nodegraph name="NG_srgb_texture_to_lin_rec709_color3" nodedef="ND_srgb_texture_to_lin_rec709_color3">
-    <constant name="threshhold" type="float">
+    <constant name="threshold" type="float">
       <input name="value" type="float" value="0.04045" />
     </constant>
     <separate3 name="colorSeparate" type="multioutput">
@@ -174,19 +174,19 @@
     </separate3>
     <ifgreater name="isAboveR" type="float">
       <input name="value1" type="float" nodename="colorSeparate" output="outr" />
-      <input name="value2" type="float" nodename="threshhold" />
+      <input name="value2" type="float" nodename="threshold" />
       <input name="in1" type="float" value="1" />
       <input name="in2" type="float" value="0" />
     </ifgreater>
     <ifgreater name="isAboveG" type="float">
       <input name="value1" type="float" nodename="colorSeparate" output="outg" />
-      <input name="value2" type="float" nodename="threshhold" />
+      <input name="value2" type="float" nodename="threshold" />
       <input name="in1" type="float" value="1" />
       <input name="in2" type="float" value="0" />
     </ifgreater>
     <ifgreater name="isAboveB" type="float">
       <input name="value1" type="float" nodename="colorSeparate" output="outb" />
-      <input name="value2" type="float" nodename="threshhold" />
+      <input name="value2" type="float" nodename="threshold" />
       <input name="in1" type="float" value="1" />
       <input name="in2" type="float" value="0" />
     </ifgreater>

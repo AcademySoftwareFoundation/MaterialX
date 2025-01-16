@@ -500,7 +500,7 @@ void Document::upgradeVersion()
                 }
             }
 
-            // Change nodes with category "tranform[vector|point|normal]",
+            // Change nodes with category "transform[vector|point|normal]",
             // which are not fromspace/tospace variants, to "transformmatrix"
             else if (nodeCategory == "transformpoint" ||
                      nodeCategory == "transformvector" ||
