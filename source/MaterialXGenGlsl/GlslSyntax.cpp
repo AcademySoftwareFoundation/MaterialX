@@ -329,6 +329,16 @@ GlslSyntax::GlslSyntax()
             EMPTY_STRING,
             "surfaceshader",
             "#define material surfaceshader"));
+
+    registerTypeSyntax(
+        Type::CLOSUREDATA,
+        std::make_shared<AggregateTypeSyntax>(
+            "ClosureData",
+            EMPTY_STRING,
+            EMPTY_STRING,
+            EMPTY_STRING,
+            "struct ClosureData {int closureType; vec3 L; vec3 V; vec3 N; vec3 P; float occlusion;};"));
+
 }
 
 bool GlslSyntax::typeSupported(const TypeDesc* type) const

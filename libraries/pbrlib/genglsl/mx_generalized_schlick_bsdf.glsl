@@ -96,3 +96,19 @@ void mx_generalized_schlick_bsdf_indirect(vec3 V, float weight, vec3 color0, vec
     vec3 Li = mx_environment_radiance(N, V, X, safeAlpha, distribution, fd);
     bsdf.response = Li * comp * weight;
 }
+
+void mx_generalized_schlick_bsdf(ClosureData closureData, float weight, vec3 color0, vec3 color82, vec3 color90, float exponent, vec2 roughness, float thinfilm_thickness, float thinfilm_ior, vec3 N, vec3 X, int distribution, int scatter_mode, inout BSDF bsdf)
+{
+    if (closureData.closureType == CLOSURE_TYPE_REFLECTION)
+    {
+        mx_generalized_schlick_bsdf_reflection(closureData.L, closureData.V, closureData.P, closureData.occlusion, weight, color0, color82, color90, exponent, roughness, thinfilm_thickness, thinfilm_ior, N, X, distribution, scatter_mode, bsdf);
+    }
+    else if (closureData.closureType == CLOSURE_TYPE_TRANSMISSION)
+    {
+        mx_generalized_schlick_bsdf_transmission(closureData.V, weight, color0, color82, color90, exponent, roughness, thinfilm_thickness, thinfilm_ior, N, X, distribution, scatter_mode, bsdf);
+    }
+    else if (closureData.closureType == CLOSURE_TYPE_INDIRECT)
+    {
+        mx_generalized_schlick_bsdf_indirect(closureData.V, weight, color0, color82, color90, exponent, roughness, thinfilm_thickness, thinfilm_ior, N, X, distribution, scatter_mode, bsdf);
+    }
+}

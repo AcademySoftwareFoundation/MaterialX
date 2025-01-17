@@ -207,6 +207,7 @@ extern MX_GENSHADER_API const string LIGHT_DATA;       // Uniform inputs for lig
 extern MX_GENSHADER_API const string PIXEL_OUTPUTS;    // Outputs from the main/pixel stage.
 
 /// Variable names for lighting parameters.
+extern MX_GENSHADER_API const string CLOSURE_DATA;
 extern MX_GENSHADER_API const string DIR_N;
 extern MX_GENSHADER_API const string DIR_L;
 extern MX_GENSHADER_API const string DIR_V;
@@ -321,13 +322,10 @@ class MX_GENSHADER_API HwShaderGenerator : public ShaderGenerator
         REFLECTION,
         TRANSMISSION,
         INDIRECT,
-        EMISSION
+        EMISSION,
+        LIGHTING,
+        CLOSURE
     };
-
-    /// String constants for closure context suffixes.
-    static const string CLOSURE_CONTEXT_SUFFIX_REFLECTION;
-    static const string CLOSURE_CONTEXT_SUFFIX_TRANSMISSION;
-    static const string CLOSURE_CONTEXT_SUFFIX_INDIRECT;
 
   protected:
     HwShaderGenerator(SyntaxPtr syntax);
@@ -337,10 +335,7 @@ class MX_GENSHADER_API HwShaderGenerator : public ShaderGenerator
 
     /// Closure contexts for defining closure functions.
     mutable ClosureContext _defDefault;
-    mutable ClosureContext _defReflection;
-    mutable ClosureContext _defTransmission;
-    mutable ClosureContext _defIndirect;
-    mutable ClosureContext _defEmission;
+    mutable ClosureContext _defClosure;
 };
 
 /// @class HwImplementation

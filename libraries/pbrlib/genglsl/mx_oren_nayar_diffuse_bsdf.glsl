@@ -40,3 +40,15 @@ void mx_oren_nayar_diffuse_bsdf_indirect(vec3 V, float weight, vec3 color, float
     vec3 Li = mx_environment_irradiance(normal);
     bsdf.response = Li * diffuse * weight;
 }
+
+void mx_oren_nayar_diffuse_bsdf(ClosureData closureData, float weight, vec3 color, float roughness, vec3 normal, bool energy_compensation, inout BSDF bsdf)
+{
+    if (closureData.closureType == CLOSURE_TYPE_REFLECTION)
+    {
+        mx_oren_nayar_diffuse_bsdf_reflection(closureData.L, closureData.V, closureData.P, closureData.occlusion, weight, color, roughness, normal, energy_compensation, bsdf);
+    }
+    else if (closureData.closureType == CLOSURE_TYPE_INDIRECT)
+    {
+        mx_oren_nayar_diffuse_bsdf_indirect(closureData.V, weight, color, roughness, normal, energy_compensation, bsdf);
+    }
+}

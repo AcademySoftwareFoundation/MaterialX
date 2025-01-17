@@ -11,29 +11,10 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-SurfaceNodeMsl::SurfaceNodeMsl() :
-    _callReflection(HwShaderGenerator::ClosureContextType::REFLECTION),
-    _callTransmission(HwShaderGenerator::ClosureContextType::TRANSMISSION),
-    _callIndirect(HwShaderGenerator::ClosureContextType::INDIRECT),
-    _callEmission(HwShaderGenerator::ClosureContextType::EMISSION)
+SurfaceNodeMsl::SurfaceNodeMsl()
 {
-    // Create closure contexts for calling closure functions.
-    //
-    // Reflection context
-    _callReflection.setSuffix(Type::BSDF, HwShaderGenerator::CLOSURE_CONTEXT_SUFFIX_REFLECTION);
-    _callReflection.addArgument(Type::BSDF, ClosureContext::Argument(Type::VECTOR3, HW::DIR_L));
-    _callReflection.addArgument(Type::BSDF, ClosureContext::Argument(Type::VECTOR3, HW::DIR_V));
-    _callReflection.addArgument(Type::BSDF, ClosureContext::Argument(Type::VECTOR3, HW::WORLD_POSITION));
-    _callReflection.addArgument(Type::BSDF, ClosureContext::Argument(Type::FLOAT, HW::OCCLUSION));
-    // Transmission context
-    _callTransmission.setSuffix(Type::BSDF, HwShaderGenerator::CLOSURE_CONTEXT_SUFFIX_TRANSMISSION);
-    _callTransmission.addArgument(Type::BSDF, ClosureContext::Argument(Type::VECTOR3, HW::DIR_V));
-    // Indirect/Environment context
-    _callIndirect.setSuffix(Type::BSDF, HwShaderGenerator::CLOSURE_CONTEXT_SUFFIX_INDIRECT);
-    _callIndirect.addArgument(Type::BSDF, ClosureContext::Argument(Type::VECTOR3, HW::DIR_V));
-    // Emission context
-    _callEmission.addArgument(Type::EDF, ClosureContext::Argument(Type::VECTOR3, HW::DIR_N));
-    _callEmission.addArgument(Type::EDF, ClosureContext::Argument(Type::VECTOR3, HW::DIR_V));
+    // Create closure context for calling closure functions.
+    _callClosure.addArgument(ClosureContext::Argument(Type::CLOSUREDATA, HW::CLOSURE_DATA));
 }
 
 ShaderNodeImplPtr SurfaceNodeMsl::create()
@@ -112,6 +93,8 @@ void SurfaceNodeMsl::emitFunctionCall(const ShaderNode& node, GenContext& contex
         shadergen.emitLine("float3 N = normalize(" + prefix + HW::T_NORMAL_WORLD + ")", stage);
         shadergen.emitLine("float3 V = normalize(" + HW::T_VIEW_POSITION + " - " + prefix + HW::T_POSITION_WORLD + ")", stage);
         shadergen.emitLine("float3 P = " + prefix + HW::T_POSITION_WORLD, stage);
+        shadergen.emitLine("float3 L = float3(0,0,0);", stage);
+        shadergen.emitLine("float occlusion = 1.0", stage);
         shadergen.emitLineBreak(stage);
 
         const string outColor = output->getVariable() + ".color";
@@ -137,11 +120,7 @@ void SurfaceNodeMsl::emitFunctionCall(const ShaderNode& node, GenContext& contex
                 shadergen.emitLine("shadowCoord.xy = shadowCoord.xy * 0.5 + 0.5", stage);
 
                 shadergen.emitLine("float2 shadowMoments = texture(" + HW::T_SHADOW_MAP + ", shadowCoord.xy).xy", stage);
-                shadergen.emitLine("float occlusion = mx_variance_shadow_occlusion(shadowMoments, shadowCoord.z)", stage);
-            }
-            else
-            {
-                shadergen.emitLine("float occlusion = 1.0", stage);
+                shadergen.emitLine("occlusion = mx_variance_shadow_occlusion(shadowMoments, shadowCoord.z)", stage);
             }
             shadergen.emitLineBreak(stage);
 
@@ -166,7 +145,9 @@ void SurfaceNodeMsl::emitFunctionCall(const ShaderNode& node, GenContext& contex
             shadergen.emitComment("Add environment contribution", stage);
             shadergen.emitScopeBegin(stage);
 
-            context.pushClosureContext(&_callIndirect);
+            // indirect lighting
+            context.pushClosureContext(&_callClosure);
+            shadergen.emitLine("ClosureData closureData = {" + std::to_string(HwShaderGenerator::ClosureContextType::INDIRECT)+", L, V, N, P, occlusion}", stage);
             shadergen.emitFunctionCall(*bsdf, context, stage);
             context.popClosureContext();
 
@@ -186,7 +167,8 @@ void SurfaceNodeMsl::emitFunctionCall(const ShaderNode& node, GenContext& contex
             shadergen.emitComment("Add surface emission", stage);
             shadergen.emitScopeBegin(stage);
 
-            context.pushClosureContext(&_callEmission);
+            context.pushClosureContext(&_callClosure);
+            shadergen.emitLine("ClosureData closureData = {" + std::to_string(HwShaderGenerator::ClosureContextType::EMISSION)+", L, V, N, P, occlusion}", stage);
             shadergen.emitFunctionCall(*edf, context, stage);
             context.popClosureContext();
 
@@ -202,7 +184,9 @@ void SurfaceNodeMsl::emitFunctionCall(const ShaderNode& node, GenContext& contex
         {
             shadergen.emitComment("Calculate the BSDF transmission for viewing direction", stage);
             shadergen.emitScopeBegin(stage);
-            context.pushClosureContext(&_callTransmission);
+            context.pushClosureContext(&_callClosure);
+            shadergen.emitLine("ClosureData closureData = {" + std::to_string(HwShaderGenerator::ClosureContextType::TRANSMISSION)+", L, V, N, P, occlusion}", stage);
+
             shadergen.emitFunctionCall(*bsdf, context, stage);
             if (context.getOptions().hwTransmissionRenderMethod == TRANSMISSION_REFRACTION)
             {
@@ -250,11 +234,12 @@ void SurfaceNodeMsl::emitLightLoop(const ShaderNode& node, GenContext& context, 
         shadergen.emitScopeBegin(stage);
 
         shadergen.emitLine("sampleLightSource(" + HW::T_LIGHT_DATA_INSTANCE + "[activeLightIndex], " + prefix + HW::T_POSITION_WORLD + ", lightShader)", stage);
-        shadergen.emitLine("float3 L = lightShader.direction", stage);
+        shadergen.emitLine("L = lightShader.direction", stage);
         shadergen.emitLineBreak(stage);
 
         shadergen.emitComment("Calculate the BSDF response for this light source", stage);
-        context.pushClosureContext(&_callReflection);
+        context.pushClosureContext(&_callClosure); // reflection
+        shadergen.emitLine("ClosureData closureData = {" + std::to_string(HwShaderGenerator::ClosureContextType::REFLECTION)+", L, V, N, P, occlusion}", stage);
         shadergen.emitFunctionCall(*bsdf, context, stage);
         context.popClosureContext();
 
