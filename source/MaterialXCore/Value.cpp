@@ -235,7 +235,7 @@ StringVec parseStructValueString(const string& value)
         {
             // When we hit a separator we store the currently accumulated part, and clear to start collecting the next.
             split.emplace_back(part);
-            part = "";
+            part.clear();
         }
         else
         {

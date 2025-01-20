@@ -119,7 +119,7 @@ class MX_CORE_API Node : public InterfaceElement
     /// this element in the dataflow graph.
     Edge getUpstreamEdge(size_t index = 0) const override;
 
-    /// Return the number of queriable upstream edges for this element.
+    /// Return the number of queryable upstream edges for this element.
     size_t getUpstreamEdgeCount() const override
     {
         return getInputCount();

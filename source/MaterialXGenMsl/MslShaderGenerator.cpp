@@ -219,9 +219,9 @@ void MslShaderGenerator::MetalizeGeneratedShader(ShaderStage& shaderStage) const
             pos = sourceCode.find(keyword);
             while (pos != std::string::npos)
             {
-                char preceeding = sourceCode[pos - 1], succeeding = sourceCode[pos + keyword.length()];
+                char preceding = sourceCode[pos - 1], succeeding = sourceCode[pos + keyword.length()];
                 bool isOutKeyword =
-                    (preceeding == '(' || preceeding == ',' || std::isspace(preceeding)) &&
+                    (preceding == '(' || preceding == ',' || std::isspace(preceding)) &&
                     std::isspace(succeeding) &&
                     succeeding != '\n';
                 size_t beg = pos;

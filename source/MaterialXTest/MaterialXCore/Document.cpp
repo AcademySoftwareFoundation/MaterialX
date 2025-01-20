@@ -222,7 +222,7 @@ TEST_CASE("Document equivalence", "[document]")
     bool equivalent = doc->isEquivalent(doc2, options, &message);
     REQUIRE(!equivalent);
 
-    // Check attibute values 
+    // Check attribute values 
     options.performValueComparisons = true;
     equivalent = doc->isEquivalent(doc2, options, &message);
     REQUIRE(equivalent);

@@ -58,7 +58,7 @@ void CompoundNodeMdl::emitFunctionDefinition(const ShaderNode& node, GenContext&
         // Emit function signature.
         emitFunctionSignature(node, context, stage);
 
-        // Special case for material expresions.
+        // Special case for material expressions.
         if (isMaterialExpr)
         {
             shadergen.emitLine(" = let", stage, false);

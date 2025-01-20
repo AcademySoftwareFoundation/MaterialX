@@ -273,7 +273,7 @@ def _typeToName(t):
     return getTypeString(t())
 
 def _valueToString(value):
-    "(Deprecated) Convert a Python value to its correponding MaterialX value string."
+    "(Deprecated) Convert a Python value to its corresponding MaterialX value string."
     warnings.warn("This function is deprecated; call MaterialX.getValueString instead.", DeprecationWarning, stacklevel = 2)
     return getValueString(value)
 

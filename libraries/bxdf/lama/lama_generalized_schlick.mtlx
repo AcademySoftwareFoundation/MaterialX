@@ -2,9 +2,9 @@
 <materialx version="1.39" colorspace="acescg">
   <nodedef name="ND_lama_generalized_schlick" node="LamaGeneralizedSchlick" nodegroup="pbr" doc="Lama generalized schlick" version="1.0" isdefaultversion="true">
     <input name="reflectionTint" type="color3" value="1.0, 1.0, 1.0" uiname="Reflection Tint" uifolder="Main"
-           doc="Color multiplier for external reflection. It should be used with parcimony, as a non-white value breaks physicality." />
+           doc="Color multiplier for external reflection. It should be used with parsimony, as a non-white value breaks physicality." />
     <input name="transmissionTint" type="color3" value="1.0, 1.0, 1.0" uiname="Transmission Tint" uifolder="Main"
-           doc="Color multiplier for rays going inside the medium (covers external transmission and internal reflection). It should be used sparingly, as a non-white value breaks physicality. The prefered way to define the color of a dielectric is through the Interior attributes right below." />
+           doc="Color multiplier for rays going inside the medium (covers external transmission and internal reflection). It should be used sparingly, as a non-white value breaks physicality. The preferred way to define the color of a dielectric is through the Interior attributes right below." />
     <input name="fresnelMode" type="integer" uniform="true" enum="Artistic,Scientific" enumvalues="0,1" value="0" uiname="Fresnel Mode" uifolder="Main"
            doc="Switches the Fresnel between Artistic and Scientific parameters. The Artistic mode offers reflectivity in the normal direction and reflectivity90 at the grazing angle. The Scientific mode provides an index of refraction for each rgb component. Note that IOR is only used to calculate the reflectivity value used by the Schlick approximation. When reflectivity90 is 1, then both modes achieve identical results, as one can be mapped to the other." />
     <input name="IOR" type="vector3" value="1.5,1.5,1.5" uiname="IOR" uifolder="Main"
@@ -24,7 +24,7 @@
     <input name="anisotropyDirection" type="vector3" defaultgeomprop="Tworld" uiname="Direction" uifolder="Anisotropy"
            doc="Overrides the surface tangent as the anisotropy direction." />
     <input name="anisotropyRotation" type="float" value="0.0" uisoftmin="0.0" uisoftmax="1.0" uiname="Rotation" uifolder="Anisotropy"
-           doc="Rotates the anisotropy direction (possibly overriden by the previous attribute) around the normal, from 0 to 360 degrees." />
+           doc="Rotates the anisotropy direction (possibly overridden by the previous attribute) around the normal, from 0 to 360 degrees." />
     <input name="absorptionColor" type="color3" value="1.0, 1.0, 1.0" uiname="Absorption Color" uifolder="Interior"
            doc="Interior volume absorption color. It is defined as the negative logarithm of the extinction coefficient, with values between 0 and 1, such that the object itself and its shadows are tinted proportionally. If set to 1, there is no absorption, and if set to 0, the object will be completely opaque. Note that for single scattering to kick in, the value must be inferior to 1. This value will also act as coating color, when this node is used as top layer in a stack." />
     <input name="absorptionRadius" type="float" value="1.0" uimin="0.0" uiname="Absorption Radius" uifolder="Interior"

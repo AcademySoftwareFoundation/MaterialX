@@ -262,7 +262,7 @@ class UiNode
     std::vector<UiPinPtr> inputPins;
     std::vector<UiPinPtr> outputPins;
     void removeOutputConnection(const std::string& name);
-    mx::ElementPtr getMxElement();
+    mx::ElementPtr getElement();
     int _level;
     bool _showAllInputs;
 
