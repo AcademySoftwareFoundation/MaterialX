@@ -1,6 +1,6 @@
 # Change Log
 
-## [1.39.2] - Release Candidate
+## [1.39.2] - 2025-01-20
 
 ### Added
 - Added support for the [Chiang Hair BSDF](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1968), with initial implementations in hardware shading languages and MDL.
