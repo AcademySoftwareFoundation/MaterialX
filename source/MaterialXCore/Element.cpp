@@ -773,7 +773,7 @@ bool ValueElement::isAttributeEquivalent(ConstElementPtr rhs, const string& attr
         }
     }
 
-    // If did not peform a value comparison, perform the default comparison
+    // If did not perform a value comparison, perform the default comparison
     if (!performedValueComparison)
     {
         return Element::isAttributeEquivalent(rhs, attributeName, options, message);
@@ -855,7 +855,7 @@ void StringResolver::addTokenSubstitutions(ConstElementPtr element)
     const string DELIMITER_PREFIX = "[";
     const string DELIMITER_POSTFIX = "]";
 
-    // Travese from sibliings up until root is reached.
+    // Traverse from siblings up until root is reached.
     // Child tokens override any parent tokens.
     ConstElementPtr parent = element->getParent();
     while (parent)

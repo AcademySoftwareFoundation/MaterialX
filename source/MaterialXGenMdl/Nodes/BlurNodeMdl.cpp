@@ -41,7 +41,7 @@ void BlurNodeMdl::outputSampleArray(const ShaderGenerator& shadergen, ShaderStag
         shadergen.emitLineEnd(stage, false);
     }
     // We must fill out the whole array to have a valid MDL syntax.
-    // So padd it with dummy default values.
+    // So pad it with dummy default values.
     for (size_t i = sampleCount; i < maxSampleCount; i++)
     {
         shadergen.emitLineBegin(stage);

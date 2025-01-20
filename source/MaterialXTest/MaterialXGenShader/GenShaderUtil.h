@@ -51,7 +51,7 @@ void checkImplementations(mx::GenContext& context,
 // Utility test to  check unique name generation on a shader generator
 void testUniqueNames(mx::GenContext& context, const std::string& stage);
 
-// Utility to perfrom simple performance test to load, validate and generate shaders
+// Utility to perform simple performance test to load, validate and generate shaders
 void shaderGenPerformanceTest(mx::GenContext& context);
 
 //
@@ -91,7 +91,7 @@ class TestSuiteOptions
     // Render size
     mx::Vector2 renderSize = { 512, 512 };
 
-    // Set this to be true if it is desired to dump out uniform and attribut information to the logging file.
+    // Set this to be true if it is desired to dump out uniform and attribute information to the logging file.
     bool dumpUniformsAndAttributes = true;
 
     // Geometry file to be rendered

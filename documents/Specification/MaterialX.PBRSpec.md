@@ -407,7 +407,7 @@ Note that the standard library includes definitions for [**`displacement`**](./M
 
 <a id="node-chiang-hair-absorption-from-color"> </a>
 
-* **`chiang_hair_absorption_from_color`** : Coverts the hair scattering color to absorption coefficient using the mapping method described in [^Chiang2016]. Output type `vector3`.
+* **`chiang_hair_absorption_from_color`** : Converts the hair scattering color to absorption coefficient using the mapping method described in [^Chiang2016]. Output type `vector3`.
     * `color` (color3): Scattering color. Defaults to (1.0, 1.0, 1.0).
     * `azimuthal_roughness` (float): Azimuthal roughness, range [0.0, 1.0]. Defaults to 0.2.
 

@@ -1070,6 +1070,7 @@
     <input name="lacunarity" type="float" uiname="Lacunarity" uifolder="Fractal" value="2" doc="The exponential scale between successive octaves of Fractal noise. Default is 2.0." />
     <input name="diminish" type="float" uiname="Diminish" uifolder="Fractal" uisoftmin="0.0" uisoftmax="1.0" value="0.5" doc="The rate at which noise amplitude is diminished for each octave of Fractal noise. Default is 0.5." />
     <input name="type" type="integer" uiname="Noise Type" uifolder="Common" uisoftmin="0" uisoftmax="3" value="0" enum="Perlin,Cell,Worley,Fractal" enumvalues="0,1,2,3" doc="Menu to select the type of noise: Perlin, Cell, Worley, or Fractal. Default is Perlin." />
+    <input name="style" uiname="Worley Cell Style" type="integer" value="0" enum="Distance,Solid" enumvalues="0,1" doc="Sets the style of cell used when Noise Type is set to Worley." />
     <output name="out" type="float" />
   </nodedef>
 
@@ -1089,6 +1090,7 @@
     <input name="lacunarity" type="float" uiname="Lacunarity" uifolder="Fractal" value="2" doc="The exponential scale between successive octaves of Fractal noise. Default is 2.0." />
     <input name="diminish" type="float" uiname="Diminish" uifolder="Fractal" uisoftmin="0.0" uisoftmax="1.0" value="0.5" doc="The rate at which noise amplitude is diminished for each octave of Fractal noise. Default is 0.5." />
     <input name="type" type="integer" uiname="Noise Type" uifolder="Common" uisoftmin="0" uisoftmax="3" value="0" enum="Perlin,Cell,Worley,Fractal" enumvalues="0,1,2,3" doc="Menu to select the type of noise: Perlin, Cell, Worley, or Fractal. Default is Perlin." />
+    <input name="style" uiname="Worley Cell Style" type="integer" value="0" enum="Distance,Solid" enumvalues="0,1" doc="Sets the style of cell used when Noise Type is set to Worley." />
     <output name="out" type="float" />
   </nodedef>
 
@@ -3224,7 +3226,7 @@
     <input name="gain" type="float" uiname="Gain" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Multiplier increases lighter color values, leaving black values unchanged." />
     <input name="contrast" type="float" uiname="Contrast" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Linearly increase or decrease the color contrast." />
     <input name="contrastpivot" type="float" uiname="Contrast Pivot" uisoftmin="0.0" uisoftmax="1.0" value="0.5" doc="Pivot value around which contrast applies. This value will not change as contrast is adjusted." />
-    <input name="exposure" type="float" uiname="Exposure" uisoftmin="-1.0" uisoftmax="1.0" value="0" doc="Multplier which increases or decreases color brightness by 2^value." />
+    <input name="exposure" type="float" uiname="Exposure" uisoftmin="-1.0" uisoftmax="1.0" value="0" doc="Multiplier which increases or decreases color brightness by 2^value." />
     <output name="out" type="color3" />
   </nodedef>
   <nodedef name="ND_colorcorrect_color4" node="colorcorrect" nodegroup="adjustment">
@@ -3236,7 +3238,7 @@
     <input name="gain" type="float" uiname="Gain" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Multiplier increases lighter color values, leaving black values unchanged." />
     <input name="contrast" type="float" uiname="Contrast" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Linearly increase or decrease the color contrast." />
     <input name="contrastpivot" type="float" uiname="Contrast Pivot" uisoftmin="0.0" uisoftmax="1.0" value="0.5" doc="Pivot value around which contrast applies. This value will not change as contrast is adjusted." />
-    <input name="exposure" type="float" uiname="Exposure" uisoftmin="-1.0" uisoftmax="1.0" value="0" doc="Multplier which increases or decreases color brightness by 2^value." />
+    <input name="exposure" type="float" uiname="Exposure" uisoftmin="-1.0" uisoftmax="1.0" value="0" doc="Multiplier which increases or decreases color brightness by 2^value." />
     <output name="out" type="color4" />
   </nodedef>
 

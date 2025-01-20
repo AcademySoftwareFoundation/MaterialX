@@ -44,7 +44,7 @@ void initContext(mx::GenContext& context, mx::FileSearchPath searchPath, mx::Doc
     context.getOptions().targetDistanceUnit = "meter";
 }
 
-/// Tries to load the standard libaries and initialize the given generation context. The loaded libraries are added to the returned document
+/// Tries to load the standard libraries and initialize the given generation context. The loaded libraries are added to the returned document
 mx::DocumentPtr loadStandardLibraries(mx::GenContext& context)
 {
     mx::DocumentPtr stdLib;

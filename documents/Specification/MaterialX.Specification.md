@@ -1544,7 +1544,7 @@ Adjustment nodes have one input named "in", and apply a specified function to va
     * `gain` (float): Multiplier increases lighter color values, leaving black values unchanged; default is 1.
     * `contrast` (float): Linearly increase or decrease the color contrast; default is 1.
     * `contrastpivot` (float): Pivot value around which contrast applies. This value will not change as contrast is adjusted; default is 0.5.
-    * `exposure` (float): Multplier which increases or decreases color brightness by 2^value; default is 0.
+    * `exposure` (float): Multiplier which increases or decreases color brightness by 2^value; default is 0.
 
 
 

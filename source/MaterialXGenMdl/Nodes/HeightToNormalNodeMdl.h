@@ -23,7 +23,7 @@ class MX_GENMDL_API HeightToNormalNodeMdl : public ConvolutionNode
     const string& getTarget() const override;
 
   protected:
-    /// Return if given type is an acceptible input
+    /// Return if given type is an acceptable input
     bool acceptsInputType(TypeDesc type) const override;
 
     /// Compute offset strings for sampling

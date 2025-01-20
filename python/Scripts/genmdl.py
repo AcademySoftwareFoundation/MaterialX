@@ -209,10 +209,10 @@ def _writeFourArgumentCombine(file, outputType):
         outputType = 'color3';
     file.write(INDENT + 'return mk_' + outputType + '(mxp_in1, mxp_in2, mxp_in3, mxp_in4);\n')
 
-def _writeIfGreater(file, comparitor):
-    file.write(INDENT + 'if (mxp_value1 ' + comparitor + ' mxp_value2) { return mxp_in1; } return mxp_in2;\n' )
+def _writeIfGreater(file, comparator):
+    file.write(INDENT + 'if (mxp_value1 ' + comparator + ' mxp_value2) { return mxp_in1; } return mxp_in2;\n' )
 
-def _writeTranformSpace(file, outputType, functionName, input, fromspace, tospace):
+def _writeTransformSpace(file, outputType, functionName, input, fromspace, tospace):
     file.write(INDENT + 'state::coordinate_space fromSpace = ::mx_map_space(' + fromspace + ');\n')
     file.write(INDENT + 'state::coordinate_space toSpace  = ::mx_map_space(' + tospace + ');\n')
     file.write(INDENT + 'return mk_' + outputType + '( state::' + functionName + '(fromSpace, toSpace, ' + input + '));\n')
@@ -872,25 +872,25 @@ def main():
                         file.write(INDENT + 'return math::lerp(mxp_valuet, mxp_valueb, math::step(mxp_center, math::clamp(mxp_texcoord.x,0,1)));')
                     wroteImplementation = True
                 elif nodeCategory == 'transformvector':
-                    _writeTranformSpace(file, outputType, 'transform_vector', 'mxp_in', 'mxp_fromspace', 'mxp_tospace')
+                    _writeTransformSpace(file, outputType, 'transform_vector', 'mxp_in', 'mxp_fromspace', 'mxp_tospace')
                     wroteImplementation = True
                 elif nodeCategory == 'transformpoint':
-                    _writeTranformSpace(file, outputType, 'transform_point', 'mxp_in', 'mxp_fromspace', 'mxp_tospace')
+                    _writeTransformSpace(file, outputType, 'transform_point', 'mxp_in', 'mxp_fromspace', 'mxp_tospace')
                     wroteImplementation = True
                 elif nodeCategory == 'transformnormal':
-                    _writeTranformSpace(file, outputType, 'transform_normal', 'mxp_in', 'mxp_fromspace', 'mxp_tospace')
+                    _writeTransformSpace(file, outputType, 'transform_normal', 'mxp_in', 'mxp_fromspace', 'mxp_tospace')
                     wroteImplementation = True
                 elif nodeCategory == 'position':
-                    _writeTranformSpace(file, outputType, 'transform_point', 'state::position()', 'mx_coordinatespace_type_model', 'mxp_space')
+                    _writeTransformSpace(file, outputType, 'transform_point', 'state::position()', 'mx_coordinatespace_type_model', 'mxp_space')
                     wroteImplementation = True
                 elif nodeCategory == 'normal':
-                    _writeTranformSpace(file, outputType, 'transform_normal', 'state::normal()', 'mx_coordinatespace_type_model', 'mxp_space')
+                    _writeTransformSpace(file, outputType, 'transform_normal', 'state::normal()', 'mx_coordinatespace_type_model', 'mxp_space')
                     wroteImplementation = True
                 elif nodeCategory == 'tangent':
-                    _writeTranformSpace(file, outputType, 'transform_vector', 'state::texture_tangent_u(mxp_index)', 'mx_coordinatespace_type_model', 'mxp_space')
+                    _writeTransformSpace(file, outputType, 'transform_vector', 'state::texture_tangent_u(mxp_index)', 'mx_coordinatespace_type_model', 'mxp_space')
                     wroteImplementation = True
                 elif nodeCategory == 'bitangent':
-                    _writeTranformSpace(file, outputType, 'transform_vector', 'state::texture_tangent_v(mxp_index)', 'mx_coordinatespace_type_model', 'mxp_space')
+                    _writeTransformSpace(file, outputType, 'transform_vector', 'state::texture_tangent_v(mxp_index)', 'mx_coordinatespace_type_model', 'mxp_space')
                     wroteImplementation = True
                 elif nodeCategory == 'texcoord':
                     file.write(INDENT + 'return mk_' + outputType + '(state::texture_coordinate(mxp_index));\n')
