@@ -63,7 +63,8 @@ sdist.exclude = [
     "/javascript",
     "/documents",
     "/.github",
-    "MANIFEST.in"
+    "MANIFEST.in",
+    "/source/JsMaterialX",
 ]
 
 [tool.scikit-build.metadata.version]
