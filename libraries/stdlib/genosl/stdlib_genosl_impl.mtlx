@@ -263,6 +263,14 @@
   <implementation name="IM_modulo_vector4_genosl" nodedef="ND_modulo_vector4" target="genosl" sourcecode="mod({{in1}}, {{in2}})" />
   <implementation name="IM_modulo_vector4FA_genosl" nodedef="ND_modulo_vector4FA" target="genosl" sourcecode="mod({{in1}}, {{in2}})" />
 
+  <!-- <fract> -->
+  <implementation name="IM_fract_float_genosl" nodedef="ND_fract_float" target="genosl" sourcecode="{{in}} - floor({{in}})" />
+  <implementation name="IM_fract_color3_genosl" nodedef="ND_fract_color3" target="genosl" sourcecode="{{in}} - floor({{in}})" />
+  <implementation name="IM_fract_color4_genosl" nodedef="ND_fract_color4" target="genosl" sourcecode="{{in}} - floor({{in}})" />
+  <implementation name="IM_fract_vector2_genosl" nodedef="ND_fract_vector2" target="genosl" sourcecode="{{in}} - floor({{in}})" />
+  <implementation name="IM_fract_vector3_genosl" nodedef="ND_fract_vector3" target="genosl" sourcecode="{{in}} - floor({{in}})" />
+  <implementation name="IM_fract_vector4_genosl" nodedef="ND_fract_vector4" target="genosl" sourcecode="{{in}} - floor({{in}})" />
+
   <!-- <invert> -->
   <implementation name="IM_invert_float_genosl" nodedef="ND_invert_float" target="genosl" sourcecode="{{amount}} - {{in}}" />
   <implementation name="IM_invert_color3_genosl" nodedef="ND_invert_color3" target="genosl" sourcecode="{{amount}} - {{in}}" />
