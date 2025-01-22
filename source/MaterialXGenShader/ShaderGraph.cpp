@@ -1166,7 +1166,7 @@ void ShaderGraph::populateUnitTransformMap(UnitSystemPtr unitSystem, ShaderPort*
     //    return;
     //}
 
-    // Only support convertion for float and vectors. arrays, matrices are not supported.
+    // Only support conversion for float and vectors. arrays, matrices are not supported.
     // TODO: This should be provided by the UnitSystem.
     bool supportedType = (shaderPort->getType() == Type::FLOAT ||
                           shaderPort->getType() == Type::VECTOR2 ||

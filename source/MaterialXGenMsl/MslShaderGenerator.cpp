@@ -33,7 +33,6 @@
 #include <MaterialXGenShader/Nodes/ClosureCompoundNode.h>
 #include <MaterialXGenShader/Nodes/ClosureLayerNode.h>
 #include <MaterialXGenShader/Nodes/ClosureMixNode.h>
-#include <MaterialXGenShader/Nodes/ClosureAddNode.h>
 #include <MaterialXGenShader/Nodes/ClosureMultiplyNode.h>
 
 #include "MslResourceBindingContext.h"
@@ -150,9 +149,6 @@ MslShaderGenerator::MslShaderGenerator(TypeSystemPtr typeSystem) :
     // <!-- <mix> -->
     registerImplementation("IM_mix_bsdf_" + MslShaderGenerator::TARGET, ClosureMixNode::create);
     registerImplementation("IM_mix_edf_" + MslShaderGenerator::TARGET, ClosureMixNode::create);
-    // <!-- <add> -->
-    registerImplementation("IM_add_bsdf_" + MslShaderGenerator::TARGET, ClosureAddNode::create);
-    registerImplementation("IM_add_edf_" + MslShaderGenerator::TARGET, ClosureAddNode::create);
     // <!-- <multiply> -->
     elementNames = {
         "IM_multiply_bsdfC_" + MslShaderGenerator::TARGET,
@@ -219,9 +215,9 @@ void MslShaderGenerator::MetalizeGeneratedShader(ShaderStage& shaderStage) const
             pos = sourceCode.find(keyword);
             while (pos != std::string::npos)
             {
-                char preceeding = sourceCode[pos - 1], succeeding = sourceCode[pos + keyword.length()];
+                char preceding = sourceCode[pos - 1], succeeding = sourceCode[pos + keyword.length()];
                 bool isOutKeyword =
-                    (preceeding == '(' || preceeding == ',' || std::isspace(preceeding)) &&
+                    (preceding == '(' || preceding == ',' || std::isspace(preceding)) &&
                     std::isspace(succeeding) &&
                     succeeding != '\n';
                 size_t beg = pos;

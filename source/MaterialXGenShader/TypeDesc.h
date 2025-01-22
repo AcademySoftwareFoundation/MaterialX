@@ -289,7 +289,6 @@ TYPEDESC_DEFINE_TYPE(MATERIAL, "material", TypeDesc::BASETYPE_NONE, TypeDesc::SE
 
 } // namespace Type
 
-
 MATERIALX_NAMESPACE_END
 
 #endif

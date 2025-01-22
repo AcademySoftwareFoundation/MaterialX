@@ -23,7 +23,7 @@ a listing of the variables with a description of what data they should be bound 
 
 However, different renderers can have different requirements on naming conventions for these variables.
 In order to facilitate this the generators will use token substitution for naming the variables. The
-first colum below shows the token names that should be used in source code before the token substitution
+first column below shows the token names that should be used in source code before the token substitution
 is done. The second row shows the real identifier names that will be used by default after substitution.
 An generator can override these identifier names in order to use a custom naming convention for these.
 Overriding identifier names is done by changing the entries in the identifiers map given to the function
@@ -343,7 +343,7 @@ class MX_GENSHADER_API HwShaderGenerator : public ShaderGenerator
     mutable ClosureContext _defEmission;
 };
 
-/// @class HwShaderGenerator
+/// @class HwImplementation
 /// Base class for HW node implementations.
 class MX_GENSHADER_API HwImplementation : public ShaderNodeImpl
 {

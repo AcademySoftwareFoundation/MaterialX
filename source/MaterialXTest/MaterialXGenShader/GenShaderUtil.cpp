@@ -213,7 +213,7 @@ void checkImplementations(mx::GenContext& context,
             mx::ImplementationPtr impl = inter->asA<mx::Implementation>();
             if (impl)
             {
-                // Test if the generator has an interal implementation first
+                // Test if the generator has an internal implementation first
                 if (shadergen.implementationRegistered(impl->getName()))
                 {
                     found_str += "Found generator impl for nodedef: " + nodeDefName + ", Node: "

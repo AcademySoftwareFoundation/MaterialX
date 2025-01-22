@@ -235,7 +235,7 @@ class Graph
 
     RenderViewPtr _renderer;
 
-    // document and intializing information
+    // document and initializing information
     mx::FilePath _materialFilename;
     mx::DocumentPtr _graphDoc;
     mx::StringSet _xincludeFiles;
@@ -248,7 +248,7 @@ class Graph
     mx::ImagePtr _image;
     mx::ImageHandlerPtr _imageHandler;
 
-    // containers of node informatin
+    // containers of node information
     std::vector<UiNodePtr> _graphNodes;
     std::vector<UiPinPtr> _currPins;
     std::vector<Link> _currLinks;

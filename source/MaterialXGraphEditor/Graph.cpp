@@ -307,7 +307,7 @@ ed::PinId Graph::getOutputPin(UiNodePtr node, UiNodePtr upNode, UiPinPtr input)
 {
     if (upNode->getNodeGraph() != nullptr)
     {
-        // For nodegraph need to get the correct ouput pin according to the names of the output nodes
+        // For nodegraph need to get the correct output pin according to the names of the output nodes
         mx::OutputPtr output;
         if (input->_pinNode->getNode())
         {
@@ -333,7 +333,7 @@ ed::PinId Graph::getOutputPin(UiNodePtr node, UiNodePtr upNode, UiPinPtr input)
     }
     else
     {
-        // For node need to get the correct ouput pin based on the output attribute
+        // For node need to get the correct output pin based on the output attribute
         if (!upNode->outputPins.empty())
         {
             std::string outputName = mx::EMPTY_STRING;
@@ -514,7 +514,7 @@ void Graph::findYSpacing(float startY)
                 int prevLevel = _levelMap[i].front()->_level - 1;
                 float avgY = findAvgY(_levelMap[prevLevel]);
                 float height = totalHeight(_levelMap[i].front()->_level);
-                // caculate the starting position to be above the previous level's center so that it is evenly spaced on either side of the center
+                // calculate the starting position to be above the previous level's center so that it is evenly spaced on either side of the center
                 float startingPos = avgY - ((height + (_levelMap[i].size() * 20)) / 2) + startY;
                 setYSpacing(_levelMap[i].front()->_level, startingPos);
             }
@@ -4120,7 +4120,7 @@ void Graph::drawGraph(ImVec2 mousePos)
         }
         connectLinks();
 
-        // Set to false after intial layout so that nodes can be moved
+        // Set to false after initial layout so that nodes can be moved
         _initial = false;
         _autoLayout = false;
 
