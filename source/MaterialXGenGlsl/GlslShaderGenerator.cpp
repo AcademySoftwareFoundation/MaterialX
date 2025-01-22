@@ -33,7 +33,6 @@
 #include <MaterialXGenShader/Nodes/ClosureCompoundNode.h>
 #include <MaterialXGenShader/Nodes/ClosureLayerNode.h>
 #include <MaterialXGenShader/Nodes/ClosureMixNode.h>
-#include <MaterialXGenShader/Nodes/ClosureAddNode.h>
 #include <MaterialXGenShader/Nodes/ClosureMultiplyNode.h>
 
 MATERIALX_NAMESPACE_BEGIN
@@ -145,9 +144,6 @@ GlslShaderGenerator::GlslShaderGenerator() :
     // <!-- <mix> -->
     registerImplementation("IM_mix_bsdf_" + GlslShaderGenerator::TARGET, ClosureMixNode::create);
     registerImplementation("IM_mix_edf_" + GlslShaderGenerator::TARGET, ClosureMixNode::create);
-    // <!-- <add> -->
-    registerImplementation("IM_add_bsdf_" + GlslShaderGenerator::TARGET, ClosureAddNode::create);
-    registerImplementation("IM_add_edf_" + GlslShaderGenerator::TARGET, ClosureAddNode::create);
     // <!-- <multiply> -->
     elementNames = {
         "IM_multiply_bsdfC_" + GlslShaderGenerator::TARGET,
