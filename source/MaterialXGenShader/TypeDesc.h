@@ -67,13 +67,13 @@ class MX_GENSHADER_API TypeDesc
     /// Data block holding large data needed by the type description.
     class DataBlock
     {
-    public:
+      public:
         DataBlock(const string& name, const StructMemberDescVecPtr members = nullptr) noexcept : _name(name), _members(members) {}
 
         const string& getName() const { return _name; }
         const StructMemberDescVecPtr getStructMembers() const { return _members; }
 
-    private:
+      private:
         const string _name;
         const StructMemberDescVecPtr _members;
     };
