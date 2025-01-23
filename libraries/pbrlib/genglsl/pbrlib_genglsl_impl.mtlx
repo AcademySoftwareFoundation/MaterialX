@@ -32,8 +32,8 @@
   <implementation name="IM_anisotropic_vdf_genglsl" nodedef="ND_anisotropic_vdf" file="mx_anisotropic_vdf.glsl" function="mx_anisotropic_vdf" target="genglsl" />
 
   <!-- <layer> -->
-  <implementation name="IM_layer_bsdf_genglsl" nodedef="ND_layer_bsdf"  file="mx_layer_bsdf.glsl" function="mx_layer_bsdf" target="genglsl" />
-  <implementation name="IM_layer_vdf_genglsl" nodedef="ND_layer_vdf"  file="mx_layer_vdf.glsl" function="mx_layer_vdf" target="genglsl" />
+  <implementation name="IM_layer_bsdf_genglsl" nodedef="ND_layer_bsdf" file="mx_layer_bsdf.glsl" function="mx_layer_bsdf" target="genglsl" />
+  <implementation name="IM_layer_vdf_genglsl" nodedef="ND_layer_vdf" file="mx_layer_vdf.glsl" function="mx_layer_vdf" target="genglsl" />
 
   <!-- <mix> -->
   <implementation name="IM_mix_bsdf_genglsl" nodedef="ND_mix_bsdf" file="mx_mix_bsdf.glsl" function="mx_mix_bsdf" target="genglsl" />
