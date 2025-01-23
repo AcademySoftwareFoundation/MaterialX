@@ -14,7 +14,6 @@
 
 #include <MaterialXGenOsl/Nodes/BlurNodeOsl.h>
 #include <MaterialXGenOsl/Nodes/SurfaceNodeOsl.h>
-#include <MaterialXGenOsl/Nodes/ClosureLayerNodeOsl.h>
 #include <MaterialXGenOsl/Nodes/MaterialNodeOsl.h>
 
 MATERIALX_NAMESPACE_BEGIN
@@ -37,10 +36,6 @@ OslShaderGenerator::OslShaderGenerator() :
     registerImplementation("IM_blur_vector2_" + OslShaderGenerator::TARGET, BlurNodeOsl::create);
     registerImplementation("IM_blur_vector3_" + OslShaderGenerator::TARGET, BlurNodeOsl::create);
     registerImplementation("IM_blur_vector4_" + OslShaderGenerator::TARGET, BlurNodeOsl::create);
-
-    // <!-- <layer> -->
-    registerImplementation("IM_layer_bsdf_" + OslShaderGenerator::TARGET, ClosureLayerNodeOsl::create);
-    registerImplementation("IM_layer_vdf_" + OslShaderGenerator::TARGET, ClosureLayerNodeOsl::create);
 
     // <!-- <surface> -->
     registerImplementation("IM_surface_" + OslShaderGenerator::TARGET, SurfaceNodeOsl::create);
