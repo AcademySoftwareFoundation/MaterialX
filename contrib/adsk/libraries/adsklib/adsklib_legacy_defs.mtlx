@@ -182,6 +182,41 @@
     <output name="out" type="color3" />
   </nodedef>
 
+  <nodedef name="ND_util_woodnoise_float" node="util_woodnoise">
+    <input name="distance" type="float" uisoftmin="0.0" uisoftmax="1.0" />
+    <input name="noiserep" type="float" value="20" uisoftmin="0.0" uisoftmax="100" />
+    <input name="loop" type="boolean" value="true" />
+    <output name="out" type="float" />
+  </nodedef>
+
+  <nodedef name="ND_util_woodfactor_float" node="util_woodfactor">
+    <input name="position" type="vector3" uisoftmin="0,0,0" uisoftmax="1,1,1" />
+    <input name="size" type="float" value="1" uisoftmin="0.0" uisoftmax="10" />
+    <input name="radialnoise" type="float" value="0.15" uisoftmin="0.0" />
+    <input name="axialnoise" type="float" value="0.15" uisoftmin="0.0" />
+    <input name="loop" type="boolean" value="true" />
+    <input name="noiserep" type="float" value="20" uisoftmin="0.0" uisoftmax="100" />
+    <output name="out" type="float" />
+  </nodedef>
+
+  <nodedef name="ND_legacy_wood_color3" node="legacy_wood">
+    <input name="position" type="vector3" defaultgeomprop="Pobject" />
+    <input name="color1" type="color3" value="0.603, 0.445, 0.072" uisoftmin="0,0,0" uisoftmax="1,1,1" />
+    <input name="color2" type="color3" value="0.212, 0.072, 0" uisoftmin="0,0,0" uisoftmax="1,1,1" />
+    <input name="radialnoise" type="float" value="0.15" uisoftmin="0.0" uisoftmax="1.0" />
+    <input name="axialnoise" type="float" value="0.15" uisoftmin="0.0" uisoftmax="1.0" />
+    <input name="thickness" type="float" value="1.0" uisoftmin="0.0" uisoftmax="100" />
+    <input name="loop" type="boolean" value="true" />
+    <input name="noiserep" type="float" value="20" uisoftmin="0.0" uisoftmax="100" />
+    <input name="offset_x" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" />
+    <input name="offset_y" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" />
+    <input name="offset_z" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" />
+    <input name="rotate_x" type="float" value="0" uisoftmin="0.0" uisoftmax="360" />
+    <input name="rotate_y" type="float" value="0" uisoftmin="0.0" uisoftmax="360" />
+    <input name="rotate_z" type="float" value="0" uisoftmin="0.0" uisoftmax="360" />
+    <output name="out" type="color3" />
+  </nodedef>
+
   <!-- 
       =============================================
       Nodedefs for Autodesk Legacy Material Classes

@@ -1937,11 +1937,11 @@
     <floor name="floor2" type="integer" nodedef="ND_floor_integer" xpos="-10.2972" ypos="0.703572">
       <input name="in" type="float" nodename="add_seed2" />
     </floor>
-    <NG_util_sinewave_float_rename name="util_sinewave" type="float" nodedef="ND_util_sinewave_float" xpos="2.43826" ypos="0.985306">
+    <util_sinewave_float name="util_sinewave" type="float" nodedef="ND_util_sinewave_float" xpos="2.43826" ypos="0.985306">
       <input name="rate" type="float" ldx_value="1" nodename="divide3" />
       <input name="phase" type="float" ldx_value="0" nodename="add_phase" />
       <input name="position" type="vector3" nodename="divide2" />
-    </NG_util_sinewave_float_rename>
+    </util_sinewave_float>
     <randomfloat name="randomfloat_Z" type="float" nodedef="ND_randomfloat_float" xpos="-7.93344" ypos="2.9123">
       <input name="seed" type="integer" nodename="floor3" />
       <input name="min" type="float" value="-1" />
@@ -2313,6 +2313,208 @@
       <input name="distribution3d" type="boolean" interfacename="distribution3d" />
       <input name="fade" type="boolean" interfacename="fade" />
     </util_wave>
+  </nodegraph>
+
+  <nodegraph name="NG_util_woodnoise_float" Autodesk-ldx_inputPos="-508.033 732.259" Autodesk-ldx_outputPos="3150.29 655.074" nodedef="ND_util_woodnoise_float">
+    <output name="out" type="float" nodename="ifequal_loop" />
+    <ifequal name="ifequal_loop" type="float" nodedef="ND_ifequal_floatB" xpos="15.7084" ypos="4.20738">
+      <input name="value2" type="boolean" value="true" />
+      <input name="value1" type="boolean" interfacename="loop" />
+      <input name="in2" type="float" nodename="noise2d1" />
+      <input name="in1" type="float" nodename="ifgreater_overlap" />
+    </ifequal>
+    <noise2d name="noise2d1" type="float" nodedef="ND_noise2d_float" xpos="7.90344" ypos="2.56174">
+      <input name="amplitude" type="float" value="0.5" />
+      <input name="pivot" type="float" value="0.5" />
+      <input name="texcoord" type="vector2" nodename="combine2_1" />
+    </noise2d>
+    <combine2 name="combine2_1" type="vector2" nodedef="ND_combine2_vector2" xpos="5.91972" ypos="2.6196">
+      <input name="in1" type="float" interfacename="distance" />
+    </combine2>
+    <noise2d name="noise2d2" type="float" nodedef="ND_noise2d_float" xpos="7.76578" ypos="5.31719">
+      <input name="amplitude" type="float" value="0.5" />
+      <input name="pivot" type="float" value="0.5" />
+      <input name="texcoord" type="vector2" nodename="combine2_2" />
+    </noise2d>
+    <combine2 name="combine2_2" type="vector2" nodedef="ND_combine2_vector2" xpos="5.9675" ypos="5.33439">
+      <input name="in1" type="float" nodename="modulo_loop" />
+    </combine2>
+    <ifgreater name="ifgreater_overlap" type="float" nodedef="ND_ifgreater_float" xpos="12.5918" ypos="6.9275">
+      <input name="value1" type="float" nodename="fract_mix" />
+      <input name="in2" type="float" nodename="noise2d2" />
+      <input name="in1" type="float" nodename="mix_end_start" />
+    </ifgreater>
+    <subtract name="fract_mix" type="float" nodedef="ND_subtract_float" xpos="4.51079" ypos="7.08822">
+      <input name="in1" type="float" nodename="modulo_loop" />
+      <input name="in2" type="float" interfacename="noiserep" />
+    </subtract>
+    <noise2d name="noise2d3" type="float" nodedef="ND_noise2d_float" xpos="7.79744" ypos="8.8565">
+      <input name="amplitude" type="float" value="0.5" />
+      <input name="pivot" type="float" value="0.5" />
+      <input name="texcoord" type="vector2" nodename="combine2_3" />
+    </noise2d>
+    <combine2 name="combine2_3" type="vector2" nodedef="ND_combine2_vector2" xpos="6.09372" ypos="8.998">
+      <input name="in1" type="float" nodename="fract_mix" />
+    </combine2>
+    <add name="add_loop_one" type="float" nodedef="ND_add_float" xpos="0.133473" ypos="7.087">
+      <input name="in2" type="float" value="1" />
+      <input name="in1" type="float" interfacename="noiserep" />
+    </add>
+    <modulo name="modulo_loop" type="float" nodedef="ND_modulo_float" xpos="2.27978" ypos="7.0845">
+      <input name="in2" type="float" nodename="add_loop_one" ldx_value="5" />
+      <input name="in1" type="float" interfacename="distance" />
+    </modulo>
+    <mix name="mix_end_start" type="float" nodedef="ND_mix_float" xpos="9.91617" ypos="7.70172">
+      <input name="bg" type="float" nodename="noise2d2" />
+      <input name="mix" type="float" nodename="fract_mix" />
+      <input name="fg" type="float" nodename="noise2d3" />
+    </mix>
+  </nodegraph>
+
+  <nodegraph name="NG_util_woodfactor_float" Autodesk-ldx_inputPos="-763.835 441.361" Autodesk-ldx_outputPos="4610.1 739.351" nodedef="ND_util_woodfactor_float">
+    <output name="out" type="float" nodename="ring_ramp" />
+    <divide name="scale" type="vector3" nodedef="ND_divide_vector3FA" xpos="-2.46737" ypos="4.21039">
+      <input name="in1" type="vector3" interfacename="position" />
+      <input name="in2" type="float" interfacename="size" />
+    </divide>
+    <separate3 name="separate3_1" type="multioutput" nodedef="ND_separate3_vector3" xpos="-0.993383" ypos="4.14491">
+      <input name="in" type="vector3" nodename="scale" />
+    </separate3>
+    <multiply name="multiply_radialnoise1" type="float" nodedef="ND_multiply_float" xpos="2.93521" ypos="2.84488">
+      <input name="in2" type="float" interfacename="radialnoise" />
+      <input name="in1" type="float" nodename="util_woodnoise1" />
+    </multiply>
+    <multiply name="multiply_radialnoise2" type="float" nodedef="ND_multiply_float" xpos="2.93488" ypos="4.31399">
+      <input name="in2" type="float" interfacename="radialnoise" />
+      <input name="in1" type="float" nodename="util_woodnoise2" />
+    </multiply>
+    <multiply name="multiply_radialnoise3" type="float" nodedef="ND_multiply_float" xpos="2.93706" ypos="5.71078">
+      <input name="in2" type="float" interfacename="radialnoise" />
+      <input name="in1" type="float" nodename="util_woodnoise3" />
+    </multiply>
+    <add name="add_radialnoise1" type="float" nodedef="ND_add_float" xpos="4.53561" ypos="2.79343">
+      <input name="in1" type="float" nodename="multiply_radialnoise1" />
+      <input name="in2" type="float" nodename="separate3_1" output="outx" />
+    </add>
+    <add name="add_radialnoise2" type="float" nodedef="ND_add_float" xpos="4.48988" ypos="4.19395">
+      <input name="in1" type="float" nodename="multiply_radialnoise2" />
+      <input name="in2" type="float" nodename="separate3_1" output="outy" />
+    </add>
+    <add name="add_radialnoise3" type="float" nodedef="ND_add_float" xpos="4.51294" ypos="5.67017">
+      <input name="in1" type="float" nodename="multiply_radialnoise3" />
+      <input name="in2" type="float" nodename="separate3_1" output="outz" />
+    </add>
+    <multiply name="y_square" type="float" nodedef="ND_multiply_float" xpos="6.78789" ypos="4.15966">
+      <input name="in1" type="float" nodename="add_radialnoise2" />
+      <input name="in2" type="float" nodename="add_radialnoise2" />
+    </multiply>
+    <multiply name="z_square" type="float" nodedef="ND_multiply_float" xpos="6.72633" ypos="5.56289">
+      <input name="in1" type="float" nodename="add_radialnoise3" />
+      <input name="in2" type="float" nodename="add_radialnoise3" />
+    </multiply>
+    <divide name="scale_quarter" type="float" nodedef="ND_divide_float" xpos="6.86906" ypos="2.13037">
+      <input name="in2" type="float" value="4" />
+      <input name="in1" type="float" nodename="add_radialnoise1" />
+    </divide>
+    <sqrt name="distance" type="float" nodedef="ND_sqrt_float" xpos="10.1117" ypos="5.767">
+      <input name="in" type="float" nodename="add_yz" />
+    </sqrt>
+    <add name="add_yz" type="float" nodedef="ND_add_float" xpos="8.5075" ypos="5.66817">
+      <input name="in1" type="float" nodename="y_square" />
+      <input name="in2" type="float" nodename="z_square" />
+    </add>
+    <add name="distance_axialnoise" type="float" nodedef="ND_add_float" xpos="15.2748" ypos="4.29632">
+      <input name="in2" type="float" nodename="util_woodnoise5" />
+      <input name="in1" type="float" nodename="multiply_axialnoise" />
+    </add>
+    <add name="add_dist_axialnoise" type="float" nodedef="ND_add_float" xpos="16.9284" ypos="5.02522">
+      <input name="in1" type="float" nodename="distance_axialnoise" />
+      <input name="in2" type="float" nodename="distance" />
+    </add>
+    <multiply name="multiply_axialnoise" type="float" nodedef="ND_multiply_float" xpos="13.7007" ypos="2.63018">
+      <input name="in2" type="float" interfacename="axialnoise" />
+      <input name="in1" type="float" nodename="util_woodnoise4" />
+    </multiply>
+    <modulo name="modulo_ring" type="float" nodedef="ND_modulo_float" xpos="18.7909" ypos="5.09099">
+      <input name="in1" type="float" nodename="add_dist_axialnoise" />
+    </modulo>
+    <smoothstep name="smoothstep1" type="float" nodedef="ND_smoothstep_float" xpos="20.9633" ypos="4.31799">
+      <input name="in" type="float" nodename="modulo_ring" />
+      <input name="high" type="float" value="0.8" />
+    </smoothstep>
+    <smoothstep name="smoothstep2" type="float" nodedef="ND_smoothstep_float" xpos="20.9312" ypos="5.63311">
+      <input name="in" type="float" nodename="modulo_ring" />
+      <input name="low" type="float" value="0.83" />
+    </smoothstep>
+    <subtract name="ring_ramp" type="float" nodedef="ND_subtract_float" xpos="22.7436" ypos="4.99959">
+      <input name="in1" type="float" nodename="smoothstep1" />
+      <input name="in2" type="float" nodename="smoothstep2" />
+    </subtract>
+    <util_woodnoise name="util_woodnoise4" type="float" nodedef="ND_util_woodnoise_float" xpos="11.9958" ypos="2.00877">
+      <input name="noiserep" type="float" interfacename="noiserep" />
+      <input name="loop" type="boolean" interfacename="loop" />
+      <input name="distance" type="float" nodename="scale_quarter" />
+    </util_woodnoise>
+    <util_woodnoise name="util_woodnoise5" type="float" nodedef="ND_util_woodnoise_float" xpos="12.0142" ypos="4.53144">
+      <input name="noiserep" type="float" interfacename="noiserep" />
+      <input name="loop" type="boolean" interfacename="loop" />
+      <input name="distance" type="float" nodename="distance" />
+    </util_woodnoise>
+    <util_woodnoise name="util_woodnoise1" type="float" nodedef="ND_util_woodnoise_float" xpos="1.44176" ypos="2.61043">
+      <input name="noiserep" type="float" interfacename="noiserep" />
+      <input name="loop" type="boolean" interfacename="loop" />
+      <input name="distance" type="float" nodename="separate3_1" output="outx" />
+    </util_woodnoise>
+    <util_woodnoise name="util_woodnoise2" type="float" nodedef="ND_util_woodnoise_float" xpos="1.41889" ypos="4.17251">
+      <input name="noiserep" type="float" interfacename="noiserep" />
+      <input name="loop" type="boolean" interfacename="loop" />
+      <input name="distance" type="float" nodename="separate3_1" output="outy" />
+    </util_woodnoise>
+    <util_woodnoise name="util_woodnoise3" type="float" nodedef="ND_util_woodnoise_float" xpos="1.40286" ypos="5.53393">
+      <input name="noiserep" type="float" interfacename="noiserep" />
+      <input name="loop" type="boolean" interfacename="loop" />
+      <input name="distance" type="float" nodename="separate3_1" output="outz" />
+    </util_woodnoise>
+  </nodegraph>
+
+  <nodegraph name="NG_legacy_wood_color3" Autodesk-ldx_inputPos="-1336.3 -169.343" Autodesk-ldx_outputPos="263.543 -133.747" nodedef="ND_legacy_wood_color3">
+    <output name="out" type="color3" nodename="mix_colors" />
+    <mix name="mix_colors" type="color3" nodedef="ND_mix_color3" xpos="-0.372793" ypos="-1.49762">
+      <input name="fg" type="color3" interfacename="color2" />
+      <input name="bg" type="color3" interfacename="color1" />
+      <input name="mix" type="float" nodename="util_woodfactor1" />
+    </mix>
+    <combine3 name="combine_offset" type="vector3" xpos="-5.31367" ypos="0.637517">
+      <input name="in1" type="float" interfacename="offset_x" />
+      <input name="in2" type="float" interfacename="offset_y" />
+      <input name="in3" type="float" interfacename="offset_z" />
+    </combine3>
+    <rotate3d name="rotate3d_x" type="vector3" xpos="-5.35397" ypos="1.93229">
+      <input name="axis" type="vector3" value="1, 0, 0" />
+      <input name="amount" type="float" interfacename="rotate_x" />
+      <input name="in" type="vector3" interfacename="position" />
+    </rotate3d>
+    <rotate3d name="rotate3d_y" type="vector3" xpos="-5.35397" ypos="3.41497">
+      <input name="in" type="vector3" nodename="rotate3d_x" />
+      <input name="amount" type="float" interfacename="rotate_y" />
+    </rotate3d>
+    <rotate3d name="rotate3d_z" type="vector3" xpos="-5.35397" ypos="4.67356">
+      <input name="in" type="vector3" nodename="rotate3d_y" />
+      <input name="axis" type="vector3" value="0, 0, 1" />
+      <input name="amount" type="float" interfacename="rotate_z" />
+    </rotate3d>
+    <subtract name="add_offset" type="vector3" xpos="-3.31018" ypos="1.86447">
+      <input name="in2" type="vector3" nodename="combine_offset" />
+      <input name="in1" type="vector3" nodename="rotate3d_z" />
+    </subtract>
+    <util_woodfactor name="util_woodfactor1" type="float" nodedef="ND_util_woodfactor_float" xpos="-1.80648" ypos="-0.488891">
+      <input name="position" type="vector3" nodename="add_offset" />
+      <input name="size" type="float" interfacename="thickness" />
+      <input name="radialnoise" type="float" interfacename="radialnoise" />
+      <input name="axialnoise" type="float" interfacename="axialnoise" />
+      <input name="loop" type="boolean" interfacename="loop" />
+      <input name="noiserep" type="float" interfacename="noiserep" />
+    </util_woodfactor>
   </nodegraph>
 
   <!-- 
