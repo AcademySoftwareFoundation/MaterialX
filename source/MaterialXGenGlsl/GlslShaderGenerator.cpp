@@ -31,9 +31,6 @@
 #include <MaterialXGenShader/Nodes/HwViewDirectionNode.h>
 #include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
 #include <MaterialXGenShader/Nodes/ClosureCompoundNode.h>
-#include <MaterialXGenShader/Nodes/ClosureLayerNode.h>
-#include <MaterialXGenShader/Nodes/ClosureMixNode.h>
-#include <MaterialXGenShader/Nodes/ClosureMultiplyNode.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -137,21 +134,6 @@ GlslShaderGenerator::GlslShaderGenerator(TypeSystemPtr typeSystem) :
         "IM_image_vector4_" + GlslShaderGenerator::TARGET,
     };
     registerImplementation(elementNames, HwImageNode::create);
-
-    // <!-- <layer> -->
-    registerImplementation("IM_layer_bsdf_" + GlslShaderGenerator::TARGET, ClosureLayerNode::create);
-    registerImplementation("IM_layer_vdf_" + GlslShaderGenerator::TARGET, ClosureLayerNode::create);
-    // <!-- <mix> -->
-    registerImplementation("IM_mix_bsdf_" + GlslShaderGenerator::TARGET, ClosureMixNode::create);
-    registerImplementation("IM_mix_edf_" + GlslShaderGenerator::TARGET, ClosureMixNode::create);
-    // <!-- <multiply> -->
-    elementNames = {
-        "IM_multiply_bsdfC_" + GlslShaderGenerator::TARGET,
-        "IM_multiply_bsdfF_" + GlslShaderGenerator::TARGET,
-        "IM_multiply_edfC_" + GlslShaderGenerator::TARGET,
-        "IM_multiply_edfF_" + GlslShaderGenerator::TARGET,
-    };
-    registerImplementation(elementNames, ClosureMultiplyNode::create);
 
     // <!-- <surfacematerial> -->
     registerImplementation("IM_surfacematerial_" + GlslShaderGenerator::TARGET, MaterialNode::create);

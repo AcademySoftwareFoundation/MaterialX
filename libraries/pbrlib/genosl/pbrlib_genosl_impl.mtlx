@@ -38,8 +38,8 @@
   <implementation name="IM_generalized_schlick_edf_genosl" nodedef="ND_generalized_schlick_edf" file="mx_generalized_schlick_edf.osl" function="mx_generalized_schlick_edf" target="genosl" />
 
   <!-- <layer> -->
-  <implementation name="IM_layer_bsdf_genosl" nodedef="ND_layer_bsdf" target="genosl" />
-  <implementation name="IM_layer_vdf_genosl" nodedef="ND_layer_vdf" target="genosl" />
+  <implementation name="IM_layer_bsdf_genosl" nodedef="ND_layer_bsdf" file="mx_layer_bsdf.osl" function="mx_layer_bsdf" target="genosl" />
+  <implementation name="IM_layer_vdf_genosl" nodedef="ND_layer_vdf" file="mx_layer_vdf.osl" function="mx_layer_vdf" target="genosl" />
 
   <!-- <mix> -->
   <implementation name="IM_mix_bsdf_genosl" nodedef="ND_mix_bsdf" sourcecode="mix({{bg}}, {{fg}}, {{mix}})" target="genosl" />

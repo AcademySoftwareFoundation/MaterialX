@@ -1,0 +1,4 @@
+void mx_layer_vdf(BSDF top, VDF base, output BSDF result)
+{
+    result = layer(top, base);
+}
