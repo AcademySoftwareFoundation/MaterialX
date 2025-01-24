@@ -176,7 +176,14 @@
   <implementation name="IM_frame_float_genglsl" nodedef="ND_frame_float" function="mx_frame_float" target="genglsl" />
 
   <!-- <time> -->
-  <implementation name="IM_time_float_genglsl" nodedef="ND_time_float" function="mx_time_float" target="genglsl" />
+  <nodegraph name="NG_time_float_genglsl" nodedef="ND_time_float" target="genglsl">
+    <frame name="frame" type="float"/>
+    <divide name="time" type="float">
+      <input name="in1" type="float" nodename="frame"/>
+      <input name="in1" type="float" interfacename="fps"/>
+    </divide>
+    <output name="out" type="float" nodename="time" />
+  </nodegraph>
 
   <!-- ======================================================================== -->
   <!-- Math nodes                                                               -->

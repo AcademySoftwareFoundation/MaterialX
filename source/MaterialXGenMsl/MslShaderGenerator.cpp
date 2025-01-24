@@ -27,7 +27,6 @@
 #include <MaterialXGenShader/Nodes/HwTangentNode.h>
 #include <MaterialXGenShader/Nodes/HwBitangentNode.h>
 #include <MaterialXGenShader/Nodes/HwFrameNode.h>
-#include <MaterialXGenShader/Nodes/HwTimeNode.h>
 #include <MaterialXGenShader/Nodes/HwViewDirectionNode.h>
 #include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
 #include <MaterialXGenShader/Nodes/ClosureCompoundNode.h>
@@ -87,8 +86,6 @@ MslShaderGenerator::MslShaderGenerator() :
 
     // <!-- <frame> -->
     registerImplementation("IM_frame_float_" + MslShaderGenerator::TARGET, HwFrameNode::create);
-    // <!-- <time> -->
-    registerImplementation("IM_time_float_" + MslShaderGenerator::TARGET, HwTimeNode::create);
     // <!-- <viewdirection> -->
     registerImplementation("IM_viewdirection_vector3_" + MslShaderGenerator::TARGET, HwViewDirectionNode::create);
 
