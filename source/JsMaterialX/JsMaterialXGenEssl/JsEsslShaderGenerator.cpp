@@ -14,6 +14,6 @@ namespace mx = MaterialX;
 EMSCRIPTEN_BINDINGS(EsslShaderGenerator)
 {
     ems::class_<mx::EsslShaderGenerator, ems::base<mx::HwShaderGenerator>>("EsslShaderGenerator")
-        .smart_ptr_constructor("EsslShaderGenerator", &std::make_shared<mx::EsslShaderGenerator>)
+        .smart_ptr_constructor("EsslShaderGenerator", &std::make_shared<mx::EsslShaderGenerator, mx::TypeSystemPtr>)
         ;
 }
