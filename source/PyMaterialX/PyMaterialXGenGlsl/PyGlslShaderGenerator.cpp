@@ -21,7 +21,7 @@ void bindPyGlslShaderGenerator(py::module& mod)
 {
     py::class_<mx::GlslShaderGenerator, mx::HwShaderGenerator, mx::GlslShaderGeneratorPtr>(mod, "GlslShaderGenerator")
         .def_static("create", &mx::GlslShaderGenerator::create, py::arg("typeSystem") = mx::TypeSystem::create())
-        .def(py::init<mx::TypeSystemPtr>(), py::arg("typeSystem") = mx::TypeSystem::create())
+        .def(py::init<mx::TypeSystemPtr>())
         .def("generate", &mx::GlslShaderGenerator::generate)
         .def("getTarget", &mx::GlslShaderGenerator::getTarget)
         .def("getVersion", &mx::GlslShaderGenerator::getVersion);
@@ -42,7 +42,7 @@ void bindPyEsslShaderGenerator(py::module& mod)
 {
     py::class_<mx::EsslShaderGenerator, mx::GlslShaderGenerator, mx::EsslShaderGeneratorPtr>(mod, "EsslShaderGenerator")
         .def_static("create", &mx::EsslShaderGenerator::create, py::arg("typeSystem") = mx::TypeSystem::create())
-        .def(py::init<mx::TypeSystemPtr>(), py::arg("typeSystem") = mx::TypeSystem::create())
+        .def(py::init<mx::TypeSystemPtr>())
         .def("generate", &mx::EsslShaderGenerator::generate)
         .def("getTarget", &mx::EsslShaderGenerator::getTarget)
         .def("getVersion", &mx::EsslShaderGenerator::getVersion);
@@ -54,7 +54,7 @@ void bindPyVkShaderGenerator(py::module& mod)
 {
     py::class_<mx::VkShaderGenerator, mx::GlslShaderGenerator, mx::VkShaderGeneratorPtr>(mod, "VkShaderGenerator")
         .def_static("create", &mx::VkShaderGenerator::create, py::arg("typeSystem") = mx::TypeSystem::create())
-        .def(py::init<mx::TypeSystemPtr>(), py::arg("typeSystem") = mx::TypeSystem::create())
+        .def(py::init<mx::TypeSystemPtr>())
         .def("generate", &mx::VkShaderGenerator::generate)
         .def("getTarget", &mx::VkShaderGenerator::getTarget)
         .def("getVersion", &mx::VkShaderGenerator::getVersion);

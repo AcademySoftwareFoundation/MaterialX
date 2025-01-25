@@ -22,10 +22,7 @@ class MX_GENGLSL_API VkShaderGenerator : public GlslShaderGenerator
 {
   public:
     /// Constructor.
-    /// Optionally pass in an externally created TypeSystem here, 
-    /// if you want to keep type descriptions alive after the lifetime
-    /// of the shader generator.
-    VkShaderGenerator(TypeSystemPtr typeSystem = TypeSystem::create());
+    VkShaderGenerator(TypeSystemPtr typeSystem);
 
     /// Creator function.
     /// Optionally pass in an externally created TypeSystem here, 
