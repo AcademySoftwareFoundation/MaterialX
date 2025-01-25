@@ -218,7 +218,7 @@
       <input name="in1" type="float" interfacename="rotation" />
       <input name="in2" type="float" value="0.00277778" />
     </multiply>
-    <add name="offsettedLongitude" type="float">
+    <add name="offsetLongitude" type="float">
       <input name="in1" type="float" nodename="rotationDegrees" />
       <input name="in2" type="float" nodename="longitude" />
     </add>
@@ -234,7 +234,7 @@
       <input name="in2" type="float" value="0.5" />
     </add>
     <combine2 name="mapUvs" type="vector2">
-      <input name="in1" type="float" nodename="offsettedLongitude" />
+      <input name="in1" type="float" nodename="offsetLongitude" />
       <input name="in2" type="float" nodename="latitude" />
     </combine2>
     <image name="envImage" type="color3">
