@@ -54,10 +54,7 @@ class MX_GENMDL_API MdlShaderGenerator : public ShaderGenerator
 {
   public:
     /// Constructor.
-    /// Optionally pass in an externally created TypeSystem here, 
-    /// if you want to keep type descriptions alive after the lifetime
-    /// of the shader generator.
-    MdlShaderGenerator(TypeSystemPtr typeSystem = TypeSystem::create());
+    MdlShaderGenerator(TypeSystemPtr typeSystem);
 
     /// Creator function.
     /// Optionally pass in an externally created TypeSystem here, 

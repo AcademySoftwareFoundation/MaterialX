@@ -24,10 +24,7 @@ class MX_GENOSL_API OslShaderGenerator : public ShaderGenerator
 {
   public:
     /// Constructor.
-    /// Optionally pass in an externally created TypeSystem here, 
-    /// if you want to keep type descriptions alive after the lifetime
-    /// of the shader generator.
-    OslShaderGenerator(TypeSystemPtr typeSystem = TypeSystem::create());
+    OslShaderGenerator(TypeSystemPtr typeSystem);
 
     /// Creator function.
     /// Optionally pass in an externally created TypeSystem here, 

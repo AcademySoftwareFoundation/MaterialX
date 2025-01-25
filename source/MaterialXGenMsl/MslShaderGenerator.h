@@ -26,10 +26,7 @@ class MX_GENMSL_API MslShaderGenerator : public HwShaderGenerator
 {
   public:
     /// Constructor.
-    /// Optionally pass in an externally created TypeSystem here, 
-    /// if you want to keep type descriptions alive after the lifetime
-    /// of the shader generator.
-    MslShaderGenerator(TypeSystemPtr typeSystem = TypeSystem::create());
+    MslShaderGenerator(TypeSystemPtr typeSystem);
 
     /// Creator function.
     /// Optionally pass in an externally created TypeSystem here, 

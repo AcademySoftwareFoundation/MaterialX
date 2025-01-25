@@ -23,10 +23,7 @@ class MX_GENGLSL_API GlslShaderGenerator : public HwShaderGenerator
 {
   public:
     /// Constructor.
-    /// Optionally pass in an externally created TypeSystem here, 
-    /// if you want to keep type descriptions alive after the lifetime
-    /// of the shader generator.
-    GlslShaderGenerator(TypeSystemPtr typeSystem = TypeSystem::create());
+    GlslShaderGenerator(TypeSystemPtr typeSystem);
 
     /// Creator function.
     /// Optionally pass in an externally created TypeSystem here, 

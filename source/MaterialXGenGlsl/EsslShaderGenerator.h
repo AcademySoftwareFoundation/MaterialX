@@ -21,10 +21,7 @@ class MX_GENGLSL_API EsslShaderGenerator : public GlslShaderGenerator
 {
   public:
     /// Constructor.
-    /// Optionally pass in an externally created TypeSystem here, 
-    /// if you want to keep type descriptions alive after the lifetime
-    /// of the shader generator.
-    EsslShaderGenerator(TypeSystemPtr typeSystem = TypeSystem::create());
+    EsslShaderGenerator(TypeSystemPtr typeSystem);
 
     /// Creator function.
     /// Optionally pass in an externally created TypeSystem here, 
