@@ -587,7 +587,7 @@ string MdlSyntax::replaceSourceCodeMarkers(const string& nodeName, const string&
     return joinStrings(code, EMPTY_STRING);
 }
 
-const string MdlSyntax::getMdlVersionSuffixMarker() const
+const string& MdlSyntax::getMdlVersionSuffixMarker() const
 {
     return MARKER_MDL_VERSION_SUFFIX;
 }

@@ -59,7 +59,7 @@ class MX_GENSHADER_API UnitSystem
     /// Return the UnitSystem name
     virtual const string& getName() const
     {
-        return UnitSystem::UNITSYTEM_NAME;
+        return UnitSystem::UNITSYSTEM_NAME;
     }
 
     /// Assign unit converter registry replacing any previous assignment
@@ -81,7 +81,7 @@ class MX_GENSHADER_API UnitSystem
     /// Returns a nodedef for a given transform
     virtual NodeDefPtr getNodeDef(const UnitTransform& transform) const;
 
-    static const string UNITSYTEM_NAME;
+    static const string UNITSYSTEM_NAME;
 
   protected:
     // Protected constructor

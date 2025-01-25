@@ -10,7 +10,7 @@
 #include <iostream>
 
 MATERIALX_NAMESPACE_BEGIN
-// Additional implementaton arguments for image nodes
+// Additional implementation arguments for image nodes
 const string UV_SCALE = "uv_scale";
 const string UV_OFFSET = "uv_offset";
 

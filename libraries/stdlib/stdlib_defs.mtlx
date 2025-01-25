@@ -1002,16 +1002,19 @@
   <nodedef name="ND_worleynoise2d_float" node="worleynoise2d" nodegroup="procedural2d">
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <input name="jitter" type="float" value="1.0" />
+    <input name="style" uiname="Cell Style" type="integer" value="0" enum="Distance,Solid" enumvalues="0,1" />
     <output name="out" type="float" default="0.0" />
   </nodedef>
   <nodedef name="ND_worleynoise2d_vector2" node="worleynoise2d" nodegroup="procedural2d">
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <input name="jitter" type="float" value="1.0" />
+    <input name="style" uiname="Cell Style" type="integer" value="0" enum="Distance,Solid" enumvalues="0,1" />
     <output name="out" type="vector2" default="0.0, 0.0" />
   </nodedef>
   <nodedef name="ND_worleynoise2d_vector3" node="worleynoise2d" nodegroup="procedural2d">
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <input name="jitter" type="float" value="1.0" />
+    <input name="style" uiname="Cell Style" type="integer" value="0" enum="Distance,Solid" enumvalues="0,1" />
     <output name="out" type="vector3" default="0.0, 0.0, 0.0" />
   </nodedef>
 
@@ -1022,16 +1025,19 @@
   <nodedef name="ND_worleynoise3d_float" node="worleynoise3d" nodegroup="procedural3d">
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="jitter" type="float" value="1.0" />
+    <input name="style" uiname="Cell Style" type="integer" value="0" enum="Distance,Solid" enumvalues="0,1" />
     <output name="out" type="float" default="0.0" />
   </nodedef>
   <nodedef name="ND_worleynoise3d_vector2" node="worleynoise3d" nodegroup="procedural3d">
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="jitter" type="float" value="1.0" />
+    <input name="style" uiname="Cell Style" type="integer" value="0" enum="Distance,Solid" enumvalues="0,1" />
     <output name="out" type="vector2" default="0.0, 0.0" />
   </nodedef>
   <nodedef name="ND_worleynoise3d_vector3" node="worleynoise3d" nodegroup="procedural3d">
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="jitter" type="float" value="1.0" />
+    <input name="style" uiname="Cell Style" type="integer" value="0" enum="Distance,Solid" enumvalues="0,1" />
     <output name="out" type="vector3" default="0.0, 0.0, 0.0" />
   </nodedef>
 
@@ -1064,6 +1070,7 @@
     <input name="lacunarity" type="float" uiname="Lacunarity" uifolder="Fractal" value="2" doc="The exponential scale between successive octaves of Fractal noise. Default is 2.0." />
     <input name="diminish" type="float" uiname="Diminish" uifolder="Fractal" uisoftmin="0.0" uisoftmax="1.0" value="0.5" doc="The rate at which noise amplitude is diminished for each octave of Fractal noise. Default is 0.5." />
     <input name="type" type="integer" uiname="Noise Type" uifolder="Common" uisoftmin="0" uisoftmax="3" value="0" enum="Perlin,Cell,Worley,Fractal" enumvalues="0,1,2,3" doc="Menu to select the type of noise: Perlin, Cell, Worley, or Fractal. Default is Perlin." />
+    <input name="style" uiname="Worley Cell Style" type="integer" value="0" enum="Distance,Solid" enumvalues="0,1" doc="Sets the style of cell used when Noise Type is set to Worley." />
     <output name="out" type="float" />
   </nodedef>
 
@@ -1083,6 +1090,7 @@
     <input name="lacunarity" type="float" uiname="Lacunarity" uifolder="Fractal" value="2" doc="The exponential scale between successive octaves of Fractal noise. Default is 2.0." />
     <input name="diminish" type="float" uiname="Diminish" uifolder="Fractal" uisoftmin="0.0" uisoftmax="1.0" value="0.5" doc="The rate at which noise amplitude is diminished for each octave of Fractal noise. Default is 0.5." />
     <input name="type" type="integer" uiname="Noise Type" uifolder="Common" uisoftmin="0" uisoftmax="3" value="0" enum="Perlin,Cell,Worley,Fractal" enumvalues="0,1,2,3" doc="Menu to select the type of noise: Perlin, Cell, Worley, or Fractal. Default is Perlin." />
+    <input name="style" uiname="Worley Cell Style" type="integer" value="0" enum="Distance,Solid" enumvalues="0,1" doc="Sets the style of cell used when Noise Type is set to Worley." />
     <output name="out" type="float" />
   </nodedef>
 
@@ -1355,11 +1363,6 @@
     <input name="default" type="boolean" value="false" />
     <output name="out" type="boolean" default="false" />
   </nodedef>
-  <nodedef name="ND_geompropvalue_string" node="geompropvalue" nodegroup="geometric">
-    <input name="geomprop" type="string" value="" uniform="true" />
-    <input name="default" type="string" value="" uniform="true" />
-    <output name="out" type="string" default="" />
-  </nodedef>
   <nodedef name="ND_geompropvalue_float" node="geompropvalue" nodegroup="geometric">
     <input name="geomprop" type="string" value="" uniform="true" />
     <input name="default" type="float" value="0.0" />
@@ -1390,6 +1393,22 @@
     <input name="default" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <output name="out" type="vector4" default="0.0, 0.0, 0.0, 0.0" />
   </nodedef>
+
+  <!--
+    Node: <geompropvalueuniform>
+    The uniform, non-varying value of the specified geometric property for the current geometry.
+  -->
+  <nodedef name="ND_geompropvalueuniform_string" node="geompropvalueuniform" nodegroup="geometric">
+    <input name="geomprop" type="string" value="" uniform="true" />
+    <input name="default" type="string" value="" uniform="true" />
+    <output name="out" type="string" default="" uniform="true" />
+  </nodedef>
+  <nodedef name="ND_geompropvalueuniform_filename" node="geompropvalueuniform" nodegroup="geometric">
+    <input name="geomprop" type="string" value="" uniform="true" />
+    <input name="default" type="filename" value="" uniform="true" />
+    <output name="out" type="filename" default="" uniform="true" />
+  </nodedef>
+
 
   <!--
     Node: <bump>
@@ -1801,6 +1820,35 @@
     <input name="in1" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="in2" type="float" value="1.0" />
     <output name="out" type="vector4" defaultinput="in1" />
+  </nodedef>
+
+  <!--
+    Node: <fract>
+    The fraction of a float or vector.
+  -->
+  <nodedef name="ND_fract_float" node="fract" nodegroup="math">
+    <input name="in" type="float" value="0.0" />
+    <output name="out" type="float" defaultinput="in" />
+  </nodedef>
+  <nodedef name="ND_fract_color3" node="fract" nodegroup="math">
+    <input name="in" type="color3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="color3" defaultinput="in" />
+  </nodedef>
+  <nodedef name="ND_fract_color4" node="fract" nodegroup="math">
+    <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0" />
+    <output name="out" type="color4" defaultinput="in" />
+  </nodedef>
+  <nodedef name="ND_fract_vector2" node="fract" nodegroup="math">
+    <input name="in" type="vector2" value="0.0, 0.0" />
+    <output name="out" type="vector2" defaultinput="in" />
+  </nodedef>
+  <nodedef name="ND_fract_vector3" node="fract" nodegroup="math">
+    <input name="in" type="vector3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="vector3" defaultinput="in" />
+  </nodedef>
+  <nodedef name="ND_fract_vector4" node="fract" nodegroup="math">
+    <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
+    <output name="out" type="vector4" defaultinput="in" />
   </nodedef>
 
   <!--
@@ -3207,7 +3255,7 @@
     <input name="gain" type="float" uiname="Gain" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Multiplier increases lighter color values, leaving black values unchanged." />
     <input name="contrast" type="float" uiname="Contrast" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Linearly increase or decrease the color contrast." />
     <input name="contrastpivot" type="float" uiname="Contrast Pivot" uisoftmin="0.0" uisoftmax="1.0" value="0.5" doc="Pivot value around which contrast applies. This value will not change as contrast is adjusted." />
-    <input name="exposure" type="float" uiname="Exposure" uisoftmin="-1.0" uisoftmax="1.0" value="0" doc="Multplier which increases or decreases color brightness by 2^value." />
+    <input name="exposure" type="float" uiname="Exposure" uisoftmin="-1.0" uisoftmax="1.0" value="0" doc="Multiplier which increases or decreases color brightness by 2^value." />
     <output name="out" type="color3" />
   </nodedef>
   <nodedef name="ND_colorcorrect_color4" node="colorcorrect" nodegroup="adjustment">
@@ -3219,7 +3267,7 @@
     <input name="gain" type="float" uiname="Gain" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Multiplier increases lighter color values, leaving black values unchanged." />
     <input name="contrast" type="float" uiname="Contrast" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Linearly increase or decrease the color contrast." />
     <input name="contrastpivot" type="float" uiname="Contrast Pivot" uisoftmin="0.0" uisoftmax="1.0" value="0.5" doc="Pivot value around which contrast applies. This value will not change as contrast is adjusted." />
-    <input name="exposure" type="float" uiname="Exposure" uisoftmin="-1.0" uisoftmax="1.0" value="0" doc="Multplier which increases or decreases color brightness by 2^value." />
+    <input name="exposure" type="float" uiname="Exposure" uisoftmin="-1.0" uisoftmax="1.0" value="0" doc="Multiplier which increases or decreases color brightness by 2^value." />
     <output name="out" type="color4" />
   </nodedef>
 

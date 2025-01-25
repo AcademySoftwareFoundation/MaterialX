@@ -29,7 +29,7 @@ void ShaderNodeImpl::initialize(const InterfaceElement& element, GenContext&)
 
     // By default use the implementation name as hash to make it unique.
     // Derived classes can override this to create other hashes,
-    // e.g. to share the same hash beteen nodes that can share
+    // e.g. to share the same hash between nodes that can share
     // the same function definition.
     _hash = std::hash<string>{}(_name);
 }

@@ -38,7 +38,7 @@ void mx_chiang_hair_absorption_from_color(vec3 color, float betaN, out vec3 abso
 void mx_chiang_hair_roughness(
     float longitudinal,
     float azimuthal,
-    float scale_TT,   // empirical roughenss scale from Marschner et al. (2003).
+    float scale_TT,   // empirical roughness scale from Marschner et al. (2003).
     float scale_TRT,  // default: scale_TT = 0.5, scale_TRT = 2.0
     out vec2 roughness_R,
     out vec2 roughness_TT,
@@ -325,7 +325,7 @@ void mx_chiang_hair_bsdf_indirect(
     inout BSDF bsdf
 )
 {
-    // this indirect lighing is *very* rough approximation
+    // this indirect lighting is *very* rough approximation
 
     N = mx_forward_facing_normal(N, V);
 
