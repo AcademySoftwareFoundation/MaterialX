@@ -48,7 +48,8 @@ void CompoundNode::initialize(const InterfaceElement& element, GenContext& conte
 void CompoundNode::addInputs(ShaderNode& node, GenContext&) const
 {
     // Propagate inputs added to the ShaderGraph
-    for (auto const& name: _rootGraph->getPropagatedAddedInputs()) {
+    for (auto const& name: _rootGraph->getPropagatedAddedInputs())
+    {
         const auto* inputSocket = _rootGraph->getInputSocket(name);
         if (inputSocket)
         {
@@ -57,8 +58,6 @@ void CompoundNode::addInputs(ShaderNode& node, GenContext&) const
         }
     }
 }
-
-// Note: No addedInputNames here. Not necessary unless we start nesting ShaderGraphs.
 
 void CompoundNode::createVariables(const ShaderNode&, GenContext& context, Shader& shader) const
 {
