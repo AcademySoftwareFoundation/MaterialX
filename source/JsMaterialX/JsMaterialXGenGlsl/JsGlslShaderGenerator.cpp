@@ -14,7 +14,7 @@ namespace mx = MaterialX;
 EMSCRIPTEN_BINDINGS(GlslShaderGenerator)
 {
     ems::class_<mx::GlslShaderGenerator, ems::base<mx::ShaderGenerator>>("GlslShaderGenerator")
-        .smart_ptr_constructor("GlslShaderGenerator", &std::make_shared<mx::GlslShaderGenerator, mx::TypeSystemPtr>)
+        .constructor<mx::TypeSystemPtr>()
         BIND_CLASS_FUNC("create", mx::GlslShaderGenerator, create, 0, 1, mx::TypeSystemPtr)
         ;
 }
