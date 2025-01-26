@@ -1486,7 +1486,7 @@ export class Viewer
         this.mx = mtlxIn;
 
         // Initialize base document
-        this.generator = this.mx.EsslShaderGenerator.create();
+        this.generator = this.mx.EsslShaderGenerator.create(this.mx.TypeSystem.create());
         this.genContext = new this.mx.GenContext(this.generator);
 
         this.document = this.mx.createDocument();
