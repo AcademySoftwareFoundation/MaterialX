@@ -15,5 +15,6 @@ EMSCRIPTEN_BINDINGS(VkShaderGenerator)
 {
     ems::class_<mx::VkShaderGenerator, ems::base<mx::ShaderGenerator>>("VkShaderGenerator")
         .smart_ptr_constructor("VkShaderGenerator", &std::make_shared<mx::VkShaderGenerator, mx::TypeSystemPtr>)
+        BIND_CLASS_FUNC("create", mx::VkShaderGenerator, create, 0, 1, mx::TypeSystemPtr)
         ;
 }
