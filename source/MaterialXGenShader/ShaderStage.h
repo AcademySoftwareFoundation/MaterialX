@@ -148,7 +148,7 @@ class MX_GENSHADER_API ShaderStage
     };
 
   public:
-    /// Contructor.
+    /// Constructor.
     ShaderStage(const string& name, ConstSyntaxPtr syntax);
 
     /// Return the stage name.

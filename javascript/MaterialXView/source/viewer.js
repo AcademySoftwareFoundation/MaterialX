@@ -1458,7 +1458,7 @@ export class Material
     Viewer class
 
     Keeps track of local scene, and property editor as well as current MaterialX document 
-    and assocaited material, shader and lighting information.
+    and associated material, shader and lighting information.
 */
 export class Viewer
 {

@@ -275,6 +275,8 @@ class MX_GENSHADER_API StructTypeDesc
     vector<StructMemberTypeDesc> _members;
 };
 
+/// @class StructTypeDescRegistry
+/// Helper class for struct type registration.
 class MX_GENSHADER_API StructTypeDescRegistry
 {
   public:

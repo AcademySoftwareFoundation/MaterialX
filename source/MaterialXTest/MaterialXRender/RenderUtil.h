@@ -26,7 +26,7 @@ namespace mx = MaterialX;
 // Input uniform and stream checking as well as node implementation coverage and profiling
 // can also be performed depending on the options enabled.
 //
-// See the test suite file "_options.mtlx" which is parsed during validaiton to
+// See the test suite file "_options.mtlx" which is parsed during validation to
 // restrive validation options.
 //
 namespace RenderUtil
@@ -113,7 +113,7 @@ class ShaderRenderTester
     void loadDependentLibraries(GenShaderUtil::TestSuiteOptions options, mx::FileSearchPath searchPath,
                              mx::DocumentPtr& dependLib);
 
-    // Load any additional libraries requird by the generator
+    // Load any additional libraries required by the generator
     virtual void loadAdditionalLibraries(mx::DocumentPtr /*dependLib*/,
                                          GenShaderUtil::TestSuiteOptions& /*options*/) {};
 

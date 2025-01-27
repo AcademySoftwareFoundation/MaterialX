@@ -48,7 +48,7 @@ void MaterialNode::emitFunctionCall(const ShaderNode& _node, GenContext& context
         const ShaderNode* surfaceshaderNode = surfaceshaderInput->getConnection()->getNode();
         shadergen.emitFunctionCall(*surfaceshaderNode, context, stage);
 
-        // Assing this result to the material output variable.
+        // Assign this result to the material output variable.
         const ShaderOutput* output = node.getOutput();
         shadergen.emitLine(syntax.getTypeName(output->getType()) + " " + output->getVariable() + " = " + surfaceshaderInput->getConnection()->getVariable(), stage);
     }

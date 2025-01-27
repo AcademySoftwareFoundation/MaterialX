@@ -1,5 +1,6 @@
-// Open Shading Language : Copyright (c) 2009-2017 Sony Pictures Imageworks Inc., et al.
-// https://github.com/imageworks/OpenShadingLanguage/blob/master/LICENSE
+// Copyright Contributors to the Open Shading Language project.
+// SPDX-License-Identifier: BSD-3-Clause
+// https://github.com/AcademySoftwareFoundation/OpenShadingLanguage
 
 #pragma once
 #define COLOR4_H
@@ -105,13 +106,13 @@ color4 __operator__div__(color4 a, color4 b)
 
 color4 __operator__div__(color4 a, int b)
 {
-    float b_inv = 1.0/b;
+    float b_inv = 1.0 / float(b);
     return a * color4(color(b_inv), b_inv);
 }
 
 color4 __operator__div__(color4 a, float b)
 {
-    float b_inv = 1.0/b;
+    float b_inv = 1.0 / b;
     return a * color4(color(b_inv), b_inv);
 }
 
@@ -130,7 +131,7 @@ int __operator__eq__(color4 a, color4 b)
     return (a.rgb == b.rgb) && (a.a == b.a);
 }
 
-int __operator__ne__(color4 a, color4 b)
+int __operator__neq__(color4 a, color4 b)
 {
     return (a.rgb != b.rgb) || (a.a != b.a);
 }
@@ -193,11 +194,6 @@ color4 mix(color4 a, color4 b, color4 x )
                   mix(a.a, b.a, x.a));
 }
 
-float dot(color4 a, color b)
-{
-    return dot(a.rgb, b);
-}
-
 color4 smoothstep(color4 edge0, color4 edge1, color4 c)
 {
     return color4(smoothstep(edge0.rgb, edge1.rgb, c.rgb),
@@ -250,11 +246,6 @@ color4 mod(color4 a, color4 b)
                   mod(a.a, b.a));
 }
 
-color4 mod(color4 a, int b)
-{
-    return mod(a, color4(color(b), b));
-}
-
 color4 mod(color4 a, float b)
 {
     return mod(a, color4(color(b), b));
@@ -278,14 +269,12 @@ color4 fmod(color4 a, float b)
 
 color4 pow(color4 base, color4 power)
 {
-    return color4(pow(base.rgb, power.rgb),
-                  pow(base.a, power.a));
+    return color4(pow(base.rgb, power.rgb), pow(base.a, power.a));
 }
 
 color4 pow(color4 base, float power)
 {
-    return color4(pow(base.rgb, power),
-                  pow(base.a, power));
+    return pow(base, color4(color(power), power));
 }
 
 color4 sign(color4 a)

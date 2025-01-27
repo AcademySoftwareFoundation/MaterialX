@@ -32,22 +32,22 @@
   <implementation name="IM_anisotropic_vdf_genglsl" nodedef="ND_anisotropic_vdf" file="mx_anisotropic_vdf.glsl" function="mx_anisotropic_vdf" target="genglsl" />
 
   <!-- <layer> -->
-  <implementation name="IM_layer_bsdf_genglsl" nodedef="ND_layer_bsdf" target="genglsl" />
-  <implementation name="IM_layer_vdf_genglsl" nodedef="ND_layer_vdf" target="genglsl" />
+  <implementation name="IM_layer_bsdf_genglsl" nodedef="ND_layer_bsdf" file="mx_layer_bsdf.glsl" function="mx_layer_bsdf" target="genglsl" />
+  <implementation name="IM_layer_vdf_genglsl" nodedef="ND_layer_vdf" file="mx_layer_vdf.glsl" function="mx_layer_vdf" target="genglsl" />
 
   <!-- <mix> -->
-  <implementation name="IM_mix_bsdf_genglsl" nodedef="ND_mix_bsdf" target="genglsl" />
-  <implementation name="IM_mix_edf_genglsl" nodedef="ND_mix_edf" target="genglsl" />
+  <implementation name="IM_mix_bsdf_genglsl" nodedef="ND_mix_bsdf" file="mx_mix_bsdf.glsl" function="mx_mix_bsdf" target="genglsl" />
+  <implementation name="IM_mix_edf_genglsl" nodedef="ND_mix_edf" file="mx_mix_edf.glsl" function="mx_mix_edf" target="genglsl" />
 
   <!-- <add> -->
-  <implementation name="IM_add_bsdf_genglsl" nodedef="ND_add_bsdf" target="genglsl" />
-  <implementation name="IM_add_edf_genglsl" nodedef="ND_add_edf" target="genglsl" />
+  <implementation name="IM_add_bsdf_genglsl" nodedef="ND_add_bsdf" file="mx_add_bsdf.glsl" function="mx_add_bsdf" target="genglsl" />
+  <implementation name="IM_add_edf_genglsl" nodedef="ND_add_edf" file="mx_add_edf.glsl" function="mx_add_edf" target="genglsl" />
 
   <!-- <multiply> -->
-  <implementation name="IM_multiply_bsdfC_genglsl" nodedef="ND_multiply_bsdfC" target="genglsl" />
-  <implementation name="IM_multiply_bsdfF_genglsl" nodedef="ND_multiply_bsdfF" target="genglsl" />
-  <implementation name="IM_multiply_edfC_genglsl" nodedef="ND_multiply_edfC" target="genglsl" />
-  <implementation name="IM_multiply_edfF_genglsl" nodedef="ND_multiply_edfF" target="genglsl" />
+  <implementation name="IM_multiply_bsdfC_genglsl" nodedef="ND_multiply_bsdfC" file="mx_multiply_bsdf_color3.glsl" function="mx_multiply_bsdf_color3" target="genglsl" />
+  <implementation name="IM_multiply_bsdfF_genglsl" nodedef="ND_multiply_bsdfF" file="mx_multiply_bsdf_float.glsl" function="mx_multiply_bsdf_float" target="genglsl" />
+  <implementation name="IM_multiply_edfC_genglsl" nodedef="ND_multiply_edfC" file="mx_multiply_edf_color3.glsl" function="mx_multiply_edf_color3" target="genglsl" />
+  <implementation name="IM_multiply_edfF_genglsl" nodedef="ND_multiply_edfF" file="mx_multiply_edf_float.glsl" function="mx_multiply_edf_float" target="genglsl" />
 
   <!-- <uniform_edf> -->
   <implementation name="IM_uniform_edf_genglsl" nodedef="ND_uniform_edf" file="mx_uniform_edf.glsl" function="mx_uniform_edf" target="genglsl" />

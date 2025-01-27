@@ -1871,6 +1871,7 @@
     <worleynoise2d name="N_worleynoise2d" type="float">
       <input name="texcoord" type="vector2" nodename="N_apply_offset" />
       <input name="jitter" type="float" interfacename="jitter" />
+      <input name="style" type="integer" interfacename="style" />
     </worleynoise2d>
     <fractal3d name="N_fractal3d" type="float">
       <input name="octaves" type="integer" interfacename="octaves" />
@@ -1941,6 +1942,7 @@
     <worleynoise3d name="N_worleynoise3d" type="float">
       <input name="position" type="vector3" nodename="N_apply_offset" />
       <input name="jitter" type="float" interfacename="jitter" />
+      <input name="style" type="integer" interfacename="style" />
     </worleynoise3d>
     <fractal3d name="N_fractal3d" type="float">
       <input name="octaves" type="integer" interfacename="octaves" />
@@ -2946,6 +2948,7 @@
       <input name="normal" type="vector3" interfacename="normal" />
       <input name="scale" type="float" interfacename="scale" />
       <input name="tangent" type="vector3" interfacename="tangent" />
+      <input name="bitangent" type="vector3" interfacename="bitangent" />
     </normalmap>
     <output name="out" type="vector3" nodename="N_normalmap" />
   </nodegraph>

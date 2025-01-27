@@ -91,6 +91,11 @@ if(MATERIALX_BUILD_RENDER)
   endif()
 endif()
 
+# Disable deprecation warnings on Clang.
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    target_compile_options(MaterialXTest PUBLIC -Wno-deprecated-declarations)
+endif()
+
 # TODO: Only do this stuff when it's relevant
 
 add_custom_command(TARGET MaterialXTest POST_BUILD

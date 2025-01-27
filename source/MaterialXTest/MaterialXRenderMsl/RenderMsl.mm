@@ -63,7 +63,7 @@ class MslShaderRenderTester : public RenderUtil::ShaderRenderTester
 };
 
 // In addition to standard texture and shader definition libraries, additional lighting files
-// are loaded in. If no files are specifed in the input options, a sample
+// are loaded in. If no files are specified in the input options, a sample
 // compound light type and a set of lights in a "light rig" are loaded in to a given
 // document.
 void MslShaderRenderTester::loadAdditionalLibraries(mx::DocumentPtr document,
@@ -108,7 +108,7 @@ void MslShaderRenderTester::registerLights(mx::DocumentPtr document,
 }
 
 //
-// Create a renderer with the apporpraite image, geometry and light handlers.
+// Create a renderer with the appropriate image, geometry and light handlers.
 // The light handler on the renderer is cleared on initialization to indicate no lighting
 // is required. During code generation, if the element to validate requires lighting then
 // the handler _lightHandler will be used.
