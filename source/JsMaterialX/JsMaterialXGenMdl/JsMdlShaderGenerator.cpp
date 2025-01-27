@@ -15,6 +15,5 @@ EMSCRIPTEN_BINDINGS(MdlShaderGenerator)
 {
     ems::class_<mx::MdlShaderGenerator, ems::base<mx::ShaderGenerator>>("MdlShaderGenerator")
         .constructor<mx::TypeSystemPtr>()
-        BIND_CLASS_FUNC("create", mx::MdlShaderGenerator, create, 0, 1, mx::TypeSystemPtr)
-        ;
+        BIND_CLASS_FUNC("create", mx::MdlShaderGenerator, create, 0, 1, mx::TypeSystemPtr);
 }

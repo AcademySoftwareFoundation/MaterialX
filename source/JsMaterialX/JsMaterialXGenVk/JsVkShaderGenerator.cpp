@@ -15,6 +15,5 @@ EMSCRIPTEN_BINDINGS(VkShaderGenerator)
 {
     ems::class_<mx::VkShaderGenerator, ems::base<mx::GlslShaderGenerator>>("VkShaderGenerator")
         .constructor<mx::TypeSystemPtr>()
-        BIND_CLASS_FUNC("create", mx::VkShaderGenerator, create, 0, 1, mx::TypeSystemPtr)
-        ;
+        BIND_CLASS_FUNC("create", mx::VkShaderGenerator, create, 0, 1, mx::TypeSystemPtr);
 }
