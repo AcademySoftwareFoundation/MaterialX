@@ -18,7 +18,7 @@ namespace mx = MaterialX;
 void bindPyMslShaderGenerator(py::module& mod)
 {
     py::class_<mx::MslShaderGenerator, mx::HwShaderGenerator, mx::MslShaderGeneratorPtr>(mod, "MslShaderGenerator")
-        .def_static("create", &mx::MslShaderGenerator::create, py::arg("typeSystem") = mx::TypeSystem::create())
+        .def_static("create", &mx::MslShaderGenerator::create, py::arg("typeSystem") = nullptr)
         .def(py::init<mx::TypeSystemPtr>())
         .def("generate", &mx::MslShaderGenerator::generate)
         .def("getTarget", &mx::MslShaderGenerator::getTarget)

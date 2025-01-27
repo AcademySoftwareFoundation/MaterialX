@@ -27,11 +27,15 @@ class MX_GENOSL_API OslShaderGenerator : public ShaderGenerator
     OslShaderGenerator(TypeSystemPtr typeSystem);
 
     /// Creator function.
+    /// If a TypeSystem is not provided it will be created internally.
     /// Optionally pass in an externally created TypeSystem here, 
     /// if you want to keep type descriptions alive after the lifetime
-    /// of the shader generator.
-    static ShaderGeneratorPtr create(TypeSystemPtr typeSystem = TypeSystem::create()) { return std::make_shared<OslShaderGenerator>(typeSystem); }
- 
+    /// of the shader generator. 
+    static ShaderGeneratorPtr create(TypeSystemPtr typeSystem = nullptr)
+    {
+        return std::make_shared<OslShaderGenerator>(typeSystem ? typeSystem : TypeSystem::create());
+    }
+
     /// Return a unique identifier for the target this generator is for
     const string& getTarget() const override { return TARGET; }
 
