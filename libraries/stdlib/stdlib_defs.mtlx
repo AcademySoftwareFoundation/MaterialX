@@ -300,7 +300,7 @@
     <input name="file" type="filename" value="" uniform="true" uiname="Filename" />
     <input name="default" type="color3" value="0.0, 0.0, 0.0" uiname="Default Color" />
     <input name="viewdir" type="vector3" value="0.0, 0.0, 1.0" uiname="View Direction" />
-    <input name="rotation" type="float" value="0.0" unittype="angle" unit="degree" uimin="0" uimax="360" uiname="Latitude Offset" />
+    <input name="rotation" type="float" value="0.0" unittype="angle" unit="degree" uimin="0" uimax="360" uiname="Longitude Offset" />
     <output name="out" type="color3" default="0.0, 0.0, 0.0" />
   </nodedef>
 
