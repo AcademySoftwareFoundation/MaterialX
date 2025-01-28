@@ -1459,7 +1459,7 @@ export color mx_fract_color3(
 		anno::description("Node Group: math")
 	]]
 {
-	return color(math::fract(float3(mxp_in)));
+	return color(math::frac(float3(mxp_in)));
 }
 
 export core::color4 mx_fract_color4(
@@ -1469,7 +1469,7 @@ export core::color4 mx_fract_color4(
 		anno::description("Node Group: math")
 	]]
 {
-	return core::mk_color4(math::fract(core::mk_float4(mxp_in)));
+	return core::mk_color4(math::frac(core::mk_float4(mxp_in)));
 }
 
 export core::color4 mx_invert_color4(
