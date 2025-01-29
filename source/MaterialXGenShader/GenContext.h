@@ -254,9 +254,6 @@ class MX_GENSHADER_API ClosureContext
     /// An array of arguments
     using Arguments = vector<Argument>;
 
-    /// Extra parameters for closure evaluation.
-    using ClosureParams = std::unordered_map<string, const ShaderInput*>;
-
     /// Constructor
     ClosureContext(int type = 0) :
         _type(type) { }
@@ -298,7 +295,6 @@ class MX_GENSHADER_API ClosureContext
     const int _type;
     std::unordered_map<TypeDesc, Arguments, TypeDesc::Hasher> _arguments;
     std::unordered_map<TypeDesc, string, TypeDesc::Hasher> _suffix;
-    // std::unordered_map<const ShaderNode*, const ClosureParams*> _params;
 
     static const Arguments EMPTY_ARGUMENTS;
 };
