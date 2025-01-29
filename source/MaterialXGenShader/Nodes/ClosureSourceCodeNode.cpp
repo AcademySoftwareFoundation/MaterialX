@@ -39,17 +39,7 @@ void ClosureSourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext&
             ClosureContext* cct = context.getClosureContext();
             if (cct)
             {
-                // Check if extra parameters has been added for this node.
                 const TypeDesc closureType = output->getType();
-                const ClosureContext::ClosureParams* params = cct->getClosureParams(&node);
-                if (closureType == Type::BSDF && params)
-                {
-                    // Assign the parameters to the BSDF.
-                    for (auto it : *params)
-                    {
-                        shadergen.emitLine(output->getVariable() + "." + it.first + " = " + shadergen.getUpstreamResult(it.second, context), stage);
-                    }
-                }
 
                 // Emit function name.
                 shadergen.emitLineBegin(stage);

@@ -169,17 +169,6 @@ void ClosureCompoundNode::emitFunctionCall(const ShaderNode& node, GenContext& c
             const ShaderGraphOutputSocket* outputSocket = _rootGraph->getOutputSocket();
             const TypeDesc closureType = outputSocket->getType();
 
-            // Check if extra parameters has been added for this node.
-            const ClosureContext::ClosureParams* params = cct->getClosureParams(&node);
-            if (closureType == Type::BSDF && params)
-            {
-                // Assign the parameters to the BSDF.
-                for (auto it : *params)
-                {
-                    shadergen.emitLine(outputSocket->getVariable() + "." + it.first + " = " + shadergen.getUpstreamResult(it.second, context), stage);
-                }
-            }
-
             // Emit function name.
             shadergen.emitString(_functionName + cct->getSuffix(closureType) + "(", stage);
 
