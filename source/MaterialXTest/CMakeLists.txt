@@ -1,5 +1,5 @@
-file(GLOB materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
-file(GLOB materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
+file(GLOB materialx_source CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
+file(GLOB materialx_headers CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
 list(APPEND materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/External/Catch/catch.hpp")
 
 assign_source_group("Source Files" ${materialx_source})

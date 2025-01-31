@@ -1,5 +1,5 @@
-file(GLOB pymaterialxgenshader_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
-file(GLOB pymaterialxgenshader_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
+file(GLOB pymaterialxgenshader_source CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
+file(GLOB pymaterialxgenshader_headers CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 
 pybind11_add_module(PyMaterialXGenShader SHARED ${PYBIND11_MODULE_FLAGS} ${pymaterialxgenshader_source} ${pymaterialxgenshader_headers})
 
