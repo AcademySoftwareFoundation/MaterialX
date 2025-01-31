@@ -163,6 +163,7 @@ const string USER_DATA_CLOSURE_CONTEXT        = "udcc";
 const string USER_DATA_LIGHT_SHADERS          = "udls";
 const string USER_DATA_BINDING_CONTEXT        = "udbinding";
 
+const TypeDesc ClosureDataType = TypeDesc("ClosureData", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_NONE, 1);
 } // namespace HW
 
 namespace Stage
@@ -241,7 +242,7 @@ HwShaderGenerator::HwShaderGenerator(SyntaxPtr syntax) :
 
     // Setup closure contexts for defining closure functions
     //
-    _defClosure.addArgument(ClosureContext::Argument(Type::CLOSUREDATA, "closureData"));
+    _defClosure.addArgument(ClosureContext::Argument(HW::ClosureDataType, "closureData"));
 }
 
 ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element, GenContext& context) const
@@ -468,21 +469,6 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     }
 
     return shader;
-}
-
-void HwShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
-{
-    // TODO - revist later if we feel we need to keep the comment below - or if we can
-    // just use the similar implementation in ShaderGenerator::emitFunctionCall()
-
-    // Check if it's emitted already.
-    if (stage.isEmitted(node, context))
-    {
-        emitComment("Omitted node '" + node.getName() + "'. Function already called in this scope.", stage);
-        return;
-    }
-
-    stage.addFunctionCall(node, context);
 }
 
 void HwShaderGenerator::bindLightShader(const NodeDef& nodeDef, unsigned int lightTypeId, GenContext& context)

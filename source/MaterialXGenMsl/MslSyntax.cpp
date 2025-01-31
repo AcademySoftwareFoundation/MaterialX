@@ -6,6 +6,7 @@
 #include <MaterialXGenMsl/MslSyntax.h>
 
 #include <MaterialXGenShader/ShaderGenerator.h>
+#include <MaterialXGenShader/HwShaderGenerator.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -313,7 +314,7 @@ MslSyntax::MslSyntax()
             "#define material surfaceshader"));
 
     registerTypeSyntax(
-        Type::CLOSUREDATA,
+        HW::ClosureDataType,
         std::make_shared<AggregateTypeSyntax>(
             "ClosureData",
             EMPTY_STRING,

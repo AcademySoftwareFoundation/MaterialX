@@ -220,6 +220,9 @@ extern MX_GENSHADER_API const string ATTR_TRANSPARENT;
 /// User data names.
 extern MX_GENSHADER_API const string USER_DATA_LIGHT_SHADERS;
 extern MX_GENSHADER_API const string USER_DATA_BINDING_CONTEXT;
+
+/// Type Descriptor for closure context data.
+extern MX_GENSHADER_API const TypeDesc ClosureDataType;
 } // namespace HW
 
 namespace Stage
@@ -291,9 +294,6 @@ class MX_GENSHADER_API HwLightShaders : public GenUserData
 class MX_GENSHADER_API HwShaderGenerator : public ShaderGenerator
 {
   public:
-    /// Add the function call for a single node.
-    void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
-
     /// Emit code for active light count definitions and uniforms
     virtual void addStageLightingUniforms(GenContext& context, ShaderStage& stage) const;
 
