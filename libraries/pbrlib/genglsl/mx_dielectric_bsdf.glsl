@@ -2,6 +2,11 @@
 
 void mx_dielectric_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float weight, vec3 tint, float ior, vec2 roughness, float thinfilm_thickness, float thinfilm_ior, vec3 N, vec3 X, int distribution, int scatter_mode, inout BSDF bsdf)
 {
+    if (scatter_mode == 1) // BSDF_T (skip reflection - transmission only)
+    {
+        return;
+    }
+
     if (weight < M_FLOAT_EPS)
     {
         return;
@@ -38,6 +43,9 @@ void mx_dielectric_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, floa
 
 void mx_dielectric_bsdf_transmission(vec3 V, float weight, vec3 tint, float ior, vec2 roughness, float thinfilm_thickness, float thinfilm_ior, vec3 N, vec3 X, int distribution, int scatter_mode, inout BSDF bsdf)
 {
+    // Note: If scatter_mode is BSDF_R (reflection only) we must still keep evaluating both reflection/transmission
+    // since reflection needs to attenuate the transmission amount in HW shaders when layering is used.
+
     if (weight < M_FLOAT_EPS)
     {
         return;
@@ -66,6 +74,11 @@ void mx_dielectric_bsdf_transmission(vec3 V, float weight, vec3 tint, float ior,
 
 void mx_dielectric_bsdf_indirect(vec3 V, float weight, vec3 tint, float ior, vec2 roughness, float thinfilm_thickness, float thinfilm_ior, vec3 N, vec3 X, int distribution, int scatter_mode, inout BSDF bsdf)
 {
+    if (scatter_mode == 1) // BSDF_T (skip reflection - transmission only)
+    {
+        return;
+    }
+
     if (weight < M_FLOAT_EPS)
     {
         return;
