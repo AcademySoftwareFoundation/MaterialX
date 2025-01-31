@@ -3,18 +3,19 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXGenMsl/Nodes/GeomColorNodeMsl.h>
+#include <MaterialXGenShader/Nodes/HwGeomColorNode.h>
 
 #include <MaterialXGenShader/Shader.h>
+#include <MaterialXGenShader/HwShaderGenerator.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
-ShaderNodeImplPtr GeomColorNodeMsl::create()
+ShaderNodeImplPtr HwGeomColorNode::create()
 {
-    return std::make_shared<GeomColorNodeMsl>();
+    return std::make_shared<HwGeomColorNode>();
 }
 
-void GeomColorNodeMsl::createVariables(const ShaderNode& node, GenContext&, Shader& shader) const
+void HwGeomColorNode::createVariables(const ShaderNode& node, GenContext&, Shader& shader) const
 {
     const ShaderInput* indexInput = node.getInput(INDEX);
     const string index = indexInput ? indexInput->getValue()->getValueString() : "0";
@@ -25,9 +26,9 @@ void GeomColorNodeMsl::createVariables(const ShaderNode& node, GenContext&, Shad
     addStageConnector(HW::VERTEX_DATA, Type::COLOR4, HW::T_COLOR + "_" + index, vs, ps);
 }
 
-void GeomColorNodeMsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
+void HwGeomColorNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    const MslShaderGenerator& shadergen = static_cast<const MslShaderGenerator&>(context.getShaderGenerator());
+    const HwShaderGenerator& shadergen = static_cast<const HwShaderGenerator&>(context.getShaderGenerator());
 
     const ShaderOutput* output = node.getOutput();
     const ShaderInput* indexInput = node.getInput(INDEX);
