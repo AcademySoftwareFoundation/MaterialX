@@ -27,3 +27,15 @@ void mx_translucent_bsdf_indirect(vec3 V, float weight, vec3 color, vec3 normal,
     vec3 Li = mx_environment_irradiance(-normal);
     bsdf.response = Li * color * weight;
 }
+
+void mx_translucent_bsdf(ClosureData closureData, float weight, vec3 color, vec3 normal, inout BSDF bsdf)
+{
+    if (closureData.closureType == CLOSURE_TYPE_REFLECTION)
+    {
+        mx_translucent_bsdf_reflection(closureData.L, closureData.V, closureData.P, closureData.occlusion, weight, color, normal, bsdf);
+    }
+    else if (closureData.closureType == CLOSURE_TYPE_INDIRECT)
+    {
+        mx_translucent_bsdf_indirect(closureData.V, weight, color, normal, bsdf);
+    }
+}

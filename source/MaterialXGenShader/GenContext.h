@@ -255,46 +255,22 @@ class MX_GENSHADER_API ClosureContext
     using Arguments = vector<Argument>;
 
     /// Constructor
-    ClosureContext(int type = 0) :
-        _type(type) { }
-
-    /// Return the identifier for this context.
-    int getType() const { return _type; }
+    ClosureContext() {}
 
     /// For the given node type add an extra argument to be used for the function in this context.
-    void addArgument(TypeDesc nodeType, const Argument& arg)
+    void addArgument(const Argument& arg)
     {
-        _arguments[nodeType].push_back(arg);
+        _arguments.push_back(arg);
     }
-    [[deprecated]] void addArgument(const TypeDesc* nodeType, const Argument& arg) { addArgument(*nodeType, arg); }
 
     /// Return a list of extra argument to be used for the given node in this context.
-    const Arguments& getArguments(TypeDesc nodeType) const
+    const Arguments& getArguments() const
     {
-        auto it = _arguments.find(nodeType);
-        return it != _arguments.end() ? it->second : EMPTY_ARGUMENTS;
+        return _arguments;
     }
-    [[deprecated]] const Arguments& getArguments(const TypeDesc* nodeType) const { return getArguments(*nodeType); }
-
-    /// For the given node type set a function name suffix to be used for the function in this context.
-    void setSuffix(TypeDesc nodeType, const string& suffix)
-    {
-        _suffix[nodeType] = suffix;
-    }
-    [[deprecated]] void setSuffix(const TypeDesc* nodeType, const string& suffix) { setSuffix(*nodeType, suffix); }
-
-    /// Return the function name suffix to be used for the given node in this context.
-    const string& getSuffix(TypeDesc nodeType) const
-    {
-        auto it = _suffix.find(nodeType);
-        return it != _suffix.end() ? it->second : EMPTY_STRING;
-    }
-    [[deprecated]] const string& getSuffix(const TypeDesc* nodeType) const { return getSuffix(*nodeType); }
 
   protected:
-    const int _type;
-    std::unordered_map<TypeDesc, Arguments, TypeDesc::Hasher> _arguments;
-    std::unordered_map<TypeDesc, string, TypeDesc::Hasher> _suffix;
+    Arguments _arguments;
 
     static const Arguments EMPTY_ARGUMENTS;
 };
