@@ -270,7 +270,6 @@ class MX_GENSHADER_API ClosureContext
     }
 
   protected:
-    // const int _type;
     Arguments _arguments;
 
     static const Arguments EMPTY_ARGUMENTS;
