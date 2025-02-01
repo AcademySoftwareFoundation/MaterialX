@@ -144,7 +144,6 @@ void SurfaceNodeMsl::emitFunctionCall(const ShaderNode& node, GenContext& contex
             shadergen.emitComment("Add environment contribution", stage);
             shadergen.emitScopeBegin(stage);
 
-            // indirect lighting
             context.pushClosureContext(&_callClosure); // indirect
             if (bsdf->hasClassification(ShaderNode::Classification::BSDF_R)) {
                 shadergen.emitLine("ClosureData closureData = {CLOSURE_TYPE_INDIRECT, L, V, N, P, occlusion}", stage);
