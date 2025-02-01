@@ -350,8 +350,6 @@ void mx_chiang_hair_bsdf_indirect(
     bsdf.response = Li * comp * tint;
 }
 
-
-
 void mx_chiang_hair_bsdf(
     ClosureData closureData,
     vec3 tint_R,
