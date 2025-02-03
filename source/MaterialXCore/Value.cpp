@@ -3,6 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
+#include <MaterialXCore/Definition.h>
+#include <MaterialXCore/Document.h>
 #include <MaterialXCore/Value.h>
 
 #include <iomanip>
@@ -233,7 +235,7 @@ StringVec parseStructValueString(const string& value)
         {
             // When we hit a separator we store the currently accumulated part, and clear to start collecting the next.
             split.emplace_back(part);
-            part = "";
+            part.clear();
         }
         else
         {
@@ -267,11 +269,17 @@ template <class T> ValuePtr TypedValue<T>::createFromString(const string& value)
 // Value methods
 //
 
-ValuePtr Value::createValueFromStrings(const string& value, const string& type)
+ValuePtr Value::createValueFromStrings(const string& value, const string& type, ConstTypeDefPtr typeDef)
 {
     CreatorMap::iterator it = _creatorMap.find(type);
     if (it != _creatorMap.end())
         return it->second(value);
+
+    if (typeDef && !typeDef->getMembers().empty())
+    {
+        // If we're given a TypeDef pointer that has child members, then we can create a new AggregateValue.
+        return AggregateValue::createAggregateValueFromString(value, type, typeDef);
+    }
 
     return TypedValue<string>::createFromString(value);
 }
@@ -289,6 +297,69 @@ template <class T> const T& Value::asA() const
         throw ExceptionTypeError("Incorrect type specified for value");
     }
     return typedVal->getData();
+}
+
+template <>
+MX_CORE_API bool Value::isA<AggregateValue>() const
+{
+    return dynamic_cast<const AggregateValue*>(this) != nullptr;
+}
+
+template <>
+MX_CORE_API const AggregateValue& Value::asA<AggregateValue>() const
+{
+    const AggregateValue* typedVal = dynamic_cast<const AggregateValue*>(this);
+    if (!typedVal)
+    {
+        throw ExceptionTypeError("Incorrect type specified for value");
+    }
+    return *typedVal;
+}
+
+string AggregateValue::getValueString() const
+{
+    if (_data.empty())
+        return EMPTY_STRING;
+
+    std::string result = "{";
+    std::string separator = "";
+    for (const auto& val : _data)
+    {
+        result += separator + val->getValueString();
+        separator = ";";
+    }
+    result += "}";
+
+    return result;
+}
+
+AggregateValuePtr AggregateValue::createAggregateValueFromString(const string& value, const string& type, ConstTypeDefPtr typeDef)
+{
+    StringVec subValues = parseStructValueString(value);
+
+    AggregateValuePtr result = AggregateValue::createAggregateValue(type);
+    const auto& members = typeDef->getMembers();
+
+    if (subValues.size() != members.size())
+    {
+        std::stringstream ss;
+        ss << "Wrong number of initializers - expect " << members.size();
+        throw Exception(ss.str());
+    }
+
+    auto doc = typeDef->getDocument();
+    for (size_t i = 0; i < members.size(); ++i)
+    {
+        const auto& member = members[i];
+
+        // This will return nullptr if the type is not a listed typedef.
+        ConstTypeDefPtr subTypeDef = doc->getTypeDef(members[i]->getType());
+
+        // Calling Value::createValueFromStrings() here allows support for recursively nested structs.
+        result->appendValue(Value::createValueFromStrings(subValues[i], member->getType(), subTypeDef));
+    }
+
+    return result;
 }
 
 ScopedFloatFormatting::ScopedFloatFormatting(Value::FloatFormat format, int precision) :

@@ -22,5 +22,7 @@ void bindPyShaderGenerator(py::module& mod)
         .def("setUnitSystem", &mx::ShaderGenerator::setUnitSystem)
         .def("getUnitSystem", &mx::ShaderGenerator::getUnitSystem)
         .def("getTokenSubstitutions", &mx::ShaderGenerator::getTokenSubstitutions)
+        .def("loadStructTypeDefs", &mx::ShaderGenerator::loadStructTypeDefs)
+        .def("clearStructTypeDefs", &mx::ShaderGenerator::clearStructTypeDefs)
         .def("registerShaderMetadata", &mx::ShaderGenerator::registerShaderMetadata);
 }

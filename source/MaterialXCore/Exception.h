@@ -50,6 +50,14 @@ class MX_CORE_API Exception : public std::exception
     string _msg;
 };
 
+/// @class ExceptionTypeError
+/// An exception that is thrown when a type mismatch is encountered.
+class MX_CORE_API ExceptionTypeError : public Exception
+{
+  public:
+    using Exception::Exception;
+};
+
 MATERIALX_NAMESPACE_END
 
 #endif

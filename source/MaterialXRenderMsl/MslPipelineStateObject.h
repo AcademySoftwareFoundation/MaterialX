@@ -99,7 +99,7 @@ class MX_RENDERMSL_API MslProgram
         string typeString;
         /// Input value. Will only be non-empty if initialized stages with a HwShader and a value was set during
         /// shader generation.
-        MaterialX::ValuePtr value;
+        MaterialX::ConstValuePtr value;
         /// Is this a constant
         bool isConstant;
         /// Element path (if any)
@@ -190,7 +190,7 @@ class MX_RENDERMSL_API MslProgram
     /// Bind input geometry streams
     void bindMesh(id<MTLRenderCommandEncoder> renderCmdEncoder, MeshPtr mesh);
 
-    /// Queries the index buffer assinged to a mesh partition
+    /// Queries the index buffer assigned to a mesh partition
     id<MTLBuffer> getIndexBuffer(MeshPartitionPtr mesh)
     {
         if (_indexBufferIds.find(mesh) != _indexBufferIds.end())
@@ -256,7 +256,7 @@ class MX_RENDERMSL_API MslProgram
 
     // Utility to find a uniform value in an uniform list.
     // If uniform cannot be found a null pointer will be return.
-    ValuePtr findUniformValue(const string& uniformName, const InputMap& uniformList);
+    ConstValuePtr findUniformValue(const string& uniformName, const InputMap& uniformList);
 
     // Bind an individual texture to a program uniform location
     ImagePtr bindTexture(id<MTLRenderCommandEncoder> renderCmdEncoder,

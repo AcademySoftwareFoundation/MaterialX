@@ -192,17 +192,6 @@ bool OslShaderRenderTester::runRenderer(const std::string& shaderName,
 
     mx::ShaderGenerator& shadergen = context.getShaderGenerator();
 
-    // Perform validation if requested
-    if (testOptions.validateElementToRender)
-    {
-        std::string message;
-        if (!element->validate(&message))
-        {
-            log << "Element is invalid: " << message << std::endl;
-            return false;
-        }
-    }
-
     std::vector<mx::GenOptions> optionsList;
     getGenerationOptions(testOptions, context.getOptions(), optionsList);
 
@@ -267,11 +256,6 @@ bool OslShaderRenderTester::runRenderer(const std::string& shaderName,
                 file.close();
             }
 
-            if (!testOptions.compileCode)
-            {
-                return false;
-            }
-
             // Validate
             bool validated = false;
             try
@@ -279,8 +263,8 @@ bool OslShaderRenderTester::runRenderer(const std::string& shaderName,
                 // Set renderer properties.
                 _renderer->setOslOutputFilePath(outputFilePath);
                 _renderer->setOslShaderName(shaderName);
-                _renderer->setRaysPerPixelLit(testOptions.enableReferenceQuality ? 8 : 4);
-                _renderer->setRaysPerPixelUnlit(testOptions.enableReferenceQuality ? 2 : 1);
+                _renderer->setRaysPerPixelLit(testOptions.enableReferenceQuality ? 32 : 4);
+                _renderer->setRaysPerPixelUnlit(testOptions.enableReferenceQuality ? 8 : 1);
 
                 // Validate compilation
                 {
@@ -288,55 +272,52 @@ bool OslShaderRenderTester::runRenderer(const std::string& shaderName,
                     _renderer->createProgram(shader);
                 }
 
-                if (testOptions.renderImages)
+                _renderer->setSize(static_cast<unsigned int>(testOptions.renderSize[0]), static_cast<unsigned int>(testOptions.renderSize[1]));
+
+                const mx::ShaderStage& stage = shader->getStage(mx::Stage::PIXEL);
+
+                // Bind IBL image name overrides.
+                mx::StringVec envOverrides;
+                std::string envmap_filename("string envmap_filename \"");
+                envmap_filename += testOptions.radianceIBLPath;
+                envmap_filename += "\";\n";                    
+                envOverrides.push_back(envmap_filename);
+
+                _renderer->setEnvShaderParameterOverrides(envOverrides);
+
+                const mx::VariableBlock& outputs = stage.getOutputBlock(mx::OSL::OUTPUTS);
+                if (outputs.size() > 0)
                 {
-                    _renderer->setSize(static_cast<unsigned int>(testOptions.renderSize[0]), static_cast<unsigned int>(testOptions.renderSize[1]));
+                    const mx::ShaderPort* output = outputs[0];
+                    const mx::TypeSyntax& typeSyntax = shadergen.getSyntax().getTypeSyntax(output->getType());
 
-                    const mx::ShaderStage& stage = shader->getStage(mx::Stage::PIXEL);
+                    const std::string& outputName = output->getVariable();
+                    const std::string& outputType = typeSyntax.getTypeAlias().empty() ? typeSyntax.getName() : typeSyntax.getTypeAlias();
+                    const std::string& sceneTemplateFile = "scene_template.xml";
 
-                    // Bind IBL image name overrides.
-                    mx::StringVec envOverrides;
-                    std::string envmap_filename("string envmap_filename \"");
-                    envmap_filename += testOptions.radianceIBLPath;
-                    envmap_filename += "\";\n";                    
-                    envOverrides.push_back(envmap_filename);
+                    // Set shader output name and type to use
+                    _renderer->setOslShaderOutput(outputName, outputType);
 
-                    _renderer->setEnvShaderParameterOverrides(envOverrides);
+                    // Set scene template file. For now we only have the constant color scene file
+                    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+                    mx::FilePath sceneTemplatePath = searchPath.find("resources/Utilities/");
+                    sceneTemplatePath = sceneTemplatePath / sceneTemplateFile;
+                    _renderer->setOslTestRenderSceneTemplateFile(sceneTemplatePath.asString());
 
-                    const mx::VariableBlock& outputs = stage.getOutputBlock(mx::OSL::OUTPUTS);
-                    if (outputs.size() > 0)
+                    // Validate rendering
                     {
-                        const mx::ShaderPort* output = outputs[0];
-                        const mx::TypeSyntax& typeSyntax = shadergen.getSyntax().getTypeSyntax(output->getType());
-
-                        const std::string& outputName = output->getVariable();
-                        const std::string& outputType = typeSyntax.getTypeAlias().empty() ? typeSyntax.getName() : typeSyntax.getTypeAlias();
-                        const std::string& sceneTemplateFile = "scene_template.xml";
-
-                        // Set shader output name and type to use
-                        _renderer->setOslShaderOutput(outputName, outputType);
-
-                        // Set scene template file. For now we only have the constant color scene file
-                        mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
-                        mx::FilePath sceneTemplatePath = searchPath.find("resources/Utilities/");
-                        sceneTemplatePath = sceneTemplatePath / sceneTemplateFile;
-                        _renderer->setOslTestRenderSceneTemplateFile(sceneTemplatePath.asString());
-
-                        // Validate rendering
+                        mx::ScopedTimer renderTimer(&profileTimes.languageTimes.renderTime);
+                        _renderer->render();
+                        if (imageVec)
                         {
-                            mx::ScopedTimer renderTimer(&profileTimes.languageTimes.renderTime);
-                            _renderer->render();
-                            if (imageVec)
-                            {
-                                imageVec->push_back(_renderer->captureImage());
-                            }
+                            imageVec->push_back(_renderer->captureImage());
                         }
                     }
-                    else
-                    {
-                        CHECK(false);
-                        log << ">> Shader has no output to render from\n";
-                    }
+                }
+                else
+                {
+                    CHECK(false);
+                    log << ">> Shader has no output to render from\n";
                 }
 
                 validated = true;

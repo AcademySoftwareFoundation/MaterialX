@@ -114,7 +114,7 @@ void UiNode::removeOutputConnection(const std::string& name)
     }
 }
 
-mx::ElementPtr UiNode::getMxElement()
+mx::ElementPtr UiNode::getElement()
 {
     if (_currNode != nullptr)
     {

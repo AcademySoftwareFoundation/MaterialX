@@ -2,7 +2,7 @@
 <materialx version="1.39" colorspace="acescg">
   <nodedef name="ND_lama_conductor" node="LamaConductor" nodegroup="pbr" doc="Lama conductor" version="1.0" isdefaultversion="true">
     <input name="tint" type="color3" value="1, 1, 1" uiname="Tint" uifolder="Main"
-           doc="Overall color multiplier. It should be used with parcimony, as a non-white value breaks physicality. The prefered way to define the color of a conductor is through the Fresnel attributes right below." />
+           doc="Overall color multiplier. It should be used with parsimony, as a non-white value breaks physicality. The preferred way to define the color of a conductor is through the Fresnel attributes right below." />
     <input name="fresnelMode" type="integer" uniform="true" enum="Artistic,Scientific" enumvalues="0,1" value="0" uiname="Fresnel Mode" uifolder="Main"
            doc="Switches the Fresnel between Artistic and Scientific parameters. The Artistic mode offers reflectivity in the normal direction and reflectivity90 at the grazing angle. The Scientific mode provides an index of refraction for each rgb component. Note that IOR is only used to calculate the reflectivity value used by the Schlick approximation. When reflectivity90 is 1, then both modes achieve identical results, as one can be mapped to the other." />
     <input name="IOR" type="vector3" value="0.180000007153,0.419999986887,1.37000000477" uiname="IOR" uifolder="Main"
@@ -22,7 +22,7 @@
     <input name="anisotropyDirection" type="vector3" defaultgeomprop="Tworld" uiname="Direction" uifolder="Anisotropy"
            doc="Overrides the surface tangent as the anisotropy direction." />
     <input name="anisotropyRotation" type="float" value="0.0" uisoftmin="0.0" uisoftmax="1.0"  uiname="Rotation" uifolder="Anisotropy"
-           doc="Rotates the anisotropy direction (possibly overriden by the previous attribute) around the normal, from 0 to 360 degrees." />
+           doc="Rotates the anisotropy direction (possibly overridden by the previous attribute) around the normal, from 0 to 360 degrees." />
     <output name="out" type="BSDF" />
   </nodedef>
 

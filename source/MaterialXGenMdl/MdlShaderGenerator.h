@@ -25,7 +25,8 @@ class MX_GENMDL_API GenMdlOptions : public GenUserData
         MDL_1_6,
         MDL_1_7,
         MDL_1_8,
-        MDL_LATEST = MDL_1_8
+        MDL_1_9,
+        MDL_LATEST = MDL_1_9
     };
 
     /// Create MDL code generator options with default values.
@@ -76,7 +77,11 @@ class MX_GENMDL_API MdlShaderGenerator : public ShaderGenerator
     /// Map of code snippets for geomprops in MDL.
     static const std::unordered_map<string, string> GEOMPROP_DEFINITIONS;
 
-    /// Add the MDL file header containing the version number of the generated module..
+    /// Get the selected MDL target language version number from the context option.
+    /// If not set, the latest version supported by GenMdl is returned.
+    GenMdlOptions::MdlVersion getMdlVersion(GenContext& context) const;
+
+    /// Add the MDL file header containing the version number of the generated module.
     void emitMdlVersionNumber(GenContext& context, ShaderStage& stage) const;
 
     /// Add the version number suffix appended to MDL modules that use versions.
@@ -90,7 +95,7 @@ class MX_GENMDL_API MdlShaderGenerator : public ShaderGenerator
     ShaderPtr createShader(const string& name, ElementPtr element, GenContext& context) const;
 
     // Emit a block of shader inputs.
-    void emitShaderInputs(const DocumentPtr doc, const VariableBlock& inputs, ShaderStage& stage) const;
+    void emitShaderInputs(ConstDocumentPtr doc, const VariableBlock& inputs, ShaderStage& stage) const;
 };
 
 namespace MDL

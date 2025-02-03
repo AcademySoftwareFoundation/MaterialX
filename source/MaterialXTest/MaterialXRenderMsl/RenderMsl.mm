@@ -63,7 +63,7 @@ class MslShaderRenderTester : public RenderUtil::ShaderRenderTester
 };
 
 // In addition to standard texture and shader definition libraries, additional lighting files
-// are loaded in. If no files are specifed in the input options, a sample
+// are loaded in. If no files are specified in the input options, a sample
 // compound light type and a set of lights in a "light rig" are loaded in to a given
 // document.
 void MslShaderRenderTester::loadAdditionalLibraries(mx::DocumentPtr document,
@@ -104,10 +104,11 @@ void MslShaderRenderTester::registerLights(mx::DocumentPtr document,
     _lightHandler->setEnvRadianceMap(envRadiance);
     _lightHandler->setEnvIrradianceMap(envIrradiance);
     _lightHandler->setEnvSampleCount(options.enableReferenceQuality ? 4096 : 1024);
+    _lightHandler->setRefractionTwoSided(true);
 }
 
 //
-// Create a renderer with the apporpraite image, geometry and light handlers.
+// Create a renderer with the appropriate image, geometry and light handlers.
 // The light handler on the renderer is cleared on initialization to indicate no lighting
 // is required. During code generation, if the element to validate requires lighting then
 // the handler _lightHandler will be used.
@@ -175,17 +176,6 @@ bool MslShaderRenderTester::runRenderer(const std::string& shaderName,
 
     const mx::ShaderGenerator& shadergen = context.getShaderGenerator();
 
-    // Perform validation if requested
-    if (testOptions.validateElementToRender)
-    {
-        std::string message;
-        if (!element->validate(&message))
-        {
-            log << "Element is invalid: " << message << std::endl;
-            return false;
-        }
-    }
-
     std::vector<mx::GenOptions> optionsList;
     getGenerationOptions(testOptions, context.getOptions(), optionsList);
 
@@ -252,11 +242,6 @@ bool MslShaderRenderTester::runRenderer(const std::string& shaderName,
                 file.open(shaderPath + "_ps.metal");
                 file << pixelSourceCode;
                 file.close();
-            }
-
-            if (!testOptions.compileCode)
-            {
-                return false;
             }
 
             // Validate
@@ -362,27 +347,31 @@ bool MslShaderRenderTester::runRenderer(const std::string& shaderName,
                     }
                 }
 
-                if (testOptions.renderImages)
-                {
-                    {
-                        mx::ScopedTimer renderTimer(&profileTimes.languageTimes.renderTime);
-                        _renderer->getImageHandler()->setSearchPath(mx::getDefaultDataSearchPath());
-                        _renderer->setSize(static_cast<unsigned int>(testOptions.renderSize[0]), static_cast<unsigned int>(testOptions.renderSize[1]));
-                        _renderer->render();
-                    }
+                int supersampleFactor = testOptions.enableReferenceQuality ? 8 : 1;
 
-                    if (testOptions.saveImages)
+                {
+                    mx::ScopedTimer renderTimer(&profileTimes.languageTimes.renderTime);
+                    _renderer->getImageHandler()->setSearchPath(mx::getDefaultDataSearchPath());
+                    unsigned int width = (unsigned int) testOptions.renderSize[0] * supersampleFactor;
+                    unsigned int height = (unsigned int) testOptions.renderSize[1] * supersampleFactor;
+                    _renderer->setSize(width, height);
+                    _renderer->render();
+                }
+
+                {
+                    mx::ScopedTimer ioTimer(&profileTimes.languageTimes.imageSaveTime);
+                    std::string fileName = shaderPath + "_msl.png";
+                    mx::ImagePtr image = _renderer->captureImage();
+                    if (image)
                     {
-                        mx::ScopedTimer ioTimer(&profileTimes.languageTimes.imageSaveTime);
-                        std::string fileName = shaderPath + "_msl.png";
-                        mx::ImagePtr image = _renderer->captureImage();
-                        if (image)
+                        if (supersampleFactor > 1)
                         {
-                            _renderer->getImageHandler()->saveImage(fileName, image, true);
-                            if (imageVec)
-                            {
-                                imageVec->push_back(image);
-                            }
+                            image = image->applyBoxDownsample(supersampleFactor);
+                        }
+                        _renderer->getImageHandler()->saveImage(fileName, image, true);
+                        if (imageVec)
+                        {
+                            imageVec->push_back(image);
                         }
                     }
                 }

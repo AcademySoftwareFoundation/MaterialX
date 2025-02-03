@@ -4,6 +4,7 @@
 //
 
 #include <MaterialXGenMdl/Nodes/ClosureCompoundNodeMdl.h>
+#include <MaterialXGenMdl/MdlSyntax.h>
 
 #include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
@@ -29,6 +30,7 @@ void ClosureCompoundNodeMdl::emitFunctionDefinition(const ShaderNode& node, GenC
     DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
     {
         const ShaderGenerator& shadergen = context.getShaderGenerator();
+        const MdlSyntax& mdlSyntax = static_cast<const MdlSyntax&>(shadergen.getSyntax());
 
         // Emit functions for all child nodes
         shadergen.emitFunctionDefinitions(*_rootGraph, context, stage);
@@ -46,7 +48,7 @@ void ClosureCompoundNodeMdl::emitFunctionDefinition(const ShaderNode& node, GenC
                 const bool isMaterialExpr = (upstream->hasClassification(ShaderNode::Classification::CLOSURE) ||
                                              upstream->hasClassification(ShaderNode::Classification::SHADER));
 
-                // since the emit fuctions are const, the field name to generate a function for is passed via context
+                // since the emit functions are const, the field name to generate a function for is passed via context
                 const std::string& fieldName = outputSocket->getName();
                 GenUserDataStringPtr fieldNamePtr = std::make_shared<GenUserDataString>(fieldName);
                 context.pushUserData(CompoundNodeMdl::GEN_USER_DATA_RETURN_STRUCT_FIELD_NAME, fieldNamePtr);
@@ -55,7 +57,7 @@ void ClosureCompoundNodeMdl::emitFunctionDefinition(const ShaderNode& node, GenC
                 shadergen.emitComment("unrolled structure field: " + _returnStruct + "." + fieldName + " (name=\"" + node.getName() + "\")", stage);
                 emitFunctionSignature(node, context, stage);
 
-                // Special case for material expresions.
+                // Special case for material expressions.
                 if (isMaterialExpr)
                 {
                     shadergen.emitLine(" = let", stage, false);
@@ -101,7 +103,7 @@ void ClosureCompoundNodeMdl::emitFunctionDefinition(const ShaderNode& node, GenC
         // Emit function signature.
         emitFunctionSignature(node, context, stage);
 
-        // Special case for material expresions.
+        // Special case for material expressions.
         if (isMaterialExpr)
         {
             shadergen.emitLine(" = let", stage, false);
@@ -146,7 +148,7 @@ void ClosureCompoundNodeMdl::emitFunctionDefinition(const ShaderNode& node, GenC
                 for (const ShaderGraphOutputSocket* output : _rootGraph->getOutputSockets())
                 {
                     const string result = shadergen.getUpstreamResult(output, context);
-                    shadergen.emitLine(resultVariableName + ".mxp_" + output->getName() + " = " + result, stage);
+                    shadergen.emitLine(resultVariableName + mdlSyntax.modifyPortName(output->getName()) + " = " + result, stage);
                 }
                 shadergen.emitLine("return " + resultVariableName, stage);
             }

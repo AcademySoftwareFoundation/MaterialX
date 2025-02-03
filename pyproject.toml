@@ -48,7 +48,7 @@ experimental = true
 metadata.version.provider = "mtx_skbuild_plugin"
 metadata.version.provider-path = "./python"
 
-# Uncoment when developing locally to enable inplace builds.
+# Uncomment when developing locally to enable in-place builds.
 # build-dir = "build/"
 
 logging.level = "DEBUG"

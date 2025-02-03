@@ -42,6 +42,7 @@ export material mx_surfacematerial(
 = material(
     thin_walled: mxp_surfaceshader.thin_walled || mxp_backsurfaceshader.thin_walled,
     surface: mxp_surfaceshader.surface,
+	hair: mxp_surfaceshader.hair,
     backface: mxp_backsurfaceshader.surface,
     geometry: material_geometry(
         cutout_opacity: mxp_surfaceshader.geometry.cutout_opacity,
@@ -1367,23 +1368,6 @@ export float4 mx_geompropvalue_vector4(
 {
 	// Not implemented: mx_geompropvalue_vector4
 	float4 defaultValue = float4(0.0, 0.0, 0.0, 0.0);
-	return defaultValue;
-}
-
-export float mx_ambientocclusion_float(
-	float mxp_coneangle = float(90.0) 
-	[[
-		anno::description("Unit Type:angle. Unit:degrees."),
-        anno::unused()
-	]],
-	float mxp_maxdistance = float(1e38) [[ anno::unused() ]]
-)
-	[[
-		anno::description("Node Group: global")
-	]]
-{
-	// Not implemented: mx_ambientocclusion_float
-	float defaultValue = float(1.0);
 	return defaultValue;
 }
 

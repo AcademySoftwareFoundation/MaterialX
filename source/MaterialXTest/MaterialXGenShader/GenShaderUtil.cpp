@@ -67,8 +67,7 @@ bool getShaderSource(mx::GenContext& context,
 // Check that implementations exist for all nodedefs supported per generator
 void checkImplementations(mx::GenContext& context,
                           const mx::StringSet& generatorSkipNodeTypes,
-                          const mx::StringSet& generatorSkipNodeDefs,
-                          unsigned int expectedSkipCount)
+                          const mx::StringSet& generatorSkipNodeDefs)
 {
 
     const mx::ShaderGenerator& shadergen = context.getShaderGenerator();
@@ -90,10 +89,8 @@ void checkImplementations(mx::GenContext& context,
     // Node types to explicitly skip temporarily.
     mx::StringSet skipNodeTypes =
     {
-        "ambientocclusion",
         "displacement",
         "volume",
-        "curveadjust",
         "conical_edf",
         "measured_edf",
         "absorption_vdf",
@@ -216,7 +213,7 @@ void checkImplementations(mx::GenContext& context,
             mx::ImplementationPtr impl = inter->asA<mx::Implementation>();
             if (impl)
             {
-                // Test if the generator has an interal implementation first
+                // Test if the generator has an internal implementation first
                 if (shadergen.implementationRegistered(impl->getName()))
                 {
                     found_str += "Found generator impl for nodedef: " + nodeDefName + ", Node: "
@@ -268,7 +265,6 @@ void checkImplementations(mx::GenContext& context,
         std::cerr << (std::string("Missing list: ") + missing_str) << std::endl;
     }
     REQUIRE(missing == 0);
-    REQUIRE(skipped == expectedSkipCount);
 
     implDumpBuffer.close();
 }
@@ -649,6 +645,9 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     addColorManagement();
     addUnitSystem();
 
+    // Register struct typedefs from the library files.
+    _shaderGenerator->loadStructTypeDefs(_dependLib);
+
     // Test suite setup
     addSkipFiles();
 
@@ -704,6 +703,8 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
         // Apply optional preprocessing.
         preprocessDocument(doc);
         _shaderGenerator->registerShaderMetadata(doc, context);
+
+        _shaderGenerator->loadStructTypeDefs(doc);
 
         // For each new file clear the implementation cache.
         // Since the new file might contain implementations with names
@@ -920,11 +921,7 @@ void TestSuiteOptions::print(std::ostream& output) const
     output << "\tCheck Implementation Usage Count: " << checkImplCount << std::endl;
     output << "\tDump Generated Code: " << dumpGeneratedCode << std::endl;
     output << "\tShader Interfaces: " << shaderInterfaces << std::endl;
-    output << "\tValidate Element To Render: " << validateElementToRender << std::endl;
-    output << "\tCompile code: " << compileCode << std::endl;
-    output << "\tRender Images: " << renderImages << std::endl;
     output << "\tRender Size: " << renderSize[0] << "," << renderSize[1] << std::endl;
-    output << "\tSave Images: " << saveImages << std::endl;
     output << "\tDump uniforms and Attributes  " << dumpUniformsAndAttributes << std::endl;
     output << "\tRender Geometry: " << renderGeometry.asString() << std::endl;
     output << "\tEnable Direct Lighting: " << enableDirectLighting << std::endl;
@@ -946,11 +943,7 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
     const std::string TARGETS_STRING("targets");
     const std::string LIGHT_FILES_STRING("lightFiles");
     const std::string SHADER_INTERFACES_STRING("shaderInterfaces");
-    const std::string VALIDATE_ELEMENT_TO_RENDER_STRING("validateElementToRender");
-    const std::string COMPILE_CODE_STRING("compileCode");
-    const std::string RENDER_IMAGES_STRING("renderImages");
     const std::string RENDER_SIZE_STRING("renderSize");
-    const std::string SAVE_IMAGES_STRING("saveImages");
     const std::string DUMP_UNIFORMS_AND_ATTRIBUTES_STRING("dumpUniformsAndAttributes");
     const std::string CHECK_IMPL_COUNT_STRING("checkImplCount");
     const std::string DUMP_GENERATED_CODE_STRING("dumpGeneratedCode");
@@ -997,25 +990,9 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
                     {
                         shaderInterfaces = val->asA<int>();
                     }
-                    else if (name == VALIDATE_ELEMENT_TO_RENDER_STRING)
-                    {
-                        validateElementToRender = val->asA<bool>();
-                    }
-                    else if (name == COMPILE_CODE_STRING)
-                    {
-                        compileCode = val->asA<bool>();
-                    }
-                    else if (name == RENDER_IMAGES_STRING)
-                    {
-                        renderImages = val->asA<bool>();
-                    }
                     else if (name == RENDER_SIZE_STRING)
                     {
                         renderSize = val->asA<mx::Vector2>();
-                    }
-                    else if (name == SAVE_IMAGES_STRING)
-                    {
-                        saveImages = val->asA<bool>();
                     }
                     else if (name == DUMP_UNIFORMS_AND_ATTRIBUTES_STRING)
                     {
@@ -1081,23 +1058,11 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
             }
         }
 
-        // Disable render and save of images if not compiled code will be generated
-        if (!compileCode)
-        {
-            renderImages = false;
-            saveImages = false;
-        }
-        // Disable saving images, if no images are to be produced
-        if (!renderImages)
-        {
-            saveImages = false;
-        }
-        // Disable direct lighting
+        // Handle direct and indirect lighting toggles.
         if (!enableDirectLighting)
         {
             lightFiles.clear();
         }
-        // Disable indirect lighting
         if (!enableIndirectLighting)
         {
             radianceIBLPath.assign(mx::EMPTY_STRING);

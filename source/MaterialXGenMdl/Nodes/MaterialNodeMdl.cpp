@@ -5,6 +5,7 @@
 
 #include <MaterialXGenMdl/Nodes/MaterialNodeMdl.h>
 #include <MaterialXGenMdl/MdlShaderGenerator.h>
+#include <MaterialXGenMdl/MdlSyntax.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/GenContext.h>
@@ -32,6 +33,7 @@ void MaterialNodeMdl::emitFunctionCall(const ShaderNode& _node, GenContext& cont
 
         const ShaderGenerator& shadergen = context.getShaderGenerator();
         const MdlShaderGenerator& shadergenMdl = static_cast<const MdlShaderGenerator&>(shadergen);
+        const MdlSyntax& mdlSyntax = static_cast<const MdlSyntax&>(shadergen.getSyntax());
 
         // Emit the function call for upstream surface shader.
         const ShaderNode* surfaceshaderNode = surfaceshaderInput->getConnection()->getNode();
@@ -39,7 +41,7 @@ void MaterialNodeMdl::emitFunctionCall(const ShaderNode& _node, GenContext& cont
 
         shadergen.emitLineBegin(stage);
 
-        // Emit the output and funtion name.
+        // Emit the output and function name.
         shadergen.emitOutput(node.getOutput(), true, false, context, stage);
         shadergen.emitString(" = materialx::stdlib_", stage);
         shadergenMdl.emitMdlVersionFilenameSuffix(context, stage);
@@ -50,8 +52,7 @@ void MaterialNodeMdl::emitFunctionCall(const ShaderNode& _node, GenContext& cont
         for (ShaderInput* input : node.getInputs())
         {
             shadergen.emitString(delim, stage);
-            shadergen.emitString("mxp_", stage);
-            shadergen.emitString(input->getName(), stage);
+            shadergen.emitString(mdlSyntax.modifyPortName(input->getName()), stage);
             shadergen.emitString(": ", stage);
             shadergen.emitInput(input, context, stage);
             delim = ", ";

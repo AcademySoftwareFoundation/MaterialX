@@ -95,12 +95,12 @@ void MslResourceBindingContext::emitStructuredResourceBindings(GenContext& conte
         if (it == alignmentMap.end())
         {
             structSize += baseAlignment;
-            memberOrder.push_back(std::make_pair(baseAlignment, i));
+            memberOrder.emplace_back(baseAlignment, i);
         }
         else
         {
             structSize += it->second;
-            memberOrder.push_back(std::make_pair(it->second, i));
+            memberOrder.emplace_back(it->second, i);
         }
     }
 

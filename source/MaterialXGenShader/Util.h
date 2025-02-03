@@ -28,7 +28,7 @@ class ShaderGenerator;
 /// how transparency can be done and target applications might need to do
 /// additional checks to track transparency correctly. For example, custom
 /// surface shader nodes implemented in source code will not be tracked by this
-/// function and transprency for such nodes must be tracked separately by the
+/// function and transparency for such nodes must be tracked separately by the
 /// target application.
 ///
 MX_GENSHADER_API bool isTransparentSurface(ElementPtr element, const string& target = EMPTY_STRING);
@@ -60,7 +60,7 @@ MX_GENSHADER_API vector<TypedElementPtr> findRenderableElements(ConstDocumentPtr
 /// The optional target string can be used to guide the selection of nodedef declarations.
 MX_GENSHADER_API InputPtr getNodeDefInput(InputPtr nodeInput, const string& target);
 
-/// Perform token substitutions on the given source string, using the given substituation map.
+/// Perform token substitutions on the given source string, using the given substitution map.
 /// Tokens are required to start with '$' and can only consist of alphanumeric characters.
 /// The full token name, including '$' and all following alphanumeric character, will be replaced
 /// by the corresponding string in the substitution map, if the token exists in the map.

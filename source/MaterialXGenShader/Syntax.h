@@ -20,6 +20,7 @@ MATERIALX_NAMESPACE_BEGIN
 
 class Syntax;
 class TypeSyntax;
+class StructTypeSyntax;
 class TypeDesc;
 class ShaderPort;
 
@@ -29,6 +30,8 @@ using SyntaxPtr = shared_ptr<Syntax>;
 using ConstSyntaxPtr = shared_ptr<const Syntax>;
 /// Shared pointer to a TypeSyntax
 using TypeSyntaxPtr = shared_ptr<TypeSyntax>;
+/// Shared pointer to a StructTypeSyntax
+using StructTypeSyntaxPtr = shared_ptr<StructTypeSyntax>;
 
 /// Map holding identifier names and a counter for
 /// creating unique names from them.
@@ -66,6 +69,8 @@ class MX_GENSHADER_API Syntax
     /// for a code generator when naming variables and functions.
     /// Multiple calls will add to the internal set of tokens.
     void registerInvalidTokens(const StringMap& tokens);
+
+    virtual void registerStructTypeDescSyntax();
 
     /// Returns a set of names that are reserved words for this language syntax.
     const StringSet& getReservedWords() const { return _reservedWords; }
@@ -161,7 +166,7 @@ class MX_GENSHADER_API Syntax
     virtual string getArrayVariableSuffix(TypeDesc type, const Value& value) const;
     [[deprecated]] string getArrayVariableSuffix(const TypeDesc* type, const Value& value) const { return getArrayVariableSuffix(*type, value); }
 
-    /// Query if given type is suppored in the syntax.
+    /// Query if given type is supported in the syntax.
     /// By default all types are assumed to be supported.
     [[deprecated]] virtual bool typeSupported(const TypeDesc* type) const;
 
@@ -198,6 +203,19 @@ class MX_GENSHADER_API Syntax
   protected:
     /// Protected constructor
     Syntax();
+
+    virtual StructTypeSyntaxPtr createStructSyntax(const string& structTypeName, const string& defaultValue,
+                                                   const string& uniformDefaultValue, const string& typeAlias,
+                                                   const string& typeDefinition) const
+    {
+        return std::make_shared<StructTypeSyntax>(
+            this,
+            structTypeName,
+            defaultValue,
+            uniformDefaultValue,
+            typeAlias,
+            typeDefinition);
+    }
 
     vector<TypeSyntaxPtr> _typeSyntaxes;
     std::unordered_map<TypeDesc, size_t, TypeDesc::Hasher> _typeSyntaxIndexByType;
@@ -290,6 +308,20 @@ class MX_GENSHADER_API AggregateTypeSyntax : public TypeSyntax
                         const StringVec& members = EMPTY_MEMBERS);
 
     string getValue(const Value& value, bool uniform) const override;
+};
+
+/// Specialization of TypeSyntax for aggregate types.
+class MX_GENSHADER_API StructTypeSyntax : public TypeSyntax
+{
+  public:
+    StructTypeSyntax(const Syntax* parentSyntax, const string& name, const string& defaultValue, const string& uniformDefaultValue,
+                     const string& typeAlias = EMPTY_STRING, const string& typeDefinition = EMPTY_STRING,
+                     const StringVec& members = EMPTY_MEMBERS);
+
+    string getValue(const Value& value, bool uniform) const override;
+
+  protected:
+    const Syntax* _parentSyntax;
 };
 
 MATERIALX_NAMESPACE_END

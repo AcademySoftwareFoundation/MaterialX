@@ -4,7 +4,7 @@
   Basic ramp unit test :
   - Ramp (left-to-right)
   - Ramp (top-to-bottom)
-  - Ramp (four coner)
+  - Ramp (four corner)
   -->
 
   <!-- Left-to-right tests -->

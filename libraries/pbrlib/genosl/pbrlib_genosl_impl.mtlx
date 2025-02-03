@@ -22,6 +22,9 @@
   <!-- <subsurface_bsdf> -->
   <implementation name="IM_subsurface_bsdf_genosl" nodedef="ND_subsurface_bsdf" file="mx_subsurface_bsdf.osl" function="mx_subsurface_bsdf" target="genosl" />
 
+  <!-- <chiang_hair_bsdf> -->
+  <implementation name="IM_chiang_hair_bsdf_genosl" nodedef="ND_chiang_hair_bsdf" sourcecode="dielectric_bsdf({{normal}}, {{curve_direction}}, color(1), color(0), 0.1, 0.1, {{ior}}, &quot;ggx&quot;)" target="genosl" />
+
   <!-- <sheen_bsdf> -->
   <implementation name="IM_sheen_bsdf_genosl" nodedef="ND_sheen_bsdf" sourcecode="{{weight}} * sheen_bsdf({{normal}}, {{color}}, {{roughness}})" target="genosl" />
 
@@ -70,5 +73,14 @@
 
   <!-- <blackbody> -->
   <implementation name="IM_blackbody_genosl" nodedef="ND_blackbody" file="mx_blackbody.osl" function="mx_blackbody" target="genosl" />
+
+  <!-- <deon_hair_absorption_from_melanin> -->
+  <implementation name="IM_deon_hair_absorption_from_melanin_genosl" nodedef="ND_deon_hair_absorption_from_melanin" sourcecode="vector(1.0)" target="genosl" />
+
+  <!-- <chiang_hair_absorption_from_color> -->
+  <implementation name="IM_chiang_hair_absorption_from_color_genosl" nodedef="ND_chiang_hair_absorption_from_color" sourcecode="vector(1.0)" target="genosl" />
+
+  <!-- <chiang_hair_roughness> -->
+  <implementation name="IM_chiang_hair_roughness_genosl" nodedef="ND_chiang_hair_roughness" file="mx_chiang_hair_roughness.osl" function="mx_chiang_hair_roughness" target="genosl" />
 
 </materialx>
