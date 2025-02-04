@@ -419,7 +419,7 @@ function(mx_add_library MATERIALX_MODULE_NAME)
                     ARCHIVE DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
                     LIBRARY DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
                     RUNTIME DESTINATION bin
-                    FILE_SET mxHeaders)
+                    FILE_SET mxHeaders DESTINATION ${MATERIALX_INSTALL_INCLUDE_PATH})
         endif()
 
         install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${MATERIALX_MODULE_NAME}.pdb"
@@ -528,7 +528,7 @@ if (MATERIALX_BUILD_MONOLITHIC)
                 ARCHIVE DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
                 LIBRARY DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
                 RUNTIME DESTINATION bin
-                FILE_SET mxHeaders)
+                FILE_SET mxHeaders DESTINATION ${MATERIALX_INSTALL_INCLUDE_PATH})
 
         # Note : we don't install the headers etc. here, and rely on each separate modules CMakeLists.txt
         # to do that installation, thus we respect the build options configuration, and only install
