@@ -254,94 +254,25 @@ class MX_GENSHADER_API ClosureContext
     /// An array of arguments
     using Arguments = vector<Argument>;
 
-    /// Extra parameters for closure evaluation.
-    using ClosureParams = std::unordered_map<string, const ShaderInput*>;
-
     /// Constructor
-    ClosureContext(int type = 0) :
-        _type(type) { }
-
-    /// Return the identifier for this context.
-    int getType() const { return _type; }
+    ClosureContext() {}
 
     /// For the given node type add an extra argument to be used for the function in this context.
-    void addArgument(TypeDesc nodeType, const Argument& arg)
+    void addArgument(const Argument& arg)
     {
-        _arguments[nodeType].push_back(arg);
+        _arguments.push_back(arg);
     }
-    [[deprecated]] void addArgument(const TypeDesc* nodeType, const Argument& arg) { addArgument(*nodeType, arg); }
 
     /// Return a list of extra argument to be used for the given node in this context.
-    const Arguments& getArguments(TypeDesc nodeType) const
+    const Arguments& getArguments() const
     {
-        auto it = _arguments.find(nodeType);
-        return it != _arguments.end() ? it->second : EMPTY_ARGUMENTS;
-    }
-    [[deprecated]] const Arguments& getArguments(const TypeDesc* nodeType) const { return getArguments(*nodeType); }
-
-    /// For the given node type set a function name suffix to be used for the function in this context.
-    void setSuffix(TypeDesc nodeType, const string& suffix)
-    {
-        _suffix[nodeType] = suffix;
-    }
-    [[deprecated]] void setSuffix(const TypeDesc* nodeType, const string& suffix) { setSuffix(*nodeType, suffix); }
-
-    /// Return the function name suffix to be used for the given node in this context.
-    const string& getSuffix(TypeDesc nodeType) const
-    {
-        auto it = _suffix.find(nodeType);
-        return it != _suffix.end() ? it->second : EMPTY_STRING;
-    }
-    [[deprecated]] const string& getSuffix(const TypeDesc* nodeType) const { return getSuffix(*nodeType); }
-
-    /// Set extra parameters to use for evaluating a closure.
-    void setClosureParams(const ShaderNode* closure, const ClosureParams* params)
-    {
-        if (params)
-        {
-            _params[closure] = params;
-        }
-        else
-        {
-            _params.erase(closure);
-        }
-    }
-
-    /// Return extra parameters to use for evaluating a closure. Or return
-    /// nullptr if no parameters have been set for the given closure.
-    const ClosureParams* getClosureParams(const ShaderNode* closure) const
-    {
-        auto it = _params.find(closure);
-        return it != _params.end() ? it->second : nullptr;
+        return _arguments;
     }
 
   protected:
-    const int _type;
-    std::unordered_map<TypeDesc, Arguments, TypeDesc::Hasher> _arguments;
-    std::unordered_map<TypeDesc, string, TypeDesc::Hasher> _suffix;
-    std::unordered_map<const ShaderNode*, const ClosureParams*> _params;
+    Arguments _arguments;
 
     static const Arguments EMPTY_ARGUMENTS;
-};
-
-/// A RAII class for setting extra parameters for closure evaluation,
-/// stored in the closure context.
-class MX_GENSHADER_API ScopedSetClosureParams
-{
-  public:
-    /// Constructor for setting explicit parameters for a closure node.
-    ScopedSetClosureParams(const ClosureContext::ClosureParams* params, const ShaderNode* node, ClosureContext* cct);
-
-    /// Constructor for setting parameters from one closure node to another.
-    ScopedSetClosureParams(const ShaderNode* fromNode, const ShaderNode* toNode, ClosureContext* cct);
-
-    /// Destructor restoring the closure parameter state.
-    ~ScopedSetClosureParams();
-
-  private:
-    ClosureContext* _cct;
-    const ShaderNode* _node;
-    const ClosureContext::ClosureParams* _oldParams;
 };
 
 /// A RAII class for overriding port variable names.

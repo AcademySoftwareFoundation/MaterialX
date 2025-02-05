@@ -26,11 +26,8 @@ class MX_GENMSL_API SurfaceNodeMsl : public MslImplementation
     virtual void emitLightLoop(const ShaderNode& node, GenContext& context, ShaderStage& stage, const string& outColor) const;
 
   protected:
-    /// Closure contexts for calling closure functions.
-    mutable ClosureContext _callReflection;
-    mutable ClosureContext _callTransmission;
-    mutable ClosureContext _callIndirect;
-    mutable ClosureContext _callEmission;
+    /// Closure context for calling closure functions.
+    mutable ClosureContext _callClosure;
 };
 
 MATERIALX_NAMESPACE_END
