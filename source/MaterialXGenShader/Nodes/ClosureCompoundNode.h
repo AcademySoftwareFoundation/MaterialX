@@ -22,9 +22,6 @@ class MX_GENSHADER_API ClosureCompoundNode : public CompoundNode
     void emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
-
-  protected:
-    void emitFunctionDefinition(ClosureContext* cct, GenContext& context, ShaderStage& stage) const;
 };
 
 MATERIALX_NAMESPACE_END
