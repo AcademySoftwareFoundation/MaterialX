@@ -52,10 +52,12 @@ const string MDL_VERSION_1_6 = "1.6";
 const string MDL_VERSION_1_7 = "1.7";
 const string MDL_VERSION_1_8 = "1.8";
 const string MDL_VERSION_1_9 = "1.9";
+const string MDL_VERSION_1_10 = "1.10";
 const string MDL_VERSION_SUFFIX_1_6 = "1_6";
 const string MDL_VERSION_SUFFIX_1_7 = "1_7";
 const string MDL_VERSION_SUFFIX_1_8 = "1_8";
 const string MDL_VERSION_SUFFIX_1_9 = "1_9";
+const string MDL_VERSION_SUFFIX_1_10 = "1_10";
 
 } // anonymous namespace
 
@@ -281,6 +283,8 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
                 finalOutput = "mk_color3(" + result + ".x, " + result + ".y, 0.0)";
             else if (outputType == Type::VECTOR3)
                 finalOutput = "mk_color3(" + result + ")";
+            else if (outputType == Type::VECTOR4)
+                finalOutput = "mk_color3(" + result + ".x, " + result + ".y, " + result + ".z)";
             else if (outputType == Type::COLOR3)
                 finalOutput = result;
             else if (outputType == Type::COLOR4)
@@ -765,10 +769,13 @@ void MdlShaderGenerator::emitMdlVersionNumber(GenContext& context, ShaderStage& 
         case GenMdlOptions::MdlVersion::MDL_1_8:
             emitString(MDL_VERSION_1_8, stage);
             break;
-        default:
-            // GenMdlOptions::MdlVersion::MDL_1_9
-            // GenMdlOptions::MdlVersion::MDL_LATEST
+        case GenMdlOptions::MdlVersion::MDL_1_9:
             emitString(MDL_VERSION_1_9, stage);
+            break;
+        default:
+            // GenMdlOptions::MdlVersion::MDL_1_10
+            // GenMdlOptions::MdlVersion::MDL_LATEST
+            emitString(MDL_VERSION_1_10, stage);
             break;
     }
     emitLineEnd(stage, true);
@@ -787,10 +794,12 @@ const string& MdlShaderGenerator::getMdlVersionFilenameSuffix(GenContext& contex
             return MDL_VERSION_SUFFIX_1_7;
         case GenMdlOptions::MdlVersion::MDL_1_8:
             return MDL_VERSION_SUFFIX_1_8;
-        default:
-            // GenMdlOptions::MdlVersion::MDL_1_9
-            // GenMdlOptions::MdlVersion::MDL_LATEST
+        case GenMdlOptions::MdlVersion::MDL_1_9:
             return MDL_VERSION_SUFFIX_1_9;
+        default:
+            // GenMdlOptions::MdlVersion::MDL_1_10
+            // GenMdlOptions::MdlVersion::MDL_LATEST
+            return MDL_VERSION_SUFFIX_1_10;
     }
 }
 
