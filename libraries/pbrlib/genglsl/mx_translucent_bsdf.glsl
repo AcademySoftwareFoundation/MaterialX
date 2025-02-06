@@ -1,3 +1,5 @@
+#include "lib/mx_closure_type.glsl"
+
 // We fake diffuse transmission by using diffuse reflection from the opposite side.
 // So this BTDF is really a BRDF.
 void mx_translucent_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float weight, vec3 color, vec3 normal, inout BSDF bsdf)

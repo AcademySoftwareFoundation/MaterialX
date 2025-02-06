@@ -207,7 +207,8 @@ extern MX_GENSHADER_API const string LIGHT_DATA;       // Uniform inputs for lig
 extern MX_GENSHADER_API const string PIXEL_OUTPUTS;    // Outputs from the main/pixel stage.
 
 /// Variable names for lighting parameters.
-extern MX_GENSHADER_API const string CLOSURE_DATA;
+extern MX_GENSHADER_API const string CLOSURE_DATA_TYPE;
+extern MX_GENSHADER_API const string CLOSURE_DATA_ARG;
 extern MX_GENSHADER_API const string DIR_N;
 extern MX_GENSHADER_API const string DIR_L;
 extern MX_GENSHADER_API const string DIR_V;
@@ -314,6 +315,9 @@ class MX_GENSHADER_API HwShaderGenerator : public ShaderGenerator
 
     /// Determine the prefix of vertex data variables.
     virtual string getVertexDataPrefix(const VariableBlock& vertexData) const = 0;
+
+    // Note : the order must match the order defined in libraries/pbrlib/genglsl/lib/mx_closure_type.glsl
+    // TODO : investigate build time mechanism for ensuring these stay in sync.
 
     /// Types of closure contexts for HW.
     enum ClosureContextType

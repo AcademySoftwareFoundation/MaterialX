@@ -1,3 +1,4 @@
+#include "lib/mx_closure_type.glsl"
 #include "lib/mx_microfacet_diffuse.glsl"
 
 void mx_oren_nayar_diffuse_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float weight, vec3 color, float roughness, vec3 normal, bool energy_compensation, inout BSDF bsdf)
