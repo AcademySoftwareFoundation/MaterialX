@@ -409,16 +409,19 @@
       <input name="thinfilm_thickness" type="float" nodename="thin_film_thickness_nm" />
       <input name="thinfilm_ior" type="float" interfacename="thin_film_ior" />
     </dielectric_bsdf>
-    <mix name="dielectric_reflection_tf_mix" type="BSDF">
-      <input name="fg" type="BSDF" nodename="dielectric_reflection_tf" />
-      <input name="bg" type="BSDF" nodename="dielectric_reflection" />
-      <input name="mix" type="float" interfacename="thin_film_weight" />
-    </mix>
-    <layer name="dielectric_base" type="BSDF">
-      <input name="top" type="BSDF" nodename="dielectric_reflection_tf_mix" />
+    <layer name="dielectric_base_tf" type="BSDF">
+      <input name="top" type="BSDF" nodename="dielectric_reflection_tf" />
+      <input name="base" type="BSDF" nodename="dielectric_substrate" />
+    </layer >
+    <layer name="dielectric_base_notf" type="BSDF">
+      <input name="top" type="BSDF" nodename="dielectric_reflection" />
       <input name="base" type="BSDF" nodename="dielectric_substrate" />
     </layer>
-
+    <mix name="dielectric_base" type="BSDF">
+      <input name="fg" type="BSDF" nodename="dielectric_base_tf" />
+      <input name="bg" type="BSDF" nodename="dielectric_base_notf" />
+      <input name="mix" type="float" interfacename="thin_film_weight" />
+    </mix>
     <!-- Metal Layer -->
     <multiply name="metal_reflectivity" type="color3">
       <input name="in1" type="color3" interfacename="base_color" />
