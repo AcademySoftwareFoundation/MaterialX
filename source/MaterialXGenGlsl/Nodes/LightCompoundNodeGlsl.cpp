@@ -92,18 +92,7 @@ void LightCompoundNodeGlsl::emitFunctionDefinition(ClosureContext* cct, GenConte
 {
     const GlslShaderGenerator& shadergen = static_cast<const GlslShaderGenerator&>(context.getShaderGenerator());
 
-    // Emit function signature
-    if (cct)
-    {
-        // Use the first output for classifying node type for the closure context.
-        // This is only relevant for closures, and they only have a single output.
-        const TypeDesc nodeType = _rootGraph->getOutputSocket()->getType();
-        shadergen.emitLine("void " + _functionName + cct->getSuffix(nodeType) + "(LightData light, vec3 position, out lightshader result)", stage, false);
-    }
-    else
-    {
-        shadergen.emitLine("void " + _functionName + "(LightData light, vec3 position, out lightshader result)", stage, false);
-    }
+    shadergen.emitLine("void " + _functionName + "(LightData light, vec3 position, out lightshader result)", stage, false);
 
     shadergen.emitFunctionBodyBegin(*_rootGraph, context, stage);
 

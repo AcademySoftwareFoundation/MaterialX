@@ -1,3 +1,4 @@
+#include "lib/mx_closure_type.glsl"
 #include "lib/mx_microfacet_diffuse.glsl"
 
 void mx_subsurface_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float weight, vec3 color, vec3 radius, float anisotropy, vec3 normal, inout BSDF bsdf)
@@ -31,4 +32,16 @@ void mx_subsurface_bsdf_indirect(vec3 V, float weight, vec3 color, vec3 radius, 
     // For now, we render indirect subsurface as simple indirect diffuse.
     vec3 Li = mx_environment_irradiance(normal);
     bsdf.response = Li * color * weight;
+}
+
+void mx_subsurface_bsdf(ClosureData closureData, float weight, vec3 color, vec3 radius, float anisotropy, vec3 normal, inout BSDF bsdf)
+{
+    if (closureData.closureType == CLOSURE_TYPE_REFLECTION)
+    {
+        mx_subsurface_bsdf_reflection(closureData.L, closureData.V, closureData.P, closureData.occlusion, weight, color, radius, anisotropy, normal, bsdf);
+    }
+    else if (closureData.closureType == CLOSURE_TYPE_INDIRECT)
+    {
+        mx_subsurface_bsdf_indirect(closureData.V, weight, color, radius, anisotropy, normal, bsdf);
+    }
 }

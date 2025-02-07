@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+
+  <tiledimage name="N_tiledimage" type="vector3">
+    <input name="file" type="filename" value="resources/Images/mesh_wire_norm.png" />
+    <input name="uvtiling" type="vector2" value="8, 8" />
+  </tiledimage>
+
+  <normalmap name="N_normalmap_1" type="vector3" nodedef="ND_normalmap">
+    <input name="in" type="vector3" nodename="N_tiledimage" />
+  </normalmap>
+  <standard_surface name="N_surface_1" type="surfaceshader">
+    <input name="base_color" type="color3" value="1.0, 1.0, 1.0" />
+    <input name="specular_roughness" type="float" value="0" />
+    <input name="metalness" type="float" value="1" />
+    <input name="normal" type="vector3" nodename="N_normalmap_1" />
+  </standard_surface>
+  <surfacematerial name="N_material_1" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="N_surface_1" />
+  </surfacematerial>
+
+  <normalmap name="N_normalmap_2" type="vector3">
+    <input name="in" type="vector3" nodename="N_tiledimage" />
+    <input name="scale" type="float" value="1.1" />
+    <input name="space" type="string" value="tangent" />
+  </normalmap>
+  <standard_surface name="N_surface_2" type="surfaceshader">
+    <input name="base" type="float" value="0.6" />
+    <input name="metalness" type="float" value="1.0" />
+    <input name="specular" type="float" value="0.7" />
+    <input name="coat" type="float" value="1" />
+    <input name="normal" type="vector3" nodename="N_normalmap_2" />
+  </standard_surface>
+  <surfacematerial name="N_material_2" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="N_surface_2" />
+  </surfacematerial>
+
+</materialx>

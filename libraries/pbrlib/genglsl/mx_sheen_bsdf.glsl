@@ -1,3 +1,4 @@
+#include "lib/mx_closure_type.glsl"
 #include "lib/mx_microfacet_sheen.glsl"
 
 void mx_sheen_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float weight, vec3 color, float roughness, vec3 N, int mode, inout BSDF bsdf)
@@ -60,4 +61,16 @@ void mx_sheen_bsdf_indirect(vec3 V, float weight, vec3 color, float roughness, v
     vec3 Li = mx_environment_irradiance(N);
     bsdf.throughput = vec3(1.0 - dirAlbedo * weight);
     bsdf.response = Li * color * dirAlbedo * weight;
+}
+
+void mx_sheen_bsdf(ClosureData closureData, float weight, vec3 color, float roughness, vec3 N, int mode, inout BSDF bsdf)
+{
+    if (closureData.closureType == CLOSURE_TYPE_REFLECTION)
+    {
+        mx_sheen_bsdf_reflection(closureData.L, closureData.V, closureData.P, closureData.occlusion, weight, color, roughness, N, mode, bsdf);
+    }
+    else if (closureData.closureType == CLOSURE_TYPE_INDIRECT)
+    {
+        mx_sheen_bsdf_indirect(closureData.V, weight, color, roughness, N, mode, bsdf);
+    }
 }

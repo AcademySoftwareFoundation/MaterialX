@@ -29,44 +29,25 @@ void ClosureSourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext&
         }
         else
         {
-            const ShaderOutput* output = node.getOutput();
             string delim = "";
 
             // Declare the output variable.
             emitOutputVariables(node, context, stage);
 
+            // Emit function name.
+            shadergen.emitLineBegin(stage);
+            shadergen.emitString(_functionName + "(", stage);
+
             // Check if we have a closure context to modify the function call.
             ClosureContext* cct = context.getClosureContext();
             if (cct)
             {
-                // Check if extra parameters has been added for this node.
-                const TypeDesc closureType = output->getType();
-                const ClosureContext::ClosureParams* params = cct->getClosureParams(&node);
-                if (closureType == Type::BSDF && params)
-                {
-                    // Assign the parameters to the BSDF.
-                    for (auto it : *params)
-                    {
-                        shadergen.emitLine(output->getVariable() + "." + it.first + " = " + shadergen.getUpstreamResult(it.second, context), stage);
-                    }
-                }
-
-                // Emit function name.
-                shadergen.emitLineBegin(stage);
-                shadergen.emitString(_functionName + cct->getSuffix(closureType) + "(", stage);
-
                 // Emit extra argument.
-                for (const ClosureContext::Argument& arg : cct->getArguments(closureType))
+                for (const ClosureContext::Argument& arg : cct->getArguments())
                 {
                     shadergen.emitString(delim + arg.second, stage);
                     delim = ", ";
                 }
-            }
-            else
-            {
-                // Emit function name.
-                shadergen.emitLineBegin(stage);
-                shadergen.emitString(_functionName + "(", stage);
             }
 
             // Emit all inputs.

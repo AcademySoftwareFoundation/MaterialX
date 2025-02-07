@@ -1316,11 +1316,8 @@ void Document::upgradeVersion()
             }
             else if (nodeCategory == "normalmap")
             {
-                // ND_normalmap was renamed to ND_normalmap_float
-                NodeDefPtr nodeDef = getShaderNodeDef(node);
-                InputPtr scaleInput = node->getInput("scale");
-                if ((nodeDef && nodeDef->getName() == "ND_normalmap") ||
-                    (scaleInput && scaleInput->getType() == "float"))
+                // Handle a rename of the float-typed nodedef.
+                if (node->getNodeDefString() == "ND_normalmap")
                 {
                     node->setNodeDefString("ND_normalmap_float");
                 }

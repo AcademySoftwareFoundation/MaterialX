@@ -1,5 +1,8 @@
-void mx_subsurface_bsdf(float weight, color _color, color radius, float anisotropy, normal N, output BSDF bsdf)
+void mx_subsurface_bsdf(float weight, color albedo, color radius, float anisotropy, normal N, output BSDF bsdf)
 {
-    // TODO: Subsurface closure is not supported by vanilla OSL.
-    bsdf = _color * weight * diffuse(N);
+#if OSL_VERSION_MAJOR >= 1 && OSL_VERSION_MINOR >= 14
+    bsdf = subsurface_bssrdf(N, weight * albedo, radius, anisotropy);
+#else
+    bsdf = subsurface_bssrdf(N, weight * albedo, 1.0, radius, anisotropy);
+#endif
 }

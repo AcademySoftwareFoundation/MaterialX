@@ -1,4 +1,0 @@
-void mx_layer_bsdf(BSDF top, BSDF base, output BSDF result)
-{
-    result = layer(top, base);
-}

@@ -59,17 +59,12 @@ void ClosureCompoundNode::emitFunctionDefinition(ClosureContext* cct, GenContext
     shadergen.emitLineBegin(stage);
     if (cct)
     {
-        // Use the first output for classifying node type for the closure context.
-        // This is only relevant for closures, and they only have a single output.
-        const TypeDesc closureType = _rootGraph->getOutputSocket()->getType();
-
-        shadergen.emitString("void " + _functionName + cct->getSuffix(closureType) + "(", stage);
+        shadergen.emitString("void " + _functionName  + "(", stage);
 
         // Add any extra argument inputs first
-        for (const ClosureContext::Argument& arg : cct->getArguments(closureType))
+        for (const ClosureContext::Argument& arg : cct->getArguments())
         {
-            const string& type = syntax.getTypeName(arg.first);
-            shadergen.emitString(delim + type + " " + arg.second, stage);
+            shadergen.emitString(delim + arg.first + " " + arg.second, stage);
             delim = ", ";
         }
     }
@@ -160,40 +155,19 @@ void ClosureCompoundNode::emitFunctionCall(const ShaderNode& node, GenContext& c
         shadergen.emitLineBegin(stage);
         string delim = "";
 
+        // Emit function name.
+        shadergen.emitString(_functionName + "(", stage);
+
         // Check if we have a closure context to modify the function call.
         ClosureContext* cct = context.getClosureContext();
         if (cct)
         {
-            // Use the first output for classifying node type for the closure context.
-            // This is only relevant for closures, and they only have a single output.
-            const ShaderGraphOutputSocket* outputSocket = _rootGraph->getOutputSocket();
-            const TypeDesc closureType = outputSocket->getType();
-
-            // Check if extra parameters has been added for this node.
-            const ClosureContext::ClosureParams* params = cct->getClosureParams(&node);
-            if (closureType == Type::BSDF && params)
-            {
-                // Assign the parameters to the BSDF.
-                for (auto it : *params)
-                {
-                    shadergen.emitLine(outputSocket->getVariable() + "." + it.first + " = " + shadergen.getUpstreamResult(it.second, context), stage);
-                }
-            }
-
-            // Emit function name.
-            shadergen.emitString(_functionName + cct->getSuffix(closureType) + "(", stage);
-
             // Emit extra argument.
-            for (const ClosureContext::Argument& arg : cct->getArguments(closureType))
+            for (const ClosureContext::Argument& arg : cct->getArguments())
             {
                 shadergen.emitString(delim + arg.second, stage);
                 delim = ", ";
             }
-        }
-        else
-        {
-            // Emit function name.
-            shadergen.emitString(_functionName + "(", stage);
         }
 
         // Emit all inputs.

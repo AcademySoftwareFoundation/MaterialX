@@ -3,15 +3,15 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#ifndef MATERIALX_GEOMCOLORNODEGLSL_H
-#define MATERIALX_GEOMCOLORNODEGLSL_H
+#ifndef MATERIALX_HWGEOMCOLORNODE_H
+#define MATERIALX_HWGEOMCOLORNODE_H
 
-#include <MaterialXGenGlsl/GlslShaderGenerator.h>
+#include <MaterialXGenShader/HwShaderGenerator.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
-/// GeomColor node implementation for GLSL
-class MX_GENGLSL_API GeomColorNodeGlsl : public GlslImplementation
+/// GeomColor node implementation for Hw shader languages
+class MX_GENSHADER_API HwGeomColorNode : public HwImplementation
 {
   public:
     static ShaderNodeImplPtr create();

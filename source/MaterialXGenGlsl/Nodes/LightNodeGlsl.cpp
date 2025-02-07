@@ -20,12 +20,11 @@ const string LIGHT_DIRECTION_CALCULATION =
 
 } // anonymous namespace
 
-LightNodeGlsl::LightNodeGlsl() :
-    _callEmission(HwShaderGenerator::ClosureContextType::EMISSION)
+LightNodeGlsl::LightNodeGlsl()
 {
     // Emission context
-    _callEmission.addArgument(Type::EDF, ClosureContext::Argument(Type::VECTOR3, "light.direction"));
-    _callEmission.addArgument(Type::EDF, ClosureContext::Argument(Type::VECTOR3, "-L"));
+    _callEmission.addArgument(ClosureContext::Argument("vec3", "light.direction"));
+    _callEmission.addArgument(ClosureContext::Argument("vec3", "-L"));
 }
 
 ShaderNodeImplPtr LightNodeGlsl::create()

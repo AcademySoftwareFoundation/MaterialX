@@ -207,6 +207,8 @@ extern MX_GENSHADER_API const string LIGHT_DATA;       // Uniform inputs for lig
 extern MX_GENSHADER_API const string PIXEL_OUTPUTS;    // Outputs from the main/pixel stage.
 
 /// Variable names for lighting parameters.
+extern MX_GENSHADER_API const string CLOSURE_DATA_TYPE;
+extern MX_GENSHADER_API const string CLOSURE_DATA_ARG;
 extern MX_GENSHADER_API const string DIR_N;
 extern MX_GENSHADER_API const string DIR_L;
 extern MX_GENSHADER_API const string DIR_V;
@@ -219,6 +221,9 @@ extern MX_GENSHADER_API const string ATTR_TRANSPARENT;
 /// User data names.
 extern MX_GENSHADER_API const string USER_DATA_LIGHT_SHADERS;
 extern MX_GENSHADER_API const string USER_DATA_BINDING_CONTEXT;
+
+/// Type Descriptor for closure context data.
+extern MX_GENSHADER_API const TypeDesc ClosureDataType;
 } // namespace HW
 
 namespace Stage
@@ -290,9 +295,6 @@ class MX_GENSHADER_API HwLightShaders : public GenUserData
 class MX_GENSHADER_API HwShaderGenerator : public ShaderGenerator
 {
   public:
-    /// Add the function call for a single node.
-    void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
-
     /// Emit code for active light count definitions and uniforms
     virtual void addStageLightingUniforms(GenContext& context, ShaderStage& stage) const;
 
@@ -314,6 +316,9 @@ class MX_GENSHADER_API HwShaderGenerator : public ShaderGenerator
     /// Determine the prefix of vertex data variables.
     virtual string getVertexDataPrefix(const VariableBlock& vertexData) const = 0;
 
+    // Note : the order must match the order defined in libraries/pbrlib/genglsl/lib/mx_closure_type.glsl
+    // TODO : investigate build time mechanism for ensuring these stay in sync.
+
     /// Types of closure contexts for HW.
     enum ClosureContextType
     {
@@ -321,13 +326,10 @@ class MX_GENSHADER_API HwShaderGenerator : public ShaderGenerator
         REFLECTION,
         TRANSMISSION,
         INDIRECT,
-        EMISSION
+        EMISSION,
+        LIGHTING,
+        CLOSURE
     };
-
-    /// String constants for closure context suffixes.
-    static const string CLOSURE_CONTEXT_SUFFIX_REFLECTION;
-    static const string CLOSURE_CONTEXT_SUFFIX_TRANSMISSION;
-    static const string CLOSURE_CONTEXT_SUFFIX_INDIRECT;
 
   protected:
     HwShaderGenerator(TypeSystemPtr typeSystem, SyntaxPtr syntax);
@@ -337,10 +339,7 @@ class MX_GENSHADER_API HwShaderGenerator : public ShaderGenerator
 
     /// Closure contexts for defining closure functions.
     mutable ClosureContext _defDefault;
-    mutable ClosureContext _defReflection;
-    mutable ClosureContext _defTransmission;
-    mutable ClosureContext _defIndirect;
-    mutable ClosureContext _defEmission;
+    mutable ClosureContext _defClosure;
 };
 
 /// @class HwImplementation
