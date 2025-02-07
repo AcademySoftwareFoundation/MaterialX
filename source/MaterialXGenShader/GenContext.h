@@ -249,8 +249,8 @@ class MX_GENSHADER_API ClosureContext
   public:
     /// An extra argument for closure functions.
     /// An argument is a pair of strings holding the
-    /// 'type' and 'name' of the argument.
-    using Argument = std::pair<TypeDesc, string>;
+    /// 'typename' and 'name' of the argument.
+    using Argument = std::pair<string, string>;
     /// An array of arguments
     using Arguments = vector<Argument>;
 

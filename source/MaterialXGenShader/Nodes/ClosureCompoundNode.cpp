@@ -64,8 +64,7 @@ void ClosureCompoundNode::emitFunctionDefinition(ClosureContext* cct, GenContext
         // Add any extra argument inputs first
         for (const ClosureContext::Argument& arg : cct->getArguments())
         {
-            const string& type = syntax.getTypeName(arg.first);
-            shadergen.emitString(delim + type + " " + arg.second, stage);
+            shadergen.emitString(delim + arg.first + " " + arg.second, stage);
             delim = ", ";
         }
     }

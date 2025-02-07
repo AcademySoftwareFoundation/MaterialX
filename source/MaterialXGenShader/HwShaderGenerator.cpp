@@ -153,7 +153,8 @@ const string PUBLIC_UNIFORMS                  = "PublicUniforms";
 const string LIGHT_DATA                       = "LightData";
 const string PIXEL_OUTPUTS                    = "PixelOutputs";
 const string DIR_N                            = "N";
-const string CLOSURE_DATA                     = "closureData";
+const string CLOSURE_DATA_TYPE                = "ClosureData";
+const string CLOSURE_DATA_ARG                 = "closureData";
 const string DIR_L                            = "L";
 const string DIR_V                            = "V";
 const string WORLD_POSITION                   = "P";
@@ -242,7 +243,7 @@ HwShaderGenerator::HwShaderGenerator(SyntaxPtr syntax) :
 
     // Setup closure contexts for defining closure functions
     //
-    _defClosure.addArgument(ClosureContext::Argument(HW::ClosureDataType, "closureData"));
+    _defClosure.addArgument(ClosureContext::Argument(HW::CLOSURE_DATA_TYPE, HW::CLOSURE_DATA_ARG));
 }
 
 ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element, GenContext& context) const
