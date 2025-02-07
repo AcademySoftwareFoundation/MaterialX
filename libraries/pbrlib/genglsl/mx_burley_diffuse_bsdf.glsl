@@ -1,12 +1,8 @@
 #include "lib/mx_closure_type.glsl"
 #include "lib/mx_microfacet_diffuse.glsl"
 
-void mx_burley_diffuse_bsdf(ClosureData closureData, float weight, vec3 color, float roughness, vec3 normal, inout BSDF bsdf)
+void mx_burley_diffuse_bsdf(ClosureData closureData, float weight, vec3 color, float roughness, vec3 N, inout BSDF bsdf)
 {
-    vec3 V = closureData.V;
-    vec3 L = closureData.L;
-    float occlusion = closureData.occlusion;
-
     bsdf.throughput = vec3(0.0);
 
     if (weight < M_FLOAT_EPS)
@@ -14,13 +10,16 @@ void mx_burley_diffuse_bsdf(ClosureData closureData, float weight, vec3 color, f
         return;
     }
 
-    normal = mx_forward_facing_normal(normal, V);
+    vec3 V = closureData.V;
+    vec3 L = closureData.L;
+    float occlusion = closureData.occlusion;
 
-    float NdotV = clamp(dot(normal, V), M_FLOAT_EPS, 1.0);
+    N = mx_forward_facing_normal(N, V);
+    float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);
 
     if (closureData.closureType == CLOSURE_TYPE_REFLECTION)
     {
-        float NdotL = clamp(dot(normal, L), M_FLOAT_EPS, 1.0);
+        float NdotL = clamp(dot(N, L), M_FLOAT_EPS, 1.0);
         float LdotH = clamp(dot(L, normalize(L + V)), M_FLOAT_EPS, 1.0);
 
         bsdf.response = color * occlusion * weight * NdotL * M_PI_INV;
@@ -28,7 +27,7 @@ void mx_burley_diffuse_bsdf(ClosureData closureData, float weight, vec3 color, f
     }
     else if (closureData.closureType == CLOSURE_TYPE_INDIRECT)
     {
-        vec3 Li = mx_environment_irradiance(normal) *
+        vec3 Li = mx_environment_irradiance(N) *
                   mx_burley_diffuse_dir_albedo(NdotV, roughness);
         bsdf.response = Li * color * weight;
     }
