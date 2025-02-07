@@ -181,7 +181,7 @@ const ClosureContext::Arguments ClosureContext::EMPTY_ARGUMENTS;
 //
 
 HwShaderGenerator::HwShaderGenerator(TypeSystemPtr typeSystem, SyntaxPtr syntax) :
-    ShaderGenerator(typeSystem, syntax),
+    ShaderGenerator(typeSystem, syntax)
 {
     // Assign default identifiers names for all tokens.
     // Derived generators can override these names.
