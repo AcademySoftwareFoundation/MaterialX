@@ -1,3 +1,4 @@
+#include "lib/mx_closure_type.glsl"
 #include "lib/mx_microfacet_diffuse.glsl"
 
 void mx_burley_diffuse_bsdf(ClosureData closureData, float weight, vec3 color, float roughness, vec3 N, inout BSDF bsdf)

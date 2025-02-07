@@ -1,3 +1,4 @@
+#include "lib/mx_closure_type.glsl"
 #include "lib/mx_microfacet_specular.glsl"
 
 void mx_dielectric_bsdf(ClosureData closureData, float weight, vec3 tint, float ior, vec2 roughness, float thinfilm_thickness, float thinfilm_ior, vec3 N, vec3 X, int distribution, int scatter_mode, inout BSDF bsdf)

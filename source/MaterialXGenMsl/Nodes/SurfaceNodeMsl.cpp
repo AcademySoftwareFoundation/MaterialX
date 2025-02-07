@@ -14,7 +14,7 @@ MATERIALX_NAMESPACE_BEGIN
 SurfaceNodeMsl::SurfaceNodeMsl()
 {
     // Create closure context for calling closure functions.
-    _callClosure.addArgument(ClosureContext::Argument(HW::ClosureDataType, HW::CLOSURE_DATA));
+    _callClosure.addArgument(ClosureContext::Argument(HW::CLOSURE_DATA_TYPE, HW::CLOSURE_DATA_ARG));
 }
 
 ShaderNodeImplPtr SurfaceNodeMsl::create()

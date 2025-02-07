@@ -1,3 +1,4 @@
+#include "lib/mx_closure_type.glsl"
 #include "lib/mx_microfacet_specular.glsl"
 
 // https://eugenedeon.com/pdfs/egsrhair.pdf
