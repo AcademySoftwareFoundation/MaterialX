@@ -27,9 +27,4 @@ void bindPyTypeDesc(py::module& mod)
         .def("isFloat3", &mx::TypeDesc::isFloat3)
         .def("isFloat4", &mx::TypeDesc::isFloat4)
         .def("isClosure", &mx::TypeDesc::isClosure);
-
-    py::class_<mx::TypeSystem, mx::TypeSystemPtr>(mod, "TypeSystem")
-        .def_static("create", &mx::TypeSystem::create)
-        .def("getType", &mx::TypeSystem::getType)
-        .def("getTypes", &mx::TypeSystem::getTypes);
 }
