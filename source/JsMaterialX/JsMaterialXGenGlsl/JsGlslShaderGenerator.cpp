@@ -11,8 +11,17 @@
 namespace ems = emscripten;
 namespace mx = MaterialX;
 
+namespace
+{
+    // Creator wrapper to avoid having to expose the TypeSystem class in JavaScript
+    mx::ShaderGeneratorPtr GlslShaderGenerator_create()
+    {
+        return mx::GlslShaderGenerator::create();
+    }
+}
+
 EMSCRIPTEN_BINDINGS(GlslShaderGenerator)
 {
     ems::class_<mx::GlslShaderGenerator, ems::base<mx::HwShaderGenerator>>("GlslShaderGenerator")
-        BIND_CLASS_FUNC("create", mx::GlslShaderGenerator, create);
+        .class_function("create", &GlslShaderGenerator_create);
 }
