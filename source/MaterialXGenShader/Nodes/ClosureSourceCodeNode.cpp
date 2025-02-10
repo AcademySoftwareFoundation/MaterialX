@@ -39,7 +39,6 @@ void ClosureSourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext&
             shadergen.emitLineBegin(stage);
             shadergen.emitString(_functionName + "(", stage);
 
-            // Check if we have a closure context to modify the function call.
             if (context.getShaderGenerator().nodeNeedsClosureData(node))
             {
                 shadergen.emitString(delim + HW::CLOSURE_DATA_ARG + ", ", stage);
