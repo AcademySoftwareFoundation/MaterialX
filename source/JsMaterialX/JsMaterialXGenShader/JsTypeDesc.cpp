@@ -27,9 +27,4 @@ EMSCRIPTEN_BINDINGS(TypeDesc)
         .function("isAggregate", &mx::TypeDesc::isAggregate)
         .function("getName", &mx::TypeDesc::getName)
         ;
-
-    ems::class_<mx::TypeSystem>("TypeSystem")
-        .smart_ptr<std::shared_ptr<mx::TypeSystem>>("TypeSystemPtr")
-        .class_function("create", &mx::TypeSystem::create)
-        ;
 }

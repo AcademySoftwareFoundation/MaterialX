@@ -14,6 +14,5 @@ namespace mx = MaterialX;
 EMSCRIPTEN_BINDINGS(OslShaderGenerator)
 {
     ems::class_<mx::OslShaderGenerator, ems::base<mx::ShaderGenerator>>("OslShaderGenerator")
-        .constructor<mx::TypeSystemPtr>()
-        BIND_CLASS_FUNC("create", mx::OslShaderGenerator, create, 0, 1, mx::TypeSystemPtr);
+        BIND_CLASS_FUNC("create", mx::OslShaderGenerator, create);
 }
