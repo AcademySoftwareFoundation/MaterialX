@@ -3545,10 +3545,6 @@ void Graph::propertyEditor()
 
                 if (pinCount > 0)
                 {
-                    if (pinCount > 1)
-                    {
-                        pinCount++;
-                    }
                     ImVec2 tableSize(0.0f, TEXT_BASE_HEIGHT * std::min(SCROLL_LINE_COUNT, (int)pinCount));
                     bool haveTable = ImGui::BeginTable("outputs_node_table", 2, tableFlags, tableSize);
                     if (haveTable)
@@ -3578,12 +3574,12 @@ void Graph::propertyEditor()
                                 //
                                 if (firstPin)
                                 {
-                                    ImGui::Text(outputPinName.c_str());
+                                    ImGui::Text("%s", outputPinName.c_str());
                                     firstPin = false;
                                 }
                                 else
                                 {
-                                    ImGui::Text(blankPinName.c_str());
+                                    ImGui::Text("%s", blankPinName.c_str());
                                 }
 
                                 std::string displayString = connectedPinName;
