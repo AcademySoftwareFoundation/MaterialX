@@ -17,7 +17,7 @@ void mx_translucent_bsdf(ClosureData closureData, float weight, vec3 color, vec3
 
     if (closureData.closureType == CLOSURE_TYPE_REFLECTION)
     {
-        float NdotL = clamp(dot(N, L), M_FLOAT_EPS, 1.0);
+        float NdotL = clamp(dot(N, L), 0.0, 1.0);
         bsdf.response = color * weight * NdotL * M_PI_INV;
     }
     else if (closureData.closureType == CLOSURE_TYPE_INDIRECT)
