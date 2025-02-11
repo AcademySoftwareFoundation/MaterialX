@@ -4,37 +4,61 @@ import sys
 import os
 import datetime
 import argparse
+import numpy as np
+import time
 
 try:
-    # Install pillow via pip to enable image differencing and statistics.
-    from PIL import Image, ImageChops, ImageStat
+    # Install OpenCV to enable image differencing and statistics.
+    import cv2
     DIFF_ENABLED = True
 except Exception:
     DIFF_ENABLED = False
 
 def computeDiff(image1Path, image2Path, imageDiffPath):
     try:
+        # Remove the diff image if it already exists
         if os.path.exists(imageDiffPath):
             os.remove(imageDiffPath)
 
+        # Check if input images exist
         if not os.path.exists(image1Path):
-            print ("Image diff input missing: " + image1Path)
+            print("Image diff input missing: " + image1Path)
             return
 
         if not os.path.exists(image2Path):
-            print ("Image diff input missing: " + image2Path)
+            print("Image diff input missing: " + image2Path)
             return
 
-        image1 = Image.open(image1Path).convert('RGB')
-        image2 = Image.open(image2Path).convert('RGB')
-        diff = ImageChops.difference(image1, image2)
-        diff.save(imageDiffPath)
-        diffStat = ImageStat.Stat(diff)
-        return sum(diffStat.rms) / (3.0 * 255.0)
-    except Exception:
+        # Load images using OpenCV
+        image1 = cv2.imread(image1Path)
+        image2 = cv2.imread(image2Path)
+
+        # Ensure images were loaded successfully
+        if image1 is None or image2 is None:
+            print("Failed to load images.")
+            return
+
+        # Convert images to RGB (OpenCV loads images in BGR by default)
+        image1 = cv2.cvtColor(image1, cv2.COLOR_BGR2RGB)
+        image2 = cv2.cvtColor(image2, cv2.COLOR_BGR2RGB)
+
+        # Compute the absolute difference between the two images
+        diff = cv2.absdiff(image1, image2)
+
+        # Save the difference image
+        cv2.imwrite(imageDiffPath, cv2.cvtColor(diff, cv2.COLOR_RGB2BGR))
+
+        # Compute normalize the RMS error
+        normalized_rms = np.sqrt(np.mean(diff**2))  / (3.0 * 255.0)
+
+        return normalized_rms
+
+    except Exception as e:
+        # Clean up and print error message
         if os.path.exists(imageDiffPath):
             os.remove(imageDiffPath)
-        print ("Failed to create image diff between: " + image1Path + ", " + image2Path)
+        print("Failed to create image diff between: " + image1Path + ", " + image2Path)
+        print(f"Error: {e}")
 
 def main(args=None):
 
@@ -91,7 +115,7 @@ def main(args=None):
         fh.write("<h3>" + args.lang1 + " (in: " + args.inputdir1 + ") vs "+ args.lang2 + " (in: " + args.inputdir2 + ")</h3>\n")
 
     if not DIFF_ENABLED and args.CREATE_DIFF:
-        print("--diff argument ignored. Diff utility not installed.")
+        print("--diff argument ignored. Diff utility not installed. Install OpenCV using 'pip install opencv-python'.")
 
     # Remove potential trailing path separators
     if args.inputdir1[-1:] == '/' or args.inputdir1[-1:] == '\\':
@@ -138,6 +162,8 @@ def main(args=None):
             path3 = None
         langFiles3.append(file3)
         langPaths3.append(path3)
+
+    start_time = time.perf_counter()
 
     if langFiles1:
         curPath = ""
@@ -213,6 +239,14 @@ def main(args=None):
                 rms = " (RMS " + "%.5f" % diffRms3 + ")" if diffRms3 else ""
                 fh.write("<td align='center'>" + args.lang2.upper() + " vs. " + args.lang3.upper() + rms + "</td>\n")
             fh.write("</tr>\n")
+
+    # End the timer
+    end_time = time.perf_counter()
+
+    # Calculate elapsed time
+    elapsed_time = end_time - start_time
+
+    print(f"Time spent: {elapsed_time:.4f} seconds")
 
     fh.write("</table>\n")
     fh.write("</body>\n")
