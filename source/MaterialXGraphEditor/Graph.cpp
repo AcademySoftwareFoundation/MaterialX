@@ -3494,8 +3494,39 @@ void Graph::propertyEditor()
                             }
                             else
                             {
-                                std::string typeText = " [" + input->_input->getType() + "]";
-                                ImGui::Text("%s", typeText.c_str());
+                                std::string displayString = input->_input->getType();
+
+                                const std::vector<UiPinPtr>& connections = input->getConnections();
+                                std::shared_ptr<UiNode> pinNode = nullptr;
+                                if (!connections.empty())
+                                {
+                                    UiPinPtr pin = connections[0];
+                                    std::string pinName = std::string(pin->_name);
+
+                                    pinNode = pin->_pinNode;
+                                    if (pinNode)
+                                    {
+                                        pinName = std::string(pinNode->getName()) + "." + pinName;
+                                    }
+                                    displayString = pinName;
+                                }
+
+                                //ImGui::PushItemWidth(-100);
+                                //ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(.15f, .15f, .15f, 1.0f));
+                                //ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(.2f, .4f, .6f, 1.0f));
+
+                                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.15f, 0.15f, 0.15f, 1.0f)); 
+                                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.2f, 0.4f, 0.6f, 1.0f)); 
+                                ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.1f, 0.2f, 0.4f, 1.0f));
+                                if (ImGui::Button(displayString.c_str()))
+                                {
+                                    if (pinNode)
+                                    {
+                                        ed::SelectNode(pinNode->getId());
+                                        ed::NavigateToSelection();
+                                    }
+                                }
+                                ImGui::PopStyleColor(3);
                             }
 
                             ImGui::PopID();
