@@ -13,7 +13,7 @@ void mx_translucent_bsdf(ClosureData closureData, float weight, vec3 color, vec3
     vec3 L = closureData.L;
 
     // Invert normal since we're transmitting light from the other side
-    N = -mx_forward_facing_normal(N, V);
+    N = -N;
 
     if (closureData.closureType == CLOSURE_TYPE_REFLECTION)
     {
