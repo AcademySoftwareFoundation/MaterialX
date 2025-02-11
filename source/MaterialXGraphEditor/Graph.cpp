@@ -3516,6 +3516,7 @@ void Graph::propertyEditor()
                                 ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.15f, 0.15f, 0.15f, 1.0f)); 
                                 ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.2f, 0.4f, 0.6f, 1.0f)); 
                                 ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.1f, 0.2f, 0.4f, 1.0f));
+                                ImGui::PushItemWidth(-1);
                                 if (ImGui::Button(displayString.c_str()))
                                 {
                                     if (pinNode)
@@ -3524,6 +3525,7 @@ void Graph::propertyEditor()
                                         ed::NavigateToSelection();
                                     }
                                 }
+                                ImGui::PopItemWidth();
                                 ImGui::PopStyleColor(3);
                             }
 
@@ -3543,13 +3545,25 @@ void Graph::propertyEditor()
 
                 if (pinCount > 0)
                 {
-                    ImVec2 tableSize(0.0f, TEXT_BASE_HEIGHT * std::min(SCROLL_LINE_COUNT, (int)pinCount+1));
+                    if (pinCount > 1)
+                    {
+                        pinCount++;
+                    }
+                    ImVec2 tableSize(0.0f, TEXT_BASE_HEIGHT * std::min(SCROLL_LINE_COUNT, (int)pinCount));
                     bool haveTable = ImGui::BeginTable("outputs_node_table", 2, tableFlags, tableSize);
                     if (haveTable)
                     {
                         ImGui::SetWindowFontScale(_fontScale);
                         for (UiPinPtr outputPin : _currUiNode->outputPins)
                         {
+                            bool firstPin = true;
+                            std::string outputPinName = outputPin->_name;
+                            std::string blankPinName;
+                            for (size_t i = 0; i < outputPinName.length(); i++) 
+                            {
+                                blankPinName += ' ';
+                            }
+
                             for (UiPinPtr connectedPin : outputPin->getConnections())
                             {
                                 ImGui::TableNextRow();
@@ -3562,18 +3576,28 @@ void Graph::propertyEditor()
                                 }
                                 // Display outputPin name, and connectedPinName in same row
                                 //
-                                ImGui::Text(outputPin->_name.c_str());
-                                ImGui::SameLine();
-                                std::string displayString = connectedPinName;
+                                if (firstPin)
+                                {
+                                    ImGui::Text(outputPinName.c_str());
+                                    firstPin = false;
+                                }
+                                else
+                                {
+                                    ImGui::Text(blankPinName.c_str());
+                                }
 
+                                std::string displayString = connectedPinName;
+                                ImGui::SameLine();
                                 ImGui::TableNextColumn();
-                                std::shared_ptr<UiNode> pinNode = connectedPin->_pinNode;
+                                ImGui::PushItemWidth(-1);
 
                                 ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.15f, 0.15f, 0.15f, 1.0f));
                                 ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.2f, 0.4f, 0.6f, 1.0f));
                                 ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.1f, 0.2f, 0.4f, 1.0f));
+
                                 if (ImGui::Button(displayString.c_str()))
                                 {
+                                    std::shared_ptr<UiNode> pinNode = connectedPin->_pinNode;
                                     if (pinNode)
                                     {
                                         ed::SelectNode(pinNode->getId());
@@ -3581,11 +3605,8 @@ void Graph::propertyEditor()
                                     }
                                 }
                                 ImGui::PopStyleColor(3);
-
-                                //ImGui::Text("%s", displayString.c_str());
+                                ImGui::PopItemWidth();
                             }
-                            //std::string dispayString = " [" + outputPin->_name + "]";
-                            //ImGui::Text("%s", dispayString.c_str());
                         }
                         ImGui::EndTable();
                         ImGui::SetWindowFontScale(1.0f);
