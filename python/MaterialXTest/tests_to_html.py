@@ -48,7 +48,7 @@ def computeDiff(image1Path, image2Path, imageDiffPath):
         # Save the difference image
         cv2.imwrite(imageDiffPath, cv2.cvtColor(diff, cv2.COLOR_RGB2BGR))
 
-        # Compute normalize the RMS error
+        # Compute normalized RMS error
         normalized_rms = np.sqrt(np.mean(diff**2))  / (3.0 * 255.0)
 
         return normalized_rms
@@ -240,12 +240,8 @@ def main(args=None):
                 fh.write("<td align='center'>" + args.lang2.upper() + " vs. " + args.lang3.upper() + rms + "</td>\n")
             fh.write("</tr>\n")
 
-    # End the timer
-    end_time = time.perf_counter()
-
     # Calculate elapsed time
-    elapsed_time = end_time - start_time
-
+    elapsed_time = time.perf_counter() - start_time
     print(f"Time spent: {elapsed_time:.4f} seconds")
 
     fh.write("</table>\n")
