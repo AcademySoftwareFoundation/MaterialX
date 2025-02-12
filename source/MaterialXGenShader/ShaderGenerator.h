@@ -140,8 +140,8 @@ class MX_GENSHADER_API ShaderGenerator
     virtual void emitVariableDeclaration(const ShaderPort* variable, const string& qualifier, GenContext& context, ShaderStage& stage,
                                          bool assignValue = true) const;
 
-    /// Return the closure contexts defined for the given node.
-    virtual void getClosureContexts(const ShaderNode& node, vector<ClosureContext*>& cct) const;
+    /// Return true if the node needs the additional ClosureData added
+    virtual bool nodeNeedsClosureData(const ShaderNode& /*node*/) const { return false; }
 
     /// Return the result of an upstream connection or value for an input.
     virtual string getUpstreamResult(const ShaderInput* input, GenContext& context) const;
