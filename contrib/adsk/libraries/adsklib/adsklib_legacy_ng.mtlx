@@ -2517,6 +2517,457 @@
     </util_woodfactor>
   </nodegraph>
 
+  <nodegraph name="NG_legacy_tiles" Autodesk-ldx_inputPos="-4291.35 -699.835" Autodesk-ldx_outputPos="4862.71 -40.6414" nodedef="ND_legacy_tiles">
+    <output name="output_color3" type="color3" nodename="tiling_black" />
+    <separate2 name="separate_texcoord" type="multioutput" nodedef="ND_separate2_vector2" xpos="-5.25424" ypos="-1.10149">
+      <input name="in" type="vector2" nodename="add_roughness" />
+    </separate2>
+    <modulo name="tilex" type="float" nodedef="ND_modulo_float" xpos="-1.55704" ypos="-1.70324">
+      <input name="in1" type="float" nodename="nrowmod_enable1" />
+    </modulo>
+    <modulo name="tiley" type="float" nodedef="ND_modulo_float" xpos="-1.54698" ypos="-0.366036">
+      <input name="in1" type="float" nodename="multiply_tilesy" />
+    </modulo>
+    <multiply name="multiply_tilesx" type="float" nodedef="ND_multiply_float" xpos="-3.32716" ypos="-1.7109">
+      <input name="in2" type="float" interfacename="tilesnumx" />
+      <input name="in1" type="float" nodename="separate_texcoord" output="outx" />
+    </multiply>
+    <multiply name="multiply_tilesy" type="float" nodedef="ND_multiply_float" xpos="-3.37833" ypos="-0.257671">
+      <input name="in2" type="float" interfacename="tilesnumy" />
+      <input name="in1" type="float" nodename="separate_texcoord" output="outy" />
+    </multiply>
+    <divide name="gap_x_half" type="float" nodedef="ND_divide_float" xpos="-11.8627" ypos="7.02756">
+      <input name="in1" type="float" interfacename="groutgapx" />
+      <input name="in2" type="float" value="2" />
+    </divide>
+    <ifgreater name="grout_x_range_check1" type="float" nodedef="ND_ifgreater_float" xpos="3.10628" ypos="-4.72059">
+      <input name="value1" type="float" nodename="tilex" />
+      <input name="in2" type="float" value="1" />
+      <input name="value2" type="float" nodename="grout_x_bias1" />
+    </ifgreater>
+    <invert name="invert1" type="float" nodedef="ND_invert_float" xpos="3.09878" ypos="-3.00202">
+      <input name="in" type="float" nodename="tilex" />
+    </invert>
+    <ifgreater name="grout_x_range_check2" type="float" nodedef="ND_ifgreater_float" xpos="4.55429" ypos="-3.98721">
+      <input name="in2" type="float" value="1" />
+      <input name="value1" type="float" nodename="invert1" />
+      <input name="in1" type="float" nodename="grout_x_range_check1" />
+      <input name="value2" type="float" nodename="grout_x_bias2" />
+    </ifgreater>
+    <ifgreater name="grout_y_range_check2" type="float" nodedef="ND_ifgreater_float" xpos="4.56711" ypos="-0.915822">
+      <input name="in2" type="float" value="1" />
+      <input name="value1" type="float" nodename="invert2" />
+      <input name="in1" type="float" nodename="grout_y_range_check1" />
+      <input name="value2" type="float" nodename="grout_y_bias1" />
+    </ifgreater>
+    <invert name="invert2" type="float" nodedef="ND_invert_float" xpos="3.06127" ypos="0.1499">
+      <input name="in" type="float" nodename="tiley" />
+    </invert>
+    <ifgreater name="grout_y_range_check1" type="float" nodedef="ND_ifgreater_float" xpos="3.06876" ypos="-1.56867">
+      <input name="in2" type="float" value="1" />
+      <input name="value1" type="float" nodename="tiley" />
+      <input name="value2" type="float" nodename="grout_y_bias2" />
+    </ifgreater>
+    <max name="combine_grout" type="float" nodedef="ND_max_float" xpos="6.10006" ypos="-2.62723">
+      <input name="in1" type="float" nodename="grout_x_range_check2" />
+      <input name="in2" type="float" nodename="grout_y_range_check2" />
+    </max>
+    <multiply name="grout_x_adj" type="float" nodedef="ND_multiply_float" xpos="-4.94573" ypos="4.01568">
+      <input name="in2" type="float" nodename="adj_nrow_bias" />
+      <input name="in1" type="float" nodename="gap_x_approx" />
+    </multiply>
+    <multiply name="grout_y_adj" type="float" nodedef="ND_multiply_float" xpos="-4.94901" ypos="5.52903">
+      <input name="in2" type="float" interfacename="tilesnumy" />
+      <input name="in1" type="float" nodename="gap_y_approx" />
+    </multiply>
+    <backdrop name="grout_unit_approximation" xpos="-12.6517" ypos="6.38194" width="4.63612" height="3.46991" uicolor="#B2B2B5" Autodesk-ldx_alpha="0.156863" />
+    <remap name="remap_bias" type="float" nodedef="ND_remap_float" xpos="-4.94833" ypos="2.38848">
+      <input name="in" type="float" interfacename="groutbias" />
+      <input name="inlow" type="float" value="-1" />
+    </remap>
+    <invert name="invert3" type="float" nodedef="ND_invert_float" xpos="-3.07816" ypos="4.37671">
+      <input name="in" type="float" nodename="remap_bias" />
+    </invert>
+    <multiply name="grout_x_bias1" type="float" nodedef="ND_multiply_float" xpos="-1.48087" ypos="2.27246">
+      <input name="in2" type="float" ldx_value="2" nodename="grout_x_adj" />
+      <input name="in1" type="float" nodename="remap_bias" />
+    </multiply>
+    <multiply name="grout_y_bias1" type="float" nodedef="ND_multiply_float" xpos="-1.47666" ypos="4.92413">
+      <input name="in2" type="float" ldx_value="2" nodename="grout_y_adj" />
+      <input name="in1" type="float" nodename="invert3" />
+    </multiply>
+    <multiply name="grout_y_bias2" type="float" nodedef="ND_multiply_float" xpos="-1.47394" ypos="6.10656">
+      <input name="in2" type="float" nodename="grout_y_adj" ldx_value="2" />
+      <input name="in1" type="float" nodename="remap_bias" />
+    </multiply>
+    <multiply name="grout_x_bias2" type="float" nodedef="ND_multiply_float" xpos="-1.49024" ypos="3.47742">
+      <input name="in2" type="float" nodename="grout_x_adj" ldx_value="2" />
+      <input name="in1" type="float" nodename="invert3" />
+    </multiply>
+    <backdrop name="grout_bias" xpos="-5.39234" ypos="1.74391" width="5.60044" height="5.61089" />
+    <divide name="gap_y_half" type="float" nodedef="ND_divide_float" xpos="-11.8978" ypos="8.54056">
+      <input name="in2" type="float" value="2" />
+      <input name="in1" type="float" interfacename="groutgapy" />
+    </divide>
+    <modulo name="modulo_altrow" type="float" nodedef="ND_modulo_float" xpos="-2.68223" ypos="-4.71131">
+      <input name="in2" type="float" value="2" />
+      <input name="in1" type="float" nodename="multiply_tilesy" />
+    </modulo>
+    <ifgreater name="altrow_select" type="float" nodedef="ND_ifgreater_float" xpos="-1.05924" ypos="-4.72715">
+      <input name="value1" type="float" nodename="modulo_altrow" />
+      <input name="value2" type="float" value="1" />
+      <input name="in2" type="float" nodename="multiply_tilesx" />
+      <input name="in1" type="float" nodename="default_altrow_shift" />
+    </ifgreater>
+    <add name="add_altrow_shift" type="float" nodedef="ND_add_float" xpos="-5.26319" ypos="-3.65044">
+      <input name="in1" type="float" nodename="multiply_tilesx" />
+      <input name="in2" type="float" interfacename="lineshift" />
+    </add>
+    <add name="default_altrow_shift" type="float" nodedef="ND_add_float" xpos="-3.9173" ypos="-3.64251">
+      <input name="in1" type="float" nodename="add_altrow_shift" />
+      <input name="in2" type="float" value="0.5" />
+    </add>
+    <backdrop name="alternate_row_shift" xpos="-5.31874" ypos="-5.16604" width="5.56506" height="2.68464" />
+    <floor name="tile_x1" type="float" nodedef="ND_floor_float" xpos="1.73275" ypos="5.7045">
+      <input name="in" type="float" nodename="nrowmod_enable1" />
+    </floor>
+    <floor name="tile_y1" type="float" nodedef="ND_floor_float" xpos="1.73264" ypos="6.86828">
+      <input name="in" type="float" nodename="multiply_tilesy" />
+    </floor>
+    <noise2d name="color_var1" type="float" nodedef="ND_noise2d_float" xpos="8.27833" ypos="4.4331">
+      <input name="texcoord" type="vector2" nodename="seed_simulation2" />
+      <input name="amplitude" type="float" value="0.5" />
+      <input name="pivot" type="float" value="0" />
+    </noise2d>
+    <combine2 name="combine_tilexy1" type="vector2" nodedef="ND_combine2_vector2" xpos="3.64061" ypos="5.03159">
+      <input name="in1" type="float" nodename="tile_x1" />
+      <input name="in2" type="float" nodename="tile_y1" />
+    </combine2>
+    <multiply name="arbitrary_noise_scale2" type="vector2" nodedef="ND_multiply_vector2FA" xpos="3.6194" ypos="6.65078">
+      <input name="in2" type="float" value="34.5678" />
+      <input name="in1" type="vector2" nodename="combine_tilexy1" />
+    </multiply>
+    <multiply name="color_var_amount" type="float" nodedef="ND_multiply_float" xpos="9.862" ypos="4.44151">
+      <input name="in1" type="float" nodename="color_var1" />
+      <input name="in2" type="float" interfacename="colorvariance" />
+    </multiply>
+    <backdrop name="color_variance" xpos="6.37483" ypos="3.14478" width="5.17802" height="3.30342" />
+    <add name="seed_simulation2" type="vector2" nodedef="ND_add_vector2FA" xpos="6.66389" ypos="4.42871">
+      <input name="in2" type="float" interfacename="seed" />
+      <input name="in1" type="vector2" nodename="arbitrary_noise_scale2" />
+    </add>
+    <noise2d name="fade_var" type="float" nodedef="ND_noise2d_float" xpos="9.59139" ypos="7.88967">
+      <input name="texcoord" type="vector2" nodename="seed_simulation3" />
+      <input name="amplitude" type="float" value="0.5" />
+      <input name="pivot" type="float" value="0.5" />
+    </noise2d>
+    <multiply name="fade_var_amount" type="float" nodedef="ND_multiply_float" xpos="11.1833" ypos="7.9145">
+      <input name="in1" type="float" nodename="fade_var" />
+      <input name="in2" type="float" interfacename="fadevariance" />
+    </multiply>
+    <add name="seed_simulation3" type="vector2" nodedef="ND_add_vector2FA" xpos="7.98533" ypos="7.86056">
+      <input name="in2" type="float" interfacename="seed" />
+      <input name="in1" type="vector2" nodename="arbitrary_noise_shift" />
+    </add>
+    <backdrop name="fade_variance" xpos="6.34922" ypos="6.60006" width="8.4015" height="3.35963" />
+    <add name="arbitrary_noise_shift" type="vector2" nodedef="ND_add_vector2FA" xpos="6.49478" ypos="7.86678">
+      <input name="in1" type="vector2" nodename="arbitrary_noise_scale2" />
+      <input name="in2" type="float" value="12.3456" />
+    </add>
+    <colorcorrect name="colorcorrect1" type="color3" nodedef="ND_colorcorrect_color3" xpos="12.7697" ypos="3.79986">
+      <input name="hue" type="float" nodename="color_var_amount" ldx_value="0" />
+      <input name="in" type="color3" interfacename="tilecolor" />
+    </colorcorrect>
+    <multiply name="color_and_fade_var" type="color3" nodedef="ND_multiply_color3FA" xpos="15.9951" ypos="4.82437">
+      <input name="in2" type="float" nodename="invert4" />
+      <input name="in1" type="color3" nodename="colorcorrect1" ldx_value="1, 1, 1" />
+    </multiply>
+    <invert name="invert4" type="float" nodedef="ND_invert_float" xpos="12.6927" ypos="7.86128">
+      <input name="in" type="float" nodename="fade_var_amount" />
+    </invert>
+    <mix name="mix_grout_tiles" type="color3" nodedef="ND_mix_color3" xpos="18.949" ypos="-0.327311">
+      <input name="fg" type="color3" interfacename="groutcolor" />
+      <input name="bg" type="color3" nodename="color_variance_behavior_select" />
+      <input name="mix" type="float" nodename="combine_grout" />
+    </mix>
+    <ifequal name="color_variance_behavior_select" type="color3" nodedef="ND_ifequal_color3B" xpos="17.4006" ypos="1.41582">
+      <input name="value2" type="boolean" value="true" />
+      <input name="value1" type="boolean" interfacename="brightnessvariance" />
+      <input name="in2" type="color3" nodename="color_and_fade_var" />
+      <input name="in1" type="color3" nodename="clamp_color" />
+    </ifequal>
+    <backdrop name="legacy_variance_approximation" xpos="3.08748" ypos="10.7247" width="11.6773" height="2.96251" />
+    <multiply name="noise_range_adj" type="float" nodedef="ND_multiply_float" xpos="3.17837" ypos="11.3489">
+      <input name="in2" type="float" value="2" />
+      <input name="in1" type="float" nodename="color_var1" />
+    </multiply>
+    <add name="var_positive1" type="float" nodedef="ND_add_float" xpos="6.55417" ypos="11.16">
+      <input name="in2" type="float" value="1" />
+      <input name="in1" type="float" nodename="color_var_amount2" />
+    </add>
+    <multiply name="color_var_amount2" type="float" nodedef="ND_multiply_float" xpos="4.80636" ypos="11.2421">
+      <input name="in1" type="float" nodename="noise_range_adj" />
+      <input name="in2" type="float" interfacename="colorvariance" />
+    </multiply>
+    <multiply name="fade_var_amount2" type="float" nodedef="ND_multiply_float" xpos="4.80925" ypos="12.4883">
+      <input name="in1" type="float" nodename="noise_range_adj" />
+      <input name="in2" type="float" interfacename="fadevariance" />
+    </multiply>
+    <multiply name="color_var2" type="color3" nodedef="ND_multiply_color3FA" xpos="11.3526" ypos="11.1694">
+      <input name="in1" type="color3" interfacename="tilecolor" ldx_value="1, 1, 1" />
+      <input name="in2" type="float" nodename="col_alpha_adj" />
+    </multiply>
+    <add name="var_positive2" type="float" nodedef="ND_add_float" xpos="6.54206" ypos="12.4232">
+      <input name="in2" type="float" value="1" />
+      <input name="in1" type="float" nodename="fade_var_amount2" />
+    </add>
+    <multiply name="roughness_scale_mult" type="vector2" nodedef="ND_multiply_vector2FA" xpos="-12.4356" ypos="1.36409">
+      <input name="in2" type="float" interfacename="roughnessscale" />
+      <input name="in1" type="vector2" nodename="rotate_texcoord" />
+    </multiply>
+    <noise2d name="noise_roughness" type="vector2" nodedef="ND_noise2d_vector2" xpos="-10.7317" ypos="2.60302">
+      <input name="texcoord" type="vector2" nodename="roughness_const_size" />
+    </noise2d>
+    <add name="add_roughness" type="vector2" nodedef="ND_add_vector2" xpos="-9.21339" ypos="2.35134">
+      <input name="in2" type="vector2" nodename="roughness_amount" />
+      <input name="in1" type="vector2" nodename="rotate_texcoord" />
+    </add>
+    <multiply name="roughness_amount" type="vector2" nodedef="ND_multiply_vector2FA" xpos="-10.7281" ypos="4.25476">
+      <input name="in1" type="vector2" nodename="noise_roughness" />
+      <input name="in2" type="float" nodename="roughness_amount_approx" />
+    </multiply>
+    <multiply name="roughness_const_size" type="vector2" nodedef="ND_multiply_vector2" xpos="-10.6901" ypos="1.28002">
+      <input name="in1" type="vector2" nodename="roughness_scale_mult" />
+      <input name="in2" type="vector2" nodename="combine_tiles" />
+    </multiply>
+    <divide name="roughness_amount_approx" type="float" nodedef="ND_divide_float" xpos="-12.4718" ypos="4.29143">
+      <input name="in1" type="float" interfacename="roughnessamount" />
+      <input name="in2" type="float" value="2000" />
+    </divide>
+    <backdrop name="grout_edges_roughness" xpos="-12.6108" ypos="0.9252" width="4.68913" height="4.61078" />
+    <clamp name="clamp_color" type="color3" nodedef="ND_clamp_color3" xpos="13.1764" ypos="11.095">
+      <input name="in" type="color3" nodename="color_var2" />
+    </clamp>
+    <multiply name="random_shift_amount" type="float" nodedef="ND_multiply_float" xpos="-1.83445" ypos="-7.34111">
+      <input name="in1" type="float" nodename="random_shift" />
+      <input name="in2" type="float" interfacename="randomshift" />
+    </multiply>
+    <add name="add_random_shift" type="float" nodedef="ND_add_float" xpos="-0.162397" ypos="-7.35633">
+      <input name="in1" type="float" nodename="random_shift_amount" />
+      <input name="in2" type="float" nodename="altrow_select" />
+    </add>
+    <multiply name="arbitrary_noise_scale1" type="float" nodedef="ND_multiply_float" xpos="-6.06656" ypos="-7.86711">
+      <input name="in2" type="float" value="12.345" />
+      <input name="in1" type="float" nodename="rownum" />
+    </multiply>
+    <floor name="rownum" type="float" nodedef="ND_floor_float" xpos="-7.3915" ypos="-7.23211">
+      <input name="in" type="float" nodename="multiply_tilesy" />
+    </floor>
+    <noise2d name="random_shift" type="float" nodedef="ND_noise2d_float" xpos="-3.11702" ypos="-7.37567">
+      <input name="texcoord" type="vector2" nodename="tex_x_only" />
+    </noise2d>
+    <add name="seed_simulation1" type="float" nodedef="ND_add_float" xpos="-5.99894" ypos="-6.54472">
+      <input name="in1" type="float" nodename="arbitrary_noise_scale1" />
+      <input name="in2" type="float" interfacename="seed" />
+    </add>
+    <backdrop name="random_line_shift_with_seed" xpos="-7.47489" ypos="-8.167" width="8.625" height="2.89481" />
+    <floor name="nrows_int" type="float" nodedef="ND_floor_float" xpos="-7.44444" ypos="-9.92072">
+      <input name="in" type="float" interfacename="nrows" />
+    </floor>
+    <modulo name="current_row_check" type="float" nodedef="ND_modulo_float" xpos="-5.91767" ypos="-10.6718">
+      <input name="in2" type="float" ldx_value="2" nodename="nrows_int" />
+      <input name="in1" type="float" nodename="multiply_tilesy" />
+    </modulo>
+    <subtract name="nrow_range" type="float" nodedef="ND_subtract_float" xpos="-4.09194" ypos="-10.7719">
+      <input name="in1" type="float" nodename="current_row_check" />
+      <input name="in2" type="float" nodename="nrow_prev" />
+    </subtract>
+    <ifgreater name="nrow_check1" type="float" nodedef="ND_ifgreater_float" xpos="-2.02121" ypos="-10.1038">
+      <input name="value1" type="float" nodename="nrow_range" />
+      <input name="in1" type="float" ldx_value="1" nodename="shift_adj" />
+      <input name="in2" type="float" ldx_value="0" nodename="add_random_shift" />
+      <input name="value2" type="float" value="0" />
+    </ifgreater>
+    <subtract name="nrow_prev" type="float" nodedef="ND_subtract_float" xpos="-5.83783" ypos="-9.49156">
+      <input name="in1" type="float" nodename="nrows_int" />
+      <input name="in2" type="float" value="1" />
+    </subtract>
+    <ifequal name="nrowmod_enable1" type="float" nodedef="ND_ifequal_floatB" xpos="-0.0602944" ypos="-10.1137">
+      <input name="value2" type="boolean" value="true" />
+      <input name="value1" type="boolean" interfacename="rowsmodenable" />
+      <input name="in2" type="float" nodename="add_random_shift" />
+      <input name="in1" type="float" nodename="nrow_check1" />
+    </ifequal>
+    <backdrop name="nrow_modifier" xpos="-7.45983" ypos="-11.1107" width="8.66494" height="2.8993" />
+    <divide name="shift_adj" type="float" nodedef="ND_divide_float" xpos="-4.02882" ypos="-9.52983">
+      <input name="in1" type="float" nodename="add_random_shift" />
+      <input name="in2" type="float" interfacename="nrowsamount" />
+    </divide>
+    <ifgreater name="nrow_check2" type="float" nodedef="ND_ifgreater_float" xpos="-3.26756" ypos="-12.7557">
+      <input name="in1" type="float" interfacename="nrowsamount" ldx_value="1" />
+      <input name="in2" type="float" value="1" />
+      <input name="value2" type="float" value="0" />
+      <input name="value1" type="float" nodename="nrow_range" />
+    </ifgreater>
+    <ifequal name="nrowmod_enable2" type="float" nodedef="ND_ifequal_floatB" xpos="-1.67582" ypos="-12.7715">
+      <input name="value2" type="boolean" value="true" />
+      <input name="in1" type="float" nodename="nrow_check2" />
+      <input name="value1" type="boolean" interfacename="rowsmodenable" />
+      <input name="in2" type="float" value="1" />
+    </ifequal>
+    <divide name="adj_nrow_bias" type="float" nodedef="ND_divide_float" xpos="-0.172397" ypos="-12.6655">
+      <input name="in2" type="float" nodename="nrowmod_enable2" />
+      <input name="in1" type="float" interfacename="tilesnumx" />
+    </divide>
+    <backdrop name="modified_rows_grout_adjustment" xpos="-3.51883" ypos="-13.1244" width="4.6901" height="1.89327" />
+    <divide name="adj_offx" type="float" nodedef="ND_divide_float" xpos="-20.7208" ypos="3.00972">
+      <input name="in2" type="float" interfacename="width" />
+      <input name="in1" type="float" interfacename="offset_x" />
+    </divide>
+    <divide name="adj_offxy" type="float" nodedef="ND_divide_float" xpos="-20.7102" ypos="4.23385">
+      <input name="in2" type="float" interfacename="height" />
+      <input name="in1" type="float" interfacename="offset_y" />
+    </divide>
+    <combine2 name="combine_offset" type="vector2" nodedef="ND_combine2_vector2" xpos="-19.1964" ypos="3.56569">
+      <input name="in1" type="float" nodename="adj_offx" />
+      <input name="in2" type="float" nodename="adj_offxy" />
+    </combine2>
+    <rotate2d name="rotate_texcoord" type="vector2" nodedef="ND_rotate2d_vector2" xpos="-15.5402" ypos="2.44752">
+      <input name="amount" type="float" nodename="invert_rotation" />
+      <input name="in" type="vector2" nodename="sub_offset" />
+    </rotate2d>
+    <backdrop name="UVs_transforms" xpos="-21.1272" ypos="0.867683" width="7.29656" height="4.65077" />
+    <separate2 name="separate2_2" type="multioutput" nodedef="ND_separate2_vector2" xpos="-12.4876" ypos="13.1943">
+      <input name="in" type="vector2" nodename="rotate_texcoord" />
+    </separate2>
+    <ifgreater name="ifgreater_x_1" type="float" nodedef="ND_ifgreater_float" xpos="-10.3685" ypos="12.2544">
+      <input name="value1" type="float" nodename="separate2_2" output="outx" />
+      <input name="value2" type="float" value="1" />
+      <input name="in2" type="float" value="1" />
+    </ifgreater>
+    <ifgreater name="ifgreater_y_1" type="float" nodedef="ND_ifgreater_float" xpos="-10.4109" ypos="13.7622">
+      <input name="value1" type="float" nodename="separate2_2" output="outy" />
+      <input name="value2" type="float" value="1" />
+      <input name="in2" type="float" value="1" />
+    </ifgreater>
+    <ifgreater name="ifgreater_x_0" type="float" nodedef="ND_ifgreater_float" xpos="-8.82611" ypos="12.2441">
+      <input name="value1" type="float" nodename="separate2_2" output="outx" />
+      <input name="in1" type="float" nodename="ifgreater_x_1" />
+      <input name="in2" type="float" value="0" />
+    </ifgreater>
+    <ifgreater name="ifgreater_y_0" type="float" nodedef="ND_ifgreater_float" xpos="-8.84" ypos="13.8096">
+      <input name="value1" type="float" nodename="separate2_2" output="outy" />
+      <input name="in1" type="float" nodename="ifgreater_y_1" />
+    </ifgreater>
+    <ifequal name="check_trim_x" type="float" nodedef="ND_ifequal_floatB" xpos="-6.49061" ypos="12.2319">
+      <input name="value1" type="boolean" interfacename="tile_x" />
+      <input name="in2" type="float" value="1" />
+      <input name="in1" type="float" nodename="ifgreater_x_0" />
+    </ifequal>
+    <ifequal name="check_trim_y" type="float" nodedef="ND_ifequal_floatB" xpos="-6.4445" ypos="13.8702">
+      <input name="value1" type="boolean" interfacename="tile_y" />
+      <input name="in2" type="float" value="1" />
+      <input name="in1" type="float" nodename="ifgreater_y_0" />
+    </ifequal>
+    <multiply name="combine_tiling_alpha" type="float" nodedef="ND_multiply_float" xpos="-4.41119" ypos="12.9367">
+      <input name="in1" type="float" nodename="check_trim_x" />
+      <input name="in2" type="float" nodename="check_trim_y" />
+    </multiply>
+    <backdrop name="XY_tiling_and_alpha" xpos="-12.6536" ypos="11.793" width="9.85878" height="3.50497" />
+    <output name="output_alpha" type="float" nodename="min_tiling_alpha" />
+    <separate3 name="separate_color" type="multioutput" nodedef="ND_separate3_color3" xpos="23.5962" ypos="1.17044">
+      <input name="in" type="color3" nodename="tiling_black" />
+    </separate3>
+    <combine4 name="combine_color_alpha" type="color4" nodedef="ND_combine4_color4" xpos="25.1119" ypos="1.03708">
+      <input name="in1" type="float" nodename="separate_color" output="outr" />
+      <input name="in2" type="float" nodename="separate_color" output="outg" />
+      <input name="in3" type="float" nodename="separate_color" output="outb" />
+      <input name="in4" type="float" nodename="min_tiling_alpha" />
+    </combine4>
+    <output name="output_color4" type="color4" nodename="combine_color_alpha" />
+    <multiply name="tiling_black" type="color3" nodedef="ND_multiply_color3FA" xpos="20.5937" ypos="-0.228495">
+      <input name="in2" type="float" nodename="combine_tiling_alpha" />
+      <input name="in1" type="color3" nodename="mix_grout_tiles" />
+    </multiply>
+    <divide name="texcoord_scale" type="vector2" nodedef="ND_divide_vector2" xpos="-19.0841" ypos="1.51068">
+      <input name="in1" type="vector2" interfacename="texcoord" />
+      <input name="in2" type="vector2" nodename="combine_size" />
+    </divide>
+    <subtract name="sub_offset" type="vector2" nodedef="ND_subtract_vector2" xpos="-17.1321" ypos="1.99483">
+      <input name="in1" type="vector2" nodename="texcoord_scale" />
+      <input name="in2" type="vector2" nodename="combine_offset" />
+    </subtract>
+    <ifequal name="fade_alpha2_enable" type="float" nodedef="ND_ifequal_floatB" xpos="17.9841" ypos="11.8634">
+      <input name="value1" type="boolean" interfacename="alphafade" />
+      <input name="value2" type="boolean" value="true" />
+      <input name="in2" type="float" nodename="combine_tiling_alpha" ldx_value="1" />
+      <input name="in1" type="float" nodename="fade_alpha2" />
+    </ifequal>
+    <clamp name="clamp_alpha" type="float" nodedef="ND_clamp_float" xpos="8.33044" ypos="12.373">
+      <input name="in" type="float" nodename="var_positive2" />
+    </clamp>
+    <multiply name="fade_alpha2" type="float" nodedef="ND_multiply_float" xpos="15.9366" ypos="12.8481">
+      <input name="in2" type="float" nodename="clamp_alpha" />
+      <input name="in1" type="float" nodename="combine_tiling_alpha" />
+    </multiply>
+    <ifequal name="fade_alpha1_enable" type="float" nodedef="ND_ifequal_floatB" xpos="17.9713" ypos="7.60944">
+      <input name="value2" type="boolean" value="true" />
+      <input name="in2" type="float" nodename="combine_tiling_alpha" ldx_value="1" />
+      <input name="value1" type="boolean" interfacename="alphafade" />
+      <input name="in1" type="float" nodename="fade_alpha1" />
+    </ifequal>
+    <multiply name="fade_alpha1" type="float" nodedef="ND_multiply_float" xpos="15.9083" ypos="8.76728">
+      <input name="in2" type="float" nodename="combine_tiling_alpha" />
+      <input name="in1" type="float" nodename="invert4" />
+    </multiply>
+    <ifequal name="alpha_variance_behavior_select" type="float" nodedef="ND_ifequal_floatB" xpos="19.8819" ypos="5.98761">
+      <input name="value1" type="boolean" interfacename="brightnessvariance" />
+      <input name="value2" type="boolean" value="true" />
+      <input name="in2" type="float" nodename="fade_alpha1_enable" />
+      <input name="in1" type="float" nodename="fade_alpha2_enable" />
+    </ifequal>
+    <invert name="invert_rotation" type="float" nodedef="ND_invert_float" xpos="-17.1444" ypos="3.22498">
+      <input name="amount" type="float" value="0" />
+      <input name="in" type="float" interfacename="rotate" />
+    </invert>
+    <multiply name="col_alpha_adj" type="float" nodedef="ND_multiply_float" xpos="9.73728" ypos="11.2238">
+      <input name="in2" type="float" nodename="clamp_alpha" />
+      <input name="in1" type="float" nodename="var_positive1" />
+    </multiply>
+    <max name="max_grout" type="float" nodedef="ND_max_float" xpos="21.8631" ypos="4.68215">
+      <input name="in1" type="float" nodename="alpha_variance_behavior_select" />
+      <input name="in2" type="float" nodename="combine_grout" />
+    </max>
+    <multiply name="gap_x_approx" type="float" nodedef="ND_multiply_float" xpos="-10.2744" ypos="7.00111">
+      <input name="in1" type="float" nodename="gap_x_half" />
+      <input name="in2" type="float" value="0.05" />
+    </multiply>
+    <multiply name="gap_y_approx" type="float" nodedef="ND_multiply_float" xpos="-10.2841" ypos="8.51383">
+      <input name="in1" type="float" nodename="gap_y_half" />
+      <input name="in2" type="float" value="0.05" />
+    </multiply>
+    <min name="min_tiling_alpha" type="float" nodedef="ND_min_float" xpos="23.3104" ypos="4.72806">
+      <input name="in1" type="float" nodename="max_grout" />
+      <input name="in2" type="float" nodename="combine_tiling_alpha" />
+    </min>
+    <backdrop name="post_alpha_fix_for_grout_and_tiling" xpos="21.6792" ypos="3.94001" width="3.18857" height="2.19129" uicolor="#DA9652" Autodesk-ldx_alpha="0.156863" />
+    <backdrop name="grout_edges_with_bias" xpos="3.00572" ypos="-5.15948" width="4.84827" height="6.4705" />
+    <backdrop name="base_tiles_pattern" xpos="-5.30981" ypos="-2.14979" width="5.52626" height="3.05323" />
+    <backdrop name="tiles_noise" xpos="1.67708" ypos="4.54336" width="3.62283" height="3.35275" />
+    <backdrop name="unsure_about_this" xpos="9.68172" ypos="10.3324" width="1.36111" height="2.05247" uicolor="#C85252" Autodesk-ldx_alpha="0.156863" />
+    <combine2 name="combine_tiles" type="vector2" nodedef="ND_combine2_vector2" xpos="-12.4559" ypos="2.85121">
+      <input name="in1" type="float" interfacename="tilesnumx" />
+      <input name="in2" type="float" interfacename="tilesnumy" />
+    </combine2>
+    <combine2 name="tex_x_only" type="vector2" nodedef="ND_combine2_vector2" xpos="-4.52744" ypos="-6.62694">
+      <input name="in1" type="float" nodename="seed_simulation1" />
+    </combine2>
+    <combine2 name="combine_size" type="vector2" nodedef="ND_combine2_vector2" xpos="-20.6562" ypos="1.70781">
+      <input name="in1" type="float" interfacename="width" />
+      <input name="in2" type="float" interfacename="height" />
+    </combine2>
+  </nodegraph>
+
   <!-- 
       ===============================================
       Nodegraphs for Autodesk Legacy Material Classes

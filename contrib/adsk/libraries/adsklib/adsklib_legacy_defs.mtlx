@@ -96,14 +96,14 @@
   </nodedef>
 
   <nodedef name="ND_fractal2d_max8_float" node="fractal2d_max8" nodegroup="texture2d" version="1.0.1" isdefaultversion="true">
-    <input name="texcoord" type="vector2" uisoftmin="0,0" uisoftmax="1,1" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <input name="octaves" type="float" value="4.0" uimin="0.0" uisoftmax="8" />
     <input name="amplitude" type="float" value="1" uimin="0.0" uisoftmax="2" />
     <output name="out" type="float" />
   </nodedef>
 
   <nodedef name="ND_fractal3d_max8_float" node="fractal3d_max8" nodegroup="texture3d" version="1.0.1" isdefaultversion="true">
-    <input name="position" type="vector3" uisoftmin="0,0,0" uisoftmax="1,1,1" />
+    <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="octaves" type="float" value="4.0" uimin="0.0" uisoftmax="8" />
     <input name="amplitude" type="float" value="1" uimin="0.0" uisoftmax="2" />
     <output name="out" type="float" />
@@ -215,6 +215,39 @@
     <input name="rotate_y" type="float" value="0" uisoftmin="0.0" uisoftmax="360" />
     <input name="rotate_z" type="float" value="0" uisoftmin="0.0" uisoftmax="360" />
     <output name="out" type="color3" />
+  </nodedef>
+
+  <nodedef name="ND_legacy_tiles" node="legacy_tiles">
+    <input name="texcoord" type="vector2" uifolder="" defaultgeomprop="UV0" />
+    <input name="tilecolor" type="color3" uisoftmin="0,0,0" uisoftmax="1,1,1" value="0.62, 0.24, 0.06" uifolder="" />
+    <input name="groutcolor" type="color3" value="0.1, 0.1, 0.1" uisoftmin="0,0,0" uisoftmax="1,1,1" uifolder="" />
+    <input name="tilesnumx" type="float" value="4" uisoftmin="0.0" uisoftmax="100.0" uifolder="" />
+    <input name="tilesnumy" type="float" value="8" uisoftmin="0.0" uisoftmax="100.0" uifolder="" />
+    <input name="groutgapx" type="float" value="0.33" uisoftmin="0.0" uisoftmax="10.0" uifolder="" />
+    <input name="groutgapy" type="float" value="0.33" uisoftmin="0.0" uisoftmax="10.0" uifolder="" />
+    <input name="groutbias" type="float" value="0" uimin="-1" uimax="1.0" uifolder="" />
+    <input name="lineshift" type="float" value="0" uisoftmin="0.0" uisoftmax="100.0" uifolder="" />
+    <input name="randomshift" type="float" value="0" uisoftmin="0.0" uisoftmax="10.0" uifolder="" />
+    <input name="colorvariance" type="float" value="0" uisoftmin="0" uisoftmax="10" uifolder="" />
+    <input name="fadevariance" type="float" value="0" uisoftmin="0.0" uisoftmax="10" uifolder="" />
+    <input name="seed" type="float" value="0" uisoftmin="0.0" uisoftmax="100" uifolder="" />
+    <input name="brightnessvariance" type="boolean" value="true" uifolder="" />
+    <input name="alphafade" type="boolean" value="true" uifolder="" />
+    <input name="roughnessscale" type="float" value="30.0" uisoftmin="0.0" uisoftmax="100.0" uifolder="" />
+    <input name="roughnessamount" type="float" value="0" uisoftmin="0.0" uisoftmax="100.0" uifolder="" />
+    <input name="rowsmodenable" type="boolean" value="false" uifolder="" />
+    <input name="nrows" type="float" value="5.0" uisoftmin="0.0" uisoftmax="100.0" uifolder="" />
+    <input name="nrowsamount" type="float" value="3.0" uisoftmin="0.0" uisoftmax="10" uifolder="" />
+    <input name="width" type="float" value="12.0" uisoftmin="0.0" uisoftmax="1.0" uifolder="" unittype="distance" />
+    <input name="height" type="float" value="12.0" uisoftmin="0.0" uisoftmax="1.0" uifolder="" unittype="distance" />
+    <input name="offset_x" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" uifolder="" unittype="distance" />
+    <input name="offset_y" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" uifolder="" unittype="distance" />
+    <input name="rotate" type="float" value="0" uisoftmin="0.0" uisoftmax="360" uifolder="" unittype="angle" unit="degree" />
+    <input name="tile_x" type="boolean" value="true" uifolder="" />
+    <input name="tile_y" type="boolean" value="true" uifolder="" />
+    <output name="output_color3" type="color3" />
+    <output name="output_alpha" type="float" />
+    <output name="output_color4" type="color4" />
   </nodedef>
 
   <!-- 
