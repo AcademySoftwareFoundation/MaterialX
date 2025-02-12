@@ -4,52 +4,69 @@ import sys
 import os
 import datetime
 import argparse
-import numpy as np
 import time
 
 try:
-    # Install OpenCV to enable image differencing and statistics.
-    import cv2
+    # Use numpy and OpenImageIO for image handling and comparison statistics.
+    import numpy as np
+    import OpenImageIO as oiio
     DIFF_ENABLED = True
 except Exception:
     DIFF_ENABLED = False
 
 def computeDiff(image1Path, image2Path, imageDiffPath):
     try:
-        # Remove the diff image if it already exists
-        if os.path.exists(imageDiffPath):
-            os.remove(imageDiffPath)
+        # Open and read image1
+        image1 = oiio.ImageInput.open(image1Path)
+        if not image1:
+            print(f"Failed to load image: {image1Path}")
+            return
+        spec1 = image1.spec()
+        pixels1 = image1.read_image(format=oiio.FLOAT)
+        image1.close()
 
-        # Check if input images exist
-        if not os.path.exists(image1Path):
-            print("Image diff input missing: " + image1Path)
+        # Open and read image2
+        image2 = oiio.ImageInput.open(image2Path)
+        if not image2:
+            print(f"Failed to load image: {image2Path}")
+            return
+        spec2 = image2.spec()
+        pixels2 = image2.read_image(format=oiio.FLOAT)
+        image2.close()
+
+        # Check dimensions
+        if spec1.width != spec2.width or spec1.height != spec2.height:
+            print("Image dimensions do not match.")
             return
 
-        if not os.path.exists(image2Path):
-            print("Image diff input missing: " + image2Path)
-            return
+        # Slice to exclude alpha for 4 change RGBA images
+        nchannels1 = spec1.nchannels
+        if nchannels1 > 3:
+            pixels1_rgb = np.ascontiguousarray(pixels1[:, :, :3])
+        else:
+            pixels1_rgb = pixels1
 
-        # Load images using OpenCV
-        image1 = cv2.imread(image1Path)
-        image2 = cv2.imread(image2Path)
-
-        # Ensure images were loaded successfully
-        if image1 is None or image2 is None:
-            print("Failed to load images.")
-            return
-
-        # Convert images to RGB (OpenCV loads images in BGR by default)
-        image1 = cv2.cvtColor(image1, cv2.COLOR_BGR2RGB)
-        image2 = cv2.cvtColor(image2, cv2.COLOR_BGR2RGB)
+        nchannels2 = spec2.nchannels
+        if nchannels2 > 3:
+            pixels2_rgb = np.ascontiguousarray(pixels2[:, :, :3])
+        else:
+            pixels2_rgb = pixels2
 
         # Compute the absolute difference between the two images
-        diff = cv2.absdiff(image1, image2)
+        diff = np.abs(pixels1_rgb - pixels2_rgb)
 
         # Save the difference image
-        cv2.imwrite(imageDiffPath, cv2.cvtColor(diff, cv2.COLOR_RGB2BGR))
+        out_spec = oiio.ImageSpec(spec1.width, spec1.height, 3, oiio.FLOAT)
+        out_image = oiio.ImageOutput.create(imageDiffPath)
+        if out_image:
+            out_image.open(imageDiffPath, out_spec)
+            out_image.write_image(diff)
+            out_image.close()
+        else:
+            print("Failed to write difference image.")
 
-        # Compute normalized RMS error
-        normalized_rms = np.sqrt(np.mean(diff**2))  / (3.0 * 255.0)
+        # Compute RMS calculation
+        normalized_rms = np.sqrt(np.mean(diff ** 2)) / 3.0
 
         return normalized_rms
 
@@ -115,7 +132,7 @@ def main(args=None):
         fh.write("<h3>" + args.lang1 + " (in: " + args.inputdir1 + ") vs "+ args.lang2 + " (in: " + args.inputdir2 + ")</h3>\n")
 
     if not DIFF_ENABLED and args.CREATE_DIFF:
-        print("--diff argument ignored. Diff utility not installed. Install OpenCV using 'pip install opencv-python'.")
+        print("--diff argument ignored. Please ensure that OpenImagIO and numpy are installed'.")
 
     # Remove potential trailing path separators
     if args.inputdir1[-1:] == '/' or args.inputdir1[-1:] == '\\':
