@@ -184,9 +184,13 @@ class Graph
 
     void upNodeGraph();
 
-    // Set the value of the selected node constants in the node property editor
-    void setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIProperties& uiProperties);
-
+    // Show input values in property editor for a given input
+    void showPropertyEditorValue(UiNodePtr node, mx::InputPtr& input, const mx::UIProperties& uiProperties);
+    // Show input connections in property editor for a given node
+    void showPropertyEditorOutputConnections(UiNodePtr node);
+    // Show output connections in property editor for a given output pin
+    void showPropertyEditorInputConnection(UiPinPtr pin);
+    // Show property editor for a given node
     void propertyEditor();
     void setDefaults(mx::InputPtr input);
 
