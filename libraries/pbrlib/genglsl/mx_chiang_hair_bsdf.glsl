@@ -271,108 +271,44 @@ vec3 mx_chiang_hair_bsdf_impl(
     return F;
 }
 
-void mx_chiang_hair_bsdf_reflection(
-    vec3 L,
-    vec3 V,
-    vec3 P,
-    float occlusion,
-    vec3 tint_R,
-    vec3 tint_TT,
-    vec3 tint_TRT,
-    float ior,
-    vec2 roughness_R,
-    vec2 roughness_TT,
-    vec2 roughness_TRT,
-    float cuticle_angle,
-    vec3 absorption_coefficient,
-    vec3 N,
-    vec3 X,
-    inout BSDF bsdf
-)
+void mx_chiang_hair_bsdf(ClosureData closureData, vec3 tint_R, vec3 tint_TT, vec3 tint_TRT, float ior,
+                         vec2 roughness_R, vec2 roughness_TT, vec2 roughness_TRT, float cuticle_angle,
+                         vec3 absorption_coefficient, vec3 N, vec3 X, inout BSDF bsdf)
 {
-    vec3 F = mx_chiang_hair_bsdf_impl(
-        L,
-        V,
-        tint_R,
-        tint_TT,
-        tint_TRT,
-        ior,
-        roughness_R,
-        roughness_TT,
-        roughness_TRT,
-        cuticle_angle,
-        absorption_coefficient,
-        N,
-        X
-    );
+    vec3 V = closureData.V;
+    vec3 L = closureData.L;
+    float occlusion = closureData.occlusion;
 
     bsdf.throughput = vec3(0.0);
-    bsdf.response = F * occlusion * M_PI_INV;
-}
 
-void mx_chiang_hair_bsdf_indirect(
-    vec3 V,
-    vec3 tint_R,
-    vec3 tint_TT,
-    vec3 tint_TRT,
-    float ior,
-    vec2 roughness_R,
-    vec2 roughness_TT,
-    vec2 roughness_TRT,
-    float cuticle_angle,
-    vec3 absorption_coefficient,
-    vec3 N,
-    vec3 X,
-    inout BSDF bsdf
-)
-{
-    // this indirect lighting is *very* rough approximation
-
-    N = mx_forward_facing_normal(N, V);
-
-    float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);
-
-    FresnelData fd = mx_init_fresnel_dielectric(ior, 0.0, 1.0);
-    vec3 F = mx_compute_fresnel(NdotV, fd);
-
-    vec2 roughness = (roughness_R + roughness_TT + roughness_TRT) / vec2(3.0);  // ?
-    vec2 safeAlpha = clamp(roughness, M_FLOAT_EPS, 1.0);
-    float avgAlpha = mx_average_alpha(safeAlpha);
-
-    // use ggx because the environment map for FIS is preintegrated with ggx
-    float F0 = mx_ior_to_f0(ior);
-    vec3 comp = mx_ggx_energy_compensation(NdotV, avgAlpha, F);
-    vec3 dirAlbedo = mx_ggx_dir_albedo(NdotV, avgAlpha, F0, 1.0) * comp;
-
-    vec3 Li = mx_environment_radiance(N, V, X, safeAlpha, 0, fd);
-    vec3 tint = (tint_R + tint_TT + tint_TRT) / vec3(3.0);  // ?
-
-    bsdf.throughput = vec3(0.0);
-    bsdf.response = Li * comp * tint;
-}
-
-void mx_chiang_hair_bsdf(
-    ClosureData closureData,
-    vec3 tint_R,
-    vec3 tint_TT,
-    vec3 tint_TRT,
-    float ior,
-    vec2 roughness_R,
-    vec2 roughness_TT,
-    vec2 roughness_TRT,
-    float cuticle_angle,
-    vec3 absorption_coefficient,
-    vec3 N,
-    vec3 X,
-    inout BSDF bsdf
-)
-{
     if (closureData.closureType == CLOSURE_TYPE_REFLECTION)
     {
-        mx_chiang_hair_bsdf_reflection(closureData.L, closureData.V, closureData.P, closureData.occlusion, tint_R, tint_TT, tint_TRT, ior, roughness_R, roughness_TT, roughness_TRT, cuticle_angle, absorption_coefficient, N, X, bsdf);
+        vec3 F = mx_chiang_hair_bsdf_impl(L, V, tint_R, tint_TT, tint_TRT, ior,
+                                          roughness_R, roughness_TT, roughness_TRT, cuticle_angle,
+                                          absorption_coefficient, N, X);
+        bsdf.response = F * occlusion * M_PI_INV;
     }
     else if (closureData.closureType == CLOSURE_TYPE_INDIRECT)
     {
-        mx_chiang_hair_bsdf_indirect(closureData.V, tint_R, tint_TT, tint_TRT, ior, roughness_R, roughness_TT, roughness_TRT, cuticle_angle, absorption_coefficient, N, X, bsdf);
+        // This indirect term is a *very* rough approximation.
+
+        N = mx_forward_facing_normal(N, V);
+        float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);
+        FresnelData fd = mx_init_fresnel_dielectric(ior, 0.0, 1.0);
+        vec3 F = mx_compute_fresnel(NdotV, fd);
+
+        vec2 roughness = (roughness_R + roughness_TT + roughness_TRT) / vec2(3.0);  // ?
+        vec2 safeAlpha = clamp(roughness, M_FLOAT_EPS, 1.0);
+        float avgAlpha = mx_average_alpha(safeAlpha);
+
+        // Use GGX because the environment map for FIS is preintegrated with GGX.
+        float F0 = mx_ior_to_f0(ior);
+        vec3 comp = mx_ggx_energy_compensation(NdotV, avgAlpha, F);
+        vec3 dirAlbedo = mx_ggx_dir_albedo(NdotV, avgAlpha, F0, 1.0) * comp;
+
+        vec3 Li = mx_environment_radiance(N, V, X, safeAlpha, 0, fd);
+        vec3 tint = (tint_R + tint_TT + tint_TRT) / vec3(3.0);  // ?
+
+        bsdf.response = Li * comp * tint;
     }
 }
