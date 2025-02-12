@@ -1,5 +1,5 @@
-file(GLOB pymaterialxgenglsl_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
-file(GLOB pymaterialxgenglsl_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
+file(GLOB pymaterialxgenglsl_source CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
+file(GLOB pymaterialxgenglsl_headers CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 
 pybind11_add_module(PyMaterialXGenGlsl SHARED ${PYBIND11_MODULE_FLAGS} ${pymaterialxgenglsl_source} ${pymaterialxgenglsl_headers})
 

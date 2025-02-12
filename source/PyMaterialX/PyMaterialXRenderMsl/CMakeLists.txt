@@ -1,5 +1,5 @@
-file(GLOB pymaterialxrendermsl_source "${CMAKE_CURRENT_SOURCE_DIR}/*.mm")
-file(GLOB pymaterialxrendermsl_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
+file(GLOB pymaterialxrendermsl_source CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.mm")
+file(GLOB pymaterialxrendermsl_headers CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 
 pybind11_add_module(PyMaterialXRenderMsl SHARED ${PYBIND11_MODULE_FLAGS} ${pymaterialxrendermsl_source} ${pymaterialxrendermsl_headers})
 
