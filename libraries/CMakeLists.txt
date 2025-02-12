@@ -20,8 +20,7 @@ foreach(SOURCE_FILE IN LISTS MTLX_DATA_LIBRARY_SOURCE_FILES)
             DEPENDS ${SOURCE_FILEPATH}
     )
     list(APPEND MTLX_DATA_LIBRARY_BUILD_FILES ${DEST_FILEPATH})
-endforeach ()
-
+endforeach()
 
 add_custom_target(buildMaterialXDataLibrary ALL
     DEPENDS ${MTLX_DATA_LIBRARY_BUILD_FILES})
