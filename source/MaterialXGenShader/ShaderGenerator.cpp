@@ -236,10 +236,6 @@ void ShaderGenerator::emitOutput(const ShaderOutput* output, bool includeType, b
     }
 }
 
-void ShaderGenerator::getClosureContexts(const ShaderNode&, vector<ClosureContext*>&) const
-{
-}
-
 string ShaderGenerator::getUpstreamResult(const ShaderInput* input, GenContext& context) const
 {
     if (!input->getConnection())

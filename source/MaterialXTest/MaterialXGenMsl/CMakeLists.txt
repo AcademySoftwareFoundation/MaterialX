@@ -1,8 +1,8 @@
-file(GLOB_RECURSE source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
-file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
-file(GLOB_RECURSE objc_source "")
+file(GLOB_RECURSE source CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
+file(GLOB_RECURSE headers CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
+set(objc_source "")
 if(APPLE)
-    file(GLOB_RECURSE objc_source "${CMAKE_CURRENT_SOURCE_DIR}/*.mm")
+    file(GLOB_RECURSE objc_source CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.mm")
 endif()
 
 target_sources(MaterialXTest PUBLIC ${source} ${headers} ${objc_source})

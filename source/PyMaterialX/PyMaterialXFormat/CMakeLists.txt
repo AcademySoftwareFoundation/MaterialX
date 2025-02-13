@@ -1,5 +1,5 @@
-file(GLOB pymaterialxformat_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
-file(GLOB pymaterialxformat_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
+file(GLOB pymaterialxformat_source CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
+file(GLOB pymaterialxformat_headers CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 
 pybind11_add_module(PyMaterialXFormat SHARED ${PYBIND11_MODULE_FLAGS} ${pymaterialxformat_source} ${pymaterialxformat_headers})
 
