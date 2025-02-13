@@ -184,14 +184,11 @@ template <class T> class MX_CORE_API TypedValue : public Value
     // Returns true if value data matches.
     bool isEqual(ConstValuePtr other) const override
     {
-        if (!other->isA<T>())
+        if (!other || !other->isA<T>())
         {
             return false;
         }
-
-        const T& otherData = other->asA<T>();
-
-        return _data == otherData;
+        return _data == other->asA<T>();
     }
 
     //
