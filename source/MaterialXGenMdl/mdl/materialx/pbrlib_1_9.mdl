@@ -38,6 +38,7 @@ import .::core::*;
 
 // forward unchanged definitions from the previous versions
 export using .::pbrlib_1_6 import mx_scatter_mode;
+export using .::pbrlib_1_6 import mx_sheen_mode;
 export using .::pbrlib_1_6 import mx_map_scatter_mode;
 export using .::pbrlib_1_6 import mx_oren_nayar_diffuse_bsdf;
 export using .::pbrlib_1_6 import mx_burley_diffuse_bsdf;

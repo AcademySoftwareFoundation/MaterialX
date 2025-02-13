@@ -23,6 +23,7 @@ TYPEDESC_REGISTER_TYPE(MDL_FILTERLOOKUPMODE, "filterlookup")
 TYPEDESC_REGISTER_TYPE(MDL_FILTERTYPE, "filtertype")
 TYPEDESC_REGISTER_TYPE(MDL_DISTRIBUTIONTYPE, "distributiontype")
 TYPEDESC_REGISTER_TYPE(MDL_SCATTER_MODE, "scatter_mode")
+TYPEDESC_REGISTER_TYPE(MDL_SHEEN_MODE, "mode")
 
 } // namespace Type
 
@@ -196,6 +197,7 @@ const StringVec MdlSyntax::FILTERLOOKUPMODE_MEMBERS = { "closest", "linear", "cu
 const StringVec MdlSyntax::FILTERTYPE_MEMBERS = { "box", "gaussian" };
 const StringVec MdlSyntax::DISTRIBUTIONTYPE_MEMBERS = { "ggx" };
 const StringVec MdlSyntax::SCATTER_MODE_MEMBERS = { "R", "T", "RT" };
+const StringVec MdlSyntax::SHEEN_MODE_MEMBERS = { "conty_kulla", "zeltner" };
 
 const string MdlSyntax::PORT_NAME_PREFIX = "mxp_";
 
@@ -453,6 +455,14 @@ MdlSyntax::MdlSyntax()
             "mx_scatter_mode_R",
             "mx_scatter_mode_R",
             SCATTER_MODE_MEMBERS));
+
+    registerTypeSyntax(
+        Type::MDL_SHEEN_MODE,
+        std::make_shared<MdlEnumSyntax>(
+            "mx_sheen_mode",
+            "mx_sheen_mode_conty_kulla",
+            "mx_sheen_mode_conty_kulla",
+            SHEEN_MODE_MEMBERS));
 }
 
 TypeDesc MdlSyntax::getEnumeratedType(const string& value) const
