@@ -96,7 +96,6 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     target_compile_options(MaterialXTest PUBLIC -Wno-deprecated-declarations)
 endif()
 
-# TODO: Only do this stuff when it's relevant
 add_custom_target(buildTestMaterialXDataLibrary ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different ${MATERIALX_DATA_LIBRARY_BUILD_DIR} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/libraries
     DEPENDS buildMaterialXDataLibrary)
