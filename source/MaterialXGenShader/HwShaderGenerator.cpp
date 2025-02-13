@@ -153,7 +153,8 @@ const string PUBLIC_UNIFORMS                  = "PublicUniforms";
 const string LIGHT_DATA                       = "LightData";
 const string PIXEL_OUTPUTS                    = "PixelOutputs";
 const string DIR_N                            = "N";
-const string CLOSURE_DATA                     = "closureData";
+const string CLOSURE_DATA_TYPE                = "ClosureData";
+const string CLOSURE_DATA_ARG                 = "closureData";
 const string DIR_L                            = "L";
 const string DIR_V                            = "V";
 const string WORLD_POSITION                   = "P";
@@ -172,8 +173,6 @@ namespace Stage
 const string VERTEX = "vertex";
 
 } // namespace Stage
-
-const ClosureContext::Arguments ClosureContext::EMPTY_ARGUMENTS;
 
 //
 // HwShaderGenerator methods
@@ -239,10 +238,6 @@ HwShaderGenerator::HwShaderGenerator(SyntaxPtr syntax) :
     _tokenSubstitutions[HW::T_VERTEX_DATA_INSTANCE] = HW::VERTEX_DATA_INSTANCE;
     _tokenSubstitutions[HW::T_LIGHT_DATA_INSTANCE] = HW::LIGHT_DATA_INSTANCE;
     _tokenSubstitutions[HW::T_ENV_PREFILTER_MIP] = HW::ENV_PREFILTER_MIP;
-
-    // Setup closure contexts for defining closure functions
-    //
-    _defClosure.addArgument(ClosureContext::Argument(HW::ClosureDataType, "closureData"));
 }
 
 ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element, GenContext& context) const
@@ -526,17 +521,9 @@ void HwShaderGenerator::unbindLightShaders(GenContext& context)
     }
 }
 
-void HwShaderGenerator::getClosureContexts(const ShaderNode& node, vector<ClosureContext*>& ccts) const
+bool HwShaderGenerator::nodeNeedsClosureData(const ShaderNode& node) const
 {
-    if (node.hasClassification(ShaderNode::Classification::BSDF) || node.hasClassification(ShaderNode::Classification::EDF))
-    {
-        ccts.push_back(&_defClosure);
-    }
-    else if (node.hasClassification(ShaderNode::Classification::SHADER))
-    {
-        // A shader
-        ccts.push_back(&_defDefault);
-    }
+    return (node.hasClassification(ShaderNode::Classification::BSDF) || node.hasClassification(ShaderNode::Classification::EDF) || node.hasClassification(ShaderNode::Classification::VDF)) ;
 }
 
 void HwShaderGenerator::addStageLightingUniforms(GenContext& context, ShaderStage& stage) const

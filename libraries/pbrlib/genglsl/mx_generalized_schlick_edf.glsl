@@ -1,3 +1,4 @@
+#include "lib/mx_closure_type.glsl"
 #include "lib/mx_microfacet.glsl"
 
 void mx_generalized_schlick_edf(ClosureData closureData, vec3 color0, vec3 color90, float exponent, EDF base, out EDF result)

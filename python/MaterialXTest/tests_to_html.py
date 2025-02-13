@@ -204,13 +204,13 @@ def main(args=None):
                     fh.write("<br>(" + str(datetime.datetime.fromtimestamp(os.path.getmtime(fullPath3))) + ")")
                 fh.write("</td>\n")
             if diffPath1:
-                rms: str = f" (RMS {diffRms1:.5})" if diffRms1 else ""  # diff will be None if one of the images is not found
+                rms = " (RMS " + "%.5f" % diffRms1 + ")" if diffRms1 else ""
                 fh.write("<td align='center'>" + args.lang1.upper() + " vs. " + args.lang2.upper() + rms + "</td>\n")
             if diffPath2:
-                rms: str = f" (RMS {diffRms2:.5})" if diffRms2 else ""
+                rms = " (RMS " + "%.5f" % diffRms2 + ")" if diffRms2 else ""
                 fh.write("<td align='center'>" + args.lang1.upper() + " vs. " + args.lang3.upper() + rms + "</td>\n")
             if diffPath3:
-                rms: str = f" (RMS {diffRms3:.5})" if diffRms3 else ""
+                rms = " (RMS " + "%.5f" % diffRms3 + ")" if diffRms3 else ""
                 fh.write("<td align='center'>" + args.lang2.upper() + " vs. " + args.lang3.upper() + rms + "</td>\n")
             fh.write("</tr>\n")
 
