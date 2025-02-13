@@ -14,7 +14,6 @@ void mx_generalized_schlick_bsdf(ClosureData closureData, float weight, vec3 col
 
     vec3 V = closureData.V;
     vec3 L = closureData.L;
-    float occlusion = closureData.occlusion;
 
     N = mx_forward_facing_normal(N, V);
     float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);
@@ -48,7 +47,7 @@ void mx_generalized_schlick_bsdf(ClosureData closureData, float weight, vec3 col
         bsdf.throughput = vec3(1.0 - avgDirAlbedo * weight);
 
         // Note: NdotL is cancelled out
-        bsdf.response = D * F * G * comp * occlusion * weight / (4.0 * NdotV);
+        bsdf.response = D * F * G * comp * closureData.occlusion * weight / (4.0 * NdotV);
     }
     else if (closureData.closureType == CLOSURE_TYPE_TRANSMISSION)
     {
