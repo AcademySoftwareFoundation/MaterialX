@@ -322,111 +322,108 @@
       =================================================
   -->
 
-  <nodegraph name="NG_legacy_checker" nodedef="ND_legacy_checker">
-    <texcoord name="texcoord_vector2" type="vector2" xpos="4.695652" ypos="4.956897" />
-    <blur name="blur_color3" type="color3" xpos="13.652174" ypos="-0.112069">
+  <nodegraph name="NG_legacy_checker" Autodesk-ldx_inputPos="-33.194 -97.7876" Autodesk-ldx_outputPos="4643.7 -8.65075" nodedef="ND_legacy_checker">
+    <output name="output_color3" type="color3" xpos="28.485508" ypos="0.284483" nodename="rgb_alpha_mask" />
+    <output name="output_alpha" type="float" xpos="28.485508" ypos="8.284483" nodename="combine_alpha" />
+    <output name="output_color4" type="color4" xpos="33.471016" ypos="4.681035" nodename="combine_color4" />
+    <blur name="blur_color3" type="color3" xpos="11.0415" ypos="0.0887544">
       <input name="in" type="color3" nodename="checkerboard_color3" />
       <input name="size" type="float" interfacename="soften" />
     </blur>
-    <checkerboard name="checkerboard_color3" type="color3" xpos="10.608696" ypos="-2.137931">
+    <checkerboard name="checkerboard_color3" type="color3" xpos="8.42117" ypos="-0.595894">
       <input name="texcoord" type="vector2" nodename="rotate_coord" />
       <input name="uvtiling" type="vector2" nodename="adj_size_2x2" />
       <input name="color1" type="color3" interfacename="color1" />
       <input name="color2" type="color3" interfacename="color2" />
-      <input name="uvoffset" type="vector2" nodename="adj_offset_2x2" />
     </checkerboard>
-    <combine2 name="combine_size" type="vector2" xpos="3.615942" ypos="0.508621">
+    <combine2 name="combine_size" type="vector2" xpos="3.61594" ypos="0.499238">
       <input name="in1" type="float" interfacename="width" />
       <input name="in2" type="float" interfacename="height" />
     </combine2>
-    <divide name="adj_size_2x2" type="vector2" xpos="5.710145" ypos="0.508621">
+    <divide name="adj_size_2x2" type="vector2" xpos="5.71017" ypos="0.508621">
       <input name="in2" type="vector2" nodename="combine_size" />
       <input name="in1" type="vector2" value="2, 2" />
     </divide>
-    <divide name="adj_offx" type="float" xpos="3.673913" ypos="2.060345">
-      <input name="in1" type="float" interfacename="offsetX" />
-      <input name="in2" type="float" interfacename="width" />
-    </divide>
-    <divide name="adj_offy" type="float" xpos="3.615942" ypos="3.586207">
-      <input name="in1" type="float" interfacename="offsetY" />
-      <input name="in2" type="float" interfacename="height" />
-    </divide>
-    <combine2 name="combine_offset" type="vector2" xpos="5.594203" ypos="2.612069">
-      <input name="in1" type="float" nodename="adj_offx" />
-      <input name="in2" type="float" nodename="adj_offy" />
+    <combine2 name="combine_offset" type="vector2" xpos="2.85035" ypos="2.64727">
+      <input name="in1" type="float" interfacename="offset_x" />
+      <input name="in2" type="float" interfacename="offset_y" />
     </combine2>
-    <multiply name="adj_offset_2x2" type="vector2" xpos="7.507246" ypos="2.612069">
-      <input name="in1" type="vector2" nodename="combine_offset" />
-      <input name="in2" type="float" value="2" />
-    </multiply>
-    <rotate2d name="rotate_coord" type="vector2" xpos="7.855072" ypos="4.982759">
-      <input name="in" type="vector2" nodename="texcoord_vector2" />
-      <input name="amount" type="float" interfacename="rotate" />
+    <rotate2d name="rotate_coord" type="vector2" xpos="6.36767" ypos="3.27624">
+      <input name="amount" type="float" nodename="invert_rotation" />
+      <input name="in" type="vector2" nodename="subtract1" />
     </rotate2d>
-    <separate2 name="separate_trim_coord" type="multioutput" xpos="12.724638" ypos="3.706897">
+    <separate2 name="separate_trim_coord" type="multioutput" xpos="10.2301" ypos="2.75896">
       <input name="in" type="vector2" nodename="trim_coord" />
       <output name="outx" type="float" />
       <output name="outy" type="float" />
     </separate2>
-    <divide name="trim_coord" type="vector2" xpos="10.760870" ypos="4.431035">
+    <divide name="trim_coord" type="vector2" xpos="10.2115" ypos="4.46706">
       <input name="in1" type="vector2" nodename="rotate_coord" />
       <input name="in2" type="vector2" nodename="combine_size" />
     </divide>
-    <ifgreater name="ifgreater_x_1" type="float" xpos="15.623188" ypos="2.896552">
+    <ifgreater name="ifgreater_x_1" type="float" xpos="12.1135" ypos="2.32072">
       <input name="value2" type="float" value="1" />
       <input name="value1" type="float" output="outx" nodename="separate_trim_coord" />
       <input name="in2" type="float" value="1" />
     </ifgreater>
-    <ifgreater name="ifgreater_x_0" type="float" xpos="17.681160" ypos="2.896552">
+    <ifgreater name="ifgreater_x_0" type="float" xpos="13.9087" ypos="2.31098">
       <input name="value1" type="float" output="outx" nodename="separate_trim_coord" />
       <input name="in2" type="float" value="0" />
       <input name="in1" type="float" nodename="ifgreater_x_1" />
     </ifgreater>
-    <ifgreater name="ifgreater_y_1" type="float" xpos="15.478261" ypos="4.758621">
+    <ifgreater name="ifgreater_y_1" type="float" xpos="12.173" ypos="4.18278">
       <input name="value1" type="float" output="outy" nodename="separate_trim_coord" />
       <input name="value2" type="float" value="1" />
       <input name="in2" type="float" value="1" />
     </ifgreater>
-    <ifgreater name="ifgreater_y_0" type="float" xpos="17.673914" ypos="4.870690">
+    <ifgreater name="ifgreater_y_0" type="float" xpos="13.9237" ypos="4.18548">
       <input name="value1" type="float" output="outy" nodename="separate_trim_coord" />
       <input name="in2" type="float" value="0" />
       <input name="in1" type="float" nodename="ifgreater_y_1" />
     </ifgreater>
-    <ifequal name="check_trim_x" type="float" xpos="21.847826" ypos="6.672414">
-      <input name="value1" type="boolean" interfacename="tile_X" />
+    <ifequal name="check_trim_x" type="float" xpos="15.4882" ypos="2.36985">
+      <input name="value1" type="boolean" interfacename="tile_x" />
       <input name="value2" type="boolean" value="false" />
       <input name="in1" type="float" nodename="ifgreater_x_0" />
       <input name="in2" type="float" value="1" />
     </ifequal>
-    <ifequal name="check_trim_y" type="float" xpos="21.884058" ypos="8.474138">
-      <input name="value1" type="boolean" interfacename="tile_Y" />
+    <ifequal name="check_trim_y" type="float" xpos="15.5246" ypos="4.17162">
+      <input name="value1" type="boolean" interfacename="tile_y" />
       <input name="value2" type="boolean" value="false" />
       <input name="in1" type="float" nodename="ifgreater_y_0" />
       <input name="in2" type="float" value="1" />
     </ifequal>
-    <multiply name="combine_alpha" type="float" xpos="23.978260" ypos="8.000000">
+    <multiply name="combine_alpha" type="float" xpos="17.2691" ypos="3.2334">
       <input name="in1" type="float" nodename="check_trim_x" />
       <input name="in2" type="float" nodename="check_trim_y" />
     </multiply>
-    <multiply name="rgb_alpha_mask" type="color3" xpos="25.934782" ypos="4.431035">
+    <multiply name="rgb_alpha_mask" type="color3" xpos="19.8611" ypos="-0.0554704">
       <input name="in2" type="float" nodename="combine_alpha" />
       <input name="in1" type="color3" nodename="blur_color3" />
     </multiply>
-    <combine4 name="combine_color4" type="color4" xpos="30.579710" ypos="4.474138">
+    <combine4 name="combine_color4" type="color4" xpos="23.4972" ypos="2.02523">
       <input name="in1" type="float" output="outr" nodename="separate_rgb" />
       <input name="in2" type="float" output="outg" nodename="separate_rgb" />
       <input name="in3" type="float" output="outb" nodename="separate_rgb" />
       <input name="in4" type="float" nodename="combine_alpha" />
     </combine4>
-    <separate3 name="separate_rgb" type="multioutput" xpos="28.260870" ypos="4.181035">
+    <separate3 name="separate_rgb" type="multioutput" xpos="21.7637" ypos="1.61565">
       <input name="in" type="color3" nodename="rgb_alpha_mask" />
       <output name="outr" type="float" />
       <output name="outg" type="float" />
       <output name="outb" type="float" />
     </separate3>
-    <output name="output_color3" type="color3" xpos="28.485508" ypos="0.284483" nodename="rgb_alpha_mask" />
-    <output name="output_alpha" type="float" xpos="28.485508" ypos="8.284483" nodename="combine_alpha" />
-    <output name="output_color4" type="color4" nodename="combine_color4" xpos="33.471016" ypos="4.681035" />
+    <invert name="invert_rotation" type="float" nodedef="ND_invert_float" xpos="4.4218" ypos="4.08632">
+      <input name="amount" type="float" value="0" />
+      <input name="in" type="float" interfacename="rotate" />
+    </invert>
+    <subtract name="subtract1" type="vector2" nodedef="ND_subtract_vector2" xpos="4.48517" ypos="2.60668">
+      <input name="in2" type="vector2" ldx_value="0, 0" nodename="combine_offset" />
+      <input name="in1" type="vector2" interfacename="texcoord" />
+    </subtract>
+    <backdrop name="Tile_and_Alpha" xpos="10.0806" ypos="1.61987" width="8.73289" height="4.15297" />
+    <backdrop name="Offset_and_Rotation" xpos="2.5239" ypos="2.02557" width="5.26447" height="3.43858" />
+    <backdrop name="Awaiting_fix_in_MaterialX" xpos="10.9859" ypos="-0.350134" width="1.36111" height="1.73333" uicolor="#C85252" Autodesk-ldx_alpha="0.156863" />
   </nodegraph>
 
   <nodegraph name="NG_legacy_noise" Autodesk-ldx_inputPos="-449.667 -60.6667" Autodesk-ldx_outputPos="3976.13 -7.67324" nodedef="ND_legacy_noise">

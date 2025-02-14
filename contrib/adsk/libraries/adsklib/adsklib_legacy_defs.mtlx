@@ -47,17 +47,18 @@
       ===============================================
   -->
 
-  <nodedef name="ND_legacy_checker" node="legacy_checker" version="0.1" isdefaultversion="true" nodegroup="adsk_legacy" >
-    <input name="color1" type="color3" value="1, 1, 1" xpos="2.094203" ypos="-4.965517" uivisible="true" uiname="Color 1" />
-    <input name="color2" type="color3" value="0, 0, 0" xpos="2.050725" ypos="-3.862069" uivisible="true" uiname="Color 2" />
-    <input name="width" type="float" value="0.4" xpos="2.115942" ypos="-0.172414" uivisible="true" uiname="Width" unittype="distance" />
-    <input name="height" type="float" value="0.2" xpos="2.115942" ypos="0.948276" uivisible="true" uiname="Height" unittype="distance" />
-    <input name="offsetX" type="float" value="0" xpos="2.115942" ypos="2.060345" uivisible="true" uiname="Offset X" unittype="distance" />
-    <input name="offsetY" type="float" value="0" xpos="2.072464" ypos="3.560345" uivisible="true" uiname="Offset Y" unittype="distance" />
-    <input name="soften" type="float" value="0" xpos="2.050725" ypos="-2.482759" uivisible="true" uiname="Soften" />
-    <input name="rotate" type="float" value="0" xpos="1.978261" ypos="4.974138" uivisible="true" uiname="Rotate" unittype="angle" unit="degree" uisoftmin="0" uisoftmax="360" />
-    <input name="tile_X" type="boolean" value="true" xpos="1.934783" ypos="6.629310" uivisible="true" uiname="Tile X" />
-    <input name="tile_Y" type="boolean" value="true" xpos="1.934783" ypos="8.000000" uivisible="true" uiname="Tile Y" />
+  <nodedef name="ND_legacy_checker" node="legacy_checker">
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <input name="color1" type="color3" value="1, 1, 1" xpos="2.094203" ypos="-4.965517" uivisible="true" uiname="Color 1" uifolder="" />
+    <input name="color2" type="color3" value="0, 0, 0" xpos="2.050725" ypos="-3.862069" uivisible="true" uiname="Color 2" uifolder="" />
+    <input name="width" type="float" value="1.0" xpos="2.115942" ypos="-0.172414" uivisible="true" uiname="Width" unittype="distance" uifolder="" />
+    <input name="height" type="float" value="1.0" xpos="2.115942" ypos="0.948276" uivisible="true" uiname="Height" unittype="distance" uifolder="" />
+    <input name="soften" type="float" value="0" xpos="2.050725" ypos="-2.482759" uivisible="true" uiname="Soften" uifolder="" />
+    <input name="offset_x" type="float" value="0.0" xpos="2.115942" ypos="2.060345" uivisible="true" uiname="Offset X" unittype="distance" uifolder="" />
+    <input name="offset_y" type="float" value="0.0" xpos="2.072464" ypos="3.560345" uivisible="true" uiname="Offset Y" unittype="distance" uifolder="" />
+    <input name="rotate" type="float" value="0" xpos="1.978261" ypos="4.974138" uivisible="true" uiname="Rotate" unittype="angle" unit="degree" uisoftmin="0" uisoftmax="360" uifolder="" />
+    <input name="tile_x" type="boolean" value="true" xpos="1.934783" ypos="6.629310" uivisible="true" uiname="" uifolder="" />
+    <input name="tile_y" type="boolean" value="true" xpos="1.934783" ypos="8.000000" uivisible="true" uiname="" uifolder="" />
     <output name="output_color3" type="color3" xpos="28.485508" ypos="0.284483" />
     <output name="output_alpha" type="float" xpos="28.485508" ypos="8.284483" />
     <output name="output_color4" type="color4" xpos="33.471016" ypos="4.681035" />
