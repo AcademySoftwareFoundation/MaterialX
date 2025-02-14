@@ -50,7 +50,11 @@ vector<NodePtr> getShaderNodes(NodePtr materialNode, const string& nodeType, con
             vector<OutputPtr> outputs;
             if (input->hasOutputString())
             {
-                outputs.push_back(nodeGraph->getOutput(input->getOutputString()));
+                OutputPtr connectedOutput = nodeGraph->getOutput(input->getOutputString());
+                if (connectedOutput)
+                {
+                    outputs.push_back(connectedOutput);
+                }
             }
             else
             {
