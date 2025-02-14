@@ -12,7 +12,6 @@ void mx_oren_nayar_diffuse_bsdf(ClosureData closureData, float weight, vec3 colo
 
     vec3 V = closureData.V;
     vec3 L = closureData.L;
-    float occlusion = closureData.occlusion;
 
     N = mx_forward_facing_normal(N, V);
     float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);
@@ -25,7 +24,7 @@ void mx_oren_nayar_diffuse_bsdf(ClosureData closureData, float weight, vec3 colo
         vec3 diffuse = energy_compensation ?
                        mx_oren_nayar_compensated_diffuse(NdotV, NdotL, LdotV, roughness, color) :
                        mx_oren_nayar_diffuse(NdotV, NdotL, LdotV, roughness) * color;
-        bsdf.response = diffuse * occlusion * weight * NdotL * M_PI_INV;
+        bsdf.response = diffuse * closureData.occlusion * weight * NdotL * M_PI_INV;
     }
     else if (closureData.closureType == CLOSURE_TYPE_INDIRECT)
     {

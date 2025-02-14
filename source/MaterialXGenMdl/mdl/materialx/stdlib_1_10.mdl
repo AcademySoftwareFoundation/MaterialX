@@ -14,5 +14,5 @@
 
 mdl 1.10;
 
-// forward the latest version
-export using .::stdlib_1_10 import *;
+// forward all unchanged definitions from the previous version
+export using .::stdlib_1_9 import *;
