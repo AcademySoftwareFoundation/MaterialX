@@ -2662,7 +2662,6 @@ export color mx_luminance_color3(
 		anno::description("Node Group: adjustment")
 	]]
 {
-
 	return color(::math::dot(float3(mxp_in), float3(mxp_lumacoeffs)));
 }
 
