@@ -2412,7 +2412,7 @@ void Viewer::updateCameras()
     _envCamera->setViewMatrix(_viewCamera->getViewMatrix());
     _envCamera->setProjectionMatrix(_viewCamera->getProjectionMatrix());
 
-    mx::NodePtr dirLight = _lightHandler->getFirstLightOfCategory(DIR_LIGHT_NODE_CATEGORY);
+    mx::NodePtr dirLight = !_materialAssignments.empty() ? _lightHandler->getFirstLightOfCategory(DIR_LIGHT_NODE_CATEGORY) : nullptr;
     if (dirLight)
     {
         mx::Vector3 sphereCenter = (_geometryHandler->getMaximumBounds() + _geometryHandler->getMinimumBounds()) * 0.5;
