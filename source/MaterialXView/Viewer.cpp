@@ -115,7 +115,7 @@ void applyModifiers(mx::DocumentPtr doc, const DocumentModifiers& modifiers)
                 elem->setFilePrefix(filePrefix + modifiers.filePrefixTerminator);
             }
         }
-        std::vector<mx::ElementPtr> children = elem->getChildren();
+        mx::ElementVec children = elem->getChildren();
         for (mx::ElementPtr child : children)
         {
             if (modifiers.skipElements.count(child->getCategory()) ||

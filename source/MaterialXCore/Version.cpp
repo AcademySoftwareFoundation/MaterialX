@@ -139,7 +139,7 @@ void Document::upgradeVersion()
         // Upgrade elements in place.
         for (ElementPtr elem : traverseTree())
         {
-            vector<ElementPtr> origChildren = elem->getChildren();
+            ElementVec origChildren = elem->getChildren();
             for (ElementPtr child : origChildren)
             {
                 if (child->getCategory() == "opgraph")
@@ -215,7 +215,7 @@ void Document::upgradeVersion()
         }
 
         // Move connections from nodedef inputs to bindinputs.
-        vector<ElementPtr> materials = getChildrenOfType<Element>("material");
+        ElementVec materials = getChildrenOfType<Element>("material");
         for (NodeDefPtr nodeDef : getNodeDefs())
         {
             for (InputPtr input : nodeDef->getActiveInputs())
@@ -328,7 +328,7 @@ void Document::upgradeVersion()
                 elem->setAttribute(ValueElement::VALUE_ATTRIBUTE, replaceSubstrings(elem->getAttribute(ValueElement::VALUE_ATTRIBUTE), stringMap));
             }
 
-            vector<ElementPtr> origChildren = elem->getChildren();
+            ElementVec origChildren = elem->getChildren();
             for (ElementPtr child : origChildren)
             {
                 if (elem->getCategory() == "material" && child->getCategory() == "override")

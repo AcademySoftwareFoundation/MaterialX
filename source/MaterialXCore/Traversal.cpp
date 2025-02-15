@@ -66,7 +66,7 @@ TreeIterator& TreeIterator::operator++()
 
         // Traverse to our siblings.
         StackFrame& parentFrame = _stack.back();
-        const vector<ElementPtr>& siblings = parentFrame.first->getChildren();
+        const ElementVec& siblings = parentFrame.first->getChildren();
         if (parentFrame.second + 1 < siblings.size())
         {
             _elem = siblings[++parentFrame.second];

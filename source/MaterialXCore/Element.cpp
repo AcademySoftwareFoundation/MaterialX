@@ -64,8 +64,8 @@ bool Element::operator==(const Element& rhs) const
     }
 
     // Compare children.
-    const vector<ElementPtr>& c1 = getChildren();
-    const vector<ElementPtr>& c2 = rhs.getChildren();
+    const ElementVec& c1 = getChildren();
+    const ElementVec& c2 = rhs.getChildren();
     if (c1.size() != c2.size())
         return false;
     for (size_t i = 0; i < c1.size(); i++)
@@ -153,7 +153,7 @@ void Element::unregisterChildElement(ElementPtr child)
 int Element::getChildIndex(const string& name) const
 {
     ElementPtr child = getChild(name);
-    vector<ElementPtr>::const_iterator it = std::find(_childOrder.begin(), _childOrder.end(), child);
+    ElementVec::const_iterator it = std::find(_childOrder.begin(), _childOrder.end(), child);
     if (it == _childOrder.end())
     {
         return -1;
@@ -164,7 +164,7 @@ int Element::getChildIndex(const string& name) const
 void Element::setChildIndex(const string& name, int index)
 {
     ElementPtr child = getChild(name);
-    vector<ElementPtr>::iterator it = std::find(_childOrder.begin(), _childOrder.end(), child);
+    ElementVec::iterator it = std::find(_childOrder.begin(), _childOrder.end(), child);
     if (it == _childOrder.end())
     {
         return;
@@ -426,7 +426,7 @@ bool Element::isEquivalent(ConstElementPtr rhs, const ElementEquivalenceOptions&
     }
 
     // Compare all child elements that affect functional equivalence.
-    vector<ElementPtr> children;
+    ElementVec children;
     for (ElementPtr child : getChildren())
     {
         if (child->getCategory() == CommentElement::CATEGORY)
@@ -435,7 +435,7 @@ bool Element::isEquivalent(ConstElementPtr rhs, const ElementEquivalenceOptions&
         }
         children.push_back(child);
     }
-    vector <ElementPtr> rhsChildren;
+    ElementVec rhsChildren;
     for (ElementPtr child : rhs->getChildren())
     {
         if (child->getCategory() == CommentElement::CATEGORY)
