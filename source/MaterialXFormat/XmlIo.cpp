@@ -60,7 +60,7 @@ void elementFromXml(const xml_node& xmlNode, ElementPtr elem, const XmlReadOptio
             continue;
         }
 
-        // Validate element tree depth.
+        // Enforce maximum tree depth.
         if (depth >= MAX_XML_TREE_DEPTH)
         {
             throw ExceptionParseError("Maximum element tree depth exceeded.");

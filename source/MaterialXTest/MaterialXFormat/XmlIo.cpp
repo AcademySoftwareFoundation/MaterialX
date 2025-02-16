@@ -264,7 +264,7 @@ TEST_CASE("Comments and newlines", "[xmlio]")
 
 TEST_CASE("Element tree depth", "[xmlio]")
 {
-    // Create a document that exceeds the maximum element tree depth.
+    // Create a document that exceeds the maximum tree depth.
     mx::DocumentPtr doc = mx::createDocument();
     mx::ElementPtr elem = doc;
     for (int i = 0; i < mx::MAX_XML_TREE_DEPTH + 1; i++)
