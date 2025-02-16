@@ -19,7 +19,7 @@ MATERIALX_NAMESPACE_BEGIN
 
 const string MTLX_EXTENSION = "mtlx";
 
-const int MAX_XML_ELEMENT_TREE_DEPTH = 256;
+const int MAX_XML_TREE_DEPTH = 256;
 
 namespace
 {
@@ -61,7 +61,7 @@ void elementFromXml(const xml_node& xmlNode, ElementPtr elem, const XmlReadOptio
         }
 
         // Validate element tree depth.
-        if (depth >= MAX_XML_ELEMENT_TREE_DEPTH)
+        if (depth >= MAX_XML_TREE_DEPTH)
         {
             throw ExceptionParseError("Maximum element tree depth exceeded.");
         }

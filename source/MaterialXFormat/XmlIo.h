@@ -22,7 +22,7 @@ class XmlReadOptions;
 
 extern MX_FORMAT_API const string MTLX_EXTENSION;
 
-extern MX_FORMAT_API const int MAX_XML_ELEMENT_TREE_DEPTH;
+extern MX_FORMAT_API const int MAX_XML_TREE_DEPTH;
 
 /// A standard function that reads from an XML file into a Document, with
 /// optional search path and read options.
