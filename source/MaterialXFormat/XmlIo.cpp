@@ -19,6 +19,8 @@ MATERIALX_NAMESPACE_BEGIN
 
 const string MTLX_EXTENSION = "mtlx";
 
+const int MAX_ELEMENT_TREE_DEPTH = 256;
+
 namespace
 {
 
@@ -26,9 +28,7 @@ const string XINCLUDE_TAG = "xi:include";
 const string XINCLUDE_NAMESPACE = "xmlns:xi";
 const string XINCLUDE_URL = "http://www.w3.org/2001/XInclude";
 
-const unsigned int MAX_ELEMENT_DEPTH = 256;
-
-void elementFromXml(const xml_node& xmlNode, ElementPtr elem, const XmlReadOptions* readOptions, unsigned int depth = 1)
+void elementFromXml(const xml_node& xmlNode, ElementPtr elem, const XmlReadOptions* readOptions, int depth = 1)
 {
     // Store attributes in element.
     for (const xml_attribute& xmlAttr : xmlNode.attributes())
@@ -60,10 +60,10 @@ void elementFromXml(const xml_node& xmlNode, ElementPtr elem, const XmlReadOptio
             continue;
         }
 
-        // Validate element depth.
-        if (depth >= MAX_ELEMENT_DEPTH)
+        // Validate element tree depth.
+        if (depth >= MAX_ELEMENT_TREE_DEPTH)
         {
-            throw ExceptionParseError("Maximum element depth exceeded.");
+            throw ExceptionParseError("Maximum element tree depth exceeded.");
         }
 
         // Create the new element.

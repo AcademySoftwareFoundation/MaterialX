@@ -262,12 +262,12 @@ TEST_CASE("Comments and newlines", "[xmlio]")
     REQUIRE(origXml == newXml);
 }
 
-TEST_CASE("Element depth", "[xmlio]")
+TEST_CASE("Element tree depth", "[xmlio]")
 {
-    // Create a document with invalid element depth.
+    // Create a document that exceeds the maximum element tree depth.
     mx::DocumentPtr doc = mx::createDocument();
     mx::ElementPtr elem = doc;
-    for (int i = 0; i < 1024; i++)
+    for (int i = 0; i < mx::MAX_ELEMENT_TREE_DEPTH + 1; i++)
     {
         elem = elem->addChild<mx::NodeGraph>();
     }
