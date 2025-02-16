@@ -63,7 +63,7 @@ void elementFromXml(const xml_node& xmlNode, ElementPtr elem, const XmlReadOptio
         // Enforce maximum tree depth.
         if (depth >= MAX_XML_TREE_DEPTH)
         {
-            throw ExceptionParseError("Maximum element tree depth exceeded.");
+            throw ExceptionParseError("Maximum XML tree depth exceeded.");
         }
 
         // Create the new element.
