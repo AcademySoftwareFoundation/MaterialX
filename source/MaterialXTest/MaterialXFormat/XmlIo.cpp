@@ -262,12 +262,12 @@ TEST_CASE("Comments and newlines", "[xmlio]")
     REQUIRE(origXml == newXml);
 }
 
-TEST_CASE("Maximum tree depth", "[xmlio]")
+TEST_CASE("Element tree depth", "[xmlio]")
 {
-    // Create a document that exceeds the maximum tree depth.
+    // Create a document with an unusually high element tree depth.
     mx::DocumentPtr doc = mx::createDocument();
     mx::ElementPtr elem = doc;
-    for (int i = 0; i < mx::MAX_XML_TREE_DEPTH + 1; i++)
+    for (int i = 0; i < 1024; i++)
     {
         elem = elem->addChild<mx::NodeGraph>();
     }
@@ -275,10 +275,9 @@ TEST_CASE("Maximum tree depth", "[xmlio]")
     // Write the document to a string buffer.
     std::string xmlString = mx::writeToXmlString(doc);
 
-    // Read the string buffer as a document, verifying that the correct
-    // exception is thrown.
+    // Read the string buffer as a document.
     mx::DocumentPtr newDoc = mx::createDocument();
-    REQUIRE_THROWS_AS(mx::readFromXmlString(newDoc, xmlString), mx::ExceptionParseError);
+    mx::readFromXmlString(newDoc, xmlString);
 }
 
 TEST_CASE("Fuzz testing", "[xmlio]")
