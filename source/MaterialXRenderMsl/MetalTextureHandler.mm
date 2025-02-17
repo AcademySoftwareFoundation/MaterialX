@@ -19,12 +19,12 @@ MetalTextureHandler::MetalTextureHandler(id<MTLDevice> device, ImageLoaderPtr im
     _device = device;
 }
 
-bool MetalTextureHandler::bindImage(ImagePtr image, const ImageSamplingProperties& samplingProperties)
+bool MetalTextureHandler::bindImage(ImagePtr image, const ImageSamplingProperties& samplingProperties, vector<ImagePtr> additionalImages)
 {
     // Create renderer resources if needed.
     if (image->getResourceId() == MslProgram::UNDEFINED_METAL_RESOURCE_ID)
     {
-        if (!createRenderResources(image, true))
+        if (!createRenderResources(image, true, false, additionalImages))
         {
             return false;
         }
@@ -63,7 +63,7 @@ bool MetalTextureHandler::bindImage(id<MTLRenderCommandEncoder> renderCmdEncoder
     // Create renderer resources if needed.
     if (image->getResourceId() == MslProgram::UNDEFINED_METAL_RESOURCE_ID)
     {
-        if (!createRenderResources(image, true))
+        if (!createRenderResources(image, true, false))
         {
             return false;
         }
@@ -128,9 +128,20 @@ bool MetalTextureHandler::unbindImage(ImagePtr image)
     return false;
 }
 
-bool MetalTextureHandler::createRenderResources(ImagePtr image, bool generateMipMaps, bool useAsRenderTarget)
+bool MetalTextureHandler::createRenderResources(ImagePtr image, bool generateMipMaps, bool useAsRenderTarget, vector<ImagePtr> additionalImages)
 {
     id<MTLTexture> texture = nil;
+
+    for (const auto& additionalImage : additionalImages)
+    {
+        if ((image->getWidth() != additionalImage->getWidth()) ||
+            (image->getHeight() != additionalImage->getHeight()) ||
+            (image->getBaseType() != additionalImage->getBaseType()) ||
+            (image->getChannelCount() != additionalImage->getChannelCount()))
+        {
+            throw Exception("All images in a Texture Array must have the same texture geometry.");
+        }
+    }
 
     MTLPixelFormat pixelFormat;
     MTLDataType dataType;
@@ -144,7 +155,16 @@ bool MetalTextureHandler::createRenderResources(ImagePtr image, bool generateMip
                                 false, dataType, pixelFormat);
 
         MTLTextureDescriptor* texDesc = [MTLTextureDescriptor new];
-        [texDesc setTextureType:MTLTextureType2D];
+        if (additionalImages.empty())
+        {
+            [texDesc setTextureType:MTLTextureType2D];
+        }
+        else
+        {
+            [texDesc setTextureType:MTLTextureType2DArray];
+            texDesc.arrayLength = additionalImages.size() + 1;
+        }
+
         texDesc.width = image->getWidth();
         texDesc.height = image->getHeight();
         texDesc.mipmapLevelCount = generateMipMaps ? image->getMaxMipCount() : 1;
@@ -188,80 +208,96 @@ bool MetalTextureHandler::createRenderResources(ImagePtr image, bool generateMip
 
     id<MTLBlitCommandEncoder> blitCmdEncoder = [cmdBuffer blitCommandEncoder];
 
-    NSUInteger channelCount = image->getChannelCount();
-
-    NSUInteger sourceBytesPerRow =
-        image->getWidth() *
-        channelCount *
-        getTextureBaseTypeSize(image->getBaseType());
-    NSUInteger sourceBytesPerImage =
-        sourceBytesPerRow *
-        image->getHeight();
-
     std::vector<float> rearrangedDataF;
     std::vector<unsigned char> rearrangedDataC;
-    void* imageData = image->getResourceBuffer();
 
-    if ((pixelFormat == MTLPixelFormatRGBA32Float || pixelFormat == MTLPixelFormatRGBA8Unorm) && channelCount == 3)
+    auto addImageToTexture = [texture, &blitCmdEncoder, &rearrangedDataC, &rearrangedDataF, pixelFormat](id<MTLDevice> device, ImagePtr image, NSUInteger sliceIndex)
     {
-        bool isFloat = pixelFormat == MTLPixelFormatRGBA32Float;
+        NSUInteger channelCount = image->getChannelCount();
 
-        sourceBytesPerRow = sourceBytesPerRow / 3 * 4;
-        sourceBytesPerImage = sourceBytesPerImage / 3 * 4;
+        NSUInteger sourceBytesPerRow =
+            image->getWidth() *
+            channelCount *
+            getTextureBaseTypeSize(image->getBaseType());
+        NSUInteger sourceBytesPerImage =
+            sourceBytesPerRow *
+            image->getHeight();
 
-        size_t srcIdx = 0;
+        void* imageData = image->getResourceBuffer();
+        rearrangedDataF.clear();
+        rearrangedDataC.clear();
 
-        if (isFloat)
+        if ((pixelFormat == MTLPixelFormatRGBA32Float || pixelFormat == MTLPixelFormatRGBA8Unorm) && channelCount == 3)
         {
-            rearrangedDataF.resize(sourceBytesPerImage / sizeof(float));
-            for (size_t dstIdx = 0; dstIdx < rearrangedDataF.size(); ++dstIdx)
+            bool isFloat = pixelFormat == MTLPixelFormatRGBA32Float;
+
+            sourceBytesPerRow = sourceBytesPerRow / 3 * 4;
+            sourceBytesPerImage = sourceBytesPerImage / 3 * 4;
+
+            size_t srcIdx = 0;
+
+            if (isFloat)
             {
-                if ((dstIdx & 0x3) == 3)
+                rearrangedDataF.resize(sourceBytesPerImage / sizeof(float));
+                for (size_t dstIdx = 0; dstIdx < rearrangedDataF.size(); ++dstIdx)
                 {
-                    rearrangedDataF[dstIdx] = 1.0f;
-                    continue;
+                    if ((dstIdx & 0x3) == 3)
+                    {
+                        rearrangedDataF[dstIdx] = 1.0f;
+                        continue;
+                    }
+
+                    rearrangedDataF[dstIdx] = ((float*) imageData)[srcIdx++];
                 }
 
-                rearrangedDataF[dstIdx] = ((float*) imageData)[srcIdx++];
+                imageData = rearrangedDataF.data();
             }
-
-            imageData = rearrangedDataF.data();
-        }
-        else
-        {
-            rearrangedDataC.resize(sourceBytesPerImage);
-            for (size_t dstIdx = 0; dstIdx < rearrangedDataC.size(); ++dstIdx)
+            else
             {
-                if ((dstIdx & 0x3) == 3)
+                rearrangedDataC.resize(sourceBytesPerImage);
+                for (size_t dstIdx = 0; dstIdx < rearrangedDataC.size(); ++dstIdx)
                 {
-                    rearrangedDataC[dstIdx] = 255;
-                    continue;
+                    if ((dstIdx & 0x3) == 3)
+                    {
+                        rearrangedDataC[dstIdx] = 255;
+                        continue;
+                    }
+
+                    rearrangedDataC[dstIdx] = ((unsigned char*) imageData)[srcIdx++];
                 }
 
-                rearrangedDataC[dstIdx] = ((unsigned char*) imageData)[srcIdx++];
+                imageData = rearrangedDataC.data();
             }
 
-            imageData = rearrangedDataC.data();
+            channelCount = 4;
         }
 
-        channelCount = 4;
-    }
+        if (imageData)
+        {
+            id<MTLBuffer> buffer = [device newBufferWithBytesNoCopy:imageData
+                                                             length:sourceBytesPerImage
+                                                            options:MTLStorageModeShared
+                                                        deallocator:nil];
+            [blitCmdEncoder copyFromBuffer:buffer
+                              sourceOffset:0
+                         sourceBytesPerRow:sourceBytesPerRow
+                       sourceBytesPerImage:sourceBytesPerImage
+                                sourceSize:MTLSizeMake(image->getWidth(), image->getHeight(), 1)
+                                 toTexture:texture
+                          destinationSlice:sliceIndex
+                          destinationLevel:0
+                         destinationOrigin:MTLOriginMake(0, 0, 0)];
 
-    id<MTLBuffer> buffer = nil;
-    if (imageData)
+            [buffer release];
+        }
+    };
+
+    addImageToTexture(_device, image, 0);
+
+    NSUInteger sliceIndex = 1;
+    for (const auto& image : additionalImages)
     {
-        buffer = [_device newBufferWithBytes:imageData
-                                      length:sourceBytesPerImage
-                                     options:MTLStorageModeShared];
-        [blitCmdEncoder copyFromBuffer:buffer
-                          sourceOffset:0
-                     sourceBytesPerRow:sourceBytesPerRow
-                   sourceBytesPerImage:sourceBytesPerImage
-                            sourceSize:MTLSizeMake(image->getWidth(), image->getHeight(), 1)
-                             toTexture:texture
-                      destinationSlice:0
-                      destinationLevel:0
-                     destinationOrigin:MTLOriginMake(0, 0, 0)];
+        addImageToTexture(_device, image, sliceIndex++);
     }
 
     if (generateMipMaps && image->getMaxMipCount() > 1)
@@ -271,9 +307,6 @@ bool MetalTextureHandler::createRenderResources(ImagePtr image, bool generateMip
 
     [cmdBuffer commit];
     [cmdBuffer waitUntilCompleted];
-
-    if (buffer)
-        [buffer release];
 
     return true;
 }

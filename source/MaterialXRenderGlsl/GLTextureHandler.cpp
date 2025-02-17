@@ -27,7 +27,7 @@ GLTextureHandler::GLTextureHandler(ImageLoaderPtr imageLoader) :
     _boundTextureLocations.resize(maxTextureUnits, GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID);
 }
 
-bool GLTextureHandler::bindImage(ImagePtr image, const ImageSamplingProperties& samplingProperties)
+bool GLTextureHandler::bindImage(ImagePtr image, const ImageSamplingProperties& samplingProperties, vector<ImagePtr> additionalImages)
 {
     if (!image)
     {
@@ -37,7 +37,7 @@ bool GLTextureHandler::bindImage(ImagePtr image, const ImageSamplingProperties& 
     // Create renderer resources if needed.
     if (image->getResourceId() == GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID)
     {
-        if (!createRenderResources(image, true))
+        if (!createRenderResources(image, true, false, additionalImages))
         {
             return false;
         }
@@ -56,8 +56,14 @@ bool GLTextureHandler::bindImage(ImagePtr image, const ImageSamplingProperties& 
     }
     _boundTextureLocations[textureUnit] = image->getResourceId();
 
+    auto textureTarget = GL_TEXTURE_2D;
+    if (!additionalImages.empty())
+    {
+        textureTarget = GL_TEXTURE_2D_ARRAY;
+    }
+
     glActiveTexture(GL_TEXTURE0 + textureUnit);
-    glBindTexture(GL_TEXTURE_2D, image->getResourceId());
+    glBindTexture(textureTarget, image->getResourceId());
 
     // Set up texture properties
     GLint minFilterType = mapFilterTypeToGL(samplingProperties.filterType, samplingProperties.enableMipmaps);
@@ -65,12 +71,12 @@ bool GLTextureHandler::bindImage(ImagePtr image, const ImageSamplingProperties& 
     GLint uaddressMode = mapAddressModeToGL(samplingProperties.uaddressMode);
     GLint vaddressMode = mapAddressModeToGL(samplingProperties.vaddressMode);
     Color4 borderColor(samplingProperties.defaultColor);
-    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor.data());
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, uaddressMode);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, vaddressMode);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilterType);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilterType);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, 16.0f);
+    glTexParameterfv(textureTarget, GL_TEXTURE_BORDER_COLOR, borderColor.data());
+    glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, uaddressMode);
+    glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, vaddressMode);
+    glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, minFilterType);
+    glTexParameteri(textureTarget, GL_TEXTURE_MAG_FILTER, magFilterType);
+    glTexParameterf(textureTarget, GL_TEXTURE_MAX_ANISOTROPY, 16.0f);
 
     return true;
 }
@@ -91,8 +97,19 @@ bool GLTextureHandler::unbindImage(ImagePtr image)
     return false;
 }
 
-bool GLTextureHandler::createRenderResources(ImagePtr image, bool generateMipMaps, bool)
+bool GLTextureHandler::createRenderResources(ImagePtr image, bool generateMipMaps, bool, vector<ImagePtr> additionalImages)
 {
+    for (const auto& additionalImage : additionalImages)
+    {
+        if ((image->getWidth() != additionalImage->getWidth()) ||
+            (image->getHeight() != additionalImage->getHeight()) ||
+            (image->getBaseType() != additionalImage->getBaseType()) ||
+            (image->getChannelCount() != additionalImage->getChannelCount()))
+        {
+            throw Exception("All images in a Texture Array must have the same texture geometry.");
+        }
+    }
+
     if (image->getResourceId() == GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID)
     {
         unsigned int resourceId;
@@ -111,26 +128,50 @@ bool GLTextureHandler::createRenderResources(ImagePtr image, bool generateMipMap
         return false;
     }
 
+    auto textureTarget = GL_TEXTURE_2D;
+    if (!additionalImages.empty())
+    {
+        textureTarget = GL_TEXTURE_2D_ARRAY;
+    }
+
     glActiveTexture(GL_TEXTURE0 + textureUnit);
-    glBindTexture(GL_TEXTURE_2D, image->getResourceId());
+    glBindTexture(textureTarget, image->getResourceId());
 
     int glType, glFormat, glInternalFormat;
     mapTextureFormatToGL(image->getBaseType(), image->getChannelCount(), false,
                          glType, glFormat, glInternalFormat);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glTexImage2D(GL_TEXTURE_2D, 0, glInternalFormat, image->getWidth(), image->getHeight(),
-                 0, glFormat, glType, image->getResourceBuffer());
+
+    if (textureTarget == GL_TEXTURE_2D)
+    {
+        glTexImage2D(textureTarget, 0, glInternalFormat, image->getWidth(), image->getHeight(),
+                     0, glFormat, glType, image->getResourceBuffer());
+    }
+    else if (textureTarget == GL_TEXTURE_2D_ARRAY)
+    {
+        int i = 0;
+        glTexImage3D(textureTarget, 0, glInternalFormat, image->getWidth(), image->getHeight(),
+                     (GLsizei) (additionalImages.size() + 1), 0, glFormat, glType, NULL);
+        glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i++, image->getWidth(), image->getHeight(),
+                        1, glFormat, glType, image->getResourceBuffer());
+        for (const auto& additionalImage : additionalImages)
+        {
+            glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i++, additionalImage->getWidth(), additionalImage->getHeight(),
+                            1, glFormat, glType, additionalImage->getResourceBuffer());
+        }
+    }
+
     if (image->getChannelCount() == 1)
     {
         GLint swizzleMask[] = { GL_RED, GL_RED, GL_RED, GL_ONE };
-        glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask);
+        glTexParameteriv(textureTarget, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask);
     }
 
     if (generateMipMaps)
     {
-        glGenerateMipmap(GL_TEXTURE_2D);
+        glGenerateMipmap(textureTarget);
     }
-    glBindTexture(GL_TEXTURE_2D, 0);
+    glBindTexture(textureTarget, 0);
 
     return true;
 }

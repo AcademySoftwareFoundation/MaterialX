@@ -166,16 +166,11 @@ void GlslMaterial::bindImages(ImageHandlerPtr imageHandler, const FileSearchPath
     }
     for (const auto& uniform : publicUniforms->getVariableOrder())
     {
-        if (uniform->getType() != Type::FILENAME)
+        if (!uniform->getType().isFilename())
         {
             continue;
         }
         const std::string& uniformVariable = uniform->getVariable();
-        std::string filename;
-        if (uniform->getValue())
-        {
-            filename = searchPath.find(uniform->getValue()->getValueString());
-        }
 
         // Extract out sampling properties
         ImageSamplingProperties samplingProperties;
@@ -184,7 +179,26 @@ void GlslMaterial::bindImages(ImageHandlerPtr imageHandler, const FileSearchPath
         // Set the requested mipmap sampling property,
         samplingProperties.enableMipmaps = enableMipmaps;
 
-        ImagePtr image = bindImage(filename, uniformVariable, imageHandler, samplingProperties);
+        ImagePtr image = nullptr;
+        if (uniform->getType() == Type::FILENAME)
+        {
+            std::string filename = uniform->getValue() ? searchPath.find(uniform->getValue()->getValueString()) : "";
+            image = bindImage(filename, uniformVariable, imageHandler, samplingProperties);
+        }
+        else if (uniform->getType() == Type::FILENAMEARRAY)
+        {
+            StringVec filenamesStr;
+            if (uniform->getValue())
+            {
+                filenamesStr = uniform->getValue()->asA<StringVec>();
+            }
+            vector<FilePath> filenames;
+            for (const auto& filename : filenamesStr)
+            {
+                filenames.emplace_back(filename);
+            }
+            image = bindImageArray(filenames, uniformVariable, imageHandler, samplingProperties);
+        }
         if (image)
         {
             _boundImages.push_back(image);
@@ -217,6 +231,50 @@ ImagePtr GlslMaterial::bindImage(const FilePath& filePath, const std::string& un
 
     // Bind the image and set its sampling properties.
     if (imageHandler->bindImage(image, samplingProperties))
+    {
+        GLTextureHandlerPtr textureHandler = std::static_pointer_cast<GLTextureHandler>(imageHandler);
+        int textureLocation = textureHandler->getBoundTextureLocation(image->getResourceId());
+        if (textureLocation >= 0)
+        {
+            _glProgram->bindUniform(uniformName, Value::createValue(textureLocation), false);
+            return image;
+        }
+    }
+    return nullptr;
+}
+
+ImagePtr GlslMaterial::bindImageArray(const vector<FilePath>& filePaths, const std::string& uniformName, ImageHandlerPtr imageHandler,
+                                      const ImageSamplingProperties& samplingProperties)
+{
+    if (!_glProgram)
+    {
+        return nullptr;
+    }
+
+    // Create a filename resolver for geometric properties.
+    StringResolverPtr resolver = StringResolver::create();
+    if (!getUdim().empty())
+    {
+        resolver->setUdimString(getUdim());
+    }
+    imageHandler->setFilenameResolver(resolver);
+
+    // Acquire the given image.
+    ImagePtr image = imageHandler->acquireImage(filePaths[0], samplingProperties.defaultColor);
+    if (!image)
+    {
+        return nullptr;
+    }
+
+    vector<ImagePtr> additionalImages;
+    for (unsigned int i = 1; i < filePaths.size(); ++i)
+    {
+        ImagePtr additionalImage = imageHandler->acquireImage(filePaths[i], samplingProperties.defaultColor);
+        additionalImages.emplace_back(additionalImage);
+    }
+
+    // Bind the image and set its sampling properties.
+    if (imageHandler->bindImage(image, samplingProperties, additionalImages))
     {
         GLTextureHandlerPtr textureHandler = std::static_pointer_cast<GLTextureHandler>(imageHandler);
         int textureLocation = textureHandler->getBoundTextureLocation(image->getResourceId());

@@ -397,6 +397,29 @@ template <class T> class ValueRegistry
 };
 
 //
+// Value alias registry class
+//
+
+class ValueAliasRegistry
+{
+  public:
+    ValueAliasRegistry(string alias, string name)
+    {
+        // we're storing the creator function of the original type value type registered against the
+        // aliased name as well - this allows for things like "filename" and "filenamearray" to
+        // be correctly created as string or StringVec, instead of just falling through to the string
+        // default.
+
+        auto it = Value::_creatorMap.find(name);
+        if (it != Value::_creatorMap.end())
+        {
+            Value::_creatorMap[alias] = it->second;
+        }
+    }
+    ~ValueAliasRegistry() { }
+};
+
+//
 // Template instantiations
 //
 
@@ -411,6 +434,9 @@ template <class T> class ValueRegistry
     template MX_CORE_API T fromValueString(const string& value);                                 \
     ValueRegistry<T> registry##T;
 
+#define ALIAS_TYPE(alias, name)                                                                  \
+    ValueAliasRegistry registry##alias(#alias, name);
+
 // Base types
 INSTANTIATE_TYPE(int, "integer")
 INSTANTIATE_TYPE(bool, "boolean")
@@ -423,12 +449,14 @@ INSTANTIATE_TYPE(Vector4, "vector4")
 INSTANTIATE_TYPE(Matrix33, "matrix33")
 INSTANTIATE_TYPE(Matrix44, "matrix44")
 INSTANTIATE_TYPE(string, "string")
+ALIAS_TYPE(filename, "string")
 
 // Array types
 INSTANTIATE_TYPE(IntVec, "integerarray")
 INSTANTIATE_TYPE(BoolVec, "booleanarray")
 INSTANTIATE_TYPE(FloatVec, "floatarray")
 INSTANTIATE_TYPE(StringVec, "stringarray")
+ALIAS_TYPE(filenamearray, "stringarray")
 
 // Alias types
 INSTANTIATE_TYPE(long, "integer")

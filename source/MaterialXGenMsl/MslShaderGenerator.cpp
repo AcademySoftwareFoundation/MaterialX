@@ -135,6 +135,12 @@ MslShaderGenerator::MslShaderGenerator() :
         "IM_image_vector2_" + MslShaderGenerator::TARGET,
         "IM_image_vector3_" + MslShaderGenerator::TARGET,
         "IM_image_vector4_" + MslShaderGenerator::TARGET,
+        "IM_imagearray_float_" + MslShaderGenerator::TARGET,
+        "IM_imagearray_color3_" + MslShaderGenerator::TARGET,
+        "IM_imagearray_color4_" + MslShaderGenerator::TARGET,
+        "IM_imagearray_vector2_" + MslShaderGenerator::TARGET,
+        "IM_imagearray_vector3_" + MslShaderGenerator::TARGET,
+        "IM_imagearray_vector4_" + MslShaderGenerator::TARGET,
     };
     registerImplementation(elementNames, HwImageNode::create);
 
@@ -247,6 +253,7 @@ void MslShaderGenerator::MetalizeGeneratedShader(ShaderStage& shaderStage) const
     // Renames GLSL constructs that are used in shared code to MSL equivalent constructs.
     std::unordered_map<string, string> replaceTokens;
     replaceTokens["sampler2D"] = "MetalTexture";
+    replaceTokens["sampler2DArray"] = "MetalTextureArray";
     replaceTokens["dFdy"] = "dfdy";
     replaceTokens["dFdx"] = "dfdx";
 
@@ -434,7 +441,7 @@ void MslShaderGenerator::emitGlobalVariables(GenContext& context,
                 {
                     for (size_t i = 0; i < uniforms.size(); ++i)
                     {
-                        if (uniforms[i]->getType() != Type::FILENAME)
+                        if (!uniforms[i]->getType().isFilename())
                         {
                             emitLineBegin(stage);
                             emitString(separator, stage);
@@ -452,7 +459,7 @@ void MslShaderGenerator::emitGlobalVariables(GenContext& context,
                             }
                             emitLineEnd(stage, false);
                         }
-                        else
+                        else if (uniforms[i]->getType() == Type::FILENAME)
                         {
                             if (globalContextInit)
                             {
@@ -476,6 +483,30 @@ void MslShaderGenerator::emitGlobalVariables(GenContext& context,
                                 emitLine(uniforms[i]->getVariable() + "(" + uniforms[i]->getVariable() + ")", stage, false);
                             }
                         }
+                        else if (uniforms[i]->getType() == Type::FILENAMEARRAY)
+                        {
+                            if (globalContextInit)
+                            {
+                                emitString(separator, stage);
+                                emitString("MetalTextureArray ", stage);
+                                emitScopeBegin(stage);
+                                emitString(TEXTUREARRAY_NAME(uniforms[i]->getVariable()), stage);
+                                emitString(separator, stage);
+                                emitString(SAMPLER_NAME(uniforms[i]->getVariable()), stage);
+                                emitScopeEnd(stage);
+                            }
+                            else if (globalContextMembers || globalContextConstructorParams)
+                            {
+                                emitString(separator, stage);
+                                emitVariableDeclaration(uniforms[i], EMPTY_STRING, context, stage, false);
+                                emitString(globalContextConstructorParams ? "" : ";", stage);
+                            }
+                            else if (globalContextConstructorInit)
+                            {
+                                emitString(separator, stage);
+                                emitString(uniforms[i]->getVariable() + "(" + uniforms[i]->getVariable() + ")", stage);
+                            }
+                        }
 
                         if (globalContextInit || globalContextConstructorParams || globalContextConstructorInit)
                             separator = ", ";
@@ -495,6 +526,15 @@ void MslShaderGenerator::emitGlobalVariables(GenContext& context,
                         {
                             emitString(separator, stage);
                             emitString("texture2d<float> " + TEXTURE_NAME(uniform->getVariable()), stage);
+                            emitString(" [[texture(" + std::to_string(tex_slot) + ")]], ", stage);
+                            emitString("sampler " + SAMPLER_NAME(uniform->getVariable()), stage);
+                            emitString(" [[sampler(" + std::to_string(tex_slot++) + ")]]", stage);
+                            emitLineEnd(stage, false);
+                        }
+                        else if (uniform->getType() == Type::FILENAMEARRAY)
+                        {
+                            emitString(separator, stage);
+                            emitString("texture2d_array<float> " + TEXTUREARRAY_NAME(uniform->getVariable()), stage);
                             emitString(" [[texture(" + std::to_string(tex_slot) + ")]], ", stage);
                             emitString("sampler " + SAMPLER_NAME(uniform->getVariable()), stage);
                             emitString(" [[sampler(" + std::to_string(tex_slot++) + ")]]", stage);
@@ -718,6 +758,7 @@ void MslShaderGenerator::emitConstantBufferDeclarations(GenContext& context,
 void MslShaderGenerator::emitMetalTextureClass(GenContext& context, ShaderStage& stage) const
 {
     emitLibraryInclude("stdlib/genmsl/lib/mx_texture.metal", context, stage);
+    emitLibraryInclude("stdlib/genmsl/lib/mx_texture_array.metal", context, stage);
 }
 
 void MslShaderGenerator::emitLightData(GenContext& context, ShaderStage& stage) const
@@ -1188,6 +1229,12 @@ void MslShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, con
         // Samplers must always be uniforms
         string str = qualifier.empty() ? EMPTY_STRING : qualifier + " ";
         emitString(str + "MetalTexture " + variable->getVariable(), stage);
+    }
+    else if (variable->getType() == Type::FILENAMEARRAY)
+    {
+        // Samplers must always be uniforms
+        string str = qualifier.empty() ? EMPTY_STRING : qualifier + " ";
+        emitString(str + "MetalTextureArray " + variable->getVariable(), stage);
     }
     else
     {

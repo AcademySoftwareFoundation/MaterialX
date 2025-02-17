@@ -40,11 +40,12 @@ class OslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
     // Arnold specific files are ignored in vanilla osl target
     void addSkipLibraryFiles() override
     {
-        _skipLibraryFiles.insert( "pbrlib_genosl_arnold_impl.mtlx" );
+        _skipLibraryFiles.insert("pbrlib_genosl_arnold_impl.mtlx");
     }
 
     void addSkipFiles() override
     {
+        _skipFiles.insert("imagearray.mtlx");
     }
 
     // Ignore light shaders in the document for OSL

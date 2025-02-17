@@ -81,6 +81,22 @@ class GlslIntegerArrayTypeSyntax : public GlslArrayTypeSyntax
     }
 };
 
+class GlslFilenameArrayTypeSyntax : public GlslArrayTypeSyntax
+{
+  public:
+    explicit GlslFilenameArrayTypeSyntax(const string& name) :
+        GlslArrayTypeSyntax(name)
+    {
+    }
+
+  protected:
+    size_t getSize(const Value& value) const override
+    {
+        vector<string> valueArray = value.asA<vector<string>>();
+        return valueArray.size();
+    }
+};
+
 } // anonymous namespace
 
 const string GlslSyntax::INPUT_QUALIFIER = "in";
@@ -260,6 +276,11 @@ GlslSyntax::GlslSyntax()
             "sampler2D",
             EMPTY_STRING,
             EMPTY_STRING));
+
+    registerTypeSyntax(
+        Type::FILENAMEARRAY,
+        std::make_shared<GlslFilenameArrayTypeSyntax>(
+            "sampler2DArray"));
 
     registerTypeSyntax(
         Type::BSDF,

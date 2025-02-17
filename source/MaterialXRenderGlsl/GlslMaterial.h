@@ -80,6 +80,11 @@ class MX_RENDERGLSL_API GlslMaterial : public ShaderMaterial
                        ImageHandlerPtr imageHandler,
                        const ImageSamplingProperties& samplingProperties) override;
 
+  protected:
+    ImagePtr bindImageArray(const vector<FilePath>& filePaths, const std::string& uniformName, ImageHandlerPtr imageHandler,
+                            const ImageSamplingProperties& samplingProperties);
+
+  public:
     /// Bind lights to shader.
     void bindLighting(LightHandlerPtr lightHandler,
                       ImageHandlerPtr imageHandler,

@@ -130,6 +130,12 @@ GlslShaderGenerator::GlslShaderGenerator() :
         "IM_image_vector2_" + GlslShaderGenerator::TARGET,
         "IM_image_vector3_" + GlslShaderGenerator::TARGET,
         "IM_image_vector4_" + GlslShaderGenerator::TARGET,
+        "IM_imagearray_float_" + GlslShaderGenerator::TARGET,
+        "IM_imagearray_color3_" + GlslShaderGenerator::TARGET,
+        "IM_imagearray_color4_" + GlslShaderGenerator::TARGET,
+        "IM_imagearray_vector2_" + GlslShaderGenerator::TARGET,
+        "IM_imagearray_vector3_" + GlslShaderGenerator::TARGET,
+        "IM_imagearray_vector4_" + GlslShaderGenerator::TARGET,
     };
     registerImplementation(elementNames, HwImageNode::create);
 
@@ -676,6 +682,12 @@ void GlslShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, co
         // Samplers must always be uniforms
         string str = qualifier.empty() ? EMPTY_STRING : qualifier + " ";
         emitString(str + "sampler2D " + variable->getVariable(), stage);
+    }
+    else if (variable->getType() == Type::FILENAMEARRAY)
+    {
+        // Samplers must always be uniforms
+        string str = qualifier.empty() ? EMPTY_STRING : qualifier + " ";
+        emitString(str + "sampler2DArray " + variable->getVariable(), stage);
     }
     else
     {

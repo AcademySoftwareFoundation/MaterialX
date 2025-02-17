@@ -81,6 +81,22 @@ class MslIntegerArrayTypeSyntax : public MslArrayTypeSyntax
     }
 };
 
+class MslFilenameArrayTypeSyntax : public MslArrayTypeSyntax
+{
+  public:
+    explicit MslFilenameArrayTypeSyntax(const string& name) :
+        MslArrayTypeSyntax(name)
+    {
+    }
+
+  protected:
+    size_t getSize(const Value& value) const override
+    {
+        vector<string> valueArray = value.asA<vector<string>>();
+        return valueArray.size();
+    }
+};
+
 } // anonymous namespace
 
 const string MslSyntax::INPUT_QUALIFIER = "in";
@@ -242,6 +258,11 @@ MslSyntax::MslSyntax()
             "MetalTexture",
             EMPTY_STRING,
             EMPTY_STRING));
+
+    registerTypeSyntax(
+        Type::FILENAMEARRAY,
+        std::make_shared<MslFilenameArrayTypeSyntax>(
+            "MetalTextureArray"));
 
     registerTypeSyntax(
         Type::BSDF,

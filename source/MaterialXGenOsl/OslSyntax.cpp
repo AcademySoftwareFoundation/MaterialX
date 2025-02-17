@@ -221,6 +221,37 @@ class OSLFilenameTypeSyntax : public AggregateTypeSyntax
     }
 };
 
+class OSLFilenameArrayTypeSyntax : public AggregateTypeSyntax
+{
+  public:
+    OSLFilenameArrayTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
+                          const string& typeAlias = EMPTY_STRING, const string& typeDefinition = EMPTY_STRING,
+                          const StringVec& members = EMPTY_MEMBERS) :
+        AggregateTypeSyntax(name, defaultValue, uniformDefaultValue, typeAlias, typeDefinition, members)
+    {
+    }
+
+    string getValue(const ShaderPort* port, bool uniform) const override
+    {
+        if (!port)
+        {
+            return EMPTY_STRING;
+        }
+
+        const string prefix = uniform ? "{" : getName() + "(";
+        const string suffix = uniform ? "}" : ")";
+        const string filename = port->getValue() ? port->getValue()->getValueString() : EMPTY_STRING;
+        return prefix + "{\"" + filename + "\"}, \"" + port->getColorSpace() + "\"" + suffix;
+    }
+
+    string getValue(const Value& value, bool uniform) const override
+    {
+        const string prefix = uniform ? "{" : getName() + "(";
+        const string suffix = uniform ? "}" : ")";
+        return prefix + "{\"" + value.getValueString() + "\"}, \"\"" + suffix;
+    }
+};
+
 } // anonymous namespace
 
 const string OslSyntax::OUTPUT_QUALIFIER = "output";
@@ -253,7 +284,7 @@ OslSyntax::OslSyntax()
           "isinf", "isfinite", "erf", "erfc", "cross", "dot", "length", "distance", "normalize", "faceforward",
           "reflect", "fresnel", "transform", "transformu", "rotate", "luminance", "blackbody", "wavelength_color",
           "transformc", "determinant", "transpose", "step", "smoothstep", "linearstep", "smooth_linearstep", "aastep",
-          "hash", "strlen", "getchar", "startswith", "endswith", "substr", "stof", "stoi", "concat", "textureresource",
+          "hash", "strlen", "getchar", "startswith", "endswith", "substr", "stof", "stoi", "concat", "textureresource", "textureresources",
           "backfacing", "raytype", "iscameraray", "isdiffuseray", "isglossyray", "isshadowray", "getmatrix",
           "emission", "background", "diffuse", "oren_nayer", "translucent", "phong", "ward", "microfacet",
           "reflection", "transparent", "debug", "holdout", "subsurface", "sheen",
@@ -367,9 +398,18 @@ OslSyntax::OslSyntax()
         std::make_shared<OSLFilenameTypeSyntax>(
             "textureresource ",
             "textureresource (\"\", \"\")",
-            "(\"\", \"\")",
+            "{\"\", \"\"}",
             EMPTY_STRING,
             "struct textureresource { string filename; string colorspace; };"));
+
+    registerTypeSyntax(
+        Type::FILENAMEARRAY,
+        std::make_shared<OSLFilenameArrayTypeSyntax>(
+            "textureresources ",
+            "textureresources ({}, \"\")",
+            "({}, \"\")",
+            EMPTY_STRING,
+            "struct textureresources { string filename[100]; string colorspace; };"));
 
     registerTypeSyntax(
         Type::BSDF,

@@ -37,6 +37,7 @@ class MdlShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
         _skipNodeDefs.insert("ND_spot_light");
         _skipNodeDefs.insert("ND_directional_light");
         _skipNodeDefs.insert("ND_dot_");
+        _skipNodeDefs.insert("ND_elementat_");
         ParentClass::addSkipNodeDefs();
     }
 
@@ -50,9 +51,11 @@ class MdlShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
             _skipFiles.insert("heighttonormal_in_nodegraph.mtlx");
         }
 
+        _skipFiles.insert("imagearray.mtlx");
+        _skipFiles.insert("elementat.mtlx");
+
         ShaderGeneratorTester::addSkipFiles();
     }
-
 
     // Ignore light shaders in the document for MDL
     void findLights(mx::DocumentPtr /*doc*/, std::vector<mx::NodePtr>& lights) override
@@ -80,7 +83,7 @@ class MdlShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
             "IM_constant_", "IM_dot_", "IM_angle", "IM_geomattrvalue",
             "IM_absorption_vdf_", "IM_mix_vdf_", "IM_add_vdf_", "IM_multiply_vdf",
             "IM_measured_edf_", "IM_blackbody_", "IM_conical_edf_", 
-            "IM_displacement_", "IM_volume_", "IM_light_"
+            "IM_displacement_", "IM_volume_", "IM_light_", "IM_elementat_"
         };
         ShaderGeneratorTester::getImplementationWhiteList(whiteList);
     }
