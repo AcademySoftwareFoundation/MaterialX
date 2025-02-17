@@ -96,9 +96,8 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     target_compile_options(MaterialXTest PUBLIC -Wno-deprecated-declarations)
 endif()
 
-add_custom_target(buildTestMaterialXDataLibrary ALL
-    COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different ${MATERIALX_DATA_LIBRARY_BUILD_DIR} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/libraries
-    DEPENDS buildMaterialXDataLibrary)
+set(MATERIALX_TEST_LIBRARIES_DIR ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/libraries)
+mx_build_data_library(buildTestMaterialXDataLibrary ${MATERIALX_DATA_LIBRARY_SOURCE_DIR} ${MATERIALX_TEST_LIBRARIES_DIR} "${MATERIALX_DATA_LIBRARY_SOURCE_FILES}")
 
 if(MATERIALX_BUILD_GEN_MDL)
     install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../source/MaterialXGenMdl/mdl/"
