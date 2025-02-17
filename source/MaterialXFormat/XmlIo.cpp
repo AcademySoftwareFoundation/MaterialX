@@ -19,6 +19,7 @@ MATERIALX_NAMESPACE_BEGIN
 
 const string MTLX_EXTENSION = "mtlx";
 
+const int MAX_XINCLUDE_DEPTH = 256;
 const int MAX_XML_TREE_DEPTH = 256;
 
 namespace
@@ -161,9 +162,7 @@ void elementToXml(ConstElementPtr elem, xml_node& xmlNode, const XmlWriteOptions
 
 void processXIncludes(DocumentPtr doc, xml_node& xmlNode, const FileSearchPath& searchPath, const XmlReadOptions* readOptions)
 {
-    // Search path for includes. Set empty and then evaluated once in the iteration through xml includes.
     FileSearchPath includeSearchPath;
-
     XmlReadFunction readXIncludeFunction = readOptions ? readOptions->readXIncludeFunction : readFromXmlFile;
     xml_node xmlChild = xmlNode.first_child();
     while (xmlChild)
@@ -174,15 +173,16 @@ void processXIncludes(DocumentPtr doc, xml_node& xmlNode, const FileSearchPath& 
             if (readXIncludeFunction)
             {
                 string filename = xmlChild.attribute("href").value();
+                const StringVec& parents = readOptions ? readOptions->parentXIncludes : StringVec();
 
-                // Check for XInclude cycles.
-                if (readOptions)
+                // Validate XInclude state.
+                if (std::find(parents.begin(), parents.end(), filename) != parents.end())
                 {
-                    const StringVec& parents = readOptions->parentXIncludes;
-                    if (std::find(parents.begin(), parents.end(), filename) != parents.end())
-                    {
-                        throw ExceptionParseError("XInclude cycle detected.");
-                    }
+                    throw ExceptionParseError("XInclude cycle detected.");
+                }
+                if (parents.size() >= MAX_XINCLUDE_DEPTH)
+                {
+                    throw ExceptionParseError("Maximum XInclude depth exceeded.");
                 }
 
                 // Read the included file into a library document.
