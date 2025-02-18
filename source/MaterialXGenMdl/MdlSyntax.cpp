@@ -471,6 +471,7 @@ MdlSyntax::MdlSyntax(TypeSystemPtr typeSystem) : Syntax(typeSystem)
     registerTypeSyntax(
         Type::MDL_SHEEN_MODE,
         std::make_shared<MdlEnumSyntax>(
+            this,
             "mx_sheen_mode",
             "mx_sheen_mode_conty_kulla",
             "mx_sheen_mode_conty_kulla",
