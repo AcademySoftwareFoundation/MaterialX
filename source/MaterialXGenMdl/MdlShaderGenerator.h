@@ -26,7 +26,8 @@ class MX_GENMDL_API GenMdlOptions : public GenUserData
         MDL_1_7,
         MDL_1_8,
         MDL_1_9,
-        MDL_LATEST = MDL_1_9
+        MDL_1_10,
+        MDL_LATEST = MDL_1_10
     };
 
     /// Create MDL code generator options with default values.
