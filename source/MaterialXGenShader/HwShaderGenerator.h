@@ -332,7 +332,7 @@ class MX_GENSHADER_API HwShaderGenerator : public ShaderGenerator
     };
 
   protected:
-    HwShaderGenerator(SyntaxPtr syntax);
+    HwShaderGenerator(TypeSystemPtr typeSystem, SyntaxPtr syntax);
 
     /// Create and initialize a new HW shader for shader generation.
     virtual ShaderPtr createShader(const string& name, ElementPtr element, GenContext& context) const;

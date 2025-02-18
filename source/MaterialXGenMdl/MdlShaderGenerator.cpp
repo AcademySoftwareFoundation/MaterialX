@@ -82,10 +82,18 @@ const std::unordered_map<string, string> MdlShaderGenerator::GEOMPROP_DEFINITION
 // MdlShaderGenerator methods
 //
 
-MdlShaderGenerator::MdlShaderGenerator() :
-    ShaderGenerator(MdlSyntax::create())
+MdlShaderGenerator::MdlShaderGenerator(TypeSystemPtr typeSystem) :
+    ShaderGenerator(typeSystem, MdlSyntax::create(typeSystem))
 {
-    // Register built-in implementations
+    // Register custom types to handle enumeration output
+    _typeSystem->registerType(Type::MDL_COORDINATESPACE);
+    _typeSystem->registerType(Type::MDL_ADDRESSMODE);
+    _typeSystem->registerType(Type::MDL_FILTERLOOKUPMODE);
+    _typeSystem->registerType(Type::MDL_FILTERTYPE);
+    _typeSystem->registerType(Type::MDL_DISTRIBUTIONTYPE);
+    _typeSystem->registerType(Type::MDL_SCATTER_MODE);
+
+    // Register build-in implementations
 
     // <!-- <surfacematerial> -->
     registerImplementation("IM_surfacematerial_" + MdlShaderGenerator::TARGET, MaterialNodeMdl::create);
@@ -354,7 +362,7 @@ ShaderNodeImplPtr MdlShaderGenerator::getImplementation(const NodeDef& nodedef, 
         throw ExceptionShaderGenError("NodeDef '" + nodedef.getName() + "' has no outputs defined");
     }
 
-    const TypeDesc outputType = TypeDesc::get(outputs[0]->getType());
+    const TypeDesc outputType = _typeSystem->getType(outputs[0]->getType());
 
     if (implElement->isA<NodeGraph>())
     {
