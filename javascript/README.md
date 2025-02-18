@@ -179,7 +179,7 @@ Make sure to consume `JsMaterialXGenShader.js` instead of `JsMaterialXCore.js` a
 #### Generating Essl Shader Code & Compiling with WebGL
 To generate WebGL 2 compatible shader code a generator context and an instance of the `EsslShaderGenerator` class is required. 
 ```javascript
-const gen = new mx.EsslShaderGenerator();
+const gen = mx.EsslShaderGenerator.create();
 const genContext = new mx.GenContext(gen);
 ```
 The standard libraries need to be loaded and imported into the document. This step is required as the standard libraries contain all the definitions and snippets needed for assembly of the shader code.
