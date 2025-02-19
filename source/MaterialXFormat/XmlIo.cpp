@@ -20,6 +20,7 @@ MATERIALX_NAMESPACE_BEGIN
 const string MTLX_EXTENSION = "mtlx";
 
 const int MAX_XINCLUDE_DEPTH = 256;
+const int MAX_XML_TREE_DEPTH = 256;
 
 namespace
 {
@@ -111,6 +112,61 @@ void documentToXml(DocumentPtr doc, xml_node& xmlRoot, const XmlWriteOptions* wr
     }
 }
 
+void elementFromXml(const xml_node& xmlNode, ElementPtr elem, const XmlReadOptions* readOptions, int depth = 1)
+{
+    // Store attributes in element.
+    for (const xml_attribute& xmlAttr : xmlNode.attributes())
+    {
+        if (xmlAttr.name() != Element::NAME_ATTRIBUTE)
+        {
+            elem->setAttribute(xmlAttr.name(), xmlAttr.value());
+        }
+    }
+
+    // Create child elements and recurse.
+    for (const xml_node& xmlChild : xmlNode.children())
+    {
+        // Get child category.
+        string category = xmlChild.name();
+        if (category == XINCLUDE_TAG)
+        {
+            continue;
+        }
+
+        // Get child name and skip duplicates.
+        string name = xmlChild.attribute(Element::NAME_ATTRIBUTE.c_str()).value();
+        ConstElementPtr previous = elem->getChild(name);
+        if (previous)
+        {
+            continue;
+        }
+
+        // Enforce maximum tree depth.
+        if (depth >= MAX_XML_TREE_DEPTH)
+        {
+            throw ExceptionParseError("Maximum tree depth exceeded.");
+        }
+
+        // Create the child element.
+        ElementPtr child = elem->addChildOfCategory(category, name);
+        elementFromXml(xmlChild, child, readOptions, depth + 1);
+
+        // Handle the interpretation of XML comments and newlines.
+        if (readOptions && category.empty())
+        {
+            if (readOptions->readComments && xmlChild.type() == node_comment)
+            {
+                child = elem->changeChildCategory(child, CommentElement::CATEGORY);
+                child->setDocString(xmlChild.value());
+            }
+            else if (readOptions->readNewlines && xmlChild.type() == node_newline)
+            {
+                child = elem->changeChildCategory(child, NewlineElement::CATEGORY);
+            }
+        }
+    }
+}
+
 void documentFromXml(DocumentPtr doc, const xml_document& xmlDoc, const FileSearchPath& searchPath, const XmlReadOptions* readOptions)
 {
     xml_node xmlRoot = xmlDoc.child(Document::CATEGORY.c_str());
@@ -153,63 +209,9 @@ void documentFromXml(DocumentPtr doc, const xml_document& xmlDoc, const FileSear
     }
 
     // Build the element tree.
-    ElementStack elemStack;
-    elemStack.emplace_back(doc, xmlRoot);
-    while (!elemStack.empty())
-    {
-        ElementPtr elem = elemStack.back().first;
-        xml_node xmlNode = elemStack.back().second;
-        elemStack.pop_back();
+    elementFromXml(xmlRoot, doc, readOptions);
 
-        // Store attributes in element.
-        for (const xml_attribute& xmlAttr : xmlNode.attributes())
-        {
-            if (xmlAttr.name() != Element::NAME_ATTRIBUTE)
-            {
-                elem->setAttribute(xmlAttr.name(), xmlAttr.value());
-            }
-        }
-
-        // Create child elements and recurse.
-        for (const xml_node& xmlChild : xmlNode.children())
-        {
-            // Get child category.
-            string category = xmlChild.name();
-            if (category == XINCLUDE_TAG)
-            {
-                continue;
-            }
-
-            // Get child name and skip duplicates.
-            string name = xmlChild.attribute(Element::NAME_ATTRIBUTE.c_str()).value();
-            ConstElementPtr previous = elem->getChild(name);
-            if (previous)
-            {
-                continue;
-            }
-
-            // Create the child element.
-            ElementPtr child = elem->addChildOfCategory(category, name);
-
-            // Handle the interpretation of XML comments and newlines.
-            if (readOptions && category.empty())
-            {
-                if (readOptions->readComments && xmlChild.type() == node_comment)
-                {
-                    child = elem->changeChildCategory(child, CommentElement::CATEGORY);
-                    child->setDocString(xmlChild.value());
-                }
-                else if (readOptions->readNewlines && xmlChild.type() == node_newline)
-                {
-                    child = elem->changeChildCategory(child, NewlineElement::CATEGORY);
-                }
-            }
-
-            // Push child data onto the stack.
-            elemStack.emplace_back(child, xmlChild);
-        }
-    }
-
+    // Upgrade version if requested.
     if (!readOptions || readOptions->upgradeVersion)
     {
         doc->upgradeVersion();
