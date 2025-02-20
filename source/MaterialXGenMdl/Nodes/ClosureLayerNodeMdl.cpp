@@ -218,4 +218,9 @@ bool LayerableNodeMdl::isEditable(const ShaderInput& input) const
     return BASE::isEditable(input);
 }
 
+StringVec LayerableNodeMdl::addedInputNames() const
+{
+    return {1, StringConstantsMdl::BASE};
+}
+
 MATERIALX_NAMESPACE_END

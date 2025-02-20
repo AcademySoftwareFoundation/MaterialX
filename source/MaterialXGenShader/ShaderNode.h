@@ -483,6 +483,12 @@ class MX_GENSHADER_API ShaderNode
         return (!_impl || _impl->isEditable(input));
     }
 
+    /// Return input names that are added by the implementation of this node
+    virtual StringVec addedInputNames() const
+    {
+        return _impl ? _impl->addedInputNames() : StringVec{};
+    }
+
   protected:
     /// Create metadata from the nodedef according to registered metadata.
     void createMetadata(const NodeDef& nodeDef, GenContext& context);
