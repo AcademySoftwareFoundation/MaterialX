@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+
+  <!-- definition -->
+  <nodedef name="ND_custom_inline_node_multiple_output" node="custom_inline_node_multiple_output" nodegroup="custom" doc="A simple custom inline node with multiple outputs.">
+    <input name="red" type="float" value="0.0" />
+    <input name="green" type="float" value="0.0" />
+    <input name="blue" type="float" value="0.0" />
+    <input name="alpha" type="float" value="1.0" />
+    <output name="out_color" type="color3" value="1.0 0.0 0.0" />
+    <output name="out_alpha" type="float" value="1.0" />
+  </nodedef>
+
+  <!-- implementation -->
+  <implementation 
+    name="IM_custom_inline_node_multiple_output"
+    nodedef="ND_custom_inline_node_multiple_output"
+    target="genmdl"
+    sourcecode="
+      float green2 = 2.0f * mxp_green;
+      mxp_out_color = color(mxp_red, green2, mxp_blue);
+      mxp_out_alpha = mxp_alpha * 0.5;
+    "/>
+
+  <!-- instantiations -->
+  <custom_inline_node_multiple_output name="custom1" type="multioutput">
+    <input name="red" type="float" value="0.25" />
+    <input name="green" type="float" value="0.25" />
+    <input name="blue" type="float" value="0.75" />
+  </custom_inline_node_multiple_output>
+  <custom_inline_node_multiple_output name="custom2" type="multioutput">
+    <input name="red" type="float" value="0.05" />
+    <input name="green" type="float" value="0.55" />
+    <input name="blue" type="float" value="0.05" />
+  </custom_inline_node_multiple_output>
+
+  <mix name="blend1" type="color3">
+    <input name="fg" type="color3" nodename="custom1" output="out_color" />
+    <input name="bg" type="color3" nodename="custom2" output="out_color" />
+    <input name="mix" type="float" value="0.5" />
+  </mix>
+  <mix name="blend2" type="float">
+    <input name="fg" type="float" nodename="custom1" output="out_alpha" />
+    <input name="bg" type="float" nodename="custom2" output="out_alpha" />
+    <input name="mix" type="float" value="0.5" />
+  </mix>
+
+  <burley_diffuse_bsdf name="burley_brdf1" type="BSDF">
+    <input name="color" type="color3" nodename="blend1" />
+    <input name="roughness" type="float" value="0.2" />
+  </burley_diffuse_bsdf>
+  <surface name="surface1" type="surfaceshader">
+    <input name="bsdf" type="BSDF" nodename="burley_brdf1" />
+    <input name="opacity" type="float" nodename="blend2" />
+  </surface>
+
+  <surfacematerial name="code_constant_color" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="surface1" />
+  </surfacematerial>
+
+</materialx>
