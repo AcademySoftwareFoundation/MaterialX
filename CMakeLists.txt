@@ -33,10 +33,15 @@ endif()
 
 project(MaterialX VERSION ${MATERIALX_LIBRARY_VERSION})
 
+# Build options
 option(MATERIALX_BUILD_PYTHON "Build the MaterialX Python package from C++ bindings. Requires Python 3.6 or greater." OFF)
 option(MATERIALX_BUILD_VIEWER "Build the MaterialX Viewer." OFF)
 option(MATERIALX_BUILD_GRAPH_EDITOR "Build the MaterialX Graph Editor." OFF)
-option(MATERIALX_BUILD_DOCS "Create HTML documentation using Doxygen. Requires that Doxygen be installed." OFF)
+option(MATERIALX_BUILD_DOCS_CPP "Create HTML documentation for the MaterialX C++ API using Doxygen. Requires that Doxygen be installed." OFF)
+option(MATERIALX_BUILD_DOCS_PYTHON "Create HTML documentation for the MaterialX Python API using Sphinx. Requires that Sphinx and MyST-Parser be installed." OFF)
+if(MATERIALX_BUILD_DOCS_PYTHON)
+    set(MATERIALX_BUILD_PYTHON ON)
+endif()
 
 option(MATERIALX_BUILD_GEN_GLSL "Build the GLSL shader generator back-end." ON)
 option(MATERIALX_BUILD_GEN_OSL "Build the OSL shader generator back-end." ON)
@@ -59,10 +64,10 @@ option(MATERIALX_WARNINGS_AS_ERRORS "Interpret all compiler warnings as errors."
 option(MATERIALX_COVERAGE_ANALYSIS "Build MaterialX libraries with coverage analysis on supporting platforms." OFF)
 option(MATERIALX_DYNAMIC_ANALYSIS "Build MaterialX libraries with dynamic analysis on supporting platforms." OFF)
 
-option(MATERIALX_BUILD_IOS "Build MaterialX for iOS. (Deprecated. Set CMAKE_SYSTEM_NAME instead)" OFF)
+option(MATERIALX_BUILD_IOS "Build MaterialX for iOS. (Deprecated. Set CMAKE_SYSTEM_NAME to iOS instead.)" OFF)
 option(MATERIALX_BUILD_APPLE_FRAMEWORK "Build MaterialX as an Apple Framework" ${__build_apple_framework})
 if (MATERIALX_BUILD_IOS)
-    MESSAGE(WARNING "The MATERIALX_BUILD_IOS is deprecated. Set the CMAKE_SYSTEM_NAME to the platform instead")
+    message(DEPRECATION "The MATERIALX_BUILD_IOS option is deprecated. Set CMAKE_SYSTEM_NAME to iOS instead.")
     set(CMAKE_SYSTEM_NAME iOS)
 endif()
 
@@ -160,7 +165,8 @@ message(STATUS "Setting namespace to '${MATERIALX_NAMESPACE}'")
 # that it has a unique name that won't conflict with one elsewhere on the system.
 set (MATERIALX_LIBNAME_SUFFIX "" CACHE STRING "Specify a suffix to all libraries that are built")
 
-mark_as_advanced(MATERIALX_BUILD_DOCS)
+mark_as_advanced(MATERIALX_BUILD_DOCS_CPP)
+mark_as_advanced(MATERIALX_BUILD_DOCS_PYTHON)
 mark_as_advanced(MATERIALX_BUILD_GEN_GLSL)
 mark_as_advanced(MATERIALX_BUILD_GEN_OSL)
 mark_as_advanced(MATERIALX_BUILD_GEN_MDL)
@@ -511,8 +517,11 @@ if(MATERIALX_BUILD_PYTHON)
     add_subdirectory(python)
 endif()
 
-if(MATERIALX_BUILD_DOCS)
+if(MATERIALX_BUILD_DOCS_CPP)
     add_subdirectory(documents)
+endif()
+if(MATERIALX_BUILD_DOCS_PYTHON)
+    add_subdirectory(documents/PythonAPI)
 endif()
 
 if(MATERIALX_BUILD_JS)

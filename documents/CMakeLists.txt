@@ -38,8 +38,8 @@ add_custom_command(OUTPUT ${DOXYGEN_HTML_OUTPUT_DIR}/index.html
                    COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
                    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
                    DEPENDS ${DOXYGEN_INPUT_LIST} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
-                   COMMENT "Generating HTML documentation: ${DOXYGEN_HTML_OUTPUT_DIR}/index.html")
-add_custom_target(MaterialXDocs ALL DEPENDS ${DOXYGEN_HTML_OUTPUT_DIR}/index.html)
+                   COMMENT "Building MaterialX C++ API Documentation in ${DOXYGEN_HTML_OUTPUT_DIR}/ ...")
+add_custom_target(MaterialXDocsCpp ALL DEPENDS ${DOXYGEN_HTML_OUTPUT_DIR}/index.html)
 
 install(DIRECTORY ${DOXYGEN_HTML_OUTPUT_DIR}
         DESTINATION "documents" MESSAGE_NEVER)
