@@ -8,15 +8,12 @@
 
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
+#include <MaterialXGenShader/TypeDesc.h>
 #include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
-#include <MaterialXGenShader/Nodes/ClosureAddNode.h>
-#include <MaterialXGenShader/Nodes/ClosureMixNode.h>
-#include <MaterialXGenShader/Nodes/ClosureMultiplyNode.h>
+#include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
 
 #include <MaterialXGenOsl/Nodes/BlurNodeOsl.h>
-#include <MaterialXGenOsl/Nodes/SurfaceNodeOsl.h>
-#include <MaterialXGenOsl/Nodes/ClosureLayerNodeOsl.h>
 #include <MaterialXGenOsl/Nodes/MaterialNodeOsl.h>
 
 MATERIALX_NAMESPACE_BEGIN
@@ -27,10 +24,10 @@ const string OslShaderGenerator::TARGET = "genosl";
 // OslShaderGenerator methods
 //
 
-OslShaderGenerator::OslShaderGenerator() :
-    ShaderGenerator(OslSyntax::create())
+OslShaderGenerator::OslShaderGenerator(TypeSystemPtr typeSystem) :
+    ShaderGenerator(typeSystem, OslSyntax::create(typeSystem))
 {
-    // Register build-in implementations
+    // Register built-in implementations
 
     // <!-- <blur> -->
     registerImplementation("IM_blur_float_" + OslShaderGenerator::TARGET, BlurNodeOsl::create);
@@ -40,28 +37,8 @@ OslShaderGenerator::OslShaderGenerator() :
     registerImplementation("IM_blur_vector3_" + OslShaderGenerator::TARGET, BlurNodeOsl::create);
     registerImplementation("IM_blur_vector4_" + OslShaderGenerator::TARGET, BlurNodeOsl::create);
 
-    // <!-- <layer> -->
-    registerImplementation("IM_layer_bsdf_" + OslShaderGenerator::TARGET, ClosureLayerNodeOsl::create);
-    registerImplementation("IM_layer_vdf_" + OslShaderGenerator::TARGET, ClosureLayerNodeOsl::create);
-
-#ifdef MATERIALX_OSL_LEGACY_CLOSURES
-
-    // <!-- <mix> -->
-    registerImplementation("IM_mix_bsdf_" + OslShaderGenerator::TARGET, ClosureMixNode::create);
-    registerImplementation("IM_mix_edf_" + OslShaderGenerator::TARGET, ClosureMixNode::create);
-    // <!-- <add> -->
-    registerImplementation("IM_add_bsdf_" + OslShaderGenerator::TARGET, ClosureAddNode::create);
-    registerImplementation("IM_add_edf_" + OslShaderGenerator::TARGET, ClosureAddNode::create);
-    // <!-- <multiply> -->
-    registerImplementation("IM_multiply_bsdfC_" + OslShaderGenerator::TARGET, ClosureMultiplyNode::create);
-    registerImplementation("IM_multiply_bsdfF_" + OslShaderGenerator::TARGET, ClosureMultiplyNode::create);
-    registerImplementation("IM_multiply_edfC_" + OslShaderGenerator::TARGET, ClosureMultiplyNode::create);
-    registerImplementation("IM_multiply_edfF_" + OslShaderGenerator::TARGET, ClosureMultiplyNode::create);
-
-#endif // MATERIALX_OSL_LEGACY_CLOSURES
-
     // <!-- <surface> -->
-    registerImplementation("IM_surface_" + OslShaderGenerator::TARGET, SurfaceNodeOsl::create);
+    registerImplementation("IM_surface_" + OslShaderGenerator::TARGET, ClosureSourceCodeNode::create);
 
     // <!-- <surfacematerial> -->
     registerImplementation("IM_surfacematerial_" + OslShaderGenerator::TARGET, MaterialNodeOsl::create);
@@ -157,10 +134,6 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
 
     const bool isSurfaceShaderOutput = singleOutput && singleOutput->getType() == Type::SURFACESHADER;
 
-#ifdef MATERIALX_OSL_LEGACY_CLOSURES
-    const bool isBsdfOutput = singleOutput && singleOutput->getType() == Type::BSDF;
-#endif
-
     if (isSurfaceShaderOutput)
     {
         // Special case for having 'surfaceshader' as final output type.
@@ -169,16 +142,6 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
         // to understand this output.
         emitLine("output closure color " + singleOutput->getVariable() + " = 0", stage, false);
     }
-#ifdef MATERIALX_OSL_LEGACY_CLOSURES
-    else if (isBsdfOutput)
-    {
-        // Special case for having 'BSDF' as final output type.
-        // For legacy closures this type is a struct internally (response, throughput, thickness, ior)
-        // so we must declare this as a single closure color type in order for renderers
-        // to understand this output.
-        emitLine("output closure color " + singleOutput->getVariable() + " = 0", stage, false);
-    }
-#endif
     else
     {
         // Just emit all outputs the way they are declared.
@@ -243,7 +206,7 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     {
         // Special case for having 'surfaceshader' as final output type.
         // This type is a struct internally (BSDF, EDF, opacity) so we must
-        // comvert this to a single closure color type in order for renderers
+        // convert this to a single closure color type in order for renderers
         // to understand this output.
         const ShaderGraphOutputSocket* socket = graph.getOutputSocket(0);
         const string result = getUpstreamResult(socket, context);
@@ -252,18 +215,6 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
         emitLine(singleOutput->getVariable() + " = (" + result + ".bsdf + " + result + ".edf) * opacity_weight + transparent() * (1.0 - opacity_weight)", stage);
         emitScopeEnd(stage);
     }
-#ifdef MATERIALX_OSL_LEGACY_CLOSURES
-    else if (isBsdfOutput)
-    {
-        // Special case for having 'BSDF' as final output type.
-        // For legacy closures this type is a struct internally (response, throughput, thickness, ior)
-        // so we must declare this as a single closure color type in order for renderers
-        // to understand this output.
-        const ShaderGraphOutputSocket* socket = graph.getOutputSocket(0);
-        const string result = getUpstreamResult(socket, context);
-        emitLine(singleOutput->getVariable() + " = " + result + ".response", stage);
-    }
-#endif
     else
     {
         // Assign results to final outputs.
@@ -292,7 +243,7 @@ void OslShaderGenerator::registerShaderMetadata(const DocumentPtr& doc, GenConte
     ShaderMetadataRegistryPtr registry = context.getUserData<ShaderMetadataRegistry>(ShaderMetadataRegistry::USER_DATA_NAME);
     if (!registry)
     {
-        throw ExceptionShaderGenError("Registration of metadata faild");
+        throw ExceptionShaderGenError("Registration of metadata failed");
     }
 
     // Rename the standard metadata names to corresponding OSL metadata names.
@@ -510,10 +461,10 @@ void OslShaderGenerator::emitMetadata(const ShaderPort* port, ShaderStage& stage
 {
     static const std::unordered_map<TypeDesc, ShaderMetadata, TypeDesc::Hasher> UI_WIDGET_METADATA =
     {
-        { Type::FLOAT, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("number", Type::STRING.getName())) },
-        { Type::INTEGER, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("number", Type::STRING.getName())) },
-        { Type::FILENAME, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("filename", Type::STRING.getName())) },
-        { Type::BOOLEAN, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("checkBox", Type::STRING.getName())) }
+        { Type::FLOAT, ShaderMetadata("widget", Type::STRING,  Type::STRING.createValueFromStrings("number")) },
+        { Type::INTEGER, ShaderMetadata("widget", Type::STRING,  Type::STRING.createValueFromStrings("number")) },
+        { Type::FILENAME, ShaderMetadata("widget", Type::STRING,  Type::STRING.createValueFromStrings("filename")) },
+        { Type::BOOLEAN, ShaderMetadata("widget", Type::STRING,  Type::STRING.createValueFromStrings("checkBox")) }
     };
 
     static const std::set<TypeDesc> METADATA_TYPE_BLACKLIST =

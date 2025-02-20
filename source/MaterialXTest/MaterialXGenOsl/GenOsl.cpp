@@ -20,7 +20,8 @@ namespace mx = MaterialX;
 
 TEST_CASE("GenShader: OSL Syntax", "[genosl]")
 {
-    mx::SyntaxPtr syntax = mx::OslSyntax::create();
+    mx::TypeSystemPtr ts = mx::TypeSystem::create();
+    mx::SyntaxPtr syntax = mx::OslSyntax::create(ts);
 
     REQUIRE(syntax->getTypeName(mx::Type::FLOAT) == "float");
     REQUIRE(syntax->getTypeName(mx::Type::COLOR3) == "color");
@@ -89,12 +90,8 @@ TEST_CASE("GenShader: OSL Implementation Check", "[genosl]")
     generatorSkipNodeTypes.insert("light");
 
     mx::StringSet generatorSkipNodeDefs;
-    generatorSkipNodeDefs.insert("ND_chiang_hair_roughness");
-    generatorSkipNodeDefs.insert("ND_chiang_hair_absorption_from_color");
-    generatorSkipNodeDefs.insert("ND_deon_hair_absorption_from_melanin");
-    generatorSkipNodeDefs.insert("ND_chiang_hair_bsdf");
 
-    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 35);
+    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs);
 }
 
 TEST_CASE("GenShader: OSL Unique Names", "[genosl]")
@@ -169,7 +166,7 @@ TEST_CASE("GenShader: OSL Metadata", "[genosl]")
     REQUIRE(stdSurf1 != nullptr);
 
     mx::ShaderGeneratorPtr generator = mx::OslShaderGenerator::create();
-    mx::GenContext context(mx::OslShaderGenerator::create());
+    mx::GenContext context(generator);
     context.registerSourceCodeSearchPath(searchPath);
 
     // Metadata to export must be registered in the context before shader generation starts.

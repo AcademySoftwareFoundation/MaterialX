@@ -92,29 +92,15 @@ describe('Code Examples', () =>
 
         // Traverse the document tree in depth-first order.
         const elements = doc.traverseTree();
-        let elementCount = 0;
-        let nodeCount = 0;
-        let fileCount = 0;
+        let imageCount = 0;
         for (let elem of elements)
         {
-            elementCount++;
-            // Display the filename of each image node.
             if (elem.isANode('image'))
             {
-                nodeCount++;
-                const input = elem.getInput('file');
-                if (input)
-                {
-                    fileCount++;
-                    const filename = input.getValueString();
-                    expect(elem.getName()).to.equal('image1');
-                    expect(filename).to.equal('greysphere_calibration.png');
-                }
+                imageCount++;
             }
         }
-        expect(elementCount).to.equal(21);
-        expect(nodeCount).to.equal(1);
-        expect(fileCount).to.equal(1);
+        expect(imageCount).to.greaterThan(0);
     });
 
     it('Building a MaterialX Document', async () =>

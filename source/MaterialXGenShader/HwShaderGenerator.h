@@ -23,7 +23,7 @@ a listing of the variables with a description of what data they should be bound 
 
 However, different renderers can have different requirements on naming conventions for these variables.
 In order to facilitate this the generators will use token substitution for naming the variables. The
-first colum below shows the token names that should be used in source code before the token substitution
+first column below shows the token names that should be used in source code before the token substitution
 is done. The second row shows the real identifier names that will be used by default after substitution.
 An generator can override these identifier names in order to use a custom naming convention for these.
 Overriding identifier names is done by changing the entries in the identifiers map given to the function
@@ -207,6 +207,8 @@ extern MX_GENSHADER_API const string LIGHT_DATA;       // Uniform inputs for lig
 extern MX_GENSHADER_API const string PIXEL_OUTPUTS;    // Outputs from the main/pixel stage.
 
 /// Variable names for lighting parameters.
+extern MX_GENSHADER_API const string CLOSURE_DATA_TYPE;
+extern MX_GENSHADER_API const string CLOSURE_DATA_ARG;
 extern MX_GENSHADER_API const string DIR_N;
 extern MX_GENSHADER_API const string DIR_L;
 extern MX_GENSHADER_API const string DIR_V;
@@ -219,6 +221,9 @@ extern MX_GENSHADER_API const string ATTR_TRANSPARENT;
 /// User data names.
 extern MX_GENSHADER_API const string USER_DATA_LIGHT_SHADERS;
 extern MX_GENSHADER_API const string USER_DATA_BINDING_CONTEXT;
+
+/// Type Descriptor for closure context data.
+extern MX_GENSHADER_API const TypeDesc ClosureDataType;
 } // namespace HW
 
 namespace Stage
@@ -290,14 +295,11 @@ class MX_GENSHADER_API HwLightShaders : public GenUserData
 class MX_GENSHADER_API HwShaderGenerator : public ShaderGenerator
 {
   public:
-    /// Add the function call for a single node.
-    void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
-
     /// Emit code for active light count definitions and uniforms
     virtual void addStageLightingUniforms(GenContext& context, ShaderStage& stage) const;
 
-    /// Return the closure contexts defined for the given node.
-    void getClosureContexts(const ShaderNode& node, vector<ClosureContext*>& cct) const override;
+    /// Return true if the node needs the ClosureData struct added
+    bool nodeNeedsClosureData(const ShaderNode& node) const override;
 
     /// Bind a light shader to a light type id, for usage in surface shaders created
     /// by the generator. The lightTypeId should be a unique identifier for the light
@@ -314,6 +316,9 @@ class MX_GENSHADER_API HwShaderGenerator : public ShaderGenerator
     /// Determine the prefix of vertex data variables.
     virtual string getVertexDataPrefix(const VariableBlock& vertexData) const = 0;
 
+    // Note : the order must match the order defined in libraries/pbrlib/genglsl/lib/mx_closure_type.glsl
+    // TODO : investigate build time mechanism for ensuring these stay in sync.
+
     /// Types of closure contexts for HW.
     enum ClosureContextType
     {
@@ -321,29 +326,19 @@ class MX_GENSHADER_API HwShaderGenerator : public ShaderGenerator
         REFLECTION,
         TRANSMISSION,
         INDIRECT,
-        EMISSION
+        EMISSION,
+        LIGHTING,
+        CLOSURE
     };
 
-    /// String constants for closure context suffixes.
-    static const string CLOSURE_CONTEXT_SUFFIX_REFLECTION;
-    static const string CLOSURE_CONTEXT_SUFFIX_TRANSMISSION;
-    static const string CLOSURE_CONTEXT_SUFFIX_INDIRECT;
-
   protected:
-    HwShaderGenerator(SyntaxPtr syntax);
+    HwShaderGenerator(TypeSystemPtr typeSystem, SyntaxPtr syntax);
 
     /// Create and initialize a new HW shader for shader generation.
     virtual ShaderPtr createShader(const string& name, ElementPtr element, GenContext& context) const;
-
-    /// Closure contexts for defining closure functions.
-    mutable ClosureContext _defDefault;
-    mutable ClosureContext _defReflection;
-    mutable ClosureContext _defTransmission;
-    mutable ClosureContext _defIndirect;
-    mutable ClosureContext _defEmission;
 };
 
-/// @class HwShaderGenerator
+/// @class HwImplementation
 /// Base class for HW node implementations.
 class MX_GENSHADER_API HwImplementation : public ShaderNodeImpl
 {

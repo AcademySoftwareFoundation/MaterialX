@@ -22,13 +22,13 @@
   <geompropvalue name="geompropvalue_boolean" type="boolean">
     <input name="geomprop" type="string" value="geompropvalue_bool" />
   </geompropvalue>
-  <output name="geompropvalue_string_out" type="color3" nodename="swizzle1" />
+  <output name="geompropvalueuniform_string_out" type="color3" nodename="swizzle1" />
   <constant name="swizzle1" type="color3">
     <input name="value" type="color3" value="0.5, 0.5, 0.5" />
   </constant>
-  <geompropvalue name="geompropvalue_string" type="string">
-    <input name="geomprop" type="string" value="geompropvalue_string" />
-  </geompropvalue>
+  <geompropvalueuniform name="geompropvalueuniform_string" type="string">
+    <input name="geomprop" type="string" value="geompropvalueuniform_string" />
+  </geompropvalueuniform>
   <output name="geompropvalue_float_out" type="float" nodename="geompropvalue_float" />
   <geompropvalue name="geompropvalue_float" type="float">
     <input name="geomprop" type="string" value="geompropvalue_float" />

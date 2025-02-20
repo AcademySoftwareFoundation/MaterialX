@@ -25,7 +25,7 @@ The documents in this folder comprise the complete MaterialX Specification, vers
 
 The parts of the main MaterialX Specification document dealing with various Geometry-related features has now been split into a separate [**MaterialX Geometry Extensions**](./MaterialX.GeomExts.md) document, describing Collections, Geometry Name Expressions, geometry-related data types, Geometry Info elements and the GeomProp and Token elements used within them, and Look, Property, Visibility and assignment elements.
 
-With this split, applications can claim to be MaterialX Compatible if they support all the things described in the main Specification, e.g. the elements for nodegraph shading networks and materials as well as the standard set of nodes, while using an application's native mechanisms or something like USD to describe the assignment of these materials to geometry.  Applications may additionally support the MaterialX Geometry Extensions and thus use a single unified representation for complete CG objecct looks.
+With this split, applications can claim to be MaterialX Compatible if they support all the things described in the main Specification, e.g. the elements for nodegraph shading networks and materials as well as the standard set of nodes, while using an application's native mechanisms or something like USD to describe the assignment of these materials to geometry.  Applications may additionally support the MaterialX Geometry Extensions and thus use a single unified representation for complete CG object looks.
 
 
 **New Support for Shader AOVs**
@@ -110,7 +110,7 @@ The following new standard physically based shading nodes have been added:
 * &lt;Token> elements are now explicitly allowed to be children of compound nodegraphs, and token values may now have defined enum/enumvalues.
 * Inputs in &lt;nodedef>s may now supply "hints" to code generators as to their intended interpretation, e.g. "transparency" or "opacity".
 * &lt;Attributedef> elements may now define enum/enumvalues to list acceptable values or labels/mapped values for an attribute.
-* If a string input specifies an "enum" list, the list is now considered a "strict" list of allowable values; no values are allowed outside that list.  To make the input non-strict, one must omit the "enum" atribute from the input.
+* If a string input specifies an "enum" list, the list is now considered a "strict" list of allowable values; no values are allowed outside that list.  To make the input non-strict, one must omit the "enum" attribute from the input.
 
 
 Suggestions for v1.39:

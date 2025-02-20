@@ -53,13 +53,13 @@ export const float FLOAT_EPS = 0.000001;
 //       matrix33  --> float3x3
 //       matrix44  --> float4x4
 //       string    --> string, or context specific enums (see below)
-//       filename  --> texture_2d, or other repective resource type
+//       filename  --> texture_2d, or other respective resource type
 //       geomname  --> (N.A.)
 //       <T>array  --> T[<N>] (deferred-size arrays)
 //
 // NOTE: The type mapping is not bijective, multiple types in MaterialX
 //       map to the same type in MDL, which can impact the translation
-//       of overloaded nodes to not generate mutliple identical definitions.
+//       of overloaded nodes to not generate multiple identical definitions.
 
 // Special struct type for color4
 export struct color4 {
@@ -201,6 +201,6 @@ export enum mx_distribution_type {
 };
 
 // Custom annotation for MDL function parameters to map between MDL and the original MaterialX graph.
-// *  When added to a paramater, the "name" will contain the path in the MaterialX graph starting
+// *  When added to a parameter, the "name" will contain the path in the MaterialX graph starting
 //    from the root up to the input using `/` as separator.
 export annotation origin(string name);

@@ -25,7 +25,7 @@ vec2 mx_compute_sample_size_uv(vec2 uv, float filterSize, float filterOffset)
 // Compute a normal mapped to 0..1 space based on a set of input
 // samples using a Sobel filter.
 //
-vec3 mx_normal_from_samples_sobel(constant float S[9], float _scale)
+vec3 mx_normal_from_samples_sobel(float S[9], float _scale)
 {
     float nx = S[0] - S[2] + (2.0*S[3]) - (2.0*S[5]) + S[6] - S[8];
     float ny = S[0] + (2.0*S[1]) + S[2] - S[6] - (2.0*S[7]) - S[8];

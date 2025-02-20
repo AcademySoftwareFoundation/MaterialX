@@ -1,5 +1,5 @@
-file(GLOB_RECURSE materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.m*")
-file(GLOB_RECURSE materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
+file(GLOB_RECURSE materialx_source CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.m*")
+file(GLOB_RECURSE materialx_headers CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
 
 if(POLICY CMP0072)
     cmake_policy(SET CMP0072 NEW)
@@ -40,7 +40,7 @@ elseif(UNIX)
     target_include_directories(${TARGET_NAME} PRIVATE ${X11_INCLUDE_DIR})
 endif()
 
-# Disable OpenGL deprecation warnings on Clang.
+# Disable deprecation warnings on Clang.
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     target_compile_options(${TARGET_NAME} PRIVATE -Wno-deprecated-declarations)
 endif()

@@ -6,13 +6,13 @@ import datetime
 import argparse
 
 try:
-    # Use pip to install Pillow and Image to enable image diffs
-    from PIL import Image, ImageChops
+    # Install pillow via pip to enable image differencing and statistics.
+    from PIL import Image, ImageChops, ImageStat
     DIFF_ENABLED = True
 except Exception:
     DIFF_ENABLED = False
 
-def createDiff(image1Path, image2Path, imageDiffPath):
+def computeDiff(image1Path, image2Path, imageDiffPath):
     try:
         if os.path.exists(imageDiffPath):
             os.remove(imageDiffPath)
@@ -29,6 +29,8 @@ def createDiff(image1Path, image2Path, imageDiffPath):
         image2 = Image.open(image2Path).convert('RGB')
         diff = ImageChops.difference(image1, image2)
         diff.save(imageDiffPath)
+        diffStat = ImageStat.Stat(diff)
+        return sum(diffStat.rms) / (3.0 * 255.0)
     except Exception:
         if os.path.exists(imageDiffPath):
             os.remove(imageDiffPath)
@@ -144,9 +146,8 @@ def main(args=None):
             fullPath1 = os.path.join(path1, file1) if file1 else None
             fullPath2 = os.path.join(path2, file2) if file2 else None
             fullPath3 = os.path.join(path3, file3) if file3 else None
-            diffPath1 = None
-            diffPath2 = None
-            diffPath3 = None
+            diffPath1 = diffPath2 = diffPath3 = None
+            diffRms1 = diffRms2 = diffRms3 = None
 
             if curPath != path1:
                 if curPath != "":
@@ -157,13 +158,13 @@ def main(args=None):
 
             if file1 and file2 and DIFF_ENABLED and args.CREATE_DIFF:
                 diffPath1 = fullPath1[0:-8] + "_" + args.lang1 + "-1_vs_" + args.lang2 + "-2_diff.png"
-                createDiff(fullPath1, fullPath2, diffPath1)
+                diffRms1 = computeDiff(fullPath1, fullPath2, diffPath1)
 
             if useThirdLang and file1 and file3 and DIFF_ENABLED and args.CREATE_DIFF:
                 diffPath2 = fullPath1[0:-8] + "_" + args.lang1 + "-1_vs_" + args.lang3 + "-3_diff.png"
-                createDiff(fullPath1, fullPath3, diffPath2)
+                diffRms2 = computeDiff(fullPath1, fullPath3, diffPath2)
                 diffPath3 = fullPath1[0:-8] + "_" + args.lang2 + "-2_vs_" + args.lang3 + "-3_diff.png"
-                createDiff(fullPath2, fullPath3, diffPath3)
+                diffRms3 = computeDiff(fullPath2, fullPath3, diffPath3)
 
             def prependFileUri(filepath: str) -> str:
                 if os.path.isabs(filepath):
@@ -203,11 +204,14 @@ def main(args=None):
                     fh.write("<br>(" + str(datetime.datetime.fromtimestamp(os.path.getmtime(fullPath3))) + ")")
                 fh.write("</td>\n")
             if diffPath1:
-                fh.write("<td align='center'>Difference " + args.lang1 + " vs. " + args.lang2 + " </td>\n")
+                rms = " (RMS " + "%.5f" % diffRms1 + ")" if diffRms1 else ""
+                fh.write("<td align='center'>" + args.lang1.upper() + " vs. " + args.lang2.upper() + rms + "</td>\n")
             if diffPath2:
-                fh.write("<td align='center'>Difference " + args.lang1 + " vs. " + args.lang3 + " </td>\n")
+                rms = " (RMS " + "%.5f" % diffRms2 + ")" if diffRms2 else ""
+                fh.write("<td align='center'>" + args.lang1.upper() + " vs. " + args.lang3.upper() + rms + "</td>\n")
             if diffPath3:
-                fh.write("<td align='center'>Difference " + args.lang2 + " vs. " + args.lang3 + " </td>\n")
+                rms = " (RMS " + "%.5f" % diffRms3 + ")" if diffRms3 else ""
+                fh.write("<td align='center'>" + args.lang2.upper() + " vs. " + args.lang3.upper() + rms + "</td>\n")
             fh.write("</tr>\n")
 
     fh.write("</table>\n")

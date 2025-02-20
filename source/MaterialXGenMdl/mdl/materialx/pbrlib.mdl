@@ -16,15 +16,15 @@
 
 // MDL implementation of all types and nodes of
 //     MaterialX Physically-Based Shading Nodes
-//     Document v1.37 REV2, July 16, 2019 (Revised October 17, 2019)
+//     Document version 1.39, June 29, 2024
 //     see www.materialx.org 
 // in
-//     NVIDIA Material Definition Language 1.8
+//     NVIDIA Material Definition Language 1.10
 //     Language Specification
-//     Document version 1.8.2, May 24, 2023
+//     Document version 1.10.1, November 04, 2024
 //     www.nvidia.com/mdl
 
-mdl 1.8;
+mdl 1.10;
 
 // forward the latest version
-export using .::pbrlib_1_8 import *;
+export using .::pbrlib_1_10 import *;
