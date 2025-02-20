@@ -912,7 +912,7 @@ void Graph::updateMaterials(mx::InputPtr input /* = nullptr */, mx::ValuePtr val
     }
 }
 
-void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIProperties& uiProperties)
+void Graph::showPropertyEditorValue(UiNodePtr node, mx::InputPtr& input, const mx::UIProperties& uiProperties)
 {
     ImGui::PushItemWidth(-1);
 
@@ -3287,6 +3287,123 @@ void Graph::graphButtons()
     }
 }
 
+void Graph::showPropertyEditorOutputConnections(UiNodePtr node)
+{
+    if (node->_showOutputsInEditor)
+    {
+        std::vector<UiPinPtr> pinList = node->outputPins;
+        size_t pinCount = pinList.size();
+
+        if (pinCount > 0)
+        {
+            const float TEXT_BASE_HEIGHT = ImGui::GetTextLineHeightWithSpacing() * 1.3f;
+            const int SCROLL_LINE_COUNT = 20;
+            ImGuiTableFlags tableFlags = ImGuiTableFlags_ScrollY | ImGuiTableFlags_Resizable | ImGuiTableFlags_NoSavedSettings |
+                ImGuiTableFlags_BordersOuterH | ImGuiTableFlags_NoBordersInBody;
+
+            ImVec2 tableSize(0.0f, TEXT_BASE_HEIGHT * std::min(SCROLL_LINE_COUNT, (int)pinCount));
+            bool haveTable = ImGui::BeginTable("outputs_node_table", 2, tableFlags, tableSize);
+            if (haveTable)
+            {
+                ImGui::SetWindowFontScale(_fontScale);
+                for (UiPinPtr outputPin : node->outputPins)
+                {
+                    bool firstPin = true;
+                    std::string outputPinName = outputPin->_name;
+                    std::string blankPinName;
+                    for (size_t i = 0; i < outputPinName.length(); i++)
+                    {
+                        blankPinName += ' ';
+                    }
+
+                    for (UiPinPtr connectedPin : outputPin->getConnections())
+                    {
+                        ImGui::TableNextRow();
+                        ImGui::TableNextColumn();
+
+                        std::string connectedPinName = connectedPin->_name;
+                        if (connectedPin->_pinNode)
+                        {
+                            connectedPinName = connectedPin->_pinNode->getName() + "." + connectedPinName;
+                        }
+                        // Display outputPin name, and connectedPinName in same row
+                        //
+                        if (firstPin)
+                        {
+                            ImGui::Text("%s", outputPinName.c_str());
+                            firstPin = false;
+                        }
+                        else
+                        {
+                            ImGui::Text("%s", blankPinName.c_str());
+                        }
+
+                        std::string displayString = connectedPinName;
+                        ImGui::SameLine();
+                        ImGui::TableNextColumn();
+                        ImGui::PushItemWidth(-1);
+
+                        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.15f, 0.15f, 0.15f, 1.0f));
+                        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.2f, 0.4f, 0.6f, 1.0f));
+                        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.1f, 0.2f, 0.4f, 1.0f));
+
+                        if (ImGui::Button(displayString.c_str()))
+                        {
+                            std::shared_ptr<UiNode> pinNode = connectedPin->_pinNode;
+                            if (pinNode)
+                            {
+                                ed::SelectNode(pinNode->getId());
+                                ed::NavigateToSelection();
+                            }
+                        }
+                        ImGui::PopStyleColor(3);
+                        ImGui::PopItemWidth();
+                    }
+                }
+                ImGui::EndTable();
+                ImGui::SetWindowFontScale(1.0f);
+            }
+        }
+    }
+
+}
+
+void Graph::showPropertyEditorInputConnection(UiPinPtr displayPin)
+{
+    // Allow for upstream traversal via button
+    //
+    std::string displayString = displayPin->_input->getType();
+    const std::vector<UiPinPtr>& connections = displayPin->getConnections();
+    std::shared_ptr<UiNode> pinNode = nullptr;
+    if (!connections.empty())
+    {
+        UiPinPtr pin = connections[0];
+        std::string pinName = std::string(pin->_name);
+
+        pinNode = pin->_pinNode;
+        if (pinNode)
+        {
+            pinName = std::string(pinNode->getName()) + "." + pinName;
+        }
+        displayString = pinName;
+    }
+
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.15f, 0.15f, 0.15f, 1.0f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.2f, 0.4f, 0.6f, 1.0f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.1f, 0.2f, 0.4f, 1.0f));
+    ImGui::PushItemWidth(-1);
+    if (ImGui::Button(displayString.c_str()))
+    {
+        if (pinNode)
+        {
+            ed::SelectNode(pinNode->getId());
+            ed::NavigateToSelection();
+        }
+    }
+    ImGui::PopItemWidth();
+    ImGui::PopStyleColor(3);
+}
+
 void Graph::propertyEditor()
 {
     // Get parent dimensions
@@ -3442,6 +3559,7 @@ void Graph::propertyEditor()
             }
 
             ImGui::Checkbox("Show all inputs", &_currUiNode->_showAllInputs);
+            ImGui::Checkbox("Show output connections", &_currUiNode->_showOutputsInEditor);
 
             int count = 0;
             for (UiPinPtr input : _currUiNode->inputPins)
@@ -3490,12 +3608,11 @@ void Graph::propertyEditor()
                             ImGui::TableNextColumn();
                             if (!input->getConnected())
                             {
-                                setConstant(_currUiNode, input->_input, uiProperties);
+                                showPropertyEditorValue(_currUiNode, input->_input, uiProperties);
                             }
                             else
                             {
-                                std::string typeText = " [" + input->_input->getType() + "]";
-                                ImGui::Text("%s", typeText.c_str());
+                                showPropertyEditorInputConnection(input);
                             }
 
                             ImGui::PopID();
@@ -3506,6 +3623,8 @@ void Graph::propertyEditor()
                     ImGui::SetWindowFontScale(1.0f);
                 }
             }
+
+            showPropertyEditorOutputConnections(_currUiNode);;
         }
 
         else if (_currUiNode->getInput() != nullptr)
@@ -3540,12 +3659,11 @@ void Graph::propertyEditor()
                         // Set constant sliders for input values
                         if (!inputs[i]->getConnected())
                         {
-                            setConstant(_currUiNode, inputs[i]->_input, uiProperties);
+                            showPropertyEditorValue(_currUiNode, inputs[i]->_input, uiProperties);
                         }
                         else
                         {
-                            std::string typeText = " [" + inputs[i]->_input->getType() + "]";
-                            ImGui::Text("%s", typeText.c_str());
+                            showPropertyEditorInputConnection(inputs[i]);
                         }
                         ImGui::PopID();
                     }
@@ -3553,6 +3671,8 @@ void Graph::propertyEditor()
                     ImGui::SetWindowFontScale(1.0f);
                 }
             }
+
+            showPropertyEditorOutputConnections(_currUiNode);;
         }
         else if (_currUiNode->getOutput() != nullptr)
         {
@@ -3560,8 +3680,13 @@ void Graph::propertyEditor()
         }
         else if (_currUiNode->getNodeGraph() != nullptr)
         {
+
             std::vector<UiPinPtr> inputs = _currUiNode->inputPins;
             ImGui::Text("%s", _currUiNode->getCategory().c_str());
+
+            ImGui::Checkbox("Show all inputs", &_currUiNode->_showAllInputs);
+            ImGui::Checkbox("Show output connections", &_currUiNode->_showOutputsInEditor);
+
             int count = 0;
             for (UiPinPtr input : inputs)
             {
@@ -3598,12 +3723,11 @@ void Graph::propertyEditor()
                             ImGui::TableNextColumn();
                             if (!input->_input->getConnectedNode() && _currUiNode->getNodeGraph()->getActiveInput(input->_input->getName()))
                             {
-                                setConstant(_currUiNode, input->_input, uiProperties);
+                                showPropertyEditorValue(_currUiNode, input->_input, uiProperties);
                             }
                             else
                             {
-                                std::string typeText = " [" + input->_input->getType() + "]";
-                                ImGui::Text("%s", typeText.c_str());
+                                showPropertyEditorInputConnection(input);
                             }
 
                             ImGui::PopID();
@@ -3613,7 +3737,8 @@ void Graph::propertyEditor()
                     ImGui::SetWindowFontScale(1.0f);
                 }
             }
-            ImGui::Checkbox("Show all inputs", &_currUiNode->_showAllInputs);
+
+            showPropertyEditorOutputConnections(_currUiNode);;
         }
         ImGui::PopStyleColor();
         ImGui::PopStyleColor();
