@@ -16,6 +16,10 @@
 #include <MaterialXGenShader/Util.h>
 #include <MaterialXGenShader/TypeDesc.h>
 
+#ifdef MATERIALX_BUILD_OCIO
+#include <MaterialXGenShader/OpenColorIOManagementSystem.h>
+#endif
+
 #include <iostream>
 
 namespace mx = MaterialX;
@@ -319,8 +323,23 @@ void shaderGenPerformanceTest(mx::GenContext& context)
     context.registerSourceCodeSearchPath(libSearchPath);
 
     // Enable Color Management
-    mx::ColorManagementSystemPtr colorManagementSystem =
+    mx::ColorManagementSystemPtr colorManagementSystem;
+#ifdef MATERIALX_BUILD_OCIO
+    try
+    {
+        auto config = OCIO::Config::CreateFromBuiltinConfig("ocio://studio-config-latest");
+        colorManagementSystem  =
+            mx::OpenColorIOManagementSystem::create(config, context.getShaderGenerator().getTarget());
+    }
+    catch (const std::exception& /*e*/)
+    {
+        colorManagementSystem =
+            mx::DefaultColorManagementSystem::create(context.getShaderGenerator().getTarget());
+    }
+#else
+    colorManagementSystem =
         mx::DefaultColorManagementSystem::create(context.getShaderGenerator().getTarget());
+#endif
 
     REQUIRE(colorManagementSystem);
     if (colorManagementSystem)
