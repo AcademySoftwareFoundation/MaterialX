@@ -91,8 +91,8 @@ else()
     set(CMAKE_CXX_COMPILER_ID PREV_COMPILER_ID)
 endif()
 
-file(GLOB materialx_source       CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
-file(GLOB materialx_headers      CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
+file(GLOB materialx_source       "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
+file(GLOB materialx_headers      "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
 
 add_definitions(${NANOGUI_EXTRA_DEFS})
 add_definitions(${MATERIALXVIEW_RENDER_BACKEND_DEFINITIONS})
