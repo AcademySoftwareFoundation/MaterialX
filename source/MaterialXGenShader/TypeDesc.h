@@ -71,7 +71,7 @@ class MX_GENSHADER_API TypeDesc
         DataBlock(const string& name, const StructMemberDescVecPtr members = nullptr) noexcept : _name(name), _members(members) {}
 
         const string& getName() const { return _name; }
-        const StructMemberDescVecPtr getStructMembers() const { return _members; }
+        StructMemberDescVecPtr getStructMembers() const { return _members; }
 
       private:
         const string _name;
@@ -145,7 +145,7 @@ class MX_GENSHADER_API TypeDesc
 
     /// Return a pointer to the struct member description.
     /// Will return nullptr if this is not a struct type.
-    const StructMemberDescVecPtr getStructMembers() const;
+    StructMemberDescVecPtr getStructMembers() const;
 
     /// Equality operator
     bool operator==(TypeDesc rhs) const

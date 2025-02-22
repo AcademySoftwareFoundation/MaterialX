@@ -2072,8 +2072,7 @@ void Graph::buildGroupNode(UiNodePtr node)
     ed::BeginNode(node->getId());
     ImGui::PushID(node->getId());
 
-    std::string original = node->getMessage();
-    std::string temp = original;
+    std::string temp = node->getMessage();
     ImVec2 messageSize = ImGui::CalcTextSize(temp.c_str());
     ImGui::PushItemWidth(messageSize.x + 15);
     ImGui::InputText("##edit", &temp);

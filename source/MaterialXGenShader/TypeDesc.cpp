@@ -16,7 +16,7 @@ const string& TypeDesc::getName() const
     return _data ? _data->getName() : NONE_TYPE_NAME;
 }
 
-const StructMemberDescVecPtr TypeDesc::getStructMembers() const
+StructMemberDescVecPtr TypeDesc::getStructMembers() const
 {
     return _data ? _data->getStructMembers() : StructMemberDescVecPtr();
 }
