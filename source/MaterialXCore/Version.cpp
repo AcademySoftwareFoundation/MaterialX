@@ -139,7 +139,7 @@ void Document::upgradeVersion()
         // Upgrade elements in place.
         for (ElementPtr elem : traverseTree())
         {
-            vector<ElementPtr> origChildren = elem->getChildren();
+            ElementVec origChildren = elem->getChildren();
             for (ElementPtr child : origChildren)
             {
                 if (child->getCategory() == "opgraph")
@@ -215,7 +215,7 @@ void Document::upgradeVersion()
         }
 
         // Move connections from nodedef inputs to bindinputs.
-        vector<ElementPtr> materials = getChildrenOfType<Element>("material");
+        ElementVec materials = getChildrenOfType<Element>("material");
         for (NodeDefPtr nodeDef : getNodeDefs())
         {
             for (InputPtr input : nodeDef->getActiveInputs())
@@ -328,7 +328,7 @@ void Document::upgradeVersion()
                 elem->setAttribute(ValueElement::VALUE_ATTRIBUTE, replaceSubstrings(elem->getAttribute(ValueElement::VALUE_ATTRIBUTE), stringMap));
             }
 
-            vector<ElementPtr> origChildren = elem->getChildren();
+            ElementVec origChildren = elem->getChildren();
             for (ElementPtr child : origChildren)
             {
                 if (elem->getCategory() == "material" && child->getCategory() == "override")
@@ -1316,11 +1316,8 @@ void Document::upgradeVersion()
             }
             else if (nodeCategory == "normalmap")
             {
-                // ND_normalmap was renamed to ND_normalmap_float
-                NodeDefPtr nodeDef = getShaderNodeDef(node);
-                InputPtr scaleInput = node->getInput("scale");
-                if ((nodeDef && nodeDef->getName() == "ND_normalmap") ||
-                    (scaleInput && scaleInput->getType() == "float"))
+                // Handle a rename of the float-typed nodedef.
+                if (node->getNodeDefString() == "ND_normalmap")
                 {
                     node->setNodeDefString("ND_normalmap_float");
                 }

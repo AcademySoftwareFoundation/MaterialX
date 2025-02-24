@@ -505,8 +505,8 @@
   <!-- <saturate> implemented by nodegraph -->
 
   <!-- <luminance>  -->
-  <implementation name="IM_luminance_color3_genmdl" nodedef="ND_luminance_color3" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_luminance_color3({{in}})" target="genmdl" />
-  <implementation name="IM_luminance_color4_genmdl" nodedef="ND_luminance_color4" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_luminance_color4({{in}})" target="genmdl" />
+  <implementation name="IM_luminance_color3_genmdl" nodedef="ND_luminance_color3" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_luminance_color3({{in}}, {{lumacoeffs}})" target="genmdl" />
+  <implementation name="IM_luminance_color4_genmdl" nodedef="ND_luminance_color4" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_luminance_color4({{in}}, {{lumacoeffs}})" target="genmdl" />
 
   <!-- <rgbtohsv> -->
   <implementation name="IM_rgbtohsv_color3_genmdl" nodedef="ND_rgbtohsv_color3" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_rgbtohsv_color3({{in}})" target="genmdl" />
