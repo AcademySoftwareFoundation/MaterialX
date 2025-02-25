@@ -1324,10 +1324,12 @@ void Document::upgradeVersion()
 
                 node->removeInput("space");
 
-                // If the normal or tangent inputs are set, the bitangent input should be normalize(cross(N, T))
+                // If the normal or tangent inputs are set and the bitangent input is not, 
+                // the bitangent should be set to normalize(cross(N, T))
                 InputPtr normalInput = node->getInput("normal");
                 InputPtr tangentInput = node->getInput("tangent");
-                if (normalInput || tangentInput)
+                InputPtr bitangentInput = node->getInput("bitangent");
+                if ((normalInput || tangentInput) && !bitangentInput)
                 {
                     GraphElementPtr graph = node->getAncestorOfType<GraphElement>();
                     NodePtr crossNode = graph->addNode("crossproduct", graph->createValidChildName("normalmap_cross"), "vector3");
