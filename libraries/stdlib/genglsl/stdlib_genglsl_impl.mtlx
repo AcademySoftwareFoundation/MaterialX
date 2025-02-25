@@ -107,6 +107,12 @@
   <implementation name="IM_noise3d_vector3_genglsl" nodedef="ND_noise3d_vector3" file="mx_noise3d_vector3.glsl" function="mx_noise3d_vector3" target="genglsl" />
   <implementation name="IM_noise3d_vector4_genglsl" nodedef="ND_noise3d_vector4" file="mx_noise3d_vector4.glsl" function="mx_noise3d_vector4" target="genglsl" />
 
+  <!-- <fractal2d> -->
+  <implementation name="IM_fractal2d_float_genglsl" nodedef="ND_fractal2d_float" file="mx_fractal2d_float.glsl" function="mx_fractal2d_float" target="genglsl" />
+  <implementation name="IM_fractal2d_vector2_genglsl" nodedef="ND_fractal2d_vector2" file="mx_fractal2d_vector2.glsl" function="mx_fractal2d_vector2" target="genglsl" />
+  <implementation name="IM_fractal2d_vector3_genglsl" nodedef="ND_fractal2d_vector3" file="mx_fractal2d_vector3.glsl" function="mx_fractal2d_vector3" target="genglsl" />
+  <implementation name="IM_fractal2d_vector4_genglsl" nodedef="ND_fractal2d_vector4" file="mx_fractal2d_vector4.glsl" function="mx_fractal2d_vector4" target="genglsl" />
+
   <!-- <fractal3d> -->
   <implementation name="IM_fractal3d_float_genglsl" nodedef="ND_fractal3d_float" file="mx_fractal3d_float.glsl" function="mx_fractal3d_float" target="genglsl" />
   <implementation name="IM_fractal3d_vector2_genglsl" nodedef="ND_fractal3d_vector2" file="mx_fractal3d_vector2.glsl" function="mx_fractal3d_vector2" target="genglsl" />
