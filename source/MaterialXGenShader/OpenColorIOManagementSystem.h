@@ -13,16 +13,14 @@
 #include <MaterialXCore/Definition.h>
 
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
-#include <OpenColorIO/OpenColorABI.h>
-#include <OpenColorIO/OpenColorIO.h>
 
-#include <OpenColorIO/OpenColorTypes.h>
 #include <map>
 #include <memory>
 
-namespace OCIO = OCIO_NAMESPACE;
-
 MATERIALX_NAMESPACE_BEGIN
+
+// Opaque class to insulate from the full OCIO API
+class OpenColorIOManagementSystemImpl;
 
 /// A shared pointer to a OpenColorIOManagementSystem
 using OpenColorIOManagementSystemPtr = std::shared_ptr<class OpenColorIOManagementSystem>;
@@ -32,10 +30,16 @@ using OpenColorIOManagementSystemPtr = std::shared_ptr<class OpenColorIOManageme
 class MX_GENSHADER_API OpenColorIOManagementSystem : public DefaultColorManagementSystem
 {
   public:
-    virtual ~OpenColorIOManagementSystem() { }
+    virtual ~OpenColorIOManagementSystem();
 
-    /// Create a new OpenColorIOManagementSystem
-    static OpenColorIOManagementSystemPtr create(const OCIO::ConstConfigRcPtr& config, const string& target);
+    /// Create a new OpenColorIOManagementSystem using using the OCIO environment variable.
+    static OpenColorIOManagementSystemPtr createFromEnv(string target);
+
+    /// Create a new OpenColorIOManagementSystem using a specific OCIO config file.
+    static OpenColorIOManagementSystemPtr createFromFile(const string& filename, string target);
+
+    /// Create a new OpenColorIOManagementSystem using an OCIO built-in config.
+    static OpenColorIOManagementSystemPtr createFromBuiltinConfig(const string& configName, string target);
 
     /// Return the OpenColorIOManagementSystem name
     const string& getName() const override;
@@ -46,17 +50,11 @@ class MX_GENSHADER_API OpenColorIOManagementSystem : public DefaultColorManageme
     /// Create an OCIO node
     ShaderNodeImplPtr createImplementation(const string& implName) const override;
 
-    /// Returns a cached GPU processor registered for an implementation
-    OCIO::ConstGPUProcessorRcPtr getGpuProcessor(const string& implName);
+    /// Returns shader text for an implementation
+    string getGpuProcessorCode(const string& implName, const string& functionName) const;
 
     /// Prefix common to all implementation names
     static const string IMPL_PREFIX;
-
-    /// Prefix common to all node definition names
-    static const string ND_PREFIX;
-
-    /// Prefix common to all node graph names
-    static const string NG_PREFIX;
 
   protected:
     /// Returns a nodedef for a given transform
@@ -67,12 +65,10 @@ class MX_GENSHADER_API OpenColorIOManagementSystem : public DefaultColorManageme
     const char* getSupportedColorSpaceName(const char* colorSpace) const;
 
     /// Protected constructor
-    OpenColorIOManagementSystem(const OCIO::ConstConfigRcPtr& config, const string& target);
+    OpenColorIOManagementSystem(OpenColorIOManagementSystemImpl*);
 
   private:
-    string _target;
-    OCIO::ConstConfigRcPtr _config;
-    mutable std::map<string, OCIO::ConstGPUProcessorRcPtr> _implementations;
+    std::unique_ptr<OpenColorIOManagementSystemImpl> _impl;
 };
 
 MATERIALX_NAMESPACE_END

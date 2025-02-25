@@ -16,9 +16,6 @@
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/ShaderStage.h>
 
-#include <OpenColorIO/OpenColorIO.h>
-#include <OpenColorIO/OpenColorTypes.h>
-
 #include <cstring>
 #include <functional>
 #include <memory>
@@ -59,51 +56,14 @@ void OpenColorIONode::emitFunctionDefinition(
     {
         auto ocioManager = std::dynamic_pointer_cast<OpenColorIOManagementSystem>(context.getShaderGenerator().getColorManagementSystem());
 
-        auto gpuProcessor = ocioManager->getGpuProcessor(getName());
-        OCIO::GpuShaderDescRcPtr shaderDesc = OCIO::GpuShaderDesc::CreateShaderDesc();
-
-        // TODO: Extend to essl and MDL and possibly SLang.
-        bool isOSL = false;
-        if (context.getShaderGenerator().getTarget() == "genglsl")
-        {
-            shaderDesc->setLanguage(OCIO::GPU_LANGUAGE_GLSL_4_0);
-        }
-        else if (context.getShaderGenerator().getTarget() == "genmsl")
-        {
-            shaderDesc->setLanguage(OCIO::GPU_LANGUAGE_MSL_2_0);
-        }
-        else if (context.getShaderGenerator().getTarget() == "genosl")
-        {
-            shaderDesc->setLanguage(OCIO::LANGUAGE_OSL_1);
-            isOSL = true;
-        }
-
-        auto functionName = getFunctionName();
-
-        shaderDesc->setFunctionName(functionName.c_str());
-
-        gpuProcessor->extractGpuShaderInfo(shaderDesc);
-
-        string shaderText = shaderDesc->getShaderText();
-        
-        // For OSL, we need to extract the function from the shader OCIO creates.
-        if (isOSL)
+        if (context.getShaderGenerator().getTarget() == "genosl")
         {
             const ShaderGenerator& shadergen = context.getShaderGenerator();
             shadergen.emitLibraryInclude("stdlib/genosl/lib/vector4_extra_ops.osl", context, stage);
             shadergen.emitLineBreak(stage);
-            auto startpos = shaderText.find(string{"color4 "} + shaderDesc->getFunctionName());
-            if (startpos != string::npos)
-            {
-                auto endpos = shaderText.find(string{"outColor = "} + shaderDesc->getFunctionName(), startpos);
-                if (endpos != string::npos)
-                {
-                    shaderText = shaderText.substr(startpos, endpos - startpos);
-                }
-            }
         }
-        
-        stage.addString(shaderText);
+
+        stage.addString(ocioManager->getGpuProcessorCode(getName(), getFunctionName()));
         stage.endLine(false);
     }
 }

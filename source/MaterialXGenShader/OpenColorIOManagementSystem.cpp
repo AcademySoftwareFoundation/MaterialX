@@ -14,6 +14,7 @@
 #include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/Nodes/OpenColorIONode.h>
 
+#include <OpenColorIO/OpenColorABI.h>
 #include <OpenColorIO/OpenColorIO.h>
 #include <OpenColorIO/OpenColorTypes.h>
 
@@ -22,10 +23,12 @@
 #include <map>
 #include <string>
 
+namespace OCIO = OCIO_NAMESPACE;
+
 MATERIALX_NAMESPACE_BEGIN
 
 const string OpenColorIOManagementSystem::IMPL_PREFIX = "IMPL_MXOCIO_";
-const string OpenColorIOManagementSystem::ND_PREFIX = "ND_MXOCIO_";
+const string ND_PREFIX = "ND_MXOCIO_";
 
 namespace
 {
@@ -43,32 +46,44 @@ const std::map<string, string> COLOR_SPACE_REMAP = {
 } // anonymous namespace
 
 //
-// OpenColorIOManagementSystem methods
+// OpenColorIOManagementSystemImpl class and methods
 //
 
-OpenColorIOManagementSystemPtr OpenColorIOManagementSystem::create(const OCIO::ConstConfigRcPtr& config, const string& target)
+class OpenColorIOManagementSystemImpl
 {
-    if (target != "genglsl" && target != "genmsl" && target != "genosl")
+  public:
+    OpenColorIOManagementSystemImpl(OCIO::ConstConfigRcPtr config, string target) :
+        _config(std::move(config)), _target(std::move(target)) { }
+
+    const char* getSupportedColorSpaceName(const char* colorSpace) const;
+
+    NodeDefPtr getNodeDef(const ColorSpaceTransform& transform, const DocumentPtr& document) const;
+
+    bool hasImplementation(const string& implName) const
     {
-        throw std::runtime_error("OCIO does not support this target");
+        return _implementations.count(implName);
     }
 
-    return OpenColorIOManagementSystemPtr(new OpenColorIOManagementSystem(config, target));
-}
+    ShaderNodeImplPtr createImplementation(const string& implName) const
+    {
+        if (_implementations.count(implName))
+        {
+            return OpenColorIONode::create();
+        }
+        return {};
+    }
 
-OpenColorIOManagementSystem::OpenColorIOManagementSystem(const OCIO::ConstConfigRcPtr& config, const string& target) :
-    DefaultColorManagementSystem(target),
-    _target(target),
-    _config(std::move(config))
-{
-}
+    string getGpuProcessorCode(const string& implName, const string& functionName) const;
 
-const string& OpenColorIOManagementSystem::getName() const
-{
-    return CMS_NAME;
-}
+    const string& target() const { return _target; }
 
-const char* OpenColorIOManagementSystem::getSupportedColorSpaceName(const char* colorSpace) const
+  private:
+    OCIO::ConstConfigRcPtr _config;
+    string _target;
+    mutable std::map<string, OCIO::ConstGPUProcessorRcPtr> _implementations;
+};
+
+const char* OpenColorIOManagementSystemImpl::getSupportedColorSpaceName(const char* colorSpace) const
 {
     if (_config->getColorSpace(colorSpace))
     {
@@ -84,7 +99,7 @@ const char* OpenColorIOManagementSystem::getSupportedColorSpaceName(const char* 
     auto cgConfig = OCIO::Config::CreateFromBuiltinConfig("ocio://studio-config-latest");
     try
     {
-        // Throws on failure. Try at least two configs:
+        // Throws on failure:
         return OCIO::Config::IdentifyBuiltinColorSpace(_config, cgConfig, colorSpace);
     }
     catch (const std::exception& /*e*/)
@@ -93,13 +108,8 @@ const char* OpenColorIOManagementSystem::getSupportedColorSpaceName(const char* 
     }
 }
 
-NodeDefPtr OpenColorIOManagementSystem::getNodeDef(const ColorSpaceTransform& transform) const
+NodeDefPtr OpenColorIOManagementSystemImpl::getNodeDef(const ColorSpaceTransform& transform, const DocumentPtr& document) const
 {
-    // See if the default color management system already handles this:
-    if (auto cmNodeDef = DefaultColorManagementSystem::getNodeDef(transform)) {
-        return cmNodeDef;
-    }
-
     OCIO::ConstProcessorRcPtr processor;
     // Check if directly supported in the config:
     const char* sourceColorSpace = getSupportedColorSpaceName(transform.sourceSpace.c_str());
@@ -131,7 +141,7 @@ NodeDefPtr OpenColorIOManagementSystem::getNodeDef(const ColorSpaceTransform& tr
 
     if (gpuProcessor->isNoOp())
     {
-        return _document->getNodeDef("ND_dot_" + transform.type.getName());
+        return document->getNodeDef("ND_dot_" + transform.type.getName());
     }
 
     // Reject transforms requiring textures (1D and 3D LUTs)
@@ -145,18 +155,18 @@ NodeDefPtr OpenColorIOManagementSystem::getNodeDef(const ColorSpaceTransform& tr
 
     static const auto NODE_NAME = string{ "ocio_color_conversion" };
     const auto functionName = NODE_NAME + "_" + processor->getCacheID();
-    const auto implName = IMPL_PREFIX + functionName + "_" + transform.type.getName();
+    const auto implName = OpenColorIOManagementSystem::IMPL_PREFIX + functionName + "_" + transform.type.getName();
     const auto nodeDefName = ND_PREFIX + functionName + "_" + transform.type.getName();
-    auto nodeDef = _document->getNodeDef(nodeDefName);
+    auto nodeDef = document->getNodeDef(nodeDefName);
     if (!nodeDef)
     {
-        nodeDef = _document->addNodeDef(nodeDefName, "", functionName);
+        nodeDef = document->addNodeDef(nodeDefName, "", functionName);
         nodeDef->setNodeGroup("colortransform");
 
         nodeDef->addInput("in", transform.type.getName());
         nodeDef->addOutput("out", transform.type.getName());
 
-        auto implementation = _document->addImplementation(implName);
+        auto implementation = document->addImplementation(implName);
         implementation->setTarget(_target);
         implementation->setNodeDef(nodeDef);
     }
@@ -166,32 +176,186 @@ NodeDefPtr OpenColorIOManagementSystem::getNodeDef(const ColorSpaceTransform& tr
     return nodeDef;
 }
 
+string OpenColorIOManagementSystemImpl::getGpuProcessorCode(const string& implName, const string& functionName) const
+{
+    auto it = _implementations.find(implName);
+    if (it == _implementations.end())
+    {
+        return {};
+    }
+
+    auto gpuProcessor = it->second;
+    OCIO::GpuShaderDescRcPtr shaderDesc = OCIO::GpuShaderDesc::CreateShaderDesc();
+
+    // TODO: Extend to essl and MDL and possibly SLang.
+    bool isOSL = false;
+    if (_target == "genglsl")
+    {
+        shaderDesc->setLanguage(OCIO::GPU_LANGUAGE_GLSL_4_0);
+    }
+    else if (_target == "genmsl")
+    {
+        shaderDesc->setLanguage(OCIO::GPU_LANGUAGE_MSL_2_0);
+    }
+    else if (_target == "genosl")
+    {
+        shaderDesc->setLanguage(OCIO::LANGUAGE_OSL_1);
+        isOSL = true;
+    }
+
+    shaderDesc->setFunctionName(functionName.c_str());
+
+    gpuProcessor->extractGpuShaderInfo(shaderDesc);
+
+    string shaderText = shaderDesc->getShaderText();
+
+    // For OSL, we need to extract the function from the shader OCIO creates.
+    if (isOSL)
+    {
+#if OCIO_VERSION_HEX <= 0x02040100
+        // Need to transpose the matrix if we have an OCIO that predates integration of the
+        // Matrix * vector4 fix from OSL pull request 1513:
+        //    https://github.com/AcademySoftwareFoundation/OpenShadingLanguage/pull/1513
+        //
+        // In the fix, we will get:
+        //     vector4 __operator__mul__(matrix m, vector4 v)
+        //     {
+        //        return transform(m, v);
+        //     }
+        // Instead of piecewise accumulation.
+        const auto find1513Fix = [](const std::string& shaderText)
+        {
+            const auto mulPos = shaderText.find("__operator__mul__");
+            if (mulPos == std::string::npos)
+            {
+                return false;
+            }
+            const auto transformPos = shaderText.find("transform(m, v);", mulPos);
+            if (transformPos == std::string::npos)
+            {
+                return false;
+            }
+            return transformPos - mulPos < 60;
+        };
+        static const bool khasMatrixMathFix = find1513Fix(shaderText);
+#endif
+        auto startpos = shaderText.find(string{ "color4 " } + shaderDesc->getFunctionName());
+        if (startpos != string::npos)
+        {
+            auto endpos = shaderText.find(string{ "outColor = " } + shaderDesc->getFunctionName(), startpos);
+            if (endpos != string::npos)
+            {
+                shaderText = shaderText.substr(startpos, endpos - startpos);
+            }
+        }
+#if OCIO_VERSION_HEX <= 0x02040100
+        if (!khasMatrixMathFix)
+        {
+            startpos = shaderText.find(string{ "matrix(" });
+            if (startpos != string::npos)
+            {
+                auto endpos = shaderText.find(string{ ")" }, startpos);
+                if (endpos != string::npos)
+                {
+                    shaderText.insert(endpos, ")");
+                    shaderText.insert(startpos, "transpose(");
+                }
+            }
+        }
+#endif
+    }
+
+    return shaderText;
+}
+
+//
+// OpenColorIOManagementSystem methods
+//
+
+OpenColorIOManagementSystemPtr OpenColorIOManagementSystem::createFromEnv(string target)
+{
+    if (target != "genglsl" && target != "genmsl" && target != "genosl")
+    {
+        throw std::runtime_error("OCIO does not support this target");
+    }
+
+    auto config = OCIO::Config::CreateFromEnv();
+    return OpenColorIOManagementSystemPtr(new OpenColorIOManagementSystem(new OpenColorIOManagementSystemImpl(config, target)));
+}
+
+OpenColorIOManagementSystemPtr OpenColorIOManagementSystem::createFromFile(const string& filename, string target)
+{
+    if (target != "genglsl" && target != "genmsl" && target != "genosl")
+    {
+        throw std::runtime_error("OCIO does not support this target");
+    }
+
+    auto config = OCIO::Config::CreateFromFile(filename.c_str());
+    return OpenColorIOManagementSystemPtr(new OpenColorIOManagementSystem(new OpenColorIOManagementSystemImpl(config, target)));
+}
+
+OpenColorIOManagementSystemPtr OpenColorIOManagementSystem::createFromBuiltinConfig(const string& configName, string target)
+{
+    if (target != "genglsl" && target != "genmsl" && target != "genosl")
+    {
+        throw std::runtime_error("OCIO does not support this target");
+    }
+
+    auto config = OCIO::Config::CreateFromBuiltinConfig(configName.c_str());
+    return OpenColorIOManagementSystemPtr(new OpenColorIOManagementSystem(new OpenColorIOManagementSystemImpl(config, target)));
+}
+
+OpenColorIOManagementSystem::OpenColorIOManagementSystem(OpenColorIOManagementSystemImpl* impl) :
+    DefaultColorManagementSystem(impl->target()),
+    _impl(impl)
+{
+}
+
+OpenColorIOManagementSystem::~OpenColorIOManagementSystem() = default;
+
+const string& OpenColorIOManagementSystem::getName() const
+{
+    return CMS_NAME;
+}
+
+const char* OpenColorIOManagementSystem::getSupportedColorSpaceName(const char* colorSpace) const
+{
+    return _impl->getSupportedColorSpaceName(colorSpace);
+}
+
+NodeDefPtr OpenColorIOManagementSystem::getNodeDef(const ColorSpaceTransform& transform) const
+{
+    // See if the default color management system already handles this:
+    if (auto cmNodeDef = DefaultColorManagementSystem::getNodeDef(transform))
+    {
+        return cmNodeDef;
+    }
+
+    return _impl->getNodeDef(transform, _document);
+}
+
 bool OpenColorIOManagementSystem::hasImplementation(const string& implName) const
 {
-    if (DefaultColorManagementSystem::hasImplementation(implName)) {
+    if (DefaultColorManagementSystem::hasImplementation(implName))
+    {
         return true;
     }
-    return _implementations.count(implName);
+    return _impl->hasImplementation(implName);
 }
 
 ShaderNodeImplPtr OpenColorIOManagementSystem::createImplementation(const string& implName) const
 {
-    if (auto impl = DefaultColorManagementSystem::createImplementation(implName)) {
+    if (auto impl = DefaultColorManagementSystem::createImplementation(implName))
+    {
         return impl;
     }
 
-    if (_implementations.count(implName))
-    {
-        return OpenColorIONode::create();
-    }
-    return {};
+    return _impl->createImplementation(implName);
 }
 
-OCIO::ConstGPUProcessorRcPtr OpenColorIOManagementSystem::getGpuProcessor(const string& implName)
+string OpenColorIOManagementSystem::getGpuProcessorCode(const string& implName, const string& functionName) const
 {
-    auto it = _implementations.find(implName);
-
-    return it != _implementations.end() ? it->second : nullptr;
+    return _impl->getGpuProcessorCode(implName, functionName);
 }
 
 MATERIALX_NAMESPACE_END

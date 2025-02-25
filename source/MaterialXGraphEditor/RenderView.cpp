@@ -610,7 +610,21 @@ void RenderView::initContext(mx::GenContext& context)
     }
 
     // Initialize color management.
-    mx::DefaultColorManagementSystemPtr cms = mx::DefaultColorManagementSystem::create(context.getShaderGenerator().getTarget());
+    mx::DefaultColorManagementSystemPtr cms;
+#ifdef MATERIALX_BUILD_OCIO
+    try
+    {
+        cms = mx::OpenColorIOManagementSystem::createFromBuiltinConfig(
+            "ocio://studio-config-latest",
+            context.getShaderGenerator().getTarget());
+    }
+    catch (const std::exception& /*e*/)
+    {
+        cms = mx::DefaultColorManagementSystem::create(context.getShaderGenerator().getTarget());
+    }
+#else
+    cms = mx::DefaultColorManagementSystem::create(context.getShaderGenerator().getTarget());
+#endif
     cms->loadLibrary(_document);
     context.getShaderGenerator().setColorManagementSystem(cms);
 

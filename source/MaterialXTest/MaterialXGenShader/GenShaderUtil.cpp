@@ -327,9 +327,10 @@ void shaderGenPerformanceTest(mx::GenContext& context)
 #ifdef MATERIALX_BUILD_OCIO
     try
     {
-        auto config = OCIO::Config::CreateFromBuiltinConfig("ocio://studio-config-latest");
-        colorManagementSystem  =
-            mx::OpenColorIOManagementSystem::create(config, context.getShaderGenerator().getTarget());
+        colorManagementSystem =
+            mx::OpenColorIOManagementSystem::createFromBuiltinConfig(
+                "ocio://studio-config-latest",
+                context.getShaderGenerator().getTarget());
     }
     catch (const std::exception& /*e*/)
     {
@@ -528,7 +529,20 @@ void ShaderGeneratorTester::addColorManagement()
     if (!_colorManagementSystem && _shaderGenerator)
     {
         const std::string& target = _shaderGenerator->getTarget();
+#ifdef MATERIALX_BUILD_OCIO
+        try
+        {
+            _colorManagementSystem = mx::OpenColorIOManagementSystem::createFromBuiltinConfig(
+                "ocio://studio-config-latest",
+                target);
+        }
+        catch (const std::exception& /*e*/)
+        {
+            _colorManagementSystem = mx::DefaultColorManagementSystem::create(target);
+        }
+#else
         _colorManagementSystem = mx::DefaultColorManagementSystem::create(target);
+#endif
         if (!_colorManagementSystem)
         {
             _logFile << ">> Failed to create color management system for target: " << target << std::endl;

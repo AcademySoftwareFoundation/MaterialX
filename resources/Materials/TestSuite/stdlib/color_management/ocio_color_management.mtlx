@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<materialx version="1.39" colorspace="lin_rec709">
+  <standard_surface name="SR_OCIO_Demo" type="surfaceshader">
+    <input name="base_color" type="color3" nodegraph="NG_OCIO_Demo" output="out_color" />
+  </standard_surface>
+  <surfacematerial name="OCIO_Demo" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="SR_OCIO_Demo" />
+  </surfacematerial>
+  <nodegraph name="NG_OCIO_Demo">
+    <output name="out_color" type="color3" nodename="switch1" />
+    <switch name="switch1" type="color3">
+      <input name="in1" type="color3" nodename="image1" />
+      <input name="in2" type="color3" nodename="image2" />
+      <input name="in3" type="color3" nodename="image4" />
+      <input name="in4" type="color3" nodename="image3" />
+      <input name="in5" type="color3" nodename="image5" />
+      <input name="which" type="float" nodename="add1" />
+    </switch>
+    <image name="image1" type="color3">
+      <input name="file" type="filename" value="resources/Images/color_palette_srgb.exr" colorspace="sRGB - Texture" />
+    </image>
+    <image name="image2" type="color3">
+      <input name="file" type="filename" value="resources/Images/color_palette_lin_p3d65.exr" colorspace="sRGB Encoded P3-D65 - Texture" />
+    </image>
+    <image name="image3" type="color3">
+      <input name="file" type="filename" value="resources/Images/color_palette_g18_rec709_tx.exr" colorspace="Gamma 1.8 Rec.709 - Texture" />
+    </image>
+    <image name="image4" type="color3">
+      <input name="file" type="filename" value="resources/Images/color_palette_lin_ap0.exr" colorspace="lin_ap0" />
+    </image>
+    <image name="image5" type="color3">
+      <input name="file" type="filename" value="resources/Images/ color_palette_srgb_ap1.exr" colorspace="sRGB Encoded AP1 - Texture" />
+    </image>
+    <texcoord name="texcoord1" type="vector2" />
+    <extract name="extract1" type="float">
+      <input name="in" type="vector2" nodename="texcoord1" />
+      <input name="index" type="integer" value="1" />
+    </extract>
+    <multiply name="multiply1" type="float">
+      <input name="in1" type="float" nodename="extract1" />
+      <input name="in2" type="float" value="9" />
+    </multiply>
+    <add name="add1" type="float">
+      <input name="in1" type="float" nodename="multiply1" />
+      <input name="in2" type="float" value="-2" />
+    </add>
+  </nodegraph>
+</materialx>
