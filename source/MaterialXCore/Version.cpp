@@ -1316,6 +1316,13 @@ void Document::upgradeVersion()
             }
             else if (nodeCategory == "normalmap")
             {
+                // Handle a rename of the float-typed nodedef.
+                if (node->getNodeDefString() == "ND_normalmap")
+                {
+                    node->setNodeDefString("ND_normalmap_float");
+                }
+
+                // Handle each supported space.
                 InputPtr space = node->getInput("space");
                 if (space && space->getValueString() == "object")
                 {
@@ -1339,12 +1346,6 @@ void Document::upgradeVersion()
                 {
                     // Clear tangent-space input.
                     node->removeInput("space");
-
-                    // Handle a rename of the float-typed nodedef.
-                    if (node->getNodeDefString() == "ND_normalmap")
-                    {
-                        node->setNodeDefString("ND_normalmap_float");
-                    }
 
                     // If the normal or tangent inputs are set and the bitangent input is not, 
                     // the bitangent should be set to normalize(cross(N, T))
