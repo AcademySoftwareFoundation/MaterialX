@@ -35,4 +35,32 @@
     <input name="surfaceshader" type="surfaceshader" nodename="N_surface_2" />
   </surfacematerial>
 
+  <normal name="N_objectnormal" type="vector3">
+    <input name="space" type="string" value="object" />
+  </normal>
+  <multiply name="N_multiply" type="vector3">
+    <input name="in1" type="vector3" nodename="N_objectnormal" />
+    <input name="in2" type="float" value="0.5" />
+  </multiply>
+  <add name="N_add" type="vector3">
+    <input name="in1" type="vector3" nodename="N_multiply" />
+    <input name="in2" type="float" value="0.5" />
+  </add>
+  <normalmap name="N_normalmap_3" type="vector3">
+    <input name="in" type="vector3" nodename="N_add" />
+    <input name="space" type="string" value="object" />
+  </normalmap>
+  <transformnormal name="N_transformnormal" type="vector3">
+    <input name="in" type="vector3" nodename="N_normalmap_3" />
+    <input name="fromspace" type="string" value="object" />
+    <input name="tospace" type="string" value="world" />
+  </transformnormal>
+  <standard_surface name="N_surface_3" type="surfaceshader">
+    <input name="metalness" type="float" value="1" />
+    <input name="normal" type="vector3" nodename="N_transformnormal" />
+  </standard_surface>
+  <surfacematerial name="N_material_3" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="N_surface_3" />
+  </surfacematerial>
+
 </materialx>
