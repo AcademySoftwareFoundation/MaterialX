@@ -1316,13 +1316,6 @@ void Document::upgradeVersion()
             }
             else if (nodeCategory == "normalmap")
             {
-                // Handle a rename of the float-typed nodedef.
-                if (node->getNodeDefString() == "ND_normalmap")
-                {
-                    node->setNodeDefString("ND_normalmap_float");
-                }
-
-                // Handle each supported space.
                 InputPtr space = node->getInput("space");
                 if (space && space->getValueString() == "object")
                 {
@@ -1341,6 +1334,12 @@ void Document::upgradeVersion()
                         node->removeChild(input->getName());
                     }
                     node->addInput("in", "vector3")->setConnectedNode(subtract);
+
+                    // Update nodedef name if present.
+                    if (node->hasNodeDefString())
+                    {
+                        node->setNodeDefString("ND_normalize_vector3");
+                    }
                 }
                 else
                 {
@@ -1363,6 +1362,12 @@ void Document::upgradeVersion()
                         normalizeNode->addInput("in", "vector3")->setConnectedNode(crossNode);
 
                         node->addInput("bitangent", "vector3")->setConnectedNode(normalizeNode);
+                    }
+
+                    // Update nodedef name if present.
+                    if (node->getNodeDefString() == "ND_normalmap")
+                    {
+                        node->setNodeDefString("ND_normalmap_float");
                     }
                 }
             }

@@ -46,7 +46,7 @@
     <input name="in1" type="vector3" nodename="N_multiply" />
     <input name="in2" type="float" value="0.5" />
   </add>
-  <normalmap name="N_normalmap_3" type="vector3">
+  <normalmap name="N_normalmap_3" type="vector3" nodedef="ND_normalmap">
     <input name="in" type="vector3" nodename="N_add" />
     <input name="space" type="string" value="object" />
   </normalmap>
