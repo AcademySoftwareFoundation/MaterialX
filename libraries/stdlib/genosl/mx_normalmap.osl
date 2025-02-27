@@ -1,21 +1,24 @@
-void mx_normalmap_vector2(vector value, vector2 normal_scale, vector N, vector U, vector B, output vector result)
+void mx_normalmap_vector2(vector value, vector2 normal_scale, vector N, vector T, vector B, output vector result)
 {
     if (value == vector(0.0))
     {
-        result = N; // dot(TBN, vector(0.0, 0.0, 1.0))
+        result = N;
     }
     else
     {
-        // OSL backend uses dPdu and dPdv for tangents and bitangents, but the vectors are not guaranteed
-        // to be normalized. Orthogonalize tangent frame using Gram-Schmidt, unlike in the other backends.
+        // The OSL backend uses dPdu and dPdv for tangents and bitangents, but these vectors are not
+        // guaranteed to be orthonormal.
+        //
+        // Orthogonalize the tangent frame using Gram-Schmidt, unlike in the other backends.
+        //
         vector v = value * 2.0 - 1.0;
-        vector T = normalize(U - dot(U, N) * N);
-        vector B = normalize(cross(N, T));
-        result = normalize(T * v[0] * normal_scale.x + B * v[1] * normal_scale.y + N * v[2]);
+        vector Tn = normalize(T - dot(T, N) * N);
+        vector Bn = normalize(cross(N, Tn));
+        result = normalize(Tn * v[0] * normal_scale.x + Bn * v[1] * normal_scale.y + N * v[2]);
     }
 }
 
-void mx_normalmap_float(vector value, float normal_scale, vector N, vector U, vector B, output vector result)
+void mx_normalmap_float(vector value, float normal_scale, vector N, vector T, vector B, output vector result)
 {
-    mx_normalmap_vector2(value, vector2(normal_scale, normal_scale), N, U, B, result);
+    mx_normalmap_vector2(value, vector2(normal_scale, normal_scale), N, T, B, result);
 }
