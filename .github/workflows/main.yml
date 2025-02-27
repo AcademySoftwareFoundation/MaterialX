@@ -36,6 +36,7 @@ jobs:
           compiler: gcc
           compiler_version: "14"
           python: 3.13
+          test_render: ON
 
         - name: Linux_GCC_CoverageAnalysis
           os: ubuntu-24.04
@@ -57,18 +58,17 @@ jobs:
           compiler: clang
           compiler_version: "18"
           python: 3.13
-          test_render: ON
           clang_format: ON
 
-        - name: MacOS_Xcode_14_Python39
-          os: macos-13
+        - name: MacOS_Xcode_15_Python311
+          os: macos-14
           compiler: xcode
-          compiler_version: "14.1"
+          compiler_version: "15.4"
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
-          python: 3.9
+          python: 3.11
 
         - name: MacOS_Xcode_15_Python312
-          os: macos-14
+          os: macos-15
           compiler: xcode
           compiler_version: "15.4"
           python: 3.12
@@ -159,11 +159,7 @@ jobs:
     - name: Install Dependencies (Windows)
       if: runner.os == 'Windows'
       run: |
-        git clone https://github.com/Microsoft/vcpkg -b 2021.05.12 -c advice.detachedHead=false
-        vcpkg/bootstrap-vcpkg.bat -disableMetrics
         Add-Content $env:GITHUB_PATH "$PWD/build/installed/bin"
-        Add-Content $env:GITHUB_PATH "$PWD/vcpkg/installed/x64-windows/bin"
-        Add-Content $env:GITHUB_PATH "$PWD/vcpkg/installed/x64-windows/tools"
 
     - name: Install Python ${{ matrix.python }}
       if: matrix.python != 'None'
@@ -210,10 +206,10 @@ jobs:
     - name: Shader Validation Tests (Windows)
       if: matrix.test_shaders == 'ON' && runner.os == 'Windows'
       run: |
-        vcpkg/vcpkg install glslang --triplet=x64-windows
-        glslangValidator.exe -v
-        python python/Scripts/generateshader.py resources/Materials/Examples --target glsl --validator glslangValidator.exe
-        python python/Scripts/generateshader.py resources/Materials/Examples --target essl --validator glslangValidator.exe
+        C:/vcpkg/vcpkg install glslang[tools] --triplet=x64-windows-release
+        C:/vcpkg/installed/x64-windows-release/tools/glslang/glslangValidator.exe -v
+        python python/Scripts/generateshader.py resources/Materials/Examples --target glsl --validator C:/vcpkg/installed/x64-windows-release/tools/glslang/glslangValidator.exe
+        python python/Scripts/generateshader.py resources/Materials/Examples --target essl --validator C:/vcpkg/installed/x64-windows-release/tools/glslang/glslangValidator.exe
 
     - name: Shader Validation Tests (MacOS)
       if: matrix.test_shaders == 'ON' && runner.os == 'macOS'
