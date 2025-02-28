@@ -10,6 +10,7 @@
 - Added an [ElementVec type alias](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2231) in MaterialX C++, allowing certain patterns to be expressed more clearly and concisely. 
 
 ### Changed
+- Raised the minimum CMake version to [CMake 3.26](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2235).
 - Refactored the [type system](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2176) in shader generation, improving the thread-safety and robustness of the generation process.
 - Improved the implementations of the [BSDF operator nodes](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2191), preferring data definitions over explicit C++ code.
 - Improved the implementation of the [time node](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2192), using a node graph implementation in hardware shading languages.
@@ -17,6 +18,7 @@
 ### Fixed
 - Added validation of [tree depth](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2232) and [XInclude depth](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2233) in XML parsing, addressing cases where unusually complex documents could trigger a stack overflow.
 - Adding missing [null](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2228) [checks](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2229) in the getShaderNodes helper function.
+- Fixed edge cases in the version upgrade process for [normalmap](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2248) [nodes](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2251).
 - Improved the handling of [invalid materials](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2230) in the MaterialX Viewer, addressing cases where missing lights could trigger a crash.
 
 ## [1.39.2] - 2025-01-20
