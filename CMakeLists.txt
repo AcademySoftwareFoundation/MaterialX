@@ -33,6 +33,13 @@ endif()
 
 # VCPKG setup
 set(VCPKG_MANIFEST_MODE ON)
+# linux and macos build static libs by default, for windows we need to set this manually
+# note, 32bit and arm are not supported yet
+if(WIN32 AND NOT UNIX)
+    # we can switch to x64-windows-static-md with the MDL SDK, i.e., 2024.1.1
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    set(VCPKG_TARGET_TRIPLET x64-windows-static)
+endif()
 set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/source/External/vcpkg/scripts/buildsystems/vcpkg.cmake)
 
 # optional dependencies
