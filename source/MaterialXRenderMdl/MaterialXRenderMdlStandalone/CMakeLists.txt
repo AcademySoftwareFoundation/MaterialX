@@ -18,6 +18,8 @@ target_link_libraries(MaterialXRenderMdlStandalone
         MaterialXGenShader
         MaterialXGenMdl
         mdl::mdl_sdk
+        mdl::dds 
+        mdl::nv_openimageio
         glfw
         Vulkan::Headers
         volk::volk
@@ -26,14 +28,14 @@ target_link_libraries(MaterialXRenderMdlStandalone
         glslang::SPIRV
         SPIRV-Tools-opt
     )
-
 # copy the MDL SDK binaries to the output folder as the easiest solution without changing the PATH for execution
 # also copy the content files
 add_custom_command(TARGET MaterialXRenderMdlStandalone POST_BUILD
     BYPRODUCTS ${POST_BUILD_DEP}
-    # COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:MaterialXRenderMdlStandalone> $<TARGET_FILE_DIR:MaterialXRenderMdlStandalone>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:MaterialXRenderMdlStandalone> $<TARGET_FILE_DIR:MaterialXRenderMdlStandalone>
     COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:MaterialXRenderMdlStandalone>/MaterialXRenderMdlStandalone
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${materialx_content} $<TARGET_FILE_DIR:MaterialXRenderMdlStandalone>/MaterialXRenderMdlStandalone
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/resources/Lights/goegap.hdr $<TARGET_FILE_DIR:MaterialXRenderMdlStandalone>/MaterialXRenderMdlStandalone
     COMMAND_EXPAND_LISTS
     )
 

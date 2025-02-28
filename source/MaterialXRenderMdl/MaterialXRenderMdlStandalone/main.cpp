@@ -75,7 +75,7 @@ struct Options
     mi::Float32_3 light_pos = { 10.0f, 0.0f, 5.0f };
     mi::Float32_3 light_intensity = { 1.0f, 0.95f, 0.9f };
     bool light_enabled = false;
-    std::string hdr_file = "goegap.hdr";
+    std::string hdr_file = "MaterialXRenderMdlStandalone/goegap.hdr";
     float hdr_intensity = 1.0f;
     float hdr_rotate = 0.0f;
     bool background_color_enabled = false;
@@ -1828,7 +1828,7 @@ int MAIN_UTF8(int argc, char* argv[])
             neuray->get_api_component<mi::neuraylib::IMdl_configuration>());
 
         {
-            // corresponds to module path within an MDL search path 
+            // corresponds to module path within an MDL search pat50
             std::string qualified_module_name;
             // the function name, i.e., within the given module
             std::string material_simple_name;
@@ -1961,6 +1961,9 @@ int MAIN_UTF8(int argc, char* argv[])
     // remove custom logger
     logging_configuration->set_receiving_logger(nullptr);
     logger.reset();
+    // release all handles before shutting down neuray
+    logging_configuration.reset();
+    mdl_config.reset();
 
     // Shut down the MDL SDK
     if (neuray->shutdown() != 0)

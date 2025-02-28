@@ -525,9 +525,9 @@ void Vulkan_example_app::init_instance(
     // Create Vulkan instance
     VkApplicationInfo application_info = {};
     application_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-    application_info.pApplicationName = "MDL SDK Vulkan Example";
+    application_info.pApplicationName = "MaterialX - MDL Render";
     application_info.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-    application_info.pEngineName = "MDL SDK";
+    application_info.pEngineName = "MDL";
     application_info.engineVersion = VK_MAKE_VERSION(1, 0, 0);
     application_info.apiVersion = VK_API_VERSION_1_0;
 
