@@ -3,18 +3,18 @@ set(DOXYGEN_HTML_OUTPUT_DIR ${DOXYGEN_OUTPUT_DIR}/html)
 set(DOXYGEN_INPUT_LIST ${CMAKE_CURRENT_BINARY_DIR}/MainPage.md)
 
 set(MATERIALX_DOXYGEN_SOURCE_FOLDERS
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/MaterialXCore
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/MaterialXFormat
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/MaterialXGenShader
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/MaterialXGenShader/Nodes
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/MaterialXGenGlsl
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/MaterialXGenGlsl/Nodes
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/MaterialXGenOsl
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/MaterialXGenMdl
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/MaterialXRender
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/MaterialXRenderHw
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/MaterialXRenderGlsl
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/MaterialXRenderOsl)
+    ${MaterialX_SOURCE_DIR}/source/MaterialXCore
+    ${MaterialX_SOURCE_DIR}/source/MaterialXFormat
+    ${MaterialX_SOURCE_DIR}/source/MaterialXGenShader
+    ${MaterialX_SOURCE_DIR}/source/MaterialXGenShader/Nodes
+    ${MaterialX_SOURCE_DIR}/source/MaterialXGenGlsl
+    ${MaterialX_SOURCE_DIR}/source/MaterialXGenGlsl/Nodes
+    ${MaterialX_SOURCE_DIR}/source/MaterialXGenOsl
+    ${MaterialX_SOURCE_DIR}/source/MaterialXGenMdl
+    ${MaterialX_SOURCE_DIR}/source/MaterialXRender
+    ${MaterialX_SOURCE_DIR}/source/MaterialXRenderHw
+    ${MaterialX_SOURCE_DIR}/source/MaterialXRenderGlsl
+    ${MaterialX_SOURCE_DIR}/source/MaterialXRenderOsl)
 
 find_package(Doxygen REQUIRED)
 
