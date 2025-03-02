@@ -11,3 +11,9 @@ mx_add_library(MaterialXGenShader
         MaterialXCore
     EXPORT_DEFINE
         MATERIALX_GENSHADER_EXPORTS)
+
+if(MATERIALX_BUILD_OCIO)
+    find_package(OpenColorIO REQUIRED)
+    target_link_libraries(${TARGET_NAME} PRIVATE OpenColorIO::OpenColorIO)
+    target_compile_definitions(${TARGET_NAME} PUBLIC MATERIALX_BUILD_OCIO)
+endif()
