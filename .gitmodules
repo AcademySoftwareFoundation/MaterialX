@@ -7,3 +7,6 @@
 [submodule "source/MaterialXGraphEditor/External/ImGuiNodeEditor"]
 	path = source/MaterialXGraphEditor/External/ImGuiNodeEditor
 	url = https://github.com/thedmd/imgui-node-editor
+[submodule "source/External/vcpkg"]
+	path = source/External/vcpkg
+	url = https://github.com/microsoft/vcpkg.git
