@@ -426,91 +426,124 @@
     <backdrop name="Awaiting_fix_in_MaterialX" xpos="10.9859" ypos="-0.350134" width="1.36111" height="1.73333" uicolor="#C85252" Autodesk-ldx_alpha="0.156863" />
   </nodegraph>
 
-  <nodegraph name="NG_legacy_noise" Autodesk-ldx_inputPos="-449.667 -60.6667" Autodesk-ldx_outputPos="3976.13 -7.67324" nodedef="ND_legacy_noise">
+  <nodegraph name="NG_legacy_noise" Autodesk-ldx_inputPos="234.424 -58.394" Autodesk-ldx_outputPos="5398.14 -39.5305" nodedef="ND_legacy_noise">
     <output name="output_color3" type="color3" xpos="21.615942" ypos="0.560345" nodename="mix_colors" />
-    <range name="range_noise3d" type="float" xpos="13.4203" ypos="2.4569">
+    <range name="range_noise3d" type="float" xpos="13.4151" ypos="3.01868">
       <input name="in" type="float" nodename="noise3d_float" />
       <input name="inlow" type="float" value="-1" />
       <input name="doclamp" type="boolean" value="true" />
     </range>
-    <range name="range_fractal3d" type="float" xpos="13.4349" ypos="4.84403">
-      <input name="in" type="float" nodename="fractal3d_max8_1" />
-      <input name="inlow" type="float" value="-2" />
+    <range name="range_fractal3d" type="float" xpos="13.4282" ypos="5.12011">
+      <input name="in" type="float" nodename="fractal3d_max8" />
+      <input name="inlow" type="float" value="-1" />
       <input name="doclamp" type="boolean" value="true" />
-      <input name="inhigh" type="float" value="2" />
+      <input name="inhigh" type="float" value="1" />
     </range>
-    <switch name="switch_type" type="float" xpos="16.2029" ypos="3.73276">
+    <switch name="switch_type" type="float" xpos="16.3734" ypos="5.08553">
       <input name="which" type="integer" interfacename="noise_type" />
       <input name="in1" type="float" nodename="range_noise3d" />
       <input name="in2" type="float" nodename="range_fractal3d" />
-      <input name="in3" type="float" nodename="turbulence3d1" />
+      <input name="in3" type="float" nodename="range_turbulence3d" />
     </switch>
-    <mix name="mix_colors" type="color3" xpos="19.8768" ypos="0.008621">
-      <input name="mix" type="float" nodename="range_custom" />
+    <mix name="mix_colors" type="color3" xpos="27.7322" ypos="-0.213017">
+      <input name="mix" type="float" nodename="smooth_select" />
       <input name="fg" type="color3" interfacename="color1" />
       <input name="bg" type="color3" interfacename="color2" />
     </mix>
-    <range name="range_custom" type="float" xpos="18.1014" ypos="1.09483">
-      <input name="in" type="float" nodename="switch_type" />
+    <range name="lowhi_range" type="float" xpos="23.8093" ypos="3.45124">
       <input name="inlow" type="float" interfacename="threshold_low" />
       <input name="inhigh" type="float" interfacename="threshold_high" />
       <input name="doclamp" type="boolean" value="true" />
+      <input name="in" type="float" nodename="if_odd_even" />
     </range>
-    <noise3d name="noise3d_float" type="float" xpos="10.9855" ypos="2.33621">
-      <input name="position" type="vector3" nodename="add_offset" />
+    <noise3d name="noise3d_float" type="float" xpos="10.828" ypos="3.31276">
+      <input name="position" type="vector3" nodename="rotate3d_z" />
     </noise3d>
-    <combine3 name="combine_coord" type="vector3" xpos="2.49275" ypos="2.75862">
-      <input name="in1" type="float" output="outx" nodename="separate_2" />
-      <input name="in2" type="float" output="outy" nodename="separate_2" />
-      <input name="in3" type="float" interfacename="phase" />
-    </combine3>
-    <multiply name="adj_coord" type="vector3" xpos="4.76812" ypos="2.92241">
-      <input name="in1" type="vector3" nodename="combine_coord" />
+    <multiply name="adj_coord" type="vector3" xpos="5.27718" ypos="2.07712">
+      <input name="in1" type="vector3" interfacename="position" />
       <input name="in2" type="float" nodename="inv_size" />
     </multiply>
-    <divide name="inv_size" type="float" xpos="2.4058" ypos="6.33622">
+    <divide name="inv_size" type="float" xpos="3.3273" ypos="2.24824">
       <input name="in2" type="float" interfacename="size" />
       <input name="in1" type="float" value="1" />
     </divide>
-    <rotate3d name="rotate3d_x" type="vector3" xpos="2.49275" ypos="12.4397">
-      <input name="in" type="vector3" nodename="adj_coord" />
+    <rotate3d name="rotate3d_x" type="vector3" xpos="7.55044" ypos="3.77017">
+      <input name="in" type="vector3" nodename="add_offset" />
       <input name="amount" type="float" interfacename="rotate_x" />
       <input name="axis" type="vector3" value="1, 0, 0" />
     </rotate3d>
-    <combine3 name="combine_offset" type="vector3" xpos="2.37681" ypos="8.68967">
+    <combine3 name="combine_offset" type="vector3" xpos="3.40388" ypos="3.96484">
       <input name="in1" type="float" interfacename="offset_x" />
       <input name="in2" type="float" interfacename="offset_y" />
       <input name="in3" type="float" interfacename="offset_z" />
     </combine3>
-    <rotate3d name="rotate3d_y" type="vector3" xpos="2.49275" ypos="13.9224">
+    <rotate3d name="rotate3d_y" type="vector3" xpos="7.51633" ypos="5.23012">
       <input name="in" type="vector3" nodename="rotate3d_x" />
       <input name="amount" type="float" interfacename="rotate_y" />
     </rotate3d>
-    <rotate3d name="rotate3d_z" type="vector3" xpos="2.49275" ypos="15.181">
+    <rotate3d name="rotate3d_z" type="vector3" xpos="7.51633" ypos="6.48872">
       <input name="in" type="vector3" nodename="rotate3d_y" />
       <input name="amount" type="float" interfacename="rotate_z" />
       <input name="axis" type="vector3" value="0, 0, 1" />
     </rotate3d>
-    <subtract name="add_offset" type="vector3" xpos="5.84783" ypos="11.4397">
+    <subtract name="add_offset" type="vector3" xpos="5.7625" ypos="4.85148">
       <input name="in2" type="vector3" nodename="combine_offset" />
-      <input name="in1" type="vector3" nodename="rotate3d_z" />
+      <input name="in1" type="vector3" nodename="adj_coord" />
     </subtract>
-    <texcoord name="texcoord_vector2" type="vector2" xpos="-2.35622" ypos="3.37454" />
-    <separate2 name="separate_2" type="multioutput" xpos="-0.478261" ypos="2.48276">
-      <input name="in" type="vector2" nodename="texcoord_vector2" />
-      <output name="outx" type="float" />
-      <output name="outy" type="float" />
-    </separate2>
-    <turbulence3d name="turbulence3d1" type="float" nodedef="ND_turbulence3d_max8_float" xpos="10.9356" ypos="7.4545">
+    <turbulence3d name="turbulence3d_max8" type="float" nodedef="ND_turbulence3d_max8_float" xpos="10.811" ypos="7.64706">
       <input name="octaves" type="float" interfacename="levels" />
-      <input name="position" type="vector3" nodename="add_offset" />
+      <input name="position" type="vector3" nodename="rotate3d_z" />
     </turbulence3d>
-    <fractal3d_max8 name="fractal3d_max8_1" type="float" nodedef="ND_fractal3d_max8_float" xpos="10.8549" ypos="6.005">
-      <input name="position" type="vector3" nodename="add_offset" />
+    <fractal3d_max8 name="fractal3d_max8" type="float" nodedef="ND_fractal3d_max8_float" xpos="10.8549" ypos="5.41697">
       <input name="octaves" type="float" interfacename="levels" />
+      <input name="position" type="vector3" nodename="rotate3d_z" />
     </fractal3d_max8>
-    <backdrop name="might_need_range_for_turbulence_too" xpos="13.3121" ypos="8.539" width="1.94444" height="0.383333" />
-    <backdrop name="range_for_fractal_to_be_reviewed" xpos="13.3296" ypos="8.00772" width="1.94444" height="0.383333" />
+    <range name="range_turbulence3d" type="float" xpos="13.3442" ypos="7.55878">
+      <input name="inlow" type="float" value="0" />
+      <input name="doclamp" type="boolean" value="true" />
+      <input name="inhigh" type="float" value="1" />
+      <input name="in" type="float" nodename="turbulence3d_max8" />
+    </range>
+    <backdrop name="simulated_phase" xpos="10.7738" ypos="9.58206" width="11.1104" height="3.01036" />
+    <modulo name="modulo_phase" type="float" nodedef="ND_modulo_float" xpos="10.9802" ypos="10.2982">
+      <input name="in1" type="float" interfacename="phase" />
+    </modulo>
+    <smoothstep name="lowhi_range_smooth" type="float" nodedef="ND_smoothstep_float" xpos="23.8553" ypos="2.00997">
+      <input name="low" type="float" interfacename="threshold_low" />
+      <input name="high" type="float" interfacename="threshold_high" />
+      <input name="in" type="float" nodename="if_odd_even" />
+    </smoothstep>
+    <ifequal name="smooth_select" type="float" nodedef="ND_ifequal_floatB" xpos="25.9066" ypos="2.14428">
+      <input name="in1" type="float" nodename="lowhi_range_smooth" />
+      <input name="in2" type="float" nodename="lowhi_range" />
+      <input name="value2" type="boolean" value="true" />
+      <input name="value1" type="boolean" interfacename="smooth_threshold" />
+    </ifequal>
+    <backdrop name="offset_and_rotation" xpos="5.36043" ypos="3.36278" width="3.49555" height="4.42037" />
+    <add name="add_noise1" type="float" nodedef="ND_add_float" xpos="14.5288" ypos="10.3503">
+      <input name="in2" type="float" nodename="mult_phase" />
+      <input name="in1" type="float" nodename="switch_type" />
+    </add>
+    <modulo name="modulo_odd_even" type="float" nodedef="ND_modulo_float" xpos="16.4836" ypos="10.0817">
+      <input name="in1" type="float" nodename="add_noise1" />
+      <input name="in2" type="float" value="2" />
+    </modulo>
+    <modulo name="modulo_ramp" type="float" nodedef="ND_modulo_float" xpos="16.4928" ypos="11.3379">
+      <input name="in1" type="float" nodename="add_noise1" />
+    </modulo>
+    <multiply name="mult_phase" type="float" nodedef="ND_multiply_float" xpos="12.7413" ypos="10.3599">
+      <input name="in2" type="float" value="2" />
+      <input name="in1" type="float" nodename="modulo_phase" />
+    </multiply>
+    <invert name="invert_ramp" type="float" nodedef="ND_invert_float" xpos="18.2433" ypos="11.2672">
+      <input name="in" type="float" nodename="modulo_ramp" />
+    </invert>
+    <ifgreatereq name="if_odd_even" type="float" nodedef="ND_ifgreatereq_float" xpos="20.0617" ypos="10.0241">
+      <input name="value2" type="float" value="1" />
+      <input name="in1" type="float" nodename="invert_ramp" />
+      <input name="in2" type="float" nodename="modulo_ramp" />
+      <input name="value1" type="float" nodename="modulo_odd_even" />
+    </ifgreatereq>
   </nodegraph>
 
   <nodegraph name="NG_turbulence2d_max8_float" Autodesk-ldx_inputPos="-1583 1" Autodesk-ldx_outputPos="2611.99 2439.3" nodedef="ND_turbulence2d_max8_float">
