@@ -1,0 +1,23 @@
+{
+  "version": "1.39.2",
+  "name": "materialx",
+  "features": {
+    "mdl-compiler": {
+      "description": "MDL Compiler used for [genmdl] tests.",
+      "dependencies": [ 
+        "mdl-sdk"
+      ]
+    },
+    "mdl-render": {
+      "description": "MDL render application used for [rendermdl] tests and as standalone example.",
+      "dependencies": [
+        { "name": "mdl-sdk", "features": ["openimageio", "dds"] },
+        "glfw3",
+        "vulkan-headers",
+        "glslang",
+        "volk",
+        "spirv-tools"
+      ]
+    }
+  }
+}
