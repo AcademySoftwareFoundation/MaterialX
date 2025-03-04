@@ -254,7 +254,7 @@ endif()
 
 # Adjust the default installation path
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-    set(CMAKE_INSTALL_PREFIX "${MaterialX_BINARY_DIR}/installed" CACHE PATH "Default install path" FORCE)
+    set(CMAKE_INSTALL_PREFIX "${PROJECT_BINARY_DIR}/installed" CACHE PATH "Default install path" FORCE)
 endif()
 
 # Set the installation path for shared libraries
@@ -358,7 +358,7 @@ function(mx_add_library MATERIALX_MODULE_NAME)
 
         # Create version resource
         if(MATERIALX_BUILD_SHARED_LIBS AND MSVC)
-            configure_file(${MaterialX_SOURCE_DIR}/cmake/modules/MaterialXVersion.rc.in ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
+            configure_file(${PROJECT_SOURCE_DIR}/cmake/modules/MaterialXVersion.rc.in ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
             target_sources(${TARGET_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
         endif()
 
@@ -588,10 +588,10 @@ if(NOT SKBUILD)
     endif()
 
     configure_package_config_file(cmake/modules/MaterialXConfig.cmake.in
-                                ${MaterialX_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}Config.cmake
+                                ${PROJECT_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}Config.cmake
                                 INSTALL_DESTINATION "${MATERIALX_GEN_CONFIG_PATH}"
                                 PATH_VARS CMAKE_INSTALL_PREFIX CMAKE_PROJECT_NAME)
-    write_basic_package_version_file(${MaterialX_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}ConfigVersion.cmake
+    write_basic_package_version_file(${PROJECT_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}ConfigVersion.cmake
                                     VERSION ${MATERIALX_LIBRARY_VERSION}
                                     COMPATIBILITY AnyNewerVersion)
 
@@ -601,7 +601,7 @@ if(NOT SKBUILD)
             DESTINATION "${MATERIALX_GEN_CONFIG_PATH}"
             FILE ${CMAKE_PROJECT_NAME}Targets.cmake)
 
-    install(FILES "${MaterialX_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}ConfigVersion.cmake"
-            "${MaterialX_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}Config.cmake"
+    install(FILES "${PROJECT_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}ConfigVersion.cmake"
+            "${PROJECT_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}Config.cmake"
             DESTINATION "${MATERIALX_GEN_CONFIG_PATH}")
 endif()
