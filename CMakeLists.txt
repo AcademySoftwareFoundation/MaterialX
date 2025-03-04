@@ -14,6 +14,27 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 
+# VCPKG setup
+# Check if the local vcpkg installation can be found
+if(NOT CMAKE_TOOLCHAIN_FILE)
+    string(REPLACE "\\" "/" VCPKG_ROOT $ENV{VCPKG_ROOT})  # make sure to use forward slashes on windows
+    set(CMAKE_TOOLCHAIN_FILE "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
+endif()
+if(EXISTS ${CMAKE_TOOLCHAIN_FILE})
+    message(STATUS "VCPKG toolchain file found: ${CMAKE_TOOLCHAIN_FILE}")
+else()
+    message(FATAL_ERROR "VCPKG toolchain path not found. Please set the `VCPKG_ROOT` environment variable or specify `CMAKE_TOOLCHAIN_FILE` manually.")
+    return()  # exit here otherwise the cache would need to be cleared
+endif()
+set(VCPKG_MANIFEST_MODE ON)
+# linux and macos build static libs by default, for windows we need to set this manually
+# note, 32bit and arm are not supported yet
+if(WIN32 AND NOT UNIX)
+    # we can switch to x64-windows-static-md with the MDL SDK, i.e., 2024.1.1
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    set(VCPKG_TARGET_TRIPLET x64-windows-static)
+endif()
+
 # JavaScript setup 
 option(MATERIALX_BUILD_JS "Build the MaterialX JavaScript package from C++ bindings. Requires the emscripten environment." OFF)
 set(MATERIALX_EMSDK_PATH "" CACHE PATH "Path to EMSDK (e.g. 'D:/Projects/emsdk').")
@@ -31,16 +52,7 @@ if (MATERIALX_BUILD_JS)
     endif()
 endif()
 
-# VCPKG setup
-set(VCPKG_MANIFEST_MODE ON)
-# linux and macos build static libs by default, for windows we need to set this manually
-# note, 32bit and arm are not supported yet
-if(WIN32 AND NOT UNIX)
-    # we can switch to x64-windows-static-md with the MDL SDK, i.e., 2024.1.1
-    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-    set(VCPKG_TARGET_TRIPLET x64-windows-static)
-endif()
-set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/source/External/vcpkg/scripts/buildsystems/vcpkg.cmake)
+
 
 # optional dependencies
 option(MATERIALX_BUILD_MDL_COMPILER "Build the MDL SDK dependency to be used in [genmdl] tests." OFF)

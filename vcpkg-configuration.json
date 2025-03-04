@@ -12,6 +12,6 @@
     }
   ],
   "overlay-ports": [
-    "./source/External/vcpkgOverlayPorts"
+    "./vcpkg/overlayPorts"
   ]
 }
