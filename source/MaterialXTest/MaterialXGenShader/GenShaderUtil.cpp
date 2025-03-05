@@ -213,7 +213,7 @@ void checkImplementations(mx::GenContext& context,
             mx::ImplementationPtr impl = inter->asA<mx::Implementation>();
             if (impl)
             {
-                // Test if the generator has an interal implementation first
+                // Test if the generator has an internal implementation first
                 if (shadergen.implementationRegistered(impl->getName()))
                 {
                     found_str += "Found generator impl for nodedef: " + nodeDefName + ", Node: "
@@ -377,6 +377,8 @@ void shaderGenPerformanceTest(mx::GenContext& context)
         bool docValid = doc->validate(&message);
 
         REQUIRE(docValid == true);
+
+        context.getShaderGenerator().registerTypeDefs(doc);
 
         mx::StringVec sourceCode;
         mx::ShaderPtr shader = nullptr;
@@ -576,8 +578,7 @@ void ShaderGeneratorTester::findLights(mx::DocumentPtr doc, std::vector<mx::Node
     lights.clear();
     for (mx::NodePtr node : doc->getNodes())
     {
-        const mx::TypeDesc type = mx::TypeDesc::get(node->getType());
-        if (type == mx::Type::LIGHTSHADER)
+        if (node->getType() == mx::LIGHT_SHADER_TYPE_STRING)
         {
             lights.push_back(node);
         }
@@ -645,9 +646,6 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     addColorManagement();
     addUnitSystem();
 
-    // Register struct typedefs from the library files.
-    _shaderGenerator->loadStructTypeDefs(_dependLib);
-
     // Test suite setup
     addSkipFiles();
 
@@ -704,8 +702,6 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
         preprocessDocument(doc);
         _shaderGenerator->registerShaderMetadata(doc, context);
 
-        _shaderGenerator->loadStructTypeDefs(doc);
-
         // For each new file clear the implementation cache.
         // Since the new file might contain implementations with names
         // colliding with implementations in previous test cases.
@@ -733,6 +729,9 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
             CHECK(importedLibrary);
             continue;
         }
+
+        // Register typedefs from the document.
+        _shaderGenerator->registerTypeDefs(doc);
 
         // Find and register lights
         findLights(_dependLib, _lights);

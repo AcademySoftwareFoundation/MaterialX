@@ -1,4 +1,4 @@
-# MaterialX Graph Editor 
+# MaterialX Graph Editor
 
 The MaterialX Graph Editor is an example application for visualizing, creating, and editing MaterialX graphs.  It utilizes the ImGui framework as well as additional ImGui extensions such as the Node Editor.
 
@@ -14,7 +14,7 @@ Select the `MATERIALX_BUILD_GRAPH_EDITOR` option in CMake to build the MaterialX
 ## Summary of Graph Editor Features
 
 1. **`Load Material`**: Load a material document in the MTLX format.
-2. **`Save Material`**: Save out a graph as a mterial document in MTLX format.
+2. **`Save Material`**: Save out a graph as a material document in MTLX format.
 3. **`New Material`**: Clear all information to set up for the creation of a new material
 4. **`Node Property Editor`**: View or edit properties of the selected node.
 5. **`Render View`**: View the rendered material.
@@ -23,35 +23,35 @@ Select the `MATERIALX_BUILD_GRAPH_EDITOR` option in CMake to build the MaterialX
 
 To display a new material and graph, click the `Load Material` button and and navigate to the [Materials/Examples](https://github.com/AcademySoftwareFoundation/MaterialX/tree/main/resources/Materials/Examples) folder, which contains a selection of materials in the MTLX format, and select a document to load.  The Graph Editor will display the graph hierarchy of the selected document for visualization and editing.
 
-To save out changes to the graphs as MTLX files click the `Save Material` button.  This will save the position of the nodes in the graph for future use as well. 
+To save out changes to the graphs as MTLX files click the `Save Material` button.  This will save the position of the nodes in the graph for future use as well.
 
 ## Editor Window
 
-The MaterialX document is displayed as nodes in the Editor window.  When a file is intially loaded the material node, surface shader node, and any enclosing nodegraphs will be displayed.  Double-clicking on a nodegraph, or any node defined as a subgraph, will display the contents of that graph.
+The MaterialX document is displayed as nodes in the Editor window.  When a file is initially loaded the material node, surface shader node, and any enclosing nodegraphs will be displayed.  Double-clicking on a nodegraph, or any node defined as a subgraph, will display the contents of that graph.
 
 The current graph hierarchy is displayed above the editor.  To back up and out of a subgraph click the `<` button to the left of the graph names.
 
-Each node and nodegraph displays its name and pins for all of its inputs and outputs.  Nodes can be connected by clicking on the output pin of one node and connecting it to the input pin of another node, thus creating a link.  Links can only be created if the input and output pins have the same type, as designated by the color of the pin.  When a new link is created the material in the render view will automatically be updated. 
+Each node and nodegraph displays its name and pins for all of its inputs and outputs.  Nodes can be connected by clicking on the output pin of one node and connecting it to the input pin of another node, thus creating a link.  Links can only be created if the input and output pins have the same type, as designated by the color of the pin.  When a new link is created the material in the render view will automatically be updated.
 
-Using the tab key on the editor allows the user to add a certain node by bringing up the `Add Node` pop-up.  The nodes are organized in the pop-up window based on their node group but a specfic node can also be searched for by name.  To create a nodegraph select `Node Graph` in the `Add Node` popup and dive into the node in order to add nodes inside of it and populate it. 
+Using the tab key on the editor allows the user to add a certain node by bringing up the `Add Node` pop-up.  The nodes are organized in the pop-up window based on their node group but a specific node can also be searched for by name.  To create a nodegraph select `Node Graph` in the `Add Node` popup and dive into the node in order to add nodes inside of it and populate it.
 
-In order to connect to the nodegraph to a shader add output nodes inside the nodegraph then travel back up outside the nodegraph and connect the corresponding output pin to the surface shader.  By default, the nodegraph does not contain any output nodes or pins. 
+In order to connect to the nodegraph to a shader add output nodes inside the nodegraph then travel back up outside the nodegraph and connect the corresponding output pin to the surface shader.  By default, the nodegraph does not contain any output nodes or pins.
 
 Another type of node present in the `Add Node` pop-up is the group, or background node.  This background node can be used to group specific nodes and label by them by dragging them on to the background node.
 
-To search the editor window for a specific node use `CTRL` + `F` to bring up the search bar. 
+To search the editor window for a specific node use `CTRL` + `F` to bring up the search bar.
 
 ## Node Property Editor
 When a node is selected in the graph, its information is displayed on the left-hand column in the `Node Property Editor`.  This editor displays the name of the node, its category, its inputs, the input name, types and values.  Inputs that are connected to other nodes will not display a value.
 
 This is where a node's properties such as its name and input values can be adjusted.  When an input value is changed the material is automatically updated to reflect that change.  The node info button displays the `doc` string for the selected node and its inputs if they exist. This `doc` string is currently read only.
 
-The show All Inputs checkbox displays all possible inputs for a node. With the box unchecked only inputs that have a connection or have had a value set will be shown. Only these inputs will be saved out when the graph is saved. 
+The show All Inputs checkbox displays all possible inputs for a node. With the box unchecked only inputs that have a connection or have had a value set will be shown. Only these inputs will be saved out when the graph is saved.
 
 ## Render View
 Above the `Node Property Editor`, the `Render View` displays the current material on the Arnold Shader Ball.  If inside a subgraph it will display the material associated with that subgraph; otherwise it will display the output of the selected node.  It automatically updates when any changes are made to the graph.
 
-To adjust the relative sizes of the Node Property Editor and Render View windows, drag the separator between these windows in the application. The render view window camera can be changed using the left or right mouse buttons to manipulate the shader ball. 
+To adjust the relative sizes of the Node Property Editor and Render View windows, drag the separator between these windows in the application. The render view window camera can be changed using the left or right mouse buttons to manipulate the shader ball.
 
 ## Keyboard Shortcuts
 

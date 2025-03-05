@@ -50,7 +50,7 @@ void MaterialNodeOsl::emitFunctionCall(const ShaderNode& _node, GenContext& cont
 
         shadergen.emitLineBegin(stage);
 
-        // Emit the output and funtion name.
+        // Emit the output and function name.
         shadergen.emitOutput(node.getOutput(), true, false, context, stage);
         shadergen.emitString(" = mx_surfacematerial(", stage);
 

@@ -263,8 +263,8 @@ bool OslShaderRenderTester::runRenderer(const std::string& shaderName,
                 // Set renderer properties.
                 _renderer->setOslOutputFilePath(outputFilePath);
                 _renderer->setOslShaderName(shaderName);
-                _renderer->setRaysPerPixelLit(testOptions.enableReferenceQuality ? 8 : 4);
-                _renderer->setRaysPerPixelUnlit(testOptions.enableReferenceQuality ? 2 : 1);
+                _renderer->setRaysPerPixelLit(testOptions.enableReferenceQuality ? 32 : 4);
+                _renderer->setRaysPerPixelUnlit(testOptions.enableReferenceQuality ? 8 : 1);
 
                 // Validate compilation
                 {

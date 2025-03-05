@@ -176,7 +176,14 @@
   <implementation name="IM_frame_float_genglsl" nodedef="ND_frame_float" function="mx_frame_float" target="genglsl" />
 
   <!-- <time> -->
-  <implementation name="IM_time_float_genglsl" nodedef="ND_time_float" function="mx_time_float" target="genglsl" />
+  <nodegraph name="NG_time_float_genglsl" nodedef="ND_time_float" target="genglsl">
+    <frame name="frame" type="float"/>
+    <divide name="time" type="float">
+      <input name="in1" type="float" nodename="frame"/>
+      <input name="in1" type="float" interfacename="fps"/>
+    </divide>
+    <output name="out" type="float" nodename="time" />
+  </nodegraph>
 
   <!-- ======================================================================== -->
   <!-- Math nodes                                                               -->
@@ -260,6 +267,14 @@
   <implementation name="IM_modulo_vector3FA_genglsl" nodedef="ND_modulo_vector3FA" target="genglsl" sourcecode="mx_mod({{in1}}, {{in2}})" />
   <implementation name="IM_modulo_vector4_genglsl" nodedef="ND_modulo_vector4" target="genglsl" sourcecode="mx_mod({{in1}}, {{in2}})" />
   <implementation name="IM_modulo_vector4FA_genglsl" nodedef="ND_modulo_vector4FA" target="genglsl" sourcecode="mx_mod({{in1}}, {{in2}})" />
+
+  <!-- <fract> -->
+  <implementation name="IM_fract_float_genglsl" nodedef="ND_fract_float" target="genglsl" sourcecode="fract({{in}})" />
+  <implementation name="IM_fract_color3_genglsl" nodedef="ND_fract_color3" target="genglsl" sourcecode="fract({{in}})" />
+  <implementation name="IM_fract_color4_genglsl" nodedef="ND_fract_color4" target="genglsl" sourcecode="fract({{in}})" />
+  <implementation name="IM_fract_vector2_genglsl" nodedef="ND_fract_vector2" target="genglsl" sourcecode="fract({{in}})" />
+  <implementation name="IM_fract_vector3_genglsl" nodedef="ND_fract_vector3" target="genglsl" sourcecode="fract({{in}})" />
+  <implementation name="IM_fract_vector4_genglsl" nodedef="ND_fract_vector4" target="genglsl" sourcecode="fract({{in}})" />
 
   <!-- <invert> -->
   <implementation name="IM_invert_float_genglsl" nodedef="ND_invert_float" target="genglsl" sourcecode="{{amount}} - {{in}}" />

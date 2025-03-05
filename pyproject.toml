@@ -2,7 +2,7 @@
 # Use a fixed version because we use an experimental feature
 # (a custom plugin) and for now that functionality has
 # no compatibility promises.
-requires = ["scikit-build-core==0.4.4"]
+requires = ["scikit-build-core>=0.10.7"]
 build-backend = "scikit_build_core.build"
 
 [project]
@@ -37,18 +37,16 @@ translateshader = "MaterialX._scripts.translateshader:main"
 writenodegraphs = "MaterialX._scripts.writenodegraphs:main"
 
 [tool.scikit-build]
-cmake.minimum-version = "3.18"
-cmake.verbose = false
+# Minimum version of scikit-build-core (in case someone builds without isolation)
+minimum-version = "build-system.requires"
+
+# Read minimum cmake from CMakeLists.txt
+cmake.version = "CMakeLists.txt"
+
 cmake.build-type = "Release"
+build.verbose = false
 
-# Enable experimental features if any are available
-# In this case we need custom local plugin to get
-# the project version from cmake.
-experimental = true
-metadata.version.provider = "mtx_skbuild_plugin"
-metadata.version.provider-path = "./python"
-
-# Uncoment when developing locally to enable inplace builds.
+# Uncomment when developing locally to enable in-place builds.
 # build-dir = "build/"
 
 logging.level = "DEBUG"
@@ -65,8 +63,20 @@ sdist.exclude = [
     "/javascript",
     "/documents",
     "/.github",
-    "MANIFEST.in"
+    "MANIFEST.in",
+    "/source/JsMaterialX",
 ]
+
+[tool.scikit-build.metadata.version]
+# https://scikit-build-core.readthedocs.io/en/latest/configuration.html#dynamic-metadata
+provider = "scikit_build_core.metadata.regex"
+input = "CMakeLists.txt"
+regex = '''(?sx)
+set\(MATERIALX_MAJOR_VERSION\s+(?P<major>\d+)\).*
+set\(MATERIALX_MINOR_VERSION\s+(?P<minor>\d+)\).*
+set\(MATERIALX_BUILD_VERSION\s+(?P<build>\d+)\).*
+'''
+result = "{major}.{minor}.{build}"
 
 [tool.scikit-build.cmake.define]
 MATERIALX_BUILD_SHARED_LIBS = 'OFF' # Be explicit

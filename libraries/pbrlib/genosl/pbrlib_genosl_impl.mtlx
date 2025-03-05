@@ -23,7 +23,7 @@
   <implementation name="IM_subsurface_bsdf_genosl" nodedef="ND_subsurface_bsdf" file="mx_subsurface_bsdf.osl" function="mx_subsurface_bsdf" target="genosl" />
 
   <!-- <chiang_hair_bsdf> -->
-  <implementation name="IM_chiang_hair_bsdf_genosl" nodedef="ND_chiang_hair_bsdf" sourcecode="oren_nayar_diffuse_bsdf({{normal}}, {{tint_R}}, 0.0)" target="genosl" />
+  <implementation name="IM_chiang_hair_bsdf_genosl" nodedef="ND_chiang_hair_bsdf" file="mx_chiang_hair_bsdf.osl" function="mx_chiang_hair_bsdf" target="genosl" />
 
   <!-- <sheen_bsdf> -->
   <implementation name="IM_sheen_bsdf_genosl" nodedef="ND_sheen_bsdf" sourcecode="{{weight}} * sheen_bsdf({{normal}}, {{color}}, {{roughness}})" target="genosl" />
@@ -38,8 +38,8 @@
   <implementation name="IM_generalized_schlick_edf_genosl" nodedef="ND_generalized_schlick_edf" file="mx_generalized_schlick_edf.osl" function="mx_generalized_schlick_edf" target="genosl" />
 
   <!-- <layer> -->
-  <implementation name="IM_layer_bsdf_genosl" nodedef="ND_layer_bsdf" target="genosl" />
-  <implementation name="IM_layer_vdf_genosl" nodedef="ND_layer_vdf" target="genosl" />
+  <implementation name="IM_layer_bsdf_genosl" nodedef="ND_layer_bsdf" sourcecode="layer({{top}}, {{base}})" target="genosl" />
+  <implementation name="IM_layer_vdf_genosl" nodedef="ND_layer_vdf" sourcecode="layer({{top}}, {{base}})" target="genosl" />
 
   <!-- <mix> -->
   <implementation name="IM_mix_bsdf_genosl" nodedef="ND_mix_bsdf" sourcecode="mix({{bg}}, {{fg}}, {{mix}})" target="genosl" />
@@ -59,8 +59,8 @@
   <implementation name="IM_surface_genosl" nodedef="ND_surface" file="mx_surface.osl" function="mx_surface" target="genosl" />
 
   <!-- <displacement> -->
-  <implementation name="IM_displacement_float_genosl" nodedef="ND_displacement_float" file="mx_displacement_float.osl" function="mx_displacement_float" target="genosl" />
-  <implementation name="IM_displacement_vector3_genosl" nodedef="ND_displacement_vector3" file="mx_displacement_vector3.osl" function="mx_displacement_vector3" target="genosl" />
+  <implementation name="IM_displacement_float_genosl" nodedef="ND_displacement_float" sourcecode="vector({{displacement}} * {{scale}})" target="genosl" />
+  <implementation name="IM_displacement_vector3_genosl" nodedef="ND_displacement_vector3" sourcecode="({{displacement}} * {{scale}})" target="genosl" />
 
   <!-- <roughness_anisotropy> -->
   <implementation name="IM_roughness_anisotropy_genosl" nodedef="ND_roughness_anisotropy" file="mx_roughness_anisotropy.osl" function="mx_roughness_anisotropy" target="genosl" />

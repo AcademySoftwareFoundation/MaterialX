@@ -1194,6 +1194,11 @@ Math nodes have one or two spatially-varying inputs, and are used to perform a m
     * `in1` (float or color<em>N</em> or vector<em>N</em>): the value or nodename for the primary input
     * `in2` (same type as `in1` or float): the modulo value or nodename to divide by, cannot be 0 in any channel; default is 1.0 in all channels, which effectively returns the fractional part of a float value
 
+<a id="node-fract"> </a>
+
+* **`fract`**: the fractional part of a float-based value.
+    * `in` (float or vector<em>N</em>): the value or nodename for the primary input
+
 <a id="node-invert"> </a>
 
 * **`invert`**: subtract the incoming float/color/vector from "amount" in all channels, outputting: `amount - in`.
@@ -1544,7 +1549,7 @@ Adjustment nodes have one input named "in", and apply a specified function to va
     * `gain` (float): Multiplier increases lighter color values, leaving black values unchanged; default is 1.
     * `contrast` (float): Linearly increase or decrease the color contrast; default is 1.
     * `contrastpivot` (float): Pivot value around which contrast applies. This value will not change as contrast is adjusted; default is 0.5.
-    * `exposure` (float): Multplier which increases or decreases color brightness by 2^value; default is 0.
+    * `exposure` (float): Multiplier which increases or decreases color brightness by 2^value; default is 0.
 
 
 
@@ -1776,7 +1781,7 @@ Convolution nodes have one input named "in", and apply a defined convolution fun
 
 <a id="node-heighttonormal"> </a>
 
-* **`heighttonormal`**: convert a scalar height map to a normal map of type vector3.
+* **`heighttonormal`**: convert a scalar height map to a tangent-space normal map of type vector3.  The output normal map is encoded with all channels in the [0-1] range, enabling its storage in unsigned image formats.
     * `in` (float): the input value or nodename
     * `scale` (float): the scale of normal map deflections relative to the gradient of the height map.  Default is 1.0.
 

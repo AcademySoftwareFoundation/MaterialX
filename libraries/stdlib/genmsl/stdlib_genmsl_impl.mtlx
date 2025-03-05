@@ -89,11 +89,7 @@
   <!-- ======================================================================== -->
 
   <!-- <frame> -->
-
   <implementation name="IM_frame_float_genmsl" nodedef="ND_frame_float" function="mx_frame_float" target="genmsl" />
-
-  <!-- <time> -->
-  <implementation name="IM_time_float_genmsl" nodedef="ND_time_float" function="mx_time_float" target="genmsl" />
 
   <!-- ======================================================================== -->
   <!-- Math nodes                                                               -->

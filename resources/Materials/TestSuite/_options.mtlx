@@ -36,7 +36,7 @@
     <!-- Rendered image size if render validation test enabled -->
     <input name="renderSize" type="vector2" value="512, 512" />
 
-    <!-- Set this to be true if it is desired to dump out uniform and attribut information to the logging file -->
+    <!-- Set this to be true if it is desired to dump out uniform and attribute information to the logging file -->
     <input name="dumpUniformsAndAttributes" type="boolean" value="true" />
 
     <!-- Set this to be true if it is desired to always dump out generated source code to disk instead of just on compile errors -->
@@ -62,7 +62,7 @@
     <input name="extraLibraryPaths" type="string" value="" />
 
     <!-- List of document paths for render tests -->
-    <input name="renderTestPaths" type="string" value="resources/Materials/Examples/StandardSurface,resources/Materials/TestSuite/stdlib/color_management,resources/Materials/TestSuite/stdlib/convolution,resources/Materials/TestSuite/stdlib/geometric,resources/Materials/TestSuite/stdlib/procedural,resources/Materials/TestSuite/pbrlib,resources/Materials/TestSuite/nprlib" />
+    <input name="renderTestPaths" type="string" value="resources/Materials/Examples/StandardSurface,resources/Materials/TestSuite/stdlib/convolution,resources/Materials/TestSuite/stdlib/color_management,resources/Materials/TestSuite/stdlib/procedural,resources/Materials/TestSuite/pbrlib/surfaceshader,resources/Materials/TestSuite/nprlib" />
 
     <!-- Enable reference quality rendering.
          This option enables higher sample counts and supersampling in render tests,
