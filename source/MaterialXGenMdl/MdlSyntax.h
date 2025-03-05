@@ -29,6 +29,10 @@ class MX_GENMDL_API MdlSyntax : public Syntax
 
     static SyntaxPtr create(TypeSystemPtr typeSystem) { return std::make_shared<MdlSyntax>(typeSystem); }
 
+    StructTypeSyntaxPtr createStructSyntax(const string& structTypeName, const string& defaultValue,
+                                           const string& uniformDefaultValue, const string& typeAlias,
+                                           const string& typeDefinition) const override;
+
     const string& getConstantQualifier() const override { return CONST_QUALIFIER; };
     const string& getUniformQualifier() const override { return UNIFORM_QUALIFIER; };
     const string& getSourceFileExtension() const override { return SOURCE_FILE_EXTENSION; };
@@ -75,6 +79,16 @@ class MX_GENMDL_API MdlSyntax : public Syntax
 
     /// Get the MDL language versing marker: {{MDL_VERSION_SUFFIX}}.
     const string& getMdlVersionSuffixMarker() const;
+};
+
+/// @class MdlStructTypeSyntax
+/// Specialization of TypeSyntax for aggregate types.
+class MX_GENMDL_API MdlStructTypeSyntax : public StructTypeSyntax
+{
+  public:
+    using StructTypeSyntax::StructTypeSyntax;
+
+    string getValue(const Value& value, bool uniform) const override;
 };
 
 namespace Type
