@@ -615,4 +615,41 @@ const string& MdlSyntax::getMdlVersionSuffixMarker() const
     return MARKER_MDL_VERSION_SUFFIX;
 }
 
+StructTypeSyntaxPtr MdlSyntax::createStructSyntax(const string& structTypeName, const string& defaultValue,
+                                                   const string& uniformDefaultValue, const string& typeAlias,
+                                                   const string& typeDefinition) const
+{
+    return std::make_shared<MdlStructTypeSyntax>(
+        this,
+        structTypeName,
+        defaultValue,
+        uniformDefaultValue,
+        typeAlias,
+        typeDefinition);
+}
+
+string MdlStructTypeSyntax::getValue(const Value& value, bool /* uniform */) const
+{
+    const AggregateValue& aggValue = static_cast<const AggregateValue&>(value);
+
+    string result = aggValue.getTypeString() + "(";
+
+    string separator = "";
+    for (const auto& memberValue : aggValue.getMembers())
+    {
+        result += separator;
+        separator = ", ";
+
+        const string& memberTypeName = memberValue->getTypeString();
+        const TypeDesc memberTypeDesc = _parent->getType(memberTypeName);
+
+        // Recursively use the syntax to generate the output, so we can supported nested structs.
+        result += _parent->getValue(memberTypeDesc, *memberValue, true);
+    }
+
+    result += ")";
+
+    return result;
+}
+
 MATERIALX_NAMESPACE_END

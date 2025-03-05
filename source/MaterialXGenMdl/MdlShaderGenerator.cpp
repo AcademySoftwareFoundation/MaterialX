@@ -816,6 +816,19 @@ void MdlShaderGenerator::emitMdlVersionFilenameSuffix(GenContext& context, Shade
     emitString(getMdlVersionFilenameSuffix(context), stage);
 }
 
+void MdlShaderGenerator::emitTypeDefinitions(GenContext&, ShaderStage& stage) const
+{
+    // Emit typedef statements for all data types that have an alias
+    for (const auto& syntax : _syntax->getTypeSyntaxes())
+    {
+        if (!syntax->getTypeDefinition().empty())
+        {
+            stage.addLine("export " + syntax->getTypeDefinition(), false);
+        }
+    }
+    stage.newLine();
+}
+
 namespace MDL
 {
 // Identifiers for MDL variable blocks
