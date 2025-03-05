@@ -616,8 +616,8 @@ const string& MdlSyntax::getMdlVersionSuffixMarker() const
 }
 
 StructTypeSyntaxPtr MdlSyntax::createStructSyntax(const string& structTypeName, const string& defaultValue,
-                                                   const string& uniformDefaultValue, const string& typeAlias,
-                                                   const string& typeDefinition) const
+                                                  const string& uniformDefaultValue, const string& typeAlias,
+                                                  const string& typeDefinition) const
 {
     return std::make_shared<MdlStructTypeSyntax>(
         this,
