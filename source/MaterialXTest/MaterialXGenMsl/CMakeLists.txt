@@ -1,6 +1,6 @@
 file(GLOB_RECURSE source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
-file(GLOB_RECURSE objc_source "")
+set(objc_source "")
 if(APPLE)
     file(GLOB_RECURSE objc_source "${CMAKE_CURRENT_SOURCE_DIR}/*.mm")
 endif()

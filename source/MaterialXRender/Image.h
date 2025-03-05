@@ -28,7 +28,7 @@ using ConstImagePtr = shared_ptr<const Image>;
 /// A map from strings to images.
 using ImageMap = std::unordered_map<string, ImagePtr>;
 
-/// A vetor of images.
+/// A vector of images.
 using ImageVec = std::vector<ImagePtr>;
 
 /// A pair of images.
@@ -147,6 +147,10 @@ class MX_RENDER_API Image
 
     /// Apply a 7x7 Gaussian blur to this image, returning a new blurred image.
     ImagePtr applyGaussianBlur();
+
+    /// Downsample this image by an integer factor using a box filter,
+    /// returning the new reduced image.
+    ImagePtr applyBoxDownsample(unsigned int factor);
 
     /// Split this image by the given luminance threshold, returning the
     /// resulting underflow and overflow images.

@@ -56,6 +56,7 @@ This document describes the core MaterialX specification.  Companion documents [
   [Noise Nodes](#noise-nodes)  
   [Shape Nodes](#shape-nodes)  
   [Geometric Nodes](#geometric-nodes)  
+   [Geometric Spaces](#geometric-spaces)  
   [Application Nodes](#application-nodes)  
 
  [Standard Operator Nodes](#standard-operator-nodes)  
@@ -888,12 +889,14 @@ Standard Noise nodes:
 
 * **`worleynoise2d`**: 2D Worley noise using centered jitter, outputting float (distance metric to closest feature), vector2 (distance metrics to closest 2 features) or vector3 (distance metrics to closest 3 features).
     * `jitter` (float): amount to jitter the cell center position, with smaller values creating a more regular pattern.  Default is 1.0.
+    * `style` (integer): the output style, one of "distance" (distance to the cell center), or "solid" (constant value for each cell).
     * `texcoord` (vector2): the 2D position at which the noise is evaluated.  Default is to use the first set of texture coordinates.
 
 <a id="node-worleynoise3d"> </a>
 
 * **`worleynoise3d`**: 3D Worley noise using centered jitter, outputting float (distance metric to closest feature), vector2 (distance metrics to closest 2 features) or vector3 (distance metrics to closest 3 features).
     * `jitter` (float): amount to jitter the cell center position, with smaller values creating a more regular pattern.  Default is 1.0.
+    * `style` (integer): the output style, one of "distance" (distance to the cell center), or "solid" (constant value for each cell). Default is "distance".
     * `position` (vector3): the 3D position at which the noise is evaluated.  Default is to use the current 3D object-space coordinate.
 
 <a id="node-unifiednoise2d"> </a>
@@ -1048,23 +1051,23 @@ Standard Geometric nodes:
 <a id="node-position"> </a>
 
 * **`position`**: the coordinates associated with the currently-processed data, as defined in a specific coordinate space.  This node must be of type vector3.
-    * `space` (uniform string): the name of the coordinate space in which the position is defined.  Default is "object", see below for details.
+    * `space` (uniform string): the name of the coordinate space in which the position is defined.  Default is "object", see [Geometric Spaces](#geometric-spaces) for supported options.
 
 <a id="node-normal"> </a>
 
 * **`normal`**: the geometric normal associated with the currently-processed data, as defined in a specific coordinate space.  This node must be of type vector3.
-    * `space` (uniform string): the name of the coordinate space in which the normal vector is defined.  Default is "object", see below for details.
+    * `space` (uniform string): the name of the coordinate space in which the normal vector is defined.  Default is "object", see [Geometric Spaces](#geometric-spaces) for supported options.
 
 <a id="node-tangent"> </a>
 
 * **`tangent`**: the geometric tangent vector associated with the currently-processed data, as defined in a specific coordinate space.  This node must be of type vector3.
-    * `space` (uniform string): the name of the coordinate space in which the tangent vector is defined.  Default is "object", see below for details.
+    * `space` (uniform string): the name of the coordinate space in which the tangent vector is defined.  Default is "object", see [Geometric Spaces](#geometric-spaces) for supported options.
     * `index` (uniform integer): the index of the texture coordinates against which the tangent is computed.  The default index is 0.
 
 <a id="node-bitangent"> </a>
 
 * **`bitangent`**: the geometric bitangent vector associated with the currently-processed data, as defined in a specific coordinate space.  This node must be of type vector3.
-    * `space` (uniform string): the name of the coordinate space in which the bitangent vector is defined.  Default is "object", see below for details.
+    * `space` (uniform string): the name of the coordinate space in which the bitangent vector is defined.  Default is "object", see [Geometric Spaces](#geometric-spaces) for supported options.
     * `index` (uniform integer): the index of the texture coordinates against which the tangent is computed.  The default index is 0.
 
 <a id="node-bump"> </a>
@@ -1091,20 +1094,22 @@ Standard Geometric nodes:
     * `geomprop` (uniform string): the geometric property to be referenced.
     * `default` (same type as the geomprop's value): a value to return if the specified `geomprop` is not defined on the current geometry.
 
+<a id="node-geompropvalueuniform"> </a>
+
+* **`geompropvalueuniform`**: the value of the specified uniform geometric property (defined using &lt;geompropdef>) of the currently-bound geometry.  This node's type must match that of the referenced geomprop.
+    * `geomprop` (uniform string): the geometric property to be referenced.
+    * `default` (same type as the geomprop's value): a value to return if the specified `geomprop` is not defined on the current geometry.
+
 Additionally, the `geomcolor` and `geompropvalue` nodes for color3/color4-type properties can take a `colorspace` attribute to declare what colorspace the color property value is in; the default is "none" for no colorspace declaration (and hence no colorspace conversion).
 
 
-<a id="space-values"> </a>
+#### Geometric Spaces
 
 The following values are supported by the `space` inputs of Geometric nodes and when transforming from one space to another:
-
 
 * "model": The local coordinate space of the geometry, before any local deformations or global transforms have been applied.
 * "object": The local coordinate space of the geometry, after local deformations have been applied, but before any global transforms.
 * "world": The global coordinate space of the geometry, after local deformations and global transforms have been applied.
-* "tangent": A coordinate space defined by the tangent, bitangent and normal vectors of the geometry.
-
-Applications may also reference other renderer-specific named spaces, at the expense of portability.
 
 
 
@@ -1188,6 +1193,11 @@ Math nodes have one or two spatially-varying inputs, and are used to perform a m
 * **`modulo`**: the remaining fraction after dividing an incoming float/color/vector by a value and subtracting the integer portion.  Modulo always returns a non-negative result, matching the interpretation of the GLSL and OSL `mod()` function (not `fmod()`).
     * `in1` (float or color<em>N</em> or vector<em>N</em>): the value or nodename for the primary input
     * `in2` (same type as `in1` or float): the modulo value or nodename to divide by, cannot be 0 in any channel; default is 1.0 in all channels, which effectively returns the fractional part of a float value
+
+<a id="node-fract"> </a>
+
+* **`fract`**: the fractional part of a float-based value.
+    * `in` (float or vector<em>N</em>): the value or nodename for the primary input
 
 <a id="node-invert"> </a>
 
@@ -1335,21 +1345,21 @@ Math nodes have one or two spatially-varying inputs, and are used to perform a m
 
 * **`transformpoint`**: transform the incoming vector3 coordinate from one specified space to another; cannot be used on any other stream type.
     * `in` (vector3): the input coordinate vector.
-    * `fromspace` (uniform string): the name of a vector space understood by the rendering target to transform the `in` point from; may be empty to specify the renderer's working or "common" space.
+    * `fromspace` (uniform string): the name of a vector space understood by the rendering target to transform the `in` point from; see [Geometric Spaces](#geometric-spaces) for supported options.
     * `tospace` (uniform string): the name of a vector space understood by the rendering target for the space to transform the `in` point to.
 
 <a id="node-transformvector"> </a>
 
 * **`transformvector`**: transform the incoming vector3 vector from one specified space to another; cannot be used on any other stream type.
     * `in` (vector3): the input vector.
-    * `fromspace` (uniform string): the name of a vector space understood by the rendering target to transform the `in` point from; may be empty to specify the renderer's working or "common" space.
+    * `fromspace` (uniform string): the name of a vector space understood by the rendering target to transform the `in` point from; see [Geometric Spaces](#geometric-spaces) for supported options.
     * `tospace` (uniform string): the name of a vector space understood by the rendering target for the space to transform the `in` point to.
 
 <a id="node-transformnormal"> </a>
 
 * **`transformnormal`**: transform the incoming vector3 normal from one specified space to another; cannot be used on any other stream type.
     * `in` (vector3): the input normal vector; default is (0,0,1).
-    * `fromspace` (uniform string): the name of a vector space understood by the rendering target to transform the `in` point from; may be empty to specify the renderer's working or "common" space.
+    * `fromspace` (uniform string): the name of a vector space understood by the rendering target to transform the `in` point from; see [Geometric Spaces](#geometric-spaces) for supported options.
     * `tospace` (uniform string): the name of a vector space understood by the rendering target for the space to transform the `in` point to.
 
 <a id="node-transformmatrix"> </a>
@@ -1539,7 +1549,7 @@ Adjustment nodes have one input named "in", and apply a specified function to va
     * `gain` (float): Multiplier increases lighter color values, leaving black values unchanged; default is 1.
     * `contrast` (float): Linearly increase or decrease the color contrast; default is 1.
     * `contrastpivot` (float): Pivot value around which contrast applies. This value will not change as contrast is adjusted; default is 0.5.
-    * `exposure` (float): Multplier which increases or decreases color brightness by 2^value; default is 0.
+    * `exposure` (float): Multiplier which increases or decreases color brightness by 2^value; default is 0.
 
 
 
@@ -1771,10 +1781,9 @@ Convolution nodes have one input named "in", and apply a defined convolution fun
 
 <a id="node-heighttonormal"> </a>
 
-* **`heighttonormal`**: convert a scalar height map to a normal map of type vector3.
+* **`heighttonormal`**: convert a scalar height map to a tangent-space normal map of type vector3.  The output normal map is encoded with all channels in the [0-1] range, enabling its storage in unsigned image formats.
     * `in` (float): the input value or nodename
     * `scale` (float): the scale of normal map deflections relative to the gradient of the height map.  Default is 1.0.
-    * `space` (string): the space in which the output normal map vector should be; defaults to "tangent".
 
 
 

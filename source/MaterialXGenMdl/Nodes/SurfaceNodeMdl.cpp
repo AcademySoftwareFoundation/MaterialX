@@ -6,6 +6,7 @@
 #include <MaterialXGenMdl/Nodes/SurfaceNodeMdl.h>
 
 #include <MaterialXGenMdl/MdlShaderGenerator.h>
+#include <MaterialXGenMdl/MdlSyntax.h>
 
 #include <MaterialXGenShader/GenContext.h>
 
@@ -55,6 +56,7 @@ void SurfaceNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& contex
     DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
     {
         const MdlShaderGenerator& shadergen = static_cast<const MdlShaderGenerator&>(context.getShaderGenerator());
+        const MdlSyntax& mdlSyntax = static_cast<const MdlSyntax&>(shadergen.getSyntax());
 
         // Emit calls for the closure dependencies upstream from this node.
         shadergen.emitDependentFunctionCalls(node, context, stage, ShaderNode::Classification::CLOSURE);
@@ -73,7 +75,7 @@ void SurfaceNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& contex
 
         shadergen.emitLineBegin(stage);
 
-        // Emit the output and funtion name.
+        // Emit the output and function name.
         shadergen.emitOutput(node.getOutput(), true, false, context, stage);
         shadergen.emitString(" = materialx::pbrlib_", stage);
         shadergen.emitMdlVersionFilenameSuffix(context, stage);
@@ -84,8 +86,7 @@ void SurfaceNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& contex
         for (ShaderInput* input : node.getInputs())
         {
             shadergen.emitString(delim, stage);
-            shadergen.emitString("mxp_", stage);
-            shadergen.emitString(input->getName(), stage);
+            shadergen.emitString(mdlSyntax.modifyPortName(input->getName()), stage);
             shadergen.emitString(": ", stage);
             shadergen.emitInput(input, context, stage);
             delim = ", ";

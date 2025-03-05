@@ -65,6 +65,9 @@ using ConstGenericElementPtr = shared_ptr<const GenericElement>;
 /// A shared pointer to a StringResolver
 using StringResolverPtr = shared_ptr<StringResolver>;
 
+/// A vector of elements.
+using ElementVec = vector<ElementPtr>;
+
 /// A hash map from strings to elements
 using ElementMap = std::unordered_map<string, ElementPtr>;
 
@@ -410,7 +413,7 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
 
     /// Add a child element of the given category and name.
     /// @param category The category string of the new child element.
-    ///     If the category string is recognized, then the correponding Element
+    ///     If the category string is recognized, then the corresponding Element
     ///     subclass is generated; otherwise, a GenericElement is generated.
     /// @param name The name of the new child element.
     ///     If no name is specified, then a unique name will automatically be
@@ -441,7 +444,7 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
 
     /// Return a constant vector of all child elements.
     /// The returned vector maintains the order in which children were added.
-    const vector<ElementPtr>& getChildren() const
+    const ElementVec& getChildren() const
     {
         return _childOrder;
     }
@@ -678,7 +681,7 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     /// @return The upstream Edge, if valid, or an empty Edge object.
     virtual Edge getUpstreamEdge(size_t index = 0) const;
 
-    /// Return the number of queriable upstream edges for this element.
+    /// Return the number of queryable upstream edges for this element.
     virtual size_t getUpstreamEdgeCount() const
     {
         return 0;
@@ -837,7 +840,7 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     string _sourceUri;
 
     ElementMap _childMap;
-    vector<ElementPtr> _childOrder;
+    ElementVec _childOrder;
 
     StringMap _attributeMap;
     StringVec _attributeOrder;
@@ -1076,7 +1079,7 @@ class MX_CORE_API ValueElement : public TypedElement
         return getAttribute(UNIT_ATTRIBUTE);
     }
 
-    /// Return the unit defined by the assocaited NodeDef if this element
+    /// Return the unit defined by the associated NodeDef if this element
     /// is a child of a Node.
     const string& getActiveUnit() const;
 

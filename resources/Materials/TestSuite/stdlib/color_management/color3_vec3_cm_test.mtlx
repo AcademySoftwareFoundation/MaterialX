@@ -13,7 +13,7 @@
       <input name="in" type="float" nodename="extract1" />
       <input name="scale" type="float" value="1.0" />
     </heighttonormal>
-    <output name="height_normal_map_output" type="vector3" nodename="impl_heighttonormalmap" />
+    <output name="out" type="vector3" nodename="impl_heighttonormalmap" />
   </nodegraph>
   <!-- create nodegraph to test cm conversion on image node before feeding to normalmap  -->
   <nodegraph name="normalmap_cm">
@@ -27,6 +27,6 @@
       <input name="in" type="vector3" nodename="c3tov3" />
       <input name="scale" type="float" value="1.5" />
     </normalmap>
-    <output name="normal_map_output" type="vector3" nodename="impl_normalmap" />
+    <output name="out" type="vector3" nodename="impl_normalmap" />
   </nodegraph>
 </materialx>

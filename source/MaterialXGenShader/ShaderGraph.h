@@ -46,7 +46,7 @@ class MX_GENSHADER_API ShaderGraph : public ShaderNode
     /// Constructor.
     ShaderGraph(const ShaderGraph* parent, const string& name, ConstDocumentPtr document, const StringSet& reservedWords);
 
-    /// Desctructor.
+    /// Destructor.
     virtual ~ShaderGraph() { }
 
     /// Create a new shader graph from an element.
@@ -136,7 +136,7 @@ class MX_GENSHADER_API ShaderGraph : public ShaderNode
     void addInputSockets(const InterfaceElement& elem, GenContext& context);
 
     /// Add output sockets from an interface element (nodedef, nodegraph or node)
-    void addOutputSockets(const InterfaceElement& elem);
+    void addOutputSockets(const InterfaceElement& elem, GenContext& context);
 
     /// Traverse from the given root element and add all dependencies upstream.
     /// The traversal is done in the context of a material, if given, to include

@@ -40,7 +40,7 @@ elseif(UNIX)
     target_include_directories(${TARGET_NAME} PRIVATE ${X11_INCLUDE_DIR})
 endif()
 
-# Disable OpenGL deprecation warnings on Clang.
+# Disable deprecation warnings on Clang.
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     target_compile_options(${TARGET_NAME} PRIVATE -Wno-deprecated-declarations)
 endif()

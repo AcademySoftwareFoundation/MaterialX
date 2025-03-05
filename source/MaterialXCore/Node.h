@@ -119,7 +119,7 @@ class MX_CORE_API Node : public InterfaceElement
     /// this element in the dataflow graph.
     Edge getUpstreamEdge(size_t index = 0) const override;
 
-    /// Return the number of queriable upstream edges for this element.
+    /// Return the number of queryable upstream edges for this element.
     size_t getUpstreamEdgeCount() const override
     {
         return getInputCount();
@@ -299,7 +299,7 @@ class MX_CORE_API GraphElement : public InterfaceElement
 
     /// Return a vector of all children (nodes and outputs) sorted in
     /// topological order.
-    vector<ElementPtr> topologicalSort() const;
+    ElementVec topologicalSort() const;
 
     /// If not yet present, add a geometry node to this graph matching the given property
     /// definition and name prefix.

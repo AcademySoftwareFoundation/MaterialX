@@ -3,24 +3,23 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXGenMsl/Nodes/BlurNodeMsl.h>
+#include <MaterialXGenShader/Nodes/HwBlurNode.h>
 
 #include <MaterialXGenShader/GenContext.h>
-#include <MaterialXGenShader/ShaderNode.h>
 #include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
-ShaderNodeImplPtr BlurNodeMsl::create()
+ShaderNodeImplPtr HwBlurNode::create(const string& samplingIncludeFilename)
 {
-    return std::make_shared<BlurNodeMsl>();
+    return std::make_shared<HwBlurNode>(samplingIncludeFilename);
 }
 
-void BlurNodeMsl::emitSamplingFunctionDefinition(const ShaderNode& /*node*/, GenContext& context, ShaderStage& stage) const
+void HwBlurNode::emitSamplingFunctionDefinition(const ShaderNode& /*node*/, GenContext& context, ShaderStage& stage) const
 {
     const ShaderGenerator& shadergen = context.getShaderGenerator();
-    shadergen.emitLibraryInclude("stdlib/genmsl/lib/mx_sampling.metal", context, stage);
+    shadergen.emitLibraryInclude(_samplingIncludeFilename, context, stage);
     shadergen.emitLineBreak(stage);
 }
 

@@ -190,7 +190,7 @@ class MX_RENDERMSL_API MslProgram
     /// Bind input geometry streams
     void bindMesh(id<MTLRenderCommandEncoder> renderCmdEncoder, MeshPtr mesh);
 
-    /// Queries the index buffer assinged to a mesh partition
+    /// Queries the index buffer assigned to a mesh partition
     id<MTLBuffer> getIndexBuffer(MeshPartitionPtr mesh)
     {
         if (_indexBufferIds.find(mesh) != _indexBufferIds.end())
