@@ -93,7 +93,8 @@ class MX_GENSHADER_API GenOptions
         hwNormalizeUdimTexCoords(false),
         hwWriteAlbedoTable(false),
         hwWriteEnvPrefilter(false),
-        hwImplicitBitangents(true)
+        hwImplicitBitangents(true),
+        oslFileTextureColorspace(true)
     {
     }
     virtual ~GenOptions() { }
@@ -191,6 +192,10 @@ class MX_GENSHADER_API GenOptions
     /// Calculate fallback bitangents from existing normals and tangents
     /// inside the bitangent node.
     bool hwImplicitBitangents;
+
+    /// OSL-specific override to enable/disable the optional argument
+    /// to OSL's texture() function.
+    bool oslFileTextureColorspace;
 };
 
 MATERIALX_NAMESPACE_END

@@ -233,6 +233,7 @@ class MX_GENSHADER_API ShaderGenerator
 
   protected:
     static const string T_FILE_TRANSFORM_UV;
+    static const string T_OSL_FILE_TEXTURE_COLORSPACE;
 
     TypeSystemPtr _typeSystem;
     SyntaxPtr _syntax;
