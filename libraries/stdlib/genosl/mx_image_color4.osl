@@ -17,8 +17,8 @@ void mx_image_color4(textureresource file, string layer, color4 default_value, v
     color rgb = texture(file.filename, st.x, st.y, "alpha", alpha,
                         "subimage", layer, "interp", filtertype,
                         "missingcolor", missingColor, "missingalpha", missingAlpha,
-                        "swrap", uaddressmode, "twrap", vaddressmode,
-                        "colorspace", file.colorspace);
+                        "swrap", uaddressmode, "twrap", vaddressmode
+                        $oslFileTextureColorspace);
 
     out = color4(rgb, alpha);
 }
