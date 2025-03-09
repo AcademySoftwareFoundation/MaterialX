@@ -314,7 +314,8 @@ float mx_fbm(float x, float y, int octaves, float lacunarity, float diminish, st
     float xx = x;
     float yy = y;
 
-    for (int i = 0;  i < octaves;  i += 1) {
+    for (int i = 0; i < octaves; i += 1)
+    {
         out += amp * noise(noisetype, xx, yy);
         amp *= diminish;
         xx *= lacunarity;
@@ -330,7 +331,8 @@ color mx_fbm(float x, float y, int octaves, float lacunarity, float diminish, st
     float xx = x;
     float yy = y;
 
-    for (int i = 0;  i < octaves;  i += 1) {
+    for (int i = 0; i < octaves; i += 1)
+    {
         out += amp * (color)noise(noisetype, xx, yy);
         amp *= diminish;
         xx *= lacunarity;
@@ -365,7 +367,8 @@ float mx_fbm(point position, int octaves, float lacunarity, float diminish, stri
     float amp = 1.0;
     point p = position;
 
-    for (int i = 0;  i < octaves;  i += 1) {
+    for (int i = 0; i < octaves; i += 1)
+    {
         out += amp * noise(noisetype, p);
         amp *= diminish;
         p *= lacunarity;
@@ -379,7 +382,8 @@ color mx_fbm(point position, int octaves, float lacunarity, float diminish, stri
     float amp = 1.0;
     point p = position;
 
-    for (int i = 0;  i < octaves;  i += 1) {
+    for (int i = 0; i < octaves; i += 1)
+    {
         out += amp * (color)noise(noisetype, p);
         amp *= diminish;
         p *= lacunarity;
