@@ -122,6 +122,9 @@ class MX_CORE_API Value
         return _floatPrecision;
     }
 
+    // Returns true if value data matches.
+    virtual bool isEqual(ConstValuePtr other) const = 0;
+
   protected:
     template <class T> friend class ValueRegistry;
 
@@ -177,6 +180,16 @@ template <class T> class MX_CORE_API TypedValue : public Value
 
     /// Return value string.
     string getValueString() const override;
+
+    // Returns true if value data matches.
+    bool isEqual(ConstValuePtr other) const override
+    {
+        if (!other || !other->isA<T>())
+        {
+            return false;
+        }
+        return _data == other->asA<T>();
+    }
 
     //
     // Static helper methods
@@ -237,6 +250,9 @@ class MX_CORE_API AggregateValue : public Value
 
     /// Return value string.
     string getValueString() const override;
+
+    // Returns true if value data matches.
+    bool isEqual(ConstValuePtr other) const override;
 
     //
     // Static helper methods
