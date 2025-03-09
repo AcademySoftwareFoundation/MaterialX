@@ -402,7 +402,7 @@ float mx_fractal2d_noise_float(vec2 p, int octaves, float lacunarity, float dimi
 {
     float result = 0.0;
     float amplitude = 1.0;
-    for (int i = 0;  i < octaves; ++i)
+    for (int i = 0; i < octaves; ++i)
     {
         result += amplitude * mx_perlin_noise_float(p);
         amplitude *= diminish;
@@ -415,7 +415,7 @@ vec3 mx_fractal2d_noise_vec3(vec2 p, int octaves, float lacunarity, float dimini
 {
     vec3 result = vec3(0.0);
     float amplitude = 1.0;
-    for (int i = 0;  i < octaves; ++i)
+    for (int i = 0; i < octaves; ++i)
     {
         result += amplitude * mx_perlin_noise_vec3(p);
         amplitude *= diminish;
@@ -441,7 +441,7 @@ float mx_fractal3d_noise_float(vec3 p, int octaves, float lacunarity, float dimi
 {
     float result = 0.0;
     float amplitude = 1.0;
-    for (int i = 0;  i < octaves; ++i)
+    for (int i = 0; i < octaves; ++i)
     {
         result += amplitude * mx_perlin_noise_float(p);
         amplitude *= diminish;
@@ -454,7 +454,7 @@ vec3 mx_fractal3d_noise_vec3(vec3 p, int octaves, float lacunarity, float dimini
 {
     vec3 result = vec3(0.0);
     float amplitude = 1.0;
-    for (int i = 0;  i < octaves; ++i)
+    for (int i = 0; i < octaves; ++i)
     {
         result += amplitude * mx_perlin_noise_vec3(p);
         amplitude *= diminish;
