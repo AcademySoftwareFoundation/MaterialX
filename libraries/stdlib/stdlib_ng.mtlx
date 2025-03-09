@@ -1693,6 +1693,101 @@
   </nodegraph>
 
   <!--
+    Node: <fractal2d>
+  -->
+  <nodegraph name="NG_fractal2d_color3" nodedef="ND_fractal2d_color3">
+    <fractal2d name="N_fractal2d" type="vector3">
+      <input name="amplitude" type="vector3" interfacename="amplitude" />
+      <input name="octaves" type="integer" interfacename="octaves" />
+      <input name="lacunarity" type="float" interfacename="lacunarity" />
+      <input name="diminish" type="float" interfacename="diminish" />
+      <input name="texcoord" type="vector2" interfacename="texcoord" />
+    </fractal2d>
+    <convert name="N_convert" type="color3">
+      <input name="in" type="vector3" nodename="N_fractal2d" />
+    </convert>
+    <output name="out" type="color3" nodename="N_convert" />
+  </nodegraph>
+  <nodegraph name="NG_fractal2d_color4" nodedef="ND_fractal2d_color4">
+    <fractal2d name="N_fractal2d" type="vector4">
+      <input name="amplitude" type="vector4" interfacename="amplitude" />
+      <input name="octaves" type="integer" interfacename="octaves" />
+      <input name="lacunarity" type="float" interfacename="lacunarity" />
+      <input name="diminish" type="float" interfacename="diminish" />
+      <input name="texcoord" type="vector2" interfacename="texcoord" />
+    </fractal2d>
+    <convert name="N_convert" type="color4">
+      <input name="in" type="vector4" nodename="N_fractal2d" />
+    </convert>
+    <output name="out" type="color4" nodename="N_convert" />
+  </nodegraph>
+  <nodegraph name="NG_fractal2d_color3FA" nodedef="ND_fractal2d_color3FA">
+    <convert name="N_convert" type="vector3">
+      <input name="in" type="float" interfacename="amplitude" />
+    </convert>
+    <fractal2d name="N_fractal2d" type="color3">
+      <input name="amplitude" type="vector3" nodename="N_convert" />
+      <input name="octaves" type="integer" interfacename="octaves" />
+      <input name="lacunarity" type="float" interfacename="lacunarity" />
+      <input name="diminish" type="float" interfacename="diminish" />
+      <input name="texcoord" type="vector2" interfacename="texcoord" />
+    </fractal2d>
+    <output name="out" type="color3" nodename="N_fractal2d" />
+  </nodegraph>
+  <nodegraph name="NG_fractal2d_color4FA" nodedef="ND_fractal2d_color4FA">
+    <convert name="N_convert" type="vector4">
+      <input name="in" type="float" interfacename="amplitude" />
+    </convert>
+    <fractal2d name="N_fractal2d" type="color4">
+      <input name="amplitude" type="vector4" nodename="N_convert" />
+      <input name="octaves" type="integer" interfacename="octaves" />
+      <input name="lacunarity" type="float" interfacename="lacunarity" />
+      <input name="diminish" type="float" interfacename="diminish" />
+      <input name="texcoord" type="vector2" interfacename="texcoord" />
+    </fractal2d>
+    <output name="out" type="color4" nodename="N_fractal2d" />
+  </nodegraph>
+  <nodegraph name="NG_fractal2d_vector2FA" nodedef="ND_fractal2d_vector2FA">
+    <convert name="N_convert" type="vector2">
+      <input name="in" type="float" interfacename="amplitude" />
+    </convert>
+    <fractal2d name="N_fractal2d" type="vector2">
+      <input name="amplitude" type="vector2" nodename="N_convert" />
+      <input name="octaves" type="integer" interfacename="octaves" />
+      <input name="lacunarity" type="float" interfacename="lacunarity" />
+      <input name="diminish" type="float" interfacename="diminish" />
+      <input name="texcoord" type="vector2" interfacename="texcoord" />
+    </fractal2d>
+    <output name="out" type="vector2" nodename="N_fractal2d" />
+  </nodegraph>
+  <nodegraph name="NG_fractal2d_vector3FA" nodedef="ND_fractal2d_vector3FA">
+    <convert name="N_convert" type="vector3">
+      <input name="in" type="float" interfacename="amplitude" />
+    </convert>
+    <fractal2d name="N_fractal2d" type="vector3">
+      <input name="amplitude" type="vector3" nodename="N_convert" />
+      <input name="octaves" type="integer" interfacename="octaves" />
+      <input name="lacunarity" type="float" interfacename="lacunarity" />
+      <input name="diminish" type="float" interfacename="diminish" />
+      <input name="texcoord" type="vector2" interfacename="texcoord" />
+    </fractal2d>
+    <output name="out" type="vector3" nodename="N_fractal2d" />
+  </nodegraph>
+  <nodegraph name="NG_fractal2d_vector4FA" nodedef="ND_fractal2d_vector4FA">
+    <convert name="N_convert" type="vector4">
+      <input name="in" type="float" interfacename="amplitude" />
+    </convert>
+    <fractal2d name="N_fractal2d" type="vector4">
+      <input name="amplitude" type="vector4" nodename="N_convert" />
+      <input name="octaves" type="integer" interfacename="octaves" />
+      <input name="lacunarity" type="float" interfacename="lacunarity" />
+      <input name="diminish" type="float" interfacename="diminish" />
+      <input name="texcoord" type="vector2" interfacename="texcoord" />
+    </fractal2d>
+    <output name="out" type="vector4" nodename="N_fractal2d" />
+  </nodegraph>
+
+  <!--
     Node: <fractal3d>
   -->
   <nodegraph name="NG_fractal3d_color3" nodedef="ND_fractal3d_color3">

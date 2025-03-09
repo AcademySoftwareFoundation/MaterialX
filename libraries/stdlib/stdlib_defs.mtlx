@@ -885,6 +885,99 @@
   </nodedef>
 
   <!--
+    Node: <fractal2d>
+    2D Fractal noise in 1, 2, 3 or 4 channels.
+  -->
+  <nodedef name="ND_fractal2d_float" node="fractal2d" nodegroup="procedural2d">
+    <input name="amplitude" type="float" value="1.0" />
+    <input name="octaves" type="integer" value="3" />
+    <input name="lacunarity" type="float" value="2.0" />
+    <input name="diminish" type="float" value="0.5" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <output name="out" type="float" default="0.0" />
+  </nodedef>
+  <nodedef name="ND_fractal2d_color3" node="fractal2d" nodegroup="procedural2d">
+    <input name="amplitude" type="vector3" value="1.0, 1.0, 1.0" />
+    <input name="octaves" type="integer" value="3" />
+    <input name="lacunarity" type="float" value="2.0" />
+    <input name="diminish" type="float" value="0.5" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <output name="out" type="color3" default="0.0, 0.0, 0.0" />
+  </nodedef>
+  <nodedef name="ND_fractal2d_color4" node="fractal2d" nodegroup="procedural2d">
+    <input name="amplitude" type="vector4" value="1.0, 1.0, 1.0, 1.0" />
+    <input name="octaves" type="integer" value="3" />
+    <input name="lacunarity" type="float" value="2.0" />
+    <input name="diminish" type="float" value="0.5" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <output name="out" type="color4" default="0.0, 0.0, 0.0, 0.0" />
+  </nodedef>
+  <nodedef name="ND_fractal2d_vector2" node="fractal2d" nodegroup="procedural2d">
+    <input name="amplitude" type="vector2" value="1.0, 1.0" />
+    <input name="octaves" type="integer" value="3" />
+    <input name="lacunarity" type="float" value="2.0" />
+    <input name="diminish" type="float" value="0.5" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <output name="out" type="vector2" default="0.0, 0.0" />
+  </nodedef>
+  <nodedef name="ND_fractal2d_vector3" node="fractal2d" nodegroup="procedural2d">
+    <input name="amplitude" type="vector3" value="1.0, 1.0, 1.0" />
+    <input name="octaves" type="integer" value="3" />
+    <input name="lacunarity" type="float" value="2.0" />
+    <input name="diminish" type="float" value="0.5" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <output name="out" type="vector3" default="0.0, 0.0, 0.0" />
+  </nodedef>
+  <nodedef name="ND_fractal2d_vector4" node="fractal2d" nodegroup="procedural2d">
+    <input name="amplitude" type="vector4" value="1.0, 1.0, 1.0, 1.0" />
+    <input name="octaves" type="integer" value="3" />
+    <input name="lacunarity" type="float" value="2.0" />
+    <input name="diminish" type="float" value="0.5" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <output name="out" type="vector4" default="0.0, 0.0, 0.0, 0.0" />
+  </nodedef>
+  <nodedef name="ND_fractal2d_color3FA" node="fractal2d" nodegroup="procedural2d">
+    <input name="amplitude" type="float" value="1.0" />
+    <input name="octaves" type="integer" value="3" />
+    <input name="lacunarity" type="float" value="2.0" />
+    <input name="diminish" type="float" value="0.5" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <output name="out" type="color3" default="0.0, 0.0, 0.0" />
+  </nodedef>
+  <nodedef name="ND_fractal2d_color4FA" node="fractal2d" nodegroup="procedural2d">
+    <input name="amplitude" type="float" value="1.0" />
+    <input name="octaves" type="integer" value="3" />
+    <input name="lacunarity" type="float" value="2.0" />
+    <input name="diminish" type="float" value="0.5" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <output name="out" type="color4" default="0.0, 0.0, 0.0, 0.0" />
+  </nodedef>
+  <nodedef name="ND_fractal2d_vector2FA" node="fractal2d" nodegroup="procedural2d">
+    <input name="amplitude" type="float" value="1.0" />
+    <input name="octaves" type="integer" value="3" />
+    <input name="lacunarity" type="float" value="2.0" />
+    <input name="diminish" type="float" value="0.5" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <output name="out" type="vector2" default="0.0, 0.0" />
+  </nodedef>
+  <nodedef name="ND_fractal2d_vector3FA" node="fractal2d" nodegroup="procedural2d">
+    <input name="amplitude" type="float" value="1.0" />
+    <input name="octaves" type="integer" value="3" />
+    <input name="lacunarity" type="float" value="2.0" />
+    <input name="diminish" type="float" value="0.5" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <output name="out" type="vector3" default="0.0, 0.0, 0.0" />
+  </nodedef>
+  <nodedef name="ND_fractal2d_vector4FA" node="fractal2d" nodegroup="procedural2d">
+    <input name="amplitude" type="float" value="1.0" />
+    <input name="octaves" type="integer" value="3" />
+    <input name="lacunarity" type="float" value="2.0" />
+    <input name="diminish" type="float" value="0.5" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <output name="out" type="vector4" default="0.0, 0.0, 0.0, 0.0" />
+  </nodedef>
+
+  <!--
     Node: <fractal3d>
     3D Fractal noise in 1, 2, 3 or 4 channels.
   -->
