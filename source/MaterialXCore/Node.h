@@ -299,7 +299,7 @@ class MX_CORE_API GraphElement : public InterfaceElement
 
     /// Return a vector of all children (nodes and outputs) sorted in
     /// topological order.
-    vector<ElementPtr> topologicalSort() const;
+    ElementVec topologicalSort() const;
 
     /// If not yet present, add a geometry node to this graph matching the given property
     /// definition and name prefix.

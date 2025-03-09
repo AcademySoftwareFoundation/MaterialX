@@ -13,10 +13,10 @@ MATERIALX_NAMESPACE_BEGIN
 const string EsslShaderGenerator::TARGET = "essl";
 const string EsslShaderGenerator::VERSION = "300 es"; // Current target is WebGL 2.0
 
-EsslShaderGenerator::EsslShaderGenerator() :
-    GlslShaderGenerator()
+EsslShaderGenerator::EsslShaderGenerator(TypeSystemPtr typeSystem) :
+    GlslShaderGenerator(typeSystem)
 {
-    _syntax = EsslSyntax::create();
+    _syntax = EsslSyntax::create(typeSystem);
     // Add in ESSL specific keywords
     const StringSet reservedWords = { "precision", "highp", "mediump", "lowp" };
     _syntax->registerReservedWords(reservedWords);
@@ -27,11 +27,6 @@ void EsslShaderGenerator::emitDirectives(GenContext&, ShaderStage& stage) const
     emitLine("#version " + getVersion(), stage, false);
     emitLineBreak(stage);
     emitLine("precision mediump float", stage);
-    emitLineBreak(stage);
-    emitLine("#define CLOSURE_TYPE_REFLECTION "+std::to_string(HwShaderGenerator::ClosureContextType::REFLECTION), stage, false);
-    emitLine("#define CLOSURE_TYPE_TRANSMISSION "+std::to_string(HwShaderGenerator::ClosureContextType::TRANSMISSION), stage, false);
-    emitLine("#define CLOSURE_TYPE_INDIRECT "+std::to_string(HwShaderGenerator::ClosureContextType::INDIRECT), stage, false);
-    emitLine("#define CLOSURE_TYPE_EMISSION "+std::to_string(HwShaderGenerator::ClosureContextType::EMISSION), stage, false);
     emitLineBreak(stage);
 }
 

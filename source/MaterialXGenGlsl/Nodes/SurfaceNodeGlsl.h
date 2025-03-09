@@ -24,10 +24,6 @@ class MX_GENGLSL_API SurfaceNodeGlsl : public GlslImplementation
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
     virtual void emitLightLoop(const ShaderNode& node, GenContext& context, ShaderStage& stage, const string& outColor) const;
-
-  protected:
-    /// Closure context for calling closure functions.
-    mutable ClosureContext _callClosure;
 };
 
 MATERIALX_NAMESPACE_END

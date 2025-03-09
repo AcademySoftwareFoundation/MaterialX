@@ -24,7 +24,6 @@ class ShaderOutput;
 class ShaderNodeImpl;
 class GenOptions;
 class GenContext;
-class ClosureContext;
 class TypeDesc;
 
 /// A string stream

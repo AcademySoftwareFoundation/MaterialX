@@ -153,7 +153,8 @@ const string PUBLIC_UNIFORMS                  = "PublicUniforms";
 const string LIGHT_DATA                       = "LightData";
 const string PIXEL_OUTPUTS                    = "PixelOutputs";
 const string DIR_N                            = "N";
-const string CLOSURE_DATA                     = "closureData";
+const string CLOSURE_DATA_TYPE                = "ClosureData";
+const string CLOSURE_DATA_ARG                 = "closureData";
 const string DIR_L                            = "L";
 const string DIR_V                            = "V";
 const string WORLD_POSITION                   = "P";
@@ -163,7 +164,7 @@ const string USER_DATA_CLOSURE_CONTEXT        = "udcc";
 const string USER_DATA_LIGHT_SHADERS          = "udls";
 const string USER_DATA_BINDING_CONTEXT        = "udbinding";
 
-const TypeDesc ClosureDataType = TypeDesc("ClosureData", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_NONE, 1);
+const TypeDesc ClosureDataType = TypeDesc("ClosureData", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_NONE, 1, 0);
 } // namespace HW
 
 namespace Stage
@@ -173,14 +174,12 @@ const string VERTEX = "vertex";
 
 } // namespace Stage
 
-const ClosureContext::Arguments ClosureContext::EMPTY_ARGUMENTS;
-
 //
 // HwShaderGenerator methods
 //
 
-HwShaderGenerator::HwShaderGenerator(SyntaxPtr syntax) :
-    ShaderGenerator(syntax)
+HwShaderGenerator::HwShaderGenerator(TypeSystemPtr typeSystem, SyntaxPtr syntax) :
+    ShaderGenerator(typeSystem, syntax)
 {
     // Assign default identifiers names for all tokens.
     // Derived generators can override these names.
@@ -239,10 +238,6 @@ HwShaderGenerator::HwShaderGenerator(SyntaxPtr syntax) :
     _tokenSubstitutions[HW::T_VERTEX_DATA_INSTANCE] = HW::VERTEX_DATA_INSTANCE;
     _tokenSubstitutions[HW::T_LIGHT_DATA_INSTANCE] = HW::LIGHT_DATA_INSTANCE;
     _tokenSubstitutions[HW::T_ENV_PREFILTER_MIP] = HW::ENV_PREFILTER_MIP;
-
-    // Setup closure contexts for defining closure functions
-    //
-    _defClosure.addArgument(ClosureContext::Argument(HW::ClosureDataType, "closureData"));
 }
 
 ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element, GenContext& context) const
@@ -473,7 +468,7 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
 
 void HwShaderGenerator::bindLightShader(const NodeDef& nodeDef, unsigned int lightTypeId, GenContext& context)
 {
-    if (TypeDesc::get(nodeDef.getType()) != Type::LIGHTSHADER)
+    if (context.getTypeDesc(nodeDef.getType()) != Type::LIGHTSHADER)
     {
         throw ExceptionShaderGenError("Error binding light shader. Given nodedef '" + nodeDef.getName() + "' is not of lightshader type");
     }
@@ -526,17 +521,9 @@ void HwShaderGenerator::unbindLightShaders(GenContext& context)
     }
 }
 
-void HwShaderGenerator::getClosureContexts(const ShaderNode& node, vector<ClosureContext*>& ccts) const
+bool HwShaderGenerator::nodeNeedsClosureData(const ShaderNode& node) const
 {
-    if (node.hasClassification(ShaderNode::Classification::BSDF) || node.hasClassification(ShaderNode::Classification::EDF))
-    {
-        ccts.push_back(&_defClosure);
-    }
-    else if (node.hasClassification(ShaderNode::Classification::SHADER))
-    {
-        // A shader
-        ccts.push_back(&_defDefault);
-    }
+    return (node.hasClassification(ShaderNode::Classification::BSDF) || node.hasClassification(ShaderNode::Classification::EDF) || node.hasClassification(ShaderNode::Classification::VDF)) ;
 }
 
 void HwShaderGenerator::addStageLightingUniforms(GenContext& context, ShaderStage& stage) const

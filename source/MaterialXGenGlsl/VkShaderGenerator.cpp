@@ -11,10 +11,10 @@ MATERIALX_NAMESPACE_BEGIN
 const string VkShaderGenerator::TARGET = "genglsl";
 const string VkShaderGenerator::VERSION = "450";
 
-VkShaderGenerator::VkShaderGenerator() :
-    GlslShaderGenerator()
+VkShaderGenerator::VkShaderGenerator(TypeSystemPtr typeSystem) :
+    GlslShaderGenerator(typeSystem)
 {
-    _syntax = VkSyntax::create();
+    _syntax = VkSyntax::create(typeSystem);
     // Add in Vulkan specific keywords
     const StringSet reservedWords = { "texture2D", "sampler" };
     _syntax->registerReservedWords(reservedWords);
@@ -26,12 +26,6 @@ VkShaderGenerator::VkShaderGenerator() :
 void VkShaderGenerator::emitDirectives(GenContext&, ShaderStage& stage) const
 {
     emitLine("#version " + getVersion(), stage, false);
-    emitLineBreak(stage);
-    emitLineBreak(stage);
-    emitLine("#define CLOSURE_TYPE_REFLECTION "+std::to_string(HwShaderGenerator::ClosureContextType::REFLECTION), stage, false);
-    emitLine("#define CLOSURE_TYPE_TRANSMISSION "+std::to_string(HwShaderGenerator::ClosureContextType::TRANSMISSION), stage, false);
-    emitLine("#define CLOSURE_TYPE_INDIRECT "+std::to_string(HwShaderGenerator::ClosureContextType::INDIRECT), stage, false);
-    emitLine("#define CLOSURE_TYPE_EMISSION "+std::to_string(HwShaderGenerator::ClosureContextType::EMISSION), stage, false);
     emitLineBreak(stage);
 }
 

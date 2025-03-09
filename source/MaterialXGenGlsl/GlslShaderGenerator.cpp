@@ -41,8 +41,8 @@ const string GlslSamplingIncludeFilename = "stdlib/genglsl/lib/mx_sampling.glsl"
 // GlslShaderGenerator methods
 //
 
-GlslShaderGenerator::GlslShaderGenerator() :
-    HwShaderGenerator(GlslSyntax::create())
+GlslShaderGenerator::GlslShaderGenerator(TypeSystemPtr typeSystem) :
+    HwShaderGenerator(typeSystem, GlslSyntax::create(typeSystem))
 {
     //
     // Register all custom node implementation classes
@@ -251,11 +251,6 @@ void GlslShaderGenerator::emitTransmissionRender(GenContext& context, ShaderStag
 void GlslShaderGenerator::emitDirectives(GenContext&, ShaderStage& stage) const
 {
     emitLine("#version " + getVersion(), stage, false);
-    emitLineBreak(stage);
-    emitLine("#define CLOSURE_TYPE_REFLECTION "+std::to_string(HwShaderGenerator::ClosureContextType::REFLECTION), stage, false);
-    emitLine("#define CLOSURE_TYPE_TRANSMISSION "+std::to_string(HwShaderGenerator::ClosureContextType::TRANSMISSION), stage, false);
-    emitLine("#define CLOSURE_TYPE_INDIRECT "+std::to_string(HwShaderGenerator::ClosureContextType::INDIRECT), stage, false);
-    emitLine("#define CLOSURE_TYPE_EMISSION "+std::to_string(HwShaderGenerator::ClosureContextType::EMISSION), stage, false);
     emitLineBreak(stage);
 }
 
@@ -739,7 +734,7 @@ ShaderNodeImplPtr GlslShaderGenerator::getImplementation(const NodeDef& nodedef,
         throw ExceptionShaderGenError("NodeDef '" + nodedef.getName() + "' has no outputs defined");
     }
 
-    const TypeDesc outputType = TypeDesc::get(outputs[0]->getType());
+    const TypeDesc outputType = context.getTypeDesc(outputs[0]->getType());
 
     if (implElement->isA<NodeGraph>())
     {

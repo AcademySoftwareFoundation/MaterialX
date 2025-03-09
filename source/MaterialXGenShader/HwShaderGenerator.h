@@ -207,7 +207,8 @@ extern MX_GENSHADER_API const string LIGHT_DATA;       // Uniform inputs for lig
 extern MX_GENSHADER_API const string PIXEL_OUTPUTS;    // Outputs from the main/pixel stage.
 
 /// Variable names for lighting parameters.
-extern MX_GENSHADER_API const string CLOSURE_DATA;
+extern MX_GENSHADER_API const string CLOSURE_DATA_TYPE;
+extern MX_GENSHADER_API const string CLOSURE_DATA_ARG;
 extern MX_GENSHADER_API const string DIR_N;
 extern MX_GENSHADER_API const string DIR_L;
 extern MX_GENSHADER_API const string DIR_V;
@@ -297,8 +298,8 @@ class MX_GENSHADER_API HwShaderGenerator : public ShaderGenerator
     /// Emit code for active light count definitions and uniforms
     virtual void addStageLightingUniforms(GenContext& context, ShaderStage& stage) const;
 
-    /// Return the closure contexts defined for the given node.
-    void getClosureContexts(const ShaderNode& node, vector<ClosureContext*>& cct) const override;
+    /// Return true if the node needs the ClosureData struct added
+    bool nodeNeedsClosureData(const ShaderNode& node) const override;
 
     /// Bind a light shader to a light type id, for usage in surface shaders created
     /// by the generator. The lightTypeId should be a unique identifier for the light
@@ -315,6 +316,9 @@ class MX_GENSHADER_API HwShaderGenerator : public ShaderGenerator
     /// Determine the prefix of vertex data variables.
     virtual string getVertexDataPrefix(const VariableBlock& vertexData) const = 0;
 
+    // Note : the order must match the order defined in libraries/pbrlib/genglsl/lib/mx_closure_type.glsl
+    // TODO : investigate build time mechanism for ensuring these stay in sync.
+
     /// Types of closure contexts for HW.
     enum ClosureContextType
     {
@@ -328,14 +332,10 @@ class MX_GENSHADER_API HwShaderGenerator : public ShaderGenerator
     };
 
   protected:
-    HwShaderGenerator(SyntaxPtr syntax);
+    HwShaderGenerator(TypeSystemPtr typeSystem, SyntaxPtr syntax);
 
     /// Create and initialize a new HW shader for shader generation.
     virtual ShaderPtr createShader(const string& name, ElementPtr element, GenContext& context) const;
-
-    /// Closure contexts for defining closure functions.
-    mutable ClosureContext _defDefault;
-    mutable ClosureContext _defClosure;
 };
 
 /// @class HwImplementation

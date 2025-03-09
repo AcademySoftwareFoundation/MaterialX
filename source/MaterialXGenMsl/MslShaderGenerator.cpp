@@ -45,8 +45,8 @@ const string MslSamplingIncludeFilename = "stdlib/genmsl/lib/mx_sampling.metal";
 // MslShaderGenerator methods
 //
 
-MslShaderGenerator::MslShaderGenerator() :
-    HwShaderGenerator(MslSyntax::create())
+MslShaderGenerator::MslShaderGenerator(TypeSystemPtr typeSystem) :
+    HwShaderGenerator(typeSystem, MslSyntax::create(typeSystem))
 {
     //
     // Register all custom node implementation classes
@@ -676,11 +676,6 @@ void MslShaderGenerator::emitDirectives(GenContext&, ShaderStage& stage) const
     emitLine("#define mat4 float4x4", stage, false);
 
     emitLineBreak(stage);
-    emitLine("#define CLOSURE_TYPE_REFLECTION "+std::to_string(HwShaderGenerator::ClosureContextType::REFLECTION), stage, false);
-    emitLine("#define CLOSURE_TYPE_TRANSMISSION "+std::to_string(HwShaderGenerator::ClosureContextType::TRANSMISSION), stage, false);
-    emitLine("#define CLOSURE_TYPE_INDIRECT "+std::to_string(HwShaderGenerator::ClosureContextType::INDIRECT), stage, false);
-    emitLine("#define CLOSURE_TYPE_EMISSION "+std::to_string(HwShaderGenerator::ClosureContextType::EMISSION), stage, false);
-    emitLineBreak(stage);
 }
 
 void MslShaderGenerator::emitConstants(GenContext& context, ShaderStage& stage) const
@@ -1253,7 +1248,7 @@ ShaderNodeImplPtr MslShaderGenerator::getImplementation(const NodeDef& nodedef, 
         throw ExceptionShaderGenError("NodeDef '" + nodedef.getName() + "' has no outputs defined");
     }
 
-    const TypeDesc outputType = TypeDesc::get(outputs[0]->getType());
+    const TypeDesc outputType = _typeSystem->getType(outputs[0]->getType());
 
     if (implElement->isA<NodeGraph>())
     {
