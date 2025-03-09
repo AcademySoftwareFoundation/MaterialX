@@ -10,7 +10,6 @@ void mx_sheen_bsdf(ClosureData closureData, float weight, vec3 color, float roug
 
     vec3 V = closureData.V;
     vec3 L = closureData.L;
-    float occlusion = closureData.occlusion;
 
     N = mx_forward_facing_normal(N, V);
     float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);
@@ -30,7 +29,7 @@ void mx_sheen_bsdf(ClosureData closureData, float weight, vec3 color, float roug
 
             // We need to include NdotL from the light integral here
             // as in this case it's not cancelled out by the BRDF denominator.
-            bsdf.response = fr * NdotL * occlusion * weight;
+            bsdf.response = fr * NdotL * closureData.occlusion * weight;
         }
         else
         {
@@ -38,7 +37,7 @@ void mx_sheen_bsdf(ClosureData closureData, float weight, vec3 color, float roug
 
             vec3 fr = color * mx_zeltner_sheen_brdf(L, V, N, NdotV, roughness);
             dirAlbedo = mx_zeltner_sheen_dir_albedo(NdotV, roughness);
-            bsdf.response = dirAlbedo * fr * occlusion * weight;
+            bsdf.response = dirAlbedo * fr * closureData.occlusion * weight;
         }
     }
     else if (closureData.closureType == CLOSURE_TYPE_INDIRECT)

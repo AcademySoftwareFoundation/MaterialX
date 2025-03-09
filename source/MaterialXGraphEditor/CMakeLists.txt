@@ -14,8 +14,8 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
     add_compile_options(-Wno-format-truncation -Wno-use-after-free -Wno-comment -Wno-unused-but-set-variable)
 endif()
 
-file(GLOB materialx_source CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
-file(GLOB materialx_headers CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
+file(GLOB materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
+file(GLOB materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
 
 if (APPLE)
     list(APPEND materialx_source ${CMAKE_CURRENT_SOURCE_DIR}/FileDialog_Darwin.mm)

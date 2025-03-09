@@ -19,9 +19,9 @@ MATERIALX_NAMESPACE_BEGIN
 class MX_GENMSL_API MslSyntax : public Syntax
 {
   public:
-    MslSyntax();
+    MslSyntax(TypeSystemPtr typeSystem);
 
-    static SyntaxPtr create() { return std::make_shared<MslSyntax>(); }
+    static SyntaxPtr create(TypeSystemPtr typeSystem) { return std::make_shared<MslSyntax>(typeSystem); }
 
     const string& getInputQualifier() const override { return INPUT_QUALIFIER; }
     const string& getOutputQualifier() const override { return OUTPUT_QUALIFIER; }

@@ -498,7 +498,8 @@ DocumentPtr TextureBaker<Renderer, ShaderGen>::bakeMaterialToDoc(DocumentPtr doc
     DefaultColorManagementSystemPtr cms = DefaultColorManagementSystem::create(genContext.getShaderGenerator().getTarget());
     cms->loadLibrary(doc);
     genContext.registerSourceCodeSearchPath(searchPath);
-    genContext.getShaderGenerator().setColorManagementSystem(cms);
+    _generator->setColorManagementSystem(cms);
+    _generator->registerTypeDefs(doc);
 
     // Compute the material tag set.
     StringVec materialTags = udimSet;

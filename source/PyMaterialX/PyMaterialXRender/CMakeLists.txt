@@ -1,5 +1,5 @@
-file(GLOB pymaterialxrender_source CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
-file(GLOB pymaterialxrender_headers CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
+file(GLOB pymaterialxrender_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
+file(GLOB pymaterialxrender_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 if(NOT MATERIALX_BUILD_OIIO)
     list(REMOVE_ITEM pymaterialxrender_source "${CMAKE_CURRENT_SOURCE_DIR}/PyOiioImageLoader.cpp")
 endif()

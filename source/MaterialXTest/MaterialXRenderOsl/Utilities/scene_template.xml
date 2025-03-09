@@ -7,7 +7,7 @@
       %environment_shader_parameter_overrides%
       shader envmap layer1;
    </ShaderGroup>
-   <Background resolution="1024" />
+   <Background resolution="2048" />
 
    <!-- Background quad with raytype test. -->
    <ShaderGroup>

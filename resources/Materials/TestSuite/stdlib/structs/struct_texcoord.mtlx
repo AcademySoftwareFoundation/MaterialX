@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+
+  <typedef name="texcoord_struct">
+    <member name="ss" type="float" value="0.5"/>
+    <member name="tt" type="float" value="0.5"/>
+  </typedef>
+
+  <nodedef name="ND_extract_s_texcoord" node="extract_s" nodegroup="shader" >
+    <input name="in" type="texcoord_struct" value="{0.1;0.1}" />
+    <output name="out" type="float" value="0.0" />
+  </nodedef>
+
+  <implementation name="IM_extract_s_texcoord_genglsl" nodedef="ND_extract_s_texcoord" target="genglsl" sourcecode="{{in}}.ss" />
+  <implementation name="IM_extract_s_texcoord_genmsl" nodedef="ND_extract_s_texcoord" target="genmsl" sourcecode="{{in}}.ss" />
+  <implementation name="IM_extract_s_texcoord_genosl" nodedef="ND_extract_s_texcoord" target="genosl" sourcecode="{{in}}.ss" />
+  <implementation name="IM_extract_s_texcoord_genmdl" nodedef="ND_extract_s_texcoord" target="genmdl" sourcecode="{{in}}.ss" />
+
+  <extract_s name="extract" type="float">
+    <input name="in" type="texcoord_struct" value="{0.01;0.5}"/>
+  </extract_s>
+  <surface_unlit name="unlit_surface1" type="surfaceshader">
+    <input name="emission" type="float" nodename="extract" />
+    <input name="opacity" type="float" value="1.0" />
+  </surface_unlit>
+  <surfacematerial name="test_struct_texcoord" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="unlit_surface1" />
+  </surfacematerial>
+
+</materialx>

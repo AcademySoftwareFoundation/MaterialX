@@ -14,6 +14,7 @@
 #include <MaterialXGenShader/GenOptions.h>
 #include <MaterialXGenShader/GenUserData.h>
 #include <MaterialXGenShader/ShaderNode.h>
+#include <MaterialXGenShader/ShaderGenerator.h>
 
 #include <MaterialXFormat/File.h>
 
@@ -47,6 +48,12 @@ class MX_GENSHADER_API GenContext
     const GenOptions& getOptions() const
     {
         return _options;
+    }
+
+    /// Return a TypeDesc for the given type name.
+    TypeDesc getTypeDesc(const string& name) const
+    {
+        return _sg->getTypeSystem()->getType(name);
     }
 
     /// Register a user search path for finding source code during

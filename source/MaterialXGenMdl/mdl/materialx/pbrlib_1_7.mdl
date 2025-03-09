@@ -39,6 +39,7 @@ import ::state::*;
 
 // forward all unchanged definitions from the previous version
 export using .::pbrlib_1_6 import mx_scatter_mode;
+export using .::pbrlib_1_6 import mx_sheen_mode;
 export using .::pbrlib_1_6 import mx_map_scatter_mode;
 export using .::pbrlib_1_6 import mx_oren_nayar_diffuse_bsdf;
 export using .::pbrlib_1_6 import mx_burley_diffuse_bsdf;
@@ -87,6 +88,7 @@ export material mx_sheen_bsdf(
     color  mxp_color     = color(1.0),
     float  mxp_roughness = 0.2,
     float3 mxp_normal    = state::normal(),
+    uniform mx_sheen_mode mxp_mode = mx_sheen_mode_conty_kulla [[ anno::unused() ]],
     material mxp_base = material(
                             surface: material_surface(
                                 scattering: df::diffuse_reflection_bsdf(

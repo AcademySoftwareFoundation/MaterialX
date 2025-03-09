@@ -34,17 +34,17 @@ describe('Generate Shaders', function ()
 
         const generators = []
         if (typeof mx.EsslShaderGenerator != 'undefined')
-            generators.push(new mx.EsslShaderGenerator());
+            generators.push(mx.EsslShaderGenerator.create());
         if (typeof mx.GlslShaderGenerator != 'undefined')
-            generators.push(new mx.GlslShaderGenerator());
+            generators.push(mx.GlslShaderGenerator.create());
         if (typeof mx.MslShaderGenerator != 'undefined')
-            generators.push(new mx.MslShaderGenerator());
+            generators.push(mx.MslShaderGenerator.create());
         if (typeof mx.OslShaderGenerator != 'undefined')
-            generators.push(new mx.OslShaderGenerator());
+            generators.push(mx.OslShaderGenerator.create());
         if (typeof mx.VkShaderGenerator != 'undefined')
-            generators.push(new mx.VkShaderGenerator());
+            generators.push(mx.VkShaderGenerator.create());
         if (typeof mx.MdlShaderGenerator != 'undefined')
-            generators.push(new mx.MdlShaderGenerator());
+            generators.push(mx.MdlShaderGenerator.create());
 
         const elem = mx.findRenderableElement(doc);
         for (let gen of generators)

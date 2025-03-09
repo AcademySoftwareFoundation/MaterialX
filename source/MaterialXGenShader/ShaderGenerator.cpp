@@ -29,7 +29,8 @@ const string ShaderGenerator::T_FILE_TRANSFORM_UV = "$fileTransformUv";
 // ShaderGenerator methods
 //
 
-ShaderGenerator::ShaderGenerator(SyntaxPtr syntax) :
+ShaderGenerator::ShaderGenerator(TypeSystemPtr typeSystem, SyntaxPtr syntax) :
+    _typeSystem(typeSystem),
     _syntax(syntax)
 {
 }
@@ -296,7 +297,7 @@ ShaderNodeImplPtr ShaderGenerator::getImplementation(const NodeDef& nodedef, Gen
         throw ExceptionShaderGenError("NodeDef '" + nodedef.getName() + "' has no outputs defined");
     }
 
-    const TypeDesc outputType = TypeDesc::get(outputs[0]->getType());
+    const TypeDesc outputType = _typeSystem->getType(outputs[0]->getType());
 
     if (implElement->isA<NodeGraph>())
     {
@@ -340,45 +341,72 @@ ShaderNodeImplPtr ShaderGenerator::getImplementation(const NodeDef& nodedef, Gen
     return impl;
 }
 
-/// Load any struct type definitions from the document in to the type cache.
-void ShaderGenerator::loadStructTypeDefs(const DocumentPtr& doc)
+void ShaderGenerator::registerTypeDefs(const DocumentPtr& doc)
 {
+    /// Load any struct type definitions from the document.
     for (const auto& mxTypeDef : doc->getTypeDefs())
     {
-        const auto& typeDefName = mxTypeDef->getName();
+        const string& typeName = mxTypeDef->getName();
         const auto& members = mxTypeDef->getMembers();
 
         // If we don't have any member children then we're not going to consider ourselves a struct.
         if (members.empty())
-            continue;
-
-        StructTypeDesc newStructTypeDesc;
-        for (const auto& member : members)
         {
-            auto memberName = member->getName();
-            auto memberTypeName = member->getType();
-            auto memberType = TypeDesc::get(memberTypeName);
-            auto memberDefaultValue = member->getValueString();
-
-            newStructTypeDesc.addMember(memberName, memberType, memberDefaultValue);
+            continue;
         }
 
-        auto structIndex = StructTypeDesc::emplace_back(newStructTypeDesc);
+        auto structMembers = std::make_shared<StructMemberDescVec>();
+        for (const auto& member : members)
+        {
+            const auto memberType = _typeSystem->getType(member->getType());
+            const auto memberName = member->getName();
+            const auto memberDefaultValue = member->getValueString();
+            structMembers->emplace_back(StructMemberDesc(memberType, memberName, memberDefaultValue));
+        }
 
-        TypeDesc structTypeDesc(typeDefName, TypeDesc::BASETYPE_STRUCT, TypeDesc::SEMANTIC_NONE, 1, structIndex);
-
-        TypeDescRegistry(structTypeDesc, typeDefName);
-
-        StructTypeDesc::get(structIndex).setTypeDesc(TypeDesc::get(typeDefName));
+        _typeSystem->registerType(typeName, TypeDesc::BASETYPE_STRUCT, TypeDesc::SEMANTIC_NONE, 1, structMembers);
     }
 
-    _syntax->registerStructTypeDescSyntax();
-}
+    // Create a type syntax for all struct types loaded above.
+    for (TypeDesc typeDesc : _typeSystem->getTypes())
+    {
+        if (!typeDesc.isStruct())
+        {
+            continue;
+        }
 
-/// Clear any struct type definitions loaded
-void ShaderGenerator::clearStructTypeDefs()
-{
-    StructTypeDesc::clear();
+        const string& structTypeName = typeDesc.getName();
+        string defaultValue = structTypeName + "( ";
+        string uniformDefaultValue = EMPTY_STRING;
+        string typeAlias = EMPTY_STRING;
+        string typeDefinition = "struct " + structTypeName + " { ";
+
+        auto structMembers = typeDesc.getStructMembers();
+        if (structMembers)
+        {
+            for (const auto& structMember : *structMembers)
+            {
+                const string& memberType = structMember.getType().getName();
+                const string& memberName = structMember.getName();
+                const string& memberDefaultValue = structMember.getDefaultValueStr();
+
+                defaultValue += memberDefaultValue + ", ";
+                typeDefinition += memberType + " " + memberName + "; ";
+            }
+        }
+
+        typeDefinition += " };";
+        defaultValue += " )";
+
+        StructTypeSyntaxPtr structTypeSyntax = _syntax->createStructSyntax(
+            structTypeName,
+            defaultValue,
+            uniformDefaultValue,
+            typeAlias,
+            typeDefinition);
+
+        _syntax->registerTypeSyntax(typeDesc, structTypeSyntax);
+    }
 }
 
 namespace
@@ -432,7 +460,7 @@ void ShaderGenerator::registerShaderMetadata(const DocumentPtr& doc, GenContext&
         if (def->getExportable())
         {
             const string& attrName = def->getAttrName();
-            const TypeDesc type = TypeDesc::get(def->getType());
+            const TypeDesc type = _typeSystem->getType(def->getType());
             if (!attrName.empty() && type != Type::NONE)
             {
                 registry->addMetadata(attrName, type, def->getValue());

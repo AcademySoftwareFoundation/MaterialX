@@ -157,12 +157,17 @@ unsigned int getUIProperties(InputPtr input, const string& target, UIProperties&
         if (!enumValuesAttr.empty())
         {
             const string COMMA_SEPARATOR = ",";
-            const TypeDesc typeDesc = TypeDesc::get(input->getType());
             string valueString;
             size_t index = 0;
-            for (const string& val : splitString(enumValuesAttr, COMMA_SEPARATOR))
+            vector<string> enumValuesParts = splitString(enumValuesAttr, COMMA_SEPARATOR);
+
+            // Infer the size of the type by making an assumption the correct number of elements
+            // are provided in the value.
+            size_t typeDescSize = enumValuesParts.size() / uiProperties.enumeration.size();
+
+            for (const string& val : enumValuesParts)
             {
-                if (index < typeDesc.getSize() - 1)
+                if (index < typeDescSize - 1)
                 {
                     valueString += val + COMMA_SEPARATOR;
                     index++;
@@ -170,7 +175,7 @@ unsigned int getUIProperties(InputPtr input, const string& target, UIProperties&
                 else
                 {
                     valueString += val;
-                    uiProperties.enumerationValues.push_back(typeDesc.createValueFromStrings(valueString));
+                    uiProperties.enumerationValues.push_back(Value::createValueFromStrings(valueString, input->getType()));
                     valueString.clear();
                     index = 0;
                 }

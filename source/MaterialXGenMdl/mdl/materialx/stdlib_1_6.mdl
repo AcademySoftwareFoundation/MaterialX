@@ -2653,35 +2653,30 @@ export float4 mx_curveadjust_vector4(
 
 export color mx_luminance_color3(
 	color mxp_in = color(0.0, 0.0, 0.0),
-	uniform color mxp_lumacoeffs = color(0.2722287, 0.6740818, 0.0536895)	
+	color mxp_lumacoeffs = color(0.2722287, 0.6740818, 0.0536895)	
 	[[
-		anno::description("Enumeration {acescg, rec709, rec2020, rec2100}."),
-        anno::unused()
+		anno::description("Enumeration {acescg, rec709, rec2020, rec2100}.")
 	]]
 )
 	[[
 		anno::description("Node Group: adjustment")
 	]]
 {
-	return color(::math::luminance(mxp_in));
+	return color(::math::dot(float3(mxp_in), float3(mxp_lumacoeffs)));
 }
 
 export core::color4 mx_luminance_color4(
 	core::color4 mxp_in = core::mk_color4(0.0, 0.0, 0.0, 0.0),
-	uniform color mxp_lumacoeffs = color(0.2722287, 0.6740818, 0.0536895)
+	color mxp_lumacoeffs = color(0.2722287, 0.6740818, 0.0536895)
 	[[
-		anno::description("Enumeration {acescg, rec709, rec2020, rec2100}."),
-        anno::unused()
+		anno::description("Enumeration {acescg, rec709, rec2020, rec2100}.")
 	]]
 )
 	[[
 		anno::description("Node Group: adjustment")
 	]]
 {
-	color rgb = color(mxp_in.rgb);
-	core::color4 returnValue = core::mk_color4(::math::luminance(rgb));
-	returnValue.a = mxp_in.a;
-	return returnValue;
+	return core::mk_color4(color(::math::dot(float3(mxp_in.rgb), float3(mxp_lumacoeffs))), mxp_in.a);
 }
 
 export color mx_rgbtohsv_color3(

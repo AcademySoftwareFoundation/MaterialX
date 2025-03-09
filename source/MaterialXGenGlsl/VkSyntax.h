@@ -17,9 +17,9 @@ MATERIALX_NAMESPACE_BEGIN
 class MX_GENGLSL_API VkSyntax : public GlslSyntax
 {
   public:
-    VkSyntax();
+    VkSyntax(TypeSystemPtr typeSystem);
 
-    static SyntaxPtr create() { return std::make_shared<VkSyntax>(); }
+    static SyntaxPtr create(TypeSystemPtr typeSystem) { return std::make_shared<VkSyntax>(typeSystem); }
 
     const string& getInputQualifier() const override { return INPUT_QUALIFIER; }
 };

@@ -78,6 +78,11 @@ export df::scatter_mode mx_map_scatter_mode(
     }
 }
 
+export enum mx_sheen_mode {
+    mx_sheen_mode_conty_kulla,
+    mx_sheen_mode_zeltner
+};
+
 export material mx_oren_nayar_diffuse_bsdf(
     float  mxp_weight    = 1.0,
     color  mxp_color     = color(0.18),
@@ -389,6 +394,7 @@ export material mx_sheen_bsdf(
     color  mxp_color     = color(1.0),
     float  mxp_roughness = 0.2,
     float3 mxp_normal    = state::normal(),
+    uniform mx_sheen_mode mxp_mode = mx_sheen_mode_conty_kulla [[ anno::unused() ]],
     material mxp_base = material() [[ anno::usage( "materialx:bsdf") ]],
     color  mxp_diffuse_color     = color(1.0) // color of the base layer, MDL supports only diffuse
 ) [[ 

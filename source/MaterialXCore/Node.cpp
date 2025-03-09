@@ -375,14 +375,14 @@ void GraphElement::flattenSubgraphs(const string& target, NodePredicate filter)
     }
 }
 
-vector<ElementPtr> GraphElement::topologicalSort() const
+ElementVec GraphElement::topologicalSort() const
 {
     // Calculate a topological order of the children, using Kahn's algorithm
     // to avoid recursion.
     //
     // Running time: O(numNodes + numEdges).
 
-    const vector<ElementPtr>& children = getChildren();
+    const ElementVec& children = getChildren();
 
     // Calculate in-degrees for all children.
     std::unordered_map<ElementPtr, size_t> inDegree(children.size());
@@ -415,7 +415,7 @@ vector<ElementPtr> GraphElement::topologicalSort() const
         }
     }
 
-    vector<ElementPtr> result;
+    ElementVec result;
     while (!childQueue.empty())
     {
         // Pop the queue and add to topological order.
@@ -470,7 +470,7 @@ string GraphElement::asStringDot() const
     string dot = "digraph {\n";
 
     // Create a unique name for each child element.
-    vector<ElementPtr> children = topologicalSort();
+    ElementVec children = topologicalSort();
     StringMap nameMap;
     StringSet nameSet;
     for (ElementPtr elem : children)

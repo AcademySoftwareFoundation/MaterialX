@@ -12,7 +12,7 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-EsslSyntax::EsslSyntax()
+EsslSyntax::EsslSyntax(TypeSystemPtr typeSystem) : GlslSyntax(typeSystem)
 {
 }
 

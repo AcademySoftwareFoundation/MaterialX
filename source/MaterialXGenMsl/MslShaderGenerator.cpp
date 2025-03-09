@@ -45,8 +45,8 @@ const string MslSamplingIncludeFilename = "stdlib/genmsl/lib/mx_sampling.metal";
 // MslShaderGenerator methods
 //
 
-MslShaderGenerator::MslShaderGenerator() :
-    HwShaderGenerator(MslSyntax::create())
+MslShaderGenerator::MslShaderGenerator(TypeSystemPtr typeSystem) :
+    HwShaderGenerator(typeSystem, MslSyntax::create(typeSystem))
 {
     //
     // Register all custom node implementation classes
@@ -1248,7 +1248,7 @@ ShaderNodeImplPtr MslShaderGenerator::getImplementation(const NodeDef& nodedef, 
         throw ExceptionShaderGenError("NodeDef '" + nodedef.getName() + "' has no outputs defined");
     }
 
-    const TypeDesc outputType = TypeDesc::get(outputs[0]->getType());
+    const TypeDesc outputType = _typeSystem->getType(outputs[0]->getType());
 
     if (implElement->isA<NodeGraph>())
     {

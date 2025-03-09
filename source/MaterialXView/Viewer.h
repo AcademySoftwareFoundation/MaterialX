@@ -410,6 +410,9 @@ class Viewer : public ng::Screen
     mx::MaterialPtr _envMaterial;
     mx::MeshPtr _quadMesh;
 
+    // Type system
+    mx::TypeSystemPtr _typeSystem;
+
     // Shader generator contexts
     mx::GenContext _genContext;
 #ifndef MATERIALXVIEW_METAL_BACKEND

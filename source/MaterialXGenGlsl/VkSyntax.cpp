@@ -7,7 +7,7 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-VkSyntax::VkSyntax()
+VkSyntax::VkSyntax(TypeSystemPtr typeSystem) : GlslSyntax(typeSystem)
 {
 }
 

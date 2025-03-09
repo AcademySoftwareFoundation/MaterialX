@@ -23,7 +23,7 @@
   <implementation name="IM_subsurface_bsdf_genmdl" nodedef="ND_subsurface_bsdf" sourcecode="materialx::pbrlib_{{MDL_VERSION_SUFFIX}}::mx_subsurface_bsdf(mxp_weight:{{weight}}, mxp_color:{{color}}, mxp_radius:{{radius}}, mxp_anisotropy:{{anisotropy}}, mxp_normal:{{normal}})" target="genmdl" />
 
   <!-- <sheen_bsdf> -->
-  <implementation name="IM_sheen_bsdf_genmdl" nodedef="ND_sheen_bsdf" sourcecode="materialx::pbrlib_{{MDL_VERSION_SUFFIX}}::mx_sheen_bsdf(mxp_weight:{{weight}}, mxp_color:{{color}}, mxp_roughness:{{roughness}}, mxp_normal:{{normal}}, mxp_base:{{base}})" target="genmdl" />
+  <implementation name="IM_sheen_bsdf_genmdl" nodedef="ND_sheen_bsdf" sourcecode="materialx::pbrlib_{{MDL_VERSION_SUFFIX}}::mx_sheen_bsdf(mxp_weight:{{weight}}, mxp_color:{{color}}, mxp_roughness:{{roughness}}, mxp_normal:{{normal}}, mxp_mode:{{mode}}, mxp_base:{{base}})" target="genmdl" />
 
   <!-- <chiang_hair_bsdf> -->
   <implementation name="IM_chiang_hair_bsdf_genmdl" nodedef="ND_chiang_hair_bsdf" sourcecode="materialx::pbrlib_{{MDL_VERSION_SUFFIX}}::mx_chiang_hair_bsdf(mxp_tint_R:{{tint_R}}, mxp_tint_TT:{{tint_TT}}, mxp_tint_TRT:{{tint_TRT}}, mxp_ior:{{ior}}, mxp_roughness_R:{{roughness_R}}, mxp_roughness_TT:{{roughness_TT}}, mxp_roughness_TRT:{{roughness_TRT}}, mxp_cuticle_angle:{{cuticle_angle}}, mxp_absorption_coefficient:{{absorption_coefficient}}, mxp_curve_direction:{{curve_direction}})" target="genmdl" />

@@ -164,7 +164,7 @@ const string USER_DATA_CLOSURE_CONTEXT        = "udcc";
 const string USER_DATA_LIGHT_SHADERS          = "udls";
 const string USER_DATA_BINDING_CONTEXT        = "udbinding";
 
-const TypeDesc ClosureDataType = TypeDesc("ClosureData", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_NONE, 1);
+const TypeDesc ClosureDataType = TypeDesc("ClosureData", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_NONE, 1, 0);
 } // namespace HW
 
 namespace Stage
@@ -178,8 +178,8 @@ const string VERTEX = "vertex";
 // HwShaderGenerator methods
 //
 
-HwShaderGenerator::HwShaderGenerator(SyntaxPtr syntax) :
-    ShaderGenerator(syntax)
+HwShaderGenerator::HwShaderGenerator(TypeSystemPtr typeSystem, SyntaxPtr syntax) :
+    ShaderGenerator(typeSystem, syntax)
 {
     // Assign default identifiers names for all tokens.
     // Derived generators can override these names.
@@ -468,7 +468,7 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
 
 void HwShaderGenerator::bindLightShader(const NodeDef& nodeDef, unsigned int lightTypeId, GenContext& context)
 {
-    if (TypeDesc::get(nodeDef.getType()) != Type::LIGHTSHADER)
+    if (context.getTypeDesc(nodeDef.getType()) != Type::LIGHTSHADER)
     {
         throw ExceptionShaderGenError("Error binding light shader. Given nodedef '" + nodeDef.getName() + "' is not of lightshader type");
     }

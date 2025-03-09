@@ -23,7 +23,8 @@ namespace mx = MaterialX;
 
 TEST_CASE("GenShader: MDL Syntax", "[genmdl]")
 {
-    mx::SyntaxPtr syntax = mx::MdlSyntax::create();
+    mx::TypeSystemPtr ts = mx::TypeSystem::create();
+    mx::SyntaxPtr syntax = mx::MdlSyntax::create(ts);
 
     REQUIRE(syntax->getTypeName(mx::Type::FLOAT) == "float");
     REQUIRE(syntax->getTypeName(mx::Type::COLOR3) == "color");

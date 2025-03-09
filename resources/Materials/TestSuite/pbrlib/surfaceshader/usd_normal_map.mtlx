@@ -1,25 +1,30 @@
 <?xml version="1.0"?>
 <materialx version="1.39" colorspace="lin_rec709">
   <texcoord name="N_texcoord" type="vector2" />
-  <multiply name="N_multiply" type="vector2">
+  <multiply name="N_tiling" type="vector2">
     <input name="in1" type="vector2" nodename="N_texcoord" />
-    <input name="in2" type="vector2" value="8, 8" />
+    <input name="in2" type="vector2" value="16, 16" />
   </multiply>
   <UsdUVTexture name="N_texture_normal" type="multioutput">
     <input name="file" type="filename" value="resources/Images/mesh_wire_norm.png" colorspace="none" />
-    <input name="st" type="vector2" nodename="N_multiply" />
+    <input name="st" type="vector2" nodename="N_tiling" />
   </UsdUVTexture>
   <convert name="N_convert" type="vector3">
     <input name="in" type="color3" nodename="N_texture_normal" output="rgb" />
   </convert>
-  <normalmap name="N_normalmap" type="vector3">
-    <input name="in" type="vector3" nodename="N_convert" />
-  </normalmap>
+  <multiply name="N_scale" type="vector3">
+    <input name="in1" type="vector3" nodename="N_convert" />
+    <input name="in2" type="float" value="2" />
+  </multiply>
+  <add name="N_bias" type="vector3">
+    <input name="in1" type="vector3" nodename="N_scale" />
+    <input name="in2" type="float" value="-1" />
+  </add>
   <UsdPreviewSurface name="N_surface" type="surfaceshader">
-    <input name="normal" type="vector3" nodename="N_normalmap" />
     <input name="diffuseColor" type="color3" value="1, 1, 1" />
     <input name="metallic" type="float" value="1" />
-    <input name="roughness" type="float" value="0.001" />
+    <input name="roughness" type="float" value="0.1" />
+    <input name="normal" type="vector3" nodename="N_bias" />
   </UsdPreviewSurface>
   <surfacematerial name="N_material" type="material">
     <input name="surfaceshader" type="surfaceshader" nodename="N_surface" />

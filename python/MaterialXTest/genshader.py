@@ -54,6 +54,7 @@ class TestGenShader(unittest.TestCase):
         self.assertTrue(foundTarget)
         context = mx_gen_shader.GenContext(shadergen)
         context.registerSourceCodeSearchPath(searchPath)
+        shadergen.registerTypeDefs(doc);
 
         # Test generator with complete mode
         context.getOptions().shaderInterfaceType = mx_gen_shader.ShaderInterfaceType.SHADER_INTERFACE_COMPLETE;

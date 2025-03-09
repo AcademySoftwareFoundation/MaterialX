@@ -26,7 +26,8 @@ class MX_GENMDL_API GenMdlOptions : public GenUserData
         MDL_1_7,
         MDL_1_8,
         MDL_1_9,
-        MDL_LATEST = MDL_1_9
+        MDL_1_10,
+        MDL_LATEST = MDL_1_10
     };
 
     /// Create MDL code generator options with default values.
@@ -53,9 +54,18 @@ using MdlShaderGeneratorPtr = shared_ptr<class MdlShaderGenerator>;
 class MX_GENMDL_API MdlShaderGenerator : public ShaderGenerator
 {
   public:
-    MdlShaderGenerator();
+    /// Constructor.
+    MdlShaderGenerator(TypeSystemPtr typeSystem);
 
-    static ShaderGeneratorPtr create() { return std::make_shared<MdlShaderGenerator>(); }
+    /// Creator function.
+    /// If a TypeSystem is not provided it will be created internally.
+    /// Optionally pass in an externally created TypeSystem here, 
+    /// if you want to keep type descriptions alive after the lifetime
+    /// of the shader generator. 
+    static ShaderGeneratorPtr create(TypeSystemPtr typeSystem = nullptr)
+    {
+        return std::make_shared<MdlShaderGenerator>(typeSystem ? typeSystem : TypeSystem::create());
+    }
 
     /// Return a unique identifier for the target this generator is for
     const string& getTarget() const override { return TARGET; }

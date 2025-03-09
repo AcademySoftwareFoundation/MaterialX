@@ -224,6 +224,10 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
             context.clearNodeImplementations();
 
             doc->setDataLibrary(dependLib);
+
+            // Register types from the document.
+            _shaderGenerator->registerTypeDefs(doc);
+
             ioTimer.endTimer();
 
             validateTimer.startTimer();

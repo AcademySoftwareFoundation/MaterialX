@@ -1,5 +1,5 @@
-file(GLOB source CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
-file(GLOB headers CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
+file(GLOB source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
+file(GLOB headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 
 target_sources(MaterialXTest PUBLIC ${source} ${headers})
 

@@ -24,8 +24,8 @@ const string OslShaderGenerator::TARGET = "genosl";
 // OslShaderGenerator methods
 //
 
-OslShaderGenerator::OslShaderGenerator() :
-    ShaderGenerator(OslSyntax::create())
+OslShaderGenerator::OslShaderGenerator(TypeSystemPtr typeSystem) :
+    ShaderGenerator(typeSystem, OslSyntax::create(typeSystem))
 {
     // Register built-in implementations
 

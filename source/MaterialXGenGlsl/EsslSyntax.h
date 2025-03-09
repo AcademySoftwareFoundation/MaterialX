@@ -17,9 +17,9 @@ MATERIALX_NAMESPACE_BEGIN
 class MX_GENGLSL_API EsslSyntax : public GlslSyntax
 {
   public:
-    EsslSyntax();
+    EsslSyntax(TypeSystemPtr typeSystem);
 
-    static SyntaxPtr create() { return std::make_shared<EsslSyntax>(); }
+    static SyntaxPtr create(TypeSystemPtr typeSystem) { return std::make_shared<EsslSyntax>(typeSystem); }
 };
 
 MATERIALX_NAMESPACE_END

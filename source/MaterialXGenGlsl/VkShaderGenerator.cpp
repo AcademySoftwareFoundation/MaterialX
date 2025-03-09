@@ -11,10 +11,10 @@ MATERIALX_NAMESPACE_BEGIN
 const string VkShaderGenerator::TARGET = "genglsl";
 const string VkShaderGenerator::VERSION = "450";
 
-VkShaderGenerator::VkShaderGenerator() :
-    GlslShaderGenerator()
+VkShaderGenerator::VkShaderGenerator(TypeSystemPtr typeSystem) :
+    GlslShaderGenerator(typeSystem)
 {
-    _syntax = VkSyntax::create();
+    _syntax = VkSyntax::create(typeSystem);
     // Add in Vulkan specific keywords
     const StringSet reservedWords = { "texture2D", "sampler" };
     _syntax->registerReservedWords(reservedWords);

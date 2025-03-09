@@ -50,7 +50,11 @@ vector<NodePtr> getShaderNodes(NodePtr materialNode, const string& nodeType, con
             vector<OutputPtr> outputs;
             if (input->hasOutputString())
             {
-                outputs.push_back(nodeGraph->getOutput(input->getOutputString()));
+                OutputPtr connectedOutput = nodeGraph->getOutput(input->getOutputString());
+                if (connectedOutput)
+                {
+                    outputs.push_back(connectedOutput);
+                }
             }
             else
             {
@@ -88,23 +92,26 @@ vector<NodePtr> getShaderNodes(NodePtr materialNode, const string& nodeType, con
                     if (defOutput->getType() == MATERIAL_TYPE_STRING)
                     {
                         OutputPtr implGraphOutput = implGraph->getOutput(defOutput->getName());
-                        for (GraphIterator it = implGraphOutput->traverseGraph().begin(); it != GraphIterator::end(); ++it)
+                        if (implGraphOutput)
                         {
-                            ElementPtr upstreamElem = it.getUpstreamElement();
-                            if (!upstreamElem)
+                            for (GraphIterator it = implGraphOutput->traverseGraph().begin(); it != GraphIterator::end(); ++it)
                             {
-                                it.setPruneSubgraph(true);
-                                continue;
-                            }
-                            NodePtr upstreamNode = upstreamElem->asA<Node>();
-                            if (upstreamNode && upstreamNode->getType() == MATERIAL_TYPE_STRING)
-                            {
-                                for (NodePtr shaderNode : getShaderNodes(upstreamNode, nodeType, target))
+                                ElementPtr upstreamElem = it.getUpstreamElement();
+                                if (!upstreamElem)
                                 {
-                                    if (!shaderNodeSet.count(shaderNode))
+                                    it.setPruneSubgraph(true);
+                                    continue;
+                                }
+                                NodePtr upstreamNode = upstreamElem->asA<Node>();
+                                if (upstreamNode && upstreamNode->getType() == MATERIAL_TYPE_STRING)
+                                {
+                                    for (NodePtr shaderNode : getShaderNodes(upstreamNode, nodeType, target))
                                     {
-                                        shaderNodeVec.push_back(shaderNode);
-                                        shaderNodeSet.insert(shaderNode);
+                                        if (!shaderNodeSet.count(shaderNode))
+                                        {
+                                            shaderNodeVec.push_back(shaderNode);
+                                            shaderNodeSet.insert(shaderNode);
+                                        }
                                     }
                                 }
                             }
