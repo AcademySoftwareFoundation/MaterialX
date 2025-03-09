@@ -307,7 +307,7 @@ ed::PinId Graph::getOutputPin(UiNodePtr node, UiNodePtr upNode, UiPinPtr input)
 {
     if (upNode->getNodeGraph() != nullptr)
     {
-        // For nodegraph need to get the correct ouput pin according to the names of the output nodes
+        // For nodegraph need to get the correct output pin according to the names of the output nodes
         mx::OutputPtr output;
         if (input->_pinNode->getNode())
         {
@@ -333,7 +333,7 @@ ed::PinId Graph::getOutputPin(UiNodePtr node, UiNodePtr upNode, UiPinPtr input)
     }
     else
     {
-        // For node need to get the correct ouput pin based on the output attribute
+        // For node need to get the correct output pin based on the output attribute
         if (!upNode->outputPins.empty())
         {
             std::string outputName = mx::EMPTY_STRING;
@@ -455,8 +455,8 @@ int Graph::findLinkPosition(int id)
 
 bool Graph::checkPosition(UiNodePtr node)
 {
-    return node->getMxElement() &&
-           !node->getMxElement()->getAttribute(mx::Element::XPOS_ATTRIBUTE).empty();
+    mx::ElementPtr elem = node->getElement();
+    return elem && !elem->getAttribute(mx::Element::XPOS_ATTRIBUTE).empty();
 }
 
 // Calculate the total vertical space the node level takes up
@@ -514,7 +514,7 @@ void Graph::findYSpacing(float startY)
                 int prevLevel = _levelMap[i].front()->_level - 1;
                 float avgY = findAvgY(_levelMap[prevLevel]);
                 float height = totalHeight(_levelMap[i].front()->_level);
-                // caculate the starting position to be above the previous level's center so that it is evenly spaced on either side of the center
+                // calculate the starting position to be above the previous level's center so that it is evenly spaced on either side of the center
                 float startingPos = avgY - ((height + (_levelMap[i].size() * 20)) / 2) + startY;
                 setYSpacing(_levelMap[i].front()->_level, startingPos);
             }
@@ -549,12 +549,13 @@ ImVec2 Graph::layoutPosition(UiNodePtr layoutNode, ImVec2 startingPos, bool init
                 // Don't set position of group nodes
                 if (node->getMessage().empty())
                 {
-                    if (node->getMxElement()->hasAttribute(mx::Element::XPOS_ATTRIBUTE))
+                    mx::ElementPtr elem = node->getElement();
+                    if (elem && elem->hasAttribute(mx::Element::XPOS_ATTRIBUTE))
                     {
-                        float x = std::stof(node->getMxElement()->getAttribute(mx::Element::XPOS_ATTRIBUTE));
-                        if (node->getMxElement()->hasAttribute(mx::Element::YPOS_ATTRIBUTE))
+                        float x = std::stof(elem->getAttribute(mx::Element::XPOS_ATTRIBUTE));
+                        if (elem->hasAttribute(mx::Element::YPOS_ATTRIBUTE))
                         {
-                            float y = std::stof(node->getMxElement()->getAttribute(mx::Element::YPOS_ATTRIBUTE));
+                            float y = std::stof(elem->getAttribute(mx::Element::YPOS_ATTRIBUTE));
                             x *= DEFAULT_NODE_SIZE.x;
                             y *= DEFAULT_NODE_SIZE.y;
                             ed::SetNodePosition(node->getId(), ImVec2(x, y));
@@ -695,38 +696,38 @@ void Graph::layoutInputs()
 
 void Graph::setPinColor()
 {
-    _pinColor.insert(std::make_pair("integer", ImColor(255, 255, 28, 255)));
-    _pinColor.insert(std::make_pair("boolean", ImColor(255, 0, 255, 255)));
-    _pinColor.insert(std::make_pair("float", ImColor(50, 100, 255, 255)));
-    _pinColor.insert(std::make_pair("color3", ImColor(178, 34, 34, 255)));
-    _pinColor.insert(std::make_pair("color4", ImColor(50, 10, 255, 255)));
-    _pinColor.insert(std::make_pair("vector2", ImColor(100, 255, 100, 255)));
-    _pinColor.insert(std::make_pair("vector3", ImColor(0, 255, 0, 255)));
-    _pinColor.insert(std::make_pair("vector4", ImColor(100, 0, 100, 255)));
-    _pinColor.insert(std::make_pair("matrix33", ImColor(0, 100, 100, 255)));
-    _pinColor.insert(std::make_pair("matrix44", ImColor(50, 255, 100, 255)));
-    _pinColor.insert(std::make_pair("filename", ImColor(255, 184, 28, 255)));
-    _pinColor.insert(std::make_pair("string", ImColor(100, 100, 50, 255)));
-    _pinColor.insert(std::make_pair("geomname", ImColor(121, 60, 180, 255)));
-    _pinColor.insert(std::make_pair("BSDF", ImColor(10, 181, 150, 255)));
-    _pinColor.insert(std::make_pair("EDF", ImColor(255, 50, 100, 255)));
-    _pinColor.insert(std::make_pair("VDF", ImColor(0, 100, 151, 255)));
-    _pinColor.insert(std::make_pair(mx::SURFACE_SHADER_TYPE_STRING, ImColor(150, 255, 255, 255)));
-    _pinColor.insert(std::make_pair(mx::MATERIAL_TYPE_STRING, ImColor(255, 255, 255, 255)));
-    _pinColor.insert(std::make_pair(mx::DISPLACEMENT_SHADER_TYPE_STRING, ImColor(155, 50, 100, 255)));
-    _pinColor.insert(std::make_pair(mx::VOLUME_SHADER_TYPE_STRING, ImColor(155, 250, 100, 255)));
-    _pinColor.insert(std::make_pair(mx::LIGHT_SHADER_TYPE_STRING, ImColor(100, 150, 100, 255)));
-    _pinColor.insert(std::make_pair("none", ImColor(140, 70, 70, 255)));
-    _pinColor.insert(std::make_pair(mx::MULTI_OUTPUT_TYPE_STRING, ImColor(70, 70, 70, 255)));
-    _pinColor.insert(std::make_pair("integerarray", ImColor(200, 10, 100, 255)));
-    _pinColor.insert(std::make_pair("floatarray", ImColor(25, 250, 100)));
-    _pinColor.insert(std::make_pair("color3array", ImColor(25, 200, 110)));
-    _pinColor.insert(std::make_pair("color4array", ImColor(50, 240, 110)));
-    _pinColor.insert(std::make_pair("vector2array", ImColor(50, 200, 75)));
-    _pinColor.insert(std::make_pair("vector3array", ImColor(20, 200, 100)));
-    _pinColor.insert(std::make_pair("vector4array", ImColor(100, 200, 100)));
-    _pinColor.insert(std::make_pair("geomnamearray", ImColor(150, 200, 100)));
-    _pinColor.insert(std::make_pair("stringarray", ImColor(120, 180, 100)));
+    _pinColor.emplace("integer", ImColor(255, 255, 28, 255));
+    _pinColor.emplace("boolean", ImColor(255, 0, 255, 255));
+    _pinColor.emplace("float", ImColor(50, 100, 255, 255));
+    _pinColor.emplace("color3", ImColor(178, 34, 34, 255));
+    _pinColor.emplace("color4", ImColor(50, 10, 255, 255));
+    _pinColor.emplace("vector2", ImColor(100, 255, 100, 255));
+    _pinColor.emplace("vector3", ImColor(0, 255, 0, 255));
+    _pinColor.emplace("vector4", ImColor(100, 0, 100, 255));
+    _pinColor.emplace("matrix33", ImColor(0, 100, 100, 255));
+    _pinColor.emplace("matrix44", ImColor(50, 255, 100, 255));
+    _pinColor.emplace("filename", ImColor(255, 184, 28, 255));
+    _pinColor.emplace("string", ImColor(100, 100, 50, 255));
+    _pinColor.emplace("geomname", ImColor(121, 60, 180, 255));
+    _pinColor.emplace("BSDF", ImColor(10, 181, 150, 255));
+    _pinColor.emplace("EDF", ImColor(255, 50, 100, 255));
+    _pinColor.emplace("VDF", ImColor(0, 100, 151, 255));
+    _pinColor.emplace(mx::SURFACE_SHADER_TYPE_STRING, ImColor(150, 255, 255, 255));
+    _pinColor.emplace(mx::MATERIAL_TYPE_STRING, ImColor(255, 255, 255, 255));
+    _pinColor.emplace(mx::DISPLACEMENT_SHADER_TYPE_STRING, ImColor(155, 50, 100, 255));
+    _pinColor.emplace(mx::VOLUME_SHADER_TYPE_STRING, ImColor(155, 250, 100, 255));
+    _pinColor.emplace(mx::LIGHT_SHADER_TYPE_STRING, ImColor(100, 150, 100, 255));
+    _pinColor.emplace("none", ImColor(140, 70, 70, 255));
+    _pinColor.emplace(mx::MULTI_OUTPUT_TYPE_STRING, ImColor(70, 70, 70, 255));
+    _pinColor.emplace("integerarray", ImColor(200, 10, 100, 255));
+    _pinColor.emplace("floatarray", ImColor(25, 250, 100));
+    _pinColor.emplace("color3array", ImColor(25, 200, 110));
+    _pinColor.emplace("color4array", ImColor(50, 240, 110));
+    _pinColor.emplace("vector2array", ImColor(50, 200, 75));
+    _pinColor.emplace("vector3array", ImColor(20, 200, 100));
+    _pinColor.emplace("vector4array", ImColor(100, 200, 100));
+    _pinColor.emplace("geomnamearray", ImColor(150, 200, 100));
+    _pinColor.emplace("stringarray", ImColor(120, 180, 100));
 }
 
 void Graph::setRenderMaterial(UiNodePtr node)
@@ -1759,7 +1760,7 @@ void Graph::copyUiNode(UiNodePtr node)
 {
     UiNodePtr copyNode = std::make_shared<UiNode>(mx::EMPTY_STRING, int(_graphTotalSize + 1));
     ++_graphTotalSize;
-    if (node->getMxElement())
+    if (node->getElement())
     {
         std::string newName = _currGraphElem->createValidChildName(node->getName());
         if (node->getNode())
@@ -1785,7 +1786,7 @@ void Graph::copyUiNode(UiNodePtr node)
             mxOutput->setName(newName);
             copyNode->setOutput(mxOutput);
         }
-        copyNode->getMxElement()->setName(newName);
+        copyNode->getElement()->setName(newName);
         copyNode->setName(newName);
     }
     else if (node->getNodeGraph())
@@ -2071,8 +2072,7 @@ void Graph::buildGroupNode(UiNodePtr node)
     ed::BeginNode(node->getId());
     ImGui::PushID(node->getId());
 
-    std::string original = node->getMessage();
-    std::string temp = original;
+    std::string temp = node->getMessage();
     ImVec2 messageSize = ImGui::CalcTextSize(temp.c_str());
     ImGui::PushItemWidth(messageSize.x + 15);
     ImGui::InputText("##edit", &temp);
@@ -2590,14 +2590,14 @@ void Graph::addLink(ed::PinId startPinId, ed::PinId endPinId)
         // If the accepting node already has a link, remove it
         if (inputPin->_connected)
         {
-            for (auto linksItr = _currLinks.begin(); linksItr != _currLinks.end(); linksItr++)
+            for (auto iter = _currLinks.begin(); iter != _currLinks.end(); ++iter)
             {
-                if (linksItr->_endAttr == end_attr)
+                if (iter->_endAttr == end_attr)
                 {
                     // Found existing link - remove it; adapted from deleteLink
                     // note: ed::BreakLinks doesn't work as the order ends up inaccurate
-                    deleteLinkInfo(linksItr->_startAttr, linksItr->_endAttr);
-                    _currLinks.erase(linksItr);
+                    deleteLinkInfo(iter->_startAttr, iter->_endAttr);
+                    _currLinks.erase(iter);
                     break;
                 }
             }
@@ -4042,7 +4042,7 @@ void Graph::drawGraph(ImVec2 mousePos)
             {
                 if (!readOnly())
                 {
-                    for (std::map<UiNodePtr, UiNodePtr>::iterator iter = _copiedNodes.begin(); iter != _copiedNodes.end(); iter++)
+                    for (auto iter = _copiedNodes.begin(); iter != _copiedNodes.end(); ++iter)
                     {
                         copyUiNode(iter->first);
                         _addNewNode = true;
@@ -4096,7 +4096,7 @@ void Graph::drawGraph(ImVec2 mousePos)
             if (_graphNodes.size() > 0)
             {
 
-                if (outputNum.size() == 0 && _graphNodes[0]->getMxElement())
+                if (outputNum.size() == 0 && _graphNodes[0]->getElement())
                 {
                     for (UiNodePtr node : _graphNodes)
                     {
@@ -4119,7 +4119,7 @@ void Graph::drawGraph(ImVec2 mousePos)
         }
         connectLinks();
 
-        // Set to false after intial layout so that nodes can be moved
+        // Set to false after initial layout so that nodes can be moved
         _initial = false;
         _autoLayout = false;
 
@@ -4436,16 +4436,17 @@ void Graph::savePosition()
 {
     for (UiNodePtr node : _graphNodes)
     {
-        if (node->getMxElement())
+        mx::ElementPtr elem = node->getElement();
+        if (elem)
         {
             ImVec2 pos = ed::GetNodePosition(node->getId());
             pos.x /= DEFAULT_NODE_SIZE.x;
             pos.y /= DEFAULT_NODE_SIZE.y;
-            node->getMxElement()->setAttribute(mx::Element::XPOS_ATTRIBUTE, std::to_string(pos.x));
-            node->getMxElement()->setAttribute(mx::Element::YPOS_ATTRIBUTE, std::to_string(pos.y));
-            if (node->getMxElement()->hasAttribute("nodedef"))
+            elem->setAttribute(mx::Element::XPOS_ATTRIBUTE, std::to_string(pos.x));
+            elem->setAttribute(mx::Element::YPOS_ATTRIBUTE, std::to_string(pos.y));
+            if (elem->hasAttribute("nodedef"))
             {
-                node->getMxElement()->removeAttribute("nodedef");
+                elem->removeAttribute("nodedef");
             }
         }
     }

@@ -7,7 +7,7 @@
     <input name="coat" type="float" value="1" />
     <input name="normal" type="vector3" nodegraph="NormalMapGraph" />
   </standard_surface>
-  <surfacematerial name="NormalMappedShaderMaterial" type="material">
+  <surfacematerial name="NormalMappedMaterial" type="material">
     <input name="surfaceshader" type="surfaceshader" nodename="NormalMappedShader" />
     <input name="displacementshader" type="displacementshader" value="" />
   </surfacematerial>
@@ -31,7 +31,7 @@
     <input name="coat" type="float" value="1" />
     <input name="normal" type="vector3" nodegraph="NormalMapGraph2" />
   </standard_surface>
-  <surfacematerial name="NormalMappedShaderMaterial2" type="material">
+  <surfacematerial name="NormalMappedMaterial2" type="material">
     <input name="surfaceshader" type="surfaceshader" nodename="NormalMappedShader2" />
     <input name="displacementshader" type="displacementshader" value="" />
   </surfacematerial>

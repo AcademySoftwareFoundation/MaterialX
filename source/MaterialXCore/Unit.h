@@ -196,7 +196,7 @@ class MX_CORE_API UnitConverterRegistry
     void write(DocumentPtr doc) const;
 
     /// Convert input values which have a source unit to a given target unit.
-    /// Returns if any unit conversion occured.
+    /// Returns if any unit conversion occurred.
     bool convertToUnit(DocumentPtr doc, const string& unitType, const string& targetUnit);
 
   private:

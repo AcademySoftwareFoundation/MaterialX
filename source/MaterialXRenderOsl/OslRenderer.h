@@ -26,7 +26,7 @@ using OslRendererPtr = std::shared_ptr<class OslRenderer>;
 ///     - Source code validation: Use of "oslc" to compile and test output results
 ///     - Introspection check: None at this time.
 ///     - Binding: None at this time.
-///     - Render validation: Use of "testrender" to output rendered images. Assumes source compliation was success
+///     - Render validation: Use of "testrender" to output rendered images. Assumes source compilation was success
 ///       as it depends on the existence of corresponding .oso files.
 ///
 class MX_RENDEROSL_API OslRenderer : public ShaderRenderer

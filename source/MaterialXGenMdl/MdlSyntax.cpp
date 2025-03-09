@@ -13,19 +13,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-// Custom types to handle enumeration output
-namespace Type
-{
-
-TYPEDESC_REGISTER_TYPE(MDL_COORDINATESPACE, "coordinatespace")
-TYPEDESC_REGISTER_TYPE(MDL_ADDRESSMODE, "addressmode")
-TYPEDESC_REGISTER_TYPE(MDL_FILTERLOOKUPMODE, "filterlookup")
-TYPEDESC_REGISTER_TYPE(MDL_FILTERTYPE, "filtertype")
-TYPEDESC_REGISTER_TYPE(MDL_DISTRIBUTIONTYPE, "distributiontype")
-TYPEDESC_REGISTER_TYPE(MDL_SCATTER_MODE, "scatter_mode")
-
-} // namespace Type
-
 namespace
 {
 
@@ -34,8 +21,8 @@ const string MARKER_MDL_VERSION_SUFFIX = "MDL_VERSION_SUFFIX";
 class MdlFilenameTypeSyntax : public ScalarTypeSyntax
 {
   public:
-    MdlFilenameTypeSyntax() :
-        ScalarTypeSyntax("texture_2d", "texture_2d()", "texture_2d()")
+    MdlFilenameTypeSyntax(const Syntax* parent) :
+        ScalarTypeSyntax(parent, "texture_2d", "texture_2d()", "texture_2d()")
     {
     }
 
@@ -81,8 +68,8 @@ class MdlFilenameTypeSyntax : public ScalarTypeSyntax
 class MdlArrayTypeSyntax : public ScalarTypeSyntax
 {
   public:
-    MdlArrayTypeSyntax(const string& name) :
-        ScalarTypeSyntax(name, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING)
+    MdlArrayTypeSyntax(const Syntax* parent, const string& name) :
+        ScalarTypeSyntax(parent, name, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING)
     {
     }
 
@@ -102,8 +89,8 @@ class MdlArrayTypeSyntax : public ScalarTypeSyntax
 class MdlFloatArrayTypeSyntax : public MdlArrayTypeSyntax
 {
   public:
-    explicit MdlFloatArrayTypeSyntax(const string& name) :
-        MdlArrayTypeSyntax(name)
+    explicit MdlFloatArrayTypeSyntax(const Syntax* parent, const string& name) :
+        MdlArrayTypeSyntax(parent, name)
     {
     }
 
@@ -118,8 +105,8 @@ class MdlFloatArrayTypeSyntax : public MdlArrayTypeSyntax
 class MdlIntegerArrayTypeSyntax : public MdlArrayTypeSyntax
 {
   public:
-    explicit MdlIntegerArrayTypeSyntax(const string& name) :
-        MdlArrayTypeSyntax(name)
+    explicit MdlIntegerArrayTypeSyntax(const Syntax* parent, const string& name) :
+        MdlArrayTypeSyntax(parent, name)
     {
     }
 
@@ -141,8 +128,8 @@ class MdlIntegerArrayTypeSyntax : public MdlArrayTypeSyntax
 class MdlColor4TypeSyntax : public AggregateTypeSyntax
 {
   public:
-    MdlColor4TypeSyntax() :
-        AggregateTypeSyntax("color4", "mk_color4(0.0)", "mk_color4(0.0)",
+    MdlColor4TypeSyntax(const Syntax* parent) :
+        AggregateTypeSyntax(parent, "color4", "mk_color4(0.0)", "mk_color4(0.0)",
                             EMPTY_STRING, EMPTY_STRING, MdlSyntax::COLOR4_MEMBERS)
     {
     }
@@ -168,8 +155,8 @@ class MdlColor4TypeSyntax : public AggregateTypeSyntax
 class MdlEnumSyntax : public AggregateTypeSyntax
 {
   public:
-    MdlEnumSyntax(const string& name, const string& defaultValue, const string& defaultUniformValue, const StringVec& members) :
-        AggregateTypeSyntax(name, defaultValue, defaultUniformValue, EMPTY_STRING, EMPTY_STRING, members)
+    MdlEnumSyntax(const Syntax* parent, const string& name, const string& defaultValue, const string& defaultUniformValue, const StringVec& members) :
+        AggregateTypeSyntax(parent, name, defaultValue, defaultUniformValue, EMPTY_STRING, EMPTY_STRING, members)
     {
     }
 
@@ -196,6 +183,7 @@ const StringVec MdlSyntax::FILTERLOOKUPMODE_MEMBERS = { "closest", "linear", "cu
 const StringVec MdlSyntax::FILTERTYPE_MEMBERS = { "box", "gaussian" };
 const StringVec MdlSyntax::DISTRIBUTIONTYPE_MEMBERS = { "ggx" };
 const StringVec MdlSyntax::SCATTER_MODE_MEMBERS = { "R", "T", "RT" };
+const StringVec MdlSyntax::SHEEN_MODE_MEMBERS = { "conty_kulla", "zeltner" };
 
 const string MdlSyntax::PORT_NAME_PREFIX = "mxp_";
 
@@ -203,7 +191,7 @@ const string MdlSyntax::PORT_NAME_PREFIX = "mxp_";
 // MdlSyntax methods
 //
 
-MdlSyntax::MdlSyntax()
+MdlSyntax::MdlSyntax(TypeSystemPtr typeSystem) : Syntax(typeSystem)
 {
     // Add in all reserved words and keywords in MDL
     // Formatted as in the MDL Specification 1.9.2 for easy comparing
@@ -253,6 +241,7 @@ MdlSyntax::MdlSyntax()
     registerTypeSyntax(
         Type::FLOAT,
         std::make_shared<ScalarTypeSyntax>(
+            this,
             "float",
             "0.0",
             "0.0"));
@@ -260,11 +249,13 @@ MdlSyntax::MdlSyntax()
     registerTypeSyntax(
         Type::FLOATARRAY,
         std::make_shared<MdlFloatArrayTypeSyntax>(
+            this,
             "float"));
 
     registerTypeSyntax(
         Type::INTEGER,
         std::make_shared<ScalarTypeSyntax>(
+            this,
             "int",
             "0",
             "0"));
@@ -272,11 +263,13 @@ MdlSyntax::MdlSyntax()
     registerTypeSyntax(
         Type::INTEGERARRAY,
         std::make_shared<MdlIntegerArrayTypeSyntax>(
+            this,
             "int"));
 
     registerTypeSyntax(
         Type::BOOLEAN,
         std::make_shared<ScalarTypeSyntax>(
+            this,
             "bool",
             "false",
             "false"));
@@ -284,6 +277,7 @@ MdlSyntax::MdlSyntax()
     registerTypeSyntax(
         Type::COLOR3,
         std::make_shared<AggregateTypeSyntax>(
+            this,
             "color",
             "color(0.0)",
             "color(0.0)",
@@ -293,11 +287,12 @@ MdlSyntax::MdlSyntax()
 
     registerTypeSyntax(
         Type::COLOR4,
-        std::make_shared<MdlColor4TypeSyntax>());
+        std::make_shared<MdlColor4TypeSyntax>(this));
 
     registerTypeSyntax(
         Type::VECTOR2,
         std::make_shared<AggregateTypeSyntax>(
+            this,
             "float2",
             "float2(0.0)",
             "float2(0.0)",
@@ -308,6 +303,7 @@ MdlSyntax::MdlSyntax()
     registerTypeSyntax(
         Type::VECTOR3,
         std::make_shared<AggregateTypeSyntax>(
+            this,
             "float3",
             "float3(0.0)",
             "float3(0.0)",
@@ -318,6 +314,7 @@ MdlSyntax::MdlSyntax()
     registerTypeSyntax(
         Type::VECTOR4,
         std::make_shared<AggregateTypeSyntax>(
+            this,
             "float4",
             "float4(0.0)",
             "float4(0.0)",
@@ -328,6 +325,7 @@ MdlSyntax::MdlSyntax()
     registerTypeSyntax(
         Type::MATRIX33,
         std::make_shared<AggregateTypeSyntax>(
+            this,
             "float3x3",
             "float3x3(1.0)",
             "float3x3(1.0)"));
@@ -335,6 +333,7 @@ MdlSyntax::MdlSyntax()
     registerTypeSyntax(
         Type::MATRIX44,
         std::make_shared<AggregateTypeSyntax>(
+            this,
             "float4x4",
             "float4x4(1.0)",
             "float4x4(1.0)"));
@@ -342,17 +341,19 @@ MdlSyntax::MdlSyntax()
     registerTypeSyntax(
         Type::STRING,
         std::make_shared<StringTypeSyntax>(
+            this,
             "string",
             "\"\"",
             "\"\""));
 
     registerTypeSyntax(
         Type::FILENAME,
-        std::make_shared<MdlFilenameTypeSyntax>());
+        std::make_shared<MdlFilenameTypeSyntax>(this));
 
     registerTypeSyntax(
         Type::BSDF,
         std::make_shared<ScalarTypeSyntax>(
+            this,
             "material",
             "material()",
             "material()"));
@@ -360,6 +361,7 @@ MdlSyntax::MdlSyntax()
     registerTypeSyntax(
         Type::EDF,
         std::make_shared<ScalarTypeSyntax>(
+            this,
             "material",
             "material()",
             "material()"));
@@ -367,6 +369,7 @@ MdlSyntax::MdlSyntax()
     registerTypeSyntax(
         Type::VDF,
         std::make_shared<ScalarTypeSyntax>(
+            this,
             "material",
             "material()",
             "material()"));
@@ -374,6 +377,7 @@ MdlSyntax::MdlSyntax()
     registerTypeSyntax(
         Type::SURFACESHADER,
         std::make_shared<ScalarTypeSyntax>(
+            this,
             "material",
             "material()",
             "material()"));
@@ -381,6 +385,7 @@ MdlSyntax::MdlSyntax()
     registerTypeSyntax(
         Type::VOLUMESHADER,
         std::make_shared<ScalarTypeSyntax>(
+            this,
             "material",
             "material()",
             "material()"));
@@ -388,6 +393,7 @@ MdlSyntax::MdlSyntax()
     registerTypeSyntax(
         Type::DISPLACEMENTSHADER,
         std::make_shared<ScalarTypeSyntax>(
+            this,
             "material",
             "material()",
             "material()"));
@@ -395,6 +401,7 @@ MdlSyntax::MdlSyntax()
     registerTypeSyntax(
         Type::LIGHTSHADER,
         std::make_shared<ScalarTypeSyntax>(
+            this,
             "material",
             "material()",
             "material()"));
@@ -402,6 +409,7 @@ MdlSyntax::MdlSyntax()
     registerTypeSyntax(
         Type::MATERIAL,
         std::make_shared<ScalarTypeSyntax>(
+            this,
             "material",
             "material()",
             "material()"));
@@ -409,6 +417,7 @@ MdlSyntax::MdlSyntax()
     registerTypeSyntax(
         Type::MDL_ADDRESSMODE,
         std::make_shared<MdlEnumSyntax>(
+            this,
             "mx_addressmode_type",
             "mx_addressmode_type_periodic",
             "mx_addressmode_type_periodic",
@@ -417,6 +426,7 @@ MdlSyntax::MdlSyntax()
     registerTypeSyntax(
         Type::MDL_COORDINATESPACE,
         std::make_shared<MdlEnumSyntax>(
+            this,
             "mx_coordinatespace_type",
             "mx_coordinatespace_type_model",
             "mx_coordinatespace_type_model",
@@ -425,6 +435,7 @@ MdlSyntax::MdlSyntax()
     registerTypeSyntax(
         Type::MDL_FILTERLOOKUPMODE,
         std::make_shared<MdlEnumSyntax>(
+            this,
             "mx_filterlookup_type",
             "mx_filterlookup_type_linear",
             "mx_filterlookup_type_linear",
@@ -433,6 +444,7 @@ MdlSyntax::MdlSyntax()
     registerTypeSyntax(
         Type::MDL_FILTERTYPE,
         std::make_shared<MdlEnumSyntax>(
+            this,
             "mx_filter_type",
             "mx_filter_type_gaussian",
             "mx_filter_type_gaussian",
@@ -441,6 +453,7 @@ MdlSyntax::MdlSyntax()
     registerTypeSyntax(
         Type::MDL_DISTRIBUTIONTYPE,
         std::make_shared<MdlEnumSyntax>(
+            this,
             "mx_distribution_type",
             "mx_distribution_type_ggx",
             "mx_distribution_type_ggx",
@@ -449,10 +462,20 @@ MdlSyntax::MdlSyntax()
     registerTypeSyntax(
         Type::MDL_SCATTER_MODE,
         std::make_shared<MdlEnumSyntax>(
+            this,
             "mx_scatter_mode",
             "mx_scatter_mode_R",
             "mx_scatter_mode_R",
             SCATTER_MODE_MEMBERS));
+
+    registerTypeSyntax(
+        Type::MDL_SHEEN_MODE,
+        std::make_shared<MdlEnumSyntax>(
+            this,
+            "mx_sheen_mode",
+            "mx_sheen_mode_conty_kulla",
+            "mx_sheen_mode_conty_kulla",
+            SHEEN_MODE_MEMBERS));
 }
 
 TypeDesc MdlSyntax::getEnumeratedType(const string& value) const
@@ -587,7 +610,7 @@ string MdlSyntax::replaceSourceCodeMarkers(const string& nodeName, const string&
     return joinStrings(code, EMPTY_STRING);
 }
 
-const string MdlSyntax::getMdlVersionSuffixMarker() const
+const string& MdlSyntax::getMdlVersionSuffixMarker() const
 {
     return MARKER_MDL_VERSION_SUFFIX;
 }

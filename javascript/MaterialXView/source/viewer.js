@@ -1458,7 +1458,7 @@ export class Material
     Viewer class
 
     Keeps track of local scene, and property editor as well as current MaterialX document 
-    and assocaited material, shader and lighting information.
+    and associated material, shader and lighting information.
 */
 export class Viewer
 {
@@ -1486,7 +1486,7 @@ export class Viewer
         this.mx = mtlxIn;
 
         // Initialize base document
-        this.generator = new this.mx.EsslShaderGenerator();
+        this.generator = this.mx.EsslShaderGenerator.create();
         this.genContext = new this.mx.GenContext(this.generator);
 
         this.document = this.mx.createDocument();
