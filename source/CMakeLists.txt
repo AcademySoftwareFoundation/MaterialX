@@ -10,7 +10,7 @@ if (MATERIALX_BUILD_MONOLITHIC)
 
     # Create version resource
     if(MATERIALX_BUILD_SHARED_LIBS AND MSVC)
-        configure_file(${CMAKE_SOURCE_DIR}/cmake/modules/MaterialXVersion.rc.in ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
+        configure_file(${PROJECT_SOURCE_DIR}/cmake/modules/MaterialXVersion.rc.in ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
         target_sources(${MATERIALX_MODULE_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
     endif()
 
