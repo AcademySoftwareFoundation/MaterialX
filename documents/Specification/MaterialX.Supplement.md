@@ -34,6 +34,7 @@ Previous versions of the MaterialX Supplemental Notes document included descript
  [Dependencies and Organization](#dependencies-and-organization)  
  [Deployment, Transmission, and Translation](#deployment-transmission-and-translation)  
 
+<br>
 
 
 # Recommended Element Naming Conventions
@@ -46,6 +47,7 @@ While MaterialX elements can be given any valid name as described in the Materia
 
 **Nodegraph**, as an implementation for a node: "NG\__nodename_[\__inputtype_]\__outputtype_[\__target_][\__version_]".
 
+<br>
 
 
 # Material and Node Library File Structure
@@ -139,6 +141,7 @@ Layout for the shadergen PBR shader library ("pbrlib") with implementations for 
     MXROOT/pbrlib/genosl/*.{inline,osl}               (pbr common genOSL code)
 ```
 
+<br>
 
 
 # Definitions, Assets, and Libraries

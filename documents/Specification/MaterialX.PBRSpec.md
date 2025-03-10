@@ -48,6 +48,7 @@ This document describes a number of shader-semantic nodes implementing widely-us
 
 **[References](#references)**
 
+<br>
 
 
 # Physical Material Model
@@ -80,7 +81,7 @@ In general, a color given as input to the renderer is considered to represent a 
 
 MaterialX supports the use of [color management systems](./MaterialX.Specification.md#color-spaces-and-color-management-systems) to associate colors with specific color spaces. A MaterialX document typically specifies the working color space that is to be used for the document as well as the color space in which input values and textures are given. If these color spaces are different from the working color space, it is the application's and shader generator's responsibility to transform them.
 
-The ShaderGen module has an interface that can be used to integrate support for different color management systems. A simplified implementation with some popular and commonly used color transformations is supplied and enabled by default. A full integration of OpenColorIO ([http://opencolorio.org](http://opencolorio.org)) is planned for the future.
+The ShaderGen module has an interface that can be used to integrate support for different color management systems. A simplified implementation with some popular and commonly used color transformations is supplied and enabled by default. An integration with the relevant portions of OpenColorIO ([http://opencolorio.org](http://opencolorio.org)) is planned for the future.
 
 
 ## Surfaces
@@ -135,6 +136,7 @@ Local lights are specified as light shaders assigned to a locator, modeling an e
 
 Light contributions coming from far away are handled by environment lights. These are typically photographically-captured or procedurally-generated images that surround the whole scene. This category of lights also includes sources like the sun, where the long distance traveled makes the light essentially directional and without falloff. For all shading points, an environment is seen as being infinitely far away.
 
+<br>
 
 
 # MaterialX PBS Library
@@ -411,6 +413,8 @@ Note that the standard library includes definitions for [**`displacement`**](./M
     * `color` (color3): Scattering color. Defaults to (1.0, 1.0, 1.0).
     * `azimuthal_roughness` (float): Azimuthal roughness, range [0.0, 1.0]. Defaults to 0.2.
 
+<br>
+
 
 # Shading Model Examples
 
@@ -456,6 +460,7 @@ This is an open surface shading model that was designed as a collaboration betwe
 A MaterialX definition and nodegraph implementation of OpenPBR Surface can be found here:  
 [https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/libraries/bxdf/open_pbr_surface.mtlx](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/libraries/bxdf/open_pbr_surface.mtlx)
 
+<br>
 
 
 # Shading Translation Graphs
@@ -464,6 +469,8 @@ The MaterialX PBS Library includes a number of nodegraphs that can be used to ap
 
 * Autodesk Standard Surface to UsdPreviewSurface
 * Autodesk Standard Surface to glTF
+
+<br>
 
 
 # References
