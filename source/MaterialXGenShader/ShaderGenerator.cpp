@@ -24,6 +24,7 @@
 MATERIALX_NAMESPACE_BEGIN
 
 const string ShaderGenerator::T_FILE_TRANSFORM_UV = "$fileTransformUv";
+const string ShaderGenerator::T_OSL_FILE_TEXTURE_COLORSPACE = "$oslFileTextureColorspace";
 
 //
 // ShaderGenerator methods
