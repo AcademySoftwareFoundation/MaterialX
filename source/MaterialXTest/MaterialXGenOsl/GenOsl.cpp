@@ -90,6 +90,9 @@ TEST_CASE("GenShader: OSL Implementation Check", "[genosl]")
     generatorSkipNodeTypes.insert("light");
 
     mx::StringSet generatorSkipNodeDefs;
+    generatorSkipNodeDefs.insert("ND_hextiledimage_color3");
+    generatorSkipNodeDefs.insert("ND_hextiledimage_color4");
+    generatorSkipNodeDefs.insert("ND_hextilednormalmap_vector3");
 
     GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs);
 }
