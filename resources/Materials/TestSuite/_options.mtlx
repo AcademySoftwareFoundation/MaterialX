@@ -62,7 +62,8 @@
     <input name="extraLibraryPaths" type="string" value="" />
 
     <!-- List of document paths for render tests -->
-    <input name="renderTestPaths" type="string" value="resources/Materials/Examples/StandardSurface,resources/Materials/TestSuite/stdlib/convolution,resources/Materials/TestSuite/stdlib/color_management,resources/Materials/TestSuite/stdlib/procedural,resources/Materials/TestSuite/pbrlib/surfaceshader,resources/Materials/TestSuite/nprlib" />
+    <!-- <input name="renderTestPaths" type="string" value="resources/Materials/Examples/StandardSurface,resources/Materials/TestSuite/stdlib/convolution,resources/Materials/TestSuite/stdlib/color_management,resources/Materials/TestSuite/stdlib/procedural,resources/Materials/TestSuite/pbrlib/surfaceshader,resources/Materials/TestSuite/nprlib" /> -->
+    <input name="renderTestPaths" type="string" value="resources/Materials/Examples,resources/Materials/TestSuite" />
 
     <!-- Enable reference quality rendering.
          This option enables higher sample counts and supersampling in render tests,
