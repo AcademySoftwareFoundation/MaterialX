@@ -39,6 +39,7 @@ import ::state::*;
 
 // forward all unchanged definitions from the previous version
 export using .::pbrlib_1_6 import mx_scatter_mode;
+export using .::pbrlib_1_6 import mx_sheen_mode;
 export using .::pbrlib_1_6 import mx_map_scatter_mode;
 export using .::pbrlib_1_6 import mx_oren_nayar_diffuse_bsdf;
 export using .::pbrlib_1_6 import mx_burley_diffuse_bsdf;
@@ -48,6 +49,7 @@ export using .::pbrlib_1_6 import mx_conductor_bsdf;
 export using .::pbrlib_1_6 import mx_generalized_schlick_bsdf;
 export using .::pbrlib_1_6 import mx_subsurface_bsdf;
 export using .::pbrlib_1_6 import mx_thin_film_bsdf;
+export using .::pbrlib_1_6 import mx_chiang_hair_bsdf;
 export using .::pbrlib_1_6 import mx_uniform_edf;
 export using .::pbrlib_1_6 import mx_conical_edf;
 export using .::pbrlib_1_6 import mx_measured_edf;
@@ -72,6 +74,10 @@ export using .::pbrlib_1_6 import mx_roughness_dual;
 export using .::pbrlib_1_6 import mx_blackbody;
 export using .::pbrlib_1_6 import mx_artistic_ior__result ;
 export using .::pbrlib_1_6 import mx_artistic_ior;
+export using .::pbrlib_1_6 import mx_deon_hair_absorption_from_melanin;
+export using .::pbrlib_1_6 import mx_chiang_hair_absorption_from_color;
+export using .::pbrlib_1_6 import mx_chiang_hair_roughness__result;
+export using .::pbrlib_1_6 import mx_chiang_hair_roughness;
 
 
 
@@ -82,6 +88,7 @@ export material mx_sheen_bsdf(
     color  mxp_color     = color(1.0),
     float  mxp_roughness = 0.2,
     float3 mxp_normal    = state::normal(),
+    uniform mx_sheen_mode mxp_mode = mx_sheen_mode_conty_kulla [[ anno::unused() ]],
     material mxp_base = material(
                             surface: material_surface(
                                 scattering: df::diffuse_reflection_bsdf(

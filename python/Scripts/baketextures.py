@@ -20,20 +20,14 @@ def main():
     parser.add_argument("--average", dest="average", action="store_true", help="Average baked images to generate constant values.")
     parser.add_argument("--path", dest="paths", action='append', nargs='+', help="An additional absolute search path location (e.g. '/projects/MaterialX')")
     parser.add_argument("--library", dest="libraries", action='append', nargs='+', help="An additional relative path to a custom data library folder (e.g. 'libraries/custom')")
-    parser.add_argument('--writeDocumentPerMaterial', dest='writeDocumentPerMaterial', type=mx.stringToBoolean, default=True, help='Specify whether to write baked materials to seprate MaterialX documents. Default is True')
+    parser.add_argument('--writeDocumentPerMaterial', dest='writeDocumentPerMaterial', type=mx.stringToBoolean, default=True, help='Specify whether to write baked materials to separate MaterialX documents. Default is True')
     if platform == "darwin":
         parser.add_argument("--glsl", dest="useGlslBackend", default=False, type=bool, help="Set to True to use GLSL backend (default = Metal).")
     parser.add_argument(dest="inputFilename", help="Filename of the input document.")
     parser.add_argument(dest="outputFilename", help="Filename of the output document.")
     opts = parser.parse_args()
 
-    doc = mx.createDocument()
-    try:
-        mx.readFromXmlFile(doc, opts.inputFilename)
-    except mx.ExceptionFileMissing as err:
-        print(err)
-        sys.exit(0)
-
+    # Load standard and custom data libraries.
     stdlib = mx.createDocument()
     searchPath = mx.getDefaultDataSearchPath()
     searchPath.append(os.path.dirname(opts.inputFilename))
@@ -48,21 +42,28 @@ def main():
                 libraryFolders.append(library)
     libraryFolders.extend(mx.getDefaultDataLibraryFolders())
     mx.loadLibraries(libraryFolders, searchPath, stdlib)
-    doc.importLibrary(stdlib)
 
+    # Read and validate the source document.
+    doc = mx.createDocument()
+    try:
+        mx.readFromXmlFile(doc, opts.inputFilename)
+        doc.setDataLibrary(stdlib)
+    except mx.ExceptionFileMissing as err:
+        print(err)
+        sys.exit(0)
     valid, msg = doc.validate()
     if not valid:
         print("Validation warnings for input document:")
         print(msg)
 
+    # Construct the texture baker.
     baseType = mx_render.BaseType.FLOAT if opts.hdr else mx_render.BaseType.UINT8
-    
-    
     if platform == "darwin" and not opts.useGlslBackend:
         baker = mx_render_msl.TextureBaker.create(opts.width, opts.height, baseType)
     else:
         baker = mx_render_glsl.TextureBaker.create(opts.width, opts.height, baseType)
     
+    # Bake materials to textures.
     if opts.average:
         baker.setAverageImages(True)
     baker.writeDocumentPerMaterial(opts.writeDocumentPerMaterial)

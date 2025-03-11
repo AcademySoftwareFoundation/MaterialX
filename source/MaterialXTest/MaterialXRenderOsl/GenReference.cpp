@@ -47,6 +47,10 @@ TEST_CASE("GenReference: OSL Reference", "[genreference]")
 
     // Create shader generator.
     mx::ShaderGeneratorPtr generator = mx::OslShaderGenerator::create();
+
+    // Register types from the library.
+    generator->registerTypeDefs(stdlib);
+
     mx::GenContext context(generator);
     context.getOptions().addUpstreamDependencies = false;
     context.registerSourceCodeSearchPath(searchPath);
@@ -65,8 +69,8 @@ TEST_CASE("GenReference: OSL Reference", "[genreference]")
     // Generate reference shaders.
     // Ignore the following nodes:
     const mx::StringSet ignoreNodeList = { "surfacematerial", "volumematerial",
-                                           "constant_filename", "arrayappend",
-                                           "dot_filename"};
+                                           "constant_filename", "dot_filename",
+                                           "geompropvalueuniform_filename" };
 
     bool failedGeneration = false;
     for (const mx::NodeDefPtr& nodedef : stdlib->getNodeDefs())

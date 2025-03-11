@@ -193,8 +193,8 @@ The PBS nodes also make use of the following standard MaterialX types:
 
 * **`conductor_bsdf`**: Constructs a reflection BSDF based on a microfacet reflectance model[^Burley2012]. Uses a Fresnel curve with complex refraction index for conductors/metals. If an artistic parametrization[^Gulbrandsen2014] is needed the [&lt;artistic_ior>](#node-artistic-ior) utility node can be connected to handle this.
     * `weight` (float): Weight for this BSDF’s contribution, range [0.0, 1.0]. Defaults to 1.0.
-    * `ior `(color3): Index of refraction. Defaults to (0.18, 0.42, 1.37) (approximate IOR for gold).
-    * `extinction` (color3): Extinction coefficient. Defaults to (3.42, 2.35, 1.77) (approximate extinction coefficients for gold).
+    * `ior `(color3): Index of refraction. Defaults to (0.183, 0.421, 1.373) (approximate IOR for gold).
+    * `extinction` (color3): Extinction coefficient. Defaults to (3.424, 2.346, 1.770) (approximate extinction coefficients for gold).
     * `roughness` (vector2): Surface roughness. Defaults to (0.05, 0.05).
     * `thinfilm_thickness` (float): The thickness of an iridescent thin film layer[^Belcour2017] applied over the base bsdf, expressed in nanometers. Defaults to 0.0, for no thin film.
     * `thinfilm_ior` (float): The index of refraction of the thin film layer. Defaults to 1.5.
@@ -407,7 +407,7 @@ Note that the standard library includes definitions for [**`displacement`**](./M
 
 <a id="node-chiang-hair-absorption-from-color"> </a>
 
-* **`chiang_hair_absorption_from_color`** : Coverts the hair scattering color to absorption coefficient using the mapping method described in [^Chiang2016]. Output type `vector3`.
+* **`chiang_hair_absorption_from_color`** : Converts the hair scattering color to absorption coefficient using the mapping method described in [^Chiang2016]. Output type `vector3`.
     * `color` (color3): Scattering color. Defaults to (1.0, 1.0, 1.0).
     * `azimuthal_roughness` (float): Azimuthal roughness, range [0.0, 1.0]. Defaults to 0.2.
 

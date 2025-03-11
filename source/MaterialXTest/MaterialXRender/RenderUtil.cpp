@@ -36,7 +36,7 @@ void ShaderRenderTester::getGenerationOptions(const GenShaderUtil::TestSuiteOpti
         reducedOption.shaderInterfaceType = mx::SHADER_INTERFACE_REDUCED;
         optionsList.push_back(reducedOption);
     }
-    // Alway fallback to complete if no options specified.
+    // Always fallback to complete if no options specified.
     if ((testOptions.shaderInterfaces & 2) || optionsList.empty())
     {
         mx::GenOptions completeOption = originalOptions;
@@ -223,7 +223,11 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
             // colliding with implementations in previous test cases.
             context.clearNodeImplementations();
 
-            doc->importLibrary(dependLib);
+            doc->setDataLibrary(dependLib);
+
+            // Register types from the document.
+            _shaderGenerator->registerTypeDefs(doc);
+
             ioTimer.endTimer();
 
             validateTimer.startTimer();

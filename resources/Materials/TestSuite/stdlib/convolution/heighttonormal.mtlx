@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <materialx version="1.39">
-  <nodegraph name="height_to_normal">
+  <nodegraph name="heighttonormal">
     <input name="file" type="filename" uniform="true" value="resources/Images/plain_heightmap.png" />
     <tiledimage name="tiledimage" type="float">
       <input name="file" type="filename" uniform="true" interfacename="file" />
@@ -27,8 +27,8 @@
     <UsdPreviewSurface name="UsdPreviewSurface" type="surfaceshader">
       <input name="normal" type="vector3" nodename="bias" />
     </UsdPreviewSurface>
-    <output name="height_to_normal_out" type="vector3" nodename="heighttonormal" />
-    <output name="standard_surface_out" type="surfaceshader" nodename="standard_surface" />
-    <output name="usd_preview_surface_out" type="surfaceshader" nodename="UsdPreviewSurface" />
+    <output name="vector3_out" type="vector3" nodename="heighttonormal" />
+    <output name="surface1_out" type="surfaceshader" nodename="standard_surface" />
+    <output name="surface2_out" type="surfaceshader" nodename="UsdPreviewSurface" />
   </nodegraph>
 </materialx>

@@ -6,20 +6,20 @@
 #include <MaterialXGenMsl/MslShaderGenerator.h>
 
 #include <MaterialXGenMsl/MslSyntax.h>
-#include <MaterialXGenMsl/Nodes/GeomColorNodeMsl.h>
-#include <MaterialXGenMsl/Nodes/GeomPropValueNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/SurfaceNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/UnlitSurfaceNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/LightNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/LightCompoundNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/LightShaderNodeMsl.h>
-#include <MaterialXGenMsl/Nodes/HeightToNormalNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/LightSamplerNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/NumLightsNodeMsl.h>
-#include <MaterialXGenMsl/Nodes/BlurNodeMsl.h>
 
 #include <MaterialXGenShader/Nodes/MaterialNode.h>
+#include <MaterialXGenShader/Nodes/HwBlurNode.h>
 #include <MaterialXGenShader/Nodes/HwImageNode.h>
+#include <MaterialXGenShader/Nodes/HwGeomColorNode.h>
+#include <MaterialXGenShader/Nodes/HwGeomPropValueNode.h>
+#include <MaterialXGenShader/Nodes/HwHeightToNormalNode.h>
 #include <MaterialXGenShader/Nodes/HwTexCoordNode.h>
 #include <MaterialXGenShader/Nodes/HwTransformNode.h>
 #include <MaterialXGenShader/Nodes/HwPositionNode.h>
@@ -27,14 +27,9 @@
 #include <MaterialXGenShader/Nodes/HwTangentNode.h>
 #include <MaterialXGenShader/Nodes/HwBitangentNode.h>
 #include <MaterialXGenShader/Nodes/HwFrameNode.h>
-#include <MaterialXGenShader/Nodes/HwTimeNode.h>
 #include <MaterialXGenShader/Nodes/HwViewDirectionNode.h>
 #include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
 #include <MaterialXGenShader/Nodes/ClosureCompoundNode.h>
-#include <MaterialXGenShader/Nodes/ClosureLayerNode.h>
-#include <MaterialXGenShader/Nodes/ClosureMixNode.h>
-#include <MaterialXGenShader/Nodes/ClosureAddNode.h>
-#include <MaterialXGenShader/Nodes/ClosureMultiplyNode.h>
 
 #include "MslResourceBindingContext.h"
 
@@ -44,13 +39,14 @@ MATERIALX_NAMESPACE_BEGIN
 
 const string MslShaderGenerator::TARGET = "genmsl";
 const string MslShaderGenerator::VERSION = "2.3";
+const string MslSamplingIncludeFilename = "stdlib/genmsl/lib/mx_sampling.metal";
 
 //
 // MslShaderGenerator methods
 //
 
-MslShaderGenerator::MslShaderGenerator() :
-    HwShaderGenerator(MslSyntax::create())
+MslShaderGenerator::MslShaderGenerator(TypeSystemPtr typeSystem) :
+    HwShaderGenerator(typeSystem, MslSyntax::create(typeSystem))
 {
     //
     // Register all custom node implementation classes
@@ -70,9 +66,9 @@ MslShaderGenerator::MslShaderGenerator() :
     registerImplementation("IM_texcoord_vector2_" + MslShaderGenerator::TARGET, HwTexCoordNode::create);
     registerImplementation("IM_texcoord_vector3_" + MslShaderGenerator::TARGET, HwTexCoordNode::create);
     // <!-- <geomcolor> -->
-    registerImplementation("IM_geomcolor_float_" + MslShaderGenerator::TARGET, GeomColorNodeMsl::create);
-    registerImplementation("IM_geomcolor_color3_" + MslShaderGenerator::TARGET, GeomColorNodeMsl::create);
-    registerImplementation("IM_geomcolor_color4_" + MslShaderGenerator::TARGET, GeomColorNodeMsl::create);
+    registerImplementation("IM_geomcolor_float_" + MslShaderGenerator::TARGET, HwGeomColorNode::create);
+    registerImplementation("IM_geomcolor_color3_" + MslShaderGenerator::TARGET, HwGeomColorNode::create);
+    registerImplementation("IM_geomcolor_color4_" + MslShaderGenerator::TARGET, HwGeomColorNode::create);
     // <!-- <geompropvalue> -->
     elementNames = {
         "IM_geompropvalue_integer_" + MslShaderGenerator::TARGET,
@@ -83,14 +79,14 @@ MslShaderGenerator::MslShaderGenerator() :
         "IM_geompropvalue_vector3_" + MslShaderGenerator::TARGET,
         "IM_geompropvalue_vector4_" + MslShaderGenerator::TARGET,
     };
-    registerImplementation(elementNames, GeomPropValueNodeMsl::create);
-    registerImplementation("IM_geompropvalue_boolean_" + MslShaderGenerator::TARGET, GeomPropValueNodeMslAsUniform::create);
-    registerImplementation("IM_geompropvalue_string_" + MslShaderGenerator::TARGET, GeomPropValueNodeMslAsUniform::create);
+    registerImplementation(elementNames, HwGeomPropValueNode::create);
+    registerImplementation("IM_geompropvalue_boolean_" + MslShaderGenerator::TARGET, HwGeomPropValueNodeAsUniform::create);
+    registerImplementation("IM_geompropvalue_string_" + MslShaderGenerator::TARGET, HwGeomPropValueNodeAsUniform::create);
+    registerImplementation("IM_geompropvalue_filename_" + MslShaderGenerator::TARGET, HwGeomPropValueNodeAsUniform::create);
+
 
     // <!-- <frame> -->
     registerImplementation("IM_frame_float_" + MslShaderGenerator::TARGET, HwFrameNode::create);
-    // <!-- <time> -->
-    registerImplementation("IM_time_float_" + MslShaderGenerator::TARGET, HwTimeNode::create);
     // <!-- <viewdirection> -->
     registerImplementation("IM_viewdirection_vector3_" + MslShaderGenerator::TARGET, HwViewDirectionNode::create);
 
@@ -109,7 +105,7 @@ MslShaderGenerator::MslShaderGenerator() :
     registerImplementation("IM_spot_light_" + MslShaderGenerator::TARGET, LightShaderNodeMsl::create);
 
     // <!-- <heighttonormal> -->
-    registerImplementation("IM_heighttonormal_vector3_" + MslShaderGenerator::TARGET, HeightToNormalNodeMsl::create);
+    registerImplementation("IM_heighttonormal_vector3_" + MslShaderGenerator::TARGET, []() -> ShaderNodeImplPtr { return HwHeightToNormalNode::create(MslSamplingIncludeFilename);});
 
     // <!-- <blur> -->
     elementNames = {
@@ -120,7 +116,7 @@ MslShaderGenerator::MslShaderGenerator() :
         "IM_blur_vector3_" + MslShaderGenerator::TARGET,
         "IM_blur_vector4_" + MslShaderGenerator::TARGET,
     };
-    registerImplementation(elementNames, BlurNodeMsl::create);
+    registerImplementation(elementNames, []() -> ShaderNodeImplPtr { return HwBlurNode::create(MslSamplingIncludeFilename);});
 
     // <!-- <ND_transformpoint> ->
     registerImplementation("IM_transformpoint_vector3_" + MslShaderGenerator::TARGET, HwTransformPointNode::create);
@@ -141,24 +137,6 @@ MslShaderGenerator::MslShaderGenerator() :
         "IM_image_vector4_" + MslShaderGenerator::TARGET,
     };
     registerImplementation(elementNames, HwImageNode::create);
-
-    // <!-- <layer> -->
-    registerImplementation("IM_layer_bsdf_" + MslShaderGenerator::TARGET, ClosureLayerNode::create);
-    registerImplementation("IM_layer_vdf_" + MslShaderGenerator::TARGET, ClosureLayerNode::create);
-    // <!-- <mix> -->
-    registerImplementation("IM_mix_bsdf_" + MslShaderGenerator::TARGET, ClosureMixNode::create);
-    registerImplementation("IM_mix_edf_" + MslShaderGenerator::TARGET, ClosureMixNode::create);
-    // <!-- <add> -->
-    registerImplementation("IM_add_bsdf_" + MslShaderGenerator::TARGET, ClosureAddNode::create);
-    registerImplementation("IM_add_edf_" + MslShaderGenerator::TARGET, ClosureAddNode::create);
-    // <!-- <multiply> -->
-    elementNames = {
-        "IM_multiply_bsdfC_" + MslShaderGenerator::TARGET,
-        "IM_multiply_bsdfF_" + MslShaderGenerator::TARGET,
-        "IM_multiply_edfC_" + MslShaderGenerator::TARGET,
-        "IM_multiply_edfF_" + MslShaderGenerator::TARGET,
-    };
-    registerImplementation(elementNames, ClosureMultiplyNode::create);
 
     // <!-- <surfacematerial> -->
     registerImplementation("IM_surfacematerial_" + MslShaderGenerator::TARGET, MaterialNode::create);
@@ -217,9 +195,9 @@ void MslShaderGenerator::MetalizeGeneratedShader(ShaderStage& shaderStage) const
             pos = sourceCode.find(keyword);
             while (pos != std::string::npos)
             {
-                char preceeding = sourceCode[pos - 1], succeeding = sourceCode[pos + keyword.length()];
+                char preceding = sourceCode[pos - 1], succeeding = sourceCode[pos + keyword.length()];
                 bool isOutKeyword =
-                    (preceeding == '(' || preceeding == ',' || std::isspace(preceeding)) &&
+                    (preceding == '(' || preceding == ',' || std::isspace(preceding)) &&
                     std::isspace(succeeding) &&
                     succeeding != '\n';
                 size_t beg = pos;
@@ -237,7 +215,29 @@ void MslShaderGenerator::MetalizeGeneratedShader(ShaderStage& shaderStage) const
                     }
                     size_t typename_end = pos;
                     std::string typeName = sourceCode.substr(typename_beg, typename_end - typename_beg);
-                    sourceCode.replace(beg, typename_end - beg, "thread " + typeName + "&");
+
+                    while (std::isspace(sourceCode[pos]))
+                    {
+                        ++pos;
+                    }
+                    size_t varname_beg = pos;
+                    while (!std::isspace(sourceCode[pos]) && sourceCode[pos] != '\n' && sourceCode[pos] != ',' && sourceCode[pos] != ')' )
+                    {
+                        ++pos;
+                    }
+                    size_t varname_end = pos;
+                    std::string varName = sourceCode.substr(varname_beg, varname_end - varname_beg);
+
+                    if (varName.find('[') != std::string::npos)
+                    {
+                        // if the variable is an array then we don't need to declare it as a reference,
+                        // we will effectively just be passing the pointer to the array
+                        sourceCode.replace(beg, typename_end - beg, "thread " + typeName);
+                    }
+                    else
+                    {
+                        sourceCode.replace(beg, typename_end - beg, "thread " + typeName + "&");
+                    }
                 }
                 pos = sourceCode.find(keyword, pos);
             }
@@ -922,7 +922,6 @@ void MslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& co
         emitLine("{}", stage, false);
 
         // Add common math functions
-        emitLine("#define __DECL_GL_MATH_FUNCTIONS__", stage, false);
         emitLibraryInclude("stdlib/genmsl/lib/mx_math.metal", context, stage);
         emitLineBreak(stage);
 
@@ -1249,7 +1248,7 @@ ShaderNodeImplPtr MslShaderGenerator::getImplementation(const NodeDef& nodedef, 
         throw ExceptionShaderGenError("NodeDef '" + nodedef.getName() + "' has no outputs defined");
     }
 
-    const TypeDesc outputType = TypeDesc::get(outputs[0]->getType());
+    const TypeDesc outputType = _typeSystem->getType(outputs[0]->getType());
 
     if (implElement->isA<NodeGraph>())
     {

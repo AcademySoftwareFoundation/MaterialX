@@ -21,6 +21,11 @@
 
 #include <MaterialXCore/Generated.h>
 
+#define MATERIALX_GENERATE_INDEX(major, minor, build) (((major) << 22U) | ((minor) << 12U) | (build))
+
+#define MATERIALX_VERSION_INDEX \
+    MATERIALX_GENERATE_INDEX(MATERIALX_MAJOR_VERSION, MATERIALX_MINOR_VERSION, MATERIALX_BUILD_VERSION)
+
 /// Platform-specific macros for declaring imported and exported symbols.
 #if defined(MATERIALX_BUILD_SHARED_LIBS)
     #if defined(_WIN32)

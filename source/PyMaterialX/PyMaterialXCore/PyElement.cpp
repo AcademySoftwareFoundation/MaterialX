@@ -29,6 +29,12 @@ void bindPyElement(py::module& mod)
     py::class_<mx::Element, mx::ElementPtr>(mod, "Element")
         .def(py::self == py::self)
         .def(py::self != py::self)
+        .def("isEquivalent", [](const mx::Element& elem, mx::ConstElementPtr& rhs, const mx::ElementEquivalenceOptions& options)
+        {
+            std::string message;
+            bool res = elem.isEquivalent(rhs, options, &message);
+            return std::pair<bool, std::string>(res, message);
+        })        
         .def("setCategory", &mx::Element::setCategory)
         .def("getCategory", &mx::Element::getCategory)
         .def("setName", &mx::Element::setName)
@@ -204,6 +210,13 @@ void bindPyElement(py::module& mod)
 
     py::class_<mx::GenericElement, mx::GenericElementPtr, mx::Element>(mod, "GenericElement")
         .def_readonly_static("CATEGORY", &mx::GenericElement::CATEGORY);
+
+    py::class_<mx::ElementEquivalenceOptions>(mod, "ElementEquivalenceOptions")
+        .def_readwrite("performValueComparisons", &mx::ElementEquivalenceOptions::performValueComparisons)
+        .def_readwrite("floatFormat", &mx::ElementEquivalenceOptions::floatFormat)
+        .def_readwrite("floatPrecision", &mx::ElementEquivalenceOptions::floatPrecision)
+        .def_readwrite("attributeExclusionList", &mx::ElementEquivalenceOptions::attributeExclusionList)
+        .def(py::init<>());
 
     py::class_<mx::StringResolver, mx::StringResolverPtr>(mod, "StringResolver")
         .def("setFilePrefix", &mx::StringResolver::setFilePrefix)

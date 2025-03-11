@@ -4,15 +4,15 @@
 //
 // MDL implementation of all Standard Source Nodes of
 //     MaterialX: An Open Standard for Network-Based CG Object Looks
-//     Document v1.37 REV2, January 19, 2020
+//     Document version 1.39, September 15, 2024
 //     www.materialx.org 
 // in
-//     NVIDIA Material Definition Language 1.7
+//     NVIDIA Material Definition Language 1.10
 //     Language Specification
-//     Document version 1.7.2, January 17, 2022
+//     Document version 1.10.1, November 04, 2024
 //     www.nvidia.com/mdl
 
-mdl 1.8;
+mdl 1.10;
 
 // forward the latest version
-export using .::stdlib_1_8 import *;
+export using .::stdlib_1_10 import *;

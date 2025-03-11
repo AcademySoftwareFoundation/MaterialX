@@ -179,7 +179,7 @@ class Viewer : public ng::Screen
     }
 
     // Return the underlying NanoGUI window.
-    ng::Window* getWindow() const
+    ng::ref<ng::Window> getWindow() const
     {
         return _window;
     }
@@ -283,13 +283,13 @@ class Viewer : public ng::Screen
     void updateMaterialSelectionUI();
     void updateDisplayedProperties();
 
-    void createLoadMeshInterface(Widget* parent, const std::string& label);
-    void createLoadMaterialsInterface(Widget* parent, const std::string& label);
-    void createLoadEnvironmentInterface(Widget* parent, const std::string& label);
-    void createSaveMaterialsInterface(Widget* parent, const std::string& label);
-    void createPropertyEditorInterface(Widget* parent, const std::string& label);
-    void createAdvancedSettings(Widget* parent);
-    void createDocumentationInterface(Widget* parent, ng::VScrollPanel* scrollPanel);
+    void createLoadMeshInterface(ng::ref<Widget> parent, const std::string& label);
+    void createLoadMaterialsInterface(ng::ref<Widget> parent, const std::string& label);
+    void createLoadEnvironmentInterface(ng::ref<Widget> parent, const std::string& label);
+    void createSaveMaterialsInterface(ng::ref<Widget> parent, const std::string& label);
+    void createPropertyEditorInterface(ng::ref<Widget> parent, const std::string& label);
+    void createAdvancedSettings(ng::ref<Widget> parent);
+    void createDocumentationInterface(ng::ref<Widget> parent);
 
     // Return the ambient occlusion image, if any, associated with the given material.
     mx::ImagePtr getAmbientOcclusionImage(mx::MaterialPtr material);
@@ -318,7 +318,7 @@ class Viewer : public ng::Screen
     void setShaderInterfaceType(mx::ShaderInterfaceType interfaceType);
 
   private:
-    ng::Window* _window;
+    ng::ref<ng::Window> _window;
     RenderPipelinePtr _renderPipeline;
 
     mx::FilePath _materialFilename;
@@ -380,15 +380,15 @@ class Viewer : public ng::Screen
     // Geometry selections
     std::vector<mx::MeshPartitionPtr> _geometryList;
     size_t _selectedGeom;
-    ng::Label* _geomLabel;
-    ng::ComboBox* _geometrySelectionBox;
+    ng::ref<ng::Label> _geomLabel;
+    ng::ref<ng::ComboBox> _geometrySelectionBox;
 
     // Material selections
     std::vector<mx::MaterialPtr> _materials;
     mx::MaterialPtr _wireMaterial;
     size_t _selectedMaterial;
-    ng::Label* _materialLabel;
-    ng::ComboBox* _materialSelectionBox;
+    ng::ref<ng::Label> _materialLabel;
+    ng::ref<ng::ComboBox> _materialSelectionBox;
     PropertyEditor _propertyEditor;
 
     // Material assignments
@@ -409,6 +409,9 @@ class Viewer : public ng::Screen
     mx::GeometryHandlerPtr _envGeometryHandler;
     mx::MaterialPtr _envMaterial;
     mx::MeshPtr _quadMesh;
+
+    // Type system
+    mx::TypeSystemPtr _typeSystem;
 
     // Shader generator contexts
     mx::GenContext _genContext;
@@ -475,11 +478,15 @@ class Viewer : public ng::Screen
 
     // Frame timing
     bool _frameTiming;
-    ng::Label* _timingLabel;
-    ng::Widget* _timingPanel;
-    ng::TextBox* _timingText;
+    ng::ref<ng::Label> _timingLabel;
+    ng::ref<ng::Widget> _timingPanel;
+    ng::ref<ng::TextBox> _timingText;
     mx::ScopedTimer _frameTimer;
     double _avgFrameTime;
+
+    // Documentation UI
+    ng::ref<ng::Button> _shortcutsButton;
+    ng::ref<ng::Widget> _shortcutsTable;
 };
 
 extern const mx::Vector3 DEFAULT_CAMERA_POSITION;

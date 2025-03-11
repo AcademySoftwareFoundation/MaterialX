@@ -42,6 +42,7 @@ export material mx_surfacematerial(
 = material(
     thin_walled: mxp_surfaceshader.thin_walled || mxp_backsurfaceshader.thin_walled,
     surface: mxp_surfaceshader.surface,
+	hair: mxp_surfaceshader.hair,
     backface: mxp_backsurfaceshader.surface,
     geometry: material_geometry(
         cutout_opacity: mxp_surfaceshader.geometry.cutout_opacity,
@@ -88,6 +89,24 @@ export material mx_surface_unlit(
     }
 }
 
+// Helper function provides texture lookup coordinate with `closest` lookup type support
+float2 tex_lookup_coord(float2 st, int tex_width, int tex_height, core::mx_filterlookup_type lookup_type, bool flip_v)
+{
+    float2 coord = st;
+
+    // `closest` lookup
+    if (lookup_type == core::mx_filterlookup_type_closest)
+    {
+        int2 tex_size(tex_width, tex_height);
+        coord = (math::floor(coord * tex_size) + float2(0.5)) / tex_size;
+    }
+
+    // `linear` and `cubic` uses the original coord
+    coord = flip_v ? float2(coord.x, 1.0 - coord.y) : coord;
+
+    return coord;
+}
+
 // NOTE: need to map MaterialX return type overloads to different function names
 //       or we require the mx_default to be always set explicitly
 
@@ -121,8 +140,7 @@ export float mx_image_float(
 	uniform core::mx_filterlookup_type mxp_filtertype = core::mx_filterlookup_type(core::mx_filterlookup_type_linear)	
 	[[
 		anno::description("Enumeration {closest,linear,cubic}."),
-		anno::display_name("Filter Type"),
-        anno::unused()
+		anno::display_name("Filter Type")
 	]],
 	uniform string mxp_framerange = string("")	
 	[[
@@ -160,9 +178,12 @@ export float mx_image_float(
 		return mxp_default;
 
 	float returnValue = ::tex::lookup_float(tex: mxp_file, 
-						coord: mxp_flip_v
-							? float2(mxp_texcoord.x, 1.0f - mxp_texcoord.y) 
-							: mxp_texcoord,
+						coord: tex_lookup_coord(
+							mxp_texcoord,
+							tex::width(mxp_file),
+							tex::height(mxp_file),
+							mxp_filtertype,
+							mxp_flip_v),
 						wrap_u: map_addressmode(mxp_uaddressmode),
 						wrap_v: map_addressmode(mxp_vaddressmode));
 	return returnValue;
@@ -198,8 +219,7 @@ export color mx_image_color3(
 	uniform core::mx_filterlookup_type mxp_filtertype = core::mx_filterlookup_type(core::mx_filterlookup_type_linear)	
 	[[
 		anno::description("Enumeration {closest,linear,cubic}."),
-		anno::display_name("Filter Type"),
-        anno::unused()
+		anno::display_name("Filter Type")
 	]],
 	uniform string mxp_framerange = string("")	
 	[[
@@ -237,9 +257,12 @@ export color mx_image_color3(
 		return mxp_default;
 
 	color returnValue = ::tex::lookup_color(tex: mxp_file, 
-						coord: mxp_flip_v
-							? float2(mxp_texcoord.x, 1.0f - mxp_texcoord.y) 
-							: mxp_texcoord,
+						coord: tex_lookup_coord(
+							mxp_texcoord,
+							tex::width(mxp_file),
+							tex::height(mxp_file),
+							mxp_filtertype,
+							mxp_flip_v),
 						wrap_u: map_addressmode(mxp_uaddressmode),
 						wrap_v: map_addressmode(mxp_vaddressmode));
 	return returnValue;
@@ -275,8 +298,7 @@ export core::color4 mx_image_color4(
 	uniform core::mx_filterlookup_type mxp_filtertype = core::mx_filterlookup_type(core::mx_filterlookup_type_linear)	
 	[[
 		anno::description("Enumeration {closest,linear,cubic}."),
-		anno::display_name("Filter Type"),
-        anno::unused()
+		anno::display_name("Filter Type")
 	]],
 	uniform string mxp_framerange = string("")	
 	[[
@@ -314,9 +336,12 @@ export core::color4 mx_image_color4(
 		return mxp_default;
 
 	core::color4 returnValue = core::mk_color4(::tex::lookup_float4(tex: mxp_file, 
-						coord: mxp_flip_v
-							? float2(mxp_texcoord.x, 1.0f - mxp_texcoord.y) 
-							: mxp_texcoord,
+						coord: tex_lookup_coord(
+							mxp_texcoord,
+							tex::width(mxp_file),
+							tex::height(mxp_file),
+							mxp_filtertype,
+							mxp_flip_v),
 						wrap_u: map_addressmode(mxp_uaddressmode),
 						wrap_v: map_addressmode(mxp_vaddressmode)));
 	return returnValue;
@@ -352,8 +377,7 @@ export float2 mx_image_vector2(
 	uniform core::mx_filterlookup_type mxp_filtertype = core::mx_filterlookup_type(core::mx_filterlookup_type_linear)	
 	[[
 		anno::description("Enumeration {closest,linear,cubic}."),
-		anno::display_name("Filter Type"),
-        anno::unused()
+		anno::display_name("Filter Type")
 	]],
 	uniform string mxp_framerange = string("")	
 	[[
@@ -391,9 +415,12 @@ export float2 mx_image_vector2(
 		return mxp_default;
 
 	float2 returnValue = ::tex::lookup_float2(tex: mxp_file, 
-						coord: mxp_flip_v
-							? float2(mxp_texcoord.x, 1.0f - mxp_texcoord.y) 
-							: mxp_texcoord,
+						coord: tex_lookup_coord(
+							mxp_texcoord,
+							tex::width(mxp_file),
+							tex::height(mxp_file),
+							mxp_filtertype,
+							mxp_flip_v),
 						wrap_u: map_addressmode(mxp_uaddressmode),
 						wrap_v: map_addressmode(mxp_vaddressmode));
 	return returnValue;
@@ -429,8 +456,7 @@ export float3 mx_image_vector3(
 	uniform core::mx_filterlookup_type mxp_filtertype = core::mx_filterlookup_type(core::mx_filterlookup_type_linear)	
 	[[
 		anno::description("Enumeration {closest,linear,cubic}."),
-		anno::display_name("Filter Type"),
-        anno::unused()
+		anno::display_name("Filter Type")
 	]],
 	uniform string mxp_framerange = string("")	
 	[[
@@ -468,9 +494,12 @@ export float3 mx_image_vector3(
 		return mxp_default;
 
 	float3 returnValue = ::tex::lookup_float3(tex: mxp_file, 
-						coord: mxp_flip_v
-							? float2(mxp_texcoord.x, 1.0f - mxp_texcoord.y) 
-							: mxp_texcoord,
+						coord: tex_lookup_coord(
+							mxp_texcoord,
+							tex::width(mxp_file),
+							tex::height(mxp_file),
+							mxp_filtertype,
+							mxp_flip_v),
 						wrap_u: map_addressmode(mxp_uaddressmode),
 						wrap_v: map_addressmode(mxp_vaddressmode));
 	return returnValue;
@@ -506,8 +535,7 @@ export float4 mx_image_vector4(
 	uniform core::mx_filterlookup_type mxp_filtertype = core::mx_filterlookup_type(core::mx_filterlookup_type_linear)	
 	[[
 		anno::description("Enumeration {closest,linear,cubic}."),
-		anno::display_name("Filter Type"),
-        anno::unused()
+		anno::display_name("Filter Type")
 	]],
 	uniform string mxp_framerange = string("")	
 	[[
@@ -545,9 +573,12 @@ export float4 mx_image_vector4(
 		return mxp_default;
 
 	float4 returnValue = ::tex::lookup_float4(tex: mxp_file, 
-						coord: mxp_flip_v
-							? float2(mxp_texcoord.x, 1.0f - mxp_texcoord.y) 
-							: mxp_texcoord,
+						coord: tex_lookup_coord(
+							mxp_texcoord,
+							tex::width(mxp_file),
+							tex::height(mxp_file),
+							mxp_filtertype,
+							mxp_flip_v),
 						wrap_u: map_addressmode(mxp_uaddressmode),
 						wrap_v: map_addressmode(mxp_vaddressmode));
 	return returnValue;
@@ -1340,23 +1371,6 @@ export float4 mx_geompropvalue_vector4(
 	return defaultValue;
 }
 
-export float mx_ambientocclusion_float(
-	float mxp_coneangle = float(90.0) 
-	[[
-		anno::description("Unit Type:angle. Unit:degrees."),
-        anno::unused()
-	]],
-	float mxp_maxdistance = float(1e38) [[ anno::unused() ]]
-)
-	[[
-		anno::description("Node Group: global")
-	]]
-{
-	// Not implemented: mx_ambientocclusion_float
-	float defaultValue = float(1.0);
-	return defaultValue;
-}
-
 export float mx_frame_float(
 )
 	[[
@@ -1436,6 +1450,26 @@ export core::color4 mx_modulo_color4FA(
 	]]
 {
 	return core::mk_color4(core::mx_mod(core::mk_float4(mxp_in1), float4(mxp_in2)));
+}
+
+export color mx_fract_color3(
+	color mxp_in = color(0.0, 0.0, 0.0)
+)
+	[[
+		anno::description("Node Group: math")
+	]]
+{
+	return color(math::frac(float3(mxp_in)));
+}
+
+export core::color4 mx_fract_color4(
+	core::color4 mxp_in = core::mk_color4(0.0, 0.0, 0.0, 0.0)
+)
+	[[
+		anno::description("Node Group: math")
+	]]
+{
+	return core::mk_color4(math::frac(core::mk_float4(mxp_in)));
 }
 
 export core::color4 mx_invert_color4(
@@ -2619,35 +2653,30 @@ export float4 mx_curveadjust_vector4(
 
 export color mx_luminance_color3(
 	color mxp_in = color(0.0, 0.0, 0.0),
-	uniform color mxp_lumacoeffs = color(0.2722287, 0.6740818, 0.0536895)	
+	color mxp_lumacoeffs = color(0.2722287, 0.6740818, 0.0536895)	
 	[[
-		anno::description("Enumeration {acescg, rec709, rec2020, rec2100}."),
-        anno::unused()
+		anno::description("Enumeration {acescg, rec709, rec2020, rec2100}.")
 	]]
 )
 	[[
 		anno::description("Node Group: adjustment")
 	]]
 {
-	return color(::math::luminance(mxp_in));
+	return color(::math::dot(float3(mxp_in), float3(mxp_lumacoeffs)));
 }
 
 export core::color4 mx_luminance_color4(
 	core::color4 mxp_in = core::mk_color4(0.0, 0.0, 0.0, 0.0),
-	uniform color mxp_lumacoeffs = color(0.2722287, 0.6740818, 0.0536895)
+	color mxp_lumacoeffs = color(0.2722287, 0.6740818, 0.0536895)
 	[[
-		anno::description("Enumeration {acescg, rec709, rec2020, rec2100}."),
-        anno::unused()
+		anno::description("Enumeration {acescg, rec709, rec2020, rec2100}.")
 	]]
 )
 	[[
 		anno::description("Node Group: adjustment")
 	]]
 {
-	color rgb = color(mxp_in.rgb);
-	core::color4 returnValue = core::mk_color4(::math::luminance(rgb));
-	returnValue.a = mxp_in.a;
-	return returnValue;
+	return core::mk_color4(color(::math::dot(float3(mxp_in.rgb), float3(mxp_lumacoeffs))), mxp_in.a);
 }
 
 export color mx_rgbtohsv_color3(

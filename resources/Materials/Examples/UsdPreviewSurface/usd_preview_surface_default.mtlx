@@ -10,6 +10,7 @@
     <input name="clearcoat" type="float" value="0" />
     <input name="clearcoatRoughness" type="float" value="0.01" />
     <input name="opacity" type="float" value="1" />
+    <input name="opacityMode" type="integer" value="0" />
     <input name="opacityThreshold" type="float" value="0" />
     <input name="ior" type="float" value="1.5" />
     <input name="normal" type="vector3" value="0, 0, 1" />

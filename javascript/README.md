@@ -98,7 +98,7 @@ Note that a sample build script is provided in
 `javascript/build_javascript_win.bat` with a corresponding script to clean the build area in
 `javascript/clean_javascript_win.bat`. Modify the Emscripten SDK and MaterialX build locations as needed.
 
-Additionaly the github actions workflow YAML file (`.github/workflows/main.yml`) can be examined as well.
+Additionally the github actions workflow YAML file (`.github/workflows/main.yml`) can be examined as well.
 
 ## Using the Bindings
 ### Consuming the Module
@@ -179,7 +179,7 @@ Make sure to consume `JsMaterialXGenShader.js` instead of `JsMaterialXCore.js` a
 #### Generating Essl Shader Code & Compiling with WebGL
 To generate WebGL 2 compatible shader code a generator context and an instance of the `EsslShaderGenerator` class is required. 
 ```javascript
-const gen = new mx.EsslShaderGenerator();
+const gen = mx.EsslShaderGenerator.create();
 const genContext = new mx.GenContext(gen);
 ```
 The standard libraries need to be loaded and imported into the document. This step is required as the standard libraries contain all the definitions and snippets needed for assembly of the shader code.
@@ -221,7 +221,7 @@ Each entry corresponds to a uniform name and the value is an object which contai
 An example that parses the JSON and feeds the uniform data to a three.js based application can be found in the [Web Viewer Sample App](./MaterialXView/src/index.js).
 
 ## Maintaining the Bindings
-This section provides some background on binding creation for contributors. In general, we recommed to look at existing bindings for examples.
+This section provides some background on binding creation for contributors. In general, we recommend to look at existing bindings for examples.
 
 ### What to Bind?
 In general, we aim for 100% coverage of the MaterialX API, at least for the Core and Format packages. However, there are functions and even classes where creating bindings wouldn't make much sense. The `splitString` utility function is such an example, because the JavaScript string class does already have a `split` method. The `FilePath` and `FileSearchPath` classes of the Format package are simply represented as strings on the JavaScript side, even though they provide complex APIs in C++. This is because most of their APIs do not apply to browsers, since they are specific to file system operations. In NodeJs, they would present a competing implementation of the core `fs` module, and therefore be redundant (even though they might be convenient in some cases).
@@ -231,7 +231,7 @@ The examples above illustrate that it does not always make sense to create bindi
 ### Emscripten's optional_override
 Emscripten's `optional_override` allows to provide custom binding implementations in-place and enables function overloading by parameter count, which is otherwise not supported in JavaScript. Contributors need to be careful when using it, though, since there is a small pitfall.
 
-If a function binding has multiple overloads defined via `optional_override` to support optional parameters, this binding must only be defined once on the base class (i.e. the class that defines the function initially). Virtual functions that are overriden in deriving classes must not be bound again when creating bindings for these derived classes. Doing so can lead to the wrong function (i.e. base class' vs derived class' implementation) being called at runtime.
+If a function binding has multiple overloads defined via `optional_override` to support optional parameters, this binding must only be defined once on the base class (i.e. the class that defines the function initially). Virtual functions that are overridden in deriving classes must not be bound again when creating bindings for these derived classes. Doing so can lead to the wrong function (i.e. base class' vs derived class' implementation) being called at runtime.
 
 ### Optional Parameters
 Many C++ functions have optional parameters. Unfortunately, emscripten does not automatically deal with optional parameters. Binding these functions the 'normal' way will require users to provide all parameters in JavaScript, including optional ones. We provide helper macros to cicumvent this issue. Different flavors of the `BIND_*_FUNC` macros defined in `Helpers.h` can be used to conveniently bind functions with optional parameters. See uses of these macros in the existing bindings for examples.

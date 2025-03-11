@@ -140,8 +140,8 @@ class MX_GENSHADER_API ShaderGenerator
     virtual void emitVariableDeclaration(const ShaderPort* variable, const string& qualifier, GenContext& context, ShaderStage& stage,
                                          bool assignValue = true) const;
 
-    /// Return the closure contexts defined for the given node.
-    virtual void getClosureContexts(const ShaderNode& node, vector<ClosureContext*>& cct) const;
+    /// Return true if the node needs the additional ClosureData added
+    virtual bool nodeNeedsClosureData(const ShaderNode& /*node*/) const { return false; }
 
     /// Return the result of an upstream connection or value for an input.
     virtual string getUpstreamResult(const ShaderInput* input, GenContext& context) const;
@@ -185,11 +185,20 @@ class MX_GENSHADER_API ShaderGenerator
         return _unitSystem;
     }
 
+    /// Returns the type system
+    TypeSystemPtr getTypeSystem() const
+    {
+        return _typeSystem;
+    }
+
     /// Return the map of token substitutions used by the generator.
     const StringMap& getTokenSubstitutions() const
     {
         return _tokenSubstitutions;
     }
+
+    /// Register type definitions from the document.
+    virtual void registerTypeDefs(const DocumentPtr& doc);
 
     /// Register metadata that should be exported to the generated shaders.
     /// Supported metadata includes standard UI attributes like "uiname", "uifolder",
@@ -204,7 +213,7 @@ class MX_GENSHADER_API ShaderGenerator
 
   protected:
     /// Protected constructor
-    ShaderGenerator(SyntaxPtr syntax);
+    ShaderGenerator(TypeSystemPtr typeSystem, SyntaxPtr syntax);
 
     /// Create a new stage in a shader.
     virtual ShaderStagePtr createStage(const string& name, Shader& shader) const;
@@ -225,6 +234,7 @@ class MX_GENSHADER_API ShaderGenerator
   protected:
     static const string T_FILE_TRANSFORM_UV;
 
+    TypeSystemPtr _typeSystem;
     SyntaxPtr _syntax;
     Factory<ShaderNodeImpl> _implFactory;
     ColorManagementSystemPtr _colorManagementSystem;

@@ -188,7 +188,25 @@ We have a standard 3d fractal noise, but a 2d variant would be useful as well.
     * `period` (float or vector3): the positive integer distance at which the noise function returns the same value for input coordinate repeated at that step.  Default is 0, meaning the noise is not periodic.
     * `in` (float): the 1D coordinate at which the noise is evaluated.
 
+<a id="node-worleynoise2d"> </a>
 
+Expanded 2D Worley noise to support different distance metrics and periodicity. 
+
+* **`worleynoise2d`**: 2D Worley noise using centered jitter, outputting float (distance metric to closest feature), vector2 (distance metrics to closest 2 features) or vector3 (distance metrics to closest 3 features).
+    * `metric` (uniform string): the distance metric to return, one of "distance" (Euclidean distance to feature), "distance2" (Euclidean distance squared), "manhattan" or "chebyshev".  Default is "distance".
+    * `period` (float or vector3): the positive integer distance at which the noise function returns the same value for texture coordinates repeated at that step.  Default is 0, meaning the noise is not periodic.
+
+<a id="node-worleynoise3d"> </a>
+
+Expanded 3D Worley noise to support different distance metrics and periodicity.
+
+* **`worleynoise3d`**: 3D Worley noise using centered jitter, outputting float (distance metric to closest feature), vector2 (distance metrics to closest 2 features) or vector3 (distance metrics to closest 3 features).
+    * `metric` (uniform string): the distance metric to return, one of "distance" (Euclidean distance to feature), "distance2" (Euclidean distance squared), "manhattan" or "chebyshev".  Default is "distance".
+    * `period` (float or vector3): the positive integer distance at which the noise function returns the same value for position coordinates repeated at that step.  Default is 0, meaning the noise is not periodic.
+
+#### Periodic Noises
+
+In #1201 it was decided that separate periodic versions of all of the noises is preferred to adding it to the existing noises.
 
 ### Shape Nodes
 
@@ -200,12 +218,6 @@ We have a standard 3d fractal noise, but a 2d variant would be useful as well.
 <a id="node-bump"> </a>
 
 * **`bump`**: Existing node, proposal to add a vector3 `bitangent` input
-
-<a id="node-geompropvalueuniform"> </a>
-
-* **`geompropvalueuniform`**: the value of the specified uniform geometric property (defined using &lt;geompropdef>) of the currently-bound geometry.  This node's type must match that of the referenced geomprop.
-    * `geomprop` (uniform string): the geometric property to be referenced.
-    * `default` (same type as the geomprop's value): a value to return if the specified `geomprop` is not defined on the current geometry.
 
 Note: when &lt;geompropvalueuniform> is added, the text in the first paragraph of the Specification about Node Inputs should be revised to include "&lt;geompropvalueuniform>" as an example of "or any other node whose output is explicitly declared to be uniform".
 

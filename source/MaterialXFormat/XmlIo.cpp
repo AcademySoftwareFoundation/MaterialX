@@ -19,6 +19,9 @@ MATERIALX_NAMESPACE_BEGIN
 
 const string MTLX_EXTENSION = "mtlx";
 
+const int MAX_XINCLUDE_DEPTH = 256;
+const int MAX_XML_TREE_DEPTH = 256;
+
 namespace
 {
 
@@ -26,7 +29,90 @@ const string XINCLUDE_TAG = "xi:include";
 const string XINCLUDE_NAMESPACE = "xmlns:xi";
 const string XINCLUDE_URL = "http://www.w3.org/2001/XInclude";
 
-void elementFromXml(const xml_node& xmlNode, ElementPtr elem, const XmlReadOptions* readOptions)
+using ElementStack = vector<std::pair<ElementPtr, xml_node>>;
+
+void documentToXml(DocumentPtr doc, xml_node& xmlRoot, const XmlWriteOptions* writeOptions)
+{
+    ElementStack elemStack;
+    elemStack.emplace_back(doc, xmlRoot);
+    while (!elemStack.empty())
+    {
+        ElementPtr elem = elemStack.back().first;
+        xml_node xmlNode = elemStack.back().second;
+        elemStack.pop_back();
+
+        bool writeXIncludeEnable = writeOptions ? writeOptions->writeXIncludeEnable : true;
+        ElementPredicate elementPredicate = writeOptions ? writeOptions->elementPredicate : nullptr;
+
+        // Store attributes in XML.
+        if (!elem->getName().empty())
+        {
+            xmlNode.append_attribute(Element::NAME_ATTRIBUTE.c_str()) = elem->getName().c_str();
+        }
+        for (const string& attrName : elem->getAttributeNames())
+        {
+            xml_attribute xmlAttr = xmlNode.append_attribute(attrName.c_str());
+            xmlAttr.set_value(elem->getAttribute(attrName).c_str());
+        }
+
+        // Create child elements and recurse.
+        StringSet writtenSourceFiles;
+        for (auto child : elem->getChildren())
+        {
+            if (elementPredicate && !elementPredicate(child))
+            {
+                continue;
+            }
+
+            // Write XInclude references if requested.
+            if (writeXIncludeEnable && child->hasSourceUri())
+            {
+                string sourceUri = child->getSourceUri();
+                if (sourceUri != elem->getDocument()->getSourceUri())
+                {
+                    if (!writtenSourceFiles.count(sourceUri))
+                    {
+                        if (!xmlNode.attribute(XINCLUDE_NAMESPACE.c_str()))
+                        {
+                            xmlNode.append_attribute(XINCLUDE_NAMESPACE.c_str()) = XINCLUDE_URL.c_str();
+                        }
+                        xml_node includeNode = xmlNode.append_child(XINCLUDE_TAG.c_str());
+                        xml_attribute includeAttr = includeNode.append_attribute("href");
+                        FilePath includePath(sourceUri);
+
+                        // Write relative include paths in Posix format, and absolute
+                        // include paths in native format.
+                        FilePath::Format includeFormat = includePath.isAbsolute() ? FilePath::FormatNative : FilePath::FormatPosix;
+                        includeAttr.set_value(includePath.asString(includeFormat).c_str());
+
+                        writtenSourceFiles.insert(sourceUri);
+                    }
+                    continue;
+                }
+            }
+
+            // Handle the interpretation of comments and newlines.
+            if (child->getCategory() == CommentElement::CATEGORY)
+            {
+                xml_node xmlChild = xmlNode.append_child(node_comment);
+                xmlChild.set_value(child->getAttribute(Element::DOC_ATTRIBUTE).c_str());
+                continue;
+            }
+            if (child->getCategory() == NewlineElement::CATEGORY)
+            {
+                xml_node xmlChild = xmlNode.append_child(node_newline);
+                xmlChild.set_value("\n");
+                continue;
+            }
+
+            // Push child data onto the stack.
+            xml_node xmlChild = xmlNode.append_child(child->getCategory().c_str());
+            elemStack.emplace_back(child, xmlChild);
+        }
+    }
+}
+
+void elementFromXml(const xml_node& xmlNode, ElementPtr elem, const XmlReadOptions* readOptions, int depth = 1)
 {
     // Store attributes in element.
     for (const xml_attribute& xmlAttr : xmlNode.attributes())
@@ -40,27 +126,30 @@ void elementFromXml(const xml_node& xmlNode, ElementPtr elem, const XmlReadOptio
     // Create child elements and recurse.
     for (const xml_node& xmlChild : xmlNode.children())
     {
+        // Get child category.
         string category = xmlChild.name();
-        string name;
-        for (const xml_attribute& xmlAttr : xmlChild.attributes())
+        if (category == XINCLUDE_TAG)
         {
-            if (xmlAttr.name() == Element::NAME_ATTRIBUTE)
-            {
-                name = xmlAttr.value();
-                break;
-            }
+            continue;
         }
 
-        // Check for duplicate elements.
+        // Get child name and skip duplicates.
+        string name = xmlChild.attribute(Element::NAME_ATTRIBUTE.c_str()).value();
         ConstElementPtr previous = elem->getChild(name);
         if (previous)
         {
             continue;
         }
 
-        // Create the new element.
+        // Enforce maximum tree depth.
+        if (depth >= MAX_XML_TREE_DEPTH)
+        {
+            throw ExceptionParseError("Maximum tree depth exceeded.");
+        }
+
+        // Create the child element.
         ElementPtr child = elem->addChildOfCategory(category, name);
-        elementFromXml(xmlChild, child, readOptions);
+        elementFromXml(xmlChild, child, readOptions, depth + 1);
 
         // Handle the interpretation of XML comments and newlines.
         if (readOptions && category.empty())
@@ -78,161 +167,51 @@ void elementFromXml(const xml_node& xmlNode, ElementPtr elem, const XmlReadOptio
     }
 }
 
-void elementToXml(ConstElementPtr elem, xml_node& xmlNode, const XmlWriteOptions* writeOptions)
+void documentFromXml(DocumentPtr doc, const xml_document& xmlDoc, const FileSearchPath& searchPath, const XmlReadOptions* readOptions)
 {
-    bool writeXIncludeEnable = writeOptions ? writeOptions->writeXIncludeEnable : true;
-    ElementPredicate elementPredicate = writeOptions ? writeOptions->elementPredicate : nullptr;
-
-    // Store attributes in XML.
-    if (!elem->getName().empty())
+    xml_node xmlRoot = xmlDoc.child(Document::CATEGORY.c_str());
+    if (!xmlRoot)
     {
-        xmlNode.append_attribute(Element::NAME_ATTRIBUTE.c_str()) = elem->getName().c_str();
-    }
-    for (const string& attrName : elem->getAttributeNames())
-    {
-        xml_attribute xmlAttr = xmlNode.append_attribute(attrName.c_str());
-        xmlAttr.set_value(elem->getAttribute(attrName).c_str());
+        throw ExceptionParseError("No root MaterialX element found.");
     }
 
-    // Create child nodes and recurse.
-    StringSet writtenSourceFiles;
-    for (auto child : elem->getChildren())
-    {
-        if (elementPredicate && !elementPredicate(child))
-        {
-            continue;
-        }
-
-        // Write XInclude references if requested.
-        if (writeXIncludeEnable && child->hasSourceUri())
-        {
-            string sourceUri = child->getSourceUri();
-            if (sourceUri != elem->getDocument()->getSourceUri())
-            {
-                if (!writtenSourceFiles.count(sourceUri))
-                {
-                    if (!xmlNode.attribute(XINCLUDE_NAMESPACE.c_str()))
-                    {
-                        xmlNode.append_attribute(XINCLUDE_NAMESPACE.c_str()) = XINCLUDE_URL.c_str();
-                    }
-                    xml_node includeNode = xmlNode.append_child(XINCLUDE_TAG.c_str());
-                    xml_attribute includeAttr = includeNode.append_attribute("href");
-                    FilePath includePath(sourceUri);
-
-                    // Write relative include paths in Posix format, and absolute
-                    // include paths in native format.
-                    FilePath::Format includeFormat = includePath.isAbsolute() ? FilePath::FormatNative : FilePath::FormatPosix;
-                    includeAttr.set_value(includePath.asString(includeFormat).c_str());
-
-                    writtenSourceFiles.insert(sourceUri);
-                }
-                continue;
-            }
-        }
-
-        // Write XML comments.
-        if (child->getCategory() == CommentElement::CATEGORY)
-        {
-            xml_node xmlChild = xmlNode.append_child(node_comment);
-            xmlChild.set_value(child->getAttribute(Element::DOC_ATTRIBUTE).c_str());
-            continue;
-        }
-
-        // Write XML newlines.
-        if (child->getCategory() == NewlineElement::CATEGORY)
-        {
-            xml_node xmlChild = xmlNode.append_child(node_newline);
-            xmlChild.set_value("\n");
-            continue;
-        }
-
-        xml_node xmlChild = xmlNode.append_child(child->getCategory().c_str());
-        elementToXml(child, xmlChild, writeOptions);
-    }
-}
-
-void processXIncludes(DocumentPtr doc, xml_node& xmlNode, const FileSearchPath& searchPath, const XmlReadOptions* readOptions)
-{
-    // Search path for includes. Set empty and then evaluated once in the iteration through xml includes.
-    FileSearchPath includeSearchPath;
-
+    // Process XInclude directives.
     XmlReadFunction readXIncludeFunction = readOptions ? readOptions->readXIncludeFunction : readFromXmlFile;
-    xml_node xmlChild = xmlNode.first_child();
-    while (xmlChild)
+    if (readXIncludeFunction)
     {
-        if (xmlChild.name() == XINCLUDE_TAG)
+        for (const xml_node& xmlChild : xmlRoot.children())
         {
-            // Read XInclude references if requested.
-            if (readXIncludeFunction)
+            if (xmlChild.name() == XINCLUDE_TAG)
             {
                 string filename = xmlChild.attribute("href").value();
+                const StringVec& parents = readOptions ? readOptions->parentXIncludes : StringVec();
 
-                // Check for XInclude cycles.
-                if (readOptions)
+                // Validate XInclude state.
+                if (std::find(parents.begin(), parents.end(), filename) != parents.end())
                 {
-                    const StringVec& parents = readOptions->parentXIncludes;
-                    if (std::find(parents.begin(), parents.end(), filename) != parents.end())
-                    {
-                        throw ExceptionParseError("XInclude cycle detected.");
-                    }
+                    throw ExceptionParseError("XInclude cycle detected.");
+                }
+                if (parents.size() >= MAX_XINCLUDE_DEPTH)
+                {
+                    throw ExceptionParseError("Maximum XInclude depth exceeded.");
                 }
 
                 // Read the included file into a library document.
                 DocumentPtr library = createDocument();
                 XmlReadOptions xiReadOptions = readOptions ? *readOptions : XmlReadOptions();
                 xiReadOptions.parentXIncludes.push_back(filename);
-
-                // Prepend the directory of the parent to accommodate
-                // includes relative to the parent file location.
-                if (includeSearchPath.isEmpty())
-                {
-                    string parentUri = doc->getSourceUri();
-                    if (!parentUri.empty())
-                    {
-                        FilePath filePath = searchPath.find(parentUri);
-                        if (!filePath.isEmpty())
-                        {
-                            // Remove the file name from the path as we want the path to the containing folder.
-                            includeSearchPath = searchPath;
-                            includeSearchPath.prepend(filePath.getParentPath());
-                        }
-                    }
-                    // Set default search path if no parent path found
-                    if (includeSearchPath.isEmpty())
-                    {
-                        includeSearchPath = searchPath;
-                    }
-                }
-                readXIncludeFunction(library, filename, includeSearchPath, &xiReadOptions);
+                readXIncludeFunction(library, filename, searchPath, &xiReadOptions);
 
                 // Import the library document.
                 doc->importLibrary(library);
             }
-
-            // Remove include directive.
-            xml_node includeNode = xmlChild;
-            xmlChild = xmlChild.next_sibling();
-            xmlNode.remove_child(includeNode);
-        }
-        else
-        {
-            xmlChild = xmlChild.next_sibling();
         }
     }
-}
 
-void documentFromXml(DocumentPtr doc,
-                     const xml_document& xmlDoc,
-                     const FileSearchPath& searchPath = FileSearchPath(),
-                     const XmlReadOptions* readOptions = nullptr)
-{
-    xml_node xmlRoot = xmlDoc.child(Document::CATEGORY.c_str());
-    if (xmlRoot)
-    {
-        processXIncludes(doc, xmlRoot, searchPath, readOptions);
-        elementFromXml(xmlRoot, doc, readOptions);
-    }
+    // Build the element tree.
+    elementFromXml(xmlRoot, doc, readOptions);
 
+    // Upgrade version if requested.
     if (!readOptions || readOptions->upgradeVersion)
     {
         doc->upgradeVersion();
@@ -340,16 +319,19 @@ void readFromXmlFile(DocumentPtr doc, FilePath filename, FileSearchPath searchPa
     xml_parse_result result = xmlDoc.load_file(filename.asString().c_str(), getParseOptions(readOptions));
     validateParseResult(result, filename);
 
-    // This must be done before parsing the XML as the source URI
-    // is used for searching for include files.
-    if (readOptions && !readOptions->parentXIncludes.empty())
+    // Store the source URI of the document.
+    FilePath sourcePath = (readOptions && !readOptions->parentXIncludes.empty()) ?
+                           FilePath(readOptions->parentXIncludes[0]) :
+                           FilePath(filename);
+    doc->setSourceUri(sourcePath);
+
+    // Enable XIncludes that are relative to this document.
+    if (!sourcePath.isAbsolute())
     {
-        doc->setSourceUri(readOptions->parentXIncludes[0]);
+        sourcePath = searchPath.find(sourcePath);
     }
-    else
-    {
-        doc->setSourceUri(filename);
-    }
+    searchPath.prepend(sourcePath.getParentPath());
+
     documentFromXml(doc, xmlDoc, searchPath, readOptions);
 }
 
@@ -367,7 +349,7 @@ void writeToXmlStream(DocumentPtr doc, std::ostream& stream, const XmlWriteOptio
 {
     xml_document xmlDoc;
     xml_node xmlRoot = xmlDoc.append_child("materialx");
-    elementToXml(doc, xmlRoot, writeOptions);
+    documentToXml(doc, xmlRoot, writeOptions);
     xmlDoc.save(stream, "  ");
 }
 

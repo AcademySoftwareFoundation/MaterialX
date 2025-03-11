@@ -73,22 +73,25 @@ TEST_CASE("GenShader: Valid Libraries", "[genshader]")
 
 TEST_CASE("GenShader: TypeDesc Check", "[genshader]")
 {
+    mx::TypeSystemPtr ts = mx::TypeSystem::create();
+    mx::GenContext context(mx::GlslShaderGenerator::create(ts));
+
     // Make sure the standard types are registered
-    const mx::TypeDesc floatType = mx::TypeDesc::get("float");
+    const mx::TypeDesc floatType = ts->getType("float");
     REQUIRE(floatType != mx::Type::NONE);
     REQUIRE(floatType.getBaseType() == mx::TypeDesc::BASETYPE_FLOAT);
-    const mx::TypeDesc integerType = mx::TypeDesc::get("integer");
+    const mx::TypeDesc integerType = ts->getType("integer");
     REQUIRE(integerType != mx::Type::NONE);
     REQUIRE(integerType.getBaseType() == mx::TypeDesc::BASETYPE_INTEGER);
-    const mx::TypeDesc booleanType = mx::TypeDesc::get("boolean");
+    const mx::TypeDesc booleanType = ts->getType("boolean");
     REQUIRE(booleanType != mx::Type::NONE);
     REQUIRE(booleanType.getBaseType() == mx::TypeDesc::BASETYPE_BOOLEAN);
-    const mx::TypeDesc color3Type = mx::TypeDesc::get("color3");
+    const mx::TypeDesc color3Type = ts->getType("color3");
     REQUIRE(color3Type != mx::Type::NONE);
     REQUIRE(color3Type.getBaseType() == mx::TypeDesc::BASETYPE_FLOAT);
     REQUIRE(color3Type.getSemantic() == mx::TypeDesc::SEMANTIC_COLOR);
     REQUIRE(color3Type.isFloat3());
-    const mx::TypeDesc color4Type = mx::TypeDesc::get("color4");
+    const mx::TypeDesc color4Type = ts->getType("color4");
     REQUIRE(color4Type != mx::Type::NONE);
     REQUIRE(color4Type.getBaseType() == mx::TypeDesc::BASETYPE_FLOAT);
     REQUIRE(color4Type.getSemantic() == mx::TypeDesc::SEMANTIC_COLOR);
@@ -96,12 +99,19 @@ TEST_CASE("GenShader: TypeDesc Check", "[genshader]")
 
     // Make sure we can register a new custom type
     const std::string fooTypeName = "foo";
-    mx::TypeDescRegistry reg(mx::TypeDesc(fooTypeName, mx::TypeDesc::BASETYPE_FLOAT, mx::TypeDesc::SEMANTIC_COLOR, 5), fooTypeName);
-    const mx::TypeDesc fooType = mx::TypeDesc::get(fooTypeName);
+    ts->registerType(fooTypeName, mx::TypeDesc::BASETYPE_FLOAT, mx::TypeDesc::SEMANTIC_COLOR, 5);
+    mx::TypeDesc fooType = ts->getType(fooTypeName);
     REQUIRE(fooType != mx::Type::NONE);
+    REQUIRE(fooType.getSemantic() == mx::TypeDesc::SEMANTIC_COLOR);
+
+    // Make sure we can register a new type replacing an old type
+    ts->registerType(fooTypeName, mx::TypeDesc::BASETYPE_INTEGER, mx::TypeDesc::SEMANTIC_VECTOR, 3);
+    fooType = ts->getType(fooTypeName);
+    REQUIRE(fooType != mx::Type::NONE);
+    REQUIRE(fooType.getSemantic() == mx::TypeDesc::SEMANTIC_VECTOR);
 
     // Make sure we can't request an unknown type
-    REQUIRE(mx::TypeDesc::get("bar") == mx::Type::NONE);
+    REQUIRE(ts->getType("bar") == mx::Type::NONE);
 }
 
 TEST_CASE("GenShader: Shader Translation", "[translate]")
@@ -161,7 +171,7 @@ TEST_CASE("GenShader: Transparency Regression Check", "[genshader]")
         bool testValue = transparencyTest[i];
 
         mx::DocumentPtr testDoc = mx::createDocument();
-        testDoc->importLibrary(libraries);
+        testDoc->setDataLibrary(libraries);
 
         try
         {
@@ -207,7 +217,7 @@ void testDeterministicGeneration(mx::DocumentPtr libraries, mx::GenContext& cont
     {
         mx::DocumentPtr testDoc = mx::createDocument();
         mx::readFromXmlFile(testDoc, testFile);
-        testDoc->importLibrary(libraries);
+        testDoc->setDataLibrary(libraries);
 
         // Keep the document alive to make sure
         // new memory is allocated for each run
@@ -272,7 +282,7 @@ void checkPixelDependencies(mx::DocumentPtr libraries, mx::GenContext& context)
 
     mx::DocumentPtr testDoc = mx::createDocument();
     mx::readFromXmlFile(testDoc, testFile);
-    testDoc->importLibrary(libraries);
+    testDoc->setDataLibrary(libraries);
 
     mx::ElementPtr element = testDoc->getChild(testElement);
     CHECK(element);
@@ -385,7 +395,7 @@ TEST_CASE("GenShader: Track Application Variables", "[genshader]")
 
     mx::DocumentPtr testDoc = mx::createDocument();
     mx::readFromXmlString(testDoc, testDocumentString);
-    testDoc->importLibrary(libraries);
+    testDoc->setDataLibrary(libraries);
 
     mx::ElementPtr element = testDoc->getChild(testElement);
     CHECK(element);

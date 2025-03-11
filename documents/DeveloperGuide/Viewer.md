@@ -65,7 +65,7 @@ Shadow maps from the primary directional light may be enabled with the `Shadow M
 
 ## Images
 
-By default, the MaterialX viewer loads and saves image files using `stb_image`, which supports commmon 8-bit formats such as JPEG, PNG, TGA, and BMP, as well as the HDR format for high-dynamic-range images.  If you need access to additional image formats such as EXR and TIFF, then the MaterialX viewer can be built with support for `OpenImageIO`.  To build MaterialX with OpenImageIO, check the `MATERIALX_BUILD_OIIO` option in CMake, and specify the location of your OpenImageIO installation with the `MATERIALX_OIIO_DIR` option.
+By default, the MaterialX viewer loads and saves image files using `stb_image`, which supports common 8-bit formats such as JPEG, PNG, TGA, and BMP, as well as the HDR format for high-dynamic-range images.  If you need access to additional image formats such as EXR and TIFF, then the MaterialX viewer can be built with support for `OpenImageIO`.  To build MaterialX with OpenImageIO, check the `MATERIALX_BUILD_OIIO` option in CMake, and specify the location of your OpenImageIO installation with the `MATERIALX_OIIO_DIR` option.
 
 ## Keyboard Shortcuts
 
