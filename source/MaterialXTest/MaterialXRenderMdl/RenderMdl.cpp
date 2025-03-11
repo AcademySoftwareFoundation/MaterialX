@@ -134,8 +134,11 @@ bool MdlShaderRenderTester::runRenderer(const std::string& shaderName,
 
                 // Application setup
                 renderCommand += " --nogui"; // headless mode
-                renderCommand += " --res 512 512 --spp 1024 --max_path_length 3";
-                renderCommand += " --warn"; // reduce the log messages
+                renderCommand += " --res 512 512";
+                renderCommand += " --max_path_length 6";
+                renderCommand += " --iterations " + std::to_string(testOptions.enableReferenceQuality ? 1024 : 256);
+                renderCommand += " --max_sss_steps 256";
+                renderCommand += " --warning"; // reduce the log messages
 
                 // addition optional render arguments
                 std::string renderArgs(MATERIALX_MDL_RENDER_ARGUMENTS);
@@ -148,7 +151,6 @@ bool MdlShaderRenderTester::runRenderer(const std::string& shaderName,
                 if (testOptions.dumpGeneratedCode)
                 {
                     renderCommand += " --generated " + shaderPath + ".mdl";
-                    renderCommand += " --generated_glsl " + shaderPath + ".mdl.glsl";
                 }
 
                 // set the output image file
@@ -158,7 +160,7 @@ bool MdlShaderRenderTester::runRenderer(const std::string& shaderName,
                 renderCommand += " -o " + shaderPath + "_mdl.png";
 #endif
                 // also create a full log
-                //renderCommand += " --log_file " + shaderPath + +".mdl_render_log.txt";
+                renderCommand += " --log_file " + shaderPath + +".mdl_render_log.txt";
 
                 // run the renderer executable
                 int returnValue = std::system(renderCommand.c_str());

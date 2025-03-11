@@ -128,6 +128,7 @@ public:
         bool headless = false;
         bool vsync = true;
         uint32_t iteration_count = 1; // Headless mode only
+        uint32_t max_sss_steps = 256;
         int32_t device_index = -1;
         bool enable_validation_layers = false;
         bool enable_descriptor_indexing = false;
