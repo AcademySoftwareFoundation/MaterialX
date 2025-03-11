@@ -13,9 +13,12 @@
 //   BINDING_ENV_MAP_SAMPLING_DATA : Binding index for Environment_sample_data_buffer
 //   BINDING_BEAUTY_BUFFER         : Binding index for uBeautyBuffer
 //
-//   MDL_HAS_BACKFACE_BSDF               : Only defined if backface.scattering is non-default and different than surface.scattering
-//   MDL_HAS_BACKFACE_EDF                : Only defined if backface.emission.emission is non-default and different than surface.emission.emission
-//   MDL_HAS_BACKFACE_EMISSION_INTENSITY : Only defined if backface.emission.intensity is non-default and different than surface.emission.intensity
+//   MDL_HAS_BACKFACE_BSDF                      : Only defined if backface.scattering is non-default and different than surface.scattering
+//   MDL_HAS_BACKFACE_EDF                       : Only defined if backface.emission.emission is non-default and different than surface.emission.emission
+//   MDL_HAS_BACKFACE_EMISSION_INTENSITY        : Only defined if backface.emission.intensity is non-default and different than surface.emission.intensity
+//   MDL_HAS_VOLUME_SCATTERING                  : Only defined if volume.scattering is non-default
+//   MDL_HAS_VOLUME_SCATTERING_DIRECTIONAL_BIAS : Only defined if volume.scattering is non-default and volume.scattering.directional_bias exists
+//   MDL_HAS_VOLUME_ABSORPTION                  : Only defined if volume.absorbtion is non-default
 
 #version 450
 #extension GL_GOOGLE_include_directive : require
@@ -46,6 +49,7 @@ layout(std140, set = 0, binding = BINDING_RENDER_PARAMS) uniform Render_params
 
     // Render params
     uint uMaxPathLength;
+    uint uMaxSSSPathLength;
     uint uSamplesPerIteration;
     uint uProgressiveIteration;
     uint uFlipTexCoordV;
@@ -75,9 +79,20 @@ struct Ray_state
     vec3 origin;
     vec3 dir;
     float last_bsdf_pdf;
-    bool is_inside;
-    bool is_camera_ray;
+    uint flags;
 };
+
+#define FLAG_NONE               0
+#define FLAG_INSIDE             (1 << 0)
+#define FLAG_CAMERA_RAY         (1 << 1)
+#define FLAG_SSS_R              (1 << 2)
+#define FLAG_SSS_G              (1 << 3)
+#define FLAG_SSS_B              (1 << 4)
+
+void add_flag(inout uint flags, uint to_add) { flags |= to_add; }
+void toggle_flag(inout uint flags, uint to_toggle) { flags ^= to_toggle; }
+void remove_flag(inout uint flags, uint to_remove) { flags &= ~to_remove; }
+bool has_flag(uint flags, uint to_check) { return (flags & to_check) != 0; }
 
 struct Ray_hit_info
 {
@@ -146,9 +161,19 @@ vec3 mdl_backface_emission_intensity(in State state);
 #define mdl_backface_emission_intensity mdl_emission_intensity
 #endif // HAS_BACKFACE_EMISSION_INTENSITY
 
-vec3 mdl_absorption_coefficient(in State state);
-float mdl_standalone_cutout_opacity(in State state);
+#ifdef MDL_HAS_VOLUME_ABSORPTION
+vec3 mdl_volume_absorption_coefficient(in State state);
+#endif // MDL_HAS_VOLUME_ABSORPTION
 
+#ifdef MDL_HAS_VOLUME_SCATTERING
+vec3 mdl_volume_scattering_coefficient(in State state);
+#endif // MDL_HAS_VOLUME_SCATTERING
+
+#ifdef MDL_HAS_VOLUME_SCATTERING_DIRECTIONAL_BIAS
+float mdl_volume_scattering_directional_bias(in State state);
+#endif // MDL_HAS_VOLUME_SCATTERING
+
+float mdl_standalone_cutout_opacity(in State state);
 
 //-------------------------------------------------------------------------------------------------
 // random number generator based on the Optix SDK
@@ -338,6 +363,149 @@ vec3 offset_ray(const vec3 p, const vec3 n)
                 abs(p.z) < origin ? p.z + float_scale * n.z : p_i.z);
 }
 
+
+// Applies volume scattering and absorption.
+// Scattering is implemented as random walk.
+// The function returns true if a scattering event happened, in that case further evaluation has to be skipped and the next path segment needs to be traced.
+bool handle_volume_events(inout Ray_state ray_state, in State state, float distance, inout uint seed)
+{
+#if defined(MDL_HAS_VOLUME_SCATTERING) || defined(MDL_HAS_VOLUME_ABSORPTION)
+
+    #if defined(MDL_HAS_VOLUME_SCATTERING)
+    const vec3 s_coeff = mdl_volume_scattering_coefficient(state);
+    #else
+    const vec3 s_coeff = vec3(0.0);
+    #endif
+
+    #if defined(MDL_HAS_VOLUME_ABSORPTION)
+    const vec3 a_coeff = mdl_volume_absorption_coefficient(state);
+    #else
+    const vec3 a_coeff = vec3(0.0);
+    #endif
+
+    #if defined(MDL_HAS_VOLUME_SCATTERING_DIRECTIONAL_BIAS)
+    const float g = mdl_volume_scattering_directional_bias(state);
+    #else
+    const float g = 0.0;
+    #endif
+
+    const vec3 t_coeff = a_coeff + s_coeff;
+
+    // scatter only if we have non-zero scatter coefficients
+    float survival_prob = 1.0f;
+    if (s_coeff.x > 0.0f || s_coeff.y > 0.0 || s_coeff.z > 0.0f)
+    {
+        const float s_coeff_max = max(s_coeff.x, max(s_coeff.y, s_coeff.z));
+        const float t_coeff_min = min(t_coeff.x, min(t_coeff.y, t_coeff.z));
+
+        float sample_coeff = 0.0f;
+        if (s_coeff_max <= t_coeff_min)
+        {
+            // can use common coefficient for distance importance sampling while keeping variance bounded
+            sample_coeff = t_coeff_min;
+        }
+        else if (has_flag(ray_state.flags, FLAG_SSS_R | FLAG_SSS_G | FLAG_SSS_B))
+        {
+            // switch to single color
+            const float xi = rnd(seed);
+            if (xi < (1.0 / 3.0))
+            {
+                add_flag(ray_state.flags, FLAG_SSS_R);
+                ray_state.weight.x *= 3.0f;
+                ray_state.weight.y = 0.0f;
+                ray_state.weight.z = 0.0f;
+            }
+            else if (xi < (2.0 / 3.0))
+            {
+                add_flag(ray_state.flags, FLAG_SSS_G);
+                ray_state.weight.x = 0.0f;
+                ray_state.weight.y *= 3.0f;
+                ray_state.weight.z = 0.0f;
+            }
+            else
+            {
+                add_flag(ray_state.flags, FLAG_SSS_B);
+                ray_state.weight.x = 0.0f;
+                ray_state.weight.y = 0.0f;
+                ray_state.weight.z *= 3.0f;
+            }
+        }
+
+        if (has_flag(ray_state.flags, FLAG_SSS_R))
+            sample_coeff = t_coeff.x;
+        else if (has_flag(ray_state.flags, FLAG_SSS_G))
+            sample_coeff = t_coeff.y;
+        else if (has_flag(ray_state.flags, FLAG_SSS_B))
+            sample_coeff = t_coeff.z;
+
+        // sample travel distance in meters
+        const float sampled_distance = -log(1.0 - rnd(seed)) / sample_coeff;
+
+        // scattering event happened
+        if (sampled_distance < distance)
+        {
+            // compute scattering position in scene units
+            distance = sampled_distance;
+            ray_state.origin += ray_state.dir * distance;
+
+            // random direction, Henyey-Greenstein phase function
+            float cosTheta;
+            if (g < 0.001)
+                cosTheta = 1.0 - 2.0 * rnd(seed);
+            else
+            {
+                const float inner_term = (1.0 - g * g) / (1.0 - g + 2.0 * g * rnd(seed));
+                cosTheta = (1.0 + g * g - inner_term * inner_term) / (2.0 * g);
+            }
+            const float phi = 2.0 * M_PI * rnd(seed);
+            const float sinTheta = sqrt(1.0 - cosTheta * cosTheta);
+            const float sinPhi = sin(phi);
+            const float cosPhi = cos(phi);
+
+            // Duff et al - "Building an Orthonormal Basis, Revisited"
+            vec3 u, v;
+            {
+                const vec3 n = ray_state.dir;
+                const float sign = (n.z >= 0.0f) ? 1.0f : -1.0f;
+                const float a = -1.0f / (sign + n.z);
+                const float b = n.x * n.y * a;
+                u = vec3(1.0f + sign * n.x * n.x * a, sign * b, -sign * n.x);
+                v = vec3(b, sign + n.y * n.y * a, -n.y);
+            }
+            ray_state.dir = u * cosPhi * sinTheta + v * sinPhi * sinTheta + ray_state.dir * cosTheta;
+
+            // apply scattering and volume attenuation
+            // note, this is limited to uniform scattering for subsurface scattering
+            // for non-uniform volume data, this is not sufficient
+            float pdf_dist = sample_coeff * exp(-sample_coeff * distance);
+            if (ray_state.weight.x > 0.0f)
+                ray_state.weight.x *= s_coeff.x * exp(-t_coeff.x * distance) / pdf_dist;
+            if (ray_state.weight.y > 0.0f)
+                ray_state.weight.y *= s_coeff.y * exp(-t_coeff.y * distance) / pdf_dist;
+            if (ray_state.weight.z > 0.0f)
+                ray_state.weight.z *= s_coeff.z * exp(-t_coeff.z * distance) / pdf_dist;
+
+            // continue the ray into scattering direction
+            return true;
+        }
+
+        // probability to reach the distance
+        survival_prob = exp(-sample_coeff * distance);
+    }
+
+    // apply volume attenuation
+    if (ray_state.weight.x > 0.0f)
+        ray_state.weight.x *= exp(-t_coeff.x * distance) / survival_prob;
+    if (ray_state.weight.y > 0.0f)
+        ray_state.weight.y *= exp(-t_coeff.y * distance) / survival_prob;
+    if (ray_state.weight.z > 0.0f)
+        ray_state.weight.z *= exp(-t_coeff.z * distance) / survival_prob;
+
+#endif // defined(MDL_HAS_VOLUME_SCATTERING) || defined(MDL_HAS_VOLUME_ABSORPTION)
+    return false;
+}
+
+
 State make_mdl_state(Ray_hit_info hit_info, bool inside)
 {
     const vec3 oriented_normal = inside ? -hit_info.normal : hit_info.normal;
@@ -369,6 +537,7 @@ State make_mdl_state(Ray_hit_info hit_info, bool inside)
 
 void trace_path(inout Ray_state ray_state, inout uint seed)
 {
+    uint sss_steps_left = uMaxSSSPathLength;
     for (int bounce = 0; bounce < uMaxPathLength; bounce++)
     {
         Ray_hit_info hit_info;
@@ -390,9 +559,9 @@ void trace_path(inout Ray_state ray_state, inout uint seed)
             break;
         }
         // Ray hit the sphere
-        ray_state.is_camera_ray = false;
+        remove_flag(ray_state.flags, FLAG_CAMERA_RAY);
 
-        State state = make_mdl_state(hit_info, ray_state.is_inside);
+        State state = make_mdl_state(hit_info, has_flag(ray_state.flags, FLAG_INSIDE));
         
         // Handle cutout opacity
         float x_anyhit = rnd(seed);
@@ -401,7 +570,7 @@ void trace_path(inout Ray_state ray_state, inout uint seed)
             // Don't count this as a bounce
             bounce--;
 
-            ray_state.is_inside = !ray_state.is_inside;
+            toggle_flag(ray_state.flags, FLAG_INSIDE);
             ray_state.origin = offset_ray(state.position, -state.geom_normal);
 
             continue;
@@ -413,18 +582,25 @@ void trace_path(inout Ray_state ray_state, inout uint seed)
         //       the cutout opacity causes this hit to be ignored.
         mdl_init(state);
 
+        const bool is_inside = has_flag(ray_state.flags, FLAG_INSIDE);
         const bool thin_walled = mdl_thin_walled(state);
-        const bool is_backface = ray_state.is_inside && thin_walled;
-        const vec3 ior1 = vec3((ray_state.is_inside && !thin_walled) ? BSDF_USE_MATERIAL_IOR : 1.0);
-        const vec3 ior2 = vec3((ray_state.is_inside && !thin_walled) ? 1.0 : BSDF_USE_MATERIAL_IOR);
+        const bool is_backface = is_inside && thin_walled;
+        const vec3 ior1 = vec3((is_inside && !thin_walled) ? BSDF_USE_MATERIAL_IOR : 1.0);
+        const vec3 ior2 = vec3((is_inside && !thin_walled) ? 1.0 : BSDF_USE_MATERIAL_IOR);
 
-        // Apply volume attenuation
-        if (ray_state.is_inside && !thin_walled)
+        // Apply volume attenuation and scattering
+        if (is_inside && !thin_walled && handle_volume_events(ray_state, state, hit_info.dist, seed))
         {
-            const vec3 abs_coeff = mdl_absorption_coefficient(state);
-            ray_state.weight.x *= abs_coeff.x > 0.0 ? exp(-abs_coeff.x * hit_info.dist) : 1.0;
-            ray_state.weight.y *= abs_coeff.y > 0.0 ? exp(-abs_coeff.y * hit_info.dist) : 1.0;
-            ray_state.weight.z *= abs_coeff.z > 0.0 ? exp(-abs_coeff.z * hit_info.dist) : 1.0;
+            // we enter this block if a scattering event happened
+
+            // don't count volume scattering steps using the regular ray depth
+            if (sss_steps_left > 0)
+            {
+                sss_steps_left--;
+                bounce--;
+            }
+            // continue tracing inside the volume
+            continue;
         }
 
         // Add emission
@@ -437,7 +613,7 @@ void trace_path(inout Ray_state ray_state, inout uint seed)
             const vec3 emission_intensity = mdl_backface_emission_intensity(state);
             ray_state.contribution += ray_state.weight * emission_intensity * edf_evaluate_data.edf;
         }
-        else if (!ray_state.is_inside)
+        else if (!is_inside)
         {
             mdl_edf_evaluate(edf_evaluate_data, state);
             const vec3 emission_intensity = mdl_emission_intensity(state);
@@ -459,7 +635,7 @@ void trace_path(inout Ray_state ray_state, inout uint seed)
             float x_light_anyhit = rnd(seed);
             if (shadow_ray_hit)
             {
-                State shadow_hit_state = make_mdl_state(shadow_hit, ray_state.is_inside);
+                State shadow_hit_state = make_mdl_state(shadow_hit, is_inside);
                 shadow_ray_hit = (x_light_anyhit <= mdl_standalone_cutout_opacity(shadow_hit_state));
             }
 
@@ -508,7 +684,7 @@ void trace_path(inout Ray_state ray_state, inout uint seed)
 
         if (is_transmission)
         {
-            ray_state.is_inside = !ray_state.is_inside;
+            toggle_flag(ray_state.flags, FLAG_INSIDE);
             ray_state.origin = offset_ray(state.position, -state.geom_normal);
         }
         else
@@ -555,13 +731,18 @@ void main()
         ray_state.origin = ray_origin;
         ray_state.dir = ray_dir;
         ray_state.last_bsdf_pdf = DIRAC;
-        ray_state.is_inside = dot(ray_origin, ray_origin) < 1.0;
-        ray_state.is_camera_ray = true;
+
+        if (dot(ray_origin, ray_origin) < 1.0)
+            add_flag(ray_state.flags, FLAG_INSIDE);
+        else
+            remove_flag(ray_state.flags, FLAG_INSIDE);
+        
+        add_flag(ray_state.flags, FLAG_CAMERA_RAY);
 
         trace_path(ray_state, seed);
 
         // replace the background with a constant color when visible to the camera
-        if (uBackgroundColorEnabled != 0 && ray_state.is_camera_ray)
+        if (uBackgroundColorEnabled != 0 && has_flag(ray_state.flags, FLAG_CAMERA_RAY))
             contribution += uBackgroundColor;
         else
             contribution += ray_state.contribution;
