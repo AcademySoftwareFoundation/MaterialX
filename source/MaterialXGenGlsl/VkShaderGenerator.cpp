@@ -54,16 +54,14 @@ void VkShaderGenerator::emitInputs(GenContext& context, ShaderStage& stage) cons
         const VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
         if (!vertexData.empty())
         {
-            emitComment("Inputs: " + vertexData.getName(), stage);
-            for (size_t i = 0; i < vertexData.size(); ++i)
-            {
-
-                emitLineBegin(stage);
-                emitString("layout (location = " + std::to_string(i) + ") ", stage);
-                emitVariableDeclaration(vertexData[i], _syntax->getInputQualifier(), context, stage, false);
-                emitString(Syntax::SEMICOLON, stage);
-                emitLineEnd(stage, false);
-            }
+            emitString("layout (location = " + std::to_string(vertexDataLocation) + ") " +
+                        _syntax->getInputQualifier() + " " + vertexData.getName(), stage);
+            emitLineBreak(stage);
+            emitScopeBegin(stage);
+            emitVariableDeclarations(vertexData, EMPTY_STRING, Syntax::SEMICOLON, context, stage, false);
+            emitScopeEnd(stage, false, false);
+            emitString(" " + vertexData.getInstance() + Syntax::SEMICOLON, stage);
+            emitLineBreak(stage);
             emitLineBreak(stage);
         }
     }
@@ -81,14 +79,14 @@ void VkShaderGenerator::emitOutputs(GenContext& context, ShaderStage& stage) con
         const VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
         if (!vertexData.empty())
         {
-            for (size_t i = 0; i < vertexData.size(); ++i)
-            {
-                emitLineBegin(stage);
-                emitString("layout (location = " + std::to_string(i) + ") ", stage);
-                emitVariableDeclaration(vertexData[i], _syntax->getOutputQualifier(), context, stage, false);
-                emitString(Syntax::SEMICOLON, stage);
-                emitLineEnd(stage, false);
-            }
+            emitString("layout (location = " + std::to_string(vertexDataLocation) + ") " +
+                        _syntax->getOutputQualifier() + " " + vertexData.getName(), stage);
+            emitLineBreak(stage);
+            emitScopeBegin(stage);
+            emitVariableDeclarations(vertexData, EMPTY_STRING, Syntax::SEMICOLON, context, stage, false);
+            emitScopeEnd(stage, false, false);
+            emitString(" " + vertexData.getInstance() + Syntax::SEMICOLON, stage);
+            emitLineBreak(stage);
             emitLineBreak(stage);
         }
     }
