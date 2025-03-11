@@ -69,6 +69,7 @@ struct Options
     uint32_t samples_per_pixel = 4096;
     uint32_t samples_per_iteration = 8;
     uint32_t max_path_length = 4;
+    uint32_t max_sss_steps = 256;
     float cam_fov = 45.0f;
     mi::Float32_3 cam_pos = { 0.0f, 0.0f, 3.0f };
     mi::Float32_3 cam_lookat = { 0.0f, 0.0f, 0.0f };
@@ -87,13 +88,13 @@ struct Options
     bool enable_validation_layers = false;
     bool enable_shader_optimization = true;
     std::string dump_mdl = "";
-    std::string dump_glsl = "";
     std::vector<std::string> mdl_search_paths = {};
     std::vector<std::string> mtlx_paths = {};
     std::vector<std::string> mtlx_libraries = {};
     bool materialxtest_mode = false;
     MaterialX::GenMdlOptions::MdlVersion mdl_target_version = MaterialX::GenMdlOptions::MdlVersion::MDL_LATEST;
-    mi::examples::log::Level log_level = mi::examples::log::Level::Verbose;
+    mi::examples::log::Level log_level = mi::examples::log::Level::Info;
+    std::string log_file = "";
 };
 
 using Vulkan_texture = mi::examples::vk::Vulkan_texture;
@@ -345,6 +346,7 @@ private:
 
         // Render params
         uint32_t max_path_length;
+        uint32_t uMaxSSSPathLength;
         uint32_t samples_per_iteration;
         uint32_t progressive_iteration;
         uint32_t flip_texcoord_v;
@@ -811,6 +813,12 @@ VkShaderModule Df_vulkan_app::create_path_trace_shader_module()
             defines.push_back("MDL_HAS_BACKFACE_EDF");
         else if (std::strcmp(fname, "mdl_backface_emission_intensity") == 0)
             defines.push_back("MDL_HAS_BACKFACE_EMISSION_INTENSITY");
+        else if (std::strcmp(fname, "mdl_volume_scattering_coefficient") == 0)
+            defines.push_back("MDL_HAS_VOLUME_SCATTERING");
+        else if (std::strcmp(fname, "mdl_volume_scattering_directional_bias") == 0)
+            defines.push_back("MDL_HAS_VOLUME_SCATTERING_DIRECTIONAL_BIAS");
+        else if (std::strcmp(fname, "mdl_volume_absorption_coefficient") == 0)
+            defines.push_back("MDL_HAS_VOLUME_ABSORPTION");
     }
 
     auto t0 = std::chrono::steady_clock::now();
@@ -1500,6 +1508,50 @@ const mi::neuraylib::ITarget_code* generate_glsl_code(
     if (need_backface_emission_intensity)
         function_descs.emplace_back("backface.emission.intensity", "mdl_backface_emission_intensity");
 
+    auto add_expression_if_not_black = [&compiled_material, &function_descs](const char* expression_path, const char* func_name)
+    {
+        mi::base::Handle<const mi::neuraylib::IExpression> expr(
+            compiled_material->lookup_sub_expression(expression_path));
+        if (expr->get_kind() == mi::neuraylib::IExpression::EK_CONSTANT)
+        {
+            mi::base::Handle<const mi::neuraylib::IExpression_constant> expr_constant(
+                expr->get_interface<const mi::neuraylib::IExpression_constant>());
+            mi::base::Handle<const mi::neuraylib::IValue_color> value(
+                expr_constant->get_value<mi::neuraylib::IValue_color>());
+            if (!value)
+                return false;
+
+            // check for black
+            bool is_back = true;
+            for (mi::Size i = 0; i < value->get_size(); ++i)
+            {
+                mi::base::Handle<mi::neuraylib::IValue_float const> element(value->get_value(i));
+                is_back &= element->get_value() == 0.0f;
+            }
+            if (is_back)
+                return false;
+        }
+
+        // add the expression for code gen
+        function_descs.emplace_back(expression_path, func_name);
+        return true;
+    };
+
+    // volume scattering
+    if (add_expression_if_not_black("volume.scattering_coefficient", "mdl_volume_scattering_coefficient"))
+    {
+        // assuming an anisotropic VDF
+        mi::base::Handle<const mi::neuraylib::IExpression> directional_bias(
+            compiled_material->lookup_sub_expression("volume.scattering.directional_bias"));
+        if (directional_bias)
+        {
+            function_descs.emplace_back("volume.scattering.directional_bias", "mdl_volume_scattering_directional_bias");
+        }
+    }
+
+    // volume absorption
+    add_expression_if_not_black("volume.absorption_coefficient", "mdl_volume_absorption_coefficient");
+
     link_unit->add_material(
         compiled_material, function_descs.data(), function_descs.size(), context);
     check_success(print_messages(context));
@@ -1559,12 +1611,14 @@ void print_usage(char const* prog_name)
         << "                              - <MDL qualified material name>\n"
 
         << "  --nogui                     Don't open interactive display\n"
-        << "  --res <res_x> <res_y>       resolution (default: 1024x768)\n"
-        << "  --numimg <n>                swapchain image count (default: 3)\n"
-        << "  --device <id>               run on supported GPU <id>\n"
-        << "  --spp <num>                 samples per pixel, only used for --nowin (default: 4096)\n"
-        << "  --spi <num>                 samples per render loop iteration (default: 8)\n"
-        << "  --max_path_length <num>     maximum path length (default: 4)\n"
+        << "  --res <res_x> <res_y>       Resolution (default: 1024x768)\n"
+        << "  --numimg <n>                Swapchain image count (default: 3)\n"
+        << "  --device <id>               Run on supported GPU <id>\n"
+        << "  --iterations <num>          Samples per pixel, only used for --nogui (default: 4096)\n"
+        << "  --spi <num>                 Samples per render loop iteration (default: 8)\n"
+        << "  --max_path_length <num>     Maximum path length (default: 4)\n"
+        << "  --max_sss_steps <num>       Maximum number of volume scattering steps in addition to \n"
+        << "                              'max_path_length', (default: 256)\n"
 
         << "  -f|--fov <fov>              the camera field of view in degrees (default: 96.0)\n"
         << "  --camera <px> <py> <pz> <fx> <fy> <fz>  Overrides the camera pose defined in the\n"
@@ -1590,12 +1644,11 @@ void print_usage(char const* prog_name)
         << "  --no_shader_opt             disables shader SPIR-V optimization\n"
 
         << "  --materialxtest_mode        setup image and texcoord space to match the test setup\n"
-        << "  -o|--output <path>          image file to write result in nowin mode (default: output.exr)\n"
+        << "  -o|--output <path>          image file to write result in nogui mode (default: output.exr)\n"
         << "  -g|--generated <path>       outputs the MDL code generated from MaterialX to a file\n"
-        << "  --generated_glsl <path>     outputs the generated GLSL target code to a file\n"
-        << "  --info                      limit log output to level 'info' and higher\n"
-        << "  --warn                      limit log output to level 'warning' and higher\n"
-        << "  --error                     limit log output to level 'error'\n"
+        << "  --verbose                   set log output to level 'verbose' (default: info)\n"
+        << "  --warning                   limit log output to level 'warning' (default: info)\n"
+        << "  --error                     limit log output to level 'error' (default: info)\n"
         << std::endl;
 
     exit(EXIT_FAILURE);
@@ -1650,8 +1703,10 @@ void parse_command_line(int argc, char* argv[], Options& options)
                 options.device_index = std::max(atoi(argv[++i]), -1);
             else if (arg == "-o" && i < argc - 1)
                 options.output_file = argv[++i];
-            else if (arg == "--spp" && i < argc - 1)
+            else if (arg == "--iterations" && i < argc - 1)
                 options.samples_per_pixel = std::atoi(argv[++i]);
+            else if (arg == "--max_sss_steps" && i < argc - 1)
+                options.max_sss_steps = std::atoi(argv[++i]);
             else if (arg == "--spi" && i < argc - 1)
                 options.samples_per_iteration = std::atoi(argv[++i]);
             else if (arg == "--max_path_length" && i < argc - 1)
@@ -1707,12 +1762,12 @@ void parse_command_line(int argc, char* argv[], Options& options)
                 options.materialxtest_mode = true;
             else if ((arg == "-g" || arg == "--generated") && i < argc - 1)
                 options.dump_mdl = (argv[++i]);
-            else if (arg == "--generated_glsl" && i < argc - 1)
-                options.dump_glsl = (argv[++i]);
 
-            else if (arg == "--info")
-                options.log_level = mi::examples::log::Level::Info;
-            else if (arg == "--warn")
+            else if (arg == "--log_file" && i < argc - 1)
+                options.log_file = (argv[++i]);
+            else if (arg == "--verbose")
+                options.log_level = mi::examples::log::Level::Verbose;
+            else if (arg == "--warning")
                 options.log_level = mi::examples::log::Level::Warning;
             else if (arg == "--error")
                 options.log_level = mi::examples::log::Level::Error;
@@ -1749,7 +1804,8 @@ namespace mdl
 
 namespace log
 {
-    Level s_Level;
+    Level s_level;
+    LogFile* s_file;
 }
 
 } // namespace examples
@@ -1759,7 +1815,14 @@ int MAIN_UTF8(int argc, char* argv[])
 {
     Options options;
     parse_command_line(argc, argv, options);
-    mi::examples::log::s_Level = options.log_level;
+    mi::examples::log::s_level = options.log_level;
+
+    std::unique_ptr<mi::examples::log::LogFile> log_file;
+    if (!options.log_file.empty())
+    {
+        log_file = std::make_unique<mi::examples::log::LogFile>(options.log_file);
+        mi::examples::log::s_file = log_file.get();
+    }
 
     // Access the MDL SDK
     mi::base::Handle<mi::neuraylib::INeuray> neuray(
@@ -1927,12 +1990,12 @@ int MAIN_UTF8(int argc, char* argv[])
                 generate_glsl_code(compiled_material.get(), mdl_backend_api.get(),
                     transaction.get(), context.get(), options));
 
-            if (!options.dump_glsl.empty())
+            if (!options.dump_mdl.empty())
             {
-                std::string dump_glsl_path = options.dump_glsl;
+                std::string dump_glsl_path = options.dump_mdl + ".glsl";
                 if (!mi::examples::io::is_absolute_path(dump_glsl_path))
                     dump_glsl_path = mi::examples::io::get_working_directory() + "/" + dump_glsl_path;
-                mi::examples::log::info("Dumping GLSL target code to: \"%s\"", dump_glsl_path.c_str());
+                mi::examples::log::info("Dumping generated MDL module to: \"%s\"", dump_glsl_path.c_str());
                 std::ofstream file_stream(dump_glsl_path);
                 file_stream.write(target_code->get_code(), target_code->get_code_size());
                 file_stream.close();
@@ -1946,6 +2009,7 @@ int MAIN_UTF8(int argc, char* argv[])
             app_config.image_count = options.num_images;
             app_config.headless = options.no_window;
             app_config.iteration_count = options.samples_per_pixel / options.samples_per_iteration;
+            app_config.max_sss_steps = options.max_sss_steps;
             app_config.device_index = options.device_index;
             app_config.enable_validation_layers = options.enable_validation_layers;
             app_config.enable_descriptor_indexing = true;

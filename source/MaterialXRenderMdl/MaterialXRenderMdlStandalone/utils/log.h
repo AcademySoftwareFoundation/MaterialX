@@ -53,7 +53,32 @@ namespace mi { namespace examples { namespace log
     };
 
     // current log level needs to be defined in the one link unit (one cpp-file)
-    extern Level s_Level;
+    extern Level s_level;
+
+    struct LogFile
+    {
+        LogFile(const std::string& filepath) :
+            m_log_file(filepath, std::ios_base::out),
+            m_log_stream(m_log_file)
+        {
+        }
+
+        virtual ~LogFile()
+        {
+            m_log_file.close();
+        }
+
+        std::ostream& stream()
+        {
+            return m_log_stream;
+        }
+
+      private:
+        std::ofstream m_log_file;
+        std::ostream& m_log_stream;
+    };
+
+    extern LogFile* s_file;
 
 // ------------------------------------------------------------------------------------------------
 
@@ -85,20 +110,24 @@ inline void print(
     }
     m.append(message);
     std::cerr << m.c_str() << std::endl;
+    if (s_file)
+    {
+        s_file->stream() << m.c_str();
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
 
 inline void verbose(const std::string& message)
 {
-    if (static_cast<char>(s_Level) >= static_cast<char>(Level::Verbose))
+    if (static_cast<char>(s_level) >= static_cast<char>(Level::Verbose))
         print(Level::Verbose, message);
 }
 
 template <typename... Args>
 void verbose(const char* format_string, Args... args)
 {
-    if (static_cast<char>(s_Level) >= static_cast<char>(Level::Verbose))
+    if (static_cast<char>(s_level) >= static_cast<char>(Level::Verbose))
         print(Level::Verbose, mi::examples::strings::format(format_string, std::forward<Args>(args)...));
 }
 
@@ -106,14 +135,14 @@ void verbose(const char* format_string, Args... args)
 
 inline void info(const std::string& message)
 {
-    if (static_cast<char>(s_Level) >= static_cast<char>(Level::Info))
+    if (static_cast<char>(s_level) >= static_cast<char>(Level::Info))
         print(Level::Info, message);
 }
 
 template <typename... Args>
 void info(const char* format_string, Args... args)
 {
-    if (static_cast<char>(s_Level) >= static_cast<char>(Level::Info))
+    if (static_cast<char>(s_level) >= static_cast<char>(Level::Info))
         print(Level::Info, mi::examples::strings::format(format_string, std::forward<Args>(args)...));
 }
 
@@ -121,14 +150,14 @@ void info(const char* format_string, Args... args)
 
 inline void warning(const std::string& message)
 {
-    if (static_cast<char>(s_Level) >= static_cast<char>(Level::Warning))
+    if (static_cast<char>(s_level) >= static_cast<char>(Level::Warning))
         print(Level::Warning, message);
 }
 
 template <typename... Args>
 void warning(const char* format_string, Args... args)
 {
-    if (static_cast<char>(s_Level) >= static_cast<char>(Level::Warning))
+    if (static_cast<char>(s_level) >= static_cast<char>(Level::Warning))
         print(Level::Warning, mi::examples::strings::format(format_string, std::forward<Args>(args)...));
 }
 
@@ -136,14 +165,14 @@ void warning(const char* format_string, Args... args)
 
 inline void error(const std::string& message)
 {
-    if (static_cast<char>(s_Level) >= static_cast<char>(Level::Error))
+    if (static_cast<char>(s_level) >= static_cast<char>(Level::Error))
         print(Level::Error, message);
 }
 
 template <typename... Args>
 void error(const char* format_string, Args... args)
 {
-    if (static_cast<char>(s_Level) >= static_cast<char>(Level::Error))
+    if (static_cast<char>(s_level) >= static_cast<char>(Level::Error))
         print(Level::Error, mi::examples::strings::format(format_string, std::forward<Args>(args)...));
 }
 
