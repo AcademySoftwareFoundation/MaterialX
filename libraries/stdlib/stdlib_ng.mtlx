@@ -196,6 +196,59 @@
   </nodegraph>
 
   <!--
+    Node: <latlongimage>
+  -->
+  <nodegraph name="NG_latlongimage" nodedef="ND_latlongimage">
+    <separate3 name="viewDirChannels" type="multioutput">
+      <input name="in" type="vector3" interfacename="viewdir" />
+    </separate3>
+    <atan2 name="angleXZ" type="float">
+      <input name="iny" type="float" nodename="viewDirChannels" output="outx" />
+      <input name="inx" type="float" nodename="viewDirChannels" output="outz" />
+    </atan2>
+    <multiply name="scaleXZ" type="float">
+      <input name="in1" type="float" nodename="angleXZ" />
+      <input name="in2" type="float" value="-0.15915494" />
+    </multiply>
+    <add name="longitude" type="float">
+      <input name="in1" type="float" nodename="scaleXZ" />
+      <input name="in2" type="float" value="0.5" />
+    </add>
+    <multiply name="rotationDegrees" type="float">
+      <input name="in1" type="float" interfacename="rotation" />
+      <input name="in2" type="float" value="0.00277778" />
+    </multiply>
+    <add name="offsetLongitude" type="float">
+      <input name="in1" type="float" nodename="rotationDegrees" />
+      <input name="in2" type="float" nodename="longitude" />
+    </add>
+    <asin name="angleY" type="float">
+      <input name="in" type="float" nodename="viewDirChannels" output="outy" />
+    </asin>
+    <multiply name="scaleY" type="float">
+      <input name="in1" type="float" nodename="angleY" />
+      <input name="in2" type="float" value="0.31830989" />
+    </multiply>
+    <add name="latitude" type="float">
+      <input name="in1" type="float" nodename="scaleY" />
+      <input name="in2" type="float" value="0.5" />
+    </add>
+    <combine2 name="mapUvs" type="vector2">
+      <input name="in1" type="float" nodename="offsetLongitude" />
+      <input name="in2" type="float" nodename="latitude" />
+    </combine2>
+    <image name="envImage" type="color3">
+      <input name="file" type="filename" interfacename="file" />
+      <input name="default" type="color3" interfacename="default" />
+      <input name="texcoord" type="vector2" nodename="mapUvs" />
+      <input name="uaddressmode" type="string" value="periodic" />
+      <input name="vaddressmode" type="string" value="periodic" />
+      <input name="filtertype" type="string" value="linear" />
+    </image>
+    <output name="out" type="color3" nodename="envImage" />
+  </nodegraph>
+
+  <!--
     Node: <triplanarprojection>
     Samples data from three images, or layers within multi-layer images, and projects a tiled
     representation of the images along each of the three respective coordinate axes, computing
