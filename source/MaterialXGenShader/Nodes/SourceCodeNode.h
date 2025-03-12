@@ -13,7 +13,7 @@
 MATERIALX_NAMESPACE_BEGIN
 
 /// @class SourceCodeNode
-/// Implemention for a node using data-driven static source code.
+/// Implementation for a node using data-driven static source code.
 /// This is the default implementation used for all nodes that
 /// do not have a custom ShaderNodeImpl class.
 class MX_GENSHADER_API SourceCodeNode : public ShaderNodeImpl
@@ -26,6 +26,9 @@ class MX_GENSHADER_API SourceCodeNode : public ShaderNodeImpl
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
   protected:
+    /// Resolve the source file and read the source code during the initialization of the node.
+    virtual void resolveSourceCode(const InterfaceElement& element, GenContext& context);
+
     bool _inlined;
     string _functionName;
     string _functionSource;

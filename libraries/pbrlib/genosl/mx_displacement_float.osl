@@ -1,4 +1,0 @@
-void mx_displacement_float(float displacement, float scale, output displacementshader result)
-{
-    result = vector(displacement * scale);
-}

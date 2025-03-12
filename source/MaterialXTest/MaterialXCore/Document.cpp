@@ -215,17 +215,16 @@ TEST_CASE("Document equivalence", "[document]")
     comment->setDocString("Comment 3");
 
     mx::ElementEquivalenceOptions options;
-    mx::ElementEquivalenceResultVec results;
+    std::string message;
 
     // Check that this fails when not performing value comparisons
     options.performValueComparisons = false;
-    bool equivalent = doc->isEquivalent(doc2, options, &results);
+    bool equivalent = doc->isEquivalent(doc2, options, &message);
     REQUIRE(!equivalent);
 
-    // Check attibute values 
+    // Check attribute values 
     options.performValueComparisons = true;
-    results.clear();
-    equivalent = doc->isEquivalent(doc2, options, &results);
+    equivalent = doc->isEquivalent(doc2, options, &message);
     REQUIRE(equivalent);
 
     unsigned int currentPrecision = mx::Value::getFloatPrecision();
@@ -236,14 +235,13 @@ TEST_CASE("Document equivalence", "[document]")
     options.floatPrecision = currentPrecision;
 
     // Check attribute filtering of inputs
-    results.clear();
     options.attributeExclusionList = { mx::ValueElement::UI_MIN_ATTRIBUTE, mx::ValueElement::UI_MAX_ATTRIBUTE };
     for (mx::InputPtr floatInput : floatInputs)
     {
         floatInput->setAttribute(mx::ValueElement::UI_MIN_ATTRIBUTE, "0.9");
         floatInput->setAttribute(mx::ValueElement::UI_MAX_ATTRIBUTE, "100.0");
     }
-    equivalent = doc->isEquivalent(doc2, options, &results);
+    equivalent = doc->isEquivalent(doc2, options, &message);
     REQUIRE(equivalent);
     for (mx::InputPtr floatInput : floatInputs)
     {
@@ -255,12 +253,10 @@ TEST_CASE("Document equivalence", "[document]")
     mx::ElementPtr mismatchElement = doc->getDescendant("mygraph/input_color4");
     std::string previousName = mismatchElement->getName();
     mismatchElement->setName("mismatch_color4");
-    results.clear();
-    equivalent = doc->isEquivalent(doc2, options, &results);
+    equivalent = doc->isEquivalent(doc2, options, &message);
     REQUIRE(!equivalent);
     mismatchElement->setName(previousName);
-    results.clear();
-    equivalent = doc->isEquivalent(doc2, options, &results);
+    equivalent = doc->isEquivalent(doc2, options, &message);
     REQUIRE(equivalent);
 
     // Check for functional nodegraphs
@@ -272,7 +268,6 @@ TEST_CASE("Document equivalence", "[document]")
     REQUIRE(nodeGraph2);
     doc2->addNodeDef("ND_mygraph");
     nodeGraph2->setNodeDefString("ND_mygraph");
-    results.clear();
-    equivalent = doc->isEquivalent(doc2, options, &results);
+    equivalent = doc->isEquivalent(doc2, options, &message);
     REQUIRE(!equivalent);
 }

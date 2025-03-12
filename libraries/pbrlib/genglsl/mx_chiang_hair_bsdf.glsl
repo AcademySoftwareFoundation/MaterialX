@@ -1,3 +1,4 @@
+#include "lib/mx_closure_type.glsl"
 #include "lib/mx_microfacet_specular.glsl"
 
 // https://eugenedeon.com/pdfs/egsrhair.pdf
@@ -38,7 +39,7 @@ void mx_chiang_hair_absorption_from_color(vec3 color, float betaN, out vec3 abso
 void mx_chiang_hair_roughness(
     float longitudinal,
     float azimuthal,
-    float scale_TT,   // empirical roughenss scale from Marschner et al. (2003).
+    float scale_TT,   // empirical roughness scale from Marschner et al. (2003).
     float scale_TRT,  // default: scale_TT = 0.5, scale_TRT = 2.0
     out vec2 roughness_R,
     out vec2 roughness_TT,
@@ -185,167 +186,106 @@ void mx_hair_attenuation(float f, vec3 T, out vec3 Ap[4])  // Ap
     Ap[3] = Ap[2] * T * f / (vec3(1.0) - T * f);
 }
 
-vec3 mx_chiang_hair_bsdf(
-    vec3 L,
-    vec3 V,
-    vec3 tint_R,
-    vec3 tint_TT,
-    vec3 tint_TRT,
-    float ior,
-    vec2 roughness_R,
-    vec2 roughness_TT,
-    vec2 roughness_TRT,
-    float cuticle_angle,
-    vec3 absorption_coefficient,
-    vec3 N,
-    vec3 X
-)
+void mx_chiang_hair_bsdf(ClosureData closureData, vec3 tint_R, vec3 tint_TT, vec3 tint_TRT, float ior,
+                         vec2 roughness_R, vec2 roughness_TT, vec2 roughness_TRT, float cuticle_angle,
+                         vec3 absorption_coefficient, vec3 N, vec3 X, inout BSDF bsdf)
 {
+    vec3 V = closureData.V;
+    vec3 L = closureData.L;
+
     N = mx_forward_facing_normal(N, V);
-    X = normalize(X - dot(X, N) * N);
-    vec3 Y = cross(N, X);
 
-    float sinThetaO = dot(V, X);
-    float sinThetaI = dot(L, X);
-    float cosThetaO = mx_hair_transform_sin_cos(sinThetaO);
-    float cosThetaI = mx_hair_transform_sin_cos(sinThetaI);
+    bsdf.throughput = vec3(0.0);
 
-    float y1 = dot(L, N);
-    float x1 = dot(L, Y);
-    float y2 = dot(V, N);
-    float x2 = dot(V, Y);
-    float phi = mx_atan(y1 * x2 - y2 * x1, x1 * x2 + y1 * y2);
-
-    vec3 k1_p = normalize(V - X * dot(V, X));
-    float cosGammaO = dot(N, k1_p);
-    float sinGammaO = mx_hair_transform_sin_cos(cosGammaO);
-    if (dot(k1_p, Y) > 0.0)
-        sinGammaO = -sinGammaO;
-    float gammaO = asin(sinGammaO);
-
-    float sinThetaT = sinThetaO / ior;
-    float cosThetaT = mx_hair_transform_sin_cos(sinThetaT);
-    float etaP = sqrt(max(ior * ior - sinThetaO * sinThetaO, 0.0)) / max(cosThetaO, 1e-8);
-    float sinGammaT = max(min(sinGammaO / etaP, 1.0), -1.0);
-    float cosGammaT = sqrt(1.0 - sinGammaT * sinGammaT);
-    float gammaT = asin(sinGammaT);
-
-    // attenuation
-    vec3 Ap[4];
-    float fresnel = mx_fresnel_dielectric(cosThetaO * cosGammaO, ior);
-    vec3 T = exp(-absorption_coefficient * (2.0 * cosGammaT / cosThetaT));
-    mx_hair_attenuation(fresnel, T, Ap);
-
-    // parameters for each lobe
-    vec2 angles[4];
-    float alpha = cuticle_angle * M_PI - (M_PI / 2.0);  // remap [0, 1] to [-PI/2, PI/2]
-    mx_hair_alpha_angles(alpha, sinThetaI, cosThetaI, angles);
-
-    vec3 tint[4];
-    tint[0] = tint_R;
-    tint[1] = tint_TT;
-    tint[2] = tint_TRT;
-    tint[3] = tint_TRT;
-
-    roughness_R = clamp(roughness_R, 0.001, 1.0);
-    roughness_TT = clamp(roughness_TT, 0.001, 1.0);
-    roughness_TRT = clamp(roughness_TRT, 0.001, 1.0);
-
-    vec2 vs[4];
-    vs[0] = roughness_R;
-    vs[1] = roughness_TT;
-    vs[2] = roughness_TRT;
-    vs[3] = roughness_TRT;
-
-    // R, TT, TRT, TRRT+
-    vec3 F = vec3(0.0);
-    for (int i = 0; i <= 3; ++i)
+    if (closureData.closureType == CLOSURE_TYPE_REFLECTION)
     {
-        tint[i] = max(tint[i], vec3(0.0));
-        float Mp = mx_hair_longitudinal_scattering(angles[i].x, angles[i].y, sinThetaO, cosThetaO, vs[i].x);
-        float Np = (i == 3) ?  (1.0 / 2.0 * M_PI) : mx_hair_azimuthal_scattering(phi, i, vs[i].y, gammaO, gammaT);
-        F += Mp * Np * tint[i] * Ap[i];
+        X = normalize(X - dot(X, N) * N);
+        vec3 Y = cross(N, X);
+
+        float sinThetaO = dot(V, X);
+        float sinThetaI = dot(L, X);
+        float cosThetaO = mx_hair_transform_sin_cos(sinThetaO);
+        float cosThetaI = mx_hair_transform_sin_cos(sinThetaI);
+
+        float y1 = dot(L, N);
+        float x1 = dot(L, Y);
+        float y2 = dot(V, N);
+        float x2 = dot(V, Y);
+        float phi = mx_atan(y1 * x2 - y2 * x1, x1 * x2 + y1 * y2);
+
+        vec3 k1_p = normalize(V - X * dot(V, X));
+        float cosGammaO = dot(N, k1_p);
+        float sinGammaO = mx_hair_transform_sin_cos(cosGammaO);
+        if (dot(k1_p, Y) > 0.0)
+            sinGammaO = -sinGammaO;
+        float gammaO = asin(sinGammaO);
+
+        float sinThetaT = sinThetaO / ior;
+        float cosThetaT = mx_hair_transform_sin_cos(sinThetaT);
+        float etaP = sqrt(max(ior * ior - sinThetaO * sinThetaO, 0.0)) / max(cosThetaO, M_FLOAT_EPS);
+        float sinGammaT = max(min(sinGammaO / etaP, 1.0), -1.0);
+        float cosGammaT = sqrt(1.0 - sinGammaT * sinGammaT);
+        float gammaT = asin(sinGammaT);
+
+        // attenuation
+        vec3 Ap[4];
+        float fresnel = mx_fresnel_dielectric(cosThetaO * cosGammaO, ior);
+        vec3 T = exp(-absorption_coefficient * (2.0 * cosGammaT / cosThetaT));
+        mx_hair_attenuation(fresnel, T, Ap);
+
+        // parameters for each lobe
+        vec2 angles[4];
+        float alpha = cuticle_angle * M_PI - (M_PI / 2.0);  // remap [0, 1] to [-PI/2, PI/2]
+        mx_hair_alpha_angles(alpha, sinThetaI, cosThetaI, angles);
+
+        vec3 tint[4];
+        tint[0] = tint_R;
+        tint[1] = tint_TT;
+        tint[2] = tint_TRT;
+        tint[3] = tint_TRT;
+
+        roughness_R = clamp(roughness_R, 0.001, 1.0);
+        roughness_TT = clamp(roughness_TT, 0.001, 1.0);
+        roughness_TRT = clamp(roughness_TRT, 0.001, 1.0);
+
+        vec2 vs[4];
+        vs[0] = roughness_R;
+        vs[1] = roughness_TT;
+        vs[2] = roughness_TRT;
+        vs[3] = roughness_TRT;
+
+        // R, TT, TRT, TRRT+
+        vec3 F = vec3(0.0);
+        for (int i = 0; i <= 3; ++i)
+        {
+            tint[i] = max(tint[i], vec3(0.0));
+            float Mp = mx_hair_longitudinal_scattering(angles[i].x, angles[i].y, sinThetaO, cosThetaO, vs[i].x);
+            float Np = (i == 3) ?  (1.0 / 2.0 * M_PI) : mx_hair_azimuthal_scattering(phi, i, vs[i].y, gammaO, gammaT);
+            F += Mp * Np * tint[i] * Ap[i];
+        }
+
+        bsdf.response = F * closureData.occlusion * M_PI_INV;
     }
+    else if (closureData.closureType == CLOSURE_TYPE_INDIRECT)
+    {
+        // This indirect term is a *very* rough approximation.
 
-    return F;
-}
+        float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);
+        FresnelData fd = mx_init_fresnel_dielectric(ior, 0.0, 1.0);
+        vec3 F = mx_compute_fresnel(NdotV, fd);
 
-void mx_chiang_hair_bsdf_reflection(
-    vec3 L,
-    vec3 V,
-    vec3 P,
-    float occlusion,
-    vec3 tint_R,
-    vec3 tint_TT,
-    vec3 tint_TRT,
-    float ior,
-    vec2 roughness_R,
-    vec2 roughness_TT,
-    vec2 roughness_TRT,
-    float cuticle_angle,
-    vec3 absorption_coefficient,
-    vec3 N,
-    vec3 X,
-    inout BSDF bsdf
-)
-{
-    vec3 F = mx_chiang_hair_bsdf(
-        L,
-        V,
-        tint_R,
-        tint_TT,
-        tint_TRT,
-        ior,
-        roughness_R,
-        roughness_TT,
-        roughness_TRT,
-        cuticle_angle,
-        absorption_coefficient,
-        N,
-        X
-    );
+        vec2 roughness = (roughness_R + roughness_TT + roughness_TRT) / vec2(3.0);  // ?
+        vec2 safeAlpha = clamp(roughness, M_FLOAT_EPS, 1.0);
+        float avgAlpha = mx_average_alpha(safeAlpha);
 
-    bsdf.throughput = vec3(0.0);
-    bsdf.response = F * occlusion * M_PI_INV;
-}
+        // Use GGX to match the behavior of mx_environment_radiance.
+        float F0 = mx_ior_to_f0(ior);
+        vec3 comp = mx_ggx_energy_compensation(NdotV, avgAlpha, F);
+        vec3 dirAlbedo = mx_ggx_dir_albedo(NdotV, avgAlpha, F0, 1.0) * comp;
 
-void mx_chiang_hair_bsdf_indirect(
-    vec3 V,
-    vec3 tint_R,
-    vec3 tint_TT,
-    vec3 tint_TRT,
-    float ior,
-    vec2 roughness_R,
-    vec2 roughness_TT,
-    vec2 roughness_TRT,
-    float cuticle_angle,
-    vec3 absorption_coefficient,
-    vec3 N,
-    vec3 X,
-    inout BSDF bsdf
-)
-{
-    // this indirect lighing is *very* rough approximation
+        vec3 Li = mx_environment_radiance(N, V, X, safeAlpha, 0, fd);
+        vec3 tint = (tint_R + tint_TT + tint_TRT) / vec3(3.0);  // ?
 
-    N = mx_forward_facing_normal(N, V);
-
-    float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);
-
-    FresnelData fd = mx_init_fresnel_dielectric(ior, 0.0, 1.0);
-    vec3 F = mx_compute_fresnel(NdotV, fd);
-
-    vec2 roughness = (roughness_R + roughness_TT + roughness_TRT) / vec2(3.0);  // ?
-    vec2 safeAlpha = clamp(roughness, M_FLOAT_EPS, 1.0);
-    float avgAlpha = mx_average_alpha(safeAlpha);
-
-    // use ggx because the environment map for FIS is preintegrated with ggx
-    float F0 = mx_ior_to_f0(ior);
-    vec3 comp = mx_ggx_energy_compensation(NdotV, avgAlpha, F);
-    vec3 dirAlbedo = mx_ggx_dir_albedo(NdotV, avgAlpha, F0, 1.0) * comp;
-
-    vec3 Li = mx_environment_radiance(N, V, X, safeAlpha, 0, fd);
-    vec3 tint = (tint_R + tint_TT + tint_TRT) / vec3(3.0);  // ?
-
-    bsdf.throughput = vec3(0.0);
-    bsdf.response = Li * comp * tint;
+        bsdf.response = Li * comp * tint;
+    }
 }

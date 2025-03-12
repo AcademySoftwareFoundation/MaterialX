@@ -12,5 +12,8 @@ void mx_image_vector3(textureresource file, string layer, vector default_value, 
 
     color missingColor = default_value;
     vector2 st = mx_transform_uv(texcoord);
-    out = texture(file.filename, st.x, st.y, "subimage", layer, "missingcolor", missingColor, "swrap", uaddressmode, "twrap", vaddressmode);
+    out = texture(file.filename, st.x, st.y,
+                  "subimage", layer, "interp", filtertype,
+                  "missingcolor", missingColor,
+                  "swrap", uaddressmode, "twrap", vaddressmode);
 }

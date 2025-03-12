@@ -1,24 +1,6 @@
 <?xml version="1.0"?>
 <materialx version="1.39">
 
-  <!-- <layer> -->
-  <implementation name="IM_layer_bsdf_genmsl" nodedef="ND_layer_bsdf" target="genmsl" />
-  <implementation name="IM_layer_vdf_genmsl" nodedef="ND_layer_vdf" target="genmsl" />
-
-  <!-- <mix> -->
-  <implementation name="IM_mix_bsdf_genmsl" nodedef="ND_mix_bsdf" target="genmsl" />
-  <implementation name="IM_mix_edf_genmsl" nodedef="ND_mix_edf" target="genmsl" />
-
-  <!-- <add> -->
-  <implementation name="IM_add_bsdf_genmsl" nodedef="ND_add_bsdf" target="genmsl" />
-  <implementation name="IM_add_edf_genmsl" nodedef="ND_add_edf" target="genmsl" />
-
-  <!-- <multiply> -->
-  <implementation name="IM_multiply_bsdfC_genmsl" nodedef="ND_multiply_bsdfC" target="genmsl" />
-  <implementation name="IM_multiply_bsdfF_genmsl" nodedef="ND_multiply_bsdfF" target="genmsl" />
-  <implementation name="IM_multiply_edfC_genmsl" nodedef="ND_multiply_edfC" target="genmsl" />
-  <implementation name="IM_multiply_edfF_genmsl" nodedef="ND_multiply_edfF" target="genmsl" />
-
   <!-- <surface> -->
   <implementation name="IM_surface_genmsl" nodedef="ND_surface" target="genmsl" />
 

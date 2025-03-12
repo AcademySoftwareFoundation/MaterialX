@@ -11,13 +11,9 @@
 #include <MaterialXGenShader/TypeDesc.h>
 #include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
-#include <MaterialXGenShader/Nodes/ClosureAddNode.h>
-#include <MaterialXGenShader/Nodes/ClosureMixNode.h>
-#include <MaterialXGenShader/Nodes/ClosureMultiplyNode.h>
+#include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
 
 #include <MaterialXGenOsl/Nodes/BlurNodeOsl.h>
-#include <MaterialXGenOsl/Nodes/SurfaceNodeOsl.h>
-#include <MaterialXGenOsl/Nodes/ClosureLayerNodeOsl.h>
 #include <MaterialXGenOsl/Nodes/MaterialNodeOsl.h>
 
 MATERIALX_NAMESPACE_BEGIN
@@ -28,10 +24,10 @@ const string OslShaderGenerator::TARGET = "genosl";
 // OslShaderGenerator methods
 //
 
-OslShaderGenerator::OslShaderGenerator() :
-    ShaderGenerator(OslSyntax::create())
+OslShaderGenerator::OslShaderGenerator(TypeSystemPtr typeSystem) :
+    ShaderGenerator(typeSystem, OslSyntax::create(typeSystem))
 {
-    // Register build-in implementations
+    // Register built-in implementations
 
     // <!-- <blur> -->
     registerImplementation("IM_blur_float_" + OslShaderGenerator::TARGET, BlurNodeOsl::create);
@@ -41,12 +37,8 @@ OslShaderGenerator::OslShaderGenerator() :
     registerImplementation("IM_blur_vector3_" + OslShaderGenerator::TARGET, BlurNodeOsl::create);
     registerImplementation("IM_blur_vector4_" + OslShaderGenerator::TARGET, BlurNodeOsl::create);
 
-    // <!-- <layer> -->
-    registerImplementation("IM_layer_bsdf_" + OslShaderGenerator::TARGET, ClosureLayerNodeOsl::create);
-    registerImplementation("IM_layer_vdf_" + OslShaderGenerator::TARGET, ClosureLayerNodeOsl::create);
-
     // <!-- <surface> -->
-    registerImplementation("IM_surface_" + OslShaderGenerator::TARGET, SurfaceNodeOsl::create);
+    registerImplementation("IM_surface_" + OslShaderGenerator::TARGET, ClosureSourceCodeNode::create);
 
     // <!-- <surfacematerial> -->
     registerImplementation("IM_surfacematerial_" + OslShaderGenerator::TARGET, MaterialNodeOsl::create);
@@ -214,7 +206,7 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     {
         // Special case for having 'surfaceshader' as final output type.
         // This type is a struct internally (BSDF, EDF, opacity) so we must
-        // comvert this to a single closure color type in order for renderers
+        // convert this to a single closure color type in order for renderers
         // to understand this output.
         const ShaderGraphOutputSocket* socket = graph.getOutputSocket(0);
         const string result = getUpstreamResult(socket, context);
@@ -251,7 +243,7 @@ void OslShaderGenerator::registerShaderMetadata(const DocumentPtr& doc, GenConte
     ShaderMetadataRegistryPtr registry = context.getUserData<ShaderMetadataRegistry>(ShaderMetadataRegistry::USER_DATA_NAME);
     if (!registry)
     {
-        throw ExceptionShaderGenError("Registration of metadata faild");
+        throw ExceptionShaderGenError("Registration of metadata failed");
     }
 
     // Rename the standard metadata names to corresponding OSL metadata names.

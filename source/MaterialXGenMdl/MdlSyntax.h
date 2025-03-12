@@ -25,9 +25,13 @@ using MdlSyntaxPtr = shared_ptr<MdlSyntax>;
 class MX_GENMDL_API MdlSyntax : public Syntax
 {
   public:
-    MdlSyntax();
+    MdlSyntax(TypeSystemPtr typeSystem);
 
-    static SyntaxPtr create() { return std::make_shared<MdlSyntax>(); }
+    static SyntaxPtr create(TypeSystemPtr typeSystem) { return std::make_shared<MdlSyntax>(typeSystem); }
+
+    StructTypeSyntaxPtr createStructSyntax(const string& structTypeName, const string& defaultValue,
+                                           const string& uniformDefaultValue, const string& typeAlias,
+                                           const string& typeDefinition) const override;
 
     const string& getConstantQualifier() const override { return CONST_QUALIFIER; };
     const string& getUniformQualifier() const override { return UNIFORM_QUALIFIER; };
@@ -53,6 +57,8 @@ class MX_GENMDL_API MdlSyntax : public Syntax
     static const StringVec FILTERTYPE_MEMBERS;
     static const StringVec DISTRIBUTIONTYPE_MEMBERS;
     static const StringVec SCATTER_MODE_MEMBERS;
+    static const StringVec SHEEN_MODE_MEMBERS;
+    static const string PORT_NAME_PREFIX; // Applied to input and output names to avoid collisions with reserved words in MDL
 
     /// Get an type description for an enumeration based on member value
     TypeDesc getEnumeratedType(const string& value) const;
@@ -63,6 +69,26 @@ class MX_GENMDL_API MdlSyntax : public Syntax
 
     /// Modify the given name string to remove any invalid characters or tokens.
     void makeValidName(string& name) const override;
+
+    /// To avoid collisions with reserved names in MDL, input and output names are prefixed.
+    string modifyPortName(const string& word) const;
+
+    /// Replaces all markers in a source code string indicated by {{...}}.
+    /// The replacement is defined by a callback function.
+    string replaceSourceCodeMarkers(const string& nodeName, const string& soureCode, std::function<string(const string&)> lambda) const;
+
+    /// Get the MDL language versing marker: {{MDL_VERSION_SUFFIX}}.
+    const string& getMdlVersionSuffixMarker() const;
+};
+
+/// @class MdlStructTypeSyntax
+/// Specialization of TypeSyntax for aggregate types.
+class MX_GENMDL_API MdlStructTypeSyntax : public StructTypeSyntax
+{
+  public:
+    using StructTypeSyntax::StructTypeSyntax;
+
+    string getValue(const Value& value, bool uniform) const override;
 };
 
 namespace Type
@@ -74,6 +100,7 @@ TYPEDESC_DEFINE_TYPE(MDL_FILTERLOOKUPMODE, "filterlookup", TypeDesc::BASETYPE_NO
 TYPEDESC_DEFINE_TYPE(MDL_FILTERTYPE, "filtertype", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_ENUM, 0)
 TYPEDESC_DEFINE_TYPE(MDL_DISTRIBUTIONTYPE, "distributiontype", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_ENUM, 0)
 TYPEDESC_DEFINE_TYPE(MDL_SCATTER_MODE, "scatter_mode", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_ENUM, 0)
+TYPEDESC_DEFINE_TYPE(MDL_SHEEN_MODE, "mode", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_ENUM, 0)
 
 } // namespace Type
 

@@ -15,13 +15,12 @@
 #include <MaterialXGenMdl/Nodes/ClosureLayerNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/ClosureCompoundNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/ClosureSourceCodeNodeMdl.h>
+#include <MaterialXGenMdl/Nodes/CustomNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/ImageNodeMdl.h>
 
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/ShaderStage.h>
-#include <MaterialXGenShader/Nodes/ClosureCompoundNode.h>
-#include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
 #include <MaterialXGenShader/Util.h>
 
 MATERIALX_NAMESPACE_BEGIN
@@ -53,10 +52,12 @@ const string MDL_VERSION_1_6 = "1.6";
 const string MDL_VERSION_1_7 = "1.7";
 const string MDL_VERSION_1_8 = "1.8";
 const string MDL_VERSION_1_9 = "1.9";
+const string MDL_VERSION_1_10 = "1.10";
 const string MDL_VERSION_SUFFIX_1_6 = "1_6";
 const string MDL_VERSION_SUFFIX_1_7 = "1_7";
 const string MDL_VERSION_SUFFIX_1_8 = "1_8";
 const string MDL_VERSION_SUFFIX_1_9 = "1_9";
+const string MDL_VERSION_SUFFIX_1_10 = "1_10";
 
 } // anonymous namespace
 
@@ -81,9 +82,17 @@ const std::unordered_map<string, string> MdlShaderGenerator::GEOMPROP_DEFINITION
 // MdlShaderGenerator methods
 //
 
-MdlShaderGenerator::MdlShaderGenerator() :
-    ShaderGenerator(MdlSyntax::create())
+MdlShaderGenerator::MdlShaderGenerator(TypeSystemPtr typeSystem) :
+    ShaderGenerator(typeSystem, MdlSyntax::create(typeSystem))
 {
+    // Register custom types to handle enumeration output
+    _typeSystem->registerType(Type::MDL_COORDINATESPACE);
+    _typeSystem->registerType(Type::MDL_ADDRESSMODE);
+    _typeSystem->registerType(Type::MDL_FILTERLOOKUPMODE);
+    _typeSystem->registerType(Type::MDL_FILTERTYPE);
+    _typeSystem->registerType(Type::MDL_DISTRIBUTIONTYPE);
+    _typeSystem->registerType(Type::MDL_SCATTER_MODE);
+
     // Register build-in implementations
 
     // <!-- <surfacematerial> -->
@@ -155,6 +164,24 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
         emitMdlVersionFilenameSuffix(context, stage);
         emitString(IMPORT_ALL, stage);
         emitLineEnd(stage, true);
+    }
+
+    // Emit custom node imports for nodes in the graph
+    for (ShaderNode* node : graph.getNodes())
+    {
+        const ShaderNodeImpl& impl = node->getImplementation();
+        const CustomCodeNodeMdl* customNode = dynamic_cast<const CustomCodeNodeMdl*>(&impl);
+        if (customNode)
+        {
+            const string& importName = customNode->getQualifiedModuleName();
+            if (!importName.empty())
+            {
+                emitString("import ", stage);
+                emitString(importName, stage);
+                emitString("::*", stage);
+                emitLineEnd(stage, true);
+            }
+        }
     }
 
     // Add global constants and type definitions
@@ -264,6 +291,8 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
                 finalOutput = "mk_color3(" + result + ".x, " + result + ".y, 0.0)";
             else if (outputType == Type::VECTOR3)
                 finalOutput = "mk_color3(" + result + ")";
+            else if (outputType == Type::VECTOR4)
+                finalOutput = "mk_color3(" + result + ".x, " + result + ".y, " + result + ".z)";
             else if (outputType == Type::COLOR3)
                 finalOutput = result;
             else if (outputType == Type::COLOR4)
@@ -333,7 +362,7 @@ ShaderNodeImplPtr MdlShaderGenerator::getImplementation(const NodeDef& nodedef, 
         throw ExceptionShaderGenError("NodeDef '" + nodedef.getName() + "' has no outputs defined");
     }
 
-    const TypeDesc outputType = TypeDesc::get(outputs[0]->getType());
+    const TypeDesc outputType = _typeSystem->getType(outputs[0]->getType());
 
     if (implElement->isA<NodeGraph>())
     {
@@ -353,14 +382,31 @@ ShaderNodeImplPtr MdlShaderGenerator::getImplementation(const NodeDef& nodedef, 
         impl = _implFactory.create(name);
         if (!impl)
         {
-            // Fall back to source code implementation.
-            if (outputType.isClosure())
+            // When `file` and `function` are provided we consider this node a user node
+            const string file = implElement->getTypedAttribute<string>("file");
+            const string function = implElement->getTypedAttribute<string>("function");
+            // Or, if `sourcecode` is provided we consider this node a user node with inline implementation
+            // inline implementations are not supposed to have replacement markers
+            const string sourcecode = implElement->getTypedAttribute<string>("sourcecode");
+            if ((!file.empty() && !function.empty()) || (!sourcecode.empty() && sourcecode.find("{{") == string::npos))
             {
-                impl = ClosureSourceCodeNodeMdl::create();
+                impl = CustomCodeNodeMdl::create();
+            }
+            else if (file.empty() && sourcecode.empty())
+            {
+                throw ExceptionShaderGenError("No valid MDL implementation found for '" + name + "'");
             }
             else
             {
-                impl = SourceCodeNodeMdl::create();
+                // Fall back to source code implementation.
+                if (outputType.isClosure())
+                {
+                    impl = ClosureSourceCodeNodeMdl::create();
+                }
+                else
+                {
+                    impl = SourceCodeNodeMdl::create();
+                }
             }
         }
     }
@@ -386,6 +432,7 @@ string MdlShaderGenerator::getUpstreamResult(const ShaderInput* input, GenContex
         return ShaderGenerator::getUpstreamResult(input, context);
     }
 
+    const MdlSyntax& mdlSyntax = static_cast<const MdlSyntax&>(getSyntax());
     string variable;
     const ShaderNode* upstreamNode = upstreamOutput->getNode();
     if (!upstreamNode->isAGraph() && upstreamNode->numOutputs() > 1)
@@ -397,7 +444,18 @@ string MdlShaderGenerator::getUpstreamResult(const ShaderInput* input, GenContex
         }
         else
         {
-            variable = upstreamNode->getName() + "_result.mxp_" + upstreamOutput->getName();
+            const string& fieldName = upstreamOutput->getName();
+            const CustomCodeNodeMdl* upstreamCustomNodeMdl = dynamic_cast<const CustomCodeNodeMdl*>(&upstreamNode->getImplementation());
+            if (upstreamCustomNodeMdl)
+            {
+                // Prefix the port name depending on the CustomCodeNode
+                variable = upstreamNode->getName() + "_result." + upstreamCustomNodeMdl->modifyPortName(fieldName, mdlSyntax);
+            }
+            else
+            {
+                // Existing implementations and none user defined structs will keep the prefix always to not break existing content
+                variable = upstreamNode->getName() + "_result." + mdlSyntax.modifyPortName(upstreamOutput->getName());
+            }
         }
     }
     else
@@ -523,7 +581,7 @@ bool checkTransmissionIorDependencies(ShaderGraph* g, std::set<ShaderGraph*>& gr
     return result;
 }
 
-// Disconnect any incomming connections to transmission IOR
+// Disconnect any incoming connections to transmission IOR
 // inside a graph.
 void disconnectTransmissionIor(ShaderGraph* g)
 {
@@ -625,7 +683,7 @@ ShaderPtr MdlShaderGenerator::createShader(const string& name, ElementPtr elemen
 
         // For graphs that has a dependency with transmission IOR on the inside,
         // we can declare the corresponding inputs as being uniform and preserve
-        // the internal connection to transmssion IOR.
+        // the internal connection to transmission IOR.
         for (ShaderGraph* g : graphsWithIorDependency)
         {
             for (ShaderOutput* socket : g->getInputSockets())
@@ -644,7 +702,7 @@ ShaderPtr MdlShaderGenerator::createShader(const string& name, ElementPtr elemen
 namespace
 {
 
-void emitInputAnnotations(const MdlShaderGenerator& _this, const DocumentPtr doc, const ShaderPort* variable, ShaderStage& stage)
+void emitInputAnnotations(const MdlShaderGenerator& _this, ConstDocumentPtr doc, const ShaderPort* variable, ShaderStage& stage)
 {
     // allows to relate between MaterialX and MDL parameters when looking at the MDL code.
     const std::string mtlxParameterPathAnno = "materialx::core::origin(\"" + variable->getPath() + "\")";
@@ -658,7 +716,7 @@ void emitInputAnnotations(const MdlShaderGenerator& _this, const DocumentPtr doc
 
 } // anonymous namespace
 
-void MdlShaderGenerator::emitShaderInputs(const DocumentPtr doc, const VariableBlock& inputs, ShaderStage& stage) const
+void MdlShaderGenerator::emitShaderInputs(ConstDocumentPtr doc, const VariableBlock& inputs, ShaderStage& stage) const
 {
     const string uniformPrefix = _syntax->getUniformQualifier() + " ";
     for (size_t i = 0; i < inputs.size(); ++i)
@@ -719,10 +777,13 @@ void MdlShaderGenerator::emitMdlVersionNumber(GenContext& context, ShaderStage& 
         case GenMdlOptions::MdlVersion::MDL_1_8:
             emitString(MDL_VERSION_1_8, stage);
             break;
-        default:
-            // GenMdlOptions::MdlVersion::MDL_1_9
-            // GenMdlOptions::MdlVersion::MDL_LATEST
+        case GenMdlOptions::MdlVersion::MDL_1_9:
             emitString(MDL_VERSION_1_9, stage);
+            break;
+        default:
+            // GenMdlOptions::MdlVersion::MDL_1_10
+            // GenMdlOptions::MdlVersion::MDL_LATEST
+            emitString(MDL_VERSION_1_10, stage);
             break;
     }
     emitLineEnd(stage, true);
@@ -741,16 +802,31 @@ const string& MdlShaderGenerator::getMdlVersionFilenameSuffix(GenContext& contex
             return MDL_VERSION_SUFFIX_1_7;
         case GenMdlOptions::MdlVersion::MDL_1_8:
             return MDL_VERSION_SUFFIX_1_8;
-        default:
-            // GenMdlOptions::MdlVersion::MDL_1_9
-            // GenMdlOptions::MdlVersion::MDL_LATEST
+        case GenMdlOptions::MdlVersion::MDL_1_9:
             return MDL_VERSION_SUFFIX_1_9;
+        default:
+            // GenMdlOptions::MdlVersion::MDL_1_10
+            // GenMdlOptions::MdlVersion::MDL_LATEST
+            return MDL_VERSION_SUFFIX_1_10;
     }
 }
 
 void MdlShaderGenerator::emitMdlVersionFilenameSuffix(GenContext& context, ShaderStage& stage) const
 {
     emitString(getMdlVersionFilenameSuffix(context), stage);
+}
+
+void MdlShaderGenerator::emitTypeDefinitions(GenContext&, ShaderStage& stage) const
+{
+    // Emit typedef statements for all data types that have an alias
+    for (const auto& syntax : _syntax->getTypeSyntaxes())
+    {
+        if (!syntax->getTypeDefinition().empty())
+        {
+            stage.addLine("export " + syntax->getTypeDefinition(), false);
+        }
+    }
+    stage.newLine();
 }
 
 namespace MDL

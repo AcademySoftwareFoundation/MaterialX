@@ -39,12 +39,6 @@ const string ValueElement::UI_ADVANCED_ATTRIBUTE = "uiadvanced";
 const string ValueElement::UNIT_ATTRIBUTE = "unit";
 const string ValueElement::UNITTYPE_ATTRIBUTE = "unittype";
 const string ValueElement::UNIFORM_ATTRIBUTE = "uniform";
-const string ElementEquivalenceResult::ATTRIBUTE = "attribute";
-const string ElementEquivalenceResult::ATTRIBUTE_NAMES = "attribute names";
-const string ElementEquivalenceResult::CHILD_COUNT = "child count";
-const string ElementEquivalenceResult::CHILD_NAME = "child name";
-const string ElementEquivalenceResult::NAME = "name";
-const string ElementEquivalenceResult::CATEGORY = "category";
 
 Element::CreatorMap Element::_creatorMap;
 
@@ -70,8 +64,8 @@ bool Element::operator==(const Element& rhs) const
     }
 
     // Compare children.
-    const vector<ElementPtr>& c1 = getChildren();
-    const vector<ElementPtr>& c2 = rhs.getChildren();
+    const ElementVec& c1 = getChildren();
+    const ElementVec& c2 = rhs.getChildren();
     if (c1.size() != c2.size())
         return false;
     for (size_t i = 0; i < c1.size(); i++)
@@ -159,7 +153,7 @@ void Element::unregisterChildElement(ElementPtr child)
 int Element::getChildIndex(const string& name) const
 {
     ElementPtr child = getChild(name);
-    vector<ElementPtr>::const_iterator it = std::find(_childOrder.begin(), _childOrder.end(), child);
+    ElementVec::const_iterator it = std::find(_childOrder.begin(), _childOrder.end(), child);
     if (it == _childOrder.end())
     {
         return -1;
@@ -170,7 +164,7 @@ int Element::getChildIndex(const string& name) const
 void Element::setChildIndex(const string& name, int index)
 {
     ElementPtr child = getChild(name);
-    vector<ElementPtr>::iterator it = std::find(_childOrder.begin(), _childOrder.end(), child);
+    ElementVec::iterator it = std::find(_childOrder.begin(), _childOrder.end(), child);
     if (it == _childOrder.end())
     {
         return;
@@ -375,19 +369,22 @@ bool Element::hasInheritanceCycle() const
     return false;
 }
 
-bool Element::isEquivalent(ConstElementPtr rhs, const ElementEquivalenceOptions& options,
-                           ElementEquivalenceResultVec* results) const
+bool Element::isEquivalent(ConstElementPtr rhs, const ElementEquivalenceOptions& options, string* message) const
 {
     if (getName() != rhs->getName())
     {
-        if (results)
-            results->push_back(ElementEquivalenceResult(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::NAME));
+        if (message)
+        {
+            *message += "Name of " + getNamePath() + " differs from " + rhs->getNamePath() + "\n";
+        }
         return false;
     }
     if (getCategory() != rhs->getCategory())
     {
-        if (results)
-            results->push_back(ElementEquivalenceResult(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::CATEGORY));
+        if (message)
+        {
+            *message += "Category of " + getNamePath() + " differs from " + rhs->getNamePath() + "\n";
+        }
         return false;
     }
 
@@ -413,21 +410,23 @@ bool Element::isEquivalent(ConstElementPtr rhs, const ElementEquivalenceOptions&
 
     if (attributeNames != rhsAttributeNames)
     {
-        if (results)
-            results->push_back(ElementEquivalenceResult(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::ATTRIBUTE_NAMES));
+        if (message)
+        {
+            *message += "Attribute names of '" + getNamePath() + "' differ from '" + rhs->getNamePath() + "\n";
+        }
         return false;
     }
 
     for (const string& attr : rhsAttributeNames)
     {
-        if (!isAttributeEquivalent(rhs, attr, options, results))
+        if (!isAttributeEquivalent(rhs, attr, options, message))
         {
             return false;
         }
     }
 
     // Compare all child elements that affect functional equivalence.
-    vector<ElementPtr> children;
+    ElementVec children;
     for (ElementPtr child : getChildren())
     {
         if (child->getCategory() == CommentElement::CATEGORY)
@@ -436,7 +435,7 @@ bool Element::isEquivalent(ConstElementPtr rhs, const ElementEquivalenceOptions&
         }
         children.push_back(child);
     }
-    vector <ElementPtr> rhsChildren;
+    ElementVec rhsChildren;
     for (ElementPtr child : rhs->getChildren())
     {
         if (child->getCategory() == CommentElement::CATEGORY)
@@ -447,8 +446,10 @@ bool Element::isEquivalent(ConstElementPtr rhs, const ElementEquivalenceOptions&
     }
     if (children.size() != rhsChildren.size())
     {
-        if (results)
-            results->push_back(ElementEquivalenceResult(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::CHILD_COUNT));
+        if (message)
+        {
+            *message += "Child count of " + getNamePath() + " differs from " + rhs->getNamePath() + "\n";
+        }
         return false;
     }
     for (size_t i = 0; i < children.size(); i++)
@@ -468,26 +469,29 @@ bool Element::isEquivalent(ConstElementPtr rhs, const ElementEquivalenceOptions&
                 rhsElement = rhs->getChild(childName);
                 if (!rhsElement)
                 {
-                    if (results)
-                        results->push_back(ElementEquivalenceResult(children[i]->getNamePath(), "<NONE>", 
-                                                                   ElementEquivalenceResult::CHILD_NAME, childName));
+                    if (message)
+                    {
+                        *message += "Child name `" + childName + "` of " + getNamePath() + " differs from " + rhs->getNamePath() + "\n";
+                    }
                     return false;
                 }
             }
         }
-        if (!children[i]->isEquivalent(rhsElement, options, results))
+        if (!children[i]->isEquivalent(rhsElement, options, message))
             return false;
     }
     return true;
 }
 
 bool Element::isAttributeEquivalent(ConstElementPtr rhs, const string& attributeName,
-                                    const ElementEquivalenceOptions& /*options*/, ElementEquivalenceResultVec* results) const
+                                    const ElementEquivalenceOptions& /*options*/, string* message) const
 {
     if (getAttribute(attributeName) != rhs->getAttribute(attributeName))
     {
-        if (results)
-            results->push_back(ElementEquivalenceResult(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::ATTRIBUTE, attributeName));
+        if (message)
+        {
+            *message += "Attribute name `" + attributeName + "` of " + getNamePath() + " differs from " + rhs->getNamePath() + "\n";
+        }
         return false;
     }
     return true;
@@ -710,7 +714,7 @@ const string& ValueElement::getActiveUnit() const
 }
 
 bool ValueElement::isAttributeEquivalent(ConstElementPtr rhs, const string& attributeName, 
-                                         const ElementEquivalenceOptions& options, ElementEquivalenceResultVec* results) const
+                                         const ElementEquivalenceOptions& options, string* message) const
 {    
     // Perform value comparisons
     bool performedValueComparison = false;
@@ -726,10 +730,9 @@ bool ValueElement::isAttributeEquivalent(ConstElementPtr rhs, const string& attr
         // Get precision and format options
         ScopedFloatFormatting fmt(options.floatFormat, options.floatPrecision);
 
-        ConstValueElementPtr rhsValueElement = rhs->asA<ValueElement>();
-
         // Check value equality
-        if (attributeName == ValueElement::VALUE_ATTRIBUTE)
+        ConstValueElementPtr rhsValueElement = rhs->asA<ValueElement>();
+        if (rhsValueElement && attributeName == ValueElement::VALUE_ATTRIBUTE)
         {
             ValuePtr thisValue = getValue();
             ValuePtr rhsValue = rhsValueElement->getValue();
@@ -737,8 +740,10 @@ bool ValueElement::isAttributeEquivalent(ConstElementPtr rhs, const string& attr
             {
                 if (thisValue->getValueString() != rhsValue->getValueString())
                 {
-                    if (results)
-                        results->push_back(ElementEquivalenceResult(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::ATTRIBUTE, attributeName));
+                    if (message)
+                    {
+                        *message += "Attribute `" + attributeName + "` of " + getNamePath() + " differs from " + rhs->getNamePath() + "\n";
+                    }
                     return false;
                 }
             }
@@ -756,8 +761,10 @@ bool ValueElement::isAttributeEquivalent(ConstElementPtr rhs, const string& attr
             {
                 if (uiValue->getValueString() != rhsUiValue->getValueString())
                 {
-                    if (results)
-                        results->push_back(ElementEquivalenceResult(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::ATTRIBUTE, attributeName));
+                    if (message)
+                    {
+                        *message += "Attribute `" + attributeName + "` of " + getNamePath() + " differs from " + rhs->getNamePath() + "\n";
+                    }
                     return false;
                 }
             }
@@ -766,10 +773,10 @@ bool ValueElement::isAttributeEquivalent(ConstElementPtr rhs, const string& attr
         }
     }
 
-    // If did not peform a value comparison, perform the default comparison
+    // If did not perform a value comparison, perform the default comparison
     if (!performedValueComparison)
     {
-        return Element::isAttributeEquivalent(rhs, attributeName, options, results);
+        return Element::isAttributeEquivalent(rhs, attributeName, options, message);
     }
 
     return true;
@@ -848,7 +855,7 @@ void StringResolver::addTokenSubstitutions(ConstElementPtr element)
     const string DELIMITER_PREFIX = "[";
     const string DELIMITER_POSTFIX = "]";
 
-    // Travese from sibliings up until root is reached.
+    // Traverse from siblings up until root is reached.
     // Child tokens override any parent tokens.
     ConstElementPtr parent = element->getParent();
     while (parent)

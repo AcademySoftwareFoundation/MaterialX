@@ -86,6 +86,8 @@ export using .::stdlib_1_7 import mx_modulo_color3;
 export using .::stdlib_1_7 import mx_modulo_color4;
 export using .::stdlib_1_7 import mx_modulo_color3FA;
 export using .::stdlib_1_7 import mx_modulo_color4FA;
+export using .::stdlib_1_7 import mx_fract_color3;
+export using .::stdlib_1_7 import mx_fract_color4;
 export using .::stdlib_1_7 import mx_invert_color4;
 export using .::stdlib_1_7 import mx_invert_color4FA;
 export using .::stdlib_1_7 import mx_absval_color4;

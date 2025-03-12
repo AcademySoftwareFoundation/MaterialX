@@ -4,7 +4,7 @@
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/LICENSE)
 [![Version](https://img.shields.io/github/v/release/AcademySoftwareFoundation/MaterialX)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest)
-[![Build Status](https://github.com/AcademySoftwareFoundation/MaterialX/workflows/main/badge.svg?branch=main)](https://github.com/AcademySoftwareFoundation/MaterialX/actions?query=branch%3Amain)
+[![Build Status](https://github.com/AcademySoftwareFoundation/MaterialX/workflows/main/badge.svg)](https://github.com/AcademySoftwareFoundation/MaterialX/actions)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6025/badge)](https://bestpractices.coreinfrastructure.org/projects/6025)
 
 ## Introduction
@@ -72,9 +72,9 @@ The Open Chess Set is an open reference asset, consisting of a [MaterialX file](
 
 The following packages contain pre-built binaries for the latest release, including the MaterialX viewer, Python libraries, and example assets:
 
-- [Microsoft Windows (Visual Studio 2022, Python 3.12)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest/download/MaterialX_Windows_VS2022_x64_Python312.zip)
-- [MacOS (Xcode 15, Python 3.12)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest/download/MaterialX_MacOS_Xcode_15_Python312.zip)
-- [Linux (GCC 14, Python 3.12)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest/download/MaterialX_Linux_GCC_14_Python312.zip)
+- [Microsoft Windows (Visual Studio 2022, Python 3.13)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest/download/MaterialX_Windows_VS2022_x64_Python313.zip)
+- [MacOS (Xcode 16, Python 3.13)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest/download/MaterialX_MacOS_Xcode_16_Python313.zip)
+- [Linux (GCC 14, Python 3.13)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest/download/MaterialX_Linux_GCC_14_Python313.zip)
 
 ## Additional Resources
 
