@@ -109,6 +109,12 @@
   <implementation name="IM_noise3d_vector3_genmdl" nodedef="ND_noise3d_vector3" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_noise3d_float3(mxp_amplitude:{{amplitude}}, mxp_pivot:{{pivot}}, mxp_position:{{position}})" target="genmdl" />
   <implementation name="IM_noise3d_vector4_genmdl" nodedef="ND_noise3d_vector4" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_noise3d_float4(mxp_amplitude:{{amplitude}}, mxp_pivot:{{pivot}}, mxp_position:{{position}})" target="genmdl" />
 
+  <!-- <fractal2d> -->
+  <implementation name="IM_fractal2d_float_genmdl" nodedef="ND_fractal2d_float" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_fractal2d_float(mxp_amplitude:{{amplitude}}, mxp_octaves:{{octaves}}, mxp_lacunarity:{{lacunarity}}, mxp_diminish:{{diminish}}, mxp_texcoord:{{texcoord}})" target="genmdl" />
+  <implementation name="IM_fractal2d_vector2_genmdl" nodedef="ND_fractal2d_vector2" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_fractal2d_float2(mxp_amplitude:{{amplitude}}, mxp_octaves:{{octaves}}, mxp_lacunarity:{{lacunarity}}, mxp_diminish:{{diminish}}, mxp_texcoord:{{texcoord}})" target="genmdl" />
+  <implementation name="IM_fractal2d_vector3_genmdl" nodedef="ND_fractal2d_vector3" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_fractal2d_float3(mxp_amplitude:{{amplitude}}, mxp_octaves:{{octaves}}, mxp_lacunarity:{{lacunarity}}, mxp_diminish:{{diminish}}, mxp_texcoord:{{texcoord}})" target="genmdl" />
+  <implementation name="IM_fractal2d_vector4_genmdl" nodedef="ND_fractal2d_vector4" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_fractal2d_float4(mxp_amplitude:{{amplitude}}, mxp_octaves:{{octaves}}, mxp_lacunarity:{{lacunarity}}, mxp_diminish:{{diminish}}, mxp_texcoord:{{texcoord}})" target="genmdl" />
+
   <!-- <fractal3d> -->
   <implementation name="IM_fractal3d_float_genmdl" nodedef="ND_fractal3d_float" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_fractal3d_float(mxp_amplitude:{{amplitude}}, mxp_octaves:{{octaves}}, mxp_lacunarity:{{lacunarity}}, mxp_diminish:{{diminish}}, mxp_position:{{position}})" target="genmdl" />
   <implementation name="IM_fractal3d_vector2_genmdl" nodedef="ND_fractal3d_vector2" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_fractal3d_float2(mxp_amplitude:{{amplitude}}, mxp_octaves:{{octaves}}, mxp_lacunarity:{{lacunarity}}, mxp_diminish:{{diminish}}, mxp_position:{{position}})" target="genmdl" />
