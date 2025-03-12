@@ -156,7 +156,7 @@ class Graph
     int findNode(const std::string& name, const std::string& type);
 
     // Add node to graphNodes based on nodedef information
-    void addNode(const std::string& category, const std::string& name, const std::string& type);
+    UiNodePtr addNode(const std::string& category, const std::string& name, const std::string& type);
 
     void deleteNode(UiNodePtr node);
 
