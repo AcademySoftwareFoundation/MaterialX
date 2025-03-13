@@ -58,7 +58,7 @@ class MX_GENGLSL_API VkShaderGenerator : public GlslShaderGenerator
 
     VkResourceBindingContextPtr _resourceBindingCtx = nullptr;
 
-    // vertex data interface location to bind between stages
+    // Vertex data interface location to bind between stages
     int vertexDataLocation = 0;
 };
 
