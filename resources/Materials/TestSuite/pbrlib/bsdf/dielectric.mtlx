@@ -5,6 +5,7 @@
       <input name="weight" type="float" value="1.0" />
       <input name="tint" type="color3" value="0.7, 0.7, 0.7" />
       <input name="scatter_mode" type="string" value="R" />
+      <input name="priority" type="integer" value="0" />
     </dielectric_bsdf>
     <surface name="surface_R" type="surfaceshader">
       <input name="bsdf" type="BSDF" nodename="dielectric_R" />
@@ -15,6 +16,7 @@
       <input name="weight" type="float" value="1.0" />
       <input name="tint" type="color3" value="0.7, 0.7, 0.7" />
       <input name="scatter_mode" type="string" value="T" />
+      <input name="priority" type="integer" value="0" />
     </dielectric_bsdf>
     <surface name="surface_T" type="surfaceshader">
       <input name="bsdf" type="BSDF" nodename="dielectric_T" />
@@ -25,19 +27,49 @@
       <input name="weight" type="float" value="1.0" />
       <input name="tint" type="color3" value="0.7, 0.7, 0.7" />
       <input name="scatter_mode" type="string" value="RT" />
+      <input name="priority" type="integer" value="0" />
     </dielectric_bsdf>
     <surface name="surface_RT" type="surfaceshader">
       <input name="bsdf" type="BSDF" nodename="dielectric_RT" />
     </surface>
     <output name="RT_out" type="surfaceshader" nodename="surface_RT" />
 
-    <layer name="layer_RT" type="BSDF">
-      <input name="top" type="BSDF" nodename="dielectric_R" />
-      <input name="base" type="BSDF" nodename="dielectric_T" />
+    <dielectric_bsdf name="outer_glass" type="BSDF">
+      <input name="weight" type="float" value="1.0" />
+      <input name="tint" type="color3" value="0.9, 0.9, 1.0" />
+      <input name="ior" type="float" value="1.5" />
+      <input name="scatter_mode" type="string" value="RT" />
+      <input name="priority" type="integer" value="1" />
+    </dielectric_bsdf>
+
+    <dielectric_bsdf name="inner_liquid" type="BSDF">
+      <input name="weight" type="float" value="1.0" />
+      <input name="tint" type="color3" value="0.8, 0.9, 0.3" />
+      <input name="ior" type="float" value="1.33" />
+      <input name="scatter_mode" type="string" value="RT" />
+      <input name="priority" type="integer" value="2" />
+    </dielectric_bsdf>
+
+    <anisotropic_vdf name="liquid_interior" type="VDF">
+      <input name="absorption" type="vector3" value="0.1, 0.2, 0.8" />
+      <input name="scattering" type="vector3" value="0.0, 0.0, 0.0" />
+      <input name="anisotropy" type="float" value="0.0" />
+    </anisotropic_vdf>
+
+    <layer name="nested_dielectric" type="BSDF">
+      <input name="top" type="BSDF" nodename="outer_glass" />
+      <input name="base" type="BSDF" nodename="inner_liquid" />
     </layer>
-    <surface name="surface_layer_RT" type="surfaceshader">
-      <input name="bsdf" type="BSDF" nodename="layer_RT" />
+
+    <layer name="nested_dielectric_with_interior" type="BSDF">
+      <input name="top" type="BSDF" nodename="nested_dielectric" />
+      <input name="base" type="VDF" nodename="liquid_interior" />
+    </layer>
+
+    <surface name="surface_nested" type="surfaceshader">
+      <input name="bsdf" type="BSDF" nodename="nested_dielectric_with_interior" />
     </surface>
-    <output name="layer_RT_out" type="surfaceshader" nodename="surface_layer_RT" />
+    <output name="nested_out" type="surfaceshader" nodename="surface_nested" />
+
   </nodegraph>
 </materialx>
