@@ -64,6 +64,7 @@
     <input name="tint" type="color3" value="1.0, 1.0, 1.0" />
     <input name="ior" type="float" value="1.5" />
     <input name="roughness" type="vector2" value="0.05, 0.05" />
+    <input name="priority" type="integer" value="0" doc="Priority value for nested dielectric handling. Higher values take precedence when multiple dielectrics overlap." />
     <input name="thinfilm_thickness" type="float" value="0" unittype="distance" unit="nanometer" />
     <input name="thinfilm_ior" type="float" value="1.5" />
     <input name="normal" type="vector3" defaultgeomprop="Nworld" />
