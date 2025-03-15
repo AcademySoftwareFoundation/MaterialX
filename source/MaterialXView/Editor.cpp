@@ -339,7 +339,8 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
                 mx::MaterialPtr material = viewer->getSelectedMaterial();
                 if (material)
                 {
-                    mx::Vector3 v(c.r(), c.g(), c.b());
+                    mx::Color3 cLinear = mx::Color3(c.r(), c.g(), c.b()).srgbToLinear();
+                    mx::Vector3 v(cLinear[0], cLinear[1], cLinear[2]);
                     material->modifyUniform(path, mx::Value::createValue(v));
                 }
             });
