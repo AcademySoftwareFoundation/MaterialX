@@ -230,6 +230,7 @@ export material mx_dielectric_bsdf(
     color  mxp_tint      = color(1.0),
     float  mxp_ior       = 1.5,
     float2 mxp_roughness = float2(0.0),
+    int    mxp_priority  = 0,
     float3 mxp_normal    = state::normal(),
     float3 mxp_tangent   = state::texture_tangent_u(0),
     uniform core::mx_distribution_type mxp_distribution = core::mx_distribution_type_ggx [[ anno::unused() ]],
