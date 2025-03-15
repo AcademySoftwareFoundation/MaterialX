@@ -8,7 +8,7 @@ MaterialX Standard Nodes v1.39
 **Version 1.39**  
 Doug Smythe - Industrial Light & Magic  
 Jonathan Stone - Lucasfilm Advanced Development Group  
-March 9, 2025
+March 15, 2025
 
 
 # Introduction
@@ -40,6 +40,8 @@ In the descriptions below, a node with an "(NG)" annotation indicates a node tha
  [Conditional Nodes](#conditional-nodes)  
  [Channel Nodes](#channel-nodes)  
  [Convolution Nodes](#convolution-nodes)  
+
+**[Standard Shader Nodes](#standard-shader-nodes)**
 
 <br>
 
@@ -1090,7 +1092,7 @@ The Mix node takes two 1-4 channel inputs `fg` and `bg` plus a separate 1-channe
     * `mix` (float or same type as `bg`): the 0-1 mixing value; default is 0.
 
 
-See also the [Standard Library Shader Nodes](./MaterialX.Specification.md#standard-library-shader-nodes) section of the main Specification document for additional `mix` operator variants supporting shader-semantic types.
+See also the [Standard Shader Nodes](#standard-shader-nodes) section below for additional shader-semantic variants of the [`mix` node](#node-mix-shader).
 
 
 
@@ -1227,4 +1229,31 @@ Convolution nodes have one input named "in", and apply a defined convolution fun
     * `in` (float): the input value or nodename
     * `scale` (float): the scale of normal map deflections relative to the gradient of the height map.  Default is 1.0.
 
+<br>
 
+
+# Standard Shader Nodes
+
+The Standard MaterialX Library defines the following nodes and node variants operating on "shader"-semantic types.  Standard library shaders do not respond to external illumination; please refer to the [**MaterialX Physically Based Shading Nodes**](./MaterialX.PBRSpec.md#materialx-pbs-library) document for definitions of additional nodes and shader constructors which do respond to illumination, as well as [**MaterialX NPR Shading Nodes**](./MaterialX.NPRSpec.md) for definitions of shaders and nodes applicable to non-photorealistic rendering.
+
+<a id="node-surface-unlit"> </a>
+
+* **`surface_unlit`**: an unlit surface shader node, representing a surface that can emit and transmit light, but does not receive illumination from light sources or other surfaces.  Output type surfaceshader.
+    * `emission` (float): the surface emission amount; default is 1.0
+    * `emission_color` (color3): surface emission color; default is (1, 1, 1)
+    * `transmission` (float): the surface transmission amount; default is 0
+    * `transmission_color` (color3): surface transmission color; default is (1, 1, 1)
+    * `opacity` (float): surface cutout opacity; default is 1.0
+
+<a id="node-displacement"> </a>
+
+* **`displacement`**: Constructs a displacement shader describing geometric modification to surfaces.  Output type "displacementshader".
+    * `displacement` (float or vector3): Scalar (along the surface normal direction) or vector displacement (in (dPdu, dPdv, N) tangent/normal space) for each position.  Default is 0.
+    * `scale` (float): Scale factor for the displacement vector.  Default is 1.0.
+
+<a id="node-mix-shader"> </a>
+
+* **`mix`**: linear blend between two surface/displacement/volumeshader closures.
+    * `bg` (surface/displacement/volumeshader): the name of the background shader-semantic node
+    * `fg` (surface/displacement/volumeshader): the name of the foreground shader-semantic node
+    * `mix` (float): the blending factor used to mix the two input closures
