@@ -8,7 +8,7 @@ MaterialX Specification v1.39
 **Version 1.39**  
 Doug Smythe - Industrial Light & Magic  
 Jonathan Stone - Lucasfilm Advanced Development Group  
-March 9, 2025
+March 15, 2025
 
 
 # Introduction
@@ -74,7 +74,6 @@ This document describes the core MaterialX specification.  Companion documents [
    [Example Custom Node Defined by a Nodegraph](#example-custom-node-defined-by-a-nodegraph)  
   [Custom Node Use](#custom-node-use)  
  [Shader Nodes](#shader-nodes)  
-  [Standard Library Shader Nodes](#standard-library-shader-nodes)  
  [Material Nodes](#material-nodes)  
   [Example Pre-Shader Compositing Material](#example-pre-shader-compositing-material)  
  [Material Variants](#material-variants)  
@@ -657,15 +656,17 @@ MaterialX also supports the following additional attributes for Output elements 
 
 ## Standard Nodes
 
-A core part of MaterialX is its set of Standard Nodes, divided into four categories: Source nodes, Operator Nodes, Physically-Based Shading nodes, and NPR (non-photorealistic) Shading nodes.
+A core part of MaterialX is its set of Standard Nodes, divided into five categories: Source nodes, Operator nodes, Standard Shader nodes, Physically-Based Shading nodes, and NPR (non-photorealistic) Shading nodes.
 
-**Source nodes** use external data and/or procedural functions to form an output; they do not have any required inputs.  Standard Source Nodes are grouped into the following classifications: [Texture Nodes](./MaterialX.StandardNodes.md#texture-nodes), [Procedural Nodes](./MaterialX.StandardNodes.md#procedural-nodes), [Noise Nodes](./MaterialX.StandardNodes.md#noise-nodes), [Shape Nodes](./MaterialX.StandardNodes.md#shape-nodes), [Geometric Nodes](./MaterialX.StandardNodes.md#geometric-nodes) and [Application Nodes](./MaterialX.StandardNodes.md#application-nodes).
+[**Source nodes**](./MaterialX.StandardNodes.md#standard-source-nodes) use external data and/or procedural functions to form an output; they do not have any required inputs.  Standard Source Nodes are grouped into the following classifications: [Texture Nodes](./MaterialX.StandardNodes.md#texture-nodes), [Procedural Nodes](./MaterialX.StandardNodes.md#procedural-nodes), [Noise Nodes](./MaterialX.StandardNodes.md#noise-nodes), [Shape Nodes](./MaterialX.StandardNodes.md#shape-nodes), [Geometric Nodes](./MaterialX.StandardNodes.md#geometric-nodes) and [Application Nodes](./MaterialX.StandardNodes.md#application-nodes).
 
-**Operator nodes** process one or more required input streams to form an output.  Standard Operator Nodes are grouped into the following classifications: [Math Nodes](./MaterialX.StandardNodes.md#math-nodes), [Logical Operator Nodes](./MaterialX.StandardNodes.md#logical-operator-nodes), [Adjustment Nodes](./MaterialX.StandardNodes.md#adjustment-nodes), [Compositing Nodes](./MaterialX.StandardNodes.md#compositing-nodes), [Conditional Nodes](./MaterialX.StandardNodes.md#conditional-nodes), [Channel Nodes](./MaterialX.StandardNodes.md#channel-nodes) and [Convolution Nodes](./MaterialX.StandardNodes.md#convolution-nodes).
+[**Operator nodes**](./MaterialX.StandardNodes.md#standard-operator-nodes) process one or more input streams to form an output.  Standard Operator Nodes are grouped into the following classifications: [Math Nodes](./MaterialX.StandardNodes.md#math-nodes), [Logical Operator Nodes](./MaterialX.StandardNodes.md#logical-operator-nodes), [Adjustment Nodes](./MaterialX.StandardNodes.md#adjustment-nodes), [Compositing Nodes](./MaterialX.StandardNodes.md#compositing-nodes), [Conditional Nodes](./MaterialX.StandardNodes.md#conditional-nodes), [Channel Nodes](./MaterialX.StandardNodes.md#channel-nodes) and [Convolution Nodes](./MaterialX.StandardNodes.md#convolution-nodes).
 
-**Physically-Based Shading nodes** are shader-semantic nodes implementing a number of widely-used [BSDF/BSSRDF](./MaterialX.PBRSpec.md#bsdf-nodes), [emission](./MaterialX.PBRSpec.md#edf-nodes) and [volume](./MaterialX.PBRSpec.md#vdf-nodes) distribution functions and [utility nodes](./MaterialX.PBRSpec.md#utility-nodes) useful in constructing complex layered rendering shaders using node graphs, as well as a set of complete [PBR Shader Nodes](./MaterialX.PBRSpec.md#pbr-shader-nodes) implementing open standard shading models.
+[**Standard Shader nodes**](./MaterialX.StandardNodes.md#standard-shader-nodes) comprise non-shading shaders such as for displacement, and shaders which do not respond to external illumination.
 
-**NPR Shading nodes** are operations that are desirable in non-photorealistic shading styles but which cannot be implemented within certain rendering constructs.  These include [NPR Application Nodes](./MaterialX.NPRSpec.md#npr-application-nodes), [NPR Utility Nodes](./MaterialX.NPRSpec.md#npr-utility-nodes) and [NPR Shading Nodes](./MaterialX.NPRSpec.md#npr-shading-nodes).
+[**Physically-Based Shading nodes**](./MaterialX.PBRSpec.md) are shader-semantic nodes implementing a number of widely-used [BSDF/BSSRDF](./MaterialX.PBRSpec.md#bsdf-nodes), [emission](./MaterialX.PBRSpec.md#edf-nodes) and [volume](./MaterialX.PBRSpec.md#vdf-nodes) distribution functions and [utility nodes](./MaterialX.PBRSpec.md#utility-nodes) useful in constructing complex layered rendering shaders using node graphs, as well as a set of complete [PBR Shader Nodes](./MaterialX.PBRSpec.md#pbr-shader-nodes) implementing open standard shading models.
+
+[**NPR Shading nodes**](./MaterialX.NPRSpec.md) are operations that are desirable in non-photorealistic shading styles but which cannot be implemented within certain rendering constructs.  These include [NPR Application Nodes](./MaterialX.NPRSpec.md#npr-application-nodes), [NPR Utility Nodes](./MaterialX.NPRSpec.md#npr-utility-nodes) and [NPR Shading Nodes](./MaterialX.NPRSpec.md#npr-shading-nodes).
 
 
 
@@ -1313,33 +1314,7 @@ As with non-shader custom nodes, **Input** elements are used within a &lt;nodede
 
 An input with a shader-semantic type may be given a value of "" to indicate no shader node is connected to this input; this is typically the default for shader-semantic inputs of operator nodes.  It is up to applications to decide what to do with unconnected shader-semantic inputs.
 
-
-
-### Standard Library Shader Nodes
-
-The Standard MaterialX Library defines the following nodes and node variants operating on "shader"-semantic types.  Standard library shaders do not respond to external illumination; please refer to the [**MaterialX Physically Based Shading Nodes**](./MaterialX.PBRSpec.md#materialx-pbs-library) document for definitions of additional nodes and shader constructors which do respond to illumination.
-
-<a id="node-surface-unlit"> </a>
-
-* **`surface_unlit`**: an unlit surface shader node, representing a surface that can emit and transmit light, but does not receive illumination from light sources or other surfaces.  Output type surfaceshader.
-    * `emission` (float): the surface emission amount; default is 1.0
-    * `emission_color` (color3): surface emission color; default is (1, 1, 1)
-    * `transmission` (float): the surface transmission amount; default is 0
-    * `transmission_color` (color3): surface transmission color; default is (1, 1, 1)
-    * `opacity` (float): surface cutout opacity; default is 1.0
-
-<a id="node-displacement"> </a>
-
-* **`displacement`**: Constructs a displacement shader describing geometric modification to surfaces.  Output type "displacementshader".
-    * `displacement` (float or vector3): Scalar (along the surface normal direction) or vector displacement (in (dPdu, dPdv, N) tangent/normal space) for each position.  Default is 0.
-    * `scale` (float): Scale factor for the displacement vector.  Default is 1.0.
-
-<a id="node-mix-shader"> </a>
-
-* **`mix`**: linear blend between two surface/displacement/volumeshader closures.
-    * `bg` (surface/displacement/volumeshader): the name of the background shader-semantic node
-    * `fg` (surface/displacement/volumeshader): the name of the foreground shader-semantic node
-    * `mix` (float): the blending factor used to mix the two input closures
+Please refer to [**Standard Shader Nodes**](./MaterialX.StandardNodes.md#standard-shader-nodes), [**Physically-Based Shading Nodes**](./MaterialX.PBRSpec.md) and [**NPR Shading Nodes**](./MaterialX.NPRSpec.md) for descriptions of Shader Nodes defined by MaterialX.
 
 
 
