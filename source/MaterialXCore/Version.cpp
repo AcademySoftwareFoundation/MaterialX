@@ -1191,6 +1191,7 @@ void Document::upgradeVersion()
                     {
                         // Replace swizzle with constant.
                         node->setCategory("constant");
+                        node->removeAttribute(InterfaceElement::NODE_DEF_ATTRIBUTE);
                         string valueString = inInput->getValueString();
                         StringVec origValueTokens = splitString(valueString, ARRAY_VALID_SEPARATORS);
                         StringVec newValueTokens;
@@ -1228,6 +1229,7 @@ void Document::upgradeVersion()
                     {
                         // Replace swizzle with extract.
                         node->setCategory("extract");
+                        node->removeAttribute(InterfaceElement::NODE_DEF_ATTRIBUTE);
                         if (!channelString.empty() && CHANNEL_INDEX_MAP.count(channelString[0]))
                         {
                             node->setInputValue("index", (int) CHANNEL_INDEX_MAP.at(channelString[0]));
@@ -1238,11 +1240,13 @@ void Document::upgradeVersion()
                     {
                         // Replace swizzle with convert.
                         node->setCategory("convert");
+                        node->removeAttribute(InterfaceElement::NODE_DEF_ATTRIBUTE);
                     }
                     else if (sourceChannelCount == 1)
                     {
                         // Replace swizzle with combine.
                         node->setCategory("combine" + std::to_string(destChannelCount));
+                        node->removeAttribute(InterfaceElement::NODE_DEF_ATTRIBUTE);
                         for (size_t i = 0; i < destChannelCount; i++)
                         {
                             InputPtr combineInInput = node->addInput(std::string("in") + std::to_string(i + 1), "float");
@@ -1269,6 +1273,7 @@ void Document::upgradeVersion()
                             graph->setChildIndex(separateNode->getName(), childIndex);
                         }
                         node->setCategory("combine" + std::to_string(destChannelCount));
+                        node->removeAttribute(InterfaceElement::NODE_DEF_ATTRIBUTE);
                         for (size_t i = 0; i < destChannelCount; i++)
                         {
                             InputPtr combineInInput = node->addInput(std::string("in") + std::to_string(i + 1), "float");
