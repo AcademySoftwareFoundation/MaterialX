@@ -36,8 +36,12 @@ EMSCRIPTEN_BINDINGS(geom)
         .function("getCollectionString", &mx::GeomElement::getCollectionString)
         .function("setCollection", &mx::GeomElement::setCollection)
         .function("getCollection", &mx::GeomElement::getCollection)
+        .function("setPriority", &mx::GeomElement::setPriority)
+        .function("hasPriority", &mx::GeomElement::hasPriority)
+        .function("getPriority", &mx::GeomElement::getPriority)
         .class_property("GEOM_ATTRIBUTE", &mx::GeomElement::GEOM_ATTRIBUTE)
-        .class_property("COLLECTION_ATTRIBUTE", &mx::GeomElement::COLLECTION_ATTRIBUTE);
+        .class_property("COLLECTION_ATTRIBUTE", &mx::GeomElement::COLLECTION_ATTRIBUTE)
+        .class_property("PRIORITY_ATTRIBUTE", &mx::GeomElement::PRIORITY_ATTRIBUTE);
 
     ems::class_<mx::GeomInfo, ems::base<mx::GeomElement>>("GeomInfo")
         .smart_ptr_constructor("GeomInfo", &std::make_shared<mx::GeomInfo, mx::ElementPtr, const std::string &>)

@@ -182,6 +182,28 @@ class MX_CORE_API GeomElement : public Element
     }
 
     /// @}
+    /// @name Priority
+    /// @{
+
+    /// Set the priority value of this element.
+    void setPriority(int priority)
+    {
+        setAttribute(PRIORITY_ATTRIBUTE, std::to_string(priority));
+    }
+
+    /// Return true if this element has a priority value.
+    bool hasPriority() const
+    {
+        return hasAttribute(PRIORITY_ATTRIBUTE);
+    }
+
+    /// Return the priority value of this element.
+    int getPriority() const
+    {
+        return hasPriority() ? std::stoi(getAttribute(PRIORITY_ATTRIBUTE)) : 0;
+    }
+
+    /// @}
     /// @name Collection
     /// @{
 
@@ -222,6 +244,7 @@ class MX_CORE_API GeomElement : public Element
   public:
     static const string GEOM_ATTRIBUTE;
     static const string COLLECTION_ATTRIBUTE;
+    static const string PRIORITY_ATTRIBUTE;
 };
 
 /// @class GeomInfo

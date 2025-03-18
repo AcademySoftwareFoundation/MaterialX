@@ -488,6 +488,22 @@ class MaterialAssign
         this._collection = collection;
         this._shader = null;
         this._materialUI = null;
+        this._priority = 0;
+    }
+
+    setPriority(value)
+    {
+        this._priority = value;
+    }
+
+    getPriority()
+    {
+        return this._priority;
+    }
+
+    hasPriority()
+    {
+        return this._priority !== undefined;
     }
 
     setMaterialUI(value)
@@ -541,6 +557,9 @@ class MaterialAssign
 
     // THREE.JS shader
     _shader;
+
+    // Priority value
+    _priority;
 }
 
 export class Material

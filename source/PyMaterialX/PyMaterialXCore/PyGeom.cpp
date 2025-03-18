@@ -23,7 +23,10 @@ void bindPyGeom(py::module& mod)
         .def("hasCollectionString", &mx::GeomElement::hasCollectionString)
         .def("getCollectionString", &mx::GeomElement::getCollectionString)
         .def("setCollection", &mx::GeomElement::setCollection)
-        .def("getCollection", &mx::GeomElement::getCollection);
+        .def("getCollection", &mx::GeomElement::getCollection)
+        .def("setPriority", &mx::GeomElement::setPriority)
+        .def("hasPriority", &mx::GeomElement::hasPriority)
+        .def("getPriority", &mx::GeomElement::getPriority);
 
     py::class_<mx::GeomInfo, mx::GeomInfoPtr, mx::GeomElement>(mod, "GeomInfo")
         .def("addGeomProp", &mx::GeomInfo::addGeomProp)
