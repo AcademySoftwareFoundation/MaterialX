@@ -253,6 +253,52 @@
     <output name="output_color4" type="color4" />
   </nodedef>
 
+  <nodedef name="ND_legacy_gradient_float" node="legacy_gradient_float">
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <input name="type" type="float" value="0" uimin="0" uimax="12" uivisible="true" uiname="Gradient Type" uifolder="" />
+    <input name="width" type="float" value="1" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Width" unittype="distance" uifolder="" />
+    <input name="height" type="float" value="1" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Height" unittype="distance" uifolder=""/>
+    <input name="noiseenable" type="boolean" value="false" uivisible="true" uiname="Noise" uifolder="" />
+    <input name="noisetype" type="float" value="0" uimin="0" uimax="2" uivisible="true" uiname="Noise Type" uifolder="" />
+    <input name="noiseamount" type="float" value="0.1" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Noise Amount" uifolder="" />
+    <input name="noisesize" type="float" value="1" uisoftmin="0.0" uisoftmax="10" uivisible="true" uiname="Noise Size" unittype="distance" uifolder="" />
+    <input name="noisesmooth" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Noise Smooth" uifolder="" />
+    <input name="noiselow" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Noise Threshold Low" uifolder="" />
+    <input name="noisehigh" type="float" value="1" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Noise Threshold High" uifolder="" />
+    <input name="noiselevels" type="float" value="4.0" uimin="0.0" uisoftmax="8" uivisible="true" uiname="Noise Levels" uifolder="" />
+    <input name="noisephase" type="float" value="0" uimin="0.0" uisoftmax="1.0" uivisible="true" uiname="Noise Phase" uifolder="" />
+    <input name="offset_x" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Offset X" uifolder="" />
+    <input name="offset_y" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Offset Y" uifolder="" />
+    <input name="rotate" type="float" value="0" uisoftmin="0.0" uisoftmax="360" uivisible="true" uiname="Rotate" unittype="angle" unit="degree" uisoftmin="0" uisoftmax="360" uifolder="" />
+    <input name="tile_x" type="boolean" value="true" uivisible="true" uiname="Repeat X" uifolder="" uifolder="" />
+    <input name="tile_y" type="boolean" value="true" uivisible="true" uiname="Repeat Y" uifolder="" uifolder="" />
+    <output name="out" type="float" />
+  </nodedef>
+
+  <nodedef name="ND_legacy_gradient_color3" node="legacy_gradient_color3">
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <input name="color1" type="color3" value="0, 0, 0" uisoftmin="0,0,0" uisoftmax="1,1,1" uivisible="true" uiname="Color 1" uifolder="" />
+    <input name="color2" type="color3" value="1, 1, 1" uisoftmin="0,0,0" uisoftmax="1,1,1" uivisible="true" uiname="Color 2" uifolder="" />
+    <input name="type" type="float" value="0" uimin="0" uimax="12" uivisible="true" uiname="Gradient Type" uifolder="" />
+    <input name="width" type="float" value="1" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Width" unittype="distance" uifolder="" />
+    <input name="height" type="float" value="1" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Height" unittype="distance" uifolder=""/>
+    <input name="noiseenable" type="boolean" value="false" uivisible="true" uiname="Noise" uifolder="" />
+    <input name="noisetype" type="float" value="0" uimin="0" uimax="2" uivisible="true" uiname="Noise Type" uifolder="" />
+    <input name="noiseamount" type="float" value="0.1" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Noise Amount" uifolder="" />
+    <input name="noisesize" type="float" value="1" uisoftmin="0.0" uisoftmax="10" uivisible="true" uiname="Noise Size" unittype="distance" uifolder="" />
+    <input name="noisesmooth" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Noise Smooth" uifolder="" />
+    <input name="noiselow" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Noise Threshold Low" uifolder="" />
+    <input name="noisehigh" type="float" value="1" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Noise Threshold High" uifolder="" />
+    <input name="noiselevels" type="float" value="4.0" uimin="0.0" uisoftmax="8" uivisible="true" uiname="Noise Levels" uifolder="" />
+    <input name="noisephase" type="float" value="0" uimin="0.0" uisoftmax="1.0" uivisible="true" uiname="Noise Phase" uifolder="" />
+    <input name="offset_x" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Offset X" uifolder="" />
+    <input name="offset_y" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Offset Y" uifolder="" />
+    <input name="rotate" type="float" value="0" uisoftmin="0.0" uisoftmax="360" uivisible="true" uiname="Rotate" unittype="angle" unit="degree" uisoftmin="0" uisoftmax="360" uifolder="" />
+    <input name="tile_x" type="boolean" value="true" uivisible="true" uiname="Repeat X" uifolder="" uifolder="" />
+    <input name="tile_y" type="boolean" value="true" uivisible="true" uiname="Repeat Y" uifolder="" uifolder="" />
+    <output name="out" type="color3" />
+  </nodedef>
+
   <!-- 
       =============================================
       Nodedefs for Autodesk Legacy Material Classes

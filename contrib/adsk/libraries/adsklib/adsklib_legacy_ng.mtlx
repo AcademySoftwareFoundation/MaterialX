@@ -2998,6 +2998,530 @@
     </combine2>
   </nodegraph>
 
+  <nodegraph name="NG_legacy_gradient_float" Autodesk-ldx_inputPos="-2097.49 1053.61" Autodesk-ldx_outputPos="4692.21 753.603" nodedef="ND_legacy_gradient_float">
+    <modulo name="modulo1" type="vector2" nodedef="ND_modulo_vector2" xpos="-6.83639" ypos="4.37357">
+      <input name="in2" type="vector2" value="1, 1" />
+      <input name="in1" type="vector2" nodename="trim_coord" />
+    </modulo>
+    <switch name="switch_type1" type="float" nodedef="ND_switch_float" xpos="14.8263" ypos="1.94811">
+      <input name="in3" type="float" nodename="ifgreater1" />
+      <input name="in1" type="float" nodename="separate_texcoord" output="outx" />
+      <input name="in2" type="float" nodename="separate_texcoord" output="outy" />
+      <input name="in4" type="float" nodename="min1" />
+      <input name="in5" type="float" nodename="magnitude1" />
+      <input name="which" type="float" nodename="modulo_type" />
+    </switch>
+    <separate2 name="separate_texcoord" type="multioutput" nodedef="ND_separate2_vector2" xpos="-5.51054" ypos="3.42884">
+      <input name="in" type="vector2" nodename="modulo1" />
+    </separate2>
+    <ifgreater name="ifgreater1" type="float" nodedef="ND_ifgreater_float" xpos="5.99739" ypos="-1.94069">
+      <input name="value1" type="float" nodename="separate_texcoord" output="outx" />
+      <input name="in1" type="float" nodename="divide1" />
+      <input name="in2" type="float" nodename="separate_texcoord" output="outy" />
+      <input name="value2" type="float" value="0" />
+    </ifgreater>
+    <multiply name="multiply1" type="float" nodedef="ND_multiply_float" xpos="1.27803" ypos="-2.547">
+      <input name="in1" type="float" nodename="separate_texcoord" output="outy" />
+      <input name="in2" type="float" nodename="separate_texcoord" output="outy" />
+    </multiply>
+    <multiply name="multiply2" type="float" nodedef="ND_multiply_float" xpos="1.25032" ypos="-1.37094">
+      <input name="in1" type="float" nodename="separate_texcoord" output="outx" />
+      <input name="in2" type="float" nodename="separate_texcoord" output="outx" />
+    </multiply>
+    <divide name="divide1" type="float" nodedef="ND_divide_float" xpos="2.79727" ypos="-2.12834">
+      <input name="in1" type="float" nodename="multiply1" />
+      <input name="in2" type="float" nodename="multiply2" />
+    </divide>
+    <subtract name="subtract3" type="vector2" nodedef="ND_subtract_vector2FA" xpos="1.19621" ypos="0.820217">
+      <input name="in2" type="float" value="0.5" />
+      <input name="in1" type="vector2" nodename="modulo1" />
+    </subtract>
+    <absval name="absval3" type="vector2" nodedef="ND_absval_vector2" xpos="2.95816" ypos="1.04922">
+      <input name="in" type="vector2" nodename="subtract3" />
+    </absval>
+    <multiply name="multiply3" type="vector2" nodedef="ND_multiply_vector2FA" xpos="4.54397" ypos="1.06692">
+      <input name="in1" type="vector2" nodename="absval3" />
+      <input name="in2" type="float" value="2" />
+    </multiply>
+    <separate2 name="separate2_2" type="multioutput" nodedef="ND_separate2_vector2" xpos="5.86017" ypos="1.05072">
+      <input name="in" type="vector2" nodename="multiply3" />
+    </separate2>
+    <max name="max1" type="float" nodedef="ND_max_float" xpos="2.96693" ypos="2.26372">
+      <input name="in1" type="float" nodename="separate2_2" output="outx" />
+      <input name="in2" type="float" nodename="separate2_2" output="outy" />
+    </max>
+    <min name="min1" type="float" nodedef="ND_min_float" xpos="4.78636" ypos="2.26372">
+      <input name="in1" type="float" nodename="max1" />
+      <input name="in2" type="float" value="1" />
+    </min>
+    <magnitude name="magnitude1" type="float" nodedef="ND_magnitude_vector2" xpos="4.60608" ypos="4.61081">
+      <input name="in" type="vector2" nodename="combine2_1" />
+    </magnitude>
+    <combine2 name="combine2_1" type="vector2" nodedef="ND_combine2_vector2" xpos="3.17548" ypos="4.68624">
+      <input name="in1" type="float" nodename="subtract1" />
+      <input name="in2" type="float" nodename="subtract2" />
+    </combine2>
+    <modulo name="modulo_type" type="float" nodedef="ND_modulo_float" xpos="12.3722" ypos="4.84154">
+      <input name="in1" type="float" interfacename="type" />
+      <input name="in2" type="float" value="5" />
+    </modulo>
+    <switch name="switch_type2" type="float" nodedef="ND_switch_float" xpos="14.7892" ypos="3.74471">
+      <input name="which" type="float" nodename="modulo_type" />
+      <input name="in1" type="float" nodename="min2" />
+      <input name="in2" type="float" nodename="min3" />
+      <input name="in3" type="float" nodename="min4" />
+      <input name="in4" type="float" nodename="min5" />
+      <input name="in5" type="float" nodename="invert1" ldx_value="0" />
+    </switch>
+    <switch name="switch_type" type="float" nodedef="ND_switch_float" xpos="16.8818" ypos="2.67831">
+      <input name="in1" type="float" nodename="switch_type1" />
+      <input name="in2" type="float" nodename="switch_type2" />
+      <input name="which" type="float" nodename="divide_type" />
+    </switch>
+    <divide name="divide_type" type="float" nodedef="ND_divide_float" xpos="14.7846" ypos="5.55722">
+      <input name="in1" type="float" interfacename="type" />
+      <input name="in2" type="float" value="5" />
+    </divide>
+    <backdrop name="Four_corners_OVERBLOWN" xpos="1.22248" ypos="-2.9859" width="6.64239" height="2.85378" uicolor="#DA9652" Autodesk-ldx_alpha="0.156863" />
+    <backdrop name="Box" xpos="1.18849" ypos="0.23872" width="6.20978" height="3.18631" />
+    <backdrop name="Diagonal" xpos="1.19993" ypos="3.72354" width="4.76526" height="2.71178" />
+    <ifgreater name="ifgreater2" type="float" nodedef="ND_ifgreater_float" xpos="4.27031" ypos="7.38522">
+      <input name="value1" type="float" nodename="separate_texcoord" output="outy" />
+      <input name="in1" type="float" nodename="ifgreater3" />
+    </ifgreater>
+    <min name="min2" type="float" nodedef="ND_min_float" xpos="5.705" ypos="7.63633">
+      <input name="in2" type="float" value="1" />
+      <input name="in1" type="float" nodename="ifgreater2" />
+    </min>
+    <ifgreater name="ifgreater3" type="float" nodedef="ND_ifgreater_float" xpos="4.12466" ypos="8.8465">
+      <input name="value2" type="float" value="1" />
+      <input name="value1" type="float" nodename="divide3" />
+      <input name="in1" type="float" nodename="ifgreater4" />
+      <input name="in2" type="float" nodename="divide3" />
+    </ifgreater>
+    <divide name="divide3" type="float" nodedef="ND_divide_float" xpos="1.30003" ypos="8.14689">
+      <input name="in1" type="float" nodename="separate_texcoord" output="outx" />
+      <input name="in2" type="float" nodename="separate_texcoord" output="outy" />
+    </divide>
+    <ifgreater name="ifgreater4" type="float" nodedef="ND_ifgreater_float" xpos="2.72953" ypos="9.92789">
+      <input name="value1" type="float" nodename="separate_texcoord" output="outx" />
+      <input name="in1" type="float" nodename="divide4" />
+    </ifgreater>
+    <divide name="divide4" type="float" nodedef="ND_divide_float" xpos="1.31081" ypos="10.4933">
+      <input name="in1" type="float" nodename="separate_texcoord" output="outy" />
+      <input name="in2" type="float" nodename="separate_texcoord" output="outx" />
+    </divide>
+    <backdrop name="Pong" xpos="1.24448" ypos="6.91478" width="5.74239" height="4.7398" />
+    <magnitude name="magnitude2" type="float" nodedef="ND_magnitude_vector2" xpos="4.21162" ypos="12.6556">
+      <input name="in" type="vector2" nodename="multiply4" />
+    </magnitude>
+    <subtract name="subtract4" type="vector2" nodedef="ND_subtract_vector2FA" xpos="1.29918" ypos="12.6412">
+      <input name="in1" type="vector2" nodename="modulo1" />
+      <input name="in2" type="float" value="0.5" />
+    </subtract>
+    <multiply name="multiply4" type="vector2" nodedef="ND_multiply_vector2FA" xpos="2.64242" ypos="12.7817">
+      <input name="in2" type="float" value="2" />
+      <input name="in1" type="vector2" nodename="subtract4" />
+    </multiply>
+    <min name="min3" type="float" nodedef="ND_min_float" xpos="5.67583" ypos="12.6747">
+      <input name="in1" type="float" nodename="magnitude2" />
+      <input name="in2" type="float" value="1" />
+    </min>
+    <backdrop name="Radial" xpos="1.24363" ypos="11.9516" width="5.78556" height="1.99844" />
+    <normalize name="normalize1" type="vector2" nodedef="ND_normalize_vector2" xpos="4.81834" ypos="15.6309">
+      <input name="in" type="vector2" nodename="combine2_2" />
+    </normalize>
+    <subtract name="subtract5" type="vector2" nodedef="ND_subtract_vector2FA" xpos="1.23854" ypos="15.5135">
+      <input name="in2" type="float" value="0.5" />
+      <input name="in1" type="vector2" nodename="modulo1" />
+    </subtract>
+    <acos name="acos1" type="float" nodedef="ND_acos_float" xpos="8.15033" ypos="15.345">
+      <input name="in" type="float" nodename="separate2_3" output="outx" />
+    </acos>
+    <separate2 name="separate2_3" type="multioutput" nodedef="ND_separate2_vector2" xpos="6.20722" ypos="15.4423">
+      <input name="in" type="vector2" nodename="normalize1" />
+    </separate2>
+    <subtract name="subtract6" type="float" nodedef="ND_subtract_float" xpos="8.1215" ypos="17.7768">
+      <input name="in1" type="float" nodename="PiTwo" ldx_value="6.28319" />
+      <input name="in2" type="float" nodename="acos1" />
+    </subtract>
+    <divide name="divide5" type="float" nodedef="ND_divide_float" xpos="11.1757" ypos="16.9725">
+      <input name="in2" type="float" nodename="PiTwo" ldx_value="6.28319" />
+      <input name="in1" type="float" nodename="ifgreater5" />
+    </divide>
+    <constant name="PiTwo" type="float" nodedef="ND_constant_float" xpos="6.18217" ypos="17.3978">
+      <input name="value" type="float" value="6.28319" />
+    </constant>
+    <min name="min4" type="float" nodedef="ND_min_float" xpos="12.4393" ypos="16.2889">
+      <input name="in2" type="float" value="1" />
+      <input name="in1" type="float" nodename="divide5" />
+    </min>
+    <separate2 name="separate2_4" type="multioutput" nodedef="ND_separate2_vector2" xpos="2.73823" ypos="17.5108">
+      <input name="in" type="vector2" nodename="subtract5" />
+    </separate2>
+    <combine2 name="combine2_2" type="vector2" nodedef="ND_combine2_vector2" xpos="4.22908" ypos="17.465">
+      <input name="in2" type="float" nodename="separate2_4" output="outx" />
+      <input name="in1" type="float" nodename="separate2_4" output="outy" />
+    </combine2>
+    <ifgreater name="ifgreater5" type="float" nodedef="ND_ifgreater_float" xpos="9.84806" ypos="16.4095">
+      <input name="value1" type="float" nodename="separate2_3" output="outy" />
+      <input name="in1" type="float" nodename="subtract6" />
+      <input name="in2" type="float" nodename="acos1" />
+      <input name="value2" type="float" value="0" />
+    </ifgreater>
+    <backdrop name="differs_from_original_as_result_was_rotated_90deg" xpos="6.20772" ypos="14.8381" width="3.49649" height="1.80789" uicolor="#C85252" Autodesk-ldx_alpha="0.156863" />
+    <backdrop name="Spiral" xpos="1.18299" ypos="14.3825" width="12.5619" height="4.5553" />
+    <combine2 name="combine2_3" type="vector2" nodedef="ND_combine2_vector2" xpos="1.14451" ypos="19.8751">
+      <input name="in1" type="float" nodename="separate_texcoord" output="outy" />
+      <input name="in2" type="float" nodename="separate_texcoord" output="outx" />
+    </combine2>
+    <normalize name="normalize2" type="vector2" nodedef="ND_normalize_vector2" xpos="2.61161" ypos="19.9436">
+      <input name="in" type="vector2" nodename="combine2_3" />
+    </normalize>
+    <separate2 name="separate2_5" type="multioutput" nodedef="ND_separate2_vector2" xpos="3.92304" ypos="19.9151">
+      <input name="in" type="vector2" nodename="normalize2" />
+    </separate2>
+    <acos name="acos2" type="float" nodedef="ND_acos_float" xpos="5.49416" ypos="19.9191">
+      <input name="in" type="float" nodename="separate2_5" output="outx" />
+    </acos>
+    <divide name="divide6" type="float" nodedef="ND_divide_float" xpos="7.10039" ypos="19.8106">
+      <input name="in1" type="float" nodename="acos2" />
+      <input name="in2" type="float" nodename="PiHalf" />
+    </divide>
+    <constant name="PiHalf" type="float" nodedef="ND_constant_float" xpos="5.5705" ypos="21.2872">
+      <input name="value" type="float" value="1.5708" />
+    </constant>
+    <min name="min5" type="float" nodedef="ND_min_float" xpos="9.01528" ypos="19.8147">
+      <input name="in1" type="float" nodename="divide6" />
+      <input name="in2" type="float" value="1" />
+    </min>
+    <backdrop name="Sweep" xpos="1.19026" ypos="19.3316" width="9.18406" height="2.94327" />
+    <subtract name="subtract7" type="vector2" nodedef="ND_subtract_vector2FA" xpos="1.25486" ypos="23.1043">
+      <input name="in2" type="float" value="0.5" />
+      <input name="in1" type="vector2" nodename="modulo1" />
+    </subtract>
+    <absval name="absval4" type="vector2" nodedef="ND_absval_vector2" xpos="2.94272" ypos="23.2805">
+      <input name="in" type="vector2" nodename="subtract7" />
+    </absval>
+    <multiply name="multiply5" type="vector2" nodedef="ND_multiply_vector2FA" xpos="4.48066" ypos="23.2981">
+      <input name="in1" type="vector2" nodename="absval4" />
+      <input name="in2" type="float" value="2" />
+    </multiply>
+    <separate2 name="separate2_6" type="multioutput" nodedef="ND_separate2_vector2" xpos="5.85039" ypos="23.2419">
+      <input name="in" type="vector2" nodename="multiply5" />
+    </separate2>
+    <min name="min6" type="float" nodedef="ND_min_float" xpos="7.31717" ypos="23.3065">
+      <input name="in1" type="float" nodename="separate2_6" output="outx" />
+      <input name="in2" type="float" nodename="separate2_6" output="outy" ldx_value="0" />
+    </min>
+    <min name="min7" type="float" nodedef="ND_min_float" xpos="8.7365" ypos="23.2848">
+      <input name="in2" type="float" value="1" />
+      <input name="in1" type="float" nodename="min6" />
+    </min>
+    <invert name="invert1" type="float" nodedef="ND_invert_float" xpos="10.4274" ypos="23.3724">
+      <input name="in" type="float" nodename="min7" />
+      <input name="amount" type="float" value="1" />
+    </invert>
+    <backdrop name="unnecessary_maybe" xpos="8.72867" ypos="22.926" width="1.36111" height="1.6" uicolor="#C85252" Autodesk-ldx_alpha="0.156863" />
+    <backdrop name="Tartan" xpos="1.19931" ypos="22.4469" width="10.5814" height="2.25691" />
+    <subtract name="subtract1" type="float" nodedef="ND_subtract_float" xpos="1.20199" ypos="4.2023">
+      <input name="in1" type="float" nodename="separate_texcoord" output="outy" />
+      <input name="in2" type="float" nodename="separate_texcoord" output="outx" />
+    </subtract>
+    <subtract name="subtract2" type="float" nodedef="ND_subtract_float" xpos="1.26465" ypos="5.27414">
+      <input name="in1" type="float" nodename="separate_texcoord" output="outx" />
+      <input name="in2" type="float" nodename="separate_texcoord" output="outy" />
+    </subtract>
+    <ifgreater name="ifgreater_1_u" type="float" nodedef="ND_ifgreater_float" xpos="14.4669" ypos="8.67683">
+      <input name="value1" type="float" nodename="separate_uv" output="outx" />
+      <input name="value2" type="float" value="1" />
+      <input name="in2" type="float" value="1" />
+      <input name="in1" type="float" value="0" />
+    </ifgreater>
+    <ifgreater name="ifgreater_1_v" type="float" nodedef="ND_ifgreater_float" xpos="14.4669" ypos="10.7173">
+      <input name="value1" type="float" nodename="separate_uv" output="outy" />
+      <input name="value2" type="float" value="1" />
+      <input name="in2" type="float" value="1" />
+    </ifgreater>
+    <ifgreatereq name="ifgreatereq_0_u" type="float" nodedef="ND_ifgreatereq_float" xpos="15.9828" ypos="8.66222">
+      <input name="value1" type="float" nodename="separate_uv" output="outx" />
+      <input name="in1" type="float" nodename="ifgreater_1_u" />
+    </ifgreatereq>
+    <ifgreatereq name="ifgreatereq_0_v" type="float" nodedef="ND_ifgreatereq_float" xpos="15.9904" ypos="10.7178">
+      <input name="value1" type="float" nodename="separate_uv" output="outy" />
+      <input name="in1" type="float" nodename="ifgreater_1_v" />
+    </ifgreatereq>
+    <multiply name="combine_tiling" type="float" nodedef="ND_multiply_float" xpos="20.0627" ypos="9.60183">
+      <input name="in1" type="float" nodename="tile_x_enable" />
+      <input name="in2" type="float" nodename="tile_y_enable" />
+    </multiply>
+    <ifequal name="tile_x_enable" type="float" nodedef="ND_ifequal_floatB" xpos="18.0755" ypos="8.58622">
+      <input name="value1" type="boolean" interfacename="tile_x" />
+      <input name="value2" type="boolean" value="true" />
+      <input name="in2" type="float" nodename="ifgreatereq_0_u" />
+      <input name="in1" type="float" value="1" />
+    </ifequal>
+    <ifequal name="tile_y_enable" type="float" nodedef="ND_ifequal_floatB" xpos="18.0825" ypos="10.5891">
+      <input name="value1" type="boolean" interfacename="tile_y" />
+      <input name="value2" type="boolean" value="true" />
+      <input name="in2" type="float" nodename="ifgreatereq_0_v" />
+      <input name="in1" type="float" value="1" />
+    </ifequal>
+    <multiply name="repeat_alpha_mask" type="float" nodedef="ND_multiply_float" xpos="24.0293" ypos="4.24206">
+      <input name="in1" type="float" nodename="clamp1" />
+      <input name="in2" type="float" nodename="combine_tiling" />
+    </multiply>
+    <backdrop name="Repeat_XY_Alpha" xpos="12.2902" ypos="8.05533" width="9.12117" height="4.18207" />
+    <backdrop name="Type_Selection" xpos="12.3167" ypos="1.50922" width="5.87083" height="5.20912" />
+    <combine3 name="combine1" type="color3" nodedef="ND_combine3_color3" Autodesk-hidden="true">
+      <input name="in1" type="float" value="0" />
+      <input name="in2" type="float" value="0" />
+      <input name="in3" type="float" value="0" />
+    </combine3>
+    <switch name="noise_select" type="float" nodedef="ND_switch_float" xpos="25.4593" ypos="17.2164">
+      <input name="which" type="float" interfacename="noisetype" />
+      <input name="in3" type="float" nodename="turbulence3d1" />
+      <input name="in2" type="float" nodename="fractal3d_max8_1" />
+      <input name="in1" type="float" nodename="noise_simple" />
+    </switch>
+    <multiply name="noise_size_vec2" type="vector2" nodedef="ND_multiply_vector2FA" xpos="18.0484" ypos="15.8488">
+      <input name="in2" type="float" nodename="noise_size" ldx_value="20" />
+      <input name="in1" type="vector2" nodename="modulo1" />
+    </multiply>
+    <multiply name="noiseamount_mult" type="float" nodedef="ND_multiply_float" xpos="19.282" ypos="6.53461">
+      <input name="in2" type="float" interfacename="noiseamount" />
+      <input name="in1" type="float" nodename="value2" />
+    </multiply>
+    <divide name="noise_size" type="float" nodedef="ND_divide_float" xpos="16.669" ypos="17.3766">
+      <input name="in1" type="float" nodename="noise_fixed_scale" ldx_value="20" />
+      <input name="in2" type="float" interfacename="noisesize" />
+    </divide>
+    <constant name="noise_fixed_scale" type="float" nodedef="ND_constant_float" xpos="15.3483" ypos="16.8398">
+      <input name="value" type="float" value="20" />
+    </constant>
+    <constant name="noise_offset" type="vector2" nodedef="ND_constant_vector2" xpos="19.1681" ypos="16.6506">
+      <input name="value" type="vector2" value="1, 1" />
+    </constant>
+    <add name="add1" type="vector2" nodedef="ND_add_vector2" xpos="20.6801" ypos="15.9081">
+      <input name="in2" type="vector2" nodename="noise_offset" />
+      <input name="in1" type="vector2" nodename="noise_size_vec2" />
+    </add>
+    <separate2 name="separate_2d_coord" type="multioutput" nodedef="ND_separate2_vector2" xpos="18.4931" ypos="19.4355">
+      <input name="in" type="vector2" nodename="add1" />
+    </separate2>
+    <backdrop name="noisesmooth_adjusted" xpos="14.9721" ypos="21.0316" width="3.24717" height="3.14159" />
+    <multiply name="multiply7" type="float" nodedef="ND_multiply_float" xpos="15.1178" ypos="21.4601">
+      <input name="in2" type="float" value="0.5" />
+      <input name="in1" type="float" interfacename="noisesmooth" />
+    </multiply>
+    <multiply name="multiply8" type="float" nodedef="ND_multiply_float" xpos="16.8234" ypos="22.3284">
+      <input name="in2" type="float" nodename="subtract8" ldx_value="0.5" />
+      <input name="in1" type="float" nodename="multiply7" />
+    </multiply>
+    <subtract name="subtract8" type="float" nodedef="ND_subtract_float" xpos="15.1337" ypos="22.9014">
+      <input name="in2" type="float" interfacename="noiselow" />
+      <input name="in1" type="float" interfacename="noisehigh" />
+    </subtract>
+    <add name="add2" type="float" nodedef="ND_add_float" xpos="28.0648" ypos="15.7874">
+      <input name="in2" type="float" value="1" />
+      <input name="in1" type="float" nodename="noise_select" />
+    </add>
+    <multiply name="value1" type="float" nodedef="ND_multiply_float" xpos="29.4702" ypos="15.7833">
+      <input name="in1" type="float" nodename="add2" />
+      <input name="in2" type="float" value="0.5" />
+    </multiply>
+    <subtract name="p0" type="float" nodedef="ND_subtract_float" xpos="29.4208" ypos="17.5249">
+      <input name="in2" type="float" nodename="multiply8" />
+      <input name="in1" type="float" interfacename="noiselow" />
+    </subtract>
+    <add name="p1" type="float" nodedef="ND_add_float" xpos="29.3997" ypos="18.6383">
+      <input name="in2" type="float" nodename="multiply8" />
+      <input name="in1" type="float" interfacename="noiselow" />
+    </add>
+    <add name="p3" type="float" nodedef="ND_add_float" xpos="29.4108" ypos="21.1888">
+      <input name="in2" type="float" nodename="multiply8" />
+      <input name="in1" type="float" interfacename="noisehigh" />
+    </add>
+    <subtract name="p2" type="float" nodedef="ND_subtract_float" xpos="29.432" ypos="20.0753">
+      <input name="in2" type="float" nodename="multiply8" />
+      <input name="in1" type="float" interfacename="noisehigh" />
+    </subtract>
+    <ifgreatereq name="ifgreatereq1" type="float" nodedef="ND_ifgreatereq_float" xpos="33.338" ypos="16.2428">
+      <input name="in1" type="float" value="2" />
+      <input name="in2" type="float" nodename="ifgreater8" />
+      <input name="value2" type="float" nodename="p1" />
+      <input name="value1" type="float" nodename="value1" />
+    </ifgreatereq>
+    <ifgreatereq name="ifgreatereq3" type="float" nodedef="ND_ifgreatereq_float" xpos="36.1522" ypos="17.4853">
+      <input name="value2" type="float" nodename="p3" />
+      <input name="value1" type="float" nodename="value1" />
+      <input name="in2" type="float" nodename="ifgreater9" />
+      <input name="in1" type="float" value="4" />
+    </ifgreatereq>
+    <switch name="switch4" type="float" nodedef="ND_switch_float" xpos="38.075" ypos="16.2222">
+      <input name="in3" type="float" nodename="value1" />
+      <input name="in1" type="float" interfacename="noiselow" />
+      <input name="in5" type="float" interfacename="noisehigh" />
+      <input name="which" type="float" nodename="ifgreatereq3" ldx_value="1" />
+      <input name="in2" type="float" nodename="add3" ldx_value="0" />
+      <input name="in4" type="float" nodename="subtract11" ldx_value="0" />
+    </switch>
+    <ifgreater name="ifgreater8" type="float" nodedef="ND_ifgreater_float" xpos="31.8725" ypos="15.7886">
+      <input name="in1" type="float" value="0" />
+      <input name="value2" type="float" nodename="value1" />
+      <input name="value1" type="float" nodename="p0" />
+      <input name="in2" type="float" value="1" />
+    </ifgreater>
+    <ifgreater name="ifgreater9" type="float" nodedef="ND_ifgreater_float" xpos="34.7373" ypos="16.8235">
+      <input name="in1" type="float" value="3" />
+      <input name="in2" type="float" nodename="ifgreatereq1" ldx_value="1" />
+      <input name="value1" type="float" nodename="value1" />
+      <input name="value2" type="float" nodename="p2" />
+    </ifgreater>
+    <multiply name="multiply10" type="float" nodedef="ND_multiply_float" xpos="39.65" ypos="16.1954">
+      <input name="in2" type="float" value="2" />
+      <input name="in1" type="float" nodename="switch4" />
+    </multiply>
+    <subtract name="value2" type="float" nodedef="ND_subtract_float" xpos="41.1371" ypos="16.188">
+      <input name="in1" type="float" nodename="multiply10" />
+      <input name="in2" type="float" value="1" />
+    </subtract>
+    <subtract name="subtract9" type="float" nodedef="ND_subtract_float" xpos="31.7775" ypos="18.64">
+      <input name="in1" type="float" nodename="value1" />
+      <input name="in2" type="float" nodename="p0" />
+    </subtract>
+    <multiply name="multiply9" type="float" nodedef="ND_multiply_float" xpos="31.7516" ypos="20.044">
+      <input name="in1" type="float" nodename="multiply8" />
+      <input name="in2" type="float" value="2" />
+    </multiply>
+    <divide name="divide7" type="float" nodedef="ND_divide_float" xpos="33.6027" ypos="19.267">
+      <input name="in1" type="float" nodename="subtract9" />
+      <input name="in2" type="float" nodename="multiply9" />
+    </divide>
+    <multiply name="multiply11" type="float" nodedef="ND_multiply_float" xpos="35.2685" ypos="19.2471">
+      <input name="in1" type="float" nodename="divide7" />
+      <input name="in2" type="float" nodename="divide7" />
+    </multiply>
+    <multiply name="multiply12" type="float" nodedef="ND_multiply_float" xpos="36.96" ypos="19.3459">
+      <input name="in1" type="float" nodename="multiply11" />
+      <input name="in2" type="float" nodename="multiply8" />
+    </multiply>
+    <subtract name="subtract10" type="float" nodedef="ND_subtract_float" xpos="31.7667" ypos="21.3989">
+      <input name="in1" type="float" nodename="p3" />
+      <input name="in2" type="float" nodename="value1" />
+    </subtract>
+    <divide name="divide8" type="float" nodedef="ND_divide_float" xpos="33.5942" ypos="20.8174">
+      <input name="in1" type="float" nodename="subtract10" />
+      <input name="in2" type="float" nodename="multiply9" />
+    </divide>
+    <multiply name="multiply13" type="float" nodedef="ND_multiply_float" xpos="35.2925" ypos="20.8008">
+      <input name="in1" type="float" nodename="divide8" />
+      <input name="in2" type="float" nodename="divide8" />
+    </multiply>
+    <multiply name="multiply14" type="float" nodedef="ND_multiply_float" xpos="36.9396" ypos="20.7805">
+      <input name="in1" type="float" nodename="multiply13" />
+      <input name="in2" type="float" nodename="multiply8" />
+    </multiply>
+    <subtract name="subtract11" type="float" nodedef="ND_subtract_float" xpos="38.4478" ypos="20.7099">
+      <input name="in2" type="float" nodename="multiply14" />
+      <input name="in1" type="float" interfacename="noisehigh" />
+    </subtract>
+    <backdrop name="compute_noise" xpos="14.9479" ypos="15.2919" width="12.5223" height="5.43839" />
+    <clamp name="clamp1" type="float" nodedef="ND_clamp_float" xpos="22.3106" ypos="3.93843">
+      <input name="in" type="float" nodename="noise_enable" />
+    </clamp>
+    <add name="add_noise" type="float" nodedef="ND_add_float" xpos="19.3703" ypos="5.13724">
+      <input name="in1" type="float" nodename="switch_type" />
+      <input name="in2" type="float" nodename="noiseamount_mult" />
+    </add>
+    <combine3 name="combine_3d_coord" type="vector3" nodedef="ND_combine3_vector3" xpos="19.9884" ypos="19.2984">
+      <input name="in1" type="float" nodename="separate_2d_coord" output="outx" />
+      <input name="in2" type="float" nodename="separate_2d_coord" output="outy" />
+      <input name="in3" type="float" interfacename="noisephase" />
+    </combine3>
+    <add name="add3" type="float" nodedef="ND_add_float" xpos="38.4528" ypos="19.3596">
+      <input name="in1" type="float" interfacename="noiselow" />
+      <input name="in2" type="float" nodename="multiply12" />
+    </add>
+    <output name="out" type="float" nodename="repeat_alpha_mask" />
+    <backdrop name="Unnecessary_maybe" xpos="5.99528" ypos="-2.41965" width="1.36111" height="1.86667" uicolor="#C85252" Autodesk-ldx_alpha="0.156863" />
+    <fractal3d_max8 name="fractal3d_max8_1" type="float" nodedef="ND_fractal3d_max8_float" xpos="22.4037" ypos="17.6638">
+      <input name="position" type="vector3" nodename="combine_3d_coord" />
+      <input name="octaves" type="float" interfacename="noiselevels" />
+    </fractal3d_max8>
+    <turbulence3d name="turbulence3d1" type="float" nodedef="ND_turbulence3d_max8_float" xpos="22.3729" ypos="19.3071">
+      <input name="position" type="vector3" nodename="combine_3d_coord" />
+      <input name="octaves" type="float" interfacename="noiselevels" />
+    </turbulence3d>
+    <noise2d name="noise_simple" type="float" nodedef="ND_noise2d_float" xpos="22.4396" ypos="15.949">
+      <input name="texcoord" type="vector2" nodename="add1" />
+    </noise2d>
+    <backdrop name="SmoothRamp_function" xpos="28.0092" ypos="15.3444" width="14.4334" height="7.21561" />
+    <combine2 name="combine_offset" type="vector2" xpos="-9.22944" ypos="9.271">
+      <input name="in1" type="float" interfacename="offset_x" />
+      <input name="in2" type="float" interfacename="offset_y" />
+    </combine2>
+    <subtract name="subtract12" type="vector2" nodedef="ND_subtract_vector2" xpos="-7.49067" ypos="8.8375">
+      <input name="in2" type="vector2" ldx_value="0, 0" nodename="combine_offset" />
+      <input name="in1" type="vector2" interfacename="texcoord" />
+    </subtract>
+    <invert name="invert_rotation" type="float" nodedef="ND_invert_float" xpos="-7.55394" ypos="10.3171">
+      <input name="amount" type="float" value="0" />
+      <input name="in" type="float" interfacename="rotate" />
+    </invert>
+    <rotate2d name="rotate_coord" type="vector2" xpos="-5.60817" ypos="9.507">
+      <input name="amount" type="float" nodename="invert_rotation" />
+      <input name="in" type="vector2" nodename="subtract12" />
+    </rotate2d>
+    <separate2 name="separate_uv" type="multioutput" nodedef="ND_separate2_vector2" xpos="12.5585" ypos="9.68655">
+      <input name="in" type="vector2" nodename="trim_coord" />
+    </separate2>
+    <divide name="trim_coord" type="vector2" xpos="-8.28878" ypos="3.59946">
+      <input name="in1" type="vector2" nodename="rotate_coord" />
+      <input name="in2" type="vector2" nodename="combine_size" />
+    </divide>
+    <combine2 name="combine_size" type="vector2" xpos="-9.6225" ypos="3.74037">
+      <input name="in1" type="float" interfacename="width" />
+      <input name="in2" type="float" interfacename="height" />
+    </combine2>
+    <backdrop name="Offset_and_Rotation" xpos="-9.285" ypos="8.39861" width="4.98238" height="3.0796" />
+    <ifequal name="noise_enable" type="float" nodedef="ND_ifequal_floatB" xpos="20.6486" ypos="3.71112">
+      <input name="value1" type="boolean" interfacename="noiseenable" ldx_value="false" />
+      <input name="value2" type="boolean" value="true" />
+      <input name="in1" type="float" nodename="add_noise" />
+      <input name="in2" type="float" nodename="switch_type" />
+    </ifequal>
+  </nodegraph>
+
+  <nodegraph name="NG_legacy_gradient_color3" Autodesk-ldx_inputPos="-554 -254.833" Autodesk-ldx_outputPos="457.45 -143.351" nodedef="ND_legacy_gradient_color3">
+    <output name="out" type="color3" nodename="mix1" />
+    <mix name="mix1" type="color3" nodedef="ND_mix_color3" xpos="0.590739" ypos="-1.43426">
+      <input name="bg" type="color3" interfacename="color1" />
+      <input name="fg" type="color3" interfacename="color2" />
+      <input name="mix" type="float" nodename="legacy_gradient_float1" />
+    </mix>
+    <legacy_gradient_float name="legacy_gradient_float1" type="float" nodedef="ND_legacy_gradient_float" xpos="-1.03611" ypos="-0.337037">
+      <input name="texcoord" type="vector2" interfacename="texcoord" />
+      <input name="type" type="float" interfacename="type" />
+      <input name="tile_x" type="boolean" interfacename="tile_x" />
+      <input name="tile_y" type="boolean" interfacename="tile_y" />
+      <input name="noisetype" type="float" interfacename="noisetype" />
+      <input name="noiseamount" type="float" interfacename="noiseamount" />
+      <input name="noisesize" type="float" interfacename="noisesize" />
+      <input name="noisesmooth" type="float" interfacename="noisesmooth" />
+      <input name="noiselow" type="float" interfacename="noiselow" />
+      <input name="noisehigh" type="float" interfacename="noisehigh" />
+      <input name="noiselevels" type="float" interfacename="noiselevels" />
+      <input name="noisephase" type="float" interfacename="noisephase" />
+      <input name="offset_x" type="float" interfacename="offset_x" />
+      <input name="offset_y" type="float" interfacename="offset_y" />
+      <input name="rotate" type="float" interfacename="rotate" />
+      <input name="width" type="float" interfacename="width" />
+      <input name="height" type="float" interfacename="height" />
+      <input name="noiseenable" type="boolean" interfacename="noiseenable" />
+    </legacy_gradient_float>
+  </nodegraph>
+
   <!-- 
       ===============================================
       Nodegraphs for Autodesk Legacy Material Classes
