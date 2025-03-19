@@ -1234,7 +1234,7 @@ void Document::upgradeVersion()
                         node->setCategory("extract");
                         if (node->hasNodeDefString())
                         {
-                            node->setNodeDefString("ND_extract_" + node->getType());
+                            node->setNodeDefString("ND_extract_" + sourceType);
                         }
                         if (!channelString.empty() && CHANNEL_INDEX_MAP.count(channelString[0]))
                         {
