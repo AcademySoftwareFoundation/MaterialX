@@ -44,4 +44,7 @@ void bindPyTextureBaker(py::module& mod)
         .def("bakeMaterialToDoc", &mx::TextureBakerMsl::bakeMaterialToDoc)
         .def("bakeAllMaterials", &mx::TextureBakerMsl::bakeAllMaterials)
         .def("writeDocumentPerMaterial", &mx::TextureBakerMsl::writeDocumentPerMaterial);
+    mod.attr("TextureBaker").doc() = R"docstring(
+    An implementation of `TextureBaker <https://materialx.org/docs/api/class_texture_baker.html>`_
+    based on MSL shader generation.)docstring";
 }
