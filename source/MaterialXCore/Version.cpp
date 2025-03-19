@@ -5,6 +5,10 @@
 
 #include <MaterialXCore/Document.h>
 
+#include <regex>
+#include <map>
+#include <vector>
+
 MATERIALX_NAMESPACE_BEGIN
 
 namespace
@@ -55,6 +59,61 @@ void copyInputWithBindings(NodePtr sourceNode, const string& sourceInputName,
             destInput = destNode->addInput(destInputName, sourceInput->getType());
         }
         destInput->copyContentFrom(sourceInput);
+    }
+}
+
+// Try to complete a node information based on the NodeDef if we know
+// for sure that the NodeDef is no longer in the library:
+void fixNodesRemovedInVersion(int majorVersion, int minorVersion, NodePtr& node) {
+    const auto& nodeDefName = node->getNodeDefString();
+    if (nodeDefName.empty()) {
+        return;
+    }
+    if (majorVersion == 1 && minorVersion == 38)
+    {
+        // These nodedefs had no variants:
+        const auto nameMap = std::map<string, std::pair<string, string>>{
+            {"ND_thin_film_bsdf", {"thin_film_bsdf", "BSDF"}},
+            {"ND_thin_surface", {"thin_surface", "surfaceshader"}},
+            {"ND_geompropvalue_string", {"geompropvalue", "string"}},
+            {"ND_ambientocclusion_float", {"ambientocclusion", "float"}},
+            {"ND_normalmap", {"normalmap", "vector3"}}
+        };
+        const auto nameIt = nameMap.find(nodeDefName);
+        if (nameIt != nameMap.end())
+        {
+            node->setCategory(nameIt->second.first);
+            node->setType(nameIt->second.second);
+            return;
+        }
+        // Swizzle node. Extra repair since we have an upgrade path:
+        const auto fvcTypes = "(float|vector[234]|color[34])";
+        const auto swizzleRegex = std::regex{string{"ND_swizzle_"} + fvcTypes + "_" + fvcTypes};
+        if (std::regex_match(nodeDefName, swizzleRegex))
+        {
+            node->setCategory("swizzle");
+            const auto splitNodeDefName = splitString(nodeDefName, "_"); 
+            node->setType(splitNodeDefName[3]);
+            if (auto input = node->getInput("in"))
+            {
+                input->setType(splitNodeDefName[2]);
+            }
+            return;
+        }
+        // No upgrade path for these, so we do not repair input types.
+        const auto ifvcsTypes = "(integer|float|vector[234]|color[34]|string)";
+        const auto regexMap = vector<std::pair<std::regex, string>>{
+            {std::regex{string{"ND_arrayappend_"} + ifvcsTypes + "(array)?_" + ifvcsTypes + "array"}, "arrayappend"},
+            {std::regex{string{"ND_curveadjust_"} + fvcTypes}, "curveadjust"}
+        };
+        for (const auto& regexPair: regexMap) {
+            if (std::regex_match(nodeDefName, regexPair.first))
+            {
+                node->setCategory(regexPair.second);
+                node->setType(splitString(nodeDefName, "_").back());
+                return;
+            }
+        }
     }
 }
 
@@ -1097,6 +1156,7 @@ void Document::upgradeVersion()
             {
                 continue;
             }
+            fixNodesRemovedInVersion(majorVersion, minorVersion, node);
             const string& nodeCategory = node->getCategory();
             if (nodeCategory == "layer")
             {
@@ -1234,7 +1294,7 @@ void Document::upgradeVersion()
                         node->setCategory("extract");
                         if (node->hasNodeDefString())
                         {
-                            node->setNodeDefString("ND_extract_" + node->getType());
+                            node->setNodeDefString("ND_extract_" + sourceType);
                         }
                         if (!channelString.empty() && CHANNEL_INDEX_MAP.count(channelString[0]))
                         {
