@@ -17,6 +17,7 @@ const string UDIM_SET_PROPERTY = "udimset";
 
 const string GeomElement::GEOM_ATTRIBUTE = "geom";
 const string GeomElement::COLLECTION_ATTRIBUTE = "collection";
+const string GeomElement::PRIORITY_ATTRIBUTE = "priority";
 const string GeomPropDef::GEOM_PROP_ATTRIBUTE = "geomprop";
 const string GeomPropDef::SPACE_ATTRIBUTE = "space";
 const string GeomPropDef::INDEX_ATTRIBUTE = "index";
