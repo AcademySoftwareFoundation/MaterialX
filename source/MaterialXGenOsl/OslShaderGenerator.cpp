@@ -112,7 +112,7 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     {
         for (size_t j = 0; j < metadata->size(); ++j)
         {
-            const ShaderMetadata& data = metadata->at(j);
+            const ShaderMetadata& data = (*metadata)[j];
             const string& delim = (j == metadata->size() - 1) ? EMPTY_STRING : Syntax::COMMA;
             const string& dataType = _syntax->getTypeName(data.type);
             const string dataValue = _syntax->getValue(data.type, *data.value, true);
@@ -487,7 +487,7 @@ void OslShaderGenerator::emitMetadata(const ShaderPort* port, ShaderStage& stage
         {
             for (size_t j = 0; j < metadata->size(); ++j)
             {
-                const ShaderMetadata& data = metadata->at(j);
+                const ShaderMetadata& data = (*metadata)[j];
                 if (METADATA_TYPE_BLACKLIST.count(data.type) == 0)
                 {
                     const string& delim = (widgetMetadata || j < metadata->size() - 1) ? Syntax::COMMA : EMPTY_STRING;
