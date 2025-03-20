@@ -212,33 +212,6 @@ string OpenColorIOManagementSystemImpl::getGpuProcessorCode(const string& implNa
     // For OSL, we need to extract the function from the shader OCIO creates.
     if (isOSL)
     {
-#if OCIO_VERSION_HEX <= 0x02040100
-        // Need to transpose the matrix if we have an OCIO that predates integration of the
-        // Matrix * vector4 fix from OSL pull request 1513:
-        //    https://github.com/AcademySoftwareFoundation/OpenShadingLanguage/pull/1513
-        //
-        // In the fix, we will get:
-        //     vector4 __operator__mul__(matrix m, vector4 v)
-        //     {
-        //        return transform(m, v);
-        //     }
-        // Instead of piecewise accumulation.
-        const auto find1513Fix = [](const std::string& shaderText)
-        {
-            const auto mulPos = shaderText.find("__operator__mul__");
-            if (mulPos == std::string::npos)
-            {
-                return false;
-            }
-            const auto transformPos = shaderText.find("transform(m, v);", mulPos);
-            if (transformPos == std::string::npos)
-            {
-                return false;
-            }
-            return transformPos - mulPos < 60;
-        };
-        static const bool khasMatrixMathFix = find1513Fix(shaderText);
-#endif
         auto startpos = shaderText.find(string{ "color4 " } + shaderDesc->getFunctionName());
         if (startpos != string::npos)
         {
@@ -249,17 +222,16 @@ string OpenColorIOManagementSystemImpl::getGpuProcessorCode(const string& implNa
             }
         }
 #if OCIO_VERSION_HEX <= 0x02040100
-        if (!khasMatrixMathFix)
+        // Need to transpose the matrix if we have an OCIO < 2.4.2 see:
+        //    https://github.com/AcademySoftwareFoundation/OpenColorIO/pull/2121
+        startpos = shaderText.find(string{ "matrix(" });
+        if (startpos != string::npos)
         {
-            startpos = shaderText.find(string{ "matrix(" });
-            if (startpos != string::npos)
+            auto endpos = shaderText.find(string{ ")" }, startpos);
+            if (endpos != string::npos)
             {
-                auto endpos = shaderText.find(string{ ")" }, startpos);
-                if (endpos != string::npos)
-                {
-                    shaderText.insert(endpos, ")");
-                    shaderText.insert(startpos, "transpose(");
-                }
+                shaderText.insert(endpos, ")");
+                shaderText.insert(startpos, "transpose(");
             }
         }
 #endif
