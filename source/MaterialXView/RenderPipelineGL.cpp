@@ -168,7 +168,7 @@ void GLRenderPipeline::updatePrefilteredMap()
             imageHandler->bindImage(srcTex, samplingProperties);
             int textureLocation = glImageHandler->getBoundTextureLocation(srcTex->getResourceId());
             assert(textureLocation >= 0);
-            material->getProgram()->bindUniform(mx::HW::ENV_RADIANCE, mx::Value::createValue(textureLocation));
+            program->bindUniform(mx::HW::ENV_RADIANCE, mx::Value::createValue(textureLocation));
             // Bind other uniforms
             program->bindUniform(mx::HW::ENV_PREFILTER_MIP, mx::Value::createValue(i));
             const mx::Matrix44 yRotationPI = mx::Matrix44::createScale(mx::Vector3(-1, 1, -1));
