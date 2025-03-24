@@ -16,7 +16,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 
 # VCPKG setup
 # Check if the local vcpkg installation can be found
-if(NOT CMAKE_TOOLCHAIN_FILE)
+if(NOT CMAKE_TOOLCHAIN_FILE AND DEFINED ENV{VCPKG_ROOT})
     string(REPLACE "\\" "/" VCPKG_ROOT $ENV{VCPKG_ROOT})  # make sure to use forward slashes on windows
     set(CMAKE_TOOLCHAIN_FILE "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
 endif()
@@ -231,8 +231,6 @@ mark_as_advanced(MATERIALX_EMSDK_PATH)
 mark_as_advanced(MATERIALX_BUILD_IOS)
 mark_as_advanced(MATERIALX_BUILD_APPLE_FRAMEWORK)
 mark_as_advanced(MATERIALX_MDL_DIR)
-mark_as_advanced(MATERIALX_BUILD_MDL_COMPILER)
-mark_as_advanced(MATERIALX_BUILD_MDL_RENDER)
 mark_as_advanced(MATERIALX_MDL_COMPILER_EXECUTABLE)
 mark_as_advanced(MATERIALX_MDL_RENDER_EXECUTABLE)
 if (MATERIALX_BUILD_GEN_MDL)

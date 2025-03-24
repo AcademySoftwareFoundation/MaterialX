@@ -2,7 +2,7 @@
  * Copyright 2025 NVIDIA Corporation. All rights reserved.
  *****************************************************************************/
 
-// MaterialXRenderMdlStandalone/content/path_trace.comp
+// RenderMdl/content/path_trace.comp
 
 // Expected defines:
 //   LOCAL_SIZE_X : The local work group size in the x dimension
@@ -111,7 +111,7 @@ const float DIRAC = -1.0;
 //-------------------------------------------------------------------------------------------------
 // MDL Runtime for resource access
 //-------------------------------------------------------------------------------------------------
-#include "MaterialXRenderMdlStandalone/mdl_runtime.glsl"
+#include "RenderMdl/mdl_runtime.glsl"
 
 
 //-------------------------------------------------------------------------------------------------
