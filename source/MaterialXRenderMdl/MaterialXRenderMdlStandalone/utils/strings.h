@@ -114,9 +114,9 @@ namespace mi { namespace examples { namespace strings
                 else
                 {
                     // error, replace by (U+FFFD) (or EF BF BD in UTF-8)
-                    res += unsigned char(0xEF);
-                    res += unsigned char(0xBF);
-                    res += unsigned char(0xBD);
+                    res += (unsigned char)(0xEF);
+                    res += (unsigned char)(0xBF);
+                    res += (unsigned char)(0xBD);
                 }
                 ++p;
             }
@@ -135,9 +135,9 @@ namespace mi { namespace examples { namespace strings
                 else
                 {
                     // forbidden surrogate part, replace by (U+FFFD) (or EF BF BD in UTF-8)
-                    res += unsigned char(0xEF);
-                    res += unsigned char(0xBF);
-                    res += unsigned char(0xBD);
+                    res += (unsigned char)(0xEF);
+                    res += (unsigned char)(0xBF);
+                    res += (unsigned char)(0xBD);
                 }
             }
             else if (code <= 0x10FFFF)
@@ -155,9 +155,9 @@ namespace mi { namespace examples { namespace strings
             else
             {
                 // error, replace by (U+FFFD) (or EF BF BD in UTF-8)
-                res += unsigned char(0xEF);
-                res += unsigned char(0xBF);
-                res += unsigned char(0xBD);
+                res += (unsigned char)(0xEF);
+                res += (unsigned char)(0xBF);
+                res += (unsigned char)(0xBD);
             }
         }
         return res;
