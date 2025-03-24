@@ -9,17 +9,11 @@
 /// @file
 /// Texture baking functionality
 
-#include <iostream>
-
-#include <MaterialXCore/Unit.h>
-
 #include <MaterialXRender/TextureBaker.h>
 
 #include <MaterialXRenderMsl/Export.h>
 
 #include <MaterialXRenderMsl/MslRenderer.h>
-#include <MaterialXRenderMsl/MetalTextureHandler.h>
-
 #include <MaterialXGenMsl/MslShaderGenerator.h>
 
 MATERIALX_NAMESPACE_BEGIN
