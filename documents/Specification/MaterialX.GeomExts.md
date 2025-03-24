@@ -51,6 +51,7 @@ There are many formats that can be used to describe the associations between sha
 
 **[References](#references)**
 
+<br>
 
 
 # Geometry Representation
@@ -142,6 +143,7 @@ So the following MTLX file snippets are equivalent:
   </materialx>
 ```
 
+<br>
 
 
 # Additional MaterialX Data Types
@@ -149,6 +151,8 @@ So the following MTLX file snippets are equivalent:
 Systems supporting MaterialX Geometry Extensions support the following additional standard data types:
 
 **GeomName** and **GeomNameArray**: attributes of type "geomname" are just strings within quotes, but specifically mean the name of a single geometry using the conventions described in the [**Geometry Representation**](#geometry-representation) and [**Geometry Name Expressions**](#geometry-name-expressions) sections.  A geomname is allowed to use a geometry name expression as long as it resolves to a single geometry.  Attributes of type "geomnamearray" are strings within quotes containing a comma-separated list of one or more geomname values with or without expressions, and may resolve to any number of geometries.
+
+<br>
 
 
 # Additional Filename Substitutions
@@ -163,6 +167,7 @@ Filename input values for various nodes can include one or more special strings 
 
 Only applications fully supporting Geometry Extensions may allow using a &lt;_geometry token_> as part of a larger filename string.  All applications should allow the use of "&lt;_geometry token_>" as the full filename string, in which case the string primvar value stored with the geometry is used as the filename unchanged; the string primvar value itself might be allowed to contain another token such as &lt;UDIM> which the renderer may be able to parse and replace itself.
 
+<br>
 
 
 # Geometry Info Elements
@@ -298,6 +303,7 @@ Workflows involving textures with implicitly-computed filenames based on u,v coo
   </geominfo>
 ```
 
+<br>
 
 
 # Look and Property Elements
@@ -509,6 +515,8 @@ This example defines four collections, a light shader and material, and a proper
   <lookgroup name="assetlooks" looks="lookA,lookB" default="lookA"/>
 </materialx>
 ```
+
+<br>
 
 
 # References

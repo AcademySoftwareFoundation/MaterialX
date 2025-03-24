@@ -61,7 +61,7 @@ bool GLTextureHandler::bindImage(ImagePtr image, const ImageSamplingProperties& 
 
     // Set up texture properties
     GLint minFilterType = mapFilterTypeToGL(samplingProperties.filterType, samplingProperties.enableMipmaps);
-    GLint magFilterType = GL_LINEAR; // Magnification filters are more restrictive than minification
+    GLint magFilterType = mapFilterTypeToGL(samplingProperties.filterType);
     GLint uaddressMode = mapAddressModeToGL(samplingProperties.uaddressMode);
     GLint vaddressMode = mapAddressModeToGL(samplingProperties.vaddressMode);
     Color4 borderColor(samplingProperties.defaultColor);

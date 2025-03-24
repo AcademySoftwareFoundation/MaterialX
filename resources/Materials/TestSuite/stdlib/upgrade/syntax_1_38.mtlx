@@ -63,4 +63,23 @@
     <input name="surfaceshader" type="surfaceshader" nodename="N_surface_3" />
   </surfacematerial>
 
+  <swizzle name="N_swizzle_1" type="color3" nodedef="ND_swizzle_color3_color3">
+    <input name="in" type="color3" value="0.4, 0.5, 0.6" />
+    <input name="channels" type="string" value="bgr" />
+  </swizzle>
+  <swizzle name="N_swizzle_2" type="color4" nodedef="ND_swizzle_color3_color4">
+    <input name="in" type="color3" nodename="N_swizzle_1" />
+    <input name="channels" type="string" value="rgb1" />
+  </swizzle>
+  <swizzle name="N_swizzle_3" type="color3">
+    <input name="in" type="color4" nodename="N_swizzle_2" nodedef="ND_swizzle_color4_color3"/>
+    <input name="channels" type="string" value="bgr" />
+  </swizzle>
+  <standard_surface name="N_surface_4" type="surfaceshader">
+    <input name="base_color" type="color3" nodename="N_swizzle_3" />
+  </standard_surface>
+  <surfacematerial name="N_material_4" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="N_surface_4" />
+  </surfacematerial>
+
 </materialx>

@@ -12,8 +12,15 @@ namespace mx = MaterialX;
 
 TEST_CASE("Version comparison", "[coreutil]")
 {
-    // Test for version comparison
+    // Test for version comparison (C++ context)
     REQUIRE(MATERIALX_VERSION_INDEX > MATERIALX_GENERATE_INDEX(1, 38, 8));
+
+    // Test for version comparison (preprocessor context)
+#if MATERIALX_VERSION_INDEX > MATERIALX_GENERATE_INDEX(1, 38, 8)
+    REQUIRE(true);
+#else
+    REQUIRE(false);
+#endif
 }
 
 TEST_CASE("String utilities", "[coreutil]")

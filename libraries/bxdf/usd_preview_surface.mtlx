@@ -19,7 +19,7 @@
     <input name="opacityMode" type="integer" enum="transparent,presence" enumvalues="0,1" value="0" uiname="Opacity Mode" />
     <input name="opacityThreshold" type="float" value="0" uimin="0.0" uimax="1.0" uiname="Opacity Threshold" />
     <input name="ior" type="float" value="1.5" uimin="0.0" uisoftmin="1.0" uisoftmax="3.0" uiname="Index of Refraction" />
-    <input name="normal" type="vector3" value="0, 0, 1" uimin="-1.0,-1.0,-1.0" uimax="1.0,1.0,1.0" uistep="0.01" uiname="Normal" />
+    <input name="normal" type="vector3" value="0, 0, 1" uimin="-1.0,-1.0,-1.0" uimax="1.0,1.0,1.0" uiname="Normal" />
     <input name="displacement" type="float" value="0" uiname="Displacement" />
     <input name="occlusion" type="float" value="1" uimin="0.0" uimax="1.0" uiname="Occlusion" />
     <output name="out" type="surfaceshader" />

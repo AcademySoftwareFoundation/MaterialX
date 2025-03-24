@@ -21,8 +21,8 @@
 
 #include <MaterialXCore/Generated.h>
 
-#define MATERIALX_GENERATE_INDEX(major, minor, build) \
-    ((((uint32_t)(major)) << 22U) | (((uint32_t)(minor)) << 12U) | ((uint32_t)(build)))
+#define MATERIALX_GENERATE_INDEX(major, minor, build) (((major) << 22U) | ((minor) << 12U) | (build))
+
 #define MATERIALX_VERSION_INDEX \
     MATERIALX_GENERATE_INDEX(MATERIALX_MAJOR_VERSION, MATERIALX_MINOR_VERSION, MATERIALX_BUILD_VERSION)
 

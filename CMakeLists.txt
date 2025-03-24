@@ -1,7 +1,7 @@
 # MaterialX Version
 set(MATERIALX_MAJOR_VERSION 1)
 set(MATERIALX_MINOR_VERSION 39)
-set(MATERIALX_BUILD_VERSION 3)
+set(MATERIALX_BUILD_VERSION 4)
 set(MATERIALX_LIBRARY_VERSION ${MATERIALX_MAJOR_VERSION}.${MATERIALX_MINOR_VERSION}.${MATERIALX_BUILD_VERSION})
 
 # Cmake setup
@@ -10,9 +10,9 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 set(CMAKE_MACOSX_RPATH ON)
 enable_testing()
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 
 # JavaScript setup 
 option(MATERIALX_BUILD_JS "Build the MaterialX JavaScript package from C++ bindings. Requires the emscripten environment." OFF)
@@ -254,7 +254,7 @@ endif()
 
 # Adjust the default installation path
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-    set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/installed" CACHE PATH "Default install path" FORCE)
+    set(CMAKE_INSTALL_PREFIX "${PROJECT_BINARY_DIR}/installed" CACHE PATH "Default install path" FORCE)
 endif()
 
 # Set the installation path for shared libraries
@@ -358,7 +358,7 @@ function(mx_add_library MATERIALX_MODULE_NAME)
 
         # Create version resource
         if(MATERIALX_BUILD_SHARED_LIBS AND MSVC)
-            configure_file(${CMAKE_SOURCE_DIR}/cmake/modules/MaterialXVersion.rc.in ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
+            configure_file(${PROJECT_SOURCE_DIR}/cmake/modules/MaterialXVersion.rc.in ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
             target_sources(${TARGET_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
         endif()
 
@@ -588,10 +588,10 @@ if(NOT SKBUILD)
     endif()
 
     configure_package_config_file(cmake/modules/MaterialXConfig.cmake.in
-                                ${CMAKE_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}Config.cmake
+                                ${PROJECT_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}Config.cmake
                                 INSTALL_DESTINATION "${MATERIALX_GEN_CONFIG_PATH}"
                                 PATH_VARS CMAKE_INSTALL_PREFIX CMAKE_PROJECT_NAME)
-    write_basic_package_version_file(${CMAKE_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}ConfigVersion.cmake
+    write_basic_package_version_file(${PROJECT_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}ConfigVersion.cmake
                                     VERSION ${MATERIALX_LIBRARY_VERSION}
                                     COMPATIBILITY AnyNewerVersion)
 
@@ -601,7 +601,7 @@ if(NOT SKBUILD)
             DESTINATION "${MATERIALX_GEN_CONFIG_PATH}"
             FILE ${CMAKE_PROJECT_NAME}Targets.cmake)
 
-    install(FILES "${CMAKE_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}ConfigVersion.cmake"
-            "${CMAKE_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}Config.cmake"
+    install(FILES "${PROJECT_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}ConfigVersion.cmake"
+            "${PROJECT_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}Config.cmake"
             DESTINATION "${MATERIALX_GEN_CONFIG_PATH}")
 endif()
