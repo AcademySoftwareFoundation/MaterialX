@@ -42,9 +42,10 @@ add_custom_command(TARGET MaterialXRenderMdlStandalone POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${mdl_sdk_shared_library} $<TARGET_FILE_DIR:MaterialXRenderMdlStandalone>
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${nv_oiio_shared_library} $<TARGET_FILE_DIR:MaterialXRenderMdlStandalone>
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${dds_shared_library} $<TARGET_FILE_DIR:MaterialXRenderMdlStandalone>
-    COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:MaterialXRenderMdlStandalone>/MaterialXRenderMdlStandalone
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${materialx_content} $<TARGET_FILE_DIR:MaterialXRenderMdlStandalone>/MaterialXRenderMdlStandalone
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/resources/Lights/goegap.hdr $<TARGET_FILE_DIR:MaterialXRenderMdlStandalone>/MaterialXRenderMdlStandalone
+
+    COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:MaterialXRenderMdlStandalone>/RenderMdl
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${materialx_content} $<TARGET_FILE_DIR:MaterialXRenderMdlStandalone>/RenderMdl
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/resources/Lights/goegap.hdr $<TARGET_FILE_DIR:MaterialXRenderMdlStandalone>/RenderMdl
     COMMAND_EXPAND_LISTS
     )
 

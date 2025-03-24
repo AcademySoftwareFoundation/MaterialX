@@ -88,7 +88,7 @@ inline void print(
 {
     std::time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     char text[12] = { '\0' };
-    auto res = std::strftime(text, sizeof(text), "[%H:%M:%S] ", std::localtime(&now));
+    std::strftime(text, sizeof(text), "[%H:%M:%S] ", std::localtime(&now));
 
     std::string m(text);
     switch(level)
@@ -106,14 +106,20 @@ inline void print(
             m.append("[VERBOSE] ");
             break;
         default:
-            return;
+            break;
     }
     m.append(message);
     std::cerr << m.c_str() << std::endl;
     if (s_file)
     {
-        s_file->stream() << m.c_str();
+        s_file->stream() << m.c_str() << std::endl;
     }
+}
+
+template <typename... Args>
+void print(const char* format_string, Args... args)
+{
+    print(Level::None, mi::examples::strings::format(format_string, std::forward<Args>(args)...));
 }
 
 // ------------------------------------------------------------------------------------------------
