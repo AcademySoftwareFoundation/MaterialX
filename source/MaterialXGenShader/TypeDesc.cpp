@@ -44,7 +44,7 @@ ValuePtr TypeDesc::createValueFromStrings(const string& value) const
     AggregateValuePtr result = AggregateValue::createAggregateValue(getName());
     for (size_t i = 0; i < structMembers->size(); ++i)
     {
-        result->appendValue(structMembers->at(i).getType().createValueFromStrings(subValues[i]));
+        result->appendValue((*structMembers)[i].getType().createValueFromStrings(subValues[i]));
     }
 
     return result;

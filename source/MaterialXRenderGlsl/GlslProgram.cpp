@@ -1014,7 +1014,7 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
 
                                 for (size_t i = 0, n = variableStructMembers->size(); i < n; ++i)
                                 {
-                                    const auto& structMember = variableStructMembers->at(i);
+                                    const auto& structMember = (*variableStructMembers)[i];
                                     auto memberVariableName = variableName + "." + structMember.getName();
                                     auto memberVariableValue = aggregateValue->getMemberValue(i);
 
