@@ -76,7 +76,7 @@ struct Options
     mi::Float32_3 light_pos = { 10.0f, 0.0f, 5.0f };
     mi::Float32_3 light_intensity = { 1.0f, 0.95f, 0.9f };
     bool light_enabled = false;
-    std::string hdr_file = "MaterialXRenderMdlStandalone/goegap.hdr";
+    std::string hdr_file = "RenderMdl/goegap.hdr";
     float hdr_intensity = 1.0f;
     float hdr_rotate = 0.0f;
     bool background_color_enabled = false;
@@ -775,7 +775,7 @@ VkShaderModule Df_vulkan_app::create_path_trace_shader_module()
     std::string df_glsl_source = m_target_code->get_code();
 
     std::string path_trace_shader_source = mi::examples::io::read_text_file(
-        mi::examples::io::get_executable_folder() + "/MaterialXRenderMdlStandalone/" + "path_trace.comp");
+        mi::examples::io::get_executable_folder() + "/RenderMdl/" + "path_trace.comp");
 
     std::vector<std::string> defines;
     defines.push_back("LOCAL_SIZE_X=" + std::to_string(g_local_size_x));
@@ -959,10 +959,10 @@ void Df_vulkan_app::create_pipelines()
     { // Create display graphics pipeline
         VkShaderModule fullscreen_triangle_vertex_shader
             = mi::examples::vk::create_shader_module_from_file(
-                m_device, "MaterialXRenderMdlStandalone/display.vert", EShLangVertex, {}, m_options.enable_shader_optimization);
+                m_device, "RenderMdl/display.vert", EShLangVertex, {}, m_options.enable_shader_optimization);
         VkShaderModule display_fragment_shader
             = mi::examples::vk::create_shader_module_from_file(
-                m_device, "MaterialXRenderMdlStandalone/display.frag", EShLangFragment, {}, m_options.enable_shader_optimization);
+                m_device, "RenderMdl/display.frag", EShLangFragment, {}, m_options.enable_shader_optimization);
 
         m_display_pipeline = mi::examples::vk::create_fullscreen_triangle_graphics_pipeline(
             m_device, m_display_pipeline_layout, fullscreen_triangle_vertex_shader,
@@ -1074,10 +1074,6 @@ void Df_vulkan_app::create_descriptor_pool_and_sets()
 
     for (uint32_t i = 0; i < m_image_count; i++)
     {
-        VkWriteDescriptorSet descriptor_write = {};
-        descriptor_write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        descriptor_write.dstSet = m_path_trace_descriptor_sets[i];
-
         { // Render parameter buffer
             VkDescriptorBufferInfo descriptor_buffer_info = {};
             descriptor_buffer_info.buffer = m_render_params_buffers[i].buffer;
@@ -1823,6 +1819,18 @@ int MAIN_UTF8(int argc, char* argv[])
         log_file = std::make_unique<mi::examples::log::LogFile>(options.log_file);
         mi::examples::log::s_file = log_file.get();
     }
+
+    // print time and command line options used to run the example
+    std::string cmdLine = "";
+    for (int i = 0; i < argc; ++i)
+    {
+        cmdLine += std::string(argv[i]);
+        cmdLine += " ";
+    }
+    mi::examples::log::print("Command line arguments passed: %s", cmdLine.c_str());
+    mi::examples::log::print("Time local: %s", mi::examples::strings::current_date_time_local().c_str());
+    mi::examples::log::print("Time UTC:   %s", mi::examples::strings::current_date_time_UTC().c_str());
+    mi::examples::log::print("Current working directory: %s", mi::examples::io::get_working_directory().c_str());
 
     // Access the MDL SDK
     mi::base::Handle<mi::neuraylib::INeuray> neuray(

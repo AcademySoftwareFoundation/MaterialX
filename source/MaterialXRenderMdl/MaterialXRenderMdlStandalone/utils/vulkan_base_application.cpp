@@ -682,7 +682,7 @@ void Vulkan_example_app::pick_physical_device(
     
     if (m_config.device_index >= 0)
     {
-        if (m_config.device_index < supported_gpus.size())
+        if (m_config.device_index < static_cast<int32_t>(supported_gpus.size()))
             device_index = m_config.device_index;
         else
             mi::examples::log::info(

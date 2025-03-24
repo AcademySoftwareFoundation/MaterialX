@@ -277,7 +277,7 @@ bool MdlGenerator::Generate(mi::neuraylib::IMdl_configuration* mdl_configuration
     // Initialize search paths.
     for (const mx::FilePath& path : mtlx_search_path)
     {
-        for (const auto folder : mtlx_library_folders)
+        for (const auto& folder : mtlx_library_folders)
         {
             if (folder.size() > 0)
                 generator_context.registerSourceCodeSearchPath(path / folder);
