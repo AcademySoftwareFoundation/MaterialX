@@ -54,6 +54,7 @@
     <input name="width" type="float" value="1.0" xpos="2.115942" ypos="-0.172414" uivisible="true" uiname="Width" unittype="distance" uifolder="" />
     <input name="height" type="float" value="1.0" xpos="2.115942" ypos="0.948276" uivisible="true" uiname="Height" unittype="distance" uifolder="" />
     <input name="soften" type="float" value="0" xpos="2.050725" ypos="-2.482759" uivisible="true" uiname="Soften" uifolder="" />
+    <input name="adjustsofteny" type="boolean" value="false" uivisible="true" uiname="Adjust Height Softness" uifolder="" />
     <input name="offset_x" type="float" value="0.0" xpos="2.115942" ypos="2.060345" uivisible="true" uiname="Offset X" unittype="distance" uifolder="" />
     <input name="offset_y" type="float" value="0.0" xpos="2.072464" ypos="3.560345" uivisible="true" uiname="Offset Y" unittype="distance" uifolder="" />
     <input name="rotate" type="float" value="0" xpos="1.978261" ypos="4.974138" uivisible="true" uiname="Rotate" unittype="angle" unit="degree" uisoftmin="0" uisoftmax="360" uifolder="" />
