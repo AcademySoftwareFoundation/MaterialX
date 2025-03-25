@@ -549,8 +549,8 @@ void GlslProgram::bindTextures(ImageHandlerPtr imageHandler)
             // Lighting textures are handled in the bindLighting() call.
             // If no texture can be loaded then the default color defined in
             // "samplingProperties" will be used to create a fallback texture.
-            if (fileName != HW::ENV_RADIANCE &&
-                fileName != HW::ENV_IRRADIANCE)
+            if (uniform.first != HW::ENV_RADIANCE &&
+                uniform.first != HW::ENV_IRRADIANCE)
             {
                 ImageSamplingProperties samplingProperties;
                 samplingProperties.setProperties(uniform.first, publicUniforms);
