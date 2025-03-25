@@ -66,9 +66,6 @@ void MslProgram::setStages(ShaderPtr shader)
         const ShaderStage& stage = shader->getStage(i);
         addStage(stage.getName(), stage.getSourceCode());
     }
-
-    // A stage change invalidates any cached parsed inputs
-    clearInputLists();
 }
 
 void MslProgram::addStage(const string& stage, const string& sourceCode)
