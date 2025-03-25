@@ -1,0 +1,351 @@
+/*
+DoxygenAwesome is licensed under the MIT License.
+*/
+@import "DoxygenAwesome/doxygen-awesome.css";
+html {
+    /* Additional custom color variables */
+    --highlight-color: #fbe54e;
+    --target-color: #204D79;
+}
+
+/*
+Apply the dark mode colors and other styles on top of the default Alabaster
+styles
+*/
+body,
+div.body {
+    background-color: var(--page-background-color);
+    color: var(--page-foreground-color);
+    font-family: var(--font-family);
+    font-size: var(--page-font-size);
+}
+div.sphinxsidebar {
+    background-color: var(--side-nav-background);
+    border: 1px solid var(--separator-color);
+    border-radius: var(--border-radius-large);
+}
+div.sphinxsidebar h1,
+div.sphinxsidebar h2,
+div.sphinxsidebar h3,
+div.sphinxsidebar h4,
+div.sphinxsidebar h5,
+div.sphinxsidebar h6 {
+    line-height: 1.5;
+}
+div.sphinxsidebar p {
+    font-size: 14px;
+    margin-bottom: 14px;
+}
+div.sphinxsidebar p,
+div.sphinxsidebar h3,
+div.sphinxsidebar h4 {
+    color: var(--page-foreground-color);
+    font-family: var(--font-family);
+}
+div.sphinxsidebar ul {
+    color: inherit !important;
+}
+div.sphinxsidebar ul li.toctree-l1 > a {
+    font-size: 107%;
+}
+div.sphinxsidebar ul li.toctree-l2 > a {
+    font-size: 100%;
+}
+div.sphinxsidebar hr {
+    margin-top: auto;
+    margin-bottom: auto;
+    width: 100%;
+}
+div.sphinxsidebar input {
+    font-family: var(--font-family);
+}
+a {
+    text-decoration: none;
+}
+a:link, a:visited, a:hover, a:focus, a:active {
+    font-weight: 500;
+}
+a.reference,
+div.sphinxsidebar a {
+    text-decoration: none;
+    border-bottom: none;
+}
+a.reference:hover,
+div.sphinxsidebar a:hover {
+    border-bottom: none;
+    color: var(--page-foreground-color) !important;
+    text-decoration: none !important;
+}
+@media (prefers-color-scheme: dark) {
+    a {
+        color: var(--primary-color) !important;
+    }
+}
+div.body h1,
+div.body h2,
+div.body h3,
+div.body h4,
+div.body h5,
+div.body h6
+{
+    font-family: var(--font-family);
+}
+div.body h2 {
+    margin-bottom: 20px;
+}
+dl {
+    margin-bottom: 40px;
+}
+dl.simple,
+div.body li {
+    margin-bottom: 3px;
+}
+dt:target {
+    background: var(--target-color);
+}
+span.highlighted {
+    background-color: var(--highlight-color);
+    color: black;
+}
+dt.sig {
+    background-color: var(--code-background);
+    border: 1px solid var(--separator-color);
+    border-radius: var(--border-radius-medium);
+    padding: 10px;
+    margin-bottom: 8px;
+}
+dt.sig:target {
+    border: 2px solid var(--target-color);
+    padding: 9px;
+}
+div.admonition {
+    background-color: var(--side-nav-background);
+    border: 1px solid var(--separator-color);
+    border-radius: var(--border-radius-medium);
+}
+pre {
+    background-color: var(--code-background);
+    border-radius: var(--border-radius-small);
+    padding: 10px;
+    padding-left: 10px !important;
+}
+code,
+div.fragment,
+pre.fragment {
+    border-radius: var(--border-radius-small);
+    border: 1px solid var(--separator-color);
+    overflow: hidden;
+}
+code {
+    display: inline;
+    color: var(--code-foreground);
+    padding: 2px 6px;
+}
+tt,
+tt.xref,
+code,
+code.xref,
+a em,
+a tt {
+    background-color: var(--code-background);
+    border-bottom: none;
+}
+code,
+code a,
+a em,
+pre.fragment,
+div.fragment,
+div.fragment span,
+div.fragment .line,
+div.fragment .line a,
+div.fragment .line span {
+    font-family: var(--font-family-monospace);
+    font-size: var(--code-font-size) !important;
+    font-style: normal;
+}
+code.xref,
+a code {
+    font-weight: normal;
+}
+a code {
+    color: var(--primary-color);
+}
+a:hover tt,
+a:hover code {
+    background-color: var(--code-background-brighter);
+    color: var(--page-foreground-color);
+}
+
+/* Indexes */
+div.modindex-jumpbox {
+    border-top: 1px solid var(--separator-color);
+    border-bottom: 1px solid var(--separator-color);
+    color: var(--separator-color);
+}
+
+div.genindex-jumpbox {
+    border-top: 1px solid var(--separator-color);
+    border-bottom: 1px solid var(--separator-color);
+    color: var(--separator-color);
+}
+
+/* Tables */
+table,
+table.docutils {
+    border: none;
+    border-collapse: collapse;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+table.align-default {
+    margin-left: inherit !important;
+    margin-right: inherit !important;
+}
+table tr:nth-child(even) {
+    background-color: transparent;
+}
+table tr:nth-child(odd) {
+    background-color: var(--odd-color);
+}
+/* table header rows */
+table tr.row-odd:nth-child(odd) {
+    background-color: transparent;
+    border-bottom: 1px solid var(--separator-color);
+}
+table tr.row-even:nth-child(even) {
+    border-bottom: 1px solid var(--separator-color);
+}
+table.docutils td,
+table.docutils th {
+    border: none;
+}
+
+/* Pygments syntax highlighting */
+.highlight {
+    background: inherit !important;
+}
+@media (prefers-color-scheme: light) {
+    .highlight .n,
+    .highlight .nn {
+        color-scheme: light;
+        color: var(--page-foreground-color);
+    }
+    .highlight .go,
+    .highlight .k {
+        color-scheme: light;
+        color: var(--primary-light-color);
+    }
+}
+
+/* Make the MaterialX logo a little smaller */
+img.logo {
+    width: 60%;
+    height: 60%;
+}
+
+/* Turn off auto-hyphenation in text blocks */
+div.body p,
+div.body dd,
+div.body li,
+div.body blockquote {
+    -moz-hyphens: none;
+    -ms-hyphens: none;
+    -webkit-hyphens: none;
+    hyphens: none;
+}
+
+/* Input elements */
+input[type="text"] {
+    border: 1px solid var(--separator-color);
+    font-size: 14px !important;
+    padding: 6px;
+    width: 300px;
+}
+input[type="submit"],
+div.sphinxsidebar #searchbox input[type="submit"] {
+    background: #204D79;
+}
+
+/*
+Blue button style copied from https://materialx.org/style/flavor.css and
+extended
+*/
+div.body form input[type="submit"],
+.blueButton {
+    background: #204D79;
+    border: 1px solid black !important;
+    border-radius: 5px;
+    box-shadow: 0 1px 0px #3471aa inset;
+    color: #ccc !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 14px !important;
+    font-weight: bold !important;
+    letter-spacing: 1px;
+    margin: auto;
+    padding: 6px;
+    text-align: center;
+    text-decoration: none !important;
+    text-shadow: 0 1px 0 black;
+    text-transform: uppercase;
+    width: 115px;
+
+    /* for IE */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#204D79', endColorstr='#003260');
+
+    /* for webkit browsers */
+    background: -webkit-gradient(linear, left top, left bottom, from(#204D79), to(#003260));
+    -webkit-border-radius: 5px;
+    -webkit-box-shadow: 0 1px 0px #3471aa inset;
+
+    /* for Firefox */
+    background: -moz-linear-gradient(bottom, #003260, #204D79);
+    -moz-border-radius: 5px;
+    -moz-box-shadow: 0 1px 0 #3471aa inset;
+}
+.blueButton:visited {
+    color: #ccc !important;
+}
+div.body form input[type="submit"],
+.blueButton:hover {
+    background: #204D79;
+    cursor: pointer;
+/*    text-decoration: none !important;*/
+
+    /* for IE */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#275d8e', endColorstr='#003d72');
+
+    /* for webkit browsers */
+    background: -webkit-gradient(linear, left top, left bottom, from(#275d8e), to(#003d72));
+
+    /* for Firefox */
+    background: -moz-linear-gradient(bottom, #003d72, #275d8e);
+}
+.blueButton:active {
+    background: #000;
+    box-shadow: 0px 1px 0px #444;
+    color: #fff;
+/*    text-decoration: none !important;*/
+
+    /* for IE */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#002345', endColorstr='#204D79');
+
+    /* for webkit browsers */
+    background: -webkit-gradient(linear, left top, left bottom, from(#002345), to(#204D79));
+    -webkit-box-shadow: 0px 1px 0px #444;
+
+    /* for Firefox */
+    background: -moz-linear-gradient(bottom, #204D79, #002345);
+    -moz-box-shadow: 0px 1px 0px #444;
+}
+
+div.body form input[type="submit"],
+div.sphinxsidebar #searchbox input[type="submit"],
+div.sphinxsidebar a.blueButton,
+div.sphinxsidebar a.blueButton:visited {
+    color: #d2dbde !important;
+}
+div.body form input[type="submit"]:hover,
+div.sphinxsidebar #searchbox input[type="submit"]:hover,
+div.sphinxsidebar a.blueButton:hover {
+    color: #fbfbfb !important;
+}
