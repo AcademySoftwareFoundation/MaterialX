@@ -37,7 +37,6 @@
 #endif
 #include <MaterialXGenGlsl/EsslShaderGenerator.h>
 
-
 #include <MaterialXFormat/Environ.h>
 #include <MaterialXFormat/Util.h>
 
