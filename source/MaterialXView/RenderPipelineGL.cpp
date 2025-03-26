@@ -168,7 +168,7 @@ void GLRenderPipeline::updatePrefilteredMap()
             imageHandler->bindImage(srcTex, samplingProperties);
             int textureLocation = glImageHandler->getBoundTextureLocation(srcTex->getResourceId());
             assert(textureLocation >= 0);
-            material->getProgram()->bindUniform(mx::HW::ENV_RADIANCE, mx::Value::createValue(textureLocation));
+            program->bindUniform(mx::HW::ENV_RADIANCE, mx::Value::createValue(textureLocation));
             // Bind other uniforms
             program->bindUniform(mx::HW::ENV_PREFILTER_MIP, mx::Value::createValue(i));
             const mx::Matrix44 yRotationPI = mx::Matrix44::createScale(mx::Vector3(-1, 1, -1));
@@ -491,7 +491,7 @@ void GLRenderPipeline::bakeTextures()
         // Construct a texture baker.
         mx::Image::BaseType baseType = _viewer->_bakeHdr ? mx::Image::BaseType::FLOAT : mx::Image::BaseType::UINT8;
         mx::UnsignedIntPair bakingRes = _viewer->computeBakingResolution(doc);
-        mx::TextureBakerPtr baker = std::static_pointer_cast<mx::TextureBakerPtr::element_type>(createTextureBaker(bakingRes.first, bakingRes.second, baseType));
+        mx::TextureBakerGlslPtr baker = std::static_pointer_cast<mx::TextureBakerGlsl>(createTextureBaker(bakingRes.first, bakingRes.second, baseType));
         baker->setupUnitSystem(_viewer->_stdLib);
         baker->setDistanceUnit(_viewer->_genContext.getOptions().targetDistanceUnit);
         baker->setAverageImages(_viewer->_bakeAverage);

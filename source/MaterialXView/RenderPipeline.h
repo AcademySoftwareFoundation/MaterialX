@@ -18,14 +18,6 @@
 #include <MaterialXCore/Value.h>
 #include <MaterialXCore/Unit.h>
 
-MATERIALX_NAMESPACE_BEGIN
-#ifdef MATERIALXVIEW_METAL_BACKEND
-using TextureBakerPtr = shared_ptr<class TextureBakerMsl>;
-#else
-using TextureBakerPtr = shared_ptr<class TextureBakerGlsl>;
-#endif
-MATERIALX_NAMESPACE_END
-
 #include <memory>
 
 namespace mx = MaterialX;
