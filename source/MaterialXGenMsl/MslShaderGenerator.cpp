@@ -1268,9 +1268,12 @@ ShaderNodeImplPtr MslShaderGenerator::getImplementation(const NodeDef& nodedef, 
     }
     else if (implElement->isA<Implementation>())
     {
-        if (getColorManagementSystem() && getColorManagementSystem()->hasImplementation(name)) {
+        if (getColorManagementSystem() && getColorManagementSystem()->hasImplementation(name))
+        {
             impl = getColorManagementSystem()->createImplementation(name);
-        } else {
+        }
+        else
+        {
             // Try creating a new in the factory.
             impl = _implFactory.create(name);
         }
