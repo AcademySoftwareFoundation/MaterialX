@@ -139,7 +139,7 @@ void Document::upgradeVersion()
         // Upgrade elements in place.
         for (ElementPtr elem : traverseTree())
         {
-            vector<ElementPtr> origChildren = elem->getChildren();
+            ElementVec origChildren = elem->getChildren();
             for (ElementPtr child : origChildren)
             {
                 if (child->getCategory() == "opgraph")
@@ -215,7 +215,7 @@ void Document::upgradeVersion()
         }
 
         // Move connections from nodedef inputs to bindinputs.
-        vector<ElementPtr> materials = getChildrenOfType<Element>("material");
+        ElementVec materials = getChildrenOfType<Element>("material");
         for (NodeDefPtr nodeDef : getNodeDefs())
         {
             for (InputPtr input : nodeDef->getActiveInputs())
@@ -328,7 +328,7 @@ void Document::upgradeVersion()
                 elem->setAttribute(ValueElement::VALUE_ATTRIBUTE, replaceSubstrings(elem->getAttribute(ValueElement::VALUE_ATTRIBUTE), stringMap));
             }
 
-            vector<ElementPtr> origChildren = elem->getChildren();
+            ElementVec origChildren = elem->getChildren();
             for (ElementPtr child : origChildren)
             {
                 if (elem->getCategory() == "material" && child->getCategory() == "override")
@@ -1191,6 +1191,10 @@ void Document::upgradeVersion()
                     {
                         // Replace swizzle with constant.
                         node->setCategory("constant");
+                        if (node->hasNodeDefString())
+                        {
+                            node->setNodeDefString("ND_constant_" + node->getType());
+                        }
                         string valueString = inInput->getValueString();
                         StringVec origValueTokens = splitString(valueString, ARRAY_VALID_SEPARATORS);
                         StringVec newValueTokens;
@@ -1228,6 +1232,10 @@ void Document::upgradeVersion()
                     {
                         // Replace swizzle with extract.
                         node->setCategory("extract");
+                        if (node->hasNodeDefString())
+                        {
+                            node->setNodeDefString("ND_extract_" + sourceType);
+                        }
                         if (!channelString.empty() && CHANNEL_INDEX_MAP.count(channelString[0]))
                         {
                             node->setInputValue("index", (int) CHANNEL_INDEX_MAP.at(channelString[0]));
@@ -1238,11 +1246,19 @@ void Document::upgradeVersion()
                     {
                         // Replace swizzle with convert.
                         node->setCategory("convert");
+                        if (node->hasNodeDefString())
+                        {
+                            node->setNodeDefString("ND_convert_" + sourceType + "_" + destType);
+                        }
                     }
                     else if (sourceChannelCount == 1)
                     {
                         // Replace swizzle with combine.
                         node->setCategory("combine" + std::to_string(destChannelCount));
+                        if (node->hasNodeDefString())
+                        {
+                            node->setNodeDefString("ND_combine" + std::to_string(destChannelCount) + "_" + node->getType());
+                        }
                         for (size_t i = 0; i < destChannelCount; i++)
                         {
                             InputPtr combineInInput = node->addInput(std::string("in") + std::to_string(i + 1), "float");
@@ -1269,6 +1285,10 @@ void Document::upgradeVersion()
                             graph->setChildIndex(separateNode->getName(), childIndex);
                         }
                         node->setCategory("combine" + std::to_string(destChannelCount));
+                        if (node->hasNodeDefString())
+                        {
+                            node->setNodeDefString("ND_combine" + std::to_string(destChannelCount) + "_" + node->getType());
+                        }
                         for (size_t i = 0; i < destChannelCount; i++)
                         {
                             InputPtr combineInInput = node->addInput(std::string("in") + std::to_string(i + 1), "float");
@@ -1316,31 +1336,59 @@ void Document::upgradeVersion()
             }
             else if (nodeCategory == "normalmap")
             {
-                // ND_normalmap was renamed to ND_normalmap_float
-                NodeDefPtr nodeDef = getShaderNodeDef(node);
-                InputPtr scaleInput = node->getInput("scale");
-                if ((nodeDef && nodeDef->getName() == "ND_normalmap") ||
-                    (scaleInput && scaleInput->getType() == "float"))
+                InputPtr space = node->getInput("space");
+                if (space && space->getValueString() == "object")
                 {
-                    node->setNodeDefString("ND_normalmap_float");
-                }
-
-                node->removeInput("space");
-
-                // If the normal or tangent inputs are set, the bitangent input should be normalize(cross(N, T))
-                InputPtr normalInput = node->getInput("normal");
-                InputPtr tangentInput = node->getInput("tangent");
-                if (normalInput || tangentInput)
-                {
+                    // Replace object-space normalmap with a graph.
                     GraphElementPtr graph = node->getAncestorOfType<GraphElement>();
-                    NodePtr crossNode = graph->addNode("crossproduct", graph->createValidChildName("normalmap_cross"), "vector3");
-                    copyInputWithBindings(node, "normal", crossNode, "in1");
-                    copyInputWithBindings(node, "tangent", crossNode, "in2");
+                    NodePtr multiply = graph->addNode("multiply", graph->createValidChildName("multiply"), "vector3");
+                    copyInputWithBindings(node, "in", multiply, "in1");
+                    multiply->setInputValue("in2", 2.0f);
+                    NodePtr subtract = graph->addNode("subtract", graph->createValidChildName("subtract"), "vector3");
+                    subtract->addInput("in1", "vector3")->setConnectedNode(multiply);
+                    subtract->setInputValue("in2", 1.0f);
+                    node->setCategory("normalize");
+                    vector<InputPtr> origInputs = node->getInputs();
+                    for (InputPtr input : origInputs)
+                    {
+                        node->removeChild(input->getName());
+                    }
+                    node->addInput("in", "vector3")->setConnectedNode(subtract);
 
-                    NodePtr normalizeNode = graph->addNode("normalize", graph->createValidChildName("normalmap_cross_norm"), "vector3");
-                    normalizeNode->addInput("in", "vector3")->setConnectedNode(crossNode);
+                    // Update nodedef name if present.
+                    if (node->hasNodeDefString())
+                    {
+                        node->setNodeDefString("ND_normalize_vector3");
+                    }
+                }
+                else
+                {
+                    // Clear tangent-space input.
+                    node->removeInput("space");
 
-                    node->addInput("bitangent", "vector3")->setConnectedNode(normalizeNode);
+                    // If the normal or tangent inputs are set and the bitangent input is not, 
+                    // the bitangent should be set to normalize(cross(N, T))
+                    InputPtr normalInput = node->getInput("normal");
+                    InputPtr tangentInput = node->getInput("tangent");
+                    InputPtr bitangentInput = node->getInput("bitangent");
+                    if ((normalInput || tangentInput) && !bitangentInput)
+                    {
+                        GraphElementPtr graph = node->getAncestorOfType<GraphElement>();
+                        NodePtr crossNode = graph->addNode("crossproduct", graph->createValidChildName("normalmap_cross"), "vector3");
+                        copyInputWithBindings(node, "normal", crossNode, "in1");
+                        copyInputWithBindings(node, "tangent", crossNode, "in2");
+
+                        NodePtr normalizeNode = graph->addNode("normalize", graph->createValidChildName("normalmap_cross_norm"), "vector3");
+                        normalizeNode->addInput("in", "vector3")->setConnectedNode(crossNode);
+
+                        node->addInput("bitangent", "vector3")->setConnectedNode(normalizeNode);
+                    }
+
+                    // Update nodedef name if present.
+                    if (node->getNodeDefString() == "ND_normalmap")
+                    {
+                        node->setNodeDefString("ND_normalmap_float");
+                    }
                 }
             }
         }

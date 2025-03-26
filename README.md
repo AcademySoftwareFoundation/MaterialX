@@ -16,7 +16,8 @@ MaterialX is an open standard for representing rich material and look-developmen
 - Download the latest version of the [CMake](https://cmake.org/) build system.
 - Point CMake to the root of the MaterialX library and generate C++ projects for your platform and compiler.
 - Select the `MATERIALX_BUILD_PYTHON` option to build Python bindings.
-- Select the `MATERIALX_BUILD_VIEWER` option to build the MaterialX viewer.
+- Select the `MATERIALX_BUILD_VIEWER` option to build the [MaterialX Viewer](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/documents/DeveloperGuide/Viewer.md).
+- Select the `MATERIALX_BUILD_GRAPH_EDITOR` option to build the [MaterialX Graph Editor](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/documents/DeveloperGuide/GraphEditor.md). 
 
 ## Supported Platforms
 
@@ -72,9 +73,9 @@ The Open Chess Set is an open reference asset, consisting of a [MaterialX file](
 
 The following packages contain pre-built binaries for the latest release, including the MaterialX viewer, Python libraries, and example assets:
 
-- [Microsoft Windows (Visual Studio 2022, Python 3.12)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest/download/MaterialX_Windows_VS2022_x64_Python312.zip)
-- [MacOS (Xcode 15, Python 3.12)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest/download/MaterialX_MacOS_Xcode_15_Python312.zip)
-- [Linux (GCC 14, Python 3.12)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest/download/MaterialX_Linux_GCC_14_Python312.zip)
+- [Microsoft Windows (Visual Studio 2022, Python 3.13)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest/download/MaterialX_Windows_VS2022_x64_Python313.zip)
+- [MacOS (Xcode 16, Python 3.13)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest/download/MaterialX_MacOS_Xcode_16_Python313.zip)
+- [Linux (GCC 14, Python 3.13)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest/download/MaterialX_Linux_GCC_14_Python313.zip)
 
 ## Additional Resources
 

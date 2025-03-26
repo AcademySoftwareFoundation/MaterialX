@@ -35,8 +35,6 @@ class MX_GENGLSL_API LightCompoundNodeGlsl : public CompoundNode
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
   protected:
-    void emitFunctionDefinition(ClosureContext* cct, GenContext& context, ShaderStage& stage) const;
-
     VariableBlock _lightUniforms;
 };
 

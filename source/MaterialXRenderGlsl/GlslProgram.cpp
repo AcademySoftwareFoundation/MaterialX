@@ -549,8 +549,8 @@ void GlslProgram::bindTextures(ImageHandlerPtr imageHandler)
             // Lighting textures are handled in the bindLighting() call.
             // If no texture can be loaded then the default color defined in
             // "samplingProperties" will be used to create a fallback texture.
-            if (fileName != HW::ENV_RADIANCE &&
-                fileName != HW::ENV_IRRADIANCE)
+            if (uniform.first != HW::ENV_RADIANCE &&
+                uniform.first != HW::ENV_IRRADIANCE)
             {
                 ImageSamplingProperties samplingProperties;
                 samplingProperties.setProperties(uniform.first, publicUniforms);
@@ -1006,19 +1006,20 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
                         }
                         else
                         {
-                            // If we're a struct - we need to loop over each member
-                            auto structTypeDesc = StructTypeDesc::get(typedesc.getStructIndex());
-                            auto aggregateValue = std::static_pointer_cast<const AggregateValue>(variableValue);
-
-                            const auto& members = structTypeDesc.getMembers();
-                            for (size_t i = 0, n = members.size(); i < n; ++i)
+                            auto variableStructMembers = typedesc.getStructMembers();
+                            if (variableStructMembers)
                             {
-                                const auto& member = members[i];
-                                auto memberTypeDesc = member._typeDesc;
-                                auto memberVariableName = variableName + "." + member._name;
-                                auto memberVariableValue = aggregateValue->getMemberValue(i);
+                                // If we're a struct - we need to loop over each member
+                                auto aggregateValue = std::static_pointer_cast<const AggregateValue>(variableValue);
 
-                                populateUniformInput_ref(memberTypeDesc, memberVariableName, memberVariableValue, populateUniformInput_ref);
+                                for (size_t i = 0, n = variableStructMembers->size(); i < n; ++i)
+                                {
+                                    const auto& structMember = variableStructMembers->at(i);
+                                    auto memberVariableName = variableName + "." + structMember.getName();
+                                    auto memberVariableValue = aggregateValue->getMemberValue(i);
+
+                                    populateUniformInput_ref(structMember.getType(), memberVariableName, memberVariableValue, populateUniformInput_ref);
+                                }
                             }
                         }
                     };

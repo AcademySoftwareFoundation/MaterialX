@@ -66,9 +66,6 @@ void MslProgram::setStages(ShaderPtr shader)
         const ShaderStage& stage = shader->getStage(i);
         addStage(stage.getName(), stage.getSourceCode());
     }
-
-    // A stage change invalidates any cached parsed inputs
-    clearInputLists();
 }
 
 void MslProgram::addStage(const string& stage, const string& sourceCode)
@@ -1094,17 +1091,16 @@ const MslProgram::InputMap& MslProgram::updateUniformsList()
                         }
                         else
                         {
-                            auto structTypeDesc = StructTypeDesc::get(variableTypeDesc.getStructIndex());
                             auto aggregateValue = std::static_pointer_cast<const AggregateValue>(variableValue);
 
-                            const auto& members = structTypeDesc.getMembers();
-                            for (size_t i = 0, n = members.size(); i < n; ++i)
+                            const auto& members = variableTypeDesc.getStructMembers();
+                            for (size_t i = 0, n = members->size(); i < n; ++i)
                             {
-                                const auto& structMember = members[i];
-                                auto memberVariableName = variableName+"."+structMember._name;
+                                const auto& structMember = members->at(i);
+                                auto memberVariableName = variableName + "." + structMember.getName();
                                 auto memberVariableValue = aggregateValue->getMemberValue(i);
 
-                                populateUniformInput_ref(structMember._typeDesc, memberVariableName, memberVariableValue, populateUniformInput_ref);
+                                populateUniformInput_ref(structMember.getType(), memberVariableName, memberVariableValue, populateUniformInput_ref);
                             }
                         }
                     };

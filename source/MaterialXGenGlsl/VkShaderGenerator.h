@@ -21,9 +21,18 @@ using VkShaderGeneratorPtr = shared_ptr<class VkShaderGenerator>;
 class MX_GENGLSL_API VkShaderGenerator : public GlslShaderGenerator
 {
   public:
-    VkShaderGenerator();
+    /// Constructor.
+    VkShaderGenerator(TypeSystemPtr typeSystem);
 
-    static ShaderGeneratorPtr create() { return std::make_shared<VkShaderGenerator>(); }
+    /// Creator function.
+    /// If a TypeSystem is not provided it will be created internally.
+    /// Optionally pass in an externally created TypeSystem here, 
+    /// if you want to keep type descriptions alive after the lifetime
+    /// of the shader generator. 
+    static ShaderGeneratorPtr create(TypeSystemPtr typeSystem = nullptr)
+    {
+        return std::make_shared<VkShaderGenerator>(typeSystem ? typeSystem : TypeSystem::create());
+    }
 
     /// Return a unique identifier for the target this generator is for
     const string& getTarget() const override { return TARGET; }
@@ -48,6 +57,9 @@ class MX_GENGLSL_API VkShaderGenerator : public GlslShaderGenerator
     HwResourceBindingContextPtr getResourceBindingContext(GenContext&) const override;
 
     VkResourceBindingContextPtr _resourceBindingCtx = nullptr;
+
+    // Vertex data interface location to bind between stages
+    int vertexDataLocation = 0;
 };
 
 MATERIALX_NAMESPACE_END

@@ -34,7 +34,8 @@ void LightCompoundNodeGlsl::initialize(const InterfaceElement& element, GenConte
     NodeDefPtr nodeDef = graph.getNodeDef();
     for (InputPtr input : nodeDef->getActiveInputs())
     {
-        _lightUniforms.add(TypeDesc::get(input->getType()), input->getName());
+        const TypeDesc type = context.getTypeDesc(input->getType());
+        _lightUniforms.add(type, input->getName());
     }
 }
 
@@ -60,7 +61,7 @@ void LightCompoundNodeGlsl::createVariables(const ShaderNode&, GenContext& conte
     shadergen.addStageLightingUniforms(context, ps);
 }
 
-void LightCompoundNodeGlsl::emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
+void LightCompoundNodeGlsl::emitFunctionDefinition(const ShaderNode& /*node*/, GenContext& context, ShaderStage& stage) const
 {
     DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
     {
@@ -69,61 +70,19 @@ void LightCompoundNodeGlsl::emitFunctionDefinition(const ShaderNode& node, GenCo
         // Emit functions for all child nodes
         shadergen.emitFunctionDefinitions(*_rootGraph, context, stage);
 
-        // Find any closure contexts used by this node
-        // and emit the function for each context.
-        vector<ClosureContext*> ccts;
-        shadergen.getClosureContexts(node, ccts);
-        if (ccts.empty())
-        {
-            emitFunctionDefinition(nullptr, context, stage);
-        }
-        else
-        {
-            for (ClosureContext* cct : ccts)
-            {
-                emitFunctionDefinition(cct, context, stage);
-            }
-        }
-    }
-}
-
-void LightCompoundNodeGlsl::emitFunctionDefinition(ClosureContext* cct, GenContext& context, ShaderStage& stage) const
-{
-    const GlslShaderGenerator& shadergen = static_cast<const GlslShaderGenerator&>(context.getShaderGenerator());
-
-    // Emit function signature
-    if (cct)
-    {
-        // Use the first output for classifying node type for the closure context.
-        // This is only relevant for closures, and they only have a single output.
-        const TypeDesc nodeType = _rootGraph->getOutputSocket()->getType();
-        shadergen.emitLine("void " + _functionName + cct->getSuffix(nodeType) + "(LightData light, vec3 position, out lightshader result)", stage, false);
-    }
-    else
-    {
         shadergen.emitLine("void " + _functionName + "(LightData light, vec3 position, out lightshader result)", stage, false);
-    }
 
-    shadergen.emitFunctionBodyBegin(*_rootGraph, context, stage);
+        shadergen.emitFunctionBodyBegin(*_rootGraph, context, stage);
 
-    // Emit all texturing nodes. These are inputs to any
-    // closure/shader nodes and need to be emitted first.
-    shadergen.emitFunctionCalls(*_rootGraph, context, stage, ShaderNode::Classification::TEXTURE);
+        // Emit all texturing nodes. These are inputs to any
+        // closure/shader nodes and need to be emitted first.
+        shadergen.emitFunctionCalls(*_rootGraph, context, stage, ShaderNode::Classification::TEXTURE);
 
-    // Emit function calls for all light shader nodes.
-    // These will internally emit their closure function calls.
-    if (cct)
-    {
-        context.pushClosureContext(cct);
+        shadergen.emitLine("ClosureData closureData = ClosureData(CLOSURE_TYPE_EMISSION, float3(0), -L, light.direction, float3(0), 0)", stage);
         shadergen.emitFunctionCalls(*_rootGraph, context, stage, ShaderNode::Classification::SHADER | ShaderNode::Classification::LIGHT);
-        context.popClosureContext();
-    }
-    else
-    {
-        shadergen.emitFunctionCalls(*_rootGraph, context, stage, ShaderNode::Classification::SHADER | ShaderNode::Classification::LIGHT);
-    }
 
-    shadergen.emitFunctionBodyEnd(*_rootGraph, context, stage);
+        shadergen.emitFunctionBodyEnd(*_rootGraph, context, stage);
+    }
 }
 
 void LightCompoundNodeGlsl::emitFunctionCall(const ShaderNode&, GenContext& context, ShaderStage& stage) const

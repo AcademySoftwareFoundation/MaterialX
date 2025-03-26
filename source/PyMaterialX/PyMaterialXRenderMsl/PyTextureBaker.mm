@@ -13,7 +13,7 @@ namespace mx = MaterialX;
 
 void bindPyTextureBaker(py::module& mod)
 {
-    py::class_<mx::TextureBakerMsl, mx::MslRenderer, mx::TextureBakerPtr>(mod, "TextureBaker")
+    py::class_<mx::TextureBakerMsl, mx::MslRenderer, mx::TextureBakerMslPtr>(mod, "TextureBaker")
         .def_static("create", &mx::TextureBakerMsl::create)
         .def("setExtension", &mx::TextureBakerMsl::setExtension)
         .def("getExtension", &mx::TextureBakerMsl::getExtension)

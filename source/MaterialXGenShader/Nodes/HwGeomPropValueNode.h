@@ -3,15 +3,15 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#ifndef MATERIALX_GEOMPROPVALUENODEGLSL_H
-#define MATERIALX_GEOMPROPVALUENODEGLSL_H
+#ifndef MATERIALX_HWGEOMPROPVALUENODE_H
+#define MATERIALX_HWGEOMPROPVALUENODE_H
 
-#include <MaterialXGenGlsl/GlslShaderGenerator.h>
+#include <MaterialXGenShader/HwShaderGenerator.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
-/// GeomPropValue node implementation for GLSL
-class MX_GENGLSL_API GeomPropValueNodeGlsl : public GlslImplementation
+/// GeomPropValue node implementation for Hw shader languages
+class MX_GENSHADER_API HwGeomPropValueNode : public HwImplementation
 {
   public:
     static ShaderNodeImplPtr create();
@@ -23,8 +23,8 @@ class MX_GENGLSL_API GeomPropValueNodeGlsl : public GlslImplementation
     bool isEditable(const ShaderInput& /*input*/) const override { return false; }
 };
 
-/// GeomPropValue node non-implementation for GLSL
-class MX_GENGLSL_API GeomPropValueNodeGlslAsUniform : public GlslImplementation
+/// GeomPropValue node non-implementation for Hw shader languages
+class MX_GENSHADER_API HwGeomPropValueNodeAsUniform : public HwImplementation
 {
   public:
     static ShaderNodeImplPtr create();

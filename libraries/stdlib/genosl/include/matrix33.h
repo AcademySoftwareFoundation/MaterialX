@@ -1,8 +1,7 @@
-// Open Shading Language : Copyright (c) 2009-2017 Sony Pictures Imageworks Inc., et al.
-// https://github.com/imageworks/OpenShadingLanguage/blob/master/LICENSE
-//
-// MaterialX specification (c) 2017 Lucasfilm Ltd.
-// http://www.materialx.org/
+// Copyright Contributors to the Open Shading Language project.
+// SPDX-License-Identifier: BSD-3-Clause
+// https://github.com/AcademySoftwareFoundation/OpenShadingLanguage
+
 
 #pragma once
 #define MATRIX33_H
@@ -160,6 +159,3 @@ normal transform(matrix33 a, normal b)
 {
     return transform(a.m, b);
 }
-
-
-

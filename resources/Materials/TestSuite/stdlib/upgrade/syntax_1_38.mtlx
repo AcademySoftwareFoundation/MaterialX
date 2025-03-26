@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+
+  <tiledimage name="N_tiledimage" type="vector3">
+    <input name="file" type="filename" value="resources/Images/mesh_wire_norm.png" />
+    <input name="uvtiling" type="vector2" value="8, 8" />
+  </tiledimage>
+
+  <normalmap name="N_normalmap_1" type="vector3" nodedef="ND_normalmap">
+    <input name="in" type="vector3" nodename="N_tiledimage" />
+  </normalmap>
+  <standard_surface name="N_surface_1" type="surfaceshader">
+    <input name="base_color" type="color3" value="1.0, 1.0, 1.0" />
+    <input name="specular_roughness" type="float" value="0" />
+    <input name="metalness" type="float" value="1" />
+    <input name="normal" type="vector3" nodename="N_normalmap_1" />
+  </standard_surface>
+  <surfacematerial name="N_material_1" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="N_surface_1" />
+  </surfacematerial>
+
+  <normalmap name="N_normalmap_2" type="vector3">
+    <input name="in" type="vector3" nodename="N_tiledimage" />
+    <input name="scale" type="float" value="1.1" />
+    <input name="space" type="string" value="tangent" />
+  </normalmap>
+  <standard_surface name="N_surface_2" type="surfaceshader">
+    <input name="base" type="float" value="0.6" />
+    <input name="metalness" type="float" value="1.0" />
+    <input name="specular" type="float" value="0.7" />
+    <input name="coat" type="float" value="1" />
+    <input name="normal" type="vector3" nodename="N_normalmap_2" />
+  </standard_surface>
+  <surfacematerial name="N_material_2" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="N_surface_2" />
+  </surfacematerial>
+
+  <normal name="N_objectnormal" type="vector3">
+    <input name="space" type="string" value="object" />
+  </normal>
+  <multiply name="N_multiply" type="vector3">
+    <input name="in1" type="vector3" nodename="N_objectnormal" />
+    <input name="in2" type="float" value="0.5" />
+  </multiply>
+  <add name="N_add" type="vector3">
+    <input name="in1" type="vector3" nodename="N_multiply" />
+    <input name="in2" type="float" value="0.5" />
+  </add>
+  <normalmap name="N_normalmap_3" type="vector3" nodedef="ND_normalmap">
+    <input name="in" type="vector3" nodename="N_add" />
+    <input name="space" type="string" value="object" />
+  </normalmap>
+  <transformnormal name="N_transformnormal" type="vector3">
+    <input name="in" type="vector3" nodename="N_normalmap_3" />
+    <input name="fromspace" type="string" value="object" />
+    <input name="tospace" type="string" value="world" />
+  </transformnormal>
+  <standard_surface name="N_surface_3" type="surfaceshader">
+    <input name="metalness" type="float" value="1" />
+    <input name="normal" type="vector3" nodename="N_transformnormal" />
+  </standard_surface>
+  <surfacematerial name="N_material_3" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="N_surface_3" />
+  </surfacematerial>
+
+  <swizzle name="N_swizzle_1" type="color3" nodedef="ND_swizzle_color3_color3">
+    <input name="in" type="color3" value="0.4, 0.5, 0.6" />
+    <input name="channels" type="string" value="bgr" />
+  </swizzle>
+  <swizzle name="N_swizzle_2" type="color4" nodedef="ND_swizzle_color3_color4">
+    <input name="in" type="color3" nodename="N_swizzle_1" />
+    <input name="channels" type="string" value="rgb1" />
+  </swizzle>
+  <swizzle name="N_swizzle_3" type="color3">
+    <input name="in" type="color4" nodename="N_swizzle_2" nodedef="ND_swizzle_color4_color3"/>
+    <input name="channels" type="string" value="bgr" />
+  </swizzle>
+  <standard_surface name="N_surface_4" type="surfaceshader">
+    <input name="base_color" type="color3" nodename="N_swizzle_3" />
+  </standard_surface>
+  <surfacematerial name="N_material_4" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="N_surface_4" />
+  </surfacematerial>
+
+</materialx>

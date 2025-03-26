@@ -1,18 +1,18 @@
 # MaterialX Version
 set(MATERIALX_MAJOR_VERSION 1)
 set(MATERIALX_MINOR_VERSION 39)
-set(MATERIALX_BUILD_VERSION 3)
+set(MATERIALX_BUILD_VERSION 4)
 set(MATERIALX_LIBRARY_VERSION ${MATERIALX_MAJOR_VERSION}.${MATERIALX_MINOR_VERSION}.${MATERIALX_BUILD_VERSION})
 
 # Cmake setup
-cmake_minimum_required(VERSION 3.24)
+cmake_minimum_required(VERSION 3.26)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 set(CMAKE_MACOSX_RPATH ON)
 enable_testing()
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 
 # JavaScript setup 
 option(MATERIALX_BUILD_JS "Build the MaterialX JavaScript package from C++ bindings. Requires the emscripten environment." OFF)
@@ -49,6 +49,7 @@ option(MATERIALX_BUILD_TESTS "Build unit tests." OFF)
 option(MATERIALX_BUILD_BENCHMARK_TESTS "Build benchmark tests." OFF)
 
 option(MATERIALX_BUILD_SHARED_LIBS "Build MaterialX libraries as shared rather than static." OFF)
+option(MATERIALX_BUILD_DATA_LIBRARY "Build generated products from the MaterialX data library." OFF)
 option(MATERIALX_BUILD_MONOLITHIC "Build a single monolithic MaterialX library." OFF)
 option(MATERIALX_BUILD_USE_CCACHE "Enable the use of ccache to speed up build time, if present." ON)
 option(MATERIALX_PYTHON_LTO "Enable link-time optimizations for MaterialX Python." ON)
@@ -170,6 +171,7 @@ mark_as_advanced(MATERIALX_BUILD_RENDER_PLATFORMS)
 mark_as_advanced(MATERIALX_BUILD_OIIO)
 mark_as_advanced(MATERIALX_BUILD_BENCHMARK_TESTS)
 mark_as_advanced(MATERIALX_BUILD_SHARED_LIBS)
+mark_as_advanced(MATERIALX_BUILD_DATA_LIBRARY)
 mark_as_advanced(MATERIALX_BUILD_MONOLITHIC)
 mark_as_advanced(MATERIALX_BUILD_USE_CCACHE)
 mark_as_advanced(MATERIALX_NAMESPACE_SUFFIX)
@@ -252,7 +254,7 @@ endif()
 
 # Adjust the default installation path
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-    set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/installed" CACHE PATH "Default install path" FORCE)
+    set(CMAKE_INSTALL_PREFIX "${PROJECT_BINARY_DIR}/installed" CACHE PATH "Default install path" FORCE)
 endif()
 
 # Set the installation path for shared libraries
@@ -356,7 +358,7 @@ function(mx_add_library MATERIALX_MODULE_NAME)
 
         # Create version resource
         if(MATERIALX_BUILD_SHARED_LIBS AND MSVC)
-            configure_file(${CMAKE_SOURCE_DIR}/cmake/modules/MaterialXVersion.rc.in ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
+            configure_file(${PROJECT_SOURCE_DIR}/cmake/modules/MaterialXVersion.rc.in ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
             target_sources(${TARGET_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
         endif()
 
@@ -419,7 +421,7 @@ function(mx_add_library MATERIALX_MODULE_NAME)
                     ARCHIVE DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
                     LIBRARY DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
                     RUNTIME DESTINATION bin
-                    FILE_SET mxHeaders)
+                    FILE_SET mxHeaders DESTINATION ${MATERIALX_INSTALL_INCLUDE_PATH})
         endif()
 
         install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${MATERIALX_MODULE_NAME}.pdb"
@@ -528,7 +530,7 @@ if (MATERIALX_BUILD_MONOLITHIC)
                 ARCHIVE DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
                 LIBRARY DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
                 RUNTIME DESTINATION bin
-                FILE_SET mxHeaders)
+                FILE_SET mxHeaders DESTINATION ${MATERIALX_INSTALL_INCLUDE_PATH})
 
         # Note : we don't install the headers etc. here, and rely on each separate modules CMakeLists.txt
         # to do that installation, thus we respect the build options configuration, and only install
@@ -586,10 +588,10 @@ if(NOT SKBUILD)
     endif()
 
     configure_package_config_file(cmake/modules/MaterialXConfig.cmake.in
-                                ${CMAKE_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}Config.cmake
+                                ${PROJECT_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}Config.cmake
                                 INSTALL_DESTINATION "${MATERIALX_GEN_CONFIG_PATH}"
                                 PATH_VARS CMAKE_INSTALL_PREFIX CMAKE_PROJECT_NAME)
-    write_basic_package_version_file(${CMAKE_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}ConfigVersion.cmake
+    write_basic_package_version_file(${PROJECT_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}ConfigVersion.cmake
                                     VERSION ${MATERIALX_LIBRARY_VERSION}
                                     COMPATIBILITY AnyNewerVersion)
 
@@ -599,7 +601,7 @@ if(NOT SKBUILD)
             DESTINATION "${MATERIALX_GEN_CONFIG_PATH}"
             FILE ${CMAKE_PROJECT_NAME}Targets.cmake)
 
-    install(FILES "${CMAKE_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}ConfigVersion.cmake"
-            "${CMAKE_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}Config.cmake"
+    install(FILES "${PROJECT_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}ConfigVersion.cmake"
+            "${PROJECT_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}Config.cmake"
             DESTINATION "${MATERIALX_GEN_CONFIG_PATH}")
 endif()

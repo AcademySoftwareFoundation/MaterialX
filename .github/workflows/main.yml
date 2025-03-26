@@ -25,18 +25,18 @@ jobs:
           python: 3.7
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON -DMATERIALX_BUILD_MONOLITHIC=ON
 
-        - name: Linux_GCC_13_Python311
-          os: ubuntu-24.04
-          compiler: gcc
-          compiler_version: "13"
-          python: 3.11
-          build_javascript: ON
-
         - name: Linux_GCC_14_Python312
           os: ubuntu-24.04
           compiler: gcc
           compiler_version: "14"
           python: 3.12
+
+        - name: Linux_GCC_14_Python313
+          os: ubuntu-24.04
+          compiler: gcc
+          compiler_version: "14"
+          python: 3.13
+          test_render: ON
 
         - name: Linux_GCC_CoverageAnalysis
           os: ubuntu-24.04
@@ -53,23 +53,22 @@ jobs:
           python: 3.7
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
 
-        - name: Linux_Clang_18_Python312
+        - name: Linux_Clang_18_Python313
           os: ubuntu-24.04
           compiler: clang
           compiler_version: "18"
-          python: 3.12
-          test_render: ON
+          python: 3.13
           clang_format: ON
 
-        - name: MacOS_Xcode_14_Python39
-          os: macos-13
+        - name: MacOS_Xcode_15_Python311
+          os: macos-14
           compiler: xcode
-          compiler_version: "14.1"
+          compiler_version: "15.4"
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
-          python: 3.9
+          python: 3.11
 
         - name: MacOS_Xcode_15_Python312
-          os: macos-14
+          os: macos-15
           compiler: xcode
           compiler_version: "15.4"
           python: 3.12
@@ -160,11 +159,7 @@ jobs:
     - name: Install Dependencies (Windows)
       if: runner.os == 'Windows'
       run: |
-        git clone https://github.com/Microsoft/vcpkg -b 2021.05.12 -c advice.detachedHead=false
-        vcpkg/bootstrap-vcpkg.bat -disableMetrics
         Add-Content $env:GITHUB_PATH "$PWD/build/installed/bin"
-        Add-Content $env:GITHUB_PATH "$PWD/vcpkg/installed/x64-windows/bin"
-        Add-Content $env:GITHUB_PATH "$PWD/vcpkg/installed/x64-windows/tools"
 
     - name: Install Python ${{ matrix.python }}
       if: matrix.python != 'None'
@@ -176,22 +171,6 @@ jobs:
     - name: Install Python Dependencies
       if: matrix.python != 'None'
       run: pip install setuptools
-
-    - name: Install Emscripten
-      if: matrix.build_javascript == 'ON'
-      run: |
-        git clone https://github.com/emscripten-core/emsdk --recursive
-        cd emsdk
-        ./emsdk install 2.0.20
-        ./emsdk activate 2.0.20
-        source ./emsdk_env.sh
-        echo "EMSDK=$EMSDK" >> $GITHUB_ENV
-
-    - name: Install Node
-      if: matrix.build_javascript == 'ON'
-      uses: actions/setup-node@v4
-      with:
-         node-version: '16'
 
     - name: Run Clang Format
       if: matrix.clang_format == 'ON'
@@ -219,6 +198,7 @@ jobs:
         python Scripts/mxdoc.py --docType md ../libraries/pbrlib/pbrlib_defs.mtlx
         python Scripts/mxdoc.py --docType html ../libraries/bxdf/standard_surface.mtlx
         python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target glsl
+        python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target vulkan
         python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target osl
         python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target mdl
         python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target msl
@@ -227,10 +207,11 @@ jobs:
     - name: Shader Validation Tests (Windows)
       if: matrix.test_shaders == 'ON' && runner.os == 'Windows'
       run: |
-        vcpkg/vcpkg install glslang --triplet=x64-windows
-        glslangValidator.exe -v
-        python python/Scripts/generateshader.py resources/Materials/Examples --target glsl --validator glslangValidator.exe
-        python python/Scripts/generateshader.py resources/Materials/Examples --target essl --validator glslangValidator.exe
+        C:/vcpkg/vcpkg install glslang[tools] --triplet=x64-windows-release
+        C:/vcpkg/installed/x64-windows-release/tools/glslang/glslangValidator.exe -v
+        python python/Scripts/generateshader.py resources/Materials/Examples --target glsl --validator C:/vcpkg/installed/x64-windows-release/tools/glslang/glslangValidator.exe
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target essl --validator C:/vcpkg/installed/x64-windows-release/tools/glslang/glslangValidator.exe
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target vulkan --validator C:/vcpkg/installed/x64-windows-release/tools/glslang/glslangValidator.exe
 
     - name: Shader Validation Tests (MacOS)
       if: matrix.test_shaders == 'ON' && runner.os == 'macOS'
@@ -313,16 +294,35 @@ jobs:
         name: MaterialX_Coverage
         path: build/coverage
 
+  javascript:
+    name: JavaScript
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Sync Repository
+      uses: actions/checkout@v4
+
+    - name: Install Emscripten
+      run: |
+        git clone https://github.com/emscripten-core/emsdk --recursive
+        cd emsdk
+        ./emsdk install 2.0.20
+        ./emsdk activate 2.0.20
+        source ./emsdk_env.sh
+        echo "EMSDK=$EMSDK" >> $GITHUB_ENV
+
+    - name: Install Node
+      uses: actions/setup-node@v4
+      with:
+         node-version: '16'
+
     - name: JavaScript CMake Generate
-      if: matrix.build_javascript == 'ON'
       run: cmake -S . -B javascript/build -DMATERIALX_BUILD_JS=ON -DMATERIALX_EMSDK_PATH=${{ env.EMSDK }}
 
     - name: JavaScript CMake Build
-      if: matrix.build_javascript == 'ON'
       run: cmake --build javascript/build --target install --config Release --parallel 2
     
     - name: JavaScript Unit Tests
-      if: matrix.build_javascript == 'ON'
       run: |
         npm install
         npm run test
@@ -330,14 +330,13 @@ jobs:
       working-directory: javascript/MaterialXTest
 
     - name: Build Web Viewer
-      if: matrix.build_javascript == 'ON'
       run: |
         npm install
         npm run build
       working-directory: javascript/MaterialXView
 
     - name: Deploy Web Viewer
-      if: matrix.build_javascript == 'ON' && github.event_name != 'pull_request'
+      if: github.event_name != 'pull_request'
       uses: JamesIves/github-pages-deploy-action@v4.6.4
       with:
         branch: gh-pages
@@ -345,11 +344,10 @@ jobs:
         single-commit: true
 
     - name: Upload JavaScript Package
-      if: matrix.build_javascript == 'ON'
       uses: actions/upload-artifact@v4
       with:
         name: MaterialX_JavaScript
-        path: javascript/build/installed/JavaScript/MaterialX        
+        path: javascript/build/installed/JavaScript/MaterialX
 
   sdist:
     name: Python SDist
