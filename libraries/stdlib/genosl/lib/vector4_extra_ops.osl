@@ -3,40 +3,40 @@
 
 vector4 __operator__mul__(matrix m, vector4 v)
 {
-  return transform(m, v);
+    return transform(m, v);
 }
 
 vector4 __operator__mul__(color4 c, vector4 v)
 {
-  return vector4(c.rgb.r, c.rgb.g, c.rgb.b, c.a) * v;
+    return vector4(c.rgb.r, c.rgb.g, c.rgb.b, c.a) * v;
 }
 
 vector4 __operator__mul__(vector4 v, color4 c)
 {
-  return c * v;
+    return c * v;
 }
 
 vector4 __operator__sub__(color4 c, vector4 v)
 {
-  return vector4(c.rgb.r, c.rgb.g, c.rgb.b, c.a) - v;
+    return vector4(c.rgb.r, c.rgb.g, c.rgb.b, c.a) - v;
 }
 
 vector4 __operator__add__(vector4 v, color4 c)
 {
-  return v + vector4(c.rgb.r, c.rgb.g, c.rgb.b, c.a);
+    return v + vector4(c.rgb.r, c.rgb.g, c.rgb.b, c.a);
 }
 
 vector4 __operator__add__(color4 c, vector4 v)
 {
-  return v + c;
+    return v + c;
 }
 
 vector4 pow(color4 c, vector4 v)
 {
-  return pow(vector4(c.rgb.r, c.rgb.g, c.rgb.b, c.a), v);
+    return pow(vector4(c.rgb.r, c.rgb.g, c.rgb.b, c.a), v);
 }
 
 vector4 max(vector4 v, color4 c)
 {
-  return max(v, vector4(c.rgb.r, c.rgb.g, c.rgb.b, c.a));
+    return max(v, vector4(c.rgb.r, c.rgb.g, c.rgb.b, c.a));
 }
