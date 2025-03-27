@@ -49,7 +49,7 @@ class MX_FORMAT_API FilePath
         _type(TypeRelative)
     {
     }
-    ~FilePath() { }
+    ~FilePath() = default;
 
     bool operator==(const FilePath& rhs) const
     {
