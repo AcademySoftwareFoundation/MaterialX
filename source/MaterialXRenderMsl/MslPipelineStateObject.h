@@ -293,9 +293,10 @@ class MX_RENDERMSL_API MslProgram
     // List of program input uniforms
     InputMap _uniformList;
     std::unordered_map<std::string, std::string> _globalUniformNameList;
+
     // List of program input attributes
-    bool _attributeListComplete{false};
     InputMap _attributeList;
+    bool _attributeListComplete = false;
 
     std::unordered_map<std::string, ImagePtr> _explicitBoundImages;
 
