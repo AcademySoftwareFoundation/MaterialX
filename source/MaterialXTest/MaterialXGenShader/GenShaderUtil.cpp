@@ -17,7 +17,7 @@
 #include <MaterialXGenShader/TypeDesc.h>
 
 #ifdef MATERIALX_BUILD_OCIO
-#include <MaterialXGenShader/OpenColorIOManagementSystem.h>
+#include <MaterialXGenShader/OcioColorManagementSystem.h>
 #endif
 
 #include <iostream>
@@ -328,7 +328,7 @@ void shaderGenPerformanceTest(mx::GenContext& context)
     try
     {
         colorManagementSystem =
-            mx::OpenColorIOManagementSystem::createFromBuiltinConfig(
+            mx::OcioColorManagementSystem::createFromBuiltinConfig(
                 "ocio://studio-config-latest",
                 context.getShaderGenerator().getTarget());
     }
@@ -532,7 +532,7 @@ void ShaderGeneratorTester::addColorManagement()
 #ifdef MATERIALX_BUILD_OCIO
         try
         {
-            _colorManagementSystem = mx::OpenColorIOManagementSystem::createFromBuiltinConfig(
+            _colorManagementSystem = mx::OcioColorManagementSystem::createFromBuiltinConfig(
                 "ocio://studio-config-latest",
                 target);
         }

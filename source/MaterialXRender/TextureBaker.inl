@@ -9,7 +9,7 @@
 
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
 #ifdef MATERIALX_BUILD_OCIO
-#include <MaterialXGenShader/OpenColorIOManagementSystem.h>
+#include <MaterialXGenShader/OcioColorManagementSystem.h>
 #endif
 
 #include <MaterialXFormat/XmlIo.h>
@@ -502,7 +502,7 @@ DocumentPtr TextureBaker<Renderer, ShaderGen>::bakeMaterialToDoc(DocumentPtr doc
 #ifdef MATERIALX_BUILD_OCIO
     try
     {
-        cms = OpenColorIOManagementSystem::createFromBuiltinConfig(
+        cms = OcioColorManagementSystem::createFromBuiltinConfig(
             "ocio://studio-config-latest",
             genContext.getShaderGenerator().getTarget());
     }

@@ -9,7 +9,7 @@
 #include <MaterialXFormat/Util.h>
 
 #ifdef MATERIALX_BUILD_OCIO
-#include <MaterialXGenShader/OpenColorIOManagementSystem.h>
+#include <MaterialXGenShader/OcioColorManagementSystem.h>
 #endif
 
 namespace mx = MaterialX;
@@ -151,7 +151,7 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
     try
     {
         colorManagementSystem =
-            mx::OpenColorIOManagementSystem::createFromBuiltinConfig(
+            mx::OcioColorManagementSystem::createFromBuiltinConfig(
                 "ocio://studio-config-latest",
                 _shaderGenerator->getTarget());
     }

@@ -614,7 +614,7 @@ void RenderView::initContext(mx::GenContext& context)
 #ifdef MATERIALX_BUILD_OCIO
     try
     {
-        cms = mx::OpenColorIOManagementSystem::createFromBuiltinConfig(
+        cms = mx::OcioColorManagementSystem::createFromBuiltinConfig(
             "ocio://studio-config-latest",
             context.getShaderGenerator().getTarget());
     }

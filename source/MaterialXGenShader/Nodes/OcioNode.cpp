@@ -5,8 +5,8 @@
 
 #ifdef MATERIALX_BUILD_OCIO
 
-#include <MaterialXGenShader/Nodes/OpenColorIONode.h>
-#include <MaterialXGenShader/OpenColorIOManagementSystem.h>
+#include <MaterialXGenShader/Nodes/OcioNode.h>
+#include <MaterialXGenShader/OcioColorManagementSystem.h>
 
 #include <MaterialXCore/Interface.h>
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
@@ -34,12 +34,12 @@ constexpr auto OCIO_COLOR3_LEN = sizeof(OCIO_COLOR3) / sizeof(OCIO_COLOR3[0]);
 
 } // namespace
 
-ShaderNodeImplPtr OpenColorIONode::create()
+ShaderNodeImplPtr OcioNode::create()
 {
-    return std::make_shared<OpenColorIONode>();
+    return std::make_shared<OcioNode>();
 }
 
-void OpenColorIONode::initialize(const InterfaceElement& element, GenContext& context)
+void OcioNode::initialize(const InterfaceElement& element, GenContext& context)
 {
     ShaderNodeImpl::initialize(element, context);
 
@@ -47,14 +47,14 @@ void OpenColorIONode::initialize(const InterfaceElement& element, GenContext& co
     _hash = std::hash<string>{}(getFunctionName());
 }
 
-void OpenColorIONode::emitFunctionDefinition(
+void OcioNode::emitFunctionDefinition(
     const ShaderNode& /*node*/,
     GenContext& context,
     ShaderStage& stage) const
 {
     if (stage.getName() == Stage::PIXEL)
     {
-        auto ocioManager = std::dynamic_pointer_cast<OpenColorIOManagementSystem>(context.getShaderGenerator().getColorManagementSystem());
+        auto ocioManager = std::dynamic_pointer_cast<OcioColorManagementSystem>(context.getShaderGenerator().getColorManagementSystem());
 
         if (context.getShaderGenerator().getTarget() == "genosl")
         {
@@ -68,7 +68,7 @@ void OpenColorIONode::emitFunctionDefinition(
     }
 }
 
-void OpenColorIONode::emitFunctionCall(
+void OcioNode::emitFunctionCall(
     const ShaderNode& node,
     GenContext& context,
     ShaderStage& stage) const
@@ -153,12 +153,12 @@ void OpenColorIONode::emitFunctionCall(
     }
 }
 
-string OpenColorIONode::getFunctionName() const
+string OcioNode::getFunctionName() const
 {
     auto name = getName();
 
     // Strip _color3 and _color4 suffixes and impl prefix:
-    size_t startPos = OpenColorIOManagementSystem::IMPL_PREFIX.size();
+    size_t startPos = OcioColorManagementSystem::IMPL_PREFIX.size();
     size_t length = name.size() - OCIO_COLOR3_LEN - 1 - startPos;
 
     return name.substr(startPos, length);

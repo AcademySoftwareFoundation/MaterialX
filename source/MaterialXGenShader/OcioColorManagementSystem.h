@@ -20,28 +20,28 @@
 MATERIALX_NAMESPACE_BEGIN
 
 // Opaque class to insulate from the full OCIO API
-class OpenColorIOManagementSystemImpl;
+class OcioColorManagementSystemImpl;
 
-/// A shared pointer to a OpenColorIOManagementSystem
-using OpenColorIOManagementSystemPtr = std::shared_ptr<class OpenColorIOManagementSystem>;
+/// A shared pointer to a OcioColorManagementSystem
+using OcioColorManagementSystemPtr = std::shared_ptr<class OcioColorManagementSystem>;
 
-/// @class OpenColorIOManagementSystem
+/// @class OcioColorManagementSystem
 /// Class for a default color management system.
-class MX_GENSHADER_API OpenColorIOManagementSystem : public DefaultColorManagementSystem
+class MX_GENSHADER_API OcioColorManagementSystem : public DefaultColorManagementSystem
 {
   public:
-    virtual ~OpenColorIOManagementSystem();
+    virtual ~OcioColorManagementSystem();
 
-    /// Create a new OpenColorIOManagementSystem using using the OCIO environment variable.
-    static OpenColorIOManagementSystemPtr createFromEnv(string target);
+    /// Create a new OcioColorManagementSystem using using the OCIO environment variable.
+    static OcioColorManagementSystemPtr createFromEnv(string target);
 
-    /// Create a new OpenColorIOManagementSystem using a specific OCIO config file.
-    static OpenColorIOManagementSystemPtr createFromFile(const string& filename, string target);
+    /// Create a new OcioColorManagementSystem using a specific OCIO config file.
+    static OcioColorManagementSystemPtr createFromFile(const string& filename, string target);
 
-    /// Create a new OpenColorIOManagementSystem using an OCIO built-in config.
-    static OpenColorIOManagementSystemPtr createFromBuiltinConfig(const string& configName, string target);
+    /// Create a new OcioColorManagementSystem using an OCIO built-in config.
+    static OcioColorManagementSystemPtr createFromBuiltinConfig(const string& configName, string target);
 
-    /// Return the OpenColorIOManagementSystem name
+    /// Return the OcioColorManagementSystem name
     const string& getName() const override;
 
     /// Can the CMS create a shader node implementation for one of its registered CMS transforms
@@ -65,10 +65,10 @@ class MX_GENSHADER_API OpenColorIOManagementSystem : public DefaultColorManageme
     const char* getSupportedColorSpaceName(const char* colorSpace) const;
 
     /// Protected constructor
-    OpenColorIOManagementSystem(OpenColorIOManagementSystemImpl*);
+    OcioColorManagementSystem(OcioColorManagementSystemImpl*);
 
   private:
-    std::unique_ptr<OpenColorIOManagementSystemImpl> _impl;
+    std::unique_ptr<OcioColorManagementSystemImpl> _impl;
 };
 
 MATERIALX_NAMESPACE_END

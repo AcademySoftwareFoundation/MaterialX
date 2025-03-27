@@ -7,12 +7,12 @@
 
 #include "MaterialXCore/Library.h"
 
-#include <MaterialXGenShader/OpenColorIOManagementSystem.h>
+#include <MaterialXGenShader/OcioColorManagementSystem.h>
 
 #include <MaterialXCore/Definition.h>
 #include <MaterialXGenShader/ColorManagementSystem.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
-#include <MaterialXGenShader/Nodes/OpenColorIONode.h>
+#include <MaterialXGenShader/Nodes/OcioNode.h>
 
 #include <OpenColorIO/OpenColorABI.h>
 #include <OpenColorIO/OpenColorIO.h>
@@ -27,7 +27,7 @@ namespace OCIO = OCIO_NAMESPACE;
 
 MATERIALX_NAMESPACE_BEGIN
 
-const string OpenColorIOManagementSystem::IMPL_PREFIX = "IMPL_MXOCIO_";
+const string OcioColorManagementSystem::IMPL_PREFIX = "IMPL_MXOCIO_";
 const string ND_PREFIX = "ND_MXOCIO_";
 
 namespace
@@ -46,13 +46,13 @@ const std::map<string, string> COLOR_SPACE_REMAP = {
 } // anonymous namespace
 
 //
-// OpenColorIOManagementSystemImpl class and methods
+// OcioColorManagementSystemImpl class and methods
 //
 
-class OpenColorIOManagementSystemImpl
+class OcioColorManagementSystemImpl
 {
   public:
-    OpenColorIOManagementSystemImpl(OCIO::ConstConfigRcPtr config, string target) :
+    OcioColorManagementSystemImpl(OCIO::ConstConfigRcPtr config, string target) :
         _config(std::move(config)), _target(std::move(target)) { }
 
     const char* getSupportedColorSpaceName(const char* colorSpace) const;
@@ -68,7 +68,7 @@ class OpenColorIOManagementSystemImpl
     {
         if (_implementations.count(implName))
         {
-            return OpenColorIONode::create();
+            return OcioNode::create();
         }
         return {};
     }
@@ -83,7 +83,7 @@ class OpenColorIOManagementSystemImpl
     mutable std::map<string, OCIO::ConstGPUProcessorRcPtr> _implementations;
 };
 
-const char* OpenColorIOManagementSystemImpl::getSupportedColorSpaceName(const char* colorSpace) const
+const char* OcioColorManagementSystemImpl::getSupportedColorSpaceName(const char* colorSpace) const
 {
     if (_config->getColorSpace(colorSpace))
     {
@@ -108,7 +108,7 @@ const char* OpenColorIOManagementSystemImpl::getSupportedColorSpaceName(const ch
     }
 }
 
-NodeDefPtr OpenColorIOManagementSystemImpl::getNodeDef(const ColorSpaceTransform& transform, const DocumentPtr& document) const
+NodeDefPtr OcioColorManagementSystemImpl::getNodeDef(const ColorSpaceTransform& transform, const DocumentPtr& document) const
 {
     OCIO::ConstProcessorRcPtr processor;
     // Check if directly supported in the config:
@@ -155,7 +155,7 @@ NodeDefPtr OpenColorIOManagementSystemImpl::getNodeDef(const ColorSpaceTransform
 
     static const auto NODE_NAME = string{ "ocio_color_conversion" };
     const auto functionName = NODE_NAME + "_" + processor->getCacheID();
-    const auto implName = OpenColorIOManagementSystem::IMPL_PREFIX + functionName + "_" + transform.type.getName();
+    const auto implName = OcioColorManagementSystem::IMPL_PREFIX + functionName + "_" + transform.type.getName();
     const auto nodeDefName = ND_PREFIX + functionName + "_" + transform.type.getName();
     auto nodeDef = document->getNodeDef(nodeDefName);
     if (!nodeDef)
@@ -176,7 +176,7 @@ NodeDefPtr OpenColorIOManagementSystemImpl::getNodeDef(const ColorSpaceTransform
     return nodeDef;
 }
 
-string OpenColorIOManagementSystemImpl::getGpuProcessorCode(const string& implName, const string& functionName) const
+string OcioColorManagementSystemImpl::getGpuProcessorCode(const string& implName, const string& functionName) const
 {
     auto it = _implementations.find(implName);
     if (it == _implementations.end())
@@ -241,10 +241,10 @@ string OpenColorIOManagementSystemImpl::getGpuProcessorCode(const string& implNa
 }
 
 //
-// OpenColorIOManagementSystem methods
+// OcioColorManagementSystem methods
 //
 
-OpenColorIOManagementSystemPtr OpenColorIOManagementSystem::createFromEnv(string target)
+OcioColorManagementSystemPtr OcioColorManagementSystem::createFromEnv(string target)
 {
     if (target != "genglsl" && target != "genmsl" && target != "genosl")
     {
@@ -252,10 +252,10 @@ OpenColorIOManagementSystemPtr OpenColorIOManagementSystem::createFromEnv(string
     }
 
     auto config = OCIO::Config::CreateFromEnv();
-    return OpenColorIOManagementSystemPtr(new OpenColorIOManagementSystem(new OpenColorIOManagementSystemImpl(config, target)));
+    return OcioColorManagementSystemPtr(new OcioColorManagementSystem(new OcioColorManagementSystemImpl(config, target)));
 }
 
-OpenColorIOManagementSystemPtr OpenColorIOManagementSystem::createFromFile(const string& filename, string target)
+OcioColorManagementSystemPtr OcioColorManagementSystem::createFromFile(const string& filename, string target)
 {
     if (target != "genglsl" && target != "genmsl" && target != "genosl")
     {
@@ -263,10 +263,10 @@ OpenColorIOManagementSystemPtr OpenColorIOManagementSystem::createFromFile(const
     }
 
     auto config = OCIO::Config::CreateFromFile(filename.c_str());
-    return OpenColorIOManagementSystemPtr(new OpenColorIOManagementSystem(new OpenColorIOManagementSystemImpl(config, target)));
+    return OcioColorManagementSystemPtr(new OcioColorManagementSystem(new OcioColorManagementSystemImpl(config, target)));
 }
 
-OpenColorIOManagementSystemPtr OpenColorIOManagementSystem::createFromBuiltinConfig(const string& configName, string target)
+OcioColorManagementSystemPtr OcioColorManagementSystem::createFromBuiltinConfig(const string& configName, string target)
 {
     if (target != "genglsl" && target != "genmsl" && target != "genosl")
     {
@@ -274,28 +274,28 @@ OpenColorIOManagementSystemPtr OpenColorIOManagementSystem::createFromBuiltinCon
     }
 
     auto config = OCIO::Config::CreateFromBuiltinConfig(configName.c_str());
-    return OpenColorIOManagementSystemPtr(new OpenColorIOManagementSystem(new OpenColorIOManagementSystemImpl(config, target)));
+    return OcioColorManagementSystemPtr(new OcioColorManagementSystem(new OcioColorManagementSystemImpl(config, target)));
 }
 
-OpenColorIOManagementSystem::OpenColorIOManagementSystem(OpenColorIOManagementSystemImpl* impl) :
+OcioColorManagementSystem::OcioColorManagementSystem(OcioColorManagementSystemImpl* impl) :
     DefaultColorManagementSystem(impl->target()),
     _impl(impl)
 {
 }
 
-OpenColorIOManagementSystem::~OpenColorIOManagementSystem() = default;
+OcioColorManagementSystem::~OcioColorManagementSystem() = default;
 
-const string& OpenColorIOManagementSystem::getName() const
+const string& OcioColorManagementSystem::getName() const
 {
     return CMS_NAME;
 }
 
-const char* OpenColorIOManagementSystem::getSupportedColorSpaceName(const char* colorSpace) const
+const char* OcioColorManagementSystem::getSupportedColorSpaceName(const char* colorSpace) const
 {
     return _impl->getSupportedColorSpaceName(colorSpace);
 }
 
-NodeDefPtr OpenColorIOManagementSystem::getNodeDef(const ColorSpaceTransform& transform) const
+NodeDefPtr OcioColorManagementSystem::getNodeDef(const ColorSpaceTransform& transform) const
 {
     // See if the default color management system already handles this:
     if (auto cmNodeDef = DefaultColorManagementSystem::getNodeDef(transform))
@@ -306,7 +306,7 @@ NodeDefPtr OpenColorIOManagementSystem::getNodeDef(const ColorSpaceTransform& tr
     return _impl->getNodeDef(transform, _document);
 }
 
-bool OpenColorIOManagementSystem::hasImplementation(const string& implName) const
+bool OcioColorManagementSystem::hasImplementation(const string& implName) const
 {
     if (DefaultColorManagementSystem::hasImplementation(implName))
     {
@@ -315,7 +315,7 @@ bool OpenColorIOManagementSystem::hasImplementation(const string& implName) cons
     return _impl->hasImplementation(implName);
 }
 
-ShaderNodeImplPtr OpenColorIOManagementSystem::createImplementation(const string& implName) const
+ShaderNodeImplPtr OcioColorManagementSystem::createImplementation(const string& implName) const
 {
     if (auto impl = DefaultColorManagementSystem::createImplementation(implName))
     {
@@ -325,7 +325,7 @@ ShaderNodeImplPtr OpenColorIOManagementSystem::createImplementation(const string
     return _impl->createImplementation(implName);
 }
 
-string OpenColorIOManagementSystem::getGpuProcessorCode(const string& implName, const string& functionName) const
+string OcioColorManagementSystem::getGpuProcessorCode(const string& implName, const string& functionName) const
 {
     return _impl->getGpuProcessorCode(implName, functionName);
 }

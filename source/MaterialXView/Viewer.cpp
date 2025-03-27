@@ -26,7 +26,7 @@
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
 #include <MaterialXGenShader/ShaderTranslator.h>
 #ifdef MATERIALX_BUILD_OCIO
-#include <MaterialXGenShader/OpenColorIOManagementSystem.h>
+#include <MaterialXGenShader/OcioColorManagementSystem.h>
 #endif
 
 #if MATERIALX_BUILD_GEN_MDL
@@ -1760,7 +1760,7 @@ void Viewer::initContext(mx::GenContext& context)
 #ifdef MATERIALX_BUILD_OCIO
     try
     {
-        cms = mx::OpenColorIOManagementSystem::createFromBuiltinConfig(
+        cms = mx::OcioColorManagementSystem::createFromBuiltinConfig(
             "ocio://studio-config-latest",
             context.getShaderGenerator().getTarget());
     }

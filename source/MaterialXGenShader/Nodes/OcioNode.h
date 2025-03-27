@@ -21,7 +21,7 @@ MATERIALX_NAMESPACE_BEGIN
 
 /// OCIO node implementation. Takes an OCIO GpuProcessor and
 /// uses it to inject shadergen code.
-class OpenColorIONode : public ShaderNodeImpl
+class OcioNode : public ShaderNodeImpl
 {
   public:
     static ShaderNodeImplPtr create();
