@@ -281,7 +281,16 @@ bool MetalTextureHandler::createRenderResources(ImagePtr image, bool generateMip
 void MetalTextureHandler::releaseRenderResources(ImagePtr image)
 {
     if (!image)
+    {
+        for (auto iter : _imageCache)
+        {
+            if (iter.second)
+            {
+                releaseRenderResources(iter.second);
+            }
+        }
         return;
+    }
 
     if (image->getResourceId() == MslProgram::UNDEFINED_METAL_RESOURCE_ID)
     {
