@@ -197,54 +197,54 @@ bool MetalTextureHandler::createRenderResources(ImagePtr image, bool generateMip
     std::vector<unsigned char> rearrangedDataC;
     void* imageData = image->getResourceBuffer();
 
-    if ((pixelFormat == MTLPixelFormatRGBA32Float || pixelFormat == MTLPixelFormatRGBA8Unorm) && channelCount == 3)
-    {
-        bool isFloat = pixelFormat == MTLPixelFormatRGBA32Float;
-
-        sourceBytesPerRow = sourceBytesPerRow / 3 * 4;
-        sourceBytesPerImage = sourceBytesPerImage / 3 * 4;
-
-        size_t srcIdx = 0;
-
-        if (isFloat)
-        {
-            rearrangedDataF.resize(sourceBytesPerImage / sizeof(float));
-            for (size_t dstIdx = 0; dstIdx < rearrangedDataF.size(); ++dstIdx)
-            {
-                if ((dstIdx & 0x3) == 3)
-                {
-                    rearrangedDataF[dstIdx] = 1.0f;
-                    continue;
-                }
-
-                rearrangedDataF[dstIdx] = ((float*) imageData)[srcIdx++];
-            }
-
-            imageData = rearrangedDataF.data();
-        }
-        else
-        {
-            rearrangedDataC.resize(sourceBytesPerImage);
-            for (size_t dstIdx = 0; dstIdx < rearrangedDataC.size(); ++dstIdx)
-            {
-                if ((dstIdx & 0x3) == 3)
-                {
-                    rearrangedDataC[dstIdx] = 255;
-                    continue;
-                }
-
-                rearrangedDataC[dstIdx] = ((unsigned char*) imageData)[srcIdx++];
-            }
-
-            imageData = rearrangedDataC.data();
-        }
-
-        channelCount = 4;
-    }
-
     id<MTLBuffer> buffer = nil;
     if (imageData)
     {
+        if ((pixelFormat == MTLPixelFormatRGBA32Float || pixelFormat == MTLPixelFormatRGBA8Unorm) && channelCount == 3)
+        {
+            bool isFloat = pixelFormat == MTLPixelFormatRGBA32Float;
+
+            sourceBytesPerRow = sourceBytesPerRow / 3 * 4;
+            sourceBytesPerImage = sourceBytesPerImage / 3 * 4;
+
+            size_t srcIdx = 0;
+
+            if (isFloat)
+            {
+                rearrangedDataF.resize(sourceBytesPerImage / sizeof(float));
+                for (size_t dstIdx = 0; dstIdx < rearrangedDataF.size(); ++dstIdx)
+                {
+                    if ((dstIdx & 0x3) == 3)
+                    {
+                        rearrangedDataF[dstIdx] = 1.0f;
+                        continue;
+                    }
+
+                    rearrangedDataF[dstIdx] = ((float*) imageData)[srcIdx++];
+                }
+
+                imageData = rearrangedDataF.data();
+            }
+            else
+            {
+                rearrangedDataC.resize(sourceBytesPerImage);
+                for (size_t dstIdx = 0; dstIdx < rearrangedDataC.size(); ++dstIdx)
+                {
+                    if ((dstIdx & 0x3) == 3)
+                    {
+                        rearrangedDataC[dstIdx] = 255;
+                        continue;
+                    }
+
+                    rearrangedDataC[dstIdx] = ((unsigned char*) imageData)[srcIdx++];
+                }
+
+                imageData = rearrangedDataC.data();
+            }
+
+            channelCount = 4;
+        }
+
         buffer = [_device newBufferWithBytes:imageData
                                       length:sourceBytesPerImage
                                      options:MTLStorageModeShared];
