@@ -164,4 +164,4 @@ string OcioNode::getFunctionName() const
 
 MATERIALX_NAMESPACE_END
 
-#endif
+#endif // MATERIALX_BUILD_OCIO
