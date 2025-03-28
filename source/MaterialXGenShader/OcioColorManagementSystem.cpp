@@ -36,7 +36,8 @@ namespace
 const string CMS_NAME = "OpenColorIO";
 
 // Remap from legacy color space names to their ACES 1.3 equivalents.
-const std::map<string, string> COLOR_SPACE_REMAP = {
+const std::map<string, string> COLOR_SPACE_REMAP =
+{
     { "gamma18", "Gamma 1.8 Rec.709 - Texture" },
     { "gamma22", "Gamma 2.2 Rec.709 - Texture" },
     { "gamma24", "Gamma 2.4 Rec.709 - Texture" },
