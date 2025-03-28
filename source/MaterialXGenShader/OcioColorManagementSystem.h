@@ -7,6 +7,7 @@
 #define MATERIALX_OCIO_COLOR_MANAGEMENT_SYSTEM_H
 
 #ifdef MATERIALX_BUILD_OCIO
+
 /// @file
 /// OCIO color management system implementation
 
@@ -72,5 +73,6 @@ class MX_GENSHADER_API OcioColorManagementSystem : public DefaultColorManagement
 
 MATERIALX_NAMESPACE_END
 
-#endif
+#endif // MATERIALX_BUILD_OCIO
+
 #endif
