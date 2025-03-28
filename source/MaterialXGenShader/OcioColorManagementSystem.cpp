@@ -21,7 +21,6 @@
 #include <exception>
 #include <stdexcept>
 #include <map>
-#include <string>
 
 namespace OCIO = OCIO_NAMESPACE;
 
@@ -332,4 +331,5 @@ string OcioColorManagementSystem::getGpuProcessorCode(const string& implName, co
 }
 
 MATERIALX_NAMESPACE_END
-#endif
+
+#endif // MATERIALX_BUILD_OCIO
