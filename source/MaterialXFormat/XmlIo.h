@@ -35,7 +35,7 @@ class MX_FORMAT_API XmlReadOptions
 {
   public:
     XmlReadOptions();
-    ~XmlReadOptions() { }
+    ~XmlReadOptions() = default;
 
     /// If true, then XML comments will be read into documents as comment elements.
     /// Defaults to false.
@@ -64,7 +64,7 @@ class MX_FORMAT_API XmlWriteOptions
 {
   public:
     XmlWriteOptions();
-    ~XmlWriteOptions() { }
+    ~XmlWriteOptions() = default;
 
     /// If true, elements with source file markings will be written as
     /// XIncludes rather than explicit data.  Defaults to true.

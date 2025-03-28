@@ -298,6 +298,8 @@ id<MTLRenderPipelineState> MslProgram::build(id<MTLDevice> device, MetalFramebuf
         throw ExceptionRenderError(errorType, errors);
     }
 
+    _attributeListComplete = false;
+
     // If we encountered any errors while trying to create return list
     // of all errors. That is we collect all errors per stage plus any
     // errors during linking and throw one exception for them all so that
@@ -1515,6 +1517,11 @@ const MslProgram::InputMap& MslProgram::updateAttributesList()
         throw ExceptionRenderError(errorType, errors);
     }
 
+    if (_attributeListComplete)
+    {
+        return _attributeList;
+    }
+
     if (_shader)
     {
         const ShaderStage& vs = _shader->getStage(Stage::VERTEX);
@@ -1555,6 +1562,8 @@ const MslProgram::InputMap& MslProgram::updateAttributesList()
                 }
             }
         }
+
+        _attributeListComplete = true;
 
         // Throw an error if any type mismatches were found
         if (uniformTypeMismatchFound)
