@@ -17,14 +17,12 @@
 #include <MaterialXGenShader/ShaderStage.h>
 
 #include <cstring>
-#include <functional>
-#include <memory>
-#include <string>
 
 MATERIALX_NAMESPACE_BEGIN
 
 namespace
 {
+
 // Internal OCIO strings:
 constexpr const char OCIO_COLOR3[] = "color3";
 constexpr const char COLOR4_SUFFIX[] = "_color4_temp";
@@ -32,7 +30,7 @@ constexpr const char COLOR4_SUFFIX[] = "_color4_temp";
 // Lengths where needed:
 constexpr auto OCIO_COLOR3_LEN = sizeof(OCIO_COLOR3) / sizeof(OCIO_COLOR3[0]);
 
-} // namespace
+} // anonymous namespace
 
 ShaderNodeImplPtr OcioNode::create()
 {
