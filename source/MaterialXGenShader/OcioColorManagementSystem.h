@@ -15,7 +15,6 @@
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
 
 #include <map>
-#include <memory>
 
 MATERIALX_NAMESPACE_BEGIN
 
