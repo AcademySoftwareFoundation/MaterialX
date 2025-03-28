@@ -933,7 +933,7 @@ template <class T> class ElementRegistry
     {
         Element::_creatorMap[T::CATEGORY] = Element::createElement<T>;
     }
-    ~ElementRegistry() { }
+    ~ElementRegistry() = default;
 };
 
 //
