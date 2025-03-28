@@ -799,8 +799,8 @@ Math nodes have one or two spatially-varying inputs, and are used to perform a m
 <a id="node-refract"> </a>
 
 * **`refract`**: computes the vetor3 refraction vector of an input vector through a surface with a given index of refraction.
-    * `in` (vector3): the input vector to reflect, defaults to (1.0, 0.0, 0.0).
-    * `normal` (vector3): the normal vector about which to reflect "in", defaults to the value of the "Nworld" (world space view direction) geometric property.  This vector is expected to be prenormalized to length 1.0.
+    * `in` (vector3): the input vector to refract, defaults to (1.0, 0.0, 0.0).
+    * `normal` (vector3): the normal vector about which to refract "in", defaults to the value of the "Nworld" (world space view direction) geometric property.  This vector is expected to be prenormalized to length 1.0.
     * `ior` (float): the index of refraction of the surface, defaults to 1.0.
 
 <a id="node-place2d"> </a>
@@ -844,8 +844,7 @@ Logical operator nodes have one or two boolean typed inputs, and are used to con
 <a id="node-not"> </a>
 
 * **`not`**: logically Not the input boolean value.
-  * `in1` (boolean): the value or nodename for the first input; the default is false.
-  * `in2` (boolean): the value or nodename for the second input; the default is false.
+  * `in` (boolean): the value or nodename for the input; the default is false.
 
 
 ## Adjustment Nodes
