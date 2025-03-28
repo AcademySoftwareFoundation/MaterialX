@@ -235,7 +235,7 @@ class MX_GENSHADER_API ShaderGraphEdgeIterator
 {
   public:
     ShaderGraphEdgeIterator(ShaderOutput* output);
-    ~ShaderGraphEdgeIterator() { }
+    ~ShaderGraphEdgeIterator() = default;
 
     bool operator==(const ShaderGraphEdgeIterator& rhs) const
     {
