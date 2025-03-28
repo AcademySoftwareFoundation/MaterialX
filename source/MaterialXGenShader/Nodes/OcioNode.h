@@ -7,6 +7,7 @@
 #define MATERIALX_OCIO_NODE_H
 
 #ifdef MATERIALX_BUILD_OCIO
+
 /// @file
 /// OCIO node implementation
 
@@ -40,5 +41,6 @@ class OcioNode : public ShaderNodeImpl
 
 MATERIALX_NAMESPACE_END
 
-#endif
+#endif // MATERIALX_BUILD_OCIO
+
 #endif
