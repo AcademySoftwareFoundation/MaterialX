@@ -89,7 +89,7 @@ class MX_RENDERMSL_API MetalTextureHandler : public ImageHandler
     std::vector<unsigned int> _boundTextureLocations;
 
     std::unordered_map<unsigned int, id<MTLTexture>> _metalTextureMap;
-    std::unordered_map<unsigned int, std::pair<ImagePtr, ImageSamplingProperties>> _imageBindingInfo;
+    std::unordered_map<unsigned int, ImageSamplingProperties> _imageBindingInfo;
     std::unordered_map<ImageSamplingProperties, id<MTLSamplerState>, ImageSamplingKeyHasher> _imageSamplerStateMap;
 
     id<MTLDevice> _device = nil;

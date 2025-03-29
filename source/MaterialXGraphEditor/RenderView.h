@@ -35,7 +35,7 @@ class RenderView
                const mx::FileSearchPath& searchPath,
                int viewWidth,
                int viewHeight);
-    ~RenderView() { }
+    ~RenderView() = default;
 
     // Initialize the viewer for rendering.
     void initialize();

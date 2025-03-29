@@ -12,7 +12,7 @@ July 1, 2024
 
 # Introduction
 
-The MaterialX Specification and MaterialX Physically Based Shading Nodes documents describe a number of standard pattern and shading nodes that may be used to construct nodegraph-based shaders for physically based rendering in a variety of applications.  However, there are certain operations that are desirable in non-photorealistic shading styles but which cannot be implemented within certain rendering constructs.  It is also helpful conceptually to separate nodes primarily useful for photorealistic and non-photorealistic shading styles into separate libraries.
+The [MaterialX Standard Nodes](./MaterialX.StandardNodes.md) and [MaterialX Physically Based Shading Nodes](./MaterialX.PBRSpec.md) documents describe a number of standard pattern and shading nodes that may be used to construct nodegraph-based shaders for physically based rendering in a variety of applications.  However, there are certain operations that are desirable in non-photorealistic shading styles but which cannot be implemented within certain rendering constructs.  It is also helpful conceptually to separate nodes primarily useful for photorealistic and non-photorealistic shading styles into separate libraries.
 
 This document describes a number of MaterialX nodes primarily applicable to non-photorealistic, or NPR, rendering.  Rendering applications whose architecture cannot support these operations are not required to support these nodes.
 
@@ -25,6 +25,8 @@ This document describes a number of MaterialX nodes primarily applicable to non-
  [NPR Shading Nodes](#npr-shading-nodes)  
 
 **[References](#references)**
+
+<br>
 
 
 # MaterialX NPR Library
@@ -64,6 +66,7 @@ This document describes a number of MaterialX nodes primarily applicable to non-
     * `shininess` (float): the specular power typically ranging from 1 to 256, defaults to 64.
     * `light_direction` (vector3): the incoming predominant lighting direction in world space, defaults to (1.0, -0.5, -0.5).
 
+<br>
 
 
 # References
