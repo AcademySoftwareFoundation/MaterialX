@@ -64,6 +64,12 @@ class MX_GENSHADER_API ColorManagementSystem
     ShaderNodePtr createNode(const ShaderGraph* parent, const ColorSpaceTransform& transform, const string& name,
                              GenContext& context) const;
 
+    /// Returns true if the CMS can create a shader node implementation for a locally managed CMS transform
+    virtual bool hasImplementation(const string& /*implName*/) const { return false; }
+
+    /// Create an CMS node implementation for a locally managed transform
+    virtual ShaderNodeImplPtr createImplementation(const string& /*implName*/) const { return {}; }
+
   protected:
     /// Protected constructor
     ColorManagementSystem();
