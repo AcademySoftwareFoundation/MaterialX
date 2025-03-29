@@ -242,7 +242,7 @@
       <input name="default" type="color3" interfacename="default" />
       <input name="texcoord" type="vector2" nodename="mapUvs" />
       <input name="uaddressmode" type="string" value="periodic" />
-      <input name="vaddressmode" type="string" value="periodic" />
+      <input name="vaddressmode" type="string" value="mirror" />
       <input name="filtertype" type="string" value="linear" />
     </image>
     <output name="out" type="color3" nodename="envImage" />
