@@ -1,4 +1,7 @@
 void mx_frame_float(output float result)
 {
+    // ND_frame_float has a default specified of 1.0
+    // In the event the getattribute() fails we should also return 1.0
+    result = 1.0;
     getattribute("frame", result);
 }
