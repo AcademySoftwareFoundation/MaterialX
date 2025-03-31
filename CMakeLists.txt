@@ -116,8 +116,6 @@ set(MATERIALX_PYTHON_VERSION "" CACHE STRING
     "Python version to be used in building the MaterialX Python package (e.g. '3.9').")
 set(MATERIALX_PYTHON_EXECUTABLE "" CACHE FILEPATH
     "Python executable to be used in building the MaterialX Python package (e.g. 'C:/Python39/python.exe').")
-set(MATERIALX_PYTHON_OCIO_DIR "" CACHE PATH
-    "Path to a folder containing the default OCIO configuration to be packaged with MaterialX Python (e.g. 'D:/Projects/OpenColorIO-Configs/aces_1.0.3').")
 set(MATERIALX_PYTHON_PYBIND11_DIR "" CACHE PATH
     "Path to a folder containing the PyBind11 source to be used in building MaterialX Python.")
 
@@ -187,7 +185,6 @@ mark_as_advanced(MATERIALX_COVERAGE_ANALYSIS)
 mark_as_advanced(MATERIALX_DYNAMIC_ANALYSIS)
 mark_as_advanced(MATERIALX_PYTHON_VERSION)
 mark_as_advanced(MATERIALX_PYTHON_EXECUTABLE)
-mark_as_advanced(MATERIALX_PYTHON_OCIO_DIR)
 mark_as_advanced(MATERIALX_PYTHON_PYBIND11_DIR)
 mark_as_advanced(MATERIALX_OIIO_DIR)
 mark_as_advanced(MATERIALX_OSL_BINARY_OSLC)
