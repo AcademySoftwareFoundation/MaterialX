@@ -1,11 +1,11 @@
 # MaterialX Version
 set(MATERIALX_MAJOR_VERSION 1)
 set(MATERIALX_MINOR_VERSION 39)
-set(MATERIALX_BUILD_VERSION 2)
+set(MATERIALX_BUILD_VERSION 3)
 set(MATERIALX_LIBRARY_VERSION ${MATERIALX_MAJOR_VERSION}.${MATERIALX_MINOR_VERSION}.${MATERIALX_BUILD_VERSION})
 
 # Cmake setup
-cmake_minimum_required(VERSION 3.24)
+cmake_minimum_required(VERSION 3.26)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 set(CMAKE_MACOSX_RPATH ON)
@@ -49,6 +49,7 @@ option(MATERIALX_BUILD_TESTS "Build unit tests." OFF)
 option(MATERIALX_BUILD_BENCHMARK_TESTS "Build benchmark tests." OFF)
 
 option(MATERIALX_BUILD_SHARED_LIBS "Build MaterialX libraries as shared rather than static." OFF)
+option(MATERIALX_BUILD_DATA_LIBRARY "Build generated products from the MaterialX data library." OFF)
 option(MATERIALX_BUILD_MONOLITHIC "Build a single monolithic MaterialX library." OFF)
 option(MATERIALX_BUILD_USE_CCACHE "Enable the use of ccache to speed up build time, if present." ON)
 option(MATERIALX_PYTHON_LTO "Enable link-time optimizations for MaterialX Python." ON)
@@ -171,6 +172,7 @@ mark_as_advanced(MATERIALX_BUILD_RENDER_PLATFORMS)
 mark_as_advanced(MATERIALX_BUILD_OIIO)
 mark_as_advanced(MATERIALX_BUILD_BENCHMARK_TESTS)
 mark_as_advanced(MATERIALX_BUILD_SHARED_LIBS)
+mark_as_advanced(MATERIALX_BUILD_DATA_LIBRARY)
 mark_as_advanced(MATERIALX_BUILD_MONOLITHIC)
 mark_as_advanced(MATERIALX_BUILD_USE_CCACHE)
 mark_as_advanced(MATERIALX_NAMESPACE_SUFFIX)
@@ -420,7 +422,7 @@ function(mx_add_library MATERIALX_MODULE_NAME)
                     ARCHIVE DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
                     LIBRARY DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
                     RUNTIME DESTINATION bin
-                    FILE_SET mxHeaders)
+                    FILE_SET mxHeaders DESTINATION ${MATERIALX_INSTALL_INCLUDE_PATH})
         endif()
 
         install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${MATERIALX_MODULE_NAME}.pdb"
@@ -533,7 +535,7 @@ if (MATERIALX_BUILD_MONOLITHIC)
                 ARCHIVE DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
                 LIBRARY DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
                 RUNTIME DESTINATION bin
-                FILE_SET mxHeaders)
+                FILE_SET mxHeaders DESTINATION ${MATERIALX_INSTALL_INCLUDE_PATH})
 
         # Note : we don't install the headers etc. here, and rely on each separate modules CMakeLists.txt
         # to do that installation, thus we respect the build options configuration, and only install

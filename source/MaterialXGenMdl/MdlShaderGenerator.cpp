@@ -21,8 +21,6 @@
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/ShaderStage.h>
-#include <MaterialXGenShader/Nodes/ClosureCompoundNode.h>
-#include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
 #include <MaterialXGenShader/Util.h>
 
 MATERIALX_NAMESPACE_BEGIN
@@ -54,10 +52,12 @@ const string MDL_VERSION_1_6 = "1.6";
 const string MDL_VERSION_1_7 = "1.7";
 const string MDL_VERSION_1_8 = "1.8";
 const string MDL_VERSION_1_9 = "1.9";
+const string MDL_VERSION_1_10 = "1.10";
 const string MDL_VERSION_SUFFIX_1_6 = "1_6";
 const string MDL_VERSION_SUFFIX_1_7 = "1_7";
 const string MDL_VERSION_SUFFIX_1_8 = "1_8";
 const string MDL_VERSION_SUFFIX_1_9 = "1_9";
+const string MDL_VERSION_SUFFIX_1_10 = "1_10";
 
 } // anonymous namespace
 
@@ -82,10 +82,18 @@ const std::unordered_map<string, string> MdlShaderGenerator::GEOMPROP_DEFINITION
 // MdlShaderGenerator methods
 //
 
-MdlShaderGenerator::MdlShaderGenerator() :
-    ShaderGenerator(MdlSyntax::create())
+MdlShaderGenerator::MdlShaderGenerator(TypeSystemPtr typeSystem) :
+    ShaderGenerator(typeSystem, MdlSyntax::create(typeSystem))
 {
-    // Register built-in implementations
+    // Register custom types to handle enumeration output
+    _typeSystem->registerType(Type::MDL_COORDINATESPACE);
+    _typeSystem->registerType(Type::MDL_ADDRESSMODE);
+    _typeSystem->registerType(Type::MDL_FILTERLOOKUPMODE);
+    _typeSystem->registerType(Type::MDL_FILTERTYPE);
+    _typeSystem->registerType(Type::MDL_DISTRIBUTIONTYPE);
+    _typeSystem->registerType(Type::MDL_SCATTER_MODE);
+
+    // Register build-in implementations
 
     // <!-- <surfacematerial> -->
     registerImplementation("IM_surfacematerial_" + MdlShaderGenerator::TARGET, MaterialNodeMdl::create);
@@ -283,6 +291,8 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
                 finalOutput = "mk_color3(" + result + ".x, " + result + ".y, 0.0)";
             else if (outputType == Type::VECTOR3)
                 finalOutput = "mk_color3(" + result + ")";
+            else if (outputType == Type::VECTOR4)
+                finalOutput = "mk_color3(" + result + ".x, " + result + ".y, " + result + ".z)";
             else if (outputType == Type::COLOR3)
                 finalOutput = result;
             else if (outputType == Type::COLOR4)
@@ -352,7 +362,7 @@ ShaderNodeImplPtr MdlShaderGenerator::getImplementation(const NodeDef& nodedef, 
         throw ExceptionShaderGenError("NodeDef '" + nodedef.getName() + "' has no outputs defined");
     }
 
-    const TypeDesc outputType = TypeDesc::get(outputs[0]->getType());
+    const TypeDesc outputType = _typeSystem->getType(outputs[0]->getType());
 
     if (implElement->isA<NodeGraph>())
     {
@@ -767,10 +777,13 @@ void MdlShaderGenerator::emitMdlVersionNumber(GenContext& context, ShaderStage& 
         case GenMdlOptions::MdlVersion::MDL_1_8:
             emitString(MDL_VERSION_1_8, stage);
             break;
-        default:
-            // GenMdlOptions::MdlVersion::MDL_1_9
-            // GenMdlOptions::MdlVersion::MDL_LATEST
+        case GenMdlOptions::MdlVersion::MDL_1_9:
             emitString(MDL_VERSION_1_9, stage);
+            break;
+        default:
+            // GenMdlOptions::MdlVersion::MDL_1_10
+            // GenMdlOptions::MdlVersion::MDL_LATEST
+            emitString(MDL_VERSION_1_10, stage);
             break;
     }
     emitLineEnd(stage, true);
@@ -789,10 +802,12 @@ const string& MdlShaderGenerator::getMdlVersionFilenameSuffix(GenContext& contex
             return MDL_VERSION_SUFFIX_1_7;
         case GenMdlOptions::MdlVersion::MDL_1_8:
             return MDL_VERSION_SUFFIX_1_8;
-        default:
-            // GenMdlOptions::MdlVersion::MDL_1_9
-            // GenMdlOptions::MdlVersion::MDL_LATEST
+        case GenMdlOptions::MdlVersion::MDL_1_9:
             return MDL_VERSION_SUFFIX_1_9;
+        default:
+            // GenMdlOptions::MdlVersion::MDL_1_10
+            // GenMdlOptions::MdlVersion::MDL_LATEST
+            return MDL_VERSION_SUFFIX_1_10;
     }
 }
 

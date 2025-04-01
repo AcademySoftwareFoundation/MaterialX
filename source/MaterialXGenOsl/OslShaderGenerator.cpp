@@ -11,13 +11,9 @@
 #include <MaterialXGenShader/TypeDesc.h>
 #include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
-#include <MaterialXGenShader/Nodes/ClosureAddNode.h>
-#include <MaterialXGenShader/Nodes/ClosureMixNode.h>
-#include <MaterialXGenShader/Nodes/ClosureMultiplyNode.h>
+#include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
 
 #include <MaterialXGenOsl/Nodes/BlurNodeOsl.h>
-#include <MaterialXGenOsl/Nodes/SurfaceNodeOsl.h>
-#include <MaterialXGenOsl/Nodes/ClosureLayerNodeOsl.h>
 #include <MaterialXGenOsl/Nodes/MaterialNodeOsl.h>
 
 MATERIALX_NAMESPACE_BEGIN
@@ -28,8 +24,8 @@ const string OslShaderGenerator::TARGET = "genosl";
 // OslShaderGenerator methods
 //
 
-OslShaderGenerator::OslShaderGenerator() :
-    ShaderGenerator(OslSyntax::create())
+OslShaderGenerator::OslShaderGenerator(TypeSystemPtr typeSystem) :
+    ShaderGenerator(typeSystem, OslSyntax::create(typeSystem))
 {
     // Register built-in implementations
 
@@ -41,12 +37,8 @@ OslShaderGenerator::OslShaderGenerator() :
     registerImplementation("IM_blur_vector3_" + OslShaderGenerator::TARGET, BlurNodeOsl::create);
     registerImplementation("IM_blur_vector4_" + OslShaderGenerator::TARGET, BlurNodeOsl::create);
 
-    // <!-- <layer> -->
-    registerImplementation("IM_layer_bsdf_" + OslShaderGenerator::TARGET, ClosureLayerNodeOsl::create);
-    registerImplementation("IM_layer_vdf_" + OslShaderGenerator::TARGET, ClosureLayerNodeOsl::create);
-
     // <!-- <surface> -->
-    registerImplementation("IM_surface_" + OslShaderGenerator::TARGET, SurfaceNodeOsl::create);
+    registerImplementation("IM_surface_" + OslShaderGenerator::TARGET, ClosureSourceCodeNode::create);
 
     // <!-- <surfacematerial> -->
     registerImplementation("IM_surfacematerial_" + OslShaderGenerator::TARGET, MaterialNodeOsl::create);

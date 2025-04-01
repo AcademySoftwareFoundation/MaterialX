@@ -13,10 +13,10 @@ MATERIALX_NAMESPACE_BEGIN
 const string EsslShaderGenerator::TARGET = "essl";
 const string EsslShaderGenerator::VERSION = "300 es"; // Current target is WebGL 2.0
 
-EsslShaderGenerator::EsslShaderGenerator() :
-    GlslShaderGenerator()
+EsslShaderGenerator::EsslShaderGenerator(TypeSystemPtr typeSystem) :
+    GlslShaderGenerator(typeSystem)
 {
-    _syntax = EsslSyntax::create();
+    _syntax = EsslSyntax::create(typeSystem);
     // Add in ESSL specific keywords
     const StringSet reservedWords = { "precision", "highp", "mediump", "lowp" };
     _syntax->registerReservedWords(reservedWords);
@@ -27,6 +27,7 @@ void EsslShaderGenerator::emitDirectives(GenContext&, ShaderStage& stage) const
     emitLine("#version " + getVersion(), stage, false);
     emitLineBreak(stage);
     emitLine("precision mediump float", stage);
+    emitLineBreak(stage);
 }
 
 void EsslShaderGenerator::emitUniforms(GenContext& context, ShaderStage& stage) const

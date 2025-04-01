@@ -115,7 +115,7 @@ void applyModifiers(mx::DocumentPtr doc, const DocumentModifiers& modifiers)
                 elem->setFilePrefix(filePrefix + modifiers.filePrefixTerminator);
             }
         }
-        std::vector<mx::ElementPtr> children = elem->getChildren();
+        mx::ElementVec children = elem->getChildren();
         for (mx::ElementPtr child : children)
         {
             if (modifiers.skipElements.count(child->getCategory()) ||
@@ -189,17 +189,18 @@ Viewer::Viewer(const std::string& materialFilename,
     _envCamera(mx::Camera::create()),
     _shadowCamera(mx::Camera::create()),
     _lightHandler(mx::LightHandler::create()),
+    _typeSystem(mx::TypeSystem::create()),
 #ifndef MATERIALXVIEW_METAL_BACKEND
-    _genContext(mx::GlslShaderGenerator::create()),
-    _genContextEssl(mx::EsslShaderGenerator::create()),
+    _genContext(mx::GlslShaderGenerator::create(_typeSystem)),
+    _genContextEssl(mx::EsslShaderGenerator::create(_typeSystem)),
 #else
-    _genContext(mx::MslShaderGenerator::create()),
+    _genContext(mx::MslShaderGenerator::create(_typeSystem)),
 #endif
 #if MATERIALX_BUILD_GEN_OSL
-    _genContextOsl(mx::OslShaderGenerator::create()),
+    _genContextOsl(mx::OslShaderGenerator::create(_typeSystem)),
 #endif
 #if MATERIALX_BUILD_GEN_MDL
-    _genContextMdl(mx::MdlShaderGenerator::create()),
+    _genContextMdl(mx::MdlShaderGenerator::create(_typeSystem)),
 #endif
     _unitRegistry(mx::UnitConverterRegistry::create()),
     _drawEnvironment(false),
@@ -1315,6 +1316,9 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
         // Apply modifiers to the content document.
         applyModifiers(doc, _modifiers);
 
+        // Register any data types in the document.
+        _genContext.getShaderGenerator().registerTypeDefs(doc);
+
         // Flatten subgraphs if requested.
         if (_flattenSubgraphs)
         {
@@ -1759,9 +1763,6 @@ void Viewer::initContext(mx::GenContext& context)
     unitSystem->setUnitConverterRegistry(_unitRegistry);
     context.getShaderGenerator().setUnitSystem(unitSystem);
     context.getOptions().targetDistanceUnit = "meter";
-
-    // Initialize the struct typedefs from the stdlib
-    context.getShaderGenerator().loadStructTypeDefs(_stdLib);
 }
 
 void Viewer::loadStandardLibraries()
@@ -2412,7 +2413,7 @@ void Viewer::updateCameras()
     _envCamera->setViewMatrix(_viewCamera->getViewMatrix());
     _envCamera->setProjectionMatrix(_viewCamera->getProjectionMatrix());
 
-    mx::NodePtr dirLight = _lightHandler->getFirstLightOfCategory(DIR_LIGHT_NODE_CATEGORY);
+    mx::NodePtr dirLight = !_materialAssignments.empty() ? _lightHandler->getFirstLightOfCategory(DIR_LIGHT_NODE_CATEGORY) : nullptr;
     if (dirLight)
     {
         mx::Vector3 sphereCenter = (_geometryHandler->getMaximumBounds() + _geometryHandler->getMinimumBounds()) * 0.5;

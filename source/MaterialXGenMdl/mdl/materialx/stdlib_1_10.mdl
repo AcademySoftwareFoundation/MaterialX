@@ -1,0 +1,18 @@
+//
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
+//
+// MDL implementation of all Standard Source Nodes of
+//     MaterialX: An Open Standard for Network-Based CG Object Looks
+//     Document version 1.39, September 15, 2024
+//     www.materialx.org 
+// in
+//     NVIDIA Material Definition Language 1.10
+//     Language Specification
+//     Document version 1.10.1, November 04, 2024
+//     www.nvidia.com/mdl
+
+mdl 1.10;
+
+// forward all unchanged definitions from the previous version
+export using .::stdlib_1_9 import *;

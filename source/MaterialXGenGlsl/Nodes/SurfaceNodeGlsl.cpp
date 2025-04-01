@@ -11,30 +11,8 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-SurfaceNodeGlsl::SurfaceNodeGlsl() :
-    _callReflection(HwShaderGenerator::ClosureContextType::REFLECTION),
-    _callTransmission(HwShaderGenerator::ClosureContextType::TRANSMISSION),
-    _callIndirect(HwShaderGenerator::ClosureContextType::INDIRECT),
-    _callEmission(HwShaderGenerator::ClosureContextType::EMISSION)
-{
-    // Create closure contexts for calling closure functions.
-    //
-    // Reflection context
-    _callReflection.setSuffix(Type::BSDF, HwShaderGenerator::CLOSURE_CONTEXT_SUFFIX_REFLECTION);
-    _callReflection.addArgument(Type::BSDF, ClosureContext::Argument(Type::VECTOR3, HW::DIR_L));
-    _callReflection.addArgument(Type::BSDF, ClosureContext::Argument(Type::VECTOR3, HW::DIR_V));
-    _callReflection.addArgument(Type::BSDF, ClosureContext::Argument(Type::VECTOR3, HW::WORLD_POSITION));
-    _callReflection.addArgument(Type::BSDF, ClosureContext::Argument(Type::FLOAT, HW::OCCLUSION));
-    // Transmission context
-    _callTransmission.setSuffix(Type::BSDF, HwShaderGenerator::CLOSURE_CONTEXT_SUFFIX_TRANSMISSION);
-    _callTransmission.addArgument(Type::BSDF, ClosureContext::Argument(Type::VECTOR3, HW::DIR_V));
-    // Indirect/Environment context
-    _callIndirect.setSuffix(Type::BSDF, HwShaderGenerator::CLOSURE_CONTEXT_SUFFIX_INDIRECT);
-    _callIndirect.addArgument(Type::BSDF, ClosureContext::Argument(Type::VECTOR3, HW::DIR_V));
-    // Emission context
-    _callEmission.addArgument(Type::EDF, ClosureContext::Argument(Type::VECTOR3, HW::DIR_N));
-    _callEmission.addArgument(Type::EDF, ClosureContext::Argument(Type::VECTOR3, HW::DIR_V));
-}
+SurfaceNodeGlsl::SurfaceNodeGlsl()
+{}
 
 ShaderNodeImplPtr SurfaceNodeGlsl::create()
 {
@@ -112,14 +90,15 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
         shadergen.emitLine("vec3 N = normalize(" + prefix + HW::T_NORMAL_WORLD + ")", stage);
         shadergen.emitLine("vec3 V = normalize(" + HW::T_VIEW_POSITION + " - " + prefix + HW::T_POSITION_WORLD + ")", stage);
         shadergen.emitLine("vec3 P = " + prefix + HW::T_POSITION_WORLD, stage);
+        shadergen.emitLine("vec3 L = vec3(0,0,0);", stage);
+        shadergen.emitLine("float occlusion = 1.0", stage);
         shadergen.emitLineBreak(stage);
 
         const string outColor = output->getVariable() + ".color";
         const string outTransparency = output->getVariable() + ".transparency";
 
         const ShaderInput* bsdfInput = node.getInput("bsdf");
-        const ShaderNode* bsdf = bsdfInput->getConnectedSibling();
-        if (bsdf)
+        if (const ShaderNode* bsdf = bsdfInput->getConnectedSibling())
         {
             shadergen.emitLineBegin(stage);
             shadergen.emitString("float surfaceOpacity = ", stage);
@@ -136,11 +115,7 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
                 shadergen.emitLine("vec3 shadowCoord = (" + HW::T_SHADOW_MATRIX + " * vec4(" + prefix + HW::T_POSITION_WORLD + ", 1.0)).xyz", stage);
                 shadergen.emitLine("shadowCoord = shadowCoord * 0.5 + 0.5", stage);
                 shadergen.emitLine("vec2 shadowMoments = texture(" + HW::T_SHADOW_MAP + ", shadowCoord.xy).xy", stage);
-                shadergen.emitLine("float occlusion = mx_variance_shadow_occlusion(shadowMoments, shadowCoord.z)", stage);
-            }
-            else
-            {
-                shadergen.emitLine("float occlusion = 1.0", stage);
+                shadergen.emitLine("occlusion = mx_variance_shadow_occlusion(shadowMoments, shadowCoord.z)", stage);
             }
             shadergen.emitLineBreak(stage);
 
@@ -165,9 +140,17 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
             shadergen.emitComment("Add environment contribution", stage);
             shadergen.emitScopeBegin(stage);
 
-            context.pushClosureContext(&_callIndirect);
-            shadergen.emitFunctionCall(*bsdf, context, stage);
-            context.popClosureContext();
+            // indirect lighting
+            if (bsdf->hasClassification(ShaderNode::Classification::BSDF_R)) {
+                shadergen.emitLine("ClosureData closureData = ClosureData(CLOSURE_TYPE_INDIRECT, L, V, N, P, occlusion)", stage);
+                shadergen.emitFunctionCall(*bsdf, context, stage);
+            }
+            else
+            {
+                shadergen.emitLineBegin(stage);
+                shadergen.emitOutput(bsdf->getOutput(), true, true, context, stage);
+                shadergen.emitLineEnd(stage);
+            }
 
             shadergen.emitLineBreak(stage);
             shadergen.emitLine(outColor + " += occlusion * " + bsdf->getOutput()->getVariable() + ".response", stage);
@@ -179,15 +162,21 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
         // Handle surface emission.
         //
         const ShaderInput* edfInput = node.getInput("edf");
-        const ShaderNode* edf = edfInput->getConnectedSibling();
-        if (edf)
+        if (const ShaderNode* edf = edfInput->getConnectedSibling())
         {
             shadergen.emitComment("Add surface emission", stage);
             shadergen.emitScopeBegin(stage);
 
-            context.pushClosureContext(&_callEmission);
-            shadergen.emitFunctionCall(*edf, context, stage);
-            context.popClosureContext();
+            if (edf->hasClassification(ShaderNode::Classification::EDF)) {
+                shadergen.emitLine("ClosureData closureData = ClosureData(CLOSURE_TYPE_EMISSION, L, V, N, P, occlusion)", stage);
+                shadergen.emitFunctionCall(*edf, context, stage);
+            }
+            else
+            {
+                shadergen.emitLineBegin(stage);
+                shadergen.emitOutput(edf->getOutput(), true, true, context, stage);
+                shadergen.emitLineEnd(stage);
+            }
 
             shadergen.emitLine(outColor + " += " + edf->getOutput()->getVariable(), stage);
             shadergen.emitScopeEnd(stage);
@@ -197,12 +186,20 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
         //
         // Handle surface transmission and opacity.
         //
-        if (bsdf)
+        if (const ShaderNode* bsdf = bsdfInput->getConnectedSibling())
         {
             shadergen.emitComment("Calculate the BSDF transmission for viewing direction", stage);
-            shadergen.emitScopeBegin(stage);
-            context.pushClosureContext(&_callTransmission);
-            shadergen.emitFunctionCall(*bsdf, context, stage);
+            if (bsdf->hasClassification(ShaderNode::Classification::BSDF_T) || bsdf->hasClassification(ShaderNode::Classification::VDF)) {
+                shadergen.emitLine("ClosureData closureData = ClosureData(CLOSURE_TYPE_TRANSMISSION, L, V, N, P, occlusion)", stage);
+                shadergen.emitFunctionCall(*bsdf, context, stage);
+            }
+            else
+            {
+                shadergen.emitLineBegin(stage);
+                shadergen.emitOutput(bsdf->getOutput(), true, true, context, stage);
+                shadergen.emitLineEnd(stage);
+            }
+
             if (context.getOptions().hwTransmissionRenderMethod == TRANSMISSION_REFRACTION)
             {
                 shadergen.emitLine(outColor + " += " + bsdf->getOutput()->getVariable() + ".response", stage);
@@ -211,8 +208,6 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
             {
                 shadergen.emitLine(outTransparency + " += " + bsdf->getOutput()->getVariable() + ".response", stage);
             }
-            shadergen.emitScopeEnd(stage);
-            context.popClosureContext();
 
             shadergen.emitLineBreak(stage);
             shadergen.emitComment("Compute and apply surface opacity", stage);
@@ -249,13 +244,20 @@ void SurfaceNodeGlsl::emitLightLoop(const ShaderNode& node, GenContext& context,
         shadergen.emitScopeBegin(stage);
 
         shadergen.emitLine("sampleLightSource(" + HW::T_LIGHT_DATA_INSTANCE + "[activeLightIndex], " + prefix + HW::T_POSITION_WORLD + ", lightShader)", stage);
-        shadergen.emitLine("vec3 L = lightShader.direction", stage);
+        shadergen.emitLine("L = lightShader.direction", stage);
         shadergen.emitLineBreak(stage);
 
         shadergen.emitComment("Calculate the BSDF response for this light source", stage);
-        context.pushClosureContext(&_callReflection);
-        shadergen.emitFunctionCall(*bsdf, context, stage);
-        context.popClosureContext();
+        if (bsdf->hasClassification(ShaderNode::Classification::BSDF_R)) {
+            shadergen.emitLine("ClosureData closureData = ClosureData(CLOSURE_TYPE_REFLECTION, L, V, N, P, occlusion)", stage);
+            shadergen.emitFunctionCall(*bsdf, context, stage);
+        }
+        else
+        {
+            shadergen.emitLineBegin(stage);
+            shadergen.emitOutput(bsdf->getOutput(), true, true, context, stage);
+            shadergen.emitLineEnd(stage);
+        }
 
         shadergen.emitLineBreak(stage);
 

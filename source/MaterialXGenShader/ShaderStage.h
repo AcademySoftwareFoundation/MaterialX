@@ -138,7 +138,7 @@ class MX_GENSHADER_API VariableBlock
 class MX_GENSHADER_API ShaderStage
 {
   public:
-    using FunctionCallId = std::pair<const ShaderNode*, int>;
+    using FunctionCallId = const ShaderNode*;
     struct Scope
     {
         Syntax::Punctuation punctuation;

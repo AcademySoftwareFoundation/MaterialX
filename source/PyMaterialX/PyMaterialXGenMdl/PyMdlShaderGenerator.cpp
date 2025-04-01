@@ -11,10 +11,18 @@
 namespace py = pybind11;
 namespace mx = MaterialX;
 
+namespace
+{
+    // Creator wrapper to avoid having to expose the TypeSystem class in python
+    mx::ShaderGeneratorPtr MdlShaderGenerator_create()
+    {
+        return mx::MdlShaderGenerator::create();
+    }
+}
+
 void bindPyMdlShaderGenerator(py::module& mod)
 {
     py::class_<mx::MdlShaderGenerator, mx::ShaderGenerator, mx::MdlShaderGeneratorPtr>(mod, "MdlShaderGenerator")
-        .def_static("create", &mx::MdlShaderGenerator::create)
-        .def(py::init<>())
+        .def_static("create", &MdlShaderGenerator_create)
         .def("getTarget", &mx::MdlShaderGenerator::getTarget);
 }
