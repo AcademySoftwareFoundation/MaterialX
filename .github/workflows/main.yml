@@ -172,6 +172,11 @@ jobs:
       if: matrix.python != 'None'
       run: pip install setuptools
 
+    - name: Install CMake
+      uses: lukka/get-cmake@28983e0d3955dba2bb0a6810caae0c6cf268ec0c # v4.0.0
+      with:
+        cmakeVersion: 3.26
+
     - name: Run Clang Format
       if: matrix.clang_format == 'ON'
       run: find source \( -name *.h -o -name *.cpp -o -name *.mm -o -name *.inl \) ! -path "*/External/*" ! -path "*/NanoGUI/*" | xargs clang-format -i --verbose
@@ -337,7 +342,7 @@ jobs:
 
     - name: Deploy Web Viewer
       if: github.event_name != 'pull_request'
-      uses: JamesIves/github-pages-deploy-action@v4.7.3
+      uses: JamesIves/github-pages-deploy-action@6c2d9db40f9296374acc17b90404b6e8864128c8 # v4.7.3
       with:
         branch: gh-pages
         folder: javascript/MaterialXView/dist
