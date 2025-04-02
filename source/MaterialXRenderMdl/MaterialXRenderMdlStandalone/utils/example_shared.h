@@ -39,6 +39,7 @@
 #include <string>
 #include <tuple>
 #include <vector>
+#include <cassert>
 
 #include <mi/mdl_sdk.h>
 #include "io.h"
@@ -46,79 +47,6 @@
 #include "os.h"
 #include "strings.h"
 #include "log.h"
-
-
-/// called to abort the execution of an example in case of failure.
-/// \param  file        current file determined using the `__FILE__` macro
-/// \param  line        current line in file determined using the `__LINE__` macro
-/// \param  message     description of the error that caused the failure
-inline void exit_failure_(
-    const char* file, int line,
-    std::string message)
-{
-    // print message
-    if (message.empty())
-        fprintf(stderr, "Fatal error in file: %s line: %d\n\nClosing the example.\n", file, line);
-    else
-        fprintf(stderr, "Fatal error in file: %s line: %d\n  %s\n\nClosing the example.\n", 
-            file, line, message.c_str());
-
-    // kill the application
-    exit(EXIT_FAILURE);
-}
-
-/// called to abort the execution of an example in case of failure.
-/// \param  file        current file determined using the `__FILE__` macro
-/// \param  line        current line in file determined using the `__LINE__` macro
-inline void exit_failure_(const char* file, int line)
-{
-    exit_failure_(file, line, "");
-}
-#define exit_failure(...) \
-    exit_failure_(__FILE__, __LINE__, mi::examples::strings::format(__VA_ARGS__))
-
-
-// ------------------------------------------------------------------------------------------------
-
-/// called to end execution of an example in case of success.
-/// use like this: 'return exit_success()'
-inline void exit_success_()
-{
-    exit(EXIT_SUCCESS);
-}
-
-#define exit_success() exit_success_(); return EXIT_SUCCESS; // no warning about missing return
-
-// ------------------------------------------------------------------------------------------------
-
-// Helper macro. Checks whether the expression is true and if not prints a message and exits.
-#define check_success( expr) \
-    do { \
-        if( !(expr)) \
-            exit_failure( "%s", #expr); \
-    } while( false)
-
-/// Prints a message.
-inline void print_message(
-    mi::base::details::Message_severity severity,
-    mi::neuraylib::IMessage::Kind kind,
-    const char* msg)
-{
-    std::string s_kind = mi::examples::strings::to_string(kind);
-    std::string s_severity = mi::examples::strings::to_string(severity);
-    fprintf(stderr, "%s: %s %s\n", s_severity.c_str(), s_kind.c_str(), msg);
-}
-
-/// Prints the messages of the given context.
-/// Returns true, if the context does not contain any error messages, false otherwise.
-inline bool print_messages(mi::neuraylib::IMdl_execution_context* context)
-{
-    for (mi::Size i = 0, n = context->get_messages_count(); i < n; ++i) {
-        mi::base::Handle<const mi::neuraylib::IMessage> message(context->get_message(i));
-        print_message(message->get_severity(), message->get_kind(), message->get_string());
-    }
-    return context->get_error_messages_count() == 0;
-}
 
 // ------------------------------------------------------------------------------------------------
 
@@ -132,10 +60,20 @@ inline bool print_messages(mi::neuraylib::IMdl_execution_context* context)
             for (int i = 0; i < argc; i++) { \
                 LPWSTR warg = argv[i]; \
                 DWORD size = WideCharToMultiByte(CP_UTF8, 0, warg, -1, NULL, 0, NULL, NULL); \
-                check_success(size > 0); \
+                assert(size > 0); \
+                if (size == 0)                                                                            \
+                {                                                                                         \
+                    fprintf(stderr, "Failed to convert command line argument %d to UTF-8.\n", i);         \
+                    return -1;                                                                            \
+                } \
                 argv_utf8[i] = new char[size]; \
                 DWORD result = WideCharToMultiByte(CP_UTF8, 0, warg, -1, argv_utf8[i], size, NULL, NULL); \
-                check_success(result > 0); \
+                assert(result > 0); \
+                if (result == 0)                                                                          \
+                {                                                                                         \
+                    fprintf(stderr, "Failed to convert command line argument %d to UTF-8.\n", i);         \
+                    return -1;                                                                            \
+                } \
             } \
             SetConsoleOutputCP(CP_UTF8); \
             int result = main_utf8(argc, argv_utf8); \

@@ -76,7 +76,7 @@ public:
         }
     }
 
-    std::string resolve(const std::string& str, const std::string& type) const override
+    std::string resolve(const std::string& str, const std::string& /*type*/) const override
     {
         mx::FilePath normalizedPath = mx::FilePath(str).getNormalized();
         std::string resource_path;
@@ -249,7 +249,7 @@ bool MdlGenerator::Generate(mi::neuraylib::IMdl_configuration* mdl_configuration
     }
     catch (std::exception& e)
     {
-        mi::examples::log::error("[MtlX2Mdl] Failed to initialize standard libraries:", e);
+        mi::examples::log::exception("[MtlX2Mdl] Failed to initialize standard libraries:", e);
     }
 
     // Initialize unit management.

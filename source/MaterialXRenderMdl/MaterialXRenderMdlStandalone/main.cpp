@@ -34,6 +34,7 @@
 #include "utils/example_shared.h"
 #include "utils/vulkan_base_application.h"
 
+#include <cassert>
 #include <chrono>
 #include <numeric>
 #define _USE_MATH_DEFINES
@@ -106,7 +107,8 @@ using Vulkan_buffer = mi::examples::vk::Vulkan_buffer;
 //------------------------------------------------------------------------------
 
 // Creates the image and image view for the given texture index.
-Vulkan_texture create_material_texture(
+bool create_material_texture(
+    Vulkan_texture& out_material_texture,
     VkDevice device,
     VkPhysicalDevice physical_device,
     VkQueue queue,
@@ -129,8 +131,8 @@ Vulkan_texture create_material_texture(
 
     if (image->is_uvtile() || image->is_animated())
     {
-        std::cerr << "The example does not support uvtile and/or animated textures!" << std::endl;
-        terminate();
+        mi::examples::log::error("The example does not support uvtile and/or animated textures!");
+        return false;
     }
 
     // For simplicity, the texture access functions are only implemented for float4 and gamma
@@ -186,18 +188,21 @@ Vulkan_texture create_material_texture(
     }
     else
     {
-        std::cerr << "Unsupported texture shape!" << std::endl;
-        terminate();
+        mi::examples::log::error("Unsupported texture shape!");
+        return false;
     }
 
-    Vulkan_texture material_texture;
-
-    VK_CHECK(vkCreateImage(device, &image_create_info, nullptr,
-        &material_texture.image));
+    if (!VK_CHECK(vkCreateImage(device, &image_create_info, nullptr, &out_material_texture.image)))
+    {
+        return false;
+    }
 
     // Allocate device memory for the texture.
-    material_texture.device_memory = mi::examples::vk::allocate_and_bind_image_memory(
-        device, physical_device, material_texture.image, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+    if (!mi::examples::vk::allocate_and_bind_image_memory(
+        out_material_texture.device_memory, device, physical_device, out_material_texture.image, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT))
+    {
+        return false;
+    }
 
     {
         size_t layer_size = tex_width * tex_height * sizeof(float) * 4; // RGBA32F
@@ -220,7 +225,7 @@ Vulkan_texture create_material_texture(
         command_buffer.begin();
 
         mi::examples::vk::transitionImageLayout(command_buffer.get(),
-            /*image=*/           material_texture.image,
+            /*image=*/           out_material_texture.image,
             /*src_access_mask=*/ 0,
             /*dst_access_mask=*/ VK_ACCESS_TRANSFER_WRITE_BIT,
             /*old_layout=*/      VK_IMAGE_LAYOUT_UNDEFINED,
@@ -240,11 +245,11 @@ Vulkan_texture create_material_texture(
         copy_region.imageExtent = { tex_width, tex_height, tex_layers };
 
         vkCmdCopyBufferToImage(command_buffer.get(), staging_buffer.get(),
-            material_texture.image,
+            out_material_texture.image,
             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy_region);
 
         mi::examples::vk::transitionImageLayout(command_buffer.get(),
-            /*image=*/           material_texture.image,
+            /*image=*/           out_material_texture.image,
             /*src_access_mask=*/ VK_ACCESS_TRANSFER_WRITE_BIT,
             /*dst_access_mask=*/ VK_ACCESS_SHADER_READ_BIT,
             /*old_layout=*/      VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
@@ -258,7 +263,7 @@ Vulkan_texture create_material_texture(
     // Create the image view
     VkImageViewCreateInfo image_view_create_info = {};
     image_view_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-    image_view_create_info.image = material_texture.image;
+    image_view_create_info.image = out_material_texture.image;
     image_view_create_info.viewType = (image_create_info.imageType == VK_IMAGE_TYPE_2D)
         ? VK_IMAGE_VIEW_TYPE_2D : VK_IMAGE_VIEW_TYPE_3D;
     image_view_create_info.format = VK_FORMAT_R32G32B32A32_SFLOAT;
@@ -268,10 +273,7 @@ Vulkan_texture create_material_texture(
     image_view_create_info.subresourceRange.baseArrayLayer = 0;
     image_view_create_info.subresourceRange.layerCount = 1;
 
-    VK_CHECK(vkCreateImageView(
-        device, &image_view_create_info, nullptr, &material_texture.image_view));
-
-    return material_texture;
+    return VK_CHECK(vkCreateImageView(device, &image_view_create_info, nullptr, &out_material_texture.image_view));
 }
 
 
@@ -296,23 +298,23 @@ public:
     {
     }
 
-    virtual void init_resources() override;
-    virtual void cleanup_resources() override;
+    bool init_resources() final;
+    void cleanup_resources() final;
 
     // All frame buffer size dependent resources need to be recreated
     // when the swapchain is recreated due to not being optimal anymore
     // or because the window was resized.
-    virtual void recreate_size_dependent_resources() override;
+    bool recreate_size_dependent_resources() final;
 
     // Updates the application logic. This is called right before the
     // next frame is rendered.
-    virtual void update(float elapsed_seconds, uint32_t frame_index) override;
+    void update(float elapsed_seconds, uint32_t frame_index) final;
 
     // Populates the current frame's command buffer. The base application's
     // render pass has already been started at this point.
-    virtual void render(VkCommandBuffer command_buffer, uint32_t frame_index, uint32_t image_index) override;
+    void render(VkCommandBuffer command_buffer, uint32_t frame_index, uint32_t image_index) final;
 
-    virtual void resized_callback(uint32_t width, uint32_t height) override;
+    void resized_callback(uint32_t width, uint32_t height) final;
 
 private:
     struct Camera_state
@@ -356,31 +358,31 @@ private:
 
     void update_camera_render_params(const Camera_state& cam_state);
 
-    void create_accumulation_image();
+    bool create_accumulation_image();
 
     // Creates the rendering shader module. The generated GLSL target code,
     // GLSL MDL renderer runtime implementation, and renderer code are compiled
     // and linked together here.
-    VkShaderModule create_path_trace_shader_module();
+    bool create_path_trace_shader_module(VkShaderModule& out_shader_module);
 
     // Creates the descriptors set layout which is used to create the
     // pipeline layout. Here the number of material resources is declared.
-    void create_descriptor_set_layouts();
+    bool create_descriptor_set_layouts();
 
     // Create the pipeline layout and state for rendering a full screen triangle.
-    void create_pipeline_layouts();
-    void create_pipelines();
+    bool create_pipeline_layouts();
+    bool create_pipelines();
 
-    void create_render_params_buffers();
+    bool create_render_params_buffers();
 
-    void create_environment_map();
+    bool create_environment_map();
 
     // Creates the descriptor pool and set that hold enough space for all
     // material resources, and are used during rendering to access the
     // the resources.
-    void create_descriptor_pool_and_sets();
+    bool create_descriptor_pool_and_sets();
 
-    void create_query_pool();
+    bool create_query_pool();
 
     void update_accumulation_image_descriptors();
 
@@ -431,11 +433,12 @@ private:
     bool m_camera_moving = false;
 };
 
-void Df_vulkan_app::init_resources()
+bool Df_vulkan_app::init_resources()
 {
     glslang::InitializeProcess();
 
-    m_linear_sampler = mi::examples::vk::create_linear_sampler(m_device);
+    if (!mi::examples::vk::create_linear_sampler(m_linear_sampler, m_device))
+        return false;
 
     // Create the render resources for the material
     //
@@ -445,15 +448,17 @@ void Df_vulkan_app::init_resources()
     {
         if (num_segments > 1)
         {
-            std::cerr << "Multiple data segments are defined for read-only data."
-                << " This should not be the case if a read-only segment or SSBO is used.\n";
-            terminate();
+            mi::examples::log::error(
+                "Multiple data segments are defined for read-only data."
+                " This should not be the case if a read-only segment or SSBO is used.");
+            return false;
         }
 
-        m_ro_data_buffer = mi::examples::vk::create_storage_buffer(
-            m_device, m_physical_device, m_graphics_queue, m_command_pool,
-            m_target_code->get_ro_data_segment_data(0),
-            m_target_code->get_ro_data_segment_size(0));
+        if (!mi::examples::vk::create_storage_buffer(m_ro_data_buffer,
+                m_device, m_physical_device, m_graphics_queue, m_command_pool,
+                m_target_code->get_ro_data_segment_data(0),
+                m_target_code->get_ro_data_segment_size(0)))
+            return false;
     }
 
     // Record the indices of each texture in their respective array
@@ -468,9 +473,13 @@ void Df_vulkan_app::init_resources()
 
         for (mi::Size i = 1; i < m_target_code->get_texture_count(); i++)
         {
-            Vulkan_texture texture = create_material_texture(
-                m_device, m_physical_device, m_graphics_queue, m_command_pool,
-                m_transaction.get(), m_image_api.get(), m_target_code.get(), i);
+            Vulkan_texture texture;
+            if (!create_material_texture(
+                texture, m_device, m_physical_device, m_graphics_queue, m_command_pool,
+                m_transaction.get(), m_image_api.get(), m_target_code.get(), i))
+            {
+                return false;
+            }
 
             switch (m_target_code->get_texture_shape(i))
             {
@@ -484,21 +493,28 @@ void Df_vulkan_app::init_resources()
                 m_material_textures_3d.push_back(texture);
                 break;
             default:
-                std::cerr << "Unsupported texture shape!" << std::endl;
-                terminate();
-                break;
+                mi::examples::log::error("Unsupported texture shape!");
+                return false;
             }
         }
     }
 
-    create_descriptor_set_layouts();
-    create_pipeline_layouts();
-    create_accumulation_image();
-    create_pipelines();
-    create_render_params_buffers();
-    create_environment_map();
-    create_descriptor_pool_and_sets();
-    create_query_pool();
+    if (!create_descriptor_set_layouts())
+        return false;
+    if (!create_pipeline_layouts())
+        return false;
+    if (!create_accumulation_image())
+        return false;
+    if (!create_pipelines())
+        return false;
+    if (!create_render_params_buffers())
+        return false;
+    if (!create_environment_map())
+        return false;
+    if (!create_descriptor_pool_and_sets())
+        return false;
+    if (!create_query_pool())
+        return false;
 
     // Initialize render parameters
     m_render_params.progressive_iteration = 0;
@@ -532,6 +548,7 @@ void Df_vulkan_app::init_resources()
     m_camera_state.zoom = 0;
 
     update_camera_render_params(m_camera_state);
+    return true;
 }
 
 void Df_vulkan_app::cleanup_resources()
@@ -571,17 +588,18 @@ void Df_vulkan_app::cleanup_resources()
 // All frame buffer size dependent resources need to be recreated
 // when the swapchain is recreated due to not being optimal anymore
 // or because the window was resized.
-void Df_vulkan_app::recreate_size_dependent_resources()
+bool Df_vulkan_app::recreate_size_dependent_resources()
 {
     vkDestroyPipeline(m_device, m_path_trace_pipeline, nullptr);
     vkDestroyPipeline(m_device, m_display_pipeline, nullptr);
     vkDestroyRenderPass(m_device, m_path_trace_render_pass, nullptr);
     m_accum_image.destroy(m_device);
 
-    create_accumulation_image();
-    create_pipelines();
+    if (!create_accumulation_image() || !create_pipelines())
+        return false;
 
     update_accumulation_image_descriptors();
+    return true;
 }
 
 // Updates the application logic. This is called right before the
@@ -718,7 +736,7 @@ void Df_vulkan_app::update_camera_render_params(const Camera_state& cam_state)
     m_render_params.cam_pos.z = -m_render_params.cam_dir.z * dist;
 }
 
-void Df_vulkan_app::create_accumulation_image()
+bool Df_vulkan_app::create_accumulation_image()
 {
     VkImageCreateInfo image_create_info = {};
     image_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -735,9 +753,12 @@ void Df_vulkan_app::create_accumulation_image()
         | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
     image_create_info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 
-    VK_CHECK(vkCreateImage(m_device, &image_create_info, nullptr, &m_accum_image.image));
-    m_accum_image.device_memory = mi::examples::vk::allocate_and_bind_image_memory(
-        m_device, m_physical_device, m_accum_image.image, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+    if (!VK_CHECK(vkCreateImage(m_device, &image_create_info, nullptr, &m_accum_image.image)))
+        return false;
+
+    if (!mi::examples::vk::allocate_and_bind_image_memory(m_accum_image.device_memory,
+            m_device, m_physical_device, m_accum_image.image, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT))
+        return false;
 
     { // Transition image layout
         mi::examples::vk::Temporary_command_buffer command_buffer(m_device, m_command_pool);
@@ -766,11 +787,10 @@ void Df_vulkan_app::create_accumulation_image()
     image_view_create_info.subresourceRange.layerCount = 1;
 
     image_view_create_info.image = m_accum_image.image;
-    VK_CHECK(vkCreateImageView(
-        m_device, &image_view_create_info, nullptr, &m_accum_image.image_view));
+    return VK_CHECK(vkCreateImageView(m_device, &image_view_create_info, nullptr, &m_accum_image.image_view));
 }
 
-VkShaderModule Df_vulkan_app::create_path_trace_shader_module()
+bool Df_vulkan_app::create_path_trace_shader_module(VkShaderModule& out_shader_module)
 {
     std::string df_glsl_source = m_target_code->get_code();
 
@@ -822,19 +842,21 @@ VkShaderModule Df_vulkan_app::create_path_trace_shader_module()
     }
 
     auto t0 = std::chrono::steady_clock::now();
-    VkShaderModule shader_module = mi::examples::vk::create_shader_module_from_sources(
-        m_device, { df_glsl_source, path_trace_shader_source }, EShLangCompute,
-        defines, m_options.enable_shader_optimization);
+    if (!mi::examples::vk::create_shader_module_from_sources(out_shader_module,
+        m_device, { df_glsl_source, path_trace_shader_source }, EShLangCompute, defines, m_options.enable_shader_optimization))
+    {
+        return false;
+    }
     auto t1 = std::chrono::steady_clock::now();
     if (!m_path_trace_pipeline) // Print only the first time
         mi::examples::log::info("Compile GLSL to SPIR-V: %.3fs", std::chrono::duration<float>(t1 - t0).count());
 
-    return shader_module;
+    return true;
 }
 
 // Creates the descriptors set layout which is used to create the
 // pipeline layout. Here the number of material resources is declared.
-void Df_vulkan_app::create_descriptor_set_layouts()
+bool Df_vulkan_app::create_descriptor_set_layouts()
 {
     {
         auto make_binding = [](uint32_t binding, VkDescriptorType type, uint32_t count)
@@ -881,8 +903,8 @@ void Df_vulkan_app::create_descriptor_set_layouts()
         descriptor_set_layout_binding_flags.pBindingFlags = binding_flags.data();
         descriptor_set_layout_create_info.pNext = &descriptor_set_layout_binding_flags;
 
-        VK_CHECK(vkCreateDescriptorSetLayout(
-            m_device, &descriptor_set_layout_create_info, nullptr, &m_path_trace_descriptor_set_layout));
+        if (!VK_CHECK(vkCreateDescriptorSetLayout(m_device, &descriptor_set_layout_create_info, nullptr, &m_path_trace_descriptor_set_layout)))
+            return false;
     }
 
     {
@@ -902,12 +924,13 @@ void Df_vulkan_app::create_descriptor_set_layouts()
         descriptor_set_layout_create_info.bindingCount = std::size(layout_bindings);
         descriptor_set_layout_create_info.pBindings = layout_bindings;
 
-        VK_CHECK(vkCreateDescriptorSetLayout(
-            m_device, &descriptor_set_layout_create_info, nullptr, &m_display_descriptor_set_layout));
+        if (!VK_CHECK(vkCreateDescriptorSetLayout(m_device, &descriptor_set_layout_create_info, nullptr, &m_display_descriptor_set_layout)))
+            return false;
     }
+    return true;
 }
 
-void Df_vulkan_app::create_pipeline_layouts()
+bool Df_vulkan_app::create_pipeline_layouts()
 {
     { // Path trace compute pipeline layout
         VkPipelineLayoutCreateInfo pipeline_layout_create_info = {};
@@ -917,8 +940,8 @@ void Df_vulkan_app::create_pipeline_layouts()
         pipeline_layout_create_info.pushConstantRangeCount = 0;
         pipeline_layout_create_info.pPushConstantRanges = nullptr;
 
-        VK_CHECK(vkCreatePipelineLayout(
-            m_device, &pipeline_layout_create_info, nullptr, &m_path_trace_pipeline_layout));
+        if (!VK_CHECK(vkCreatePipelineLayout(m_device, &pipeline_layout_create_info, nullptr, &m_path_trace_pipeline_layout)))
+            return false;
     }
 
     { // Display graphics pipeline layout
@@ -929,15 +952,18 @@ void Df_vulkan_app::create_pipeline_layouts()
         pipeline_layout_create_info.pushConstantRangeCount = 0;
         pipeline_layout_create_info.pPushConstantRanges = nullptr;
 
-        VK_CHECK(vkCreatePipelineLayout(
-            m_device, &pipeline_layout_create_info, nullptr, &m_display_pipeline_layout));
+        if (!VK_CHECK(vkCreatePipelineLayout(m_device, &pipeline_layout_create_info, nullptr, &m_display_pipeline_layout)))
+            return false;
     }
+    return true;
 }
 
-void Df_vulkan_app::create_pipelines()
+bool Df_vulkan_app::create_pipelines()
 {
     { // Create path trace compute pipeline
-        VkShaderModule path_trace_compute_shader = create_path_trace_shader_module();
+        VkShaderModule path_trace_compute_shader;
+        if (!create_path_trace_shader_module(path_trace_compute_shader))
+            return false;
 
         VkPipelineShaderStageCreateInfo compute_shader_stage = {};
         compute_shader_stage.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -957,23 +983,30 @@ void Df_vulkan_app::create_pipelines()
     }
 
     { // Create display graphics pipeline
-        VkShaderModule fullscreen_triangle_vertex_shader
-            = mi::examples::vk::create_shader_module_from_file(
-                m_device, "RenderMdl/display.vert", EShLangVertex, {}, m_options.enable_shader_optimization);
-        VkShaderModule display_fragment_shader
-            = mi::examples::vk::create_shader_module_from_file(
-                m_device, "RenderMdl/display.frag", EShLangFragment, {}, m_options.enable_shader_optimization);
+        VkShaderModule fullscreen_triangle_vertex_shader;
+        if (!mi::examples::vk::create_shader_module_from_file(fullscreen_triangle_vertex_shader,
+            m_device, "RenderMdl/display.vert", EShLangVertex, {}, m_options.enable_shader_optimization))
+        {
+            return false;
+        }
+        VkShaderModule display_fragment_shader;
+        if (!mi::examples::vk::create_shader_module_from_file(display_fragment_shader,
+            m_device, "RenderMdl/display.frag", EShLangFragment, {}, m_options.enable_shader_optimization))
+        {
+            return false;
+        }
 
-        m_display_pipeline = mi::examples::vk::create_fullscreen_triangle_graphics_pipeline(
+        if (!mi::examples::vk::create_fullscreen_triangle_graphics_pipeline(m_display_pipeline,
             m_device, m_display_pipeline_layout, fullscreen_triangle_vertex_shader,
-            display_fragment_shader, m_main_render_pass, 0, m_image_width, m_image_height, false);
+            display_fragment_shader, m_main_render_pass, 0, m_image_width, m_image_height, false)) return false;
 
         vkDestroyShaderModule(m_device, fullscreen_triangle_vertex_shader, nullptr);
         vkDestroyShaderModule(m_device, display_fragment_shader, nullptr);
     }
+    return true;
 }
 
-void Df_vulkan_app::create_render_params_buffers()
+bool Df_vulkan_app::create_render_params_buffers()
 {
     m_render_params_buffers.resize(m_image_count);
 
@@ -985,36 +1018,47 @@ void Df_vulkan_app::create_render_params_buffers()
         create_info.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
         create_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-        VK_CHECK(vkCreateBuffer(
-            m_device, &create_info, nullptr, &m_render_params_buffers[i].buffer));
+        if (!VK_CHECK(vkCreateBuffer(m_device, &create_info, nullptr, &m_render_params_buffers[i].buffer)))
+            return false;
 
-        m_render_params_buffers[i].device_memory = mi::examples::vk::allocate_and_bind_buffer_memory(
+        if (!mi::examples::vk::allocate_and_bind_buffer_memory(
+            m_render_params_buffers[i].device_memory,
             m_device, m_physical_device, m_render_params_buffers[i].buffer,
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT))
+        {
+            return false;
+        }
 
-        VK_CHECK(vkMapMemory(m_device, m_render_params_buffers[i].device_memory,
-            0, sizeof(Render_params), 0, &m_render_params_buffers[i].mapped_data));
+        if (!VK_CHECK(vkMapMemory(m_device, m_render_params_buffers[i].device_memory,
+                                  0, sizeof(Render_params), 0, &m_render_params_buffers[i].mapped_data)))
+        {
+            return false;
+        }
     }
+    return true;
 }
 
-void Df_vulkan_app::create_environment_map()
+bool Df_vulkan_app::create_environment_map()
 {
     std::string path = m_options.hdr_file;
     if (!mi::examples::io::is_absolute_path(m_options.hdr_file))
         path = mi::examples::io::get_executable_folder() + "/" + path;
 
     if (!mi::examples::io::exists(path))
-        exit_failure("Failed to load environment map.");
-
+    {
+        mi::examples::log::error("Failed to load environment map.");
+        return false;
+    }
     // Load environment texture
     m_environment_map.create(m_device, m_physical_device, m_command_pool, m_graphics_queue, m_image_api.get(), m_transaction.get(), path);
     m_render_params.environment_inv_integral = m_environment_map.environment_inv_integral;
+    return true;
 }
 
 // Creates the descriptor pool and set that hold enough space for all
 // material resources, and are used during rendering to access the
 // the resources.
-void Df_vulkan_app::create_descriptor_pool_and_sets()
+bool Df_vulkan_app::create_descriptor_pool_and_sets()
 {
     // Reserve enough space. This is way too much, but sizing them perfectly
     // would make the code less readable.
@@ -1032,8 +1076,8 @@ void Df_vulkan_app::create_descriptor_pool_and_sets()
     descriptor_pool_create_info.pPoolSizes = pool_sizes;
     descriptor_pool_create_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT; // required for imgui
 
-    VK_CHECK(vkCreateDescriptorPool(
-        m_device, &descriptor_pool_create_info, nullptr, &m_descriptor_pool));
+    if (!VK_CHECK(vkCreateDescriptorPool(m_device, &descriptor_pool_create_info, nullptr, &m_descriptor_pool)))
+        return false;
 
     // Allocate descriptor set
     {
@@ -1047,8 +1091,8 @@ void Df_vulkan_app::create_descriptor_pool_and_sets()
         descriptor_set_alloc_info.pSetLayouts = set_layouts.data();
 
         m_path_trace_descriptor_sets.resize(m_image_count);
-        VK_CHECK(vkAllocateDescriptorSets(
-            m_device, &descriptor_set_alloc_info, m_path_trace_descriptor_sets.data()));
+        if (!VK_CHECK(vkAllocateDescriptorSets(m_device, &descriptor_set_alloc_info, m_path_trace_descriptor_sets.data())))
+            return false;
     }
 
     {
@@ -1058,8 +1102,8 @@ void Df_vulkan_app::create_descriptor_pool_and_sets()
         descriptor_set_alloc_info.descriptorSetCount = 1;
         descriptor_set_alloc_info.pSetLayouts = &m_display_descriptor_set_layout;
 
-        VK_CHECK(vkAllocateDescriptorSets(
-            m_device, &descriptor_set_alloc_info, &m_display_descriptor_set));
+        if (!VK_CHECK(vkAllocateDescriptorSets(m_device, &descriptor_set_alloc_info, &m_display_descriptor_set)))
+            return false;
     }
 
     // Populate descriptor sets
@@ -1191,21 +1235,24 @@ void Df_vulkan_app::create_descriptor_pool_and_sets()
         descriptor_writes.data(), 0, nullptr);
 
     update_accumulation_image_descriptors();
+    return true;
 }
 
-void Df_vulkan_app::create_query_pool()
+bool Df_vulkan_app::create_query_pool()
 {
     VkQueryPoolCreateInfo query_pool_create_info = {};
     query_pool_create_info.sType = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO;
     query_pool_create_info.queryType = VK_QUERY_TYPE_TIMESTAMP;
     query_pool_create_info.queryCount = m_image_count * 2;
 
-    VK_CHECK(vkCreateQueryPool(m_device, &query_pool_create_info, nullptr, &m_query_pool));
+    if (!VK_CHECK(vkCreateQueryPool(m_device, &query_pool_create_info, nullptr, &m_query_pool)))
+        return false;
 
     mi::examples::vk::Temporary_command_buffer command_buffer(m_device, m_command_pool);
     command_buffer.begin();
     vkCmdResetQueryPool(command_buffer.get(), m_query_pool, 0, query_pool_create_info.queryCount);
     command_buffer.end_and_submit(m_graphics_queue);
+    return true;
 }
 
 void Df_vulkan_app::update_accumulation_image_descriptors()
@@ -1305,7 +1352,10 @@ mi::neuraylib::IFunction_call* create_material_instance(
     mi::base::Handle<const mi::neuraylib::IModule> module(
         transaction->access<mi::neuraylib::IModule>(module_db_name->get_c_str()));
     if (!module)
-        exit_failure("Failed to access the loaded module.");
+    {
+        mi::examples::log::error("Failed to access the loaded module.");
+        return nullptr;
+    }
 
     // To access the material in the database we need to know the exact material
     // signature, so we append the arguments to the full name (with module).
@@ -1317,15 +1367,20 @@ mi::neuraylib::IFunction_call* create_material_instance(
     mi::base::Handle<const mi::neuraylib::IFunction_definition> material_definition(
         transaction->access<mi::neuraylib::IFunction_definition>(material_db_name.c_str()));
     if (!material_definition)
-        exit_failure("Failed to access material definition '%s'.", material_db_name.c_str());
+    {
+        mi::examples::log::error("Failed to access material definition '%s'.", material_db_name.c_str());
+        return nullptr;
+    }
 
     // Create material instance
     mi::Sint32 result;
     mi::base::Handle<mi::neuraylib::IFunction_call> material_instance(
         material_definition->create_function_call(nullptr, &result));
     if (result != 0)
-        exit_failure("Failed to instantiate material '%s'.", material_db_name.c_str());
-
+    {
+        mi::examples::log::error("Failed to instantiate material '%s'.", material_db_name.c_str());
+        return nullptr;
+    }
     material_instance->retain();
     return material_instance.get();
 }
@@ -1357,7 +1412,8 @@ mi::neuraylib::ICompiled_material* compile_material_instance(
     // compile the material
     mi::base::Handle<mi::neuraylib::ICompiled_material> compiled_material(
         material_instance->create_compiled_material(compile_flags, context));
-    check_success(print_messages(context));
+    mi::examples::log::context_messages(context);
+    assert(context->get_error_messages_count() == 0);
 
     compiled_material->retain();
     return compiled_material.get();
@@ -1374,48 +1430,56 @@ const mi::neuraylib::ITarget_code* generate_glsl_code(
     mi::base::Handle<mi::neuraylib::IMdl_backend> be_glsl(
         mdl_backend_api->get_backend(mi::neuraylib::IMdl_backend_api::MB_GLSL));
 
-    check_success(be_glsl->set_option("glsl_version", "450") == 0);
+    bool success = true;
+    success &= be_glsl->set_option("glsl_version", "450") == 0;
     if (!options.disable_ssbo && !options.enable_ro_segment)
     {
-        check_success(be_glsl->set_option("glsl_place_uniforms_into_ssbo", "on") == 0);
-        check_success(be_glsl->set_option("glsl_uniform_ssbo_binding",
-            std::to_string(g_binding_ro_data_buffer).c_str()) == 0);
-        check_success(be_glsl->set_option("glsl_uniform_ssbo_set",
-            std::to_string(g_set_ro_data_buffer).c_str()) == 0);
-        check_success(be_glsl->set_option("glsl_max_const_data",
-            std::to_string(options.max_const_data).c_str()) == 0);
+        success &= be_glsl->set_option("glsl_place_uniforms_into_ssbo", "on") == 0;
+        success &= be_glsl->set_option("glsl_uniform_ssbo_binding",
+            std::to_string(g_binding_ro_data_buffer).c_str()) == 0;
+        success &= be_glsl->set_option("glsl_uniform_ssbo_set",
+            std::to_string(g_set_ro_data_buffer).c_str()) == 0;
+        success &= be_glsl->set_option("glsl_max_const_data",
+            std::to_string(options.max_const_data).c_str()) == 0;
     }
     if (options.enable_ro_segment)
     {
-        check_success(be_glsl->set_option("enable_ro_segment", "on") == 0);
-        check_success(be_glsl->set_option("max_const_data",
-            std::to_string(options.max_const_data).c_str()) == 0);
+        success &= be_glsl->set_option("enable_ro_segment", "on") == 0;
+        success &= be_glsl->set_option("max_const_data",
+            std::to_string(options.max_const_data).c_str()) == 0;
     }
 
     // The number of texture coordinate sets that can be queried from the state.
     // This corresponds to the maximum number of texture coordinate sets provided
     // by the geometry in the scene.
-    check_success(be_glsl->set_option("num_texture_spaces", "1") == 0);
+    success &= be_glsl->set_option("num_texture_spaces", "1") == 0;
 
     // Material code that is shared among different expressions within the
     // material can be precomputed in the beginning of the material shader execution in `mdl_init`.
     // The results are store in a cache and `num_texture_results` defines the size
     // of this cache as number float4s. Shared results that don't fit into the cache
     // are computed on the fly.
-    check_success(be_glsl->set_option("num_texture_results", "16") == 0);
+    success &= be_glsl->set_option("num_texture_results", "16") == 0;
 
     // For Denoising, the MDL SDK can generate auxiliary functions to compute the
     // input buffers of common denoisers. This includes:
     // - an albedo approximation separated into diffuse and glossy 
     // - shading normal
     // - roughness
-    check_success(be_glsl->set_option("enable_auxiliary", "off") == 0);
+    success &= be_glsl->set_option("enable_auxiliary", "off") == 0;
 
     // For light path expressions (LPEs), the MDL SDK allows to evaluate and sample
     // selected parts of a material for later post render composition.
-    check_success(be_glsl->set_option("df_handle_slot_mode", "none") == 0);
+    success &= be_glsl->set_option("df_handle_slot_mode", "none") == 0;
 
-    check_success(be_glsl->set_option("libbsdf_flags_in_bsdf_data", "off") == 0);
+    success &= be_glsl->set_option("libbsdf_flags_in_bsdf_data", "off") == 0;
+
+    if (!success)
+    {
+        mi::examples::log::error("Failed to set GLSL backend options.");
+        return nullptr;
+    }
+    assert(success);
 
     mi::base::Handle<mi::neuraylib::ILink_unit> link_unit(
         be_glsl->create_link_unit(transaction, context));
@@ -1550,24 +1614,28 @@ const mi::neuraylib::ITarget_code* generate_glsl_code(
 
     link_unit->add_material(
         compiled_material, function_descs.data(), function_descs.size(), context);
-    check_success(print_messages(context));
+    mi::examples::log::context_messages(context);
+    assert(context->get_error_messages_count() == 0);
 
-    // Compile cutout_opacity also as standalone version to be used in the anyhit programs
-    // to avoid costly precalculation of expressions only used by other expressions.
-    // This can be especially useful for anyhit shaders in ray tracing pipelines.
+    // Compile cutout_opacity also as standalone version to be used in the any-hit programs
+    // to avoid costly pre-calculation of expressions only used by other expressions.
+    // This can be especially useful for any-hit shaders in ray tracing pipelines.
     mi::neuraylib::Target_function_description cutout_opacity_function_desc(
         "geometry.cutout_opacity", "mdl_standalone_cutout_opacity");
     link_unit->add_material(
         compiled_material, &cutout_opacity_function_desc, 1, context);
-    check_success(print_messages(context));
+    mi::examples::log::context_messages(context);
+    assert(context->get_error_messages_count() == 0);
 
     // Generate GLSL code
     auto t0 = std::chrono::steady_clock::now();
     mi::base::Handle<const mi::neuraylib::ITarget_code> target_code(
         be_glsl->translate_link_unit(link_unit.get(), context));
     auto t1 = std::chrono::steady_clock::now();
-    check_success(print_messages(context));
-    check_success(target_code);
+    mi::examples::log::context_messages(context);
+    assert(context->get_error_messages_count() == 0);
+    assert(target_code);
+
     mi::examples::log::info("Generate GLSL target code: %.3fs", std::chrono::duration<float>(t1 - t0).count());
 
     target_code->retain();
@@ -1836,7 +1904,10 @@ int MAIN_UTF8(int argc, char* argv[])
     mi::base::Handle<mi::neuraylib::INeuray> neuray(
         mi::examples::mdl::load_and_get_ineuray());
     if (!neuray.is_valid_interface())
-        exit_failure("Failed to load the SDK.");
+    {
+        mi::examples::log::error("Failed to load the SDK.");
+        return -1;
+    }
 
     // install a custom logger to have control over the output
     mi::base::Handle<mi::neuraylib::ILogging_configuration> logging_configuration(
@@ -1860,17 +1931,24 @@ int MAIN_UTF8(int argc, char* argv[])
     // load image plugins for texture loading
     if (mi::examples::mdl::load_plugin(neuray.get(), "nv_openimageio" MI_BASE_DLL_FILE_EXT) != 0)
     {
-        exit_failure("Failed to load the nv_openimageio plugin.");
+        mi::examples::log::error("Failed to load the nv_openimageio plugin.");
+        return -1;
+
     }
     if (mi::examples::mdl::load_plugin(neuray.get(), "dds" MI_BASE_DLL_FILE_EXT) != 0)
     {
-        exit_failure("Failed to load the dds plugin.");
+        mi::examples::log::error("Failed to load the dds plugin.");
+        return -1;
+
     }
 
     // Start the MDL SDK
     mi::Sint32 result = neuray->start();
     if (result != 0)
-        exit_failure("Failed to initialize the SDK. Result code: %d", result);
+    {
+        mi::examples::log::error("Failed to initialize the SDK. Result code: %d", result);
+        return -1;
+    }
 
     {
         // Create a transaction
@@ -1895,9 +1973,6 @@ int MAIN_UTF8(int argc, char* argv[])
         mi::base::Handle<mi::neuraylib::IMdl_execution_context> context(
             mdl_factory->create_execution_context());
 
-        mi::base::Handle<mi::neuraylib::IMdl_configuration> mdl_config(
-            neuray->get_api_component<mi::neuraylib::IMdl_configuration>());
-
         {
             // corresponds to module path within an MDL search pat50
             std::string qualified_module_name;
@@ -1905,7 +1980,7 @@ int MAIN_UTF8(int argc, char* argv[])
             std::string material_simple_name;
 
             // check if the selected material is a MaterialX material
-            if (std::strstr(options.material_name.c_str(), ".mtlx") != nullptr)
+            if (options.material_name.find(".mtlx") != std::string::npos)
             {
                 // Note, this section is all that is needed to add MaterialX support to an MDL-based renderer
                 MdlGenerator gen;
@@ -1923,13 +1998,13 @@ int MAIN_UTF8(int argc, char* argv[])
                     mi::examples::io::drop_url_query(options.material_name),
                     nameIt == query_arguments.end() ? "" : nameIt->second);
 
-                MdlGenerator::Result result;
-                if (gen.Generate(mdl_config.get(), result))
+                MdlGenerator::Result generated;
+                if (gen.Generate(mdl_config.get(), generated))
                 {
                     qualified_module_name = "::app::generated";
-                    material_simple_name = result.generatedMdlName;
+                    material_simple_name = generated.generatedMdlName;
                     if (mdl_impexp_api->load_module_from_string(
-                            transaction.get(), qualified_module_name.c_str(), result.generatedMdlCode.c_str(), context.get()) < 0)
+                            transaction.get(), qualified_module_name.c_str(), generated.generatedMdlCode.c_str(), context.get()) < 0)
                     {
                         mi::examples::log::error("Failed to load the generated MDL code from: " + options.material_name);
                         mi::examples::log::context_messages(context.get());
@@ -1943,7 +2018,7 @@ int MAIN_UTF8(int argc, char* argv[])
                             dump_mdl_path = mi::examples::io::get_working_directory() + "/" + dump_mdl_path;
                         mi::examples::log::info("Dumping generated MDL module to: \"%s\"", dump_mdl_path.c_str());
                         std::ofstream file_stream(dump_mdl_path);
-                        file_stream.write(result.generatedMdlCode.c_str(), result.generatedMdlCode.length());
+                        file_stream.write(generated.generatedMdlCode.c_str(), generated.generatedMdlCode.length());
                         file_stream.close();
                     }
                 }
@@ -1989,6 +2064,8 @@ int MAIN_UTF8(int argc, char* argv[])
             mi::base::Handle<mi::neuraylib::IFunction_call> material_instance(
                 create_material_instance(mdl_factory.get(), transaction.get(),
                     qualified_module_name, material_simple_name));
+            if (!material_instance)
+                return -1;
 
             mi::base::Handle<mi::neuraylib::ICompiled_material> compiled_material(
                 compile_material_instance(mdl_factory.get(), transaction.get(),
@@ -2024,7 +2101,7 @@ int MAIN_UTF8(int argc, char* argv[])
             app_config.flip_texcoord_v = options.materialxtest_mode;
 
             Df_vulkan_app app(transaction, mdl_impexp_api, image_api, target_code, compiled_material,options);
-            app.run(app_config);
+            result = app.run(app_config) ? 0 : -1;
         }
 
         transaction->commit();
@@ -2039,14 +2116,20 @@ int MAIN_UTF8(int argc, char* argv[])
 
     // Shut down the MDL SDK
     if (neuray->shutdown() != 0)
-        exit_failure("Failed to shutdown the SDK.");
+    {
+        std::cerr << "[ERROR]   Failed to shutdown the SDK." << std::endl;
+        return -1;
+    }
 
     // Unload the MDL SDK
     neuray = nullptr;
     if (!mi::examples::mdl::unload())
-        exit_failure("Failed to unload the SDK.");
+    {
+        std::cerr << "[ERROR]   Failed to unload the SDK." << std::endl;
+        return -1;
+    }
 
-    exit_success();
+    return result;
 }
 
 // Convert command line arguments to UTF8 on Windows

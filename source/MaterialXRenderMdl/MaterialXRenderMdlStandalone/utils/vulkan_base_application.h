@@ -41,25 +41,25 @@
 
 #include "example_shared.h"
 
-#define terminate()      \
-    do {                 \
-        glfwTerminate(); \
-        exit_failure();  \
-    } while (0)
 
-#define VK_CHECK(x)                                       \
-    do {                                                  \
-        VkResult err = x;                                 \
-        if (err != VK_SUCCESS) {                          \
-            std::cerr << "Vulkan error "                  \
-                << mi::examples::vk::vkresult_to_str(err) \
-                << " (" << err << ")"                     \
-                << " in file " << __FILE__                \
-                << ", line " << __LINE__ << ".\n";        \
-            terminate();                                  \
-        }                                                 \
-    } while (0)
+namespace mi::examples::vk
+{
+const char* vkresult_to_str(VkResult result);
+const char* vkformat_to_str(VkFormat format);
+} 
 
+inline bool vk_check(VkResult result, const std::string& file, int line)
+{
+    if (result != VK_SUCCESS)
+    {
+        mi::examples::log::error("Vulkan error %s (%d) in file %s, line %d.",
+                                 mi::examples::vk::vkresult_to_str(result), result, file.c_str(), line);
+        return false;
+    }
+    return true;
+}
+
+#define VK_CHECK(x) vk_check(x, __FILE__, __LINE__)
 
 namespace mi::examples::vk
 {
@@ -84,7 +84,7 @@ public:
 
     // Parses the given shader source and adds it to the shader program
     // which can be compiled to SPIR-V by link_program.
-    void add_shader(std::string_view source);
+    bool add_shader(std::string_view source);
 
     // Links all previously added shaders and compiles the linked program to SPIR-V.
     std::vector<unsigned int> link_program(bool optimize = true);
@@ -145,23 +145,23 @@ public:
     }
     virtual ~Vulkan_example_app() = default;
 
-    void run(const Config& config);
+    bool run(const Config& config);
 
 protected:
     // The callback for initializing all rendering related resources. Is called
     // after all resources (device, swapchain, etc.) of this base class are 
     // initialized.
-    virtual void init_resources() {}
+    virtual bool init_resources() = 0;
 
     // The callback for destroying all rendering related resources. Is called
     // before all resources (device, swapchain, etc.) of this base class are 
     // destroyed.
-    virtual void cleanup_resources() {}
+    virtual void cleanup_resources() = 0;
 
     // Render resources are split into framebuffer size dependent
     // and independent resources so that the correct resources are
     // recreated when the framebuffer is resized.
-    virtual void recreate_size_dependent_resources() {}
+    virtual bool recreate_size_dependent_resources() = 0;
 
     // The callback to update the application logic. Is called directly after
     // a new swapchain image is acquired and after waiting for the fence for
@@ -173,19 +173,19 @@ protected:
     virtual void render(VkCommandBuffer command_buffer, uint32_t frame_index, uint32_t image_index) = 0;
 
     // Called when a keyboard key is pressed or released.
-    virtual void key_callback(int /*key*/, int /*action*/, int /*mods*/) {}
+    virtual void key_callback(int /*key*/, int /*action*/, int /*mods*/) { /* optional */ }
 
     // Called when a mouse button is pressed or released.
-    virtual void mouse_button_callback(int /*button*/, int /*action*/) {}
+    virtual void mouse_button_callback(int /*button*/, int /*action*/) { /* optional */ }
 
     // Called when the mouse moves.
-    virtual void mouse_move_callback(float /*pos_x*/, float /*pos_y*/) {}
+    virtual void mouse_move_callback(float /*pos_x*/, float /*pos_y*/) { /* optional */ }
 
     // Called when the scrolling event occurs (e.g. mouse wheel or touch pad).
-    virtual void mouse_scroll_callback(float /*offset_x*/, float /*offset_y*/) {}
+    virtual void mouse_scroll_callback(float /*offset_x*/, float /*offset_y*/) { /* optional */ }
 
     // Called when the window is resized.
-    virtual void resized_callback(uint32_t /*width*/, uint32_t /*height*/) {}
+    virtual void resized_callback(uint32_t /*width*/, uint32_t /*height*/) { /* optional */ }
 
     // Request to save a screenshot the next frame.
     void request_screenshot() { m_screenshot_requested = true; }
@@ -242,26 +242,26 @@ protected:
     VkRenderPass m_main_render_pass = nullptr;
 
 private:
-    void init(const Config& config);
+    bool init(const Config& config);
     void cleanup();
 
-    void init_window();
-    void init_instance(
+    bool init_window();
+    bool init_instance(
         const std::vector<const char*>& instance_extensions,
         const std::vector<const char*>& validation_layers);
-    void pick_physical_device(const std::vector<const char*>& device_extensions);
-    void init_device(
+    bool pick_physical_device(const std::vector<const char*>& device_extensions);
+    bool init_device(
         const std::vector<const char*>& device_extensions,
         const std::vector<const char*>& validation_layers);
-    void init_swapchain_for_window();
-    void init_swapchain_for_headless();
-    void init_depth_stencil_buffer();
-    void init_render_pass();
-    void init_framebuffers();
-    void init_command_pool_and_buffers();
-    void init_synchronization_objects();
+    bool init_swapchain_for_window();
+    bool init_swapchain_for_headless();
+    bool init_depth_stencil_buffer();
+    bool init_render_pass();
+    bool init_framebuffers();
+    bool init_command_pool_and_buffers();
+    bool init_synchronization_objects();
 
-    void recreate_swapchain_or_framebuffer_image();
+    bool recreate_swapchain_or_framebuffer_image();
 
     void render_loop_iteration(uint32_t frame_index, uint32_t image_index, double& last_frame_time);
 
@@ -324,9 +324,9 @@ struct Vulkan_buffer
 
 struct Vulkan_environment_map
 {
-    void create(
+    bool create(
         VkDevice device, VkPhysicalDevice physical_device, VkCommandPool command_pool, VkQueue graphics_queue, 
-        mi::neuraylib::IImage_api* image_api, mi::neuraylib::ITransaction* transaction,
+        const mi::neuraylib::IImage_api* image_api, mi::neuraylib::ITransaction* transaction,
         const std::string& filePath);
 
     void destroy(VkDevice device)
@@ -392,21 +392,25 @@ bool check_validation_layers_support(
 
 
 // Shader compilation helpers
-VkShaderModule create_shader_module_from_file(
+bool create_shader_module_from_file(
+    VkShaderModule& out_shader_module,
     VkDevice device, const char* shader_filename, EShLanguage shader_type,
     const std::vector<std::string>& defines = {}, bool optimize = true);
 
-VkShaderModule create_shader_module_from_sources(
-    VkDevice device, const std::vector<std::string_view> shader_sources, EShLanguage shader_type,
+bool create_shader_module_from_sources(
+    VkShaderModule& out_shader_module,
+    VkDevice device, const std::vector<std::string_view>& shader_sources, EShLanguage shader_type,
     const std::vector<std::string>& defines = {}, bool optimize = true);
 
 
 // Memory allocation helpers
-VkDeviceMemory allocate_and_bind_buffer_memory(
+bool allocate_and_bind_buffer_memory(
+    VkDeviceMemory& out_device_memory,
     VkDevice device, VkPhysicalDevice physical_device, VkBuffer buffer,
     VkMemoryPropertyFlags memory_property_flags);
 
-VkDeviceMemory allocate_and_bind_image_memory(
+bool allocate_and_bind_image_memory(
+    VkDeviceMemory& out_device_memory,
     VkDevice device, VkPhysicalDevice physical_device, VkImage image,
     VkMemoryPropertyFlags memory_property_flags);
 
@@ -428,20 +432,23 @@ bool has_stencil_component(VkFormat format);
 uint32_t get_image_format_bpp(VkFormat format);
 
 // Initialization helpers
-VkPipeline create_fullscreen_triangle_graphics_pipeline(
+bool create_fullscreen_triangle_graphics_pipeline(
+    VkPipeline& out_graphics_pipeline,
     VkDevice device, VkPipelineLayout pipeline_layout,
     VkShaderModule vertex_shader, VkShaderModule fragment_shader,
     VkRenderPass render_pass, uint32_t subpass,
     uint32_t image_width, uint32_t image_height, bool cull_ccw);
 
-VkRenderPass create_simple_color_only_render_pass(
+bool create_simple_color_only_render_pass(
+    VkRenderPass& out_render_pass,
     VkDevice device, VkFormat image_format, VkImageLayout final_layout);
 
-VkRenderPass create_simple_render_pass(
+bool create_simple_render_pass(
+    VkRenderPass& out_render_pass,
     VkDevice device, VkFormat image_format,
     VkFormat depth_stencil_format, VkImageLayout final_layout);
 
-VkSampler create_linear_sampler(VkDevice device);
+bool create_linear_sampler(VkSampler& out_sampler, VkDevice device);
 
 
 // Misc helpers
@@ -458,13 +465,9 @@ std::vector<uint8_t> copy_image_to_buffer(
     VkImage image, uint32_t image_width, uint32_t image_height, uint32_t image_bpp,
     VkImageLayout image_layout, bool flip);
 
-const char* vkresult_to_str(VkResult result);
 
-// Convert some of the common formats to string.
-const char* vkformat_to_str(VkFormat format);
-
-
-Vulkan_buffer create_storage_buffer(
+bool create_storage_buffer(
+    Vulkan_buffer& out_storage_buffer,
     VkDevice device,
     VkPhysicalDevice physical_device,
     VkQueue queue,
