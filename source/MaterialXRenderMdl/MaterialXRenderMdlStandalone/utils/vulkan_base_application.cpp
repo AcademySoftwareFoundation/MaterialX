@@ -107,7 +107,7 @@ void Glsl_compiler::add_defines(const std::vector<std::string>& defines)
 
 // Parses the given shader source and adds it to the shader program
 // which can be compiled to SPIR-V by link_program.
-void Glsl_compiler::add_shader(std::string_view source)
+bool Glsl_compiler::add_shader(std::string_view source)
 {
     std::unique_ptr<glslang::TShader>& shader =
         m_shaders.emplace_back(std::make_unique<glslang::TShader>(m_shader_type));
@@ -136,12 +136,10 @@ void Glsl_compiler::add_shader(std::string_view source)
 
     if (!success)
     {
-        std::cerr << "Compilation for shader "
-            << (m_shaders.size() - 1) << " failed:\n"
-            << shader->getInfoLog()
-            << shader->getInfoDebugLog();
-        terminate();
+        mi::examples::log::error("Compilation for shader %d failed: %s %s", (m_shaders.size() - 1), shader->getInfoLog(), shader->getInfoDebugLog());
+        return false;
     }
+    return true;
 }
 
 // Links all previously added shaders and compiles the linked program to SPIR-V.
@@ -151,15 +149,13 @@ std::vector<unsigned int> Glsl_compiler::link_program(bool optimize)
     for (std::unique_ptr<glslang::TShader>& shader : m_shaders)
         program.addShader(shader.get());
 
+    std::vector<unsigned int> spirv;
     if (!program.link(s_messages))
     {
-        std::cerr << "Shader program linking failed:\n"
-            << program.getInfoLog()
-            << program.getInfoDebugLog();
-        terminate();
+        mi::examples::log::error("Shader program linking failed:\n, %s %s", program.getInfoLog(), program.getInfoDebugLog());
+        return spirv;
     }
 
-    std::vector<unsigned int> spirv;
     glslang::GlslangToSpv(*program.getIntermediate(m_shader_type), spirv);
 
     if (optimize)
@@ -185,7 +181,7 @@ glslang::TShader::Includer::IncludeResult* Glsl_compiler::Simple_file_includer::
 }
 
 glslang::TShader::Includer::IncludeResult* Glsl_compiler::Simple_file_includer::includeLocal(
-    const char* header_name, const char* includer_name, size_t inclusion_depth)
+    const char* header_name, const char* /*includer_name*/, size_t /*inclusion_depth*/)
 {
     std::string filename(header_name);
 
@@ -200,8 +196,8 @@ glslang::TShader::Includer::IncludeResult* Glsl_compiler::Simple_file_includer::
     std::ifstream file_stream(filename, std::ios_base::binary | std::ios_base::ate);
     if (!file_stream.is_open())
     {
-        std::cerr << "Shader include file \"" << filename <<  "\" not found.";
-        terminate();
+        mi::examples::log::error("Shader include file '%s' not found.", filename.c_str());
+        return nullptr;
     }
 
     size_t length = file_stream.tellg();
@@ -221,9 +217,10 @@ void Glsl_compiler::Simple_file_includer::releaseInclude(IncludeResult* include_
 }
 
 
-void Vulkan_example_app::run(const Config& config)
+bool Vulkan_example_app::run(const Config& config)
 {
-    init(config);
+    if (!init(config))
+        return false;
 
     double last_frame_time = glfwGetTime();
 
@@ -236,10 +233,10 @@ void Vulkan_example_app::run(const Config& config)
             glfwPollEvents();
 
             // Wait for the GPU to finish the current command buffer
-            VK_CHECK(vkWaitForFences(
-                m_device, 1, &m_frame_inflight_fences[frame_index], true, UINT64_MAX));
-            VK_CHECK(vkResetFences(
-                m_device, 1, &m_frame_inflight_fences[frame_index]));
+            if (!VK_CHECK(vkWaitForFences(m_device, 1, &m_frame_inflight_fences[frame_index], true, UINT64_MAX)))
+                return false;
+            if (!VK_CHECK(vkResetFences(m_device, 1, &m_frame_inflight_fences[frame_index])))
+                return false;
 
             uint32_t image_index;
             VkResult result = vkAcquireNextImageKHR(m_device, m_swapchain, UINT64_MAX,
@@ -250,7 +247,10 @@ void Vulkan_example_app::run(const Config& config)
                 continue;
             }
             else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
+            {
                 VK_CHECK(result); // This will output the error
+                return false;
+            }
 
             render_loop_iteration(frame_index, image_index, last_frame_time);
 
@@ -279,7 +279,10 @@ void Vulkan_example_app::run(const Config& config)
                 continue;
             }
             else if (result != VK_SUCCESS)
+            {
                 VK_CHECK(result); // This will output the error
+                return false;
+            }
 
             frame_index = (frame_index + 1) % m_image_count;
         }
@@ -291,19 +294,21 @@ void Vulkan_example_app::run(const Config& config)
             uint32_t image_index = i % m_image_count;
 
             // Wait for the GPU to finish the current command buffer
-            VK_CHECK(vkWaitForFences(
-                m_device, 1, &m_frame_inflight_fences[image_index], true, UINT64_MAX));
-            VK_CHECK(vkResetFences(
-                m_device, 1, &m_frame_inflight_fences[image_index]));
+            if (!VK_CHECK(vkWaitForFences(m_device, 1, &m_frame_inflight_fences[image_index], true, UINT64_MAX)))
+                return false;
+            if (!VK_CHECK(vkResetFences(m_device, 1, &m_frame_inflight_fences[image_index])))
+                return false;
 
             render_loop_iteration(image_index, image_index, last_frame_time);
         }
     }
 
     // Wait for all resources to be unused
-    VK_CHECK(vkDeviceWaitIdle(m_device));
+    if (!VK_CHECK(vkDeviceWaitIdle(m_device)))
+        return false;
 
     cleanup();
+    return true;
 }
 
 void Vulkan_example_app::save_screenshot(uint32_t image_index, const char* filename) const
@@ -343,14 +348,15 @@ void Vulkan_example_app::set_vsync_enabled(bool vsync_enabled)
     }
 }
 
-void Vulkan_example_app::init(const Config& config)
+bool Vulkan_example_app::init(const Config& config)
 {
     m_config = config;
 
-    VK_CHECK(volkInitialize());
+    if (!VK_CHECK(volkInitialize()))
+        return false;
 
-    if (!m_config.headless)
-        init_window();
+    if (!m_config.headless && !init_window())
+        return false;
 
     // Gather extensions and validation layers
     std::vector<const char*> instance_extensions;
@@ -386,10 +392,12 @@ void Vulkan_example_app::init(const Config& config)
     if (!validation_layers.empty())
     {
         uint32_t layer_count;
-        VK_CHECK(vkEnumerateInstanceLayerProperties(&layer_count, nullptr));
+        if (!VK_CHECK(vkEnumerateInstanceLayerProperties(&layer_count, nullptr)))
+            return false;
 
         std::vector<VkLayerProperties> available_layers(layer_count);
-        VK_CHECK(vkEnumerateInstanceLayerProperties(&layer_count, available_layers.data()));
+        if (!VK_CHECK(vkEnumerateInstanceLayerProperties(&layer_count, available_layers.data())))
+            return false;
 
         // Copy all unsupported layers into a separate vector and remove them from the original
         std::vector<const char*> unsupported_layers;
@@ -408,21 +416,26 @@ void Vulkan_example_app::init(const Config& config)
 
         if (!unsupported_layers.empty())
         {
-            std::cerr << "Not all requested instance layers are available. Could not find:\n";
+            std::string message = "Not all requested instance layers are available. Could not find:\n";
             for (const char* layer : unsupported_layers)
-                std::cerr << "  " << layer << "\n";
-            std::cerr << "The environment variable VK_LAYER_PATH might need to be set.\n";
+                message += "  " + std::string(layer) + "\n";
+            message += "The environment variable VK_LAYER_PATH might need to be set.";
+            mi::examples::log::error(message.c_str());
         }
     }
 
     // Initialize Vulkan interfaces
-    init_instance(instance_extensions, validation_layers);
+    if (!init_instance(instance_extensions, validation_layers))
+        return false;
 
-    if (!m_config.headless)
-        VK_CHECK(glfwCreateWindowSurface(m_instance, m_window, nullptr, &m_surface));
+    if (!m_config.headless && !VK_CHECK(glfwCreateWindowSurface(m_instance, m_window, nullptr, &m_surface)))
+        return false;
 
-    pick_physical_device(device_extensions);
-    init_device(device_extensions, validation_layers);
+    if (!pick_physical_device(device_extensions))
+        return false;
+
+    if (!init_device(device_extensions, validation_layers))
+        return false;
 
     vkGetDeviceQueue(m_device, m_graphics_queue_family_index, 0, &m_graphics_queue);
     vkGetDeviceQueue(m_device, m_present_queue_family_index, 0, &m_present_queue);
@@ -431,14 +444,13 @@ void Vulkan_example_app::init(const Config& config)
         init_swapchain_for_headless();
     else
         init_swapchain_for_window();
-    init_depth_stencil_buffer();
-    init_render_pass();
-    init_framebuffers();
-    init_command_pool_and_buffers();
-    init_synchronization_objects();
 
-    // Init application resources
-    init_resources();
+    return init_depth_stencil_buffer() &&
+           init_render_pass() &&
+           init_framebuffers() &&
+           init_command_pool_and_buffers() &&
+           init_synchronization_objects() &&
+           init_resources();
 }
 
 void Vulkan_example_app::cleanup()
@@ -486,14 +498,14 @@ void Vulkan_example_app::cleanup()
     glfwTerminate();
 }
 
-void Vulkan_example_app::init_window()
+bool Vulkan_example_app::init_window()
 {
     glfwSetErrorCallback(&glfw_error_callback);
 
     if (!glfwInit())
     {
-        std::cerr << "Failed to initialize GLFW.\n";
-        terminate();
+        mi::examples::log::error("Failed to initialize GLFW.");
+        return false;
     }
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -506,8 +518,8 @@ void Vulkan_example_app::init_window()
         nullptr, nullptr);
     if (!m_window)
     {
-        std::cerr << "Failed to create GLFW window.\n";
-        terminate();
+        mi::examples::log::error("Failed to create GLFW window.");
+        return false;
     }
 
     glfwSetWindowUserPointer(m_window, this);
@@ -516,9 +528,10 @@ void Vulkan_example_app::init_window()
     glfwSetMouseButtonCallback(m_window, &internal_mouse_button_callback);
     glfwSetScrollCallback(m_window, &internal_mouse_scroll_callback);
     glfwSetFramebufferSizeCallback(m_window, &internal_resize_callback);
+    return true;
 }
 
-void Vulkan_example_app::init_instance(
+bool Vulkan_example_app::init_instance(
     const std::vector<const char*>& instance_extensions,
     const std::vector<const char*>& validation_layers)
 {
@@ -555,26 +568,29 @@ void Vulkan_example_app::init_instance(
     instance_create_info.ppEnabledExtensionNames = instance_extensions.data();
     instance_create_info.enabledExtensionCount = static_cast<uint32_t>(instance_extensions.size());
 
-    VK_CHECK(vkCreateInstance(&instance_create_info, nullptr, &m_instance));
+    if (!VK_CHECK(vkCreateInstance(&instance_create_info, nullptr, &m_instance)))
+        return false;
 
     volkLoadInstanceOnly(m_instance);
 
     if (!validation_layers.empty())
     {
-        VK_CHECK(vkCreateDebugUtilsMessengerEXT(
-            m_instance, &debug_utils_create_info, nullptr, &m_debug_messenger));
+        if (!VK_CHECK(vkCreateDebugUtilsMessengerEXT(m_instance, &debug_utils_create_info, nullptr, &m_debug_messenger)))
+            return false;
     }
+    return true;
 }
 
-void Vulkan_example_app::pick_physical_device(
+bool Vulkan_example_app::pick_physical_device(
     const std::vector<const char*>& device_extensions)
 {
     uint32_t physical_device_count;
-    VK_CHECK(vkEnumeratePhysicalDevices(m_instance, &physical_device_count, nullptr));
+    if (!VK_CHECK(vkEnumeratePhysicalDevices(m_instance, &physical_device_count, nullptr)))
+        return false;
 
     std::vector<VkPhysicalDevice> physical_devices(physical_device_count);
-    VK_CHECK(vkEnumeratePhysicalDevices(
-        m_instance, &physical_device_count, physical_devices.data()));
+    if (!VK_CHECK(vkEnumeratePhysicalDevices(m_instance, &physical_device_count, physical_devices.data())))
+        return false;
 
     // Find all physical device that support the requested extensions and queue families
     struct Supported_gpu
@@ -606,8 +622,8 @@ void Vulkan_example_app::pick_physical_device(
             VkBool32 has_presentation_support;
             if (!m_config.headless)
             {
-                VK_CHECK(vkGetPhysicalDeviceSurfaceSupportKHR(
-                    physical_device, i, m_surface, &has_presentation_support));
+                if (!VK_CHECK(vkGetPhysicalDeviceSurfaceSupportKHR(physical_device, i, m_surface, &has_presentation_support)))
+                    return false;
             }
             else
             {
@@ -636,8 +652,8 @@ void Vulkan_example_app::pick_physical_device(
 
     if (supported_gpus.empty())
     {
-        std::cerr << "No suitable physical device found.\n";
-        terminate();
+        mi::examples::log::error("No suitable physical device found.");
+        return false;
     }
 
     // Pick the first discrete physical device
@@ -705,9 +721,10 @@ void Vulkan_example_app::pick_physical_device(
         m_physical_device, &physical_device_props);
     mi::examples::log::info("Chosen GPU: %  (driver version %s)",
                             physical_device_props.deviceName, decode_driver_version(physical_device_props).c_str());
+    return true;
 }
 
-void Vulkan_example_app::init_device(
+bool Vulkan_example_app::init_device(
     const std::vector<const char*>& device_extensions,
     const std::vector<const char*>& validation_layers)
 {
@@ -749,16 +766,18 @@ void Vulkan_example_app::init_device(
         device_create_info.pNext = &physicalDeviceDescriptorIndexingFeatures;
     }
 
-    VK_CHECK(vkCreateDevice(m_physical_device, &device_create_info, nullptr, &m_device));
+    if (!VK_CHECK(vkCreateDevice(m_physical_device, &device_create_info, nullptr, &m_device)))
+        return false;
 
     volkLoadDevice(m_device);
+    return true;
 }
 
-void Vulkan_example_app::init_swapchain_for_window()
+bool Vulkan_example_app::init_swapchain_for_window()
 {
     VkSurfaceCapabilitiesKHR surface_caps;
-    VK_CHECK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
-        m_physical_device, m_surface, &surface_caps));
+    if (!VK_CHECK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_physical_device, m_surface, &surface_caps)))
+        return false;
 
     // Find correct swapchain image size
     m_image_width = surface_caps.currentExtent.width;
@@ -779,12 +798,12 @@ void Vulkan_example_app::init_swapchain_for_window()
 
     // Find a suitable swapchain image format
     uint32_t surface_format_count;
-    VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(
-        m_physical_device, m_surface, &surface_format_count, nullptr));
+    if (!VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(m_physical_device, m_surface, &surface_format_count, nullptr)))
+        return false;
 
     std::vector<VkSurfaceFormatKHR> available_surface_formats(surface_format_count);
-    VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(
-        m_physical_device, m_surface, &surface_format_count, available_surface_formats.data()));
+    if (!VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(m_physical_device, m_surface, &surface_format_count, available_surface_formats.data())))
+        return false;
 
     m_image_format = VK_FORMAT_UNDEFINED;
     VkColorSpaceKHR image_color_space = VK_COLORSPACE_SRGB_NONLINEAR_KHR;
@@ -805,15 +824,16 @@ void Vulkan_example_app::init_swapchain_for_window()
         m_image_format = available_surface_formats[0].format;
         image_color_space = available_surface_formats[0].colorSpace;
 
-        std::cerr << "None of the preferred image formats {";
+        std::string message = "None of the preferred image formats {";
         for (size_t i = 0; i < m_config.preferred_image_formats.size(); i++)
         {
             if (i > 0)
-                std::cerr << ", ";
-            std::cerr << vkformat_to_str(m_config.preferred_image_formats[i]);
+                message += ", ";
+            message += std::string(vkformat_to_str(m_config.preferred_image_formats[i]));
         }
-        std::cerr << "} are supported. Choosing the first supported format (";
-        std::cerr << vkformat_to_str(m_image_format) << ") instead.\n";
+        message += "} are supported. Choosing the first supported format (";
+        message += std::string(vkformat_to_str(m_image_format)) + ") instead.\n";
+        mi::examples::log::error(message);
     }
 
     // Find a compatible alpha channel composite mode
@@ -835,12 +855,12 @@ void Vulkan_example_app::init_swapchain_for_window()
 
     // Find a present mode
     uint32_t present_mode_count;
-    VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(
-        m_physical_device, m_surface, &present_mode_count, nullptr));
+    if (!VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(m_physical_device, m_surface, &present_mode_count, nullptr)))
+        return false;
 
     std::vector<VkPresentModeKHR> present_modes(present_mode_count);
-    VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(
-        m_physical_device, m_surface, &present_mode_count, present_modes.data()));
+    if (!VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(m_physical_device, m_surface, &present_mode_count, present_modes.data())))
+        return false;
 
     VkPresentModeKHR present_mode = VK_PRESENT_MODE_FIFO_KHR;// Support is guaranteed by spec
     if (!m_config.vsync)
@@ -888,13 +908,15 @@ void Vulkan_example_app::init_swapchain_for_window()
     swapchain_create_info.presentMode = present_mode;
     swapchain_create_info.clipped = VK_TRUE;
 
-    VK_CHECK(vkCreateSwapchainKHR(m_device, &swapchain_create_info, nullptr, &m_swapchain));
+    if (!VK_CHECK(vkCreateSwapchainKHR(m_device, &swapchain_create_info, nullptr, &m_swapchain)))
+        return false;
 
-    VK_CHECK(vkGetSwapchainImagesKHR(m_device, m_swapchain, &m_image_count, nullptr));
+    if (!VK_CHECK(vkGetSwapchainImagesKHR(m_device, m_swapchain, &m_image_count, nullptr)))
+        return false;
 
     m_swapchain_images.resize(m_image_count);
-    VK_CHECK(vkGetSwapchainImagesKHR(
-        m_device, m_swapchain, &m_image_count, m_swapchain_images.data()));
+    if (!VK_CHECK(vkGetSwapchainImagesKHR(m_device, m_swapchain, &m_image_count, m_swapchain_images.data())))
+        return false;
 
     m_swapchain_image_views.resize(m_swapchain_images.size());
     for (size_t i = 0; i < m_swapchain_images.size(); i++)
@@ -908,12 +930,13 @@ void Vulkan_example_app::init_swapchain_for_window()
         image_view_create_info.subresourceRange.layerCount = 1;
         image_view_create_info.subresourceRange.levelCount = 1;
 
-        VK_CHECK(vkCreateImageView(
-            m_device, &image_view_create_info, nullptr, &m_swapchain_image_views[i]));
+        if (!VK_CHECK(vkCreateImageView(m_device, &image_view_create_info, nullptr, &m_swapchain_image_views[i])))
+            return false;
     }
+    return true;
 }
 
-void Vulkan_example_app::init_swapchain_for_headless()
+bool Vulkan_example_app::init_swapchain_for_headless()
 {
     // Find suitable image format
     VkFormatFeatureFlags required_features
@@ -935,30 +958,31 @@ void Vulkan_example_app::init_swapchain_for_headless()
         m_image_format = find_supported_format(m_physical_device,
             default_formats, VK_IMAGE_TILING_OPTIMAL, required_features);
 
-        std::cerr << "None of the preferred image formats {";
+        std::string message = "None of the preferred image formats {";
         for (size_t i = 0; i < m_config.preferred_image_formats.size(); i++)
         {
             if (i > 0)
-                std::cerr << ", ";
-            std::cerr << vkformat_to_str(m_config.preferred_image_formats[i]);
+                message += ", ";
+            message += std::string(vkformat_to_str(m_config.preferred_image_formats[i]));
         }
-        std::cerr << "} ";
+        message += "} ";
         
         if (m_image_format == VK_FORMAT_UNDEFINED)
         {
-            std::cerr << " or default formats {";
+            message += " or default formats {";
             for (size_t i = 0; i < default_formats.size(); i++)
             {
                 if (i > 0)
-                    std::cerr << ", ";
-                std::cerr << vkformat_to_str(default_formats[i]);
+                    message += ", ";
+                message += std::string(vkformat_to_str(default_formats[i]));
             }
-            std::cerr << "} are supported.";
+            message += "} are supported.";
             terminate();
         }
         
-        std::cerr << " are supported. Choosing the first supported default format ("
-            << vkformat_to_str(m_image_format) << ") instead.\n\n";
+        message += " are supported. Choosing the first supported default format ("
+            + std::string(vkformat_to_str(m_image_format)) + ") instead.";
+        mi::examples::log::error(message);
     }
 
     // Check if the image size is valid, if not clamp it
@@ -966,8 +990,9 @@ void Vulkan_example_app::init_swapchain_for_headless()
         = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
 
     VkImageFormatProperties image_format_props;
-    VK_CHECK(vkGetPhysicalDeviceImageFormatProperties(m_physical_device, m_image_format,
-        VK_IMAGE_TYPE_2D, VK_IMAGE_TILING_OPTIMAL, usage_flags, 0, &image_format_props));
+    if (!VK_CHECK(vkGetPhysicalDeviceImageFormatProperties(m_physical_device, m_image_format,
+        VK_IMAGE_TYPE_2D, VK_IMAGE_TILING_OPTIMAL, usage_flags, 0, &image_format_props)))
+        return false;
 
     m_image_width = std::min(m_config.image_width, image_format_props.maxExtent.width);
     m_image_height = std::min(m_config.image_height, image_format_props.maxExtent.height);
@@ -995,12 +1020,13 @@ void Vulkan_example_app::init_swapchain_for_headless()
         image_create_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
         image_create_info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 
-        VK_CHECK(vkCreateImage(
-            m_device, &image_create_info, nullptr, &m_swapchain_images[i]));
+        if (!VK_CHECK(vkCreateImage(m_device, &image_create_info, nullptr, &m_swapchain_images[i])))
+            return false;
 
-        m_swapchain_device_memories[i] = allocate_and_bind_image_memory(
-            m_device, m_physical_device, m_swapchain_images[i],
-            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+        if (!allocate_and_bind_image_memory(m_swapchain_device_memories[i],
+                                            m_device, m_physical_device, m_swapchain_images[i],
+                                            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT))
+            return false;
 
         VkImageViewCreateInfo image_view_create_info = {};
         image_view_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -1011,12 +1037,13 @@ void Vulkan_example_app::init_swapchain_for_headless()
         image_view_create_info.subresourceRange.layerCount = 1;
         image_view_create_info.subresourceRange.levelCount = 1;
 
-        VK_CHECK(vkCreateImageView(
-            m_device, &image_view_create_info, nullptr, &m_swapchain_image_views[i]));
+        if (!VK_CHECK(vkCreateImageView(m_device, &image_view_create_info, nullptr, &m_swapchain_image_views[i])))
+            return false;
     }
+    return true;
 }
 
-void Vulkan_example_app::init_depth_stencil_buffer()
+bool Vulkan_example_app::init_depth_stencil_buffer()
 {
     m_depth_stencil_format = find_supported_format(m_physical_device,
         { VK_FORMAT_D24_UNORM_S8_UINT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D32_SFLOAT },
@@ -1024,8 +1051,8 @@ void Vulkan_example_app::init_depth_stencil_buffer()
 
     if (m_depth_stencil_format == VK_FORMAT_UNDEFINED)
     {
-        std::cerr << "No supported depth stencil format found.\n";
-        terminate();
+        mi::examples::log::error("No supported depth stencil format found.");
+        return false;
     }
 
     VkImageCreateInfo image_create_info = {};
@@ -1041,10 +1068,12 @@ void Vulkan_example_app::init_depth_stencil_buffer()
     image_create_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
     image_create_info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 
-    VK_CHECK(vkCreateImage(m_device, &image_create_info, nullptr, &m_depth_stencil_image));
+    if (!VK_CHECK(vkCreateImage(m_device, &image_create_info, nullptr, &m_depth_stencil_image)))
+        return false;
 
-    m_depth_stencil_device_memory = allocate_and_bind_image_memory(
-        m_device, m_physical_device, m_depth_stencil_image, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+    if (!allocate_and_bind_image_memory(m_depth_stencil_device_memory,
+                                        m_device, m_physical_device, m_depth_stencil_image, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT))
+        return false;
 
     VkImageViewCreateInfo image_view_create_info = {};
     image_view_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -1061,21 +1090,19 @@ void Vulkan_example_app::init_depth_stencil_buffer()
     image_view_create_info.subresourceRange.layerCount = 1;
     image_view_create_info.subresourceRange.levelCount = 1;
 
-    VK_CHECK(vkCreateImageView(
-        m_device, &image_view_create_info, nullptr, &m_depth_stencil_image_view));
+    return VK_CHECK(vkCreateImageView(m_device, &image_view_create_info, nullptr, &m_depth_stencil_image_view));
 }
 
-void Vulkan_example_app::init_render_pass()
+bool Vulkan_example_app::init_render_pass()
 {
     VkImageLayout final_layout = m_config.headless
         ? VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
         : VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
-    m_main_render_pass = create_simple_render_pass(
-        m_device, m_image_format, m_depth_stencil_format, final_layout);
+    return create_simple_render_pass(m_main_render_pass, m_device, m_image_format, m_depth_stencil_format, final_layout);
 }
 
-void Vulkan_example_app::init_framebuffers()
+bool Vulkan_example_app::init_framebuffers()
 {
     m_framebuffers.resize(m_image_count);
     for (size_t i = 0; i < m_image_count; i++)
@@ -1094,12 +1121,13 @@ void Vulkan_example_app::init_framebuffers()
         framebuffer_create_info.height = m_image_height;
         framebuffer_create_info.layers = 1;
 
-        VK_CHECK(vkCreateFramebuffer(
-            m_device, &framebuffer_create_info, nullptr, &m_framebuffers[i]));
+        if (!VK_CHECK(vkCreateFramebuffer(m_device, &framebuffer_create_info, nullptr, &m_framebuffers[i])))
+            return false;
     }
+    return true;
 }
 
-void Vulkan_example_app::init_command_pool_and_buffers()
+bool Vulkan_example_app::init_command_pool_and_buffers()
 {
     if (!m_command_pool)
     {
@@ -1109,8 +1137,8 @@ void Vulkan_example_app::init_command_pool_and_buffers()
         command_pool_create_info.queueFamilyIndex = m_graphics_queue_family_index;
         command_pool_create_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 
-        VK_CHECK(vkCreateCommandPool(
-            m_device, &command_pool_create_info, nullptr, &m_command_pool));
+        if (!VK_CHECK(vkCreateCommandPool(m_device, &command_pool_create_info, nullptr, &m_command_pool)))
+            return false;
     }
     else
     {
@@ -1130,11 +1158,10 @@ void Vulkan_example_app::init_command_pool_and_buffers()
     command_buffer_aloc_info.commandBufferCount = m_image_count;
     command_buffer_aloc_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 
-    VK_CHECK(vkAllocateCommandBuffers(
-        m_device, &command_buffer_aloc_info, m_command_buffers.data()));
+    return VK_CHECK(vkAllocateCommandBuffers(m_device, &command_buffer_aloc_info, m_command_buffers.data()));
 }
 
-void Vulkan_example_app::init_synchronization_objects()
+bool Vulkan_example_app::init_synchronization_objects()
 {
     // If called in recreate_swapchain only the fences need to be created
     if (m_image_available_semaphores.empty())
@@ -1147,10 +1174,10 @@ void Vulkan_example_app::init_synchronization_objects()
 
         for (size_t i = 0; i < m_image_count; i++)
         {
-            VK_CHECK(vkCreateSemaphore(
-                m_device, &semaphore_create_info, nullptr, &m_image_available_semaphores[i]));
-            VK_CHECK(vkCreateSemaphore(
-                m_device, &semaphore_create_info, nullptr, &m_render_finished_semaphores[i]));
+            if (!VK_CHECK(vkCreateSemaphore(m_device, &semaphore_create_info, nullptr, &m_image_available_semaphores[i])))
+                return false;
+            if (!VK_CHECK(vkCreateSemaphore(m_device, &semaphore_create_info, nullptr, &m_render_finished_semaphores[i])))
+                return false;
         }
     }
 
@@ -1161,12 +1188,13 @@ void Vulkan_example_app::init_synchronization_objects()
         fence_create_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
         fence_create_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-        VK_CHECK(vkCreateFence(
-            m_device, &fence_create_info, nullptr, &m_frame_inflight_fences[i]));
+        if (!VK_CHECK(vkCreateFence(m_device, &fence_create_info, nullptr, &m_frame_inflight_fences[i])))
+            return false;
     }
+    return true;
 }
 
-void Vulkan_example_app::recreate_swapchain_or_framebuffer_image()
+bool Vulkan_example_app::recreate_swapchain_or_framebuffer_image()
 {
     if (!m_config.headless)
     {
@@ -1181,7 +1209,8 @@ void Vulkan_example_app::recreate_swapchain_or_framebuffer_image()
         }
     }
 
-    VK_CHECK(vkDeviceWaitIdle(m_device));
+    if (!VK_CHECK(vkDeviceWaitIdle(m_device)))
+        return false;
 
     // Cleanup swapchain related resources
     vkDestroyImageView(m_device, m_depth_stencil_image_view, nullptr);
@@ -1208,17 +1237,19 @@ void Vulkan_example_app::recreate_swapchain_or_framebuffer_image()
         vkDestroyFence(m_device, fence, nullptr);
 
     // Recreate swapchain related resources
-    if (m_config.headless)
-        init_swapchain_for_headless();
-    else
-        init_swapchain_for_window();
-    init_depth_stencil_buffer();
-    init_render_pass();
-    init_framebuffers();
-    init_command_pool_and_buffers();
-    init_synchronization_objects();
-    
-    recreate_size_dependent_resources();
+    if (m_config.headless && !init_swapchain_for_headless())
+        return false;
+    else if (!init_swapchain_for_window())
+        return false;
+
+    if (!init_depth_stencil_buffer() ||
+        !init_render_pass() ||
+        !init_framebuffers() ||
+        !init_command_pool_and_buffers() ||
+        !init_synchronization_objects())
+        return false;
+
+    return recreate_size_dependent_resources();
 }
 
 void Vulkan_example_app::render_loop_iteration(uint32_t frame_index, uint32_t image_index, double& last_frame_time)
@@ -1261,12 +1292,11 @@ void Vulkan_example_app::render_loop_iteration(uint32_t frame_index, uint32_t im
         submit_info.pSignalSemaphores = &m_render_finished_semaphores[frame_index];
     }
 
-    VK_CHECK(vkQueueSubmit(
-        m_graphics_queue, 1, &submit_info, m_frame_inflight_fences[frame_index]));
+    VK_CHECK(vkQueueSubmit(m_graphics_queue, 1, &submit_info, m_frame_inflight_fences[frame_index]));
 }
 
 void Vulkan_example_app::internal_key_callback(
-    GLFWwindow* window, int key, int scancode, int action, int mods)
+    GLFWwindow* window, int key, int /*scancode*/, int action, int mods)
 {
     if (action == GLFW_PRESS && key == GLFW_KEY_ESCAPE)
         glfwSetWindowShouldClose(window, GLFW_TRUE);
@@ -1276,7 +1306,7 @@ void Vulkan_example_app::internal_key_callback(
 }
 
 void Vulkan_example_app::internal_mouse_button_callback(
-    GLFWwindow* window, int button, int action, int mods)
+    GLFWwindow* window, int button, int action, int /*mods*/)
 {
     auto app = static_cast<Vulkan_example_app*>(glfwGetWindowUserPointer(window));
     app->mouse_button_callback(button, action);
@@ -1308,16 +1338,16 @@ void Vulkan_example_app::internal_resize_callback(GLFWwindow* window, int width,
 
 void Vulkan_example_app::glfw_error_callback(int error_code, const char* description)
 {
-    std::cerr << "GLFW error (code: " << error_code << "): \"" << description << "\"\n";
+    mi::examples::log::error("GLFW error (code: %d): %s", error_code, description);
 }
 
 VKAPI_ATTR VkBool32 VKAPI_PTR Vulkan_example_app::debug_messenger_callback(
-    VkDebugUtilsMessageSeverityFlagBitsEXT message_severity,
-    VkDebugUtilsMessageTypeFlagsEXT message_types,
+    VkDebugUtilsMessageSeverityFlagBitsEXT /*message_severity*/,
+    VkDebugUtilsMessageTypeFlagsEXT /*message_types*/,
     const VkDebugUtilsMessengerCallbackDataEXT* callback_data,
-    void* user_data)
+    void* /*user_data*/)
 {
-    std::cerr << callback_data->pMessage << "\n";
+    mi::examples::log::error(callback_data->pMessage);
     return VK_FALSE;
 }
 
@@ -1333,7 +1363,7 @@ Staging_buffer::Staging_buffer(VkDevice device, VkPhysicalDevice physical_device
 
     VK_CHECK(vkCreateBuffer(m_device, &buffer_create_info, nullptr, &m_buffer));
 
-    m_device_memory = mi::examples::vk::allocate_and_bind_buffer_memory(
+    mi::examples::vk::allocate_and_bind_buffer_memory(m_device_memory,
         m_device, physical_device, m_buffer,
         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 }
@@ -1357,7 +1387,6 @@ void Staging_buffer::unmap_memory() const
     vkUnmapMemory(m_device, m_device_memory);
 }
 
-
 Temporary_command_buffer::Temporary_command_buffer(VkDevice device, VkCommandPool command_pool)
 : m_device(device)
 , m_command_pool(command_pool)
@@ -1368,8 +1397,7 @@ Temporary_command_buffer::Temporary_command_buffer(VkDevice device, VkCommandPoo
     command_buffer_alloc_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     command_buffer_alloc_info.commandBufferCount = 1;
 
-    VK_CHECK(vkAllocateCommandBuffers(
-        m_device, &command_buffer_alloc_info, &m_command_buffer));
+    VK_CHECK(vkAllocateCommandBuffers(m_device, &command_buffer_alloc_info, &m_command_buffer));
 }
 
 Temporary_command_buffer::~Temporary_command_buffer()
@@ -1406,11 +1434,12 @@ bool check_instance_extensions_support(
     const std::vector<const char*>& requested_extensions)
 {
     uint32_t extension_count;
-    VK_CHECK(vkEnumerateInstanceExtensionProperties(nullptr, &extension_count, nullptr));
+    if (!VK_CHECK(vkEnumerateInstanceExtensionProperties(nullptr, &extension_count, nullptr)))
+        return false;
 
     std::vector<VkExtensionProperties> available_extensions(extension_count);
-    VK_CHECK(vkEnumerateInstanceExtensionProperties(
-        nullptr, &extension_count, available_extensions.data()));
+    if (!VK_CHECK(vkEnumerateInstanceExtensionProperties(nullptr, &extension_count, available_extensions.data())))
+        return false;
 
     for (const char* requested_extension : requested_extensions)
     {
@@ -1437,11 +1466,12 @@ bool check_device_extensions_support(VkPhysicalDevice device,
     const std::vector<const char*>& requested_extensions)
 {
     uint32_t extension_count;
-    VK_CHECK(vkEnumerateDeviceExtensionProperties(device, nullptr, &extension_count, nullptr));
+    if (!VK_CHECK(vkEnumerateDeviceExtensionProperties(device, nullptr, &extension_count, nullptr)))
+        return false;
 
     std::vector<VkExtensionProperties> available_extensions(extension_count);
-    VK_CHECK(vkEnumerateDeviceExtensionProperties(
-        device, nullptr, &extension_count, available_extensions.data()));
+    if (!VK_CHECK(vkEnumerateDeviceExtensionProperties(device, nullptr, &extension_count, available_extensions.data())))
+        return false;
 
     for (const char* requested_extension : requested_extensions)
     {
@@ -1468,10 +1498,12 @@ bool check_validation_layers_support(
     const std::vector<const char*>& requested_layers)
 {
     uint32_t layer_count;
-    VK_CHECK(vkEnumerateInstanceLayerProperties(&layer_count, nullptr));
+    if (!VK_CHECK(vkEnumerateInstanceLayerProperties(&layer_count, nullptr)))
+        return false;
 
     std::vector<VkLayerProperties> available_layers(layer_count);
-    VK_CHECK(vkEnumerateInstanceLayerProperties(&layer_count, available_layers.data()));
+    if (!VK_CHECK(vkEnumerateInstanceLayerProperties(&layer_count, available_layers.data())))
+        return false;
 
     for (const char* requested_layer : requested_layers)
     {
@@ -1494,36 +1526,38 @@ bool check_validation_layers_support(
     return true;
 }
 
-VkShaderModule create_shader_module_from_file(
+bool create_shader_module_from_file(
+    VkShaderModule& out_shader_module,
     VkDevice device, const char* shader_filename, EShLanguage shader_type,
     const std::vector<std::string>& defines, bool optimize)
 {
     std::string shader_source = mi::examples::io::read_text_file(
         mi::examples::io::get_executable_folder() + "/" + shader_filename);
 
-    return create_shader_module_from_sources(device, { shader_source }, shader_type, defines, optimize);
+    return create_shader_module_from_sources(
+        out_shader_module, device, { shader_source }, shader_type, defines, optimize);
 }
 
-VkShaderModule create_shader_module_from_sources(
-    VkDevice device, const std::vector<std::string_view> shader_sources,
+bool create_shader_module_from_sources(
+    VkShaderModule& out_shader_module,
+    VkDevice device, const std::vector<std::string_view>& shader_sources,
     EShLanguage shader_type, const std::vector<std::string>& defines, bool optimize)
 {
     mi::examples::vk::Glsl_compiler glsl_compiler(shader_type, "main");
     glsl_compiler.add_defines(defines);
     for (const std::string_view& source : shader_sources)
-        glsl_compiler.add_shader(source);
+        if (!glsl_compiler.add_shader(source))
+            return false;
     std::vector<unsigned int> compiled_shader = glsl_compiler.link_program(optimize);
+    if (compiled_shader.empty())
+        return false;
 
     VkShaderModuleCreateInfo shader_module_create_info = {};
     shader_module_create_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
     shader_module_create_info.pCode = compiled_shader.data();
     shader_module_create_info.codeSize = compiled_shader.size() * sizeof(unsigned int);
 
-    VkShaderModule shader_module;
-    VK_CHECK(vkCreateShaderModule(device,
-        &shader_module_create_info, nullptr, &shader_module));
-
-    return shader_module;
+    return VK_CHECK(vkCreateShaderModule(device, &shader_module_create_info, nullptr, &out_shader_module));
 }
 
 // NOTE: A more sophisticated should be used in a real application.
@@ -1532,7 +1566,8 @@ VkShaderModule create_shader_module_from_sources(
 //       https://developer.nvidia.com/blog/vulkan-dos-donts/
 //       https://developer.nvidia.com/vulkan-memory-management
 //       https://developer.nvidia.com/what%E2%80%99s-your-vulkan-memory-type
-VkDeviceMemory allocate_and_bind_buffer_memory(
+bool allocate_and_bind_buffer_memory(
+    VkDeviceMemory& out_device_memory,
     VkDevice device, VkPhysicalDevice physical_device, VkBuffer buffer,
     VkMemoryPropertyFlags memory_property_flags)
 {
@@ -1545,11 +1580,15 @@ VkDeviceMemory allocate_and_bind_buffer_memory(
     memory_alloc_info.memoryTypeIndex = mi::examples::vk::find_memory_type(physical_device,
         memory_requirements.memoryTypeBits, memory_property_flags);
 
-    VkDeviceMemory device_memory;
-    VK_CHECK(vkAllocateMemory(device, &memory_alloc_info, nullptr, &device_memory));
-    VK_CHECK(vkBindBufferMemory(device, buffer, device_memory, 0));
+    if (!VK_CHECK(vkAllocateMemory(device, &memory_alloc_info, nullptr, &out_device_memory)))
+        return false;
 
-    return device_memory;
+    if (!VK_CHECK(vkBindBufferMemory(device, buffer, out_device_memory, 0)))
+    {
+        vkFreeMemory(device, out_device_memory, nullptr);
+        return false;
+    }
+    return true;
 }
 
 // NOTE: A more sophisticated should be used in a real application.
@@ -1558,7 +1597,8 @@ VkDeviceMemory allocate_and_bind_buffer_memory(
 //       https://developer.nvidia.com/blog/vulkan-dos-donts/
 //       https://developer.nvidia.com/vulkan-memory-management
 //       https://developer.nvidia.com/what%E2%80%99s-your-vulkan-memory-type
-VkDeviceMemory allocate_and_bind_image_memory(
+bool allocate_and_bind_image_memory(
+    VkDeviceMemory& out_device_memory,
     VkDevice device, VkPhysicalDevice physical_device, VkImage image,
     VkMemoryPropertyFlags memory_property_flags)
 {
@@ -1571,11 +1611,14 @@ VkDeviceMemory allocate_and_bind_image_memory(
     memory_alloc_info.memoryTypeIndex = mi::examples::vk::find_memory_type(physical_device,
         memory_requirements.memoryTypeBits, memory_property_flags);
 
-    VkDeviceMemory device_memory;
-    VK_CHECK(vkAllocateMemory(device, &memory_alloc_info, nullptr, &device_memory));
-    VK_CHECK(vkBindImageMemory(device, image, device_memory, 0));
-
-    return device_memory;
+    if (!VK_CHECK(vkAllocateMemory(device, &memory_alloc_info, nullptr, &out_device_memory)))
+        return false;
+    if (!VK_CHECK(vkBindImageMemory(device, image, out_device_memory, 0)))
+    {
+        vkFreeMemory(device, out_device_memory, nullptr);
+        return false;
+    }
+    return true;
 }
 
 uint32_t find_memory_type(
@@ -1795,10 +1838,11 @@ uint32_t get_image_format_bpp(VkFormat format)
     }
 }
 
-VkPipeline create_fullscreen_triangle_graphics_pipeline(
+bool create_fullscreen_triangle_graphics_pipeline(
+    VkPipeline& out_graphics_pipeline,
     VkDevice device, VkPipelineLayout pipeline_layout,
     VkShaderModule vertex_shader, VkShaderModule fragment_shader,
-    VkRenderPass render_pass, uint32_t subpass,
+    VkRenderPass render_pass, uint32_t /*subpass*/,
     uint32_t image_width, uint32_t image_height, bool cull_ccw)
 {
     VkPipelineVertexInputStateCreateInfo vertex_input_state = {};
@@ -1884,14 +1928,12 @@ VkPipeline create_fullscreen_triangle_graphics_pipeline(
     pipeline_create_info.renderPass = render_pass;
     pipeline_create_info.subpass = 0;
 
-    VkPipeline graphics_pipeline;
-    VK_CHECK(vkCreateGraphicsPipelines(
-        device, nullptr, 1, &pipeline_create_info, nullptr, &graphics_pipeline));
-
-    return graphics_pipeline;
+    return VK_CHECK(vkCreateGraphicsPipelines(
+        device, nullptr, 1, &pipeline_create_info, nullptr, &out_graphics_pipeline));
 }
 
-VkRenderPass create_simple_color_only_render_pass(
+bool create_simple_color_only_render_pass(
+    VkRenderPass& out_render_pass,
     VkDevice device, VkFormat image_format, VkImageLayout final_layout)
 {
     VkAttachmentDescription attachment_desc = {};
@@ -1930,13 +1972,11 @@ VkRenderPass create_simple_color_only_render_pass(
     render_pass_create_info.dependencyCount = 1;
     render_pass_create_info.pDependencies = &subpass_dependency;
 
-    VkRenderPass render_pass;
-    VK_CHECK(vkCreateRenderPass(device, &render_pass_create_info, nullptr, &render_pass));
-
-    return render_pass;
+    return VK_CHECK(vkCreateRenderPass(device, &render_pass_create_info, nullptr, &out_render_pass));
 }
 
-VkRenderPass create_simple_render_pass(
+bool create_simple_render_pass(
+    VkRenderPass& out_render_pass,
     VkDevice device, VkFormat image_format,
     VkFormat depth_stencil_format, VkImageLayout final_layout)
 {
@@ -1997,13 +2037,10 @@ VkRenderPass create_simple_render_pass(
     render_pass_create_info.dependencyCount = 1;
     render_pass_create_info.pDependencies = &subpass_dependency;
 
-    VkRenderPass render_pass;
-    VK_CHECK(vkCreateRenderPass(device, &render_pass_create_info, nullptr, &render_pass));
-
-    return render_pass;
+    return VK_CHECK(vkCreateRenderPass(device, &render_pass_create_info, nullptr, &out_render_pass));
 }
 
-VkSampler create_linear_sampler(VkDevice device)
+bool create_linear_sampler(VkSampler& out_sampler, VkDevice device)
 {
     VkSamplerCreateInfo sampler_create_info = {};
     sampler_create_info.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -2015,10 +2052,7 @@ VkSampler create_linear_sampler(VkDevice device)
     sampler_create_info.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
     sampler_create_info.unnormalizedCoordinates = false;
 
-    VkSampler sampler;
-    VK_CHECK(vkCreateSampler(device, &sampler_create_info, nullptr, &sampler));
-
-    return sampler;
+    return VK_CHECK(vkCreateSampler(device, &sampler_create_info, nullptr, &out_sampler));
 }
 
 void transitionImageLayout(
@@ -2526,7 +2560,8 @@ const char* vkformat_to_str(VkFormat format)
     }
 }
 
-Vulkan_buffer create_storage_buffer(
+bool create_storage_buffer(
+    Vulkan_buffer& out_storage_buffer,
     VkDevice device,
     VkPhysicalDevice physical_device,
     VkQueue queue,
@@ -2534,7 +2569,6 @@ Vulkan_buffer create_storage_buffer(
     const void* buffer_data,
     mi::Size buffer_size)
 {
-    Vulkan_buffer storage_buffer;
 
     { // Create the storage buffer in device local memory (VRAM)
         VkBufferCreateInfo buffer_create_info = {};
@@ -2542,13 +2576,14 @@ Vulkan_buffer create_storage_buffer(
         buffer_create_info.size = buffer_size;
         buffer_create_info.usage = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 
-        VK_CHECK(vkCreateBuffer(
-            device, &buffer_create_info, nullptr, &storage_buffer.buffer));
+        if (!VK_CHECK(vkCreateBuffer(device, &buffer_create_info, nullptr, &out_storage_buffer.buffer)))
+            return false;
 
         // Allocate device memory for the buffer.
-        storage_buffer.device_memory = mi::examples::vk::allocate_and_bind_buffer_memory(
-            device, physical_device, storage_buffer.buffer,
-            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+        if (!mi::examples::vk::allocate_and_bind_buffer_memory(out_storage_buffer.device_memory,
+                                                               device, physical_device, out_storage_buffer.buffer,
+                                                               VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT))
+            return false;
     }
 
     {
@@ -2568,23 +2603,28 @@ Vulkan_buffer create_storage_buffer(
         copy_region.size = buffer_size;
 
         vkCmdCopyBuffer(command_buffer.get(),
-                        staging_buffer.get(), storage_buffer.buffer, 1, &copy_region);
+                        staging_buffer.get(), out_storage_buffer.buffer, 1, &copy_region);
 
         command_buffer.end_and_submit(queue);
     }
 
-    return storage_buffer;
+    return true;
 }
 
-void Vulkan_environment_map::create(
+bool Vulkan_environment_map::create(
     VkDevice device, VkPhysicalDevice physical_device, VkCommandPool command_pool, VkQueue graphics_queue,
-    mi::neuraylib::IImage_api* image_api, mi::neuraylib::ITransaction* transaction,
+    const mi::neuraylib::IImage_api* image_api, mi::neuraylib::ITransaction* transaction,
     const std::string& filePath)
 {
     mi::base::Handle<mi::neuraylib::IImage> image(
         transaction->create<mi::neuraylib::IImage>("Image"));
 
-    check_success(image->reset_file(filePath.c_str()) == 0);
+    mi::Sint32 ret = image->reset_file(filePath.c_str());
+    if (ret != 0)
+    {
+        mi::examples::log::error("Failed to set environment image: %s (%d)", filePath.c_str(), ret);
+        return false;
+    }
 
     mi::base::Handle<const mi::neuraylib::ICanvas> canvas(image->get_canvas(0, 0, 0));
     const mi::Uint32 res_x = canvas->get_resolution_x();
@@ -2609,10 +2649,13 @@ void Vulkan_environment_map::create(
     image_create_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
     image_create_info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 
-    VK_CHECK(vkCreateImage(device, &image_create_info, nullptr, &texture.image));
+    if (!VK_CHECK(vkCreateImage(device, &image_create_info, nullptr, &texture.image)))
+        return false;
 
-    texture.device_memory = mi::examples::vk::allocate_and_bind_image_memory(
-        device, physical_device, texture.image, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+    
+    if (!mi::examples::vk::allocate_and_bind_image_memory(texture.device_memory,
+        device, physical_device, texture.image, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT))
+        return false;
 
     VkImageViewCreateInfo image_view_create_info = {};
     image_view_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -2625,7 +2668,8 @@ void Vulkan_environment_map::create(
     image_view_create_info.subresourceRange.baseArrayLayer = 0;
     image_view_create_info.subresourceRange.layerCount = 1;
 
-    VK_CHECK(vkCreateImageView(device, &image_view_create_info, nullptr, &texture.image_view));
+    if (!VK_CHECK(vkCreateImageView(device, &image_view_create_info, nullptr, &texture.image_view)))
+        return false;
 
     {                                                                   // Upload image data to the GPU
         size_t staging_buffer_size = res_x * res_y * sizeof(float) * 4; // RGBA32F
@@ -2738,8 +2782,13 @@ void Vulkan_environment_map::create(
     environment_inv_integral = 1.0f / integral;
 
     // Create Vulkan buffer for importance sampling data
-    sampling_data_buffer = mi::examples::vk::create_storage_buffer(
-        device, physical_device, graphics_queue, command_pool, env_accel_data.data(), env_accel_data.size() * sizeof(Env_accel));
+
+    if (!mi::examples::vk::create_storage_buffer(
+            sampling_data_buffer, device, physical_device, graphics_queue, command_pool,
+            env_accel_data.data(), env_accel_data.size() * sizeof(Env_accel)))
+    {
+        return false;
+    }
 
     // Create sampler
     VkSamplerCreateInfo sampler_create_info = {};
@@ -2752,7 +2801,7 @@ void Vulkan_environment_map::create(
     sampler_create_info.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
     sampler_create_info.unnormalizedCoordinates = false;
 
-    VK_CHECK(vkCreateSampler(device, &sampler_create_info, nullptr, &sampler));
+    return VK_CHECK(vkCreateSampler(device, &sampler_create_info, nullptr, &sampler));
 }
 
 } // namespace mi::examples::vk
