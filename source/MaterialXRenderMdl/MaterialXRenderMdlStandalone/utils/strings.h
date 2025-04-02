@@ -74,6 +74,7 @@ namespace mi { namespace examples { namespace strings
     inline std::string wchar_to_utf8(const wchar_t* src)
     {
         std::string res;
+        unsigned high, middle, low, mh, ml;
 
         for (wchar_t const *p = src; *p != L'\0'; ++p)
         {
@@ -87,25 +88,25 @@ namespace mi { namespace examples { namespace strings
             else if (code <= 0x7FF)
             {
                 // 110xxxxx 10xxxxxx
-                unsigned high = code >> 6;
-                unsigned low  = code & 0x3F;
+                high = code >> 6;
+                low  = code & 0x3F;
                 res += char(0xC0 + high);
                 res += char(0x80 + low);
             }
             else if (0xD800 <= code && code <= 0xDBFF && 0xDC00 <= p[1] && p[1] <= 0xDFFF)
             {
                 // surrogate pair, 0x10000 to 0x10FFFF
-                unsigned high = code & 0x3FF;
-                unsigned low  = p[1] & 0x3FF;
+                high = code & 0x3FF;
+                low  = p[1] & 0x3FF;
                 code = 0x10000 + ((high << 10) | low);
 
                 if (code <= 0x10FFFF)
                 {
                     // 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
-                    unsigned high = (code >> 18) & 0x07;
-                    unsigned mh   = (code >> 12) & 0x3F;
-                    unsigned ml   = (code >> 6) & 0x3F;
-                    unsigned low  = code & 0x3F;
+                    high = (code >> 18) & 0x07;
+                    mh   = (code >> 12) & 0x3F;
+                    ml   = (code >> 6) & 0x3F;
+                    low  = code & 0x3F;
                     res += char(0xF0 + high);
                     res += char(0x80 + mh);
                     res += char(0x80 + ml);
@@ -125,9 +126,9 @@ namespace mi { namespace examples { namespace strings
                 if (code < 0xD800 || code > 0xDFFF)
                 {
                     // 1110xxxx 10xxxxxx 10xxxxxx
-                    unsigned high   = code >> 12;
-                    unsigned middle = (code >> 6) & 0x3F;
-                    unsigned low    = code & 0x3F;
+                    high   = code >> 12;
+                    middle = (code >> 6) & 0x3F;
+                    low    = code & 0x3F;
                     res += char(0xE0 + high);
                     res += char(0x80 + middle);
                     res += char(0x80 + low);
@@ -143,10 +144,10 @@ namespace mi { namespace examples { namespace strings
             else if (code <= 0x10FFFF)
             {
                 // 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
-                unsigned high = (code >> 18) & 0x07;
-                unsigned mh   = (code >> 12) & 0x3F;
-                unsigned ml   = (code >> 6) & 0x3F;
-                unsigned low  = code & 0x3F;
+                high = (code >> 18) & 0x07;
+                mh   = (code >> 12) & 0x3F;
+                ml   = (code >> 6) & 0x3F;
+                low  = code & 0x3F;
                 res += char(0xF0 + high);
                 res += char(0x80 + mh);
                 res += char(0x80 + ml);
@@ -344,8 +345,7 @@ namespace mi { namespace examples { namespace strings
     /// checks if a string contains a given substring.
     inline bool contains(const std::string& s, const std::string& potential_substring)
     {
-        const char* pos = strstr(s.c_str(), potential_substring.c_str());
-        return pos != nullptr;
+        return s.find(potential_substring) != std::string::npos;
     }
 
     // --------------------------------------------------------------------------------------------
@@ -530,20 +530,22 @@ namespace mi { namespace examples { namespace strings
     // --------------------------------------------------------------------------------------------
 
     // Get current date/time
-    inline const std::string current_date_time_local()
+    inline std::string current_date_time_local()
     {
         std::time_t t = std::time(nullptr);
-        char buffer[100];
-        std::strftime(buffer, sizeof(buffer), "%F %T", std::localtime(&t));
+        std::string buffer(100, '\0');
+        std::strftime(&buffer[0], buffer.size(), "%F %T", std::localtime(&t));
+        buffer.resize(std::strlen(buffer.c_str())); // Remove the extra null characters
         return buffer;
     }
 
     // Get current date/time
-    inline const std::string current_date_time_UTC()
+    inline std::string current_date_time_UTC()
     {
         std::time_t t = std::time(nullptr);
-        char buffer[100];
-        std::strftime(buffer, sizeof(buffer), "%F %T", std::gmtime(&t));
+        std::string buffer(100, '\0');
+        std::strftime(&buffer[0], sizeof(buffer), "%F %T", std::gmtime(&t));
+        buffer.resize(std::strlen(buffer.c_str())); // Remove the extra null characters
         return buffer;
     }
 
