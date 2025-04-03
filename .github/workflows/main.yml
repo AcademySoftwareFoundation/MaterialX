@@ -403,11 +403,6 @@ jobs:
       with:
         python-version: 3.${{ matrix.python-minor }}
 
-    - name: Install CMake
-      uses: lukka/get-cmake@28983e0d3955dba2bb0a6810caae0c6cf268ec0c # v4.0.0
-      with:
-        cmakeVersion: 3.26
-
     - name: Download Sdist
       uses: actions/download-artifact@v4
       with:
