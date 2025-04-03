@@ -1,4 +1,8 @@
-if(MATERIALX_BUILD_DATA_LIBRARY)
+
+
+
+
+if(MATERIALX_BUILD_DATA_LIBRARY OR ${MATERIALX_BUILD_BAKE_NAMED_VALUES})
     # Build generated products from the MaterialX data library.
     # Initially, this step is a simple copy across folders, but our intent
     # is for it to include meaningful work in the future.
