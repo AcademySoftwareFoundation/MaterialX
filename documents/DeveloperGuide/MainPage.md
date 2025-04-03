@@ -18,7 +18,7 @@ The MaterialX codebase requires a compiler with support for C++17, and can be bu
 - GCC 8 or newer
 - Clang 5 or newer
 
-The Python bindings for MaterialX are based on [PyBind11](https://github.com/pybind/pybind11), and support Python versions 3.6 and greater.
+The Python bindings for MaterialX are based on [PyBind11](https://github.com/pybind/pybind11), and support Python versions 3.9 and greater.
 
 ## Building MaterialX
 
@@ -26,10 +26,11 @@ The Python bindings for MaterialX are based on [PyBind11](https://github.com/pyb
 
 The MaterialX C++ libraries are automatically included when building MaterialX through CMake.
 
-To enable OpenImageIO support in MaterialX builds, the following additional options may be used:
+To enable OpenImageIO and OpenColorIO support in MaterialX builds, the following additional options may be used:
 
 - `MATERIALX_BUILD_OIIO`: Requests that MaterialXRender be built with OpenImageIO in addition to stb_image, extending the set of supported image formats.
 - `MATERIALX_OIIO_DIR`: Path to the root folder of an OpenImageIO installation.  If MATERIALX_BUILD_OIIO has been enabled, then this option may be used to select which installation is used.
+- `MATERIALX_BUILD_OCIO`: Requests that MaterialXGenShader be built with support for custom OpenColorIO color spaces and transforms.  The minimum supported version of OpenColorIO is 2.4.
 
 See the [MaterialX Unit Tests](https://github.com/AcademySoftwareFoundation/MaterialX/tree/main/source/MaterialXTest) page for documentation on shader generation and render testing in GLSL, OSL, and MDL.
 
@@ -42,7 +43,6 @@ By default, the `MATERIALX_BUILD_PYTHON` option will use the active version of P
 
 Additional options for the generation of MaterialX Python include the following:
 
-- `MATERIALX_PYTHON_OCIO_DIR`: Path to a folder containing the default OCIO configuration to be packaged with MaterialX Python. The recommended OpenColorIO configuration for MaterialX is [ACES 1.2](https://github.com/colour-science/OpenColorIO-Configs/tree/feature/aces-1.2-config/aces_1.2).
 - `MATERIALX_PYTHON_PYBIND11_DIR`: Path to a folder containing the PyBind11 source to be used in building MaterialX Python. Defaults to the included PyBind11 source.
 
 ### Building The MaterialX Viewer
