@@ -72,6 +72,7 @@ int main(int argc, char* const argv[])
     std::string fontFilename;
     int fontSize = 18;
     std::string captureFilename;
+    ImColor graphBackgroundColor(0.2f, 0.2f, 0.2f, 1.0f);
 
     for (size_t i = 0; i < tokens.size(); i++)
     {
@@ -117,6 +118,12 @@ int main(int argc, char* const argv[])
         else if (token == "--captureFilename")
         {
             parseToken(nextToken, "string", captureFilename);
+        }
+        else if (token == "--graphBackground")
+        {
+            mx::Color3 mxColor;
+            parseToken(nextToken, "color3", mxColor);
+            graphBackgroundColor = ImColor(mxColor[0], mxColor[1], mxColor[2], 1.0f);
         }
         else if (token == "--help")
         {
@@ -243,6 +250,7 @@ int main(int argc, char* const argv[])
         config.CustomZoomLevels.push_back(level);
     }
     ed::SetCurrentEditor(editorContext);
+    ed::PushStyleColor(ed::StyleColor_Bg, graphBackgroundColor);
 
     // Main loop
     while (!glfwWindowShouldClose(window))
