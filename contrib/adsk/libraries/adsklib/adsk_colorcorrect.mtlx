@@ -87,22 +87,20 @@
       <input name="in2" type="color4" nodename="CombineColorAlpha" />
       <input name="value1" type="boolean" interfacename="unpremultiply_input" />
     </ifequal>
-    <swizzle name="outputColor" type="color3">
+    <convert name="outputColor" type="color3">
       <input name="in" type="color4" nodename="if_unpremultiply_condition" />
-      <input name="channels" type="string" value="rgb" />
-    </swizzle>
-    <swizzle name="outputAlpha" type="float">
+    </convert>
+    <extract name="outputAlpha" type="float">
+      <input name="index" type="integer" value="3" />
       <input name="in" type="color4" nodename="if_unpremultiply_condition" />
-      <input name="channels" type="string" value="a" />
-    </swizzle>
-    <swizzle name="extractColorForHsv" type="color3">
+    </extract>
+    <convert name="extractColorForHsv" type="color3">
       <input name="in" type="color4" nodename="if_premultiply_condition" />
-      <input name="channels" type="string" value="rgb" />
-    </swizzle>
-    <swizzle name="extractAlphaForGain" type="float">
+    </convert>
+    <extract name="extractAlphaForGain" type="float">
+      <input name="index" type="integer" value="3" />
       <input name="in" type="color4" nodename="if_premultiply_condition" />
-      <input name="channels" type="string" value="a" />
-    </swizzle>
+    </extract>
     <combine2 name="combineInput" type="color4">
       <input name="in1" type="color3" interfacename="color" />
       <input name="in2" type="float" interfacename="alpha" />
