@@ -72,6 +72,18 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
         _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "mx_transform_uv.osl";
     }
 
+    // Pass the colorspace optional argument to OSL's texture() function.
+    // Some renderers will error out if this is set as they don't support
+    // the optional argument.
+    if (context.getOptions().oslFileTextureColorspace)
+    {
+        _tokenSubstitutions[ShaderGenerator::T_OSL_FILE_TEXTURE_COLORSPACE] = ", \"colorspace\", file.colorspace";
+    }
+    else
+    {
+        _tokenSubstitutions[ShaderGenerator::T_OSL_FILE_TEXTURE_COLORSPACE] = "";
+    }
+
     // Emit function definitions for all nodes
     emitFunctionDefinitions(graph, context, stage);
 
