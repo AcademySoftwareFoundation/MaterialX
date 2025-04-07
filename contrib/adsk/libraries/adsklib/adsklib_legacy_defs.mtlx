@@ -168,21 +168,21 @@
   </nodedef>
 
   <nodedef name="ND_legacy_waves" node="legacy_waves">
-    <input name="waves" type="float" value="4.5" uimin="0.0" uisoftmax="8" />
-    <input name="position" type="vector3" defaultgeomprop="Pobject" />
-    <input name="radius" type="float" value="5" uimin="0.0" uisoftmax="10.0" />
+    <input name="waves" type="float" value="3" uimin="0" uisoftmax="8" />
+    <input name="position" type="vector3" defaultgeomprop="Pworld" />
+    <input name="radius" type="float" value="5" uimin="0.0" uisoftmax="10.0" unittype="distance" />
     <input name="seed" type="float" value="0" uimin="0.0" uisoftmax="100.0" />
-    <input name="wavemin" type="float" value="1" uimin="0.0" uisoftmax="100.0" />
-    <input name="wavemax" type="float" value="5" uimin="0.0" uisoftmax="100.0" />
+    <input name="wavemin" type="float" value="1" uimin="0.0" uisoftmax="100.0" unittype="distance" />
+    <input name="wavemax" type="float" value="5" uimin="0.0" uisoftmax="100.0" unittype="distance" />
     <input name="phase" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" />
     <input name="distribution3d" type="boolean" value="false" />
     <input name="fade" type="boolean" value="false" />
-    <input name="offset_x" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" />
-    <input name="offset_y" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" />
-    <input name="offset_z" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" />
-    <input name="rotate_x" type="float" value="0" uisoftmin="0.0" uisoftmax="360" />
-    <input name="rotate_y" type="float" value="0" uisoftmin="0.0" uisoftmax="360" />
-    <input name="rotate_z" type="float" value="0" uisoftmin="0.0" uisoftmax="360" />
+    <input name="offset_x" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" unittype="distance" />
+    <input name="offset_y" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" unittype="distance" />
+    <input name="offset_z" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" unittype="distance" />
+    <input name="rotate_x" type="float" value="0" uisoftmin="0.0" uisoftmax="360" unittype="angle" />
+    <input name="rotate_y" type="float" value="0" uisoftmin="0.0" uisoftmax="360" unittype="angle" />
+    <input name="rotate_z" type="float" value="0" uisoftmin="0.0" uisoftmax="360" unittype="angle" />
     <output name="out" type="color3" />
   </nodedef>
 
@@ -209,15 +209,15 @@
     <input name="color2" type="color3" value="0.212, 0.072, 0" uisoftmin="0,0,0" uisoftmax="1,1,1" />
     <input name="radialnoise" type="float" value="0.15" uisoftmin="0.0" uisoftmax="1.0" />
     <input name="axialnoise" type="float" value="0.15" uisoftmin="0.0" uisoftmax="1.0" />
-    <input name="thickness" type="float" value="1.0" uisoftmin="0.0" uisoftmax="100" />
+    <input name="thickness" type="float" value="1.0" uisoftmin="0.0" uisoftmax="100" unittype="distance" />
     <input name="loop" type="boolean" value="true" />
     <input name="noiserep" type="float" value="20" uisoftmin="0.0" uisoftmax="100" />
-    <input name="offset_x" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" />
-    <input name="offset_y" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" />
-    <input name="offset_z" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" />
-    <input name="rotate_x" type="float" value="0" uisoftmin="0.0" uisoftmax="360" />
-    <input name="rotate_y" type="float" value="0" uisoftmin="0.0" uisoftmax="360" />
-    <input name="rotate_z" type="float" value="0" uisoftmin="0.0" uisoftmax="360" />
+    <input name="offset_x" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" unittype="distance" />
+    <input name="offset_y" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" unittype="distance" />
+    <input name="offset_z" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" unittype="distance" />
+    <input name="rotate_x" type="float" value="0" uisoftmin="0.0" uisoftmax="360" unittype="angle" />
+    <input name="rotate_y" type="float" value="0" uisoftmin="0.0" uisoftmax="360" unittype="angle" />
+    <input name="rotate_z" type="float" value="0" uisoftmin="0.0" uisoftmax="360" unittype="angle" />
     <output name="out" type="color3" />
   </nodedef>
 
