@@ -325,6 +325,7 @@ private:
         float zoom;
     };
 
+    #pragma warning(disable : 4324) // disable the warning about the usage of alignas
     struct Render_params
     {
         // Camera
@@ -353,6 +354,7 @@ private:
         uint32_t progressive_iteration;
         uint32_t flip_texcoord_v;
     };
+    #pragma warning(default : 4324)
 
 private:
 
@@ -1412,7 +1414,7 @@ mi::neuraylib::ICompiled_material* compile_material_instance(
     // compile the material
     mi::base::Handle<mi::neuraylib::ICompiled_material> compiled_material(
         material_instance->create_compiled_material(compile_flags, context));
-    mi::examples::log::context_messages(context);
+    mi::examples::log::print_context_messages(context);
     assert(context->get_error_messages_count() == 0);
 
     compiled_material->retain();
@@ -1614,7 +1616,7 @@ const mi::neuraylib::ITarget_code* generate_glsl_code(
 
     link_unit->add_material(
         compiled_material, function_descs.data(), function_descs.size(), context);
-    mi::examples::log::context_messages(context);
+    mi::examples::log::print_context_messages(context);
     assert(context->get_error_messages_count() == 0);
 
     // Compile cutout_opacity also as standalone version to be used in the any-hit programs
@@ -1624,7 +1626,7 @@ const mi::neuraylib::ITarget_code* generate_glsl_code(
         "geometry.cutout_opacity", "mdl_standalone_cutout_opacity");
     link_unit->add_material(
         compiled_material, &cutout_opacity_function_desc, 1, context);
-    mi::examples::log::context_messages(context);
+    mi::examples::log::print_context_messages(context);
     assert(context->get_error_messages_count() == 0);
 
     // Generate GLSL code
@@ -1632,7 +1634,7 @@ const mi::neuraylib::ITarget_code* generate_glsl_code(
     mi::base::Handle<const mi::neuraylib::ITarget_code> target_code(
         be_glsl->translate_link_unit(link_unit.get(), context));
     auto t1 = std::chrono::steady_clock::now();
-    mi::examples::log::context_messages(context);
+    mi::examples::log::print_context_messages(context);
     assert(context->get_error_messages_count() == 0);
     assert(target_code);
 
@@ -1868,24 +1870,24 @@ namespace mdl
 
 namespace log
 {
-    Level s_level;
-    LogFile* s_file;
+    Level g_level;
+    LogFile* g_file;
 }
 
 } // namespace examples
 } // namespace mi
 
-int MAIN_UTF8(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
     Options options;
     parse_command_line(argc, argv, options);
-    mi::examples::log::s_level = options.log_level;
+    mi::examples::log::g_level = options.log_level;
 
     std::unique_ptr<mi::examples::log::LogFile> log_file;
     if (!options.log_file.empty())
     {
         log_file = std::make_unique<mi::examples::log::LogFile>(options.log_file);
-        mi::examples::log::s_file = log_file.get();
+        mi::examples::log::g_file = log_file.get();
     }
 
     // print time and command line options used to run the example
@@ -1895,10 +1897,10 @@ int MAIN_UTF8(int argc, char* argv[])
         cmdLine += std::string(argv[i]);
         cmdLine += " ";
     }
-    mi::examples::log::print("Command line arguments passed: %s", cmdLine.c_str());
-    mi::examples::log::print("Time local: %s", mi::examples::strings::current_date_time_local().c_str());
-    mi::examples::log::print("Time UTC:   %s", mi::examples::strings::current_date_time_UTC().c_str());
-    mi::examples::log::print("Current working directory: %s", mi::examples::io::get_working_directory().c_str());
+    mi::examples::log::info("Command line arguments passed: %s", cmdLine.c_str());
+    mi::examples::log::info("Time local: %s", mi::examples::strings::current_date_time_local().c_str());
+    mi::examples::log::info("Time UTC:   %s", mi::examples::strings::current_date_time_UTC().c_str());
+    mi::examples::log::info("Current working directory: %s", mi::examples::io::get_working_directory().c_str());
 
     // Access the MDL SDK
     mi::base::Handle<mi::neuraylib::INeuray> neuray(
@@ -2007,7 +2009,7 @@ int MAIN_UTF8(int argc, char* argv[])
                             transaction.get(), qualified_module_name.c_str(), generated.generatedMdlCode.c_str(), context.get()) < 0)
                     {
                         mi::examples::log::error("Failed to load the generated MDL code from: " + options.material_name);
-                        mi::examples::log::context_messages(context.get());
+                        mi::examples::log::print_context_messages(context.get());
                         qualified_module_name.clear();
                         material_simple_name.clear();
                     }
@@ -2034,7 +2036,7 @@ int MAIN_UTF8(int argc, char* argv[])
                 if (mdl_impexp_api->load_module(transaction.get(), qualified_module_name.c_str(), context.get()) < 0)
                 {
                     mi::examples::log::error("Failed to load material: " + options.material_name);
-                    mi::examples::log::context_messages(context.get());
+                    mi::examples::log::print_context_messages(context.get());
                     qualified_module_name.clear();
                     material_simple_name.clear();
                 }
@@ -2132,5 +2134,3 @@ int MAIN_UTF8(int argc, char* argv[])
     return result;
 }
 
-// Convert command line arguments to UTF8 on Windows
-COMMANDLINE_TO_UTF8

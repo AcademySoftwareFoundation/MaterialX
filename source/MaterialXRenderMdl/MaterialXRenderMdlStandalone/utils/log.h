@@ -43,42 +43,45 @@
 
 namespace mi { namespace examples { namespace log
 {
-    enum class Level : char
+
+enum class Level : char
+{
+    Error,
+    Warning,
+    Info,
+    Verbose,
+    Debug
+};
+
+struct LogFile
+{
+    LogFile(const std::string& filepath) :
+        m_log_file(filepath, std::ios_base::out),
+        m_log_stream(m_log_file)
     {
-        None = 0,
-        Error,
-        Warning,
-        Info,
-        Verbose
-    };
+    }
 
-    // current log level needs to be defined in the one link unit (one cpp-file)
-    extern Level s_level;
-
-    struct LogFile
+    virtual ~LogFile()
     {
-        LogFile(const std::string& filepath) :
-            m_log_file(filepath, std::ios_base::out),
-            m_log_stream(m_log_file)
-        {
-        }
+        m_log_file.close();
+    }
 
-        virtual ~LogFile()
-        {
-            m_log_file.close();
-        }
+    std::ostream& stream()
+    {
+        return m_log_stream;
+    }
 
-        std::ostream& stream()
-        {
-            return m_log_stream;
-        }
+    private:
+    std::ofstream m_log_file;
+    std::ostream& m_log_stream;
+};
 
-      private:
-        std::ofstream m_log_file;
-        std::ostream& m_log_stream;
-    };
 
-    extern LogFile* s_file;
+// current log level needs to be defined in the one link unit (one cpp-file)
+extern Level g_level;
+
+// log file needs to be specified in one link unit (one cpp-file). Can be nullptr.
+extern LogFile* g_file;
 
 // ------------------------------------------------------------------------------------------------
 
@@ -87,10 +90,9 @@ inline void print(
     const std::string& message)
 {
     std::time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-    char text[12] = { '\0' };
-    std::strftime(text, sizeof(text), "[%H:%M:%S] ", std::localtime(&now));
-
-    std::string m(text);
+    std::vector<char> date(12);
+    size_t num = std::strftime(date.data(), date.size(), "[%H:%M:%S] ", std::localtime(&now));
+    std::string m(num > 0 ? date.data() : "");
     switch(level)
     {
         case Level::Error:
@@ -105,35 +107,47 @@ inline void print(
         case Level::Verbose:
             m.append("[VERBOSE] ");
             break;
+        case Level::Debug:
+            m.append("[DEBUG]   ");
+            break;
         default:
             break;
     }
     m.append(message);
     std::cerr << m.c_str() << std::endl;
-    if (s_file)
+    if (g_file)
     {
-        s_file->stream() << m.c_str() << std::endl;
+        g_file->stream() << m.c_str() << std::endl;
     }
 }
 
-template <typename... Args>
-void print(const char* format_string, Args... args)
+// ------------------------------------------------------------------------------------------------
+
+inline void debug(const std::string& message)
 {
-    print(Level::None, mi::examples::strings::format(format_string, std::forward<Args>(args)...));
+    if (static_cast<char>(g_level) >= static_cast<char>(Level::Debug))
+        print(Level::Debug, message);
+}
+
+template <typename... Args>
+void debug(const char* format_string, Args... args)
+{
+    if (static_cast<char>(g_level) >= static_cast<char>(Level::Debug))
+        print(Level::Debug, mi::examples::strings::format(format_string, std::forward<Args>(args)...));
 }
 
 // ------------------------------------------------------------------------------------------------
 
 inline void verbose(const std::string& message)
 {
-    if (static_cast<char>(s_level) >= static_cast<char>(Level::Verbose))
+    if (static_cast<char>(g_level) >= static_cast<char>(Level::Verbose))
         print(Level::Verbose, message);
 }
 
 template <typename... Args>
 void verbose(const char* format_string, Args... args)
 {
-    if (static_cast<char>(s_level) >= static_cast<char>(Level::Verbose))
+    if (static_cast<char>(g_level) >= static_cast<char>(Level::Verbose))
         print(Level::Verbose, mi::examples::strings::format(format_string, std::forward<Args>(args)...));
 }
 
@@ -141,14 +155,14 @@ void verbose(const char* format_string, Args... args)
 
 inline void info(const std::string& message)
 {
-    if (static_cast<char>(s_level) >= static_cast<char>(Level::Info))
+    if (static_cast<char>(g_level) >= static_cast<char>(Level::Info))
         print(Level::Info, message);
 }
 
 template <typename... Args>
 void info(const char* format_string, Args... args)
 {
-    if (static_cast<char>(s_level) >= static_cast<char>(Level::Info))
+    if (static_cast<char>(g_level) >= static_cast<char>(Level::Info))
         print(Level::Info, mi::examples::strings::format(format_string, std::forward<Args>(args)...));
 }
 
@@ -156,14 +170,14 @@ void info(const char* format_string, Args... args)
 
 inline void warning(const std::string& message)
 {
-    if (static_cast<char>(s_level) >= static_cast<char>(Level::Warning))
+    if (static_cast<char>(g_level) >= static_cast<char>(Level::Warning))
         print(Level::Warning, message);
 }
 
 template <typename... Args>
 void warning(const char* format_string, Args... args)
 {
-    if (static_cast<char>(s_level) >= static_cast<char>(Level::Warning))
+    if (static_cast<char>(g_level) >= static_cast<char>(Level::Warning))
         print(Level::Warning, mi::examples::strings::format(format_string, std::forward<Args>(args)...));
 }
 
@@ -171,14 +185,14 @@ void warning(const char* format_string, Args... args)
 
 inline void error(const std::string& message)
 {
-    if (static_cast<char>(s_level) >= static_cast<char>(Level::Error))
+    if (static_cast<char>(g_level) >= static_cast<char>(Level::Error))
         print(Level::Error, message);
 }
 
 template <typename... Args>
 void error(const char* format_string, Args... args)
 {
-    if (static_cast<char>(s_level) >= static_cast<char>(Level::Error))
+    if (static_cast<char>(g_level) >= static_cast<char>(Level::Error))
         print(Level::Error, mi::examples::strings::format(format_string, std::forward<Args>(args)...));
 }
 
@@ -204,65 +218,35 @@ inline void exception(
 
 // ------------------------------------------------------------------------------------------------
 
-inline void context_messages(const mi::neuraylib::IMdl_execution_context* context)
+inline void print_context_messages(const mi::neuraylib::IMdl_execution_context* context)
 {
     if (context->get_messages_count() == 0)
         return;
 
-    std::string log;
-    mi::base::Message_severity most_severe = mi::base::MESSAGE_SEVERITY_DEBUG;
     for (mi::Size i = 0, n = context->get_messages_count(); i < n; ++i)
     {
-        log += "\n";
         mi::base::Handle<const mi::neuraylib::IMessage> message(context->get_message(i));
         switch (message->get_severity())
         {
             case mi::base::MESSAGE_SEVERITY_FATAL:
-                log += "  fatal:   ";
+                error(message->get_string());
                 break;
             case mi::base::MESSAGE_SEVERITY_ERROR:
-                log += "  error:   ";
+                error(message->get_string());
                 break;
             case mi::base::MESSAGE_SEVERITY_WARNING:
-                log += "  warning: ";
+                warning(message->get_string());
                 break;
             case mi::base::MESSAGE_SEVERITY_INFO:
-                log += "  info:    ";
+                info(message->get_string());
                 break;
             case mi::base::MESSAGE_SEVERITY_VERBOSE:
-                log += "  verbose: ";
+                verbose(message->get_string());
                 break;
             case mi::base::MESSAGE_SEVERITY_DEBUG:
-                log += "  debug:   ";
-                break;
-            default:
-                log += "           ";
+                debug(message->get_string());
                 break;
         }
-        most_severe = std::min(most_severe, message->get_severity());
-        const std::string kind = std::to_string(message->get_kind());
-        if (!kind.empty())
-            log += kind + ": ";
-        log += message->get_string();
-    }
-
-    switch (most_severe)
-    {
-        case mi::base::MESSAGE_SEVERITY_FATAL:
-        case mi::base::MESSAGE_SEVERITY_ERROR:
-            error(log);
-            break;
-        case mi::base::MESSAGE_SEVERITY_WARNING:
-            warning(log);
-            break;
-        case mi::base::MESSAGE_SEVERITY_INFO:
-            info(log);
-            break;
-        case mi::base::MESSAGE_SEVERITY_VERBOSE:
-        case mi::base::MESSAGE_SEVERITY_DEBUG:
-        default:
-            verbose(log);
-            break;
     }
 }
 
