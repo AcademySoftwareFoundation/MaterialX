@@ -341,7 +341,7 @@ add_subdirectory(source/MaterialXFormat)
 
 if (MATERIALX_BUILD_BAKE_NAMED_VALUES)
     if (CMAKE_CROSSCOMPILING)
-        set(_MaterialXBuildLibrary "${CMAKE_BINARY_DIR}/BUILD_TOOLS/MaterialXBuildLibrary${CMAKE_EXECUTABLE_SUFFIX}")
+        set(_MaterialXBuildLibrary "${CMAKE_BINARY_DIR}/BUILD_TOOLS/MaterialXBuildLibrary")
 
         set(MTLX_BUILD_TOOLS_BUILD_TYPE_CONFIG "-DCMAKE_BUILD_TYPE:STRING=\"Release\";-DCMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE:PATH=\"${CMAKE_BINARY_DIR}/BUILD_TOOLS\"")
         if (CMAKE_BUILD_TYPE STREQUAL "Debug")
