@@ -351,7 +351,6 @@ if (MATERIALX_BUILD_BAKE_NAMED_VALUES)
         add_custom_command(
                 OUTPUT ${_MaterialXBuildLibrary}
                 COMMAND ${CMAKE_COMMAND}
-                -G Ninja
                 ${MTLX_BUILD_TOOLS_BUILD_TYPE_CONFIG}
                 -DMATERIALX_MAJOR_VERSION=${MATERIALX_MAJOR_VERSION}
                 -DMATERIALX_MINOR_VERSION=${MATERIALX_MINOR_VERSION}
@@ -360,10 +359,10 @@ if (MATERIALX_BUILD_BAKE_NAMED_VALUES)
                 -DMATERIALX_BUILD_BAKE_NAMED_VALUES=ON
                 -B"BUILD_TOOLS"
                 -H"${CMAKE_SOURCE_DIR}/source/MaterialXBuildTools"
-                COMMAND ${CMAKE_COMMAND} --build BUILD_TOOLS --config ${CMAKE_BUILD_TYPE}
+                COMMAND ${CMAKE_COMMAND} --build BUILD_TOOLS
                 DEPENDS MaterialXCore MaterialXFormat
         )
-        add_custom_target(taco ALL
+        add_custom_target(MaterialXBuildLibrary ALL
         DEPENDS ${_MaterialXBuildLibrary})
     else()
         set(_MaterialXBuildLibrary MaterialXBuildLibrary)
