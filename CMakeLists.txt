@@ -38,8 +38,6 @@ option(MATERIALX_BUILD_VIEWER "Build the MaterialX Viewer." OFF)
 option(MATERIALX_BUILD_GRAPH_EDITOR "Build the MaterialX Graph Editor." OFF)
 option(MATERIALX_BUILD_DOCS "Create HTML documentation using Doxygen. Requires that Doxygen be installed." OFF)
 
-option(MATERIALX_BUILD_BAKE_NAMED_VALUES "Process the data library files at build time to bake out the named values." ON)
-
 option(MATERIALX_BUILD_GEN_GLSL "Build the GLSL shader generator back-end." ON)
 option(MATERIALX_BUILD_GEN_OSL "Build the OSL shader generator back-end." ON)
 option(MATERIALX_BUILD_GEN_MDL "Build the MDL shader generator back-end." ON)
@@ -53,6 +51,7 @@ option(MATERIALX_BUILD_BENCHMARK_TESTS "Build benchmark tests." OFF)
 
 option(MATERIALX_BUILD_SHARED_LIBS "Build MaterialX libraries as shared rather than static." OFF)
 option(MATERIALX_BUILD_DATA_LIBRARY "Build generated products from the MaterialX data library." OFF)
+option(MATERIALX_BUILD_BAKE_NAMED_VALUES "Process the data library files at build time to bake out the named values." ON)
 option(MATERIALX_BUILD_MONOLITHIC "Build a single monolithic MaterialX library." OFF)
 option(MATERIALX_BUILD_USE_CCACHE "Enable the use of ccache to speed up build time, if present." ON)
 option(MATERIALX_PYTHON_LTO "Enable link-time optimizations for MaterialX Python." ON)
@@ -440,6 +439,10 @@ else()
     set(BUILD_SHARED_LIBS "OFF")
 endif()
 
+if (MATERIALX_BUILD_BAKE_NAMED_VALUES)
+    set(MATERIALX_BUILD_DATA_LIBRARY ON)
+endif()
+
 # Build a monolithic target - needs to be added before the other build targets that may be included.
 if (MATERIALX_BUILD_MONOLITHIC)
     set(MATERIALX_MONOLITHIC_TARGET MaterialX)
@@ -449,7 +452,9 @@ endif()
 # Add core subdirectories
 add_subdirectory(source/MaterialXCore)
 add_subdirectory(source/MaterialXFormat)
-add_subdirectory(source/MaterialXBuildTools/buildLibrary)
+if (MATERIALX_BUILD_BAKE_NAMED_VALUES)
+    add_subdirectory(source/MaterialXBuildTools/buildLibrary)
+endif()
 
 # Add shader generation subdirectories
 add_subdirectory(source/MaterialXGenShader)

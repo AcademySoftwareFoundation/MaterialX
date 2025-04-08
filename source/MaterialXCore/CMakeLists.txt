@@ -16,14 +16,7 @@ target_include_directories(${TARGET_NAME}
         PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../>)
 
-if (${MATERIALX_BUILD_BAKE_NAMED_VALUES})
-    target_compile_definitions(${TARGET_NAME}
+target_compile_definitions(${TARGET_NAME}
         PRIVATE
-            MATERIALX_BUILD_BAKE_NAMED_VALUES=1
-    )
-else()
-    target_compile_definitions(${TARGET_NAME}
-            PRIVATE
-            MATERIALX_BUILD_BAKE_NAMED_VALUES=0
-    )
-endif()
+        MATERIALX_BUILD_BAKE_NAMED_VALUES=$<BOOL:${MATERIALX_BUILD_BAKE_NAMED_VALUES}>
+)

@@ -1,25 +1,51 @@
 
-
-
-
-if(MATERIALX_BUILD_DATA_LIBRARY OR ${MATERIALX_BUILD_BAKE_NAMED_VALUES})
+if(MATERIALX_BUILD_DATA_LIBRARY)
     # Build generated products from the MaterialX data library.
     # Initially, this step is a simple copy across folders, but our intent
     # is for it to include meaningful work in the future.
 
     set(DATA_LIBRARY_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/DataLibraryBuild)
 
-    file(GLOB_RECURSE MATERIALX_DATA_LIBRARY_SOURCE_FILES
-         RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
-         LIST_DIRECTORIES false
-         *.mtlx
-         *.md
-         *.glsl
-         *.osl
-         *.h
-         *.metal)
+    file(GLOB_RECURSE MATERIALX_DATA_LIBRARY_MTLX_SOURCE_FILES
+            RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
+            LIST_DIRECTORIES false
+            *.mtlx)
 
-    foreach(SOURCE_FILE IN LISTS MATERIALX_DATA_LIBRARY_SOURCE_FILES)
+    if (MATERIALX_BUILD_BAKE_NAMED_VALUES)
+        foreach(SOURCE_FILE IN LISTS MATERIALX_DATA_LIBRARY_MTLX_SOURCE_FILES)
+            set(DEST_FILEPATH ${DATA_LIBRARY_BUILD_DIR}/${SOURCE_FILE})
+            list(APPEND MATERIALX_DATA_LIBRARY_MTLX_BUILD_FILES ${DEST_FILEPATH})
+        endforeach()
+
+        add_custom_command(
+                OUTPUT ${MATERIALX_DATA_LIBRARY_MTLX_BUILD_FILES}
+                COMMAND MaterialXBuildLibrary --sourceLibraryRoot ${CMAKE_CURRENT_SOURCE_DIR} --destLibraryRoot ${DATA_LIBRARY_BUILD_DIR}
+                DEPENDS ${MATERIALX_DATA_LIBRARY_MTLX_SOURCE_FILES}
+        )
+
+        list(APPEND MATERIALX_DATA_LIBRARY_BUILD_FILES ${MATERIALX_DATA_LIBRARY_MTLX_BUILD_FILES})
+    else()
+        foreach(SOURCE_FILE IN LISTS MATERIALX_DATA_LIBRARY_MTLX_SOURCE_FILES)
+            set(SOURCE_FILEPATH ${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE_FILE})
+            set(DEST_FILEPATH ${DATA_LIBRARY_BUILD_DIR}/${SOURCE_FILE})
+            add_custom_command(
+                    OUTPUT ${DEST_FILEPATH}
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${SOURCE_FILEPATH} ${DEST_FILEPATH}
+                    DEPENDS ${SOURCE_FILEPATH})
+            list(APPEND MATERIALX_DATA_LIBRARY_BUILD_FILES ${DEST_FILEPATH})
+        endforeach()
+    endif()
+
+    file(GLOB_RECURSE MATERIALX_DATA_LIBRARY_SHADER_SOURCE_FILES
+            RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
+            LIST_DIRECTORIES false
+            *.md
+            *.glsl
+            *.osl
+            *.h
+            *.metal)
+
+    foreach(SOURCE_FILE IN LISTS MATERIALX_DATA_LIBRARY_SHADER_SOURCE_FILES)
         set(SOURCE_FILEPATH ${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE_FILE})
         set(DEST_FILEPATH ${DATA_LIBRARY_BUILD_DIR}/${SOURCE_FILE})
         add_custom_command(
@@ -55,55 +81,3 @@ if(MATERIALX_BUILD_PYTHON)
 endif()
 
 set(MATERIALX_DATA_LIBRARY_DIR ${DATA_LIBRARY_DIR} PARENT_SCOPE)
-
-
-
-
-
-
-set(MATERIALX_DATA_LIBRARY_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/data_library)
-
-function(build_data_library TARGET_NAME SOURCE_DIR DEST_DIR)
-
-    if (${MATERIALX_BUILD_BAKE_NAMED_VALUES})
-        add_custom_target(${TARGET_NAME} ALL
-                COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
-                ${SOURCE_DIR}/
-                ${DEST_DIR}
-                COMMAND MaterialXBuildLibrary --sourceLibraryRoot ${SOURCE_DIR} --destLibraryRoot ${DEST_DIR}
-                COMMAND ${CMAKE_COMMAND} -E rm -f ${DEST_DIR}/CmakeLists.txt
-        )
-    else()
-        add_custom_target(${TARGET_NAME} ALL
-                COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
-                ${SOURCE_DIR}/
-                ${DEST_DIR}
-                COMMAND ${CMAKE_COMMAND} -E rm -f ${DEST_DIR}/CmakeLists.txt
-        )
-    endif()
-
-endfunction(build_data_library)
-
-build_data_library(buildDataLibrary ${CMAKE_CURRENT_SOURCE_DIR} ${MATERIALX_DATA_LIBRARY_BUILD_DIR})
-
-if(MATERIALX_BUILD_TESTS)
-    build_data_library(buildTestDataLibrary ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/libraries)
-endif()
-
-
-
-if(NOT SKBUILD)
-    install(DIRECTORY ${MATERIALX_DATA_LIBRARY_BUILD_DIR}/
-            DESTINATION "${MATERIALX_INSTALL_STDLIB_PATH}"
-    )
-endif()
-
-set(MATERIALX_PYTHON_LIBRARIES_PATH "${MATERIALX_PYTHON_FOLDER_NAME}/${MATERIALX_INSTALL_STDLIB_PATH}")
-if(SKBUILD)
-    set(MATERIALX_PYTHON_LIBRARIES_PATH "${SKBUILD_PLATLIB_DIR}/MaterialX/libraries")
-endif()
-
-if(MATERIALX_BUILD_PYTHON)
-    install(DIRECTORY ${MATERIALX_DATA_LIBRARY_BUILD_DIR}/
-            DESTINATION "${MATERIALX_PYTHON_LIBRARIES_PATH}")
-endif()

@@ -96,7 +96,13 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     target_compile_options(MaterialXTest PUBLIC -Wno-deprecated-declarations)
 endif()
 
-# TODO: Only do this stuff when it's relevant
+# The MaterialX test suite maintains a synchronized copy of the data libraries.
+add_custom_target(MaterialXTestData ALL
+    COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
+    ${MATERIALX_DATA_LIBRARY_DIR} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/libraries)
+if(MATERIALX_BUILD_DATA_LIBRARY )
+    add_dependencies(MaterialXTestData MaterialXBuildData)
+endif()
 
 if(MATERIALX_BUILD_GEN_MDL)
     install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../source/MaterialXGenMdl/mdl/"

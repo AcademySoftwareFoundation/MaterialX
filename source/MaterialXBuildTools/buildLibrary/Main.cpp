@@ -106,12 +106,14 @@ int main(int argc, char* const argv[])
     mx::FilePath sourceLibraryRoot = mx::FilePath(sourceLibraryRootStr);
     mx::FilePath destLibrarayRoot = mx::FilePath(destLibraryRootStr);
 
-    if (!sourceLibraryRoot.isDirectory()) {
+    if (!sourceLibraryRoot.isDirectory())
+    {
         std::cerr << "Source Library Root is not a directory" << std::endl;
         return 1;
     }
 
-    if (!destLibrarayRoot.isDirectory()) {
+    if (!destLibrarayRoot.isDirectory())
+    {
         std::cerr << "Destination Library Root is not a directory" << std::endl;
         return 1;
     }
