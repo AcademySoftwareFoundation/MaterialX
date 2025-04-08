@@ -100,9 +100,6 @@ int main(int argc, char* const argv[])
         }
     }
 
-    mx::DocumentPtr stdlib = mx::createDocument();
-    mx::loadLibraries({}, mx::FileSearchPath(sourceLibraryRootStr), stdlib);
-
     mx::FilePath sourceLibraryRoot = mx::FilePath(sourceLibraryRootStr);
     mx::FilePath destLibrarayRoot = mx::FilePath(destLibraryRootStr);
 
@@ -117,6 +114,9 @@ int main(int argc, char* const argv[])
         std::cerr << "Destination Library Root is not a directory" << std::endl;
         return 1;
     }
+
+    mx::DocumentPtr stdlib = mx::createDocument();
+    mx::loadLibraries({}, mx::FileSearchPath(sourceLibraryRootStr), stdlib);
 
     mx::FilePathVec mtlxFiles = getMaterialXFiles(sourceLibraryRoot);
 

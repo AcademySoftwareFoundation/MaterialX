@@ -20,8 +20,8 @@ if(MATERIALX_BUILD_DATA_LIBRARY)
         add_custom_command(
                 OUTPUT ${MATERIALX_DATA_LIBRARY_MTLX_BUILD_FILES}
                 COMMAND ${CMAKE_COMMAND} -E make_directory ${DATA_LIBRARY_BUILD_DIR}
-                COMMAND MaterialXBuildLibrary --sourceLibraryRoot ${CMAKE_CURRENT_SOURCE_DIR} --destLibraryRoot ${DATA_LIBRARY_BUILD_DIR}
-                DEPENDS ${MATERIALX_DATA_LIBRARY_MTLX_SOURCE_FILES}
+                COMMAND ${_MaterialXBuildLibrary} --sourceLibraryRoot ${CMAKE_CURRENT_SOURCE_DIR} --destLibraryRoot ${DATA_LIBRARY_BUILD_DIR}
+                DEPENDS ${MATERIALX_DATA_LIBRARY_MTLX_SOURCE_FILES} ${_MaterialXBuildLibrary}
         )
 
         list(APPEND MATERIALX_DATA_LIBRARY_BUILD_FILES ${MATERIALX_DATA_LIBRARY_MTLX_BUILD_FILES})
