@@ -8,6 +8,7 @@
 
 /// @file
 /// Data types for rendering functionality
+#include <cstdint>
 
 #include <MaterialXRender/Export.h>
 

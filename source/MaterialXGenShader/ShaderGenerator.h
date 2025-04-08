@@ -14,6 +14,7 @@
 #include <MaterialXGenShader/ColorManagementSystem.h>
 #include <MaterialXGenShader/Factory.h>
 #include <MaterialXGenShader/ShaderStage.h>
+#include <cstdint>
 #include <MaterialXGenShader/Syntax.h>
 
 #include <MaterialXFormat/File.h>

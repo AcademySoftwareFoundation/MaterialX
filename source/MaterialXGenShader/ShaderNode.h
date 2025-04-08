@@ -14,6 +14,7 @@
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 #include <MaterialXGenShader/TypeDesc.h>
 #include <MaterialXGenShader/GenUserData.h>
+#include <cstdint>
 
 #include <MaterialXCore/Node.h>
 

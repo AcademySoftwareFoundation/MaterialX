@@ -8,7 +8,7 @@
 
 /// @file
 /// Mesh interfaces
-
+#include <cstdint>
 #include <MaterialXCore/Types.h>
 #include <MaterialXRender/Export.h>
 
