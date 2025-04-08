@@ -100,7 +100,7 @@ endif()
 add_custom_target(MaterialXTestData ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
     ${MATERIALX_DATA_LIBRARY_DIR} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/libraries)
-if(MATERIALX_BUILD_DATA_LIBRARY )
+if(MATERIALX_BUILD_DATA_LIBRARY)
     add_dependencies(MaterialXTestData MaterialXBuildData)
 endif()
 
