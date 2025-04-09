@@ -190,7 +190,7 @@ namespace mi { namespace examples { namespace strings
     /// \param  args    arguments to insert into the format string
     /// \return the formatted string
     template <typename... Args>
-    inline std::string format(const char *format_string, Args ... args)
+    inline std::string format(const char *format_string, Args&&... args)
     {
         // get string size + 1 for null terminator to allocate a string of correct size
         int size = 1 + snprintf(nullptr, 0, format_string, std::forward<Args>(args)...);
