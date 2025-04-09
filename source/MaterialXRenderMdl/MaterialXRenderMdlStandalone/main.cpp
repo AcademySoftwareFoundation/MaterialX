@@ -1712,9 +1712,11 @@ void print_usage(char const* prog_name)
         << "  --materialxtest_mode        setup image and texcoord space to match the test setup\n"
         << "  -o|--output <path>          image file to write result in nogui mode (default: output.exr)\n"
         << "  -g|--generated <path>       outputs the MDL code generated from MaterialX to a file\n"
-        << "  --verbose                   set log output to level 'verbose' (default: info)\n"
-        << "  --warning                   limit log output to level 'warning' (default: info)\n"
-        << "  --error                     limit log output to level 'error' (default: info)\n"
+        << "  --debug                     set console log output to level 'debug' (default: info)\n"
+        << "  --verbose                   limit console log output to level 'verbose' (default: info)\n"
+        << "  --warning                   limit console log output to level 'warning' (default: info)\n"
+        << "  --error                     limit console log output to level 'error' (default: info)\n"
+        << "  --log_file <path>           set a log file to write to (default: none)\n"
         << std::endl;
 
     exit(EXIT_FAILURE);
@@ -1751,6 +1753,8 @@ void parse_command_line(int argc, char* argv[], Options& options)
                     options.mdl_target_version = MaterialX::GenMdlOptions::MdlVersion::MDL_1_8;
                 else if (version != "1.9")
                     options.mdl_target_version = MaterialX::GenMdlOptions::MdlVersion::MDL_1_9;
+                else if (version != "1.10")
+                    options.mdl_target_version = MaterialX::GenMdlOptions::MdlVersion::MDL_1_10;
                 else
                     options.mdl_target_version = MaterialX::GenMdlOptions::MdlVersion::MDL_LATEST;
             }
@@ -1829,14 +1833,16 @@ void parse_command_line(int argc, char* argv[], Options& options)
             else if ((arg == "-g" || arg == "--generated") && i < argc - 1)
                 options.dump_mdl = (argv[++i]);
 
-            else if (arg == "--log_file" && i < argc - 1)
-                options.log_file = (argv[++i]);
+            else if (arg == "--debug")
+                options.log_level = mi::examples::log::Level::Debug;
             else if (arg == "--verbose")
                 options.log_level = mi::examples::log::Level::Verbose;
             else if (arg == "--warning")
                 options.log_level = mi::examples::log::Level::Warning;
             else if (arg == "--error")
                 options.log_level = mi::examples::log::Level::Error;
+            else if (arg == "--log_file" && i < argc - 1)
+                options.log_file = (argv[++i]);
             else
             {
                 if (arg != "-h" && arg != "--help")
@@ -1870,7 +1876,8 @@ namespace mdl
 
 namespace log
 {
-    Level g_level;
+    Level g_level_console;
+    Level g_level_file;
     LogFile* g_file;
 }
 
@@ -1881,7 +1888,8 @@ int main(int argc, char* argv[])
 {
     Options options;
     parse_command_line(argc, argv, options);
-    mi::examples::log::g_level = options.log_level;
+    mi::examples::log::g_level_console = options.log_level;
+    mi::examples::log::g_level_file = mi::examples::log::Level::Verbose;
 
     std::unique_ptr<mi::examples::log::LogFile> log_file;
     if (!options.log_file.empty())
