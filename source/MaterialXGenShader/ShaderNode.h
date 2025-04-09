@@ -17,8 +17,6 @@
 
 #include <MaterialXCore/Node.h>
 
-#include <cstdint>
-
 MATERIALX_NAMESPACE_BEGIN
 
 class ShaderNode;
