@@ -34,7 +34,7 @@ class MX_GENSHADER_API ShaderTranslator
     void translateAllMaterials(DocumentPtr doc, const string& destShader);
 
   protected:
-    ShaderTranslator() { }
+    ShaderTranslator() = default;
 
     // Connect translation node inputs from the original shader
     void connectTranslationInputs(NodePtr shader, NodeDefPtr translationNodeDef);

@@ -421,7 +421,7 @@ template <class T> class ValueRegistry
             Value::_creatorMap[TypedValue<T>::TYPE] = TypedValue<T>::createFromString;
         }
     }
-    ~ValueRegistry() { }
+    ~ValueRegistry() = default;
 };
 
 //

@@ -14,9 +14,9 @@ void mx_sheen_bsdf(ClosureData closureData, float weight, vec3 color, float roug
     N = mx_forward_facing_normal(N, V);
     float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);
 
-    float dirAlbedo;
     if (closureData.closureType == CLOSURE_TYPE_REFLECTION)
     {
+        float dirAlbedo;
         if (mode == 0)
         {
             vec3 H = normalize(L + V);
@@ -39,9 +39,11 @@ void mx_sheen_bsdf(ClosureData closureData, float weight, vec3 color, float roug
             dirAlbedo = mx_zeltner_sheen_dir_albedo(NdotV, roughness);
             bsdf.response = dirAlbedo * fr * closureData.occlusion * weight;
         }
+        bsdf.throughput = vec3(1.0 - dirAlbedo * weight);
     }
     else if (closureData.closureType == CLOSURE_TYPE_INDIRECT)
     {
+        float dirAlbedo;
         if (mode == 0)
         {
             dirAlbedo = mx_imageworks_sheen_dir_albedo(NdotV, roughness);
@@ -54,7 +56,6 @@ void mx_sheen_bsdf(ClosureData closureData, float weight, vec3 color, float roug
 
         vec3 Li = mx_environment_irradiance(N);
         bsdf.response = Li * color * dirAlbedo * weight;
+        bsdf.throughput = vec3(1.0 - dirAlbedo * weight);
     }
-
-    bsdf.throughput = vec3(1.0 - dirAlbedo * weight);
 }

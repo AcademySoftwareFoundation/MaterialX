@@ -82,7 +82,7 @@ class MX_GENSHADER_API TypeDesc
 
     /// Empty constructor.
     constexpr TypeDesc() noexcept :
-        _id(0),
+        _id(constexpr_hash("none")),
         _basetype(BASETYPE_NONE),
         _semantic(SEMANTIC_NONE),
         _size(0),
@@ -261,9 +261,10 @@ namespace Type
 {
 
 //
-/// Define type descriptors for standard types.
+// Define type descriptors for standard types.
 //
-TYPEDESC_DEFINE_TYPE(NONE, "none", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_NONE, 1)
+
+static const TypeDesc NONE; // Type::NONE matches the TypeDesc default constructor
 TYPEDESC_DEFINE_TYPE(BOOLEAN, "boolean", TypeDesc::BASETYPE_BOOLEAN, TypeDesc::SEMANTIC_NONE, 1)
 TYPEDESC_DEFINE_TYPE(INTEGER, "integer", TypeDesc::BASETYPE_INTEGER, TypeDesc::SEMANTIC_NONE, 1)
 TYPEDESC_DEFINE_TYPE(FLOAT, "float", TypeDesc::BASETYPE_FLOAT, TypeDesc::SEMANTIC_NONE, 1)

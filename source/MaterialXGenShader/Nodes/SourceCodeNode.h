@@ -29,7 +29,7 @@ class MX_GENSHADER_API SourceCodeNode : public ShaderNodeImpl
     /// Resolve the source file and read the source code during the initialization of the node.
     virtual void resolveSourceCode(const InterfaceElement& element, GenContext& context);
 
-    bool _inlined;
+    bool _inlined = false;
     string _functionName;
     string _functionSource;
     FilePath _sourceFilename;

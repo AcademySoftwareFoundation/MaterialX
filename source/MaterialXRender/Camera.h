@@ -29,7 +29,7 @@ class MX_RENDER_API Camera
         _arcballSpeed(2.0f)
     {
     }
-    ~Camera() { }
+    ~Camera() = default;
 
     /// Create a new camera.
     static CameraPtr create() { return std::make_shared<Camera>(); }

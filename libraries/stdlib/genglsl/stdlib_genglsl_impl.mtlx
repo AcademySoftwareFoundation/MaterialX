@@ -250,8 +250,8 @@
   <implementation name="IM_multiply_vector3FA_genglsl" nodedef="ND_multiply_vector3FA" target="genglsl" sourcecode="{{in1}} * {{in2}}" />
   <implementation name="IM_multiply_vector4_genglsl" nodedef="ND_multiply_vector4" target="genglsl" sourcecode="{{in1}} * {{in2}}" />
   <implementation name="IM_multiply_vector4FA_genglsl" nodedef="ND_multiply_vector4FA" target="genglsl" sourcecode="{{in1}} * {{in2}}" />
-  <implementation name="IM_multiply_matrix33_genglsl" nodedef="ND_multiply_matrix33" target="genglsl" sourcecode="{{in1}} * {{in2}}" />
-  <implementation name="IM_multiply_matrix44_genglsl" nodedef="ND_multiply_matrix44" target="genglsl" sourcecode="{{in1}} * {{in2}}" />
+  <implementation name="IM_multiply_matrix33_genglsl" nodedef="ND_multiply_matrix33" target="genglsl" sourcecode="{{in2}} * {{in1}}" />
+  <implementation name="IM_multiply_matrix44_genglsl" nodedef="ND_multiply_matrix44" target="genglsl" sourcecode="{{in2}} * {{in1}}" />
 
   <!-- <divide> -->
   <implementation name="IM_divide_float_genglsl" nodedef="ND_divide_float" target="genglsl" sourcecode="{{in1}} / {{in2}}" />
@@ -265,8 +265,8 @@
   <implementation name="IM_divide_vector3FA_genglsl" nodedef="ND_divide_vector3FA" target="genglsl" sourcecode="{{in1}} / {{in2}}" />
   <implementation name="IM_divide_vector4_genglsl" nodedef="ND_divide_vector4" target="genglsl" sourcecode="{{in1}} / {{in2}}" />
   <implementation name="IM_divide_vector4FA_genglsl" nodedef="ND_divide_vector4FA" target="genglsl" sourcecode="{{in1}} / {{in2}}" />
-  <implementation name="IM_divide_matrix33_genglsl" nodedef="ND_divide_matrix33" target="genglsl" sourcecode="{{in1}} / {{in2}}" />
-  <implementation name="IM_divide_matrix44_genglsl" nodedef="ND_divide_matrix44" target="genglsl" sourcecode="{{in1}} / {{in2}}" />
+  <implementation name="IM_divide_matrix33_genglsl" nodedef="ND_divide_matrix33" target="genglsl" sourcecode="mx_inverse({{in2}}) * {{in1}}" />
+  <implementation name="IM_divide_matrix44_genglsl" nodedef="ND_divide_matrix44" target="genglsl" sourcecode="mx_inverse({{in2}}) * {{in1}}" />
 
   <!-- <modulo> -->
   <implementation name="IM_modulo_float_genglsl" nodedef="ND_modulo_float" target="genglsl" sourcecode="mx_mod({{in1}}, {{in2}})" />
