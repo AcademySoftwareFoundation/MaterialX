@@ -14,7 +14,6 @@
 #include <MaterialXCore/Document.h>
 
 #include <cstdint>
-#include <stdint.h>
 #include <string_view>
 
 MATERIALX_NAMESPACE_BEGIN
