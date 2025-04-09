@@ -161,6 +161,11 @@ jobs:
       run: |
         Add-Content $env:GITHUB_PATH "$PWD/build/installed/bin"
 
+    - name: Install OpenImageIO
+      if: matrix.build_oiio == 'ON' && runner.os == 'Windows'
+      run: |
+        C:/vcpkg/vcpkg install openimageio --triplet=x64-windows-release
+
     - name: Install Python ${{ matrix.python }}
       if: matrix.python != 'None'
       uses: actions/setup-python@v5
