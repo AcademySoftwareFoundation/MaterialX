@@ -77,8 +77,9 @@ struct LogFile
 };
 
 
-// current log level needs to be defined in the one link unit (one cpp-file)
-extern Level g_level;
+// current log levels need to be defined in the one link unit (one cpp-file)
+extern Level g_level_console;
+extern Level g_level_file;
 
 // log file needs to be specified in one link unit (one cpp-file). Can be nullptr.
 extern LogFile* g_file;
@@ -89,6 +90,13 @@ inline void print(
     Level level,
     const std::string& message)
 {
+
+    bool log_to_console = static_cast<char>(g_level_console) >= static_cast<char>(level);
+    bool log_to_file = g_file && static_cast<char>(g_level_file) >= static_cast<char>(level);
+
+    if (!log_to_console && !log_to_file)
+        return; // early out if the message is not written.
+
     std::time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     std::vector<char> date(12);
     size_t num = std::strftime(date.data(), date.size(), "[%H:%M:%S] ", std::localtime(&now));
@@ -114,8 +122,14 @@ inline void print(
             break;
     }
     m.append(message);
-    std::cerr << m.c_str() << std::endl;
-    if (g_file)
+
+    // print the message to the console depending on the log level
+    if (log_to_console)
+    {
+        std::cerr << m.c_str() << std::endl;
+    }
+    // print the message to the log file depending on the log level
+    if (log_to_file)
     {
         g_file->stream() << m.c_str() << std::endl;
     }
@@ -125,75 +139,65 @@ inline void print(
 
 inline void debug(const std::string& message)
 {
-    if (static_cast<char>(g_level) >= static_cast<char>(Level::Debug))
-        print(Level::Debug, message);
+    print(Level::Debug, message);
 }
 
 template <typename... Args>
-void debug(const char* format_string, Args... args)
+void debug(const char* format_string, Args&&... args)
 {
-    if (static_cast<char>(g_level) >= static_cast<char>(Level::Debug))
-        print(Level::Debug, mi::examples::strings::format(format_string, std::forward<Args>(args)...));
+    print(Level::Debug, mi::examples::strings::format(format_string, std::forward<Args>(args)...));
 }
 
 // ------------------------------------------------------------------------------------------------
 
 inline void verbose(const std::string& message)
 {
-    if (static_cast<char>(g_level) >= static_cast<char>(Level::Verbose))
-        print(Level::Verbose, message);
+    print(Level::Verbose, message);
 }
 
 template <typename... Args>
-void verbose(const char* format_string, Args... args)
+void verbose(const char* format_string, Args&&... args)
 {
-    if (static_cast<char>(g_level) >= static_cast<char>(Level::Verbose))
-        print(Level::Verbose, mi::examples::strings::format(format_string, std::forward<Args>(args)...));
+    print(Level::Verbose, mi::examples::strings::format(format_string, std::forward<Args>(args)...));
 }
 
 // ------------------------------------------------------------------------------------------------
 
 inline void info(const std::string& message)
 {
-    if (static_cast<char>(g_level) >= static_cast<char>(Level::Info))
-        print(Level::Info, message);
+    print(Level::Info, message);
 }
 
 template <typename... Args>
-void info(const char* format_string, Args... args)
+void info(const char* format_string, Args&&... args)
 {
-    if (static_cast<char>(g_level) >= static_cast<char>(Level::Info))
-        print(Level::Info, mi::examples::strings::format(format_string, std::forward<Args>(args)...));
+    print(Level::Info, mi::examples::strings::format(format_string, std::forward<Args>(args)...));
 }
 
 // ------------------------------------------------------------------------------------------------
 
 inline void warning(const std::string& message)
 {
-    if (static_cast<char>(g_level) >= static_cast<char>(Level::Warning))
-        print(Level::Warning, message);
+    print(Level::Warning, message);
 }
 
 template <typename... Args>
-void warning(const char* format_string, Args... args)
+void warning(const char* format_string, Args&&... args)
 {
-    if (static_cast<char>(g_level) >= static_cast<char>(Level::Warning))
-        print(Level::Warning, mi::examples::strings::format(format_string, std::forward<Args>(args)...));
+    print(Level::Warning, mi::examples::strings::format(format_string, std::forward<Args>(args)...));
 }
 
 // ------------------------------------------------------------------------------------------------
 
 inline void error(const std::string& message)
 {
-    if (static_cast<char>(g_level) >= static_cast<char>(Level::Error))
-        print(Level::Error, message);
+    print(Level::Error, message);
 }
 
 template <typename... Args>
-void error(const char* format_string, Args... args)
+void error(const char* format_string, Args&&... args)
 {
-    if (static_cast<char>(g_level) >= static_cast<char>(Level::Error))
-        print(Level::Error, mi::examples::strings::format(format_string, std::forward<Args>(args)...));
+    print(Level::Error, mi::examples::strings::format(format_string, std::forward<Args>(args)...));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -204,14 +208,14 @@ inline void exception(
 {
     std::function<std::string(const std::exception&)> print_nested_exception = [&](const std::exception& e)
     {
-        std::string message = e.what();
+        std::string what = e.what();
         try {
             std::rethrow_if_nested(e);
         }
         catch (const std::exception& nested) {
-            message += "\n  nested: " + print_nested_exception(nested);
+            what += "\n  nested: " + print_nested_exception(nested);
         }
-        return message;
+        return what;
     };
     error(message + " " + print_nested_exception(exception));
 }
@@ -276,13 +280,10 @@ class ExampleLogger : public mi::base::Interface_implement<mi::base::ILogger>
                 info(message + 4 + 3); // "info : "
                 break;
             case mi::base::MESSAGE_SEVERITY_DEBUG:
-                verbose(message + 5 + 3); // "debug : "
+                debug(message + 5 + 3); // "debug : "
                 break;
             case mi::base::MESSAGE_SEVERITY_VERBOSE:
-                error(message);
-                break;
-            default:
-                verbose(message);
+                verbose(message + 7 + 3); // "verbose : "
                 break;
         }
     }
