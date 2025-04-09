@@ -13,7 +13,6 @@
 #include <MaterialXCore/Value.h>
 #include <MaterialXCore/Document.h>
 
-#include <cstdint>
 #include <string_view>
 
 MATERIALX_NAMESPACE_BEGIN
