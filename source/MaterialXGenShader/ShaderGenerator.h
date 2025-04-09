@@ -20,8 +20,6 @@
 
 #include <MaterialXCore/Exception.h>
 
-#include <cstdint>
-
 MATERIALX_NAMESPACE_BEGIN
 
 /// @class ShaderGenerator
