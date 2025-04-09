@@ -261,10 +261,10 @@ namespace Type
 {
 
 //
-/// Define type descriptors for standard types.
+// Define type descriptors for standard types.
 //
-// Type::NONE matches the TypeDesc default constructor.
-static const TypeDesc NONE;
+
+static const TypeDesc NONE; // Type::NONE matches the TypeDesc default constructor
 TYPEDESC_DEFINE_TYPE(BOOLEAN, "boolean", TypeDesc::BASETYPE_BOOLEAN, TypeDesc::SEMANTIC_NONE, 1)
 TYPEDESC_DEFINE_TYPE(INTEGER, "integer", TypeDesc::BASETYPE_INTEGER, TypeDesc::SEMANTIC_NONE, 1)
 TYPEDESC_DEFINE_TYPE(FLOAT, "float", TypeDesc::BASETYPE_FLOAT, TypeDesc::SEMANTIC_NONE, 1)
