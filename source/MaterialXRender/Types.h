@@ -8,6 +8,7 @@
 
 /// @file
 /// Data types for rendering functionality
+
 #include <MaterialXRender/Export.h>
 
 #include <MaterialXCore/Types.h>
