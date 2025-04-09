@@ -1,5 +1,4 @@
-
-// blend 3 normals by blending the gradients
+// Blend 3 normals by blending the gradients
 // Morten S. Mikkelsen, Surface Gradient–Based Bump Mapping Framework, Journal of
 // Computer Graphics Techniques (JCGT), vol. 9, no. 3, 60–90, 2020
 // http://jcgt.org/published/0009/03/04/
@@ -27,7 +26,7 @@ vec3 mx_gradient_blend_3_normals(vec3 N, vec3 N1, float N1_weight, vec3 N2, floa
     return normalize(N - gg);
 }
 
-// this function should be categorized in mx_math.glsl but it causes build errors in MSL
+// This function should be categorized in mx_math.glsl but it causes build errors in MSL
 // so adding here for a workaround
 mat3 mx_axis_rotation_matrix(vec3 a, float r)
 {
