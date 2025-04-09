@@ -8,11 +8,11 @@
 
 /// @file
 /// Data types for rendering functionality
-#include <cstdint>
-
 #include <MaterialXRender/Export.h>
 
 #include <MaterialXCore/Types.h>
+
+#include <cstdint>
 
 MATERIALX_NAMESPACE_BEGIN
 
