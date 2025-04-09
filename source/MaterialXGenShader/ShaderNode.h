@@ -14,9 +14,10 @@
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 #include <MaterialXGenShader/TypeDesc.h>
 #include <MaterialXGenShader/GenUserData.h>
-#include <cstdint>
 
 #include <MaterialXCore/Node.h>
+
+#include <cstdint>
 
 MATERIALX_NAMESPACE_BEGIN
 
