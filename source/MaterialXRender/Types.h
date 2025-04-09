@@ -13,8 +13,6 @@
 
 #include <MaterialXCore/Types.h>
 
-#include <cstdint>
-
 MATERIALX_NAMESPACE_BEGIN
 
 /// @class Quaternion
