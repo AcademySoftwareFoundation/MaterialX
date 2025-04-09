@@ -8,9 +8,11 @@
 
 /// @file
 /// Mesh interfaces
-#include <cstdint>
+
 #include <MaterialXCore/Types.h>
 #include <MaterialXRender/Export.h>
+
+#include <cstdint>
 
 MATERIALX_NAMESPACE_BEGIN
 
