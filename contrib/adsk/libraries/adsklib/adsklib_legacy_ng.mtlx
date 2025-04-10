@@ -322,7 +322,7 @@
       =================================================
   -->
 
-  <nodegraph name="NG_legacy_checker" Autodesk-ldx_inputPos="-33.194 -97.7876" Autodesk-ldx_outputPos="7625.8 -82.431" nodedef="ND_legacy_checker">
+  <nodegraph name="NG_legacy_checker_color3" Autodesk-ldx_inputPos="-33.194 -97.7876" Autodesk-ldx_outputPos="7625.8 -82.431" nodedef="ND_legacy_checker_color3">
     <output name="output_color3" type="color3" xpos="28.485508" ypos="0.284483" nodename="rgb_alpha_mask" />
     <output name="output_alpha" type="float" xpos="28.485508" ypos="8.284483" nodename="combine_alpha" />
     <output name="output_color4" type="color4" xpos="33.471016" ypos="4.681035" nodename="combine_color4" />
@@ -604,7 +604,7 @@
     <backdrop name="soften_y_adjustment" xpos="3.19753" ypos="-7.85822" width="6.688" height="4.58674" />
   </nodegraph>
 
-  <nodegraph name="NG_legacy_noise" Autodesk-ldx_inputPos="234.424 -58.394" Autodesk-ldx_outputPos="5398.14 -39.5305" nodedef="ND_legacy_noise">
+  <nodegraph name="NG_legacy_noise_color3" Autodesk-ldx_inputPos="234.424 -58.394" Autodesk-ldx_outputPos="5398.14 -39.5305" nodedef="ND_legacy_noise_color3">
     <output name="output_color3" type="color3" xpos="21.615942" ypos="0.560345" nodename="mix_colors" />
     <range name="range_noise3d" type="float" xpos="13.4151" ypos="3.01868">
       <input name="in" type="float" nodename="noise3d_float" />
@@ -2248,7 +2248,7 @@
     </divide>
   </nodegraph>
 
-  <nodegraph name="NG_legacy_waves" Autodesk-ldx_inputPos="-2093.23 -126.692" Autodesk-ldx_outputPos="4536.41 1806.75" nodedef="ND_legacy_waves">
+  <nodegraph name="NG_legacy_waves_color3" Autodesk-ldx_inputPos="-2093.23 -126.692" Autodesk-ldx_outputPos="4536.41 1806.75" nodedef="ND_legacy_waves_color3">
     <convert name="convert_color3" type="color3" nodedef="ND_convert_float_color3" xpos="23.5308" ypos="9.98517">
       <input name="in" type="float" nodename="wave_limit" />
     </convert>
@@ -2725,7 +2725,7 @@
     </util_woodfactor>
   </nodegraph>
 
-  <nodegraph name="NG_legacy_tiles" Autodesk-ldx_inputPos="-4291.35 -699.835" Autodesk-ldx_outputPos="4862.71 -40.6414" nodedef="ND_legacy_tiles">
+  <nodegraph name="NG_legacy_tiles_color3" Autodesk-ldx_inputPos="-4291.35 -699.835" Autodesk-ldx_outputPos="4862.71 -40.6414" nodedef="ND_legacy_tiles_color3">
     <output name="output_color3" type="color3" nodename="tiling_black" />
     <separate2 name="separate_texcoord" type="multioutput" nodedef="ND_separate2_vector2" xpos="-5.25424" ypos="-1.10149">
       <input name="in" type="vector2" nodename="add_roughness" />
@@ -3846,7 +3846,7 @@
       <input name="in1" type="color3" uivisible="true" nodename="stain_selection" />
       <input name="in2" type="color3" interfacename="tint_color" uivisible="true" />
     </multiply>
-    <legacy_stain name="texture_stain" type="color3" version="1.0" xpos="0.050725" ypos="-2.284483">
+    <legacy_stain name="texture_stain" type="color3" xpos="0.050725" ypos="-2.284483">
       <input name="color" type="color3" interfacename="color" uivisible="true" />
       <input name="stain_color" type="color3" interfacename="stain_color" uivisible="true" />
     </legacy_stain>
