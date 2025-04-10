@@ -28,7 +28,7 @@ The MaterialX C++ libraries are automatically included when building MaterialX t
 
 To enable OpenImageIO and OpenColorIO support in MaterialX builds, the following additional options may be used:
 
-- `MATERIALX_BUILD_OIIO`: Requests that MaterialXRender be built with OpenImageIO in addition to stb_image, extending the set of supported image formats.
+- `MATERIALX_BUILD_OIIO`: Requests that MaterialXRender be built with OpenImageIO in addition to stb_image, extending the set of supported image formats.  The minimum supported version of OpenImageIO is 2.2.
 - `MATERIALX_OIIO_DIR`: Path to the root folder of an OpenImageIO installation.  If MATERIALX_BUILD_OIIO has been enabled, then this option may be used to select which installation is used.
 - `MATERIALX_BUILD_OCIO`: Requests that MaterialXGenShader be built with support for custom OpenColorIO color spaces and transforms.  The minimum supported version of OpenColorIO is 2.4.
 
