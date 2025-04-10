@@ -1413,18 +1413,18 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
             extendedSearchPath.append(_materialSearchPath);
             _imageHandler->setSearchPath(extendedSearchPath);
 
+            // Clear cached implementations, in case libraries on the file system have changed.
+            _genContext.clearNodeImplementations();
+#ifndef MATERIALXVIEW_METAL_BACKEND
+            _genContextEssl.clearNodeImplementations();
+#endif
+
             // Add new materials to the global vector.
             _materials.insert(_materials.end(), newMaterials.begin(), newMaterials.end());
 
             mx::MaterialPtr udimMaterial = nullptr;
             for (mx::MaterialPtr mat : newMaterials)
             {
-                // Clear cached implementations, in case libraries on the file system have changed.
-                _genContext.clearNodeImplementations();
-#ifndef MATERIALXVIEW_METAL_BACKEND
-                _genContextEssl.clearNodeImplementations();
-#endif
-
                 mx::TypedElementPtr elem = mat->getElement();
 
                 std::string udim = mat->getUdim();
