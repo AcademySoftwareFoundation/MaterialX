@@ -1,6 +1,10 @@
 {
-  "version": "1.39.2",
+  "version": "1.39.4",
   "name": "materialx",
+  "description": "MaterialX is an open standard for the interchange of rich material and look-development content between applications and renderers.",
+  "dependencies": [
+    { "name": "glslang", "features": ["tools"] }
+  ],
   "features": {
     "mdl-compiler": {
       "description": "MDL Compiler used for [genmdl] tests.",
