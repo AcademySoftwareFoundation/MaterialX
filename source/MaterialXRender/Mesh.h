@@ -51,7 +51,7 @@ class MX_RENDER_API MeshStream
         _stride(DEFAULT_STRIDE)
     {
     }
-    ~MeshStream() { }
+    ~MeshStream() = default;
 
     /// Create a new mesh stream
     static MeshStreamPtr create(const string& name, const string& type, unsigned int index = 0)
@@ -155,7 +155,7 @@ class MX_RENDER_API MeshPartition
         _faceCount(0)
     {
     }
-    ~MeshPartition() { }
+    ~MeshPartition() = default;
 
     /// Create a new mesh partition
     static MeshPartitionPtr create()
@@ -241,7 +241,7 @@ class MX_RENDER_API Mesh
 {
   public:
     Mesh(const string& name);
-    ~Mesh() { }
+    ~Mesh() = default;
 
     /// Create a new mesh
     static MeshPtr create(const string& name)

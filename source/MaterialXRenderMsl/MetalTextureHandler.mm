@@ -29,7 +29,7 @@ bool MetalTextureHandler::bindImage(ImagePtr image, const ImageSamplingPropertie
             return false;
         }
     }
-    _imageBindingInfo[image->getResourceId()] = std::make_pair(image, samplingProperties);
+    _imageBindingInfo[image->getResourceId()] = samplingProperties;
     return true;
 }
 
@@ -72,7 +72,7 @@ bool MetalTextureHandler::bindImage(id<MTLRenderCommandEncoder> renderCmdEncoder
     _boundTextureLocations[textureUnit] = image->getResourceId();
 
     [renderCmdEncoder setFragmentTexture:_metalTextureMap[image->getResourceId()] atIndex:textureUnit];
-    [renderCmdEncoder setFragmentSamplerState:getSamplerState(_imageBindingInfo[image->getResourceId()].second) atIndex:textureUnit];
+    [renderCmdEncoder setFragmentSamplerState:getSamplerState(_imageBindingInfo[image->getResourceId()]) atIndex:textureUnit];
 
     return true;
 }
@@ -90,15 +90,10 @@ id<MTLTexture> MetalTextureHandler::getAssociatedMetalTexture(ImagePtr image)
 
 id<MTLTexture> MetalTextureHandler::getMTLTextureForImage(unsigned int index) const
 {
-    auto imageInfo = _imageBindingInfo.find(index);
-    if (imageInfo != _imageBindingInfo.end())
+    auto metalTexture = _metalTextureMap.find(index);
+    if (metalTexture != _metalTextureMap.end())
     {
-        if (!imageInfo->second.first)
-            return nil;
-
-        auto metalTexture = _metalTextureMap.find(imageInfo->second.first->getResourceId());
-        if (metalTexture != _metalTextureMap.end())
-            return metalTexture->second;
+        return metalTexture->second;
     }
 
     return nil;
@@ -109,7 +104,7 @@ id<MTLSamplerState> MetalTextureHandler::getMTLSamplerStateForImage(unsigned int
     auto imageInfo = _imageBindingInfo.find(index);
     if (imageInfo != _imageBindingInfo.end())
     {
-        return getSamplerState(imageInfo->second.second);
+        return getSamplerState(imageInfo->second);
     }
     return nil;
 }
@@ -202,54 +197,54 @@ bool MetalTextureHandler::createRenderResources(ImagePtr image, bool generateMip
     std::vector<unsigned char> rearrangedDataC;
     void* imageData = image->getResourceBuffer();
 
-    if ((pixelFormat == MTLPixelFormatRGBA32Float || pixelFormat == MTLPixelFormatRGBA8Unorm) && channelCount == 3)
-    {
-        bool isFloat = pixelFormat == MTLPixelFormatRGBA32Float;
-
-        sourceBytesPerRow = sourceBytesPerRow / 3 * 4;
-        sourceBytesPerImage = sourceBytesPerImage / 3 * 4;
-
-        size_t srcIdx = 0;
-
-        if (isFloat)
-        {
-            rearrangedDataF.resize(sourceBytesPerImage / sizeof(float));
-            for (size_t dstIdx = 0; dstIdx < rearrangedDataF.size(); ++dstIdx)
-            {
-                if ((dstIdx & 0x3) == 3)
-                {
-                    rearrangedDataF[dstIdx] = 1.0f;
-                    continue;
-                }
-
-                rearrangedDataF[dstIdx] = ((float*) imageData)[srcIdx++];
-            }
-
-            imageData = rearrangedDataF.data();
-        }
-        else
-        {
-            rearrangedDataC.resize(sourceBytesPerImage);
-            for (size_t dstIdx = 0; dstIdx < rearrangedDataC.size(); ++dstIdx)
-            {
-                if ((dstIdx & 0x3) == 3)
-                {
-                    rearrangedDataC[dstIdx] = 255;
-                    continue;
-                }
-
-                rearrangedDataC[dstIdx] = ((unsigned char*) imageData)[srcIdx++];
-            }
-
-            imageData = rearrangedDataC.data();
-        }
-
-        channelCount = 4;
-    }
-
     id<MTLBuffer> buffer = nil;
     if (imageData)
     {
+        if ((pixelFormat == MTLPixelFormatRGBA32Float || pixelFormat == MTLPixelFormatRGBA8Unorm) && channelCount == 3)
+        {
+            bool isFloat = pixelFormat == MTLPixelFormatRGBA32Float;
+
+            sourceBytesPerRow = sourceBytesPerRow / 3 * 4;
+            sourceBytesPerImage = sourceBytesPerImage / 3 * 4;
+
+            size_t srcIdx = 0;
+
+            if (isFloat)
+            {
+                rearrangedDataF.resize(sourceBytesPerImage / sizeof(float));
+                for (size_t dstIdx = 0; dstIdx < rearrangedDataF.size(); ++dstIdx)
+                {
+                    if ((dstIdx & 0x3) == 3)
+                    {
+                        rearrangedDataF[dstIdx] = 1.0f;
+                        continue;
+                    }
+
+                    rearrangedDataF[dstIdx] = ((float*) imageData)[srcIdx++];
+                }
+
+                imageData = rearrangedDataF.data();
+            }
+            else
+            {
+                rearrangedDataC.resize(sourceBytesPerImage);
+                for (size_t dstIdx = 0; dstIdx < rearrangedDataC.size(); ++dstIdx)
+                {
+                    if ((dstIdx & 0x3) == 3)
+                    {
+                        rearrangedDataC[dstIdx] = 255;
+                        continue;
+                    }
+
+                    rearrangedDataC[dstIdx] = ((unsigned char*) imageData)[srcIdx++];
+                }
+
+                imageData = rearrangedDataC.data();
+            }
+
+            channelCount = 4;
+        }
+
         buffer = [_device newBufferWithBytes:imageData
                                       length:sourceBytesPerImage
                                      options:MTLStorageModeShared];
@@ -281,7 +276,16 @@ bool MetalTextureHandler::createRenderResources(ImagePtr image, bool generateMip
 void MetalTextureHandler::releaseRenderResources(ImagePtr image)
 {
     if (!image)
+    {
+        for (auto iter : _imageCache)
+        {
+            if (iter.second)
+            {
+                releaseRenderResources(iter.second);
+            }
+        }
         return;
+    }
 
     if (image->getResourceId() == MslProgram::UNDEFINED_METAL_RESOURCE_ID)
     {

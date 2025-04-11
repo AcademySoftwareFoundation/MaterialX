@@ -72,6 +72,7 @@ The current Stakeholders of the MaterialX TSC are:
 - Bernard Kwok - Khronos Group
 - André Mazzone - ILM
 - Magnus Pettersson - IKEA
+- Dimitar Toshev - Chaos
 
 ### TSC Nomination and Succession
 

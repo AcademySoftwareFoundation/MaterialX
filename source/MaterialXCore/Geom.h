@@ -64,7 +64,7 @@ class MX_CORE_API GeomPath
         _empty(true)
     {
     }
-    ~GeomPath() { }
+    ~GeomPath() = default;
 
     bool operator==(const GeomPath& rhs) const
     {

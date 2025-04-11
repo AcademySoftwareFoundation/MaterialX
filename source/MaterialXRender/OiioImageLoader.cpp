@@ -6,17 +6,10 @@
 #include <MaterialXRender/OiioImageLoader.h>
 
 #if defined(_MSC_VER)
-    #pragma warning(push)
-    #pragma warning(disable : 4100)
-    #pragma warning(disable : 4244)
-    #pragma warning(disable : 4800)
+    #define FMT_UNICODE 0
 #endif
 
 #include <OpenImageIO/imageio.h>
-
-#if defined(_WIN32)
-    #pragma warning(pop)
-#endif
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -71,11 +64,6 @@ bool OiioImageLoader::saveImage(const FilePath& filePath,
                 written = imageOutput->write_image(format, image->getResourceBuffer());
             }
             imageOutput->close();
-
-            // Handle deallocation in OpenImageIO 1.x
-            #if OIIO_VERSION < 10903
-            OIIO::ImageOutput::destroy(imageOutput);
-            #endif
         }
     }
     return written;
@@ -123,11 +111,6 @@ ImagePtr OiioImageLoader::loadImage(const FilePath& filePath)
         image = nullptr;
     }
     imageInput->close();
-
-    // Handle deallocation in OpenImageIO 1.x
-    #if OIIO_VERSION < 10903
-    OIIO::ImageInput::destroy(imageInput);
-    #endif
 
     return image;
 }
