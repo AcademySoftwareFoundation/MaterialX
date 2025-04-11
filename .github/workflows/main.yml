@@ -178,10 +178,14 @@ jobs:
 
     - name: CMake Generate
       run: cmake -S . -B build -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_BUILD_TESTS=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{matrix.cmake_config}}
+      env:
+        VCPKG_ROOT: C:/vcpkg
 
     - name: CMake Build
       run: cmake --build build --target install --config Release --parallel 2
-
+      env:
+        VCPKG_ROOT: C:/vcpkg
+        
     - name: CMake Unit Tests
       run: ctest -VV --output-on-failure --build-config Release
       working-directory: build
