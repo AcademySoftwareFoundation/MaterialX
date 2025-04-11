@@ -11,6 +11,7 @@
 /// any public header in the MaterialX library.
 
 #include <algorithm>
+#include <cstdint>
 #include <cstdlib>
 #include <functional>
 #include <memory>
