@@ -15,6 +15,9 @@ void mx_image_color3(textureresource file, string layer, color default_value, ve
     out = texture(file.filename, st.x, st.y,
                   "subimage", layer, "interp", filtertype,
                   "missingcolor", missingColor,
-                  "swrap", uaddressmode, "twrap", vaddressmode,
-                  "colorspace", file.colorspace);
+                  "swrap", uaddressmode, "twrap", vaddressmode
+#if OSL_VERSION_MAJOR >= 1 && OSL_VERSION_MINOR >= 14
+                  , "colorspace", file.colorspace
+#endif
+                  );
 }
