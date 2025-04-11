@@ -14,6 +14,7 @@ MaterialX is an open standard for representing rich material and look-developmen
 ## Quick Start for Developers
 
 - Download the latest version of the [CMake](https://cmake.org/) build system.
+- Clone the latest version of the [vcpkg](https://github.com/microsoft/vcpkg) package manager and set the `VCPKG_ROOT` environment variable to the root of the local checkout.
 - Point CMake to the root of the MaterialX library and generate C++ projects for your platform and compiler.
 - Select the `MATERIALX_BUILD_PYTHON` option to build Python bindings.
 - Select the `MATERIALX_BUILD_VIEWER` option to build the [MaterialX Viewer](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/documents/DeveloperGuide/Viewer.md).
