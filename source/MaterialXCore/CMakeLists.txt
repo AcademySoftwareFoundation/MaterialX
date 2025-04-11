@@ -15,3 +15,8 @@ mx_add_library(MaterialXCore
 target_include_directories(${TARGET_NAME}
         PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../>)
+
+target_compile_definitions(${TARGET_NAME}
+        PRIVATE
+        MATERIALX_BUILD_BAKE_NAMED_VALUES=$<BOOL:${MATERIALX_BUILD_BAKE_NAMED_VALUES}>
+)
