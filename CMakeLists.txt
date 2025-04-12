@@ -61,10 +61,10 @@ option(MATERIALX_WARNINGS_AS_ERRORS "Interpret all compiler warnings as errors."
 option(MATERIALX_COVERAGE_ANALYSIS "Build MaterialX libraries with coverage analysis on supporting platforms." OFF)
 option(MATERIALX_DYNAMIC_ANALYSIS "Build MaterialX libraries with dynamic analysis on supporting platforms." OFF)
 
-option(MATERIALX_BUILD_IOS "Build MaterialX for iOS. (Deprecated. Set CMAKE_SYSTEM_NAME instead)" OFF)
+option(MATERIALX_BUILD_IOS "Build MaterialX for iOS. (Deprecated. Set CMAKE_SYSTEM_NAME to iOS instead.)" OFF)
 option(MATERIALX_BUILD_APPLE_FRAMEWORK "Build MaterialX as an Apple Framework" ${__build_apple_framework})
 if (MATERIALX_BUILD_IOS)
-    MESSAGE(WARNING "The MATERIALX_BUILD_IOS is deprecated. Set the CMAKE_SYSTEM_NAME to the platform instead")
+    message(DEPRECATION "The MATERIALX_BUILD_IOS option is deprecated. Set CMAKE_SYSTEM_NAME to iOS instead.")
     set(CMAKE_SYSTEM_NAME iOS)
 endif()
 
