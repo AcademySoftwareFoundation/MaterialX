@@ -2904,6 +2904,95 @@
     <output name="out" type="vector3" nodename="N_normalmap" />
   </nodegraph>
 
+  <!-- 
+    Node: <orthonormal_basis>
+  -->
+  <nodegraph name="NG_orthonormal_basis_1_0_vector3_vector3" nodedef="ND_orthonormal_basis_1_0_vector3_vector3" doc="Compute perpendicular basis vectors from a primary direction and normal">
+    <normalize name="norm_primary" type="vector3">
+      <input name="in" type="vector3" interfacename="primary_dir" />
+    </normalize>
+    <normalize name="norm_normal" type="vector3">
+      <input name="in" type="vector3" interfacename="normal_dir" />
+    </normalize>
+    <dotproduct name="dot_primary_normal" type="float">
+      <input name="in1" type="vector3" nodename="norm_primary" />
+      <input name="in2" type="vector3" nodename="norm_normal" />
+    </dotproduct>
+    <multiply name="parallel_component" type="vector3">
+      <input name="in1" type="vector3" nodename="norm_normal" />
+      <input name="in2" type="float" nodename="dot_primary_normal" />
+    </multiply>
+    <subtract name="ortho_u" type="vector3">
+      <input name="in1" type="vector3" nodename="norm_primary" />
+      <input name="in2" type="vector3" nodename="parallel_component" />
+    </subtract>
+    <normalize name="final_u" type="vector3">
+      <input name="in" type="vector3" nodename="ortho_u" />
+    </normalize>
+    <crossproduct name="final_v" type="vector3">
+      <input name="in1" type="vector3" nodename="norm_normal" />
+      <input name="in2" type="vector3" nodename="final_u" />
+    </crossproduct>
+    <output name="out_u_axis" type="vector3" nodename="final_u" />
+    <output name="out_v_axis" type="vector3" nodename="final_v" />
+  </nodegraph>
+
+  <!-- 
+    Node: <project_to_plane>
+  -->
+  <nodegraph name="NG_project_to_plane_1_0_vector3" nodedef="ND_project_to_plane_1_0_vector3" doc="Project 3D point onto an infinite 3D plane">
+    <subtract name="relative_pos" type="vector3">
+      <input name="in1" type="vector3" interfacename="point" />
+      <input name="in2" type="vector3" interfacename="plane_origin" />
+    </subtract>
+    <dotproduct name="signed_dist" type="float">
+      <input name="in1" type="vector3" nodename="relative_pos" />
+      <input name="in2" type="vector3" interfacename="plane_normal" />
+    </dotproduct>
+    <multiply name="offset_vec" type="vector3">
+      <input name="in1" type="vector3" interfacename="plane_normal" />
+      <input name="in2" type="float" nodename="signed_dist" />
+    </multiply>
+    <subtract name="projected_pos" type="vector3">
+      <input name="in1" type="vector3" nodename="relative_pos" />
+      <input name="in2" type="vector3" nodename="offset_vec" />
+    </subtract>
+    <output name="out" type="vector3" nodename="projected_pos" />
+  </nodegraph>
+
+  <!-- 
+    Node: <planar_projection>
+  -->
+  <nodegraph name="NG_planar_projection_1_0_vector2" nodedef="ND_planar_projection_1_0_vector2" doc="Compute texture coordinates of a projection of a 3d point to a plane">
+    <!-- Project position to plane -->
+    <project_to_plane name="point_proj" type="vector3">
+      <input name="point" type="vector3" interfacename="point" />
+      <input name="plane_origin" type="vector3" interfacename="plane_origin" />
+      <input name="plane_normal" type="vector3" interfacename="plane_normal" />
+    </project_to_plane>
+    <!-- Generate orthonormal basis -->
+    <orthonormal_basis name="basis_gen" type="multioutput">
+      <input name="primary_dir" type="vector3" interfacename="u_vector" />
+      <input name="normal_dir" type="vector3" interfacename="plane_normal" />
+      <output name="out_u_axis" type="vector3" />
+      <output name="out_v_axis" type="vector3" />
+    </orthonormal_basis>
+    <!-- Calculate UV coordinates -->
+    <dotproduct name="u_coord" type="float">
+      <input name="in1" type="vector3" nodename="point_proj" />
+      <input name="in2" type="vector3" nodename="basis_gen" output="out_u_axis" />
+    </dotproduct>
+    <dotproduct name="v_coord" type="float">
+      <input name="in1" type="vector3" nodename="point_proj" />
+      <input name="in2" type="vector3" nodename="basis_gen" output="out_v_axis" />
+    </dotproduct>
+    <combine2 name="combined_uv" type="vector2">
+      <input name="in1" type="float" nodename="u_coord" />
+      <input name="in2" type="float" nodename="v_coord" />
+    </combine2>
+    <output name="out" type="vector2" nodename="combined_uv" />
+  </nodegraph>
+
   <!-- ======================================================================== -->
   <!-- Global nodes                                                             -->
   <!-- ======================================================================== -->

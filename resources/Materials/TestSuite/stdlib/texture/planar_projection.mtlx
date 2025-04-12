@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<materialx version="1.39" colorspace="lin_rec709">
+  <position name="position_object" type="vector3">
+    <input name="space" type="string" value="object" />
+  </position>
+  <position name="position_world" type="vector3">
+    <input name="space" type="string" value="world" />
+  </position>
+  <planar_projection name="planar_projection_world" type="vector2">
+    <input name="point" type="vector3" nodename="position_world" />
+    <input name="plane_origin" type="vector3" value="0, 0, 0" />
+    <input name="plane_normal" type="vector3" value="0, 0, 1" />
+    <input name="u_vector" type="vector3" value="1, 0, 0" />
+  </planar_projection>
+  <surfacematerial name="project_material" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="project_shader" />
+  </surfacematerial>
+  <surface_unlit name="project_shader" type="surfaceshader">
+    <input name="emission" type="float" value="1" />
+    <input name="emission_color" type="color3" nodename="convert_color4" />
+    <input name="transmission" type="float" value="0" />
+    <input name="transmission_color" type="color3" value="1, 1, 1" />
+    <input name="opacity" type="float" value="1" />
+  </surface_unlit>
+  <surfacematerial name="project_blend_material" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="project_shader_blend" />
+  </surfacematerial>
+  <surface_unlit name="project_shader_blend" type="surfaceshader">
+    <input name="emission" type="float" value="1" />
+    <input name="emission_color" type="color3" nodename="convert_color5" />
+    <input name="transmission" type="float" value="0" />
+    <input name="transmission_color" type="color3" value="1, 1, 1" />
+    <input name="opacity" type="float" value="1" />
+  </surface_unlit>
+  <convert name="convert_color5" type="color3">
+    <input name="in" type="color4" nodename="blend_images" />
+  </convert>
+  <image name="image_project_object" type="color4">
+    <input name="file" type="filename" value="D:\Work\materialx\MaterialXLab\prototyping\image_diff\placeholder.png" colorspace="srgb_texture" fileprefix="" />
+    <input name="layer" type="string" value="" />
+    <input name="default" type="color4" value="0, 0, 0, 0" />
+    <input name="texcoord" type="vector2" nodename="planar_projection_object" />
+    <input name="uaddressmode" type="string" value="periodic" />
+    <input name="vaddressmode" type="string" value="periodic" />
+  </image>
+  <planar_projection name="planar_projection_object" type="vector2">
+    <input name="point" type="vector3" nodename="position_object" />
+    <input name="plane_origin" type="vector3" value="0, 0, 0" />
+    <input name="plane_normal" type="vector3" value="0, 1, 0" />
+    <input name="u_vector" type="vector3" value="1, 0, 0" />
+  </planar_projection>
+  <image name="image_project_world" type="color4">
+    <input name="file" type="filename" value="D:\Work\materialx\bernard_MaterialX\resources\Images\alpha_test.png" colorspace="srgb_texture" fileprefix="" />
+    <input name="layer" type="string" value="" />
+    <input name="default" type="color4" value="0, 0, 0, 0" />
+    <input name="texcoord" type="vector2" nodename="planar_projection_world" />
+    <input name="uaddressmode" type="string" value="periodic" />
+    <input name="vaddressmode" type="string" value="periodic" />
+  </image>
+  <convert name="convert_color4" type="color3">
+    <input name="in" type="color4" nodename="image_project_world" />
+  </convert>
+  <mix name="blend_images" type="color4">
+    <input name="fg" type="color4" nodename="image_project_world" />
+    <input name="bg" type="color4" nodename="image_project_object" />
+    <input name="mix" type="color4" value="0.5, 0.5, 0.5, 0.5" />
+  </mix>
+</materialx>
