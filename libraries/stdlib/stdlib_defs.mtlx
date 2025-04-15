@@ -1423,6 +1423,40 @@
     <output name="out" type="vector3" doc="Offset surface normal; connect this to a shader's 'normal' input." />
   </nodedef>
 
+  <!-- 
+    Node: <orthonormal_basis>
+    Compute orthonormal basis  
+  -->
+  <nodedef name="ND_orthonormal_basis_1_0_vector3_vector3" node="orthonormal_basis" version="1.0" isdefaultversion="true" nodegroup="geometric" uiname="Orthonormal Basis" doc="Compute perpendicular basis vectors from a primary direction and normal">
+    <input name="primary_dir" type="vector3" value="1,0,0" uiname="Primary Direction" doc="Primary direction. Maps to U axis output" />
+    <input name="normal_dir" type="vector3" value="0,0,1" uiname="Normal Direction" doc="Normal direction." />
+    <output name="out_u_axis" type="vector3" uiname="U Axis"/>
+    <output name="out_v_axis" type="vector3" uiname="V Axis"/>
+  </nodedef>
+
+  <!-- 
+    Node: <project_to_plane>
+    Projection point to to infinite plane  
+  -->
+  <nodedef name="ND_project_to_plane_1_0_vector3" node="project_to_plane" version="1.0" isdefaultversion="true" nodegroup="geometric" uiname="Project to Plane" doc="Project 3D point onto an infinite 3D plane">
+    <input name="point" type="vector3" value="0,0,0" uiname="Input Position" doc="Point to project" />
+    <input name="plane_origin" type="vector3" value="0,0,0" uiname="Plane Origin" doc="Position of the origin of the plane" />
+    <input name="plane_normal" type="vector3" value="0,0,1" uiname="Plane Normal" doc="Normal of the plane" />
+    <output name="out" type="vector3" uiname="Projected Position"/>
+  </nodedef>  
+
+  <!-- 
+    Node: <planar_projection>
+    Planar projection of a 3d point to a plane to produce texture coordinates 
+  -->
+  <nodedef name="ND_planar_projection_1_0_vector2" node="planar_projection" version="1.0" isdefaultversion="true" nodegroup="geometric" uiname="Planar UV Projection" doc="Compute texture coordinates of a projection of a 3d point to a plane">
+    <input name="point" type="vector3" value="0,0,0" uiname="Input Position" doc="Input position" />
+    <input name="plane_origin" type="vector3" value="0,0,0" uiname="Plane Origin" doc="Position of origin of the plane" />
+    <input name="plane_normal" type="vector3" value="0,0,1" uiname="Plane Normal" doc="Normal of the plane" />
+    <input name="u_vector" type="vector3" value="1,0,0" uiname="U Direction" doc="Specify the direction of U" />
+    <output name="out" type="vector2" uiname="UV Coordinates" />
+  </nodedef>
+
   <!-- ======================================================================== -->
   <!-- Application nodes                                                        -->
   <!-- ======================================================================== -->
