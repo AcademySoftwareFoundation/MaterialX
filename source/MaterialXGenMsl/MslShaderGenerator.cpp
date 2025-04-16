@@ -672,6 +672,7 @@ void MslShaderGenerator::emitDirectives(GenContext&, ShaderStage& stage) const
     emitLine("#define bvec2 bool2", stage, false);
     emitLine("#define bvec3 bool3", stage, false);
     emitLine("#define bvec4 bool4", stage, false);
+    emitLine("#define mat2 float2x2", stage, false);
     emitLine("#define mat3 float3x3", stage, false);
     emitLine("#define mat4 float4x4", stage, false);
 

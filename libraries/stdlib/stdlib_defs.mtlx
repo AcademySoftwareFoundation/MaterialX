@@ -293,6 +293,44 @@
   </nodedef>
 
   <!--
+    Node: <hextiledimage> Supplemental Node
+    Samples data from a single image, with provisions for hex-tiling and randomizing the image
+    across uv space.
+  -->
+  <nodedef name="ND_hextiledimage_color3" node="hextiledimage" nodegroup="texture2d">
+    <input name="file" type="filename" value="" uniform="true" />
+    <input name="default" type="color3" value="0.0, 0.0, 0.0" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <input name="tiling" type="vector2" value="1.0, 1.0" />
+    <input name="rotation" type="float" value="1.0" />
+    <input name="rotationrange" type="vector2" value="0.0, 360.0" />
+    <input name="scale" type="float" value="1.0" />
+    <input name="scalerange" type="vector2" value="0.5, 2.0" />
+    <input name="offset" type="float" value="1.0" />
+    <input name="offsetrange" type="vector2" value="0.0, 1.0" />
+    <input name="falloff" type="float" value="0.5" />
+    <input name="falloffcontrast" type="float" value="0.5" />
+    <input name="lumacoeffs" type="color3" value="0.2722287, 0.6740818, 0.0536895" enum="acescg, rec709, rec2020, rec2100" enumvalues="0.2722287,0.6740818,0.0536895, 0.2126,0.7152,0.0722, 0.2627,0.6780,0.0593, 0.2627,0.6780,0.0593" />
+    <output name="out" type="color3" default="0.0, 0.0, 0.0" />
+  </nodedef>
+  <nodedef name="ND_hextiledimage_color4" node="hextiledimage" nodegroup="texture2d">
+    <input name="file" type="filename" value="" uniform="true" />
+    <input name="default" type="color4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <input name="tiling" type="vector2" value="1.0, 1.0" />
+    <input name="rotation" type="float" value="1.0" />
+    <input name="rotationrange" type="vector2" value="0.0, 360.0" />
+    <input name="scale" type="float" value="1.0" />
+    <input name="scalerange" type="vector2" value="0.5, 2.0" />
+    <input name="offset" type="float" value="1.0" />
+    <input name="offsetrange" type="vector2" value="0.0, 1.0" />
+    <input name="falloff" type="float" value="0.5" />
+    <input name="falloffcontrast" type="float" value="0.5" />
+    <input name="lumacoeffs" type="color3" value="0.2722287, 0.6740818, 0.0536895" enum="acescg, rec709, rec2020, rec2100" enumvalues="0.2722287,0.6740818,0.0536895, 0.2126,0.7152,0.0722, 0.2627,0.6780,0.0593, 0.2627,0.6780,0.0593" />
+    <output name="out" type="color4" default="0.0, 0.0, 0.0, 0.0" />
+  </nodedef>
+
+  <!--
     Node: <triplanarprojection> Supplemental Node
     Samples data from three images, or layers within multi-layer images, and projects a tiled
     representation of the images along each of the three respective coordinate axes, computing
@@ -2700,6 +2738,31 @@
     <input name="tangent" type="vector3" defaultgeomprop="Tworld" />
     <input name="bitangent" type="vector3" defaultgeomprop="Bworld" />
     <output name="out" type="vector3" defaultinput="normal" />
+  </nodedef>
+
+  <!--
+    Node: <hextilednormalmap> Supplemental Node
+    Samples data from a single normalmap, with provisions for hex-tiling and randomizing the normalmap 
+    across uv space.
+  -->
+  <nodedef name="ND_hextilednormalmap_vector3" node="hextilednormalmap" nodegroup="math">
+    <input name="file" type="filename" value="" uniform="true" />
+    <input name="default" type="vector3" value="0.5, 0.5, 1.0" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <input name="tiling" type="vector2" value="1.0, 1.0" />
+    <input name="rotation" type="float" value="1.0" />
+    <input name="rotationrange" type="vector2" value="0.0, 360.0" />
+    <input name="scale" type="float" value="1.0" />
+    <input name="scalerange" type="vector2" value="0.5, 2.0" />
+    <input name="offset" type="float" value="1.0" />
+    <input name="offsetrange" type="vector2" value="0.0, 1.0" />
+    <input name="falloff" type="float" value="0.5" />
+    <input name="strength" type="float" value="1.0" />
+    <input name="flip_g" type="boolean" value="false" />
+    <input name="normal" type="vector3" defaultgeomprop="Nworld" />
+    <input name="tangent" type="vector3" defaultgeomprop="Tworld" />
+    <input name="bitangent" type="vector3" defaultgeomprop="Bworld" />
+    <output name="out" type="vector3" default="0.5, 0.5, 1.0" />
   </nodedef>
 
   <!--
