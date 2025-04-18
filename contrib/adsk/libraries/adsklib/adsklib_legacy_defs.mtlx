@@ -48,16 +48,14 @@
   -->
 
   <nodedef name="ND_legacy_checker_color3" node="legacy_checker" version="0.1" isdefaultversion="true" nodegroup="adsk_legacy">
-    <input name="texcoord" type="vector2" defaultgeomprop="UV0" uiname="Texture Coordinates" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" uivisible="false" uiname="Texture Coordinates" />
     <input name="color1" type="color3" value="1, 1, 1" uivisible="true" uiname="Color 1" />
     <input name="color2" type="color3" value="0, 0, 0" uivisible="true" uiname="Color 2" />
-    <input name="width" type="float" value="1.0" uivisible="true" uiname="Width" unittype="distance" />
-    <input name="height" type="float" value="1.0" uivisible="true" uiname="Height" unittype="distance" />
+    <input name="realworld_scale" type="vector2" value="0,0" uisoftmin="0,0" uisoftmax="1,1" uivisible="true" uiname="Width, Height" unittype="distance" />
     <input name="soften" type="float" value="0" uivisible="true" uiname="Soften" />
     <input name="adjustsofteny" type="boolean" value="false" uivisible="true" uiname="Adjust Height Softness" />
-    <input name="offset_x" type="float" value="0.0" uivisible="true" uiname="Offset X" unittype="distance" />
-    <input name="offset_y" type="float" value="0.0" uivisible="true" uiname="Offset Y" unittype="distance" />
-    <input name="rotate" type="float" value="0" uisoftmin="0" uisoftmax="360" uivisible="true" uiname="Rotation Angle" unittype="angle" unit="degree" />
+    <input name="realworld_offset" type="vector2" value="0,0" uisoftmin="0,0" uisoftmax="1,1" uivisible="true" uiname="Offset X, Y" unittype="distance"/>
+    <input name="rotation_angle" type="float" value="0" uisoftmin="0" uisoftmax="360" uivisible="true" uiname="Rotation Angle" unittype="angle" unit="degree" />
     <input name="tile_x" type="boolean" value="true" uivisible="true" uiname="Tile X" />
     <input name="tile_y" type="boolean" value="true" uivisible="true" uiname="Tile Y" />
     <output name="output_color3" type="color3" />
@@ -66,22 +64,18 @@
   </nodedef>
 
   <nodedef name="ND_legacy_noise_color3" node="legacy_noise" version="0.1" isdefaultversion="true" nodegroup="adsk_legacy">
-    <input name="position" type="vector3" defaultgeomprop="Pobject" uiname="Position Coordinates" />
+    <input name="position" type="vector3" defaultgeomprop="Pobject" uivisible="false" uiname="Position Coordinates" />
     <input name="color1" type="color3" value="1, 1, 1" uivisible="true" uiname="Color 1" />
     <input name="color2" type="color3" value="0, 0, 0" uivisible="true" uiname="Color 2" />
-    <input name="noise_type" type="integer" value="0" uivisible="true" uiname="Noise Type" uimin="0" uimax="2" />
+    <input name="noisetype" type="integer" value="0" uimin="0" uimax="2" uivisible="true" uiname="Noise Type" enum="Regular,Fractal,Turbulence" enumvalues="0,1,2" />
     <input name="size" type="float" value="1.0" uivisible="true" uiname="Size" uimin="0" uisoftmax="10" unittype="distance" />
-    <input name="threshold_low" type="float" value="0" uivisible="true" uiname="Threshold Low" uimin="0" uimax="1" />
-    <input name="threshold_high" type="float" value="1" uivisible="true" uiname="Threshold High" uimin="0" uimax="1" />
-    <input name="smooth_threshold" type="boolean" value="false" uivisible="true" uiname="Smooth Threshold" />
+    <input name="thresholdlow" type="float" value="0" uivisible="true" uiname="Threshold Low" uimin="0" uimax="1" />
+    <input name="thresholdhigh" type="float" value="1" uivisible="true" uiname="Threshold High" uimin="0" uimax="1" />
+    <input name="smooththreshold" type="boolean" value="false" uivisible="true" uiname="Smooth Threshold" />
     <input name="phase" type="float" value="0" uivisible="true" uiname="Phase" uimin="0" uisoftmax="1" />
     <input name="levels" type="float" value="4" uivisible="true" uiname="Levels" uimin="0" uisoftmax="8" />
-    <input name="offset_x" type="float" value="0" uivisible="true" uiname="Offset X" unittype="distance" />
-    <input name="offset_y" type="float" value="0" uivisible="true" uiname="Offset Y" unittype="distance" />
-    <input name="offset_z" type="float" value="0" uivisible="true" uiname="Offset Z" unittype="distance" />
-    <input name="rotate_x" type="float" value="0" uisoftmin="0" uisoftmax="360" unittype="angle" unit="degree" />
-    <input name="rotate_y" type="float" value="0" uisoftmin="0" uisoftmax="360" unittype="angle" unit="degree" />
-    <input name="rotate_z" type="float" value="0" uisoftmin="0" uisoftmax="360" unittype="angle" unit="degree" />
+    <input name="realworld_offset" type="vector3" value="0,0,0" uisoftmin="0,0,0" uisoftmax="1,1,1" uivisible="true" uiname="Offset X, Y, Z" unittype="distance" />
+    <input name="rotation_angle" type="vector3" value="0,0,0" uisoftmin="0,0,0" uisoftmax="360,360,360" uivisible="true" uiname="Rotation Angle X, Y, Z" unittype="angle" unit="degree" />
     <output name="output_color3" type="color3" />
   </nodedef>
 
@@ -93,21 +87,21 @@
   </nodedef>
 
   <nodedef name="ND_turbulence3d_max8_float" node="turbulence3d" version="0.1" isdefaultversion="true" nodegroup="texture3d">
-    <input name="position" type="vector3" defaultgeomprop="Pobject" uiname="Position Coordinates" />
+    <input name="position" type="vector3" defaultgeomprop="Pobject" uivisible="true" uiname="Position Coordinates" />
     <input name="octaves" type="float" value="4.0" uimin="0.0" uisoftmax="8" uivisible="true" uiname="Octaves" />
     <input name="amplitude" type="float" value="1" uisoftmin="0.0" uisoftmax="2" uivisible="true" uiname="Amplitude" />
     <output name="out" type="float" />
   </nodedef>
 
   <nodedef name="ND_fractal2d_max8_float" node="fractal2d_max8" version="0.1" isdefaultversion="true" nodegroup="texture2d">
-    <input name="texcoord" type="vector2" defaultgeomprop="UV0" uiname="Texture Coordinates" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" uivisible="true" uiname="Texture Coordinates" />
     <input name="octaves" type="float" value="4.0" uimin="0.0" uisoftmax="8" uivisible="true" uiname="Octaves" />
     <input name="amplitude" type="float" value="1" uisoftmin="0.0" uisoftmax="2" uivisible="true" uiname="Amplitude" />
     <output name="out" type="float" />
   </nodedef>
 
   <nodedef name="ND_fractal3d_max8_float" node="fractal3d_max8" version="0.1" isdefaultversion="true" nodegroup="texture3d">
-    <input name="position" type="vector3" defaultgeomprop="Pobject" uiname="Position Coordinates" />
+    <input name="position" type="vector3" defaultgeomprop="Pobject" uivisible="true" uiname="Position Coordinates" />
     <input name="octaves" type="float" value="4.0" uimin="0.0" uisoftmax="8" uivisible="true" uiname="Octaves" />
     <input name="amplitude" type="float" value="1" uisoftmin="0.0" uisoftmax="2" uivisible="true" uiname="Amplitude" />
     <output name="out" type="float" />
@@ -119,32 +113,24 @@
   </nodedef>
 
   <nodedef name="ND_legacy_speckle_color3" node="legacy_speckle" version="0.1" isdefaultversion="true" nodegroup="adsk_legacy">
+    <input name="position" type="vector3" defaultgeomprop="Pobject" uivisible="false" uiname="Position Coordinates" />
     <input name="color1" type="color3" value="0, 0, 0" uisoftmin="0,0,0" uisoftmax="1,1,1" uivisible="true" uiname="Color 1" />
     <input name="color2" type="color3" value="1, 1, 1" uisoftmin="0,0,0" uisoftmax="1,1,1" uivisible="true" uiname="Color 2" />
-    <input name="position" type="vector3" defaultgeomprop="Pobject" uiname="Position Coordinates" />
     <input name="size" type="float" value="1" uisoftmin="0.0" uisoftmax="10.0" uivisible="true" uiname="Size" />
     <input name="octaves" type="float" value="4.0" uisoftmin="0.0" uisoftmax="8.0" uivisible="true" uiname="Octaves" />
-    <input name="offset_x" type="float" value="0" uimin="0.0" uisoftmax="10.0" unittype="distance" />
-    <input name="offset_y" type="float" value="0" uimin="0.0" uisoftmax="10.0" unittype="distance" />
-    <input name="offset_z" type="float" value="0" uimin="0.0" uisoftmax="10.0" unittype="distance" />
-    <input name="rotate_x" type="float" value="0" uimin="0.0" uisoftmax="360.0" unittype="angle" />
-    <input name="rotate_y" type="float" value="0" uimin="0.0" uisoftmax="360.0" unittype="angle" />
-    <input name="rotate_z" type="float" value="0" uimin="0.0" uisoftmax="360.0" unittype="angle" />
+    <input name="realworld_offset" type="vector3" value="0,0,0" uisoftmin="0,0,0" uisoftmax="1,1,1" uivisible="true" uiname="Offset X, Y, Z" unittype="distance" />
+    <input name="rotation_angle" type="vector3" value="0,0,0" uisoftmin="0,0,0" uisoftmax="360,360,360" uivisible="true" uiname="Rotation Angle X, Y, Z" unittype="angle" unit="degree" />
     <output name="out" type="color3" />
   </nodedef>
 
   <nodedef name="ND_legacy_marble_color3" node="legacy_marble" version="0.1" isdefaultversion="true" nodegroup="adsk_legacy">
-    <input name="position" type="vector3" defaultgeomprop="Pobject" uiname="Position Coordinates" />
+    <input name="position" type="vector3" defaultgeomprop="Pobject" uivisible="false" uiname="Position Coordinates" />
     <input name="size" type="float" value="0.7636" uimin="0.0" uisoftmax="10.0" uivisible="true" uiname="Vein Spacingg" />
     <input name="width" type="float" value="0.070283" uimin="0.0" uisoftmax="10.0" uivisible="true" uiname="Vein Width" />
-    <input name="stone_color" type="color3" value="0.0303, 0.0321, 0.0122" uisoftmin="0,0,0" uisoftmax="1,1,1" uivisible="true" uiname="Stone Color" />
-    <input name="vein_color" type="color3" value="0.7832, 0.7832, 0.5755" uisoftmin="0,0,0" uisoftmax="1,1,1" uivisible="true" uiname="Vein Color" />
-    <input name="offset_x" type="float" value="0" uimin="0.0" uisoftmax="10.0" unittype="distance" />
-    <input name="offset_y" type="float" value="0" uimin="0.0" uisoftmax="10.0" unittype="distance" />
-    <input name="offset_z" type="float" value="0" uimin="0.0" uisoftmax="10.0" unittype="distance" />
-    <input name="rotate_x" type="float" value="0" uimin="0.0" uisoftmax="360.0" unittype="angle" />
-    <input name="rotate_y" type="float" value="0" uimin="0.0" uisoftmax="360.0" unittype="angle" />
-    <input name="rotate_z" type="float" value="0" uimin="0.0" uisoftmax="360.0" unittype="angle" />
+    <input name="stonecolor" type="color3" value="0.0303, 0.0321, 0.0122" uisoftmin="0,0,0" uisoftmax="1,1,1" uivisible="true" uiname="Stone Color" />
+    <input name="veincolor" type="color3" value="0.7832, 0.7832, 0.5755" uisoftmin="0,0,0" uisoftmax="1,1,1" uivisible="true" uiname="Vein Color" />
+    <input name="realworld_offset" type="vector3" value="0,0,0" uisoftmin="0,0,0" uisoftmax="1,1,1" uivisible="true" uiname="Offset X, Y, Z" unittype="distance" />
+    <input name="rotation_angle" type="vector3" value="0,0,0" uisoftmin="0,0,0" uisoftmax="360,360,360" uivisible="true" uiname="Rotation Angle X, Y, Z" unittype="angle" unit="degree" />
     <output name="out" type="color3" />
   </nodedef>
 
@@ -168,7 +154,9 @@
   </nodedef>
 
   <nodedef name="ND_legacy_waves_color3" node="legacy_waves" version="0.1" isdefaultversion="true" nodegroup="adsk_legacy">
-    <input name="position" type="vector3" defaultgeomprop="Pworld" uiname="Position Coordinates" />
+    <input name="position" type="vector3" defaultgeomprop="Pworld" uivisible="false" uiname="Position Coordinates" />
+    <input name="color1" type="color3" value="0, 0, 0" uisoftmin="0,0,0" uisoftmax="1,1,1" uivisible="true" uiname="Color 1" />
+    <input name="color2" type="color3" value="1, 1, 1" uisoftmin="0,0,0" uisoftmax="1,1,1" uivisible="true" uiname="Color 2" />
     <input name="waves" type="float" value="3" uimin="0" uisoftmax="8" uivisible="true" uiname="Number" />
     <input name="radius" type="float" value="5" uimin="0.0" uisoftmax="10.0" uivisible="true" uiname="Radius" unittype="distance" />
     <input name="seed" type="float" value="0" uimin="0.0" uisoftmax="100.0" uivisible="true" uiname="Seed" />
@@ -177,12 +165,8 @@
     <input name="phase" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Phase" />
     <input name="distribution3d" type="boolean" value="false" uivisible="true" uiname="3D Distribution" />
     <input name="fade" type="boolean" value="false" uivisible="true" uiname="Fade" />
-    <input name="offset_x" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" unittype="distance" />
-    <input name="offset_y" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" unittype="distance" />
-    <input name="offset_z" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" unittype="distance" />
-    <input name="rotate_x" type="float" value="0" uisoftmin="0.0" uisoftmax="360" unittype="angle" />
-    <input name="rotate_y" type="float" value="0" uisoftmin="0.0" uisoftmax="360" unittype="angle" />
-    <input name="rotate_z" type="float" value="0" uisoftmin="0.0" uisoftmax="360" unittype="angle" />
+    <input name="realworld_offset" type="vector3" value="0,0,0" uisoftmin="0,0,0" uisoftmax="1,1,1" uivisible="true" uiname="Offset X, Y, Z" unittype="distance" />
+    <input name="rotation_angle" type="vector3" value="0,0,0" uisoftmin="0,0,0" uisoftmax="360,360,360" uivisible="true" uiname="Rotation Angle X, Y, Z" unittype="angle" unit="degree" />
     <output name="out" type="color3" />
   </nodedef>
 
@@ -204,7 +188,7 @@
   </nodedef>
 
   <nodedef name="ND_legacy_wood_color3" node="legacy_wood" version="0.1" isdefaultversion="true" nodegroup="adsk_legacy">
-    <input name="position" type="vector3" defaultgeomprop="Pobject" uiname="Position Coordinates" />
+    <input name="position" type="vector3" defaultgeomprop="Pobject" uivisible="false" uiname="Position Coordinates" />
     <input name="color1" type="color3" value="0.603, 0.445, 0.072" uisoftmin="0,0,0" uisoftmax="1,1,1" uivisible="true" uiname="Color 1" />
     <input name="color2" type="color3" value="0.212, 0.072, 0" uisoftmin="0,0,0" uisoftmax="1,1,1" uivisible="true" uiname="Color2" />
     <input name="radialnoise" type="float" value="0.15" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Radial Noise" />
@@ -212,17 +196,13 @@
     <input name="thickness" type="float" value="1.0" uisoftmin="0.0" uisoftmax="100" uivisible="true" uiname="Thickness" unittype="distance" />
     <input name="loop" type="boolean" value="true" uivisible="true" uiname="Repeat" />
     <input name="noiserep" type="float" value="20" uisoftmin="0.0" uisoftmax="100" uivisible="true" uiname="Repeat Num" />
-    <input name="offset_x" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" unittype="distance" />
-    <input name="offset_y" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" unittype="distance" />
-    <input name="offset_z" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" unittype="distance" />
-    <input name="rotate_x" type="float" value="0" uisoftmin="0.0" uisoftmax="360" unittype="angle" />
-    <input name="rotate_y" type="float" value="0" uisoftmin="0.0" uisoftmax="360" unittype="angle" />
-    <input name="rotate_z" type="float" value="0" uisoftmin="0.0" uisoftmax="360" unittype="angle" />
+    <input name="realworld_offset" type="vector3" value="0,0,0" uisoftmin="0,0,0" uisoftmax="1,1,1" uivisible="true" uiname="Offset X, Y, Z" unittype="distance" />
+    <input name="rotation_angle" type="vector3" value="0,0,0" uisoftmin="0,0,0" uisoftmax="360,360,360" uivisible="true" uiname="Rotation Angle X, Y, Z" unittype="angle" unit="degree" />
     <output name="out" type="color3" />
   </nodedef>
 
   <nodedef name="ND_legacy_tiles_color3" node="legacy_tiles" version="0.1" isdefaultversion="true" nodegroup="adsk_legacy">
-    <input name="texcoord" type="vector2" defaultgeomprop="UV0" uiname="Texture Coordinates"/>
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" uivisible="false" uiname="Texture Coordinates"/>
     <input name="tilecolor" type="color3" uisoftmin="0,0,0" uisoftmax="1,1,1" value="0.62, 0.24, 0.06" uivisible="true" uiname="Tile Color" />
     <input name="groutcolor" type="color3" value="0.1, 0.1, 0.1" uisoftmin="0,0,0" uisoftmax="1,1,1" uivisible="true" uiname="Grout Color" />
     <input name="tilesnumx" type="float" value="4" uisoftmin="0.0" uisoftmax="100.0" uivisible="true" uiname="Row Count" />
@@ -242,11 +222,9 @@
     <input name="rowsmodenable" type="boolean" value="false" uivisible="true" uiname="Row Modify" />
     <input name="nrows" type="float" value="5.0" uisoftmin="0.0" uisoftmax="100.0" uivisible="true" uiname="Every N Rows" />
     <input name="nrowsamount" type="float" value="3.0" uisoftmin="0.0" uisoftmax="10" uivisible="true" uiname="Modify Amount" />
-    <input name="width" type="float" value="12.0" uisoftmin="0.0" uisoftmax="1.0" unittype="distance" />
-    <input name="height" type="float" value="12.0" uisoftmin="0.0" uisoftmax="1.0" unittype="distance" />
-    <input name="offset_x" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" unittype="distance" />
-    <input name="offset_y" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" unittype="distance" />
-    <input name="rotate" type="float" value="0" uisoftmin="0.0" uisoftmax="360" uivisible="true" uiname="Rotation Angle" unittype="angle" unit="degree" />
+    <input name="realworld_scale" type="vector2" value="0,0" uisoftmin="0,0" uisoftmax="1,1" uivisible="true" uiname="Width, Height" unittype="distance" />
+    <input name="realworld_offset" type="vector2" value="0,0" uisoftmin="0,0" uisoftmax="1,1" uivisible="true" uiname="Offset X, Y" unittype="distance" />
+    <input name="rotation_angle" type="float" value="0" uisoftmin="0.0" uisoftmax="360" uivisible="true" uiname="Rotation Angle" unittype="angle" unit="degree" />
     <input name="tile_x" type="boolean" value="true" />
     <input name="tile_y" type="boolean" value="true" />
     <output name="output_color3" type="color3" />
@@ -255,12 +233,11 @@
   </nodedef>
 
   <nodedef name="ND_legacy_gradient_float" node="legacy_gradient" version="0.1" isdefaultversion="true" nodegroup="adsk_legacy">
-    <input name="texcoord" type="vector2" defaultgeomprop="UV0" uiname="Texture Coordinates" />
-    <input name="type" type="float" value="0" uimin="0" uimax="9" uivisible="true" uiname="Gradient Type" enum="Linear Horiz,Linear Vert,Four Corners,Box,Diagonal,Pong,Radial,Spiral,Sweep,Tartan" enumvalues="0,1,2,3,4,5,6,7,8,9" />
-    <input name="width" type="float" value="1" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Width" unittype="distance" />
-    <input name="height" type="float" value="1" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Height" unittype="distance"/>
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" uivisible="false" uiname="Texture Coordinates" />
+    <input name="type" type="integer" value="0" uimin="0" uimax="9" uivisible="true" uiname="Gradient Type" enum="Linear Horiz,Linear Vert,Four Corners,Box,Diagonal,Pong,Radial,Spiral,Sweep,Tartan" enumvalues="0,1,2,3,4,5,6,7,8,9" />
+    <input name="realworld_scale" type="vector2" value="1,1" uisoftmin="0,0" uisoftmax="1,1" uivisible="true" uiname="Width, Height" unittype="distance" />
     <input name="noiseenable" type="boolean" value="false" uivisible="true" uiname="Noise" />
-    <input name="noisetype" type="float" value="0" uimin="0" uimax="2" uivisible="true" uiname="Noise Type" />
+    <input name="noisetype" type="integer" value="0" uimin="0" uimax="2" uivisible="true" uiname="Noise Type" enum="Regular,Fractal,Turbulence" enumvalues="0,1,2" />
     <input name="noiseamount" type="float" value="0.1" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Noise Amount" />
     <input name="noisesize" type="float" value="1" uisoftmin="0.0" uisoftmax="10" uivisible="true" uiname="Noise Size" unittype="distance" />
     <input name="noisesmooth" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Noise Smooth" />
@@ -268,23 +245,21 @@
     <input name="noisehigh" type="float" value="1" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Noise Threshold High" />
     <input name="noiselevels" type="float" value="4.0" uimin="0.0" uisoftmax="8" uivisible="true" uiname="Noise Levels" />
     <input name="noisephase" type="float" value="0" uimin="0.0" uisoftmax="1.0" uivisible="true" uiname="Noise Phase" />
-    <input name="offset_x" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Offset X" />
-    <input name="offset_y" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Offset Y" />
-    <input name="rotate" type="float" value="0" uisoftmin="0.0" uisoftmax="360" uivisible="true" uiname="Rotation Angle" unittype="angle" unit="degree" />
+    <input name="realworld_offset" type="vector2" value="0,0" uisoftmin="0,0" uisoftmax="1,1" uiname="Offset X, Y" unittype="distance" />
+    <input name="rotation_angle" type="float" value="0" uisoftmin="0.0" uisoftmax="360" uivisible="true" uiname="Rotation Angle" unittype="angle" unit="degree" />
     <input name="tile_x" type="boolean" value="true" uivisible="true" uiname="Repeat X" />
     <input name="tile_y" type="boolean" value="true" uivisible="true" uiname="Repeat Y" />
     <output name="out" type="float" />
   </nodedef>
 
   <nodedef name="ND_legacy_gradient_color3" node="legacy_gradient" version="0.1" isdefaultversion="true" nodegroup="adsk_legacy">
-    <input name="texcoord" type="vector2" defaultgeomprop="UV0" uiname="Texture Coordinates" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" uivisible="false" uiname="Texture Coordinates" />
     <input name="color1" type="color3" value="0, 0, 0" uisoftmin="0,0,0" uisoftmax="1,1,1" uivisible="true" uiname="Color 1" />
     <input name="color2" type="color3" value="1, 1, 1" uisoftmin="0,0,0" uisoftmax="1,1,1" uivisible="true" uiname="Color 2" />
-    <input name="type" type="float" value="0" uimin="0" uimax="12" uivisible="true" uiname="Gradient Type" enum="Linear Horiz,Linear Vert,Four Corners,Box,Diagonal,Pong,Radial,Spiral,Sweep,Tartan" enumvalues="0,1,2,3,4,5,6,7,8,9" />
-    <input name="width" type="float" value="1" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Width" unittype="distance" />
-    <input name="height" type="float" value="1" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Height" unittype="distance"/>
+    <input name="type" type="integer" value="0" uimin="0" uimax="9" uivisible="true" uiname="Gradient Type" enum="Linear Horiz,Linear Vert,Four Corners,Box,Diagonal,Pong,Radial,Spiral,Sweep,Tartan" enumvalues="0,1,2,3,4,5,6,7,8,9" />
+    <input name="realworld_scale" type="vector2" value="1,1" uisoftmin="0,0" uisoftmax="1,1" uivisible="true" uiname="Width, Height" unittype="distance" />
     <input name="noiseenable" type="boolean" value="false" uivisible="true" uiname="Noise" />
-    <input name="noisetype" type="float" value="0" uimin="0" uimax="2" uivisible="true" uiname="Noise Type" />
+    <input name="noisetype" type="integer" value="0" uimin="0" uimax="2" uivisible="true" uiname="Noise Type" enum="Regular,Fractal,Turbulence" enumvalues="0,1,2" />
     <input name="noiseamount" type="float" value="0.1" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Noise Amount" />
     <input name="noisesize" type="float" value="1" uisoftmin="0.0" uisoftmax="10" uivisible="true" uiname="Noise Size" unittype="distance" />
     <input name="noisesmooth" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Noise Smooth" />
@@ -292,9 +267,8 @@
     <input name="noisehigh" type="float" value="1" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Noise Threshold High" />
     <input name="noiselevels" type="float" value="4.0" uimin="0.0" uisoftmax="8" uivisible="true" uiname="Noise Levels" />
     <input name="noisephase" type="float" value="0" uimin="0.0" uisoftmax="1.0" uivisible="true" uiname="Noise Phase" />
-    <input name="offset_x" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Offset X" />
-    <input name="offset_y" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Offset Y" />
-    <input name="rotate" type="float" value="0" uisoftmin="0.0" uisoftmax="360" uivisible="true" uiname="Rotation Angle" unittype="angle" unit="degree" />
+    <input name="realworld_offset" type="vector2" value="0,0" uisoftmin="0,0" uisoftmax="1,1" uiname="Offset X, Y" unittype="distance" />
+    <input name="rotation_angle" type="float" value="0" uisoftmin="0.0" uisoftmax="360" uivisible="true" uiname="Rotation Angle" unittype="angle" unit="degree" />
     <input name="tile_x" type="boolean" value="true" uivisible="true" uiname="Repeat X" />
     <input name="tile_y" type="boolean" value="true" uivisible="true" uiname="Repeat Y" />
     <output name="out" type="color3" />

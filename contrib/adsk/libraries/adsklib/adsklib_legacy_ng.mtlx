@@ -332,19 +332,11 @@
       <input name="color1" type="color3" interfacename="color1" />
       <input name="color2" type="color3" interfacename="color2" />
     </checkerboard>
-    <combine2 name="combine_size" type="vector2" xpos="3.61594" ypos="0.499238">
-      <input name="in1" type="float" interfacename="width" />
-      <input name="in2" type="float" interfacename="height" />
-    </combine2>
-    <divide name="adj_size_2x2" type="vector2" xpos="5.71017" ypos="0.508621">
-      <input name="in2" type="vector2" nodename="combine_size" />
+    <divide name="adj_size_2x2" type="vector2" xpos="10.4885" ypos="-0.652883">
+      <input name="in2" type="vector2" interfacename="realworld_scale" />
       <input name="in1" type="vector2" value="2, 2" />
     </divide>
-    <combine2 name="combine_offset" type="vector2" xpos="2.85035" ypos="2.64727">
-      <input name="in1" type="float" interfacename="offset_x" />
-      <input name="in2" type="float" interfacename="offset_y" />
-    </combine2>
-    <rotate2d name="rotate_coord" type="vector2" xpos="6.36767" ypos="3.27624">
+    <rotate2d name="rotate_coord" type="vector2" xpos="5.63867" ypos="3.52858">
       <input name="amount" type="float" nodename="invert_rotation" />
       <input name="in" type="vector2" nodename="subtract_offset" />
     </rotate2d>
@@ -355,7 +347,7 @@
     </separate2>
     <divide name="trim_coord" type="vector2" xpos="10.2115" ypos="4.46706">
       <input name="in1" type="vector2" nodename="rotate_coord" />
-      <input name="in2" type="vector2" nodename="combine_size" />
+      <input name="in2" type="vector2" interfacename="realworld_scale" />
     </divide>
     <ifgreater name="ifgreater_x_1" type="float" xpos="12.1135" ypos="2.32072">
       <input name="value2" type="float" value="1" />
@@ -409,16 +401,16 @@
       <output name="outg" type="float" />
       <output name="outb" type="float" />
     </separate3>
-    <invert name="invert_rotation" type="float" nodedef="ND_invert_float" xpos="4.4218" ypos="4.08632">
+    <invert name="invert_rotation" type="float" nodedef="ND_invert_float" xpos="3.69281" ypos="4.33866">
       <input name="amount" type="float" value="0" />
-      <input name="in" type="float" interfacename="rotate" />
+      <input name="in" type="float" interfacename="rotation_angle" />
     </invert>
-    <subtract name="subtract_offset" type="vector2" nodedef="ND_subtract_vector2" xpos="4.48517" ypos="2.60668">
-      <input name="in2" type="vector2" ldx_value="0, 0" nodename="combine_offset" />
+    <subtract name="subtract_offset" type="vector2" nodedef="ND_subtract_vector2" xpos="3.75618" ypos="2.85902">
+      <input name="in2" type="vector2" ldx_value="0, 0" interfacename="realworld_offset" />
       <input name="in1" type="vector2" interfacename="texcoord" />
     </subtract>
     <backdrop name="Tile_and_Alpha" xpos="10.0806" ypos="1.61987" width="8.73289" height="4.15297" />
-    <backdrop name="Offset_and_Rotation" xpos="2.5239" ypos="2.02557" width="5.26447" height="3.43858" />
+    <backdrop name="Offset_and_Rotation" xpos="3.4585" ypos="2.27791" width="3.60087" height="3.43858" />
     <ifgreater name="soften_enable" type="color3" nodedef="ND_ifgreater_color3" xpos="34.8871" ypos="-1.54288">
       <input name="value1" type="float" interfacename="soften" />
       <input name="in2" type="color3" nodename="checkerboard_color3" />
@@ -570,22 +562,22 @@
       <input name="mix" type="float" nodename="add_xy_invxy" />
       <input name="fg" type="color3" interfacename="color2" />
     </mix>
-    <multiply name="half_soften" type="float" nodedef="ND_multiply_float" xpos="3.50031" ypos="-7.29678">
+    <multiply name="half_soften" type="float" nodedef="ND_multiply_float" xpos="4.21996" ypos="-7.06317">
       <input name="in2" type="float" value="0.5" />
       <input name="in1" type="float" interfacename="soften" />
     </multiply>
     <backdrop name="sintegral2" xpos="17.6689" ypos="-10.5453" width="4.16701" height="2.8647" />
     <backdrop name="sintegral3" xpos="17.6742" ypos="-7.65539" width="4.16701" height="2.8649" />
     <backdrop name="sintegral4" xpos="17.6953" ypos="-4.74671" width="4.16701" height="2.83723" />
-    <divide name="ratio" type="float" nodedef="ND_divide_float" xpos="3.46318" ypos="-5.75061">
-      <input name="in2" type="float" interfacename="height" />
-      <input name="in1" type="float" interfacename="width" />
+    <divide name="ratio" type="float" nodedef="ND_divide_float" xpos="4.18282" ypos="-5.51698">
+      <input name="in1" type="float" nodename="separate_size" output="outx" />
+      <input name="in2" type="float" nodename="separate_size" output="outy" />
     </divide>
-    <multiply name="adj_halfsofteny" type="float" nodedef="ND_multiply_float" xpos="5.84006" ypos="-6.42072">
+    <multiply name="adj_halfsofteny" type="float" nodedef="ND_multiply_float" xpos="6.21389" ypos="-6.36467">
       <input name="in2" type="float" nodename="ratio" />
       <input name="in1" type="float" nodename="half_soften" />
     </multiply>
-    <multiply name="adj_softeny" type="float" nodedef="ND_multiply_float" xpos="5.78367" ypos="-5.03447">
+    <multiply name="adj_softeny" type="float" nodedef="ND_multiply_float" xpos="6.1575" ypos="-4.97839">
       <input name="in2" type="float" nodename="ratio" />
       <input name="in1" type="float" interfacename="soften" />
     </multiply>
@@ -601,7 +593,10 @@
       <input name="in1" type="float" nodename="adj_halfsofteny" />
       <input name="in2" type="float" nodename="half_soften" />
     </ifequal>
-    <backdrop name="soften_y_adjustment" xpos="3.19753" ypos="-7.85822" width="6.688" height="4.58674" />
+    <backdrop name="soften_y_adjustment" xpos="2.26292" ypos="-7.85822" width="7.62261" height="4.58674" />
+    <separate2 name="separate_size" type="multioutput" nodedef="ND_separate2_vector2" xpos="2.56599" ypos="-5.38387">
+      <input name="in" type="vector2" interfacename="realworld_scale" />
+    </separate2>
   </nodegraph>
 
   <nodegraph name="NG_legacy_noise_color3" Autodesk-ldx_inputPos="234.424 -58.394" Autodesk-ldx_outputPos="5398.14 -39.5305" nodedef="ND_legacy_noise_color3">
@@ -618,7 +613,7 @@
       <input name="inhigh" type="float" value="1" />
     </range>
     <switch name="switch_type" type="float" xpos="16.3734" ypos="5.08553">
-      <input name="which" type="integer" interfacename="noise_type" />
+      <input name="which" type="integer" interfacename="noisetype" />
       <input name="in1" type="float" nodename="range_noise3d" />
       <input name="in2" type="float" nodename="range_fractal3d" />
       <input name="in3" type="float" nodename="range_turbulence3d" />
@@ -629,8 +624,8 @@
       <input name="bg" type="color3" interfacename="color2" />
     </mix>
     <range name="lowhi_range" type="float" xpos="23.8093" ypos="3.45124">
-      <input name="inlow" type="float" interfacename="threshold_low" />
-      <input name="inhigh" type="float" interfacename="threshold_high" />
+      <input name="inlow" type="float" interfacename="thresholdlow" />
+      <input name="inhigh" type="float" interfacename="thresholdhigh" />
       <input name="doclamp" type="boolean" value="true" />
       <input name="in" type="float" nodename="if_odd_even" />
     </range>
@@ -647,25 +642,20 @@
     </divide>
     <rotate3d name="rotate3d_x" type="vector3" xpos="7.55044" ypos="3.77017">
       <input name="in" type="vector3" nodename="add_offset" />
-      <input name="amount" type="float" interfacename="rotate_x" />
       <input name="axis" type="vector3" value="1, 0, 0" />
+      <input name="amount" type="float" nodename="rotation_xyz" output="outx" />
     </rotate3d>
-    <combine3 name="combine_offset" type="vector3" xpos="3.40388" ypos="3.96484">
-      <input name="in1" type="float" interfacename="offset_x" />
-      <input name="in2" type="float" interfacename="offset_y" />
-      <input name="in3" type="float" interfacename="offset_z" />
-    </combine3>
     <rotate3d name="rotate3d_y" type="vector3" xpos="7.51633" ypos="5.23012">
       <input name="in" type="vector3" nodename="rotate3d_x" />
-      <input name="amount" type="float" interfacename="rotate_y" />
+      <input name="amount" type="float" nodename="rotation_xyz" output="outy" />
     </rotate3d>
     <rotate3d name="rotate3d_z" type="vector3" xpos="7.51633" ypos="6.48872">
       <input name="in" type="vector3" nodename="rotate3d_y" />
-      <input name="amount" type="float" interfacename="rotate_z" />
       <input name="axis" type="vector3" value="0, 0, 1" />
+      <input name="amount" type="float" nodename="rotation_xyz" output="outz" />
     </rotate3d>
     <subtract name="add_offset" type="vector3" xpos="5.7625" ypos="4.85148">
-      <input name="in2" type="vector3" nodename="combine_offset" />
+      <input name="in2" type="vector3" interfacename="realworld_offset" />
       <input name="in1" type="vector3" nodename="adj_coord" />
     </subtract>
     <turbulence3d name="turbulence3d_max8" type="float" nodedef="ND_turbulence3d_max8_float" xpos="10.811" ypos="7.64706">
@@ -687,16 +677,19 @@
       <input name="in1" type="float" interfacename="phase" />
     </modulo>
     <smoothstep name="lowhi_range_smooth" type="float" nodedef="ND_smoothstep_float" xpos="23.8553" ypos="2.00997">
-      <input name="low" type="float" interfacename="threshold_low" />
-      <input name="high" type="float" interfacename="threshold_high" />
+      <input name="low" type="float" interfacename="thresholdlow" />
+      <input name="high" type="float" interfacename="thresholdhigh" />
       <input name="in" type="float" nodename="if_odd_even" />
     </smoothstep>
     <ifequal name="smooth_select" type="float" nodedef="ND_ifequal_floatB" xpos="25.9066" ypos="2.14428">
       <input name="in1" type="float" nodename="lowhi_range_smooth" />
       <input name="in2" type="float" nodename="lowhi_range" />
       <input name="value2" type="boolean" value="true" />
-      <input name="value1" type="boolean" interfacename="smooth_threshold" />
+      <input name="value1" type="boolean" interfacename="smooththreshold" />
     </ifequal>
+    <adsk_converter name="adsk_converter1" type="color3" nodedef="ND_adsk_converter_float_color3" Autodesk-hiddenInternalConverter="true" Autodesk-internalConverter="true">
+      <input name="in" type="float" nodename="turbulence3d_max8" />
+    </adsk_converter>
     <backdrop name="offset_and_rotation" xpos="5.36043" ypos="3.36278" width="3.49555" height="4.42037" />
     <add name="add_noise1" type="float" nodedef="ND_add_float" xpos="14.5288" ypos="10.3503">
       <input name="in2" type="float" nodename="mult_phase" />
@@ -722,6 +715,9 @@
       <input name="in2" type="float" nodename="modulo_ramp" />
       <input name="value1" type="float" nodename="modulo_odd_even" />
     </ifgreatereq>
+    <separate3 name="rotation_xyz" type="multioutput" nodedef="ND_separate3_vector3" xpos="3.23572" ypos="4.04012">
+      <input name="in" type="vector3" interfacename="rotation_angle" />
+    </separate3>
   </nodegraph>
 
   <nodegraph name="NG_turbulence2d_max8_float" Autodesk-ldx_inputPos="-1583 1" Autodesk-ldx_outputPos="2611.99 2439.3" nodedef="ND_turbulence2d_max8_float">
@@ -1627,20 +1623,20 @@
     <output name="out" type="float" nodename="multiply2" />
   </nodegraph>
 
-  <nodegraph name="NG_legacy_speckle_color3" Autodesk-ldx_inputPos="-2510.28 -626.55" Autodesk-ldx_outputPos="3020.21 1912.51" nodedef="ND_legacy_speckle_color3">
+  <nodegraph name="NG_legacy_speckle_color3" Autodesk-ldx_inputPos="-2727.65 -645.208" Autodesk-ldx_outputPos="3020.21 1912.51" nodedef="ND_legacy_speckle_color3">
     <rotate3d name="rotate3d_x" type="vector3" nodedef="ND_rotate3d_vector3" xpos="-10.7181" ypos="-5.00226">
       <input name="axis" type="vector3" value="1, 0, 0" />
       <input name="in" type="vector3" interfacename="position" />
-      <input name="amount" type="float" interfacename="rotate_x" />
+      <input name="amount" type="float" nodename="separate_rotation_xyz" output="outx" />
     </rotate3d>
     <rotate3d name="rotate3d_y" type="vector3" nodedef="ND_rotate3d_vector3" xpos="-10.7102" ypos="-3.61387">
       <input name="in" type="vector3" nodename="rotate3d_x" />
-      <input name="amount" type="float" interfacename="rotate_y" />
+      <input name="amount" type="float" nodename="separate_rotation_xyz" output="outy" />
     </rotate3d>
     <rotate3d name="rotate3d_z" type="vector3" nodedef="ND_rotate3d_vector3" xpos="-10.7331" ypos="-2.30938">
       <input name="axis" type="vector3" value="0, 0, 1" />
       <input name="in" type="vector3" nodename="rotate3d_y" />
-      <input name="amount" type="float" interfacename="rotate_z" />
+      <input name="amount" type="float" nodename="separate_rotation_xyz" output="outz" />
     </rotate3d>
     <ifgreatereq name="check_zero" type="float" nodedef="ND_ifgreatereq_float" xpos="-10.6897" ypos="0.306317">
       <input name="value2" type="float" value="0.0001" />
@@ -1652,19 +1648,10 @@
       <input name="in2" type="float" nodename="check_zero" />
       <input name="in1" type="float" value="10" />
     </divide>
-    <add name="offset_xyz" type="vector3" nodedef="ND_add_vector3" xpos="-9.15544" ypos="-1.07747">
-      <input name="in2" type="vector3" nodename="combine1" />
-      <input name="in1" type="vector3" nodename="rotate3d_z" />
-    </add>
     <multiply name="multiply_coord" type="vector3" nodedef="ND_multiply_vector3FA" xpos="-7.52156" ypos="-0.405536">
       <input name="in2" type="float" ldx_value="500" nodename="divide_10inv" />
       <input name="in1" type="vector3" nodename="offset_xyz" />
     </multiply>
-    <combine3 name="combine1" type="vector3" nodedef="ND_combine3_vector3" Autodesk-hidden="true">
-      <input name="in1" type="float" interfacename="offset_x" ldx_value="0" />
-      <input name="in2" type="float" interfacename="offset_y" ldx_value="0" />
-      <input name="in3" type="float" interfacename="offset_z" ldx_value="0" />
-    </combine3>
     <divide name="divide2" type="float" nodedef="ND_divide_float" xpos="-1.30542" ypos="1.45731">
       <input name="in2" type="float" value="2" />
       <input name="in1" type="float" nodename="util_specklenoise2" />
@@ -1875,9 +1862,16 @@
       <input name="in1" type="float" nodename="divide8" />
     </multiply>
     <backdrop name="visually_not_ok" xpos="13.0744" ypos="7.93678" width="1.36111" height="2" />
+    <separate3 name="separate_rotation_xyz" type="multioutput" nodedef="ND_separate3_vector3" xpos="-13.4542" ypos="-5.07417">
+      <input name="in" type="vector3" interfacename="rotation_angle" />
+    </separate3>
+    <subtract name="offset_xyz" type="vector3" nodedef="ND_subtract_vector3" xpos="-9.17972" ypos="-1.17215">
+      <input name="in1" type="vector3" nodename="rotate3d_z" />
+      <input name="in2" type="vector3" interfacename="realworld_offset" />
+    </subtract>
   </nodegraph>
 
-  <nodegraph name="NG_legacy_marble_color3" xpos="-0.886106" ypos="-1.16111" Autodesk-ldx_inputPos="-574 -331.5" Autodesk-ldx_outputPos="402 -139.5" nodedef="ND_legacy_marble_color3">
+  <nodegraph name="NG_legacy_marble_color3" Autodesk-ldx_inputPos="-2749.83 333.694" Autodesk-ldx_outputPos="3048.64 1924.5" nodedef="ND_legacy_marble_color3">
     <output name="out" type="color3" nodename="color_mix" />
     <divide name="r1" type="vector3" nodedef="ND_divide_vector3" xpos="-6.20478" ypos="1.50219">
       <input name="in2" type="vector3" value="100, 200, 200" />
@@ -2004,9 +1998,9 @@
       <input name="in1" type="float" nodename="add8" />
     </add>
     <mix name="color_mix" type="color3" nodedef="ND_mix_color3" xpos="13.6561" ypos="8.4905">
-      <input name="fg" type="color3" interfacename="stone_color" ldx_value="1, 1, 1" />
+      <input name="fg" type="color3" interfacename="stonecolor" ldx_value="1, 1, 1" />
       <input name="mix" type="float" nodename="slices_switch" />
-      <input name="bg" type="color3" ldx_value="0, 0, 0" interfacename="vein_color" />
+      <input name="bg" type="color3" ldx_value="0, 0, 0" interfacename="veincolor" />
     </mix>
     <multiply name="multiply16" type="vector3" nodedef="ND_multiply_vector3FA" xpos="-7.92117" ypos="1.81314">
       <input name="in2" type="float" nodename="divide5" ldx_value="500" />
@@ -2056,28 +2050,19 @@
     <floor name="floor2" type="float" nodedef="ND_floor_float" xpos="-3.28118" ypos="8.49333">
       <input name="in" type="float" nodename="divide2" />
     </floor>
-    <add name="offset_xyz" type="vector3" nodedef="ND_add_vector3" xpos="-9.56672" ypos="0.676967">
-      <input name="in2" type="vector3" nodename="combine1" />
-      <input name="in1" type="vector3" nodename="rotate3d_z" />
-    </add>
-    <combine3 name="combine1" type="vector3" nodedef="ND_combine3_vector3" Autodesk-hidden="true">
-      <input name="in1" type="float" interfacename="offset_x" ldx_value="0" />
-      <input name="in2" type="float" interfacename="offset_y" ldx_value="0" />
-      <input name="in3" type="float" interfacename="offset_z" ldx_value="0" />
-    </combine3>
     <rotate3d name="rotate3d_x" type="vector3" nodedef="ND_rotate3d_vector3" xpos="-11.0772" ypos="-2.58804">
-      <input name="amount" type="float" interfacename="rotate_x" />
       <input name="axis" type="vector3" value="1, 0, 0" />
       <input name="in" type="vector3" interfacename="position" />
+      <input name="amount" type="float" nodename="separate_rotation_xyz" output="outx" />
     </rotate3d>
     <rotate3d name="rotate3d_y" type="vector3" nodedef="ND_rotate3d_vector3" xpos="-11.0694" ypos="-1.19966">
-      <input name="amount" type="float" interfacename="rotate_y" />
       <input name="in" type="vector3" nodename="rotate3d_x" />
+      <input name="amount" type="float" nodename="separate_rotation_xyz" output="outy" />
     </rotate3d>
     <rotate3d name="rotate3d_z" type="vector3" nodedef="ND_rotate3d_vector3" xpos="-11.0923" ypos="0.104826">
-      <input name="amount" type="float" interfacename="rotate_z" />
       <input name="axis" type="vector3" value="0, 0, 1" />
       <input name="in" type="vector3" nodename="rotate3d_y" />
+      <input name="amount" type="float" nodename="separate_rotation_xyz" output="outz" />
     </rotate3d>
     <util_specklenoise name="util_specklenoise1" type="float" nodedef="ND_util_specklenoise_float" xpos="-3.59206" ypos="1.05953">
       <input name="position" type="vector3" nodename="r1" />
@@ -2090,6 +2075,13 @@
     </util_specklenoise>
     <separate3 name="separate3_1" type="multioutput" nodedef="ND_separate3_vector3" xpos="-6.33117" ypos="4.88354">
       <input name="in" type="vector3" nodename="multiply16" />
+    </separate3>
+    <subtract name="offset_xyz" type="vector3" nodedef="ND_subtract_vector3" xpos="-9.50233" ypos="1.18168">
+      <input name="in1" type="vector3" nodename="rotate3d_z" />
+      <input name="in2" type="vector3" interfacename="realworld_offset" />
+    </subtract>
+    <separate3 name="separate_rotation_xyz" type="multioutput" nodedef="ND_separate3_vector3" xpos="-13.2011" ypos="0.118463">
+      <input name="in" type="vector3" interfacename="rotation_angle" />
     </separate3>
   </nodegraph>
 
@@ -2248,11 +2240,8 @@
     </divide>
   </nodegraph>
 
-  <nodegraph name="NG_legacy_waves_color3" Autodesk-ldx_inputPos="-2093.23 -126.692" Autodesk-ldx_outputPos="4536.41 1806.75" nodedef="ND_legacy_waves_color3">
-    <convert name="convert_color3" type="color3" nodedef="ND_convert_float_color3" xpos="23.5308" ypos="9.98517">
-      <input name="in" type="float" nodename="wave_limit" />
-    </convert>
-    <output name="out" type="color3" nodename="convert_color3" />
+  <nodegraph name="NG_legacy_waves_color3" Autodesk-ldx_inputPos="-2064.12 21.9312" Autodesk-ldx_outputPos="4506.32 1647.68" nodedef="ND_legacy_waves_color3">
+    <output name="out" type="color3" nodename="mix_colors" />
     <add name="add_seed2" type="float" nodedef="ND_add_float" xpos="-1.65477" ypos="2.82344">
       <input name="in1" type="float" interfacename="seed" />
       <input name="in2" type="float" value="10" />
@@ -2407,28 +2396,23 @@
       <input name="in2" type="float" nodename="add_fractional" />
       <input name="in1" type="float" nodename="divide_last_wave" />
     </ifgreatereq>
-    <combine3 name="combine_offset" type="vector3" xpos="-9.55967" ypos="4.15887">
-      <input name="in1" type="float" interfacename="offset_x" />
-      <input name="in2" type="float" interfacename="offset_y" />
-      <input name="in3" type="float" interfacename="offset_z" />
-    </combine3>
-    <subtract name="add_offset" type="vector3" xpos="-6.89772" ypos="7.19378">
-      <input name="in2" type="vector3" nodename="combine_offset" />
+    <subtract name="add_offset" type="vector3" xpos="-5.17991" ypos="7.25167">
       <input name="in1" type="vector3" nodename="rotate3d_z" />
+      <input name="in2" type="vector3" interfacename="realworld_offset" />
     </subtract>
-    <rotate3d name="rotate3d_x" type="vector3" xpos="-9.44372" ypos="7.90889">
+    <rotate3d name="rotate3d_x" type="vector3" xpos="-7.72589" ypos="7.96678">
       <input name="axis" type="vector3" value="1, 0, 0" />
       <input name="in" type="vector3" interfacename="position" />
-      <input name="amount" type="float" interfacename="rotate_x" />
+      <input name="amount" type="float" nodename="separate_rotation_xyz" output="outx" />
     </rotate3d>
-    <rotate3d name="rotate3d_y" type="vector3" xpos="-9.44372" ypos="9.39156">
+    <rotate3d name="rotate3d_y" type="vector3" xpos="-7.72589" ypos="9.44944">
       <input name="in" type="vector3" nodename="rotate3d_x" />
-      <input name="amount" type="float" interfacename="rotate_y" />
+      <input name="amount" type="float" nodename="separate_rotation_xyz" output="outy" />
     </rotate3d>
-    <rotate3d name="rotate3d_z" type="vector3" xpos="-9.44372" ypos="10.6502">
+    <rotate3d name="rotate3d_z" type="vector3" xpos="-7.72589" ypos="10.7081">
       <input name="in" type="vector3" nodename="rotate3d_y" />
       <input name="axis" type="vector3" value="0, 0, 1" />
-      <input name="amount" type="float" interfacename="rotate_z" />
+      <input name="amount" type="float" nodename="separate_rotation_xyz" output="outz" />
     </rotate3d>
     <add name="add_wave_one" type="float" nodedef="ND_add_float" xpos="14.5673" ypos="14.2152">
       <input name="in2" type="float" value="1" />
@@ -2521,6 +2505,14 @@
       <input name="distribution3d" type="boolean" interfacename="distribution3d" />
       <input name="fade" type="boolean" interfacename="fade" />
     </util_wave>
+    <separate3 name="separate_rotation_xyz" type="multioutput" nodedef="ND_separate3_vector3" xpos="-9.58861" ypos="8.18378">
+      <input name="in" type="vector3" interfacename="rotation_angle" />
+    </separate3>
+    <mix name="mix_colors" type="color3" nodedef="ND_mix_color3" xpos="23.3441" ypos="9.15522">
+      <input name="mix" type="float" nodename="wave_limit" />
+      <input name="fg" type="color3" interfacename="color1" />
+      <input name="bg" type="color3" interfacename="color2" />
+    </mix>
   </nodegraph>
 
   <nodegraph name="NG_util_woodnoise_float" Autodesk-ldx_inputPos="-508.033 732.259" Autodesk-ldx_outputPos="3150.29 655.074" nodedef="ND_util_woodnoise_float">
@@ -2685,37 +2677,32 @@
     </util_woodnoise>
   </nodegraph>
 
-  <nodegraph name="NG_legacy_wood_color3" Autodesk-ldx_inputPos="-1336.3 -169.343" Autodesk-ldx_outputPos="263.543 -133.747" nodedef="ND_legacy_wood_color3">
+  <nodegraph name="NG_legacy_wood_color3" Autodesk-ldx_inputPos="-1673.9 -203.945" Autodesk-ldx_outputPos="263.543 -133.747" nodedef="ND_legacy_wood_color3">
     <output name="out" type="color3" nodename="mix_colors" />
     <mix name="mix_colors" type="color3" nodedef="ND_mix_color3" xpos="-0.372793" ypos="-1.49762">
       <input name="fg" type="color3" interfacename="color2" />
       <input name="bg" type="color3" interfacename="color1" />
       <input name="mix" type="float" nodename="util_woodfactor1" />
     </mix>
-    <combine3 name="combine_offset" type="vector3" xpos="-5.31367" ypos="0.637517">
-      <input name="in1" type="float" interfacename="offset_x" />
-      <input name="in2" type="float" interfacename="offset_y" />
-      <input name="in3" type="float" interfacename="offset_z" />
-    </combine3>
     <rotate3d name="rotate3d_x" type="vector3" xpos="-5.35397" ypos="1.93229">
       <input name="axis" type="vector3" value="1, 0, 0" />
-      <input name="amount" type="float" interfacename="rotate_x" />
       <input name="in" type="vector3" interfacename="position" />
+      <input name="amount" type="float" nodename="separate_rotation_xyz" output="outx" />
     </rotate3d>
     <rotate3d name="rotate3d_y" type="vector3" xpos="-5.35397" ypos="3.41497">
       <input name="in" type="vector3" nodename="rotate3d_x" />
-      <input name="amount" type="float" interfacename="rotate_y" />
+      <input name="amount" type="float" nodename="separate_rotation_xyz" output="outy" />
     </rotate3d>
     <rotate3d name="rotate3d_z" type="vector3" xpos="-5.35397" ypos="4.67356">
       <input name="in" type="vector3" nodename="rotate3d_y" />
       <input name="axis" type="vector3" value="0, 0, 1" />
-      <input name="amount" type="float" interfacename="rotate_z" />
+      <input name="amount" type="float" nodename="separate_rotation_xyz" output="outz" />
     </rotate3d>
     <subtract name="add_offset" type="vector3" xpos="-3.31018" ypos="1.86447">
-      <input name="in2" type="vector3" nodename="combine_offset" />
+      <input name="in2" type="vector3" interfacename="realworld_offset" />
       <input name="in1" type="vector3" nodename="rotate3d_z" />
     </subtract>
-    <util_woodfactor name="util_woodfactor1" type="float" nodedef="ND_util_woodfactor_float" xpos="-1.80648" ypos="-0.488891">
+    <util_woodfactor name="util_woodfactor1" type="float" nodedef="ND_util_woodfactor_float" xpos="-1.86229" ypos="0.243049">
       <input name="position" type="vector3" nodename="add_offset" />
       <input name="size" type="float" interfacename="thickness" />
       <input name="radialnoise" type="float" interfacename="radialnoise" />
@@ -2723,6 +2710,9 @@
       <input name="loop" type="boolean" interfacename="loop" />
       <input name="noiserep" type="float" interfacename="noiserep" />
     </util_woodfactor>
+    <separate3 name="separate_rotation_xyz" type="multioutput" nodedef="ND_separate3_vector3" xpos="-7.50978" ypos="2.44593">
+      <input name="in" type="vector3" interfacename="rotation_angle" />
+    </separate3>
   </nodegraph>
 
   <nodegraph name="NG_legacy_tiles_color3" Autodesk-ldx_inputPos="-4291.35 -699.835" Autodesk-ldx_outputPos="4862.71 -40.6414" nodedef="ND_legacy_tiles_color3">
@@ -2847,6 +2837,11 @@
       <input name="amplitude" type="float" value="0.5" />
       <input name="pivot" type="float" value="0" />
     </noise2d>
+    <combine3 name="combine1" type="color3" nodedef="ND_combine3_color3" Autodesk-hidden="true">
+      <input name="in1" type="float" value="0" />
+      <input name="in2" type="float" value="0" />
+      <input name="in3" type="float" value="0" />
+    </combine3>
     <combine2 name="combine_tilexy1" type="vector2" nodedef="ND_combine2_vector2" xpos="3.64061" ypos="5.03159">
       <input name="in1" type="float" nodename="tile_x1" />
       <input name="in2" type="float" nodename="tile_y1" />
@@ -3029,12 +3024,12 @@
     </divide>
     <backdrop name="modified_rows_grout_adjustment" xpos="-3.51883" ypos="-13.1244" width="4.6901" height="1.89327" />
     <divide name="adj_offx" type="float" nodedef="ND_divide_float" xpos="-20.7208" ypos="3.00972">
-      <input name="in2" type="float" interfacename="width" />
-      <input name="in1" type="float" interfacename="offset_x" />
+      <input name="in2" type="float" nodename="separate_size" output="outx" />
+      <input name="in1" type="float" nodename="separate_offset" output="outx" />
     </divide>
     <divide name="adj_offxy" type="float" nodedef="ND_divide_float" xpos="-20.7102" ypos="4.23385">
-      <input name="in2" type="float" interfacename="height" />
-      <input name="in1" type="float" interfacename="offset_y" />
+      <input name="in2" type="float" nodename="separate_size" output="outy" />
+      <input name="in1" type="float" nodename="separate_offset" output="outy" />
     </divide>
     <combine2 name="combine_offset" type="vector2" nodedef="ND_combine2_vector2" xpos="-19.1964" ypos="3.56569">
       <input name="in1" type="float" nodename="adj_offx" />
@@ -3099,7 +3094,7 @@
     </multiply>
     <divide name="texcoord_scale" type="vector2" nodedef="ND_divide_vector2" xpos="-19.0841" ypos="1.51068">
       <input name="in1" type="vector2" interfacename="texcoord" />
-      <input name="in2" type="vector2" nodename="combine_size" />
+      <input name="in2" type="vector2" interfacename="realworld_scale" />
     </divide>
     <subtract name="sub_offset" type="vector2" nodedef="ND_subtract_vector2" xpos="-17.1321" ypos="1.99483">
       <input name="in1" type="vector2" nodename="texcoord_scale" />
@@ -3136,7 +3131,7 @@
     </ifequal>
     <invert name="invert_rotation" type="float" nodedef="ND_invert_float" xpos="-17.1444" ypos="3.22498">
       <input name="amount" type="float" value="0" />
-      <input name="in" type="float" interfacename="rotate" />
+      <input name="in" type="float" interfacename="rotation_angle" />
     </invert>
     <multiply name="col_alpha_adj" type="float" nodedef="ND_multiply_float" xpos="9.73728" ypos="11.2238">
       <input name="in2" type="float" nodename="clamp_alpha" />
@@ -3170,10 +3165,12 @@
     <combine2 name="tex_x_only" type="vector2" nodedef="ND_combine2_vector2" xpos="-4.52744" ypos="-6.62694">
       <input name="in1" type="float" nodename="seed_simulation1" />
     </combine2>
-    <combine2 name="combine_size" type="vector2" nodedef="ND_combine2_vector2" xpos="-20.6562" ypos="1.70781">
-      <input name="in1" type="float" interfacename="width" />
-      <input name="in2" type="float" interfacename="height" />
-    </combine2>
+    <separate2 name="separate_size" type="multioutput" nodedef="ND_separate2_vector2" xpos="-22.633" ypos="1.51079">
+      <input name="in" type="vector2" interfacename="realworld_scale" />
+    </separate2>
+    <separate2 name="separate_offset" type="multioutput" nodedef="ND_separate2_vector2" xpos="-22.6258" ypos="3.24887">
+      <input name="in" type="vector2" interfacename="realworld_offset" />
+    </separate2>
   </nodegraph>
 
   <nodegraph name="NG_legacy_gradient_float" Autodesk-ldx_inputPos="-2097.49 1053.61" Autodesk-ldx_outputPos="4692.21 753.603" nodedef="ND_legacy_gradient_float">
@@ -3240,8 +3237,8 @@
       <input name="in2" type="float" nodename="subtract2" />
     </combine2>
     <modulo name="modulo_type" type="float" nodedef="ND_modulo_float" xpos="12.3722" ypos="4.84154">
-      <input name="in1" type="float" interfacename="type" />
       <input name="in2" type="float" value="5" />
+      <input name="in1" type="float" nodename="int_to_float_switch" />
     </modulo>
     <switch name="switch_type2" type="float" nodedef="ND_switch_float" xpos="14.7892" ypos="3.74471">
       <input name="which" type="float" nodename="modulo_type" />
@@ -3257,8 +3254,8 @@
       <input name="which" type="float" nodename="divide_type" />
     </switch>
     <divide name="divide_type" type="float" nodedef="ND_divide_float" xpos="14.7846" ypos="5.55722">
-      <input name="in1" type="float" interfacename="type" />
       <input name="in2" type="float" value="5" />
+      <input name="in1" type="float" nodename="int_to_float_switch" />
     </divide>
     <backdrop name="Four_corners_OVERBLOWN" xpos="1.22248" ypos="-2.9859" width="6.64239" height="2.85378" uicolor="#DA9652" Autodesk-ldx_alpha="0.156863" />
     <backdrop name="Box" xpos="1.18849" ypos="0.23872" width="6.20978" height="3.18631" />
@@ -3456,12 +3453,6 @@
       <input name="in2" type="float" value="0" />
       <input name="in3" type="float" value="0" />
     </combine3>
-    <switch name="noise_select" type="float" nodedef="ND_switch_float" xpos="25.4593" ypos="17.2164">
-      <input name="which" type="float" interfacename="noisetype" />
-      <input name="in3" type="float" nodename="turbulence3d1" />
-      <input name="in2" type="float" nodename="fractal3d_max8_1" />
-      <input name="in1" type="float" nodename="noise_simple" />
-    </switch>
     <multiply name="noise_size_vec2" type="vector2" nodedef="ND_multiply_vector2FA" xpos="18.0484" ypos="15.8488">
       <input name="in2" type="float" nodename="noise_size" ldx_value="20" />
       <input name="in1" type="vector2" nodename="modulo1" />
@@ -3635,17 +3626,13 @@
       <input name="texcoord" type="vector2" nodename="add1" />
     </noise2d>
     <backdrop name="SmoothRamp_function" xpos="28.0092" ypos="15.3444" width="14.4334" height="7.21561" />
-    <combine2 name="combine_offset" type="vector2" xpos="-9.22944" ypos="9.271">
-      <input name="in1" type="float" interfacename="offset_x" />
-      <input name="in2" type="float" interfacename="offset_y" />
-    </combine2>
     <subtract name="subtract12" type="vector2" nodedef="ND_subtract_vector2" xpos="-7.49067" ypos="8.8375">
-      <input name="in2" type="vector2" ldx_value="0, 0" nodename="combine_offset" />
+      <input name="in2" type="vector2" ldx_value="0, 0" interfacename="realworld_offset" />
       <input name="in1" type="vector2" interfacename="texcoord" />
     </subtract>
     <invert name="invert_rotation" type="float" nodedef="ND_invert_float" xpos="-7.55394" ypos="10.3171">
       <input name="amount" type="float" value="0" />
-      <input name="in" type="float" interfacename="rotate" />
+      <input name="in" type="float" interfacename="rotation_angle" />
     </invert>
     <rotate2d name="rotate_coord" type="vector2" xpos="-5.60817" ypos="9.507">
       <input name="amount" type="float" nodename="invert_rotation" />
@@ -3656,12 +3643,8 @@
     </separate2>
     <divide name="trim_coord" type="vector2" xpos="-8.28878" ypos="3.59946">
       <input name="in1" type="vector2" nodename="rotate_coord" />
-      <input name="in2" type="vector2" nodename="combine_size" />
+      <input name="in2" type="vector2" interfacename="realworld_scale" />
     </divide>
-    <combine2 name="combine_size" type="vector2" xpos="-9.6225" ypos="3.74037">
-      <input name="in1" type="float" interfacename="width" />
-      <input name="in2" type="float" interfacename="height" />
-    </combine2>
     <backdrop name="Offset_and_Rotation" xpos="-9.285" ypos="8.39861" width="4.98238" height="3.0796" />
     <ifequal name="noise_enable" type="float" nodedef="ND_ifequal_floatB" xpos="20.6486" ypos="3.71112">
       <input name="value1" type="boolean" interfacename="noiseenable" ldx_value="false" />
@@ -3669,6 +3652,15 @@
       <input name="in1" type="float" nodename="add_noise" />
       <input name="in2" type="float" nodename="switch_type" />
     </ifequal>
+    <switch name="noise_select" type="float" nodedef="ND_switch_floatI" xpos="25.4593" ypos="17.2164">
+      <input name="in1" type="float" nodename="noise_simple" />
+      <input name="in2" type="float" nodename="fractal3d_max8_1" />
+      <input name="in3" type="float" nodename="turbulence3d1" />
+      <input name="which" type="integer" interfacename="noisetype" />
+    </switch>
+    <convert name="int_to_float_switch" type="float" nodedef="ND_convert_integer_float" xpos="-9.127" ypos="5.2823">
+      <input name="in" type="integer" interfacename="type" />
+    </convert>
   </nodegraph>
 
   <nodegraph name="NG_legacy_gradient_color3" Autodesk-ldx_inputPos="-554 -254.833" Autodesk-ldx_outputPos="457.45 -143.351" nodedef="ND_legacy_gradient_color3">
@@ -3676,14 +3668,14 @@
     <mix name="mix1" type="color3" nodedef="ND_mix_color3" xpos="0.590739" ypos="-1.43426">
       <input name="bg" type="color3" interfacename="color1" />
       <input name="fg" type="color3" interfacename="color2" />
-      <input name="mix" type="float" nodename="legacy_gradient_float1" />
+      <input name="mix" type="float" nodename="legacy_gradient1" />
     </mix>
-    <legacy_gradient_float name="legacy_gradient_float1" type="float" nodedef="ND_legacy_gradient_float" xpos="-1.03611" ypos="-0.337037">
+    <legacy_gradient name="legacy_gradient1" type="float" nodedef="ND_legacy_gradient_float" xpos="-1.14583" ypos="-0.625833">
       <input name="texcoord" type="vector2" interfacename="texcoord" />
-      <input name="type" type="float" interfacename="type" />
-      <input name="tile_x" type="boolean" interfacename="tile_x" />
-      <input name="tile_y" type="boolean" interfacename="tile_y" />
-      <input name="noisetype" type="float" interfacename="noisetype" />
+      <input name="type" type="integer" interfacename="type" />
+      <input name="realworld_scale" type="vector2" interfacename="realworld_scale" />
+      <input name="noiseenable" type="boolean" interfacename="noiseenable" />
+      <input name="noisetype" type="integer" interfacename="noisetype" />
       <input name="noiseamount" type="float" interfacename="noiseamount" />
       <input name="noisesize" type="float" interfacename="noisesize" />
       <input name="noisesmooth" type="float" interfacename="noisesmooth" />
@@ -3691,13 +3683,11 @@
       <input name="noisehigh" type="float" interfacename="noisehigh" />
       <input name="noiselevels" type="float" interfacename="noiselevels" />
       <input name="noisephase" type="float" interfacename="noisephase" />
-      <input name="offset_x" type="float" interfacename="offset_x" />
-      <input name="offset_y" type="float" interfacename="offset_y" />
-      <input name="rotate" type="float" interfacename="rotate" />
-      <input name="width" type="float" interfacename="width" />
-      <input name="height" type="float" interfacename="height" />
-      <input name="noiseenable" type="boolean" interfacename="noiseenable" />
-    </legacy_gradient_float>
+      <input name="realworld_offset" type="vector2" interfacename="realworld_offset" />
+      <input name="rotation_angle" type="float" interfacename="rotation_angle" />
+      <input name="tile_x" type="boolean" interfacename="tile_x" />
+      <input name="tile_y" type="boolean" interfacename="tile_y" />
+    </legacy_gradient>
   </nodegraph>
 
   <!-- 
@@ -3896,8 +3886,8 @@
     <legacy_noise name="legacy_noise" type="color3" xpos="-6.615942" ypos="6.922414">
       <input name="color1" type="color3" value="1, 1, 1" />
       <input name="color2" type="color3" value="0, 0, 0" />
-      <input name="threshold_low" type="float" value="0" />
-      <input name="threshold_high" type="float" value="1" />
+      <input name="thresholdlow" type="float" value="0" />
+      <input name="thresholdhigh" type="float" value="1" />
       <input name="size" type="float" value="100" />
     </legacy_noise>
     <swizzle name="swizzle_color3_float" type="float" xpos="-4.862319" ypos="7.577586">
@@ -4299,11 +4289,11 @@
       <input name="in2" type="float" nodename="patina_transition" />
     </add>
     <legacy_noise name="patina_noise" type="color3" xpos="-9.304348" ypos="-0.560345">
-      <input name="threshold_low" type="float" nodename="patina_range" />
-      <input name="threshold_high" type="float" nodename="patina_max" />
+      <input name="thresholdlow" type="float" nodename="patina_range" />
+      <input name="thresholdhigh" type="float" nodename="patina_max" />
       <input name="color1" type="color3" value="0, 0, 0" />
       <input name="color2" type="color3" value="1, 1, 1" />
-      <input name="noise_type" type="integer" value="1" />
+      <input name="noisetype" type="integer" value="1" />
       <input name="levels" type="float" value="4" />
     </legacy_noise>
     <swizzle name="patina_mask" type="float" xpos="-7.557971" ypos="1.818966">
@@ -4413,8 +4403,8 @@
     <legacy_noise name="legacy_noise" type="color3" xpos="-2.920290" ypos="4.112069">
       <input name="color1" type="color3" value="1, 1, 1" />
       <input name="color2" type="color3" value="0, 0, 0" />
-      <input name="threshold_low" type="float" value="0" />
-      <input name="threshold_high" type="float" value="1" />
+      <input name="thresholdlow" type="float" value="0" />
+      <input name="thresholdhigh" type="float" value="1" />
       <input name="levels" type="float" value="1" />
       <input name="size" type="float" value="0.1" />
     </legacy_noise>
@@ -4528,9 +4518,9 @@
     <legacy_noise name="weathering_auto" type="color3" xpos="2.057971" ypos="15.870689">
       <input name="color1" type="color3" value="0.953545, 0.953545, 0.953545" />
       <input name="color2" type="color3" value="0.756345, 0.753786, 0.753786" />
-      <input name="noise_type" type="integer" value="1" />
-      <input name="threshold_low" type="float" value="0.3" />
-      <input name="threshold_high" type="float" value="0.7" />
+      <input name="noisetype" type="integer" value="1" />
+      <input name="thresholdlow" type="float" value="0.3" />
+      <input name="thresholdhigh" type="float" value="0.7" />
       <input name="levels" type="float" value="4" />
     </legacy_noise>
     <multiply name="weathering_bump_fade" type="color3" xpos="1.260870" ypos="25.681034">
@@ -4696,8 +4686,8 @@
       <input name="value" type="float" value="0.5" uivisible="true" />
     </constant>
     <legacy_noise name="legacy_noise" type="color3" xpos="-12.536232" ypos="0.508621">
-      <input name="threshold_low" type="float" value="0" />
-      <input name="threshold_high" type="float" value="1" />
+      <input name="thresholdlow" type="float" value="0" />
+      <input name="thresholdhigh" type="float" value="1" />
       <input name="size" type="float" value="0.5" />
       <input name="color1" type="color3" value="1, 1, 1" />
       <input name="color2" type="color3" value="0, 0, 0" />
