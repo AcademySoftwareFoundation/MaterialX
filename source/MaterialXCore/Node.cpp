@@ -322,6 +322,12 @@ void GraphElement::flattenSubgraphs(const string& target, NodePredicate filter)
                         if (sourceInput)
                         {
                             destInput->copyContentFrom(sourceInput);
+                            NodePtr connectedNode = destInput->getConnectedNode();
+                            // Update downstream port map with the new instance
+                            if (connectedNode && downstreamPortMap.count(connectedNode) > 0)
+                            {
+                                downstreamPortMap[connectedNode] = connectedNode->getDownstreamPorts();
+                            }
                         }
                         else
                         {
