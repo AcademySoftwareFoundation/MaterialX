@@ -582,13 +582,13 @@
       <input name="in1" type="float" interfacename="soften" />
     </multiply>
     <ifequal name="adjsofty_enable2" type="float" nodedef="ND_ifequal_floatB" xpos="8.17161" ypos="-5.1457">
-      <input name="value1" type="boolean" interfacename="adjustsofteny" />
+      <input name="value1" type="boolean" interfacename="adjust_soften_y" />
       <input name="value2" type="boolean" value="true" />
       <input name="in1" type="float" nodename="adj_softeny" />
       <input name="in2" type="float" interfacename="soften" />
     </ifequal>
     <ifequal name="adjsofty_enable1" type="float" nodedef="ND_ifequal_floatB" xpos="8.186" ypos="-6.56128">
-      <input name="value1" type="boolean" interfacename="adjustsofteny" ldx_value="true" />
+      <input name="value1" type="boolean" interfacename="adjust_soften_y" ldx_value="true" />
       <input name="value2" type="boolean" value="true" />
       <input name="in1" type="float" nodename="adj_halfsofteny" />
       <input name="in2" type="float" nodename="half_soften" />
@@ -613,7 +613,7 @@
       <input name="inhigh" type="float" value="1" />
     </range>
     <switch name="switch_type" type="float" xpos="16.3734" ypos="5.08553">
-      <input name="which" type="integer" interfacename="noisetype" />
+      <input name="which" type="integer" interfacename="noise_type" />
       <input name="in1" type="float" nodename="range_noise3d" />
       <input name="in2" type="float" nodename="range_fractal3d" />
       <input name="in3" type="float" nodename="range_turbulence3d" />
@@ -624,8 +624,8 @@
       <input name="bg" type="color3" interfacename="color2" />
     </mix>
     <range name="lowhi_range" type="float" xpos="23.8093" ypos="3.45124">
-      <input name="inlow" type="float" interfacename="thresholdlow" />
-      <input name="inhigh" type="float" interfacename="thresholdhigh" />
+      <input name="inlow" type="float" interfacename="threshold_low" />
+      <input name="inhigh" type="float" interfacename="threshold_high" />
       <input name="doclamp" type="boolean" value="true" />
       <input name="in" type="float" nodename="if_odd_even" />
     </range>
@@ -677,15 +677,15 @@
       <input name="in1" type="float" interfacename="phase" />
     </modulo>
     <smoothstep name="lowhi_range_smooth" type="float" nodedef="ND_smoothstep_float" xpos="23.8553" ypos="2.00997">
-      <input name="low" type="float" interfacename="thresholdlow" />
-      <input name="high" type="float" interfacename="thresholdhigh" />
+      <input name="low" type="float" interfacename="threshold_low" />
+      <input name="high" type="float" interfacename="threshold_high" />
       <input name="in" type="float" nodename="if_odd_even" />
     </smoothstep>
     <ifequal name="smooth_select" type="float" nodedef="ND_ifequal_floatB" xpos="25.9066" ypos="2.14428">
       <input name="in1" type="float" nodename="lowhi_range_smooth" />
       <input name="in2" type="float" nodename="lowhi_range" />
       <input name="value2" type="boolean" value="true" />
-      <input name="value1" type="boolean" interfacename="smooththreshold" />
+      <input name="value1" type="boolean" interfacename="threshold_smooth" />
     </ifequal>
     <adsk_converter name="adsk_converter1" type="color3" nodedef="ND_adsk_converter_float_color3" Autodesk-hiddenInternalConverter="true" Autodesk-internalConverter="true">
       <input name="in" type="float" nodename="turbulence3d_max8" />
@@ -1998,9 +1998,9 @@
       <input name="in1" type="float" nodename="add8" />
     </add>
     <mix name="color_mix" type="color3" nodedef="ND_mix_color3" xpos="13.6561" ypos="8.4905">
-      <input name="fg" type="color3" interfacename="stonecolor" ldx_value="1, 1, 1" />
+      <input name="fg" type="color3" interfacename="stone_color" ldx_value="1, 1, 1" />
       <input name="mix" type="float" nodename="slices_switch" />
-      <input name="bg" type="color3" ldx_value="0, 0, 0" interfacename="veincolor" />
+      <input name="bg" type="color3" ldx_value="0, 0, 0" interfacename="vein_color" />
     </mix>
     <multiply name="multiply16" type="vector3" nodedef="ND_multiply_vector3FA" xpos="-7.92117" ypos="1.81314">
       <input name="in2" type="float" nodename="divide5" ldx_value="500" />
@@ -2429,80 +2429,80 @@
       <input name="position" type="vector3" nodename="add_offset" />
       <input name="radius" type="float" interfacename="radius" />
       <input name="seed" type="float" interfacename="seed" />
-      <input name="wavemin" type="float" interfacename="wavemin" />
-      <input name="wavemax" type="float" interfacename="wavemax" />
+      <input name="wavemin" type="float" interfacename="wave_min" />
+      <input name="wavemax" type="float" interfacename="wave_max" />
       <input name="phase" type="float" interfacename="phase" />
-      <input name="distribution3d" type="boolean" interfacename="distribution3d" />
+      <input name="distribution3d" type="boolean" interfacename="distribution_3d" />
       <input name="fade" type="boolean" interfacename="fade" />
     </util_wave>
     <util_wave name="util_wave2" type="float" nodedef="ND_util_wave_float" xpos="0.495169" ypos="2.53349">
       <input name="position" type="vector3" nodename="add_offset" />
       <input name="radius" type="float" interfacename="radius" />
       <input name="seed" type="float" nodename="add_seed2" />
-      <input name="wavemin" type="float" interfacename="wavemin" />
-      <input name="wavemax" type="float" interfacename="wavemax" />
+      <input name="wavemin" type="float" interfacename="wave_min" />
+      <input name="wavemax" type="float" interfacename="wave_max" />
       <input name="phase" type="float" interfacename="phase" />
-      <input name="distribution3d" type="boolean" interfacename="distribution3d" />
+      <input name="distribution3d" type="boolean" interfacename="distribution_3d" />
       <input name="fade" type="boolean" interfacename="fade" />
     </util_wave>
     <util_wave name="util_wave3" type="float" nodedef="ND_util_wave_float" xpos="0.454951" ypos="4.67011">
       <input name="position" type="vector3" nodename="add_offset" />
       <input name="radius" type="float" interfacename="radius" />
       <input name="seed" type="float" nodename="add_seed3" />
-      <input name="wavemin" type="float" interfacename="wavemin" />
-      <input name="wavemax" type="float" interfacename="wavemax" />
+      <input name="wavemin" type="float" interfacename="wave_min" />
+      <input name="wavemax" type="float" interfacename="wave_max" />
       <input name="phase" type="float" interfacename="phase" />
-      <input name="distribution3d" type="boolean" interfacename="distribution3d" />
+      <input name="distribution3d" type="boolean" interfacename="distribution_3d" />
       <input name="fade" type="boolean" interfacename="fade" />
     </util_wave>
     <util_wave name="util_wave4" type="float" nodedef="ND_util_wave_float" xpos="0.479313" ypos="6.797">
       <input name="position" type="vector3" nodename="add_offset" />
       <input name="radius" type="float" interfacename="radius" />
       <input name="seed" type="float" nodename="add_seed4" />
-      <input name="wavemin" type="float" interfacename="wavemin" />
-      <input name="wavemax" type="float" interfacename="wavemax" />
+      <input name="wavemin" type="float" interfacename="wave_min" />
+      <input name="wavemax" type="float" interfacename="wave_max" />
       <input name="phase" type="float" interfacename="phase" />
-      <input name="distribution3d" type="boolean" interfacename="distribution3d" />
+      <input name="distribution3d" type="boolean" interfacename="distribution_3d" />
       <input name="fade" type="boolean" interfacename="fade" />
     </util_wave>
     <util_wave name="util_wave5" type="float" nodedef="ND_util_wave_float" xpos="0.517389" ypos="9.00917">
       <input name="position" type="vector3" nodename="add_offset" />
       <input name="radius" type="float" interfacename="radius" />
       <input name="seed" type="float" nodename="add_seed5" />
-      <input name="wavemin" type="float" interfacename="wavemin" />
-      <input name="wavemax" type="float" interfacename="wavemax" />
+      <input name="wavemin" type="float" interfacename="wave_min" />
+      <input name="wavemax" type="float" interfacename="wave_max" />
       <input name="phase" type="float" interfacename="phase" />
-      <input name="distribution3d" type="boolean" interfacename="distribution3d" />
+      <input name="distribution3d" type="boolean" interfacename="distribution_3d" />
       <input name="fade" type="boolean" interfacename="fade" />
     </util_wave>
     <util_wave name="util_wave6" type="float" nodedef="ND_util_wave_float" xpos="0.515475" ypos="11.1384">
       <input name="position" type="vector3" nodename="add_offset" />
       <input name="radius" type="float" interfacename="radius" />
       <input name="seed" type="float" nodename="add_seed6" />
-      <input name="wavemin" type="float" interfacename="wavemin" />
-      <input name="wavemax" type="float" interfacename="wavemax" />
+      <input name="wavemin" type="float" interfacename="wave_min" />
+      <input name="wavemax" type="float" interfacename="wave_max" />
       <input name="phase" type="float" interfacename="phase" />
-      <input name="distribution3d" type="boolean" interfacename="distribution3d" />
+      <input name="distribution3d" type="boolean" interfacename="distribution_3d" />
       <input name="fade" type="boolean" interfacename="fade" />
     </util_wave>
     <util_wave name="util_wave7" type="float" nodedef="ND_util_wave_float" xpos="0.522695" ypos="13.4342">
       <input name="position" type="vector3" nodename="add_offset" />
       <input name="radius" type="float" interfacename="radius" />
       <input name="seed" type="float" nodename="add_seed7" />
-      <input name="wavemin" type="float" interfacename="wavemin" />
-      <input name="wavemax" type="float" interfacename="wavemax" />
+      <input name="wavemin" type="float" interfacename="wave_min" />
+      <input name="wavemax" type="float" interfacename="wave_max" />
       <input name="phase" type="float" interfacename="phase" />
-      <input name="distribution3d" type="boolean" interfacename="distribution3d" />
+      <input name="distribution3d" type="boolean" interfacename="distribution_3d" />
       <input name="fade" type="boolean" interfacename="fade" />
     </util_wave>
     <util_wave name="util_wave8" type="float" nodedef="ND_util_wave_float" xpos="0.528434" ypos="15.5709">
       <input name="position" type="vector3" nodename="add_offset" />
       <input name="radius" type="float" interfacename="radius" />
       <input name="seed" type="float" nodename="add_seed8" />
-      <input name="wavemin" type="float" interfacename="wavemin" />
-      <input name="wavemax" type="float" interfacename="wavemax" />
+      <input name="wavemin" type="float" interfacename="wave_min" />
+      <input name="wavemax" type="float" interfacename="wave_max" />
       <input name="phase" type="float" interfacename="phase" />
-      <input name="distribution3d" type="boolean" interfacename="distribution3d" />
+      <input name="distribution3d" type="boolean" interfacename="distribution_3d" />
       <input name="fade" type="boolean" interfacename="fade" />
     </util_wave>
     <separate3 name="separate_rotation_xyz" type="multioutput" nodedef="ND_separate3_vector3" xpos="-9.58861" ypos="8.18378">
@@ -2604,7 +2604,7 @@
       <input name="in1" type="float" nodename="multiply_radialnoise3" />
       <input name="in2" type="float" nodename="separate3_1" output="outz" />
     </add>
-    <multiply name="y_square" type="float" nodedef="ND_multiply_float" xpos="6.78789" ypos="4.15966">
+    <multiply name="y_square" type="float" nodedef="ND_multiply_float" xpos="6.77072" ypos="3.91358">
       <input name="in1" type="float" nodename="add_radialnoise2" />
       <input name="in2" type="float" nodename="add_radialnoise2" />
     </multiply>
@@ -2650,30 +2650,30 @@
       <input name="in1" type="float" nodename="smoothstep1" />
       <input name="in2" type="float" nodename="smoothstep2" />
     </subtract>
-    <util_woodnoise name="util_woodnoise4" type="float" nodedef="ND_util_woodnoise_float" xpos="11.9958" ypos="2.00877">
-      <input name="noiserep" type="float" interfacename="noiserep" />
-      <input name="loop" type="boolean" interfacename="loop" />
-      <input name="distance" type="float" nodename="scale_quarter" />
-    </util_woodnoise>
-    <util_woodnoise name="util_woodnoise5" type="float" nodedef="ND_util_woodnoise_float" xpos="12.0142" ypos="4.53144">
-      <input name="noiserep" type="float" interfacename="noiserep" />
-      <input name="loop" type="boolean" interfacename="loop" />
-      <input name="distance" type="float" nodename="distance" />
-    </util_woodnoise>
-    <util_woodnoise name="util_woodnoise1" type="float" nodedef="ND_util_woodnoise_float" xpos="1.44176" ypos="2.61043">
-      <input name="noiserep" type="float" interfacename="noiserep" />
-      <input name="loop" type="boolean" interfacename="loop" />
+    <util_woodnoise name="util_woodnoise1" type="float" nodedef="ND_util_woodnoise_float" xpos="1.43873" ypos="2.68261">
       <input name="distance" type="float" nodename="separate3_1" output="outx" />
-    </util_woodnoise>
-    <util_woodnoise name="util_woodnoise2" type="float" nodedef="ND_util_woodnoise_float" xpos="1.41889" ypos="4.17251">
       <input name="noiserep" type="float" interfacename="noiserep" />
       <input name="loop" type="boolean" interfacename="loop" />
+    </util_woodnoise>
+    <util_woodnoise name="util_woodnoise2" type="float" nodedef="ND_util_woodnoise_float" xpos="1.44444" ypos="4.17627">
       <input name="distance" type="float" nodename="separate3_1" output="outy" />
-    </util_woodnoise>
-    <util_woodnoise name="util_woodnoise3" type="float" nodedef="ND_util_woodnoise_float" xpos="1.40286" ypos="5.53393">
       <input name="noiserep" type="float" interfacename="noiserep" />
       <input name="loop" type="boolean" interfacename="loop" />
+    </util_woodnoise>
+    <util_woodnoise name="util_woodnoise3" type="float" nodedef="ND_util_woodnoise_float" xpos="1.42727" ypos="5.61844">
       <input name="distance" type="float" nodename="separate3_1" output="outz" />
+      <input name="noiserep" type="float" interfacename="noiserep" />
+      <input name="loop" type="boolean" interfacename="loop" />
+    </util_woodnoise>
+    <util_woodnoise name="util_woodnoise4" type="float" nodedef="ND_util_woodnoise_float" xpos="12.0659" ypos="2.03589">
+      <input name="distance" type="float" nodename="scale_quarter" />
+      <input name="noiserep" type="float" interfacename="noiserep" />
+      <input name="loop" type="boolean" interfacename="loop" />
+    </util_woodnoise>
+    <util_woodnoise name="util_woodnoise5" type="float" nodedef="ND_util_woodnoise_float" xpos="12.0546" ypos="4.17053">
+      <input name="distance" type="float" nodename="distance" />
+      <input name="noiserep" type="float" interfacename="noiserep" />
+      <input name="loop" type="boolean" interfacename="loop" />
     </util_woodnoise>
   </nodegraph>
 
@@ -2705,10 +2705,10 @@
     <util_woodfactor name="util_woodfactor1" type="float" nodedef="ND_util_woodfactor_float" xpos="-1.86229" ypos="0.243049">
       <input name="position" type="vector3" nodename="add_offset" />
       <input name="size" type="float" interfacename="thickness" />
-      <input name="radialnoise" type="float" interfacename="radialnoise" />
-      <input name="axialnoise" type="float" interfacename="axialnoise" />
+      <input name="radialnoise" type="float" interfacename="radial_noise" />
+      <input name="axialnoise" type="float" interfacename="axial_noise" />
       <input name="loop" type="boolean" interfacename="loop" />
-      <input name="noiserep" type="float" interfacename="noiserep" />
+      <input name="noiserep" type="float" interfacename="noise_repetitions" />
     </util_woodfactor>
     <separate3 name="separate_rotation_xyz" type="multioutput" nodedef="ND_separate3_vector3" xpos="-7.50978" ypos="2.44593">
       <input name="in" type="vector3" interfacename="rotation_angle" />
@@ -2727,15 +2727,15 @@
       <input name="in1" type="float" nodename="multiply_tilesy" />
     </modulo>
     <multiply name="multiply_tilesx" type="float" nodedef="ND_multiply_float" xpos="-3.32716" ypos="-1.7109">
-      <input name="in2" type="float" interfacename="tilesnumx" />
+      <input name="in2" type="float" interfacename="tiles_num_x" />
       <input name="in1" type="float" nodename="separate_texcoord" output="outx" />
     </multiply>
     <multiply name="multiply_tilesy" type="float" nodedef="ND_multiply_float" xpos="-3.37833" ypos="-0.257671">
-      <input name="in2" type="float" interfacename="tilesnumy" />
+      <input name="in2" type="float" interfacename="tiles_num_y" />
       <input name="in1" type="float" nodename="separate_texcoord" output="outy" />
     </multiply>
     <divide name="gap_x_half" type="float" nodedef="ND_divide_float" xpos="-11.8627" ypos="7.02756">
-      <input name="in1" type="float" interfacename="groutgapx" />
+      <input name="in1" type="float" interfacename="grout_gap_x" />
       <input name="in2" type="float" value="2" />
     </divide>
     <ifgreater name="grout_x_range_check1" type="float" nodedef="ND_ifgreater_float" xpos="3.10628" ypos="-4.72059">
@@ -2775,12 +2775,12 @@
       <input name="in1" type="float" nodename="gap_x_approx" />
     </multiply>
     <multiply name="grout_y_adj" type="float" nodedef="ND_multiply_float" xpos="-4.94901" ypos="5.52903">
-      <input name="in2" type="float" interfacename="tilesnumy" />
+      <input name="in2" type="float" interfacename="tiles_num_y" />
       <input name="in1" type="float" nodename="gap_y_approx" />
     </multiply>
     <backdrop name="grout_unit_approximation" xpos="-12.6517" ypos="6.38194" width="4.63612" height="3.46991" uicolor="#B2B2B5" Autodesk-ldx_alpha="0.156863" />
     <remap name="remap_bias" type="float" nodedef="ND_remap_float" xpos="-4.94833" ypos="2.38848">
-      <input name="in" type="float" interfacename="groutbias" />
+      <input name="in" type="float" interfacename="grout_bias" />
       <input name="inlow" type="float" value="-1" />
     </remap>
     <invert name="invert3" type="float" nodedef="ND_invert_float" xpos="-3.07816" ypos="4.37671">
@@ -2802,10 +2802,10 @@
       <input name="in2" type="float" nodename="grout_x_adj" ldx_value="2" />
       <input name="in1" type="float" nodename="invert3" />
     </multiply>
-    <backdrop name="grout_bias" xpos="-5.39234" ypos="1.74391" width="5.60044" height="5.61089" />
+    <backdrop name="grout_bias1" xpos="-5.39234" ypos="1.74391" width="5.60044" height="5.61089" />
     <divide name="gap_y_half" type="float" nodedef="ND_divide_float" xpos="-11.8978" ypos="8.54056">
       <input name="in2" type="float" value="2" />
-      <input name="in1" type="float" interfacename="groutgapy" />
+      <input name="in1" type="float" interfacename="grout_gap_y" />
     </divide>
     <modulo name="modulo_altrow" type="float" nodedef="ND_modulo_float" xpos="-2.68223" ypos="-4.71131">
       <input name="in2" type="float" value="2" />
@@ -2819,7 +2819,7 @@
     </ifgreater>
     <add name="add_altrow_shift" type="float" nodedef="ND_add_float" xpos="-5.26319" ypos="-3.65044">
       <input name="in1" type="float" nodename="multiply_tilesx" />
-      <input name="in2" type="float" interfacename="lineshift" />
+      <input name="in2" type="float" interfacename="line_shift" />
     </add>
     <add name="default_altrow_shift" type="float" nodedef="ND_add_float" xpos="-3.9173" ypos="-3.64251">
       <input name="in1" type="float" nodename="add_altrow_shift" />
@@ -2852,9 +2852,9 @@
     </multiply>
     <multiply name="color_var_amount" type="float" nodedef="ND_multiply_float" xpos="9.862" ypos="4.44151">
       <input name="in1" type="float" nodename="color_var1" />
-      <input name="in2" type="float" interfacename="colorvariance" />
+      <input name="in2" type="float" interfacename="color_variance" />
     </multiply>
-    <backdrop name="color_variance" xpos="6.37483" ypos="3.14478" width="5.17802" height="3.30342" />
+    <backdrop name="color_variance1" xpos="6.37483" ypos="3.14478" width="5.17802" height="3.30342" />
     <add name="seed_simulation2" type="vector2" nodedef="ND_add_vector2FA" xpos="6.66389" ypos="4.42871">
       <input name="in2" type="float" interfacename="seed" />
       <input name="in1" type="vector2" nodename="arbitrary_noise_scale2" />
@@ -2866,20 +2866,20 @@
     </noise2d>
     <multiply name="fade_var_amount" type="float" nodedef="ND_multiply_float" xpos="11.1833" ypos="7.9145">
       <input name="in1" type="float" nodename="fade_var" />
-      <input name="in2" type="float" interfacename="fadevariance" />
+      <input name="in2" type="float" interfacename="fade_variance" />
     </multiply>
     <add name="seed_simulation3" type="vector2" nodedef="ND_add_vector2FA" xpos="7.98533" ypos="7.86056">
       <input name="in2" type="float" interfacename="seed" />
       <input name="in1" type="vector2" nodename="arbitrary_noise_shift" />
     </add>
-    <backdrop name="fade_variance" xpos="6.34922" ypos="6.60006" width="8.4015" height="3.35963" />
+    <backdrop name="fade_variance1" xpos="6.34922" ypos="6.60006" width="8.4015" height="3.35963" />
     <add name="arbitrary_noise_shift" type="vector2" nodedef="ND_add_vector2FA" xpos="6.49478" ypos="7.86678">
       <input name="in1" type="vector2" nodename="arbitrary_noise_scale2" />
       <input name="in2" type="float" value="12.3456" />
     </add>
     <colorcorrect name="colorcorrect1" type="color3" nodedef="ND_colorcorrect_color3" xpos="12.7697" ypos="3.79986">
       <input name="hue" type="float" nodename="color_var_amount" ldx_value="0" />
-      <input name="in" type="color3" interfacename="tilecolor" />
+      <input name="in" type="color3" interfacename="tile_color" />
     </colorcorrect>
     <multiply name="color_and_fade_var" type="color3" nodedef="ND_multiply_color3FA" xpos="15.9951" ypos="4.82437">
       <input name="in2" type="float" nodename="invert4" />
@@ -2889,13 +2889,13 @@
       <input name="in" type="float" nodename="fade_var_amount" />
     </invert>
     <mix name="mix_grout_tiles" type="color3" nodedef="ND_mix_color3" xpos="18.949" ypos="-0.327311">
-      <input name="fg" type="color3" interfacename="groutcolor" />
+      <input name="fg" type="color3" interfacename="grout_color" />
       <input name="bg" type="color3" nodename="color_variance_behavior_select" />
       <input name="mix" type="float" nodename="combine_grout" />
     </mix>
     <ifequal name="color_variance_behavior_select" type="color3" nodedef="ND_ifequal_color3B" xpos="17.4006" ypos="1.41582">
       <input name="value2" type="boolean" value="true" />
-      <input name="value1" type="boolean" interfacename="brightnessvariance" />
+      <input name="value1" type="boolean" interfacename="brightness_variance" />
       <input name="in2" type="color3" nodename="color_and_fade_var" />
       <input name="in1" type="color3" nodename="clamp_color" />
     </ifequal>
@@ -2910,14 +2910,14 @@
     </add>
     <multiply name="color_var_amount2" type="float" nodedef="ND_multiply_float" xpos="4.80636" ypos="11.2421">
       <input name="in1" type="float" nodename="noise_range_adj" />
-      <input name="in2" type="float" interfacename="colorvariance" />
+      <input name="in2" type="float" interfacename="color_variance" />
     </multiply>
     <multiply name="fade_var_amount2" type="float" nodedef="ND_multiply_float" xpos="4.80925" ypos="12.4883">
       <input name="in1" type="float" nodename="noise_range_adj" />
-      <input name="in2" type="float" interfacename="fadevariance" />
+      <input name="in2" type="float" interfacename="fade_variance" />
     </multiply>
     <multiply name="color_var2" type="color3" nodedef="ND_multiply_color3FA" xpos="11.3526" ypos="11.1694">
-      <input name="in1" type="color3" interfacename="tilecolor" ldx_value="1, 1, 1" />
+      <input name="in1" type="color3" interfacename="tile_color" ldx_value="1, 1, 1" />
       <input name="in2" type="float" nodename="col_alpha_adj" />
     </multiply>
     <add name="var_positive2" type="float" nodedef="ND_add_float" xpos="6.54206" ypos="12.4232">
@@ -2925,17 +2925,17 @@
       <input name="in1" type="float" nodename="fade_var_amount2" />
     </add>
     <multiply name="roughness_scale_mult" type="vector2" nodedef="ND_multiply_vector2FA" xpos="-12.4356" ypos="1.36409">
-      <input name="in2" type="float" interfacename="roughnessscale" />
+      <input name="in2" type="float" interfacename="roughness_scale" />
       <input name="in1" type="vector2" nodename="rotate_texcoord" />
     </multiply>
     <noise2d name="noise_roughness" type="vector2" nodedef="ND_noise2d_vector2" xpos="-10.7317" ypos="2.60302">
       <input name="texcoord" type="vector2" nodename="roughness_const_size" />
     </noise2d>
     <add name="add_roughness" type="vector2" nodedef="ND_add_vector2" xpos="-9.21339" ypos="2.35134">
-      <input name="in2" type="vector2" nodename="roughness_amount" />
+      <input name="in2" type="vector2" nodename="roughness_amount1" />
       <input name="in1" type="vector2" nodename="rotate_texcoord" />
     </add>
-    <multiply name="roughness_amount" type="vector2" nodedef="ND_multiply_vector2FA" xpos="-10.7281" ypos="4.25476">
+    <multiply name="roughness_amount1" type="vector2" nodedef="ND_multiply_vector2FA" xpos="-10.7281" ypos="4.25476">
       <input name="in1" type="vector2" nodename="noise_roughness" />
       <input name="in2" type="float" nodename="roughness_amount_approx" />
     </multiply>
@@ -2944,7 +2944,7 @@
       <input name="in2" type="vector2" nodename="combine_tiles" />
     </multiply>
     <divide name="roughness_amount_approx" type="float" nodedef="ND_divide_float" xpos="-12.4718" ypos="4.29143">
-      <input name="in1" type="float" interfacename="roughnessamount" />
+      <input name="in1" type="float" interfacename="roughness_amount" />
       <input name="in2" type="float" value="2000" />
     </divide>
     <backdrop name="grout_edges_roughness" xpos="-12.6108" ypos="0.9252" width="4.68913" height="4.61078" />
@@ -2952,8 +2952,8 @@
       <input name="in" type="color3" nodename="color_var2" />
     </clamp>
     <multiply name="random_shift_amount" type="float" nodedef="ND_multiply_float" xpos="-1.83445" ypos="-7.34111">
-      <input name="in1" type="float" nodename="random_shift" />
-      <input name="in2" type="float" interfacename="randomshift" />
+      <input name="in1" type="float" nodename="random_shift1" />
+      <input name="in2" type="float" interfacename="random_shift" />
     </multiply>
     <add name="add_random_shift" type="float" nodedef="ND_add_float" xpos="-0.162397" ypos="-7.35633">
       <input name="in1" type="float" nodename="random_shift_amount" />
@@ -2966,7 +2966,7 @@
     <floor name="rownum" type="float" nodedef="ND_floor_float" xpos="-7.3915" ypos="-7.23211">
       <input name="in" type="float" nodename="multiply_tilesy" />
     </floor>
-    <noise2d name="random_shift" type="float" nodedef="ND_noise2d_float" xpos="-3.11702" ypos="-7.37567">
+    <noise2d name="random_shift1" type="float" nodedef="ND_noise2d_float" xpos="-3.11702" ypos="-7.37567">
       <input name="texcoord" type="vector2" nodename="tex_x_only" />
     </noise2d>
     <add name="seed_simulation1" type="float" nodedef="ND_add_float" xpos="-5.99894" ypos="-6.54472">
@@ -2975,7 +2975,7 @@
     </add>
     <backdrop name="random_line_shift_with_seed" xpos="-7.47489" ypos="-8.167" width="8.625" height="2.89481" />
     <floor name="nrows_int" type="float" nodedef="ND_floor_float" xpos="-7.44444" ypos="-9.92072">
-      <input name="in" type="float" interfacename="nrows" />
+      <input name="in" type="float" interfacename="num_rows" />
     </floor>
     <modulo name="current_row_check" type="float" nodedef="ND_modulo_float" xpos="-5.91767" ypos="-10.6718">
       <input name="in2" type="float" ldx_value="2" nodename="nrows_int" />
@@ -2997,17 +2997,17 @@
     </subtract>
     <ifequal name="nrowmod_enable1" type="float" nodedef="ND_ifequal_floatB" xpos="-0.0602944" ypos="-10.1137">
       <input name="value2" type="boolean" value="true" />
-      <input name="value1" type="boolean" interfacename="rowsmodenable" />
+      <input name="value1" type="boolean" interfacename="rows_mod_enable" />
       <input name="in2" type="float" nodename="add_random_shift" />
       <input name="in1" type="float" nodename="nrow_check1" />
     </ifequal>
     <backdrop name="nrow_modifier" xpos="-7.45983" ypos="-11.1107" width="8.66494" height="2.8993" />
     <divide name="shift_adj" type="float" nodedef="ND_divide_float" xpos="-4.02882" ypos="-9.52983">
       <input name="in1" type="float" nodename="add_random_shift" />
-      <input name="in2" type="float" interfacename="nrowsamount" />
+      <input name="in2" type="float" interfacename="rows_mod_amount" />
     </divide>
     <ifgreater name="nrow_check2" type="float" nodedef="ND_ifgreater_float" xpos="-3.26756" ypos="-12.7557">
-      <input name="in1" type="float" interfacename="nrowsamount" ldx_value="1" />
+      <input name="in1" type="float" interfacename="rows_mod_amount" ldx_value="1" />
       <input name="in2" type="float" value="1" />
       <input name="value2" type="float" value="0" />
       <input name="value1" type="float" nodename="nrow_range" />
@@ -3015,12 +3015,12 @@
     <ifequal name="nrowmod_enable2" type="float" nodedef="ND_ifequal_floatB" xpos="-1.67582" ypos="-12.7715">
       <input name="value2" type="boolean" value="true" />
       <input name="in1" type="float" nodename="nrow_check2" />
-      <input name="value1" type="boolean" interfacename="rowsmodenable" />
+      <input name="value1" type="boolean" interfacename="rows_mod_enable" />
       <input name="in2" type="float" value="1" />
     </ifequal>
     <divide name="adj_nrow_bias" type="float" nodedef="ND_divide_float" xpos="-0.172397" ypos="-12.6655">
       <input name="in2" type="float" nodename="nrowmod_enable2" />
-      <input name="in1" type="float" interfacename="tilesnumx" />
+      <input name="in1" type="float" interfacename="tiles_num_x" />
     </divide>
     <backdrop name="modified_rows_grout_adjustment" xpos="-3.51883" ypos="-13.1244" width="4.6901" height="1.89327" />
     <divide name="adj_offx" type="float" nodedef="ND_divide_float" xpos="-20.7208" ypos="3.00972">
@@ -3101,7 +3101,7 @@
       <input name="in2" type="vector2" nodename="combine_offset" />
     </subtract>
     <ifequal name="fade_alpha2_enable" type="float" nodedef="ND_ifequal_floatB" xpos="17.9841" ypos="11.8634">
-      <input name="value1" type="boolean" interfacename="alphafade" />
+      <input name="value1" type="boolean" interfacename="alpha_fade" />
       <input name="value2" type="boolean" value="true" />
       <input name="in2" type="float" nodename="combine_tiling_alpha" ldx_value="1" />
       <input name="in1" type="float" nodename="fade_alpha2" />
@@ -3116,7 +3116,7 @@
     <ifequal name="fade_alpha1_enable" type="float" nodedef="ND_ifequal_floatB" xpos="17.9713" ypos="7.60944">
       <input name="value2" type="boolean" value="true" />
       <input name="in2" type="float" nodename="combine_tiling_alpha" ldx_value="1" />
-      <input name="value1" type="boolean" interfacename="alphafade" />
+      <input name="value1" type="boolean" interfacename="alpha_fade" />
       <input name="in1" type="float" nodename="fade_alpha1" />
     </ifequal>
     <multiply name="fade_alpha1" type="float" nodedef="ND_multiply_float" xpos="15.9083" ypos="8.76728">
@@ -3124,7 +3124,7 @@
       <input name="in1" type="float" nodename="invert4" />
     </multiply>
     <ifequal name="alpha_variance_behavior_select" type="float" nodedef="ND_ifequal_floatB" xpos="19.8819" ypos="5.98761">
-      <input name="value1" type="boolean" interfacename="brightnessvariance" />
+      <input name="value1" type="boolean" interfacename="brightness_variance" />
       <input name="value2" type="boolean" value="true" />
       <input name="in2" type="float" nodename="fade_alpha1_enable" />
       <input name="in1" type="float" nodename="fade_alpha2_enable" />
@@ -3159,8 +3159,8 @@
     <backdrop name="tiles_noise" xpos="1.67708" ypos="4.54336" width="3.62283" height="3.35275" />
     <backdrop name="unsure_about_this" xpos="9.68172" ypos="10.3324" width="1.36111" height="2.05247" uicolor="#C85252" Autodesk-ldx_alpha="0.156863" />
     <combine2 name="combine_tiles" type="vector2" nodedef="ND_combine2_vector2" xpos="-12.4559" ypos="2.85121">
-      <input name="in1" type="float" interfacename="tilesnumx" />
-      <input name="in2" type="float" interfacename="tilesnumy" />
+      <input name="in1" type="float" interfacename="tiles_num_x" />
+      <input name="in2" type="float" interfacename="tiles_num_y" />
     </combine2>
     <combine2 name="tex_x_only" type="vector2" nodedef="ND_combine2_vector2" xpos="-4.52744" ypos="-6.62694">
       <input name="in1" type="float" nodename="seed_simulation1" />
@@ -3454,16 +3454,16 @@
       <input name="in3" type="float" value="0" />
     </combine3>
     <multiply name="noise_size_vec2" type="vector2" nodedef="ND_multiply_vector2FA" xpos="18.0484" ypos="15.8488">
-      <input name="in2" type="float" nodename="noise_size" ldx_value="20" />
+      <input name="in2" type="float" nodename="noise_size1" ldx_value="20" />
       <input name="in1" type="vector2" nodename="modulo1" />
     </multiply>
     <multiply name="noiseamount_mult" type="float" nodedef="ND_multiply_float" xpos="19.282" ypos="6.53461">
-      <input name="in2" type="float" interfacename="noiseamount" />
+      <input name="in2" type="float" interfacename="noise_amount" />
       <input name="in1" type="float" nodename="value2" />
     </multiply>
-    <divide name="noise_size" type="float" nodedef="ND_divide_float" xpos="16.669" ypos="17.3766">
+    <divide name="noise_size1" type="float" nodedef="ND_divide_float" xpos="16.669" ypos="17.3766">
       <input name="in1" type="float" nodename="noise_fixed_scale" ldx_value="20" />
-      <input name="in2" type="float" interfacename="noisesize" />
+      <input name="in2" type="float" interfacename="noise_size" />
     </divide>
     <constant name="noise_fixed_scale" type="float" nodedef="ND_constant_float" xpos="15.3483" ypos="16.8398">
       <input name="value" type="float" value="20" />
@@ -3481,15 +3481,15 @@
     <backdrop name="noisesmooth_adjusted" xpos="14.9721" ypos="21.0316" width="3.24717" height="3.14159" />
     <multiply name="multiply7" type="float" nodedef="ND_multiply_float" xpos="15.1178" ypos="21.4601">
       <input name="in2" type="float" value="0.5" />
-      <input name="in1" type="float" interfacename="noisesmooth" />
+      <input name="in1" type="float" interfacename="noise_smooth" />
     </multiply>
     <multiply name="multiply8" type="float" nodedef="ND_multiply_float" xpos="16.8234" ypos="22.3284">
       <input name="in2" type="float" nodename="subtract8" ldx_value="0.5" />
       <input name="in1" type="float" nodename="multiply7" />
     </multiply>
     <subtract name="subtract8" type="float" nodedef="ND_subtract_float" xpos="15.1337" ypos="22.9014">
-      <input name="in2" type="float" interfacename="noiselow" />
-      <input name="in1" type="float" interfacename="noisehigh" />
+      <input name="in2" type="float" interfacename="noise_low" />
+      <input name="in1" type="float" interfacename="noise_high" />
     </subtract>
     <add name="add2" type="float" nodedef="ND_add_float" xpos="28.0648" ypos="15.7874">
       <input name="in2" type="float" value="1" />
@@ -3501,19 +3501,19 @@
     </multiply>
     <subtract name="p0" type="float" nodedef="ND_subtract_float" xpos="29.4208" ypos="17.5249">
       <input name="in2" type="float" nodename="multiply8" />
-      <input name="in1" type="float" interfacename="noiselow" />
+      <input name="in1" type="float" interfacename="noise_low" />
     </subtract>
     <add name="p1" type="float" nodedef="ND_add_float" xpos="29.3997" ypos="18.6383">
       <input name="in2" type="float" nodename="multiply8" />
-      <input name="in1" type="float" interfacename="noiselow" />
+      <input name="in1" type="float" interfacename="noise_low" />
     </add>
     <add name="p3" type="float" nodedef="ND_add_float" xpos="29.4108" ypos="21.1888">
       <input name="in2" type="float" nodename="multiply8" />
-      <input name="in1" type="float" interfacename="noisehigh" />
+      <input name="in1" type="float" interfacename="noise_high" />
     </add>
     <subtract name="p2" type="float" nodedef="ND_subtract_float" xpos="29.432" ypos="20.0753">
       <input name="in2" type="float" nodename="multiply8" />
-      <input name="in1" type="float" interfacename="noisehigh" />
+      <input name="in1" type="float" interfacename="noise_high" />
     </subtract>
     <ifgreatereq name="ifgreatereq1" type="float" nodedef="ND_ifgreatereq_float" xpos="33.338" ypos="16.2428">
       <input name="in1" type="float" value="2" />
@@ -3529,8 +3529,8 @@
     </ifgreatereq>
     <switch name="switch4" type="float" nodedef="ND_switch_float" xpos="38.075" ypos="16.2222">
       <input name="in3" type="float" nodename="value1" />
-      <input name="in1" type="float" interfacename="noiselow" />
-      <input name="in5" type="float" interfacename="noisehigh" />
+      <input name="in1" type="float" interfacename="noise_low" />
+      <input name="in5" type="float" interfacename="noise_high" />
       <input name="which" type="float" nodename="ifgreatereq3" ldx_value="1" />
       <input name="in2" type="float" nodename="add3" ldx_value="0" />
       <input name="in4" type="float" nodename="subtract11" ldx_value="0" />
@@ -3593,11 +3593,11 @@
     </multiply>
     <subtract name="subtract11" type="float" nodedef="ND_subtract_float" xpos="38.4478" ypos="20.7099">
       <input name="in2" type="float" nodename="multiply14" />
-      <input name="in1" type="float" interfacename="noisehigh" />
+      <input name="in1" type="float" interfacename="noise_high" />
     </subtract>
     <backdrop name="compute_noise" xpos="14.9479" ypos="15.2919" width="12.5223" height="5.43839" />
     <clamp name="clamp1" type="float" nodedef="ND_clamp_float" xpos="22.3106" ypos="3.93843">
-      <input name="in" type="float" nodename="noise_enable" />
+      <input name="in" type="float" nodename="noise_enable1" />
     </clamp>
     <add name="add_noise" type="float" nodedef="ND_add_float" xpos="19.3703" ypos="5.13724">
       <input name="in1" type="float" nodename="switch_type" />
@@ -3606,21 +3606,21 @@
     <combine3 name="combine_3d_coord" type="vector3" nodedef="ND_combine3_vector3" xpos="19.9884" ypos="19.2984">
       <input name="in1" type="float" nodename="separate_2d_coord" output="outx" />
       <input name="in2" type="float" nodename="separate_2d_coord" output="outy" />
-      <input name="in3" type="float" interfacename="noisephase" />
+      <input name="in3" type="float" interfacename="noise_phase" />
     </combine3>
     <add name="add3" type="float" nodedef="ND_add_float" xpos="38.4528" ypos="19.3596">
-      <input name="in1" type="float" interfacename="noiselow" />
+      <input name="in1" type="float" interfacename="noise_low" />
       <input name="in2" type="float" nodename="multiply12" />
     </add>
     <output name="out" type="float" nodename="repeat_alpha_mask" />
     <backdrop name="Unnecessary_maybe" xpos="5.99528" ypos="-2.41965" width="1.36111" height="1.86667" uicolor="#C85252" Autodesk-ldx_alpha="0.156863" />
     <fractal3d_max8 name="fractal3d_max8_1" type="float" nodedef="ND_fractal3d_max8_float" xpos="22.4037" ypos="17.6638">
       <input name="position" type="vector3" nodename="combine_3d_coord" />
-      <input name="octaves" type="float" interfacename="noiselevels" />
+      <input name="octaves" type="float" interfacename="noise_levels" />
     </fractal3d_max8>
     <turbulence3d name="turbulence3d1" type="float" nodedef="ND_turbulence3d_max8_float" xpos="22.3729" ypos="19.3071">
       <input name="position" type="vector3" nodename="combine_3d_coord" />
-      <input name="octaves" type="float" interfacename="noiselevels" />
+      <input name="octaves" type="float" interfacename="noise_levels" />
     </turbulence3d>
     <noise2d name="noise_simple" type="float" nodedef="ND_noise2d_float" xpos="22.4396" ypos="15.949">
       <input name="texcoord" type="vector2" nodename="add1" />
@@ -3646,8 +3646,8 @@
       <input name="in2" type="vector2" interfacename="realworld_scale" />
     </divide>
     <backdrop name="Offset_and_Rotation" xpos="-9.285" ypos="8.39861" width="4.98238" height="3.0796" />
-    <ifequal name="noise_enable" type="float" nodedef="ND_ifequal_floatB" xpos="20.6486" ypos="3.71112">
-      <input name="value1" type="boolean" interfacename="noiseenable" ldx_value="false" />
+    <ifequal name="noise_enable1" type="float" nodedef="ND_ifequal_floatB" xpos="20.6486" ypos="3.71112">
+      <input name="value1" type="boolean" interfacename="noise_enable" ldx_value="false" />
       <input name="value2" type="boolean" value="true" />
       <input name="in1" type="float" nodename="add_noise" />
       <input name="in2" type="float" nodename="switch_type" />
@@ -3656,7 +3656,7 @@
       <input name="in1" type="float" nodename="noise_simple" />
       <input name="in2" type="float" nodename="fractal3d_max8_1" />
       <input name="in3" type="float" nodename="turbulence3d1" />
-      <input name="which" type="integer" interfacename="noisetype" />
+      <input name="which" type="integer" interfacename="noise_type" />
     </switch>
     <convert name="int_to_float_switch" type="float" nodedef="ND_convert_integer_float" xpos="-9.127" ypos="5.2823">
       <input name="in" type="integer" interfacename="type" />
@@ -3670,19 +3670,19 @@
       <input name="fg" type="color3" interfacename="color2" />
       <input name="mix" type="float" nodename="legacy_gradient1" />
     </mix>
-    <legacy_gradient name="legacy_gradient1" type="float" nodedef="ND_legacy_gradient_float" xpos="-1.14583" ypos="-0.625833">
+    <legacy_gradient name="legacy_gradient1" type="float" nodedef="ND_legacy_gradient_float" xpos="-0.886111" ypos="-0.522222">
       <input name="texcoord" type="vector2" interfacename="texcoord" />
       <input name="type" type="integer" interfacename="type" />
       <input name="realworld_scale" type="vector2" interfacename="realworld_scale" />
-      <input name="noiseenable" type="boolean" interfacename="noiseenable" />
-      <input name="noisetype" type="integer" interfacename="noisetype" />
-      <input name="noiseamount" type="float" interfacename="noiseamount" />
-      <input name="noisesize" type="float" interfacename="noisesize" />
-      <input name="noisesmooth" type="float" interfacename="noisesmooth" />
-      <input name="noiselow" type="float" interfacename="noiselow" />
-      <input name="noisehigh" type="float" interfacename="noisehigh" />
-      <input name="noiselevels" type="float" interfacename="noiselevels" />
-      <input name="noisephase" type="float" interfacename="noisephase" />
+      <input name="noise_enable" type="boolean" interfacename="noise_enable" />
+      <input name="noise_type" type="integer" interfacename="noise_type" />
+      <input name="noise_amount" type="float" interfacename="noise_amount" />
+      <input name="noise_size" type="float" interfacename="noise_size" />
+      <input name="noise_smooth" type="float" interfacename="noise_smooth" />
+      <input name="noise_low" type="float" interfacename="noise_low" />
+      <input name="noise_high" type="float" interfacename="noise_high" />
+      <input name="noise_levels" type="float" interfacename="noise_levels" />
+      <input name="noise_phase" type="float" interfacename="noise_phase" />
       <input name="realworld_offset" type="vector2" interfacename="realworld_offset" />
       <input name="rotation_angle" type="float" interfacename="rotation_angle" />
       <input name="tile_x" type="boolean" interfacename="tile_x" />
@@ -3886,8 +3886,8 @@
     <legacy_noise name="legacy_noise" type="color3" xpos="-6.615942" ypos="6.922414">
       <input name="color1" type="color3" value="1, 1, 1" />
       <input name="color2" type="color3" value="0, 0, 0" />
-      <input name="thresholdlow" type="float" value="0" />
-      <input name="thresholdhigh" type="float" value="1" />
+      <input name="threshold_low" type="float" value="0" />
+      <input name="threshold_high" type="float" value="1" />
       <input name="size" type="float" value="100" />
     </legacy_noise>
     <swizzle name="swizzle_color3_float" type="float" xpos="-4.862319" ypos="7.577586">
@@ -4289,11 +4289,11 @@
       <input name="in2" type="float" nodename="patina_transition" />
     </add>
     <legacy_noise name="patina_noise" type="color3" xpos="-9.304348" ypos="-0.560345">
-      <input name="thresholdlow" type="float" nodename="patina_range" />
-      <input name="thresholdhigh" type="float" nodename="patina_max" />
+      <input name="threshold_low" type="float" nodename="patina_range" />
+      <input name="threshold_high" type="float" nodename="patina_max" />
       <input name="color1" type="color3" value="0, 0, 0" />
       <input name="color2" type="color3" value="1, 1, 1" />
-      <input name="noisetype" type="integer" value="1" />
+      <input name="noise_type" type="integer" value="1" />
       <input name="levels" type="float" value="4" />
     </legacy_noise>
     <swizzle name="patina_mask" type="float" xpos="-7.557971" ypos="1.818966">
@@ -4403,8 +4403,8 @@
     <legacy_noise name="legacy_noise" type="color3" xpos="-2.920290" ypos="4.112069">
       <input name="color1" type="color3" value="1, 1, 1" />
       <input name="color2" type="color3" value="0, 0, 0" />
-      <input name="thresholdlow" type="float" value="0" />
-      <input name="thresholdhigh" type="float" value="1" />
+      <input name="threshold_low" type="float" value="0" />
+      <input name="threshold_high" type="float" value="1" />
       <input name="levels" type="float" value="1" />
       <input name="size" type="float" value="0.1" />
     </legacy_noise>
@@ -4518,9 +4518,9 @@
     <legacy_noise name="weathering_auto" type="color3" xpos="2.057971" ypos="15.870689">
       <input name="color1" type="color3" value="0.953545, 0.953545, 0.953545" />
       <input name="color2" type="color3" value="0.756345, 0.753786, 0.753786" />
-      <input name="noisetype" type="integer" value="1" />
-      <input name="thresholdlow" type="float" value="0.3" />
-      <input name="thresholdhigh" type="float" value="0.7" />
+      <input name="noise_type" type="integer" value="1" />
+      <input name="threshold_low" type="float" value="0.3" />
+      <input name="threshold_high" type="float" value="0.7" />
       <input name="levels" type="float" value="4" />
     </legacy_noise>
     <multiply name="weathering_bump_fade" type="color3" xpos="1.260870" ypos="25.681034">
@@ -4686,8 +4686,8 @@
       <input name="value" type="float" value="0.5" uivisible="true" />
     </constant>
     <legacy_noise name="legacy_noise" type="color3" xpos="-12.536232" ypos="0.508621">
-      <input name="thresholdlow" type="float" value="0" />
-      <input name="thresholdhigh" type="float" value="1" />
+      <input name="threshold_low" type="float" value="0" />
+      <input name="threshold_high" type="float" value="1" />
       <input name="size" type="float" value="0.5" />
       <input name="color1" type="color3" value="1, 1, 1" />
       <input name="color2" type="color3" value="0, 0, 0" />

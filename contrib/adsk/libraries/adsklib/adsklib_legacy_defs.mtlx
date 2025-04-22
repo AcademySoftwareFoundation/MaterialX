@@ -53,7 +53,7 @@
     <input name="color2" type="color3" value="0, 0, 0" uivisible="true" uiname="Color 2" />
     <input name="realworld_scale" type="vector2" value="0,0" uisoftmin="0,0" uisoftmax="1,1" uivisible="true" uiname="Width, Height" unittype="distance" />
     <input name="soften" type="float" value="0" uivisible="true" uiname="Soften" />
-    <input name="adjustsofteny" type="boolean" value="false" uivisible="true" uiname="Adjust Height Softness" />
+    <input name="adjust_soften_y" type="boolean" value="false" uivisible="true" uiname="Adjust Height Softness" />
     <input name="realworld_offset" type="vector2" value="0,0" uisoftmin="0,0" uisoftmax="1,1" uivisible="true" uiname="Offset X, Y" unittype="distance"/>
     <input name="rotation_angle" type="float" value="0" uisoftmin="0" uisoftmax="360" uivisible="true" uiname="Rotation Angle" unittype="angle" unit="degree" />
     <input name="tile_x" type="boolean" value="true" uivisible="true" uiname="Tile X" />
@@ -67,11 +67,11 @@
     <input name="position" type="vector3" defaultgeomprop="Pobject" uivisible="false" uiname="Position Coordinates" />
     <input name="color1" type="color3" value="1, 1, 1" uivisible="true" uiname="Color 1" />
     <input name="color2" type="color3" value="0, 0, 0" uivisible="true" uiname="Color 2" />
-    <input name="noisetype" type="integer" value="0" uimin="0" uimax="2" uivisible="true" uiname="Noise Type" enum="Regular,Fractal,Turbulence" enumvalues="0,1,2" />
+    <input name="noise_type" type="integer" value="0" uimin="0" uimax="2" uivisible="true" uiname="Noise Type" enum="Regular,Fractal,Turbulence" enumvalues="0,1,2" />
     <input name="size" type="float" value="1.0" uivisible="true" uiname="Size" uimin="0" uisoftmax="10" unittype="distance" />
-    <input name="thresholdlow" type="float" value="0" uivisible="true" uiname="Threshold Low" uimin="0" uimax="1" />
-    <input name="thresholdhigh" type="float" value="1" uivisible="true" uiname="Threshold High" uimin="0" uimax="1" />
-    <input name="smooththreshold" type="boolean" value="false" uivisible="true" uiname="Smooth Threshold" />
+    <input name="threshold_low" type="float" value="0" uivisible="true" uiname="Threshold Low" uimin="0" uimax="1" />
+    <input name="threshold_high" type="float" value="1" uivisible="true" uiname="Threshold High" uimin="0" uimax="1" />
+    <input name="threshold_smooth" type="boolean" value="false" uivisible="true" uiname="Smooth Threshold" />
     <input name="phase" type="float" value="0" uivisible="true" uiname="Phase" uimin="0" uisoftmax="1" />
     <input name="levels" type="float" value="4" uivisible="true" uiname="Levels" uimin="0" uisoftmax="8" />
     <input name="realworld_offset" type="vector3" value="0,0,0" uisoftmin="0,0,0" uisoftmax="1,1,1" uivisible="true" uiname="Offset X, Y, Z" unittype="distance" />
@@ -127,8 +127,8 @@
     <input name="position" type="vector3" defaultgeomprop="Pobject" uivisible="false" uiname="Position Coordinates" />
     <input name="size" type="float" value="0.7636" uimin="0.0" uisoftmax="10.0" uivisible="true" uiname="Vein Spacingg" />
     <input name="width" type="float" value="0.070283" uimin="0.0" uisoftmax="10.0" uivisible="true" uiname="Vein Width" />
-    <input name="stonecolor" type="color3" value="0.0303, 0.0321, 0.0122" uisoftmin="0,0,0" uisoftmax="1,1,1" uivisible="true" uiname="Stone Color" />
-    <input name="veincolor" type="color3" value="0.7832, 0.7832, 0.5755" uisoftmin="0,0,0" uisoftmax="1,1,1" uivisible="true" uiname="Vein Color" />
+    <input name="stone_color" type="color3" value="0.0303, 0.0321, 0.0122" uisoftmin="0,0,0" uisoftmax="1,1,1" uivisible="true" uiname="Stone Color" />
+    <input name="vein_color" type="color3" value="0.7832, 0.7832, 0.5755" uisoftmin="0,0,0" uisoftmax="1,1,1" uivisible="true" uiname="Vein Color" />
     <input name="realworld_offset" type="vector3" value="0,0,0" uisoftmin="0,0,0" uisoftmax="1,1,1" uivisible="true" uiname="Offset X, Y, Z" unittype="distance" />
     <input name="rotation_angle" type="vector3" value="0,0,0" uisoftmin="0,0,0" uisoftmax="360,360,360" uivisible="true" uiname="Rotation Angle X, Y, Z" unittype="angle" unit="degree" />
     <output name="out" type="color3" />
@@ -160,10 +160,10 @@
     <input name="waves" type="float" value="3" uimin="0" uisoftmax="8" uivisible="true" uiname="Number" />
     <input name="radius" type="float" value="5" uimin="0.0" uisoftmax="10.0" uivisible="true" uiname="Radius" unittype="distance" />
     <input name="seed" type="float" value="0" uimin="0.0" uisoftmax="100.0" uivisible="true" uiname="Seed" />
-    <input name="wavemin" type="float" value="1" uimin="0.0" uisoftmax="100.0" uivisible="true" uiname="Len Min" unittype="distance" />
-    <input name="wavemax" type="float" value="5" uimin="0.0" uisoftmax="100.0" uivisible="true" uiname="Len Max" unittype="distance" />
+    <input name="wave_min" type="float" value="1" uimin="0.0" uisoftmax="100.0" uivisible="true" uiname="Len Min" unittype="distance" />
+    <input name="wave_max" type="float" value="5" uimin="0.0" uisoftmax="100.0" uivisible="true" uiname="Len Max" unittype="distance" />
     <input name="phase" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Phase" />
-    <input name="distribution3d" type="boolean" value="false" uivisible="true" uiname="3D Distribution" />
+    <input name="distribution_3d" type="boolean" value="false" uivisible="true" uiname="3D Distribution" />
     <input name="fade" type="boolean" value="false" uivisible="true" uiname="Fade" />
     <input name="realworld_offset" type="vector3" value="0,0,0" uisoftmin="0,0,0" uisoftmax="1,1,1" uivisible="true" uiname="Offset X, Y, Z" unittype="distance" />
     <input name="rotation_angle" type="vector3" value="0,0,0" uisoftmin="0,0,0" uisoftmax="360,360,360" uivisible="true" uiname="Rotation Angle X, Y, Z" unittype="angle" unit="degree" />
@@ -191,11 +191,11 @@
     <input name="position" type="vector3" defaultgeomprop="Pobject" uivisible="false" uiname="Position Coordinates" />
     <input name="color1" type="color3" value="0.603, 0.445, 0.072" uisoftmin="0,0,0" uisoftmax="1,1,1" uivisible="true" uiname="Color 1" />
     <input name="color2" type="color3" value="0.212, 0.072, 0" uisoftmin="0,0,0" uisoftmax="1,1,1" uivisible="true" uiname="Color2" />
-    <input name="radialnoise" type="float" value="0.15" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Radial Noise" />
-    <input name="axialnoise" type="float" value="0.15" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Axial Noise" />
+    <input name="radial_noise" type="float" value="0.15" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Radial Noise" />
+    <input name="axial_noise" type="float" value="0.15" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Axial Noise" />
     <input name="thickness" type="float" value="1.0" uisoftmin="0.0" uisoftmax="100" uivisible="true" uiname="Thickness" unittype="distance" />
     <input name="loop" type="boolean" value="true" uivisible="true" uiname="Repeat" />
-    <input name="noiserep" type="float" value="20" uisoftmin="0.0" uisoftmax="100" uivisible="true" uiname="Repeat Num" />
+    <input name="noise_repetitions" type="float" value="20" uisoftmin="0.0" uisoftmax="100" uivisible="true" uiname="Repeat Num" />
     <input name="realworld_offset" type="vector3" value="0,0,0" uisoftmin="0,0,0" uisoftmax="1,1,1" uivisible="true" uiname="Offset X, Y, Z" unittype="distance" />
     <input name="rotation_angle" type="vector3" value="0,0,0" uisoftmin="0,0,0" uisoftmax="360,360,360" uivisible="true" uiname="Rotation Angle X, Y, Z" unittype="angle" unit="degree" />
     <output name="out" type="color3" />
@@ -203,25 +203,25 @@
 
   <nodedef name="ND_legacy_tiles_color3" node="legacy_tiles" version="0.1" isdefaultversion="true" nodegroup="adsk_legacy">
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" uivisible="false" uiname="Texture Coordinates"/>
-    <input name="tilecolor" type="color3" uisoftmin="0,0,0" uisoftmax="1,1,1" value="0.62, 0.24, 0.06" uivisible="true" uiname="Tile Color" />
-    <input name="groutcolor" type="color3" value="0.1, 0.1, 0.1" uisoftmin="0,0,0" uisoftmax="1,1,1" uivisible="true" uiname="Grout Color" />
-    <input name="tilesnumx" type="float" value="4" uisoftmin="0.0" uisoftmax="100.0" uivisible="true" uiname="Row Count" />
-    <input name="tilesnumy" type="float" value="8" uisoftmin="0.0" uisoftmax="100.0" uivisible="true" uiname="Column Count" />
-    <input name="groutgapx" type="float" value="0.33" uisoftmin="0.0" uisoftmax="10.0" uivisible="true" uiname="Horiz Grout Gap" />
-    <input name="groutgapy" type="float" value="0.33" uisoftmin="0.0" uisoftmax="10.0" uivisible="true" uiname="Vertical Grout Gap" />
-    <input name="groutbias" type="float" value="0" uimin="-1" uimax="1.0" uivisible="true" uiname="Grout Bias" />
-    <input name="lineshift" type="float" value="0" uisoftmin="0.0" uisoftmax="100.0" uivisible="true" uiname="Line Shift" />
-    <input name="randomshift" type="float" value="0" uisoftmin="0.0" uisoftmax="10.0" uivisible="true" uiname="Random Shift" />
-    <input name="colorvariance" type="float" value="0" uisoftmin="0" uisoftmax="10" uivisible="true" uiname="Color Variance" />
-    <input name="fadevariance" type="float" value="0" uisoftmin="0.0" uisoftmax="10" uivisible="true" uiname="Fade Variance" />
+    <input name="tile_color" type="color3" uisoftmin="0,0,0" uisoftmax="1,1,1" value="0.62, 0.24, 0.06" uivisible="true" uiname="Tile Color" />
+    <input name="grout_color" type="color3" value="0.1, 0.1, 0.1" uisoftmin="0,0,0" uisoftmax="1,1,1" uivisible="true" uiname="Grout Color" />
+    <input name="tiles_num_x" type="float" value="4" uisoftmin="0.0" uisoftmax="100.0" uivisible="true" uiname="Row Count" />
+    <input name="tiles_num_y" type="float" value="8" uisoftmin="0.0" uisoftmax="100.0" uivisible="true" uiname="Column Count" />
+    <input name="grout_gap_x" type="float" value="0.33" uisoftmin="0.0" uisoftmax="10.0" uivisible="true" uiname="Horiz Grout Gap" />
+    <input name="grout_gap_y" type="float" value="0.33" uisoftmin="0.0" uisoftmax="10.0" uivisible="true" uiname="Vertical Grout Gap" />
+    <input name="grout_bias" type="float" value="0" uimin="-1" uimax="1.0" uivisible="true" uiname="Grout Bias" />
+    <input name="line_shift" type="float" value="0" uisoftmin="0.0" uisoftmax="100.0" uivisible="true" uiname="Line Shift" />
+    <input name="random_shift" type="float" value="0" uisoftmin="0.0" uisoftmax="10.0" uivisible="true" uiname="Random Shift" />
+    <input name="color_variance" type="float" value="0" uisoftmin="0" uisoftmax="10" uivisible="true" uiname="Color Variance" />
+    <input name="fade_variance" type="float" value="0" uisoftmin="0.0" uisoftmax="10" uivisible="true" uiname="Fade Variance" />
     <input name="seed" type="float" value="0" uisoftmin="0.0" uisoftmax="100" uivisible="true" uiname="Seed" />
-    <input name="brightnessvariance" type="boolean" value="true" uivisible="true" uiname="Brightness Variance" />
-    <input name="alphafade" type="boolean" value="true" uivisible="true" uiname="Alpha Fade" />
-    <input name="roughnessscale" type="float" value="30.0" uisoftmin="0.0" uisoftmax="100.0" uivisible="true" uiname="Roughness Scale" />
-    <input name="roughnessamount" type="float" value="0" uisoftmin="0.0" uisoftmax="100.0" uivisible="true" uiname="Roughness Amount" />
-    <input name="rowsmodenable" type="boolean" value="false" uivisible="true" uiname="Row Modify" />
-    <input name="nrows" type="float" value="5.0" uisoftmin="0.0" uisoftmax="100.0" uivisible="true" uiname="Every N Rows" />
-    <input name="nrowsamount" type="float" value="3.0" uisoftmin="0.0" uisoftmax="10" uivisible="true" uiname="Modify Amount" />
+    <input name="brightness_variance" type="boolean" value="true" uivisible="true" uiname="Brightness Variance" />
+    <input name="alpha_fade" type="boolean" value="true" uivisible="true" uiname="Alpha Fade" />
+    <input name="roughness_scale" type="float" value="30.0" uisoftmin="0.0" uisoftmax="100.0" uivisible="true" uiname="Roughness Scale" />
+    <input name="roughness_amount" type="float" value="0" uisoftmin="0.0" uisoftmax="100.0" uivisible="true" uiname="Roughness Amount" />
+    <input name="rows_mod_enable" type="boolean" value="false" uivisible="true" uiname="Row Modify" />
+    <input name="num_rows" type="float" value="5.0" uisoftmin="0.0" uisoftmax="100.0" uivisible="true" uiname="Every N Rows" />
+    <input name="rows_mod_amount" type="float" value="3.0" uisoftmin="0.0" uisoftmax="10" uivisible="true" uiname="Modify Amount" />
     <input name="realworld_scale" type="vector2" value="0,0" uisoftmin="0,0" uisoftmax="1,1" uivisible="true" uiname="Width, Height" unittype="distance" />
     <input name="realworld_offset" type="vector2" value="0,0" uisoftmin="0,0" uisoftmax="1,1" uivisible="true" uiname="Offset X, Y" unittype="distance" />
     <input name="rotation_angle" type="float" value="0" uisoftmin="0.0" uisoftmax="360" uivisible="true" uiname="Rotation Angle" unittype="angle" unit="degree" />
@@ -236,15 +236,15 @@
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" uivisible="false" uiname="Texture Coordinates" />
     <input name="type" type="integer" value="0" uimin="0" uimax="9" uivisible="true" uiname="Gradient Type" enum="Linear Horiz,Linear Vert,Four Corners,Box,Diagonal,Pong,Radial,Spiral,Sweep,Tartan" enumvalues="0,1,2,3,4,5,6,7,8,9" />
     <input name="realworld_scale" type="vector2" value="1,1" uisoftmin="0,0" uisoftmax="1,1" uivisible="true" uiname="Width, Height" unittype="distance" />
-    <input name="noiseenable" type="boolean" value="false" uivisible="true" uiname="Noise" />
-    <input name="noisetype" type="integer" value="0" uimin="0" uimax="2" uivisible="true" uiname="Noise Type" enum="Regular,Fractal,Turbulence" enumvalues="0,1,2" />
-    <input name="noiseamount" type="float" value="0.1" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Noise Amount" />
-    <input name="noisesize" type="float" value="1" uisoftmin="0.0" uisoftmax="10" uivisible="true" uiname="Noise Size" unittype="distance" />
-    <input name="noisesmooth" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Noise Smooth" />
-    <input name="noiselow" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Noise Threshold Low" />
-    <input name="noisehigh" type="float" value="1" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Noise Threshold High" />
-    <input name="noiselevels" type="float" value="4.0" uimin="0.0" uisoftmax="8" uivisible="true" uiname="Noise Levels" />
-    <input name="noisephase" type="float" value="0" uimin="0.0" uisoftmax="1.0" uivisible="true" uiname="Noise Phase" />
+    <input name="noise_enable" type="boolean" value="false" uivisible="true" uiname="Noise" />
+    <input name="noise_type" type="integer" value="0" uimin="0" uimax="2" uivisible="true" uiname="Noise Type" enum="Regular,Fractal,Turbulence" enumvalues="0,1,2" />
+    <input name="noise_amount" type="float" value="0.1" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Noise Amount" />
+    <input name="noise_size" type="float" value="1" uisoftmin="0.0" uisoftmax="10" uivisible="true" uiname="Noise Size" unittype="distance" />
+    <input name="noise_smooth" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Noise Smooth" />
+    <input name="noise_low" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Noise Threshold Low" />
+    <input name="noise_high" type="float" value="1" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Noise Threshold High" />
+    <input name="noise_levels" type="float" value="4.0" uimin="0.0" uisoftmax="8" uivisible="true" uiname="Noise Levels" />
+    <input name="noise_phase" type="float" value="0" uimin="0.0" uisoftmax="1.0" uivisible="true" uiname="Noise Phase" />
     <input name="realworld_offset" type="vector2" value="0,0" uisoftmin="0,0" uisoftmax="1,1" uiname="Offset X, Y" unittype="distance" />
     <input name="rotation_angle" type="float" value="0" uisoftmin="0.0" uisoftmax="360" uivisible="true" uiname="Rotation Angle" unittype="angle" unit="degree" />
     <input name="tile_x" type="boolean" value="true" uivisible="true" uiname="Repeat X" />
@@ -258,15 +258,15 @@
     <input name="color2" type="color3" value="1, 1, 1" uisoftmin="0,0,0" uisoftmax="1,1,1" uivisible="true" uiname="Color 2" />
     <input name="type" type="integer" value="0" uimin="0" uimax="9" uivisible="true" uiname="Gradient Type" enum="Linear Horiz,Linear Vert,Four Corners,Box,Diagonal,Pong,Radial,Spiral,Sweep,Tartan" enumvalues="0,1,2,3,4,5,6,7,8,9" />
     <input name="realworld_scale" type="vector2" value="1,1" uisoftmin="0,0" uisoftmax="1,1" uivisible="true" uiname="Width, Height" unittype="distance" />
-    <input name="noiseenable" type="boolean" value="false" uivisible="true" uiname="Noise" />
-    <input name="noisetype" type="integer" value="0" uimin="0" uimax="2" uivisible="true" uiname="Noise Type" enum="Regular,Fractal,Turbulence" enumvalues="0,1,2" />
-    <input name="noiseamount" type="float" value="0.1" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Noise Amount" />
-    <input name="noisesize" type="float" value="1" uisoftmin="0.0" uisoftmax="10" uivisible="true" uiname="Noise Size" unittype="distance" />
-    <input name="noisesmooth" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Noise Smooth" />
-    <input name="noiselow" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Noise Threshold Low" />
-    <input name="noisehigh" type="float" value="1" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Noise Threshold High" />
-    <input name="noiselevels" type="float" value="4.0" uimin="0.0" uisoftmax="8" uivisible="true" uiname="Noise Levels" />
-    <input name="noisephase" type="float" value="0" uimin="0.0" uisoftmax="1.0" uivisible="true" uiname="Noise Phase" />
+    <input name="noise_enable" type="boolean" value="false" uivisible="true" uiname="Noise" />
+    <input name="noise_type" type="integer" value="0" uimin="0" uimax="2" uivisible="true" uiname="Noise Type" enum="Regular,Fractal,Turbulence" enumvalues="0,1,2" />
+    <input name="noise_amount" type="float" value="0.1" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Noise Amount" />
+    <input name="noise_size" type="float" value="1" uisoftmin="0.0" uisoftmax="10" uivisible="true" uiname="Noise Size" unittype="distance" />
+    <input name="noise_smooth" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Noise Smooth" />
+    <input name="noise_low" type="float" value="0" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Noise Threshold Low" />
+    <input name="noise_high" type="float" value="1" uisoftmin="0.0" uisoftmax="1.0" uivisible="true" uiname="Noise Threshold High" />
+    <input name="noise_levels" type="float" value="4.0" uimin="0.0" uisoftmax="8" uivisible="true" uiname="Noise Levels" />
+    <input name="noise_phase" type="float" value="0" uimin="0.0" uisoftmax="1.0" uivisible="true" uiname="Noise Phase" />
     <input name="realworld_offset" type="vector2" value="0,0" uisoftmin="0,0" uisoftmax="1,1" uiname="Offset X, Y" unittype="distance" />
     <input name="rotation_angle" type="float" value="0" uisoftmin="0.0" uisoftmax="360" uivisible="true" uiname="Rotation Angle" unittype="angle" unit="degree" />
     <input name="tile_x" type="boolean" value="true" uivisible="true" uiname="Repeat X" />
