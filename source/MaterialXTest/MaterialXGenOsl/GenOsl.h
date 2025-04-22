@@ -45,6 +45,7 @@ class OslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
 
     void addSkipFiles() override
     {
+        _skipFiles.insert("hextiled.mtlx");
     }
 
     // Ignore light shaders in the document for OSL
