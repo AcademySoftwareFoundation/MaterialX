@@ -165,6 +165,8 @@ jobs:
       if: matrix.build_oiio == 'ON' && runner.os == 'Windows'
       run: |
         C:/vcpkg/vcpkg install openimageio --triplet=x64-windows-release
+        Add-Content $env:GITHUB_PATH "C:/vcpkg/installed/x64-windows-release/bin"
+        Add-Content $env:GITHUB_PATH "C:/vcpkg/installed/x64-windows-release/share/openimageio"
 
     - name: Install Python ${{ matrix.python }}
       if: matrix.python != 'None'

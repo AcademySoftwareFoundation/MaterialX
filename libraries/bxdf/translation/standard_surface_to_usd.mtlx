@@ -49,7 +49,7 @@
       <input name="in1" type="color3" interfacename="base_color" />
       <input name="in2" type="float" interfacename="base" />
     </multiply>
-    <mix name="albedoOpaqueDielectric" type="color3">
+    <mix name="baseSubsurfaceColor" type="color3">
       <input name="fg" type="color3" interfacename="subsurface_color" />
       <input name="bg" type="color3" nodename="scaledBaseColor" />
       <input name="mix" type="float" interfacename="subsurface" />
@@ -60,7 +60,7 @@
       <input name="mix" type="float" interfacename="coat" />
     </mix>
     <multiply name="diffuseColor" type="color3">
-      <input name="in1" type="color3" nodename="albedoOpaqueDielectric" />
+      <input name="in1" type="color3" nodename="baseSubsurfaceColor" />
       <input name="in2" type="color3" nodename="coatAttenuation" />
     </multiply>
     <dot name="roughness" type="float">
@@ -71,12 +71,12 @@
     </dot>
 
     <!-- Clearcoat -->
-    <multiply name="coatColor" type="color3">
+    <multiply name="scaledCoatColor" type="color3">
       <input name="in1" type="color3" interfacename="coat_color" />
       <input name="in2" type="float" interfacename="coat" />
     </multiply>
     <convert name="coatColorVector" type="vector3">
-      <input name="in" type="color3" nodename="coatColor" />
+      <input name="in" type="color3" nodename="scaledCoatColor" />
     </convert>
     <dotproduct name="clearcoat" type="float">
       <input name="in1" type="vector3" nodename="coatColorVector" />
