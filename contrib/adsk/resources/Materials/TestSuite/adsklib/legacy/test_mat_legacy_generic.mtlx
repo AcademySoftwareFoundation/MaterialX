@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<materialx version="1.38" colorspace="lin_rec709">
+
+  <legacy_generic name="SR_legacy_generic" type="surfaceshader" >
+    <input name="diffuse_color" type="color3" value="0.5,0.9,0.2" />
+    <input name="diffuse_image_enable" type="boolean" value="false" />
+    <!-- <input name="diffuse_image" type="color3"/> -->
+    <input name="diffuse_image_fade" type="float" value="1" />
+    <input name="tint_enable" type="boolean" value="false" />
+    <input name="tint_color" type="color3" value="0.9,0.3,0.2" />
+    <input name="glossiness" type="float" value="0.75" />
+    <input name="metallic_highlights" type="boolean" value="false" />
+    <input name="reflectivity_enable" type="boolean" value="true" />
+    <input name="reflectivity" type="float" value="0.07" />
+    <input name="transparency_enable" type="boolean" value="false" />
+    <input name="transparency_amount" type="float" value="0.98" />
+    <input name="transparency_image_enable" type="boolean" value="false" />
+    <input name="transparency_image" type="float" nodename="test_transparency"/>
+    <input name="transparency_image_fade" type="float" value="1" />
+    <input name="refraction" type="float" value="4" />
+    <input name="custom_refraction" type="float" value="1.8" />
+    <input name="translucency" type="float" value="0" />
+    <input name="bump_enable" type="boolean" value="false" />
+    <!-- <input name="bump" type="vector3" /> -->
+    <input name="cutout_enable" type="boolean" value="false" />
+    <input name="cutout_image" type="color3" nodename="test_cutout"/>
+    <input name="emission_enable" type="boolean" value="false" />
+    <input name="emission_color" type="color3" value="1,1,1" />
+    <input name="luminance" type="float" value="1" />
+    <input name="custom_luminance" type="float" value="500" />
+    <input name="color_temperature" type="float" value="5" />
+    <input name="custom_color_temperature" type="float" value="4800" />
+  </legacy_generic>
+  <surfacematerial name="M_legacy_generic" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="SR_legacy_generic" />
+  </surfacematerial>
+  <image name="test_transparency" type="float" nodedef="ND_image_float" xpos="-481.5" ypos="43">
+    <input name="file" type="filename" uniform="true" value="textures/leather_perforated_cutout.png" />
+  </image>
+  <image name="test_cutout" type="color3" nodedef="ND_image_color3" xpos="-477.5" ypos="479">
+    <input name="file" type="filename" uniform="true" value="textures/SiteWork.Planting.Basket.Woven.Loose.Mask.jpg" />
+  </image>
+
+</materialx>

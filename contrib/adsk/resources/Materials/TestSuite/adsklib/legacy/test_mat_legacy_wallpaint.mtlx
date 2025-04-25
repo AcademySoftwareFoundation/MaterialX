@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<materialx version="1.38" colorspace="lin_rec709">
+
+  <legacy_wallpaint name="SR_legacy_wallpaint" type="surfaceshader" >
+    <input name="color" type="color3" value="0.1,0.9,0.1" />
+    <input name="finish" type="float" value="3" />
+    <input name="application" type="float" value="0" />
+    <input name="tint_enable" type="boolean" value="false" />
+    <input name="tint_color" type="color3" value="0.95,0.5,0.5" />
+    <input name="normal_roller" type="vector3" nodename="roller_map" />
+    <input name="normal_brush" type="vector3" nodename="brush_map" />
+    <input name="normal_spray" type="vector3" nodename="spray_map" />
+  </legacy_wallpaint>
+  <surfacematerial name="M_legacy_wallpaint" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="SR_legacy_wallpaint" />
+  </surfacematerial>
+  <multiply name="test_uv_mult" type="vector2" nodedef="ND_multiply_vector2FA" xpos="-852.5" ypos="-221">
+    <input name="in1" type="vector2" value="1, 1" />
+    <input name="in2" type="float" value="10" />
+  </multiply>
+  <adsk:height_map name="brush_map" type="vector3" nodedef="adsk:ND_adsk_height_map" version="1.0.1" xpos="-477.5" ypos="-124">
+    <input name="file" type="filename" uniform="true" value="textures/brush.png" />
+    <input name="realworld_scale" type="vector2" value="1, 1" />
+    <input name="uv_scale" type="vector2" nodename="test_uv_mult" />
+    <input name="depth" type="float" value="1" />
+  </adsk:height_map>
+  <adsk:height_map name="roller_map" type="vector3" nodedef="adsk:ND_adsk_height_map" version="1.0.1" xpos="-473.5" ypos="-493">
+    <input name="file" type="filename" uniform="true" value="textures/roller.png" />
+    <input name="realworld_scale" type="vector2" value="1, 1" />
+    <input name="uv_scale" type="vector2" nodename="test_uv_mult" />
+    <input name="depth" type="float" value="1" />
+  </adsk:height_map>
+  <adsk:height_map name="spray_map" type="vector3" nodedef="adsk:ND_adsk_height_map" version="1.0.1" xpos="-480.5" ypos="232">
+    <input name="file" type="filename" uniform="true" value="textures/spray.png" />
+    <input name="realworld_scale" type="vector2" value="1, 1" />
+    <input name="uv_scale" type="vector2" nodename="test_uv_mult" />
+    <input name="depth" type="float" value="1" />
+  </adsk:height_map>
+
+</materialx>

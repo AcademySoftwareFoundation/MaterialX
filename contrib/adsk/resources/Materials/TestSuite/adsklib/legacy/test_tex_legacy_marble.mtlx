@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<materialx version="1.39" colorspace="lin_rec709">
+  <standard_surface name="SR_testmat1" type="surfaceshader" xpos="10.326087" ypos="-0.603448">
+    <input name="base" type="float" value="1" />
+    <input name="base_color" type="color3" nodename="legacy_marble_color3" />
+    <input name="specular_roughness" type="float" value="0.1" />
+    <input name="subsurface" type="float" value="0.4" />
+    <input name="subsurface_color" type="color3" value="1, 1, 1" />
+  </standard_surface>
+  <surfacematerial name="M_legacy_marble" type="material" xpos="13.043478" ypos="0.000000">
+    <input name="surfaceshader" type="surfaceshader" nodename="SR_testmat1" />
+  </surfacematerial>
+  <legacy_marble name="legacy_marble_color3" type="color3" xpos="6.942029" ypos="-2.620690">
+    <input name="realworld_offset" type="vector3" value="1.1, 0.8, 0.4" />
+    <input name="size" type="float" value="4.6" />
+    <input name="width" type="float" value="0.1" />
+    <input name="rotation_angle" type="vector3" value="0, 0, 0" />
+  </legacy_marble>
+</materialx>

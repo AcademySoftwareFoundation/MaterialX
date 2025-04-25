@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<materialx version="1.39" colorspace="lin_rec709">
+  <standard_surface name="SR_testmat1" type="surfaceshader" xpos="10.289855" ypos="-0.620690">
+    <input name="base" type="float" value="1" />
+    <input name="base_color" type="color3" nodename="legacy_tiles" />
+    <input name="specular_roughness" type="float" value="0.1" />
+    <input name="subsurface" type="float" value="0.4" />
+    <input name="subsurface_color" type="color3" value="1, 1, 1" />
+    <input name="opacity" type="color3" nodename="convert_float_color3" />
+  </standard_surface>
+  <surfacematerial name="M_legacy_tiles" type="material" xpos="15.239130" ypos="0.681035">
+    <input name="surfaceshader" type="surfaceshader" nodename="SR_testmat1" />
+  </surfacematerial>
+  <legacy_tiles name="legacy_tiles" type="multioutput" xpos="4.840580" ypos="-3.732759">
+    <input name="tile_x" type="boolean" value="true" />
+    <input name="tile_y" type="boolean" value="true" />
+    <input name="realworld_scale" type="vector2" value="24,24" unittype="distance" unit="inch" />
+    <input name="realworld_offset" type="vector2" value="-3,-4.5" unittype="distance" unit="inch" />
+    <input name="rotation_angle" type="float" value="0" unittype="angle" unit="degree" />
+    <input name="roughness_amount" type="float" value="5.3" />
+    <input name="roughness_scale" type="float" value="30" />
+    <input name="color_variance" type="float" value="7.1" />
+    <input name="brightness_variance" type="boolean" value="true" />
+    <input name="fade_variance" type="float" value="1.9" />
+    <input name="alpha_fade" type="boolean" value="true" />
+    <input name="seed" type="float" value="0" />
+    <output name="output_alpha" type="float" />
+  </legacy_tiles>
+  <add name="add_float" type="float" xpos="7.311594" ypos="5.681035">
+    <input name="in1" type="float" output="output_alpha" nodename="legacy_tiles" />
+  </add>
+  <convert name="convert_float_color3" type="color3" xpos="7.173913" ypos="7.844828">
+    <input name="in" type="float" nodename="add_float" />
+  </convert>
+</materialx>

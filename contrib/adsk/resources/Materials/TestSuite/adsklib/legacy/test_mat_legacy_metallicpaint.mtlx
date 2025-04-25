@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<materialx version="1.38" colorspace="lin_rec709">
+
+  <legacy_metallicpaint name="SR_legacy_metallicpaint" type="surfaceshader" >
+    <input name="color" type="color3" value="0.95,0.1,0.5" />
+    <input name="highlight_spread" type="float" value="0.55" />
+    <input name="coat_type" type="float" value="0" />
+    <input name="coat_finish" type="float" value="1" />
+    <input name="custom_coat_ior" type="float" value="1.5" />
+    <input name="tint_enable" type="boolean" value="false" />
+    <input name="tint_color" type="color3" value="0.2,0.2,0.8" />
+  </legacy_metallicpaint>
+  <surfacematerial name="M_legacy_metallicpaint" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="SR_legacy_metallicpaint" />
+  </surfacematerial>
+
+</materialx>

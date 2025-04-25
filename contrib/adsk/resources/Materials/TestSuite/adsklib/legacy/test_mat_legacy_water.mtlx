@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<materialx version="1.38" colorspace="lin_rec709">
+
+  <legacy_water name="SR_legacy_water" type="surfaceshader" >
+    <input name="type" type="float" value="2" />
+    <input name="test_sRGB" type="boolean" value="false" />
+    <input name="secondary_color" type="float" value="7" />
+    <input name="custom_color" type="color3" value="0.1,0.1,0.95" />
+    <input name="tint_enable" type="boolean" value="false" />
+    <input name="tint_color" type="color3" value="0.95,0.5,0.5" />
+    <input name="bump_swimming_pool" type="vector3" nodename="height_map1_water"/>
+    <input name="bump_generic_refl_pool" type="vector3" nodename="height_map_water"/>
+    <input name="bump_generic_stream" type="vector3" nodename="height_map1_water"/>
+    <input name="bump_generic_pond" type="vector3" nodename="height_map_water"/>
+    <input name="bump_generic_sea" type="vector3" nodename="height_map2_water"/>
+  </legacy_water>
+  <surfacematerial name="M_legacy_water" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="SR_legacy_water" />
+  </surfacematerial>
+  <adsk:height_map name="height_map_water" type="vector3" nodedef="adsk:ND_adsk_height_map" version="1.0.1" xpos="-694.5" ypos="-435">
+    <input name="file" type="filename" uniform="true" value="textures/water_calm.png" />
+    <input name="realworld_scale" type="vector2" value="1, 1" />
+    <input name="depth" type="float" value="1" />
+  </adsk:height_map>
+  <adsk:height_map name="height_map1_water" type="vector3" nodedef="adsk:ND_adsk_height_map" version="1.0.1" xpos="-694.5" ypos="-68">
+    <input name="file" type="filename" uniform="true" value="textures/water_swimmingpool_bump.jpg" />
+    <input name="realworld_scale" type="vector2" value="1, 1" />
+    <input name="depth" type="float" value="1" />
+  </adsk:height_map>
+  <adsk:height_map name="height_map2_water" type="vector3" nodedef="adsk:ND_adsk_height_map" version="1.0.1" xpos="-700.5" ypos="295">
+    <input name="file" type="filename" uniform="true" value="textures/water_seacalm_bump.jpg" />
+    <input name="realworld_scale" type="vector2" value="1, 1" />
+    <input name="depth" type="float" value="1" />
+  </adsk:height_map>
+
+</materialx>

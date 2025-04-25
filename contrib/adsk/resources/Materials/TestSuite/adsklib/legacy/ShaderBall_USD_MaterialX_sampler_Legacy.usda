@@ -118,13 +118,90 @@ over "ShaderBall" (
 
             }
         }
+        "Checker" {
+            over "one_ball_MeshShape"
+            {
+				rel material:binding = </MaterialX/Materials/M_legacy_checker>
+
+            }
+        }
+        "Gradient" {
+            over "one_ball_MeshShape"
+            {
+				rel material:binding = </MaterialX/Materials/M_legacy_gradient>
+
+            }
+        }
+        "Marble" {
+            over "one_ball_MeshShape"
+            {
+				rel material:binding = </MaterialX/Materials/M_legacy_marble>
+
+            }
+        }
+        "Noise" {
+            over "one_ball_MeshShape"
+            {
+				rel material:binding = </MaterialX/Materials/M_legacy_noise>
+
+            }
+        }
+        "Speckle" {
+            over "one_ball_MeshShape"
+            {
+				rel material:binding = </MaterialX/Materials/M_legacy_speckle>
+
+            }
+        }
+        "Tiles" {
+            over "one_ball_MeshShape"
+            {
+				rel material:binding = </MaterialX/Materials/M_legacy_tiles>
+
+            }
+        }
+        "Waves" {
+            over "one_ball_MeshShape"
+            {
+				rel material:binding = </MaterialX/Materials/M_legacy_waves>
+
+            }
+        }
+        "Wood" {
+            over "one_ball_MeshShape"
+            {
+				rel material:binding = </MaterialX/Materials/M_legacy_wood>
+
+            }
+        }
     }
 }
 
 over "MaterialX"
 (
     references = [
-		@legacy_materials_test.mtlx@</MaterialX>,
+		@test_mat_legacy_ceramic.mtlx@</MaterialX>,
+		@test_mat_legacy_concrete.mtlx@</MaterialX>,
+		@test_mat_legacy_generic.mtlx@</MaterialX>,
+		@test_mat_legacy_glass.mtlx@</MaterialX>,
+		@test_mat_legacy_glazing.mtlx@</MaterialX>,
+		@test_mat_legacy_hardwood.mtlx@</MaterialX>,
+		@test_mat_legacy_masonry.mtlx@</MaterialX>,
+		@test_mat_legacy_metal.mtlx@</MaterialX>,
+		@test_mat_legacy_metallicpaint.mtlx@</MaterialX>,
+		@test_mat_legacy_mirror.mtlx@</MaterialX>,
+		@test_mat_legacy_plastic.mtlx@</MaterialX>,
+		@test_mat_legacy_stone.mtlx@</MaterialX>,
+		@test_mat_legacy_wallpaint.mtlx@</MaterialX>,
+		@test_mat_legacy_water.mtlx@</MaterialX>,
+		@test_tex_legacy_checker.mtlx@</MaterialX>,
+		@test_tex_legacy_gradient.mtlx@</MaterialX>,
+		@test_tex_legacy_marble.mtlx@</MaterialX>,
+		@test_tex_legacy_noise.mtlx@</MaterialX>,
+		@test_tex_legacy_speckle.mtlx@</MaterialX>,
+		@test_tex_legacy_tiles.mtlx@</MaterialX>,
+		@test_tex_legacy_waves.mtlx@</MaterialX>,
+		@test_tex_legacy_wood.mtlx@</MaterialX>,
 	]
 )
 {

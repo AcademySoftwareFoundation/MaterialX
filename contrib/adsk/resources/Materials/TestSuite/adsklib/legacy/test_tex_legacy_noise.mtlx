@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<materialx version="1.39" colorspace="lin_rec709">
+  <standard_surface name="SR_testmat1" type="surfaceshader" xpos="10.326087" ypos="-0.594828">
+    <input name="base" type="float" value="1" />
+    <input name="base_color" type="color3" nodename="legacy_noise_color3" />
+    <input name="specular_roughness" type="float" value="0.1" />
+    <input name="subsurface" type="float" value="0.4" />
+    <input name="subsurface_color" type="color3" value="1, 1, 1" />
+  </standard_surface>
+  <surfacematerial name="M_legacy_noise" type="material" xpos="13.043478" ypos="0.000000">
+    <input name="surfaceshader" type="surfaceshader" nodename="SR_testmat1" />
+  </surfacematerial>
+  <legacy_noise name="legacy_noise_color3" type="color3" xpos="7.507246" ypos="-3.146552">
+    <input name="noise_type" type="integer" value="2" />
+    <input name="size" type="float" value="3" />
+    <input name="color2" type="color3" value="1, 1, 1" />
+    <input name="threshold_low" type="float" value="0.015" />
+    <input name="threshold_high" type="float" value="0.82" />
+    <input name="threshold_smooth" type="boolean" value="true" />
+    <input name="phase" type="float" value="0" />
+    <input name="levels" type="float" value="6.5" />
+    <input name="realworld_offset" type="vector3" value="0, 0, 0" />
+    <input name="rotation_angle" type="vector3" value="0, 0, 0" />
+    <input name="color1" type="color3" value="0.915398, 0, 0" />
+  </legacy_noise>
+</materialx>

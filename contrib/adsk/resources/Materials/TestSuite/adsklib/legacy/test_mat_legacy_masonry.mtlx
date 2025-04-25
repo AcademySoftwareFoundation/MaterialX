@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<materialx version="1.38" colorspace="lin_rec709">
+
+  <legacy_masonry name="SR_legacy_masonry" type="surfaceshader" >
+    <input name="type" type="float" value="0" />
+    <input name="color" type="color3" value="0.5,0.5,0.5" />
+    <input name="tint_enable" type="boolean" value="false" />
+    <input name="tint_color" type="color3" value="0.95,0.5,0.5" />
+    <input name="finish" type="float" value="1" />
+    <input name="relief_enable" type="boolean" value="true" />
+    <input name="relief_image" type="vector3" nodename="test_bump_masonry" />
+  </legacy_masonry>
+  <surfacematerial name="M_legacy_masonry" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="SR_legacy_masonry" />
+  </surfacematerial>
+  <adsk:height_map name="test_bump_masonry" type="vector3" nodedef="adsk:ND_adsk_height_map" version="1.0.1" xpos="-592.5" ypos="-323.118">
+    <input name="file" type="filename" uniform="true" value="textures/brick_bump.jpg" />
+    <input name="realworld_scale" type="vector2" value="1, 1" />
+    <input name="depth" type="float" value="1" />
+  </adsk:height_map>
+
+</materialx>
