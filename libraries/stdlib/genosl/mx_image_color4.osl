@@ -17,8 +17,11 @@ void mx_image_color4(textureresource file, string layer, color4 default_value, v
     color rgb = texture(file.filename, st.x, st.y, "alpha", alpha,
                         "subimage", layer, "interp", filtertype,
                         "missingcolor", missingColor, "missingalpha", missingAlpha,
-                        "swrap", uaddressmode, "twrap", vaddressmode,
-                        "colorspace", file.colorspace);
+                        "swrap", uaddressmode, "twrap", vaddressmode
+#if OSL_VERSION_MAJOR >= 1 && OSL_VERSION_MINOR >= 14
+                        , "colorspace", file.colorspace
+#endif
+                        );
 
     out = color4(rgb, alpha);
 }

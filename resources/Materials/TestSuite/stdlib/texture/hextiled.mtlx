@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<materialx version="1.39" colorspace="srgb_texture">
+  <!--
+  Basic hextiledimage unit test with one image node for each variation in input type.
+  -->
+  <hextiledimage name="hextiledimage_color4" type="color4">
+    <input name="file" type="filename" value="resources/Images/grid.png" />
+  </hextiledimage>
+  <output name="hextiledimage_color4_output" type="color4" nodename="hextiledimage_color4" />
+  <hextiledimage name="hextiledimage_color3" type="color3">
+    <input name="file" type="filename" value="resources/Images/grid.png" />
+  </hextiledimage>
+  <output name="hextiledimage_color3_output" type="color3" nodename="hextiledimage_color3" />
+
+  <!--
+  Basic hextilednormalmap unit test with one image node for each variation in input type.
+  -->
+  <hextilednormalmap name="hextilednormalmap_vector3" type="vector3">
+    <input name="file" type="filename" value="resources/Images/grid.png" />
+  </hextilednormalmap>
+  <output name="hextilednormalmap_vector3_output" type="vector3" nodename="hextilednormalmap_vector3" />
+</materialx>

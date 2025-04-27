@@ -43,6 +43,7 @@ class MslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
 
     void addSkipFiles() override
     {
+        _skipFiles.insert("hextiled.mtlx");
     }
 
     void setupDependentLibraries() override
