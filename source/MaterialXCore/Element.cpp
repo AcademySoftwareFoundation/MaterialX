@@ -873,6 +873,28 @@ void StringResolver::addTokenSubstitutions(ConstElementPtr element)
                     setFilenameSubstitution(key, value);
                 }
             }
+
+            // This is a functional nodegraph. Get the corresponding nodedef and
+            // check for tokens on it.
+            ConstNodeGraphPtr nodegraph = parent->asA<NodeGraph>();
+            if (nodegraph)
+            {
+                NodeDefPtr nodedef = nodegraph->getNodeDef();
+                if (nodedef)
+                {
+                    tokens = nodedef->getActiveTokens();
+                    for (auto token : tokens)
+                    {
+                        string key = DELIMITER_PREFIX + token->getName() + DELIMITER_POSTFIX;
+                        string value = token->getResolvedValueString();
+                        if (!_filenameMap.count(key))
+                        {
+                            setFilenameSubstitution(key, value);
+                        }
+                    }
+                }
+            }
+
         }
         parent = parent->getParent();
     }
