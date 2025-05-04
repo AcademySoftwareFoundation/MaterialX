@@ -17,4 +17,6 @@ void bindPyOiioImageLoader(py::module& mod)
         .def(py::init<>())
         .def("saveImage", &mx::OiioImageLoader::saveImage)
         .def("loadImage", &mx::OiioImageLoader::loadImage);
+    mod.attr("OiioImageLoader").doc() = R"docstring(
+    OpenImageIO image file loader.)docstring";
 }
