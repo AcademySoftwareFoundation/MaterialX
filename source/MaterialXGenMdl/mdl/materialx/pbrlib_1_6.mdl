@@ -340,7 +340,7 @@ export material mx_generalized_schlick_bsdf(
 );
 
 export material mx_subsurface_bsdf(
-    float  mxp_weight    = 1.0 [[ anno::unused() ]],
+    float  mxp_weight    = 1.0,
     color  mxp_color     = color(0.18),
     color  mxp_radius    = color(1.0),
     float  mxp_anisotropy = 0.0,
@@ -351,22 +351,20 @@ export material mx_subsurface_bsdf(
 = let {
     // https://blog.selfshadow.com/publications/s2017-shading-course/imageworks/s2017_pbs_imageworks_slides_v2.pdf
     // Phase function eccentricity 'g' has been omitted here since we pass that directly 
-    // to anisotropic_vdf(directional_bias: g).    
+    // to anisotropic_vdf(directional_bias: g).
+    color C = math::saturate(mxp_weight) * mxp_color;
     color albedo = color(4.09712) +
-           (4.20863f * mxp_color) -
+           (4.20863f * C) -
            math::sqrt(
                9.59217f +
-               41.6808f * mxp_color +
-               17.7126f * mxp_color * mxp_color);
+               41.6808f * C +
+               17.7126f * C * C);
 
     color albedo_sq = albedo * albedo;
-
     color white = color(1.0, 1.0, 1.0);
+    color alpha = (white - albedo_sq) / (white - mxp_anisotropy * albedo_sq);
 
-    color alpha = 
-        (white - albedo_sq) / (white - mxp_anisotropy * albedo_sq);
-
-    color radius_inv = white / mxp_radius;
+    color radius_inv = white / math::max(color(0.001), mxp_radius);
 
     color sigma_s = alpha * radius_inv;
     color sigma_a = radius_inv - sigma_s;
