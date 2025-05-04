@@ -19,7 +19,7 @@ MATERIALX_NAMESPACE_BEGIN
 using MslResourceBindingContextPtr = shared_ptr<class MslResourceBindingContext>;
 
 /// @class MslResourceBindingContext
-/// Class representing a resource binding for Msl shader resources.
+/// Class representing a resource binding for MSL shader resources.
 class MX_GENMSL_API MslResourceBindingContext : public HwResourceBindingContext
 {
   public:
