@@ -1,0 +1,464 @@
+# Configuration file for the Sphinx documentation builder.
+#
+# For the full list of built-in configuration values, see the documentation:
+# https://www.sphinx-doc.org/en/master/usage/configuration.html
+
+import sphinx.ext.autosummary.generate
+import sphinx.util.logging
+
+
+logger = sphinx.util.logging.getLogger(__name__)
+
+
+# -- Project information -----------------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
+
+project = 'MaterialX'
+author = '{} Authors'.format(project)
+copyright = '2024 {}'.format(author)
+release = '${MATERIALX_LIBRARY_VERSION}'
+
+
+# -- Path Manipulation -------------------------------------------------------
+
+import os
+import sys
+sys.path.insert(0, os.path.abspath('${MATERIALX_PYTHONPATH}'))
+
+
+# -- General configuration ---------------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
+
+# Set a default role to format text wrapped in single backticks as Python code objects,
+# possibly linked to the respective Python API documentation paragraph
+default_role = 'py:obj'
+
+# List of Sphinx Python modules to make available
+extensions = [
+    'myst_parser',  # https://pypi.org/project/myst-parser/
+    'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
+]
+
+# Syntax highlighting
+pygments_style = 'monokai'
+
+# Set the path to Jinja template files for Autosummary to use:
+# - `autosummary/module.rst` - template for modules
+# - `autosummary/class.rst` - template for classes
+# See https://www.sphinx-doc.org/en/master/development/html_themes/templating.html#templating
+templates_path = ['${SPHINX_SOURCE_DIR}/templates']
+
+
+# -- AutosummaryRenderer Overrides ---------------------------------------------------
+
+# Override the `render()` method of the `AutosummaryRenderer` class in order to
+# add a custom filter for extracting docstrings of attributes from their
+# corresponding properties
+_original_render = sphinx.ext.autosummary.generate.AutosummaryRenderer.render
+
+
+def get_docstring(module_name: str, class_name: str, attribute_name: str) -> str:
+    module = sys.modules.get(module_name)
+    if module:
+        class_object = getattr(module, class_name)
+        if class_object:
+            attr = getattr(class_object, attribute_name)
+            if isinstance(attr, str):
+                prop = class_object.__dict__.get(attribute_name)
+                if prop:
+                    return prop.__doc__.strip().replace("\n    ", "\n      ")
+                for base_class in class_object.__bases__:
+                    prop = base_class.__dict__.get(attribute_name)
+                    if prop:
+                        return "Inherited from `{}`.\n\n      {}".format(
+                            base_class.__name__,
+                            prop.__doc__.strip().replace("\n    ", "\n      "))
+
+    return "No docstring available for {}.{}.{}".format(module_name, class_name, attribute_name)
+
+
+def has_member(module_name: str, class_name: str, member_name: str) -> bool:
+    module = sys.modules.get(module_name)
+    if module:
+        class_object = getattr(module, class_name)
+        if class_object:
+            member = class_object.__dict__.get(member_name)
+            if member:
+                return True
+
+    return False
+
+
+def render(self, template_name: str, context: dict) -> str:
+    self.env.globals['get_docstring'] = get_docstring
+    self.env.globals['has_member'] = has_member
+    return _original_render(self, template_name, context)
+
+
+sphinx.ext.autosummary.generate.AutosummaryRenderer.render = render
+
+
+# -- Autodoc Configuration ---------------------------------------------------
+
+add_module_names = False
+autodoc_default_options = {
+    'show-inheritance': True,
+}
+
+_MaterialX_versioned_namespace = 'MaterialX_v${MATERIALX_LIBRARY_VERSION}'.replace(".", "_")
+_current_class_name = None
+_objects_found = {}
+_undocumented_functions = []
+_undocumented_methods = []
+_functions_with_empty_line_in_docstring = []
+_methods_with_empty_line_in_docstring = []
+_functions_with_unnamed_parameters = []
+_methods_with_unnamed_parameters = []
+_DOCSTRING_MACRO_NAME = "PYMATERIALX_DOCSTRING"
+
+
+def strip_module_names(text):
+    """
+    Returns the given text with prefixes of known Python modules stripped, in
+    order to make the API documentation more readable.
+    """
+    if not text:
+        return text
+
+    # Check if the given text references a type named `Input`, and if so, leave
+    # the given text as-is. Otherwise, `Input` by itself could mean either
+    # `PyMaterialXCore.Input` or `PyMaterialXRenderGlsl.Input`, leading to a
+    # warning when processing the docstring:
+    # ```
+    # docstring of PyMaterialXGenShader.PyCapsule.getNodeDefInput:1:
+    # WARNING: more than one target found for cross-reference 'Input':
+    # PyMaterialXCore.Input, PyMaterialXRenderGlsl.Input
+    # ```
+    if ".Input)" in text or ".Input, " in text or text.endswith(".Input"):
+        return text
+
+    return (
+        text
+        .replace('{}::'.format(_MaterialX_versioned_namespace), '')
+        .replace('PyMaterialXCore.', '')
+        .replace('PyMaterialXFormat.', '')
+        .replace('PyMaterialXGenShader.', '')
+        .replace('PyMaterialXGenGlsl.', '')
+        .replace('PyMaterialXGenOsl.', '')
+        .replace('PyMaterialXGenMdl.', '')
+        .replace('PyMaterialXGenMsl.', '')
+        .replace('PyMaterialXRender.', '')
+        .replace('PyMaterialXRenderGlsl.', '')
+        .replace('PyMaterialXRenderOsl.', '')
+        .replace('PyMaterialXRenderMsl.', '')
+
+        # Special case handling for "PyMaterialXRenderGlsl.Input", which
+        # appears in `Dict[str, GlslProgram::Input]` in one case
+        .replace('GlslProgram::Input', 'PyMaterialXRenderGlsl.Input')
+
+        # Special case handling for "PyMaterialXRenderMsl.Input", which
+        # appears in `Dict[str, MslProgram::Input]` in one case
+        .replace('MslProgram::Input', 'PyMaterialXRenderMsl.Input')
+    )
+
+
+def autodoc_process_bases(app, name, obj, options, bases):
+    """
+    Event handler for classes.
+
+    Emitted when autodoc has read and processed a class to determine the base
+    classes.
+
+    Is emitted only if the `show-inheritance` option is given.
+
+    Implemented to store the given fully-qualified name of the class in a
+    module-global variable named `_current_class_name` for use in method
+    signatures in `autodoc_process_docstring()` and `autodoc_process_signature()`
+    below.
+
+    This function works around a quirk in pybind11 where `__qualname__` of a
+    method starts with `PyCapsule.` rather than the name of the class.
+    See https://github.com/pybind/pybind11/issues/2059 __qualname__ for methods
+
+    Args:
+        app - the Sphinx application object
+        name - the fully-qualified name of the class
+        obj - the class itself
+        options - the options given to the class directive
+        bases - the list of base classes that can be modified in-place to
+                change what Sphinx puts into the output
+    """
+    global _current_class_name
+
+    _current_class_name = name
+
+
+def autodoc_process_docstring(app, what, name, obj, options, lines):
+    """
+    Event handler for processed docstrings.
+
+    Implemented in order to detect undocumented functions, and functions with
+    empty lines in docstrings, and flag them as Sphinx warnings when the build
+    finishes (see `build_finished()` below).
+
+    Emitted when autodoc has read and processed a docstring.
+
+    `lines` is a list of strings - the lines of the processed docstring - that
+    the event handler can modify in place to change what Sphinx puts into the
+    output.
+
+    Args:
+        app - the Sphinx application object
+        what - the type of the object to which the docstring belongs (one of
+               "module", "class", "exception", "function", "method", "attribute")
+        name - the fully qualified name of the object
+        obj - the object itself
+        options - the options given to the directive: an object with attributes
+                  `inherited_members`, `undoc_members`, `show_inheritance`, and
+                  `no-index` that are `True` if the flag option of same name
+                  was given to the auto directive
+        lines - the lines of the docstring, see above
+    """
+    if obj not in _objects_found.setdefault(what, []):
+        _objects_found[what].append(obj)
+
+    if what == "function":
+        sig = "{}()".format(name)
+    elif what == "method":
+        sig = "{}.{}()".format(_current_class_name, obj.__name__)
+
+    if what == "function":
+        if (sig not in _undocumented_functions
+                and obj.__doc__.count("\n") < 2):
+            _undocumented_functions.append(sig)
+
+        if (sig not in _functions_with_empty_line_in_docstring
+                and "\n\n\n" in obj.__doc__):
+            _functions_with_empty_line_in_docstring.append(sig)
+
+    if what == "method":
+        if (sig not in _undocumented_methods
+                and not name.endswith(".__init__")
+                and obj.__doc__.count("\n") < 2):
+            _undocumented_methods.append(sig)
+
+        if (sig not in _methods_with_empty_line_in_docstring
+                and "\n\n\n" in obj.__doc__):
+            _methods_with_empty_line_in_docstring.append(sig)
+
+
+def autodoc_process_signature(app, what, name, obj, options, signature,
+                              return_annotation):
+    """
+    Event handler for object signatures.
+
+    Emitted when autodoc has formatted a signature for an object.
+
+    Can return a new tuple `(signature, return_annotation)` to change what
+    Sphinx puts into the output.
+
+    Args:
+        app - the Sphinx application object
+        what - the type of the object to which the docstring belongs (one of
+               "module", "class", "exception", "function", "method", "attribute")
+        name - the fully qualified name of the object
+        obj - the object itself
+        options - the options given to the directive: an object with attributes
+                  `inherited_members`, `undoc_members`, `show_inheritance`, and
+                  `no-index` that are `True` if the flag option of same name
+                  was given to the auto directive
+        signature - function signature, as a string of the form "(parameter_1,
+                    parameter_2)", or `None` if introspection didn't succeed
+                    and signature wasn't specified in the directive.
+        return_annotation - function return annotation as a string of the form
+                            " -> annotation", or `None` if there is no return
+                            annotation
+    """
+    contains_unnamed_parameters = any(["arg{}".format(i) in signature
+                                       for i in range(10)])
+
+    # Check if an overloaded function contains unnamed parameters
+    if (not contains_unnamed_parameters
+            and obj.__doc__
+            and "Overloaded function." in obj.__doc__):
+        contains_unnamed_parameters = any(["arg{}".format(i) in obj.__doc__
+                                           for i in range(10)])
+
+    signature = strip_module_names(signature)
+    return_annotation = strip_module_names(return_annotation)
+
+    if what == "function":
+        sig = "{}{}".format(name, signature)
+    elif what == "method":
+        sig = "{}.{}{}".format(_current_class_name, obj.__name__, signature)
+    else:
+        sig = ""
+
+    if (what == "function"
+            and sig not in _functions_with_unnamed_parameters
+            and contains_unnamed_parameters):
+        _functions_with_unnamed_parameters.append(sig)
+
+    if (what == "method"
+            and sig not in _methods_with_unnamed_parameters
+            and contains_unnamed_parameters):
+        _methods_with_unnamed_parameters.append(sig)
+
+    return (signature, return_annotation)
+
+
+def build_finished(app, exception):
+    """
+    Emitted when a build has finished, before Sphinx exits, usually used for
+    cleanup. This event is emitted even when the build process raised an
+    exception, given as the `exception` argument. The exception is reraised in
+    the application after the event handlers have run. If the build process
+    raised no exception, `exception` will be `None`. This allows to customize
+    cleanup actions depending on the exception status.
+    """
+    # Warn about possible issues in docstrings and signatures
+    if _undocumented_functions:
+        logger.info("\nFunctions with empty docstrings:\n    {}"
+                    .format("\n    ".join(sorted(_undocumented_functions))))
+    if _undocumented_methods:
+        logger.info("\nMethods with empty docstrings:\n    {}"
+                    .format("\n    ".join(sorted(_undocumented_methods))))
+    if _functions_with_empty_line_in_docstring:
+        logger.info("\nFunctions with empty lines in docstrings:\n    {}"
+                    .format("\n    ".join(sorted(_functions_with_empty_line_in_docstring))))
+    if _methods_with_empty_line_in_docstring:
+        logger.info("\nMethods with empty lines in docstrings:\n    {}"
+                    .format("\n    ".join(sorted(_methods_with_empty_line_in_docstring))))
+    if _functions_with_unnamed_parameters:
+        logger.info("\nFunctions with possibly unnamed parameters:\n    {}"
+                    .format("\n    ".join(sorted(_functions_with_unnamed_parameters))))
+    if _methods_with_unnamed_parameters:
+        logger.info("\nMethods with possibly unnamed parameters:\n    {}"
+                    .format("\n    ".join(sorted(_methods_with_unnamed_parameters))))
+
+    # Show statistics about the API
+    statistics = "The parsed MaterialX Python API consists of:"
+    for what in ("module", "function", "class", "attribute", "method", "exception"):
+        if what in _objects_found:
+            statistics += ("\n    * {} {}{}".format(
+                               len(_objects_found[what]),
+                               what,
+                               "s" if len(_objects_found[what]) > 1 else "")
+                           .replace("classs", "classes")
+                           .replace("exceptions", "exception types"))
+    logger.info("\n{}\n".format(statistics))
+
+    # Show a summary of warnings about possible issues in docstrings and
+    # signatures
+    N = len(_undocumented_functions)
+    if N == 1:
+        logger.warning("1 function looks like it does not have a docstring yet.")
+    elif N > 1:
+        logger.warning("{} functions look like they do not have docstrings yet."
+                       .format(N))
+
+    N = len(_undocumented_methods)
+    if N == 1:
+        logger.warning("1 method looks like it does not have a docstring yet.")
+    elif N > 1:
+        logger.warning("{} methods look like they do not have docstrings yet."
+                       .format(N))
+
+    N = len(_functions_with_empty_line_in_docstring)
+    if N == 1:
+        logger.warning("1 function looks like its docstring contains an extra "
+                       "empty line, perhaps not wrapped in `{}()`."
+                       .format(_DOCSTRING_MACRO_NAME))
+    elif N > 1:
+        logger.warning("{} functions look like their docstrings contain an "
+                       "extra empty line, perhaps not wrapped in `()`."
+                       .format(N, _DOCSTRING_MACRO_NAME))
+
+    N = len(_methods_with_empty_line_in_docstring)
+    if N == 1:
+        logger.warning("1 method looks like its docstring contains an extra "
+                       "empty line, perhaps not wrapped in `{}()`."
+                       .format(_DOCSTRING_MACRO_NAME))
+    elif N > 1:
+        logger.warning("{} methods look like their docstrings contain an "
+                       "extra empty line, perhaps not wrapped in `()`."
+                       .format(N, _DOCSTRING_MACRO_NAME))
+
+    N = len(_functions_with_unnamed_parameters)
+    if N == 1:
+        logger.warning("1 function looks like its parameters have not all "
+                       "been named using `py::arg()`.")
+    elif N > 1:
+        logger.warning("{} functions look like their parameters have not all "
+                       "been named using `py::arg()`."
+                       .format(N))
+
+    N = len(_methods_with_unnamed_parameters)
+    if N == 1:
+        logger.warning("1 method looks like its parameters have not all been "
+                       "named using `py::arg()`.")
+    elif N > 1:
+        logger.warning("{} methods look like their parameters have not all "
+                       "been named using `py::arg()`."
+                       .format(N))
+
+
+def setup(app):
+    app.connect('autodoc-process-bases', autodoc_process_bases)
+    app.connect('autodoc-process-docstring', autodoc_process_docstring)
+    app.connect('autodoc-process-signature', autodoc_process_signature)
+    app.connect('build-finished', build_finished)
+
+
+# -- Options for HTML output -------------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
+
+about = """
+<b>MaterialX</b> &ndash; An open standard for the exchange of rich material and
+look-development content across applications and renderers.
+<p>
+  <a title="MaterialX on GitHub" class="blueButton" href="https://github.com/AcademySoftwareFoundation/MaterialX">GitHub</a>
+  &nbsp;
+  <a title="MaterialX on Mastodon" class="blueButton" href="https://mastodon.social/&#64;MaterialX&#64;fosstodon.org">
+    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+         alt="MaterialX on Mastodon" title="MaterialX on Mastodon" viewBox="0 0 24 24"
+         width="16" height="16" style="vertical-align: text-top;">
+      <title>MaterialX on Mastodon</title>
+      <g transform="translate(-1, 0) scale(0.32, 0.32)" fill="currentcolor">
+        <path d="M74.7135 16.6043C73.6199 8.54587 66.5351 2.19527 58.1366 0.964691C56.7196 0.756754 51.351 0 38.9148 0H38.822C26.3824 0 23.7135 0.756754 22.2966 0.964691C14.1319 2.16118 6.67571 7.86752 4.86669 16.0214C3.99657 20.0369 3.90371 24.4888 4.06535 28.5726C4.29578 34.4289 4.34049 40.275 4.877 46.1075C5.24791 49.9817 5.89495 53.8251 6.81328 57.6088C8.53288 64.5968 15.4938 70.4122 22.3138 72.7848C29.6155 75.259 37.468 75.6697 44.9919 73.971C45.8196 73.7801 46.6381 73.5586 47.4475 73.3063C49.2737 72.7302 51.4164 72.086 52.9915 70.9542C53.0131 70.9384 53.0308 70.9178 53.0433 70.8942C53.0558 70.8706 53.0628 70.8445 53.0637 70.8179V65.1661C53.0634 65.1412 53.0574 65.1167 53.0462 65.0944C53.035 65.0721 53.0189 65.0525 52.9992 65.0371C52.9794 65.0218 52.9564 65.011 52.9318 65.0056C52.9073 65.0002 52.8819 65.0003 52.8574 65.0059C48.0369 66.1472 43.0971 66.7193 38.141 66.7103C29.6118 66.7103 27.3178 62.6981 26.6609 61.0278C26.1329 59.5842 25.7976 58.0784 25.6636 56.5486C25.6622 56.5229 25.667 56.4973 25.6775 56.4738C25.688 56.4502 25.7039 56.4295 25.724 56.4132C25.7441 56.397 25.7678 56.3856 25.7931 56.3801C25.8185 56.3746 25.8448 56.3751 25.8699 56.3816C30.6101 57.5151 35.4693 58.0873 40.3455 58.086C41.5183 58.086 42.6876 58.086 43.8604 58.0553C48.7647 57.919 53.9339 57.6701 58.7591 56.7361C58.8794 56.7123 58.9998 56.6918 59.103 56.6611C66.7139 55.2124 73.9569 50.665 74.6929 39.1501C74.7204 38.6967 74.7892 34.4016 74.7892 33.9312C74.7926 32.3325 75.3085 22.5901 74.7135 16.6043ZM62.9996 45.3371H54.9966V25.9069C54.9966 21.8163 53.277 19.7302 49.7793 19.7302C45.9343 19.7302 44.0083 22.1981 44.0083 27.0727V37.7082H36.0534V27.0727C36.0534 22.1981 34.124 19.7302 30.279 19.7302C26.8019 19.7302 25.0651 21.8163 25.0617 25.9069V45.3371H17.0656V25.3172C17.0656 21.2266 18.1191 17.9769 20.2262 15.568C22.3998 13.1648 25.2509 11.9308 28.7898 11.9308C32.8859 11.9308 35.9812 13.492 38.0447 16.6111L40.036 19.9245L42.0308 16.6111C44.0943 13.492 47.1896 11.9308 51.2788 11.9308C54.8143 11.9308 57.6654 13.1648 59.8459 15.568C61.9529 17.9746 63.0065 21.2243 63.0065 25.3172L62.9996 45.3371Z"></path>
+      </g>
+    </svg>
+  </a>
+</p>
+"""
+
+html_theme = 'alabaster'
+
+# For documentation on the available options that the Alabaster theme provides,
+# see https://alabaster.readthedocs.io/en/latest/customization.html
+html_theme_options = {
+    'logo': '${MATERIALX_LOGO_FILENAME}',
+    'description': about,
+    'github_button': False,
+    'github_user': 'AcademySoftwareFoundation',
+    'github_repo': 'MaterialX',
+    'extra_nav_links': {
+        'MaterialX.org': 'https://materialx.org/',
+        'MaterialX C++ API Docs': 'https://materialx.org/docs/api/index.html',
+        'MaterialX Specification': 'https://materialx.org/Specification.html',
+    },
+    # Style colors
+    'sidebar_hr': 'var(--separator-color)',
+    'sidebar_search_button': 'var(--separator-color)',
+}
+
+# Use a custom navigation Jinja template instead of the default 'navigation.html'
+# in order to set a maximum depth in the table of contents in the sidebar
+html_sidebars = {
+    '**': [
+        'about.html',               # standard
+        'sphinx-navigation.html',   # custom
+        'searchbox.html',           # standard
+    ]
+}
