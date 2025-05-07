@@ -15,7 +15,7 @@
   <implementation name="IM_surfacematerial_genglsl" nodedef="ND_surfacematerial" target="genglsl" />
 
   <!-- <surface_unlit> -->
-  <implementation name="IM_surface_unlit_genglsl" nodedef="ND_surface_unlit" target="genglsl" />
+  <implementation name="IM_surface_unlit_genglsl" nodedef="ND_surface_unlit" file="mx_surface_unlit.glsl" function="mx_surface_unlit" target="genglsl" />
 
   <!-- ======================================================================== -->
   <!-- Texture nodes                                                            -->
