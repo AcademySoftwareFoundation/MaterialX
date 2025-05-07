@@ -11,7 +11,7 @@
 
 MaterialX is an open standard for representing rich material and look-development content in computer graphics, enabling its platform-independent description and exchange across applications and renderers.  Launched at [Industrial Light & Magic](https://www.ilm.com/) in 2012, MaterialX has been a key technology in their feature films and real-time experiences since _Star Wars: The Force Awakens_ and _Millennium Falcon: Smugglers Run_.  The project was released as open source in 2017, with companies including Sony Pictures Imageworks, Pixar, Autodesk, Adobe, and SideFX contributing to its ongoing development.  In 2021, MaterialX became the seventh hosted project of the [Academy Software Foundation](https://www.aswf.io/).
 
-See the [Building Documentation](BUILDING.md) for more information on how to build MaterialX.
+See the [Building Documentation](documents/DeveloperGuide/MainPage.md#building-materialx) for more information on how to build MaterialX.
 
 ## Supported Platforms
 
@@ -73,7 +73,7 @@ The following packages contain pre-built binaries for the latest release, includ
 
 ## Additional Resources
 
-- The [Developer Guide](http://www.materialx.org/docs/api/index.html) contains a developer-oriented overview of MaterialX with API documentation.
+- The [Developer Guide](http://www.materialx.org/docs/api/index.html) contains a developer-oriented overview of MaterialX with Build and API documentation.
 - The [Python Scripts](python/Scripts) folder contains standalone examples of MaterialX Python code.
 - The [JavaScript](javascript) folder contains details on building JavaScript bindings for MaterialX.
 - Presentations at [ASWF Open Source Days](https://materialx.org/assets/ASWF_OSD2024_MaterialX_Final.pdf) and the [SIGGRAPH Physically Based Shading Course](https://blog.selfshadow.com/publications/s2020-shading-course/#materialx) provide details on the roadmap for MaterialX development.
