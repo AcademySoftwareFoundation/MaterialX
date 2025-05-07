@@ -210,11 +210,11 @@ int main(int argc, char* const argv[])
 
     // Create graph editor.
     Graph* graph = new Graph(materialFilename,
-        meshFilename,
-        searchPath,
-        libraryFolders,
-        viewWidth,
-        viewHeight);
+                             meshFilename,
+                             searchPath,
+                             libraryFolders,
+                             viewWidth,
+                             viewHeight);
     if (!captureFilename.empty())
     {
         graph->getRenderer()->requestFrameCapture(captureFilename);
@@ -270,7 +270,7 @@ int main(int argc, char* const argv[])
         double xpos = 0.0;
         double ypos = 0.0;
         glfwGetCursorPos(window, &xpos, &ypos);
-        graph->drawGraph(ImVec2((float)xpos, (float)ypos));
+        graph->drawGraph(ImVec2((float) xpos, (float) ypos));
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
