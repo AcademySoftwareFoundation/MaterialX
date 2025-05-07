@@ -792,7 +792,7 @@ void Graph::setRenderMaterial(UiNodePtr node)
             for (const std::string& testPath : testPaths)
             {
                 mx::ElementPtr testElem = _graphDoc->getDescendant(testPath);
-                mx::NodePtr testNode = testElem->asA<mx::Node>();
+                mx::NodePtr testNode = testElem ? testElem->asA<mx::Node>() : nullptr;
                 std::vector<mx::PortElementPtr> downstreamPorts;
                 if (testNode)
                 {
@@ -3291,7 +3291,12 @@ void Graph::showPropertyEditorOutputConnections(UiNodePtr node)
     if (node->_showOutputsInEditor)
     {
         std::vector<UiPinPtr> pinList = node->outputPins;
-        size_t pinCount = pinList.size();
+        size_t pinCount = 0;
+        for (UiPinPtr outputPin : node->outputPins)
+        {
+            std::vector<UiPinPtr> connectedPins = outputPin->getConnections();
+            pinCount += connectedPins.size();
+        }
 
         if (pinCount > 0)
         {
@@ -3315,7 +3320,8 @@ void Graph::showPropertyEditorOutputConnections(UiNodePtr node)
                         blankPinName += ' ';
                     }
 
-                    for (UiPinPtr connectedPin : outputPin->getConnections())
+                    std::vector<UiPinPtr> connectedPins = outputPin->getConnections();
+                    for (UiPinPtr connectedPin : connectedPins)
                     {
                         ImGui::TableNextRow();
                         ImGui::TableNextColumn();

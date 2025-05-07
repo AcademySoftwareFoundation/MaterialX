@@ -18,39 +18,39 @@
 namespace
 {
 
-static void errorCallback(int error, const char* description)
-{
-    fprintf(stderr, "Glfw Error %d: %s\n", error, description);
-}
-
-const std::string options =
-    " Options: \n"
-    "    --material [FILENAME]          Specify the filename of the MTLX document to be displayed in the graph editor\n"
-    "    --mesh [FILENAME]              Specify the filename of the OBJ or glTF mesh to be displayed in the graph editor\n"
-    "    --path [FILEPATH]              Specify an additional data search path location (e.g. '/projects/MaterialX').  This absolute path will be queried when locating data libraries, XInclude references, and referenced images.\n"
-    "    --library [FILEPATH]           Specify an additional data library folder (e.g. 'vendorlib', 'studiolib').  This relative path will be appended to each location in the data search path when loading data libraries.\n"
-    "    --uiScale [FACTOR]             Manually specify a UI scaling factor\n"
-    "    --font [FILENAME]              Specify the name of the custom font file to use.  If not specified the default font will be used.\n"
-    "    --fontSize [SIZE]              Specify font size to use for the custom font.  If not specified a default of 18 will be used.\n"
-    "    --captureFilename [FILENAME]   Specify the filename to which the first rendered frame should be written\n"
-    "    --help                         Display the complete list of command-line options\n";
-
-template <class T> void parseToken(std::string token, std::string type, T& res)
-{
-    if (token.empty())
+    static void errorCallback(int error, const char* description)
     {
-        return;
+        fprintf(stderr, "Glfw Error %d: %s\n", error, description);
     }
 
-    mx::ValuePtr value = mx::Value::createValueFromStrings(token, type);
-    if (!value)
-    {
-        std::cout << "Unable to parse token " << token << " as type " << type << std::endl;
-        return;
-    }
+    const std::string options =
+        " Options: \n"
+        "    --material [FILENAME]          Specify the filename of the MTLX document to be displayed in the graph editor\n"
+        "    --mesh [FILENAME]              Specify the filename of the OBJ or glTF mesh to be displayed in the graph editor\n"
+        "    --path [FILEPATH]              Specify an additional data search path location (e.g. '/projects/MaterialX').  This absolute path will be queried when locating data libraries, XInclude references, and referenced images.\n"
+        "    --library [FILEPATH]           Specify an additional data library folder (e.g. 'vendorlib', 'studiolib').  This relative path will be appended to each location in the data search path when loading data libraries.\n"
+        "    --uiScale [FACTOR]             Manually specify a UI scaling factor\n"
+        "    --font [FILENAME]              Specify the name of the custom font file to use.  If not specified the default font will be used.\n"
+        "    --fontSize [SIZE]              Specify font size to use for the custom font.  If not specified a default of 18 will be used.\n"
+        "    --captureFilename [FILENAME]   Specify the filename to which the first rendered frame should be written\n"
+        "    --help                         Display the complete list of command-line options\n";
 
-    res = value->asA<T>();
-}
+    template <class T> void parseToken(std::string token, std::string type, T& res)
+    {
+        if (token.empty())
+        {
+            return;
+        }
+
+        mx::ValuePtr value = mx::Value::createValueFromStrings(token, type);
+        if (!value)
+        {
+            std::cout << "Unable to parse token " << token << " as type " << type << std::endl;
+            return;
+        }
+
+        res = value->asA<T>();
+    }
 
 } // anonymous namespace
 
@@ -72,7 +72,6 @@ int main(int argc, char* const argv[])
     std::string fontFilename;
     int fontSize = 18;
     std::string captureFilename;
-    ImColor graphBackgroundColor(0.2f, 0.2f, 0.2f, 1.0f);
 
     for (size_t i = 0; i < tokens.size(); i++)
     {
@@ -118,12 +117,6 @@ int main(int argc, char* const argv[])
         else if (token == "--captureFilename")
         {
             parseToken(nextToken, "string", captureFilename);
-        }
-        else if (token == "--graphBackground")
-        {
-            mx::Color3 mxColor;
-            parseToken(nextToken, "color3", mxColor);
-            graphBackgroundColor = ImColor(mxColor[0], mxColor[1], mxColor[2], 1.0f);
         }
         else if (token == "--help")
         {
@@ -210,11 +203,11 @@ int main(int argc, char* const argv[])
 
     // Create graph editor.
     Graph* graph = new Graph(materialFilename,
-                             meshFilename,
-                             searchPath,
-                             libraryFolders,
-                             viewWidth,
-                             viewHeight);
+        meshFilename,
+        searchPath,
+        libraryFolders,
+        viewWidth,
+        viewHeight);
     if (!captureFilename.empty())
     {
         graph->getRenderer()->requestFrameCapture(captureFilename);
@@ -250,7 +243,6 @@ int main(int argc, char* const argv[])
         config.CustomZoomLevels.push_back(level);
     }
     ed::SetCurrentEditor(editorContext);
-    ed::PushStyleColor(ed::StyleColor_Bg, graphBackgroundColor);
 
     // Main loop
     while (!glfwWindowShouldClose(window))
@@ -270,7 +262,7 @@ int main(int argc, char* const argv[])
         double xpos = 0.0;
         double ypos = 0.0;
         glfwGetCursorPos(window, &xpos, &ypos);
-        graph->drawGraph(ImVec2((float) xpos, (float) ypos));
+        graph->drawGraph(ImVec2((float)xpos, (float)ypos));
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
