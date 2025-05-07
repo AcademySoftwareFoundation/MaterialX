@@ -4,11 +4,20 @@ MaterialX is an open standard for representing rich material and look-developmen
 
 ## Quick Start for Developers
 
+If you're using CMake directly, these steps will get you started quickly.
+If you're using an Editor, reference the [Editor Setup](#Editor Setup) section as well.
+
 - Download the latest version of the [CMake](https://cmake.org/) build system.
 - Point CMake to the root of the MaterialX library and generate C++ projects for your platform and compiler.
-- Select the `MATERIALX_BUILD_PYTHON` option to build Python bindings.
-- Select the `MATERIALX_BUILD_VIEWER` option to build the [MaterialX Viewer](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/documents/DeveloperGuide/Viewer.md).
-- Select the `MATERIALX_BUILD_GRAPH_EDITOR` option to build the [MaterialX Graph Editor](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/documents/DeveloperGuide/GraphEditor.md). 
+- Enable the `MATERIALX_BUILD_PYTHON` option to build Python bindings.
+- Enable the `MATERIALX_BUILD_VIEWER` option to build the [MaterialX Viewer](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/documents/DeveloperGuide/Viewer.md).
+- Enable the `MATERIALX_BUILD_GRAPH_EDITOR` option to build the [MaterialX Graph Editor](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/documents/DeveloperGuide/GraphEditor.md). 
+
+An example for using the CMake command line would be:
+
+1. Create a directory for your project data.
+2. From this directory, generate your project `cmake <path/to/materialx/source> -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON`
+3. You can now open your project in your editor or build directly with `cmake --build ./`
 
 ## Supported Platforms
 
