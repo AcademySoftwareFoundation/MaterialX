@@ -12,10 +12,7 @@
 MATERIALX_NAMESPACE_BEGIN
 
 SurfaceNodeMsl::SurfaceNodeMsl()
-{
-    // Create closure context for calling closure functions.
-    _callClosure.addArgument(ClosureContext::Argument(HW::CLOSURE_DATA_TYPE, HW::CLOSURE_DATA_ARG));
-}
+{}
 
 ShaderNodeImplPtr SurfaceNodeMsl::create()
 {
@@ -144,7 +141,6 @@ void SurfaceNodeMsl::emitFunctionCall(const ShaderNode& node, GenContext& contex
             shadergen.emitComment("Add environment contribution", stage);
             shadergen.emitScopeBegin(stage);
 
-            context.pushClosureContext(&_callClosure); // indirect
             if (bsdf->hasClassification(ShaderNode::Classification::BSDF_R)) {
                 shadergen.emitLine("ClosureData closureData = {CLOSURE_TYPE_INDIRECT, L, V, N, P, occlusion}", stage);
                 shadergen.emitFunctionCall(*bsdf, context, stage);
@@ -155,7 +151,6 @@ void SurfaceNodeMsl::emitFunctionCall(const ShaderNode& node, GenContext& contex
                 shadergen.emitOutput(bsdf->getOutput(), true, true, context, stage);
                 shadergen.emitLineEnd(stage);
             }
-            context.popClosureContext();
 
             shadergen.emitLineBreak(stage);
             shadergen.emitLine(outColor + " += occlusion * " + bsdf->getOutput()->getVariable() + ".response", stage);
@@ -172,7 +167,6 @@ void SurfaceNodeMsl::emitFunctionCall(const ShaderNode& node, GenContext& contex
             shadergen.emitComment("Add surface emission", stage);
             shadergen.emitScopeBegin(stage);
 
-            context.pushClosureContext(&_callClosure); // emission
             if (edf->hasClassification(ShaderNode::Classification::EDF)) {
                 shadergen.emitLine("ClosureData closureData = {CLOSURE_TYPE_EMISSION, L, V, N, P, occlusion}", stage);
                 shadergen.emitFunctionCall(*edf, context, stage);
@@ -183,7 +177,6 @@ void SurfaceNodeMsl::emitFunctionCall(const ShaderNode& node, GenContext& contex
                 shadergen.emitOutput(edf->getOutput(), true, true, context, stage);
                 shadergen.emitLineEnd(stage);
             }
-            context.popClosureContext();
 
             shadergen.emitLine(outColor + " += " + edf->getOutput()->getVariable(), stage);
             shadergen.emitScopeEnd(stage);
@@ -196,7 +189,6 @@ void SurfaceNodeMsl::emitFunctionCall(const ShaderNode& node, GenContext& contex
         if (const ShaderNode* bsdf = bsdfInput->getConnectedSibling())
         {
             shadergen.emitComment("Calculate the BSDF transmission for viewing direction", stage);
-            context.pushClosureContext(&_callClosure); // transmission
             if (bsdf->hasClassification(ShaderNode::Classification::BSDF_T)) {
                 shadergen.emitLine("ClosureData closureData = {CLOSURE_TYPE_TRANSMISSION, L, V, N, P, occlusion}", stage);
                 shadergen.emitFunctionCall(*bsdf, context, stage);
@@ -216,7 +208,6 @@ void SurfaceNodeMsl::emitFunctionCall(const ShaderNode& node, GenContext& contex
             {
                 shadergen.emitLine(outTransparency + " += " + bsdf->getOutput()->getVariable() + ".response", stage);
             }
-            context.popClosureContext();
 
             shadergen.emitLineBreak(stage);
             shadergen.emitComment("Compute and apply surface opacity", stage);
@@ -257,7 +248,6 @@ void SurfaceNodeMsl::emitLightLoop(const ShaderNode& node, GenContext& context, 
         shadergen.emitLineBreak(stage);
 
         shadergen.emitComment("Calculate the BSDF response for this light source", stage);
-        context.pushClosureContext(&_callClosure); // reflection
         if (bsdf->hasClassification(ShaderNode::Classification::BSDF_R)) {
             shadergen.emitLine("ClosureData closureData = {CLOSURE_TYPE_REFLECTION, L, V, N, P, occlusion}", stage);
             shadergen.emitFunctionCall(*bsdf, context, stage);
@@ -268,7 +258,6 @@ void SurfaceNodeMsl::emitLightLoop(const ShaderNode& node, GenContext& context, 
             shadergen.emitOutput(bsdf->getOutput(), true, true, context, stage);
             shadergen.emitLineEnd(stage);
         }
-        context.popClosureContext();
 
         shadergen.emitLineBreak(stage);
 

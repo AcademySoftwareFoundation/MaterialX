@@ -11,9 +11,9 @@
 #include <MaterialXGenShader/TypeDesc.h>
 #include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
+#include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
 
 #include <MaterialXGenOsl/Nodes/BlurNodeOsl.h>
-#include <MaterialXGenOsl/Nodes/SurfaceNodeOsl.h>
 #include <MaterialXGenOsl/Nodes/MaterialNodeOsl.h>
 
 MATERIALX_NAMESPACE_BEGIN
@@ -24,8 +24,8 @@ const string OslShaderGenerator::TARGET = "genosl";
 // OslShaderGenerator methods
 //
 
-OslShaderGenerator::OslShaderGenerator() :
-    ShaderGenerator(OslSyntax::create())
+OslShaderGenerator::OslShaderGenerator(TypeSystemPtr typeSystem) :
+    ShaderGenerator(typeSystem, OslSyntax::create(typeSystem))
 {
     // Register built-in implementations
 
@@ -38,7 +38,7 @@ OslShaderGenerator::OslShaderGenerator() :
     registerImplementation("IM_blur_vector4_" + OslShaderGenerator::TARGET, BlurNodeOsl::create);
 
     // <!-- <surface> -->
-    registerImplementation("IM_surface_" + OslShaderGenerator::TARGET, SurfaceNodeOsl::create);
+    registerImplementation("IM_surface_" + OslShaderGenerator::TARGET, ClosureSourceCodeNode::create);
 
     // <!-- <surfacematerial> -->
     registerImplementation("IM_surfacematerial_" + OslShaderGenerator::TARGET, MaterialNodeOsl::create);
@@ -112,7 +112,7 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     {
         for (size_t j = 0; j < metadata->size(); ++j)
         {
-            const ShaderMetadata& data = metadata->at(j);
+            const ShaderMetadata& data = (*metadata)[j];
             const string& delim = (j == metadata->size() - 1) ? EMPTY_STRING : Syntax::COMMA;
             const string& dataType = _syntax->getTypeName(data.type);
             const string dataValue = _syntax->getValue(data.type, *data.value, true);
@@ -487,13 +487,13 @@ void OslShaderGenerator::emitMetadata(const ShaderPort* port, ShaderStage& stage
         {
             for (size_t j = 0; j < metadata->size(); ++j)
             {
-                const ShaderMetadata& data = metadata->at(j);
+                const ShaderMetadata& data = (*metadata)[j];
                 if (METADATA_TYPE_BLACKLIST.count(data.type) == 0)
                 {
                     const string& delim = (widgetMetadata || j < metadata->size() - 1) ? Syntax::COMMA : EMPTY_STRING;
                     const string& dataType = _syntax->getTypeName(data.type);
                     const string dataValue = _syntax->getValue(data.type, *data.value, true);
-                    metadataLines.push_back(dataType + " " + data.name + " = " + dataValue + delim);
+                    metadataLines.emplace_back(dataType + " " + data.name + " = " + dataValue + delim);
                 }
             }
         }
@@ -501,7 +501,7 @@ void OslShaderGenerator::emitMetadata(const ShaderPort* port, ShaderStage& stage
         {
             const string& dataType = _syntax->getTypeName(widgetMetadata->type);
             const string dataValue = _syntax->getValue(widgetMetadata->type, *widgetMetadata->value, true);
-            metadataLines.push_back(dataType + " " + widgetMetadata->name + " = " + dataValue);
+            metadataLines.emplace_back(dataType + " " + widgetMetadata->name + " = " + dataValue);
         }
         if (metadataLines.size())
         {

@@ -679,8 +679,8 @@
   </nodegraph>
   <nodegraph name="multiply_matrix33">
     <multiply name="multiply1" type="matrix33">
-      <input name="in1" type="matrix33" value="1.0, 0.0, 0.0,  0.0, 1.0, 0.0,  0.0, 0.0, 1.0" />
-      <input name="in2" type="matrix33" value="1.0, 0.0, 0.0,  0.0, 1.0, 0.0,  0.0, 0.0, 1.0" />
+      <input name="in1" type="matrix33" value="0.0, 1.5, 0.0,  0.5, 0.0, 0.0,  0.0, 0.0, 1.0" />
+      <input name="in2" type="matrix33" value="0.0, 1.0, 0.0,  1.0, 0.0, 0.0,  0.0, 0.0, 1.0" />
     </multiply>
     <transformmatrix name="transformmatrix1" type="vector3">
       <input name="in" type="vector3" value="0.5, 0.5, 0.5" />
@@ -690,8 +690,8 @@
   </nodegraph>
   <nodegraph name="multiply_matrix44">
     <multiply name="multiply1" type="matrix44">
-      <input name="in1" type="matrix44" value="1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0,  0.0, 0.0, 0.0, 1.0" />
-      <input name="in2" type="matrix44" value="1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0,  0.0, 0.0, 0.0, 1.0" />
+      <input name="in1" type="matrix44" value="0.0, 1.5, 0.0, 0.0,  0.5, 0.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0,  0.0, 0.0, 0.0, 1.0" />
+      <input name="in2" type="matrix44" value="0.0, 1.0, 0.0, 0.0,  1.0, 0.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0,  0.0, 0.0, 0.0, 1.0" />
     </multiply>
     <transformmatrix name="transformmatrix1" type="vector4">
       <input name="in" type="vector4" value="0.5, 0.5, 0.5, 1.0" />
@@ -701,8 +701,8 @@
   </nodegraph>
   <nodegraph name="divide_matrix33">
     <divide name="divide1" type="matrix33">
-      <input name="in1" type="matrix33" value="1.0, 0.0, 0.0,  0.0, 1.0, 0.0,  0.0, 0.0, 1.0" />
-      <input name="in2" type="matrix33" value="1.0, 1.0, 1.0,  1.0, 1.0, 1.0,  1.0, 1.0, 1.0" />
+      <input name="in1" type="matrix33" value="1.5, 1.5, 0.0,  0.0, 1.5, 1.5,  0.0, 0.0, 1.0" />
+      <input name="in2" type="matrix33" value="1.0, 1.0, 0.0,  0.0, 1.0, 1.0,  0.0, 0.0, 1.0" />
     </divide>
     <transformmatrix name="transformmatrix1" type="vector3">
       <input name="in" type="vector3" value="0.5, 0.5, 0.5" />
@@ -712,8 +712,8 @@
   </nodegraph>
   <nodegraph name="divide_matrix44">
     <divide name="divide1" type="matrix44">
-      <input name="in1" type="matrix44" value="1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0,  0.0, 0.0, 0.0, 1.0" />
-      <input name="in2" type="matrix44" value="1.0, 1.0, 1.0, 1.0,  1.0, 1.0, 1.0, 1.0,  1.0, 1.0, 1.0, 1.0,  1.0, 1.0, 1.0, 1.0" />
+      <input name="in1" type="matrix44" value="1.5, 1.5, 0.0, 0.0,  0.0, 1.5, 1.5, 0.0,  0.0, 0.0, 1.5, 1.5,  0.0, 0.0, 0.0, 1.0" />
+      <input name="in2" type="matrix44" value="1.0, 1.0, 0.0, 0.0,  0.0, 1.0, 1.0, 0.0,  0.0, 0.0, 1.0, 1.0,  0.0, 0.0, 0.0, 1.0" />
     </divide>
     <transformmatrix name="transformmatrix1" type="vector4">
       <input name="in" type="vector4" value="0.5, 0.5, 0.5, 1.0" />

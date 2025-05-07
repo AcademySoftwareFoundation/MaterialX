@@ -41,8 +41,8 @@ const string GlslSamplingIncludeFilename = "stdlib/genglsl/lib/mx_sampling.glsl"
 // GlslShaderGenerator methods
 //
 
-GlslShaderGenerator::GlslShaderGenerator() :
-    HwShaderGenerator(GlslSyntax::create())
+GlslShaderGenerator::GlslShaderGenerator(TypeSystemPtr typeSystem) :
+    HwShaderGenerator(typeSystem, GlslSyntax::create(typeSystem))
 {
     //
     // Register all custom node implementation classes
@@ -734,7 +734,7 @@ ShaderNodeImplPtr GlslShaderGenerator::getImplementation(const NodeDef& nodedef,
         throw ExceptionShaderGenError("NodeDef '" + nodedef.getName() + "' has no outputs defined");
     }
 
-    const TypeDesc outputType = TypeDesc::get(outputs[0]->getType());
+    const TypeDesc outputType = context.getTypeDesc(outputs[0]->getType());
 
     if (implElement->isA<NodeGraph>())
     {
@@ -754,8 +754,15 @@ ShaderNodeImplPtr GlslShaderGenerator::getImplementation(const NodeDef& nodedef,
     }
     else if (implElement->isA<Implementation>())
     {
-        // Try creating a new in the factory.
-        impl = _implFactory.create(name);
+        if (getColorManagementSystem() && getColorManagementSystem()->hasImplementation(name))
+        {
+            impl = getColorManagementSystem()->createImplementation(name);
+        }
+        else
+        {
+            // Try creating a new in the factory.
+            impl = _implFactory.create(name);
+        }
         if (!impl)
         {
             // Fall back to source code implementation.

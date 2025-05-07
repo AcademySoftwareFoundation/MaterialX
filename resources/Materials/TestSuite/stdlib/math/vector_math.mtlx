@@ -71,7 +71,7 @@
     <output name="out" type="vector2" nodename="rotate1" />
     <rotate2d name="rotate1" type="vector2">
       <input name="in" type="vector2" nodename="combine1" />
-      <input name="amount" type="float" value="1.5708" unittype="angle" unit="radian" />
+      <input name="amount" type="float" value="2.356" unittype="angle" unit="radian" />
     </rotate2d>
     <separate3 name="separate" type="multioutput">
       <input name="in" type="vector3" nodename="position1" />
@@ -87,7 +87,7 @@
     </position>
     <rotate3d name="rotate1" type="vector3">
       <input name="in" type="vector3" nodename="position1" />
-      <input name="amount" type="float" value="180.0000" unittype="angle" unit="degree" />
+      <input name="amount" type="float" value="135.0000" unittype="angle" unit="degree" />
       <input name="axis" type="vector3" value="0.0, 1.0000, 1.0000" />
     </rotate3d>
     <output name="out" type="vector3" nodename="rotate1" />

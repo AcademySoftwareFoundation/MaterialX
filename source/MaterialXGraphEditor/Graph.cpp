@@ -176,7 +176,7 @@ Graph::Graph(const std::string& materialFilename,
     _renderer->initialize();
     for (const std::string& ext : _renderer->getImageHandler()->supportedExtensions())
     {
-        _imageFilter.push_back("." + ext);
+        _imageFilter.emplace_back("." + ext);
     }
     _renderer->updateMaterials(nullptr);
     for (const std::string& incl : _renderer->getXincludeFiles())
@@ -2072,8 +2072,7 @@ void Graph::buildGroupNode(UiNodePtr node)
     ed::BeginNode(node->getId());
     ImGui::PushID(node->getId());
 
-    std::string original = node->getMessage();
-    std::string temp = original;
+    std::string temp = node->getMessage();
     ImVec2 messageSize = ImGui::CalcTextSize(temp.c_str());
     ImGui::PushItemWidth(messageSize.x + 15);
     ImGui::InputText("##edit", &temp);

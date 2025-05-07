@@ -5,6 +5,7 @@
 
 #include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
+#include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenShader/GenContext.h>
 
 MATERIALX_NAMESPACE_BEGIN
@@ -38,16 +39,9 @@ void ClosureSourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext&
             shadergen.emitLineBegin(stage);
             shadergen.emitString(_functionName + "(", stage);
 
-            // Check if we have a closure context to modify the function call.
-            ClosureContext* cct = context.getClosureContext();
-            if (cct)
+            if (context.getShaderGenerator().nodeNeedsClosureData(node))
             {
-                // Emit extra argument.
-                for (const ClosureContext::Argument& arg : cct->getArguments())
-                {
-                    shadergen.emitString(delim + arg.second, stage);
-                    delim = ", ";
-                }
+                shadergen.emitString(delim + HW::CLOSURE_DATA_ARG + ", ", stage);
             }
 
             // Emit all inputs.

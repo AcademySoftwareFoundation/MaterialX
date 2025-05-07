@@ -150,7 +150,7 @@ class UiNode
   public:
     UiNode();
     UiNode(const std::string& name, int id);
-    ~UiNode(){};
+    ~UiNode() = default;
 
     std::string getName()
     {

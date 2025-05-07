@@ -8,6 +8,10 @@
 
 #include <MaterialXFormat/Util.h>
 
+#ifdef MATERIALX_BUILD_OCIO
+#include <MaterialXGenShader/OcioColorManagementSystem.h>
+#endif
+
 namespace mx = MaterialX;
 
 namespace RenderUtil
@@ -142,7 +146,22 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
 
     createRenderer(log);
 
-    mx::ColorManagementSystemPtr colorManagementSystem = mx::DefaultColorManagementSystem::create(_shaderGenerator->getTarget());
+    mx::ColorManagementSystemPtr colorManagementSystem;
+#ifdef MATERIALX_BUILD_OCIO
+    try
+    {
+        colorManagementSystem =
+            mx::OcioColorManagementSystem::createFromBuiltinConfig(
+                "ocio://studio-config-latest",
+                _shaderGenerator->getTarget());
+    }
+    catch (const std::exception& /*e*/)
+    {
+        colorManagementSystem = mx::DefaultColorManagementSystem::create(_shaderGenerator->getTarget());
+    }
+#else
+    colorManagementSystem = mx::DefaultColorManagementSystem::create(_shaderGenerator->getTarget());
+#endif
     colorManagementSystem->loadLibrary(dependLib);
     _shaderGenerator->setColorManagementSystem(colorManagementSystem);
 
@@ -224,6 +243,10 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
             context.clearNodeImplementations();
 
             doc->setDataLibrary(dependLib);
+
+            // Register types from the document.
+            _shaderGenerator->registerTypeDefs(doc);
+
             ioTimer.endTimer();
 
             validateTimer.startTimer();

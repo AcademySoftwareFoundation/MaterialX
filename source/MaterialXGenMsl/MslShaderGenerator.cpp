@@ -45,8 +45,8 @@ const string MslSamplingIncludeFilename = "stdlib/genmsl/lib/mx_sampling.metal";
 // MslShaderGenerator methods
 //
 
-MslShaderGenerator::MslShaderGenerator() :
-    HwShaderGenerator(MslSyntax::create())
+MslShaderGenerator::MslShaderGenerator(TypeSystemPtr typeSystem) :
+    HwShaderGenerator(typeSystem, MslSyntax::create(typeSystem))
 {
     //
     // Register all custom node implementation classes
@@ -672,6 +672,7 @@ void MslShaderGenerator::emitDirectives(GenContext&, ShaderStage& stage) const
     emitLine("#define bvec2 bool2", stage, false);
     emitLine("#define bvec3 bool3", stage, false);
     emitLine("#define bvec4 bool4", stage, false);
+    emitLine("#define mat2 float2x2", stage, false);
     emitLine("#define mat3 float3x3", stage, false);
     emitLine("#define mat4 float4x4", stage, false);
 
@@ -1248,7 +1249,7 @@ ShaderNodeImplPtr MslShaderGenerator::getImplementation(const NodeDef& nodedef, 
         throw ExceptionShaderGenError("NodeDef '" + nodedef.getName() + "' has no outputs defined");
     }
 
-    const TypeDesc outputType = TypeDesc::get(outputs[0]->getType());
+    const TypeDesc outputType = _typeSystem->getType(outputs[0]->getType());
 
     if (implElement->isA<NodeGraph>())
     {
@@ -1268,8 +1269,15 @@ ShaderNodeImplPtr MslShaderGenerator::getImplementation(const NodeDef& nodedef, 
     }
     else if (implElement->isA<Implementation>())
     {
-        // Try creating a new in the factory.
-        impl = _implFactory.create(name);
+        if (getColorManagementSystem() && getColorManagementSystem()->hasImplementation(name))
+        {
+            impl = getColorManagementSystem()->createImplementation(name);
+        }
+        else
+        {
+            // Try creating a new in the factory.
+            impl = _implFactory.create(name);
+        }
         if (!impl)
         {
             // Fall back to source code implementation.

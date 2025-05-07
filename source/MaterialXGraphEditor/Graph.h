@@ -61,6 +61,7 @@ class Graph
           const mx::FilePathVec& libraryFolders,
           int viewWidth,
           int viewHeight);
+    ~Graph() = default;
 
     mx::DocumentPtr loadDocument(const mx::FilePath& filename);
     void drawGraph(ImVec2 mousePos);
@@ -74,8 +75,6 @@ class Graph
     {
         _fontScale = val;
     }
-
-    ~Graph(){};
 
   private:
     mx::ElementPredicate getElementPredicate() const;

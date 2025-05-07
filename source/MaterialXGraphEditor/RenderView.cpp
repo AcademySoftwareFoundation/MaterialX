@@ -403,15 +403,6 @@ void RenderView::updateMaterials(mx::TypedElementPtr typedElem)
         // Check for any udim set.
         mx::ValuePtr udimSetValue = _document->getGeomPropValue(mx::UDIM_SET_PROPERTY);
 
-        // Skip material nodes without upstream shaders.
-        mx::NodePtr node = typedElem ? typedElem->asA<mx::Node>() : nullptr;
-        if (node &&
-            node->getCategory() == mx::SURFACE_MATERIAL_NODE_STRING &&
-            mx::getShaderNodes(node).empty())
-        {
-            typedElem = nullptr;
-        }
-
         // Create new materials.
         if (!typedElem)
         {
@@ -420,6 +411,15 @@ void RenderView::updateMaterials(mx::TypedElementPtr typedElem)
             {
                 typedElem = elems[0];
             }
+        }
+
+        // Skip material nodes without upstream shaders.
+        mx::NodePtr node = typedElem ? typedElem->asA<mx::Node>() : nullptr;
+        if (node &&
+            node->getCategory() == mx::SURFACE_MATERIAL_NODE_STRING &&
+            mx::getShaderNodes(node).empty())
+        {
+            typedElem = nullptr;
         }
 
         mx::TypedElementPtr udimElement = nullptr;
@@ -610,7 +610,21 @@ void RenderView::initContext(mx::GenContext& context)
     }
 
     // Initialize color management.
-    mx::DefaultColorManagementSystemPtr cms = mx::DefaultColorManagementSystem::create(context.getShaderGenerator().getTarget());
+    mx::DefaultColorManagementSystemPtr cms;
+#ifdef MATERIALX_BUILD_OCIO
+    try
+    {
+        cms = mx::OcioColorManagementSystem::createFromBuiltinConfig(
+            "ocio://studio-config-latest",
+            context.getShaderGenerator().getTarget());
+    }
+    catch (const std::exception& /*e*/)
+    {
+        cms = mx::DefaultColorManagementSystem::create(context.getShaderGenerator().getTarget());
+    }
+#else
+    cms = mx::DefaultColorManagementSystem::create(context.getShaderGenerator().getTarget());
+#endif
     cms->loadLibrary(_document);
     context.getShaderGenerator().setColorManagementSystem(cms);
 
@@ -621,8 +635,8 @@ void RenderView::initContext(mx::GenContext& context)
     context.getShaderGenerator().setUnitSystem(unitSystem);
     context.getOptions().targetDistanceUnit = "meter";
 
-    // Register struct type definitions
-    context.getShaderGenerator().loadStructTypeDefs(_document);
+    // Register type definitions.
+    context.getShaderGenerator().registerTypeDefs(_document);
 }
 
 void RenderView::drawContents()
