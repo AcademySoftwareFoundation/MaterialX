@@ -163,7 +163,7 @@ class ShaderRenderTester
     // If these streams don't exist add them for testing purposes
     void addAdditionalTestStreams(mx::MeshPtr mesh);
 
-    // add any paths to explicitly skip here
+    // Add any paths to explicitly skip here
     virtual void addSkipFiles() {}
 
     // Generator to use
