@@ -20,7 +20,7 @@ The MaterialX codebase requires a compiler with support for C++17, and can be bu
 
 The Python bindings for MaterialX are based on [PyBind11](https://github.com/pybind/pybind11), and support Python versions 3.9 and greater.
 
-macOS requires you to [install Xcode](https://developer.apple.com/xcode/resources/) to get access to the Metal Tools as well as compiler toolchains.
+On macOS, you'll need to [install Xcode](https://developer.apple.com/xcode/resources/), in order to get access to the Metal Tools as well as compiler toolchains.
 
 ## Building MaterialX
 
