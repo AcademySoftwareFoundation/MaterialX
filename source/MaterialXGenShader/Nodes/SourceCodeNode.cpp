@@ -9,6 +9,7 @@
 #include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXFormat/Util.h>
+#include <MaterialXGenShader/HwShaderGenerator.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -107,6 +108,22 @@ void SourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext& contex
     DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
     {
         const ShaderGenerator& shadergen = context.getShaderGenerator();
+
+        const auto& outputs = node.getOutputs();
+        if (outputs.empty())
+        {
+            // this should never happen as we auto populate the default 'out' output based on the
+            // node type if no output is present.
+            throw ExceptionShaderGenError("Node has no outputs defined'");
+        }
+
+        const TypeDesc outputType = outputs[0]->getType();
+        if (outputType.isClosure())
+        {
+            // Emit calls for any closure dependencies upstream from this node.ef
+            shadergen.emitDependentFunctionCalls(node, context, stage, ShaderNode::Classification::CLOSURE);
+        }
+
         if (_inlined)
         {
             // An inline function call
@@ -173,17 +190,22 @@ void SourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext& contex
         else
         {
             // An ordinary source code function call
+            string delim = "";
 
             // Declare the output variables.
             emitOutputVariables(node, context, stage);
 
             shadergen.emitLineBegin(stage);
-            string delim = "";
 
             // Emit function name.
             shadergen.emitString(_functionName + "(", stage);
 
-            // Emit all inputs on the node.
+            if (context.getShaderGenerator().nodeNeedsClosureData(node))
+            {
+                shadergen.emitString(delim + HW::CLOSURE_DATA_ARG + ", ", stage);
+            }
+
+            // Emit all inputs.
             for (ShaderInput* input : node.getInputs())
             {
                 shadergen.emitString(delim, stage);
