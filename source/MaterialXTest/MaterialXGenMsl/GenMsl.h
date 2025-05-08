@@ -43,8 +43,8 @@ class MslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
 
     void addSkipFiles() override
     {
-        _skipFiles.insert("standard_surface_onyx_hextiled.mtlx");
-        _skipFiles.insert("hextiled.mtlx");
+        // To skip specific files for this render target, add them as below:
+        // _skipFiles.insert("example.mtlx");
     }
 
     void setupDependentLibraries() override
