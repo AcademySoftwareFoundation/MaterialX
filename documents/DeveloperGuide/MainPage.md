@@ -62,11 +62,11 @@ Some common Editors are listed here to help developers get started.
 ### CLion
 
 [CLion](https://www.jetbrains.com/clion/) is a cross-platform IDE that can be used to develop MaterialX.
-Additionally, it includes CMake and is free for Non-Commercial Use.
+Additionally, it includes CMake and is free for non-commercial Use.
 
 To get started with CLion, open the MaterialX repository directly, and it will load the CMake project for you.
-If you want to enable features like Python, go to `Settings > Build, Execution and Deployment > CMake` and configure
-the CMake Options, for example
+If you want to enable features like Python, go to `Settings -> Build, Execution and Deployment -> CMake` and configure
+the CMake Options, for example:
 
 ```
 -DMATERIALX_BUILD_PYTHON=ON
@@ -74,8 +74,8 @@ the CMake Options, for example
 -DMATERIALX_BUILD_GRAPH_EDITOR=ON
 ```
 
-To build, either select `Build>Build Project` or select a specific configuration to build.
-To install, select `Build>Install`
+To build, either select `Build -> Build Project` or select a specific configuration to build.
+To install, select `Build -> Install`
 
 ## Installing MaterialX
 
