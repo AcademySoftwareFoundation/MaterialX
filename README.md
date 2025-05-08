@@ -13,16 +13,11 @@ MaterialX is an open standard for representing rich material and look-developmen
 
 ## Quick Start for Developers
 
-If you're using CMake directly, these steps will get you started quickly.
-
-Otherwise, see the [Building Documentation](documents/DeveloperGuide/MainPage.md#building-materialx) for more 
-detailed information on how to build MaterialX.
-
 - Download the latest version of the [CMake](https://cmake.org/) build system.
 - Point CMake to the root of the MaterialX library and generate C++ projects for your platform and compiler.
-- Enable the `MATERIALX_BUILD_PYTHON` option to build Python bindings.
-- Enable the `MATERIALX_BUILD_VIEWER` option to build the [MaterialX Viewer](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/documents/DeveloperGuide/Viewer.md).
-- Enable the `MATERIALX_BUILD_GRAPH_EDITOR` option to build the [MaterialX Graph Editor](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/documents/DeveloperGuide/GraphEditor.md).
+- Select the `MATERIALX_BUILD_PYTHON` option to build Python bindings.
+- Select the `MATERIALX_BUILD_VIEWER` option to build the [MaterialX Viewer](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/documents/DeveloperGuide/Viewer.md).
+- Select the `MATERIALX_BUILD_GRAPH_EDITOR` option to build the [MaterialX Graph Editor](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/documents/DeveloperGuide/GraphEditor.md).
 
 ## Supported Platforms
 
