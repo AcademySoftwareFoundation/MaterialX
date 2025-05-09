@@ -576,6 +576,14 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
             if (nodeInput)
             {
                 ValuePtr value = nodeInput->getResolvedValue();
+                if (!value)
+                {
+                    InputPtr interfaceInput = nodeInput->getInterfaceInput();
+                    if (interfaceInput)
+                    {
+                        value= interfaceInput->getResolvedValue();
+                    }
+                }
                 if (value)
                 {
                     const string& valueString = value->getValueString();

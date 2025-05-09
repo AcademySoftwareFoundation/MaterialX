@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+  <nodegraph name="Parent_Token_Graph">
+    <token name="Image_Name" type="string" value="cloth" uiname="Image Name" />
+    <token name="Image_Extension" type="string" value="png" uiname="Image Extension" />
+    <input name="Image_Filename" type="filename" uniform="true" value="resources/Images/[Image_Name].[Image_Extension]" />
+    <tiledimage name="tiledimage" type="color3" nodedef="ND_tiledimage_color3">
+      <input name="file" type="filename" uniform="true" interfacename="Image_Filename" />
+    </tiledimage>
+    <output name="out" type="color3" nodename="tiledimage" />
+  </nodegraph>
+  <nodegraph name="Sibling_Token">
+    <tiledimage name="tiledimage" type="color3" nodedef="ND_tiledimage_color3">
+      <token name="Image_Name" type="string" value="wood_color" uiname="Image Resolution" />
+      <token name="Image_Extension" type="string" value="jpg" uiname="Image Extension" />
+      <input name="file" type="filename" uniform="true" value="resources/images/[Image_Name].[Image_Extension]" />
+    </tiledimage>
+    <output name="out" type="color3" nodename="tiledimage" />
+  </nodegraph>
+  <token name="Brass_Image_Extension" type="string" value="jpg" uiname="Image Extension" />
+  <nodegraph name="Tokenized_Image_top_level">
+    <tiledimage name="tiledimage" type="color3" nodedef="ND_tiledimage_color3">
+      <token name="Brass_Image_Extension" type="string" value="png" uiname="Image Extension" />
+      <input name="file" type="filename" uniform="true" value="resources/Images/brass_color.[Brass_Image_Extension]" />
+    </tiledimage>
+    <output name="out" type="color3" nodename="tiledimage" />
+  </nodegraph>
+  <nodedef name="ND_token" node="token_image">
+    <token name="Image_Name" type="string" value="grid" uiname="Image Name" />
+    <token name="Image_Extension" type="string" value="png" uiname="Image Extension" />
+    <output name="out" type="color3" />
+  </nodedef>
+  <nodegraph name="NG_token" nodedef="ND_token">
+    <tiledimage name="tiledimage" type="color3" nodedef="ND_tiledimage_color3">
+      <input name="file" type="filename" uniform="true" value="resources/Images/[Image_Name].[Image_Extension]" />
+    </tiledimage>
+    <output name="out" type="color3" nodename="tiledimage" />
+  </nodegraph>
+  <nodegraph name="token_nodedef_graph">
+    <token_image name="token_image1" type="color3" />
+    <output name="out" type="color3" nodename="token_image1" />
+  </nodegraph>
+  <surface_unlit name="Parent_Token_Shader" type="surfaceshader">
+    <input name="emission_color" type="color3" output="out" nodegraph="Parent_Token_Graph" />
+  </surface_unlit>
+  <surface_unlit name="Token_Nodedef_Shader" type="surfaceshader">
+    <input name="emission_color" type="color3" output="out" nodegraph="token_nodedef_graph" />
+  </surface_unlit>
+  <surface_unlit name="TopLevel_Token_Shader" type="surfaceshader">
+    <input name="emission_color" type="color3" output="out" nodegraph="Tokenized_Image_top_level" />
+  </surface_unlit>
+  <surface_unlit name="Token_Silbing_Shader" type="surfaceshader">
+    <input name="emission_color" type="color3" output="out" nodegraph="Sibling_Token" />
+  </surface_unlit>
+  <surfacematerial name="Token_Silbing_Material" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="Token_Silbing_Shader" />
+  </surfacematerial>
+  <surfacematerial name="Token_Nodedef_Material" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="Token_Nodedef_Shader" />
+  </surfacematerial>
+  <surfacematerial name="TopLevel_Token_Material" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="TopLevel_Token_Shader" />
+  </surfacematerial>
+  <surfacematerial name="Parent_Token_Material" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="Parent_Token_Shader" />
+  </surfacematerial>
+</materialx>
