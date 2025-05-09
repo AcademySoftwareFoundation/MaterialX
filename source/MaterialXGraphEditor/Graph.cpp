@@ -3140,13 +3140,39 @@ void Graph::graphButtons()
             ImGui::EndMenu();
         }
 
+        ImVec4 color = ed::GetStyle().Colors[ed::StyleColor_Bg];
+        bool openColorPicker = false;
         if (ImGui::BeginMenu("Graph"))
         {
+            // Auto layout option
             if (ImGui::MenuItem("Auto Layout"))
             {
                 _autoLayout = true;
             }
+
+            // Background color option
+            ImGui::Text("Background");
+            ImGui::SameLine();
+            float swatchWidth = ImGui::GetContentRegionAvail().x;
+            if (ImGui::ColorButton("##ColorSwatch", color, ImGuiColorEditFlags_NoTooltip, ImVec2(swatchWidth, 0)))
+            {
+                openColorPicker = true; 
+            }
+
             ImGui::EndMenu();
+        }
+
+        // Graph color picker          
+        if (openColorPicker)
+        {
+            ImGui::OpenPopup("Graph Background Color");
+            openColorPicker = false;
+        }
+        if (ImGui::BeginPopup("Graph Background Color"))
+        {
+            ImGui::ColorPicker3("Pick Color", (float*)&color);
+            ed::PushStyleColor(ed::StyleColor_Bg, color);
+            ImGui::EndPopup();
         }
 
         if (ImGui::BeginMenu("Viewer"))
