@@ -25,14 +25,15 @@ namespace
 
     const std::string options =
         " Options: \n"
+        "    --captureFilename [FILENAME]   Specify the filename to which the first rendered frame should be written\n"
+        "    --font [FILENAME]              Specify the name of the custom font file to use.  If not specified the default font will be used.\n"
+        "    --fontSize [SIZE]              Specify font size to use for the custom font.  If not specified a default of 18 will be used.\n"
+        "    --graphBackground [R,G,B]      Specify the RGB background color with each R, G, B channel in the range 0..1. If not specified a value of 0.2,0.2,0.2 is used.\n"
+        "    --library [FILEPATH]           Specify an additional data library folder (e.g. 'vendorlib', 'studiolib').  This relative path will be appended to each location in the data search path when loading data libraries.\n"
         "    --material [FILENAME]          Specify the filename of the MTLX document to be displayed in the graph editor\n"
         "    --mesh [FILENAME]              Specify the filename of the OBJ or glTF mesh to be displayed in the graph editor\n"
         "    --path [FILEPATH]              Specify an additional data search path location (e.g. '/projects/MaterialX').  This absolute path will be queried when locating data libraries, XInclude references, and referenced images.\n"
-        "    --library [FILEPATH]           Specify an additional data library folder (e.g. 'vendorlib', 'studiolib').  This relative path will be appended to each location in the data search path when loading data libraries.\n"
         "    --uiScale [FACTOR]             Manually specify a UI scaling factor\n"
-        "    --font [FILENAME]              Specify the name of the custom font file to use.  If not specified the default font will be used.\n"
-        "    --fontSize [SIZE]              Specify font size to use for the custom font.  If not specified a default of 18 will be used.\n"
-        "    --captureFilename [FILENAME]   Specify the filename to which the first rendered frame should be written\n"
         "    --help                         Display the complete list of command-line options\n";
 
     template <class T> void parseToken(std::string token, std::string type, T& res)
