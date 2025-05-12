@@ -777,3 +777,41 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
     
     REQUIRE(doc->validate());
 }
+
+TEST_CASE("Input Ordering", "[nodegraph]")
+{
+    mx::DocumentPtr doc = mx::createDocument();
+    mx::NodeGraphPtr graph = doc->addNodeGraph("graph1");
+    mx::StringVec childNames = { "one", "node_0", "two", "node_1", "three", "node_3", "four" };
+    for (const std::string& childName : childNames)
+    {
+        if (childName.rfind("node", 0) == 0)
+            graph->addNode("constant", childName);
+        else
+            graph->addInput(childName, "color3");
+    }
+
+    mx::StringVec incorrectInputOrdering = { "two2", "one", "four", "three" };
+    bool haveIncorrectNames = true;
+    try
+    {
+        graph->setInputOrdering(incorrectInputOrdering);
+        haveIncorrectNames = false;
+    }
+    catch (mx::Exception& e)
+    {
+        INFO(e.what())
+    }
+    REQUIRE(haveIncorrectNames);
+
+    mx::StringVec desiredInputOrdering = { "two", "one", "four", "three" };
+    graph->setInputOrdering(desiredInputOrdering);
+
+    mx::StringVec desiredChildOrdering = { "two", "node_0", "one", "node_1", "four", "node_3", "three" };
+    mx::StringVec resultingChildOrdering;
+    for (auto child : graph->getChildren())
+    {
+        resultingChildOrdering.push_back(child->getName());
+    }
+    REQUIRE((resultingChildOrdering == desiredChildOrdering));
+}
