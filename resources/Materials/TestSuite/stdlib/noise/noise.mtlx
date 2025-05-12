@@ -57,6 +57,28 @@
   <output name="out_noise3d_vector3" type="vector3" nodename="noise3d_vector3" />
   <output name="out_noise3d_vector4" type="vector4" nodename="noise3d_vector4" />
 
+  <!-- 2D Fractal noise -->
+  <fractal2d name="fractal2d_float" type="float">
+    <input name="amplitude" type="float" value="4.0" />
+    <input name="texcoord" type="vector2" nodename="scaled_texcoord" />
+  </fractal2d>
+  <fractal2d name="fractal2d_vector2" type="vector2">
+    <input name="amplitude" type="vector2" value="4.0, 4.0" />
+    <input name="texcoord" type="vector2" nodename="scaled_texcoord" />
+  </fractal2d>
+  <fractal2d name="fractal2d_vector3" type="vector3">
+    <input name="amplitude" type="vector3" value="4.0, 4.0, 4.0" />
+    <input name="texcoord" type="vector2" nodename="scaled_texcoord" />
+  </fractal2d>
+  <fractal2d name="fractal2d_vector4" type="vector4">
+    <input name="amplitude" type="vector4" value="4.0, 4.0, 4.0, 4.0" />
+    <input name="texcoord" type="vector2" nodename="scaled_texcoord" />
+  </fractal2d>
+  <output name="out_fractal2d_float" type="float" nodename="fractal2d_float" />
+  <output name="out_fractal2d_vector2" type="vector2" nodename="fractal2d_vector2" />
+  <output name="out_fractal2d_vector3" type="vector3" nodename="fractal2d_vector3" />
+  <output name="out_fractal2d_vector4" type="vector4" nodename="fractal2d_vector4" />
+
   <!-- 3D Fractal noise -->
   <fractal3d name="fractal3d_float" type="float">
     <input name="amplitude" type="float" value="4.0" />
