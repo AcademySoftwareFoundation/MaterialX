@@ -12,14 +12,18 @@ namespace mx = MaterialX;
 
 void bindPyImage(py::module& mod)
 {
-    py::enum_<mx::Image::BaseType>(mod, "BaseType")
-        .value("UINT8", mx::Image::BaseType::UINT8)
-        .value("UINT16", mx::Image::BaseType::UINT16)
-        .value("HALF", mx::Image::BaseType::HALF)
-        .value("FLOAT", mx::Image::BaseType::FLOAT)
+    py::enum_<mx::Image::BaseType>(mod, "BaseType",
+                                   "Enumeration of `Image` base types.\n\n"
+                                   ":see: https://materialx.org/docs/api/class_image.html#pub-types")
+        .value("UINT8", mx::Image::BaseType::UINT8, "8-bit unsigned integer number.")
+        .value("UINT16", mx::Image::BaseType::UINT16, "16-bit unsigned integer number.")
+        .value("HALF", mx::Image::BaseType::HALF, "Half-precision floating-point number.")
+        .value("FLOAT", mx::Image::BaseType::FLOAT, "Full-precision floating-point number.")
         .export_values();
 
     py::class_<mx::ImageBufferDeallocator>(mod, "ImageBufferDeallocator");
+    mod.attr("ImageBufferDeallocator").doc() = R"docstring(
+    A function to perform image buffer deallocation.)docstring";
 
     py::class_<mx::Image, mx::ImagePtr>(mod, "Image")
         .def_static("create", &mx::Image::create)
@@ -46,8 +50,12 @@ void bindPyImage(py::module& mod)
         .def("releaseResourceBuffer", &mx::Image::releaseResourceBuffer)
         .def("setResourceBufferDeallocator", &mx::Image::setResourceBufferDeallocator)
         .def("getResourceBufferDeallocator", &mx::Image::getResourceBufferDeallocator);
+    mod.attr("Image").doc() = R"docstring(
+    Class representing an image in system memory.
 
-        mod.def("createUniformImage", &mx::createUniformImage);
-        mod.def("createImageStrip", &mx::createImageStrip);
-        mod.def("getMaxDimensions", &mx::getMaxDimensions);
+    :see: https://materialx.org/docs/api/class_image.html)docstring";
+
+    mod.def("createUniformImage", &mx::createUniformImage);
+    mod.def("createImageStrip", &mx::createImageStrip);
+    mod.def("getMaxDimensions", &mx::getMaxDimensions);
 }
