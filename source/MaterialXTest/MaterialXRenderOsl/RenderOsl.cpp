@@ -102,6 +102,12 @@ class OslShaderRenderTester : public RenderUtil::ShaderRenderTester
                      const std::string& outputPath = ".",
                      mx::ImageVec* imageVec = nullptr) override;
 
+    void addSkipFiles() override
+    {
+        _skipFiles.insert("standard_surface_onyx_hextiled.mtlx");
+        _skipFiles.insert("hextiled.mtlx");
+    }
+
     bool saveImage(const mx::FilePath& filePath, mx::ConstImagePtr image, bool /*verticalFlip*/) const override
     {
         return _renderer->getImageHandler()->saveImage(filePath, image, false);

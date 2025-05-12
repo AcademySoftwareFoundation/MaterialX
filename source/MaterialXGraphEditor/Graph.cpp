@@ -176,7 +176,7 @@ Graph::Graph(const std::string& materialFilename,
     _renderer->initialize();
     for (const std::string& ext : _renderer->getImageHandler()->supportedExtensions())
     {
-        _imageFilter.push_back("." + ext);
+        _imageFilter.emplace_back("." + ext);
     }
     _renderer->updateMaterials(nullptr);
     for (const std::string& incl : _renderer->getXincludeFiles())

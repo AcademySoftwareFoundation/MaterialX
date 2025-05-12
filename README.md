@@ -79,7 +79,7 @@ The following packages contain pre-built binaries for the latest release, includ
 
 ## Additional Resources
 
-- The [Developer Guide](http://www.materialx.org/docs/api/index.html) contains a developer-oriented overview of MaterialX with API documentation.
+- The [Developer Guide](http://www.materialx.org/docs/api/index.html) contains a developer-oriented overview of MaterialX with Build and API documentation.
 - The [Python Scripts](python/Scripts) folder contains standalone examples of MaterialX Python code.
 - The [JavaScript](javascript) folder contains details on building JavaScript bindings for MaterialX.
 - Presentations at [ASWF Open Source Days](https://materialx.org/assets/ASWF_OSD2024_MaterialX_Final.pdf) and the [SIGGRAPH Physically Based Shading Course](https://blog.selfshadow.com/publications/s2020-shading-course/#materialx) provide details on the roadmap for MaterialX development.
