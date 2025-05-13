@@ -2414,19 +2414,58 @@ float3 mx_gradient_blend_3_normals(
 }
 
 export float3 mx_hextilednormalmap_vector3(
-	uniform texture_2d mxp_file,
-	float3 mxp_default,
-	float2 mxp_coord,
-	float2 mxp_tiling,
-	float mxp_rotation,
-	float2 mxp_rotation_range,
-	float mxp_scale,
-	float2 mxp_scale_range,
-	float mxp_offset,
-	float2 mxp_offset_range,
-	float mxp_falloff,
-	float mxp_strength,
-	bool mxp_flip_g,
+	uniform texture_2d mxp_file
+	[[
+		anno::display_name("File")
+	]],
+	float3 mxp_default
+	[[
+		anno::display_name("Default")
+	]],
+	float2 mxp_coord
+	[[
+		anno::display_name("Coord")
+	]],
+	float2 mxp_tiling
+	[[
+		anno::display_name("Tiling")
+	]],
+	float mxp_rotation
+	[[
+		anno::display_name("Rotation")
+	]],
+	float2 mxp_rotation_range
+	[[
+		anno::display_name("Rotation Range")
+	]],
+	float mxp_scale
+	[[
+		anno::display_name("Scale")
+	]],
+	float2 mxp_scale_range
+	[[
+		anno::display_name("Scale Range")
+	]],
+	float mxp_offset
+	[[
+		anno::display_name("Offset")
+	]],
+	float2 mxp_offset_range
+	[[
+		anno::display_name("Offset Range")
+	]],
+	float mxp_falloff
+	[[
+		anno::display_name("Falloff")
+	]],
+	float mxp_strength
+	[[
+		anno::display_name("Strength")
+	]],
+	bool mxp_flip_g
+	[[
+		anno::display_name("Flip G")
+	]],
 	float3 mxp_normal,
 	float3 mxp_tangent,
 	float3 mxp_bitangent
