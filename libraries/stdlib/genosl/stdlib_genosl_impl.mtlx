@@ -12,7 +12,7 @@
   <!-- ======================================================================== -->
 
   <!-- <surfacematerial> -->
-  <implementation name="IM_surfacematerial_genosl" nodedef="ND_surfacematerial" target="genosl" />
+  <implementation name="IM_surfacematerial_genosl" nodedef="ND_surfacematerial" file="mx_surfacematerial.osl" function="mx_surfacematerial" target="genosl" />
 
   <!-- <surface_unlit> -->
   <implementation name="IM_surface_unlit_genosl" nodedef="ND_surface_unlit" file="mx_surface_unlit.osl" function="mx_surface_unlit" target="genosl" />
