@@ -20,6 +20,26 @@ const string Backdrop::HEIGHT_ATTRIBUTE = "height";
 // Node methods
 //
 
+void Node::setName(const std::string& name, bool updateReferences)
+{
+    if (!updateReferences)
+    {
+        Element::setName(name);
+        return;
+    }
+    if (name.empty() || getName() == name)
+    {
+        return;
+    }
+    std::string validName = getParent()->createValidChildName(name);
+    vector<PortElementPtr> downStreamPorts = getDownstreamPorts();
+    for (PortElementPtr& port : downStreamPorts)
+    {
+        port->setNodeName(validName);
+    }
+    setName(validName);
+}
+
 void Node::setConnectedNode(const string& inputName, ConstNodePtr node)
 {
     InputPtr input = getInput(inputName);
@@ -559,6 +579,26 @@ string GraphElement::asStringDot() const
 //
 // NodeGraph methods
 //
+
+void NodeGraph::setName(const std::string& name, bool updateReferences)
+{
+    if (!updateReferences)
+    {
+        Element::setName(name);
+        return;
+    }
+    if (name.empty() || getName() == name)
+    {
+        return;
+    }
+    std::string validName = getParent()->createValidChildName(name);
+    vector<PortElementPtr> downStreamPorts = getDownstreamPorts();
+    for (PortElementPtr& port : downStreamPorts)
+    {
+        port->setNodeGraphString(validName);
+    }
+    setName(validName);
+}
 
 vector<OutputPtr> NodeGraph::getMaterialOutputs() const
 {
