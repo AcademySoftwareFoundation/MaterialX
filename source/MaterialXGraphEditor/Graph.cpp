@@ -914,23 +914,14 @@ void Graph::updateMaterials(mx::InputPtr input /* = nullptr */, mx::ValuePtr val
 
 // Set the node to display in render view based on selected node or nodegraph
 template <typename T>
-T Graph::renderEnumInput(mx::InputPtr& input)
+bool Graph::renderEnumInput(mx::InputPtr& input, T &temp)
 {
+    
+  // Eg. <input name="subsurface_color" type="color3" value="0.2,0.6,0.05" 
+  //    enum="PRESET1,PRESET2,PRESET3,PRESET4" enumvalues="0.2,0.6,0.05, 0.2,0.7,0.07, 0.2,0.6,0.05, 0.2,0.6,0.05" />
   std::string enumStr = input->getAttribute(mx::Input::ENUM_ATTRIBUTE);
-
-  // TODO: Avoid static variable
-  static int item_current = 0;
-  //using T = int;
-  T prev, temp;
-  mx::ValuePtr val = input->getValue();
-  prev = temp = val->asA<T>();
-
-  if (enumStr.empty())
-    return T(temp);
-
-  //Expected format for ImGui::Combo "aaaa\0bbbb\0cccc\0dddd\0eeee\0\0"
-  std::replace(enumStr.begin(), enumStr.end(), ',', '\0');
-  enumStr += '\0';
+  std::string enumValueStr = input->getAttribute(mx::Input::ENUM_VALUES_ATTRIBUTE);
+  const size_t INVALID_INDEX = std::numeric_limits<size_t>::max();
 
   auto splitString = [](std::string itemValues, std::string delimiter=",") { 
     std::vector<std::string> enumValues;
@@ -944,57 +935,94 @@ T Graph::renderEnumInput(mx::InputPtr& input)
     enumValues.push_back(itemValues);
 
     return enumValues;
+  };
 
-    // std::stringstream ss(itemValues);
-    // std::string item;
-    //while (std::getline(ss, item, delimiter[0]))
-    //    enumValues.push_back(item);
-    //return enumValues;
-    };
+  size_t index = INVALID_INDEX;
+  mx::ValuePtr val = input->getValue();
+  temp = val->asA<T>();
 
+  if (enumStr.empty() || enumValueStr.empty())
+  {
+    //std::cerr << "Enum string or enum values are empty" << std::endl;}
+    return false;
+  }
+  
+  std::string enumDelimiter = ",";
+  std::string enumValueDelimiter = ", ";
+
+  // enumValues result in eg. ["0.2,0.6,0.05", "0.2,0.7,0.07", "0.2,0.6,0.05", "0.2,0.6,0.05"]
+  std::vector<std::string> enumValues = splitString(enumValueStr, enumValueDelimiter);
+  // enumStr result in eg. ["PRESET1", "PRESET2", "PRESET3", "PRESET4"]
+  std::vector<std::string> enumVec = splitString(enumStr, enumDelimiter);
+
+  if ( enumVec.size() != enumValues.size())
+  {
+    //std::cerr << "Enum values and enum strings do not match" << std::endl;
+    return false;
+  }
+
+  //Expected format for ImGui::Combo "PRESET1\0PRESET2\0PRESET3\0PRESET4\0\0"
+  std::replace(enumStr.begin(), enumStr.end(), enumDelimiter[0], '\0');
+  enumStr += '\0';
+  
+  auto it = std::find(enumValues.begin(), enumValues.end(), val->getValueString());
+  if (it != enumValues.end())
+  {
+    index = std::distance(enumValues.begin(), it);
+  }
+
+  if (index == INVALID_INDEX)
+  {
+    //std::cerr << "value not found in enum values" << std::endl;
+    return false;
+  }
+
+  //std::cout << "index: " << index << std::endl;
+  //std::cout << "value_current: " << val->getValueString() << std::endl;
+
+  int item_current = index;
   if (ImGui::Combo("", &item_current, enumStr.data(), 3)) {
-      //comma separated values to vector
-      // enumValues result in eg. ["0.2,0.6,0.05", "0.2,0.7,0.07", "0.2,0.6,0.05", "0.2,0.6,0.05"]
-      std::vector<std::string> enumValues = splitString(input->getAttribute(mx::Input::ENUM_VALUES_ATTRIBUTE), ", ");
       
       if (item_current < enumValues.size())
       {
         std::string enumVal = enumValues[item_current];
         std::vector<std::string> strVec;
-        {
-            if constexpr (std::is_same_v<T, std::string>)
-                temp = enumVal;
-            if constexpr (std::is_same_v<T, bool>)
-                temp = enumVal=="true";
-            else if constexpr (std::is_same_v<T, int>)
-                temp = std::stoi(enumVal);
-            else if constexpr (std::is_same_v<T, float>)
-                temp = std::stod(enumVal);
-            else if constexpr (std::is_same_v<T, double>)
-                temp = std::stod(enumVal);
-            else {
-                //eg. enumVal = "0.2,0.6,0.05" is split to produce strVec = ["0.2", "0.6", "0.05"]
-                strVec = splitString(enumVal, ",");
-                std::vector<float> v;
-                std::transform(strVec.begin(), strVec.end(), std::back_inserter(v), [](const std::string& s) { return std::stod(s); }); 
+        if constexpr (std::is_same_v<T, std::string>)
+            temp = enumVal;
+        if constexpr (std::is_same_v<T, bool>)
+            temp = enumVal=="true";
+        else if constexpr (std::is_same_v<T, int>)
+            temp = std::stoi(enumVal);
+        else if constexpr (std::is_same_v<T, float>)
+            temp = std::stof(enumVal);
+        else if constexpr (std::is_same_v<T, double>)
+            temp = std::stod(enumVal);
+        else {
+            //eg. enumVal = "0.2,0.6,0.05" is split to produce strVec = ["0.2", "0.6", "0.05"]
+            strVec = splitString(enumVal, ",");
+            std::vector<float> v;
+            std::transform(strVec.begin(), strVec.end(), std::back_inserter(v), [](const std::string& s) { return std::stof(s); }); 
 
-                if constexpr (
-                    std::is_same_v<T, mx::Color3> || std::is_same_v<T, mx::Color4>
-                    || std::is_same_v<T, mx::Vector2> || std::is_same_v<T, mx::Vector3> || std::is_same_v<T, mx::Vector4>
-                    || std::is_same_v<T, mx::Matrix33> || std::is_same_v<T, mx::Matrix44>) {
+            if constexpr (
+                std::is_same_v<T, mx::Color3> || std::is_same_v<T, mx::Color4>
+                || std::is_same_v<T, mx::Vector2> || std::is_same_v<T, mx::Vector3> || std::is_same_v<T, mx::Vector4>
+                || std::is_same_v<T, mx::Matrix33> || std::is_same_v<T, mx::Matrix44>) {
 
-                    temp = T(&v.front(), &v.back());
-                }
-                    
+                temp = T(&v.front(), &v.back());
             }
-        }        
-      }  
-    //   std::cout << "item_current: " << item_current << std::endl;
+                
+        }
+      }
+      else {
+        //std::cerr << "index out of range" << std::endl;
+        return false;
+      }
+    //   std::cout << "item_current: " << index << std::endl;
     //   std::cout << "TEMP: " << temp << std::endl;
-    //   std::cout << "PREV: " << prev << std::endl;            
+    //   std::cout << "PREV: " << prev << std::endl;
   }
 
-  return T(temp);
+  return true;
 }
 
 void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIProperties& uiProperties)
@@ -1013,12 +1041,8 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         {
             float prev, temp;
             prev = temp = val->asA<float>();
-            if (!input->getAttribute(mx::Input::ENUM_ATTRIBUTE).empty())
+            if (!renderEnumInput<float>(input , temp))
             {
-                // If the input has enums, use a combo box.
-                temp = renderEnumInput<float>(input);
-            }
-            else {
                 // Update the value to the default for new nodes
                 float min = minVal ? minVal->asA<float>() : 0.f;
                 float max = maxVal ? maxVal->asA<float>() : 100.f;
@@ -1042,12 +1066,7 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         {
             int prev, temp;
             prev = temp = val->asA<int>();
-            if (!input->getAttribute(mx::Input::ENUM_ATTRIBUTE).empty())
-            {
-                // If the input has enums, use a combo box.
-                temp = renderEnumInput<int>(input);
-            }
-            else
+            if (!renderEnumInput<int>(input , temp))
             {
                 // Otherwise use a slider
                 int min = minVal ? minVal->asA<int>() : 0;
@@ -1073,12 +1092,7 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
             mx::Color3 prev, temp;
             prev = temp = val->asA<mx::Color3>();
 
-            if (!input->getAttribute(mx::Input::ENUM_ATTRIBUTE).empty())
-            {
-                // If the input has enums, use a combo box.
-                temp = renderEnumInput<mx::Color3>(input);
-            }
-            else
+            if (!renderEnumInput<mx::Color3>(input , temp))
             {
                 float min = minVal ? minVal->asA<mx::Color3>()[0] : 0.f;
                 float max = maxVal ? maxVal->asA<mx::Color3>()[0] : 100.f;
@@ -1108,12 +1122,7 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
             mx::Color4 prev, temp;
             prev = temp = val->asA<mx::Color4>();
 
-            if (!input->getAttribute(mx::Input::ENUM_ATTRIBUTE).empty())
-            {
-                // If the input has enums, use a combo box.
-                temp = renderEnumInput<mx::Color4>(input);
-            }
-            else
+            if (!renderEnumInput<mx::Color4>(input , temp))
             {
                 float min = minVal ? minVal->asA<mx::Color4>()[0] : 0.f;
                 float max = maxVal ? maxVal->asA<mx::Color4>()[0] : 100.f;
@@ -1144,12 +1153,7 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
             mx::Vector2 prev, temp;
             prev = temp = val->asA<mx::Vector2>();
 
-            if (!input->getAttribute(mx::Input::ENUM_ATTRIBUTE).empty())
-            {
-                // If the input has enums, use a combo box.
-                temp = renderEnumInput<mx::Vector2>(input);
-            }
-            else
+            if (!renderEnumInput<mx::Vector2>(input, temp))
             {
                 float min = minVal ? minVal->asA<mx::Vector2>()[0] : 0.f;
                 float max = maxVal ? maxVal->asA<mx::Vector2>()[0] : 100.f;
@@ -1174,12 +1178,7 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
             mx::Vector3 prev, temp;
             prev = temp = val->asA<mx::Vector3>();
 
-            if (!input->getAttribute(mx::Input::ENUM_ATTRIBUTE).empty())
-            {
-                // If the input has enums, use a combo box.
-                temp = renderEnumInput<mx::Vector3>(input);
-            }
-            else
+            if (!renderEnumInput<mx::Vector3>(input, temp))
             {
                 float min = minVal ? minVal->asA<mx::Vector3>()[0] : 0.f;
                 float max = maxVal ? maxVal->asA<mx::Vector3>()[0] : 100.f;
@@ -1204,12 +1203,7 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
             mx::Vector4 prev, temp;
             prev = temp = val->asA<mx::Vector4>();
 
-            if (!input->getAttribute(mx::Input::ENUM_ATTRIBUTE).empty())
-            {
-                // If the input has enums, use a combo box.
-                temp = renderEnumInput<mx::Vector4>(input);
-            }
-            else
+            if (!renderEnumInput<mx::Vector4>(input, temp))
             {
                 float min = minVal ? minVal->asA<mx::Vector4>()[0] : 0.f;
                 float max = maxVal ? maxVal->asA<mx::Vector4>()[0] : 100.f;
@@ -1234,12 +1228,7 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
             std::string prev, temp;
             prev = temp = val->asA<std::string>();
 
-            if (!input->getAttribute(mx::Input::ENUM_ATTRIBUTE).empty())
-            {
-                // If the input has enums, use a combo box.
-                temp = renderEnumInput<std::string>(input);
-            }
-            else
+            if (!renderEnumInput<std::string>(input, temp))
             {
                 ImGui::InputText("##constant", &temp);
             }
@@ -1311,12 +1300,7 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
             bool prev, temp;
             prev = temp = val->asA<bool>();
 
-            if (!input->getAttribute(mx::Input::ENUM_ATTRIBUTE).empty())
-            {
-                // If the input has enums, use a combo box.
-                temp = renderEnumInput<bool>(input);
-            }
-            else
+            if (!renderEnumInput<bool>(input, temp))
             {
                 ImGui::Checkbox("", &temp);
             }
