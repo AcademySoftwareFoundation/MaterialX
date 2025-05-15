@@ -199,6 +199,16 @@ bool Node::validate(string* message) const
         string matchMessage;
         bool exactMatch = hasExactInputMatch(nodeDef, &matchMessage);
         validateRequire(exactMatch, res, message, "Node interface error: " + matchMessage);
+
+        vector<OutputPtr> nodeDefOutputs = nodeDef->getOutputs();
+        if(nodeDefOutputs.size() == 1)
+        {
+            validateRequire(getType() == nodeDefOutputs[0]->getType(), res, message, "The attribute type must match the type of the output of the node definition");
+        }
+        else if(nodeDefOutputs.size() > 1)
+        {
+            validateRequire(getType() == "multioutput", res, message, "The attribute type must be multioutput to match the implementation");
+        }
     }
     else
     {
