@@ -288,19 +288,20 @@ void Graph::addExtraNodes()
     }
 
     // Add input and output nodes for all types
+    const std::set<std::string> inputTypes;
     for (const std::string& type : types)
     {
         std::string nodeName = "ND_input_" + type;
-        _nodesToAdd.emplace_back(nodeName, type, "input", "Input Nodes");
+        _nodesToAdd.emplace_back(nodeName, type, "input", "Input Nodes", inputTypes);
         nodeName = "ND_output_" + type;
-        _nodesToAdd.emplace_back(nodeName, type, "output", "Output Nodes");
+        _nodesToAdd.emplace_back(nodeName, type, "output", "Output Nodes", inputTypes);
     }
 
     // Add group node
-    _nodesToAdd.emplace_back("ND_group", "", "group", "Group Nodes");
+    _nodesToAdd.emplace_back("ND_group", "", "group", "Group Nodes", inputTypes);
 
     // Add nodegraph node
-    _nodesToAdd.emplace_back("ND_nodegraph", "", "nodegraph", "Node Graph");
+    _nodesToAdd.emplace_back("ND_nodegraph", "", "nodegraph", "Node Graph", inputTypes);
 }
 
 ed::PinId Graph::getOutputPin(UiNodePtr node, UiNodePtr upNode, UiPinPtr input)
@@ -1293,7 +1294,12 @@ void Graph::createNodeUIList(mx::DocumentPtr doc)
 
             for (const auto& nodeDef : groupNodeDefs)
             {
-                _nodesToAdd.emplace_back(nodeDef->getName(), nodeDef->getType(), nodeDef->getNodeString(), group);
+                std::set<std::string> inputTypes;
+                for (const auto& input : nodeDef->getActiveInputs())
+                {
+                    inputTypes.insert(input->getType());
+                }
+                _nodesToAdd.emplace_back(nodeDef->getName(), nodeDef->getType(), nodeDef->getNodeString(), group, inputTypes);
             }
         }
     }
@@ -3704,10 +3710,10 @@ void Graph::addNodePopup(bool cursor)
         // Filter nodedefs and add to menu if matches filter
         for (auto node : _nodesToAdd)
         {
-            // Filter out nodes that do not match the _menuFilterType
+            // Filter out nodes that has no inputs of the type matching to the _menuFilterType
             if (_menuFilterType != mx::EMPTY_STRING)
             {
-                if (node.getType() != _menuFilterType)
+                if (node.getInputTypes().count(_menuFilterType)==0)
                 {
                     continue;
                 }

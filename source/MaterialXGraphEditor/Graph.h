@@ -20,26 +20,29 @@ namespace mx = MaterialX;
 class MenuItem
 {
   public:
-    MenuItem(const std::string& name, const std::string& type, const std::string& category, const std::string& group) :
-        name(name), type(type), category(category), group(group) { }
+    MenuItem(const std::string& name, const std::string& type, const std::string& category, const std::string& group, const std::set<std::string>& inputTypes) :
+        name(name), type(type), category(category), group(group), inputTypes(inputTypes) { }
 
     // getters
     std::string getName() const { return name; }
     std::string getType() const { return type; }
     std::string getCategory() const { return category; }
     std::string getGroup() const { return group; }
+    const std::set<std::string>& getInputTypes() const { return inputTypes; }
 
     // setters
     void setName(const std::string& newName) { this->name = newName; }
     void setType(const std::string& newType) { this->type = newType; }
     void setCategory(const std::string& newCategory) { this->category = newCategory; }
     void setGroup(const std::string& newGroup) { this->group = newGroup; }
+    void setInputTypes(const std::set<std::string>& newInputTypes) { this->inputTypes = newInputTypes; }
 
   private:
     std::string name;
     std::string type;
     std::string category;
     std::string group;
+    std::set<std::string> inputTypes;
 };
 
 // A link connects two pins and includes a unique id and the ids of the two pins it connects
