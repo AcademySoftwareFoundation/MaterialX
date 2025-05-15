@@ -11,6 +11,8 @@
 #include <nanogui/slider.h>
 #include <nanogui/vscrollpanel.h>
 
+#include <iostream>
+
 namespace
 {
 
@@ -327,8 +329,15 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
         }
         else
         {
+            // Transform stored linear space color value to sRGB for nanogui color picker
             mx::Color3 v = value->asA<mx::Color3>();
-            ng::Color c(v[0], v[1], v[2], 1.0);
+            mx::Color3 displayCol = v.linearToSrgb();
+
+            ng::Color c(displayCol[0], displayCol[1], displayCol[2], 1.0);
+            ng::Color linCol(v[0], v[1], v[2], 1.0);
+
+            std::cout << "[" << label << " READ] linear: " << linCol << std::endl;
+            std::cout << "display: " << c << std::endl;
 
             new ng::Label(twoColumns, label);
             auto colorVar = new EditorColorPicker(twoColumns, c);
@@ -339,7 +348,15 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
                 mx::MaterialPtr material = viewer->getSelectedMaterial();
                 if (material)
                 {
-                    mx::Vector3 v(c.r(), c.g(), c.b());
+                    // Transform sRGB color picker value to linear space for writing to material
+                    mx::Color3 linearCol = mx::Color3(c.r(), c.g(), c.b()).srgbToLinear();
+                    mx::Vector3 v(linearCol[0], linearCol[1], linearCol[2]);
+
+                    ng::Color linCol(linearCol[0], linearCol[1], linearCol[2], 1.0);
+
+                    std::cout << "[" << path << " WRITE] display: " << c << std::endl;
+                    std::cout << "linear: " << linCol << std::endl;
+
                     material->modifyUniform(path, mx::Value::createValue(v));
                 }
             });
