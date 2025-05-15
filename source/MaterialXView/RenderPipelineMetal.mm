@@ -25,8 +25,7 @@ const float PI = std::acos(-1.0f);
 }
 
 MetalRenderPipeline::MetalRenderPipeline(Viewer* viewerPtr) :
-    RenderPipeline(viewerPtr),
-    _frame(0)
+    RenderPipeline(viewerPtr)
 {
 }
 
@@ -545,7 +544,7 @@ void MetalRenderPipeline::renderFrame(void* color_texture, int shadowMapSize, co
         }
         if (material->getProgram()->hasUniform(mx::HW::FRAME))
         {
-            material->getProgram()->bindUniform(mx::HW::FRAME, mx::Value::createValue((float)_frame++));
+            material->getProgram()->bindUniform(mx::HW::FRAME, mx::Value::createValue((float)_frame));
         }
         material->bindViewInformation(viewCamera);
         material->bindLighting(lightHandler, imageHandler, shadowState);

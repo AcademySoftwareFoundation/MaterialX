@@ -2204,6 +2204,7 @@ void Viewer::draw_contents()
     }
 
     // Render the current frame.
+    _renderPipeline->_frame = (_renderPipeline->_frame + 1) % 32768;
     try
     {
         _renderPipeline->renderFrame(_colorTexture,

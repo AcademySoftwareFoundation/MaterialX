@@ -209,6 +209,16 @@ class RenderView
 
     void loadMesh(const mx::FilePath& filename);
 
+    unsigned int getFrame() const
+    {
+        return _frame;
+    }
+
+    void setFrame(unsigned int frame)
+    {
+        _frame = frame;
+    }
+
   private:
     void initContext(mx::GenContext& context);
     void loadEnvironmentLight();

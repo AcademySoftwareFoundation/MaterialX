@@ -253,7 +253,9 @@ int main(int argc, char* const argv[])
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        graph->getRenderer()->drawContents();
+        auto renderer = graph->getRenderer();
+        renderer->setFrame((renderer->getFrame() + 1) % 32768);
+        renderer->drawContents();
         if (!captureFilename.empty())
         {
             break;
