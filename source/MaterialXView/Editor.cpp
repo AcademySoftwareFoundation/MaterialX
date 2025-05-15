@@ -11,8 +11,6 @@
 #include <nanogui/slider.h>
 #include <nanogui/vscrollpanel.h>
 
-#include <iostream>
-
 namespace
 {
 
@@ -334,10 +332,6 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
             mx::Color3 displayCol = v.linearToSrgb();
 
             ng::Color c(displayCol[0], displayCol[1], displayCol[2], 1.0);
-            ng::Color linCol(v[0], v[1], v[2], 1.0);
-
-            std::cout << "[" << label << " Color3 READ] linear: " << linCol << std::endl;
-            std::cout << "display: " << c << std::endl;
 
             new ng::Label(twoColumns, label);
             auto colorVar = new EditorColorPicker(twoColumns, c);
@@ -351,11 +345,6 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
                     // Transform sRGBA color picker value to linear space for writing to material
                     mx::Color3 linearCol = mx::Color3(c.r(), c.g(), c.b()).srgbToLinear();
                     mx::Vector3 v(linearCol[0], linearCol[1], linearCol[2]);
-
-                    ng::Color linCol(linearCol[0], linearCol[1], linearCol[2], c.a());
-
-                    std::cout << "[" << path << " Color3 WRITE] display: " << c << std::endl;
-                    std::cout << "linear: " << linCol << std::endl;
 
                     material->modifyUniform(path, mx::Value::createValue(v));
                 }
@@ -374,10 +363,6 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
         mx::Color3 displayCol = mx::Color3(v[0], v[1], v[2]).linearToSrgb();
 
         ng::Color c(displayCol[0], displayCol[1], displayCol[2], v[3]);
-        ng::Color linCol(v[0], v[1], v[2], v[3]);
-
-        std::cout << "[" << label << " Color4 READ] linear: " << linCol << std::endl;
-        std::cout << "display: " << c << std::endl;
 
         auto colorVar = new EditorColorPicker(twoColumns, c);
         colorVar->set_fixed_size({ 100, 20 });
@@ -391,10 +376,6 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
                 mx::Color3 linearCol = mx::Color3(c.r(), c.g(), c.b()).srgbToLinear();
                 mx::Vector3 v(linearCol[0], linearCol[1], linearCol[2]);
 
-                ng::Color linCol(linearCol[0], linearCol[1], linearCol[2], c.a());
-
-                std::cout << "[" << path << " Color4 WRITE] display: " << c << std::endl;
-                std::cout << "linear: " << linCol << std::endl;
                 material->modifyUniform(path, mx::Value::createValue(v));
             }
         });
