@@ -329,14 +329,14 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
         }
         else
         {
-            // Transform stored linear space color value to sRGB for nanogui color picker
+            // Transform stored linear space color3 value to sRGBA for nanogui color picker
             mx::Color3 v = value->asA<mx::Color3>();
             mx::Color3 displayCol = v.linearToSrgb();
 
             ng::Color c(displayCol[0], displayCol[1], displayCol[2], 1.0);
             ng::Color linCol(v[0], v[1], v[2], 1.0);
 
-            std::cout << "[" << label << " READ] linear: " << linCol << std::endl;
+            std::cout << "[" << label << " Color3 READ] linear: " << linCol << std::endl;
             std::cout << "display: " << c << std::endl;
 
             new ng::Label(twoColumns, label);
@@ -348,13 +348,13 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
                 mx::MaterialPtr material = viewer->getSelectedMaterial();
                 if (material)
                 {
-                    // Transform sRGB color picker value to linear space for writing to material
+                    // Transform sRGBA color picker value to linear space for writing to material
                     mx::Color3 linearCol = mx::Color3(c.r(), c.g(), c.b()).srgbToLinear();
                     mx::Vector3 v(linearCol[0], linearCol[1], linearCol[2]);
 
-                    ng::Color linCol(linearCol[0], linearCol[1], linearCol[2], 1.0);
+                    ng::Color linCol(linearCol[0], linearCol[1], linearCol[2], c.a());
 
-                    std::cout << "[" << path << " WRITE] display: " << c << std::endl;
+                    std::cout << "[" << path << " Color3 WRITE] display: " << c << std::endl;
                     std::cout << "linear: " << linCol << std::endl;
 
                     material->modifyUniform(path, mx::Value::createValue(v));
@@ -371,7 +371,14 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
 
         new ng::Label(twoColumns, label);
         mx::Color4 v = value->asA<mx::Color4>();
-        ng::Color c(v[0], v[1], v[2], v[3]);
+        mx::Color3 displayCol = mx::Color3(v[0], v[1], v[2]).linearToSrgb();
+
+        ng::Color c(displayCol[0], displayCol[1], displayCol[2], v[3]);
+        ng::Color linCol(v[0], v[1], v[2], v[3]);
+
+        std::cout << "[" << label << " Color4 READ] linear: " << linCol << std::endl;
+        std::cout << "display: " << c << std::endl;
+
         auto colorVar = new EditorColorPicker(twoColumns, c);
         colorVar->set_fixed_size({ 100, 20 });
         colorVar->set_font_size(15);
@@ -380,7 +387,14 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
             mx::MaterialPtr material = viewer->getSelectedMaterial();
             if (material)
             {
-                mx::Vector4 v(c.r(), c.g(), c.b(), c.w());
+                // Transform sRGBA color picker value to linear space for writing to material
+                mx::Color3 linearCol = mx::Color3(c.r(), c.g(), c.b()).srgbToLinear();
+                mx::Vector3 v(linearCol[0], linearCol[1], linearCol[2]);
+
+                ng::Color linCol(linearCol[0], linearCol[1], linearCol[2], c.a());
+
+                std::cout << "[" << path << " Color4 WRITE] display: " << c << std::endl;
+                std::cout << "linear: " << linCol << std::endl;
                 material->modifyUniform(path, mx::Value::createValue(v));
             }
         });
