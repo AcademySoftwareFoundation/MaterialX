@@ -332,6 +332,8 @@ class RenderView
     bool _captureRequested;
     mx::FilePath _captureFilename;
     bool _exitRequested;
+
+    unsigned int _frame;
 };
 
 extern const mx::Vector3 DEFAULT_CAMERA_POSITION;

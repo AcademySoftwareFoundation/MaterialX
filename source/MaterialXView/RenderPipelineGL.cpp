@@ -23,7 +23,8 @@ const float PI = std::acos(-1.0f);
 }
 
 GLRenderPipeline::GLRenderPipeline(Viewer* viewerPtr) :
-    RenderPipeline(viewerPtr)
+    RenderPipeline(viewerPtr),
+    _frame(0)
 {
 }
 
@@ -412,6 +413,10 @@ void GLRenderPipeline::renderFrame(void*, int shadowMapSize, const char* dirLigh
         if (material->getProgram()->hasUniform(mx::HW::ALPHA_THRESHOLD))
         {
             material->getProgram()->bindUniform(mx::HW::ALPHA_THRESHOLD, mx::Value::createValue(0.99f));
+        }
+        if (material->getProgram()->hasUniform(mx::HW::FRAME))
+        {
+            material->getProgram()->bindUniform(mx::HW::FRAME, mx::Value::createValue(static_cast<float>(_frame++)));
         }
         material->bindViewInformation(viewCamera);
         material->bindLighting(lightHandler, imageHandler, shadowState);

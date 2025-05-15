@@ -44,6 +44,7 @@ class GLRenderPipeline : public RenderPipeline
     
   protected:
     mx::ImagePtr getShadowMap(int shadowMapSize) override;
+    unsigned int _frame;
 };
     
 #endif // RENDER_PIPELINE_GL_H
