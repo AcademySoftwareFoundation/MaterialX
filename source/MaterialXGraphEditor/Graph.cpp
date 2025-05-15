@@ -3704,8 +3704,17 @@ void Graph::addNodePopup(bool cursor)
         // Filter nodedefs and add to menu if matches filter
         for (auto node : _nodesToAdd)
         {
+            // Filter out nodes that do not match the _menuFilterType
+            if (_menuFilterType != mx::EMPTY_STRING)
+            {
+                if (node.getType() != _menuFilterType)
+                {
+                    continue;
+                }
+            }
+
             // Filter out list of nodes
-            if (subs.size() > 0 || _menuFilterType != mx::EMPTY_STRING)
+            if (subs.size() > 0)
             {
                 ImGui::SetNextWindowSizeConstraints(ImVec2(250.0f, 300.0f), ImVec2(-1.0f, 500.0f));
                 std::string str(node.getName());
@@ -3720,8 +3729,7 @@ void Graph::addNodePopup(bool cursor)
                 // Allow spaces to be used to search for node names
                 std::replace(subs.begin(), subs.end(), ' ', '_');
 
-                if ((subs.size() == 0 || str.find(subs) != std::string::npos) &&
-                    (_menuFilterType == mx::EMPTY_STRING || node.getType() == _menuFilterType))
+                if (subs.size() == 0 || str.find(subs) != std::string::npos)
                 {
                     if (ImGui::MenuItem(getUserNodeDefName(nodeName).c_str()) || (ImGui::IsItemFocused() && ImGui::IsKeyPressedMap(ImGuiKey_Enter)))
                     {
