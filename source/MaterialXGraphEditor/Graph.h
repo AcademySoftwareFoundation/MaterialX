@@ -220,6 +220,10 @@ class Graph
     // Set the node to display in render view based on selected node or nodegraph
     void setRenderMaterial(UiNodePtr node);
 
+    // Set the node to display in render view based on selected node or nodegraph
+    template <typename T=int>
+    T renderEnumInput(mx::InputPtr& input);
+
     void clearGraph();
     void loadGraphFromFile(bool prompt);
     void saveGraphToFile();
