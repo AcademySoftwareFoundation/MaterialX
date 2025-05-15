@@ -107,6 +107,9 @@ class Graph
     // Check if link exists in the current link vector
     bool linkExists(Link newLink);
 
+    // Check if link can be added. Show a diagnostic message as the label.
+    bool checkCanAddLink(ed::PinId startPinId, ed::PinId endPinId);
+
     // Add link to nodegraph and set up connections between UiNodes and
     // MaterialX Nodes to update shader
     // startPinId - where the link was initiated
@@ -311,6 +314,9 @@ class Graph
     std::string _pinFilterType;
     // used for filtering pins when adding a node from a link
     std::string _menuFilterType;
+    // used for auto connecting pins if a node is added by drawing a link from a pin
+    ed::PinId _pinIdToLinkFromForAddedNode;
+    ed::PinId _pinIdToLinkToForAddedNode;
 
     // DPI scaling for fonts
     float _fontScale;

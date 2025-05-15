@@ -2007,12 +2007,18 @@ void Graph::addNode(const std::string& category, const std::string& name, const 
         newNode->_showAllInputs = true;
         node->setType(type);
         ++_graphTotalSize;
+        _pinIdToLinkToForAddedNode = ed::PinId();
         for (mx::InputPtr input : defInputs)
         {
             UiPinPtr inPin = std::make_shared<UiPin>(_graphTotalSize, &*input->getName().begin(), input->getType(), newNode, ax::NodeEditor::PinKind::Input, input, nullptr);
             newNode->inputPins.push_back(inPin);
             _currPins.push_back(inPin);
             ++_graphTotalSize;
+
+            if (_pinIdToLinkFromForAddedNode != ed::PinId() && _pinIdToLinkToForAddedNode == ed::PinId() && _menuFilterType == input->getType())
+            {
+                _pinIdToLinkToForAddedNode = inPin->_pinId;
+            }
         }
         std::vector<mx::OutputPtr> defOutputs = matchingNodeDefs[num]->getActiveOutputs();
         for (mx::OutputPtr output : defOutputs)
@@ -2511,7 +2517,7 @@ void Graph::setDefaults(mx::InputPtr input)
     }
 }
 
-void Graph::addLink(ed::PinId startPinId, ed::PinId endPinId)
+bool Graph::checkCanAddLink(ed::PinId startPinId, ed::PinId endPinId)
 {
     // Prefer to assume left to right - start is an output, end is an input; swap if inaccurate
     if (UiPinPtr inputPin = getPin(endPinId); inputPin && inputPin->_kind != ed::PinKind::Input)
@@ -2530,26 +2536,23 @@ void Graph::addLink(ed::PinId startPinId, ed::PinId endPinId)
 
     if (!inputPin || !outputPin)
     {
-        ed::RejectNewItem();
-        return;
+        return false;
     }
 
     // Perform type check
     bool typesMatch = (outputPin->_type == inputPin->_type);
     if (!typesMatch)
     {
-        ed::RejectNewItem();
         showLabel("Invalid connection due to mismatched types", ImColor(50, 50, 50, 255));
-        return;
+        return false;
     }
 
     // Perform kind check
     bool kindsMatch = (outputPin->_kind == inputPin->_kind);
     if (kindsMatch)
     {
-        ed::RejectNewItem();
         showLabel("Invalid connection due to same input/output kind", ImColor(50, 50, 50, 255));
-        return;
+        return false;
     }
 
     int upNode = getNodeId(outputPinId);
@@ -2558,8 +2561,7 @@ void Graph::addLink(ed::PinId startPinId, ed::PinId endPinId)
     UiNodePtr uiUpNode = _graphNodes[upNode];
     if (!uiDownNode || !uiUpNode)
     {
-        ed::RejectNewItem();
-        return;
+        return false;
     }
 
     // Make sure there is an implementation for node
@@ -2568,179 +2570,202 @@ void Graph::addLink(ed::PinId startPinId, ed::PinId endPinId)
     // Prevent direct connecting from input to output
     if (uiDownNode->getInput() && uiUpNode->getOutput())
     {
-        ed::RejectNewItem();
         showLabel("Direct connections between inputs and outputs is invalid", ImColor(50, 50, 50, 255));
-        return;
+        return false;
     }
 
     // Find the implementation for this nodedef if not an input or output uinode
     if (uiDownNode->getInput() && _isNodeGraph)
     {
-        ed::RejectNewItem();
         showLabel("Cannot connect to inputs inside of graph", ImColor(50, 50, 50, 255));
-        return;
+        return false;
     }
     else if (uiUpNode->getNode())
     {
         mx::ShaderNodeImplPtr impl = shadergen.getImplementation(*_graphNodes[upNode]->getNode()->getNodeDef(), _renderer->getGenContext());
         if (!impl)
         {
-            ed::RejectNewItem();
             showLabel("Invalid Connection: Node does not have an implementation", ImColor(50, 50, 50, 255));
-            return;
+            return false;
+        }
+    }
+    return true;
+}
+
+void Graph::addLink(ed::PinId startPinId, ed::PinId endPinId)
+{
+    // Prefer to assume left to right - start is an output, end is an input; swap if inaccurate
+    if (UiPinPtr inputPin = getPin(endPinId); inputPin && inputPin->_kind != ed::PinKind::Input)
+    {
+        auto tmp = startPinId;
+        startPinId = endPinId;
+        endPinId = tmp;
+    }
+
+    int end_attr = int(endPinId.Get());
+    int start_attr = int(startPinId.Get());
+    ed::PinId outputPinId = startPinId;
+    ed::PinId inputPinId = endPinId;
+    UiPinPtr outputPin = getPin(outputPinId);
+    UiPinPtr inputPin = getPin(inputPinId);
+
+
+    int upNode = getNodeId(outputPinId);
+    int downNode = getNodeId(inputPinId);
+    UiNodePtr uiDownNode = _graphNodes[downNode];
+    UiNodePtr uiUpNode = _graphNodes[upNode];
+    if (!uiDownNode || !uiUpNode)
+    {
+        return;
+    }
+
+    // If the accepting node already has a link, remove it
+    if (inputPin->_connected)
+    {
+        for (auto iter = _currLinks.begin(); iter != _currLinks.end(); ++iter)
+        {
+            if (iter->_endAttr == end_attr)
+            {
+                // Found existing link - remove it; adapted from deleteLink
+                // note: ed::BreakLinks doesn't work as the order ends up inaccurate
+                deleteLinkInfo(iter->_startAttr, iter->_endAttr);
+                _currLinks.erase(iter);
+                break;
+            }
         }
     }
 
-    if (ed::AcceptNewItem())
+    // Since we accepted new link, lets add one to our list of links.
+    Link link;
+    link._startAttr = start_attr;
+    link._endAttr = end_attr;
+    _currLinks.push_back(link);
+    _frameCount = ImGui::GetFrameCount();
+    _renderer->setMaterialCompilation(true);
+
+    inputPin->addConnection(outputPin);
+    outputPin->addConnection(inputPin);
+    outputPin->setConnected(true);
+    inputPin->setConnected(true);
+
+    if (uiDownNode->getNode() || uiDownNode->getNodeGraph())
     {
-        // If the accepting node already has a link, remove it
-        if (inputPin->_connected)
+        mx::InputPtr connectingInput = nullptr;
+        for (UiPinPtr pin : uiDownNode->inputPins)
         {
-            for (auto iter = _currLinks.begin(); iter != _currLinks.end(); ++iter)
+            if (pin->_pinId == inputPinId)
             {
-                if (iter->_endAttr == end_attr)
+                addNodeInput(uiDownNode, pin->_input);
+
+                // Update value to be empty
+                if (uiDownNode->getNode() && uiDownNode->getNode()->getType() == mx::SURFACE_SHADER_TYPE_STRING)
                 {
-                    // Found existing link - remove it; adapted from deleteLink
-                    // note: ed::BreakLinks doesn't work as the order ends up inaccurate
-                    deleteLinkInfo(iter->_startAttr, iter->_endAttr);
-                    _currLinks.erase(iter);
-                    break;
-                }
-            }
-        }
-
-        // Since we accepted new link, lets add one to our list of links.
-        Link link;
-        link._startAttr = start_attr;
-        link._endAttr = end_attr;
-        _currLinks.push_back(link);
-        _frameCount = ImGui::GetFrameCount();
-        _renderer->setMaterialCompilation(true);
-
-        inputPin->addConnection(outputPin);
-        outputPin->addConnection(inputPin);
-        outputPin->setConnected(true);
-        inputPin->setConnected(true);
-
-        if (uiDownNode->getNode() || uiDownNode->getNodeGraph())
-        {
-            mx::InputPtr connectingInput = nullptr;
-            for (UiPinPtr pin : uiDownNode->inputPins)
-            {
-                if (pin->_pinId == inputPinId)
-                {
-                    addNodeInput(uiDownNode, pin->_input);
-
-                    // Update value to be empty
-                    if (uiDownNode->getNode() && uiDownNode->getNode()->getType() == mx::SURFACE_SHADER_TYPE_STRING)
+                    if (uiUpNode->getOutput() != nullptr)
                     {
-                        if (uiUpNode->getOutput() != nullptr)
-                        {
-                            pin->_input->setConnectedOutput(uiUpNode->getOutput());
-                        }
-                        else if (uiUpNode->getInput() != nullptr)
-                        {
-                            pin->_input->setConnectedInterfaceName(uiUpNode->getName());
-                        }
-                        else
-                        {
-                            if (uiUpNode->getNodeGraph() != nullptr)
-                            {
-                                for (UiPinPtr outPin : uiUpNode->outputPins)
-                                {
-                                    // Set pin connection to correct output
-                                    if (outPin->_pinId == outputPinId)
-                                    {
-                                        mx::OutputPtr outputs = uiUpNode->getNodeGraph()->getOutput(outPin->_name);
-                                        pin->_input->setConnectedOutput(outputs);
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                pin->_input->setConnectedNode(uiUpNode->getNode());
-                            }
-                        }
+                        pin->_input->setConnectedOutput(uiUpNode->getOutput());
+                    }
+                    else if (uiUpNode->getInput() != nullptr)
+                    {
+                        pin->_input->setConnectedInterfaceName(uiUpNode->getName());
                     }
                     else
                     {
-                        if (uiUpNode->getInput())
+                        if (uiUpNode->getNodeGraph() != nullptr)
                         {
-                            pin->_input->setConnectedInterfaceName(uiUpNode->getName());
+                            for (UiPinPtr outPin : uiUpNode->outputPins)
+                            {
+                                // Set pin connection to correct output
+                                if (outPin->_pinId == outputPinId)
+                                {
+                                    mx::OutputPtr outputs = uiUpNode->getNodeGraph()->getOutput(outPin->_name);
+                                    pin->_input->setConnectedOutput(outputs);
+                                }
+                            }
                         }
                         else
                         {
-                            if (uiUpNode->getNode())
+                            pin->_input->setConnectedNode(uiUpNode->getNode());
+                        }
+                    }
+                }
+                else
+                {
+                    if (uiUpNode->getInput())
+                    {
+                        pin->_input->setConnectedInterfaceName(uiUpNode->getName());
+                    }
+                    else
+                    {
+                        if (uiUpNode->getNode())
+                        {
+                            mx::NodePtr upstreamNode = _graphNodes[upNode]->getNode();
+                            mx::NodeDefPtr upstreamNodeDef = upstreamNode->getNodeDef();
+                            bool isMultiOutput = upstreamNodeDef ? upstreamNodeDef->getOutputs().size() > 1 : false;
+                            if (!isMultiOutput)
                             {
-                                mx::NodePtr upstreamNode = _graphNodes[upNode]->getNode();
-                                mx::NodeDefPtr upstreamNodeDef = upstreamNode->getNodeDef();
-                                bool isMultiOutput = upstreamNodeDef ? upstreamNodeDef->getOutputs().size() > 1 : false;
-                                if (!isMultiOutput)
-                                {
-                                    pin->_input->setConnectedNode(uiUpNode->getNode());
-                                }
-                                else
-                                {
-                                    for (UiPinPtr outPin : _graphNodes[upNode]->outputPins)
-                                    {
-                                        // Set pin connection to correct output
-                                        if (outPin->_pinId == outputPinId)
-                                        {
-                                            mx::OutputPtr outputs = uiUpNode->getNode()->getOutput(outPin->_name);
-                                            if (!outputs)
-                                            {
-                                                outputs = uiUpNode->getNode()->addOutput(outPin->_name, pin->_input->getType());
-                                            }
-                                            pin->_input->setConnectedOutput(outputs);
-                                        }
-                                    }
-                                }
+                                pin->_input->setConnectedNode(uiUpNode->getNode());
                             }
-                            else if (uiUpNode->getNodeGraph())
+                            else
                             {
-                                for (UiPinPtr outPin : uiUpNode->outputPins)
+                                for (UiPinPtr outPin : _graphNodes[upNode]->outputPins)
                                 {
                                     // Set pin connection to correct output
                                     if (outPin->_pinId == outputPinId)
                                     {
-                                        mx::OutputPtr outputs = uiUpNode->getNodeGraph()->getOutput(outPin->_name);
+                                        mx::OutputPtr outputs = uiUpNode->getNode()->getOutput(outPin->_name);
+                                        if (!outputs)
+                                        {
+                                            outputs = uiUpNode->getNode()->addOutput(outPin->_name, pin->_input->getType());
+                                        }
                                         pin->_input->setConnectedOutput(outputs);
                                     }
                                 }
                             }
                         }
+                        else if (uiUpNode->getNodeGraph())
+                        {
+                            for (UiPinPtr outPin : uiUpNode->outputPins)
+                            {
+                                // Set pin connection to correct output
+                                if (outPin->_pinId == outputPinId)
+                                {
+                                    mx::OutputPtr outputs = uiUpNode->getNodeGraph()->getOutput(outPin->_name);
+                                    pin->_input->setConnectedOutput(outputs);
+                                }
+                            }
+                        }
                     }
-
-                    pin->setConnected(true);
-                    connectingInput = pin->_input;
-                    break;
                 }
+
+                pin->setConnected(true);
+                connectingInput = pin->_input;
+                break;
             }
-
-            // Create new edge and set edge information
-            createEdge(_graphNodes[upNode], _graphNodes[downNode], connectingInput);
         }
-        else if (_graphNodes[downNode]->getOutput() != nullptr)
-        {
-            mx::InputPtr connectingInput = nullptr;
-            _graphNodes[downNode]->getOutput()->setConnectedNode(_graphNodes[upNode]->getNode());
 
-            // Create new edge and set edge information
-            createEdge(_graphNodes[upNode], _graphNodes[downNode], connectingInput);
-        }
-        else
-        {
-            // Create new edge and set edge info
-            UiEdge newEdge = UiEdge(_graphNodes[upNode], _graphNodes[downNode], nullptr);
-            if (!edgeExists(newEdge))
-            {
-                _graphNodes[downNode]->edges.push_back(newEdge);
-                _currEdge.push_back(newEdge);
+        // Create new edge and set edge information
+        createEdge(_graphNodes[upNode], _graphNodes[downNode], connectingInput);
+    }
+    else if (_graphNodes[downNode]->getOutput() != nullptr)
+    {
+        mx::InputPtr connectingInput = nullptr;
+        _graphNodes[downNode]->getOutput()->setConnectedNode(_graphNodes[upNode]->getNode());
 
-                // Update input node num and output connections
-                _graphNodes[downNode]->setInputNodeNum(1);
-                _graphNodes[upNode]->setOutputConnection(_graphNodes[downNode]);
-            }
+        // Create new edge and set edge information
+        createEdge(_graphNodes[upNode], _graphNodes[downNode], connectingInput);
+    }
+    else
+    {
+        // Create new edge and set edge info
+        UiEdge newEdge = UiEdge(_graphNodes[upNode], _graphNodes[downNode], nullptr);
+        if (!edgeExists(newEdge))
+        {
+            _graphNodes[downNode]->edges.push_back(newEdge);
+            _currEdge.push_back(newEdge);
+
+            // Update input node num and output connections
+            _graphNodes[downNode]->setInputNodeNum(1);
+            _graphNodes[upNode]->setOutputConnection(_graphNodes[downNode]);
         }
     }
 }
@@ -4093,6 +4118,15 @@ void Graph::drawGraph(ImVec2 mousePos)
             }
             _copiedNodes.clear();
             _addNewNode = false;
+
+            if (_pinIdToLinkFromForAddedNode != ed::PinId() && _pinIdToLinkToForAddedNode != ed::PinId())
+            {
+                // we have a link to draw for the newly created node.
+                if (checkCanAddLink(_pinIdToLinkFromForAddedNode, _pinIdToLinkToForAddedNode))
+                {
+                    addLink(_pinIdToLinkFromForAddedNode, _pinIdToLinkToForAddedNode);
+                }
+            }
         }
 
         // Layout and link graph during the initial call of drawGraph
@@ -4202,7 +4236,17 @@ void Graph::drawGraph(ImVec2 mousePos)
             {
                 if (!readOnly())
                 {
-                    addLink(startPinId, endPinId);
+                    if (checkCanAddLink(startPinId, endPinId))
+                    {
+                        if (ed::AcceptNewItem())
+                        {
+                            addLink(startPinId, endPinId);
+                        }
+                    }
+                    else
+                    {
+                        ed::RejectNewItem();
+                    }
                 }
                 else
                 {
@@ -4214,6 +4258,7 @@ void Graph::drawGraph(ImVec2 mousePos)
                 if (getPin(filterPinId)->_type != "null")
                 {
                     _pinFilterType = getPin(filterPinId)->_type;
+                    _pinIdToLinkFromForAddedNode = filterPinId;
                 }
 
                 showLabel("Release Mouse to Add a New Node", ImColor(50, 50, 50, 255));
