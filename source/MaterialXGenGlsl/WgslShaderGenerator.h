@@ -1,0 +1,69 @@
+//
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
+//
+
+#ifndef MATERIALX_WGSLSHADERGENERATOR_H
+#define MATERIALX_WGSLSHADERGENERATOR_H
+
+/// @file
+/// Vulkan GLSL shader generator flavor for WGSL
+
+#include <MaterialXGenGlsl/VkShaderGenerator.h>
+#include <MaterialXGenGlsl/WgslResourceBindingContext.h>
+
+MATERIALX_NAMESPACE_BEGIN
+
+using WgslShaderGeneratorPtr = shared_ptr<class WgslShaderGenerator>;
+
+/// @class WgslShaderGenerator
+/// A Vulkan GLSL shader generator flavor for WGSL
+class MX_GENGLSL_API WgslShaderGenerator : public VkShaderGenerator
+{
+  public:
+    /// Constructor.
+    WgslShaderGenerator(TypeSystemPtr typeSystem);
+
+    /// Creator function.
+    /// If a TypeSystem is not provided it will be created internally.
+    /// Optionally pass in an externally created TypeSystem here, 
+    /// if you want to keep type descriptions alive after the lifetime
+    /// of the shader generator. 
+    static ShaderGeneratorPtr create(TypeSystemPtr typeSystem = nullptr)
+    {
+        return std::make_shared<WgslShaderGenerator>(typeSystem ? typeSystem : TypeSystem::create());
+    }
+
+    /// Return a unique identifier for the target this generator is for
+    //const string& getTarget() const override { return TARGET; }
+
+    /// Return the version string for the GLSL version this generator is for
+    //const string& getVersion() const override { return VERSION; }
+
+    // string getVertexDataPrefix(const VariableBlock& vertexData) const override;
+
+    /// Unique identifier for this generator target
+    //static const string TARGET;
+    //static const string VERSION;
+
+    // Emit directives for stage
+    //void emitDirectives(GenContext& context, ShaderStage& stage) const override;
+
+    //void emitInputs(GenContext& context, ShaderStage& stage) const override;
+
+    //void emitOutputs(GenContext& context, ShaderStage& stage) const override;
+
+    const string get_lightdata_typevar_string() const override { return string("light_type"); }
+
+  protected:
+    HwResourceBindingContextPtr getResourceBindingContext(GenContext&) const override;
+
+    WgslResourceBindingContextPtr _resourceBindingCtx = nullptr;
+
+    // Vertex data interface location to bind between stages
+    //int vertexDataLocation = 0;
+};
+
+MATERIALX_NAMESPACE_END
+
+#endif

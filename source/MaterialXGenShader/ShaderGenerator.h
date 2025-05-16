@@ -211,6 +211,9 @@ class MX_GENSHADER_API ShaderGenerator
     /// export of metadata.
     virtual void registerShaderMetadata(const DocumentPtr& doc, GenContext& context) const;
 
+    // Retrieve the string used for the LightData.type member variable
+    virtual const string get_lightdata_typevar_string() const { return string("type"); }
+
   protected:
     /// Protected constructor
     ShaderGenerator(TypeSystemPtr typeSystem, SyntaxPtr syntax);
