@@ -288,20 +288,20 @@ void Graph::addExtraNodes()
     }
 
     // Add input and output nodes for all types
-    const std::set<std::string> inputTypes;
+    const std::set<std::string> emptySet;
     for (const std::string& type : types)
     {
         std::string nodeName = "ND_input_" + type;
-        _nodesToAdd.emplace_back(nodeName, type, "input", "Input Nodes", inputTypes);
+        _nodesToAdd.emplace_back(nodeName, type, "input", "Input Nodes", emptySet, emptySet);
         nodeName = "ND_output_" + type;
-        _nodesToAdd.emplace_back(nodeName, type, "output", "Output Nodes", inputTypes);
+        _nodesToAdd.emplace_back(nodeName, type, "output", "Output Nodes", emptySet, emptySet);
     }
 
     // Add group node
-    _nodesToAdd.emplace_back("ND_group", "", "group", "Group Nodes", inputTypes);
+    _nodesToAdd.emplace_back("ND_group", "", "group", "Group Nodes", emptySet, emptySet);
 
     // Add nodegraph node
-    _nodesToAdd.emplace_back("ND_nodegraph", "", "nodegraph", "Node Graph", inputTypes);
+    _nodesToAdd.emplace_back("ND_nodegraph", "", "nodegraph", "Node Graph", emptySet, emptySet);
 }
 
 ed::PinId Graph::getOutputPin(UiNodePtr node, UiNodePtr upNode, UiPinPtr input)
@@ -1299,7 +1299,12 @@ void Graph::createNodeUIList(mx::DocumentPtr doc)
                 {
                     inputTypes.insert(input->getType());
                 }
-                _nodesToAdd.emplace_back(nodeDef->getName(), nodeDef->getType(), nodeDef->getNodeString(), group, inputTypes);
+                std::set<std::string> outputTypes;
+                for (const auto& output : nodeDef->getOutputs())
+                {
+                    outputTypes.insert(output->getType());
+                }
+                _nodesToAdd.emplace_back(nodeDef->getName(), nodeDef->getType(), nodeDef->getNodeString(), group, inputTypes, outputTypes);
             }
         }
     }
@@ -3746,7 +3751,7 @@ void Graph::addNodePopup(bool cursor)
             if (_menuFilterType != mx::EMPTY_STRING)
             {
                 // _menuFilterType is not empty, so the Add Node pop-up was triggered by drawing a Link.
-                if (_pinIdToLinkFrom == ed::PinId() && _pinIdToLinkTo != ed::PinId())
+                if (_pinIdToLinkFrom != ed::PinId() && _pinIdToLinkTo == ed::PinId())
                 {
                     // Drawing a forward Link from an output pin
                     // Filter out nodes that has no inputs of the type matching to the _menuFilterType
@@ -3755,11 +3760,11 @@ void Graph::addNodePopup(bool cursor)
                         continue;
                     }
                 }
-                else if (_pinIdToLinkFrom != ed::PinId() && _pinIdToLinkTo == ed::PinId())
+                else if (_pinIdToLinkFrom == ed::PinId() && _pinIdToLinkTo != ed::PinId())
                 {
                     // Drawing a backward Link from an input pin
                     // Filter out nodes whose type do not match the _menuFilterType
-                    if (node.getType() != _menuFilterType)
+                    if (node.getOutputTypes().count(_menuFilterType)==0)
                     {
                         continue;
                     }

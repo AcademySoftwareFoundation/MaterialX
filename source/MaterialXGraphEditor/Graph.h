@@ -20,8 +20,8 @@ namespace mx = MaterialX;
 class MenuItem
 {
   public:
-    MenuItem(const std::string& name, const std::string& type, const std::string& category, const std::string& group, const std::set<std::string>& inputTypes) :
-        name(name), type(type), category(category), group(group), inputTypes(inputTypes) { }
+    MenuItem(const std::string& name, const std::string& type, const std::string& category, const std::string& group, const std::set<std::string>& inputTypes, const std::set<std::string>& outputTypes) :
+        name(name), type(type), category(category), group(group), inputTypes(inputTypes), outputTypes(outputTypes) { }
 
     // getters
     std::string getName() const { return name; }
@@ -29,6 +29,7 @@ class MenuItem
     std::string getCategory() const { return category; }
     std::string getGroup() const { return group; }
     const std::set<std::string>& getInputTypes() const { return inputTypes; }
+    const std::set<std::string>& getOutputTypes() const { return outputTypes; }
 
     // setters
     void setName(const std::string& newName) { this->name = newName; }
@@ -36,6 +37,7 @@ class MenuItem
     void setCategory(const std::string& newCategory) { this->category = newCategory; }
     void setGroup(const std::string& newGroup) { this->group = newGroup; }
     void setInputTypes(const std::set<std::string>& newInputTypes) { this->inputTypes = newInputTypes; }
+    void setOutputTypes(const std::set<std::string>& newOutputTypes) { this->outputTypes = newOutputTypes; }
 
   private:
     std::string name;
@@ -43,6 +45,7 @@ class MenuItem
     std::string category;
     std::string group;
     std::set<std::string> inputTypes;
+    std::set<std::string> outputTypes;
 };
 
 // A link connects two pins and includes a unique id and the ids of the two pins it connects
