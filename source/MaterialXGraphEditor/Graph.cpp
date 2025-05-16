@@ -2007,7 +2007,7 @@ void Graph::addNode(const std::string& category, const std::string& name, const 
         newNode->_showAllInputs = true;
         node->setType(type);
         ++_graphTotalSize;
-        _pinIdToLinkToForAddedNode = ed::PinId();
+        _pinIdToLinkTo = ed::PinId();
         for (mx::InputPtr input : defInputs)
         {
             UiPinPtr inPin = std::make_shared<UiPin>(_graphTotalSize, &*input->getName().begin(), input->getType(), newNode, ax::NodeEditor::PinKind::Input, input, nullptr);
@@ -2015,9 +2015,9 @@ void Graph::addNode(const std::string& category, const std::string& name, const 
             _currPins.push_back(inPin);
             ++_graphTotalSize;
 
-            if (_pinIdToLinkFromForAddedNode != ed::PinId() && _pinIdToLinkToForAddedNode == ed::PinId() && _menuFilterType == input->getType())
+            if (_pinIdToLinkFrom != ed::PinId() && _pinIdToLinkTo == ed::PinId() && _menuFilterType == input->getType())
             {
-                _pinIdToLinkToForAddedNode = inPin->_pinId;
+                _pinIdToLinkTo = inPin->_pinId;
             }
         }
         std::vector<mx::OutputPtr> defOutputs = matchingNodeDefs[num]->getActiveOutputs();
@@ -2520,15 +2520,13 @@ void Graph::setDefaults(mx::InputPtr input)
 bool Graph::checkCanAddLink(ed::PinId startPinId, ed::PinId endPinId)
 {
     // Prefer to assume left to right - start is an output, end is an input; swap if inaccurate
-    if (UiPinPtr inputPin = getPin(endPinId); inputPin && inputPin->_kind != ed::PinKind::Input)
+    if (UiPinPtr endPin = getPin(endPinId); endPin && endPin->_kind != ed::PinKind::Input)
     {
         auto tmp = startPinId;
         startPinId = endPinId;
         endPinId = tmp;
     }
 
-    int end_attr = int(endPinId.Get());
-    int start_attr = int(startPinId.Get());
     ed::PinId outputPinId = startPinId;
     ed::PinId inputPinId = endPinId;
     UiPinPtr outputPin = getPin(outputPinId);
@@ -2595,7 +2593,7 @@ bool Graph::checkCanAddLink(ed::PinId startPinId, ed::PinId endPinId)
 void Graph::addLink(ed::PinId startPinId, ed::PinId endPinId)
 {
     // Prefer to assume left to right - start is an output, end is an input; swap if inaccurate
-    if (UiPinPtr inputPin = getPin(endPinId); inputPin && inputPin->_kind != ed::PinKind::Input)
+    if (UiPinPtr endPin = getPin(endPinId); endPin && endPin->_kind != ed::PinKind::Input)
     {
         auto tmp = startPinId;
         startPinId = endPinId;
@@ -4119,12 +4117,12 @@ void Graph::drawGraph(ImVec2 mousePos)
             _copiedNodes.clear();
             _addNewNode = false;
 
-            if (_pinIdToLinkFromForAddedNode != ed::PinId() && _pinIdToLinkToForAddedNode != ed::PinId())
+            if (_pinIdToLinkFrom != ed::PinId() && _pinIdToLinkTo != ed::PinId())
             {
                 // we have a link to draw for the newly created node.
-                if (checkCanAddLink(_pinIdToLinkFromForAddedNode, _pinIdToLinkToForAddedNode))
+                if (checkCanAddLink(_pinIdToLinkFrom, _pinIdToLinkTo))
                 {
-                    addLink(_pinIdToLinkFromForAddedNode, _pinIdToLinkToForAddedNode);
+                    addLink(_pinIdToLinkFrom, _pinIdToLinkTo);
                 }
             }
         }
@@ -4258,7 +4256,7 @@ void Graph::drawGraph(ImVec2 mousePos)
                 if (getPin(filterPinId)->_type != "null")
                 {
                     _pinFilterType = getPin(filterPinId)->_type;
-                    _pinIdToLinkFromForAddedNode = filterPinId;
+                    _pinIdToLinkFrom = filterPinId;
                 }
 
                 showLabel("Release Mouse to Add a New Node", ImColor(50, 50, 50, 255));

@@ -315,8 +315,8 @@ class Graph
     // used for filtering pins when adding a node from a link
     std::string _menuFilterType;
     // used for auto connecting pins if a node is added by drawing a link from a pin
-    ed::PinId _pinIdToLinkFromForAddedNode;
-    ed::PinId _pinIdToLinkToForAddedNode;
+    ed::PinId _pinIdToLinkFrom;
+    ed::PinId _pinIdToLinkTo;
 
     // DPI scaling for fonts
     float _fontScale;
