@@ -106,10 +106,33 @@
 
     <!-- Roughness -->
 
-    <roughness_anisotropy name="roughness_uv" type="vector2">
-      <input name="roughness" type="float" interfacename="roughness" />
-      <input name="anisotropy" type="float" interfacename="anisotropy_strength" />
-    </roughness_anisotropy>
+    <combine2 name="roughness_uv" type="vector2" nodedef="ND_combine2_vector2">
+      <input name="in1" type="float" nodename="clamped_at" />
+      <input name="in2" type="float" nodename="clamped_ab" />
+    </combine2>
+    <clamp name="clamped_at" type="float" nodedef="ND_clamp_float">
+      <input name="in" type="float" nodename="at" />
+      <input name="low" type="float" value="0.00001" />
+      <input name="high" type="float" value="1.0" />
+    </clamp>
+    <clamp name="clamped_ab" type="float" nodedef="ND_clamp_float">
+      <input name="in" type="float" nodename="alpha_roughness" />
+      <input name="low" type="float" value="0.00001" />
+      <input name="high" type="float" value="1.0" />
+    </clamp>
+    <multiply name="alpha_roughness" type="float" nodedef="ND_multiply_float">
+      <input name="in1" type="float" interfacename="roughness" />
+      <input name="in2" type="float" interfacename="roughness" />
+    </multiply>
+    <multiply name="strength_2" type="float" nodedef="ND_multiply_float">
+      <input name="in1" type="float" interfacename="anisotropy_strength" />
+      <input name="in2" type="float" interfacename="anisotropy_strength" />
+    </multiply>
+    <mix name="at" type="float" nodedef="ND_mix_float">
+      <input name="fg" type="float" value="1" />
+      <input name="bg" type="float" nodename="alpha_roughness" />
+      <input name="mix" type="float" nodename="strength_2" />
+    </mix>
 
     <!-- Dielectric -->
 
