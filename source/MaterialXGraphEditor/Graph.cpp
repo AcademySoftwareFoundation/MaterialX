@@ -1015,8 +1015,6 @@ bool Graph::renderEnumInput(mx::InputPtr& input, const mx::UIProperties& ui, T &
     return false;
   }
 
-  //std::cout << "index: " << index << std::endl;
-  //std::cout << "value_current: " << val->getValueString() << std::endl;
 
   int item_current = index;
   if (ImGui::Combo("", &item_current, enumStr.data(), 3)) {
@@ -1028,9 +1026,6 @@ bool Graph::renderEnumInput(mx::InputPtr& input, const mx::UIProperties& ui, T &
       else {
         return false;
       }
-    //   std::cout << "item_current: " << index << std::endl;
-    //   std::cout << "TEMP: " << temp << std::endl;
-    //   std::cout << "PREV: " << prev << std::endl;
   }
 
   return true;
