@@ -2007,7 +2007,6 @@ void Graph::addNode(const std::string& category, const std::string& name, const 
         newNode->_showAllInputs = true;
         node->setType(type);
         ++_graphTotalSize;
-        _pinIdToLinkTo = ed::PinId();
         for (mx::InputPtr input : defInputs)
         {
             UiPinPtr inPin = std::make_shared<UiPin>(_graphTotalSize, &*input->getName().begin(), input->getType(), newNode, ax::NodeEditor::PinKind::Input, input, nullptr);
@@ -2017,6 +2016,9 @@ void Graph::addNode(const std::string& category, const std::string& name, const 
 
             if (_pinIdToLinkFrom != ed::PinId() && _pinIdToLinkTo == ed::PinId() && _menuFilterType == input->getType())
             {
+                // If _pinIdToLinkFrom is a valid pin and _pinIdToLinkTo is not a valid pin,
+                // it means Add Node pop-up was executed from a forward link.
+                // Record the first input of the matching type as _pinIdToLinkTo.
                 _pinIdToLinkTo = inPin->_pinId;
             }
         }
@@ -2027,6 +2029,14 @@ void Graph::addNode(const std::string& category, const std::string& name, const 
             newNode->outputPins.push_back(outPin);
             _currPins.push_back(outPin);
             ++_graphTotalSize;
+
+            if (_pinIdToLinkFrom == ed::PinId() && _pinIdToLinkTo != ed::PinId() && _menuFilterType == output->getType())
+            {
+                // If _pinIdToLinkFrom is not a valid pin and _pinIdToLinkTo is a valid pin,
+                // it means Add Node pop-up was executed from a backward link.
+                // Record the first output of the matching type as _pinIdToLinkFrom.
+                _pinIdToLinkFrom = outPin->_pinId;
+            }
         }
 
         _graphNodes.push_back(std::move(newNode));
@@ -3733,12 +3743,26 @@ void Graph::addNodePopup(bool cursor)
         // Filter nodedefs and add to menu if matches filter
         for (auto node : _nodesToAdd)
         {
-            // Filter out nodes that has no inputs of the type matching to the _menuFilterType
             if (_menuFilterType != mx::EMPTY_STRING)
             {
-                if (node.getInputTypes().count(_menuFilterType)==0)
+                // _menuFilterType is not empty, so the Add Node pop-up was triggered by drawing a Link.
+                if (_pinIdToLinkFrom == ed::PinId() && _pinIdToLinkTo != ed::PinId())
                 {
-                    continue;
+                    // Drawing a forward Link from an output pin
+                    // Filter out nodes that has no inputs of the type matching to the _menuFilterType
+                    if (node.getInputTypes().count(_menuFilterType)==0)
+                    {
+                        continue;
+                    }
+                }
+                else if (_pinIdToLinkFrom != ed::PinId() && _pinIdToLinkTo == ed::PinId())
+                {
+                    // Drawing a backward Link from an input pin
+                    // Filter out nodes whose type do not match the _menuFilterType
+                    if (node.getType() != _menuFilterType)
+                    {
+                        continue;
+                    }
                 }
             }
 
@@ -4124,6 +4148,9 @@ void Graph::drawGraph(ImVec2 mousePos)
                 {
                     addLink(_pinIdToLinkFrom, _pinIdToLinkTo);
                 }
+
+                _pinIdToLinkTo = ed::PinId();
+                _pinIdToLinkFrom = ed::PinId();
             }
         }
 
@@ -4256,7 +4283,17 @@ void Graph::drawGraph(ImVec2 mousePos)
                 if (getPin(filterPinId)->_type != "null")
                 {
                     _pinFilterType = getPin(filterPinId)->_type;
-                    _pinIdToLinkFrom = filterPinId;
+
+                    if (UiPinPtr filterPin = getPin(filterPinId); filterPin && filterPin->_kind == ed::PinKind::Input)
+                    {
+                        _pinIdToLinkTo = filterPinId;
+                        _pinIdToLinkFrom = ed::PinId();
+                    }
+                    else
+                    {
+                        _pinIdToLinkTo = ed::PinId();
+                        _pinIdToLinkFrom = filterPinId;
+                    }
                 }
 
                 showLabel("Release Mouse to Add a New Node", ImColor(50, 50, 50, 255));
