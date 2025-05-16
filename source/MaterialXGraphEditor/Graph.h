@@ -222,7 +222,7 @@ class Graph
 
     // Render input enum values. This is used to display the enum values in the property editor
     template <typename T=int>
-    bool renderEnumInput(mx::InputPtr& input, T& temp);
+    bool renderEnumInput(mx::InputPtr& input, const mx::UIProperties& ui, T& temp);
 
     void clearGraph();
     void loadGraphFromFile(bool prompt);

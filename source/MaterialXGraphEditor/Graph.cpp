@@ -914,50 +914,86 @@ void Graph::updateMaterials(mx::InputPtr input /* = nullptr */, mx::ValuePtr val
 
 // Set the node to display in render view based on selected node or nodegraph
 template <typename T>
-bool Graph::renderEnumInput(mx::InputPtr& input, T &temp)
+bool Graph::renderEnumInput(mx::InputPtr& input, const mx::UIProperties& ui, T &evalue)
 {
     
   // Eg. <input name="subsurface_color" type="color3" value="0.2,0.6,0.05" 
   //    enum="PRESET1,PRESET2,PRESET3,PRESET4" enumvalues="0.2,0.6,0.05, 0.2,0.7,0.07, 0.2,0.6,0.05, 0.2,0.6,0.05" />
   std::string enumStr = input->getAttribute(mx::Input::ENUM_ATTRIBUTE);
   std::string enumValueStr = input->getAttribute(mx::Input::ENUM_VALUES_ATTRIBUTE);
-  const size_t INVALID_INDEX = std::numeric_limits<size_t>::max();
 
-  auto splitString = [](std::string itemValues, std::string delimiter=",") { 
-    std::vector<std::string> enumValues;
-    size_t pos = 0;
-    std::string token;
-    while ((pos = itemValues.find(delimiter)) != std::string::npos) {
-        token = itemValues.substr(0, pos);
-        enumValues.push_back(token);
-        itemValues.erase(0, pos + delimiter.length());
-    }
-    enumValues.push_back(itemValues);
-
-    return enumValues;
-  };
-
-  size_t index = INVALID_INDEX;
-  mx::ValuePtr val = input->getValue();
-  temp = val->asA<T>();
-
-  if (enumStr.empty() || enumValueStr.empty())
+  if (enumStr.empty())
   {
-    //std::cerr << "Enum string or enum values are empty" << std::endl;}
     return false;
   }
-  
-  std::string enumDelimiter = ",";
-  std::string enumValueDelimiter = ", ";
 
-  // enumValues result in eg. ["0.2,0.6,0.05", "0.2,0.7,0.07", "0.2,0.6,0.05", "0.2,0.6,0.05"]
-  std::vector<std::string> enumValues = splitString(enumValueStr, enumValueDelimiter);
-  // enumStr result in eg. ["PRESET1", "PRESET2", "PRESET3", "PRESET4"]
-  std::vector<std::string> enumVec = splitString(enumStr, enumDelimiter);
+  const size_t INVALID_INDEX = std::numeric_limits<size_t>::max();
+  size_t index = INVALID_INDEX;
+  mx::ValuePtr val = input->getValue();
+  evalue = val->asA<T>();
+  std::string enumDelimiter = ",";
+
+  auto splitStringByGroup = [](const std::string& input, int groupSize) {
+    std::vector<std::string> result;
+    std::stringstream ss(input);
+    std::string token;
+    std::string group;
+    int count = 0;
+
+    while (std::getline(ss, token, ',')) {
+        if (!group.empty()) {
+            group += ",";
+        }
+        group += token;
+        count++;
+
+        if (count == groupSize) {
+            result.push_back(group);
+            group.clear();
+            count = 0;
+        }
+    }
+
+    return result;
+ };
+
+  // target enumStr result in eg. ["PRESET1", "PRESET2", "PRESET3", "PRESET4"]
+  // target vec3 enumValues result in eg. ["0.2,0.6,0.05", "0.2,0.7,0.07", "0.2,0.6,0.05", "0.2,0.6,0.05"]
+  std::vector<mx::ValuePtr> enumValues = ui.enumerationValues;
+  std::vector<std::string> enumVec = ui.enumeration;
+
+  //Handling edge cases where enumvalues attribute is empty
+  //1. This can happen if the enum values are not set in the UI properties.
+  //i.e, ui.enumerationValues and ui.enumeration are not populated for non-uniforms. See /MaterialXRender/Util.cpp
+  //
+  //2. or deliberately ignored in the UI properties. 
+  // eg. <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uiname="Filter Type" uniform="true" />
+  if (enumValues.empty())
+  {
+
+    //enumvalues can be empty for string types
+    if (enumValueStr.empty() && input->getType() == "string")
+    {
+        enumValueStr = enumStr;
+    }
+
+    if (enumValueStr.empty())
+    {
+        return false;
+    }
+
+    // parse string values from the enum, enumvalues attribute directly and populate enumValues
+    enumVec = mx::splitString(enumStr, enumDelimiter);
+    int groupSize = mx::splitString(enumValueStr, enumDelimiter).size() / enumVec.size();
+    auto groupedEnumValues = splitStringByGroup(enumValueStr, groupSize);
+    for (const auto& group : groupedEnumValues) {
+        enumValues.push_back(mx::Value::createValueFromStrings(group, input->getType()));
+    }
+
+  }
 
   if ( enumVec.size() != enumValues.size())
   {
-    //std::cerr << "Enum values and enum strings do not match" << std::endl;
     return false;
   }
 
@@ -965,7 +1001,10 @@ bool Graph::renderEnumInput(mx::InputPtr& input, T &temp)
   std::replace(enumStr.begin(), enumStr.end(), enumDelimiter[0], '\0');
   enumStr += '\0';
   
-  auto it = std::find(enumValues.begin(), enumValues.end(), val->getValueString());
+  auto it = std::find_if(enumValues.begin(), enumValues.end(),
+                      [&evalue](const mx::ValuePtr& val) {
+                          return val->asA<T>() == evalue;
+                      });
   if (it != enumValues.end())
   {
     index = std::distance(enumValues.begin(), it);
@@ -973,7 +1012,6 @@ bool Graph::renderEnumInput(mx::InputPtr& input, T &temp)
 
   if (index == INVALID_INDEX)
   {
-    //std::cerr << "value not found in enum values" << std::endl;
     return false;
   }
 
@@ -985,36 +1023,9 @@ bool Graph::renderEnumInput(mx::InputPtr& input, T &temp)
       
       if (item_current < enumValues.size())
       {
-        std::string enumVal = enumValues[item_current];
-        std::vector<std::string> strVec;
-        if constexpr (std::is_same_v<T, std::string>)
-            temp = enumVal;
-        if constexpr (std::is_same_v<T, bool>)
-            temp = enumVal=="true";
-        else if constexpr (std::is_same_v<T, int>)
-            temp = std::stoi(enumVal);
-        else if constexpr (std::is_same_v<T, float>)
-            temp = std::stof(enumVal);
-        else if constexpr (std::is_same_v<T, double>)
-            temp = std::stod(enumVal);
-        else {
-            //eg. enumVal = "0.2,0.6,0.05" is split to produce strVec = ["0.2", "0.6", "0.05"]
-            strVec = splitString(enumVal, ",");
-            std::vector<float> v;
-            std::transform(strVec.begin(), strVec.end(), std::back_inserter(v), [](const std::string& s) { return std::stof(s); }); 
-
-            if constexpr (
-                std::is_same_v<T, mx::Color3> || std::is_same_v<T, mx::Color4>
-                || std::is_same_v<T, mx::Vector2> || std::is_same_v<T, mx::Vector3> || std::is_same_v<T, mx::Vector4>
-                || std::is_same_v<T, mx::Matrix33> || std::is_same_v<T, mx::Matrix44>) {
-
-                temp = T(&v.front(), &v.back());
-            }
-                
-        }
+        evalue = enumValues[item_current]->asA<T>();
       }
       else {
-        //std::cerr << "index out of range" << std::endl;
         return false;
       }
     //   std::cout << "item_current: " << index << std::endl;
@@ -1041,7 +1052,7 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         {
             float prev, temp;
             prev = temp = val->asA<float>();
-            if (!renderEnumInput<float>(input , temp))
+            if (!renderEnumInput<float>(input, uiProperties, temp))
             {
                 // Update the value to the default for new nodes
                 float min = minVal ? minVal->asA<float>() : 0.f;
@@ -1066,7 +1077,7 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         {
             int prev, temp;
             prev = temp = val->asA<int>();
-            if (!renderEnumInput<int>(input , temp))
+            if (!renderEnumInput<int>(input, uiProperties, temp))
             {
                 // Otherwise use a slider
                 int min = minVal ? minVal->asA<int>() : 0;
@@ -1092,7 +1103,7 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
             mx::Color3 prev, temp;
             prev = temp = val->asA<mx::Color3>();
 
-            if (!renderEnumInput<mx::Color3>(input , temp))
+            if (!renderEnumInput<mx::Color3>(input, uiProperties, temp))
             {
                 float min = minVal ? minVal->asA<mx::Color3>()[0] : 0.f;
                 float max = maxVal ? maxVal->asA<mx::Color3>()[0] : 100.f;
@@ -1122,7 +1133,7 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
             mx::Color4 prev, temp;
             prev = temp = val->asA<mx::Color4>();
 
-            if (!renderEnumInput<mx::Color4>(input , temp))
+            if (!renderEnumInput<mx::Color4>(input, uiProperties, temp))
             {
                 float min = minVal ? minVal->asA<mx::Color4>()[0] : 0.f;
                 float max = maxVal ? maxVal->asA<mx::Color4>()[0] : 100.f;
@@ -1153,7 +1164,7 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
             mx::Vector2 prev, temp;
             prev = temp = val->asA<mx::Vector2>();
 
-            if (!renderEnumInput<mx::Vector2>(input, temp))
+            if (!renderEnumInput<mx::Vector2>(input, uiProperties, temp))
             {
                 float min = minVal ? minVal->asA<mx::Vector2>()[0] : 0.f;
                 float max = maxVal ? maxVal->asA<mx::Vector2>()[0] : 100.f;
@@ -1178,7 +1189,7 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
             mx::Vector3 prev, temp;
             prev = temp = val->asA<mx::Vector3>();
 
-            if (!renderEnumInput<mx::Vector3>(input, temp))
+            if (!renderEnumInput<mx::Vector3>(input, uiProperties, temp))
             {
                 float min = minVal ? minVal->asA<mx::Vector3>()[0] : 0.f;
                 float max = maxVal ? maxVal->asA<mx::Vector3>()[0] : 100.f;
@@ -1203,7 +1214,7 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
             mx::Vector4 prev, temp;
             prev = temp = val->asA<mx::Vector4>();
 
-            if (!renderEnumInput<mx::Vector4>(input, temp))
+            if (!renderEnumInput<mx::Vector4>(input, uiProperties, temp))
             {
                 float min = minVal ? minVal->asA<mx::Vector4>()[0] : 0.f;
                 float max = maxVal ? maxVal->asA<mx::Vector4>()[0] : 100.f;
@@ -1228,7 +1239,7 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
             std::string prev, temp;
             prev = temp = val->asA<std::string>();
 
-            if (!renderEnumInput<std::string>(input, temp))
+            if (!renderEnumInput<std::string>(input, uiProperties, temp))
             {
                 ImGui::InputText("##constant", &temp);
             }
@@ -1300,7 +1311,7 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
             bool prev, temp;
             prev = temp = val->asA<bool>();
 
-            if (!renderEnumInput<bool>(input, temp))
+            if (!renderEnumInput<bool>(input, uiProperties, temp))
             {
                 ImGui::Checkbox("", &temp);
             }
