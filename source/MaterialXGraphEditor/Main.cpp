@@ -15,7 +15,6 @@
 
 #include <iostream>
 #include <limits>
-#include <type_traits>
 
 namespace
 {
@@ -256,9 +255,8 @@ int main(int argc, char* const argv[])
         ImGui::NewFrame();
 
         auto renderer = graph->getRenderer();
-        using FrameType = std::invoke_result_t<decltype(&RenderView::getFrame), RenderView>;
-        constexpr auto frameMaxValue = std::numeric_limits<FrameType>::max();
-        renderer->setFrame((renderer->getFrame() + 1) % frameMaxValue);
+        constexpr auto FRAME_MAX_VALUE = std::numeric_limits<unsigned int>::max();
+        renderer->setFrame((renderer->getFrame() + 1) % FRAME_MAX_VALUE);
         renderer->drawContents();
         if (!captureFilename.empty())
         {

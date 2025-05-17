@@ -2205,8 +2205,8 @@ void Viewer::draw_contents()
     }
 
     // Render the current frame.
-    constexpr auto frameMaxValue = std::numeric_limits<decltype(_renderPipeline->_frame)>::max();
-    _renderPipeline->_frame = (_renderPipeline->_frame + 1) % frameMaxValue;
+    constexpr auto FRAME_MAX_VALUE = std::numeric_limits<decltype(_renderPipeline->_frame)>::max();
+    _renderPipeline->_frame = (_renderPipeline->_frame + 1) % FRAME_MAX_VALUE;
     try
     {
         _renderPipeline->renderFrame(_colorTexture,
