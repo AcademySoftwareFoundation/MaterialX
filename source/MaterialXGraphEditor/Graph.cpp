@@ -2652,7 +2652,16 @@ void Graph::addLink(ed::PinId startPinId, ed::PinId endPinId)
                             }
                             else
                             {
-                                pin->_input->setConnectedNode(uiUpNode->getNode());
+                                mx::NodePtr upstreamNode = uiUpNode->getNode();
+                                if (upstreamNode)
+                                {
+                                    mx::OutputPtr output = upstreamNode->getOutput(outputPin->_name);
+                                    if (!output)
+                                    {
+                                        output = upstreamNode->addOutput(outputPin->_name, pin->_input->getType());
+                                    }
+                                    pin->_input->setConnectedOutput(output);
+                                }
                             }
                         }
                     }
