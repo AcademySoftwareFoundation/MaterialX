@@ -14,6 +14,8 @@
 #include <GLFW/glfw3.h>
 
 #include <iostream>
+#include <limits>
+#include <type_traits>
 
 namespace
 {
@@ -254,7 +256,9 @@ int main(int argc, char* const argv[])
         ImGui::NewFrame();
 
         auto renderer = graph->getRenderer();
-        renderer->setFrame((renderer->getFrame() + 1) % 32768);
+        using FrameType = std::invoke_result_t<decltype(&RenderView::getFrame), RenderView>;
+        constexpr auto frameMaxValue = std::numeric_limits<FrameType>::max();
+        renderer->setFrame((renderer->getFrame() + 1) % frameMaxValue);
         renderer->drawContents();
         if (!captureFilename.empty())
         {
