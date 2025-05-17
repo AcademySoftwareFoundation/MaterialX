@@ -781,8 +781,8 @@
       <input name="in2" type="float" nodename="separate3" output="outz" />
     </multiply>
     <atan2 name="direction_to_rotation" type="float" nodedef="ND_atan2_float">
-      <input name="in1" type="float" nodename="subtract_y" />
-      <input name="in2" type="float" nodename="subtract_x" />
+      <input name="iny" type="float" nodename="subtract_y" />
+      <input name="inx" type="float" nodename="subtract_x" />
     </atan2>
     <add name="rotation_add" type="float" nodedef="ND_add_float">
       <input name="in1" type="float" interfacename="anisotropy_rotation" />
