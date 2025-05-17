@@ -145,6 +145,7 @@ unsigned int getUIProperties(InputPtr input, const string& target, UIProperties&
         propertyCount++;
     }
 
+    //Enumeration fields are not populated for non uniform inputs. Is this intentional? This affects the issue #2366
     if (input->getIsUniform())
     {
         uiProperties.enumeration = input->getTypedAttribute<StringVec>(ValueElement::ENUM_ATTRIBUTE);

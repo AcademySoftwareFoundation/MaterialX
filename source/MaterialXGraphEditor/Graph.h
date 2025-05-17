@@ -220,6 +220,10 @@ class Graph
     // Set the node to display in render view based on selected node or nodegraph
     void setRenderMaterial(UiNodePtr node);
 
+    // Render input enum values. This is used to display the enum values in the property editor
+    template <typename T=int>
+    bool renderEnumInput(mx::InputPtr& input, const mx::UIProperties& ui, T& temp);
+
     void clearGraph();
     void loadGraphFromFile(bool prompt);
     void saveGraphToFile();
