@@ -20,6 +20,8 @@ The MaterialX codebase requires a compiler with support for C++17, and can be bu
 
 The Python bindings for MaterialX are based on [PyBind11](https://github.com/pybind/pybind11), and support Python versions 3.9 and greater.
 
+On macOS, you'll need to [install Xcode](https://developer.apple.com/xcode/resources/), in order to get access to the Metal Tools as well as compiler toolchains.
+
 ## Building MaterialX
 
 ### Building MaterialX C++
@@ -51,6 +53,29 @@ Select the `MATERIALX_BUILD_VIEWER` option to build the MaterialX Viewer.  Insta
 ### Building API Documentation
 
 To generate HTML documentation for the MaterialX C++ API, make sure a version of [Doxygen](https://www.doxygen.org/) is on your path, and select the advanced option `MATERIALX_BUILD_DOCS` in CMake.  This option will add a target named `MaterialXDocs` to your project, which can be built as an independent step from your development environment.
+
+## Editor Setup
+
+MaterialX should work in any editor that supports CMake, or that CMake can generate a project for.
+Some common Editors are listed here to help developers get started.
+
+### CLion
+
+[CLion](https://www.jetbrains.com/clion/) is a cross-platform IDE that can be used to develop MaterialX.
+Additionally, it includes CMake and is free for non-commercial Use.
+
+To get started with CLion, open the MaterialX repository directly, and it will load the CMake project for you.
+If you want to enable features like Python, go to `Settings -> Build, Execution and Deployment -> CMake` and configure
+the CMake Options, for example:
+
+```
+-DMATERIALX_BUILD_PYTHON=ON
+-DMATERIALX_BUILD_VIEWER=ON
+-DMATERIALX_BUILD_GRAPH_EDITOR=ON
+```
+
+To build, either select `Build -> Build Project` or select a specific configuration to build.
+To install, select `Build -> Install`
 
 ## Installing MaterialX
 
