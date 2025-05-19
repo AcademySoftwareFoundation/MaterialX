@@ -76,9 +76,6 @@ Generating done (1.0s)
 ```
 
 After generation, you have two options to build the project:
-
-Once generated, you can click **Open Project** to open the generated project in your default IDE or some other configured environment to open your project. The project can then be built through the IDE.
-
 - Click **Open Project** to launch the generated project in your default IDE or some other configured environment to open your project, then build from there.
 - Or, build directly from the terminal:
 ```bash
