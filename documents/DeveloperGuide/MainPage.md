@@ -49,7 +49,7 @@ The MaterialX codebase requires the following tools:
 
 You can build MaterialX using any of the following methods:
 
-1. [Cmake GUI](#cmake-gui)
+1. [CMake GUI](#cmake-gui)
 2. CMake Command-Line Interface (CLI)
    - [Passing options as arguments](#pass-options-as-arguments)
    - [Specifying options in a CMake preset](#specify-options-in-a-cmake-preset)
