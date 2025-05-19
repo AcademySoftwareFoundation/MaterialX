@@ -183,7 +183,7 @@ You can configure CMake settings through:
 In CMake settings, you can create build profiles and specify options:
 
 1. Select or create a profile.
-2. Configuration CMake options below **Cache Variables**, for example:
+2. Configure CMake options below **Cache Variables**, for example:
     Enable `MATERIALX_BUILD_VIEWER` and `MATERIALX_BUILD_GRAPH_EDITOR`.
 
 To build the project:
