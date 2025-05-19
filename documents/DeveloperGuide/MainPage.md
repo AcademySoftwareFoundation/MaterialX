@@ -6,59 +6,94 @@ MaterialX is an open standard for representing rich material and look-developmen
 
 ## Quick Start for Developers
 
-To get started with MaterialX, ensure your [development environment](#prepare-development-environment) is set up, then clone the MaterialX repository and run the CMake build command:
+- Download and install the latest version of [CMake](https://cmake.org/).
+- Use CMake (either via terminal or GUI) to configure and generate C++ projects from the root of the MaterialX repository for your platform and compiler.
+- Enable the following build options as needed:
+  - `MATERIALX_BUILD_PYTHON` to build the Python bindings.
+  - `MATERIALX_BUILD_VIEWER` to build the [MaterialX Viewer](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/documents/DeveloperGuide/Viewer.md).
+  - `MATERIALX_BUILD_GRAPH_EDITOR` to build the [MaterialX Graph Editor](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/documents/DeveloperGuide/GraphEditor.md). 
 
+For information on setting up your development environment, see [Prepare Development Environment](#prepare-development-environment).
+
+To view a complete list of [build options](#build-options), refer to the dedicated section below.
+
+For a step-by-step guide and additional configuration tips, continue to [Build Methods](#build-methods).
+
+## Prepare Development Environment
+
+Start by cloning the MaterialX repository. In your terminal, run:
 ```bash
-git clone https://github.com/AcademySoftwareFoundation/MaterialX.git
-cd MaterialX
-git submodule update --init --recursive
-
-cmake -S . -B build -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON
-cmake --build ./build
+git clone --recurse-submodules https://github.com/AcademySoftwareFoundation/MaterialX.git
 ```
-
-This script builds MaterialX along with the [MaterialX Viewer](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/documents/DeveloperGuide/Viewer.md) and [MaterialX Graph Editor](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/documents/DeveloperGuide/GraphEditor.md).
-
-For a complete list of available [build options](#build-options), refer to the relevant section below.
-
-For more advanced setup details, continue to the next section: [Build Guide](#build-guide).
-
-
-## Build Guide
-
-### Prepare Development Environment
 
 The MaterialX codebase requires the following tools:
 
-- **[CMake](https://cmake.org/) (>= 3.0, < 4.0)** — Build system.
+- **[CMake](https://cmake.org/) (version ≥ 3.0 and < 4.0)** — Build system.
 - **Compiler with C++17 support** — Choose a generator and compiler combination:
-  - Microsoft Visual Studio 2017 or newer (includes generator and compiler).
-  - MinGW Makefiles with GCC 8 or newer.
-  - Ninja + Clang 5 or newer (cross-platform).
-- **Python (>= 3.7)** — Required for building Python bindings.
+  - *Microsoft Visual Studio 2017 or newer* (includes both compiler and generator).
+  - *MinGW Makefiles* with *GCC 8 or newer*.
+  - *Ninja + Clang 5 or newer* (cross-platform).
+- **Python (version ≥ 3.7)** — Required for building Python bindings.
 
-> [!Note]
-> On Windows, Visual Studio's MSVC tool is used as both a generator and a compiler. There’s no need to install GCC, Clang, or Ninja separately if Visual Studio is installed.
+> [!Note] **Using MSVC on Windows**
+> On Windows, the MSVC toolchain included with Visual Studio serves as both the generator and the compiler. You do **not** need to install GCC, Clang, or Ninja separately when using Visual Studio.
 
-#### Additional Information:
+> [!Tip] **Additional Notes**
+> 
+> - On macOS, [Xcode](https://developer.apple.com/xcode/resources/) must be installed to access Metal tools and compiler toolchains.
+> - Python bindings for MaterialX are built using [PyBind11](https://github.com/pybind/pybind11), compatible with Python 3.9 and newer.
+> - `PyBind11` is included in the repository for basic usage. For advanced configurations, you may download a custom version and set the `MATERIALX_PYTHON_PYBIND11_DIR` CMake variable.
 
-- On macOS, you must [install Xcode](https://developer.apple.com/xcode/resources/) to access Metal Tools and compiler toolchains.
-- Python bindings for MaterialX are built using [PyBind11](https://github.com/pybind/pybind11), compatible with Python 3.9 and newer.
-- `PyBind11` is included in the repository for basic usage. For custom builds, you can download it and set `MATERIALX_PYTHON_PYBIND11_DIR` option.
 
-
-### Build Methods
+## Build Methods
 
 You can build MaterialX using any of the following methods:
 
-1. [Passing options as arguments](#1-pass-options-as-arguments)
-2. [Specifying options in a CMake preset](#2-specify-options-in-a-cmake-preset)
-3. [Using an IDE](#3-use-an-ide)
+1. [Cmake GUI](#cmake-gui)
+2. CMake Command-Line Interface (CLI)
+   - [Passing options as arguments](#pass-options-as-arguments)
+   - [Specifying options in a CMake preset](#specify-options-in-a-cmake-preset)
+3. [Using an IDE](#use-an-ide)
 
 There is no recommended method; it’s purely based on personal preference.
 
+### CMake GUI
+You can use the CMake GUI to configure and generate project files for MaterialX. Note that CMake GUI only generates build files—the actual build must be performed in an external tool such as an IDE or the terminal.
 
-#### 1. Pass Options as Arguments
+![CMake GUI Example](../Images/cmake_gui_example.png)
+
+To get started, open CMake GUI and go through these steps:
+
+1. **Browse Source**: Select the root of the cloned MaterialX repository.
+2. **Browse Build**: Choose a build directory (e.g. `MaterialX/build`).
+3. Click **Configure**: Click Configure: This saves your current configuration. You'll need to click it again anytime you change any options. The first time you click it, CMake will prompt you to choose a generator (e.g., Visual Studio, Ninja).
+4. Click **Generate**: This step creates the build system files (e.g., a Visual Studio solution or Makefiles).
+
+You’ll see progress messages in the output window confirming each step. For example:
+```
+Configuring done (3.9s)
+Generating done (1.0s)
+```
+
+After generation, you have two options to build the project:
+
+Once generated, you can click **Open Project** to open the generated project in your default IDE or some other configured environment to open your project. The project can then be built through the IDE.
+
+- Click **Open Project** to launch the generated project in your default IDE or some other configured environment to open your project, then build from there.
+- Or, build directly from the terminal:
+```bash
+cd <your-build-directory>
+cmake --build .
+```
+
+> [!Note]
+> The CMake GUI includes **Grouped** and **Advanced** checkboxes, which control how the environment variables are displayed in the UI. Use them to manage build configuration more easily.
+
+### CMake CLI
+
+The CMake Command-Line Interface (CLI) offers several ways to configure and build the project, as outlined below.
+
+#### Pass Options as Arguments
 
 You can specify build options directly during the CMake configuration step using the `-D` flag. Reference the [YAML build actions](../../.github/workflows/main.yml) in the repository for examples.
 
@@ -79,7 +114,7 @@ cmake --build ./build
 > ```
 
 
-#### 2. Specify Options in a CMake Preset
+#### Specify Options in a CMake Preset
 
 [CMake Presets](https://cmake.org/cmake/help/latest/manual/cmake-presets.7.html) (available in CMake 3.19+) allow you to define options easily.
 Example preset file (`CMakePresets.json`) should be located at the project root:
@@ -131,13 +166,11 @@ cmake --preset default
 cmake --build build
 ```
 
----
-
-#### 3. Use an IDE
+### Use an IDE
 
 MaterialX is compatible with any IDE that supports CMake. Below are some common IDEs for MaterialX development:
 
-##### CLion
+#### CLion
 
 [CLion](https://www.jetbrains.com/clion/) is a cross-platform IDE that fully supports CMake. It is free for non-commercial use and provides granular settings to manage CMake builds effectively.
 
@@ -166,7 +199,7 @@ To build the project:
 - To install, use `Build → Install`.
 
 
-### Build Options
+## Build Options
 
 | **Option**                      | **Description**                                                              |
 | ------------------------------- | ---------------------------------------------------------------------------- |
