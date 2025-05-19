@@ -1027,7 +1027,7 @@ bool Graph::renderEnumInput(mx::InputPtr& input, const mx::UIProperties& ui, T &
   int item_current = static_cast<int>(index);
   if (ImGui::Combo("", &item_current, enumStr.data(), 3)) {
       
-      if (item_current < enumValues.size())
+      if (static_cast<size_t>(item_current) < enumValues.size())
       {
         evalue = enumValues[item_current]->asA<T>();
       }
