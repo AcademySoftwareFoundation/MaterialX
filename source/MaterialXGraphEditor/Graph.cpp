@@ -919,6 +919,14 @@ bool Graph::renderEnumInput(mx::InputPtr& input, const mx::UIProperties& ui, T &
     
   // Eg. <input name="subsurface_color" type="color3" value="0.2,0.6,0.05" 
   //    enum="PRESET1,PRESET2,PRESET3,PRESET4" enumvalues="0.2,0.6,0.05, 0.2,0.7,0.07, 0.2,0.6,0.05, 0.2,0.6,0.05" />
+  
+  //Cases
+  //1. ENUM_ATTRIBUTE attribute is empty (`enum`)
+  //2. ENUM_VALUES_ATTRIBUTE attribute can be empty, only if its a string type (`enumvalues`)
+  //3. `value` is not in enumvalues
+  //4. ui.enumerationValues and ui.enumeration are not populated for non-uniforms, 
+  //    hence use enumvalues attribute directly
+
   std::string enumStr = input->getAttribute(mx::Input::ENUM_ATTRIBUTE);
   std::string enumValueStr = input->getAttribute(mx::Input::ENUM_VALUES_ATTRIBUTE);
 
@@ -933,12 +941,12 @@ bool Graph::renderEnumInput(mx::InputPtr& input, const mx::UIProperties& ui, T &
   evalue = val->asA<T>();
   std::string enumDelimiter = ",";
 
-  auto splitStringByGroup = [](const std::string& input, int groupSize) {
+  auto splitStringByGroup = [](const std::string& input, size_t groupSize) {
     std::vector<std::string> result;
     std::stringstream ss(input);
     std::string token;
     std::string group;
-    int count = 0;
+    size_t count = 0;
 
     while (std::getline(ss, token, ',')) {
         if (!group.empty()) {
@@ -984,7 +992,7 @@ bool Graph::renderEnumInput(mx::InputPtr& input, const mx::UIProperties& ui, T &
 
     // parse string values from the enum, enumvalues attribute directly and populate enumValues
     enumVec = mx::splitString(enumStr, enumDelimiter);
-    int groupSize = mx::splitString(enumValueStr, enumDelimiter).size() / enumVec.size();
+    size_t groupSize = mx::splitString(enumValueStr, enumDelimiter).size() / enumVec.size();
     auto groupedEnumValues = splitStringByGroup(enumValueStr, groupSize);
     for (const auto& group : groupedEnumValues) {
         enumValues.push_back(mx::Value::createValueFromStrings(group, input->getType()));
@@ -1016,7 +1024,7 @@ bool Graph::renderEnumInput(mx::InputPtr& input, const mx::UIProperties& ui, T &
   }
 
 
-  int item_current = index;
+  int item_current = static_cast<int>(index);
   if (ImGui::Combo("", &item_current, enumStr.data(), 3)) {
       
       if (item_current < enumValues.size())
