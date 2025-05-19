@@ -144,7 +144,8 @@ RenderView::RenderView(mx::DocumentPtr doc,
     _renderTransparency(true),
     _renderDoubleSided(true),
     _captureRequested(false),
-    _exitRequested(false)
+    _exitRequested(false),
+    _frame(0)
 {
     // Resolve input filenames, taking both the provided search path and
     // current working directory into account.
@@ -805,6 +806,10 @@ void RenderView::renderFrame()
         if (material->getProgram()->hasUniform(mx::HW::ALPHA_THRESHOLD))
         {
             material->getProgram()->bindUniform(mx::HW::ALPHA_THRESHOLD, mx::Value::createValue(0.99f));
+        }
+        if (material->getProgram()->hasUniform(mx::HW::FRAME))
+        {
+            material->getProgram()->bindUniform(mx::HW::FRAME, mx::Value::createValue(static_cast<float>(_frame)));
         }
         material->bindViewInformation(_viewCamera);
         material->bindLighting(_lightHandler, _imageHandler, shadowState);

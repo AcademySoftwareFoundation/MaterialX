@@ -48,6 +48,7 @@
 #include <fstream>
 #include <iostream>
 #include <iomanip>
+#include <limits>
 
 const mx::Vector3 DEFAULT_CAMERA_POSITION(0.0f, 0.0f, 5.0f);
 const float DEFAULT_CAMERA_VIEW_ANGLE = 45.0f;
@@ -2204,6 +2205,8 @@ void Viewer::draw_contents()
     }
 
     // Render the current frame.
+    constexpr auto FRAME_MAX_VALUE = std::numeric_limits<decltype(_renderPipeline->_frame)>::max();
+    _renderPipeline->_frame = (_renderPipeline->_frame + 1) % FRAME_MAX_VALUE;
     try
     {
         _renderPipeline->renderFrame(_colorTexture,
