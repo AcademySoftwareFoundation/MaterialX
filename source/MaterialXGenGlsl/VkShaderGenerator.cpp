@@ -8,7 +8,7 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-const string VkShaderGenerator::TARGET = "vulkan";
+const string VkShaderGenerator::TARGET = "genglsl";
 const string VkShaderGenerator::VERSION = "450";
 
 VkShaderGenerator::VkShaderGenerator(TypeSystemPtr typeSystem) :
