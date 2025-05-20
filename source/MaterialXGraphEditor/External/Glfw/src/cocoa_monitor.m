@@ -39,18 +39,31 @@
 
 // Get the name of the specified display, or NULL
 //
-static char* getDisplayName(CGDirectDisplayID displayID)
+static char* getMonitorName(CGDirectDisplayID displayID, NSScreen* screen)
 {
+    // IOKit doesn't work on Apple Silicon anymore
+    // Luckily, 10.15 introduced -[NSScreen localizedName].
+    // Use it if available, and fall back to IOKit otherwise.
+    if (screen)
+    {
+        if ([screen respondsToSelector:@selector(localizedName)])
+        {
+            NSString* name = [screen valueForKey:@"localizedName"];
+            if (name)
+                return _glfw_strdup([name UTF8String]);
+        }
+    }
+
     io_iterator_t it;
     io_service_t service;
     CFDictionaryRef info;
 
-    if (IOServiceGetMatchingServices(kIOMasterPortDefault,
+    if (IOServiceGetMatchingServices(MACH_PORT_NULL,
                                      IOServiceMatching("IODisplayConnect"),
                                      &it) != 0)
     {
         // This may happen if a desktop Mac is running headless
-        return NULL;
+        return _glfw_strdup("Display");
     }
 
     while ((service = IOIteratorNext(it)) != 0)
@@ -85,11 +98,7 @@ static char* getDisplayName(CGDirectDisplayID displayID)
     IOObjectRelease(it);
 
     if (!service)
-    {
-        _glfwInputError(GLFW_PLATFORM_ERROR,
-                        "Cocoa: Failed to find service port for display");
-        return NULL;
-    }
+        return _glfw_strdup("Display");
 
     CFDictionaryRef names =
         CFDictionaryGetValue(info, CFSTR(kDisplayProductName));
@@ -101,7 +110,7 @@ static char* getDisplayName(CGDirectDisplayID displayID)
     {
         // This may happen if a desktop Mac is running headless
         CFRelease(info);
-        return NULL;
+        return _glfw_strdup("Display");
     }
 
     const CFIndex size =
@@ -328,27 +337,46 @@ void _glfwPollMonitorsNS(void)
         if (CGDisplayIsAsleep(displays[i]))
             continue;
 
+        const uint32_t unitNumber = CGDisplayUnitNumber(displays[i]);
+        NSScreen* screen = nil;
+
+        for (screen in [NSScreen screens])
+        {
+            NSNumber* screenNumber = [screen deviceDescription][@"NSScreenNumber"];
+
+            // HACK: Compare unit numbers instead of display IDs to work around
+            //       display replacement on machines with automatic graphics
+            //       switching
+            if (CGDisplayUnitNumber([screenNumber unsignedIntValue]) == unitNumber)
+                break;
+        }
+
         // HACK: Compare unit numbers instead of display IDs to work around
         //       display replacement on machines with automatic graphics
         //       switching
-        const uint32_t unitNumber = CGDisplayUnitNumber(displays[i]);
-        for (uint32_t j = 0;  j < disconnectedCount;  j++)
+        uint32_t j;
+        for (j = 0;  j < disconnectedCount;  j++)
         {
             if (disconnected[j] && disconnected[j]->ns.unitNumber == unitNumber)
             {
+                disconnected[j]->ns.screen = screen;
                 disconnected[j] = NULL;
                 break;
             }
         }
 
+        if (j < disconnectedCount)
+            continue;
+
         const CGSize size = CGDisplayScreenSize(displays[i]);
-        char* name = getDisplayName(displays[i]);
+        char* name = getMonitorName(displays[i], screen);
         if (!name)
-            name = _glfw_strdup("Unknown");
+            continue;
 
         _GLFWmonitor* monitor = _glfwAllocMonitor(name, size.width, size.height);
         monitor->ns.displayID  = displays[i];
         monitor->ns.unitNumber = unitNumber;
+        monitor->ns.screen     = screen;
 
         free(name);
 
