@@ -48,9 +48,7 @@ The MaterialX codebase requires the following tools:
 You can build MaterialX using any of the following methods:
 
 1. [CMake GUI](#cmake-gui)
-2. CMake Command-Line Interface (CLI)
-   - [Passing options as arguments](#pass-options-as-arguments)
-   - [Specifying options in a CMake preset](#specify-options-in-a-cmake-preset)
+2. [CMake Command-Line Interface (CLI)](#cmake-cli)
 3. [Using an IDE](#use-an-ide)
 
 There is no recommended method; it’s purely based on personal preference.
@@ -86,13 +84,10 @@ cmake --build .
 
 ### CMake CLI
 
-The CMake Command-Line Interface (CLI) offers several ways to configure and build the project, as outlined below.
+The CMake Command-Line Interface (CLI) provides several flexible ways to configure and build the project.
+You can pass build options directly during the configuration step using the `-D` flag. For more examples, refer to the [YAML build actions](../../.github/workflows/main.yml) in the repository.
 
-#### Pass Options as Arguments
-
-You can specify build options directly during the CMake configuration step using the `-D` flag. Reference the [YAML build actions](../../.github/workflows/main.yml) in the repository for examples.
-
-Example:
+**Basic Example:**
 
 ```bash
 cd MaterialX
@@ -109,57 +104,43 @@ cmake --build ./build
 > ```
 
 
-#### Specify Options in a CMake Preset
-
-[CMake Presets](https://cmake.org/cmake/help/latest/manual/cmake-presets.7.html) (available in CMake 3.19+) allow you to define options easily.
-Example preset file (`CMakePresets.json`) should be located at the project root:
-
-```json
-{
-  "version": 3,
-  "cmakeMinimumRequired": {
-    "major": 3,
-    "minor": 23,
-    "patch": 0
-  },
-  "configurePresets": [
-    {
-      "name": "default",
-      "generator": "Visual Studio 17 2022",
-      "description": "Default build configuration",
-      "hidden": false,
-      "binaryDir": "build",
-      "cacheVariables": {
-        "MATERIALX_BUILD_VIEWER": "ON",
-        "MATERIALX_BUILD_GRAPH_EDITOR": "ON"
-      }
-    }
-  ]
-}
-```
-
-> [!Note]
-> The `generator` and some `cacheVariables` may need to be updated depending on your chosen tools.
-> For example, when using Ninja + Clang, you would adjust the following fields:
+> [!Tip]
+> As an alternative to using the `-D` flag, [CMake Presets](https://cmake.org/cmake/help/latest/manual/cmake-presets.7.html) (available in CMake 3.19+) let you define build options in a simple JSON file (`CMakePresets.json`) at the project root.
+> 
+> <details><summary>Example: <code>CMakePresets.json</code></summary>
+>
 > ```json
 > {
->   // Partial JSON — only fields that need modification are shown  
->   "generator": "Ninja",
->   "cacheVariables": {
->    "CMAKE_C_COMPILER": "clang",
->    "CMAKE_CXX_COMPILER": "clang++"
->  }
+>   "version": 3,
+>   "cmakeMinimumRequired": {
+>     "major": 3,
+>     "minor": 23,
+>     "patch": 0
+>   },
+>   "configurePresets": [
+>     {
+>       "name": "default",
+>       "generator": "Visual Studio 17 2022",
+>       "description": "Default build configuration",
+>       "hidden": false,
+>       "binaryDir": "build",
+>       "cacheVariables": {
+>         "MATERIALX_BUILD_VIEWER": "ON",
+>         "MATERIALX_BUILD_GRAPH_EDITOR": "ON"
+>       }
+>     }
+>   ]
 > }
 > ```
-
-
-To build using the preset:
-
-```bash
-cd MaterialX
-cmake --preset default
-cmake --build build
-```
+> 
+> To configure and build using the preset:
+> 
+> ```bash
+> cd MaterialX
+> cmake --preset default
+> cmake --build build
+> ```
+> </details>
 
 ### Use an IDE
 
