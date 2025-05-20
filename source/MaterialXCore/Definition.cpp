@@ -117,6 +117,7 @@ bool NodeDef::validate(string* message) const
 {
     bool res = true;
     validateRequire(!hasType(), res, message, "Nodedef should not have a type but an explicit output");
+    validateRequire(getOutputCount() != 0, res, message, "Nodedef must have at lesst one output");
     return InterfaceElement::validate(message) && res;
 }
 

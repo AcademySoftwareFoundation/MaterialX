@@ -200,14 +200,15 @@ bool Node::validate(string* message) const
         bool exactMatch = hasExactInputMatch(nodeDef, &matchMessage);
         validateRequire(exactMatch, res, message, "Node interface error: " + matchMessage);
 
-        vector<OutputPtr> nodeDefOutputs = nodeDef->getOutputs();
-        if(nodeDefOutputs.size() == 1)
+        const vector<OutputPtr>& activeOutputs = nodeDef->getActiveOutputs();
+        const size_t numActiveOutputs = activeOutputs.size();
+        if (numActiveOutputs > 1)
         {
-            validateRequire(getType() == nodeDefOutputs[0]->getType(), res, message, "The attribute type must match the type of the output of the node definition");
+            validateRequire(getType() == MULTI_OUTPUT_TYPE_STRING, res, message, "Node type is not 'multioutput' for node with multiple outputs");
         }
-        else if(nodeDefOutputs.size() > 1)
+        else if (numActiveOutputs == 1)
         {
-            validateRequire(getType() == "multioutput", res, message, "The attribute type must be multioutput to match the implementation");
+            validateRequire(getType() == activeOutputs[0]->getType(), res, message, "Node type does not match output port type");
         }
     }
     else

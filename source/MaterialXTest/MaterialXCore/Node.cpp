@@ -822,6 +822,28 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
 
         doc->removeChild(graph->getName());
     }
-    
+
     REQUIRE(doc->validate());
+}
+
+TEST_CASE("NodDef validation no outputs", "[nodedef]")
+{
+    mx::DocumentPtr doc = mx::createDocument();
+
+    std::string name = mx::EMPTY_STRING;
+    std::string type = mx::EMPTY_STRING;
+    // If the 'type' given to addNodeDef is not empty then an output will be created implicitly
+    mx::NodeDefPtr nodeDef = doc->addNodeDef(name, type);
+
+    // Make sure no outputs were created
+    REQUIRE(nodeDef->getOutputCount() == 0);
+
+    // It will now fail the validation
+    REQUIRE_FALSE(nodeDef->validate());
+
+    // Add any output
+    nodeDef->addOutput();
+
+    // It will now pass the validation
+    REQUIRE(nodeDef->validate());
 }
