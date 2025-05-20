@@ -340,7 +340,7 @@
     <!-- Anisotropy -->
     <multiply name="rad_2_deg" type="float" nodedef="ND_multiply_float">
       <input name="in1" type="float" interfacename="anisotropy_rotation" />
-      <input name="in2" type="float" value="57.295780" />
+      <input name="in2" type="float" value="-57.295780" />
     </multiply>
     <rotate3d name="rotate_tangent" type="vector3" nodedef="ND_rotate3d_vector3">
       <input name="in" type="vector3" interfacename="tangent" />
@@ -350,8 +350,11 @@
     <normalize name="normalize_tangent" type="vector3" nodedef="ND_normalize_vector3">
       <input name="in" type="vector3" nodename="rotate_tangent" />
     </normalize>
+    <absval name="abs_anisotropy_rotation" type="float" nodedef="ND_absval_float">
+      <input name="in" type="float" interfacename="anisotropy_rotation"/>
+    </absval>
     <ifgreater name="picked_tangent" type="vector3" nodedef="ND_ifgreater_vector3">
-      <input name="value1" type="float" value="1.000000" />
+      <input name="value1" type="float" nodename="abs_anisotropy_rotation" />
       <input name="value2" type="float" value="0.0" />
       <input name="in1" type="vector3" nodename="normalize_tangent" />
       <input name="in2" type="vector3" interfacename="tangent" />
