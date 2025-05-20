@@ -413,6 +413,10 @@ void GLRenderPipeline::renderFrame(void*, int shadowMapSize, const char* dirLigh
         {
             material->getProgram()->bindUniform(mx::HW::ALPHA_THRESHOLD, mx::Value::createValue(0.99f));
         }
+        if (material->getProgram()->hasUniform(mx::HW::FRAME))
+        {
+            material->getProgram()->bindUniform(mx::HW::FRAME, mx::Value::createValue(static_cast<float>(_frame)));
+        }
         material->bindViewInformation(viewCamera);
         material->bindLighting(lightHandler, imageHandler, shadowState);
         material->bindImages(imageHandler, searchPath);

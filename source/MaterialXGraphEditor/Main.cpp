@@ -14,6 +14,7 @@
 #include <GLFW/glfw3.h>
 
 #include <iostream>
+#include <limits>
 
 namespace
 {
@@ -253,7 +254,10 @@ int main(int argc, char* const argv[])
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        graph->getRenderer()->drawContents();
+        auto renderer = graph->getRenderer();
+        constexpr auto FRAME_MAX_VALUE = std::numeric_limits<unsigned int>::max();
+        renderer->setFrame((renderer->getFrame() + 1) % FRAME_MAX_VALUE);
+        renderer->drawContents();
         if (!captureFilename.empty())
         {
             break;

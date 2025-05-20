@@ -209,6 +209,16 @@ class RenderView
 
     void loadMesh(const mx::FilePath& filename);
 
+    unsigned int getFrame() const
+    {
+        return _frame;
+    }
+
+    void setFrame(unsigned int frame)
+    {
+        _frame = frame;
+    }
+
   private:
     void initContext(mx::GenContext& context);
     void loadEnvironmentLight();
@@ -332,6 +342,8 @@ class RenderView
     bool _captureRequested;
     mx::FilePath _captureFilename;
     bool _exitRequested;
+
+    unsigned int _frame;
 };
 
 extern const mx::Vector3 DEFAULT_CAMERA_POSITION;
