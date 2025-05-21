@@ -156,6 +156,12 @@ void Implementation::setNodeDef(ConstNodeDefPtr nodeDef)
 
 NodeDefPtr Implementation::getNodeDef() const
 {
+    ElementPtr parent = getSelfNonConst()->getParent();
+    NodeDefPtr nodedef = parent->asA<NodeDef>();
+    if (nodedef)
+    {
+        return nodedef;
+    }
     return resolveNameReference<NodeDef>(getNodeDefString());
 }
 
