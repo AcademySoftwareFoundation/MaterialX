@@ -83,6 +83,54 @@ TEST_CASE("Interface Input Validation", "[node]")
     }
 }
 
+TEST_CASE("Node Type Multioutput Validation", "[Node]")
+{
+    // Create a document
+    mx::DocumentPtr doc = mx::createDocument();
+
+    // Create a graph and add two outputs, types of the outputs are not important
+    mx::NodeGraphPtr graph = doc->addNodeGraph("NG_custom_node");
+    graph->addOutput("output1", "float");
+    graph->addOutput("output2", "float");
+
+    // Create a nodeDef based on the graph and make sure it has two outputs
+    mx::NodeDefPtr nodeDef = doc->addNodeDefFromGraph(graph, "nodeDefName", "Category", "ND_custom_node");
+    REQUIRE(nodeDef->getOutputCount() == 2);
+
+    // Create a node based on the nodeDef and make sure it is of type multioutput and has no errors
+    mx::NodePtr node = doc->addNodeInstance(nodeDef);
+    REQUIRE(node->getType() == "multioutput");
+    REQUIRE(node->validate());
+
+    // Change the type of the node so that it does not match the nodeDef
+    node->setType("float");
+    // Make sure the validation fails as the node no longer has multioutput as type
+    REQUIRE(!node->validate());
+}
+
+TEST_CASE("Node Type Validation", "[Node]")
+{
+    // Create a document
+    mx::DocumentPtr doc = mx::createDocument();
+
+    // Create a graph and add a single output
+    mx::NodeGraphPtr graph = doc->addNodeGraph("NG_custom_node");
+    graph->addOutput("output1", "float");
+
+    // Create a nodeDef based on the graph and make sure it has a single output
+    mx::NodeDefPtr nodeDef = doc->addNodeDefFromGraph(graph, "nodeDefName", "Category", "ND_custom_node");
+    REQUIRE(nodeDef->getOutputCount() == 1);
+
+    // Create a node based on the nodeDef and make sure it has no errors
+    mx::NodePtr node = doc->addNodeInstance(nodeDef);
+    REQUIRE(node->validate());
+
+    // Change the type of the node so that it does not match the nodeDef
+    node->setType("int");
+    // Make sure the validation fails as the node has a different type than the single output of the nodedef
+    REQUIRE(!node->validate());
+}
+
 TEST_CASE("Node", "[node]")
 {
     // Create a document.
@@ -774,6 +822,6 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
 
         doc->removeChild(graph->getName());
     }
-    
+
     REQUIRE(doc->validate());
 }
