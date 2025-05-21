@@ -988,12 +988,13 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
             // Set input value and update materials if different from previous value
             if (prev != temp)
             {
+                // convert back to linear color space for writing to material and node input
                 mx::Color3 linearCol = temp.srgbToLinear();
-                mx::ValuePtr linearVal = mx::Value::createValue<mx::Color3>(linearCol);
 
                 addNodeInput(_currUiNode, input);
                 input->setValue(linearCol, input->getType());
 
+                mx::ValuePtr linearVal = mx::Value::createValue<mx::Color3>(linearCol);
                 updateMaterials(input, input->getValue());
             }
         }
@@ -1003,25 +1004,29 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         mx::ValuePtr val = input->getValue();
         if (val && val->isA<mx::Color4>())
         {
-            mx::Color4 prev, temp;
-            prev = temp = val->asA<mx::Color4>();
-            float min = minVal ? minVal->asA<mx::Color4>()[0] : 0.f;
-            float max = maxVal ? maxVal->asA<mx::Color4>()[0] : 100.f;
-            float speed = (max - min) / 1000.0f;
-            ImGui::PushItemWidth(-100);
-            ImGui::DragFloat4("##hidelabel", &temp[0], speed, min, max);
-            ImGui::PopItemWidth();
-            ImGui::SameLine();
+            // read material value and convert RGB components to display space
+            mx::Color4 linearCol = val->asA<mx::Color4>();
+            mx::Color3 displayCol3 = mx::Color3(linearCol[0], linearCol[1], linearCol[2]).linearToSrgb();
 
-            // Color edit for the color picker to the right of the color floats
-            ImGui::ColorEdit4("##color", &temp[0], ImGuiColorEditFlags_NoInputs);
+            mx::Color4 prev, temp;
+            // create 4D vector with converted RGB and non-converted, stored Alpha value
+            prev = temp = mx::Color4(displayCol3[0], displayCol3[1], displayCol3[2], linearCol[3]);
+
+            // Use ImGuiColorEditFlags_Float flag for built-in Float3 input fields
+            ImGui::ColorEdit4("##color", &temp[0], ImGuiColorEditFlags_Float);
 
             // Set input value and update materials if different from previous value
             if (temp != prev)
             {
+                // convert back to linear color space for writing to material and node input
+                mx::Color3 linearCol3 = mx::Color3(temp[0], temp[1], temp[2]).srgbToLinear();
+                mx::Color4 linearCol = mx::Color4(linearCol3[0], linearCol3[1], linearCol3[2], temp[3]); // use new Alpha val
+
                 addNodeInput(_currUiNode, input);
-                input->setValue(temp, input->getType());
-                updateMaterials(input, input->getValue());
+                input->setValue(linearCol, input->getType());
+
+                mx::ValuePtr linearVal = mx::Value::createValue<mx::Color4>(linearCol);
+                updateMaterials(input, linearVal);
             }
         }
     }
