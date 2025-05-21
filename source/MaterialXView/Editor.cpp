@@ -374,7 +374,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
             {
                 // Transform sRGBA color picker value to linear space for writing to material
                 mx::Color3 linearCol = mx::Color3(c.r(), c.g(), c.b()).srgbToLinear();
-                mx::Vector3 v(linearCol[0], linearCol[1], linearCol[2]);
+                mx::Vector4 v(linearCol[0], linearCol[1], linearCol[2], c.a());
 
                 material->modifyUniform(path, mx::Value::createValue(v));
             }
