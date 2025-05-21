@@ -349,7 +349,7 @@ void ShaderNode::initialize(const Node& node, const NodeDef& nodeDef, GenContext
                 InputPtr interfaceInput = nodeInput->getInterfaceInput();
                 if (interfaceInput)
                 {
-                    portValue = interfaceInput->getValue();
+                    portValue = interfaceInput->getResolvedValue();
                 }
             }
             const string& valueString = portValue ? portValue->getValueString() : EMPTY_STRING;
