@@ -163,6 +163,9 @@ class ShaderRenderTester
     // If these streams don't exist add them for testing purposes
     void addAdditionalTestStreams(mx::MeshPtr mesh);
 
+    // Add any paths to explicitly skip here
+    virtual void addSkipFiles() {}
+
     // Generator to use
     mx::ShaderGeneratorPtr _shaderGenerator;
     // Whether to resolve image file name references before code generation
@@ -172,6 +175,9 @@ class ShaderRenderTester
     // Color management information
     mx::ColorManagementSystemPtr _colorManagementSystem;
     mx::FilePath _colorManagementConfigFile;
+
+    // Filter controls for tests.
+    mx::StringSet _skipFiles;
 };
 
 } // namespace RenderUtil
