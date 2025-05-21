@@ -978,21 +978,22 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         if (val && val->isA<mx::Color3>())
         {
             mx::Color3 prev, temp;
-            prev = temp = val->asA<mx::Color3>();
-            float min = minVal ? minVal->asA<mx::Color3>()[0] : 0.f;
-            float max = maxVal ? maxVal->asA<mx::Color3>()[0] : 100.f;
-            float speed = (max - min) / 1000.0f;
-            ImGui::PushItemWidth(-100);
-            ImGui::DragFloat3("##hidelabel", &temp[0], speed, min, max);
-            ImGui::PopItemWidth();
-            ImGui::SameLine();
-            ImGui::ColorEdit3("##color", &temp[0], ImGuiColorEditFlags_NoInputs);
+
+            // read material value in converted display space
+            prev = temp = val->asA<mx::Color3>().linearToSrgb();
+
+            // Use ImGuiColorEditFlags_Float flag for built-in Float3 input fields
+            ImGui::ColorEdit3("##color", &temp[0], ImGuiColorEditFlags_Float);
 
             // Set input value and update materials if different from previous value
             if (prev != temp)
             {
+                mx::Color3 linearCol = temp.srgbToLinear();
+                mx::ValuePtr linearVal = mx::Value::createValue<mx::Color3>(linearCol);
+
                 addNodeInput(_currUiNode, input);
-                input->setValue(temp, input->getType());
+                input->setValue(linearCol, input->getType());
+
                 updateMaterials(input, input->getValue());
             }
         }
