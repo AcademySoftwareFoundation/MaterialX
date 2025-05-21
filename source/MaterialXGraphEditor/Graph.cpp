@@ -982,8 +982,12 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
             // read material value in converted display space
             prev = temp = val->asA<mx::Color3>().linearToSrgb();
 
-            // Use ImGuiColorEditFlags_Float flag for built-in Float3 input fields
-            ImGui::ColorEdit3("##color", &temp[0], ImGuiColorEditFlags_Float);
+            // Use ImGuiColorEditFlags_Uint8 flag for built-in Uint8 input fields
+            ImGui::ColorEdit3("##color", &temp[0], ImGuiColorEditFlags_Uint8);
+            if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+            {
+                ImGui::SetTooltip("Color is selected and rendered to Viewer in sRGB display space, \nbut written to .mtlx file in linear format.");
+            }
 
             // Set input value and update materials if different from previous value
             if (prev != temp)
@@ -1012,8 +1016,12 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
             // create 4D vector with converted RGB and non-converted, stored Alpha value
             prev = temp = mx::Color4(displayCol3[0], displayCol3[1], displayCol3[2], linearCol[3]);
 
-            // Use ImGuiColorEditFlags_Float flag for built-in Float3 input fields
-            ImGui::ColorEdit4("##color", &temp[0], ImGuiColorEditFlags_Float);
+            // Use ImGuiColorEditFlags_Uint8 flag for built-in Uint8 input fields
+            ImGui::ColorEdit4("##color", &temp[0], ImGuiColorEditFlags_Uint8);
+            if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+            {
+                ImGui::SetTooltip("Color is selected and rendered to Viewer in sRGB display space, \nbut written to .mtlx file in linear format.");
+            }
 
             // Set input value and update materials if different from previous value
             if (temp != prev)
