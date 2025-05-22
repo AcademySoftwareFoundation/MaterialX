@@ -155,7 +155,6 @@ def main():
             if shader:
                 # Use extension of .vert and .frag as it's type is
                 # recognized by glslangValidator
-                print(f'HERE {gentarget=}')
                 if gentarget in ['glsl', 'essl', 'vulkan', 'msl', 'wgsl']:
                     pixelSource = shader.getSourceCode(mx_gen_shader.PIXEL_STAGE)
                     filename = pathPrefix + "/" + shader.getName() + "." + gentarget + ".frag"
