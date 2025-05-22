@@ -1,5 +1,10 @@
+#ifndef M_PI
 #define M_PI 3.1415926535897932
+#endif
+
+#ifndef M_PI_INV
 #define M_PI_INV (1.0 / M_PI)
+#endif
 
 float mx_pow5(float x)
 {

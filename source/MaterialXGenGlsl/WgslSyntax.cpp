@@ -9,6 +9,11 @@ MATERIALX_NAMESPACE_BEGIN
 
 WgslSyntax::WgslSyntax(TypeSystemPtr typeSystem) : VkSyntax(typeSystem)
 {
+    // Add in WGSL specific keywords
+    registerReservedWords( { 
+    	"type" 
+    	} );
 }
+
 
 MATERIALX_NAMESPACE_END

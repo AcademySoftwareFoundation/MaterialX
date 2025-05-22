@@ -11,13 +11,14 @@
 
 #include <MaterialXGenGlsl/VkShaderGenerator.h>
 #include <MaterialXGenGlsl/WgslResourceBindingContext.h>
+#include <MaterialXGenShader/GenContext.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
 using WgslShaderGeneratorPtr = shared_ptr<class WgslShaderGenerator>;
 
 /// @class WgslShaderGenerator
-/// A Vulkan GLSL shader generator flavor for WGSL
+/// WGSL Flavor of Vulkan GLSL shader generator 
 class MX_GENGLSL_API WgslShaderGenerator : public VkShaderGenerator
 {
   public:
@@ -35,33 +36,25 @@ class MX_GENGLSL_API WgslShaderGenerator : public VkShaderGenerator
     }
 
     /// Return a unique identifier for the target this generator is for
-    //const string& getTarget() const override { return TARGET; }
+    const string& getTarget() const override { return TARGET; }
 
     /// Return the version string for the GLSL version this generator is for
-    //const string& getVersion() const override { return VERSION; }
-
-    // string getVertexDataPrefix(const VariableBlock& vertexData) const override;
+    const string& getVersion() const override { return VERSION; }
 
     /// Unique identifier for this generator target
-    //static const string TARGET;
-    //static const string VERSION;
-
-    // Emit directives for stage
-    //void emitDirectives(GenContext& context, ShaderStage& stage) const override;
-
-    //void emitInputs(GenContext& context, ShaderStage& stage) const override;
-
-    //void emitOutputs(GenContext& context, ShaderStage& stage) const override;
+    static const string TARGET;
+    static const string VERSION;
 
     const string get_lightdata_typevar_string() const override { return string("light_type"); }
+
+    void emitInput(const ShaderInput* input, GenContext& context, ShaderStage& stage) const override;
+
+    void emitSpecularEnvironment(GenContext& context, ShaderStage& stage) const override;
 
   protected:
     HwResourceBindingContextPtr getResourceBindingContext(GenContext&) const override;
 
     WgslResourceBindingContextPtr _resourceBindingCtx = nullptr;
-
-    // Vertex data interface location to bind between stages
-    //int vertexDataLocation = 0;
 };
 
 MATERIALX_NAMESPACE_END

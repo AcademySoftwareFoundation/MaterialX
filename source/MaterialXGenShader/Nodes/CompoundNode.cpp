@@ -73,7 +73,18 @@ void CompoundNode::emitFunctionDefinition(const ShaderNode&, GenContext& context
         // Add all inputs
         for (ShaderGraphInputSocket* inputSocket : _rootGraph->getInputSockets())
         {
-            shadergen.emitString(delim + syntax.getTypeName(inputSocket->getType()) + " " + inputSocket->getVariable(), stage);
+            // Conditional behavior for WgslShaderGenerator
+            //   Only do this if GenContext.getShaderGenerator == WgslShaderGenerator
+            //   Method1: use dynamic_cast
+            //   Method2: (context.getShaderGenerator().getTarget() == "genglsl_wgsl")
+            //   Method3: Add a new virtual function to ShaderGenerator::emitFunctionDefinitionParameter()
+            if ((inputSocket->getType() == Type::FILENAME) && 
+                (context.getShaderGenerator().getTarget() == "genglsl_wgsl")) {
+                shadergen.emitString(delim + "texture2D " + inputSocket->getVariable() + "_texture, sampler "+inputSocket->getVariable() + "_sampler", stage);
+            }
+            else {
+                shadergen.emitString(delim + syntax.getTypeName(inputSocket->getType()) + " " + inputSocket->getVariable(), stage);
+            }
             delim = ", ";
         }
 

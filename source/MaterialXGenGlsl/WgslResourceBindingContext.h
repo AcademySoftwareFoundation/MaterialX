@@ -33,16 +33,8 @@ class MX_GENGLSL_API WgslResourceBindingContext : public VkResourceBindingContex
     // Initialize the context before generation starts.
     void initialize() override;
 
-    // Emit directives for stage
-    // void emitDirectives(GenContext& context, ShaderStage& stage) override;
-
     // Emit uniforms with binding information
-    // void emitResourceBindings(GenContext& context, const VariableBlock& uniforms, ShaderStage& stage) override;
-
-    // Emit structured uniforms with binding information and align members where possible
-    // void emitStructuredResourceBindings(GenContext& context, const VariableBlock& uniforms,
-    //                                     ShaderStage& stage, const std::string& structInstanceName,
-    //                                     const std::string& arraySuffix) override;
+    void emitResourceBindings(GenContext& context, const VariableBlock& uniforms, ShaderStage& stage) override;
 
   protected:
     // Binding location for uniform blocks
