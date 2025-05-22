@@ -913,6 +913,133 @@ void Graph::updateMaterials(mx::InputPtr input /* = nullptr */, mx::ValuePtr val
     }
 }
 
+// Set the node to display in render view based on selected node or nodegraph
+template <typename T>
+bool Graph::renderEnumInput(mx::InputPtr& input, const mx::UIProperties& ui, T &evalue)
+{
+    
+  // Eg. <input name="subsurface_color" type="color3" value="0.2,0.6,0.05" 
+  //    enum="PRESET1,PRESET2,PRESET3,PRESET4" enumvalues="0.2,0.6,0.05, 0.2,0.7,0.07, 0.2,0.6,0.05, 0.2,0.6,0.05" />
+  
+  //Cases
+  //1. ENUM_ATTRIBUTE attribute is empty (`enum`)
+  //2. ENUM_VALUES_ATTRIBUTE attribute can be empty, only if its a string type (`enumvalues`)
+  //3. `value` is not in enumvalues
+  //4. ui.enumerationValues and ui.enumeration are not populated for non-uniforms, 
+  //    hence use enumvalues attribute directly
+
+  std::string enumStr = input->getAttribute(mx::Input::ENUM_ATTRIBUTE);
+  std::string enumValueStr = input->getAttribute(mx::Input::ENUM_VALUES_ATTRIBUTE);
+
+  if (enumStr.empty())
+  {
+    return false;
+  }
+
+  const size_t INVALID_INDEX = std::numeric_limits<size_t>::max();
+  size_t index = INVALID_INDEX;
+  mx::ValuePtr val = input->getValue();
+  evalue = val->asA<T>();
+  std::string enumDelimiter = ",";
+
+  auto splitStringByGroup = [](const std::string& input, size_t groupSize) {
+    std::vector<std::string> result;
+    std::stringstream ss(input);
+    std::string token;
+    std::string group;
+    size_t count = 0;
+
+    while (std::getline(ss, token, ',')) {
+        if (!group.empty()) {
+            group += ",";
+        }
+        group += token;
+        count++;
+
+        if (count == groupSize) {
+            result.push_back(group);
+            group.clear();
+            count = 0;
+        }
+    }
+
+    return result;
+ };
+
+  // target enumStr result in eg. ["PRESET1", "PRESET2", "PRESET3", "PRESET4"]
+  // target vec3 enumValues result in eg. ["0.2,0.6,0.05", "0.2,0.7,0.07", "0.2,0.6,0.05", "0.2,0.6,0.05"]
+  std::vector<mx::ValuePtr> enumValues = ui.enumerationValues;
+  std::vector<std::string> enumVec = ui.enumeration;
+
+  //Handling edge cases where enumvalues attribute is empty
+  //1. This can happen if the enum values are not set in the UI properties.
+  //i.e, ui.enumerationValues and ui.enumeration are not populated for non-uniforms. See /MaterialXRender/Util.cpp
+  //
+  //2. or deliberately ignored in the UI properties. 
+  // eg. <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uiname="Filter Type" uniform="true" />
+  if (enumValues.empty())
+  {
+
+    //enumvalues can be empty for string types
+    if (enumValueStr.empty() && input->getType() == "string")
+    {
+        enumValueStr = enumStr;
+    }
+
+    if (enumValueStr.empty())
+    {
+        return false;
+    }
+
+    // parse string values from the enum, enumvalues attribute directly and populate enumValues
+    enumVec = mx::splitString(enumStr, enumDelimiter);
+    size_t groupSize = mx::splitString(enumValueStr, enumDelimiter).size() / enumVec.size();
+    auto groupedEnumValues = splitStringByGroup(enumValueStr, groupSize);
+    for (const auto& group : groupedEnumValues) {
+        enumValues.push_back(mx::Value::createValueFromStrings(group, input->getType()));
+    }
+
+  }
+
+  if ( enumVec.size() != enumValues.size())
+  {
+    return false;
+  }
+
+  //Expected format for ImGui::Combo "PRESET1\0PRESET2\0PRESET3\0PRESET4\0\0"
+  std::replace(enumStr.begin(), enumStr.end(), enumDelimiter[0], '\0');
+  enumStr += '\0';
+  
+  auto it = std::find_if(enumValues.begin(), enumValues.end(),
+                      [&evalue](const mx::ValuePtr& val) {
+                          return val->asA<T>() == evalue;
+                      });
+  if (it != enumValues.end())
+  {
+    index = std::distance(enumValues.begin(), it);
+  }
+
+  if (index == INVALID_INDEX)
+  {
+    return false;
+  }
+
+
+  int item_current = static_cast<int>(index);
+  if (ImGui::Combo("", &item_current, enumStr.data(), 3)) {
+      
+      if (static_cast<size_t>(item_current) < enumValues.size())
+      {
+        evalue = enumValues[item_current]->asA<T>();
+      }
+      else {
+        return false;
+      }
+  }
+
+  return true;
+}
+
 void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIProperties& uiProperties)
 {
     ImGui::PushItemWidth(-1);
@@ -927,13 +1054,16 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
 
         if (val && val->isA<float>())
         {
-            // Update the value to the default for new nodes
             float prev, temp;
             prev = temp = val->asA<float>();
-            float min = minVal ? minVal->asA<float>() : 0.f;
-            float max = maxVal ? maxVal->asA<float>() : 100.f;
-            float speed = (max - min) / 1000.0f;
-            ImGui::DragFloat("##hidelabel", &temp, speed, min, max);
+            if (!renderEnumInput<float>(input, uiProperties, temp))
+            {
+                // Update the value to the default for new nodes
+                float min = minVal ? minVal->asA<float>() : 0.f;
+                float max = maxVal ? maxVal->asA<float>() : 100.f;
+                float speed = (max - min) / 1000.0f;
+                ImGui::DragFloat("##hidelabel", &temp, speed, min, max);
+            }
 
             // Set input value and update materials if different from previous value
             if (prev != temp)
@@ -951,10 +1081,14 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         {
             int prev, temp;
             prev = temp = val->asA<int>();
-            int min = minVal ? minVal->asA<int>() : 0;
-            int max = maxVal ? maxVal->asA<int>() : 100;
-            float speed = (max - min) / 100.0f;
-            ImGui::DragInt("##hidelabel", &temp, speed, min, max);
+            if (!renderEnumInput<int>(input, uiProperties, temp))
+            {
+                // Otherwise use a slider
+                int min = minVal ? minVal->asA<int>() : 0;
+                int max = maxVal ? maxVal->asA<int>() : 100;
+                float speed = (max - min) / 100.0f;
+                ImGui::DragInt("##hidelabel", &temp, speed, min, max);
+            }
 
             // Set input value and update materials if different from previous value
             if (prev != temp)
@@ -972,14 +1106,19 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         {
             mx::Color3 prev, temp;
             prev = temp = val->asA<mx::Color3>();
-            float min = minVal ? minVal->asA<mx::Color3>()[0] : 0.f;
-            float max = maxVal ? maxVal->asA<mx::Color3>()[0] : 100.f;
-            float speed = (max - min) / 1000.0f;
-            ImGui::PushItemWidth(-100);
-            ImGui::DragFloat3("##hidelabel", &temp[0], speed, min, max);
-            ImGui::PopItemWidth();
-            ImGui::SameLine();
-            ImGui::ColorEdit3("##color", &temp[0], ImGuiColorEditFlags_NoInputs);
+
+            if (!renderEnumInput<mx::Color3>(input, uiProperties, temp))
+            {
+                float min = minVal ? minVal->asA<mx::Color3>()[0] : 0.f;
+                float max = maxVal ? maxVal->asA<mx::Color3>()[0] : 100.f;
+                float speed = (max - min) / 1000.0f;
+                ImGui::PushItemWidth(-100);
+                ImGui::DragFloat3("##hidelabel", &temp[0], speed, min, max);
+                ImGui::PopItemWidth();
+                ImGui::SameLine();
+                ImGui::ColorEdit3("##color", &temp[0], ImGuiColorEditFlags_NoInputs);
+            }
+            
 
             // Set input value and update materials if different from previous value
             if (prev != temp)
@@ -997,16 +1136,20 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         {
             mx::Color4 prev, temp;
             prev = temp = val->asA<mx::Color4>();
-            float min = minVal ? minVal->asA<mx::Color4>()[0] : 0.f;
-            float max = maxVal ? maxVal->asA<mx::Color4>()[0] : 100.f;
-            float speed = (max - min) / 1000.0f;
-            ImGui::PushItemWidth(-100);
-            ImGui::DragFloat4("##hidelabel", &temp[0], speed, min, max);
-            ImGui::PopItemWidth();
-            ImGui::SameLine();
 
-            // Color edit for the color picker to the right of the color floats
-            ImGui::ColorEdit4("##color", &temp[0], ImGuiColorEditFlags_NoInputs);
+            if (!renderEnumInput<mx::Color4>(input, uiProperties, temp))
+            {
+                float min = minVal ? minVal->asA<mx::Color4>()[0] : 0.f;
+                float max = maxVal ? maxVal->asA<mx::Color4>()[0] : 100.f;
+                float speed = (max - min) / 1000.0f;
+                ImGui::PushItemWidth(-100);
+                ImGui::DragFloat4("##hidelabel", &temp[0], speed, min, max);
+                ImGui::PopItemWidth();
+                ImGui::SameLine();
+
+                // Color edit for the color picker to the right of the color floats
+                ImGui::ColorEdit4("##color", &temp[0], ImGuiColorEditFlags_NoInputs);
+            }
 
             // Set input value and update materials if different from previous value
             if (temp != prev)
@@ -1024,10 +1167,14 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         {
             mx::Vector2 prev, temp;
             prev = temp = val->asA<mx::Vector2>();
-            float min = minVal ? minVal->asA<mx::Vector2>()[0] : 0.f;
-            float max = maxVal ? maxVal->asA<mx::Vector2>()[0] : 100.f;
-            float speed = (max - min) / 1000.0f;
-            ImGui::DragFloat2("##hidelabel", &temp[0], speed, min, max);
+
+            if (!renderEnumInput<mx::Vector2>(input, uiProperties, temp))
+            {
+                float min = minVal ? minVal->asA<mx::Vector2>()[0] : 0.f;
+                float max = maxVal ? maxVal->asA<mx::Vector2>()[0] : 100.f;
+                float speed = (max - min) / 1000.0f;
+                ImGui::DragFloat2("##hidelabel", &temp[0], speed, min, max);
+            }
 
             // Set input value and update materials if different from previous value
             if (prev != temp)
@@ -1045,10 +1192,14 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         {
             mx::Vector3 prev, temp;
             prev = temp = val->asA<mx::Vector3>();
-            float min = minVal ? minVal->asA<mx::Vector3>()[0] : 0.f;
-            float max = maxVal ? maxVal->asA<mx::Vector3>()[0] : 100.f;
-            float speed = (max - min) / 1000.0f;
-            ImGui::DragFloat3("##hidelabel", &temp[0], speed, min, max);
+
+            if (!renderEnumInput<mx::Vector3>(input, uiProperties, temp))
+            {
+                float min = minVal ? minVal->asA<mx::Vector3>()[0] : 0.f;
+                float max = maxVal ? maxVal->asA<mx::Vector3>()[0] : 100.f;
+                float speed = (max - min) / 1000.0f;
+                ImGui::DragFloat3("##hidelabel", &temp[0], speed, min, max);
+            }
 
             // Set input value and update materials if different from previous value
             if (prev != temp)
@@ -1066,10 +1217,14 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         {
             mx::Vector4 prev, temp;
             prev = temp = val->asA<mx::Vector4>();
-            float min = minVal ? minVal->asA<mx::Vector4>()[0] : 0.f;
-            float max = maxVal ? maxVal->asA<mx::Vector4>()[0] : 100.f;
-            float speed = (max - min) / 1000.0f;
-            ImGui::DragFloat4("##hidelabel", &temp[0], speed, min, max);
+
+            if (!renderEnumInput<mx::Vector4>(input, uiProperties, temp))
+            {
+                float min = minVal ? minVal->asA<mx::Vector4>()[0] : 0.f;
+                float max = maxVal ? maxVal->asA<mx::Vector4>()[0] : 100.f;
+                float speed = (max - min) / 1000.0f;
+                ImGui::DragFloat4("##hidelabel", &temp[0], speed, min, max);
+            }
 
             // Set input value and update materials if different from previous value
             if (prev != temp)
@@ -1087,7 +1242,11 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         {
             std::string prev, temp;
             prev = temp = val->asA<std::string>();
-            ImGui::InputText("##constant", &temp);
+
+            if (!renderEnumInput<std::string>(input, uiProperties, temp))
+            {
+                ImGui::InputText("##constant", &temp);
+            }
 
             // Set input value and update materials if different from previous value
             if (prev != temp)
@@ -1155,7 +1314,11 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         {
             bool prev, temp;
             prev = temp = val->asA<bool>();
-            ImGui::Checkbox("", &temp);
+
+            if (!renderEnumInput<bool>(input, uiProperties, temp))
+            {
+                ImGui::Checkbox("", &temp);
+            }
 
             // Set input value and update materials if different from previous value
             if (prev != temp)
