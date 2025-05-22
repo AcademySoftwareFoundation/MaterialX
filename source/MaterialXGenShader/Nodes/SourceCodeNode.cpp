@@ -120,7 +120,7 @@ void SourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext& contex
         const TypeDesc outputType = outputs[0]->getType();
         if (outputType.isClosure())
         {
-            // Emit calls for any closure dependencies upstream from this node.ef
+            // Emit calls for any closure dependencies upstream from this nodedef
             shadergen.emitDependentFunctionCalls(node, context, stage, ShaderNode::Classification::CLOSURE);
         }
 
