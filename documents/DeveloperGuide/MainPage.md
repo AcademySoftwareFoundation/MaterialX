@@ -19,12 +19,9 @@ For a step-by-step guide and additional configuration tips, continue to [Build M
 
 ## Prepare Development Environment
 
-Start by cloning the MaterialX repository. In your terminal, run:
-```bash
-git clone --recurse-submodules https://github.com/AcademySoftwareFoundation/MaterialX.git
-```
+Before you begin, ensure that [Git](https://git-scm.com/doc) is installed and the MaterialX repository is cloned, as outlined in our [Development Workflow](../../CONTRIBUTING.md#development-workflow).
 
-The MaterialX codebase requires the following tools:
+MaterialX development requires the following tools:
 
 - **[CMake](https://cmake.org/) (version ≥ 3.0 and < 4.0)** — Build system.
 - **Compiler with C++17 support** — Choose a generator and compiler combination:
