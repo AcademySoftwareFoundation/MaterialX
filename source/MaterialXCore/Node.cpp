@@ -199,6 +199,17 @@ bool Node::validate(string* message) const
         string matchMessage;
         bool exactMatch = hasExactInputMatch(nodeDef, &matchMessage);
         validateRequire(exactMatch, res, message, "Node interface error: " + matchMessage);
+
+        const vector<OutputPtr>& activeOutputs = nodeDef->getActiveOutputs();
+        const size_t numActiveOutputs = activeOutputs.size();
+        if (numActiveOutputs > 1)
+        {
+            validateRequire(getType() == MULTI_OUTPUT_TYPE_STRING, res, message, "Node type is not 'multioutput' for node with multiple outputs");
+        }
+        else if (numActiveOutputs == 1)
+        {
+            validateRequire(getType() == activeOutputs[0]->getType(), res, message, "Node type does not match output port type");
+        }
     }
     else
     {
