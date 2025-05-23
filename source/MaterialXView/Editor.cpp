@@ -66,7 +66,7 @@ class EditorColorPicker : public ng::ColorPicker
         {
             if (m_pushed)
             {
-                // Use `_colorWidgets` to construct new color value, which ensures that Alpha component is correctly written.
+                // Use _colorWidgets to construct new color value, which ensures that Alpha component is correctly written.
                 ng::Color value(_colorWidgets[0]->value(), _colorWidgets[1]->value(), _colorWidgets[2]->value(), _colorWidgets[3]->value());
                 set_pushed(false);
                 set_color(value);
