@@ -484,6 +484,29 @@ vec3 mx_refraction_solid_sphere(vec3 R, vec3 N, float ior)
     return refract(R, N1, ior);
 }
 
+vec2 mx_latlong_projection(vec3 dir)
+{
+    float latitude = -mx_asin(dir.y) * M_PI_INV + 0.5;
+    float longitude = mx_atan(dir.x, -dir.z) * M_PI_INV * 0.5 + 0.5;
+    return vec2(longitude, latitude);
+}
+
+#ifdef HW_SEPARATE_SAMPLERS
+vec3 mx_latlong_map_lookup(vec3 dir, mat4 transform, float lod, texture2D env_texture, sampler env_sampler)
+{
+    vec3 envDir = normalize((transform * vec4(dir,0.0)).xyz);
+    vec2 uv = mx_latlong_projection(envDir);
+    return textureLod(sampler2D(env_texture, env_sampler), uv, lod).rgb;
+}
+#else
+vec3 mx_latlong_map_lookup(vec3 dir, mat4 transform, float lod, sampler2D envSampler)
+{
+    vec3 envDir = normalize((transform * vec4(dir,0.0)).xyz);
+    vec2 uv = mx_latlong_projection(envDir);
+    return textureLod(envSampler, uv, lod).rgb;
+}
+#endif
+
 // Return the mip level with the appropriate coverage for a filtered importance sample.
 // https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch20.html
 // Section 20.4 Equation 13

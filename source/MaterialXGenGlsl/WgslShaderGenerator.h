@@ -45,11 +45,13 @@ class MX_GENGLSL_API WgslShaderGenerator : public VkShaderGenerator
     static const string TARGET;
     static const string VERSION;
 
+    void emitDirectives(GenContext& context, ShaderStage& stage) const override;
+
     const string get_lightdata_typevar_string() const override { return string("light_type"); }
 
-    void emitInput(const ShaderInput* input, GenContext& context, ShaderStage& stage) const override;
+    void emitFunctionDefinitionParameter(const ShaderPort* shaderPort, GenContext& context, ShaderStage& stage) const override;
 
-    void emitSpecularEnvironment(GenContext& context, ShaderStage& stage) const override;
+    void emitInput(const ShaderInput* input, GenContext& context, ShaderStage& stage) const override;
 
   protected:
     HwResourceBindingContextPtr getResourceBindingContext(GenContext&) const override;

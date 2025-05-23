@@ -211,14 +211,10 @@ void GlslShaderGenerator::emitSpecularEnvironment(GenContext& context, ShaderSta
     int specularMethod = context.getOptions().hwSpecularEnvironmentMethod;
     if (specularMethod == SPECULAR_ENVIRONMENT_FIS)
     {
-        emitLibraryInclude("pbrlib/genglsl/lib/mx_latlong.glsl", context, stage);
-        emitLineBreak(stage);
         emitLibraryInclude("pbrlib/genglsl/lib/mx_environment_fis.glsl", context, stage);
     }
     else if (specularMethod == SPECULAR_ENVIRONMENT_PREFILTER)
     {
-        emitLibraryInclude("pbrlib/genglsl/lib/mx_latlong.glsl", context, stage);
-        emitLineBreak(stage);
         emitLibraryInclude("pbrlib/genglsl/lib/mx_environment_prefilter.glsl", context, stage);
     }
     else if (specularMethod == SPECULAR_ENVIRONMENT_NONE)
