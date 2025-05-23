@@ -27,7 +27,6 @@
 #include <MaterialXGenShader/Nodes/HwBitangentNode.h>
 #include <MaterialXGenShader/Nodes/HwFrameNode.h>
 #include <MaterialXGenShader/Nodes/HwViewDirectionNode.h>
-#include <MaterialXGenShader/Nodes/ClosureCompoundNode.h>
 
 #include "MslResourceBindingContext.h"
 
@@ -1254,10 +1253,6 @@ ShaderNodeImplPtr MslShaderGenerator::getImplementation(const NodeDef& nodedef, 
         if (outputType == Type::LIGHTSHADER)
         {
             impl = LightCompoundNodeMsl::create();
-        }
-        else if (outputType.isClosure())
-        {
-            impl = ClosureCompoundNode::create();
         }
         else
         {

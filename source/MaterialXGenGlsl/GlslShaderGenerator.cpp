@@ -27,7 +27,6 @@
 #include <MaterialXGenShader/Nodes/HwBitangentNode.h>
 #include <MaterialXGenShader/Nodes/HwFrameNode.h>
 #include <MaterialXGenShader/Nodes/HwViewDirectionNode.h>
-#include <MaterialXGenShader/Nodes/ClosureCompoundNode.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -739,10 +738,6 @@ ShaderNodeImplPtr GlslShaderGenerator::getImplementation(const NodeDef& nodedef,
         if (outputType == Type::LIGHTSHADER)
         {
             impl = LightCompoundNodeGlsl::create();
-        }
-        else if (outputType.isClosure())
-        {
-            impl = ClosureCompoundNode::create();
         }
         else
         {
