@@ -112,7 +112,7 @@ void SourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext& contex
         const auto& outputs = node.getOutputs();
         if (outputs.empty())
         {
-            // this should never happen as we auto populate the default 'out' output based on the
+            // This should never happen as we auto populate the default 'out' output based on the
             // node type if no output is present.
             throw ExceptionShaderGenError("Node has no outputs defined'");
         }
@@ -190,7 +190,6 @@ void SourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext& contex
         else
         {
             // An ordinary source code function call
-            string delim = "";
 
             // Declare the output variables.
             emitOutputVariables(node, context, stage);
@@ -202,8 +201,10 @@ void SourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext& contex
 
             if (context.getShaderGenerator().nodeNeedsClosureData(node))
             {
-                shadergen.emitString(delim + HW::CLOSURE_DATA_ARG + ", ", stage);
+                shadergen.emitString(HW::CLOSURE_DATA_ARG + ", ", stage);
             }
+
+            string delim;
 
             // Emit all inputs.
             for (ShaderInput* input : node.getInputs())
