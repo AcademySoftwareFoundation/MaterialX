@@ -850,7 +850,7 @@ void RenderView::renderFrame()
     {
         glDisable(GL_CULL_FACE);
     }
-    // restore framebuffer and disable sRGB conversion in preparation for ImGUI drawing
+    // Restore framebuffer and disable sRGB conversion in preparation for ImGUI drawing
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glDisable(GL_FRAMEBUFFER_SRGB);
 

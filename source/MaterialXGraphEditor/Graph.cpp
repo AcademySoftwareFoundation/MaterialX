@@ -104,10 +104,12 @@ std::string getUserNodeDefName(const std::string& val)
     return result;
 }
 
-static void EnableSRGBCallback(const ImDrawList*, const ImDrawCmd*)   {
+static void EnableSRGBCallback(const ImDrawList*, const ImDrawCmd*)
+{
     glEnable(GL_FRAMEBUFFER_SRGB);
 }
-static void DisableSRGBCallback(const ImDrawList*, const ImDrawCmd*)  {
+static void DisableSRGBCallback(const ImDrawList*, const ImDrawCmd*)
+{
     glDisable(GL_FRAMEBUFFER_SRGB);
 }
 
@@ -979,7 +981,7 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         {
             mx::Color3 prev, temp;
 
-            // read material value in converted display space
+            // Read material value in converted display space
             prev = temp = val->asA<mx::Color3>().linearToSrgb();
 
             // Use ImGuiColorEditFlags_Uint8 flag for built-in Uint8 input fields
@@ -992,7 +994,7 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
             // Set input value and update materials if different from previous value
             if (prev != temp)
             {
-                // convert back to linear color space for writing to material and node input
+                // Convert back to linear color space for writing to material and node input
                 mx::Color3 linearCol = temp.srgbToLinear();
 
                 addNodeInput(_currUiNode, input);
@@ -1008,12 +1010,12 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         mx::ValuePtr val = input->getValue();
         if (val && val->isA<mx::Color4>())
         {
-            // read material value and convert RGB components to display space
+            // Read material value and convert RGB components to display space
             mx::Color4 linearCol = val->asA<mx::Color4>();
             mx::Color3 displayCol3 = mx::Color3(linearCol[0], linearCol[1], linearCol[2]).linearToSrgb();
 
             mx::Color4 prev, temp;
-            // create 4D vector with converted RGB and non-converted, stored Alpha value
+            // Create 4D vector with converted RGB and non-converted, stored Alpha value
             prev = temp = mx::Color4(displayCol3[0], displayCol3[1], displayCol3[2], linearCol[3]);
 
             // Use ImGuiColorEditFlags_Uint8 flag for built-in Uint8 input fields
@@ -1026,9 +1028,9 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
             // Set input value and update materials if different from previous value
             if (temp != prev)
             {
-                // convert back to linear color space for writing to material and node input
+                // Convert back to linear color space for writing to material and node input
                 mx::Color3 linearCol3 = mx::Color3(temp[0], temp[1], temp[2]).srgbToLinear();
-                mx::Color4 linearCol = mx::Color4(linearCol3[0], linearCol3[1], linearCol3[2], temp[3]); // use new Alpha val
+                mx::Color4 linearCol = mx::Color4(linearCol3[0], linearCol3[1], linearCol3[2], temp[3]); // Use new Alpha val
 
                 addNodeInput(_currUiNode, input);
                 input->setValue(linearCol, input->getType());
