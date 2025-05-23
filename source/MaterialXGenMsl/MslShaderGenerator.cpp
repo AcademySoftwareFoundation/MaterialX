@@ -27,7 +27,6 @@
 #include <MaterialXGenShader/Nodes/HwBitangentNode.h>
 #include <MaterialXGenShader/Nodes/HwFrameNode.h>
 #include <MaterialXGenShader/Nodes/HwViewDirectionNode.h>
-#include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
 #include <MaterialXGenShader/Nodes/ClosureCompoundNode.h>
 
 #include "MslResourceBindingContext.h"
@@ -1278,15 +1277,7 @@ ShaderNodeImplPtr MslShaderGenerator::getImplementation(const NodeDef& nodedef, 
         }
         if (!impl)
         {
-            // Fall back to source code implementation.
-            if (outputType.isClosure())
-            {
-                impl = ClosureSourceCodeNode::create();
-            }
-            else
-            {
-                impl = SourceCodeNode::create();
-            }
+            impl = SourceCodeNode::create();
         }
     }
     if (!impl)

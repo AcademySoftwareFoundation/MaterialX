@@ -10,7 +10,6 @@
 #include <MaterialXGenShader/Nodes/CompoundNode.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
 #include <MaterialXGenShader/Nodes/ClosureCompoundNode.h>
-#include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
 #include <MaterialXGenShader/Util.h>
 
 #include <MaterialXFormat/File.h>
@@ -324,15 +323,7 @@ ShaderNodeImplPtr ShaderGenerator::getImplementation(const NodeDef& nodedef, Gen
         }
         if (!impl)
         {
-            // Fall back to source code implementation.
-            if (outputType.isClosure())
-            {
-                impl = ClosureSourceCodeNode::create();
-            }
-            else
-            {
-                impl = SourceCodeNode::create();
-            }
+            impl = SourceCodeNode::create();
         }
     }
     if (!impl)
