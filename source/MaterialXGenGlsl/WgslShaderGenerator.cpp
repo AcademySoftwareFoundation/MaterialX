@@ -10,9 +10,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-const string WgslShaderGenerator::TARGET = "genglsl_wgsl";
-const string WgslShaderGenerator::VERSION = "450";
-
 WgslShaderGenerator::WgslShaderGenerator(TypeSystemPtr typeSystem) :
     VkShaderGenerator(typeSystem)
 {
@@ -26,19 +23,6 @@ WgslShaderGenerator::WgslShaderGenerator(TypeSystemPtr typeSystem) :
     _tokenSubstitutions[HW::T_ENV_RADIANCE+"_sampler"] = HW::ENV_RADIANCE+"_sampler";
     _tokenSubstitutions[HW::T_ENV_IRRADIANCE+"_texture"] = HW::ENV_IRRADIANCE+"_texture";
     _tokenSubstitutions[HW::T_ENV_IRRADIANCE+"_sampler"] = HW::ENV_IRRADIANCE+"_sampler";
-
-    // image overrides
-    // Registering these Implementations as done with Implementations in GlslShaderGenerator
-    // See also stdlib_genglsl_impl.mtlx
-    StringVec elementNames = {
-        "IM_image_float_"   + WgslShaderGenerator::TARGET,
-        "IM_image_color3_"  + WgslShaderGenerator::TARGET,
-        "IM_image_color4_"  + WgslShaderGenerator::TARGET,
-        "IM_image_vector2_" + WgslShaderGenerator::TARGET,
-        "IM_image_vector3_" + WgslShaderGenerator::TARGET,
-        "IM_image_vector4_" + WgslShaderGenerator::TARGET,
-    };
-    registerImplementation(elementNames, HwImageNode::create);
 }
 
 void WgslShaderGenerator::emitDirectives(GenContext& context, ShaderStage& stage) const
