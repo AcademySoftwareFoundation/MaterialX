@@ -719,7 +719,14 @@ void NodeGraph::modifyInterfaceName(const string& inputPath, const string& inter
 
 NodeDefPtr NodeGraph::getNodeDef() const
 {
-    NodeDefPtr nodedef = resolveNameReference<NodeDef>(getNodeDefString());
+    ElementPtr parent = getSelfNonConst()->getParent();
+    NodeDefPtr nodedef = parent->asA<NodeDef>();
+    if (nodedef)
+    {
+        return nodedef;
+    }
+
+    nodedef = resolveNameReference<NodeDef>(getNodeDefString());
     // If not directly defined look for an implementation which has a nodedef association
     if (!nodedef)
     {
