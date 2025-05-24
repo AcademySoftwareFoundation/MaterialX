@@ -24,6 +24,7 @@
 MATERIALX_NAMESPACE_BEGIN
 
 const string ShaderGenerator::T_FILE_TRANSFORM_UV = "$fileTransformUv";
+const string ShaderGenerator::LIGHTDATA_TYPEVAR_STRING = "type";
 
 //
 // ShaderGenerator methods
