@@ -20,11 +20,6 @@ ShaderNodeImplPtr LightCompoundNodeMsl::create()
     return std::make_shared<LightCompoundNodeMsl>();
 }
 
-const string& LightCompoundNodeMsl::getTarget() const
-{
-    return MslShaderGenerator::TARGET;
-}
-
 void LightCompoundNodeMsl::initialize(const InterfaceElement& element, GenContext& context)
 {
     CompoundNode::initialize(element, context);

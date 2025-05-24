@@ -24,8 +24,6 @@ class MX_GENGLSL_API LightCompoundNodeGlsl : public CompoundNode
 
     static ShaderNodeImplPtr create();
 
-    const string& getTarget() const override;
-
     void initialize(const InterfaceElement& element, GenContext& context) override;
 
     void createVariables(const ShaderNode& node, GenContext& context, Shader& shader) const override;

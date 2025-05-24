@@ -97,16 +97,6 @@ class MX_GENGLSL_API GlslShaderGenerator : public HwShaderGenerator
     vector<ShaderNodePtr> _lightSamplingNodes;
 };
 
-/// Base class for common GLSL node implementations
-class MX_GENGLSL_API GlslImplementation : public HwImplementation
-{
-  public:
-    const string& getTarget() const override;
-
-  protected:
-    GlslImplementation() { }
-};
-
 MATERIALX_NAMESPACE_END
 
 #endif

@@ -11,7 +11,7 @@
 MATERIALX_NAMESPACE_BEGIN
 
 /// Light node implementation for MSL
-class MX_GENMSL_API LightNodeMsl : public MslImplementation
+class MX_GENMSL_API LightNodeMsl : public HwImplementation
 {
   public:
     LightNodeMsl();

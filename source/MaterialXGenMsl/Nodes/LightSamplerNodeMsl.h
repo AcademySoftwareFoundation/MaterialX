@@ -11,7 +11,7 @@
 MATERIALX_NAMESPACE_BEGIN
 
 /// Utility node for sampling lights for MSL.
-class MX_GENMSL_API LightSamplerNodeMsl : public MslImplementation
+class MX_GENMSL_API LightSamplerNodeMsl : public HwImplementation
 {
   public:
     LightSamplerNodeMsl();
