@@ -14,7 +14,6 @@
 #include <MaterialXGenMsl/Nodes/NumLightsNodeMsl.h>
 
 #include <MaterialXGenShader/Nodes/MaterialNode.h>
-#include <MaterialXGenShader/Nodes/HwBlurNode.h>
 #include <MaterialXGenShader/Nodes/HwImageNode.h>
 #include <MaterialXGenShader/Nodes/HwGeomColorNode.h>
 #include <MaterialXGenShader/Nodes/HwGeomPropValueNode.h>
@@ -103,17 +102,6 @@ MslShaderGenerator::MslShaderGenerator(TypeSystemPtr typeSystem) :
 
     // <!-- <heighttonormal> -->
     registerImplementation("IM_heighttonormal_vector3_" + MslShaderGenerator::TARGET, []() -> ShaderNodeImplPtr { return HwHeightToNormalNode::create(MslSamplingIncludeFilename);});
-
-    // <!-- <blur> -->
-    elementNames = {
-        "IM_blur_float_" + MslShaderGenerator::TARGET,
-        "IM_blur_color3_" + MslShaderGenerator::TARGET,
-        "IM_blur_color4_" + MslShaderGenerator::TARGET,
-        "IM_blur_vector2_" + MslShaderGenerator::TARGET,
-        "IM_blur_vector3_" + MslShaderGenerator::TARGET,
-        "IM_blur_vector4_" + MslShaderGenerator::TARGET,
-    };
-    registerImplementation(elementNames, []() -> ShaderNodeImplPtr { return HwBlurNode::create(MslSamplingIncludeFilename);});
 
     // <!-- <ND_transformpoint> ->
     registerImplementation("IM_transformpoint_vector3_" + MslShaderGenerator::TARGET, HwTransformPointNode::create);

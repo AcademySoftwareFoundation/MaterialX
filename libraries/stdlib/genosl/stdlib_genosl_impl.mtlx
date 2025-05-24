@@ -709,14 +709,6 @@
   <!-- Convolution nodes                                                        -->
   <!-- ======================================================================== -->
 
-  <!-- <blur> -->
-  <implementation name="IM_blur_float_genosl" nodedef="ND_blur_float" target="genosl" />
-  <implementation name="IM_blur_color3_genosl" nodedef="ND_blur_color3" target="genosl" />
-  <implementation name="IM_blur_color4_genosl" nodedef="ND_blur_color4" target="genosl" />
-  <implementation name="IM_blur_vector2_genosl" nodedef="ND_blur_vector2" target="genosl" />
-  <implementation name="IM_blur_vector3_genosl" nodedef="ND_blur_vector3" target="genosl" />
-  <implementation name="IM_blur_vector4_genosl" nodedef="ND_blur_vector4" target="genosl" />
-
   <!-- <heighttonormal> -->
   <implementation name="IM_heighttonormal_vector3_genosl" nodedef="ND_heighttonormal_vector3" file="mx_heighttonormal_vector3.osl" function="mx_heighttonormal_vector3" target="genosl" />
 

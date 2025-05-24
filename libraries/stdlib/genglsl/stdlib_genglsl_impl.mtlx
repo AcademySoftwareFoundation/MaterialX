@@ -726,14 +726,6 @@
   <!-- Convolution nodes                                                        -->
   <!-- ======================================================================== -->
 
-  <!-- <blur> -->
-  <implementation name="IM_blur_float_genglsl" nodedef="ND_blur_float" target="genglsl" />
-  <implementation name="IM_blur_color3_genglsl" nodedef="ND_blur_color3" target="genglsl" />
-  <implementation name="IM_blur_color4_genglsl" nodedef="ND_blur_color4" target="genglsl" />
-  <implementation name="IM_blur_vector2_genglsl" nodedef="ND_blur_vector2" target="genglsl" />
-  <implementation name="IM_blur_vector3_genglsl" nodedef="ND_blur_vector3" target="genglsl" />
-  <implementation name="IM_blur_vector4_genglsl" nodedef="ND_blur_vector4" target="genglsl" />
-
   <!-- <heighttonormal> -->
   <implementation name="IM_heighttonormal_vector3_genglsl" nodedef="ND_heighttonormal_vector3" target="genglsl" />
 

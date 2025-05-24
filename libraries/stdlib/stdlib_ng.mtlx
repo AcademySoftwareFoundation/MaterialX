@@ -6233,4 +6233,46 @@
     <output name="out" type="boolean" nodename="or" />
   </nodegraph>
 
+
+  <!-- Node: <blur>
+       Currently just a pass-thru node as there is no correct implementation available
+  -->
+  <nodegraph name="NG_blur_float" nodedef="ND_blur_float">
+    <constant name="const" type="float">
+      <input name="value" type="float" interfacename="in"/>
+    </constant>
+    <output name="out" type="float" nodename="const" />
+  </nodegraph>
+  <nodegraph name="NG_blur_color3" nodedef="ND_blur_color3">
+    <constant name="const" type="color3">
+      <input name="value" type="color3" interfacename="in"/>
+    </constant>
+    <output name="out" type="color3" nodename="const" />
+  </nodegraph>
+  <nodegraph name="NG_blur_color4" nodedef="ND_blur_color4">
+    <constant name="const" type="color4">
+      <input name="value" type="color4" interfacename="in"/>
+    </constant>
+    <output name="out" type="color4" nodename="const" />
+  </nodegraph>
+  <nodegraph name="NG_blur_vector2" nodedef="ND_blur_vector2">
+    <constant name="const" type="vector2">
+      <input name="value" type="vector2" interfacename="in"/>
+    </constant>
+    <output name="out" type="vector2" nodename="const" />
+  </nodegraph>
+  <nodegraph name="NG_blur_vector3" nodedef="ND_blur_vector3">
+    <constant name="const" type="vector3">
+      <input name="value" type="vector3" interfacename="in"/>
+    </constant>
+    <output name="out" type="vector3" nodename="const" />
+  </nodegraph>
+  <nodegraph name="NG_blur_vector4" nodedef="ND_blur_vector4">
+    <constant name="const" type="vector4">
+      <input name="value" type="vector4" interfacename="in"/>
+    </constant>
+    <output name="out" type="vector4" nodename="const" />
+  </nodegraph>
+
+
 </materialx>

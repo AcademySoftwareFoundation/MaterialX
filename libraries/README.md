@@ -76,3 +76,4 @@ This folder contains the standard data libraries for MaterialX, providing declar
 - Shader generation does not currently support:
     - `displacementshader` and `volumeshader` nodes for hardware shading targets (GLSL, MSL).
     - `hextiledimage` and `hextilednormalmap` for OSL and MDL.
+    - `blur` the implementation passes through`in` unmodified.
