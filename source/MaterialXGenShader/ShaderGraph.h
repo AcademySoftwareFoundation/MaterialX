@@ -189,14 +189,14 @@ class MX_GENSHADER_API ShaderGraph : public ShaderNode
     IdentifierMap _identifiers;
 
     // Temporary storage for inputs that require color transformations
-    std::unordered_map<ShaderInput*, ColorSpaceTransform> _inputColorTransformMap;
+    std::vector<std::pair<ShaderInput*, ColorSpaceTransform>> _inputColorTransformMap;
     // Temporary storage for inputs that require unit transformations
-    std::unordered_map<ShaderInput*, UnitTransform> _inputUnitTransformMap;
+    std::vector<std::pair<ShaderInput*, UnitTransform>> _inputUnitTransformMap;
 
     // Temporary storage for outputs that require color transformations
-    std::unordered_map<ShaderOutput*, ColorSpaceTransform> _outputColorTransformMap;
+    std::vector<std::pair<ShaderOutput*, ColorSpaceTransform>> _outputColorTransformMap;
     // Temporary storage for outputs that require unit transformations
-    std::unordered_map<ShaderOutput*, UnitTransform> _outputUnitTransformMap;
+    std::vector<std::pair<ShaderOutput*, UnitTransform>> _outputUnitTransformMap;
 };
 
 /// @class ShaderGraphEdge
