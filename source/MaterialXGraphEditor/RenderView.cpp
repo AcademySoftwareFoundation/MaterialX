@@ -780,7 +780,8 @@ void RenderView::renderFrame()
 
     _renderFrame->bind();
 
-    glClearColor(.70f, .70f, .75f, 1.0f);
+    mx::Color3 screenColor(mx::DEFAULT_SCREEN_COLOR_SRGB);
+    glClearColor(screenColor[0], screenColor[1], screenColor[2], 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     glEnable(GL_FRAMEBUFFER_SRGB);
 
