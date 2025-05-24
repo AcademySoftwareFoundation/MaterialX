@@ -93,7 +93,7 @@ void ShaderGenerator::emitFunctionDefinition(const ShaderNode& node, GenContext&
     stage.addFunctionDefinition(node, context);
 }
 
-void ShaderGenerator::emitFunctionDefinitionParameter(const ShaderPort* shaderPort, GenContext& context, ShaderStage& stage) const
+void ShaderGenerator::emitFunctionDefinitionParameter(const ShaderPort* shaderPort, GenContext&, ShaderStage& stage) const
 {
     emitString(_syntax->getTypeName(shaderPort->getType()) + " " + shaderPort->getVariable(), stage);
 }
