@@ -13,15 +13,13 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-/// Syntax class for Vulkan GLSL
+/// Syntax class for Wgsl GLSL
 class MX_GENGLSL_API WgslSyntax : public VkSyntax
 {
   public:
     WgslSyntax(TypeSystemPtr typeSystem);
 
     static SyntaxPtr create(TypeSystemPtr typeSystem) { return std::make_shared<WgslSyntax>(typeSystem); }
-
-    const string& getInputQualifier() const override { return INPUT_QUALIFIER; }
 };
 
 MATERIALX_NAMESPACE_END
