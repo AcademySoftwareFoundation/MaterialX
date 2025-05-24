@@ -12,15 +12,8 @@ MATERIALX_NAMESPACE_BEGIN
 //
 
 WgslResourceBindingContext::WgslResourceBindingContext(size_t uniformBindingLocation) :
-    VkResourceBindingContext(uniformBindingLocation),
-    _hwInitUniformBindLocation(uniformBindingLocation)
+    VkResourceBindingContext(uniformBindingLocation)
 {
-}
-
-void WgslResourceBindingContext::initialize()
-{
-    // Reset bind location counter.
-    _hwUniformBindLocation = _hwInitUniformBindLocation;
 }
 
 

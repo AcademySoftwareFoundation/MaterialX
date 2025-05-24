@@ -30,18 +30,8 @@ class MX_GENGLSL_API WgslResourceBindingContext : public VkResourceBindingContex
         return std::make_shared<WgslResourceBindingContext>(uniformBindingLocation);
     }
 
-    // Initialize the context before generation starts.
-    void initialize() override;
-
     // Emit uniforms with binding information
     void emitResourceBindings(GenContext& context, const VariableBlock& uniforms, ShaderStage& stage) override;
-
-  protected:
-    // Binding location for uniform blocks
-    size_t _hwUniformBindLocation = 0;
-
-    // Initial value of uniform binding location
-    size_t _hwInitUniformBindLocation = 0;
 };
 
 MATERIALX_NAMESPACE_END
