@@ -11,7 +11,7 @@
 MATERIALX_NAMESPACE_BEGIN
 
 /// Light node implementation for GLSL
-class MX_GENGLSL_API LightNodeGlsl : public GlslImplementation
+class MX_GENGLSL_API LightNodeGlsl : public HwImplementation
 {
   public:
     LightNodeGlsl();

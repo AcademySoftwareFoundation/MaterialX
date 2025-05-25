@@ -19,11 +19,6 @@ ShaderNodeImplPtr LightShaderNodeMsl::create()
     return std::make_shared<LightShaderNodeMsl>();
 }
 
-const string& LightShaderNodeMsl::getTarget() const
-{
-    return MslShaderGenerator::TARGET;
-}
-
 void LightShaderNodeMsl::initialize(const InterfaceElement& element, GenContext& context)
 {
     SourceCodeNode::initialize(element, context);

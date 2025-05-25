@@ -11,7 +11,7 @@
 MATERIALX_NAMESPACE_BEGIN
 
 /// Utility node for getting number of active lights for GLSL.
-class MX_GENGLSL_API NumLightsNodeGlsl : public GlslImplementation
+class MX_GENGLSL_API NumLightsNodeGlsl : public HwImplementation
 {
   public:
     NumLightsNodeGlsl();
