@@ -23,6 +23,7 @@
 MATERIALX_NAMESPACE_BEGIN
 
 const string ShaderGenerator::T_FILE_TRANSFORM_UV = "$fileTransformUv";
+const string ShaderGenerator::LIGHTDATA_TYPEVAR_STRING = "type";
 
 //
 // ShaderGenerator methods
@@ -90,6 +91,11 @@ void ShaderGenerator::emitLibraryInclude(const FilePath& filename, GenContext& c
 void ShaderGenerator::emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
     stage.addFunctionDefinition(node, context);
+}
+
+void ShaderGenerator::emitFunctionDefinitionParameter(const ShaderPort* shaderPort, GenContext&, ShaderStage& stage) const
+{
+    emitString(_syntax->getTypeName(shaderPort->getType()) + " " + shaderPort->getVariable(), stage);
 }
 
 void ShaderGenerator::emitFunctionDefinitions(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const

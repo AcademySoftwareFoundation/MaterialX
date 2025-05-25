@@ -59,7 +59,6 @@ void CompoundNode::emitFunctionDefinition(const ShaderNode&, GenContext& context
     DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
     {
         const ShaderGenerator& shadergen = context.getShaderGenerator();
-        const Syntax& syntax = shadergen.getSyntax();
 
         // Emit functions for all child nodes
         shadergen.emitFunctionDefinitions(*_rootGraph, context, stage);
@@ -73,14 +72,16 @@ void CompoundNode::emitFunctionDefinition(const ShaderNode&, GenContext& context
         // Add all inputs
         for (ShaderGraphInputSocket* inputSocket : _rootGraph->getInputSockets())
         {
-            shadergen.emitString(delim + syntax.getTypeName(inputSocket->getType()) + " " + inputSocket->getVariable(), stage);
+            shadergen.emitString(delim, stage);
+            shadergen.emitFunctionDefinitionParameter(inputSocket, context, stage);
             delim = ", ";
         }
 
         // Add all outputs
         for (ShaderGraphOutputSocket* outputSocket : _rootGraph->getOutputSockets())
         {
-            shadergen.emitString(delim + syntax.getOutputTypeName(outputSocket->getType()) + " " + outputSocket->getVariable(), stage);
+            shadergen.emitString(delim, stage);
+            shadergen.emitFunctionDefinitionParameter(outputSocket, context, stage);
             delim = ", ";
         }
 

@@ -74,9 +74,14 @@ const string T_ALPHA_THRESHOLD                = "$alphaThreshold";
 const string T_NUM_ACTIVE_LIGHT_SOURCES       = "$numActiveLightSources";
 const string T_ENV_MATRIX                     = "$envMatrix";
 const string T_ENV_RADIANCE                   = "$envRadiance";
+const string T_ENV_RADIANCE_TEXTURE           = "$envRadiance_texture";
+const string T_ENV_RADIANCE_SAMPLER           = "$envRadiance_sampler";
 const string T_ENV_RADIANCE_MIPS              = "$envRadianceMips";
 const string T_ENV_RADIANCE_SAMPLES           = "$envRadianceSamples";
+
 const string T_ENV_IRRADIANCE                 = "$envIrradiance";
+const string T_ENV_IRRADIANCE_TEXTURE         = "$envIrradiance_texture";
+const string T_ENV_IRRADIANCE_SAMPLER         = "$envIrradiance_sampler";
 const string T_ENV_LIGHT_INTENSITY            = "$envLightIntensity";
 const string T_ENV_PREFILTER_MIP              = "$envPrefilterMip";
 const string T_REFRACTION_TWO_SIDED           = "$refractionTwoSided";
@@ -130,9 +135,13 @@ const string ALPHA_THRESHOLD                  = "u_alphaThreshold";
 const string NUM_ACTIVE_LIGHT_SOURCES         = "u_numActiveLightSources";
 const string ENV_MATRIX                       = "u_envMatrix";
 const string ENV_RADIANCE                     = "u_envRadiance";
+const string ENV_RADIANCE_TEXTURE             = "u_envRadiance_texture";
+const string ENV_RADIANCE_SAMPLER             = "u_envRadiance_sampler";
 const string ENV_RADIANCE_MIPS                = "u_envRadianceMips";
 const string ENV_RADIANCE_SAMPLES             = "u_envRadianceSamples";
 const string ENV_IRRADIANCE                   = "u_envIrradiance";
+const string ENV_IRRADIANCE_TEXTURE           = "u_envIrradiance_texture";
+const string ENV_IRRADIANCE_SAMPLER           = "u_envIrradiance_sampler";
 const string ENV_LIGHT_INTENSITY              = "u_envLightIntensity";
 const string ENV_PREFILTER_MIP                = "u_envPrefilterMip";
 const string REFRACTION_TWO_SIDED             = "u_refractionTwoSided";
@@ -308,7 +317,7 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     VariableBlockPtr psPrivateUniforms = ps->createUniformBlock(HW::PRIVATE_UNIFORMS, "u_prv");
     VariableBlockPtr psPublicUniforms = ps->createUniformBlock(HW::PUBLIC_UNIFORMS, "u_pub");
     VariableBlockPtr lightData = ps->createUniformBlock(HW::LIGHT_DATA, HW::T_LIGHT_DATA_INSTANCE);
-    lightData->add(Type::INTEGER, "type");
+    lightData->add(Type::INTEGER, getLightDataTypevarString() );
 
     // Add a block for data from vertex to pixel shader.
     addStageConnectorBlock(HW::VERTEX_DATA, HW::T_VERTEX_DATA_INSTANCE, *vs, *ps);
