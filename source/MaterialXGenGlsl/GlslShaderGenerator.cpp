@@ -778,9 +778,4 @@ ShaderNodeImplPtr GlslShaderGenerator::getImplementation(const NodeDef& nodedef,
     return impl;
 }
 
-const string& GlslImplementation::getTarget() const
-{
-    return GlslShaderGenerator::TARGET;
-}
-
 MATERIALX_NAMESPACE_END
