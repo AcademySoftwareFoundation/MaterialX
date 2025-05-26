@@ -88,7 +88,6 @@ bool ShaderNodeImpl::nodeOutputIsClosure(const ShaderNode& node) const
     return outputs[0]->getType().isClosure();
 }
 
-
 ShaderNodeImplPtr NopNode::create()
 {
     return std::make_shared<NopNode>();

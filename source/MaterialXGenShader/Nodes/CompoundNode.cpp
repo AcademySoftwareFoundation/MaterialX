@@ -165,7 +165,7 @@ void CompoundNode::emitFunctionCall(const ShaderNode& node, GenContext& context,
         shadergen.emitLineBegin(stage);
         shadergen.emitString(_functionName + "(", stage);
 
-        // Check if we have a closure context to modify the function call.
+        // Add an argument for closure data if needed
         if (context.getShaderGenerator().nodeNeedsClosureData(node))
         {
             shadergen.emitString(HW::CLOSURE_DATA_ARG + ", ", stage);
