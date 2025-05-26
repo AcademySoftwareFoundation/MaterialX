@@ -14,9 +14,6 @@
   <!-- <surfacematerial> -->
   <implementation name="IM_surfacematerial_genmsl" nodedef="ND_surfacematerial" target="genmsl" />
 
-  <!-- <surface_unlit> -->
-  <implementation name="IM_surface_unlit_genmsl" nodedef="ND_surface_unlit" target="genmsl" />
-
   <!-- ======================================================================== -->
   <!-- Texture nodes                                                            -->
   <!-- ======================================================================== -->
