@@ -46,7 +46,8 @@ void HwHeightToNormalNode::computeSampleOffsetStrings(const string& sampleSizeNa
     {
         for (int col = -1; col <= 1; col++)
         {
-            offsetStrings.push_back(" + " + sampleSizeName + " * " + offsetTypeString + "(" + std::to_string(float(col)) + "," + std::to_string(float(row)) + ")");
+            offsetStrings.emplace_back(" + " + sampleSizeName + " * " + offsetTypeString +
+                                       "(" + std::to_string(float(col)) + "," + std::to_string(float(row)) + ")");
         }
     }
 }

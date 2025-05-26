@@ -20,11 +20,5 @@ if sys.platform == "win32" and sys.version_info >= (3, 8):
             os.add_dll_directory(bindir)
 
 from .main import *
-from .colorspace import *
-
-try:
-    from .legacy import *
-except ImportError:
-    pass
 
 __version__ = getVersionString()

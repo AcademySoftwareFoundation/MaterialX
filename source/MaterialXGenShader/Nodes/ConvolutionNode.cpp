@@ -186,7 +186,7 @@ void ConvolutionNode::emitInputSamplesUV(const ShaderNode& node,
                         context.removeOutputSuffix(upstreamOutput);
 
                         // Keep track of the output name with the suffix
-                        sampleStrings.push_back(upstreamOutput->getVariable() + outputSuffix);
+                        sampleStrings.emplace_back(upstreamOutput->getVariable() + outputSuffix);
                     }
                 }
                 else

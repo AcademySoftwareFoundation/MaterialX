@@ -144,7 +144,8 @@ RenderView::RenderView(mx::DocumentPtr doc,
     _renderTransparency(true),
     _renderDoubleSided(true),
     _captureRequested(false),
-    _exitRequested(false)
+    _exitRequested(false),
+    _frame(0)
 {
     // Resolve input filenames, taking both the provided search path and
     // current working directory into account.
@@ -403,15 +404,6 @@ void RenderView::updateMaterials(mx::TypedElementPtr typedElem)
         // Check for any udim set.
         mx::ValuePtr udimSetValue = _document->getGeomPropValue(mx::UDIM_SET_PROPERTY);
 
-        // Skip material nodes without upstream shaders.
-        mx::NodePtr node = typedElem ? typedElem->asA<mx::Node>() : nullptr;
-        if (node &&
-            node->getCategory() == mx::SURFACE_MATERIAL_NODE_STRING &&
-            mx::getShaderNodes(node).empty())
-        {
-            typedElem = nullptr;
-        }
-
         // Create new materials.
         if (!typedElem)
         {
@@ -420,6 +412,15 @@ void RenderView::updateMaterials(mx::TypedElementPtr typedElem)
             {
                 typedElem = elems[0];
             }
+        }
+
+        // Skip material nodes without upstream shaders.
+        mx::NodePtr node = typedElem ? typedElem->asA<mx::Node>() : nullptr;
+        if (node &&
+            node->getCategory() == mx::SURFACE_MATERIAL_NODE_STRING &&
+            mx::getShaderNodes(node).empty())
+        {
+            typedElem = nullptr;
         }
 
         mx::TypedElementPtr udimElement = nullptr;
@@ -610,7 +611,21 @@ void RenderView::initContext(mx::GenContext& context)
     }
 
     // Initialize color management.
-    mx::DefaultColorManagementSystemPtr cms = mx::DefaultColorManagementSystem::create(context.getShaderGenerator().getTarget());
+    mx::DefaultColorManagementSystemPtr cms;
+#ifdef MATERIALX_BUILD_OCIO
+    try
+    {
+        cms = mx::OcioColorManagementSystem::createFromBuiltinConfig(
+            "ocio://studio-config-latest",
+            context.getShaderGenerator().getTarget());
+    }
+    catch (const std::exception& /*e*/)
+    {
+        cms = mx::DefaultColorManagementSystem::create(context.getShaderGenerator().getTarget());
+    }
+#else
+    cms = mx::DefaultColorManagementSystem::create(context.getShaderGenerator().getTarget());
+#endif
     cms->loadLibrary(_document);
     context.getShaderGenerator().setColorManagementSystem(cms);
 
@@ -792,6 +807,10 @@ void RenderView::renderFrame()
         {
             material->getProgram()->bindUniform(mx::HW::ALPHA_THRESHOLD, mx::Value::createValue(0.99f));
         }
+        if (material->getProgram()->hasUniform(mx::HW::FRAME))
+        {
+            material->getProgram()->bindUniform(mx::HW::FRAME, mx::Value::createValue(static_cast<float>(_frame)));
+        }
         material->bindViewInformation(_viewCamera);
         material->bindLighting(_lightHandler, _imageHandler, shadowState);
         material->bindImages(_imageHandler, _searchPath);
@@ -831,7 +850,9 @@ void RenderView::renderFrame()
     {
         glDisable(GL_CULL_FACE);
     }
+    // Restore framebuffer and disable sRGB conversion in preparation for ImGUI drawing
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glDisable(GL_FRAMEBUFFER_SRGB);
 
     // Store viewport texture for render.
     _textureID = _renderFrame->getColorTexture();

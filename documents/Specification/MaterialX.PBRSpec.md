@@ -162,7 +162,7 @@ The PBS nodes also make use of the following standard MaterialX types:
 
 <a id="node-oren-nayar-diffuse-bsdf"> </a>
 
-* **`oren_nayar_diffuse_bsdf`**: Constructs a diffuse reflection BSDF based on the Oren-Nayar reflectance model. A `roughness` of 0.0 gives Lambertian reflectance. An `energy_compensation` boolean selects between classic Oren-Nayar behavior[^Oren1994] and the energy-compensated Oren-Nayar in OpenPBR[^Andersson2024].
+* **`oren_nayar_diffuse_bsdf`**: Constructs a diffuse reflection BSDF based on the Oren-Nayar reflectance model. A `roughness` of 0.0 gives Lambertian reflectance. An `energy_compensation` boolean selects between the Qualitative Oren-Nayar[^Oren1994] and Energy-Preserving Oren-Nayar[^Portsmouth2025] models of diffuse reflectance.
     * `weight` (float): Weight for this BSDF’s contribution, range [0.0, 1.0]. Defaults to 1.0.
     * `color` (color3): Diffuse reflectivity (albedo). Defaults to (0.18, 0.18, 0.18).
     * `roughness `(float): Surface roughness, range [0.0, 1.0]. Defaults to 0.0.
@@ -500,11 +500,13 @@ Path Tracing**, <https://media.disneyanimation.com/uploads/production/publicatio
 
 [^Marschner2003]: Stephen R. Marschner et al., **Light Scattering from Human Hair Fibers**, <http://www.graphics.stanford.edu/papers/hair/hair-sg03final.pdf>, 2003
 
-[^Oren1994]: Michael Oren, Shree K. Nayar, **Generalization of Lambert’s Reflectance Model**, <https://www1.cs.columbia.edu/CAVE/publications/pdfs/Oren_SIGGRAPH94.pdf>, 1994
+[^Oren1994]: Michael Oren, Shree K. Nayar, **Generalization of Lambert’s Reflectance Model**, <https://dl.acm.org/doi/10.1145/192161.192213>, 1994
 
 [^Pharr2023]: Matt Pharr et al., **Physically Based Rendering: From Theory To Implementation**, <https://www.pbr-book.org/>, 2023
 
 [^Pixar2019]: Pixar Animation Studios, **UsdPreviewSurface Specification**, <https://openusd.org/release/spec_usdpreviewsurface.html>, 2019.
+
+[^Portsmouth2025]: Portsmouth et al., **EON: A practical energy-preserving rough diffuse BRDF**, <https://www.jcgt.org/published/0014/01/06/>, 2025.
 
 [^Walter2007]: Bruce Walter et al., **Microfacet Models for Refraction through Rough Surfaces**, <https://www.graphics.cornell.edu/~bjw/microfacetbsdf.pdf>, 2007
 

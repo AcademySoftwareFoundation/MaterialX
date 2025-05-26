@@ -2226,6 +2226,10 @@
       <input name="in1" type="vector2" interfacename="texcoord" />
       <input name="in2" type="vector2" interfacename="texcoord" />
     </add>
+    <add name="center_double" type="vector2">
+      <input name="in1" type="vector2" interfacename="center" />
+      <input name="in2" type="vector2" interfacename="center" />
+    </add>
     <add name="sample_add" type="vector2">
       <input name="in1" type="vector2" nodename="sample_double" />
       <input name="in2" type="float" interfacename="radius" />
@@ -2261,22 +2265,22 @@
     </combine2>
     <circle name="circle1" type="float">
       <input name="texcoord" type="vector2" nodename="coord1" />
-      <input name="center" type="vector2" interfacename="center" />
+      <input name="center" type="vector2" nodename="center_double" />
       <input name="radius" type="float" interfacename="radius" />
     </circle>
     <circle name="circle2" type="float">
       <input name="texcoord" type="vector2" nodename="coord2" />
-      <input name="center" type="vector2" interfacename="center" />
+      <input name="center" type="vector2" nodename="center_double" />
       <input name="radius" type="float" interfacename="radius" />
     </circle>
     <circle name="circle3" type="float">
       <input name="texcoord" type="vector2" nodename="coord3" />
-      <input name="center" type="vector2" interfacename="center" />
+      <input name="center" type="vector2" nodename="center_double" />
       <input name="radius" type="float" interfacename="radius" />
     </circle>
     <circle name="circle4" type="float">
       <input name="texcoord" type="vector2" nodename="coord4" />
-      <input name="center" type="vector2" interfacename="center" />
+      <input name="center" type="vector2" nodename="center_double" />
       <input name="radius" type="float" interfacename="radius" />
     </circle>
     <max name="max1" type="float">

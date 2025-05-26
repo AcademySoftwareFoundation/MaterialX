@@ -15,7 +15,7 @@
   <implementation name="IM_surfacematerial_genglsl" nodedef="ND_surfacematerial" target="genglsl" />
 
   <!-- <surface_unlit> -->
-  <implementation name="IM_surface_unlit_genglsl" nodedef="ND_surface_unlit" target="genglsl" />
+  <implementation name="IM_surface_unlit_genglsl" nodedef="ND_surface_unlit" file="mx_surface_unlit.glsl" function="mx_surface_unlit" target="genglsl" />
 
   <!-- ======================================================================== -->
   <!-- Texture nodes                                                            -->
@@ -41,9 +41,22 @@
     <input name="default" type="vector4" implname="default_value" />
   </implementation>
 
+  <!-- <hextiledimage> -->
+  <implementation name="IM_hextiledimage_color3_genglsl" nodedef="ND_hextiledimage_color3" file="mx_hextiledimage.glsl" function="mx_hextiledimage_color3" target="genglsl">
+    <input name="default" type="color3" implname="default_value" />
+  </implementation>
+  <implementation name="IM_hextiledimage_color4_genglsl" nodedef="ND_hextiledimage_color4" file="mx_hextiledimage.glsl" function="mx_hextiledimage_color4" target="genglsl">
+    <input name="default" type="color4" implname="default_value" />
+  </implementation>
+
   <!-- <normalmap> -->
   <implementation name="IM_normalmap_float_genglsl" nodedef="ND_normalmap_float" file="mx_normalmap.glsl" function="mx_normalmap_float" target="genglsl" />
   <implementation name="IM_normalmap_vector2_genglsl" nodedef="ND_normalmap_vector2" file="mx_normalmap.glsl" function="mx_normalmap_vector2" target="genglsl" />
+
+  <!-- <hextilednormalmap> -->
+  <implementation name="IM_hextilednormalmap_vector3_genglsl" nodedef="ND_hextilednormalmap_vector3" file="mx_hextilednormalmap.glsl" function="mx_hextilednormalmap_vector3" target="genglsl">
+    <input name="default" type="vector3" implname="default_value" />
+  </implementation>
 
   <!-- ======================================================================== -->
   <!-- Procedural nodes                                                         -->

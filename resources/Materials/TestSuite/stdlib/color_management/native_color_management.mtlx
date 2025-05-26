@@ -1,0 +1,183 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+  <standard_surface name="standard_surface1" type="surfaceshader" nodedef="ND_standard_surface_surfaceshader">
+    <input name="base_color" type="color3" nodename="switch1" />
+  </standard_surface>
+  <surfacematerial name="Standard_Surface1" type="material" nodedef="ND_surfacematerial">
+    <input name="surfaceshader" type="surfaceshader" nodename="standard_surface1" />
+  </surfacematerial>
+  <switch name="switch1" type="color3" nodedef="ND_switch_color3">
+    <input name="in1" type="color3" nodename="switch2" />
+    <input name="in2" type="color3" nodename="switch3" />
+    <input name="in3" type="color3" nodename="switch4" />
+    <input name="in4" type="color3" nodename="switch5" />
+    <input name="in5" type="color3" nodename="switch6" />
+    <input name="in6" type="color3" nodename="switch7" />
+    <input name="in7" type="color3" nodename="switch8" />
+    <input name="in8" type="color3" nodename="switch9" />
+    <input name="in9" type="color3" nodename="switch10" />
+    <input name="in10" type="color3" nodename="switch11" />
+    <input name="which" type="float" nodename="multiply1" />
+  </switch>
+  <texcoord name="texcoord1" type="vector2" nodedef="ND_texcoord_vector2" />
+  <separate2 name="separate2_1" type="multioutput" nodedef="ND_separate2_vector2">
+    <input name="in" type="vector2" nodename="texcoord1" />
+  </separate2>
+  <multiply name="multiply1" type="float" nodedef="ND_multiply_float">
+    <input name="in2" type="float" value="5" />
+    <input name="in1" type="float" nodename="add1" />
+  </multiply>
+  <position name="position1" type="vector3" nodedef="ND_position_vector3" />
+  <separate3 name="separate3_1" type="multioutput" nodedef="ND_separate3_vector3">
+    <input name="in" type="vector3" nodename="position1" />
+  </separate3>
+  <add name="add1" type="float" nodedef="ND_add_float">
+    <input name="in1" type="float" nodename="separate3_1" output="outy" />
+    <input name="in2" type="float" value="1" />
+  </add>
+  <switch name="switch2" type="color3" nodedef="ND_switch_color3">
+    <input name="which" type="float" nodename="multiply3" />
+    <input name="in1" type="color3" value="0.6425, 0.5324, 0.4798" colorspace="g18_rec709" />
+    <input name="in2" type="color3" value="0.8591, 0.7447, 0.6878" colorspace="g18_rec709" />
+    <input name="in3" type="color3" value="0.5879, 0.6639, 0.7638" colorspace="g18_rec709" />
+    <input name="in4" type="color3" value="0.5502, 0.6205, 0.4759" colorspace="g18_rec709" />
+    <input name="in5" type="color3" value="0.6965, 0.6819, 0.8164" colorspace="g18_rec709" />
+    <input name="in6" type="color3" value="0.6043, 0.8467, 0.7983" colorspace="g18_rec709" />
+    <input name="in7" type="color3" value="0.9072, 0.6759, 0.3768" colorspace="g18_rec709" />
+    <input name="in8" type="color3" value="0.5252, 0.5641, 0.7878" colorspace="g18_rec709" />
+    <input name="in9" type="color3" value="0.8566, 0.5607, 0.5912" colorspace="g18_rec709" />
+    <input name="in10" type="color3" value="0.5744, 0.4476, 0.6205" colorspace="g18_rec709" />
+  </switch>
+  <texcoord name="texcoord2" type="vector2" nodedef="ND_texcoord_vector2" />
+  <extract name="extract1" type="float" nodedef="ND_extract_vector2">
+    <input name="in" type="vector2" nodename="texcoord2" />
+  </extract>
+  <multiply name="multiply2" type="float" nodedef="ND_multiply_float">
+    <input name="in2" type="float" value="2" />
+    <input name="in1" type="float" nodename="extract1" />
+  </multiply>
+  <trianglewave name="trianglewave1" type="float" nodedef="ND_trianglewave_float">
+    <input name="in" type="float" nodename="multiply2" />
+  </trianglewave>
+  <multiply name="multiply3" type="float" nodedef="ND_multiply_float">
+    <input name="in2" type="float" value="20" />
+    <input name="in1" type="float" nodename="trianglewave1" />
+  </multiply>
+  <switch name="switch3" type="color3" nodedef="ND_switch_color3">
+    <input name="in1" type="color3" value="0.6963, 0.5971, 0.5484" colorspace="g22_rec709" />
+    <input name="in2" type="color3" value="0.8831, 0.7857, 0.7362" colorspace="g22_rec709" />
+    <input name="in3" type="color3" value="0.6475, 0.7153, 0.8021" colorspace="g22_rec709" />
+    <input name="in4" type="color3" value="0.6134, 0.6767, 0.5447" colorspace="g22_rec709" />
+    <input name="in5" type="color3" value="0.7439, 0.7310, 0.8471" colorspace="g22_rec709" />
+    <input name="in6" type="color3" value="0.6623, 0.8727, 0.8317" colorspace="g22_rec709" />
+    <input name="in7" type="color3" value="0.9234, 0.7258, 0.4499" colorspace="g22_rec709" />
+    <input name="in8" type="color3" value="0.5904, 0.6260, 0.8227" colorspace="g22_rec709" />
+    <input name="in9" type="color3" value="0.8811, 0.6229, 0.6505" colorspace="g22_rec709" />
+    <input name="in10" type="color3" value="0.6353, 0.5180, 0.6767" colorspace="g22_rec709" />
+    <input name="which" type="float" nodename="multiply3" />
+  </switch>
+  <switch name="switch4" type="color3" nodedef="ND_switch_color3">
+    <input name="in1" type="color3" value="0.7176, 0.6233, 0.5765" colorspace="rec709_display" />
+    <input name="in2" type="color3" value="0.8923, 0.8016, 0.7552" colorspace="rec709_display" />
+    <input name="in3" type="color3" value="0.6714, 0.7355, 0.8170" colorspace="rec709_display" />
+    <input name="in4" type="color3" value="0.6389, 0.6991, 0.5730" colorspace="rec709_display" />
+    <input name="in5" type="color3" value="0.7624, 0.7504, 0.8589" colorspace="rec709_display" />
+    <input name="in6" type="color3" value="0.6854, 0.8827, 0.8446" colorspace="rec709_display" />
+    <input name="in7" type="color3" value="0.9296, 0.7455, 0.4809" colorspace="rec709_display" />
+    <input name="in8" type="color3" value="0.6169, 0.6509, 0.8362" colorspace="rec709_display" />
+    <input name="in9" type="color3" value="0.8904, 0.6480, 0.6742" colorspace="rec709_display" />
+    <input name="in10" type="color3" value="0.6598, 0.5472, 0.6991" colorspace="rec709_display" />
+    <input name="which" type="float" nodename="multiply3" />
+  </switch>
+  <switch name="switch5" type="color3" nodedef="ND_switch_color3">
+    <input name="in1" type="color3" value="0.3983, 0.3299, 0.2765" colorspace="acescg" />
+    <input name="in2" type="color3" value="0.6903, 0.5993, 0.5236" colorspace="acescg" />
+    <input name="in3" type="color3" value="0.4272, 0.4737, 0.5959" colorspace="acescg" />
+    <input name="in4" type="color3" value="0.3654, 0.4156, 0.2820" colorspace="acescg" />
+    <input name="in5" type="color3" value="0.5231, 0.5059, 0.6695" colorspace="acescg" />
+    <input name="in6" type="color3" value="0.5309, 0.7165, 0.6694" colorspace="acescg" />
+    <input name="in7" type="color3" value="0.6905, 0.5140, 0.2215" colorspace="acescg" />
+    <input name="in8" type="color3" value="0.3444, 0.3578, 0.6118" colorspace="acescg" />
+    <input name="in9" type="color3" value="0.6023, 0.3818, 0.3920" colorspace="acescg" />
+    <input name="in10" type="color3" value="0.3260, 0.2472, 0.4018" colorspace="acescg" />
+    <input name="which" type="float" nodename="multiply3" />
+  </switch>
+  <switch name="switch6" type="color3" nodedef="ND_switch_color3">
+    <input name="in1" type="color3" value="0.6581, 0.6041, 0.5575" colorspace="g22_ap1" />
+    <input name="in2" type="color3" value="0.8450, 0.7924, 0.7452" colorspace="g22_ap1" />
+    <input name="in3" type="color3" value="0.6794, 0.7120, 0.7903" colorspace="g22_ap1" />
+    <input name="in4" type="color3" value="0.6328, 0.6709, 0.5625" colorspace="g22_ap1" />
+    <input name="in5" type="color3" value="0.7449, 0.7337, 0.8333" colorspace="g22_ap1" />
+    <input name="in6" type="color3" value="0.7499, 0.8594, 0.8332" colorspace="g22_ap1" />
+    <input name="in7" type="color3" value="0.8450, 0.7390, 0.5040" colorspace="g22_ap1" />
+    <input name="in8" type="color3" value="0.6160, 0.6268, 0.7998" colorspace="g22_ap1" />
+    <input name="in9" type="color3" value="0.7941, 0.6455, 0.6533" colorspace="g22_ap1" />
+    <input name="in10" type="color3" value="0.6008, 0.5298, 0.6607" colorspace="g22_ap1" />
+    <input name="which" type="float" nodename="multiply3" />
+  </switch>
+  <switch name="switch7" type="color3" nodedef="ND_switch_color3">
+    <input name="in1" type="color3" value="0.7021, 0.6026, 0.5532" colorspace="srgb_texture" />
+    <input name="in2" type="color3" value="0.8864, 0.7907, 0.7418" colorspace="srgb_texture" />
+    <input name="in3" type="color3" value="0.6533, 0.7210, 0.8070" colorspace="srgb_texture" />
+    <input name="in4" type="color3" value="0.6190, 0.6825, 0.5495" colorspace="srgb_texture" />
+    <input name="in5" type="color3" value="0.7494, 0.7366, 0.8511" colorspace="srgb_texture" />
+    <input name="in6" type="color3" value="0.6681, 0.8762, 0.8360" colorspace="srgb_texture" />
+    <input name="in7" type="color3" value="0.9257, 0.7315, 0.4523" colorspace="srgb_texture" />
+    <input name="in8" type="color3" value="0.5959, 0.6317, 0.8272" colorspace="srgb_texture" />
+    <input name="in9" type="color3" value="0.8844, 0.6286, 0.6563" colorspace="srgb_texture" />
+    <input name="in10" type="color3" value="0.6411, 0.5223, 0.6825" colorspace="srgb_texture" />
+    <input name="which" type="float" nodename="multiply3" />
+  </switch>
+  <switch name="switch8" type="color3" nodedef="ND_switch_color3">
+    <input name="in1" type="color3" value="0.4141, 0.3216, 0.2689" colorspace="lin_adobergb" />
+    <input name="in2" type="color3" value="0.7116, 0.5882, 0.5130" colorspace="lin_adobergb" />
+    <input name="in3" type="color3" value="0.4111, 0.4784, 0.6100" colorspace="lin_adobergb" />
+    <input name="in4" type="color3" value="0.3646, 0.4235, 0.2694" colorspace="lin_adobergb" />
+    <input name="in5" type="color3" value="0.5160, 0.5020, 0.6862" colorspace="lin_adobergb" />
+    <input name="in6" type="color3" value="0.5000, 0.7412, 0.6697" colorspace="lin_adobergb" />
+    <input name="in7" type="color3" value="0.7409, 0.4941, 0.1858" colorspace="lin_adobergb" />
+    <input name="in8" type="color3" value="0.3260, 0.3569, 0.6389" colorspace="lin_adobergb" />
+    <input name="in9" type="color3" value="0.6418, 0.3529, 0.3868" colorspace="lin_adobergb" />
+    <input name="in10" type="color3" value="0.3306, 0.2353, 0.4158" colorspace="lin_adobergb" />
+    <input name="which" type="float" nodename="multiply3" />
+  </switch>
+  <switch name="switch9" type="color3" nodedef="ND_switch_color3">
+    <input name="in1" type="color3" value="0.6697, 0.5970, 0.5504" colorspace="adobergb" />
+    <input name="in2" type="color3" value="0.8567, 0.7856, 0.7382" colorspace="adobergb" />
+    <input name="in3" type="color3" value="0.6675, 0.7152, 0.7987" colorspace="adobergb" />
+    <input name="in4" type="color3" value="0.6321, 0.6766, 0.5508" colorspace="adobergb" />
+    <input name="in5" type="color3" value="0.7402, 0.7310, 0.8426" colorspace="adobergb" />
+    <input name="in6" type="color3" value="0.7297, 0.8727, 0.8334" colorspace="adobergb" />
+    <input name="in7" type="color3" value="0.8725, 0.7257, 0.4652" colorspace="adobergb" />
+    <input name="in8" type="color3" value="0.6007, 0.6259, 0.8157" colorspace="adobergb" />
+    <input name="in9" type="color3" value="0.8174, 0.6228, 0.6493" colorspace="adobergb" />
+    <input name="in10" type="color3" value="0.6046, 0.5179, 0.6710" colorspace="adobergb" />
+    <input name="which" type="float" nodename="multiply3" />
+  </switch>
+  <switch name="switch10" type="color3" nodedef="ND_switch_color3">
+    <input name="in1" type="color3" value="0.6858, 0.6062, 0.5600" colorspace="srgb_displayp3" />
+    <input name="in2" type="color3" value="0.8704, 0.7942, 0.7482" colorspace="srgb_displayp3" />
+    <input name="in3" type="color3" value="0.6660, 0.7188, 0.7988" colorspace="srgb_displayp3" />
+    <input name="in4" type="color3" value="0.6309, 0.6806, 0.5618" colorspace="srgb_displayp3" />
+    <input name="in5" type="color3" value="0.7471, 0.7371, 0.8419" colorspace="srgb_displayp3" />
+    <input name="in6" type="color3" value="0.7110, 0.8703, 0.8365" colorspace="srgb_displayp3" />
+    <input name="in7" type="color3" value="0.8952, 0.7390, 0.4926" colorspace="srgb_displayp3" />
+    <input name="in8" type="color3" value="0.6024, 0.6306, 0.8117" colorspace="srgb_displayp3" />
+    <input name="in9" type="color3" value="0.8462, 0.6393, 0.6591" colorspace="srgb_displayp3" />
+    <input name="in10" type="color3" value="0.6221, 0.5268, 0.6719" colorspace="srgb_displayp3" />
+    <input name="which" type="float" nodename="multiply3" />
+  </switch>
+  <switch name="switch11" type="color3" nodedef="ND_switch_color3">
+    <input name="in1" type="color3" value="0.4280, 0.3259, 0.2738" colorspace="lin_displayp3" />
+    <input name="in2" type="color3" value="0.7302, 0.5940, 0.5198" colorspace="lin_displayp3" />
+    <input name="in3" type="color3" value="0.4010, 0.4753, 0.6018" colorspace="lin_displayp3" />
+    <input name="in4" type="color3" value="0.3558, 0.4208, 0.2757" colorspace="lin_displayp3" />
+    <input name="in5" type="color3" value="0.5181, 0.5026, 0.6773" colorspace="lin_displayp3" />
+    <input name="in6" type="color3" value="0.4638, 0.7300, 0.6676" colorspace="lin_displayp3" />
+    <input name="in7" type="color3" value="0.7779, 0.5056, 0.2072" colorspace="lin_displayp3" />
+    <input name="in8" type="color3" value="0.3214, 0.3554, 0.6239" colorspace="lin_displayp3" />
+    <input name="in9" type="color3" value="0.6852, 0.3663, 0.3920" colorspace="lin_displayp3" />
+    <input name="in10" type="color3" value="0.3450, 0.2397, 0.4090" colorspace="lin_displayp3" />
+    <input name="which" type="float" nodename="multiply3" />
+  </switch>
+</materialx>

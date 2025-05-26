@@ -104,6 +104,15 @@ std::string getUserNodeDefName(const std::string& val)
     return result;
 }
 
+static void EnableSRGBCallback(const ImDrawList*, const ImDrawCmd*)
+{
+    glEnable(GL_FRAMEBUFFER_SRGB);
+}
+static void DisableSRGBCallback(const ImDrawList*, const ImDrawCmd*)
+{
+    glDisable(GL_FRAMEBUFFER_SRGB);
+}
+
 } // anonymous namespace
 
 //
@@ -176,7 +185,7 @@ Graph::Graph(const std::string& materialFilename,
     _renderer->initialize();
     for (const std::string& ext : _renderer->getImageHandler()->supportedExtensions())
     {
-        _imageFilter.push_back("." + ext);
+        _imageFilter.emplace_back("." + ext);
     }
     _renderer->updateMaterials(nullptr);
     for (const std::string& incl : _renderer->getXincludeFiles())
@@ -288,19 +297,20 @@ void Graph::addExtraNodes()
     }
 
     // Add input and output nodes for all types
+    const std::set<std::string> emptySet;
     for (const std::string& type : types)
     {
         std::string nodeName = "ND_input_" + type;
-        _nodesToAdd.emplace_back(nodeName, type, "input", "Input Nodes");
+        _nodesToAdd.emplace_back(nodeName, type, "input", "Input Nodes", emptySet, emptySet);
         nodeName = "ND_output_" + type;
-        _nodesToAdd.emplace_back(nodeName, type, "output", "Output Nodes");
+        _nodesToAdd.emplace_back(nodeName, type, "output", "Output Nodes", emptySet, emptySet);
     }
 
     // Add group node
-    _nodesToAdd.emplace_back("ND_group", "", "group", "Group Nodes");
+    _nodesToAdd.emplace_back("ND_group", "", "group", "Group Nodes", emptySet, emptySet);
 
     // Add nodegraph node
-    _nodesToAdd.emplace_back("ND_nodegraph", "", "nodegraph", "Node Graph");
+    _nodesToAdd.emplace_back("ND_nodegraph", "", "nodegraph", "Node Graph", emptySet, emptySet);
 }
 
 ed::PinId Graph::getOutputPin(UiNodePtr node, UiNodePtr upNode, UiPinPtr input)
@@ -970,21 +980,27 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         if (val && val->isA<mx::Color3>())
         {
             mx::Color3 prev, temp;
-            prev = temp = val->asA<mx::Color3>();
-            float min = minVal ? minVal->asA<mx::Color3>()[0] : 0.f;
-            float max = maxVal ? maxVal->asA<mx::Color3>()[0] : 100.f;
-            float speed = (max - min) / 1000.0f;
-            ImGui::PushItemWidth(-100);
-            ImGui::DragFloat3("##hidelabel", &temp[0], speed, min, max);
-            ImGui::PopItemWidth();
-            ImGui::SameLine();
-            ImGui::ColorEdit3("##color", &temp[0], ImGuiColorEditFlags_NoInputs);
+
+            // Read material value in converted display space
+            prev = temp = val->asA<mx::Color3>().linearToSrgb();
+
+            // Use ImGuiColorEditFlags_Uint8 flag for built-in Uint8 input fields
+            ImGui::ColorEdit3("##color", &temp[0], ImGuiColorEditFlags_Uint8);
+            if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+            {
+                ImGui::SetTooltip("Color is selected and rendered to Viewer in sRGB display space, \nbut written to .mtlx file in linear format.");
+            }
 
             // Set input value and update materials if different from previous value
             if (prev != temp)
             {
+                // Convert back to linear color space for writing to material and node input
+                mx::Color3 linearCol = temp.srgbToLinear();
+
                 addNodeInput(_currUiNode, input);
-                input->setValue(temp, input->getType());
+                input->setValue(linearCol, input->getType());
+
+                mx::ValuePtr linearVal = mx::Value::createValue<mx::Color3>(linearCol);
                 updateMaterials(input, input->getValue());
             }
         }
@@ -994,25 +1010,33 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         mx::ValuePtr val = input->getValue();
         if (val && val->isA<mx::Color4>())
         {
-            mx::Color4 prev, temp;
-            prev = temp = val->asA<mx::Color4>();
-            float min = minVal ? minVal->asA<mx::Color4>()[0] : 0.f;
-            float max = maxVal ? maxVal->asA<mx::Color4>()[0] : 100.f;
-            float speed = (max - min) / 1000.0f;
-            ImGui::PushItemWidth(-100);
-            ImGui::DragFloat4("##hidelabel", &temp[0], speed, min, max);
-            ImGui::PopItemWidth();
-            ImGui::SameLine();
+            // Read material value and convert RGB components to display space
+            mx::Color4 linearCol = val->asA<mx::Color4>();
+            mx::Color3 displayCol3 = mx::Color3(linearCol[0], linearCol[1], linearCol[2]).linearToSrgb();
 
-            // Color edit for the color picker to the right of the color floats
-            ImGui::ColorEdit4("##color", &temp[0], ImGuiColorEditFlags_NoInputs);
+            mx::Color4 prev, temp;
+            // Create 4D vector with converted RGB and non-converted, stored Alpha value
+            prev = temp = mx::Color4(displayCol3[0], displayCol3[1], displayCol3[2], linearCol[3]);
+
+            // Use ImGuiColorEditFlags_Uint8 flag for built-in Uint8 input fields
+            ImGui::ColorEdit4("##color", &temp[0], ImGuiColorEditFlags_Uint8);
+            if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+            {
+                ImGui::SetTooltip("Color is selected and rendered to Viewer in sRGB display space, \nbut written to .mtlx file in linear format.");
+            }
 
             // Set input value and update materials if different from previous value
             if (temp != prev)
             {
+                // Convert back to linear color space for writing to material and node input
+                mx::Color3 linearCol3 = mx::Color3(temp[0], temp[1], temp[2]).srgbToLinear();
+                mx::Color4 linearCol = mx::Color4(linearCol3[0], linearCol3[1], linearCol3[2], temp[3]); // Use new Alpha val
+
                 addNodeInput(_currUiNode, input);
-                input->setValue(temp, input->getType());
-                updateMaterials(input, input->getValue());
+                input->setValue(linearCol, input->getType());
+
+                mx::ValuePtr linearVal = mx::Value::createValue<mx::Color4>(linearCol);
+                updateMaterials(input, linearVal);
             }
         }
     }
@@ -1293,7 +1317,17 @@ void Graph::createNodeUIList(mx::DocumentPtr doc)
 
             for (const auto& nodeDef : groupNodeDefs)
             {
-                _nodesToAdd.emplace_back(nodeDef->getName(), nodeDef->getType(), nodeDef->getNodeString(), group);
+                std::set<std::string> inputTypes;
+                for (const auto& input : nodeDef->getActiveInputs())
+                {
+                    inputTypes.insert(input->getType());
+                }
+                std::set<std::string> outputTypes;
+                for (const auto& output : nodeDef->getOutputs())
+                {
+                    outputTypes.insert(output->getType());
+                }
+                _nodesToAdd.emplace_back(nodeDef->getName(), nodeDef->getType(), nodeDef->getNodeString(), group, inputTypes, outputTypes);
             }
         }
     }
@@ -2007,6 +2041,14 @@ void Graph::addNode(const std::string& category, const std::string& name, const 
             newNode->inputPins.push_back(inPin);
             _currPins.push_back(inPin);
             ++_graphTotalSize;
+
+            if (_pinIdToLinkFrom != ed::PinId() && _pinIdToLinkTo == ed::PinId() && _menuFilterType == input->getType())
+            {
+                // If _pinIdToLinkFrom is a valid pin and _pinIdToLinkTo is not a valid pin,
+                // it means Add Node pop-up was executed from a forward link.
+                // Record the first input of the matching type as _pinIdToLinkTo.
+                _pinIdToLinkTo = inPin->_pinId;
+            }
         }
         std::vector<mx::OutputPtr> defOutputs = matchingNodeDefs[num]->getActiveOutputs();
         for (mx::OutputPtr output : defOutputs)
@@ -2015,6 +2057,14 @@ void Graph::addNode(const std::string& category, const std::string& name, const 
             newNode->outputPins.push_back(outPin);
             _currPins.push_back(outPin);
             ++_graphTotalSize;
+
+            if (_pinIdToLinkFrom == ed::PinId() && _pinIdToLinkTo != ed::PinId() && _menuFilterType == output->getType())
+            {
+                // If _pinIdToLinkFrom is not a valid pin and _pinIdToLinkTo is a valid pin,
+                // it means Add Node pop-up was executed from a backward link.
+                // Record the first output of the matching type as _pinIdToLinkFrom.
+                _pinIdToLinkFrom = outPin->_pinId;
+            }
         }
 
         _graphNodes.push_back(std::move(newNode));
@@ -2505,10 +2555,83 @@ void Graph::setDefaults(mx::InputPtr input)
     }
 }
 
+bool Graph::checkCanAddLink(ed::PinId startPinId, ed::PinId endPinId)
+{
+    // Prefer to assume left to right - start is an output, end is an input; swap if inaccurate
+    if (UiPinPtr endPin = getPin(endPinId); endPin && endPin->_kind != ed::PinKind::Input)
+    {
+        auto tmp = startPinId;
+        startPinId = endPinId;
+        endPinId = tmp;
+    }
+
+    ed::PinId outputPinId = startPinId;
+    ed::PinId inputPinId = endPinId;
+    UiPinPtr outputPin = getPin(outputPinId);
+    UiPinPtr inputPin = getPin(inputPinId);
+
+    if (!inputPin || !outputPin)
+    {
+        return false;
+    }
+
+    // Perform type check
+    bool typesMatch = (outputPin->_type == inputPin->_type);
+    if (!typesMatch)
+    {
+        showLabel("Invalid connection due to mismatched types", ImColor(50, 50, 50, 255));
+        return false;
+    }
+
+    // Perform kind check
+    bool kindsMatch = (outputPin->_kind == inputPin->_kind);
+    if (kindsMatch)
+    {
+        showLabel("Invalid connection due to same input/output kind", ImColor(50, 50, 50, 255));
+        return false;
+    }
+
+    int upNode = getNodeId(outputPinId);
+    int downNode = getNodeId(inputPinId);
+    UiNodePtr uiDownNode = _graphNodes[downNode];
+    UiNodePtr uiUpNode = _graphNodes[upNode];
+    if (!uiDownNode || !uiUpNode)
+    {
+        return false;
+    }
+
+    // Make sure there is an implementation for node
+    const mx::ShaderGenerator& shadergen = _renderer->getGenContext().getShaderGenerator();
+
+    // Prevent direct connecting from input to output
+    if (uiDownNode->getInput() && uiUpNode->getOutput())
+    {
+        showLabel("Direct connections between inputs and outputs is invalid", ImColor(50, 50, 50, 255));
+        return false;
+    }
+
+    // Find the implementation for this nodedef if not an input or output uinode
+    if (uiDownNode->getInput() && _isNodeGraph)
+    {
+        showLabel("Cannot connect to inputs inside of graph", ImColor(50, 50, 50, 255));
+        return false;
+    }
+    else if (uiUpNode->getNode())
+    {
+        mx::ShaderNodeImplPtr impl = shadergen.getImplementation(*_graphNodes[upNode]->getNode()->getNodeDef(), _renderer->getGenContext());
+        if (!impl)
+        {
+            showLabel("Invalid Connection: Node does not have an implementation", ImColor(50, 50, 50, 255));
+            return false;
+        }
+    }
+    return true;
+}
+
 void Graph::addLink(ed::PinId startPinId, ed::PinId endPinId)
 {
     // Prefer to assume left to right - start is an output, end is an input; swap if inaccurate
-    if (UiPinPtr inputPin = getPin(endPinId); inputPin && inputPin->_kind != ed::PinKind::Input)
+    if (UiPinPtr endPin = getPin(endPinId); endPin && endPin->_kind != ed::PinKind::Input)
     {
         auto tmp = startPinId;
         startPinId = endPinId;
@@ -2522,29 +2645,6 @@ void Graph::addLink(ed::PinId startPinId, ed::PinId endPinId)
     UiPinPtr outputPin = getPin(outputPinId);
     UiPinPtr inputPin = getPin(inputPinId);
 
-    if (!inputPin || !outputPin)
-    {
-        ed::RejectNewItem();
-        return;
-    }
-
-    // Perform type check
-    bool typesMatch = (outputPin->_type == inputPin->_type);
-    if (!typesMatch)
-    {
-        ed::RejectNewItem();
-        showLabel("Invalid connection due to mismatched types", ImColor(50, 50, 50, 255));
-        return;
-    }
-
-    // Perform kind check
-    bool kindsMatch = (outputPin->_kind == inputPin->_kind);
-    if (kindsMatch)
-    {
-        ed::RejectNewItem();
-        showLabel("Invalid connection due to same input/output kind", ImColor(50, 50, 50, 255));
-        return;
-    }
 
     int upNode = getNodeId(outputPinId);
     int downNode = getNodeId(inputPinId);
@@ -2552,189 +2652,165 @@ void Graph::addLink(ed::PinId startPinId, ed::PinId endPinId)
     UiNodePtr uiUpNode = _graphNodes[upNode];
     if (!uiDownNode || !uiUpNode)
     {
-        ed::RejectNewItem();
         return;
     }
 
-    // Make sure there is an implementation for node
-    const mx::ShaderGenerator& shadergen = _renderer->getGenContext().getShaderGenerator();
-
-    // Prevent direct connecting from input to output
-    if (uiDownNode->getInput() && uiUpNode->getOutput())
+    // If the accepting node already has a link, remove it
+    if (inputPin->_connected)
     {
-        ed::RejectNewItem();
-        showLabel("Direct connections between inputs and outputs is invalid", ImColor(50, 50, 50, 255));
-        return;
-    }
-
-    // Find the implementation for this nodedef if not an input or output uinode
-    if (uiDownNode->getInput() && _isNodeGraph)
-    {
-        ed::RejectNewItem();
-        showLabel("Cannot connect to inputs inside of graph", ImColor(50, 50, 50, 255));
-        return;
-    }
-    else if (uiUpNode->getNode())
-    {
-        mx::ShaderNodeImplPtr impl = shadergen.getImplementation(*_graphNodes[upNode]->getNode()->getNodeDef(), _renderer->getGenContext());
-        if (!impl)
+        for (auto iter = _currLinks.begin(); iter != _currLinks.end(); ++iter)
         {
-            ed::RejectNewItem();
-            showLabel("Invalid Connection: Node does not have an implementation", ImColor(50, 50, 50, 255));
-            return;
-        }
-    }
-
-    if (ed::AcceptNewItem())
-    {
-        // If the accepting node already has a link, remove it
-        if (inputPin->_connected)
-        {
-            for (auto iter = _currLinks.begin(); iter != _currLinks.end(); ++iter)
+            if (iter->_endAttr == end_attr)
             {
-                if (iter->_endAttr == end_attr)
-                {
-                    // Found existing link - remove it; adapted from deleteLink
-                    // note: ed::BreakLinks doesn't work as the order ends up inaccurate
-                    deleteLinkInfo(iter->_startAttr, iter->_endAttr);
-                    _currLinks.erase(iter);
-                    break;
-                }
+                // Found existing link - remove it; adapted from deleteLink
+                // note: ed::BreakLinks doesn't work as the order ends up inaccurate
+                deleteLinkInfo(iter->_startAttr, iter->_endAttr);
+                _currLinks.erase(iter);
+                break;
             }
         }
+    }
 
-        // Since we accepted new link, lets add one to our list of links.
-        Link link;
-        link._startAttr = start_attr;
-        link._endAttr = end_attr;
-        _currLinks.push_back(link);
-        _frameCount = ImGui::GetFrameCount();
-        _renderer->setMaterialCompilation(true);
+    // Since we accepted new link, lets add one to our list of links.
+    Link link;
+    link._startAttr = start_attr;
+    link._endAttr = end_attr;
+    _currLinks.push_back(link);
+    _frameCount = ImGui::GetFrameCount();
+    _renderer->setMaterialCompilation(true);
 
-        inputPin->addConnection(outputPin);
-        outputPin->addConnection(inputPin);
-        outputPin->setConnected(true);
-        inputPin->setConnected(true);
+    inputPin->addConnection(outputPin);
+    outputPin->addConnection(inputPin);
+    outputPin->setConnected(true);
+    inputPin->setConnected(true);
 
-        if (uiDownNode->getNode() || uiDownNode->getNodeGraph())
+    if (uiDownNode->getNode() || uiDownNode->getNodeGraph())
+    {
+        mx::InputPtr connectingInput = nullptr;
+        for (UiPinPtr pin : uiDownNode->inputPins)
         {
-            mx::InputPtr connectingInput = nullptr;
-            for (UiPinPtr pin : uiDownNode->inputPins)
+            if (pin->_pinId == inputPinId)
             {
-                if (pin->_pinId == inputPinId)
-                {
-                    addNodeInput(uiDownNode, pin->_input);
+                addNodeInput(uiDownNode, pin->_input);
 
-                    // Update value to be empty
-                    if (uiDownNode->getNode() && uiDownNode->getNode()->getType() == mx::SURFACE_SHADER_TYPE_STRING)
+                // Update value to be empty
+                if (uiDownNode->getNode() && uiDownNode->getNode()->getType() == mx::SURFACE_SHADER_TYPE_STRING)
+                {
+                    if (uiUpNode->getOutput() != nullptr)
                     {
-                        if (uiUpNode->getOutput() != nullptr)
-                        {
-                            pin->_input->setConnectedOutput(uiUpNode->getOutput());
-                        }
-                        else if (uiUpNode->getInput() != nullptr)
-                        {
-                            pin->_input->setConnectedInterfaceName(uiUpNode->getName());
-                        }
-                        else
-                        {
-                            if (uiUpNode->getNodeGraph() != nullptr)
-                            {
-                                for (UiPinPtr outPin : uiUpNode->outputPins)
-                                {
-                                    // Set pin connection to correct output
-                                    if (outPin->_pinId == outputPinId)
-                                    {
-                                        mx::OutputPtr outputs = uiUpNode->getNodeGraph()->getOutput(outPin->_name);
-                                        pin->_input->setConnectedOutput(outputs);
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                pin->_input->setConnectedNode(uiUpNode->getNode());
-                            }
-                        }
+                        pin->_input->setConnectedOutput(uiUpNode->getOutput());
+                    }
+                    else if (uiUpNode->getInput() != nullptr)
+                    {
+                        pin->_input->setConnectedInterfaceName(uiUpNode->getName());
                     }
                     else
                     {
-                        if (uiUpNode->getInput())
+                        if (uiUpNode->getNodeGraph() != nullptr)
                         {
-                            pin->_input->setConnectedInterfaceName(uiUpNode->getName());
+                            for (UiPinPtr outPin : uiUpNode->outputPins)
+                            {
+                                // Set pin connection to correct output
+                                if (outPin->_pinId == outputPinId)
+                                {
+                                    mx::OutputPtr outputs = uiUpNode->getNodeGraph()->getOutput(outPin->_name);
+                                    pin->_input->setConnectedOutput(outputs);
+                                }
+                            }
                         }
                         else
                         {
-                            if (uiUpNode->getNode())
+                            mx::NodePtr upstreamNode = uiUpNode->getNode();
+                            if (upstreamNode)
                             {
-                                mx::NodePtr upstreamNode = _graphNodes[upNode]->getNode();
-                                mx::NodeDefPtr upstreamNodeDef = upstreamNode->getNodeDef();
-                                bool isMultiOutput = upstreamNodeDef ? upstreamNodeDef->getOutputs().size() > 1 : false;
-                                if (!isMultiOutput)
+                                mx::OutputPtr output = upstreamNode->getOutput(outputPin->_name);
+                                if (!output)
                                 {
-                                    pin->_input->setConnectedNode(uiUpNode->getNode());
+                                    output = upstreamNode->addOutput(outputPin->_name, pin->_input->getType());
                                 }
-                                else
-                                {
-                                    for (UiPinPtr outPin : _graphNodes[upNode]->outputPins)
-                                    {
-                                        // Set pin connection to correct output
-                                        if (outPin->_pinId == outputPinId)
-                                        {
-                                            mx::OutputPtr outputs = uiUpNode->getNode()->getOutput(outPin->_name);
-                                            if (!outputs)
-                                            {
-                                                outputs = uiUpNode->getNode()->addOutput(outPin->_name, pin->_input->getType());
-                                            }
-                                            pin->_input->setConnectedOutput(outputs);
-                                        }
-                                    }
-                                }
+                                pin->_input->setConnectedOutput(output);
                             }
-                            else if (uiUpNode->getNodeGraph())
+                        }
+                    }
+                }
+                else
+                {
+                    if (uiUpNode->getInput())
+                    {
+                        pin->_input->setConnectedInterfaceName(uiUpNode->getName());
+                    }
+                    else
+                    {
+                        if (uiUpNode->getNode())
+                        {
+                            mx::NodePtr upstreamNode = _graphNodes[upNode]->getNode();
+                            mx::NodeDefPtr upstreamNodeDef = upstreamNode->getNodeDef();
+                            bool isMultiOutput = upstreamNodeDef ? upstreamNodeDef->getOutputs().size() > 1 : false;
+                            if (!isMultiOutput)
                             {
-                                for (UiPinPtr outPin : uiUpNode->outputPins)
+                                pin->_input->setConnectedNode(uiUpNode->getNode());
+                            }
+                            else
+                            {
+                                for (UiPinPtr outPin : _graphNodes[upNode]->outputPins)
                                 {
                                     // Set pin connection to correct output
                                     if (outPin->_pinId == outputPinId)
                                     {
-                                        mx::OutputPtr outputs = uiUpNode->getNodeGraph()->getOutput(outPin->_name);
+                                        mx::OutputPtr outputs = uiUpNode->getNode()->getOutput(outPin->_name);
+                                        if (!outputs)
+                                        {
+                                            outputs = uiUpNode->getNode()->addOutput(outPin->_name, pin->_input->getType());
+                                        }
                                         pin->_input->setConnectedOutput(outputs);
                                     }
                                 }
                             }
                         }
+                        else if (uiUpNode->getNodeGraph())
+                        {
+                            for (UiPinPtr outPin : uiUpNode->outputPins)
+                            {
+                                // Set pin connection to correct output
+                                if (outPin->_pinId == outputPinId)
+                                {
+                                    mx::OutputPtr outputs = uiUpNode->getNodeGraph()->getOutput(outPin->_name);
+                                    pin->_input->setConnectedOutput(outputs);
+                                }
+                            }
+                        }
                     }
-
-                    pin->setConnected(true);
-                    connectingInput = pin->_input;
-                    break;
                 }
+
+                pin->setConnected(true);
+                connectingInput = pin->_input;
+                break;
             }
-
-            // Create new edge and set edge information
-            createEdge(_graphNodes[upNode], _graphNodes[downNode], connectingInput);
         }
-        else if (_graphNodes[downNode]->getOutput() != nullptr)
-        {
-            mx::InputPtr connectingInput = nullptr;
-            _graphNodes[downNode]->getOutput()->setConnectedNode(_graphNodes[upNode]->getNode());
 
-            // Create new edge and set edge information
-            createEdge(_graphNodes[upNode], _graphNodes[downNode], connectingInput);
-        }
-        else
-        {
-            // Create new edge and set edge info
-            UiEdge newEdge = UiEdge(_graphNodes[upNode], _graphNodes[downNode], nullptr);
-            if (!edgeExists(newEdge))
-            {
-                _graphNodes[downNode]->edges.push_back(newEdge);
-                _currEdge.push_back(newEdge);
+        // Create new edge and set edge information
+        createEdge(_graphNodes[upNode], _graphNodes[downNode], connectingInput);
+    }
+    else if (_graphNodes[downNode]->getOutput() != nullptr)
+    {
+        mx::InputPtr connectingInput = nullptr;
+        _graphNodes[downNode]->getOutput()->setConnectedNode(_graphNodes[upNode]->getNode());
 
-                // Update input node num and output connections
-                _graphNodes[downNode]->setInputNodeNum(1);
-                _graphNodes[upNode]->setOutputConnection(_graphNodes[downNode]);
-            }
+        // Create new edge and set edge information
+        createEdge(_graphNodes[upNode], _graphNodes[downNode], connectingInput);
+    }
+    else
+    {
+        // Create new edge and set edge info
+        UiEdge newEdge = UiEdge(_graphNodes[upNode], _graphNodes[downNode], nullptr);
+        if (!edgeExists(newEdge))
+        {
+            _graphNodes[downNode]->edges.push_back(newEdge);
+            _currEdge.push_back(newEdge);
+
+            // Update input node num and output connections
+            _graphNodes[downNode]->setInputNodeNum(1);
+            _graphNodes[upNode]->setOutputConnection(_graphNodes[downNode]);
         }
     }
 }
@@ -3266,13 +3342,19 @@ void Graph::graphButtons()
 
     if (_renderer)
     {
-        glEnable(GL_FRAMEBUFFER_SRGB);
+        // Enable sRGB conversion for framebuffer ONLY when drawing material preview
+        ImGui::GetWindowDrawList()->AddCallback(EnableSRGBCallback,  nullptr);
+
         _renderer->getViewCamera()->setViewportSize(mx::Vector2(screenSize[0], screenSize[1]));
         GLuint64 my_image_texture = _renderer->_textureID;
         mx::Vector2 vec = _renderer->getViewCamera()->getViewportSize();
-        // current image has correct color space but causes problems for gui
+
         ImGui::Image((ImTextureID) my_image_texture, screenSize, ImVec2(0, 1), ImVec2(1, 0));
+
+        // Disable sRGB conversion for all other imgui ui components.
+        ImGui::GetWindowDrawList()->AddCallback(DisableSRGBCallback,  nullptr);
     }
+
     ImGui::Separator();
 
     // Property editor for current nodes
@@ -3677,12 +3759,14 @@ void Graph::showHelp() const
 
 void Graph::addNodePopup(bool cursor)
 {
-    bool open_AddPopup = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootWindow) && ImGui::IsKeyReleased(ImGuiKey_Tab);
+    bool open_AddPopup = (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootWindow) && ImGui::IsKeyReleased(ImGuiKey_Tab)) ||
+        (_pinFilterType != mx::EMPTY_STRING && ImGui::IsMouseReleased(0));
     static char input[32]{ "" };
     if (open_AddPopup)
     {
         cursor = true;
         ImGui::OpenPopup("add node");
+        _menuFilterType = _pinFilterType;
     }
     if (ImGui::BeginPopup("add node"))
     {
@@ -3702,6 +3786,29 @@ void Graph::addNodePopup(bool cursor)
         // Filter nodedefs and add to menu if matches filter
         for (auto node : _nodesToAdd)
         {
+            if (_menuFilterType != mx::EMPTY_STRING)
+            {
+                // _menuFilterType is not empty, so the Add Node pop-up was triggered by drawing a Link.
+                if (_pinIdToLinkFrom != ed::PinId() && _pinIdToLinkTo == ed::PinId())
+                {
+                    // Drawing a forward Link from an output pin
+                    // Filter out nodes that has no inputs of the type matching to the _menuFilterType
+                    if (node.getInputTypes().count(_menuFilterType)==0)
+                    {
+                        continue;
+                    }
+                }
+                else if (_pinIdToLinkFrom == ed::PinId() && _pinIdToLinkTo != ed::PinId())
+                {
+                    // Drawing a backward Link from an input pin
+                    // Filter out nodes whose type do not match the _menuFilterType
+                    if (node.getOutputTypes().count(_menuFilterType)==0)
+                    {
+                        continue;
+                    }
+                }
+            }
+
             // Filter out list of nodes
             if (subs.size() > 0)
             {
@@ -3718,7 +3825,7 @@ void Graph::addNodePopup(bool cursor)
                 // Allow spaces to be used to search for node names
                 std::replace(subs.begin(), subs.end(), ' ', '_');
 
-                if (str.find(subs) != std::string::npos)
+                if (subs.size() == 0 || str.find(subs) != std::string::npos)
                 {
                     if (ImGui::MenuItem(getUserNodeDefName(nodeName).c_str()) || (ImGui::IsItemFocused() && ImGui::IsKeyPressedMap(ImGuiKey_Enter)))
                     {
@@ -4076,6 +4183,18 @@ void Graph::drawGraph(ImVec2 mousePos)
             }
             _copiedNodes.clear();
             _addNewNode = false;
+
+            if (_pinIdToLinkFrom != ed::PinId() && _pinIdToLinkTo != ed::PinId())
+            {
+                // we have a link to draw for the newly created node.
+                if (checkCanAddLink(_pinIdToLinkFrom, _pinIdToLinkTo))
+                {
+                    addLink(_pinIdToLinkFrom, _pinIdToLinkTo);
+                }
+
+                _pinIdToLinkTo = ed::PinId();
+                _pinIdToLinkFrom = ed::PinId();
+            }
         }
 
         // Layout and link graph during the initial call of drawGraph
@@ -4185,7 +4304,17 @@ void Graph::drawGraph(ImVec2 mousePos)
             {
                 if (!readOnly())
                 {
-                    addLink(startPinId, endPinId);
+                    if (checkCanAddLink(startPinId, endPinId))
+                    {
+                        if (ed::AcceptNewItem())
+                        {
+                            addLink(startPinId, endPinId);
+                        }
+                    }
+                    else
+                    {
+                        ed::RejectNewItem();
+                    }
                 }
                 else
                 {
@@ -4197,7 +4326,20 @@ void Graph::drawGraph(ImVec2 mousePos)
                 if (getPin(filterPinId)->_type != "null")
                 {
                     _pinFilterType = getPin(filterPinId)->_type;
+
+                    if (UiPinPtr filterPin = getPin(filterPinId); filterPin && filterPin->_kind == ed::PinKind::Input)
+                    {
+                        _pinIdToLinkTo = filterPinId;
+                        _pinIdToLinkFrom = ed::PinId();
+                    }
+                    else
+                    {
+                        _pinIdToLinkTo = ed::PinId();
+                        _pinIdToLinkFrom = filterPinId;
+                    }
                 }
+
+                showLabel("Release Mouse to Add a New Node", ImColor(50, 50, 50, 255));
             }
         }
         else
