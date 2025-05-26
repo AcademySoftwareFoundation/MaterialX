@@ -19,11 +19,6 @@ ShaderNodeImplPtr LightShaderNodeGlsl::create()
     return std::make_shared<LightShaderNodeGlsl>();
 }
 
-const string& LightShaderNodeGlsl::getTarget() const
-{
-    return GlslShaderGenerator::TARGET;
-}
-
 void LightShaderNodeGlsl::initialize(const InterfaceElement& element, GenContext& context)
 {
     SourceCodeNode::initialize(element, context);

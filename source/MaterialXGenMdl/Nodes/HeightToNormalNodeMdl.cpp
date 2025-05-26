@@ -104,9 +104,4 @@ void HeightToNormalNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext&
     }
 }
 
-const string& HeightToNormalNodeMdl::getTarget() const
-{
-    return MdlShaderGenerator::TARGET;
-}
-
 MATERIALX_NAMESPACE_END
