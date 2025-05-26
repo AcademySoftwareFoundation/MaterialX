@@ -845,7 +845,7 @@ TEST_CASE("renameElement with connections", "[node, nodegraph]")
             mx::PortElementPtr downstreamOutput = parentGraph->addOutput("out", type);
             downstreamOutput->setNodeName(upstreamNode->getName());
 
-            upstreamNode->setName(new_name, true);
+            upstreamNode->setNameGlobal(new_name);
             REQUIRE(upstreamNode->getName() == new_name);
             REQUIRE(downstreamOutput->getNodeName() == new_name);
         }
@@ -861,15 +861,9 @@ TEST_CASE("renameElement with connections", "[node, nodegraph]")
                 downstreamInput->setNodeName(upstreamNode->getName());
                 SECTION("Update references")
                 {
-                    upstreamNode->setName(new_name, true);
+                    upstreamNode->setNameGlobal(new_name);
                     REQUIRE(upstreamNode->getName() == new_name);
                     REQUIRE(downstreamInput->getNodeName() == new_name);
-                }
-                SECTION("Do not update references")
-                {
-                    upstreamNode->setName(new_name, false);
-                    REQUIRE(upstreamNode->getName() == new_name);
-                    REQUIRE(downstreamInput->getNodeName() != new_name);
                 }
             }
             SECTION("Free Node -> NodeGraph input")
@@ -881,7 +875,7 @@ TEST_CASE("renameElement with connections", "[node, nodegraph]")
                 mx::InputPtr downstreamInput = downstreamGraph->addInput("input", type);
                 downstreamInput->setNodeName(upstreamNode->getName());
 
-                upstreamNode->setName(new_name, true);
+                upstreamNode->setNameGlobal(new_name);
                 REQUIRE(upstreamNode->getName() == new_name);
                 REQUIRE(downstreamInput->getNodeName() == new_name);
             }
@@ -906,7 +900,7 @@ TEST_CASE("renameElement with connections", "[node, nodegraph]")
             mx::OutputPtr downstreamOutput = functionalNodeGraph->getOutput(compoundNodeGraphOutput->getName());
             REQUIRE(downstreamOutput);
 
-            upstreamNode->setName(new_name, true);
+            upstreamNode->setNameGlobal(new_name);
             REQUIRE(upstreamNode->getName() == new_name);
             REQUIRE(downstreamOutput->getNodeName() == new_name);
         }
@@ -925,7 +919,7 @@ TEST_CASE("renameElement with connections", "[node, nodegraph]")
             downstreamInput->setNodeGraphString(upstreamGraph->getName());
             downstreamInput->setOutputString(upstreamGraphOutput->getName());
 
-            upstreamGraph->setName(new_name, true);
+            upstreamGraph->setNameGlobal(new_name);
             REQUIRE(upstreamGraph->getName() == new_name);
             REQUIRE(downstreamInput->getNodeGraphString() == new_name);
         }
@@ -936,7 +930,7 @@ TEST_CASE("renameElement with connections", "[node, nodegraph]")
             downstreamInput->setNodeGraphString(upstreamGraph->getName());
             downstreamInput->setOutputString(upstreamGraphOutput->getName());
 
-            upstreamGraph->setName(new_name, true);
+            upstreamGraph->setNameGlobal(new_name);
             REQUIRE(upstreamGraph->getName() == new_name);
             REQUIRE(downstreamInput->getNodeGraphString() == new_name);
         }
