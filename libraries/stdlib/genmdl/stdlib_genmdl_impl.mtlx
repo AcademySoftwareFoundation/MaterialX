@@ -718,14 +718,6 @@
   <!-- Convolution nodes                                                        -->
   <!-- ======================================================================== -->
 
-  <!-- <blur> -->
-  <implementation name="IM_blur_float_genmdl" nodedef="ND_blur_float" target="genmdl" />
-  <implementation name="IM_blur_color3_genmdl" nodedef="ND_blur_color3" target="genmdl" />
-  <implementation name="IM_blur_color4_genmdl" nodedef="ND_blur_color4" target="genmdl" />
-  <implementation name="IM_blur_vector2_genmdl" nodedef="ND_blur_vector2" target="genmdl" />
-  <implementation name="IM_blur_vector3_genmdl" nodedef="ND_blur_vector3" target="genmdl" />
-  <implementation name="IM_blur_vector4_genmdl" nodedef="ND_blur_vector4" target="genmdl" />
-
   <!-- <heighttonormal> -->
   <implementation name="IM_heighttonormal_vector3_genmdl" nodedef="ND_heighttonormal_vector3" target="genmdl" />
 
