@@ -52,7 +52,7 @@ void ShaderRenderTester::getGenerationOptions(const GenShaderUtil::TestSuiteOpti
 void ShaderRenderTester::printRunLog(const RenderProfileTimes &profileTimes,
                                      const GenShaderUtil::TestSuiteOptions& options,
                                      std::ostream& stream,
-                                     mx::DocumentPtr dependLib)
+                                     mx::DocumentPtr)
 {
     profileTimes.print(stream);
 

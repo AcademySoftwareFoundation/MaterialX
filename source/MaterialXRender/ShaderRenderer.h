@@ -124,7 +124,7 @@ class MX_RENDER_API ShaderRenderer
     /// @{
 
     /// Capture the current rendered output as an image.
-    virtual ImagePtr captureImage(ImagePtr image = nullptr)
+    virtual ImagePtr captureImage(ImagePtr = nullptr)
     {
         return nullptr;
     }
