@@ -4,40 +4,37 @@ MaterialX is an open standard for representing rich material and look-developmen
 
 ## Quick Start for Developers
 
-- Download and install the latest version of [CMake](https://cmake.org/).
-- Use CMake (either via terminal or GUI) to configure and generate C++ projects from the root of the MaterialX repository for your platform and compiler.
-- Enable the following build options as needed:
-  - `MATERIALX_BUILD_PYTHON` to build the Python bindings.
-  - `MATERIALX_BUILD_VIEWER` to build the [MaterialX Viewer](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/documents/DeveloperGuide/Viewer.md).
-  - `MATERIALX_BUILD_GRAPH_EDITOR` to build the [MaterialX Graph Editor](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/documents/DeveloperGuide/GraphEditor.md). 
+- Download the latest version of the [CMake](https://cmake.org/) build system.
+- Point CMake to the root of the MaterialX library and generate C++ projects for your platform and compiler.
+- Select the `MATERIALX_BUILD_PYTHON` option to build Python bindings.
+- Select the `MATERIALX_BUILD_VIEWER` option to build the [MaterialX Viewer](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/documents/DeveloperGuide/Viewer.md).
+- Select the `MATERIALX_BUILD_GRAPH_EDITOR` option to build the [MaterialX Graph Editor](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/documents/DeveloperGuide/GraphEditor.md). 
 
-For information on setting up your development environment, see [Prepare Development Environment](#prepare-development-environment).
+> [!Tip] Quick Tips
+> - Make sure [Git](https://git-scm.com/doc) is installed and the MaterialX repository is cloned, as outlined in our [Development Workflow](../../CONTRIBUTING.md#development-workflow).
+> - For guidance on setting up your environment, see [Supported Platforms](#supported-platforms).
+> - A full list of configurable [build options](#build-options) is available in the section below.
+> - For step-by-step instructions and configuration tips, head to [Build Methods](#build-methods).
 
-To view a complete list of [build options](#build-options), refer to the dedicated section below.
+## Supported Platforms
 
-For a step-by-step guide and additional configuration tips, continue to [Build Methods](#build-methods).
+The MaterialX codebase requires a compiler with support for C++17, and can be built with any of the following:
 
-## Prepare Development Environment
+- Microsoft Visual Studio 2017 or newer
+- GCC 8 or newer
+- Clang 5 or newer
 
-Before you begin, ensure that [Git](https://git-scm.com/doc) is installed and the MaterialX repository is cloned, as outlined in our [Development Workflow](../../CONTRIBUTING.md#development-workflow).
+The Python bindings for MaterialX are based on [PyBind11](https://github.com/pybind/pybind11), and support Python versions 3.9 and greater.
 
-MaterialX development requires the following tools:
+On macOS, you'll need to [install Xcode](https://developer.apple.com/xcode/resources/), in order to get access to the Metal Tools as well as compiler toolchains.
 
-- **[CMake](https://cmake.org/) (version ≥ 3.0 and < 4.0)** — Build system.
-- **Compiler with C++17 support** — Choose a generator and compiler combination:
-  - *Microsoft Visual Studio 2017 or newer* (includes both compiler and generator).
-  - *MinGW Makefiles* with *GCC 8 or newer*.
-  - *Ninja + Clang 5 or newer* (cross-platform).
-- **Python (version ≥ 3.7)** — Required for building Python bindings.
-
-> [!Note] **Using MSVC on Windows**
-> On Windows, the MSVC toolchain included with Visual Studio serves as both the generator and the compiler. You do **not** need to install GCC, Clang, or Ninja separately when using Visual Studio.
-
-> [!Tip] **Additional Notes**
-> 
-> - On macOS, [Xcode](https://developer.apple.com/xcode/resources/) must be installed to access Metal tools and compiler toolchains.
-> - Python bindings for MaterialX are built using [PyBind11](https://github.com/pybind/pybind11), compatible with Python 3.9 and newer.
-> - `PyBind11` is included in the repository for basic usage. For advanced configurations, you may download a custom version and set the `MATERIALX_PYTHON_PYBIND11_DIR` CMake variable.
+> [!Note] Build Notes
+> - `PyBind11` is included in the repository for basic usage. For advanced configurations, you can use a custom version by setting the `MATERIALX_PYTHON_PYBIND11_DIR` CMake variable.
+> - CMake builds involve two main steps: **Generate** and **Compile**.
+>   - These steps often require different tools: the generator sets up the build system, while the compiler builds the code.
+>   - The `MinGW Makefiles` generator is typically used with the `GCC` compiler.
+>   - The `Ninja` generator is commonly paired with the `Clang` compiler.
+>   - On Windows, Visual Studio includes the MSVC toolchain, which serves as both generator and compiler—no need to install GCC, Clang, or Ninja separately.
 
 
 ## Build Methods
