@@ -28,7 +28,7 @@ The Python bindings for MaterialX are based on [PyBind11](https://github.com/pyb
 
 On macOS, you'll need to [install Xcode](https://developer.apple.com/xcode/resources/), in order to get access to the Metal Tools as well as compiler toolchains.
 
-> [!Note] Build Notes
+> [!Note] Notes
 > - `PyBind11` is included in the repository for basic usage. For advanced configurations, you can use a custom version by setting the `MATERIALX_PYTHON_PYBIND11_DIR` CMake variable.
 > - CMake builds involve two main steps: **Generate** and **Compile**.
 >   - These steps often require different tools: the generator sets up the build system, while the compiler builds the code.
