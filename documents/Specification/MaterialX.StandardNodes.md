@@ -1224,9 +1224,10 @@ Convolution nodes have one input named "in", and apply a defined convolution fun
 
 <a id="node-heighttonormal"> </a>
 
-* **`heighttonormal`**: convert a scalar height map to a tangent-space normal map of type vector3.  The output normal map is encoded with all channels in the [0-1] range, enabling its storage in unsigned image formats.
+* **`heighttonormal`**: convert a scalar height map to a tangent-space normal map of type vector3.  The normal at each point is computed from the gradient of the heightfield signal with respect to the input texture coordinates.  The output normal map is encoded with all channels in the [0-1] range, enabling its storage in unsigned image formats.
     * `in` (float): the input value or nodename
     * `scale` (float): the scale of normal map deflections relative to the gradient of the height map.  Default is 1.0.
+    * `texcoord` (vector2): the texture coordinates that the heightfield gradient is computed with respect to.  Default is to use the first set of texture coordinates.
 
 <br>
 
