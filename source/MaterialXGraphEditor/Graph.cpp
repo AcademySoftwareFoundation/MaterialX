@@ -4115,7 +4115,7 @@ mx::ImagePtr Graph::getFrameImage() const
     std::cout << "Capture Position: " << capturePos.x << ", " << capturePos.y << std::endl;
 
     int w = static_cast<int>(rightPaneSize.x);
-    int h = static_cast<int>(rightPaneSize.y);
+    int h = static_cast<int>(rightPaneSize.y) - 15;
     mx::ImagePtr frameImage = mx::Image::create((unsigned int)(w),
         (unsigned int)(h), 3);
     frameImage->createResourceBuffer();
@@ -4123,9 +4123,9 @@ mx::ImagePtr Graph::getFrameImage() const
     glFlush();
     glReadPixels(
         (int)capturePos.x,
-        (int)0,//capturePos.y,
+        (int)capturePos.y - 11,
         (int)rightPaneSize.x,
-        (int)rightPaneSize.y,
+        (int)rightPaneSize.y - 15,
         GL_RGB,
         GL_UNSIGNED_BYTE,
         frameImage->getResourceBuffer()
