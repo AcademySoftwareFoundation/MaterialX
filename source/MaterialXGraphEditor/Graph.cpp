@@ -3276,12 +3276,12 @@ void Graph::graphButtons()
     }
 
     // Split window into panes for NodeEditor
-    static float leftPaneWidth = 375.0f;
-    static float rightPaneWidth = 750.0f;
-    splitter(true, 4.0f, &leftPaneWidth, &rightPaneWidth, 20.0f, 20.0f);
+    splitter(true, 4.0f, &_leftPaneWidth, &_rightPaneWidth, 20.0f, 20.0f);
+    //std::cout << "Left pane width: " << _leftPaneWidth << std::endl;
+    //std::cout << "Right pane width: " << _rightPaneWidth << std::endl;
 
     // Create back button and graph hierarchy name display
-    ImGui::Indent(leftPaneWidth + 15.f);
+    ImGui::Indent(_leftPaneWidth + _leftPanelIndent);
     if (ImGui::Button("<"))
     {
         upNodeGraph();
@@ -3301,12 +3301,12 @@ void Graph::graphButtons()
         }
     }
     ImVec2 windowPos2 = ImGui::GetWindowPos();
-    ImGui::Unindent(leftPaneWidth + 15.f);
+    ImGui::Unindent(_leftPaneWidth + _leftPanelIndent);
     ImGui::PopStyleColor();
     ImGui::NewLine();
 
     // Create two windows using splitter
-    float paneWidth = (leftPaneWidth - 2.0f);
+    float paneWidth = (_leftPaneWidth - 2.0f);
 
     float aspectRatio = _renderer->getPixelRatio();
     ImVec2 screenSize = ImVec2(paneWidth, paneWidth / aspectRatio);
@@ -4031,6 +4031,147 @@ void Graph::handleRenderViewInputs()
     }
 }
 
+mx::ImagePtr Graph::getFrameImage() const
+{
+
+    // Capture the graph editor window to an image file
+#if 0
+    ImVec2 windowPos = ImGui::GetWindowPos();
+    ImVec2 windowSize = ImGui::GetWindowSize();
+    int x = static_cast<int>(windowPos.x);
+    int y = static_cast<int>(windowPos.y);
+    int w = static_cast<int>(windowSize.x);
+    int h = static_cast<int>(windowSize.y);
+
+    mx::ImagePtr frameImage = mx::Image::create((unsigned int)(w),
+        (unsigned int)(h), 3);
+    frameImage->createResourceBuffer();
+
+    glFlush();
+    glReadPixels(0, 0, frameImage->getWidth(), frameImage->getHeight(), GL_RGB, GL_UNSIGNED_BYTE, image->getResourceBuffer());
+
+#elif 0
+    // 1. Get the current right pane dimensions (accounts for resizing)
+    ImVec2 rightPanePos = ImGui::GetWindowPos();
+    rightPanePos.x += leftPaneWidth + 4.0f; // Adjust for left pane + splitter thickness
+    
+    ImVec2 rightPaneSize = ImGui::GetContentRegionAvail(); // Current available space
+    rightPaneSize.x = rightPaneWidth; // Use the dynamic right pane width
+    
+    ImVec2 capturePos = rightPanePos;
+    capturePos.y = ImGui::GetIO().DisplaySize.y - rightPanePos.y - rightPaneSize.y;
+    
+    int w = static_cast<int>(rightPaneSize.x);
+    int h = static_cast<int>(rightPaneSize.y);
+    mx::ImagePtr frameImage = mx::Image::create((unsigned int) (w),
+                                           (unsigned int) (h), 3);
+    frameImage->createResourceBuffer();
+
+    glFlush();
+    glReadPixels(
+        (int)capturePos.x,
+        (int)capturePos.y,
+        (int)rightPaneSize.x,
+        (int)rightPaneSize.y,
+        GL_RGB,
+        GL_UNSIGNED_BYTE,
+        frameImage->getResourceBuffer()
+    );
+#elif 1
+    
+ // 1. Get the current window and splitter state
+    ImGuiWindow* window = ImGui::GetCurrentWindow();
+    ImVec2 windowPos = window->Pos;
+    ImVec2 windowSize = window->Size;
+    std::cout << "Window Position: " << windowPos.x << ", " << windowPos.y << std::endl;
+    std::cout << "Window Size: " << windowSize.x << ", " << windowSize.y << std::endl;
+    ImVec2 contentMin = ImGui::GetWindowContentRegionMin(); // Get the content region min position
+    ImVec2 contentMax = ImGui::GetWindowContentRegionMax(); // Get the content region max position
+    std::cout << "Content Region Min: " << contentMin.x << ", " << contentMin.y << std::endl;
+    std::cout << "Content Region Max: " << contentMax.x << ", " << contentMax.y << std::endl;
+    ImVec2 displaySize = ImGui::GetContentRegionAvail(); // Excludes menu bars
+    std::cout << "Content Size: " << displaySize.x << ", " << displaySize.y << std::endl;
+
+    // 2. Calculate the ACTUAL right pane dimensions (not just the stored variables)
+    ImVec2 rightPanePos = windowPos;
+    rightPanePos.x += _leftPaneWidth + _leftPanelIndent + _leftPanelIndent;  // leftPane + splitter width
+
+    ImVec2 rightPaneSize;
+    rightPaneSize.x = windowSize.x - (_leftPaneWidth + _leftPanelIndent + (2.0f *_leftPanelIndent));  // dynamic width
+    
+    //rightPaneSize.y = windowSize.y - (windowPos.y - ImGui::GetCursorStartPos().y + 30.0f);  // content height
+    //rightPaneSize.y = windowSize.y - (windowPos.y + 30.0f);  // content height
+    rightPaneSize.y = displaySize.y - (windowPos.y + 15.0f);  // content height
+
+    std::cout << "Right Pane Position: " << rightPanePos.x << ", " << rightPanePos.y << std::endl;
+    std::cout << "Right Pane Size: " << rightPaneSize.x << ", " << rightPaneSize.y << std::endl;    
+
+    // 3. Get the actual viewport coordinates (accounting for DPI scaling)
+    //ImVec2 displaySize = ImGui::GetIO().DisplaySize;
+    ImVec2 capturePos = rightPanePos;
+    //capturePos.y = displaySize.y - rightPanePos.y - rightPaneSize.y;  // Flip Y for OpenGL
+    capturePos.y = displaySize.y - rightPanePos.y - rightPaneSize.y;  // Flip Y for OpenGL
+    std::cout << "Capture Position: " << capturePos.x << ", " << capturePos.y << std::endl;
+
+    int w = static_cast<int>(rightPaneSize.x);
+    int h = static_cast<int>(rightPaneSize.y);
+    mx::ImagePtr frameImage = mx::Image::create((unsigned int)(w),
+        (unsigned int)(h), 3);
+    frameImage->createResourceBuffer();
+
+    glFlush();
+    glReadPixels(
+        (int)capturePos.x,
+        (int)0/*(capturePos.y*/,
+        (int)rightPaneSize.x,
+        (int)rightPaneSize.y,
+        GL_RGB,
+        GL_UNSIGNED_BYTE,
+        frameImage->getResourceBuffer()
+    );
+#else
+    // 1. Get the main viewport (accounts for menu bars/toolbars)
+    ImGuiViewport* viewport = ImGui::GetMainViewport();
+    
+    // 2. Calculate the right pane's content area
+    ImVec2 rightPaneStart = ImGui::GetWindowPos();
+    rightPaneStart.x += _leftPaneWidth + 15.0f; // After left pane + splitter
+    
+    ImVec2 contentSize = ImGui::GetContentRegionAvail(); // Excludes menu bars
+    ImVec2 rightPaneEnd = rightPaneStart + contentSize;
+    
+    // 3. Adjust for viewport offsets (multi-monitor/DPI aware)
+    rightPaneStart -= viewport->Pos;
+    rightPaneEnd -= viewport->Pos;
+    
+    // 4. Calculate capture dimensions
+    int captureWidth = (int)(rightPaneEnd.x - rightPaneStart.x);
+    int captureHeight = (int)(rightPaneEnd.y - rightPaneStart.y);
+    
+    int w = static_cast<int>(captureWidth);
+    int h = static_cast<int>(captureHeight);
+    mx::ImagePtr frameImage = mx::Image::create((unsigned int)(w),
+        (unsigned int)(h), 3);
+    frameImage->createResourceBuffer();
+
+    // 5. Read pixels (with OpenGL Y flip)
+    //std::vector<unsigned char> pixels(captureWidth * captureHeight * 4);
+    glReadPixels(
+        (int)rightPaneStart.x,
+        (int)(viewport->Size.y - rightPaneEnd.y), // Flip Y coordinate
+        captureWidth,
+        captureHeight,
+        GL_RGB,
+        GL_UNSIGNED_BYTE,
+        frameImage->getResourceBuffer()
+    );
+        
+#endif
+
+    return frameImage;
+}
+
+
 void Graph::drawGraph(ImVec2 mousePos)
 {
     if (_searchNodeId > 0)
@@ -4050,7 +4191,25 @@ void Graph::drawGraph(ImVec2 mousePos)
 
     io2.ConfigFlags = ImGuiConfigFlags_IsSRGB | ImGuiConfigFlags_NavEnableKeyboard;
     io2.MouseDoubleClickTime = .5;
+
+    // Capture. Do before anything else to avoid window position changes from later UI calls
+    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_B))
+    {
+        mx::ImagePtr frameImage = getFrameImage();
+        static bool showFrameSavedPopup = false;
+        std::string filename = "graph_capture.png";
+        if (frameImage && _renderer->getImageHandler()->saveImage(filename, frameImage, true))
+        {
+            std::cout << "Frame saved to: " << filename << std::endl;
+        }
+        else
+        {
+            std::cout << "Failed to write frame to disk: " << filename << std::endl;
+        }
+    }
+
     graphButtons();
+
 
     ed::Begin("My Editor");
     {
@@ -4365,6 +4524,7 @@ void Graph::drawGraph(ImVec2 mousePos)
             }
         }
         ed::EndDelete();
+
     }
 
     // Dive into a node that has a subgraph

@@ -236,6 +236,8 @@ class Graph
 
     void showHelp() const;
 
+    mx::ImagePtr getFrameImage() const;
+
   private:
     mx::StringVec _geomFilter;
     mx::StringVec _mtlxFilter;
@@ -326,6 +328,11 @@ class Graph
 
     // Options
     bool _saveNodePositions;
+
+    float _leftPaneWidth = 375.0f;
+    float _leftPanelIndent = 15.0f;
+    float _rightPaneWidth = 750.0f;
+
 };
 
 #endif
