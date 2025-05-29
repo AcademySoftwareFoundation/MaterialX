@@ -4094,10 +4094,11 @@ mx::ImagePtr Graph::getFrameImage() const
 
     // 2. Calculate the ACTUAL right pane dimensions (not just the stored variables)
     ImVec2 rightPanePos = windowPos;
-    rightPanePos.x += _leftPaneWidth + _leftPanelIndent + _leftPanelIndent;  // leftPane + splitter width
+    rightPanePos.x += _leftPaneWidth + _leftPanelIndent + 4;// +_leftPanelIndent;  // leftPane + splitter width
+    rightPanePos.y += _leftPanelIndent;
 
     ImVec2 rightPaneSize;
-    rightPaneSize.x = windowSize.x - (_leftPaneWidth + _leftPanelIndent + (2.0f *_leftPanelIndent));  // dynamic width
+    rightPaneSize.x = windowSize.x - (_leftPaneWidth + _leftPanelIndent + (_leftPanelIndent));  // dynamic width
     
     //rightPaneSize.y = windowSize.y - (windowPos.y - ImGui::GetCursorStartPos().y + 30.0f);  // content height
     //rightPaneSize.y = windowSize.y - (windowPos.y + 30.0f);  // content height
@@ -4110,7 +4111,7 @@ mx::ImagePtr Graph::getFrameImage() const
     //ImVec2 displaySize = ImGui::GetIO().DisplaySize;
     ImVec2 capturePos = rightPanePos;
     //capturePos.y = displaySize.y - rightPanePos.y - rightPaneSize.y;  // Flip Y for OpenGL
-    capturePos.y = displaySize.y - rightPanePos.y - rightPaneSize.y;  // Flip Y for OpenGL
+    capturePos.y = displaySize.y + 4 - rightPanePos.y - rightPaneSize.y;  // Flip Y for OpenGL
     std::cout << "Capture Position: " << capturePos.x << ", " << capturePos.y << std::endl;
 
     int w = static_cast<int>(rightPaneSize.x);
@@ -4122,7 +4123,7 @@ mx::ImagePtr Graph::getFrameImage() const
     glFlush();
     glReadPixels(
         (int)capturePos.x,
-        (int)0/*(capturePos.y*/,
+        (int)0,//capturePos.y,
         (int)rightPaneSize.x,
         (int)rightPaneSize.y,
         GL_RGB,
@@ -4196,7 +4197,6 @@ void Graph::drawGraph(ImVec2 mousePos)
     if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_B))
     {
         mx::ImagePtr frameImage = getFrameImage();
-        static bool showFrameSavedPopup = false;
         std::string filename = "graph_capture.png";
         if (frameImage && _renderer->getImageHandler()->saveImage(filename, frameImage, true))
         {
