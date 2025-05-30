@@ -3316,8 +3316,6 @@ void Graph::graphButtons()
 
     // Split window into panes for NodeEditor
     splitter(true, 4.0f, &_leftPaneWidth, &_rightPaneWidth, 20.0f, 20.0f);
-    //std::cout << "Left pane width: " << _leftPaneWidth << std::endl;
-    //std::cout << "Right pane width: " << _rightPaneWidth << std::endl;
 
     // Create back button and graph hierarchy name display
     ImGui::Indent(_leftPaneWidth + _nodeEditorIndent);
@@ -4157,16 +4155,10 @@ void Graph::drawGraph(ImVec2 mousePos)
         // Capture entire window if SHIFT, otherwise capture node editor
         bool captureWindow = io2.KeyShift;
         _capturedImage = performSnapshot(captureWindow);
-        //std::string filename = "graph_capture.png";
         if (_capturedImage)
         {
-            //std::cout << "Frame saved to: " << filename << std::endl;
             showSnapshotDialog();
         }
-        //else
-        //{
-        //    std::cout << "Failed to write frame to disk: " << filename << std::endl;
-        //}
     }
 
     graphButtons();
