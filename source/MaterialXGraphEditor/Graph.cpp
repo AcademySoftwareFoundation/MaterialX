@@ -4280,6 +4280,27 @@ void Graph::drawGraph(ImVec2 mousePos)
                     }
                     linkGraph();
                 }
+                else if (selectedLinks.size() > 0)
+                {
+                    _frameCount = ImGui::GetFrameCount();
+                    _renderer->setMaterialCompilation(true);
+                    for (ed::LinkId id : selectedLinks)
+                    {
+                        if (int(id.Get()) > 0 && !readOnly())
+                        {
+                            deleteLink(id);
+                            _delete = true;
+                            ed::DeselectLink(id);
+                            ed::DeleteLink(id);
+                            _currUiNode = nullptr;
+                        }
+                        else if (readOnly())
+                        {
+                            _popup = true;
+                        }
+                    }
+                    linkGraph();
+                }
                 _isCut = false;
             }
 
