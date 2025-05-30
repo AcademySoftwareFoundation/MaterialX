@@ -143,6 +143,7 @@ Graph::Graph(const std::string& materialFilename,
     _initial(false),
     _delete(false),
     _fileDialogSave(FileDialog::EnterNewFilename),
+    _fileDialogSnapshot(FileDialog::EnterNewFilename),
     _isNodeGraph(false),
     _graphTotalSize(0),
     _popup(false),
@@ -802,6 +803,10 @@ void Graph::setRenderMaterial(UiNodePtr node)
             for (const std::string& testPath : testPaths)
             {
                 mx::ElementPtr testElem = _graphDoc->getDescendant(testPath);
+                if (!testElem)
+                {
+                    continue;
+                }
                 mx::NodePtr testNode = testElem->asA<mx::Node>();
                 std::vector<mx::PortElementPtr> downstreamPorts;
                 if (testNode)
@@ -3180,6 +3185,40 @@ void Graph::saveGraphToFile()
     _fileDialogSave.open();
 }
 
+void Graph::showSnapshotDialog()
+{
+    if (!_capturedImage)
+    {
+        return;
+    }
+    mx::StringVec imageFilter;
+    imageFilter.push_back(".png");
+    _fileDialogSnapshot.setTypeFilters(imageFilter);
+    _fileDialogSnapshot.setTitle("Save SnapshotAs");
+    _fileDialogSnapshot.open();
+}
+
+void Graph::saveSnapshotToFile()
+{
+    ed::Suspend();
+    _fileDialogSnapshot.display();
+
+    // Save capture
+    if (_fileDialogSnapshot.hasSelected())
+    {
+        std::string captureName = _fileDialogSnapshot.getSelected();
+        std::cout << "Save image to: " << captureName << std::endl;
+        _renderer->getImageHandler()->saveImage(captureName, _capturedImage, true);
+        _capturedImage = nullptr;
+        ed::Resume();
+        _fileDialogSnapshot.clearSelected();
+    }
+    else
+    {
+        ed::Resume();
+    }
+}
+
 void Graph::loadGeometry()
 {
     _fileDialogGeom.setTitle("Load Geometry");
@@ -3281,7 +3320,7 @@ void Graph::graphButtons()
     //std::cout << "Right pane width: " << _rightPaneWidth << std::endl;
 
     // Create back button and graph hierarchy name display
-    ImGui::Indent(_leftPaneWidth + _leftPanelIndent);
+    ImGui::Indent(_leftPaneWidth + _nodeEditorIndent);
     if (ImGui::Button("<"))
     {
         upNodeGraph();
@@ -3301,7 +3340,7 @@ void Graph::graphButtons()
         }
     }
     ImVec2 windowPos2 = ImGui::GetWindowPos();
-    ImGui::Unindent(_leftPaneWidth + _leftPanelIndent);
+    ImGui::Unindent(_leftPaneWidth + _nodeEditorIndent);
     ImGui::PopStyleColor();
     ImGui::NewLine();
 
@@ -3735,6 +3774,8 @@ void Graph::showHelp() const
             ImGui::BulletText("CTRL-F : Find a node by name.");
             ImGui::BulletText("CTRL-X : Delete selected nodes and add to clipboard.");
             ImGui::BulletText("DELETE : Delete selected nodes or connections.");
+            ImGui::BulletText("CTRL-I : Capture Editor Panel to disk.");
+            ImGui::BulletText("CTRL-SHIFT-I : Capture entire window to disk.");
             ImGui::TreePop();
         }
     }
@@ -4031,147 +4072,64 @@ void Graph::handleRenderViewInputs()
     }
 }
 
-mx::ImagePtr Graph::getFrameImage() const
+mx::ImagePtr Graph::performSnapshot(bool captureWindow) const
 {
+    if (captureWindow)
+    {
+        ImVec2 windowPos = ImGui::GetWindowPos();
+        ImVec2 windowSize = ImGui::GetWindowSize();
+        unsigned int w = static_cast<unsigned int>(windowSize.x);
+        unsigned int h = static_cast<unsigned int>(windowSize.y);
 
-    // Capture the graph editor window to an image file
-#if 0
-    ImVec2 windowPos = ImGui::GetWindowPos();
-    ImVec2 windowSize = ImGui::GetWindowSize();
-    int x = static_cast<int>(windowPos.x);
-    int y = static_cast<int>(windowPos.y);
-    int w = static_cast<int>(windowSize.x);
-    int h = static_cast<int>(windowSize.y);
+        mx::ImagePtr image = mx::Image::create(w, h, 3);
+        if (image)
+        {
+            image->createResourceBuffer();
 
-    mx::ImagePtr frameImage = mx::Image::create((unsigned int)(w),
-        (unsigned int)(h), 3);
-    frameImage->createResourceBuffer();
+            glFlush();
+            glReadPixels(0, 0, image->getWidth(), image->getHeight(), GL_RGB, GL_UNSIGNED_BYTE, image->getResourceBuffer());
+        }
+        return image;
+    }
 
-    glFlush();
-    glReadPixels(0, 0, frameImage->getWidth(), frameImage->getHeight(), GL_RGB, GL_UNSIGNED_BYTE, image->getResourceBuffer());
-
-#elif 0
-    // 1. Get the current right pane dimensions (accounts for resizing)
-    ImVec2 rightPanePos = ImGui::GetWindowPos();
-    rightPanePos.x += leftPaneWidth + 4.0f; // Adjust for left pane + splitter thickness
-    
-    ImVec2 rightPaneSize = ImGui::GetContentRegionAvail(); // Current available space
-    rightPaneSize.x = rightPaneWidth; // Use the dynamic right pane width
-    
-    ImVec2 capturePos = rightPanePos;
-    capturePos.y = ImGui::GetIO().DisplaySize.y - rightPanePos.y - rightPaneSize.y;
-    
-    int w = static_cast<int>(rightPaneSize.x);
-    int h = static_cast<int>(rightPaneSize.y);
-    mx::ImagePtr frameImage = mx::Image::create((unsigned int) (w),
-                                           (unsigned int) (h), 3);
-    frameImage->createResourceBuffer();
-
-    glFlush();
-    glReadPixels(
-        (int)capturePos.x,
-        (int)capturePos.y,
-        (int)rightPaneSize.x,
-        (int)rightPaneSize.y,
-        GL_RGB,
-        GL_UNSIGNED_BYTE,
-        frameImage->getResourceBuffer()
-    );
-#elif 1
-    
- // 1. Get the current window and splitter state
+    // Get main window information    
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     ImVec2 windowPos = window->Pos;
     ImVec2 windowSize = window->Size;
-    std::cout << "Window Position: " << windowPos.x << ", " << windowPos.y << std::endl;
-    std::cout << "Window Size: " << windowSize.x << ", " << windowSize.y << std::endl;
-    ImVec2 contentMin = ImGui::GetWindowContentRegionMin(); // Get the content region min position
-    ImVec2 contentMax = ImGui::GetWindowContentRegionMax(); // Get the content region max position
-    std::cout << "Content Region Min: " << contentMin.x << ", " << contentMin.y << std::endl;
-    std::cout << "Content Region Max: " << contentMax.x << ", " << contentMax.y << std::endl;
-    ImVec2 displaySize = ImGui::GetContentRegionAvail(); // Excludes menu bars
-    std::cout << "Content Size: " << displaySize.x << ", " << displaySize.y << std::endl;
 
-    // 2. Calculate the ACTUAL right pane dimensions (not just the stored variables)
-    ImVec2 rightPanePos = windowPos;
-    rightPanePos.x += _leftPaneWidth + _leftPanelIndent + 4;// +_leftPanelIndent;  // leftPane + splitter width
-    rightPanePos.y += _leftPanelIndent;
+    // Get editor information
+    ImVec2 contentSize = ImGui::GetContentRegionAvail(); // Excludes menu bars
 
+    float splitterSize = 4.0f;
+    float leftOffset = _leftPaneWidth + _nodeEditorIndent;
+    float topOffset = _nodeEditorIndent;
+    float rightOffset = _nodeEditorIndent;
+
+    // Calculate the right pane position. Include splitter and indentation from top left corner 
+    ImVec2 rightPanePos;
+    rightPanePos.x = leftOffset + splitterSize;
+    rightPanePos.y = topOffset;
+
+    // Calculate the right panel size. Remove left and right editor offsets.
     ImVec2 rightPaneSize;
-    rightPaneSize.x = windowSize.x - (_leftPaneWidth + _leftPanelIndent + (_leftPanelIndent));  // dynamic width
-    
-    //rightPaneSize.y = windowSize.y - (windowPos.y - ImGui::GetCursorStartPos().y + 30.0f);  // content height
-    //rightPaneSize.y = windowSize.y - (windowPos.y + 30.0f);  // content height
-    rightPaneSize.y = displaySize.y - (windowPos.y + 15.0f);  // content height
-
-    std::cout << "Right Pane Position: " << rightPanePos.x << ", " << rightPanePos.y << std::endl;
-    std::cout << "Right Pane Size: " << rightPaneSize.x << ", " << rightPaneSize.y << std::endl;    
-
-    // 3. Get the actual viewport coordinates (accounting for DPI scaling)
-    //ImVec2 displaySize = ImGui::GetIO().DisplaySize;
-    ImVec2 capturePos = rightPanePos;
-    //capturePos.y = displaySize.y - rightPanePos.y - rightPaneSize.y;  // Flip Y for OpenGL
-    capturePos.y = displaySize.y + 4 - rightPanePos.y - rightPaneSize.y;  // Flip Y for OpenGL
-    std::cout << "Capture Position: " << capturePos.x << ", " << capturePos.y << std::endl;
+    rightPaneSize.x = windowSize.x - (leftOffset + rightOffset);  
+    rightPaneSize.y = contentSize.y - (windowPos.y + 2.0f * topOffset);  
 
     int w = static_cast<int>(rightPaneSize.x);
-    int h = static_cast<int>(rightPaneSize.y) - 15;
-    mx::ImagePtr frameImage = mx::Image::create((unsigned int)(w),
-        (unsigned int)(h), 3);
-    frameImage->createResourceBuffer();
+    int h = static_cast<int>(rightPaneSize.y);
+    mx::ImagePtr image = mx::Image::create(static_cast<unsigned int>(w), static_cast<unsigned int>(h), 3);
+    if (image)
+    {
+        image->createResourceBuffer();
 
-    glFlush();
-    glReadPixels(
-        (int)capturePos.x,
-        (int)capturePos.y - 11,
-        (int)rightPaneSize.x,
-        (int)rightPaneSize.y - 15,
-        GL_RGB,
-        GL_UNSIGNED_BYTE,
-        frameImage->getResourceBuffer()
-    );
-#else
-    // 1. Get the main viewport (accounts for menu bars/toolbars)
-    ImGuiViewport* viewport = ImGui::GetMainViewport();
-    
-    // 2. Calculate the right pane's content area
-    ImVec2 rightPaneStart = ImGui::GetWindowPos();
-    rightPaneStart.x += _leftPaneWidth + 15.0f; // After left pane + splitter
-    
-    ImVec2 contentSize = ImGui::GetContentRegionAvail(); // Excludes menu bars
-    ImVec2 rightPaneEnd = rightPaneStart + contentSize;
-    
-    // 3. Adjust for viewport offsets (multi-monitor/DPI aware)
-    rightPaneStart -= viewport->Pos;
-    rightPaneEnd -= viewport->Pos;
-    
-    // 4. Calculate capture dimensions
-    int captureWidth = (int)(rightPaneEnd.x - rightPaneStart.x);
-    int captureHeight = (int)(rightPaneEnd.y - rightPaneStart.y);
-    
-    int w = static_cast<int>(captureWidth);
-    int h = static_cast<int>(captureHeight);
-    mx::ImagePtr frameImage = mx::Image::create((unsigned int)(w),
-        (unsigned int)(h), 3);
-    frameImage->createResourceBuffer();
-
-    // 5. Read pixels (with OpenGL Y flip)
-    //std::vector<unsigned char> pixels(captureWidth * captureHeight * 4);
-    glReadPixels(
-        (int)rightPaneStart.x,
-        (int)(viewport->Size.y - rightPaneEnd.y), // Flip Y coordinate
-        captureWidth,
-        captureHeight,
-        GL_RGB,
-        GL_UNSIGNED_BYTE,
-        frameImage->getResourceBuffer()
-    );
-        
-#endif
-
-    return frameImage;
+        glFlush();
+        glReadPixels(static_cast<int>(rightPanePos.x), 0, w, h,
+            GL_RGB, GL_UNSIGNED_BYTE,
+            image->getResourceBuffer()
+        );
+    }
+    return image;
 }
-
 
 void Graph::drawGraph(ImVec2 mousePos)
 {
@@ -4193,23 +4151,25 @@ void Graph::drawGraph(ImVec2 mousePos)
     io2.ConfigFlags = ImGuiConfigFlags_IsSRGB | ImGuiConfigFlags_NavEnableKeyboard;
     io2.MouseDoubleClickTime = .5;
 
-    // Capture. Do before anything else to avoid window position changes from later UI calls
-    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_B))
+    // Capture. Perform before other UI calls which can change window size / positioning.
+    if (io2.KeyCtrl && ImGui::IsKeyReleased(ImGuiKey_I))
     {
-        mx::ImagePtr frameImage = getFrameImage();
-        std::string filename = "graph_capture.png";
-        if (frameImage && _renderer->getImageHandler()->saveImage(filename, frameImage, true))
+        // Capture entire window if SHIFT, otherwise capture node editor
+        bool captureWindow = io2.KeyShift;
+        _capturedImage = performSnapshot(captureWindow);
+        //std::string filename = "graph_capture.png";
+        if (_capturedImage)
         {
-            std::cout << "Frame saved to: " << filename << std::endl;
+            //std::cout << "Frame saved to: " << filename << std::endl;
+            showSnapshotDialog();
         }
-        else
-        {
-            std::cout << "Failed to write frame to disk: " << filename << std::endl;
-        }
+        //else
+        //{
+        //    std::cout << "Failed to write frame to disk: " << filename << std::endl;
+        //}
     }
 
     graphButtons();
-
 
     ed::Begin("My Editor");
     {
@@ -4626,6 +4586,8 @@ void Graph::drawGraph(ImVec2 mousePos)
     {
         ed::Resume();
     }
+
+    saveSnapshotToFile();
 
     ed::End();
     ImGui::End();
