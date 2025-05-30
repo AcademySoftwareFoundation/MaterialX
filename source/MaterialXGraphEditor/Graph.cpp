@@ -143,6 +143,7 @@ Graph::Graph(const std::string& materialFilename,
     _initial(false),
     _delete(false),
     _fileDialogSave(FileDialog::EnterNewFilename),
+    _fileDialogSnapshot(FileDialog::EnterNewFilename),
     _isNodeGraph(false),
     _graphTotalSize(0),
     _popup(false),
@@ -802,6 +803,10 @@ void Graph::setRenderMaterial(UiNodePtr node)
             for (const std::string& testPath : testPaths)
             {
                 mx::ElementPtr testElem = _graphDoc->getDescendant(testPath);
+                if (!testElem)
+                {
+                    continue;
+                }
                 mx::NodePtr testNode = testElem->asA<mx::Node>();
                 std::vector<mx::PortElementPtr> downstreamPorts;
                 if (testNode)
@@ -3180,6 +3185,40 @@ void Graph::saveGraphToFile()
     _fileDialogSave.open();
 }
 
+void Graph::showSnapshotDialog()
+{
+    if (!_capturedImage)
+    {
+        return;
+    }
+    mx::StringVec imageFilter;
+    imageFilter.push_back(".png");
+    _fileDialogSnapshot.setTypeFilters(imageFilter);
+    _fileDialogSnapshot.setTitle("Save SnapshotAs");
+    _fileDialogSnapshot.open();
+}
+
+void Graph::saveSnapshotToFile()
+{
+    ed::Suspend();
+    _fileDialogSnapshot.display();
+
+    // Save capture
+    if (_fileDialogSnapshot.hasSelected())
+    {
+        std::string captureName = _fileDialogSnapshot.getSelected();
+        std::cout << "Save image to: " << captureName << std::endl;
+        _renderer->getImageHandler()->saveImage(captureName, _capturedImage, true);
+        _capturedImage = nullptr;
+        ed::Resume();
+        _fileDialogSnapshot.clearSelected();
+    }
+    else
+    {
+        ed::Resume();
+    }
+}
+
 void Graph::loadGeometry()
 {
     _fileDialogGeom.setTitle("Load Geometry");
@@ -3276,12 +3315,10 @@ void Graph::graphButtons()
     }
 
     // Split window into panes for NodeEditor
-    static float leftPaneWidth = 375.0f;
-    static float rightPaneWidth = 750.0f;
-    splitter(true, 4.0f, &leftPaneWidth, &rightPaneWidth, 20.0f, 20.0f);
+    splitter(true, 4.0f, &_leftPaneWidth, &_rightPaneWidth, 20.0f, 20.0f);
 
     // Create back button and graph hierarchy name display
-    ImGui::Indent(leftPaneWidth + 15.f);
+    ImGui::Indent(_leftPaneWidth + _nodeEditorIndent);
     if (ImGui::Button("<"))
     {
         upNodeGraph();
@@ -3301,12 +3338,12 @@ void Graph::graphButtons()
         }
     }
     ImVec2 windowPos2 = ImGui::GetWindowPos();
-    ImGui::Unindent(leftPaneWidth + 15.f);
+    ImGui::Unindent(_leftPaneWidth + _nodeEditorIndent);
     ImGui::PopStyleColor();
     ImGui::NewLine();
 
     // Create two windows using splitter
-    float paneWidth = (leftPaneWidth - 2.0f);
+    float paneWidth = (_leftPaneWidth - 2.0f);
 
     float aspectRatio = _renderer->getPixelRatio();
     ImVec2 screenSize = ImVec2(paneWidth, paneWidth / aspectRatio);
@@ -3735,6 +3772,8 @@ void Graph::showHelp() const
             ImGui::BulletText("CTRL-F : Find a node by name.");
             ImGui::BulletText("CTRL-X : Delete selected nodes and add to clipboard.");
             ImGui::BulletText("DELETE : Delete selected nodes or connections.");
+            ImGui::BulletText("CTRL-I : Capture Editor Panel to disk.");
+            ImGui::BulletText("CTRL-SHIFT-I : Capture entire window to disk.");
             ImGui::TreePop();
         }
     }
@@ -4031,6 +4070,65 @@ void Graph::handleRenderViewInputs()
     }
 }
 
+mx::ImagePtr Graph::performSnapshot(bool captureWindow) const
+{
+    if (captureWindow)
+    {
+        ImVec2 windowPos = ImGui::GetWindowPos();
+        ImVec2 windowSize = ImGui::GetWindowSize();
+        unsigned int w = static_cast<unsigned int>(windowSize.x);
+        unsigned int h = static_cast<unsigned int>(windowSize.y);
+
+        mx::ImagePtr image = mx::Image::create(w, h, 3);
+        if (image)
+        {
+            image->createResourceBuffer();
+
+            glFlush();
+            glReadPixels(0, 0, image->getWidth(), image->getHeight(), GL_RGB, GL_UNSIGNED_BYTE, image->getResourceBuffer());
+        }
+        return image;
+    }
+
+    // Get main window information    
+    ImGuiWindow* window = ImGui::GetCurrentWindow();
+    ImVec2 windowPos = window->Pos;
+    ImVec2 windowSize = window->Size;
+
+    // Get editor information
+    ImVec2 contentSize = ImGui::GetContentRegionAvail(); // Excludes menu bars
+
+    float splitterSize = 4.0f;
+    float leftOffset = _leftPaneWidth + _nodeEditorIndent;
+    float topOffset = _nodeEditorIndent;
+    float rightOffset = _nodeEditorIndent;
+
+    // Calculate the right pane position. Include splitter and indentation from top left corner 
+    ImVec2 rightPanePos;
+    rightPanePos.x = leftOffset + splitterSize;
+    rightPanePos.y = topOffset;
+
+    // Calculate the right panel size. Remove left and right editor offsets.
+    ImVec2 rightPaneSize;
+    rightPaneSize.x = windowSize.x - (leftOffset + rightOffset);  
+    rightPaneSize.y = contentSize.y - (windowPos.y + 2.0f * topOffset);  
+
+    int w = static_cast<int>(rightPaneSize.x);
+    int h = static_cast<int>(rightPaneSize.y);
+    mx::ImagePtr image = mx::Image::create(static_cast<unsigned int>(w), static_cast<unsigned int>(h), 3);
+    if (image)
+    {
+        image->createResourceBuffer();
+
+        glFlush();
+        glReadPixels(static_cast<int>(rightPanePos.x), 0, w, h,
+            GL_RGB, GL_UNSIGNED_BYTE,
+            image->getResourceBuffer()
+        );
+    }
+    return image;
+}
+
 void Graph::drawGraph(ImVec2 mousePos)
 {
     if (_searchNodeId > 0)
@@ -4050,6 +4148,19 @@ void Graph::drawGraph(ImVec2 mousePos)
 
     io2.ConfigFlags = ImGuiConfigFlags_IsSRGB | ImGuiConfigFlags_NavEnableKeyboard;
     io2.MouseDoubleClickTime = .5;
+
+    // Capture. Perform before other UI calls which can change window size / positioning.
+    if (io2.KeyCtrl && ImGui::IsKeyReleased(ImGuiKey_I))
+    {
+        // Capture entire window if SHIFT, otherwise capture node editor
+        bool captureWindow = io2.KeyShift;
+        _capturedImage = performSnapshot(captureWindow);
+        if (_capturedImage)
+        {
+            showSnapshotDialog();
+        }
+    }
+
     graphButtons();
 
     ed::Begin("My Editor");
@@ -4365,6 +4476,7 @@ void Graph::drawGraph(ImVec2 mousePos)
             }
         }
         ed::EndDelete();
+
     }
 
     // Dive into a node that has a subgraph
@@ -4466,6 +4578,8 @@ void Graph::drawGraph(ImVec2 mousePos)
     {
         ed::Resume();
     }
+
+    saveSnapshotToFile();
 
     ed::End();
     ImGui::End();
