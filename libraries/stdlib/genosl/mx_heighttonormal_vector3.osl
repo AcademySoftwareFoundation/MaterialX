@@ -2,14 +2,10 @@ void mx_heighttonormal_vector3(float height, float scale, vector2 texcoord, outp
 {
     // Compute the gradient of the heightfield signal with respect
     // to the input texture coordinates.
-    vector texcoord3 = vector(texcoord.x, texcoord.y, 0.0);
+    vector texcoordVec = vector(texcoord.x, texcoord.y, 0.0);
     vector dHdS = vector(-Dx(height), Dy(height), 0.0) * scale;
-    vector dTdS = abs(Dx(texcoord3)) + abs(Dy(texcoord3));
+    vector dTdS = (abs(Dx(texcoordVec)) + abs(Dy(texcoordVec))) * 16.0;
     vector dHdT = dHdS / dTdS;
-
-    // Apply a scale factor to match discrete heightfield sampling.
-    float DISCRETE_SCALE_FACTOR = 0.04;
-    dHdT *= DISCRETE_SCALE_FACTOR;
 
     // Convert the gradient to a normal and encode for storage.
     vector n = normalize(vector(dHdT.x, dHdT.y, 1.0));
