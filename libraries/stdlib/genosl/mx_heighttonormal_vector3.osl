@@ -4,7 +4,8 @@ void mx_heighttonormal_vector3(float height, float scale, vector2 texcoord, outp
     // to the input texture coordinates.
     vector texcoordVec = vector(texcoord.x, texcoord.y, 0.0);
     vector dHdS = vector(-Dx(height), Dy(height), 0.0) * scale;
-    vector dTdS = (abs(Dx(texcoordVec)) + abs(Dy(texcoordVec))) * 16.0;
+    vector dTdS = abs(Dx(texcoordVec)) + abs(Dy(texcoordVec));
+    dTdS = (dot(dTdS, dTdS) == 0.0) ? vector(1.0) : dTdS * 16.0;
     vector dHdT = dHdS / dTdS;
 
     // Convert the gradient to a normal and encode for storage.
