@@ -42,7 +42,7 @@ void LightSamplerNodeMsl::emitFunctionDefinition(const ShaderNode& node, GenCont
             string ifstatement = "if ";
             for (const auto& it : lightShaders->get())
             {
-                shadergen.emitLine(ifstatement + "(light.type == " + std::to_string(it.first) + ")", stage, false);
+                shadergen.emitLine(ifstatement + "(light." + shadergen.getLightDataTypevarString() + " == " + std::to_string(it.first) + ")", stage, false);
                 shadergen.emitScopeBegin(stage);
                 shadergen.emitFunctionCall(*it.second, context, stage);
                 shadergen.emitScopeEnd(stage);

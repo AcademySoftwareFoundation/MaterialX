@@ -13,6 +13,7 @@
 #include <MaterialXGenGlsl/GlslSyntax.h>
 #include <MaterialXGenGlsl/GlslResourceBindingContext.h>
 #include <MaterialXGenGlsl/VkShaderGenerator.h>
+#include <MaterialXGenGlsl/WgslShaderGenerator.h>
 
 namespace mx = MaterialX;
 
@@ -133,7 +134,8 @@ enum class GlslType
     Essl,
     Glsl,
     GlslLayout,
-    GlslVulkan
+    GlslVulkan,
+    GlslWgsl
 };
 
 static void generateGlslCode(GlslType type)
@@ -154,6 +156,10 @@ static void generateGlslCode(GlslType type)
     {
         generator = mx::VkShaderGenerator::create();
     }
+    else if (type == GlslType::GlslWgsl)
+    {
+        generator = mx::WgslShaderGenerator::create();
+    }
     else
     {
         generator = mx::GlslShaderGenerator::create();
@@ -164,7 +170,8 @@ static void generateGlslCode(GlslType type)
         { GlslType::Essl, "essl" },
         { GlslType::Glsl, "glsl" },
         { GlslType::GlslLayout, "glsl_layout" },
-        { GlslType::GlslVulkan, "glsl_vulkan" }
+        { GlslType::GlslVulkan, "glsl_vulkan" },
+        { GlslType::GlslWgsl  , "glsl_wgsl" }
     };
     const mx::FilePath logPath("genglsl_" + TYPE_NAME_MAP.at(type) + "_generate_test.txt");
     GlslShaderGeneratorTester tester(generator, testRootPaths, searchPath, logPath, false);
@@ -200,4 +207,9 @@ TEST_CASE("GenShader: GLSL Shader Generation with Layout", "[genglsl]")
 TEST_CASE("GenShader: Vulkan GLSL Shader Generation", "[genglsl]")
 {
     generateGlslCode(GlslType::GlslVulkan);
+}
+
+TEST_CASE("GenShader: Wgsl GLSL Shader Generation", "[genglsl]")
+{
+    generateGlslCode(GlslType::GlslWgsl);
 }
