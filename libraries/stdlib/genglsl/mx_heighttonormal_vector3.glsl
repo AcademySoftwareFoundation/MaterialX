@@ -18,7 +18,7 @@ void mx_heighttonormal_vector3(float height, float scale, vec2 texcoord, out vec
     }
     else
     {
-        dHdT = vec2(1.0);
+        dHdT = vec2(0.0);
     }
 
     // Scale the results for parity with traditional Sobel filtering.
