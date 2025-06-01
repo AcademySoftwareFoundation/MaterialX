@@ -5,7 +5,7 @@ void mx_heighttonormal_vector3(float height, float scale, vector2 texcoord, outp
 
     // Compute the gradient of the texture coordinates with respect to the screen.
     vector2 dUdS = -vector2(Dx(texcoord.x), Dy(texcoord.x));
-    vector2 dVdS = vector2(Dx(texcoord.y), Dy(texcoord.y));
+    vector2 dVdS = -vector2(Dx(texcoord.y), Dy(texcoord.y));
 
     // Use the chain rule to compute the gradient of the heightfield with
     // respect to the texture coordinates.
@@ -19,7 +19,7 @@ void mx_heighttonormal_vector3(float height, float scale, vector2 texcoord, outp
     }
     else
     {
-        dHdT = vector2(1.0);
+        dHdT = vector2(1.0, 1.0);
     }
 
     // Scale the results for parity with traditional Sobel filtering.

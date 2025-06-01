@@ -5,7 +5,7 @@ void mx_heighttonormal_vector3(float height, float scale, vec2 texcoord, out vec
 
     // Compute the gradient of the texture coordinates with respect to the screen.
     vec2 dUdS = -vec2(dFdx(texcoord.x), dFdy(texcoord.x));
-    vec2 dVdS = vec2(dFdx(texcoord.y), dFdy(texcoord.y));
+    vec2 dVdS = -vec2(dFdx(texcoord.y), dFdy(texcoord.y));
 
     // Use the chain rule to compute the gradient of the heightfield with
     // respect to the texture coordinates.
