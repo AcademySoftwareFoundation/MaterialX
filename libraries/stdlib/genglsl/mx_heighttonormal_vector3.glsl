@@ -4,8 +4,8 @@ void mx_heighttonormal_vector3(float height, float scale, vec2 texcoord, out vec
     vec2 dHdS = vec2(dFdx(height), dFdy(height)) * scale;
 
     // Compute the gradient of the texture coordinates with respect to the screen.
-    vec2 dUdS = -vec2(dFdx(texcoord.x), dFdy(texcoord.x));
-    vec2 dVdS = -vec2(dFdx(texcoord.y), dFdy(texcoord.y));
+    vec2 dUdS = vec2(dFdx(texcoord.x), dFdy(texcoord.x));
+    vec2 dVdS = vec2(dFdx(texcoord.y), dFdy(texcoord.y));
 
     // Use the chain rule to compute the gradient of the heightfield with
     // respect to the texture coordinates.
@@ -13,7 +13,7 @@ void mx_heighttonormal_vector3(float height, float scale, vec2 texcoord, out vec
     float det = dUdS.x * dVdS.y - dUdS.y * dVdS.x;
     if (abs(det) > M_FLOAT_EPS)
     {
-        mat2 invJacobian = mat2(dVdS.y, -dUdS.y, -dVdS.x, dUdS.x) / det;
+        mat2 invJacobian = mat2(-dVdS.y, dUdS.y, dVdS.x, -dUdS.x) / det;
         dHdT = invJacobian * dHdS;
     }
     else
