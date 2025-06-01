@@ -1,12 +1,29 @@
 void mx_heighttonormal_vector3(float height, float scale, vector2 texcoord, output vector result)
 {
-    // Compute the gradient of the heightfield signal with respect
-    // to the input texture coordinates.
-    vector texcoordVec = vector(texcoord.x, texcoord.y, 0.0);
-    vector dHdS = vector(-Dx(height), Dy(height), 0.0) * scale;
-    vector dTdS = abs(Dx(texcoordVec)) + abs(Dy(texcoordVec));
-    dTdS = (dot(dTdS, dTdS) == 0.0) ? vector(1.0) : dTdS * 16.0;
-    vector dHdT = dHdS / dTdS;
+    // Compute the gradient of the heightfield with respect to the screen.
+    vector2 dHdS = vector2(Dx(height), Dy(height)) * scale;
+
+    // Compute the gradient of the texture coordinates with respect to the screen.
+    vector2 dUdS = -vector2(Dx(texcoord.x), Dy(texcoord.x));
+    vector2 dVdS = vector2(Dx(texcoord.y), Dy(texcoord.y));
+
+    // Use the chain rule to compute the gradient of the heightfield with
+    // respect to the texture coordinates.
+    vector2 dHdT;
+    float det = dUdS.x * dVdS.y - dUdS.y * dVdS.x;
+    if (abs(det) > M_FLOAT_EPS)
+    {
+        vector4 invJacobian = vector4(dVdS.y, -dUdS.y, -dVdS.x, dUdS.x) / det;
+        dHdT.x = dot(vector2(invJacobian.x, invJacobian.y), dHdS);
+        dHdT.y = dot(vector2(invJacobian.z, invJacobian.w), dHdS);
+    }
+    else
+    {
+        dHdT = vector2(1.0);
+    }
+
+    // Scale the results for parity with traditional Sobel filtering.
+    dHdT /= 16.0;
 
     // Convert the gradient to a normal and encode for storage.
     vector n = normalize(vector(dHdT.x, dHdT.y, 1.0));
