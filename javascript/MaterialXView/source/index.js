@@ -170,17 +170,19 @@ function onWindowResize()
 function animate()
 {
     requestAnimationFrame(animate);
+    const scene = viewer.getScene();
 
     if (turntableEnabled)
     {
         turntableStep = (turntableStep + 1) % 360;
         var turntableAngle = turntableStep * (360.0 / turntableSteps) / 180.0 * Math.PI;
-        viewer.getScene()._scene.rotation.y = turntableAngle;
-        viewer.getScene().setUpdateTransforms();
+        scene._scene.rotation.y = turntableAngle;
+        scene.setUpdateTransforms();
     }
 
-    renderer.render(viewer.getScene().getScene(), viewer.getScene().getCamera());
-    viewer.getScene().updateTransforms();
+    scene.updateUniforms();
+    renderer.render(scene.getScene(), scene.getCamera());
+    scene.updateTransforms();
 
     if (captureRequested)
     {
