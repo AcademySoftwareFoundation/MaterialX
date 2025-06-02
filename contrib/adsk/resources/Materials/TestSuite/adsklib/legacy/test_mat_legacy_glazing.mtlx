@@ -2,7 +2,7 @@
 <materialx version="1.38" colorspace="lin_rec709">
 
   <legacy_glazing name="SR_legacy_glazing" type="surfaceshader" >
-    <input name="color" type="float" value="6" />
+    <input name="color" type="integer" value="6" />
     <input name="custom_color" type="color3" value="0.99,0,0" />
     <input name="test_sRGB" type="boolean" value="false" />
     <input name="reflectance" type="float" value="0.12" />

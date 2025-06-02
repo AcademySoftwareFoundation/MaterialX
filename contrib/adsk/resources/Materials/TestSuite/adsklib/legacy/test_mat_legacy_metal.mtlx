@@ -2,16 +2,16 @@
 <materialx version="1.38" colorspace="lin_rec709">
 
   <legacy_metal name="SR_legacy_metal" type="surfaceshader" >
-    <input name="type" type="float" value="3" />
+    <input name="type" type="integer" value="3" />
     <input name="custom_color" type="color3" value="0.5,0.5,0.95" />
-    <input name="finish" type="float" value="1" />
+    <input name="finish" type="integer" value="1" />
     <input name="custom_finish" type="float" value="0.5" />
     <input name="patina" type="float" value="0.5" />
     <input name="relief_enable" type="boolean" value="false" />
-    <input name="relief" type="float" value="0" />
+    <input name="relief" type="integer" value="0" />
     <!-- <input name="custom_relief" type="vector3"/> -->
     <input name="cutout_enable" type="boolean" value="true" />
-    <input name="cutout" type="float" value="4" />
+    <input name="cutout" type="integer" value="4" />
     <input name="cutout_size" type="float" value="0.06" />
     <input name="cutout_spacing" type="float" value="0.1" />
     <!-- <input name="custom_cutout" type="color3"/> -->

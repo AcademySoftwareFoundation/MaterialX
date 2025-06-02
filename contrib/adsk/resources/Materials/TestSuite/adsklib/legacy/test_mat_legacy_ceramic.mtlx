@@ -5,13 +5,13 @@
     <input name="color" type="color3" value="0.75,0.55,0.65"/>
     <input name="tint_enable" type="boolean" value="false" />
     <input name="tint_color" type="color3" value="0.5,0.5,0.95" />
-    <input name="type" type="float" value="0" />
-    <input name="finish" type="float" value="1" />
+    <input name="type" type="integer" value="0" />
+    <input name="finish" type="integer" value="1" />
     <input name="finish_bump_enable" type="boolean" value="false" />
-    <input name="finish_bump" type="float" value="0" />
-    <input name="custom_finish_normal" type="vector3" nodename="height_map3_ceramic" />
+    <input name="finish_bump" type="integer" value="0" />
+    <input name="normal_custom_finish" type="vector3" nodename="height_map3_ceramic" />
     <input name="relief_pattern_enable" type="boolean" value="false" />
-    <input name="relief_pattern_normal" type="vector3" nodename="height_map1_ceramic" />
+    <input name="normal_relief_pattern" type="vector3" nodename="height_map1_ceramic" />
     <output name="out" type="surfaceshader" />
   </legacy_ceramic>
   <surfacematerial name="M_legacy_ceramic" type="material">
