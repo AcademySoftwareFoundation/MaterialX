@@ -11,7 +11,6 @@
 #include <MaterialXGenShader/TypeDesc.h>
 #include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
-#include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
 
 #include <MaterialXGenOsl/Nodes/BlurNodeOsl.h>
 #include <MaterialXGenOsl/Nodes/MaterialNodeOsl.h>
@@ -38,7 +37,7 @@ OslShaderGenerator::OslShaderGenerator(TypeSystemPtr typeSystem) :
     registerImplementation("IM_blur_vector4_" + OslShaderGenerator::TARGET, BlurNodeOsl::create);
 
     // <!-- <surface> -->
-    registerImplementation("IM_surface_" + OslShaderGenerator::TARGET, ClosureSourceCodeNode::create);
+    registerImplementation("IM_surface_" + OslShaderGenerator::TARGET, SourceCodeNode::create);
 
     // <!-- <surfacematerial> -->
     registerImplementation("IM_surfacematerial_" + OslShaderGenerator::TARGET, MaterialNodeOsl::create);
