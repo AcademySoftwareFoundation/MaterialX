@@ -340,7 +340,7 @@ class MX_CORE_API NodeGraph : public GraphElement
     /// @name Name
     /// @{
 
-    /// Set the name string of this Node, propagating the updated name to all
+    /// Set the name string of this NodeGraph, propagating the updated name to all
     /// downstream ports.
     /// @throws Exception if an element at the same scope already possesses the
     ///     given name.
