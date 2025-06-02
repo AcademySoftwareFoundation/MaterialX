@@ -61,12 +61,10 @@ class MX_CORE_API Node : public InterfaceElement
     /// @name Name
     /// @{
 
-    /// Set the element's name string. The name of a MaterialX element must be
-    /// unique among all elements at the same scope. This version
-    /// automatically propagates the new name to all downstream ports
-    /// after the node's own name has been updated.
+    /// Set the name string of this Node, propagating the updated name to all
+    /// downstream ports.
     /// @throws Exception if an element at the same scope already possesses the
-    ///    given name.
+    ///     given name.
     void setNameGlobal(const std::string& name);
 
     /// @}
@@ -342,12 +340,10 @@ class MX_CORE_API NodeGraph : public GraphElement
     /// @name Name
     /// @{
 
-    /// Set the element's name string. The name of a MaterialX element must be
-    /// unique among all elements at the same scope. This version
-    /// automatically propagates the new name to all downstream ports
-    /// after the node's own name has been updated.
+    /// Set the name string of this Node, propagating the updated name to all
+    /// downstream ports.
     /// @throws Exception if an element at the same scope already possesses the
-    ///    given name.
+    ///     given name.
     void setNameGlobal(const std::string& name);
 
     /// @}
