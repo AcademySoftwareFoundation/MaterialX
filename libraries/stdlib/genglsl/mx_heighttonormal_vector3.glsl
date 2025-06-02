@@ -22,7 +22,9 @@ void mx_heighttonormal_vector3(float height, float scale, vec2 texcoord, out vec
     }
 
     // Scale the results for parity with traditional Sobel filtering.
-    dHdT /= 16.0;
+    // https://nrsyed.com/2018/02/18/edge-detection-in-images-how-to-derive-the-sobel-operator/
+    const float SOBEL_SCALE_FACTOR = 1.0 / 16.0;
+    dHdT *= SOBEL_SCALE_FACTOR;
 
     // Convert the gradient to a normal and encode for storage.
     vec3 n = normalize(vec3(dHdT.x, dHdT.y, 1.0));
