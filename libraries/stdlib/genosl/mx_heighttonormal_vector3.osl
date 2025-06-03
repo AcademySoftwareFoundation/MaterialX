@@ -13,7 +13,7 @@ void mx_heighttonormal_vector3(float height, float scale, vector2 texcoord, outp
     float det = dUdS.x * dVdS.y - dUdS.y * dVdS.x;
     if (abs(det) > M_FLOAT_EPS)
     {
-        vector4 invJacobian = vector4(-dVdS.y, dUdS.y, dVdS.x, -dUdS.x) / det;
+        vector4 invJacobian = vector4(-dVdS.y, dVdS.x, dUdS.y, -dUdS.x) / det;
         dHdT.x = dot(vector2(invJacobian.x, invJacobian.y), dHdS);
         dHdT.y = dot(vector2(invJacobian.z, invJacobian.w), dHdS);
     }
