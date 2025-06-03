@@ -1446,6 +1446,40 @@ export class Material
                             break;
 
                         case 'color4':
+                            uniformToUpdate = material.uniforms[name];
+                            if (uniformToUpdate && value != null)
+                            {
+                                var dummy =
+                                {
+                                    color: 0xFF0000
+                                };
+                                // Extract RGB from the color4 value
+                                const color3 = new THREE.Color();
+                                color3.fromArray(material.uniforms[name].value);
+                                dummy.color = color3.getHex();
+                                let alphaValue = material.uniforms[name].value[3]; // Get alpha component
+                                
+                                // Add the RGB color picker as one item
+                                let colorPicker = currentFolder.addColor(dummy, 'color').name(path + '.rgb')
+                                    .onChange(function (value)
+                                    {
+                                        const color3 = new THREE.Color(value);
+                                        // Update RGB while preserving alpha
+                                        material.uniforms[name].value[0] = color3.r;
+                                        material.uniforms[name].value[1] = color3.g;
+                                        material.uniforms[name].value[2] = color3.b;
+                                    });
+                                colorPicker.domElement.classList.add('peditoritem');
+                                
+                                // Add the alpha slider as a separate item at the same level
+                                var alphaObj = { value: alphaValue };
+                                let alphaSlider = currentFolder.add(alphaObj, 'value', 0, 1, 0.01).name(path + '.alpha')
+                                    .onChange(function (value)
+                                    {
+                                        material.uniforms[name].value[3] = value;
+                                    });
+                                alphaSlider.domElement.classList.add('peditoritem');
+                            }
                             break;
 
                         case 'matrix33':
