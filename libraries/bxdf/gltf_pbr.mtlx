@@ -106,29 +106,29 @@
 
     <!-- Roughness -->
 
-    <combine2 name="roughness_uv" type="vector2" nodedef="ND_combine2_vector2">
+    <combine2 name="roughness_uv" type="vector2">
       <input name="in1" type="float" nodename="clamped_at" />
       <input name="in2" type="float" nodename="clamped_ab" />
     </combine2>
-    <clamp name="clamped_at" type="float" nodedef="ND_clamp_float">
+    <clamp name="clamped_at" type="float">
       <input name="in" type="float" nodename="at" />
       <input name="low" type="float" value="0.00001" />
       <input name="high" type="float" value="1.0" />
     </clamp>
-    <clamp name="clamped_ab" type="float" nodedef="ND_clamp_float">
+    <clamp name="clamped_ab" type="float">
       <input name="in" type="float" nodename="alpha_roughness" />
       <input name="low" type="float" value="0.00001" />
       <input name="high" type="float" value="1.0" />
     </clamp>
-    <multiply name="alpha_roughness" type="float" nodedef="ND_multiply_float">
+    <multiply name="alpha_roughness" type="float">
       <input name="in1" type="float" interfacename="roughness" />
       <input name="in2" type="float" interfacename="roughness" />
     </multiply>
-    <multiply name="strength_2" type="float" nodedef="ND_multiply_float">
+    <multiply name="strength_2" type="float">
       <input name="in1" type="float" interfacename="anisotropy_strength" />
       <input name="in2" type="float" interfacename="anisotropy_strength" />
     </multiply>
-    <mix name="at" type="float" nodedef="ND_mix_float">
+    <mix name="at" type="float">
       <input name="fg" type="float" value="1" />
       <input name="bg" type="float" nodename="alpha_roughness" />
       <input name="mix" type="float" nodename="strength_2" />
@@ -147,7 +147,7 @@
       <input name="ior" type="float" interfacename="ior" />
       <input name="roughness" type="vector2" nodename="roughness_uv" />
       <input name="normal" type="vector3" interfacename="normal" />
-      <input name="tangent" type="vector3" nodename="picked_tangent" />
+      <input name="tangent" type="vector3" nodename="selected_tangent" />
       <input name="scatter_mode" type="string" value="T" />
     </dielectric_bsdf>
 
@@ -156,7 +156,7 @@
       <input name="color90" type="color3" nodename="dielectric_f90" />
       <input name="roughness" type="vector2" nodename="roughness_uv" />
       <input name="normal" type="vector3" interfacename="normal" />
-      <input name="tangent" type="vector3" nodename="picked_tangent" />
+      <input name="tangent" type="vector3" nodename="selected_tangent" />
       <input name="scatter_mode" type="string" value="R" />
     </generalized_schlick_bsdf>
 
@@ -179,7 +179,7 @@
       <input name="color90" type="color3" nodename="dielectric_f90" />
       <input name="roughness" type="vector2" nodename="roughness_uv" />
       <input name="normal" type="vector3" interfacename="normal" />
-      <input name="tangent" type="vector3" nodename="picked_tangent" />
+      <input name="tangent" type="vector3" nodename="selected_tangent" />
       <input name="scatter_mode" type="string" value="R" />
       <input name="thinfilm_thickness" type="float" interfacename="iridescence_thickness" />
       <input name="thinfilm_ior" type="float" interfacename="iridescence_ior" />
@@ -204,7 +204,7 @@
       <input name="color90" type="color3" value="1, 1, 1" />
       <input name="roughness" type="vector2" nodename="roughness_uv" />
       <input name="normal" type="vector3" interfacename="normal" />
-      <input name="tangent" type="vector3" nodename="picked_tangent" />
+      <input name="tangent" type="vector3" nodename="selected_tangent" />
     </generalized_schlick_bsdf>
 
     <!-- Thin-film + Metal
@@ -215,7 +215,7 @@
       <input name="color90" type="color3" value="1, 1, 1" />
       <input name="roughness" type="vector2" nodename="roughness_uv" />
       <input name="normal" type="vector3" interfacename="normal" />
-      <input name="tangent" type="vector3" nodename="picked_tangent" />
+      <input name="tangent" type="vector3" nodename="selected_tangent" />
       <input name="thinfilm_thickness" type="float" interfacename="iridescence_thickness" />
       <input name="thinfilm_ior" type="float" interfacename="iridescence_ior" />
     </generalized_schlick_bsdf>
@@ -338,22 +338,23 @@
     </ifequal>
 
     <!-- Anisotropy -->
-    <multiply name="rad_2_deg" type="float" nodedef="ND_multiply_float">
+
+    <multiply name="rad_2_deg" type="float">
       <input name="in1" type="float" interfacename="anisotropy_rotation" />
       <input name="in2" type="float" value="-57.295780" />
     </multiply>
-    <rotate3d name="rotate_tangent" type="vector3" nodedef="ND_rotate3d_vector3">
+    <rotate3d name="rotate_tangent" type="vector3">
       <input name="in" type="vector3" interfacename="tangent" />
       <input name="amount" type="float" nodename="rad_2_deg" />
       <input name="axis" type="vector3" interfacename="normal" />
     </rotate3d>
-    <normalize name="normalize_tangent" type="vector3" nodedef="ND_normalize_vector3">
+    <normalize name="normalize_tangent" type="vector3">
       <input name="in" type="vector3" nodename="rotate_tangent" />
     </normalize>
-    <absval name="abs_anisotropy_rotation" type="float" nodedef="ND_absval_float">
+    <absval name="abs_anisotropy_rotation" type="float">
       <input name="in" type="float" interfacename="anisotropy_rotation"/>
     </absval>
-    <ifgreater name="picked_tangent" type="vector3" nodedef="ND_ifgreater_vector3">
+    <ifgreater name="selected_tangent" type="vector3">
       <input name="value1" type="float" nodename="abs_anisotropy_rotation" />
       <input name="value2" type="float" value="0.0" />
       <input name="in1" type="vector3" nodename="normalize_tangent" />
@@ -776,36 +777,36 @@
       <input name="vaddressmode" type="string" uniform="true" value="periodic" />
       <input name="filtertype" type="string" uniform="true" interfacename="filtertype" />
     </gltf_image>
-    <separate3 name="separate3" type="multioutput" nodedef="ND_separate3_vector3">
+    <separate3 name="separate3" type="multioutput">
       <input name="in" type="vector3" nodename="gltf_anisotropy_image_src" />
     </separate3>
-    <multiply name="strength_multiply" type="float" nodedef="ND_multiply_float">
+    <multiply name="strength_multiply" type="float">
       <input name="in1" type="float" interfacename="anisotropy_strength" />
       <input name="in2" type="float" nodename="separate3" output="outz" />
     </multiply>
-    <atan2 name="direction_to_rotation" type="float" nodedef="ND_atan2_float">
+    <atan2 name="direction_to_rotation" type="float">
       <input name="iny" type="float" nodename="subtract_y" />
       <input name="inx" type="float" nodename="subtract_x" />
     </atan2>
-    <add name="rotation_add" type="float" nodedef="ND_add_float">
+    <add name="rotation_add" type="float">
       <input name="in1" type="float" interfacename="anisotropy_rotation" />
       <input name="in2" type="float" nodename="direction_to_rotation" />
     </add>
-    <multiply name="multiply_x" type="float" nodedef="ND_multiply_float">
+    <multiply name="multiply_x" type="float">
       <input name="in1" type="float" nodename="separate3" output="outx" />
-      <input name="in2" type="float" value="2.000000" />
+      <input name="in2" type="float" value="2.0" />
     </multiply>
-    <subtract name="subtract_x" type="float" nodedef="ND_subtract_float">
+    <subtract name="subtract_x" type="float">
       <input name="in1" type="float" nodename="multiply_x" />
-      <input name="in2" type="float" value="1.000000" />
+      <input name="in2" type="float" value="1.0" />
     </subtract>
-    <subtract name="subtract_y" type="float" nodedef="ND_subtract_float">
+    <subtract name="subtract_y" type="float">
       <input name="in1" type="float" nodename="multiply_y" />
-      <input name="in2" type="float" value="1.000000" />
+      <input name="in2" type="float" value="1.0" />
     </subtract>
-    <multiply name="multiply_y" type="float" nodedef="ND_multiply_float">
+    <multiply name="multiply_y" type="float">
       <input name="in1" type="float" nodename="separate3" output="outy" />
-      <input name="in2" type="float" value="2.000000" />
+      <input name="in2" type="float" value="2.0" />
     </multiply>
     <output name="anisotropy_strength_out" type="float" nodename="strength_multiply" />
     <output name="anisotropy_rotation_out" type="float" nodename="rotation_add" />
