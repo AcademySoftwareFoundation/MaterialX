@@ -958,19 +958,118 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         mx::ValuePtr val = input->getValue();
         if (val && val->isA<int>())
         {
-            int prev, temp;
-            prev = temp = val->asA<int>();
-            int min = minVal ? minVal->asA<int>() : 0;
-            int max = maxVal ? maxVal->asA<int>() : 100;
-            float speed = (max - min) / 100.0f;
-            ImGui::DragInt("##hidelabel", &temp, speed, min, max);
+            // Check if this is an enumeration
+            const std::vector<mx::ValuePtr>& enumValues = uiProperties.enumerationValues;
+            const std::vector<std::string>& enumeration = uiProperties.enumeration;
+            bool haveDrawnComboBox = false;
 
-            // Set input value and update materials if different from previous value
-            if (prev != temp)
+            if (!enumeration.empty() || !enumValues.empty())
             {
-                addNodeInput(_currUiNode, input);
-                input->setValue(temp, input->getType());
-                updateMaterials(input, input->getValue());
+                // This is an enum, we need to display a combo box
+                const size_t INVALID_INDEX = std::numeric_limits<size_t>::max();
+                
+                // Find the index of the current value in the enumeration or enumValues
+                auto indexInEnumeration = [&val, &enumValues, &enumeration]() -> size_t
+                {
+                    size_t index = 0;
+                    for (auto& enumValue : enumValues)
+                    {
+                        if (val->getValueString() == enumValue->getValueString())
+                        {
+                            return index;
+                        }
+                        index++;
+                    }
+                    index = 0;
+                    for (auto& enumName : enumeration)
+                    {
+                        if (val->getValueString() == enumName)
+                        {
+                            return index;
+                        }
+                        index++;
+                    }
+                    return INVALID_INDEX;
+                };
+
+                const size_t valueIndex = indexInEnumeration();
+                
+                // Prepare items for the combo box
+                std::vector<std::string> items;
+                if (!enumeration.empty())
+                {
+                    items = enumeration;
+                }
+                else
+                {
+                    // Use enum values as items
+                    for (auto& enumValue : enumValues)
+                    {
+                        items.push_back(enumValue->getValueString());
+                    }
+                }
+
+                // Ensure we have items before creating the combo
+                if (!items.empty())
+                {
+                    int currentItem = (valueIndex != INVALID_INDEX) ? static_cast<int>(valueIndex) : 0;
+                    int selectedItem = currentItem;
+
+                    // Create and show the combo box
+                    if (ImGui::Combo("##enum_combo", &selectedItem, 
+                        [](void* data, int idx, const char** out_text) -> bool {
+                            auto& items = *static_cast<std::vector<std::string>*>(data);
+                            if (idx >= 0 && idx < static_cast<int>(items.size())) {
+                                *out_text = items[idx].c_str();
+                                return true;
+                            }
+                            return false;
+                        }, &items, static_cast<int>(items.size())))
+                    {
+                        // Value changed
+                        if (selectedItem >= 0)
+                        {
+                            addNodeInput(_currUiNode, input);
+                            
+                            if (static_cast<size_t>(selectedItem) < enumValues.size())
+                            {
+                                // Extract the integer value from the ValuePtr and set it
+                                if (enumValues[selectedItem]->isA<int>())
+                                {
+                                    int intValue = enumValues[selectedItem]->asA<int>();
+                                    input->setValue(intValue, input->getType());
+                                    updateMaterials(input, input->getValue());
+                                }
+                            }
+                            else if (static_cast<size_t>(selectedItem) < enumeration.size())
+                            {
+                                // Set the integer value directly
+                                input->setValue(selectedItem, input->getType());
+                                updateMaterials(input, input->getValue());
+                            }
+                        }
+                    }
+                    haveDrawnComboBox = true;
+                }
+            }
+
+            if (!haveDrawnComboBox)
+            {
+                // Regular integer input
+                int prev, temp;
+                prev = temp = val->asA<int>();
+                int min = minVal ? minVal->asA<int>() : 0;
+                int max = maxVal ? maxVal->asA<int>() : 100;
+                float speed = (max - min) / 100.0f;
+                ImGui::DragInt("##hidelabel", &temp, speed, min, max);
+
+                // Set input value and update materials if different from previous value
+                if (prev != temp)
+                {
+                    addNodeInput(_currUiNode, input);
+                    input->setValue(temp, input->getType());
+                    updateMaterials(input, input->getValue());
+                }
             }
         }
     }
