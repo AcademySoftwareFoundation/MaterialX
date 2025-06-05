@@ -4363,7 +4363,7 @@ void Graph::drawGraph(ImVec2 mousePos)
         // or if the shortcut for cut is used
         if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootWindow))
         {
-            if (ImGui::IsKeyReleased(ImGuiKey_Delete) || _isCut)
+            if (ImGui::IsKeyReleased(ImGuiKey_Delete) || ImGui::IsKeyReleased(ImGuiKey_Backspace) || _isCut)
             {
                 if (selectedNodes.size() > 0)
                 {
@@ -4387,6 +4387,27 @@ void Graph::drawGraph(ImVec2 mousePos)
                             {
                                 _popup = true;
                             }
+                        }
+                    }
+                    linkGraph();
+                }
+                else if (selectedLinks.size() > 0)
+                {
+                    _frameCount = ImGui::GetFrameCount();
+                    _renderer->setMaterialCompilation(true);
+                    for (ed::LinkId id : selectedLinks)
+                    {
+                        if (int(id.Get()) > 0 && !readOnly())
+                        {
+                            deleteLink(id);
+                            _delete = true;
+                            ed::DeselectLink(id);
+                            ed::DeleteLink(id);
+                            _currUiNode = nullptr;
+                        }
+                        else if (readOnly())
+                        {
+                            _popup = true;
                         }
                     }
                     linkGraph();
