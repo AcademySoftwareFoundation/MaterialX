@@ -1,8 +1,46 @@
 void mx_heighttonormal_vector3(float in, float scale, output vector result)
 {
-    float dx = -Dx(in);
-    float dy = Dy(in);
-    float dz = max(scale, 1.0E-05) * sqrt(max(1.0 - dx*dx - dy*dy, 1.0E-05));
-    vector dir = normalize(vector(dx, dy, dz));
-    result = dir * vector(0.5) + vector(0.5);
+    // these should probably be inputs to the node (note propose n -> N if moved to node input)
+    normal n = N;
+    vector T = dPdu;
+    vector B = dPdv;
+
+    // calculate normal in world space.
+    normal NN = normalize(n);
+    result = normalize(calculatenormal(P + in * scale * NN));
+
+    // create orthonormal basis
+    vector TT = normalize(dPdu);
+    vector BB = normalize(dPdv);
+    TT = normalize(TT - dot(TT, NN) * NN);
+    BB = normalize(B - dot(BB, NN) * NN - dot(BB, TT) * TT);
+
+    // convert normal to tangent space
+    result = vector(dot(TT, result), dot(BB, result), dot(NN, result));
+
+    // remap to 0-1 space
+    result = (result * 0.5) + 0.5;
 }
+
+/*
+This version of the function could be used if we add the additional inputs to the node.
+
+void mx_heighttonormal_vector3(float in, float scale, vector N, vector T, vector B, output vector result)
+{
+    // calculate normal in world space.
+    normal NN = normalize(N);
+    result = normalize(calculatenormal(P + in * scale * NN));
+
+    // create orthonormal basis
+    vector TT = normalize(dPdu);
+    vector BB = normalize(dPdv);
+    TT = normalize(TT - dot(TT, NN) * NN);
+    BB = normalize(B - dot(BB, NN) * NN - dot(BB, TT) * TT);
+
+    // convert normal to tangent space
+    result = vector(dot(TT, result), dot(BB, result), dot(NN, result));
+
+    // remap to 0-1 space
+    result = (result * 0.5) + 0.5;
+}
+*/
