@@ -27,8 +27,6 @@
 #include <MaterialXGenShader/Nodes/HwBitangentNode.h>
 #include <MaterialXGenShader/Nodes/HwFrameNode.h>
 #include <MaterialXGenShader/Nodes/HwViewDirectionNode.h>
-#include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
-#include <MaterialXGenShader/Nodes/ClosureCompoundNode.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -741,10 +739,6 @@ ShaderNodeImplPtr GlslShaderGenerator::getImplementation(const NodeDef& nodedef,
         {
             impl = LightCompoundNodeGlsl::create();
         }
-        else if (outputType.isClosure())
-        {
-            impl = ClosureCompoundNode::create();
-        }
         else
         {
             impl = CompoundNode::create();
@@ -763,15 +757,7 @@ ShaderNodeImplPtr GlslShaderGenerator::getImplementation(const NodeDef& nodedef,
         }
         if (!impl)
         {
-            // Fall back to source code implementation.
-            if (outputType.isClosure())
-            {
-                impl = ClosureSourceCodeNode::create();
-            }
-            else
-            {
-                impl = SourceCodeNode::create();
-            }
+            impl = SourceCodeNode::create();
         }
     }
     if (!impl)
@@ -785,11 +771,6 @@ ShaderNodeImplPtr GlslShaderGenerator::getImplementation(const NodeDef& nodedef,
     context.addNodeImplementation(name, impl);
 
     return impl;
-}
-
-const string& GlslImplementation::getTarget() const
-{
-    return GlslShaderGenerator::TARGET;
 }
 
 MATERIALX_NAMESPACE_END
