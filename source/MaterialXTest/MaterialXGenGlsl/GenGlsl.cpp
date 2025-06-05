@@ -18,7 +18,8 @@ namespace mx = MaterialX;
 
 TEST_CASE("GenShader: GLSL Syntax Check", "[genglsl]")
 {
-    mx::SyntaxPtr syntax = mx::GlslSyntax::create();
+    mx::TypeSystemPtr ts = mx::TypeSystem::create();
+    mx::SyntaxPtr syntax = mx::GlslSyntax::create(ts);
 
     REQUIRE(syntax->getTypeName(mx::Type::FLOAT) == "float");
     REQUIRE(syntax->getTypeName(mx::Type::COLOR3) == "vec3");
@@ -81,7 +82,7 @@ TEST_CASE("GenShader: GLSL Implementation Check", "[genglsl]")
 
     mx::StringSet generatorSkipNodeTypes;
     mx::StringSet generatorSkipNodeDefs;
-    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 30);
+    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs);
 }
 
 TEST_CASE("GenShader: GLSL Unique Names", "[genglsl]")
@@ -105,6 +106,7 @@ TEST_CASE("GenShader: GLSL Light Shaders", "[genglsl]")
 
     mx::GenContext context(mx::GlslShaderGenerator::create());
     context.registerSourceCodeSearchPath(searchPath);
+    context.getShaderGenerator().registerTypeDefs(doc);
 
     mx::HwShaderGenerator::bindLightShader(*pointLightShader, 42, context);
     REQUIRE_THROWS(mx::HwShaderGenerator::bindLightShader(*spotLightShader, 42, context));

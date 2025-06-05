@@ -158,7 +158,7 @@ class MX_RENDER_API ImageLoader
 /// @class ImageHandler
 /// Base image handler class. Keeps track of images which are loaded from
 /// disk via supplied ImageLoader. Derived classes are responsible for
-/// determinining how to perform the logic for "binding" of these resources
+/// determining how to perform the logic for "binding" of these resources
 /// for a given target (such as a given shading language).
 class MX_RENDER_API ImageHandler
 {

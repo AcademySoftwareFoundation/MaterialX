@@ -46,13 +46,12 @@ bool generateCode(mx::GenContext& context, const std::string& shaderName, mx::Ty
 // Check that implementations exist for all nodedefs supported per generator
 void checkImplementations(mx::GenContext& context,
                             const mx::StringSet& generatorSkipNodeTypes,
-                            const mx::StringSet& generatorSkipNodeDefs,
-                            unsigned int expectedSkipCount);
+                            const mx::StringSet& generatorSkipNodeDefs);
 
 // Utility test to  check unique name generation on a shader generator
 void testUniqueNames(mx::GenContext& context, const std::string& stage);
 
-// Utility to perfrom simple performance test to load, validate and generate shaders
+// Utility to perform simple performance test to load, validate and generate shaders
 void shaderGenPerformanceTest(mx::GenContext& context);
 
 //
@@ -89,22 +88,10 @@ class TestSuiteOptions
     // - 1 = run reduced only.
     int shaderInterfaces = 2;
 
-    // Validate element before attempting to generate code. Default is false.
-    bool validateElementToRender = false;
-
-    // Perform source code compilation validation test
-    bool compileCode = true;
-
-    // Perform rendering validation test
-    bool renderImages = true;
-
     // Render size
     mx::Vector2 renderSize = { 512, 512 };
 
-    // Perform saving of image.
-    bool saveImages = true;
-
-    // Set this to be true if it is desired to dump out uniform and attribut information to the logging file.
+    // Set this to be true if it is desired to dump out uniform and attribute information to the logging file.
     bool dumpUniformsAndAttributes = true;
 
     // Geometry file to be rendered
@@ -215,7 +202,7 @@ class ShaderGeneratorTester
     void validate(const mx::GenOptions& generateOptions, const std::string& optionsFilePath);
 
     // Allow the tester to alter the document, e.g., by flattening file names.
-    virtual void preprocessDocument(mx::DocumentPtr doc) {};
+    virtual void preprocessDocument(mx::DocumentPtr) {};
 
     // Compile generated source code. Default implementation does nothing.
     virtual void compileSource(const std::vector<mx::FilePath>& /*sourceCodePaths*/) {};

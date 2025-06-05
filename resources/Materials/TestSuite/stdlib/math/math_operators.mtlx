@@ -399,6 +399,42 @@
     </modulo>
     <output name="out" type="vector4" nodename="modulo1" />
   </nodegraph>
+  <nodegraph name="fract_float">
+    <fract name="fract1" type="float">
+      <input name="in" type="float" value="1.5000" />
+    </fract>
+    <output name="out" type="float" nodename="fract1" />
+  </nodegraph>
+  <nodegraph name="fract_color3">
+    <fract name="fract1" type="color3">
+      <input name="in" type="color3" value="1.5000, 1.0000, 0.0" />
+    </fract>
+    <output name="out" type="color3" nodename="fract1" />
+  </nodegraph>
+  <nodegraph name="fract_color4">
+    <fract name="fract1" type="color4">
+      <input name="in" type="color4" value="1.5000, 1.0000, 0.0, 0.5000" />
+    </fract>
+    <output name="out" type="color4" nodename="fract1" />
+  </nodegraph>
+  <nodegraph name="fract_vector2">
+    <fract name="fract1" type="vector2">
+      <input name="in" type="vector2" value="1.5000, 1.0000" />
+    </fract>
+    <output name="out" type="vector2" nodename="fract1" />
+  </nodegraph>
+  <nodegraph name="fract_vector3">
+    <fract name="fract1" type="vector3">
+      <input name="in" type="vector3" value="1.5000, 1.0000, 0.0" />
+    </fract>
+    <output name="out" type="vector3" nodename="fract1" />
+  </nodegraph>
+  <nodegraph name="fract_vector4">
+    <fract name="fract1" type="vector4">
+      <input name="in" type="vector4" value="1.5000, 1.0000, 0.0, 0.2500" />
+    </fract>
+    <output name="out" type="vector4" nodename="fract1" />
+  </nodegraph>
   <nodegraph name="power_float">
     <power name="power1" type="float">
       <input name="in1" type="float" value="0.5000" />
@@ -643,8 +679,8 @@
   </nodegraph>
   <nodegraph name="multiply_matrix33">
     <multiply name="multiply1" type="matrix33">
-      <input name="in1" type="matrix33" value="1.0, 0.0, 0.0,  0.0, 1.0, 0.0,  0.0, 0.0, 1.0" />
-      <input name="in2" type="matrix33" value="1.0, 0.0, 0.0,  0.0, 1.0, 0.0,  0.0, 0.0, 1.0" />
+      <input name="in1" type="matrix33" value="0.0, 1.5, 0.0,  0.5, 0.0, 0.0,  0.0, 0.0, 1.0" />
+      <input name="in2" type="matrix33" value="0.0, 1.0, 0.0,  1.0, 0.0, 0.0,  0.0, 0.0, 1.0" />
     </multiply>
     <transformmatrix name="transformmatrix1" type="vector3">
       <input name="in" type="vector3" value="0.5, 0.5, 0.5" />
@@ -654,8 +690,8 @@
   </nodegraph>
   <nodegraph name="multiply_matrix44">
     <multiply name="multiply1" type="matrix44">
-      <input name="in1" type="matrix44" value="1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0,  0.0, 0.0, 0.0, 1.0" />
-      <input name="in2" type="matrix44" value="1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0,  0.0, 0.0, 0.0, 1.0" />
+      <input name="in1" type="matrix44" value="0.0, 1.5, 0.0, 0.0,  0.5, 0.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0,  0.0, 0.0, 0.0, 1.0" />
+      <input name="in2" type="matrix44" value="0.0, 1.0, 0.0, 0.0,  1.0, 0.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0,  0.0, 0.0, 0.0, 1.0" />
     </multiply>
     <transformmatrix name="transformmatrix1" type="vector4">
       <input name="in" type="vector4" value="0.5, 0.5, 0.5, 1.0" />
@@ -665,8 +701,8 @@
   </nodegraph>
   <nodegraph name="divide_matrix33">
     <divide name="divide1" type="matrix33">
-      <input name="in1" type="matrix33" value="1.0, 0.0, 0.0,  0.0, 1.0, 0.0,  0.0, 0.0, 1.0" />
-      <input name="in2" type="matrix33" value="1.0, 1.0, 1.0,  1.0, 1.0, 1.0,  1.0, 1.0, 1.0" />
+      <input name="in1" type="matrix33" value="1.5, 1.5, 0.0,  0.0, 1.5, 1.5,  0.0, 0.0, 1.0" />
+      <input name="in2" type="matrix33" value="1.0, 1.0, 0.0,  0.0, 1.0, 1.0,  0.0, 0.0, 1.0" />
     </divide>
     <transformmatrix name="transformmatrix1" type="vector3">
       <input name="in" type="vector3" value="0.5, 0.5, 0.5" />
@@ -676,8 +712,8 @@
   </nodegraph>
   <nodegraph name="divide_matrix44">
     <divide name="divide1" type="matrix44">
-      <input name="in1" type="matrix44" value="1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0,  0.0, 0.0, 0.0, 1.0" />
-      <input name="in2" type="matrix44" value="1.0, 1.0, 1.0, 1.0,  1.0, 1.0, 1.0, 1.0,  1.0, 1.0, 1.0, 1.0,  1.0, 1.0, 1.0, 1.0" />
+      <input name="in1" type="matrix44" value="1.5, 1.5, 0.0, 0.0,  0.0, 1.5, 1.5, 0.0,  0.0, 0.0, 1.5, 1.5,  0.0, 0.0, 0.0, 1.0" />
+      <input name="in2" type="matrix44" value="1.0, 1.0, 0.0, 0.0,  0.0, 1.0, 1.0, 0.0,  0.0, 0.0, 1.0, 1.0,  0.0, 0.0, 0.0, 1.0" />
     </divide>
     <transformmatrix name="transformmatrix1" type="vector4">
       <input name="in" type="vector4" value="0.5, 0.5, 0.5, 1.0" />

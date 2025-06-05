@@ -41,7 +41,8 @@ void BlurNode::computeSampleOffsetStrings(const string& sampleSizeName, const st
     {
         for (int col = -w; col <= w; col++)
         {
-            offsetStrings.push_back(" + " + sampleSizeName + " * " + offsetTypeString + "(" + std::to_string(float(col)) + "," + std::to_string(float(row)) + ")");
+            offsetStrings.emplace_back(" + " + sampleSizeName + " * " + offsetTypeString +
+                                       "(" + std::to_string(float(col)) + "," + std::to_string(float(row)) + ")");
         }
     }
 }

@@ -66,9 +66,6 @@ void MslProgram::setStages(ShaderPtr shader)
         const ShaderStage& stage = shader->getStage(i);
         addStage(stage.getName(), stage.getSourceCode());
     }
-
-    // A stage change invalidates any cached parsed inputs
-    clearInputLists();
 }
 
 void MslProgram::addStage(const string& stage, const string& sourceCode)
@@ -301,6 +298,8 @@ id<MTLRenderPipelineState> MslProgram::build(id<MTLDevice> device, MetalFramebuf
         throw ExceptionRenderError(errorType, errors);
     }
 
+    _attributeListComplete = false;
+
     // If we encountered any errors while trying to create return list
     // of all errors. That is we collect all errors per stage plus any
     // errors during linking and throw one exception for them all so that
@@ -345,7 +344,6 @@ void MslProgram::prepareUsedResources(id<MTLRenderCommandEncoder> renderCmdEncod
 
     // Bind based on inputs found
     bindViewInformation(cam);
-    bindTimeAndFrame();
     bindLighting(lightHandler, imageHandler);
     bindTextures(renderCmdEncoder, lightHandler, imageHandler);
     bindUniformBuffers(renderCmdEncoder, lightHandler, cam);
@@ -1094,17 +1092,16 @@ const MslProgram::InputMap& MslProgram::updateUniformsList()
                         }
                         else
                         {
-                            auto structTypeDesc = StructTypeDesc::get(variableTypeDesc.getStructIndex());
                             auto aggregateValue = std::static_pointer_cast<const AggregateValue>(variableValue);
 
-                            const auto& members = structTypeDesc.getMembers();
-                            for (size_t i = 0, n = members.size(); i < n; ++i)
+                            const auto& members = variableTypeDesc.getStructMembers();
+                            for (size_t i = 0, n = members->size(); i < n; ++i)
                             {
-                                const auto& structMember = members[i];
-                                auto memberVariableName = variableName+"."+structMember._name;
+                                const auto& structMember = (*members)[i];
+                                auto memberVariableName = variableName + "." + structMember.getName();
                                 auto memberVariableValue = aggregateValue->getMemberValue(i);
 
-                                populateUniformInput_ref(structMember._typeDesc, memberVariableName, memberVariableValue, populateUniformInput_ref);
+                                populateUniformInput_ref(structMember.getType(), memberVariableName, memberVariableValue, populateUniformInput_ref);
                             }
                         }
                     };
@@ -1519,6 +1516,11 @@ const MslProgram::InputMap& MslProgram::updateAttributesList()
         throw ExceptionRenderError(errorType, errors);
     }
 
+    if (_attributeListComplete)
+    {
+        return _attributeList;
+    }
+
     if (_shader)
     {
         const ShaderStage& vs = _shader->getStage(Stage::VERTEX);
@@ -1559,6 +1561,8 @@ const MslProgram::InputMap& MslProgram::updateAttributesList()
                 }
             }
         }
+
+        _attributeListComplete = true;
 
         // Throw an error if any type mismatches were found
         if (uniformTypeMismatchFound)

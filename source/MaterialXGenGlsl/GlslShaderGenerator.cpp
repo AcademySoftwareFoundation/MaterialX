@@ -6,20 +6,19 @@
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
 #include <MaterialXGenGlsl/GlslSyntax.h>
-#include <MaterialXGenGlsl/Nodes/GeomColorNodeGlsl.h>
-#include <MaterialXGenGlsl/Nodes/GeomPropValueNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/SurfaceNodeGlsl.h>
-#include <MaterialXGenGlsl/Nodes/UnlitSurfaceNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/LightNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/LightCompoundNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/LightShaderNodeGlsl.h>
-#include <MaterialXGenGlsl/Nodes/HeightToNormalNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/LightSamplerNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/NumLightsNodeGlsl.h>
-#include <MaterialXGenGlsl/Nodes/BlurNodeGlsl.h>
 
 #include <MaterialXGenShader/Nodes/MaterialNode.h>
+#include <MaterialXGenShader/Nodes/HwBlurNode.h>
 #include <MaterialXGenShader/Nodes/HwImageNode.h>
+#include <MaterialXGenShader/Nodes/HwGeomColorNode.h>
+#include <MaterialXGenShader/Nodes/HwGeomPropValueNode.h>
+#include <MaterialXGenShader/Nodes/HwHeightToNormalNode.h>
 #include <MaterialXGenShader/Nodes/HwTexCoordNode.h>
 #include <MaterialXGenShader/Nodes/HwTransformNode.h>
 #include <MaterialXGenShader/Nodes/HwPositionNode.h>
@@ -27,26 +26,20 @@
 #include <MaterialXGenShader/Nodes/HwTangentNode.h>
 #include <MaterialXGenShader/Nodes/HwBitangentNode.h>
 #include <MaterialXGenShader/Nodes/HwFrameNode.h>
-#include <MaterialXGenShader/Nodes/HwTimeNode.h>
 #include <MaterialXGenShader/Nodes/HwViewDirectionNode.h>
-#include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
-#include <MaterialXGenShader/Nodes/ClosureCompoundNode.h>
-#include <MaterialXGenShader/Nodes/ClosureLayerNode.h>
-#include <MaterialXGenShader/Nodes/ClosureMixNode.h>
-#include <MaterialXGenShader/Nodes/ClosureAddNode.h>
-#include <MaterialXGenShader/Nodes/ClosureMultiplyNode.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
 const string GlslShaderGenerator::TARGET = "genglsl";
 const string GlslShaderGenerator::VERSION = "400";
+const string GlslSamplingIncludeFilename = "stdlib/genglsl/lib/mx_sampling.glsl";
 
 //
 // GlslShaderGenerator methods
 //
 
-GlslShaderGenerator::GlslShaderGenerator() :
-    HwShaderGenerator(GlslSyntax::create())
+GlslShaderGenerator::GlslShaderGenerator(TypeSystemPtr typeSystem) :
+    HwShaderGenerator(typeSystem, GlslSyntax::create(typeSystem))
 {
     //
     // Register all custom node implementation classes
@@ -66,9 +59,9 @@ GlslShaderGenerator::GlslShaderGenerator() :
     registerImplementation("IM_texcoord_vector2_" + GlslShaderGenerator::TARGET, HwTexCoordNode::create);
     registerImplementation("IM_texcoord_vector3_" + GlslShaderGenerator::TARGET, HwTexCoordNode::create);
     // <!-- <geomcolor> -->
-    registerImplementation("IM_geomcolor_float_" + GlslShaderGenerator::TARGET, GeomColorNodeGlsl::create);
-    registerImplementation("IM_geomcolor_color3_" + GlslShaderGenerator::TARGET, GeomColorNodeGlsl::create);
-    registerImplementation("IM_geomcolor_color4_" + GlslShaderGenerator::TARGET, GeomColorNodeGlsl::create);
+    registerImplementation("IM_geomcolor_float_" + GlslShaderGenerator::TARGET, HwGeomColorNode::create);
+    registerImplementation("IM_geomcolor_color3_" + GlslShaderGenerator::TARGET, HwGeomColorNode::create);
+    registerImplementation("IM_geomcolor_color4_" + GlslShaderGenerator::TARGET, HwGeomColorNode::create);
     // <!-- <geompropvalue> -->
     elementNames = {
         "IM_geompropvalue_integer_" + GlslShaderGenerator::TARGET,
@@ -79,20 +72,18 @@ GlslShaderGenerator::GlslShaderGenerator() :
         "IM_geompropvalue_vector3_" + GlslShaderGenerator::TARGET,
         "IM_geompropvalue_vector4_" + GlslShaderGenerator::TARGET,
     };
-    registerImplementation(elementNames, GeomPropValueNodeGlsl::create);
-    registerImplementation("IM_geompropvalue_boolean_" + GlslShaderGenerator::TARGET, GeomPropValueNodeGlslAsUniform::create);
-    registerImplementation("IM_geompropvalue_string_" + GlslShaderGenerator::TARGET, GeomPropValueNodeGlslAsUniform::create);
+    registerImplementation(elementNames, HwGeomPropValueNode::create);
+    registerImplementation("IM_geompropvalue_boolean_" + GlslShaderGenerator::TARGET, HwGeomPropValueNodeAsUniform::create);
+    registerImplementation("IM_geompropvalue_string_" + GlslShaderGenerator::TARGET, HwGeomPropValueNodeAsUniform::create);
+    registerImplementation("IM_geompropvalue_filename_" + GlslShaderGenerator::TARGET, HwGeomPropValueNodeAsUniform::create);
 
     // <!-- <frame> -->
     registerImplementation("IM_frame_float_" + GlslShaderGenerator::TARGET, HwFrameNode::create);
-    // <!-- <time> -->
-    registerImplementation("IM_time_float_" + GlslShaderGenerator::TARGET, HwTimeNode::create);
     // <!-- <viewdirection> -->
     registerImplementation("IM_viewdirection_vector3_" + GlslShaderGenerator::TARGET, HwViewDirectionNode::create);
 
     // <!-- <surface> -->
     registerImplementation("IM_surface_" + GlslShaderGenerator::TARGET, SurfaceNodeGlsl::create);
-    registerImplementation("IM_surface_unlit_" + GlslShaderGenerator::TARGET, UnlitSurfaceNodeGlsl::create);
 
     // <!-- <light> -->
     registerImplementation("IM_light_" + GlslShaderGenerator::TARGET, LightNodeGlsl::create);
@@ -105,7 +96,7 @@ GlslShaderGenerator::GlslShaderGenerator() :
     registerImplementation("IM_spot_light_" + GlslShaderGenerator::TARGET, LightShaderNodeGlsl::create);
 
     // <!-- <heighttonormal> -->
-    registerImplementation("IM_heighttonormal_vector3_" + GlslShaderGenerator::TARGET, HeightToNormalNodeGlsl::create);
+    registerImplementation("IM_heighttonormal_vector3_" + GlslShaderGenerator::TARGET, []() -> ShaderNodeImplPtr { return HwHeightToNormalNode::create(GlslSamplingIncludeFilename);});
 
     // <!-- <blur> -->
     elementNames = {
@@ -116,7 +107,7 @@ GlslShaderGenerator::GlslShaderGenerator() :
         "IM_blur_vector3_" + GlslShaderGenerator::TARGET,
         "IM_blur_vector4_" + GlslShaderGenerator::TARGET,
     };
-    registerImplementation(elementNames, BlurNodeGlsl::create);
+    registerImplementation(elementNames, []() -> ShaderNodeImplPtr { return HwBlurNode::create(GlslSamplingIncludeFilename);});
 
     // <!-- <ND_transformpoint> ->
     registerImplementation("IM_transformpoint_vector3_" + GlslShaderGenerator::TARGET, HwTransformPointNode::create);
@@ -137,24 +128,6 @@ GlslShaderGenerator::GlslShaderGenerator() :
         "IM_image_vector4_" + GlslShaderGenerator::TARGET,
     };
     registerImplementation(elementNames, HwImageNode::create);
-
-    // <!-- <layer> -->
-    registerImplementation("IM_layer_bsdf_" + GlslShaderGenerator::TARGET, ClosureLayerNode::create);
-    registerImplementation("IM_layer_vdf_" + GlslShaderGenerator::TARGET, ClosureLayerNode::create);
-    // <!-- <mix> -->
-    registerImplementation("IM_mix_bsdf_" + GlslShaderGenerator::TARGET, ClosureMixNode::create);
-    registerImplementation("IM_mix_edf_" + GlslShaderGenerator::TARGET, ClosureMixNode::create);
-    // <!-- <add> -->
-    registerImplementation("IM_add_bsdf_" + GlslShaderGenerator::TARGET, ClosureAddNode::create);
-    registerImplementation("IM_add_edf_" + GlslShaderGenerator::TARGET, ClosureAddNode::create);
-    // <!-- <multiply> -->
-    elementNames = {
-        "IM_multiply_bsdfC_" + GlslShaderGenerator::TARGET,
-        "IM_multiply_bsdfF_" + GlslShaderGenerator::TARGET,
-        "IM_multiply_edfC_" + GlslShaderGenerator::TARGET,
-        "IM_multiply_edfF_" + GlslShaderGenerator::TARGET,
-    };
-    registerImplementation(elementNames, ClosureMultiplyNode::create);
 
     // <!-- <surfacematerial> -->
     registerImplementation("IM_surfacematerial_" + GlslShaderGenerator::TARGET, MaterialNode::create);
@@ -274,6 +247,7 @@ void GlslShaderGenerator::emitTransmissionRender(GenContext& context, ShaderStag
 void GlslShaderGenerator::emitDirectives(GenContext&, ShaderStage& stage) const
 {
     emitLine("#version " + getVersion(), stage, false);
+    emitLineBreak(stage);
 }
 
 void GlslShaderGenerator::emitConstants(GenContext& context, ShaderStage& stage) const
@@ -756,7 +730,7 @@ ShaderNodeImplPtr GlslShaderGenerator::getImplementation(const NodeDef& nodedef,
         throw ExceptionShaderGenError("NodeDef '" + nodedef.getName() + "' has no outputs defined");
     }
 
-    const TypeDesc outputType = TypeDesc::get(outputs[0]->getType());
+    const TypeDesc outputType = context.getTypeDesc(outputs[0]->getType());
 
     if (implElement->isA<NodeGraph>())
     {
@@ -765,10 +739,6 @@ ShaderNodeImplPtr GlslShaderGenerator::getImplementation(const NodeDef& nodedef,
         {
             impl = LightCompoundNodeGlsl::create();
         }
-        else if (outputType.isClosure())
-        {
-            impl = ClosureCompoundNode::create();
-        }
         else
         {
             impl = CompoundNode::create();
@@ -776,19 +746,18 @@ ShaderNodeImplPtr GlslShaderGenerator::getImplementation(const NodeDef& nodedef,
     }
     else if (implElement->isA<Implementation>())
     {
-        // Try creating a new in the factory.
-        impl = _implFactory.create(name);
+        if (getColorManagementSystem() && getColorManagementSystem()->hasImplementation(name))
+        {
+            impl = getColorManagementSystem()->createImplementation(name);
+        }
+        else
+        {
+            // Try creating a new in the factory.
+            impl = _implFactory.create(name);
+        }
         if (!impl)
         {
-            // Fall back to source code implementation.
-            if (outputType.isClosure())
-            {
-                impl = ClosureSourceCodeNode::create();
-            }
-            else
-            {
-                impl = SourceCodeNode::create();
-            }
+            impl = SourceCodeNode::create();
         }
     }
     if (!impl)
@@ -802,11 +771,6 @@ ShaderNodeImplPtr GlslShaderGenerator::getImplementation(const NodeDef& nodedef,
     context.addNodeImplementation(name, impl);
 
     return impl;
-}
-
-const string& GlslImplementation::getTarget() const
-{
-    return GlslShaderGenerator::TARGET;
 }
 
 MATERIALX_NAMESPACE_END

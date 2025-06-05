@@ -85,6 +85,11 @@ class UiPin
 
     void addConnection(UiPinPtr pin)
     {
+        if (!pin)
+        {
+            return;
+        }
+
         for (size_t i = 0; i < _connections.size(); i++)
         {
             if (_connections[i]->_pinId == pin->_pinId)
@@ -97,6 +102,11 @@ class UiPin
 
     void deleteConnection(UiPinPtr pin)
     {
+        if (!pin)
+        {
+            return;
+        }
+
         for (size_t i = 0; i < _connections.size(); i++)
         {
             if (_connections[i]->_pinId == pin->_pinId)
@@ -115,7 +125,6 @@ class UiPin
         {
             pin->setConnected(false);
         }
-        return;
     }
 
     const std::vector<UiPinPtr>& getConnections()
@@ -141,7 +150,7 @@ class UiNode
   public:
     UiNode();
     UiNode(const std::string& name, int id);
-    ~UiNode(){};
+    ~UiNode() = default;
 
     std::string getName()
     {
@@ -253,7 +262,7 @@ class UiNode
     std::vector<UiPinPtr> inputPins;
     std::vector<UiPinPtr> outputPins;
     void removeOutputConnection(const std::string& name);
-    mx::ElementPtr getMxElement();
+    mx::ElementPtr getElement();
     int _level;
     bool _showAllInputs;
 

@@ -8,6 +8,9 @@
 #include <MaterialXRender/Util.h>
 
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
+#ifdef MATERIALX_BUILD_OCIO
+#include <MaterialXGenShader/OcioColorManagementSystem.h>
+#endif
 
 #include <MaterialXFormat/XmlIo.h>
 
@@ -495,10 +498,25 @@ DocumentPtr TextureBaker<Renderer, ShaderGen>::bakeMaterialToDoc(DocumentPtr doc
     genContext.getOptions().fileTextureVerticalFlip = true;
     genContext.getOptions().targetDistanceUnit = _distanceUnit;
 
-    DefaultColorManagementSystemPtr cms = DefaultColorManagementSystem::create(genContext.getShaderGenerator().getTarget());
+    DefaultColorManagementSystemPtr cms;
+#ifdef MATERIALX_BUILD_OCIO
+    try
+    {
+        cms = OcioColorManagementSystem::createFromBuiltinConfig(
+            "ocio://studio-config-latest",
+            genContext.getShaderGenerator().getTarget());
+    }
+    catch (const std::exception& /*e*/)
+    {
+        cms = DefaultColorManagementSystem::create(genContext.getShaderGenerator().getTarget());
+    }
+#else
+    cms = DefaultColorManagementSystem::create(genContext.getShaderGenerator().getTarget());
+#endif
     cms->loadLibrary(doc);
     genContext.registerSourceCodeSearchPath(searchPath);
-    genContext.getShaderGenerator().setColorManagementSystem(cms);
+    _generator->setColorManagementSystem(cms);
+    _generator->registerTypeDefs(doc);
 
     // Compute the material tag set.
     StringVec materialTags = udimSet;

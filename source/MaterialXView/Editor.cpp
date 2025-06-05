@@ -48,13 +48,38 @@ class EditorColorPicker : public ng::ColorPicker
             });
         }
 
-        // The color wheel does not handle alpha properly, so only
-        // overwrite RGB in the callback.
+        // Overwrite default callback of color wheel.
+        m_color_wheel->set_callback([this](const ng::Color& c)
+        {
+            ng::Color cAlpha = ng::Color(c[0], c[1], c[2], _colorWidgets[3]->value());
+            m_color_wheel->set_color(cAlpha);
+
+            // Account for Alpha value when setting m_pick_button properties.
+            m_pick_button->set_background_color(cAlpha);
+            m_pick_button->set_text_color(cAlpha.contrasting_color());
+
+            m_callback(cAlpha);
+        });
+
+        // Overwrite default callback of m_pick_button.
+        m_pick_button->set_callback([&]()
+        {
+            if (m_pushed)
+            {
+                // Use _colorWidgets to construct new color value, which ensures that Alpha component is correctly written.
+                ng::Color value(_colorWidgets[0]->value(), _colorWidgets[1]->value(), _colorWidgets[2]->value(), _colorWidgets[3]->value());
+                set_pushed(false);
+                set_color(value);
+                m_final_callback(value);
+            }
+        });
+
         m_callback = [this](const ng::Color& value)
         {
             _colorWidgets[0]->set_value(value[0]);
             _colorWidgets[1]->set_value(value[1]);
             _colorWidgets[2]->set_value(value[2]);
+            _colorWidgets[3]->set_value(value[3]);
         };
     }
 
@@ -327,8 +352,11 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
         }
         else
         {
+            // Transform stored linear space color3 value to sRGBA for nanogui color picker
             mx::Color3 v = value->asA<mx::Color3>();
-            ng::Color c(v[0], v[1], v[2], 1.0);
+            mx::Color3 displayCol = v.linearToSrgb();
+
+            ng::Color c(displayCol[0], displayCol[1], displayCol[2], 1.0);
 
             new ng::Label(twoColumns, label);
             auto colorVar = new EditorColorPicker(twoColumns, c);
@@ -339,7 +367,10 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
                 mx::MaterialPtr material = viewer->getSelectedMaterial();
                 if (material)
                 {
-                    mx::Vector3 v(c.r(), c.g(), c.b());
+                    // Transform sRGBA color picker value to linear space for writing to material
+                    mx::Color3 linearCol = mx::Color3(c.r(), c.g(), c.b()).srgbToLinear();
+                    mx::Vector3 v(linearCol[0], linearCol[1], linearCol[2]);
+
                     material->modifyUniform(path, mx::Value::createValue(v));
                 }
             });
@@ -354,7 +385,10 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
 
         new ng::Label(twoColumns, label);
         mx::Color4 v = value->asA<mx::Color4>();
-        ng::Color c(v[0], v[1], v[2], v[3]);
+        mx::Color3 displayCol = mx::Color3(v[0], v[1], v[2]).linearToSrgb();
+
+        ng::Color c(displayCol[0], displayCol[1], displayCol[2], v[3]);
+
         auto colorVar = new EditorColorPicker(twoColumns, c);
         colorVar->set_fixed_size({ 100, 20 });
         colorVar->set_font_size(15);
@@ -363,7 +397,10 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
             mx::MaterialPtr material = viewer->getSelectedMaterial();
             if (material)
             {
-                mx::Vector4 v(c.r(), c.g(), c.b(), c.w());
+                // Transform sRGBA color picker value to linear space for writing to material
+                mx::Color3 linearCol = mx::Color3(c.r(), c.g(), c.b()).srgbToLinear();
+                mx::Vector4 v(linearCol[0], linearCol[1], linearCol[2], c.a());
+
                 material->modifyUniform(path, mx::Value::createValue(v));
             }
         });

@@ -22,6 +22,9 @@ class XmlReadOptions;
 
 extern MX_FORMAT_API const string MTLX_EXTENSION;
 
+extern MX_FORMAT_API const int MAX_XINCLUDE_DEPTH;
+extern MX_FORMAT_API const int MAX_XML_TREE_DEPTH;
+
 /// A standard function that reads from an XML file into a Document, with
 /// optional search path and read options.
 using XmlReadFunction = std::function<void(DocumentPtr, const FilePath&, const FileSearchPath&, const XmlReadOptions*)>;
@@ -32,7 +35,7 @@ class MX_FORMAT_API XmlReadOptions
 {
   public:
     XmlReadOptions();
-    ~XmlReadOptions() { }
+    ~XmlReadOptions() = default;
 
     /// If true, then XML comments will be read into documents as comment elements.
     /// Defaults to false.
@@ -61,7 +64,7 @@ class MX_FORMAT_API XmlWriteOptions
 {
   public:
     XmlWriteOptions();
-    ~XmlWriteOptions() { }
+    ~XmlWriteOptions() = default;
 
     /// If true, elements with source file markings will be written as
     /// XIncludes rather than explicit data.  Defaults to true.

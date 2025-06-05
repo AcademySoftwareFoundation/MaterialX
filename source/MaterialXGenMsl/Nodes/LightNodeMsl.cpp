@@ -20,13 +20,8 @@ const string LIGHT_DIRECTION_CALCULATION =
 
 }
 
-LightNodeMsl::LightNodeMsl() :
-    _callEmission(HwShaderGenerator::ClosureContextType::EMISSION)
-{
-    // Emission context
-    _callEmission.addArgument(Type::EDF, ClosureContext::Argument(Type::VECTOR3, "light.direction"));
-    _callEmission.addArgument(Type::EDF, ClosureContext::Argument(Type::VECTOR3, "-L"));
-}
+LightNodeMsl::LightNodeMsl()
+{}
 
 ShaderNodeImplPtr LightNodeMsl::create()
 {
@@ -60,9 +55,12 @@ void LightNodeMsl::emitFunctionCall(const ShaderNode& node, GenContext& context,
         const ShaderNode* edf = edfInput->getConnectedSibling();
         if (edf)
         {
-            context.pushClosureContext(&_callEmission);
+            shadergen.emitScopeBegin(stage);
+            shadergen.emitLine("ClosureData closureData = ClosureData(CLOSURE_TYPE_EMISSION, float3(0), -L, light.direction, float3(0), 0)", stage);
             shadergen.emitFunctionCall(*edf, context, stage);
-            context.popClosureContext();
+
+            shadergen.emitScopeEnd(stage);
+            shadergen.emitLineBreak(stage);
 
             shadergen.emitLineBreak(stage);
 

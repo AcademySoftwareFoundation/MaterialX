@@ -50,6 +50,9 @@ class MdlShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
             _skipFiles.insert("heighttonormal_in_nodegraph.mtlx");
         }
 
+        _skipFiles.insert("standard_surface_onyx_hextiled.mtlx");
+        _skipFiles.insert("hextiled.mtlx");
+
         ShaderGeneratorTester::addSkipFiles();
     }
 
@@ -76,9 +79,8 @@ class MdlShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
     {
         whiteList =
         {
-            "ambientocclusion", "arrayappend", "backfacing", "screen", "curveadjust", "displacementshader",
-            "volumeshader", "IM_constant_", "IM_dot_", "IM_geomattrvalue", "IM_angle",
-            "geompropvalue", "surfacematerial", "volumematerial", 
+            "displacementshader", "volumeshader", "surfacematerial", "volumematerial", "geompropvalue",
+            "IM_constant_", "IM_dot_", "IM_angle", "IM_geomattrvalue",
             "IM_absorption_vdf_", "IM_mix_vdf_", "IM_add_vdf_", "IM_multiply_vdf",
             "IM_measured_edf_", "IM_blackbody_", "IM_conical_edf_", 
             "IM_displacement_", "IM_volume_", "IM_light_"

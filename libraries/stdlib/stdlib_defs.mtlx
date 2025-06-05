@@ -293,6 +293,44 @@
   </nodedef>
 
   <!--
+    Node: <hextiledimage> Supplemental Node
+    Samples data from a single image, with provisions for hex-tiling and randomizing the image
+    across uv space.
+  -->
+  <nodedef name="ND_hextiledimage_color3" node="hextiledimage" nodegroup="texture2d">
+    <input name="file" type="filename" value="" uniform="true" />
+    <input name="default" type="color3" value="0.0, 0.0, 0.0" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <input name="tiling" type="vector2" value="1.0, 1.0" />
+    <input name="rotation" type="float" value="1.0" />
+    <input name="rotationrange" type="vector2" value="0.0, 360.0" />
+    <input name="scale" type="float" value="1.0" />
+    <input name="scalerange" type="vector2" value="0.5, 2.0" />
+    <input name="offset" type="float" value="1.0" />
+    <input name="offsetrange" type="vector2" value="0.0, 1.0" />
+    <input name="falloff" type="float" value="0.5" />
+    <input name="falloffcontrast" type="float" value="0.5" />
+    <input name="lumacoeffs" type="color3" value="0.2722287, 0.6740818, 0.0536895" enum="acescg, rec709, rec2020, rec2100" enumvalues="0.2722287,0.6740818,0.0536895, 0.2126,0.7152,0.0722, 0.2627,0.6780,0.0593, 0.2627,0.6780,0.0593" />
+    <output name="out" type="color3" default="0.0, 0.0, 0.0" />
+  </nodedef>
+  <nodedef name="ND_hextiledimage_color4" node="hextiledimage" nodegroup="texture2d">
+    <input name="file" type="filename" value="" uniform="true" />
+    <input name="default" type="color4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <input name="tiling" type="vector2" value="1.0, 1.0" />
+    <input name="rotation" type="float" value="1.0" />
+    <input name="rotationrange" type="vector2" value="0.0, 360.0" />
+    <input name="scale" type="float" value="1.0" />
+    <input name="scalerange" type="vector2" value="0.5, 2.0" />
+    <input name="offset" type="float" value="1.0" />
+    <input name="offsetrange" type="vector2" value="0.0, 1.0" />
+    <input name="falloff" type="float" value="0.5" />
+    <input name="falloffcontrast" type="float" value="0.5" />
+    <input name="lumacoeffs" type="color3" value="0.2722287, 0.6740818, 0.0536895" enum="acescg, rec709, rec2020, rec2100" enumvalues="0.2722287,0.6740818,0.0536895, 0.2126,0.7152,0.0722, 0.2627,0.6780,0.0593, 0.2627,0.6780,0.0593" />
+    <output name="out" type="color4" default="0.0, 0.0, 0.0, 0.0" />
+  </nodedef>
+
+  <!--
     Node: <triplanarprojection> Supplemental Node
     Samples data from three images, or layers within multi-layer images, and projects a tiled
     representation of the images along each of the three respective coordinate axes, computing
@@ -463,6 +501,55 @@
   <nodedef name="ND_constant_filename" node="constant" nodegroup="procedural">
     <input name="value" type="filename" value="" uniform="true" />
     <output name="out" type="filename" default="" />
+  </nodedef>
+
+  <!--
+    Node: <ramp>
+    A ramp that supports up to 10 control points.
+  -->
+  <nodedef name="ND_ramp" node="ramp" nodegroup="procedural2d">
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <input name="type" type="integer" value="0" enum="standard,radial,circular,box" enumvalues="0,1,2,3" />
+    <input name="interpolation" type="integer" value="1" enum="linear,smooth,step" enumvalues="0,1,2" />
+    <input name="num_intervals" type="integer" value="2" uimin="2" uimax="10" />
+    <input name="interval1" type="float" value="0" uimin="0" uimax="1" />
+    <input name="color1" type="color4" value="0,0,0,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval2" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color2" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval3" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color3" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval4" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color4" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval5" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color5" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval6" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color6" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval7" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color7" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval8" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color8" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval9" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color9" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval10" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color10" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <output name="out" type="color4" />
+  </nodedef>
+
+  <!--
+    Node <ramp_gradient>
+    A helper node that handles a single control point within a <ramp>.
+  -->
+  <nodedef name="ND_ramp_gradient" node="ramp_gradient" nodegroup="procedural2d">
+    <input name="x" type="float" value="0" uimin="0" uimax="1" />
+    <input name="interval1" type="float" value="0" uimin="0" uimax="1" />
+    <input name="interval2" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color1" type="color4" value="0,0,0,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="color2" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interpolation" type="integer" value="1" enum="linear,smooth,step" enumvalues="0,1,2" />
+    <input name="prev_color" type="color4" value="0,0,0,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval_num" type="integer" value="1" />
+    <input name="num_intervals" type="integer" value="2" />
+    <output name="out" type="color4" />
   </nodedef>
 
   <!--
@@ -953,16 +1040,19 @@
   <nodedef name="ND_worleynoise2d_float" node="worleynoise2d" nodegroup="procedural2d">
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <input name="jitter" type="float" value="1.0" />
+    <input name="style" uiname="Cell Style" type="integer" value="0" enum="Distance,Solid" enumvalues="0,1" />
     <output name="out" type="float" default="0.0" />
   </nodedef>
   <nodedef name="ND_worleynoise2d_vector2" node="worleynoise2d" nodegroup="procedural2d">
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <input name="jitter" type="float" value="1.0" />
+    <input name="style" uiname="Cell Style" type="integer" value="0" enum="Distance,Solid" enumvalues="0,1" />
     <output name="out" type="vector2" default="0.0, 0.0" />
   </nodedef>
   <nodedef name="ND_worleynoise2d_vector3" node="worleynoise2d" nodegroup="procedural2d">
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <input name="jitter" type="float" value="1.0" />
+    <input name="style" uiname="Cell Style" type="integer" value="0" enum="Distance,Solid" enumvalues="0,1" />
     <output name="out" type="vector3" default="0.0, 0.0, 0.0" />
   </nodedef>
 
@@ -973,16 +1063,19 @@
   <nodedef name="ND_worleynoise3d_float" node="worleynoise3d" nodegroup="procedural3d">
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="jitter" type="float" value="1.0" />
+    <input name="style" uiname="Cell Style" type="integer" value="0" enum="Distance,Solid" enumvalues="0,1" />
     <output name="out" type="float" default="0.0" />
   </nodedef>
   <nodedef name="ND_worleynoise3d_vector2" node="worleynoise3d" nodegroup="procedural3d">
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="jitter" type="float" value="1.0" />
+    <input name="style" uiname="Cell Style" type="integer" value="0" enum="Distance,Solid" enumvalues="0,1" />
     <output name="out" type="vector2" default="0.0, 0.0" />
   </nodedef>
   <nodedef name="ND_worleynoise3d_vector3" node="worleynoise3d" nodegroup="procedural3d">
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="jitter" type="float" value="1.0" />
+    <input name="style" uiname="Cell Style" type="integer" value="0" enum="Distance,Solid" enumvalues="0,1" />
     <output name="out" type="vector3" default="0.0, 0.0, 0.0" />
   </nodedef>
 
@@ -1015,6 +1108,7 @@
     <input name="lacunarity" type="float" uiname="Lacunarity" uifolder="Fractal" value="2" doc="The exponential scale between successive octaves of Fractal noise. Default is 2.0." />
     <input name="diminish" type="float" uiname="Diminish" uifolder="Fractal" uisoftmin="0.0" uisoftmax="1.0" value="0.5" doc="The rate at which noise amplitude is diminished for each octave of Fractal noise. Default is 0.5." />
     <input name="type" type="integer" uiname="Noise Type" uifolder="Common" uisoftmin="0" uisoftmax="3" value="0" enum="Perlin,Cell,Worley,Fractal" enumvalues="0,1,2,3" doc="Menu to select the type of noise: Perlin, Cell, Worley, or Fractal. Default is Perlin." />
+    <input name="style" uiname="Worley Cell Style" type="integer" value="0" enum="Distance,Solid" enumvalues="0,1" doc="Sets the style of cell used when Noise Type is set to Worley." />
     <output name="out" type="float" />
   </nodedef>
 
@@ -1034,6 +1128,7 @@
     <input name="lacunarity" type="float" uiname="Lacunarity" uifolder="Fractal" value="2" doc="The exponential scale between successive octaves of Fractal noise. Default is 2.0." />
     <input name="diminish" type="float" uiname="Diminish" uifolder="Fractal" uisoftmin="0.0" uisoftmax="1.0" value="0.5" doc="The rate at which noise amplitude is diminished for each octave of Fractal noise. Default is 0.5." />
     <input name="type" type="integer" uiname="Noise Type" uifolder="Common" uisoftmin="0" uisoftmax="3" value="0" enum="Perlin,Cell,Worley,Fractal" enumvalues="0,1,2,3" doc="Menu to select the type of noise: Perlin, Cell, Worley, or Fractal. Default is Perlin." />
+    <input name="style" uiname="Worley Cell Style" type="integer" value="0" enum="Distance,Solid" enumvalues="0,1" doc="Sets the style of cell used when Noise Type is set to Worley." />
     <output name="out" type="float" />
   </nodedef>
 
@@ -1306,11 +1401,6 @@
     <input name="default" type="boolean" value="false" />
     <output name="out" type="boolean" default="false" />
   </nodedef>
-  <nodedef name="ND_geompropvalue_string" node="geompropvalue" nodegroup="geometric">
-    <input name="geomprop" type="string" value="" uniform="true" />
-    <input name="default" type="string" value="" uniform="true" />
-    <output name="out" type="string" default="" />
-  </nodedef>
   <nodedef name="ND_geompropvalue_float" node="geompropvalue" nodegroup="geometric">
     <input name="geomprop" type="string" value="" uniform="true" />
     <input name="default" type="float" value="0.0" />
@@ -1343,6 +1433,22 @@
   </nodedef>
 
   <!--
+    Node: <geompropvalueuniform>
+    The uniform, non-varying value of the specified geometric property for the current geometry.
+  -->
+  <nodedef name="ND_geompropvalueuniform_string" node="geompropvalueuniform" nodegroup="geometric">
+    <input name="geomprop" type="string" value="" uniform="true" />
+    <input name="default" type="string" value="" uniform="true" />
+    <output name="out" type="string" default="" uniform="true" />
+  </nodedef>
+  <nodedef name="ND_geompropvalueuniform_filename" node="geompropvalueuniform" nodegroup="geometric">
+    <input name="geomprop" type="string" value="" uniform="true" />
+    <input name="default" type="filename" value="" uniform="true" />
+    <output name="out" type="filename" default="" uniform="true" />
+  </nodedef>
+
+
+  <!--
     Node: <bump>
     Offset the surface normal by a scalar value.
   -->
@@ -1351,22 +1457,8 @@
     <input name="scale" type="float" uiname="Scale" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Scalar to adjust the height amount." />
     <input name="normal" type="vector3" uiname="Normal" defaultgeomprop="Nworld" doc="Surface normal; defaults to the current world-space normal." />
     <input name="tangent" type="vector3" uiname="Tangent" defaultgeomprop="Tworld" doc="Surface tangent vector, defaults to the current world-space tangent vector." />
+    <input name="bitangent" type="vector3" uiname="Bitangent" defaultgeomprop="Bworld" doc="Surface bitangent vector, defaults to the current world-space bitangent vector." />
     <output name="out" type="vector3" doc="Offset surface normal; connect this to a shader's 'normal' input." />
-  </nodedef>
-
-  <!-- ======================================================================== -->
-  <!-- Global nodes                                                             -->
-  <!-- ======================================================================== -->
-
-  <!--
-    Node: <ambientocclusion>
-    Computes the ambient occlusion (0-1 float) at the current surface point.  Larger
-    values represent greater accessibility to ambient light, 0 means "fully occluded".
-  -->
-  <nodedef name="ND_ambientocclusion_float" node="ambientocclusion" nodegroup="global">
-    <input name="coneangle" type="float" value="90.0" unittype="angle" unit="degree" />
-    <input name="maxdistance" type="float" value="1e38" />
-    <output name="out" type="float" default="1.0" />
   </nodedef>
 
   <!-- ======================================================================== -->
@@ -1770,6 +1862,35 @@
   </nodedef>
 
   <!--
+    Node: <fract>
+    The fraction of a float or vector.
+  -->
+  <nodedef name="ND_fract_float" node="fract" nodegroup="math">
+    <input name="in" type="float" value="0.0" />
+    <output name="out" type="float" defaultinput="in" />
+  </nodedef>
+  <nodedef name="ND_fract_color3" node="fract" nodegroup="math">
+    <input name="in" type="color3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="color3" defaultinput="in" />
+  </nodedef>
+  <nodedef name="ND_fract_color4" node="fract" nodegroup="math">
+    <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0" />
+    <output name="out" type="color4" defaultinput="in" />
+  </nodedef>
+  <nodedef name="ND_fract_vector2" node="fract" nodegroup="math">
+    <input name="in" type="vector2" value="0.0, 0.0" />
+    <output name="out" type="vector2" defaultinput="in" />
+  </nodedef>
+  <nodedef name="ND_fract_vector3" node="fract" nodegroup="math">
+    <input name="in" type="vector3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="vector3" defaultinput="in" />
+  </nodedef>
+  <nodedef name="ND_fract_vector4" node="fract" nodegroup="math">
+    <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
+    <output name="out" type="vector4" defaultinput="in" />
+  </nodedef>
+
+  <!--
     Node: <invert>
     Subtract the incoming float/color/vector from "amount" in all channels,
     outputting: amount - in.
@@ -2106,7 +2227,7 @@
   <nodedef name="ND_atan2_float" node="atan2" nodegroup="math">
     <input name="iny" type="float" value="0.0" />
     <input name="inx" type="float" value="1.0" />
-    <output name="out" type="float" defaultinput="in1" />
+    <output name="out" type="float" defaultinput="iny" />
   </nodedef>
   <nodedef name="ND_sin_vector2" node="sin" nodegroup="math">
     <input name="in" type="vector2" value="0.0, 0.0" />
@@ -2131,7 +2252,7 @@
   <nodedef name="ND_atan2_vector2" node="atan2" nodegroup="math">
     <input name="iny" type="vector2" value="1.0, 1.0" />
     <input name="inx" type="vector2" value="0.0, 0.0" />
-    <output name="out" type="vector2" defaultinput="in1" />
+    <output name="out" type="vector2" defaultinput="iny" />
   </nodedef>
   <nodedef name="ND_sin_vector3" node="sin" nodegroup="math">
     <input name="in" type="vector3" value="0.0, 0.0, 0.0" />
@@ -2156,7 +2277,7 @@
   <nodedef name="ND_atan2_vector3" node="atan2" nodegroup="math">
     <input name="iny" type="vector3" value="1.0, 1.0, 1.0" />
     <input name="inx" type="vector3" value="0.0, 0.0, 0.0" />
-    <output name="out" type="vector3" defaultinput="in1" />
+    <output name="out" type="vector3" defaultinput="iny" />
   </nodedef>
   <nodedef name="ND_sin_vector4" node="sin" nodegroup="math">
     <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
@@ -2181,7 +2302,7 @@
   <nodedef name="ND_atan2_vector4" node="atan2" nodegroup="math">
     <input name="iny" type="vector4" value="1.0, 1.0, 1.0, 1.0" />
     <input name="inx" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
-    <output name="out" type="vector4" defaultinput="in1" />
+    <output name="out" type="vector4" defaultinput="iny" />
   </nodedef>
 
   <!--
@@ -2620,6 +2741,31 @@
   </nodedef>
 
   <!--
+    Node: <hextilednormalmap> Supplemental Node
+    Samples data from a single normalmap, with provisions for hex-tiling and randomizing the normalmap 
+    across uv space.
+  -->
+  <nodedef name="ND_hextilednormalmap_vector3" node="hextilednormalmap" nodegroup="math">
+    <input name="file" type="filename" value="" uniform="true" />
+    <input name="default" type="vector3" value="0.5, 0.5, 1.0" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <input name="tiling" type="vector2" value="1.0, 1.0" />
+    <input name="rotation" type="float" value="1.0" />
+    <input name="rotationrange" type="vector2" value="0.0, 360.0" />
+    <input name="scale" type="float" value="1.0" />
+    <input name="scalerange" type="vector2" value="0.5, 2.0" />
+    <input name="offset" type="float" value="1.0" />
+    <input name="offsetrange" type="vector2" value="0.0, 1.0" />
+    <input name="falloff" type="float" value="0.5" />
+    <input name="strength" type="float" value="1.0" />
+    <input name="flip_g" type="boolean" value="false" />
+    <input name="normal" type="vector3" defaultgeomprop="Nworld" />
+    <input name="tangent" type="vector3" defaultgeomprop="Tworld" />
+    <input name="bitangent" type="vector3" defaultgeomprop="Bworld" />
+    <output name="out" type="vector3" default="0.5, 0.5, 1.0" />
+  </nodedef>
+
+  <!--
     Node: <transpose>
     Output the transpose of the incoming matrix.
   -->
@@ -2900,44 +3046,6 @@
   </nodedef>
 
   <!--
-    Node: <curveadjust>
-    Outputs a smooth remapping of input values using the centripetal Catmull-Rom
-    cubic spline curve defined by specified knot values, using an inverse spline
-    lookup on input knot values and a forward spline through output knot values.
-    All channels of the input will be remapped using the same curve.
-  -->
-  <nodedef name="ND_curveadjust_float" node="curveadjust" nodegroup="adjustment">
-    <input name="in" type="float" value="0.0" />
-    <input name="knots" type="vector2array" value="" />
-    <output name="out" type="float" defaultinput="in" />
-  </nodedef>
-  <nodedef name="ND_curveadjust_color3" node="curveadjust" nodegroup="adjustment">
-    <input name="in" type="color3" value="0.0, 0.0, 0.0" />
-    <input name="knots" type="vector2array" value="" />
-    <output name="out" type="color3" defaultinput="in" />
-  </nodedef>
-  <nodedef name="ND_curveadjust_color4" node="curveadjust" nodegroup="adjustment">
-    <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0" />
-    <input name="knots" type="vector2array" value="" />
-    <output name="out" type="color4" defaultinput="in" />
-  </nodedef>
-  <nodedef name="ND_curveadjust_vector2" node="curveadjust" nodegroup="adjustment">
-    <input name="in" type="vector2" value="0.0, 0.0" />
-    <input name="knots" type="vector2array" value="" />
-    <output name="out" type="vector2" defaultinput="in" />
-  </nodedef>
-  <nodedef name="ND_curveadjust_vector3" node="curveadjust" nodegroup="adjustment">
-    <input name="in" type="vector3" value="0.0, 0.0, 0.0" />
-    <input name="knots" type="vector2array" value="" />
-    <output name="out" type="vector3" defaultinput="in" />
-  </nodedef>
-  <nodedef name="ND_curveadjust_vector4" node="curveadjust" nodegroup="adjustment">
-    <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
-    <input name="knots" type="vector2array" value="" />
-    <output name="out" type="vector4" defaultinput="in" />
-  </nodedef>
-
-  <!--
     Node: <luminance>
     Output a grayscale image containing the luminance of the incoming RGB color in all color channels;
     the alpha channel is left unchanged if present.
@@ -3211,7 +3319,7 @@
     <input name="gain" type="float" uiname="Gain" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Multiplier increases lighter color values, leaving black values unchanged." />
     <input name="contrast" type="float" uiname="Contrast" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Linearly increase or decrease the color contrast." />
     <input name="contrastpivot" type="float" uiname="Contrast Pivot" uisoftmin="0.0" uisoftmax="1.0" value="0.5" doc="Pivot value around which contrast applies. This value will not change as contrast is adjusted." />
-    <input name="exposure" type="float" uiname="Exposure" uisoftmin="-1.0" uisoftmax="1.0" value="0" doc="Multplier which increases or decreases color brightness by 2^value." />
+    <input name="exposure" type="float" uiname="Exposure" uisoftmin="-1.0" uisoftmax="1.0" value="0" doc="Multiplier which increases or decreases color brightness by 2^value." />
     <output name="out" type="color3" />
   </nodedef>
   <nodedef name="ND_colorcorrect_color4" node="colorcorrect" nodegroup="adjustment">
@@ -3223,7 +3331,7 @@
     <input name="gain" type="float" uiname="Gain" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Multiplier increases lighter color values, leaving black values unchanged." />
     <input name="contrast" type="float" uiname="Contrast" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Linearly increase or decrease the color contrast." />
     <input name="contrastpivot" type="float" uiname="Contrast Pivot" uisoftmin="0.0" uisoftmax="1.0" value="0.5" doc="Pivot value around which contrast applies. This value will not change as contrast is adjusted." />
-    <input name="exposure" type="float" uiname="Exposure" uisoftmin="-1.0" uisoftmax="1.0" value="0" doc="Multplier which increases or decreases color brightness by 2^value." />
+    <input name="exposure" type="float" uiname="Exposure" uisoftmin="-1.0" uisoftmax="1.0" value="0" doc="Multiplier which increases or decreases color brightness by 2^value." />
     <output name="out" type="color4" />
   </nodedef>
 

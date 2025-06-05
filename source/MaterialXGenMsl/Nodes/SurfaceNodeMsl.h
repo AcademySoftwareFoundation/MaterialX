@@ -12,7 +12,7 @@
 MATERIALX_NAMESPACE_BEGIN
 
 /// Surface node implementation for MSL
-class MX_GENMSL_API SurfaceNodeMsl : public MslImplementation
+class MX_GENMSL_API SurfaceNodeMsl : public HwImplementation
 {
   public:
     SurfaceNodeMsl();
@@ -24,13 +24,6 @@ class MX_GENMSL_API SurfaceNodeMsl : public MslImplementation
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
     virtual void emitLightLoop(const ShaderNode& node, GenContext& context, ShaderStage& stage, const string& outColor) const;
-
-  protected:
-    /// Closure contexts for calling closure functions.
-    mutable ClosureContext _callReflection;
-    mutable ClosureContext _callTransmission;
-    mutable ClosureContext _callIndirect;
-    mutable ClosureContext _callEmission;
 };
 
 MATERIALX_NAMESPACE_END

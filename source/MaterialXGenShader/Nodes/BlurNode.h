@@ -24,7 +24,7 @@ class MX_GENSHADER_API BlurNode : public ConvolutionNode
     /// Emit function definitions for sampling functions used by this node.
     virtual void emitSamplingFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const = 0;
 
-    /// Return if given type is an acceptible input
+    /// Return if given type is an acceptable input
     bool acceptsInputType(TypeDesc type) const override;
 
     /// Compute offset strings for sampling

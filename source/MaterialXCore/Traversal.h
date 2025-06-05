@@ -35,7 +35,7 @@ class MX_CORE_API Edge
         _elemUp(elemUp)
     {
     }
-    ~Edge() { }
+    ~Edge() = default;
 
     bool operator==(const Edge& rhs) const
     {
@@ -94,7 +94,7 @@ class MX_CORE_API TreeIterator
         _holdCount(0)
     {
     }
-    ~TreeIterator() { }
+    ~TreeIterator() = default;
 
   private:
     using StackFrame = std::pair<ElementPtr, size_t>;
@@ -198,7 +198,7 @@ class MX_CORE_API GraphIterator
     {
         _pathElems.insert(elem);
     }
-    ~GraphIterator() { }
+    ~GraphIterator() = default;
 
   private:
     using ElementSet = std::set<ElementPtr>;
@@ -316,12 +316,14 @@ class MX_CORE_API GraphIterator
   private:
     void extendPathUpstream(ElementPtr upstreamElem, ElementPtr connectingElem);
     void returnPathDownstream(ElementPtr upstreamElem);
+    bool skipOrMarkAsVisited(const Edge&);
 
   private:
     ElementPtr _upstreamElem;
     ElementPtr _connectingElem;
     ElementSet _pathElems;
     vector<StackFrame> _stack;
+    std::set<Edge> _visitedEdges;
     bool _prune;
     size_t _holdCount;
 };
@@ -339,7 +341,7 @@ class MX_CORE_API InheritanceIterator
     {
         _pathElems.insert(elem);
     }
-    ~InheritanceIterator() { }
+    ~InheritanceIterator() = default;
 
   private:
     using ConstElementSet = std::set<ConstElementPtr>;

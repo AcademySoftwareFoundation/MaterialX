@@ -29,7 +29,7 @@ class MX_RENDER_API Camera
         _arcballSpeed(2.0f)
     {
     }
-    ~Camera() { }
+    ~Camera() = default;
 
     /// Create a new camera.
     static CameraPtr create() { return std::make_shared<Camera>(); }
@@ -154,7 +154,7 @@ class MX_RENDER_API Camera
                                      const Vector3& target,
                                      const Vector3& up);
 
-    /// Create a perpective projection matrix given a set of clip planes with [-1,1] projected Z.
+    /// Create a perspective projection matrix given a set of clip planes with [-1,1] projected Z.
     static Matrix44 createPerspectiveMatrix(float left, float right,
                                             float bottom, float top,
                                             float nearP, float farP);
@@ -164,7 +164,7 @@ class MX_RENDER_API Camera
                                              float bottom, float top,
                                              float nearP, float farP);
 
-    /// Create a perpective projection matrix given a set of clip planes with [0,1] projected Z.
+    /// Create a perspective projection matrix given a set of clip planes with [0,1] projected Z.
     static Matrix44 createPerspectiveMatrixZP(float left, float right,
                                               float bottom, float top,
                                               float nearP, float farP);

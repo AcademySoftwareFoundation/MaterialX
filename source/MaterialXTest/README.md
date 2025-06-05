@@ -33,7 +33,7 @@ Refer to the [test suite documentation](../../resources/Materials/TestSuite/READ
 - GenGlsl.cpp : GLSL shader generation tests which are run when the test tag `[genglsl]` is specified.
 - GenOsl.cpp : OSL shader generation tests which are run when the test tag `[genosl]` is specified.
 - GenMdl.cpp : MDL shader generation tests which are run when the test tag `[genmdl]` is specified.
-- GenMsl.cpp : MSL shader generation tests which are run when the test tage `[genmsl]` is specified. 
+- GenMsl.cpp : MSL shader generation tests which are run when the test tag `[genmsl]` is specified. 
 
 Per-language tests will scan MaterialX files in the test suite for input materials.
 
@@ -48,7 +48,7 @@ Depending on which tests are executed log files are produced at the location tha
 - Render.cpp : Core render tests which are run when the test tag `[rendercore]` is specified.
 - RenderGlsl.cpp : GLSL render tests which are run when the test tag `[renderglsl]` is specified.
 - RenderOsl.cpp : OSL render tests which are run when the test tag `[renderosl]` is specified.
-- RenderMsl.mm: MSL render tests which are run when the test tage `[rendermsl]` is specified.
+- RenderMsl.mm: MSL render tests which are run when the test tag `[rendermsl]` is specified.
 
 Per language tests will scan MaterialX files in the test suite for input materials.
 
@@ -62,7 +62,7 @@ When rendering tests are enabled through the `MATERIALX_TEST_RENDER` option, the
         - `MATERIALX_OSL_BINARY_OSLC`: Path to the OSL compiler binary (e.g. `oslc.exe`).
         - `MATERIALX_OSL_BINARY_TESTRENDER`: Path to the OSL test render binary (e.g. `testrender.exe`).
         - `MATERIALX_OSL_INCLUDE_PATH`: Path to the OSL shader include folder, which contains headers such as `stdosl.h`.
-    - OSL versions 1.9.10 and later are supported.
+    - OSL versions 1.12.6 and later are supported.
 - `MDL` :
     - Set the following build options to enable MDL support:
         - `MATERIALX_MDLC_EXECUTABLE`: Full path to the MDL compiler binary (e.g. `mdlc.exe').

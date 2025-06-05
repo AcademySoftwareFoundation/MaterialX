@@ -51,6 +51,7 @@ There are many formats that can be used to describe the associations between sha
 
 **[References](#references)**
 
+<br>
 
 
 # Geometry Representation
@@ -142,6 +143,7 @@ So the following MTLX file snippets are equivalent:
   </materialx>
 ```
 
+<br>
 
 
 # Additional MaterialX Data Types
@@ -149,6 +151,8 @@ So the following MTLX file snippets are equivalent:
 Systems supporting MaterialX Geometry Extensions support the following additional standard data types:
 
 **GeomName** and **GeomNameArray**: attributes of type "geomname" are just strings within quotes, but specifically mean the name of a single geometry using the conventions described in the [**Geometry Representation**](#geometry-representation) and [**Geometry Name Expressions**](#geometry-name-expressions) sections.  A geomname is allowed to use a geometry name expression as long as it resolves to a single geometry.  Attributes of type "geomnamearray" are strings within quotes containing a comma-separated list of one or more geomname values with or without expressions, and may resolve to any number of geometries.
+
+<br>
 
 
 # Additional Filename Substitutions
@@ -163,6 +167,7 @@ Filename input values for various nodes can include one or more special strings 
 
 Only applications fully supporting Geometry Extensions may allow using a &lt;_geometry token_> as part of a larger filename string.  All applications should allow the use of "&lt;_geometry token_>" as the full filename string, in which case the string primvar value stored with the geometry is used as the filename unchanged; the string primvar value itself might be allowed to contain another token such as &lt;UDIM> which the renderer may be able to parse and replace itself.
 
+<br>
 
 
 # Geometry Info Elements
@@ -196,9 +201,9 @@ Either a `geom` or a `collection` may be specified, but not both.
 
 ### GeomProp Elements
 
-The core MaterialX Specification defines a Geometric Property, or "geomprop", as an intrinsic or user-defined surface coordinate property of geometries referenced in a specific space and/or index, and provides several nodes to retrive the values of these properties within a shading network nodegraph, as well as a &lt;geompropdef> element used to define the name and output type of custom geometric properties beyond the standard ones: `position`, `normal`, `tangent`, `bitangent`, `texcoord` and `geomcolor`.
+The core MaterialX Specification defines a Geometric Property, or "geomprop", as an intrinsic or user-defined surface coordinate property of geometries referenced in a specific space and/or index, and provides several nodes to retrieve the values of these properties within a shading network nodegraph, as well as a &lt;geompropdef> element used to define the name and output type of custom geometric properties beyond the standard ones: `position`, `normal`, `tangent`, `bitangent`, `texcoord` and `geomcolor`.
 
-MaterialX Geometry Extensions expands upons this by allowing the use of &lt;geomprop> elements to define specific uniform values of a geometric property with specific geometries, as opposed to relying on those values being defined externally.  This could include application-specific metadata, attributes passed from a lighting package to a renderer, or other geometry-specific data.  A geomprop may also specify a `unittype` and `unit` if appropriate to indicate that the geometric property's value is in that unit; see the [**Units** section of the main MaterialX Specification](./MaterialX.Specification.md#units), although typically the &lt;geompropdef> would define the `unittype` and `unit`, and a geomprop would only provide an overriding `unit` if the unit for its value differed from the geompropdef's defined default unit.
+MaterialX Geometry Extensions expands upon this by allowing the use of &lt;geomprop> elements to define specific uniform values of a geometric property with specific geometries, as opposed to relying on those values being defined externally.  This could include application-specific metadata, attributes passed from a lighting package to a renderer, or other geometry-specific data.  A geomprop may also specify a `unittype` and `unit` if appropriate to indicate that the geometric property's value is in that unit; see the [**Units** section of the main MaterialX Specification](./MaterialX.Specification.md#units), although typically the &lt;geompropdef> would define the `unittype` and `unit`, and a geomprop would only provide an overriding `unit` if the unit for its value differed from the geompropdef's defined default unit.
 
 ```xml
     <geomprop name="propname" type="proptype" value="value"/>
@@ -298,6 +303,7 @@ Workflows involving textures with implicitly-computed filenames based on u,v coo
   </geominfo>
 ```
 
+<br>
 
 
 # Look and Property Elements
@@ -509,6 +515,8 @@ This example defines four collections, a light shader and material, and a proper
   <lookgroup name="assetlooks" looks="lookA,lookB" default="lookA"/>
 </materialx>
 ```
+
+<br>
 
 
 # References

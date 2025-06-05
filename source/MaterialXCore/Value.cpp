@@ -235,7 +235,7 @@ StringVec parseStructValueString(const string& value)
         {
             // When we hit a separator we store the currently accumulated part, and clear to start collecting the next.
             split.emplace_back(part);
-            part = "";
+            part.clear();
         }
         else
         {
@@ -333,6 +333,34 @@ string AggregateValue::getValueString() const
     return result;
 }
 
+bool AggregateValue::isEqual(ConstValuePtr other) const
+{
+    if (!other->isA<AggregateValue>())
+    {
+        return false;
+    }
+
+    const AggregateValue& otherAggregate = other->asA<AggregateValue>();
+
+    size_t dataSize = _data.size();
+    size_t otherDataSize = otherAggregate._data.size();
+
+    if (dataSize != otherDataSize)
+    {
+        return false;
+    }
+
+    for (size_t i = 0; i < dataSize; i++)
+    {
+        if (!_data[i]->isEqual(otherAggregate._data[i]))
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 AggregateValuePtr AggregateValue::createAggregateValueFromString(const string& value, const string& type, ConstTypeDefPtr typeDef)
 {
     StringVec subValues = parseStructValueString(value);
@@ -393,7 +421,7 @@ template <class T> class ValueRegistry
             Value::_creatorMap[TypedValue<T>::TYPE] = TypedValue<T>::createFromString;
         }
     }
-    ~ValueRegistry() { }
+    ~ValueRegistry() = default;
 };
 
 //

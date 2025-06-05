@@ -9,6 +9,7 @@
 #include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXFormat/Util.h>
+#include <MaterialXGenShader/HwShaderGenerator.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -23,6 +24,20 @@ const string INLINE_VARIABLE_SUFFIX("}}");
 ShaderNodeImplPtr SourceCodeNode::create()
 {
     return std::make_shared<SourceCodeNode>();
+}
+
+void SourceCodeNode::resolveSourceCode(const InterfaceElement& element, GenContext& context)
+{
+    const Implementation& impl = static_cast<const Implementation&>(element);
+
+    FilePath localPath = FilePath(impl.getActiveSourceUri()).getParentPath();
+    _sourceFilename = context.resolveSourceFile(impl.getAttribute("file"), localPath);
+    _functionSource = readFile(_sourceFilename);
+    if (_functionSource.empty())
+    {
+        throw ExceptionShaderGenError("Failed to get source code from file '" + _sourceFilename.asString() +
+                                      "' used by implementation '" + impl.getName() + "'");
+    }
 }
 
 void SourceCodeNode::initialize(const InterfaceElement& element, GenContext& context)
@@ -40,19 +55,13 @@ void SourceCodeNode::initialize(const InterfaceElement& element, GenContext& con
     _functionSource = impl.getAttribute("sourcecode");
     if (_functionSource.empty())
     {
-        FilePath localPath = FilePath(impl.getActiveSourceUri()).getParentPath();
-        _sourceFilename = context.resolveSourceFile(impl.getAttribute("file"), localPath);
-        _functionSource = readFile(_sourceFilename);
-        if (_functionSource.empty())
-        {
-            throw ExceptionShaderGenError("Failed to get source code from file '" + _sourceFilename.asString() +
-                                          "' used by implementation '" + impl.getName() + "'");
-        }
+        resolveSourceCode(element, context);
     }
 
     // Find the function name to use
     // If no function is given the source will be inlined.
     _functionName = impl.getAttribute("function");
+
     _inlined = _functionName.empty();
     if (!_inlined)
     {
@@ -99,6 +108,13 @@ void SourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext& contex
     DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
     {
         const ShaderGenerator& shadergen = context.getShaderGenerator();
+
+        if (nodeOutputIsClosure(node))
+        {
+            // Emit calls for any closure dependencies upstream from this nodedef
+            shadergen.emitDependentFunctionCalls(node, context, stage, ShaderNode::Classification::CLOSURE);
+        }
+
         if (_inlined)
         {
             // An inline function call
@@ -170,12 +186,18 @@ void SourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext& contex
             emitOutputVariables(node, context, stage);
 
             shadergen.emitLineBegin(stage);
-            string delim = "";
 
             // Emit function name.
             shadergen.emitString(_functionName + "(", stage);
 
-            // Emit all inputs on the node.
+            if (context.getShaderGenerator().nodeNeedsClosureData(node))
+            {
+                shadergen.emitString(HW::CLOSURE_DATA_ARG + ", ", stage);
+            }
+
+            string delim;
+
+            // Emit all inputs.
             for (ShaderInput* input : node.getInputs())
             {
                 shadergen.emitString(delim, stage);

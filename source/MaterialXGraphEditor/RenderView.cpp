@@ -108,6 +108,7 @@ void RenderView::setDocument(mx::DocumentPtr document)
 }
 
 RenderView::RenderView(mx::DocumentPtr doc,
+                       mx::DocumentPtr stdLib,
                        const std::string& meshFilename,
                        const std::string& envRadianceFilename,
                        const mx::FileSearchPath& searchPath,
@@ -143,7 +144,8 @@ RenderView::RenderView(mx::DocumentPtr doc,
     _renderTransparency(true),
     _renderDoubleSided(true),
     _captureRequested(false),
-    _exitRequested(false)
+    _exitRequested(false),
+    _frame(0)
 {
     // Resolve input filenames, taking both the provided search path and
     // current working directory into account.
@@ -162,6 +164,7 @@ RenderView::RenderView(mx::DocumentPtr doc,
     _genContext.getOptions().shaderInterfaceType = mx::SHADER_INTERFACE_COMPLETE;
 
     setDocument(doc);
+    _stdLib = stdLib;
 }
 
 void RenderView::initialize()
@@ -212,18 +215,6 @@ void RenderView::assignMaterial(mx::MeshPartitionPtr geometry, mx::GlslMaterialP
     {
         _materialAssignments.erase(geometry);
     }
-}
-
-mx::ElementPredicate RenderView::getElementPredicate()
-{
-    return [this](mx::ConstElementPtr elem)
-    {
-        if (elem->hasSourceUri())
-        {
-            return (_xincludeFiles.count(elem->getSourceUri()) == 0);
-        }
-        return true;
-    };
 }
 
 void RenderView::updateGeometrySelections()
@@ -413,15 +404,6 @@ void RenderView::updateMaterials(mx::TypedElementPtr typedElem)
         // Check for any udim set.
         mx::ValuePtr udimSetValue = _document->getGeomPropValue(mx::UDIM_SET_PROPERTY);
 
-        // Skip material nodes without upstream shaders.
-        mx::NodePtr node = typedElem ? typedElem->asA<mx::Node>() : nullptr;
-        if (node &&
-            node->getCategory() == mx::SURFACE_MATERIAL_NODE_STRING &&
-            mx::getShaderNodes(node).empty())
-        {
-            typedElem = nullptr;
-        }
-
         // Create new materials.
         if (!typedElem)
         {
@@ -430,6 +412,15 @@ void RenderView::updateMaterials(mx::TypedElementPtr typedElem)
             {
                 typedElem = elems[0];
             }
+        }
+
+        // Skip material nodes without upstream shaders.
+        mx::NodePtr node = typedElem ? typedElem->asA<mx::Node>() : nullptr;
+        if (node &&
+            node->getCategory() == mx::SURFACE_MATERIAL_NODE_STRING &&
+            mx::getShaderNodes(node).empty())
+        {
+            typedElem = nullptr;
         }
 
         mx::TypedElementPtr udimElement = nullptr;
@@ -620,7 +611,21 @@ void RenderView::initContext(mx::GenContext& context)
     }
 
     // Initialize color management.
-    mx::DefaultColorManagementSystemPtr cms = mx::DefaultColorManagementSystem::create(context.getShaderGenerator().getTarget());
+    mx::DefaultColorManagementSystemPtr cms;
+#ifdef MATERIALX_BUILD_OCIO
+    try
+    {
+        cms = mx::OcioColorManagementSystem::createFromBuiltinConfig(
+            "ocio://studio-config-latest",
+            context.getShaderGenerator().getTarget());
+    }
+    catch (const std::exception& /*e*/)
+    {
+        cms = mx::DefaultColorManagementSystem::create(context.getShaderGenerator().getTarget());
+    }
+#else
+    cms = mx::DefaultColorManagementSystem::create(context.getShaderGenerator().getTarget());
+#endif
     cms->loadLibrary(_document);
     context.getShaderGenerator().setColorManagementSystem(cms);
 
@@ -631,8 +636,8 @@ void RenderView::initContext(mx::GenContext& context)
     context.getShaderGenerator().setUnitSystem(unitSystem);
     context.getOptions().targetDistanceUnit = "meter";
 
-    // Register struct type definitions
-    context.getShaderGenerator().loadStructTypeDefs(_document);
+    // Register type definitions.
+    context.getShaderGenerator().registerTypeDefs(_document);
 }
 
 void RenderView::drawContents()
@@ -775,7 +780,8 @@ void RenderView::renderFrame()
 
     _renderFrame->bind();
 
-    glClearColor(.70f, .70f, .75f, 1.0f);
+    mx::Color3 screenColor(mx::DEFAULT_SCREEN_COLOR_SRGB);
+    glClearColor(screenColor[0], screenColor[1], screenColor[2], 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     glEnable(GL_FRAMEBUFFER_SRGB);
 
@@ -802,6 +808,7 @@ void RenderView::renderFrame()
         {
             material->getProgram()->bindUniform(mx::HW::ALPHA_THRESHOLD, mx::Value::createValue(0.99f));
         }
+        material->getProgram()->bindTimeAndFrame(1.0f, static_cast<float>(_frame));
         material->bindViewInformation(_viewCamera);
         material->bindLighting(_lightHandler, _imageHandler, shadowState);
         material->bindImages(_imageHandler, _searchPath);
@@ -829,6 +836,7 @@ void RenderView::renderFrame()
             {
                 material->getProgram()->bindUniform(mx::HW::ALPHA_THRESHOLD, mx::Value::createValue(0.001f));
             }
+            material->getProgram()->bindTimeAndFrame(1.0f, static_cast<float>(_frame));
             material->bindViewInformation(_viewCamera);
             material->bindLighting(_lightHandler, _imageHandler, shadowState);
             material->bindImages(_imageHandler, _searchPath);
@@ -841,7 +849,9 @@ void RenderView::renderFrame()
     {
         glDisable(GL_CULL_FACE);
     }
+    // Restore framebuffer and disable sRGB conversion in preparation for ImGUI drawing
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glDisable(GL_FRAMEBUFFER_SRGB);
 
     // Store viewport texture for render.
     _textureID = _renderFrame->getColorTexture();
@@ -935,7 +945,7 @@ mx::ImagePtr RenderView::getShadowMap()
         {
             try
             {
-                mx::ShaderPtr hwShader = mx::createDepthShader(_genContext, _document, "__SHADOW_SHADER__");
+                mx::ShaderPtr hwShader = mx::createDepthShader(_genContext, _stdLib, "__SHADOW_SHADER__");
                 _shadowMaterial = mx::GlslMaterial::create();
                 _shadowMaterial->generateShader(hwShader);
             }
@@ -949,7 +959,7 @@ mx::ImagePtr RenderView::getShadowMap()
         {
             try
             {
-                mx::ShaderPtr hwShader = mx::createBlurShader(_genContext, _document, "__SHADOW_BLUR_SHADER__", "gaussian", 1.0f);
+                mx::ShaderPtr hwShader = mx::createBlurShader(_genContext, _stdLib, "__SHADOW_BLUR_SHADER__", "gaussian", 1.0f);
                 _shadowBlurMaterial = mx::GlslMaterial::create();
                 _shadowBlurMaterial->generateShader(hwShader);
             }

@@ -160,8 +160,9 @@ MeshPtr GeometryHandler::createQuadMesh(const Vector2& uvMin, const Vector2& uvM
     }
     MeshPartitionPtr quadIndices = MeshPartition::create();
     quadIndices->getIndices().assign({ 0, 1, 3, 1, 2, 3 });
-    quadIndices->setFaceCount(6);
+    quadIndices->setFaceCount(2);
     MeshPtr quadMesh = Mesh::create("ScreenSpaceQuad");
+    quadMesh->setVertexCount(4);
     quadMesh->addStream(quadPositions);
     quadMesh->addStream(quadTexCoords);
     quadMesh->addPartition(quadIndices);

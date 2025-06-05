@@ -1,5 +1,8 @@
 void mx_heighttonormal_vector3(float in, float scale, output vector result)
 {
-    point htP = P + normalize(N) * in * scale;
-    result = normalize(calculatenormal(htP));
+    float dx = -Dx(in);
+    float dy = Dy(in);
+    float dz = max(scale, 1.0E-05) * sqrt(max(1.0 - dx*dx - dy*dy, 1.0E-05));
+    vector dir = normalize(vector(dx, dy, dz));
+    result = dir * vector(0.5) + vector(0.5);
 }

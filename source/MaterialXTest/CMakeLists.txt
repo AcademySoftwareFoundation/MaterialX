@@ -58,8 +58,8 @@ if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL OR MATERIALX_BUILD_GEN_MD
     if (NOT MATERIALX_BUILD_MONOLITHIC)
         get_target_property(MaterialXGenMdl_SOURCE_DIR MaterialXGenMdl SOURCE_DIR)
     else()
-        get_target_property(MaterialX_SOURCE_DIR ${MATERIALX_MONOLITHIC_TARGET} SOURCE_DIR)
-        set(MaterialXGenMdl_SOURCE_DIR "{MaterialX_SOURCE_DIR}/MaterialXGenMdl")
+        get_target_property(PROJECT_SOURCE_DIR ${MATERIALX_MONOLITHIC_TARGET} SOURCE_DIR)
+        set(MaterialXGenMdl_SOURCE_DIR "{PROJECT_SOURCE_DIR}/MaterialXGenMdl")
     endif()
     target_compile_definitions(MaterialXTest PRIVATE -DMATERIALX_MDL_IMPL_MODULE_PATH=\"${MaterialXGenMdl_SOURCE_DIR}/mdl\")
   endif()
@@ -91,15 +91,17 @@ if(MATERIALX_BUILD_RENDER)
   endif()
 endif()
 
-# TODO: Only do this stuff when it's relevant
+# Disable deprecation warnings on Clang.
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    target_compile_options(MaterialXTest PUBLIC -Wno-deprecated-declarations)
+endif()
 
-add_custom_command(TARGET MaterialXTest POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/libraries)
-if(MATERIALX_OSL_LEGACY_CLOSURES)
-    add_custom_command(TARGET MaterialXTest POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E rename
-        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/libraries/pbrlib/genosl/pbrlib_genosl_impl.legacy ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/libraries/pbrlib/genosl/pbrlib_genosl_impl.mtlx)
+# The MaterialX test suite maintains a synchronized copy of the data libraries.
+add_custom_target(MaterialXTestData ALL
+    COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
+    ${MATERIALX_DATA_LIBRARY_DIR} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/libraries)
+if(MATERIALX_BUILD_DATA_LIBRARY)
+    add_dependencies(MaterialXTestData MaterialXBuildData)
 endif()
 
 if(MATERIALX_BUILD_GEN_MDL)

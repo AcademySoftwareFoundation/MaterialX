@@ -1,0 +1,12 @@
+void mx_chiang_hair_bsdf(color tint_R, color tint_TT, color tint_TRT, float ior,
+                         vector2 roughness_R, vector2 roughness_TT, vector2 roughness_TRT,
+                         float cuticle_angle, vector absorption_coefficient, normal N, vector U, output BSDF bsdf)
+{
+#if OSL_VERSION_MAJOR >= 1 && OSL_VERSION_MINOR >= 14
+    bsdf = chiang_hair_bsdf(N, U, tint_R, tint_TT, tint_TRT, ior,
+                            roughness_R.x, roughness_TT.x, roughness_TRT.x, roughness_R.y, roughness_TT.y, roughness_TRT.y,
+                            cuticle_angle, absorption_coefficient);
+#else
+    bsdf = dielectric_bsdf(N, U, color(1), color(0), 0.1, 0.1, ior, "ggx");
+#endif
+}
