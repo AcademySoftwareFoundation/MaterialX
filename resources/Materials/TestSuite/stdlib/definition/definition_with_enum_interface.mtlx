@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+
+  <!-- create a custom node that exposes an enumeration input via "interfacename" -->
+  <nodedef name="ND_positionwrapper" node="positionwrapper">
+    <input name="wrap_space" type="string" value="object" enum="model, object, world" uniform="true"/>
+    <output name="out" type="vector3"/>
+  </nodedef>
+  <nodegraph name="NG_positionwrapper" nodedef="ND_positionwrapper">
+    <position name="myPos" type="vector3">
+      <input name="space" type="string" interfacename="wrap_space"/>
+    </position>
+    <output name="out" type="vector3" nodename="myPos"/>
+  </nodegraph>
+
+  <positionwrapper name="myPosWrapper" type="vector3">
+    <input name="wrap_space" type="string" value="object"/>
+  </positionwrapper>
+
+  <extract name="extract" type="float">
+    <input name="in" type="vector3" nodename="myPosWrapper"/>
+    <input name="index" type="integer" value="1"/>
+  </extract>
+  <surface_unlit name="Srf" type="surfaceshader">
+    <input name="emission" type="float" nodename="extract" />
+  </surface_unlit>
+  <surfacematerial name="Mtl" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="Srf" />
+  </surfacematerial>
+</materialx>

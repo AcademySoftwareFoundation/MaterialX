@@ -353,16 +353,21 @@ void ShaderNode::initialize(const Node& node, const NodeDef& nodeDef, GenContext
                 }
             }
             const string& valueString = portValue ? portValue->getValueString() : EMPTY_STRING;
-            std::pair<TypeDesc, ValuePtr> enumResult;
-            const string& enumNames = nodeDefInput->getAttribute(ValueElement::ENUM_ATTRIBUTE);
-            const TypeDesc type = context.getTypeDesc(nodeDefInput->getType());
-            if (context.getShaderGenerator().getSyntax().remapEnumeration(valueString, type, enumNames, enumResult))
+            if (!valueString.empty())
             {
-                input->setValue(enumResult.second);
-            }
-            else if (!valueString.empty())
-            {
-                input->setValue(portValue);
+                // We explicitly check the valueString is not empty before checking the enumeration,
+                // because otherwise the enumeration value would always return nullptr
+                std::pair<TypeDesc, ValuePtr> enumResult;
+                const string& enumNames = nodeDefInput->getAttribute(ValueElement::ENUM_ATTRIBUTE);
+                const TypeDesc type = context.getTypeDesc(nodeDefInput->getType());
+                if (context.getShaderGenerator().getSyntax().remapEnumeration(valueString, type, enumNames, enumResult))
+                {
+                    input->setValue(enumResult.second);
+                }
+                else
+                {
+                    input->setValue(portValue);
+                }
             }
         }
     }

@@ -101,6 +101,11 @@ class MX_GENSHADER_API ShaderNodeImpl
     /// Protected constructor
     ShaderNodeImpl();
 
+    /// Returns true if the first output of the node is a closure
+    /// This is used by SourceCodeNode and CompoundNode to generate
+    /// the appropriate shader code.
+    bool nodeOutputIsClosure(const ShaderNode& node) const;
+
   protected:
     string _name;
     size_t _hash;

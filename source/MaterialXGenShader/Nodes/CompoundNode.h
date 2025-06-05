@@ -6,6 +6,7 @@
 #ifndef MATERIALX_COMPOUNDNODE_H
 #define MATERIALX_COMPOUNDNODE_H
 
+#include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 #include <MaterialXGenShader/ShaderGraph.h>
 #include <MaterialXGenShader/Shader.h>
@@ -19,6 +20,8 @@ class MX_GENSHADER_API CompoundNode : public ShaderNodeImpl
     static ShaderNodeImplPtr create();
 
     void initialize(const InterfaceElement& element, GenContext& context) override;
+
+    void addClassification(ShaderNode& node) const override;
 
     void createVariables(const ShaderNode& node, GenContext& context, Shader& shader) const override;
 
