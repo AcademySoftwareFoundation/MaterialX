@@ -12,7 +12,7 @@
 MATERIALX_NAMESPACE_BEGIN
 
 /// Surface node implementation for GLSL
-class MX_GENGLSL_API SurfaceNodeGlsl : public GlslImplementation
+class MX_GENGLSL_API SurfaceNodeGlsl : public HwImplementation
 {
   public:
     SurfaceNodeGlsl();

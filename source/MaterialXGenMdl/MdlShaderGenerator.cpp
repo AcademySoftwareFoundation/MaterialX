@@ -14,7 +14,6 @@
 #include <MaterialXGenMdl/Nodes/BlurNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/ClosureLayerNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/ClosureCompoundNodeMdl.h>
-#include <MaterialXGenMdl/Nodes/ClosureSourceCodeNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/CustomNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/ImageNodeMdl.h>
 
@@ -405,15 +404,7 @@ ShaderNodeImplPtr MdlShaderGenerator::getImplementation(const NodeDef& nodedef, 
             }
             else
             {
-                // Fall back to source code implementation.
-                if (outputType.isClosure())
-                {
-                    impl = ClosureSourceCodeNodeMdl::create();
-                }
-                else
-                {
-                    impl = SourceCodeNodeMdl::create();
-                }
+                impl = SourceCodeNodeMdl::create();
             }
         }
     }
