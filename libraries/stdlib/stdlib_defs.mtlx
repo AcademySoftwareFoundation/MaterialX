@@ -4878,7 +4878,8 @@
   -->
   <nodedef name="ND_heighttonormal_vector3" node="heighttonormal" nodegroup="convolution2d">
     <input name="in" type="float" value="0.0" />
-    <input name="scale" type="float" value="1.0" />
+    <input name="scale" type="float" value="1.0" uimin="0.0" uisoftmax="5.0"/>
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <output name="out" type="vector3" default="0.5, 0.5, 1.0" />
   </nodedef>
 

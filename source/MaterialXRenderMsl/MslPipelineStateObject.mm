@@ -344,7 +344,6 @@ void MslProgram::prepareUsedResources(id<MTLRenderCommandEncoder> renderCmdEncod
 
     // Bind based on inputs found
     bindViewInformation(cam);
-    bindTimeAndFrame();
     bindLighting(lightHandler, imageHandler);
     bindTextures(renderCmdEncoder, lightHandler, imageHandler);
     bindUniformBuffers(renderCmdEncoder, lightHandler, cam);

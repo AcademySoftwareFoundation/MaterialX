@@ -143,9 +143,6 @@
   <implementation name="IM_blur_vector3_genmsl" nodedef="ND_blur_vector3" target="genmsl" />
   <implementation name="IM_blur_vector4_genmsl" nodedef="ND_blur_vector4" target="genmsl" />
 
-  <!-- <heighttonormal> -->
-  <implementation name="IM_heighttonormal_vector3_genmsl" nodedef="ND_heighttonormal_vector3" target="genmsl" />
-
   <!-- ======================================================================== -->
   <!-- Logical operator nodes                                                   -->
   <!-- ======================================================================== -->
