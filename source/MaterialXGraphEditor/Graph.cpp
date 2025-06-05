@@ -104,6 +104,15 @@ std::string getUserNodeDefName(const std::string& val)
     return result;
 }
 
+static void EnableSRGBCallback(const ImDrawList*, const ImDrawCmd*)
+{
+    glEnable(GL_FRAMEBUFFER_SRGB);
+}
+static void DisableSRGBCallback(const ImDrawList*, const ImDrawCmd*)
+{
+    glDisable(GL_FRAMEBUFFER_SRGB);
+}
+
 } // anonymous namespace
 
 //
@@ -971,21 +980,27 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         if (val && val->isA<mx::Color3>())
         {
             mx::Color3 prev, temp;
-            prev = temp = val->asA<mx::Color3>();
-            float min = minVal ? minVal->asA<mx::Color3>()[0] : 0.f;
-            float max = maxVal ? maxVal->asA<mx::Color3>()[0] : 100.f;
-            float speed = (max - min) / 1000.0f;
-            ImGui::PushItemWidth(-100);
-            ImGui::DragFloat3("##hidelabel", &temp[0], speed, min, max);
-            ImGui::PopItemWidth();
-            ImGui::SameLine();
-            ImGui::ColorEdit3("##color", &temp[0], ImGuiColorEditFlags_NoInputs);
+
+            // Read material value in converted display space
+            prev = temp = val->asA<mx::Color3>().linearToSrgb();
+
+            // Use ImGuiColorEditFlags_Uint8 flag for built-in Uint8 input fields
+            ImGui::ColorEdit3("##color", &temp[0], ImGuiColorEditFlags_Uint8);
+            if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+            {
+                ImGui::SetTooltip("Color is selected and rendered to Viewer in sRGB display space, \nbut written to .mtlx file in linear format.");
+            }
 
             // Set input value and update materials if different from previous value
             if (prev != temp)
             {
+                // Convert back to linear color space for writing to material and node input
+                mx::Color3 linearCol = temp.srgbToLinear();
+
                 addNodeInput(_currUiNode, input);
-                input->setValue(temp, input->getType());
+                input->setValue(linearCol, input->getType());
+
+                mx::ValuePtr linearVal = mx::Value::createValue<mx::Color3>(linearCol);
                 updateMaterials(input, input->getValue());
             }
         }
@@ -995,25 +1010,33 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         mx::ValuePtr val = input->getValue();
         if (val && val->isA<mx::Color4>())
         {
-            mx::Color4 prev, temp;
-            prev = temp = val->asA<mx::Color4>();
-            float min = minVal ? minVal->asA<mx::Color4>()[0] : 0.f;
-            float max = maxVal ? maxVal->asA<mx::Color4>()[0] : 100.f;
-            float speed = (max - min) / 1000.0f;
-            ImGui::PushItemWidth(-100);
-            ImGui::DragFloat4("##hidelabel", &temp[0], speed, min, max);
-            ImGui::PopItemWidth();
-            ImGui::SameLine();
+            // Read material value and convert RGB components to display space
+            mx::Color4 linearCol = val->asA<mx::Color4>();
+            mx::Color3 displayCol3 = mx::Color3(linearCol[0], linearCol[1], linearCol[2]).linearToSrgb();
 
-            // Color edit for the color picker to the right of the color floats
-            ImGui::ColorEdit4("##color", &temp[0], ImGuiColorEditFlags_NoInputs);
+            mx::Color4 prev, temp;
+            // Create 4D vector with converted RGB and non-converted, stored Alpha value
+            prev = temp = mx::Color4(displayCol3[0], displayCol3[1], displayCol3[2], linearCol[3]);
+
+            // Use ImGuiColorEditFlags_Uint8 flag for built-in Uint8 input fields
+            ImGui::ColorEdit4("##color", &temp[0], ImGuiColorEditFlags_Uint8);
+            if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+            {
+                ImGui::SetTooltip("Color is selected and rendered to Viewer in sRGB display space, \nbut written to .mtlx file in linear format.");
+            }
 
             // Set input value and update materials if different from previous value
             if (temp != prev)
             {
+                // Convert back to linear color space for writing to material and node input
+                mx::Color3 linearCol3 = mx::Color3(temp[0], temp[1], temp[2]).srgbToLinear();
+                mx::Color4 linearCol = mx::Color4(linearCol3[0], linearCol3[1], linearCol3[2], temp[3]); // Use new Alpha val
+
                 addNodeInput(_currUiNode, input);
-                input->setValue(temp, input->getType());
-                updateMaterials(input, input->getValue());
+                input->setValue(linearCol, input->getType());
+
+                mx::ValuePtr linearVal = mx::Value::createValue<mx::Color4>(linearCol);
+                updateMaterials(input, linearVal);
             }
         }
     }
@@ -3319,13 +3342,19 @@ void Graph::graphButtons()
 
     if (_renderer)
     {
-        glEnable(GL_FRAMEBUFFER_SRGB);
+        // Enable sRGB conversion for framebuffer ONLY when drawing material preview
+        ImGui::GetWindowDrawList()->AddCallback(EnableSRGBCallback,  nullptr);
+
         _renderer->getViewCamera()->setViewportSize(mx::Vector2(screenSize[0], screenSize[1]));
         GLuint64 my_image_texture = _renderer->_textureID;
         mx::Vector2 vec = _renderer->getViewCamera()->getViewportSize();
-        // current image has correct color space but causes problems for gui
+
         ImGui::Image((ImTextureID) my_image_texture, screenSize, ImVec2(0, 1), ImVec2(1, 0));
+
+        // Disable sRGB conversion for all other imgui ui components.
+        ImGui::GetWindowDrawList()->AddCallback(DisableSRGBCallback,  nullptr);
     }
+
     ImGui::Separator();
 
     // Property editor for current nodes
@@ -4223,7 +4252,7 @@ void Graph::drawGraph(ImVec2 mousePos)
         // or if the shortcut for cut is used
         if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootWindow))
         {
-            if (ImGui::IsKeyReleased(ImGuiKey_Delete) || _isCut)
+            if (ImGui::IsKeyReleased(ImGuiKey_Delete) || ImGui::IsKeyReleased(ImGuiKey_Backspace) || _isCut)
             {
                 if (selectedNodes.size() > 0)
                 {
@@ -4247,6 +4276,27 @@ void Graph::drawGraph(ImVec2 mousePos)
                             {
                                 _popup = true;
                             }
+                        }
+                    }
+                    linkGraph();
+                }
+                else if (selectedLinks.size() > 0)
+                {
+                    _frameCount = ImGui::GetFrameCount();
+                    _renderer->setMaterialCompilation(true);
+                    for (ed::LinkId id : selectedLinks)
+                    {
+                        if (int(id.Get()) > 0 && !readOnly())
+                        {
+                            deleteLink(id);
+                            _delete = true;
+                            ed::DeselectLink(id);
+                            ed::DeleteLink(id);
+                            _currUiNode = nullptr;
+                        }
+                        else if (readOnly())
+                        {
+                            _popup = true;
                         }
                     }
                     linkGraph();

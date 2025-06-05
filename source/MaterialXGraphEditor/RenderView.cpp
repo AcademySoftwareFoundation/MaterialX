@@ -780,7 +780,8 @@ void RenderView::renderFrame()
 
     _renderFrame->bind();
 
-    glClearColor(.70f, .70f, .75f, 1.0f);
+    mx::Color3 screenColor(mx::DEFAULT_SCREEN_COLOR_SRGB);
+    glClearColor(screenColor[0], screenColor[1], screenColor[2], 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     glEnable(GL_FRAMEBUFFER_SRGB);
 
@@ -807,10 +808,7 @@ void RenderView::renderFrame()
         {
             material->getProgram()->bindUniform(mx::HW::ALPHA_THRESHOLD, mx::Value::createValue(0.99f));
         }
-        if (material->getProgram()->hasUniform(mx::HW::FRAME))
-        {
-            material->getProgram()->bindUniform(mx::HW::FRAME, mx::Value::createValue(static_cast<float>(_frame)));
-        }
+        material->getProgram()->bindTimeAndFrame(1.0f, static_cast<float>(_frame));
         material->bindViewInformation(_viewCamera);
         material->bindLighting(_lightHandler, _imageHandler, shadowState);
         material->bindImages(_imageHandler, _searchPath);
@@ -838,6 +836,7 @@ void RenderView::renderFrame()
             {
                 material->getProgram()->bindUniform(mx::HW::ALPHA_THRESHOLD, mx::Value::createValue(0.001f));
             }
+            material->getProgram()->bindTimeAndFrame(1.0f, static_cast<float>(_frame));
             material->bindViewInformation(_viewCamera);
             material->bindLighting(_lightHandler, _imageHandler, shadowState);
             material->bindImages(_imageHandler, _searchPath);
@@ -850,7 +849,9 @@ void RenderView::renderFrame()
     {
         glDisable(GL_CULL_FACE);
     }
+    // Restore framebuffer and disable sRGB conversion in preparation for ImGUI drawing
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glDisable(GL_FRAMEBUFFER_SRGB);
 
     // Store viewport texture for render.
     _textureID = _renderFrame->getColorTexture();
