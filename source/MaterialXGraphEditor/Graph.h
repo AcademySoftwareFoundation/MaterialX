@@ -190,7 +190,9 @@ class Graph
     // Add input pointer to node based on input pin
     void addNodeInput(UiNodePtr node, mx::InputPtr& input);
 
+    // Traversal methods
     void upNodeGraph();
+    UiNodePtr traverseConnection(UiNodePtr node, bool traverseDownstream);
 
     // Show input values in property editor for a given input
     void showPropertyEditorValue(UiNodePtr node, mx::InputPtr& input, const mx::UIProperties& uiProperties);

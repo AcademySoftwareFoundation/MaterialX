@@ -4162,6 +4162,53 @@ void Graph::handleRenderViewInputs()
     }
 }
 
+
+UiNodePtr Graph::traverseConnection(UiNodePtr node, bool traverseDownstream)
+{
+    if (!node)
+    {
+        return nullptr;
+    }
+
+    // Get first connected downstream node
+    if (traverseDownstream)
+    {
+        for (UiPinPtr outputPin : node->outputPins)
+        {
+            // Update downNode info
+            for (UiPinPtr connectedPin : outputPin.get()->getConnections())
+            {
+                std::shared_ptr<UiNode> pinNode = connectedPin->_pinNode;
+                if (pinNode)
+                {
+                    return pinNode;
+                }
+            }
+        }
+    }
+
+    // Get first upstream connected node
+    else 
+    {
+        for (UiPinPtr inputPin: node->inputPins)
+        {
+            const std::vector<UiPinPtr>& connections = inputPin->getConnections();
+            std::shared_ptr<UiNode> pinNode = nullptr;
+            if (!connections.empty())
+            {
+                UiPinPtr pin = connections[0];
+                pinNode = pin->_pinNode;
+                if (pinNode)
+                {
+                    return pinNode;
+                }
+            }
+        }
+    }  
+    
+    return nullptr;
+}
+
 void Graph::drawGraph(ImVec2 mousePos)
 {
     if (_searchNodeId > 0)
@@ -4383,7 +4430,47 @@ void Graph::drawGraph(ImVec2 mousePos)
         // or if the shortcut for cut is used
         if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootWindow))
         {
-            if (ImGui::IsKeyReleased(ImGuiKey_Delete) || ImGui::IsKeyReleased(ImGuiKey_Backspace) || _isCut)
+            bool traverseDownstream = ImGui::IsKeyReleased(ImGuiKey_RightArrow); 
+            bool traverseUpstream = ImGui::IsKeyReleased(ImGuiKey_LeftArrow);
+
+            // Traverse connections with arrow keys
+            if (traverseDownstream || traverseUpstream)
+            {
+                UiNodePtr selectedNode = nullptr;
+                if (selectedNodes.size() > 0)
+                {
+                    for (ed::NodeId id : selectedNodes)
+                    {
+                        if (int(id.Get()) > 0)
+                        {
+                            int pos = findNode(int(id.Get()));
+                            if (pos >= 0)
+                            {
+                                selectedNode = _graphNodes[pos];
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (selectedNode && _currUiNode)
+                {
+                    selectedNode = _currUiNode;
+                }
+
+                if (selectedNode)
+                {
+                    UiNodePtr connectedNode = traverseConnection(selectedNode, traverseDownstream);
+                    if (connectedNode)
+                    {
+                        _currUiNode = connectedNode;
+                        ed::SelectNode(connectedNode->getId());
+                        ed::NavigateToSelection();
+                    }
+
+                }
+            }            
+
+            else if (ImGui::IsKeyReleased(ImGuiKey_Delete) || ImGui::IsKeyReleased(ImGuiKey_Backspace) || _isCut)
             {
                 if (selectedNodes.size() > 0)
                 {
@@ -4436,13 +4523,13 @@ void Graph::drawGraph(ImVec2 mousePos)
             }
 
             // Hotkey to frame selected node(s)
-            if (ImGui::IsKeyReleased(ImGuiKey_F) && !_fileDialogSave.isOpened())
+            else if (ImGui::IsKeyReleased(ImGuiKey_F) && !_fileDialogSave.isOpened())
             {
                 ed::NavigateToSelection();
             }
 
             // Go back up from inside a subgraph
-            if (ImGui::IsKeyReleased(ImGuiKey_U) && (!ImGui::IsPopupOpen("add node")) && (!ImGui::IsPopupOpen("search")) && !_fileDialogSave.isOpened())
+            else if (ImGui::IsKeyReleased(ImGuiKey_U) && (!ImGui::IsPopupOpen("add node")) && (!ImGui::IsPopupOpen("search")) && !_fileDialogSave.isOpened())
             {
                 upNodeGraph();
             }
