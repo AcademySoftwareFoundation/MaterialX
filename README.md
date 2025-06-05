@@ -16,7 +16,8 @@ MaterialX is an open standard for representing rich material and look-developmen
 - Download the latest version of the [CMake](https://cmake.org/) build system.
 - Point CMake to the root of the MaterialX library and generate C++ projects for your platform and compiler.
 - Select the `MATERIALX_BUILD_PYTHON` option to build Python bindings.
-- Select the `MATERIALX_BUILD_VIEWER` option to build the MaterialX viewer.
+- Select the `MATERIALX_BUILD_VIEWER` option to build the [MaterialX Viewer](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/documents/DeveloperGuide/Viewer.md).
+- Select the `MATERIALX_BUILD_GRAPH_EDITOR` option to build the [MaterialX Graph Editor](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/documents/DeveloperGuide/GraphEditor.md). 
 
 ## Supported Platforms
 
@@ -26,7 +27,7 @@ The MaterialX codebase requires a compiler with support for C++17, and can be bu
 - GCC 8 or newer
 - Clang 5 or newer
 
-The Python bindings for MaterialX are based on [PyBind11](https://github.com/pybind/pybind11), and support Python versions 3.6 and greater.
+The Python bindings for MaterialX are based on [PyBind11](https://github.com/pybind/pybind11), and support Python versions 3.9 and greater.
 
 ## MaterialX Viewer
 
@@ -72,13 +73,13 @@ The Open Chess Set is an open reference asset, consisting of a [MaterialX file](
 
 The following packages contain pre-built binaries for the latest release, including the MaterialX viewer, Python libraries, and example assets:
 
-- [Microsoft Windows (Visual Studio 2022, Python 3.12)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest/download/MaterialX_Windows_VS2022_x64_Python312.zip)
-- [MacOS (Xcode 15, Python 3.12)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest/download/MaterialX_MacOS_Xcode_15_Python312.zip)
-- [Linux (GCC 14, Python 3.12)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest/download/MaterialX_Linux_GCC_14_Python312.zip)
+- [Microsoft Windows (Visual Studio 2022, Python 3.13)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest/download/MaterialX_Windows_VS2022_x64_Python313.zip)
+- [MacOS (Xcode 16, Python 3.13)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest/download/MaterialX_MacOS_Xcode_16_Python313.zip)
+- [Linux (GCC 14, Python 3.13)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest/download/MaterialX_Linux_GCC_14_Python313.zip)
 
 ## Additional Resources
 
-- The [Developer Guide](http://www.materialx.org/docs/api/index.html) contains a developer-oriented overview of MaterialX with API documentation.
+- The [Developer Guide](http://www.materialx.org/docs/api/index.html) contains a developer-oriented overview of MaterialX with Build and API documentation.
 - The [Python Scripts](python/Scripts) folder contains standalone examples of MaterialX Python code.
 - The [JavaScript](javascript) folder contains details on building JavaScript bindings for MaterialX.
 - Presentations at [ASWF Open Source Days](https://materialx.org/assets/ASWF_OSD2024_MaterialX_Final.pdf) and the [SIGGRAPH Physically Based Shading Course](https://blog.selfshadow.com/publications/s2020-shading-course/#materialx) provide details on the roadmap for MaterialX development.

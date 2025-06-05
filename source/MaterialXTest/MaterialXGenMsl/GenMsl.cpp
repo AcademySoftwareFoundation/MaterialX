@@ -21,12 +21,12 @@ namespace mx = MaterialX;
 
 TEST_CASE("GenShader: MSL Syntax Check", "[genmsl]")
 {
-    mx::SyntaxPtr syntax = mx::MslSyntax::create();
+    mx::TypeSystemPtr ts = mx::TypeSystem::create();
+    mx::SyntaxPtr syntax = mx::MslSyntax::create(ts);
 
     REQUIRE(syntax->getTypeName(mx::Type::FLOAT) == "float");
     REQUIRE(syntax->getTypeName(mx::Type::COLOR3) == "vec3");
     REQUIRE(syntax->getTypeName(mx::Type::VECTOR3) == "vec3");
-
     REQUIRE(syntax->getTypeName(mx::Type::BSDF) == "BSDF");
     REQUIRE(syntax->getOutputTypeName(mx::Type::BSDF) == "thread BSDF&");
 
@@ -84,6 +84,8 @@ TEST_CASE("GenShader: MSL Implementation Check", "[genmsl]")
 
     mx::StringSet generatorSkipNodeTypes;
     mx::StringSet generatorSkipNodeDefs;
+    // To skip specific node definitions for this code generation target, add them as below:
+    // generatorSkipNodeDefs.insert("ND_example_color3");
     GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs);
 }
 

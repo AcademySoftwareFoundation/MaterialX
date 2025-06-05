@@ -32,7 +32,7 @@ class Document::Cache
         valid(false)
     {
     }
-    ~Cache() { }
+    ~Cache() = default;
 
     void refresh()
     {

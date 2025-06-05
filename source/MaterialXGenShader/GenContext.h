@@ -14,12 +14,11 @@
 #include <MaterialXGenShader/GenOptions.h>
 #include <MaterialXGenShader/GenUserData.h>
 #include <MaterialXGenShader/ShaderNode.h>
+#include <MaterialXGenShader/ShaderGenerator.h>
 
 #include <MaterialXFormat/File.h>
 
 MATERIALX_NAMESPACE_BEGIN
-
-class ClosureContext;
 
 /// A standard function to allow for handling of application variables for a given node
 using ApplicationVariableHandler = std::function<void(ShaderNode*, GenContext&)>;
@@ -49,6 +48,12 @@ class MX_GENSHADER_API GenContext
     const GenOptions& getOptions() const
     {
         return _options;
+    }
+
+    /// Return a TypeDesc for the given type name.
+    TypeDesc getTypeDesc(const string& name) const
+    {
+        return _sg->getTypeSystem()->getType(name);
     }
 
     /// Register a user search path for finding source code during
@@ -103,27 +108,6 @@ class MX_GENSHADER_API GenContext
 
     /// Clear all cached shader node implementation.
     void clearNodeImplementations();
-
-    /// Push a new closure context to use for closure evaluation.
-    void pushClosureContext(ClosureContext* cct)
-    {
-        _closureContexts.push_back(cct);
-    }
-
-    /// Pop the current closure context.
-    void popClosureContext()
-    {
-        if (_closureContexts.size())
-        {
-            _closureContexts.pop_back();
-        }
-    }
-
-    /// Return the current closure context.
-    ClosureContext* getClosureContext()
-    {
-        return _closureContexts.size() ? _closureContexts.back() : nullptr;
-    }
 
     /// Push a parent node onto the stack
     void pushParentNode(ConstNodePtr node)
@@ -233,46 +217,9 @@ class MX_GENSHADER_API GenContext
     std::unordered_map<const ShaderInput*, string> _inputSuffix;
     std::unordered_map<const ShaderOutput*, string> _outputSuffix;
 
-    vector<ClosureContext*> _closureContexts;
     vector<ConstNodePtr> _parentNodes;
 
     ApplicationVariableHandler _applicationVariableHandler;
-};
-
-/// @class ClosureContext
-/// Class representing a context for closure evaluation.
-/// On hardware BSDF closures are evaluated differently in reflection, transmission
-/// or environment/indirect contexts. This class represents the context we are in
-/// and if extra arguments and function decorators are needed for that context.
-class MX_GENSHADER_API ClosureContext
-{
-  public:
-    /// An extra argument for closure functions.
-    /// An argument is a pair of strings holding the
-    /// 'typename' and 'name' of the argument.
-    using Argument = std::pair<string, string>;
-    /// An array of arguments
-    using Arguments = vector<Argument>;
-
-    /// Constructor
-    ClosureContext() {}
-
-    /// For the given node type add an extra argument to be used for the function in this context.
-    void addArgument(const Argument& arg)
-    {
-        _arguments.push_back(arg);
-    }
-
-    /// Return a list of extra argument to be used for the given node in this context.
-    const Arguments& getArguments() const
-    {
-        return _arguments;
-    }
-
-  protected:
-    Arguments _arguments;
-
-    static const Arguments EMPTY_ARGUMENTS;
 };
 
 /// A RAII class for overriding port variable names.

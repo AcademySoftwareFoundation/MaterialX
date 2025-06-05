@@ -19,11 +19,6 @@ ShaderNodeImplPtr LightShaderNodeGlsl::create()
     return std::make_shared<LightShaderNodeGlsl>();
 }
 
-const string& LightShaderNodeGlsl::getTarget() const
-{
-    return GlslShaderGenerator::TARGET;
-}
-
 void LightShaderNodeGlsl::initialize(const InterfaceElement& element, GenContext& context)
 {
     SourceCodeNode::initialize(element, context);
@@ -44,7 +39,8 @@ void LightShaderNodeGlsl::initialize(const InterfaceElement& element, GenContext
     NodeDefPtr nodeDef = impl.getNodeDef();
     for (InputPtr input : nodeDef->getActiveInputs())
     {
-        _lightUniforms.add(TypeDesc::get(input->getType()), input->getName(), input->getValue());
+        const TypeDesc type = context.getTypeDesc(input->getType());
+        _lightUniforms.add(type, input->getName(), input->getValue());
     }
 }
 

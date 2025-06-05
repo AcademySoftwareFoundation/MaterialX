@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+  <nodegraph name="conty_kulla_sheen">
+    <sheen_bsdf name="conty_kulla_sheen_bsdf1" type="BSDF">
+      <input name="weight" type="float" value="1.0" />
+      <input name="color" type="color3" value="0.516, 0.524, 0.778" />
+      <input name="roughness" type="float" value="0.3" />
+      <input name="mode" type="string" value="conty_kulla" />
+    </sheen_bsdf>
+    <surface name="surface1" type="surfaceshader">
+      <input name="bsdf" type="BSDF" nodename="conty_kulla_sheen_bsdf1" />
+      <input name="opacity" type="float" value="1.0" />
+    </surface>
+    <output name="out" type="surfaceshader" nodename="surface1" />
+  </nodegraph>
+
+  <nodegraph name="zeltner_sheen">
+    <sheen_bsdf name="zeltner_sheen_bsdf2" type="BSDF">
+      <input name="weight" type="float" value="1.0" />
+      <input name="color" type="color3" value="0.516, 0.524, 0.778" />
+      <input name="roughness" type="float" value="0.3" />
+      <input name="mode" type="string" value="zeltner" />
+    </sheen_bsdf>
+    <surface name="surface2" type="surfaceshader">
+      <input name="bsdf" type="BSDF" nodename="zeltner_sheen_bsdf2" />
+      <input name="opacity" type="float" value="1.0" />
+    </surface>
+    <output name="out" type="surfaceshader" nodename="surface2" />
+  </nodegraph>
+</materialx>

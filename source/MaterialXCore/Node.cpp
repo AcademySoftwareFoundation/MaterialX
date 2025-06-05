@@ -199,6 +199,17 @@ bool Node::validate(string* message) const
         string matchMessage;
         bool exactMatch = hasExactInputMatch(nodeDef, &matchMessage);
         validateRequire(exactMatch, res, message, "Node interface error: " + matchMessage);
+
+        const vector<OutputPtr>& activeOutputs = nodeDef->getActiveOutputs();
+        const size_t numActiveOutputs = activeOutputs.size();
+        if (numActiveOutputs > 1)
+        {
+            validateRequire(getType() == MULTI_OUTPUT_TYPE_STRING, res, message, "Node type is not 'multioutput' for node with multiple outputs");
+        }
+        else if (numActiveOutputs == 1)
+        {
+            validateRequire(getType() == activeOutputs[0]->getType(), res, message, "Node type does not match output port type");
+        }
     }
     else
     {
@@ -322,6 +333,12 @@ void GraphElement::flattenSubgraphs(const string& target, NodePredicate filter)
                         if (sourceInput)
                         {
                             destInput->copyContentFrom(sourceInput);
+                            NodePtr connectedNode = destInput->getConnectedNode();
+                            // Update downstream port map with the new instance
+                            if (connectedNode && downstreamPortMap.count(connectedNode) > 0)
+                            {
+                                downstreamPortMap[connectedNode] = connectedNode->getDownstreamPorts();
+                            }
                         }
                         else
                         {
@@ -375,14 +392,14 @@ void GraphElement::flattenSubgraphs(const string& target, NodePredicate filter)
     }
 }
 
-vector<ElementPtr> GraphElement::topologicalSort() const
+ElementVec GraphElement::topologicalSort() const
 {
     // Calculate a topological order of the children, using Kahn's algorithm
     // to avoid recursion.
     //
     // Running time: O(numNodes + numEdges).
 
-    const vector<ElementPtr>& children = getChildren();
+    const ElementVec& children = getChildren();
 
     // Calculate in-degrees for all children.
     std::unordered_map<ElementPtr, size_t> inDegree(children.size());
@@ -415,7 +432,7 @@ vector<ElementPtr> GraphElement::topologicalSort() const
         }
     }
 
-    vector<ElementPtr> result;
+    ElementVec result;
     while (!childQueue.empty())
     {
         // Pop the queue and add to topological order.
@@ -470,7 +487,7 @@ string GraphElement::asStringDot() const
     string dot = "digraph {\n";
 
     // Create a unique name for each child element.
-    vector<ElementPtr> children = topologicalSort();
+    ElementVec children = topologicalSort();
     StringMap nameMap;
     StringSet nameSet;
     for (ElementPtr elem : children)

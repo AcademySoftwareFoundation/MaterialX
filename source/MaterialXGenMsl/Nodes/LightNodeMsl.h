@@ -11,7 +11,7 @@
 MATERIALX_NAMESPACE_BEGIN
 
 /// Light node implementation for MSL
-class MX_GENMSL_API LightNodeMsl : public MslImplementation
+class MX_GENMSL_API LightNodeMsl : public HwImplementation
 {
   public:
     LightNodeMsl();
@@ -21,9 +21,6 @@ class MX_GENMSL_API LightNodeMsl : public MslImplementation
     void createVariables(const ShaderNode& node, GenContext& context, Shader& shader) const override;
 
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
-
-  private:
-    mutable ClosureContext _callEmission;
 };
 
 MATERIALX_NAMESPACE_END

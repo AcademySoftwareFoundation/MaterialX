@@ -16,6 +16,10 @@
 #include <MaterialXGenShader/Util.h>
 #include <MaterialXGenShader/TypeDesc.h>
 
+#ifdef MATERIALX_BUILD_OCIO
+#include <MaterialXGenShader/OcioColorManagementSystem.h>
+#endif
+
 #include <iostream>
 
 namespace mx = MaterialX;
@@ -319,8 +323,24 @@ void shaderGenPerformanceTest(mx::GenContext& context)
     context.registerSourceCodeSearchPath(libSearchPath);
 
     // Enable Color Management
-    mx::ColorManagementSystemPtr colorManagementSystem =
+    mx::ColorManagementSystemPtr colorManagementSystem;
+#ifdef MATERIALX_BUILD_OCIO
+    try
+    {
+        colorManagementSystem =
+            mx::OcioColorManagementSystem::createFromBuiltinConfig(
+                "ocio://studio-config-latest",
+                context.getShaderGenerator().getTarget());
+    }
+    catch (const std::exception& /*e*/)
+    {
+        colorManagementSystem =
+            mx::DefaultColorManagementSystem::create(context.getShaderGenerator().getTarget());
+    }
+#else
+    colorManagementSystem =
         mx::DefaultColorManagementSystem::create(context.getShaderGenerator().getTarget());
+#endif
 
     REQUIRE(colorManagementSystem);
     if (colorManagementSystem)
@@ -377,6 +397,8 @@ void shaderGenPerformanceTest(mx::GenContext& context)
         bool docValid = doc->validate(&message);
 
         REQUIRE(docValid == true);
+
+        context.getShaderGenerator().registerTypeDefs(doc);
 
         mx::StringVec sourceCode;
         mx::ShaderPtr shader = nullptr;
@@ -507,7 +529,20 @@ void ShaderGeneratorTester::addColorManagement()
     if (!_colorManagementSystem && _shaderGenerator)
     {
         const std::string& target = _shaderGenerator->getTarget();
+#ifdef MATERIALX_BUILD_OCIO
+        try
+        {
+            _colorManagementSystem = mx::OcioColorManagementSystem::createFromBuiltinConfig(
+                "ocio://studio-config-latest",
+                target);
+        }
+        catch (const std::exception& /*e*/)
+        {
+            _colorManagementSystem = mx::DefaultColorManagementSystem::create(target);
+        }
+#else
         _colorManagementSystem = mx::DefaultColorManagementSystem::create(target);
+#endif
         if (!_colorManagementSystem)
         {
             _logFile << ">> Failed to create color management system for target: " << target << std::endl;
@@ -576,8 +611,7 @@ void ShaderGeneratorTester::findLights(mx::DocumentPtr doc, std::vector<mx::Node
     lights.clear();
     for (mx::NodePtr node : doc->getNodes())
     {
-        const mx::TypeDesc type = mx::TypeDesc::get(node->getType());
-        if (type == mx::Type::LIGHTSHADER)
+        if (node->getType() == mx::LIGHT_SHADER_TYPE_STRING)
         {
             lights.push_back(node);
         }
@@ -645,9 +679,6 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     addColorManagement();
     addUnitSystem();
 
-    // Register struct typedefs from the library files.
-    _shaderGenerator->loadStructTypeDefs(_dependLib);
-
     // Test suite setup
     addSkipFiles();
 
@@ -704,8 +735,6 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
         preprocessDocument(doc);
         _shaderGenerator->registerShaderMetadata(doc, context);
 
-        _shaderGenerator->loadStructTypeDefs(doc);
-
         // For each new file clear the implementation cache.
         // Since the new file might contain implementations with names
         // colliding with implementations in previous test cases.
@@ -733,6 +762,9 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
             CHECK(importedLibrary);
             continue;
         }
+
+        // Register typedefs from the document.
+        _shaderGenerator->registerTypeDefs(doc);
 
         // Find and register lights
         findLights(_dependLib, _lights);

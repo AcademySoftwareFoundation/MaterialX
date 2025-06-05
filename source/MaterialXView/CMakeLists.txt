@@ -110,14 +110,8 @@ if("${NANOGUI_PREFERRED_BACKEND}" STREQUAL "Metal")
         MaterialXGenMsl
         MaterialXRenderMsl)
 
-    file(GLOB materialx_source 
-        "${CMAKE_CURRENT_SOURCE_DIR}/Viewer.cpp"
-        "${CMAKE_CURRENT_SOURCE_DIR}/ViewerMSL.mm"
-        "${CMAKE_CURRENT_SOURCE_DIR}/RenderPipeline.cpp"
-        "${CMAKE_CURRENT_SOURCE_DIR}/RenderPipelineMetal.mm"
-        "${CMAKE_CURRENT_SOURCE_DIR}/Editor.cpp"
-        "${CMAKE_CURRENT_SOURCE_DIR}/MetalState.mm"
-        "${CMAKE_CURRENT_SOURCE_DIR}/Main.cpp")    
+    LIST(REMOVE_ITEM materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/RenderPipelineGL.cpp")
+    LIST(APPEND materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/RenderPipelineMetal.mm")
 endif()
 
 if (MATERIALX_BUILD_GEN_OSL)

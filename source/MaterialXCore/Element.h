@@ -65,6 +65,9 @@ using ConstGenericElementPtr = shared_ptr<const GenericElement>;
 /// A shared pointer to a StringResolver
 using StringResolverPtr = shared_ptr<StringResolver>;
 
+/// A vector of elements.
+using ElementVec = vector<ElementPtr>;
+
 /// A hash map from strings to elements
 using ElementMap = std::unordered_map<string, ElementPtr>;
 
@@ -441,7 +444,7 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
 
     /// Return a constant vector of all child elements.
     /// The returned vector maintains the order in which children were added.
-    const vector<ElementPtr>& getChildren() const
+    const ElementVec& getChildren() const
     {
         return _childOrder;
     }
@@ -837,7 +840,7 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     string _sourceUri;
 
     ElementMap _childMap;
-    vector<ElementPtr> _childOrder;
+    ElementVec _childOrder;
 
     StringMap _attributeMap;
     StringVec _attributeOrder;
@@ -1363,7 +1366,7 @@ class MX_CORE_API ElementEquivalenceOptions
         floatPrecision = Value::getFloatPrecision();
         attributeExclusionList = {};
     };
-    ~ElementEquivalenceOptions() { }
+    ~ElementEquivalenceOptions() = default;
 
     /// Perform value comparisons as opposed to literal string comparisons.
     /// Default is true.

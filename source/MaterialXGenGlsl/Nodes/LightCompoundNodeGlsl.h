@@ -24,8 +24,6 @@ class MX_GENGLSL_API LightCompoundNodeGlsl : public CompoundNode
 
     static ShaderNodeImplPtr create();
 
-    const string& getTarget() const override;
-
     void initialize(const InterfaceElement& element, GenContext& context) override;
 
     void createVariables(const ShaderNode& node, GenContext& context, Shader& shader) const override;
@@ -35,8 +33,6 @@ class MX_GENGLSL_API LightCompoundNodeGlsl : public CompoundNode
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
   protected:
-    void emitFunctionDefinition(ClosureContext* cct, GenContext& context, ShaderStage& stage) const;
-
     VariableBlock _lightUniforms;
 };
 

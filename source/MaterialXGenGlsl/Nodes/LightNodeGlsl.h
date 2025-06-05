@@ -11,7 +11,7 @@
 MATERIALX_NAMESPACE_BEGIN
 
 /// Light node implementation for GLSL
-class MX_GENGLSL_API LightNodeGlsl : public GlslImplementation
+class MX_GENGLSL_API LightNodeGlsl : public HwImplementation
 {
   public:
     LightNodeGlsl();
@@ -21,9 +21,6 @@ class MX_GENGLSL_API LightNodeGlsl : public GlslImplementation
     void createVariables(const ShaderNode& node, GenContext& context, Shader& shader) const override;
 
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
-
-  private:
-    mutable ClosureContext _callEmission;
 };
 
 MATERIALX_NAMESPACE_END

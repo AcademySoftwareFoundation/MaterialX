@@ -18,14 +18,6 @@
 #include <MaterialXCore/Value.h>
 #include <MaterialXCore/Unit.h>
 
-MATERIALX_NAMESPACE_BEGIN
-#ifdef MATERIALXVIEW_METAL_BACKEND
-using TextureBakerPtr = shared_ptr<class TextureBakerMsl>;
-#else
-using TextureBakerPtr = shared_ptr<class TextureBakerGlsl>;
-#endif
-MATERIALX_NAMESPACE_END
-
 #include <memory>
 
 namespace mx = MaterialX;
@@ -37,7 +29,8 @@ class RenderPipeline
 {
   public:
     RenderPipeline() = delete;
-    RenderPipeline(Viewer* viewer)
+    RenderPipeline(Viewer* viewer) :
+        _frame(0)
     {
         _viewer = viewer;
     }
@@ -68,5 +61,6 @@ class RenderPipeline
 
   public:
     Viewer* _viewer;
+    unsigned int _frame;
 };
 #endif // RENDER_PIPELINE_H

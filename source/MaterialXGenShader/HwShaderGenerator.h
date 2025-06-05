@@ -298,8 +298,8 @@ class MX_GENSHADER_API HwShaderGenerator : public ShaderGenerator
     /// Emit code for active light count definitions and uniforms
     virtual void addStageLightingUniforms(GenContext& context, ShaderStage& stage) const;
 
-    /// Return the closure contexts defined for the given node.
-    void getClosureContexts(const ShaderNode& node, vector<ClosureContext*>& cct) const override;
+    /// Return true if the node needs the ClosureData struct added
+    bool nodeNeedsClosureData(const ShaderNode& node) const override;
 
     /// Bind a light shader to a light type id, for usage in surface shaders created
     /// by the generator. The lightTypeId should be a unique identifier for the light
@@ -332,14 +332,10 @@ class MX_GENSHADER_API HwShaderGenerator : public ShaderGenerator
     };
 
   protected:
-    HwShaderGenerator(SyntaxPtr syntax);
+    HwShaderGenerator(TypeSystemPtr typeSystem, SyntaxPtr syntax);
 
     /// Create and initialize a new HW shader for shader generation.
     virtual ShaderPtr createShader(const string& name, ElementPtr element, GenContext& context) const;
-
-    /// Closure contexts for defining closure functions.
-    mutable ClosureContext _defDefault;
-    mutable ClosureContext _defClosure;
 };
 
 /// @class HwImplementation

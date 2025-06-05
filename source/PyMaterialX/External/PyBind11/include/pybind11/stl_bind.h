@@ -158,8 +158,7 @@ void vector_modifiers(
         return v.release();
     }));
 
-    cl.def(
-        "clear", [](Vector &v) { v.clear(); }, "Clear the contents");
+    cl.def("clear", [](Vector &v) { v.clear(); }, "Clear the contents");
 
     cl.def(
         "extend",
@@ -181,7 +180,7 @@ void vector_modifiers(
                         v.end());
                 try {
                     v.shrink_to_fit();
-                } catch (const std::exception &) {
+                } catch (const std::exception &) { // NOLINT(bugprone-empty-catch)
                     // Do nothing
                 }
                 throw;
