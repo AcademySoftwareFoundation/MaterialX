@@ -37,10 +37,12 @@ void WgslShaderGenerator::emitDirectives(GenContext& context, ShaderStage& stage
 // Called by CompoundNode::emitFunctionDefinition()
 void WgslShaderGenerator::emitFunctionDefinitionParameter(const ShaderPort* shaderPort, GenContext& context, ShaderStage& stage) const
 {
-    if (shaderPort->getType() == Type::FILENAME) {
+    if (shaderPort->getType() == Type::FILENAME)
+    {
         emitString("texture2D " + shaderPort->getVariable() + "_texture, sampler "+shaderPort->getVariable() + "_sampler", stage);
     }
-    else {
+    else
+    {
         VkShaderGenerator::emitFunctionDefinitionParameter(shaderPort, context, stage);
     }
 }
@@ -48,10 +50,12 @@ void WgslShaderGenerator::emitFunctionDefinitionParameter(const ShaderPort* shad
 // Called by SourceCodeNode::emitFunctionCall()
 void WgslShaderGenerator::emitInput(const ShaderInput* input, GenContext& context, ShaderStage& stage) const
 {
-    if (input->getType() == Type::FILENAME) {
+    if (input->getType() == Type::FILENAME)
+    {
         emitString(getUpstreamResult(input, context)+"_texture, "+getUpstreamResult(input, context)+"_sampler", stage);
     }
-    else {
+    else
+    {
         VkShaderGenerator::emitInput(input, context, stage);
     }
 }
