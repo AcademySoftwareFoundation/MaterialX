@@ -16,7 +16,6 @@ WgslResourceBindingContext::WgslResourceBindingContext(size_t uniformBindingLoca
 {
 }
 
-
 // Copied from VkResourceBindingContext::emitResourceBindings().  
 // Modified the Type::FILENAME uniform codegen.
 void WgslResourceBindingContext::emitResourceBindings(GenContext& context, const VariableBlock& uniforms, ShaderStage& stage)
