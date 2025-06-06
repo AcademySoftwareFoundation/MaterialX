@@ -12,15 +12,15 @@
   <!-- ======================================================================== -->
 
   <typedef name="boolean" />
-  <typedef name="integer" />
-  <typedef name="float" />
-  <typedef name="color3" semantic="color" />
-  <typedef name="color4" semantic="color" />
-  <typedef name="vector2" />
-  <typedef name="vector3" />
-  <typedef name="vector4" />
-  <typedef name="matrix33" />
-  <typedef name="matrix44" />
+  <typedef name="integer" zero="0" one="1"/>
+  <typedef name="float" zero="0.0" one="1.0"/>
+  <typedef name="color3" semantic="color" zero="0.0,0.0,0.0" one="1.0,1.0,1.0"/>
+  <typedef name="color4" semantic="color" zero="0.0,0.0,0.0,0.0" one="1.0,1.0,1.0,1.0"/>
+  <typedef name="vector2" zero="0.0,0.0" one="1.0,1.0"/>
+  <typedef name="vector3" zero="0.0,0.0,0.0" one="1.0,1.0,1.0"/>
+  <typedef name="vector4" zero="0.0,0.0,0.0,0.0" one="1.0,1.0,1.0,1.0"/>
+  <typedef name="matrix33" zero="0.0,0.0,0.0, 0.0,0.0,0.0, 0.0,0.0,0.0" identity="1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0"/>
+  <typedef name="matrix44" zero="0.0,0.0,0.0,0.0, 0.0,0.0,0.0,0.0, 0.0,0.0,0.0,0.0, 0.0,0.0,0.0,0.0" identity="1.0,0.0,0.0,0.0, 0.0,1.0,0.0,0.0, 0.0,0.0,1.0,0.0, 0.0,0.0,0.0,1.0"/>
   <typedef name="string" />
   <typedef name="filename" />
   <typedef name="geomname" />
@@ -1491,242 +1491,94 @@
     Node: <add>
     Add "in2" value/stream to the incoming float/integer/color/vector/matrix.
   -->
-  <nodedef name="ND_add_float" node="add" nodegroup="math">
-    <input name="in1" type="float" value="0.0" />
-    <input name="in2" type="float" value="0.0" />
-    <output name="out" type="float" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_add_integer" node="add" nodegroup="math">
-    <input name="in1" type="integer" value="0" />
-    <input name="in2" type="integer" value="0" />
-    <output name="out" type="integer" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_add_color3" node="add" nodegroup="math">
-    <input name="in1" type="color3" value="0.0, 0.0, 0.0" />
-    <input name="in2" type="color3" value="0.0, 0.0, 0.0" />
-    <output name="out" type="color3" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_add_color4" node="add" nodegroup="math">
-    <input name="in1" type="color4" value="0.0, 0.0, 0.0, 0.0" />
-    <input name="in2" type="color4" value="0.0, 0.0, 0.0, 0.0" />
-    <output name="out" type="color4" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_add_vector2" node="add" nodegroup="math">
-    <input name="in1" type="vector2" value="0.0, 0.0" />
-    <input name="in2" type="vector2" value="0.0, 0.0" />
-    <output name="out" type="vector2" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_add_vector3" node="add" nodegroup="math">
-    <input name="in1" type="vector3" value="0.0, 0.0, 0.0" />
-    <input name="in2" type="vector3" value="0.0, 0.0, 0.0" />
-    <output name="out" type="vector3" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_add_vector4" node="add" nodegroup="math">
-    <input name="in1" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
-    <input name="in2" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
-    <output name="out" type="vector4" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_add_matrix33" node="add" nodegroup="math">
-    <input name="in1" type="matrix33" value="1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0" />
-    <input name="in2" type="matrix33" value="0.0,0.0,0.0, 0.0,0.0,0.0, 0.0,0.0,0.0" />
-    <output name="out" type="matrix33" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_add_matrix44" node="add" nodegroup="math">
-    <input name="in1" type="matrix44" value="1.0,0.0,0.0,0.0, 0.0,1.0,0.0,0.0, 0.0,0.0,1.0,0.0, 0.0,0.0,0.0,1.0" />
-    <input name="in2" type="matrix44" value="0.0,0.0,0.0,0.0, 0.0,0.0,0.0,0.0, 0.0,0.0,0.0,0.0, 0.0,0.0,0.0,0.0" />
-    <output name="out" type="matrix44" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_add_color3FA" node="add" nodegroup="math">
-    <input name="in1" type="color3" value="0.0, 0.0, 0.0" />
-    <input name="in2" type="float" value="0.0" />
-    <output name="out" type="color3" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_add_color4FA" node="add" nodegroup="math">
-    <input name="in1" type="color4" value="0.0, 0.0, 0.0, 0.0" />
-    <input name="in2" type="float" value="0.0" />
-    <output name="out" type="color4" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_add_vector2FA" node="add" nodegroup="math">
-    <input name="in1" type="vector2" value="0.0, 0.0" />
-    <input name="in2" type="float" value="0.0" />
-    <output name="out" type="vector2" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_add_vector3FA" node="add" nodegroup="math">
-    <input name="in1" type="vector3" value="0.0, 0.0, 0.0" />
-    <input name="in2" type="float" value="0.0" />
-    <output name="out" type="vector3" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_add_vector4FA" node="add" nodegroup="math">
-    <input name="in1" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
-    <input name="in2" type="float" value="0.0" />
-    <output name="out" type="vector4" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_add_matrix33FA" node="add" nodegroup="math">
-    <input name="in1" type="matrix33" value="1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0" />
-    <input name="in2" type="float" value="0.0" />
-    <output name="out" type="matrix33" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_add_matrix44FA" node="add" nodegroup="math">
-    <input name="in1" type="matrix44" value="1.0,0.0,0.0,0.0, 0.0,1.0,0.0,0.0, 0.0,0.0,1.0,0.0, 0.0,0.0,0.0,1.0" />
-    <input name="in2" type="float" value="0.0" />
-    <output name="out" type="matrix44" defaultinput="in1" />
-  </nodedef>
+  <template name="TP_ND_add" varName="typeName" options="float, integer, color3, color4, vector2, vector3, vector4">
+    <nodedef name="ND_add_@typeName@" node="add" nodegroup="math">
+      <input name="in1" type="@typeName@" value="Value:zero" />
+      <input name="in2" type="@typeName@" value="Value:zero" />
+      <output name="out" type="@typeName@" defaultinput="in1" />
+    </nodedef>
+  </template>
+  <template name="TP_ND_add_matrix" varName="typeName" options="matrix33, matrix44">
+    <nodedef name="ND_add_@typeName@" node="add" nodegroup="math">
+      <input name="in1" type="@typeName@" value="Value:identity" />
+      <input name="in2" type="@typeName@" value="Value:zero" />
+      <output name="out" type="@typeName@" defaultinput="in1" />
+    </nodedef>
+  </template>
+  <template name="TP_ND_addFA" varName="typeName" options="color3, color4, vector2, vector3, vector4">
+    <nodedef name="ND_add_@typeName@FA" node="add" nodegroup="math">
+      <input name="in1" type="@typeName@" value="Value:zero" />
+      <input name="in2" type="float" value="Value:zero" />
+      <output name="out" type="@typeName@" defaultinput="in1" />
+    </nodedef>
+  </template>
+  <template name="TP_ND_add_matrixFA" varName="typeName" options="matrix33, matrix44">
+    <nodedef name="ND_add_@typeName@FA" node="add" nodegroup="math">
+      <input name="in1" type="@typeName@" value="Value:identity" />
+      <input name="in2" type="float" value="Value:zero" />
+      <output name="out" type="@typeName@" defaultinput="in1" />
+    </nodedef>
+  </template>
 
   <!--
     Node: <subtract>
     Subtract "in2" value/stream from the incoming float/integer/color/vector/matrix.
   -->
-  <nodedef name="ND_subtract_float" node="subtract" nodegroup="math">
-    <input name="in1" type="float" value="0.0" />
-    <input name="in2" type="float" value="0.0" />
-    <output name="out" type="float" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_subtract_integer" node="subtract" nodegroup="math">
-    <input name="in1" type="integer" value="0" />
-    <input name="in2" type="integer" value="0" />
-    <output name="out" type="integer" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_subtract_color3" node="subtract" nodegroup="math">
-    <input name="in1" type="color3" value="0.0, 0.0, 0.0" />
-    <input name="in2" type="color3" value="0.0, 0.0, 0.0" />
-    <output name="out" type="color3" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_subtract_color4" node="subtract" nodegroup="math">
-    <input name="in1" type="color4" value="0.0, 0.0, 0.0, 0.0" />
-    <input name="in2" type="color4" value="0.0, 0.0, 0.0, 0.0" />
-    <output name="out" type="color4" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_subtract_vector2" node="subtract" nodegroup="math">
-    <input name="in1" type="vector2" value="0.0, 0.0" />
-    <input name="in2" type="vector2" value="0.0, 0.0" />
-    <output name="out" type="vector2" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_subtract_vector3" node="subtract" nodegroup="math">
-    <input name="in1" type="vector3" value="0.0, 0.0, 0.0" />
-    <input name="in2" type="vector3" value="0.0, 0.0, 0.0" />
-    <output name="out" type="vector3" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_subtract_vector4" node="subtract" nodegroup="math">
-    <input name="in1" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
-    <input name="in2" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
-    <output name="out" type="vector4" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_subtract_matrix33" node="subtract" nodegroup="math">
-    <input name="in1" type="matrix33" value="1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0" />
-    <input name="in2" type="matrix33" value="0.0,0.0,0.0, 0.0,0.0,0.0, 0.0,0.0,0.0" />
-    <output name="out" type="matrix33" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_subtract_matrix44" node="subtract" nodegroup="math">
-    <input name="in1" type="matrix44" value="1.0,0.0,0.0,0.0, 0.0,1.0,0.0,0.0, 0.0,0.0,1.0,0.0, 0.0,0.0,0.0,1.0" />
-    <input name="in2" type="matrix44" value="0.0,0.0,0.0,0.0, 0.0,0.0,0.0,0.0, 0.0,0.0,0.0,0.0, 0.0,0.0,0.0,0.0" />
-    <output name="out" type="matrix44" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_subtract_color3FA" node="subtract" nodegroup="math">
-    <input name="in1" type="color3" value="0.0, 0.0, 0.0" />
-    <input name="in2" type="float" value="0.0" />
-    <output name="out" type="color3" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_subtract_color4FA" node="subtract" nodegroup="math">
-    <input name="in1" type="color4" value="0.0, 0.0, 0.0, 0.0" />
-    <input name="in2" type="float" value="0.0" />
-    <output name="out" type="color4" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_subtract_vector2FA" node="subtract" nodegroup="math">
-    <input name="in1" type="vector2" value="0.0, 0.0" />
-    <input name="in2" type="float" value="0.0" />
-    <output name="out" type="vector2" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_subtract_vector3FA" node="subtract" nodegroup="math">
-    <input name="in1" type="vector3" value="0.0, 0.0, 0.0" />
-    <input name="in2" type="float" value="0.0" />
-    <output name="out" type="vector3" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_subtract_vector4FA" node="subtract" nodegroup="math">
-    <input name="in1" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
-    <input name="in2" type="float" value="0.0" />
-    <output name="out" type="vector4" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_subtract_matrix33FA" node="subtract" nodegroup="math">
-    <input name="in1" type="matrix33" value="1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0" />
-    <input name="in2" type="float" value="0.0" />
-    <output name="out" type="matrix33" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_subtract_matrix44FA" node="subtract" nodegroup="math">
-    <input name="in1" type="matrix44" value="1.0,0.0,0.0,0.0, 0.0,1.0,0.0,0.0, 0.0,0.0,1.0,0.0, 0.0,0.0,0.0,1.0" />
-    <input name="in2" type="float" value="0.0" />
-    <output name="out" type="matrix44" defaultinput="in1" />
-  </nodedef>
+  <template name="TP_ND_subtract" varName="typeName" options="float, integer, color3, color4, vector2, vector3, vector4">
+    <nodedef name="ND_subtract_@typeName@" node="subtract" nodegroup="math">
+      <input name="in1" type="@typeName@" value="Value:zero" />
+      <input name="in2" type="@typeName@" value="Value:zero" />
+      <output name="out" type="@typeName@" defaultinput="in1" />
+    </nodedef>
+  </template>
+  <template name="TP_ND_subtract_matrix" varName="typeName" options="matrix33, matrix44">
+    <nodedef name="ND_subtract_@typeName@" node="subtract" nodegroup="math">
+      <input name="in1" type="@typeName@" value="Value:identity" />
+      <input name="in2" type="@typeName@" value="Value:zero" />
+      <output name="out" type="@typeName@" defaultinput="in1" />
+    </nodedef>
+  </template>
+  <template name="TP_ND_subtractFA" varName="typeName" options="color3, color4, vector2, vector3, vector4">
+    <nodedef name="ND_subtract_@typeName@FA" node="subtract" nodegroup="math">
+      <input name="in1" type="@typeName@" value="Value:zero" />
+      <input name="in2" type="float" value="Value:zero" />
+      <output name="out" type="@typeName@" defaultinput="in1" />
+    </nodedef>
+  </template>
+  <template name="TP_ND_subtract_matrixFA" varName="typeName" options="matrix33, matrix44">
+    <nodedef name="ND_subtract_@typeName@FA" node="subtract" nodegroup="math">
+      <input name="in1" type="@typeName@" value="Value:identity" />
+      <input name="in2" type="float" value="Value:zero" />
+      <output name="out" type="@typeName@" defaultinput="in1" />
+    </nodedef>
+  </template>
 
   <!--
     Node: <multiply>
     Multiply the incoming float/color/vector by the "in2" value/stream, or multiply
     two matrices.
   -->
-  <nodedef name="ND_multiply_float" node="multiply" nodegroup="math">
-    <input name="in1" type="float" value="0.0" />
-    <input name="in2" type="float" value="1.0" />
-    <output name="out" type="float" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_multiply_color3" node="multiply" nodegroup="math">
-    <input name="in1" type="color3" value="0.0, 0.0, 0.0" />
-    <input name="in2" type="color3" value="1.0, 1.0, 1.0" />
-    <output name="out" type="color3" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_multiply_color4" node="multiply" nodegroup="math">
-    <input name="in1" type="color4" value="0.0, 0.0, 0.0, 0.0" />
-    <input name="in2" type="color4" value="1.0, 1.0, 1.0, 1.0" />
-    <output name="out" type="color4" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_multiply_vector2" node="multiply" nodegroup="math">
-    <input name="in1" type="vector2" value="0.0, 0.0" />
-    <input name="in2" type="vector2" value="1.0, 1.0" />
-    <output name="out" type="vector2" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_multiply_vector3" node="multiply" nodegroup="math">
-    <input name="in1" type="vector3" value="0.0, 0.0, 0.0" />
-    <input name="in2" type="vector3" value="1.0, 1.0, 1.0" />
-    <output name="out" type="vector3" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_multiply_vector4" node="multiply" nodegroup="math">
-    <input name="in1" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
-    <input name="in2" type="vector4" value="1.0, 1.0, 1.0, 1.0" />
-    <output name="out" type="vector4" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_multiply_matrix33" node="multiply" nodegroup="math">
-    <input name="in1" type="matrix33" value="1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0" />
-    <input name="in2" type="matrix33" value="1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0" />
-    <output name="out" type="matrix33" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_multiply_matrix44" node="multiply" nodegroup="math">
-    <input name="in1" type="matrix44" value="1.0,0.0,0.0,0.0, 0.0,1.0,0.0,0.0, 0.0,0.0,1.0,0.0, 0.0,0.0,0.0,1.0" />
-    <input name="in2" type="matrix44" value="1.0,0.0,0.0,0.0, 0.0,1.0,0.0,0.0, 0.0,0.0,1.0,0.0, 0.0,0.0,0.0,1.0" />
-    <output name="out" type="matrix44" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_multiply_color3FA" node="multiply" nodegroup="math">
-    <input name="in1" type="color3" value="0.0, 0.0, 0.0" />
-    <input name="in2" type="float" value="1.0" />
-    <output name="out" type="color3" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_multiply_color4FA" node="multiply" nodegroup="math">
-    <input name="in1" type="color4" value="0.0, 0.0, 0.0, 0.0" />
-    <input name="in2" type="float" value="1.0" />
-    <output name="out" type="color4" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_multiply_vector2FA" node="multiply" nodegroup="math">
-    <input name="in1" type="vector2" value="0.0, 0.0" />
-    <input name="in2" type="float" value="1.0" />
-    <output name="out" type="vector2" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_multiply_vector3FA" node="multiply" nodegroup="math">
-    <input name="in1" type="vector3" value="0.0, 0.0, 0.0" />
-    <input name="in2" type="float" value="1.0" />
-    <output name="out" type="vector3" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_multiply_vector4FA" node="multiply" nodegroup="math">
-    <input name="in1" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
-    <input name="in2" type="float" value="1.0" />
-    <output name="out" type="vector4" defaultinput="in1" />
-  </nodedef>
+  <template name="TP_ND_multiply" varName="typeName" options="float, color3, color4, vector2, vector3, vector4">
+    <nodedef name="ND_multiply_@typeName@" node="multiply" nodegroup="math">
+      <input name="in1" type="@typeName@" value="Value:zero" />
+      <input name="in2" type="@typeName@" value="Value:one" />
+      <output name="out" type="@typeName@" defaultinput="in1" />
+    </nodedef>
+  </template>
+  <template name="TP_ND_multiply_matrix" varName="typeName" options="matrix33, matrix44">
+    <nodedef name="ND_multiply_@typeName@" node="multiply" nodegroup="math">
+      <input name="in1" type="@typeName@" value="Value:identity" />
+      <input name="in2" type="@typeName@" value="Value:identity" />
+      <output name="out" type="@typeName@" defaultinput="in1" />
+    </nodedef>
+  </template>
+  <template name="TP_ND_multiplyFA" varName="typeName" options="color3, color4, vector2, vector3, vector4">
+    <nodedef name="ND_multiply_@typeName@FA" node="multiply" nodegroup="math">
+      <input name="in1" type="@typeName@" value="Value:zero" />
+      <input name="in2" type="float" value="Value:one" />
+      <output name="out" type="@typeName@" defaultinput="in1" />
+    </nodedef>
+  </template>
 
   <!--
     Node: <divide>
@@ -1734,71 +1586,27 @@
     value by 0 results in floating-point "NaN".  Or, multiply one matrix by the
     inverse of a second matrix.
   -->
-  <nodedef name="ND_divide_float" node="divide" nodegroup="math">
-    <input name="in1" type="float" value="0.0" />
-    <input name="in2" type="float" value="1.0" />
-    <output name="out" type="float" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_divide_color3" node="divide" nodegroup="math">
-    <input name="in1" type="color3" value="0.0, 0.0, 0.0" />
-    <input name="in2" type="color3" value="1.0, 1.0, 1.0" />
-    <output name="out" type="color3" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_divide_color4" node="divide" nodegroup="math">
-    <input name="in1" type="color4" value="0.0, 0.0, 0.0, 0.0" />
-    <input name="in2" type="color4" value="1.0, 1.0, 1.0, 1.0" />
-    <output name="out" type="color4" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_divide_vector2" node="divide" nodegroup="math">
-    <input name="in1" type="vector2" value="0.0, 0.0" />
-    <input name="in2" type="vector2" value="1.0, 1.0" />
-    <output name="out" type="vector2" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_divide_vector3" node="divide" nodegroup="math">
-    <input name="in1" type="vector3" value="0.0, 0.0, 0.0" />
-    <input name="in2" type="vector3" value="1.0, 1.0, 1.0" />
-    <output name="out" type="vector3" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_divide_vector4" node="divide" nodegroup="math">
-    <input name="in1" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
-    <input name="in2" type="vector4" value="1.0, 1.0, 1.0, 1.0" />
-    <output name="out" type="vector4" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_divide_matrix33" node="divide" nodegroup="math">
-    <input name="in1" type="matrix33" value="1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0" />
-    <input name="in2" type="matrix33" value="1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0" />
-    <output name="out" type="matrix33" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_divide_matrix44" node="divide" nodegroup="math">
-    <input name="in1" type="matrix44" value="1.0,0.0,0.0,0.0, 0.0,1.0,0.0,0.0, 0.0,0.0,1.0,0.0, 0.0,0.0,0.0,1.0" />
-    <input name="in2" type="matrix44" value="1.0,0.0,0.0,0.0, 0.0,1.0,0.0,0.0, 0.0,0.0,1.0,0.0, 0.0,0.0,0.0,1.0" />
-    <output name="out" type="matrix44" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_divide_color3FA" node="divide" nodegroup="math">
-    <input name="in1" type="color3" value="0.0, 0.0, 0.0" />
-    <input name="in2" type="float" value="1.0" />
-    <output name="out" type="color3" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_divide_color4FA" node="divide" nodegroup="math">
-    <input name="in1" type="color4" value="0.0, 0.0, 0.0, 0.0" />
-    <input name="in2" type="float" value="1.0" />
-    <output name="out" type="color4" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_divide_vector2FA" node="divide" nodegroup="math">
-    <input name="in1" type="vector2" value="0.0, 0.0" />
-    <input name="in2" type="float" value="1.0" />
-    <output name="out" type="vector2" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_divide_vector3FA" node="divide" nodegroup="math">
-    <input name="in1" type="vector3" value="0.0, 0.0, 0.0" />
-    <input name="in2" type="float" value="1.0" />
-    <output name="out" type="vector3" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_divide_vector4FA" node="divide" nodegroup="math">
-    <input name="in1" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
-    <input name="in2" type="float" value="1.0" />
-    <output name="out" type="vector4" defaultinput="in1" />
-  </nodedef>
+  <template name="TP_ND_divide" varName="typeName" options="float, color3, color4, vector2, vector3, vector4">
+    <nodedef name="ND_divide_@typeName@" node="divide" nodegroup="math">
+      <input name="in1" type="@typeName@" value="Value:zero" />
+      <input name="in2" type="@typeName@" value="Value:one" />
+      <output name="out" type="@typeName@" defaultinput="in1" />
+    </nodedef>
+  </template>
+  <template name="TP_ND_divide_matrix" varName="typeName" options="matrix33, matrix44">
+    <nodedef name="ND_divide_@typeName@" node="divide" nodegroup="math">
+      <input name="in1" type="@typeName@" value="Value:identity" />
+      <input name="in2" type="@typeName@" value="Value:identity" />
+      <output name="out" type="@typeName@" defaultinput="in1" />
+    </nodedef>
+  </template>
+  <template name="TP_ND_divideFA" varName="typeName" options="color3, color4, vector2, vector3, vector4">
+    <nodedef name="ND_divide_@typeName@FA" node="divide" nodegroup="math">
+      <input name="in1" type="@typeName@" value="Value:zero" />
+      <input name="in2" type="float" value="Value:one" />
+      <output name="out" type="@typeName@" defaultinput="in1" />
+    </nodedef>
+  </template>
 
   <!--
     Node: <modulo>

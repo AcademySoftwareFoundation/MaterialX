@@ -167,6 +167,70 @@ void elementFromXml(const xml_node& xmlNode, ElementPtr elem, const XmlReadOptio
     }
 }
 
+void recursivelyReplaceStrings(ElementPtr elem, const StringMap& strReplaceMapping)
+{
+    for (const auto& attrName : elem->getAttributeNames())
+    {
+        auto attrValue = elem->getAttribute(attrName);
+        auto newAttrValue = replaceSubstrings(attrValue, strReplaceMapping);
+        elem->setAttribute(attrName, newAttrValue);
+    }
+
+    for (auto childElem : elem->getChildren())
+    {
+        recursivelyReplaceStrings(childElem, strReplaceMapping);
+    }
+}
+
+void expandXMLTemplateElems(DocumentPtr doc)
+{
+    // replace node definitions that use a TypeList
+    for (auto elem : doc->traverseTree())
+    {
+        if (elem->getCategory() != "template")
+            continue;
+
+        if (!elem->hasAttribute("varName")) {
+            // std::cerr << "<template> without 'varName' attribute found" << std::endl;
+            continue;
+        }
+
+        if (!elem->hasAttribute("options")) {
+            // std::cerr << "<template> without 'options' attribute found" << std::endl;
+            continue;
+        }
+
+        const auto typeNameAttr = elem->getAttribute("varName");
+        const auto optionsAttr = elem->getAttribute("options");
+
+        const auto options = splitString(optionsAttr, ARRAY_VALID_SEPARATORS);
+
+        const auto childElems = elem->getChildren();
+
+        auto parentElem = elem->getParent();
+        const auto origIndex = parentElem->getChildIndex(elem->getName());
+
+        for (const auto& childElem : childElems)
+        {
+            auto index = origIndex;
+
+            for (const auto& option : options)
+            {
+                StringMap strReplaceMapping = {{"@"+typeNameAttr+"@", option}};
+
+                string newName = replaceSubstrings(childElem->getName(), strReplaceMapping);
+
+                auto newChildElem = parentElem->addChildOfCategory(childElem->getCategory(), newName);
+                parentElem->setChildIndex(newChildElem->getName(), index++);
+                newChildElem->copyContentFrom(childElem);
+
+                recursivelyReplaceStrings(newChildElem, strReplaceMapping);
+            }
+            parentElem->removeChild(elem->getName());
+        }
+    }
+}
+
 void documentFromXml(DocumentPtr doc, const xml_document& xmlDoc, const FileSearchPath& searchPath, const XmlReadOptions* readOptions)
 {
     xml_node xmlRoot = xmlDoc.child(Document::CATEGORY.c_str());
@@ -210,6 +274,11 @@ void documentFromXml(DocumentPtr doc, const xml_document& xmlDoc, const FileSear
 
     // Build the element tree.
     elementFromXml(xmlRoot, doc, readOptions);
+
+    if (!readOptions || readOptions->expandTemplateElems)
+    {
+        expandXMLTemplateElems(doc);
+    }
 
     // Upgrade version if requested.
     if (!readOptions || readOptions->upgradeVersion)
@@ -268,9 +337,6 @@ unsigned int getParseOptions(const XmlReadOptions* readOptions)
 //
 
 XmlReadOptions::XmlReadOptions() :
-    readComments(false),
-    readNewlines(false),
-    upgradeVersion(true),
     readXIncludeFunction(readFromXmlFile)
 {
 }
@@ -279,8 +345,7 @@ XmlReadOptions::XmlReadOptions() :
 // XmlWriteOptions methods
 //
 
-XmlWriteOptions::XmlWriteOptions() :
-    writeXIncludeEnable(true)
+XmlWriteOptions::XmlWriteOptions()
 {
 }
 
@@ -355,6 +420,13 @@ void writeToXmlStream(DocumentPtr doc, std::ostream& stream, const XmlWriteOptio
 
 void writeToXmlFile(DocumentPtr doc, const FilePath& filename, const XmlWriteOptions* writeOptions)
 {
+    if (writeOptions && writeOptions->createDirectories)
+    {
+        if (!filename.getParentPath().isDirectory())
+        {
+            filename.getParentPath().createDirectory();
+        }
+    }
     std::ofstream ofs(filename.asString());
     writeToXmlStream(doc, ofs, writeOptions);
 }
