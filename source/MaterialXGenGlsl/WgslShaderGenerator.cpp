@@ -12,7 +12,6 @@ MATERIALX_NAMESPACE_BEGIN
 
 const string WgslShaderGenerator::LIGHTDATA_TYPEVAR_STRING = "light_type";
 
-
 WgslShaderGenerator::WgslShaderGenerator(TypeSystemPtr typeSystem) :
     VkShaderGenerator(typeSystem)
 {
