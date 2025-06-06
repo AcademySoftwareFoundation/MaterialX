@@ -16,9 +16,9 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@babel/core": "^7.26.9",
-    "@babel/preset-env": "^7.26.9",
-    "@babel/register": "^7.25.9",
+    "@babel/core": "^7.27.4",
+    "@babel/preset-env": "^7.27.2",
+    "@babel/register": "^7.27.1",
     "chai": "^4.5.0",
     "copyfiles": "^2.4.1",
     "karma": "^6.4.4",
