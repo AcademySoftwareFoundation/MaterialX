@@ -6,6 +6,7 @@
     <latlongimage name="envImage" type="color3">
       <input name="file" type="filename" value="resources/Lights/san_giuseppe_bridge.hdr" />
       <input name="viewdir" type="vector3" nodename="viewDir" />
+      <input name="rotation" type="float" value="0.0" />
     </latlongimage>
 
     <multiply name="envImageAdjusted" type="color3">
