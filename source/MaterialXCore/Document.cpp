@@ -45,6 +45,7 @@ class Document::Cache
             portElementMap.clear();
             nodeDefMap.clear();
             implementationMap.clear();
+            std::unordered_map<string, std::vector<InterfaceElementPtr>> nonFuncNodeDefMap;
 
             // Traverse the document to build a new cache.
             for (ElementPtr elem : doc.lock()->traverseTree())
@@ -79,6 +80,14 @@ class Document::Cache
                     if (nodeDef)
                     {
                         nodeDefMap[nodeDef->getQualifiedName(nodeString)].push_back(nodeDef);
+
+                        // Look for child nodegraph implementations
+                        vector<NodeGraphPtr> nodeGraphs = nodeDef->getChildrenOfType<NodeGraph>();
+                        for (NodeGraphPtr nodeGraph : nodeGraphs)
+                        {
+                            implementationMap[elem->getName()].push_back(nodeGraph);
+                        }
+                            
                     }
                 }
                 if (!nodeDefString.empty())
@@ -88,7 +97,7 @@ class Document::Cache
                     {
                         if (interface->isA<NodeGraph>())
                         {
-                            implementationMap[interface->getQualifiedName(nodeDefString)].push_back(interface);
+                            nonFuncNodeDefMap[interface->getQualifiedName(nodeDefString)].push_back(interface);
                         }
                         ImplementationPtr impl = interface->asA<Implementation>();
                         if (impl)
@@ -99,15 +108,25 @@ class Document::Cache
                             {
                                 NodeGraphPtr nodeGraph = impl->getDocument()->getNodeGraph(nodeGraphString);
                                 if (nodeGraph)
-                                    implementationMap[interface->getQualifiedName(nodeDefString)].push_back(nodeGraph);
+                                    nonFuncNodeDefMap[interface->getQualifiedName(nodeDefString)].push_back(nodeGraph);
                             }
                             else
                             {
-                                implementationMap[interface->getQualifiedName(nodeDefString)].push_back(interface);
+                                nonFuncNodeDefMap[interface->getQualifiedName(nodeDefString)].push_back(interface);
                             }
                         }
                     }
                 }
+            }
+
+            // Functional node definitions have precedence over non-functional ones
+            // So append them to the end of the implementation list assocaited 
+            // with any existing nodedef entry (or create a new one if does not exist).
+            //
+            for (const auto& [nodedefKey, appendImplementations] : nonFuncNodeDefMap)
+            {
+                auto& implementations = implementationMap[nodedefKey];
+                implementations.insert(implementations.end(), appendImplementations.begin(), appendImplementations.end());
             }
 
             valid = true;
