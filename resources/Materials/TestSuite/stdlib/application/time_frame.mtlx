@@ -1,9 +1,7 @@
 <?xml version="1.0"?>
 <materialx version="1.39">
   <nodegraph name="timeGraph">
-    <time name="time1" type="float">
-      <input name="fps" type="float" value="36.0000" />
-    </time>
+    <time name="time1" type="float" />
     <remap name="remap1" type="float">
       <input name="in" type="float" nodename="time1" />
       <input name="inlow" type="float" value="0.0" />

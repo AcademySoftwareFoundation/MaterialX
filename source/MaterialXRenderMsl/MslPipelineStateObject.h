@@ -218,7 +218,7 @@ class MX_RENDERMSL_API MslProgram
     void bindViewInformation(CameraPtr camera);
 
     /// Bind time and frame
-    void bindTimeAndFrame(float time = 1.0f, float frame = 1.0f);
+    void bindTimeAndFrame(float time = 0.0f, float frame = 1.0f);
 
     /// @}
     /// @name Utilities

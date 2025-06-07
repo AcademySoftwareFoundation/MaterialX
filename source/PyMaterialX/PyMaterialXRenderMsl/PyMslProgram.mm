@@ -34,7 +34,7 @@ void bindPyMslProgram(py::module& mod)
         .def("bindLighting", &mx::MslProgram::bindLighting)
         .def("bindViewInformation", &mx::MslProgram::bindViewInformation)
         .def("bindTimeAndFrame", &mx::MslProgram::bindTimeAndFrame,
-             py::arg("time") = 1.0f, py::arg("frame") = 1.0f);
+             py::arg("time") = 0.0f, py::arg("frame") = 1.0f);
 
     py::class_<mx::MslProgram::Input>(mod, "Input")
         .def_readwrite("location", &mx::MslProgram::Input::location)

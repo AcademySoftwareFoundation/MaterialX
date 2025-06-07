@@ -1488,11 +1488,9 @@
   <!--
     Node: <time>
     The current time in seconds as defined by the host environment.
-    (Default values is 1/24.0)
   -->
   <nodedef name="ND_time_float" node="time" nodegroup="application">
-    <input name="fps" type="float" value="24.0" />
-    <output name="out" type="float" default="0.041666667" />
+    <output name="out" type="float" default="0.0" />
   </nodedef>
 
   <!-- ======================================================================== -->
