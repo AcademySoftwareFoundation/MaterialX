@@ -4357,6 +4357,54 @@ export float4 mx_noise3d_float4(
     return float4(v.x, v.y, v.z, w) * mxp_amplitude + mxp_pivot;
 }
 
+export float mx_fractal2d_float(
+  float mxp_amplitude = 1.0,
+  int mxp_octaves = 3,
+  float mxp_lacunarity = 2.0,
+  float mxp_diminish= 0.5,
+  float2 mxp_texcoord = core::mx_swizzle_xy( ::state::texture_coordinate(0))
+)
+{
+    float v = noise::mx_fractal2d_noise_float(mxp_texcoord, mxp_octaves, mxp_lacunarity, mxp_diminish);
+    return v * mxp_amplitude;
+}
+
+export float2 mx_fractal2d_float2(
+  float2 mxp_amplitude = float2(1.0),
+  int mxp_octaves = 3,
+  float mxp_lacunarity = 2.0,
+  float mxp_diminish= 0.5,
+  float2 mxp_texcoord = core::mx_swizzle_xy( ::state::texture_coordinate(0))
+)
+{
+    float2 v = noise::mx_fractal2d_noise_float2(mxp_texcoord, mxp_octaves, mxp_lacunarity, mxp_diminish);
+    return v * mxp_amplitude;
+}
+
+export float3 mx_fractal2d_float3(
+  float3 mxp_amplitude = float3(1.0),
+  int mxp_octaves = 3,
+  float mxp_lacunarity = 2.0,
+  float mxp_diminish= 0.5,
+  float2 mxp_texcoord = core::mx_swizzle_xy( ::state::texture_coordinate(0))
+)
+{
+    float3 v = noise::mx_fractal2d_noise_float3(mxp_texcoord, mxp_octaves, mxp_lacunarity, mxp_diminish);
+    return v * mxp_amplitude;
+}
+
+export float4 mx_fractal2d_float4(
+  float4 mxp_amplitude = float4(1.0),
+  int mxp_octaves = 3,
+  float mxp_lacunarity = 2.0,
+  float mxp_diminish= 0.5,
+  float2 mxp_texcoord = core::mx_swizzle_xy( ::state::texture_coordinate(0))
+)
+{
+    float4 v = noise::mx_fractal2d_noise_float4(mxp_texcoord, mxp_octaves, mxp_lacunarity, mxp_diminish);
+    return v * mxp_amplitude;
+}
+
 export float mx_fractal3d_float(
   float mxp_amplitude = 1.0,
   int mxp_octaves = 3,
@@ -4365,7 +4413,7 @@ export float mx_fractal3d_float(
   float3 mxp_position = state::transform_point(state::coordinate_internal, state::coordinate_object, state::position())
 )
 {
-    float v = noise::mx_fractal_noise_float(mxp_position, mxp_octaves, mxp_lacunarity, mxp_diminish);
+    float v = noise::mx_fractal3d_noise_float(mxp_position, mxp_octaves, mxp_lacunarity, mxp_diminish);
     return v * mxp_amplitude;
 }
 
@@ -4377,7 +4425,7 @@ export float2 mx_fractal3d_float2(
   float3 mxp_position = state::transform_point(state::coordinate_internal, state::coordinate_object, state::position())
 )
 {
-    float2 v = noise::mx_fractal_noise_float2(mxp_position, mxp_octaves, mxp_lacunarity, mxp_diminish);
+    float2 v = noise::mx_fractal3d_noise_float2(mxp_position, mxp_octaves, mxp_lacunarity, mxp_diminish);
     return v * mxp_amplitude;
 }
 
@@ -4389,7 +4437,7 @@ export float3 mx_fractal3d_float3(
   float3 mxp_position = state::transform_point(state::coordinate_internal, state::coordinate_object, state::position())
 )
 {
-    float3 v = noise::mx_fractal_noise_float3(mxp_position, mxp_octaves, mxp_lacunarity, mxp_diminish);
+    float3 v = noise::mx_fractal3d_noise_float3(mxp_position, mxp_octaves, mxp_lacunarity, mxp_diminish);
     return v * mxp_amplitude;
 }
 
@@ -4401,7 +4449,7 @@ export float4 mx_fractal3d_float4(
   float3 mxp_position = state::transform_point(state::coordinate_internal, state::coordinate_object, state::position())
 )
 {
-    float4 v = noise::mx_fractal_noise_float4(mxp_position, mxp_octaves, mxp_lacunarity, mxp_diminish);
+    float4 v = noise::mx_fractal3d_noise_float4(mxp_position, mxp_octaves, mxp_lacunarity, mxp_diminish);
     return v * mxp_amplitude;
 }
 

@@ -238,7 +238,6 @@ Standard Noise nodes:
 * **`noise2d`**: 2D Perlin noise in 1, 2, 3 or 4 channels.
     * `amplitude` (float or vector<em>N</em>): the center-to-peak amplitude of the noise (peak-to-peak amplitude is 2x this value).  Default is 1.0.
     * `pivot` (float): the center value of the output noise; effectively, this value is added to the result after the Perlin noise is multiplied by `amplitude`.  Default is 0.0.
-    * `period` (float or vector<em>N</em>): the positive integer distance at which the noise function returns the same value for texture coordinates repeated at that step.  Default is 0, meaning the noise is not periodic.
     * `texcoord` (vector2): the 2D texture coordinate at which the noise is evaluated.  Default is to use the first set of texture coordinates.
 
 <a id="node-noise3d"> </a>
@@ -246,8 +245,16 @@ Standard Noise nodes:
 * **`noise3d`**: 3D Perlin noise in 1, 2, 3 or 4 channels.
     * `amplitude` (float or vector<em>N</em>): the center-to-peak amplitude of the noise (peak-to-peak amplitude is 2x this value).  Default is 1.0.
     * `pivot` (float): the center value of the output noise; effectively, this value is added to the result after the Perlin noise is multiplied by `amplitude`.  Default is 0.0.
-    * `period` (float or vector<em>N</em>): the positive integer distance at which the noise function returns the same value for position coordinates repeated at that step.  Default is 0, meaning the noise is not periodic.
     * `position` (vector3): the 3D position at which the noise is evaluated.  Default is to use the current 3D object-space coordinate.
+
+<a id="node-fractal2d"> </a>
+
+* **`fractal2d`**: Zero-centered 2D Fractal noise in 1, 2, 3 or 4 channels, created by summing several octaves of 2D Perlin noise, increasing the frequency and decreasing the amplitude at each octave.
+  * `amplitude` (float or vector<em>N</em>): the center-to-peak amplitude of the noise (peak-to-peak amplitude is 2x this value).  Default is 1.0.
+  * `octaves` (integer): the number of octaves of noise to be summed.  Default is 3.
+  * `lacunarity` (float or vector<em>N</em>): the exponential scale between successive octaves of noise; must be an integer value if period is non-zero so the result is properly tileable.  Default is 2.0.  Vector<em>N</em>-output types can provide either a float (isotropic) or vector<em>N</em> (anisotropic) values for `lacunarity` and `diminish`.
+  * `diminish` (float or vector<em>N</em>): the rate at which noise amplitude is diminished for each octave.  Should be between 0.0 and 1.0; default is 0.5.  Vector<em>N</em>-output types can provide either a float (isotropic) or vector<em>N</em> (anisotropic) values for `lacunarity` and `diminish`.
+  * `texcoord` (vector2): the 2D texture coordinate at which the noise is evaluated.  Default is to use the first set of texture coordinates.
 
 <a id="node-fractal3d"> </a>
 
@@ -256,19 +263,16 @@ Standard Noise nodes:
     * `octaves` (integer): the number of octaves of noise to be summed.  Default is 3.
     * `lacunarity` (float or vector<em>N</em>): the exponential scale between successive octaves of noise; must be an integer value if period is non-zero so the result is properly tileable.  Default is 2.0.  Vector<em>N</em>-output types can provide either a float (isotropic) or vector<em>N</em> (anisotropic) values for `lacunarity` and `diminish`.
     * `diminish` (float or vector<em>N</em>): the rate at which noise amplitude is diminished for each octave.  Should be between 0.0 and 1.0; default is 0.5.  Vector<em>N</em>-output types can provide either a float (isotropic) or vector<em>N</em> (anisotropic) values for `lacunarity` and `diminish`.
-    * `period` (float or vector<em>N</em>): the positive integer distance at which the noise function returns the same value for position coordinates repeated at that step.  Default is 0, meaning the noise is not periodic.
     * `position` (vector3): the 3D position at which the noise is evaluated.  Default is to use the current 3D object-space coordinate.
 
 <a id="node-cellnoise2d"> </a>
 
 * **`cellnoise2d`**: 2D cellular noise, 1 or 3 channels (type float or vector3).
-    * `period` (float or vector3): the positive integer distance at which the noise function returns the same value for texture coordinates repeated at that step.  Default is 0, meaning the noise is not periodic.
     * `texcoord` (vector2): the 2D position at which the noise is evaluated.  Default is to use the first set of texture coordinates.
 
 <a id="node-cellnoise3d"> </a>
 
 * **`cellnoise3d`**: 3D cellular noise, 1 or 3 channels (type float or vector3).
-    * `period` (float or vector3): the positive integer distance at which the noise function returns the same value for position coordinates repeated at that step.  Default is 0, meaning the noise is not periodic.
     * `position` (vector3): the 3D position at which the noise is evaluated.  Default is to use the current 3D object-space coordinate.
 
 <a id="node-worleynoise2d"> </a>
