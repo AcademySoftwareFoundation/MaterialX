@@ -214,12 +214,12 @@
       <input name="in1" type="float" nodename="scaleXZ" />
       <input name="in2" type="float" value="0.5" />
     </add>
-    <multiply name="rotationDegrees" type="float">
+    <multiply name="rotationRadians" type="float">
       <input name="in1" type="float" interfacename="rotation" />
       <input name="in2" type="float" value="0.00277778" />
     </multiply>
     <add name="offsetLongitude" type="float">
-      <input name="in1" type="float" nodename="rotationDegrees" />
+      <input name="in1" type="float" nodename="rotationRadians" />
       <input name="in2" type="float" nodename="longitude" />
     </add>
     <asin name="angleY" type="float">
