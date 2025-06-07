@@ -100,7 +100,7 @@ The type of the &lt;image> node determines the number of channels output, which 
     * `file` (uniform filename): the URI of an image file.  The filename can include one or more substitutions to change the file name (including frame number) that is accessed, as described in the [Filename Substitutions](#filename-substitutions) section above.
     * `default` (float or color<em>N</em> or vector<em>N</em>): a default value to use if the `file` reference can not be resolved (e.g. if a &lt;_geometry token_>, [_interface token_] or {_hostattr_} is included in the filename but no substitution value or default is defined, or if the resolved `file` URI cannot be read), or if the specified `layer` does not exist in the file.  The `default` value must be the same type as the `<image>` element itself.  If `default` is not defined, the default color value will be 0.0 in all channels.
     * `viewdir` (vector3): the view direction determining the value sampled from the projected equiangular map.
-    * `rotation` (float): the longitudinal sampling offset.
+    * `rotation` (float): the longitudinal sampling offset, in degrees.
 
 <a id="node-triplanarprojection"> </a>
 
