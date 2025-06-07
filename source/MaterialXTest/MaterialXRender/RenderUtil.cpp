@@ -52,7 +52,7 @@ void ShaderRenderTester::getGenerationOptions(const GenShaderUtil::TestSuiteOpti
 void ShaderRenderTester::printRunLog(const RenderProfileTimes &profileTimes,
                                      const GenShaderUtil::TestSuiteOptions& options,
                                      std::ostream& stream,
-                                     mx::DocumentPtr dependLib)
+                                     mx::DocumentPtr)
 {
     profileTimes.print(stream);
 
@@ -146,6 +146,8 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
 
     createRenderer(log);
 
+    addSkipFiles();
+
     mx::ColorManagementSystemPtr colorManagementSystem;
 #ifdef MATERIALX_BUILD_OCIO
     try
@@ -218,6 +220,12 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
             // Check if a file override set is used and ignore all files
             // not part of the override set
             if (testfileOverride.size() && testfileOverride.count(file) == 0)
+            {
+                ioTimer.endTimer();
+                continue;
+            }
+
+            if (_skipFiles.count(file) > 0)
             {
                 ioTimer.endTimer();
                 continue;

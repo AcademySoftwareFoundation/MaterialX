@@ -542,6 +542,7 @@ void MetalRenderPipeline::renderFrame(void* color_texture, int shadowMapSize, co
         {
             material->getProgram()->bindUniform(mx::HW::ALPHA_THRESHOLD, mx::Value::createValue(0.99f));
         }
+        material->getProgram()->bindTimeAndFrame(1.0f, static_cast<float>(_frame));
         material->bindViewInformation(viewCamera);
         material->bindLighting(lightHandler, imageHandler, shadowState);
         material->bindImages(imageHandler, _viewer->_searchPath);
@@ -573,6 +574,7 @@ void MetalRenderPipeline::renderFrame(void* color_texture, int shadowMapSize, co
             {
                 material->getProgram()->bindUniform(mx::HW::ALPHA_THRESHOLD, mx::Value::createValue(0.001f));
             }
+            material->getProgram()->bindTimeAndFrame(1.0f, static_cast<float>(_frame));
             material->bindViewInformation(viewCamera);
             material->bindLighting(lightHandler, imageHandler, shadowState);
             material->bindImages(imageHandler, searchPath);

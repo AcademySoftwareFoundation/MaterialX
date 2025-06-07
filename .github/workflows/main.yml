@@ -25,17 +25,17 @@ jobs:
           python: 3.9
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON -DMATERIALX_BUILD_MONOLITHIC=ON
 
-        - name: Linux_GCC_14_Python312
+        - name: Linux_GCC_14_Python39
           os: ubuntu-24.04
           compiler: gcc
           compiler_version: "14"
-          python: 3.12
+          python: 3.9
 
-        - name: Linux_GCC_14_Python313
+        - name: Linux_GCC_14_Python311
           os: ubuntu-24.04
           compiler: gcc
           compiler_version: "14"
-          python: 3.13
+          python: 3.11
           test_render: ON
 
         - name: Linux_GCC_CoverageAnalysis
@@ -53,32 +53,32 @@ jobs:
           python: 3.9
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
 
-        - name: Linux_Clang_18_Python313
+        - name: Linux_Clang_18_Python311
           os: ubuntu-24.04
           compiler: clang
           compiler_version: "18"
-          python: 3.13
+          python: 3.11
           clang_format: ON
 
-        - name: MacOS_Xcode_15_Python311
+        - name: MacOS_Xcode_15_Python39
           os: macos-14
           compiler: xcode
           compiler_version: "15.4"
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
-          python: 3.11
+          python: 3.9
 
-        - name: MacOS_Xcode_15_Python312
-          os: macos-15
-          compiler: xcode
-          compiler_version: "15.4"
-          python: 3.12
-          test_shaders: ON
-
-        - name: MacOS_Xcode_16_Python313
+        - name: MacOS_Xcode_15_Python311
           os: macos-15
           compiler: xcode
           compiler_version: "16.1"
-          python: 3.13
+          python: 3.11
+          test_shaders: ON
+
+        - name: MacOS_Xcode_16_Python311
+          os: macos-15
+          compiler: xcode
+          compiler_version: "16.1"
+          python: 3.11
           static_analysis: ON
           cmake_config: -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
@@ -97,16 +97,16 @@ jobs:
           python: None
           cmake_config: -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_SYSROOT=`xcrun --sdk iphoneos --show-sdk-path` -DCMAKE_OSX_ARCHITECTURES=arm64
 
-        - name: Windows_VS2019_Win32_Python39
-          os: windows-2019
+        - name: Windows_VS2022_Win32_Python39
+          os: windows-2022
           architecture: x86
           python: 3.9
-          cmake_config: -G "Visual Studio 16 2019" -A "Win32"
+          cmake_config: -G "Visual Studio 17 2022" -A "Win32"
 
-        - name: Windows_VS2022_x64_Python313
+        - name: Windows_VS2022_x64_Python311
           os: windows-2025
           architecture: x64
-          python: 3.13
+          python: 3.11
           cmake_config: -G "Visual Studio 17 2022" -A "x64"
           test_shaders: ON
 
@@ -165,6 +165,8 @@ jobs:
       if: matrix.build_oiio == 'ON' && runner.os == 'Windows'
       run: |
         C:/vcpkg/vcpkg install openimageio --triplet=x64-windows-release
+        Add-Content $env:GITHUB_PATH "C:/vcpkg/installed/x64-windows-release/bin"
+        Add-Content $env:GITHUB_PATH "C:/vcpkg/installed/x64-windows-release/share/openimageio"
 
     - name: Install Python ${{ matrix.python }}
       if: matrix.python != 'None'

@@ -11,16 +11,16 @@
       <input name="tint" type="color3" value="1,0,0" />
     </dielectric_bsdf>
     <layer name="layer_bsdf_1" type="BSDF">
-      <input name="top" type="BSDF" nodename="sheen_brdf_1" />
-      <input name="base" type="BSDF" nodename="diffuse_brdf_1" />
+      <input name="top" type="BSDF" nodename="dielectric_brdf_2" />
+      <input name="base" type="BSDF" nodename="dielectric_brdf_1" />
     </layer>
     <layer name="layer_bsdf_2" type="BSDF">
-      <input name="top" type="BSDF" nodename="dielectric_brdf_1" />
-      <input name="base" type="BSDF" nodename="layer_bsdf_1" />
+      <input name="top" type="BSDF" nodename="layer_bsdf_1" />
+      <input name="base" type="BSDF" nodename="sheen_brdf_1" />
     </layer>
     <layer name="layer_bsdf_3" type="BSDF">
-      <input name="top" type="BSDF" nodename="dielectric_brdf_2" />
-      <input name="base" type="BSDF" nodename="layer_bsdf_2" />
+      <input name="top" type="BSDF" nodename="layer_bsdf_2" />
+      <input name="base" type="BSDF" nodename="diffuse_brdf_1" />
     </layer>
     <surface name="surface1" type="surfaceshader">
       <input name="bsdf" type="BSDF" nodename="layer_bsdf_3" />

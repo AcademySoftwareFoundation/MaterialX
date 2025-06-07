@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<materialx version="1.39" colorspace="lin_rec709">
+  <nodegraph name="NG_OnyxHextiled" fileprefix="resources/Images/">
+    <input name="tiling" type="float" value="4.0" uiname="Tiling" uifolder="Hex Tiling" />
+    <input name="rotation" type="float" value="1.0" uiname="Rotation" uifolder="Hex Tiling" />
+    <input name="scale" type="float" value="1.0" uiname="Scale" uifolder="Hex Tiling" />
+    <input name="offset" type="float" value="1.0" uiname="Offset" uifolder="Hex Tiling" />
+    <input name="falloff" type="float" value="0.75" uiname="Falloff" uifolder="Hex Tiling" />
+    <convert name="tiling_vector2" type="vector2">
+      <input name="in" type="float" interfacename="tiling" />
+    </convert>
+    <hextiledimage name="image_color" type="color3">
+      <input name="file" type="filename" value="onyx_color.jpg" colorspace="srgb_texture" />
+      <input name="tiling" type="vector2" nodename="tiling_vector2" />
+      <input name="rotation" type="float" interfacename="rotation" />
+      <input name="scale" type="float" interfacename="scale" />
+      <input name="offset" type="float" interfacename="offset" />
+      <input name="falloff" type="float" interfacename="falloff" />
+    </hextiledimage>
+    <hextiledimage name="image_roughness" type="color3">
+      <input name="file" type="filename" value="onyx_roughness.jpg" colorspace="none" />
+      <input name="tiling" type="vector2" nodename="tiling_vector2" />
+      <input name="rotation" type="float" interfacename="rotation" />
+      <input name="scale" type="float" interfacename="scale" />
+      <input name="offset" type="float" interfacename="offset" />
+      <input name="falloff" type="float" interfacename="falloff" />
+    </hextiledimage>
+    <extract name="image_roughness_float" type="float">
+      <input name="in" type="color3" nodename="image_roughness" />
+      <input name="index" type="integer" value="0" />
+    </extract>
+    <output name="out_color" type="color3" nodename="image_color" />
+    <output name="out_roughness" type="float" nodename="image_roughness_float" />
+  </nodegraph>
+  <standard_surface name="N_StandardSurface" type="surfaceshader">
+    <input name="base_color" type="color3" nodegraph="NG_OnyxHextiled" output="out_color" />
+    <input name="specular_roughness" type="float" nodegraph="NG_OnyxHextiled" output="out_roughness" />
+  </standard_surface>
+  <surfacematerial name="M_OnyxHextiled" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="N_StandardSurface" />
+  </surfacematerial>
+</materialx>

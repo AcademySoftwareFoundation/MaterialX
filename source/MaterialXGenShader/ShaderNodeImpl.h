@@ -33,12 +33,6 @@ class MX_GENSHADER_API ShaderNodeImpl
   public:
     virtual ~ShaderNodeImpl() { }
 
-    /// Return an identifier for the target used by this implementation.
-    /// By default an empty string is returned, representing all targets.
-    /// Only override this method if your derived node implementation class
-    /// is for a specific target.
-    virtual const string& getTarget() const { return EMPTY_STRING; }
-
     /// Initialize with the given implementation element.
     /// Initialization must set the name and hash for the implementation,
     /// as well as any other data needed to emit code for the node.
@@ -106,6 +100,11 @@ class MX_GENSHADER_API ShaderNodeImpl
   protected:
     /// Protected constructor
     ShaderNodeImpl();
+
+    /// Returns true if the first output of the node is a closure
+    /// This is used by SourceCodeNode and CompoundNode to generate
+    /// the appropriate shader code.
+    bool nodeOutputIsClosure(const ShaderNode& node) const;
 
   protected:
     string _name;
