@@ -7,6 +7,7 @@ set(GENGLSL ${CMAKE_CURRENT_SOURCE_DIR}/JsMaterialXGenGlsl/)
 set(GENMSL ${CMAKE_CURRENT_SOURCE_DIR}/JsMaterialXGenMsl/)
 set(GENVK ${CMAKE_CURRENT_SOURCE_DIR}/JsMaterialXGenVk/)
 set(GENMDL ${CMAKE_CURRENT_SOURCE_DIR}/JsMaterialXGenMdl/)
+set(GENWGSL ${CMAKE_CURRENT_SOURCE_DIR}/JsMaterialXGenWgsl/)
 
 set(SOURCE_FOLDER ${PROJECT_SOURCE_DIR}/source)
 
@@ -47,6 +48,7 @@ set(GENOSL_DEPS ${GENOSL}JsOslShaderGenerator.cpp)
 set(GENGLSL_DEPS ${GENGLSL}JsGlslShaderGenerator.cpp)
 set(GENMSL_DEPS ${GENMSL}JsMslShaderGenerator.cpp)
 set(GENVK_DEPS ${GENVK}JsVkShaderGenerator.cpp)
+set(GENWGSL_DEPS ${GENWGSL}JsWgslShaderGenerator.cpp)
 set(GENMDL_DEPS ${GENMDL}JsMdlShaderGenerator.cpp)
 
 # Linker flags
@@ -98,8 +100,8 @@ add_executable(JsMaterialXGenShader MaterialXLib.cpp
     ${GENESSL_DEPS})
 
 if (MATERIALX_BUILD_GEN_GLSL)
-    message("JS: Building JsMaterialXGenShader with GLSL, VK support")
-    target_sources(JsMaterialXGenShader PRIVATE ${GENGLSL_DEPS} ${GENVK_DEPS})
+    message("JS: Building JsMaterialXGenShader with GLSL, VK, WGSL support")
+    target_sources(JsMaterialXGenShader PRIVATE ${GENGLSL_DEPS} ${GENVK_DEPS} ${GENWGSL_DEPS})
 endif()
 if (MATERIALX_BUILD_GEN_OSL)
     message("JS: Building JsMaterialXGenShader with OSL support")
