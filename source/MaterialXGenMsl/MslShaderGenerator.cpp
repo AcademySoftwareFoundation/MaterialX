@@ -7,7 +7,6 @@
 
 #include <MaterialXGenMsl/MslSyntax.h>
 #include <MaterialXGenMsl/Nodes/SurfaceNodeMsl.h>
-#include <MaterialXGenMsl/Nodes/UnlitSurfaceNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/LightNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/LightCompoundNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/LightShaderNodeMsl.h>
@@ -19,7 +18,6 @@
 #include <MaterialXGenShader/Nodes/HwImageNode.h>
 #include <MaterialXGenShader/Nodes/HwGeomColorNode.h>
 #include <MaterialXGenShader/Nodes/HwGeomPropValueNode.h>
-#include <MaterialXGenShader/Nodes/HwHeightToNormalNode.h>
 #include <MaterialXGenShader/Nodes/HwTexCoordNode.h>
 #include <MaterialXGenShader/Nodes/HwTransformNode.h>
 #include <MaterialXGenShader/Nodes/HwPositionNode.h>
@@ -28,8 +26,6 @@
 #include <MaterialXGenShader/Nodes/HwBitangentNode.h>
 #include <MaterialXGenShader/Nodes/HwFrameNode.h>
 #include <MaterialXGenShader/Nodes/HwViewDirectionNode.h>
-#include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
-#include <MaterialXGenShader/Nodes/ClosureCompoundNode.h>
 
 #include "MslResourceBindingContext.h"
 
@@ -92,7 +88,6 @@ MslShaderGenerator::MslShaderGenerator(TypeSystemPtr typeSystem) :
 
     // <!-- <surface> -->
     registerImplementation("IM_surface_" + MslShaderGenerator::TARGET, SurfaceNodeMsl::create);
-    registerImplementation("IM_surface_unlit_" + MslShaderGenerator::TARGET, UnlitSurfaceNodeMsl::create);
 
     // <!-- <light> -->
     registerImplementation("IM_light_" + MslShaderGenerator::TARGET, LightNodeMsl::create);
@@ -103,9 +98,6 @@ MslShaderGenerator::MslShaderGenerator(TypeSystemPtr typeSystem) :
     registerImplementation("IM_directional_light_" + MslShaderGenerator::TARGET, LightShaderNodeMsl::create);
     // <!-- <spot_light> -->
     registerImplementation("IM_spot_light_" + MslShaderGenerator::TARGET, LightShaderNodeMsl::create);
-
-    // <!-- <heighttonormal> -->
-    registerImplementation("IM_heighttonormal_vector3_" + MslShaderGenerator::TARGET, []() -> ShaderNodeImplPtr { return HwHeightToNormalNode::create(MslSamplingIncludeFilename);});
 
     // <!-- <blur> -->
     elementNames = {
@@ -257,7 +249,7 @@ void MslShaderGenerator::MetalizeGeneratedShader(ShaderStage& shaderStage) const
 
     auto isAllowedBeforeToken = [](char ch) -> bool
     {
-        return std::isspace(ch) || ch == '(' || ch == ',';
+        return std::isspace(ch) || ch == '(' || ch == ',' || ch == '-';
     };
 
     for (const auto& t : replaceTokens)
@@ -1258,10 +1250,6 @@ ShaderNodeImplPtr MslShaderGenerator::getImplementation(const NodeDef& nodedef, 
         {
             impl = LightCompoundNodeMsl::create();
         }
-        else if (outputType.isClosure())
-        {
-            impl = ClosureCompoundNode::create();
-        }
         else
         {
             impl = CompoundNode::create();
@@ -1280,15 +1268,7 @@ ShaderNodeImplPtr MslShaderGenerator::getImplementation(const NodeDef& nodedef, 
         }
         if (!impl)
         {
-            // Fall back to source code implementation.
-            if (outputType.isClosure())
-            {
-                impl = ClosureSourceCodeNode::create();
-            }
-            else
-            {
-                impl = SourceCodeNode::create();
-            }
+            impl = SourceCodeNode::create();
         }
     }
     if (!impl)
@@ -1302,11 +1282,6 @@ ShaderNodeImplPtr MslShaderGenerator::getImplementation(const NodeDef& nodedef, 
     context.addNodeImplementation(name, impl);
 
     return impl;
-}
-
-const string& MslImplementation::getTarget() const
-{
-    return MslShaderGenerator::TARGET;
 }
 
 MATERIALX_NAMESPACE_END

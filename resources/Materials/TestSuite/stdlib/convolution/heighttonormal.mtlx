@@ -1,14 +1,19 @@
 <?xml version="1.0"?>
 <materialx version="1.39">
-  <nodegraph name="heighttonormal">
-    <input name="file" type="filename" uniform="true" value="resources/Images/plain_heightmap.png" />
-    <tiledimage name="tiledimage" type="float">
-      <input name="file" type="filename" uniform="true" interfacename="file" />
-      <input name="uvtiling" type="vector2" value="10, 10" />
-    </tiledimage>
+  <nodegraph name="NG_heighttonormal">
+    <texcoord name="texcoord" type="vector2" />
+    <multiply name="scaled_texcoord" type="vector2">
+      <input name="in1" type="vector2" nodename="texcoord" />
+      <input name="in2" type="float" value="10"/>
+    </multiply>
+    <image name="image" type="float">
+      <input name="file" type="filename" value="resources/Images/plain_heightmap.png" />
+      <input name="texcoord" type="vector2" nodename="scaled_texcoord" />
+    </image>
     <heighttonormal name="heighttonormal" type="vector3">
-      <input name="in" type="float" nodename="tiledimage" />
-      <input name="scale" type="float" value="0.2" />
+      <input name="in" type="float" nodename="image" />
+      <input name="scale" type="float" value="1" />
+      <input name="texcoord" type="vector2" nodename="scaled_texcoord" />
     </heighttonormal>
     <normalmap name="normalmap" type="vector3">
       <input name="in" type="vector3" nodename="heighttonormal" />
@@ -27,8 +32,8 @@
     <UsdPreviewSurface name="UsdPreviewSurface" type="surfaceshader">
       <input name="normal" type="vector3" nodename="bias" />
     </UsdPreviewSurface>
-    <output name="vector3_out" type="vector3" nodename="heighttonormal" />
-    <output name="surface1_out" type="surfaceshader" nodename="standard_surface" />
-    <output name="surface2_out" type="surfaceshader" nodename="UsdPreviewSurface" />
+    <output name="vec_out" type="vector3" nodename="heighttonormal" />
+    <output name="ss_out" type="surfaceshader" nodename="standard_surface" />
+    <output name="usd" type="surfaceshader" nodename="UsdPreviewSurface" />
   </nodegraph>
 </materialx>
