@@ -824,8 +824,7 @@ Math nodes have one or two spatially-varying inputs, and are used to perform a m
 <a id="node-dot"> </a>
 
 * **`dot`**: a no-op, passes its input through to its output unchanged.  Users can use dot nodes to shape edge connection paths or provide documentation checkpoints in node graph layout UI's.  Dot nodes may also pass uniform values from &lt;constant> or other nodes with uniform="true" outputs to uniform &lt;input>s and &lt;token>s.
-    * `in` (any type): the nodename to be connected to the Dot node's "in" input.  Unlike inputs on other node types, the &lt;dot> node's input is specifically disallowed to provide a `channels` attribute: input data can only be passed through unmodified.
-
+    * `in` (any type): the nodename to be connected to the Dot node's "in" input.
 
 ## Logical Operator Nodes
 
