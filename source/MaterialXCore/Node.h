@@ -65,7 +65,7 @@ class MX_CORE_API Node : public InterfaceElement
     /// downstream ports.
     /// @throws Exception if an element at the same scope already possesses the
     ///     given name.
-    void setNameGlobal(const std::string& name);
+    void setNameGlobal(const string& name);
 
     /// @}
     /// @name Connections
@@ -344,7 +344,7 @@ class MX_CORE_API NodeGraph : public GraphElement
     /// downstream ports.
     /// @throws Exception if an element at the same scope already possesses the
     ///     given name.
-    void setNameGlobal(const std::string& name);
+    void setNameGlobal(const string& name);
 
     /// @}
     /// @name Material References
