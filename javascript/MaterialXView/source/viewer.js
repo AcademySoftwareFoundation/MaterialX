@@ -302,7 +302,7 @@ export class Scene
     {
         const rootNode = this.#_rootNode;
 
-        let path = [node.name];
+        let path = [node.userData?.name || node.name];
         while (node.parent)
         {
             node = node.parent;
@@ -313,7 +313,7 @@ export class Scene
                 {
                     break;
                 }
-                path.unshift(node.name);
+                path.unshift(node.userData?.name || node.name);
             }
         }
         return path;
