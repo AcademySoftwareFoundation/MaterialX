@@ -826,7 +826,7 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
     REQUIRE(doc->validate());
 }
 
-TEST_CASE("renameElement with connections", "[node, nodegraph]")
+TEST_CASE("Set Name Global", "[node, nodegraph]")
 {
     mx::DocumentPtr doc = mx::createDocument();
 
