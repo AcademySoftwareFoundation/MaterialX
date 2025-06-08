@@ -20,11 +20,11 @@ const string Backdrop::HEIGHT_ATTRIBUTE = "height";
 // Node methods
 //
 
-void Node::setNameGlobal(const std::string& name)
+void Node::setNameGlobal(const string& name)
 {
     vector<PortElementPtr> downStreamPorts = getDownstreamPorts();
     setName(name);
-    const std::string& newName = getName();
+    const string& newName = getName();
     for (PortElementPtr& port : downStreamPorts)
     {
         port->setNodeName(newName);
@@ -582,11 +582,11 @@ string GraphElement::asStringDot() const
 // NodeGraph methods
 //
 
-void NodeGraph::setNameGlobal(const std::string& name)
+void NodeGraph::setNameGlobal(const string& name)
 {
     vector<PortElementPtr> downStreamPorts = getDownstreamPorts();
     setName(name);
-    const std::string& newName = getName();
+    const string& newName = getName();
     for (PortElementPtr& port : downStreamPorts)
     {
         port->setNodeGraphString(newName);
