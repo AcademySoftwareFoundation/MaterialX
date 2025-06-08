@@ -109,16 +109,7 @@ void SourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext& contex
     {
         const ShaderGenerator& shadergen = context.getShaderGenerator();
 
-        const auto& outputs = node.getOutputs();
-        if (outputs.empty())
-        {
-            // This should never happen as we auto populate the default 'out' output based on the
-            // node type if no output is present.
-            throw ExceptionShaderGenError("Node has no outputs defined'");
-        }
-
-        const TypeDesc outputType = outputs[0]->getType();
-        if (outputType.isClosure())
+        if (nodeOutputIsClosure(node))
         {
             // Emit calls for any closure dependencies upstream from this nodedef
             shadergen.emitDependentFunctionCalls(node, context, stage, ShaderNode::Classification::CLOSURE);

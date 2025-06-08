@@ -94,6 +94,14 @@ The type of the &lt;image> node determines the number of channels output, which 
     * `realworldtilesize` (vector2): the real-world size of a single square 0-1 UV tile, with unittype "distance".  A `unit` attribute may be provided to indicate the units that `realworldtilesize` is expressed in.
     * `filtertype` (uniform string): the type of texture filtering to use; standard values include "closest" (nearest-neighbor single-sample), "linear", and "cubic".  If not specified, an application may use its own default texture filtering method.
 
+<a id="node-latlongimage"> </a>
+
+* **`latlongimage`** (NG): samples an equiangular map along a view direction with adjustable latitudinal offset.
+    * `file` (uniform filename): the URI of an image file.  The filename can include one or more substitutions to change the file name (including frame number) that is accessed, as described in the [Filename Substitutions](#filename-substitutions) section above.
+    * `default` (float or color<em>N</em> or vector<em>N</em>): a default value to use if the `file` reference can not be resolved (e.g. if a &lt;_geometry token_>, [_interface token_] or {_hostattr_} is included in the filename but no substitution value or default is defined, or if the resolved `file` URI cannot be read), or if the specified `layer` does not exist in the file.  The `default` value must be the same type as the `<image>` element itself.  If `default` is not defined, the default color value will be 0.0 in all channels.
+    * `viewdir` (vector3): the view direction determining the value sampled from the projected equiangular map.
+    * `rotation` (float): the longitudinal sampling offset, in degrees.
+
 <a id="node-triplanarprojection"> </a>
 
 * **`triplanarprojection`** (NG): samples data from three images (or layers within multi-layer images), and projects a tiled representation of the images along each of the three respective coordinate axes, computing a weighted blend of the three samples using the geometric normal.
@@ -1224,9 +1232,10 @@ Convolution nodes have one input named "in", and apply a defined convolution fun
 
 <a id="node-heighttonormal"> </a>
 
-* **`heighttonormal`**: convert a scalar height map to a tangent-space normal map of type vector3.  The output normal map is encoded with all channels in the [0-1] range, enabling its storage in unsigned image formats.
+* **`heighttonormal`**: convert a scalar height map to a tangent-space normal map of type vector3.  The normal at each point is computed from the gradient of the heightfield signal with respect to the input texture coordinates.  The output normal map is encoded with all channels in the [0-1] range, enabling its storage in unsigned image formats.
     * `in` (float): the input value or nodename
     * `scale` (float): the scale of normal map deflections relative to the gradient of the height map.  Default is 1.0.
+    * `texcoord` (vector2): the texture coordinates that the heightfield gradient is computed with respect to.  Default is to use the first set of texture coordinates.
 
 <br>
 
