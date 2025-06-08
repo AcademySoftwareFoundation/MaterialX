@@ -92,9 +92,16 @@ void ShaderGenerator::emitFunctionDefinition(const ShaderNode& node, GenContext&
     stage.addFunctionDefinition(node, context);
 }
 
-void ShaderGenerator::emitFunctionDefinitionParameter(const ShaderPort* shaderPort, GenContext&, ShaderStage& stage) const
+void ShaderGenerator::emitFunctionDefinitionParameter(const ShaderPort* shaderPort, bool isOutput, GenContext&, ShaderStage& stage) const
 {
-    emitString(_syntax->getTypeName(shaderPort->getType()) + " " + shaderPort->getVariable(), stage);
+    if (isOutput)
+    {
+        emitString(_syntax->getOutputTypeName(shaderPort->getType()) + " " + shaderPort->getVariable(), stage);
+    }
+    else 
+    {
+        emitString(_syntax->getTypeName(shaderPort->getType()) + " " + shaderPort->getVariable(), stage);
+    }
 }
 
 void ShaderGenerator::emitFunctionDefinitions(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const

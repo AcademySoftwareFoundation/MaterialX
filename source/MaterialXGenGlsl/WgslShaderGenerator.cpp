@@ -35,7 +35,7 @@ void WgslShaderGenerator::emitDirectives(GenContext& context, ShaderStage& stage
 }
 
 // Called by CompoundNode::emitFunctionDefinition()
-void WgslShaderGenerator::emitFunctionDefinitionParameter(const ShaderPort* shaderPort, GenContext& context, ShaderStage& stage) const
+void WgslShaderGenerator::emitFunctionDefinitionParameter(const ShaderPort* shaderPort, bool isOutput, GenContext& context, ShaderStage& stage) const
 {
     if (shaderPort->getType() == Type::FILENAME)
     {
@@ -43,7 +43,7 @@ void WgslShaderGenerator::emitFunctionDefinitionParameter(const ShaderPort* shad
     }
     else
     {
-        VkShaderGenerator::emitFunctionDefinitionParameter(shaderPort, context, stage);
+        VkShaderGenerator::emitFunctionDefinitionParameter(shaderPort, isOutput, context, stage);
     }
 }
 

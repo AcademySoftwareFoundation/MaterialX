@@ -89,7 +89,7 @@ class MX_GENSHADER_API ShaderGenerator
     virtual void emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const;
 
     // Emit the connected variable name for an input and output in a function definition (Used by CompoundNode)
-    virtual void emitFunctionDefinitionParameter(const ShaderPort* shaderPort, GenContext& context, ShaderStage& stage) const;
+    virtual void emitFunctionDefinitionParameter(const ShaderPort* shaderPort, bool isOutput, GenContext& context, ShaderStage& stage) const;
 
     /// Add all function definitions for a graph.
     virtual void emitFunctionDefinitions(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const;

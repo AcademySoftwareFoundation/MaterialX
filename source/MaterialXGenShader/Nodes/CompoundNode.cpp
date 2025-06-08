@@ -84,7 +84,7 @@ void CompoundNode::emitFunctionDefinition(const ShaderNode& node, GenContext& co
         for (ShaderGraphInputSocket* inputSocket : _rootGraph->getInputSockets())
         {
             shadergen.emitString(delim, stage);
-            shadergen.emitFunctionDefinitionParameter(inputSocket, context, stage);
+            shadergen.emitFunctionDefinitionParameter(inputSocket, false, context, stage);
             delim = ", ";
         }
 
@@ -92,7 +92,7 @@ void CompoundNode::emitFunctionDefinition(const ShaderNode& node, GenContext& co
         for (ShaderGraphOutputSocket* outputSocket : _rootGraph->getOutputSockets())
         {
             shadergen.emitString(delim, stage);
-            shadergen.emitFunctionDefinitionParameter(outputSocket, context, stage);
+            shadergen.emitFunctionDefinitionParameter(outputSocket, true, context, stage);
             delim = ", ";
         }
 
