@@ -14,11 +14,11 @@
   <typedef name="boolean" zero="false" one="true"/>
   <typedef name="integer" zero="0" one="1"/>
   <typedef name="float" zero="0.0" one="1.0" half="0.5" />
-  <typedef name="color3" semantic="color" zero="0.0,0.0,0.0" one="1.0,1.0,1.0" half="0.5,0.5,0.5" />
-  <typedef name="color4" semantic="color" zero="0.0,0.0,0.0,0.0" one="1.0,1.0,1.0,1.0" half="0.5,0.5,0.5,0.5" />
-  <typedef name="vector2" zero="0.0,0.0" one="1.0,1.0" half="0.5,0.5,0.5" />
-  <typedef name="vector3" zero="0.0,0.0,0.0" one="1.0,1.0,1.0" half="0.5,0.5,0.5" />
-  <typedef name="vector4" zero="0.0,0.0,0.0,0.0" one="1.0,1.0,1.0,1.0" half="0.5,0.5,0.5,0.5" />
+  <typedef name="color3" semantic="color" zero="0.0, 0.0, 0.0" one="1.0, 1.0, 1.0" half="0.5, 0.5, 0.5" />
+  <typedef name="color4" semantic="color" zero="0.0, 0.0, 0.0, 0.0" one="1.0, 1.0, 1.0, 1.0" half="0.5, 0.5, 0.5, 0.5" />
+  <typedef name="vector2" zero="0.0, 0.0" one="1.0, 1.0" half="0.5, 0.5" />
+  <typedef name="vector3" zero="0.0, 0.0, 0.0" one="1.0, 1.0, 1.0" half="0.5, 0.5, 0.5" />
+  <typedef name="vector4" zero="0.0, 0.0, 0.0, 0.0" one="1.0, 1.0, 1.0, 1.0" half="0.5, 0.5, 0.5, 0.5" />
   <typedef name="matrix33" zero="0.0,0.0,0.0, 0.0,0.0,0.0, 0.0,0.0,0.0" one="1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0"/>
   <typedef name="matrix44" zero="0.0,0.0,0.0,0.0, 0.0,0.0,0.0,0.0, 0.0,0.0,0.0,0.0, 0.0,0.0,0.0,0.0" one="1.0,0.0,0.0,0.0, 0.0,1.0,0.0,0.0, 0.0,0.0,1.0,0.0, 0.0,0.0,0.0,1.0"/>
   <typedef name="string" zero="" />
@@ -135,7 +135,7 @@
       <input name="framerange" type="string" value="" uiname="Frame Range" uniform="true" />
       <input name="frameoffset" type="integer" value="0" uiname="Frame Offset" uniform="true" />
       <input name="frameendaction" type="string" value="constant" enum="constant,clamp,periodic,mirror" uiname="Frame End Action" uniform="true" />
-      <output name="out" type="float" default="Value:zero" />
+      <output name="out" type="@typeName@" default="Value:zero" />
     </nodedef>
   </template>
 
@@ -193,7 +193,7 @@
       <input name="falloff" type="float" value="0.5" />
       <input name="falloffcontrast" type="float" value="0.5" />
       <input name="lumacoeffs" type="color3" value="0.2722287, 0.6740818, 0.0536895" enum="acescg, rec709, rec2020, rec2100" enumvalues="0.2722287,0.6740818,0.0536895, 0.2126,0.7152,0.0722, 0.2627,0.6780,0.0593, 0.2627,0.6780,0.0593" />
-      <output name="out" type="@typeName@" default="@Value:zero" />
+      <output name="out" type="@typeName@" default="Value:zero" />
     </nodedef>
   </template>
 
@@ -233,9 +233,16 @@
     A constant value. When exposed as a public parameter, this is a way to create a
     value that can be accessed in multiple places in the opgraph.
   -->
-  <template name="TP_ND_constant" varName="typeName" options="float, color3, color4, vector2, vector3, vector4, boolean, integer, string, filename">
+  <template name="TP_ND_constant" varName="typeName" options="float, color3, color4, vector2, vector3, vector4, boolean, integer">
     <nodedef name="ND_constant_@typeName@" node="constant" nodegroup="procedural">
       <input name="value" type="@typeName@" value="Value:zero" />
+      <output name="out" type="@typeName@" default="Value:zero" />
+    </nodedef>
+  </template>
+
+  <template name="TP_ND_constant_uniform" varName="typeName" options="string, filename">
+    <nodedef name="ND_constant_@typeName@" node="constant" nodegroup="procedural">
+      <input name="value" type="@typeName@" value="Value:zero" uniform="true" />
       <output name="out" type="@typeName@" default="Value:zero" />
     </nodedef>
   </template>
@@ -345,6 +352,20 @@
     <nodedef name="ND_splitlr_@typeName@" node="splitlr" nodegroup="procedural2d">
       <input name="valuel" type="@typeName@" value="Value:zero" uiname="Left" />
       <input name="valuer" type="@typeName@" value="Value:zero" uiname="Right" />
+      <input name="center" type="float" value="0.5" uiname="Center" uimin="0.0" uimax="1.0" />
+      <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+      <output name="out" type="@typeName@" default="Value:zero" />
+    </nodedef>
+  </template>
+
+  <!--
+    Node: <splittb>
+    A top-bottom split matte, split at a specified v value.
+  -->
+  <template name="TP_ND_splittb" varName="typeName" options="float, color3, color4, vector2, vector3, vector4">
+    <nodedef name="ND_splittb_@typeName@" node="splittb" nodegroup="procedural2d">
+      <input name="valuet" type="@typeName@" value="Value:zero" uiname="Top" />
+      <input name="valueb" type="@typeName@" value="Value:zero" uiname="Bottom" />
       <input name="center" type="float" value="0.5" uiname="Center" uimin="0.0" uimax="1.0" />
       <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
       <output name="out" type="@typeName@" default="Value:zero" />
@@ -1107,7 +1128,7 @@
     Node: <fract>
     The fraction of a float or vector.
   -->
-  <template name="TP_ND_modulo" varName="typeName" options="float, color3, color4, vector2, vector3, vector4">
+  <template name="TP_ND_fract" varName="typeName" options="float, color3, color4, vector2, vector3, vector4">
     <nodedef name="ND_fract_@typeName@" node="fract" nodegroup="math">
       <input name="in" type="@typeName@" value="Value:zero" />
       <output name="out" type="@typeName@" defaultinput="in" />
@@ -1121,16 +1142,16 @@
   -->
   <template name="TP_ND_invert" varName="typeName" options="float, color3, color4, vector2, vector3, vector4">
     <nodedef name="ND_invert_@typeName@" node="invert" nodegroup="math">
-      <input name="in1" type="@typeName@" value="Value:zero" />
-      <input name="in2" type="@typeName@" value="Value:one" />
-      <output name="out" type="@typeName@" defaultinput="in1" />
+      <input name="in" type="@typeName@" value="Value:zero" />
+      <input name="amount" type="@typeName@" value="Value:one" />
+      <output name="out" type="@typeName@" defaultinput="in" />
     </nodedef>
   </template>
   <template name="TP_ND_invertFA" varName="typeName" options="color3, color4, vector2, vector3, vector4">
     <nodedef name="ND_invert_@typeName@FA" node="invert" nodegroup="math">
-      <input name="in1" type="@typeName@" value="Value:zero" />
-      <input name="in2" type="float" value="1.0" />
-      <output name="out" type="@typeName@" defaultinput="in1" />
+      <input name="in" type="@typeName@" value="Value:zero" />
+      <input name="amount" type="float" value="1.0" />
+      <output name="out" type="@typeName@" defaultinput="in" />
     </nodedef>
   </template>
 
@@ -1387,10 +1408,10 @@
     Node: <magnitude>
     Outputs the float magnitude (vector length) of the incoming vector stream.
   -->
-  <template name="TP_ND_normalize" varName="typeName" options="vector2, vector3, vector4">
-    <nodedef name="ND_normalize_@typeName@" node="normalize" nodegroup="math">
+  <template name="TP_ND_magnitude" varName="typeName" options="vector2, vector3, vector4">
+    <nodedef name="ND_magnitude_@typeName@" node="magnitude" nodegroup="math">
       <input name="in" type="@typeName@" value="Value:zero" />
-      <output name="out" type="float" defaultinput="in" />
+      <output name="out" type="float" default="0.0" />
     </nodedef>
   </template>
 
@@ -1400,9 +1421,9 @@
   -->
   <template name="TP_ND_distance" varName="typeName" options="vector2, vector3, vector4">
     <nodedef name="ND_distance_@typeName@" node="distance" nodegroup="math">
-      <input name="in1" type="@typeName@" value="Value:zero" />
-      <input name="in2" type="@typeName@" value="Value:zero" />
-      <output name="out" type="float" defaultinput="in1" />
+      <input name="in1" type="@typeName@" value="Value:zero" uiname="in1" />
+      <input name="in2" type="@typeName@" value="Value:zero" uiname="in2" />
+      <output name="out" type="float" />
     </nodedef>
   </template>
 
@@ -1414,7 +1435,7 @@
     <nodedef name="ND_dotproduct_@typeName@" node="dotproduct" nodegroup="math">
       <input name="in1" type="@typeName@" value="Value:zero" />
       <input name="in2" type="@typeName@" value="Value:zero" />
-      <output name="out" type="float" defaultinput="in1" />
+      <output name="out" type="float" default="0.0" />
     </nodedef>
   </template>
 
@@ -1647,7 +1668,7 @@
     Remap a value from one range of float/color/vector values to another.
   -->
   <template name="TP_ND_remap" varName="typeName" options="float, color3, color4, vector2, vector3, vector4">
-    <nodedef name="ND_remap_@typeName@" node="remap" nodegroup="math">
+    <nodedef name="ND_remap_@typeName@" node="remap" nodegroup="adjustment">
       <input name="in" type="@typeName@" value="Value:zero" />
       <input name="inlow" type="@typeName@" value="Value:zero" />
       <input name="inhigh" type="@typeName@" value="Value:one" />
@@ -1658,7 +1679,7 @@
   </template>
 
   <template name="TP_ND_remapFA" varName="typeName" options="color3, color4, vector2, vector3, vector4">
-    <nodedef name="ND_remap_@typeName@FA" node="remap" nodegroup="math">
+    <nodedef name="ND_remap_@typeName@FA" node="remap" nodegroup="adjustment">
       <input name="in" type="@typeName@" value="Value:zero" />
       <input name="inlow" type="float" value="0.0" />
       <input name="inhigh" type="float" value="1.0" />
@@ -1674,7 +1695,7 @@
     to output 0-1.
   -->
   <template name="TP_ND_smoothstep" varName="typeName" options="float, color3, color4, vector2, vector3, vector4">
-    <nodedef name="ND_smoothstep_@typeName@" node="smoothstep" nodegroup="math">
+    <nodedef name="ND_smoothstep_@typeName@" node="smoothstep" nodegroup="adjustment">
       <input name="in" type="@typeName@" value="Value:zero" />
       <input name="low" type="@typeName@" value="Value:zero" />
       <input name="high" type="@typeName@" value="Value:one" />
@@ -1683,7 +1704,7 @@
   </template>
 
   <template name="TP_ND_smoothstepFA" varName="typeName" options="color3, color4, vector2, vector3, vector4">
-    <nodedef name="ND_smoothstep_@typeName@FA" node="smoothstep" nodegroup="math">
+    <nodedef name="ND_smoothstep_@typeName@FA" node="smoothstep" nodegroup="adjustment">
       <input name="in" type="@typeName@" value="Value:zero" />
       <input name="low" type="float" value="0.0" />
       <input name="high" type="float" value="1.0" />
@@ -1698,7 +1719,7 @@
     the alpha channel is left unchanged if present.
   -->
   <template name="TP_ND_luminance" varName="typeName" options="color3, color4">
-    <nodedef name="ND_luminance_@typeName@" node="luminance" nodegroup="math">
+    <nodedef name="ND_luminance_@typeName@" node="luminance" nodegroup="adjustment">
       <input name="in" type="@typeName@" value="Value:zero" />
       <input name="lumacoeffs" type="color3" value="0.2722287, 0.6740818, 0.0536895" enum="acescg, rec709, rec2020, rec2100" enumvalues="0.2722287,0.6740818,0.0536895, 0.2126,0.7152,0.0722, 0.2627,0.6780,0.0593, 0.2627,0.6780,0.0593" />
       <output name="out" type="@typeName@" defaultinput="in" />
@@ -1710,13 +1731,13 @@
     Convert an incoming color between RGB and HSV space, with H and S ranging from 0-1.
   -->
   <template name="TP_ND_rgbtohsv" varName="typeName" options="color3, color4">
-    <nodedef name="ND_rgbtohsv_@typeName@" node="rgbtohsv" nodegroup="math">
+    <nodedef name="ND_rgbtohsv_@typeName@" node="rgbtohsv" nodegroup="adjustment">
       <input name="in" type="@typeName@" value="Value:zero" />
       <output name="out" type="@typeName@" defaultinput="in" />
     </nodedef>
   </template>
   <template name="TP_ND_hsvtorgb" varName="typeName" options="color3, color4">
-    <nodedef name="ND_hsvtorgb_@typeName@" node="hsvtorgb" nodegroup="math">
+    <nodedef name="ND_hsvtorgb_@typeName@" node="hsvtorgb" nodegroup="adjustment">
       <input name="in" type="@typeName@" value="Value:zero" />
       <output name="out" type="@typeName@" defaultinput="in" />
     </nodedef>
@@ -1727,7 +1748,7 @@
     Increase or decrease contrast of a float/color value using a linear slope multiplier.
   -->
   <template name="TP_ND_contrast" varName="typeName" options="float, color3, color4, vector2, vector3, vector4">
-    <nodedef name="ND_contrast_@typeName@" node="contrast" nodegroup="math">
+    <nodedef name="ND_contrast_@typeName@" node="contrast" nodegroup="adjustment">
       <input name="in" type="@typeName@" value="Value:zero" />
       <input name="amount" type="@typeName@" value="Value:one" />
       <input name="pivot" type="@typeName@" value="Value:half" />
@@ -1736,7 +1757,7 @@
   </template>
 
   <template name="TP_ND_contrastFA" varName="typeName" options="color3, color4, vector2, vector3, vector4">
-    <nodedef name="ND_contrast_@typeName@FA" node="contrast" nodegroup="math">
+    <nodedef name="ND_contrast_@typeName@FA" node="contrast" nodegroup="adjustment">
       <input name="in" type="@typeName@" value="Value:zero" />
       <input name="amount" type="float" value="1.0" />
       <input name="pivot" type="float" value="0.5" />
@@ -1750,7 +1771,7 @@
     applying a gamma correction in the middle, and optionally clamping output values.
   -->
   <template name="TP_ND_range" varName="typeName" options="float, color3, color4, vector2, vector3, vector4">
-    <nodedef name="ND_range_@typeName@" node="range" nodegroup="math">
+    <nodedef name="ND_range_@typeName@" node="range" nodegroup="adjustment">
       <input name="in" type="@typeName@" value="Value:zero" />
       <input name="inlow" type="@typeName@" value="Value:zero" />
       <input name="inhigh" type="@typeName@" value="Value:one" />
@@ -1763,7 +1784,7 @@
   </template>
 
   <template name="TP_ND_rangeFA" varName="typeName" options="color3, color4, vector2, vector3, vector4">
-    <nodedef name="ND_range_@typeName@FA" node="range" nodegroup="math">
+    <nodedef name="ND_range_@typeName@FA" node="range" nodegroup="adjustment">
       <input name="in" type="@typeName@" value="Value:zero" />
       <input name="inlow" type="float" value="0.0" />
       <input name="inhigh" type="float" value="1.0" />
@@ -1782,7 +1803,7 @@
     multiplying the value by amount.z, then converting back to RGB.
   -->
   <template name="TP_ND_hsvadjust" varName="typeName" options="color3, color4">
-    <nodedef name="ND_hsvadjust_@typeName@" node="hsvadjust" nodegroup="math">
+    <nodedef name="ND_hsvadjust_@typeName@" node="hsvadjust" nodegroup="adjustment">
       <input name="in" type="@typeName@" value="Value:zero" />
       <input name="amount" type="vector3" value="0.0, 1.0, 1.0" />
       <output name="out" type="@typeName@" defaultinput="in" />
@@ -1796,7 +1817,7 @@
     coefficients; the alpha channel will be unchanged if present.
   -->
   <template name="TP_ND_saturate" varName="typeName" options="color3, color4">
-    <nodedef name="ND_saturate_@typeName@" node="saturate" nodegroup="math">
+    <nodedef name="ND_saturate_@typeName@" node="saturate" nodegroup="adjustment">
       <input name="in" type="@typeName@" value="Value:zero" />
       <input name="amount" type="float" value="1.0" />
       <input name="lumacoeffs" type="color3" value="0.2722287, 0.6740818, 0.0536895" enum="acescg, rec709, rec2020, rec2100" enumvalues="0.2722287,0.6740818,0.0536895, 0.2126,0.7152,0.0722, 0.2627,0.6780,0.0593, 0.2627,0.6780,0.0593" />
@@ -2024,7 +2045,7 @@
   <template name="TP_ND_inside" varName="typeName" options="float, color3, color4">
     <nodedef name="ND_inside_@typeName@" node="inside" nodegroup="compositing">
       <input name="in" type="@typeName@" value="Value:zero" />
-      <input name="mask" type="@typeName@" value="Value:one" />
+      <input name="mask" type="float" value="1.0" />
       <output name="out" type="@typeName@" defaultinput="in" />
     </nodedef>
   </template>
@@ -2037,7 +2058,7 @@
   <template name="TP_ND_outside" varName="typeName" options="float, color3, color4">
     <nodedef name="ND_outside_@typeName@" node="outside" nodegroup="compositing">
       <input name="in" type="@typeName@" value="Value:zero" />
-      <input name="mask" type="@typeName@" value="Value:zero" />
+      <input name="mask" type="float" value="0.0" />
       <output name="out" type="@typeName@" defaultinput="in" />
     </nodedef>
   </template>
@@ -2059,7 +2080,7 @@
     <nodedef name="ND_mix_@typeName@_@typeName@" node="mix" nodegroup="compositing">
       <input name="fg" type="@typeName@" value="Value:zero" />
       <input name="bg" type="@typeName@" value="Value:zero" />
-      <input name="mix" type="@typeName@" value="Value:zero" uisoftmin="0,0,0" uisoftmax="1,1,1" />
+      <input name="mix" type="@typeName@" value="Value:zero" uisoftmin="Value:zero" uisoftmax="Value:one" />
       <output name="out" type="@typeName@" defaultinput="bg" />
     </nodedef>
   </template>
@@ -2072,17 +2093,23 @@
     Node: <ifgreater>
     Output the value of in1 if value1>value2, or the value of in2 if value1<=value2.
   -->
-  <template name="TP_ND_ifgreater" varName="typeName" options="float, integer, color3, color4, vector2, vector3, vector4, matrix33, matrix44, boolean">
+  <template name="TP_ND_ifgreater" varName="typeName" options="float, integer, color3, color4, vector2, vector3, vector4, matrix33, matrix44">
     <nodedef name="ND_ifgreater_@typeName@" node="ifgreater" nodegroup="conditional">
       <input name="value1" type="float" value="1.0" />
       <input name="value2" type="float" value="0.0" />
-      <input name="in1" type="@typeName@" value="0.0" />
-      <input name="in2" type="@typeName@" value="0.0" />
+      <input name="in1" type="@typeName@" value="Value:zero" />
+      <input name="in2" type="@typeName@" value="Value:zero" />
       <output name="out" type="@typeName@" defaultinput="in1" />
     </nodedef>
   </template>
 
-  <template name="TP_ND_ifgreater_I" varName="typeName" options="float, integer, color3, color4, vector2, vector3, vector4, matrix33, matrix44, boolean">
+  <nodedef name="ND_ifgreater_boolean" node="ifgreater" nodegroup="conditional">
+    <input name="value1" type="float" value="1.0" />
+    <input name="value2" type="float" value="0.0" />
+    <output name="out" type="boolean" default="false" />
+  </nodedef>
+
+  <template name="TP_ND_ifgreater_I" varName="typeName" options="float, integer, color3, color4, vector2, vector3, vector4, matrix33, matrix44">
     <nodedef name="ND_ifgreater_@typeName@I" node="ifgreater" nodegroup="conditional">
       <input name="value1" type="integer" value="1" />
       <input name="value2" type="integer" value="0" />
@@ -2092,21 +2119,33 @@
     </nodedef>
   </template>
 
+  <nodedef name="ND_ifgreater_booleanI" node="ifgreater" nodegroup="conditional">
+    <input name="value1" type="integer" value="1" />
+    <input name="value2" type="integer" value="0" />
+    <output name="out" type="boolean" default="false" />
+  </nodedef>
+
   <!--
     Node: <ifgreatereq>
     Output the value of in1 if value1>=value2, or the value of in2 if value1<value2.
   -->
-  <template name="TP_ND_ifgreatereq" varName="typeName" options="float, integer, color3, color4, vector2, vector3, vector4, matrix33, matrix44, boolean">
+  <template name="TP_ND_ifgreatereq" varName="typeName" options="float, integer, color3, color4, vector2, vector3, vector4, matrix33, matrix44">
     <nodedef name="ND_ifgreatereq_@typeName@" node="ifgreatereq" nodegroup="conditional">
       <input name="value1" type="float" value="1.0" />
       <input name="value2" type="float" value="0.0" />
-      <input name="in1" type="@typeName@" value="0.0" />
-      <input name="in2" type="@typeName@" value="0.0" />
+      <input name="in1" type="@typeName@" value="Value:zero" />
+      <input name="in2" type="@typeName@" value="Value:zero" />
       <output name="out" type="@typeName@" defaultinput="in1" />
     </nodedef>
   </template>
 
-  <template name="TP_ND_ifgreatereq_I" varName="typeName" options="float, integer, color3, color4, vector2, vector3, vector4, matrix33, matrix44, boolean">
+  <nodedef name="ND_ifgreatereq_boolean" node="ifgreatereq" nodegroup="conditional">
+    <input name="value1" type="float" value="1.0" />
+    <input name="value2" type="float" value="0.0" />
+    <output name="out" type="boolean" default="false" />
+  </nodedef>
+
+  <template name="TP_ND_ifgreatereq_I" varName="typeName" options="float, integer, color3, color4, vector2, vector3, vector4, matrix33, matrix44">
     <nodedef name="ND_ifgreatereq_@typeName@I" node="ifgreatereq" nodegroup="conditional">
       <input name="value1" type="integer" value="1" />
       <input name="value2" type="integer" value="0" />
@@ -2116,21 +2155,33 @@
     </nodedef>
   </template>
 
+  <nodedef name="ND_ifgreatereq_booleanI" node="ifgreatereq" nodegroup="conditional">
+    <input name="value1" type="integer" value="1" />
+    <input name="value2" type="integer" value="0" />
+    <output name="out" type="boolean" default="false" />
+  </nodedef>
+
   <!--
     Node: <ifequal>
     Output the value of in1 if value1==value2, or the value of in2 if value1!=value2.
   -->
-  <template name="TP_ND_ifequal" varName="typeName" options="float, integer, color3, color4, vector2, vector3, vector4, matrix33, matrix44, boolean">
+  <template name="TP_ND_ifequal" varName="typeName" options="float, integer, color3, color4, vector2, vector3, vector4, matrix33, matrix44">
     <nodedef name="ND_ifequal_@typeName@" node="ifequal" nodegroup="conditional">
       <input name="value1" type="float" value="0.0" />
       <input name="value2" type="float" value="0.0" />
-      <input name="in1" type="@typeName@" value="0.0" />
-      <input name="in2" type="@typeName@" value="0.0" />
+      <input name="in1" type="@typeName@" value="Value:zero" />
+      <input name="in2" type="@typeName@" value="Value:zero" />
       <output name="out" type="@typeName@" defaultinput="in1" />
     </nodedef>
   </template>
 
-  <template name="TP_ND_ifequal_I" varName="typeName" options="float, integer, color3, color4, vector2, vector3, vector4, matrix33, matrix44, boolean">
+  <nodedef name="ND_ifequal_boolean" node="ifequal" nodegroup="conditional">
+    <input name="value1" type="float" value="1.0" />
+    <input name="value2" type="float" value="0.0" />
+    <output name="out" type="boolean" default="false" />
+  </nodedef>
+
+  <template name="TP_ND_ifequal_I" varName="typeName" options="float, integer, color3, color4, vector2, vector3, vector4, matrix33, matrix44">
     <nodedef name="ND_ifequal_@typeName@I" node="ifequal" nodegroup="conditional">
       <input name="value1" type="integer" value="0" />
       <input name="value2" type="integer" value="0" />
@@ -2139,6 +2190,28 @@
       <output name="out" type="@typeName@" defaultinput="in1" />
     </nodedef>
   </template>
+
+  <nodedef name="ND_ifequal_booleanI" node="ifequal" nodegroup="conditional">
+    <input name="value1" type="integer" value="1" />
+    <input name="value2" type="integer" value="0" />
+    <output name="out" type="boolean" default="false" />
+  </nodedef>
+
+  <template name="TP_ND_ifequal_B" varName="typeName" options="float, integer, color3, color4, vector2, vector3, vector4, matrix33, matrix44">
+    <nodedef name="ND_ifequal_@typeName@B" node="ifequal" nodegroup="conditional">
+      <input name="value1" type="boolean" value="false" />
+      <input name="value2" type="boolean" value="false" />
+      <input name="in1" type="@typeName@" value="Value:zero" />
+      <input name="in2" type="@typeName@" value="Value:zero" />
+      <output name="out" type="@typeName@" defaultinput="in1" />
+    </nodedef>
+  </template>
+
+  <nodedef name="ND_ifequal_booleanB" node="ifequal" nodegroup="conditional">
+    <input name="value1" type="boolean" value="false" />
+    <input name="value2" type="boolean" value="false" />
+    <output name="out" type="boolean" default="false" />
+  </nodedef>
 
   <!--
     Node: <switch>
@@ -2191,7 +2264,7 @@
   <template name="TP_ND_convert_float" varName="typeName" options="color3, color4, vector2, vector3, vector4">
     <nodedef name="ND_convert_float_@typeName@" node="convert" nodegroup="channel">
       <input name="in" type="float" value="0.0" />
-      <output name="out" type="@typeName@" default="Value:0" />
+      <output name="out" type="@typeName@" default="Value:zero" />
     </nodedef>
   </template>
 
@@ -2296,7 +2369,7 @@
     Combine the channels from four streams into the same number of channels of a
     single output stream of a specified compatible type.
   -->
-  <template name="TP_ND_combine3" varName="typeName" options="color4, vector4">
+  <template name="TP_ND_combine4" varName="typeName" options="color4, vector4">
     <nodedef name="ND_combine4_@typeName@" node="combine4" nodegroup="channel">
       <input name="in1" type="float" value="0.0" />
       <input name="in2" type="float" value="0.0" />
@@ -2337,13 +2410,32 @@
     Node: <extract>
     Extract a single channel from a colorN or vectorN stream, outputting a float.
   -->
-  <template name="TP_ND_extract" varName="typeName" options="color3, color4, vector2, vector3, vector4">
-    <nodedef name="ND_extract_@typeName@" node="extract" nodegroup="channel">
-      <input name="in" type="@typeName@" value="Value:zero" />
-      <input name="index" type="integer" value="0" uimin="0" uimax="2" uniform="true" />
-      <output name="out" type="float" default="0.0" />
-    </nodedef>
-  </template>
+  <nodedef name="ND_extract_color3" node="extract" nodegroup="channel">
+    <input name="in" type="color3" value="0.0, 0.0, 0.0" />
+    <input name="index" type="integer" value="0" uimin="0" uimax="2" uniform="true" />
+    <output name="out" type="float" default="0.0" />
+  </nodedef>
+  <nodedef name="ND_extract_color4" node="extract" nodegroup="channel">
+    <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="index" type="integer" value="0" uimin="0" uimax="3" uniform="true" />
+    <output name="out" type="float" default="0.0" />
+  </nodedef>
+  <nodedef name="ND_extract_vector2" node="extract" nodegroup="channel">
+    <input name="in" type="vector2" value="0.0, 0.0" />
+    <input name="index" type="integer" value="0" uimin="0" uimax="1" uniform="true" />
+    <output name="out" type="float" default="0.0" />
+  </nodedef>
+  <nodedef name="ND_extract_vector3" node="extract" nodegroup="channel">
+    <input name="in" type="vector3" value="0.0, 0.0, 0.0" />
+    <input name="index" type="integer" value="0" uimin="0" uimax="2" uniform="true" />
+    <output name="out" type="float" default="0.0" />
+  </nodedef>
+  <nodedef name="ND_extract_vector4" node="extract" nodegroup="channel">
+    <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="index" type="integer" value="0" uimin="0" uimax="3" uniform="true" />
+    <output name="out" type="float" default="0.0" />
+  </nodedef>
+
 
   <!--
     Node: <separate2>, <separate3>, <separate4> Supplemental Nodes
