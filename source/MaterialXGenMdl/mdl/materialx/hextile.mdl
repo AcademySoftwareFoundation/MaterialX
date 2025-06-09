@@ -7,7 +7,6 @@ mdl 1.6;
 
 import ::math::*;
 
-
 // https://www.shadertoy.com/view/4djSRW
 float2 mx_hextile_hash(float2 p)
 {
