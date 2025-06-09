@@ -889,7 +889,7 @@ export class Material
                         assigned += viewer.getScene().updateMaterial(matassign);
                         matassign.setGeometry(temp);
                         assignedSolo = true;
-                        break
+                        break;
                     }
                 }
                 else
@@ -982,7 +982,8 @@ export class Material
             blendEquation: THREE.AddEquation,
             blendSrc: THREE.OneMinusSrcAlphaFactor,
             blendDst: THREE.SrcAlphaFactor,
-            side: THREE.DoubleSide
+            side: THREE.DoubleSide,
+            name: elem.getName(),
         });
 
         if (logDetailedTime)
