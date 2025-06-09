@@ -67,28 +67,26 @@ void replaceNamedValues(mx::DocumentPtr doc, mx::ConstDocumentPtr stdlib)
             continue;
         }
 
-        if (!port->hasValueString())
-        {
-            continue;
-        }
+        mx::StringVec const& attributeNames = port->getAttributeNames();
+        for (std::string const& attrName: attributeNames) {
+            std::string const& valueStr = port->getAttribute(attrName);
 
-        auto valueStr = port->getValueString();
-        if (mx::stringStartsWith(valueStr, typeValuePrefix))
-        {
-
-            auto typeDef = stdlib->getTypeDef(port->getType());
-            if (!typeDef)
+            if (mx::stringStartsWith(valueStr, typeValuePrefix))
             {
-                throw mx::Exception("Unable to find typeDef '"+port->getType()+"'");
-            }
+                auto typeDef = stdlib->getTypeDef(port->getType());
+                if (!typeDef)
+                {
+                    throw mx::Exception("Unable to find typeDef '"+port->getType()+"'");
+                }
 
-            auto valueNameStr = valueStr.substr(typeValuePrefix.size());
-            if (!typeDef->hasAttribute(valueNameStr))
-            {
-                throw mx::Exception("Unable to find named value '"+valueNameStr+"' for type '"+typeDef->getName()+"'");
-            }
+                auto valueNameStr = valueStr.substr(typeValuePrefix.size());
+                if (!typeDef->hasAttribute(valueNameStr))
+                {
+                    throw mx::Exception("Unable to find named value '"+valueNameStr+"' for type '"+typeDef->getName()+"'");
+                }
 
-            port->setValueString(typeDef->getAttribute(valueNameStr));
+                port->setAttribute(attrName, typeDef->getAttribute(valueNameStr));
+            }
         }
     }
 }
