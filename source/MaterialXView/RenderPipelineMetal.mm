@@ -492,8 +492,7 @@ void MetalRenderPipeline::renderFrame(void* color_texture, int shadowMapSize, co
             if (envPart)
             {
                 // Apply rotation to the environment shader.
-                float longitudeOffset = (lightRotation / 360.0f) + 0.5f;
-                envMaterial->modifyUniform("longitude/in2", mx::Value::createValue(longitudeOffset));
+                envMaterial->modifyUniform("envImage/rotation", mx::Value::createValue(lightRotation));
 
                 // Apply light intensity to the environment shader.
                 envMaterial->modifyUniform("envImageAdjusted/in2", mx::Value::createValue(lightHandler->getEnvLightIntensity()));
