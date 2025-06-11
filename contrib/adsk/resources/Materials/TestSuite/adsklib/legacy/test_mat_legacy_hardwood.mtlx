@@ -1,28 +1,26 @@
 <?xml version="1.0"?>
-<materialx version="1.38" colorspace="lin_rec709">
-
-  <legacy_hardwood name="SR_legacy_hardwood" type="surfaceshader" >
+<materialx version="1.39" colorspace="lin_rec709">
+  <legacy_hardwood name="SR_legacy_hardwood" type="surfaceshader" xpos="10.326087" ypos="-1.250000">
     <input name="color" type="color3" nodename="image_hardwood" />
     <input name="stain_enable" type="boolean" value="true" />
-    <input name="stain_color" type="color3" value="0.2,0.2,0.9" />
-    <input name="finish" type="float" value="0" />
-    <input name="used_for" type="float" value="0" />
+    <input name="stain_color" type="color3" value="0.4,0.2,0.1" />
+    <input name="finish" type="integer" value="0" />
+    <input name="used_for" type="integer" value="0" />
     <input name="tint_enable" type="boolean" value="false" />
     <input name="tint_color" type="color3" value="0.95,0.5,0.5" />
     <input name="relief_pattern_enable" type="boolean" value="false" />
-    <input name="relief_pattern_type" type="float" value="0" />
-    <input name="relief_pattern_custom" type="vector3" nodename="height_map1_hardwood" />
+    <input name="relief_pattern_type" type="integer" value="0" />
+    <input name="normal_pattern_custom" type="vector3" nodename="height_map1_hardwood" />
   </legacy_hardwood>
-  <surfacematerial name="M_legacy_hardwood" type="material">
+  <surfacematerial name="M_legacy_hardwood" type="material" xpos="13.043478" ypos="0.000000">
     <input name="surfaceshader" type="surfaceshader" nodename="SR_legacy_hardwood" />
   </surfacematerial>
-  <image name="image_hardwood" type="color3" nodedef="ND_image_color3" xpos="-746.5" ypos="-551">
+  <image name="image_hardwood" type="color3" xpos="7.855072" ypos="-1.258621">
     <input name="file" type="filename" uniform="true" value="textures/Woods - Plastics.Finish Carpentry.Wood.Red Birch.jpg" uivisible="true" />
   </image>
-  <adsk:height_map name="height_map1_hardwood" type="vector3" version="1.0.1" xpos="7.739130" ypos="0.818965">
+  <adsk:height_map name="height_map1_hardwood" type="vector3" version="1.0.1" xpos="7.739130" ypos="0.810345">
     <input name="file" type="filename" uniform="true" value="textures/tiles_travertine_versailles_bump.jpg" fileprefix="" />
     <input name="realworld_scale" type="vector2" value="1, 1" />
     <input name="depth" type="float" value="1" />
   </adsk:height_map>
-
 </materialx>

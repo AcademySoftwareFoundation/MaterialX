@@ -3717,228 +3717,209 @@
   </nodegraph>
 
   <!-- <Legacy Plastic/Vinyl> -->
-  <nodegraph name="NG_legacy_plastic" xpos="-87.5" ypos="-310" nodedef="ND_legacy_plastic" >
-    <switch name="surface_color" type="color3" xpos="10.637681" ypos="-3.896552">
-      <input name="in1" type="color3" nodename="tint_selection" uivisible="true" />
-      <input name="in2" type="color3" nodename="tint_selection" uivisible="true" />
-      <input name="in3" type="color3" nodename="tint_selection" uivisible="true" />
-      <input name="which" type="float" interfacename="type" uivisible="true" />
-    </switch>
-    <switch name="transmission_color" type="color3" xpos="10.586957" ypos="5.810345">
-      <input name="in1" type="color3" nodename="color_white" uivisible="true" />
-      <input name="in2" type="color3" nodename="tint_selection" uivisible="true" />
-      <input name="in3" type="color3" nodename="color_white" uivisible="true" />
-      <input name="which" type="float" interfacename="type" uivisible="true" />
-    </switch>
-    <constant name="color_white" type="color3" xpos="5.376812" ypos="1.612069">
+  <nodegraph name="NG_legacy_plastic" Autodesk-ldx_inputPos="-537 -60.6667" Autodesk-ldx_outputPos="1855.47 -62.2051" nodedef="ND_legacy_plastic">
+    <constant name="color_white" type="color3" xpos="1.95579" ypos="1.66141">
       <input name="value" type="color3" value="1, 1, 1" uivisible="true" />
     </constant>
-    <standard_surface name="standard_surface" type="surfaceshader" version="1.0.1" xpos="15.275362" ypos="-0.284483">
-      <input name="base_color" type="color3" nodename="surface_color" uivisible="true" />
-      <input name="specular_roughness" type="float" nodename="roughness_amount" uivisible="true" />
+    <standard_surface name="standard_surface" type="surfaceshader" version="1.0.1" xpos="8.18272" ypos="-0.416124">
+      <input name="base_color" type="color3" uivisible="true" nodename="surface_color" />
+      <input name="specular_roughness" type="float" uivisible="true" nodename="roughness_amount" />
       <input name="specular_IOR" type="float" value="1.46" uivisible="true" />
-      <input name="transmission" type="float" nodename="transmission_amount" uivisible="true" />
-      <input name="transmission_color" type="color3" nodename="transmission_color" uivisible="true" />
-  	  <!-- combinenormals temporary bypass
-      <input name="normal" type="vector3" nodename="combinenormals_vector3" />
-	  -->
+      <input name="transmission" type="float" uivisible="true" nodename="transmission_amount" />
+      <input name="transmission_color" type="color3" uivisible="true" nodename="transmission_color" />
       <input name="normal" type="vector3" nodename="finish_bump_selection" />
     </standard_surface>
-    <switch name="transmission_amount" type="float" xpos="10.673913" ypos="3.336207">
-      <input name="in2" type="float" uivisible="true" nodename="transm_transparent" />
-      <input name="which" type="float" interfacename="type" uivisible="true" />
-      <input name="in1" type="float" nodename="transm_opaque" />
-      <input name="in3" type="float" nodename="transm_opaque" />
-    </switch>
-    <switch name="roughness_amount" type="float" xpos="10.659420" ypos="-0.724138">
-      <input name="in1" type="float" uivisible="true" nodename="roughness_polished" />
-      <input name="in2" type="float" uivisible="true" nodename="roughness_glossy" />
-      <input name="in3" type="float" uivisible="true" nodename="roughness_semigloss" />
-      <input name="which" type="float" interfacename="finish" uivisible="true" />
-      <input name="in4" type="float" nodename="roughness_matte" />
-    </switch>
-    <ifequal name="tint_selection" type="color3" xpos="5.384058" ypos="-4.982759">
+    <ifequal name="tint_selection" type="color3" xpos="1.96304" ypos="-4.93342">
       <input name="value1" type="boolean" interfacename="tint_enable" uivisible="true" />
       <input name="value2" type="boolean" value="true" uivisible="true" />
       <input name="in1" type="color3" nodename="tint_mult" uivisible="true" />
-      <input name="in2" type="color3" interfacename="color" uivisible="true" />
+      <input name="in2" type="color3" interfacename="color" />
     </ifequal>
-    <multiply name="tint_mult" type="color3" xpos="2.514493" ypos="-3.689655">
+    <multiply name="tint_mult" type="color3" xpos="-0.757222" ypos="-4.51744">
       <input name="in1" type="color3" interfacename="color" uivisible="true" />
       <input name="in2" type="color3" interfacename="tint_color" uivisible="true" />
     </multiply>
-    <constant name="transm_transparent" type="float" xpos="5.289855" ypos="4.913793">
+    <constant name="transm_transparent" type="float" xpos="1.96752" ypos="3.91051">
       <input name="value" type="float" value="1" />
     </constant>
-    <constant name="transm_opaque" type="float" xpos="5.384058" ypos="3.293103" />
-    <constant name="roughness_matte" type="float" xpos="5.427536" ypos="0.094828">
+    <constant name="transm_opaque" type="float" xpos="1.93014" ypos="2.83258" />
+    <constant name="roughness_matte" type="float" xpos="2.00653" ypos="0.144169">
       <input name="value" type="float" value="0.5" />
     </constant>
-    <constant name="roughness_glossy" type="float" xpos="5.434783" ypos="-1.844828">
+    <constant name="roughness_glossy" type="float" xpos="2.01377" ypos="-1.79549">
       <input name="value" type="float" value="0.05" />
     </constant>
-    <constant name="roughness_polished" type="float" xpos="5.384058" ypos="-2.810345">
+    <constant name="roughness_polished" type="float" xpos="2.01949" ypos="-2.76907">
       <input name="value" type="float" value="0.01" />
     </constant>
-    <constant name="roughness_semigloss" type="float" xpos="5.384058" ypos="-0.870690">
+    <constant name="roughness_semigloss" type="float" xpos="1.9953" ypos="-0.82135">
       <input name="value" type="float" value="0.2" />
     </constant>
-    <combinenormals_vector3 name="combinenormals_vector3" type="vector3" xpos="10.021739" ypos="11.629311">
+    <combinenormals_vector3 name="combinenormals_vector3" type="vector3" xpos="5.6885" ypos="5.96744">
       <input name="normal2" type="vector3" nodename="relief_pattern_selection" />
       <input name="normal1" type="vector3" nodename="finish_bump_selection" />
     </combinenormals_vector3>
-    <ifequal name="finish_bump_selection" type="vector3" xpos="5.304348" ypos="9.284483">
+    <ifequal name="finish_bump_selection" type="vector3" xpos="1.94494" ypos="5.27224">
       <input name="value2" type="boolean" value="true" />
       <input name="value1" type="boolean" interfacename="finish_bump_enable" />
-      <input name="in1" type="vector3" interfacename="finish_bump" />
+      <input name="in1" type="vector3" interfacename="normal_finish_bump" />
       <input name="in2" type="vector3" nodename="normalmap" />
     </ifequal>
-    <ifequal name="relief_pattern_selection" type="vector3" xpos="5.304348" ypos="12.456897">
+    <ifequal name="relief_pattern_selection" type="vector3" xpos="1.92849" ypos="6.73411">
       <input name="value2" type="boolean" value="true" />
       <input name="value1" type="boolean" interfacename="relief_pattern_enable" />
-      <input name="in1" type="vector3" interfacename="relief_pattern" />
+      <input name="in1" type="vector3" interfacename="normal_relief_pattern" />
       <input name="in2" type="vector3" nodename="normalmap" />
     </ifequal>
-    <constant name="neutral_normal" type="vector3" xpos="-0.724638" ypos="15.905172">
+    <constant name="neutral_normal" type="vector3" xpos="-2.76608" ypos="5.51456">
       <input name="value" type="vector3" value="0.5, 0.5, 1" />
     </constant>
-    <normalmap name="normalmap" type="vector3" xpos="1.724638" ypos="15.974138">
+    <normalmap name="normalmap" type="vector3" xpos="-1.22187" ypos="5.52154">
       <input name="in" type="vector3" nodename="neutral_normal" />
     </normalmap>
     <output name="out" type="surfaceshader" nodename="standard_surface" xpos="17.992754" ypos="0.310345" />
+    <backdrop name="temp_bypass" xpos="5.61167" ypos="5.54984" width="1.36111" height="1.73333" uicolor="#C85252" Autodesk-ldx_alpha="0.156863" />
+    <switch name="transmission_color" type="color3" nodedef="ND_switch_color3I" xpos="5.6735" ypos="2.77576">
+      <input name="in1" type="color3" nodename="color_white" />
+      <input name="in2" type="color3" nodename="tint_selection" />
+      <input name="in3" type="color3" nodename="color_white" />
+      <input name="which" type="integer" interfacename="type" />
+    </switch>
+    <switch name="transmission_amount" type="float" nodedef="ND_switch_floatI" xpos="5.78511" ypos="0.885517">
+      <input name="in1" type="float" nodename="transm_opaque" />
+      <input name="in2" type="float" nodename="transm_transparent" />
+      <input name="in3" type="float" nodename="transm_opaque" />
+      <input name="which" type="integer" interfacename="type" />
+    </switch>
+    <switch name="surface_color" type="color3" nodedef="ND_switch_color3I" xpos="5.85578" ypos="-3.05781">
+      <input name="in1" type="color3" nodename="tint_selection" />
+      <input name="in2" type="color3" nodename="tint_selection" />
+      <input name="in3" type="color3" nodename="tint_selection" />
+      <input name="which" type="integer" interfacename="type" />
+    </switch>
+    <switch name="roughness_amount" type="float" nodedef="ND_switch_floatI" xpos="5.83639" ypos="-1.26697">
+      <input name="in1" type="float" nodename="roughness_polished" />
+      <input name="in2" type="float" nodename="roughness_glossy" />
+      <input name="in3" type="float" nodename="roughness_semigloss" />
+      <input name="in4" type="float" nodename="roughness_matte" />
+      <input name="which" type="integer" interfacename="finish" />
+    </switch>
   </nodegraph>
 
   <!-- <Legacy Hardwood> -->
-  <nodegraph name="NG_legacy_hardwood" xpos="-319.993" ypos="-301.344" nodedef="ND_legacy_hardwood" >
-    <standard_surface name="standard_surface" type="surfaceshader" version="1.0.1" xpos="17.362318" ypos="-0.146552">
+  <nodegraph name="NG_legacy_hardwood" Autodesk-ldx_inputPos="-488.333 -61" Autodesk-ldx_outputPos="2977.15 53.2217" nodedef="ND_legacy_hardwood">
+    <standard_surface name="standard_surface" type="surfaceshader" version="1.0.1" xpos="14.8552" ypos="-0.262428">
       <input name="base_color" type="color3" uivisible="true" nodename="tint_selection" />
-      <input name="specular_roughness" type="float" nodename="switch_rough" uivisible="true" />
-      <input name="coat" type="float" nodename="switch_coat" uivisible="true" />
-      <input name="coat_roughness" type="float" nodename="switch_finish" uivisible="true" />
-	  <!-- combinenormals temporary bypass
-      <input name="normal" type="vector3" nodename="combinenormals_vector3" />
-	  -->
+      <input name="specular_roughness" type="float" uivisible="true" nodename="switch_rough" />
+      <input name="coat" type="float" uivisible="true" nodename="switch_coat" />
+      <input name="coat_roughness" type="float" uivisible="true" nodename="switch_finish" />
       <input name="normal" type="vector3" nodename="relief_pattern_selection" />
     </standard_surface>
-    <ifequal name="tint_selection" type="color3" xpos="5.652174" ypos="-4.672414">
+    <ifequal name="tint_selection" type="color3" xpos="7.60544" ypos="-4.50793">
       <input name="value1" type="boolean" interfacename="tint_enable" uivisible="true" />
       <input name="value2" type="boolean" value="true" uivisible="true" />
       <input name="in1" type="color3" nodename="tint_mult" uivisible="true" />
       <input name="in2" type="color3" uivisible="true" nodename="stain_selection" />
     </ifequal>
-    <ifequal name="stain_selection" type="color3" xpos="1.746377" ypos="-3.956897">
+    <ifequal name="stain_selection" type="color3" xpos="3.69963" ypos="-3.79242">
       <input name="value1" type="boolean" interfacename="stain_enable" uivisible="true" />
       <input name="value2" type="boolean" value="true" uivisible="true" />
-      <input name="in1" type="color3" nodename="texture_stain" uivisible="true" />
+      <input name="in1" type="color3" uivisible="true" nodename="texture_stain" />
       <input name="in2" type="color3" interfacename="color" uivisible="true" />
     </ifequal>
-    <multiply name="tint_mult" type="color3" xpos="3.789855" ypos="-6.181035">
+    <multiply name="tint_mult" type="color3" xpos="5.66089" ypos="-4.92688">
       <input name="in1" type="color3" uivisible="true" nodename="stain_selection" />
       <input name="in2" type="color3" interfacename="tint_color" uivisible="true" />
     </multiply>
-    <legacy_stain name="texture_stain" type="color3" xpos="0.050725" ypos="-2.284483">
-      <input name="color" type="color3" interfacename="color" uivisible="true" />
-      <input name="stain_color" type="color3" interfacename="stain_color" uivisible="true" />
-    </legacy_stain>
-    <switch name="switch_finish" type="float" xpos="7.268116" ypos="6.758621">
-      <input name="in1" type="float" nodename="finish_glossy" uivisible="true" />
-      <input name="in2" type="float" nodename="finish_semigloss" uivisible="true" />
-      <input name="in3" type="float" nodename="finish_satin" uivisible="true" />
-      <input name="in4" type="float" nodename="finish_unfinished" uivisible="true" />
-      <input name="which" type="float" interfacename="finish" uivisible="true" />
-    </switch>
-    <constant name="finish_glossy" type="float" xpos="4.884058" ypos="4.370690">
+    <constant name="finish_glossy" type="float" xpos="4.80182" ypos="2.46885">
       <input name="value" type="float" value="0.05" uivisible="true" />
     </constant>
-    <constant name="finish_semigloss" type="float" xpos="4.884058" ypos="5.577586">
+    <constant name="finish_semigloss" type="float" xpos="4.80182" ypos="3.5421">
       <input name="value" type="float" value="0.2" uivisible="true" />
     </constant>
-    <constant name="finish_satin" type="float" xpos="4.884058" ypos="6.775862">
+    <constant name="finish_satin" type="float" xpos="4.87378" ypos="4.69921">
       <input name="value" type="float" value="0.4" uivisible="true" />
     </constant>
-    <constant name="finish_unfinished" type="float" xpos="4.884058" ypos="7.974138">
+    <constant name="finish_unfinished" type="float" xpos="4.93546" ypos="5.84617">
       <input name="value" type="float" value="0.7" uivisible="true" />
     </constant>
-    <switch name="switch_coat" type="float" xpos="7.623188" ypos="1.568966">
-      <input name="in1" type="float" nodename="coat_on" uivisible="true" />
-      <input name="in2" type="float" nodename="coat_on" uivisible="true" />
-      <input name="in3" type="float" nodename="coat_on" uivisible="true" />
-      <input name="in4" type="float" nodename="coat_off" uivisible="true" />
-      <input name="which" type="float" interfacename="finish" uivisible="true" />
-    </switch>
-    <constant name="coat_on" type="float" xpos="4.905797" ypos="0.810345">
+    <constant name="coat_on" type="float" xpos="4.84412" ypos="0.0804467">
       <input name="value" type="float" value="1" uivisible="true" />
     </constant>
-    <constant name="coat_off" type="float" xpos="4.884058" ypos="1.982759">
+    <constant name="coat_off" type="float" xpos="4.8635" ypos="1.1809">
       <input name="value" type="float" value="0" uivisible="true" />
     </constant>
-    <switch name="switch_rough" type="float" xpos="7.608696" ypos="-1.672414">
-      <input name="in1" type="float" nodename="base_rough_floor" uivisible="true" />
-      <input name="in2" type="float" nodename="base_rough_furn" uivisible="true" />
-      <input name="which" type="float" interfacename="used_for" uivisible="true" />
-    </switch>
-    <constant name="base_rough_furn" type="float" xpos="4.840580" ypos="-0.870690">
+    <constant name="base_rough_furn" type="float" xpos="4.84058" ypos="-0.870689">
       <input name="value" type="float" value="0.6" uivisible="true" />
     </constant>
-    <constant name="base_rough_floor" type="float" xpos="4.840580" ypos="-2.086207">
+    <constant name="base_rough_floor" type="float" xpos="4.84058" ypos="-2.07593">
       <input name="value" type="float" value="0.75" uivisible="true" />
     </constant>
-    <legacy_noise name="legacy_noise" type="color3" xpos="-6.615942" ypos="6.922414">
-      <input name="color1" type="color3" value="1, 1, 1" />
-      <input name="color2" type="color3" value="0, 0, 0" />
-      <input name="threshold_low" type="float" value="0" />
-      <input name="threshold_high" type="float" value="1" />
-      <input name="size" type="float" value="100" />
-    </legacy_noise>
-    <swizzle name="swizzle_color3_float" type="float" xpos="-4.862319" ypos="7.577586">
-      <input name="in" type="color3" nodename="legacy_noise" />
-    </swizzle>
-    <luminance name="luminance_color" type="color3" xpos="-6.869565" ypos="12.818966">
+    <luminance name="luminance_color" type="color3" xpos="0.201628" ypos="11.6163">
       <input name="in" type="color3" interfacename="color" />
       <input name="lumacoeffs" type="color3" value="0.299, 0.587, 0.114" />
     </luminance>
-    <swizzle name="swizzle_float" type="float" xpos="-4.898551" ypos="12.681034">
-      <input name="in" type="color3" nodename="luminance_color" />
-    </swizzle>
-    <combinenormals_vector3 name="combinenormals_vector3" type="vector3" xpos="10.847826" ypos="11.853448">
+    <combinenormals_vector3 name="combinenormals_vector3" type="vector3" xpos="11.4441" ypos="9.24222">
       <input name="normal1" type="vector3" nodename="switch_large_bump" />
       <input name="normal2" type="vector3" nodename="relief_pattern_selection" />
     </combinenormals_vector3>
-    <switch name="switch_relief_pattern" type="vector3" xpos="3.094203" ypos="14.008620">
-      <input name="which" type="float" interfacename="relief_pattern_type" />
-      <input name="in2" type="vector3" interfacename="relief_pattern_custom" />
-      <input name="in1" type="vector3" nodename="normalmap_color_bump" />
-    </switch>
-    <ifequal name="relief_pattern_selection" type="vector3" xpos="6.579710" ypos="14.112069">
+    <ifequal name="relief_pattern_selection" type="vector3" xpos="9.33883" ypos="10.1724">
       <input name="value1" type="boolean" interfacename="relief_pattern_enable" />
       <input name="value2" type="boolean" value="true" />
       <input name="in1" type="vector3" nodename="switch_relief_pattern" />
       <input name="in2" type="vector3" nodename="normalmap_neutral_normal" />
     </ifequal>
-    <normalmap name="normalmap_neutral_normal" type="vector3" xpos="2.405797" ypos="10.215517">
+    <normalmap name="normalmap_neutral_normal" type="vector3" xpos="4.96588" ypos="9.52133">
       <input name="in" type="vector3" nodename="constant_neutral_normal" />
     </normalmap>
-    <constant name="constant_neutral_normal" type="vector3" xpos="-0.130435" ypos="9.801724">
+    <constant name="constant_neutral_normal" type="vector3" xpos="3.13868" ypos="9.63722">
       <input name="value" type="vector3" value="0.5, 0.5, 1" />
     </constant>
-    <switch name="switch_large_bump" type="vector3" xpos="6.000000" ypos="9.646552">
-      <input name="which" type="float" interfacename="used_for" />
-      <input name="in2" type="vector3" nodename="normalmap_neutral_normal" />
-      <input name="in1" type="vector3" nodename="normalmap_large_bump" />
-    </switch>
-    <heighttonormal name="heighttonormal_large_bump" type="vector3" xpos="-2.688406" ypos="7.612069">
-      <input name="in" type="float" nodename="swizzle_color3_float" />
+    <heighttonormal name="heighttonormal_color_bump" type="vector3" xpos="3.3347" ypos="11.6428">
+      <input name="in" type="float" nodename="extract_float_bump" />
     </heighttonormal>
-    <normalmap name="normalmap_large_bump" type="vector3" xpos="-0.108696" ypos="7.577586">
-      <input name="in" type="vector3" nodename="heighttonormal_large_bump" />
-    </normalmap>
-    <heighttonormal name="heighttonormal_color_bump" type="vector3" xpos="-3.057971" ypos="12.681034">
-      <input name="in" type="float" nodename="swizzle_float" />
-    </heighttonormal>
-    <normalmap name="normalmap_color_bump" type="vector3" xpos="-0.608696" ypos="12.681034">
+    <normalmap name="normalmap_color_bump" type="vector3" xpos="4.941" ypos="11.6119">
       <input name="in" type="vector3" nodename="heighttonormal_color_bump" />
     </normalmap>
     <output name="out" type="surfaceshader" nodename="standard_surface" xpos="20.079710" ypos="0.310345" />
+    <backdrop name="bypass" xpos="11.2959" ypos="8.76217" width="1.64896" height="1.87726" uicolor="#C85252" Autodesk-ldx_alpha="0.156863" />
+    <extract name="extract_float_bump" type="float" nodedef="ND_extract_color3" xpos="1.77476" ypos="11.5699">
+      <input name="in" type="color3" nodename="luminance_color" />
+    </extract>
+    <legacy_stain name="texture_stain" type="color3" nodedef="ND_legacy_stain_color3" xpos="1.67233" ypos="-4.25961">
+      <input name="stain_color" type="color3" interfacename="stain_color" />
+      <input name="color" type="color3" interfacename="color" />
+    </legacy_stain>
+    <switch name="switch_rough" type="float" nodedef="ND_switch_floatI" xpos="7.60872" ypos="-1.67241">
+      <input name="in1" type="float" nodename="base_rough_floor" />
+      <input name="in2" type="float" nodename="base_rough_furn" />
+      <input name="which" type="integer" interfacename="used_for" />
+    </switch>
+    <switch name="switch_large_bump" type="vector3" nodedef="ND_switch_vector3I" xpos="7.39811" ypos="8.16622">
+      <input name="in1" type="vector3" interfacename="normal_floor_bump" />
+      <input name="in2" type="vector3" nodename="normalmap_neutral_normal" />
+      <input name="which" type="integer" interfacename="used_for" />
+    </switch>
+    <switch name="switch_finish" type="float" nodedef="ND_switch_floatI" xpos="7.3195" ypos="4.6306">
+      <input name="in1" type="float" nodename="finish_glossy" />
+      <input name="in2" type="float" nodename="finish_semigloss" />
+      <input name="in3" type="float" nodename="finish_satin" />
+      <input name="in4" type="float" nodename="finish_unfinished" />
+      <input name="which" type="integer" interfacename="finish" />
+    </switch>
+    <switch name="switch_coat" type="float" nodedef="ND_switch_floatI" xpos="7.59233" ypos="0.561506">
+      <input name="in1" type="float" nodename="coat_on" />
+      <input name="in2" type="float" nodename="coat_on" />
+      <input name="in3" type="float" nodename="coat_on" />
+      <input name="in4" type="float" nodename="coat_off" />
+      <input name="which" type="integer" interfacename="finish" />
+    </switch>
+    <switch name="switch_relief_pattern" type="vector3" nodedef="ND_switch_vector3I" xpos="7.30922" ypos="11.5845">
+      <input name="in1" type="vector3" nodename="normalmap_color_bump" />
+      <input name="in2" type="vector3" interfacename="normal_pattern_custom" />
+      <input name="which" type="integer" interfacename="relief_pattern_type" />
+    </switch>
+    <backdrop name="is_this_ok_at_least_add_amount_multipler" xpos="0.163695" ypos="12.982" width="3.99845" height="0.871989" uicolor="#C85252" Autodesk-ldx_alpha="0.156863" />
   </nodegraph>
 
   <!-- <Legacy Glazing> -->
@@ -4357,58 +4338,42 @@
   </nodegraph>
 
   <!-- <Legacy MetallicPaint> -->
-  <nodegraph name="NG_legacy_metallicpaint" xpos="-204.5" ypos="-342" nodedef="ND_legacy_metallicpaint" >
-    <standard_surface name="standard_surface" type="surfaceshader" version="1.0.1" xpos="10.326087" ypos="-0.862069">
+  <nodegraph name="NG_legacy_metallicpaint" Autodesk-ldx_inputPos="226.48 -75.3021" Autodesk-ldx_outputPos="2175.78 -111.319" nodedef="ND_legacy_metallicpaint">
+    <standard_surface name="standard_surface" type="surfaceshader" version="1.0.1" xpos="10.3261" ypos="-0.862067">
       <input name="base_color" type="color3" nodename="tint_selection" uivisible="true" />
       <input name="metalness" type="float" value="0.75" uivisible="true" />
       <input name="specular_roughness" type="float" interfacename="highlight_spread" uivisible="true" />
       <input name="coat" type="float" value="1" uivisible="true" />
-      <input name="coat_roughness" type="float" nodename="switch_coat_rough" uivisible="true" />
-      <input name="coat_IOR" type="float" nodename="switch_coat_ior" uivisible="true" />
-      <input name="coat_normal" type="vector3" nodename="switch_finish" uivisible="true" />
+      <input name="coat_roughness" type="float" uivisible="true" nodename="switch_coat_rough" />
+      <input name="coat_IOR" type="float" uivisible="true" nodename="switch_coat_ior" />
+      <input name="coat_normal" type="vector3" uivisible="true" nodename="switch_finish" />
     </standard_surface>
-    <switch name="switch_coat_ior" type="float" xpos="7.608696" ypos="1.120690">
-      <input name="in1" type="float" nodename="coat_ior_carpaint" uivisible="true" />
-      <input name="in2" type="float" nodename="coat_ior_chrome" uivisible="true" />
-      <input name="in3" type="float" nodename="coat_ior_matte" uivisible="true" />
-      <input name="in4" type="float" interfacename="custom_coat_ior" uivisible="true" />
-      <input name="which" type="float" interfacename="coat_type" uivisible="true" />
-    </switch>
-    <switch name="switch_coat_rough" type="float" xpos="7.282609" ypos="-1.948276">
-      <input name="in3" type="float" value="0.5" uivisible="true" />
-      <input name="which" type="float" interfacename="coat_type" uivisible="true" />
-    </switch>
-    <constant name="coat_ior_carpaint" type="float" xpos="4.884058" ypos="-0.896552">
+    <constant name="coat_ior_carpaint" type="float" xpos="4.89597" ypos="-0.664283">
       <input name="value" type="float" value="1.5" uivisible="true" />
     </constant>
-    <constant name="coat_ior_chrome" type="float" xpos="4.884058" ypos="0.284483">
+    <constant name="coat_ior_chrome" type="float" xpos="4.87215" ypos="0.415504">
       <input name="value" type="float" value="1.8" uivisible="true" />
     </constant>
-    <constant name="coat_ior_matte" type="float" xpos="4.884058" ypos="1.482759">
+    <constant name="coat_ior_matte" type="float" xpos="4.88406" ypos="1.48276">
       <input name="value" type="float" value="1.5" uivisible="true" />
     </constant>
-    <switch name="switch_finish" type="vector3" xpos="7.507246" ypos="5.232759">
-      <input name="in1" type="vector3" nodename="smooth_norm" uivisible="true" />
-      <input name="in2" type="vector3" uivisible="true" nodename="normalmap_orangepeel" />
-      <input name="which" type="float" interfacename="coat_finish" uivisible="true" />
-    </switch>
-    <normalmap name="smooth_norm" type="vector3" xpos="4.884058" ypos="3.887931">
+    <normalmap name="smooth_norm" type="vector3" xpos="4.86808" ypos="2.98538">
       <input name="in" type="vector3" nodename="constant_coat_smooth" uivisible="true" />
     </normalmap>
-    <constant name="constant_coat_smooth" type="vector3" xpos="2.289855" ypos="3.844828">
+    <constant name="constant_coat_smooth" type="vector3" xpos="3.15709" ypos="3.16443">
       <input name="value" type="vector3" value="0.5, 0.5, 1" uivisible="true" />
     </constant>
-    <multiply name="tint_mult" type="color3" xpos="4.884058" ypos="-3.560345">
+    <multiply name="tint_mult" type="color3" xpos="4.9632" ypos="-5.28512">
       <input name="in1" type="color3" interfacename="color" uivisible="true" />
       <input name="in2" type="color3" interfacename="tint_color" uivisible="true" />
     </multiply>
-    <ifequal name="tint_selection" type="color3" xpos="7.514493" ypos="-4.560345">
+    <ifequal name="tint_selection" type="color3" xpos="7.51378" ypos="-4.83946">
       <input name="value1" type="boolean" interfacename="tint_enable" uivisible="true" />
       <input name="value2" type="boolean" value="true" uivisible="true" />
       <input name="in1" type="color3" nodename="tint_mult" uivisible="true" />
       <input name="in2" type="color3" interfacename="color" uivisible="true" />
     </ifequal>
-    <legacy_noise name="legacy_noise" type="color3" xpos="-2.920290" ypos="4.112069">
+    <legacy_noise name="legacy_noise" type="color3" xpos="-0.270893" ypos="5.19308">
       <input name="color1" type="color3" value="1, 1, 1" />
       <input name="color2" type="color3" value="0, 0, 0" />
       <input name="threshold_low" type="float" value="0" />
@@ -4416,151 +4381,160 @@
       <input name="levels" type="float" value="1" />
       <input name="size" type="float" value="0.1" />
     </legacy_noise>
-    <swizzle name="swizzle_color3_float" type="float" xpos="-0.710145" ypos="5.025862">
-      <input name="in" type="color3" nodename="legacy_noise" />
-    </swizzle>
-    <heighttonormal name="heighttonormal_orangepeel" type="vector3" xpos="1.478261" ypos="5.025862">
-      <input name="in" type="float" nodename="swizzle_color3_float" />
+    <heighttonormal name="heighttonormal_orangepeel" type="vector3" xpos="2.93756" ypos="6.035">
+      <input name="in" type="float" nodename="extract_float_bump" />
     </heighttonormal>
-    <normalmap name="normalmap_orangepeel" type="vector3" xpos="4.384058" ypos="5.094828">
+    <normalmap name="normalmap_orangepeel" type="vector3" xpos="4.94081" ypos="5.7445">
       <input name="in" type="vector3" nodename="heighttonormal_orangepeel" />
     </normalmap>
     <output name="out" type="surfaceshader" nodename="standard_surface" xpos="13.043478" ypos="0.000000" />
+    <extract name="extract_float_bump" type="float" nodedef="ND_extract_color3" xpos="1.31804" ypos="6.04689">
+      <input name="in" type="color3" nodename="legacy_noise" />
+    </extract>
+    <constant name="coatr_rough_carpaint" type="float" xpos="4.95451" ypos="-3.76683">
+      <input name="value" type="float" value="0" uivisible="true" />
+    </constant>
+    <constant name="coatr_rough_chrome" type="float" xpos="4.89027" ypos="-2.84833">
+      <input name="value" type="float" value="0" uivisible="true" />
+    </constant>
+    <constant name="coatr_rough_matte" type="float" xpos="4.87741" ypos="-1.87846">
+      <input name="value" type="float" value="0.5" uivisible="true" />
+    </constant>
+    <switch name="switch_coat_rough" type="float" nodedef="ND_switch_floatI" xpos="7.47528" ypos="-1.96113">
+      <input name="in1" type="float" nodename="coatr_rough_carpaint" />
+      <input name="in2" type="float" nodename="coatr_rough_chrome" />
+      <input name="in3" type="float" nodename="coatr_rough_matte" />
+      <input name="in4" type="float" interfacename="coat_custom_roughness" />
+      <input name="which" type="integer" interfacename="coat_type" />
+    </switch>
+    <switch name="switch_coat_ior" type="float" nodedef="ND_switch_floatI" xpos="7.40961" ypos="0.780267">
+      <input name="in1" type="float" nodename="coat_ior_carpaint" />
+      <input name="in2" type="float" nodename="coat_ior_chrome" />
+      <input name="in3" type="float" nodename="coat_ior_matte" />
+      <input name="in4" type="float" interfacename="coat_custom_ior" />
+      <input name="which" type="integer" interfacename="coat_type" />
+    </switch>
+    <switch name="switch_finish" type="vector3" nodedef="ND_switch_vector3I" xpos="7.50044" ypos="3.38754">
+      <input name="in1" type="vector3" nodename="smooth_norm" />
+      <input name="in2" type="vector3" interfacename="normal_orangepeel" />
+      <input name="which" type="integer" interfacename="coat_finish" />
+    </switch>
+    <backdrop name="externalize" xpos="-0.326449" ypos="4.75419" width="6.57283" height="2.93333" uicolor="#C85252" Autodesk-ldx_alpha="0.156863" />
   </nodegraph>
 
   <!-- <Legacy Concrete> -->
-  <nodegraph name="NG_legacy_concrete" xpos="-895.426" ypos="-98.1325" nodedef="ND_legacy_concrete" >
-    <standard_surface name="standard_surface" type="surfaceshader" version="1.0.1" xpos="19.601450" ypos="0.232759">
+  <nodegraph name="NG_legacy_concrete" Autodesk-ldx_inputPos="-970.678 -44.649" Autodesk-ldx_outputPos="2667.72 3.76982" nodedef="ND_legacy_concrete">
+    <standard_surface name="standard_surface" type="surfaceshader" version="1.0.1" xpos="12.7053" ypos="-0.0367148">
       <input name="base_color" type="color3" uivisible="true" nodename="multiply_weathering" />
-      <input name="specular_roughness" type="float" nodename="switch_rough" uivisible="true" />
-      <input name="coat" type="float" nodename="switch_coat_onoff" uivisible="true" />
-      <input name="coat_roughness" type="float" nodename="switch_coat_rough" uivisible="true" />
-      <input name="coat_IOR" type="float" nodename="switch_coat_ior" uivisible="true" />
+      <input name="specular_roughness" type="float" uivisible="true" nodename="switch_rough" />
+      <input name="coat" type="float" uivisible="true" nodename="switch_coat_onoff" />
+      <input name="coat_roughness" type="float" uivisible="true" nodename="switch_coat_rough" />
+      <input name="coat_IOR" type="float" uivisible="true" nodename="switch_coat_ior" />
       <input name="coat_affect_color" type="float" value="0.5" uivisible="true" />
-      <input name="normal" type="vector3" nodename="switch_bump" uivisible="true" />
+      <input name="normal" type="vector3" uivisible="true" nodename="switch_bump" />
     </standard_surface>
-    <switch name="switch_coat_onoff" type="float" xpos="9.710145" ypos="-0.982759">
-      <input name="in2" type="float" value="1" uivisible="true" />
-      <input name="in3" type="float" value="1" uivisible="true" />
-      <input name="which" type="float" interfacename="sealant" uivisible="true" />
-    </switch>
-    <switch name="switch_coat_rough" type="float" xpos="9.710145" ypos="0.732759">
-      <input name="in1" type="float" value="0.5" uivisible="true" />
-      <input name="in2" type="float" nodename="rough_epoxy" uivisible="true" />
-      <input name="in3" type="float" nodename="rough_acrylic" uivisible="true" />
-      <input name="which" type="float" interfacename="sealant" uivisible="true" />
-    </switch>
-    <constant name="rough_epoxy" type="float" xpos="4.840580" ypos="0.681035" />
-    <constant name="rough_acrylic" type="float" xpos="4.840580" ypos="1.620690" />
-    <switch name="switch_coat_ior" type="float" xpos="9.710145" ypos="2.706897">
-      <input name="in1" type="float" value="1.5" uivisible="true" />
-      <input name="in2" type="float" nodename="ior_epoxy" uivisible="true" />
-      <input name="in3" type="float" nodename="ior_acrylic" uivisible="true" />
-      <input name="which" type="float" interfacename="sealant" uivisible="true" />
-    </switch>
-    <constant name="ior_epoxy" type="float" xpos="4.876812" ypos="2.896552">
+    <constant name="rough_epoxy" type="float" xpos="4.90942" ypos="1.13422" />
+    <constant name="rough_acrylic" type="float" xpos="4.88196" ypos="2.12881" />
+    <constant name="ior_epoxy" type="float" xpos="4.91124" ypos="4.30774">
       <input name="value" type="float" value="1.55" uivisible="true" />
     </constant>
-    <constant name="ior_acrylic" type="float" xpos="4.876812" ypos="4.094828">
+    <constant name="ior_acrylic" type="float" xpos="4.92844" ypos="5.25935">
       <input name="value" type="float" value="1.49" uivisible="true" />
     </constant>
-    <constant name="rough_broomstraight" type="float" xpos="4.884058" ypos="-5.887931">
+    <constant name="rough_broomstraight" type="float" xpos="4.88406" ypos="-5.88794">
       <input name="value" type="float" value="0.7" uivisible="true" />
     </constant>
-    <constant name="rough_broomcurved" type="float" xpos="4.884058" ypos="-4.681035">
+    <constant name="rough_broomcurved" type="float" xpos="4.88406" ypos="-4.68104">
       <input name="value" type="float" value="0.6" uivisible="true" />
     </constant>
-    <constant name="rough_smooth" type="float" xpos="4.884058" ypos="-3.474138">
+    <constant name="rough_smooth" type="float" xpos="4.88406" ypos="-3.47414">
       <input name="value" type="float" value="0.5" uivisible="true" />
     </constant>
-    <constant name="rough_polished" type="float" xpos="4.884058" ypos="-2.258621">
+    <constant name="rough_polished" type="float" xpos="4.88406" ypos="-2.25862">
       <input name="value" type="float" value="0.3" uivisible="true" />
     </constant>
-    <switch name="switch_rough" type="float" xpos="9.710145" ypos="-3.482759">
-      <input name="in1" type="float" nodename="rough_broomstraight" uivisible="true" />
-      <input name="in2" type="float" nodename="rough_broomcurved" uivisible="true" />
-      <input name="in3" type="float" nodename="rough_smooth" uivisible="true" />
-      <input name="in4" type="float" nodename="rough_polished" uivisible="true" />
-      <input name="in5" type="float" nodename="rough_custom" uivisible="true" />
-      <input name="which" type="float" interfacename="finish_bump" uivisible="true" />
-    </switch>
-    <constant name="rough_custom" type="float" xpos="4.884058" ypos="-1.060345">
+    <constant name="rough_custom" type="float" xpos="4.88406" ypos="-1.06035">
       <input name="value" type="float" value="0.5" uivisible="true" />
     </constant>
-    <switch name="switch_bump" type="vector3" xpos="7.739130" ypos="9.250000">
-      <input name="in1" type="vector3" interfacename="bump_broomstraight" uivisible="true" />
-      <input name="in2" type="vector3" interfacename="bump_broomcurved" uivisible="true" />
-      <input name="in3" type="vector3" interfacename="bump_smooth" uivisible="true" />
-      <input name="in4" type="vector3" interfacename="bump_polished" uivisible="true" />
-      <input name="in5" type="vector3" interfacename="bump_custom" uivisible="true" />
-      <input name="which" type="float" interfacename="finish_bump" uivisible="true" />
-    </switch>
-    <ifequal name="tint_selection" type="color3" xpos="7.956522" ypos="-8.172414">
+    <ifequal name="tint_selection" type="color3" xpos="7.45428" ypos="-7.71917">
       <input name="value1" type="boolean" interfacename="tint_enable" uivisible="true" />
       <input name="value2" type="boolean" value="true" uivisible="true" />
       <input name="in1" type="color3" nodename="tint_mult" uivisible="true" />
       <input name="in2" type="color3" interfacename="color" uivisible="true" />
     </ifequal>
-    <multiply name="tint_mult" type="color3" xpos="4.992754" ypos="-9.379311">
+    <multiply name="tint_mult" type="color3" xpos="4.96825" ypos="-8.08094">
       <input name="in1" type="color3" interfacename="color" uivisible="true" />
       <input name="in2" type="color3" interfacename="tint_color" uivisible="true" />
     </multiply>
-    <ifequal name="ifequal_color3B" type="color3" xpos="13.405797" ypos="13.905172">
+    <ifequal name="ifequal_color3B" type="color3" xpos="7.47733" ypos="7.15617">
       <input name="value2" type="boolean" value="true" />
       <input name="value1" type="boolean" interfacename="weathering_enable" />
       <input name="in2" type="color3" nodename="weathering_off" />
       <input name="in1" type="color3" nodename="switch_weathering" />
     </ifequal>
-    <constant name="weathering_off" type="color3" xpos="11.057971" ypos="21.818966">
+    <constant name="weathering_off" type="color3" xpos="5.96256" ypos="8.57817">
       <input name="value" type="color3" value="1, 1, 1" />
     </constant>
-    <multiply name="multiply_weathering" type="color3" xpos="16.586956" ypos="-2.310345">
+    <multiply name="multiply_weathering" type="color3" xpos="9.67867" ypos="-5.887">
       <input name="in1" type="color3" nodename="tint_selection" />
       <input name="in2" type="color3" nodename="ifequal_color3B" />
     </multiply>
-    <switch name="switch_weathering" type="color3" xpos="7.963768" ypos="20.491379">
-      <input name="which" type="float" interfacename="weathering_type" />
-      <input name="in2" type="color3" interfacename="weathering_custom" />
-      <input name="in1" type="color3" nodename="mix_weathering" />
-    </switch>
-    <legacy_noise name="weathering_auto" type="color3" xpos="2.057971" ypos="15.870689">
-      <input name="color1" type="color3" value="0.953545, 0.953545, 0.953545" />
-      <input name="color2" type="color3" value="0.756345, 0.753786, 0.753786" />
-      <input name="noise_type" type="integer" value="1" />
-      <input name="threshold_low" type="float" value="0.3" />
-      <input name="threshold_high" type="float" value="0.7" />
-      <input name="levels" type="float" value="4" />
-    </legacy_noise>
-    <multiply name="weathering_bump_fade" type="color3" xpos="1.260870" ypos="25.681034">
-      <input name="in1" type="color3" interfacename="weathering_bump" />
-      <input name="in2" type="float" nodename="bump_fade" />
-    </multiply>
-    <multiply name="mix_weathering" type="color3" xpos="6.115942" ypos="19.439655">
-      <input name="in1" type="color3" nodename="weathering_auto" />
-      <input name="in2" type="color3" nodename="add_offset" />
-    </multiply>
-    <add name="add_offset" type="color3" xpos="3.608696" ypos="25.681034">
-      <input name="in1" type="color3" nodename="weathering_bump_fade" />
-      <input name="in2" type="float" nodename="invert_float" />
-    </add>
-    <constant name="bump_fade" type="float" xpos="-0.492754" ypos="27.318966">
-      <input name="value" type="float" value="0.33" />
-    </constant>
-    <invert name="invert_float" type="float" xpos="1.594203" ypos="27.318966">
-      <input name="in" type="float" nodename="bump_fade" />
-    </invert>
     <output name="out" type="surfaceshader" nodename="standard_surface" xpos="22.318840" ypos="1.086207" />
+    <constant name="rough_nocoat" type="float" xpos="4.88371" ypos="0.0715883">
+      <input name="value" type="float" value="0.5" />
+    </constant>
+    <switch name="switch_rough" type="float" nodedef="ND_switch_floatI" xpos="7.55439" ypos="-4.25443">
+      <input name="in1" type="float" nodename="rough_broomstraight" />
+      <input name="in2" type="float" nodename="rough_broomcurved" />
+      <input name="in3" type="float" nodename="rough_smooth" />
+      <input name="in4" type="float" nodename="rough_polished" />
+      <input name="in5" type="float" nodename="rough_custom" />
+      <input name="which" type="integer" interfacename="finish_bump" />
+    </switch>
+    <switch name="switch_bump" type="vector3" nodedef="ND_switch_vector3I" xpos="7.43289" ypos="5.19564">
+      <input name="in1" type="vector3" interfacename="normal_broomstraight" />
+      <input name="in2" type="vector3" interfacename="normal_broomcurved" />
+      <input name="in3" type="vector3" interfacename="normal_smooth" />
+      <input name="in4" type="vector3" interfacename="normal_polished" />
+      <input name="in5" type="vector3" interfacename="normal_custom" />
+      <input name="which" type="integer" interfacename="finish_bump" />
+    </switch>
+    <switch name="switch_coat_ior" type="float" nodedef="ND_switch_floatI" xpos="7.50539" ypos="2.97637">
+      <input name="in1" type="float" nodename="ior_nocoat" ldx_value="1.5" />
+      <input name="in2" type="float" nodename="ior_epoxy" />
+      <input name="in3" type="float" nodename="ior_acrylic" />
+      <input name="which" type="integer" interfacename="sealant" />
+    </switch>
+    <constant name="ior_nocoat" type="float" xpos="4.92386" ypos="3.28406">
+      <input name="value" type="float" value="1.5" uivisible="true" />
+    </constant>
+    <switch name="switch_weathering" type="color3" nodedef="ND_switch_color3I" xpos="4.33068" ypos="7.61194">
+      <input name="in2" type="color3" interfacename="weathering_custom" />
+      <input name="which" type="integer" interfacename="weathering_type" />
+      <input name="in1" type="color3" interfacename="weathering_auto" />
+    </switch>
+    <switch name="switch_coat_onoff" type="float" nodedef="ND_switch_floatI" xpos="7.50539" ypos="-1.03176">
+      <input name="in2" type="float" value="1" />
+      <input name="in3" type="float" value="1" />
+      <input name="which" type="integer" interfacename="sealant" />
+    </switch>
+    <switch name="switch_coat_rough" type="float" nodedef="ND_switch_floatI" xpos="7.51761" ypos="0.879744">
+      <input name="in1" type="float" nodename="rough_nocoat" />
+      <input name="in2" type="float" nodename="rough_epoxy" />
+      <input name="in3" type="float" nodename="rough_acrylic" />
+      <input name="which" type="integer" interfacename="sealant" />
+    </switch>
   </nodegraph>
 
   <!-- <Legacy Wall Paint> -->
-  <nodegraph name="NG_legacy_wallpaint" xpos="-0.5" ypos="-333" nodedef="ND_legacy_wallpaint">
-    <standard_surface name="standard_surface" type="surfaceshader" version="1.0.1" xpos="12.260870" ypos="-0.163793">
+  <nodegraph name="NG_legacy_wallpaint" Autodesk-ldx_inputPos="-477 -61" Autodesk-ldx_outputPos="2144.52 -9.41253" nodedef="ND_legacy_wallpaint">
+    <standard_surface name="standard_surface" type="surfaceshader" version="1.0.1" xpos="9.61022" ypos="-0.211988">
       <input name="base_color" type="color3" nodename="tint_selection" uivisible="true" />
       <input name="specular_roughness" type="float" nodename="roughness_amount" uivisible="true" />
       <input name="specular_IOR" type="float" value="1.46" uivisible="true" />
-      <input name="normal" type="vector3" nodename="switch_application" uivisible="true" />
+      <input name="normal" type="vector3" uivisible="true" nodename="switch_application" />
     </standard_surface>
-    <switch name="roughness_amount1" type="float" xpos="5.072464" ypos="0.560345">
+    <switch name="roughness_amount1" type="float" xpos="4.85388" ypos="-1.7457">
       <input name="in1" type="float" nodename="rough_flat" uivisible="true" />
       <input name="in2" type="float" nodename="rough_eggshell" uivisible="true" />
       <input name="in3" type="float" nodename="rough_platinum" uivisible="true" />
@@ -4568,61 +4542,64 @@
       <input name="in5" type="float" nodename="rough_semigloss" uivisible="true" />
       <input name="which" type="float" nodename="modulo_rough" uivisible="true" />
     </switch>
-    <ifequal name="tint_selection" type="color3" xpos="6.000000" ypos="-6.344828">
+    <ifequal name="tint_selection" type="color3" xpos="4.84526" ypos="-4.84142">
       <input name="value1" type="boolean" interfacename="tint_enable" uivisible="true" />
       <input name="value2" type="boolean" value="true" uivisible="true" />
       <input name="in1" type="color3" nodename="tint_mult" uivisible="true" />
       <input name="in2" type="color3" interfacename="color" uivisible="true" />
     </ifequal>
-    <multiply name="tint_mult" type="color3" xpos="3.557971" ypos="-5.672414">
+    <multiply name="tint_mult" type="color3" xpos="2.20356" ypos="-4.99518">
       <input name="in1" type="color3" interfacename="color" uivisible="true" />
       <input name="in2" type="color3" interfacename="tint_color" uivisible="true" />
     </multiply>
-    <switch name="roughness_amount2" type="float" xpos="5.072464" ypos="3.034483">
+    <switch name="roughness_amount2" type="float" xpos="4.84841" ypos="0.384169">
       <input name="in1" type="float" nodename="rough_glossy" uivisible="true" />
       <input name="in2" type="float" value="0" uivisible="true" />
       <input name="in3" type="float" value="0" uivisible="true" />
       <input name="which" type="float" nodename="modulo_rough" uivisible="true" />
     </switch>
-    <switch name="roughness_amount" type="float" xpos="7.789855" ypos="3.000000">
+    <switch name="roughness_amount" type="float" xpos="6.42917" ypos="-0.573822">
       <input name="in1" type="float" nodename="roughness_amount1" uivisible="true" />
       <input name="in2" type="float" nodename="roughness_amount2" uivisible="true" />
       <input name="in3" type="float" value="0.4" uivisible="true" />
       <input name="which" type="float" nodename="divide_rough" uivisible="true" />
     </switch>
-    <modulo name="modulo_rough" type="float" xpos="3.028986" ypos="4.982759">
-      <input name="in1" type="float" interfacename="finish" uivisible="true" />
+    <modulo name="modulo_rough" type="float" xpos="2.30221" ypos="2.94994">
+      <input name="in1" type="float" uivisible="true" nodename="convert_finish_float" />
       <input name="in2" type="float" value="5" uivisible="true" />
     </modulo>
-    <divide name="divide_rough" type="float" xpos="5.072464" ypos="5.025862">
-      <input name="in1" type="float" interfacename="finish" uivisible="true" />
+    <divide name="divide_rough" type="float" xpos="4.78831" ypos="2.87283">
+      <input name="in1" type="float" uivisible="true" nodename="convert_finish_float" />
       <input name="in2" type="float" value="5" uivisible="true" />
     </divide>
-    <switch name="switch_application" type="vector3" xpos="7.326087" ypos="6.646552">
-      <input name="in1" type="vector3" interfacename="normal_roller" uivisible="true" />
-      <input name="in2" type="vector3" interfacename="normal_brush" uivisible="true" />
-      <input name="in3" type="vector3" interfacename="normal_spray" uivisible="true" />
-      <input name="which" type="float" interfacename="application" uivisible="true" />
-    </switch>
-    <constant name="rough_flat" type="float" xpos="2.094203" ypos="-3.344828">
+    <constant name="rough_flat" type="float" xpos="2.0942" ypos="-3.20822">
       <input name="value" type="float" value="0.6" uivisible="true" />
     </constant>
-    <constant name="rough_eggshell" type="float" xpos="2.094203" ypos="-2.146552">
+    <constant name="rough_eggshell" type="float" xpos="2.0942" ypos="-2.14655">
       <input name="value" type="float" value="0.45" uivisible="true" />
     </constant>
-    <constant name="rough_platinum" type="float" xpos="2.094203" ypos="-0.956897">
+    <constant name="rough_platinum" type="float" xpos="2.11059" ypos="-1.13176">
       <input name="value" type="float" value="0.35" uivisible="true" />
     </constant>
-    <constant name="rough_pearl" type="float" xpos="2.094203" ypos="0.232759">
+    <constant name="rough_pearl" type="float" xpos="2.0942" ypos="-0.133367">
       <input name="value" type="float" value="0.2" uivisible="true" />
     </constant>
-    <constant name="rough_semigloss" type="float" xpos="2.094203" ypos="1.422414">
+    <constant name="rough_semigloss" type="float" xpos="2.10513" ypos="0.815844">
       <input name="value" type="float" value="0.1" uivisible="true" />
     </constant>
-    <constant name="rough_glossy" type="float" xpos="2.210145" ypos="2.612069">
+    <constant name="rough_glossy" type="float" xpos="2.09538" ypos="1.84703">
       <input name="value" type="float" value="0.05" uivisible="true" />
     </constant>
     <output name="out" type="surfaceshader" nodename="standard_surface" xpos="14.978261" ypos="0.310345" />
+    <convert name="convert_finish_float" type="float" nodedef="ND_convert_integer_float" xpos="0.591344" ypos="3.16438">
+      <input name="in" type="integer" interfacename="finish" />
+    </convert>
+    <switch name="switch_application" type="vector3" nodedef="ND_switch_vector3I" xpos="4.87807" ypos="4.84812">
+      <input name="in1" type="vector3" interfacename="normal_roller" />
+      <input name="in2" type="vector3" interfacename="normal_brush" />
+      <input name="in3" type="vector3" interfacename="normal_spray" />
+      <input name="which" type="integer" interfacename="application" />
+    </switch>
   </nodegraph>
 
   <!-- <Legacy Ceramic> -->
@@ -4743,26 +4720,26 @@
   </nodegraph>
 
   <!-- <Legacy Solid Glass> -->
-  <nodegraph name="NG_legacy_glass" xpos="-303.035" ypos="-287.488" nodedef="ND_legacy_glass">
-    <constant name="glazing_clear" type="color3" xpos="-4.746377" ypos="-18.181034">
+  <nodegraph name="NG_legacy_glass" Autodesk-ldx_inputPos="-1442.82 -178.5" Autodesk-ldx_outputPos="2174.72 -97.8838" nodedef="ND_legacy_glass">
+    <constant name="glazing_clear" type="color3" xpos="-4.06966" ypos="-14.6163">
       <input name="value" type="color3" value="0.926, 0.945, 0.938" uivisible="true" />
     </constant>
-    <constant name="glazing_green" type="color3" xpos="-4.746377" ypos="-16.974138">
+    <constant name="glazing_green" type="color3" xpos="-4.08822" ypos="-13.4558">
       <input name="value" type="color3" value="0.822, 0.893, 0.858" uivisible="true" />
     </constant>
-    <constant name="glazing_gray" type="color3" xpos="-4.746377" ypos="-15.775862">
+    <constant name="glazing_gray" type="color3" xpos="-4.07892" ypos="-12.3132">
       <input name="value" type="color3" value="0.672, 0.67, 0.687" uivisible="true" />
     </constant>
-    <constant name="glazing_blue" type="color3" xpos="-4.746377" ypos="-14.577586">
+    <constant name="glazing_blue" type="color3" xpos="-4.01402" ypos="-11.2448">
       <input name="value" type="color3" value="0.606, 0.717, 0.807" uivisible="true" />
     </constant>
-    <constant name="glazing_blue_green" type="color3" xpos="-4.746377" ypos="-13.379311">
+    <constant name="glazing_blue_green" type="color3" xpos="-4.02327" ypos="-10.0651">
       <input name="value" type="color3" value="0.809, 0.888, 0.879" uivisible="true" />
     </constant>
-    <constant name="glazing_bronze" type="color3" xpos="-4.731884" ypos="-12.275862">
+    <constant name="glazing_bronze" type="color3" xpos="-4.00877" ypos="-8.96167">
       <input name="value" type="color3" value="0.764, 0.718, 0.683" uivisible="true" />
     </constant>
-    <switch name="switch_color1" type="color3" xpos="-1.688406" ypos="-14.112069">
+    <switch name="switch_color1" type="color3" xpos="-1.08864" ypos="-11.7119">
       <input name="in1" type="color3" nodename="glazing_clear" uivisible="true" />
       <input name="in2" type="color3" nodename="glazing_green" uivisible="true" />
       <input name="in3" type="color3" nodename="glazing_gray" uivisible="true" />
@@ -4770,63 +4747,63 @@
       <input name="in5" type="color3" nodename="glazing_blue_green" uivisible="true" />
       <input name="which" type="float" nodename="modulo_col" uivisible="true" />
     </switch>
-    <switch name="switch_color2" type="color3" xpos="-1.688406" ypos="-11.629311">
+    <switch name="switch_color2" type="color3" xpos="-1.08139" ypos="-9.70789">
       <input name="in1" type="color3" nodename="glazing_bronze" uivisible="true" />
       <input name="in2" type="color3" interfacename="custom_color" uivisible="true" />
       <input name="which" type="float" nodename="modulo_col" uivisible="true" />
     </switch>
-    <switch name="switch_color" type="color3" xpos="0.782609" ypos="-12.887931">
+    <switch name="switch_color" type="color3" xpos="0.518997" ypos="-10.2499">
       <input name="in1" type="color3" nodename="switch_color1" uivisible="true" />
       <input name="in2" type="color3" nodename="switch_color2" uivisible="true" />
       <input name="which" type="float" nodename="divide_col" uivisible="true" />
     </switch>
-    <modulo name="modulo_col" type="float" xpos="-3.434783" ypos="-9.301724">
-      <input name="in1" type="float" interfacename="color" uivisible="true" />
+    <modulo name="modulo_col" type="float" xpos="-2.58109" ypos="-8.26539">
+      <input name="in1" type="float" uivisible="true" nodename="convert_color_float" />
       <input name="in2" type="float" value="5" uivisible="true" />
     </modulo>
-    <divide name="divide_col" type="float" xpos="-1.231884" ypos="-9.301724">
-      <input name="in1" type="float" interfacename="color" uivisible="true" />
+    <divide name="divide_col" type="float" xpos="-1.07462" ypos="-7.84461">
+      <input name="in1" type="float" uivisible="true" nodename="convert_color_float" />
       <input name="in2" type="float" value="5" uivisible="true" />
     </divide>
-    <standard_surface name="standard_surface" type="surfaceshader" version="1.0.1" xpos="10.326087" ypos="-0.732759">
+    <standard_surface name="standard_surface" type="surfaceshader" version="1.0.1" xpos="10.3261" ypos="-0.732761">
       <input name="base_color" type="color3" nodename="tint_selection" uivisible="true" />
       <input name="metalness" type="float" nodename="metallic_component" uivisible="true" />
       <input name="specular_roughness" type="float" interfacename="roughness" uivisible="true" />
       <input name="specular_IOR" type="float" nodename="switch_ior" uivisible="true" />
       <input name="transmission" type="float" value="1" uivisible="true" />
       <input name="transmission_color" type="color3" nodename="tint_selection" uivisible="true" />
-      <input name="normal" type="vector3" nodename="ifequal_vector3B" />
+      <input name="normal" type="vector3" nodename="relief_selection" />
     </standard_surface>
-    <remap name="refl_extra" type="float" xpos="5.152174" ypos="-5.362069">
+    <remap name="refl_extra" type="float" xpos="5.32202" ypos="-4.40817">
       <input name="in" type="float" interfacename="reflectance" uivisible="true" />
       <input name="inlow" type="float" nodename="refl_low_threshold" uivisible="true" />
     </remap>
-    <ifequal name="srgb_test" type="color3" xpos="2.789855" ypos="-9.793103">
+    <ifequal name="srgb_test" type="color3" xpos="3.39689" ypos="-7.87172">
       <input name="value1" type="boolean" interfacename="test_sRGB" uivisible="true" />
       <input name="value2" type="boolean" value="true" uivisible="true" />
       <input name="in1" type="color3" uivisible="true" nodename="srgb_texture_to_lin_rec709_color3" />
       <input name="in2" type="color3" nodename="switch_color" uivisible="true" />
     </ifequal>
-    <ifgreater name="metallic_component" type="float" xpos="7.557971" ypos="-3.672414">
+    <ifgreater name="metallic_component" type="float" xpos="6.98072" ypos="-3.28527">
       <input name="value1" type="float" interfacename="reflectance" uivisible="true" />
       <input name="value2" type="float" nodename="refl_low_threshold" uivisible="true" />
       <input name="in1" type="float" nodename="refl_extra" uivisible="true" />
       <input name="in2" type="float" value="0" uivisible="true" />
     </ifgreater>
-    <constant name="refl_low_threshold" type="float" xpos="1.992754" ypos="-4.827586">
+    <constant name="refl_low_threshold" type="float" xpos="3.45152" ypos="-3.79811">
       <input name="value" type="float" value="0.1" uivisible="true" />
     </constant>
-    <multiply name="tint_mult" type="color3" xpos="4.057971" ypos="-7.706897">
+    <multiply name="tint_mult" type="color3" xpos="5.19371" ypos="-6.9635">
       <input name="in1" type="color3" nodename="srgb_test" uivisible="true" />
       <input name="in2" type="color3" interfacename="tint_color" uivisible="true" />
     </multiply>
-    <ifequal name="tint_selection" type="color3" xpos="5.884058" ypos="-8.362069">
+    <ifequal name="tint_selection" type="color3" xpos="7.01978" ypos="-7.61867">
       <input name="value1" type="boolean" interfacename="tint_enable" uivisible="true" />
       <input name="value2" type="boolean" value="true" uivisible="true" />
       <input name="in1" type="color3" nodename="tint_mult" uivisible="true" />
       <input name="in2" type="color3" nodename="srgb_test" uivisible="true" />
     </ifequal>
-    <switch name="switch_ior1" type="float" xpos="5.188406" ypos="0.836207">
+    <switch name="switch_ior1" type="float" xpos="5.18841" ypos="0.836206">
       <input name="in1" type="float" nodename="ior_air" uivisible="true" />
       <input name="in2" type="float" nodename="ior_water" uivisible="true" />
       <input name="in3" type="float" nodename="ior_alchool" uivisible="true" />
@@ -4834,286 +4811,330 @@
       <input name="in5" type="float" nodename="ior_glass" uivisible="true" />
       <input name="which" type="float" nodename="modulo_ior" uivisible="true" />
     </switch>
-    <switch name="switch_ior2" type="float" xpos="5.188406" ypos="3.310345">
+    <switch name="switch_ior2" type="float" xpos="5.22361" ypos="2.53605">
       <input name="in1" type="float" nodename="ior_diamond" uivisible="true" />
       <input name="in2" type="float" interfacename="custom_ior" uivisible="true" />
       <input name="which" type="float" nodename="modulo_ior" uivisible="true" />
     </switch>
-    <modulo name="modulo_ior" type="float" xpos="3.210145" ypos="5.370690">
-      <input name="in1" type="float" interfacename="refraction_ior" uivisible="true" />
+    <modulo name="modulo_ior" type="float" xpos="3.61164" ypos="4.09234">
+      <input name="in1" type="float" uivisible="true" nodename="convert_ior_float" />
       <input name="in2" type="float" value="5" uivisible="true" />
     </modulo>
-    <divide name="divide_ior" type="float" xpos="5.188406" ypos="5.043103">
-      <input name="in1" type="float" interfacename="refraction_ior" uivisible="true" />
+    <divide name="divide_ior" type="float" xpos="5.21657" ypos="4.63484">
+      <input name="in1" type="float" uivisible="true" nodename="convert_ior_float" />
       <input name="in2" type="float" value="5" uivisible="true" />
     </divide>
-    <switch name="switch_ior" type="float" xpos="7.384058" ypos="4.715517">
+    <switch name="switch_ior" type="float" xpos="6.7505" ypos="2.05478">
       <input name="in1" type="float" nodename="switch_ior1" uivisible="true" />
       <input name="in2" type="float" nodename="switch_ior2" uivisible="true" />
       <input name="which" type="float" nodename="divide_ior" uivisible="true" />
     </switch>
-    <constant name="ior_air" type="float" xpos="2.173913" ypos="-3.137931">
+    <constant name="ior_air" type="float" xpos="2.23578" ypos="-1.77436">
       <input name="value" type="float" value="1" uivisible="true" />
     </constant>
-    <constant name="ior_water" type="float" xpos="2.173913" ypos="-1.922414">
+    <constant name="ior_water" type="float" xpos="2.21046" ypos="-0.752922">
       <input name="value" type="float" value="1.331" uivisible="true" />
     </constant>
-    <constant name="ior_alchool" type="float" xpos="2.173913" ypos="-0.724138">
+    <constant name="ior_alchool" type="float" xpos="2.18514" ypos="0.35253">
       <input name="value" type="float" value="1.329" uivisible="true" />
     </constant>
-    <constant name="ior_quartz" type="float" xpos="2.173913" ypos="0.456897">
+    <constant name="ior_quartz" type="float" xpos="2.20202" ypos="1.40699">
       <input name="value" type="float" value="1.54" uivisible="true" />
     </constant>
-    <constant name="ior_glass" type="float" xpos="2.173913" ypos="1.646552">
+    <constant name="ior_glass" type="float" xpos="2.15983" ypos="2.42788">
       <input name="value" type="float" value="1.52" uivisible="true" />
     </constant>
-    <constant name="ior_diamond" type="float" xpos="2.173913" ypos="2.896552">
+    <constant name="ior_diamond" type="float" xpos="2.18514" ypos="3.36566">
       <input name="value" type="float" value="2.42" uivisible="true" />
     </constant>
-    <srgb_texture_to_lin_rec709 name="srgb_texture_to_lin_rec709_color3" type="color3" xpos="2.630435" ypos="-12.689655">
+    <srgb_texture_to_lin_rec709 name="srgb_texture_to_lin_rec709_color3" type="color3" xpos="3.07051" ypos="-9.377">
       <input name="in" type="color3" nodename="switch_color" />
     </srgb_texture_to_lin_rec709>
-    <normalmap name="normalmap" type="vector3" xpos="2.094203" ypos="14.336206">
+    <normalmap name="normalmap" type="vector3" xpos="5.24958" ypos="7.45094">
       <input name="in" type="vector3" nodename="constant_no_relief" />
     </normalmap>
-    <ifequal name="ifequal_vector3B" type="vector3" xpos="5.507246" ypos="11.784483">
+    <ifequal name="relief_selection" type="vector3" xpos="7.101" ypos="6.54794">
       <input name="in2" type="vector3" nodename="normalmap" />
       <input name="value2" type="boolean" value="true" />
       <input name="value1" type="boolean" interfacename="relief_enable" />
       <input name="in1" type="vector3" nodename="switch_vector3" />
     </ifequal>
-    <constant name="constant_no_relief" type="vector3" xpos="0.086957" ypos="14.353448">
+    <constant name="constant_no_relief" type="vector3" xpos="3.27609" ypos="7.67911">
       <input name="value" type="vector3" value="0.5, 0.5, 1" />
     </constant>
-    <switch name="switch_vector3" type="vector3" xpos="-2.456522" ypos="12.215517">
+    <output name="out" type="surfaceshader" nodename="standard_surface" xpos="13.043478" ypos="0.000000" />
+    <convert name="convert_color_float" type="float" nodedef="ND_convert_integer_float" xpos="-4.0691" ypos="-7.39489">
+      <input name="in" type="integer" interfacename="color" />
+    </convert>
+    <convert name="convert_ior_float" type="float" nodedef="ND_convert_integer_float" xpos="2.21155" ypos="4.88752">
+      <input name="in" type="integer" interfacename="refraction_ior" />
+    </convert>
+    <switch name="switch_vector3" type="vector3" nodedef="ND_switch_vector3I" xpos="1.70654" ypos="6.93256">
       <input name="in1" type="vector3" interfacename="normal_rippled" />
       <input name="in2" type="vector3" interfacename="normal_wavy" />
-      <input name="in3" type="vector3" interfacename="custom_relief" />
-      <input name="which" type="float" interfacename="relief_type" />
+      <input name="in3" type="vector3" interfacename="normal_custom_relief" />
+      <input name="which" type="integer" interfacename="relief_type" />
     </switch>
-    <output name="out" type="surfaceshader" nodename="standard_surface" xpos="13.043478" ypos="0.000000" />
   </nodegraph>
 
   <!-- <Legacy Water> -->
-  <nodegraph name="NG_legacy_water" xpos="-120.5" ypos="-350" nodedef="ND_legacy_water">
-    <switch name="type_bump_map" type="vector3" xpos="7.608696" ypos="1.594828">
-      <input name="in1" type="vector3" interfacename="bump_swimming_pool" uivisible="true" />
-      <input name="in2" type="vector3" interfacename="bump_generic_refl_pool" uivisible="true" />
-      <input name="in3" type="vector3" interfacename="bump_generic_stream" uivisible="true" />
-      <input name="in4" type="vector3" interfacename="bump_generic_pond" uivisible="true" />
-      <input name="in5" type="vector3" interfacename="bump_generic_sea" uivisible="true" />
-      <input name="which" type="float" interfacename="type" uivisible="true" />
-    </switch>
-    <switch name="type_water_color" type="color3" xpos="-0.282609" ypos="-7.913793">
-      <input name="in1" type="color3" value="0.415, 0.952, 0.847" uivisible="true" />
-      <input name="in2" type="color3" value="0.865, 0.91, 0.866" uivisible="true" />
-      <input name="in3" type="color3" nodename="switch_sec_color" uivisible="true" />
-      <input name="in4" type="color3" nodename="switch_sec_color" uivisible="true" />
-      <input name="in5" type="color3" nodename="switch_sec_color" uivisible="true" />
-      <input name="which" type="float" interfacename="type" uivisible="true" />
-    </switch>
-    <switch name="type_water_transmission" type="float" xpos="7.608696" ypos="-0.896552">
-      <input name="in1" type="float" value="0.8" uivisible="true" />
-      <input name="in2" type="float" value="0.45" uivisible="true" />
-      <input name="in3" type="float" value="0.6" uivisible="true" />
-      <input name="in4" type="float" value="0.8" uivisible="true" />
-      <input name="in5" type="float" value="0.8" uivisible="true" />
-      <input name="which" type="float" interfacename="type" uivisible="true" />
-    </switch>
-    <standard_surface name="standard_surface" type="surfaceshader" version="1.0.1" xpos="10.326087" ypos="-0.732759">
+  <nodegraph name="NG_legacy_water" Autodesk-ldx_inputPos="-1890.2 -121.211" Autodesk-ldx_outputPos="1908.48 -218.612" nodedef="ND_legacy_water">
+    <standard_surface name="standard_surface" type="surfaceshader" version="1.0.1" xpos="9.25367" ypos="-1.40178">
       <input name="base_color" type="color3" nodename="tint_selection" uivisible="true" />
       <input name="specular_roughness" type="float" value="0.03" uivisible="true" />
       <input name="specular_IOR" type="float" value="1.33" uivisible="true" />
-      <input name="transmission" type="float" nodename="type_water_transmission" uivisible="true" />
+      <input name="transmission" type="float" uivisible="true" nodename="type_water_transmission" />
       <input name="transmission_color" type="color3" nodename="tint_selection" uivisible="true" />
-      <input name="normal" type="vector3" nodename="type_bump_map" uivisible="true" />
+      <input name="normal" type="vector3" uivisible="true" nodename="type_bump_map" />
     </standard_surface>
-    <multiply name="tint_mult" type="color3" xpos="4.884058" ypos="-2.258621">
+    <multiply name="tint_mult" type="color3" xpos="4.88406" ypos="-2.25862">
       <input name="in1" type="color3" nodename="test_srgb" uivisible="true" />
       <input name="in2" type="color3" interfacename="tint_color" uivisible="true" />
     </multiply>
-    <ifequal name="tint_selection" type="color3" xpos="7.608696" ypos="-2.887931">
+    <ifequal name="tint_selection" type="color3" xpos="6.92989" ypos="-2.93712">
       <input name="value1" type="boolean" interfacename="tint_enable" uivisible="true" />
       <input name="value2" type="boolean" value="true" uivisible="true" />
       <input name="in1" type="color3" nodename="tint_mult" uivisible="true" />
       <input name="in2" type="color3" nodename="test_srgb" uivisible="true" />
     </ifequal>
-    <ifequal name="test_srgb" type="color3" xpos="3.326087" ypos="-3.534483">
+    <ifequal name="test_srgb" type="color3" xpos="3.32609" ypos="-3.53448">
       <input name="value1" type="boolean" interfacename="test_sRGB" uivisible="true" />
       <input name="value2" type="boolean" value="true" uivisible="true" />
       <input name="in1" type="color3" uivisible="true" nodename="srgb_texture_to_lin_rec709_color3" />
-      <input name="in2" type="color3" nodename="type_water_color" uivisible="true" />
+      <input name="in2" type="color3" uivisible="true" nodename="type_water_color" />
     </ifequal>
-    <switch name="switch_sec_color1" type="color3" xpos="-5.673913" ypos="-10.293103">
-      <input name="in1" type="color3" value="0.416, 0.953, 0.847" uivisible="true" />
-      <input name="in2" type="color3" value="0.675, 0.686, 0.557" uivisible="true" />
-      <input name="in3" type="color3" value="0.05, 0.149, 0.243" uivisible="true" />
-      <input name="in4" type="color3" value="0.05, 0.149, 0.243" uivisible="true" />
-      <input name="in5" type="color3" value="0.459, 0.435, 0.192" uivisible="true" />
+    <switch name="switch_sec_color1" type="color3" xpos="-5.03438" ypos="-7.189">
+      <input name="in1" type="color3" uivisible="true" nodename="color_tropical" ldx_value="0.416, 0.953, 0.847" />
+      <input name="in2" type="color3" uivisible="true" nodename="color_algae_green" ldx_value="0.675, 0.686, 0.557" />
+      <input name="in3" type="color3" uivisible="true" nodename="color_murky_brown" ldx_value="0.05, 0.149, 0.243" />
+      <input name="in4" type="color3" uivisible="true" nodename="color_gen_refl_pool" ldx_value="0.05, 0.149, 0.243" />
+      <input name="in5" type="color3" uivisible="true" nodename="color_gen_stream" ldx_value="0.459, 0.435, 0.192" />
       <input name="which" type="float" nodename="modulo_sec_color" uivisible="true" />
     </switch>
-    <switch name="switch_sec_color2" type="color3" xpos="-5.673913" ypos="-7.810345">
-      <input name="in1" type="color3" value="0.145, 0.161, 0.067" uivisible="true" />
-      <input name="in2" type="color3" value="0.145, 0.161, 0.067" uivisible="true" />
+    <switch name="switch_sec_color2" type="color3" xpos="-5.08241" ypos="-5.46142">
+      <input name="in1" type="color3" uivisible="true" ldx_value="0.145, 0.161, 0.067" nodename="color_gen_pond" />
+      <input name="in2" type="color3" uivisible="true" nodename="color_gen_sea" ldx_value="0.145, 0.161, 0.067" />
       <input name="in3" type="color3" interfacename="custom_color" uivisible="true" />
       <input name="which" type="float" nodename="modulo_sec_color" uivisible="true" />
     </switch>
-    <switch name="switch_sec_color" type="color3" xpos="-2.956522" ypos="-9.000000">
+    <switch name="switch_sec_color" type="color3" xpos="-3.06419" ypos="-6.14483">
       <input name="in1" type="color3" nodename="switch_sec_color1" uivisible="true" />
       <input name="in2" type="color3" nodename="switch_sec_color2" uivisible="true" />
       <input name="which" type="float" nodename="divide_sec_color" uivisible="true" />
     </switch>
-    <modulo name="modulo_sec_color" type="float" xpos="-8.260870" ypos="-5.844828">
-      <input name="in1" type="float" interfacename="secondary_color" uivisible="true" />
+    <modulo name="modulo_sec_color" type="float" xpos="-7.05228" ypos="-3.59236">
+      <input name="in1" type="float" uivisible="true" nodename="convert_seccol_float" />
       <input name="in2" type="float" value="5" uivisible="true" />
     </modulo>
-    <divide name="divide_sec_color" type="float" xpos="-5.673913" ypos="-5.836207">
-      <input name="in1" type="float" interfacename="secondary_color" uivisible="true" />
+    <divide name="divide_sec_color" type="float" xpos="-5.09706" ypos="-3.60713">
+      <input name="in1" type="float" uivisible="true" nodename="convert_seccol_float" />
       <input name="in2" type="float" value="5" uivisible="true" />
     </divide>
-    <srgb_texture_to_lin_rec709 name="srgb_texture_to_lin_rec709_color3" type="color3" xpos="2.007246" ypos="-7.051724">
+    <srgb_texture_to_lin_rec709 name="srgb_texture_to_lin_rec709_color3" type="color3" xpos="1.67275" ypos="-4.65116">
       <input name="in" type="color3" nodename="type_water_color" />
     </srgb_texture_to_lin_rec709>
     <output name="out" type="surfaceshader" nodename="standard_surface" xpos="13.043478" ypos="0.000000" />
+    <switch name="type_bump_map" type="vector3" nodedef="ND_switch_vector3I" xpos="6.78406" ypos="3.49953">
+      <input name="in1" type="vector3" interfacename="normal_swimming_pool" />
+      <input name="in2" type="vector3" interfacename="normal_generic_refl_pool" />
+      <input name="in3" type="vector3" interfacename="normal_generic_stream" />
+      <input name="in4" type="vector3" interfacename="normal_generic_pond" />
+      <input name="in5" type="vector3" interfacename="normal_generic_sea" />
+      <input name="which" type="integer" interfacename="type" />
+    </switch>
+    <switch name="type_water_transmission" type="float" nodedef="ND_switch_floatI" xpos="6.7225" ypos="0.945428">
+      <input name="in1" type="float" value="0.8" />
+      <input name="in2" type="float" value="0.45" />
+      <input name="in3" type="float" value="0.6" />
+      <input name="in4" type="float" value="0.8" />
+      <input name="in5" type="float" value="0.8" />
+      <input name="which" type="integer" interfacename="type" />
+    </switch>
+    <switch name="type_water_color" type="color3" nodedef="ND_switch_color3I" xpos="-0.896333" ypos="-5.98567">
+      <input name="in1" type="color3" nodename="color_swimming_pool" ldx_value="0.415, 0.952, 0.847" />
+      <input name="in2" type="color3" nodename="color_gen_refl_pool_alt" ldx_value="0.865, 0.91, 0.866" />
+      <input name="in3" type="color3" nodename="switch_sec_color" />
+      <input name="in4" type="color3" nodename="switch_sec_color" />
+      <input name="in5" type="color3" nodename="switch_sec_color" />
+      <input name="which" type="integer" interfacename="type" />
+    </switch>
+    <convert name="convert_seccol_float" type="float" nodedef="ND_convert_integer_float" xpos="-8.76117" ypos="-3.43993">
+      <input name="in" type="integer" interfacename="secondary_color" />
+    </convert>
+    <constant name="color_tropical" type="color3" nodedef="ND_constant_color3" xpos="-7.739" ypos="-11.0245">
+      <input name="value" type="color3" value="0.416, 0.953, 0.847" />
+    </constant>
+    <constant name="color_algae_green" type="color3" nodedef="ND_constant_color3" xpos="-7.69556" ypos="-10.0071">
+      <input name="value" type="color3" value="0.675, 0.686, 0.557" />
+    </constant>
+    <constant name="color_murky_brown" type="color3" nodedef="ND_constant_color3" xpos="-7.69556" ypos="-8.98972">
+      <input name="value" type="color3" value="0.05, 0.149, 0.243" />
+    </constant>
+    <constant name="color_gen_stream" type="color3" nodedef="ND_constant_color3" xpos="-7.68111" ypos="-6.98394">
+      <input name="value" type="color3" value="0.459, 0.435, 0.192" />
+    </constant>
+    <constant name="color_gen_pond" type="color3" nodedef="ND_constant_color3" xpos="-7.66189" ypos="-5.98094">
+      <input name="value" type="color3" value="0.145, 0.161, 0.067" />
+    </constant>
+    <constant name="color_swimming_pool" type="color3" nodedef="ND_constant_color3" xpos="-3.02821" ypos="-9.08617">
+      <input name="value" type="color3" value="0.415, 0.952, 0.847" />
+    </constant>
+    <constant name="color_gen_refl_pool_alt" type="color3" nodedef="ND_constant_color3" xpos="-3.05233" ypos="-8.14111">
+      <input name="value" type="color3" value="0.865, 0.91, 0.866" />
+    </constant>
+    <constant name="transmission_swimmming_pool" type="float" nodedef="ND_constant_float" xpos="4.58526" ypos="-1.04838" />
+    <constant name="transmission_gen_refl_pool" type="float" nodedef="ND_constant_float" xpos="4.56597" ypos="-0.0310003" />
+    <constant name="transmission_gen_stream" type="float" nodedef="ND_constant_float" xpos="4.59007" ypos="0.95745" />
+    <constant name="transmission_gen_pond" type="float" nodedef="ND_constant_float" xpos="4.60453" ypos="1.95072" />
+    <constant name="transmission_gen_sea" type="float" nodedef="ND_constant_float" xpos="4.60453" ypos="2.96809" />
+    <constant name="color_gen_refl_pool" type="color3" nodedef="ND_constant_color3" xpos="-7.66189" ypos="-8.035">
+      <input name="value" type="color3" value="0.05, 0.149, 0.243" />
+    </constant>
+    <constant name="color_gen_sea" type="color3" nodedef="ND_constant_color3" xpos="-7.65078" ypos="-5.01763">
+      <input name="value" type="color3" value="0.145, 0.161, 0.067" />
+    </constant>
+    <combine3 name="combine1" type="color3" nodedef="ND_combine3_color3" Autodesk-hidden="true">
+      <input name="in1" type="float" value="0.145" />
+      <input name="in2" type="float" value="0.161" />
+      <input name="in3" type="float" value="0.067" />
+    </combine3>
   </nodegraph>
 
   <!-- <Legacy Stone> -->
-  <nodegraph name="NG_legacy_stone" xpos="-118.5" ypos="-300" nodedef="ND_legacy_stone">
-    <standard_surface name="standard_surface" type="surfaceshader" version="1.0.1" xpos="20.028986" ypos="3.853448">
+  <nodegraph name="NG_legacy_stone" Autodesk-ldx_inputPos="-118.978 -42.5611" Autodesk-ldx_outputPos="2419.72 429.926" nodedef="ND_legacy_stone">
+    <standard_surface name="standard_surface" type="surfaceshader" version="1.0.1" xpos="11.9598" ypos="2.35259">
       <input name="base_color" type="color3" nodename="tint_selection" uivisible="true" />
-      <input name="specular_roughness" type="float" nodename="switch_finish" uivisible="true" />
-	  <!-- combinenormals temporary bypass
-      <input name="normal" type="vector3" uivisible="true" nodename="combinenormals_vector3" />
-	  -->
+      <input name="specular_roughness" type="float" uivisible="true" nodename="switch_finish" />
       <input name="normal" type="vector3" uivisible="true" nodename="finish_bump_selection" />
     </standard_surface>
-    <switch name="switch_finish" type="float" xpos="7.507246" ypos="2.387931">
-      <input name="in1" type="float" uivisible="true" nodename="finish_polished" />
-      <input name="in2" type="float" uivisible="true" nodename="finish_glossy" />
-      <input name="in3" type="float" uivisible="true" nodename="finish_satin" />
-      <input name="in4" type="float" uivisible="true" nodename="finish_matte" />
-      <input name="which" type="float" interfacename="finish" uivisible="true" />
-      <input name="in5" type="float" nodename="finish_unfinished" />
-    </switch>
-    <multiply name="tint_mult" type="color3" xpos="4.760870" ypos="-3.982759">
+    <multiply name="tint_mult" type="color3" xpos="4.76087" ypos="-3.98276">
       <input name="in1" type="color3" interfacename="color" uivisible="true" />
       <input name="in2" type="color3" interfacename="tint_color" uivisible="true" />
     </multiply>
-    <ifequal name="tint_selection" type="color3" xpos="7.514493" ypos="-4.637931">
+    <ifequal name="tint_selection" type="color3" xpos="7.48033" ypos="-3.71598">
       <input name="value1" type="boolean" interfacename="tint_enable" uivisible="true" />
       <input name="value2" type="boolean" value="true" uivisible="true" />
       <input name="in1" type="color3" nodename="tint_mult" uivisible="true" />
       <input name="in2" type="color3" interfacename="color" uivisible="true" />
     </ifequal>
-    <switch name="switch_finish_bump" type="vector3" xpos="7.304348" ypos="8.956897">
-      <input name="in1" type="vector3" interfacename="finish_granite" uivisible="true" />
-      <input name="in2" type="vector3" interfacename="finish_marble" uivisible="true" />
-      <input name="in3" type="vector3" interfacename="finish_wall" uivisible="true" />
-      <input name="in4" type="vector3" interfacename="custom_finish" uivisible="true" />
-      <input name="which" type="float" interfacename="finish_bump" uivisible="true" />
-    </switch>
-    <constant name="finish_polished" type="float" xpos="3.710145" ypos="-1.706897">
+    <constant name="finish_polished" type="float" xpos="3.71014" ypos="-1.7069">
       <input name="value" type="float" value="0.01" />
     </constant>
-    <constant name="finish_glossy" type="float" xpos="3.724638" ypos="-0.681035">
+    <constant name="finish_glossy" type="float" xpos="3.72464" ypos="-0.681033">
       <input name="value" type="float" value="0.05" />
     </constant>
-    <constant name="finish_satin" type="float" xpos="3.724638" ypos="0.258621">
+    <constant name="finish_satin" type="float" xpos="3.72464" ypos="0.258621">
       <input name="value" type="float" value="0.15" />
     </constant>
-    <constant name="finish_matte" type="float" xpos="3.724638" ypos="1.224138">
+    <constant name="finish_matte" type="float" xpos="3.72464" ypos="1.22414">
       <input name="value" type="float" value="0.4" />
     </constant>
-    <constant name="finish_unfinished" type="float" xpos="3.724638" ypos="2.181035">
+    <constant name="finish_unfinished" type="float" xpos="3.72464" ypos="2.18104">
       <input name="value" type="float" value="0.7" />
     </constant>
-    <ifequal name="finish_bump_selection" type="vector3" xpos="10.702899" ypos="8.543103">
-      <input name="in1" type="vector3" nodename="switch_finish_bump" />
+    <ifequal name="finish_bump_selection" type="vector3" xpos="7.53978" ypos="4.28261">
       <input name="value2" type="boolean" value="true" />
       <input name="value1" type="boolean" interfacename="finish_bump_enable" />
       <input name="in2" type="vector3" nodename="normalmap_neutral" />
+      <input name="in1" type="vector3" nodename="switch_finish_bump" />
     </ifequal>
-    <constant name="neutral_normal" type="vector3" xpos="4.956522" ypos="13.698276">
+    <constant name="neutral_normal" type="vector3" xpos="2.11015" ypos="6.67589">
       <input name="value" type="vector3" value="0.5, 0.5, 1" />
     </constant>
-    <normalmap name="normalmap_neutral" type="vector3" xpos="7.521739" ypos="13.681034">
+    <normalmap name="normalmap_neutral" type="vector3" xpos="4.03028" ypos="6.57861">
       <input name="in" type="vector3" nodename="neutral_normal" />
     </normalmap>
-    <ifequal name="relief_pattern_selection" type="vector3" xpos="10.521739" ypos="17.974138">
+    <ifequal name="relief_pattern_selection" type="vector3" xpos="7.49972" ypos="6.43278">
       <input name="value2" type="boolean" value="true" />
       <input name="value1" type="boolean" interfacename="relief_pattern_enable" />
-      <input name="in1" type="vector3" interfacename="relief_pattern" />
       <input name="in2" type="vector3" nodename="normalmap_neutral" />
+      <input name="in1" type="vector3" interfacename="normal_relief_pattern" />
     </ifequal>
-    <combinenormals_vector3 name="combinenormals_vector3" type="vector3" xpos="15.239130" ypos="13.146552">
+    <combinenormals_vector3 name="combinenormals_vector3" type="vector3" xpos="9.3325" ypos="5.59389">
       <input name="normal1" type="vector3" nodename="finish_bump_selection" />
       <input name="normal2" type="vector3" nodename="relief_pattern_selection" />
     </combinenormals_vector3>
     <output name="out" type="surfaceshader" nodename="standard_surface" xpos="22.746376" ypos="4.206897" />
+    <backdrop name="bypass" xpos="9.27694" ypos="5.155" width="1.36111" height="1.73333" uicolor="#C85252" Autodesk-ldx_alpha="0.156863" />
+    <switch name="switch_finish" type="float" nodedef="ND_switch_floatI" xpos="7.50722" ypos="2.38793">
+      <input name="in1" type="float" nodename="finish_polished" />
+      <input name="in2" type="float" nodename="finish_glossy" />
+      <input name="in3" type="float" nodename="finish_satin" />
+      <input name="in4" type="float" nodename="finish_matte" />
+      <input name="in5" type="float" nodename="finish_unfinished" />
+      <input name="which" type="integer" interfacename="finish" />
+    </switch>
+    <switch name="switch_finish_bump" type="vector3" nodedef="ND_switch_vector3I" xpos="4.14123" ypos="4.69639">
+      <input name="in1" type="vector3" interfacename="normal_finish_granite" />
+      <input name="in2" type="vector3" interfacename="normal_finish_marble" />
+      <input name="in3" type="vector3" interfacename="normal_finish_wall" />
+      <input name="in4" type="vector3" interfacename="normal_custom_finish" />
+      <input name="which" type="integer" interfacename="finish_bump" />
+    </switch>
   </nodegraph>
 
   <!-- <Legacy Masonry> -->
-  <nodegraph name="NG_legacy_masonry" xpos="-137.5" ypos="-301.176" nodedef="ND_legacy_masonry" >
-    <standard_surface name="standard_surface" type="surfaceshader" version="1.0.1" xpos="10.326087" ypos="-0.474138">
+  <nodegraph name="NG_legacy_masonry" Autodesk-ldx_inputPos="207.232 -73.2668" Autodesk-ldx_outputPos="2174.47 -40.5553" nodedef="ND_legacy_masonry">
+    <standard_surface name="standard_surface" type="surfaceshader" version="1.0.1" xpos="10.3261" ypos="-0.474138">
       <input name="base_color" type="color3" nodename="tint_selection" uivisible="true" />
-      <input name="diffuse_roughness" type="float" nodename="switch_type_rough" uivisible="true" />
-      <input name="specular_roughness" type="float" nodename="switch_finish" uivisible="true" />
+      <input name="diffuse_roughness" type="float" uivisible="true" nodename="switch_type_rough" />
+      <input name="specular_roughness" type="float" uivisible="true" nodename="switch_finish" />
       <input name="normal" type="vector3" nodename="relief_selection" uivisible="true" />
     </standard_surface>
-    <multiply name="tint_mult" type="color3" xpos="4.884058" ypos="-4.620690">
+    <multiply name="tint_mult" type="color3" xpos="4.89538" ypos="-4.21862">
       <input name="in1" type="color3" interfacename="color" uivisible="true" />
       <input name="in2" type="color3" interfacename="tint_color" uivisible="true" />
     </multiply>
-    <ifequal name="tint_selection" type="color3" xpos="7.398551" ypos="-6.146552">
+    <ifequal name="tint_selection" type="color3" xpos="7.51233" ypos="-4.03241">
       <input name="value1" type="boolean" interfacename="tint_enable" uivisible="true" />
       <input name="value2" type="boolean" value="true" uivisible="true" />
       <input name="in1" type="color3" nodename="tint_mult" uivisible="true" />
       <input name="in2" type="color3" interfacename="color" uivisible="true" />
     </ifequal>
-    <ifequal name="relief_selection" type="vector3" xpos="7.391304" ypos="6.353448">
+    <ifequal name="relief_selection" type="vector3" xpos="7.52756" ypos="4.04773">
       <input name="value1" type="boolean" interfacename="relief_enable" uivisible="true" />
       <input name="value2" type="boolean" value="true" uivisible="true" />
-      <input name="in1" type="vector3" interfacename="relief_image" uivisible="true" />
       <input name="in2" type="vector3" nodename="normalmap" uivisible="true" />
+      <input name="in1" type="vector3" interfacename="normal_relief" />
     </ifequal>
-    <switch name="switch_finish" type="float" xpos="7.586957" ypos="2.215517">
-      <input name="in1" type="float" nodename="rough_glossy" uivisible="true" />
-      <input name="in2" type="float" nodename="rough_matte" uivisible="true" />
-      <input name="in3" type="float" nodename="rough_unfinished" uivisible="true" />
-      <input name="which" type="float" interfacename="finish" uivisible="true" />
-    </switch>
-    <switch name="switch_type_rough" type="float" xpos="7.608696" ypos="-1.155172">
-      <input name="in1" type="float" nodename="rough_masonry" uivisible="true" />
-      <input name="in2" type="float" nodename="rough_cmu" uivisible="true" />
-      <input name="which" type="float" interfacename="type" uivisible="true" />
-    </switch>
-    <normalmap name="normalmap" type="vector3" xpos="5.536232" ypos="9.094828">
+    <normalmap name="normalmap" type="vector3" xpos="5.01378" ypos="4.36982">
       <input name="in" type="vector3" nodename="neutral_normal" uivisible="true" />
     </normalmap>
-    <constant name="neutral_normal" type="vector3" xpos="3.565217" ypos="9.112069">
+    <constant name="neutral_normal" type="vector3" xpos="3.04274" ypos="4.38703">
       <input name="value" type="vector3" value="0.5, 0.5, 1" uivisible="true" />
     </constant>
-    <constant name="rough_masonry" type="float" xpos="4.884058" ypos="-3.146552">
+    <constant name="rough_masonry" type="float" xpos="4.87839" ypos="-2.49532">
       <input name="value" type="float" value="0.5" uivisible="true" />
     </constant>
-    <constant name="rough_cmu" type="float" xpos="4.884058" ypos="-1.948276">
+    <constant name="rough_cmu" type="float" xpos="4.85574" ypos="-1.34801">
       <input name="value" type="float" value="0.2" uivisible="true" />
     </constant>
-    <constant name="rough_glossy" type="float" xpos="4.884058" ypos="0.431034">
+    <constant name="rough_glossy" type="float" xpos="4.88406" ypos="0.431034">
       <input name="value" type="float" value="0.1" uivisible="true" />
     </constant>
-    <constant name="rough_matte" type="float" xpos="4.884058" ypos="1.646552">
+    <constant name="rough_matte" type="float" xpos="4.89293" ypos="1.31383">
       <input name="value" type="float" value="0.4" uivisible="true" />
     </constant>
-    <constant name="rough_unfinished" type="float" xpos="4.884058" ypos="2.844828">
+    <constant name="rough_unfinished" type="float" xpos="4.92842" ypos="2.30805">
       <input name="value" type="float" value="0.7" uivisible="true" />
     </constant>
     <output name="out" type="surfaceshader" nodename="standard_surface" xpos="13.043478" ypos="0.000000" />
+    <switch name="switch_type_rough" type="float" nodedef="ND_switch_floatI" xpos="7.60872" ypos="-1.15517">
+      <input name="in1" type="float" nodename="rough_masonry" />
+      <input name="in2" type="float" nodename="rough_cmu" />
+      <input name="which" type="integer" interfacename="type" />
+    </switch>
+    <switch name="switch_finish" type="float" nodedef="ND_switch_floatI" xpos="7.54256" ypos="1.32828">
+      <input name="in1" type="float" nodename="rough_glossy" />
+      <input name="in2" type="float" nodename="rough_matte" />
+      <input name="in3" type="float" nodename="rough_unfinished" />
+      <input name="which" type="integer" interfacename="finish" />
+    </switch>
   </nodegraph>
 
   <!-- <Legacy Generic> -->
-  <nodegraph name="NG_legacy_generic" xpos="-143.369" ypos="-45.6307" nodedef="ND_legacy_generic" >
-    <standard_surface name="standard_surface" type="surfaceshader" version="1.0.1" xpos="12.376812" ypos="0.784483">
+  <nodegraph name="NG_legacy_generic" Autodesk-ldx_inputPos="-941 -42" Autodesk-ldx_outputPos="2674 135" nodedef="ND_legacy_generic">
+    <standard_surface name="standard_surface" type="surfaceshader" version="1.0.1" xpos="12.3778" ypos="0.783333">
       <input name="base_color" type="color3" nodename="tint_selection" uivisible="true" />
       <input name="metalness" type="float" nodename="reflectivity_selection2" uivisible="true" />
       <input name="specular" type="float" nodename="reflectivity_selection1" uivisible="true" />
@@ -5123,76 +5144,78 @@
       <input name="transmission" type="float" nodename="transparency_selection" uivisible="true" />
       <input name="emission" type="float" nodename="emission_value_scaled" uivisible="true" />
       <input name="emission_color" type="color3" nodename="multiply_col_K" uivisible="true" />
-      <input name="opacity" type="color3" nodename="ifequal3" uivisible="true" />
+      <input name="opacity" type="color3" nodename="cutout_selection" uivisible="true" />
       <input name="normal" type="vector3" nodename="bump_selection" />
       <input name="subsurface" type="float" interfacename="translucency" />
       <input name="subsurface_color" type="color3" nodename="tint_selection" />
     </standard_surface>
-    <mix name="diffuse_image_mix" type="color3" xpos="-3.268116" ypos="-11.112069">
+    <mix name="diffuse_image_mix" type="color3" xpos="-2.93333" ypos="-7.78333">
       <input name="fg" type="color3" interfacename="diffuse_image" uivisible="true" />
       <input name="bg" type="color3" interfacename="diffuse_color" uivisible="true" />
       <input name="mix" type="float" interfacename="diffuse_image_fade" uivisible="true" />
     </mix>
-    <invert name="invert_gloss" type="float" xpos="7.898551" ypos="-4.000000">
+    <invert name="invert_gloss" type="float" xpos="7.9" ypos="-4">
       <input name="in" type="float" interfacename="glossiness" uivisible="true" />
     </invert>
-    <ifequal name="metallic_highlights_selection" type="color3" xpos="7.869565" ypos="-6.931035">
+    <ifequal name="metallic_highlights_selection" type="color3" xpos="7.87222" ypos="-6.93333">
       <input name="value1" type="boolean" interfacename="metallic_highlights" uivisible="true" />
       <input name="value2" type="boolean" value="true" uivisible="true" />
       <input name="in1" type="color3" nodename="tint_selection" uivisible="true" />
-      <input name="in2" type="color3" value="1, 1, 1" uivisible="true" />
+      <input name="in2" type="color3" uivisible="true" nodename="highlights_dielectric" ldx_value="1, 1, 1" />
     </ifequal>
-    <ifequal name="reflectivity_selection1" type="float" xpos="7.869565" ypos="-8.732759">
+    <ifequal name="reflectivity_selection1" type="float" xpos="7.87222" ypos="-8.73333">
       <input name="value1" type="boolean" interfacename="reflectivity_enable" uivisible="true" />
       <input name="value2" type="boolean" value="true" uivisible="true" />
-      <input name="in1" type="float" value="1" uivisible="true" />
+      <input name="in1" type="float" uivisible="true" nodename="reflectivity_physical" ldx_value="1" />
+      <input name="in2" type="float" nodename="reflectivity_none" />
     </ifequal>
-    <constant name="refl_low_threshold" type="float" xpos="-0.550725" ypos="-9.344828">
+    <constant name="refl_low_threshold" type="float" xpos="-0.566667" ypos="-11.2">
       <input name="value" type="float" value="0.1" uivisible="true" />
     </constant>
-    <remap name="refl_extr" type="float" xpos="2.166667" ypos="-10.370689">
+    <remap name="refl_extr" type="float" xpos="2.16667" ypos="-10.3722">
       <input name="in" type="float" interfacename="reflectivity" uivisible="true" />
       <input name="inlow" type="float" nodename="refl_low_threshold" uivisible="true" />
     </remap>
-    <ifgreater name="metallic_component" type="float" xpos="5.152174" ypos="-12.198276">
+    <ifgreater name="metallic_component" type="float" xpos="5.15" ypos="-12.2">
       <input name="value1" type="float" interfacename="reflectivity" uivisible="true" />
       <input name="value2" type="float" nodename="refl_low_threshold" uivisible="true" />
       <input name="in1" type="float" nodename="refl_extr" uivisible="true" />
       <input name="in2" type="float" value="0" uivisible="true" />
     </ifgreater>
-    <ifequal name="transparency_selection" type="float" xpos="7.384058" ypos="4.025862">
+    <ifequal name="transparency_selection" type="float" xpos="7.38333" ypos="4.02778">
       <input name="value1" type="boolean" interfacename="transparency_enable" uivisible="true" />
       <input name="value2" type="boolean" value="true" uivisible="true" />
       <input name="in1" type="float" nodename="transparency_image_selection" uivisible="true" />
+      <input name="in2" type="float" nodename="transparency_none" />
     </ifequal>
-    <mix name="transparency_image_mix" type="float" xpos="-1.420290" ypos="5.974138">
+    <mix name="transparency_image_mix" type="float" xpos="0.145295" ypos="5.58661">
       <input name="fg" type="float" interfacename="transparency_image" uivisible="true" />
       <input name="bg" type="float" interfacename="transparency_amount" uivisible="true" />
       <input name="mix" type="float" interfacename="transparency_image_fade" uivisible="true" />
     </mix>
-    <constant name="ior_air" type="float" xpos="1.130435" ypos="-2.913793">
+    <constant name="ior_air" type="float" xpos="1.12222" ypos="-2.96667">
       <input name="value" type="float" value="1" uivisible="true" />
     </constant>
-    <constant name="ior_water" type="float" xpos="1.130435" ypos="-1.844828">
+    <constant name="ior_water" type="float" xpos="1.15" ypos="-2">
       <input name="value" type="float" value="1.331" uivisible="true" />
     </constant>
-    <constant name="ior_alchool" type="float" xpos="1.130435" ypos="-0.646552">
+    <constant name="ior_alchool" type="float" xpos="1.15" ypos="-1.02222">
       <input name="value" type="float" value="1.329" uivisible="true" />
     </constant>
-    <constant name="ior_quartz" type="float" xpos="1.130435" ypos="0.534483">
+    <constant name="ior_quartz" type="float" xpos="1.15556" ypos="-0.0444444">
       <input name="value" type="float" value="1.54" uivisible="true" />
     </constant>
-    <constant name="ior_glass" type="float" xpos="1.130435" ypos="1.732759">
+    <constant name="ior_glass" type="float" xpos="1.12778" ypos="0.944444">
       <input name="value" type="float" value="1.52" uivisible="true" />
     </constant>
-    <constant name="ior_diamond" type="float" xpos="1.130435" ypos="2.758621">
+    <constant name="ior_diamond" type="float" xpos="1.18333" ypos="1.86667">
       <input name="value" type="float" value="2.42" uivisible="true" />
     </constant>
-    <modulo name="modulo_ior" type="float" xpos="3.289855" ypos="3.163793">
-      <input name="in1" type="float" interfacename="refraction" uivisible="true" />
+    <modulo name="modulo_ior" type="float" xpos="3.37222" ypos="2.63889">
+      <input name="in1" type="float" uivisible="true" nodename="convert_ior_float" />
       <input name="in2" type="float" value="5" uivisible="true" />
     </modulo>
-    <switch name="switch_ior1" type="float" xpos="5.072464" ypos="-1.724138">
+    <switch name="switch_ior1" type="float" xpos="5.07222" ypos="-1.72222">
       <input name="in1" type="float" nodename="ior_air" uivisible="true" />
       <input name="in2" type="float" nodename="ior_water" uivisible="true" />
       <input name="in3" type="float" nodename="ior_alchool" uivisible="true" />
@@ -5200,51 +5223,51 @@
       <input name="in5" type="float" nodename="ior_glass" uivisible="true" />
       <input name="which" type="float" nodename="modulo_ior" uivisible="true" />
     </switch>
-    <switch name="switch_ior2" type="float" xpos="5.072464" ypos="0.956897">
+    <switch name="switch_ior2" type="float" xpos="5.1" ypos="0.161111">
       <input name="in1" type="float" nodename="ior_diamond" uivisible="true" />
       <input name="in2" type="float" interfacename="custom_refraction" uivisible="true" />
       <input name="which" type="float" nodename="modulo_ior" uivisible="true" />
     </switch>
-    <divide name="divide_ior" type="float" xpos="5.268116" ypos="3.163793">
-      <input name="in1" type="float" interfacename="refraction" uivisible="true" />
+    <divide name="divide_ior" type="float" xpos="4.98889" ypos="2.57778">
+      <input name="in1" type="float" uivisible="true" nodename="convert_ior_float" />
       <input name="in2" type="float" value="5" uivisible="true" />
     </divide>
-    <switch name="switch_ior" type="float" xpos="7.608696" ypos="0.258621">
+    <switch name="switch_ior" type="float" xpos="7.07222" ypos="-0.6">
       <input name="in1" type="float" nodename="switch_ior1" uivisible="true" />
       <input name="in2" type="float" nodename="switch_ior2" uivisible="true" />
       <input name="which" type="float" nodename="divide_ior" uivisible="true" />
     </switch>
-    <ifequal name="ifequal3" type="color3" xpos="6.463768" ypos="8.672414">
+    <ifequal name="cutout_selection" type="color3" xpos="7.3" ypos="7.96111">
       <input name="value1" type="boolean" interfacename="cutout_enable" uivisible="true" />
       <input name="value2" type="boolean" value="true" uivisible="true" />
       <input name="in1" type="color3" interfacename="cutout_image" uivisible="true" />
-      <input name="in2" type="color3" value="1, 1, 1" uivisible="true" />
+      <input name="in2" type="color3" uivisible="true" nodename="cutout_none" ldx_value="1, 1, 1" />
     </ifequal>
-    <ifequal name="emission_value" type="float" xpos="5.884058" ypos="18.198277">
+    <ifequal name="emission_value" type="float" xpos="6.02928" ypos="15.8166">
       <input name="value1" type="boolean" interfacename="emission_enable" uivisible="true" />
       <input name="value2" type="boolean" value="true" uivisible="true" />
       <input name="in1" type="float" nodename="switch_luminance" uivisible="true" />
-      <input name="in2" type="float" value="0" uivisible="true" />
+      <input name="in2" type="float" uivisible="true" nodename="constant_no_emission" ldx_value="0" />
     </ifequal>
-    <multiply name="emission_value_scaled" type="float" xpos="7.623188" ypos="18.336206">
+    <multiply name="emission_value_scaled" type="float" xpos="7.76817" ypos="15.9555">
       <input name="in1" type="float" value="0.00195312" uivisible="true" />
       <input name="in2" type="float" nodename="emission_value" uivisible="true" />
     </multiply>
-    <constant name="emission_color_value" type="color3" xpos="3.442029" ypos="29.620689">
+    <constant name="emission_color_value" type="color3" xpos="5.16164" ypos="24.7006">
       <input name="value" type="color3" interfacename="emission_color" uivisible="true" />
     </constant>
-    <divide name="divide_luminance" type="float" xpos="0.550725" ypos="22.508621">
-      <input name="in1" type="float" interfacename="luminance" uivisible="true" />
+    <divide name="divide_luminance" type="float" xpos="1.01259" ypos="19.0333">
+      <input name="in1" type="float" uivisible="true" nodename="convert_em_float" />
       <input name="in2" type="float" value="5" uivisible="true" />
     </divide>
-    <modulo name="modulo_luminance" type="float" xpos="-1.768116" ypos="22.612068">
-      <input name="in1" type="float" interfacename="luminance" uivisible="true" />
+    <modulo name="modulo_luminance" type="float" xpos="-1.08186" ypos="19.111">
+      <input name="in1" type="float" uivisible="true" nodename="convert_em_float" />
       <input name="in2" type="float" value="5" uivisible="true" />
     </modulo>
-    <constant name="em_lampshade_ext" type="float" xpos="-3.036232" ypos="16.284483">
+    <constant name="em_lampshade_ext" type="float" xpos="-1.08583" ypos="14.0253">
       <input name="value" type="float" value="1300" uivisible="true" />
     </constant>
-    <switch name="switch_luminance2" type="float" xpos="1.014493" ypos="17.327587">
+    <switch name="switch_luminance2" type="float" xpos="1.16259" ypos="14.9444">
       <input name="in1" type="float" nodename="em_lampshade_ext" uivisible="true" />
       <input name="in2" type="float" nodename="em_lampshade_int" uivisible="true" />
       <input name="in3" type="float" nodename="em_desk_lamp_lens" uivisible="true" />
@@ -5252,13 +5275,13 @@
       <input name="in5" type="float" nodename="em_frosted_bulb" uivisible="true" />
       <input name="which" type="float" nodename="modulo_luminance" uivisible="true" />
     </switch>
-    <constant name="em_crt_television" type="float" xpos="-3.036232" ypos="15.129311">
+    <constant name="em_crt_television" type="float" xpos="-1.07199" ypos="13.0482">
       <input name="value" type="float" value="250" uivisible="true" />
     </constant>
-    <constant name="em_cellphone_screen" type="float" xpos="-3.036232" ypos="13.931034">
+    <constant name="em_cellphone_screen" type="float" xpos="-1.07044" ypos="12.0627">
       <input name="value" type="float" value="200" uivisible="true" />
     </constant>
-    <switch name="switch_luminance1" type="float" xpos="1.014493" ypos="14.836206">
+    <switch name="switch_luminance1" type="float" xpos="1.16814" ypos="12.9999">
       <input name="in1" type="float" nodename="em_dim_glow" uivisible="true" />
       <input name="in2" type="float" nodename="em_led_panel" uivisible="true" />
       <input name="in3" type="float" nodename="em_led_screen" uivisible="true" />
@@ -5266,64 +5289,64 @@
       <input name="in5" type="float" nodename="em_crt_television" uivisible="true" />
       <input name="which" type="float" nodename="modulo_luminance" uivisible="true" />
     </switch>
-    <constant name="em_led_screen" type="float" xpos="-3.036232" ypos="12.732759">
+    <constant name="em_led_screen" type="float" xpos="-1.07704" ypos="11.0657">
       <input name="value" type="float" value="140" uivisible="true" />
     </constant>
-    <constant name="em_led_panel" type="float" xpos="-3.036232" ypos="11.534483">
+    <constant name="em_led_panel" type="float" xpos="-1.07854" ypos="10.076">
       <input name="value" type="float" value="100" uivisible="true" />
     </constant>
-    <constant name="em_dim_glow" type="float" xpos="-3.036232" ypos="10.336206">
+    <constant name="em_dim_glow" type="float" xpos="-1.06794" ypos="9.07317">
       <input name="value" type="float" value="10" uivisible="true" />
     </constant>
-    <switch name="switch_luminance" type="float" xpos="3.536232" ypos="18.129311">
+    <switch name="switch_luminance" type="float" xpos="3.68481" ypos="15.7444">
       <input name="in1" type="float" nodename="switch_luminance1" uivisible="true" />
       <input name="in2" type="float" nodename="switch_luminance2" uivisible="true" />
       <input name="in3" type="float" nodename="switch_luminance3" uivisible="true" />
       <input name="which" type="float" nodename="divide_luminance" uivisible="true" />
     </switch>
-    <switch name="switch_luminance3" type="float" xpos="1.014493" ypos="19.818966">
+    <switch name="switch_luminance3" type="float" xpos="1.16259" ypos="16.7333">
       <input name="in1" type="float" interfacename="custom_luminance" uivisible="true" />
       <input name="in2" type="float" value="2.4" uivisible="true" />
       <input name="which" type="float" nodename="modulo_luminance" uivisible="true" />
     </switch>
-    <constant name="em_lampshade_int" type="float" xpos="-3.036232" ypos="17.482759">
+    <constant name="em_lampshade_int" type="float" xpos="-1.07694" ypos="15.0197">
       <input name="value" type="float" value="2500" uivisible="true" />
     </constant>
-    <constant name="em_desk_lamp_lens" type="float" xpos="-3.036232" ypos="18.681034">
+    <constant name="em_desk_lamp_lens" type="float" xpos="-1.09472" ypos="17.0352">
       <input name="value" type="float" value="10000" uivisible="true" />
     </constant>
-    <constant name="em_halogen_lamp_lens" type="float" xpos="-3.036232" ypos="19.879311">
+    <constant name="em_halogen_lamp_lens" type="float" xpos="-1.09472" ypos="16.0643">
       <input name="value" type="float" value="20000" uivisible="true" />
     </constant>
-    <constant name="em_frosted_bulb" type="float" xpos="-3.036232" ypos="21.077587">
+    <constant name="em_frosted_bulb" type="float" xpos="-1.08583" ypos="18.0369">
       <input name="value" type="float" value="210000" uivisible="true" />
     </constant>
-    <blackbody name="blackbody" type="color3" xpos="4.130435" ypos="31.000000">
+    <blackbody name="blackbody" type="color3" xpos="5.845" ypos="26.0785">
       <input name="temperature" type="float" nodename="switch_K" uivisible="true" />
     </blackbody>
-    <multiply name="multiply_col_K" type="color3" xpos="7.956522" ypos="30.862068">
+    <multiply name="multiply_col_K" type="color3" xpos="7.66372" ypos="26.042">
       <input name="in1" type="color3" nodename="emission_color_value" uivisible="true" />
       <input name="in2" type="color3" nodename="blackbody" uivisible="true" />
     </multiply>
-    <constant name="K_candle" type="float" xpos="-3.036232" ypos="25.508621">
+    <constant name="K_candle" type="float" xpos="-0.99545" ypos="21.2014">
       <input name="value" type="float" value="1850" uivisible="true" />
     </constant>
-    <constant name="K_incandescent_bulb" type="float" xpos="-3.036232" ypos="26.706896">
+    <constant name="K_incandescent_bulb" type="float" xpos="-0.99545" ypos="22.2619">
       <input name="value" type="float" value="2800" uivisible="true" />
     </constant>
-    <constant name="K_floodlight" type="float" xpos="-3.036232" ypos="27.905172">
+    <constant name="K_floodlight" type="float" xpos="-1.01458" ypos="23.2801">
       <input name="value" type="float" value="3400" uivisible="true" />
     </constant>
-    <constant name="K_moonlight" type="float" xpos="-3.036232" ypos="29.103449">
+    <constant name="K_moonlight" type="float" xpos="-1.05285" ypos="24.3463">
       <input name="value" type="float" value="4100" uivisible="true" />
     </constant>
-    <constant name="K_daylight_warm" type="float" xpos="-3.036232" ypos="30.301723">
+    <constant name="K_daylight_warm" type="float" xpos="-1.05285" ypos="25.4068">
       <input name="value" type="float" value="5000" uivisible="true" />
     </constant>
-    <constant name="K_daylight_cool" type="float" xpos="-3.057971" ypos="31.293104">
+    <constant name="K_daylight_cool" type="float" xpos="-1.06953" ypos="26.4011">
       <input name="value" type="float" value="6000" uivisible="true" />
     </constant>
-    <switch name="switch_K1" type="float" xpos="-0.108696" ypos="29.896551">
+    <switch name="switch_K1" type="float" xpos="1.31256" ypos="24.8688">
       <input name="in1" type="float" nodename="K_candle" uivisible="true" />
       <input name="in2" type="float" nodename="K_incandescent_bulb" uivisible="true" />
       <input name="in3" type="float" nodename="K_floodlight" uivisible="true" />
@@ -5331,72 +5354,94 @@
       <input name="in5" type="float" nodename="K_daylight_warm" uivisible="true" />
       <input name="which" type="float" nodename="modulo_K" uivisible="true" />
     </switch>
-    <switch name="switch_K2" type="float" xpos="-0.108696" ypos="32.387932">
+    <switch name="switch_K2" type="float" xpos="1.31256" ypos="27.3633">
       <input name="in1" type="float" nodename="K_daylight_cool" uivisible="true" />
       <input name="in2" type="float" nodename="K_xenon_arc_lamp" uivisible="true" />
       <input name="in3" type="float" nodename="K_tv_screen" uivisible="true" />
       <input name="in4" type="float" interfacename="custom_color_temperature" uivisible="true" />
       <input name="which" type="float" nodename="modulo_K" uivisible="true" />
     </switch>
-    <modulo name="modulo_K" type="float" xpos="-1.318841" ypos="35.551723">
-      <input name="in1" type="float" interfacename="color_temperature" uivisible="true" />
+    <modulo name="modulo_K" type="float" xpos="-0.993017" ypos="29.6668">
+      <input name="in1" type="float" uivisible="true" nodename="convert_K_float" />
       <input name="in2" type="float" value="5" uivisible="true" />
     </modulo>
-    <divide name="divide_K" type="float" xpos="0.188406" ypos="35.413792">
-      <input name="in1" type="float" interfacename="color_temperature" uivisible="true" />
+    <divide name="divide_K" type="float" xpos="1.27776" ypos="29.4959">
+      <input name="in1" type="float" uivisible="true" nodename="convert_K_float" />
       <input name="in2" type="float" value="5" uivisible="true" />
     </divide>
-    <switch name="switch_K" type="float" xpos="2.384058" ypos="31.155172">
+    <switch name="switch_K" type="float" xpos="4.10054" ypos="26.2341">
       <input name="in1" type="float" nodename="switch_K1" uivisible="true" />
       <input name="in2" type="float" nodename="switch_K2" uivisible="true" />
       <input name="which" type="float" nodename="divide_K" uivisible="true" />
     </switch>
-    <constant name="K_xenon_arc_lamp" type="float" xpos="-3.057971" ypos="32.525864">
+    <constant name="K_xenon_arc_lamp" type="float" xpos="-1.05038" ypos="27.4529">
       <input name="value" type="float" value="6420" uivisible="true" />
     </constant>
-    <constant name="K_tv_screen" type="float" xpos="-3.057971" ypos="33.637932">
+    <constant name="K_tv_screen" type="float" xpos="-1.06953" ypos="28.4874">
       <input name="value" type="float" value="9320" uivisible="true" />
     </constant>
-    <multiply name="tint_mult" type="color3" xpos="2.166667" ypos="-7.706897">
+    <multiply name="tint_mult" type="color3" xpos="2.16667" ypos="-7.70556">
       <input name="in1" type="color3" nodename="diffuse_image_selection" uivisible="true" />
       <input name="in2" type="color3" interfacename="tint_color" uivisible="true" />
     </multiply>
-    <ifequal name="tint_selection" type="color3" xpos="5.079710" ypos="-8.137931">
+    <ifequal name="tint_selection" type="color3" xpos="5.07778" ypos="-8.13889">
       <input name="value1" type="boolean" interfacename="tint_enable" uivisible="true" />
       <input name="value2" type="boolean" value="true" uivisible="true" />
       <input name="in1" type="color3" nodename="tint_mult" uivisible="true" />
       <input name="in2" type="color3" nodename="diffuse_image_selection" uivisible="true" />
     </ifequal>
-    <ifequal name="diffuse_image_selection" type="color3" xpos="-0.615942" ypos="-8.043103">
-      <input name="value1" type="boolean" interfacename="diffuse_image_enable" uivisible="true" />
+    <ifequal name="diffuse_image_selection" type="color3" xpos="-0.616667" ypos="-8.04444">
       <input name="value2" type="boolean" value="true" uivisible="true" />
       <input name="in1" type="color3" nodename="diffuse_image_mix" uivisible="true" />
       <input name="in2" type="color3" interfacename="diffuse_color" uivisible="true" />
+      <input name="value1" type="boolean" interfacename="diffuse_image_enable" />
     </ifequal>
-    <ifequal name="transparency_image_selection" type="float" xpos="2.746377" ypos="5.543103">
+    <ifequal name="transparency_image_selection" type="float" xpos="2.74444" ypos="5.54444">
       <input name="value1" type="boolean" interfacename="transparency_image_enable" uivisible="true" />
       <input name="value2" type="boolean" value="true" uivisible="true" />
       <input name="in1" type="float" nodename="transparency_image_mix" uivisible="true" />
       <input name="in2" type="float" interfacename="transparency_amount" uivisible="true" />
     </ifequal>
-    <ifequal name="reflectivity_selection2" type="float" xpos="7.869565" ypos="-10.448276">
+    <ifequal name="reflectivity_selection2" type="float" xpos="7.87222" ypos="-10.45">
       <input name="value1" type="boolean" interfacename="reflectivity_enable" uivisible="true" />
       <input name="value2" type="boolean" value="true" uivisible="true" />
       <input name="in1" type="float" nodename="metallic_component" uivisible="true" />
+      <input name="in2" type="float" nodename="reflectivity_none" />
     </ifequal>
-    <ifequal name="bump_selection" type="vector3" xpos="8.086957" ypos="37.784481">
+    <ifequal name="bump_selection" type="vector3" xpos="7.7885" ypos="31.2038">
       <input name="value1" type="boolean" interfacename="bump_enable" />
       <input name="value2" type="boolean" value="true" />
-      <input name="in1" type="vector3" interfacename="bump" />
       <input name="in2" type="vector3" nodename="neutral_normalmap" />
+      <input name="in1" type="vector3" interfacename="normal_bump" />
     </ifequal>
-    <constant name="neutral_normal" type="vector3" xpos="3.224638" ypos="39.646553">
+    <constant name="neutral_normal" type="vector3" xpos="3.85514" ypos="31.7593">
       <input name="value" type="vector3" value="0.5, 0.5, 1" />
     </constant>
-    <normalmap name="neutral_normalmap" type="vector3" xpos="5.768116" ypos="39.663792">
+    <normalmap name="neutral_normalmap" type="vector3" xpos="5.58289" ypos="31.7648">
       <input name="in" type="vector3" nodename="neutral_normal" />
     </normalmap>
     <output name="out" type="surfaceshader" nodename="standard_surface" xpos="15.094203" ypos="2.034483" />
+    <convert name="convert_ior_float" type="float" nodedef="ND_convert_integer_float" xpos="1.23333" ypos="2.91111">
+      <input name="in" type="integer" interfacename="refraction" />
+    </convert>
+    <constant name="reflectivity_none" type="float" nodedef="ND_constant_float" xpos="5.14444" ypos="-10.3722" />
+    <constant name="reflectivity_physical" type="float" nodedef="ND_constant_float" xpos="5.16111" ypos="-9.37222">
+      <input name="value" type="float" value="1" />
+    </constant>
+    <constant name="highlights_dielectric" type="color3" nodedef="ND_constant_color3" xpos="5.05" ypos="-6.37222">
+      <input name="value" type="color3" value="1, 1, 1" />
+    </constant>
+    <constant name="transparency_none" type="float" nodedef="ND_constant_float" xpos="5.27222" ypos="5.71111" />
+    <constant name="cutout_none" type="color3" nodedef="ND_constant_color3" xpos="5.55" ypos="8.88333">
+      <input name="value" type="color3" value="1, 1, 1" />
+    </constant>
+    <constant name="constant_no_emission" type="float" nodedef="ND_constant_float" xpos="3.58756" ypos="17.6487" />
+    <convert name="convert_em_float" type="float" nodedef="ND_convert_integer_float" xpos="-3.03707" ypos="19.2114">
+      <input name="in" type="integer" interfacename="luminance" />
+    </convert>
+    <convert name="convert_K_float" type="float" nodedef="ND_convert_integer_float" xpos="-2.61978" ypos="29.7598">
+      <input name="in" type="integer" interfacename="color_temperature" />
+    </convert>
   </nodegraph>
 
 </materialx>

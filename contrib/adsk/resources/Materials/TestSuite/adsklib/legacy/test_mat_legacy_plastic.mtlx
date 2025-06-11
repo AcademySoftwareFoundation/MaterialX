@@ -1,29 +1,27 @@
 <?xml version="1.0"?>
-<materialx version="1.38" colorspace="lin_rec709">
-
-  <legacy_plastic name="SR_legacy_plastic" type="surfaceshader" >
-    <input name="type" type="float" value="1" />
+<materialx version="1.39" colorspace="lin_rec709">
+  <legacy_plastic name="SR_legacy_plastic" type="surfaceshader" xpos="10.326087" ypos="-1.120690">
+    <input name="type" type="integer" value="1" />
     <input name="color" type="color3" value="0.43,0.07,0.07" />
-    <input name="finish" type="float" value="0" />
+    <input name="finish" type="integer" value="0" />
     <input name="tint_enable" type="boolean" value="false" />
     <input name="tint_color" type="color3" value="0.95,0.5,0.5" />
     <input name="finish_bump_enable" type="boolean" value="false" />
-    <input name="finish_bump" type="vector3" nodename="height_map1_plastic" />
+    <input name="normal_finish_bump" type="vector3" nodename="height_map1_plastic" />
     <input name="relief_pattern_enable" type="boolean" value="false" />
-    <input name="relief_pattern" type="vector3" nodename="height_map2_plastic"/>
+    <input name="normal_relief_pattern" type="vector3" nodename="height_map2_plastic" />
   </legacy_plastic>
-  <surfacematerial name="M_legacy_plastic" type="material">
+  <surfacematerial name="M_legacy_plastic" type="material" xpos="13.043478" ypos="0.000000">
     <input name="surfaceshader" type="surfaceshader" nodename="SR_legacy_plastic" />
   </surfacematerial>
-  <adsk:height_map name="height_map1_plastic" type="vector3" version="1.0.1" xpos="9.405797" ypos="0.146552">
+  <adsk:height_map name="height_map1_plastic" type="vector3" version="1.0.1" xpos="7.739130" ypos="-0.129310">
     <input name="file" type="filename" uniform="true" value="textures/tiles_travertine_versailles_bump.jpg" fileprefix="" />
     <input name="realworld_scale" type="vector2" value="1, 1" />
     <input name="depth" type="float" value="1" />
   </adsk:height_map>
-  <adsk:height_map name="height_map2_plastic" type="vector3" version="1.0.1" xpos="9.362319" ypos="2.620690">
+  <adsk:height_map name="height_map2_plastic" type="vector3" version="1.0.1" xpos="7.739130" ypos="1.422414">
     <input name="file" type="filename" uniform="true" value="textures/tiles_mix01_bump.jpg" fileprefix="" />
     <input name="realworld_scale" type="vector2" value="1, 1" />
     <input name="depth" type="float" value="1" />
   </adsk:height_map>
-
 </materialx>

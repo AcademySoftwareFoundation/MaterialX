@@ -2,35 +2,38 @@
 <materialx version="1.38" colorspace="lin_rec709">
 
   <legacy_glass name="SR_legacy_glass" type="surfaceshader" >
-    <input name="color" type="float" value="6" />
+    <input name="color" type="integer" value="6" />
     <input name="custom_color" type="color3" value="0.0,0.99,0.0" />
     <input name="test_sRGB" type="boolean" value="true" />
     <input name="reflectance" type="float" value="0.06" />
-    <input name="refraction_ior" type="float" value="2" />
+    <input name="refraction_ior" type="integer" value="2" />
     <input name="custom_ior" type="float" value="1.8" />
     <input name="roughness" type="float" value="0.1" />
     <input name="tint_enable" type="boolean" value="false" />
     <input name="tint_color" type="color3" value="0.5,0.5,0.8" />
     <input name="relief_enable" type="boolean" value="true" />
-    <input name="relief_type" type="float" value="1" />
+    <input name="relief_type" type="integer" value="1" />
     <input name="normal_rippled" type="vector3" nodename="normal_map_rippled" />
     <input name="normal_wavy" type="vector3" nodename="normal_map_wavy" />
-    <input name="custom_relief" type="vector3" nodename="normal_map_custom" />
+    <input name="normal_custom_relief" type="vector3" nodename="normal_map_custom" />
   </legacy_glass>
   <surfacematerial name="M_legacy_glass" type="material">
     <input name="surfaceshader" type="surfaceshader" nodename="SR_legacy_glass" />
   </surfacematerial>
   <adsk:normal_map name="normal_map_rippled" type="vector3" version="1.0.1" xpos="8.173913" ypos="-0.008621">
     <input name="file" type="filename" uniform="true" value="textures/texture_glass_clouds_norm.png" fileprefix="" />
-    <input name="realworld_scale" type="vector2" value="1, 1" />
+    <input name="realworld_scale" type="vector2" value="0.1, 0.1" />
+    <input name="normal_scale" type="float" value="0.25" />
   </adsk:normal_map>
   <adsk:normal_map name="normal_map_wavy" type="vector3" version="1.0.1" xpos="8.202899" ypos="1.922414">
     <input name="file" type="filename" uniform="true" value="textures/texture_glass_noise_norm.png" fileprefix="" />
-    <input name="realworld_scale" type="vector2" value="1, 1" />
+    <input name="realworld_scale" type="vector2" value="0.1, 0.1" />
+    <input name="normal_scale" type="float" value="0.25" />
   </adsk:normal_map>
   <adsk:normal_map name="normal_map_custom" type="vector3" version="1.0.1" xpos="8.217391" ypos="3.594828">
     <input name="file" type="filename" uniform="true" value="textures/texture_glass_mosaic_norm.png" fileprefix="" />
-    <input name="realworld_scale" type="vector2" value="1, 1" />
+    <input name="realworld_scale" type="vector2" value="0.1, 0.1" />
+    <input name="normal_scale" type="float" value="0.25" />
   </adsk:normal_map>
 
 </materialx>
