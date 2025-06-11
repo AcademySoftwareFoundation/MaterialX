@@ -10,6 +10,12 @@ MaterialX is an open standard for representing rich material and look-developmen
 - Select the `MATERIALX_BUILD_VIEWER` option to build the [MaterialX Viewer](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/documents/DeveloperGuide/Viewer.md).
 - Select the `MATERIALX_BUILD_GRAPH_EDITOR` option to build the [MaterialX Graph Editor](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/documents/DeveloperGuide/GraphEditor.md). 
 
+> [!Tip] Quick Tips
+> - Make sure [Git](https://git-scm.com/doc) is installed and the MaterialX repository is cloned, as outlined in our [Development Workflow](../../CONTRIBUTING.md#development-workflow).
+> - For guidance on setting up your environment, see [Supported Platforms](#supported-platforms).
+> - A full list of configurable [build options](#build-options) is available in the section below.
+> - For step-by-step instructions and configuration tips, head to [Build Methods](#build-methods).
+
 ## Supported Platforms
 
 The MaterialX codebase requires a compiler with support for C++17, and can be built with any of the following:
@@ -21,6 +27,161 @@ The MaterialX codebase requires a compiler with support for C++17, and can be bu
 The Python bindings for MaterialX are based on [PyBind11](https://github.com/pybind/pybind11), and support Python versions 3.9 and greater.
 
 On macOS, you'll need to [install Xcode](https://developer.apple.com/xcode/resources/), in order to get access to the Metal Tools as well as compiler toolchains.
+
+> [!Note] Notes
+> - `PyBind11` is included in the repository for basic usage. For advanced configurations, you can use a custom version by setting the `MATERIALX_PYTHON_PYBIND11_DIR` CMake variable.
+> - CMake builds involve two main steps: **Generate** and **Compile**.
+>   - These steps often require different tools: the generator sets up the build system, while the compiler builds the code.
+>   - The `MinGW Makefiles` generator is typically used with the `GCC` compiler.
+>   - The `Ninja` generator is commonly paired with the `Clang` compiler.
+>   - On Windows, Visual Studio includes the MSVC toolchain, which serves as both generator and compiler—no need to install GCC, Clang, or Ninja separately.
+
+
+## Build Methods
+
+You can build MaterialX using any of the following methods:
+
+1. [CMake GUI](#cmake-gui)
+2. [CMake Command-Line Interface (CLI)](#cmake-cli)
+3. [Using an IDE](#use-an-ide)
+
+There is no recommended method; it’s purely based on personal preference.
+
+### CMake GUI
+You can use the CMake GUI to configure and generate project files for MaterialX. Note that CMake GUI only generates build files—the actual build must be performed in an external tool such as an IDE or the terminal.
+
+![CMake GUI Example](../Images/cmake_gui_example.png)
+
+To get started, open CMake GUI and go through these steps:
+
+1. **Browse Source**: Select the root of the cloned MaterialX repository.
+2. **Browse Build**: Choose a build directory (e.g. `MaterialX/build`).
+3. Click **Configure**: Click Configure: This saves your current configuration. You'll need to click it again anytime you change any options. The first time you click it, CMake will prompt you to choose a generator (e.g., Visual Studio, Ninja).
+4. Click **Generate**: This step creates the build system files (e.g., a Visual Studio solution or Makefiles).
+
+You’ll see progress messages in the output window confirming each step. For example:
+```
+Configuring done (3.9s)
+Generating done (1.0s)
+```
+
+After generation, you have two options to build the project:
+- Click **Open Project** to launch the generated project in your default IDE or some other configured environment to open your project, then build from there.
+- Or, build directly from the terminal:
+```bash
+cd <your-build-directory>
+cmake --build .
+```
+
+> [!Note]
+> The CMake GUI includes **Grouped** and **Advanced** checkboxes, which control how the environment variables are displayed in the UI. Use them to manage build configuration more easily.
+
+### CMake CLI
+
+The CMake Command-Line Interface (CLI) provides several flexible ways to configure and build the project.
+You can pass build options directly during the configuration step using the `-D` flag. For more examples, refer to the [YAML build actions](../../.github/workflows/main.yml) in the repository.
+
+**Basic Example:**
+
+```bash
+cd MaterialX
+cmake -S . -B build -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON
+cmake --build ./build
+```
+
+> [!Note]
+> Command syntax may vary depending on your tools. For example, with **Ninja + Clang**:
+>
+> ```bash
+> cmake -G "Ninja" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -S . -B build -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON
+> cmake --build build
+> ```
+
+
+> [!Tip]
+> As an alternative to using the `-D` flag, [CMake Presets](https://cmake.org/cmake/help/latest/manual/cmake-presets.7.html) (available in CMake 3.19+) let you define build options in a simple JSON file (`CMakePresets.json`) at the project root.
+> 
+> <details><summary>Example: <code>CMakePresets.json</code></summary>
+>
+> ```json
+> {
+>   "version": 3,
+>   "cmakeMinimumRequired": {
+>     "major": 3,
+>     "minor": 23,
+>     "patch": 0
+>   },
+>   "configurePresets": [
+>     {
+>       "name": "default",
+>       "generator": "Visual Studio 17 2022",
+>       "description": "Default build configuration",
+>       "hidden": false,
+>       "binaryDir": "build",
+>       "cacheVariables": {
+>         "MATERIALX_BUILD_VIEWER": "ON",
+>         "MATERIALX_BUILD_GRAPH_EDITOR": "ON"
+>       }
+>     }
+>   ]
+> }
+> ```
+> 
+> To configure and build using the preset:
+> 
+> ```bash
+> cd MaterialX
+> cmake --preset default
+> cmake --build build
+> ```
+> </details>
+
+### Use an IDE
+
+MaterialX is compatible with any IDE that supports CMake. Below are some common IDEs for MaterialX development:
+
+#### CLion
+
+[CLion](https://www.jetbrains.com/clion/) is a cross-platform IDE that fully supports CMake. It is free for non-commercial use and provides granular settings to manage CMake builds effectively.
+
+To get started, simply open the MaterialX repository in CLion, and it will auto-load the CMake project.
+
+You can configure CMake settings through:
+
+- **Top Gear ⚙️ Icon → `Build, Execution, Deployment` → `CMake`**
+- **Bottom CMake tab → Gear ⚙️ Icon → `CMake Settings`**
+
+![CLion Cmake Settings](../Images/CLion_cmake_settings.png)
+
+In CMake settings, you can create build profiles and specify options:
+
+1. Select or create a profile.
+2. Configure CMake options below **Cache Variables**, for example:
+    Enable `MATERIALX_BUILD_VIEWER` and `MATERIALX_BUILD_GRAPH_EDITOR`.
+
+To build the project:
+
+- Use `Build → Build Project`.
+- To install, use `Build → Install`.
+
+
+## Build Options
+
+| **Option**                      | **Description**                                                              |
+| ------------------------------- | ---------------------------------------------------------------------------- |
+| `MATERIALX_BUILD_PYTHON`        | Builds Python bindings. Output is located in `/bin` within the build folder. |
+| `MATERIALX_BUILD_VIEWER`        | Builds the MaterialX Viewer. Output is located in `/bin`.                    |
+| `MATERIALX_BUILD_GRAPH_EDITOR`  | Builds the MaterialX Graph Editor. Output is located in `/bin`.              |
+| `MATERIALX_BUILD_OIIO`          | Builds MaterialXRender with OpenImageIO support.                             |
+| `MATERIALX_BUILD_OCIO`          | Builds MaterialXGenShader with OpenColorIO color spaces and transforms.      |
+| `MATERIALX_PYTHON_VERSION`      | Specifies the Python version to use for building the Python package.         |
+| `MATERIALX_PYTHON_EXECUTABLE`   | Defines the Python executable for building the MaterialX Python package.     |
+| `MATERIALX_PYTHON_PYBIND11_DIR` | Path to the PyBind11 source for custom Python builds.                        |
+| `MATERIALX_BUILD_DOCS`          | Builds the API documentation.                                                |
+| `CMAKE_INSTALL_PREFIX`          | Specifies the install directory for MaterialX C++ and Python libraries.      |
+| `MATERIALX_INSTALL_PYTHON`      | Determines whether to install MaterialX Python as a third-party library.     |
+
+
 
 ## Building MaterialX
 
@@ -53,29 +214,6 @@ Select the `MATERIALX_BUILD_VIEWER` option to build the MaterialX Viewer.  Insta
 ### Building API Documentation
 
 To generate HTML documentation for the MaterialX C++ API, make sure a version of [Doxygen](https://www.doxygen.org/) is on your path, and select the advanced option `MATERIALX_BUILD_DOCS` in CMake.  This option will add a target named `MaterialXDocs` to your project, which can be built as an independent step from your development environment.
-
-## Editor Setup
-
-MaterialX should work in any editor that supports CMake, or that CMake can generate a project for.
-Some common Editors are listed here to help developers get started.
-
-### CLion
-
-[CLion](https://www.jetbrains.com/clion/) is a cross-platform IDE that can be used to develop MaterialX.
-Additionally, it includes CMake and is free for non-commercial Use.
-
-To get started with CLion, open the MaterialX repository directly, and it will load the CMake project for you.
-If you want to enable features like Python, go to `Settings -> Build, Execution and Deployment -> CMake` and configure
-the CMake Options, for example:
-
-```
--DMATERIALX_BUILD_PYTHON=ON
--DMATERIALX_BUILD_VIEWER=ON
--DMATERIALX_BUILD_GRAPH_EDITOR=ON
-```
-
-To build, either select `Build -> Build Project` or select a specific configuration to build.
-To install, select `Build -> Install`
 
 ## Installing MaterialX
 
