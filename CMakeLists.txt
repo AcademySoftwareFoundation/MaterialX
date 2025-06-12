@@ -414,7 +414,7 @@ function(mx_add_library MATERIALX_MODULE_NAME)
                     EXPORT MaterialX
                     ARCHIVE DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
                     LIBRARY DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
-                    RUNTIME DESTINATION bin
+                    RUNTIME DESTINATION ${MATERIALX_INSTALL_BIN_PATH}
                     FILE_SET mxHeaders DESTINATION ${MATERIALX_INSTALL_INCLUDE_PATH})
         endif()
 
@@ -523,7 +523,7 @@ if(MATERIALX_BUILD_MONOLITHIC)
                 EXPORT MaterialX
                 ARCHIVE DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
                 LIBRARY DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
-                RUNTIME DESTINATION bin
+                RUNTIME DESTINATION ${MATERIALX_INSTALL_BIN_PATH}
                 FILE_SET mxHeaders DESTINATION ${MATERIALX_INSTALL_INCLUDE_PATH})
 
         # Note : we don't install the headers etc. here, and rely on each separate modules CMakeLists.txt
