@@ -95,6 +95,6 @@ install(TARGETS MaterialXGraphEditor
     EXPORT MaterialX
     RUNTIME DESTINATION ${MATERIALX_INSTALL_BIN_PATH})
 if(MSVC)
-    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/MaterialXGraphEditor.pdb"
+    install(FILES $<TARGET_PDB_FILE:MaterialXGraphEditor>
             DESTINATION ${MATERIALX_INSTALL_BIN_PATH} OPTIONAL)
 endif()

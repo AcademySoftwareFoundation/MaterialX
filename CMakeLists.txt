@@ -420,7 +420,7 @@ function(mx_add_library MATERIALX_MODULE_NAME)
 
         if(MSVC)
             if(MATERIALX_BUILD_SHARED_LIBS)
-                install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${MATERIALX_MODULE_NAME}.pdb"
+                install(FILES $<TARGET_PDB_FILE:${MATERIALX_MODULE_NAME}>
                         DESTINATION ${MATERIALX_INSTALL_BIN_PATH} OPTIONAL)
             else()
                 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${MATERIALX_MODULE_NAME}.pdb"
