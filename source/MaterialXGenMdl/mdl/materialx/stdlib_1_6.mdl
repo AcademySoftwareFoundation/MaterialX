@@ -1584,6 +1584,7 @@ export float mx_frame_float(
 }
 
 export float mx_time_float(
+	uniform float mxp_fps = float(24.0) [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: application")
