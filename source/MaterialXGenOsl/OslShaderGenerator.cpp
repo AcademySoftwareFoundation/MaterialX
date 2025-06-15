@@ -478,8 +478,9 @@ void OslShaderGenerator::emitMetadata(const ShaderPort* port, ShaderStage& stage
     auto widgetMetadataIt = UI_WIDGET_METADATA.find(port->getType());
     const ShaderMetadata* widgetMetadata = widgetMetadataIt != UI_WIDGET_METADATA.end() ? &widgetMetadataIt->second : nullptr;
     const ShaderMetadataVecPtr& metadata = port->getMetadata();
+    const string& geomprop = port->getGeomProp();
 
-    if (widgetMetadata || (metadata && metadata->size()))
+    if (widgetMetadata || (metadata && metadata->size()) || !geomprop.empty())
     {
         StringVec metadataLines;
         if (metadata)
@@ -498,9 +499,15 @@ void OslShaderGenerator::emitMetadata(const ShaderPort* port, ShaderStage& stage
         }
         if (widgetMetadata)
         {
+            const string& delim = geomprop.empty() ? EMPTY_STRING : Syntax::COMMA;
             const string& dataType = _syntax->getTypeName(widgetMetadata->type);
             const string dataValue = _syntax->getValue(widgetMetadata->type, *widgetMetadata->value, true);
-            metadataLines.emplace_back(dataType + " " + widgetMetadata->name + " = " + dataValue);
+            metadataLines.emplace_back(dataType + " " + widgetMetadata->name + " = " + dataValue + delim);
+        }
+        if (!geomprop.empty())
+        {
+            const string& dataType = _syntax->getTypeName(Type::STRING);
+            metadataLines.emplace_back(dataType + " mtlx_defaultgeomprop = \"" + geomprop + "\"");
         }
         if (metadataLines.size())
         {
