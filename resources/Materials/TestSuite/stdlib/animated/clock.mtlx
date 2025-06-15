@@ -7,7 +7,7 @@
     <input name="hour_marks_color" type="color3" value="0.1438, 0.8225, 0.1854" />
     <input name="minute_hand_color" type="color3" value="0.5172, 0, 0" />
     <input name="hour_hand_color" type="color3" value="0.0804, 0.1254, 0.6766" />
-    <input name="speed" type="float" value="1" />
+    <input name="speed" type="float" value="20" />
     <time name="time" type="float" />
     <texcoord name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <line name="minute_hand" type="float" nodedef="ND_line_float" >

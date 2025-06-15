@@ -293,6 +293,18 @@
   </nodedef>
 
   <!--
+    Node: <latlongimage> Supplemental Node
+    Samples an equiangular map with adjustable rotation offset.
+  -->
+  <nodedef name="ND_latlongimage" node="latlongimage" nodegroup="texture2d">
+    <input name="file" type="filename" value="" uniform="true" uiname="Filename" />
+    <input name="default" type="color3" value="0.0, 0.0, 0.0" uiname="Default Color" />
+    <input name="viewdir" type="vector3" value="0.0, 0.0, 1.0" uiname="View Direction" />
+    <input name="rotation" type="float" value="0.0" unittype="angle" unit="degree" uimin="0" uimax="360" uiname="Longitude Offset" />
+    <output name="out" type="color3" default="0.0, 0.0, 0.0" />
+  </nodedef>
+  
+  <!--
     Node: <hextiledimage> Supplemental Node
     Samples data from a single image, with provisions for hex-tiling and randomizing the image
     across uv space.
@@ -1476,11 +1488,10 @@
   <!--
     Node: <time>
     The current time in seconds as defined by the host environment.
-    (Default values is 1/24.0)
   -->
   <nodedef name="ND_time_float" node="time" nodegroup="application">
-    <input name="fps" type="float" value="24.0" />
-    <output name="out" type="float" default="0.041666667" />
+    <input name="fps" type="float" value="24.0" /> <!-- An unused input, to be removed in a future specification version -->
+    <output name="out" type="float" default="0.0" />
   </nodedef>
 
   <!-- ======================================================================== -->

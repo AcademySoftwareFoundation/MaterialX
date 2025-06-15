@@ -367,8 +367,7 @@ void GLRenderPipeline::renderFrame(void*, int shadowMapSize, const char* dirLigh
             if (envPart)
             {
                 // Apply rotation to the environment shader.
-                float longitudeOffset = (lightRotation / 360.0f) + 0.5f;
-                envMaterial->modifyUniform("longitude/in2", mx::Value::createValue(longitudeOffset));
+                envMaterial->modifyUniform("envImage/rotation", mx::Value::createValue(lightRotation));
 
                 // Apply light intensity to the environment shader.
                 envMaterial->modifyUniform("envImageAdjusted/in2", mx::Value::createValue(lightHandler->getEnvLightIntensity()));
@@ -413,10 +412,7 @@ void GLRenderPipeline::renderFrame(void*, int shadowMapSize, const char* dirLigh
         {
             material->getProgram()->bindUniform(mx::HW::ALPHA_THRESHOLD, mx::Value::createValue(0.99f));
         }
-        if (material->getProgram()->hasUniform(mx::HW::FRAME))
-        {
-            material->getProgram()->bindUniform(mx::HW::FRAME, mx::Value::createValue(static_cast<float>(_frame)));
-        }
+        material->getProgram()->bindTimeAndFrame((float) _timer.elapsedTime(), (float) _frame);
         material->bindViewInformation(viewCamera);
         material->bindLighting(lightHandler, imageHandler, shadowState);
         material->bindImages(imageHandler, searchPath);
@@ -445,6 +441,7 @@ void GLRenderPipeline::renderFrame(void*, int shadowMapSize, const char* dirLigh
             {
                 material->getProgram()->bindUniform(mx::HW::ALPHA_THRESHOLD, mx::Value::createValue(0.001f));
             }
+            material->getProgram()->bindTimeAndFrame((float) _timer.elapsedTime(), (float) _frame);
             material->bindViewInformation(viewCamera);
             material->bindLighting(lightHandler, imageHandler, shadowState);
             material->bindImages(imageHandler, searchPath);
