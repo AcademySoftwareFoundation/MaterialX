@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+  <image name="image_color" type="color3">
+    <input name="file" type="filename" value="resources/Images/grid_udim/grid.<UDIM>.png" colorspace="srgb_texture" />
+  </image>
+  <geominfo name="cube_geom" geom="/">
+    <geomprop name="udimset" type="stringarray" value="1001, 1002, 1003, 1011, 1012, 1013" />
+  </geominfo>
+  <standard_surface name="cube_shader" type="surfaceshader">
+    <input name="base_color" type="color3" nodename="image_color" />
+  </standard_surface>
+  <surfacematerial name="cube_material" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="cube_shader" />
+  </surfacematerial>
+</materialx>

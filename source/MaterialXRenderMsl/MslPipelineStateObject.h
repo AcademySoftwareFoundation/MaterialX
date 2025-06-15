@@ -218,7 +218,7 @@ class MX_RENDERMSL_API MslProgram
     void bindViewInformation(CameraPtr camera);
 
     /// Bind time and frame
-    void bindTimeAndFrame(float time = 1.0f, float frame = 1.0f);
+    void bindTimeAndFrame(float time = 0.0f, float frame = 1.0f);
 
     /// @}
     /// @name Utilities
@@ -293,8 +293,10 @@ class MX_RENDERMSL_API MslProgram
     // List of program input uniforms
     InputMap _uniformList;
     std::unordered_map<std::string, std::string> _globalUniformNameList;
+
     // List of program input attributes
     InputMap _attributeList;
+    bool _attributeListComplete = false;
 
     std::unordered_map<std::string, ImagePtr> _explicitBoundImages;
 

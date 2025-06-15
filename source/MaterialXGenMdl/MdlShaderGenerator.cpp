@@ -14,7 +14,6 @@
 #include <MaterialXGenMdl/Nodes/BlurNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/ClosureLayerNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/ClosureCompoundNodeMdl.h>
-#include <MaterialXGenMdl/Nodes/ClosureSourceCodeNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/CustomNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/ImageNodeMdl.h>
 
@@ -378,8 +377,15 @@ ShaderNodeImplPtr MdlShaderGenerator::getImplementation(const NodeDef& nodedef, 
     }
     else if (implElement->isA<Implementation>())
     {
-        // Try creating a new in the factory.
-        impl = _implFactory.create(name);
+        if (getColorManagementSystem() && getColorManagementSystem()->hasImplementation(name))
+        {
+            impl = getColorManagementSystem()->createImplementation(name);
+        }
+        else
+        {
+            // Try creating a new in the factory.
+            impl = _implFactory.create(name);
+        }
         if (!impl)
         {
             // When `file` and `function` are provided we consider this node a user node
@@ -398,15 +404,7 @@ ShaderNodeImplPtr MdlShaderGenerator::getImplementation(const NodeDef& nodedef, 
             }
             else
             {
-                // Fall back to source code implementation.
-                if (outputType.isClosure())
-                {
-                    impl = ClosureSourceCodeNodeMdl::create();
-                }
-                else
-                {
-                    impl = SourceCodeNodeMdl::create();
-                }
+                impl = SourceCodeNodeMdl::create();
             }
         }
     }
@@ -814,6 +812,19 @@ const string& MdlShaderGenerator::getMdlVersionFilenameSuffix(GenContext& contex
 void MdlShaderGenerator::emitMdlVersionFilenameSuffix(GenContext& context, ShaderStage& stage) const
 {
     emitString(getMdlVersionFilenameSuffix(context), stage);
+}
+
+void MdlShaderGenerator::emitTypeDefinitions(GenContext&, ShaderStage& stage) const
+{
+    // Emit typedef statements for all data types that have an alias
+    for (const auto& syntax : _syntax->getTypeSyntaxes())
+    {
+        if (!syntax->getTypeDefinition().empty())
+        {
+            stage.addLine("export " + syntax->getTypeDefinition(), false);
+        }
+    }
+    stage.newLine();
 }
 
 namespace MDL

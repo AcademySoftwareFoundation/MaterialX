@@ -15,7 +15,7 @@
   <implementation name="IM_surfacematerial_genglsl" nodedef="ND_surfacematerial" target="genglsl" />
 
   <!-- <surface_unlit> -->
-  <implementation name="IM_surface_unlit_genglsl" nodedef="ND_surface_unlit" target="genglsl" />
+  <implementation name="IM_surface_unlit_genglsl" nodedef="ND_surface_unlit" file="mx_surface_unlit.glsl" function="mx_surface_unlit" target="genglsl" />
 
   <!-- ======================================================================== -->
   <!-- Texture nodes                                                            -->
@@ -41,9 +41,22 @@
     <input name="default" type="vector4" implname="default_value" />
   </implementation>
 
+  <!-- <hextiledimage> -->
+  <implementation name="IM_hextiledimage_color3_genglsl" nodedef="ND_hextiledimage_color3" file="mx_hextiledimage.glsl" function="mx_hextiledimage_color3" target="genglsl">
+    <input name="default" type="color3" implname="default_value" />
+  </implementation>
+  <implementation name="IM_hextiledimage_color4_genglsl" nodedef="ND_hextiledimage_color4" file="mx_hextiledimage.glsl" function="mx_hextiledimage_color4" target="genglsl">
+    <input name="default" type="color4" implname="default_value" />
+  </implementation>
+
   <!-- <normalmap> -->
   <implementation name="IM_normalmap_float_genglsl" nodedef="ND_normalmap_float" file="mx_normalmap.glsl" function="mx_normalmap_float" target="genglsl" />
   <implementation name="IM_normalmap_vector2_genglsl" nodedef="ND_normalmap_vector2" file="mx_normalmap.glsl" function="mx_normalmap_vector2" target="genglsl" />
+
+  <!-- <hextilednormalmap> -->
+  <implementation name="IM_hextilednormalmap_vector3_genglsl" nodedef="ND_hextilednormalmap_vector3" file="mx_hextilednormalmap.glsl" function="mx_hextilednormalmap_vector3" target="genglsl">
+    <input name="default" type="vector3" implname="default_value" />
+  </implementation>
 
   <!-- ======================================================================== -->
   <!-- Procedural nodes                                                         -->
@@ -176,14 +189,7 @@
   <implementation name="IM_frame_float_genglsl" nodedef="ND_frame_float" function="mx_frame_float" target="genglsl" />
 
   <!-- <time> -->
-  <nodegraph name="NG_time_float_genglsl" nodedef="ND_time_float" target="genglsl">
-    <frame name="frame" type="float"/>
-    <divide name="time" type="float">
-      <input name="in1" type="float" nodename="frame"/>
-      <input name="in1" type="float" interfacename="fps"/>
-    </divide>
-    <output name="out" type="float" nodename="time" />
-  </nodegraph>
+  <implementation name="IM_time_float_genglsl" nodedef="ND_time_float" function="mx_time_float" target="genglsl" />
 
   <!-- ======================================================================== -->
   <!-- Math nodes                                                               -->
@@ -237,8 +243,8 @@
   <implementation name="IM_multiply_vector3FA_genglsl" nodedef="ND_multiply_vector3FA" target="genglsl" sourcecode="{{in1}} * {{in2}}" />
   <implementation name="IM_multiply_vector4_genglsl" nodedef="ND_multiply_vector4" target="genglsl" sourcecode="{{in1}} * {{in2}}" />
   <implementation name="IM_multiply_vector4FA_genglsl" nodedef="ND_multiply_vector4FA" target="genglsl" sourcecode="{{in1}} * {{in2}}" />
-  <implementation name="IM_multiply_matrix33_genglsl" nodedef="ND_multiply_matrix33" target="genglsl" sourcecode="{{in1}} * {{in2}}" />
-  <implementation name="IM_multiply_matrix44_genglsl" nodedef="ND_multiply_matrix44" target="genglsl" sourcecode="{{in1}} * {{in2}}" />
+  <implementation name="IM_multiply_matrix33_genglsl" nodedef="ND_multiply_matrix33" target="genglsl" sourcecode="{{in2}} * {{in1}}" />
+  <implementation name="IM_multiply_matrix44_genglsl" nodedef="ND_multiply_matrix44" target="genglsl" sourcecode="{{in2}} * {{in1}}" />
 
   <!-- <divide> -->
   <implementation name="IM_divide_float_genglsl" nodedef="ND_divide_float" target="genglsl" sourcecode="{{in1}} / {{in2}}" />
@@ -252,8 +258,8 @@
   <implementation name="IM_divide_vector3FA_genglsl" nodedef="ND_divide_vector3FA" target="genglsl" sourcecode="{{in1}} / {{in2}}" />
   <implementation name="IM_divide_vector4_genglsl" nodedef="ND_divide_vector4" target="genglsl" sourcecode="{{in1}} / {{in2}}" />
   <implementation name="IM_divide_vector4FA_genglsl" nodedef="ND_divide_vector4FA" target="genglsl" sourcecode="{{in1}} / {{in2}}" />
-  <implementation name="IM_divide_matrix33_genglsl" nodedef="ND_divide_matrix33" target="genglsl" sourcecode="{{in1}} / {{in2}}" />
-  <implementation name="IM_divide_matrix44_genglsl" nodedef="ND_divide_matrix44" target="genglsl" sourcecode="{{in1}} / {{in2}}" />
+  <implementation name="IM_divide_matrix33_genglsl" nodedef="ND_divide_matrix33" target="genglsl" sourcecode="mx_inverse({{in2}}) * {{in1}}" />
+  <implementation name="IM_divide_matrix44_genglsl" nodedef="ND_divide_matrix44" target="genglsl" sourcecode="mx_inverse({{in2}}) * {{in1}}" />
 
   <!-- <modulo> -->
   <implementation name="IM_modulo_float_genglsl" nodedef="ND_modulo_float" target="genglsl" sourcecode="mx_mod({{in1}}, {{in2}})" />
@@ -722,7 +728,7 @@
   <implementation name="IM_blur_vector4_genglsl" nodedef="ND_blur_vector4" target="genglsl" />
 
   <!-- <heighttonormal> -->
-  <implementation name="IM_heighttonormal_vector3_genglsl" nodedef="ND_heighttonormal_vector3" target="genglsl" />
+  <implementation name="IM_heighttonormal_vector3_genglsl" nodedef="ND_heighttonormal_vector3" file="mx_heighttonormal_vector3.glsl" function="mx_heighttonormal_vector3" target="genglsl" />
 
   <!-- ======================================================================== -->
   <!-- Logical operator nodes                                                   -->
