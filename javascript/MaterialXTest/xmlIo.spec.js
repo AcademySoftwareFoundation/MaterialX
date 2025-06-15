@@ -10,7 +10,7 @@ describe('XmlIo', () =>
 
     // These should be relative to cwd
     const includeTestPath = 'data/includes';
-    const libraryPath = '../../libraries/stdlib';
+    const libraryPath = '../build/libraries/DataLibraryBuild/stdlib';
     const examplesPath = '../../resources/Materials/Examples';
     // TODO: Is there a better way to get these filenames than hardcoding them here?
     // The C++ tests load all files in the given directories. This would work in Node, but not in the browser.
