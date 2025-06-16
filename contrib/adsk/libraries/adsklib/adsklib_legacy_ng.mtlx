@@ -4348,13 +4348,13 @@
       <input name="coat_IOR" type="float" uivisible="true" nodename="switch_coat_ior" />
       <input name="coat_normal" type="vector3" uivisible="true" nodename="switch_finish" />
     </standard_surface>
-    <constant name="coat_ior_carpaint" type="float" xpos="4.89597" ypos="-0.664283">
+    <constant name="coat_ior_carpaint" type="float" xpos="4.89597" ypos="-0.207587">
       <input name="value" type="float" value="1.5" uivisible="true" />
     </constant>
-    <constant name="coat_ior_chrome" type="float" xpos="4.87215" ypos="0.415504">
+    <constant name="coat_ior_chrome" type="float" xpos="4.87215" ypos="0.8722">
       <input name="value" type="float" value="1.8" uivisible="true" />
     </constant>
-    <constant name="coat_ior_matte" type="float" xpos="4.88406" ypos="1.48276">
+    <constant name="coat_ior_matte" type="float" xpos="4.88406" ypos="1.93946">
       <input name="value" type="float" value="1.5" uivisible="true" />
     </constant>
     <normalmap name="smooth_norm" type="vector3" xpos="4.86808" ypos="2.98538">
@@ -4363,7 +4363,7 @@
     <constant name="constant_coat_smooth" type="vector3" xpos="3.15709" ypos="3.16443">
       <input name="value" type="vector3" value="0.5, 0.5, 1" uivisible="true" />
     </constant>
-    <multiply name="tint_mult" type="color3" xpos="4.9632" ypos="-5.28512">
+    <multiply name="tint_mult" type="color3" xpos="4.94653" ypos="-5.47955">
       <input name="in1" type="color3" interfacename="color" uivisible="true" />
       <input name="in2" type="color3" interfacename="tint_color" uivisible="true" />
     </multiply>
@@ -4373,39 +4373,22 @@
       <input name="in1" type="color3" nodename="tint_mult" uivisible="true" />
       <input name="in2" type="color3" interfacename="color" uivisible="true" />
     </ifequal>
-    <legacy_noise name="legacy_noise" type="color3" xpos="-0.270893" ypos="5.19308">
-      <input name="color1" type="color3" value="1, 1, 1" />
-      <input name="color2" type="color3" value="0, 0, 0" />
-      <input name="threshold_low" type="float" value="0" />
-      <input name="threshold_high" type="float" value="1" />
-      <input name="levels" type="float" value="1" />
-      <input name="size" type="float" value="0.1" />
-    </legacy_noise>
-    <heighttonormal name="heighttonormal_orangepeel" type="vector3" xpos="2.93756" ypos="6.035">
-      <input name="in" type="float" nodename="extract_float_bump" />
-    </heighttonormal>
-    <normalmap name="normalmap_orangepeel" type="vector3" xpos="4.94081" ypos="5.7445">
-      <input name="in" type="vector3" nodename="heighttonormal_orangepeel" />
-    </normalmap>
     <output name="out" type="surfaceshader" nodename="standard_surface" xpos="13.043478" ypos="0.000000" />
-    <extract name="extract_float_bump" type="float" nodedef="ND_extract_color3" xpos="1.31804" ypos="6.04689">
-      <input name="in" type="color3" nodename="legacy_noise" />
-    </extract>
-    <constant name="coatr_rough_carpaint" type="float" xpos="4.95451" ypos="-3.76683">
+    <constant name="coat_rough_carpaint" type="float" xpos="4.96187" ypos="-4.26872">
       <input name="value" type="float" value="0" uivisible="true" />
     </constant>
-    <constant name="coatr_rough_chrome" type="float" xpos="4.89027" ypos="-2.84833">
+    <constant name="coat_rough_chrome" type="float" xpos="4.93097" ypos="-3.31688">
       <input name="value" type="float" value="0" uivisible="true" />
     </constant>
-    <constant name="coatr_rough_matte" type="float" xpos="4.87741" ypos="-1.87846">
+    <constant name="coat_rough_matte" type="float" xpos="4.91811" ypos="-2.34702">
       <input name="value" type="float" value="0.5" uivisible="true" />
     </constant>
-    <switch name="switch_coat_rough" type="float" nodedef="ND_switch_floatI" xpos="7.47528" ypos="-1.96113">
-      <input name="in1" type="float" nodename="coatr_rough_carpaint" />
-      <input name="in2" type="float" nodename="coatr_rough_chrome" />
-      <input name="in3" type="float" nodename="coatr_rough_matte" />
-      <input name="in4" type="float" interfacename="coat_custom_roughness" />
+    <switch name="switch_coat_rough" type="float" nodedef="ND_switch_floatI" xpos="7.47878" ypos="-2.12504">
+      <input name="in1" type="float" nodename="coat_rough_carpaint" />
+      <input name="in2" type="float" nodename="coat_rough_chrome" />
+      <input name="in3" type="float" nodename="coat_rough_matte" />
       <input name="which" type="integer" interfacename="coat_type" />
+      <input name="in4" type="float" nodename="invert_coat_gloss" />
     </switch>
     <switch name="switch_coat_ior" type="float" nodedef="ND_switch_floatI" xpos="7.40961" ypos="0.780267">
       <input name="in1" type="float" nodename="coat_ior_carpaint" />
@@ -4419,7 +4402,9 @@
       <input name="in2" type="vector3" interfacename="normal_orangepeel" />
       <input name="which" type="integer" interfacename="coat_finish" />
     </switch>
-    <backdrop name="externalize" xpos="-0.326449" ypos="4.75419" width="6.57283" height="2.93333" uicolor="#C85252" Autodesk-ldx_alpha="0.156863" />
+    <invert name="invert_coat_gloss" type="float" nodedef="ND_invert_float" xpos="4.89348" ypos="-1.35744">
+      <input name="in" type="float" interfacename="coat_custom_glossiness" />
+    </invert>
   </nodegraph>
 
   <!-- <Legacy Concrete> -->
