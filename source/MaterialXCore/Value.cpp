@@ -17,6 +17,7 @@ Value::CreatorMap Value::_creatorMap;
 
 namespace
 {
+
 thread_local Value::FloatFormat _floatFormat = Value::FloatFormatDefault;
 thread_local int _floatPrecision = 6;
 
