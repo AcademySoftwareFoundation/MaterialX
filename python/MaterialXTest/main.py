@@ -25,8 +25,9 @@ _testValues = (1,
                [1.0, 2.0, 3.0],
                ['one', 'two', 'three'])
 
+_defaultSearchPath = mx.getDefaultDataSearchPath().asString()
 _fileDir = os.path.dirname(os.path.abspath(__file__))
-_libraryDir = os.path.join(_fileDir, '../../libraries/stdlib/')
+_libraryDir = os.path.join(_defaultSearchPath, 'libraries/stdlib/')
 _exampleDir = os.path.join(_fileDir, '../../resources/Materials/Examples/')
 _searchPath = _libraryDir + mx.PATH_LIST_SEPARATOR + _exampleDir
 

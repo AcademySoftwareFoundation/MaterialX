@@ -954,10 +954,7 @@ class MX_CORE_API ValueElement : public TypedElement
     }
 
     /// Get the value string of a element.
-    const string& getValueString() const
-    {
-        return getAttribute(VALUE_ATTRIBUTE);
-    }
+    const string getValueString() const;
 
     /// Return the resolved value string of an element, applying any string
     /// substitutions that are defined at the element's scope.
