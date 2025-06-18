@@ -1,0 +1,23 @@
+//
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
+//
+
+// Note, this module has to be placed in an MDL search path in order to get picked up correctly.
+
+// MDL language version number
+// This is NOT a version or revision number of the module content itself. 
+mdl 1.6;
+
+// Example function to test the version handling.
+// Note, the changes here are only for testing!
+// In general all versions should produce an output according to the node specification as good as possible.
+// Increasing the language version should only be done when new language features allow to implement the
+// specified behavior more precisely or more efficiently.
+// The version number is NOT meant for versioning the nodules content itself, e.g., after adding new functions or fixing bugs).
+
+// just a simple example function
+export color custom_library_function(float scale = 1.0)
+{
+    return color(0.25, 0.5, 0.75) * scale;
+}
