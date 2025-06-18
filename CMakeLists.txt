@@ -51,6 +51,8 @@ option(MATERIALX_BUILD_BENCHMARK_TESTS "Build benchmark tests." OFF)
 
 option(MATERIALX_BUILD_SHARED_LIBS "Build MaterialX libraries as shared rather than static." OFF)
 option(MATERIALX_BUILD_DATA_LIBRARY "Build generated products from the MaterialX data library." OFF)
+option(MATERIALX_BUILD_EXPAND_TEMPLATE_ELEMS "Process the data library files at build time to expand any template elements." ON)
+option(MATERIALX_BUILD_BAKE_NAMED_VALUES "Process the data library files at build time to bake out the named values." ON)
 option(MATERIALX_BUILD_MONOLITHIC "Build a single monolithic MaterialX library." OFF)
 option(MATERIALX_BUILD_USE_CCACHE "Enable the use of ccache to speed up build time, if present." ON)
 option(MATERIALX_PYTHON_LTO "Enable link-time optimizations for MaterialX Python." ON)
@@ -67,6 +69,10 @@ if (MATERIALX_BUILD_IOS)
     message(DEPRECATION "The MATERIALX_BUILD_IOS option is deprecated. Set CMAKE_SYSTEM_NAME to iOS instead.")
     set(CMAKE_SYSTEM_NAME iOS)
 endif()
+
+list(APPEND CMAKE_MODULE_PATH
+        ${PROJECT_SOURCE_DIR}/cmake/macros)
+include(Public)
 
 # Apple ecosystem cross-compilation
 # https://cmake.org/cmake/help/latest/manual/cmake-toolchains.7.html#cross-compiling-for-ios-tvos-visionos-or-watchos
@@ -306,129 +312,21 @@ else()
     endif()
 endif()
 
-# Shared functions
-function(assign_source_group prefix)
-    foreach(_source IN ITEMS ${ARGN})
-        if(IS_ABSOLUTE "${_source}")
-            file(RELATIVE_PATH _source_rel "${CMAKE_CURRENT_SOURCE_DIR}" "${_source}")
-        else()
-            set(_source_rel "${_source}")
-        endif()
-        get_filename_component(_source_path "${_source_rel}" PATH)
-        string(REPLACE "/" "\\" _source_path_msvc "${_source_path}")
-        source_group("${prefix}\\${_source_path_msvc}" FILES "${_source}")
-    endforeach()
-endfunction(assign_source_group)
-
-function(mx_add_library MATERIALX_MODULE_NAME)
-    set(options ADD_OBJECTIVE_C_CODE)
-    set(oneValueArgs EXPORT_DEFINE)
-    set(multiValueArgs
-        SOURCE_FILES
-        HEADER_FILES
-        INLINED_FILES
-        MTLX_MODULES)
-    cmake_parse_arguments(args
-        "${options}"
-        "${oneValueArgs}"
-        "${multiValueArgs}"
-        ${ARGN})
-
-    if (APPLE AND args_ADD_OBJECTIVE_C_CODE)
-        file(GLOB_RECURSE materialx_source_oc "${CMAKE_CURRENT_SOURCE_DIR}/*.m*")
-        set_source_files_properties(${materialx_source_oc} PROPERTIES
-            COMPILE_FLAGS "-x objective-c++")
-        set(args_SOURCE_FILES ${args_SOURCE_FILES} ${materialx_source_oc})
-    endif()
-
-    assign_source_group("Source Files" ${args_SOURCE_FILES})
-    assign_source_group("Source Files" ${args_INLINED_FILES})
-    assign_source_group("Header Files" ${args_HEADER_FILES})
-
-    if (NOT MATERIALX_BUILD_MONOLITHIC)
-        set(TARGET_NAME ${MATERIALX_MODULE_NAME})
-        add_library(${TARGET_NAME})
-
-        # Create version resource
-        if(MATERIALX_BUILD_SHARED_LIBS AND MSVC)
-            configure_file(${PROJECT_SOURCE_DIR}/cmake/modules/MaterialXVersion.rc.in ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
-            target_sources(${TARGET_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
-        endif()
-
-        target_link_libraries(${TARGET_NAME}
-            PUBLIC
-            ${args_MTLX_MODULES}
-            ${CMAKE_DL_LIBS})
-
-        target_include_directories(${TARGET_NAME}
-            PUBLIC
-            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>
-            $<INSTALL_INTERFACE:${MATERIALX_INSTALL_INCLUDE_PATH}>
-            PRIVATE
-            ${EXTERNAL_INCLUDE_DIRS})
-
-        set_target_properties(
-            ${TARGET_NAME} PROPERTIES
-            OUTPUT_NAME ${MATERIALX_MODULE_NAME}${MATERIALX_LIBNAME_SUFFIX}
-            COMPILE_FLAGS "${EXTERNAL_COMPILE_FLAGS}"
-            LINK_FLAGS "${EXTERNAL_LINK_FLAGS}"
-            INSTALL_RPATH "${MATERIALX_SAME_DIR_RPATH}"
-            VERSION "${MATERIALX_LIBRARY_VERSION}"
-            SOVERSION "${MATERIALX_MAJOR_VERSION}")
-    else()
-        set(TARGET_NAME ${MATERIALX_MONOLITHIC_TARGET})
-        add_library(${MATERIALX_MODULE_NAME} ALIAS ${MATERIALX_MONOLITHIC_TARGET})
-
-        # Store the aliased MaterialX modules name to create CMake export aliases later.
-        set_property(GLOBAL APPEND PROPERTY MATERIALX_MODULES ${MATERIALX_MODULE_NAME})
-    endif()
-
-    set_target_properties(${TARGET_NAME} PROPERTIES CXX_VISIBILITY_PRESET hidden)
-    set_target_properties(${TARGET_NAME} PROPERTIES CMAKE_VISIBILITY_INLINES_HIDDEN 1)
-
-    target_sources(${TARGET_NAME}
-        PRIVATE
-            ${args_SOURCE_FILES}
-        PUBLIC
-            FILE_SET
-                mxHeaders
-            TYPE
-                HEADERS
-            BASE_DIRS
-                ${CMAKE_CURRENT_SOURCE_DIR}/..
-                ${CMAKE_CURRENT_BINARY_DIR}/..
-            FILES
-                ${args_HEADER_FILES}
-                ${args_INLINED_FILES})
-
-    target_include_directories(${TARGET_NAME} PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>)
-
-    target_compile_definitions(${TARGET_NAME} PRIVATE "-D${args_EXPORT_DEFINE}")
-
-    if(NOT SKBUILD)
-        if(NOT MATERIALX_BUILD_MONOLITHIC)
-            install(TARGETS ${MATERIALX_MODULE_NAME}
-                    EXPORT MaterialX
-                    ARCHIVE DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
-                    LIBRARY DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
-                    RUNTIME DESTINATION bin
-                    FILE_SET mxHeaders DESTINATION ${MATERIALX_INSTALL_INCLUDE_PATH})
-        endif()
-
-        install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${MATERIALX_MODULE_NAME}.pdb"
-                DESTINATION "${MATERIALX_INSTALL_LIB_PATH}/" OPTIONAL)
-    endif()
-
-    # Pass TARGET_NAME back to call site, so the caller can modify the build target.
-    set(TARGET_NAME ${TARGET_NAME} PARENT_SCOPE)
-endfunction()
-
 # Propagate shared library setting to NanoGUI
 if(MATERIALX_BUILD_SHARED_LIBS)
     set(BUILD_SHARED_LIBS "ON")
 else()
     set(BUILD_SHARED_LIBS "OFF")
+endif()
+
+# If we're baking the named "Value:" entries - then we have to also expand any
+# template elements
+if (MATERIALX_BUILD_BAKE_NAMED_VALUES)
+    set(MATERIALX_BUILD_EXPAND_TEMPLATE_ELEMS ON)
+endif()
+
+if (MATERIALX_BUILD_EXPAND_TEMPLATE_ELEMS OR MATERIALX_BUILD_BAKE_NAMED_VALUES)
+    set(MATERIALX_BUILD_DATA_LIBRARY ON)
 endif()
 
 # Build a monolithic target - needs to be added before the other build targets that may be included.
@@ -437,9 +335,39 @@ if (MATERIALX_BUILD_MONOLITHIC)
     add_subdirectory(source)
 endif()
 
+message("XXX : MATERIALX_BUILD_BAKE_NAMED_VALUES     : ${MATERIALX_BUILD_BAKE_NAMED_VALUES}")
+message("XXX : MATERIALX_BUILD_EXPAND_TEMPLATE_ELEMS : ${MATERIALX_BUILD_EXPAND_TEMPLATE_ELEMS}")
+message("XXX : MATERIALX_BUILD_DATA_LIBRARY          : ${MATERIALX_BUILD_DATA_LIBRARY}")
+
 # Add core subdirectories
 add_subdirectory(source/MaterialXCore)
 add_subdirectory(source/MaterialXFormat)
+if (MATERIALX_BUILD_EXPAND_TEMPLATE_ELEMS OR MATERIALX_BUILD_BAKE_NAMED_VALUES)
+    if (CMAKE_CROSSCOMPILING)
+        set(_MaterialXBuildLibrary "${CMAKE_BINARY_DIR}/BUILD_TOOLS/MaterialXBuildLibrary")
+
+        add_custom_command(
+                OUTPUT ${_MaterialXBuildLibrary}
+                COMMAND ${CMAKE_COMMAND}
+                -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+                -DCMAKE_RUNTIME_OUTPUT_DIRECTORY:PATH=${CMAKE_BINARY_DIR}/BUILD_TOOLS
+                -DMATERIALX_MAJOR_VERSION=${MATERIALX_MAJOR_VERSION}
+                -DMATERIALX_MINOR_VERSION=${MATERIALX_MINOR_VERSION}
+                -DMATERIALX_BUILD_VERSION=${MATERIALX_BUILD_VERSION}
+                -DMATERIALX_NAMESPACE=${MATERIALX_NAMESPACE}
+                -DMATERIALX_BUILD_BAKE_NAMED_VALUES=ON
+                -B"BUILD_TOOLS"
+                -H"${CMAKE_SOURCE_DIR}/source/MaterialXBuildTools"
+                COMMAND ${CMAKE_COMMAND} --build BUILD_TOOLS
+                DEPENDS MaterialXCore MaterialXFormat
+        )
+        add_custom_target(MaterialXBuildLibrary ALL
+        DEPENDS ${_MaterialXBuildLibrary})
+    else()
+        set(_MaterialXBuildLibrary MaterialXBuildLibrary)
+        add_subdirectory(source/MaterialXBuildTools/buildLibrary)
+    endif()
+endif()
 
 # Add shader generation subdirectories
 add_subdirectory(source/MaterialXGenShader)
