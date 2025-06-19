@@ -60,9 +60,4 @@ void WgslShaderGenerator::emitInput(const ShaderInput* input, GenContext& contex
     }
 }
 
-HwResourceBindingContextPtr WgslShaderGenerator::getResourceBindingContext(GenContext& /*context*/) const
-{
-    return _resourceBindingCtx;
-}
-
 MATERIALX_NAMESPACE_END

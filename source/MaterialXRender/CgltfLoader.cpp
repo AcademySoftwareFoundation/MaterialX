@@ -194,10 +194,7 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
     for (size_t m = 0; m < data->meshes_count; m++)
     {
         cgltf_mesh* cmesh = &(data->meshes[m]);
-        if (!cmesh)
-        {
-            continue;
-        }
+
         std::vector<Matrix44> positionMatrices;
         if (gltfMeshMatrixList.find(cmesh) != gltfMeshMatrixList.end())
         {
@@ -228,10 +225,6 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
             for (cgltf_size primitiveIndex = 0; primitiveIndex < cmesh->primitives_count; ++primitiveIndex)
             {
                 cgltf_primitive* primitive = &cmesh->primitives[primitiveIndex];
-                if (!primitive)
-                {
-                    continue;
-                }
 
                 if (primitive->type != cgltf_primitive_type_triangles)
                 {
