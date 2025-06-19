@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+  <adsk:glazing name="archviz_glazing" type="surfaceshader">
+    <input name="surface_albedo" type="color3" value="1, 1, 1" />
+    <input name="surface_roughness" type="float" value="0" />
+    <input name="surface_anisotropy" type="float" value="0" />
+    <input name="surface_rotation" type="float" value="0" />
+    <input name="glazing_transmission_color" type="color3" value="0.688409546505, 0.743470547519, 0.784766298279" />
+    <input name="glazing_f0" type="color3" value="0.318997342599, 0.333938674454, 0.347338303436" />
+    <input name="glazing_transmission_roughness" type="float" value="0.547722557505" />
+    <input name="glazing_backface_culling" type="boolean" value="true" />
+  </adsk:glazing>
+  <surfacematerial name="Glazing_test" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="archviz_glazing" />
+  </surfacematerial>
+</materialx>

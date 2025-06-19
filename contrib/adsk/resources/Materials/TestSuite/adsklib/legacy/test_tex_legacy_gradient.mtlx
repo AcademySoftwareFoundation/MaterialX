@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<materialx version="1.39" colorspace="lin_rec709">
+  <standard_surface name="SR_testmat1" type="surfaceshader" xpos="10.326087" ypos="-0.594828">
+    <input name="base" type="float" value="1" />
+    <input name="base_color" type="color3" nodename="legacy_gradient_color3" />
+    <input name="specular_roughness" type="float" value="0.1" />
+    <input name="subsurface" type="float" value="0.4" />
+    <input name="subsurface_color" type="color3" value="1, 1, 1" />
+  </standard_surface>
+  <surfacematerial name="M_legacy_gradient" type="material" xpos="13.043478" ypos="0.000000">
+    <input name="surfaceshader" type="surfaceshader" nodename="SR_testmat1" />
+  </surfacematerial>
+  <legacy_gradient name="legacy_gradient_color3" type="color3" xpos="7.623188" ypos="-3.672414">
+    <input name="noise_enable" type="boolean" value="true" />
+    <input name="noise_amount" type="float" value="0.4" />
+    <input name="noise_type" type="integer" value="1" />
+    <input name="color2" type="color3" value="1, 1, 1" />
+    <input name="color1" type="color3" value="0, 0.0488547, 0.401015" />
+    <input name="noise_size" type="float" value="0.6" />
+    <input name="noise_smooth" type="float" value="0.2" />
+    <input name="noise_low" type="float" value="0.2" />
+    <input name="noise_high" type="float" value="0.7" />
+    <input name="noise_levels" type="float" value="7" />
+    <input name="noise_phase" type="float" value="0.4" />
+    <input name="realworld_offset" type="vector2" value="0.2, -0.3" />
+    <input name="realworld_scale" type="vector2" value="0.75, 0.75" />
+    <input name="rotation_angle" type="float" value="30" />
+    <input name="tile_x" type="boolean" value="true" />
+    <input name="tile_y" type="boolean" value="true" />
+    <input name="type" type="integer" value="7" />
+  </legacy_gradient>
+</materialx>

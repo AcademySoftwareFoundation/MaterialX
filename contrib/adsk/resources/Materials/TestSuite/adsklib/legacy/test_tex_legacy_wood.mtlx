@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<materialx version="1.39" colorspace="lin_rec709">
+  <standard_surface name="SR_testmat1" type="surfaceshader" xpos="9.760870" ypos="-1.482759">
+    <input name="base" type="float" value="1" />
+    <input name="base_color" type="color3" nodename="NG_legacy_wood" />
+    <input name="specular_roughness" type="float" value="0.1" />
+    <input name="subsurface" type="float" value="0.4" />
+    <input name="subsurface_color" type="color3" value="1, 1, 1" />
+  </standard_surface>
+  <surfacematerial name="M_legacy_wood" type="material" xpos="11.992754" ypos="-0.689655">
+    <input name="surfaceshader" type="surfaceshader" nodename="SR_testmat1" />
+  </surfacematerial>
+  <legacy_wood name="NG_legacy_wood" type="color3" xpos="7.630435" ypos="-3.137931">
+    <input name="radial_noise" type="float" value="0.7" />
+    <input name="axial_noise" type="float" value="0.6" />
+    <input name="thickness" type="float" value="1" />
+    <input name="loop" type="boolean" value="false" />
+    <input name="position" type="vector3" nodename="multiply_vector3FA" />
+    <input name="realworld_offset" type="vector3" value="0, 2.9, 0" />
+    <input name="rotation_angle" type="vector3" value="0, 90, 0" />
+  </legacy_wood>
+  <multiply name="multiply_vector3FA" type="vector3" xpos="5.123188" ypos="-3.603448">
+    <input name="in1" type="vector3" nodename="position_vector3" />
+    <input name="in2" type="float" value="1" />
+  </multiply>
+  <position name="position_vector3" type="vector3" xpos="3.188406" ypos="-3.603448" />
+</materialx>

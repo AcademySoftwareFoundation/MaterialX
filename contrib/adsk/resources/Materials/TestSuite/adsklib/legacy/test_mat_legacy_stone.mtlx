@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<materialx version="1.39" colorspace="lin_rec709">
+  <legacy_stone name="SR_legacy_stone" type="surfaceshader" xpos="6.884058" ypos="-1.413793">
+    <input name="color" type="color3" value="0.5,0.5,0.5" />
+    <input name="finish" type="integer" value="2" />
+    <input name="tint_enable" type="boolean" value="false" />
+    <input name="tint_color" type="color3" value="0.95,0.5,0.5" />
+    <input name="finish_bump_enable" type="boolean" value="true" />
+    <input name="finish_bump" type="integer" value="0" />
+    <input name="normal_finish_granite" type="vector3" nodename="test_granite_bump" />
+    <input name="normal_finish_marble" type="vector3" nodename="test_marble_bump" />
+    <input name="normal_finish_wall" type="vector3" nodename="test_stonewall_bump" />
+    <input name="normal_custom_finish" type="vector3" nodename="height_map1_stone" />
+    <input name="relief_pattern_enable" type="boolean" value="false" />
+    <input name="normal_relief_pattern" type="vector3" nodename="height_map2_stone" />
+  </legacy_stone>
+  <surfacematerial name="M_legacy_stone" type="material" xpos="9.173913" ypos="-0.025862">
+    <input name="surfaceshader" type="surfaceshader" nodename="SR_legacy_stone" />
+  </surfacematerial>
+  <adsk:height_map name="test_granite_bump" type="vector3" version="1.0.1" xpos="4.724638" ypos="-1.896552">
+    <input name="file" type="filename" uniform="true" value="textures/Simple_Stone_Mtl_Granite_bump.jpg" />
+    <input name="realworld_scale" type="vector2" value="0.25, 0.25" />
+    <input name="depth" type="float" nodename="test_depth" />
+  </adsk:height_map>
+  <adsk:height_map name="test_marble_bump" type="vector3" version="1.0.1" xpos="4.782609" ypos="1.387931">
+    <input name="file" type="filename" uniform="true" value="textures/Simple_Stone_Mtl_Marble_bump.jpg" />
+    <input name="realworld_scale" type="vector2" value="0.25, 0.25" />
+    <input name="depth" type="float" nodename="test_depth" />
+  </adsk:height_map>
+  <adsk:height_map name="test_stonewall_bump" type="vector3" version="1.0.1" xpos="4.746377" ypos="-0.163793">
+    <input name="file" type="filename" uniform="true" value="textures/Simple_Stone_Mtl_StoneWall_bump.jpg" />
+    <input name="realworld_scale" type="vector2" value="0.25, 0.25" />
+    <input name="depth" type="float" nodename="test_depth" />
+  </adsk:height_map>
+  <constant name="test_depth" type="float" xpos="2.637681" ypos="-2.000000">
+    <input name="value" type="float" value="0.05" />
+  </constant>
+  <adsk:height_map name="height_map1_stone" type="vector3" version="1.0.1" xpos="4.724638" ypos="3.008621">
+    <input name="file" type="filename" uniform="true" value="textures/tiles_travertine_versailles_bump.jpg" fileprefix="" />
+    <input name="realworld_scale" type="vector2" value="0.25, 0.25" />
+    <input name="depth" type="float" value=".15" />
+  </adsk:height_map>
+  <adsk:height_map name="height_map2_stone" type="vector3" version="1.0.1" xpos="4.681159" ypos="4.577586">
+    <input name="file" type="filename" uniform="true" value="textures/tiles_mix01_bump.jpg" fileprefix="" />
+    <input name="realworld_scale" type="vector2" value="0.25, 0.25" />
+    <input name="depth" type="float" value=".15" />
+  </adsk:height_map>
+</materialx>

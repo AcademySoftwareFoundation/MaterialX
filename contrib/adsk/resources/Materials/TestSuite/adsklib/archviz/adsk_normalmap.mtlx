@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+  <nodegraph name="normalmap_graph">
+    <adsk:normal_map name="normal_texturemap" type="vector3">
+      <input name="file" type="filename" value="textures/Plane001NormalsMap.png" />
+      <input name="realworld_offset" type="vector2" value="0, 0" unit="inch" unittype="distance" />
+      <input name="realworld_scale" type="vector2" value="1, 1" unit="inch" unittype="distance" />
+      <input name="normal_scale" type="float" value="1.0" />
+    </adsk:normal_map>
+    <output name="NormalMap_output" type="vector3" nodename="normal_texturemap" />
+  </nodegraph>
+  <standard_surface name="SR_gold_pass" type="surfaceshader">
+    <input name="base" type="float" value="1" />
+    <input name="base_color" type="color3" value="0.944, 0.776, 0.373" />
+    <input name="specular" type="float" value="0" />
+    <input name="specular_color" type="color3" value="0.998, 0.981, 0.751" />
+    <input name="specular_roughness" type="float" value="0.02" />
+    <input name="metalness" type="float" value="1" />
+    <input name="normal" type="vector3" output="NormalMap_output" nodegraph="normalmap_graph" />
+  </standard_surface>
+  <surfacematerial name="Gold" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="SR_gold_pass" />
+  </surfacematerial>
+</materialx>

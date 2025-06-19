@@ -1,0 +1,208 @@
+#usda 1.0
+(
+    defaultPrim = "ShaderBall"
+    metersPerUnit = 0.01
+    upAxis = "Y"
+)
+
+over "ShaderBall" (
+    references = @one_ball.usda@
+    variants = {
+        string shadingVariant = "Mirror"
+    }
+    prepend variantSets = "shadingVariant"
+)
+{
+    over "one_ball_MeshShape" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+	)
+	{
+	}
+	
+    variantSet "shadingVariant" = {
+        "Generic" {
+            over "one_ball_MeshShape"
+            {
+				rel material:binding = </MaterialX/Materials/M_legacy_generic>
+
+            }
+        }
+        "Mirror" {
+            over "one_ball_MeshShape"
+            {
+				rel material:binding = </MaterialX/Materials/M_legacy_mirror>
+
+            }
+        }
+        "Hardwood" {
+            over "one_ball_MeshShape"
+            {
+				rel material:binding = </MaterialX/Materials/M_legacy_hardwood>
+
+            }
+        }
+        "Metal" {
+            over "one_ball_MeshShape"
+            {
+				rel material:binding = </MaterialX/Materials/M_legacy_metal>
+
+            }
+        }
+        "Ceramic" {
+            over "one_ball_MeshShape"
+            {
+				rel material:binding = </MaterialX/Materials/M_legacy_ceramic>
+
+            }
+        }
+        "Concrete" {
+            over "one_ball_MeshShape"
+            {
+				rel material:binding = </MaterialX/Materials/M_legacy_concrete>
+
+            }
+        }
+        "Glazing" {
+            over "one_ball_MeshShape"
+            {
+				rel material:binding = </MaterialX/Materials/M_legacy_glazing>
+
+            }
+        }
+        "Masonry" {
+            over "one_ball_MeshShape"
+            {
+				rel material:binding = </MaterialX/Materials/M_legacy_masonry>
+
+            }
+        }
+        "MetallicPaint" {
+            over "one_ball_MeshShape"
+            {
+				rel material:binding = </MaterialX/Materials/M_legacy_metallicpaint>
+
+            }
+        }
+        "Glass" {
+            over "one_ball_MeshShape"
+            {
+				rel material:binding = </MaterialX/Materials/M_legacy_glass>
+
+            }
+        }
+        "Stone" {
+            over "one_ball_MeshShape"
+            {
+				rel material:binding = </MaterialX/Materials/M_legacy_stone>
+
+            }
+        }
+        "WallPaint" {
+            over "one_ball_MeshShape"
+            {
+				rel material:binding = </MaterialX/Materials/M_legacy_wallpaint>
+
+            }
+        }
+        "Water" {
+            over "one_ball_MeshShape"
+            {
+				rel material:binding = </MaterialX/Materials/M_legacy_water>
+
+            }
+        }
+        "Plastic" {
+            over "one_ball_MeshShape"
+            {
+				rel material:binding = </MaterialX/Materials/M_legacy_plastic>
+
+            }
+        }
+        "Checker" {
+            over "one_ball_MeshShape"
+            {
+				rel material:binding = </MaterialX/Materials/M_legacy_checker>
+
+            }
+        }
+        "Gradient" {
+            over "one_ball_MeshShape"
+            {
+				rel material:binding = </MaterialX/Materials/M_legacy_gradient>
+
+            }
+        }
+        "Marble" {
+            over "one_ball_MeshShape"
+            {
+				rel material:binding = </MaterialX/Materials/M_legacy_marble>
+
+            }
+        }
+        "Noise" {
+            over "one_ball_MeshShape"
+            {
+				rel material:binding = </MaterialX/Materials/M_legacy_noise>
+
+            }
+        }
+        "Speckle" {
+            over "one_ball_MeshShape"
+            {
+				rel material:binding = </MaterialX/Materials/M_legacy_speckle>
+
+            }
+        }
+        "Tiles" {
+            over "one_ball_MeshShape"
+            {
+				rel material:binding = </MaterialX/Materials/M_legacy_tiles>
+
+            }
+        }
+        "Waves" {
+            over "one_ball_MeshShape"
+            {
+				rel material:binding = </MaterialX/Materials/M_legacy_waves>
+
+            }
+        }
+        "Wood" {
+            over "one_ball_MeshShape"
+            {
+				rel material:binding = </MaterialX/Materials/M_legacy_wood>
+
+            }
+        }
+    }
+}
+
+over "MaterialX"
+(
+    references = [
+		@test_mat_legacy_ceramic.mtlx@</MaterialX>,
+		@test_mat_legacy_concrete.mtlx@</MaterialX>,
+		@test_mat_legacy_generic.mtlx@</MaterialX>,
+		@test_mat_legacy_glass.mtlx@</MaterialX>,
+		@test_mat_legacy_glazing.mtlx@</MaterialX>,
+		@test_mat_legacy_hardwood.mtlx@</MaterialX>,
+		@test_mat_legacy_masonry.mtlx@</MaterialX>,
+		@test_mat_legacy_metal.mtlx@</MaterialX>,
+		@test_mat_legacy_metallicpaint.mtlx@</MaterialX>,
+		@test_mat_legacy_mirror.mtlx@</MaterialX>,
+		@test_mat_legacy_plastic.mtlx@</MaterialX>,
+		@test_mat_legacy_stone.mtlx@</MaterialX>,
+		@test_mat_legacy_wallpaint.mtlx@</MaterialX>,
+		@test_mat_legacy_water.mtlx@</MaterialX>,
+		@test_tex_legacy_checker.mtlx@</MaterialX>,
+		@test_tex_legacy_gradient.mtlx@</MaterialX>,
+		@test_tex_legacy_marble.mtlx@</MaterialX>,
+		@test_tex_legacy_noise.mtlx@</MaterialX>,
+		@test_tex_legacy_speckle.mtlx@</MaterialX>,
+		@test_tex_legacy_tiles.mtlx@</MaterialX>,
+		@test_tex_legacy_waves.mtlx@</MaterialX>,
+		@test_tex_legacy_wood.mtlx@</MaterialX>,
+	]
+)
+{
+}

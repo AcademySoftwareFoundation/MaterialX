@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<materialx version="1.39" colorspace="lin_rec709">
+  <legacy_concrete name="SR_legacy_concrete" type="surfaceshader" xpos="10.326087" ypos="-1.637931">
+    <input name="color" type="color3" value="0.6,0.6,0.6" />
+    <input name="tint_enable" type="boolean" value="true" />
+    <input name="tint_color" type="color3" value="0.5,0.5,0.95" />
+    <input name="sealant" type="integer" value="0" />
+    <input name="finish_bump" type="integer" value="0" />
+    <input name="normal_broomstraight" type="vector3" nodename="texture_broomstraight" />
+    <input name="normal_broomcurved" type="vector3" nodename="texture_broomcurved" />
+    <input name="normal_smooth" type="vector3" nodename="texture_smooth" />
+    <input name="normal_polished" type="vector3" nodename="texture_polished" />
+    <input name="normal_custom" type="vector3" nodename="texture_custom" />
+    <input name="weathering_enable" type="boolean" value="true" />
+    <input name="weathering_type" type="integer" value="0" />
+    <input name="weathering_custom" type="color3" nodename="image_color3" />
+  </legacy_concrete>
+  <surfacematerial name="M_legacy_concrete" type="material" xpos="13.043478" ypos="0.000000">
+    <input name="surfaceshader" type="surfaceshader" nodename="SR_legacy_concrete" />
+  </surfacematerial>
+  <adsk:height_map name="texture_broomstraight" type="vector3" version="1.0.1" xpos="6.514493" ypos="-3.413793">
+    <input name="file" type="filename" uniform="true" value="textures/Simple_Concrete_Mtl_BroomStraight_pattern.jpg" />
+    <input name="realworld_scale" type="vector2" value="0.25, 0.25" />
+    <input name="depth" type="float" value="1" />
+  </adsk:height_map>
+  <adsk:height_map name="texture_broomcurved" type="vector3" version="1.0.1" xpos="6.514493" ypos="-1.758621">
+    <input name="file" type="filename" uniform="true" value="textures/Simple_Concrete_Mtl_BroomCurved_pattern.jpg" />
+    <input name="realworld_scale" type="vector2" value="0.25, 0.25" />
+    <input name="depth" type="float" value="1" />
+  </adsk:height_map>
+  <adsk:height_map name="texture_smooth" type="vector3" version="1.0.1" xpos="6.630435" ypos="-0.094828">
+    <input name="file" type="filename" uniform="true" value="textures/polished_concrete_bump.jpg" />
+    <input name="realworld_scale" type="vector2" value="0.25, 0.25" />
+    <input name="depth" type="float" value="1" />
+  </adsk:height_map>
+  <adsk:height_map name="texture_custom" type="vector3" version="1.0.1" xpos="6.630435" ypos="3.077586">
+    <input name="file" type="filename" uniform="true" value="textures/brick_soldier_bump.jpg" />
+    <input name="realworld_scale" type="vector2" value="0.25, 0.25" />
+    <input name="depth" type="float" nodename="constant" />
+  </adsk:height_map>
+  <constant name="constant" type="float" xpos="4.956522" ypos="3.043103">
+    <input name="value" type="float" value="0.5" />
+  </constant>
+  <adsk:height_map name="texture_polished" type="vector3" version="1.0.1" xpos="6.717391" ypos="1.456897">
+    <input name="file" type="filename" uniform="true" value="textures/polished_concrete_bump.jpg" />
+    <input name="realworld_scale" type="vector2" value="0.25, 0.25" />
+    <input name="depth" type="float" value="0.1" />
+  </adsk:height_map>
+  <image name="image_color3" type="color3" xpos="6.978261" ypos="4.853448">
+    <input name="file" type="filename" value="textures/Plane001HeightMap.png" />
+  </image>
+  <image name="image_color4" type="color3" xpos="7.021739" ypos="6.232759">
+    <input name="file" type="filename" value="textures/brick_soldier_bump.jpg" />
+  </image>
+</materialx>

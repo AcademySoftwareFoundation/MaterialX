@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<materialx version="1.38" colorspace="lin_rec709">
+
+  <legacy_metal name="SR_legacy_metal" type="surfaceshader" >
+    <input name="type" type="integer" value="3" />
+    <input name="custom_color" type="color3" value="0.5,0.5,0.95" />
+    <input name="finish" type="integer" value="1" />
+    <input name="custom_finish" type="float" value="0.5" />
+    <input name="patina" type="float" value="0.5" />
+    <input name="relief_enable" type="boolean" value="false" />
+    <input name="relief" type="integer" value="0" />
+    <!-- <input name="custom_relief" type="vector3"/> -->
+    <input name="cutout_enable" type="boolean" value="true" />
+    <input name="cutout" type="integer" value="4" />
+    <input name="cutout_size" type="float" value="0.01" />
+    <input name="cutout_spacing" type="float" value="0.015" />
+    <!-- <input name="custom_cutout" type="color3"/> -->
+    <input name="tint_enable" type="boolean" value="false" />
+    <input name="tint_color" type="color3" value="0.95,0.5,0.5" />
+    <input name="normal_knurl" type="vector3" nodename="normal_map_knurl" />
+    <input name="normal_diamondplate" type="vector3" nodename="normal_map_diamondplate" />
+    <input name="normal_checkerplate" type="vector3" nodename="normal_map_checkerplate" />
+  </legacy_metal>
+  <surfacematerial name="M_legacy_metal" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="SR_legacy_metal" />
+  </surfacematerial>
+  <adsk:normal_map name="normal_map_knurl" type="vector3" nodedef="adsk:ND_adsk_normal_map" version="1.0.1" xpos="-687.5" ypos="-264">
+    <input name="file" type="filename" uniform="true" value="textures/texture_knurl_norm.png" />
+    <input name="realworld_scale" type="vector2" value="1, 1" />
+  </adsk:normal_map>
+  <adsk:normal_map name="normal_map_diamondplate" type="vector3" nodedef="adsk:ND_adsk_normal_map" version="1.0.1" xpos="-695.5" ypos="118">
+    <input name="file" type="filename" uniform="true" value="textures/texture_diamond_plate_1_norm.png" />
+    <input name="realworld_scale" type="vector2" value="1, 1" />
+  </adsk:normal_map>
+  <adsk:normal_map name="normal_map_checkerplate" type="vector3" nodedef="adsk:ND_adsk_normal_map" version="1.0.1" xpos="-696.5" ypos="489">
+    <input name="file" type="filename" uniform="true" value="textures/texture_diamond_plate_3_norm.png" />
+    <input name="realworld_scale" type="vector2" value="1, 1" />
+  </adsk:normal_map>
+
+</materialx>

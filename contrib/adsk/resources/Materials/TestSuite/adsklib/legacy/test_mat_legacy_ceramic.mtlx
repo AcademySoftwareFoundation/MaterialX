@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<materialx version="1.38" colorspace="lin_rec709">
+
+  <legacy_ceramic name="SR_legacy_ceramic" type="surfaceshader" >
+    <input name="color" type="color3" value="0.75,0.55,0.65"/>
+    <input name="tint_enable" type="boolean" value="false" />
+    <input name="tint_color" type="color3" value="0.5,0.5,0.95" />
+    <input name="type" type="integer" value="0" />
+    <input name="finish" type="integer" value="1" />
+    <input name="finish_bump_enable" type="boolean" value="false" />
+    <input name="finish_bump" type="integer" value="0" />
+    <input name="normal_custom_finish" type="vector3" nodename="height_map3_ceramic" />
+    <input name="relief_pattern_enable" type="boolean" value="false" />
+    <input name="normal_relief_pattern" type="vector3" nodename="height_map1_ceramic" />
+    <output name="out" type="surfaceshader" />
+  </legacy_ceramic>
+  <surfacematerial name="M_legacy_ceramic" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="SR_legacy_ceramic" />
+  </surfacematerial>
+  <adsk:height_map name="height_map1_ceramic" type="vector3" version="1.0.1" xpos="9.405797" ypos="0.146552">
+    <input name="file" type="filename" uniform="true" value="textures/tiles_travertine_versailles_bump.jpg" fileprefix="" />
+    <input name="realworld_scale" type="vector2" value="1, 1" />
+    <input name="depth" type="float" value="1" />
+  </adsk:height_map>
+  <adsk:height_map name="height_map3_ceramic" type="vector3" version="1.0.1" xpos="9.405797" ypos="-1.396552">
+    <input name="file" type="filename" uniform="true" value="textures/Plane001HeightMap.png" fileprefix="" />
+    <input name="realworld_scale" type="vector2" value="1, 1" />
+    <input name="depth" type="float" value="1" />
+  </adsk:height_map>
+
+</materialx>

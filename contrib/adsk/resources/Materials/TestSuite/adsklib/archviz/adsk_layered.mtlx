@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+  <nodegraph name="Granite_BP_Input_Graph">
+    <adsk:bitmap name="surfacealbedo_texturemap" type="color3">
+      <input name="file" type="filename" value="textures/granite_blue_pearl_refl.jpg" />
+      <input name="realworld_offset" type="vector2" value="0, 0" unit="inch" unittype="distance" />
+      <input name="realworld_scale" type="vector2" value="12.0, 12.0" unit="inch" unittype="distance" />
+    </adsk:bitmap>
+    <output name="OpaqueAlbedo_output" type="color3" nodename="surfacealbedo_texturemap" />
+    <adsk:bitmap name="surfaceroughness_texturemap" type="float">
+      <input name="file" type="filename" value="textures/granite_blue_pearl_rough.jpg" />
+      <input name="realworld_offset" type="vector2" value="0, 0" unit="inch" unittype="distance" />
+      <input name="realworld_scale" type="vector2" value="12.0, 12.0" unit="inch" unittype="distance" />
+    </adsk:bitmap>
+    <output name="SurfaceRoughness_output" type="float" nodename="surfaceroughness_texturemap" />
+    <adsk:bitmap name="layereddiffuse_texturemap" type="color3">
+      <input name="file" type="filename" value="textures/granite_blue_pearl_color.jpg" />
+      <input name="realworld_offset" type="vector2" value="0, 0" unit="inch" unittype="distance" />
+      <input name="realworld_scale" type="vector2" value="12.0, 12.0" unit="inch" unittype="distance" />
+    </adsk:bitmap>
+    <output name="LayeredDiffuse_output" type="color3" nodename="layereddiffuse_texturemap" />
+    <adsk:bitmap name="layeredfraction_texturemap" type="float">
+      <input name="file" type="filename" value="textures/granite_blue_pearl_specks_mask.jpg" />
+      <input name="realworld_offset" type="vector2" value="0, 0" unit="inch" unittype="distance" />
+      <input name="realworld_scale" type="vector2" value="12.0, 12.0" unit="inch" unittype="distance" />
+    </adsk:bitmap>
+    <output name="LayeredFraction_output" type="float" nodename="layeredfraction_texturemap" />
+    <adsk:normal_map name="layerednormal_texturemap" type="vector3">
+      <input name="file" type="filename" value="textures/granite_specks_bump.png" />
+      <input name="realworld_offset" type="vector2" value="0, 0" unit="inch" unittype="distance" />
+      <input name="realworld_scale" type="vector2" value="12.0, 12.0" unit="inch" unittype="distance" />
+      <input name="normal_scale" type="float" value="0.75" />
+    </adsk:normal_map>
+    <output name="LayeredNormal_output" type="vector3" nodename="layerednormal_texturemap" />
+  </nodegraph>
+  <adsk:layered name="archviz_layered" type="surfaceshader">
+    <input name="surface_albedo" type="color3" value="1, 1, 1" />
+    <input name="surface_roughness" type="float" value="0" />
+    <input name="surface_anisotropy" type="float" value="0" />
+    <input name="surface_rotation" type="float" value="0" />
+    <input name="layered_diffuse" type="color3" value="0.268603731619, 0.588563562055, 0.281161410869" />
+    <input name="layered_f0" type="float" value="0.06027025" />
+    <input name="layered_bottom_f0" type="color3" value="0.268603731619, 0.588563562055, 0.281161410869" />
+    <input name="layered_roughness" type="float" value="0.547722557505" />
+    <input name="layered_anisotropy" type="float" value="0" />
+    <input name="layered_rotation" type="float" value="0" />
+    <input name="layered_fraction" type="float" value="0.75" />
+  </adsk:layered>
+  <surfacematerial name="Paint_Metallic_Green" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="archviz_layered" />
+  </surfacematerial>
+  <adsk:layered name="archviz_layered2" type="surfaceshader">
+    <input name="surface_albedo" type="color3" value="1, 1, 1" />
+    <input name="surface_roughness" type="float" value="0" />
+    <input name="surface_anisotropy" type="float" value="0" />
+    <input name="surface_rotation" type="float" value="0" />
+    <input name="layered_diffuse" type="color3" value="0.767375658056, 0.20598415725, 0.151703719316" />
+    <input name="layered_f0" type="float" value="0.06027025" />
+    <input name="layered_bottom_f0" type="color3" value="0.767375658056, 0.20598415725, 0.151703719316" />
+    <input name="layered_roughness" type="float" value="0.547722557505" />
+    <input name="layered_anisotropy" type="float" value="0" />
+    <input name="layered_rotation" type="float" value="0" />
+    <input name="layered_fraction" type="float" value="0.75" />
+  </adsk:layered>
+  <surfacematerial name="Paint_Metallic_Red" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="archviz_layered2" />
+  </surfacematerial>
+  <adsk:layered name="archviz_layered3" type="surfaceshader">
+    <input name="surface_albedo" type="color3" output="OpaqueAlbedo_output" nodegraph="Granite_BP_Input_Graph" />
+    <input name="surface_roughness" type="float" output="SurfaceRoughness_output" nodegraph="Granite_BP_Input_Graph" />
+    <input name="surface_anisotropy" type="float" value="0" />
+    <input name="surface_rotation" type="float" value="0" />
+    <input name="layered_diffuse" type="color3" output="LayeredDiffuse_output" nodegraph="Granite_BP_Input_Graph" />
+    <input name="layered_f0" type="float" value="0.045" />
+    <input name="layered_bottom_f0" type="color3" value="1, 1, 1" />
+    <input name="layered_roughness" type="float" value="0.12" />
+    <input name="layered_anisotropy" type="float" value="0" />
+    <input name="layered_rotation" type="float" value="0" />
+    <input name="layered_fraction" type="float" output="LayeredFraction_output" nodegraph="Granite_BP_Input_Graph" />
+    <input name="layered_normal" type="vector3" output="LayeredNormal_output" nodegraph="Granite_BP_Input_Graph" />
+  </adsk:layered>
+  <surfacematerial name="Granite_Blue_Pearl" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="archviz_layered3" />
+  </surfacematerial>
+</materialx>

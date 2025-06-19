@@ -1,0 +1,5 @@
+void mx_backface_util( int backface_cullingbool, float opacity, output color result )
+{ 
+    /* The cast of  opacity to int will truncate */
+    result = color(int(opacity) || (backfacing() && backface_cullingbool));
+}

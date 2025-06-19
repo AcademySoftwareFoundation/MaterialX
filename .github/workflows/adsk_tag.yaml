@@ -1,0 +1,46 @@
+name: Create Tag on PR Merge
+
+on:
+  workflow_dispatch:
+
+jobs:
+  create-tag:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Fetch tags from parent repository
+        run: |
+
+      - name: Get latest tag
+        id: get_latest_tag
+        run: |
+          # Get the ASF repo tags
+          git remote add upstream https://github.com/AcademySoftwareFoundation/MaterialX.git
+          git fetch upstream --tags
+
+          # Get the latest tag from the ASF repo
+          latest_tag=$(git ls-remote --tags upstream | while read -r commit ref; do echo "$(git show -s --format=%ct $commit) $ref"; done | sort -n | tail -n 1 | awk '{print $2}' | sed 's#refs/tags/##' )
+          echo "latest_tag=${latest_tag}"
+          echo "latest_tag=${latest_tag}" >> $GITHUB_ENV
+
+      - name: Tag the repository
+        run: |
+          # Get the current date
+          month=$(date +"%b")
+          year=$(date +"%Y")
+
+          # Create the new tag
+          echo "latest_tag=${latest_tag}"
+          new_tag="${latest_tag}.${month}_${year}.dev_adsk"
+          echo "new_tag=${new_tag}"
+
+          # Apply the new tag
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git tag ${new_tag}
+          git push origin ${new_tag}

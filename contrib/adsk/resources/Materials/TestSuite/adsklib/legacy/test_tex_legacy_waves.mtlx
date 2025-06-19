@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<materialx version="1.39" colorspace="lin_rec709">
+  <standard_surface name="SR_testmat1" type="surfaceshader" xpos="10.326087" ypos="-0.594828">
+    <input name="base" type="float" value="1" />
+    <input name="base_color" type="color3" nodename="legacy_waves_color3" />
+    <input name="specular_roughness" type="float" value="0.1" />
+    <input name="subsurface" type="float" value="0.4" />
+    <input name="subsurface_color" type="color3" value="1, 1, 1" />
+  </standard_surface>
+  <surfacematerial name="M_legacy_waves" type="material" xpos="13.043478" ypos="0.000000">
+    <input name="surfaceshader" type="surfaceshader" nodename="SR_testmat1" />
+  </surfacematerial>
+  <legacy_waves name="legacy_waves_color3" type="color3" xpos="7.710145" ypos="-3.275862">
+    <input name="color1" type="color3" value="0, 0, 0.742809" />
+    <input name="color2" type="color3" value="1, 1, 1" />
+    <input name="waves" type="float" value="2.5" />
+    <input name="radius" type="float" value="2" />
+    <input name="wave_min" type="float" value="0.1" />
+    <input name="wave_max" type="float" value="0.3" />
+    <input name="phase" type="float" value="0.5" />
+    <input name="distribution_3d" type="boolean" value="false" />
+    <input name="realworld_offset" type="vector3" value="0, 1.5, 0" />
+    <input name="rotation_angle" type="vector3" value="0, 0, 0" />
+  </legacy_waves>
+</materialx>
