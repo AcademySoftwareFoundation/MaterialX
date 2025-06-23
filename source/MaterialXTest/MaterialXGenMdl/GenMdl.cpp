@@ -94,6 +94,9 @@ TEST_CASE("GenShader: MDL Implementation Check", "[genmdl]")
     generatorSkipNodeTypes.insert("light");
 
     mx::StringSet generatorSkipNodeDefs;
+    // add nodes to be skipped here
+    // ex)
+    // generatorSkipNodeDefs.insert("ND_hextiledimage_color3");
 
     GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs);
 }

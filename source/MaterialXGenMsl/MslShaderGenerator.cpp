@@ -7,7 +7,6 @@
 
 #include <MaterialXGenMsl/MslSyntax.h>
 #include <MaterialXGenMsl/Nodes/SurfaceNodeMsl.h>
-#include <MaterialXGenMsl/Nodes/UnlitSurfaceNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/LightNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/LightCompoundNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/LightShaderNodeMsl.h>
@@ -19,7 +18,6 @@
 #include <MaterialXGenShader/Nodes/HwImageNode.h>
 #include <MaterialXGenShader/Nodes/HwGeomColorNode.h>
 #include <MaterialXGenShader/Nodes/HwGeomPropValueNode.h>
-#include <MaterialXGenShader/Nodes/HwHeightToNormalNode.h>
 #include <MaterialXGenShader/Nodes/HwTexCoordNode.h>
 #include <MaterialXGenShader/Nodes/HwTransformNode.h>
 #include <MaterialXGenShader/Nodes/HwPositionNode.h>
@@ -27,9 +25,8 @@
 #include <MaterialXGenShader/Nodes/HwTangentNode.h>
 #include <MaterialXGenShader/Nodes/HwBitangentNode.h>
 #include <MaterialXGenShader/Nodes/HwFrameNode.h>
+#include <MaterialXGenShader/Nodes/HwTimeNode.h>
 #include <MaterialXGenShader/Nodes/HwViewDirectionNode.h>
-#include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
-#include <MaterialXGenShader/Nodes/ClosureCompoundNode.h>
 
 #include "MslResourceBindingContext.h"
 
@@ -87,12 +84,13 @@ MslShaderGenerator::MslShaderGenerator(TypeSystemPtr typeSystem) :
 
     // <!-- <frame> -->
     registerImplementation("IM_frame_float_" + MslShaderGenerator::TARGET, HwFrameNode::create);
+    // <!-- <time> -->
+    registerImplementation("IM_time_float_" + MslShaderGenerator::TARGET, HwTimeNode::create);
     // <!-- <viewdirection> -->
     registerImplementation("IM_viewdirection_vector3_" + MslShaderGenerator::TARGET, HwViewDirectionNode::create);
 
     // <!-- <surface> -->
     registerImplementation("IM_surface_" + MslShaderGenerator::TARGET, SurfaceNodeMsl::create);
-    registerImplementation("IM_surface_unlit_" + MslShaderGenerator::TARGET, UnlitSurfaceNodeMsl::create);
 
     // <!-- <light> -->
     registerImplementation("IM_light_" + MslShaderGenerator::TARGET, LightNodeMsl::create);
@@ -103,9 +101,6 @@ MslShaderGenerator::MslShaderGenerator(TypeSystemPtr typeSystem) :
     registerImplementation("IM_directional_light_" + MslShaderGenerator::TARGET, LightShaderNodeMsl::create);
     // <!-- <spot_light> -->
     registerImplementation("IM_spot_light_" + MslShaderGenerator::TARGET, LightShaderNodeMsl::create);
-
-    // <!-- <heighttonormal> -->
-    registerImplementation("IM_heighttonormal_vector3_" + MslShaderGenerator::TARGET, []() -> ShaderNodeImplPtr { return HwHeightToNormalNode::create(MslSamplingIncludeFilename);});
 
     // <!-- <blur> -->
     elementNames = {
@@ -257,7 +252,7 @@ void MslShaderGenerator::MetalizeGeneratedShader(ShaderStage& shaderStage) const
 
     auto isAllowedBeforeToken = [](char ch) -> bool
     {
-        return std::isspace(ch) || ch == '(' || ch == ',';
+        return std::isspace(ch) || ch == '(' || ch == ',' || ch == '-';
     };
 
     for (const auto& t : replaceTokens)
@@ -672,6 +667,7 @@ void MslShaderGenerator::emitDirectives(GenContext&, ShaderStage& stage) const
     emitLine("#define bvec2 bool2", stage, false);
     emitLine("#define bvec3 bool3", stage, false);
     emitLine("#define bvec4 bool4", stage, false);
+    emitLine("#define mat2 float2x2", stage, false);
     emitLine("#define mat3 float3x3", stage, false);
     emitLine("#define mat4 float4x4", stage, false);
 
@@ -1257,10 +1253,6 @@ ShaderNodeImplPtr MslShaderGenerator::getImplementation(const NodeDef& nodedef, 
         {
             impl = LightCompoundNodeMsl::create();
         }
-        else if (outputType.isClosure())
-        {
-            impl = ClosureCompoundNode::create();
-        }
         else
         {
             impl = CompoundNode::create();
@@ -1268,19 +1260,18 @@ ShaderNodeImplPtr MslShaderGenerator::getImplementation(const NodeDef& nodedef, 
     }
     else if (implElement->isA<Implementation>())
     {
-        // Try creating a new in the factory.
-        impl = _implFactory.create(name);
+        if (getColorManagementSystem() && getColorManagementSystem()->hasImplementation(name))
+        {
+            impl = getColorManagementSystem()->createImplementation(name);
+        }
+        else
+        {
+            // Try creating a new in the factory.
+            impl = _implFactory.create(name);
+        }
         if (!impl)
         {
-            // Fall back to source code implementation.
-            if (outputType.isClosure())
-            {
-                impl = ClosureSourceCodeNode::create();
-            }
-            else
-            {
-                impl = SourceCodeNode::create();
-            }
+            impl = SourceCodeNode::create();
         }
     }
     if (!impl)
@@ -1294,11 +1285,6 @@ ShaderNodeImplPtr MslShaderGenerator::getImplementation(const NodeDef& nodedef, 
     context.addNodeImplementation(name, impl);
 
     return impl;
-}
-
-const string& MslImplementation::getTarget() const
-{
-    return MslShaderGenerator::TARGET;
 }
 
 MATERIALX_NAMESPACE_END

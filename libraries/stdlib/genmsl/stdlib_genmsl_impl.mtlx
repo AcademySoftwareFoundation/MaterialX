@@ -14,9 +14,6 @@
   <!-- <surfacematerial> -->
   <implementation name="IM_surfacematerial_genmsl" nodedef="ND_surfacematerial" target="genmsl" />
 
-  <!-- <surface_unlit> -->
-  <implementation name="IM_surface_unlit_genmsl" nodedef="ND_surface_unlit" target="genmsl" />
-
   <!-- ======================================================================== -->
   <!-- Texture nodes                                                            -->
   <!-- ======================================================================== -->
@@ -91,6 +88,9 @@
   <!-- <frame> -->
   <implementation name="IM_frame_float_genmsl" nodedef="ND_frame_float" function="mx_frame_float" target="genmsl" />
 
+  <!-- <time> -->
+  <implementation name="IM_time_float_genmsl" nodedef="ND_time_float" function="mx_time_float" target="genmsl" />
+
   <!-- ======================================================================== -->
   <!-- Math nodes                                                               -->
   <!-- ======================================================================== -->
@@ -145,9 +145,6 @@
   <implementation name="IM_blur_vector2_genmsl" nodedef="ND_blur_vector2" target="genmsl" />
   <implementation name="IM_blur_vector3_genmsl" nodedef="ND_blur_vector3" target="genmsl" />
   <implementation name="IM_blur_vector4_genmsl" nodedef="ND_blur_vector4" target="genmsl" />
-
-  <!-- <heighttonormal> -->
-  <implementation name="IM_heighttonormal_vector3_genmsl" nodedef="ND_heighttonormal_vector3" target="genmsl" />
 
   <!-- ======================================================================== -->
   <!-- Logical operator nodes                                                   -->

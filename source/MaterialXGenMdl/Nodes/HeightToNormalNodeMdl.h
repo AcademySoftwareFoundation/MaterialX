@@ -20,8 +20,6 @@ class MX_GENMDL_API HeightToNormalNodeMdl : public ConvolutionNode
 
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
-    const string& getTarget() const override;
-
   protected:
     /// Return if given type is an acceptable input
     bool acceptsInputType(TypeDesc type) const override;

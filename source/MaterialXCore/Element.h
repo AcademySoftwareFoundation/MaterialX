@@ -1366,7 +1366,7 @@ class MX_CORE_API ElementEquivalenceOptions
         floatPrecision = Value::getFloatPrecision();
         attributeExclusionList = {};
     };
-    ~ElementEquivalenceOptions() { }
+    ~ElementEquivalenceOptions() = default;
 
     /// Perform value comparisons as opposed to literal string comparisons.
     /// Default is true.

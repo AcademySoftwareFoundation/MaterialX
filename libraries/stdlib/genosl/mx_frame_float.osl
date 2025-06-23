@@ -1,4 +1,6 @@
 void mx_frame_float(output float result)
 {
+    // Use the standard default value if the attribute is not present.
+    result = 1.0;
     getattribute("frame", result);
 }

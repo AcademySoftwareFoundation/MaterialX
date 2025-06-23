@@ -11,7 +11,6 @@
 #include <MaterialXGenShader/TypeDesc.h>
 #include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
-#include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
 
 #include <MaterialXGenOsl/Nodes/BlurNodeOsl.h>
 #include <MaterialXGenOsl/Nodes/MaterialNodeOsl.h>
@@ -38,7 +37,7 @@ OslShaderGenerator::OslShaderGenerator(TypeSystemPtr typeSystem) :
     registerImplementation("IM_blur_vector4_" + OslShaderGenerator::TARGET, BlurNodeOsl::create);
 
     // <!-- <surface> -->
-    registerImplementation("IM_surface_" + OslShaderGenerator::TARGET, ClosureSourceCodeNode::create);
+    registerImplementation("IM_surface_" + OslShaderGenerator::TARGET, SourceCodeNode::create);
 
     // <!-- <surfacematerial> -->
     registerImplementation("IM_surfacematerial_" + OslShaderGenerator::TARGET, MaterialNodeOsl::create);
@@ -112,7 +111,7 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     {
         for (size_t j = 0; j < metadata->size(); ++j)
         {
-            const ShaderMetadata& data = metadata->at(j);
+            const ShaderMetadata& data = (*metadata)[j];
             const string& delim = (j == metadata->size() - 1) ? EMPTY_STRING : Syntax::COMMA;
             const string& dataType = _syntax->getTypeName(data.type);
             const string dataValue = _syntax->getValue(data.type, *data.value, true);
@@ -479,29 +478,36 @@ void OslShaderGenerator::emitMetadata(const ShaderPort* port, ShaderStage& stage
     auto widgetMetadataIt = UI_WIDGET_METADATA.find(port->getType());
     const ShaderMetadata* widgetMetadata = widgetMetadataIt != UI_WIDGET_METADATA.end() ? &widgetMetadataIt->second : nullptr;
     const ShaderMetadataVecPtr& metadata = port->getMetadata();
+    const string& geomprop = port->getGeomProp();
 
-    if (widgetMetadata || (metadata && metadata->size()))
+    if (widgetMetadata || (metadata && metadata->size()) || !geomprop.empty())
     {
         StringVec metadataLines;
         if (metadata)
         {
             for (size_t j = 0; j < metadata->size(); ++j)
             {
-                const ShaderMetadata& data = metadata->at(j);
+                const ShaderMetadata& data = (*metadata)[j];
                 if (METADATA_TYPE_BLACKLIST.count(data.type) == 0)
                 {
                     const string& delim = (widgetMetadata || j < metadata->size() - 1) ? Syntax::COMMA : EMPTY_STRING;
                     const string& dataType = _syntax->getTypeName(data.type);
                     const string dataValue = _syntax->getValue(data.type, *data.value, true);
-                    metadataLines.push_back(dataType + " " + data.name + " = " + dataValue + delim);
+                    metadataLines.emplace_back(dataType + " " + data.name + " = " + dataValue + delim);
                 }
             }
         }
         if (widgetMetadata)
         {
+            const string& delim = geomprop.empty() ? EMPTY_STRING : Syntax::COMMA;
             const string& dataType = _syntax->getTypeName(widgetMetadata->type);
             const string dataValue = _syntax->getValue(widgetMetadata->type, *widgetMetadata->value, true);
-            metadataLines.push_back(dataType + " " + widgetMetadata->name + " = " + dataValue);
+            metadataLines.emplace_back(dataType + " " + widgetMetadata->name + " = " + dataValue + delim);
+        }
+        if (!geomprop.empty())
+        {
+            const string& dataType = _syntax->getTypeName(Type::STRING);
+            metadataLines.emplace_back(dataType + " mtlx_defaultgeomprop = \"" + geomprop + "\"");
         }
         if (metadataLines.size())
         {

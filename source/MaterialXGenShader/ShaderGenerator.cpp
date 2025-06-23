@@ -9,8 +9,6 @@
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 #include <MaterialXGenShader/Nodes/CompoundNode.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
-#include <MaterialXGenShader/Nodes/ClosureCompoundNode.h>
-#include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
 #include <MaterialXGenShader/Util.h>
 
 #include <MaterialXFormat/File.h>
@@ -24,6 +22,7 @@
 MATERIALX_NAMESPACE_BEGIN
 
 const string ShaderGenerator::T_FILE_TRANSFORM_UV = "$fileTransformUv";
+const string ShaderGenerator::LIGHTDATA_TYPEVAR_STRING = "type";
 
 //
 // ShaderGenerator methods
@@ -91,6 +90,18 @@ void ShaderGenerator::emitLibraryInclude(const FilePath& filename, GenContext& c
 void ShaderGenerator::emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
     stage.addFunctionDefinition(node, context);
+}
+
+void ShaderGenerator::emitFunctionDefinitionParameter(const ShaderPort* shaderPort, bool isOutput, GenContext&, ShaderStage& stage) const
+{
+    if (isOutput)
+    {
+        emitString(_syntax->getOutputTypeName(shaderPort->getType()) + " " + shaderPort->getVariable(), stage);
+    }
+    else 
+    {
+        emitString(_syntax->getTypeName(shaderPort->getType()) + " " + shaderPort->getVariable(), stage);
+    }
 }
 
 void ShaderGenerator::emitFunctionDefinitions(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
@@ -291,41 +302,24 @@ ShaderNodeImplPtr ShaderGenerator::getImplementation(const NodeDef& nodedef, Gen
         return impl;
     }
 
-    vector<OutputPtr> outputs = nodedef.getActiveOutputs();
-    if (outputs.empty())
-    {
-        throw ExceptionShaderGenError("NodeDef '" + nodedef.getName() + "' has no outputs defined");
-    }
-
-    const TypeDesc outputType = _typeSystem->getType(outputs[0]->getType());
-
     if (implElement->isA<NodeGraph>())
     {
-        // Use a compound implementation.
-        if (outputType.isClosure())
-        {
-            impl = ClosureCompoundNode::create();
-        }
-        else
-        {
-            impl = CompoundNode::create();
-        }
+        impl = CompoundNode::create();
     }
     else if (implElement->isA<Implementation>())
     {
-        // Try creating a new in the factory.
-        impl = _implFactory.create(name);
+        if (getColorManagementSystem() && getColorManagementSystem()->hasImplementation(name))
+        {
+            impl = getColorManagementSystem()->createImplementation(name);
+        }
+        else
+        {
+            // Try creating a new in the factory.
+            impl = _implFactory.create(name);
+        }
         if (!impl)
         {
-            // Fall back to source code implementation.
-            if (outputType.isClosure())
-            {
-                impl = ClosureSourceCodeNode::create();
-            }
-            else
-            {
-                impl = SourceCodeNode::create();
-            }
+            impl = SourceCodeNode::create();
         }
     }
     if (!impl)

@@ -539,32 +539,32 @@ bool MdlSyntax::remapEnumeration(const string& value, TypeDesc type, const strin
         return false;
     }
 
-    // Try remapping to an enum value.
-    if (!value.empty())
+    // Early out if no valid value provided
+    if (value.empty())
     {
-        result.first = getEnumeratedType(value);
-        if (result.first == Type::NONE || (result.first.getSemantic() != TypeDesc::Semantic::SEMANTIC_ENUM))
-        {
-            return false;
-        }
-
-        StringVec valueElemEnumsVec = splitString(enumNames, ",");
-        for (size_t i = 0; i < valueElemEnumsVec.size(); i++)
-        {
-            valueElemEnumsVec[i] = trimSpaces(valueElemEnumsVec[i]);
-        }
-        auto pos = std::find(valueElemEnumsVec.begin(), valueElemEnumsVec.end(), value);
-        if (pos == valueElemEnumsVec.end())
-        {
-            throw ExceptionShaderGenError("Given value '" + value + "' is not a valid enum value.");
-        }
-        const int index = static_cast<int>(std::distance(valueElemEnumsVec.begin(), pos));
-        result.second = Value::createValue<string>(valueElemEnumsVec[index]);
-
-        return true;
+        return false;
     }
 
-    return false;
+    result.first = getEnumeratedType(value);
+    if (result.first == Type::NONE || (result.first.getSemantic() != TypeDesc::Semantic::SEMANTIC_ENUM))
+    {
+        return false;
+    }
+
+    StringVec valueElemEnumsVec = splitString(enumNames, ",");
+    for (size_t i = 0; i < valueElemEnumsVec.size(); i++)
+    {
+        valueElemEnumsVec[i] = trimSpaces(valueElemEnumsVec[i]);
+    }
+    auto pos = std::find(valueElemEnumsVec.begin(), valueElemEnumsVec.end(), value);
+    if (pos == valueElemEnumsVec.end())
+    {
+        throw ExceptionShaderGenError("Given value '" + value + "' is not a valid enum value.");
+    }
+    const int index = static_cast<int>(std::distance(valueElemEnumsVec.begin(), pos));
+    result.second = Value::createValue<string>(valueElemEnumsVec[index]);
+
+    return true;
 }
 
 void MdlSyntax::makeValidName(string& name) const
@@ -613,6 +613,43 @@ string MdlSyntax::replaceSourceCodeMarkers(const string& nodeName, const string&
 const string& MdlSyntax::getMdlVersionSuffixMarker() const
 {
     return MARKER_MDL_VERSION_SUFFIX;
+}
+
+StructTypeSyntaxPtr MdlSyntax::createStructSyntax(const string& structTypeName, const string& defaultValue,
+                                                  const string& uniformDefaultValue, const string& typeAlias,
+                                                  const string& typeDefinition) const
+{
+    return std::make_shared<MdlStructTypeSyntax>(
+        this,
+        structTypeName,
+        defaultValue,
+        uniformDefaultValue,
+        typeAlias,
+        typeDefinition);
+}
+
+string MdlStructTypeSyntax::getValue(const Value& value, bool /* uniform */) const
+{
+    const AggregateValue& aggValue = static_cast<const AggregateValue&>(value);
+
+    string result = aggValue.getTypeString() + "(";
+
+    string separator = "";
+    for (const auto& memberValue : aggValue.getMembers())
+    {
+        result += separator;
+        separator = ", ";
+
+        const string& memberTypeName = memberValue->getTypeString();
+        const TypeDesc memberTypeDesc = _parent->getType(memberTypeName);
+
+        // Recursively use the syntax to generate the output, so we can supported nested structs.
+        result += _parent->getValue(memberTypeDesc, *memberValue, true);
+    }
+
+    result += ")";
+
+    return result;
 }
 
 MATERIALX_NAMESPACE_END

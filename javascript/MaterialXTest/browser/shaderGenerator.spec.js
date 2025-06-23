@@ -43,6 +43,8 @@ describe('Generate Shaders', function ()
             generators.push(mx.OslShaderGenerator.create());
         if (typeof mx.VkShaderGenerator != 'undefined')
             generators.push(mx.VkShaderGenerator.create());
+        if (typeof mx.WgslShaderGenerator != 'undefined')
+            generators.push(mx.WgslShaderGenerator.create());
         if (typeof mx.MdlShaderGenerator != 'undefined')
             generators.push(mx.MdlShaderGenerator.create());
 

@@ -84,6 +84,8 @@ TEST_CASE("GenShader: MSL Implementation Check", "[genmsl]")
 
     mx::StringSet generatorSkipNodeTypes;
     mx::StringSet generatorSkipNodeDefs;
+    // To skip specific node definitions for this code generation target, add them as below:
+    // generatorSkipNodeDefs.insert("ND_example_color3");
     GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs);
 }
 
