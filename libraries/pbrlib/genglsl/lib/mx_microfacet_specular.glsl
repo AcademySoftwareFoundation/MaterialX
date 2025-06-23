@@ -78,7 +78,7 @@ float mx_ggx_smith_G2(float NdotL, float NdotV, float alpha)
     float alpha2 = mx_square(alpha);
     float lambdaL = sqrt(alpha2 + (1.0 - alpha2) * mx_square(NdotL));
     float lambdaV = sqrt(alpha2 + (1.0 - alpha2) * mx_square(NdotV));
-    return 2.0 / (lambdaL / NdotL + lambdaV / NdotV);
+    return 2.0 * NdotL * NdotV / (lambdaL * NdotV + lambdaV * NdotL);
 }
 
 // Rational quadratic fit to Monte Carlo data for GGX directional albedo.
