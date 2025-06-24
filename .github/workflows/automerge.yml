@@ -1,0 +1,56 @@
+name: Merge main into adsk_contrib/dev
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * 6'  # Runs every Saturday at midnight
+
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout adsk_contrib/dev branch
+      uses: actions/checkout@v2
+      with:
+        ref: adsk_contrib/dev 
+        fetch-depth: 0
+
+    - name: Set up Git user
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+    - name: Checkout main branch
+      run: |
+        git fetch origin main:main
+        git checkout main
+
+    - name: Try to merge main into adsk_contrib/dev
+      run: |
+        git checkout adsk_contrib/dev
+        git merge main
+        git push origin adsk_contrib/dev
+
+    - name: Handle conflicts and create auxiliary branch
+      if: ${{ failure() }}
+      run: |
+        git status
+        git merge --abort
+        git fetch origin
+        git checkout main && echo "Checkout main"
+        git checkout -b merge-main-to-dev-fix-${{ github.run_number }}
+        git add .
+        git commit --allow-empty -m "Auto merge main into adsk_contrib/dev"
+        git push origin merge-main-to-dev-fix-${{ github.run_number }}
+
+    - name: Open Pull Request if merge fails
+      if: ${{ failure() }}
+      uses: peter-evans/create-pull-request@v5
+      with:
+        commit-message: Merge main into adsk_contrib/dev with conflicts resolved
+        branch: adsk_contrib/dev
+        base: merge-main-to-dev-fix-${{ github.run_number }}
+        title: Merge main into adsk_contrib/dev
+        body: Handling merge conflicts between `main` and `adsk_contrib/dev`
+        reviewers: ashwinbhat,zicher3d,ppenenko  # List of users
+        labels: merge-conflicts
