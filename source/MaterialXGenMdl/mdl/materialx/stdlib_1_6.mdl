@@ -808,6 +808,16 @@ export core::color4 mx_hextiledimage_color4(
 	return core::mk_color4(w.x * c1.rgb + w.y * c2.rgb + w.z * c3.rgb, a);
 }
 
+export float mx_constant_float(
+	float mxp_value = float(0.0)
+)
+	[[
+		anno::description("Node Group: procedural")
+	]]
+{
+	return mxp_value;
+}
+
 export color mx_constant_color3(
 	color mxp_value = color(0.0, 0.0, 0.0)
 )
