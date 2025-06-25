@@ -56,7 +56,7 @@ class MX_GENGLSL_API VkShaderGenerator : public GlslShaderGenerator
   protected:
     HwResourceBindingContextPtr getResourceBindingContext(GenContext&) const override;
 
-    VkResourceBindingContextPtr _resourceBindingCtx = nullptr;
+    HwResourceBindingContextPtr _resourceBindingCtx;
 
     // Vertex data interface location to bind between stages
     int vertexDataLocation = 0;

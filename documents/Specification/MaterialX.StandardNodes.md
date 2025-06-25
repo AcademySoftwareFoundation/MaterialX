@@ -515,6 +515,7 @@ Standard Application nodes:
 <a id="node-time"> </a>
 
 * **`time`**: the current time in seconds, as defined by the host environment.  This node must be of type float.  Applications may use whatever method is appropriate to communicate the current time to the &lt;time> node's implementation, whether via an internal state variable, a custom input, dividing the current frame number by a local "frames per second" value, or other method; real-time applications may return some variation of wall-clock time.
+    * `fps` (float): an unused input, to be removed in a future specification version.
 
 <br>
 

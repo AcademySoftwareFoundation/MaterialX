@@ -99,28 +99,16 @@ class MX_CORE_API Value
     /// Set float formatting for converting values to strings.
     /// Formats to use are FloatFormatFixed, FloatFormatScientific
     /// or FloatFormatDefault to set default format.
-    static void setFloatFormat(FloatFormat format)
-    {
-        _floatFormat = format;
-    }
+    static void setFloatFormat(FloatFormat format);
 
     /// Set float precision for converting values to strings.
-    static void setFloatPrecision(int precision)
-    {
-        _floatPrecision = precision;
-    }
+    static void setFloatPrecision(int precision);
 
     /// Return the current float format.
-    static FloatFormat getFloatFormat()
-    {
-        return _floatFormat;
-    }
+    static FloatFormat getFloatFormat();
 
     /// Return the current float precision.
-    static int getFloatPrecision()
-    {
-        return _floatPrecision;
-    }
+    static int getFloatPrecision();
 
     // Returns true if value data matches.
     virtual bool isEqual(ConstValuePtr other) const = 0;
@@ -133,8 +121,6 @@ class MX_CORE_API Value
 
   private:
     static CreatorMap _creatorMap;
-    static FloatFormat _floatFormat;
-    static int _floatPrecision;
 };
 
 /// The class template for typed subclasses of Value

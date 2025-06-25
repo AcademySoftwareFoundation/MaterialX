@@ -808,7 +808,7 @@ void RenderView::renderFrame()
         {
             material->getProgram()->bindUniform(mx::HW::ALPHA_THRESHOLD, mx::Value::createValue(0.99f));
         }
-        material->getProgram()->bindTimeAndFrame(1.0f, static_cast<float>(_frame));
+        material->getProgram()->bindTimeAndFrame((float) _timer.elapsedTime(), (float) _frame);
         material->bindViewInformation(_viewCamera);
         material->bindLighting(_lightHandler, _imageHandler, shadowState);
         material->bindImages(_imageHandler, _searchPath);
@@ -836,7 +836,7 @@ void RenderView::renderFrame()
             {
                 material->getProgram()->bindUniform(mx::HW::ALPHA_THRESHOLD, mx::Value::createValue(0.001f));
             }
-            material->getProgram()->bindTimeAndFrame(1.0f, static_cast<float>(_frame));
+            material->getProgram()->bindTimeAndFrame((float) _timer.elapsedTime(), (float) _frame);
             material->bindViewInformation(_viewCamera);
             material->bindLighting(_lightHandler, _imageHandler, shadowState);
             material->bindImages(_imageHandler, _searchPath);

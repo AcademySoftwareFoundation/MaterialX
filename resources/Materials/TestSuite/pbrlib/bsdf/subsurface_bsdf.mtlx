@@ -1,0 +1,104 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+  <nodegraph name="subsurface_1_common">
+    <subsurface_bsdf name="subsurface_bsdf1" type="BSDF">
+      <input name="weight" type="float" value="1.0" />
+      <input name="color" type="color3" value="0.816, 0.140, 0.124" />
+      <input name="radius" type="color3" value="1.0, 1.0, 1.0" />
+      <input name="anisotropy" type="float" value="0.0" />
+    </subsurface_bsdf>
+    <surface name="surface1" type="surfaceshader">
+      <input name="bsdf" type="BSDF" nodename="subsurface_bsdf1" />
+      <input name="opacity" type="float" value="1.0" />
+    </surface>
+    <output name="out" type="surfaceshader" nodename="surface1" />
+  </nodegraph>
+
+  <!-- SSS radius of 1 cm assuming the scene units are in meters -->
+  <nodegraph name="subsurface_2_radius_0_01">
+    <subsurface_bsdf name="subsurface_bsdf1" type="BSDF">
+      <input name="weight" type="float" value="1.0" />
+      <input name="color" type="color3" value="0.816, 0.140, 0.124" />
+      <input name="radius" type="color3" value="0.01, 0.01, 0.01" />
+      <input name="anisotropy" type="float" value="0.0" />
+    </subsurface_bsdf>
+    <surface name="surface1" type="surfaceshader">
+      <input name="bsdf" type="BSDF" nodename="subsurface_bsdf1" />
+      <input name="opacity" type="float" value="1.0" />
+    </surface>
+    <output name="out" type="surfaceshader" nodename="surface1" />
+  </nodegraph>
+
+  <!-- SSS radius of 2.5 cm assuming the scene units are in meters -->
+  <nodegraph name="subsurface_2_radius_0_025">
+    <subsurface_bsdf name="subsurface_bsdf1" type="BSDF">
+      <input name="weight" type="float" value="1.0" />
+      <input name="color" type="color3" value="0.816, 0.140, 0.124" />
+      <input name="radius" type="color3" value="0.025, 0.025, 0.025" />
+      <input name="anisotropy" type="float" value="0.0" />
+    </subsurface_bsdf>
+    <surface name="surface1" type="surfaceshader">
+      <input name="bsdf" type="BSDF" nodename="subsurface_bsdf1" />
+      <input name="opacity" type="float" value="1.0" />
+    </surface>
+    <output name="out" type="surfaceshader" nodename="surface1" />
+  </nodegraph>
+
+  <!-- SSS radius of 5 m (thin gas) assuming the scene units are in meters -->
+  <nodegraph name="subsurface_2_radius_5_0">
+    <subsurface_bsdf name="subsurface_bsdf1" type="BSDF">
+      <input name="weight" type="float" value="1.0" />
+      <input name="color" type="color3" value="0.816, 0.140, 0.124" />
+      <input name="radius" type="color3" value="5.0, 5.0, 5.0" />
+      <input name="anisotropy" type="float" value="0.0" />
+    </subsurface_bsdf>
+    <surface name="surface1" type="surfaceshader">
+      <input name="bsdf" type="BSDF" nodename="subsurface_bsdf1" />
+      <input name="opacity" type="float" value="1.0" />
+    </surface>
+    <output name="out" type="surfaceshader" nodename="surface1" />
+  </nodegraph>
+
+  <nodegraph name="subsurface_3_weighted">
+    <subsurface_bsdf name="subsurface_bsdf1" type="BSDF">
+      <input name="weight" type="float" value="0.25" />
+      <input name="color" type="color3" value="0.816, 0.140, 0.124" />
+      <input name="radius" type="color3" value="1.0, 1.0, 1.0" />
+      <input name="anisotropy" type="float" value="0.0" />
+    </subsurface_bsdf>
+    <surface name="surface1" type="surfaceshader">
+      <input name="bsdf" type="BSDF" nodename="subsurface_bsdf1" />
+      <input name="opacity" type="float" value="1.0" />
+    </surface>
+    <output name="out" type="surfaceshader" nodename="surface1" />
+  </nodegraph>
+
+  <nodegraph name="subsurface_4_forward">
+    <subsurface_bsdf name="subsurface_bsdf1" type="BSDF">
+      <input name="weight" type="float" value="1.0" />
+      <input name="color" type="color3" value="0.816, 0.140, 0.124" />
+      <input name="radius" type="color3" value="1.0, 1.0, 1.0" />
+      <input name="anisotropy" type="float" value="0.9" />
+    </subsurface_bsdf>
+    <surface name="surface1" type="surfaceshader">
+      <input name="bsdf" type="BSDF" nodename="subsurface_bsdf1" />
+      <input name="opacity" type="float" value="1.0" />
+    </surface>
+    <output name="out" type="surfaceshader" nodename="surface1" />
+  </nodegraph>
+
+  <nodegraph name="subsurface_4_backward">
+    <subsurface_bsdf name="subsurface_bsdf1" type="BSDF">
+      <input name="weight" type="float" value="1.0" />
+      <input name="color" type="color3" value="0.816, 0.140, 0.124" />
+      <input name="radius" type="color3" value="1.0, 1.0, 1.0" />
+      <input name="anisotropy" type="float" value="-0.9" />
+    </subsurface_bsdf>
+    <surface name="surface1" type="surfaceshader">
+      <input name="bsdf" type="BSDF" nodename="subsurface_bsdf1" />
+      <input name="opacity" type="float" value="1.0" />
+    </surface>
+    <output name="out" type="surfaceshader" nodename="surface1" />
+  </nodegraph>
+
+</materialx>

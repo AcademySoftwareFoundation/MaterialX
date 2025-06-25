@@ -1124,11 +1124,11 @@ void ShaderGraph::populateColorTransformMap(ColorManagementSystemPtr colorManage
             {
                 if (asInput)
                 {
-                    _inputColorTransformMap.emplace(static_cast<ShaderInput*>(shaderPort), transform);
+                    _inputColorTransformMap.emplace_back(static_cast<ShaderInput*>(shaderPort), transform);
                 }
                 else
                 {
-                    _outputColorTransformMap.emplace(static_cast<ShaderOutput*>(shaderPort), transform);
+                    _outputColorTransformMap.emplace_back(static_cast<ShaderOutput*>(shaderPort), transform);
                 }
             }
             else
@@ -1188,11 +1188,11 @@ void ShaderGraph::populateUnitTransformMap(UnitSystemPtr unitSystem, ShaderPort*
             shaderPort->setUnit(sourceUnitSpace);
             if (asInput)
             {
-                _inputUnitTransformMap.emplace(static_cast<ShaderInput*>(shaderPort), transform);
+                _inputUnitTransformMap.emplace_back(static_cast<ShaderInput*>(shaderPort), transform);
             }
             else
             {
-                _outputUnitTransformMap.emplace(static_cast<ShaderOutput*>(shaderPort), transform);
+                _outputUnitTransformMap.emplace_back(static_cast<ShaderOutput*>(shaderPort), transform);
             }
         }
     }

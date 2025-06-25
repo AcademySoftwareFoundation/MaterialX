@@ -45,10 +45,6 @@ class MX_GENGLSL_API WgslShaderGenerator : public VkShaderGenerator
 
   protected:
     static const string LIGHTDATA_TYPEVAR_STRING;
-
-    HwResourceBindingContextPtr getResourceBindingContext(GenContext&) const override;
-
-    WgslResourceBindingContextPtr _resourceBindingCtx = nullptr;
 };
 
 MATERIALX_NAMESPACE_END
