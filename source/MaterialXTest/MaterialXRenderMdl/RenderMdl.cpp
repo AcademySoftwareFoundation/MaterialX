@@ -164,8 +164,6 @@ bool MdlShaderRenderTester::runRenderer(const std::string& shaderName,
 
                 // run the renderer executable
                 int returnValue = std::system(renderCommand.c_str());
-                CHECK(returnValue == 0);
-                continue;
 
                 mx::FilePath errorLogFile = shaderPath + ".mdl_render_log.txt";
                 std::ifstream logStream(errorLogFile);
