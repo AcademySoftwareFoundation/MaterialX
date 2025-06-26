@@ -142,6 +142,14 @@ covered in the GitHub documentation
 and
 [Configuring a remote for a fork](https://help.github.com/articles/configuring-a-remote-for-a-fork/).
 
+> [!Note]
+> The MaterialX repository contains Git submodules. 
+> Be sure to include the `--recurse-submodules` flag when cloning to ensure all submodules are initialized and updated correctly, as shown in the example below:
+>
+> ```bash
+> git clone --recurse-submodules https://github.com/AcademySoftwareFoundation/MaterialX.git
+> ```
+
 ### Pull Requests
 
 Contributions should be submitted as GitHub pull requests. See
