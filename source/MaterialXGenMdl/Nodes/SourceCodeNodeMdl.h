@@ -27,6 +27,7 @@ class MX_GENMDL_API SourceCodeNodeMdl : public SourceCodeNode
   protected:
     void resolveSourceCode(const InterfaceElement& element, GenContext& context) override;
     string _returnStruct;
+    TypeDesc _outputType;
 };
 
 MATERIALX_NAMESPACE_END
