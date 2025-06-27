@@ -391,7 +391,11 @@
       <input name="bg" type="BSDF" nodename="opaque_base" />
       <input name="mix" type="float" interfacename="transmission_weight" />
     </mix>
+    <invert name="thin_film_weight_inv" type="float">
+      <input name="in" type="float" interfacename="thin_film_weight" />
+    </invert>
     <dielectric_bsdf name="dielectric_reflection" type="BSDF">
+      <input name="weight" type="float" nodename="thin_film_weight_inv" />
       <input name="tint" type="color3" interfacename="specular_color" />
       <input name="ior" type="float" nodename="modulated_eta_s" />
       <input name="roughness" type="vector2" nodename="main_roughness" />
@@ -400,6 +404,7 @@
       <input name="scatter_mode" type="string" value="R" />
     </dielectric_bsdf>
     <dielectric_bsdf name="dielectric_reflection_tf" type="BSDF">
+      <input name="weight" type="float" interfacename="thin_film_weight" />
       <input name="tint" type="color3" interfacename="specular_color" />
       <input name="ior" type="float" nodename="modulated_eta_s" />
       <input name="roughness" type="vector2" nodename="main_roughness" />
@@ -409,13 +414,12 @@
       <input name="thinfilm_thickness" type="float" nodename="thin_film_thickness_nm" />
       <input name="thinfilm_ior" type="float" interfacename="thin_film_ior" />
     </dielectric_bsdf>
-    <mix name="dielectric_reflection_tf_mix" type="BSDF">
-      <input name="fg" type="BSDF" nodename="dielectric_reflection_tf" />
-      <input name="bg" type="BSDF" nodename="dielectric_reflection" />
-      <input name="mix" type="float" interfacename="thin_film_weight" />
-    </mix>
+    <add name="dielectric_reflection_blend" type="BSDF">
+      <input name="in1" type="BSDF" nodename="dielectric_reflection" />
+      <input name="in2" type="BSDF" nodename="dielectric_reflection_tf" />
+    </add>
     <layer name="dielectric_base" type="BSDF">
-      <input name="top" type="BSDF" nodename="dielectric_reflection_tf_mix" />
+      <input name="top" type="BSDF" nodename="dielectric_reflection_blend" />
       <input name="base" type="BSDF" nodename="dielectric_substrate" />
     </layer>
 
@@ -428,8 +432,16 @@
       <input name="in1" type="color3" interfacename="specular_color" />
       <input name="in2" type="float" interfacename="specular_weight" />
     </multiply>
+    <multiply name="specular_weight_tf" type="float">
+      <input name="in1" type="float" interfacename="specular_weight" />
+      <input name="in2" type="float" interfacename="thin_film_weight" />
+    </multiply>
+    <multiply name="specular_weight_tf_inv" type="float">
+      <input name="in1" type="float" interfacename="specular_weight" />
+      <input name="in2" type="float" nodename="thin_film_weight_inv" />
+    </multiply>
     <generalized_schlick_bsdf name="metal_bsdf" type="BSDF">
-      <input name="weight" type="float" interfacename="specular_weight" />
+      <input name="weight" type="float" nodename="specular_weight_tf_inv" />
       <input name="color0" type="color3" nodename="metal_reflectivity" />
       <input name="color82" type="color3" nodename="metal_edgecolor" />
       <input name="roughness" type="vector2" nodename="main_roughness" />
@@ -437,7 +449,7 @@
       <input name="tangent" type="vector3" interfacename="geometry_tangent" />
     </generalized_schlick_bsdf>
     <generalized_schlick_bsdf name="metal_bsdf_tf" type="BSDF">
-      <input name="weight" type="float" interfacename="specular_weight" />
+      <input name="weight" type="float" nodename="specular_weight_tf" />
       <input name="color0" type="color3" nodename="metal_reflectivity" />
       <input name="color82" type="color3" nodename="metal_edgecolor" />
       <input name="roughness" type="vector2" nodename="main_roughness" />
@@ -446,13 +458,12 @@
       <input name="thinfilm_thickness" type="float" nodename="thin_film_thickness_nm" />
       <input name="thinfilm_ior" type="float" interfacename="thin_film_ior" />
     </generalized_schlick_bsdf>
-    <mix name="metal_bsdf_tf_mix" type="BSDF">
-      <input name="fg" type="BSDF" nodename="metal_bsdf_tf" />
-      <input name="bg" type="BSDF" nodename="metal_bsdf" />
-      <input name="mix" type="float" interfacename="thin_film_weight" />
-    </mix>
+    <add name="metal_bsdf_tf_blend" type="BSDF">
+      <input name="in1" type="BSDF" nodename="metal_bsdf" />
+      <input name="in2" type="BSDF" nodename="metal_bsdf_tf" />
+    </add>
     <mix name="base_substrate" type="BSDF">
-      <input name="fg" type="BSDF" nodename="metal_bsdf_tf_mix" />
+      <input name="fg" type="BSDF" nodename="metal_bsdf_tf_blend" />
       <input name="bg" type="BSDF" nodename="dielectric_base" />
       <input name="mix" type="float" interfacename="base_metalness" />
     </mix>
