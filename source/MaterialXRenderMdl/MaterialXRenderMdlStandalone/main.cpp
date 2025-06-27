@@ -802,6 +802,7 @@ bool Df_vulkan_app::create_path_trace_shader_module(VkShaderModule& out_shader_m
     std::vector<std::string> defines;
     defines.push_back("LOCAL_SIZE_X=" + std::to_string(g_local_size_x));
     defines.push_back("LOCAL_SIZE_Y=" + std::to_string(g_local_size_y));
+    defines.push_back("MAX_SSS_STEPS=" + std::to_string(m_options.max_sss_steps));
 
     defines.push_back("BINDING_RENDER_PARAMS=" + std::to_string(g_binding_render_params));
     defines.push_back("BINDING_ENV_MAP=" + std::to_string(g_binding_environment_map));
