@@ -418,8 +418,15 @@ function(mx_add_library MATERIALX_MODULE_NAME)
                     FILE_SET mxHeaders DESTINATION ${MATERIALX_INSTALL_INCLUDE_PATH})
         endif()
 
-        install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${MATERIALX_MODULE_NAME}.pdb"
-                DESTINATION "${MATERIALX_INSTALL_LIB_PATH}/" OPTIONAL)
+        if(MSVC)
+            if(MATERIALX_BUILD_SHARED_LIBS)
+                install(FILES $<TARGET_PDB_FILE:${MATERIALX_MODULE_NAME}>
+                        DESTINATION ${MATERIALX_INSTALL_BIN_PATH} OPTIONAL)
+            else()
+                install(FILES "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/$<CONFIG>/$<TARGET_FILE_BASE_NAME:${MATERIALX_MODULE_NAME}>.pdb"
+                        DESTINATION ${MATERIALX_INSTALL_LIB_PATH} OPTIONAL)
+            endif()
+        endif()
     endif()
 
     # Pass TARGET_NAME back to call site, so the caller can modify the build target.
