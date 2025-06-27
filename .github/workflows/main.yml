@@ -24,14 +24,14 @@ jobs:
           compiler_version: "10"
           python: 3.9
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON -DMATERIALX_BUILD_MONOLITHIC=ON
-          vcpkg_root: /home/runner/work/MaterialX/vcpkg
+          vcpkg_root: /home/runner/work/MaterialX/MaterialX/.vcpkg
 
         - name: Linux_GCC_14_Python39
           os: ubuntu-24.04
           compiler: gcc
           compiler_version: "14"
           python: 3.9
-          vcpkg_root: /home/runner/work/MaterialX/vcpkg
+          vcpkg_root: /home/runner/work/MaterialX/MaterialX/.vcpkg
 
 
         - name: Linux_GCC_14_Python311
@@ -41,7 +41,7 @@ jobs:
           python: 3.11
           test_render: ON
           cmake_config: -DMATERIALX_BUILD_MDL_COMPILER=ON
-          vcpkg_root: ${{ github.workspace }}/.vcpkg
+          vcpkg_root: /home/runner/work/MaterialX/MaterialX/.vcpkg
 
         - name: Linux_GCC_CoverageAnalysis
           os: ubuntu-24.04
@@ -50,7 +50,7 @@ jobs:
           python: None
           coverage_analysis: ON
           cmake_config: -DMATERIALX_COVERAGE_ANALYSIS=ON -DMATERIALX_BUILD_RENDER=OFF -DMATERIALX_BUILD_PYTHON=OFF
-          vcpkg_root: /home/runner/work/MaterialX/vcpkg
+          vcpkg_root: /home/runner/work/MaterialX/MaterialX/.vcpkg
 
         - name: Linux_Clang_13_Python39
           os: ubuntu-22.04
@@ -58,7 +58,7 @@ jobs:
           compiler_version: "13"
           python: 3.9
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
-          vcpkg_root: /home/runner/work/MaterialX/vcpkg
+          vcpkg_root: /home/runner/work/MaterialX/MaterialX/.vcpkg
 
         - name: Linux_Clang_18_Python311
           os: ubuntu-24.04
@@ -66,7 +66,7 @@ jobs:
           compiler_version: "18"
           python: 3.11
           clang_format: ON
-          vcpkg_root: /home/runner/work/MaterialX/vcpkg
+          vcpkg_root: /home/runner/work/MaterialX/MaterialX/.vcpkg
 
         - name: MacOS_Xcode_15_Python39
           os: macos-14
@@ -74,7 +74,7 @@ jobs:
           compiler_version: "15.4"
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
           python: 3.9
-          vcpkg_root: /Users/runner/work/MaterialX/vcpkg
+          vcpkg_root: /Users/runner/work/MaterialX/MaterialX/.vcpkg
 
         - name: MacOS_Xcode_15_Python311
           os: macos-15
@@ -82,7 +82,7 @@ jobs:
           compiler_version: "16.1"
           python: 3.11
           test_shaders: ON
-          vcpkg_root: /Users/runner/work/MaterialX/vcpkg
+          vcpkg_root: /Users/runner/work/MaterialX/MaterialX/.vcpkg
 
         - name: MacOS_Xcode_16_Python311
           os: macos-15
@@ -91,7 +91,7 @@ jobs:
           python: 3.11
           static_analysis: ON
           cmake_config: -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
-          vcpkg_root: /Users/runner/work/MaterialX/vcpkg
+          vcpkg_root: /Users/runner/work/MaterialX/MaterialX/.vcpkg
 
         - name: MacOS_Xcode_DynamicAnalysis
           os: macos-15
@@ -100,7 +100,7 @@ jobs:
           python: None
           dynamic_analysis: ON
           cmake_config: -DMATERIALX_DYNAMIC_ANALYSIS=ON
-          vcpkg_root: /Users/runner/work/MaterialX/vcpkg
+          vcpkg_root: /Users/runner/work/MaterialX/MaterialX/.vcpkg
 
         - name: iOS_Xcode_16
           os: macos-15
@@ -108,7 +108,7 @@ jobs:
           compiler_version: "16.1"
           python: None
           cmake_config: -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_SYSROOT=`xcrun --sdk iphoneos --show-sdk-path` -DCMAKE_OSX_ARCHITECTURES=arm64
-          vcpkg_root: /Users/runner/work/MaterialX/vcpkg
+          vcpkg_root: /Users/runner/work/MaterialX/MaterialX/.vcpkg
 
         - name: Windows_VS2022_Win32_Python39
           os: windows-2022

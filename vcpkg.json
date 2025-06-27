@@ -3,7 +3,7 @@
   "name": "materialx",
   "description": "MaterialX is an open standard for the interchange of rich material and look-development content between applications and renderers.",
   "dependencies": [
-    { "name": "glslang", "features": ["tools"] }
+    { "name": "glslang", "features": ["tools"], "platform": "windows | linux" }
   ],
   "features": {
     "mdl-compiler": {
@@ -18,7 +18,6 @@
         { "name": "mdl-sdk", "features": ["openimageio", "dds"] },
         "glfw3",
         "vulkan-headers",
-        "glslang",
         "volk",
         "spirv-tools"
       ]
