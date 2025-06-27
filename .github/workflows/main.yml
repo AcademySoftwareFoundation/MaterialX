@@ -205,9 +205,6 @@ jobs:
     - name: CMake Generate VCPKG cache
       id: cache-vcpkg
       uses: actions/cache@v4
-      env:
-        VCPKG_ROOT: ${{ matrix.vcpkg_root }}
-        VCPKG_BINARY_SOURCES: "clear;files,${{ github.workspace }}/.vcpkg_cache,readwrite"
       with:
         path: ${{ github.workspace }}/.vcpkg_cache
         key: vcpkg-${{ runner.os }}-${{ matrix.compiler }}-${{ matrix.compiler_version }}-${{ matrix.python }}
@@ -215,7 +212,10 @@ jobs:
       name: Build VCPKG dependencies for caching
       continue-on-error: true
       run: cmake -S . -B build -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_BUILD_TESTS=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{matrix.cmake_config}}
-        
+      env:
+        VCPKG_ROOT: ${{ matrix.vcpkg_root }}
+        VCPKG_BINARY_SOURCES: "clear;files,${{ github.workspace }}/.vcpkg_cache,readwrite"
+
     - name: CMake Generate
       run: cmake -S . -B build -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_BUILD_TESTS=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{matrix.cmake_config}}
       env:
@@ -476,7 +476,9 @@ jobs:
         CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
         CIBW_BEFORE_ALL_LINUX: yum install -y libXt-devel
         CIBW_BUILD_VERBOSITY: 1
-        CIBW_ENVIRONMENT: CMAKE_BUILD_PARALLEL_LEVEL=2 VCPKG_ROOT=${{ github.workspace }}/.vcpkg
+        CIBW_ENVIRONMENT: CMAKE_BUILD_PARALLEL_LEVEL=2 VCPKG_ROOT="${{ github.workspace }}/.vcpkg"
+        CIBW_ENVIRONMENT_WINDOWS: VCPKG_ROOT="${{ github.workspace }}/.vcpkg"
+        CIBW_ENVIRONMENT_LINUX: VCPKG_ROOT="${{ github.workspace }}/.vcpkg"
         MACOSX_DEPLOYMENT_TARGET: '11.0'
 
     - name: Install Wheel
