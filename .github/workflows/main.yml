@@ -40,6 +40,7 @@ jobs:
           compiler_version: "14"
           python: 3.11
           test_render: ON
+          cmake_config: -DMATERIALX_BUILD_MDL_COMPILER=ON
           vcpkg_root: /home/runner/work/MaterialX/vcpkg
 
         - name: Linux_GCC_CoverageAnalysis
@@ -120,7 +121,7 @@ jobs:
           os: windows-2025
           architecture: x64
           python: 3.11
-          cmake_config: -G "Visual Studio 17 2022" -A "x64"
+          cmake_config: -G "Visual Studio 17 2022" -A "x64" -DMATERIALX_BUILD_MDL_COMPILER=ON
           test_shaders: ON
           vcpkg_root: C:/vcpkg
 
@@ -201,7 +202,7 @@ jobs:
       run: find source \( -name *.h -o -name *.cpp -o -name *.mm -o -name *.inl \) ! -path "*/External/*" ! -path "*/NanoGUI/*" | xargs clang-format -i --verbose
 
     - name: CMake Generate
-      run: cmake -S . -B build -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_BUILD_TESTS=ON -DMATERIALX_BUILD_MDL_COMPILER=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{matrix.cmake_config}}
+      run: cmake -S . -B build -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_BUILD_TESTS=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{matrix.cmake_config}}
       env:
         VCPKG_ROOT: ${{ matrix.vcpkg_root }}
 
@@ -236,10 +237,10 @@ jobs:
     - name: Shader Validation Tests (Windows)
       if: matrix.test_shaders == 'ON' && runner.os == 'Windows'
       run: |
-        $VCPKG_INSTALL_DIR/x64-windows-release/tools/glslang/glslangValidator.exe -v
-        python python/Scripts/generateshader.py resources/Materials/Examples --target glsl --validator $VCPKG_INSTALL_DIR/x64-windows-release/tools/glslang/glslangValidator.exe
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target essl --validator $VCPKG_INSTALL_DIR/x64-windows-release/tools/glslang/glslangValidator.exe
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target vulkan --validator $VCPKG_INSTALL_DIR/x64-windows-release/tools/glslang/glslangValidator.exe
+        "$VCPKG_INSTALL_DIR/x64-windows-release/tools/glslang/glslangValidator.exe" -v
+        python python/Scripts/generateshader.py resources/Materials/Examples --target glsl --validator "$VCPKG_INSTALL_DIR/x64-windows-release/tools/glslang/glslangValidator.exe"
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target essl --validator "$VCPKG_INSTALL_DIR/x64-windows-release/tools/glslang/glslangValidator.exe"
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target vulkan --validator "$VCPKG_INSTALL_DIR/x64-windows-release/tools/glslang/glslangValidator.exe"
         python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target wgsl --validator "$VCPKG_INSTALL_DIR/x64-windows-release/tools/glslang/glslangValidator.exe --target-env vulkan1.3 --quiet"
       env:
         VCPKG_INSTALL_DIR: D:/a/MaterialX/MaterialX/build/vcpkg_installed
