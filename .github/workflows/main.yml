@@ -41,7 +41,7 @@ jobs:
           python: 3.11
           test_render: ON
           cmake_config: -DMATERIALX_BUILD_MDL_COMPILER=ON
-          vcpkg_root: /home/runner/work/MaterialX/vcpkg
+          vcpkg_root: ${{ github.workspace }}/vcpkg
 
         - name: Linux_GCC_CoverageAnalysis
           os: ubuntu-24.04
@@ -131,6 +131,7 @@ jobs:
           python: None
           cmake_config: -G "Visual Studio 17 2022" -A "x64" -DMATERIALX_BUILD_SHARED_LIBS=ON
           upload_shaders: ON
+          vcpkg_root: C:/vcpkg
 
     steps:
     - name: Sync Repository
@@ -343,6 +344,10 @@ jobs:
         source ./emsdk_env.sh
         echo "EMSDK=$EMSDK" >> $GITHUB_ENV
 
+    - name: Install VCPKG dependencies
+      run: |
+        git clone https://github.com/microsoft/vcpkg.git ${{ github.workspace }}/vcpkg
+
     - name: Install Node
       uses: actions/setup-node@v4
       with:
@@ -350,10 +355,14 @@ jobs:
 
     - name: JavaScript CMake Generate
       run: cmake -S . -B javascript/build -DMATERIALX_BUILD_JS=ON -DMATERIALX_EMSDK_PATH=${{ env.EMSDK }}
+      env:
+        VCPKG_ROOT: ${{ github.workspace }}/vcpkg
 
     - name: JavaScript CMake Build
       run: cmake --build javascript/build --target install --config Release --parallel 2
-    
+      env:
+        VCPKG_ROOT: ${{ github.workspace }}/vcpkg
+
     - name: JavaScript Unit Tests
       run: |
         npm install
@@ -436,6 +445,10 @@ jobs:
         name: MaterialX_Python_SDist
         path: sdist
 
+    - name: Install VCPKG dependencies
+      run: |
+        git clone https://github.com/microsoft/vcpkg.git ${{ github.workspace }}/vcpkg
+
     - name: Build Wheel
       uses: pypa/cibuildwheel@v2.23.2
       with:
@@ -449,6 +462,7 @@ jobs:
         CIBW_BUILD_VERBOSITY: 1
         CIBW_ENVIRONMENT: CMAKE_BUILD_PARALLEL_LEVEL=2
         MACOSX_DEPLOYMENT_TARGET: '11.0'
+        VCPKG_ROOT: ${{ github.workspace }}/vcpkg
 
     - name: Install Wheel
       run: python -m pip install MaterialX --find-links wheelhouse --no-index
