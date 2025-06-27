@@ -19,6 +19,7 @@
 
 #include <MaterialXCore/Node.h>
 
+#include <map>
 #include <sstream>
 
 // Restrict a scoped block of statements to a specific shader stage, as
@@ -50,8 +51,9 @@ extern MX_GENSHADER_API const string PIXEL;
 class VariableBlock;
 /// Shared pointer to a VariableBlock
 using VariableBlockPtr = std::shared_ptr<VariableBlock>;
-/// Shared pointer to a map between string identifiers and VariableBlocks
-using VariableBlockMap = std::unordered_map<string, VariableBlockPtr>;
+/// Shared pointer to a map between string identifiers and VariableBlocks.
+/// The order may affect the order of the respective definitions in the generated code.
+using VariableBlockMap = std::map<string, VariableBlockPtr>;
 /// A standard function predicate taking an ShaderPort pointer and returning a boolean.
 using ShaderPortPredicate = std::function<bool(ShaderPort*)>;
 
