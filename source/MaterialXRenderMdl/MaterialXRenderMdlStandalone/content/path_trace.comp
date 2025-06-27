@@ -7,6 +7,7 @@
 // Expected defines:
 //   LOCAL_SIZE_X : The local work group size in the x dimension
 //   LOCAL_SIZE_Y : The local work group size in the y dimension
+//   MAX_SSS_STEPS : The number of random walk steps in case of sub-surface scattering
 //
 //   BINDING_RENDER_PARAMS         : Binding index for Render_params
 //   BINDING_ENV_MAP               : Binding index for uEnvironmentMap
@@ -537,7 +538,7 @@ State make_mdl_state(Ray_hit_info hit_info, bool inside)
 
 void trace_path(inout Ray_state ray_state, inout uint seed)
 {
-    uint sss_steps_left = uMaxSSSPathLength;
+    uint sss_steps_left = MAX_SSS_STEPS;
     for (int bounce = 0; bounce < uMaxPathLength; bounce++)
     {
         Ray_hit_info hit_info;
@@ -598,9 +599,10 @@ void trace_path(inout Ray_state ray_state, inout uint seed)
             {
                 sss_steps_left--;
                 bounce--;
+                // continue tracing inside the volume
+                continue;
             }
-            // continue tracing inside the volume
-            continue;
+            break;
         }
 
         // Add emission
