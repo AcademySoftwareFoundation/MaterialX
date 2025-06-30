@@ -264,11 +264,11 @@ jobs:
     - name: Shader Validation Tests (Windows)
       if: matrix.test_shaders == 'ON' && runner.os == 'Windows'
       run: |
-        $VCPKG_INSTALL_DIR\x64-windows-release\tools\glslang\glslangValidator.exe -v
-        python python/Scripts/generateshader.py resources/Materials/Examples --target glsl --validator "$VCPKG_INSTALL_DIR/x64-windows-release/tools/glslang/glslangValidator.exe"
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target essl --validator "$VCPKG_INSTALL_DIR/x64-windows-release/tools/glslang/glslangValidator.exe"
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target vulkan --validator "$VCPKG_INSTALL_DIR/x64-windows-release/tools/glslang/glslangValidator.exe"
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target wgsl --validator "$VCPKG_INSTALL_DIR/x64-windows-release/tools/glslang/glslangValidator.exe --target-env vulkan1.3 --quiet"
+        %VCPKG_INSTALL_DIR%/x64-windows-release/tools/glslang/glslangValidator.exe -v
+        python python/Scripts/generateshader.py resources/Materials/Examples --target glsl --validator %VCPKG_INSTALL_DIR%/x64-windows-release/tools/glslang/glslangValidator.exe
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target essl --validator %VCPKG_INSTALL_DIR%/x64-windows-release/tools/glslang/glslangValidator.exe
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target vulkan --validator %VCPKG_INSTALL_DIR%/x64-windows-release/tools/glslang/glslangValidator.exe
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target wgsl --validator "%VCPKG_INSTALL_DIR%/x64-windows-release/tools/glslang/glslangValidator.exe --target-env vulkan1.3 --quiet"
       env:
         VCPKG_INSTALL_DIR: D:/a/MaterialX/MaterialX/build/vcpkg_installed
 
