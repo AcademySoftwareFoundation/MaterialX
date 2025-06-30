@@ -9,6 +9,9 @@ on:
       - '**.md'
   workflow_dispatch:
 
+env:
+  VCPKG_VERSION: ef7dbf94b9198bc58f45951adcf1f041fcbc5ea0
+
 jobs:
 
   build:
@@ -115,7 +118,7 @@ jobs:
           architecture: x86
           python: 3.9
           cmake_config: -G "Visual Studio 17 2022" -A "Win32"
-          vcpkg_root: C:/vcpkg
+          vcpkg_root: D:/a/MaterialX/MaterialX/.vcpkg
 
         - name: Windows_VS2022_x64_Python311
           os: windows-2025
@@ -123,7 +126,7 @@ jobs:
           python: 3.11
           cmake_config: -G "Visual Studio 17 2022" -A "x64" -DMATERIALX_BUILD_MDL_COMPILER=ON
           test_shaders: ON
-          vcpkg_root: C:/vcpkg
+          vcpkg_root: D:/a/MaterialX/MaterialX/.vcpkg
 
         - name: Windows_VS2022_x64_SharedLibs
           os: windows-2025
@@ -131,7 +134,7 @@ jobs:
           python: None
           cmake_config: -G "Visual Studio 17 2022" -A "x64" -DMATERIALX_BUILD_SHARED_LIBS=ON
           upload_shaders: ON
-          vcpkg_root: C:/vcpkg
+          vcpkg_root: D:/a/MaterialX/MaterialX/.vcpkg
 
     steps:
     - name: Sync Repository
@@ -156,7 +159,6 @@ jobs:
           fi
         fi
         sudo apt-get install -y build-essential cmake ninja-build
-        git clone https://github.com/microsoft/vcpkg.git ${{ matrix.vcpkg_root }}
 
     - name: Install Dependencies (MacOS)
       if: runner.os == 'macOS'
@@ -201,17 +203,25 @@ jobs:
     - name: Run Clang Format
       if: matrix.clang_format == 'ON'
       run: find source \( -name *.h -o -name *.cpp -o -name *.mm -o -name *.inl \) ! -path "*/External/*" ! -path "*/NanoGUI/*" | xargs clang-format -i --verbose
+    
+    - name: Clone VCPKG
+      run: |
+        git clone https://github.com/microsoft/vcpkg.git ${{ matrix.vcpkg_root }}
+        cd ${{ matrix.vcpkg_root }}
+        git checkout ${{ env.VCPKG_VERSION }}
 
     - name: CMake Generate VCPKG cache
       id: cache-vcpkg
       uses: actions/cache@v4
       with:
         path: ${{ github.workspace }}/.vcpkg_cache
-        key: vcpkg-${{ runner.os }}-${{ matrix.compiler }}-${{ matrix.compiler_version }}-${{ matrix.python }}
+        key: vcpkg-${{ env.VCPKG_VERSION }}-${{ runner.os }}-${{ matrix.compiler }}-${{ matrix.compiler_version }}-${{ matrix.python }}
     - if: ${{ steps.cache-vcpkg.outputs.cache-hit != 'true' }}
       name: Build VCPKG dependencies for caching
       continue-on-error: true
-      run: cmake -S . -B build -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_BUILD_TESTS=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{matrix.cmake_config}}
+      run: |
+        echo "Building VCPKG for hash: ${{ env.VCPKG_VERSION }}"
+        cmake -S . -B build -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_BUILD_TESTS=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{matrix.cmake_config}}
       env:
         VCPKG_ROOT: ${{ matrix.vcpkg_root }}
         VCPKG_BINARY_SOURCES: "clear;files,${{ github.workspace }}/.vcpkg_cache,readwrite"
@@ -360,6 +370,12 @@ jobs:
         source ./emsdk_env.sh
         echo "EMSDK=$EMSDK" >> $GITHUB_ENV
 
+    - name: Clone VCPKG
+      run: |
+        git clone https://github.com/microsoft/vcpkg.git ${{ github.workspace }}/.vcpkg
+        cd ${{ github.workspace }}/.vcpkg
+        git checkout ${{ env.VCPKG_VERSION }}
+
     - name: Install Node
       uses: actions/setup-node@v4
       with:
@@ -367,9 +383,13 @@ jobs:
 
     - name: JavaScript CMake Generate
       run: cmake -S . -B javascript/build -DMATERIALX_BUILD_JS=ON -DMATERIALX_EMSDK_PATH=${{ env.EMSDK }}
+      env:
+        VCPKG_ROOT: ${{ github.workspace }}/.vcpkg
 
     - name: JavaScript CMake Build
       run: cmake --build javascript/build --target install --config Release --parallel 2
+      env:
+        VCPKG_ROOT: ${{ github.workspace }}/.vcpkg
 
     - name: JavaScript Unit Tests
       run: |
@@ -453,6 +473,12 @@ jobs:
         name: MaterialX_Python_SDist
         path: sdist
 
+    - name: Clone VCPKG
+      run: |
+        git clone https://github.com/microsoft/vcpkg.git ${{ github.workspace }}/.vcpkg
+        cd ${{ github.workspace }}/.vcpkg
+        git checkout ${{ env.VCPKG_VERSION }}
+
     - name: Build Wheel
       uses: pypa/cibuildwheel@v2.23.2
       with:
@@ -464,6 +490,11 @@ jobs:
         CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
         CIBW_BEFORE_ALL_LINUX: yum install -y libXt-devel
         CIBW_BUILD_VERBOSITY: 1
+        CIBW_BEFORE_BUILD: git clone https://github.com/microsoft/vcpkg.git .vcpkg && \
+            cd .vcpkg && \
+            git checkout ${{ env.VCPKG_VERSION }} && \
+            export VCPKG_ROOT=$(pwd) && \
+            cd ..
         CIBW_ENVIRONMENT: CMAKE_BUILD_PARALLEL_LEVEL=2
         MACOSX_DEPLOYMENT_TARGET: '11.0'
 
