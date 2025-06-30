@@ -15,6 +15,26 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 
 
+# VCPKG setup 
+# Check if the local vcpkg installation can be found
+if(NOT CMAKE_TOOLCHAIN_FILE AND DEFINED ENV{VCPKG_ROOT})
+    string(REPLACE "\\" "/" VCPKG_ROOT $ENV{VCPKG_ROOT})  # make sure to use forward slashes on windows
+    set(CMAKE_TOOLCHAIN_FILE "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
+endif()
+if(EXISTS ${CMAKE_TOOLCHAIN_FILE})
+    message(STATUS "VCPKG toolchain file found: ${CMAKE_TOOLCHAIN_FILE}")
+else()
+    message(FATAL_ERROR "VCPKG toolchain path not found. Please set the `VCPKG_ROOT` environment variable or specify `CMAKE_TOOLCHAIN_FILE` manually.")
+    return()  # exit here otherwise the cache would need to be cleared
+endif()
+set(VCPKG_MANIFEST_MODE ON)
+# linux and macos build static libs by default, for windows we need to set this manually
+# note, 32bit and arm are not supported
+if(WIN32 AND NOT UNIX)
+    # for MDL we use the "static" triplet to make sure that the image plugins are link dependencies statically so we don't need to collect all openimageio libraries.
+    set(VCPKG_TARGET_TRIPLET x64-windows-static-md)
+endif()
+
 # JavaScript setup 
 option(MATERIALX_BUILD_JS "Build the MaterialX JavaScript package from C++ bindings. Requires the emscripten environment." OFF)
 set(MATERIALX_EMSDK_PATH "" CACHE PATH "Path to EMSDK (e.g. 'D:/Projects/emsdk').")
@@ -32,45 +52,14 @@ if (MATERIALX_BUILD_JS)
     endif()
 endif()
 
-# optional dependencies
-set(REQUIRE_VCPKG OFF) 
+# optional dependencies 
 option(MATERIALX_BUILD_MDL_COMPILER "Build the MDL SDK dependency to be used in [genmdl] tests." OFF)
 if(MATERIALX_BUILD_MDL_COMPILER)
     list(APPEND VCPKG_MANIFEST_FEATURES "mdl-compiler")
-    set(REQUIRE_VCPKG ON) 
     endif()
     option(MATERIALX_BUILD_MDL_RENDER "Build the MDL SDK dependency and a renderer application to be used in [rendermdl] tests." OFF)
     if(MATERIALX_BUILD_MDL_RENDER)
     list(APPEND VCPKG_MANIFEST_FEATURES "mdl-render")
-    set(REQUIRE_VCPKG ON) 
-endif()
-
-# VCPKG setup in case optional dependencies use it
-if(REQUIRE_VCPKG)
-
-    if(MATERIALX_BUILD_JS)
-        # if needed, toolchains can be chained
-        message(FATAL_ERROR "only one VCPKG toolchain supported at a time, please disable MATERIALX_BUILD_JS or MATERIALX_BUILD_MDL_COMPILER and MATERIALX_BUILD_MDL_RENDER")
-    endif()
-
-    # Check if the local vcpkg installation can be found
-    if(NOT CMAKE_TOOLCHAIN_FILE AND DEFINED ENV{VCPKG_ROOT})
-        string(REPLACE "\\" "/" VCPKG_ROOT $ENV{VCPKG_ROOT})  # make sure to use forward slashes on windows
-        set(CMAKE_TOOLCHAIN_FILE "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
-    endif()
-    if(EXISTS ${CMAKE_TOOLCHAIN_FILE})
-        message(STATUS "VCPKG toolchain file found: ${CMAKE_TOOLCHAIN_FILE}")
-    else()
-        message(FATAL_ERROR "VCPKG toolchain path not found. Please set the `VCPKG_ROOT` environment variable or specify `CMAKE_TOOLCHAIN_FILE` manually.")
-        return()  # exit here otherwise the cache would need to be cleared
-    endif()
-    set(VCPKG_MANIFEST_MODE ON)
-    # linux and macos build static libs by default, for windows we need to set this manually
-    # note, 32bit and arm are not supported
-    if(WIN32 AND NOT UNIX)
-        # for MDL we use the "static" triplet to make sure that the image plugins are link dependencies statically so we don't need to collect all openimageio libraries.
-        set(VCPKG_TARGET_TRIPLET x64-windows-static-md)
-    endif()
 endif()
 
 project(MaterialX VERSION ${MATERIALX_LIBRARY_VERSION})
