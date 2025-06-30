@@ -254,7 +254,7 @@ jobs:
     - name: Shader Validation Tests (Windows)
       if: matrix.test_shaders == 'ON' && runner.os == 'Windows'
       run: |
-        "$VCPKG_INSTALL_DIR/x64-windows-release/tools/glslang/glslangValidator.exe -v"
+        $VCPKG_INSTALL_DIR\x64-windows-release\tools\glslang\glslangValidator.exe -v
         python python/Scripts/generateshader.py resources/Materials/Examples --target glsl --validator "$VCPKG_INSTALL_DIR/x64-windows-release/tools/glslang/glslangValidator.exe"
         python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target essl --validator "$VCPKG_INSTALL_DIR/x64-windows-release/tools/glslang/glslangValidator.exe"
         python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target vulkan --validator "$VCPKG_INSTALL_DIR/x64-windows-release/tools/glslang/glslangValidator.exe"
@@ -360,10 +360,6 @@ jobs:
         source ./emsdk_env.sh
         echo "EMSDK=$EMSDK" >> $GITHUB_ENV
 
-    - name: Install VCPKG dependencies
-      run: |
-        git clone https://github.com/microsoft/vcpkg.git ${{ github.workspace }}/.vcpkg
-
     - name: Install Node
       uses: actions/setup-node@v4
       with:
@@ -371,13 +367,9 @@ jobs:
 
     - name: JavaScript CMake Generate
       run: cmake -S . -B javascript/build -DMATERIALX_BUILD_JS=ON -DMATERIALX_EMSDK_PATH=${{ env.EMSDK }}
-      env:
-        VCPKG_ROOT: ${{ github.workspace }}/.vcpkg
 
     - name: JavaScript CMake Build
       run: cmake --build javascript/build --target install --config Release --parallel 2
-      env:
-        VCPKG_ROOT: ${{ github.workspace }}/.vcpkg
 
     - name: JavaScript Unit Tests
       run: |
@@ -461,10 +453,6 @@ jobs:
         name: MaterialX_Python_SDist
         path: sdist
 
-    - name: Install VCPKG dependencies
-      run: |
-        git clone https://github.com/microsoft/vcpkg.git ${{ github.workspace }}/.vcpkg
-
     - name: Build Wheel
       uses: pypa/cibuildwheel@v2.23.2
       with:
@@ -476,8 +464,7 @@ jobs:
         CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
         CIBW_BEFORE_ALL_LINUX: yum install -y libXt-devel
         CIBW_BUILD_VERBOSITY: 1
-        CIBW_BEFORE_BUILD: "git clone https://github.com/microsoft/vcpkg.git {project}/.vcpkg"
-        CIBW_ENVIRONMENT: CMAKE_BUILD_PARALLEL_LEVEL=2 VCPKG_ROOT="{project}/.vcpkg"
+        CIBW_ENVIRONMENT: CMAKE_BUILD_PARALLEL_LEVEL=2
         MACOSX_DEPLOYMENT_TARGET: '11.0'
 
     - name: Install Wheel
