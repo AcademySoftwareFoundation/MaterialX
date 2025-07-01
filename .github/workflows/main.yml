@@ -490,7 +490,7 @@ jobs:
       run: |
         git clone https://github.com/microsoft/vcpkg.git ${{ github.workspace }}/.vcpkg
         cd ${{ github.workspace }}/.vcpkg
-        git checkout ${{ env.VCPKG_VERSION }}
+        git switch -d ${{ env.VCPKG_VERSION }}
 
     - name: Build Wheel
       uses: pypa/cibuildwheel@v2.23.2
@@ -512,11 +512,7 @@ jobs:
             git clone https://github.com/microsoft/vcpkg.git .vcpkg &&
             cd .vcpkg &&
             git switch -d ${{ env.VCPKG_VERSION }} &&
-            set "VCPKG_ROOT=$(pwd -W)" &&
-            echo %VCPKG_ROOT% &&
-            echo %VCPKG_ROOT% &&
-            echo %cd% &&
-            echo $(pwd) &&
+            set "VCPKG_ROOT=$(pwd -W)/.vcpkg" &&
             cd ..
         CIBW_ENVIRONMENT: CMAKE_BUILD_PARALLEL_LEVEL=2 VCPKG_ROOT="$(pwd)/.vcpkg"
         CIBW_ENVIRONMENT_WINDOWS: CMAKE_BUILD_PARALLEL_LEVEL=2
