@@ -4,37 +4,78 @@ import sys
 import os
 import datetime
 import argparse
+import time
 
 try:
-    # Install pillow via pip to enable image differencing and statistics.
-    from PIL import Image, ImageChops, ImageStat
+    # Use numpy and OpenImageIO for image handling and comparison statistics.
+    import numpy as np
+    import OpenImageIO as oiio
     DIFF_ENABLED = True
 except Exception:
     DIFF_ENABLED = False
 
 def computeDiff(image1Path, image2Path, imageDiffPath):
     try:
-        if os.path.exists(imageDiffPath):
-            os.remove(imageDiffPath)
+        # Open and read image1
+        image1 = oiio.ImageInput.open(image1Path)
+        if not image1:
+            print(f"Failed to load image: {image1Path}")
+            return
+        spec1 = image1.spec()
+        pixels1 = image1.read_image(format=oiio.FLOAT)
+        image1.close()
 
-        if not os.path.exists(image1Path):
-            print ("Image diff input missing: " + image1Path)
+        # Open and read image2
+        image2 = oiio.ImageInput.open(image2Path)
+        if not image2:
+            print(f"Failed to load image: {image2Path}")
+            return
+        spec2 = image2.spec()
+        pixels2 = image2.read_image(format=oiio.FLOAT)
+        image2.close()
+
+        # Check dimensions
+        if spec1.width != spec2.width or spec1.height != spec2.height:
+            print("Image dimensions do not match.")
             return
 
-        if not os.path.exists(image2Path):
-            print ("Image diff input missing: " + image2Path)
-            return
+        # Slice to exclude alpha for 4 change RGBA images
+        nchannels1 = spec1.nchannels
+        if nchannels1 > 3:
+            pixels1_rgb = np.ascontiguousarray(pixels1[:, :, :3])
+        else:
+            pixels1_rgb = pixels1
 
-        image1 = Image.open(image1Path).convert('RGB')
-        image2 = Image.open(image2Path).convert('RGB')
-        diff = ImageChops.difference(image1, image2)
-        diff.save(imageDiffPath)
-        diffStat = ImageStat.Stat(diff)
-        return sum(diffStat.rms) / (3.0 * 255.0)
-    except Exception:
+        nchannels2 = spec2.nchannels
+        if nchannels2 > 3:
+            pixels2_rgb = np.ascontiguousarray(pixels2[:, :, :3])
+        else:
+            pixels2_rgb = pixels2
+
+        # Compute the absolute difference between the two images
+        diff = np.abs(pixels1_rgb - pixels2_rgb)
+
+        # Save the difference image
+        out_spec = oiio.ImageSpec(spec1.width, spec1.height, 3, oiio.FLOAT)
+        out_image = oiio.ImageOutput.create(imageDiffPath)
+        if out_image:
+            out_image.open(imageDiffPath, out_spec)
+            out_image.write_image(diff)
+            out_image.close()
+        else:
+            print("Failed to write difference image.")
+
+        # Compute RMS calculation
+        normalized_rms = np.sqrt(np.mean(diff ** 2)) / 3.0
+
+        return normalized_rms
+
+    except Exception as e:
+        # Clean up and print error message
         if os.path.exists(imageDiffPath):
             os.remove(imageDiffPath)
-        print ("Failed to create image diff between: " + image1Path + ", " + image2Path)
+        print("Failed to create image diff between: " + image1Path + ", " + image2Path)
+        print(f"Error: {e}")
 
 def main(args=None):
 
@@ -91,7 +132,7 @@ def main(args=None):
         fh.write("<h3>" + args.lang1 + " (in: " + args.inputdir1 + ") vs "+ args.lang2 + " (in: " + args.inputdir2 + ")</h3>\n")
 
     if not DIFF_ENABLED and args.CREATE_DIFF:
-        print("--diff argument ignored. Diff utility not installed.")
+        print("--diff argument ignored. Please ensure that OpenImagIO and numpy are installed'.")
 
     # Remove potential trailing path separators
     if args.inputdir1[-1:] == '/' or args.inputdir1[-1:] == '\\':
@@ -138,6 +179,8 @@ def main(args=None):
             path3 = None
         langFiles3.append(file3)
         langPaths3.append(path3)
+
+    start_time = time.perf_counter()
 
     if langFiles1:
         curPath = ""
@@ -213,6 +256,10 @@ def main(args=None):
                 rms = " (RMS " + "%.5f" % diffRms3 + ")" if diffRms3 else ""
                 fh.write("<td align='center'>" + args.lang2.upper() + " vs. " + args.lang3.upper() + rms + "</td>\n")
             fh.write("</tr>\n")
+
+    # Calculate elapsed time
+    elapsed_time = time.perf_counter() - start_time
+    print(f"Time spent: {elapsed_time:.4f} seconds")
 
     fh.write("</table>\n")
     fh.write("</body>\n")
