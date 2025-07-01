@@ -128,7 +128,7 @@ jobs:
           compiler: msvc
           compiler_version: 2022
           python: 3.11
-          cmake_config: -G "Visual Studio 17 2022" -A "x64" -DMATERIALX_BUILD_MDL_COMPILER=ON
+          cmake_config: -G "Visual Studio 17 2022" -A "x64"
           test_shaders: ON
           vcpkg_root: D:/a/MaterialX/MaterialX/.vcpkg
 
@@ -213,7 +213,7 @@ jobs:
       run: |
         git clone https://github.com/microsoft/vcpkg.git ${{ matrix.vcpkg_root }}
         cd ${{ matrix.vcpkg_root }}
-        git checkout ${{ env.VCPKG_VERSION }}
+        git switch -d ${{ env.VCPKG_VERSION }}
 
     # Setup a cache for VCPKG to speed up builds
     # Lookup the cache key
@@ -513,14 +513,14 @@ jobs:
             git clone https://github.com/microsoft/vcpkg.git .vcpkg &&
             cd .vcpkg &&
             git switch -d ${{ env.VCPKG_VERSION }} &&
-            set "VCPKG_ROOT=%cd%" &&
+            set "VCPKG_ROOT=$(pwd -W)" &&
             echo %VCPKG_ROOT% &&
             echo %VCPKG_ROOT% &&
             echo %cd% &&
             echo $(pwd) &&
             cd ..
         CIBW_ENVIRONMENT: CMAKE_BUILD_PARALLEL_LEVEL=2 VCPKG_ROOT="$(pwd)/.vcpkg"
-        CIBW_ENVIRONMENT_WINDOWS: CMAKE_BUILD_PARALLEL_LEVEL=2 VCPKG_ROOT="%cd%\.vcpkg"
+        CIBW_ENVIRONMENT_WINDOWS: CMAKE_BUILD_PARALLEL_LEVEL=2"
         MACOSX_DEPLOYMENT_TARGET: '11.0'
 
     - name: Install Wheel
