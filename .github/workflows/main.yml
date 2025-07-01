@@ -386,7 +386,8 @@ jobs:
       run: |
         git clone https://github.com/microsoft/vcpkg.git ${{ github.workspace }}/.vcpkg
         cd ${{ github.workspace }}/.vcpkg
-        git checkout ${{ env.VCPKG_VERSION }}
+        git submodule update --init --recursive
+        git switch -d ${{ env.VCPKG_VERSION }}
 
     - name: Install Node
       uses: actions/setup-node@v4
