@@ -53,7 +53,7 @@ HextileData mx_hextile_coord(
     // skew input space into simplex triangle grid
     // (1, 0, -tan(30), 2*tan(30))
     mat2 to_skewed = mat2(1.0, 0.0, -0.57735027, 1.15470054);
-    vec2 st_skewed = to_skewed * st;
+    vec2 st_skewed = mx_matrix_mul(to_skewed, st);
 
     // barycentric weights
     vec2 st_frac = fract(st_skewed);
@@ -76,9 +76,9 @@ HextileData mx_hextile_coord(
 
     // tile center
     mat2 inv_skewed = mat2(1.0, 0.0, 0.5, 1.0 / 1.15470054);
-    vec2 ctr1 = inv_skewed * vec2(id1) / vec2(sqrt3_2);
-    vec2 ctr2 = inv_skewed * vec2(id2) / vec2(sqrt3_2);
-    vec2 ctr3 = inv_skewed * vec2(id3) / vec2(sqrt3_2);
+    vec2 ctr1 = mx_matrix_mul(inv_skewed, vec2(id1) / vec2(sqrt3_2));
+    vec2 ctr2 = mx_matrix_mul(inv_skewed, vec2(id2) / vec2(sqrt3_2));
+    vec2 ctr3 = mx_matrix_mul(inv_skewed, vec2(id3) / vec2(sqrt3_2));
 
     // reuse hash for performance
     vec2 seed_offset = vec2(0.12345);  // to avoid some zeros
@@ -119,19 +119,19 @@ HextileData mx_hextile_coord(
     tile_data.rot_radian3 = rv3;
 
     // get coord
-    tile_data.coord1 = ((coord - ctr1) * rm1 / scale1) + ctr1 + offset1;
-    tile_data.coord2 = ((coord - ctr2) * rm2 / scale2) + ctr2 + offset2;
-    tile_data.coord3 = ((coord - ctr3) * rm3 / scale3) + ctr3 + offset3;
+    tile_data.coord1 = (mx_matrix_mul((coord - ctr1), rm1) / scale1) + ctr1 + offset1;
+    tile_data.coord2 = (mx_matrix_mul((coord - ctr2), rm2) / scale2) + ctr2 + offset2;
+    tile_data.coord3 = (mx_matrix_mul((coord - ctr3), rm3) / scale3) + ctr3 + offset3;
 
     // derivatives
     vec2 ddx = dFdx(coord);
     vec2 ddy = dFdy(coord);
-    tile_data.ddx1 = ddx * rm1 / scale1;
-    tile_data.ddx2 = ddx * rm2 / scale2;
-    tile_data.ddx3 = ddx * rm3 / scale3;
-    tile_data.ddy1 = ddy * rm1 / scale1;
-    tile_data.ddy2 = ddy * rm2 / scale2;
-    tile_data.ddy3 = ddy * rm3 / scale3;
+    tile_data.ddx1 = mx_matrix_mul(ddx, rm1) / scale1;
+    tile_data.ddx2 = mx_matrix_mul(ddx, rm2) / scale2;
+    tile_data.ddx3 = mx_matrix_mul(ddx, rm3) / scale3;
+    tile_data.ddy1 = mx_matrix_mul(ddy, rm1) / scale1;
+    tile_data.ddy2 = mx_matrix_mul(ddy, rm2) / scale2;
+    tile_data.ddy3 = mx_matrix_mul(ddy, rm3) / scale3;
 
     return tile_data;
 }
