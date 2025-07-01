@@ -250,6 +250,8 @@ inline void print_context_messages(const mi::neuraylib::IMdl_execution_context* 
             case mi::base::MESSAGE_SEVERITY_DEBUG:
                 debug(message->get_string());
                 break;
+            case mi::base::MESSAGE_SEVERITY_FORCE_32_BIT:
+                break;
         }
     }
 }
@@ -279,11 +281,13 @@ class ExampleLogger : public mi::base::Interface_implement<mi::base::ILogger>
             case mi::base::MESSAGE_SEVERITY_INFO:
                 info(message + 4 + 3); // "info : "
                 break;
+            case mi::base::MESSAGE_SEVERITY_VERBOSE:
+                verbose(message + 7 + 3); // "verbose : "
+                break;
             case mi::base::MESSAGE_SEVERITY_DEBUG:
                 debug(message + 5 + 3); // "debug : "
                 break;
-            case mi::base::MESSAGE_SEVERITY_VERBOSE:
-                verbose(message + 7 + 3); // "verbose : "
+            case mi::base::MESSAGE_SEVERITY_FORCE_32_BIT:
                 break;
         }
     }

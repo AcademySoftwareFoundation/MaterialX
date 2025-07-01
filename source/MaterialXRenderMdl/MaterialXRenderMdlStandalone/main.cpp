@@ -325,7 +325,9 @@ private:
         float zoom;
     };
 
+    #ifdef MI_COMPILER_MSC
     #pragma warning(disable : 4324) // disable the warning about the usage of alignas
+    #endif
     struct Render_params
     {
         // Camera
@@ -354,7 +356,9 @@ private:
         uint32_t progressive_iteration;
         uint32_t flip_texcoord_v;
     };
+    #ifdef MI_COMPILER_MSC
     #pragma warning(default : 4324)
+    #endif
 
 private:
 
