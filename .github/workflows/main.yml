@@ -273,16 +273,11 @@ jobs:
     - name: Shader Validation Tests (Windows)
       if: matrix.test_shaders == 'ON' && runner.os == 'Windows'
       run: |
-        echo "$VCPKG_INSTALL_DIR"
-        echo "${VCPKG_INSTALL_DIR}"
-        echo "%VCPKG_INSTALL_DIR%"
-        "$VCPKG_INSTALL_DIR/tools/glslang/glslangValidator.exe -v"
-        python python/Scripts/generateshader.py resources/Materials/Examples --target glsl --validator "$VCPKG_INSTALL_DIR/tools/glslang/glslangValidator.exe"
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target essl --validator "$VCPKG_INSTALL_DIR/tools/glslang/glslangValidator.exe"
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target vulkan --validator "$VCPKG_INSTALL_DIR/tools/glslang/glslangValidator.exe"
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target wgsl --validator "$VCPKG_INSTALL_DIR/tools/glslang/glslangValidator.exe --target-env vulkan1.3 --quiet"
-      env:
-        VCPKG_INSTALL_DIR: D:/a/MaterialX/MaterialX/build/vcpkg_installed/x64-windows-static-md
+        D:/a/MaterialX/MaterialX/build/vcpkg_installed/x64-windows-static-md/tools/glslang/glslangValidator.exe -v
+        python python/Scripts/generateshader.py resources/Materials/Examples --target glsl --validator "D:/a/MaterialX/MaterialX/build/vcpkg_installed/x64-windows-static-md/tools/glslang/glslangValidator.exe"
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target essl --validator "D:/a/MaterialX/MaterialX/build/vcpkg_installed/x64-windows-static-md/tools/glslang/glslangValidator.exe"
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target vulkan --validator "D:/a/MaterialX/MaterialX/build/vcpkg_installed/x64-windows-static-md/tools/glslang/glslangValidator.exe"
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target wgsl --validator "D:/a/MaterialX/MaterialX/build/vcpkg_installed/x64-windows-static-md/tools/glslang/glslangValidator.exe --target-env vulkan1.3 --quiet"
 
     - name: Shader Validation Tests (MacOS)
       if: matrix.test_shaders == 'ON' && runner.os == 'macOS'
@@ -511,7 +506,8 @@ jobs:
             git clone https://github.com/microsoft/vcpkg.git .vcpkg &&
             cd .vcpkg &&
             git switch -d ${{ env.VCPKG_VERSION }} &&
-            set "VCPKG_ROOT=$(pwd -W)/.vcpkg" &&
+            set VCPKG_ROOT=$(pwd -W)/.vcpkg &&
+            export VCPKG_ROOT=$(pwd -W)/.vcpkg &&
             echo "VCPKG_ROOT=$(pwd -W)/.vcpkg" >> $GITHUB_ENV
             cd ..
         CIBW_ENVIRONMENT: CMAKE_BUILD_PARALLEL_LEVEL=2 VCPKG_ROOT="$(pwd)/.vcpkg"
