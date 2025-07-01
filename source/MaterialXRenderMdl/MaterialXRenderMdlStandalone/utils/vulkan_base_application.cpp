@@ -977,7 +977,7 @@ bool Vulkan_example_app::init_swapchain_for_headless()
                 message += std::string(vkformat_to_str(default_formats[i]));
             }
             message += "} are supported.";
-            terminate();
+            std::terminate();
         }
         
         message += " are supported. Choosing the first supported default format ("
