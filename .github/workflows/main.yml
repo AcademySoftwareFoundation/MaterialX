@@ -386,7 +386,6 @@ jobs:
       run: |
         git clone https://github.com/microsoft/vcpkg.git ${{ github.workspace }}/.vcpkg
         cd ${{ github.workspace }}/.vcpkg
-        git submodule update --init --recursive
         git switch -d ${{ env.VCPKG_VERSION }}
 
     - name: Install Node
@@ -513,9 +512,10 @@ jobs:
             cd .vcpkg &&
             git switch -d ${{ env.VCPKG_VERSION }} &&
             set "VCPKG_ROOT=$(pwd -W)/.vcpkg" &&
+            echo "VCPKG_ROOT=$(pwd -W)/.vcpkg" >> $GITHUB_ENV
             cd ..
         CIBW_ENVIRONMENT: CMAKE_BUILD_PARALLEL_LEVEL=2 VCPKG_ROOT="$(pwd)/.vcpkg"
-        CIBW_ENVIRONMENT_WINDOWS: CMAKE_BUILD_PARALLEL_LEVEL=2 VCPKG_ROOT="$(pwd -W)/.vcpkg"
+        CIBW_ENVIRONMENT_WINDOWS: CMAKE_BUILD_PARALLEL_LEVEL=2
         MACOSX_DEPLOYMENT_TARGET: '11.0'
 
     - name: Install Wheel
