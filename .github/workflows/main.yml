@@ -181,7 +181,6 @@ jobs:
             echo "CXX=clang++" >> $GITHUB_ENV
           fi
         fi
-        git clone https://github.com/microsoft/vcpkg.git ${{ matrix.vcpkg_root }}
 
     - name: Install Dependencies (Windows)
       if: runner.os == 'Windows'
@@ -223,19 +222,19 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ${{ github.workspace }}/.vcpkg_cache
-        key: vcpkg-${{ env.VCPKG_VERSION }}-${{ runner.os }}-${{ matrix.architecture }}-${{ matrix.compiler }}-${{ matrix.compiler_version }}-${{ matrix.python }}
-    # Fill the cache in case of a miss. Make sure to set flags in order to collect all dependencies pulled via VCPKG.
+        key: vcpkg-${{ env.VCPKG_VERSION }}-${{ runner.os }}-${{ matrix.architecture }}-${{ matrix.compiler }}-${{ matrix.compiler_version }}-${{ matrix.python }}__${{ matrix.cmake_config }}
+    # Fill the cache in case of a miss. Make sure to use the same flags as below
     - if: ${{ steps.cache-vcpkg.outputs.cache-hit != 'true' }}
       name: Build VCPKG dependencies for caching
       continue-on-error: true
       run: |
         echo "Building VCPKG for hash: ${{ env.VCPKG_VERSION }}"
-        cmake -S . -B build -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_BUILD_TESTS=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON -DMATERIALX_BUILD_MDL_COMPILER=ON
+        cmake -S . -B build -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_BUILD_TESTS=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{matrix.cmake_config}}
       env:
         VCPKG_ROOT: ${{ matrix.vcpkg_root }}
         VCPKG_BINARY_SOURCES: "clear;files,${{ github.workspace }}/.vcpkg_cache,readwrite"
 
-    # Generate using a pre-populated VCPKG cache. Select flags as needed.
+    # Generate using a pre-populated VCPKG cache. If flags change, also change them in the step above.
     - name: CMake Generate
       run: cmake -S . -B build -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_BUILD_TESTS=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{matrix.cmake_config}}
       env:
@@ -503,14 +502,21 @@ jobs:
         CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
         CIBW_BEFORE_ALL_LINUX: yum install -y libXt-devel
         CIBW_BUILD_VERBOSITY: 1
-        CIBW_BEFORE_BUILD: git clone https://github.com/microsoft/vcpkg.git .vcpkg &&
+        CIBW_BEFORE_BUILD: |
+            git clone https://github.com/microsoft/vcpkg.git .vcpkg &&
             cd .vcpkg &&
-            git checkout ${{ env.VCPKG_VERSION }} &&
+            git switch -d ${{ env.VCPKG_VERSION }} &&
             export VCPKG_ROOT=$(pwd) &&
-            echo "VCPKG_ROOT=$VCPKG_ROOT" >> $GITHUB_ENV &&
             echo $VCPKG_ROOT &&
             cd ..
-        CIBW_ENVIRONMENT: CMAKE_BUILD_PARALLEL_LEVEL=2 VCPKG_ROOT="$(pwd)/.vcpkg"
+        CIBW_BEFORE_BUILD_WINDOWS:
+            git clone https://github.com/microsoft/vcpkg.git .vcpkg &&
+            cd .vcpkg &&
+            git switch -d ${{ env.VCPKG_VERSION }} &&
+            set "VCPKG_ROOT=%cd%" &&
+            echo %VCPKG_ROOT% &&
+            cd ..
+        CIBW_ENVIRONMENT: CMAKE_BUILD_PARALLEL_LEVEL=2
         MACOSX_DEPLOYMENT_TARGET: '11.0'
 
     - name: Install Wheel
