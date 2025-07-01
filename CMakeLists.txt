@@ -14,7 +14,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 
-# JavaScript setup 
+# JavaScript setup
 option(MATERIALX_BUILD_JS "Build the MaterialX JavaScript package from C++ bindings. Requires the emscripten environment." OFF)
 set(MATERIALX_EMSDK_PATH "" CACHE PATH "Path to EMSDK (e.g. 'D:/Projects/emsdk').")
 if (MATERIALX_BUILD_JS)
@@ -42,6 +42,7 @@ option(MATERIALX_BUILD_GEN_GLSL "Build the GLSL shader generator back-end." ON)
 option(MATERIALX_BUILD_GEN_OSL "Build the OSL shader generator back-end." ON)
 option(MATERIALX_BUILD_GEN_MDL "Build the MDL shader generator back-end." ON)
 option(MATERIALX_BUILD_GEN_MSL "Build the MSL shader generator back-end." ON)
+option(MATERIALX_BUILD_GEN_SLANG "Build the Slang shader generator back-end." OFF)
 option(MATERIALX_BUILD_RENDER "Build the MaterialX Render modules." ON)
 option(MATERIALX_BUILD_RENDER_PLATFORMS "Build platform-specific render modules for each shader generator." ON)
 option(MATERIALX_BUILD_OIIO "Build OpenImageIO support for MaterialXRender." OFF)
@@ -85,6 +86,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "iOS" OR CMAKE_SYSTEM_NAME MATCHES "tvOS" OR CMAKE
     set(MATERIALX_BUILD_GEN_GLSL OFF)
     set(MATERIALX_BUILD_GEN_OSL OFF)
     set(MATERIALX_BUILD_GEN_MDL OFF)
+    set(MATERIALX_BUILD_GEN_SLANG OFF)
     set(MATERIALX_BUILD_TESTS OFF)
 endif()
 
@@ -161,6 +163,7 @@ set(MATERIALX_LIBNAME_SUFFIX "" CACHE STRING "Specify a suffix to all libraries 
 
 mark_as_advanced(MATERIALX_BUILD_DOCS)
 mark_as_advanced(MATERIALX_BUILD_GEN_GLSL)
+mark_as_advanced(MATERIALX_BUILD_GEN_SLANG)
 mark_as_advanced(MATERIALX_BUILD_GEN_OSL)
 mark_as_advanced(MATERIALX_BUILD_GEN_MDL)
 mark_as_advanced(MATERIALX_BUILD_GEN_MSL)
@@ -325,7 +328,7 @@ function(assign_source_group prefix)
 endfunction(assign_source_group)
 
 function(mx_add_library MATERIALX_MODULE_NAME)
-    set(options ADD_OBJECTIVE_C_CODE)
+    set(options ADD_OBJECTIVE_C_CODE SKIP_INSTALL)
     set(oneValueArgs EXPORT_DEFINE)
     set(multiValueArgs
         SOURCE_FILES
@@ -410,7 +413,7 @@ function(mx_add_library MATERIALX_MODULE_NAME)
 
     target_compile_definitions(${TARGET_NAME} PRIVATE "-D${args_EXPORT_DEFINE}")
 
-    if(NOT SKBUILD)
+    if(NOT SKBUILD AND NOT args_SKIP_INSTALL)
         if(NOT MATERIALX_BUILD_MONOLITHIC)
             install(TARGETS ${MATERIALX_MODULE_NAME}
                     EXPORT MaterialX
@@ -454,14 +457,17 @@ add_subdirectory(source/MaterialXFormat)
 
 # Add shader generation subdirectories
 add_subdirectory(source/MaterialXGenShader)
-if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL OR MATERIALX_BUILD_GEN_MDL OR MATERIALX_BUILD_GEN_MSL)
-    if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_MSL)
+if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL OR MATERIALX_BUILD_GEN_MDL OR MATERIALX_BUILD_GEN_MSL OR MATERIALX_BUILD_GEN_SLANG)
+    if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_MSL OR MATERIALX_BUILD_GEN_SLANG)
         add_subdirectory(source/MaterialXGenHw)
     endif()
-
     if (MATERIALX_BUILD_GEN_GLSL)
         add_definitions(-DMATERIALX_BUILD_GEN_GLSL)
         add_subdirectory(source/MaterialXGenGlsl)
+    endif()
+    if (MATERIALX_BUILD_GEN_SLANG)
+        add_definitions(-DMATERIALX_BUILD_GEN_SLANG)
+        add_subdirectory(source/MaterialXGenSlang)
     endif()
     if (MATERIALX_BUILD_GEN_OSL)
         add_definitions(-DMATERIALX_BUILD_GEN_OSL)
@@ -496,6 +502,9 @@ if(MATERIALX_BUILD_RENDER)
         endif()
         if(MATERIALX_BUILD_GEN_OSL)
             add_subdirectory(source/MaterialXRenderOsl)
+        endif()
+        if(MATERIALX_BUILD_GEN_SLANG)
+            add_subdirectory(source/MaterialXRenderSlang)
         endif()
     endif()
     if(MATERIALX_BUILD_VIEWER)
