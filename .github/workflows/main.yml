@@ -480,11 +480,11 @@ jobs:
         name: MaterialX_Python_SDist
         path: sdist
 
-    - name: Clone VCPKG
-      run: |
-        git clone https://github.com/microsoft/vcpkg.git ${{ github.workspace }}/.vcpkg
-        cd ${{ github.workspace }}/.vcpkg
-        git switch -d ${{ env.VCPKG_VERSION }}
+    #- name: Clone VCPKG
+    #  run: |
+    #    git clone https://github.com/microsoft/vcpkg.git ${{ github.workspace }}/.vcpkg
+    #    cd ${{ github.workspace }}/.vcpkg
+    #    git switch -d ${{ env.VCPKG_VERSION }}
 
     - name: Build Wheel
       uses: pypa/cibuildwheel@v2.23.2
@@ -502,16 +502,17 @@ jobs:
             cd .vcpkg &&
             git switch -d ${{ env.VCPKG_VERSION }} &&
             cd ..
-        CIBW_BEFORE_BUILD_WINDOWS:
-            git clone https://github.com/microsoft/vcpkg.git .vcpkg &&
-            cd .vcpkg &&
-            git switch -d ${{ env.VCPKG_VERSION }} &&
-            set VCPKG_ROOT=$(pwd -W)/.vcpkg &&
-            cd ..
+        # CIBW_BEFORE_BUILD_WINDOWS:
+        #     git clone https://github.com/microsoft/vcpkg.git .vcpkg &&
+        #     cd .vcpkg &&
+        #     git switch -d ${{ env.VCPKG_VERSION }} &&
+        #     set VCPKG_ROOT=$(pwd -W)/.vcpkg &&
+        #     cd ..
             # export VCPKG_ROOT=$(pwd -W)/.vcpkg &&
             # echo "VCPKG_ROOT=$(pwd -W)/.vcpkg" >> $GITHUB_ENV
-        CIBW_ENVIRONMENT: CMAKE_BUILD_PARALLEL_LEVEL=2 VCPKG_ROOT="$(pwd)/.vcpkg"
-        CIBW_ENVIRONMENT_WINDOWS: CMAKE_BUILD_PARALLEL_LEVEL=2 VCPKG_ROOT=".vcpkg"
+        CIBW_ENVIRONMENT: CMAKE_BUILD_PARALLEL_LEVEL=2 VCPKG_ROOT="./vcpkg"
+        # CIBW_ENVIRONMENT: CMAKE_BUILD_PARALLEL_LEVEL=2 VCPKG_ROOT="$(pwd)/.vcpkg"
+        # CIBW_ENVIRONMENT_WINDOWS: CMAKE_BUILD_PARALLEL_LEVEL=2 VCPKG_ROOT=".vcpkg"
         MACOSX_DEPLOYMENT_TARGET: '11.0'
 
     - name: Install Wheel
