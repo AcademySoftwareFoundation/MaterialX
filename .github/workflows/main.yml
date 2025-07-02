@@ -503,9 +503,9 @@ jobs:
         CIBW_BEFORE_ALL_LINUX: yum install -y libXt-devel
         CIBW_BUILD_VERBOSITY: 1
         CIBW_BEFORE_BUILD: |
-            git clone https://github.com/microsoft/vcpkg.git .vcpkg &&
-            cd .vcpkg &&
-            git switch -d ${{ env.VCPKG_VERSION }} &&
+            git clone https://github.com/microsoft/vcpkg.git .vcpkg
+            cd .vcpkg
+            git switch -d ${{ env.VCPKG_VERSION }}
             cd ..
         CIBW_BEFORE_BUILD_WINDOWS: |
             git clone https://github.com/microsoft/vcpkg.git .vcpkg &&
@@ -515,10 +515,6 @@ jobs:
             echo $VCPKG_ROOT &&
             echo %VCPKG_ROOT% &&
             echo "VCPKG_ROOT=$(pwd -W)" >> $GITHUB_ENV &&
-            set VCPKG_ROOT="%cd%" &&
-            echo $VCPKG_ROOT &&
-            echo %VCPKG_ROOT% &&
-            set VCPKG_ROOT="%cd%" &&
             cd .. 
 
         # $env:VCPKG_ROOT = (Get-Location).Path + "\.vcpkg"
