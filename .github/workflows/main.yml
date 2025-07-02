@@ -273,7 +273,12 @@ jobs:
     - name: Shader Validation Tests (Windows)
       if: matrix.test_shaders == 'ON' && runner.os == 'Windows'
       run: |
-        D:\a\MaterialX\MaterialX\build\vcpkg_installed\x64-windows-static-md/tools\glslang\glslangValidator.exe -v
+        dir D:\a\MaterialX\MaterialX\
+        dir D:\a\MaterialX\MaterialX\vcpkg_installed
+        dir D:\a\MaterialX\MaterialX\vcpkg_installed\x64-windows-static-md
+        dir D:\a\MaterialX\MaterialX\vcpkg_installed\x64-windows-static-md\tools
+        dir D:\a\MaterialX\MaterialX\vcpkg_installed\x64-windows-static-md\tools\glslang
+        D:\a\MaterialX\MaterialX\build\vcpkg_installed\x64-windows-static-md\tools\glslang\glslangValidator.exe -v
         python python/Scripts/generateshader.py resources/Materials/Examples --target glsl --validator "D:/a/MaterialX/MaterialX/build/vcpkg_installed/x64-windows-static-md/tools/glslang/glslangValidator.exe"
         python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target essl --validator "D:/a/MaterialX/MaterialX/build/vcpkg_installed/x64-windows-static-md/tools/glslang/glslangValidator.exe"
         python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target vulkan --validator "D:/a/MaterialX/MaterialX/build/vcpkg_installed/x64-windows-static-md/tools/glslang/glslangValidator.exe"
@@ -506,7 +511,14 @@ jobs:
             git clone https://github.com/microsoft/vcpkg.git .vcpkg &&
             cd .vcpkg &&
             git switch -d ${{ env.VCPKG_VERSION }} &&
-            set VCPKG_ROOT=%cd% &&
+            set VCPKG_ROOT="$(pwd -W)" &&
+            echo $VCPKG_ROOT &&
+            echo %VCPKG_ROOT% &&
+            echo "VCPKG_ROOT=$(pwd -W)" >> $GITHUB_ENV &&
+            set VCPKG_ROOT="%cd%" &&
+            echo $VCPKG_ROOT &&
+            echo %VCPKG_ROOT% &&
+            set VCPKG_ROOT="%cd%" &&
             cd .. 
 
         # $env:VCPKG_ROOT = (Get-Location).Path + "\.vcpkg"
