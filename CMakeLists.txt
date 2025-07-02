@@ -32,7 +32,7 @@ set(VCPKG_MANIFEST_MODE ON)
 # note, 32bit and arm are not supported
 if(WIN32 AND NOT UNIX)
     # for MDL we use the "static" triplet to make sure that the image plugins are link dependencies statically so we don't need to collect all openimageio libraries.
-    set(VCPKG_TARGET_TRIPLET x64-windows-static-md)
+    # set(VCPKG_TARGET_TRIPLET x64-windows-static-md)
 endif()
 
 # JavaScript setup 
@@ -56,9 +56,9 @@ endif()
 option(MATERIALX_BUILD_MDL_COMPILER "Build the MDL SDK dependency to be used in [genmdl] tests." OFF)
 if(MATERIALX_BUILD_MDL_COMPILER)
     list(APPEND VCPKG_MANIFEST_FEATURES "mdl-compiler")
-    endif()
-    option(MATERIALX_BUILD_MDL_RENDER "Build the MDL SDK dependency and a renderer application to be used in [rendermdl] tests." OFF)
-    if(MATERIALX_BUILD_MDL_RENDER)
+endif()
+option(MATERIALX_BUILD_MDL_RENDER "Build the MDL SDK dependency and a renderer application to be used in [rendermdl] tests." OFF)
+if(MATERIALX_BUILD_MDL_RENDER)
     list(APPEND VCPKG_MANIFEST_FEATURES "mdl-render")
 endif()
 
