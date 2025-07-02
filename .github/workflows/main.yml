@@ -511,7 +511,7 @@ jobs:
             # export VCPKG_ROOT=$(pwd -W)/.vcpkg &&
             # echo "VCPKG_ROOT=$(pwd -W)/.vcpkg" >> $GITHUB_ENV
         CIBW_ENVIRONMENT: CMAKE_BUILD_PARALLEL_LEVEL=2 VCPKG_ROOT="$(pwd)/.vcpkg"
-        CIBW_ENVIRONMENT_WINDOWS: CMAKE_BUILD_PARALLEL_LEVEL=2
+        CIBW_ENVIRONMENT_WINDOWS: CMAKE_BUILD_PARALLEL_LEVEL=2 VCPKG_ROOT=".vcpkg"
         MACOSX_DEPLOYMENT_TARGET: '11.0'
 
     - name: Install Wheel
