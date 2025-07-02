@@ -274,10 +274,11 @@ jobs:
       if: matrix.test_shaders == 'ON' && runner.os == 'Windows'
       run: |
         dir D:\a\MaterialX\MaterialX\
-        dir D:\a\MaterialX\MaterialX\vcpkg_installed
-        dir D:\a\MaterialX\MaterialX\vcpkg_installed\x64-windows-static-md
-        dir D:\a\MaterialX\MaterialX\vcpkg_installed\x64-windows-static-md\tools
-        dir D:\a\MaterialX\MaterialX\vcpkg_installed\x64-windows-static-md\tools\glslang
+        dir D:\a\MaterialX\MaterialX\build
+        dir D:\a\MaterialX\MaterialX\build\vcpkg_installed
+        dir D:\a\MaterialX\MaterialX\build\vcpkg_installed\x64-windows-static-md
+        dir D:\a\MaterialX\MaterialX\build\vcpkg_installed\x64-windows-static-md\tools
+        dir D:\a\MaterialX\MaterialX\build\vcpkg_installed\x64-windows-static-md\tools\glslang
         D:\a\MaterialX\MaterialX\build\vcpkg_installed\x64-windows-static-md\tools\glslang\glslangValidator.exe -v
         python python/Scripts/generateshader.py resources/Materials/Examples --target glsl --validator "D:/a/MaterialX/MaterialX/build/vcpkg_installed/x64-windows-static-md/tools/glslang/glslangValidator.exe"
         python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target essl --validator "D:/a/MaterialX/MaterialX/build/vcpkg_installed/x64-windows-static-md/tools/glslang/glslangValidator.exe"
@@ -508,13 +509,13 @@ jobs:
             git switch -d ${{ env.VCPKG_VERSION }}
             cd ..
         CIBW_BEFORE_BUILD_WINDOWS: |
-            git clone https://github.com/microsoft/vcpkg.git .vcpkg
-            cd .vcpkg
-            git switch -d ${{ env.VCPKG_VERSION }}
-            set VCPKG_ROOT="$(pwd -W)"
-            echo $VCPKG_ROOT
-            echo %VCPKG_ROOT%
-            echo "VCPKG_ROOT=$(pwd -W)" >> $GITHUB_ENV
+            git clone https://github.com/microsoft/vcpkg.git .vcpkg &&
+            cd .vcpkg &&
+            git switch -d ${{ env.VCPKG_VERSION }} &&
+            set VCPKG_ROOT="$(pwd -W)" &&
+            echo $VCPKG_ROOT &&
+            echo %VCPKG_ROOT% &&
+            echo "VCPKG_ROOT=$(pwd -W)" >> $GITHUB_ENV &&
             cd ..
         CIBW_ENVIRONMENT: CMAKE_BUILD_PARALLEL_LEVEL=2 VCPKG_ROOT="$(pwd)/.vcpkg"
         CIBW_ENVIRONMENT_WINDOWS: CMAKE_BUILD_PARALLEL_LEVEL=2
