@@ -273,7 +273,7 @@ jobs:
     - name: Shader Validation Tests (Windows)
       if: matrix.test_shaders == 'ON' && runner.os == 'Windows'
       run: |
-        D:/a/MaterialX/MaterialX/build/vcpkg_installed/x64-windows-static-md/tools/glslang/glslangValidator.exe -v
+        D:\a\MaterialX\MaterialX\build\vcpkg_installed\x64-windows-static-md/tools\glslang\glslangValidator.exe -v
         python python/Scripts/generateshader.py resources/Materials/Examples --target glsl --validator "D:/a/MaterialX/MaterialX/build/vcpkg_installed/x64-windows-static-md/tools/glslang/glslangValidator.exe"
         python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target essl --validator "D:/a/MaterialX/MaterialX/build/vcpkg_installed/x64-windows-static-md/tools/glslang/glslangValidator.exe"
         python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target vulkan --validator "D:/a/MaterialX/MaterialX/build/vcpkg_installed/x64-windows-static-md/tools/glslang/glslangValidator.exe"
@@ -512,7 +512,9 @@ jobs:
             # echo "VCPKG_ROOT=$(pwd -W)/.vcpkg" >> $GITHUB_ENV
         CIBW_ENVIRONMENT: CMAKE_BUILD_PARALLEL_LEVEL=2 VCPKG_ROOT="$(pwd)/.vcpkg"
         #CIBW_ENVIRONMENT_WINDOWS: CMAKE_BUILD_PARALLEL_LEVEL=2 VCPKG_ROOT="$(chdir)/.vcpkg"
-        CIBW_ENVIRONMENT_WINDOWS: $env:VCPKG_ROOT = (Get-Location).Path + "\.vcpkg"
+        #CIBW_ENVIRONMENT_WINDOWS: $env:VCPKG_ROOT = (Get-Location).Path + "\.vcpkg"
+        CIBW_ENVIRONMENT_WINDOWS: |
+            powershell -Command '$env:VCPKG_ROOT = (Get-Location).Path + "\\.vcpkg"; [System.Environment]::SetEnvironmentVariable("VCPKG_ROOT", $env:VCPKG_ROOT, [System.EnvironmentVariableTarget]::Process)'
         MACOSX_DEPLOYMENT_TARGET: '11.0'
 
     - name: Install Wheel
