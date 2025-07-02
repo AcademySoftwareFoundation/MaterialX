@@ -507,7 +507,8 @@ jobs:
             cd .vcpkg &&
             git switch -d ${{ env.VCPKG_VERSION }} &&
             cd .. &&
-            $env:VCPKG_ROOT = (Get-Location).Path + "\.vcpkg"
+            set VCPKG_ROOT=%cd%\\.vcpkg
+        # $env:VCPKG_ROOT = (Get-Location).Path + "\.vcpkg"
         # powershell -Command '$env:VCPKG_ROOT = (Get-Location).Path + "\\.vcpkg"; [System.Environment]::SetEnvironmentVariable("VCPKG_ROOT", $env:VCPKG_ROOT, [System.EnvironmentVariableTarget]::Process)'
 
         # CIBW_BEFORE_BUILD_WINDOWS:
