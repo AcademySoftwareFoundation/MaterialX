@@ -508,30 +508,16 @@ jobs:
             git switch -d ${{ env.VCPKG_VERSION }}
             cd ..
         CIBW_BEFORE_BUILD_WINDOWS: |
-            git clone https://github.com/microsoft/vcpkg.git .vcpkg &&
-            cd .vcpkg &&
-            git switch -d ${{ env.VCPKG_VERSION }} &&
-            set VCPKG_ROOT="$(pwd -W)" &&
-            echo $VCPKG_ROOT &&
-            echo %VCPKG_ROOT% &&
-            echo "VCPKG_ROOT=$(pwd -W)" >> $GITHUB_ENV &&
-            cd .. 
-
-        # $env:VCPKG_ROOT = (Get-Location).Path + "\.vcpkg"
-        # powershell -Command '$env:VCPKG_ROOT = (Get-Location).Path + "\\.vcpkg"; [System.Environment]::SetEnvironmentVariable("VCPKG_ROOT", $env:VCPKG_ROOT, [System.EnvironmentVariableTarget]::Process)'
-
-        # CIBW_BEFORE_BUILD_WINDOWS:
-        #     git clone https://github.com/microsoft/vcpkg.git .vcpkg &&
-        #     cd .vcpkg &&
-        #     git switch -d ${{ env.VCPKG_VERSION }} &&
-        #     set VCPKG_ROOT=$(pwd -W)/.vcpkg &&
-        #     cd ..
-            # export VCPKG_ROOT=$(pwd -W)/.vcpkg &&
-            # echo "VCPKG_ROOT=$(pwd -W)/.vcpkg" >> $GITHUB_ENV
+            git clone https://github.com/microsoft/vcpkg.git .vcpkg
+            cd .vcpkg
+            git switch -d ${{ env.VCPKG_VERSION }}
+            set VCPKG_ROOT="$(pwd -W)"
+            echo $VCPKG_ROOT
+            echo %VCPKG_ROOT%
+            echo "VCPKG_ROOT=$(pwd -W)" >> $GITHUB_ENV
+            cd ..
         CIBW_ENVIRONMENT: CMAKE_BUILD_PARALLEL_LEVEL=2 VCPKG_ROOT="$(pwd)/.vcpkg"
-        #CIBW_ENVIRONMENT_WINDOWS: CMAKE_BUILD_PARALLEL_LEVEL=2 VCPKG_ROOT="$(chdir)/.vcpkg"
-        #CIBW_ENVIRONMENT_WINDOWS: $env:VCPKG_ROOT = (Get-Location).Path + "\.vcpkg"
-        CIBW_ENVIRONMENT_WINDOWS: CMAKE_BUILD_PARALLEL_LEVEL=2 VCPKG_ROOT="(Get-Location).Path/.vcpkg"
+        CIBW_ENVIRONMENT_WINDOWS: CMAKE_BUILD_PARALLEL_LEVEL=2
         MACOSX_DEPLOYMENT_TARGET: '11.0'
 
     - name: Install Wheel
