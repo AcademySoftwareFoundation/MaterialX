@@ -502,6 +502,14 @@ jobs:
             cd .vcpkg &&
             git switch -d ${{ env.VCPKG_VERSION }} &&
             cd ..
+        CIBW_BEFORE_BUILD_WINDOWS: |
+            git clone https://github.com/microsoft/vcpkg.git .vcpkg &&
+            cd .vcpkg &&
+            git switch -d ${{ env.VCPKG_VERSION }} &&
+            cd .. &&
+            $env:VCPKG_ROOT = (Get-Location).Path + "\.vcpkg"
+            powershell -Command '$env:VCPKG_ROOT = (Get-Location).Path + "\\.vcpkg"; [System.Environment]::SetEnvironmentVariable("VCPKG_ROOT", $env:VCPKG_ROOT, [System.EnvironmentVariableTarget]::Process)'
+
         # CIBW_BEFORE_BUILD_WINDOWS:
         #     git clone https://github.com/microsoft/vcpkg.git .vcpkg &&
         #     cd .vcpkg &&
@@ -513,8 +521,7 @@ jobs:
         CIBW_ENVIRONMENT: CMAKE_BUILD_PARALLEL_LEVEL=2 VCPKG_ROOT="$(pwd)/.vcpkg"
         #CIBW_ENVIRONMENT_WINDOWS: CMAKE_BUILD_PARALLEL_LEVEL=2 VCPKG_ROOT="$(chdir)/.vcpkg"
         #CIBW_ENVIRONMENT_WINDOWS: $env:VCPKG_ROOT = (Get-Location).Path + "\.vcpkg"
-        CIBW_ENVIRONMENT_WINDOWS: |
-            powershell -Command '$env:VCPKG_ROOT = (Get-Location).Path + "\\.vcpkg"; [System.Environment]::SetEnvironmentVariable("VCPKG_ROOT", $env:VCPKG_ROOT, [System.EnvironmentVariableTarget]::Process)'
+        CIBW_ENVIRONMENT_WINDOWS: CMAKE_BUILD_PARALLEL_LEVEL=2
         MACOSX_DEPLOYMENT_TARGET: '11.0'
 
     - name: Install Wheel
