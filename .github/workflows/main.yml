@@ -497,10 +497,10 @@ jobs:
             git clone https://github.com/microsoft/vcpkg.git .vcpkg
             cd .vcpkg
             git switch -d ${{ env.VCPKG_VERSION }}
-            $(pwd)
+            echo $(pwd)
             cd ..
         CIBW_ENVIRONMENT: CMAKE_BUILD_PARALLEL_LEVEL=2 VCPKG_ROOT="$(pwd)/.vcpkg"
-        CIBW_ENVIRONMENT_WINDOWS: CMAKE_BUILD_PARALLEL_LEVEL=2 VCPKG_ROOT="$PWD/.vcpkg"
+        CIBW_ENVIRONMENT_WINDOWS: CMAKE_BUILD_PARALLEL_LEVEL=2 VCPKG_ROOT="$(chdir)/.vcpkg"
         MACOSX_DEPLOYMENT_TARGET: '11.0'
 
     - name: Install Wheel
