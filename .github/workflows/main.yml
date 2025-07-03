@@ -275,13 +275,11 @@ jobs:
     - name: Shader Validation Tests (Windows)
       if: matrix.test_shaders == 'ON' && runner.os == 'Windows'
       run: |
-        "$VCPKG_INSTALL_DIR/tools/glslang/glslangValidator.exe -v"
-        python python/Scripts/generateshader.py resources/Materials/Examples --target glsl --validator "$VCPKG_INSTALL_DIR/tools/glslang/glslangValidator.exe"
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target essl --validator "$VCPKG_INSTALL_DIR/tools/glslang/glslangValidator.exe"
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target vulkan --validator "$VCPKG_INSTALL_DIR/tools/glslang/glslangValidator.exe"
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target wgsl --validator "$VCPKG_INSTALL_DIR/tools/glslang/glslangValidator.exe --target-env vulkan1.3 --quiet"
-      env:
-        VCPKG_INSTALL_DIR: ${{ matrix.vcpkg_root }}/../build/vcpkg_installed/${{ matrix.vcpkg_target_triplet }}
+        "${{ matrix.vcpkg_root }}/../build/vcpkg_installed/${{ matrix.vcpkg_target_triplet }}/tools/glslang/glslangValidator.exe -v"
+        python python/Scripts/generateshader.py resources/Materials/Examples --target glsl --validator "${{ matrix.vcpkg_root }}/../build/vcpkg_installed/${{ matrix.vcpkg_target_triplet }}/tools/glslang/glslangValidator.exe"
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target essl --validator "${{ matrix.vcpkg_root }}/../build/vcpkg_installed/${{ matrix.vcpkg_target_triplet }}/tools/glslang/glslangValidator.exe"
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target vulkan --validator "${{ matrix.vcpkg_root }}/../build/vcpkg_installed/${{ matrix.vcpkg_target_triplet }}/tools/glslang/glslangValidator.exe"
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target wgsl --validator "${{ matrix.vcpkg_root }}/../build/vcpkg_installed/${{ matrix.vcpkg_target_triplet }}/tools/glslang/glslangValidator.exe --target-env vulkan1.3 --quiet"
 
     - name: Shader Validation Tests (MacOS)
       if: matrix.test_shaders == 'ON' && runner.os == 'macOS'
@@ -484,12 +482,6 @@ jobs:
         name: MaterialX_Python_SDist
         path: sdist
 
-    #- name: Clone VCPKG
-    #  run: |
-    #    git clone https://github.com/microsoft/vcpkg.git ${{ github.workspace }}/.vcpkg
-    #    cd ${{ github.workspace }}/.vcpkg
-    #    git switch -d ${{ env.VCPKG_VERSION }}
-
     - name: Build Wheel
       uses: pypa/cibuildwheel@v2.23.2
       with:
@@ -502,17 +494,13 @@ jobs:
         CIBW_BEFORE_ALL_LINUX: yum install -y libXt-devel
         CIBW_BUILD_VERBOSITY: 1
         CIBW_BEFORE_BUILD: |
-            git clone https://github.com/microsoft/vcpkg.git {project}/.vcpkg
-            cd {project}/.vcpkg
+            git clone https://github.com/microsoft/vcpkg.git .vcpkg
+            cd .vcpkg
             git switch -d ${{ env.VCPKG_VERSION }}
+            $(pwd)
             cd ..
-        # CIBW_BEFORE_BUILD_WINDOWS: git clone https://github.com/microsoft/vcpkg.git {project}/.vcpkg &&
-        #     cd {project}/.vcpkg &&
-        #     git switch -d ${{ env.VCPKG_VERSION }} &&
-        #     cd ..
-        # echo "VCPKG_ROOT=$(pwd -W)" >> $GITHUB_ENV &&
-        CIBW_ENVIRONMENT: CMAKE_BUILD_PARALLEL_LEVEL=2 VCPKG_ROOT="{project}/.vcpkg"
-        # CIBW_ENVIRONMENT_WINDOWS: CMAKE_BUILD_PARALLEL_LEVEL=2 CMAKE_TOOLCHAIN_FILE="{project}/.vcpkg/scripts/buildsystems/vcpkg.cmake"
+        CIBW_ENVIRONMENT: CMAKE_BUILD_PARALLEL_LEVEL=2 VCPKG_ROOT="$(pwd)/.vcpkg"
+        CIBW_ENVIRONMENT_WINDOWS: CMAKE_BUILD_PARALLEL_LEVEL=2 VCPKG_ROOT="$PWD/.vcpkg"
         MACOSX_DEPLOYMENT_TARGET: '11.0'
 
     - name: Install Wheel
