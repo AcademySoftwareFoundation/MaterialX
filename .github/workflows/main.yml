@@ -275,17 +275,15 @@ jobs:
     - name: Shader Validation Tests (Windows)
       if: matrix.test_shaders == 'ON' && runner.os == 'Windows'
       run: |
-        dir D:\a\MaterialX\MaterialX\
-        dir D:\a\MaterialX\MaterialX\build
-        dir D:\a\MaterialX\MaterialX\build\vcpkg_installed
-        dir D:\a\MaterialX\MaterialX\build\vcpkg_installed\${{ matrix.vcpkg_target_triplet }}
-        dir D:\a\MaterialX\MaterialX\build\vcpkg_installed\${{ matrix.vcpkg_target_triplet }}\tools
-        dir D:\a\MaterialX\MaterialX\build\vcpkg_installed\${{ matrix.vcpkg_target_triplet }}\tools\glslang
-        D:\a\MaterialX\MaterialX\build\vcpkg_installed\${{ matrix.vcpkg_target_triplet }}\tools\glslang\glslangValidator.exe -v
+        echo "${VCPKG_INSTALL_DIR}"
+        echo "$VCPKG_INSTALL_DIR"
+        "$VCPKG_INSTALL_DIR/tools/glslang/glslangValidator.exe -v"
         python python/Scripts/generateshader.py resources/Materials/Examples --target glsl --validator "D:/a/MaterialX/MaterialX/build/vcpkg_installed/${{ matrix.vcpkg_target_triplet }}/tools/glslang/glslangValidator.exe"
         python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target essl --validator "D:/a/MaterialX/MaterialX/build/vcpkg_installed/${{ matrix.vcpkg_target_triplet }}/tools/glslang/glslangValidator.exe"
         python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target vulkan --validator "D:/a/MaterialX/MaterialX/build/vcpkg_installed/${{ matrix.vcpkg_target_triplet }}/tools/glslang/glslangValidator.exe"
         python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target wgsl --validator "D:/a/MaterialX/MaterialX/build/vcpkg_installed/${{ matrix.vcpkg_target_triplet }}/tools/glslang/glslangValidator.exe --target-env vulkan1.3 --quiet"
+      env:
+        VCPKG_INSTALL_DIR: ${{ matrix.vcpkg_root }}/../build/vcpkg_installed/${{ matrix.vcpkg_target_triplet }}
 
     - name: Shader Validation Tests (MacOS)
       if: matrix.test_shaders == 'ON' && runner.os == 'macOS'
@@ -506,21 +504,17 @@ jobs:
         CIBW_BEFORE_ALL_LINUX: yum install -y libXt-devel
         CIBW_BUILD_VERBOSITY: 1
         CIBW_BEFORE_BUILD: |
-            git clone https://github.com/microsoft/vcpkg.git .vcpkg
-            cd .vcpkg
+            git clone https://github.com/microsoft/vcpkg.git {project}/.vcpkg
+            cd {project}/.vcpkg
             git switch -d ${{ env.VCPKG_VERSION }}
             cd ..
-            ls {project}
-            echo "{project}"
-            echo "{wheel}"
-            echo "{package}"
-        CIBW_BEFORE_BUILD_WINDOWS: git clone https://github.com/microsoft/vcpkg.git {project}/.vcpkg &&
-            cd .vcpkg &&
-            git switch -d ${{ env.VCPKG_VERSION }} &&
-            cd ..
+        # CIBW_BEFORE_BUILD_WINDOWS: git clone https://github.com/microsoft/vcpkg.git {project}/.vcpkg &&
+        #     cd {project}/.vcpkg &&
+        #     git switch -d ${{ env.VCPKG_VERSION }} &&
+        #     cd ..
         # echo "VCPKG_ROOT=$(pwd -W)" >> $GITHUB_ENV &&
-        CIBW_ENVIRONMENT: CMAKE_BUILD_PARALLEL_LEVEL=2 VCPKG_ROOT="$(pwd)/.vcpkg"
-        CIBW_ENVIRONMENT_WINDOWS: CMAKE_BUILD_PARALLEL_LEVEL=2 VCPKG_ROOT="{project}/.vcpkg"
+        CIBW_ENVIRONMENT: CMAKE_BUILD_PARALLEL_LEVEL=2 CMAKE_TOOLCHAIN_FILE="{project}/.vcpkg/scripts/buildsystems/vcpkg.cmake"
+        # CIBW_ENVIRONMENT_WINDOWS: CMAKE_BUILD_PARALLEL_LEVEL=2 CMAKE_TOOLCHAIN_FILE="{project}/.vcpkg/scripts/buildsystems/vcpkg.cmake"
         MACOSX_DEPLOYMENT_TARGET: '11.0'
 
     - name: Install Wheel
