@@ -36,7 +36,6 @@ jobs:
           python: 3.9
           vcpkg_root: /home/runner/work/MaterialX/MaterialX/.vcpkg
 
-
         - name: Linux_GCC_14_Python311
           os: ubuntu-24.04
           compiler: gcc
@@ -121,6 +120,7 @@ jobs:
           python: 3.9
           cmake_config: -G "Visual Studio 17 2022" -A "Win32"
           vcpkg_root: D:/a/MaterialX/MaterialX/.vcpkg
+          vcpkg_target_triplet: x64-windows-static-md
 
         - name: Windows_VS2022_x64_Python311
           os: windows-2025
@@ -131,6 +131,7 @@ jobs:
           cmake_config: -G "Visual Studio 17 2022" -A "x64"
           test_shaders: ON
           vcpkg_root: D:/a/MaterialX/MaterialX/.vcpkg
+          vcpkg_target_triplet: x64-windows-static-md
 
         - name: Windows_VS2022_x64_SharedLibs
           os: windows-2025
@@ -141,6 +142,7 @@ jobs:
           cmake_config: -G "Visual Studio 17 2022" -A "x64" -DMATERIALX_BUILD_SHARED_LIBS=ON
           upload_shaders: ON
           vcpkg_root: D:/a/MaterialX/MaterialX/.vcpkg
+          vcpkg_target_triplet: x64-windows-static-md
 
     steps:
     - name: Sync Repository
@@ -276,17 +278,14 @@ jobs:
         dir D:\a\MaterialX\MaterialX\
         dir D:\a\MaterialX\MaterialX\build
         dir D:\a\MaterialX\MaterialX\build\vcpkg_installed
-        dir D:\a\MaterialX\MaterialX\build\vcpkg_installed\x64-windows
-        dir D:\a\MaterialX\MaterialX\build\vcpkg_installed\x64-windows\tools
-        dir D:\a\MaterialX\MaterialX\build\vcpkg_installed\x64-windows\tools\glslang
-        dir D:\a\MaterialX\MaterialX\build\vcpkg_installed\x64-windows-static-md
-        dir D:\a\MaterialX\MaterialX\build\vcpkg_installed\x64-windows-static-md\tools
-        dir D:\a\MaterialX\MaterialX\build\vcpkg_installed\x64-windows-static-md\tools\glslang
-        D:\a\MaterialX\MaterialX\build\vcpkg_installed\x64-windows-static-md\tools\glslang\glslangValidator.exe -v
-        python python/Scripts/generateshader.py resources/Materials/Examples --target glsl --validator "D:/a/MaterialX/MaterialX/build/vcpkg_installed/x64-windows-static-md/tools/glslang/glslangValidator.exe"
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target essl --validator "D:/a/MaterialX/MaterialX/build/vcpkg_installed/x64-windows-static-md/tools/glslang/glslangValidator.exe"
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target vulkan --validator "D:/a/MaterialX/MaterialX/build/vcpkg_installed/x64-windows-static-md/tools/glslang/glslangValidator.exe"
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target wgsl --validator "D:/a/MaterialX/MaterialX/build/vcpkg_installed/x64-windows-static-md/tools/glslang/glslangValidator.exe --target-env vulkan1.3 --quiet"
+        dir D:\a\MaterialX\MaterialX\build\vcpkg_installed\${{ matrix.vcpkg_target_triplet }}
+        dir D:\a\MaterialX\MaterialX\build\vcpkg_installed\${{ matrix.vcpkg_target_triplet }}\tools
+        dir D:\a\MaterialX\MaterialX\build\vcpkg_installed\${{ matrix.vcpkg_target_triplet }}\tools\glslang
+        D:\a\MaterialX\MaterialX\build\vcpkg_installed\${{ matrix.vcpkg_target_triplet }}\tools\glslang\glslangValidator.exe -v
+        python python/Scripts/generateshader.py resources/Materials/Examples --target glsl --validator "D:/a/MaterialX/MaterialX/build/vcpkg_installed/${{ matrix.vcpkg_target_triplet }}/tools/glslang/glslangValidator.exe"
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target essl --validator "D:/a/MaterialX/MaterialX/build/vcpkg_installed/${{ matrix.vcpkg_target_triplet }}/tools/glslang/glslangValidator.exe"
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target vulkan --validator "D:/a/MaterialX/MaterialX/build/vcpkg_installed/${{ matrix.vcpkg_target_triplet }}/tools/glslang/glslangValidator.exe"
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target wgsl --validator "D:/a/MaterialX/MaterialX/build/vcpkg_installed/${{ matrix.vcpkg_target_triplet }}/tools/glslang/glslangValidator.exe --target-env vulkan1.3 --quiet"
 
     - name: Shader Validation Tests (MacOS)
       if: matrix.test_shaders == 'ON' && runner.os == 'macOS'
@@ -511,19 +510,17 @@ jobs:
             cd .vcpkg
             git switch -d ${{ env.VCPKG_VERSION }}
             cd ..
+            ls {project}
             echo "{project}"
             echo "{wheel}"
             echo "{package}"
-        CIBW_BEFORE_BUILD_WINDOWS: git clone https://github.com/microsoft/vcpkg.git .vcpkg &&
+        CIBW_BEFORE_BUILD_WINDOWS: git clone https://github.com/microsoft/vcpkg.git {project}/.vcpkg &&
             cd .vcpkg &&
             git switch -d ${{ env.VCPKG_VERSION }} &&
-            set VCPKG_ROOT="TEST" &&
-            echo $VCPKG_ROOT &&
-            echo %VCPKG_ROOT% &&
             cd ..
         # echo "VCPKG_ROOT=$(pwd -W)" >> $GITHUB_ENV &&
         CIBW_ENVIRONMENT: CMAKE_BUILD_PARALLEL_LEVEL=2 VCPKG_ROOT="$(pwd)/.vcpkg"
-        CIBW_ENVIRONMENT_WINDOWS: CMAKE_BUILD_PARALLEL_LEVEL=2
+        CIBW_ENVIRONMENT_WINDOWS: CMAKE_BUILD_PARALLEL_LEVEL=2 VCPKG_ROOT="{project}/.vcpkg"
         MACOSX_DEPLOYMENT_TARGET: '11.0'
 
     - name: Install Wheel
