@@ -19,6 +19,7 @@ file(GLOB materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
 
 if (APPLE)
     list(APPEND materialx_source ${CMAKE_CURRENT_SOURCE_DIR}/FileDialog_Darwin.mm)
+    add_compile_options(-ObjC)
 endif ()
 
 file(GLOB imgui_source "${DEAR_IMGUI_PREFIX}/*.cpp")

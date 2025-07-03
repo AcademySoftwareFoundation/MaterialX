@@ -499,8 +499,14 @@ jobs:
             git switch -d ${{ env.VCPKG_VERSION }}
             echo $(pwd)
             cd ..
+        CIBW_BEFORE_BUILD_WINDOWS: |
+            git clone https://github.com/microsoft/vcpkg.git .vcpkg &&
+            cd .vcpkg &&
+            git switch -d ${{ env.VCPKG_VERSION }} &&
+            echo $(pwd) &&
+            cd ..
         CIBW_ENVIRONMENT: CMAKE_BUILD_PARALLEL_LEVEL=2 VCPKG_ROOT="$(pwd)/.vcpkg"
-        CIBW_ENVIRONMENT_WINDOWS: CMAKE_BUILD_PARALLEL_LEVEL=2 VCPKG_ROOT="C:/vcpkg"
+        CIBW_ENVIRONMENT_WINDOWS: CMAKE_BUILD_PARALLEL_LEVEL=2 VCPKG_ROOT="C:/vcpkg" # Use preinstalled vcpkg
         MACOSX_DEPLOYMENT_TARGET: '11.0'
 
     - name: Install Wheel
