@@ -275,13 +275,11 @@ jobs:
     - name: Shader Validation Tests (Windows)
       if: matrix.test_shaders == 'ON' && runner.os == 'Windows'
       run: |
-        echo "${VCPKG_INSTALL_DIR}"
-        echo "$VCPKG_INSTALL_DIR"
         "$VCPKG_INSTALL_DIR/tools/glslang/glslangValidator.exe -v"
-        python python/Scripts/generateshader.py resources/Materials/Examples --target glsl --validator "D:/a/MaterialX/MaterialX/build/vcpkg_installed/${{ matrix.vcpkg_target_triplet }}/tools/glslang/glslangValidator.exe"
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target essl --validator "D:/a/MaterialX/MaterialX/build/vcpkg_installed/${{ matrix.vcpkg_target_triplet }}/tools/glslang/glslangValidator.exe"
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target vulkan --validator "D:/a/MaterialX/MaterialX/build/vcpkg_installed/${{ matrix.vcpkg_target_triplet }}/tools/glslang/glslangValidator.exe"
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target wgsl --validator "D:/a/MaterialX/MaterialX/build/vcpkg_installed/${{ matrix.vcpkg_target_triplet }}/tools/glslang/glslangValidator.exe --target-env vulkan1.3 --quiet"
+        python python/Scripts/generateshader.py resources/Materials/Examples --target glsl --validator "$VCPKG_INSTALL_DIR/tools/glslang/glslangValidator.exe"
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target essl --validator "$VCPKG_INSTALL_DIR/tools/glslang/glslangValidator.exe"
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target vulkan --validator "$VCPKG_INSTALL_DIR/tools/glslang/glslangValidator.exe"
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target wgsl --validator "$VCPKG_INSTALL_DIR/tools/glslang/glslangValidator.exe --target-env vulkan1.3 --quiet"
       env:
         VCPKG_INSTALL_DIR: ${{ matrix.vcpkg_root }}/../build/vcpkg_installed/${{ matrix.vcpkg_target_triplet }}
 
@@ -513,7 +511,7 @@ jobs:
         #     git switch -d ${{ env.VCPKG_VERSION }} &&
         #     cd ..
         # echo "VCPKG_ROOT=$(pwd -W)" >> $GITHUB_ENV &&
-        CIBW_ENVIRONMENT: CMAKE_BUILD_PARALLEL_LEVEL=2 CMAKE_TOOLCHAIN_FILE="{project}/.vcpkg/scripts/buildsystems/vcpkg.cmake"
+        CIBW_ENVIRONMENT: CMAKE_BUILD_PARALLEL_LEVEL=2 VCPKG_ROOT="{project}/.vcpkg"
         # CIBW_ENVIRONMENT_WINDOWS: CMAKE_BUILD_PARALLEL_LEVEL=2 CMAKE_TOOLCHAIN_FILE="{project}/.vcpkg/scripts/buildsystems/vcpkg.cmake"
         MACOSX_DEPLOYMENT_TARGET: '11.0'
 
