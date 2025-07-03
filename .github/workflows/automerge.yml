@@ -1,56 +1,45 @@
-name: Merge main into adsk_contrib/dev
+name: Create Branch and PR
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:  # This allows for manual triggering.
   schedule:
-    - cron: '0 0 * * 6'  # Runs every Saturday at midnight
+    - cron: '0 0 * * 6'  # This sets the workflow to run every Saturday at midnight.
 
 jobs:
-  merge:
+  create-branch-and-pr:
     runs-on: ubuntu-latest
+    env:
+      MERGE_BRANCH: adsk-merge-branch
+
     steps:
-    - name: Checkout adsk_contrib/dev branch
+    - name: Checkout main branch
       uses: actions/checkout@v2
       with:
-        ref: adsk_contrib/dev 
+        ref: main
         fetch-depth: 0
 
-    - name: Set up Git user
-      run: |
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+    - name: Create merge branch and PR
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: | 
+        # Check if the merge branch already exists
 
-    - name: Checkout main branch
-      run: |
-        git fetch origin main:main
-        git checkout main
+        if git checkout $MERGE_BRANCH; then
+            echo "Merge main into the existing $MERGE_BRANCH"
+            git merge main
+            echo "push to $MERGE_BRANCH"
+            git push origin $MERGE_BRANCH 
+        else
+            echo "Create new branch $MERGE_BRANCH"
+            git checkout -b $MERGE_BRANCH
+            echo "push to $MERGE_BRANCH"
+            git push origin $MERGE_BRANCH 
+            echo "Create merge PR"
 
-    - name: Try to merge main into adsk_contrib/dev
-      run: |
-        git checkout adsk_contrib/dev
-        git merge main
-        git push origin adsk_contrib/dev
-
-    - name: Handle conflicts and create auxiliary branch
-      if: ${{ failure() }}
-      run: |
-        git status
-        git merge --abort
-        git fetch origin
-        git checkout main && echo "Checkout main"
-        git checkout -b merge-main-to-dev-fix-${{ github.run_number }}
-        git add .
-        git commit --allow-empty -m "Auto merge main into adsk_contrib/dev"
-        git push origin merge-main-to-dev-fix-${{ github.run_number }}
-
-    - name: Open Pull Request if merge fails
-      if: ${{ failure() }}
-      uses: peter-evans/create-pull-request@v5
-      with:
-        commit-message: Merge main into adsk_contrib/dev with conflicts resolved
-        branch: adsk_contrib/dev
-        base: merge-main-to-dev-fix-${{ github.run_number }}
-        title: Merge main into adsk_contrib/dev
-        body: Handling merge conflicts between `main` and `adsk_contrib/dev`
-        reviewers: ashwinbhat,zicher3d,ppenenko  # List of users
-        labels: merge-conflicts
+            gh pr create \
+                --title "Merge $MERGE_BRANCH into adsk_contrib/dev" \
+                --body "Auto-created PR to merge $MERGE_BRANCH into adsk_contrib/dev" \
+                --head $MERGE_BRANCH \
+                --base adsk_contrib/dev \
+                --reviewer "ashwinbhat,zicher3d,ppenenko"
+        fi
