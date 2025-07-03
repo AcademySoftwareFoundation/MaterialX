@@ -19,22 +19,22 @@
   <!-- ======================================================================== -->
 
   <!-- <image> -->
-  <implementation name="IM_image_float_genmsl" nodedef="ND_image_float" file="../genglsl/mx_image_float.glsl" function="mx_image_float" target="genmsl">
+  <implementation name="IM_image_float_genmsl" nodedef="ND_image_float" file="../../genglsl/stdlib/mx_image_float.glsl" function="mx_image_float" target="genmsl">
     <input name="default" type="float" implname="default_value" />
   </implementation>
-  <implementation name="IM_image_color3_genmsl" nodedef="ND_image_color3" file="../genglsl/mx_image_color3.glsl" function="mx_image_color3" target="genmsl">
+  <implementation name="IM_image_color3_genmsl" nodedef="ND_image_color3" file="../../genglsl/stdlib/mx_image_color3.glsl" function="mx_image_color3" target="genmsl">
     <input name="default" type="color3" implname="default_value" />
   </implementation>
-  <implementation name="IM_image_color4_genmsl" nodedef="ND_image_color4" file="../genglsl/mx_image_color4.glsl" function="mx_image_color4" target="genmsl">
+  <implementation name="IM_image_color4_genmsl" nodedef="ND_image_color4" file="../../genglsl/stdlib/mx_image_color4.glsl" function="mx_image_color4" target="genmsl">
     <input name="default" type="color4" implname="default_value" />
   </implementation>
-  <implementation name="IM_image_vector2_genmsl" nodedef="ND_image_vector2" file="../genglsl/mx_image_vector2.glsl" function="mx_image_vector2" target="genmsl">
+  <implementation name="IM_image_vector2_genmsl" nodedef="ND_image_vector2" file="../../genglsl/stdlib/mx_image_vector2.glsl" function="mx_image_vector2" target="genmsl">
     <input name="default" type="vector2" implname="default_value" />
   </implementation>
-  <implementation name="IM_image_vector3_genmsl" nodedef="ND_image_vector3" file="../genglsl/mx_image_vector3.glsl" function="mx_image_vector3" target="genmsl">
+  <implementation name="IM_image_vector3_genmsl" nodedef="ND_image_vector3" file="../../genglsl/stdlib/mx_image_vector3.glsl" function="mx_image_vector3" target="genmsl">
     <input name="default" type="vector3" implname="default_value" />
   </implementation>
-  <implementation name="IM_image_vector4_genmsl" nodedef="ND_image_vector4" file="../genglsl/mx_image_vector4.glsl" function="mx_image_vector4" target="genmsl">
+  <implementation name="IM_image_vector4_genmsl" nodedef="ND_image_vector4" file="../../genglsl/stdlib/mx_image_vector4.glsl" function="mx_image_vector4" target="genmsl">
     <input name="default" type="vector4" implname="default_value" />
   </implementation>
 

@@ -79,7 +79,10 @@ class MX_GENSHADER_API GenContext
         {
             searchPath.prepend(localPath);
         }
-        return searchPath.find(filename).getNormalized();
+
+        auto a = searchPath.find(filename);
+
+        return a.getNormalized();
     }
 
     /// Add reserved words that should not be used as

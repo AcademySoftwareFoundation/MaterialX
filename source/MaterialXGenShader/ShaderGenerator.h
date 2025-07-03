@@ -76,7 +76,7 @@ class MX_GENSHADER_API ShaderGenerator
     /// Add the contents of a standard library include file if not already present.
     /// The library file prefix of the given context, if any, will be prepended
     /// to the given filename.
-    virtual void emitLibraryInclude(const FilePath& filename, GenContext& context, ShaderStage& stage) const;
+    void emitLibraryInclude(const FilePath& filename, GenContext& context, ShaderStage& stage) const;
 
     /// Add a value.
     template <typename T>
