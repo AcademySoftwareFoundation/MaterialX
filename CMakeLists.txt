@@ -32,7 +32,7 @@ set(VCPKG_MANIFEST_MODE ON)
 # note, 32bit and arm are not supported
 if(WIN32 AND NOT UNIX)
     # for MDL we use the "static" triplet to make sure that the image plugins are link dependencies statically so we don't need to collect all openimageio libraries.
-    # set(VCPKG_TARGET_TRIPLET x64-windows-static-md)
+    set(VCPKG_TARGET_TRIPLET x64-windows-static-md)
 endif()
 
 # JavaScript setup 

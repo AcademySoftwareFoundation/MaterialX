@@ -276,6 +276,9 @@ jobs:
         dir D:\a\MaterialX\MaterialX\
         dir D:\a\MaterialX\MaterialX\build
         dir D:\a\MaterialX\MaterialX\build\vcpkg_installed
+        dir D:\a\MaterialX\MaterialX\build\vcpkg_installed\x64-windows
+        dir D:\a\MaterialX\MaterialX\build\vcpkg_installed\x64-windows\tools
+        dir D:\a\MaterialX\MaterialX\build\vcpkg_installed\x64-windows\tools\glslang
         dir D:\a\MaterialX\MaterialX\build\vcpkg_installed\x64-windows-static-md
         dir D:\a\MaterialX\MaterialX\build\vcpkg_installed\x64-windows-static-md\tools
         dir D:\a\MaterialX\MaterialX\build\vcpkg_installed\x64-windows-static-md\tools\glslang
@@ -508,15 +511,17 @@ jobs:
             cd .vcpkg
             git switch -d ${{ env.VCPKG_VERSION }}
             cd ..
-        CIBW_BEFORE_BUILD_WINDOWS: |
-            git clone https://github.com/microsoft/vcpkg.git .vcpkg &&
+            echo "{project}"
+            echo "{wheel}"
+            echo "{package}"
+        CIBW_BEFORE_BUILD_WINDOWS: git clone https://github.com/microsoft/vcpkg.git .vcpkg &&
             cd .vcpkg &&
             git switch -d ${{ env.VCPKG_VERSION }} &&
-            set VCPKG_ROOT="$(pwd -W)" &&
+            set VCPKG_ROOT="TEST" &&
             echo $VCPKG_ROOT &&
             echo %VCPKG_ROOT% &&
-            echo "VCPKG_ROOT=$(pwd -W)" >> $GITHUB_ENV &&
             cd ..
+        # echo "VCPKG_ROOT=$(pwd -W)" >> $GITHUB_ENV &&
         CIBW_ENVIRONMENT: CMAKE_BUILD_PARALLEL_LEVEL=2 VCPKG_ROOT="$(pwd)/.vcpkg"
         CIBW_ENVIRONMENT_WINDOWS: CMAKE_BUILD_PARALLEL_LEVEL=2
         MACOSX_DEPLOYMENT_TARGET: '11.0'
