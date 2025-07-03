@@ -381,7 +381,7 @@ function(mx_add_library MATERIALX_MODULE_NAME)
     if (APPLE AND args_ADD_OBJECTIVE_C_CODE)
         file(GLOB_RECURSE materialx_source_oc "${CMAKE_CURRENT_SOURCE_DIR}/*.m*")
         set_source_files_properties(${materialx_source_oc} PROPERTIES
-            COMPILE_FLAGS "-x objective-c++")
+            COMPILE_FLAGS "-x objective-c++ -x objective-c")
         set(args_SOURCE_FILES ${args_SOURCE_FILES} ${materialx_source_oc})
     endif()
 

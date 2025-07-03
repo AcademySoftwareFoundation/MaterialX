@@ -19,8 +19,7 @@ file(GLOB materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
 
 if (APPLE)
     list(APPEND materialx_source ${CMAKE_CURRENT_SOURCE_DIR}/FileDialog_Darwin.mm)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ObjC")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ObjC")
+    # set_source_files_properties(cocoa_init.m PROPERTIES COMPILE_FLAGS "-ObjC")
 endif ()
 
 file(GLOB imgui_source "${DEAR_IMGUI_PREFIX}/*.cpp")
