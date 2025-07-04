@@ -1,8 +1,7 @@
-/******************************************************************************
- * Copyright 2025 NVIDIA Corporation. All rights reserved.
- *****************************************************************************/
-
- // examples/mdl_sdk/dxr/mdl_d3d12/materialx/mdl_generator.h
+//
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
+//
 
 #ifndef MATERIALX_MDL_GENERATOR_H
 #define MATERIALX_MDL_GENERATOR_H
