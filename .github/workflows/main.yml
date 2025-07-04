@@ -289,7 +289,7 @@ jobs:
       if: matrix.test_shaders == 'ON' && runner.os == 'Windows'
       run: |
         C:/vcpkg/vcpkg install glslang[tools] --triplet=x64-windows-release
-        C:/vcpkg/installed/x64-windows-release/tools/glslang/glslangValidator.exe -v"
+        "C:/vcpkg/installed/x64-windows-release/tools/glslang/glslangValidator.exe -v"
         python python/Scripts/generateshader.py resources/Materials/Examples --target glsl --validator "C:/vcpkg/installed/x64-windows-release/tools/glslang/glslangValidator.exe"
         python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target essl --validator "C:/vcpkg/installed/x64-windows-release/tools/glslang/glslangValidator.exe"
         python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target vulkan --validator "C:/vcpkg/installed/x64-windows-release/tools/glslang/glslangValidator.exe"
