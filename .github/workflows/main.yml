@@ -132,7 +132,6 @@ jobs:
           cmake_config: -G "Visual Studio 17 2022" -A "Win32"
           vcpkg_root: D:/a/MaterialX/MaterialX/.vcpkg
           vcpkg_dependencies: OFF
-          vcpkg_target_triplet: x64-windows-static-md
 
         - name: Windows_VS2022_x64_Python311
           os: windows-2025
@@ -144,7 +143,6 @@ jobs:
           test_shaders: ON
           vcpkg_dependencies: OFF
           vcpkg_root: D:/a/MaterialX/MaterialX/.vcpkg
-          vcpkg_target_triplet: x64-windows-static-md
 
         - name: Windows_VS2022_x64_SharedLibs
           os: windows-2025
@@ -156,7 +154,6 @@ jobs:
           upload_shaders: ON
           vcpkg_root: D:/a/MaterialX/MaterialX/.vcpkg
           vcpkg_dependencies: OFF
-          vcpkg_target_triplet: x64-windows-static-md
 
     steps:
     - name: Sync Repository
@@ -291,11 +288,12 @@ jobs:
     - name: Shader Validation Tests (Windows)
       if: matrix.test_shaders == 'ON' && runner.os == 'Windows'
       run: |
-        "${{ matrix.vcpkg_root }}/../build/vcpkg_installed/${{ matrix.vcpkg_target_triplet }}/tools/glslang/glslangValidator.exe -v"
-        python python/Scripts/generateshader.py resources/Materials/Examples --target glsl --validator "${{ matrix.vcpkg_root }}/../build/vcpkg_installed/${{ matrix.vcpkg_target_triplet }}/tools/glslang/glslangValidator.exe"
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target essl --validator "${{ matrix.vcpkg_root }}/../build/vcpkg_installed/${{ matrix.vcpkg_target_triplet }}/tools/glslang/glslangValidator.exe"
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target vulkan --validator "${{ matrix.vcpkg_root }}/../build/vcpkg_installed/${{ matrix.vcpkg_target_triplet }}/tools/glslang/glslangValidator.exe"
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target wgsl --validator "${{ matrix.vcpkg_root }}/../build/vcpkg_installed/${{ matrix.vcpkg_target_triplet }}/tools/glslang/glslangValidator.exe --target-env vulkan1.3 --quiet"
+        C:/vcpkg/vcpkg install glslang[tools] --triplet=x64-windows-release
+        C:/vcpkg/installed/x64-windows-release/tools/glslang/glslangValidator.exe -v"
+        python python/Scripts/generateshader.py resources/Materials/Examples --target glsl --validator "C:/vcpkg/installed/x64-windows-release/tools/glslang/glslangValidator.exe"
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target essl --validator "C:/vcpkg/installed/x64-windows-release/tools/glslang/glslangValidator.exe"
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target vulkan --validator "C:/vcpkg/installed/x64-windows-release/tools/glslang/glslangValidator.exe"
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target wgsl --validator "C:/vcpkg/installed/x64-windows-release/tools/glslang/glslangValidator.exe --target-env vulkan1.3 --quiet"
 
     - name: Shader Validation Tests (MacOS)
       if: matrix.test_shaders == 'ON' && runner.os == 'macOS'
@@ -402,13 +400,9 @@ jobs:
 
     - name: JavaScript CMake Generate
       run: cmake -S . -B javascript/build -DVCPKG_DEPENDENCIES=OFF -DMATERIALX_BUILD_JS=ON -DMATERIALX_EMSDK_PATH=${{ env.EMSDK }}
-      env:
-        VCPKG_ROOT: ${{ github.workspace }}/.vcpkg
 
     - name: JavaScript CMake Build
       run: cmake --build javascript/build --target install --config Release --parallel 2
-      env:
-        VCPKG_ROOT: ${{ github.workspace }}/.vcpkg
 
     - name: JavaScript Unit Tests
       run: |
