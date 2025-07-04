@@ -43,14 +43,6 @@ void SourceCodeNodeMdl::initialize(const InterfaceElement& element, GenContext& 
         throw ExceptionShaderGenError("Can't find nodedef for implementation element " + element.getName());
     }
 
-    // store the output type for special handling during function call emission
-    vector<OutputPtr> outputs = nodeDef->getActiveOutputs();
-    if (outputs.empty())
-    {
-        throw ExceptionShaderGenError("NodeDef '" + nodeDef->getName() + "' has no outputs defined");
-    }
-    _outputType = syntax.getType(outputs[0]->getType());
-
     _returnStruct = EMPTY_STRING;
     if (nodeDef->getOutputCount() > 1)
     {
@@ -86,7 +78,7 @@ void SourceCodeNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& con
         const ShaderGenerator& shadergen = context.getShaderGenerator();
         const MdlShaderGenerator& shadergenMdl = static_cast<const MdlShaderGenerator&>(shadergen);
 
-        if (_outputType.isClosure())
+        if (nodeOutputIsClosure(node))
         {
             // Emit calls for any closure dependencies upstream from this node.
             shadergen.emitDependentFunctionCalls(node, context, stage, ShaderNode::Classification::CLOSURE);
