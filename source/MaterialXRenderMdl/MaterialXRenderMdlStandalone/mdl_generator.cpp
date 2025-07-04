@@ -3,9 +3,10 @@
  *****************************************************************************/
 
 #include "mdl_generator.h"
-#include "utils/example_shared.h"
 
 #include <mi/mdl_sdk.h>
+#include "utils/io.h"
+#include "utils/log.h"
 
 #include <MaterialXCore/Material.h>
 #include <MaterialXFormat/Util.h>

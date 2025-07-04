@@ -42,7 +42,8 @@
 #include <vector>
 #include <stack>
 
-#include <mi/base/config.h>
+#include <mi/mdl_sdk.h>
+
 #include "strings.h"
 
 #ifdef MI_PLATFORM_WINDOWS
@@ -159,53 +160,6 @@ namespace mi { namespace examples { namespace io
     }
 
     // --------------------------------------------------------------------------------------------
-    std::string dirname(const std::string& path);
-
-    /// creates a directory (not recursively, by default)
-    /// return true if the directory was created successfully or if it already existed.
-    inline bool mkdir(const std::string& dirpath, bool recursively = false)
-    {
-        if (recursively)
-        {
-            std::function<bool(const std::string&)> mkdir_recursively =
-                [&mkdir_recursively](const std::string& dirpath) -> bool
-            {
-                if (dirpath.empty())
-                    return false;
-
-                if (directory_exists(dirpath))
-                    return true;
-
-                // check if the parent exists, or can be created
-                const std::string parent = dirname(dirpath);
-                bool parent_exits = directory_exists(parent);
-                if (!parent_exits)
-                    parent_exits = mkdir_recursively(parent);
-
-                // create the current folder
-                return parent_exits && mkdir(dirpath, false);
-            };
-
-            return mkdir_recursively(dirpath);
-        }
-
-#ifdef MI_PLATFORM_WINDOWS
-        _set_errno(0);
-        if (_mkdir(dirpath.c_str()) == 0)
-            return true;
-
-        errno_t err;
-        _get_errno(&err);
-        return err == EEXIST;
-#else
-        errno = 0;
-        if (::mkdir(dirpath.c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) == 0)
-            return true;
-        return errno == EEXIST;
-#endif
-    }
-
-    // --------------------------------------------------------------------------------------------
 
     /// Reads the content of the given file.
     inline std::string read_text_file(const std::string& filename)
@@ -225,30 +179,6 @@ namespace mi { namespace examples { namespace io
     }
 
     // --------------------------------------------------------------------------------------------
-
-    /// Reads the content of the given binary file.
-    inline std::vector<char> read_binary_file(const std::string& filename)
-    {
-        std::ifstream file(filename.c_str(), std::ios::in | std::ios::binary);
-
-        std::vector<char> data;
-
-        if (!file.is_open())
-        {
-            std::cerr << "Cannot open file: \"" << filename << "\".\n";
-            return data;
-        }
-
-        file.seekg(0, std::ios::end);
-        data.resize(file.tellg());
-
-        file.seekg(0, std::ios::beg);
-        file.read(data.data(), data.size());
-
-        return data;
-    }
-
-    // --------------------------------------------------------------------------------------------
     /// checks if a path absolute or relative.
     inline bool is_absolute_path(const std::string& path)
     {
@@ -265,18 +195,6 @@ namespace mi { namespace examples { namespace io
 #else
         return npath[0] == '/';
 #endif
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    /// Get directory name a given file or sub-folder is located in or an empty
-    /// string if there is no parent directory in \c path.
-    inline std::string dirname(const std::string& path)
-    {
-        std::string npath = normalize(path);
-
-        size_t pos = npath.rfind('/');
-        return pos == std::string::npos ? "" : npath.substr(0, pos);
     }
 
     // --------------------------------------------------------------------------------------------

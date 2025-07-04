@@ -33,13 +33,13 @@
 #ifndef EXAMPLE_SHARED_UTILS_LOG_H
 #define EXAMPLE_SHARED_UTILS_LOG_H
 
-#include "strings.h"
-
-#include <mi/base/config.h>
 #include <chrono>
 #include <functional>
 #include <iostream>
 
+#include <mi/mdl_sdk.h>
+
+#include "strings.h"
 
 namespace mi { namespace examples { namespace log
 {

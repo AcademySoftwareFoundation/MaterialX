@@ -217,80 +217,6 @@ namespace mi { namespace examples { namespace strings
 
     // --------------------------------------------------------------------------------------------
 
-    /// removes leading and trailing quotes if there are some.
-    /// returns true when it was a non-quoted string or valid quoted string before.
-    /// returns false for single quotes and when a quote was only found at one end.
-    inline bool remove_quotes(std::string& s)
-    {
-        size_t l = s.length();
-        if (l == 0)
-            return true;
-
-        bool leading = s[0] == '\"';
-        if (l == 1)
-            return !leading; // one single quote
-
-        bool trailing = s[l - 1] == '\"';
-        if (leading != trailing) // quote one one side only
-            return false;
-
-        if (leading)
-            s = s.substr(1, l - 2); // remove quotes on both sides
-        return true;
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    // Returns a string-representation of the given message severity
-    inline std::string to_string(mi::base::Message_severity severity)
-    {
-        switch (severity)
-        {
-            case mi::base::MESSAGE_SEVERITY_FATAL:
-                return "fatal";
-            case mi::base::MESSAGE_SEVERITY_ERROR:
-                return "error";
-            case mi::base::MESSAGE_SEVERITY_WARNING:
-                return "warning";
-            case mi::base::MESSAGE_SEVERITY_INFO:
-                return "info";
-            case mi::base::MESSAGE_SEVERITY_VERBOSE:
-                return "verbose";
-            case mi::base::MESSAGE_SEVERITY_DEBUG:
-                return "debug";
-            default:
-                break;
-        }
-        return "";
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    // Returns a string-representation of the given message category
-    inline std::string to_string(mi::neuraylib::IMessage::Kind message_kind)
-    {
-        switch (message_kind)
-        {
-            case mi::neuraylib::IMessage::MSG_INTEGRATION:
-                return "MDL SDK";
-            case mi::neuraylib::IMessage::MSG_IMP_EXP:
-                return "Importer/Exporter";
-            case mi::neuraylib::IMessage::MSG_COMILER_BACKEND:
-                return "Compiler Backend";
-            case mi::neuraylib::IMessage::MSG_COMILER_CORE:
-                return "Compiler Core";
-            case mi::neuraylib::IMessage::MSG_COMPILER_ARCHIVE_TOOL:
-                return "Compiler Archive Tool";
-            case mi::neuraylib::IMessage::MSG_COMPILER_DAG:
-                return "Compiler DAG generator";
-            default:
-                break;
-        }
-        return "";
-    }
-
-    // --------------------------------------------------------------------------------------------
-
     // Get current date/time
     inline std::string current_date_time_local()
     {
@@ -309,21 +235,6 @@ namespace mi { namespace examples { namespace strings
         std::strftime(&buffer[0], sizeof(buffer), "%F %T", std::gmtime(&t));
         buffer.resize(std::strlen(buffer.c_str())); // Remove the extra null characters
         return buffer;
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    /// Convert the given string into the given value.
-    /// \return value resembling the given input string
-    template <typename T>
-    T lexicographic_cast(
-        const std::string& str)
-    {
-        std::stringstream s;
-        s << str;
-        T result = T();
-        s >> result;
-        return result;
     }
 
 }}}

@@ -33,16 +33,11 @@
 #ifndef EXAMPLE_SHARED_UTILS_MDL_H
 #define EXAMPLE_SHARED_UTILS_MDL_H
 
-#ifdef IRAY_SDK
-    #include <mi/neuraylib.h>
-#else
-    #include <mi/mdl_sdk.h>
-#endif
-
 #include <fstream>
 
+#include <mi/mdl_sdk.h>
+
 #include "io.h"
-#include "os.h"
 #include "strings.h"
 
 #ifdef MI_PLATFORM_WINDOWS
