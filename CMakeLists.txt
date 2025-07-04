@@ -15,6 +15,8 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 
 # Options that influence the cmake toolchain
+# Note, CMAKE_TOOLCHAIN_FILE can not be changed anymore after the project() command.
+# In order to set it, one needs to clear the cache.
 option(MATERIALX_BUILD_JS "Build the MaterialX JavaScript package from C++ bindings. Requires the emscripten environment." OFF)
 option(VCPKG_DEPENDENCIES "Enables VCPKG to pull external dependencies." ON)  # For build configurations that don't need any dependencies, e.g. in CI
 set(VCPKG_ROOT "" CACHE PATH "The root of a VCPKG checkout. Option provides alternative to the `VCPKG_ROOT` environment variable. If not empty, this overrides the environment variable.")
@@ -32,15 +34,11 @@ if(VCPKG_DEPENDENCIES)
     endif()
 
     # Check if the local vcpkg installation can be found
-    message(STATUS "A")
     if(NOT VCPKG_ROOT AND DEFINED ENV{VCPKG_ROOT})
         set(VCPKG_ROOT $ENV{VCPKG_ROOT})
-        message(STATUS "B" "${VCPKG_ROOT}")
     endif()
     if(NOT CMAKE_TOOLCHAIN_FILE AND VCPKG_ROOT)
-        message(STATUS "C" "${VCPKG_ROOT}")
         string(REPLACE "\\" "/" VCPKG_ROOT ${VCPKG_ROOT})  # make sure to use forward slashes on windows
-        message(STATUS "D" "${VCPKG_ROOT}")
         set(CMAKE_TOOLCHAIN_FILE "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
     endif()
     if(EXISTS ${CMAKE_TOOLCHAIN_FILE})
@@ -69,6 +67,7 @@ if(VCPKG_DEPENDENCIES)
     endif()
 else()
     # disable all options that require VCPKG
+    message("VCPKG_DEPENDENCIES was disabled. Disabling all components that require VCPKG.")
     set(MATERIALX_BUILD_MDL_COMPILER OFF)
     set(MATERIALX_BUILD_MDL_RENDER OFF)
 endif()
