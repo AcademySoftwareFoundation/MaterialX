@@ -31,7 +31,9 @@
  // Simple Vulkan renderer using compiled BSDFs with a material parameter editor GUI.
 
 #include "mdl_generator.h"
-#include "utils/example_shared.h"
+#include "utils/io.h"
+#include "utils/log.h"
+#include "utils/mdl.h"
 #include "utils/vulkan_base_application.h"
 
 #include <cassert>

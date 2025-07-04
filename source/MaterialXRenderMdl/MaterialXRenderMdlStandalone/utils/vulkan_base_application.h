@@ -39,7 +39,9 @@
 #include <glslang/Public/ShaderLang.h>
 #include <GLFW/glfw3.h>
 
-#include "example_shared.h"
+#include <mi/mdl_sdk.h>
+#include "io.h"
+#include "log.h"
 
 
 namespace mi::examples::vk
