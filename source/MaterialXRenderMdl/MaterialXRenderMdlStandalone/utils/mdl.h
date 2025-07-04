@@ -299,33 +299,6 @@ namespace mi { namespace examples { namespace mdl
 
     // --------------------------------------------------------------------------------------------
 
-    class Default_logger : public mi::base::Interface_implement<mi::base::ILogger>
-    {
-    public:
-        void message(
-            mi::base::Message_severity /*level*/,
-            const char* /*module_category*/,
-            const mi::base::Message_details& /*details*/,
-            const char* message) override
-        {
-            fprintf(stderr, "%s\n", message);
-#ifdef MI_PLATFORM_WINDOWS
-            fflush(stderr);
-#endif
-        }
-
-        void message(
-            mi::base::Message_severity level,
-            const char* module_category,
-            const char* message) override
-        {
-            this->message(level, module_category, mi::base::Message_details(), message);
-        }
-
-    };
-
-    // --------------------------------------------------------------------------------------------
-
     inline bool parse_cmd_argument_material_name(
         const std::string& argument,
         std::string& out_module_name,
@@ -412,38 +385,6 @@ namespace mi { namespace examples { namespace mdl
             result->get_element<mi::IString>(static_cast<mi::Size>(0)));
         return overloads->get_c_str();
     }
-
-    // --------------------------------------------------------------------------------------------
-
-#ifdef IRAY_SDK
-    inline mi::Sint32 authenticate(mi::neuraylib::INeuray* neuray)
-    {
-        auto fix_line_ending = [](std::string& s)
-        {
-            size_t length = s.length();
-            if (length > 0 && s[length - 1] == '\r')
-                s.erase(length - 1, 1);
-        };
-
-        std::ifstream file("examples.lic");
-        if (!file.is_open())
-            return -1;
-
-        std::string vendor_key;
-        std::string secret_key;
-        getline(file, vendor_key);
-        getline(file, secret_key);
-        fix_line_ending(vendor_key);
-        fix_line_ending(secret_key);
-
-        return mi::neuraylib::ILibrary_authenticator::authenticate(
-            neuray,
-            vendor_key.c_str(),
-            vendor_key.size(),
-            secret_key.c_str(),
-            secret_key.size());
-    }
-#endif
 
 }}}
 
