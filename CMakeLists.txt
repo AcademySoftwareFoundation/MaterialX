@@ -14,29 +14,66 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 
+# Options that influence the cmake toolchain
+option(MATERIALX_BUILD_JS "Build the MaterialX JavaScript package from C++ bindings. Requires the emscripten environment." OFF)
+option(VCPKG_DEPENDENCIES "Enables VCPKG to pull external dependencies." ON)  # For build configurations that don't need any dependencies, e.g. in CI
+set(VCPKG_ROOT "" CACHE PATH "The root of a VCPKG checkout. Option provides alternative to the `VCPKG_ROOT` environment variable. If not empty, this overrides the environment variable.")
 
-# VCPKG setup 
-# Check if the local vcpkg installation can be found
-if(NOT CMAKE_TOOLCHAIN_FILE AND DEFINED ENV{VCPKG_ROOT})
-    string(REPLACE "\\" "/" VCPKG_ROOT $ENV{VCPKG_ROOT})  # make sure to use forward slashes on windows
-    set(CMAKE_TOOLCHAIN_FILE "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
-endif()
-if(EXISTS ${CMAKE_TOOLCHAIN_FILE})
-    message(STATUS "VCPKG toolchain file found: ${CMAKE_TOOLCHAIN_FILE}")
+# Options that are influenced by the cmake toolchain
+option(MATERIALX_BUILD_MDL_COMPILER "Build the MDL SDK dependency to be used in [genmdl] tests. Needs VCPKG." OFF)
+option(MATERIALX_BUILD_MDL_RENDER "Build the MDL SDK dependency and a renderer application to be used in [rendermdl] tests. Needs VCPKG." OFF)
+
+# VCPKG setup
+if(VCPKG_DEPENDENCIES)
+
+    if (MATERIALX_BUILD_JS)
+        # tool chains could be combined if this combination is required
+        message(FATAL_ERROR "Building JavaScript is not support in combination with VCPKG at this point. Please set the `VCPKG_DEPENDENCIES` to false.")
+    endif()
+
+    # Check if the local vcpkg installation can be found
+    message(STATUS "A")
+    if(NOT VCPKG_ROOT AND DEFINED ENV{VCPKG_ROOT})
+        set(VCPKG_ROOT $ENV{VCPKG_ROOT})
+        message(STATUS "B" "${VCPKG_ROOT}")
+    endif()
+    if(NOT CMAKE_TOOLCHAIN_FILE AND VCPKG_ROOT)
+        message(STATUS "C" "${VCPKG_ROOT}")
+        string(REPLACE "\\" "/" VCPKG_ROOT ${VCPKG_ROOT})  # make sure to use forward slashes on windows
+        message(STATUS "D" "${VCPKG_ROOT}")
+        set(CMAKE_TOOLCHAIN_FILE "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
+    endif()
+    if(EXISTS ${CMAKE_TOOLCHAIN_FILE})
+        message(STATUS "VCPKG toolchain file found: ${CMAKE_TOOLCHAIN_FILE}")
+    else()
+        message(FATAL_ERROR "VCPKG toolchain path not found. Please set the `VCPKG_ROOT` environment variable or specify `CMAKE_TOOLCHAIN_FILE` manually.")
+        return()  # exit here otherwise the cache would need to be cleared
+    endif()
+
+    # Set the VCPKG manifest mode
+    set(VCPKG_MANIFEST_MODE ON)
+
+    # linux and macos build static libs by default, for windows we need to set this manually
+    # note, 32bit and arm are not supported
+    if(WIN32 AND NOT UNIX)
+        # for MDL we use the "static" triplet to make sure that the image plugins are link dependencies statically so we don't need to collect all openimageio libraries.
+        set(VCPKG_TARGET_TRIPLET x64-windows-static-md)
+    endif()
+
+    # optional dependencies based on VCPKG
+    if(MATERIALX_BUILD_MDL_COMPILER)
+        list(APPEND VCPKG_MANIFEST_FEATURES "mdl-compiler")
+    endif()
+    if(MATERIALX_BUILD_MDL_RENDER)
+        list(APPEND VCPKG_MANIFEST_FEATURES "mdl-render")
+    endif()
 else()
-    message(FATAL_ERROR "VCPKG toolchain path not found. Please set the `VCPKG_ROOT` environment variable or specify `CMAKE_TOOLCHAIN_FILE` manually.")
-    return()  # exit here otherwise the cache would need to be cleared
-endif()
-set(VCPKG_MANIFEST_MODE ON)
-# linux and macos build static libs by default, for windows we need to set this manually
-# note, 32bit and arm are not supported
-if(WIN32 AND NOT UNIX)
-    # for MDL we use the "static" triplet to make sure that the image plugins are link dependencies statically so we don't need to collect all openimageio libraries.
-    set(VCPKG_TARGET_TRIPLET x64-windows-static-md)
+    # disable all options that require VCPKG
+    set(MATERIALX_BUILD_MDL_COMPILER OFF)
+    set(MATERIALX_BUILD_MDL_RENDER OFF)
 endif()
 
 # JavaScript setup 
-option(MATERIALX_BUILD_JS "Build the MaterialX JavaScript package from C++ bindings. Requires the emscripten environment." OFF)
 set(MATERIALX_EMSDK_PATH "" CACHE PATH "Path to EMSDK (e.g. 'D:/Projects/emsdk').")
 if (MATERIALX_BUILD_JS)
     if (EXISTS "${MATERIALX_EMSDK_PATH}")
@@ -50,16 +87,6 @@ if (MATERIALX_BUILD_JS)
         message("The EMSDK path was not supplied, disabling MATERIALX_BUILD_JS")
         set(MATERIALX_BUILD_JS OFF)
     endif()
-endif()
-
-# optional dependencies 
-option(MATERIALX_BUILD_MDL_COMPILER "Build the MDL SDK dependency to be used in [genmdl] tests." OFF)
-if(MATERIALX_BUILD_MDL_COMPILER)
-    list(APPEND VCPKG_MANIFEST_FEATURES "mdl-compiler")
-endif()
-option(MATERIALX_BUILD_MDL_RENDER "Build the MDL SDK dependency and a renderer application to be used in [rendermdl] tests." OFF)
-if(MATERIALX_BUILD_MDL_RENDER)
-    list(APPEND VCPKG_MANIFEST_FEATURES "mdl-render")
 endif()
 
 project(MaterialX VERSION ${MATERIALX_LIBRARY_VERSION})
@@ -381,7 +408,7 @@ function(mx_add_library MATERIALX_MODULE_NAME)
     if (APPLE AND args_ADD_OBJECTIVE_C_CODE)
         file(GLOB_RECURSE materialx_source_oc "${CMAKE_CURRENT_SOURCE_DIR}/*.m*")
         set_source_files_properties(${materialx_source_oc} PROPERTIES
-            COMPILE_FLAGS "-x objective-c++ -x objective-c")
+            COMPILE_FLAGS "-x objective-c++")
         set(args_SOURCE_FILES ${args_SOURCE_FILES} ${materialx_source_oc})
     endif()
 
