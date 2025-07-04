@@ -9,6 +9,9 @@ on:
       - '**.md'
   workflow_dispatch:
 
+env:
+  VCPKG_VERSION: ef7dbf94b9198bc58f45951adcf1f041fcbc5ea0
+
 jobs:
 
   build:
@@ -24,12 +27,16 @@ jobs:
           compiler_version: "10"
           python: 3.9
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON -DMATERIALX_BUILD_MONOLITHIC=ON
+          vcpkg_dependencies: OFF
+          vcpkg_root: /home/runner/work/MaterialX/MaterialX/.vcpkg
 
         - name: Linux_GCC_14_Python39
           os: ubuntu-24.04
           compiler: gcc
           compiler_version: "14"
           python: 3.9
+          vcpkg_dependencies: OFF
+          vcpkg_root: /home/runner/work/MaterialX/MaterialX/.vcpkg
 
         - name: Linux_GCC_14_Python311
           os: ubuntu-24.04
@@ -37,6 +44,9 @@ jobs:
           compiler_version: "14"
           python: 3.11
           test_render: ON
+          cmake_config: -DMATERIALX_BUILD_MDL_COMPILER=ON
+          vcpkg_dependencies: ON
+          vcpkg_root: /home/runner/work/MaterialX/MaterialX/.vcpkg
 
         - name: Linux_GCC_CoverageAnalysis
           os: ubuntu-24.04
@@ -45,6 +55,8 @@ jobs:
           python: None
           coverage_analysis: ON
           cmake_config: -DMATERIALX_COVERAGE_ANALYSIS=ON -DMATERIALX_BUILD_RENDER=OFF -DMATERIALX_BUILD_PYTHON=OFF
+          vcpkg_dependencies: OFF
+          vcpkg_root: /home/runner/work/MaterialX/MaterialX/.vcpkg
 
         - name: Linux_Clang_13_Python39
           os: ubuntu-22.04
@@ -52,6 +64,8 @@ jobs:
           compiler_version: "13"
           python: 3.9
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
+          vcpkg_dependencies: OFF
+          vcpkg_root: /home/runner/work/MaterialX/MaterialX/.vcpkg
 
         - name: Linux_Clang_18_Python311
           os: ubuntu-24.04
@@ -59,6 +73,8 @@ jobs:
           compiler_version: "18"
           python: 3.11
           clang_format: ON
+          vcpkg_dependencies: OFF
+          vcpkg_root: /home/runner/work/MaterialX/MaterialX/.vcpkg
 
         - name: MacOS_Xcode_15_Python39
           os: macos-14
@@ -66,6 +82,8 @@ jobs:
           compiler_version: "15.4"
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
           python: 3.9
+          vcpkg_dependencies: OFF
+          vcpkg_root: /Users/runner/work/MaterialX/MaterialX/.vcpkg
 
         - name: MacOS_Xcode_15_Python311
           os: macos-15
@@ -73,6 +91,8 @@ jobs:
           compiler_version: "16.1"
           python: 3.11
           test_shaders: ON
+          vcpkg_dependencies: OFF
+          vcpkg_root: /Users/runner/work/MaterialX/MaterialX/.vcpkg
 
         - name: MacOS_Xcode_16_Python311
           os: macos-15
@@ -81,6 +101,8 @@ jobs:
           python: 3.11
           static_analysis: ON
           cmake_config: -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+          vcpkg_dependencies: OFF
+          vcpkg_root: /Users/runner/work/MaterialX/MaterialX/.vcpkg
 
         - name: MacOS_Xcode_DynamicAnalysis
           os: macos-15
@@ -89,6 +111,8 @@ jobs:
           python: None
           dynamic_analysis: ON
           cmake_config: -DMATERIALX_DYNAMIC_ANALYSIS=ON
+          vcpkg_dependencies: OFF
+          vcpkg_root: /Users/runner/work/MaterialX/MaterialX/.vcpkg
 
         - name: iOS_Xcode_16
           os: macos-15
@@ -96,26 +120,40 @@ jobs:
           compiler_version: "16.1"
           python: None
           cmake_config: -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_SYSROOT=`xcrun --sdk iphoneos --show-sdk-path` -DCMAKE_OSX_ARCHITECTURES=arm64
+          vcpkg_dependencies: OFF
+          vcpkg_root: /Users/runner/work/MaterialX/MaterialX/.vcpkg
 
         - name: Windows_VS2022_Win32_Python39
           os: windows-2022
           architecture: x86
+          compiler: msvc
+          compiler_version: 2022
           python: 3.9
           cmake_config: -G "Visual Studio 17 2022" -A "Win32"
+          vcpkg_root: D:/a/MaterialX/MaterialX/.vcpkg
+          vcpkg_dependencies: OFF
 
         - name: Windows_VS2022_x64_Python311
           os: windows-2025
           architecture: x64
+          compiler: msvc
+          compiler_version: 2022
           python: 3.11
           cmake_config: -G "Visual Studio 17 2022" -A "x64"
           test_shaders: ON
+          vcpkg_dependencies: OFF
+          vcpkg_root: D:/a/MaterialX/MaterialX/.vcpkg
 
         - name: Windows_VS2022_x64_SharedLibs
           os: windows-2025
           architecture: x64
+          compiler: msvc
+          compiler_version: 2022
           python: None
           cmake_config: -G "Visual Studio 17 2022" -A "x64" -DMATERIALX_BUILD_SHARED_LIBS=ON
           upload_shaders: ON
+          vcpkg_root: D:/a/MaterialX/MaterialX/.vcpkg
+          vcpkg_dependencies: OFF
 
     steps:
     - name: Sync Repository
@@ -127,7 +165,7 @@ jobs:
       if: runner.os == 'Linux'
       run: |
         sudo apt-get update
-        sudo apt-get install xorg-dev
+        sudo apt-get install -y libxmu-dev libxi-dev libgl-dev libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev pkg-config libwayland-dev
         if [ "${{ matrix.compiler_version }}" != 'None' ]; then
           if [ "${{ matrix.compiler }}" = "gcc" ]; then
             sudo apt-get install -y g++-${{ matrix.compiler_version }}
@@ -139,6 +177,7 @@ jobs:
             echo "CXX=clang++-${{ matrix.compiler_version }}" >> $GITHUB_ENV
           fi
         fi
+        sudo apt-get install -y build-essential cmake ninja-build
 
     - name: Install Dependencies (MacOS)
       if: runner.os == 'macOS'
@@ -185,14 +224,48 @@ jobs:
         cmakeVersion: 3.26
 
     - name: Run Clang Format
-      if: matrix.clang_format == 'ON'
+      if: ${{ matrix.vcpkg_dependencies == 'ON' }}
       run: find source \( -name *.h -o -name *.cpp -o -name *.mm -o -name *.inl \) ! -path "*/External/*" ! -path "*/NanoGUI/*" | xargs clang-format -i --verbose
+    
+    - name: Clone VCPKG
+      if: ${{ matrix.vcpkg_dependencies == 'ON' }}
+      run: |
+        git clone https://github.com/microsoft/vcpkg.git ${{ matrix.vcpkg_root }}
+        cd ${{ matrix.vcpkg_root }}
+        git switch -d ${{ env.VCPKG_VERSION }}
 
+    # Setup a cache for VCPKG to speed up builds
+    # Lookup the cache key
+    - name: CMake Generate VCPKG cache
+      if: ${{ matrix.vcpkg_dependencies == 'ON' }}
+      id: cache-vcpkg
+      uses: actions/cache@v4
+      with:
+        path: ${{ github.workspace }}/.vcpkg_cache
+        key: vcpkg-${{ env.VCPKG_VERSION }}-${{ runner.os }}-${{ matrix.architecture }}-${{ matrix.compiler }}-${{ matrix.compiler_version }}-${{ matrix.python }}__${{ matrix.cmake_config }}
+    # Fill the cache in case of a miss. Make sure to use the same flags as below
+    - if: ${{ (matrix.vcpkg_dependencies == 'ON') && (steps.cache-vcpkg.outputs.cache-hit != 'true') }}
+      name: Build VCPKG dependencies for caching
+      continue-on-error: true
+      run: |
+        echo "Building VCPKG for hash: ${{ env.VCPKG_VERSION }}"
+        cmake -S . -B build -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_BUILD_TESTS=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{matrix.cmake_config}}
+      env:
+        VCPKG_ROOT: ${{ matrix.vcpkg_root }}
+        VCPKG_BINARY_SOURCES: "clear;files,${{ github.workspace }}/.vcpkg_cache,readwrite"
+
+    # Generate using a pre-populated VCPKG cache (if enabled). If flags change, also change them in the step above.
     - name: CMake Generate
-      run: cmake -S . -B build -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_BUILD_TESTS=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{matrix.cmake_config}}
+      run: cmake -S . -B build -DVCPKG_DEPENDENCIES=${{ matrix.vcpkg_dependencies == 'ON' }} -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_BUILD_TESTS=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{matrix.cmake_config}}
+      env:
+        VCPKG_ROOT: ${{ matrix.vcpkg_root }}
+        VCPKG_BINARY_SOURCES: "clear;files,${{ github.workspace }}/.vcpkg_cache,read"
 
     - name: CMake Build
       run: cmake --build build --target install --config Release --parallel 2
+      env:
+        VCPKG_ROOT: ${{ matrix.vcpkg_root }}
+        VCPKG_BINARY_SOURCES: "clear;files,${{ github.workspace }}/.vcpkg_cache,read"
 
     - name: CMake Unit Tests
       run: ctest -VV --output-on-failure --build-config Release
@@ -221,10 +294,10 @@ jobs:
       if: matrix.test_shaders == 'ON' && runner.os == 'Windows'
       run: |
         C:/vcpkg/vcpkg install glslang[tools] --triplet=x64-windows-release
-        C:/vcpkg/installed/x64-windows-release/tools/glslang/glslangValidator.exe -v
-        python python/Scripts/generateshader.py resources/Materials/Examples --target glsl --validator C:/vcpkg/installed/x64-windows-release/tools/glslang/glslangValidator.exe
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target essl --validator C:/vcpkg/installed/x64-windows-release/tools/glslang/glslangValidator.exe
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target vulkan --validator C:/vcpkg/installed/x64-windows-release/tools/glslang/glslangValidator.exe
+        "C:/vcpkg/installed/x64-windows-release/tools/glslang/glslangValidator.exe -v"
+        python python/Scripts/generateshader.py resources/Materials/Examples --target glsl --validator "C:/vcpkg/installed/x64-windows-release/tools/glslang/glslangValidator.exe"
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target essl --validator "C:/vcpkg/installed/x64-windows-release/tools/glslang/glslangValidator.exe"
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target vulkan --validator "C:/vcpkg/installed/x64-windows-release/tools/glslang/glslangValidator.exe"
         python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target wgsl --validator "C:/vcpkg/installed/x64-windows-release/tools/glslang/glslangValidator.exe --target-env vulkan1.3 --quiet"
 
     - name: Shader Validation Tests (MacOS)
@@ -331,11 +404,11 @@ jobs:
          node-version: '16'
 
     - name: JavaScript CMake Generate
-      run: cmake -S . -B javascript/build -DMATERIALX_BUILD_JS=ON -DMATERIALX_EMSDK_PATH=${{ env.EMSDK }}
+      run: cmake -S . -B javascript/build -DVCPKG_DEPENDENCIES=OFF -DMATERIALX_BUILD_JS=ON -DMATERIALX_EMSDK_PATH=${{ env.EMSDK }}
 
     - name: JavaScript CMake Build
       run: cmake --build javascript/build --target install --config Release --parallel 2
-    
+
     - name: JavaScript Unit Tests
       run: |
         npm install

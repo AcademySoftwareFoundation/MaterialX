@@ -14,8 +14,65 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 
-# JavaScript setup 
+# Options that influence the cmake toolchain
+# Note, CMAKE_TOOLCHAIN_FILE can not be changed anymore after the project() command.
+# In order to set it, one needs to clear the cache.
 option(MATERIALX_BUILD_JS "Build the MaterialX JavaScript package from C++ bindings. Requires the emscripten environment." OFF)
+option(VCPKG_DEPENDENCIES "Enables VCPKG to pull external dependencies." ON)  # For build configurations that don't need any dependencies, e.g. in CI
+set(VCPKG_ROOT "" CACHE PATH "The root of a VCPKG checkout. Option provides alternative to the `VCPKG_ROOT` environment variable. If not empty, this overrides the environment variable.")
+
+# Options that are influenced by the cmake toolchain
+option(MATERIALX_BUILD_MDL_COMPILER "Build the MDL SDK dependency to be used in [genmdl] tests. Needs VCPKG." OFF)
+option(MATERIALX_BUILD_MDL_RENDER "Build the MDL SDK dependency and a renderer application to be used in [rendermdl] tests. Needs VCPKG." OFF)
+
+# VCPKG setup
+if(VCPKG_DEPENDENCIES)
+
+    if (MATERIALX_BUILD_JS)
+        # tool chains could be combined if this combination is required
+        message(FATAL_ERROR "Building JavaScript is not support in combination with VCPKG at this point. Please set the `VCPKG_DEPENDENCIES` to false.")
+    endif()
+
+    # Check if the local vcpkg installation can be found
+    if(NOT VCPKG_ROOT AND DEFINED ENV{VCPKG_ROOT})
+        set(VCPKG_ROOT $ENV{VCPKG_ROOT})
+    endif()
+    if(NOT CMAKE_TOOLCHAIN_FILE AND VCPKG_ROOT)
+        string(REPLACE "\\" "/" VCPKG_ROOT ${VCPKG_ROOT})  # make sure to use forward slashes on windows
+        set(CMAKE_TOOLCHAIN_FILE "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
+    endif()
+    if(EXISTS ${CMAKE_TOOLCHAIN_FILE})
+        message(STATUS "VCPKG toolchain file found: ${CMAKE_TOOLCHAIN_FILE}")
+    else()
+        message(FATAL_ERROR "VCPKG toolchain path not found. Please set the `VCPKG_ROOT` environment variable or specify `CMAKE_TOOLCHAIN_FILE` manually.")
+        return()  # exit here otherwise the cache would need to be cleared
+    endif()
+
+    # Set the VCPKG manifest mode
+    set(VCPKG_MANIFEST_MODE ON)
+
+    # linux and macos build static libs by default, for windows we need to set this manually
+    # note, 32bit and arm are not supported
+    if(WIN32 AND NOT UNIX)
+        # for MDL we use the "static" triplet to make sure that the image plugins are link dependencies statically so we don't need to collect all openimageio libraries.
+        set(VCPKG_TARGET_TRIPLET x64-windows-static-md)
+    endif()
+
+    # optional dependencies based on VCPKG
+    if(MATERIALX_BUILD_MDL_COMPILER)
+        list(APPEND VCPKG_MANIFEST_FEATURES "mdl-compiler")
+    endif()
+    if(MATERIALX_BUILD_MDL_RENDER)
+        list(APPEND VCPKG_MANIFEST_FEATURES "mdl-render")
+    endif()
+else()
+    # disable all options that require VCPKG
+    message("VCPKG_DEPENDENCIES was disabled. Disabling all components that require VCPKG.")
+    set(MATERIALX_BUILD_MDL_COMPILER OFF)
+    set(MATERIALX_BUILD_MDL_RENDER OFF)
+endif()
+
+# JavaScript setup 
 set(MATERIALX_EMSDK_PATH "" CACHE PATH "Path to EMSDK (e.g. 'D:/Projects/emsdk').")
 if (MATERIALX_BUILD_JS)
     if (EXISTS "${MATERIALX_EMSDK_PATH}")
@@ -137,9 +194,10 @@ if(SKBUILD)
 endif()
 
 # Helpers for MDL validation
+set(MATERIALX_MDL_DIR "" CACHE PATH "Path to the MDL SDK directory that contains 'include', 'linux-x86-64', 'nt-x86-64', etc.")
+set(MATERIALX_MDL_COMPILER_EXECUTABLE "" CACHE FILEPATH "Full path to the mdlc binary.")
+set(MATERIALX_MDL_RENDER_EXECUTABLE "" CACHE FILEPATH "Full path to the mdl renderer binary.")
 if (MATERIALX_BUILD_GEN_MDL)
-    set(MATERIALX_MDLC_EXECUTABLE "" CACHE FILEPATH "Full path to the mdlc binary.")
-    set(MATERIALX_MDL_RENDER_EXECUTABLE "" CACHE FILEPATH "Full path to the mdl renderer binary.")
     set(MATERIALX_MDL_RENDER_ARGUMENTS "" CACHE STRING "Custom arguments for renderer.")
     set(MATERIALX_MDL_MODULE_PATHS "" CACHE FILEPATH "Comma separated list of MDL module paths.")
     set(MATERIALX_INSTALL_MDL_MODULE_PATH ${MATERIALX_INSTALL_STDLIB_PATH} CACHE FILEPATH "Install path for mdl module.")
@@ -196,9 +254,10 @@ mark_as_advanced(MATERIALX_BUILD_JS)
 mark_as_advanced(MATERIALX_EMSDK_PATH)
 mark_as_advanced(MATERIALX_BUILD_IOS)
 mark_as_advanced(MATERIALX_BUILD_APPLE_FRAMEWORK)
+mark_as_advanced(MATERIALX_MDL_DIR)
+mark_as_advanced(MATERIALX_MDL_COMPILER_EXECUTABLE)
+mark_as_advanced(MATERIALX_MDL_RENDER_EXECUTABLE)
 if (MATERIALX_BUILD_GEN_MDL)
-    mark_as_advanced(MATERIALX_MDLC_EXECUTABLE)
-    mark_as_advanced(MATERIALX_MDL_RENDER_EXECUTABLE)
     mark_as_advanced(MATERIALX_MDL_RENDER_ARGUMENTS)
     mark_as_advanced(MATERIALX_MDL_MODULE_PATHS)
     mark_as_advanced(MATERIALX_INSTALL_MDL_MODULE_PATH)
@@ -239,11 +298,20 @@ if (MATERIALX_BUILD_BENCHMARK_TESTS)
     add_definitions(-DMATERIALX_BUILD_BENCHMARK_TESTS)
 endif()
 
+# GEN MDL does not have any additional dependencies. For loading and compiling MDL, e.g., in the test renderer, the MDL SDK is needed.
 if (MATERIALX_BUILD_GEN_MDL)
-    add_definitions(-DMATERIALX_MDLC_EXECUTABLE=\"${MATERIALX_MDLC_EXECUTABLE}\")
-    add_definitions(-DMATERIALX_MDL_RENDER_EXECUTABLE=\"${MATERIALX_MDL_RENDER_EXECUTABLE}\")
-    add_definitions(-DMATERIALX_MDL_RENDER_ARGUMENTS=\"${MATERIALX_MDL_RENDER_ARGUMENTS}\")
-    add_definitions(-DMATERIALX_MDL_MODULE_PATHS=\"${MATERIALX_MDL_MODULE_PATHS}\")
+    if((EXISTS ${MATERIALX_MDL_DIR}) OR MATERIALX_BUILD_MDL_COMPILER OR MATERIALX_BUILD_MDL_RENDER)
+        find_package(MDL QUIET REQUIRED PATHS ${MATERIALX_MDL_DIR})
+        get_target_property(MATERIALX_MDL_COMPILER_EXECUTABLE mdl::mdlc LOCATION)
+        set(MATERIALX_MDL_COMPILER_EXECUTABLE ${MATERIALX_MDL_COMPILER_EXECUTABLE} CACHE FILEPATH "Full path to the mdlc binary." FORCE)
+    endif()
+
+    # TODO remove the listing of imported targets
+    # get_property(importTargets DIRECTORY "${CMAKE_SOURCE_DIR}" PROPERTY IMPORTED_TARGETS)
+    # find_package(...)
+    # get_property(importTargetsAfter DIRECTORY "${CMAKE_SOURCE_DIR}" PROPERTY IMPORTED_TARGETS)
+    # list(REMOVE_ITEM importTargetsAfter ${importTargets})
+    # message("${importTargetsAfter}")
     add_definitions(-DMATERIALX_INSTALL_MDL_MODULE_PATH=\"${MATERIALX_INSTALL_MDL_MODULE_PATH}\")
 endif()
 
@@ -490,6 +558,9 @@ if(MATERIALX_BUILD_RENDER)
         endif()
         if(MATERIALX_BUILD_GEN_OSL)
             add_subdirectory(source/MaterialXRenderOsl)
+        endif()
+        if(MATERIALX_BUILD_GEN_MDL AND MATERIALX_BUILD_MDL_RENDER)
+            add_subdirectory(source/MaterialXRenderMdl)
         endif()
     endif()
     if(MATERIALX_BUILD_VIEWER)
