@@ -77,6 +77,13 @@ void SourceCodeNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& con
     {
         const ShaderGenerator& shadergen = context.getShaderGenerator();
         const MdlShaderGenerator& shadergenMdl = static_cast<const MdlShaderGenerator&>(shadergen);
+
+        if (nodeOutputIsClosure(node))
+        {
+            // Emit calls for any closure dependencies upstream from this node.
+            shadergen.emitDependentFunctionCalls(node, context, stage, ShaderNode::Classification::CLOSURE);
+        }
+
         if (_inlined)
         {
             const MdlSyntax& syntax = static_cast<const MdlSyntax&>(shadergenMdl.getSyntax());
