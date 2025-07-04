@@ -1,6 +1,7 @@
-/******************************************************************************
- * Copyright 2025 NVIDIA Corporation. All rights reserved.
- *****************************************************************************/
+//
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
+//
 
 #include "mdl_generator.h"
 
