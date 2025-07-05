@@ -5,12 +5,7 @@
 // Techniques (JCGT), vol. 11, no. 2, 77-94, 2022
 // http://jcgt.org/published/0011/03/05/
 void mx_hextiledimage_color3(
-#ifdef HW_SEPARATE_SAMPLERS
-    texture2D tex_texture,
-    sampler   tex_sampler,
-#else
-    sampler2D tex_sampler,
-#endif
+    $texSamplerSignature,
     vec3 default_value,
     vec2 tex_coord,
     vec2 tiling,
@@ -30,15 +25,9 @@ void mx_hextiledimage_color3(
 
     HextileData tile_data = mx_hextile_coord(coord, rotation, rotation_range, scale, scale_range, offset, offset_range);
 
-#ifdef HW_SEPARATE_SAMPLERS
-    vec3 c1 = textureGrad(sampler2D(tex_texture, tex_sampler), tile_data.coord1, tile_data.ddx1, tile_data.ddy1).rgb;
-    vec3 c2 = textureGrad(sampler2D(tex_texture, tex_sampler), tile_data.coord2, tile_data.ddx2, tile_data.ddy2).rgb;
-    vec3 c3 = textureGrad(sampler2D(tex_texture, tex_sampler), tile_data.coord3, tile_data.ddx3, tile_data.ddy3).rgb;
-#else
-    vec3 c1 = textureGrad(tex_sampler, tile_data.coord1, tile_data.ddx1, tile_data.ddy1).rgb;
-    vec3 c2 = textureGrad(tex_sampler, tile_data.coord2, tile_data.ddx2, tile_data.ddy2).rgb;
-    vec3 c3 = textureGrad(tex_sampler, tile_data.coord3, tile_data.ddx3, tile_data.ddy3).rgb;
-#endif
+    vec3 c1 = textureGrad($texSamplerSampler2D, tile_data.coord1, tile_data.ddx1, tile_data.ddy1).rgb;
+    vec3 c2 = textureGrad($texSamplerSampler2D, tile_data.coord2, tile_data.ddx2, tile_data.ddy2).rgb;
+    vec3 c3 = textureGrad($texSamplerSampler2D, tile_data.coord3, tile_data.ddx3, tile_data.ddy3).rgb;
 
     // luminance as weights
     vec3 cw = vec3(dot(c1, lumacoeffs), dot(c2, lumacoeffs), dot(c3, lumacoeffs));
@@ -62,12 +51,7 @@ void mx_hextiledimage_color3(
 }
 
 void mx_hextiledimage_color4(
-#ifdef HW_SEPARATE_SAMPLERS
-    texture2D tex_texture,
-    sampler   tex_sampler,
-#else
-    sampler2D tex_sampler,
-#endif
+    $texSamplerSignature,
     vec4 default_value,
     vec2 tex_coord,
     vec2 tiling,
@@ -87,15 +71,9 @@ void mx_hextiledimage_color4(
 
     HextileData tile_data = mx_hextile_coord(coord, rotation, rotation_range, scale, scale_range, offset, offset_range);
 
-#ifdef HW_SEPARATE_SAMPLERS
-    vec4 c1 = textureGrad(sampler2D(tex_texture, tex_sampler), tile_data.coord1, tile_data.ddx1, tile_data.ddy1);
-    vec4 c2 = textureGrad(sampler2D(tex_texture, tex_sampler), tile_data.coord2, tile_data.ddx2, tile_data.ddy2);
-    vec4 c3 = textureGrad(sampler2D(tex_texture, tex_sampler), tile_data.coord3, tile_data.ddx3, tile_data.ddy3);
-#else
-    vec4 c1 = textureGrad(tex_sampler, tile_data.coord1, tile_data.ddx1, tile_data.ddy1);
-    vec4 c2 = textureGrad(tex_sampler, tile_data.coord2, tile_data.ddx2, tile_data.ddy2);
-    vec4 c3 = textureGrad(tex_sampler, tile_data.coord3, tile_data.ddx3, tile_data.ddy3);
-#endif
+    vec4 c1 = textureGrad($texSamplerSampler2D, tile_data.coord1, tile_data.ddx1, tile_data.ddy1);
+    vec4 c2 = textureGrad($texSamplerSampler2D, tile_data.coord2, tile_data.ddx2, tile_data.ddy2);
+    vec4 c3 = textureGrad($texSamplerSampler2D, tile_data.coord3, tile_data.ddx3, tile_data.ddy3);
 
     // luminance as weights
     vec3 cw = vec3(dot(c1.rgb, lumacoeffs), dot(c2.rgb, lumacoeffs), dot(c3.rgb, lumacoeffs));

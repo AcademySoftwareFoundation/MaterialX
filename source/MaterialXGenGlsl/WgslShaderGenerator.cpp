@@ -21,10 +21,13 @@ WgslShaderGenerator::WgslShaderGenerator(TypeSystemPtr typeSystem) :
     _resourceBindingCtx = std::make_shared<MaterialX::WgslResourceBindingContext>(0);
 
     // For functions described in ::emitSpecularEnvironment()
-    _tokenSubstitutions[HW::T_ENV_RADIANCE_TEXTURE] = HW::ENV_RADIANCE_TEXTURE;
-    _tokenSubstitutions[HW::T_ENV_RADIANCE_SAMPLER] = HW::ENV_RADIANCE_SAMPLER;
-    _tokenSubstitutions[HW::T_ENV_IRRADIANCE_TEXTURE] = HW::ENV_IRRADIANCE_TEXTURE;
-    _tokenSubstitutions[HW::T_ENV_IRRADIANCE_SAMPLER] = HW::ENV_IRRADIANCE_SAMPLER;
+    // override map value from HwShaderGenerator
+    _tokenSubstitutions[HW::T_ENV_RADIANCE]             = HW::ENV_RADIANCE_SPLIT; 
+    _tokenSubstitutions[HW::T_ENV_RADIANCE_SAMPLER2D]   = HW::ENV_RADIANCE_SAMPLER2D_SPLIT;
+    _tokenSubstitutions[HW::T_ENV_IRRADIANCE]           = HW::ENV_IRRADIANCE_SPLIT;
+    _tokenSubstitutions[HW::T_ENV_IRRADIANCE_SAMPLER2D] = HW::ENV_IRRADIANCE_SAMPLER2D_SPLIT;
+    _tokenSubstitutions[HW::T_TEX_SAMPLER_SAMPLER2D]    = HW::TEX_SAMPLER_SAMPLER2D_SPLIT;
+    _tokenSubstitutions[HW::T_TEX_SAMPLER_SIGNATURE]    = HW::TEX_SAMPLER_SIGNATURE_SPLIT;
 }
 
 void WgslShaderGenerator::emitDirectives(GenContext& context, ShaderStage& stage) const
