@@ -138,7 +138,6 @@ const string ENV_RADIANCE                     = "u_envRadiance";
 const string ENV_RADIANCE_SPLIT               = "u_envRadiance_texture, u_envRadiance_sampler";
 const string ENV_RADIANCE_SAMPLER2D           = "u_envRadiance";
 const string ENV_RADIANCE_SAMPLER2D_SPLIT     = "sampler2D(u_envRadiance_texture, u_envRadiance_sampler)";
-
 const string ENV_RADIANCE_MIPS                = "u_envRadianceMips";
 const string ENV_RADIANCE_SAMPLES             = "u_envRadianceSamples";
 const string ENV_IRRADIANCE                   = "u_envIrradiance";
