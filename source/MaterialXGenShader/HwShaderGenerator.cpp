@@ -363,11 +363,11 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     {
         const Matrix44 yRotationPI = Matrix44::createScale(Vector3(-1, 1, -1));
         psPrivateUniforms->add(Type::MATRIX44, HW::T_ENV_MATRIX, Value::createValue(yRotationPI));
-        psPrivateUniforms->add(Type::FILENAME, HW::T_ENV_RADIANCE);
+        psPrivateUniforms->add(Type::FILENAME, HW::ENV_RADIANCE); // Use direct value instead of HW::T_ENV_RADIANCE
         psPrivateUniforms->add(Type::FLOAT, HW::T_ENV_LIGHT_INTENSITY, Value::createValue(1.0f));
         psPrivateUniforms->add(Type::INTEGER, HW::T_ENV_RADIANCE_MIPS, Value::createValue<int>(1));
         psPrivateUniforms->add(Type::INTEGER, HW::T_ENV_RADIANCE_SAMPLES, Value::createValue<int>(16));
-        psPrivateUniforms->add(Type::FILENAME, HW::T_ENV_IRRADIANCE);
+        psPrivateUniforms->add(Type::FILENAME, HW::ENV_IRRADIANCE); // Use direct value instead of HW::T_ENV_IRRADIANCE
         psPrivateUniforms->add(Type::BOOLEAN, HW::T_REFRACTION_TWO_SIDED);
     }
 
@@ -382,7 +382,7 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     // Add uniforms for environment prefiltering.
     if (context.getOptions().hwWriteEnvPrefilter)
     {
-        psPrivateUniforms->add(Type::FILENAME, HW::T_ENV_RADIANCE);
+        psPrivateUniforms->add(Type::FILENAME, HW::ENV_RADIANCE); // Use direct value instead of HW::T_ENV_RADIANCE
         psPrivateUniforms->add(Type::FLOAT, HW::T_ENV_LIGHT_INTENSITY, Value::createValue(1.0f));
         psPrivateUniforms->add(Type::INTEGER, HW::T_ENV_PREFILTER_MIP, Value::createValue<int>(1));
         const Matrix44 yRotationPI = Matrix44::createScale(Vector3(-1, 1, -1));
