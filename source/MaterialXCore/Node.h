@@ -58,6 +58,16 @@ class MX_CORE_API Node : public InterfaceElement
     }
     virtual ~Node() { }
 
+    /// @name Name
+    /// @{
+
+    /// Set the name string of this Node, propagating the updated name to all
+    /// downstream ports.
+    /// @throws Exception if an element at the same scope already possesses the
+    ///     given name.
+    void setNameGlobal(const string& name);
+
+    /// @}
     /// @name Connections
     /// @{
 
@@ -327,6 +337,16 @@ class MX_CORE_API NodeGraph : public GraphElement
     }
     virtual ~NodeGraph() { }
 
+    /// @name Name
+    /// @{
+
+    /// Set the name string of this NodeGraph, propagating the updated name to all
+    /// downstream ports.
+    /// @throws Exception if an element at the same scope already possesses the
+    ///     given name.
+    void setNameGlobal(const string& name);
+
+    /// @}
     /// @name Material References
     /// @{
 

@@ -41,11 +41,24 @@
     <input name="default" type="vector4" implname="default_value" />
   </implementation>
 
+  <!-- <hextiledimage> -->
+  <implementation name="IM_hextiledimage_color3_genmdl" nodedef="ND_hextiledimage_color3" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_hextiledimage_color3({{file}}, {{default}}, {{texcoord}}, {{tiling}}, {{rotation}}, {{rotationrange}}, {{scale}}, {{scalerange}}, {{offset}}, {{offsetrange}}, {{falloff}}, {{falloffcontrast}}, {{lumacoeffs}})" target="genmdl">
+    <input name="default" type="color3" implname="default_value" />
+  </implementation>
+  <implementation name="IM_hextiledimage_color4_genmdl" nodedef="ND_hextiledimage_color4" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_hextiledimage_color4({{file}}, {{default}}, {{texcoord}}, {{tiling}}, {{rotation}}, {{rotationrange}}, {{scale}}, {{scalerange}}, {{offset}}, {{offsetrange}}, {{falloff}}, {{falloffcontrast}}, {{lumacoeffs}})" target="genmdl">
+    <input name="default" type="color4" implname="default_value" />
+  </implementation>
+
   <!-- <triplanarprojection> -->
 
   <!-- <normalmap> -->
   <implementation name="IM_normalmap_float_genmdl" nodedef="ND_normalmap_float" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_normalmap_float(mxp_in:{{in}}, mxp_scale:{{scale}}, mxp_normal:{{normal}}, mxp_tangent:{{tangent}}, mxp_bitangent:{{bitangent}})" target="genmdl" />
   <implementation name="IM_normalmap_vector2_genmdl" nodedef="ND_normalmap_vector2" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_normalmap_vector2(mxp_in:{{in}}, mxp_scale:{{scale}}, mxp_normal:{{normal}}, mxp_tangent:{{tangent}}, mxp_bitangent:{{bitangent}})" target="genmdl" />
+
+  <!-- <hextilednormalmap> -->
+  <implementation name="IM_hextilednormalmap_vector3_genmdl" nodedef="ND_hextilednormalmap_vector3" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_hextilednormalmap_vector3({{file}}, {{default}}, {{texcoord}}, {{tiling}}, {{rotation}}, {{rotationrange}}, {{scale}}, {{scalerange}}, {{offset}}, {{offsetrange}}, {{falloff}},{{strength}}, {{flip_g}}, {{normal}}, {{tangent}}, {{bitangent}})" target="genmdl">
+    <input name="default" type="vector3" implname="default_value" />
+  </implementation>
 
   <!-- ======================================================================== -->
   <!-- Procedural nodes                                                         -->
@@ -108,6 +121,12 @@
   <implementation name="IM_noise3d_vector2_genmdl" nodedef="ND_noise3d_vector2" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_noise3d_float2(mxp_amplitude:{{amplitude}}, mxp_pivot:{{pivot}}, mxp_position:{{position}})" target="genmdl" />
   <implementation name="IM_noise3d_vector3_genmdl" nodedef="ND_noise3d_vector3" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_noise3d_float3(mxp_amplitude:{{amplitude}}, mxp_pivot:{{pivot}}, mxp_position:{{position}})" target="genmdl" />
   <implementation name="IM_noise3d_vector4_genmdl" nodedef="ND_noise3d_vector4" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_noise3d_float4(mxp_amplitude:{{amplitude}}, mxp_pivot:{{pivot}}, mxp_position:{{position}})" target="genmdl" />
+
+  <!-- <fractal2d> -->
+  <implementation name="IM_fractal2d_float_genmdl" nodedef="ND_fractal2d_float" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_fractal2d_float(mxp_amplitude:{{amplitude}}, mxp_octaves:{{octaves}}, mxp_lacunarity:{{lacunarity}}, mxp_diminish:{{diminish}}, mxp_texcoord:{{texcoord}})" target="genmdl" />
+  <implementation name="IM_fractal2d_vector2_genmdl" nodedef="ND_fractal2d_vector2" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_fractal2d_float2(mxp_amplitude:{{amplitude}}, mxp_octaves:{{octaves}}, mxp_lacunarity:{{lacunarity}}, mxp_diminish:{{diminish}}, mxp_texcoord:{{texcoord}})" target="genmdl" />
+  <implementation name="IM_fractal2d_vector3_genmdl" nodedef="ND_fractal2d_vector3" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_fractal2d_float3(mxp_amplitude:{{amplitude}}, mxp_octaves:{{octaves}}, mxp_lacunarity:{{lacunarity}}, mxp_diminish:{{diminish}}, mxp_texcoord:{{texcoord}})" target="genmdl" />
+  <implementation name="IM_fractal2d_vector4_genmdl" nodedef="ND_fractal2d_vector4" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_fractal2d_float4(mxp_amplitude:{{amplitude}}, mxp_octaves:{{octaves}}, mxp_lacunarity:{{lacunarity}}, mxp_diminish:{{diminish}}, mxp_texcoord:{{texcoord}})" target="genmdl" />
 
   <!-- <fractal3d> -->
   <implementation name="IM_fractal3d_float_genmdl" nodedef="ND_fractal3d_float" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_fractal3d_float(mxp_amplitude:{{amplitude}}, mxp_octaves:{{octaves}}, mxp_lacunarity:{{lacunarity}}, mxp_diminish:{{diminish}}, mxp_position:{{position}})" target="genmdl" />
