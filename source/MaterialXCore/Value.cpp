@@ -14,11 +14,12 @@
 MATERIALX_NAMESPACE_BEGIN
 
 Value::CreatorMap Value::_creatorMap;
-Value::FloatFormat Value::_floatFormat = Value::FloatFormatDefault;
-int Value::_floatPrecision = 6;
 
 namespace
 {
+
+thread_local Value::FloatFormat _floatFormat = Value::FloatFormatDefault;
+thread_local int _floatPrecision = 6;
 
 template <class T> using enable_if_mx_vector_t =
     typename std::enable_if<std::is_base_of<VectorBase, T>::value, T>::type;
@@ -268,6 +269,26 @@ template <class T> ValuePtr TypedValue<T>::createFromString(const string& value)
 //
 // Value methods
 //
+
+void Value::setFloatFormat(FloatFormat format)
+{
+    _floatFormat = format;
+}
+
+void Value::setFloatPrecision(int precision)
+{
+    _floatPrecision = precision;
+}
+
+Value::FloatFormat Value::getFloatFormat()
+{
+    return _floatFormat;
+}
+
+int Value::getFloatPrecision()
+{
+    return _floatPrecision;
+}
 
 ValuePtr Value::createValueFromStrings(const string& value, const string& type, ConstTypeDefPtr typeDef)
 {

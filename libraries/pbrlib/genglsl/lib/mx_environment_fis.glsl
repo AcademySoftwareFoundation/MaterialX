@@ -35,7 +35,11 @@ vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 alpha, int distributio
         vec3 Lw = tangentToWorld * L;
         float pdf = mx_ggx_NDF(H, alpha) * G1V / (4.0 * NdotV);
         float lod = mx_latlong_compute_lod(Lw, pdf, float($envRadianceMips - 1), envRadianceSamples);
+#ifdef HW_SEPARATE_SAMPLERS 
+        vec3 sampleColor = mx_latlong_map_lookup(Lw, $envMatrix, lod, $envRadiance_texture, $envRadiance_sampler);
+#else
         vec3 sampleColor = mx_latlong_map_lookup(Lw, $envMatrix, lod, $envRadiance);
+#endif
 
         // Compute the Fresnel term.
         vec3 F = mx_compute_fresnel(VdotH, fd);
@@ -64,6 +68,10 @@ vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 alpha, int distributio
 
 vec3 mx_environment_irradiance(vec3 N)
 {
+#ifdef HW_SEPARATE_SAMPLERS
+    vec3 Li = mx_latlong_map_lookup(N, $envMatrix, 0.0, $envIrradiance_texture, $envIrradiance_sampler);
+#else
     vec3 Li = mx_latlong_map_lookup(N, $envMatrix, 0.0, $envIrradiance);
+#endif
     return Li * $envLightIntensity;
 }
