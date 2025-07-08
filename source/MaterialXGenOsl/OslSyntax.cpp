@@ -388,7 +388,7 @@ OslSyntax::OslSyntax(TypeSystemPtr typeSystem) : Syntax(typeSystem)
         std::make_shared<ScalarTypeSyntax>(
             this,
             "BSDF",
-            "null_closure",
+            "null_closure()",
             "0",
             "closure color",
             "#define BSDF closure color"));
@@ -398,7 +398,7 @@ OslSyntax::OslSyntax(TypeSystemPtr typeSystem) : Syntax(typeSystem)
         std::make_shared<ScalarTypeSyntax>(
             this,
             "EDF",
-            "null_closure",
+            "null_closure()",
             "0",
             "closure color",
             "#define EDF closure color"));
@@ -408,7 +408,7 @@ OslSyntax::OslSyntax(TypeSystemPtr typeSystem) : Syntax(typeSystem)
         std::make_shared<ScalarTypeSyntax>(
             this,
             "VDF",
-            "null_closure",
+            "null_closure()",
             "0",
             "closure color",
             "#define VDF closure color"));
@@ -418,7 +418,7 @@ OslSyntax::OslSyntax(TypeSystemPtr typeSystem) : Syntax(typeSystem)
         std::make_shared<AggregateTypeSyntax>(
             this,
             "surfaceshader",
-            "surfaceshader(null_closure, null_closure, 1.0)",
+            "surfaceshader(null_closure(), null_closure(), 1.0)",
             "{ 0, 0, 1.0 }",
             "closure color",
             "struct surfaceshader { closure color bsdf; closure color edf; float opacity; };"));
@@ -428,7 +428,7 @@ OslSyntax::OslSyntax(TypeSystemPtr typeSystem) : Syntax(typeSystem)
         std::make_shared<ScalarTypeSyntax>(
             this,
             "volumeshader",
-            "null_closure",
+            "null_closure()",
             "0",
             "closure color",
             "#define volumeshader closure color"));
@@ -448,7 +448,7 @@ OslSyntax::OslSyntax(TypeSystemPtr typeSystem) : Syntax(typeSystem)
         std::make_shared<ScalarTypeSyntax>(
             this,
             "lightshader",
-            "null_closure",
+            "null_closure()",
             "0",
             "closure color",
             "#define lightshader closure color"));
@@ -458,7 +458,7 @@ OslSyntax::OslSyntax(TypeSystemPtr typeSystem) : Syntax(typeSystem)
         std::make_shared<ScalarTypeSyntax>(
             this,
             "MATERIAL",
-            "null_closure",
+            "null_closure()",
             "0",
             "closure color",
             "#define MATERIAL closure color"));
