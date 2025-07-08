@@ -23,7 +23,6 @@ set(VCPKG_ROOT "" CACHE PATH "The root of a VCPKG checkout. Option provides alte
 
 # Options that are influenced by the cmake toolchain
 option(MATERIALX_BUILD_MDL_COMPILER "Build the MDL SDK dependency to be used in [genmdl] tests. Needs VCPKG." OFF)
-option(MATERIALX_BUILD_MDL_RENDER "Build the MDL SDK dependency and a renderer application to be used in [rendermdl] tests. Needs VCPKG." OFF)
 
 # VCPKG setup
 if(VCPKG_DEPENDENCIES)
@@ -62,14 +61,10 @@ if(VCPKG_DEPENDENCIES)
     if(MATERIALX_BUILD_MDL_COMPILER)
         list(APPEND VCPKG_MANIFEST_FEATURES "mdl-compiler")
     endif()
-    if(MATERIALX_BUILD_MDL_RENDER)
-        list(APPEND VCPKG_MANIFEST_FEATURES "mdl-render")
-    endif()
 else()
     # disable all options that require VCPKG
     message("VCPKG_DEPENDENCIES was disabled. Disabling all components that require VCPKG.")
     set(MATERIALX_BUILD_MDL_COMPILER OFF)
-    set(MATERIALX_BUILD_MDL_RENDER OFF)
 endif()
 
 # JavaScript setup 
@@ -194,9 +189,8 @@ if(SKBUILD)
 endif()
 
 # Helpers for MDL validation
-set(MATERIALX_MDL_DIR "" CACHE PATH "Path to the MDL SDK directory that contains 'include', 'linux-x86-64', 'nt-x86-64', etc.")
+set(MATERIALX_MDL_DIR "" CACHE PATH "Path to the MDL SDK directory that contains 'include', 'lib', etc.")
 set(MATERIALX_MDL_COMPILER_EXECUTABLE "" CACHE FILEPATH "Full path to the mdlc binary.")
-set(MATERIALX_MDL_RENDER_EXECUTABLE "" CACHE FILEPATH "Full path to the mdl renderer binary.")
 if (MATERIALX_BUILD_GEN_MDL)
     set(MATERIALX_MDL_RENDER_ARGUMENTS "" CACHE STRING "Custom arguments for renderer.")
     set(MATERIALX_MDL_MODULE_PATHS "" CACHE FILEPATH "Comma separated list of MDL module paths.")
@@ -256,7 +250,6 @@ mark_as_advanced(MATERIALX_BUILD_IOS)
 mark_as_advanced(MATERIALX_BUILD_APPLE_FRAMEWORK)
 mark_as_advanced(MATERIALX_MDL_DIR)
 mark_as_advanced(MATERIALX_MDL_COMPILER_EXECUTABLE)
-mark_as_advanced(MATERIALX_MDL_RENDER_EXECUTABLE)
 if (MATERIALX_BUILD_GEN_MDL)
     mark_as_advanced(MATERIALX_MDL_RENDER_ARGUMENTS)
     mark_as_advanced(MATERIALX_MDL_MODULE_PATHS)
@@ -300,7 +293,7 @@ endif()
 
 # GEN MDL does not have any additional dependencies. For loading and compiling MDL, e.g., in the test renderer, the MDL SDK is needed.
 if (MATERIALX_BUILD_GEN_MDL)
-    if((EXISTS ${MATERIALX_MDL_DIR}) OR MATERIALX_BUILD_MDL_COMPILER OR MATERIALX_BUILD_MDL_RENDER)
+    if((EXISTS ${MATERIALX_MDL_DIR}) OR MATERIALX_BUILD_MDL_COMPILER)
         find_package(MDL QUIET REQUIRED PATHS ${MATERIALX_MDL_DIR})
         get_target_property(MATERIALX_MDL_COMPILER_EXECUTABLE mdl::mdlc LOCATION)
         set(MATERIALX_MDL_COMPILER_EXECUTABLE ${MATERIALX_MDL_COMPILER_EXECUTABLE} CACHE FILEPATH "Full path to the mdlc binary." FORCE)
@@ -558,9 +551,6 @@ if(MATERIALX_BUILD_RENDER)
         endif()
         if(MATERIALX_BUILD_GEN_OSL)
             add_subdirectory(source/MaterialXRenderOsl)
-        endif()
-        if(MATERIALX_BUILD_GEN_MDL AND MATERIALX_BUILD_MDL_RENDER)
-            add_subdirectory(source/MaterialXRenderMdl)
         endif()
     endif()
     if(MATERIALX_BUILD_VIEWER)
