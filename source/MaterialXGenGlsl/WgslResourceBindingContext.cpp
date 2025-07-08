@@ -58,6 +58,11 @@ void WgslResourceBindingContext::emitResourceBindings(GenContext& context, const
         if (uniform->getType() == Type::FILENAME)
         {
             // Bind separately as texture2D + sampler
+            //
+            // NOTE: the *_texture and *_sampler binding names method below expect that
+            //       variables from HwShaderGenerator.cpp (HW::ENV_RADIANCE_SPLIT and HW::ENV_IRRADIANCE_SPLIT)
+            //       use the same naming convention as here.
+            //
             generator.emitString("layout (binding=" + std::to_string(_hwUniformBindLocation++) + ") " + syntax.getUniformQualifier() + " ", stage);
             generator.emitString(string("texture2D ")+uniform->getVariable()+"_texture", stage);
             generator.emitLineEnd(stage, true);
