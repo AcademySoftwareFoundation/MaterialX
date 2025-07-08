@@ -33,7 +33,8 @@ WgslShaderGenerator::WgslShaderGenerator(TypeSystemPtr typeSystem) :
 void WgslShaderGenerator::emitDirectives(GenContext& context, ShaderStage& stage) const
 {
     VkShaderGenerator::emitDirectives(context, stage);
-    emitLine("#define HW_SEPARATE_SAMPLERS", stage, false);
+    // Add additional directives and #define statements here
+    //   Example: emitLine("#define HW_SEPARATE_SAMPLERS", stage, false);
     emitLineBreak(stage);
 }
 
