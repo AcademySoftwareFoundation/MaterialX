@@ -93,6 +93,8 @@ target_link_libraries(
 
 install(TARGETS MaterialXGraphEditor
     EXPORT MaterialX
-    RUNTIME DESTINATION bin)
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/MaterialXGraphEditor.pdb"
-    DESTINATION "${CMAKE_INSTALL_PREFIX}/bin/" OPTIONAL)
+    RUNTIME DESTINATION ${MATERIALX_INSTALL_BIN_PATH})
+if(MSVC)
+    install(FILES $<TARGET_PDB_FILE:MaterialXGraphEditor>
+            DESTINATION ${MATERIALX_INSTALL_BIN_PATH} OPTIONAL)
+endif()

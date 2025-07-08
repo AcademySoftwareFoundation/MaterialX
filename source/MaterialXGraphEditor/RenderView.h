@@ -11,6 +11,7 @@
 
 #include <MaterialXRender/GeometryHandler.h>
 #include <MaterialXRender/LightHandler.h>
+#include <MaterialXRender/Timer.h>
 
 namespace mx = MaterialX;
 
@@ -343,6 +344,8 @@ class RenderView
     mx::FilePath _captureFilename;
     bool _exitRequested;
 
+    // Time and frame
+    mx::ScopedTimer _timer;
     unsigned int _frame;
 };
 

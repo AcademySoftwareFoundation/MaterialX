@@ -9,6 +9,7 @@
 #include <MaterialXGenGlsl/GlslResourceBindingContext.h>
 #include <MaterialXGenGlsl/EsslShaderGenerator.h>
 #include <MaterialXGenGlsl/VkShaderGenerator.h>
+#include <MaterialXGenGlsl/WgslShaderGenerator.h>
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 
@@ -31,6 +32,10 @@ namespace
     mx::ShaderGeneratorPtr VkShaderGenerator_create()
     {
         return mx::VkShaderGenerator::create();
+    }
+    mx::ShaderGeneratorPtr WgslShaderGenerator_create()
+    {
+        return mx::WgslShaderGenerator::create();
     }
 }
 
@@ -72,4 +77,15 @@ void bindPyVkShaderGenerator(py::module& mod)
         .def("generate", &mx::VkShaderGenerator::generate)
         .def("getTarget", &mx::VkShaderGenerator::getTarget)
         .def("getVersion", &mx::VkShaderGenerator::getVersion);
+}
+
+// Glsl Wgsl shader generator bindings
+
+void bindPyWgslShaderGenerator(py::module& mod)
+{
+    py::class_<mx::WgslShaderGenerator, mx::GlslShaderGenerator, mx::WgslShaderGeneratorPtr>(mod, "WgslShaderGenerator")
+        .def_static("create", &WgslShaderGenerator_create)
+        .def("generate", &mx::WgslShaderGenerator::generate)
+        .def("getTarget", &mx::WgslShaderGenerator::getTarget)
+        .def("getVersion", &mx::WgslShaderGenerator::getVersion);
 }
