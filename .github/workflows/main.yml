@@ -203,14 +203,6 @@ jobs:
         echo "VCPKG_ROOT=C:/vcpkg" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
         echo "VCPKG_DEFAULT_TRIPLET=x64-windows-release" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
-    # TODO use the vcpkg cache
-    - name: Install OpenImageIO
-      if: matrix.build_oiio == 'ON' && runner.os == 'Windows'
-      run: |
-        ${{ env.VCPKG_ROOT }}/vcpkg install openimageio
-        Add-Content $env:GITHUB_PATH "${{ env.VCPKG_ROOT }}/installed/${{ env.VCPKG_DEFAULT_TRIPLET }}/bin"
-        Add-Content $env:GITHUB_PATH "${{ env.VCPKG_ROOT }}/installed/${{ env.VCPKG_DEFAULT_TRIPLET }}/share/openimageio"
-
     - name: Install Python ${{ matrix.python }}
       if: matrix.python != 'None'
       uses: actions/setup-python@v5
@@ -235,25 +227,43 @@ jobs:
         cwd: ${{ env.VCPKG_ROOT }}
       continue-on-error: true # TODO remove again
 
-      # Set up a cache for VCPKG to speed up builds. Look up the cache key.
-    # TODO Do we really need/want to vcpkg version as part of the cache key?
-    - name: Look up VCPKG cache
-      if: ${{ matrix.vcpkg_dependencies == 'ON' }} || (matrix.test_shaders == 'ON' && runner.os == 'Windows')
+    - name: Test
+      shell: bash
+      run: |
+        echo "VCPKG_VERSION=$(git rev-parse --short HEAD | tr -d '\n')" >> $GITHUB_ENV
+      continue-on-error: true # TODO remove again
+
+    # Set up a cache for Vcpkg to speed up builds. Look up the cache key.
+    # TODO Do we really need/want the vcpkg version as part of the cache key?
+    - name: Look up Vcpkg cache
+      if: (matrix.build_oiio == 'ON' && runner.os == 'Windows') || matrix.vcpkg_dependencies == 'ON' || (matrix.test_shaders == 'ON' && runner.os == 'Windows')
       id: cache-vcpkg
       uses: actions/cache@v4
       with:
         path: ${{ github.workspace }}/.vcpkg_cache
         key: vcpkg-${{ matrix.name }}-${{ steps.vcpkg-version.outputs.stdout }}-${{ env.VCPKG_CACHE_SUFFIX }}
 
-    - name: Build VCPKG dependencies for caching
+    # This step is currently not used by any configuration.
+    - name: Install OpenImageIO
+      if: matrix.build_oiio == 'ON' && runner.os == 'Windows'
+      run: |
+        echo "Vcpkg git version is ${{ steps.vcpkg-version.outputs.stdout }}"
+        ${{ env.VCPKG_ROOT }}/vcpkg install openimageio
+        Add-Content $env:GITHUB_PATH "${{ env.VCPKG_ROOT }}/installed/${{ env.VCPKG_DEFAULT_TRIPLET }}/bin"
+        Add-Content $env:GITHUB_PATH "${{ env.VCPKG_ROOT }}/installed/${{ env.VCPKG_DEFAULT_TRIPLET }}/share/openimageio"
+      env:
+        VCPKG_BINARY_SOURCES: "clear;files,${{ github.workspace }}/.vcpkg_cache,readwrite"
+
+    - name: Install MDL SDK
       if: ${{ matrix.vcpkg_dependencies == 'ON' }}
       run: |
-        echo "VCPKG git version is ${{ steps.vcpkg-version.outputs.stdout }}"
+        # TODO remove
+        echo "Vcpkg test version is ${{ env.VCPKG_ROOT }}"
+        echo "Vcpkg git version is ${{ steps.vcpkg-version.outputs.stdout }}"
         ${{ env.VCPKG_ROOT }}/vcpkg install mdl-sdk[dds,openimageio]
       env:
         VCPKG_BINARY_SOURCES: "clear;files,${{ github.workspace }}/.vcpkg_cache,readwrite"
 
-    # Generate using a pre-populated VCPKG cache (if enabled).
     - name: CMake Generate
       run: |
         cmake -S . -B build -DVCPKG_DEPENDENCIES=${{ matrix.vcpkg_dependencies == 'ON' }} -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_BUILD_TESTS=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{ matrix.cmake_config }}
@@ -287,7 +297,7 @@ jobs:
     - name: Shader Validation Tests (Windows)
       if: matrix.test_shaders == 'ON' && runner.os == 'Windows'
       run: |
-        echo "VCPKG git version is ${{ steps.vcpkg-version.outputs.stdout }}"
+        echo "Vcpkg git version is ${{ steps.vcpkg-version.outputs.stdout }}"
         ${{ env.VCPKG_ROOT }}/vcpkg install glslang[tools]
         ${{ env.VCPKG_ROOT }}/installed/${{ env.VCPKG_DEFAULT_TRIPLET }}/tools/glslang/glslangValidator.exe -v
         python python/Scripts/generateshader.py resources/Materials/Examples --target glsl --validator ${{ env.VCPKG_ROOT }}/installed/${{ env.VCPKG_DEFAULT_TRIPLET }}/tools/glslang/glslangValidator.exe
