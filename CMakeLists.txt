@@ -14,6 +14,15 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 
+# TODO remove again
+message(STATUS "Debug output 1")
+message(STATUS "VCPKG_ROOT is ${VCPKG_ROOT}")
+message(STATUS "ENV{VCPKG_ROOT} is $ENV{VCPKG_ROOT}")
+message(STATUS "VCPKG_DEFAULT_TRIPLET is ${VCPKG_DEFAULT_TRIPLET}")
+message(STATUS "ENV{VCPKG_DEFAULT_TRIPLET} is $ENV{VCPKG_DEFAULT_TRIPLET}")
+message(STATUS "CMAKE_TOOLCHAIN_FILE is ${CMAKE_TOOLCHAIN_FILE}")
+message(STATUS "ENV{CMAKE_TOOLCHAIN_FILE} is $ENV{CMAKE_TOOLCHAIN_FILE}")
+
 # Options that influence the cmake toolchain
 # Note, CMAKE_TOOLCHAIN_FILE can not be changed anymore after the project() command.
 # In order to set it, one needs to clear the cache.
@@ -52,6 +61,15 @@ else()
     message("VCPKG_DEPENDENCIES was disabled. Disabling all components that require VCPKG.")
     set(MATERIALX_BUILD_MDL_COMPILER OFF)
 endif()
+
+# TODO remove again
+message(STATUS "Debug output 2")
+message(STATUS "VCPKG_ROOT is ${VCPKG_ROOT}")
+message(STATUS "ENV{VCPKG_ROOT} is $ENV{VCPKG_ROOT}")
+message(STATUS "VCPKG_DEFAULT_TRIPLET is ${VCPKG_DEFAULT_TRIPLET}")
+message(STATUS "ENV{VCPKG_DEFAULT_TRIPLET} is $ENV{VCPKG_DEFAULT_TRIPLET}")
+message(STATUS "CMAKE_TOOLCHAIN_FILE is ${CMAKE_TOOLCHAIN_FILE}")
+message(STATUS "ENV{CMAKE_TOOLCHAIN_FILE} is $ENV{CMAKE_TOOLCHAIN_FILE}")
 
 # JavaScript setup 
 set(MATERIALX_EMSDK_PATH "" CACHE PATH "Path to EMSDK (e.g. 'D:/Projects/emsdk').")
