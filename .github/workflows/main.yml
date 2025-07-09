@@ -201,8 +201,8 @@ jobs:
       if: runner.os == 'Windows'
       run: |
         Add-Content $env:GITHUB_PATH "$PWD/build/installed/bin"
-        Add-Content $env:VCPKG_ROOT "C:/vcpkg"
-        Add-Content $env:VCPKG_DEFAULT_TRIPLET "x64-windows-release"
+        echo "VCPKG_ROOT=C:/vcpkg" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+        echo "VCPKG_DEFAULT_TRIPLET=x64-windows-release" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
     # TODO use the vcpkg cache
     - name: Install OpenImageIO
