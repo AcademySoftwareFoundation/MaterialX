@@ -18,7 +18,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 # Note, CMAKE_TOOLCHAIN_FILE can not be changed anymore after the project() command.
 # In order to set it, one needs to clear the cache.
 option(MATERIALX_BUILD_JS "Build the MaterialX JavaScript package from C++ bindings. Requires the emscripten environment." OFF)
-option(VCPKG_DEPENDENCIES "Enables VCPKG to pull external dependencies." ON)  # For build configurations that don't need any dependencies, e.g. in CI
+option(VCPKG_DEPENDENCIES "Enables VCPKG to pull external dependencies." OFF)  # For build configurations that don't need any dependencies, e.g. in CI
 set(VCPKG_ROOT "" CACHE PATH "The root of a VCPKG checkout. Option provides alternative to the `VCPKG_ROOT` environment variable. If not empty, this overrides the environment variable.")
 
 # Options that are influenced by the cmake toolchain
@@ -47,20 +47,6 @@ if(VCPKG_DEPENDENCIES)
         return()  # exit here otherwise the cache would need to be cleared
     endif()
 
-    # Set the VCPKG manifest mode
-    set(VCPKG_MANIFEST_MODE ON)
-
-    # linux and macos build static libs by default, for windows we need to set this manually
-    # note, 32bit and arm are not supported
-    if(WIN32 AND NOT UNIX)
-        # for MDL we use the "static" triplet to make sure that the image plugins are link dependencies statically so we don't need to collect all openimageio libraries.
-        set(VCPKG_TARGET_TRIPLET x64-windows-static-md)
-    endif()
-
-    # optional dependencies based on VCPKG
-    if(MATERIALX_BUILD_MDL_COMPILER)
-        list(APPEND VCPKG_MANIFEST_FEATURES "mdl-compiler")
-    endif()
 else()
     # disable all options that require VCPKG
     message("VCPKG_DEPENDENCIES was disabled. Disabling all components that require VCPKG.")
@@ -294,7 +280,7 @@ endif()
 # GEN MDL does not have any additional dependencies. For loading and compiling MDL, e.g., in the test renderer, the MDL SDK is needed.
 if (MATERIALX_BUILD_GEN_MDL)
     if((EXISTS ${MATERIALX_MDL_DIR}) OR MATERIALX_BUILD_MDL_COMPILER)
-        find_package(MDL QUIET REQUIRED PATHS ${MATERIALX_MDL_DIR})
+        find_package(mdl QUIET REQUIRED PATHS ${MATERIALX_MDL_DIR})
         get_target_property(MATERIALX_MDL_COMPILER_EXECUTABLE mdl::mdlc LOCATION)
         set(MATERIALX_MDL_COMPILER_EXECUTABLE ${MATERIALX_MDL_COMPILER_EXECUTABLE} CACHE FILEPATH "Full path to the mdlc binary." FORCE)
     endif()
