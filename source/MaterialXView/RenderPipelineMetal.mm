@@ -453,6 +453,11 @@ void MetalRenderPipeline::renderFrame(void* color_texture, int shadowMapSize, co
     }
     
     MTL(beginCommandBuffer());
+    std::unique_ptr<void, void(*)(void *)> guard((void *)1, [](void *) {
+        // Clean up Metal objects in the event of an exception.
+        MTL(endCommandBuffer());
+    });
+
     MTLRenderPassDescriptor* renderpassDesc = [MTLRenderPassDescriptor new];
     if(useTiledPipeline)
     {
@@ -641,7 +646,8 @@ void MetalRenderPipeline::renderFrame(void* color_texture, int shadowMapSize, co
             atIndex:0];
         [MTL(renderCmdEncoder) drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:0 vertexCount:3];
     }
-    
+
+    guard.release();
     MTL(endCommandBuffer());
     
     if(captureFrame)
