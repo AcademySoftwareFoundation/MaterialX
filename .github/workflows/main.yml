@@ -176,6 +176,7 @@ jobs:
           fi
         fi
         sudo apt-get install -y build-essential cmake ninja-build
+        echo "VCPKG_ROOT=/usr/local/share/vcpkg" >>$GITHUB_ENV
         echo "VCPKG_DEFAULT_TRIPLET=x64-linux" >>$GITHUB_ENV
 
     - name: Install Dependencies (MacOS)
@@ -193,21 +194,23 @@ jobs:
             echo "CXX=clang++" >> $GITHUB_ENV
           fi
         fi
+        echo "VCPKG_ROOT=/usr/local/share/vcpkg" >>$GITHUB_ENV
         echo "VCPKG_DEFAULT_TRIPLET=x64-osx" >>$GITHUB_ENV
 
     - name: Install Dependencies (Windows)
       if: runner.os == 'Windows'
       run: |
         Add-Content $env:GITHUB_PATH "$PWD/build/installed/bin"
+        echo "VCPKG_ROOT=C:/vcpkg" >>$GITHUB_ENV
         echo "VCPKG_DEFAULT_TRIPLET=x64-windows-release" >>$GITHUB_ENV
 
     # TODO use the vcpkg cache
     - name: Install OpenImageIO
       if: matrix.build_oiio == 'ON' && runner.os == 'Windows'
       run: |
-        ${{ env.VCPKG_INSTALLATION_ROOT }}/vcpkg install openimageio
-        Add-Content $env:GITHUB_PATH "${{ env.VCPKG_INSTALLATION_ROOT }}/installed/${{ env.VCPKG_DEFAULT_TRIPLET }}/bin"
-        Add-Content $env:GITHUB_PATH "${{ env.VCPKG_INSTALLATION_ROOT }}/installed/${{ env.VCPKG_DEFAULT_TRIPLET }}/share/openimageio"
+        ${{ env.VCPKG_ROOT }}/vcpkg install openimageio
+        Add-Content $env:GITHUB_PATH "${{ env.VCPKG_ROOT }}/installed/${{ env.VCPKG_DEFAULT_TRIPLET }}/bin"
+        Add-Content $env:GITHUB_PATH "${{ env.VCPKG_ROOT }}/installed/${{ env.VCPKG_DEFAULT_TRIPLET }}/share/openimageio"
 
     - name: Install Python ${{ matrix.python }}
       if: matrix.python != 'None'
@@ -224,12 +227,12 @@ jobs:
       if: matrix.clang_format == 'ON'
       run: find source \( -name *.h -o -name *.cpp -o -name *.mm -o -name *.inl \) ! -path "*/External/*" ! -path "*/NanoGUI/*" | xargs clang-format -i --verbose
 
+    # This is the version of the git tree, not the vcpkg exectuable.
     - name: Retrieve VCPKG version
       run: |
-        cd $VCPKG_INSTALLATION_ROOT
-        VCPKG_GIT_SHA=$(git rev-parse HEAD)
+        cd ${{ env.VCPKG_ROOT }}
+        echo "VCPKG_VERSION=$(git rev-parse HEAD)" >> $GITHUB_ENV
         echo "Using VCPKG ${{ env.VCPKG_VERSION }}"
-        echo "VCPKG_VERSION=$VCPKG_GIT_SHA" >>$GITHUB_ENV
 
     # Set up a cache for VCPKG to speed up builds. Look up the cache key.
     - name: Look up VCPKG cache
@@ -244,14 +247,14 @@ jobs:
     - name: Build VCPKG dependencies for caching
       if: ${{ matrix.vcpkg_dependencies == 'ON' }}
       run: |
-        ${{ env.VCPKG_INSTALLATION_ROOT }}/vcpkg install mdl-sdk[dds,openimageio]
+        ${{ env.VCPKG_ROOT }}/vcpkg install mdl-sdk[dds,openimageio]
       env:
         VCPKG_BINARY_SOURCES: "clear;files,${{ github.workspace }}/.vcpkg_cache,readwrite"
 
     # Generate using a pre-populated VCPKG cache (if enabled).
     - name: CMake Generate
       run: |
-        cmake -S . -B build -DVCPKG_DEPENDENCIES=${{ matrix.vcpkg_dependencies == 'ON' }} -DVCPKG_ROOT=${{ env.VCPKG_INSTALLATION_ROOT }} -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_BUILD_TESTS=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{ matrix.cmake_config }}
+        cmake -S . -B build -DVCPKG_DEPENDENCIES=${{ matrix.vcpkg_dependencies == 'ON' }} -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_BUILD_TESTS=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{ matrix.cmake_config }}
 
     - name: CMake Build
       run: cmake --build build --target install --config Release --parallel 2
@@ -282,12 +285,12 @@ jobs:
     - name: Shader Validation Tests (Windows)
       if: matrix.test_shaders == 'ON' && runner.os == 'Windows'
       run: |
-        ${{ env.VCPKG_INSTALLATION_ROOT }}/vcpkg install glslang[tools]
-        ${{ env.VCPKG_INSTALLATION_ROOT }}/installed/${{ env.VCPKG_DEFAULT_TRIPLET }}/tools/glslang/glslangValidator.exe -v
-        python python/Scripts/generateshader.py resources/Materials/Examples --target glsl --validator ${{ env.VCPKG_INSTALLATION_ROOT }}/installed/${{ env.VCPKG_DEFAULT_TRIPLET }}/tools/glslang/glslangValidator.exe
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target essl --validator ${{ env.VCPKG_INSTALLATION_ROOT }}/installed/${{ env.VCPKG_DEFAULT_TRIPLET }}/tools/glslang/glslangValidator.exe
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target vulkan --validator ${{ env.VCPKG_INSTALLATION_ROOT }}/installed/${{ env.VCPKG_DEFAULT_TRIPLET }}/tools/glslang/glslangValidator.exe
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target wgsl --validator "${{ env.VCPKG_INSTALLATION_ROOT }}/installed/${{ env.VCPKG_DEFAULT_TRIPLET }}/tools/glslang/glslangValidator.exe --target-env vulkan1.3 --quiet"
+        ${{ env.VCPKG_ROOT }}/vcpkg install glslang[tools]
+        ${{ env.VCPKG_ROOT }}/installed/${{ env.VCPKG_DEFAULT_TRIPLET }}/tools/glslang/glslangValidator.exe -v
+        python python/Scripts/generateshader.py resources/Materials/Examples --target glsl --validator ${{ env.VCPKG_ROOT }}/installed/${{ env.VCPKG_DEFAULT_TRIPLET }}/tools/glslang/glslangValidator.exe
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target essl --validator ${{ env.VCPKG_ROOT }}/installed/${{ env.VCPKG_DEFAULT_TRIPLET }}/tools/glslang/glslangValidator.exe
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target vulkan --validator ${{ env.VCPKG_ROOT }}/installed/${{ env.VCPKG_DEFAULT_TRIPLET }}/tools/glslang/glslangValidator.exe
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target wgsl --validator "${{ env.VCPKG_ROOT }}/installed/${{ env.VCPKG_DEFAULT_TRIPLET }}/tools/glslang/glslangValidator.exe --target-env vulkan1.3 --quiet"
       env:
         VCPKG_BINARY_SOURCES: "clear;files,${{ github.workspace }}/.vcpkg_cache,readwrite"
 
