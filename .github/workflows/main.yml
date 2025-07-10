@@ -265,8 +265,8 @@ jobs:
         VCPKG_BINARY_SOURCES: "clear;files,${{ github.workspace }}/.vcpkg_cache,readwrite"
 
     - name: CMake Generate
-      run: |
-        cmake -S . -B build -DVCPKG_DEPENDENCIES=${{ matrix.vcpkg_dependencies == 'ON' }} -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_BUILD_TESTS=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{ matrix.cmake_config }}
+      run: | # TODO remove --trace-expand
+        cmake -S . -B build --trace-expand -DVCPKG_DEPENDENCIES=${{ matrix.vcpkg_dependencies == 'ON' }} -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_BUILD_TESTS=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{ matrix.cmake_config }}
 
     - name: CMake Build
       run: cmake --build build --target install --config Release --parallel 2
