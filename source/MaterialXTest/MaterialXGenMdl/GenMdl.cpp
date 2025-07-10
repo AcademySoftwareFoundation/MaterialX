@@ -212,7 +212,7 @@ void MdlShaderGeneratorTester::compileSource(const std::vector<mx::FilePath>& so
         return;
 
     // only compile of the compiler binary is available
-    std::string mdlcCommand(MATERIALX_MDL_COMPILER_EXECUTABLE);
+    std::string mdlcCommand(MATERIALX_OSL_BINARY_OSLC);
     if (mdlcCommand.empty())
     {
         return;
@@ -280,7 +280,7 @@ TEST_CASE("GenShader: MDL Shader Generation", "[genmdl]")
     const mx::FilePath logPath("genmdl_mdl_generate_test.txt");
 
     // Write shaders and try to compile only if mdlc exe specified.
-    std::string mdlcExec(MATERIALX_MDL_COMPILER_EXECUTABLE);
+    std::string mdlcExec(MATERIALX_OSL_BINARY_OSLC);
     bool writeShadersToDisk = !mdlcExec.empty();
     MdlShaderGeneratorTester tester(mx::MdlShaderGenerator::create(), testRootPaths, searchPath, logPath, writeShadersToDisk);
     tester.addSkipLibraryFiles();

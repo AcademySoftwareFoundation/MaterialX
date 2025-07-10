@@ -58,7 +58,7 @@ else()
     set(MATERIALX_BUILD_GEN_MDL_TEST OFF)
 endif()
 
-# JavaScript setup 
+# JavaScript setup
 set(MATERIALX_EMSDK_PATH "" CACHE PATH "Path to EMSDK (e.g. 'D:/Projects/emsdk').")
 if (MATERIALX_BUILD_JS)
     if (EXISTS "${MATERIALX_EMSDK_PATH}")

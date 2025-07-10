@@ -65,7 +65,7 @@ When rendering tests are enabled through the `MATERIALX_TEST_RENDER` option, the
     - OSL versions 1.12.6 and later are supported.
 - `MDL` :
     - Set the following build options to enable MDL support:
-        - `MATERIALX_MDL_COMPILER_EXECUTABLE`: Full path to the MDL compiler binary (e.g. `mdlc.exe').
+        - `MATERIALX_OSL_BINARY_OSLC`: Full path to the MDL compiler binary (e.g. `mdlc.exe').
     - Optionally, `MATERIALX_MDL_RENDER_ARGUMENTS` can be set to provide command line arguments for non-interactive rendering.
     - MDL versions 1.6 and later are supported.
 - `MSL`:

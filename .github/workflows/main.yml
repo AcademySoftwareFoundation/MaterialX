@@ -28,7 +28,6 @@ jobs:
           compiler_version: "10"
           python: 3.9
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON -DMATERIALX_BUILD_MONOLITHIC=ON
-          # TODO enable (OFF just to save CI cycles, plus -DMATERIALX_BUILD_GEN_MDL_TEST=ON)
           vcpkg_dependencies: OFF
 
         - name: Linux_GCC_14_Python39
@@ -36,7 +35,6 @@ jobs:
           compiler: gcc
           compiler_version: "14"
           python: 3.9
-          # TODO enable (OFF just to save CI cycles, plus -DMATERIALX_BUILD_GEN_MDL_TEST=ON)
           vcpkg_dependencies: OFF
 
         - name: Linux_GCC_14_Python311
@@ -81,7 +79,6 @@ jobs:
           compiler_version: "15.4"
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
           python: 3.9
-          # TODO enable (some problem on MacOS, investigate, plus -DMATERIALX_BUILD_GEN_MDL_TEST=ON)
           vcpkg_dependencies: OFF
 
         - name: MacOS_Xcode_15_Python311
@@ -90,7 +87,6 @@ jobs:
           compiler_version: "16.1"
           python: 3.11
           test_shaders: ON
-          # TODO enable (some problem on MacOS, investigate, plus -DMATERIALX_BUILD_GEN_MDL_TEST=ON)
           vcpkg_dependencies: OFF
 
         - name: MacOS_Xcode_16_Python311
@@ -99,9 +95,8 @@ jobs:
           compiler_version: "16.1"
           python: 3.11
           static_analysis: ON
-          cmake_config: -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DMATERIALX_BUILD_GEN_MDL_TEST=ON
-          # TODO enable (some problem on MacOS, investigate, plus -DMATERIALX_BUILD_GEN_MDL_TEST=ON)
-          vcpkg_dependencies: ON
+          cmake_config: -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+          vcpkg_dependencies: OFF
 
         - name: MacOS_Xcode_DynamicAnalysis
           os: macos-15
@@ -118,7 +113,6 @@ jobs:
           compiler_version: "16.1"
           python: None
           cmake_config: -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_SYSROOT=`xcrun --sdk iphoneos --show-sdk-path` -DCMAKE_OSX_ARCHITECTURES=arm64
-          # TODO enable (some problem on MacOS, investigate, plus -DMATERIALX_BUILD_GEN_MDL_TEST=ON)
           vcpkg_dependencies: OFF
 
         - name: Windows_VS2022_Win32_Python39
@@ -149,7 +143,6 @@ jobs:
           python: None
           cmake_config: -G "Visual Studio 17 2022" -A "x64" -DMATERIALX_BUILD_SHARED_LIBS=ON
           upload_shaders: ON
-          # TODO enable (caching problems on Windows, investigate, plus -DMATERIALX_BUILD_GEN_MDL_TEST=ON)
           vcpkg_dependencies: OFF
 
     steps:
@@ -174,7 +167,6 @@ jobs:
             echo "CXX=clang++-${{ matrix.compiler_version }}" >> $GITHUB_ENV
           fi
         fi
-        sudo apt-get install -y build-essential cmake ninja-build
         echo "VCPKG_ROOT=/usr/local/share/vcpkg" >>$GITHUB_ENV
         echo "VCPKG_DEFAULT_TRIPLET=x64-linux" >>$GITHUB_ENV
 
@@ -218,7 +210,7 @@ jobs:
       if: matrix.clang_format == 'ON'
       run: find source \( -name *.h -o -name *.cpp -o -name *.mm -o -name *.inl \) ! -path "*/External/*" ! -path "*/NanoGUI/*" | xargs clang-format -i --verbose
 
-    # This is the version of the git tree, not the vcpkg exectuable.
+    # This is the version of the git tree, not of the vcpkg executable itself.
     - name: Retrieve vcpkg version
       shell: bash
       run: |
@@ -255,8 +247,7 @@ jobs:
         VCPKG_BINARY_SOURCES: "clear;files,${{ github.workspace }}/.vcpkg_cache,readwrite"
 
     - name: CMake Generate
-      run: |
-        cmake -S . -B build -DVCPKG_DEPENDENCIES=${{ matrix.vcpkg_dependencies == 'ON' }} -DVCPKG_TARGET_TRIPLET=${{ env.VCPKG_DEFAULT_TRIPLET }} -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_BUILD_TESTS=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{ matrix.cmake_config }}
+      run: cmake -S . -B build -DVCPKG_DEPENDENCIES=${{ matrix.vcpkg_dependencies == 'ON' }} -DVCPKG_TARGET_TRIPLET=${{ env.VCPKG_DEFAULT_TRIPLET }} -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_BUILD_TESTS=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{ matrix.cmake_config }}
 
     - name: CMake Build
       run: cmake --build build --target install --config Release --parallel 2
