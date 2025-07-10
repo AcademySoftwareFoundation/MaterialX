@@ -14,44 +14,29 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 
-# TODO remove again
-message(STATUS "Debug output 1")
-message(STATUS "VCPKG_ROOT is ${VCPKG_ROOT}")
-message(STATUS "ENV{VCPKG_ROOT} is $ENV{VCPKG_ROOT}")
-message(STATUS "VCPKG_DEFAULT_TRIPLET is ${VCPKG_DEFAULT_TRIPLET}")
-message(STATUS "ENV{VCPKG_DEFAULT_TRIPLET} is $ENV{VCPKG_DEFAULT_TRIPLET}")
-message(STATUS "VCPKG_TARGET_TRIPLET is ${VCPKG_TARGET_TRIPLET}")
-message(STATUS "ENV{VCPKG_TARGET_TRIPLET} is $ENV{VCPKG_TARGET_TRIPLET}")
-message(STATUS "CMAKE_TOOLCHAIN_FILE is ${CMAKE_TOOLCHAIN_FILE}")
-message(STATUS "ENV{CMAKE_TOOLCHAIN_FILE} is $ENV{CMAKE_TOOLCHAIN_FILE}")
-
 # Options that influence the cmake toolchain
 # Note, CMAKE_TOOLCHAIN_FILE can not be changed anymore after the project() command.
 # In order to set it, one needs to clear the cache.
 option(MATERIALX_BUILD_JS "Build the MaterialX JavaScript package from C++ bindings. Requires the emscripten environment." OFF)
-option(VCPKG_DEPENDENCIES "Enables VCPKG to pull external dependencies." OFF)  # For build configurations that don't need any dependencies, e.g. in CI
-set(VCPKG_ROOT "" CACHE PATH "The root of a VCPKG checkout. Option provides alternative to the `VCPKG_ROOT` environment variable. If not empty, this overrides the environment variable.")
-
+option(VCPKG_DEPENDENCIES "Enables vcpkg to pull external dependencies." ON)
+set(VCPKG_ROOT "" CACHE PATH "The root of a vcpkg checkout. Option provides alternative to the `VCPKG_ROOT` environment variable. If not empty, this overrides the environment variable.")
 # Options that are influenced by the cmake toolchain
-option(MATERIALX_BUILD_MDL_COMPILER "Build the MDL SDK dependency to be used in [genmdl] tests. Needs VCPKG." OFF)
+option(MATERIALX_BUILD_GEN_MDL_TEST "Build the MDL SDK dependency to be used in [genmdl] tests. Needs vcpkg." OFF)
 
-# VCPKG setup
+# vcpkg setup
 if(VCPKG_DEPENDENCIES)
 
     if (MATERIALX_BUILD_JS)
         # tool chains could be combined if this combination is required
-        message(FATAL_ERROR "Building JavaScript is not support in combination with VCPKG at this point. Please set the `VCPKG_DEPENDENCIES` to false.")
+        message(FATAL_ERROR "Building JavaScript is not support in combination with vcpkg at this point. Please set the `VCPKG_DEPENDENCIES` to false.")
     endif()
 
     # Consider VCPKG_ROOT and VCPKG_DEFAULT_TRIPLET from the environment to initialize CMake
     # variables VCPKG_ROOT and VCPKG_TARGET_TRIPLET (if not set yet). Note the naming differences
-    # between the environment variable VCPKG_DEFAULT_TRIPLET is for vcpkg itself and the CMake
-    # option VCPKG_TARGET_TRIPLET.
+    # between the environment variable VCPKG_DEFAULT_TRIPLET for vcpkg itself and the CMake option
+    # VCPKG_TARGET_TRIPLET.
     if(NOT VCPKG_ROOT AND DEFINED ENV{VCPKG_ROOT})
         set(VCPKG_ROOT $ENV{VCPKG_ROOT})
-    endif()
-    if(NOT VCPKG_TARGET_TRIPLET AND DEFINED ENV{VCPKG_DEFAULT_TRIPLET})
-        set(VCPKG_TARGET_TRIPLET $ENV{VCPKG_DEFAULT_TRIPLET})
     endif()
 
     # Set CMAKE_TOOLCHAIN_FILE based on VCPKG_ROOT if not yet set.
@@ -63,26 +48,15 @@ if(VCPKG_DEPENDENCIES)
     if(EXISTS ${CMAKE_TOOLCHAIN_FILE})
         message(STATUS "VCPKG toolchain file found: ${CMAKE_TOOLCHAIN_FILE}")
     else()
-        message(FATAL_ERROR "VCPKG toolchain path not found. Please set the `VCPKG_ROOT` environment variable or specify `CMAKE_TOOLCHAIN_FILE` manually.")
+        message(FATAL_ERROR "CMake toolchain file path not found. Please set the `VCPKG_ROOT` environment variable or specify `CMAKE_TOOLCHAIN_FILE` manually.")
         return()  # exit here otherwise the cache would need to be cleared
     endif()
 
 else()
     # disable all options that require VCPKG
-    message("VCPKG_DEPENDENCIES was disabled. Disabling all components that require VCPKG.")
-    set(MATERIALX_BUILD_MDL_COMPILER OFF)
+    message("VCPKG_DEPENDENCIES was disabled. Disabling all components that require vcpkg.")
+    set(MATERIALX_BUILD_GEN_MDL_TEST OFF)
 endif()
-
-# TODO remove again
-message(STATUS "Debug output 2")
-message(STATUS "VCPKG_ROOT is ${VCPKG_ROOT}")
-message(STATUS "ENV{VCPKG_ROOT} is $ENV{VCPKG_ROOT}")
-message(STATUS "VCPKG_DEFAULT_TRIPLET is ${VCPKG_DEFAULT_TRIPLET}")
-message(STATUS "ENV{VCPKG_DEFAULT_TRIPLET} is $ENV{VCPKG_DEFAULT_TRIPLET}")
-message(STATUS "VCPKG_TARGET_TRIPLET is ${VCPKG_TARGET_TRIPLET}")
-message(STATUS "ENV{VCPKG_TARGET_TRIPLET} is $ENV{VCPKG_TARGET_TRIPLET}")
-message(STATUS "CMAKE_TOOLCHAIN_FILE is ${CMAKE_TOOLCHAIN_FILE}")
-message(STATUS "ENV{CMAKE_TOOLCHAIN_FILE} is $ENV{CMAKE_TOOLCHAIN_FILE}")
 
 # JavaScript setup 
 set(MATERIALX_EMSDK_PATH "" CACHE PATH "Path to EMSDK (e.g. 'D:/Projects/emsdk').")
@@ -207,7 +181,7 @@ endif()
 
 # Helpers for MDL validation
 set(MATERIALX_MDL_DIR "" CACHE PATH "Path to the MDL SDK directory that contains 'include', 'lib', etc.")
-set(MATERIALX_MDL_COMPILER_EXECUTABLE "" CACHE FILEPATH "Full path to the mdlc binary.")
+set(MATERIALX_MDL_BINARY_MDLC "" CACHE FILEPATH "Full path to the mdlc binary.")
 if (MATERIALX_BUILD_GEN_MDL)
     set(MATERIALX_MDL_RENDER_ARGUMENTS "" CACHE STRING "Custom arguments for renderer.")
     set(MATERIALX_MDL_MODULE_PATHS "" CACHE FILEPATH "Comma separated list of MDL module paths.")
@@ -266,7 +240,7 @@ mark_as_advanced(MATERIALX_EMSDK_PATH)
 mark_as_advanced(MATERIALX_BUILD_IOS)
 mark_as_advanced(MATERIALX_BUILD_APPLE_FRAMEWORK)
 mark_as_advanced(MATERIALX_MDL_DIR)
-mark_as_advanced(MATERIALX_MDL_COMPILER_EXECUTABLE)
+mark_as_advanced(MATERIALX_MDL_BINARY_MDLC)
 if (MATERIALX_BUILD_GEN_MDL)
     mark_as_advanced(MATERIALX_MDL_RENDER_ARGUMENTS)
     mark_as_advanced(MATERIALX_MDL_MODULE_PATHS)
@@ -310,10 +284,10 @@ endif()
 
 # GEN MDL does not have any additional dependencies. For loading and compiling MDL, e.g., in the test renderer, the MDL SDK is needed.
 if (MATERIALX_BUILD_GEN_MDL)
-    if((EXISTS ${MATERIALX_MDL_DIR}) OR MATERIALX_BUILD_MDL_COMPILER)
+    if((EXISTS ${MATERIALX_MDL_DIR}) OR MATERIALX_BUILD_GEN_MDL_TEST)
         find_package(mdl QUIET CONFIG REQUIRED PATHS ${MATERIALX_MDL_DIR})
-        get_target_property(MATERIALX_MDL_COMPILER_EXECUTABLE mdl::mdlc LOCATION)
-        set(MATERIALX_MDL_COMPILER_EXECUTABLE ${MATERIALX_MDL_COMPILER_EXECUTABLE} CACHE FILEPATH "Full path to the mdlc binary." FORCE)
+        get_target_property(MATERIALX_MDL_BINARY_MDLC mdl::mdlc LOCATION)
+        set(MATERIALX_MDL_BINARY_MDLC ${MATERIALX_MDL_BINARY_MDLC} CACHE FILEPATH "Full path to the mdlc binary." FORCE)
     endif()
 
     # TODO remove the listing of imported targets
