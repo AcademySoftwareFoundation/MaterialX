@@ -255,21 +255,18 @@ jobs:
         VCPKG_BINARY_SOURCES: "clear;files,${{ github.workspace }}/.vcpkg_cache,readwrite"
 
     - name: CMake Generate
-      run: | # TODO remove --trace-expand
-        cmake -S . -B build --trace-expand -DVCPKG_DEPENDENCIES=${{ matrix.vcpkg_dependencies == 'ON' }} -DVCPKG_TARGET_TRIPLET=${{ env.VCPKG_DEFAULT_TRIPLET }} -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_BUILD_TESTS=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{ matrix.cmake_config }}
+      run: |
+        cmake -S . -B build -DVCPKG_DEPENDENCIES=${{ matrix.vcpkg_dependencies == 'ON' }} -DVCPKG_TARGET_TRIPLET=${{ env.VCPKG_DEFAULT_TRIPLET }} -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_BUILD_TESTS=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{ matrix.cmake_config }}
 
     - name: CMake Build
-      if: false # TODO re-enable
       run: cmake --build build --target install --config Release --parallel 2
 
     - name: CMake Unit Tests
-      if: false # TODO re-enable
       run: ctest -VV --output-on-failure --build-config Release
       working-directory: build
 
     - name: Python Tests
-      if: false # TODO re-enable
-      # if: matrix.python != 'None'
+      if: matrix.python != 'None'
       run: |
         python MaterialXTest/main.py
         python MaterialXTest/genshader.py
@@ -293,24 +290,21 @@ jobs:
         echo "vcpkg git version is ${{ env.VCPKG_VERSION }}"
         ${{ env.VCPKG_ROOT }}/vcpkg install glslang[tools]
         ${{ env.VCPKG_ROOT }}/installed/${{ env.VCPKG_DEFAULT_TRIPLET }}/tools/glslang/glslangValidator.exe -v
-        # TODO re-enable
-        # python python/Scripts/generateshader.py resources/Materials/Examples --target glsl --validator ${{ env.VCPKG_ROOT }}/installed/${{ env.VCPKG_DEFAULT_TRIPLET }}/tools/glslang/glslangValidator.exe
-        # python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target essl --validator ${{ env.VCPKG_ROOT }}/installed/${{ env.VCPKG_DEFAULT_TRIPLET }}/tools/glslang/glslangValidator.exe
-        # python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target vulkan --validator ${{ env.VCPKG_ROOT }}/installed/${{ env.VCPKG_DEFAULT_TRIPLET }}/tools/glslang/glslangValidator.exe
-        # python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target wgsl --validator "${{ env.VCPKG_ROOT }}/installed/${{ env.VCPKG_DEFAULT_TRIPLET }}/tools/glslang/glslangValidator.exe --target-env vulkan1.3 --quiet"
+        python python/Scripts/generateshader.py resources/Materials/Examples --target glsl --validator ${{ env.VCPKG_ROOT }}/installed/${{ env.VCPKG_DEFAULT_TRIPLET }}/tools/glslang/glslangValidator.exe
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target essl --validator ${{ env.VCPKG_ROOT }}/installed/${{ env.VCPKG_DEFAULT_TRIPLET }}/tools/glslang/glslangValidator.exe
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target vulkan --validator ${{ env.VCPKG_ROOT }}/installed/${{ env.VCPKG_DEFAULT_TRIPLET }}/tools/glslang/glslangValidator.exe
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target wgsl --validator "${{ env.VCPKG_ROOT }}/installed/${{ env.VCPKG_DEFAULT_TRIPLET }}/tools/glslang/glslangValidator.exe --target-env vulkan1.3 --quiet"
       env:
         VCPKG_BINARY_SOURCES: "clear;files,${{ github.workspace }}/.vcpkg_cache,readwrite"
 
     - name: Shader Validation Tests (MacOS)
-      if: false # TODO re-enable
-      # if: matrix.test_shaders == 'ON' && runner.os == 'macOS'
+      if: matrix.test_shaders == 'ON' && runner.os == 'macOS'
       run: |
         python python/Scripts/generateshader.py resources/Materials/Examples --target msl --validator "xcrun metal --language=metal" --validatorArgs="-w"
         python python/Scripts/generateshader.py resources/Materials/TestSuite/stdlib --target msl --validator "xcrun metal --language=metal" --validatorArgs="-w"
 
     - name: Coverage Analysis Tests
-      if: false # TODO re-enable
-      # if: matrix.coverage_analysis == 'ON'
+      if: matrix.coverage_analysis == 'ON'
       run: |
         sudo apt-get install gcovr
         mkdir coverage
@@ -318,8 +312,7 @@ jobs:
       working-directory: build
 
     - name: Static Analysis Tests
-      if: false # TODO re-enable
-      # if: matrix.static_analysis == 'ON'
+      if: matrix.static_analysis == 'ON'
       run: |
         if [ "${{ runner.os }}" = "Linux" ]; then
           sudo apt-get install cppcheck
@@ -329,24 +322,21 @@ jobs:
         cppcheck --project=build/compile_commands.json --error-exitcode=1 --suppress=normalCheckLevelMaxBranches --suppress=*:*/External/* --suppress=*:*/NanoGUI/*
 
     - name: Initialize Virtual Framebuffer
-      if: false # TODO re-enable
-      # if: matrix.test_render == 'ON' && runner.os == 'Linux'
+      if: matrix.test_render == 'ON' && runner.os == 'Linux'
       run: |
         Xvfb :1 -screen 0 1280x960x24 &
         echo "DISPLAY=:1" >> $GITHUB_ENV
         echo "LIBGL_ALWAYS_SOFTWARE=1" >> $GITHUB_ENV
 
     - name: Render Script Tests
-      if: false # TODO re-enable
-      # if: matrix.test_render == 'ON'
+      if: matrix.test_render == 'ON'
       run: |
         mkdir build/render
         python python/Scripts/baketextures.py resources/Materials/Examples/StandardSurface/standard_surface_brass_tiled.mtlx build/render/brass_average_baked.mtlx --average
         python python/Scripts/translateshader.py resources/Materials/Examples/StandardSurface/standard_surface_carpaint.mtlx build/render/usd_preview_surface_carpaint.mtlx UsdPreviewSurface --hdr
 
     - name: Render Application Tests
-      if: false # TODO re-enable
-      # if: matrix.test_render == 'ON'
+      if: matrix.test_render == 'ON'
       run: |
         ../installed/bin/MaterialXView --material brass_average_baked.mtlx --mesh ../../resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --shadowMap false --captureFilename Viewer_BrassAverage.png
         ../installed/bin/MaterialXView --material usd_preview_surface_carpaint.mtlx --mesh ../../resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --shadowMap false --captureFilename Viewer_CarpaintTranslated.png
@@ -354,16 +344,14 @@ jobs:
       working-directory: build/render
 
     - name: Upload Installed Package
-      if: false # TODO re-enable
-      # if: matrix.python != 'None'
+      if: matrix.python != 'None'
       uses: actions/upload-artifact@v4
       with:
         name: MaterialX_${{ matrix.name }}
         path: build/installed/
 
     - name: Upload Formatted Source
-      if: false # TODO re-enable
-      # if: matrix.clang_format == 'ON'
+      if: matrix.clang_format == 'ON'
       uses: actions/upload-artifact@v4
       with:
         name: MaterialX_ClangFormat
@@ -371,24 +359,21 @@ jobs:
 
     - name: Upload Reference Shaders
       uses: actions/upload-artifact@v4
-      if: false # TODO re-enable
-      # if: matrix.upload_shaders == 'ON'
+      if: matrix.upload_shaders == 'ON'
       with:
         name: MaterialX_ReferenceShaders
         path: build/bin/reference/
 
     - name: Upload Renders
       uses: actions/upload-artifact@v4
-      if: false # TODO re-enable
-      # if: matrix.test_render == 'ON'
+      if: matrix.test_render == 'ON'
       with:
         name: Renders_${{ matrix.name }}
         path: build/render/*.png
 
     - name: Upload Coverage Report
       uses: actions/upload-artifact@v4
-      if: false # TODO re-enable
-      # if: matrix.coverage_analysis == 'ON'
+      if: matrix.coverage_analysis == 'ON'
       with:
         name: MaterialX_Coverage
         path: build/coverage
@@ -396,7 +381,6 @@ jobs:
   javascript:
     name: JavaScript
     runs-on: ubuntu-latest
-    if: false # TODO re-enable
 
     steps:
     - name: Sync Repository
@@ -452,8 +436,7 @@ jobs:
   sdist:
     name: Python SDist
     runs-on: ubuntu-24.04
-    if: false # TODO re-enable
-    # if: github.repository == 'AcademySoftwareFoundation/MaterialX'
+    if: github.repository == 'AcademySoftwareFoundation/MaterialX'
     outputs:
       sdist_filename: ${{ steps.generate.outputs.filename }}
 
@@ -483,8 +466,7 @@ jobs:
     name: Python Wheels
     runs-on: ${{ matrix.os }}
     needs: ['sdist']
-    if: false # TODO re-enable
-    # if: github.repository == 'AcademySoftwareFoundation/MaterialX'
+    if: github.repository == 'AcademySoftwareFoundation/MaterialX'
     strategy:
       fail-fast: false
       matrix:
