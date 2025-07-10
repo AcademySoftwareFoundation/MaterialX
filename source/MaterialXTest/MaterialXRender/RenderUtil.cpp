@@ -125,12 +125,29 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
     // Data search path
     mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
 
+    const std::string MTLX_EXTENSION("mtlx");
     mx::ScopedTimer ioTimer(&profileTimes.ioTime);
-    mx::FilePathVec dirs;
+    mx::FilePathVec files;
     for (const auto& root : options.renderTestPaths)
     {
-        mx::FilePathVec testRootDirs = searchPath.find(root).getSubDirectories();
-        dirs.insert(std::end(dirs), std::begin(testRootDirs), std::end(testRootDirs));
+        auto resolvedRoot = searchPath.find(root);
+        if (!resolvedRoot.exists())
+            continue;
+        if (resolvedRoot.isDirectory())
+        {
+            mx::FilePathVec testRootDirs = searchPath.find(root).getSubDirectories();
+            for (auto& dir : testRootDirs)
+            {
+                mx::FilePathVec dirFiles = dir.getFilesInDirectory(MTLX_EXTENSION);
+                files.reserve(files.size() + dirFiles.size());
+                for (auto& file: dirFiles)
+                    files.push_back(dir / file);
+            }
+        }
+        else
+        {
+            files.push_back(resolvedRoot);
+        }
     }
     ioTimer.endTimer();
 
@@ -206,101 +223,89 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
 
     mx::StringSet usedImpls;
 
-    const std::string MTLX_EXTENSION("mtlx");
-    for (const auto& dir : dirs)
+    for (const mx::FilePath& filename : files)
     {
         ioTimer.startTimer();
-        mx::FilePathVec files;
-        files = dir.getFilesInDirectory(MTLX_EXTENSION);
+        // Check if a file override set is used and ignore all files
+        // not part of the override set
+        if (testfileOverride.size() && testfileOverride.count(filename.getBaseName()) == 0)
+        {
+            ioTimer.endTimer();
+            continue;
+        }
+
+        if (_skipFiles.count(filename.getBaseName()) > 0)
+        {
+            ioTimer.endTimer();
+            continue;
+        }
+
+        mx::DocumentPtr doc = mx::createDocument();
+        try
+        {
+            mx::readFromXmlFile(doc, filename, searchPath);
+        }
+        catch (mx::Exception& e)
+        {
+            docValidLog << "Failed to load in file: " << filename.asString() << ". Error: " << e.what() << std::endl;
+            WARN("Failed to load in file: " + filename.asString() + "See: " + docValidLogFilename + " for details.");
+        }
+
+        // For each new file clear the implementation cache.
+        // Since the new file might contain implementations with names
+        // colliding with implementations in previous test cases.
+        context.clearNodeImplementations();
+
+        doc->setDataLibrary(dependLib);
+
+        // Register types from the document.
+        _shaderGenerator->registerTypeDefs(doc);
+
         ioTimer.endTimer();
 
-        for (const mx::FilePath& file : files)
+        validateTimer.startTimer();
+        log << "MTLX Filename: " << filename.asString() << std::endl;
+
+        // Validate the test document
+        std::string validationErrors;
+        bool validDoc = doc->validate(&validationErrors);
+        if (!validDoc)
         {
-            ioTimer.startTimer();
-            // Check if a file override set is used and ignore all files
-            // not part of the override set
-            if (testfileOverride.size() && testfileOverride.count(file) == 0)
-            {
-                ioTimer.endTimer();
-                continue;
-            }
+            docValidLog << filename.asString() << std::endl;
+            docValidLog << validationErrors << std::endl;
+        }
+        validateTimer.endTimer();
+        CHECK(validDoc);
 
-            if (_skipFiles.count(file) > 0)
-            {
-                ioTimer.endTimer();
-                continue;
-            }
+        mx::FileSearchPath imageSearchPath(filename.getParentPath());
+        imageSearchPath.append(searchPath);
 
-            const mx::FilePath filename = mx::FilePath(dir) / mx::FilePath(file);
-            mx::DocumentPtr doc = mx::createDocument();
-            try
-            {
-                mx::FileSearchPath readSearchPath(searchPath);
-                readSearchPath.append(dir);
-                mx::readFromXmlFile(doc, filename, readSearchPath);
-            }
-            catch (mx::Exception& e)
-            {
-                docValidLog << "Failed to load in file: " << filename.asString() << ". Error: " << e.what() << std::endl;
-                WARN("Failed to load in file: " + filename.asString() + "See: " + docValidLogFilename + " for details.");
-            }
+        // Resolve file names if specified
+        if (_resolveImageFilenames)
+        {
+            mx::flattenFilenames(doc, imageSearchPath, _customFilenameResolver);
+        }
 
-            // For each new file clear the implementation cache.
-            // Since the new file might contain implementations with names
-            // colliding with implementations in previous test cases.
-            context.clearNodeImplementations();
+        mx::FilePath outputPath = filename;
+        outputPath.removeExtension();
 
-            doc->setDataLibrary(dependLib);
+        renderableSearchTimer.startTimer();
+        std::vector<mx::TypedElementPtr> elements;
+        try
+        {
+            elements = mx::findRenderableElements(doc);
+        }
+        catch (mx::Exception& e)
+        {
+            docValidLog << e.what() << std::endl;
+            WARN("Shader generation error in " + filename.asString() + ": " + e.what());
+        }
+        renderableSearchTimer.endTimer();
 
-            // Register types from the document.
-            _shaderGenerator->registerTypeDefs(doc);
-
-            ioTimer.endTimer();
-
-            validateTimer.startTimer();
-            log << "MTLX Filename: " << filename.asString() << std::endl;
-
-            // Validate the test document
-            std::string validationErrors;
-            bool validDoc = doc->validate(&validationErrors);
-            if (!validDoc)
-            {
-                docValidLog << filename.asString() << std::endl;
-                docValidLog << validationErrors << std::endl;
-            }
-            validateTimer.endTimer();
-            CHECK(validDoc);
-
-            mx::FileSearchPath imageSearchPath(dir);
-            imageSearchPath.append(searchPath);
-            
-            // Resolve file names if specified
-            if (_resolveImageFilenames)
-            {
-                mx::flattenFilenames(doc, imageSearchPath, _customFilenameResolver);
-            }
-
-            mx::FilePath outputPath = mx::FilePath(dir) / file;
-            outputPath.removeExtension();
-
-            renderableSearchTimer.startTimer();
-            std::vector<mx::TypedElementPtr> elements;
-            try
-            {
-                elements = mx::findRenderableElements(doc);
-            }
-            catch (mx::Exception& e)
-            {
-                docValidLog << e.what() << std::endl;
-                WARN("Shader generation error in " + filename.asString() + ": " + e.what());
-            }
-            renderableSearchTimer.endTimer();
-
-            for (const auto& element : elements)
-            {
-                mx::string elementName = mx::createValidName(mx::replaceSubstrings(element->getNamePath(), pathMap));
-                runRenderer(elementName, element, context, doc, log, options, profileTimes, imageSearchPath, outputPath, nullptr);
-            }
+        for (const auto& element : elements)
+        {
+            mx::string elementName = mx::createValidName(mx::replaceSubstrings(element->getNamePath(), pathMap));
+            runRenderer(elementName, element, context, doc, log, options, profileTimes, imageSearchPath, outputPath, nullptr);
         }
     }
 
