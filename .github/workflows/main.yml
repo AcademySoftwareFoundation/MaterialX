@@ -218,7 +218,6 @@ jobs:
         echo "VCPKG_VERSION=$(git rev-parse --short HEAD | tr -d '\n')" >> $GITHUB_ENV
 
     # Set up a cache for vcpkg to speed up builds. Look up the cache key.
-    # TODO Do we really need/want the vcpkg version as part of the cache key?
     - name: Look up vcpkg cache
       if: (matrix.build_oiio == 'ON' && runner.os == 'Windows') || matrix.vcpkg_dependencies == 'ON' || (matrix.test_shaders == 'ON' && runner.os == 'Windows')
       id: cache-vcpkg
