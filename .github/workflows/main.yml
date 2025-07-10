@@ -224,7 +224,6 @@ jobs:
       run: |
         cd ${{ env.VCPKG_ROOT }}
         echo "VCPKG_VERSION=$(git rev-parse --short HEAD | tr -d '\n')" >> $GITHUB_ENV
-      continue-on-error: true # TODO remove again
 
     # Set up a cache for Vcpkg to speed up builds. Look up the cache key.
     # TODO Do we really need/want the vcpkg version as part of the cache key?
@@ -254,6 +253,14 @@ jobs:
         ${{ env.VCPKG_ROOT }}/vcpkg install mdl-sdk[dds,openimageio]
       env:
         VCPKG_BINARY_SOURCES: "clear;files,${{ github.workspace }}/.vcpkg_cache,readwrite"
+
+    # TODO remove again
+    - name: Test
+      shell: bash
+      run: |
+        ls ${{ env.VCPKG_ROOT }}/installed/${{ env.VCPKG_DEFAULT_TRIPLET }}/share/mdl
+        ls ${{ env.VCPKG_ROOT }}/installed/x64-windows/share/mdl
+      continue-on-error: true
 
     - name: CMake Generate
       if: false # TODO re-enable
