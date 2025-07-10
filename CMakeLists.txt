@@ -304,7 +304,7 @@ endif()
 # GEN MDL does not have any additional dependencies. For loading and compiling MDL, e.g., in the test renderer, the MDL SDK is needed.
 if (MATERIALX_BUILD_GEN_MDL)
     if((EXISTS ${MATERIALX_MDL_DIR}) OR MATERIALX_BUILD_MDL_COMPILER)
-        find_package(mdl QUIET REQUIRED PATHS ${MATERIALX_MDL_DIR})
+        find_package(mdl QUIET CONFIG REQUIRED PATHS ${MATERIALX_MDL_DIR})
         get_target_property(MATERIALX_MDL_COMPILER_EXECUTABLE mdl::mdlc LOCATION)
         set(MATERIALX_MDL_COMPILER_EXECUTABLE ${MATERIALX_MDL_COMPILER_EXECUTABLE} CACHE FILEPATH "Full path to the mdlc binary." FORCE)
     endif()
