@@ -41,14 +41,20 @@ if(VCPKG_DEPENDENCIES)
         message(FATAL_ERROR "Building JavaScript is not support in combination with VCPKG at this point. Please set the `VCPKG_DEPENDENCIES` to false.")
     endif()
 
-    # Check if the local vcpkg installation can be found
+    # Consider VCPKG_ROOT and VCPKG_DEFAULT_TRIPLET from the environment if not yet known as CMake option.
     if(NOT VCPKG_ROOT AND DEFINED ENV{VCPKG_ROOT})
         set(VCPKG_ROOT $ENV{VCPKG_ROOT})
     endif()
+    if(NOT VCPKG_DEFAULT_TRIPLET AND DEFINED ENV{VCPKG_DEFAULT_TRIPLET})
+        set(VCPKG_DEFAULT_TRIPLET $ENV{VCPKG_DEFAULT_TRIPLET})
+    endif()
+
+    # Set CMAKE_TOOLCHAIN_FILE based on VCPKG_ROOT if not yet set.
     if(NOT CMAKE_TOOLCHAIN_FILE AND VCPKG_ROOT)
         string(REPLACE "\\" "/" VCPKG_ROOT ${VCPKG_ROOT})  # make sure to use forward slashes on windows
         set(CMAKE_TOOLCHAIN_FILE "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
     endif()
+
     if(EXISTS ${CMAKE_TOOLCHAIN_FILE})
         message(STATUS "VCPKG toolchain file found: ${CMAKE_TOOLCHAIN_FILE}")
     else()
