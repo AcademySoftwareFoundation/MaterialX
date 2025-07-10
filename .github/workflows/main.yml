@@ -230,6 +230,7 @@ jobs:
     - name: Test
       shell: bash
       run: |
+        cd ${{ env.VCPKG_ROOT }}
         echo "VCPKG_VERSION=$(git rev-parse --short HEAD | tr -d '\n')" >> $GITHUB_ENV
       continue-on-error: true # TODO remove again
 
@@ -241,7 +242,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ${{ github.workspace }}/.vcpkg_cache
-        key: vcpkg-${{ matrix.name }}-${{ steps.vcpkg-version.outputs.stdout }}-${{ env.VCPKG_CACHE_SUFFIX }}
+        key: vcpkg-${{ matrix.name }}-${{ steps.vcpkg-version.outputs.stdout }}-${{ env.VCPKG_CACHE_SUFFIX }} # TODO use env.VCPKG_VERSION, fold  Retrieve VCPKG version/Test above
 
     # This step is currently not used by any configuration.
     - name: Install OpenImageIO
@@ -258,7 +259,7 @@ jobs:
       if: ${{ matrix.vcpkg_dependencies == 'ON' }}
       run: |
         # TODO remove
-        echo "Vcpkg test version is ${{ env.VCPKG_ROOT }}"
+        echo "Vcpkg test version is ${{ env.VCPKG_VERSION }}"
         echo "Vcpkg git version is ${{ steps.vcpkg-version.outputs.stdout }}"
         ${{ env.VCPKG_ROOT }}/vcpkg install mdl-sdk[dds,openimageio]
       env:
