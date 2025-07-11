@@ -11,7 +11,7 @@ on:
 
 env:
   # Arbitrary suffix, change to force a cache miss, e.g., when adding ports
-  VCPKG_CACHE_SUFFIX: 1
+  VCPKG_CACHE_SUFFIX: 2
 
 jobs:
 
@@ -241,7 +241,7 @@ jobs:
       if: ${{ matrix.vcpkg_dependencies == 'ON' }}
       run: |
         echo "vcpkg git version is ${{ env.VCPKG_VERSION }}"
-        ${{ env.VCPKG_ROOT }}/vcpkg install mdl-sdk[dds,openimageio]
+        ${{ env.VCPKG_ROOT }}/vcpkg install mdl-sdk
       env:
         VCPKG_BINARY_SOURCES: "clear;files,${{ github.workspace }}/.vcpkg_cache,readwrite"
 
