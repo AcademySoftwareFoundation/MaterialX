@@ -14,13 +14,13 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 
-# Options that influence the cmake toolchain
+# Options that influence the CMake toolchain
 # Note, CMAKE_TOOLCHAIN_FILE can not be changed anymore after the project() command.
 # In order to set it, one needs to clear the cache.
 option(MATERIALX_BUILD_JS "Build the MaterialX JavaScript package from C++ bindings. Requires the emscripten environment." OFF)
 option(VCPKG_DEPENDENCIES "Enables vcpkg to pull external dependencies." ON)
 set(VCPKG_ROOT "" CACHE PATH "The root of a vcpkg checkout. Option provides alternative to the `VCPKG_ROOT` environment variable. If not empty, this overrides the environment variable.")
-# Options that are influenced by the cmake toolchain
+# Options that are influenced by the CMake toolchain
 option(MATERIALX_BUILD_GEN_MDL_TEST "Build the MDL SDK dependency to be used in [genmdl] tests. Needs vcpkg." OFF)
 
 # vcpkg setup
@@ -31,10 +31,7 @@ if(VCPKG_DEPENDENCIES)
         message(FATAL_ERROR "Building JavaScript is not support in combination with vcpkg at this point. Please set the `VCPKG_DEPENDENCIES` to false.")
     endif()
 
-    # Consider VCPKG_ROOT and VCPKG_DEFAULT_TRIPLET from the environment to initialize CMake
-    # variables VCPKG_ROOT and VCPKG_TARGET_TRIPLET (if not set yet). Note the naming differences
-    # between the environment variable VCPKG_DEFAULT_TRIPLET for vcpkg itself and the CMake option
-    # VCPKG_TARGET_TRIPLET.
+    # Consider VCPKG_ROOT from the environment to initialize CMake variables VCPKG_ROOT (if not set yet).
     if(NOT VCPKG_ROOT AND DEFINED ENV{VCPKG_ROOT})
         set(VCPKG_ROOT $ENV{VCPKG_ROOT})
     endif()
@@ -48,8 +45,10 @@ if(VCPKG_DEPENDENCIES)
     if(EXISTS ${CMAKE_TOOLCHAIN_FILE})
         message(STATUS "VCPKG toolchain file found: ${CMAKE_TOOLCHAIN_FILE}")
     else()
-        message(FATAL_ERROR "CMake toolchain file path not found. Please set the `VCPKG_ROOT` environment variable or specify `CMAKE_TOOLCHAIN_FILE` manually.")
-        return()  # exit here otherwise the cache would need to be cleared
+        message(FATAL_ERROR "CMake toolchain file path not found. Please set the `VCPKG_ROOT` environment/cmake variable, set `CMAKE_TOOLCHAIN_FILE`, or disable `VCPKG_DEPENDENCIES`.")
+        # Exit here to prevent passing project(), which requires clearing the cache in order to
+        # change CMAKE_TOOLCHAIN_FILE.
+        return()
     endif()
 
 else()

@@ -61,7 +61,6 @@ jobs:
           compiler_version: "13"
           python: 3.9
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
-          # TODO enable (OFF just to save CI cycles, plus -DMATERIALX_BUILD_GEN_MDL_TEST=ON)
           vcpkg_dependencies: OFF
 
         - name: Linux_Clang_18_Python311
@@ -70,7 +69,6 @@ jobs:
           compiler_version: "18"
           python: 3.11
           clang_format: ON
-          # TODO enable (OFF just to save CI cycles, plus -DMATERIALX_BUILD_GEN_MDL_TEST=ON)
           vcpkg_dependencies: OFF
 
         - name: MacOS_Xcode_15_Python39
