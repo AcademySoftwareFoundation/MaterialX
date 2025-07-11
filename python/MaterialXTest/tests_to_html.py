@@ -174,7 +174,6 @@ def main(args=None):
                 fh.write("<table>\n")
                 curPath = path1
 
-
             def prependFileUri(filepath: str) -> str:
                 if os.path.isabs(filepath):
                     return 'file:///' + filepath
