@@ -226,7 +226,7 @@ output results from upstream nodes as inputs to downstream nodes. Inline express
 emitted instead of functions calls for nodes that use this.
 5. The final shader output is produced and assigned to the shader output variable.
 
-Note that if a single monolithic shader for the whole graph is not appropriate for your system the generator can be called on `output` elements at any point in your graph, and generate code for sub-parts. It is then up to the application to decide where to split the graph, and to assemble the shader code for sub-parts after all have been generated.
+Note that if a single monolithic shader for the whole graph is not appropriate for your system, the generator can be called on `output` elements at any point in your graph, and generate code for sub-parts. It is then up to the application to decide where to split the graph, and to assemble the shader code for sub-parts after all have been generated.
 
 ## 1.5 Shader Stages
 
