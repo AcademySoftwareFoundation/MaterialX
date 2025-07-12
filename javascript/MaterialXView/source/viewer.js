@@ -192,9 +192,20 @@ export class Scene
                 // Use default MaterialX naming convention.
                 var startStreamTime = performance.now();
                 child.geometry.attributes.i_position = child.geometry.attributes.position;
-                child.geometry.attributes.i_normal = child.geometry.attributes.normal;
-                child.geometry.attributes.i_tangent = child.geometry.attributes.tangent;
-                child.geometry.attributes.i_texcoord_0 = child.geometry.attributes.uv;
+                if (child.geometry.attributes.normal)
+                    child.geometry.attributes.i_normal = child.geometry.attributes.normal;
+                if (child.geometry.attributes.tangent)
+                    child.geometry.attributes.i_tangent = child.geometry.attributes.tangent;
+                if (child.geometry.attributes.color)
+                    child.geometry.attributes.i_color_0 = child.geometry.attributes.color;
+                if (child.geometry.attributes.color_1)
+                    child.geometry.attributes.i_color_1 = child.geometry.attributes.color_1;
+                if (child.geometry.attributes.uv)
+                    child.geometry.attributes.i_texcoord_0 = child.geometry.attributes.uv;
+                if (child.geometry.attributes.uv1)
+                    child.geometry.attributes.i_texcoord_1 = child.geometry.attributes.uv1;
+                if (child.geometry.attributes.uv2)
+                    child.geometry.attributes.i_texcoord_2 = child.geometry.attributes.uv2;
                 streamTime += performance.now() - startStreamTime;
             }
         });
