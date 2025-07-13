@@ -20,6 +20,7 @@
 - Optimized the graph definitions of [OpenPBR Surface](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2459) and [glTF PBR](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2467), roughly halving frame times for uniform materials in real-time renderers.
 - Aligned implementations of the [heighttonormal node](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2424) beween GLSL and OSL, improving visual consistency and enabling support for arbitrary procedural heightfields.
 - Deprecated the [fps input](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2450) of the time node, allowing it to be removed in a future specification update.
+- Updated the default [NanoGUI version](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2487) in the MaterialX Viewer to enable builds with CMake 4.
 - Improved the workflow for [adding nodes](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2383) in the MaterialX Graph Editor.
 - Aligned [viewport background colors](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2413) across the MaterialX Viewer and MaterialX Graph Editor.
 
@@ -42,7 +43,6 @@
 
 ### Removed
 - Removed the legacy [MATERIALX_OIIO_DIR](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2342) option, as it connected to a CMake pathway that is no longer present in OIIO 2.2 and later.
-- Removed the [TextureBakerPtr type](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2301) in favor of platform-specific types.
 
 ## [1.39.3] - 2025-03-07
 
