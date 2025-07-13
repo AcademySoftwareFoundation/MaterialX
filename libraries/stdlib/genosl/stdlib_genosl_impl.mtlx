@@ -109,6 +109,12 @@
   <implementation name="IM_noise3d_vector3_genosl" nodedef="ND_noise3d_vector3" file="mx_noise3d_vector3.osl" function="mx_noise3d_vector3" target="genosl" />
   <implementation name="IM_noise3d_vector4_genosl" nodedef="ND_noise3d_vector4" file="mx_noise3d_vector4.osl" function="mx_noise3d_vector4" target="genosl" />
 
+  <!-- <fractal2d> -->
+  <implementation name="IM_fractal2d_float_genosl" nodedef="ND_fractal2d_float" file="mx_fractal2d_float.osl" function="mx_fractal2d_float" target="genosl" />
+  <implementation name="IM_fractal2d_vector2_genosl" nodedef="ND_fractal2d_vector2" file="mx_fractal2d_vector2.osl" function="mx_fractal2d_vector2" target="genosl" />
+  <implementation name="IM_fractal2d_vector3_genosl" nodedef="ND_fractal2d_vector3" file="mx_fractal2d_vector3.osl" function="mx_fractal2d_vector3" target="genosl" />
+  <implementation name="IM_fractal2d_vector4_genosl" nodedef="ND_fractal2d_vector4" file="mx_fractal2d_vector4.osl" function="mx_fractal2d_vector4" target="genosl" />
+
   <!-- <fractal3d> -->
   <implementation name="IM_fractal3d_float_genosl" nodedef="ND_fractal3d_float" file="mx_fractal3d_float.osl" function="mx_fractal3d_float" target="genosl" />
   <implementation name="IM_fractal3d_vector2_genosl" nodedef="ND_fractal3d_vector2" file="mx_fractal3d_vector2.osl" function="mx_fractal3d_vector2" target="genosl" />
