@@ -349,14 +349,6 @@ jobs:
         npm run build
       working-directory: javascript/MaterialXView
 
-    - name: Deploy Web Viewer
-      if: github.event_name != 'pull_request'
-      uses: JamesIves/github-pages-deploy-action@6c2d9db40f9296374acc17b90404b6e8864128c8 # v4.7.3
-      with:
-        branch: gh-pages
-        folder: javascript/MaterialXView/dist
-        single-commit: true
-
     - name: Upload JavaScript Package
       uses: actions/upload-artifact@v4
       with:
