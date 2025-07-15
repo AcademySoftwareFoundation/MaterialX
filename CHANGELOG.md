@@ -6,6 +6,7 @@
 - Added support for [WebGPU Shading Language](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2407) in MaterialX shader generation.
 - Added support for [hex-tiled images](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2094), with initial implementations in hardware shading languages and MDL.
 - Added support for [latitude-longitude images](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2168), implemented as a language-independent graph.
+- Added support for [2D fractals](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2183), with initial implementations in hardware shading languages, OSL, and MDL.
 - Added support for [custom OCIO configurations](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1917) in shader generation.
 - Added support for the [time and frame nodes](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2389) in the MaterialX Viewer and MaterialX Graph Editor.
 - Added support for [node output types](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2387) in document validation.
@@ -16,8 +17,10 @@
 - Raised the minimum Python version to [Python 3.9](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2326).
 - Raised the minimum OpenImageIO version to [OIIO 2.2](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2340).
 - Raised the default PyBind11 version to [PyBind11 2.13.6](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2331).
+- Optimized the graph definitions of [OpenPBR Surface](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2459) and [glTF PBR](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2467), roughly halving frame times for uniform materials in real-time renderers.
 - Aligned implementations of the [heighttonormal node](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2424) beween GLSL and OSL, improving visual consistency and enabling support for arbitrary procedural heightfields.
 - Deprecated the [fps input](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2450) of the time node, allowing it to be removed in a future specification update.
+- Updated the default [NanoGUI version](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2487) in the MaterialX Viewer to enable builds with CMake 4.
 - Improved the workflow for [adding nodes](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2383) in the MaterialX Graph Editor.
 - Aligned [viewport background colors](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2413) across the MaterialX Viewer and MaterialX Graph Editor.
 
@@ -40,7 +43,6 @@
 
 ### Removed
 - Removed the legacy [MATERIALX_OIIO_DIR](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2342) option, as it connected to a CMake pathway that is no longer present in OIIO 2.2 and later.
-- Removed the [TextureBakerPtr type](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2301) in favor of platform-specific types.
 
 ## [1.39.3] - 2025-03-07
 
