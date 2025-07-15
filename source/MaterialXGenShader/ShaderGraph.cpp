@@ -629,7 +629,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
         }
 
         // Apply color and unit transforms to each input.
-        graph->applyInputTransforms(node, newNode, context);
+        graph->applyInputTransforms(node, newNode.get(), context);
 
         // Set root for upstream dependency traversal
         root = node;
@@ -651,7 +651,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
     return graph;
 }
 
-void ShaderGraph::applyInputTransforms(ConstNodePtr node, ShaderNodePtr shaderNode, GenContext& context)
+void ShaderGraph::applyInputTransforms(ConstNodePtr node, ShaderNode* shaderNode, GenContext& context)
 {
     ColorManagementSystemPtr colorManagementSystem = context.getShaderGenerator().getColorManagementSystem();
     UnitSystemPtr unitSystem = context.getShaderGenerator().getUnitSystem();
@@ -701,20 +701,29 @@ void ShaderGraph::applyInputTransforms(ConstNodePtr node, ShaderNodePtr shaderNo
     }
 }
 
-ShaderNode* ShaderGraph::createNode(ConstNodePtr node, GenContext& context)
+ShaderNode* ShaderGraph::createNode(const string& name, ConstNodeDefPtr nodeDef, GenContext& context)
 {
-    NodeDefPtr nodeDef = node->getNodeDef();
     if (!nodeDef)
     {
-        throw ExceptionShaderGenError("Could not find a nodedef for node '" + node->getName() + "'");
+        throw ExceptionShaderGenError("Could not find a nodedef for node '" + name + "'");
     }
 
     // Create this node in the graph.
-    context.pushParentNode(node);
-    ShaderNodePtr newNode = ShaderNode::create(this, node->getName(), *nodeDef, context);
-    newNode->initialize(*node, *nodeDef, context);
-    _nodeMap[node->getName()] = newNode;
+    ShaderNodePtr newNode = ShaderNode::create(this, name, *nodeDef, context);
+    _nodeMap[name] = newNode;
     _nodeOrder.push_back(newNode.get());
+
+    return newNode.get();
+}
+
+ShaderNode* ShaderGraph::createNode(ConstNodePtr node, GenContext& context)
+{
+    ConstNodeDefPtr nodeDef = node->getNodeDef();
+
+    // Create this node in the graph.
+    context.pushParentNode(node);
+    ShaderNode* newNode = createNode(node->getName(), nodeDef, context);
+    newNode->initialize(*node, *nodeDef, context);
     context.popParentNode();
 
     // Check if any of the node inputs should be connected to the graph interface
@@ -757,7 +766,7 @@ ShaderNode* ShaderGraph::createNode(ConstNodePtr node, GenContext& context)
     // Apply color and unit transforms to each input.
     applyInputTransforms(node, newNode, context);
 
-    return newNode.get();
+    return newNode;
 }
 
 ShaderGraphInputSocket* ShaderGraph::addInputSocket(const string& name, TypeDesc type)
@@ -835,8 +844,8 @@ void ShaderGraph::finalize(GenContext& context)
     _inputUnitTransformMap.clear();
     _outputUnitTransformMap.clear();
 
-    // Optimize the graph, removing redundant paths.
-    optimize();
+    // Optimize the graph, removing redundant paths and applying graph transformations
+    optimize(context);
 
     // Sort the nodes in topological order.
     topologicalSort();
@@ -896,7 +905,7 @@ void ShaderGraph::disconnect(ShaderNode* node) const
     }
 }
 
-void ShaderGraph::optimize()
+void ShaderGraph::optimize(GenContext& context)
 {
     size_t numEdits = 0;
     for (ShaderNode* node : getNodes())
@@ -960,7 +969,164 @@ void ShaderGraph::optimize()
 
         _nodeOrder = usedNodesVec;
     }
+
+    // we take a copy of the node list because we might modify it during the optimization
+    const vector<ShaderNode*> nodeList = getNodes();
+    for (ShaderNode* node : nodeList)
+    {
+        if (node->hasClassification(ShaderNode::Classification::MIX_BSDF))
+        {
+            optimizeMixBsdf(node, context);
+        }
+    }
 }
+
+// Optimize the MixBsdf node by replacing it with a new node graph.
+//
+// The current nodegraph
+//
+// ┌────────┐┌────────┐┌───────┐
+// │A.weight││B.weight││Mix.mix│
+// └┬───────┘└┬───────┘└┬──────┘
+// ┌▽───────┐┌▽───────┐ │
+// │A (BSDF)││B (BSDF)│ │
+// └┬───────┘└┬───────┘ │
+// ┌▽─────────▽─────────▽┐
+// │Mix                  │
+// └─────────────────────┘
+//
+// New nodegraph
+// ┌────────┐
+// │Mix.mix │
+// └┬──────┬┘
+// ┌▽─────┐│┌────────┐┌────────┐
+// │Invert│││A.weight││B.weight│
+// └─────┬┘│└┬───────┘└──┬─────┘
+//       └─│─│──┐        │
+// ┌───────▽─▽┐┌▽────────▽┐
+// │Multiply A││Multiply B│
+// └┬─────────┘└┬─────────┘
+// ┌▽───────┐┌──▽─────┐
+// │A (BSDF)││B (BSDF)│
+// └┬───────┘└┬───────┘
+// ┌▽─────────▽┐
+// │Add        │
+// └───────────┘
+//
+// Motivation - the new graph is more efficient for shader backends to optimize
+// away possible expensive BSDF nodes that might not be used at all.
+void ShaderGraph::optimizeMixBsdf(ShaderNode* mixNode, GenContext& context)
+{
+    // criteria for optimization...
+    // * upstream nodes for MixBsdf node both have `weight` input ports
+    // * We have the following node definitions available in the library
+    //   * ND_add_bsdf
+    //   * ND_invert_float
+    //   * ND_multiply_float
+
+    auto mixFgInput = mixNode->getInput("fg");
+    auto mixBgInput = mixNode->getInput("bg");
+
+    // the standard data library ND_mix_bsdf should always have "fg" and "bg" inputs
+    // but we check here anyway to ensure we're not using a custom data library that doesn't follow that convention
+    if (!mixFgInput || !mixBgInput)
+        return;
+
+    auto fgNode = mixFgInput->getConnectedSibling();
+    auto bgNode = mixBgInput->getConnectedSibling();
+
+    // We check to see we have two upstream nodes - there are almost certainly other optimizations possible
+    // if this isn't true, but we will leave those for a later PR.
+    if (!fgNode && !bgNode)
+        return;
+
+    auto fgNodeWeightInput = fgNode->getInput("weight");
+    auto bgNodeWeightInput = bgNode->getInput("weight");
+
+    // We require both upstream nodes to have a "weight" input for this optimization to work.
+    if (!fgNodeWeightInput || !bgNodeWeightInput)
+        return;
+
+    // we also require the following list of node definitions
+    auto addBsdfNodeDef = _document->getNodeDef("ND_add_bsdf");
+    auto floatInvertNodeDef = _document->getNodeDef("ND_invert_float");
+    auto floatMultNodeDef = _document->getNodeDef("ND_multiply_float");
+    if (!addBsdfNodeDef || !floatInvertNodeDef || !floatMultNodeDef)
+        return;
+
+    // We meet the requirements for the optimization.
+    // We can now create the new nodes and connect them up.
+
+    // Helper function to redirect the incoming connection to from one input port
+    // to another.
+    // We intentionally skip error checking here, as we're doing it below.
+    // If this proves useful we should make it a method somewhere, and add
+    // more robust error checking.
+    auto redirectInput = [](ShaderInput* fromPort, ShaderInput* toPort) -> void
+    {
+        auto connection = fromPort->getConnection();
+        if (connection)
+        {
+            // we have a connection - so transfer it
+            toPort->makeConnection(connection);
+        }
+        else
+        {
+            // we just remap the value.
+            toPort->setValue(fromPort->getValue());
+        }
+    };
+
+    // Helper function to connect two nodes together, consolidating the valiation of the ports existance.
+    // If this proves useful we should make it a method somewhere.
+    auto connectNodes = [](ShaderNode* fromNode, const string& fromPortName, ShaderNode* toNode, const string& toPortName) -> void
+    {
+        auto fromPort = fromNode->getOutput(fromPortName);
+        auto toPort = toNode->getInput(toPortName);
+        if (!fromPort || !toPort)
+            return;
+
+        fromPort->makeConnection(toPort);
+    };
+
+    auto mixWeightInput = mixNode->getInput("mix");
+
+    // create a node that represents the inverted mix value, ie. 1.0-mix
+    // to be used for the "bg" side of the mix
+    auto invertMixNode = this->createNode(mixNode->getName()+"__INV__", floatInvertNodeDef, context);
+    redirectInput(mixWeightInput, invertMixNode->getInput("in"));
+
+    // create a multiply node to calculate the new weight value, weighted by the mix value.
+    auto multFgWeightNode = this->createNode(mixNode->getName()+"__MULT_FG__", floatMultNodeDef, context);
+    redirectInput(fgNodeWeightInput, multFgWeightNode->getInput("in1"));
+    redirectInput(mixWeightInput, multFgWeightNode->getInput("in2"));
+
+    // create a multiply node to calculate the new weight value, weighted by the inverted mix value.
+    auto multBgWeightNode = this->createNode(mixNode->getName()+"__MULT_BG__", floatMultNodeDef, context);
+    redirectInput(bgNodeWeightInput, multBgWeightNode->getInput("in1"));
+    connectNodes(invertMixNode, "out", multBgWeightNode, "in2");
+
+    // connect the two newly created weights to the fg and bg BSDF nodes.
+    connectNodes(multFgWeightNode, "out", fgNode, "weight");
+    connectNodes(multBgWeightNode, "out", bgNode, "weight");
+
+    // Create the ND_add_bsdf node that will add the two BSDF nodes with the modified weights
+    // this replaces the original mix node.
+    auto addNode = this->createNode(mixNode->getName()+"__ADD__", addBsdfNodeDef, context);
+    connectNodes(bgNode, "out", addNode, "in1");
+    connectNodes(fgNode, "out", addNode, "in2");
+
+    // Finally for all the previous outgoing connections from the original mix node
+    // replace those with the outgoing connection from the new add node.
+    auto mixNodeOutput = mixNode->getOutput("out");
+    for (auto conn : mixNodeOutput->getConnections())
+    {
+        addNode->getOutput("out")->makeConnection(conn);
+    }
+
+    printf("Mix node optimized : '%s'\n", mixNode->getName().c_str());
+}
+
 
 void ShaderGraph::bypass(ShaderNode* node, size_t inputIndex, size_t outputIndex)
 {
