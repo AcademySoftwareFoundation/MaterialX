@@ -141,6 +141,8 @@ set_target_properties(
 
 install(TARGETS MaterialXView
     EXPORT MaterialX
-    RUNTIME DESTINATION bin)
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/MaterialXView.pdb"
-    DESTINATION "bin" OPTIONAL)
+    RUNTIME DESTINATION ${MATERIALX_INSTALL_BIN_PATH})
+if(MSVC)
+    install(FILES $<TARGET_PDB_FILE:MaterialXView>
+            DESTINATION ${MATERIALX_INSTALL_BIN_PATH} OPTIONAL)
+endif()

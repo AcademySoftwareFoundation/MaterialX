@@ -1,6 +1,6 @@
 # Shader Generation and Render Test Suite
 
-The sub-folders in the test suite contain a set of input MaterialX documents. During execution of the test suite, each file is parsed to determine renderable elements.  For each element the appropriate shader generator is used to produced source code for ShaderGen tests. For Render validation tests the code is compiled, and/or rendered.
+The sub-folders in the test suite contain a set of input MaterialX documents. During execution of the test suite, each file is parsed to determine renderable elements.  For each element the appropriate shader generator is used to produce source code for ShaderGen tests. For Render validation tests the code is compiled, and/or rendered.
 
 ## Folder layout
 
