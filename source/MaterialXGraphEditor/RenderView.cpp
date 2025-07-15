@@ -162,6 +162,7 @@ RenderView::RenderView(mx::DocumentPtr doc,
     // Make sure all uniforms are added so value updates can
     // find the corresponding uniform.
     _genContext.getOptions().shaderInterfaceType = mx::SHADER_INTERFACE_COMPLETE;
+    _genContext.getOptions().optReplaceBsdfMixWithLinearCombination = true;
 
     setDocument(doc);
     _stdLib = stdLib;
