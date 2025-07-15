@@ -27,7 +27,7 @@ vec3 mx_generate_prefilter_env()
     float NdotV = 1.0;
 
     // Compute derived properties.
-    vec2 uv = gl_FragCoord.xy * pow(2.0, $envPrefilterMip) / vec2(textureSize($envRadiance, 0));
+    vec2 uv = gl_FragCoord.xy * pow(2.0, $envPrefilterMip) / vec2(textureSize($envRadianceSampler2D, 0));
     vec3 worldN = mx_latlong_map_projection_inverse(uv);
     mat3 tangentToWorld = mx_orthonormal_basis(worldN);
     float alpha = mx_latlong_lod_to_alpha(float($envPrefilterMip));

@@ -303,7 +303,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
             mx::MaterialPtr material = viewer->getSelectedMaterial();
             if (material)
             {
-                material->modifyUniform(path, mx::Value::createValue((float) v));
+                material->modifyUniform(path, mx::Value::createValue((bool) v));
             }
         });
     }

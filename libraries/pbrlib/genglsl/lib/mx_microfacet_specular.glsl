@@ -78,7 +78,7 @@ float mx_ggx_smith_G2(float NdotL, float NdotV, float alpha)
     float alpha2 = mx_square(alpha);
     float lambdaL = sqrt(alpha2 + (1.0 - alpha2) * mx_square(NdotL));
     float lambdaV = sqrt(alpha2 + (1.0 - alpha2) * mx_square(NdotV));
-    return 2.0 / (lambdaL / NdotL + lambdaV / NdotV);
+    return 2.0 * NdotL * NdotV / (lambdaL * NdotV + lambdaV * NdotL);
 }
 
 // Rational quadratic fit to Monte Carlo data for GGX directional albedo.
@@ -491,11 +491,11 @@ vec2 mx_latlong_projection(vec3 dir)
     return vec2(longitude, latitude);
 }
 
-vec3 mx_latlong_map_lookup(vec3 dir, mat4 transform, float lod, sampler2D envSampler)
+vec3 mx_latlong_map_lookup(vec3 dir, mat4 transform, float lod, $texSamplerSignature)
 {
     vec3 envDir = normalize((transform * vec4(dir,0.0)).xyz);
     vec2 uv = mx_latlong_projection(envDir);
-    return textureLod(envSampler, uv, lod).rgb;
+    return textureLod($texSamplerSampler2D, uv, lod).rgb;
 }
 
 // Return the mip level with the appropriate coverage for a filtered importance sample.

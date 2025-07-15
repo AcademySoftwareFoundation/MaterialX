@@ -94,6 +94,14 @@ The type of the &lt;image> node determines the number of channels output, which 
     * `realworldtilesize` (vector2): the real-world size of a single square 0-1 UV tile, with unittype "distance".  A `unit` attribute may be provided to indicate the units that `realworldtilesize` is expressed in.
     * `filtertype` (uniform string): the type of texture filtering to use; standard values include "closest" (nearest-neighbor single-sample), "linear", and "cubic".  If not specified, an application may use its own default texture filtering method.
 
+<a id="node-latlongimage"> </a>
+
+* **`latlongimage`** (NG): samples an equiangular map along a view direction with adjustable latitudinal offset.
+    * `file` (uniform filename): the URI of an image file.  The filename can include one or more substitutions to change the file name (including frame number) that is accessed, as described in the [Filename Substitutions](#filename-substitutions) section above.
+    * `default` (float or color<em>N</em> or vector<em>N</em>): a default value to use if the `file` reference can not be resolved (e.g. if a &lt;_geometry token_>, [_interface token_] or {_hostattr_} is included in the filename but no substitution value or default is defined, or if the resolved `file` URI cannot be read), or if the specified `layer` does not exist in the file.  The `default` value must be the same type as the `<image>` element itself.  If `default` is not defined, the default color value will be 0.0 in all channels.
+    * `viewdir` (vector3): the view direction determining the value sampled from the projected equiangular map.
+    * `rotation` (float): the longitudinal sampling offset, in degrees.
+
 <a id="node-triplanarprojection"> </a>
 
 * **`triplanarprojection`** (NG): samples data from three images (or layers within multi-layer images), and projects a tiled representation of the images along each of the three respective coordinate axes, computing a weighted blend of the three samples using the geometric normal.
@@ -238,7 +246,6 @@ Standard Noise nodes:
 * **`noise2d`**: 2D Perlin noise in 1, 2, 3 or 4 channels.
     * `amplitude` (float or vector<em>N</em>): the center-to-peak amplitude of the noise (peak-to-peak amplitude is 2x this value).  Default is 1.0.
     * `pivot` (float): the center value of the output noise; effectively, this value is added to the result after the Perlin noise is multiplied by `amplitude`.  Default is 0.0.
-    * `period` (float or vector<em>N</em>): the positive integer distance at which the noise function returns the same value for texture coordinates repeated at that step.  Default is 0, meaning the noise is not periodic.
     * `texcoord` (vector2): the 2D texture coordinate at which the noise is evaluated.  Default is to use the first set of texture coordinates.
 
 <a id="node-noise3d"> </a>
@@ -246,8 +253,16 @@ Standard Noise nodes:
 * **`noise3d`**: 3D Perlin noise in 1, 2, 3 or 4 channels.
     * `amplitude` (float or vector<em>N</em>): the center-to-peak amplitude of the noise (peak-to-peak amplitude is 2x this value).  Default is 1.0.
     * `pivot` (float): the center value of the output noise; effectively, this value is added to the result after the Perlin noise is multiplied by `amplitude`.  Default is 0.0.
-    * `period` (float or vector<em>N</em>): the positive integer distance at which the noise function returns the same value for position coordinates repeated at that step.  Default is 0, meaning the noise is not periodic.
     * `position` (vector3): the 3D position at which the noise is evaluated.  Default is to use the current 3D object-space coordinate.
+
+<a id="node-fractal2d"> </a>
+
+* **`fractal2d`**: Zero-centered 2D Fractal noise in 1, 2, 3 or 4 channels, created by summing several octaves of 2D Perlin noise, increasing the frequency and decreasing the amplitude at each octave.
+  * `amplitude` (float or vector<em>N</em>): the center-to-peak amplitude of the noise (peak-to-peak amplitude is 2x this value).  Default is 1.0.
+  * `octaves` (integer): the number of octaves of noise to be summed.  Default is 3.
+  * `lacunarity` (float or vector<em>N</em>): the exponential scale between successive octaves of noise; must be an integer value if period is non-zero so the result is properly tileable.  Default is 2.0.  Vector<em>N</em>-output types can provide either a float (isotropic) or vector<em>N</em> (anisotropic) values for `lacunarity` and `diminish`.
+  * `diminish` (float or vector<em>N</em>): the rate at which noise amplitude is diminished for each octave.  Should be between 0.0 and 1.0; default is 0.5.  Vector<em>N</em>-output types can provide either a float (isotropic) or vector<em>N</em> (anisotropic) values for `lacunarity` and `diminish`.
+  * `texcoord` (vector2): the 2D texture coordinate at which the noise is evaluated.  Default is to use the first set of texture coordinates.
 
 <a id="node-fractal3d"> </a>
 
@@ -256,19 +271,16 @@ Standard Noise nodes:
     * `octaves` (integer): the number of octaves of noise to be summed.  Default is 3.
     * `lacunarity` (float or vector<em>N</em>): the exponential scale between successive octaves of noise; must be an integer value if period is non-zero so the result is properly tileable.  Default is 2.0.  Vector<em>N</em>-output types can provide either a float (isotropic) or vector<em>N</em> (anisotropic) values for `lacunarity` and `diminish`.
     * `diminish` (float or vector<em>N</em>): the rate at which noise amplitude is diminished for each octave.  Should be between 0.0 and 1.0; default is 0.5.  Vector<em>N</em>-output types can provide either a float (isotropic) or vector<em>N</em> (anisotropic) values for `lacunarity` and `diminish`.
-    * `period` (float or vector<em>N</em>): the positive integer distance at which the noise function returns the same value for position coordinates repeated at that step.  Default is 0, meaning the noise is not periodic.
     * `position` (vector3): the 3D position at which the noise is evaluated.  Default is to use the current 3D object-space coordinate.
 
 <a id="node-cellnoise2d"> </a>
 
 * **`cellnoise2d`**: 2D cellular noise, 1 or 3 channels (type float or vector3).
-    * `period` (float or vector3): the positive integer distance at which the noise function returns the same value for texture coordinates repeated at that step.  Default is 0, meaning the noise is not periodic.
     * `texcoord` (vector2): the 2D position at which the noise is evaluated.  Default is to use the first set of texture coordinates.
 
 <a id="node-cellnoise3d"> </a>
 
 * **`cellnoise3d`**: 3D cellular noise, 1 or 3 channels (type float or vector3).
-    * `period` (float or vector3): the positive integer distance at which the noise function returns the same value for position coordinates repeated at that step.  Default is 0, meaning the noise is not periodic.
     * `position` (vector3): the 3D position at which the noise is evaluated.  Default is to use the current 3D object-space coordinate.
 
 <a id="node-worleynoise2d"> </a>
@@ -507,6 +519,7 @@ Standard Application nodes:
 <a id="node-time"> </a>
 
 * **`time`**: the current time in seconds, as defined by the host environment.  This node must be of type float.  Applications may use whatever method is appropriate to communicate the current time to the &lt;time> node's implementation, whether via an internal state variable, a custom input, dividing the current frame number by a local "frames per second" value, or other method; real-time applications may return some variation of wall-clock time.
+    * `fps` (float): an unused input, to be removed in a future specification version.
 
 <br>
 
@@ -816,8 +829,7 @@ Math nodes have one or two spatially-varying inputs, and are used to perform a m
 <a id="node-dot"> </a>
 
 * **`dot`**: a no-op, passes its input through to its output unchanged.  Users can use dot nodes to shape edge connection paths or provide documentation checkpoints in node graph layout UI's.  Dot nodes may also pass uniform values from &lt;constant> or other nodes with uniform="true" outputs to uniform &lt;input>s and &lt;token>s.
-    * `in` (any type): the nodename to be connected to the Dot node's "in" input.  Unlike inputs on other node types, the &lt;dot> node's input is specifically disallowed to provide a `channels` attribute: input data can only be passed through unmodified.
-
+    * `in` (any type): the nodename to be connected to the Dot node's "in" input.
 
 ## Logical Operator Nodes
 
@@ -1224,9 +1236,10 @@ Convolution nodes have one input named "in", and apply a defined convolution fun
 
 <a id="node-heighttonormal"> </a>
 
-* **`heighttonormal`**: convert a scalar height map to a tangent-space normal map of type vector3.  The output normal map is encoded with all channels in the [0-1] range, enabling its storage in unsigned image formats.
+* **`heighttonormal`**: convert a scalar height map to a tangent-space normal map of type vector3.  The normal at each point is computed from the gradient of the heightfield signal with respect to the input texture coordinates.  The output normal map is encoded with all channels in the [0-1] range, enabling its storage in unsigned image formats.
     * `in` (float): the input value or nodename
     * `scale` (float): the scale of normal map deflections relative to the gradient of the height map.  Default is 1.0.
+    * `texcoord` (vector2): the texture coordinates that the heightfield gradient is computed with respect to.  Default is to use the first set of texture coordinates.
 
 <br>
 
