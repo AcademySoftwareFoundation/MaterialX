@@ -245,8 +245,14 @@ jobs:
       env:
         VCPKG_BINARY_SOURCES: "clear;files,${{ github.workspace }}/.vcpkg_cache,readwrite"
 
-    - name: CMake Generate
-      run: cmake -S . -B build -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_BUILD_TESTS=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON -DMATERIALX_BUILD_GEN_MDL_TEST=${{ matrix.build_mdl_sdk }} -DMATERIALX_MDL_SDK_DIR=${{ env.VCPKG_INSTALLED_TRIPLET }} ${{ matrix.cmake_config }}
+    # TODO find a better way than duplicating the configure step
+    - name: CMake Generate (without MDL SDK)
+      if: ${{ matrix.build_mdl_sdk != 'ON' }}
+      run: cmake -S . -B build -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_BUILD_TESTS=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{ matrix.cmake_config }}
+
+    - name: CMake Generate (with MDL SDK)
+      if: ${{ matrix.build_mdl_sdk == 'ON' }}
+      run: cmake -S . -B build -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_BUILD_TESTS=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON -DMATERIALX_MDL_SDK_DIR=${{ env.VCPKG_INSTALLED_TRIPLET }} ${{ matrix.cmake_config }}
 
     - name: CMake Build
       run: cmake --build build --target install --config Release --parallel 2

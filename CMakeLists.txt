@@ -48,7 +48,6 @@ option(MATERIALX_BUILD_OIIO "Build OpenImageIO support for MaterialXRender." OFF
 option(MATERIALX_BUILD_OCIO "Build OpenColorIO support for shader generators." OFF)
 option(MATERIALX_BUILD_TESTS "Build unit tests." OFF)
 option(MATERIALX_BUILD_BENCHMARK_TESTS "Build benchmark tests." OFF)
-option(MATERIALX_BUILD_GEN_MDL_TEST "Build the MDL shader generator back-end test. Needs MATERIALX_MDL_SDK_DIR." OFF)
 
 option(MATERIALX_BUILD_SHARED_LIBS "Build MaterialX libraries as shared rather than static." OFF)
 option(MATERIALX_BUILD_DATA_LIBRARY "Build generated products from the MaterialX data library." OFF)
@@ -232,11 +231,7 @@ if (MATERIALX_BUILD_BENCHMARK_TESTS)
 endif()
 
 # GEN MDL does not have any additional dependencies. For loading and compiling MDL, e.g., in the test renderer, the MDL SDK is needed.
-if(MATERIALX_BUILD_GEN_MDL_TEST AND NOT MATERIALX_BUILD_GEN_MDL)
-    message(WARNING "Disabling MATERIALX_BUILD_GEN_MDL_TEST since MATERIALX_BUILD_GEN_MDL is not enabled")
-    set(MATERIALX_BUILD_GEN_MDL_TEST OFF)
-endif()
-if(MATERIALX_BUILD_GEN_MDL_TEST)
+if(MATERIALX_MDL_SDK_DIR)
     find_package(mdl QUIET CONFIG REQUIRED PATHS ${MATERIALX_MDL_SDK_DIR})
     get_target_property(MATERIALX_MDL_BINARY_MDLC mdl::mdlc LOCATION)
     set(MATERIALX_MDL_BINARY_MDLC ${MATERIALX_MDL_BINARY_MDLC} CACHE FILEPATH "Full path to the mdlc binary." FORCE)

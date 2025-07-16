@@ -65,7 +65,6 @@ When rendering tests are enabled through the `MATERIALX_TEST_RENDER` option, the
     - OSL versions 1.12.6 and later are supported.
 - `MDL` :
     - Set the following build options to enable MDL support:
-        - Enable `MATERIALX_BUILD_GEN_MDL` and `MATERIALX_BUILD_GEN_MDL_TEST`.
         - `MATERIALX_MDL_SDK_DIR`: Path to the MDL SDK directory (containing 'include', 'lib', etc.).
     - MDL versions 1.6 and later are supported.
 - `MSL`:
