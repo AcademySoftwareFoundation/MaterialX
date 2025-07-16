@@ -12,6 +12,12 @@ on:
 env:
   # Arbitrary suffix, change to force a cache miss, e.g., when adding ports
   VCPKG_CACHE_SUFFIX: 2
+  VCPKG_ROOT_LINUX: /usr/local/share/vcpkg
+  VCPKG_ROOT_MACOS: /usr/local/share/vcpkg
+  VCPKG_ROOT_WINDOWS: C:/vcpkg
+  VCPKG_INSTALLED_LINUX: /usr/local/share/vcpkg/installed/x64-linux
+  VCPKG_INSTALLED_MACOS: /usr/local/share/vcpkg/installed/x64-osx
+  VCPKG_INSTALLED_WINDOWS: C:/vcpkg/installed/x64-windows-release
 
 jobs:
 
@@ -42,6 +48,7 @@ jobs:
           compiler: gcc
           compiler_version: "14"
           python: 3.11
+          cmake_config: -DMATERIALX_MDL_SDK_DIR=${{ env.VCPKG_INSTALLED_LINUX }}
           test_render: ON
           build_mdl_sdk: ON
 
@@ -128,7 +135,7 @@ jobs:
           compiler: msvc
           compiler_version: 2022
           python: 3.11
-          cmake_config: -G "Visual Studio 17 2022" -A "x64"
+          cmake_config: -G "Visual Studio 17 2022" -A "x64" -DMATERIALX_MDL_SDK_DIR=${{ env.VCPKG_INSTALLED_WINDOWS }}
           test_shaders: ON
           build_mdl_sdk: ON
 
@@ -164,9 +171,8 @@ jobs:
             echo "CXX=clang++-${{ matrix.compiler_version }}" >> $GITHUB_ENV
           fi
         fi
-        echo "VCPKG_ROOT=/usr/local/share/vcpkg" >> $GITHUB_ENV
-        echo "VCPKG_DEFAULT_TRIPLET=x64-linux" >> $GITHUB_ENV
-        echo "VCPKG_INSTALLED_TRIPLET=${VCPKG_ROOT}/installed/${VCPKG_DEFAULT_TRIPLET}" >> $GITHUB_ENV
+        echo "VCPKG_ROOT=${{ env.VCPKG_ROOT_LINUX }}" >> $GITHUB_ENV
+        echo "VCPKG_INSTALLED=${{ env.VCPKG_INSTALLED_LINUX }}" >> $GITHUB_ENV
 
     - name: Install Dependencies (MacOS)
       if: runner.os == 'macOS'
@@ -183,17 +189,15 @@ jobs:
             echo "CXX=clang++" >> $GITHUB_ENV
           fi
         fi
-        echo "VCPKG_ROOT=/usr/local/share/vcpkg" >> $GITHUB_ENV
-        echo "VCPKG_DEFAULT_TRIPLET=x64-osx" >> $GITHUB_ENV
-        echo "VCPKG_INSTALLED_TRIPLET=${VCPKG_ROOT}/installed/${VCPKG_DEFAULT_TRIPLET}" >> $GITHUB_ENV
+        echo "VCPKG_ROOT=${{ env.VCPKG_ROOT_MACOS }}" >> $GITHUB_ENV
+        echo "VCPKG_INSTALLED=${{ env.VCPKG_INSTALLED_MACOS }}" >> $GITHUB_ENV
 
     - name: Install Dependencies (Windows)
       if: runner.os == 'Windows'
       run: |
         Add-Content $env:GITHUB_PATH "$PWD/build/installed/bin"
-        echo "VCPKG_ROOT=C:/vcpkg" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-        echo "VCPKG_DEFAULT_TRIPLET=x64-windows-release" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-        echo "VCPKG_INSTALLED_TRIPLET=C:/vcpkg/installed/x64-windows-release" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+        echo "VCPKG_ROOT=${{ env.VCPKG_ROOT_WINDOWS }}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+        echo "VCPKG_INSTALLED${{ env.VCPKG_INSTALLED_WINDOWS }}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
     - name: Install Python ${{ matrix.python }}
       if: matrix.python != 'None'
@@ -232,8 +236,8 @@ jobs:
       run: |
         echo "vcpkg git version is ${{ env.VCPKG_VERSION }}"
         ${{ env.VCPKG_ROOT }}/vcpkg install openimageio
-        Add-Content $env:GITHUB_PATH "${{ env.VCPKG_INSTALLED_TRIPLET }}/bin"
-        Add-Content $env:GITHUB_PATH "${{ env.VCPKG_INSTALLED_TRIPLET }}/share/openimageio"
+        Add-Content $env:GITHUB_PATH "${{ env.VCPKG_INSTALLED }}/bin"
+        Add-Content $env:GITHUB_PATH "${{ env.VCPKG_INSTALLED }}/share/openimageio"
       env:
         VCPKG_BINARY_SOURCES: "clear;files,${{ github.workspace }}/.vcpkg_cache,readwrite"
 
@@ -245,14 +249,8 @@ jobs:
       env:
         VCPKG_BINARY_SOURCES: "clear;files,${{ github.workspace }}/.vcpkg_cache,readwrite"
 
-    # TODO find a better way than duplicating the configure step
-    - name: CMake Generate (without MDL SDK)
-      if: ${{ matrix.build_mdl_sdk != 'ON' }}
+    - name: CMake Generate
       run: cmake -S . -B build -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_BUILD_TESTS=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{ matrix.cmake_config }}
-
-    - name: CMake Generate (with MDL SDK)
-      if: ${{ matrix.build_mdl_sdk == 'ON' }}
-      run: cmake -S . -B build -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_BUILD_TESTS=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON -DMATERIALX_MDL_SDK_DIR=${{ env.VCPKG_INSTALLED_TRIPLET }} ${{ matrix.cmake_config }}
 
     - name: CMake Build
       run: cmake --build build --target install --config Release --parallel 2
@@ -285,11 +283,11 @@ jobs:
       run: |
         echo "vcpkg git version is ${{ env.VCPKG_VERSION }}"
         ${{ env.VCPKG_ROOT }}/vcpkg install glslang[tools]
-        ${{ env.VCPKG_INSTALLED_TRIPLET }}/tools/glslang/glslangValidator.exe -v
-        python python/Scripts/generateshader.py resources/Materials/Examples --target glsl --validator ${{ env.VCPKG_INSTALLED_TRIPLET }}/tools/glslang/glslangValidator.exe
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target essl --validator ${{ env.VCPKG_INSTALLED_TRIPLET }}/tools/glslang/glslangValidator.exe
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target vulkan --validator ${{ env.VCPKG_INSTALLED_TRIPLET }}/tools/glslang/glslangValidator.exe
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target wgsl --validator "${{ env.VCPKG_INSTALLED_TRIPLET }}/tools/glslang/glslangValidator.exe --target-env vulkan1.3 --quiet"
+        ${{ env.VCPKG_INSTALLED }}/tools/glslang/glslangValidator.exe -v
+        python python/Scripts/generateshader.py resources/Materials/Examples --target glsl --validator ${{ env.VCPKG_INSTALLED }}/tools/glslang/glslangValidator.exe
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target essl --validator ${{ env.VCPKG_INSTALLED }}/tools/glslang/glslangValidator.exe
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target vulkan --validator ${{ env.VCPKG_INSTALLED }}/tools/glslang/glslangValidator.exe
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target wgsl --validator "${{ env.VCPKG_INSTALLED }}/tools/glslang/glslangValidator.exe --target-env vulkan1.3 --quiet"
       env:
         VCPKG_BINARY_SOURCES: "clear;files,${{ github.workspace }}/.vcpkg_cache,readwrite"
 
