@@ -14,50 +14,8 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 
-# Options that influence the CMake toolchain
-# Note, CMAKE_TOOLCHAIN_FILE can not be changed anymore after the project() command.
-# In order to set it, one needs to clear the cache.
-option(MATERIALX_BUILD_JS "Build the MaterialX JavaScript package from C++ bindings. Requires the emscripten environment." OFF)
-option(VCPKG_DEPENDENCIES "Enables vcpkg to pull external dependencies." ON)
-set(VCPKG_ROOT "" CACHE PATH "The root of a vcpkg checkout. Option provides alternative to the `VCPKG_ROOT` environment variable. If not empty, this overrides the environment variable.")
-# Options that are influenced by the CMake toolchain
-option(MATERIALX_BUILD_GEN_MDL_TEST "Build the MDL SDK dependency to be used in [genmdl] tests. Needs vcpkg." OFF)
-
-# vcpkg setup
-if(VCPKG_DEPENDENCIES)
-
-    if (MATERIALX_BUILD_JS)
-        # tool chains could be combined if this combination is required
-        message(FATAL_ERROR "Building JavaScript is not support in combination with vcpkg at this point. Please set the `VCPKG_DEPENDENCIES` to false.")
-    endif()
-
-    # Consider VCPKG_ROOT from the environment to initialize CMake variables VCPKG_ROOT (if not set yet).
-    if(NOT VCPKG_ROOT AND DEFINED ENV{VCPKG_ROOT})
-        set(VCPKG_ROOT $ENV{VCPKG_ROOT})
-    endif()
-
-    # Set CMAKE_TOOLCHAIN_FILE based on VCPKG_ROOT if not yet set.
-    if(NOT CMAKE_TOOLCHAIN_FILE AND VCPKG_ROOT)
-        string(REPLACE "\\" "/" VCPKG_ROOT ${VCPKG_ROOT})  # make sure to use forward slashes on windows
-        set(CMAKE_TOOLCHAIN_FILE "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
-    endif()
-
-    if(EXISTS ${CMAKE_TOOLCHAIN_FILE})
-        message(STATUS "VCPKG toolchain file found: ${CMAKE_TOOLCHAIN_FILE}")
-    else()
-        message(FATAL_ERROR "CMake toolchain file path not found. Please set the `VCPKG_ROOT` environment/cmake variable, set `CMAKE_TOOLCHAIN_FILE`, or disable `VCPKG_DEPENDENCIES`.")
-        # Exit here to prevent passing project(), which requires clearing the cache in order to
-        # change CMAKE_TOOLCHAIN_FILE.
-        return()
-    endif()
-
-else()
-    # disable all options that require VCPKG
-    message("VCPKG_DEPENDENCIES was disabled. Disabling all components that require vcpkg.")
-    set(MATERIALX_BUILD_GEN_MDL_TEST OFF)
-endif()
-
 # JavaScript setup
+option(MATERIALX_BUILD_JS "Build the MaterialX JavaScript package from C++ bindings. Requires the emscripten environment." OFF)
 set(MATERIALX_EMSDK_PATH "" CACHE PATH "Path to EMSDK (e.g. 'D:/Projects/emsdk').")
 if (MATERIALX_BUILD_JS)
     if (EXISTS "${MATERIALX_EMSDK_PATH}")
@@ -90,6 +48,7 @@ option(MATERIALX_BUILD_OIIO "Build OpenImageIO support for MaterialXRender." OFF
 option(MATERIALX_BUILD_OCIO "Build OpenColorIO support for shader generators." OFF)
 option(MATERIALX_BUILD_TESTS "Build unit tests." OFF)
 option(MATERIALX_BUILD_BENCHMARK_TESTS "Build benchmark tests." OFF)
+option(MATERIALX_BUILD_GEN_MDL_TEST "Build the MDL shader generator back-end test. Needs MATERIALX_MDL_SDK_DIR." OFF)
 
 option(MATERIALX_BUILD_SHARED_LIBS "Build MaterialX libraries as shared rather than static." OFF)
 option(MATERIALX_BUILD_DATA_LIBRARY "Build generated products from the MaterialX data library." OFF)
@@ -179,13 +138,8 @@ if(SKBUILD)
 endif()
 
 # Helpers for MDL validation
-set(MATERIALX_MDL_DIR "" CACHE PATH "Path to the MDL SDK directory that contains 'include', 'lib', etc.")
-set(MATERIALX_MDL_BINARY_MDLC "" CACHE FILEPATH "Full path to the mdlc binary.")
-if (MATERIALX_BUILD_GEN_MDL)
-    set(MATERIALX_MDL_RENDER_ARGUMENTS "" CACHE STRING "Custom arguments for renderer.")
-    set(MATERIALX_MDL_MODULE_PATHS "" CACHE FILEPATH "Comma separated list of MDL module paths.")
-    set(MATERIALX_INSTALL_MDL_MODULE_PATH ${MATERIALX_INSTALL_STDLIB_PATH} CACHE FILEPATH "Install path for mdl module.")
-endif()
+set(MATERIALX_MDL_SDK_DIR "" CACHE PATH "Path to the MDL SDK directory that contains 'include', 'lib', etc.")
+set(MATERIALX_MDL_MODULE_PATHS "" CACHE FILEPATH "Comma separated list of MDL module paths.")
 
 # Namespace
 set(MATERIALX_NAMESPACE_SUFFIX "" CACHE STRING "Add a suffix to the main MaterialX C++ namespace: Options include dev, staging, <YOURFACILITY> etc.")
@@ -238,13 +192,9 @@ mark_as_advanced(MATERIALX_BUILD_JS)
 mark_as_advanced(MATERIALX_EMSDK_PATH)
 mark_as_advanced(MATERIALX_BUILD_IOS)
 mark_as_advanced(MATERIALX_BUILD_APPLE_FRAMEWORK)
-mark_as_advanced(MATERIALX_MDL_DIR)
 mark_as_advanced(MATERIALX_MDL_BINARY_MDLC)
-if (MATERIALX_BUILD_GEN_MDL)
-    mark_as_advanced(MATERIALX_MDL_RENDER_ARGUMENTS)
-    mark_as_advanced(MATERIALX_MDL_MODULE_PATHS)
-    mark_as_advanced(MATERIALX_INSTALL_MDL_MODULE_PATH)
-endif()
+mark_as_advanced(MATERIALX_MDL_MODULE_PATHS)
+mark_as_advanced(MATERIALX_MDL_SDK_DIR)
 
 if (MATERIALX_BUILD_USE_CCACHE)
     # Setup CCache for C/C++ compilation
@@ -282,20 +232,14 @@ if (MATERIALX_BUILD_BENCHMARK_TESTS)
 endif()
 
 # GEN MDL does not have any additional dependencies. For loading and compiling MDL, e.g., in the test renderer, the MDL SDK is needed.
-if (MATERIALX_BUILD_GEN_MDL)
-    if((EXISTS ${MATERIALX_MDL_DIR}) OR MATERIALX_BUILD_GEN_MDL_TEST)
-        find_package(mdl QUIET CONFIG REQUIRED PATHS ${MATERIALX_MDL_DIR})
-        get_target_property(MATERIALX_MDL_BINARY_MDLC mdl::mdlc LOCATION)
-        set(MATERIALX_MDL_BINARY_MDLC ${MATERIALX_MDL_BINARY_MDLC} CACHE FILEPATH "Full path to the mdlc binary." FORCE)
-    endif()
-
-    # TODO remove the listing of imported targets
-    # get_property(importTargets DIRECTORY "${CMAKE_SOURCE_DIR}" PROPERTY IMPORTED_TARGETS)
-    # find_package(...)
-    # get_property(importTargetsAfter DIRECTORY "${CMAKE_SOURCE_DIR}" PROPERTY IMPORTED_TARGETS)
-    # list(REMOVE_ITEM importTargetsAfter ${importTargets})
-    # message("${importTargetsAfter}")
-    add_definitions(-DMATERIALX_INSTALL_MDL_MODULE_PATH=\"${MATERIALX_INSTALL_MDL_MODULE_PATH}\")
+if(MATERIALX_BUILD_GEN_MDL_TEST AND NOT MATERIALX_BUILD_GEN_MDL)
+    message(WARNING "Disabling MATERIALX_BUILD_GEN_MDL_TEST since MATERIALX_BUILD_GEN_MDL is not enabled")
+    set(MATERIALX_BUILD_GEN_MDL_TEST OFF)
+endif()
+if(MATERIALX_BUILD_GEN_MDL_TEST)
+    find_package(mdl QUIET CONFIG REQUIRED PATHS ${MATERIALX_MDL_SDK_DIR})
+    get_target_property(MATERIALX_MDL_BINARY_MDLC mdl::mdlc LOCATION)
+    set(MATERIALX_MDL_BINARY_MDLC ${MATERIALX_MDL_BINARY_MDLC} CACHE FILEPATH "Full path to the mdlc binary." FORCE)
 endif()
 
 # Adjust the default installation path

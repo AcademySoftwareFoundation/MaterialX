@@ -105,7 +105,7 @@ class MdlShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
             "displacementshader", "volumeshader", "surfacematerial", "volumematerial", "geompropvalue",
             "IM_constant_", "IM_dot_", "IM_angle", "IM_geomattrvalue",
             "IM_absorption_vdf_", "IM_mix_vdf_", "IM_add_vdf_", "IM_multiply_vdf",
-            "IM_measured_edf_", "IM_blackbody_", "IM_conical_edf_", 
+            "IM_measured_edf_", "IM_blackbody_", "IM_conical_edf_",
             "IM_displacement_", "IM_volume_", "IM_light_"
         };
         ShaderGeneratorTester::getImplementationWhiteList(whiteList);
@@ -114,4 +114,4 @@ class MdlShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
     MdlStringResolverPtr _mdlCustomResolver;
 };
 
-#endif // GENOSL_H
+#endif // GENMDL_H
