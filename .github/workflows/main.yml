@@ -136,8 +136,9 @@ jobs:
           compiler: msvc
           compiler_version: 2022
           python: 3.11
+          # TODO remove --trace again
           # Keep in sync with VCPKG_INSTALLED_WINDOWS
-          cmake_config: -G "Visual Studio 17 2022" -A "x64" -DMATERIALX_MDL_SDK_DIR=C:/vcpkg/installed/x64-windows-release
+          cmake_config: -G "Visual Studio 17 2022" -A "x64" -DMATERIALX_MDL_SDK_DIR=C:/vcpkg/installed/x64-windows-release --trace
           test_shaders: ON
           build_mdl_sdk: ON
 
