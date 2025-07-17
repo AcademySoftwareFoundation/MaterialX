@@ -174,8 +174,8 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
         }
     }
 
-    // Emit function calls for "root" closure/shader nodes.
-    // These will internally emit function calls for any dependent closure nodes upstream.
+    // Emit function calls for all nodes in the graph, starting each output
+    // port and walking backwards along the incoming connections
     for (ShaderGraphOutputSocket* socket : graph.getOutputSockets())
     {
         if (socket->getConnection())
