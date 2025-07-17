@@ -48,7 +48,8 @@ jobs:
           compiler: gcc
           compiler_version: "14"
           python: 3.11
-          cmake_config: -DMATERIALX_MDL_SDK_DIR=${{ env.VCPKG_INSTALLED_LINUX }}
+          # Keep in sync with VCPKG_INSTALLED_LINUX
+          cmake_config: -DMATERIALX_MDL_SDK_DIR=/usr/local/share/vcpkg/installed/x64-linux
           test_render: ON
           build_mdl_sdk: ON
 
@@ -135,7 +136,8 @@ jobs:
           compiler: msvc
           compiler_version: 2022
           python: 3.11
-          cmake_config: -G "Visual Studio 17 2022" -A "x64" -DMATERIALX_MDL_SDK_DIR=${{ env.VCPKG_INSTALLED_WINDOWS }}
+          # Keep in sync with VCPKG_INSTALLED_WINDOWS
+          cmake_config: -G "Visual Studio 17 2022" -A "x64" -DMATERIALX_MDL_SDK_DIR=C:/vcpkg/installed/x64-windows-release
           test_shaders: ON
           build_mdl_sdk: ON
 
