@@ -18,6 +18,7 @@ env:
   VCPKG_INSTALLED_LINUX: /usr/local/share/vcpkg/installed/x64-linux
   VCPKG_INSTALLED_MACOS: /usr/local/share/vcpkg/installed/x64-osx
   VCPKG_INSTALLED_WINDOWS: C:/vcpkg/installed/x64-windows-release
+  VCPKG_TRIPLET_WINDOWS: x64-windows-release
 
 jobs:
 
@@ -136,9 +137,8 @@ jobs:
           compiler: msvc
           compiler_version: 2022
           python: 3.11
-          # TODO remove --trace again
           # Keep in sync with VCPKG_INSTALLED_WINDOWS
-          cmake_config: -G "Visual Studio 17 2022" -A "x64" -DMATERIALX_MDL_SDK_DIR=C:/vcpkg/installed/x64-windows-release --trace
+          cmake_config: -G "Visual Studio 17 2022" -A "x64" -DMATERIALX_MDL_SDK_DIR=C:/vcpkg/installed/x64-windows-release
           test_shaders: ON
           build_mdl_sdk: ON
 
@@ -200,6 +200,7 @@ jobs:
       run: |
         Add-Content $env:GITHUB_PATH "$PWD/build/installed/bin"
         echo "VCPKG_ROOT=${{ env.VCPKG_ROOT_WINDOWS }}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+        echo "VCPKG_DEFAULT_TRIPLET=${{ env.VCPKG_TRIPLET_WINDOWS }} | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
         echo "VCPKG_INSTALLED=${{ env.VCPKG_INSTALLED_WINDOWS }}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
     - name: Install Python ${{ matrix.python }}
