@@ -69,6 +69,6 @@
          allowing for visual comparisons and differencing across shading languages,
          but requiring a more powerful GPU and longer CPU render times.
     -->
-    <input name="enableReferenceQuality" type="boolean" value="true" />
+    <input name="enableReferenceQuality" type="boolean" value="false" />
   </nodedef>
 </materialx>
