@@ -35,6 +35,7 @@
 #if MATERIALX_BUILD_GEN_OSL
 #include <MaterialXGenOsl/OslShaderGenerator.h>
 #endif
+#include <MaterialXGenGlsl/VkShaderGenerator.h>
 #include <MaterialXGenGlsl/EsslShaderGenerator.h>
 
 #include <MaterialXFormat/Environ.h>
@@ -196,6 +197,7 @@ Viewer::Viewer(const std::string& materialFilename,
     _typeSystem(mx::TypeSystem::create()),
 #ifndef MATERIALXVIEW_METAL_BACKEND
     _genContext(mx::GlslShaderGenerator::create(_typeSystem)),
+    _genContextVk(mx::VkShaderGenerator::create(_typeSystem)),
     _genContextEssl(mx::EsslShaderGenerator::create(_typeSystem)),
 #else
     _genContext(mx::MslShaderGenerator::create(_typeSystem)),
@@ -257,7 +259,13 @@ Viewer::Viewer(const std::string& materialFilename,
                                 ng::metal_command_queue());
 #else
     _renderPipeline = GLRenderPipeline::create(this);
-    
+
+    // Set Vulkan generator options
+    _genContextVk.getOptions().targetColorSpaceOverride = "lin_rec709";
+    _genContextVk.getOptions().fileTextureVerticalFlip = false;
+    _genContextVk.getOptions().hwShadowMap = true;
+    _genContextVk.getOptions().hwImplicitBitangents = false;
+
     // Set Essl generator options
     _genContextEssl.getOptions().targetColorSpaceOverride = "lin_rec709";
     _genContextEssl.getOptions().fileTextureVerticalFlip = false;
@@ -497,6 +505,7 @@ void Viewer::applyDirectLights(mx::DocumentPtr doc)
         std::vector<mx::NodePtr> lights;
         _lightHandler->findLights(doc, lights);
         _lightHandler->registerLights(doc, lights, _genContext);
+        _lightHandler->registerLights(doc, lights, _genContextVk);
 #ifndef MATERIALXVIEW_METAL_BACKEND
         _lightHandler->registerLights(doc, lights, _genContextEssl);
 #endif
@@ -707,13 +716,14 @@ void Viewer::createDocumentationInterface(ng::ref<Widget> parent)
                                                              ng::Alignment::Minimum, 2, 2);
     gridLayout2->set_col_alignment({ ng::Alignment::Minimum, ng::Alignment::Maximum });
 
-    const std::array<std::pair<std::string, std::string>, 16> KEYBOARD_SHORTCUTS =
+    const std::array<std::pair<std::string, std::string>, 17> KEYBOARD_SHORTCUTS =
     {
         std::make_pair("R", "Reload the current material from file. "
                             "Hold SHIFT to reload all standard libraries as well."),
         std::make_pair("G", "Save the current GLSL shader source to file."),
         std::make_pair("O", "Save the current OSL shader source to file."),
         std::make_pair("M", "Save the current MDL shader source to file."),
+        std::make_pair("V", "Save the current GLSL Vulkan shader source to file."),
         std::make_pair("L", "Load GLSL shader source from file. "
                             "Editing the source files before loading provides a way "
                             "to debug and experiment with shader source code."),
@@ -808,6 +818,7 @@ void Viewer::createAdvancedSettings(ng::ref<Widget> parent)
     importanceSampleBox->set_callback([this](bool enable)
     {
         _genContext.getOptions().hwSpecularEnvironmentMethod = enable ? mx::SPECULAR_ENVIRONMENT_FIS : mx::SPECULAR_ENVIRONMENT_PREFILTER;
+        _genContextVk.getOptions().hwSpecularEnvironmentMethod = _genContext.getOptions().hwSpecularEnvironmentMethod;
 #ifndef MATERIALXVIEW_METAL_BACKEND
         _genContextEssl.getOptions().hwSpecularEnvironmentMethod = _genContext.getOptions().hwSpecularEnvironmentMethod;
 #endif
@@ -820,6 +831,7 @@ void Viewer::createAdvancedSettings(ng::ref<Widget> parent)
     refractionBox->set_callback([this](bool enable)
     {
         _genContext.getOptions().hwTransmissionRenderMethod = enable ? mx::TRANSMISSION_REFRACTION : mx::TRANSMISSION_OPACITY;
+        _genContextVk.getOptions().hwTransmissionRenderMethod = _genContext.getOptions().hwTransmissionRenderMethod;
 #ifndef MATERIALXVIEW_METAL_BACKEND
         _genContextEssl.getOptions().hwTransmissionRenderMethod = _genContext.getOptions().hwTransmissionRenderMethod;
 #endif
@@ -851,6 +863,7 @@ void Viewer::createAdvancedSettings(ng::ref<Widget> parent)
     albedoBox->set_callback([this](int index)
     {
         _genContext.getOptions().hwDirectionalAlbedoMethod = (mx::HwDirectionalAlbedoMethod) index;
+        _genContextVk.getOptions().hwDirectionalAlbedoMethod = _genContext.getOptions().hwDirectionalAlbedoMethod;
         reloadShaders();
         try
         {
@@ -930,6 +943,7 @@ void Viewer::createAdvancedSettings(ng::ref<Widget> parent)
     shadowMapBox->set_callback([this](bool enable)
     {
         _genContext.getOptions().hwShadowMap = enable;
+        _genContextVk.getOptions().hwShadowMap = enable;
         reloadShaders();
     });
 
@@ -938,6 +952,7 @@ void Viewer::createAdvancedSettings(ng::ref<Widget> parent)
     ambientOcclusionBox->set_callback([this](bool enable)
     {
         _genContext.getOptions().hwAmbientOcclusion = enable;
+        _genContextVk.getOptions().hwAmbientOcclusion = enable;
         reloadShaders();
     });
 
@@ -968,6 +983,7 @@ void Viewer::createAdvancedSettings(ng::ref<Widget> parent)
     {
         m_process_events = false;
         _genContext.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
+        _genContextVk.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
 #ifndef MATERIALXVIEW_METAL_BACKEND
         _genContextEssl.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
 #endif
@@ -1286,6 +1302,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
 
     // Clear user data on the generator.
     _genContext.clearUserData();
+    _genContextVk.clearUserData();
 #ifndef MATERIALXVIEW_METAL_BACKEND
     _genContextEssl.clearUserData();
 #endif
@@ -1416,6 +1433,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
 
             // Clear cached implementations, in case libraries on the file system have changed.
             _genContext.clearNodeImplementations();
+            _genContextVk.clearNodeImplementations();
 #ifndef MATERIALXVIEW_METAL_BACKEND
             _genContextEssl.clearNodeImplementations();
 #endif
@@ -1596,6 +1614,16 @@ void Viewer::saveShaderSource(mx::GenContext& context)
                 writeTextFile(vertexShader, sourceFilename.asString() + "_vs.glsl");
                 new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved GLSL source: ",
                     sourceFilename.asString() + "_*.glsl");
+            }
+            else if (context.getShaderGenerator().getTarget() == mx::VkShaderGenerator::TARGET)
+            {
+                mx::ShaderPtr shader = material->getShader();
+                const std::string& pixelShader = shader->getSourceCode(mx::Stage::PIXEL);
+                const std::string& vertexShader = shader->getSourceCode(mx::Stage::VERTEX);
+                writeTextFile(pixelShader, sourceFilename.asString() + "_ps.spv");
+                writeTextFile(vertexShader, sourceFilename.asString() + "_vs.spv");
+                new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved Vulkan source: ",
+                    sourceFilename.asString() + "_*.spv");
             }
             else if (context.getShaderGenerator().getTarget() == mx::EsslShaderGenerator::TARGET)
             {
@@ -1820,6 +1848,7 @@ void Viewer::loadStandardLibraries()
 
     // Initialize the generator contexts.
     initContext(_genContext);
+    initContext(_genContextVk);
 #ifndef MATERIALXVIEW_METAL_BACKEND
     initContext(_genContextEssl);
 #endif
@@ -1870,6 +1899,13 @@ bool Viewer::keyboard_event(int key, int scancode, int action, int modifiers)
     if (key == GLFW_KEY_G && action == GLFW_PRESS)
     {
         saveShaderSource(_genContext);
+        return true;
+    }
+
+    // Save Vulkan shader source to file.
+    if (key == GLFW_KEY_V && action == GLFW_PRESS)
+    {
+        saveShaderSource(_genContextVk);
         return true;
     }
 
@@ -2565,6 +2601,7 @@ void Viewer::toggleTurntable(bool enable)
 void Viewer::setShaderInterfaceType(mx::ShaderInterfaceType interfaceType)
 {
     _genContext.getOptions().shaderInterfaceType = interfaceType;
+    _genContextVk.getOptions().shaderInterfaceType = interfaceType;
 #ifndef MATERIALXVIEW_METAL_BACKEND
     _genContextEssl.getOptions().shaderInterfaceType = interfaceType;
 #endif
