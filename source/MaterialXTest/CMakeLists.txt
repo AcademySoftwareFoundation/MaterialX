@@ -55,13 +55,6 @@ if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL OR MATERIALX_BUILD_GEN_MD
   if(MATERIALX_BUILD_GEN_MDL)
     add_subdirectory(MaterialXGenMdl)
     target_link_libraries(MaterialXTest MaterialXGenMdl)
-    if (NOT MATERIALX_BUILD_MONOLITHIC)
-        get_target_property(MaterialXGenMdl_SOURCE_DIR MaterialXGenMdl SOURCE_DIR)
-    else()
-        get_target_property(PROJECT_SOURCE_DIR ${MATERIALX_MONOLITHIC_TARGET} SOURCE_DIR)
-        set(MaterialXGenMdl_SOURCE_DIR "{PROJECT_SOURCE_DIR}/MaterialXGenMdl")
-    endif()
-    target_compile_definitions(MaterialXTest PRIVATE -DMATERIALX_MDL_IMPL_MODULE_PATH=\"${MaterialXGenMdl_SOURCE_DIR}/mdl\")
   endif()
   if(MATERIALX_BUILD_GEN_MSL)
     add_subdirectory(MaterialXGenMsl)
@@ -106,7 +99,7 @@ endif()
 
 if(MATERIALX_BUILD_GEN_MDL)
     install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../source/MaterialXGenMdl/mdl/"
-        DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${MATERIALX_INSTALL_MDL_MODULE_PATH}/mdl)
+        DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${MATERIALX_INSTALL_STDLIB_PATH}/mdl)
 endif()
 
 add_custom_command(TARGET MaterialXTest POST_BUILD
