@@ -412,10 +412,7 @@ void GLRenderPipeline::renderFrame(void*, int shadowMapSize, const char* dirLigh
         {
             material->getProgram()->bindUniform(mx::HW::ALPHA_THRESHOLD, mx::Value::createValue(0.99f));
         }
-        if (material->getProgram()->hasUniform(mx::HW::FRAME))
-        {
-            material->getProgram()->bindUniform(mx::HW::FRAME, mx::Value::createValue(static_cast<float>(_frame)));
-        }
+        material->getProgram()->bindTimeAndFrame((float) _timer.elapsedTime(), (float) _frame);
         material->bindViewInformation(viewCamera);
         material->bindLighting(lightHandler, imageHandler, shadowState);
         material->bindImages(imageHandler, searchPath);
@@ -444,6 +441,7 @@ void GLRenderPipeline::renderFrame(void*, int shadowMapSize, const char* dirLigh
             {
                 material->getProgram()->bindUniform(mx::HW::ALPHA_THRESHOLD, mx::Value::createValue(0.001f));
             }
+            material->getProgram()->bindTimeAndFrame((float) _timer.elapsedTime(), (float) _frame);
             material->bindViewInformation(viewCamera);
             material->bindLighting(lightHandler, imageHandler, shadowState);
             material->bindImages(imageHandler, searchPath);
@@ -494,7 +492,7 @@ void GLRenderPipeline::bakeTextures()
         // Construct a texture baker.
         mx::Image::BaseType baseType = _viewer->_bakeHdr ? mx::Image::BaseType::FLOAT : mx::Image::BaseType::UINT8;
         mx::UnsignedIntPair bakingRes = _viewer->computeBakingResolution(doc);
-        mx::TextureBakerGlslPtr baker = std::static_pointer_cast<mx::TextureBakerGlsl>(createTextureBaker(bakingRes.first, bakingRes.second, baseType));
+        mx::TextureBakerPtr baker = std::static_pointer_cast<mx::TextureBakerPtr::element_type>(createTextureBaker(bakingRes.first, bakingRes.second, baseType));
         baker->setupUnitSystem(_viewer->_stdLib);
         baker->setDistanceUnit(_viewer->_genContext.getOptions().targetDistanceUnit);
         baker->setAverageImages(_viewer->_bakeAverage);

@@ -6,7 +6,7 @@
 // Techniques (JCGT), vol. 11, no. 2, 77-94, 2022
 // http://jcgt.org/published/0011/03/05/
 void mx_hextilednormalmap_vector3(
-    sampler2D tex_sampler,
+    $texSamplerSignature,
     vec3 default_value,
     vec2 tex_coord,
     vec2 tiling,
@@ -29,9 +29,10 @@ void mx_hextilednormalmap_vector3(
 
     HextileData tile_data = mx_hextile_coord(coord, rotation, rotation_range, scale, scale_range, offset, offset_range);
 
-    vec3 nm1 = textureGrad(tex_sampler, tile_data.coord1, tile_data.ddx1, tile_data.ddy1).xyz;
-    vec3 nm2 = textureGrad(tex_sampler, tile_data.coord2, tile_data.ddx2, tile_data.ddy2).xyz;
-    vec3 nm3 = textureGrad(tex_sampler, tile_data.coord3, tile_data.ddx3, tile_data.ddy3).xyz;
+    vec3 nm1 = textureGrad($texSamplerSampler2D, tile_data.coord1, tile_data.ddx1, tile_data.ddy1).xyz;
+    vec3 nm2 = textureGrad($texSamplerSampler2D, tile_data.coord2, tile_data.ddx2, tile_data.ddy2).xyz;
+    vec3 nm3 = textureGrad($texSamplerSampler2D, tile_data.coord3, tile_data.ddx3, tile_data.ddy3).xyz;
+    
     nm1.y = flip_g ? 1.0 - nm1.y : nm1.y;
     nm2.y = flip_g ? 1.0 - nm2.y : nm2.y;
     nm3.y = flip_g ? 1.0 - nm3.y : nm3.y;

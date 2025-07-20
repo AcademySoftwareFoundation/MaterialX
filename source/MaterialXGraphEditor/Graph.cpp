@@ -631,7 +631,7 @@ ImVec2 Graph::layoutPosition(UiNodePtr layoutNode, ImVec2 startingPos, bool init
         {
             // Insert new vector into key
             std::vector<UiNodePtr> newValue = { layoutNode };
-            _levelMap.insert({ layoutNode->_level, newValue });
+            _levelMap.emplace(layoutNode->_level, newValue);
         }
         std::vector<UiPinPtr> pins = layoutNode->inputPins;
         if (initialLayout)
@@ -4119,7 +4119,7 @@ void Graph::drawGraph(ImVec2 mousePos)
                     int pos = findNode((int) selected.Get());
                     if (pos >= 0)
                     {
-                        _copiedNodes.insert(std::pair<UiNodePtr, UiNodePtr>(_graphNodes[pos], nullptr));
+                        _copiedNodes.emplace(_graphNodes[pos], nullptr);
                     }
                 }
             }
@@ -4135,7 +4135,7 @@ void Graph::drawGraph(ImVec2 mousePos)
                         int pos = findNode((int) selected.Get());
                         if (pos >= 0)
                         {
-                            _copiedNodes.insert(std::pair<UiNodePtr, UiNodePtr>(_graphNodes[pos], nullptr));
+                            _copiedNodes.emplace(_graphNodes[pos], nullptr);
                         }
                     }
                     _isCut = true;
