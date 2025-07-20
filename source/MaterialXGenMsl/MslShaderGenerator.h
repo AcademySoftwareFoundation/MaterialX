@@ -124,16 +124,6 @@ class MX_GENMSL_API MslShaderGenerator : public HwShaderGenerator
     vector<ShaderNodePtr> _lightSamplingNodes;
 };
 
-/// Base class for common MSL node implementations
-class MX_GENMSL_API MslImplementation : public HwImplementation
-{
-  public:
-    const string& getTarget() const override;
-
-  protected:
-    MslImplementation() { }
-};
-
 MATERIALX_NAMESPACE_END
 
 #endif

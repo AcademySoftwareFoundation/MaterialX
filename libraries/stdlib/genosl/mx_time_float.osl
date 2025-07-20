@@ -1,6 +1,6 @@
 void mx_time_float(float fps, output float result)
 {
-    float frame;
-    getattribute("frame", frame);    
-    result = frame / fps;
+    // Use the standard default value if the attribute is not present.
+    result = 0.0;
+    getattribute("time", result);
 }

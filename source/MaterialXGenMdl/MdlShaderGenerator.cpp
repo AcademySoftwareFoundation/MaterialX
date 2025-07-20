@@ -14,7 +14,6 @@
 #include <MaterialXGenMdl/Nodes/BlurNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/ClosureLayerNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/ClosureCompoundNodeMdl.h>
-#include <MaterialXGenMdl/Nodes/ClosureSourceCodeNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/CustomNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/ImageNodeMdl.h>
 
@@ -405,15 +404,7 @@ ShaderNodeImplPtr MdlShaderGenerator::getImplementation(const NodeDef& nodedef, 
             }
             else
             {
-                // Fall back to source code implementation.
-                if (outputType.isClosure())
-                {
-                    impl = ClosureSourceCodeNodeMdl::create();
-                }
-                else
-                {
-                    impl = SourceCodeNodeMdl::create();
-                }
+                impl = SourceCodeNodeMdl::create();
             }
         }
     }
@@ -709,7 +700,7 @@ ShaderPtr MdlShaderGenerator::createShader(const string& name, ElementPtr elemen
 namespace
 {
 
-void emitInputAnnotations(const MdlShaderGenerator& _this, ConstDocumentPtr doc, const ShaderPort* variable, ShaderStage& stage)
+void emitInputAnnotations(const MdlShaderGenerator& _this, ConstDocumentPtr, const ShaderPort* variable, ShaderStage& stage)
 {
     // allows to relate between MaterialX and MDL parameters when looking at the MDL code.
     const std::string mtlxParameterPathAnno = "materialx::core::origin(\"" + variable->getPath() + "\")";

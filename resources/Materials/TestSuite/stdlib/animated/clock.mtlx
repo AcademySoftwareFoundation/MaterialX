@@ -1,0 +1,203 @@
+<?xml version="1.0"?>
+<materialx version="1.39" colorspace="lin_rec709">
+  <nodegraph name="NG_clock">
+    <input name="start_hour" type="integer" value="2" uisoftmin="0" uisoftmax="11" />
+    <input name="start_minute" type="integer" value="0" uisoftmin="0" uisoftmax="59" />
+    <input name="circular_edge_color" type="color3" value="0.9523, 0.9266, 0.0266" />
+    <input name="hour_marks_color" type="color3" value="0.1438, 0.8225, 0.1854" />
+    <input name="minute_hand_color" type="color3" value="0.5172, 0, 0" />
+    <input name="hour_hand_color" type="color3" value="0.0804, 0.1254, 0.6766" />
+    <input name="speed" type="float" value="20" />
+    <time name="time" type="float" />
+    <texcoord name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <line name="minute_hand" type="float" nodedef="ND_line_float" >
+      <input name="radius" type="float" value="0.01" />
+      <input name="point1" type="vector2" nodename="rotate_minute" />
+      <input name="point2" type="vector2" value="0, 0" />
+      <input name="center" type="vector2" value="0.5, 0.5" />
+      <input name="texcoord" type="vector2" nodename="texcoord" />
+    </line>
+    <max name="mask_hour_and_minute_hands" type="float" nodedef="ND_max_float" >
+      <input name="in2" type="float" nodename="hour_hand" />
+      <input name="in1" type="float" nodename="minute_hand" />
+    </max>
+    <rotate2d name="rotate_minute" type="vector2" nodedef="ND_rotate2d_vector2" >
+      <input name="in" type="vector2" value="0, 0.4" />
+      <input name="amount" type="float" ldx_value="90" nodename="combine_minute_pos" />
+    </rotate2d>
+    <multiply name="secmin_to_deg" type="float" nodedef="ND_multiply_float" >
+      <input name="in2" type="float" value="360" />
+      <input name="in1" type="float" nodename="secmin_to_circle_ratio" />
+    </multiply>
+    <divide name="mins_to_hours" type="float" nodedef="ND_divide_float" >
+      <input name="in1" type="float" nodename="secmin_to_deg" />
+      <input name="in2" type="float" value="12" />
+    </divide>
+    <rotate2d name="rotate_hour" type="vector2" nodedef="ND_rotate2d_vector2" >
+      <input name="in" type="vector2" value="0, 0.3" />
+      <input name="amount" type="float" ldx_value="90" nodename="combine_hour_pos" />
+    </rotate2d>
+    <line name="hour_hand" type="float" nodedef="ND_line_float" >
+      <input name="radius" type="float" value="0.02" />
+      <input name="point2" type="vector2" value="0, 0" />
+      <input name="center" type="vector2" value="0.5, 0.5" />
+      <input name="point1" type="vector2" nodename="rotate_hour" />
+      <input name="texcoord" type="vector2" nodename="texcoord" />
+    </line>
+    <circle name="circular_edge_out" type="float" nodedef="ND_circle_float" >
+      <input name="center" type="vector2" value="0.5, 0.5" />
+      <input name="radius" type="float" value="0.48" />
+      <input name="texcoord" type="vector2" nodename="texcoord" />
+    </circle>
+    <max name="mask_add_circular_edge" type="float" nodedef="ND_max_float" >
+      <input name="in1" type="float" nodename="mask_hour_and_minute_hands" />
+      <input name="in2" type="float" nodename="circular_edge_boolean" />
+    </max>
+    <circle name="circular_edge_in" type="float" nodedef="ND_circle_float" >
+      <input name="center" type="vector2" value="0.5, 0.5" />
+      <input name="radius" type="float" value="0.47" />
+      <input name="texcoord" type="vector2" nodename="texcoord" />
+    </circle>
+    <subtract name="circular_edge_boolean" type="float" nodedef="ND_subtract_float" >
+      <input name="in2" type="float" nodename="circular_edge_in" />
+      <input name="in1" type="float" nodename="circular_edge_out" />
+    </subtract>
+    <multiply name="hour_to_deg" type="float" nodedef="ND_multiply_float" >
+      <input name="in2" type="float" value="360" />
+      <input name="in1" type="float" nodename="hour_to_circle_ratio" />
+    </multiply>
+    <multiply name="min_to_deg" type="float" nodedef="ND_multiply_float" >
+      <input name="in2" type="float" value="360" />
+      <input name="in1" type="float" nodename="min_to_circle_ratio" />
+    </multiply>
+    <add name="combine_minute_pos" type="float" nodedef="ND_add_float" >
+      <input name="in1" type="float" nodename="secmin_to_deg" />
+      <input name="in2" type="float" nodename="min_to_deg" />
+    </add>
+    <add name="combine_hour_pos" type="float" nodedef="ND_add_float" >
+      <input name="in2" type="float" nodename="mins_to_hours" />
+      <input name="in1" type="float" nodename="hour_to_deg" />
+    </add>
+    <divide name="min_to_circle_ratio" type="float" nodedef="ND_divide_float" >
+      <input name="in2" type="float" value="60" />
+      <input name="in1" type="float" nodename="minute_float" />
+    </divide>
+    <divide name="hour_to_circle_ratio" type="float" nodedef="ND_divide_float" >
+      <input name="in2" type="float" value="12" />
+      <input name="in1" type="float" nodename="adjust_hour" />
+    </divide>
+    <divide name="min_to_hour" type="float" nodedef="ND_divide_float" >
+      <input name="in1" type="float" nodename="minute_float" />
+      <input name="in2" type="float" value="60" />
+    </divide>
+    <add name="adjust_hour" type="float" nodedef="ND_add_float" >
+      <input name="in2" type="float" nodename="min_to_hour" />
+      <input name="in1" type="float" nodename="hour_float" />
+    </add>
+    <line name="top_marker1" type="float" nodedef="ND_line_float" >
+      <input name="radius" type="float" value="0.005" />
+      <input name="point2" type="vector2" value="-0.01, 0.355" />
+      <input name="center" type="vector2" value="0.5, 0.5" />
+      <input name="point1" type="vector2" value="-0.01, 0.425" />
+      <input name="texcoord" type="vector2" nodename="texcoord" />
+    </line>
+    <max name="mask_add_hour_markers" type="float" nodedef="ND_max_float" >
+      <input name="in2" type="float" nodename="mask_add_circular_edge" />
+      <input name="in1" type="float" nodename="face_comp" />
+    </max>
+    <max name="face_comp1" type="float" nodedef="ND_max_float" >
+      <input name="in1" type="float" nodename="top_marker_comp" />
+      <input name="in2" type="float" nodename="marker_at_6" />
+    </max>
+    <max name="face_comp2" type="float" nodedef="ND_max_float" >
+      <input name="in2" type="float" nodename="marker_at_3" />
+      <input name="in1" type="float" nodename="marker_at_9" />
+    </max>
+    <max name="face_comp" type="float" nodedef="ND_max_float" >
+      <input name="in1" type="float" nodename="face_comp1" />
+      <input name="in2" type="float" nodename="face_comp2" />
+    </max>
+    <max name="top_marker_comp" type="float" nodedef="ND_max_float" >
+      <input name="in1" type="float" nodename="top_marker1" />
+      <input name="in2" type="float" nodename="top_marker2" />
+    </max>
+    <line name="marker_at_6" type="float" nodedef="ND_line_float" >
+      <input name="radius" type="float" value="0.005" />
+      <input name="point2" type="vector2" value="0, -0.355" />
+      <input name="center" type="vector2" value="0.5, 0.5" />
+      <input name="point1" type="vector2" value="0, -0.425" />
+      <input name="texcoord" type="vector2" nodename="texcoord" />
+    </line>
+    <line name="marker_at_9" type="float" nodedef="ND_line_float" >
+      <input name="radius" type="float" value="0.005" />
+      <input name="point2" type="vector2" value="-0.355, 0" />
+      <input name="center" type="vector2" value="0.5, 0.5" />
+      <input name="point1" type="vector2" value="-0.425, 0" />
+      <input name="texcoord" type="vector2" nodename="texcoord" />
+    </line>
+    <line name="marker_at_3" type="float" nodedef="ND_line_float" >
+      <input name="radius" type="float" value="0.005" />
+      <input name="point2" type="vector2" value="0.355, 0" />
+      <input name="center" type="vector2" value="0.5, 0.5" />
+      <input name="point1" type="vector2" value="0.425, 0" />
+      <input name="texcoord" type="vector2" nodename="texcoord" />
+    </line>
+    <line name="top_marker2" type="float" nodedef="ND_line_float" >
+      <input name="radius" type="float" value="0.005" />
+      <input name="point2" type="vector2" value="0.01, 0.355" />
+      <input name="center" type="vector2" value="0.5, 0.5" />
+      <input name="point1" type="vector2" value="0.01, 0.425" />
+      <input name="texcoord" type="vector2" nodename="texcoord" />
+    </line>
+    <divide name="secmin_to_circle_ratio" type="float" nodedef="ND_divide_float" >
+      <input name="in1" type="float" nodename="sec_to_min" />
+      <input name="in2" type="float" value="60" />
+    </divide>
+    <mix name="hour_markers_color_mix" type="color3" nodedef="ND_mix_color3" >
+      <input name="fg" type="color3" interfacename="hour_marks_color" />
+      <input name="mix" type="float" nodename="face_comp" />
+    </mix>
+    <mix name="circular_edge_color_mix" type="color3" nodedef="ND_mix_color3" >
+      <input name="bg" type="color3" nodename="hour_markers_color_mix" />
+      <input name="fg" type="color3" interfacename="circular_edge_color" />
+      <input name="mix" type="float" nodename="circular_edge_boolean" />
+    </mix>
+    <mix name="minute_hand_color_mix" type="color3" nodedef="ND_mix_color3" >
+      <input name="fg" type="color3" interfacename="minute_hand_color" />
+      <input name="mix" type="float" nodename="minute_hand" />
+    </mix>
+    <mix name="hour_hand_color_mix" type="color3" nodedef="ND_mix_color3" >
+      <input name="bg" type="color3" nodename="minute_hand_color_mix" />
+      <input name="fg" type="color3" interfacename="hour_hand_color" />
+      <input name="mix" type="float" nodename="hour_hand" />
+    </mix>
+    <mix name="combine_all_colors" type="color3" nodedef="ND_mix_color3" >
+      <input name="bg" type="color3" nodename="circular_edge_color_mix" />
+      <input name="fg" type="color3" nodename="hour_hand_color_mix" />
+      <input name="mix" type="float" nodename="mask_hour_and_minute_hands" />
+    </mix>
+    <convert name="hour_float" type="float" nodedef="ND_convert_integer_float" >
+      <input name="in" type="integer" interfacename="start_hour" />
+    </convert>
+    <convert name="minute_float" type="float" nodedef="ND_convert_integer_float" >
+      <input name="in" type="integer" interfacename="start_minute" />
+    </convert>
+    <multiply name="speed_multplier" type="float" nodedef="ND_multiply_float" >
+      <input name="in1" type="float" nodename="time" />
+      <input name="in2" type="float" interfacename="speed" />
+    </multiply>
+    <divide name="sec_to_min" type="float" nodedef="ND_divide_float" >
+      <input name="in2" type="float" value="60" />
+      <input name="in1" type="float" nodename="speed_multplier" />
+    </divide>
+    <output name="out_color" type="color3" nodename="combine_all_colors" />
+    <output name="out_alpha" type="float" nodename="mask_add_hour_markers" />
+  </nodegraph>
+  <surface_unlit name="N_SurfaceUnlit" type="surfaceshader">
+    <input name="emission_color" type="color3" nodegraph="NG_clock" output="out_color" />
+    <input name="opacity" type="float" nodegraph="NG_clock" output="out_alpha" />
+  </surface_unlit>
+  <surfacematerial name="M_Clock" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="N_SurfaceUnlit" />
+  </surfacematerial>
+</materialx>
