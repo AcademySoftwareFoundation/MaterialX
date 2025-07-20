@@ -229,9 +229,6 @@ if(MATERIALX_BUILD_RENDER AND MATERIALX_BUILD_GEN_OSL AND MATERIALX_BUILD_TESTS)
 endif()
 
 # Add global definitions
-if(MATERIALX_BUILD_OIIO)
-    add_definitions(-DMATERIALX_BUILD_OIIO)
-endif()
 if(MATERIALX_TEST_RENDER)
     add_definitions(-DMATERIALX_TEST_RENDER)
 endif()
