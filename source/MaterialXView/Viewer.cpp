@@ -259,7 +259,6 @@ Viewer::Viewer(const std::string& materialFilename,
                                 ng::metal_command_queue());
 #else
     _renderPipeline = GLRenderPipeline::create(this);
-
     // Set Vulkan generator options
     _genContextVk.getOptions().targetColorSpaceOverride = "lin_rec709";
     _genContextVk.getOptions().fileTextureVerticalFlip = false;
@@ -505,8 +504,8 @@ void Viewer::applyDirectLights(mx::DocumentPtr doc)
         std::vector<mx::NodePtr> lights;
         _lightHandler->findLights(doc, lights);
         _lightHandler->registerLights(doc, lights, _genContext);
-        _lightHandler->registerLights(doc, lights, _genContextVk);
 #ifndef MATERIALXVIEW_METAL_BACKEND
+        _lightHandler->registerLights(doc, lights, _genContextVk);
         _lightHandler->registerLights(doc, lights, _genContextEssl);
 #endif
         _lightHandler->setLightSources(lights);
@@ -818,8 +817,8 @@ void Viewer::createAdvancedSettings(ng::ref<Widget> parent)
     importanceSampleBox->set_callback([this](bool enable)
     {
         _genContext.getOptions().hwSpecularEnvironmentMethod = enable ? mx::SPECULAR_ENVIRONMENT_FIS : mx::SPECULAR_ENVIRONMENT_PREFILTER;
-        _genContextVk.getOptions().hwSpecularEnvironmentMethod = _genContext.getOptions().hwSpecularEnvironmentMethod;
 #ifndef MATERIALXVIEW_METAL_BACKEND
+        _genContextVk.getOptions().hwSpecularEnvironmentMethod = _genContext.getOptions().hwSpecularEnvironmentMethod;
         _genContextEssl.getOptions().hwSpecularEnvironmentMethod = _genContext.getOptions().hwSpecularEnvironmentMethod;
 #endif
         _lightHandler->setUsePrefilteredMap(!enable);
@@ -831,8 +830,8 @@ void Viewer::createAdvancedSettings(ng::ref<Widget> parent)
     refractionBox->set_callback([this](bool enable)
     {
         _genContext.getOptions().hwTransmissionRenderMethod = enable ? mx::TRANSMISSION_REFRACTION : mx::TRANSMISSION_OPACITY;
-        _genContextVk.getOptions().hwTransmissionRenderMethod = _genContext.getOptions().hwTransmissionRenderMethod;
 #ifndef MATERIALXVIEW_METAL_BACKEND
+        _genContextVk.getOptions().hwTransmissionRenderMethod = _genContext.getOptions().hwTransmissionRenderMethod;
         _genContextEssl.getOptions().hwTransmissionRenderMethod = _genContext.getOptions().hwTransmissionRenderMethod;
 #endif
         reloadShaders();
@@ -863,7 +862,6 @@ void Viewer::createAdvancedSettings(ng::ref<Widget> parent)
     albedoBox->set_callback([this](int index)
     {
         _genContext.getOptions().hwDirectionalAlbedoMethod = (mx::HwDirectionalAlbedoMethod) index;
-        _genContextVk.getOptions().hwDirectionalAlbedoMethod = _genContext.getOptions().hwDirectionalAlbedoMethod;
         reloadShaders();
         try
         {
@@ -943,7 +941,6 @@ void Viewer::createAdvancedSettings(ng::ref<Widget> parent)
     shadowMapBox->set_callback([this](bool enable)
     {
         _genContext.getOptions().hwShadowMap = enable;
-        _genContextVk.getOptions().hwShadowMap = enable;
         reloadShaders();
     });
 
@@ -952,7 +949,6 @@ void Viewer::createAdvancedSettings(ng::ref<Widget> parent)
     ambientOcclusionBox->set_callback([this](bool enable)
     {
         _genContext.getOptions().hwAmbientOcclusion = enable;
-        _genContextVk.getOptions().hwAmbientOcclusion = enable;
         reloadShaders();
     });
 
@@ -983,8 +979,8 @@ void Viewer::createAdvancedSettings(ng::ref<Widget> parent)
     {
         m_process_events = false;
         _genContext.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
-        _genContextVk.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
 #ifndef MATERIALXVIEW_METAL_BACKEND
+        _genContextVk.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
         _genContextEssl.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
 #endif
 #if MATERIALX_BUILD_GEN_OSL
@@ -1302,8 +1298,8 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
 
     // Clear user data on the generator.
     _genContext.clearUserData();
-    _genContextVk.clearUserData();
 #ifndef MATERIALXVIEW_METAL_BACKEND
+    _genContextVk.clearUserData();
     _genContextEssl.clearUserData();
 #endif
 
@@ -1433,8 +1429,8 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
 
             // Clear cached implementations, in case libraries on the file system have changed.
             _genContext.clearNodeImplementations();
-            _genContextVk.clearNodeImplementations();
 #ifndef MATERIALXVIEW_METAL_BACKEND
+            _genContextVk.clearNodeImplementations();
             _genContextEssl.clearNodeImplementations();
 #endif
 
@@ -1848,8 +1844,8 @@ void Viewer::loadStandardLibraries()
 
     // Initialize the generator contexts.
     initContext(_genContext);
-    initContext(_genContextVk);
 #ifndef MATERIALXVIEW_METAL_BACKEND
+    initContext(_genContextVk);
     initContext(_genContextEssl);
 #endif
 #if MATERIALX_BUILD_GEN_OSL
@@ -1905,7 +1901,12 @@ bool Viewer::keyboard_event(int key, int scancode, int action, int modifiers)
     // Save Vulkan shader source to file.
     if (key == GLFW_KEY_V && action == GLFW_PRESS)
     {
+#ifndef MATERIALXVIEW_METAL_BACKEND
         saveShaderSource(_genContextVk);
+#else
+        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Vulkan Shader Source Error",
+                "Vulkan is not natively supported on this platform. Cannot save source for material.");
+#endif
         return true;
     }
 
@@ -2601,8 +2602,8 @@ void Viewer::toggleTurntable(bool enable)
 void Viewer::setShaderInterfaceType(mx::ShaderInterfaceType interfaceType)
 {
     _genContext.getOptions().shaderInterfaceType = interfaceType;
-    _genContextVk.getOptions().shaderInterfaceType = interfaceType;
 #ifndef MATERIALXVIEW_METAL_BACKEND
+    _genContextVk.getOptions().shaderInterfaceType = interfaceType;
     _genContextEssl.getOptions().shaderInterfaceType = interfaceType;
 #endif
 #if MATERIALX_BUILD_GEN_OSL

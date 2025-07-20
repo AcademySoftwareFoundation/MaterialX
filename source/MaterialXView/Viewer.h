@@ -415,8 +415,8 @@ class Viewer : public ng::Screen
 
     // Shader generator contexts
     mx::GenContext _genContext;
-    mx::GenContext _genContextVk;
 #ifndef MATERIALXVIEW_METAL_BACKEND
+    mx::GenContext _genContextVk;
     mx::GenContext _genContextEssl;
 #endif
 #if MATERIALX_BUILD_GEN_OSL
