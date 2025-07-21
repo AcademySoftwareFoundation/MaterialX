@@ -8,7 +8,7 @@
 
 #include <MaterialXGenMdl/Export.h>
 
-#include <MaterialXGenShader/Nodes/ConvolutionNode.h>
+#include <MaterialXGenMdl/Nodes/ConvolutionNode.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
