@@ -6,19 +6,15 @@
 #ifndef MATERIALX_CONVOLUTIONNODE_H
 #define MATERIALX_CONVOLUTIONNODE_H
 
-#include <MaterialXGenShader/ShaderNodeImpl.h>
+#include <MaterialXGenMdl/Export.h>
 
-#include <array>
+#include <MaterialXGenShader/ShaderNodeImpl.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
-extern MX_GENSHADER_API const std::array<float, 3> GAUSSIAN_KERNEL_3;
-extern MX_GENSHADER_API const std::array<float, 5> GAUSSIAN_KERNEL_5;
-extern MX_GENSHADER_API const std::array<float, 7> GAUSSIAN_KERNEL_7;
-
 /// Utility class for implementations of nodes which perform convolutions
 ///
-class MX_GENSHADER_API ConvolutionNode : public ShaderNodeImpl
+class MX_GENMDL_API ConvolutionNode : public ShaderNodeImpl
 {
   public:
     void createVariables(const ShaderNode& node, GenContext& context, Shader& shader) const override;

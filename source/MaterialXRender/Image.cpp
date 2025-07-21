@@ -6,10 +6,9 @@
 #include <MaterialXRender/Image.h>
 
 #include <MaterialXRender/Types.h>
+#include <MaterialXGenShader/Util.h>
+#include <MaterialXCore/Exception.h>
 
-#include <MaterialXGenShader/Nodes/ConvolutionNode.h>
-
-#include <cstring>
 #include <fstream>
 #include <limits>
 

@@ -6381,9 +6381,8 @@
     <output name="out" type="boolean" nodename="or" />
   </nodegraph>
 
-
   <!-- Node: <blur>
-       Currently just a pass-thru node as there is no correct implementation available
+       NOTE : this implementation is a pass-thru, and does not implement the specification
   -->
   <nodegraph name="NG_blur_float" nodedef="ND_blur_float">
     <constant name="const" type="float">
@@ -6421,6 +6420,5 @@
     </constant>
     <output name="out" type="vector4" nodename="const" />
   </nodegraph>
-
 
 </materialx>
