@@ -9,6 +9,7 @@
 #include <MaterialXGenShader/Util.h>
 #include <MaterialXCore/Exception.h>
 
+#include <cstring>
 #include <fstream>
 #include <limits>
 
