@@ -8,6 +8,8 @@
 # Auto-generated content:
 @PACKAGE_INIT@
 
+include(CMakeFindDependencyMacro)
+
 # Gather MaterialX targets:
 include("${CMAKE_CURRENT_LIST_DIR}/@CMAKE_PROJECT_NAME@Targets.cmake")
 
@@ -22,6 +24,17 @@ set_and_check(MATERIALX_STDLIB_DIR "@PACKAGE_CMAKE_INSTALL_PREFIX@/libraries")
 if(@MATERIALX_BUILD_PYTHON@ AND @MATERIALX_INSTALL_PYTHON@)
     set_and_check(MATERIALX_PYTHON_DIR "@PACKAGE_CMAKE_INSTALL_PREFIX@/python")
 endif()
+
+# Dependencies when building static libraries:
+if(NOT @MATERIALX_BUILD_SHARED_LIBS@)
+if(@MATERIALX_BUILD_OIIO@ AND @MATERIALX_BUILD_RENDER@)
+    find_dependency(OpenImageIO CONFIG)
+endif()
+if(@MATERIALX_BUILD_OCIO@)
+    find_dependency(OpenColorIO CONFIG)
+endif()
+endif()
+
 if(@MATERIALX_BUILD_RENDER@ AND @MATERIALX_INSTALL_RESOURCES@)
     set_and_check(MATERIALX_RESOURCES_DIR "@PACKAGE_CMAKE_INSTALL_PREFIX@/resources")
 endif()
