@@ -1093,16 +1093,16 @@ void ShaderGraph::optimizeMixBsdf(ShaderNode* mixNode, GenContext& context)
 
     // create a node that represents the inverted mix value, ie. 1.0-mix
     // to be used for the "bg" side of the mix
-    auto invertMixNode = this->createNode(mixNode->getName()+"_INV_", floatInvertNodeDef, context);
+    auto invertMixNode = this->createNode(mixNode->getName()+"_INV", floatInvertNodeDef, context);
     redirectInput(mixWeightInput, invertMixNode->getInput("in"));
 
     // create a multiply node to calculate the new weight value, weighted by the mix value.
-    auto multFgWeightNode = this->createNode(mixNode->getName()+"_MULT_FG_", floatMultNodeDef, context);
+    auto multFgWeightNode = this->createNode(mixNode->getName()+"_MULT_FG", floatMultNodeDef, context);
     redirectInput(fgNodeWeightInput, multFgWeightNode->getInput("in1"));
     redirectInput(mixWeightInput, multFgWeightNode->getInput("in2"));
 
     // create a multiply node to calculate the new weight value, weighted by the inverted mix value.
-    auto multBgWeightNode = this->createNode(mixNode->getName()+"_MULT_BG_", floatMultNodeDef, context);
+    auto multBgWeightNode = this->createNode(mixNode->getName()+"_MULT_BG", floatMultNodeDef, context);
     redirectInput(bgNodeWeightInput, multBgWeightNode->getInput("in1"));
     connectNodes(invertMixNode, "out", multBgWeightNode, "in2");
 
@@ -1112,19 +1112,18 @@ void ShaderGraph::optimizeMixBsdf(ShaderNode* mixNode, GenContext& context)
 
     // Create the ND_add_bsdf node that will add the two BSDF nodes with the modified weights
     // this replaces the original mix node.
-    auto addNode = this->createNode(mixNode->getName()+"_ADD_", addBsdfNodeDef, context);
+    auto addNode = this->createNode(mixNode->getName()+"_ADD", addBsdfNodeDef, context);
     connectNodes(bgNode, "out", addNode, "in1");
     connectNodes(fgNode, "out", addNode, "in2");
 
     // Finally for all the previous outgoing connections from the original mix node
     // replace those with the outgoing connection from the new add node.
     auto mixNodeOutput = mixNode->getOutput("out");
-    for (auto conn : mixNodeOutput->getConnections())
+    auto mixNodeOutputConns = mixNodeOutput->getConnections();
+    for (auto conn : mixNodeOutputConns)
     {
         addNode->getOutput("out")->makeConnection(conn);
     }
-
-    printf("Mix node optimized : '%s'\n", mixNode->getName().c_str());
 }
 
 
