@@ -35,7 +35,6 @@ MATERIALX_NAMESPACE_BEGIN
 
 const string MslShaderGenerator::TARGET = "genmsl";
 const string MslShaderGenerator::VERSION = "2.3";
-const string MslSamplingIncludeFilename = "stdlib/genmsl/lib/mx_sampling.metal";
 
 //
 // MslShaderGenerator methods
