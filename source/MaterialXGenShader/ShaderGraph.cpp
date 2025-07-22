@@ -1093,16 +1093,16 @@ void ShaderGraph::optimizeMixBsdf(ShaderNode* mixNode, GenContext& context)
 
     // create a node that represents the inverted mix value, ie. 1.0-mix
     // to be used for the "bg" side of the mix
-    auto invertMixNode = this->createNode(mixNode->getName()+"__INV__", floatInvertNodeDef, context);
+    auto invertMixNode = this->createNode(mixNode->getName()+"_INV_", floatInvertNodeDef, context);
     redirectInput(mixWeightInput, invertMixNode->getInput("in"));
 
     // create a multiply node to calculate the new weight value, weighted by the mix value.
-    auto multFgWeightNode = this->createNode(mixNode->getName()+"__MULT_FG__", floatMultNodeDef, context);
+    auto multFgWeightNode = this->createNode(mixNode->getName()+"_MULT_FG_", floatMultNodeDef, context);
     redirectInput(fgNodeWeightInput, multFgWeightNode->getInput("in1"));
     redirectInput(mixWeightInput, multFgWeightNode->getInput("in2"));
 
     // create a multiply node to calculate the new weight value, weighted by the inverted mix value.
-    auto multBgWeightNode = this->createNode(mixNode->getName()+"__MULT_BG__", floatMultNodeDef, context);
+    auto multBgWeightNode = this->createNode(mixNode->getName()+"_MULT_BG_", floatMultNodeDef, context);
     redirectInput(bgNodeWeightInput, multBgWeightNode->getInput("in1"));
     connectNodes(invertMixNode, "out", multBgWeightNode, "in2");
 
@@ -1112,7 +1112,7 @@ void ShaderGraph::optimizeMixBsdf(ShaderNode* mixNode, GenContext& context)
 
     // Create the ND_add_bsdf node that will add the two BSDF nodes with the modified weights
     // this replaces the original mix node.
-    auto addNode = this->createNode(mixNode->getName()+"__ADD__", addBsdfNodeDef, context);
+    auto addNode = this->createNode(mixNode->getName()+"_ADD_", addBsdfNodeDef, context);
     connectNodes(bgNode, "out", addNode, "in1");
     connectNodes(fgNode, "out", addNode, "in2");
 
