@@ -1,6 +1,6 @@
 # Change Log
 
-## [1.39.4] - Development
+## [1.39.4] - Release Candidate
 
 ### Added
 - Added support for [WebGPU Shading Language](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2407) in MaterialX shader generation.
@@ -45,6 +45,7 @@
 
 ### Removed
 - Removed the legacy [MATERIALX_OIIO_DIR](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2342) option, as it connected to a CMake pathway that is no longer present in OIIO 2.2 and later.
+- Removed implementations of the [blur node](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2411) in all shader generators, with the goal of reevaluating its design in a future specification update.
 
 ## [1.39.3] - 2025-03-07
 
