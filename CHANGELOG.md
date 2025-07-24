@@ -8,6 +8,7 @@
 - Added support for [latitude-longitude images](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2168), implemented as a language-independent graph.
 - Added support for [2D fractals](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2183), with initial implementations in hardware shading languages, OSL, and MDL.
 - Added support for [custom OCIO configurations](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1917) in shader generation.
+- Added support for [anisotropy](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2393) in the graph definition of glTF PBR.
 - Added support for the [time and frame nodes](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2389) in the MaterialX Viewer and MaterialX Graph Editor.
 - Added support for [node output types](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2387) in document validation.
 - Added the first [animated material example](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2329) to the MaterialX test suite.
