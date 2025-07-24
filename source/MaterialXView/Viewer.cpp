@@ -83,6 +83,8 @@ const float IDEAL_MESH_SPHERE_RADIUS = 2.0f;
 
 const float PI = std::acos(-1.0f);
 
+const std::string UDIM_SEPARATORS = "._";
+
 void writeTextFile(const std::string& text, const std::string& filePath)
 {
     std::ofstream file;
@@ -1501,6 +1503,16 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
                 if (materialNode)
                 {
                     std::string udim = mat->getUdim();
+                    if (udim.empty())
+                    {
+                        for (const std::string& token : mx::splitString(materialNode->getName(), UDIM_SEPARATORS))
+                        {
+                            if (token.size() == 4 && std::all_of(token.begin(), token.end(), isdigit))
+                            {
+                                udim = token;
+                            }
+                        }
+                    }
                     if (!udim.empty())
                     {
                         for (mx::MeshPartitionPtr geom : _geometryList)
