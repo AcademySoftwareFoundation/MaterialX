@@ -19,6 +19,12 @@ MATERIALX_NAMESPACE_BEGIN
 
 class ShaderGenerator;
 
+/// Gaussian kernel weights for different kernel sizes.
+/// Shared between the ConvolutionNode implementation and MaterialXRender::Image
+extern MX_GENSHADER_API const std::array<float, 3> GAUSSIAN_KERNEL_3;
+extern MX_GENSHADER_API const std::array<float, 5> GAUSSIAN_KERNEL_5;
+extern MX_GENSHADER_API const std::array<float, 7> GAUSSIAN_KERNEL_7;
+
 /// Returns true if the given element is a surface shader with the potential
 /// of being transparent. This can be used by HW shader generators to determine
 /// if a shader will require transparency handling.
