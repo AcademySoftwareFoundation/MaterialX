@@ -94,9 +94,8 @@ jobs:
           compiler_version: "16.1"
           python: 3.11
           static_analysis: ON
-          cmake_config: -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
           # Keep in sync with VCPKG_INSTALLED_MACOS
-          cmake_config: -DMATERIALX_MDL_SDK_DIR=/usr/local/share/vcpkg/installed/x64-osx
+          cmake_config: -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DMATERIALX_MDL_SDK_DIR=/usr/local/share/vcpkg/installed/x64-osx
           build_mdl_sdk: ON
 
         - name: MacOS_Xcode_DynamicAnalysis
