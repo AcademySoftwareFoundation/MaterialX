@@ -16,7 +16,7 @@ env:
   VCPKG_ROOT_MACOS: /usr/local/share/vcpkg
   VCPKG_ROOT_WINDOWS: C:/vcpkg
   VCPKG_INSTALLED_LINUX: /usr/local/share/vcpkg/installed/x64-linux
-  VCPKG_INSTALLED_MACOS: /usr/local/share/vcpkg/installed/x64-osx
+  VCPKG_INSTALLED_MACOS: /usr/local/share/vcpkg/installed/arm64-osx
   VCPKG_INSTALLED_WINDOWS: C:/vcpkg/installed/x64-windows-release
   VCPKG_TRIPLET_WINDOWS: x64-windows-release
 
@@ -94,9 +94,7 @@ jobs:
           compiler_version: "16.1"
           python: 3.11
           static_analysis: ON
-          # Keep in sync with VCPKG_INSTALLED_MACOS
-          cmake_config: -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DMATERIALX_MDL_SDK_DIR=/usr/local/share/vcpkg/installed/x64-osx
-          build_mdl_sdk: ON
+          cmake_config: -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
         - name: MacOS_Xcode_DynamicAnalysis
           os: macos-15
