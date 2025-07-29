@@ -69,15 +69,15 @@ Uniform variables :
                                                                                        The LightData struct is built dynamically depending on requirements for
                                                                                        bound light shaders.
     $envMatrix                          u_envMatrix                         mat4       Rotation matrix for the environment.
-    $envIrradiance                      u_envIrradiance                     sampler2D  Combined sampler for the texture used for diffuse environment lighting.
-    $envIrradiance_texture              u_envIrradiance_texture             texture2D  Separated texture2D used for diffuse environment lighting.
-    $envIrradiance_sampler              u_envIrradiance_sampler             sampler    Separated sampler used for diffuse environment lighting.
-    $envRadiance                        u_envRadiance                       sampler2D  Combined sampler for the texture used for specular environment lighting.
-    $envRadiance_texture                u_envRadiance_texture               texture2D  Separated texture2D used for specular environment lighting.
-    $envRadiance_sampler                u_envRadiance_sampler               sampler    Separated sampler used for specular environment lighting.
+    $envIrradiance                      u_envIrradiance                     sampler2D  Sampler for the texture used for diffuse environment lighting.
+    $envIrradianceSampler2D             u_envIrradiance                     sampler2D  For split texture and sampler, takes form of sampler2D(tex, sampler)
+    $envRadiance                        u_envRadiance                       sampler2D  Sampler for the texture used for specular environment lighting.
+    $envRadianceSampler2D               u_envRadiance                       sampler2D  For split texture and sampler, takes form of sampler2D(tex, sampler)
     $envLightIntensity                  u_envLightIntensity                 float      Linear multiplier for environment lighting
     $envRadianceMips                    u_envRadianceMips                   int        Number of mipmaps used on the specular environment texture.
     $envRadianceSamples                 u_envRadianceSamples                int        Samples to use if Filtered Importance Sampling is used for specular environment lighting.
+    $texSamplerSampler2D                tex_sampler                         sampler2D  Texture sampler2D parameter. For split texture and sampler, calls sampler2D(tex_texture, tex_sampler).
+    $texSamplerSignature                sampler2D tex_sampler               signature  For function signature declaration.
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -128,13 +128,11 @@ extern MX_GENSHADER_API const string T_ALPHA_THRESHOLD;
 extern MX_GENSHADER_API const string T_NUM_ACTIVE_LIGHT_SOURCES;
 extern MX_GENSHADER_API const string T_ENV_MATRIX;
 extern MX_GENSHADER_API const string T_ENV_RADIANCE;
-extern MX_GENSHADER_API const string T_ENV_RADIANCE_TEXTURE;
-extern MX_GENSHADER_API const string T_ENV_RADIANCE_SAMPLER;
+extern MX_GENSHADER_API const string T_ENV_RADIANCE_SAMPLER2D;
 extern MX_GENSHADER_API const string T_ENV_RADIANCE_MIPS;
 extern MX_GENSHADER_API const string T_ENV_RADIANCE_SAMPLES;
 extern MX_GENSHADER_API const string T_ENV_IRRADIANCE;
-extern MX_GENSHADER_API const string T_ENV_IRRADIANCE_TEXTURE;
-extern MX_GENSHADER_API const string T_ENV_IRRADIANCE_SAMPLER;
+extern MX_GENSHADER_API const string T_ENV_IRRADIANCE_SAMPLER2D;
 extern MX_GENSHADER_API const string T_ENV_LIGHT_INTENSITY;
 extern MX_GENSHADER_API const string T_ENV_PREFILTER_MIP;
 extern MX_GENSHADER_API const string T_REFRACTION_TWO_SIDED;
@@ -146,6 +144,8 @@ extern MX_GENSHADER_API const string T_SHADOW_MAP;
 extern MX_GENSHADER_API const string T_SHADOW_MATRIX;
 extern MX_GENSHADER_API const string T_VERTEX_DATA_INSTANCE;
 extern MX_GENSHADER_API const string T_LIGHT_DATA_INSTANCE;
+extern MX_GENSHADER_API const string T_TEX_SAMPLER_SAMPLER2D;
+extern MX_GENSHADER_API const string T_TEX_SAMPLER_SIGNATURE;
 
 /// Default names for identifiers.
 /// Replacing above tokens in final code.
@@ -190,13 +190,15 @@ extern MX_GENSHADER_API const string ALPHA_THRESHOLD;
 extern MX_GENSHADER_API const string NUM_ACTIVE_LIGHT_SOURCES;
 extern MX_GENSHADER_API const string ENV_MATRIX;
 extern MX_GENSHADER_API const string ENV_RADIANCE;
-extern MX_GENSHADER_API const string ENV_RADIANCE_TEXTURE;
-extern MX_GENSHADER_API const string ENV_RADIANCE_SAMPLER;
+extern MX_GENSHADER_API const string ENV_RADIANCE_SPLIT;
+extern MX_GENSHADER_API const string ENV_RADIANCE_SAMPLER2D;
+extern MX_GENSHADER_API const string ENV_RADIANCE_SAMPLER2D_SPLIT;
 extern MX_GENSHADER_API const string ENV_RADIANCE_MIPS;
 extern MX_GENSHADER_API const string ENV_RADIANCE_SAMPLES;
 extern MX_GENSHADER_API const string ENV_IRRADIANCE;
-extern MX_GENSHADER_API const string ENV_IRRADIANCE_TEXTURE;
-extern MX_GENSHADER_API const string ENV_IRRADIANCE_SAMPLER;
+extern MX_GENSHADER_API const string ENV_IRRADIANCE_SPLIT;
+extern MX_GENSHADER_API const string ENV_IRRADIANCE_SAMPLER2D;
+extern MX_GENSHADER_API const string ENV_IRRADIANCE_SAMPLER2D_SPLIT;
 extern MX_GENSHADER_API const string ENV_LIGHT_INTENSITY;
 extern MX_GENSHADER_API const string ENV_PREFILTER_MIP;
 extern MX_GENSHADER_API const string REFRACTION_TWO_SIDED;
@@ -209,6 +211,12 @@ extern MX_GENSHADER_API const string SHADOW_MATRIX;
 extern MX_GENSHADER_API const string VERTEX_DATA_INSTANCE;
 extern MX_GENSHADER_API const string LIGHT_DATA_INSTANCE;
 extern MX_GENSHADER_API const string LIGHT_DATA_MAX_LIGHT_SOURCES;
+
+/// Texture sampler parameters (for both combined and separate values)
+extern MX_GENSHADER_API const string TEX_SAMPLER_SAMPLER2D;
+extern MX_GENSHADER_API const string TEX_SAMPLER_SAMPLER2D_SPLIT;
+extern MX_GENSHADER_API const string TEX_SAMPLER_SIGNATURE;
+extern MX_GENSHADER_API const string TEX_SAMPLER_SIGNATURE_SPLIT;
 
 /// Variable blocks names.
 extern MX_GENSHADER_API const string VERTEX_INPUTS;    // Geometric inputs for vertex stage.
