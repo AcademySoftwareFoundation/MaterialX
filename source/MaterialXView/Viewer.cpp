@@ -1496,15 +1496,17 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
                 }
             }
 
-            // Apply implicit udim assignments, if any.
+            // Apply UDIM assignments, if any.
             for (mx::MaterialPtr mat : newMaterials)
             {
                 mx::NodePtr materialNode = mat->getMaterialNode();
                 if (materialNode)
                 {
+                    // First check for implicit UDIM assignments.
                     std::string udim = mat->getUdim();
                     if (udim.empty())
                     {
+                        // Fall back to name-based UDIM assignments.
                         for (const std::string& token : mx::splitString(materialNode->getName(), UDIM_SEPARATORS))
                         {
                             if (token.size() == 4 && std::all_of(token.begin(), token.end(), isdigit))
