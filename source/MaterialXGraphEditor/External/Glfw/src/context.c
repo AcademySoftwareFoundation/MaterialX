@@ -404,10 +404,10 @@ GLFWbool _glfwRefreshContextAttribs(_GLFWwindow* window,
         }
     }
 
-    if (!sscanf(version, "%d.%d.%d",
-                &window->context.major,
-                &window->context.minor,
-                &window->context.revision))
+    if (sscanf(version, "%d.%d.%d",
+               &window->context.major,
+               &window->context.minor,
+               &window->context.revision) < 3)
     {
         if (window->context.client == GLFW_OPENGL_API)
         {
