@@ -49,7 +49,6 @@
       <input name="value" type="float" value="-6.283" />
     </constant>
 
-
     <!-- Coat attenuation -->
     <convert name="coatColorVector" type="vector3">
       <input name="in" type="color3" interfacename="coat_color" />
