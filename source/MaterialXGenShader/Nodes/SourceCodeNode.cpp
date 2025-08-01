@@ -35,10 +35,6 @@ void SourceCodeNode::resolveSourceCode(const InterfaceElement& element, GenConte
     _functionSource = readFile(_sourceFilename);
     if (_functionSource.empty())
     {
-
-        _sourceFilename = context.resolveSourceFile(impl.getAttribute("file"), localPath);
-
-
         throw ExceptionShaderGenError("Failed to get source code from file '" + _sourceFilename.asString() +
                                       "' used by implementation '" + impl.getName() + "'");
     }
