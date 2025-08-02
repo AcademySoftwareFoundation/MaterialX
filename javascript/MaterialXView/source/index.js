@@ -53,7 +53,6 @@ function init()
         viewer.getEditor().initialize();
         viewer.getMaterial().loadMaterials(viewer, materialFilename);
         viewer.getEditor().updateProperties(0.9);
-        viewer.getScene().setUpdateTransforms();
     });
 
     // Handle geometry selection changes
@@ -79,10 +78,6 @@ function init()
 
     // Set up controls
     orbitControls = new OrbitControls(scene.getCamera(), renderer.domElement);
-    orbitControls.addEventListener('change', () =>
-    {
-        viewer.getScene().setUpdateTransforms();
-    })
 
     // Add hotkey 'f' to capture the current frame and save an image file.
     // See check inside the render loop when a capture can be performed.
@@ -145,7 +140,6 @@ function init()
         viewer.getEditor().initialize();
         viewer.getMaterial().loadMaterials(viewer, materialFilename);
         viewer.getEditor().updateProperties(0.9);
-        viewer.getScene().setUpdateTransforms();
     });
 
     setSceneLoadingCallback(file =>
@@ -163,7 +157,6 @@ function init()
 function onWindowResize()
 {
     viewer.getScene().updateCamera();
-    viewer.getScene().setUpdateTransforms();
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
@@ -177,12 +170,10 @@ function animate()
         turntableStep = (turntableStep + 1) % 360;
         var turntableAngle = turntableStep * (360.0 / turntableSteps) / 180.0 * Math.PI;
         scene._scene.rotation.y = turntableAngle;
-        scene.setUpdateTransforms();
     }
 
-    scene.updateUniforms();
+    scene.updateTimeUniforms();
     renderer.render(scene.getScene(), scene.getCamera());
-    scene.updateTransforms();
 
     if (captureRequested)
     {
