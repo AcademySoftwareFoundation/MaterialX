@@ -318,7 +318,6 @@
     <normalmap name="impl_normalmap" type="vector3">
       <input name="in" type="vector3" nodename="b_image_invert_y" />
       <input name="scale" type="float" interfacename="normal_scale" />
-      <input name="space" type="string" value="tangent" />
     </normalmap>
     <output name="out" type="vector3" nodename="impl_normalmap" />
   </nodegraph>
@@ -369,7 +368,6 @@
     <normalmap name="impl_normalmap" type="vector3">
       <input name="in" type="vector3" nodename="impl_heighttonormalmap" />
       <input name="scale" type="float" interfacename="depth" />
-      <input name="space" type="string" value="tangent" />
     </normalmap>
     <output name="out" type="vector3" nodename="impl_normalmap" />
   </nodegraph>
