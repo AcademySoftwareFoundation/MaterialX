@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<materialx version="1.39" colorspace="lin_rec709">
+  <standard_surface name="SR_legacy_knurl" type="surfaceshader" xpos="10.521739" ypos="-0.620690">
+    <input name="base" type="float" value="1" />
+    <input name="base_color" type="color3" value="0.8, 0.8, 0.8" />
+    <input name="specular_roughness" type="float" value="0.1" />
+    <input name="subsurface" type="float" value="0.4" />
+    <input name="subsurface_color" type="color3" value="1, 1, 1" />
+    <input name="metalness" type="float" value="1" />
+    <input name="normal" type="vector3" output="out_vec3" nodename="legacy_knurl" />
+  </standard_surface>
+  <surfacematerial name="M_legacy_knurl" type="material" xpos="13.043478" ypos="0.000000">
+    <input name="surfaceshader" type="surfaceshader" nodename="SR_legacy_knurl" />
+  </surfacematerial>
+  <legacy_knurl name="legacy_knurl" type="multioutput" xpos="5.536232" ypos="-1.086207">
+    <output name="out_rgb" type="color3" />
+    <input name="amount" type="float" value="0.25" />
+    <input name="realworld_scale" type="vector2" value="0.1, 0.2" />
+    <input name="diagonal" type="boolean" value="true" />
+    <input name="rotation" type="float" value="45" />
+  </legacy_knurl>
+</materialx>

@@ -687,9 +687,6 @@
       <input name="value2" type="boolean" value="true" />
       <input name="value1" type="boolean" interfacename="threshold_smooth" />
     </ifequal>
-    <adsk_converter name="adsk_converter1" type="color3" nodedef="ND_adsk_converter_float_color3" Autodesk-hiddenInternalConverter="true" Autodesk-internalConverter="true">
-      <input name="in" type="float" nodename="turbulence3d_max8" />
-    </adsk_converter>
     <backdrop name="offset_and_rotation" xpos="5.36043" ypos="3.36278" width="3.49555" height="4.42037" />
     <add name="add_noise1" type="float" nodedef="ND_add_float" xpos="14.5288" ypos="10.3503">
       <input name="in2" type="float" nodename="mult_phase" />
@@ -3688,6 +3685,155 @@
       <input name="tile_x" type="boolean" interfacename="tile_x" />
       <input name="tile_y" type="boolean" interfacename="tile_y" />
     </legacy_gradient>
+  </nodegraph>
+
+  <nodegraph name="NG_legacy_knurl" Autodesk-ldx_inputPos="-1747.36 -123.243" Autodesk-ldx_outputPos="2689.42 48.6444" nodedef="ND_legacy_knurl">
+    <separate2 name="separate_uv" type="multioutput" nodedef="ND_separate2_vector2" xpos="0.173733" ypos="-1.37102">
+      <input name="in" type="vector2" nodename="diag_select1" />
+    </separate2>
+    <output name="out_rgb" type="color3" nodename="convert_vec_col" />
+    <constant name="constant_vecX" type="vector3" nodedef="ND_constant_vector3" xpos="-1.92249" ypos="0.974561">
+      <input name="value" type="vector3" value="1, 0, 0" />
+    </constant>
+    <rotate3d name="rotate_Y1" type="vector3" nodedef="ND_rotate3d_vector3" xpos="0.221146" ypos="0.691367">
+      <input name="in" type="vector3" nodename="constant_vecX" />
+      <input name="amount" type="float" nodename="amount_to_degrees" />
+      <input name="axis" type="vector3" value="0, 1, 0" />
+    </rotate3d>
+    <rotate3d name="rotate_Y2" type="vector3" nodedef="ND_rotate3d_vector3" xpos="0.18353" ypos="1.88111">
+      <input name="in" type="vector3" nodename="constant_vecX" />
+      <input name="amount" type="float" ldx_value="90" nodename="invert_180" />
+      <input name="axis" type="vector3" value="0, 1, 0" />
+    </rotate3d>
+    <ifgreater name="ifgreater_half_x" type="vector3" nodedef="ND_ifgreater_vector3" xpos="3.43067" ypos="-1.19766">
+      <input name="value2" type="float" value="0.5" />
+      <input name="in1" type="vector3" nodename="rotate_Y1" ldx_value="0.2934, 0, 0" />
+      <input name="in2" type="vector3" nodename="rotate_Y2" />
+      <input name="value1" type="float" nodename="separate_uv" output="outx" />
+    </ifgreater>
+    <multiply name="amount_to_degrees" type="float" nodedef="ND_multiply_float" xpos="-3.75268" ypos="-0.68535">
+      <input name="in1" type="float" nodename="invert_amount" />
+      <input name="in2" type="float" value="90" />
+    </multiply>
+    <invert name="invert_x" type="float" nodedef="ND_invert_float" xpos="3.46505" ypos="2.25166">
+      <input name="in" type="float" nodename="separate_uv" output="outx" />
+    </invert>
+    <ifgreater name="ifgreater_xy" type="float" nodedef="ND_ifgreater_float" xpos="5.42496" ypos="-0.352874">
+      <input name="in1" type="float" value="1" />
+      <input name="in2" type="float" value="0" />
+      <input name="value2" type="float" nodename="separate_uv" output="outy" />
+      <input name="value1" type="float" nodename="separate_uv" output="outx" />
+    </ifgreater>
+    <ifgreater name="ifgreater_yx" type="float" nodedef="ND_ifgreater_float" xpos="5.42107" ypos="1.22741">
+      <input name="in1" type="float" value="1" />
+      <input name="in2" type="float" value="0" />
+      <input name="value2" type="float" nodename="invert_x" />
+      <input name="value1" type="float" nodename="separate_uv" output="outy" />
+    </ifgreater>
+    <ifequal name="select_plane" type="vector3" nodedef="ND_ifequal_vector3" xpos="7.20856" ypos="0.289837">
+      <input name="value1" type="float" nodename="ifgreater_xy" />
+      <input name="value2" type="float" nodename="ifgreater_yx" />
+      <input name="in1" type="vector3" nodename="ifgreater_half_x" ldx_value="0.4052, 0.0935, 0.0935" />
+      <input name="in2" type="vector3" nodename="ifgreater_half_y" ldx_value="0, 0, 0" />
+    </ifequal>
+    <output name="out_vec3" type="vector3" nodename="normalmap1" />
+    <invert name="invert_amount" type="float" nodedef="ND_invert_float" xpos="-5.42683" ypos="-1.00327">
+      <input name="in" type="float" interfacename="amount" />
+    </invert>
+    <rotate3d name="rotate_X1" type="vector3" nodedef="ND_rotate3d_vector3" xpos="0.193136" ypos="3.51694">
+      <input name="axis" type="vector3" value="1, 0, 0" />
+      <input name="amount" type="float" nodename="invert_180" />
+      <input name="in" type="vector3" nodename="constant_vecY" />
+    </rotate3d>
+    <rotate3d name="rotate_X2" type="vector3" nodedef="ND_rotate3d_vector3" xpos="0.222224" ypos="4.92501">
+      <input name="in" type="vector3" nodename="constant_vecY" />
+      <input name="axis" type="vector3" value="1, 0, 0" />
+      <input name="amount" type="float" ldx_value="0" nodename="amount_to_degrees" />
+    </rotate3d>
+    <constant name="constant_vecY" type="vector3" nodedef="ND_constant_vector3" xpos="-1.76419" ypos="4.90634">
+      <input name="value" type="vector3" value="0, -1, 0" />
+    </constant>
+    <ifgreater name="ifgreater_half_y" type="vector3" nodedef="ND_ifgreater_vector3" xpos="3.4679" ypos="0.693533">
+      <input name="value1" type="float" nodename="separate_uv" output="outy" />
+      <input name="value2" type="float" value="0.5" />
+      <input name="in1" type="vector3" nodename="rotate_X1" ldx_value="0.2934, 0, 0" />
+      <input name="in2" type="vector3" nodename="rotate_X2" />
+    </ifgreater>
+    <divide name="divide_half" type="vector3" nodedef="ND_divide_vector3FA" xpos="10.4983" ypos="0.342258">
+      <input name="in2" type="float" value="2" />
+      <input name="in1" type="vector3" nodename="rotate_normal" />
+    </divide>
+    <add name="offset_half" type="vector3" nodedef="ND_add_vector3FA" xpos="11.8534" ypos="0.355958">
+      <input name="in2" type="float" value="0.5" />
+      <input name="in1" type="vector3" nodename="divide_half" />
+    </add>
+    <convert name="convert_vec_col" type="color3" nodedef="ND_convert_vector3_color3" xpos="13.3929" ypos="-0.464234">
+      <input name="in" type="vector3" nodename="offset_half" />
+    </convert>
+    <modulo name="uv_modulo" type="vector2" nodedef="ND_modulo_vector2FA" xpos="-1.94274" ypos="-1.53743">
+      <input name="in1" type="vector2" nodename="divide1" />
+    </modulo>
+    <rotate2d name="rotate2d_pattern" type="vector2" nodedef="ND_rotate2d_vector2" xpos="-5.43093" ypos="-3.16315">
+      <input name="amount" type="float" nodename="lagacy_rot_direction" ldx_value="0" />
+      <input name="in" type="vector2" nodename="offset_uv" />
+    </rotate2d>
+    <rotate3d name="rotate_normal" type="vector3" nodedef="ND_rotate3d_vector3" xpos="8.83856" ypos="0.319578">
+      <input name="axis" type="vector3" value="0, 0, 1" />
+      <input name="amount" type="float" nodename="diag_select2" ldx_value="0" />
+      <input name="in" type="vector3" nodename="select_plane" />
+    </rotate3d>
+    <invert name="invert_180" type="float" nodedef="ND_invert_float" xpos="-1.86346" ypos="2.77993">
+      <input name="amount" type="float" value="180" />
+      <input name="in" type="float" nodename="amount_to_degrees" />
+    </invert>
+    <invert name="lagacy_rot_direction" type="float" nodedef="ND_invert_float" xpos="-7.20711" ypos="-3.31817">
+      <input name="amount" type="float" value="0" />
+      <input name="in" type="float" interfacename="rotation" />
+    </invert>
+    <divide name="divide1" type="vector2" nodedef="ND_divide_vector2" xpos="-3.76994" ypos="-2.2396">
+      <input name="in2" type="vector2" interfacename="realworld_scale" />
+      <input name="in1" type="vector2" ldx_value="1, 1" nodename="rotate2d_pattern" />
+    </divide>
+    <subtract name="offset_uv" type="vector2" nodedef="ND_subtract_vector2" xpos="-7.20083" ypos="-2.1922">
+      <input name="in1" type="vector2" interfacename="texcoord" />
+      <input name="in2" type="vector2" interfacename="realworld_offset" />
+    </subtract>
+    <normalmap name="normalmap1" type="vector3" nodedef="ND_normalmap" xpos="13.3901" ypos="0.818122">
+      <input name="in" type="vector3" nodename="offset_half" />
+    </normalmap>
+    <rotate2d name="rotate_knurl" type="vector2" nodedef="ND_rotate2d_vector2" xpos="-5.53632" ypos="-5.17471">
+      <input name="amount" type="float" value="45" />
+      <input name="in" type="vector2" nodename="diag_scale" />
+    </rotate2d>
+    <modulo name="modulo_knurl" type="vector2" nodedef="ND_modulo_vector2FA" xpos="-2.39462" ypos="-5.16703">
+      <input name="in1" type="vector2" nodename="diag_shift" />
+      <input name="in2" type="float" value="1" />
+    </modulo>
+    <ifequal name="diag_select1" type="vector2" nodedef="ND_ifequal_vector2B" xpos="-0.836778" ypos="-5.19393">
+      <input name="value2" type="boolean" value="true" />
+      <input name="value1" type="boolean" interfacename="diagonal" />
+      <input name="in2" type="vector2" nodename="uv_modulo" />
+      <input name="in1" type="vector2" nodename="modulo_knurl" />
+    </ifequal>
+    <multiply name="diag_scale" type="vector2" nodedef="ND_multiply_vector2FA" xpos="-7.156" ypos="-5.18757">
+      <input name="in2" type="float" value="1.41421" />
+      <input name="in1" type="vector2" nodename="uv_modulo" />
+    </multiply>
+    <add name="diag_shift" type="vector2" nodedef="ND_add_vector2" xpos="-3.90246" ypos="-5.12966">
+      <input name="in1" type="vector2" nodename="rotate_knurl" />
+      <input name="in2" type="vector2" value="0.5, 0.5" />
+    </add>
+    <ifequal name="diag_select2" type="float" nodedef="ND_ifequal_floatB" xpos="-5.46295" ypos="0.625989">
+      <input name="value2" type="boolean" value="true" />
+      <input name="value1" type="boolean" interfacename="diagonal" />
+      <input name="in2" type="float" interfacename="rotation" />
+      <input name="in1" type="float" nodename="diag_adjustment" />
+    </ifequal>
+    <subtract name="diag_adjustment" type="float" nodedef="ND_subtract_float" xpos="-7.42233" ypos="2.30152">
+      <input name="in1" type="float" interfacename="rotation" />
+      <input name="in2" type="float" value="45" />
+    </subtract>
+    <backdrop name="this_is_an_approximation" xpos="-7.892" ypos="1.63793" width="2.22739" height="2.05194" uicolor="#C85252" Autodesk-ldx_alpha="0.156863" />
   </nodegraph>
 
   <!-- 

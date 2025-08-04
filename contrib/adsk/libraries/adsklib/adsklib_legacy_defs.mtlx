@@ -51,7 +51,7 @@
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" uivisible="false" uiname="Texture Coordinates" />
     <input name="color1" type="color3" value="1, 1, 1" uivisible="true" uiname="Color 1" />
     <input name="color2" type="color3" value="0, 0, 0" uivisible="true" uiname="Color 2" />
-    <input name="realworld_scale" type="vector2" value="0,0" uisoftmin="0,0" uisoftmax="1,1" uivisible="true" uiname="Width, Height" unittype="distance" />
+    <input name="realworld_scale" type="vector2" value="1,1" uisoftmin="0,0" uisoftmax="1,1" uivisible="true" uiname="Width, Height" unittype="distance" />
     <input name="soften" type="float" value="0" uivisible="true" uiname="Soften" />
     <input name="adjust_soften_y" type="boolean" value="false" uivisible="true" uiname="Adjust Height Softness" />
     <input name="realworld_offset" type="vector2" value="0,0" uisoftmin="0,0" uisoftmax="1,1" uivisible="true" uiname="Offset X, Y" unittype="distance"/>
@@ -222,7 +222,7 @@
     <input name="rows_mod_enable" type="boolean" value="false" uivisible="true" uiname="Row Modify" />
     <input name="num_rows" type="float" value="5.0" uisoftmin="0.0" uisoftmax="100.0" uivisible="true" uiname="Every N Rows" />
     <input name="rows_mod_amount" type="float" value="3.0" uisoftmin="0.0" uisoftmax="10" uivisible="true" uiname="Modify Amount" />
-    <input name="realworld_scale" type="vector2" value="0,0" uisoftmin="0,0" uisoftmax="1,1" uivisible="true" uiname="Width, Height" unittype="distance" />
+    <input name="realworld_scale" type="vector2" value="1,1" uisoftmin="0,0" uisoftmax="1,1" uivisible="true" uiname="Width, Height" unittype="distance" />
     <input name="realworld_offset" type="vector2" value="0,0" uisoftmin="0,0" uisoftmax="1,1" uivisible="true" uiname="Offset X, Y" unittype="distance" />
     <input name="rotation_angle" type="float" value="0" uisoftmin="0.0" uisoftmax="360" uivisible="true" uiname="Rotation Angle" unittype="angle" unit="degree" />
     <input name="tile_x" type="boolean" value="true" />
@@ -272,6 +272,17 @@
     <input name="tile_x" type="boolean" value="true" uivisible="true" uiname="Repeat X" />
     <input name="tile_y" type="boolean" value="true" uivisible="true" uiname="Repeat Y" />
     <output name="out" type="color3" />
+  </nodedef>
+
+  <nodedef name="ND_legacy_knurl" node="legacy_knurl" version="0.1" isdefaultversion="true" nodegroup="adsk_legacy">
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" uivisible="false" uiname="Texture Coordinates" />
+    <input name="amount" type="float" value="0.25" uimin="0.0" uimax="1.0" />
+    <input name="rotation" type="float" value="0" uisoftmin="0.0" uisoftmax="360" />
+    <input name="realworld_scale" type="vector2" value="1,1" uisoftmin="0,0" uisoftmax="1,1" uivisible="true" uiname="Width, Height" unittype="distance" />
+    <input name="realworld_offset" type="vector2" value="0,0" uisoftmin="0,0" uisoftmax="1,1" uiname="Offset X, Y" unittype="distance" />
+    <input name="diagonal" type="boolean" value="false" />
+    <output name="out_rgb" type="color3" />
+    <output name="out_vec3" type="vector3" />
   </nodedef>
 
   <!-- 
