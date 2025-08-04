@@ -7,6 +7,43 @@
     Nodegraph implementations for the default color transforms in MaterialX.
   -->
 
+  <!-- Functions that keep the same name in both 1.38 and color interop naming schemes -->
+
+  <nodegraph name="NG_lin_adobergb_to_lin_rec709_color3" nodedef="ND_lin_adobergb_to_lin_rec709_color3">
+    <constant name="mat" type="matrix33">
+      <input name="value" type="matrix33" value="1.39835574e+00, -2.50233861e-16,  2.77555756e-17, -3.98355744e-01,  1.00000000e+00, -4.29289893e-02, 0.00000000e+00,  0.00000000e+00,  1.04292899e+00" />
+    </constant>
+    <convert name="asVec" type="vector3">
+      <input name="in" type="color3" interfacename="in" />
+    </convert>
+    <transformmatrix name="transform" type="vector3">
+      <input name="in" type="vector3" nodename="asVec" />
+      <input name="mat" type="matrix33" nodename="mat" />
+    </transformmatrix>
+    <convert name="asColor" type="color3">
+      <input name="in" type="vector3" nodename="transform" />
+    </convert>
+    <output name="out" type="color3" nodename="asColor" />
+  </nodegraph>
+
+  <nodegraph name="NG_lin_adobergb_to_lin_rec709_color4" nodedef="ND_lin_adobergb_to_lin_rec709_color4">
+    <convert name="asColor3" type="color3">
+      <input name="in" type="color4" interfacename="in" />
+    </convert>
+    <lin_adobergb_to_lin_rec709 name="transform" type="color3">
+      <input name="in" type="color3" nodename="asColor3" />
+    </lin_adobergb_to_lin_rec709>
+    <extract name="alpha" type="float">
+      <input name="in" type="color4" interfacename="in" />
+      <input name="index" type="integer" value="3" />
+    </extract>
+    <combine2 name="asColor4" type="color4">
+      <input name="in1" type="color3" nodename="transform" />
+      <input name="in2" type="float" nodename="alpha" />
+    </combine2>
+    <output name="out" type="color4" nodename="asColor4" />
+  </nodegraph>
+
   <nodegraph name="NG_g18_rec709_to_lin_rec709_color3" nodedef="ND_g18_rec709_to_lin_rec709_color3">
     <max name="max" type="color3">
       <input name="in1" type="color3" interfacename="in" />
@@ -67,71 +104,6 @@
     <output name="out" type="color4" nodename="asColor4" />
   </nodegraph>
 
-  <nodegraph name="NG_rec709_display_to_lin_rec709_color3" nodedef="ND_rec709_display_to_lin_rec709_color3">
-    <max name="max" type="color3">
-      <input name="in1" type="color3" interfacename="in" />
-      <input name="in2" type="float" value="0" />
-    </max>
-    <power name="gamma" type="color3">
-      <input name="in1" type="color3" nodename="max" />
-      <input name="in2" type="float" value="2.4" />
-    </power>
-    <output name="out" type="color3" nodename="gamma" />
-  </nodegraph>
-
-  <nodegraph name="NG_rec709_display_to_lin_rec709_color4" nodedef="ND_rec709_display_to_lin_rec709_color4">
-    <convert name="asColor3" type="color3">
-      <input name="in" type="color4" interfacename="in" />
-    </convert>
-    <rec709_display_to_lin_rec709 name="transform" type="color3">
-      <input name="in" type="color3" nodename="asColor3" />
-    </rec709_display_to_lin_rec709>
-    <extract name="alpha" type="float">
-      <input name="in" type="color4" interfacename="in" />
-      <input name="index" type="integer" value="3" />
-    </extract>
-    <combine2 name="asColor4" type="color4">
-      <input name="in1" type="color3" nodename="transform" />
-      <input name="in2" type="float" nodename="alpha" />
-    </combine2>
-    <output name="out" type="color4" nodename="asColor4" />
-  </nodegraph>
-
-  <nodegraph name="NG_acescg_to_lin_rec709_color3" nodedef="ND_acescg_to_lin_rec709_color3">
-    <constant name="mat" type="matrix33">
-      <input name="value" type="matrix33" value="1.705050992658, -0.130256417507, -0.024003356805, -0.621792120657,  1.140804736575, -0.128968976065, -0.083258872001, -0.010548319068, 1.15297233287" />
-    </constant>
-    <convert name="asVec" type="vector3">
-      <input name="in" type="color3" interfacename="in" />
-    </convert>
-    <transformmatrix name="transform" type="vector3">
-      <input name="in" type="vector3" nodename="asVec" />
-      <input name="mat" type="matrix33" nodename="mat" />
-    </transformmatrix>
-    <convert name="asColor" type="color3">
-      <input name="in" type="vector3" nodename="transform" />
-    </convert>
-    <output name="out" type="color3" nodename="asColor" />
-  </nodegraph>
-
-  <nodegraph name="NG_acescg_to_lin_rec709_color4" nodedef="ND_acescg_to_lin_rec709_color4">
-    <convert name="asColor3" type="color3">
-      <input name="in" type="color4" interfacename="in" />
-    </convert>
-    <acescg_to_lin_rec709 name="transform" type="color3">
-      <input name="in" type="color3" nodename="asColor3" />
-    </acescg_to_lin_rec709>
-    <extract name="alpha" type="float">
-      <input name="in" type="color4" interfacename="in" />
-      <input name="index" type="integer" value="3" />
-    </extract>
-    <combine2 name="asColor4" type="color4">
-      <input name="in1" type="color3" nodename="transform" />
-      <input name="in2" type="float" nodename="alpha" />
-    </combine2>
-    <output name="out" type="color4" nodename="asColor4" />
-  </nodegraph>
-
   <nodegraph name="NG_g22_ap1_to_lin_rec709_color3" nodedef="ND_g22_ap1_to_lin_rec709_color3">
     <max name="max" type="color3">
       <input name="in1" type="color3" interfacename="in" />
@@ -141,9 +113,9 @@
       <input name="in1" type="color3" nodename="max" />
       <input name="in2" type="float" value="2.2" />
     </power>
-    <acescg_to_lin_rec709 name="rec709" type="color3">
+    <lin_ap1_to_lin_rec709 name="rec709" type="color3">
       <input name="in" type="color3" nodename="gamma" />
-    </acescg_to_lin_rec709>
+    </lin_ap1_to_lin_rec709>
     <output name="out" type="color3" nodename="rec709" />
   </nodegraph>
 
@@ -165,7 +137,180 @@
     <output name="out" type="color4" nodename="asColor4" />
   </nodegraph>
 
-  <nodegraph name="NG_srgb_texture_to_lin_rec709_color3" nodedef="ND_srgb_texture_to_lin_rec709_color3">
+  <!-- Functions introduced with color interop naming scheme -->
+
+  <implementation name="IMPL_lin_ap1_to_lin_rec709_color3" nodedef="ND_lin_ap1_to_lin_rec709_color3" nodegraph="NG_lin_ap1_to_lin_rec709_color3" />
+  <implementation name="IMPL_acescg_to_lin_rec709_color3" nodedef="ND_acescg_to_lin_rec709_color3" nodegraph="NG_lin_ap1_to_lin_rec709_color3" />
+
+  <nodegraph name="NG_lin_ap1_to_lin_rec709_color3">
+    <constant name="mat" type="matrix33">
+      <input name="value" type="matrix33" value="1.705050992658, -0.130256417507, -0.024003356805, -0.621792120657,  1.140804736575, -0.128968976065, -0.083258872001, -0.010548319068, 1.15297233287" />
+    </constant>
+    <convert name="asVec" type="vector3">
+      <input name="in" type="color3" interfacename="in" />
+    </convert>
+    <transformmatrix name="transform" type="vector3">
+      <input name="in" type="vector3" nodename="asVec" />
+      <input name="mat" type="matrix33" nodename="mat" />
+    </transformmatrix>
+    <convert name="asColor" type="color3">
+      <input name="in" type="vector3" nodename="transform" />
+    </convert>
+    <output name="out" type="color3" nodename="asColor" />
+  </nodegraph>
+
+  <implementation name="IMPL_lin_ap1_to_lin_rec709_color4" nodedef="ND_lin_ap1_to_lin_rec709_color4" nodegraph="NG_lin_ap1_to_lin_rec709_color4" />
+  <implementation name="IMPL_acescg_to_lin_rec709_color4" nodedef="ND_acescg_to_lin_rec709_color4" nodegraph="NG_lin_ap1_to_lin_rec709_color4" />
+
+  <nodegraph name="NG_lin_ap1_to_lin_rec709_color4" nodedef="ND_lin_ap1_to_lin_rec709_color4">
+    <convert name="asColor3" type="color3">
+      <input name="in" type="color4" interfacename="in" />
+    </convert>
+    <lin_ap1_to_lin_rec709 name="transform" type="color3">
+      <input name="in" type="color3" nodename="asColor3" />
+    </lin_ap1_to_lin_rec709>
+    <extract name="alpha" type="float">
+      <input name="in" type="color4" interfacename="in" />
+      <input name="index" type="integer" value="3" />
+    </extract>
+    <combine2 name="asColor4" type="color4">
+      <input name="in1" type="color3" nodename="transform" />
+      <input name="in2" type="float" nodename="alpha" />
+    </combine2>
+    <output name="out" type="color4" nodename="asColor4" />
+  </nodegraph>
+
+  <nodegraph name="NG_srgb_ap1_to_lin_rec709_color3" nodedef="ND_srgb_ap1_to_lin_rec709_color3">
+    <constant name="mat" type="matrix33">
+      <input name="value" type="matrix33" value="1.705050992658, -0.130256417507, -0.024003356805, -0.621792120657,  1.140804736575, -0.128968976065, -0.083258872001, -0.010548319068, 1.15297233287" />
+    </constant>
+    <!--  Use srgb_rec709_to_lin_rec709 to convert from sRGB to Lin before passing to the mat conversion -->
+    <srgb_rec709_to_lin_rec709 name="srgb_transform" type="color3">
+      <input name="in" type="color3" interfacename="in" />
+    </srgb_rec709_to_lin_rec709>
+    <convert name="asVec" type="vector3">
+      <input name="in" type="color3" nodename="srgb_transform" />
+    </convert>
+    <transformmatrix name="transform" type="vector3">
+      <input name="in" type="vector3" nodename="asVec" />
+      <input name="mat" type="matrix33" nodename="mat" />
+    </transformmatrix>
+    <convert name="asColor" type="color3">
+      <input name="in" type="vector3" nodename="transform" />
+    </convert>
+    <output name="out" type="color3" nodename="asColor" />
+  </nodegraph>
+
+  <nodegraph name="NG_srgb_ap1_to_lin_rec709_color4" nodedef="ND_srgb_ap1_to_lin_rec709_color4">
+    <convert name="asColor3" type="color3">
+      <input name="in" type="color4" interfacename="in" />
+    </convert>
+    <srgb_ap1_to_lin_rec709 name="transform" type="color3">
+      <input name="in" type="color3" nodename="asColor3" />
+    </srgb_ap1_to_lin_rec709>
+    <extract name="alpha" type="float">
+      <input name="in" type="color4" interfacename="in" />
+      <input name="index" type="integer" value="3" />
+    </extract>
+    <combine2 name="asColor4" type="color4">
+      <input name="in1" type="color3" nodename="transform" />
+      <input name="in2" type="float" nodename="alpha" />
+    </combine2>
+    <output name="out" type="color4" nodename="asColor4" />
+  </nodegraph>
+
+  <implementation name="IMPL_srgb_p3d65_to_lin_rec709_color3" nodedef="ND_srgb_p3d65_to_lin_rec709_color3" nodegraph="NG_srgb_p3d65_to_lin_rec709_color3" />
+  <implementation name="IMPL_srgb_displayp3_to_lin_rec709_color3" nodedef="ND_srgb_displayp3_to_lin_rec709_color3" nodegraph="NG_srgb_p3d65_to_lin_rec709_color3" />
+
+  <nodegraph name="NG_srgb_p3d65_to_lin_rec709_color3">
+    <constant name="mat" type="matrix33">
+      <input name="value" type="matrix33"
+             value="1.22493029, -0.04205868, -0.01964128, -0.22492968, 1.04205894, -0.07864794, 0.00000006,-0.00000001, 1.09828925"/>
+    </constant>
+    <!--  Use srgb_rec709_to_lin_rec709 to convert from sRGB to Lin before passing to the mat conversion -->
+    <srgb_rec709_to_lin_rec709 name="srgb_transform" type="color3">
+      <input name="in" type="color3" interfacename="in" />
+    </srgb_rec709_to_lin_rec709>
+    <convert name="asVec" type="vector3">
+      <input name="in" type="color3" nodename="srgb_transform" />
+    </convert>
+    <transformmatrix name="transform" type="vector3">
+      <input name="in" type="vector3" nodename="asVec" />
+      <input name="mat" type="matrix33" nodename="mat" />
+    </transformmatrix>
+    <convert name="asColor" type="color3">
+      <input name="in" type="vector3" nodename="transform" />
+    </convert>
+    <output name="out" type="color3" nodename="asColor" />
+  </nodegraph>
+
+  <implementation name="IMPL_srgb_p3d65_to_lin_rec709_color4" nodedef="ND_srgb_p3d65_to_lin_rec709_color4" nodegraph="NG_srgb_p3d65_to_lin_rec709_color4" />
+  <implementation name="IMPL_srgb_displayp3_to_lin_rec709_color4" nodedef="ND_srgb_displayp3_to_lin_rec709_color4" nodegraph="NG_srgb_p3d65_to_lin_rec709_color4" />
+
+  <nodegraph name="NG_srgb_p3d65_to_lin_rec709_color4">
+    <convert name="asColor3" type="color3">
+      <input name="in" type="color4" interfacename="in" />
+    </convert>
+    <srgb_p3d65_to_lin_rec709 name="transform" type="color3">
+      <input name="in" type="color3" nodename="asColor3" />
+    </srgb_p3d65_to_lin_rec709>
+    <extract name="alpha" type="float">
+      <input name="in" type="color4" interfacename="in" />
+      <input name="index" type="integer" value="3" />
+    </extract>
+    <combine2 name="asColor4" type="color4">
+      <input name="in1" type="color3" nodename="transform" />
+      <input name="in2" type="float" nodename="alpha" />
+    </combine2>
+    <output name="out" type="color4" nodename="asColor4" />
+  </nodegraph>
+
+  <implementation name="IMPL_lin_p3d65_to_lin_rec709_color3" nodedef="ND_lin_p3d65_to_lin_rec709_color3" nodegraph="NG_lin_p3d65_to_lin_rec709_color3" />
+  <implementation name="IMPL_lin_displayp3_to_lin_rec709_color3" nodedef="ND_lin_displayp3_to_lin_rec709_color3" nodegraph="NG_lin_p3d65_to_lin_rec709_color3" />
+
+  <nodegraph name="NG_lin_p3d65_to_lin_rec709_color3">
+    <constant name="mat" type="matrix33">
+      <input name="value" type="matrix33"
+             value="1.22493029, -0.04205868, -0.01964128, -0.22492968, 1.04205894, -0.07864794, 0.00000006,-0.00000001, 1.09828925"/>
+    </constant>
+    <convert name="asVec" type="vector3">
+      <input name="in" type="color3" interfacename="in" />
+    </convert>
+    <transformmatrix name="transform" type="vector3">
+      <input name="in" type="vector3" nodename="asVec" />
+      <input name="mat" type="matrix33" nodename="mat" />
+    </transformmatrix>
+    <convert name="asColor" type="color3">
+      <input name="in" type="vector3" nodename="transform" />
+    </convert>
+    <output name="out" type="color3" nodename="asColor" />
+  </nodegraph>
+
+  <implementation name="IMPL_lin_p3d65_to_lin_rec709_color4" nodedef="ND_lin_p3d65_to_lin_rec709_color4" nodegraph="NG_lin_p3d65_to_lin_rec709_color4" />
+  <implementation name="IMPL_lin_displayp3_to_lin_rec709_color4" nodedef="ND_lin_displayp3_to_lin_rec709_color4" nodegraph="NG_lin_p3d65_to_lin_rec709_color4" />
+
+  <nodegraph name="NG_lin_p3d65_to_lin_rec709_color4">
+    <convert name="asColor3" type="color3">
+      <input name="in" type="color4" interfacename="in" />
+    </convert>
+    <lin_p3d65_to_lin_rec709 name="transform" type="color3">
+      <input name="in" type="color3" nodename="asColor3" />
+    </lin_p3d65_to_lin_rec709>
+    <extract name="alpha" type="float">
+      <input name="in" type="color4" interfacename="in" />
+      <input name="index" type="integer" value="3" />
+    </extract>
+    <combine2 name="asColor4" type="color4">
+      <input name="in1" type="color3" nodename="transform" />
+      <input name="in2" type="float" nodename="alpha" />
+    </combine2>
+    <output name="out" type="color4" nodename="asColor4" />
+  </nodegraph>
+
+  <implementation name="IMPL_srgb_rec709_to_lin_rec709_color3" nodedef="ND_srgb_rec709_to_lin_rec709_color3" nodegraph="NG_srgb_rec709_to_lin_rec709_color3" />
+  <implementation name="IMPL_srgb_texture_to_lin_rec709_color3" nodedef="ND_srgb_texture_to_lin_rec709_color3" nodegraph="NG_srgb_rec709_to_lin_rec709_color3" />
+
+  <nodegraph name="NG_srgb_rec709_to_lin_rec709_color3" nodedef="ND_srgb_rec709_to_lin_rec709_color3">
     <constant name="threshold" type="float">
       <input name="value" type="float" value="0.04045" />
     </constant>
@@ -223,13 +368,16 @@
     <output name="out" type="color3" nodename="mix" />
   </nodegraph>
 
-  <nodegraph name="NG_srgb_texture_to_lin_rec709_color4" nodedef="ND_srgb_texture_to_lin_rec709_color4">
+  <implementation name="IMPL_srgb_rec709_to_lin_rec709_color4" nodedef="ND_srgb_rec709_to_lin_rec709_color4" nodegraph="NG_srgb_rec709_to_lin_rec709_color4" />
+  <implementation name="IMPL_srgb_texture_to_lin_rec709_color4" nodedef="ND_srgb_texture_to_lin_rec709_color4" nodegraph="NG_srgb_rec709_to_lin_rec709_color4" />
+
+  <nodegraph name="NG_srgb_rec709_to_lin_rec709_color4" nodedef="ND_srgb_rec709_to_lin_rec709_color4">
     <convert name="asColor3" type="color3">
       <input name="in" type="color4" interfacename="in" />
     </convert>
-    <srgb_texture_to_lin_rec709 name="transform" type="color3">
+    <srgb_rec709_to_lin_rec709 name="transform" type="color3">
       <input name="in" type="color3" nodename="asColor3" />
-    </srgb_texture_to_lin_rec709>
+    </srgb_rec709_to_lin_rec709>
     <extract name="alpha" type="float">
       <input name="in" type="color4" interfacename="in" />
       <input name="index" type="integer" value="3" />
@@ -241,42 +389,10 @@
     <output name="out" type="color4" nodename="asColor4" />
   </nodegraph>
 
-  <nodegraph name="NG_lin_adobergb_to_lin_rec709_color3" nodedef="ND_lin_adobergb_to_lin_rec709_color3">
-    <constant name="mat" type="matrix33">
-      <input name="value" type="matrix33" value="1.39835574e+00, -2.50233861e-16,  2.77555756e-17, -3.98355744e-01,  1.00000000e+00, -4.29289893e-02, 0.00000000e+00,  0.00000000e+00,  1.04292899e+00" />
-    </constant>
-    <convert name="asVec" type="vector3">
-      <input name="in" type="color3" interfacename="in" />
-    </convert>
-    <transformmatrix name="transform" type="vector3">
-      <input name="in" type="vector3" nodename="asVec" />
-      <input name="mat" type="matrix33" nodename="mat" />
-    </transformmatrix>
-    <convert name="asColor" type="color3">
-      <input name="in" type="vector3" nodename="transform" />
-    </convert>
-    <output name="out" type="color3" nodename="asColor" />
-  </nodegraph>
+  <implementation name="IMPL_g22_adobergb_to_lin_rec709_color3" nodedef="ND_g22_adobergb_to_lin_rec709_color3" nodegraph="NG_g22_adobergb_to_lin_rec709_color3" />
+  <implementation name="IMPL_adobergb_to_lin_rec709_color3" nodedef="ND_adobergb_to_lin_rec709_color3" nodegraph="NG_g22_adobergb_to_lin_rec709_color3" />
 
-  <nodegraph name="NG_lin_adobergb_to_lin_rec709_color4" nodedef="ND_lin_adobergb_to_lin_rec709_color4">
-    <convert name="asColor3" type="color3">
-      <input name="in" type="color4" interfacename="in" />
-    </convert>
-    <lin_adobergb_to_lin_rec709 name="transform" type="color3">
-      <input name="in" type="color3" nodename="asColor3" />
-    </lin_adobergb_to_lin_rec709>
-    <extract name="alpha" type="float">
-      <input name="in" type="color4" interfacename="in" />
-      <input name="index" type="integer" value="3" />
-    </extract>
-    <combine2 name="asColor4" type="color4">
-      <input name="in1" type="color3" nodename="transform" />
-      <input name="in2" type="float" nodename="alpha" />
-    </combine2>
-    <output name="out" type="color4" nodename="asColor4" />
-  </nodegraph>
-
-  <nodegraph name="NG_adobergb_to_lin_rec709_color3" nodedef="ND_adobergb_to_lin_rec709_color3">
+  <nodegraph name="NG_g22_adobergb_to_lin_rec709_color3" nodedef="ND_g22_adobergb_to_lin_rec709_color3">
     <divide name="constant" type="float">
       <input name="in1" type="float" value="563.0" />
       <input name="in2" type="float" value="256.0" />
@@ -295,13 +411,16 @@
     <output name="out" type="color3" nodename="rec709" />
   </nodegraph>
 
-  <nodegraph name="NG_adobergb_to_lin_rec709_color4" nodedef="ND_adobergb_to_lin_rec709_color4">
+  <implementation name="IMPL_g22_adobergb_to_lin_rec709_color4" nodedef="ND_g22_adobergb_to_lin_rec709_color4" nodegraph="NG_g22_adobergb_to_lin_rec709_color4" />
+  <implementation name="IMPL_adobergb_to_lin_rec709_color4" nodedef="ND_adobergb_to_lin_rec709_color4" nodegraph="NG_g22_adobergb_to_lin_rec709_color4" />
+
+  <nodegraph name="NG_g22_adobergb_to_lin_rec709_color4" nodedef="ND_g22_adobergb_to_lin_rec709_color4">
     <convert name="asColor3" type="color3">
       <input name="in" type="color4" interfacename="in" />
     </convert>
-    <adobergb_to_lin_rec709 name="transform" type="color3">
+    <g22_adobergb_to_lin_rec709 name="transform" type="color3">
       <input name="in" type="color3" nodename="asColor3" />
-    </adobergb_to_lin_rec709>
+    </g22_adobergb_to_lin_rec709>
     <extract name="alpha" type="float">
       <input name="in" type="color4" interfacename="in" />
       <input name="index" type="integer" value="3" />
@@ -313,50 +432,9 @@
     <output name="out" type="color4" nodename="asColor4" />
   </nodegraph>
 
-  <nodegraph name="NG_srgb_displayp3_to_lin_rec709_color3" nodedef="ND_srgb_displayp3_to_lin_rec709_color3">
+  <nodegraph name="NG_lin_ap0_to_lin_rec709_color3" nodedef="ND_lin_ap0_to_lin_rec709_color3">
     <constant name="mat" type="matrix33">
-      <input name="value" type="matrix33"
-             value="1.22493029, -0.04205868, -0.01964128, -0.22492968, 1.04205894, -0.07864794, 0.00000006,-0.00000001, 1.09828925"/>
-    </constant>
-    <!--  Use srgb_texture_to_lin_rec709 to convert from sRGB to Lin before passing to the mat conversion -->
-    <srgb_texture_to_lin_rec709 name="srgb_transform" type="color3">
-      <input name="in" type="color3" interfacename="in" />
-    </srgb_texture_to_lin_rec709>
-    <convert name="asVec" type="vector3">
-      <input name="in" type="color3" nodename="srgb_transform" />
-    </convert>
-    <transformmatrix name="transform" type="vector3">
-      <input name="in" type="vector3" nodename="asVec" />
-      <input name="mat" type="matrix33" nodename="mat" />
-    </transformmatrix>
-    <convert name="asColor" type="color3">
-      <input name="in" type="vector3" nodename="transform" />
-    </convert>
-    <output name="out" type="color3" nodename="asColor" />
-  </nodegraph>
-
-  <nodegraph name="NG_srgb_displayp3_to_lin_rec709_color4" nodedef="ND_srgb_displayp3_to_lin_rec709_color4">
-    <convert name="asColor3" type="color3">
-      <input name="in" type="color4" interfacename="in" />
-    </convert>
-    <srgb_displayp3_to_lin_rec709 name="transform" type="color3">
-      <input name="in" type="color3" nodename="asColor3" />
-    </srgb_displayp3_to_lin_rec709>
-    <extract name="alpha" type="float">
-      <input name="in" type="color4" interfacename="in" />
-      <input name="index" type="integer" value="3" />
-    </extract>
-    <combine2 name="asColor4" type="color4">
-      <input name="in1" type="color3" nodename="transform" />
-      <input name="in2" type="float" nodename="alpha" />
-    </combine2>
-    <output name="out" type="color4" nodename="asColor4" />
-  </nodegraph>
-
-  <nodegraph name="NG_lin_displayp3_to_lin_rec709_color3" nodedef="ND_lin_displayp3_to_lin_rec709_color3">
-    <constant name="mat" type="matrix33">
-      <input name="value" type="matrix33"
-             value="1.22493029, -0.04205868, -0.01964128, -0.22492968, 1.04205894, -0.07864794, 0.00000006,-0.00000001, 1.09828925"/>
+      <input name="value" type="matrix33" value="2.521686186744, -0.276479914230, -0.015378064966, -1.134130988240,  1.372719087668, -0.152975335867, -0.387555198504, -0.096239173438, 1.16835340083" />
     </constant>
     <convert name="asVec" type="vector3">
       <input name="in" type="color3" interfacename="in" />
@@ -371,13 +449,80 @@
     <output name="out" type="color3" nodename="asColor" />
   </nodegraph>
 
-  <nodegraph name="NG_lin_displayp3_to_lin_rec709_color4" nodedef="ND_lin_displayp3_to_lin_rec709_color4">
+  <nodegraph name="NG_lin_ap0_to_lin_rec709_color4" nodedef="ND_lin_ap0_to_lin_rec709_color4">
     <convert name="asColor3" type="color3">
       <input name="in" type="color4" interfacename="in" />
     </convert>
-    <lin_displayp3_to_lin_rec709 name="transform" type="color3">
+    <lin_ap0_to_lin_rec709 name="transform" type="color3">
       <input name="in" type="color3" nodename="asColor3" />
-    </lin_displayp3_to_lin_rec709>
+    </lin_ap0_to_lin_rec709>
+    <extract name="alpha" type="float">
+      <input name="in" type="color4" interfacename="in" />
+      <input name="index" type="integer" value="3" />
+    </extract>
+    <combine2 name="asColor4" type="color4">
+      <input name="in1" type="color3" nodename="transform" />
+      <input name="in2" type="float" nodename="alpha" />
+    </combine2>
+    <output name="out" type="color4" nodename="asColor4" />
+  </nodegraph>
+
+  <nodegraph name="NG_lin_rec2020_to_lin_rec709_color3" nodedef="ND_lin_rec2020_to_lin_rec709_color3">
+    <constant name="mat" type="matrix33">
+      <input name="value" type="matrix33" value="1.660491002108, -0.124550474522, -0.018150763355, -0.587641138788,  1.132899897126, -0.100578898008, -0.072849863320, -0.008349422604, 1.11872966136" />
+    </constant>
+    <convert name="asVec" type="vector3">
+      <input name="in" type="color3" interfacename="in" />
+    </convert>
+    <transformmatrix name="transform" type="vector3">
+      <input name="in" type="vector3" nodename="asVec" />
+      <input name="mat" type="matrix33" nodename="mat" />
+    </transformmatrix>
+    <convert name="asColor" type="color3">
+      <input name="in" type="vector3" nodename="transform" />
+    </convert>
+    <output name="out" type="color3" nodename="asColor" />
+  </nodegraph>
+
+  <nodegraph name="NG_lin_rec2020_to_lin_rec709_color4" nodedef="ND_lin_rec2020_to_lin_rec709_color4">
+    <convert name="asColor3" type="color3">
+      <input name="in" type="color4" interfacename="in" />
+    </convert>
+    <lin_rec2020_to_lin_rec709 name="transform" type="color3">
+      <input name="in" type="color3" nodename="asColor3" />
+    </lin_rec2020_to_lin_rec709>
+    <extract name="alpha" type="float">
+      <input name="in" type="color4" interfacename="in" />
+      <input name="index" type="integer" value="3" />
+    </extract>
+    <combine2 name="asColor4" type="color4">
+      <input name="in1" type="color3" nodename="transform" />
+      <input name="in2" type="float" nodename="alpha" />
+    </combine2>
+    <output name="out" type="color4" nodename="asColor4" />
+  </nodegraph>
+
+  <!-- DEPRECATED?? This color space is not part of color interop -->
+
+  <nodegraph name="NG_rec709_display_to_lin_rec709_color3" nodedef="ND_rec709_display_to_lin_rec709_color3">
+    <max name="max" type="color3">
+      <input name="in1" type="color3" interfacename="in" />
+      <input name="in2" type="float" value="0" />
+    </max>
+    <power name="gamma" type="color3">
+      <input name="in1" type="color3" nodename="max" />
+      <input name="in2" type="float" value="2.4" />
+    </power>
+    <output name="out" type="color3" nodename="gamma" />
+  </nodegraph>
+
+  <nodegraph name="NG_rec709_display_to_lin_rec709_color4" nodedef="ND_rec709_display_to_lin_rec709_color4">
+    <convert name="asColor3" type="color3">
+      <input name="in" type="color4" interfacename="in" />
+    </convert>
+    <rec709_display_to_lin_rec709 name="transform" type="color3">
+      <input name="in" type="color3" nodename="asColor3" />
+    </rec709_display_to_lin_rec709>
     <extract name="alpha" type="float">
       <input name="in" type="color4" interfacename="in" />
       <input name="index" type="integer" value="3" />
