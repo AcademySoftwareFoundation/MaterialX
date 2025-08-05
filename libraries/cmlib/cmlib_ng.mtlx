@@ -225,7 +225,7 @@
   <nodegraph name="NG_srgb_p3d65_to_lin_rec709_color3">
     <constant name="mat" type="matrix33">
       <input name="value" type="matrix33"
-             value="1.22493029, -0.04205868, -0.01964128, -0.22492968, 1.04205894, -0.07864794, 0.00000006,-0.00000001, 1.09828925"/>
+             value="1.224940176281, -0.042056954710, -0.019637554590, -0.224940176281, 1.042056954710, -0.078636045551, -0.000000000000,  0.000000000000, 1.09827360014" />
     </constant>
     <!--  Use srgb_rec709_to_lin_rec709 to convert from sRGB to Lin before passing to the mat conversion -->
     <srgb_rec709_to_lin_rec709 name="srgb_transform" type="color3">
@@ -271,7 +271,7 @@
   <nodegraph name="NG_lin_p3d65_to_lin_rec709_color3">
     <constant name="mat" type="matrix33">
       <input name="value" type="matrix33"
-             value="1.22493029, -0.04205868, -0.01964128, -0.22492968, 1.04205894, -0.07864794, 0.00000006,-0.00000001, 1.09828925"/>
+             value="1.224940176281, -0.042056954710, -0.019637554590, -0.224940176281, 1.042056954710, -0.078636045551, -0.000000000000,  0.000000000000, 1.09827360014" />
     </constant>
     <convert name="asVec" type="vector3">
       <input name="in" type="color3" interfacename="in" />
