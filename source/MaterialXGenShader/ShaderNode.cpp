@@ -195,7 +195,7 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
             ShaderInput* input;
             const string& portValue = port->getResolvedValueString();
             std::pair<TypeDesc, ValuePtr> enumResult;
-            const string& enumNames = port->getAttribute(ValueElement::ENUM_ATTRIBUTE);
+            const string& enumNames = port->getEnumNames();
             if (context.getShaderGenerator().getSyntax().remapEnumeration(portValue, portType, enumNames, enumResult))
             {
                 input = newNode->addInput(port->getName(), enumResult.first);
@@ -263,7 +263,7 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
         newNode->_classification = Classification::BSDF | Classification::CLOSURE;
 
         // Add additional classifications for BSDF reflection and/or transmission.
-        const string& bsdfType = nodeDef.getAttribute("bsdf");
+        const string& bsdfType = nodeDef.getBSDF();
         if (bsdfType == BSDF_R)
         {
             newNode->_classification |= Classification::BSDF_R;
@@ -358,7 +358,7 @@ void ShaderNode::initialize(const Node& node, const NodeDef& nodeDef, GenContext
                 // We explicitly check the valueString is not empty before checking the enumeration,
                 // because otherwise the enumeration value would always return nullptr
                 std::pair<TypeDesc, ValuePtr> enumResult;
-                const string& enumNames = nodeDefInput->getAttribute(ValueElement::ENUM_ATTRIBUTE);
+                const string& enumNames = nodeDefInput->getEnumNames();
                 const TypeDesc type = context.getTypeDesc(nodeDefInput->getType());
                 if (context.getShaderGenerator().getSyntax().remapEnumeration(valueString, type, enumNames, enumResult))
                 {
