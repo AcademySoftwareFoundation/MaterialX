@@ -1105,7 +1105,7 @@ void ShaderGraph::populateColorTransformMap(ColorManagementSystemPtr colorManage
         sourceColorSpace.empty() ||
         targetColorSpace.empty() ||
         sourceColorSpace == targetColorSpace ||
-        sourceColorSpace == "none" || sourceColorSpace == "data"
+        sourceColorSpace == "none" || sourceColorSpace == "data" ||
         targetColorSpace == "none" || targetColorSpace == "data")
     {
         return;
