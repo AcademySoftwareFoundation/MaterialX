@@ -35,28 +35,19 @@ class JSONDocumentPlugin:
     def register_document_loaders(self):
         """Hook implementation to register our document loaders."""
         
-        # Create JSON import loader
-        json_importer = create_document_loader(
-            identifier="json_importer",
-            name="JSON Document Importer",
-            description="Import MaterialX documents from JSON format",
+        # Create JSON import / export loader
+        json_importer_exporter = create_document_loader(
+            identifier="json_importer_exporter",
+            name="JSON Document Importer / Exporter",
+            description="Import / Export MaterialX documents from JSON format",
             extensions=[".json"],
             import_func=self.import_json_document,
-            version="1.0.0"
-        )
-        
-        # Create JSON export loader  
-        json_exporter = create_document_loader(
-            identifier="json_exporter", 
-            name="JSON Document Exporter",
-            description="Export MaterialX documents to JSON format",
-            extensions=[".json"],
             export_func=self.export_json_document,
-            version="1.0.0"
+            version="1.39.4"
         )
         
-        print("JSON Plugin: Registered JSON import/export loaders")
-        return [json_importer, json_exporter]
+        print("materialxjson: Registered JSON import/export loader")
+        return [json_importer_exporter]
     
     def import_json_document(self, uri: str) -> Optional[mx.Document]:
         """
@@ -68,7 +59,7 @@ class JSONDocumentPlugin:
         Returns:
             MaterialX Document object or None on failure
         """
-        print(f"JSON Plugin: Importing document from {uri}")
+        print(f"materialxjson: Importing document from {uri}")
         
         try:
             with open(uri, 'r', encoding='utf-8') as f:
@@ -81,11 +72,11 @@ class JSONDocumentPlugin:
             # Parse the JSON structure and populate the document
             self._parse_json_to_document(data, doc)
             
-            print(f"JSON Plugin: Successfully imported document from {uri}")
+            print(f"materialxjson: Successfully imported document from {uri}")
             return doc
             
         except Exception as e:
-            print(f"JSON Plugin: Error importing {uri}: {e}")
+            print(f"materialxjson: Error importing {uri}: {e}")
             return None
     
     def export_json_document(self, document: mx.Document, uri: str) -> bool:
@@ -99,7 +90,7 @@ class JSONDocumentPlugin:
         Returns:
             True on success, False on failure
         """
-        print(f"JSON Plugin: Exporting document to {uri}")
+        print(f"materialxjson: Exporting document to {uri}")
         
         try:
             # Convert document to JSON structure
@@ -109,11 +100,11 @@ class JSONDocumentPlugin:
             with open(uri, 'w', encoding='utf-8') as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
             
-            print(f"JSON Plugin: Successfully exported document to {uri}")
+            print(f"materialxjson: Successfully exported document to {uri}")
             return True
             
         except Exception as e:
-            print(f"JSON Plugin: Error exporting to {uri}: {e}")
+            print(f"materialxjson: Error exporting to {uri}: {e}")
             return False
     
     def _parse_json_to_document(self, data: Dict[str, Any], doc: mx.Document) -> None:
@@ -138,7 +129,7 @@ class JSONDocumentPlugin:
                 self._create_material_from_json(mat_data, doc)
         
         # Add other elements as needed
-        print(f"JSON Plugin: Parsed document with {len(doc.getNodeGraphs())} node graphs and {len(doc.getMaterials())} materials")
+        print(f"materialxjson: Parsed document with {len(doc.getNodeGraphs())} node graphs and {len(doc.getMaterials())} materials")
     
     def _create_nodegraph_from_json(self, ng_data: Dict[str, Any], doc: mx.Document) -> None:
         """Create a node graph from JSON data."""
@@ -294,14 +285,14 @@ class JSONDocumentPlugin:
 
 
 # Alternative decorator-based approach (simpler for single loaders)
-@document_loader(
-    identifier="simple_json_loader",
-    name="Simple JSON Loader", 
-    description="Simple JSON document loader using decorator",
-    extensions=[".json"],
-    can_import=True,
-    version="1.0.0"
-)
+#@document_loader(
+#    identifier="materialjson",
+#    name="MaterialxJson Loader", 
+#    description="JSON document loader using decorator",
+#    extensions=[".json"],
+#    can_import=True,
+#    version="1.39.4"
+#)
 def simple_json_import(uri: str) -> mx.Document:
     """
     Simple JSON importer using the decorator approach.
@@ -345,7 +336,7 @@ def register_plugin():
     
     This function is called automatically when the plugin is discovered.
     """
-    print("JSON Plugin: Registering plugin...")
+    print("materialxjson: Registering plugin...")
     
     # Create plugin instance
     plugin = JSONDocumentPlugin()
@@ -354,7 +345,7 @@ def register_plugin():
     pm = get_plugin_manager()
     pm.register_plugin(plugin)
     
-    print("JSON Plugin: Registration complete")
+    print("materialxjson: Registration complete")
 
 
 # Auto-register when module is imported
@@ -366,7 +357,7 @@ else:
     try:
         register_plugin()
     except Exception as e:
-        print(f"JSON Plugin: Error during auto-registration: {e}")
+        print(f"materialxjson: Error during auto-registration: {e}")
 
 
 # Example usage and testing

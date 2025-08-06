@@ -233,10 +233,12 @@ if __name__ == "__main__":
     plugin_manager = main()
     
     # Keep the program running if needed
-    print("\nPlugin manager is active. Press Ctrl+C to exit.")
-    try:
-        import time
-        while True:
-            time.sleep(1)
-    except KeyboardInterrupt:
-        print("\nShutting down plugin manager...")
+    print("\nPlugin manager is active.")
+    exit(0)
+
+    #try:
+    #    import time
+    #    while True:
+    #        time.sleep(1)
+    #except KeyboardInterrupt:
+    #    print("\nShutting down plugin manager...")

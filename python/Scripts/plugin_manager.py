@@ -12,7 +12,7 @@ try:
     import sys
     import traceback
     import inspect
-    print("MaterialX Python bindings and pluggy are available")
+    print("Manager: MaterialX Python bindings and pluggy are available")
 except ImportError as e:
     print(f"Error importing required modules: {e}")
     print("Make sure MaterialX Python bindings and pluggy are installed")
@@ -77,43 +77,65 @@ class MaterialXPluginManager:
         self._pm = pluggy.PluginManager("materialx")
         self._pm.add_hookspecs(MaterialXHookSpec)
         self._registered_plugins = set()
+        self._registered_modules = set()  # Track registered modules
         
         # Set up callback for plugin registration events
         try:
             mx_render.setRegistrationCallback(self._on_plugin_registration)
             #print("MaterialXPluginManager initialized with C++ callback")
         except Exception as e:
-            print(f"Warning: Could not set registration callback: {e}")
-            #print("MaterialXPluginManager initialized without C++ callback")
+            print(f"Warning: Could not set registration callback: {e}")            #print("MaterialXPluginManager initialized without C++ callback")
     
     def _on_plugin_registration(self, plugin_id: str, registered: bool):
         """Callback for plugin registration events."""
         if registered:
-            print(f"Plugin registered: {plugin_id}")
+            print(f"Manager: Plugin registered: {plugin_id}")
         else:
-            print(f"Plugin unregistered: {plugin_id}")
+            print(f"Manager: Plugin unregistered: {plugin_id}")
     
     def register_plugin(self, plugin_module):
-        """Register a plugin module."""
+        """Register a plugin module."""        # Check if module is already registered
+        module_id = getattr(plugin_module, '__name__', str(plugin_module))
+        if module_id in self._registered_modules:
+            print(f"Manager: Module {module_id} already registered, skipping")
+            return
+        
         self._pm.register(plugin_module)
         self._load_plugins_from_module(plugin_module)
+        self._registered_modules.add(module_id)
     
     def _load_plugins_from_module(self, plugin_module):
-        """Load plugins from a module."""
-        # Get document loaders
-        loaders = self._pm.hook.register_document_loaders()
-        for loader_list in loaders:
-            if loader_list:
-                for loader in loader_list:
-                    if loader.getIdentifier() not in self._registered_plugins:
-                        try:
-                            result = mx_render.registerDocumentLoader(loader)
-                            if result:
-                                self._registered_plugins.add(loader.getIdentifier())
-                            else:
-                                print(f"Warning: Failed to register loader {loader.getIdentifier()}")
-                        except Exception as e:
-                            print(f"Error registering loader {loader.getIdentifier()}: {e}")
+        """Load plugins from a specific module."""
+        # Get the plugin instance(s) that were just registered from this module
+        registered_plugins = self._pm.get_plugins()
+        
+        # Find plugins that belong to this module
+        module_name = getattr(plugin_module, '__name__', str(plugin_module))
+        module_plugins = []
+        
+        for plugin in registered_plugins:
+            plugin_module_name = getattr(plugin, '__module__', None)
+            if plugin_module_name == module_name:
+                module_plugins.append(plugin)
+        
+        # Only call register_document_loaders on plugins from this specific module
+        for plugin in module_plugins:
+            if hasattr(plugin, 'register_document_loaders'):
+                try:
+                    loaders = plugin.register_document_loaders()
+                    if loaders:
+                        for loader in loaders:
+                            if loader.getIdentifier() not in self._registered_plugins:
+                                try:
+                                    result = mx_render.registerDocumentLoader(loader)
+                                    if result:
+                                        self._registered_plugins.add(loader.getIdentifier())
+                                    else:
+                                        print(f"Manager: Warning: Failed to register loader {loader.getIdentifier()}")
+                                except Exception as e:
+                                    print(f"Manager: Error registering loader {loader.getIdentifier()}: {e}")
+                except Exception as e:
+                    print(f"Manager: Error getting loaders from plugin: {e}")
     
     def discover_plugins(self, plugin_dir: str = None):
         """Discover and load plugins from a directory."""
@@ -123,10 +145,10 @@ class MaterialXPluginManager:
             plugin_dir = Path(plugin_dir)
         
         if not plugin_dir.exists():
-            print(f"Plugin directory {plugin_dir} does not exist")
+            print(f"Manager: Plugin directory {plugin_dir} does not exist")
             return
         else:
-            print(f"Scanning for plugins in {plugin_dir}...")
+            print(f"Manager: Scanning for plugins in {plugin_dir}...")
         
         # Add plugin directory to path temporarily
         sys.path.insert(0, str(plugin_dir))
@@ -141,9 +163,9 @@ class MaterialXPluginManager:
                 try:
                     module = __import__(module_name)
                     self.register_plugin(module)
-                    print(f"Loaded plugin: {module_name}")
+                    print(f"Manager: Loaded plugin: {module_name}")
                 except Exception as e:
-                    print(f"Failed to load plugin {module_name}: {e}")
+                    print(f"Manager: Failed to load plugin {module_name}: {e}")
         finally:
             # Remove plugin directory from path
             sys.path.remove(str(plugin_dir))
@@ -192,10 +214,10 @@ def create_document_loader(identifier: str, name: str, description: str,
     Returns:
         PythonDocumentLoader instance
     """
-    print(f"Creating document loader: {identifier}, {name}, {description}, {extensions}, {version}")
+    print(f"Manager: Creating document loader: {identifier}, {name}, {description}, {extensions}, {version}")
     try:
         loader = PythonDocumentLoader(identifier, name, description, extensions, import_func, export_func, version)
-        print("Document loader created successfully")
+        print("Manager: Document loader created successfully")
         return loader
     except Exception as e:
         print(f"Error creating document loader: {e}")
@@ -209,7 +231,7 @@ def document_loader(identifier: str, name: str, description: str,
 
     """Decorator for creating document loaders with error handling."""
     def decorator(func):
-        print('*** Registering document loader:', identifier, name, description, extensions, version)
+        print('Manager: Registering document loader:', identifier, name, description, extensions, version)
         # Determine if this is an import or export function based on signature
         sig = inspect.signature(func)
         params = list(sig.parameters.keys())
@@ -233,13 +255,15 @@ def document_loader(identifier: str, name: str, description: str,
         try:
             result = mx_render.registerDocumentLoader(loader)
             if result:
-                print(f"✓ Registered document loader: {identifier}")
+                print(f"- Manager: Registered document loader: {identifier}")
             else:
-                print(f"⚠ Failed to register document loader: {identifier} (returned False)")
+                print(f"- Failed to register document loader: {identifier} (returned False)")
         except Exception as e:
-            print(f"✗ Error registering document loader {identifier}: {e}")
+            print(f"- Error registering document loader {identifier}: {e}")
             print("  This might happen if MaterialX libraries are not fully built")
             print("  The script will continue...")
+
+        print("="*50)
         return func
     return decorator
 
