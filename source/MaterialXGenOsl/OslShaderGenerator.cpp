@@ -166,8 +166,7 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     for (size_t i = 0; i < outputs.size(); ++i)
     {
         const ShaderGraphOutputSocket* outputSocket = graph.getOutputSocket(i);
-        const string result = getUpstreamResult(outputSocket, context);
-        emitLine(outputSocket->getVariable() + " = " + result, stage);
+        emitLine(outputSocket->getVariable() + " = " + getUpstreamResult(outputSocket, context), stage);
     }
 
     // End shader body
