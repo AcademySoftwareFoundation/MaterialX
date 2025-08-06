@@ -19,6 +19,13 @@ except ImportError as e:
     raise
 
 # Plugin hook specifications
+# In pluggy, two special markers are used to manage plugins:
+# - `hookspec`: Attach this to methods in a "hook specification" class to define what plugins can do.
+#   Think of these as the official list of plugin extension points.
+# - `hookimpl`: Attach this to functions in plugin modules to show they provide code for a hook.
+#   These are the actual plugin features.
+# The plugin manager finds all `hookimpl` functions and calls them when the
+# corresponding hook is invoked, allowing plugins to extend or customize behavior at runtime.
 hookspec = pluggy.HookspecMarker("materialx")
 hookimpl = pluggy.HookimplMarker("materialx")
 
@@ -43,7 +50,7 @@ class PythonDocumentLoader(mx_render.DocumentLoader):
         self._import_func = import_func
         self._export_func = export_func
         self._version = version
-        print('*** PythonDocumentLoader initialized:', identifier, name, description, extensions, version)
+        #print('*** PythonDocumentLoader initialized:', identifier, name, description, extensions, version)
     
     def supportedExtensions(self):
         """Get supported extensions."""
@@ -74,10 +81,10 @@ class MaterialXPluginManager:
         # Set up callback for plugin registration events
         try:
             mx_render.setRegistrationCallback(self._on_plugin_registration)
-            print("MaterialXPluginManager initialized with C++ callback")
+            #print("MaterialXPluginManager initialized with C++ callback")
         except Exception as e:
             print(f"Warning: Could not set registration callback: {e}")
-            print("MaterialXPluginManager initialized without C++ callback")
+            #print("MaterialXPluginManager initialized without C++ callback")
     
     def _on_plugin_registration(self, plugin_id: str, registered: bool):
         """Callback for plugin registration events."""
@@ -118,6 +125,8 @@ class MaterialXPluginManager:
         if not plugin_dir.exists():
             print(f"Plugin directory {plugin_dir} does not exist")
             return
+        else:
+            print(f"Scanning for plugins in {plugin_dir}...")
         
         # Add plugin directory to path temporarily
         sys.path.insert(0, str(plugin_dir))
@@ -163,7 +172,7 @@ def get_plugin_manager() -> MaterialXPluginManager:
     global _plugin_manager
     if _plugin_manager is None:
         _plugin_manager = MaterialXPluginManager()
-        print(f"Using global MaterialX plugin manager instance {_plugin_manager}")
+        #print(f"Using global MaterialX plugin manager instance {_plugin_manager}")
     return _plugin_manager
 
 def create_document_loader(identifier: str, name: str, description: str,
@@ -233,3 +242,5 @@ def document_loader(identifier: str, name: str, description: str,
             print("  The script will continue...")
         return func
     return decorator
+
+

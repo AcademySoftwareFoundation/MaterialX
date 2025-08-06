@@ -8,13 +8,13 @@ This example shows how to:
 4. Coordinate between Python and C++ plugin systems
 """
 
+from pathlib import Path
+import sys
+import os
 try:
     import MaterialX as mx
     import MaterialX.PyMaterialXRender as mx_render
     from plugin_manager import get_plugin_manager, document_loader, create_document_loader
-    from pathlib import Path
-    import sys
-    print(">>>>>>>>>>> MaterialX and PyMaterialXRender modules imported successfully")
 except ImportError as e:
     print(f"Error importing MaterialX: {e}")
     print("Make sure MaterialX Python bindings are installed and in your PYTHONPATH")
@@ -28,7 +28,7 @@ def initialize_plugin_system():
     pm = get_plugin_manager()
     
     # Register the predefined loaders
-    print("Registering predefined document loaders...")
+    #print("Registering predefined document loaders...")
     for config in _loader_configs:
         try:
             if config.get("can_import", False):
@@ -134,6 +134,8 @@ _loader_configs = [
     }
 ]
 
+_loader_configs = []
+
 
 def register_custom_loaders():
     """Register additional custom document loaders programmatically."""
@@ -192,37 +194,41 @@ def main():
     pm = initialize_plugin_system()
     
     # 2. Set up GraphEditor integration
-    setup_graph_editor_integration()
+    #setup_graph_editor_integration()
     
     # 3. Register custom document loaders
-    register_custom_loaders()
+    #register_custom_loaders()
     
     # 4. Discover and load plugins from a directory (optional)
+    plugin_dirs = []
+    envvar_plugin_dir = "MATERIALX_PLUGIN_DIR"
+    if envvar_plugin_dir in os.environ:
+        plugin_dir = Path(os.environ[envvar_plugin_dir])
+        # Split ; or : if multiple directories are specified
+        if ";" in plugin_dir.as_posix() or ":" in plugin_dir.as_posix():
+            plugin_dirs.extend([Path(d.strip()) for d in plugin_dir.as_posix().split(';') if d.strip()])
+        else:
+            plugin_dir = Path(plugin_dir)
+            plugin_dirs.append(plugin_dir)
+        print(f"Using plugin directories from environment variable: {envvar_plugin_dir}")
+    
     plugin_dir = Path.cwd() / "plugins"
-    if plugin_dir.exists():
-        pm.discover_plugins(str(plugin_dir))
-    else:
-        print(f"Plugin directory {plugin_dir} does not exist - skipping plugin discovery")
+    plugin_dirs.append(plugin_dir)
+
+    for plugin_dir in plugin_dirs:
+        if plugin_dir.exists():
+            pm.discover_plugins(str(plugin_dir))
+        else:
+            print(f"Plugin directory {plugin_dir} does not exist - skipping plugin discovery")
     
     # 5. Test the system
-    test_plugin_system()
+    #test_plugin_system()
     
     print("\n=== Plugin System Ready ===")
-    print("The plugin manager is now active and integrated with GraphEditor.")
-    print("All registered document loaders will be available to:")
-    print("- Python code via get_plugin_manager().import_document()/export_document()")
-    print("- C++ GraphEditor via the shared PluginManager singleton")
-    print("- MaterialXView applications via the same shared PluginManager")
-    
-    print("\nTo use with GraphEditor:")
-    print("1. Start your GraphEditor application")
-    print("2. The GraphEditor will automatically detect registered loaders")
-    print("3. File import/export dialogs will show the supported formats")
     
     return pm
 
 
-print("asdasdasd")
 if __name__ == "__main__":
     plugin_manager = main()
     
