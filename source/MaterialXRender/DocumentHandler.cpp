@@ -90,5 +90,9 @@ StringSet DocumentHandler::supportedExtensions()
     return extensions;
 }
 
+DocumentHandlerPtr DocumentHandler::create()
+{
+    return std::make_shared<DocumentHandler>();
+}
 
 MATERIALX_NAMESPACE_END

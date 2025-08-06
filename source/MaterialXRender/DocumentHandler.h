@@ -98,11 +98,8 @@ class MX_RENDER_API DocumentLoader
 /// Document handler class. 
 class MX_RENDER_API DocumentHandler
 {
-  public:
-    static DocumentHandlerPtr create()
-    {
-        return DocumentHandlerPtr();
-    }
+  public:    
+    static DocumentHandlerPtr create();
     virtual ~DocumentHandler() { }
 
     /// Add loader to the handler

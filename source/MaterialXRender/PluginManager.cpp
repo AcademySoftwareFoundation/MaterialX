@@ -10,10 +10,23 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
+PluginManager::PluginManager()
+{
+    // Initialize the document handler
+    _documentHandler = DocumentHandler::create();
+    _registrationCallback = nullptr;
+}
+
+PluginManager::~PluginManager()
+{
+    _documentHandler = nullptr;
+    _registrationCallback = nullptr;
+}
+
+
 PluginManager& PluginManager::getInstance()
 {
     static PluginManager instance;
-    instance._documentHandler = DocumentHandler::create();
     return instance;
 }
 
@@ -32,7 +45,7 @@ bool PluginManager::registerDocumentLoader(DocumentLoaderPtr loader)
             _registrationCallback(loader->getIdentifier(), true);
         }
     }
-    return true;
+    return registered; // Return the actual result from registerLoader
 }
 
 bool PluginManager::unregisterDocumentLoader(const std::string& identifier)

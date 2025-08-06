@@ -56,8 +56,8 @@ class MX_RENDER_API PluginManager
     }
 
   private:
-    PluginManager() = default;
-    ~PluginManager() = default;
+    PluginManager();
+    ~PluginManager();
     PluginManager(const PluginManager&) = delete;
     PluginManager& operator=(const PluginManager&) = delete;
 
