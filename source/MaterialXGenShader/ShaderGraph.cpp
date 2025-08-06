@@ -789,7 +789,7 @@ ShaderNode* ShaderGraph::inlineNodeBeforeOutput(ShaderGraphOutputSocket* output,
     InputPtr nodeDefInput = nullptr;
     if (!inputName.empty())
     {
-        // only look for the input if we are given an inputName - its valid to insert the node
+        // Only look for the input if we are given an inputName. It's valid to insert the node
         // without any upstream connection, and so an input name is not required.
         nodeDefInput = nodeDef->getInput(inputName);
         if (!nodeDefInput)
