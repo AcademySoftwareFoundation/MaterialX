@@ -1,22 +1,26 @@
 """
-Python plugin system for MaterialX using pluggy.
-
-This module provides a Python-based plugin system that integrates with the
-MaterialX C++ plugin manager. It uses pluggy for plugin discovery and
-registration.
+Materialx Python Plugin Manager.
+Requires that pluggy be insstalled as well as the MaterialX Core and Render bindings be installed.
 """
 
-import pluggy
-import MaterialX as mx
-import MaterialX.PyMaterialXRender as mx_render
-from typing import Dict, List, Optional, Any
-from pathlib import Path
-
+try:
+    import pluggy
+    import MaterialX as mx
+    import MaterialX.PyMaterialXRender as mx_render
+    from typing import Dict, List, Optional, Any
+    from pathlib import Path
+    import sys
+    import traceback
+    import inspect
+    print("MaterialX Python bindings and pluggy are available")
+except ImportError as e:
+    print(f"Error importing required modules: {e}")
+    print("Make sure MaterialX Python bindings and pluggy are installed")
+    raise
 
 # Plugin hook specifications
 hookspec = pluggy.HookspecMarker("materialx")
 hookimpl = pluggy.HookimplMarker("materialx")
-
 
 class MaterialXHookSpec:
     """Hook specifications for MaterialX plugins."""
@@ -29,7 +33,6 @@ class MaterialXHookSpec:
             List of DocumentLoader instances
         """
 
-
 class PythonDocumentLoader(mx_render.DocumentLoader):
     """Python wrapper for document loaders."""
     
@@ -40,6 +43,7 @@ class PythonDocumentLoader(mx_render.DocumentLoader):
         self._import_func = import_func
         self._export_func = export_func
         self._version = version
+        print('*** PythonDocumentLoader initialized:', identifier, name, description, extensions, version)
     
     def supportedExtensions(self):
         """Get supported extensions."""
@@ -59,7 +63,6 @@ class PythonDocumentLoader(mx_render.DocumentLoader):
             return self._export_func(document, uri)
         return False
 
-
 class MaterialXPluginManager:
     """Python plugin manager that integrates with the C++ plugin manager."""
     
@@ -69,7 +72,12 @@ class MaterialXPluginManager:
         self._registered_plugins = set()
         
         # Set up callback for plugin registration events
-        mx_render.setRegistrationCallback(self._on_plugin_registration)
+        try:
+            mx_render.setRegistrationCallback(self._on_plugin_registration)
+            print("MaterialXPluginManager initialized with C++ callback")
+        except Exception as e:
+            print(f"Warning: Could not set registration callback: {e}")
+            print("MaterialXPluginManager initialized without C++ callback")
     
     def _on_plugin_registration(self, plugin_id: str, registered: bool):
         """Callback for plugin registration events."""
@@ -91,8 +99,14 @@ class MaterialXPluginManager:
             if loader_list:
                 for loader in loader_list:
                     if loader.getIdentifier() not in self._registered_plugins:
-                        mx_render.registerDocumentLoader(loader)
-                        self._registered_plugins.add(loader.getIdentifier())
+                        try:
+                            result = mx_render.registerDocumentLoader(loader)
+                            if result:
+                                self._registered_plugins.add(loader.getIdentifier())
+                            else:
+                                print(f"Warning: Failed to register loader {loader.getIdentifier()}")
+                        except Exception as e:
+                            print(f"Error registering loader {loader.getIdentifier()}: {e}")
     
     def discover_plugins(self, plugin_dir: str = None):
         """Discover and load plugins from a directory."""
@@ -106,7 +120,6 @@ class MaterialXPluginManager:
             return
         
         # Add plugin directory to path temporarily
-        import sys
         sys.path.insert(0, str(plugin_dir))
         
         try:
@@ -128,24 +141,30 @@ class MaterialXPluginManager:
     
     def import_document(self, uri: str) -> Optional[mx.Document]:
         """Import a document using the appropriate loader."""
-        return mx_render.importDocument(uri)
+        try:
+            return mx_render.importDocument(uri)
+        except Exception as e:
+            print(f"Error importing document {uri}: {e}")
+            return None
     
     def export_document(self, document: mx.Document, uri: str) -> bool:
         """Export a document using the appropriate loader."""
-        return mx_render.exportDocument(document, uri)
-
+        try:
+            return mx_render.exportDocument(document, uri)
+        except Exception as e:
+            print(f"Error exporting document to {uri}: {e}")
+            return False
 
 # Global plugin manager instance
 _plugin_manager = None
-
 
 def get_plugin_manager() -> MaterialXPluginManager:
     """Get the global plugin manager instance."""
     global _plugin_manager
     if _plugin_manager is None:
         _plugin_manager = MaterialXPluginManager()
+        print(f"Using global MaterialX plugin manager instance {_plugin_manager}")
     return _plugin_manager
-
 
 def create_document_loader(identifier: str, name: str, description: str,
                           extensions: List[str], import_func=None, export_func=None, 
@@ -164,17 +183,25 @@ def create_document_loader(identifier: str, name: str, description: str,
     Returns:
         PythonDocumentLoader instance
     """
-    return PythonDocumentLoader(identifier, name, description, extensions, import_func, export_func, version)
-
+    print(f"Creating document loader: {identifier}, {name}, {description}, {extensions}, {version}")
+    try:
+        loader = PythonDocumentLoader(identifier, name, description, extensions, import_func, export_func, version)
+        print("Document loader created successfully")
+        return loader
+    except Exception as e:
+        print(f"Error creating document loader: {e}")
+        traceback.print_exc()
+        raise
 
 # Convenience decorators for creating document loaders
 def document_loader(identifier: str, name: str, description: str, 
                    extensions: List[str], version: str = "1.0.0", 
                    can_import: bool = True, can_export: bool = False):
-    """Decorator for creating document loaders."""
+
+    """Decorator for creating document loaders with error handling."""
     def decorator(func):
+        print('*** Registering document loader:', identifier, name, description, extensions, version)
         # Determine if this is an import or export function based on signature
-        import inspect
         sig = inspect.signature(func)
         params = list(sig.parameters.keys())
         
@@ -194,82 +221,15 @@ def document_loader(identifier: str, name: str, description: str,
         loader = create_document_loader(identifier, name, description, extensions, 
                                       import_func, export_func, version)
         # Auto-register with global plugin manager
-        mx_render.registerDocumentLoader(loader)
+        try:
+            result = mx_render.registerDocumentLoader(loader)
+            if result:
+                print(f"✓ Registered document loader: {identifier}")
+            else:
+                print(f"⚠ Failed to register document loader: {identifier} (returned False)")
+        except Exception as e:
+            print(f"✗ Error registering document loader {identifier}: {e}")
+            print("  This might happen if MaterialX libraries are not fully built")
+            print("  The script will continue...")
         return func
     return decorator
-
-
-def initialize_plugin_system(plugin_dirs: List[str] = None, auto_discover: bool = True) -> MaterialXPluginManager:
-    """Initialize the MaterialX plugin system with common settings.
-    
-    This is a convenience function that:
-    1. Gets the global plugin manager instance
-    2. Optionally discovers plugins from specified directories
-    3. Sets up integration with the C++ PluginManager
-    
-    Args:
-        plugin_dirs: List of directories to search for plugins (optional)
-        auto_discover: Whether to automatically discover plugins in standard locations
-        
-    Returns:
-        The initialized MaterialXPluginManager instance
-    """
-    pm = get_plugin_manager()
-    
-    if auto_discover:
-        # Standard plugin discovery locations
-        standard_dirs = []
-        
-        # Current working directory plugins folder
-        cwd_plugins = Path.cwd() / "plugins"
-        if cwd_plugins.exists():
-            standard_dirs.append(str(cwd_plugins))
-        
-        # Home directory plugins folder
-        import os
-        home_plugins = Path.home() / ".materialx" / "plugins"
-        if home_plugins.exists():
-            standard_dirs.append(str(home_plugins))
-        
-        # Environment variable plugin path
-        env_plugin_path = os.environ.get("MATERIALX_PLUGIN_PATH")
-        if env_plugin_path:
-            for path in env_plugin_path.split(os.pathsep):
-                plugin_path = Path(path)
-                if plugin_path.exists():
-                    standard_dirs.append(str(plugin_path))
-        
-        # Discover plugins in standard directories
-        for plugin_dir in standard_dirs:
-            pm.discover_plugins(plugin_dir)
-    
-    # Discover plugins in user-specified directories
-    if plugin_dirs:
-        for plugin_dir in plugin_dirs:
-            pm.discover_plugins(plugin_dir)
-    
-    return pm
-
-
-# Convenience function for GraphEditor integration
-def setup_for_graph_editor(plugin_dirs: List[str] = None) -> MaterialXPluginManager:
-    """Set up the plugin system specifically for GraphEditor integration.
-    
-    This function initializes the plugin system in a way that's optimized
-    for use with MaterialX GraphEditor applications.
-    
-    Args:
-        plugin_dirs: Additional plugin directories to search (optional)
-        
-    Returns:
-        The configured MaterialXPluginManager instance
-    """
-    print("Setting up MaterialX plugin system for GraphEditor...")
-    
-    # Initialize with auto-discovery
-    pm = initialize_plugin_system(plugin_dirs=plugin_dirs, auto_discover=True)
-    
-    print("Plugin system ready for GraphEditor integration")
-    print("All registered document loaders will be available to GraphEditor")
-    
-    return pm
