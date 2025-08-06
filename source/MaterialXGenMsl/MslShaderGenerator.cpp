@@ -14,7 +14,6 @@
 #include <MaterialXGenMsl/Nodes/NumLightsNodeMsl.h>
 
 #include <MaterialXGenShader/Nodes/MaterialNode.h>
-#include <MaterialXGenShader/Nodes/HwBlurNode.h>
 #include <MaterialXGenShader/Nodes/HwImageNode.h>
 #include <MaterialXGenShader/Nodes/HwGeomColorNode.h>
 #include <MaterialXGenShader/Nodes/HwGeomPropValueNode.h>
@@ -36,7 +35,6 @@ MATERIALX_NAMESPACE_BEGIN
 
 const string MslShaderGenerator::TARGET = "genmsl";
 const string MslShaderGenerator::VERSION = "2.3";
-const string MslSamplingIncludeFilename = "stdlib/genmsl/lib/mx_sampling.metal";
 
 //
 // MslShaderGenerator methods
@@ -101,17 +99,6 @@ MslShaderGenerator::MslShaderGenerator(TypeSystemPtr typeSystem) :
     registerImplementation("IM_directional_light_" + MslShaderGenerator::TARGET, LightShaderNodeMsl::create);
     // <!-- <spot_light> -->
     registerImplementation("IM_spot_light_" + MslShaderGenerator::TARGET, LightShaderNodeMsl::create);
-
-    // <!-- <blur> -->
-    elementNames = {
-        "IM_blur_float_" + MslShaderGenerator::TARGET,
-        "IM_blur_color3_" + MslShaderGenerator::TARGET,
-        "IM_blur_color4_" + MslShaderGenerator::TARGET,
-        "IM_blur_vector2_" + MslShaderGenerator::TARGET,
-        "IM_blur_vector3_" + MslShaderGenerator::TARGET,
-        "IM_blur_vector4_" + MslShaderGenerator::TARGET,
-    };
-    registerImplementation(elementNames, []() -> ShaderNodeImplPtr { return HwBlurNode::create(MslSamplingIncludeFilename);});
 
     // <!-- <ND_transformpoint> ->
     registerImplementation("IM_transformpoint_vector3_" + MslShaderGenerator::TARGET, HwTransformPointNode::create);
