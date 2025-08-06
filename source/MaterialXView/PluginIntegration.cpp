@@ -16,13 +16,11 @@ PluginIntegration::PluginIntegration() :
 void PluginIntegration::initialize()
 {
     if (_initialized)
-        return;
-
-    // Get the plugin manager and set up any default plugins
+        return;    // Get the plugin manager and set up any default plugins
     mx::PluginManager& pm = mx::PluginManager::getInstance();
     
     // Set up a callback to log plugin registration
-    pm.setPluginRegistrationCallback([](const std::string& pluginId, bool registered)
+    pm.setRegistrationCallback([](const std::string& pluginId, bool registered)
     {
         if (registered)
         {
@@ -91,30 +89,11 @@ std::vector<std::pair<std::string, std::string>> PluginIntegration::getImportFil
 {
     std::vector<std::pair<std::string, std::string>> filters;
     
-    mx::PluginManager& pm = mx::PluginManager::getInstance();
-    std::vector<std::string> extensions = pm.getSupportedImportExtensions();
+    // For now, return basic MaterialX support since we don't have access to 
+    // registered loader extensions in the current PluginManager interface
+    filters.emplace_back("MaterialX Documents", "*.mtlx");
+    filters.emplace_back("All Files", "*.*");
     
-    if (!extensions.empty())
-    {
-        // Create a filter for all supported extensions
-        std::string allPattern;
-        for (size_t i = 0; i < extensions.size(); ++i)
-        {
-            if (i > 0)
-                allPattern += ";";
-            allPattern += "*" + extensions[i];
-        }
-        filters.emplace_back("All Supported Import Formats", allPattern);
-
-        // Create individual filters for each extension
-        for (const std::string& ext : extensions)
-        {
-            std::string pattern = "*" + ext;
-            std::string description = "Plugin Import (" + ext + ")";
-            filters.emplace_back(description, pattern);
-        }
-    }
-
     return filters;
 }
 
@@ -122,61 +101,26 @@ std::vector<std::pair<std::string, std::string>> PluginIntegration::getExportFil
 {
     std::vector<std::pair<std::string, std::string>> filters;
     
-    mx::PluginManager& pm = mx::PluginManager::getInstance();
-    std::vector<std::string> extensions = pm.getSupportedExportExtensions();
+    // For now, return basic MaterialX support since we don't have access to 
+    // registered loader extensions in the current PluginManager interface
+    filters.emplace_back("MaterialX Documents", "*.mtlx");
+    filters.emplace_back("All Files", "*.*");
     
-    if (!extensions.empty())
-    {
-        // Create a filter for all supported extensions
-        std::string allPattern;
-        for (size_t i = 0; i < extensions.size(); ++i)
-        {
-            if (i > 0)
-                allPattern += ";";
-            allPattern += "*" + extensions[i];
-        }
-        filters.emplace_back("All Supported Export Formats", allPattern);
-
-        // Create individual filters for each extension
-        for (const std::string& ext : extensions)
-        {
-            std::string pattern = "*" + ext;
-            std::string description = "Plugin Export (" + ext + ")";
-            filters.emplace_back(description, pattern);
-        }
-    }
-
     return filters;
 }
 
 bool PluginIntegration::canImportFile(const mx::FilePath& filename)
 {
-    mx::PluginManager& pm = mx::PluginManager::getInstance();
-    
-    // Extract extension from filename
-    std::string filenameStr = filename.asString();
-    size_t dotPos = filenameStr.find_last_of(".");
-    if (dotPos == std::string::npos)
-        return false;
-    
-    std::string extension = filenameStr.substr(dotPos);
-    auto plugins = pm.getImportPluginsForExtension(extension);
-    
-    return !plugins.empty();
+    // For now, just check if it's a MaterialX file since we don't have access to 
+    // registered loader extensions in the current PluginManager interface
+    std::string ext = filename.getExtension();
+    return (ext == ".mtlx" || ext == ".MTLX");
 }
 
 bool PluginIntegration::canExportFile(const mx::FilePath& filename)
 {
-    mx::PluginManager& pm = mx::PluginManager::getInstance();
-    
-    // Extract extension from filename
-    std::string filenameStr = filename.asString();
-    size_t dotPos = filenameStr.find_last_of(".");
-    if (dotPos == std::string::npos)
-        return false;
-    
-    std::string extension = filenameStr.substr(dotPos);
-    auto plugins = pm.getExportPluginsForExtension(extension);
-    
-    return !plugins.empty();
+    // For now, just check if it's a MaterialX file since we don't have access to 
+    // registered loader extensions in the current PluginManager interface  
+    std::string ext = filename.getExtension();
+    return (ext == ".mtlx" || ext == ".MTLX");
 }

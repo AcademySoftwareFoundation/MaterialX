@@ -6,8 +6,8 @@
 #include <MaterialXGraphEditor/PluginIntegration.h>
 #include <MaterialXCore/Util.h>
 
-#include <sstream>
 #include <iostream>
+#include <sstream>
 
 GraphEditorPluginIntegration::GraphEditorPluginIntegration() :
     _initialized(false)
@@ -17,21 +17,19 @@ GraphEditorPluginIntegration::GraphEditorPluginIntegration() :
 void GraphEditorPluginIntegration::initialize()
 {
     if (_initialized)
-        return;
-
-    // Get the plugin manager and set up any default plugins
+        return;    // Get the plugin manager and set up any default handlers
     mx::PluginManager& pm = mx::PluginManager::getInstance();
     
-    // Set up a callback to log plugin registration
-    pm.setPluginRegistrationCallback([](const std::string& pluginId, bool registered)
+    // Set up a callback to log handler registration
+    pm.setRegistrationCallback([](const std::string& handlerId, bool registered)
     {
         if (registered)
         {
-            std::cout << "Graph Editor Plugin registered: " << pluginId << std::endl;
+            std::cout << "Graph Editor Plugin registered: " << handlerId << std::endl;
         }
         else
         {
-            std::cout << "Graph Editor Plugin unregistered: " << pluginId << std::endl;
+            std::cout << "Graph Editor Plugin unregistered: " << handlerId << std::endl;
         }
     });
 
@@ -52,7 +50,7 @@ mx::DocumentPtr GraphEditorPluginIntegration::loadDocumentWithPlugins(const mx::
 {
     mx::PluginManager& pm = mx::PluginManager::getInstance();
     
-    // First try to load with plugins
+    // Try to load with PluginManager
     try
     {
         mx::DocumentPtr doc = pm.importDocument(filename.asString());
@@ -82,13 +80,12 @@ bool GraphEditorPluginIntegration::saveDocumentWithPlugins(mx::ConstDocumentPtr 
 
     mx::PluginManager& pm = mx::PluginManager::getInstance();
     
-    // First try to save with plugins
+    // Try to export with PluginManager
     try
     {
-        if (pm.exportDocument(document, filename.asString()))
-        {
+        bool success = pm.exportDocument(document, filename.asString());
+        if (success)
             return true;
-        }
     }
     catch (const std::exception& e)
     {
@@ -106,106 +103,42 @@ bool GraphEditorPluginIntegration::saveDocumentWithPlugins(mx::ConstDocumentPtr 
 
 std::string GraphEditorPluginIntegration::getImportFileFilters()
 {
-    mx::PluginManager& pm = mx::PluginManager::getInstance();
-    std::vector<std::string> extensions = pm.getSupportedImportExtensions();
+    std::stringstream ss;
     
-    if (extensions.empty())
-        return "";
-
-    std::ostringstream filters;
+    // For now, return basic MaterialX support since we don't have access to 
+    // registered loader extensions in the current PluginManager interface
+    ss << "MaterialX Documents (*.mtlx)\0*.mtlx\0";
+    ss << "All Files (*.*)\0*.*\0";
+    ss << "\0";
     
-    // Add "All Supported" filter first
-    filters << "All Supported Plugin Formats (";
-    for (size_t i = 0; i < extensions.size(); ++i)
-    {
-        if (i > 0)
-            filters << ",";
-        filters << "*" << extensions[i];
-    }
-    filters << ")\0";
-    for (const std::string& ext : extensions)
-    {
-        filters << "*" << ext << ";";
-    }
-    filters << "\0";
-
-    // Add individual format filters
-    for (const std::string& ext : extensions)
-    {
-        filters << "Plugin " << ext << " (*" << ext << ")\0*" << ext << "\0";
-    }
-
-    return filters.str();
+    return ss.str();
 }
 
 std::string GraphEditorPluginIntegration::getExportFileFilters()
 {
-    mx::PluginManager& pm = mx::PluginManager::getInstance();
-    std::vector<std::string> extensions = pm.getSupportedExportExtensions();
+    std::stringstream ss;
     
-    if (extensions.empty())
-        return "";
-
-    std::ostringstream filters;
+    // For now, return basic MaterialX support since we don't have access to 
+    // registered loader extensions in the current PluginManager interface
+    ss << "MaterialX Documents (*.mtlx)\0*.mtlx\0";
+    ss << "All Files (*.*)\0*.*\0";
+    ss << "\0";
     
-    // Add "All Supported" filter first
-    filters << "All Supported Plugin Formats (";
-    for (size_t i = 0; i < extensions.size(); ++i)
-    {
-        if (i > 0)
-            filters << ",";
-        filters << "*" << extensions[i];
-    }
-    filters << ")\0";
-    for (const std::string& ext : extensions)
-    {
-        filters << "*" << ext << ";";
-    }
-    filters << "\0";
-
-    // Add individual format filters
-    for (const std::string& ext : extensions)
-    {
-        filters << "Plugin " << ext << " (*" << ext << ")\0*" << ext << "\0";
-    }
-
-    return filters.str();
+    return ss.str();
 }
 
 bool GraphEditorPluginIntegration::canImportFile(const mx::FilePath& filename)
 {
-    mx::PluginManager& pm = mx::PluginManager::getInstance();
-    
-    // Extract extension from filename
-    std::string filenameStr = filename.asString();
-    size_t dotPos = filenameStr.find_last_of(".");
-    if (dotPos == std::string::npos)
-        return false;
-    
-    std::string extension = filenameStr.substr(dotPos);
-    auto plugins = pm.getImportPluginsForExtension(extension);
-    
-    return !plugins.empty();
+    // For now, just check if it's a MaterialX file since we don't have access to 
+    // registered loader extensions in the current PluginManager interface
+    std::string ext = filename.getExtension();
+    return (ext == ".mtlx" || ext == ".MTLX");
 }
 
 bool GraphEditorPluginIntegration::canExportFile(const mx::FilePath& filename)
 {
-    mx::PluginManager& pm = mx::PluginManager::getInstance();
-    
-    // Extract extension from filename
-    std::string filenameStr = filename.asString();
-    size_t dotPos = filenameStr.find_last_of(".");
-    if (dotPos == std::string::npos)
-        return false;
-    
-    std::string extension = filenameStr.substr(dotPos);
-    auto plugins = pm.getExportPluginsForExtension(extension);
-    
-    return !plugins.empty();
-}
-
-std::vector<mx::PluginInfo> GraphEditorPluginIntegration::getAvailablePlugins()
-{
-    mx::PluginManager& pm = mx::PluginManager::getInstance();
-    return pm.getAllPluginInfo();
+    // For now, just check if it's a MaterialX file since we don't have access to 
+    // registered loader extensions in the current PluginManager interface  
+    std::string ext = filename.getExtension();
+    return (ext == ".mtlx" || ext == ".MTLX");
 }

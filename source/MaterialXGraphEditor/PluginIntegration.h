@@ -8,6 +8,7 @@
 
 #include <MaterialXGraphEditor/Graph.h>
 #include <MaterialXRender/PluginManager.h>
+#include <MaterialXRender/DocumentHandler.h>
 
 #include <string>
 #include <vector>
@@ -32,11 +33,11 @@ class GraphEditorPluginIntegration
     void setDocumentSaver(std::function<bool(mx::ConstDocumentPtr, const mx::FilePath&)> saver);
 
     /// Try to load a document using plugins
-    /// Returns nullptr if no suitable plugin found
+    /// Returns nullptr if no suitable handler found
     mx::DocumentPtr loadDocumentWithPlugins(const mx::FilePath& filename);
 
     /// Try to save a document using plugins
-    /// Returns false if no suitable plugin found or export failed
+    /// Returns false if no suitable handler found or export failed
     bool saveDocumentWithPlugins(mx::ConstDocumentPtr document, const mx::FilePath& filename);
 
     /// Get import file dialog filters compatible with the file dialog system
@@ -46,13 +47,8 @@ class GraphEditorPluginIntegration
     std::string getExportFileFilters();
 
     /// Check if a file can be imported using plugins
-    bool canImportFile(const mx::FilePath& filename);
-
-    /// Check if a file can be exported using plugins
+    bool canImportFile(const mx::FilePath& filename);    /// Check if a file can be exported using plugins
     bool canExportFile(const mx::FilePath& filename);
-
-    /// Get list of available plugins for UI display
-    std::vector<mx::PluginInfo> getAvailablePlugins();
 
     /// Get the plugin manager instance
     mx::PluginManager& getPluginManager() { return mx::PluginManager::getInstance(); }
