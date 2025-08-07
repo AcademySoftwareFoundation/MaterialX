@@ -206,15 +206,21 @@ TEST_CASE("PluginManager", "[pluginmanager]")
             manager.registerDocumentLoader(loader);
             
             REQUIRE(callback.events.size() == 1);
-            REQUIRE(callback.events[0].identifier == "callback_test");
-            REQUIRE(callback.events[0].registered == true);
+            if (!callback.events.empty())
+            {
+                REQUIRE(callback.events[0].identifier == "callback_test");
+                REQUIRE(callback.events[0].registered == true);
+            }
             
             // Test unregistration callback
             manager.unregisterDocumentLoader("callback_test");
             
             REQUIRE(callback.events.size() == 2);
-            REQUIRE(callback.events[1].identifier == "callback_test");
-            REQUIRE(callback.events[1].registered == false);
+            if (callback.events.size() >= 2)
+            {
+                REQUIRE(callback.events[1].identifier == "callback_test");
+                REQUIRE(callback.events[1].registered == false);
+            }
         }
         
         SECTION("No callback on failed registration")
