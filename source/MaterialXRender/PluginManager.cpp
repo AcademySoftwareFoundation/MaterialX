@@ -14,13 +14,12 @@ PluginManager::PluginManager()
 {
     // Initialize the document handler
     _documentHandler = DocumentHandler::create();
-    _registrationCallback = nullptr;
 }
 
 PluginManager::~PluginManager()
 {
     _documentHandler = nullptr;
-    _registrationCallback = nullptr;
+    _registrationCallbacks.clear();
 }
 
 
@@ -35,17 +34,17 @@ bool PluginManager::registerDocumentLoader(DocumentLoaderPtr loader)
     if (!loader || loader->getIdentifier().empty())
     {
         return false;
-    }
+    }    
     bool registered = _documentHandler->registerLoader(loader);
     if (registered)
     {
-        // Notify callback if set
-        if (_registrationCallback)
+        // Notify all registered callbacks
+        for (const auto& callbackPair : _registrationCallbacks)
         {
-            _registrationCallback(loader->getIdentifier(), true);
+            callbackPair.second(loader->getIdentifier(), true);
         }
     }
-    return registered; // Return the actual result from registerLoader
+    return registered;
 }
 
 bool PluginManager::unregisterDocumentLoader(const std::string& identifier)
@@ -53,14 +52,13 @@ bool PluginManager::unregisterDocumentLoader(const std::string& identifier)
     if (identifier.empty())
     {
         return false;
-    }
-    bool unregistered = _documentHandler->unregisterLoader(identifier);
+    }    bool unregistered = _documentHandler->unregisterLoader(identifier);
     if (unregistered)
     {
-        // Notify callback if set
-        if (_registrationCallback)
+        // Notify all registered callbacks
+        for (const auto& callbackPair : _registrationCallbacks)
         {
-            _registrationCallback(identifier, false);
+            callbackPair.second(identifier, false);
         }
         return true;
     }
@@ -78,8 +76,35 @@ bool PluginManager::exportDocument(ConstDocumentPtr document, const std::string&
     if (!document || uri.empty())
     {
         return false;
+    }    return _documentHandler->exportDocument(document, uri);
+}
+
+bool PluginManager::addRegistrationCallback(const std::string& identifier, std::function<void(const std::string&, bool)> callback)
+{
+    if (identifier.empty() || !callback)
+    {
+        return false;
     }
-    return _documentHandler->exportDocument(document, uri);
+    
+    _registrationCallbacks[identifier] = callback;
+    return true;
+}
+
+bool PluginManager::removeRegistrationCallback(const std::string& identifier)
+{
+    if (identifier.empty())
+    {
+        return false;
+    }
+    
+    auto it = _registrationCallbacks.find(identifier);
+    if (it != _registrationCallbacks.end())
+    {
+        _registrationCallbacks.erase(it);
+        return true;
+    }
+    
+    return false;
 }
 
 MATERIALX_NAMESPACE_END

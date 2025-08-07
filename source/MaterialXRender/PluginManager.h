@@ -17,6 +17,7 @@
 #include <string>
 #include <vector>
 #include <functional>
+#include <unordered_map>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -46,23 +47,21 @@ class MX_RENDER_API PluginManager
     /// @param document The document to export
     /// @param uri The uri to export to
     /// @return True on success, false on failure
-    bool exportDocument(ConstDocumentPtr document, const std::string& uri);
-
-    /// Set callback for handler registration events
+    bool exportDocument(ConstDocumentPtr document, const std::string& uri);    /// Add a callback for handler registration events
+    /// @param identifier Unique identifier for this callback
     /// @param callback Function to call when handlers are registered/unregistered
-    void setRegistrationCallback(std::function<void(const std::string&, bool)> callback)
-    {
-        _registrationCallback = callback;
-    }
+    /// @return True if callback was added successfully
+    bool addRegistrationCallback(const std::string& identifier, std::function<void(const std::string&, bool)> callback);    /// Remove a callback by identifier
+    /// @param identifier The identifier of the callback to remove
+    /// @return True if callback was found and removed
+    bool removeRegistrationCallback(const std::string& identifier);
 
   private:
     PluginManager();
     ~PluginManager();
     PluginManager(const PluginManager&) = delete;
-    PluginManager& operator=(const PluginManager&) = delete;
-
-    DocumentHandlerPtr _documentHandler;
-    std::function<void(const std::string&, bool)> _registrationCallback;
+    PluginManager& operator=(const PluginManager&) = delete;    DocumentHandlerPtr _documentHandler;
+    std::unordered_map<std::string, std::function<void(const std::string&, bool)>> _registrationCallbacks;
 };
 
 MATERIALX_NAMESPACE_END

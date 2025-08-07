@@ -115,14 +115,27 @@ class MaterialXPluginManager(pluggy.PluginManager):
         self.add_hookspecs(MaterialXHookSpec)
         self._registered_plugins = set()
         self._registered_modules = set()  # Track registered modules
-        
-        # Set up callback for plugin registration events
+          # Set up callback for plugin registration events
         try:
-            mx_render.setRegistrationCallback(self._on_plugin_registration)
+            mx_render.addRegistrationCallback("plugin_manager", self._on_plugin_registration)
             logger.info("MaterialXPluginManager initialized")
         except Exception as e:
             logger.info(f"Warning: Could not set registration callback: {e}")
-    
+
+    def __del__(self):
+        """Destructor to clean up the plugin manager."""
+        self._registered_plugins.clear()
+        self._registered_modules.clear()
+        try:
+            mx_render.removeRegistrationCallback("plugin_manager")
+            logger.info("MaterialXPluginManager destroyed and callback removed")
+        except Exception as e:
+            logger.info(f"Warning: Could not remove registration callback: {e}")        
+
+        # perform any pluggy cleanup
+        self.unregister_all()
+        logger.info("MaterialXPluginManager cleaned up")
+
     def _on_plugin_registration(self, plugin_id: str, registered: bool):
         """Callback for plugin registration events."""
         if registered:

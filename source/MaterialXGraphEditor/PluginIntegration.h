@@ -21,10 +21,11 @@ class GraphEditorPluginIntegration
 {
   public:
     GraphEditorPluginIntegration();
-    ~GraphEditorPluginIntegration() = default;
-
-    /// Initialize the plugin system
+    ~GraphEditorPluginIntegration() = default;    /// Initialize the plugin system
     void initialize();
+
+    /// Shutdown the plugin system and clean up callbacks
+    void shutdown();
 
     /// Register a document loader callback for the graph editor
     void setDocumentLoader(std::function<mx::DocumentPtr(const mx::FilePath&)> loader);

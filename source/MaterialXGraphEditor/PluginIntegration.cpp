@@ -19,9 +19,8 @@ void GraphEditorPluginIntegration::initialize()
     if (_initialized)
         return;    // Get the plugin manager and set up any default handlers
     mx::PluginManager& pm = mx::PluginManager::getInstance();
-    
-    // Set up a callback to log handler registration
-    pm.setRegistrationCallback([](const std::string& handlerId, bool registered)
+      // Set up a callback to log handler registration
+    pm.addRegistrationCallback("graph_editor", [](const std::string& handlerId, bool registered)
     {
         if (registered)
         {
@@ -31,9 +30,19 @@ void GraphEditorPluginIntegration::initialize()
         {
             std::cout << "Graph Editor Plugin unregistered: " << handlerId << std::endl;
         }
-    });
+    });    _initialized = true;
+}
 
-    _initialized = true;
+void GraphEditorPluginIntegration::shutdown()
+{
+    if (!_initialized)
+        return;
+    
+    // Remove the callback we registered
+    mx::PluginManager& pm = mx::PluginManager::getInstance();
+    pm.removeRegistrationCallback("graph_editor");
+    
+    _initialized = false;
 }
 
 void GraphEditorPluginIntegration::setDocumentLoader(std::function<mx::DocumentPtr(const mx::FilePath&)> loader)

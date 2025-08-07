@@ -18,9 +18,8 @@ void PluginIntegration::initialize()
     if (_initialized)
         return;    // Get the plugin manager and set up any default plugins
     mx::PluginManager& pm = mx::PluginManager::getInstance();
-    
-    // Set up a callback to log plugin registration
-    pm.setRegistrationCallback([](const std::string& pluginId, bool registered)
+      // Set up a callback to log plugin registration
+    pm.addRegistrationCallback("materialx_view", [](const std::string& pluginId, bool registered)
     {
         if (registered)
         {
@@ -30,9 +29,19 @@ void PluginIntegration::initialize()
         {
             std::cout << "Plugin unregistered: " << pluginId << std::endl;
         }
-    });
+    });    _initialized = true;
+}
 
-    _initialized = true;
+void PluginIntegration::shutdown()
+{
+    if (!_initialized)
+        return;
+    
+    // Remove the callback we registered
+    mx::PluginManager& pm = mx::PluginManager::getInstance();
+    pm.removeRegistrationCallback("materialx_view");
+    
+    _initialized = false;
 }
 
 void PluginIntegration::setDocumentLoader(std::function<mx::DocumentPtr(const mx::FilePath&)> loader)

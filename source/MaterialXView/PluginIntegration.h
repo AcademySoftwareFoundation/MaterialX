@@ -19,10 +19,11 @@ class PluginIntegration
 {
   public:
     PluginIntegration();
-    ~PluginIntegration() = default;
-
-    /// Initialize the plugin system
+    ~PluginIntegration() = default;    /// Initialize the plugin system
     void initialize();
+
+    /// Shutdown the plugin system and clean up callbacks
+    void shutdown();
 
     /// Register a document loader callback for the viewer
     /// This will be called when the viewer needs to load a document

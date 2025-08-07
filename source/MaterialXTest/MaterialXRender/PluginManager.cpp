@@ -186,17 +186,16 @@ TEST_CASE("PluginManager", "[pluginmanager]")
         
         // Clean up
         manager.unregisterDocumentLoader("test_loader");
-    }
-
-    SECTION("Registration callback")
+    }    SECTION("Registration callback")
     {
         auto& manager = mx::PluginManager::getInstance();
         TestRegistrationCallback callback;
         
-        // Set the callback
-        manager.setRegistrationCallback([&callback](const std::string& id, bool registered) {
+        // Add the callback with an identifier
+        bool callbackAdded = manager.addRegistrationCallback("test_callback", [&callback](const std::string& id, bool registered) {
             callback(id, registered);
         });
+        REQUIRE(callbackAdded == true);
         
         SECTION("Callback on registration")
         {
@@ -233,9 +232,124 @@ TEST_CASE("PluginManager", "[pluginmanager]")
             // No callback should be triggered
             REQUIRE(callback.events.size() == 0);
         }
+          // Clean up callback
+        bool callbackRemoved = manager.removeRegistrationCallback("test_callback");
+        REQUIRE(callbackRemoved == true);
+    }
+
+    SECTION("Multiple registration callbacks")
+    {
+        auto& manager = mx::PluginManager::getInstance();
         
-        // Clean up callback
-        manager.setRegistrationCallback(nullptr);
+        TestRegistrationCallback callback1, callback2, callback3;
+        
+        // Add multiple callbacks
+        bool added1 = manager.addRegistrationCallback("callback1", [&callback1](const std::string& id, bool registered) {
+            callback1(id, registered);
+        });
+        bool added2 = manager.addRegistrationCallback("callback2", [&callback2](const std::string& id, bool registered) {
+            callback2(id, registered);
+        });
+        bool added3 = manager.addRegistrationCallback("callback3", [&callback3](const std::string& id, bool registered) {
+            callback3(id, registered);
+        });
+        
+        REQUIRE(added1 == true);
+        REQUIRE(added2 == true);
+        REQUIRE(added3 == true);
+        
+        // Test all callbacks are triggered
+        auto loader = std::make_shared<TestDocumentLoader>("multi_callback_test", "Multi Callback Test", "Test multiple callbacks");
+        
+        callback1.events.clear();
+        callback2.events.clear();
+        callback3.events.clear();
+        
+        manager.registerDocumentLoader(loader);
+        
+        // All callbacks should be triggered
+        REQUIRE(callback1.events.size() == 1);
+        REQUIRE(callback2.events.size() == 1);
+        REQUIRE(callback3.events.size() == 1);
+        
+        // Remove one callback
+        bool removed2 = manager.removeRegistrationCallback("callback2");
+        REQUIRE(removed2 == true);
+        
+        // Test unregistration - only callbacks 1 and 3 should be triggered
+        manager.unregisterDocumentLoader("multi_callback_test");
+        
+        REQUIRE(callback1.events.size() == 2);
+        REQUIRE(callback2.events.size() == 1); // Should not have increased
+        REQUIRE(callback3.events.size() == 2);
+        
+        // Clean up remaining callbacks
+        manager.removeRegistrationCallback("callback1");
+        manager.removeRegistrationCallback("callback3");
+    }
+
+    SECTION("Callback edge cases")
+    {
+        auto& manager = mx::PluginManager::getInstance();
+        TestRegistrationCallback callback;
+        
+        SECTION("Add callback with empty identifier")
+        {
+            bool result = manager.addRegistrationCallback("", [&callback](const std::string& id, bool registered) {
+                callback(id, registered);
+            });
+            REQUIRE(result == false);
+        }
+        
+        SECTION("Add callback with null function")
+        {
+            bool result = manager.addRegistrationCallback("test_null", nullptr);
+            REQUIRE(result == false);
+        }
+        
+        SECTION("Remove non-existent callback")
+        {
+            bool result = manager.removeRegistrationCallback("non_existent");
+            REQUIRE(result == false);
+        }
+        
+        SECTION("Remove callback with empty identifier")
+        {
+            bool result = manager.removeRegistrationCallback("");
+            REQUIRE(result == false);
+        }
+        
+        SECTION("Replace callback with same identifier")
+        {
+            TestRegistrationCallback callback2;
+            
+            // Add first callback
+            bool added1 = manager.addRegistrationCallback("replace_test", [&callback](const std::string& id, bool registered) {
+                callback(id, registered);
+            });
+            REQUIRE(added1 == true);
+            
+            // Replace with second callback
+            bool added2 = manager.addRegistrationCallback("replace_test", [&callback2](const std::string& id, bool registered) {
+                callback2(id, registered);
+            });
+            REQUIRE(added2 == true);
+            
+            // Test that only the second callback is called
+            auto loader = std::make_shared<TestDocumentLoader>("replace_test_loader", "Replace Test", "Test callback replacement");
+            
+            callback.events.clear();
+            callback2.events.clear();
+            
+            manager.registerDocumentLoader(loader);
+            
+            REQUIRE(callback.events.size() == 0);  // Original callback should not be called
+            REQUIRE(callback2.events.size() == 1); // Replacement callback should be called
+            
+            // Clean up
+            manager.unregisterDocumentLoader("replace_test_loader");
+            manager.removeRegistrationCallback("replace_test");
+        }
     }
 
     SECTION("Multiple loaders with different extensions")
