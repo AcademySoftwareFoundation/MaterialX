@@ -68,17 +68,6 @@ def load_plugins(pm):
     return pm
 
 
-def setup_graph_editor_integration():
-    """Set up GraphEditor to use the same plugin manager."""
-    
-    # The GraphEditor PluginIntegration class will automatically use
-    # the same C++ PluginManager singleton that our Python plugin manager
-    # is connected to through the callback integration system
-    
-    #logger.info("GraphEditor will automatically use the shared C++ PluginManager singleton")
-    #logger.info("All document loaders registered through Python hooks will be available to GraphEditor")
-    pass
-
 def test_plugin_system():
     """Test the plugin system integration."""
     logger.info("\n" + "="*40)
@@ -108,9 +97,6 @@ def test_plugin_system():
     except Exception as e:
         logger.info(f"Hook testing failed: {e}")
     
-    # Test document operations using the system
-    #test_document_operations(pm)
-
 
 def test_document_operations(pm):
     """Test document import/export through the plugin system."""
@@ -118,7 +104,6 @@ def test_document_operations(pm):
     
     # Create a test document
     doc = mx.createDocument()
-    doc.setVersionString("1.38")
     doc.setColorSpace("lin_rec709")
     
     # Add some content to make the test more meaningful
@@ -196,21 +181,13 @@ def main():
     """Main function to start the plugin system and prepare for GraphEditor."""
     
     logger.info("="*70)
-    logger.info("MaterialX Plugin Manager + GraphEditor Integration")
+    logger.info("MaterialX Plugin Manager Test")
     logger.info("="*70)
     
-    # 1. Initialize the plugin system
     pm = initialize_plugin_system()
-    
-    # 2. Check what plugins were successfully registered
     json_supported = check_plugin_registration(pm)
-    
-    # 3. Set up GraphEditor integration
-    setup_graph_editor_integration()
-    
-    # 4. Test the plugin system
-    #test_plugin_system()
-    test_document_operations(pm)
+    if json_supported:
+        test_document_operations(pm)
 
     return pm
 
