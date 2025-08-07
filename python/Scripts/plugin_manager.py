@@ -213,31 +213,41 @@ class MaterialXPluginManager(pluggy.PluginManager):
             plugin_valid_function = getattr(module, PLUGIN_VALID_FUNCTION_NAME)
             if not plugin_valid_function():
                 logger.warning(f"Plugin {plugin_name} is not valid. Skipping plugin at {module.__file__}")
-                return            # Register the plugin - look for plugin classes with hookimpl decorators
+                return            
+        # Register the plugin - look for plugin classes with hookimpl decorators
         self._register_plugin(module, plugin_name, plugin_type)
+
+    def _has_hookmplementations(self, module) -> bool:
+        """Check if a module has any hook implementations."""
+        for name in dir(module):
+            obj = getattr(module, name)
+            # Check for class methods decorated with hookimpl
+            if inspect.isclass(obj) and self._has_hookimpl_methods(obj):
+                return obj(), name
+            # Check for functions decorated with hookimpl
+            elif inspect.isfunction(obj) and hasattr(obj, 'materialx_impl'):
+                return obj(), name
+        return None, None
 
     def _register_plugin(self, module, plugin_name: str, plugin_type : PluginType):
         """Discover and register plugin instances from a module."""
 
         try:
-            # Look for classes in the module that have hookimpl methods
-            for name in dir(module):
-                obj = getattr(module, name)
-                if inspect.isclass(obj) and self._has_hookimpl_methods(obj):
-                    # Create an instance of the plugin class and register it
-                    plugin_instance = obj()                    
-                    # For now all that is supported is document loaders
-                    if plugin_type == MaterialXPluginManager.PluginType.DOCUMENT_LOADER:
-                        self.register(plugin_instance, plugin_name)
-                        logger.info(f"Registered plugin class '{name}' as '{plugin_name}' from {module.__file__}")
-                        return
-                    else:
-                        logger.warning(f"Unsupported plugin type '{plugin_type}' for class '{name}' in {module.__file__}")
-                        return
-            
-            # If no plugin class found, register the module itself
-            self.register(module, plugin_name)
-            logger.info(f"Registered plugin module '{plugin_name}' '{plugin_type}' from {module.__file__}")
+            # Look for classes and functions in the module that have hookimpl methods
+            plugin_instance, name = self._has_hookmplementations(module)
+            if plugin_instance:
+                if plugin_type == MaterialXPluginManager.PluginType.DOCUMENT_LOADER:
+                    self.register(plugin_instance, plugin_name)
+                    logger.info(f"Registered plugin class '{name}' as '{plugin_name}' from {module.__file__}")
+                    found_plugin = True
+                else:
+                    logger.warning(f"Unsupported plugin type '{plugin_type}' for class '{name}' in {module.__file__}")
+                    found_plugin = True
+
+            # If no plugin class or function found, register the module itself
+            if not plugin_instance:
+                self.register(module, plugin_name)
+                logger.info(f"Registered plugin module '{plugin_name}' '{plugin_type}' from {module.__file__}")            
             
         except ValueError:
             logger.warning(f"Plugin with name '{plugin_name}' already registered. Skipping plugin at {module.__file__}")

@@ -122,7 +122,7 @@ class JSONDocumentPlugin:
             success = self._mtlxjson.documentFromJSON(json_object, doc)
             
             if success:
-                print(mx.prettyPrint(doc))
+                #print(mx.prettyPrint(doc))
                 doc.setSourceUri(uri)
                 logger.info(f"Successfully imported document from {uri}")
                 logger.info(f"Document contains {len(doc.getChildren())} top-level elements")
@@ -154,8 +154,8 @@ class JSONDocumentPlugin:
             
             if json_object:
                 # Write JSON to file using materialxjson Util
-                json_string = JSON.dumps(json_object, indent=2)
-                print(json_string)
+                #json_string = JSON.dumps(json_object, indent=2)
+                #print(json_string)
                 materialxjson_core.Util.writeJson(json_object, uri, indentation=2)                
                 logger.info(f"Successfully exported document to {uri}")
                 return True
