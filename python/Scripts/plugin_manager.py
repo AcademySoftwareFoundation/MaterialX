@@ -7,8 +7,12 @@ import sys
 import os
 import importlib.util
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, List, Union
+from typing import TYPE_CHECKING, Any, List, Union, Dict, Optional
+
 import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger('MXpm')
+logger.setLevel(logging.INFO)
 
 try:
     import pluggy
@@ -17,10 +21,10 @@ try:
     from typing import Dict, List, Optional, Any
     import traceback
     import inspect
-    print("Manager: MaterialX Python bindings and pluggy are available")
+    logger.debug("Manager: MaterialX Python bindings and pluggy are available")
 except ImportError as e:
-    print(f"Error importing required modules: {e}")
-    print("Make sure MaterialX Python bindings and pluggy are installed")
+    logger.info(f"Error importing required modules: {e}")
+    logger.info("Make sure MaterialX Python bindings and pluggy are installed")
     raise
 
 # The environment variable that contains the paths to the plugins
@@ -35,7 +39,6 @@ PLUGIN_NAME_FUNCTION_NAME = "plugin_name"
 # If a plugin decides it can be invalid (e.g. missing dependencies), it can implement this function
 PLUGIN_VALID_FUNCTION_NAME = "is_valid"
 
-logger = logging.getLogger(__name__)
 hookspec = pluggy.HookspecMarker("materialx")
 hookimpl = pluggy.HookimplMarker("materialx")
 
@@ -119,23 +122,23 @@ class MaterialXPluginManager(pluggy.PluginManager):
         # Set up callback for plugin registration events
         try:
             mx_render.setRegistrationCallback(self._on_plugin_registration)
-            print("MaterialXPluginManager initialized with C++ callback")
+            logger.info("MaterialXPluginManager initialized")
         except Exception as e:
-            print(f"Warning: Could not set registration callback: {e}")
+            logger.info(f"Warning: Could not set registration callback: {e}")
     
     def _on_plugin_registration(self, plugin_id: str, registered: bool):
         """Callback for plugin registration events."""
         if registered:
-            print(f"Manager: Plugin registered: {plugin_id}")
+            logger.info(f"Manager: Plugin registered: {plugin_id}")
         else:
-            print(f"Manager: Plugin unregistered: {plugin_id}")
+            logger.info(f"Manager: Plugin unregistered: {plugin_id}")
     
     def register_plugin(self, plugin_module):
         """Register a plugin module and load its document loaders."""
         # Check if module is already registered
         module_id = getattr(plugin_module, '__name__', str(plugin_module))
         if module_id in self._registered_modules:
-            print(f"Manager: Module {module_id} already registered, skipping")
+            logger.info(f"Manager: Module {module_id} already registered, skipping")
             return
         
         self.register(plugin_module)
@@ -156,15 +159,15 @@ class MaterialXPluginManager(pluggy.PluginManager):
                             result = mx_render.registerDocumentLoader(loader)
                             if result:
                                 self._registered_plugins.add(loader.getIdentifier())
-                                print(f"Manager: Registered document loader: {loader.getIdentifier()}")
+                                logger.info(f"Manager: Registered document loader: {loader.getIdentifier()}")
                             else:
-                                print(f"Manager: Warning: Failed to register loader {loader.getIdentifier()}")
+                                logger.info(f"Manager: Warning: Failed to register loader {loader.getIdentifier()}")
                         except Exception as e:
-                            print(f"Manager: Error registering loader {loader.getIdentifier()}: {e}")
+                            logger.info(f"Manager: Error registering loader {loader.getIdentifier()}: {e}")
         except Exception as e:
-            print(f"Manager: Error creating loaders from hooks: {e}")
+            logger.info(f"Manager: Error creating loaders from hooks: {e}")
     
-    def import_document_via_hooks(self, uri: str) -> Optional[mx.Document]:
+    def import_document(self, uri: str) -> Optional[mx.Document]:
         """Import a document using plugin hooks."""
         try:
             # Try each plugin's import hook
@@ -173,13 +176,13 @@ class MaterialXPluginManager(pluggy.PluginManager):
                 if result is not None:
                     return result
         except Exception as e:
-            print(f"Error importing document via hooks {uri}: {e}")
+            logger.info(f"Error importing document via hooks {uri}: {e}")
         
         # Fallback to C++ loader registry
         try:
             return mx_render.importDocument(uri)
         except Exception as e:
-            print(f"Error importing document {uri}: {e}")
+            logger.info(f"Error importing document {uri}: {e}")
             return None
     
     def export_document_via_hooks(self, document: mx.Document, uri: str) -> bool:
@@ -191,13 +194,13 @@ class MaterialXPluginManager(pluggy.PluginManager):
                 if result is True:
                     return True
         except Exception as e:
-            print(f"Error exporting document via hooks to {uri}: {e}")
+            logger.info(f"Error exporting document via hooks to {uri}: {e}")
         
         # Fallback to C++ loader registry
         try:
             return mx_render.exportDocument(document, uri)
         except Exception as e:
-            print(f"Error exporting document to {uri}: {e}")
+            logger.info(f"Error exporting document to {uri}: {e}")
             return False
     
     def load_plugins_from_dir(self, plugin_dir: PathOrStr):
@@ -255,9 +258,61 @@ class MaterialXPluginManager(pluggy.PluginManager):
             logger.info(f"Loading plugins from directory: {plugin_root_dir}")
             self.load_plugins_from_dir(plugin_root_dir)
 
+    def get_all_supported_extensions(self) -> List[str]:
+        """Get all supported file extensions from all registered plugins.
+        
+        Returns:
+            List of unique file extensions supported by all plugins
+        """
+        all_extensions = []
+        try:
+            # Get extensions from all plugins via hooks
+            extension_results = self.hook.supportedExtensions()
+            for extensions in extension_results:
+                if extensions:
+                    all_extensions.extend(extensions)
+        except Exception as e:
+            logger.info(f"Error getting supported extensions from hooks: {e}")
+          # Return unique extensions
+        return list(set(all_extensions))
+    
+    def get_plugin_info(self) -> Dict[str, Any]:
+        """Get information about all registered plugins.
+        
+        Returns:
+            Dictionary containing plugin information
+        """
+        plugin_info = {
+            'count': 0,
+            'extensions': self.get_all_supported_extensions(),
+            'plugins': []
+        }
+        
+        try:
+            # Get plugin names and capabilities
+            names = self.hook.getUIName()
+            import_capabilities = self.hook.canImport()
+            export_capabilities = self.hook.canExport()
+            extension_lists = self.hook.supportedExtensions()
+            
+            plugin_info['count'] = len(names)
+            
+            for i, (name, can_import, can_export, extensions) in enumerate(
+                zip(names, import_capabilities, export_capabilities, extension_lists)
+            ):
+                plugin_info['plugins'].append({
+                    'name': name,
+                    'can_import': can_import,
+                    'can_export': can_export,
+                    'extensions': extensions or []
+                })
+        except Exception as e:
+            logger.info(f"Error getting plugin information: {e}")
+        
+        return plugin_info
 
-class HookBasedDocumentLoader(mx_render.DocumentLoader):
-    """Document loader that uses plugin hooks instead of direct function callbacks."""
+class MaterialXDocumentLoader(mx_render.DocumentLoader):
+    """Document loader that uses plugin hooks"""
     
     def __init__(self, identifier: str, name: str, description: str, plugin_manager, plugin_instance):
         super().__init__(identifier, name, description)
@@ -271,7 +326,7 @@ class HookBasedDocumentLoader(mx_render.DocumentLoader):
                 extensions = self._plugin_instance.supportedExtensions()
                 return {str(ext) for ext in extensions} if extensions else set()
         except Exception as e:
-            print(f"Error getting supported extensions: {e}")
+            logger.info(f"Error getting supported extensions: {e}")
         return set()
     
     def importDocument(self, uri: str) -> Optional[mx.Document]:
@@ -280,7 +335,7 @@ class HookBasedDocumentLoader(mx_render.DocumentLoader):
             if hasattr(self._plugin_instance, 'importDocument'):
                 return self._plugin_instance.importDocument(uri)
         except Exception as e:
-            print(f"Error importing document via hooks: {e}")
+            logger.info(f"Error importing document via hooks: {e}")
         return None
     
     def exportDocument(self, document: mx.Document, uri: str) -> bool:
@@ -289,7 +344,7 @@ class HookBasedDocumentLoader(mx_render.DocumentLoader):
             if hasattr(self._plugin_instance, 'exportDocument'):
                 return self._plugin_instance.exportDocument(document, uri)
         except Exception as e:
-            print(f"Error exporting document via hooks: {e}")
+            logger.info(f"Error exporting document via hooks: {e}")
         return False
 
 # Global plugin manager instance
@@ -300,11 +355,11 @@ def get_plugin_manager() -> MaterialXPluginManager:
     global _plugin_manager
     if _plugin_manager is None:
         _plugin_manager = MaterialXPluginManager()
-        print(f"Using global MaterialX plugin manager instance")
+        logger.info(f"Using global MaterialX plugin manager instance")
     return _plugin_manager
 
-def create_hook_based_loader(identifier: str, name: str, description: str, 
-                           plugin_manager, plugin_instance) -> HookBasedDocumentLoader:
+def create_document_loader(identifier: str, name: str, description: str, 
+                           plugin_manager, plugin_instance) -> MaterialXDocumentLoader:
     """Create a hook-based document loader.
     
     Args:
@@ -315,15 +370,15 @@ def create_hook_based_loader(identifier: str, name: str, description: str,
         plugin_instance: The plugin instance that implements the hooks
         
     Returns:
-        HookBasedDocumentLoader instance
+        MaterialXDocumentLoader instance
     """
-    print(f"Manager: Creating hook-based document loader: {identifier}, {name}, {description}")
+    logger.info(f"Manager: Creating hook-based document loader: {identifier}, {name}, {description}")
     try:
-        loader = HookBasedDocumentLoader(identifier, name, description, plugin_manager, plugin_instance)
-        print("Manager: Hook-based document loader created successfully")
+        loader = MaterialXDocumentLoader(identifier, name, description, plugin_manager, plugin_instance)
+        logger.info("Manager: Hook-based document loader created successfully")
         return loader
     except Exception as e:
-        print(f"Error creating hook-based document loader: {e}")
+        logger.info(f"Error creating hook-based document loader: {e}")
         traceback.print_exc()
         raise
 
@@ -340,9 +395,9 @@ def register_plugin_with_manager(plugin_instance, manager=None):
     
     try:
         manager.register(plugin_instance)
-        print(f"Manager: Registered plugin instance: {type(plugin_instance).__name__}")
+        logger.info(f"Manager: Registered plugin instance: {type(plugin_instance).__name__}")
     except Exception as e:
-        print(f"Manager: Error registering plugin instance: {e}")
+        logger.info(f"Manager: Error registering plugin instance: {e}")
         traceback.print_exc()
 
 

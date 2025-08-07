@@ -16,25 +16,32 @@ import MaterialX as mx
 import MaterialX.PyMaterialXRender as mx_render
 from typing import Optional
 
+import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger('MXjson')
+logger.setLevel(logging.INFO)
+
 # Import the plugin system components
 try:
-    from plugin_manager import get_plugin_manager, hookimpl, HookBasedDocumentLoader, create_hook_based_loader, register_plugin_with_manager
+    import plugin_manager as pm
+    #from plugin_manager import get_plugin_manager, hookimpl, create_document_loader, register_plugin_with_manager
 except ImportError:
     # If running from a different location, try relative import
     import sys
     import os
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    from plugin_manager import get_plugin_manager, hookimpl, HookBasedDocumentLoader, create_hook_based_loader, register_plugin_with_manager
+    import plugin_manager as pm
+    #from plugin_manager import get_plugin_manager, hookimpl, create_document_loader, register_plugin_with_manager
 
 # Import the materialxjson library
 try:
     from materialxjson import core as materialxjson_core
     MATERIALXJSON_AVAILABLE = True
-    print("materialxjson: materialxjson library is available")
+    logger.info("materialxjson library is available")
 except ImportError as e:
     MATERIALXJSON_AVAILABLE = False
-    print(f"materialxjson: materialxjson library not available: {e}")
-    print("materialxjson: Install with: pip install materialxjson")
+    logger.info(f"materialxjson library not available: {e}")
+    logger.info("Install with: pip install materialxjson")
 
 
 def plugin_name():
@@ -50,7 +57,7 @@ def is_valid():
         from materialxjson import core as materialxjson_core
         return True
     except ImportError as e:
-        print(f"JSON Plugin validation failed: {e}")
+        logger.info(f"JSON Plugin validation failed: {e}")
         return False
 
 
@@ -69,52 +76,52 @@ class JSONDocumentPlugin:
         else:
             self._mtlxjson = None
     
-    @hookimpl
+    @pm.hookimpl
     def register_document_loaders(self):
         """Hook implementation to register our document loaders."""
         
         if not MATERIALXJSON_AVAILABLE:
-            print("materialxjson: Cannot register loader - materialxjson library not available")
+            logger.info("Cannot register loader - materialxjson library not available")
             return []
         
         # Create JSON import / export loader using the new hook-based approach
-        json_loader = create_hook_based_loader(
+        json_loader = pm.create_document_loader(
             identifier="materialxjson_loader",
             name="MaterialX JSON Document Loader", 
             description="Import / Export MaterialX documents from JSON format using materialxjson library",
-            plugin_manager=get_plugin_manager(),
+            plugin_manager = pm.get_plugin_manager(),
             plugin_instance=self
         )
         
-        print("materialxjson: Registered MaterialX JSON document loader")
+        logger.info("Registered MaterialX JSON document loader")
         return [json_loader]
     
-    @hookimpl
+    @pm.hookimpl
     def supportedExtensions(self):
         """Hook implementation for supported extensions."""
         return [".json"]
     
-    @hookimpl
+    @pm.hookimpl
     def getUIName(self):
         """Hook implementation for UI name."""
         return "MaterialX JSON Plugin (materialxjson)"
     
-    @hookimpl
+    @pm.hookimpl
     def canImport(self):
         """Hook implementation for import capability."""
         return MATERIALXJSON_AVAILABLE
     
-    @hookimpl
+    @pm.hookimpl
     def canExport(self):
         """Hook implementation for export capability."""
         return MATERIALXJSON_AVAILABLE
     
-    @hookimpl
+    @pm.hookimpl
     def importDocument(self, uri: str) -> Optional[mx.Document]:
         """Hook implementation for document import."""
         return self.import_json_document(uri)
     
-    @hookimpl
+    @pm.hookimpl
     def exportDocument(self, document: mx.Document, uri: str) -> bool:
         """Hook implementation for document export."""
         return self.export_json_document(document, uri)
@@ -129,17 +136,17 @@ class JSONDocumentPlugin:
         Returns:
             MaterialX Document object or None on failure
         """
-        print(f"materialxjson: Importing document from {uri}")
+        logger.info(f"Importing document from {uri}")
         
         if not MATERIALXJSON_AVAILABLE or not self._mtlxjson:
-            print("materialxjson: Cannot import - materialxjson library not available")
+            logger.info("Cannot import - materialxjson library not available")
             return None
         
         try:
             # Read JSON file using materialxjson Util
             json_object = materialxjson_core.Util.readJson(uri)
             if not json_object:
-                print(f"materialxjson: Failed to read JSON file {uri}")
+                logger.info(f"Failed to read JSON file {uri}")
                 return None
             
             # Create a new MaterialX document
@@ -150,15 +157,15 @@ class JSONDocumentPlugin:
             
             if success:
                 doc.setSourceUri(uri)
-                print(f"materialxjson: Successfully imported document from {uri}")
-                print(f"materialxjson: Document contains {len(doc.getChildren())} top-level elements")
+                logger.info(f"Successfully imported document from {uri}")
+                logger.info(f"Document contains {len(doc.getChildren())} top-level elements")
                 return doc
             else:
-                print(f"materialxjson: Failed to convert JSON to MaterialX document: {uri}")
+                logger.info(f"Failed to convert JSON to MaterialX document: {uri}")
                 return None
                 
         except Exception as e:
-            print(f"materialxjson: Error importing {uri}: {e}")
+            logger.info(f"Error importing {uri}: {e}")
             import traceback
             traceback.print_exc()
             return None
@@ -174,10 +181,10 @@ class JSONDocumentPlugin:
         Returns:
             True on success, False on failure
         """
-        print(f"materialxjson: Exporting document to {uri}")
+        logger.info(f"Exporting document to {uri}")
         
         if not MATERIALXJSON_AVAILABLE or not self._mtlxjson:
-            print("materialxjson: Cannot export - materialxjson library not available")
+            logger.info("Cannot export - materialxjson library not available")
             return False
         
         try:
@@ -188,14 +195,14 @@ class JSONDocumentPlugin:
                 # Write JSON to file using materialxjson Util
                 materialxjson_core.Util.writeJson(json_object, uri, indentation=2)
                 
-                print(f"materialxjson: Successfully exported document to {uri}")
+                logger.info(f"Successfully exported document to {uri}")
                 return True
             else:
-                print(f"materialxjson: Failed to convert MaterialX document to JSON")
+                logger.info(f"Failed to convert MaterialX document to JSON")
                 return False
                 
         except Exception as e:
-            print(f"materialxjson: Error exporting to {uri}: {e}")
+            logger.info(f"Error exporting to {uri}: {e}")
             import traceback
             traceback.print_exc()
             return False
@@ -208,20 +215,20 @@ def register_plugin():
     
     This function is called automatically when the plugin is discovered.
     """
-    print("materialxjson: Registering plugin...")
+    logger.info("Registering plugin...")
     
     if not MATERIALXJSON_AVAILABLE:
-        print("materialxjson: Plugin registration skipped - materialxjson library not available")
-        print("materialxjson: Install with: pip install materialxjson")
+        logger.info("Plugin registration skipped - materialxjson library not available")
+        logger.info("Install with: pip install materialxjson")
         return
     
     # Create plugin instance
     plugin = JSONDocumentPlugin()
     
     # Register with plugin manager using the new interface
-    register_plugin_with_manager(plugin)
+    pm.register_plugin_with_manager(plugin)
     
-    print("materialxjson: Registration complete")
+    logger.info("Registration complete")
 
 
 def initialize_plugin():
@@ -229,11 +236,11 @@ def initialize_plugin():
     try:
         register_plugin()
         if MATERIALXJSON_AVAILABLE:
-            print("JSON Plugin (materialxjson) initialized successfully")
+            logger.info("JSON Plugin (materialxjson) initialized successfully")
         else:
-            print("JSON Plugin initialization skipped - missing materialxjson library")
+            logger.info("JSON Plugin initialization skipped - missing materialxjson library")
     except Exception as e:
-        print(f"Error initializing JSON plugin: {e}")
+        logger.info(f"Error initializing JSON plugin: {e}")
         raise
 
 
@@ -241,10 +248,10 @@ def test_json_plugin():
     """Test the JSON plugin functionality using materialxjson library."""
     
     if not MATERIALXJSON_AVAILABLE:
-        print("Test skipped - materialxjson library not available")
+        logger.info("Test skipped - materialxjson library not available")
         return
     
-    print("Testing MaterialX JSON Plugin with materialxjson library...")
+    logger.info("Testing MaterialX JSON Plugin with materialxjson library...")
     
     # Create a test document
     doc = mx.createDocument()
@@ -261,36 +268,36 @@ def test_json_plugin():
     material = doc.addMaterial("test_material")
     shader_ref = material.addShaderRef("surface_shader", "test_graph")
     
-    print(f"Created test document with:")
-    print(f"  - {len(doc.getNodeGraphs())} node graphs")
-    print(f"  - {len(doc.getMaterials())} materials")
-    print(f"  - Version: {doc.getVersionString()}")
-    print(f"  - Color space: {doc.getColorSpace()}")
+    logger.info(f"Created test document with:")
+    logger.info(f"  - {len(doc.getNodeGraphs())} node graphs")
+    logger.info(f"  - {len(doc.getMaterials())} materials")
+    logger.info(f"  - Version: {doc.getVersionString()}")
+    logger.info(f"  - Color space: {doc.getColorSpace()}")
     
     # Test export
     plugin = JSONDocumentPlugin()
     test_file = "test_materialxjson_export.json"
     
     success = plugin.export_json_document(doc, test_file)
-    print(f"Export test: {'SUCCESS' if success else 'FAILED'}")
+    logger.info(f"Export test: {'SUCCESS' if success else 'FAILED'}")
     
     if success:
         # Test import
         imported_doc = plugin.import_json_document(test_file)
-        print(f"Import test: {'SUCCESS' if imported_doc else 'FAILED'}")
+        logger.info(f"Import test: {'SUCCESS' if imported_doc else 'FAILED'}")
         
         if imported_doc:
-            print(f"Imported document contains:")
-            print(f"  - {len(imported_doc.getNodeGraphs())} node graphs")  
-            print(f"  - {len(imported_doc.getMaterials())} materials")
-            print(f"  - Version: {imported_doc.getVersionString()}")
-            print(f"  - Color space: {imported_doc.getColorSpace()}")
+            logger.info(f"Imported document contains:")
+            logger.info(f"  - {len(imported_doc.getNodeGraphs())} node graphs")  
+            logger.info(f"  - {len(imported_doc.getMaterials())} materials")
+            logger.info(f"  - Version: {imported_doc.getVersionString()}")
+            logger.info(f"  - Color space: {imported_doc.getColorSpace()}")
         
         # Clean up test file
         try:
             import os
             os.remove(test_file)
-            print(f"Cleaned up test file: {test_file}")
+            logger.info(f"Cleaned up test file: {test_file}")
         except:
             pass
 
@@ -301,5 +308,5 @@ if __name__ != "__main__":
     initialize_plugin()
 else:
     # If run directly, run tests
-    print("Running MaterialX JSON Plugin tests...")
+    logger.info("Running MaterialX JSON Plugin tests...")
     test_json_plugin()
