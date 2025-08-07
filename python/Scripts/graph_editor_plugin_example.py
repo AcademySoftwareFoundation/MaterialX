@@ -2,10 +2,14 @@
 Example of how to start the plugin manager with GraphEditor integration.
 
 This example shows how to:
-1. Initialize the Python plugin manager
-2. Register document loaders
+1. Initialize the Python plugin manager with hook-based plugins
+2. Discover and register plugins (including materialxjson plugin)
 3. Set up the GraphEditor to use the same plugin manager
 4. Coordinate between Python and C++ plugin systems
+5. Demonstrate usage of the materialxjson plugin for JSON import/export
+
+Updated for the new hook-based plugin system with materialxjson integration.
+The old loader-based system has been replaced with the modern hookspec/hookimpl approach.
 """
 
 from pathlib import Path
@@ -14,58 +18,60 @@ import os
 try:
     import MaterialX as mx
     import MaterialX.PyMaterialXRender as mx_render
-    from plugin_manager import get_plugin_manager, document_loader, create_document_loader
+    from plugin_manager import get_plugin_manager
 except ImportError as e:
     print(f"Error importing MaterialX: {e}")
     print("Make sure MaterialX Python bindings are installed and in your PYTHONPATH")
     sys.exit(1)
 
 def initialize_plugin_system():
-    """Initialize the plugin system and register default loaders."""
-    print("Initializing MaterialX Plugin System...")
+    """Initialize the hook-based plugin system and discover plugins."""
+    print("Initializing MaterialX Hook-based Plugin System...")
     
-    # Get the global plugin manager instance
+    # Get the global plugin manager instance (this creates the hook-based manager)
     pm = get_plugin_manager()
+    print(f"Plugin manager created: {type(pm).__name__}")
     
-    # Register the predefined loaders
-    #print("Registering predefined document loaders...")
-    for config in _loader_configs:
-        try:
-            if config.get("can_import", False):
-                loader = create_document_loader(
-                    identifier=config["identifier"],
-                    name=config["name"],
-                    description=config["description"],
-                    extensions=config["extensions"],
-                    import_func=config["func"]
-                )
-            elif config.get("can_export", False):
-                loader = create_document_loader(
-                    identifier=config["identifier"],
-                    name=config["name"],
-                    description=config["description"],
-                    extensions=config["extensions"],
-                    export_func=config["func"]
-                )
-            else:
-                continue
-                  # Register with the C++ system
-            try:
-                result = mx_render.registerDocumentLoader(loader)
-                if result:
-                    print(f"- Successfully registered: {config['name']}")
-                else:
-                    print(f"- Failed to register: {config['name']} (returned False)")
-            except Exception as e:
-                print(f"- Error registering {config['name']}: {e}")
-                print("  This might happen if MaterialX libraries are not fully built")
-                print("  The script will continue...")
-                
-        except Exception as e:
-            print(f"✗ Error creating loader for {config['name']}: {e}")
+    # Discover and load plugins from environment variable and standard locations
+    discover_and_load_plugins(pm)
     
-    # The plugin manager automatically sets up the C++ callback integration
-    # when it's created, so both Python and C++ systems will be coordinated
+    # The plugin manager automatically coordinates with the C++ system
+    # through its built-in callback integration
+    print("Plugin system initialization complete")
+    
+    return pm
+
+
+def discover_and_load_plugins(pm):
+    """Discover and load plugins from various locations."""
+    
+    # 1. Load plugins from environment variable
+    pm.load_plugins_from_environment_variable()
+    
+    # 2. Load plugins from standard plugin directories
+    plugin_dirs = []
+    
+    # Check for environment variable with plugin paths
+    envvar_plugin_paths = "MATERIALX_PLUGIN_PATHS"
+    if envvar_plugin_paths in os.environ:
+        paths = os.environ[envvar_plugin_paths]
+        # Split on ; (Windows) or : (Unix)
+        separator = ';' if os.name == 'nt' else ':'
+        plugin_dirs.extend([Path(d.strip()) for d in paths.split(separator) if d.strip()])
+        print(f"Using plugin directories from environment variable: {envvar_plugin_paths}")
+    
+    # Add default plugin directory
+    default_plugin_dir = Path(__file__).parent / "plugins"
+    plugin_dirs.append(default_plugin_dir)    # Discover plugins from each directory
+    for plugin_dir in plugin_dirs:
+        if plugin_dir.exists():
+            print(f"Loading plugins from: {plugin_dir}")
+            pm.load_plugins_from_dir(str(plugin_dir))
+        else:
+            print(f"Plugin directory {plugin_dir} does not exist - skipping")
+    
+    # Show discovered plugins
+    print(f"Total registered plugins: {len(pm._registered_plugins)}")
     
     return pm
 
@@ -75,156 +81,151 @@ def setup_graph_editor_integration():
     
     # The GraphEditor PluginIntegration class will automatically use
     # the same C++ PluginManager singleton that our Python plugin manager
-    # is connected to through mx_render.registerDocumentLoader() calls
+    # is connected to through the callback integration system
     
     print("GraphEditor will automatically use the shared C++ PluginManager singleton")
-    print("All document loaders registered through Python will be available to GraphEditor")
-
-
-# Document loaders that will be registered when initialize_plugin_system() is called
-_pending_loaders = []
-
-def json_loader_impl(uri: str) -> mx.Document:
-    """Example JSON document loader."""
-    print(f"Loading JSON document from: {uri}")
-    # This is just an example - implement your actual JSON loading logic
-    doc = mx.createDocument()
-    doc.setSourceUri(uri)
-    return doc
-
-def yaml_loader_impl(uri: str) -> mx.Document:
-    """Example YAML document loader."""
-    print(f"Loading YAML document from: {uri}")
-    # This is just an example - implement your actual YAML loading logic
-    doc = mx.createDocument()
-    doc.setSourceUri(uri)
-    return doc
-
-def custom_exporter_impl(document: mx.Document, uri: str) -> bool:
-    """Example custom document exporter."""
-    print(f"Exporting document to custom format: {uri}")
-    # This is just an example - implement your actual export logic
-    return True
-
-# Define loader configurations (but don't register them yet)
-_loader_configs = [
-    {
-        "identifier": "json_loader",
-        "name": "MY JSON Document Loader", 
-        "description": "Loads MaterialX documents from JSON format",
-        "extensions": [".json"],
-        "can_import": True,
-        "func": json_loader_impl
-    },
-    {
-        "identifier": "yaml_loader",
-        "name": "MY YAML Document Loader",
-        "description": "Loads MaterialX documents from YAML format", 
-        "extensions": [".yaml", ".yml"],
-        "can_import": True,
-        "func": yaml_loader_impl
-    },
-    {
-        "identifier": "custom_exporter",
-        "name": "Custom Format Exporter",
-        "description": "Exports documents to custom format",
-        "extensions": [".custom"],
-        "can_export": True,
-        "func": custom_exporter_impl
-    }
-]
-
-_loader_configs = []
-
-
-def register_custom_loaders():
-    """Register additional custom document loaders programmatically."""
-    
-    # Example of creating a loader programmatically (without decorator)
-    def load_xml_variant(uri: str) -> mx.Document:
-        print(f"Loading XML variant from: {uri}")
-        doc = mx.createDocument() 
-        doc.setSourceUri(uri)
-        return doc
-    
-    xml_loader = create_document_loader(
-        identifier="xml_variant_loader",
-        name="XML Variant Loader",
-        description="Loads XML variant documents",
-        extensions=[".xmlvar"],
-        import_func=load_xml_variant
-    )
-    
-    # Register with the C++ system
-    mx_render.registerDocumentLoader(xml_loader)
-    print("Registered XML variant loader")
+    print("All document loaders registered through Python hooks will be available to GraphEditor")
 
 
 def test_plugin_system():
-    """Test the plugin system integration."""
-    print("\nTesting plugin system...")
+    """Test the hook-based plugin system integration."""
+    print("\n" + "="*50)
+    print("Testing Hook-based Plugin System")
+    print("="*50)
     
     pm = get_plugin_manager()
     
-    # Test importing a document (this will use registered loaders)
-    try:
-        # This would normally load a real file - just for demonstration
-        print("Testing document import through plugin manager...")
-        # doc = pm.import_document("example.json")  # Uncomment to test with real file
-        print("Import test completed")
-    except Exception as e:
-        print(f"Import test failed (expected if file doesn't exist): {e}")
+    # Test hook calls to see what plugins are available
+    print("Testing plugin hooks...")
     
-    # Test exporting a document
     try:
-        print("Testing document export through plugin manager...")
-        doc = mx.createDocument()
-        # result = pm.export_document(doc, "test.custom")  # Uncomment to test with real file
-        print("Export test completed")
+        # Test supportedExtensions hook
+        extensions_results = pm.hook.supportedExtensions()
+        print(f"Supported extensions from plugins: {extensions_results}")
+        
+        # Test getUIName hook
+        names_results = pm.hook.getUIName()
+        print(f"Plugin UI names: {names_results}")
+        
+        # Test capability hooks
+        import_results = pm.hook.canImport()
+        export_results = pm.hook.canExport()
+        print(f"Import capabilities: {import_results}")
+        print(f"Export capabilities: {export_results}")
+        
     except Exception as e:
-        print(f"Export test failed: {e}")
+        print(f"Hook testing failed: {e}")
+    
+    # Test document operations using the hook-based system
+    test_document_operations(pm)
+
+
+def test_document_operations(pm):
+    """Test document import/export through the hook-based plugin system."""
+    print("\nTesting document operations...")
+    
+    # Create a test document
+    doc = mx.createDocument()
+    doc.setVersionString("1.38")
+    doc.setColorSpace("lin_rec709")
+    
+    # Add some content to make the test more meaningful
+    nodegraph = doc.addNodeGraph("test_graph")
+    constant_node = nodegraph.addNode("constant", "test_constant")
+    constant_node.setType("color3") 
+    constant_node.setInputValue("value", mx.Color3(0.8, 0.4, 0.2))
+    
+    print(f"Created test document with {len(doc.getNodeGraphs())} node graphs")
+    
+    # Test export via hooks (if JSON plugin is available)
+    test_file = "test_graph_editor_export.json"
+    
+    try:
+        print(f"Testing export to: {test_file}")
+        success = pm.export_document_via_hooks(doc, test_file)
+        
+        if success:
+            print("✓ Export successful")
+            
+            # Test import
+            print(f"Testing import from: {test_file}")
+            imported_doc = pm.import_document_via_hooks(test_file)
+            
+            if imported_doc:
+                print("✓ Import successful")
+                print(f"  Imported document has {len(imported_doc.getNodeGraphs())} node graphs")
+                
+                # Clean up
+                try:
+                    os.remove(test_file)
+                    print("✓ Cleaned up test file")
+                except:
+                    pass
+            else:
+                print("✗ Import failed")
+        else:
+            print("✗ Export failed")
+            
+    except Exception as e:
+        print(f"Document operation test failed: {e}")
+        import traceback
+        traceback.print_exc()
+
+
+def check_materialxjson_plugin():
+    """Check if the materialxjson plugin is available and working."""
+    print("\n" + "="*40)
+    print("Checking MaterialXJSON Plugin")
+    print("="*40)
+    
+    try:
+        from materialxjson import core as materialxjson_core
+        print("✓ materialxjson library is available")
+        
+        # Test basic functionality
+        mtlxjson = materialxjson_core.MaterialXJson()
+        doc = mx.createDocument()
+        doc.setVersionString("1.38")
+        
+        json_obj = mtlxjson.documentToJSON(doc)
+        if json_obj:
+            print("✓ materialxjson conversion working")
+            print(f"  JSON keys: {list(json_obj.keys())}")
+        else:
+            print("✗ materialxjson conversion failed")
+            
+    except ImportError as e:
+        print(f"✗ materialxjson library not available: {e}")
+        print("  Install with: pip install materialxjson")
+        print("  The JSON plugin will not be functional without this library")
+    except Exception as e:
+        print(f"✗ Error testing materialxjson: {e}")
 
 
 def main():
-    """Main function to start the plugin system and prepare for GraphEditor."""
+    """Main function to start the hook-based plugin system and prepare for GraphEditor."""
     
-    print("=== MaterialX Plugin Manager + GraphEditor Integration ===\n")
+    print("="*70)
+    print("MaterialX Hook-based Plugin Manager + GraphEditor Integration")
+    print("="*70)
     
-    # 1. Initialize the plugin system
+    # 1. Check if materialxjson plugin dependencies are available
+    check_materialxjson_plugin()
+    
+    # 2. Initialize the hook-based plugin system
     pm = initialize_plugin_system()
     
-    # 2. Set up GraphEditor integration
-    #setup_graph_editor_integration()
+    # 3. Set up GraphEditor integration
+    setup_graph_editor_integration()
     
-    # 3. Register custom document loaders
-    #register_custom_loaders()
+    # 4. Test the plugin system
+    test_plugin_system()
     
-    # 4. Discover and load plugins from a directory (optional)
-    plugin_dirs = []
-    envvar_plugin_dir = "MATERIALX_PLUGIN_DIR"
-    if envvar_plugin_dir in os.environ:
-        plugin_dir = Path(os.environ[envvar_plugin_dir])
-        # Split ; or : if multiple directories are specified
-        if ";" in plugin_dir.as_posix() or ":" in plugin_dir.as_posix():
-            plugin_dirs.extend([Path(d.strip()) for d in plugin_dir.as_posix().split(';') if d.strip()])
-        else:
-            plugin_dir = Path(plugin_dir)
-            plugin_dirs.append(plugin_dir)
-        print(f"Using plugin directories from environment variable: {envvar_plugin_dir}")
-    
-    plugin_dir = Path.cwd() / "plugins"
-    plugin_dirs.append(plugin_dir)
-
-    for plugin_dir in plugin_dirs:
-        if plugin_dir.exists():
-            pm.discover_plugins(str(plugin_dir))
-        else:
-            print(f"Plugin directory {plugin_dir} does not exist - skipping plugin discovery")
-    
-    # 5. Test the system
-    #test_plugin_system()
-    
-    print("\n=== Plugin System Ready ===")
+    print("\n" + "="*50)
+    print("Plugin System Ready for GraphEditor")
+    print("="*50)
+    print("The plugin manager is now active and ready for GraphEditor integration.")
+    print("All discovered plugins are available for document import/export.")
     
     return pm
 
@@ -232,13 +233,14 @@ def main():
 if __name__ == "__main__":
     plugin_manager = main()
     
-    # Keep the program running if needed
-    print("\nPlugin manager is active.")
-    exit(0)
-
-    #try:
-    #    import time
-    #    while True:
-    #        time.sleep(1)
-    #except KeyboardInterrupt:
-    #    print("\nShutting down plugin manager...")
+    print("\nPlugin manager is active and ready.")
+    print("You can now start GraphEditor or use the plugin system programmatically.")
+    
+    # Uncomment to keep the program running if needed for testing
+    # try:
+    #     import time
+    #     print("Keeping plugin manager alive... (Ctrl+C to exit)")
+    #     while True:
+    #         time.sleep(1)
+    # except KeyboardInterrupt:
+    #     print("\nShutting down plugin manager...")
