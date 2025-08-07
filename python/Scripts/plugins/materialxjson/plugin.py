@@ -10,6 +10,11 @@ The plugin system will look for:
 1. plugin_name() function - returns the plugin name
 2. is_valid() function (optional) - returns True if plugin can be loaded
 3. The actual plugin implementation (included in this file)
+
+USAGE:
+The plugin automatically registers itself when imported by the plugin system.
+No manual registration or setup is required - just ensure the materialxjson
+library is installed: pip install materialxjson
 """
 
 import MaterialX as mx
@@ -24,14 +29,16 @@ logger.setLevel(logging.INFO)
 # Import the plugin system components
 try:
     import plugin_manager as pm
-    #from plugin_manager import get_plugin_manager, hookimpl, create_document_loader, register_plugin_with_manager
 except ImportError:
-    # If running from a different location, try relative import
+    # If running from a different location, try adding Scripts directory to path
     import sys
     import os
-    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    # Get Scripts directory: plugins/materialxjson -> plugins -> Scripts
+    current_dir = os.path.dirname(os.path.abspath(__file__))  # plugins/materialxjson
+    plugins_dir = os.path.dirname(current_dir)                # plugins
+    scripts_dir = os.path.dirname(plugins_dir)                # Scripts
+    sys.path.insert(0, scripts_dir)
     import plugin_manager as pm
-    #from plugin_manager import get_plugin_manager, hookimpl, create_document_loader, register_plugin_with_manager
 
 # Import the materialxjson library
 try:
@@ -48,6 +55,9 @@ def plugin_name():
     """Return the plugin name (required by plugin system)."""
     return "materialx_json_plugin"
 
+def plugin_type():
+    """Return the plugin type (required by plugin system)."""
+    return pm.MaterialXPluginManager.PluginType.DOCUMENT_LOADER
 
 def is_valid():
     """Check if plugin dependencies are available (optional)."""
@@ -74,28 +84,7 @@ class JSONDocumentPlugin:
         if MATERIALXJSON_AVAILABLE:
             self._mtlxjson = materialxjson_core.MaterialXJson()
         else:
-            self._mtlxjson = None
-    
-    @pm.hookimpl
-    def register_document_loaders(self):
-        """Hook implementation to register our document loaders."""
-        
-        if not MATERIALXJSON_AVAILABLE:
-            logger.info("Cannot register loader - materialxjson library not available")
-            return []
-        
-        # Create JSON import / export loader using the new hook-based approach
-        json_loader = pm.create_document_loader(
-            identifier="materialxjson_loader",
-            name="MaterialX JSON Document Loader", 
-            description="Import / Export MaterialX documents from JSON format using materialxjson library",
-            plugin_manager = pm.get_plugin_manager(),
-            plugin_instance=self
-        )
-        
-        logger.info("Registered MaterialX JSON document loader")
-        return [json_loader]
-    
+            self._mtlxjson = None    
     @pm.hookimpl
     def supportedExtensions(self):
         """Hook implementation for supported extensions."""
@@ -208,41 +197,13 @@ class JSONDocumentPlugin:
             return False
 
 
-# Plugin registration function (called by plugin system)
-def register_plugin():
-    """
-    Register this plugin with the MaterialX plugin system.
-    
-    This function is called automatically when the plugin is discovered.
-    """
-    logger.info("Registering plugin...")
+def initialize_plugin():
+    """Initialize plugin (called automatically by plugin system)."""
     
     if not MATERIALXJSON_AVAILABLE:
-        logger.info("Plugin registration skipped - materialxjson library not available")
+        logger.info("Plugin dependencies not met - materialxjson library not available")
         logger.info("Install with: pip install materialxjson")
-        return
-    
-    # Create plugin instance
-    plugin = JSONDocumentPlugin()
-    
-    # Register with plugin manager using the new interface
-    pm.register_plugin_with_manager(plugin)
-    
-    logger.info("Registration complete")
-
-
-def initialize_plugin():
-    """Initialize the plugin."""
-    try:
-        register_plugin()
-        if MATERIALXJSON_AVAILABLE:
-            logger.info("JSON Plugin (materialxjson) initialized successfully")
-        else:
-            logger.info("JSON Plugin initialization skipped - missing materialxjson library")
-    except Exception as e:
-        logger.info(f"Error initializing JSON plugin: {e}")
-        raise
-
+        return    
 
 def test_json_plugin():
     """Test the JSON plugin functionality using materialxjson library."""
@@ -302,9 +263,9 @@ def test_json_plugin():
             pass
 
 
-# Auto-initialize when discovered by plugin system
+# Auto-initialize when imported by plugin system (registration is automatic)
 if __name__ != "__main__":
-    # When imported by plugin system, auto-initialize
+    # When imported by plugin system, just initialize (no manual registration needed)
     initialize_plugin()
 else:
     # If run directly, run tests

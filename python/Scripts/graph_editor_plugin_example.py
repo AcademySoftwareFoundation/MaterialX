@@ -134,7 +134,7 @@ def test_document_operations(pm):
     
     try:
         logger.info(f"* Testing export to: {test_file}")
-        success = pm.export_document_via_hooks(doc, test_file)
+        success = pm.export_document(doc, test_file)
         
         if success:
             logger.info("- Export successful")

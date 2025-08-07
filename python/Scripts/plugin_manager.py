@@ -3,11 +3,12 @@ Materialx Python Plugin Manager.
 Requires that pluggy be insstalled as well as the MaterialX Core and Render bindings be installed.
 """
 
-import sys
 import os
 import importlib.util
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, List, Union, Dict, Optional
+from typing import Any, List, Union, Dict, Optional
+from enum import Enum
+import inspect
 
 import logging
 logging.basicConfig(level=logging.INFO)
@@ -18,10 +19,7 @@ try:
     import pluggy
     import MaterialX as mx
     import MaterialX.PyMaterialXRender as mx_render
-    from typing import Dict, List, Optional, Any
-    import traceback
-    import inspect
-    logger.debug("Manager: MaterialX Python bindings and pluggy are available")
+    logger.debug("MaterialX Python bindings and pluggy are available")
 except ImportError as e:
     logger.info(f"Error importing required modules: {e}")
     logger.info("Make sure MaterialX Python bindings and pluggy are installed")
@@ -36,6 +34,9 @@ PLUGIN_FILE_NAME = "plugin"  # .py
 # Necessary function name by each plugin to implement and return a plugin instance
 PLUGIN_NAME_FUNCTION_NAME = "plugin_name"
 
+# Necessary function name that each plugin must implement to return the type of plugin it is.
+PLUGIN_TYPE_FUNCTION_NAME = "plugin_type"
+
 # If a plugin decides it can be invalid (e.g. missing dependencies), it can implement this function
 PLUGIN_VALID_FUNCTION_NAME = "is_valid"
 
@@ -46,14 +47,6 @@ PathOrStr = Union[Path, str]
 
 class MaterialXHookSpec:
     """Interfaces for MaterialX plugins."""
-
-    @hookspec
-    def register_document_loaders(self) -> List[mx_render.DocumentLoader]:
-        """Register document loaders.
-        
-        Returns:
-            List of DocumentLoader instances
-        """
 
     @hookspec
     def importDocument(self, uri: str) -> Optional[mx.Document]:
@@ -113,6 +106,10 @@ class MaterialXHookSpec:
 class MaterialXPluginManager(pluggy.PluginManager):
     """Plugin manager that uses hookspec/hookimpl pattern for MaterialX plugins."""
     
+    # Types of plugins. For now there are only document loaders.
+    class PluginType(Enum):
+        DOCUMENT_LOADER = 0    
+
     def __init__(self):
         super().__init__("materialx")
         self.add_hookspecs(MaterialXHookSpec)
@@ -129,43 +126,10 @@ class MaterialXPluginManager(pluggy.PluginManager):
     def _on_plugin_registration(self, plugin_id: str, registered: bool):
         """Callback for plugin registration events."""
         if registered:
-            logger.info(f"Manager: Plugin registered: {plugin_id}")
+            logger.info(f"Plugin registered: {plugin_id}")
         else:
-            logger.info(f"Manager: Plugin unregistered: {plugin_id}")
-    
-    def register_plugin(self, plugin_module):
-        """Register a plugin module and load its document loaders."""
-        # Check if module is already registered
-        module_id = getattr(plugin_module, '__name__', str(plugin_module))
-        if module_id in self._registered_modules:
-            logger.info(f"Manager: Module {module_id} already registered, skipping")
-            return
-        
-        self.register(plugin_module)
-        self._create_document_loaders_from_hooks(plugin_module)
-        self._registered_modules.add(module_id)
-    
-    def _create_document_loaders_from_hooks(self, plugin_module):
-        """Create document loaders from plugin hooks."""
-        try:
-            # Use the hook system to get loaders from registered plugins
-            loaders = self.hook.register_document_loaders()
-            
-            # Filter loaders from this specific module
-            if loaders:
-                for loader in loaders:
-                    if loader and loader.getIdentifier() not in self._registered_plugins:
-                        try:
-                            result = mx_render.registerDocumentLoader(loader)
-                            if result:
-                                self._registered_plugins.add(loader.getIdentifier())
-                                logger.info(f"Manager: Registered document loader: {loader.getIdentifier()}")
-                            else:
-                                logger.info(f"Manager: Warning: Failed to register loader {loader.getIdentifier()}")
-                        except Exception as e:
-                            logger.info(f"Manager: Error registering loader {loader.getIdentifier()}: {e}")
-        except Exception as e:
-            logger.info(f"Manager: Error creating loaders from hooks: {e}")
+            logger.info(f"Plugin unregistered: {plugin_id}")
+  
     
     def import_document(self, uri: str) -> Optional[mx.Document]:
         """Import a document using plugin hooks."""
@@ -185,7 +149,7 @@ class MaterialXPluginManager(pluggy.PluginManager):
             logger.info(f"Error importing document {uri}: {e}")
             return None
     
-    def export_document_via_hooks(self, document: mx.Document, uri: str) -> bool:
+    def export_document(self, document: mx.Document, uri: str) -> bool:
         """Export a document using plugin hooks."""
         try:
             # Try each plugin's export hook
@@ -202,7 +166,7 @@ class MaterialXPluginManager(pluggy.PluginManager):
         except Exception as e:
             logger.info(f"Error exporting document to {uri}: {e}")
             return False
-    
+
     def load_plugins_from_dir(self, plugin_dir: PathOrStr):
         """Load plugins from a directory containing plugin.py files."""
         plugin_dir = Path(plugin_dir) if isinstance(plugin_dir, str) else plugin_dir
@@ -231,19 +195,63 @@ class MaterialXPluginManager(pluggy.PluginManager):
                 f"Found plugin at {module.__file__}, but it does not have a '{PLUGIN_NAME_FUNCTION_NAME}' function."
             )
             return
+        
+        if hasattr(module, PLUGIN_TYPE_FUNCTION_NAME):
+            plugin_type_function = getattr(module, PLUGIN_TYPE_FUNCTION_NAME)
+            plugin_type: Any = plugin_type_function()
+            if not isinstance(plugin_type, MaterialXPluginManager.PluginType):
+                logger.warning(f"Plugin type {plugin_type} is not valid. Expected PluginType enum. Skipping plugin at {module.__file__}")
+                return
+        else:
+            logger.warning(
+                f"Found plugin at {module.__file__}, but it does not have a '{PLUGIN_TYPE_FUNCTION_NAME}' function."
+            )
+            return
 
         # Check for presence of PLUGIN_VALID_FUNCTION_NAME function and skip if it returns False
         if hasattr(module, PLUGIN_VALID_FUNCTION_NAME):
             plugin_valid_function = getattr(module, PLUGIN_VALID_FUNCTION_NAME)
             if not plugin_valid_function():
                 logger.warning(f"Plugin {plugin_name} is not valid. Skipping plugin at {module.__file__}")
-                return
+                return            # Register the plugin - look for plugin classes with hookimpl decorators
+        self._register_plugin(module, plugin_name, plugin_type)
+
+    def _register_plugin(self, module, plugin_name: str, plugin_type : PluginType):
+        """Discover and register plugin instances from a module."""
 
         try:
+            # Look for classes in the module that have hookimpl methods
+            for name in dir(module):
+                obj = getattr(module, name)
+                if inspect.isclass(obj) and self._has_hookimpl_methods(obj):
+                    # Create an instance of the plugin class and register it
+                    plugin_instance = obj()                    
+                    # For now all that is supported is document loaders
+                    if plugin_type == MaterialXPluginManager.PluginType.DOCUMENT_LOADER:
+                        self.register(plugin_instance, plugin_name)
+                        logger.info(f"Registered plugin class '{name}' as '{plugin_name}' from {module.__file__}")
+                        return
+                    else:
+                        logger.warning(f"Unsupported plugin type '{plugin_type}' for class '{name}' in {module.__file__}")
+                        return
+            
+            # If no plugin class found, register the module itself
             self.register(module, plugin_name)
-            logger.info(f"Registered plugin '{plugin_name}' at {module.__file__}")
+            logger.info(f"Registered plugin module '{plugin_name}' '{plugin_type}' from {module.__file__}")
+            
         except ValueError:
             logger.warning(f"Plugin with name '{plugin_name}' already registered. Skipping plugin at {module.__file__}")
+        except Exception as e:
+            logger.warning(f"Error registering plugin '{plugin_name}' '{plugin_type}': {e}")
+
+    def _has_hookimpl_methods(self, cls):
+        """Check if a class has methods decorated with hookimpl."""
+        for method_name in dir(cls):
+            if not method_name.startswith('_'):
+                method = getattr(cls, method_name)
+                if callable(method) and hasattr(method, 'materialx_impl'):
+                    return True
+        return False
 
     def load_plugins_from_environment_variable(self, environment_variable: str = PLUGINS_ENV_VAR):
         """Loop through an environment variable and load all plugins from the directories specified in the environment."""
@@ -311,42 +319,6 @@ class MaterialXPluginManager(pluggy.PluginManager):
         
         return plugin_info
 
-class MaterialXDocumentLoader(mx_render.DocumentLoader):
-    """Document loader that uses plugin hooks"""
-    
-    def __init__(self, identifier: str, name: str, description: str, plugin_manager, plugin_instance):
-        super().__init__(identifier, name, description)
-        self._plugin_manager = plugin_manager
-        self._plugin_instance = plugin_instance
-        
-    def supportedExtensions(self):
-        """Get supported extensions from plugin hooks."""
-        try:
-            if hasattr(self._plugin_instance, 'supportedExtensions'):
-                extensions = self._plugin_instance.supportedExtensions()
-                return {str(ext) for ext in extensions} if extensions else set()
-        except Exception as e:
-            logger.info(f"Error getting supported extensions: {e}")
-        return set()
-    
-    def importDocument(self, uri: str) -> Optional[mx.Document]:
-        """Import a document using plugin hooks."""
-        try:
-            if hasattr(self._plugin_instance, 'importDocument'):
-                return self._plugin_instance.importDocument(uri)
-        except Exception as e:
-            logger.info(f"Error importing document via hooks: {e}")
-        return None
-    
-    def exportDocument(self, document: mx.Document, uri: str) -> bool:
-        """Export a document using plugin hooks."""
-        try:
-            if hasattr(self._plugin_instance, 'exportDocument'):
-                return self._plugin_instance.exportDocument(document, uri)
-        except Exception as e:
-            logger.info(f"Error exporting document via hooks: {e}")
-        return False
-
 # Global plugin manager instance
 _plugin_manager = None
 
@@ -358,46 +330,6 @@ def get_plugin_manager() -> MaterialXPluginManager:
         logger.info(f"Using global MaterialX plugin manager instance")
     return _plugin_manager
 
-def create_document_loader(identifier: str, name: str, description: str, 
-                           plugin_manager, plugin_instance) -> MaterialXDocumentLoader:
-    """Create a hook-based document loader.
-    
-    Args:
-        identifier: Unique loader identifier
-        name: Human-readable loader name
-        description: Loader description
-        plugin_manager: The plugin manager instance
-        plugin_instance: The plugin instance that implements the hooks
-        
-    Returns:
-        MaterialXDocumentLoader instance
-    """
-    logger.info(f"Manager: Creating hook-based document loader: {identifier}, {name}, {description}")
-    try:
-        loader = MaterialXDocumentLoader(identifier, name, description, plugin_manager, plugin_instance)
-        logger.info("Manager: Hook-based document loader created successfully")
-        return loader
-    except Exception as e:
-        logger.info(f"Error creating hook-based document loader: {e}")
-        traceback.print_exc()
-        raise
 
-# Updated decorator to work with hook-based system
-def plugin_hookimpl(func):
-    """Decorator to mark a function as a hook implementation."""
-    return hookimpl(func)
-
-# Convenience function for plugin registration
-def register_plugin_with_manager(plugin_instance, manager=None):
-    """Register a plugin instance with the manager."""
-    if manager is None:
-        manager = get_plugin_manager()
-    
-    try:
-        manager.register(plugin_instance)
-        logger.info(f"Manager: Registered plugin instance: {type(plugin_instance).__name__}")
-    except Exception as e:
-        logger.info(f"Manager: Error registering plugin instance: {e}")
-        traceback.print_exc()
 
 
