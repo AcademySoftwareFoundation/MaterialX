@@ -281,19 +281,19 @@ def validate_material_structure(doc, errors, warnings):
                 surfaceshader_input = input_elem
                 break
         
-        if not surfaceshader_input:
-            errors.append(f"Material '{material.getName()}' missing required 'surfaceshader' input")
-        elif not surfaceshader_input.getNodeName() and not surfaceshader_input.getNodeGraphString():
-            errors.append(f"Material '{material.getName()}' input 'surfaceshader' not connected to any node or nodegraph")
-        else:
-            # Check if the referenced node actually exists
-            referenced_node_name = surfaceshader_input.getNodeName()
-            if referenced_node_name:
-                referenced_node = doc.getChild(referenced_node_name)
-                if not referenced_node:
-                    errors.append(f"Material '{material.getName()}' references non-existent surface shader '{referenced_node_name}'")
-                # Don't restrict shader types - any direct element can be a surface shader
-            # Nodegraph connections are also valid
+        if surfaceshader_input:
+            # If surfaceshader input exists, it should be properly connected
+            if not surfaceshader_input.getNodeName() and not surfaceshader_input.getNodeGraphString():
+                errors.append(f"Material '{material.getName()}' input 'surfaceshader' not connected to any node or nodegraph")
+            else:
+                # Check if the referenced node actually exists
+                referenced_node_name = surfaceshader_input.getNodeName()
+                if referenced_node_name:
+                    referenced_node = doc.getChild(referenced_node_name)
+                    if not referenced_node:
+                        errors.append(f"Material '{material.getName()}' references non-existent surface shader '{referenced_node_name}'")
+                    # Don't restrict shader types - any direct element can be a surface shader
+                # Nodegraph connections are also valid
         
         # Check for proper material type
         if material.getType() != "material":
