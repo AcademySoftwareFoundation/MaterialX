@@ -7,18 +7,17 @@
 #include <MaterialXCore/Util.h>
 
 #include <algorithm>
+#include <iostream>
 
 MATERIALX_NAMESPACE_BEGIN
 
 PluginManager::PluginManager()
 {
-    // Initialize the document handler
-    _documentHandler = DocumentHandler::create();
 }
 
 PluginManager::~PluginManager()
 {
-    _documentHandler = nullptr;
+    _plugins.clear();
     _registrationCallbacks.clear();
 }
 
@@ -26,35 +25,41 @@ PluginManager::~PluginManager()
 PluginManager& PluginManager::getInstance()
 {
     static PluginManager instance;
+    std::cerr << ">>>>>>>>> Get MaterialX PluginManager instance at address: 0x" 
+              << std::hex << reinterpret_cast<uintptr_t>(&instance) << std::dec << std::endl;
     return instance;
 }
 
-bool PluginManager::registerDocumentLoader(DocumentLoaderPtr loader)
+void PluginManager::registerPlugin(IPluginPtr plugin)
 {
-    if (!loader || loader->getIdentifier().empty())
+    _plugins.push_back(plugin);
+
+    std::cerr << ">>>>>>>> register loader: " << plugin->getIdentifier() << std::endl;
+    // Notify all registered callbacks
+    for (const auto& callbackPair : _registrationCallbacks)
     {
-        return false;
-    }    
-    bool registered = _documentHandler->registerLoader(loader);
-    if (registered)
-    {
-        // Notify all registered callbacks
-        for (const auto& callbackPair : _registrationCallbacks)
-        {
-            callbackPair.second(loader->getIdentifier(), true);
-        }
+        std::cerr << "<<<<< callback" << callbackPair.first << std::endl;
+        callbackPair.second(plugin->getIdentifier(), true);
     }
-    return registered;
 }
 
-bool PluginManager::unregisterDocumentLoader(const std::string& identifier)
+bool PluginManager::unregisterPlugin(const std::string& identifier)
 {
     if (identifier.empty())
     {
         return false;
-    }    bool unregistered = _documentHandler->unregisterLoader(identifier);
-    if (unregistered)
+    }
+
+    auto it = std::remove_if(_plugins.begin(), _plugins.end(),
+        [&identifier](const IPluginPtr& plugin) 
+        {
+            return plugin->getIdentifier() == identifier;
+        });
+
+    if (it != _plugins.end())
     {
+        _plugins.erase(it, _plugins.end());
+
         // Notify all registered callbacks
         for (const auto& callbackPair : _registrationCallbacks)
         {
@@ -66,17 +71,29 @@ bool PluginManager::unregisterDocumentLoader(const std::string& identifier)
     return false;
 }
 
-DocumentPtr PluginManager::importDocument(const std::string& uri)
+IPluginPtr PluginManager::getPlugin(const string& identifier)
 {
-    return _documentHandler->importDocument(uri);
+    for (const auto& plugin : _plugins)
+    {
+        if (plugin->getIdentifier() == identifier)
+        {
+            return plugin;
+        }
+    }
+    return nullptr;
 }
 
-bool PluginManager::exportDocument(ConstDocumentPtr document, const std::string& uri)
+IPluginVec PluginManager::getPlugins(const string pluginType)
 {
-    if (!document || uri.empty())
+    IPluginVec result;
+    for (const auto& plugin : _plugins)
     {
-        return false;
-    }    return _documentHandler->exportDocument(document, uri);
+        if (plugin->getPluginType() == pluginType)
+        {
+            result.push_back(plugin);
+        }
+    }
+    return result;
 }
 
 bool PluginManager::addRegistrationCallback(const std::string& identifier, std::function<void(const std::string&, bool)> callback)
@@ -85,7 +102,8 @@ bool PluginManager::addRegistrationCallback(const std::string& identifier, std::
     {
         return false;
     }
-    
+
+    std::cerr << "Add callbacl: " << identifier << std::endl;
     _registrationCallbacks[identifier] = callback;
     return true;
 }

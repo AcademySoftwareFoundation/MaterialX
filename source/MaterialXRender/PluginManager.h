@@ -11,7 +11,7 @@
 
 #include <MaterialXRender/Export.h>
 #include <MaterialXCore/Document.h>
-#include <MaterialXRender/DocumentHandler.h>
+//#include <MaterialXRender/DocumentHandler.h>
 
 #include <memory>
 #include <string>
@@ -21,6 +21,35 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
+// Base plugin interface
+class MX_RENDER_API IPlugin 
+{
+  public:
+    virtual ~IPlugin() = default;
+
+    // Get the type of the plugin
+    virtual std::string getPluginType() const = 0;
+
+    // Get the identifier for this plugin
+    virtual std::string getIdentifier() const = 0;
+};
+
+using IPluginPtr = shared_ptr<IPlugin>;
+using IPluginVec = std::vector<IPluginPtr>;
+
+// Document loader interface
+class MX_RENDER_API IDocumentPlugin : public IPlugin 
+{
+  public:
+    // Load a document from a file path
+    virtual DocumentPtr load(const std::string& path) = 0;
+
+    // Save a document to a file path
+    virtual bool save(ConstDocumentPtr document, const std::string& path) = 0;
+};
+
+using DocumentLoaderPtr = std::shared_ptr<IDocumentPlugin>;
+
 /// Plugin manager class that handles registration and discovery of various handler types
 class MX_RENDER_API PluginManager
 {
@@ -28,39 +57,23 @@ class MX_RENDER_API PluginManager
     /// Get the singleton instance of the plugin manager
     static PluginManager& getInstance();
 
-    /// Register a document loader
-    /// @param loader Shared pointer to the document loader
-    /// @return True if registration was successful
-    bool registerDocumentLoader(DocumentLoaderPtr loader);
+    void registerPlugin(IPluginPtr plugin);
+    bool unregisterPlugin(const std::string& identifier);
 
-    /// Unregister a document loader by identifier
-    /// @param identifier The loader identifier
-    /// @return True if unregistration was successful
-    bool unregisterDocumentLoader(const std::string& identifier);
+    IPluginPtr getPlugin(const std::string& identifier);
+    IPluginVec getPlugins(const string pluginType);
 
-    /// Import a document using the best available handler
-    /// @param uri The uri to import
-    /// @return A MaterialX document or nullptr on failure
-    DocumentPtr importDocument(const std::string& uri);
-
-    /// Export a document using the best available handler
-    /// @param document The document to export
-    /// @param uri The uri to export to
-    /// @return True on success, false on failure
-    bool exportDocument(ConstDocumentPtr document, const std::string& uri);    /// Add a callback for handler registration events
-    /// @param identifier Unique identifier for this callback
-    /// @param callback Function to call when handlers are registered/unregistered
-    /// @return True if callback was added successfully
-    bool addRegistrationCallback(const std::string& identifier, std::function<void(const std::string&, bool)> callback);    /// Remove a callback by identifier
-    /// @param identifier The identifier of the callback to remove
-    /// @return True if callback was found and removed
+    // Registration and unregistration monitoring
+    bool addRegistrationCallback(const std::string& identifier, std::function<void(const std::string&, bool)> callback);
     bool removeRegistrationCallback(const std::string& identifier);
 
   private:
     PluginManager();
     ~PluginManager();
     PluginManager(const PluginManager&) = delete;
-    PluginManager& operator=(const PluginManager&) = delete;    DocumentHandlerPtr _documentHandler;
+    PluginManager& operator=(const PluginManager&) = delete;    
+
+    IPluginVec _plugins;
     std::unordered_map<std::string, std::function<void(const std::string&, bool)>> _registrationCallbacks;
 };
 
