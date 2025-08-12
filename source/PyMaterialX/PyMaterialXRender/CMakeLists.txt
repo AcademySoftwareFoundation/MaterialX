@@ -4,16 +4,7 @@ if(NOT MATERIALX_BUILD_OIIO)
     list(REMOVE_ITEM pymaterialxrender_source "${CMAKE_CURRENT_SOURCE_DIR}/PyOiioImageLoader.cpp")
 endif()
 
-# Find Python development libraries for embedding support (needed for PyPluginManager)
-find_package(Python COMPONENTS Interpreter Development REQUIRED)
-
 pybind11_add_module(PyMaterialXRender SHARED ${PYBIND11_MODULE_FLAGS} ${pymaterialxrender_source} ${pymaterialxrender_headers})
-
-# Add Python include directories for embedding support
-target_include_directories(PyMaterialXRender PRIVATE ${Python_INCLUDE_DIRS})
-
-# Add compile definition for pybind11 embedding support
-target_compile_definitions(PyMaterialXRender PRIVATE PYBIND11_EMBED)
 
 if(APPLE)
     set_target_properties(PyMaterialXRender PROPERTIES CXX_VISIBILITY_PRESET "default")
@@ -32,8 +23,7 @@ target_link_libraries(
     PyMaterialXRender
     PUBLIC PyMaterialXGenShader
            MaterialXRender
-    PRIVATE ${CMAKE_DL_LIBS}
-            Python::Python)
+    PRIVATE ${CMAKE_DL_LIBS})
 
 install(TARGETS PyMaterialXRender
         DESTINATION "${MATERIALX_PYTHON_FOLDER_NAME}")

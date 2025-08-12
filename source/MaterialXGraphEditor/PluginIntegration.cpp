@@ -255,13 +255,13 @@ void load_python_plugins(const std::string& plugin_dir)
                 // Test getPlugins - get all plugins of DocumentLoader type
                 std::cout << "Testing getPlugins('DocumentLoader')..." << std::endl;
                 auto plugins_list = bridge.attr("getPlugins")("DocumentLoader");
-                int plugin_count = py::len(plugins_list);
+                size_t plugin_count = py::len(plugins_list);
                 std::cout << "  Found " << plugin_count << " DocumentLoader plugins" << std::endl;
                 
                 // Test getPlugins - get all plugins (empty string should return all)
                 std::cout << "Testing getPlugins('')..." << std::endl;
                 auto all_plugins_list = bridge.attr("getPlugins")("");
-                int all_plugin_count = py::len(all_plugins_list);
+                size_t all_plugin_count = py::len(all_plugins_list);
                 std::cout << "  Found " << all_plugin_count << " plugins total" << std::endl;
                 
                 // Test getPlugin by identifier

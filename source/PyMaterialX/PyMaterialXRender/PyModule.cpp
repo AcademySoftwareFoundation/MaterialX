@@ -38,8 +38,9 @@ PYBIND11_MODULE(PyMaterialXRender, mod)
 #ifdef MATERIALX_BUILD_OIIO
     bindPyOiioImageLoader(mod);
 #endif
-    bindPyTinyObjLoader(mod);    bindPyCamera(mod);
-    bindPyShaderRenderer(mod);    bindPyCgltfLoader(mod);
-    bindPyDocumentHandler(mod);
+    bindPyTinyObjLoader(mod);    
+    bindPyCamera(mod);
+    bindPyShaderRenderer(mod);    
+    bindPyCgltfLoader(mod);
     bindPyPluginManager(mod);
 }
