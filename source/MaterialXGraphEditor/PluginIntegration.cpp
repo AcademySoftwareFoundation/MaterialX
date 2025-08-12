@@ -295,6 +295,21 @@ void load_python_plugins(const std::string& plugin_dir)
                             if (!retrieved_plugin.is_none()) {
                                 auto retrieved_id = retrieved_plugin.attr("getIdentifier")().cast<std::string>();
                                 std::cout << "  Successfully retrieved plugin: " << retrieved_id << std::endl;
+                                // Call plugin load() method for testing
+                                auto load_result = retrieved_plugin.attr("load")("testfile.mtlx");
+                                // Get result as a mx::DoumentPtr
+                                auto doc_ptr = load_result.cast<mx::DocumentPtr>();
+                                if (doc_ptr) {
+                                    std::cout << "  Plugin load() method returned a valid DocumentPtr" << std::endl;
+                                }
+                                else {
+                                    std::cout << "  Plugin load() method did not return a valid DocumentPtr" << std::endl;
+                                }
+                                // Call save() method for testing
+                                auto save_result = retrieved_plugin.attr("save")(doc_ptr, "outputfile.mtlx");
+                                // Convert result to bool
+                                bool save_success = save_result.cast<bool>();
+                                std::cout << "  Plugin save() method returned: " << (save_success ? "true" : "false") << std::endl;
                             } else {
                                 std::cout << "  Plugin not found by ID" << std::endl;
                             }

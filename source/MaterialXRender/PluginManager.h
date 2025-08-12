@@ -28,10 +28,19 @@ class MX_RENDER_API IPlugin
     virtual ~IPlugin() = default;
 
     // Get the type of the plugin
-    virtual std::string getPluginType() const = 0;
+    virtual const string& getPluginType()
+    {
+      return _pluginType;
+    }
 
     // Get the identifier for this plugin
-    virtual std::string getIdentifier() const = 0;
+    virtual const string& getIdentifier() const
+    {
+      return _identifier;
+    }
+
+    string _pluginType = EMPTY_STRING;
+    string _identifier = EMPTY_STRING;
 };
 
 using IPluginPtr = shared_ptr<IPlugin>;
@@ -42,10 +51,20 @@ class MX_RENDER_API IDocumentPlugin : public IPlugin
 {
   public:
     // Load a document from a file path
-    virtual DocumentPtr load(const std::string& path) = 0;
+    virtual DocumentPtr load(const std::string& path)
+    {
+      if (path.empty())
+        return nullptr;
+      return nullptr; 
+    }
 
     // Save a document to a file path
-    virtual bool save(ConstDocumentPtr document, const std::string& path) = 0;
+    virtual bool save(ConstDocumentPtr document, const std::string& path)
+    {
+      if (!document || path.empty())
+        return false;  
+      return false;
+    }
 };
 
 using DocumentLoaderPtr = std::shared_ptr<IDocumentPlugin>;

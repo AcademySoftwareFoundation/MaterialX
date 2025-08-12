@@ -17,42 +17,42 @@ namespace mx = MaterialX;
 namespace fs = std::filesystem;
 
 // Trampoline classes
+// Updated trampoline classes with non-pure virtual handling
 class PyPlugin : public mx::IPlugin {
-  public:
+public:
     using mx::IPlugin::IPlugin;
 
-    std::string getPluginType() const override {
-        PYBIND11_OVERRIDE_PURE(std::string, mx::IPlugin, getPluginType);
+    // Non-pure virtuals use PYBIND11_OVERRIDE (without _PURE)
+    const std::string& getPluginType() override {
+        PYBIND11_OVERRIDE(const std::string&, mx::IPlugin, getPluginType);
     }
 
-    std::string getIdentifier() const override {
-        PYBIND11_OVERRIDE_PURE(std::string, mx::IPlugin, getIdentifier);
+    const std::string& getIdentifier() const override {
+        PYBIND11_OVERRIDE(const std::string&, mx::IPlugin, getIdentifier);
     }
 };
 
 class PyDocumentPlugin : public mx::IDocumentPlugin {
-  public:
+public:
     using mx::IDocumentPlugin::IDocumentPlugin;
 
-    std::string getPluginType() const override 
-    { 
-        return "DocumentLoader"; 
-    }
-    std::string getIdentifier() const override 
-    {
-        PYBIND11_OVERRIDE_PURE(std::string, mx::IDocumentPlugin, getIdentifier);
+    // Implement base IPlugin methods
+    const std::string& getPluginType() override {
+        PYBIND11_OVERRIDE(const std::string&, mx::IDocumentPlugin, getPluginType);
     }
 
-    mx::DocumentPtr load(const std::string& path) override 
-    {
-        PYBIND11_OVERRIDE_PURE(mx::DocumentPtr, mx::IDocumentPlugin, load, path);
+    const std::string& getIdentifier() const override {
+        PYBIND11_OVERRIDE(const std::string&, mx::IDocumentPlugin, getIdentifier);
     }
 
-    bool save(mx::ConstDocumentPtr document, const std::string& path) override
-    {
-        PYBIND11_OVERRIDE_PURE(bool, mx::IDocumentPlugin, save, document, path);
+    // Document methods with default implementations
+    mx::DocumentPtr load(const std::string& path) override {
+        PYBIND11_OVERRIDE(mx::DocumentPtr, mx::IDocumentPlugin, load, path);
     }
 
+    bool save(mx::ConstDocumentPtr document, const std::string& path) override {
+        PYBIND11_OVERRIDE(bool, mx::IDocumentPlugin, save, document, path);
+    }
 };
 
 // Plugin registration function
@@ -79,6 +79,8 @@ void bindPyPluginManager(py::module& mod)
     // Base plugin class
     py::class_<mx::IPlugin, PyPlugin, std::shared_ptr<mx::IPlugin>>(mod, "IPlugin")
         .def(py::init<>())
+        .def_readwrite("_identifier", &mx::IPlugin::_identifier)
+        .def_readwrite("_pluginType", &mx::IPlugin::_pluginType)
         .def("getPluginType", &mx::IPlugin::getPluginType)
         .def("getIdentifier", &mx::IPlugin::getIdentifier);
 
@@ -86,7 +88,8 @@ void bindPyPluginManager(py::module& mod)
     py::class_<mx::IDocumentPlugin, mx::IPlugin, PyDocumentPlugin,
         std::shared_ptr<mx::IDocumentPlugin>>(mod, "IDocumentPlugin")
         .def(py::init<>())
-        .def("load", &mx::IDocumentPlugin::load);
+        .def("load", &mx::IDocumentPlugin::load)
+        .def("save", &mx::IDocumentPlugin::save);
 
     /* // Image loader
     py::class_<mx::IImageLoader, IPlugin, PyImageLoader,

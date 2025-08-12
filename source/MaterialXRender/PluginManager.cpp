@@ -91,8 +91,12 @@ IPluginPtr PluginManager::getPlugin(const string& identifier)
 IPluginVec PluginManager::getPlugins(const string pluginType)
 {
     IPluginVec result;
+    std::cerr << "Scan all plugins of type: " << pluginType << " in list of size: " << _plugins.size() << std::endl;
     for (const auto& plugin : _plugins)
     {
+        std::string plug_id = plugin->getIdentifier();
+        std::string plug_type = plugin->getPluginType();
+        std::cerr << "Try get plugins: " << plug_id << ". Type: " << plug_type << std::endl;
         if (plugin->getPluginType() == pluginType)
         {
             std::cerr << "Get plugins: " << plugin->getIdentifier() << ". Type: " << plugin->getPluginType() << std::endl;
