@@ -17,6 +17,8 @@ PluginManager::PluginManager()
 
 PluginManager::~PluginManager()
 {
+    std::cerr << "Destroy PluginManager instance at address: 0x"
+              << std::hex << reinterpret_cast<uintptr_t>(this) << std::dec << std::endl;
     _plugins.clear();
     _registrationCallbacks.clear();
 }
@@ -34,7 +36,7 @@ void PluginManager::registerPlugin(IPluginPtr plugin)
 {
     _plugins.push_back(plugin);
 
-    std::cerr << ">>>>>>>> register loader: " << plugin->getIdentifier() << std::endl;
+    std::cerr << ">>>>>>>> register loader: " << plugin->getIdentifier() << ". Type: " << plugin->getPluginType() << std::endl;
     // Notify all registered callbacks
     for (const auto& callbackPair : _registrationCallbacks)
     {
@@ -45,6 +47,8 @@ void PluginManager::registerPlugin(IPluginPtr plugin)
 
 bool PluginManager::unregisterPlugin(const std::string& identifier)
 {
+    std::cerr << "Unregister plugin: " << identifier << std::endl;
+
     if (identifier.empty())
     {
         return false;
@@ -77,6 +81,7 @@ IPluginPtr PluginManager::getPlugin(const string& identifier)
     {
         if (plugin->getIdentifier() == identifier)
         {
+            std::cerr << "Get plugin: " << identifier << ". Type: " << plugin->getPluginType() << std::endl;
             return plugin;
         }
     }
@@ -90,6 +95,7 @@ IPluginVec PluginManager::getPlugins(const string pluginType)
     {
         if (plugin->getPluginType() == pluginType)
         {
+            std::cerr << "Get plugins: " << plugin->getIdentifier() << ". Type: " << plugin->getPluginType() << std::endl;
             result.push_back(plugin);
         }
     }
@@ -114,6 +120,8 @@ bool PluginManager::removeRegistrationCallback(const std::string& identifier)
     {
         return false;
     }
+
+    std::cerr << "Remove callback: " << identifier << std::endl;
     
     auto it = _registrationCallbacks.find(identifier);
     if (it != _registrationCallbacks.end())

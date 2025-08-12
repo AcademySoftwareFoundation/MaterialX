@@ -11,9 +11,11 @@
 
 namespace py = pybind11;
 namespace fs = std::filesystem;
+namespace mx = MaterialX;
 
 void load_python_plugins(const std::string& plugin_dir)
 {
+
     py::scoped_interpreter guard{};
 
     try
@@ -130,7 +132,7 @@ void load_python_plugins(const std::string& plugin_dir)
                                             
                                             // Check for IPlugin from MaterialX.PyMaterialXRender
                                             if ((base_module == "MaterialX.PyMaterialXRender" || base_module == "PyMaterialXRender") && 
-                                                base_name == "IPlugin")
+                                                base_name == "IDocumentPlugin")
                                             {
                                                 std::cout << "      -> MATCH! Found IPlugin base class" << std::endl;
                                                 is_iplugin = true;
@@ -163,6 +165,20 @@ void load_python_plugins(const std::string& plugin_dir)
                                                 auto plugin_type = instance.attr("getPluginType")();
                                                 std::cout << "Plugin info - ID: " << py::str(plugin_id).cast<std::string>() 
                                                          << ", Type: " << py::str(plugin_type).cast<std::string>() << std::endl;
+                                                auto save_function = instance.attr("save");
+                                                if (py::isinstance<py::function>(save_function)) {
+                                                    std::cout << "Plugin has a save function" << std::endl;
+                                                }
+                                                else {
+                                                    std::cout << "Plugin does not have a save function" << std::endl;
+                                                }
+                                                auto load_function = instance.attr("load");
+                                                if (py::isinstance<py::function>(load_function)) {
+                                                    std::cout << "Plugin has a load function" << std::endl;
+                                                }
+                                                else {
+                                                    std::cout << "Plugin does not have a load function" << std::endl;
+                                                }
                                             } catch (const py::error_already_set& e) {
                                                 std::cerr << "Could not get plugin info: " << e.what() << std::endl;
                                             }
@@ -253,11 +269,12 @@ void load_python_plugins(const std::string& plugin_dir)
                 std::cout << "  Callback added: " << (callback_added ? "true" : "false") << std::endl;
                 
                 // Test getPlugins - get all plugins of DocumentLoader type
+#if 1
                 std::cout << "Testing getPlugins('DocumentLoader')..." << std::endl;
                 auto plugins_list = bridge.attr("getPlugins")("DocumentLoader");
                 size_t plugin_count = py::len(plugins_list);
                 std::cout << "  Found " << plugin_count << " DocumentLoader plugins" << std::endl;
-                
+
                 // Test getPlugins - get all plugins (empty string should return all)
                 std::cout << "Testing getPlugins('')..." << std::endl;
                 auto all_plugins_list = bridge.attr("getPlugins")("");
@@ -288,7 +305,7 @@ void load_python_plugins(const std::string& plugin_dir)
                 } else {
                     std::cout << "  No plugins available to test getPlugin with" << std::endl;
                 }
-                
+#endif                
                 // Test removeRegistrationCallback
                 std::cout << "Testing removeRegistrationCallback..." << std::endl;
                 bool callback_removed = bridge.attr("removeRegistrationCallback")("test_callback").cast<bool>();
@@ -320,4 +337,20 @@ void load_python_plugins(const std::string& plugin_dir)
         // Continue anyway as plugins might not need these modules
         return;
     }
+
+    mx::PluginManager& globalManager = mx::PluginManager::getInstance();
+    mx::IPluginVec plugins = globalManager.getPlugins("DocumentLoader");
+    if (plugins.empty())
+    {
+        std::cerr << "No DocumentLoader plugins found. Please ensure you have installed the MaterialX Python package." << std::endl;
+    }
+    else
+    {
+        std::cout << "Found " << plugins.size() << " DocumentLoader plugins:" << std::endl;
+        for (const auto& plugin : plugins)
+        {
+            std::cout << "  Plugin ID: " << plugin->getIdentifier()
+                << ", Type: " << plugin->getPluginType() << std::endl;
+        }
+    }   
 }

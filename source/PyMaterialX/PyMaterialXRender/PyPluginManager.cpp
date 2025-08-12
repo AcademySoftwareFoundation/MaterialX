@@ -10,6 +10,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/embed.h>
 #include <filesystem>
+#include <iostream>
 
 namespace py = pybind11;
 namespace mx = MaterialX;
@@ -29,7 +30,7 @@ class PyPlugin : public mx::IPlugin {
     }
 };
 
-class PyDocumentLoader : public mx::IDocumentPlugin {
+class PyDocumentPlugin : public mx::IDocumentPlugin {
   public:
     using mx::IDocumentPlugin::IDocumentPlugin;
 
@@ -59,10 +60,7 @@ void registerPlugin(py::object py_plugin)
 {
     try 
     {
-        // Create shared_ptr with custom deleter
-        auto plugin_ptr = std::shared_ptr<mx::IPlugin>(
-            py_plugin.cast<mx::IPlugin*>(), [](mx::IPlugin*) {});
-
+        mx::IPluginPtr plugin_ptr = py_plugin.cast<mx::IPluginPtr>();
         mx::PluginManager::getInstance().registerPlugin(plugin_ptr);
     }
     catch (const std::exception&) {
@@ -85,7 +83,7 @@ void bindPyPluginManager(py::module& mod)
         .def("getIdentifier", &mx::IPlugin::getIdentifier);
 
     // Document loader
-    py::class_<mx::IDocumentPlugin, mx::IPlugin, PyDocumentLoader,
+    py::class_<mx::IDocumentPlugin, mx::IPlugin, PyDocumentPlugin,
         std::shared_ptr<mx::IDocumentPlugin>>(mod, "IDocumentPlugin")
         .def(py::init<>())
         .def("load", &mx::IDocumentPlugin::load);
@@ -106,7 +104,9 @@ void bindPyPluginManager(py::module& mod)
     // Expose PluginManager methods
     mod.def("getPlugin", [](const std::string& identifier) -> py::object {
         auto plugin = mx::PluginManager::getInstance().getPlugin(identifier);
-        if (plugin) {
+        if (plugin) 
+        {
+            std::cerr << "Return plugin: " << plugin->getIdentifier() << ", Type: " << plugin->getPluginType() << std::endl;
             return py::cast(plugin);
         }
         return py::none();
@@ -115,7 +115,9 @@ void bindPyPluginManager(py::module& mod)
     mod.def("getPlugins", [](const std::string& pluginType) -> py::list {
         auto plugins = mx::PluginManager::getInstance().getPlugins(pluginType);
         py::list result;
-        for (const auto& plugin : plugins) {
+        for (const auto& plugin : plugins) 
+        {
+            std::cerr << "Return plugin: " << plugin->getIdentifier() << ", Type: " << plugin->getPluginType() << std::endl;
             result.append(py::cast(plugin));
         }
         return result;
@@ -123,9 +125,12 @@ void bindPyPluginManager(py::module& mod)
     
     mod.def("addRegistrationCallback", [](const std::string& identifier, py::function callback) -> bool {
         auto cpp_callback = [callback](const std::string& id, bool registered) {
-            try {
+            try 
+            {
                 callback(id, registered);
-            } catch (const py::error_already_set&) {
+            } 
+            catch (const py::error_already_set&) 
+            {
                 // Ignore Python callback errors
             }
         };
