@@ -86,48 +86,149 @@ void load_python_plugins(const std::string& plugin_dir)
 
                     try
                     {
+                        std::cout << "Importing module: " << module_name << std::endl;
                         py::module_ mod = py::module_::import(module_name.c_str());
+                        std::cout << "Module imported successfully" << std::endl;
 
                         // Find plugin classes
+                        std::cout << "Getting module dictionary..." << std::endl;
                         py::dict dict = mod.attr("__dict__").cast<py::dict>();
+                        std::cout << "Module dictionary size: " << dict.size() << std::endl;
+                        
+                        bool found_any_class = false;
                         for (auto& kv : dict)
                         {
+                            std::string key = py::str(kv.first).cast<std::string>();
                             py::handle value = kv.second;
+                            std::cout << "Checking attribute: " << key << " (type: " << py::str(value.get_type()).cast<std::string>() << ")" << std::endl;
+                            
                             if (py::isinstance<py::type>(value))
                             {
+                                found_any_class = true;
                                 py::type cls = value.cast<py::type>();
-                                // Check if it inherits from IPlugin
+                                std::string class_name = cls.attr("__name__").cast<std::string>();
+                                std::cout << "Found class: " << class_name << std::endl;
+                                
+                                // Check if it inherits from IPlugin by looking for the actual base class
                                 if (py::hasattr(cls, "__bases__"))
                                 {
-                                    for (auto base : cls.attr("__bases__"))
+                                    auto bases = cls.attr("__bases__");
+                                    std::cout << "  Checking " << py::len(bases) << " base classes..." << std::endl;
+                                    
+                                    bool is_iplugin = false;
+                                    int base_index = 0;
+                                    for (auto base : bases)
                                     {
-                                        if (py::hasattr(base, "__name__") &&
-                                            base.attr("__name__").cast<std::string>() == "IPlugin")
+                                        base_index++;
+                                        std::cout << "    Base " << base_index << ": ";
+                                        
+                                        if (py::hasattr(base, "__module__") && py::hasattr(base, "__name__"))
                                         {
-                                            // Instantiate and register
+                                            std::string base_module = base.attr("__module__").cast<std::string>();
+                                            std::string base_name = base.attr("__name__").cast<std::string>();
+                                            std::cout << base_module << "." << base_name << std::endl;
+                                            
+                                            // Check for IPlugin from MaterialX.PyMaterialXRender
+                                            if ((base_module == "MaterialX.PyMaterialXRender" || base_module == "PyMaterialXRender") && 
+                                                base_name == "IPlugin")
+                                            {
+                                                std::cout << "      -> MATCH! Found IPlugin base class" << std::endl;
+                                                is_iplugin = true;
+                                                break;
+                                            }
+                                            else
+                                            {
+                                                std::cout << "      -> No match (looking for MaterialX.PyMaterialXRender.IPlugin or PyMaterialXRender.IPlugin)" << std::endl;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            std::cout << "missing __module__ or __name__ attributes" << std::endl;
+                                        }
+                                    }
+                                    
+                                    if (is_iplugin)
+                                    {
+                                        std::cout << "Found IPlugin subclass: " << class_name << std::endl;
+                                        
+                                        // Instantiate and register
+                                        try {
+                                            std::cout << "Creating instance of " << class_name << "..." << std::endl;
                                             auto instance = cls();
+                                            std::cout << "Plugin instance created successfully" << std::endl;
+                                            
+                                            // Try to get plugin info for debugging
+                                            try {
+                                                auto plugin_id = instance.attr("getIdentifier")();
+                                                auto plugin_type = instance.attr("getPluginType")();
+                                                std::cout << "Plugin info - ID: " << py::str(plugin_id).cast<std::string>() 
+                                                         << ", Type: " << py::str(plugin_type).cast<std::string>() << std::endl;
+                                            } catch (const py::error_already_set& e) {
+                                                std::cerr << "Could not get plugin info: " << e.what() << std::endl;
+                                            }
                                             
                                             // Try multiple ways to register the plugin
                                             try {
+                                                std::cout << "Attempting registration via MaterialX.PyMaterialXRender..." << std::endl;
                                                 // First try the MaterialX package import
                                                 auto bridge = py::module_::import("MaterialX.PyMaterialXRender");
-                                                bridge.attr("registerPlugin")(instance);
-                                                std::cout << "Loaded plugin: " << module_name << " (via MaterialX package)" << std::endl;
-                                            } catch (const py::error_already_set&) {
+                                                std::cout << "MaterialX.PyMaterialXRender module imported" << std::endl;
+                                                
+                                                // Check if registerPlugin function exists
+                                                if (py::hasattr(bridge, "registerPlugin")) {
+                                                    std::cout << "registerPlugin function found" << std::endl;
+                                                    bridge.attr("registerPlugin")(instance);
+                                                    std::cout << "Successfully loaded plugin: " << module_name << " (via MaterialX package)" << std::endl;
+                                                } else {
+                                                    std::cerr << "registerPlugin function not found in MaterialX.PyMaterialXRender" << std::endl;
+                                                    throw py::error_already_set();
+                                                }
+                                            } catch (const py::error_already_set& e) {
+                                                std::cerr << "MaterialX package registration failed: " << e.what() << std::endl;
                                                 try {
+                                                    std::cout << "Attempting registration via PyMaterialXRender..." << std::endl;
                                                     // Fallback to direct module import
                                                     auto bridge = py::module_::import("PyMaterialXRender");
-                                                    bridge.attr("registerPlugin")(instance);
-                                                    std::cout << "Loaded plugin: " << module_name << " (via direct import)" << std::endl;
-                                                } catch (const py::error_already_set&) {
+                                                    std::cout << "PyMaterialXRender module imported" << std::endl;
+                                                    
+                                                    if (py::hasattr(bridge, "registerPlugin")) {
+                                                        std::cout << "registerPlugin function found in direct import" << std::endl;
+                                                        bridge.attr("registerPlugin")(instance);
+                                                        std::cout << "Successfully loaded plugin: " << module_name << " (via direct import)" << std::endl;
+                                                    } else {
+                                                        std::cerr << "registerPlugin function not found in PyMaterialXRender" << std::endl;
+                                                        throw py::error_already_set();
+                                                    }
+                                                } catch (const py::error_already_set& e2) {
+                                                    std::cerr << "Direct module registration failed: " << e2.what() << std::endl;
                                                     // Final fallback - just instantiate without registration
                                                     std::cout << "Plugin " << module_name << " instantiated but not registered (no bridge available)" << std::endl;
                                                 }
                                             }
+                                        } catch (const py::error_already_set& e) {
+                                            std::cerr << "Failed to instantiate plugin class: " << e.what() << std::endl;
+                                            if (e.type()) {
+                                                std::cerr << "  Error type: " << py::str(e.type()).cast<std::string>() << std::endl;
+                                            }
+                                            if (e.value()) {
+                                                std::cerr << "  Error value: " << py::str(e.value()).cast<std::string>() << std::endl;
+                                            }
                                         }
                                     }
+                                    else
+                                    {
+                                        std::cout << "  Class " << class_name << " does not inherit from IPlugin" << std::endl;
+                                    }
+                                }
+                                else
+                                {
+                                    std::cout << "  Class " << class_name << " has no __bases__ attribute" << std::endl;
                                 }
                             }
+                        }
+                        
+                        if (!found_any_class) {
+                            std::cout << "No classes found in module " << module_name << std::endl;
                         }
                     }
                     catch (const py::error_already_set& e)
@@ -136,6 +237,67 @@ void load_python_plugins(const std::string& plugin_dir)
                     }
                 }
             }
+            
+            // Test the newly exposed PluginManager methods
+            std::cout << "\n=== Testing PluginManager methods ===" << std::endl;
+            try {
+                auto bridge = py::module_::import("MaterialX.PyMaterialXRender");
+                
+                // Test addRegistrationCallback
+                std::cout << "Testing addRegistrationCallback..." << std::endl;
+                auto callback = py::cpp_function([](const std::string& id, bool registered) {
+                    std::cout << "  Callback: Plugin " << id << " " << (registered ? "registered" : "unregistered") << std::endl;
+                });
+                
+                bool callback_added = bridge.attr("addRegistrationCallback")("test_callback", callback).cast<bool>();
+                std::cout << "  Callback added: " << (callback_added ? "true" : "false") << std::endl;
+                
+                // Test getPlugins - get all plugins of DocumentLoader type
+                std::cout << "Testing getPlugins('DocumentLoader')..." << std::endl;
+                auto plugins_list = bridge.attr("getPlugins")("DocumentLoader");
+                int plugin_count = py::len(plugins_list);
+                std::cout << "  Found " << plugin_count << " DocumentLoader plugins" << std::endl;
+                
+                // Test getPlugins - get all plugins (empty string should return all)
+                std::cout << "Testing getPlugins('')..." << std::endl;
+                auto all_plugins_list = bridge.attr("getPlugins")("");
+                int all_plugin_count = py::len(all_plugins_list);
+                std::cout << "  Found " << all_plugin_count << " plugins total" << std::endl;
+                
+                // Test getPlugin by identifier
+                std::cout << "Testing getPlugin..." << std::endl;
+                if (plugin_count > 0) {
+                    // Get the first plugin from the list and try to retrieve it by ID
+                    auto first_plugin = plugins_list[py::int_(0)];
+                    if (!first_plugin.is_none()) {
+                        try {
+                            auto plugin_id = first_plugin.attr("getIdentifier")().cast<std::string>();
+                            std::cout << "  Looking for plugin with ID: " << plugin_id << std::endl;
+                            
+                            auto retrieved_plugin = bridge.attr("getPlugin")(plugin_id);
+                            if (!retrieved_plugin.is_none()) {
+                                auto retrieved_id = retrieved_plugin.attr("getIdentifier")().cast<std::string>();
+                                std::cout << "  Successfully retrieved plugin: " << retrieved_id << std::endl;
+                            } else {
+                                std::cout << "  Plugin not found by ID" << std::endl;
+                            }
+                        } catch (const py::error_already_set& e) {
+                            std::cerr << "  Error testing getPlugin: " << e.what() << std::endl;
+                        }
+                    }
+                } else {
+                    std::cout << "  No plugins available to test getPlugin with" << std::endl;
+                }
+                
+                // Test removeRegistrationCallback
+                std::cout << "Testing removeRegistrationCallback..." << std::endl;
+                bool callback_removed = bridge.attr("removeRegistrationCallback")("test_callback").cast<bool>();
+                std::cout << "  Callback removed: " << (callback_removed ? "true" : "false") << std::endl;
+                
+            } catch (const py::error_already_set& e) {
+                std::cerr << "Error testing PluginManager methods: " << e.what() << std::endl;
+            }
+            std::cout << "=== End PluginManager method tests ===\n" << std::endl;
         }
         catch (const std::exception& e)
         {

@@ -21,11 +21,11 @@ class PyPlugin : public mx::IPlugin {
     using mx::IPlugin::IPlugin;
 
     std::string getPluginType() const override {
-        PYBIND11_OVERRIDE_PURE(std::string, mx::IPlugin, getPluginType, );
+        PYBIND11_OVERRIDE_PURE(std::string, mx::IPlugin, getPluginType);
     }
 
     std::string getIdentifier() const override {
-        PYBIND11_OVERRIDE_PURE(std::string, mx::IPlugin, getIdentifier, );
+        PYBIND11_OVERRIDE_PURE(std::string, mx::IPlugin, getIdentifier);
     }
 };
 
@@ -39,7 +39,7 @@ class PyDocumentLoader : public mx::IDocumentPlugin {
     }
     std::string getIdentifier() const override 
     {
-        PYBIND11_OVERRIDE_PURE(std::string, mx::IDocumentPlugin, getIdentifier, );
+        PYBIND11_OVERRIDE_PURE(std::string, mx::IDocumentPlugin, getIdentifier);
     }
 
     mx::DocumentPtr load(const std::string& path) override 
@@ -102,5 +102,39 @@ void bindPyPluginManager(py::module& mod)
     mod.def("unregisterPlugin", &unregisterPlugin,
         "Unregister a plugin by its identifier",
         py::arg("identifier"));
+
+    // Expose PluginManager methods
+    mod.def("getPlugin", [](const std::string& identifier) -> py::object {
+        auto plugin = mx::PluginManager::getInstance().getPlugin(identifier);
+        if (plugin) {
+            return py::cast(plugin);
+        }
+        return py::none();
+    }, "Get a plugin by its identifier", py::arg("identifier"));
+    
+    mod.def("getPlugins", [](const std::string& pluginType) -> py::list {
+        auto plugins = mx::PluginManager::getInstance().getPlugins(pluginType);
+        py::list result;
+        for (const auto& plugin : plugins) {
+            result.append(py::cast(plugin));
+        }
+        return result;
+    }, "Get all plugins of a specific type", py::arg("pluginType"));
+    
+    mod.def("addRegistrationCallback", [](const std::string& identifier, py::function callback) -> bool {
+        auto cpp_callback = [callback](const std::string& id, bool registered) {
+            try {
+                callback(id, registered);
+            } catch (const py::error_already_set&) {
+                // Ignore Python callback errors
+            }
+        };
+        return mx::PluginManager::getInstance().addRegistrationCallback(identifier, cpp_callback);
+    }, "Add a callback for plugin registration events", 
+       py::arg("identifier"), py::arg("callback"));
+    
+    mod.def("removeRegistrationCallback", [](const std::string& identifier) -> bool {
+        return mx::PluginManager::getInstance().removeRegistrationCallback(identifier);
+    }, "Remove a registration callback", py::arg("identifier"));
 
 }
