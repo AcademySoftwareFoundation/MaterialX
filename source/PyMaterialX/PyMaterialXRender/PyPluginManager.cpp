@@ -45,13 +45,92 @@ public:
         PYBIND11_OVERRIDE(const std::string&, mx::IDocumentPlugin, getIdentifier);
     }
 
-    // Document methods with default implementations
     mx::DocumentPtr load(const std::string& path) override {
-        PYBIND11_OVERRIDE(mx::DocumentPtr, mx::IDocumentPlugin, load, path);
+        py::gil_scoped_acquire gil;
+        py::function override = py::get_override(static_cast<const mx::IDocumentPlugin*>(this), "load");
+
+        if (!override) {
+            std::cerr << "ERROR: Python override not detected!" << std::endl;
+            return mx::IDocumentPlugin::load(path);
+        }
+
+        try {
+            py::object result = override(path);
+            if (result.is_none()) {
+                throw std::runtime_error("Python plugin returned None");
+            }
+            return result.cast<mx::DocumentPtr>();
+        }
+        catch (const py::error_already_set& e) {
+            std::cerr << "Python error: " << e.what() << std::endl;
+            return nullptr;
+        }
     }
 
+    /* 
+    mx::DocumentPtr load(const std::string& path) override {
+        py::gil_scoped_acquire acquire;  // Renamed variable
+        try {
+            if (auto override = py::get_override(this, "load")) {
+                auto result = override(path);
+                return result.cast<mx::DocumentPtr>();
+                std::cerr << "Use override on load !!!!!!!!!!!!!!!!" << std::endl;
+            }
+            std::cerr << "Use BASE on load !!!!!!!!!!!!!!!" << std::endl;
+            return mx::IDocumentPlugin::load(path);
+        }
+        catch (const py::error_already_set& e) {
+            std::cerr << "Python load() error: " << e.what() << std::endl;
+            return nullptr;
+        }
+        catch (const std::exception& e) {
+            std::cerr << "C++ load() error: " << e.what() << std::endl;
+            return nullptr;
+        }
+    }
+    */
+    /* mx::DocumentPtr load(const std::string& path) override {
+        py::gil_scoped_acquire gil;
+        try {
+            if (auto override = py::get_override(this, "load")) {
+                py::object result = override(path);
+                if (result.is_none()) {
+                    std::cerr << "Python returned None!" << std::endl;
+                    return nullptr;
+                }
+                return result.cast<mx::DocumentPtr>();
+            }
+            return mx::IDocumentPlugin::load(path);
+        }
+        catch (const std::exception& e) {
+            std::cerr << "Trampoline error: " << e.what() << std::endl;
+            return nullptr;
+        }
+    } */
+#if 0
+    // For non-pure virtual functions with default implementations
+    mx::DocumentPtr load(const std::string& path) override {
+        pybind11::gil_scoped_acquire gil;
+        pybind11::function override = pybind11::get_override(static_cast<const mx::IDocumentPlugin*>(this), "load");
+        if (override) {
+            std::cerr << ">>>>>>>>>>> use load loverride !!!" << std::endl;
+            auto result = override(path);
+            return result.cast<mx::DocumentPtr>();
+        }
+        std::cerr << ">>>>>>>>>>> use BASE load !!!" << std::endl;
+        return mx::IDocumentPlugin::load(path); // Fallback to base implementation
+    }
+#endif
     bool save(mx::ConstDocumentPtr document, const std::string& path) override {
-        PYBIND11_OVERRIDE(bool, mx::IDocumentPlugin, save, document, path);
+        pybind11::gil_scoped_acquire gil;
+        pybind11::function override = pybind11::get_override(static_cast<const mx::IDocumentPlugin*>(this), "save");
+        if (override) {
+            std::cerr << ">>>>>>>>>>> use saveloverride !!!" << std::endl;
+            auto result = override(document, path);
+            return result.cast<bool>();
+        }
+        std::cerr << ">>>>>>>>>>> use BASE save!!!" << std::endl;
+        return mx::IDocumentPlugin::save(document, path); // Fallback to base
     }
 };
 
@@ -88,8 +167,22 @@ void bindPyPluginManager(py::module& mod)
     py::class_<mx::IDocumentPlugin, mx::IPlugin, PyDocumentPlugin,
         std::shared_ptr<mx::IDocumentPlugin>>(mod, "IDocumentPlugin")
         .def(py::init<>())
-        .def("load", &mx::IDocumentPlugin::load)
-        .def("save", &mx::IDocumentPlugin::save);
+        //.def_readwrite("_identifier", &mx::IPlugin::_identifier)
+        //.def_readwrite("_pluginType", &mx::IPlugin::_pluginType)
+        //.def("load", &mx::IDocumentPlugin::load)
+        //.def("save", &mx::IDocumentPlugin::save)
+        //.def("getIdentifier", &mx::IDocumentPlugin::getIdentifier)
+        //.def("getPluginType", &mx::IDocumentPlugin::getPluginType);        
+        .def("load",
+            [](mx::IDocumentPlugin& self, const std::string& path) {
+                return self.load(path);  // Force virtual dispatch
+            },
+            py::arg("path"))
+        .def("save",
+            [](mx::IDocumentPlugin& self, mx::ConstDocumentPtr doc, const std::string& path) {
+                return self.save(doc, path);
+            },
+            py::arg("document"), py::arg("path"));
 
     /* // Image loader
     py::class_<mx::IImageLoader, IPlugin, PyImageLoader,

@@ -293,23 +293,57 @@ void load_python_plugins(const std::string& plugin_dir)
                             
                             auto retrieved_plugin = bridge.attr("getPlugin")(plugin_id);
                             if (!retrieved_plugin.is_none()) {
+                                py::gil_scoped_acquire acquire;
+
                                 auto retrieved_id = retrieved_plugin.attr("getIdentifier")().cast<std::string>();
                                 std::cout << "  Successfully retrieved plugin: " << retrieved_id << std::endl;
                                 // Call plugin load() method for testing
-                                auto load_result = retrieved_plugin.attr("load")("testfile.mtlx");
-                                // Get result as a mx::DoumentPtr
-                                auto doc_ptr = load_result.cast<mx::DocumentPtr>();
-                                if (doc_ptr) {
-                                    std::cout << "  Plugin load() method returned a valid DocumentPtr" << std::endl;
+
+                                auto load_function = retrieved_plugin.attr("load");
+                                bool have_load = false;
+                                if (py::isinstance<py::function>(load_function)) {
+                                    std::cout << "Plugin has a load function" << std::endl;
+                                    have_load = true;
                                 }
                                 else {
-                                    std::cout << "  Plugin load() method did not return a valid DocumentPtr" << std::endl;
+                                    std::cout << "Plugin does not have a load function" << std::endl;
                                 }
-                                // Call save() method for testing
-                                auto save_result = retrieved_plugin.attr("save")(doc_ptr, "outputfile.mtlx");
-                                // Convert result to bool
-                                bool save_success = save_result.cast<bool>();
-                                std::cout << "  Plugin save() method returned: " << (save_success ? "true" : "false") << std::endl;
+
+                                auto py_doc = have_load ? load_function("testfile.mtlx") : pybind11::none();
+                                
+                                auto doc_type = py::module::import("MaterialX").attr("Document");
+                                std::cerr << "Document type: " << py::cast<std::string>(py::str(doc_type)) << std::endl;
+
+                                std::string type_name = py::str(py_doc.get_type()).cast<std::string>();
+                                std::cout << "Returned Python type: " << type_name << std::endl;
+
+                                if (!py_doc.is_none()) {
+                                    std::cout << "  Python document object returned" << std::endl;
+
+                                    // 2. Extract C++ DocumentPtr from Python object
+                                    try {
+                                        mx::DocumentPtr doc = py_doc.cast<mx::DocumentPtr>();
+                                        if (doc) {
+                                            std::cout << "  Document loaded successfully: "
+                                                << doc->getName() << std::endl;
+                                        }
+                                        else {
+                                            std::cout << "  Cast to DocumentPtr returned null" << std::endl;
+                                        }
+                                    }
+                                    catch (const py::cast_error& e) {
+                                        std::cerr << "  Cast error: " << e.what() << std::endl;
+
+                                        // 3. Debugging: Print the actual Python type
+                                        std::string type_name = py::str(py_doc.get_type()).cast<std::string>();
+                                        std::cerr << "  Actual Python type: " << type_name << std::endl;
+                                    }
+                                }
+                                else {
+                                    std::cout << "  Plugin returned None for document" << std::endl;
+                                }
+
+                                
                             } else {
                                 std::cout << "  Plugin not found by ID" << std::endl;
                             }
