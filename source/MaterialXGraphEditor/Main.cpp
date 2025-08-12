@@ -4,6 +4,7 @@
 //
 
 #include <MaterialXGraphEditor/Graph.h>
+#include <MaterialXGraphEditor/PluginIntegration.h>
 #include <MaterialXFormat/Environ.h>
 #include <MaterialXFormat/File.h>
 #include <MaterialXFormat/Util.h>
@@ -57,6 +58,21 @@ template <class T> void parseToken(std::string token, std::string type, T& res)
 
 int main(int argc, char* const argv[])
 {
+#ifdef MATERIALX_BUILD_PYTHON
+    // Load Python plugins if available
+    try {
+        // Look for plugins in a "plugins" directory relative to the executable
+        std::string pluginDir = "plugins";
+        load_python_plugins(pluginDir);
+    } catch (const std::exception& e) {
+        std::cerr << "Warning: Failed to load Python plugins: " << e.what() << std::endl;
+    } catch (...) {
+        std::cerr << "Warning: Unknown error loading Python plugins" << std::endl;
+    }
+#else
+    std::cout << "Python plugin support not enabled" << std::endl;
+#endif
+
     std::vector<std::string> tokens;
     for (int i = 1; i < argc; i++)
     {
