@@ -33,16 +33,21 @@ class PyDocumentLoader : public mx::IDocumentPlugin {
   public:
     using mx::IDocumentPlugin::IDocumentPlugin;
 
-    std::string getPluginType() const override { return "DocumentLoader"; }
-    std::string getIdentifier() const override {
+    std::string getPluginType() const override 
+    { 
+        return "DocumentLoader"; 
+    }
+    std::string getIdentifier() const override 
+    {
         PYBIND11_OVERRIDE_PURE(std::string, mx::IDocumentPlugin, name, );
     }
 
-    mx::DocumentPtr load(const std::string& path) override {
+    mx::DocumentPtr load(const std::string& path) override 
+    {
         PYBIND11_OVERRIDE_PURE(mx::DocumentPtr, mx::IDocumentPlugin, load, path);
     }
 
-    bool save(mx::ConstDocumentPtr document, const std::string& path)
+    bool save(mx::ConstDocumentPtr document, const std::string& path) override
     {
         PYBIND11_OVERRIDE_PURE(bool, mx::IDocumentPlugin, save, document, path);
     }
