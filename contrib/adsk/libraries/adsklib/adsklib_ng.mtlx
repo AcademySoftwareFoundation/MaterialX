@@ -27,11 +27,8 @@
     </multiply>
 
     <!-- use placement node to transform uv -->
-    <texcoord name="texcoord1" type="vector2">
-      <input name="index" type="integer" interfacename="uv_index"/>
-    </texcoord>
     <place2d name="a_place2d" type="vector2">
-      <input name="texcoord" type="vector2" nodename="texcoord1"/>
+      <input name="texcoord" type="vector2" interfacename="texcoord"/>
       <input name="offset" type="vector2" nodename="total_offset" />
       <input name="scale" type="vector2" nodename="total_scale" />
       <input name="pivot" type="vector2" value="0.0, 0.0" />
@@ -86,11 +83,8 @@
     </multiply>
 
     <!-- use placement node to transform uv -->
-    <texcoord name="texcoord1" type="vector2">
-      <input name="index" type="integer" interfacename="uv_index"/>
-    </texcoord>
     <place2d name="a_place2d" type="vector2">
-      <input name="texcoord" type="vector2" nodename="texcoord1"/>
+      <input name="texcoord" type="vector2" interfacename="texcoord"/>
       <input name="offset" type="vector2" nodename="total_offset" />
       <input name="scale" type="vector2" nodename="total_scale" />
       <input name="pivot" type="vector2" value="0.0, 0.0" />
@@ -145,11 +139,8 @@
     </multiply>
 
     <!-- use placement node to transform uv -->
-    <texcoord name="texcoord1" type="vector2">
-      <input name="index" type="integer" interfacename="uv_index"/>
-    </texcoord>
     <place2d name="a_place2d" type="vector2">
-      <input name="texcoord" type="vector2" nodename="texcoord1"/>
+      <input name="texcoord" type="vector2" interfacename="texcoord"/>
       <input name="offset" type="vector2" nodename="total_offset" />
       <input name="scale" type="vector2" nodename="total_scale" />
       <input name="pivot" type="vector2" value="0.0, 0.0" />
@@ -210,11 +201,8 @@
     </multiply>
 
     <!-- use placement node to transform uv -->
-    <texcoord name="texcoord1" type="vector2">
-      <input name="index" type="integer" interfacename="uv_index"/>
-    </texcoord>
     <place2d name="a_place2d" type="vector2">
-      <input name="texcoord" type="vector2" nodename="texcoord1"/>
+      <input name="texcoord" type="vector2" interfacename="texcoord"/>
       <input name="offset" type="vector2" nodename="total_offset" />
       <input name="scale" type="vector2" nodename="total_scale" />
       <input name="pivot" type="vector2" value="0.0, 0.0" />
@@ -286,11 +274,8 @@
     </multiply>
 
     <!-- use placement node to transform uv -->
-    <texcoord name="texcoord1" type="vector2">
-      <input name="index" type="integer" interfacename="uv_index"/>
-    </texcoord>
     <place2d name="a_place2d" type="vector2">
-      <input name="texcoord" type="vector2" nodename="texcoord1"/>
+      <input name="texcoord" type="vector2" interfacename="texcoord"/>
       <input name="offset" type="vector2" nodename="total_offset" />
       <input name="scale" type="vector2" nodename="total_scale" />
       <input name="pivot" type="vector2" value="0.0, 0.0" />
@@ -318,6 +303,8 @@
     <normalmap name="impl_normalmap" type="vector3">
       <input name="in" type="vector3" nodename="b_image_invert_y" />
       <input name="scale" type="float" interfacename="normal_scale" />
+      <input name="normal" type="vector3" interfacename="normal" />
+      <input name="tangent" type="vector3" interfacename="tangent" />
     </normalmap>
     <output name="out" type="vector3" nodename="impl_normalmap" />
   </nodegraph>
@@ -342,11 +329,8 @@
       <input name="in2" type="float" value="-1.0"/>
     </multiply>
 
-    <texcoord name="texcoord1" type="vector2">
-      <input name="index" type="integer" interfacename="uv_index"/>
-    </texcoord>
     <place2d name="a_place2d" type="vector2">
-      <input name="texcoord" type="vector2" nodename="texcoord1"/>
+      <input name="texcoord" type="vector2" interfacename="texcoord"/>
       <input name="offset" type="vector2" nodename="total_offset" />
       <input name="scale" type="vector2" nodename="total_scale" />
       <input name="pivot" type="vector2" value="0.0, 0.0" />
@@ -368,6 +352,8 @@
     <normalmap name="impl_normalmap" type="vector3">
       <input name="in" type="vector3" nodename="impl_heighttonormalmap" />
       <input name="scale" type="float" interfacename="depth" />
+      <input name="normal" type="vector3" interfacename="normal" />
+      <input name="tangent" type="vector3" interfacename="tangent" />
     </normalmap>
     <output name="out" type="vector3" nodename="impl_normalmap" />
   </nodegraph>

@@ -23,7 +23,7 @@
     <input name="invert" type="boolean" value="false" />
     <input name="uaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode U" uniform="true" />
     <input name="vaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode V" uniform="true" />
-    <input name="uv_index" type="integer" value="0" uimin="0" uisoftmax="10" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <output name="out" type="color3"/>
   </nodedef>
 
@@ -43,7 +43,7 @@
     <input name="invert" type="boolean" value="false" />
     <input name="uaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode U" uniform="true" />
     <input name="vaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode V" uniform="true" />
-    <input name="uv_index" type="integer" value="0" uimin="0" uisoftmax="10" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <output name="out" type="color4"/>
   </nodedef>
   
@@ -63,7 +63,7 @@
     <input name="invert" type="boolean" value="false" />
     <input name="uaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode U" uniform="true" />
     <input name="vaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode V" uniform="true" />
-    <input name="uv_index" type="integer" value="0" uimin="0" uisoftmax="10" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <output name="out" type="float" />
   </nodedef>
 
@@ -86,7 +86,7 @@
     <input name="outhigh" type="float" value="1.0" />
     <input name="uaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode U" uniform="true" />
     <input name="vaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode V" uniform="true" />
-    <input name="uv_index" type="integer" value="0" uimin="0" uisoftmax="10" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <output name="out" type="float" />
   </nodedef>
 
@@ -105,7 +105,9 @@
     <input name="normal_scale" type="float" value="1.0" />
     <input name="uaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode U" uniform="true" />
     <input name="vaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode V" uniform="true" />
-    <input name="uv_index" type="integer" value="0" uimin="0" uisoftmax="10" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <input name="normal" type="vector3" defaultgeomprop="Nworld" />
+    <input name="tangent" type="vector3" defaultgeomprop="Tworld" />
     <output name="out" type="vector3" />
   </nodedef>
 
@@ -120,7 +122,9 @@
     <input name="depth" type="float" unittype="distance" value="1.0" uisoftmin="0.0" uisoftmax="1.0" />
     <input name="uaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode U" uniform="true" />
     <input name="vaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode V" uniform="true" />
-    <input name="uv_index" type="integer" value="0" uimin="0" uisoftmax="10" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <input name="normal" type="vector3" defaultgeomprop="Nworld" />
+    <input name="tangent" type="vector3" defaultgeomprop="Tworld" />
     <output name="out" type="vector3" />
   </nodedef>
   
