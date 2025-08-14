@@ -15,14 +15,15 @@ PluginManager::PluginManager()
 {
 }
 
+#if 0
 PluginManager::~PluginManager()
 {
     std::cerr << "Destroy PluginManager instance at address: 0x"
               << std::hex << reinterpret_cast<uintptr_t>(this) << std::dec << std::endl;
-    _plugins.clear();
-    _registrationCallbacks.clear();
+    //_plugins.clear();
+    //_registrationCallbacks.clear();
 }
-
+#endif
 
 PluginManager& PluginManager::getInstance()
 {
@@ -32,78 +33,53 @@ PluginManager& PluginManager::getInstance()
     return instance;
 }
 
-void PluginManager::registerPlugin(IPluginPtr plugin)
+bool PluginManager::registerPlugin(PluginPtr plugin)
 {
-    _plugins.push_back(plugin);
-
-    std::cerr << ">>>>>>>> register loader: " << plugin->getIdentifier() << ". Type: " << plugin->getPluginType() << std::endl;
-    // Notify all registered callbacks
-    for (const auto& callbackPair : _registrationCallbacks)
+    if (plugin)
     {
-        std::cerr << "<<<<< callback" << callbackPair.first << std::endl;
-        callbackPair.second(plugin->getIdentifier(), true);
-    }
-}
-
-bool PluginManager::unregisterPlugin(const std::string& identifier)
-{
-    std::cerr << "Unregister plugin: " << identifier << std::endl;
-
-    if (identifier.empty())
-    {
-        return false;
-    }
-
-    auto it = std::remove_if(_plugins.begin(), _plugins.end(),
-        [&identifier](const IPluginPtr& plugin) 
+        const std::string& name = plugin->name();
+        auto it = std::find_if(_plugins.begin(), _plugins.end(),
+            [&name](const PluginPtr& p) { return p->name() == name; });
+        if (it == _plugins.end())
         {
-            return plugin->getIdentifier() == identifier;
-        });
+            // Register plugin
+            std::cerr << "Register plugin: " << name << std::endl;
+            _plugins.push_back(plugin);
 
-    if (it != _plugins.end())
-    {
-        _plugins.erase(it, _plugins.end());
-
-        // Notify all registered callbacks
-        for (const auto& callbackPair : _registrationCallbacks)
-        {
-            callbackPair.second(identifier, false);
+            // Notify callback
+            for (auto& cb : _registrationCallbacks)
+            {
+                std::cerr << "Notify callback of registration: " << cb.first << std::endl;
+                cb.second(name, true);
+            }
+            return true;
         }
-        return true;
     }
-
     return false;
 }
 
-IPluginPtr PluginManager::getPlugin(const string& identifier)
+bool PluginManager::unregisterPlugin(const std::string& name)
 {
-    for (const auto& plugin : _plugins)
-    {
-        if (plugin->getIdentifier() == identifier)
-        {
-            std::cerr << "Get plugin: " << identifier << ". Type: " << plugin->getPluginType() << std::endl;
-            return plugin;
-        }
-    }
-    return nullptr;
-}
+    // Find plugin by name
+    auto it = std::find_if(_plugins.begin(), _plugins.end(),
+        [&name](const PluginPtr& p) { return p->name() == name; });
 
-IPluginVec PluginManager::getPlugins(const string pluginType)
-{
-    IPluginVec result;
-    std::cerr << "Scan all plugins of type: " << pluginType << " in list of size: " << _plugins.size() << std::endl;
-    for (const auto& plugin : _plugins)
+    if (it != _plugins.end())
     {
-        std::string plug_id = plugin->getIdentifier();
-        std::string plug_type = plugin->getPluginType();
-        std::cerr << "Try get plugins: " << plug_id << ". Type: " << plug_type << std::endl;
-        if (plugin->getPluginType() == pluginType)
+        // Unregister plugin
+        std::cerr << "Unregister plugin: " << name << std::endl;
+        _plugins.erase(it);
+
+        // Notify callback
+        for (auto& cb : _registrationCallbacks)
         {
-            std::cerr << "Get plugins: " << plugin->getIdentifier() << ". Type: " << plugin->getPluginType() << std::endl;
-            result.push_back(plugin);
+            std::cerr << "Notify callback of unregistration: " << cb.first << std::endl;
+            cb.second(name, false);
         }
+        return true;
+
     }
-    return result;
+    return false;
 }
 
 bool PluginManager::addRegistrationCallback(const std::string& identifier, std::function<void(const std::string&, bool)> callback)

@@ -1,60 +1,64 @@
 import MaterialX as mx
 import MaterialX.PyMaterialXRender as mx_render
 
-class PDFLoader(mx_render.IDocumentPlugin):
-    def __init__(self):
-        super().__init__()
-        
-        # Initialize base class properties directly
-        self._identifier = "com.company.pdf_loader"
-        self._pluginType = "DocumentLoader"
-        
-    def load(self, path):
+# Get the pybind11 metaclass of Plugin
+pybind_meta = type(mx_render.Plugin)
+
+# Global registry for Python plugin classes
+_registered_plugin_classes = {}
+
+# Decorator to auto-register plugin classes
+def auto_register_plugin(cls):
+    #print("[Python] Registering plugin:", cls.__name__)
+    _registered_plugin_classes[cls.__name__] = cls
+    return cls
+
+# Python plugin subclassing the trampoline
+@auto_register_plugin
+class PDFLoader(mx_render.DocumentLoaderPlugin):
+    # Do NOT override __init__
+
+    _plugin_name = "PDFLoader"
+
+    def name(self):
+        return self._plugin_name
+
+    def run(self, path):
         doc = mx.createDocument()
-        print(f"Loading PDF from: {path}")
-        print(mx.prettyPrint(doc))
-        return doc    
-    
-    def save(self, document, path):
-        print(f"> Saving PDF to: {path}")
+        print(f"[Python] Loading document from path: {path}")
+        return doc
 
-def verify_override(plugin):
-    import inspect
-    
-    base_load = mx_render.IDocumentPlugin.load
-    derived_load = plugin.load
-    
-    print(f"Is overridden: {derived_load.__qualname__ != base_load.__qualname__}")
-    print(f"Python method: {inspect.getsource(derived_load)}")
-    
-    # Test direct call
-    print("Direct call test:")
-    doc = plugin.load("test.mtlx")
-    print(f"Return type: {type(doc)}")
+# Function to register all plugin instances
+def register_all_plugins():
+    manager = mx_render.getPluginManager()
+    for cls_name, cls in _registered_plugin_classes.items():
+        instance = cls()  # Instantiate trampoline subclass
+        manager.registerPlugin(instance)
 
 
-# Optional: Test creating instance 
+# -------------------------------
+# Existing test main logic preserved
+# -------------------------------
 if __name__ == "__main__":
-    plugin = PDFLoader()
-    print(f"Plugin ID: {plugin.getIdentifier()}")
-    print(f"Plugin Type: {plugin.getPluginType()}")
-    print("Plugin test successful!")
 
-    print("Is load overridden?", 
-      PDFLoader.load is not mx_render.IDocumentPlugin.load)  # Should be True
-    print("Is save overridden?", 
-      PDFLoader.save is not mx_render.IDocumentPlugin.save)  # Should be True
+    # Access plugin manager
+    manager = mx_render.getPluginManager()
 
-    mx_render.registerPlugin(plugin) 
-    plugins = mx_render.getPlugins('DocumentLoader')
-    print(f"Registered plugins: {plugins}")
-    for p in plugins:
-        print(f" - {p.getIdentifier()}")
-        print(f" - {p.getPluginType()}")
-        result = plugin.load("test_document.pdf")  # "Load PDF document from path: test_document.pdf"
-        print("Loaded document:")
-        print(mx.prettyPrint(result))
-        plugin.save(result, "test_document.pdf")
+    try:
+        pdfLoader = PDFLoader()
+    except TypeError as e:
+        raise RuntimeError(f"PDFLoader does not implement all required abstract methods: {e}")
+    print(f"Loader name: {pdfLoader.name()}")
+    manager.registerPlugin(pdfLoader)
+    print(f"Registered plugins: {manager.getPluginList()}")
 
-        verify_override(plugin)
+    # Get PDFLoader plugin by name and run it
+    loader = manager.getLoader("PDFLoader")
+    if loader:
+        # Call .name() to ensure Python override is visible to C++
+        doc = loader.run("test_document.pdf")
+        print("[Python] Document loaded:")
+        print(mx.prettyPrint(doc))
 
+else:
+    print("Loading PDF plugin module.")

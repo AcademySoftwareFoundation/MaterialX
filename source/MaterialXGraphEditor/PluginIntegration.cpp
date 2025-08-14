@@ -8,12 +8,129 @@
 #include <MaterialXRender/PluginManager.h>
 #include <iostream>
 #include <MaterialXGraphEditor/PluginIntegration.h>
+#include <MaterialXCore/Util.h>
+#include <MaterialXFormat/File.h>
 
 namespace py = pybind11;
 namespace fs = std::filesystem;
 namespace mx = MaterialX;
 
-void load_python_plugins(const std::string& plugin_dir)
+#include <pybind11/embed.h>
+//#include "plugin_manager.h"
+
+#include <cstdlib>
+//#include <filesystem>
+//#include <string>
+//#include <vector>
+
+namespace py = pybind11;
+namespace fs = std::filesystem;
+
+static std::vector<mx::FilePath> get_plugin_search_paths() 
+{
+    std::vector<mx::FilePath> search_paths;
+
+    // 1. Executable directory /plugins
+#if 0
+    try {
+        fs::path exe_path = fs::absolute(fs::path(std::string(std::getenv("_")))); // POSIX
+        // On Windows, replace above with GetModuleFileNameA logic if needed
+        fs::path exe_dir = exe_path.parent_path();
+        fs::path local_plugins = exe_dir / "plugins";
+        if (fs::exists(local_plugins) && fs::is_directory(local_plugins)) {
+            search_paths.push_back(local_plugins);
+        }
+    }
+    catch (...) {
+        // Ignore failures
+    }
+#endif
+
+    // 2. Environment variable PLUGIN_PATHS
+    if (const char* env_paths = std::getenv("MATERIALX_PLUGIN_PATHS")) {
+#ifdef _WIN32
+        const std::string sep = ";";
+#else
+        const std::string sep = ":";
+#endif
+        std::string paths_str(env_paths);
+        const mx::StringVec pathVec = mx::splitString(paths_str, sep);
+        for (const std::string& path : pathVec)
+        {
+            if (!path.empty()) 
+            {
+                std::cout << "Adding plugin path from env var: " << path << std::endl;
+                mx::FilePath p = mx::FilePath(path);
+                bool exists = p.exists();
+                bool isdir = p.isDirectory();
+                std::cout << "exists: " << exists << ", isdir: " << isdir << " for path: " << p.asString() << std::endl;
+                if (exists) {
+                    if (isdir)
+                    {
+                        std::cout << "Add in plugin path:" << p.asString() << std::endl;
+                        search_paths.push_back(p);
+                    }
+                }
+            }
+        }
+    }
+
+    return search_paths;
+}
+
+static void load_plugins(py::module_ myplugins_mod) {
+    auto pkgutil = py::module_::import("pkgutil");
+    auto importlib = py::module_::import("importlib");
+
+    for (auto& path : get_plugin_search_paths()) {
+        // Add path to sys.path
+        py::module_::import("sys").attr("path").attr("append")(path.getParentPath().asString());
+
+        std::string package_name = "plugins";
+
+        py::object package = importlib.attr("import_module")(package_name);
+
+        auto iter_modules = pkgutil.attr("iter_modules")(package.attr("__path__"));
+        for (auto& info : iter_modules) {
+            auto module_name = info.attr("name").cast<std::string>();
+            importlib.attr("import_module")(package_name + "." + module_name);
+        }
+    }
+}
+
+void load_python_plugins(const std::string& /*plugin_dir*/) {
+    py::scoped_interpreter guard{};
+
+    try {
+        // Import "Materialx" and "MaterialX.PyMaterialXRender"
+        auto pymx = py::module_::import("MaterialX");
+        std::cout << "Version: " << pymx.attr("getVersionString")().cast<std::string>() << std::endl;
+        std::cout << "MaterialX base module loaded successfully" << std::endl;
+        py::module_ myplugins_mod = py::module_::import("MaterialX.PyMaterialXRender");
+        std::cout << "MaterialX.PyMaterialXRender module imported" << std::endl;
+
+
+        // Scan + load plugins from either exe/plugins or env var paths
+        load_plugins(myplugins_mod);
+
+        auto& manager = myplugins_mod.attr("getPluginManager")().cast<mx::PluginManager&>();
+
+        for (auto& name : manager.getPluginList()) {
+            std::cout << "Discovered plugin: " << name << "\n";
+        }
+
+        //manager.runPlugin("PluginB");
+        //manager.run_all();
+
+    }
+    catch (const py::error_already_set& e) {
+        std::cerr << "Python error: " << e.what() << "\n";
+    }
+}
+
+///////////////////////////////////////////////////////////////
+#if 0
+void load_python_plugins_2(const std::string& plugin_dir)
 {
 
     py::scoped_interpreter guard{};
@@ -111,13 +228,13 @@ void load_python_plugins(const std::string& plugin_dir)
                                 std::string class_name = cls.attr("__name__").cast<std::string>();
                                 std::cout << "Found class: " << class_name << std::endl;
                                 
-                                // Check if it inherits from IPlugin by looking for the actual base class
+                                // Check if it inherits from Plugin by looking for the actual base class
                                 if (py::hasattr(cls, "__bases__"))
                                 {
                                     auto bases = cls.attr("__bases__");
                                     std::cout << "  Checking " << py::len(bases) << " base classes..." << std::endl;
                                     
-                                    bool is_iplugin = false;
+                                    bool is_Plugin = false;
                                     int base_index = 0;
                                     for (auto base : bases)
                                     {
@@ -130,17 +247,17 @@ void load_python_plugins(const std::string& plugin_dir)
                                             std::string base_name = base.attr("__name__").cast<std::string>();
                                             std::cout << base_module << "." << base_name << std::endl;
                                             
-                                            // Check for IPlugin from MaterialX.PyMaterialXRender
+                                            // Check for Plugin from MaterialX.PyMaterialXRender
                                             if ((base_module == "MaterialX.PyMaterialXRender" || base_module == "PyMaterialXRender") && 
                                                 base_name == "IDocumentPlugin")
                                             {
-                                                std::cout << "      -> MATCH! Found IPlugin base class" << std::endl;
-                                                is_iplugin = true;
+                                                std::cout << "      -> MATCH! Found Plugin base class" << std::endl;
+                                                is_Plugin = true;
                                                 break;
                                             }
                                             else
                                             {
-                                                std::cout << "      -> No match (looking for MaterialX.PyMaterialXRender.IPlugin or PyMaterialXRender.IPlugin)" << std::endl;
+                                                std::cout << "      -> No match (looking for MaterialX.PyMaterialXRender.Plugin or PyMaterialXRender.Plugin)" << std::endl;
                                             }
                                         }
                                         else
@@ -149,9 +266,9 @@ void load_python_plugins(const std::string& plugin_dir)
                                         }
                                     }
                                     
-                                    if (is_iplugin)
+                                    if (is_Plugin)
                                     {
-                                        std::cout << "Found IPlugin subclass: " << class_name << std::endl;
+                                        std::cout << "Found Plugin subclass: " << class_name << std::endl;
                                         
                                         // Instantiate and register
                                         try {
@@ -233,7 +350,7 @@ void load_python_plugins(const std::string& plugin_dir)
                                     }
                                     else
                                     {
-                                        std::cout << "  Class " << class_name << " does not inherit from IPlugin" << std::endl;
+                                        std::cout << "  Class " << class_name << " does not inherit from Plugin" << std::endl;
                                     }
                                 }
                                 else
@@ -388,7 +505,7 @@ void load_python_plugins(const std::string& plugin_dir)
     }
 
     mx::PluginManager& globalManager = mx::PluginManager::getInstance();
-    mx::IPluginVec plugins = globalManager.getPlugins("DocumentLoader");
+    mx::PluginVec plugins = globalManager.getPlugins("DocumentLoader");
     if (plugins.empty())
     {
         std::cerr << "No DocumentLoader plugins found. Please ensure you have installed the MaterialX Python package." << std::endl;
@@ -403,3 +520,4 @@ void load_python_plugins(const std::string& plugin_dir)
         }
     }   
 }
+#endif

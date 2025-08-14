@@ -10,7 +10,7 @@
 
 /// Load Python-based plugins from the specified directory.
 /// This function initializes the Python interpreter if needed and
-/// discovers Python plugins that inherit from IPlugin interface.
+/// discovers Python plugins that inherit from Plugin interface.
 /// @param plugin_dir Path to directory containing Python plugin files
 void load_python_plugins(const std::string& plugin_dir);
 

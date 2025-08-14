@@ -22,65 +22,68 @@
 MATERIALX_NAMESPACE_BEGIN
 
 // Base plugin interface
-class MX_RENDER_API IPlugin 
+class MX_RENDER_API Plugin 
 {
   public:
-    virtual ~IPlugin() = default;
-
-    // Get the type of the plugin
-    virtual const string& getPluginType()
-    {
-      return _pluginType;
-    }
+    virtual ~Plugin() = default;
 
     // Get the identifier for this plugin
-    virtual const string& getIdentifier() const
-    {
-      return _identifier;
-    }
-
-    string _pluginType = EMPTY_STRING;
-    string _identifier = EMPTY_STRING;
+    virtual string name() const = 0;
 };
 
-using IPluginPtr = shared_ptr<IPlugin>;
-using IPluginVec = std::vector<IPluginPtr>;
-
-// Document loader interface
-class MX_RENDER_API IDocumentPlugin : public IPlugin 
+/// Document loader interface
+class MX_RENDER_API DocumentLoaderPlugin : public Plugin
 {
   public:
-    // Load a document from a file path
-    virtual DocumentPtr load(const std::string& path)
-    {
-      if (path.empty())
-        return nullptr;
-      return nullptr; 
-    }
-
-    // Save a document to a file path
-    virtual bool save(ConstDocumentPtr document, const std::string& path)
-    {
-      if (!document || path.empty())
-        return false;  
-      return false;
-    }
+    virtual DocumentPtr run(const string& path) = 0;
 };
 
-using DocumentLoaderPtr = std::shared_ptr<IDocumentPlugin>;
+/// Document saver interface
+class MX_RENDER_API DocumentSaverPlugin : public Plugin
+{
+  public:
+    virtual void run(DocumentPtr doc, const string& path) = 0;
+};
 
-/// Plugin manager class that handles registration and discovery of various handler types
+using PluginPtr = shared_ptr<Plugin>;
+using DocumentLoaderPluginPtr = shared_ptr<DocumentLoaderPlugin>;
+using DocumentSaverPluginPtr = shared_ptr<DocumentSaverPlugin>;
+using PluginVec = std::vector<PluginPtr>;
+
+/// Plugin manager class 
 class MX_RENDER_API PluginManager
 {
   public:
     /// Get the singleton instance of the plugin manager
     static PluginManager& getInstance();
 
-    void registerPlugin(IPluginPtr plugin);
-    bool unregisterPlugin(const std::string& identifier);
+    /// Register a plugin
+    bool registerPlugin(PluginPtr plugin);
+    /// Unregister a plugin by name
+    bool unregisterPlugin(const std::string& name);
 
-    IPluginPtr getPlugin(const std::string& identifier);
-    IPluginVec getPlugins(const string pluginType);
+    template <typename T>
+    std::shared_ptr<T> getPlugin(const std::string& name) 
+    {
+        for (auto& p : _plugins) 
+        {
+            if (p->name() == name) 
+            {
+                return std::dynamic_pointer_cast<T>(p);
+            }
+        }
+        return nullptr;
+    }
+
+    StringVec getPluginList() const 
+    {
+        std::vector<std::string> names;
+        for (auto& p : _plugins)
+        {
+            names.push_back(p->name());
+        }
+        return names;
+    }
 
     // Registration and unregistration monitoring
     bool addRegistrationCallback(const std::string& identifier, std::function<void(const std::string&, bool)> callback);
@@ -88,11 +91,11 @@ class MX_RENDER_API PluginManager
 
   private:
     PluginManager();
-    ~PluginManager();
+    //~PluginManager();
     PluginManager(const PluginManager&) = delete;
     PluginManager& operator=(const PluginManager&) = delete;    
 
-    IPluginVec _plugins;
+    PluginVec _plugins;
     std::unordered_map<std::string, std::function<void(const std::string&, bool)>> _registrationCallbacks;
 };
 
