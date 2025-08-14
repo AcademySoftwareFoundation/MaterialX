@@ -6,13 +6,11 @@
 #include <MaterialXRender/PluginManager.h>
 #include <MaterialXGraphEditor/PluginIntegration.h>
 
-#include <pybind11/embed.h>
 #include <cstdlib>
-#include <filesystem>
+//#include <filesystem>
 #include <iostream>
 
-namespace py = pybind11;
-namespace fs = std::filesystem;
+//namespace fs = std::filesystem;
 namespace mx = MaterialX;
 
 static std::vector<mx::FilePath> getSearchPaths() 
@@ -73,11 +71,37 @@ static void loadPlugins(py::module_ myplugins_mod)
     }
 }
 
+PluginIntegration::PluginIntegration()
+    : _pyInterpreter(std::make_unique<py::scoped_interpreter>())
+{
+    try {
+        _pymxModule = py::module_::import("MaterialX");
+        _mypluginsModule = py::module_::import("MaterialX.PyMaterialXRender");
+        std::cout << "-- Initializing integration class --" << std::endl;
+        std::cout << "Version: " << _pymxModule.attr("getVersionString")().cast<std::string>() << std::endl;
+        std::cout << "MaterialX base module loaded successfully" << std::endl;
+        std::cout << "MaterialX.PyMaterialXRender module imported" << std::endl;
+
+    } catch (const py::error_already_set& e) {
+        std::cerr << "Python error during module import: " << e.what() << "\n";
+    }
+}
+
+
 mx::DocumentPtr PluginIntegration::loadDocument(const std::string& pluginName, const mx::FilePath& path) const
 {
     if (pluginName.empty() || path.isEmpty())
     {
         return nullptr;
+    }
+
+    mx::PluginManager& manager = _mypluginsModule.attr("getPluginManager")().cast<mx::PluginManager&>();
+    mx::DocumentLoaderPluginPtr p = manager.getPlugin<mx::DocumentLoaderPlugin>(pluginName);
+    if (p)
+    {
+        std::cout << "METHOD: Run LOADER plugin : " << pluginName << " with test file" << std::endl;
+        mx::DocumentPtr doc = p->run(path);
+        return doc;
     }
     return nullptr;
 }
@@ -88,27 +112,26 @@ bool PluginIntegration::saveDocument(const std::string& pluginName, mx::Document
     {
         return false;
     }
+
+    mx::PluginManager& manager = _mypluginsModule.attr("getPluginManager")().cast<mx::PluginManager&>();
+    mx::DocumentSaverPluginPtr ps = manager.getPlugin<mx::DocumentSaverPlugin>(pluginName);
+    if (ps)
+    {
+        std::cout << "METHOD: Run SAVER plugin : " << pluginName << " with test document" << std::endl;
+        ps->run(doc, path);
+    }
     return true;
 }
 
 
 void PluginIntegration::loadPythonPlugins()
 {
-    py::scoped_interpreter guard{};
-
-    try {
-        // Import "Materialx" and "MaterialX.PyMaterialXRender"
-        auto pymx = py::module_::import("MaterialX");
-        std::cout << "Version: " << pymx.attr("getVersionString")().cast<std::string>() << std::endl;
-        std::cout << "MaterialX base module loaded successfully" << std::endl;
-        py::module_ myplugins_mod = py::module_::import("MaterialX.PyMaterialXRender");
-        std::cout << "MaterialX.PyMaterialXRender module imported" << std::endl;
-
-
+    try 
+    {
         // Scan + load plugins from either exe/plugins or env var paths
-        loadPlugins(myplugins_mod);
+        loadPlugins(_mypluginsModule);
 
-        auto& manager = myplugins_mod.attr("getPluginManager")().cast<mx::PluginManager&>();
+        auto& manager = _mypluginsModule.attr("getPluginManager")().cast<mx::PluginManager&>();
 
         _pluginList = manager.getPluginList();
         for (auto& name : _pluginList ) {
@@ -117,13 +140,13 @@ void PluginIntegration::loadPythonPlugins()
             if (p) 
             {
                 std::cout << "Run LOADER plugin : " << name << " with test file" << std::endl;
-                p->run("testfile.mtlx");
+                //p->run("testfile.mtlx");
             }
             else if (mx::DocumentSaverPluginPtr ps = manager.getPlugin<mx::DocumentSaverPlugin>(name))
             {
                 std::cout << "Run SAVER plugin : " << name << " with test document" << std::endl;
-                mx::DocumentPtr doc = mx::createDocument();
-                ps->run(doc, "testfile_out.mtlx");
+                //mx::DocumentPtr doc = mx::createDocument();
+                //ps->run(doc, "testfile_out.mtlx");
             }
             else
             {

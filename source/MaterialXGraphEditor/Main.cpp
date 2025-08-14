@@ -60,17 +60,24 @@ int main(int argc, char* const argv[])
 {
 #ifdef MATERIALX_BUILD_PYTHON
     // Load Python plugins if available
+    PluginIntegrationPtr integration = nullptr;
     try {
-        PluginIntegration integration;
-        integration.loadPythonPlugins();
-        mx::StringVec pluginsList = integration.getPluginList();
+        integration = PluginIntegration::create();
+        integration->loadPythonPlugins();
+        mx::StringVec pluginsList = integration->getPluginList();
         for (auto name : pluginsList)
         {
             std::cout << ">>> Loaded Python plugin: " << name << std::endl;
         }
-    } catch (const std::exception& e) {
+        mx::DocumentPtr doc = integration->loadDocument("PDFLoader", "resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx");
+        integration->saveDocument("PDFSaver", doc, "output.mtlx");
+    } 
+    catch (const std::exception& e) 
+    {
         std::cerr << "Warning: Failed to load Python plugins: " << e.what() << std::endl;
-    } catch (...) {
+    } 
+    catch (...) 
+    {
         std::cerr << "Warning: Unknown error loading Python plugins" << std::endl;
     }
 #else
