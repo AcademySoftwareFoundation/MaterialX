@@ -37,14 +37,12 @@ class PluginIntegration
     mx::DocumentPtr loadDocument(const std::string& pluginName, const mx::FilePath& path) const;
     bool saveDocument(const std::string& pluginName, mx::DocumentPtr doc, const mx::FilePath& path) const;
 
-  protected:
-      
+  protected:      
     mx::StringVec _pluginList;
 
+  private:
     py::object _pymxModule;
     py::object _mypluginsModule;
-
-  private:
     std::unique_ptr<py::scoped_interpreter> _pyInterpreter;
 };
 
