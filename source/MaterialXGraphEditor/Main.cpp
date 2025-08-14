@@ -61,9 +61,13 @@ int main(int argc, char* const argv[])
 #ifdef MATERIALX_BUILD_PYTHON
     // Load Python plugins if available
     try {
-        // Look for plugins in a "plugins" directory relative to the executable
-        std::string pluginDir = "plugins";
-        load_python_plugins(pluginDir);
+        PluginIntegration integration;
+        integration.loadPythonPlugins();
+        mx::StringVec pluginsList = integration.getPluginList();
+        for (auto name : pluginsList)
+        {
+            std::cout << ">>> Loaded Python plugin: " << name << std::endl;
+        }
     } catch (const std::exception& e) {
         std::cerr << "Warning: Failed to load Python plugins: " << e.what() << std::endl;
     } catch (...) {

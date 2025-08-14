@@ -6,12 +6,30 @@
 #ifndef MATERIALX_PLUGIN_INTEGRATION_H
 #define MATERIALX_PLUGIN_INTEGRATION_H
 
-#include <string>
+#include <MaterialXCore/Util.h>
+#include <MaterialXFormat/File.h>
+#include <MaterialXFormat/Environ.h>
+#include <MaterialXCore/Document.h>
 
-/// Load Python-based plugins from the specified directory.
-/// This function initializes the Python interpreter if needed and
-/// discovers Python plugins that inherit from Plugin interface.
-/// @param plugin_dir Path to directory containing Python plugin files
-void load_python_plugins(const std::string& plugin_dir);
+namespace mx = MaterialX;
+
+class PluginIntegration
+{
+  public:
+    PluginIntegration() {};
+    virtual ~PluginIntegration() {};
+
+    void loadPythonPlugins();
+    mx::StringVec getPluginList() const
+    {
+        return _pluginList;
+    }
+    mx::DocumentPtr loadDocument(const std::string& pluginName, const mx::FilePath& path) const;
+    bool saveDocument(const std::string& pluginName, mx::DocumentPtr doc, const mx::FilePath& path) const;
+
+  protected:
+    mx::StringVec _pluginList;
+};
 
 #endif // MATERIALX_PLUGIN_INTEGRATION_H
+
