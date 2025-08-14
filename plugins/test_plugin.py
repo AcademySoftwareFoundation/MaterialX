@@ -25,7 +25,7 @@ class PDFLoader(mx_render.DocumentLoaderPlugin):
 
     def run(self, path):
         doc = mx.createDocument()
-        print(f"[Python] Loading document from path: {path}")
+        print(f"[Python] PDF Loading document from path: {path}")
         return doc
 
 # Function to register all plugin instances
@@ -33,6 +33,7 @@ def register_all_plugins():
     manager = mx_render.getPluginManager()
     for cls_name, cls in _registered_plugin_classes.items():
         instance = cls()  # Instantiate trampoline subclass
+        print("[Python] Registering plugin instance:", instance.name())
         manager.registerPlugin(instance)
 
 
@@ -55,10 +56,15 @@ if __name__ == "__main__":
     # Get PDFLoader plugin by name and run it
     loader = manager.getLoader("PDFLoader")
     if loader:
+        print("[Python] PDFLoader plugin found, running it...")
         # Call .name() to ensure Python override is visible to C++
         doc = loader.run("test_document.pdf")
         print("[Python] Document loaded:")
         print(mx.prettyPrint(doc))
 
 else:
-    print("Loading PDF plugin module.")
+    print("Successfully loaded PDF plugin module.")
+    pdfLoader = PDFLoader()
+    manager = mx_render.getPluginManager()
+    #register_all_plugins()
+    manager.registerPlugin(pdfLoader)

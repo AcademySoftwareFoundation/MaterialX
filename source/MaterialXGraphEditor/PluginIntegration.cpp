@@ -94,6 +94,12 @@ static void load_plugins(py::module_ myplugins_mod) {
         for (auto& info : iter_modules) {
             auto module_name = info.attr("name").cast<std::string>();
             importlib.attr("import_module")(package_name + "." + module_name);
+
+            //mx::PluginManager& pluginManager = mx::PluginManager::getInstance();
+            //mx::StringVec plugins = pluginManager.getPluginList();
+            //for (const auto& plugin_name : plugins) {
+            //    std::cout << "Discovered plugin: " << plugin_name << "\n";
+            //}
         }
     }
 }
@@ -117,7 +123,24 @@ void load_python_plugins(const std::string& /*plugin_dir*/) {
 
         for (auto& name : manager.getPluginList()) {
             std::cout << "Discovered plugin: " << name << "\n";
+            mx::DocumentLoaderPluginPtr p = manager.getPlugin<mx::DocumentLoaderPlugin>(name);
+            if (p) 
+            {
+                std::cout << "Run LOADER plugin : " << name << " with test file" << std::endl;
+                p->run("testfile.mtlx");
+            }
+            else if (mx::DocumentSaverPluginPtr ps = manager.getPlugin<mx::DocumentSaverPlugin>(name))
+            {
+                std::cout << "Run SAVER plugin : " << name << " with test document" << std::endl;
+                mx::DocumentPtr doc = mx::createDocument();
+                ps->run(doc, "testfile_out.mtlx");
+            }
+            else
+            {
+                std::cout << "Plugin " << name << " is not found" << std::endl;
+            }
         }
+
 
         //manager.runPlugin("PluginB");
         //manager.run_all();
