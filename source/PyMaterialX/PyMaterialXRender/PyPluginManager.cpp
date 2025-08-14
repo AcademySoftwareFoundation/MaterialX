@@ -27,7 +27,7 @@ class PyDocumentLoaderPlugin : public mx::DocumentLoaderPlugin
     // Override the methods to call the Python implementation
     std::string name() const override
     {
-        PYBIND11_OVERRIDE_PURE(std::string, mx::DocumentLoaderPlugin, name, );
+        PYBIND11_OVERRIDE_PURE(std::string, mx::DocumentLoaderPlugin, name);
     }    
     mx::DocumentPtr run(const std::string& path) override
     {
@@ -45,7 +45,7 @@ class PyDocumentSaverPlugin : public mx::DocumentSaverPlugin
     }
     std::string name() const override
     {
-        PYBIND11_OVERRIDE_PURE(std::string, mx::DocumentSaverPlugin, name, );
+        PYBIND11_OVERRIDE_PURE(std::string, mx::DocumentSaverPlugin, name);
     }
     void run(mx::DocumentPtr doc, const std::string& path) override
     {

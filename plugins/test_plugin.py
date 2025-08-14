@@ -16,8 +16,6 @@ def auto_register_plugin(cls):
 # Python plugin subclassing the trampoline
 @auto_register_plugin
 class PDFLoader(mx_render.DocumentLoaderPlugin):
-    # Do NOT override __init__
-
     _plugin_name = "PDFLoader"
 
     def name(self):
@@ -27,6 +25,16 @@ class PDFLoader(mx_render.DocumentLoaderPlugin):
         doc = mx.createDocument()
         print(f"[Python] PDF Loading document from path: {path}")
         return doc
+    
+class PDFSaver(mx_render.DocumentSaverPlugin):
+    _plugin_name = "PDFSaver"
+
+    def name(self):
+       return self._plugin_name
+
+    def run(self, doc, path):
+        print(f"[Python] PDF Saving document to path: {path}")
+        return True
 
 # Function to register all plugin instances
 def register_all_plugins():
@@ -65,6 +73,8 @@ if __name__ == "__main__":
 else:
     print("Successfully loaded PDF plugin module.")
     pdfLoader = PDFLoader()
+    pdfSaver = PDFSaver()
     manager = mx_render.getPluginManager()
     #register_all_plugins()
     manager.registerPlugin(pdfLoader)
+    manager.registerPlugin(pdfSaver)
