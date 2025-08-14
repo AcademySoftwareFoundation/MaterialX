@@ -41,9 +41,11 @@ class PluginIntegration
       
     mx::StringVec _pluginList;
 
-    std::unique_ptr<py::scoped_interpreter> _pyInterpreter;
     py::object _pymxModule;
     py::object _mypluginsModule;
+
+  private:
+    std::unique_ptr<py::scoped_interpreter> _pyInterpreter;
 };
 
 #endif // MATERIALX_PLUGIN_INTEGRATION_H
