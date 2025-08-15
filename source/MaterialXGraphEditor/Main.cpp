@@ -72,8 +72,9 @@ int main(int argc, char* const argv[])
             {
                 std::cout << ">>> Loaded Python plugin: " << name << std::endl;
             }
-            mx::DocumentPtr doc = integration->loadDocument("PDFLoader", "resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx");
-            integration->saveDocument("PDFSaver", doc, "output.mtlx");
+            mx::DocumentPtr doc = integration->loadDocument("JSONLoader", "input.json");
+            std::cout << ">>> Loaded document: " << (doc ? doc->getName() : "null") << std::endl;
+            integration->saveDocument("JSONSaver", doc, "output.json");
         }
     } 
     catch (const std::exception& e) 
