@@ -8,13 +8,9 @@
 
 #include <MaterialXCore/Util.h>
 #include <MaterialXFormat/File.h>
-#include <MaterialXFormat/Environ.h>
 #include <MaterialXCore/Document.h>
 
-#include <pybind11/embed.h>
-
 namespace mx = MaterialX;
-namespace py = pybind11;
 
 class PluginIntegration;
 using PluginIntegrationPtr = std::shared_ptr<PluginIntegration>;
@@ -27,7 +23,7 @@ class PluginIntegration
         return std::make_shared<PluginIntegration>();
     }
     PluginIntegration();
-    virtual ~PluginIntegration() {};
+    virtual ~PluginIntegration();
 
     void loadPythonPlugins();
     mx::StringVec getPluginList() const
@@ -41,9 +37,8 @@ class PluginIntegration
     mx::StringVec _pluginList;
 
   private:
-    py::object _pymxModule;
-    py::object _mypluginsModule;
-    std::unique_ptr<py::scoped_interpreter> _pyInterpreter;
+    struct Impl;
+    std::unique_ptr<Impl> _impl;
 };
 
 #endif // MATERIALX_PLUGIN_INTEGRATION_H

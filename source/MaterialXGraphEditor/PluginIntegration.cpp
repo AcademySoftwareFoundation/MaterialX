@@ -5,13 +5,15 @@
 
 #include <MaterialXRender/PluginManager.h>
 #include <MaterialXGraphEditor/PluginIntegration.h>
+#include <MaterialXFormat/Environ.h>
 
-#include <cstdlib>
-//#include <filesystem>
 #include <iostream>
 
-//namespace fs = std::filesystem;
+#include <pybind11/embed.h>    
+#include <pybind11/pybind11.h> 
+
 namespace mx = MaterialX;
+namespace py = pybind11;
 
 static std::vector<mx::FilePath> getSearchPaths() 
 {
@@ -71,22 +73,72 @@ static void loadPlugins(py::module_ myplugins_mod)
     }
 }
 
-PluginIntegration::PluginIntegration()
-    : _pyInterpreter(std::make_unique<py::scoped_interpreter>())
+// pybind11 members encapsulated in an Impl struct
+struct PluginIntegration::Impl
 {
-    try {
-        _pymxModule = py::module_::import("MaterialX");
-        _mypluginsModule = py::module_::import("MaterialX.PyMaterialXRender");
-        std::cout << "-- Initializing integration class --" << std::endl;
-        std::cout << "Version: " << _pymxModule.attr("getVersionString")().cast<std::string>() << std::endl;
-        std::cout << "MaterialX base module loaded successfully" << std::endl;
-        std::cout << "MaterialX.PyMaterialXRender module imported" << std::endl;
+    std::unique_ptr<py::scoped_interpreter> _pyInterpreter;
+    py::object _pymxModule;
+    py::object _mypluginsModule;
 
-    } catch (const py::error_already_set& e) {
-        std::cerr << "Python error during module import: " << e.what() << "\n";
+    Impl()
+    {
+        _pyInterpreter = std::make_unique<py::scoped_interpreter>();
+        try {
+            _pymxModule = py::module_::import("MaterialX");
+            _mypluginsModule = py::module_::import("MaterialX.PyMaterialXRender");
+            std::cout << "-- Initializing integration class --" << std::endl;
+            std::cout << "Version: " << _pymxModule.attr("getVersionString")().cast<std::string>() << std::endl;
+            std::cout << "MaterialX base module loaded successfully" << std::endl;
+            std::cout << "MaterialX.PyMaterialXRender module imported" << std::endl;
+
+        } 
+        catch (std::exception& e)
+        {
+            std::cerr << "Error importing MaterialX modules: " << e.what() << std::endl;
+            throw;
+        }
     }
+};
+
+PluginIntegration::PluginIntegration()
+    : _impl(std::make_unique<Impl>())
+{
 }
 
+PluginIntegration::~PluginIntegration() = default;
+
+void PluginIntegration::loadPythonPlugins()
+{
+    try 
+    {
+        // Scan + load plugins from either exe/plugins or env var paths
+        loadPlugins(_impl->_mypluginsModule);
+
+        // Check the plugin manager plugins
+        auto& manager = _impl->_mypluginsModule.attr("getPluginManager")().cast<mx::PluginManager&>();
+
+        _pluginList = manager.getPluginList();
+        for (auto& name : _pluginList ) {
+            std::cout << "Check plugin name: " << name << "\n";
+            mx::DocumentLoaderPluginPtr p = manager.getPlugin<mx::DocumentLoaderPlugin>(name);
+            if (p) 
+            {
+                std::cout << "- Found plugin as a document loader" << std::endl;
+            }
+            else if (mx::DocumentSaverPluginPtr ps = manager.getPlugin<mx::DocumentSaverPlugin>(name))
+            {
+                std::cout << "- Found plugin as a document saver" << std::endl;
+            }
+            else
+            {
+                std::cout << "Plugin " << name << " is not found" << std::endl;
+            }
+        }
+    }
+    catch (const py::error_already_set& e) {
+        std::cerr << "Python error: " << e.what() << "\n";
+    }
+}
 
 mx::DocumentPtr PluginIntegration::loadDocument(const std::string& pluginName, const mx::FilePath& path) const
 {
@@ -95,7 +147,7 @@ mx::DocumentPtr PluginIntegration::loadDocument(const std::string& pluginName, c
         return nullptr;
     }
 
-    mx::PluginManager& manager = _mypluginsModule.attr("getPluginManager")().cast<mx::PluginManager&>();
+    mx::PluginManager& manager = _impl->_mypluginsModule.attr("getPluginManager")().cast<mx::PluginManager&>();
     mx::DocumentLoaderPluginPtr p = manager.getPlugin<mx::DocumentLoaderPlugin>(pluginName);
     if (p)
     {
@@ -113,7 +165,7 @@ bool PluginIntegration::saveDocument(const std::string& pluginName, mx::Document
         return false;
     }
 
-    mx::PluginManager& manager = _mypluginsModule.attr("getPluginManager")().cast<mx::PluginManager&>();
+    mx::PluginManager& manager = _impl->_mypluginsModule.attr("getPluginManager")().cast<mx::PluginManager&>();
     mx::DocumentSaverPluginPtr ps = manager.getPlugin<mx::DocumentSaverPlugin>(pluginName);
     if (ps)
     {
@@ -121,45 +173,4 @@ bool PluginIntegration::saveDocument(const std::string& pluginName, mx::Document
         ps->run(doc, path);
     }
     return true;
-}
-
-
-void PluginIntegration::loadPythonPlugins()
-{
-    try 
-    {
-        // Scan + load plugins from either exe/plugins or env var paths
-        loadPlugins(_mypluginsModule);
-
-        auto& manager = _mypluginsModule.attr("getPluginManager")().cast<mx::PluginManager&>();
-
-        _pluginList = manager.getPluginList();
-        for (auto& name : _pluginList ) {
-            std::cout << "Discovered plugin: " << name << "\n";
-            mx::DocumentLoaderPluginPtr p = manager.getPlugin<mx::DocumentLoaderPlugin>(name);
-            if (p) 
-            {
-                std::cout << "Run LOADER plugin : " << name << " with test file" << std::endl;
-                //p->run("testfile.mtlx");
-            }
-            else if (mx::DocumentSaverPluginPtr ps = manager.getPlugin<mx::DocumentSaverPlugin>(name))
-            {
-                std::cout << "Run SAVER plugin : " << name << " with test document" << std::endl;
-                //mx::DocumentPtr doc = mx::createDocument();
-                //ps->run(doc, "testfile_out.mtlx");
-            }
-            else
-            {
-                std::cout << "Plugin " << name << " is not found" << std::endl;
-            }
-        }
-
-
-        //manager.runPlugin("PluginB");
-        //manager.run_all();
-
-    }
-    catch (const py::error_already_set& e) {
-        std::cerr << "Python error: " << e.what() << "\n";
-    }
 }
