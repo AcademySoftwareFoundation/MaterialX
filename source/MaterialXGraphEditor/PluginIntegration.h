@@ -9,6 +9,7 @@
 #include <MaterialXCore/Util.h>
 #include <MaterialXFormat/File.h>
 #include <MaterialXCore/Document.h>
+#include <MaterialXRender/PluginManager.h>
 
 namespace mx = MaterialX;
 
@@ -32,8 +33,10 @@ class PluginIntegration
     {
         return _pluginList;
     }
-    mx::DocumentPtr loadDocument(const std::string& pluginName, const mx::FilePath& path) const;
+    mx::DocumentPtr loadDocument(const std::string& pluginName, const mx::FilePath& path) const;    std::vector<mx::DocumentLoaderPluginPtr> getDocumentLoaderPlugins(const std::string& pluginName) const;
     bool saveDocument(const std::string& pluginName, mx::DocumentPtr doc, const mx::FilePath& path) const;
+
+    mx::PluginManagerPtr getPluginManager() const;
 
   protected:      
     mx::StringVec _pluginList;

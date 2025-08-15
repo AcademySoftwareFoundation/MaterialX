@@ -56,13 +56,13 @@ class PyDocumentSaverPlugin : public mx::DocumentSaverPlugin
 // Plugin registration function
 void registerPlugin(mx::PluginPtr plugin)
 {
-    mx::PluginManager::getInstance().registerPlugin(std::move(plugin));
+    mx::PluginManager::getInstance()->registerPlugin(std::move(plugin));
 }
 
 // Unregister plugin function
 bool unregisterPlugin(const std::string& identifier)
 {
-    return mx::PluginManager::getInstance().unregisterPlugin(identifier);
+    return mx::PluginManager::getInstance()->unregisterPlugin(identifier);
 }
 
 void bindPyPluginManager(py::module& mod)
@@ -81,27 +81,29 @@ void bindPyPluginManager(py::module& mod)
         .def("run", &mx::DocumentSaverPlugin::run);
 
     // Plugin manager class
-    py::class_<mx::PluginManager>(mod, "PluginManager")
-        .def("registerPlugin", [](mx::PluginManager& pm, mx::PluginPtr p) 
+    py::class_<mx::PluginManager, mx::PluginManagerPtr>(mod, "PluginManager")
+        .def("registerPlugin", [](mx::PluginManagerPtr manager, mx::PluginPtr p)
             {
-                pm.registerPlugin(p);
+                std::cout << "Registering plugin: " << p->name() << std::endl;
+                manager->registerPlugin(p);
             })
         .def("getPluginList", &mx::PluginManager::getPluginList)
-        .def("getLoader", [](mx::PluginManager& manager, const std::string& name) 
+        .def("getLoader", [](mx::PluginManagerPtr manager, const std::string& name) 
             {
-                return manager.getPlugin<mx::DocumentLoaderPlugin>(name);
+                std::cout << "Getting loader plugin: " << name << std::endl;
+                return manager->getPlugin<mx::DocumentLoaderPlugin>(name);
             })
-        .def("getSaver", [](mx::PluginManager& manager, const std::string& name)
+        .def("getSaver", [](mx::PluginManagerPtr manager, const std::string& name)
             {
-                return manager.getPlugin<mx::DocumentSaverPlugin>(name);
+                std::cout << "Getting saver plugin: " << name << std::endl;
+                return manager->getPlugin<mx::DocumentSaverPlugin>(name);
             });
     
     // Global functions for plugin management
-    mod.def("getPluginManager", []() -> mx::PluginManager& 
-        { 
-            return mx::PluginManager::getInstance(); 
-        },
-        py::return_value_policy::reference);
+    mod.def("getPluginManager", []() -> mx::PluginManagerPtr
+        {
+            return mx::PluginManager::getInstance();
+        });
 
     mod.def("registerPlugin", &registerPlugin);
     mod.def("unregisterPlugin", &unregisterPlugin);

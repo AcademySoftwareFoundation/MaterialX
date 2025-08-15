@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXRender/PluginManager.h>
 #include <MaterialXGraphEditor/PluginIntegration.h>
 #include <MaterialXFormat/Environ.h>
 
@@ -11,11 +10,6 @@
 
 #include <pybind11/embed.h>    
 #include <pybind11/pybind11.h> 
-
-#if defined(__GNUC__) && !defined(__clang__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wattributes"
-#endif
 
 namespace mx = MaterialX;
 namespace py = pybind11;
@@ -79,7 +73,11 @@ static void loadPlugins(py::module_ myplugins_mod)
 }
 
 // pybind11 members encapsulated in an Impl struct
+#if defined(__GNUC__) && !defined(__clang__)
+struct __attribute__((visibility("hidden"))) PluginIntegration::Impl
+#else
 struct PluginIntegration::Impl
+#endif
 {
     std::unique_ptr<py::scoped_interpreter> _pyInterpreter;
     py::object _pymxModule;
@@ -128,23 +126,28 @@ PluginIntegration::~PluginIntegration() = default;
 
 void PluginIntegration::loadPythonPlugins()
 {
+    if (!_impl->pythonInitialized)
+    {
+        return;
+    }
+
     try 
     {
         // Scan + load plugins from either exe/plugins or env var paths
         loadPlugins(_impl->_mypluginsModule);
 
         // Check the plugin manager plugins
-        auto& manager = _impl->_mypluginsModule.attr("getPluginManager")().cast<mx::PluginManager&>();
+        mx::PluginManagerPtr manager = _impl->_mypluginsModule.attr("getPluginManager")().cast<mx::PluginManagerPtr>();
 
-        _pluginList = manager.getPluginList();
+        _pluginList = manager->getPluginList();
         for (auto& name : _pluginList ) {
             std::cout << "Check plugin name: " << name << "\n";
-            mx::DocumentLoaderPluginPtr p = manager.getPlugin<mx::DocumentLoaderPlugin>(name);
+            mx::DocumentLoaderPluginPtr p = manager->getPlugin<mx::DocumentLoaderPlugin>(name);
             if (p) 
             {
                 std::cout << "- Found plugin as a document loader" << std::endl;
             }
-            else if (mx::DocumentSaverPluginPtr ps = manager.getPlugin<mx::DocumentSaverPlugin>(name))
+            else if (mx::DocumentSaverPluginPtr ps = manager->getPlugin<mx::DocumentSaverPlugin>(name))
             {
                 std::cout << "- Found plugin as a document saver" << std::endl;
             }
@@ -161,13 +164,18 @@ void PluginIntegration::loadPythonPlugins()
 
 mx::DocumentPtr PluginIntegration::loadDocument(const std::string& pluginName, const mx::FilePath& path) const
 {
+    if (!_impl->pythonInitialized)
+    {
+        return nullptr;
+    }
+
     if (pluginName.empty() || path.isEmpty())
     {
         return nullptr;
     }
 
-    mx::PluginManager& manager = _impl->_mypluginsModule.attr("getPluginManager")().cast<mx::PluginManager&>();
-    mx::DocumentLoaderPluginPtr p = manager.getPlugin<mx::DocumentLoaderPlugin>(pluginName);
+    mx::PluginManagerPtr manager = _impl->_mypluginsModule.attr("getPluginManager")().cast<mx::PluginManagerPtr>();
+    mx::DocumentLoaderPluginPtr p = manager->getPlugin<mx::DocumentLoaderPlugin>(pluginName);
     if (p)
     {
         std::cout << "METHOD: Run LOADER plugin : " << pluginName << " with test file" << std::endl;
@@ -179,13 +187,18 @@ mx::DocumentPtr PluginIntegration::loadDocument(const std::string& pluginName, c
 
 bool PluginIntegration::saveDocument(const std::string& pluginName, mx::DocumentPtr doc, const mx::FilePath& path) const
 {
+    if (!_impl->pythonInitialized)
+    {
+        return false;
+    }
+
     if (pluginName.empty() || !doc || path.isEmpty())
     {
         return false;
     }
 
-    mx::PluginManager& manager = _impl->_mypluginsModule.attr("getPluginManager")().cast<mx::PluginManager&>();
-    mx::DocumentSaverPluginPtr ps = manager.getPlugin<mx::DocumentSaverPlugin>(pluginName);
+    mx::PluginManagerPtr manager = _impl->_mypluginsModule.attr("getPluginManager")().cast<mx::PluginManagerPtr>();
+    mx::DocumentSaverPluginPtr ps = manager->getPlugin<mx::DocumentSaverPlugin>(pluginName);
     if (ps)
     {
         std::cout << "METHOD: Run SAVER plugin : " << pluginName << " with test document" << std::endl;
@@ -194,6 +207,12 @@ bool PluginIntegration::saveDocument(const std::string& pluginName, mx::Document
     return true;
 }
 
-#if defined(__GNUC__) && !defined(__clang__)
-#pragma GCC diagnostic pop
-#endif
+mx::PluginManagerPtr PluginIntegration::getPluginManager() const
+{
+    if (!_impl->pythonInitialized)
+    {
+        return nullptr;
+    }
+
+    return _impl->_mypluginsModule.attr("getPluginManager")().cast<mx::PluginManagerPtr>();
+}

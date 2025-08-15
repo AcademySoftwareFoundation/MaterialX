@@ -101,7 +101,7 @@ if __name__ == "__main__":
     if loader:
         logger.info(f"JSONLoader plugin found, running it...")
         # Call .name() to ensure Python override is visible to C++
-        doc = loader.run("test_document.json")
+        doc = loader.run("input.json")
         logger.info("[Python] Document loaded:")
         logger.info(mx.prettyPrint(doc))
 

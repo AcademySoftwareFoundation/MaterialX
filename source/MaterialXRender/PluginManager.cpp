@@ -11,25 +11,13 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-PluginManager::PluginManager()
-{
-}
+PluginManager::PluginManager() = default;
 
-#if 0
-PluginManager::~PluginManager()
+PluginManagerPtr PluginManager::getInstance()
 {
-    std::cerr << "Destroy PluginManager instance at address: 0x"
-              << std::hex << reinterpret_cast<uintptr_t>(this) << std::dec << std::endl;
-    //_plugins.clear();
-    //_registrationCallbacks.clear();
-}
-#endif
-
-PluginManager& PluginManager::getInstance()
-{
-    static PluginManager instance;
+    static PluginManagerPtr instance = PluginManagerPtr(new PluginManager());
     std::cerr << ">>>>>>>>> Get MaterialX PluginManager instance at address: 0x" 
-              << std::hex << reinterpret_cast<uintptr_t>(&instance) << std::dec << std::endl;
+        << std::hex << reinterpret_cast<uintptr_t>(instance.get()) << std::dec << std::endl;
     return instance;
 }
 

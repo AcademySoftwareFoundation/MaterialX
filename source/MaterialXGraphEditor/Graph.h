@@ -9,6 +9,7 @@
 #include <MaterialXGraphEditor/FileDialog.h>
 #include <MaterialXGraphEditor/RenderView.h>
 #include <MaterialXGraphEditor/UiNode.h>
+#include <MaterialXRender/PluginManager.h>
 
 #include <imgui_node_editor.h>
 
@@ -66,10 +67,12 @@ class Graph
           const mx::FileSearchPath& searchPath,
           const mx::FilePathVec& libraryFolders,
           int viewWidth,
-          int viewHeight);
+          int viewHeight,
+          mx::PluginManagerPtr pluginManager);
     ~Graph() = default;
 
     mx::DocumentPtr loadDocument(const mx::FilePath& filename);
+    mx::DocumentPtr loadDocumentFromPlugin(const std::string& pluginName, const mx::FilePath& filename);
     void drawGraph(ImVec2 mousePos);
 
     RenderViewPtr getRenderer()
@@ -231,6 +234,7 @@ class Graph
 
     void clearGraph();
     void loadGraphFromFile(bool prompt);
+    void loadGraphFromPlugin(const std::string& pluginName, bool prompt);
     void saveGraphToFile();
     void loadGeometry();
 
@@ -296,6 +300,7 @@ class Graph
     FileDialog _fileDialogImage;
     FileDialog _fileDialogGeom;
     std::string _fileDialogImageInputName;
+    FileDialog _filePluginDialog;
 
     bool _isNodeGraph;
 
@@ -326,6 +331,9 @@ class Graph
 
     // Options
     bool _saveNodePositions;
+
+    // Plugins
+    mx::PluginManagerPtr _pluginManager = nullptr;
 };
 
 #endif

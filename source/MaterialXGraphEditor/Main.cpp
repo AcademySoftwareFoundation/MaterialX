@@ -58,6 +58,7 @@ template <class T> void parseToken(std::string token, std::string type, T& res)
 
 int main(int argc, char* const argv[])
 {
+    mx::PluginManagerPtr pluginManager = nullptr;
 #ifdef MATERIALX_BUILD_PYTHON
     // Load Python plugins if available
     PluginIntegrationPtr integration = nullptr;
@@ -66,6 +67,8 @@ int main(int argc, char* const argv[])
         bool initalized = integration->initialize();
         if  (initalized)
         {
+            pluginManager = integration->getPluginManager();
+
             integration->loadPythonPlugins();
             mx::StringVec pluginsList = integration->getPluginList();
             for (auto name : pluginsList)
@@ -240,7 +243,8 @@ int main(int argc, char* const argv[])
                              searchPath,
                              libraryFolders,
                              viewWidth,
-                             viewHeight);
+                             viewHeight,
+                             pluginManager);
     if (!captureFilename.empty())
     {
         graph->getRenderer()->requestFrameCapture(captureFilename);

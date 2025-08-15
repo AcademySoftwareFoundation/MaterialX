@@ -136,7 +136,8 @@ Graph::Graph(const std::string& materialFilename,
              const mx::FileSearchPath& searchPath,
              const mx::FilePathVec& libraryFolders,
              int viewWidth,
-             int viewHeight) :
+             int viewHeight,
+             mx::PluginManagerPtr pluginManager) :
     _materialFilename(materialFilename),
     _searchPath(searchPath),
     _libraryFolders(libraryFolders),
@@ -154,7 +155,8 @@ Graph::Graph(const std::string& materialFilename,
     _autoLayout(false),
     _frameCount(INT_MIN),
     _fontScale(1.0f),
-    _saveNodePositions(true)
+    _saveNodePositions(true),
+    _pluginManager(pluginManager)
 {
     loadStandardLibraries();
     setPinColor();
@@ -224,6 +226,42 @@ void Graph::loadStandardLibraries()
         return;
     }
 }
+mx::DocumentPtr Graph::loadDocumentFromPlugin(const std::string& pluginName, const mx::FilePath& filename)
+{
+    if (!_pluginManager)
+    {
+        return nullptr;
+    }
+    mx::DocumentLoaderPluginPtr plugin = _pluginManager->getPlugin<mx::DocumentLoaderPlugin>(pluginName);
+    if (!plugin)
+    {
+        return nullptr;
+    }
+    mx::DocumentPtr doc = plugin->run(filename);
+    if (doc)
+    {
+        doc->setDataLibrary(_stdLib);
+        std::string message;
+        if (!doc->validate(&message))
+        {
+            std::cerr << "*** Validation warnings for " << filename.asString() << " ***" << std::endl;
+            std::cerr << message << std::endl;
+        }
+
+        // Cache the currently loaded file
+        _materialFilename = filename;
+    }
+    else
+    {
+        doc = mx::createDocument();
+        std::cerr << "Failed to load document from plugin: " << pluginName << " for file: " << filename.asString() << std::endl;
+    }
+
+    _graphStack = std::stack<std::vector<UiNodePtr>>();
+    _pinStack = std::stack<std::vector<UiPinPtr>>();
+    return doc; 
+}
+
 
 mx::DocumentPtr Graph::loadDocument(const mx::FilePath& filename)
 {
@@ -3143,6 +3181,39 @@ void Graph::clearGraph()
     _renderer->updateMaterials(nullptr);
 }
 
+void Graph::loadGraphFromPlugin(const std::string& pluginName, bool prompt)
+{
+    // Deselect node before loading new file
+    if (_currUiNode)
+    {
+        ed::DeselectNode(_currUiNode->getId());
+        _currUiNode = nullptr;
+    }
+
+    if (prompt || _materialFilename.isEmpty())
+    {
+        _filePluginDialog.setTitle("Open File");
+        mx::StringVec pluginFilter;
+        pluginFilter.push_back(".json");
+        _filePluginDialog.setTypeFilters(pluginFilter);
+        _filePluginDialog.open();
+    }
+    else
+    {
+        _graphDoc = loadDocumentFromPlugin(pluginName, _materialFilename);
+
+        // Rebuild the UI
+        _initial = true;
+        buildUiBaseGraph(_graphDoc);
+        _currGraphElem = _graphDoc;
+        _prevUiNode = nullptr;
+
+        _renderer->setDocument(_graphDoc);
+        _renderer->updateMaterials(nullptr);
+    }
+}
+
+
 void Graph::loadGraphFromFile(bool prompt)
 {
     // Deselect node before loading new file
@@ -3212,6 +3283,16 @@ void Graph::graphButtons()
             else if (ImGui::MenuItem("Save", "Ctrl-S"))
             {
                 saveGraphToFile();
+            }
+            ImGui::EndMenu();
+        }
+
+        // TODO: Find all loader plugins and populate
+        if (ImGui::BeginMenu("Plugins"))
+        {
+            if (ImGui::MenuItem("Load JSON"))
+            {
+                loadGraphFromPlugin("JSONLoader", true);
             }
             ImGui::EndMenu();
         }
@@ -4511,6 +4592,28 @@ void Graph::drawGraph(ImVec2 mousePos)
         _renderer->setDocument(_graphDoc);
         _renderer->updateMaterials(nullptr);
     }
+
+    _filePluginDialog.display();
+
+    // Create and load document from selected file
+    if (_filePluginDialog.hasSelected())
+    {
+        mx::FilePath fileName = _filePluginDialog.getSelected();
+        _currGraphName.clear();
+        std::string graphName = fileName.getBaseName();
+        _currGraphName.push_back(graphName.substr(0, graphName.length() - 5));
+        _graphDoc = loadDocumentFromPlugin("JSONLoader", fileName);
+
+        _initial = true;
+        buildUiBaseGraph(_graphDoc);
+        _currGraphElem = _graphDoc;
+        _prevUiNode = nullptr;
+        _filePluginDialog.clearSelected();
+
+        _renderer->setDocument(_graphDoc);
+        _renderer->updateMaterials(nullptr);
+    }
+
 
     _fileDialogGeom.display();
     if (_fileDialogGeom.hasSelected())

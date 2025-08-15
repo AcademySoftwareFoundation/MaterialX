@@ -50,12 +50,16 @@ using DocumentLoaderPluginPtr = shared_ptr<DocumentLoaderPlugin>;
 using DocumentSaverPluginPtr = shared_ptr<DocumentSaverPlugin>;
 using PluginVec = std::vector<PluginPtr>;
 
+class PluginManager;
+using PluginManagerPtr = std::shared_ptr<PluginManager>;
+
 /// Plugin manager class 
 class MX_RENDER_API PluginManager
 {
   public:
     /// Get the singleton instance of the plugin manager
-    static PluginManager& getInstance();
+    static PluginManagerPtr getInstance();
+    ~PluginManager() = default;
 
     /// Register a plugin
     bool registerPlugin(PluginPtr plugin);
@@ -63,7 +67,7 @@ class MX_RENDER_API PluginManager
     bool unregisterPlugin(const std::string& name);
 
     template <typename T>
-    std::shared_ptr<T> getPlugin(const std::string& name) 
+    std::shared_ptr<T> getPlugin(const std::string& name) const
     {
         for (auto& p : _plugins) 
         {
@@ -73,6 +77,20 @@ class MX_RENDER_API PluginManager
             }
         }
         return nullptr;
+    }
+
+    template <typename T>
+    std::vector<std::shared_ptr<T>> getPlugins() const
+    {
+        std::vector<std::shared_ptr<T>> plugins;
+        for (auto& p : _plugins)
+        {
+            if (auto plugin = std::dynamic_pointer_cast<T>(p))
+            {
+                plugins.push_back(plugin);
+            }
+        }
+        return plugins; 
     }
 
     StringVec getPluginList() const 
@@ -89,11 +107,12 @@ class MX_RENDER_API PluginManager
     bool addRegistrationCallback(const std::string& identifier, std::function<void(const std::string&, bool)> callback);
     bool removeRegistrationCallback(const std::string& identifier);
 
+  protected:
+      PluginManager();
+
   private:
-    PluginManager();
-    //~PluginManager();
-    PluginManager(const PluginManager&) = delete;
-    PluginManager& operator=(const PluginManager&) = delete;    
+    //PluginManager(const PluginManager&) = delete;
+    //PluginManager& operator=(const PluginManager&) = delete;    
 
     PluginVec _plugins;
     std::unordered_map<std::string, std::function<void(const std::string&, bool)>> _registrationCallbacks;
