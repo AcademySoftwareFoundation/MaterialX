@@ -63,14 +63,18 @@ int main(int argc, char* const argv[])
     PluginIntegrationPtr integration = nullptr;
     try {
         integration = PluginIntegration::create();
-        integration->loadPythonPlugins();
-        mx::StringVec pluginsList = integration->getPluginList();
-        for (auto name : pluginsList)
+        bool initalized = integration->initialize();
+        if  (initalized)
         {
-            std::cout << ">>> Loaded Python plugin: " << name << std::endl;
+            integration->loadPythonPlugins();
+            mx::StringVec pluginsList = integration->getPluginList();
+            for (auto name : pluginsList)
+            {
+                std::cout << ">>> Loaded Python plugin: " << name << std::endl;
+            }
+            mx::DocumentPtr doc = integration->loadDocument("PDFLoader", "resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx");
+            integration->saveDocument("PDFSaver", doc, "output.mtlx");
         }
-        mx::DocumentPtr doc = integration->loadDocument("PDFLoader", "resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx");
-        integration->saveDocument("PDFSaver", doc, "output.mtlx");
     } 
     catch (const std::exception& e) 
     {

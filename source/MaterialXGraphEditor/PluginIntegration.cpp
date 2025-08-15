@@ -79,10 +79,16 @@ struct PluginIntegration::Impl
     std::unique_ptr<py::scoped_interpreter> _pyInterpreter;
     py::object _pymxModule;
     py::object _mypluginsModule;
+    bool pythonInitialized = false;
 
     Impl()
     {
         _pyInterpreter = std::make_unique<py::scoped_interpreter>();
+    }
+
+    bool initialize()
+    {
+        pythonInitialized = false;
         try {
             _pymxModule = py::module_::import("MaterialX");
             _mypluginsModule = py::module_::import("MaterialX.PyMaterialXRender");
@@ -90,19 +96,27 @@ struct PluginIntegration::Impl
             std::cout << "Version: " << _pymxModule.attr("getVersionString")().cast<std::string>() << std::endl;
             std::cout << "MaterialX base module loaded successfully" << std::endl;
             std::cout << "MaterialX.PyMaterialXRender module imported" << std::endl;
-
+            pythonInitialized = true;
         } 
         catch (std::exception& e)
         {
-            std::cerr << "Error importing MaterialX modules: " << e.what() << std::endl;
-            throw;
+            std::string pythonError = e.what();
+            std::cerr << "Error importing MaterialX modules: " << pythonError << std::endl;
+            pythonInitialized = false; 
         }
+
+        return pythonInitialized;
     }
 };
 
 PluginIntegration::PluginIntegration()
     : _impl(std::make_unique<Impl>())
 {
+}
+
+bool PluginIntegration::initialize()
+{
+    return _impl->initialize();
 }
 
 PluginIntegration::~PluginIntegration() = default;

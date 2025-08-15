@@ -25,6 +25,8 @@ class PluginIntegration
     PluginIntegration();
     virtual ~PluginIntegration();
 
+    bool initialize();
+
     void loadPythonPlugins();
     mx::StringVec getPluginList() const
     {
