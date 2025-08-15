@@ -9,6 +9,17 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
+/// Gaussian kernel weights for different kernel sizes.
+const std::array<float, 3> GAUSSIAN_KERNEL_3 = {
+    0.27901f, 0.44198f, 0.27901f // Sigma 1
+};
+const std::array<float, 5> GAUSSIAN_KERNEL_5 = {
+    0.06136f, 0.24477f, 0.38774f, 0.24477f, 0.06136f // Sigma 1
+};
+const std::array<float, 7> GAUSSIAN_KERNEL_7 = {
+    0.00598f, 0.060626f, 0.241843f, 0.383103f, 0.241843f, 0.060626f, 0.00598f // Sigma 1
+};
+
 namespace
 {
 
