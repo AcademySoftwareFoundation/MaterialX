@@ -12,6 +12,11 @@
 #include <pybind11/embed.h>    
 #include <pybind11/pybind11.h> 
 
+#if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wattributes"
+#endif
+
 namespace mx = MaterialX;
 namespace py = pybind11;
 
@@ -188,3 +193,7 @@ bool PluginIntegration::saveDocument(const std::string& pluginName, mx::Document
     }
     return true;
 }
+
+#if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic pop
+#endif
