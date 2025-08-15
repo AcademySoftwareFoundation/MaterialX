@@ -3190,12 +3190,16 @@ void Graph::loadGraphFromPlugin(const std::string& pluginName, bool prompt)
         _currUiNode = nullptr;
     }
 
+    // Cache which plugin we are loading from
+    _filePluginDialogPluginName = pluginName;
+    _filePluginDialogPluginExtensions.clear();
+    // TODO: Need to add API to ask for file filters
+    _filePluginDialogPluginExtensions.push_back(".json");
+
     if (prompt || _materialFilename.isEmpty())
     {
         _filePluginDialog.setTitle("Open File");
-        mx::StringVec pluginFilter;
-        pluginFilter.push_back(".json");
-        _filePluginDialog.setTypeFilters(pluginFilter);
+        _filePluginDialog.setTypeFilters(_filePluginDialogPluginExtensions);
         _filePluginDialog.open();
     }
     else
@@ -3287,14 +3291,27 @@ void Graph::graphButtons()
             ImGui::EndMenu();
         }
 
-        // TODO: Find all loader plugins and populate
-        if (ImGui::BeginMenu("Plugins"))
+        if (_pluginManager)
         {
-            if (ImGui::MenuItem("Load JSON"))
+            if (ImGui::BeginMenu("Plugins"))
             {
-                loadGraphFromPlugin("JSONLoader", true);
+                mx::StringVec pluginList = _pluginManager->getPluginList();
+                for (const std::string& pluginName : pluginList)
+                {
+                    mx::DocumentLoaderPluginPtr plugin = _pluginManager->getPlugin<mx::DocumentLoaderPlugin>(pluginName);
+                    if (!plugin)
+                    {
+                        continue; // Skip if plugin is not a DocumentLoaderPlugin
+                    }
+                    // TODO: Need a UI name API.
+                    const std::string menuName = "Load using " + pluginName;
+                    if (ImGui::MenuItem(menuName.c_str()))
+                    {
+                        loadGraphFromPlugin(pluginName, true);
+                    }
+                }
+                ImGui::EndMenu();
             }
-            ImGui::EndMenu();
         }
 
         if (ImGui::BeginMenu("Graph"))
@@ -4602,7 +4619,7 @@ void Graph::drawGraph(ImVec2 mousePos)
         _currGraphName.clear();
         std::string graphName = fileName.getBaseName();
         _currGraphName.push_back(graphName.substr(0, graphName.length() - 5));
-        _graphDoc = loadDocumentFromPlugin("JSONLoader", fileName);
+        _graphDoc = loadDocumentFromPlugin(_filePluginDialogPluginName, fileName);
 
         _initial = true;
         buildUiBaseGraph(_graphDoc);

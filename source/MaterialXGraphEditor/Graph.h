@@ -301,6 +301,8 @@ class Graph
     FileDialog _fileDialogGeom;
     std::string _fileDialogImageInputName;
     FileDialog _filePluginDialog;
+    std::string _filePluginDialogPluginName;
+    mx::StringVec _filePluginDialogPluginExtensions;
 
     bool _isNodeGraph;
 

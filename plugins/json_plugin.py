@@ -46,7 +46,7 @@ class JSONLoader(mx_render.DocumentLoaderPlugin):
             doc = jsoncore.Util.jsonFileToXml(path)
             xmlString = mx.writeToXmlString(doc)
             logger.info(f"Loaded JSON document to XMl from path: {path}")
-            print(xmlString[:800])  # Print first 800 characters for debugging
+            print(xmlString[:400])  # Print first 800 characters for debugging
         except Exception as e:
             logger.error(f"Error loading document: {e}")
         return doc  
