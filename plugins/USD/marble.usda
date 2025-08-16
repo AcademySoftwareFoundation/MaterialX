@@ -1,0 +1,383 @@
+#usda 1.0
+(
+    doc = """Flattened stage referencing: D:\\Work\\materialx\\bernard_MaterialX\\plugins\\xxx.mtlx
+
+Generated from Composed Stage of root layer 
+"""
+)
+
+def "World"
+{
+    def "MaterialX"
+    {
+        def "Materials"
+        {
+            def Material "Marble_3D" (
+                apiSchemas = ["MaterialXConfigAPI"]
+            )
+            {
+                string config:mtlx:version = "1.39"
+                float inputs:base = 1
+                color3f inputs:base_color
+                float inputs:coat
+                float inputs:coat_affect_color
+                float inputs:coat_affect_roughness
+                float inputs:coat_anisotropy
+                color3f inputs:coat_color
+                float inputs:coat_IOR
+                float3 inputs:coat_normal
+                float inputs:coat_rotation
+                float inputs:coat_roughness
+                float inputs:diffuse_roughness
+                float inputs:emission
+                color3f inputs:emission_color
+                float inputs:metalness
+                float3 inputs:normal
+                color3f inputs:opacity
+                float inputs:sheen
+                color3f inputs:sheen_color
+                float inputs:sheen_roughness
+                float inputs:specular
+                float inputs:specular_anisotropy
+                color3f inputs:specular_color
+                float inputs:specular_IOR
+                float inputs:specular_rotation
+                float inputs:specular_roughness = 0.1
+                float inputs:subsurface = 0.4
+                float inputs:subsurface_anisotropy
+                color3f inputs:subsurface_color
+                color3f inputs:subsurface_radius
+                float inputs:subsurface_scale
+                float3 inputs:tangent
+                float inputs:thin_film_IOR
+                float inputs:thin_film_thickness
+                bool inputs:thin_walled
+                float inputs:transmission
+                color3f inputs:transmission_color
+                float inputs:transmission_depth
+                float inputs:transmission_dispersion
+                float inputs:transmission_extra_roughness
+                color3f inputs:transmission_scatter
+                float inputs:transmission_scatter_anisotropy
+                token outputs:mtlx:surface.connect = </World/MaterialX/Materials/Marble_3D/SR_marble1.outputs:surface>
+
+                def Shader "SR_marble1"
+                {
+                    uniform token info:id = "ND_standard_surface_surfaceshader"
+                    float inputs:base.connect = </World/MaterialX/Materials/Marble_3D.inputs:base>
+                    color3f inputs:base_color.connect = </World/MaterialX/Materials/Marble_3D/NG_marble1.outputs:out>
+                    float inputs:coat.connect = </World/MaterialX/Materials/Marble_3D.inputs:coat>
+                    float inputs:coat_affect_color.connect = </World/MaterialX/Materials/Marble_3D.inputs:coat_affect_color>
+                    float inputs:coat_affect_roughness.connect = </World/MaterialX/Materials/Marble_3D.inputs:coat_affect_roughness>
+                    float inputs:coat_anisotropy.connect = </World/MaterialX/Materials/Marble_3D.inputs:coat_anisotropy>
+                    color3f inputs:coat_color.connect = </World/MaterialX/Materials/Marble_3D.inputs:coat_color>
+                    float inputs:coat_IOR.connect = </World/MaterialX/Materials/Marble_3D.inputs:coat_IOR>
+                    float3 inputs:coat_normal.connect = </World/MaterialX/Materials/Marble_3D.inputs:coat_normal>
+                    float inputs:coat_rotation.connect = </World/MaterialX/Materials/Marble_3D.inputs:coat_rotation>
+                    float inputs:coat_roughness.connect = </World/MaterialX/Materials/Marble_3D.inputs:coat_roughness>
+                    float inputs:diffuse_roughness.connect = </World/MaterialX/Materials/Marble_3D.inputs:diffuse_roughness>
+                    float inputs:emission.connect = </World/MaterialX/Materials/Marble_3D.inputs:emission>
+                    color3f inputs:emission_color.connect = </World/MaterialX/Materials/Marble_3D.inputs:emission_color>
+                    float inputs:metalness.connect = </World/MaterialX/Materials/Marble_3D.inputs:metalness>
+                    float3 inputs:normal.connect = </World/MaterialX/Materials/Marble_3D.inputs:normal>
+                    color3f inputs:opacity.connect = </World/MaterialX/Materials/Marble_3D.inputs:opacity>
+                    float inputs:sheen.connect = </World/MaterialX/Materials/Marble_3D.inputs:sheen>
+                    color3f inputs:sheen_color.connect = </World/MaterialX/Materials/Marble_3D.inputs:sheen_color>
+                    float inputs:sheen_roughness.connect = </World/MaterialX/Materials/Marble_3D.inputs:sheen_roughness>
+                    float inputs:specular.connect = </World/MaterialX/Materials/Marble_3D.inputs:specular>
+                    float inputs:specular_anisotropy.connect = </World/MaterialX/Materials/Marble_3D.inputs:specular_anisotropy>
+                    color3f inputs:specular_color.connect = </World/MaterialX/Materials/Marble_3D.inputs:specular_color>
+                    float inputs:specular_IOR.connect = </World/MaterialX/Materials/Marble_3D.inputs:specular_IOR>
+                    float inputs:specular_rotation.connect = </World/MaterialX/Materials/Marble_3D.inputs:specular_rotation>
+                    float inputs:specular_roughness.connect = </World/MaterialX/Materials/Marble_3D.inputs:specular_roughness>
+                    float inputs:subsurface.connect = </World/MaterialX/Materials/Marble_3D.inputs:subsurface>
+                    float inputs:subsurface_anisotropy.connect = </World/MaterialX/Materials/Marble_3D.inputs:subsurface_anisotropy>
+                    color3f inputs:subsurface_color.connect = </World/MaterialX/Materials/Marble_3D/NG_marble1.outputs:out>
+                    color3f inputs:subsurface_radius.connect = </World/MaterialX/Materials/Marble_3D.inputs:subsurface_radius>
+                    float inputs:subsurface_scale.connect = </World/MaterialX/Materials/Marble_3D.inputs:subsurface_scale>
+                    float3 inputs:tangent.connect = </World/MaterialX/Materials/Marble_3D.inputs:tangent>
+                    float inputs:thin_film_IOR.connect = </World/MaterialX/Materials/Marble_3D.inputs:thin_film_IOR>
+                    float inputs:thin_film_thickness.connect = </World/MaterialX/Materials/Marble_3D.inputs:thin_film_thickness>
+                    bool inputs:thin_walled.connect = </World/MaterialX/Materials/Marble_3D.inputs:thin_walled>
+                    float inputs:transmission.connect = </World/MaterialX/Materials/Marble_3D.inputs:transmission>
+                    color3f inputs:transmission_color.connect = </World/MaterialX/Materials/Marble_3D.inputs:transmission_color>
+                    float inputs:transmission_depth.connect = </World/MaterialX/Materials/Marble_3D.inputs:transmission_depth>
+                    float inputs:transmission_dispersion.connect = </World/MaterialX/Materials/Marble_3D.inputs:transmission_dispersion>
+                    float inputs:transmission_extra_roughness.connect = </World/MaterialX/Materials/Marble_3D.inputs:transmission_extra_roughness>
+                    color3f inputs:transmission_scatter.connect = </World/MaterialX/Materials/Marble_3D.inputs:transmission_scatter>
+                    float inputs:transmission_scatter_anisotropy.connect = </World/MaterialX/Materials/Marble_3D.inputs:transmission_scatter_anisotropy>
+                    token outputs:surface
+                }
+
+                def NodeGraph "NG_marble1"
+                {
+                    color3f inputs:base_color_1 = (0.8, 0.8, 0.8) (
+                        displayGroup = "Marble Color"
+                        displayName = "Color 1"
+                    )
+                    color3f inputs:base_color_2 = (0.1, 0.1, 0.3) (
+                        displayGroup = "Marble Color"
+                        displayName = "Color 2"
+                    )
+                    int inputs:noise_octaves = 3 (
+                        displayGroup = "Marble Noise"
+                        displayName = "Octaves"
+                    )
+                    float inputs:noise_power = 3 (
+                        displayGroup = "Marble Noise"
+                        displayName = "Power"
+                    )
+                    float inputs:noise_scale_1 = 6 (
+                        displayGroup = "Marble Noise"
+                        displayName = "Scale 1"
+                    )
+                    float inputs:noise_scale_2 = 4 (
+                        displayGroup = "Marble Noise"
+                        displayName = "Scale 2"
+                    )
+                    color3f outputs:out.connect = </World/MaterialX/Materials/Marble_3D/NG_marble1/color_mix.outputs:out>
+
+                    def Shader "obj_pos"
+                    {
+                        uniform token info:id = "ND_position_vector3"
+                        float3 outputs:out
+                    }
+
+                    def Shader "add_xyz"
+                    {
+                        uniform token info:id = "ND_dotproduct_vector3"
+                        float3 inputs:in1.connect = </World/MaterialX/Materials/Marble_3D/NG_marble1/obj_pos.outputs:out>
+                        float3 inputs:in2 = (1, 1, 1)
+                        float outputs:out
+                    }
+
+                    def Shader "scale_xyz"
+                    {
+                        uniform token info:id = "ND_multiply_float"
+                        float inputs:in1.connect = </World/MaterialX/Materials/Marble_3D/NG_marble1/add_xyz.outputs:out>
+                        float inputs:in2.connect = </World/MaterialX/Materials/Marble_3D/NG_marble1.inputs:noise_scale_1>
+                        float outputs:out
+                    }
+
+                    def Shader "scale_pos"
+                    {
+                        uniform token info:id = "ND_multiply_vector3FA"
+                        float3 inputs:in1.connect = </World/MaterialX/Materials/Marble_3D/NG_marble1/obj_pos.outputs:out>
+                        float inputs:in2.connect = </World/MaterialX/Materials/Marble_3D/NG_marble1.inputs:noise_scale_2>
+                        float3 outputs:out
+                    }
+
+                    def Shader "noise"
+                    {
+                        uniform token info:id = "ND_fractal3d_float"
+                        int inputs:octaves.connect = </World/MaterialX/Materials/Marble_3D/NG_marble1.inputs:noise_octaves>
+                        float3 inputs:position.connect = </World/MaterialX/Materials/Marble_3D/NG_marble1/scale_pos.outputs:out>
+                        float outputs:out
+                    }
+
+                    def Shader "scale_noise"
+                    {
+                        uniform token info:id = "ND_multiply_float"
+                        float inputs:in1.connect = </World/MaterialX/Materials/Marble_3D/NG_marble1/noise.outputs:out>
+                        float inputs:in2 = 3
+                        float outputs:out
+                    }
+
+                    def Shader "sum"
+                    {
+                        uniform token info:id = "ND_add_float"
+                        float inputs:in1.connect = </World/MaterialX/Materials/Marble_3D/NG_marble1/scale_xyz.outputs:out>
+                        float inputs:in2.connect = </World/MaterialX/Materials/Marble_3D/NG_marble1/scale_noise.outputs:out>
+                        float outputs:out
+                    }
+
+                    def Shader "sin"
+                    {
+                        uniform token info:id = "ND_sin_float"
+                        float inputs:in.connect = </World/MaterialX/Materials/Marble_3D/NG_marble1/sum.outputs:out>
+                        float outputs:out
+                    }
+
+                    def Shader "scale"
+                    {
+                        uniform token info:id = "ND_multiply_float"
+                        float inputs:in1.connect = </World/MaterialX/Materials/Marble_3D/NG_marble1/sin.outputs:out>
+                        float inputs:in2 = 0.5
+                        float outputs:out
+                    }
+
+                    def Shader "bias"
+                    {
+                        uniform token info:id = "ND_add_float"
+                        float inputs:in1.connect = </World/MaterialX/Materials/Marble_3D/NG_marble1/scale.outputs:out>
+                        float inputs:in2 = 0.5
+                        float outputs:out
+                    }
+
+                    def Shader "power"
+                    {
+                        uniform token info:id = "ND_power_float"
+                        float inputs:in1.connect = </World/MaterialX/Materials/Marble_3D/NG_marble1/bias.outputs:out>
+                        float inputs:in2.connect = </World/MaterialX/Materials/Marble_3D/NG_marble1.inputs:noise_power>
+                        float outputs:out
+                    }
+
+                    def Shader "color_mix"
+                    {
+                        uniform token info:id = "ND_mix_color3"
+                        color3f inputs:bg.connect = </World/MaterialX/Materials/Marble_3D/NG_marble1.inputs:base_color_1>
+                        color3f inputs:fg.connect = </World/MaterialX/Materials/Marble_3D/NG_marble1.inputs:base_color_2>
+                        float inputs:mix.connect = </World/MaterialX/Materials/Marble_3D/NG_marble1/power.outputs:out>
+                        color3f outputs:out
+                    }
+                }
+            }
+        }
+
+        def "Shaders"
+        {
+            def Shader "SR_marble1"
+            {
+                uniform token info:id = "ND_standard_surface_surfaceshader"
+                token outputs:surface
+            }
+        }
+
+        def "NodeGraphs"
+        {
+            def NodeGraph "NG_marble1"
+            {
+                color3f inputs:base_color_1 = (0.8, 0.8, 0.8) (
+                    displayGroup = "Marble Color"
+                    displayName = "Color 1"
+                )
+                color3f inputs:base_color_2 = (0.1, 0.1, 0.3) (
+                    displayGroup = "Marble Color"
+                    displayName = "Color 2"
+                )
+                int inputs:noise_octaves = 3 (
+                    displayGroup = "Marble Noise"
+                    displayName = "Octaves"
+                )
+                float inputs:noise_power = 3 (
+                    displayGroup = "Marble Noise"
+                    displayName = "Power"
+                )
+                float inputs:noise_scale_1 = 6 (
+                    displayGroup = "Marble Noise"
+                    displayName = "Scale 1"
+                )
+                float inputs:noise_scale_2 = 4 (
+                    displayGroup = "Marble Noise"
+                    displayName = "Scale 2"
+                )
+                color3f outputs:out.connect = </World/MaterialX/NodeGraphs/NG_marble1/color_mix.outputs:out>
+
+                def Shader "obj_pos"
+                {
+                    uniform token info:id = "ND_position_vector3"
+                    float3 outputs:out
+                }
+
+                def Shader "add_xyz"
+                {
+                    uniform token info:id = "ND_dotproduct_vector3"
+                    float3 inputs:in1.connect = </World/MaterialX/NodeGraphs/NG_marble1/obj_pos.outputs:out>
+                    float3 inputs:in2 = (1, 1, 1)
+                    float outputs:out
+                }
+
+                def Shader "scale_xyz"
+                {
+                    uniform token info:id = "ND_multiply_float"
+                    float inputs:in1.connect = </World/MaterialX/NodeGraphs/NG_marble1/add_xyz.outputs:out>
+                    float inputs:in2.connect = </World/MaterialX/NodeGraphs/NG_marble1.inputs:noise_scale_1>
+                    float outputs:out
+                }
+
+                def Shader "scale_pos"
+                {
+                    uniform token info:id = "ND_multiply_vector3FA"
+                    float3 inputs:in1.connect = </World/MaterialX/NodeGraphs/NG_marble1/obj_pos.outputs:out>
+                    float inputs:in2.connect = </World/MaterialX/NodeGraphs/NG_marble1.inputs:noise_scale_2>
+                    float3 outputs:out
+                }
+
+                def Shader "noise"
+                {
+                    uniform token info:id = "ND_fractal3d_float"
+                    int inputs:octaves.connect = </World/MaterialX/NodeGraphs/NG_marble1.inputs:noise_octaves>
+                    float3 inputs:position.connect = </World/MaterialX/NodeGraphs/NG_marble1/scale_pos.outputs:out>
+                    float outputs:out
+                }
+
+                def Shader "scale_noise"
+                {
+                    uniform token info:id = "ND_multiply_float"
+                    float inputs:in1.connect = </World/MaterialX/NodeGraphs/NG_marble1/noise.outputs:out>
+                    float inputs:in2 = 3
+                    float outputs:out
+                }
+
+                def Shader "sum"
+                {
+                    uniform token info:id = "ND_add_float"
+                    float inputs:in1.connect = </World/MaterialX/NodeGraphs/NG_marble1/scale_xyz.outputs:out>
+                    float inputs:in2.connect = </World/MaterialX/NodeGraphs/NG_marble1/scale_noise.outputs:out>
+                    float outputs:out
+                }
+
+                def Shader "sin"
+                {
+                    uniform token info:id = "ND_sin_float"
+                    float inputs:in.connect = </World/MaterialX/NodeGraphs/NG_marble1/sum.outputs:out>
+                    float outputs:out
+                }
+
+                def Shader "scale"
+                {
+                    uniform token info:id = "ND_multiply_float"
+                    float inputs:in1.connect = </World/MaterialX/NodeGraphs/NG_marble1/sin.outputs:out>
+                    float inputs:in2 = 0.5
+                    float outputs:out
+                }
+
+                def Shader "bias"
+                {
+                    uniform token info:id = "ND_add_float"
+                    float inputs:in1.connect = </World/MaterialX/NodeGraphs/NG_marble1/scale.outputs:out>
+                    float inputs:in2 = 0.5
+                    float outputs:out
+                }
+
+                def Shader "power"
+                {
+                    uniform token info:id = "ND_power_float"
+                    float inputs:in1.connect = </World/MaterialX/NodeGraphs/NG_marble1/bias.outputs:out>
+                    float inputs:in2.connect = </World/MaterialX/NodeGraphs/NG_marble1.inputs:noise_power>
+                    float outputs:out
+                }
+
+                def Shader "color_mix"
+                {
+                    uniform token info:id = "ND_mix_color3"
+                    color3f inputs:bg.connect = </World/MaterialX/NodeGraphs/NG_marble1.inputs:base_color_1>
+                    color3f inputs:fg.connect = </World/MaterialX/NodeGraphs/NG_marble1.inputs:base_color_2>
+                    float inputs:mix.connect = </World/MaterialX/NodeGraphs/NG_marble1/power.outputs:out>
+                    color3f outputs:out
+                }
+            }
+        }
+    }
+
+    def Xform "Scene"
+    {
+        def Sphere "Sphere" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            rel material:binding = </World/MaterialX/Materials/Marble_3D>
+        }
+    }
+}
+

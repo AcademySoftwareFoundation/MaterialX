@@ -3315,11 +3315,9 @@ void Graph::graphButtons()
                             loadGraphFromPlugin(pluginName, plugin->supportedExtensions(), true);
                         }
                     }
-                    std::cout << "Try to find DocumentSaverPlugin for " << pluginName << std::endl;
                     mx::DocumentSaverPluginPtr saverPlugin = _pluginManager->getPlugin<mx::DocumentSaverPlugin>(pluginName);
                     if (saverPlugin)
                     {
-                        std::cout << "Found DocumentSaverPlugin for " << pluginName << std::endl;
                         const std::string menuName = saverPlugin->uiName();
                         if (ImGui::MenuItem(menuName.c_str()))
                         {

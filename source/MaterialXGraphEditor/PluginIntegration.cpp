@@ -21,12 +21,8 @@ static std::vector<mx::FilePath> getSearchPaths()
     std::string pluginPaths = mx::getEnviron("MATERIALX_PLUGIN_PATHS");
     if (!pluginPaths.empty()) 
     {
-#ifdef _WIN32
-        const std::string sep = ";";
-#else
-        const std::string sep = ":";
-#endif
-        const mx::StringVec pathVec = mx::splitString(pluginPaths, sep);
+        const std::string sep = ";:";
+        mx::StringVec pathVec = mx::splitString(pluginPaths, sep);
         for (const std::string& path : pathVec)
         {
             if (!path.empty()) 
@@ -52,22 +48,52 @@ static std::vector<mx::FilePath> getSearchPaths()
 
 static void loadPlugins(py::module_ myplugins_mod) 
 {
-    auto pkgutil = py::module_::import("pkgutil");
-    auto importlib = py::module_::import("importlib");
+    py::object pkgutil;
+    py::object importlib;
+    try {
+        pkgutil = py::module_::import("pkgutil");
+        importlib = py::module_::import("importlib");
+    } catch (const py::error_already_set& e) {
+        std::cerr << "Failed to import pkgutil or importlib: " << e.what() << std::endl;
+        return;
+    }
 
     for (auto& path : getSearchPaths()) 
     {
         // Add path to sys.path
-        py::module_::import("sys").attr("path").attr("append")(path.getParentPath().asString());
+        try {
+            py::module_::import("sys").attr("path").attr("append")(path.getParentPath().asString());
+        } catch (const py::error_already_set& e) {
+            std::cerr << "Failed to append to sys.path: " << e.what() << std::endl;
+            continue;
+        }
 
-        std::string package_name = "plugins";
+        std::string package_name = path.getBaseName();
 
-        py::object package = importlib.attr("import_module")(package_name);
+        py::object package;
+        try {
+            package = importlib.attr("import_module")(package_name);
+            std::cout << "Import package '" << package_name << std::endl;
+        } catch (const py::error_already_set& e) {
+            std::cerr << "Failed to import package '" << package_name << "': " << e.what() << std::endl;
+            continue;
+        }
 
-        auto iter_modules = pkgutil.attr("iter_modules")(package.attr("__path__"));
+        py::object iter_modules;
+        try {
+            iter_modules = pkgutil.attr("iter_modules")(package.attr("__path__"));
+        } catch (const py::error_already_set& e) {
+            std::cerr << "Failed to iterate modules in package '" << package_name << "': " << e.what() << std::endl;
+            continue;
+        }
+
         for (auto& info : iter_modules) {
             auto module_name = info.attr("name").cast<std::string>();
-            importlib.attr("import_module")(package_name + "." + module_name);
+            try {
+                importlib.attr("import_module")(package_name + "." + module_name);
+            } catch (const py::error_already_set& e) {
+                std::cerr << "Failed to import module '" << package_name << "." << module_name << "': " << e.what() << std::endl;
+            }
         }
     }
 }
@@ -174,13 +200,17 @@ mx::DocumentPtr PluginIntegration::loadDocument(const std::string& pluginName, c
         return nullptr;
     }
 
-    mx::PluginManagerPtr manager = _impl->_mypluginsModule.attr("getPluginManager")().cast<mx::PluginManagerPtr>();
-    mx::DocumentLoaderPluginPtr p = manager->getPlugin<mx::DocumentLoaderPlugin>(pluginName);
-    if (p)
-    {
-        std::cout << "METHOD: Run LOADER plugin : " << pluginName << " with test file" << std::endl;
-        mx::DocumentPtr doc = p->run(path);
-        return doc;
+    try {
+        mx::PluginManagerPtr manager = _impl->_mypluginsModule.attr("getPluginManager")().cast<mx::PluginManagerPtr>();
+        mx::DocumentLoaderPluginPtr p = manager->getPlugin<mx::DocumentLoaderPlugin>(pluginName);
+        if (p)
+        {
+            std::cout << "METHOD: Run LOADER plugin : " << pluginName << " with test file" << std::endl;
+            mx::DocumentPtr doc = p->run(path);
+            return doc;
+        }
+    } catch (const py::error_already_set& e) {
+        std::cerr << "Python error in loadDocument: " << e.what() << std::endl;
     }
     return nullptr;
 }
@@ -197,12 +227,17 @@ bool PluginIntegration::saveDocument(const std::string& pluginName, mx::Document
         return false;
     }
 
-    mx::PluginManagerPtr manager = _impl->_mypluginsModule.attr("getPluginManager")().cast<mx::PluginManagerPtr>();
-    mx::DocumentSaverPluginPtr ps = manager->getPlugin<mx::DocumentSaverPlugin>(pluginName);
-    if (ps)
-    {
-        std::cout << "METHOD: Run SAVER plugin : " << pluginName << " with test document" << std::endl;
-        ps->run(doc, path);
+    try {
+        mx::PluginManagerPtr manager = _impl->_mypluginsModule.attr("getPluginManager")().cast<mx::PluginManagerPtr>();
+        mx::DocumentSaverPluginPtr ps = manager->getPlugin<mx::DocumentSaverPlugin>(pluginName);
+        if (ps)
+        {
+            std::cout << "METHOD: Run SAVER plugin : " << pluginName << " with test document" << std::endl;
+            ps->run(doc, path);
+        }
+    } catch (const py::error_already_set& e) {
+        std::cerr << "Python error in saveDocument: " << e.what() << std::endl;
+        return false;
     }
     return true;
 }
@@ -214,5 +249,10 @@ mx::PluginManagerPtr PluginIntegration::getPluginManager() const
         return nullptr;
     }
 
-    return _impl->_mypluginsModule.attr("getPluginManager")().cast<mx::PluginManagerPtr>();
+    try {
+        return _impl->_mypluginsModule.attr("getPluginManager")().cast<mx::PluginManagerPtr>();
+    } catch (const py::error_already_set& e) {
+        std::cerr << "Python error in getPluginManager: " << e.what() << std::endl;
+        return nullptr;
+    }
 }
