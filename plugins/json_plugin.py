@@ -30,7 +30,7 @@ def auto_register_plugin(cls):
 @auto_register_plugin
 class JSONLoader(mx_render.DocumentLoaderPlugin):
     _plugin_name = "JSONLoader"
-    _ui_name = "JSON Document Loader"
+    _ui_name = "Load from JSON..."
 
     def name(self):
         return self._plugin_name
@@ -60,7 +60,7 @@ class JSONLoader(mx_render.DocumentLoaderPlugin):
     
 class JSONSaver(mx_render.DocumentSaverPlugin):
     _plugin_name = "JSONSaver"
-    _ui_name = "JSON Document Saver"
+    _ui_name = "Save to JSON..."
 
     def name(self):
        return self._plugin_name
@@ -120,9 +120,16 @@ if __name__ == "__main__":
         logger.info(mx.prettyPrint(doc))
 
 else:
-    logger.info("Successfully loaded JSON plugin module.")
-    jsonLoader = JSONLoader()
-    jsonSaver = JSONSaver()
+    try:
+        jsonLoader = JSONLoader()
+    except TypeError as e:
+        raise RuntimeError(f"JSONLoader does not implement all required abstract methods: {e}")
+    try:
+        jsonSaver = JSONSaver()
+    except TypeError as e:
+       raise RuntimeError(f"JSONSaver does not implement all required abstract methods: {e}")
+
     manager = mx_render.getPluginManager()
     manager.registerPlugin(jsonLoader)
     manager.registerPlugin(jsonSaver)
+    logger.info("Successfully registered JSON module plugins.")
