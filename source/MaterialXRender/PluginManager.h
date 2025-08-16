@@ -27,22 +27,33 @@ class MX_RENDER_API Plugin
   public:
     virtual ~Plugin() = default;
 
-    // Get the identifier for this plugin
+    /// Get the identifier for this plugin
     virtual string name() const = 0;
+    /// Get UI name for this plugin
+    virtual string uiName() const 
+    {
+        return name();
+    }
 };
 
 /// Document loader interface
 class MX_RENDER_API DocumentLoaderPlugin : public Plugin
 {
   public:
+    /// Run the document loader plugin
     virtual DocumentPtr run(const string& path) = 0;
+    /// Get the supported file extensions for this plugin
+    virtual StringVec supportedExtensions() const = 0;
 };
 
 /// Document saver interface
 class MX_RENDER_API DocumentSaverPlugin : public Plugin
 {
   public:
+    /// Run the document saver plugin
     virtual void run(DocumentPtr doc, const string& path) = 0;
+    /// Get the supported file extensions for this plugin
+    virtual StringVec supportedExtensions() const = 0;
 };
 
 using PluginPtr = shared_ptr<Plugin>;

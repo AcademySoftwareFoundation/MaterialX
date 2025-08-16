@@ -32,9 +32,16 @@ def auto_register_plugin(cls):
 @auto_register_plugin
 class SLXLoader(mx_render.DocumentLoaderPlugin):
     _plugin_name = "ShadingLanguageX"
+    _ui_name = "SLX Document Loader"
 
     def name(self):
         return self._plugin_name
+
+    def uiName(self):
+        return self._ui_name
+
+    def supportedExtensions(self):
+        return [".mxsl"]
 
     def run(self, path):
         doc = None

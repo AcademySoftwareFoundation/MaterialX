@@ -3183,7 +3183,7 @@ void Graph::clearGraph()
     _renderer->updateMaterials(nullptr);
 }
 
-void Graph::loadGraphFromPlugin(const std::string& pluginName, bool prompt)
+void Graph::loadGraphFromPlugin(const std::string& pluginName, const mx::StringVec& extensions, bool prompt)
 {
     // Deselect node before loading new file
     if (_currUiNode)
@@ -3194,14 +3194,11 @@ void Graph::loadGraphFromPlugin(const std::string& pluginName, bool prompt)
 
     // Cache which plugin we are loading from
     _filePluginDialogPluginName = pluginName;
-    _filePluginDialogPluginExtensions.clear();
-    // TODO: Need to add API to ask for file filters
-    _filePluginDialogPluginExtensions.push_back(".json");
 
     if (prompt || _materialFilename.isEmpty())
     {
         _filePluginDialog.setTitle("Open File");
-        _filePluginDialog.setTypeFilters(_filePluginDialogPluginExtensions);
+        _filePluginDialog.setTypeFilters(extensions);
         _filePluginDialog.open();
     }
     else
@@ -3257,13 +3254,11 @@ void Graph::saveGraphToFile()
     _fileDialogSave.open();
 }
 
-void Graph::saveGraphToPlugin(const std::string& pluginName)
+void Graph::saveGraphToPlugin(const std::string& pluginName, const mx::StringVec& extensions)
 {
     _filePluginDialogPluginName = pluginName;
     _filePluginDialogPluginExtensions.clear();
-    // TODO: Need to add API to ask for file filters
-    _filePluginDialogPluginExtensions.push_back(".json");
-    _fileDialogPluginSave.setTypeFilters(_filePluginDialogPluginExtensions);
+    _fileDialogPluginSave.setTypeFilters(extensions);
     _fileDialogPluginSave.setTitle("Save To Plugin");
     _fileDialogPluginSave.open();
 }
@@ -3314,11 +3309,10 @@ void Graph::graphButtons()
                     mx::DocumentLoaderPluginPtr plugin = _pluginManager->getPlugin<mx::DocumentLoaderPlugin>(pluginName);
                     if (plugin)
                     {
-                        // TODO: Need a UI name API.
-                        const std::string menuName = "Load using " + pluginName;
+                        const std::string menuName = plugin->uiName();
                         if (ImGui::MenuItem(menuName.c_str()))
                         {
-                            loadGraphFromPlugin(pluginName, true);
+                            loadGraphFromPlugin(pluginName, plugin->supportedExtensions(), true);
                         }
                     }
                     std::cout << "Try to find DocumentSaverPlugin for " << pluginName << std::endl;
@@ -3326,11 +3320,10 @@ void Graph::graphButtons()
                     if (saverPlugin)
                     {
                         std::cout << "Found DocumentSaverPlugin for " << pluginName << std::endl;
-                        // TODO: Need a UI name API.
-                        const std::string menuName = "Save using " + pluginName;
+                        const std::string menuName = saverPlugin->uiName();
                         if (ImGui::MenuItem(menuName.c_str()))
                         {
-                            saveGraphToPlugin(pluginName);
+                            saveGraphToPlugin(pluginName, saverPlugin->supportedExtensions());
                         }
                     }
                 }

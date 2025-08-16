@@ -235,9 +235,9 @@ class Graph
 
     void clearGraph();
     void loadGraphFromFile(bool prompt);
-    void loadGraphFromPlugin(const std::string& pluginName, bool prompt);
+    void loadGraphFromPlugin(const std::string& pluginName, const mx::StringVec& extensions, bool prompt);
     void saveGraphToFile();
-    void saveGraphToPlugin(const std::string& pluginName);
+    void saveGraphToPlugin(const std::string& pluginName, const mx::StringVec& extensions);
     void loadGeometry();
 
     void showHelp() const;

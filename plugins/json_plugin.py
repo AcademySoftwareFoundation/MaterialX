@@ -30,9 +30,16 @@ def auto_register_plugin(cls):
 @auto_register_plugin
 class JSONLoader(mx_render.DocumentLoaderPlugin):
     _plugin_name = "JSONLoader"
+    _ui_name = "JSON Document Loader"
 
     def name(self):
         return self._plugin_name
+
+    def uiName(self):
+        return self._ui_name
+
+    def supportedExtensions(self):
+        return [".json"]
 
     def run(self, path):
         doc = mx.createDocument()
@@ -53,9 +60,16 @@ class JSONLoader(mx_render.DocumentLoaderPlugin):
     
 class JSONSaver(mx_render.DocumentSaverPlugin):
     _plugin_name = "JSONSaver"
+    _ui_name = "JSON Document Saver"
 
     def name(self):
        return self._plugin_name
+    
+    def uiName(self):
+       return self._ui_name
+    
+    def supportedExtensions(self):
+        return [".json"]
 
     def run(self, doc, path):
         if have_jsoncore:

@@ -28,7 +28,15 @@ class PyDocumentLoaderPlugin : public mx::DocumentLoaderPlugin
     std::string name() const override
     {
         PYBIND11_OVERRIDE_PURE(std::string, mx::DocumentLoaderPlugin, name);
-    }    
+    }  
+    std::string uiName() const override
+    {
+        PYBIND11_OVERRIDE(std::string, mx::DocumentLoaderPlugin, uiName);
+    }
+    mx::StringVec supportedExtensions() const override
+    {
+        PYBIND11_OVERRIDE_PURE(mx::StringVec, mx::DocumentLoaderPlugin, supportedExtensions);
+    }
     mx::DocumentPtr run(const std::string& path) override
     {
         PYBIND11_OVERRIDE_PURE(mx::DocumentPtr, DocumentLoaderPlugin, run, path);
@@ -46,6 +54,14 @@ class PyDocumentSaverPlugin : public mx::DocumentSaverPlugin
     std::string name() const override
     {
         PYBIND11_OVERRIDE_PURE(std::string, mx::DocumentSaverPlugin, name);
+    }
+    std::string uiName() const override
+    {
+        PYBIND11_OVERRIDE(std::string, mx::DocumentSaverPlugin, uiName);
+    }
+    mx::StringVec supportedExtensions() const override
+    {
+        PYBIND11_OVERRIDE_PURE(mx::StringVec, mx::DocumentSaverPlugin, supportedExtensions);
     }
     void run(mx::DocumentPtr doc, const std::string& path) override
     {
@@ -68,16 +84,21 @@ bool unregisterPlugin(const std::string& identifier)
 void bindPyPluginManager(py::module& mod)
 {
     py::class_<mx::Plugin, mx::PluginPtr>(mod, "Plugin")
-        .def("name", &mx::Plugin::name);
+        .def("name", &mx::Plugin::name)
+        .def("uiName", &mx::Plugin::uiName);
 
     py::class_<mx::DocumentLoaderPlugin, mx::Plugin, PyDocumentLoaderPlugin, mx::DocumentLoaderPluginPtr>(mod, "DocumentLoaderPlugin")
         .def(py::init<>())
         .def("name", &mx::DocumentLoaderPlugin::name)
+        .def("uiName", &mx::DocumentLoaderPlugin::uiName)
+        .def("supportedExtensions", &mx::DocumentLoaderPlugin::supportedExtensions)        
         .def("run", &mx::DocumentLoaderPlugin::run);
 
     py::class_<mx::DocumentSaverPlugin, mx::Plugin, PyDocumentSaverPlugin, mx::DocumentSaverPluginPtr>(mod, "DocumentSaverPlugin")
         .def(py::init<>())
         .def("name", &mx::DocumentSaverPlugin::name)
+        .def("uiName", &mx::DocumentSaverPlugin::uiName)
+        .def("supportedExtensions", &mx::DocumentSaverPlugin::supportedExtensions)
         .def("run", &mx::DocumentSaverPlugin::run);
 
     // Plugin manager class
