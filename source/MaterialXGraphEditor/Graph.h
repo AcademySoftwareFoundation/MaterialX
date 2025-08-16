@@ -183,6 +183,7 @@ class Graph
     void removeEdge(int downNode, int upNode, UiPinPtr pin);
 
     void saveDocument(mx::FilePath filePath);
+    void saveDocumentToPlugin(const std::string& pluginName, mx::FilePath filePath);
 
     // Set position attributes for nodes which changed position
     void savePosition();
@@ -236,6 +237,7 @@ class Graph
     void loadGraphFromFile(bool prompt);
     void loadGraphFromPlugin(const std::string& pluginName, bool prompt);
     void saveGraphToFile();
+    void saveGraphToPlugin(const std::string& pluginName);
     void loadGeometry();
 
     void showHelp() const;
@@ -303,7 +305,9 @@ class Graph
     FileDialog _filePluginDialog;
     std::string _filePluginDialogPluginName;
     mx::StringVec _filePluginDialogPluginExtensions;
-
+    FileDialog _fileDialogPluginSave;
+    mx::StringVec _filePluginSavePluginExtensions;
+    
     bool _isNodeGraph;
 
     int _graphTotalSize;

@@ -144,6 +144,7 @@ Graph::Graph(const std::string& materialFilename,
     _initial(false),
     _delete(false),
     _fileDialogSave(FileDialog::EnterNewFilename),
+    _fileDialogPluginSave(FileDialog::EnterNewFilename),
     _isNodeGraph(false),
     _graphTotalSize(0),
     _popup(false),
@@ -194,6 +195,7 @@ Graph::Graph(const std::string& materialFilename,
     {
         _xincludeFiles.insert(incl);
     }
+
 }
 
 mx::ElementPredicate Graph::getElementPredicate() const
@@ -3255,6 +3257,17 @@ void Graph::saveGraphToFile()
     _fileDialogSave.open();
 }
 
+void Graph::saveGraphToPlugin(const std::string& pluginName)
+{
+    _filePluginDialogPluginName = pluginName;
+    _filePluginDialogPluginExtensions.clear();
+    // TODO: Need to add API to ask for file filters
+    _filePluginDialogPluginExtensions.push_back(".json");
+    _fileDialogPluginSave.setTypeFilters(_filePluginDialogPluginExtensions);
+    _fileDialogPluginSave.setTitle("Save To Plugin");
+    _fileDialogPluginSave.open();
+}
+
 void Graph::loadGeometry()
 {
     _fileDialogGeom.setTitle("Load Geometry");
@@ -3299,15 +3312,26 @@ void Graph::graphButtons()
                 for (const std::string& pluginName : pluginList)
                 {
                     mx::DocumentLoaderPluginPtr plugin = _pluginManager->getPlugin<mx::DocumentLoaderPlugin>(pluginName);
-                    if (!plugin)
+                    if (plugin)
                     {
-                        continue; // Skip if plugin is not a DocumentLoaderPlugin
+                        // TODO: Need a UI name API.
+                        const std::string menuName = "Load using " + pluginName;
+                        if (ImGui::MenuItem(menuName.c_str()))
+                        {
+                            loadGraphFromPlugin(pluginName, true);
+                        }
                     }
-                    // TODO: Need a UI name API.
-                    const std::string menuName = "Load using " + pluginName;
-                    if (ImGui::MenuItem(menuName.c_str()))
+                    std::cout << "Try to find DocumentSaverPlugin for " << pluginName << std::endl;
+                    mx::DocumentSaverPluginPtr saverPlugin = _pluginManager->getPlugin<mx::DocumentSaverPlugin>(pluginName);
+                    if (saverPlugin)
                     {
-                        loadGraphFromPlugin(pluginName, true);
+                        std::cout << "Found DocumentSaverPlugin for " << pluginName << std::endl;
+                        // TODO: Need a UI name API.
+                        const std::string menuName = "Save using " + pluginName;
+                        if (ImGui::MenuItem(menuName.c_str()))
+                        {
+                            saveGraphToPlugin(pluginName);
+                        }
                     }
                 }
                 ImGui::EndMenu();
@@ -4586,6 +4610,30 @@ void Graph::drawGraph(ImVec2 mousePos)
         ed::Resume();
     }
 
+    ed::Suspend();
+    _fileDialogPluginSave.display();
+
+    // Save via Plugin
+    if (_fileDialogPluginSave.hasSelected())
+    {
+        std::string message;
+        if (!_graphDoc->validate(&message))
+        {
+            std::cerr << "*** Validation warnings for " << _materialFilename.getBaseName() << " ***" << std::endl;
+            std::cerr << message;
+        }
+        _materialFilename = _fileDialogPluginSave.getSelected();
+        ed::Resume();
+        savePosition();
+
+        saveDocumentToPlugin(_filePluginDialogPluginName, _materialFilename);
+        _fileDialogPluginSave.clearSelected();
+    }
+    else
+    {
+        ed::Resume();
+    }    
+
     ed::End();
     ImGui::End();
 
@@ -4734,6 +4782,28 @@ void Graph::savePosition()
         }
     }
 }
+
+void Graph::saveDocumentToPlugin(const std::string& pluginName, mx::FilePath filePath)
+{
+    if (!_pluginManager)
+    {
+        return;
+    }
+    if (pluginName.empty())
+    {
+        std::cerr << "No plugin name provided for saving document." << std::endl;
+        return;
+    }
+
+    // Get document savers
+    mx::DocumentSaverPluginPtr ps = _pluginManager->getPlugin<mx::DocumentSaverPlugin>(pluginName);
+    if (ps)
+    {
+        std::cout << "Save via plugin: " << pluginName << " with test document" << std::endl;
+        ps->run(_graphDoc, filePath);
+    }
+}
+
 void Graph::saveDocument(mx::FilePath filePath)
 {
     if (filePath.getExtension() != mx::MTLX_EXTENSION)
