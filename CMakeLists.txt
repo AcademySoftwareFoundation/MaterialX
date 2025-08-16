@@ -575,7 +575,7 @@ if(NOT SKBUILD)
         # Export aliases for the MaterialX modules built in this monolithic build
         # to be less disruptive to downstream projects.
         get_property(MATERIALX_MODULES GLOBAL PROPERTY MATERIALX_MODULES)
-        set(EXPORT_ALIASES "# Aliased targets for the the monolithic build\n")
+        set(EXPORT_ALIASES "# Aliased targets for the monolithic build\n")
         foreach (MODULE ${MATERIALX_MODULES})
             string(APPEND EXPORT_ALIASES "add_library(${MODULE} ALIAS MaterialX)\n")
         endforeach ()

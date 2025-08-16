@@ -406,7 +406,7 @@ VariantAssign elements have the following attributes:
 * `variantset` (string, required): the name of the variantset to apply the variant from
 * `variant` (string, required): the name of the variant within `variantset` to use
 
-In the above example, the input/token values defined within variant "var1" will be applied to and and all identically-named inputs/tokens found in either "material1" or "material2" unless restricted by a `node` or `nodedef` attribute defined in the &lt;variantset>, while values defined within variant "var2" will only be applied to matching-named bindings in "material1".  VariantAssigns are applied in the order specified within a scope, with those within a &lt;materialassign> taking precedence over those which are direct children of the &lt;look>.
+In the above example, the input/token values defined within variant "var1" will be applied to all identically-named inputs/tokens found in either "material1" or "material2" unless restricted by a `node` or `nodedef` attribute defined in the &lt;variantset>, while values defined within variant "var2" will only be applied to matching-named bindings in "material1".  VariantAssigns are applied in the order specified within a scope, with those within a &lt;materialassign> taking precedence over those which are direct children of the &lt;look>.
 
 
 ### Visibility Elements
