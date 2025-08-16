@@ -75,9 +75,9 @@ int main(int argc, char* const argv[])
             {
                 std::cout << ">>> Loaded Python plugin: " << name << std::endl;
             }
-            mx::DocumentPtr doc = integration->loadDocument("JSONLoader", "input.json");
-            std::cout << ">>> Loaded document: " << (doc ? doc->getName() : "null") << std::endl;
-            integration->saveDocument("JSONSaver", doc, "output.json");
+            //mx::DocumentPtr doc = integration->loadDocument("JSONLoader", "input.json");
+            //std::cout << ">>> Loaded document: " << (doc ? doc->getName() : "null") << std::endl;
+            //integration->saveDocument("JSONSaver", doc, "output.json");
         }
     } 
     catch (const std::exception& e) 
