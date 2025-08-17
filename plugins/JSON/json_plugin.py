@@ -32,6 +32,12 @@ class JSONLoader(mx_render.DocumentLoaderPlugin):
     _plugin_name = "JSONLoader"
     _ui_name = "Load from JSON..."
 
+    def __init__(self):
+        super().__init__()
+        self._options = {
+            "upgrade": mx.Value.createValueFromStrings('true', 'boolean')
+        }
+
     def name(self):
         return self._plugin_name
 
@@ -40,6 +46,15 @@ class JSONLoader(mx_render.DocumentLoaderPlugin):
 
     def supportedExtensions(self):
         return [".json"]
+
+    def getOptions(self, options):
+        for key, value in self._options.items():
+            options[key] = value
+        print('get options for JSON:', options)
+
+    def setOption(self, key, value):
+        if key in self._options and isinstance(value, mx.Value):
+            self._options[key] = value
 
     def run(self, path):
         doc = mx.createDocument()
@@ -50,7 +65,8 @@ class JSONLoader(mx_render.DocumentLoaderPlugin):
             logger.error(f"File not found: {path}")
             return doc
         try:
-            doc = jsoncore.Util.jsonFileToXml(path)
+            readOptions = jsoncore.JsonReadOptions()
+            readOptions.upgradeVersion = self._options['upgradge'].asBool()
             xmlString = mx.writeToXmlString(doc)
             logger.info(f"Loaded JSON document to XMl from path: {path}")
             print(xmlString[:400])  # Print first 800 characters for debugging

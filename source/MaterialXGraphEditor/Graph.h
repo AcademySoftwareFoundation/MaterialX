@@ -242,6 +242,8 @@ class Graph
 
     void showHelp() const;
 
+    void addPluginMenu();
+
   private:
     mx::StringVec _geomFilter;
     mx::StringVec _mtlxFilter;

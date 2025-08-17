@@ -11,7 +11,7 @@
 
 #include <MaterialXRender/Export.h>
 #include <MaterialXCore/Document.h>
-//#include <MaterialXRender/DocumentHandler.h>
+#include <MaterialXCore/Value.h> 
 
 #include <memory>
 #include <string>
@@ -20,6 +20,8 @@
 #include <unordered_map>
 
 MATERIALX_NAMESPACE_BEGIN
+
+using PluginOptionMap = std::unordered_map<string, ValuePtr>;
 
 // Base plugin interface
 class MX_RENDER_API Plugin 
@@ -34,6 +36,18 @@ class MX_RENDER_API Plugin
     {
         return name();
     }
+
+    // Options
+    virtual void getOptions(PluginOptionMap& options) const
+    { 
+        (void)options; 
+    }
+    virtual void setOption(const string& key, ValuePtr value) 
+    {
+        (void)key;
+        (void)value;
+    }
+
 };
 
 /// Document loader interface

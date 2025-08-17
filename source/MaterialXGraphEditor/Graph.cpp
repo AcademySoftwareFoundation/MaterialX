@@ -3270,6 +3270,75 @@ void Graph::loadGeometry()
     _fileDialogGeom.open();
 }
 
+void Graph::addPluginMenu()
+{
+    if (!_pluginManager)
+    {
+        return;
+    }
+
+if (ImGui::BeginMenu("Plugins"))
+    {
+        mx::StringVec pluginList = _pluginManager->getPluginList();
+        for (const std::string& pluginName : pluginList)
+        {
+            mx::DocumentLoaderPluginPtr plugin = _pluginManager->getPlugin<mx::DocumentLoaderPlugin>(pluginName);
+            if (plugin)
+            {
+                const std::string menuName = plugin->uiName();
+                mx::PluginOptionMap options;
+                plugin->getOptions(options);
+
+                bool showMenu = false;
+                if (!options.empty())
+                {
+                    if (ImGui::BeginMenu((menuName + " Options").c_str()))
+                    {
+                        // Directly edit the values in the options map
+                        for (auto& [key, value] : options)
+                        {
+                            if (value && value->getTypeString() == "boolean")
+                            {
+                                bool val = value->asA<bool>();
+                                if (ImGui::Checkbox(key.c_str(), &val))
+                                {
+                                    // Update the option value if changed
+                                    plugin->setOption(key, mx::Value::createValue<bool>(val));
+                                }
+                            }
+                        }
+                        if (ImGui::Button(("Run " + menuName).c_str()))
+                        {
+                            loadGraphFromPlugin(pluginName, plugin->supportedExtensions(), true);
+                            ImGui::CloseCurrentPopup();
+                        }
+                        ImGui::EndMenu();
+                        showMenu = true;
+                    }
+                }
+                if (!showMenu)
+                {
+                    if (ImGui::MenuItem(menuName.c_str()))
+                    {
+                        loadGraphFromPlugin(pluginName, plugin->supportedExtensions(), true);
+                    }
+                }
+            }
+
+            mx::DocumentSaverPluginPtr saverPlugin = _pluginManager->getPlugin<mx::DocumentSaverPlugin>(pluginName);
+            if (saverPlugin)
+            {
+                const std::string menuName = saverPlugin->uiName();
+                if (ImGui::MenuItem(menuName.c_str()))
+                {
+                    saveGraphToPlugin(pluginName, saverPlugin->supportedExtensions());
+                }
+            }
+        }
+        ImGui::EndMenu();
+    }
+}
+
 void Graph::graphButtons()
 {
     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(.15f, .15f, .15f, 1.0f));
@@ -3299,35 +3368,7 @@ void Graph::graphButtons()
             ImGui::EndMenu();
         }
 
-        if (_pluginManager)
-        {
-            if (ImGui::BeginMenu("Plugins"))
-            {
-                mx::StringVec pluginList = _pluginManager->getPluginList();
-                for (const std::string& pluginName : pluginList)
-                {
-                    mx::DocumentLoaderPluginPtr plugin = _pluginManager->getPlugin<mx::DocumentLoaderPlugin>(pluginName);
-                    if (plugin)
-                    {
-                        const std::string menuName = plugin->uiName();
-                        if (ImGui::MenuItem(menuName.c_str()))
-                        {
-                            loadGraphFromPlugin(pluginName, plugin->supportedExtensions(), true);
-                        }
-                    }
-                    mx::DocumentSaverPluginPtr saverPlugin = _pluginManager->getPlugin<mx::DocumentSaverPlugin>(pluginName);
-                    if (saverPlugin)
-                    {
-                        const std::string menuName = saverPlugin->uiName();
-                        if (ImGui::MenuItem(menuName.c_str()))
-                        {
-                            saveGraphToPlugin(pluginName, saverPlugin->supportedExtensions());
-                        }
-                    }
-                }
-                ImGui::EndMenu();
-            }
-        }
+        addPluginMenu();
 
         if (ImGui::BeginMenu("Graph"))
         {

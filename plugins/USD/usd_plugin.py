@@ -8,8 +8,6 @@ logger = logging.getLogger('USDPlugin')
 
 have_usd = False
 try:
-    #import materialxusd as mxusd
-    #import materialxusd_utils as mxusd_utils    
     from pxr import Usd, Sdf, UsdShade, UsdGeom, Gf, UsdLux, UsdUtils
     logger.info("USD modules loaded successfully")
     have_usd = True
@@ -20,6 +18,14 @@ class USDSaver(mx_render.DocumentSaverPlugin):
     _plugin_name = "USDSaver"
     _ui_name = "Export to USD..."
 
+    def __init__(self):
+        super().__init__()
+        # Store options as mx.ValuePtr
+        self._options = {
+            "geometry": mx.Value.createValue(True, mx.Value.BOOLEAN),
+            "flatten": mx.Value.createValue(True, mx.Value.BOOLEAN),
+        }
+
     def name(self):
        return self._plugin_name
     
@@ -28,7 +34,17 @@ class USDSaver(mx_render.DocumentSaverPlugin):
     
     def supportedExtensions(self):
         return [".mtlx"]
-    
+
+    def getOptions(self, options):
+        # Fill the provided dict with current options
+        for key, value in self._options.items():
+            options[key] = value
+
+    def setOption(self, key, value):
+        # value is expected to be an mx.Value
+        if key in self._options and isinstance(value, mx.Value):
+            self._options[key] = value
+
     def create_material_reference(self, materialx_file, usda_file, geometry, flatten=False):
         # Check if MaterialX file exists
         if not os.path.exists(materialx_file):
@@ -100,8 +116,9 @@ class USDSaver(mx_render.DocumentSaverPlugin):
     def run(self, doc, path):
         if have_usd:
             usda_file = path.replace(".mtlx", ".usda")
-            geometry = True
-            flatten = True
+            # Use options stored as mx.Value
+            geometry = self._options["geometry"].asA_bool()
+            flatten = self._options["flatten"].asA_bool()
             mx.writeToXmlFile(doc, path)
             self.create_material_reference(path, usda_file, geometry, flatten)
         return True
