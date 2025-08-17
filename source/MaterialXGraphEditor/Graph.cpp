@@ -3307,9 +3307,9 @@ if (ImGui::BeginMenu("Plugins"))
                                 }
                             }
                         }
-                        if (ImGui::Button(("Run " + menuName).c_str()))
+                        if (ImGui::Button("Close"))
                         {
-                            loadGraphFromPlugin(pluginName, plugin->supportedExtensions(), true);
+                            //loadGraphFromPlugin(pluginName, plugin->supportedExtensions(), true);
                             ImGui::CloseCurrentPopup();
                         }
                         ImGui::EndMenu();

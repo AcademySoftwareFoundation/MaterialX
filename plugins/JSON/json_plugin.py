@@ -30,13 +30,13 @@ def auto_register_plugin(cls):
 @auto_register_plugin
 class JSONLoader(mx_render.DocumentLoaderPlugin):
     _plugin_name = "JSONLoader"
-    _ui_name = "Load from JSON..."
+    _ui_name = "Load from JSON"
 
     def __init__(self):
         super().__init__()
         self._options = {}
         upValue = mx.Value.createValueFromStrings('true', 'boolean')
-        print('Option upgrade = ', upValue.getValueString())
+        #print('Option upgrade = ', upValue.getValueString())
         self._options['upgrade'] = upValue
 
     def name(self):
@@ -51,9 +51,10 @@ class JSONLoader(mx_render.DocumentLoaderPlugin):
     def getOptions(self, options):
         for key, value in self._options.items():
             options[key] = value
-        print(f"[Python] JSONLoader options: {self._options}")
+        #print(f"[Python] JSONLoader options: {self._options}")
 
     def setOption(self, key, value):
+        #print(f"Set option: {key} = {value.getValueString()}")
         if key in self._options and isinstance(value, mx.Value):
             self._options[key] = value
 
@@ -67,9 +68,11 @@ class JSONLoader(mx_render.DocumentLoaderPlugin):
             return doc
         try:
             readOptions = jsoncore.JsonReadOptions()
-            readOptions.upgradeVersion = self._options['upgradge'].asBool()
+            if 'upgrade' in self._options:
+                readOptions.upgradeVersion = self._options['upgrade']
+            doc = jsoncore.Util.jsonFileToXml(path)
             xmlString = mx.writeToXmlString(doc)
-            logger.info(f"Loaded JSON document to XMl from path: {path}")
+            logger.info(f"Loaded JSON document to XMl from path: {path}. Options: {readOptions}")
             print(xmlString[:400])  # Print first 800 characters for debugging
         except Exception as e:
             logger.error(f"Error loading document: {e}")

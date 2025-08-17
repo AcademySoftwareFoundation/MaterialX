@@ -52,7 +52,7 @@ class PyDocumentLoaderPlugin : public mx::DocumentLoaderPlugin
             void,
             mx::DocumentLoaderPlugin,
             getOptions,
-            options
+            std::ref(options)
         );
     }
     void setOption(const std::string& key, mx::ValuePtr value) override
@@ -97,7 +97,7 @@ class PyDocumentSaverPlugin : public mx::DocumentSaverPlugin
             void,
             mx::DocumentSaverPlugin,
             getOptions,
-            options
+            std::ref(options)
         );
     }
     void setOption(const std::string& key, mx::ValuePtr value) override
