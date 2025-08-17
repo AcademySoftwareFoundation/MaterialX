@@ -34,9 +34,10 @@ class JSONLoader(mx_render.DocumentLoaderPlugin):
 
     def __init__(self):
         super().__init__()
-        self._options = {
-            "upgrade": mx.Value.createValueFromStrings('true', 'boolean')
-        }
+        self._options = {}
+        upValue = mx.Value.createValueFromStrings('true', 'boolean')
+        print('Option upgrade = ', upValue.getValueString())
+        self._options['upgrade'] = upValue
 
     def name(self):
         return self._plugin_name
@@ -50,7 +51,7 @@ class JSONLoader(mx_render.DocumentLoaderPlugin):
     def getOptions(self, options):
         for key, value in self._options.items():
             options[key] = value
-        print('get options for JSON:', options)
+        print(f"[Python] JSONLoader options: {self._options}")
 
     def setOption(self, key, value):
         if key in self._options and isinstance(value, mx.Value):
@@ -147,5 +148,11 @@ else:
 
     manager = mx_render.getPluginManager()
     manager.registerPlugin(jsonLoader)
+    #opts = mx.PluginOptionsMap()
+    #jsonLoader.getOptions(opts)
+    #print(f"options for loader: {opts}")
     manager.registerPlugin(jsonSaver)
+    #opts = mx.PluginOptionsMap()
+    #jsonSaver.getOptions(opts)
+    #print(f"options for saver: {opts}")
     logger.info("Successfully registered JSON module plugins.")

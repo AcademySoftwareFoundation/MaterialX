@@ -126,7 +126,8 @@ bool unregisterPlugin(const std::string& identifier)
 
 void bindPyPluginManager(py::module& mod)
 {
-    py::bind_map<mx::PluginOptionMap>(mod, "PluginOptionMap");
+    pybind11::bind_map<mx::PluginOptionMap>(mod, "PluginOptionMap"); 
+    //py::bind_map<mx::PluginOptionMap>(mod, "PluginOptionMap");
 
     py::class_<mx::Plugin, mx::PluginPtr>(mod, "Plugin")
         .def("name", &mx::Plugin::name)
