@@ -175,6 +175,7 @@ class OiioImageLoader(mx_render.ImageLoader):
         channels = image.getChannelCount()
         mx_basetype = image.getBaseType()
         oiio_format = self._materialx_to_oiio_type(mx_basetype)
+        print(f"mx_basetype: {mx_basetype}, oiio_format: {oiio_format}, base_stride: {image.getBaseStride()}")
         if oiio_format is None:
             print(f"Error: Unsupported MaterialX base type for OIIO: {mx_basetype}")
             return False
@@ -188,29 +189,50 @@ class OiioImageLoader(mx_render.ImageLoader):
             if not img_output.open(file_path_str, spec):
                 print(f"Error: Could not open '{file_path_str}' for writing")
                 return False
+            print(f"Opened image output for '{file_path_str}' with format: {oiio_format}")
 
             # Use the pointer version for buffer
-            resource_buffer_ptr = image.getResourceBufferPtr()
+            resource_buffer_ptr = image.getResourceBuffer()
+            print(f"buffer info: width={width}, height={height}, channels={channels}, base_stride={image.getBaseStride()}")
             total_bytes = width * height * channels * image.getBaseStride()
-            buf_type = ctypes.c_char * total_bytes
-            buffer = buf_type.from_address(resource_buffer_ptr)
-
-            if verticalFlip:
-                scanline_size = width * channels * image.getBaseStride()
-                # Calculate pointer to last scanline
-                last_line_addr = resource_buffer_ptr + (height - 1) * scanline_size
-                last_line_ptr = ctypes.c_void_p(last_line_addr)
-                # Create a buffer for the flipped image (OIIO expects a buffer, not just a pointer)
-                # We'll copy and flip the data in Python for simplicity
-                flipped = bytearray(total_bytes)
-                for y in range(height):
-                    src_offset = (height - 1 - y) * scanline_size
-                    dst_offset = y * scanline_size
-                    flipped[dst_offset:dst_offset+scanline_size] = buffer[src_offset:src_offset+scanline_size]
-                flipped_buffer = (ctypes.c_char * total_bytes).from_buffer(flipped)
-                success = img_output.write_image(flipped_buffer)
-            else:
-                success = img_output.write_image(buffer)
+            print(f"total_bytes: {total_bytes}")
+            buf_type = ctypes.c_ubyte * total_bytes
+            c_buffer = buf_type.from_address(resource_buffer_ptr)
+            arr = np.ctypeslib.as_array(c_buffer)
+            print(f"buffer type: {type(arr)}, buffer length: {arr.size}")
+            print(f"buffer dtype: {arr.dtype}")
+            print(f"buffer first 16 bytes: {arr[:16]}")
+            # Set channel names for EXR
+            if file_path_str.lower().endswith('.exr'):
+                spec.channelnames = ["R", "G", "B"][:channels]
+            arr = np.ascontiguousarray(arr.view(np.float16))
+            print(f"buffer dtype after view/contiguous: {arr.dtype}, buffer length: {arr.size}")
+            # Try (1, height, width, channels) shape first
+            spec.depth = 1
+            try:
+                arr_reshaped = arr.reshape((1, height, width, channels))
+                print(f"Trying shape: {arr_reshaped.shape} with depth=1")
+                success = img_output.write_image(arr_reshaped.tobytes())
+                if success:
+                    print("OIIO write succeeded with (1, height, width, channels)")
+                else:
+                    print("OIIO error (depth=1):", img_output.geterror())
+            except Exception as e:
+                print(f"Reshape to (1, height, width, channels) failed: {e}")
+                success = False
+            # If failed, try (height, width, channels) with depth=0
+            if not success:
+                spec.depth = 0
+                try:
+                    arr_reshaped = arr.reshape((height, width, channels))
+                    print(f"Trying shape: {arr_reshaped.shape} with depth=0")
+                    success = img_output.write_image(arr_reshaped.tobytes())
+                    if success:
+                        print("OIIO write succeeded with (height, width, channels)")
+                    else:
+                        print("OIIO error (depth=0):", img_output.geterror())
+                except Exception as e:
+                    print(f"Reshape to (height, width, channels) failed: {e}")
 
             img_output.close()
 
@@ -221,7 +243,7 @@ class OiioImageLoader(mx_render.ImageLoader):
                 print(f"Error writing image data to '{file_path_str}'")
                 return False
         except Exception as e:
-            print(f"Error saving image to '{file_path_str}': {str(e)}")
+            print(f"Error saving image to '{file_path_str}': Error: {str(e)}")
             return False
     
     def _oiio_to_materialx_type(self, oiio_basetype):
@@ -248,9 +270,9 @@ class OiioImageLoader(mx_render.ImageLoader):
             mx_render.BaseType.HALF: oiio.HALF,
             mx_render.BaseType.FLOAT: oiio.FLOAT,
         }
-        return type_mapping.get(mx_basetype, None)
-
-
+        return_val = type_mapping.get(mx_basetype, None)
+        print(f"MaterialX type mapping: {mx_basetype} to {return_val}")
+        return return_val
 
 
 def main():
