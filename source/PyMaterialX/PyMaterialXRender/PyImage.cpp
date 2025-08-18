@@ -14,7 +14,9 @@ void bindPyImage(py::module& mod)
 {
     py::enum_<mx::Image::BaseType>(mod, "BaseType")
         .value("UINT8", mx::Image::BaseType::UINT8)
+        .value("INT8", mx::Image::BaseType::INT8)
         .value("UINT16", mx::Image::BaseType::UINT16)
+        .value("INT16", mx::Image::BaseType::INT16)
         .value("HALF", mx::Image::BaseType::HALF)
         .value("FLOAT", mx::Image::BaseType::FLOAT)
         .export_values();
