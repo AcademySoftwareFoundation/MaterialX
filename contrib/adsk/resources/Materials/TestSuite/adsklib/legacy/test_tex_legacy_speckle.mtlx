@@ -13,7 +13,7 @@
   <legacy_speckle name="legacy_speckle_color3" type="color3" xpos="7.557971" ypos="-2.370690">
     <input name="color1" type="color3" value="0.996616, 0, 0" />
     <input name="color2" type="color3" value="1, 1, 1" />
-    <input name="size" type="float" value="7.6" />
+    <input name="size" type="float" value="7.6" unittype="distance" unit="inch" />
     <input name="octaves" type="float" value="5.5" />
     <input name="realworld_offset" type="vector3" value="0, 0, 0" />
     <input name="rotation_angle" type="vector3" value="0, 0, 0" />

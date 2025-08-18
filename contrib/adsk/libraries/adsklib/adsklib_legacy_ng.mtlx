@@ -3788,7 +3788,7 @@
     </invert>
     <invert name="lagacy_rot_direction" type="float" nodedef="ND_invert_float" xpos="-7.20711" ypos="-3.31817">
       <input name="amount" type="float" value="0" />
-      <input name="in" type="float" interfacename="rotation" />
+      <input name="in" type="float" interfacename="rotation_angle" />
     </invert>
     <divide name="divide1" type="vector2" nodedef="ND_divide_vector2" xpos="-3.76994" ypos="-2.2396">
       <input name="in2" type="vector2" interfacename="realworld_scale" />
@@ -3826,11 +3826,11 @@
     <ifequal name="diag_select2" type="float" nodedef="ND_ifequal_floatB" xpos="-5.46295" ypos="0.625989">
       <input name="value2" type="boolean" value="true" />
       <input name="value1" type="boolean" interfacename="diagonal" />
-      <input name="in2" type="float" interfacename="rotation" />
+      <input name="in2" type="float" interfacename="rotation_angle" />
       <input name="in1" type="float" nodename="diag_adjustment" />
     </ifequal>
     <subtract name="diag_adjustment" type="float" nodedef="ND_subtract_float" xpos="-7.42233" ypos="2.30152">
-      <input name="in1" type="float" interfacename="rotation" />
+      <input name="in1" type="float" interfacename="rotation_angle" />
       <input name="in2" type="float" value="45" />
     </subtract>
     <backdrop name="this_is_an_approximation" xpos="-7.892" ypos="1.63793" width="2.22739" height="2.05194" uicolor="#C85252" Autodesk-ldx_alpha="0.156863" />

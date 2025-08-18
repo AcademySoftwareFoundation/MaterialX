@@ -116,7 +116,7 @@
     <input name="position" type="vector3" defaultgeomprop="Pobject" uivisible="false" uiname="Position Coordinates" />
     <input name="color1" type="color3" value="0, 0, 0" uisoftmin="0,0,0" uisoftmax="1,1,1" uivisible="true" uiname="Color 1" />
     <input name="color2" type="color3" value="1, 1, 1" uisoftmin="0,0,0" uisoftmax="1,1,1" uivisible="true" uiname="Color 2" />
-    <input name="size" type="float" value="1" uisoftmin="0.0" uisoftmax="10.0" uivisible="true" uiname="Size" />
+    <input name="size" type="float" value="1" uisoftmin="0.0" uisoftmax="10.0" uivisible="true" uiname="Size" unittype="distance" />
     <input name="octaves" type="float" value="4.0" uisoftmin="0.0" uisoftmax="8.0" uivisible="true" uiname="Octaves" />
     <input name="realworld_offset" type="vector3" value="0,0,0" uisoftmin="0,0,0" uisoftmax="1,1,1" uivisible="true" uiname="Offset X, Y, Z" unittype="distance" />
     <input name="rotation_angle" type="vector3" value="0,0,0" uisoftmin="0,0,0" uisoftmax="360,360,360" uivisible="true" uiname="Rotation Angle X, Y, Z" unittype="angle" unit="degree" />
@@ -125,7 +125,7 @@
 
   <nodedef name="ND_legacy_marble_color3" node="legacy_marble" version="0.1" isdefaultversion="true" nodegroup="adsk_legacy">
     <input name="position" type="vector3" defaultgeomprop="Pobject" uivisible="false" uiname="Position Coordinates" />
-    <input name="size" type="float" value="0.7636" uimin="0.0" uisoftmax="10.0" uivisible="true" uiname="Vein Spacingg" />
+    <input name="size" type="float" value="0.7636" uimin="0.0" uisoftmax="10.0" uivisible="true" uiname="Vein Spacing" unittype="distance" />
     <input name="width" type="float" value="0.070283" uimin="0.0" uisoftmax="10.0" uivisible="true" uiname="Vein Width" />
     <input name="stone_color" type="color3" value="0.0303, 0.0321, 0.0122" uisoftmin="0,0,0" uisoftmax="1,1,1" uivisible="true" uiname="Stone Color" />
     <input name="vein_color" type="color3" value="0.7832, 0.7832, 0.5755" uisoftmin="0,0,0" uisoftmax="1,1,1" uivisible="true" uiname="Vein Color" />
@@ -277,7 +277,7 @@
   <nodedef name="ND_legacy_knurl" node="legacy_knurl" version="0.1" isdefaultversion="true" nodegroup="adsk_legacy">
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" uivisible="false" uiname="Texture Coordinates" />
     <input name="amount" type="float" value="0.25" uimin="0.0" uimax="1.0" />
-    <input name="rotation" type="float" value="0" uisoftmin="0.0" uisoftmax="360" />
+    <input name="rotation_angle" type="float" value="0" uisoftmin="0.0" uisoftmax="360" uivisible="true" uiname="Rotation Angle" unittype="angle" unit="degree" />
     <input name="realworld_scale" type="vector2" value="1,1" uisoftmin="0,0" uisoftmax="1,1" uivisible="true" uiname="Width, Height" unittype="distance" />
     <input name="realworld_offset" type="vector2" value="0,0" uisoftmin="0,0" uisoftmax="1,1" uiname="Offset X, Y" unittype="distance" />
     <input name="diagonal" type="boolean" value="false" />
@@ -355,8 +355,8 @@
     <input name="normal_custom_relief" type="vector3" uivisible="true" uiname="Custom Relief Pattern" defaultgeomprop="Nworld" />
     <input name="cutout_enable" type="boolean" value="false" uivisible="true" uiname="Cutout" />
     <input name="cutout" type="integer" value="0" uivisible="true" uiname="Cutout Type" enum="Circles,Staggered Circles,Squares,Staggered Squares,Hexagons,Grecian,Cloverleaf,Custom" enumvalues="0,1,2,3,4,5,6,7" uimin="0" uimax="7" />
-    <input name="cutout_size" type="float" value="0.1" uivisible="true" uiname="Cutout Size" />
-    <input name="cutout_spacing" type="float" value="0.5" uivisible="true" uiname="Cutout Spacing" uimin="0" uimax="1" />
+    <input name="cutout_size" type="float" value="0.1" uivisible="true" uiname="Cutout Size" unittype="distance" />
+    <input name="cutout_spacing" type="float" value="0.5" uivisible="true" uiname="Cutout Spacing" uimin="0" uimax="1" unittype="distance" />
     <input name="custom_cutout" type="color3" value="1, 1, 1" uivisible="true" uiname="Custom Cutout" />
     <input name="tint_enable" type="boolean" value="false" uivisible="true" uiname="Tint" />
     <input name="tint_color" type="color3" value="1, 1, 1" uivisible="true" uiname="Tint Color" />

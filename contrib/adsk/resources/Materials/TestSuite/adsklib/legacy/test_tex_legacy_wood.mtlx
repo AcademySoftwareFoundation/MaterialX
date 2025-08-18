@@ -13,7 +13,7 @@
   <legacy_wood name="NG_legacy_wood" type="color3" xpos="7.630435" ypos="-3.137931">
     <input name="radial_noise" type="float" value="0.7" />
     <input name="axial_noise" type="float" value="0.6" />
-    <input name="thickness" type="float" value="1" />
+    <input name="thickness" type="float" value="1" unittype="distance" unit="inch" />
     <input name="loop" type="boolean" value="false" />
     <input name="position" type="vector3" nodename="multiply_vector3FA" />
     <input name="realworld_offset" type="vector3" value="0, 2.9, 0" />

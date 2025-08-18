@@ -12,7 +12,7 @@
   </surfacematerial>
   <legacy_marble name="legacy_marble_color3" type="color3" xpos="6.942029" ypos="-2.620690">
     <input name="realworld_offset" type="vector3" value="1.1, 0.8, 0.4" />
-    <input name="size" type="float" value="4.6" />
+    <input name="size" type="float" value="4.6" unittype="distance" unit="inch" />
     <input name="width" type="float" value="0.1" />
     <input name="rotation_angle" type="vector3" value="0, 0, 0" />
   </legacy_marble>

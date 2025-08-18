@@ -12,8 +12,8 @@
     <!-- <input name="custom_relief" type="vector3"/> -->
     <input name="cutout_enable" type="boolean" value="true" />
     <input name="cutout" type="integer" value="4" />
-    <input name="cutout_size" type="float" value="0.01" />
-    <input name="cutout_spacing" type="float" value="0.015" />
+    <input name="cutout_size" type="float" value="0.01" unittype="distance" unit="inch" />
+    <input name="cutout_spacing" type="float" value="0.015" unittype="distance" unit="inch" />
     <!-- <input name="custom_cutout" type="color3"/> -->
     <input name="tint_enable" type="boolean" value="false" />
     <input name="tint_color" type="color3" value="0.95,0.5,0.5" />

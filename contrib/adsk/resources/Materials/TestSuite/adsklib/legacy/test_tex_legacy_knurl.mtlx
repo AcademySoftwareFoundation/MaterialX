@@ -15,8 +15,8 @@
   <legacy_knurl name="legacy_knurl" type="multioutput" xpos="5.536232" ypos="-1.086207">
     <output name="out_rgb" type="color3" />
     <input name="amount" type="float" value="0.25" />
-    <input name="realworld_scale" type="vector2" value="0.1, 0.2" />
+    <input name="realworld_scale" type="vector2" value="0.1, 0.2" unittype="distance" unit="inch" />
     <input name="diagonal" type="boolean" value="true" />
-    <input name="rotation" type="float" value="45" />
+    <input name="rotation_angle" type="float" value="45" />
   </legacy_knurl>
 </materialx>
