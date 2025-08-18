@@ -113,85 +113,113 @@ class OiioImageLoader(mx_render.ImageLoader):
             # Create MaterialX image
             mx_image = mx_render.Image.create(spec.width, spec.height, spec.nchannels, base_type)
             mx_image.createResourceBuffer()
-            
-            # Read the image data using the correct OIIO Python API
+            print(f"create buffer with width: {spec.width}, height: {spec.height}, channels: {spec.nchannels}")
+
+            # Read the image data using the correct OIIO Python API (returns a bytes object)
+            print(f"Reading image data from '{file_path_str}' with spec: {spec}")
             data = img_input.read_image(0, 0, 0, spec.nchannels, spec.format)
-            img_input.close()
+            if len(data) > 0:
+                print(f"Done Reading image data from '{file_path_str}' with spec: {spec}")
 
             if data is None:
                 print(f"Error: Could not read image data from '{file_path_str}'")
                 return None
+            else:
+                print(f"Successfully read image data from '{file_path_str}'")
 
-            # Read the image data directly into the MaterialX image buffer (like C++ version)
-            success = img_input.read_image(0, 0, 0, spec.nchannels, spec.format, mx_image.getResourceBuffer())
+            # Copy the data into the MaterialX image resource buffer
+            resource_buffer_ptr = mx_image.getResourceBuffer()
+            # Calculate the size in bytes
+            print("Before COPY")
+            bytes_per_channel = spec.format.size()
+            print("Before COPY 2")
+            total_bytes = spec.width * spec.height * spec.nchannels * bytes_per_channel
+            print("Before COPY 3")
+            print(f"Total bytes to copy: {total_bytes} (width: {spec.width}, height: {spec.height}, channels: {spec.nchannels})")
+            # Debug: print type and value of resource_buffer
+            print("resource_buffer type:", type(resource_buffer_ptr))
+            print("resource_buffer value:", resource_buffer_ptr)
+            # Attempt memmove as before (may need to adjust after seeing output)
             try:
-                img_input = oiio.ImageInput.open(file_path_str)
-                if not img_input:
-                    print(f"Error: Could not open '{file_path_str}' - {oiio.geterror()}")
-                    return None
-
-                spec = img_input.spec()
-                base_type = self._oiio_to_materialx_type(spec.format.basetype)
-                if base_type is None:
-                    img_input.close()
-                    print(f"Error: Unsupported image format for '{file_path_str}'")
-                    return None
-
-                mx_image = mx_render.Image.create(spec.width, spec.height, spec.nchannels, base_type)
-                mx_image.createResourceBuffer()
-
-                success = img_input.read_image(0, 0, 0, spec.nchannels, spec.format, mx_image.getResourceBuffer())
-                img_input.close()
-                if not success:
-                    print(f"Error: Could not read image data from '{file_path_str}'")
-                    return None
-
-                return mx_image
+                ctypes.memmove(resource_buffer_ptr, (ctypes.c_char * total_bytes).from_buffer_copy(data), total_bytes)
             except Exception as e:
-                print(f"Error loading image '{file_path_str}': {str(e)}")
-                return None
-                return False
-            
-            # Create OIIO image spec
+                print("memmove error:", e)
+
+            img_input.close()
+
+            print(f"Image loaded via LOADER:")
+            print(f"  Dimensions: {mx_image.getWidth()}x{mx_image.getHeight()}")
+            print(f"  Channels: {mx_image.getChannelCount()}")
+            print(f"  Base type: {mx_image.getBaseType()}")
+            return mx_image            
+
+        except Exception as e:
+            print(f"Error loading image from '{file_path_str}': {str(e)}")
+            return None
+        
+        return None
+
+    def saveImage(self, filePath, image, verticalFlip=False):
+        """
+        Save a MaterialX image to disk using OpenImageIO.
+        Args:
+            filePath (MaterialX.FilePath): Path to save the image
+            image (MaterialX.Image): The MaterialX image object
+            verticalFlip (bool): Whether to vertically flip the image on save
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        file_path_str = filePath.asString()
+        width = image.getWidth()
+        height = image.getHeight()
+        channels = image.getChannelCount()
+        mx_basetype = image.getBaseType()
+        oiio_format = self._materialx_to_oiio_type(mx_basetype)
+        if oiio_format is None:
+            print(f"Error: Unsupported MaterialX base type for OIIO: {mx_basetype}")
+            return False
+
+        try:
             spec = oiio.ImageSpec(width, height, channels, oiio_format)
-            
-            # Create output
             img_output = oiio.ImageOutput.create(file_path_str)
             if not img_output:
                 print(f"Error: Could not create output for '{file_path_str}'")
                 return False
-            
-            # Open for writing
             if not img_output.open(file_path_str, spec):
                 print(f"Error: Could not open '{file_path_str}' for writing")
                 return False
-            
-            # Write image data
-            resource_buffer = image.getResourceBuffer()
+
+            # Use the pointer version for buffer
+            resource_buffer_ptr = image.getResourceBufferPtr()
+            total_bytes = width * height * channels * image.getBaseStride()
+            buf_type = ctypes.c_char * total_bytes
+            buffer = buf_type.from_address(resource_buffer_ptr)
+
             if verticalFlip:
-                # Calculate scanline size and write with negative stride for vertical flip
                 scanline_size = width * channels * image.getBaseStride()
                 # Calculate pointer to last scanline
-                last_line_ptr = resource_buffer + (height - 1) * scanline_size
-                success = img_output.write_image(
-                    oiio_format,
-                    last_line_ptr,
-                    oiio.AutoStride,  # x stride
-                    -scanline_size,   # negative y stride for flip
-                    oiio.AutoStride   # z stride
-                )
+                last_line_addr = resource_buffer_ptr + (height - 1) * scanline_size
+                last_line_ptr = ctypes.c_void_p(last_line_addr)
+                # Create a buffer for the flipped image (OIIO expects a buffer, not just a pointer)
+                # We'll copy and flip the data in Python for simplicity
+                flipped = bytearray(total_bytes)
+                for y in range(height):
+                    src_offset = (height - 1 - y) * scanline_size
+                    dst_offset = y * scanline_size
+                    flipped[dst_offset:dst_offset+scanline_size] = buffer[src_offset:src_offset+scanline_size]
+                flipped_buffer = (ctypes.c_char * total_bytes).from_buffer(flipped)
+                success = img_output.write_image(flipped_buffer)
             else:
-                success = img_output.write_image(oiio_format, resource_buffer)
-            
+                success = img_output.write_image(buffer)
+
             img_output.close()
-            
+
             if success:
                 print(f"Successfully saved image to '{file_path_str}'")
                 return True
             else:
                 print(f"Error writing image data to '{file_path_str}'")
                 return False
-                
         except Exception as e:
             print(f"Error saving image to '{file_path_str}': {str(e)}")
             return False
@@ -251,7 +279,8 @@ def main():
         print(f"  Base type: {mx_image.getBaseType()}")
 
         # Save image using handler API (to a new file)
-        out_path = mx.FilePath("saved_image.png")
+        print('---------------------------------------')
+        out_path = mx.FilePath("saved_image.exr")
         if handler.saveImage(out_path, mx_image):
             print(f"Image saved to {out_path.asString()}")
         else:

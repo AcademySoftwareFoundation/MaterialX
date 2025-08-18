@@ -10,6 +10,11 @@
 namespace py = pybind11;
 namespace mx = MaterialX;
 
+uintptr_t getResourceBuffer(const mx::Image& image)
+{
+    return reinterpret_cast<uintptr_t>(image.getResourceBuffer());
+}
+
 void bindPyImage(py::module& mod)
 {
     py::enum_<mx::Image::BaseType>(mod, "BaseType")
@@ -43,12 +48,12 @@ void bindPyImage(py::module& mod)
         .def("applyBoxDownsample", &mx::Image::applyBoxDownsample)
         .def("splitByLuminance", &mx::Image::splitByLuminance)
         .def("setResourceBuffer", &mx::Image::setResourceBuffer)
-        .def("getResourceBuffer", &mx::Image::getResourceBuffer)
+        .def("getResourceBuffer", &getResourceBuffer)
         .def("createResourceBuffer", &mx::Image::createResourceBuffer)
         .def("releaseResourceBuffer", &mx::Image::releaseResourceBuffer)
         .def("setResourceBufferDeallocator", &mx::Image::setResourceBufferDeallocator)
         .def("getResourceBufferDeallocator", &mx::Image::getResourceBufferDeallocator);
-
+        
         mod.def("createUniformImage", &mx::createUniformImage);
         mod.def("createImageStrip", &mx::createImageStrip);
         mod.def("getMaxDimensions", &mx::getMaxDimensions);
