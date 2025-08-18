@@ -309,3 +309,4 @@ TEST_CASE("GenShader: MDL Shader Generation", "[genmdl]")
 
     tester.validate(genOptions, optionsFilePath);
 }
+
