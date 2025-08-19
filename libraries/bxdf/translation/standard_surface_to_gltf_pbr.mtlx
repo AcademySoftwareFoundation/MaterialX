@@ -5,6 +5,8 @@
     <input name="base" type="float" value="1" />
     <input name="base_color" type="color3" value="0.8, 0.8, 0.8" />
     <input name="metalness" type="float" value="0" />
+    <input name="specular_anisotropy" type="float" value="0.0" />
+    <input name="specular_rotation" type="float" value="0.0" />
     <input name="specular_roughness" type="float" value="0.2" />
     <input name="transmission" type="float" value="0" />
     <input name="transmission_color" type="color3" value="1, 1, 1" />
@@ -21,6 +23,8 @@
     <output name="base_color_out" type="color3" />
     <output name="metallic_out" type="float" />
     <output name="roughness_out" type="float" />
+    <output name="anisotropy_strength_out" type="float" />
+    <output name="anisotropy_rotation_out" type="float" />
     <output name="transmission_out" type="float" />
     <output name="thickness_out" type="float" />
     <output name="attenuation_color_out" type="color3" />
@@ -41,6 +45,9 @@
     <convert name="constantOneThirdVector" type="vector3">
       <input name="in" type="float" nodename="constantOneThird" />
     </convert>
+    <constant name="negativeTwoPI" type="float">
+      <input name="value" type="float" value="-6.283" />
+    </constant>
 
     <!-- Coat attenuation -->
     <convert name="coatColorVector" type="vector3">
@@ -75,7 +82,7 @@
       <input name="in2" type="vector3" nodename="constantOneThirdVector" />
     </dotproduct>
 
-    <!-- Metallic roughness -->
+    <!-- Metallic  -->
     <ifequal name="baseColor" type="color3">
       <input name="value1" type="float" nodename="hasCoatColor" />
       <input name="value2" type="float" value="0" />
@@ -97,9 +104,43 @@
     <dot name="metallic" type="float">
       <input name="in" type="float" interfacename="metalness" />
     </dot>
-    <dot name="roughness" type="float">
-      <input name="in" type="float" interfacename="specular_roughness" />
-    </dot>
+
+    <!-- Roughness Anisotropy -->
+    <roughness_anisotropy name="roughness_anisotropy" type="vector2" nodedef="ND_roughness_anisotropy">
+      <input name="roughness" type="float" interfacename="specular_roughness" />
+      <input name="anisotropy" type="float" interfacename="specular_anisotropy" />
+    </roughness_anisotropy>
+    <separate2 name="separate_roughness" type="multioutput">
+      <input name="in" type="vector2" nodename="roughness_anisotropy" />
+    </separate2>
+    <sqrt name="roughness" type="float">
+      <input name="in" type="float" nodename="separate_roughness" output="outy" />
+    </sqrt>
+    <subtract name="numerator" type="float">
+      <input name="in1" type="float" nodename="separate_roughness" output="outx" />
+      <input name="in2" type="float" nodename="separate_roughness" output="outy" />
+    </subtract>
+    <subtract name="denumerator" type="float">
+      <input name="in1" type="float" value="1" />
+      <input name="in2" type="float" nodename="separate_roughness" output="outy" />
+    </subtract>
+    <divide name="anisotropy_sq" type="float">
+      <input name="in1" type="float" nodename="numerator" />
+      <input name="in2" type="float" nodename="denumerator" />
+    </divide>
+    <sqrt name="anisotropy" type="float">
+      <input name="in" type="float" nodename="anisotropy_sq" />
+    </sqrt>
+    <multiply name="anisotropy_rotation" type="float">
+      <input name="in1" type="float" interfacename="specular_rotation" />
+      <input name="in2" type="float" nodename="negativeTwoPI" />
+    </multiply>
+    <ifgreatereq name="anisotropy_strength" type="float">
+      <input name="value1" type="float" value="0.0" />
+      <input name="value2" type="float" nodename="denumerator" />
+      <input name="in1" type="float" value="0.0" />
+      <input name="in2" type="float" nodename="anisotropy" />
+    </ifgreatereq>
 
     <!-- Transmission -->
     <dot name="transmission" type="float">
@@ -153,6 +194,8 @@
     <output name="base_color_out" type="color3" nodename="base_color" />
     <output name="metallic_out" type="float" nodename="metallic" />
     <output name="roughness_out" type="float" nodename="roughness" />
+    <output name="anisotropy_strength_out" type="float" nodename="anisotropy_strength" />
+    <output name="anisotropy_rotation_out" type="float" nodename="anisotropy_rotation" />
     <output name="transmission_out" type="float" nodename="transmission" />
     <output name="thickness_out" type="float" nodename="thickness" />
     <output name="attenuation_color_out" type="color3" nodename="attenuation_color" />

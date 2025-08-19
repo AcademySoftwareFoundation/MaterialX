@@ -911,7 +911,7 @@ void ShaderGraph::optimize()
         {
             // Filename dot nodes must be elided so they do not create extra samplers.
             ShaderInput* in = node->getInput("in");
-            if (in->getType() == Type::FILENAME)
+            if (in && in->getType() == Type::FILENAME)
             {
                 bypass(node, 0);
                 ++numEdits;
