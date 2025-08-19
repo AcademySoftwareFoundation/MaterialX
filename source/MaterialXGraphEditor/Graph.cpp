@@ -3270,6 +3270,173 @@ void Graph::loadGeometry()
     _fileDialogGeom.open();
 }
 
+void showPluginOptions(const mx::PluginPtr optionsPlugin)
+{
+    //std::cout << "Begin popup for plugin: " << optionsPlugin->name()  << std::endl;
+    mx::PluginOptionMap options;
+    optionsPlugin->getOptions(options);
+
+    for (auto& [key, value] : options)
+    {
+        if (value && value->getTypeString() == "boolean")
+        {
+            bool val = value->asA<bool>();
+            if (ImGui::Checkbox(key.c_str(), &val))
+            {
+                optionsPlugin->setOption(key, mx::Value::createValue<bool>(val));
+                // Get changed option back and compare against value passed in:
+                optionsPlugin->getOptions(options);
+                auto it = options.find(key);    
+                if (it != options.end())
+                {
+                    // Get new value
+                    mx::ValuePtr newValue = it->second;
+                    // Check if the value has changed
+                    bool newVal = newValue->asA<bool>();
+                    std::cout << "Option " << key << " changed to " << newVal << std::endl;
+                }
+            }
+        }
+        else if (value && value->getTypeString() == "integer")
+        {
+            int val = value->asA<int>();
+            if (ImGui::InputInt(key.c_str(), &val))
+            {
+                optionsPlugin->setOption(key, mx::Value::createValue<int>(val));
+            }
+        }
+        else if (value && value->getTypeString() == "float")
+        {
+            float val = value->asA<float>();
+            if (ImGui::InputFloat(key.c_str(), &val))
+            {
+                optionsPlugin->setOption(key, mx::Value::createValue<float>(val));
+            }
+        }
+        else if (value && value->getTypeString() == "string")
+        {
+            std::string val = value->asA<std::string>();
+            if (ImGui::InputText(key.c_str(), &val))
+            {
+                optionsPlugin->setOption(key, mx::Value::createValue<std::string>(val));
+            }
+        }
+        else if (value && value->getTypeString() == "filename")
+        {
+            std::string val = value->asA<std::string>();
+            if (ImGui::InputText(key.c_str(), &val))
+            {
+                optionsPlugin->setOption(key, mx::Value::createValue<std::string>(val));
+            }
+        }
+        else if (value && value->getTypeString() == "color3")
+        {
+            mx::Color3 val = value->asA<mx::Color3>();
+            if (ImGui::ColorEdit3(key.c_str(), &val[0]))
+            {
+                optionsPlugin->setOption(key, mx::Value::createValue<mx::Color3>(val));
+            }
+        }
+        else if (value && value->getTypeString() == "color4")
+        {
+            mx::Color4 val = value->asA<mx::Color4>();
+            if (ImGui::ColorEdit4(key.c_str(), &val[0]))
+            {
+                optionsPlugin->setOption(key, mx::Value::createValue<mx::Color4>(val));
+            }
+        }
+    }
+    ImGui::Separator();
+    if (ImGui::Button("Close"))
+    {
+        ImGui::CloseCurrentPopup();
+    }
+
+}
+
+
+void Graph::addPluginMenu()
+{
+    if (!_pluginManager)
+        return;
+
+    // Persistent struct
+    struct ActivePopup
+    {
+        std::shared_ptr<mx::Plugin> plugin;
+        bool justRequested = false; // track if OpenPopup needs to be called
+    };
+    static std::unordered_map<std::string, ActivePopup> activePopups;
+
+    // --- inside addPluginMenu ---
+    if (ImGui::BeginMenu("Plugins"))
+    {
+        for (const auto& pluginName : _pluginManager->getPluginList())
+        {
+            std::shared_ptr<mx::Plugin> plugin = _pluginManager->getPlugin<mx::DocumentLoaderPlugin>(pluginName);
+            if (!plugin)
+                plugin = _pluginManager->getPlugin<mx::DocumentSaverPlugin>(pluginName);
+            if (!plugin)
+                continue;
+
+            const std::string menuName = plugin->uiName();
+            mx::PluginOptionMap options;
+            plugin->getOptions(options);
+
+            if (ImGui::SmallButton(menuName.c_str()))
+            {
+                if (auto loader = std::dynamic_pointer_cast<mx::DocumentLoaderPlugin>(plugin))
+                    loadGraphFromPlugin(pluginName, loader->supportedExtensions(), true);
+                else if (auto saver = std::dynamic_pointer_cast<mx::DocumentSaverPlugin>(plugin))
+                    saveGraphToPlugin(pluginName, saver->supportedExtensions());
+            }
+
+            if (!options.empty())
+            {
+                ImGui::SameLine();
+                std::string popupName = "Options_" + pluginName;
+                if (ImGui::SmallButton("[]"))
+                {
+                    // Register the popup, but don't call OpenPopup yet
+                    activePopups[popupName] = ActivePopup{ plugin, true };
+                }
+            }
+        }
+        ImGui::EndMenu();
+    }
+
+    // --- After menu, call OpenPopup for any newly requested popups
+    for (auto& [popupName, ap] : activePopups)
+    {
+        if (ap.justRequested)
+        {
+            ImGui::OpenPopup(popupName.c_str());
+            ap.justRequested = false;
+        }
+    }
+
+    // --- Draw all active popups
+    for (auto it = activePopups.begin(); it != activePopups.end(); )
+    {
+        const std::string& popupName = it->first;
+        ActivePopup& ap = it->second;
+
+        if (ImGui::BeginPopupModal(popupName.c_str(), nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            showPluginOptions(ap.plugin);
+            ImGui::EndPopup();
+        }
+
+        if (!ImGui::IsPopupOpen(popupName.c_str()))
+            it = activePopups.erase(it);
+        else
+            ++it;
+    }
+}
+
+
+
+#if 0
 void Graph::addPluginMenu()
 {
     if (!_pluginManager)
@@ -3277,67 +3444,95 @@ void Graph::addPluginMenu()
         return;
     }
 
-if (ImGui::BeginMenu("Plugins"))
+    static std::string optionsPopupName = "";
+    static mx::PluginPtr optionsPluginPtr = nullptr;
+
+    if (ImGui::BeginMenu("Plugins"))
     {
         mx::StringVec pluginList = _pluginManager->getPluginList();
+
         for (const std::string& pluginName : pluginList)
         {
             mx::DocumentLoaderPluginPtr plugin = _pluginManager->getPlugin<mx::DocumentLoaderPlugin>(pluginName);
             if (plugin)
             {
                 const std::string menuName = plugin->uiName();
+
+                //ImGui::PushID(pluginName.c_str());
                 mx::PluginOptionMap options;
                 plugin->getOptions(options);
-
-                bool showMenu = false;
                 if (!options.empty())
                 {
-                    if (ImGui::BeginMenu((menuName + " Options").c_str()))
+                    // Draw menu item label
+                    if (ImGui::SmallButton(menuName.c_str()))
                     {
-                        // Directly edit the values in the options map
-                        for (auto& [key, value] : options)
-                        {
-                            if (value && value->getTypeString() == "boolean")
-                            {
-                                bool val = value->asA<bool>();
-                                if (ImGui::Checkbox(key.c_str(), &val))
-                                {
-                                    // Update the option value if changed
-                                    plugin->setOption(key, mx::Value::createValue<bool>(val));
-                                }
-                            }
-                        }
-                        if (ImGui::Button("Close"))
-                        {
-                            //loadGraphFromPlugin(pluginName, plugin->supportedExtensions(), true);
-                            ImGui::CloseCurrentPopup();
-                        }
-                        ImGui::EndMenu();
-                        showMenu = true;
+                        loadGraphFromPlugin(pluginName, plugin->supportedExtensions(), true);
                     }
+                    ImGui::SameLine();
+                    if (ImGui::SmallButton("[]"))
+                    {
+                        optionsPopupName = "Options_" + pluginName;
+                        optionsPluginPtr = plugin;
+                        ImGui::OpenPopup(optionsPopupName.c_str());
+                    }                    
                 }
-                if (!showMenu)
+                else
                 {
-                    if (ImGui::MenuItem(menuName.c_str()))
+                    if (ImGui::SmallButton(menuName.c_str()))
                     {
                         loadGraphFromPlugin(pluginName, plugin->supportedExtensions(), true);
                     }
                 }
+                //ImGui::PopID();
             }
 
             mx::DocumentSaverPluginPtr saverPlugin = _pluginManager->getPlugin<mx::DocumentSaverPlugin>(pluginName);
             if (saverPlugin)
             {
                 const std::string menuName = saverPlugin->uiName();
-                if (ImGui::MenuItem(menuName.c_str()))
+                mx::PluginOptionMap options;
+                saverPlugin->getOptions(options);
+                if (!options.empty())
+                {
+                    // Draw menu item label
+                    if (ImGui::SmallButton(menuName.c_str()))
+                    {
+                        saveGraphToPlugin(pluginName, saverPlugin->supportedExtensions());
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::SmallButton("[]"))
+                    {
+                        optionsPopupName = "Options_" + pluginName;
+                        optionsPluginPtr = saverPlugin;
+                        ImGui::OpenPopup(optionsPopupName.c_str());
+                    }
+                }
+                else if (ImGui::SmallButton(menuName.c_str()))
                 {
                     saveGraphToPlugin(pluginName, saverPlugin->supportedExtensions());
                 }
+
             }
         }
+
+        if (!optionsPopupName.empty() && optionsPluginPtr)
+        {
+            showPluginOptions(optionsPopupName, optionsPluginPtr);
+            // Close popup cleanup
+            if (!ImGui::IsPopupOpen(optionsPopupName.c_str()))
+            {
+                optionsPluginPtr = nullptr;
+                optionsPopupName.clear();
+            }
+            //optionsLoaderPlugin = nullptr;
+            //optionsPopupName.clear();
+        }
+
         ImGui::EndMenu();
     }
+
 }
+#endif    
 
 void Graph::graphButtons()
 {
