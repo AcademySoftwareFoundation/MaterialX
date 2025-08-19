@@ -16,8 +16,8 @@ PluginManager::PluginManager() = default;
 PluginManagerPtr PluginManager::getInstance()
 {
     static PluginManagerPtr instance = PluginManagerPtr(new PluginManager());
-    std::cerr << ">>>>>>>>> Get MaterialX PluginManager instance at address: 0x" 
-        << std::hex << reinterpret_cast<uintptr_t>(instance.get()) << std::dec << std::endl;
+    //std::cerr << ">>>>>>>>> Get MaterialX PluginManager instance at address: 0x" 
+    //    << std::hex << reinterpret_cast<uintptr_t>(instance.get()) << std::dec << std::endl;
     return instance;
 }
 
@@ -31,7 +31,7 @@ bool PluginManager::registerPlugin(PluginPtr plugin)
         if (it == _plugins.end())
         {
             // Register plugin
-            std::cerr << "Register plugin: " << name << std::endl;
+            std::cerr << "Registered plugin: " << name << std::endl;
             _plugins.push_back(plugin);
 
             // Notify callback

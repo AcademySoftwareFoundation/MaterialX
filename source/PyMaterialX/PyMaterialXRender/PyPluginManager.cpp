@@ -73,7 +73,6 @@ class PyDocumentSaverPlugin : public mx::DocumentSaverPlugin
     using DocumentSaverPlugin::DocumentSaverPlugin;
     PyDocumentSaverPlugin() : mx::DocumentSaverPlugin() 
     {
-        std::cerr << "Created saver" << std::endl;
     }
     std::string name() const override
     {

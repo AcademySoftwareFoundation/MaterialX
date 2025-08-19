@@ -64,5 +64,4 @@
   <surfacematerial name="Marble_3D" type="material" xpos="17.391304" ypos="0.000000">
     <input name="surfaceshader" type="surfaceshader" nodename="SR_marble1" />
   </surfacematerial>
-  <xi:include href="D:\Work\materialx\bernard_MaterialX\build\bin\resources\Lights\san_giuseppe_bridge_split.mtlx" />
 </materialx>
