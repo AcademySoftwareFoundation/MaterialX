@@ -6,24 +6,34 @@ This module provides a MaterialX-compatible ImageLoader implementation using Ope
 - Dependencies: OpenImageIO PyPi package (version 3.0.6.1) 
 - API Docs: https://openimageio.readthedocs.io/en/v3.0.6.1/)
 """
-import MaterialX as mx
-import MaterialX.PyMaterialXRender as mx_render
-import OpenImageIO as oiio
-import numpy as np
 import ctypes
 import os
-import logging
 import argparse
 
+import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("OIIOLoad")
+
+try:
+    import MaterialX as mx
+    import MaterialX.PyMaterialXRender as mx_render
+except ImportError:
+    logger.error("Required modules not found. Please install MaterialX.")
+    raise
+try:
+    import OpenImageIO as oiio
+    import numpy as np
+except ImportError:
+    logger.error("Required modules not found. Please install OpenImageIO and numpy.")
+    raise
+
 
 have_matplot = False
 try:
     import matplotlib.pyplot as plt
     have_matplot = True
 except ImportError:
-    logger.warning("matplotlib module not found. Image display will be disabled.")
+    logger.warning("matplotlib module not found. Image preview display is disabled.")
 
 class OiioImageLoader(mx_render.ImageLoader):
     """
@@ -34,7 +44,8 @@ class OiioImageLoader(mx_render.ImageLoader):
     """
     
     def __init__(self):
-        """Initialize the OiioImageLoader and set supported extensions."""
+        """
+        Initialize the OiioImageLoader and set supported extensions."""
         super().__init__()
         
         # Set all extensions supported by OpenImageIO. e.g.
@@ -55,8 +66,23 @@ class OiioImageLoader(mx_render.ImageLoader):
         self.last_spec = None
 
     def supportedExtensions(self):
+        """
+        Return a set of supported image file extensions.
+        """
         logger.info(f"Supported OIIO supported extensions: {self._extensions}")
         return self._extensions
+
+    def previewImage(self, data, width, height, nchannels):
+        """
+        Utility method to preview an image using matplotlib.
+        """
+        if have_matplot:
+            flat = data.reshape(height, width, nchannels)
+            norm = np.clip(flat, 0.0, 1.0)
+            rgb = norm[..., :3] if nchannels >= 3 else np.repeat(norm[..., :1], 3, axis=-1)
+            plt.imshow(rgb.astype(np.float32))
+            plt.axis('off')
+            plt.show()
 
     def loadImage(self, filePath):
         """
@@ -107,18 +133,10 @@ class OiioImageLoader(mx_render.ImageLoader):
             else:
                 logger.error(f"Could not read image data.")
                 return None
-            
-            if have_matplot:
-                flat = data.reshape(spec.height, spec.width, spec.nchannels)
-                norm = np.clip(flat, 0.0, 1.0)
-                rgb = norm[..., :3] if spec.nchannels >= 3 else np.repeat(norm[..., :1], 3, axis=-1)
-                plt.imshow(rgb.astype(np.float32))
-                plt.axis('off')
-                plt.show()
 
-            # Copy the data into the MaterialX image resource buffer
+            # Steps:
+            # - Copy the OIIO data into the MaterialX image resource buffer            
             resource_buffer_ptr = mx_image.getResourceBuffer()
-            # Calculate the size in bytes
             bytes_per_channel = spec.format.size()
             total_bytes = spec.width * spec.height * spec.nchannels * bytes_per_channel
             logger.info(f"Total bytes read in: {total_bytes} (width: {spec.width}, height: {spec.height}, channels: {spec.nchannels}, format: {spec.format})")
@@ -138,6 +156,14 @@ class OiioImageLoader(mx_render.ImageLoader):
         return None   
 
     def saveImage(self, filePath, image, verticalFlip=False):
+        """
+        @brief Saves an image to disk using OpenImageIO (OIIO).
+
+        @param filePath The file path where the image will be saved. Expected to have an asString() method.
+        @param image The MaterialX image object to save.
+        @param verticalFlip Whether to vertically flip the image before saving. (Currently unused.)
+        @return True if the image was saved successfully, False otherwise.
+        """
         filename = filePath.asString()
         width = image.getWidth()
         height = image.getHeight()
@@ -155,13 +181,23 @@ class OiioImageLoader(mx_render.ImageLoader):
         pixels = np.zeros((height, width, channels), dtype=np_type)
         # Copy from buffer to pixels
         try:
-            # Calculate total bytes
+            # Steps: 
+            # - Maps the MaterialX base type to OIIO and NumPy types.
+            # - Allocates a NumPy array for the pixel data.
+            # - Copies the raw buffer from the image into the NumPy array.
+            # - Optionally previews the image for debugging.
+            # - Creates an OIIO ImageOutput and writes the image to disk.
+            #
             base_stride = image.getBaseStride()
             total_bytes = width * height * channels * base_stride
             buf_type = (ctypes.c_char * total_bytes)
             buf = buf_type.from_address(buffer)
             np_buffer = np.frombuffer(buf, dtype=np_type).reshape((height, width, channels))
             np.copyto(pixels, np_buffer)
+
+            logger.info("Previewing image after load into Image and reload for save...")
+            self.previewImage(pixels, width, height, channels)
+
         except Exception as e:
             logger.error(f"Error copying buffer to pixels: {e}")
             return False
@@ -204,7 +240,7 @@ class OiioImageLoader(mx_render.ImageLoader):
             mx_render.BaseType.FLOAT: oiio.FLOAT,
         }
         return_val = type_mapping.get(mx_basetype, None)
-        print(f"MaterialX type mapping: {mx_basetype} to {return_val}")
+        logger.debug(f"MaterialX type mapping: {mx_basetype} to {return_val}")
         return return_val
 
     def _materialx_type_to_np_type(self, mx_basetype):
@@ -220,7 +256,7 @@ class OiioImageLoader(mx_render.ImageLoader):
         return type_mapping.get(mx_basetype, None)
 
 
-def main():
+def test_load_save():
     """
     Example usage of the OiioImageLoader class with MaterialX ImageHandler.
     """
@@ -233,14 +269,10 @@ def main():
         logger.error(f"Image file not found: {test_image_path}")
         return      
 
-    # Instantiate your Python-side loader
+    # Create MaterialX handler with custom OIIO image loader
     loader = OiioImageLoader()
-    # Create a handler and add your loader
     handler = mx_render.ImageHandler.create(loader)
-    #handler.addLoader(loader)
 
-    # Example: Load and save an image (replace with actual image path)
-    #test_image_path = "test.exr"  # Replace with actual path
     mx_filepath = mx.FilePath(test_image_path)
 
     # Load image using handler API
@@ -253,14 +285,14 @@ def main():
         logger.info(f"  Base type: {mx_image.getBaseType()}")
 
         # Save image using handler API (to a new file)
-        logger.info('** Save Image **')
+        logger.info('*'*45)
         out_path = mx.FilePath("saved_" + os.path.basename(test_image_path))
         if handler.saveImage(out_path, mx_image):
-            logger.info(f"Image saved to {out_path.asString()}")
+            logger.info(f"MaterialX Image saved to {out_path.asString()}")
         else:
             logger.error("Failed to save image.")
     else:
-        logger.error("Failed to load image via handler.")
+        logger.error("Failed to load image.")
 
 if __name__ == "__main__":
-    main()
+    test_load_save()
