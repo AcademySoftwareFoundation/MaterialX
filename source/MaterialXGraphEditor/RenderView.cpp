@@ -160,7 +160,7 @@ RenderView::RenderView(mx::DocumentPtr doc,
     _genContext.getOptions().fileTextureVerticalFlip = true;
     _genContext.getOptions().hwShadowMap = true;
     // Make sure all uniforms are added so value updates can
-    // find the the corresponding uniform.
+    // find the corresponding uniform.
     _genContext.getOptions().shaderInterfaceType = mx::SHADER_INTERFACE_COMPLETE;
 
     setDocument(doc);
