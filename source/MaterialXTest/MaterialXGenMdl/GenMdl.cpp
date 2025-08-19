@@ -229,7 +229,14 @@ void MdlShaderGeneratorTester::compileSource(const std::vector<mx::FilePath>& so
     mdlcCommand += " -p \"" + moduleToTestPath.asString() + "\"";
     mdlcCommand += " -p \"" + moduleToTestPath.getParentPath().asString() + "\"";
 
-    mdlcCommand += " -W \"181=off\" -W \"183=off\"  -W \"225=off\"";
+    // avoid warning "C183: unused parameter '...'"
+    mdlcCommand += " -W \"183=off\"";
+
+    // avoid warning "C350: unused let temporary '...'"
+    mdlcCommand += " -W \"350=off\"";
+
+    // but treat all other warnings as errors
+    mdlcCommand += " -W err";
 
     // put the qualified module name to load as positional argument
     std::string moduleToTest = sourceCodePaths[0].getBaseName();
