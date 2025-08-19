@@ -62,9 +62,6 @@ class OiioImageLoader(mx_render.ImageLoader):
                 self._extensions.update(ext.strip() for ext in group.split(","))
         logger.debug(f"Cache supported extensions: {self._extensions}")
 
-        self.last_loaded_path = None
-        self.last_spec = None
-
     def supportedExtensions(self):
         """
         Return a set of supported image file extensions.
@@ -75,12 +72,34 @@ class OiioImageLoader(mx_render.ImageLoader):
     def previewImage(self, data, width, height, nchannels):
         """
         Utility method to preview an image using matplotlib.
+        Handles normalization and dtype for correct display.
         """
         if have_matplot:
             flat = data.reshape(height, width, nchannels)
-            norm = np.clip(flat, 0.0, 1.0)
-            rgb = norm[..., :3] if nchannels >= 3 else np.repeat(norm[..., :1], 3, axis=-1)
-            plt.imshow(rgb.astype(np.float32))
+            # Always display as RGB (first 3 channels or repeat if less)
+            if nchannels >= 3:
+                rgb = flat[..., :3]
+            else:
+                rgb = np.repeat(flat[..., :1], 3, axis=-1)
+
+            # Determine if normalization is needed
+            if np.issubdtype(flat.dtype, np.floating):
+                # If float, normalize to [0, 1] for display
+                rgb_disp = np.clip(rgb, 0.0, 1.0)
+            elif np.issubdtype(flat.dtype, np.integer):
+                # If integer, assume 8 or 16 bit, scale if needed
+                if flat.dtype == np.uint8:
+                    rgb_disp = rgb  # matplotlib expects [0,255] for uint8
+                elif flat.dtype == np.uint16:
+                    # Scale 16-bit to 8-bit for display
+                    rgb_disp = (rgb / 257).astype(np.uint8)
+                else:
+                    # For other integer types, try to scale to [0,255]
+                    rgb_disp = np.clip(rgb, 0, 255).astype(np.uint8)
+            else:
+                rgb_disp = rgb
+
+            plt.imshow(rgb_disp)
             plt.axis('off')
             plt.show()
 
@@ -279,6 +298,11 @@ def test_load_save():
     logger.info(f"Loading image from path: {mx_filepath.asString()}")
     mx_image = handler.acquireImage(mx_filepath)
     if mx_image:
+        # Q: How to check for failed image load as you
+        # get back a 1x1 pixel image.
+        if mx_image.getWidth() == 1 and mx_image.getHeight() == 1:
+            logger.warning("Failed to load image. Got 1x1 pixel image returned")
+            return
         logger.info(f"MaterialX Image loaded via Image Handler:")
         logger.info(f"  Dimensions: {mx_image.getWidth()}x{mx_image.getHeight()}")
         logger.info(f"  Channels: {mx_image.getChannelCount()}")
