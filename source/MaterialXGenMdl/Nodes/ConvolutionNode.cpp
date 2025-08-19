@@ -3,12 +3,14 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXGenShader/Nodes/ConvolutionNode.h>
+#include <MaterialXGenMdl/Nodes/ConvolutionNode.h>
+
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/ShaderNode.h>
 #include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/Shader.h>
+#include <MaterialXGenShader/Util.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -19,16 +21,6 @@ const string SAMPLE2D_INPUT = "texcoord";
 const string SAMPLE3D_INPUT = "position";
 
 } // anonymous namespace
-
-const std::array<float, 3> GAUSSIAN_KERNEL_3 = {
-    0.27901f, 0.44198f, 0.27901f // Sigma 1
-};
-const std::array<float, 5> GAUSSIAN_KERNEL_5 = {
-    0.06136f, 0.24477f, 0.38774f, 0.24477f, 0.06136f // Sigma 1
-};
-const std::array<float, 7> GAUSSIAN_KERNEL_7 = {
-    0.00598f, 0.060626f, 0.241843f, 0.383103f, 0.241843f, 0.060626f, 0.00598f // Sigma 1
-};
 
 ConvolutionNode::ConvolutionNode()
 {
