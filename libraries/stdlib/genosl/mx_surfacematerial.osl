@@ -1,0 +1,5 @@
+void mx_surfacematerial(surfaceshader surface, surfaceshader back, displacementshader disp, output MATERIAL result)
+{
+    float opacity_weight = clamp(surface.opacity, 0.0, 1.0);
+    result =  (surface.bsdf + surface.edf) * opacity_weight + transparent() * (1.0 - opacity_weight);
+}

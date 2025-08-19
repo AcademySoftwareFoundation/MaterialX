@@ -1,6 +1,6 @@
 # Change Log
 
-## [1.39.4] - Development
+## [1.39.4] - Release Candidate
 
 ### Added
 - Added support for [WebGPU Shading Language](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2407) in MaterialX shader generation.
@@ -8,6 +8,7 @@
 - Added support for [latitude-longitude images](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2168), implemented as a language-independent graph.
 - Added support for [2D fractals](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2183), with initial implementations in hardware shading languages, OSL, and MDL.
 - Added support for [custom OCIO configurations](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1917) in shader generation.
+- Added support for [anisotropy](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2393) in the graph definition of glTF PBR.
 - Added support for the [time and frame nodes](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2389) in the MaterialX Viewer and MaterialX Graph Editor.
 - Added support for [node output types](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2387) in document validation.
 - Added the first [animated material example](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2329) to the MaterialX test suite.
@@ -17,7 +18,8 @@
 - Raised the minimum Python version to [Python 3.9](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2326).
 - Raised the minimum OpenImageIO version to [OIIO 2.2](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2340).
 - Raised the default PyBind11 version to [PyBind11 2.13.6](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2331).
-- Optimized the graph definitions of [OpenPBR Surface](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2459) and [glTF PBR](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2467), roughly halving frame times for uniform materials in real-time renderers.
+- Optimized the graph definitions of [Standard Surface](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2483), [OpenPBR Surface](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2459), and [glTF PBR](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2467), roughly halving the fill cost for these shading models in hardware shading languages.
+- Optimized the implementation of [height-correlated Smith masking-shadowing](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2458) in GLSL.
 - Aligned implementations of the [heighttonormal node](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2424) beween GLSL and OSL, improving visual consistency and enabling support for arbitrary procedural heightfields.
 - Deprecated the [fps input](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2450) of the time node, allowing it to be removed in a future specification update.
 - Updated the default [NanoGUI version](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2487) in the MaterialX Viewer to enable builds with CMake 4.
@@ -33,16 +35,18 @@
 - Fixed an edge case where [subgraph flattening](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2348) would generate invalid connections.
 - Fixed incorrect face and vertex counts in [GeometryHandler::createQuadMesh](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2339).
 - Fixed the computation of throughput in the GLSL implementations of the BSDF [multiply](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2328), [add](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2334), and [layer](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2368) nodes.
-- Fixed the interpretation of weight in the OSL implementation of the [subsurface_bsdf node](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2447).
+- Fixed the interpretation of weight in the [OSL](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2447) and [MDL](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2264) implementations of subsurface_bsdf.
 - Fixed the handling of missing attributes in the OSL implementation of the [frame node](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2319).
 - Fixed the offset of the [cloverleaf node](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2327), aligning it with that of other shape nodes.
 - Fixed storage of width and height in [MslRenderer::setSize](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2306).
 - Fixed handling of null images in [MetalTextureHandler::createRenderResources](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2315).
 - Fixed a missing header include in [GCC 15 builds](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2338).
+- Fixed the installation of [PDB files](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2464) in Windows debug builds.
 - Patched GLFW to improve [monitor detection on MacOS](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2398).
 
 ### Removed
 - Removed the legacy [MATERIALX_OIIO_DIR](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2342) option, as it connected to a CMake pathway that is no longer present in OIIO 2.2 and later.
+- Removed [implementations](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2411) and [helper functions](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2498) for the blur node in shader generation, with the goal of reevaluating its design in a future specification update.
 
 ## [1.39.3] - 2025-03-07
 
