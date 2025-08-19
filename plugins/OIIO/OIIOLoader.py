@@ -214,6 +214,11 @@ class OiioImageLoader(mx_render.ImageLoader):
             np_buffer = np.frombuffer(buf, dtype=np_type).reshape((height, width, channels))
             np.copyto(pixels, np_buffer)
 
+            # Handle vertical flip if requested
+            if verticalFlip:
+                logger.info("Applying vertical flip before saving image.")
+                pixels = np.flipud(pixels)
+
             logger.info("Previewing image after load into Image and reload for save...")
             self.previewImage(pixels, width, height, channels)
 
@@ -231,8 +236,8 @@ class OiioImageLoader(mx_render.ImageLoader):
             out.write_image(pixels)
             logger.info(f"Image saved to {filename} with width: {width}, height: {height}, channels: {channels}, base type: {mx_basetype}")
             out.close()
-            return True        
-        return False        
+            return True
+        return False
     
     def _oiio_to_materialx_type(self, oiio_basetype):
         """Convert OIIO base type to MaterialX Image base type."""
@@ -281,7 +286,8 @@ def test_load_save():
     """
     parser = argparse.ArgumentParser(description="MaterialX OIIO Image Handler")
     parser.add_argument("path", help="Path to the image file")
-    args = parser.parse_args()  
+    parser.add_argument("--flip", action="store_true", help="Flip the image vertically")
+    args = parser.parse_args()
 
     test_image_path = args.path
     if not os.path.exists(test_image_path):
@@ -311,7 +317,7 @@ def test_load_save():
         # Save image using handler API (to a new file)
         logger.info('*'*45)
         out_path = mx.FilePath("saved_" + os.path.basename(test_image_path))
-        if handler.saveImage(out_path, mx_image):
+        if handler.saveImage(out_path, mx_image, verticalFlip=args.flip):
             logger.info(f"MaterialX Image saved to {out_path.asString()}")
         else:
             logger.error("Failed to save image.")
