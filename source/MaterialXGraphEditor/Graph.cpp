@@ -186,6 +186,17 @@ Graph::Graph(const std::string& materialFilename,
     _renderer = std::make_shared<RenderView>(_graphDoc, _stdLib, meshFilename, envRadianceFilename,
                                              _searchPath, viewWidth, viewHeight);
     _renderer->initialize();
+    mx::ImageHandlerPtr imageHandler = _renderer->getImageHandler();
+    if (imageHandler && _pluginManager)
+    {
+        mx::ImageHandlerPtr pluginImageHandler = _pluginManager->getImageHandler();
+        if (pluginImageHandler)
+        {
+            unsigned int count = imageHandler->addLoaders(pluginImageHandler);
+            std::cout << "Added " << count << " image loaders from plugin manager." << std::endl;
+        }
+    }
+
     for (const std::string& ext : _renderer->getImageHandler()->supportedExtensions())
     {
         _imageFilter.emplace_back("." + ext);

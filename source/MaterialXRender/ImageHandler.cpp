@@ -70,6 +70,30 @@ void ImageHandler::addLoader(ImageLoaderPtr loader)
     }
 }
 
+unsigned int ImageHandler::addLoaders(const ImageHandlerPtr& handler)
+{
+    unsigned int count = 0;
+    if (handler)
+    {
+        // Find all unique loaders 
+        std::unordered_set<ImageLoaderPtr> uniqueLoaders;
+        for (const auto& pair : handler->_imageLoaders)
+        {
+            for (ImageLoaderPtr loader : pair.second)
+            {
+                uniqueLoaders.insert(loader);
+            }
+        }
+        for (ImageLoaderPtr loader : uniqueLoaders)
+        {
+            addLoader(loader);
+            count++;
+        }
+    }
+
+    return count;
+}
+
 StringSet ImageHandler::supportedExtensions()
 {
     StringSet extensions;
