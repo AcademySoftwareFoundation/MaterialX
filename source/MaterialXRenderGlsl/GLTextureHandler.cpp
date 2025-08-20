@@ -139,7 +139,7 @@ void GLTextureHandler::releaseRenderResources(ImagePtr image)
 {
     if (!image)
     {
-        for (auto iter : _imageCache)
+        for (const auto& iter : _imageCache)
         {
             if (iter.second)
             {
