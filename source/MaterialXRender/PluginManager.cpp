@@ -18,6 +18,11 @@ PluginManagerPtr PluginManager::getInstance()
     static PluginManagerPtr instance = PluginManagerPtr(new PluginManager());
     //std::cerr << ">>>>>>>>> Get MaterialX PluginManager instance at address: 0x" 
     //    << std::hex << reinterpret_cast<uintptr_t>(instance.get()) << std::dec << std::endl;
+    if (!instance->_imageHandler)
+    {
+        instance->_imageHandler = ImageHandler::create(nullptr);
+        std::cerr << "Created ImageHandler for PluginManager" << std::endl;
+    }
     return instance;
 }
 

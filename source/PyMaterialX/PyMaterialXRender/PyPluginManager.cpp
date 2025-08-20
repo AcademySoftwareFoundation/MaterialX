@@ -125,13 +125,14 @@ bool unregisterPlugin(const std::string& identifier)
 
 void bindPyPluginManager(py::module& mod)
 {
-    pybind11::bind_map<mx::PluginOptionMap>(mod, "PluginOptionMap"); 
-    //py::bind_map<mx::PluginOptionMap>(mod, "PluginOptionMap");
+    // Expose PluginOptionMap to Python
+    pybind11::bind_map<mx::PluginOptionMap>(mod, "PluginOptionMap");
 
     py::class_<mx::Plugin, mx::PluginPtr>(mod, "Plugin")
         .def("name", &mx::Plugin::name)
         .def("uiName", &mx::Plugin::uiName);
 
+    // Plugin document loader class
     py::class_<mx::DocumentLoaderPlugin, mx::Plugin, PyDocumentLoaderPlugin, mx::DocumentLoaderPluginPtr>(mod, "DocumentLoaderPlugin")
         .def(py::init<>())
         .def("name", &mx::DocumentLoaderPlugin::name)
@@ -141,6 +142,7 @@ void bindPyPluginManager(py::module& mod)
         .def("getOptions", &mx::DocumentLoaderPlugin::getOptions)
         .def("setOption", &mx::DocumentLoaderPlugin::setOption);
 
+    // Plugin document saver class
     py::class_<mx::DocumentSaverPlugin, mx::Plugin, PyDocumentSaverPlugin, mx::DocumentSaverPluginPtr>(mod, "DocumentSaverPlugin")
         .def(py::init<>())
         .def("name", &mx::DocumentSaverPlugin::name)
@@ -167,7 +169,9 @@ void bindPyPluginManager(py::module& mod)
             {
                 std::cout << "Getting saver plugin: " << name << std::endl;
                 return manager->getPlugin<mx::DocumentSaverPlugin>(name);
-            });
+            })
+        .def("getImageHandler", &mx::PluginManager::getImageHandler);
+
     
     // Global functions for plugin management
     mod.def("getPluginManager", []() -> mx::PluginManagerPtr

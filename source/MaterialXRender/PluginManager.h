@@ -12,6 +12,7 @@
 #include <MaterialXRender/Export.h>
 #include <MaterialXCore/Document.h>
 #include <MaterialXCore/Value.h> 
+#include <MaterialXRender/ImageHandler.h>
 
 #include <memory>
 #include <string>
@@ -132,15 +133,19 @@ class MX_RENDER_API PluginManager
     bool addRegistrationCallback(const std::string& identifier, std::function<void(const std::string&, bool)> callback);
     bool removeRegistrationCallback(const std::string& identifier);
 
+    ImageHandlerPtr getImageHandler() const
+    {
+        return _imageHandler;
+    }
+
   protected:
-      PluginManager();
+    PluginManager();
 
   private:
-    //PluginManager(const PluginManager&) = delete;
-    //PluginManager& operator=(const PluginManager&) = delete;    
-
     PluginVec _plugins;
     std::unordered_map<std::string, std::function<void(const std::string&, bool)>> _registrationCallbacks;
+
+    ImageHandlerPtr _imageHandler;
 };
 
 MATERIALX_NAMESPACE_END

@@ -296,7 +296,11 @@ def test_load_save():
 
     # Create MaterialX handler with custom OIIO image loader
     loader = OiioImageLoader()
-    handler = mx_render.ImageHandler.create(loader)
+    #handler = mx_render.ImageHandler.create(loader)
+    manager = mx_render.getPluginManager()
+    handler = manager.getImageHandler()
+    logger.info(f"Got handler from plugin manager {handler}")
+    handler.addLoader(loader)
 
     mx_filepath = mx.FilePath(test_image_path)
 
@@ -326,3 +330,8 @@ def test_load_save():
 
 if __name__ == "__main__":
     test_load_save()
+else:
+    loader = OiioImageLoader()
+    manager = mx_render.getPluginManager()
+    imageHandler = manager.getImageHandler()
+    imageHandler.addLoader(loader)

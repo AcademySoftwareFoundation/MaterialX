@@ -22,7 +22,8 @@ void bindPyImageHandler(py::module& mod)
     class PyImageLoader : public mx::ImageLoader {
     public:
         using mx::ImageLoader::ImageLoader;
-        mx::ImagePtr loadImage(const mx::FilePath& filePath) override {
+        mx::ImagePtr loadImage(const mx::FilePath& filePath) override 
+        {
             PYBIND11_OVERRIDE_PURE(
                 mx::ImagePtr,
                 mx::ImageLoader,
@@ -30,7 +31,8 @@ void bindPyImageHandler(py::module& mod)
                 filePath
             );
         }
-        bool saveImage(const mx::FilePath& filePath, mx::ConstImagePtr image, bool verticalFlip = false) override {
+        bool saveImage(const mx::FilePath& filePath, mx::ConstImagePtr image, bool verticalFlip = false) override 
+        {
             PYBIND11_OVERRIDE_PURE(
                 bool,
                 mx::ImageLoader,
@@ -38,7 +40,6 @@ void bindPyImageHandler(py::module& mod)
                 filePath, image, verticalFlip
             );
         }
-        // Correctly override supportedExtensions for Python
         const mx::StringSet& supportedExtensions() const override {
             PYBIND11_OVERRIDE(
                 const mx::StringSet&,
