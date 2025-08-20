@@ -336,4 +336,4 @@ else:
     imageHandler = manager.getImageHandler()
     logger.info(f"Got handler from plugin manager {imageHandler}")  
     imageHandler.addLoader(loader)
-    logger.info(f"Registered OIIO ImageLoader with MaterialX ImageHandler: {loader.name()}")
+    logger.info(f"Registered OIIO ImageLoader with MaterialX ImageHandler: {loader}")

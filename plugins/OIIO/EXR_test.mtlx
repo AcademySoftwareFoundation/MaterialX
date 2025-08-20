@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<materialx version="1.39" colorspace="lin_rec709">
+  <standard_surface name="EXR_Shader" type="surfaceshader" xpos="14.905797" ypos="-5.206897">
+    <input name="base" type="float" value="1" />
+    <input name="base_color" type="color3" value="0.8, 0.8, 0.8" />
+    <input name="specular_roughness" type="float" value="0.1" />
+    <input name="subsurface" type="float" value="0.4" />
+    <input name="subsurface_color" type="color3" value="1, 1, 1" />
+    <input name="normal" type="vector3" output="out" nodename="normalmap_vector2" />
+  </standard_surface>
+  <surfacematerial name="Marble_3D" type="material" xpos="17.391304" ypos="0.000000">
+    <input name="surfaceshader" type="surfaceshader" nodename="EXR_Shader" />
+  </surfacematerial>
+  <tiledimage name="tiledimage_vector3" type="vector3" xpos="8.086957" ypos="-2.448276">
+    <input name="file" type="filename" value="/Users/bernardkwok/work/bernard_materialx/plugins/OIIO/saved_test.exr" />
+  </tiledimage>
+  <normalmap name="normalmap_vector2" type="vector3" xpos="11.579710" ypos="-1.655172">
+    <output name="out" type="vector3" />
+    <input name="in" type="vector3" nodename="tiledimage_vector3" />
+  </normalmap>
+</materialx>
