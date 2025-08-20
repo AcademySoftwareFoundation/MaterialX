@@ -453,6 +453,11 @@ void MetalRenderPipeline::renderFrame(void* color_texture, int shadowMapSize, co
     }
     
     MTL(beginCommandBuffer());
+    std::unique_ptr<void, void(*)(void *)> guard((void *)1, [](void *) {
+        // Clean up Metal objects in the event of an exception.
+        MTL(endCommandBuffer());
+    });
+
     MTLRenderPassDescriptor* renderpassDesc = [MTLRenderPassDescriptor new];
     if(useTiledPipeline)
     {
@@ -641,7 +646,8 @@ void MetalRenderPipeline::renderFrame(void* color_texture, int shadowMapSize, co
             atIndex:0];
         [MTL(renderCmdEncoder) drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:0 vertexCount:3];
     }
-    
+
+    guard.release();
     MTL(endCommandBuffer());
     
     if(captureFrame)
@@ -665,7 +671,7 @@ void MetalRenderPipeline::bakeTextures()
         // Construct a texture baker.
         mx::Image::BaseType baseType = _viewer->_bakeHdr ? mx::Image::BaseType::FLOAT : mx::Image::BaseType::UINT8;
         mx::UnsignedIntPair bakingRes = _viewer->computeBakingResolution(doc);
-        mx::TextureBakerMslPtr baker = std::static_pointer_cast<mx::TextureBakerMsl>(createTextureBaker(bakingRes.first, bakingRes.second, baseType));
+        mx::TextureBakerPtr baker = std::static_pointer_cast<mx::TextureBakerPtr::element_type>(createTextureBaker(bakingRes.first, bakingRes.second, baseType));
         baker->setupUnitSystem(_viewer->_stdLib);
         baker->setDistanceUnit(_viewer->_genContext.getOptions().targetDistanceUnit);
         baker->setAverageImages(_viewer->_bakeAverage);

@@ -19,20 +19,12 @@ vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 alpha, int distributio
     float G = mx_ggx_smith_G2(NdotV, NdotV, avgAlpha);
     vec3 FG = fd.refraction ? vec3(1.0) - (F * G) : F * G;
 
-#ifdef HW_SEPARATE_SAMPLERS
-    vec3 Li = mx_latlong_map_lookup(L, $envMatrix, mx_latlong_alpha_to_lod(avgAlpha), $envRadiance_texture, $envRadiance_sampler);
-#else
     vec3 Li = mx_latlong_map_lookup(L, $envMatrix, mx_latlong_alpha_to_lod(avgAlpha), $envRadiance);
-#endif
     return Li * FG * $envLightIntensity;
 }
 
 vec3 mx_environment_irradiance(vec3 N)
 {
-#ifdef HW_SEPARATE_SAMPLERS
-    vec3 Li = mx_latlong_map_lookup(N, $envMatrix, 0.0, $envIrradiance_texture, $envIrradiance_sampler);
-#else
     vec3 Li = mx_latlong_map_lookup(N, $envMatrix, 0.0, $envIrradiance);
-#endif
     return Li * $envLightIntensity;
 }

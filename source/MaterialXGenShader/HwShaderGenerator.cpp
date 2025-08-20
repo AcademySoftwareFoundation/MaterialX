@@ -74,14 +74,14 @@ const string T_ALPHA_THRESHOLD                = "$alphaThreshold";
 const string T_NUM_ACTIVE_LIGHT_SOURCES       = "$numActiveLightSources";
 const string T_ENV_MATRIX                     = "$envMatrix";
 const string T_ENV_RADIANCE                   = "$envRadiance";
-const string T_ENV_RADIANCE_TEXTURE           = "$envRadiance_texture";
-const string T_ENV_RADIANCE_SAMPLER           = "$envRadiance_sampler";
+const string T_ENV_RADIANCE_SAMPLER2D         = "$envRadianceSampler2D";
 const string T_ENV_RADIANCE_MIPS              = "$envRadianceMips";
 const string T_ENV_RADIANCE_SAMPLES           = "$envRadianceSamples";
-
 const string T_ENV_IRRADIANCE                 = "$envIrradiance";
-const string T_ENV_IRRADIANCE_TEXTURE         = "$envIrradiance_texture";
-const string T_ENV_IRRADIANCE_SAMPLER         = "$envIrradiance_sampler";
+const string T_ENV_IRRADIANCE_SAMPLER2D       = "$envIrradianceSampler2D";
+const string T_TEX_SAMPLER_SAMPLER2D          = "$texSamplerSampler2D";
+const string T_TEX_SAMPLER_SIGNATURE          = "$texSamplerSignature";
+
 const string T_ENV_LIGHT_INTENSITY            = "$envLightIntensity";
 const string T_ENV_PREFILTER_MIP              = "$envPrefilterMip";
 const string T_REFRACTION_TWO_SIDED           = "$refractionTwoSided";
@@ -135,13 +135,21 @@ const string ALPHA_THRESHOLD                  = "u_alphaThreshold";
 const string NUM_ACTIVE_LIGHT_SOURCES         = "u_numActiveLightSources";
 const string ENV_MATRIX                       = "u_envMatrix";
 const string ENV_RADIANCE                     = "u_envRadiance";
-const string ENV_RADIANCE_TEXTURE             = "u_envRadiance_texture";
-const string ENV_RADIANCE_SAMPLER             = "u_envRadiance_sampler";
+const string ENV_RADIANCE_SPLIT               = "u_envRadiance_texture, u_envRadiance_sampler";
+const string ENV_RADIANCE_SAMPLER2D           = "u_envRadiance";
+const string ENV_RADIANCE_SAMPLER2D_SPLIT     = "sampler2D(u_envRadiance_texture, u_envRadiance_sampler)";
 const string ENV_RADIANCE_MIPS                = "u_envRadianceMips";
 const string ENV_RADIANCE_SAMPLES             = "u_envRadianceSamples";
 const string ENV_IRRADIANCE                   = "u_envIrradiance";
-const string ENV_IRRADIANCE_TEXTURE           = "u_envIrradiance_texture";
-const string ENV_IRRADIANCE_SAMPLER           = "u_envIrradiance_sampler";
+const string ENV_IRRADIANCE_SPLIT             = "u_envIrradiance_texture, u_envIrradiance_sampler";
+const string ENV_IRRADIANCE_SAMPLER2D         = "u_envIrradiance";
+const string ENV_IRRADIANCE_SAMPLER2D_SPLIT   = "sampler2D(u_envIradiance_texture, u_envIrradiance_sampler)";
+
+const string TEX_SAMPLER_SAMPLER2D            = "tex_sampler";
+const string TEX_SAMPLER_SAMPLER2D_SPLIT      = "sampler2D(tex_texture, tex_sampler)";
+const string TEX_SAMPLER_SIGNATURE            = "sampler2D tex_sampler";
+const string TEX_SAMPLER_SIGNATURE_SPLIT      = "texture2D tex_texture, sampler tex_sampler";
+
 const string ENV_LIGHT_INTENSITY              = "u_envLightIntensity";
 const string ENV_PREFILTER_MIP                = "u_envPrefilterMip";
 const string REFRACTION_TWO_SIDED             = "u_refractionTwoSided";
@@ -233,9 +241,11 @@ HwShaderGenerator::HwShaderGenerator(TypeSystemPtr typeSystem, SyntaxPtr syntax)
     _tokenSubstitutions[HW::T_NUM_ACTIVE_LIGHT_SOURCES] = HW::NUM_ACTIVE_LIGHT_SOURCES;
     _tokenSubstitutions[HW::T_ENV_MATRIX] = HW::ENV_MATRIX;
     _tokenSubstitutions[HW::T_ENV_RADIANCE] = HW::ENV_RADIANCE;
+    _tokenSubstitutions[HW::T_ENV_RADIANCE_SAMPLER2D] = HW::ENV_RADIANCE_SAMPLER2D;
     _tokenSubstitutions[HW::T_ENV_RADIANCE_MIPS] = HW::ENV_RADIANCE_MIPS;
     _tokenSubstitutions[HW::T_ENV_RADIANCE_SAMPLES] = HW::ENV_RADIANCE_SAMPLES;
     _tokenSubstitutions[HW::T_ENV_IRRADIANCE] = HW::ENV_IRRADIANCE;
+    _tokenSubstitutions[HW::T_ENV_IRRADIANCE_SAMPLER2D] = HW::ENV_IRRADIANCE_SAMPLER2D;
     _tokenSubstitutions[HW::T_ENV_LIGHT_INTENSITY] = HW::ENV_LIGHT_INTENSITY;
     _tokenSubstitutions[HW::T_REFRACTION_TWO_SIDED] = HW::REFRACTION_TWO_SIDED;
     _tokenSubstitutions[HW::T_ALBEDO_TABLE] = HW::ALBEDO_TABLE;
@@ -247,6 +257,8 @@ HwShaderGenerator::HwShaderGenerator(TypeSystemPtr typeSystem, SyntaxPtr syntax)
     _tokenSubstitutions[HW::T_VERTEX_DATA_INSTANCE] = HW::VERTEX_DATA_INSTANCE;
     _tokenSubstitutions[HW::T_LIGHT_DATA_INSTANCE] = HW::LIGHT_DATA_INSTANCE;
     _tokenSubstitutions[HW::T_ENV_PREFILTER_MIP] = HW::ENV_PREFILTER_MIP;
+    _tokenSubstitutions[HW::T_TEX_SAMPLER_SAMPLER2D] = HW::TEX_SAMPLER_SAMPLER2D;
+    _tokenSubstitutions[HW::T_TEX_SAMPLER_SIGNATURE] = HW::TEX_SAMPLER_SIGNATURE;
 }
 
 ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element, GenContext& context) const
@@ -351,11 +363,11 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     {
         const Matrix44 yRotationPI = Matrix44::createScale(Vector3(-1, 1, -1));
         psPrivateUniforms->add(Type::MATRIX44, HW::T_ENV_MATRIX, Value::createValue(yRotationPI));
-        psPrivateUniforms->add(Type::FILENAME, HW::T_ENV_RADIANCE);
+        psPrivateUniforms->add(Type::FILENAME, HW::ENV_RADIANCE); // Use direct value instead of HW::T_ENV_RADIANCE
         psPrivateUniforms->add(Type::FLOAT, HW::T_ENV_LIGHT_INTENSITY, Value::createValue(1.0f));
         psPrivateUniforms->add(Type::INTEGER, HW::T_ENV_RADIANCE_MIPS, Value::createValue<int>(1));
         psPrivateUniforms->add(Type::INTEGER, HW::T_ENV_RADIANCE_SAMPLES, Value::createValue<int>(16));
-        psPrivateUniforms->add(Type::FILENAME, HW::T_ENV_IRRADIANCE);
+        psPrivateUniforms->add(Type::FILENAME, HW::ENV_IRRADIANCE); // Use direct value instead of HW::T_ENV_IRRADIANCE
         psPrivateUniforms->add(Type::BOOLEAN, HW::T_REFRACTION_TWO_SIDED);
     }
 
@@ -370,7 +382,7 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     // Add uniforms for environment prefiltering.
     if (context.getOptions().hwWriteEnvPrefilter)
     {
-        psPrivateUniforms->add(Type::FILENAME, HW::T_ENV_RADIANCE);
+        psPrivateUniforms->add(Type::FILENAME, HW::ENV_RADIANCE); // Use direct value instead of HW::T_ENV_RADIANCE
         psPrivateUniforms->add(Type::FLOAT, HW::T_ENV_LIGHT_INTENSITY, Value::createValue(1.0f));
         psPrivateUniforms->add(Type::INTEGER, HW::T_ENV_PREFILTER_MIP, Value::createValue<int>(1));
         const Matrix44 yRotationPI = Matrix44::createScale(Vector3(-1, 1, -1));
