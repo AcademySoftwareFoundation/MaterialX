@@ -235,7 +235,7 @@ void OslShaderGenerator::registerShaderMetadata(const DocumentPtr& doc, GenConte
         { ValueElement::UI_STEP_ATTRIBUTE, "sensitivity" },
         { ValueElement::DOC_ATTRIBUTE, "help" }
     };
-    for (auto it : nameRemapping)
+    for (const auto& it : nameRemapping)
     {
         ShaderMetadata* data = registry->findMetadata(it.first);
         if (data)

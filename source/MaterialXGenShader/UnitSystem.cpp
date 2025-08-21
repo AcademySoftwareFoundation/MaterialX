@@ -56,7 +56,7 @@ void ScalarUnitNode::emitFunctionDefinition(const ShaderNode& node, GenContext& 
         unitScales.reserve(_scalarUnitConverter->getUnitScale().size());
         auto unitScaleMap = _scalarUnitConverter->getUnitScale();
         unitScales.resize(unitScaleMap.size());
-        for (auto unitScale : unitScaleMap)
+        for (const auto& unitScale : unitScaleMap)
         {
             int location = _scalarUnitConverter->getUnitAsInteger(unitScale.first);
             unitScales[location] = unitScale.second;
