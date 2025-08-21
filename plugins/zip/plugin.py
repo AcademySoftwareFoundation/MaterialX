@@ -1,5 +1,8 @@
 import logging
 import os
+import argparse
+import pathlib
+import tempfile
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('ZipPlugin')
@@ -13,6 +16,33 @@ try:
     have_zip = True
 except ImportError:
     raise ImportError("Please ensure MaterialX and zipfile modules are installed.")
+
+def resolve_all_image_paths(doc):
+    """
+    Resolve all image paths in the MaterialX document and return list of paths found
+    """
+    result = dict()
+    for elem in doc.traverseTree():
+        valueElem = None
+        if elem.isA(mx.ValueElement):
+            valueElem = elem
+        if not valueElem or valueElem.getType() != mx.FILENAME_TYPE_STRING:
+            continue
+
+        unresolvedValue = mx.FilePath(valueElem.getValueString())
+        if unresolvedValue.isEmpty():
+            continue
+
+        elementResolver = valueElem.createStringResolver()
+        if unresolvedValue.isAbsolute():
+            elementResolver.setFilePrefix('')
+        resolvedValue = valueElem.getResolvedValueString(elementResolver)
+        #resolvedValue = mx.FilePath(resolvedValue).getBaseName()
+        valueElem.setValueString(resolvedValue)
+
+        result[valueElem.getNamePath()] = resolvedValue
+
+    return result
 
 # Zip plugin
 class ZipLoader(mx_render.DocumentLoaderPlugin):
@@ -96,54 +126,72 @@ class ZipSaver(mx_render.DocumentSaverPlugin):
     def supportedExtensions(self):
         return [".zip"]
 
-    def resolve_all_image_paths(self, doc):
-        """
-        Resolve all image paths in the MaterialX document and return list of paths found
-        """
-        result = []
-        for elem in doc.traverseTree():
-            valueElem = None
-            if elem.isA(mx.ValueElement):
-                valueElem = elem
-            if not valueElem or valueElem.getType() != mx.FILENAME_TYPE_STRING:
-                continue
-
-            unresolvedValue = mx.FilePath(valueElem.getValueString())
-            if unresolvedValue.isEmpty():
-                continue
-
-            elementResolver = valueElem.createStringResolver()
-            if unresolvedValue.isAbsolute():
-                elementResolver.setFilePrefix('')
-            resolvedValue = valueElem.getResolvedValueString(elementResolver)
-            resolvedValue = mx.FilePath(resolvedValue).getBaseName()
-            valueElem.setValueString(resolvedValue)
-
-            result.append(resolvedValue)
-        return result
-
     def run(self, doc, path):
         if have_zip:
-            with zipfile.ZipFile(path, 'w') as z:
-                # Save MaterialX document to a temporary XML file
-                zip_folder = os.path.dirname(path)
-                document_path = os.path.join(zip_folder, "document.mtlx")
-                mx.writeToXmlFile(doc, document_path)
-                logger.info(f"Adding MaterialX document to ZIP: {temp_xml}")
-                z.write(document_path, arcname="document.mtlx")
+            # Determine the .mtlx filename based on the .zip filename
 
-                # Save all texture files
-                texture_file_list = self.resolve_all_image_paths(doc)
-                for texture in texture_file_list:
-                    logger.info(f"Adding texture to ZIP: {texture}")
-                    z.write(texture, arcname=os.path.basename(texture))
-                logger.info(f"MaterialX document saved to ZIP: {path}")
+            zip_basename = os.path.basename(path)
+            zip_folder = os.path.splitext(zip_basename)[0]
+            mtlx_name = os.path.join(zip_folder, zip_folder + ".mtlx")
+            logger.info(f"zip base name: {zip_basename}, mtlx name: {mtlx_name}")
+
+            # Write the document to a temporary file in the correct subdirectory
+            with tempfile.TemporaryDirectory() as tmpdir:
+                mtlx_dir = os.path.join(tmpdir, zip_folder)
+                os.makedirs(mtlx_dir, exist_ok=True)
+                mtlx_path = os.path.join(mtlx_dir, zip_folder + ".mtlx")
+
+                # Determine the base directory for resolving relative texture paths
+                # Use the directory of the source .mtlx file if available, else current working dir
+                mtlx_source_dir = None
+                if hasattr(doc, 'getSourceUri'):
+                    source_uri = doc.getSourceUri()
+                    if source_uri and os.path.isfile(source_uri):
+                        mtlx_source_dir = os.path.dirname(os.path.abspath(source_uri))
+                if not mtlx_source_dir:
+                    mtlx_source_dir = os.getcwd()
+
+                with zipfile.ZipFile(path, 'w') as z:
+
+                    # Save all texture files under 'textures/'
+                    texture_file_list = resolve_all_image_paths(doc)
+                    for element_path, texture in texture_file_list.items():
+                        # If texture path is not absolute, resolve it relative to the document's path
+                        abs_texture = texture
+                        if not os.path.isabs(texture):
+                            logger.info(f"Texture path is relative: {texture}, resolving against {mtlx_source_dir}")
+                            abs_texture = os.path.normpath(os.path.join(mtlx_source_dir, texture))
+                        if os.path.isfile(abs_texture):
+                            arcname = os.path.join("textures", os.path.basename(texture))
+                            logger.info(f"Adding texture to ZIP: {abs_texture} as {arcname}")
+                            z.write(abs_texture, arcname=arcname)
+
+                            # Replace the references in the materialx
+                            logger.info(f"Updating texture path on element {element_path} from {texture} to {arcname}")
+                            doc.getDescendant(element_path).setValueString(arcname)
+                        else:
+                            logger.warning(f"Texture file not found: {abs_texture}")
+
+                    mx.writeToXmlFile(doc, mtlx_path)
+                    logger.info(f"Write MaterialX document to temp file: {mtlx_path}")
+                    # Add the .mtlx file under the zip_folder path in the zip
+                    z.write(mtlx_path, arcname=mtlx_name)
+                    logger.info(f"Added MaterialX document to ZIP as: {mtlx_name}")
+
+                    logger.info(f"MaterialX document and textures saved to ZIP: {path}")
         return True
 
 # -------------------------------
 # Existing test main logic preserved
 # -------------------------------
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="MaterialX Zip Plugin Test")
+    parser.add_argument("--zip-file", type=str, help="Path to the ZIP file to test")
+    parser.add_argument("--mtlx-file", type=str, help="Path to the MaterialX file to test")
+    args = parser.parse_args()
+
+    zip_file = args.zip_file
+    mtlx_file = args.mtlx_file
 
     # Access plugin manager
     manager = mx_render.getPluginManager()
@@ -156,17 +204,29 @@ if __name__ == "__main__":
     manager.registerPlugin(zipLoader)
     logger.info(f"Registered plugins: {manager.getPluginList()}")
 
-    # Get ZipLoader plugin by name and run it
-    loader = manager.getLoader("ZipLoader")
-    if loader:
-        logger.info(f"ZipLoader plugin found, running it...")
-        # Call .name() to ensure Python override is visible to C++
-        doc = loader.run("brown_planks_03_1k_materialx.zip")
-        if doc:
-            logger.info("[Python] Document loaded:")
-            logger.info(mx.prettyPrint(doc)[:200])
-        else:
-            logger.error("[Python] Failed to load document.")
+    test_loader = zip_file is not None and os.path.isfile(zip_file)
+    if test_loader:
+        # Get ZipLoader plugin by name and run it
+        loader = manager.getLoader("ZipLoader")
+        if loader:
+            logger.info(f"ZipLoader plugin found, running it...")
+            # Call .name() to ensure Python override is visible to C++
+            doc = loader.run(zip_file)
+            if doc:
+                logger.info(f"Document loaded: {doc.getSourceUri()}")
+                resolved_paths = resolve_all_image_paths(doc)
+                for path, resolved_path in resolved_paths.items():
+                    logger.info(f" - {path} resolved to {resolved_path}")
+                #logger.info(mx.prettyPrint(doc)[:200])
+            else:
+                logger.error("Failed to load document.")
+
+    test_saver = mtlx_file is not None and os.path.isfile(mtlx_file)
+    if test_saver:
+        saver = ZipSaver()
+        doc = mx.createDocument()
+        mx.readFromXmlFile(doc, mtlx_file)
+        saver.run(doc, "new_zip.zip")
 
 else:
     try:
