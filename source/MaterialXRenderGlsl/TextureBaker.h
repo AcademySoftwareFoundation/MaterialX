@@ -19,7 +19,7 @@
 MATERIALX_NAMESPACE_BEGIN
 
 /// A shared pointer to a TextureBaker
-using TextureBakerGlslPtr = shared_ptr<class TextureBakerGlsl>;
+using TextureBakerPtr = shared_ptr<class TextureBakerGlsl>;
 
 /// A vector of baked documents with their associated names.
 using BakedDocumentVec = std::vector<std::pair<std::string, DocumentPtr>>;
@@ -29,9 +29,9 @@ using BakedDocumentVec = std::vector<std::pair<std::string, DocumentPtr>>;
 class MX_RENDERGLSL_API TextureBakerGlsl : public TextureBaker<GlslRenderer, GlslShaderGenerator>
 {
   public:
-    static TextureBakerGlslPtr create(unsigned int width = 1024, unsigned int height = 1024, Image::BaseType baseType = Image::BaseType::UINT8)
+    static TextureBakerPtr create(unsigned int width = 1024, unsigned int height = 1024, Image::BaseType baseType = Image::BaseType::UINT8)
     {
-        return TextureBakerGlslPtr(new TextureBakerGlsl(width, height, baseType));
+        return TextureBakerPtr(new TextureBakerGlsl(width, height, baseType));
     }
 
     TextureBakerGlsl(unsigned int width, unsigned int height, Image::BaseType baseType);

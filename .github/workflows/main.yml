@@ -179,11 +179,6 @@ jobs:
       if: matrix.python != 'None'
       run: pip install setuptools
 
-    - name: Install CMake
-      uses: lukka/get-cmake@28983e0d3955dba2bb0a6810caae0c6cf268ec0c # v4.0.0
-      with:
-        cmakeVersion: 3.26
-
     - name: Run Clang Format
       if: matrix.clang_format == 'ON'
       run: find source \( -name *.h -o -name *.cpp -o -name *.mm -o -name *.inl \) ! -path "*/External/*" ! -path "*/NanoGUI/*" | xargs clang-format -i --verbose

@@ -56,6 +56,9 @@ class MX_GENSHADER_API OcioColorManagementSystem : public DefaultColorManagement
     /// Prefix common to all implementation names
     static const string IMPL_PREFIX;
 
+    /// SourceUri common to all OCIO NodeDefs and Implementations:
+    static const string OCIO_SOURCE_URI;
+
   protected:
     /// Returns a nodedef for a given transform
     NodeDefPtr getNodeDef(const ColorSpaceTransform& transform) const override;

@@ -398,7 +398,7 @@ vec3 mx_cell_noise_vec3(vec4 p)
     );
 }
 
-float mx_fractal_noise_float(vec3 p, int octaves, float lacunarity, float diminish)
+float mx_fractal2d_noise_float(vec2 p, int octaves, float lacunarity, float diminish)
 {
     float result = 0.0;
     float amplitude = 1.0;
@@ -411,7 +411,7 @@ float mx_fractal_noise_float(vec3 p, int octaves, float lacunarity, float dimini
     return result;
 }
 
-vec3 mx_fractal_noise_vec3(vec3 p, int octaves, float lacunarity, float diminish)
+vec3 mx_fractal2d_noise_vec3(vec2 p, int octaves, float lacunarity, float diminish)
 {
     vec3 result = vec3(0.0);
     float amplitude = 1.0;
@@ -424,16 +424,55 @@ vec3 mx_fractal_noise_vec3(vec3 p, int octaves, float lacunarity, float diminish
     return result;
 }
 
-vec2 mx_fractal_noise_vec2(vec3 p, int octaves, float lacunarity, float diminish)
+vec2 mx_fractal2d_noise_vec2(vec2 p, int octaves, float lacunarity, float diminish)
 {
-    return vec2(mx_fractal_noise_float(p, octaves, lacunarity, diminish),
-                mx_fractal_noise_float(p+vec3(19, 193, 17), octaves, lacunarity, diminish));
+    return vec2(mx_fractal2d_noise_float(p, octaves, lacunarity, diminish),
+                mx_fractal2d_noise_float(p+vec2(19, 193), octaves, lacunarity, diminish));
 }
 
-vec4 mx_fractal_noise_vec4(vec3 p, int octaves, float lacunarity, float diminish)
+vec4 mx_fractal2d_noise_vec4(vec2 p, int octaves, float lacunarity, float diminish)
 {
-    vec3  c = mx_fractal_noise_vec3(p, octaves, lacunarity, diminish);
-    float f = mx_fractal_noise_float(p+vec3(19, 193, 17), octaves, lacunarity, diminish);
+    vec3  c = mx_fractal2d_noise_vec3(p, octaves, lacunarity, diminish);
+    float f = mx_fractal2d_noise_float(p+vec2(19, 193), octaves, lacunarity, diminish);
+    return vec4(c, f);
+}
+
+float mx_fractal3d_noise_float(vec3 p, int octaves, float lacunarity, float diminish)
+{
+    float result = 0.0;
+    float amplitude = 1.0;
+    for (int i = 0;  i < octaves; ++i)
+    {
+        result += amplitude * mx_perlin_noise_float(p);
+        amplitude *= diminish;
+        p *= lacunarity;
+    }
+    return result;
+}
+
+vec3 mx_fractal3d_noise_vec3(vec3 p, int octaves, float lacunarity, float diminish)
+{
+    vec3 result = vec3(0.0);
+    float amplitude = 1.0;
+    for (int i = 0;  i < octaves; ++i)
+    {
+        result += amplitude * mx_perlin_noise_vec3(p);
+        amplitude *= diminish;
+        p *= lacunarity;
+    }
+    return result;
+}
+
+vec2 mx_fractal3d_noise_vec2(vec3 p, int octaves, float lacunarity, float diminish)
+{
+    return vec2(mx_fractal3d_noise_float(p, octaves, lacunarity, diminish),
+                mx_fractal3d_noise_float(p+vec3(19, 193, 17), octaves, lacunarity, diminish));
+}
+
+vec4 mx_fractal3d_noise_vec4(vec3 p, int octaves, float lacunarity, float diminish)
+{
+    vec3  c = mx_fractal3d_noise_vec3(p, octaves, lacunarity, diminish);
+    float f = mx_fractal3d_noise_float(p+vec3(19, 193, 17), octaves, lacunarity, diminish);
     return vec4(c, f);
 }
 

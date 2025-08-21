@@ -26,7 +26,7 @@ if(UNIX)
 endif()
 
 if(MATERIALX_BUILD_OIIO)
-    list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/External/OpenImageIO")
     find_package(OpenImageIO CONFIG REQUIRED)
     target_link_libraries(${TARGET_NAME} PRIVATE OpenImageIO::OpenImageIO OpenImageIO::OpenImageIO_Util)
+    target_compile_definitions(MaterialXRender PUBLIC MATERIALX_BUILD_OIIO)
 endif()
