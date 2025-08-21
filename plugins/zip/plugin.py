@@ -132,14 +132,12 @@ class ZipSaver(mx_render.DocumentSaverPlugin):
 
             zip_basename = os.path.basename(path)
             zip_folder = os.path.splitext(zip_basename)[0]
-            mtlx_name = os.path.join(zip_folder, zip_folder + ".mtlx")
+            mtlx_name = zip_folder + ".mtlx"  # .mtlx at root of zip
             logger.info(f"zip base name: {zip_basename}, mtlx name: {mtlx_name}")
 
-            # Write the document to a temporary file in the correct subdirectory
+            # Write the document to a temporary file in the temp directory (not in a subfolder)
             with tempfile.TemporaryDirectory() as tmpdir:
-                mtlx_dir = os.path.join(tmpdir, zip_folder)
-                os.makedirs(mtlx_dir, exist_ok=True)
-                mtlx_path = os.path.join(mtlx_dir, zip_folder + ".mtlx")
+                mtlx_path = os.path.join(tmpdir, mtlx_name)
 
                 # Determine the base directory for resolving relative texture paths
                 # Use the directory of the source .mtlx file if available, else current working dir
@@ -174,7 +172,7 @@ class ZipSaver(mx_render.DocumentSaverPlugin):
 
                     mx.writeToXmlFile(doc, mtlx_path)
                     logger.info(f"Write MaterialX document to temp file: {mtlx_path}")
-                    # Add the .mtlx file under the zip_folder path in the zip
+                    # Add the .mtlx file at the root of the zip
                     z.write(mtlx_path, arcname=mtlx_name)
                     logger.info(f"Added MaterialX document to ZIP as: {mtlx_name}")
 
