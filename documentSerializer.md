@@ -2,31 +2,103 @@
 
 ### Criteria
 - Code interfaces are available in C++ and can having bindings provided in other languages. This currently includes Javascript and Python.
-- Path binding is required. Not all input / output types can support string / stream output.
- It is up to the implementation to decide what makes sense.
+- A API which is path / URI based required. 
+- As not all input / output types can support string / stream output these are optional.
+ It is up to the implementation to decide what makes sense. e.g. it is possible to encode / decode 
+ binaries to / from strings for transport but could be very inefficient. 
+
  - It is possible to add a generic options structure which works well for non-programmed
- user options. The proposal it to use string (key), `Value` pairs. Note that element
- predicates don't really fit the Value model so TBD. 
+ user options. The proposal it to use string (key), `Value` pairs. 
+
+- Interfaces should be designed to be thread-safe.
+- Interfaces should be compatible with patterns found in request-based APIs.
+  - It would be useful to consider the possibility of asynchronous "fetch" options but this
+  is beyond the initial scope of the proposal.
+  - Note that the existing XML serialization and deserialization is not thread-safe and synchronous.
+
+### Operation Class 
+
+- We provide interface class which does not define storage or access points. It can be used
+for more than just document serialization. We will call this an "operation" tentatively.
+- The interface class simply specifies a unique name identifier.
 
 ```c++
-using OptionsMap = std::unordered_map<string, ValuePtr>;
+class Operation
+{
+  public:
+    Operation(const string& name) : _name(name) {}
+    virtual ~Operation() = default;
+
+    const string& name() const { return _name; }
+
+  private:
+    string _name;
+}
 ```
 
-### Interface class for document reader
+### Options Structure
+
+- An operation may have one or more options / arguments associated with it.
+- These options can be used to customize the behavior of the operation.
 
 ```c++
-class DocumentReader
+class OperationOptions
+{
+  public:
+    OperationOptions() = 0;
+    virtual ~OperationOptions() = 0;
+};
+```
+
+- A common way to specify arguments is with key-value pairs.
+- We introduce this to provide a reusable class for handling options.
+- This is useful to extend options without modifying the original class and can be used for creating command line or interactive user interfaces.
+
+```c++
+using KeyValueMap = std::unordered_map<string, ValuePtr>;
+class KeyValueOptions : public OperationOptions
+{
+  public:
+    KeyValueOptions() = default;
+
+    void setOption(const std::string& key, ValuePtr value)
+    {
+        _options[key] = value;
+    }
+
+    ValuePtr getOption(const std::string& key) const
+    {
+        auto it = _options.find(key);
+        return (it != _options.end()) ? it->second : nullptr;
+    }
+
+  private:
+    KeyValueMap _options;
+};
+
+```
+
+### File Paths
+
+Note that we do not include usage of the existing MaterialX search paths as they only work on local file systems on desktop and are thus not generally applicable. The same is true for writers. We do *not* assume that integrations will support frameworks such as virtual file systems, nor do we assume that all assets are statically packaged with the integration. Also this option is only used for supporting "include" directives which are available in the XML format, but not in other formats.
+
+### Interface Class for Document Readers
+
+For a document reader, add in the existing API methods provided by the current XML reader to make the transition to the new interface easier.
+
+```c++
+class DocumentReader : public Operation
 {
   public:
 
-    virtual DocumentPtr read(const FilePath& uri) = 0;
+    virtual DocumentPtr read(const FilePath& uri, OperationOptions* options = nullptr) = 0;
 
-    virtual DocumentPtr read(const std::string& data)
+    virtual DocumentPtr read(const std::string& data, OperationOptions* options = nullptr)
     {
         return nullptr;
     }
 
-    virtual DocumentPtr read(std::istream& stream)
+    virtual DocumentPtr read(std::istream& stream, OperationOptions* options = nullptr)
     {
         return nullptr;
     }
@@ -35,10 +107,12 @@ class DocumentReader
 };
 ```
 
-### Interface class for document writer
+### Interface Class for Document Writers
+
+For a document writer, add in the existing API methods provided by the current XML writer to make the transition to the new interface easier.
 
 ```c++
-class DocumentWriter
+class DocumentWriter : public Operation
 {
   public:
     virtual bool write(DocumentPtr, const FilePath& uri) = 0;
@@ -55,9 +129,26 @@ class DocumentWriter
 
 ### XML Reader Wrapper Class
 
-- Due to all the globals used, the easiest way to make this work is to add this to `Xmlio.cpp`
-- To "hide" the global functions they can be made into local statics.
+- Due to all the global references used, the easiest way to make this work is to add this to `Xmlio.cpp`
+- To "hide" the global functions which are not currently part of the public API, we can make these into local statics.
+- If we decide to deprecate the global functions they can all be make local statics.
+
+
+#### XML Reader Options
+
+- We consolidate all of the existing options into a single class which derives from the `OperationOptions` interface.
 - Small variation adds code to guarantee standard libraries are set if specified.
+
+
+```c++
+class XmlDocumentReadOptions : public OperationOptions, XmlReadOptions
+{
+    // Extend to include search path and standard library
+    FileSearchPath _searchPath = FileSearchPath();
+    DocumentPtr _standardLibrary = nullptr;
+};
+```
+#### XML Reader
 
 ```c++
 // XML Reader 
@@ -66,63 +157,41 @@ class XMLDocumentReader : public DocumentReader
   public:
     XMLDocumentReader() = default;
 
-    DocumentPtr read(const FilePath& uri) override
+    DocumentPtr read(const FilePath& uri, OperationOptions* options = nullptr) override
     {
         DocumentPtr doc = createDocument()
-        if (_standardLibrary)
+        if (options && options->_standardLibrary)
         {
-            doc->setDataLibrary(_standardLibrary);
+            doc->setDataLibrary(options->_standardLibrary);
         }
         readFromXmlFile(uri, 
-                        _searchPath,
-                        _readOptions);
-
-        // Implementation for reading XML from a file path
+                        options->_searchPath ? options->_searchPath : FileSearchPath(),
+                        options);
     }
 
-    DocumentPtr read(const std::string& data) override
+    DocumentPtr read(const std::string& data, OperationOptions* options = nullptr) override
     {
         DocumentPtr doc = createDocument()
-        if (_standardLibrary)
+        if (options && options->_standardLibrary)
         {
-            doc->setDataLibrary(_standardLibrary);
+            doc->setDataLibrary(options->_standardLibrary);
         }
-        readFromXmlString(doc, data, _searchPath, _readOptions );
+        readFromXmlString(doc, data, options->_searchPath ? options->_searchPath : FileSearchPath(), options);
     }
 
-    DocumentPtr read(std::istream& stream) override
+    DocumentPtr read(std::istream& stream, OperationOptions* options = nullptr) override
     {
         DocumentPtr doc = createDocument()
-        if (_standardLibrary)
+        if (options && options->_standardLibrary)
         {
-            doc->setDataLibrary(_standardLibrary);
+            doc->setDataLibrary(options->_standardLibrary);
         }
-        readFromXmlStream(doc, stream, _searchPath, _readOptions);
+        readFromXmlStream(doc, stream, options->_searchPath ? options->_searchPath : FileSearchPath(), options);
     }
 
     StringVec supportedExtensions() const override
     {
         return _supportedExtensions;
-    }
-
-    void setReadOptions(const XmlReadOptions& options)
-    {
-        _readOptions = options;
-    }
-
-    XmlReadOptions& getReadOptions() const
-    {
-        return _readOptions;
-    }
-
-    void setSearchPath(const FileSearchPath& searchPath)
-    {
-        _searchPath = searchPath;
-    }
-
-    FileSearchPath& getSearchPath() const
-    {
-        return _searchPath;
     }
 
     void setStandardLibrary(DocumentPtr &llib)
@@ -131,37 +200,42 @@ class XMLDocumentReader : public DocumentReader
     }
 
   private:
-    FileSearchPath _searchPath;
-    XmlReadOptions _readOptions;
     StringVec _supportedExtensions = { ".mtlx" };
-    DocumentPtr _standardLibrary = nullptr;
 }
 ```
 
 ### XML Writer Wrapper Class
 
+- As with read options we add in a new write options class
+
 ```c++
+class XMLDocumentWriteOptions : public OperationOptions, XmlWriteOptions
+{
+    // Extend to include search path
+    FileSearchPath _searchPath = FileSearchPath();
+};
+
 // prependXInclude is unused and belongs with Document class
-class XMLDocumentWriter : public DocmentDeserializer
+class XMLDocumentWriter : public DocumentWriter
 {
   public:
     XMLDocumentWriter() = default;
 
-    bool write(const DocumentPtr doc, const FilePath& uri)
+    bool write(const DocumentPtr doc, const FilePath& uri, OperationOptions* options = nullptr)
     {
-        writeToXmlFile(doc, uri, _searchPath, _writeOptions);
+        writeToXmlFile(doc, uri, options ? options->_searchPath : FileSearchPath(), options);
         return true;
     }
 
-    bool write(const DocumentPtr doc, const std::string& data)
+    bool write(const DocumentPtr doc, const std::string& data, OperationOptions* options = nullptr)
     {
-        writeToXmlString(doc, data, _searchPath, _writeOptions);
+        writeToXmlString(doc, data, options ? options->_searchPath : FileSearchPath(), options);
         return true;
     }
 
-    bool write(const DocumentPtr doc, std::ostream& stream)
+    bool write(const DocumentPtr doc, std::ostream& stream, OperationOptions* options = nullptr)
     {
-        writeToXmlStream(doc, stream, _searchPath, _writeOptions);
+        writeToXmlStream(doc, stream, options ? options->_searchPath : FileSearchPath(), options);
         return true;
     }
 
@@ -170,45 +244,69 @@ class XMLDocumentWriter : public DocmentDeserializer
         return _supportedExtensions;
     }
 
-    void setWriteOptions(const XmlWriteOptions& options)
-    {
-        _writeOptions = options;
-    }
-
-    XmlWriteOptions& getWriteOptions() const
-    {
-        return _writeOptions;
-    }
-
-    void setSearchPath(const FileSearchPath& searchPath)
-    {
-        _searchPath = searchPath;
-    }
-
-    FileSearchPath& getSearchPath() const
-    {
-        return _searchPath;
-    }
 
   private:
-    FileSearchPath _searchPath;
-    XmlWriteOptions _writeOptions;
     StringVec _supportedExtensions = { ".mtlx" };
 }
 
-```c++
+```
 
-### C++ http Reader Class
+## Examples
 
-- One issue with embedding into code into core is that there is a need to add
-an explicit build time dependency on the C++ `CURL` library, whereas an extension
-can separate this dependency and only include it when needed.
+The following are some example serializer derivations. 
+
+### C++ HTTP Reader Class
+
+- The following example shows extensions for both the options and reader interface classes.
+- We add both MaterialX and ZIP formats as possible data formats.
+
+**Use Case**
+- One issue with embedding into code into core is that there is a need to add an explicit build time dependency on the C++ `CURL` library.
+- An extension can separate this dependency and only include it when needed.
 
 ```c++
 // C++ http loader. 
 #if defined(CURL_INSTALLED)
 #include <curl/curl.h>
 #endif
+
+class HTTPXMLOptions : public OperationOptions
+{
+  public:
+    HTTPXMLOptions() = default;
+
+    void setHttpOptions(const HttpRequestOptions& options)
+    {
+        _timeout = options.timeout();
+        _connectTimeout = options.connectTimeout();
+        _headers = options.headers();
+    }
+
+    void setTimeout(int timeout)
+    {
+        _timeout = timeout;
+    }
+
+    void setHeaders(const std::map<std::string, std::string>& headers)
+    {
+        _headers = headers;
+    }
+
+    int timeout() const
+    {
+        return _timeout;
+    }
+
+    int connectTimeout() const
+    {
+        return _connectTimeout;
+    }
+
+  private:
+    int _timeout = 30;
+    int _connectTimeout = 10;
+    std::map<std::string, std::string> _headers;
+};
 
 class HTTPXMLReader : public DocumentReader
 {
@@ -223,8 +321,14 @@ class HTTPXMLReader : public DocumentReader
         curl_global_cleanup();
     }   
 
-    DocumentPtr read(const FilePath& uri) override
+    DocumentPtr read(const FilePath& uri, OperationOptions* options = nullptr) override
     {
+        HTTPXMLOptions httpOptions;
+        if (options)
+        {
+            httpOptions.setHttpOptions(*static_cast<HttpRequestOptions*>(options));
+        }}
+
         std::string materialString;
 
         CURL* curl;
@@ -241,8 +345,8 @@ class HTTPXMLReader : public DocumentReader
             curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 2L);
             
             // Set timeout settings for network requests
-            curl_easy_setopt(curl, CURLOPT_TIMEOUT, 30L);
-            curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 10L);
+            curl_easy_setopt(curl, CURLOPT_TIMEOUT, httpOptions.timeout());
+            curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, httpOptions.connectTimeout());
 
             res = curl_easy_perform(curl);
             if (res != CURLE_OK)
@@ -260,12 +364,12 @@ class HTTPXMLReader : public DocumentReader
         return nullptr;
     }
 
-    DocumentPtr read(const std::string& data) override
+    DocumentPtr read(const std::string& data, OperationOptions* options = nullptr) override
     {
         return nullptr;
     }
 
-    DocumentPtr read(std::istream& stream) override
+    DocumentPtr read(std::istream& stream, OperationOptions* options = nullptr) override
     {
         return nullptr;
     }
@@ -276,13 +380,13 @@ class HTTPXMLReader : public DocumentReader
     }
 
   private:
-    StringVec _supportedExtensions = { ".mtlx" };
+    StringVec _supportedExtensions = { ".mtlx", ".zip" };
 }
 ```
 
-### Python Zip file writer
+### Python Zip File Writer
 
-- Python example is a custom DocumentSaver that saves a MaterialX document and its referenced textures into a ZIP file.
+- Python example is a custom DocumentWriter that saves a MaterialX document and its referenced textures into a ZIP file.
 - Dependencies are part of the module / package.
 
 ```python
@@ -293,14 +397,13 @@ try:
     import zipfile
     import tempfile
     import MaterialX as mx
-    import MaterialX.PyMaterialXRender as mx_render
     logger.info("MaterialX and zip modules loaded successfully")
     have_zip = True
 except ImportError:
     raise ImportError("Please ensure MaterialX and zipfile modules are installed.")
 
-class ZipSaver(mx_render.DocumentSaver):
-    _plugin_name = "ZipSaver"
+class ZipWriter(mx.DocumentWriter):
+    _plugin_name = "ZipWriter"
     _ui_name = "Save to Zip..."
 
     def name(self):
@@ -313,7 +416,7 @@ class ZipSaver(mx_render.DocumentSaver):
         return [".zip"]
 
     # Overrride "write"
-    def write(self, doc, path):
+    def write(self, doc, path, options=None):
         if not have_zip:
             return None
         if not path:
@@ -369,3 +472,66 @@ class ZipSaver(mx_render.DocumentSaver):
                 logger.info(f"MaterialX document and textures saved to ZIP: {path}")
         return True
 ```
+
+### Management
+
+- A `DocumentHandler` class can be added in the same that there are existing `ImageHandler` and `GeometryHandler` classes.
+- For lifetime management we add in smart pointer support for readers, writers, and handler.
+- If source and desintation formats are both exposed in the API then it is possible to use the `DocumentHandler` as a
+hub-and-spoke mechanism to support additional conversions by chaining the serializers. 
+
+```c++
+
+class DocumentHandler;
+using DocumentHandlerPtr = std::shared_ptr<DocumentHandler>;
+
+class DocumentHandler 
+{
+  public:
+    static DocumentHandlerPtr create()
+    {
+        return std::make_shared<DocumentHandler>();
+    }
+    virtual ~DocumentHandler() = default;
+
+    void addDocumentReader(DocumentReaderPtr reader)
+    {
+        documentReaders[reader->getIdentifier()] = reader;
+    }
+
+    void addDocumentWriter(DocumentWriterPtr writer)
+    {
+        documentWriters[writer->getIdentifier()] = writer;
+    }
+
+private:
+    std::unordered_map<std::string, DocumentReaderPtr> documentReaders;
+    std::unordered_map<std::string, DocumentWriterPtr> documentWriters; 
+};
+```
+
+### Language Wrappers
+
+#### Python
+
+- Use the existing `pybind11` mechanism to add the new interface classes.
+- "Trampoline" code is added to allow calling of Python classes from C++.
+- AAll interfaces are exposed as part of the package in the `MaterialXCore` module
+
+- XML serialization and deserialization will be exposed as part of package in the
+`MaterialXFormat` module.
+
+### Javascript
+
+- Create wrappers using `emscripten` to expose the C++ interfaces as WASM implementations
+with JavaScript wrappers.
+
+### Asynchronous Transport Support
+
+- It is possible to implement asynchronous loading and saving of documents using `std::async` and `std::future` or other suitable mechanisms.
+- It could provide a callback mechanism for progress updates and completion notifications.
+
+- The current thought is that this should not live at this level but instead at a higher
+integration level. For example an integration may be using Web sockets to achieve
+asynchronous loading and saving of documents.
+
