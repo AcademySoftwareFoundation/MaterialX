@@ -9,7 +9,8 @@
   - The data in the other format may reside in an arbitrary location and is not restricted to residing on local file systems.
 - The interfaces for serialization should be designed to be thread-safe.
 - The interfaces should also not preclude usage by request-based / asynchronous APIs, though this will be a separate future consideration.
-  - We note that the existing XML serialization and deserialization is not thread-safe and synchronous and will not be addressing this with here.
+  - It is possible to have "read" operations not return any data, but instead provide a callback or future/promise mechanism for the caller to receive the data when it becomes available. "write" operations could also use a similar mechanisms to indicate completion status.
+  - We note that the existing XML serialization and deserialization is not thread-safe and synchronous and will not be addressing this here.
 
 ### Implementation Details
 - All code interfaces are available in C++ and will provide bindings for other supported languages. This currently includes Javascript and Python.
