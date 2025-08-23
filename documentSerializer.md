@@ -618,3 +618,101 @@ manager.addDocumentReader(loader)
 - Both based interfaces and XML wrappers would be packaged with the `JsMaterialXCore` Javascript and WASM modules which includes `MaterialXFormat` wrappers.
 
 
+## Addendum:Other Transformations
+
+We will only briefly mention that additional transformations can be introduced including those that perform modifications in-place on a `Document`.
+This would allow for a set of reusable and safe operations to be defined which hides the low level details currently exposed by the API
+which can be complex and error-prone.
+
+For example we can add in an "edit" interface as follows:
+
+```c++
+class DocumentOperator
+{
+  public:
+    virtual ~DocumentOperator() = default;
+
+    virtual bool edit(mx::DocumentPtr doc, OperationOptions* options = nullptr) = 0;
+
+    bool isUndoable() const { return false; }
+    virtual void undo(mx::DocumentPtr doc) = 0;
+
+    bool isTopologicalChange() const { return false; }
+};
+```
+
+with the following node connection operator example:
+
+```python
+class ConnectionParameters(mx.OperationOptions):
+    def __init__(self, inputNodePath, inputName, outputNodePath, outputName):
+        self.inputNodePath = inputNodePath
+        self.inputName = inputName
+        self.outputNode = outputNodePath
+        self.outputName = outputName
+
+class ConnectNode(mx.DocumentOperator):
+
+    def __init__(self, params: ConnectionParameters):
+        self.params = params
+
+    def edit(self, doc, options: ConnectionParameters):
+        '''
+        Connect an input on one node to an output on another node. Existence and type checking are performed.
+        Returns input port with connection set if successful. Otherwise None is returned.
+        '''
+        inputNode = doc.getDescendant(options.inputNodePath)
+        outputNode = doc.getDescendant(options.outputNodePath)
+
+        if not inputNode or not outputNode:
+            return False
+
+        # Add an input to the downstream node if it does not exist
+        inputPort = inputNode.addInputFromNodeDef(options.inputName)
+
+        # Check for the type.
+        outputType = outputNode.getType()
+
+        # If there is more than one output then we need to find the output type
+        # from the output with the name we are interested in.
+        outputPortFound = None
+        outputPorts = outputNode.getOutputs()
+        if outputPorts:
+            # Look for an output with a given name, or the first if not found
+            if not options.outputName:
+                outputPortFound = outputPorts[0]
+            else:
+                outputPortFound = outputNode.getOutput(options.outputName)
+
+        # If the output port is not found on the node instance then
+        # look for it the corresponding definition
+        if not outputPortFound:
+            outputNodedef = outputNode.getNodeDef()
+            if outputNodedef:
+                outputPorts = outputNodedef.getOutputs()
+                
+                if outputPorts:
+                    # Look for an output with a given name, or the first if not found
+                    if not options.outputName:
+                        outputPortFound = outputPorts[0]
+                    else:
+                        outputPortFound = outputNodedef.getOutput(options.outputName)
+
+        if outputPortFound:
+            outputType = outputPortFound.getType()
+        elif len(options.outputName) > 0:
+            print('No output port found matching: ', options.outputName)
+
+        if inputPort.getType() != outputType:
+            print('Input type (%s) and output type (%s) do not match: ' % (inputPort.getType(), outputType))
+            return False
+
+        if inputPort:
+            # Remove any value, and set a "connection" by setting the node name
+            inputPort.removeAttribute('value')
+            attributeName = 'nodename' if outputNode.isA(mx.Node) else 'nodegraph'
+            inputPort.setAttribute(attributeName, outputNode.getName())
+            if outputNode.getType() == 'multioutput' and options.outputName:
+                inputPort.setOutputString(options.outputName)
+        
+        return True
