@@ -1,28 +1,33 @@
 ## Proposal for Document Serialization Interfaces
 
-### Criteria
-- Code interfaces are available in C++ and can having bindings provided in other languages. This currently includes Javascript and Python.
-- A API which is path / URI based required. 
-- As not all input / output types can support string / stream output these are optional.
- It is up to the implementation to decide what makes sense. e.g. it is possible to encode / decode 
- binaries to / from strings for transport but could be very inefficient. 
+### Introduction
 
- - It is possible to add a generic options structure which works well for non-programmed
- user options. The proposal it to use string (key), `Value` pairs. 
+- We define a generalized "data operation" from which all specific data operations can be derived.
+- Serialization operators can be specified as 
+  - A transformation to or from a `Document` to another format. (e.g. JSON, SLX, glTF)
+  - An extraction of packaging to or from another format (e.g. ZIP, USD)
+  - The data in the other format may reside in an arbitrary location and is not restricted to residing on local file systems.
+- The interfaces for serialization should be designed to be thread-safe.
+- The interfaces should also not preclude usage by request-based / asynchronous APIs, though this will be a separate future consideration.
+  - We note that the existing XML serialization and deserialization is not thread-safe and synchronous and will not be addressing this with here.
 
-- Interfaces should be designed to be thread-safe.
-- Interfaces should be compatible with patterns found in request-based APIs.
-  - It would be useful to consider the possibility of asynchronous "fetch" options but this
-  is beyond the initial scope of the proposal.
-  - Note that the existing XML serialization and deserialization is not thread-safe and synchronous.
+### Implementation Details
+- All code interfaces are available in C++ and will provide bindings for other supported languages. This currently includes Javascript and Python.
+- Interfaces must include an API entry point which can take as input or output a `URI`. (This matches with the current MaterialX specification).
+- Not all input / output types can support string / stream output these entry points are optional. It is up to the implementation to decide what makes sense. e.g. it is possible to encode / decode binary data to / from strings for transport but could be very inefficient. 
+- Interfaces will support optional user options / arguments to be specified. In general these may be anything from value arguments to function pointers.
+- Most command line and user interfaces define options in a key-value format. As such, it is useful to provide a reusable interface for this.
+- For life-time management all interfaces will be shared pointers, which is consistent with all other classes in the code base. 
+- Options many or may not be reference counted.
 
 ### Operation Class 
 
-- We provide interface class which does not define storage or access points. It can be used
-for more than just document serialization. We will call this an "operation" tentatively.
+- This is the base class for all operations.
+- It does not define storage or access points.
 - The interface class simply specifies a unique name identifier.
 
 ```c++
+using Operation  = std::shared_ptr<Operation>;
 class Operation
 {
   public:
@@ -51,8 +56,8 @@ class OperationOptions
 ```
 
 - A common way to specify arguments is with key-value pairs.
-- We introduce this to provide a reusable class for handling options.
-- This is useful to extend options without modifying the original class and can be used for creating command line or interactive user interfaces.
+- As such, we introduce a reusable interface for this.
+- This will allow for options to be extended without modifying the original class and can be used for creating command line or interactive user interfaces.
 
 ```c++
 using KeyValueMap = std::unordered_map<string, ValuePtr>;
@@ -80,13 +85,22 @@ class KeyValueOptions : public OperationOptions
 
 ### File Paths
 
-Note that we do not include usage of the existing MaterialX search paths as they only work on local file systems on desktop and are thus not generally applicable. The same is true for writers. We do *not* assume that integrations will support frameworks such as virtual file systems, nor do we assume that all assets are statically packaged with the integration. Also this option is only used for supporting "include" directives which are available in the XML format, but not in other formats.
+Note that we do not require usage of file search via the existing MaterialX search paths as they only work on local file systems on desktop and are thus not generally applicable. We do *not* assume that integrations will support frameworks such as virtual file systems, nor do we assume that all assets are statically packaged with the integration (e.g. web-pack for Javascript deployment). 
+
+Currently a file search paths option is only used for supporting  "include" directives which are only supported for some formats such as XML, but not in other formats such as JSON.
 
 ### Interface Class for Document Readers
 
-For a document reader, add in the existing API methods provided by the current XML reader to make the transition to the new interface easier.
+For a document reader interface we add in the existing API methods provided by the current XML reader to make the transition to the new interface easier.
+As noted, support for string and stream data inputs is optional.
+
+Optional arguments are passed in via the `OperationOptions` interface.
+
+A list of format extensions may be returned to indicate the supported output formats. There are of the form: ".<extension>".
+For example for `glTF` this could be "[".gltf", ".glb"].
 
 ```c++
+using DocumentReaderPtr = std::shared_ptr<DocumentReader>;
 class DocumentReader : public Operation
 {
   public:
@@ -109,42 +123,52 @@ class DocumentReader : public Operation
 
 ### Interface Class for Document Writers
 
-For a document writer, add in the existing API methods provided by the current XML writer to make the transition to the new interface easier.
+For a document writer, we add in the existing API methods provided by the current XML writer to make the transition to the new interface easier.
+As noted, support for string and stream data outputs is optional.
+
+Optional arguments are passed in via the `OperationOptions` interface.
+
+A list of format extensions may be returned to indicate the supported output formats. There are of the form: ".<extension>".
+For a USD writer this could be "[".usda", ".usdz", ".usd"].
 
 ```c++
+using DocumentWriterPtr = std::shared_ptr<DocumentWriter>;
 class DocumentWriter : public Operation
 {
   public:
-    virtual bool write(DocumentPtr, const FilePath& uri) = 0;
-    virtual bool write(DocumentPtr, const std::string& data)
+    virtual bool write(DocumentPtr, const FilePath& uri, OperationOptions* options = nullptr) = 0;
+    virtual bool write(DocumentPtr, const std::string& data, OperationOptions* options = nullptr)
     {
         return false;
     }
-    virtual void write(DocumentPtr, std::ostream& stream)
+    virtual void write(DocumentPtr, std::ostream& stream, OperationOptions* options = nullptr)
     {
         return false;
     }
+
+    virtual StringVec supportedExtensions() const = 0;
 }
 ```
 
 ### XML Reader Wrapper Class
 
-- Due to all the global references used, the easiest way to make this work is to add this to `Xmlio.cpp`
-- To "hide" the global functions which are not currently part of the public API, we can make these into local statics.
-- If we decide to deprecate the global functions they can all be make local statics.
+- Due to all the global references used, the easiest way to make this work without code changes is to add interfaces in-place into `Xmlio.cpp`
+- Global functions which are not currently part of the public API, can be made into local statics to decrease exposed surface area.
+- Current global public functions can be made local if / when this new interface replaces the existing interface.
 
+- For readability, error handling has been left out.
 
 #### XML Reader Options
 
 - We consolidate all of the existing options into a single class which derives from the `OperationOptions` interface.
-- Small variation adds code to guarantee standard libraries are set if specified.
-
+- A example small variation is shown here to support automatic library inclusion of standard libraries.
 
 ```c++
 class XmlDocumentReadOptions : public OperationOptions, XmlReadOptions
 {
-    // Extend to include search path and standard library
+    // Include search path option from existing interface
     FileSearchPath _searchPath = FileSearchPath();
+    // Extend to include standard library
     DocumentPtr _standardLibrary = nullptr;
 };
 ```
@@ -152,6 +176,7 @@ class XmlDocumentReadOptions : public OperationOptions, XmlReadOptions
 
 ```c++
 // XML Reader 
+using XMLDocumentPtr = std::shared_ptr<XMLDocument>;
 class XMLDocumentReader : public DocumentReader
 {
   public:
@@ -194,11 +219,6 @@ class XMLDocumentReader : public DocumentReader
         return _supportedExtensions;
     }
 
-    void setStandardLibrary(DocumentPtr &llib)
-    {
-        _standardLibrary = lib;
-    }
-
   private:
     StringVec _supportedExtensions = { ".mtlx" };
 }
@@ -206,16 +226,21 @@ class XMLDocumentReader : public DocumentReader
 
 ### XML Writer Wrapper Class
 
-- As with read options we add in a new write options class
+- As with read options we add in a new interface for write options
 
 ```c++
 class XMLDocumentWriteOptions : public OperationOptions, XmlWriteOptions
 {
-    // Extend to include search path
+    // Extend to include current search path
     FileSearchPath _searchPath = FileSearchPath();
 };
+```
 
-// prependXInclude is unused and belongs with Document class
+- The writer class is similar to the reader class.
+- Note: There is a `prependXInclude()` global function that is unused and if kept should belong with `Document` class.
+
+```c++
+using XMLDocumentWriterPtr = std::shared_ptr<XMLDocumentWriter>;
 class XMLDocumentWriter : public DocumentWriter
 {
   public:
@@ -244,7 +269,6 @@ class XMLDocumentWriter : public DocumentWriter
         return _supportedExtensions;
     }
 
-
   private:
     StringVec _supportedExtensions = { ".mtlx" };
 }
@@ -253,16 +277,17 @@ class XMLDocumentWriter : public DocumentWriter
 
 ## Examples
 
-The following are some example serializer derivations. 
+The following examples demonstrate other possible serializer extensions.
 
 ### C++ HTTP Reader Class
 
 - The following example shows extensions for both the options and reader interface classes.
-- We add both MaterialX and ZIP formats as possible data formats.
+- We add both MaterialX and ZIP formats as possible data formats, though only the MaterialX logic is shown.
 
 **Use Case**
-- One issue with embedding into code into core is that there is a need to add an explicit build time dependency on the C++ `CURL` library.
-- An extension can separate this dependency and only include it when needed.
+- This could be used to read MaterialX documents or packaged zip assets from remote material repositories such as `ambientCG`, `PolyHaven`, `GPUOpen`, `PhysicallyBased` etc.
+- One issue with embedding this code into the core is that there is a need to add an explicit build time dependency -- in this case in the form of the C++ `CURL` library. 
+- An extension can separate this dependency and only include it as needed.
 
 ```c++
 // C++ http loader. 
@@ -287,7 +312,7 @@ class HTTPXMLOptions : public OperationOptions
         _timeout = timeout;
     }
 
-    void setHeaders(const std::map<std::string, std::string>& headers)
+    void setHeaders(const StringMap& headers)
     {
         _headers = headers;
     }
@@ -305,9 +330,10 @@ class HTTPXMLOptions : public OperationOptions
   private:
     int _timeout = 30;
     int _connectTimeout = 10;
-    std::map<std::string, std::string> _headers;
+    StringMap _headers;
 };
 
+using HTTPXMLReaderPtr = std::shared_ptr<HTTPXMLReader>;
 class HTTPXMLReader : public DocumentReader
 {
   public:
@@ -386,10 +412,15 @@ class HTTPXMLReader : public DocumentReader
 
 ### Python Zip File Writer
 
-- Python example is a custom DocumentWriter that saves a MaterialX document and its referenced textures into a ZIP file.
+- This is a Python example of a custom `DocumentWriter` that saves a MaterialX document and its referenced textures into a ZIP file.
 - Dependencies are part of the module / package.
+- Integrations would handle any error exceptions including package imports
 
 ```python
+
+import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Dependency check
 have_zip = False
@@ -415,7 +446,7 @@ class ZipWriter(mx.DocumentWriter):
     def supportedExtensions(self):
         return [".zip"]
 
-    # Overrride "write"
+    # Override "write"
     def write(self, doc, path, options=None):
         if not have_zip:
             return None
@@ -467,7 +498,7 @@ class ZipWriter(mx.DocumentWriter):
                 logger.info(f"Write MaterialX document to temp file: {mtlx_path}")
                 # Add the .mtlx file at the root of the zip
                 z.write(mtlx_path, arcname=mtlx_name)
-                logger.info(f"Added MaterialX document to ZIP as: {mtlx_name}")
+                logger.info(f"Added MaterialX document to ZIP as: {mtlx_name}") 
 
                 logger.info(f"MaterialX document and textures saved to ZIP: {path}")
         return True
@@ -475,10 +506,9 @@ class ZipWriter(mx.DocumentWriter):
 
 ### Management
 
-- A `DocumentHandler` class can be added in the same that there are existing `ImageHandler` and `GeometryHandler` classes.
-- For lifetime management we add in smart pointer support for readers, writers, and handler.
-- If source and desintation formats are both exposed in the API then it is possible to use the `DocumentHandler` as a
-hub-and-spoke mechanism to support additional conversions by chaining the serializers. 
+- A `DocumentHandler` class provides similar functionality to the existing `ImageHandler` and `GeometryHandler` classes.
+- If source and destination formats are both exposed in the API then it is possible to use the `DocumentHandler` as a
+hub-and-spoke mechanism to support additional conversions by chaining the serializers.
 
 ```c++
 
@@ -510,28 +540,80 @@ private:
 };
 ```
 
+### Python SLX Reader Example
+
+This example specified a reader which compiles SLX (.mxsl) files to MaterialX (.mtlx) documents.
+It includes sample code showing how to add the reader to the document handler.
+
+```python
+import MaterialX as mx
+import logging
+import os
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger('slxPlugin')
+
+have_slx = False
+try:
+    from pathlib import Path
+    from mxslc.Decompiler.decompile import Decompiler
+    from mxslc.compile_file import compile_file
+    logger.info("SLX module loaded successfully")
+    have_slx = True
+except ImportError:
+    raise ImportError("SLX module not found. Please ensure it is installed.")
+
+class SLXLoader(mx.DocumentReader):
+    _name = "ShadingLanguageX"
+    _ui_name = "Load from SLX..."
+
+    def name(self):
+        return self._name
+
+    def uiName(self):
+        return self._ui_name
+
+    def supportedExtensions(self):
+        return [".mxsl"]
+
+    def run(self, path):
+        doc = None
+        mtlx_path = path.replace('.mxsl', '.mtlx')
+        try:
+            logger.info(f"Compiling from SLX to MaterialX: {path}...")
+            compile_file(Path(path), mtlx_path)
+            # Check if the MaterialX file was created
+            if not os.path.exists(mtlx_path):
+                logger.error("Failed to compile SLX file to MaterialX: " + path)
+            else:
+                doc = mx.createDocument()
+                logger.info(f"Compiled SLX file to MaterialX: {mtlx_path}")
+                mx.readFromXmlFile(doc, mtlx_path)                
+        except Exception as e:
+            logger.error(f"Failed to compile SLX file: {e}")                
+        return doc
+
+# -------------------------------------
+# Register loader with document handler
+# -------------------------------------
+loader = SLXLoader()
+manager = mx.getDocumentHandler()
+manager.addDocumentReader(loader)
+```
+
 ### Language Wrappers
 
 #### Python
 
-- Use the existing `pybind11` mechanism to add the new interface classes.
-- "Trampoline" code is added to allow calling of Python classes from C++.
-- AAll interfaces are exposed as part of the package in the `MaterialXCore` module
+- The existing `pybind11` mechanism is used to expose the new interface and XML serialization classes.
 
-- XML serialization and deserialization will be exposed as part of package in the
-`MaterialXFormat` module.
+- "Trampoline" classes are added to allow calling of Python interfaces from C++.
+- All interfaces are exposed as part of the package within the `MaterialXCore` module.
+- XML serialization and deserialization will be exposed as part of package in the `MaterialXFormat` module.
 
 ### Javascript
 
-- Create wrappers using `emscripten` to expose the C++ interfaces as WASM implementations
-with JavaScript wrappers.
+- Create wrappers using `emscripten` to expose the C++ interfaces as `WASM` implementations with `JavaScript` wrappers. 
+- Both based interfaces and XML wrappers would be packaged with the `JsMaterialXCore` Javascript and WASM modules which includes `MaterialXFormat` wrappers.
 
-### Asynchronous Transport Support
-
-- It is possible to implement asynchronous loading and saving of documents using `std::async` and `std::future` or other suitable mechanisms.
-- It could provide a callback mechanism for progress updates and completion notifications.
-
-- The current thought is that this should not live at this level but instead at a higher
-integration level. For example an integration may be using Web sockets to achieve
-asynchronous loading and saving of documents.
 
