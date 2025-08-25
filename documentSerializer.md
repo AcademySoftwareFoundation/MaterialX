@@ -618,7 +618,7 @@ manager.addDocumentReader(loader)
 - Both based interfaces and XML wrappers would be packaged with the `JsMaterialXCore` Javascript and WASM modules which includes `MaterialXFormat` wrappers.
 
 
-## Addendum:Other Transformations
+## Addendum: Other Transformations
 
 We will only briefly mention that additional transformations can be introduced including those that perform modifications in-place on a `Document`.
 This would allow for a set of reusable and safe operations to be defined which hides the low level details currently exposed by the API
@@ -627,7 +627,7 @@ which can be complex and error-prone.
 For example we can add in an "edit" interface as follows:
 
 ```c++
-class DocumentOperator
+class DocumentOperator : public Operation
 {
   public:
     virtual ~DocumentOperator() = default;
@@ -716,3 +716,153 @@ class ConnectNode(mx.DocumentOperator):
                 inputPort.setOutputString(options.outputName)
         
         return True
+```
+
+### Addendum : Class Diagram
+
+```mermaid
+
+classDiagram
+    direction LR
+
+    %% ===================
+    %% Base Classes
+    %% ===================
+    class Operation {
+        - string _name
+        + Operation(name: string)
+        + ~Operation()
+        + name() string
+    }
+
+    class OperationOptions {
+        <<interface>>
+        + ~OperationOptions()
+    }
+
+    class KeyValueOptions {
+        - KeyValueMap _options
+        + setOption(key: string, value: ValuePtr)
+        + getOption(key: string) ValuePtr
+    }
+
+    OperationOptions <|-- KeyValueOptions
+
+    %% ===================
+    %% Document IO Interfaces
+    %% ===================
+    class DocumentReader {
+        <<abstract>>
+        + read(uri: FilePath, options: OperationOptions*) DocumentPtr
+        + read(data: string, options: OperationOptions*) DocumentPtr
+        + read(stream: istream&, options: OperationOptions*) DocumentPtr
+        + supportedExtensions() StringVec
+    }
+
+    class DocumentWriter {
+        <<abstract>>
+        + write(doc: DocumentPtr, uri: FilePath, options: OperationOptions*) bool
+        + write(doc: DocumentPtr, data: string, options: OperationOptions*) bool
+        + write(doc: DocumentPtr, stream: ostream&, options: OperationOptions*) void
+        + supportedExtensions() StringVec
+    }
+
+    Operation <|-- DocumentReader
+    Operation <|-- DocumentWriter
+    Operation <|-- DocumentOperator
+
+    %% ===================
+    %% XML Implementations
+    %% ===================
+    class XmlDocumentReadOptions {
+        - FileSearchPath _searchPath
+        - DocumentPtr _standardLibrary
+    }
+
+    class XMLDocumentReader {
+        - StringVec _supportedExtensions
+        + read(uri: FilePath, options: OperationOptions*) DocumentPtr
+        + read(data: string, options: OperationOptions*) DocumentPtr
+        + read(stream: istream&, options: OperationOptions*) DocumentPtr
+        + supportedExtensions() StringVec
+    }
+
+    class XmlDocumentWriteOptions {
+        - FileSearchPath _searchPath
+    }
+
+    class XMLDocumentWriter {
+        - StringVec _supportedExtensions
+        + write(doc: DocumentPtr, uri: FilePath, options: OperationOptions*) bool
+        + write(doc: DocumentPtr, data: string, options: OperationOptions*) bool
+        + write(doc: DocumentPtr, stream: ostream&, options: OperationOptions*) bool
+        + supportedExtensions() StringVec
+    }
+
+    OperationOptions <|-- XmlDocumentReadOptions
+    OperationOptions <|-- XmlDocumentWriteOptions
+    DocumentReader <|-- XMLDocumentReader
+    DocumentWriter <|-- XMLDocumentWriter
+
+    %% ===================
+    %% HTTP Reader
+    %% ===================
+    class HTTPXMLOptions {
+        - int _timeout
+        - int _connectTimeout
+        - StringMap _headers
+        + setHttpOptions(options: HttpRequestOptions)
+        + setTimeout(timeout: int)
+        + setHeaders(headers: StringMap)
+        + timeout() int
+        + connectTimeout() int
+    }
+
+    class HTTPXMLReader {
+        - StringVec _supportedExtensions
+        + read(uri: FilePath, options: OperationOptions*) DocumentPtr
+        + supportedExtensions() StringVec
+    }
+
+    OperationOptions <|-- HTTPXMLOptions
+    DocumentReader <|-- HTTPXMLReader
+
+    %% ===================
+    %% Document Operators
+    %% ===================
+    class DocumentOperator {
+        <<abstract>>
+        + edit(doc: DocumentPtr, options: OperationOptions*) bool
+        + isUndoable() bool
+        + undo(doc: DocumentPtr)
+        + isTopologicalChange() bool
+    }
+
+    class ConnectionParameters {
+        + inputNodePath
+        + inputName
+        + outputNodePath
+        + outputName
+    }
+
+    class ConnectNode {
+        - params: ConnectionParameters
+        + edit(doc: DocumentPtr, options: ConnectionParameters) bool
+    }
+
+    OperationOptions <|-- ConnectionParameters
+    DocumentOperator <|-- ConnectNode
+
+    %% ===================
+    %% Document Handler
+    %% ===================
+    class DocumentHandler {
+        - map[string, DocumentReaderPtr] documentReaders
+        - map[string, DocumentWriterPtr] documentWriters
+        - map[string, DocumentOperatorPtr] documentOperators
+        + addDocumentReader(reader: DocumentReaderPtr)
+        + addDocumentWriter(writer: DocumentWriterPtr)
+        + addDocumentOperator(operator: DocumentOperatorPtr)
+    }
+
+```
