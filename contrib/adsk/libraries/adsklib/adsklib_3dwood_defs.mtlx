@@ -1,0 +1,250 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+  <!--
+  DESCRIPTION: Node Definitions for Autodesk 3D wood material
+  -->
+
+  <!-- 
+      ==============================================
+      Nodedefs for Autodesk 3D wood custom nodes
+      * These nodes are used more than once
+      ==============================================
+  -->
+  <!--
+    Node: <wood3d_util_hashnoise2d>
+    2D hash noise in 3 channels.
+  -->
+  <nodedef name="ND_wood3d_util_hashnoise2d_vector3" node="wood3d_util_hashnoise2d">
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <output name="out" type="vector3" default="0.0, 0.0, 0.0" />
+  </nodedef>
+ <!--
+    Node: <wood3d_util_noise1d>
+    1D Perlin noise in 1 channel.
+  -->
+  <nodedef name="ND_wood3d_util_noise1d_float" node="wood3d_util_noise1d">
+    <input name="amplitude" type="float" value="1.0" />
+    <input name="pivot" type="float" value="0.0" />
+    <input name="p" type="float" default="0.0" />
+    <output name="out" type="float" default="0.0" />
+  </nodedef>
+  <!--
+    Node: <wood3d_util_pore_impulse>
+    Output a pore weight for 3D wood material by accumulating wyvill impulse from all potentially
+    contributing cells.
+  -->
+  <nodedef name="ND_wood3d_util_pore_impulse" node="wood3d_util_pore_impulse" >
+    <input name="position" type="vector3" value="0.0, 0.0, 0.0" />
+    <input name="wood_weight" type="float" value="0.0" />    
+    <input name="seed" type="float" value="0.0" />    
+    <input name="pore_cell_dim" type="float" value="0.5" />    
+    <input name="pore_radius" type="float" value="0.0" />    
+    <output name="weight" type="float" default="0.0" />
+  </nodedef>
+
+  <!-- 
+      ==============================================
+      Nodedefs for Autodesk 3D wood subgraphs 
+      * These nodes are used only once, they are designed 
+        to improve readability / help reduce complexity
+      ==============================================
+  -->
+  <!--
+    Node: <wood3d_util_ratio>
+    Compute early wood ratio.
+  -->
+  <nodedef name="ND_wood3d_util_ratio" node="wood3d_util_ratio" >
+    <input name="ring_thickness" type="float" value="0.0" xpos="-49.768116" ypos="-50.068966" />
+    <input name="late_wood_sharpness" type="float" value="0.0" xpos="-50.115944" ypos="-46.068966" />
+    <input name="early_wood_sharpness" type="float" value="0.0" xpos="-50.217392" ypos="-47.051723" />
+    <input name="late_wood_ratio" type="float" value="0.0" xpos="-49.768116" ypos="-48.137932" />
+    <input name="radius" type="float" value="0.0" xpos="-49.420288" ypos="-51.189655" />
+    <output name="earlywood_ratio" type="float"  />
+  </nodedef>
+
+  <!--
+    Node: <wood3d_util_fiber_cosine_distortion>
+    Apply cosine distortion to wood position.
+  -->
+  <nodedef name="ND_wood3d_util_fiber_cosine_distortion" node="wood3d_util_fiber_cosine_distortion" >
+    <input name="fiber_cosine_frequencies" type="vector4" value="0, 0, 0, 0" xpos="-82.456520" ypos="-23.560345" />
+    <input name="fiber_cosine_weights"  type="vector4" value="0, 0, 0, 0" xpos="-72.913040" ypos="-17.974138" />
+    <input name="wood_position" type="vector3"  value="0, 0, 0" xpos="-79.000000" ypos="-28.034483"/>
+    <output name="distorted_position" type="vector3"/>
+  </nodedef>
+
+  <!--
+    Node: <wood3d_util_fiber_perlin_distortion>
+    Apply perlin distortion to wood position.
+  -->
+  <nodedef name="ND_wood3d_util_fiber_perlin_distortion" node="wood3d_util_fiber_perlin_distortion" >
+    <input name="fiber_perlin_scale_z" type="float" value="0.0" xpos="-84.188408" ypos="-45.637932"  />
+    <input name="fiber_perlin_frequencies" type="vector4" value="0, 0, 0, 0" xpos="-87.514496" ypos="-41.698277" />
+    <input name="fiber_perlin_weights" type="vector4" value="0, 0, 0, 0" xpos="-73.920288" ypos="-34.646553"/>
+    <input name="wood_position" type="vector3" value="0.0, 0.0, 0.0"  xpos="-86.739128" ypos="-48.431034"/>
+    <output name="distorted_position" type="vector3"  xpos="-52.775364" ypos="-40.844826"/>
+  </nodedef>
+
+  <!--
+    Node: <wood3d_util_growth_perlin>
+    Apply growth perlin distortion to wood radius.
+  -->
+  <nodedef name="ND_wood3d_util_growth_perlin" node="wood3d_util_growth_perlin">
+    <input name="growth_perlin_weights" type="vector4" value="0, 0, 0, 0" xpos="-55.847828" ypos="-25.439655" />
+    <input name="growth_perlin_frequencies" type="vector4" value="0, 0, 0, 0" xpos="-72.942032" ypos="-34.051723"  />
+    <input name="radius" type="float" value="0" xpos="-67.739128" ypos="-30.206896"/>
+    <output name="distorted_radius" type="float" />
+  </nodedef>
+
+  <!--
+    Node: <wood3d_util_earlywood_color>
+    Compute earlywood color.
+  -->
+  <nodedef name="ND_wood3d_util_earlywood_color" node="wood3d_util_earlywood_color"  >
+    <input name="earlycolor_perlin_frequencies" type="vector4" value="0.0, 0.0, 0.0, 0.0" xpos="-60.550724" ypos="-46.206898" />
+    <input name="earlycolor_perlin_weights" type="vector4" value="0.0, 0.0, 0.0, 0.0" xpos="-46.521740" ypos="-48.982758" />
+    <input name="early_color" type="color3" value="0.0, 0.0, 0.0" xpos="-29.478260" ypos="-43.879311" />
+    <input name="radius" type="float" value="0.0" xpos="-51.347828" ypos="-47.879311" />
+    <output name="earlywood_color" type="color3"/>
+  </nodedef>
+
+  <!--
+    Node: <wood3d_util_latewood_color>
+    Compute latewood color.
+  -->
+  <nodedef name="ND_wood3d_util_latewood_color" node="wood3d_util_latewood_color" >
+    <input name="latecolor_perlin_frequencies" type="vector4" value="0.0, 0.0, 0.0, 0.0" xpos="-56.775364" ypos="-30.543104" />
+    <input name="latecolor_perlin_weights" type="vector4" value="0.0, 0.0, 0.0, 0.0" xpos="-43.739132" ypos="-24.568966" />
+    <input name="radius" type="float" value="0.0" xpos="-47.289856" ypos="-32.413792" />
+    <input name="late_color" type="color3" value="0.0, 0.0, 0.0" xpos="-27.311594" ypos="-28.155172" />
+    <output name="latewood_color" type="color3" />
+  </nodedef>
+
+  <!--
+    Node: <wood3d_util_perlin_color>
+    Compute perlin color.
+  -->
+  <nodedef name="ND_wood3d_util_perlin_color" node="wood3d_util_perlin_color" >
+    <input name="diffuse_perlin_weights" xpos="-11.876812" ypos="-10.224138" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="diffuse_perlin_scale_z" xpos="-23.920290" ypos="-6.870690" type="float" value="0.0" />
+    <input name="diffuse_perlin_frequencies" xpos="-26.913044" ypos="-4.293103" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="wood_position" xpos="-26.000000" ypos="-9.120689" type="vector3" value="0.0, 0.0, 0.0" />
+    <input name="color" type="color3" xpos="5.413043" ypos="-4.982759" value="0.0, 0.0, 0.0" />
+    <output name="perlin_color" type="color3"/>
+  </nodedef>
+
+  <!--
+    Node: <wood3d_util_ray>
+    Compute ray color, and ray weight for roughness.
+  -->
+  <nodedef name="ND_wood3d_util_ray" node="wood3d_util_ray" >
+    <input name="ray_seg_length_z" type="float" value="0.0" xpos="-82.376808" ypos="-52.965519" />
+    <input name="ray_ellipse_depth" type="float" value="0.0" xpos="-84.971016" ypos="-55.172413" />
+    <input name="ray_color_power" type="float" value="0.0" xpos="-31.760870" ypos="-60.344826" />
+    <input name="ray_ellipse_scale_x" type="float" value="0.0" xpos="-47.717392" ypos="-50.517242" />
+    <input name="ray_num_slices" type="float" value="0.0" xpos="-79.210144" ypos="-59.034481" />
+    <input name="ray_ellipse_z2x" type="float" value="0.0" xpos="-58.007248" ypos="-50.086208" />
+    <input name="seed" type="float" value="0.0" xpos="-73.768112" ypos="-59.879311" />
+    <input name="wood_position" type="vector3" value="0.0, 0.0, 0.0" xpos="-85.826088" ypos="-61.017242" />
+    <input name="color" type="color3" value="0.0, 0.0, 0.0" xpos="-26.231884" ypos="-60.413792" />
+    <output name="ray_color" type="color3"  />
+    <output name="ray_weight" type="float" />
+  </nodedef>
+
+  <!--
+    Node: <wood3d_util_roughness>
+    Compute wood roughness
+  -->
+  <nodedef name="ND_wood3d_util_roughness" node="wood3d_util_roughness" >
+    <input name="use_groove_roughness" type="boolean" value="true" xpos="-72.840576" ypos="-55.172413" />
+    <input name="groove_roughness" type="float" value="0.0" xpos="-79.594200" ypos="-51.879311" />
+    <input name="earlywood_ratio" type="float" value="0.0" xpos="-79.521736" ypos="-50.913792" />
+    <input name="ray_weight" type="float" value="0.0" xpos="-70.753624" ypos="-50.913792" />
+    <input name="roughness" type="float" value="0.0" xpos="-75.702896" ypos="-53.810345" />
+    <input name="ray_roughness" type="float" value="0.0" xpos="-70.869568" ypos="-49.913792" />
+    <output name="wood_roughness" type="float"/>
+  </nodedef>
+
+  <!--
+    Node: <wood3d_util_bump>
+    Compute wood bump. Not working due to the issue of procedural normal map in MaterialX
+  -->
+  <nodedef name="ND_wood3d_util_bump" node="wood3d_util_bump">
+    <input name="use_pores_bump" xpos="-83.391304" ypos="-36.000000" type="boolean" value="false" />
+    <input name="use_late_wood_bump" xpos="-83.920288" ypos="-31.879311" type="boolean" value="false" />
+    <input name="late_wood_bump_depth" xpos="-87.782608" ypos="-28.982759" type="float" value="0.0" />
+    <input name="pore_depth" xpos="-87.217392" ypos="-34.775864" type="float" value="0.0" />
+    <input name="earlywood_ratio" type="float" value="0.0" xpos="-87.405800" ypos="-30.362068" />
+    <input name="pore_bump_weight" type="float" value="0.0" xpos="-87.594200" ypos="-33.672413" />
+    <output name="normal" type="vector3" />
+  </nodedef>
+
+  <!-- 
+      ==============================================
+      Nodedefs for Autodesk 3D wood graph 
+      ==============================================
+  -->
+  <!--
+    Node: <wood3d>
+    3d wood material node graph
+  -->
+  <nodedef name="ND_wood3d" node="wood3d" nodegroup="texture3d">
+    <input name="seed" uiname="Wood generation seed" uifolder="Wood Space Settings" type="float" value="2" uimin="0" uisoftmax="4096" xpos="-107.971016" ypos="-45.672413" />
+    <input name="scale" unittype="distance" uivisible="false" uiname="Scale" uifolder="Wood Space Settings" type="float" value="1" uimin="0" uisoftmax="10" xpos="-110.057968" ypos="-47.879311" />
+    <input name="axis" uiname="Wood axis" uifolder="Wood Space Settings" enum="xyz, yzx, zxy" enumvalues="0,1,2" uimin="0" uimax="2" type="float" value="1" xpos="-112.681160" ypos="-48.689655" />
+    <input name="ring_thickness" uiname="Ring thickness" uifolder="Wood Growth Params" uimin="0.01" uisoftmax="1" type="float" value="0.9" xpos="-74.579712" ypos="-44.551723" />
+    <input name="early_wood_sharpness" uiname="Early wood sharpness" uifolder="Wood Growth Params" uimin="0" uisoftmax="1" type="float" value="0.793" xpos="-75.144928" ypos="-42.637932" />
+    <input name="late_wood_sharpness" uiname="Late wood sharpness" uifolder="Wood Growth Params" uimin="0" uisoftmax="1" type="float" value="0.527" xpos="-75.043480" ypos="-43.603447" />
+    <input name="late_wood_ratio" uiname="Late wood ratio" uifolder="Wood Growth Params" uimin="0" uisoftmax="1" type="float" value="0.059" xpos="-74.652176" ypos="-41.672413" />
+    <input name="use_fiber_perlin" uiname="Use fiber perlin distortion" uifolder="Wood Growth Params" type="boolean" value="true" xpos="-89.681160" ypos="-51.741379" />
+    <input name="fiber_perlin_frequencies" uiname="Fiber perlin frequencies(cm)" uifolder="Wood Growth Params" uimin="0" uisoftmax="100" type="vector4" value="23.5, 8, 2, 0" xpos="-95.101448" ypos="-52.827587" />
+    <input name="fiber_perlin_weights" uiname="Fiber perlin weights" uifolder="Wood Growth Params" uimin="0" uisoftmax="10" type="vector4" value="1.25, 0.75, 0.15, 0" xpos="-94.753624" ypos="-51.862068" />
+    <input name="fiber_perlin_scale_z" uiname="Fiber perlin scale z" uifolder="Wood Growth Params" uimin="0.05" uisoftmax="1" type="float" value="0.3" xpos="-94.739128" ypos="-53.793102" />
+    <input name="use_fiber_cosine" uiname="Use fiber cosine distortion" uifolder="Wood Growth Params" type="boolean" value="true" xpos="-97.101448" ypos="-51.862068" />
+    <input name="fiber_cosine_frequencies" uiname="Fiber cosine frequencies(cm)" uifolder="Wood Growth Params" uimin="0" uisoftmax="100" type="vector4" value="15, 2, 0, 0" xpos="-102.057968" ypos="-52.965519" />
+    <input name="fiber_cosine_weights" uiname="Fiber cosine weights" uifolder="Wood Growth Params" uimin="0" uisoftmax="10" type="vector4" value="0.5, 0.5, 0, 0" xpos="-101.710144" ypos="-52.000000" />
+    <input name="use_growth_perlin" uiname="Use growth perlin distortion" uifolder="Wood Growth Params" type="boolean" value="false" xpos="-77.905800" ypos="-52.051723" />
+    <input name="growth_perlin_frequencies" uiname="Growth Perlin distortion frequencies(cm)" uifolder="Wood Growth Params" uimin="0" uisoftmax="100" type="vector4" value="1.0, 0, 0, 0" xpos="-81.710144" ypos="-51.775864" />
+    <input name="growth_perlin_weights" uiname="Growth Perlin distortion weights" uifolder="Wood Growth Params" uimin="0" uisoftmax="10" type="vector4" value="0.5, 0, 0, 0" xpos="-81.340576" ypos="-52.741379" />
+    <input name="early_color" uiname="Early wood color" uifolder="Color Params" type="color3" value="0.420508 0.267358 0.144972" xpos="-71.101448" ypos="-49.948277" />
+    <input name="use_early_wood_color_perlin" uiname="Use early wood color distortion" uifolder="Color Params" type="boolean" value="true" xpos="-60.724636" ypos="-51.982758" />
+    <input name="earlycolor_perlin_frequencies" uiname="Early wood color distortion frequencies(cm)" uifolder="Color Params" uimin="0" uisoftmax="100" type="vector4" value="8, 3, 0.35, 0.0" xpos="-66.463768" ypos="-52.568966" />
+    <input name="earlycolor_perlin_weights" uiname="Early wood color distortion weights" uifolder="Color Params" uimin="0" uisoftmax="10" type="vector4" value="0.2, 0.3, 0.15, 0.0" xpos="-66.137680" ypos="-51.568966" />
+    <input name="use_manual_late_wood_color" uiname="Use manual late wood color" uifolder="Color Params" type="boolean" value="false" xpos="-70.159424" ypos="-46.913792" />
+    <input name="manual_late_wood_color" uiname="Manual late wood color" uifolder="Color Params" type="color3" value="0, 0, 0" xpos="-69.826088" ypos="-48.000000" />
+    <input name="late_wood_color_power" uiname="Late wood color power" uimin="0" uisoftmax="5" uifolder="Color Params" type="float" value="1.38" xpos="-71.797104" ypos="-45.672413" />
+    <input name="use_late_wood_color_perlin" uiname="Use late wood color distortion" uifolder="Color Params" type="boolean" value="true" xpos="-60.666668" ypos="-47.568966" />
+    <input name="latecolor_perlin_frequencies" uiname="Late wood color distortion frequencies(cm)" uifolder="Color Params" uimin="0" uisoftmax="100" type="vector4" value="4.5, 1.5 , 0, 0" xpos="-66.000000" ypos="-48.517242" />
+    <input name="latecolor_perlin_weights" uiname="Late wood color distortion weights" uifolder="Color Params" uimin="0" uisoftmax="10" type="vector4" value="0.25, 0.15, 0.0, 0.0" xpos="-65.652176" ypos="-47.568966" />
+    <input name="use_diffuse_perlin" uiname="Use diffuse color perlin" uifolder="Color Params" type="boolean" value="true" xpos="-45.920288" ypos="-49.931034" />
+    <input name="diffuse_perlin_frequencies" uiname="Diffuse color perlin frequencies(cm)" uifolder="Color Params" uimin="0" uisoftmax="100" type="vector4" value="0.1, 0.4, 5, 0.01" xpos="-51.536232" ypos="-49.258621" />
+    <input name="diffuse_perlin_weights" uiname="Diffuse color perlin weights" uifolder="Color Params" uimin="0" uisoftmax="10" type="vector4" value="0.1, 0.15, 0.2, 0.4" xpos="-51.210144" ypos="-51.172413" />
+    <input name="diffuse_perlin_scale_z" uiname="Diffuse color perlin scale z" uifolder="Color Params" uimin="0.01" uisoftmax="1" type="float" value="0.1" xpos="-51.210144" ypos="-50.224136" />
+    <input name="diffuse_lobe_weight" uiname="Diffuse lobe weight" uifolder="Color Params" uimin="0" uisoftmax="1" type="float" value="0.8" xpos="-23.253624" ypos="-46.379311" />
+    <input name="use_pore_color" uiname="Use pore" uifolder="Pores Params" type="boolean" value="true" xpos="-34.688404" ypos="-49.948277" />
+    <input name="pore_type" uiname="Pore type" uifolder="Pores Params" enum="both, early, late" enumvalues="0,1,2" uimin="0" uimax="2" type="integer" value="0" xpos="-46.869564" ypos="-44.844826" />
+    <input name="pore_cell_dim" uiname="Pore cell dim" uifolder="Pores Params" uimin="0.01" uisoftmax="3" type="float" value="1.5" xpos="-47.217392" ypos="-43.862068" />
+    <input name="pore_radius" uiname="Pore radius" uifolder="Pores Params" uimin="0.01" uisoftmax="2" type="float" value="0.06" xpos="-47.101448" ypos="-42.905174" />
+    <input name="pore_color_power" uiname="Pore color power" uifolder="Pores Params" uimin="0" uisoftmax="5" type="float" value="1.45" xpos="-42.753624" ypos="-49.948277" />
+    <input name="use_ray_color" uiname="Use ray" uifolder="Rays Params" type="boolean" value="true" xpos="-26.420290" ypos="-50.534481" />
+    <input name="ray_seg_length_z" uiname="Ray seg length z" uifolder="Rays Params" uimin="0.01" uisoftmax="10" type="float" value="5" xpos="-31.246376" ypos="-53.948277" />
+    <input name="ray_ellipse_depth" uiname="Ray ellipse depth" uifolder="Rays Params" uimin="0.01" uisoftmax="10" type="float" value="2" xpos="-31.217392" ypos="-52.974136" />
+    <input name="ray_color_power" uiname="Ray color power" uifolder="Rays Params" uimin="0" uisoftmax="5" type="float" value="1.1" xpos="-31.217392" ypos="-52.034481" />
+    <input name="ray_ellipse_scale_x" uiname="Ray ellipse scale x" uifolder="Rays Params" uimin="0.01" uisoftmax="1" type="float" value="0.2" xpos="-31.217392" ypos="-51.051723" />
+    <input name="ray_num_slices" uiname="Ray num" uifolder="Rays Params" type="float" uimin="1" uisoftmax="400" value="160" xpos="-31.217392" ypos="-50.086208" />
+    <input name="ray_ellipse_z2x" uiname="Ray ellipse z2x" uifolder="Rays Params" uimin="0" uisoftmax="40" type="float" value="10" xpos="-31.173914" ypos="-49.112068" />
+    <input name="use_groove_roughness" uiname="Use groove roughness" uifolder="Wood Roughness Params" type="boolean" value="true" xpos="-24.847826" ypos="-45.051723" />
+    <input name="groove_roughness" uiname="Groove roughness" uifolder="Wood Roughness Params" uimin="0" uisoftmax="1" type="float" value="0.19" xpos="-24.500000" ypos="-44.086208" />
+    <input name="roughness" uiname="Roughness" uifolder="Wood Roughness Params" uimin="0" uisoftmax="1" type="float" value="0.16" xpos="-23.920290" ypos="-41.448277" />
+    <input name="ray_roughness" uiname="Ray roughness" uifolder="Wood Roughness Params" uimin="0" uisoftmax="1" type="float" value="0.1" xpos="-24.188406" ypos="-40.482758" />
+    <input name="use_pores_bump" uiname="Use pores for bump" uifolder="Wood Bump Params (not working)" type="boolean" value="false" xpos="-41.195652" ypos="-44.137932" />
+    <input name="use_late_wood_bump" uiname="Use late wood bump" uifolder="Wood Bump Params (not working)" type="boolean" value="true" xpos="-41.543480" ypos="-43.310345" />
+    <input name="late_wood_bump_depth" uiname="Late wood bump depth" uifolder="Wood Bump Params (not working)" type="float" xpos="-41.760868" ypos="-42.344826" value="0" />
+    <input name="pore_depth" uiname="Pore depth" uifolder="Wood Bump Params (not working)" type="float" value="0.025" xpos="-41.000000" ypos="-41.379311" />
+    <output name="diffuse_color" type="color3"/>
+    <output name="wood_roughness" type="float"/>
+    <output name="normal" type="vector3"/>
+  </nodedef>
+
+
+</materialx>
