@@ -40,7 +40,15 @@
     <input name="weight" type="float" value="1" uimin="0" uimax="1" />
     <output name="out" type="vector3" />
   </nodedef>
-  
+
+  <nodedef name="ND_util_proc_to_norm" node="util_proc_to_norm" version="0.1" isdefaultversion="true" nodegroup="adsk_legacy">
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <input name="color" type="color3" value="0, 0, 0" />
+    <input name="amount_htn" type="float" value="1" uimin="0" uimax="1" />
+    <input name="amount_nm" type="float" value="1" uimin="0" uimax="1" />
+    <output name="out" type="vector3" />
+  </nodedef>
+ 
   <!-- 
       ===============================================
       Nodedefs for Autodesk Legacy Procedural Classes

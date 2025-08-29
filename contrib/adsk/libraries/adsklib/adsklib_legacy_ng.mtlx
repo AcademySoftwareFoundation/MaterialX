@@ -316,6 +316,22 @@
     <output name="out" type="vector3" xpos="39.420288" ypos="-0.448276" nodename="normalmap" />
   </nodegraph>
 
+  <nodegraph name="NG_util_proc_to_norm" nodedef="ND_util_proc_to_norm">
+    <extract name="extract_r" type="float" xpos="5.920290" ypos="-6.879310">
+      <input name="in" type="color3" interfacename="color" />
+    </extract>
+    <heighttonormal name="heighttonormal1" type="vector3" xpos="7.739130" ypos="-6.862069">
+      <input name="in" type="float" nodename="extract_r" />
+      <input name="scale" type="float" interfacename="amount_htn" />
+      <input name="texcoord" type="vector2" interfacename="texcoord" />
+    </heighttonormal>
+    <normalmap name="normalmap1" type="vector3" xpos="10.333333" ypos="-6.827586">
+      <input name="in" type="vector3" nodename="heighttonormal1" />
+      <input name="scale" type="float" interfacename="amount_nm" />
+    </normalmap>
+    <output name="out" type="vector3" nodename="normalmap1" xpos="12.615942" ypos="-6.775862" />
+  </nodegraph>
+
   <!-- 
       =================================================
       Nodegraphs for Autodesk Legacy Procedural Classes
