@@ -365,7 +365,7 @@ export material mx_subsurface_bsdf(
     color white = color(1.0, 1.0, 1.0);
     color alpha = (white - albedo_sq) / (white - mxp_anisotropy * albedo_sq);
 
-    color radius_inv = white / math::max(color(0.001), mxp_radius);
+    color radius_inv = white / math::max(0.00000001, mxp_radius);
 
     color sigma_s = alpha * radius_inv;
     color sigma_a = radius_inv - sigma_s;
