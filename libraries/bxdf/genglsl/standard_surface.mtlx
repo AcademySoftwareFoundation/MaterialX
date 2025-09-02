@@ -1,7 +1,9 @@
 <?xml version="1.0"?>
 <materialx version="1.39">
-  <implementation name="IMPL_standard_surface_surfaceshader_optim" nodedef="ND_standard_surface_surfaceshader" nodegraph="NG_standard_surface_surfaceshader_optim" />
+  <!-- An optimized graph implementation for hardware shading languages,
+       improving the effectiveness of dynamic branches. -->
 
+  <implementation name="IMPL_standard_surface_surfaceshader_optim" nodedef="ND_standard_surface_surfaceshader" nodegraph="NG_standard_surface_surfaceshader_optim" />
   <nodegraph name="NG_standard_surface_surfaceshader_optim" target="genglsl">
 
     <!-- Roughness influence by coat-->

@@ -1,5 +1,8 @@
 <?xml version="1.0"?>
 <materialx version="1.39">
+  <!-- An optimized graph implementation for hardware shading languages,
+       improving the effectiveness of dynamic branches. -->
+
   <nodegraph name="NG_open_pbr_surface_surfaceshader_optim" nodedef="ND_open_pbr_surface_surfaceshader" target="genglsl">
 
     <!-- Roughening due to coat-->
