@@ -4,6 +4,18 @@ Sample MaterialX ImageLoader implementation using OpenImageIO package.
 This module provides a MaterialX-compatible ImageLoader implementation using OpenImageIO (OIIO).
 The test will test loading an image, save it out, and optionally previewing it.
 
+Steps:
+    1. Create an OIIOLoader which is derived from the ImageLoader interface class.
+    2. Create a new ImageHandler and register the loader with it.
+    3. Request to acquire an image using the ImageHandler. An EXR image is requested.
+    4. OIIOLoader will return supported extensions and match the requested image format.
+    5. As such the OIIOLoader will be requested to load in the EXR image, convert the 
+    data and return a MaterialX Image.
+    6. Try to acquire the image again. This should returnt the cached MaterialX Image.
+    7. Save the image back to disk in the original format.
+
+    The image can optionally be previewed after load before save.
+
 - Python Dependencies: 
     - OpenImageIO (version 3.0.6.1) 
         - API Docs can be found here: https://openimageio.readthedocs.io/en/v3.0.6.1/)
@@ -30,7 +42,6 @@ try:
 except ImportError:
     logger.error("Required modules not found. Please install OpenImageIO and numpy.")
     raise
-
 
 have_matplot = False
 try:
@@ -66,18 +77,41 @@ class OiioImageLoader(mx_render.ImageLoader):
                 self._extensions.update(ext.strip() for ext in group.split(","))
         logger.debug(f"Cache supported extensions: {self._extensions}")
 
+        self.preview = False
+        self.identifier = "OpenImageIO Custom Image Loader"
+
     def supportedExtensions(self):
         """
-        Return a set of supported image file extensions.
+        Derived method to return a set of supported image file extensions.
         """
         logger.info(f"OIIO supported extensions: {self._extensions}")
         return self._extensions
+
+    def set_preview(self, value):
+        """
+        Set whether to preview images when loading and saving
+
+        @param value: Boolean indicating whether to enable preview
+        """
+        self.preview = value
+
+    def get_identifier(self):
+        return "OIIO Custom Loader"
 
     def previewImage(self, title, data, width, height, nchannels):
         """
         Utility method to preview an image using matplotlib.
         Handles normalization and dtype for correct display.
+
+        @param title: Title for the preview window
+        @param data: Image data array
+        @param width: Image width
+        @param height: Image height
+        @param nchannels: Number of image channels
         """
+        if not self.preview:
+            return
+
         if have_matplot:
             # If the image is float16 (half), convert to float32
             if data.dtype == np.float16:
@@ -116,12 +150,9 @@ class OiioImageLoader(mx_render.ImageLoader):
     def loadImage(self, filePath):
         """
         Load an image from the file system (MaterialX interface method).
-        
-        Args:
-            filePath (MaterialX.FilePath): Path to the image file
-            
-        Returns:
-            MaterialX.ImagePtr: MaterialX Image object or None if loading fails
+
+        @param filePath (MaterialX.FilePath): Path to the image file
+        @returns MaterialX.ImagePtr: MaterialX Image object or None if loading fails
         """
         file_path_str = filePath.asString()
         logger.info(f"Load using OIIO loader: {file_path_str}")
@@ -316,20 +347,8 @@ class OiioImageLoader(mx_render.ImageLoader):
             mx_render.BaseType.UINT16: np.uint16,
             mx_render.BaseType.INT8:   np.int8,
             mx_render.BaseType.INT16:  np.int16,
-            mx_render.BaseType.HALF:   np.float16,  # was 'half'
-            mx_render.BaseType.FLOAT:  np.float32,  # was 'float' (float64) -> WRONG
-        }
-        return type_mapping.get(mx_basetype, None)
-
-    def _materialx_type_to_np_type_2(self, mx_basetype):
-        """Map MaterialX base type to NumPy dtype."""
-        type_mapping = {
-            mx_render.BaseType.UINT8: 'uint8',
-            mx_render.BaseType.UINT16: 'uint16',
-            mx_render.BaseType.INT8: 'int8',
-            mx_render.BaseType.INT16: 'int16',
-            mx_render.BaseType.HALF: 'half',
-            mx_render.BaseType.FLOAT: 'float',
+            mx_render.BaseType.HALF:   np.float16,
+            mx_render.BaseType.FLOAT:  np.float32,
         }
         return type_mapping.get(mx_basetype, None)
 
@@ -341,6 +360,7 @@ def test_load_save():
     parser = argparse.ArgumentParser(description="MaterialX OIIO Image Handler")
     parser.add_argument("path", help="Path to the image file")
     parser.add_argument("--flip", action="store_true", help="Flip the image vertically")
+    parser.add_argument("--preview", action="store_true", help="Preview the image before saving")
     args = parser.parse_args()
 
     test_image_path = args.path
@@ -350,15 +370,15 @@ def test_load_save():
 
     # Create MaterialX handler with custom OIIO image loader
     loader = OiioImageLoader()
+    loader.set_preview(args.preview)
     handler = mx_render.ImageHandler.create(loader)
-    #manager = mx_render.getPluginManager()
-    #handler = manager.getImageHandler()
-    logger.info(f"Created {handler} with loader")
+    logger.info(f"Created image handler with loader ({loader.get_identifier()}): {handler is not None}")
     handler.addLoader(loader)
 
     mx_filepath = mx.FilePath(test_image_path)
 
     # Load image using handler API
+    logger.info('-'*45)
     logger.info(f"Loading image from path: {mx_filepath.asString()}")
     mx_image = handler.acquireImage(mx_filepath)
     if mx_image:
@@ -374,11 +394,17 @@ def test_load_save():
 
         # Save image using handler API (to a new file)
         logger.info('-'*45)
-        out_path = mx.FilePath("saved_" + os.path.basename(test_image_path))
-        if handler.saveImage(out_path, mx_image, verticalFlip=args.flip):
-            logger.info(f"MaterialX Image saved to {out_path.asString()}")
+
+        # Retrieve cached image
+        mx_image = handler.acquireImage(mx_filepath)
+        if mx_image:
+            out_path = mx.FilePath("saved_" + os.path.basename(test_image_path))
+            if handler.saveImage(out_path, mx_image, verticalFlip=args.flip):
+                logger.info(f"MaterialX Image saved to {out_path.asString()}")
+            else:
+                logger.error("Failed to save image.")
         else:
-            logger.error("Failed to save image.")
+            logger.error("Failed to acquire image for saving.")
     else:
         logger.error("Failed to load image.")
 
