@@ -131,7 +131,7 @@ class MX_RENDER_API ImageLoader
 
     /// Returns a list of supported extensions
     /// @return List of support extensions
-    const StringSet& supportedExtensions() const
+    virtual const StringSet& supportedExtensions() const
     {
         return _extensions;
     }
@@ -172,6 +172,9 @@ class MX_RENDER_API ImageHandler
     /// Add another image loader to the handler, which will be invoked if
     /// existing loaders cannot load a given image.
     void addLoader(ImageLoaderPtr loader);
+
+    /// Add image loaders from another handler to this one
+    unsigned int addLoaders(const ImageHandlerPtr& handler);
 
     /// Get a list of extensions supported by the handler.
     StringSet supportedExtensions();
