@@ -79,6 +79,7 @@ class OiioImageLoader(mx_render.ImageLoader):
 
         self.preview = False
         self.identifier = "OpenImageIO Custom Image Loader"
+        self.color_space = {}
 
     def supportedExtensions(self):
         """
@@ -98,7 +99,7 @@ class OiioImageLoader(mx_render.ImageLoader):
     def get_identifier(self):
         return "OIIO Custom Loader"
 
-    def previewImage(self, title, data, width, height, nchannels):
+    def previewImage(self, title, data, width, height, nchannels, color_space):
         """
         Utility method to preview an image using matplotlib.
         Handles normalization and dtype for correct display.
@@ -108,6 +109,7 @@ class OiioImageLoader(mx_render.ImageLoader):
         @param width: Image width
         @param height: Image height
         @param nchannels: Number of image channels
+        @param color_space: Color space of the image
         """
         if not self.preview:
             return
@@ -142,9 +144,14 @@ class OiioImageLoader(mx_render.ImageLoader):
                 rgb_disp = rgb
 
             # Set title bar text for the preview window
-            plt.title(f"{title} ({width}x{height}, {nchannels} channels, dtype={data.dtype})")
-            plt.imshow(rgb_disp)
-            plt.axis('off')
+            fig, ax = plt.subplots()
+            ax.imshow(rgb_disp)
+            ax.axis("off")
+            #fig.patch.set_facecolor("black")
+            fig.canvas.manager.set_window_title(title)
+            info = f"Dimensions:({width}x{height}), {nchannels} channels, type={data.dtype}, colorspace={color_space}"
+            fig.suptitle(title, fontsize=12)
+            plt.title(info, fontsize=9) 
             plt.show()
 
     def loadImage(self, filePath):
@@ -170,8 +177,9 @@ class OiioImageLoader(mx_render.ImageLoader):
             
             # Get image specifications
             spec = img_input.spec()
-            self.last_spec = spec
-            self.last_loaded_path = file_path_str
+            color_space = spec.getattribute("oiio:ColorSpace")  
+            logger.info(f"ColorSpace: {color_space}")
+            self.color_space[file_path_str] = color_space
 
             # Check channel count
             channels = spec.nchannels
@@ -199,7 +207,7 @@ class OiioImageLoader(mx_render.ImageLoader):
                 logger.error(f"Could not read image data.")
                 return None
 
-            self.previewImage("Loaded MaterialX Image", data, spec.width, spec.height, channels)
+            self.previewImage("Loaded MaterialX Image", data, spec.width, spec.height, channels, color_space)
 
             # Steps:
             # - Copy the OIIO data into the MaterialX image resource buffer            
@@ -286,7 +294,16 @@ class OiioImageLoader(mx_render.ImageLoader):
                 pixels = np.flipud(pixels)
 
             logger.info("Previewing image after load into Image and reload for save...")
-            self.previewImage("OpenImageIO Output Image", pixels, width, height, channels)
+            # Remove "saved_" prefix if present
+            search_name = filename.replace("saved_", "")
+            color_space = "Unknown"
+            for key in self.color_space:
+                value = self.color_space[key]
+                path = os.path.basename(key)
+                if path in search_name:
+                    color_space = value
+            logger.info(f"colorspace lookup for: {search_name}. list: {color_space}")
+            self.previewImage("OpenImageIO Output Image", pixels, width, height, channels, color_space)
 
         except Exception as e:
             logger.error(f"Error copying buffer to pixels: {e}")
