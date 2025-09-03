@@ -173,9 +173,6 @@ class MX_RENDER_API ImageHandler
     /// existing loaders cannot load a given image.
     void addLoader(ImageLoaderPtr loader);
 
-    /// Add image loaders from another handler to this one
-    unsigned int addLoaders(const ImageHandlerPtr& handler);
-
     /// Get a list of extensions supported by the handler.
     StringSet supportedExtensions();
 
