@@ -166,7 +166,8 @@ void Document::initialize()
 }
 
 NodeDefPtr Document::addNodeDefFromGraph(NodeGraphPtr nodeGraph, const string& nodeDefName,
-                                         const string& category, const string& newGraphName)
+                                         const string& category, const string& newGraphName,
+                                         DefinitionOptions *options)
 {
     if (category.empty())
     {
@@ -178,14 +179,20 @@ NodeDefPtr Document::addNodeDefFromGraph(NodeGraphPtr nodeGraph, const string& n
         throw Exception("Cannot create duplicate nodedef: " + nodeDefName);
     }
 
-    if (getNodeGraph(newGraphName))
+    bool addAsChild = options ? options->addImplementationAsChild : false;
+
+    if (!addAsChild && getNodeGraph(newGraphName))
     {
         throw Exception("Cannot create duplicate nodegraph: " + newGraphName);
     }
 
+    // Create a new nodedef and set its category
+    NodeDefPtr nodeDef = addNodeDef(nodeDefName, EMPTY_STRING);
+    nodeDef->setNodeString(category);
+
     // Create a new functional nodegraph, and copy over the
     // contents from the compound nodegraph
-    NodeGraphPtr graph = addNodeGraph(newGraphName);
+    NodeGraphPtr graph = !addAsChild ? addNodeGraph(newGraphName) : nodeDef->addChild<NodeGraph>(newGraphName);
     graph->copyContentFrom(nodeGraph);
 
     for (auto graphChild : graph->getChildren())
@@ -193,11 +200,13 @@ NodeDefPtr Document::addNodeDefFromGraph(NodeGraphPtr nodeGraph, const string& n
         graphChild->removeAttribute(Element::XPOS_ATTRIBUTE);
         graphChild->removeAttribute(Element::YPOS_ATTRIBUTE);
     }
-    graph->setNodeDefString(nodeDefName);
 
-    // Create a new nodedef and set its category
-    NodeDefPtr nodeDef = addNodeDef(nodeDefName, EMPTY_STRING);
-    nodeDef->setNodeString(category);
+    // Reference from nodegraph to nodedef is not required
+    // as the graph is a child of the nodedef.
+    if (!addAsChild)
+    {
+        graph->setNodeDefString(nodeDefName);
+    }
 
     // Expose any existing interfaces from the graph.
     // Any connection attributes ("nodegraph", "nodename", "interfacename") on the

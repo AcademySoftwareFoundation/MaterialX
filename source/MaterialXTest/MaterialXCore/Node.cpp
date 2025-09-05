@@ -675,7 +675,7 @@ TEST_CASE("Organization", "[nodegraph]")
     CHECK(nodeGraph->getBackdrops().empty());
 }
 
-TEST_CASE("Node Definition Creation", "[nodedef]")
+void testNodeDefCreationFromGraph(mx::DefinitionOptions options)
 {
     mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
     mx::DocumentPtr stdlib = mx::createDocument();
@@ -714,10 +714,12 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
         bool isDefaultVersion = false;
         const std::string NODENAME = graph->getName();
 
+
         // Create a new functional graph and definition from a compound graph
+        bool addAsChild = options.addImplementationAsChild;
         std::string newNodeDefName = doc->createValidChildName("ND_" + graph->getName());
         std::string newGraphName = doc->createValidChildName("NG_" + graph->getName());
-        mx::NodeDefPtr nodeDef = doc->addNodeDefFromGraph(graph, newNodeDefName, NODENAME, newGraphName);
+        mx::NodeDefPtr nodeDef = doc->addNodeDefFromGraph(graph, newNodeDefName, NODENAME, newGraphName, &options);
         REQUIRE(nodeDef != nullptr);
         nodeDef->setVersionString(VERSION1);
         nodeDef->setDefaultVersion(isDefaultVersion);
@@ -759,9 +761,16 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
         }
 
         // Check validity of new functional nodegraph
-        mx::NodeGraphPtr newGraph = doc->getNodeGraph(newGraphName);
+        mx::NodeGraphPtr newGraph = !addAsChild ? doc->getNodeGraph(newGraphName) : nodeDef->getChildOfType<mx::NodeGraph>(newGraphName);
         REQUIRE(newGraph != nullptr);
-        REQUIRE(newGraph->getNodeDefString() == newNodeDefName);
+        if (!addAsChild)
+        {
+            REQUIRE(newGraph->getNodeDefString() == newNodeDefName);
+        }
+        else
+        {
+            REQUIRE(newGraph->getNodeDefString().empty());
+        }
         mx::ConstInterfaceElementPtr decl = newGraph->getDeclaration();
         REQUIRE(decl->getName() == nodeDef->getName());
         REQUIRE(doc->validate());
@@ -824,6 +833,23 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
     }
 
     REQUIRE(doc->validate());
+}
+
+TEST_CASE("Node Definition Creation", "[nodedef_create]")
+{
+    mx::DefinitionOptions defOptions;
+
+    SECTION("Without implementation as child")
+    {
+        defOptions.addImplementationAsChild = false;
+        testNodeDefCreationFromGraph(defOptions);
+    }
+
+    SECTION("With implementation as child")
+    {
+        defOptions.addImplementationAsChild = true;
+        testNodeDefCreationFromGraph(defOptions);
+    }
 }
 
 TEST_CASE("Set Name Global", "[node, nodegraph]")
