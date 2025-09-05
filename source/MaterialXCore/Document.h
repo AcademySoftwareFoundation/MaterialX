@@ -23,6 +23,8 @@ using DocumentPtr = shared_ptr<Document>;
 /// A shared pointer to a const Document
 using ConstDocumentPtr = shared_ptr<const Document>;
 
+class DefinitionOptions;
+
 /// @class Document
 /// A MaterialX document, which represents the top-level element in the
 /// MaterialX ownership hierarchy.
@@ -363,7 +365,8 @@ class MX_CORE_API Document : public GraphElement
     /// @param category Category of the new NodeDef
     /// @return New declaration if successful.
     NodeDefPtr addNodeDefFromGraph(NodeGraphPtr nodeGraph, const string& nodeDefName,
-                                   const string& category, const string& newGraphName);
+                                   const string& category, const string& newGraphName,
+                                   DefinitionOptions * options = nullptr);
 
     /// Return the NodeDef, if any, with the given name.
     NodeDefPtr getNodeDef(const string& name) const
@@ -706,6 +709,15 @@ class MX_CORE_API Document : public GraphElement
   private:
     ConstDocumentPtr _dataLibrary;
     std::unique_ptr<Cache> _cache;
+};
+
+/// @class DefinitionOptions
+/// Options for defining a NodeDef from an immplementation
+class MX_CORE_API DefinitionOptions
+{
+public:
+    /// Add implementation as child of NodeDef as opposed a sibliing.
+    bool addImplementationAsChild = false;
 };
 
 /// Create a new Document.
