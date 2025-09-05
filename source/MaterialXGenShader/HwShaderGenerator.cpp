@@ -357,9 +357,7 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     }
 
     // Add uniforms for environment lighting.
-    bool lighting = graph->hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE) ||
-                    graph->hasClassification(ShaderNode::Classification::BSDF);
-    if (lighting && context.getOptions().hwSpecularEnvironmentMethod != SPECULAR_ENVIRONMENT_NONE)
+    if (requiresLighting(*graph) && context.getOptions().hwSpecularEnvironmentMethod != SPECULAR_ENVIRONMENT_NONE)
     {
         const Matrix44 yRotationPI = Matrix44::createScale(Vector3(-1, 1, -1));
         psPrivateUniforms->add(Type::MATRIX44, HW::T_ENV_MATRIX, Value::createValue(yRotationPI));
@@ -485,6 +483,15 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     }
 
     return shader;
+}
+
+bool HwShaderGenerator::requiresLighting(const ShaderGraph& graph) const
+{
+    const bool isBsdf = graph.hasClassification(ShaderNode::Classification::BSDF);
+    const bool isLitSurfaceShader = graph.hasClassification(ShaderNode::Classification::SHADER) &&
+                                    graph.hasClassification(ShaderNode::Classification::SURFACE) &&
+                                    !graph.hasClassification(ShaderNode::Classification::UNLIT);
+    return isBsdf || isLitSurfaceShader;
 }
 
 void HwShaderGenerator::bindLightShader(const NodeDef& nodeDef, unsigned int lightTypeId, GenContext& context)

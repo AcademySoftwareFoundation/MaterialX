@@ -824,15 +824,6 @@ string MslShaderGenerator::getVertexDataPrefix(const VariableBlock& vertexData) 
     return vertexData.getInstance() + ".";
 }
 
-bool MslShaderGenerator::requiresLighting(const ShaderGraph& graph) const
-{
-    const bool isBsdf = graph.hasClassification(ShaderNode::Classification::BSDF);
-    const bool isLitSurfaceShader = graph.hasClassification(ShaderNode::Classification::SHADER) &&
-                                    graph.hasClassification(ShaderNode::Classification::SURFACE) &&
-                                    !graph.hasClassification(ShaderNode::Classification::UNLIT);
-    return isBsdf || isLitSurfaceShader;
-}
-
 void MslShaderGenerator::emitMathMatrixScalarMathOperators(GenContext& context, ShaderStage& stage) const
 {
     emitLibraryInclude("stdlib/genmsl/lib/mx_matscalaroperators.metal", context, stage);
