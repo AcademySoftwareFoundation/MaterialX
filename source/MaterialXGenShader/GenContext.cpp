@@ -53,7 +53,7 @@ ShaderNodeImplPtr GenContext::findNodeImplementation(const string& name) const
 
 void GenContext::getNodeImplementationNames(StringSet& names)
 {
-    for (auto it : _nodeImpls)
+    for (const auto& it : _nodeImpls)
     {
         names.insert(it.first);
     }
