@@ -507,7 +507,7 @@ float Graph::findAvgY(const std::vector<UiNodePtr>& nodes)
         total += ((size.y + pos.y) + pos.y) / 2;
         count++;
     }
-    return (total / count);
+    return count ? (total / count) : 0.0f;
 }
 
 void Graph::findYSpacing(float startY)
