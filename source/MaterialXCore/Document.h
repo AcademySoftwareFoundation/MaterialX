@@ -363,6 +363,7 @@ class MX_CORE_API Document : public GraphElement
     /// @param newGraphName Name of new functional NodeGraph.
     /// @param nodeDefName Name of new NodeDef
     /// @param category Category of the new NodeDef
+    /// @param options Optional creation options. Default is nullptr.
     /// @return New declaration if successful.
     NodeDefPtr addNodeDefFromGraph(NodeGraphPtr nodeGraph, const string& nodeDefName,
                                    const string& category, const string& newGraphName,
