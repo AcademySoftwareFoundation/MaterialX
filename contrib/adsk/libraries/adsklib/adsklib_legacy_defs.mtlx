@@ -332,6 +332,7 @@
     <input name="tint_color" type="color3" value="0.1075, 0.6597, 0.0136" uivisible="true" uiname="Tint Color" />
     <input name="relief_pattern_enable" type="boolean" value="false" uivisible="true" uiname="Relief Pattern" />
     <input name="relief_pattern_type" type="integer" value="0" uivisible="true" uiname="Relief Pattern Type" enum="Based on Wood Grain,Custom" enumvalues="0,1" uimin="0" uimax="1" />
+    <input name="relief_pattern_auto_amount" type="float" value="0.05" uimin="0.0" uimax="1.0" uivisible="true" uiname="Wood Grain Pattern Amount" />
     <input name="normal_pattern_custom" type="vector3" uivisible="true" uiname="Custom Relief Pattern" defaultgeomprop="Nworld" />
     <input name="normal_floor_bump" type="vector3" uivisible="false" defaultgeomprop="Nworld" />
     <output name="out" type="surfaceshader" />

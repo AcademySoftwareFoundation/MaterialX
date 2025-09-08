@@ -4039,6 +4039,7 @@
     </constant>
     <heighttonormal name="heighttonormal_color_bump" type="vector3" xpos="3.3347" ypos="11.6428">
       <input name="in" type="float" nodename="extract_float_bump" />
+      <input name="scale" type="float" interfacename="relief_pattern_auto_amount" />
     </heighttonormal>
     <normalmap name="normalmap_color_bump" type="vector3" xpos="4.941" ypos="11.6119">
       <input name="in" type="vector3" nodename="heighttonormal_color_bump" />
@@ -4081,7 +4082,6 @@
       <input name="in2" type="vector3" interfacename="normal_pattern_custom" />
       <input name="which" type="integer" interfacename="relief_pattern_type" />
     </switch>
-    <backdrop name="is_this_ok_at_least_add_amount_multipler" xpos="0.163695" ypos="12.982" width="3.99845" height="0.871989" uicolor="#C85252" Autodesk-ldx_alpha="0.156863" />
   </nodegraph>
 
   <!-- <Legacy Glazing> -->
