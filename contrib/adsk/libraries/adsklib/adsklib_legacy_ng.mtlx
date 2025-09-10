@@ -5090,11 +5090,11 @@
       <input name="which" type="integer" interfacename="type" />
     </switch>
     <switch name="type_water_transmission" type="float" nodedef="ND_switch_floatI" xpos="6.7225" ypos="0.945428">
-      <input name="in1" type="float" value="0.8" />
-      <input name="in2" type="float" value="0.45" />
-      <input name="in3" type="float" value="0.6" />
-      <input name="in4" type="float" value="0.8" />
-      <input name="in5" type="float" value="0.8" />
+      <input name="in1" type="float" nodename="transmission_swimmming_pool" ldx_value="0.8" />
+      <input name="in2" type="float" nodename="transmission_gen_refl_pool" ldx_value="0.45" />
+      <input name="in3" type="float" nodename="transmission_gen_stream" ldx_value="0.6" />
+      <input name="in4" type="float" nodename="transmission_gen_pond" ldx_value="0.8" />
+      <input name="in5" type="float" nodename="transmission_gen_sea" ldx_value="0.8" />
       <input name="which" type="integer" interfacename="type" />
     </switch>
     <switch name="type_water_color" type="color3" nodedef="ND_switch_color3I" xpos="-0.896333" ypos="-5.98567">
@@ -5129,11 +5129,21 @@
     <constant name="color_gen_refl_pool_alt" type="color3" nodedef="ND_constant_color3" xpos="-3.05233" ypos="-8.14111">
       <input name="value" type="color3" value="0.865, 0.91, 0.866" />
     </constant>
-    <constant name="transmission_swimmming_pool" type="float" nodedef="ND_constant_float" xpos="4.58526" ypos="-1.04838" />
-    <constant name="transmission_gen_refl_pool" type="float" nodedef="ND_constant_float" xpos="4.56597" ypos="-0.0310003" />
-    <constant name="transmission_gen_stream" type="float" nodedef="ND_constant_float" xpos="4.59007" ypos="0.95745" />
-    <constant name="transmission_gen_pond" type="float" nodedef="ND_constant_float" xpos="4.60453" ypos="1.95072" />
-    <constant name="transmission_gen_sea" type="float" nodedef="ND_constant_float" xpos="4.60453" ypos="2.96809" />
+    <constant name="transmission_swimmming_pool" type="float" nodedef="ND_constant_float" xpos="4.58526" ypos="-1.04838">
+      <input name="value" type="float" value="0.9" />
+    </constant>
+    <constant name="transmission_gen_refl_pool" type="float" nodedef="ND_constant_float" xpos="4.56597" ypos="-0.0310003">
+      <input name="value" type="float" value="0.85" />
+    </constant>
+    <constant name="transmission_gen_stream" type="float" nodedef="ND_constant_float" xpos="4.59007" ypos="0.95745">
+      <input name="value" type="float" value="0.6" />
+    </constant>
+    <constant name="transmission_gen_pond" type="float" nodedef="ND_constant_float" xpos="4.60453" ypos="1.95072">
+      <input name="value" type="float" value="0.4" />
+    </constant>
+    <constant name="transmission_gen_sea" type="float" nodedef="ND_constant_float" xpos="4.60453" ypos="2.96809">
+      <input name="value" type="float" value="0.4" />
+    </constant>
     <constant name="color_gen_refl_pool" type="color3" nodedef="ND_constant_color3" xpos="-7.66189" ypos="-8.035">
       <input name="value" type="color3" value="0.05, 0.149, 0.243" />
     </constant>
