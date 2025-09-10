@@ -13,20 +13,20 @@
 #include <MaterialXGenSlang/Nodes/LightSamplerNodeSlang.h>
 #include <MaterialXGenSlang/Nodes/NumLightsNodeSlang.h>
 
-#include <MaterialXGenSlang/Nodes/NormalNodeSlang.h>
-#include <MaterialXGenSlang/Nodes/TangentNodeSlang.h>
-#include <MaterialXGenSlang/Nodes/BitangentNodeSlang.h>
-#include <MaterialXGenSlang/Nodes/ViewDirectionNodeSlang.h>
-#include <MaterialXGenSlang/Nodes/TransformNodeSlang.h>
-
 #include <MaterialXGenShader/Nodes/MaterialNode.h>
 #include <MaterialXGenShader/Nodes/HwImageNode.h>
 #include <MaterialXGenShader/Nodes/HwGeomColorNode.h>
 #include <MaterialXGenShader/Nodes/HwGeomPropValueNode.h>
 #include <MaterialXGenShader/Nodes/HwTexCoordNode.h>
+#include <MaterialXGenShader/Nodes/HwTransformNode.h>
 #include <MaterialXGenShader/Nodes/HwPositionNode.h>
+#include <MaterialXGenShader/Nodes/HwNormalNode.h>
+#include <MaterialXGenShader/Nodes/HwTangentNode.h>
+#include <MaterialXGenShader/Nodes/HwBitangentNode.h>
 #include <MaterialXGenShader/Nodes/HwFrameNode.h>
 #include <MaterialXGenShader/Nodes/HwTimeNode.h>
+#include <MaterialXGenShader/Nodes/HwViewDirectionNode.h>
+
 #include <MaterialXGenShader/Util.h>
 
 #include <cassert>
@@ -52,11 +52,11 @@ SlangShaderGenerator::SlangShaderGenerator(TypeSystemPtr typeSystem) :
     // <!-- <position> -->
     registerImplementation("IM_position_vector3_" + SlangShaderGenerator::TARGET, HwPositionNode::create);
     // <!-- <normal> -->
-    registerImplementation("IM_normal_vector3_" + SlangShaderGenerator::TARGET, NormalNodeSlang::create);
+    registerImplementation("IM_normal_vector3_" + SlangShaderGenerator::TARGET, HwNormalNode::create);
     // <!-- <tangent> -->
-    registerImplementation("IM_tangent_vector3_" + SlangShaderGenerator::TARGET, TangentNodeSlang::create);
+    registerImplementation("IM_tangent_vector3_" + SlangShaderGenerator::TARGET, HwTangentNode::create);
     // <!-- <bitangent> -->
-    registerImplementation("IM_bitangent_vector3_" + SlangShaderGenerator::TARGET, BitangentNodeSlang::create);
+    registerImplementation("IM_bitangent_vector3_" + SlangShaderGenerator::TARGET, HwBitangentNode::create);
     // <!-- <texcoord> -->
     registerImplementation("IM_texcoord_vector2_" + SlangShaderGenerator::TARGET, HwTexCoordNode::create);
     registerImplementation("IM_texcoord_vector3_" + SlangShaderGenerator::TARGET, HwTexCoordNode::create);
@@ -84,7 +84,7 @@ SlangShaderGenerator::SlangShaderGenerator(TypeSystemPtr typeSystem) :
     // <!-- <time> -->
     registerImplementation("IM_time_float_" + SlangShaderGenerator::TARGET, HwTimeNode::create);
     // <!-- <viewdirection> -->
-    registerImplementation("IM_viewdirection_vector3_" + SlangShaderGenerator::TARGET, ViewDirectionNodeSlang::create);
+    registerImplementation("IM_viewdirection_vector3_" + SlangShaderGenerator::TARGET, HwViewDirectionNode::create);
 
     // <!-- <surface> -->
     registerImplementation("IM_surface_" + SlangShaderGenerator::TARGET, SurfaceNodeSlang::create);
@@ -100,13 +100,13 @@ SlangShaderGenerator::SlangShaderGenerator(TypeSystemPtr typeSystem) :
     registerImplementation("IM_spot_light_" + SlangShaderGenerator::TARGET, LightShaderNodeSlang::create);
 
     // <!-- <ND_transformpoint> ->
-    registerImplementation("IM_transformpoint_vector3_" + SlangShaderGenerator::TARGET, TransformPointNodeSlang::create);
+    registerImplementation("IM_transformpoint_vector3_" + SlangShaderGenerator::TARGET, HwTransformPointNode::create);
 
     // <!-- <ND_transformvector> ->
-    registerImplementation("IM_transformvector_vector3_" + SlangShaderGenerator::TARGET, TransformVectorNodeSlang::create);
+    registerImplementation("IM_transformvector_vector3_" + SlangShaderGenerator::TARGET, HwTransformVectorNode::create);
 
     // <!-- <ND_transformnormal> ->
-    registerImplementation("IM_transformnormal_vector3_" + SlangShaderGenerator::TARGET, TransformNormalNodeSlang::create);
+    registerImplementation("IM_transformnormal_vector3_" + SlangShaderGenerator::TARGET, HwTransformNormalNode::create);
 
     // <!-- <image> -->
     elementNames = {
@@ -230,6 +230,10 @@ void SlangShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext&
 
     // Add vertex data outputs block
     emitOutputs(context, stage);
+
+    // Add common math functions
+    emitLibraryInclude("stdlib/genslang/lib/mx_math.slang", context, stage);
+    emitLineBreak(stage);
 
     emitFunctionDefinitions(graph, context, stage);
 

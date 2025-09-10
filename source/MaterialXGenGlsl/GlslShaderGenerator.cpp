@@ -172,6 +172,10 @@ void GlslShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext& 
     // Add vertex data outputs block
     emitOutputs(context, stage);
 
+    // Add common math functions
+    emitLibraryInclude("stdlib/genglsl/lib/mx_math.glsl", context, stage);
+    emitLineBreak(stage);
+
     emitFunctionDefinitions(graph, context, stage);
 
     // Add main function
