@@ -153,15 +153,12 @@ NodeDefPtr UnitSystem::getNodeDef(const UnitTransform& transform) const
     const string MULTIPLY_NODE_NAME = "multiply";
     for (NodeDefPtr nodeDef : _document->getMatchingNodeDefs(MULTIPLY_NODE_NAME))
     {
-        for (OutputPtr output : nodeDef->getOutputs())
+        vector<InputPtr> nodeInputs = nodeDef->getInputs();
+        if (nodeInputs.size() == 2 &&
+            nodeInputs[0]->getType() == transform.type.getName() &&
+            nodeInputs[1]->getType() == "float")
         {
-            vector<InputPtr> nodeInputs = nodeDef->getInputs();
-            if (nodeInputs.size() == 2 &&
-                nodeInputs[0]->getType() == transform.type.getName() &&
-                nodeInputs[1]->getType() == "float")
-            {
-                return nodeDef;
-            }
+            return nodeDef;
         }
     }
     return nullptr;
