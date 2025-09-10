@@ -1,13 +1,15 @@
 # Change Log
 
-## [1.39.4] - Development
+## [1.39.4] - Release Candidate
 
 ### Added
 - Added support for [WebGPU Shading Language](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2407) in MaterialX shader generation.
 - Added support for [hex-tiled images](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2094), with initial implementations in hardware shading languages and MDL.
 - Added support for [latitude-longitude images](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2168), implemented as a language-independent graph.
 - Added support for [2D fractals](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2183), with initial implementations in hardware shading languages, OSL, and MDL.
+- Added support for [NanoColor names](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2513) in default color space management.
 - Added support for [custom OCIO configurations](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1917) in shader generation.
+- Added support for [anisotropy](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2393) in the graph definition of glTF PBR.
 - Added support for the [time and frame nodes](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2389) in the MaterialX Viewer and MaterialX Graph Editor.
 - Added support for [node output types](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2387) in document validation.
 - Added the first [animated material example](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2329) to the MaterialX test suite.
@@ -17,7 +19,7 @@
 - Raised the minimum Python version to [Python 3.9](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2326).
 - Raised the minimum OpenImageIO version to [OIIO 2.2](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2340).
 - Raised the default PyBind11 version to [PyBind11 2.13.6](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2331).
-- Optimized the graph definitions of [Standard Surface](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2483), [OpenPBR Surface](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2459), and [glTF PBR](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2467), roughly halving the fill cost for these shading models in hardware shading languages.
+- Optimized the graph definitions of [Standard Surface](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2483), [OpenPBR Surface](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2459), and [glTF PBR](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2467) in hardware shading languages, roughly halving the fill cost for these shading models in GLSL, ESSL, and MSL.
 - Optimized the implementation of [height-correlated Smith masking-shadowing](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2458) in GLSL.
 - Aligned implementations of the [heighttonormal node](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2424) beween GLSL and OSL, improving visual consistency and enabling support for arbitrary procedural heightfields.
 - Deprecated the [fps input](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2450) of the time node, allowing it to be removed in a future specification update.
@@ -45,6 +47,7 @@
 
 ### Removed
 - Removed the legacy [MATERIALX_OIIO_DIR](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2342) option, as it connected to a CMake pathway that is no longer present in OIIO 2.2 and later.
+- Removed [implementations](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2411) and [helper functions](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2498) for the blur node in shader generation, with the goal of reevaluating its design in a future specification update.
 
 ## [1.39.3] - 2025-03-07
 

@@ -135,16 +135,14 @@
     </mix>
 
     <!-- Dielectric -->
-    <invert name="transmission_inv" type="float">
-      <input name="in" type="float" interfacename="transmission" />
-    </invert>
+
     <oren_nayar_diffuse_bsdf name="diffuse_bsdf" type="BSDF">
-      <input name="weight" type="float" nodename="transmission_inv" />
       <input name="color" type="color3" interfacename="base_color" />
       <input name="normal" type="vector3" interfacename="normal" />
     </oren_nayar_diffuse_bsdf>
+
     <dielectric_bsdf name="transmission_bsdf" type="BSDF">
-      <input name="weight" type="float" interfacename="transmission" />
+      <input name="weight" type="float" value="1" />
       <input name="tint" type="color3" interfacename="base_color" />
       <input name="ior" type="float" interfacename="ior" />
       <input name="roughness" type="vector2" nodename="roughness_uv" />
@@ -152,15 +150,8 @@
       <input name="tangent" type="vector3" nodename="selected_tangent" />
       <input name="scatter_mode" type="string" value="T" />
     </dielectric_bsdf>
-    <add name="transmission_blend" type="BSDF">
-      <input name="in1" type="BSDF" nodename="diffuse_bsdf" />
-      <input name="in2" type="BSDF" nodename="transmission_bsdf" />
-    </add>
-    <invert name="iridescence_inv" type="float">
-      <input name="in" type="float" interfacename="iridescence" />
-    </invert>
+
     <generalized_schlick_bsdf name="reflection_bsdf" type="BSDF">
-      <input name="weight" type="float" nodename="iridescence_inv" />
       <input name="color0" type="color3" nodename="dielectric_f0" />
       <input name="color90" type="color3" nodename="dielectric_f90" />
       <input name="roughness" type="vector2" nodename="roughness_uv" />
@@ -168,37 +159,58 @@
       <input name="tangent" type="vector3" nodename="selected_tangent" />
       <input name="scatter_mode" type="string" value="R" />
     </generalized_schlick_bsdf>
-    <generalized_schlick_bsdf name="reflection_bsdf_tf" type="BSDF">
-      <input name="weight" type="float" interfacename="iridescence" />
-      <input name="color0" type="color3" nodename="dielectric_f0" />
-      <input name="color90" type="color3" nodename="dielectric_f90" />
-      <input name="roughness" type="vector2" nodename="roughness_uv" />
-      <input name="normal" type="vector3" interfacename="normal" />
-      <input name="tangent" type="vector3" nodename="selected_tangent" />
-      <input name="scatter_mode" type="string" value="R" />
-      <input name="thinfilm_thickness" type="float" interfacename="iridescence_thickness" />
-      <input name="thinfilm_ior" type="float" interfacename="iridescence_ior" />
-    </generalized_schlick_bsdf>
-    <add name="reflection_bsdf_blend" type="BSDF">
-      <input name="in1" type="BSDF" nodename="reflection_bsdf" />
-      <input name="in2" type="BSDF" nodename="reflection_bsdf_tf" />
-    </add>
-    <layer name="dielectric_layer" type="BSDF">
-      <input name="top" type="BSDF" nodename="reflection_bsdf_blend" />
-      <input name="base" type="BSDF" nodename="transmission_blend" />
+
+    <mix name="transmission_mix" type="BSDF">
+      <input name="bg" type="BSDF" nodename="diffuse_bsdf" />
+      <input name="fg" type="BSDF" nodename="transmission_bsdf" />
+      <input name="mix" type="float" interfacename="transmission" />
+    </mix>
+
+    <layer name="dielectric_bsdf" type="BSDF">
+      <input name="top" type="BSDF" nodename="reflection_bsdf" />
+      <input name="base" type="BSDF" nodename="transmission_mix" />
     </layer>
 
+    <!-- Thin-film + Dielectric
+         Note: Due to limitations in codegen, the base layer BSDF is duplicated (#1035). -->
+
+    <generalized_schlick_bsdf name="tf_reflection_bsdf" type="BSDF">
+      <input name="color0" type="color3" nodename="dielectric_f0" />
+      <input name="color90" type="color3" nodename="dielectric_f90" />
+      <input name="roughness" type="vector2" nodename="roughness_uv" />
+      <input name="normal" type="vector3" interfacename="normal" />
+      <input name="tangent" type="vector3" nodename="selected_tangent" />
+      <input name="scatter_mode" type="string" value="R" />
+      <input name="thinfilm_thickness" type="float" interfacename="iridescence_thickness" />
+      <input name="thinfilm_ior" type="float" interfacename="iridescence_ior" />
+    </generalized_schlick_bsdf>
+
+
+    <layer name="tf_dielectric_bsdf" type="BSDF">
+      <input name="top" type="BSDF" nodename="tf_reflection_bsdf" />
+      <input name="base" type="BSDF" nodename="transmission_mix" />
+    </layer>
+
+    <mix name="mix_iridescent_dielectric_bsdf" type="BSDF">
+      <input name="bg" type="BSDF" nodename="dielectric_bsdf" />
+      <input name="fg" type="BSDF" nodename="tf_dielectric_bsdf" />
+      <input name="mix" type="float" interfacename="iridescence" />
+    </mix>
+
     <!-- Metal -->
+
     <generalized_schlick_bsdf name="metal_bsdf" type="BSDF">
-      <input name="weight" type="float" nodename="iridescence_inv" />
       <input name="color0" type="color3" interfacename="base_color" />
       <input name="color90" type="color3" value="1, 1, 1" />
       <input name="roughness" type="vector2" nodename="roughness_uv" />
       <input name="normal" type="vector3" interfacename="normal" />
       <input name="tangent" type="vector3" nodename="selected_tangent" />
     </generalized_schlick_bsdf>
-    <generalized_schlick_bsdf name="metal_bsdf_tf" type="BSDF">
-      <input name="weight" type="float" interfacename="iridescence" />
+
+    <!-- Thin-film + Metal
+         Note: Due to limitations in codegen, the base layer BSDF is duplicated (#1035). -->
+
+    <generalized_schlick_bsdf name="tf_metal_bsdf" type="BSDF">
       <input name="color0" type="color3" interfacename="base_color" />
       <input name="color90" type="color3" value="1, 1, 1" />
       <input name="roughness" type="vector2" nodename="roughness_uv" />
@@ -207,15 +219,18 @@
       <input name="thinfilm_thickness" type="float" interfacename="iridescence_thickness" />
       <input name="thinfilm_ior" type="float" interfacename="iridescence_ior" />
     </generalized_schlick_bsdf>
-    <add name="metal_blend" type="BSDF">
-      <input name="in1" type="BSDF" nodename="metal_bsdf" />
-      <input name="in2" type="BSDF" nodename="metal_bsdf_tf" />
-    </add>
+
+    <mix name="mix_iridescent_metal_bsdf" type="BSDF">
+      <input name="bg" type="BSDF" nodename="metal_bsdf" />
+      <input name="fg" type="BSDF" nodename="tf_metal_bsdf" />
+      <input name="mix" type="float" interfacename="iridescence" />
+    </mix>
 
     <!-- Dielectric/metal mix -->
+
     <mix name="base_mix" type="BSDF">
-      <input name="bg" type="BSDF" nodename="dielectric_layer" />
-      <input name="fg" type="BSDF" nodename="metal_blend" />
+      <input name="bg" type="BSDF" nodename="mix_iridescent_dielectric_bsdf" />
+      <input name="fg" type="BSDF" nodename="mix_iridescent_metal_bsdf" />
       <input name="mix" type="float" interfacename="metallic" />
     </mix>
 
