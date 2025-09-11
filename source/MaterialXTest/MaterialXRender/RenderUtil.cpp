@@ -197,7 +197,7 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
 
     mx::GenContext context(_shaderGenerator);
     context.registerSourceCodeSearchPath(searchPath);
-    context.registerSourceCodeSearchPath(searchPath.find("libraries/stdlib/genosl/include"));
+    context.registerSourceCodeSearchPath(searchPath.find("libraries/targets/genosl/stdlib/include"));
 
     // Set target unit space
     context.getOptions().targetDistanceUnit = "meter";
