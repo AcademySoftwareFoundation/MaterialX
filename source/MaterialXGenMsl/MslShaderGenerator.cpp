@@ -548,6 +548,10 @@ void MslShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext& c
         emitGlobalVariables(context, stage, EMIT_GLOBAL_SCOPE_CONTEXT_CONSTRUCTOR_INIT, true, false);
         emitLine("{}", stage, false);
 
+        // Add common math functions
+        emitLibraryInclude("stdlib/genmsl/lib/mx_math.metal", context, stage);
+        emitLineBreak(stage);
+
         emitGlobalVariables(context, stage, EMIT_GLOBAL_SCOPE_CONTEXT_MEMBER_DECL, true, false);
 
         emitFunctionDefinitions(graph, context, stage);

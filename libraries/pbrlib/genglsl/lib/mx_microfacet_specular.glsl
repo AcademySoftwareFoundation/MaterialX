@@ -400,7 +400,7 @@ vec3 mx_fresnel_airy(float cosTheta, FresnelData fd)
     I *= 0.5;
 
     // Convert back to RGB reflectance
-    I = clamp(XYZ_TO_RGB * I, 0.0, 1.0);
+    I = clamp(mx_matrix_mul(XYZ_TO_RGB, I), 0.0, 1.0);
 
     return I;
 }
@@ -493,7 +493,7 @@ vec2 mx_latlong_projection(vec3 dir)
 
 vec3 mx_latlong_map_lookup(vec3 dir, mat4 transform, float lod, $texSamplerSignature)
 {
-    vec3 envDir = normalize((transform * vec4(dir,0.0)).xyz);
+    vec3 envDir = normalize(mx_matrix_mul(transform, vec4(dir,0.0)).xyz);
     vec2 uv = mx_latlong_projection(envDir);
     return textureLod($texSamplerSampler2D, uv, lod).rgb;
 }

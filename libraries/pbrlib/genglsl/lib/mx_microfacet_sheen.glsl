@@ -136,7 +136,7 @@ mat3 mx_orthonormal_basis_ltc(vec3 V, vec3 N, float NdotV)
 float mx_zeltner_sheen_brdf(vec3 L, vec3 V, vec3 N, float NdotV, float roughness)
 {
     mat3 toLTC = transpose(mx_orthonormal_basis_ltc(V, N, NdotV));
-    vec3 w = toLTC * L;
+    vec3 w = mx_matrix_mul(toLTC, L);
 
     float aInv = mx_zeltner_sheen_ltc_aInv(NdotV, roughness);
     float bInv = mx_zeltner_sheen_ltc_bInv(NdotV, roughness);
@@ -183,7 +183,7 @@ vec3 mx_zeltner_sheen_importance_sample(vec2 Xi, vec3 V, vec3 N, float roughness
     pdf = max(w.z, 0.0) * M_PI_INV * mx_square(aInv * lenSqr);
 
     mat3 fromLTC = mx_orthonormal_basis_ltc(V, N, NdotV);
-    w = fromLTC * w;
+    w = mx_matrix_mul(fromLTC, w);
 
     return w;
 }

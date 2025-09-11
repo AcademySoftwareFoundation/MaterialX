@@ -97,6 +97,6 @@ void mx_hextiledimage_color4(
     }
 
     // blend
-    result.rgb = vec3(w.x * c1 + w.y * c2 + w.z * c3);
+    result.rgb = (w.x * c1 + w.y * c2 + w.z * c3).rgb;
     result.a = a;
 }
