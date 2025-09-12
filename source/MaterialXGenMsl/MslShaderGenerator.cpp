@@ -8,7 +8,6 @@
 #include <MaterialXGenMsl/MslSyntax.h>
 #include <MaterialXGenMsl/Nodes/SurfaceNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/LightNodeMsl.h>
-#include <MaterialXGenMsl/Nodes/LightCompoundNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/LightShaderNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/LightSamplerNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/NumLightsNodeMsl.h>
@@ -26,6 +25,7 @@
 #include <MaterialXGenShader/Nodes/HwFrameNode.h>
 #include <MaterialXGenShader/Nodes/HwTimeNode.h>
 #include <MaterialXGenShader/Nodes/HwViewDirectionNode.h>
+#include <MaterialXGenShader/Nodes/HwLightCompoundNode.h>
 
 #include "MslResourceBindingContext.h"
 
@@ -1233,7 +1233,7 @@ ShaderNodeImplPtr MslShaderGenerator::getImplementation(const NodeDef& nodedef, 
         // Use a compound implementation.
         if (outputType == Type::LIGHTSHADER)
         {
-            impl = LightCompoundNodeMsl::create();
+            impl = HwLightCompoundNode::create();
         }
         else
         {

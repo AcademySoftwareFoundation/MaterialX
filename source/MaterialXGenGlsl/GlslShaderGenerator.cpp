@@ -8,7 +8,6 @@
 #include <MaterialXGenGlsl/GlslSyntax.h>
 #include <MaterialXGenGlsl/Nodes/SurfaceNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/LightNodeGlsl.h>
-#include <MaterialXGenGlsl/Nodes/LightCompoundNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/LightShaderNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/LightSamplerNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/NumLightsNodeGlsl.h>
@@ -26,6 +25,7 @@
 #include <MaterialXGenShader/Nodes/HwFrameNode.h>
 #include <MaterialXGenShader/Nodes/HwTimeNode.h>
 #include <MaterialXGenShader/Nodes/HwViewDirectionNode.h>
+#include <MaterialXGenShader/Nodes/HwLightCompoundNode.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -718,7 +718,7 @@ ShaderNodeImplPtr GlslShaderGenerator::getImplementation(const NodeDef& nodedef,
         // Use a compound implementation.
         if (outputType == Type::LIGHTSHADER)
         {
-            impl = LightCompoundNodeGlsl::create();
+            impl = HwLightCompoundNode::create();
         }
         else
         {
