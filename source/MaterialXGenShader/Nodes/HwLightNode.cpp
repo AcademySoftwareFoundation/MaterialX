@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXGenGlsl/Nodes/LightNodeGlsl.h>
+#include <MaterialXGenShader/Nodes/HwLightNode.h>
 
 #include <MaterialXGenShader/Shader.h>
 
@@ -20,15 +20,15 @@ const string LIGHT_DIRECTION_CALCULATION =
 
 } // anonymous namespace
 
-LightNodeGlsl::LightNodeGlsl()
+HwLightNode::HwLightNode()
 {}
 
-ShaderNodeImplPtr LightNodeGlsl::create()
+ShaderNodeImplPtr HwLightNode::create()
 {
-    return std::make_shared<LightNodeGlsl>();
+    return std::make_shared<HwLightNode>();
 }
 
-void LightNodeGlsl::createVariables(const ShaderNode&, GenContext& context, Shader& shader) const
+void HwLightNode::createVariables(const ShaderNode&, GenContext& context, Shader& shader) const
 {
     ShaderStage& ps = shader.getStage(Stage::PIXEL);
 
@@ -38,15 +38,15 @@ void LightNodeGlsl::createVariables(const ShaderNode&, GenContext& context, Shad
     lightUniforms.add(Type::FLOAT, "exposure", Value::createValue<float>(0.0f));
     lightUniforms.add(Type::VECTOR3, "direction", Value::createValue<Vector3>(Vector3(0.0f, 1.0f, 0.0f)));
 
-    const GlslShaderGenerator& shadergen = static_cast<const GlslShaderGenerator&>(context.getShaderGenerator());
+    const HwShaderGenerator& shadergen = static_cast<const HwShaderGenerator&>(context.getShaderGenerator());
     shadergen.addStageLightingUniforms(context, ps);
 }
 
-void LightNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
+void HwLightNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
     DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
     {
-        const GlslShaderGenerator& shadergen = static_cast<const GlslShaderGenerator&>(context.getShaderGenerator());
+        const HwShaderGenerator& shadergen = static_cast<const HwShaderGenerator&>(context.getShaderGenerator());
 
         shadergen.emitBlock(LIGHT_DIRECTION_CALCULATION, FilePath(), context, stage);
         shadergen.emitLineBreak(stage);
@@ -57,7 +57,7 @@ void LightNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context
         {
 
             shadergen.emitScopeBegin(stage);
-            shadergen.emitLine("ClosureData closureData = ClosureData(CLOSURE_TYPE_EMISSION, vec3(0), -L, light.direction, vec3(0), 0)", stage);
+            shadergen.emitLine("ClosureData closureData = makeClosureData(CLOSURE_TYPE_EMISSION, vec3(0), -L, light.direction, vec3(0), 0)", stage);
             shadergen.emitFunctionCall(*edf, context, stage);
             shadergen.emitScopeEnd(stage);
             shadergen.emitLineBreak(stage);

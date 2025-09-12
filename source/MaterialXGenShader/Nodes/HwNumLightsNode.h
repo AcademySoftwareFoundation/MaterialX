@@ -3,18 +3,18 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#ifndef MATERIALX_NUMLIGHTSNODEMSL_H
-#define MATERIALX_NUMLIGHTSNODEMSL_H
+#ifndef MATERIALX_HWNUMLIGHTSNODE_H
+#define MATERIALX_HWNUMLIGHTSNODE_H
 
-#include <MaterialXGenMsl/MslShaderGenerator.h>
+#include <MaterialXGenShader/HwShaderGenerator.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
-/// Utility node for getting number of active lights for MSL.
-class MX_GENMSL_API NumLightsNodeMsl : public HwImplementation
+/// Utility node for getting number of active lights for hardware languages.
+class MX_GENSHADER_API HwNumLightsNode : public HwImplementation
 {
   public:
-    NumLightsNodeMsl();
+    HwNumLightsNode();
 
     static ShaderNodeImplPtr create();
 

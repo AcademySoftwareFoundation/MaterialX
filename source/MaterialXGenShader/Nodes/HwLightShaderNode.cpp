@@ -3,23 +3,23 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXGenMsl/Nodes/LightShaderNodeMsl.h>
+#include <MaterialXGenShader/Nodes/HwLightShaderNode.h>
 
 #include <MaterialXGenShader/Shader.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
-LightShaderNodeMsl::LightShaderNodeMsl() :
+HwLightShaderNode::HwLightShaderNode() :
     _lightUniforms(HW::LIGHT_DATA, EMPTY_STRING)
 {
 }
 
-ShaderNodeImplPtr LightShaderNodeMsl::create()
+ShaderNodeImplPtr HwLightShaderNode::create()
 {
-    return std::make_shared<LightShaderNodeMsl>();
+    return std::make_shared<HwLightShaderNode>();
 }
 
-void LightShaderNodeMsl::initialize(const InterfaceElement& element, GenContext& context)
+void HwLightShaderNode::initialize(const InterfaceElement& element, GenContext& context)
 {
     SourceCodeNode::initialize(element, context);
 
@@ -44,7 +44,7 @@ void LightShaderNodeMsl::initialize(const InterfaceElement& element, GenContext&
     }
 }
 
-void LightShaderNodeMsl::createVariables(const ShaderNode&, GenContext& context, Shader& shader) const
+void HwLightShaderNode::createVariables(const ShaderNode&, GenContext& context, Shader& shader) const
 {
     ShaderStage& ps = shader.getStage(Stage::PIXEL);
 
@@ -56,11 +56,11 @@ void LightShaderNodeMsl::createVariables(const ShaderNode&, GenContext& context,
         lightData.add(u->getType(), u->getName());
     }
 
-    const MslShaderGenerator& shadergen = static_cast<const MslShaderGenerator&>(context.getShaderGenerator());
+    const HwShaderGenerator& shadergen = static_cast<const HwShaderGenerator&>(context.getShaderGenerator());
     shadergen.addStageLightingUniforms(context, ps);
 }
 
-void LightShaderNodeMsl::emitFunctionCall(const ShaderNode&, GenContext& context, ShaderStage& stage) const
+void HwLightShaderNode::emitFunctionCall(const ShaderNode&, GenContext& context, ShaderStage& stage) const
 {
     DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
     {

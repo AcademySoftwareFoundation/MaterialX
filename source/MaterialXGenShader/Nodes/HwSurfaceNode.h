@@ -3,19 +3,18 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#ifndef MATERIALX_SURFACENODEMSL_H
-#define MATERIALX_SURFACENODEMSL_H
+#ifndef MATERIALX_HWSURFACENODE_H
+#define MATERIALX_HWSURFACENODE_H
 
-#include <MaterialXGenMsl/Export.h>
-#include <MaterialXGenMsl/MslShaderGenerator.h>
+#include <MaterialXGenShader/HwShaderGenerator.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
-/// Surface node implementation for MSL
-class MX_GENMSL_API SurfaceNodeMsl : public HwImplementation
+/// Surface node implementation for hardware languages.
+class MX_GENSHADER_API HwSurfaceNode : public HwImplementation
 {
   public:
-    SurfaceNodeMsl();
+    HwSurfaceNode();
 
     static ShaderNodeImplPtr create();
 
