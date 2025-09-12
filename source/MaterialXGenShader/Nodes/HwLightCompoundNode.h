@@ -6,8 +6,6 @@
 #ifndef MATERIALX_HWLIGHTCOMPOUNDNODE_H
 #define MATERIALX_HWLIGHTCOMPOUNDNODE_H
 
-#include <MaterialXGenGlsl/Export.h>
-
 #include <MaterialXGenShader/Nodes/CompoundNode.h>
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/GenContext.h>
@@ -15,7 +13,7 @@
 MATERIALX_NAMESPACE_BEGIN
 
 /// LightCompound node implementation for hardware languages
-class MX_GENGLSL_API HwLightCompoundNode : public CompoundNode
+class MX_GENSHADER_API HwLightCompoundNode : public CompoundNode
 {
   public:
     HwLightCompoundNode();
