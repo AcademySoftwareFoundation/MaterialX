@@ -7,7 +7,6 @@
 
 #include <MaterialXGenMsl/MslSyntax.h>
 #include <MaterialXGenMsl/Nodes/SurfaceNodeMsl.h>
-#include <MaterialXGenMsl/Nodes/LightNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/LightShaderNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/LightSamplerNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/NumLightsNodeMsl.h>
@@ -26,6 +25,7 @@
 #include <MaterialXGenShader/Nodes/HwTimeNode.h>
 #include <MaterialXGenShader/Nodes/HwViewDirectionNode.h>
 #include <MaterialXGenShader/Nodes/HwLightCompoundNode.h>
+#include <MaterialXGenShader/Nodes/HwLightNode.h>
 
 #include "MslResourceBindingContext.h"
 
@@ -91,7 +91,7 @@ MslShaderGenerator::MslShaderGenerator(TypeSystemPtr typeSystem) :
     registerImplementation("IM_surface_" + MslShaderGenerator::TARGET, SurfaceNodeMsl::create);
 
     // <!-- <light> -->
-    registerImplementation("IM_light_" + MslShaderGenerator::TARGET, LightNodeMsl::create);
+    registerImplementation("IM_light_" + MslShaderGenerator::TARGET, HwLightNode::create);
 
     // <!-- <point_light> -->
     registerImplementation("IM_point_light_" + MslShaderGenerator::TARGET, LightShaderNodeMsl::create);
