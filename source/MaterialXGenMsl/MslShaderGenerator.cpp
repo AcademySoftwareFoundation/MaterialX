@@ -125,6 +125,8 @@ MslShaderGenerator::MslShaderGenerator(TypeSystemPtr typeSystem) :
 
     _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "numActiveLightSources", HwNumLightsNode::create()));
     _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "sampleLightSource", HwLightSamplerNode::create()));
+
+    _tokenSubstitutions[HW::T_CLOSURE_DATA_CONSTRUCTOR] = "{closureType, L, V, N, P, occlusion}";
 }
 
 ShaderPtr MslShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const

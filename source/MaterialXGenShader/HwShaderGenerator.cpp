@@ -81,6 +81,7 @@ const string T_ENV_IRRADIANCE                 = "$envIrradiance";
 const string T_ENV_IRRADIANCE_SAMPLER2D       = "$envIrradianceSampler2D";
 const string T_TEX_SAMPLER_SAMPLER2D          = "$texSamplerSampler2D";
 const string T_TEX_SAMPLER_SIGNATURE          = "$texSamplerSignature";
+const string T_CLOSURE_DATA_CONSTRUCTOR       = "$closureDataConstructor";
 
 const string T_ENV_LIGHT_INTENSITY            = "$envLightIntensity";
 const string T_ENV_PREFILTER_MIP              = "$envPrefilterMip";
@@ -176,6 +177,7 @@ const string DIR_L                            = "L";
 const string DIR_V                            = "V";
 const string WORLD_POSITION                   = "P";
 const string OCCLUSION                        = "occlusion";
+const string CLOSURE_DATA_CONSTRUCTOR         = "ClosureData(closureType, L, V, N, P, occlusion)";
 const string ATTR_TRANSPARENT                 = "transparent";
 const string USER_DATA_CLOSURE_CONTEXT        = "udcc";
 const string USER_DATA_LIGHT_SHADERS          = "udls";
@@ -259,6 +261,7 @@ HwShaderGenerator::HwShaderGenerator(TypeSystemPtr typeSystem, SyntaxPtr syntax)
     _tokenSubstitutions[HW::T_ENV_PREFILTER_MIP] = HW::ENV_PREFILTER_MIP;
     _tokenSubstitutions[HW::T_TEX_SAMPLER_SAMPLER2D] = HW::TEX_SAMPLER_SAMPLER2D;
     _tokenSubstitutions[HW::T_TEX_SAMPLER_SIGNATURE] = HW::TEX_SAMPLER_SIGNATURE;
+    _tokenSubstitutions[HW::T_CLOSURE_DATA_CONSTRUCTOR] = HW::CLOSURE_DATA_CONSTRUCTOR;
 }
 
 ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element, GenContext& context) const
