@@ -6,7 +6,6 @@
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
 #include <MaterialXGenGlsl/GlslSyntax.h>
-#include <MaterialXGenGlsl/Nodes/SurfaceNodeGlsl.h>
 
 #include <MaterialXGenShader/Nodes/MaterialNode.h>
 #include <MaterialXGenShader/Nodes/HwImageNode.h>
@@ -26,6 +25,7 @@
 #include <MaterialXGenShader/Nodes/HwLightSamplerNode.h>
 #include <MaterialXGenShader/Nodes/HwLightShaderNode.h>
 #include <MaterialXGenShader/Nodes/HwNumLightsNode.h>
+#include <MaterialXGenShader/Nodes/HwSurfaceNode.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -83,7 +83,7 @@ GlslShaderGenerator::GlslShaderGenerator(TypeSystemPtr typeSystem) :
     registerImplementation("IM_viewdirection_vector3_" + GlslShaderGenerator::TARGET, HwViewDirectionNode::create);
 
     // <!-- <surface> -->
-    registerImplementation("IM_surface_" + GlslShaderGenerator::TARGET, SurfaceNodeGlsl::create);
+    registerImplementation("IM_surface_" + GlslShaderGenerator::TARGET, HwSurfaceNode::create);
 
     // <!-- <light> -->
     registerImplementation("IM_light_" + GlslShaderGenerator::TARGET, HwLightNode::create);
