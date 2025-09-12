@@ -12,7 +12,7 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-/// LightCompound node implementation for hardware languages
+/// LightCompound node implementation for hardware languages.
 class MX_GENSHADER_API HwLightCompoundNode : public CompoundNode
 {
   public:

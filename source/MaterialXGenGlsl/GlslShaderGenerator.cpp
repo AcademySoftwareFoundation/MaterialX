@@ -8,7 +8,6 @@
 #include <MaterialXGenGlsl/GlslSyntax.h>
 #include <MaterialXGenGlsl/Nodes/SurfaceNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/LightShaderNodeGlsl.h>
-#include <MaterialXGenGlsl/Nodes/LightSamplerNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/NumLightsNodeGlsl.h>
 
 #include <MaterialXGenShader/Nodes/MaterialNode.h>
@@ -26,6 +25,7 @@
 #include <MaterialXGenShader/Nodes/HwViewDirectionNode.h>
 #include <MaterialXGenShader/Nodes/HwLightCompoundNode.h>
 #include <MaterialXGenShader/Nodes/HwLightNode.h>
+#include <MaterialXGenShader/Nodes/HwLightSamplerNode.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -119,7 +119,7 @@ GlslShaderGenerator::GlslShaderGenerator(TypeSystemPtr typeSystem) :
     registerImplementation("IM_surfacematerial_" + GlslShaderGenerator::TARGET, MaterialNode::create);
 
     _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "numActiveLightSources", NumLightsNodeGlsl::create()));
-    _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "sampleLightSource", LightSamplerNodeGlsl::create()));
+    _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "sampleLightSource", HwLightSamplerNode::create()));
 }
 
 ShaderPtr GlslShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const

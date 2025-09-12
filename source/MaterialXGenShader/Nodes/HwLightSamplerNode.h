@@ -3,18 +3,18 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#ifndef MATERIALX_LIGHTSAMPLERNODEGLSL_H
-#define MATERIALX_LIGHTSAMPLERNODEGLSL_H
+#ifndef MATERIALX_HWLIGHTSAMPLERNODE_H
+#define MATERIALX_HWLIGHTSAMPLERNODE_H
 
-#include <MaterialXGenGlsl/GlslShaderGenerator.h>
+#include <MaterialXGenShader/HwShaderGenerator.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
-/// Utility node for sampling lights for GLSL.
-class MX_GENGLSL_API LightSamplerNodeGlsl : public HwImplementation
+/// Utility node for sampling lights for hardware languages.
+class MX_GENSHADER_API HwLightSamplerNode : public HwImplementation
 {
   public:
-    LightSamplerNodeGlsl();
+    HwLightSamplerNode();
 
     static ShaderNodeImplPtr create();
 
