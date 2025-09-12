@@ -10,7 +10,7 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-/// Light node implementation for GLSL
+/// Light node implementation for hardware languages.
 class MX_GENSHADER_API HwLightNode : public HwImplementation
 {
   public:
