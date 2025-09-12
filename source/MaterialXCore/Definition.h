@@ -134,6 +134,28 @@ class MX_CORE_API NodeDef : public InterfaceElement
     }
 
     /// @}
+    /// @name BSDF attribute
+    /// @{
+
+    /// Set the bsdf attribute of the NodeDef.
+    void setBSDF(const string& bsdf)
+    {
+        setAttribute(BSDF_ATTRIBUTE, bsdf);
+    }
+
+    /// Return true if the given NodeDef has a bsdf attribute.
+    bool hasBSDF() const
+    {
+        return hasAttribute(BSDF_ATTRIBUTE);
+    }
+
+    /// Return the bsdf attribute of the NodeDef.
+    const string& getBSDF() const
+    {
+        return getAttribute(BSDF_ATTRIBUTE);
+    }
+
+    /// @}
     /// @name Implementation References
     /// @{
 
@@ -180,6 +202,7 @@ class MX_CORE_API NodeDef : public InterfaceElement
     static const string CATEGORY;
     static const string NODE_ATTRIBUTE;
     static const string NODE_GROUP_ATTRIBUTE;
+    static const string BSDF_ATTRIBUTE;
 
     static const string TEXTURE_NODE_GROUP;
     static const string PROCEDURAL_NODE_GROUP;
@@ -250,6 +273,28 @@ class MX_CORE_API Implementation : public InterfaceElement
     }
 
     /// @}
+    /// @name Source Code String
+    /// @{
+
+    /// Set the source code string for the Implementation.
+    void setSourceCode(const string& function)
+    {
+        setAttribute(SOURCE_CODE_ATTRIBUTE, function);
+    }
+
+    /// Return true if the given Implementation has a source code string.
+    bool hasSourceCode() const
+    {
+        return hasAttribute(SOURCE_CODE_ATTRIBUTE);
+    }
+
+    /// Return the source code string for the Implementation.
+    const string& getSourceCode() const
+    {
+        return getAttribute(SOURCE_CODE_ATTRIBUTE);
+    }
+
+    /// @}
     /// @name Nodegraph String
     /// @{
 
@@ -304,6 +349,7 @@ class MX_CORE_API Implementation : public InterfaceElement
     static const string FILE_ATTRIBUTE;
     static const string FUNCTION_ATTRIBUTE;
     static const string NODE_GRAPH_ATTRIBUTE;
+    static const string SOURCE_CODE_ATTRIBUTE;
 };
 
 /// @class TypeDef
