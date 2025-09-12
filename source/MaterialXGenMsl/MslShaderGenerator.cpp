@@ -7,7 +7,6 @@
 
 #include <MaterialXGenMsl/MslSyntax.h>
 #include <MaterialXGenMsl/Nodes/SurfaceNodeMsl.h>
-#include <MaterialXGenMsl/Nodes/LightShaderNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/NumLightsNodeMsl.h>
 
 #include <MaterialXGenShader/Nodes/MaterialNode.h>
@@ -26,6 +25,7 @@
 #include <MaterialXGenShader/Nodes/HwLightCompoundNode.h>
 #include <MaterialXGenShader/Nodes/HwLightNode.h>
 #include <MaterialXGenShader/Nodes/HwLightSamplerNode.h>
+#include <MaterialXGenShader/Nodes/HwLightShaderNode.h>
 
 #include "MslResourceBindingContext.h"
 
@@ -94,11 +94,11 @@ MslShaderGenerator::MslShaderGenerator(TypeSystemPtr typeSystem) :
     registerImplementation("IM_light_" + MslShaderGenerator::TARGET, HwLightNode::create);
 
     // <!-- <point_light> -->
-    registerImplementation("IM_point_light_" + MslShaderGenerator::TARGET, LightShaderNodeMsl::create);
+    registerImplementation("IM_point_light_" + MslShaderGenerator::TARGET, HwLightShaderNode::create);
     // <!-- <directional_light> -->
-    registerImplementation("IM_directional_light_" + MslShaderGenerator::TARGET, LightShaderNodeMsl::create);
+    registerImplementation("IM_directional_light_" + MslShaderGenerator::TARGET, HwLightShaderNode::create);
     // <!-- <spot_light> -->
-    registerImplementation("IM_spot_light_" + MslShaderGenerator::TARGET, LightShaderNodeMsl::create);
+    registerImplementation("IM_spot_light_" + MslShaderGenerator::TARGET, HwLightShaderNode::create);
 
     // <!-- <ND_transformpoint> ->
     registerImplementation("IM_transformpoint_vector3_" + MslShaderGenerator::TARGET, HwTransformPointNode::create);
