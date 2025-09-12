@@ -10,7 +10,7 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-/// Utility node for getting number of active lights for GLSL.
+/// Utility node for getting number of active lights for hardware languages.
 class MX_GENSHADER_API HwNumLightsNode : public HwImplementation
 {
   public:
