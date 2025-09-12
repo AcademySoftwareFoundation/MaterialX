@@ -7,7 +7,6 @@
 
 #include <MaterialXGenMsl/MslSyntax.h>
 #include <MaterialXGenMsl/Nodes/SurfaceNodeMsl.h>
-#include <MaterialXGenMsl/Nodes/NumLightsNodeMsl.h>
 
 #include <MaterialXGenShader/Nodes/MaterialNode.h>
 #include <MaterialXGenShader/Nodes/HwImageNode.h>
@@ -26,6 +25,7 @@
 #include <MaterialXGenShader/Nodes/HwLightNode.h>
 #include <MaterialXGenShader/Nodes/HwLightSamplerNode.h>
 #include <MaterialXGenShader/Nodes/HwLightShaderNode.h>
+#include <MaterialXGenShader/Nodes/HwNumLightsNode.h>
 
 #include "MslResourceBindingContext.h"
 
@@ -123,7 +123,7 @@ MslShaderGenerator::MslShaderGenerator(TypeSystemPtr typeSystem) :
     // <!-- <surfacematerial> -->
     registerImplementation("IM_surfacematerial_" + MslShaderGenerator::TARGET, MaterialNode::create);
 
-    _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "numActiveLightSources", NumLightsNodeMsl::create()));
+    _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "numActiveLightSources", HwNumLightsNode::create()));
     _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "sampleLightSource", HwLightSamplerNode::create()));
 }
 
