@@ -57,7 +57,7 @@ void HwLightNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
         {
 
             shadergen.emitScopeBegin(stage);
-            shadergen.emitLine("ClosureData closureData = ClosureData(CLOSURE_TYPE_EMISSION, vec3(0), -L, light.direction, vec3(0), 0)", stage);
+            shadergen.emitLine("ClosureData closureData = makeClosureData(CLOSURE_TYPE_EMISSION, vec3(0), -L, light.direction, vec3(0), 0)", stage);
             shadergen.emitFunctionCall(*edf, context, stage);
             shadergen.emitScopeEnd(stage);
             shadergen.emitLineBreak(stage);
