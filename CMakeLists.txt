@@ -72,6 +72,10 @@ if (MATERIALX_BUILD_IOS)
     set(CMAKE_SYSTEM_NAME iOS)
 endif()
 
+list(APPEND CMAKE_MODULE_PATH
+        ${PROJECT_SOURCE_DIR}/cmake/macros)
+include(Public)
+
 # Apple ecosystem cross-compilation
 # https://cmake.org/cmake/help/latest/manual/cmake-toolchains.7.html#cross-compiling-for-ios-tvos-visionos-or-watchos
 set(MATERIALX_BUILD_APPLE_EMBEDDED OFF)
