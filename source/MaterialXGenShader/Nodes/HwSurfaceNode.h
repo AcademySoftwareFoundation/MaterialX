@@ -10,7 +10,7 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-/// Surface node implementation for GLSL
+/// Surface node implementation for hardware languages.
 class MX_GENSHADER_API HwSurfaceNode : public HwImplementation
 {
   public:
