@@ -84,6 +84,38 @@ void ShaderGenerator::emitLibraryInclude(const FilePath& filename, GenContext& c
     FilePath libraryPrefix = context.getOptions().libraryPrefix;
     FilePath fullFilename = libraryPrefix.isEmpty() ? filename : libraryPrefix / filename;
     FilePath resolvedFilename = context.resolveSourceFile(fullFilename, FilePath());
+
+    if (context.getOptions().dataLibraryLegacyLocationFallback)
+    {
+        // heuristic to deal with relocation of data library files - this should be deprecated at some point in the future
+        // and possibly guarded by a shader generation option?
+        //
+        // if we originally passed a relative file, then we expect resolveSourceFile() to return an absolute path
+        // if the file was found, otherwise it just returns the original relative file.
+        // we can use this difference to detect if the library include was not located and attempt to find it in
+        // the old location.
+        if (!fullFilename.isAbsolute() && !resolvedFilename.isAbsolute() && fullFilename == resolvedFilename)
+        {
+            // we didn't find the file, so lets try and look in the "new" location.
+            // Example
+            // old : stdlib/genmsl/lib/mx_texture.metal
+            // new : targets/genmsl/stdlib/lib/mx_texture.metal
+            //
+            // remapping heuristic
+            // 1) add the "targets" prefix
+            // 2) swap the first two parts
+            // 3) append the rest
+            FilePath altFilename = FilePath("targets") / FilePath(filename[1]) / FilePath(filename[0]);
+            for (size_t i = 2; i < filename.size(); ++i)
+            {
+                altFilename = altFilename / FilePath(filename[i]);
+            }
+
+            fullFilename = libraryPrefix.isEmpty() ? altFilename : libraryPrefix / altFilename;
+            resolvedFilename = context.resolveSourceFile(fullFilename, FilePath());
+        }
+    }
+
     stage.addInclude(fullFilename, resolvedFilename, context);
 }
 

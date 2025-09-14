@@ -93,7 +93,8 @@ class MX_GENSHADER_API GenOptions
         hwNormalizeUdimTexCoords(false),
         hwWriteAlbedoTable(false),
         hwWriteEnvPrefilter(false),
-        hwImplicitBitangents(true)
+        hwImplicitBitangents(true),
+        dataLibraryLegacyLocationFallback(true)
     {
     }
     virtual ~GenOptions() { }
@@ -191,6 +192,10 @@ class MX_GENSHADER_API GenOptions
     /// Calculate fallback bitangents from existing normals and tangents
     /// inside the bitangent node.
     bool hwImplicitBitangents;
+
+    /// Enables the fallback heuristic to locate a data library file by
+    /// its location in the previous structure.
+    bool dataLibraryLegacyLocationFallback;
 };
 
 MATERIALX_NAMESPACE_END
