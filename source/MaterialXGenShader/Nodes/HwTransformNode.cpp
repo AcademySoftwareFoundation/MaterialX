@@ -46,7 +46,7 @@ void HwTransformNode::emitFunctionCall(const ShaderNode& node, GenContext& conte
         const string toSpace = getToSpace(node);
         const string fromSpace = getFromSpace(node);
         const string& matrix = getMatrix(fromSpace, toSpace);
-        if (!matrix.empty())
+        if (matrix.empty())
         {
             shadergen.emitString(" = (", stage);
         }
