@@ -124,51 +124,51 @@ class MX_CORE_API Value
 };
 
 /// The class template for typed subclasses of Value
-template <class T> class MX_CORE_API TypedValue : public Value
+template <class T> class TypedValue : public Value
 {
   public:
-    TypedValue() :
+    MX_CORE_API TypedValue() :
         _data{}
     {
     }
-    explicit TypedValue(const T& value) :
+    MX_CORE_API explicit TypedValue(const T& value) :
         _data(value)
     {
     }
-    virtual ~TypedValue() { }
+    MX_CORE_API virtual ~TypedValue() { }
 
     /// Create a deep copy of the value.
-    ValuePtr copy() const override
+    MX_CORE_API ValuePtr copy() const override
     {
         return Value::createValue<T>(_data);
     }
 
     /// Set stored data object.
-    void setData(const T& value)
+    MX_CORE_API void setData(const T& value)
     {
         _data = value;
     }
 
     /// Set stored data object.
-    void setData(const TypedValue<T>& value)
+    MX_CORE_API void setData(const TypedValue<T>& value)
     {
         _data = value._data;
     }
 
     /// Return stored data object.
-    const T& getData() const
+    MX_CORE_API const T& getData() const
     {
         return _data;
     }
 
     /// Return type string.
-    const string& getTypeString() const override;
+    MX_CORE_API const string& getTypeString() const override;
 
     /// Return value string.
-    string getValueString() const override;
+    MX_CORE_API string getValueString() const override;
 
     // Returns true if value data matches.
-    bool isEqual(ConstValuePtr other) const override
+    MX_CORE_API bool isEqual(ConstValuePtr other) const override
     {
         if (!other || !other->isA<T>())
         {
@@ -184,10 +184,10 @@ template <class T> class MX_CORE_API TypedValue : public Value
     /// Create a new value of this type from a value string.
     /// @return A shared pointer to a typed value, or an empty shared pointer
     ///    if the conversion to the given data type cannot be performed.
-    static ValuePtr createFromString(const string& value);
+    MX_CORE_API static ValuePtr createFromString(const string& value);
 
   public:
-    static const string TYPE;
+    MX_CORE_API static const string TYPE;
 
   private:
     T _data;
