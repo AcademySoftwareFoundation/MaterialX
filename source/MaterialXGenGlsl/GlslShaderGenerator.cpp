@@ -172,6 +172,10 @@ void GlslShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext& 
     // Add vertex data outputs block
     emitOutputs(context, stage);
 
+    // Add common math functions
+    emitLibraryInclude("stdlib/genglsl/lib/mx_math.glsl", context, stage);
+    emitLineBreak(stage);
+
     emitFunctionDefinitions(graph, context, stage);
 
     // Add main function
@@ -356,15 +360,6 @@ HwResourceBindingContextPtr GlslShaderGenerator::getResourceBindingContext(GenCo
 string GlslShaderGenerator::getVertexDataPrefix(const VariableBlock& vertexData) const
 {
     return vertexData.getInstance() + ".";
-}
-
-bool GlslShaderGenerator::requiresLighting(const ShaderGraph& graph) const
-{
-    const bool isBsdf = graph.hasClassification(ShaderNode::Classification::BSDF);
-    const bool isLitSurfaceShader = graph.hasClassification(ShaderNode::Classification::SHADER) &&
-                                    graph.hasClassification(ShaderNode::Classification::SURFACE) &&
-                                    !graph.hasClassification(ShaderNode::Classification::UNLIT);
-    return isBsdf || isLitSurfaceShader;
 }
 
 void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const

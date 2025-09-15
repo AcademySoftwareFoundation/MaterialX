@@ -76,11 +76,6 @@ class MX_GENGLSL_API GlslShaderGenerator : public HwShaderGenerator
 
     virtual HwResourceBindingContextPtr getResourceBindingContext(GenContext& context) const;
 
-    /// Logic to indicate whether code to support direct lighting should be emitted.
-    /// By default if the graph is classified as a shader, or BSDF node then lighting is assumed to be required.
-    /// Derived classes can override this logic.
-    virtual bool requiresLighting(const ShaderGraph& graph) const;
-
     /// Emit specular environment lookup code
     virtual void emitSpecularEnvironment(GenContext& context, ShaderStage& stage) const;
 

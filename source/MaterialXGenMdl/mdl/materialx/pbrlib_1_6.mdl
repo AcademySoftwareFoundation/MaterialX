@@ -344,7 +344,7 @@ export material mx_subsurface_bsdf(
     color  mxp_color     = color(0.18),
     color  mxp_radius    = color(1.0),
     float  mxp_anisotropy = 0.0,
-    float3 mxp_normal    = state::normal() [[ anno::unused() ]]
+    float3 mxp_normal    = state::normal()
 ) [[ 
     anno::usage( "materialx:bsdf") 
 ]]
@@ -352,7 +352,8 @@ export material mx_subsurface_bsdf(
     // https://blog.selfshadow.com/publications/s2017-shading-course/imageworks/s2017_pbs_imageworks_slides_v2.pdf
     // Phase function eccentricity 'g' has been omitted here since we pass that directly 
     // to anisotropic_vdf(directional_bias: g).
-    color C = math::saturate(mxp_weight) * mxp_color;
+    float w = math::saturate(mxp_weight);
+    color C = mxp_color;
     color albedo = color(4.09712) +
            (4.20863f * C) -
            math::sqrt(
@@ -364,7 +365,7 @@ export material mx_subsurface_bsdf(
     color white = color(1.0, 1.0, 1.0);
     color alpha = (white - albedo_sq) / (white - mxp_anisotropy * albedo_sq);
 
-    color radius_inv = white / math::max(color(0.001), mxp_radius);
+    color radius_inv = white / math::max(0.00000001, mxp_radius);
 
     color sigma_s = alpha * radius_inv;
     color sigma_a = radius_inv - sigma_s;
@@ -374,12 +375,16 @@ export material mx_subsurface_bsdf(
         scattering: df::anisotropic_vdf (
             directional_bias: mxp_anisotropy
         ),
-        scattering_coefficient: sigma_s,
-        absorption_coefficient: sigma_a
+        scattering_coefficient: w * sigma_s,
+        absorption_coefficient: w * sigma_a
     ), 
 
     surface: material_surface(
-        scattering: df::diffuse_transmission_bsdf(tint: white)
+        scattering: df::weighted_layer(
+            weight: w,
+            layer: df::diffuse_transmission_bsdf(tint: white),
+            normal: mxp_normal
+        )
     )
 );
 

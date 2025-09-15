@@ -548,6 +548,10 @@ void MslShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext& c
         emitGlobalVariables(context, stage, EMIT_GLOBAL_SCOPE_CONTEXT_CONSTRUCTOR_INIT, true, false);
         emitLine("{}", stage, false);
 
+        // Add common math functions
+        emitLibraryInclude("stdlib/genmsl/lib/mx_math.metal", context, stage);
+        emitLineBreak(stage);
+
         emitGlobalVariables(context, stage, EMIT_GLOBAL_SCOPE_CONTEXT_MEMBER_DECL, true, false);
 
         emitFunctionDefinitions(graph, context, stage);
@@ -822,15 +826,6 @@ HwResourceBindingContextPtr MslShaderGenerator::getResourceBindingContext(GenCon
 string MslShaderGenerator::getVertexDataPrefix(const VariableBlock& vertexData) const
 {
     return vertexData.getInstance() + ".";
-}
-
-bool MslShaderGenerator::requiresLighting(const ShaderGraph& graph) const
-{
-    const bool isBsdf = graph.hasClassification(ShaderNode::Classification::BSDF);
-    const bool isLitSurfaceShader = graph.hasClassification(ShaderNode::Classification::SHADER) &&
-                                    graph.hasClassification(ShaderNode::Classification::SURFACE) &&
-                                    !graph.hasClassification(ShaderNode::Classification::UNLIT);
-    return isBsdf || isLitSurfaceShader;
 }
 
 void MslShaderGenerator::emitMathMatrixScalarMathOperators(GenContext& context, ShaderStage& stage) const
