@@ -11,7 +11,6 @@
 #define mx_atan atan
 #define mx_radians radians
 
-
 vec2 mx_matrix_mul(vec2 v, mat2 m) { return v * m; }
 vec3 mx_matrix_mul(vec3 v, mat3 m) { return v * m; }
 vec4 mx_matrix_mul(vec4 v, mat4 m) { return v * m; }
