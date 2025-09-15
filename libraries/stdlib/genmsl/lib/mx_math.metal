@@ -6,7 +6,6 @@
 #define mx_asin metal::asin
 #define mx_acos metal::acos
 
-
 vec2 mx_matrix_mul(vec2 v, mat2 m) { return v * m; }
 vec3 mx_matrix_mul(vec3 v, mat3 m) { return v * m; }
 vec4 mx_matrix_mul(vec4 v, mat4 m) { return v * m; }
