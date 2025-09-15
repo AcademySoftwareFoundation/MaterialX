@@ -193,7 +193,7 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
     emitScopeBegin(stage, Syntax::PARENTHESES);
 
     // Emit shader inputs
-    emitShaderInputs(element->getDocument(), stage.getInputBlock(MDL::INPUTS), stage);
+    emitShaderInputs(stage.getInputBlock(MDL::INPUTS), stage);
 
     // End shader signature
     emitScopeEnd(stage);
@@ -691,7 +691,7 @@ ShaderPtr MdlShaderGenerator::createShader(const string& name, ElementPtr elemen
 namespace
 {
 
-void emitInputAnnotations(const MdlShaderGenerator& _this, ConstDocumentPtr, const ShaderPort* variable, ShaderStage& stage)
+void emitInputAnnotations(const MdlShaderGenerator& _this, const ShaderPort* variable, ShaderStage& stage)
 {
     // allows to relate between MaterialX and MDL parameters when looking at the MDL code.
     const std::string mtlxParameterPathAnno = "materialx::core::origin(\"" + variable->getPath() + "\")";
@@ -705,7 +705,7 @@ void emitInputAnnotations(const MdlShaderGenerator& _this, ConstDocumentPtr, con
 
 } // anonymous namespace
 
-void MdlShaderGenerator::emitShaderInputs(ConstDocumentPtr doc, const VariableBlock& inputs, ShaderStage& stage) const
+void MdlShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderStage& stage) const
 {
     const string uniformPrefix = _syntax->getUniformQualifier() + " ";
     for (size_t i = 0; i < inputs.size(); ++i)
@@ -732,7 +732,7 @@ void MdlShaderGenerator::emitShaderInputs(ConstDocumentPtr doc, const VariableBl
 
         emitLineBegin(stage);
         emitString(qualifier + type + " " + input->getVariable() + " = " + value, stage);
-        emitInputAnnotations(*this, doc, input, stage);
+        emitInputAnnotations(*this, input, stage);
 
         if (i < inputs.size() - 1)
         {
