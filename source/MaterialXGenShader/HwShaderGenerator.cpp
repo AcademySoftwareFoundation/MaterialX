@@ -81,6 +81,7 @@ const string T_ENV_IRRADIANCE                 = "$envIrradiance";
 const string T_ENV_IRRADIANCE_SAMPLER2D       = "$envIrradianceSampler2D";
 const string T_TEX_SAMPLER_SAMPLER2D          = "$texSamplerSampler2D";
 const string T_TEX_SAMPLER_SIGNATURE          = "$texSamplerSignature";
+const string T_CLOSURE_DATA_CONSTRUCTOR       = "$closureDataConstructor";
 
 const string T_ENV_LIGHT_INTENSITY            = "$envLightIntensity";
 const string T_ENV_PREFILTER_MIP              = "$envPrefilterMip";
@@ -176,6 +177,7 @@ const string DIR_L                            = "L";
 const string DIR_V                            = "V";
 const string WORLD_POSITION                   = "P";
 const string OCCLUSION                        = "occlusion";
+const string CLOSURE_DATA_CONSTRUCTOR         = "ClosureData(closureType, L, V, N, P, occlusion)";
 const string ATTR_TRANSPARENT                 = "transparent";
 const string USER_DATA_CLOSURE_CONTEXT        = "udcc";
 const string USER_DATA_LIGHT_SHADERS          = "udls";
@@ -259,6 +261,7 @@ HwShaderGenerator::HwShaderGenerator(TypeSystemPtr typeSystem, SyntaxPtr syntax)
     _tokenSubstitutions[HW::T_ENV_PREFILTER_MIP] = HW::ENV_PREFILTER_MIP;
     _tokenSubstitutions[HW::T_TEX_SAMPLER_SAMPLER2D] = HW::TEX_SAMPLER_SAMPLER2D;
     _tokenSubstitutions[HW::T_TEX_SAMPLER_SIGNATURE] = HW::TEX_SAMPLER_SIGNATURE;
+    _tokenSubstitutions[HW::T_CLOSURE_DATA_CONSTRUCTOR] = HW::CLOSURE_DATA_CONSTRUCTOR;
 }
 
 ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element, GenContext& context) const
@@ -357,9 +360,7 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     }
 
     // Add uniforms for environment lighting.
-    bool lighting = graph->hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE) ||
-                    graph->hasClassification(ShaderNode::Classification::BSDF);
-    if (lighting && context.getOptions().hwSpecularEnvironmentMethod != SPECULAR_ENVIRONMENT_NONE)
+    if (requiresLighting(*graph) && context.getOptions().hwSpecularEnvironmentMethod != SPECULAR_ENVIRONMENT_NONE)
     {
         const Matrix44 yRotationPI = Matrix44::createScale(Vector3(-1, 1, -1));
         psPrivateUniforms->add(Type::MATRIX44, HW::T_ENV_MATRIX, Value::createValue(yRotationPI));
@@ -485,6 +486,15 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     }
 
     return shader;
+}
+
+bool HwShaderGenerator::requiresLighting(const ShaderGraph& graph) const
+{
+    const bool isBsdf = graph.hasClassification(ShaderNode::Classification::BSDF);
+    const bool isLitSurfaceShader = graph.hasClassification(ShaderNode::Classification::SHADER) &&
+                                    graph.hasClassification(ShaderNode::Classification::SURFACE) &&
+                                    !graph.hasClassification(ShaderNode::Classification::UNLIT);
+    return isBsdf || isLitSurfaceShader;
 }
 
 void HwShaderGenerator::bindLightShader(const NodeDef& nodeDef, unsigned int lightTypeId, GenContext& context)
