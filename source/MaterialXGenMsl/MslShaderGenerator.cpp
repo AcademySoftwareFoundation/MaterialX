@@ -29,6 +29,8 @@
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/Nodes/MaterialNode.h>
 
+#include <MaterialXGenShader/Exception.h>
+
 #include "MslResourceBindingContext.h"
 
 #include <cctype>

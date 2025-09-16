@@ -4,6 +4,7 @@
 //
 
 #include <MaterialXGenShader/Nodes/CompoundNode.h>
+#include <MaterialXGenShader/Exception.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/Util.h>
 

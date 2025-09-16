@@ -9,6 +9,7 @@
 #include <MaterialXGenHw/HwShaderGenerator.h>
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
+#include <MaterialXGenShader/Exception.h>
 
 MATERIALX_NAMESPACE_BEGIN
 

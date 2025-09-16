@@ -6,7 +6,7 @@
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 
 #include <MaterialXGenShader/Shader.h>
-#include <MaterialXGenShader/ShaderGenerator.h>
+#include <MaterialXGenShader/Exception.h>
 #include <MaterialXGenShader/ShaderNode.h>
 #include <MaterialXGenShader/GenContext.h>
 
