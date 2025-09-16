@@ -7,6 +7,7 @@
 #include <MaterialXGenOsl/OslSyntax.h>
 
 #include <MaterialXGenShader/GenContext.h>
+#include <MaterialXGenShader/Exception.h>
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/TypeDesc.h>
 #include <MaterialXGenShader/ShaderStage.h>

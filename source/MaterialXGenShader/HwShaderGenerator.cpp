@@ -6,6 +6,7 @@
 #include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
+#include <MaterialXGenShader/Exception.h>
 
 #include <MaterialXCore/Document.h>
 #include <MaterialXCore/Definition.h>
