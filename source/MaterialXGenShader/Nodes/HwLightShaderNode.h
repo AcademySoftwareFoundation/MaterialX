@@ -3,20 +3,20 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#ifndef MATERIALX_LIGHTSHADERNODEMSL_H
-#define MATERIALX_LIGHTSHADERNODEMSL_H
+#ifndef MATERIALX_HWLIGHTSHADERNODE_H
+#define MATERIALX_HWLIGHTSHADERNODE_H
 
-#include <MaterialXGenMsl/MslShaderGenerator.h>
+#include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
-/// LightShader node implementation for MSL
+/// LightShader node implementation for hardware languages.
 /// Used for all light shaders implemented in source code.
-class MX_GENMSL_API LightShaderNodeMsl : public SourceCodeNode
+class MX_GENSHADER_API HwLightShaderNode : public SourceCodeNode
 {
   public:
-    LightShaderNodeMsl();
+    HwLightShaderNode();
 
     static ShaderNodeImplPtr create();
 
