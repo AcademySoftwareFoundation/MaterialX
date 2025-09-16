@@ -3,10 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#ifndef MATERIALX_LIGHTCOMPOUNDNODEMSL_H
-#define MATERIALX_LIGHTCOMPOUNDNODEMSL_H
-
-#include <MaterialXGenMsl/Export.h>
+#ifndef MATERIALX_HWLIGHTCOMPOUNDNODE_H
+#define MATERIALX_HWLIGHTCOMPOUNDNODE_H
 
 #include <MaterialXGenShader/Nodes/CompoundNode.h>
 #include <MaterialXGenShader/Shader.h>
@@ -14,13 +12,11 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-class MslShaderGenerator;
-
-/// LightCompound node implementation for MSL
-class MX_GENMSL_API LightCompoundNodeMsl : public CompoundNode
+/// LightCompound node implementation for hardware languages.
+class MX_GENSHADER_API HwLightCompoundNode : public CompoundNode
 {
   public:
-    LightCompoundNodeMsl();
+    HwLightCompoundNode();
 
     static ShaderNodeImplPtr create();
 

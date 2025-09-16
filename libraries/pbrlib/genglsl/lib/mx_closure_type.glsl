@@ -15,3 +15,8 @@ struct ClosureData {
     vec3 P;
     float occlusion;
 };
+
+ClosureData makeClosureData(int closureType, vec3 L, vec3 V, vec3 N, vec3 P, float occlusion)
+{
+    return $closureDataConstructor;
+}
