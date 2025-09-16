@@ -12,9 +12,12 @@
 #include <MaterialXFormat/File.h>
 #include <MaterialXFormat/Util.h>
 
+#include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/Util.h>
 #include <MaterialXGenShader/TypeDesc.h>
+#include <MaterialXGenHw/HwConstants.h>
+#include <MaterialXGenHw/HwShaderGenerator.h>
 
 #ifdef MATERIALX_BUILD_OCIO
 #include <MaterialXGenShader/OcioColorManagementSystem.h>

@@ -11,7 +11,8 @@
 
 #include <MaterialXGenMsl/Export.h>
 
-#include <MaterialXGenShader/HwShaderGenerator.h>
+#include <MaterialXGenHw/HwShaderGenerator.h>
+#include <MaterialXGenHw/HwResourceBindingContext.h>
 
 #define TEXTURE_NAME(t) ((t) + "_tex")
 #define SAMPLER_NAME(t) ((t) + "_sampler")

@@ -165,7 +165,7 @@ bool MslShaderRenderTester::runRenderer(const std::string& shaderName,
                                           std::ostream& log,
                                           const GenShaderUtil::TestSuiteOptions& testOptions,
                                           RenderUtil::RenderProfileTimes& profileTimes,
-                                          const mx::FileSearchPath& imageSearchPath,
+                                          const mx::FileSearchPath& /*imageSearchPath*/,
                                           const std::string& outputPath,
                                           mx::ImageVec* imageVec)
 {

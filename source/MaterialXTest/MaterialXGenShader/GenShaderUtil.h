@@ -12,7 +12,7 @@
 #include <MaterialXFormat/XmlIo.h>
 
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
-#include <MaterialXGenShader/HwShaderGenerator.h>
+#include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/TypeDesc.h>
 #include <MaterialXGenShader/UnitSystem.h>
 #include <MaterialXGenShader/Util.h>

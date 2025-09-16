@@ -6,7 +6,6 @@
 #include <MaterialXRenderMsl/MslRenderer.h>
 #include <MaterialXRenderHw/SimpleWindow.h>
 #include <MaterialXRender/TinyObjLoader.h>
-#include <MaterialXGenShader/HwShaderGenerator.h>
 
 #include <iostream>
 

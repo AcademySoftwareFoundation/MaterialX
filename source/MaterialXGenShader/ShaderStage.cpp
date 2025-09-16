@@ -20,6 +20,7 @@ namespace Stage
 {
 
 const string PIXEL = "pixel";
+const string VERTEX = "vertex";
 
 } // namespace Stage
 
