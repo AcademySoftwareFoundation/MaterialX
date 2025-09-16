@@ -6,26 +6,28 @@
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
 #include <MaterialXGenGlsl/GlslSyntax.h>
+#include <MaterialXGenHw/HwLightShaders.h>
 
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/Nodes/MaterialNode.h>
-#include <MaterialXGenShader/Nodes/HwImageNode.h>
-#include <MaterialXGenShader/Nodes/HwGeomColorNode.h>
-#include <MaterialXGenShader/Nodes/HwGeomPropValueNode.h>
-#include <MaterialXGenShader/Nodes/HwTexCoordNode.h>
-#include <MaterialXGenShader/Nodes/HwTransformNode.h>
-#include <MaterialXGenShader/Nodes/HwPositionNode.h>
-#include <MaterialXGenShader/Nodes/HwNormalNode.h>
-#include <MaterialXGenShader/Nodes/HwTangentNode.h>
-#include <MaterialXGenShader/Nodes/HwBitangentNode.h>
-#include <MaterialXGenShader/Nodes/HwFrameNode.h>
-#include <MaterialXGenShader/Nodes/HwTimeNode.h>
-#include <MaterialXGenShader/Nodes/HwViewDirectionNode.h>
-#include <MaterialXGenShader/Nodes/HwLightNode.h>
-#include <MaterialXGenShader/Nodes/HwLightSamplerNode.h>
-#include <MaterialXGenShader/Nodes/HwLightShaderNode.h>
-#include <MaterialXGenShader/Nodes/HwNumLightsNode.h>
-#include <MaterialXGenShader/Nodes/HwSurfaceNode.h>
+#include <MaterialXGenHw/Nodes/HwImageNode.h>
+#include <MaterialXGenHw/Nodes/HwGeomColorNode.h>
+#include <MaterialXGenHw/Nodes/HwGeomPropValueNode.h>
+#include <MaterialXGenHw/Nodes/HwTexCoordNode.h>
+#include <MaterialXGenHw/Nodes/HwTransformNode.h>
+#include <MaterialXGenHw/Nodes/HwPositionNode.h>
+#include <MaterialXGenHw/Nodes/HwNormalNode.h>
+#include <MaterialXGenHw/Nodes/HwTangentNode.h>
+#include <MaterialXGenHw/Nodes/HwBitangentNode.h>
+#include <MaterialXGenHw/Nodes/HwFrameNode.h>
+#include <MaterialXGenHw/Nodes/HwTimeNode.h>
+#include <MaterialXGenHw/Nodes/HwViewDirectionNode.h>
+#include <MaterialXGenHw/Nodes/HwLightCompoundNode.h>
+#include <MaterialXGenHw/Nodes/HwLightNode.h>
+#include <MaterialXGenHw/Nodes/HwLightSamplerNode.h>
+#include <MaterialXGenHw/Nodes/HwLightShaderNode.h>
+#include <MaterialXGenHw/Nodes/HwNumLightsNode.h>
+#include <MaterialXGenHw/Nodes/HwSurfaceNode.h>
 
 MATERIALX_NAMESPACE_BEGIN
 

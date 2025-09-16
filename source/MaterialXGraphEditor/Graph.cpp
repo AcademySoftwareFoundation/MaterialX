@@ -313,7 +313,7 @@ void Graph::addExtraNodes()
     _nodesToAdd.emplace_back("ND_nodegraph", "", "nodegraph", "Node Graph", emptySet, emptySet);
 }
 
-ed::PinId Graph::getOutputPin(UiNodePtr node, UiNodePtr upNode, UiPinPtr input)
+ed::PinId Graph::getOutputPin(UiNodePtr /*node*/, UiNodePtr upNode, UiPinPtr input)
 {
     if (upNode->getNodeGraph() != nullptr)
     {
@@ -922,7 +922,7 @@ void Graph::updateMaterials(mx::InputPtr input /* = nullptr */, mx::ValuePtr val
     }
 }
 
-void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIProperties& uiProperties)
+void Graph::setConstant(UiNodePtr /*node*/, mx::InputPtr& input, const mx::UIProperties& uiProperties)
 {
     ImGui::PushItemWidth(-1);
 

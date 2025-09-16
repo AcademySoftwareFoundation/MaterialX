@@ -10,9 +10,9 @@
 #include <MaterialXRender/LightHandler.h>
 #include <MaterialXRender/ShaderRenderer.h>
 
-#include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenMsl/MslShaderGenerator.h>
 #include <MaterialXGenShader/Util.h>
+#include <MaterialXGenHw/HwConstants.h>
 
 #include <iostream>
 

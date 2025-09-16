@@ -14,6 +14,7 @@
 #include <MaterialXGenGlsl/GlslResourceBindingContext.h>
 #include <MaterialXGenGlsl/VkShaderGenerator.h>
 #include <MaterialXGenGlsl/WgslShaderGenerator.h>
+#include <MaterialXGenHw/HwConstants.h>
 
 namespace mx = MaterialX;
 

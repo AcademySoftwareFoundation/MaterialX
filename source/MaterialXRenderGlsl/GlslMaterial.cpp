@@ -13,6 +13,8 @@
 
 #include <MaterialXFormat/Util.h>
 
+#include <MaterialXGenHw/HwConstants.h>
+
 MATERIALX_NAMESPACE_BEGIN
 
 const std::string DISTANCE_UNIT_TARGET_NAME = "u_distanceUnitTarget";

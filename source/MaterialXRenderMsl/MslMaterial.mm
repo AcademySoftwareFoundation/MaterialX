@@ -10,6 +10,7 @@
 #include <MaterialXRenderMsl/MslPipelineStateObject.h>
 #include <MaterialXRender/Util.h>
 #include <MaterialXFormat/Util.h>
+#include <MaterialXGenHw/HwConstants.h>
 
 #include <MaterialXRenderMsl/MetalState.h>
 
