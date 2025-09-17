@@ -4,6 +4,9 @@ on:
   workflow_dispatch:  # This allows for manual triggering.
   schedule:
     - cron: '0 0 * * 6'  # This sets the workflow to run every Saturday at midnight.
+  push:
+    branches:
+        - AGPMAT-43-fix-automerge-workflow
 
 jobs:
   create-branch-and-pr:
@@ -24,22 +27,18 @@ jobs:
       run: | 
         # Check if the merge branch already exists
 
-        if git checkout $MERGE_BRANCH; then
-            echo "Merge main into the existing $MERGE_BRANCH"
-            git merge main
-            echo "push to $MERGE_BRANCH"
-            git push origin $MERGE_BRANCH 
-        else
+        if ! git checkout "$MERGE_BRANCH"; then
             echo "Create new branch $MERGE_BRANCH"
-            git checkout -b $MERGE_BRANCH
-            echo "push to $MERGE_BRANCH"
-            git push origin $MERGE_BRANCH 
-            echo "Create merge PR"
-
-            gh pr create \
-                --title "Merge $MERGE_BRANCH into adsk_contrib/dev" \
-                --body "Auto-created PR to merge $MERGE_BRANCH into adsk_contrib/dev" \
-                --head $MERGE_BRANCH \
-                --base adsk_contrib/dev \
-                --reviewer "ashwinbhat,zicher3d,ppenenko"
+            git checkout -b "$MERGE_BRANCH"
         fi
+
+        echo "push to $MERGE_BRANCH"
+        git push origin "$MERGE_BRANCH"
+        echo "Create merge PR"
+
+        gh pr create \
+            --title "Merge $MERGE_BRANCH into adsk_contrib/dev" \
+            --body "Auto-created PR to merge $MERGE_BRANCH into adsk_contrib/dev" \
+            --head "$MERGE_BRANCH"\
+            --base adsk_contrib/dev \
+            --reviewer "ashwinbhat,zicher3d,ppenenko"
