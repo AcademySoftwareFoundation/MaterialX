@@ -4,10 +4,9 @@
 //
 
 #include <MaterialXGenMsl/MslShaderGenerator.h>
-
 #include <MaterialXGenMsl/MslSyntax.h>
-#include <MaterialXGenHw/HwLightShaders.h>
 
+#include <MaterialXGenHw/HwLightShaders.h>
 
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/Nodes/MaterialNode.h>

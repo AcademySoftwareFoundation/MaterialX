@@ -4,8 +4,8 @@
 //
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
-
 #include <MaterialXGenGlsl/GlslSyntax.h>
+
 #include <MaterialXGenHw/HwLightShaders.h>
 
 #include <MaterialXGenShader/Shader.h>
