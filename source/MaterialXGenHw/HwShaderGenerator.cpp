@@ -4,11 +4,11 @@
 //
 
 #include <MaterialXGenHw/HwShaderGenerator.h>
+#include <MaterialXGenHw/HwConstants.h>
+#include <MaterialXGenHw/HwLightShaders.h>
 
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
-#include <MaterialXGenHw/HwConstants.h>
-#include <MaterialXGenHw/HwLightShaders.h>
 
 #include <MaterialXCore/Document.h>
 #include <MaterialXCore/Definition.h>
