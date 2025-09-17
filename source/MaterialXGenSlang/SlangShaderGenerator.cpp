@@ -6,12 +6,6 @@
 #include <MaterialXGenSlang/SlangShaderGenerator.h>
 
 #include <MaterialXGenSlang/SlangSyntax.h>
-#include <MaterialXGenSlang/Nodes/SurfaceNodeSlang.h>
-#include <MaterialXGenSlang/Nodes/LightNodeSlang.h>
-#include <MaterialXGenSlang/Nodes/LightCompoundNodeSlang.h>
-#include <MaterialXGenSlang/Nodes/LightShaderNodeSlang.h>
-#include <MaterialXGenSlang/Nodes/LightSamplerNodeSlang.h>
-#include <MaterialXGenSlang/Nodes/NumLightsNodeSlang.h>
 
 #include <MaterialXGenShader/Nodes/MaterialNode.h>
 #include <MaterialXGenShader/Nodes/HwImageNode.h>
@@ -26,6 +20,12 @@
 #include <MaterialXGenShader/Nodes/HwFrameNode.h>
 #include <MaterialXGenShader/Nodes/HwTimeNode.h>
 #include <MaterialXGenShader/Nodes/HwViewDirectionNode.h>
+#include <MaterialXGenShader/Nodes/HwLightCompoundNode.h>
+#include <MaterialXGenShader/Nodes/HwLightNode.h>
+#include <MaterialXGenShader/Nodes/HwLightSamplerNode.h>
+#include <MaterialXGenShader/Nodes/HwLightShaderNode.h>
+#include <MaterialXGenShader/Nodes/HwNumLightsNode.h>
+#include <MaterialXGenShader/Nodes/HwSurfaceNode.h>
 
 #include <MaterialXGenShader/Util.h>
 
@@ -87,17 +87,17 @@ SlangShaderGenerator::SlangShaderGenerator(TypeSystemPtr typeSystem) :
     registerImplementation("IM_viewdirection_vector3_" + SlangShaderGenerator::TARGET, HwViewDirectionNode::create);
 
     // <!-- <surface> -->
-    registerImplementation("IM_surface_" + SlangShaderGenerator::TARGET, SurfaceNodeSlang::create);
+    registerImplementation("IM_surface_" + SlangShaderGenerator::TARGET, HwSurfaceNode::create);
 
     // <!-- <light> -->
-    registerImplementation("IM_light_" + SlangShaderGenerator::TARGET, LightNodeSlang::create);
+    registerImplementation("IM_light_" + SlangShaderGenerator::TARGET, HwLightNode::create);
 
     // <!-- <point_light> -->
-    registerImplementation("IM_point_light_" + SlangShaderGenerator::TARGET, LightShaderNodeSlang::create);
+    registerImplementation("IM_point_light_" + SlangShaderGenerator::TARGET, HwLightShaderNode::create);
     // <!-- <directional_light> -->
-    registerImplementation("IM_directional_light_" + SlangShaderGenerator::TARGET, LightShaderNodeSlang::create);
+    registerImplementation("IM_directional_light_" + SlangShaderGenerator::TARGET, HwLightShaderNode::create);
     // <!-- <spot_light> -->
-    registerImplementation("IM_spot_light_" + SlangShaderGenerator::TARGET, LightShaderNodeSlang::create);
+    registerImplementation("IM_spot_light_" + SlangShaderGenerator::TARGET, HwLightShaderNode::create);
 
     // <!-- <ND_transformpoint> ->
     registerImplementation("IM_transformpoint_vector3_" + SlangShaderGenerator::TARGET, HwTransformPointNode::create);
@@ -122,8 +122,8 @@ SlangShaderGenerator::SlangShaderGenerator(TypeSystemPtr typeSystem) :
     // <!-- <surfacematerial> -->
     registerImplementation("IM_surfacematerial_" + SlangShaderGenerator::TARGET, MaterialNode::create);
 
-    _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "numActiveLightSources", NumLightsNodeSlang::create()));
-    _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "sampleLightSource", LightSamplerNodeSlang::create()));
+    _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "numActiveLightSources", HwNumLightsNode::create()));
+    _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "sampleLightSource", HwLightSamplerNode::create()));
 }
 
 ShaderPtr SlangShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const
@@ -892,7 +892,7 @@ ShaderNodeImplPtr SlangShaderGenerator::getImplementation(const NodeDef& nodedef
         // Use a compound implementation.
         if (outputType == Type::LIGHTSHADER)
         {
-            impl = LightCompoundNodeSlang::create();
+            impl = HwLightCompoundNode::create();
         }
         else
         {
