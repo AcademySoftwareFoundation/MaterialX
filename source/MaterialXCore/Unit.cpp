@@ -72,7 +72,7 @@ void LinearUnitConverter::write(DocumentPtr doc) const
             unitDef->setUnitType(_unitType);
 
             // Add in units to the definition
-            for (auto unitScale : _unitScale)
+            for (const auto& unitScale : _unitScale)
             {
                 const string& unitName = unitScale.first;
                 UnitPtr unitPtr = unitDef->addUnit(unitName);
@@ -223,7 +223,7 @@ void UnitConverterRegistry::clearUnitConverters()
 
 int UnitConverterRegistry::getUnitAsInteger(const string& unitName) const
 {
-    for (auto it : _unitConverters)
+    for (const auto& it : _unitConverters)
     {
         int value = it.second->getUnitAsInteger(unitName);
         if (value >= 0)
@@ -235,7 +235,7 @@ int UnitConverterRegistry::getUnitAsInteger(const string& unitName) const
 
 void UnitConverterRegistry::write(DocumentPtr doc) const
 {
-    for (auto it : _unitConverters)
+    for (const auto& it : _unitConverters)
     {
         it.second->write(doc);
     }

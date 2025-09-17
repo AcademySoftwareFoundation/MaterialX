@@ -4,9 +4,6 @@ on:
   workflow_dispatch:  # This allows for manual triggering.
   schedule:
     - cron: '0 0 * * 6'  # This sets the workflow to run every Saturday at midnight.
-  push:
-    branches:
-        - AGPMAT-43-fix-automerge-workflow
 
 jobs:
   create-branch-and-pr:
