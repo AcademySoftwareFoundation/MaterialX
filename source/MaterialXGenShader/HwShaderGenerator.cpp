@@ -3,10 +3,10 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXGenShader/HwShaderGenerator.h>
-#include <MaterialXGenShader/GenContext.h>
-#include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/Exception.h>
+#include <MaterialXGenShader/GenContext.h>
+#include <MaterialXGenShader/HwShaderGenerator.h>
+#include <MaterialXGenShader/Shader.h>
 
 #include <MaterialXCore/Document.h>
 #include <MaterialXCore/Definition.h>

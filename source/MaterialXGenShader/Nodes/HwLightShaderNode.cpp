@@ -5,8 +5,8 @@
 
 #include <MaterialXGenShader/Nodes/HwLightShaderNode.h>
 
-#include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/Exception.h>
+#include <MaterialXGenShader/Shader.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
