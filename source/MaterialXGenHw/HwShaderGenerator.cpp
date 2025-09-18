@@ -12,6 +12,7 @@
 #include <MaterialXGenShader/Nodes/CompoundNode.h>
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
+
 #include <MaterialXCore/Definition.h>
 #include <MaterialXCore/Document.h>
 

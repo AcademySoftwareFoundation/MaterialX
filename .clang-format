@@ -12,7 +12,7 @@ IndentPPDirectives: BeforeHash
 IndentWidth: 4
 LambdaBodyIndentation: OuterScope
 PointerAlignment: Left
-SortIncludes: false
+SortIncludes: true
 SpaceAfterCStyleCast: true
 SpaceInEmptyBlock: true
 UseTab: Never

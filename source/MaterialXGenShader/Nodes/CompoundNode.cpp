@@ -8,9 +8,9 @@
 #include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/Util.h>
 
-#include <MaterialXCore/Library.h>
 #include <MaterialXCore/Definition.h>
 #include <MaterialXCore/Document.h>
+#include <MaterialXCore/Library.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
