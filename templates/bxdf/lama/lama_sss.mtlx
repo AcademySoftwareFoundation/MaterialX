@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<materialx version="1.39" colorspace="acescg">
+  <nodedef name="ND_lama_sss" node="LamaSSS" nodegroup="pbr" doc="Lama SSS" version="1.0" isdefaultversion="true">
+    <input name="color" type="color3" value="0.18, 0.18, 0.18" uiname="Color" uifolder="Main"
+           doc="Diffuse color (aka albedo), defining what ratio of light is reflected -- or transmitted -- for each color channel." />
+    <input name="normal" type="vector3" defaultgeomprop="Nworld" uiname="Normal" uifolder="Main"
+           doc="Shading normal, typically defined by bump or normal mapping. Defaults to the smooth surface normal if not set." />
+    <input name="sssRadius" type="color3" value="0.0, 0.0, 0.0" uiname="Radius" uifolder="SSS"
+           doc="Diffuse Mean Free Path, expressed for each color channel in mm. Indicates on average how much the light travels under the surface before being scattered. The higher the value, the softer the result will be. If zero (black), which is the default value, the computation simplifies to a Lambertian reflection lobe with no subsurface scattering." />
+    <input name="sssScale" type="float" value="1.0" uimin="0.0" uiname="Scale" uifolder="SSS"
+           doc="Multiplies the radius, to adjust its scale to the scene at hand. If zero, the computation simplifies to a Lambertian reflection lobe with no subsurface scattering." />
+    <input name="sssMode" type="integer" uniform="true" enum="Path-traced Davis,Path-traced exponential,Diffusion Burley,Diffusion Burley (mean free path)" enumvalues="0,1,2,3" value="0" uiname="Mode" uifolder="Main"
+           doc="Selects what method should be used to compute sub-surface scattering. The first two options are path-traced variants, with different attenuation strategies applied to the path. The second two are traditional diffusion models. The first Diffusion Burley expects a diffuse mean free path in mm (the average length of a path measured from its entry and exit points after subsurface scattering interactions). The second Diffusion Burley uses mean free path in mm (the average distance that a photon travels in a subsurface volume, which is 1/sigma_t, where sigma_t is the extinction coefficient)." />
+    <input name="sssIOR" type="float" value="1.0" uimin="1.0" uisoftmin="1.0" uisoftmax="2.0"  uiname="IOR" uifolder="SSS"
+           doc="Index of refraction use to trigger cases of total internal reflections, when the paths are reaching the surface after having travelled under it. Can be used to avoid excessive glow in highly curved regions (corners, creases, ...)." />
+    <input name="sssAnisotropy" type="float" value="0.0" uimin="0.0" uimax="1.0" uiname="Anisotropy" uifolder="SSS"
+           doc="Higher values makes light scatter predominantly forward under the surface, making the object look less diffuse and more transparent." />
+    <input name="sssBleed" type="float" value="0.0" uimin="0.0" uimax="1.0" uiname="Bleed" uifolder="SSS"
+           doc="Controls the depth of light bleed in the subsurface medium. Has the effect of increasing the distance light travels in the medium while preserving fine detail, compared to increasing the Mean Free Path." />
+    <input name="sssFollowTopology" type="float" value="0.0" uimin="0.0" uimax="1.0" uiname="Follow Topology" uifolder="SSS"
+           doc="Controls how strongly normals are considered in the subsurface computation. For path-traced sss (sssMode 0 and 1), the followTopology parameter reduces sss paths being blocked by backsides behind a surface, but also reduces sss from one side to another in convex regions such as ridges and ears. For diffusion sss (sssMode 2 and 3), the followTopology parameter reduces sss from one side to another in concave regions such as crevasses and wrinkles." />
+    <input name="sssSubset" type="string" uniform="true" value="" uiname="Subset" uifolder="SSS"
+           doc="Specifies trace subset for inclusion/exclusion when struck by a ray indirectly." />
+    <input name="sssContinuationRays" type="integer" value="0" uiname="Continuation Rays" uifolder="SSS"
+           doc="When enabled, ignores internal geometry and jumps to the last surface." />
+    <input name="sssUnitLength" type="float" value="0.00328" uiname="Unit Length" uifolder="SSS"
+           doc="This is the multiplier that converts between millimeters and scene units. Both mean free path and diffuse mean free path are specified in millimeters and this parameter is used for the unit conversion. The default value of 0.00328 converts millimeters to feet. For centimeter scene units, this would be 0.1, for meters it would be 0.001 etc." />
+    <input name="mode" type="integer" uniform="true" enum="Reflection,Transmission,Reflection(with direct illumination)" enumvalues="0,1,2" value="0" uiname="Mode" uifolder="Advanced"
+           doc="If the subsurface is enabled, Reflection: should be used when both the camera and the light are outside of the object. Reflection(with direct illumination): should be used when both the camera and the light are outside of the object. This mode also computes the direct illumination at the sss ray exit point. Transmission: should be used when the light is inside the object while the camera is outside. " />
+    <input name="albedoInversionMethod" type="integer" enum="Pixar,Chiang" enumvalues="0,1" value="0" uiname="Albedo Inversion Method" uifolder="Advanced"
+           doc="Decides which albedo inversion methods is used. Pixar: Does the Pixar Path Traced SSS default albedo inversion. Chiang: Does Chiang's albedo inversion (with no dmfp remapping). The look is closer to Arnold Standard Surface randomwalk." />
+    <output name="out" type="BSDF" />
+  </nodedef>
+
+  <nodegraph name="IMPL_lama_sss" nodedef="ND_lama_sss">
+
+    <!-- DMFP -->
+    <multiply name="subsurface_radius_scaled" type="color3">
+      <input name="in1" type="color3" interfacename="sssRadius" />
+      <input name="in2" type="float" interfacename="sssScale" />
+    </multiply>
+    <multiply name="subsurface_multiply_unitlength" type="color3">
+      <input name="in1" type="color3" nodename="subsurface_radius_scaled" />
+      <input name="in2" type="float" interfacename="sssUnitLength" />
+    </multiply>
+
+    <!-- BRDF -->
+    <subsurface_bsdf name="subsurface_bsdf" type="BSDF">
+      <input name="weight" type="float" value="1.0" />
+      <input name="color" type="color3" interfacename="color" />
+      <input name="radius" type="color3" nodename="subsurface_multiply_unitlength" />
+      <input name="anisotropy" type="float" interfacename="sssAnisotropy" />
+      <input name="normal" type="vector3" interfacename="normal" />
+    </subsurface_bsdf>
+
+    <!-- Output -->
+    <output name="out" type="BSDF" nodename="subsurface_bsdf" />
+
+  </nodegraph>
+</materialx>
