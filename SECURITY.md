@@ -15,4 +15,11 @@ None
 
 ## Addressed Security Issues
 
-None
+The following MaterialX versions addressed the security issues listed within their section:
+
+### 1.39.3
+
+- [CVE-2025-53009](https://github.com/AcademySoftwareFoundation/MaterialX/security/advisories/GHSA-wx6g-fm6f-w822)
+- [CVE-2025-53010](https://github.com/AcademySoftwareFoundation/MaterialX/security/advisories/GHSA-3jhf-gxhr-q4cx)
+- [CVE-2025-53011](https://github.com/AcademySoftwareFoundation/MaterialX/security/advisories/GHSA-7qw8-3vmf-gj32)
+- [CVE-2025-53012](https://github.com/AcademySoftwareFoundation/MaterialX/security/advisories/GHSA-qc2h-74x3-4v3w)

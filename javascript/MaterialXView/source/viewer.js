@@ -106,6 +106,15 @@ export class Scene
         }
         scene.add(model);
 
+        // Set up onBeforeRender callbacks so that we can update uniforms per object right before rendering.
+        model.traverse((child) =>
+        {
+            child.onBeforeRender = (_renderer, _scene, camera, _geometry, material, _group) =>
+            {
+                this.updateObjectUniforms(child, material, camera);
+            };
+        })
+
         console.log("- Scene load time: ", performance.now() - geomLoadTime, "ms");
 
         // Always reset controls based on camera for each load. 
@@ -116,7 +125,6 @@ export class Scene
 
         viewer.getMaterial().clearSoloMaterialUI();
         viewer.getMaterial().updateMaterialAssignments(viewer, "");
-        this.setUpdateTransforms();
     }
 
     //
@@ -233,55 +241,30 @@ export class Scene
         orbitControls.update();
     }
 
-    setUpdateTransforms(val=true)
+    updateObjectUniforms(child, material, camera)
     {
-        this.#_updateTransforms = val;
-    }
+        if (!child || !material || !camera) return;
+        const uniforms = material.uniforms;
+        if (!uniforms) return;
 
-    getUpdateTransforms()
-    {
-        return this.#_updateTransforms;
-    }
+        uniforms.u_worldMatrix.value = child.matrixWorld;
+        uniforms.u_viewProjectionMatrix.value = this.#_viewProjMat.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
 
-    updateTransforms()
-    {
-        // Only update on demand versus continuously.
-        // Call setUpdateTransforms() to trigger an update here.
-        // Required for: scene geometry, camera change and viewport resize. 
-        if (!this.#_updateTransforms)
-        {
-            return;
-        }
-        this.setUpdateTransforms(false);
+        if (uniforms.u_viewPosition)
+            uniforms.u_viewPosition.value = camera.getWorldPosition(this.#_worldViewPos);
 
-        const scene = this.getScene();
-        const camera = this.getCamera();
-        scene.traverse((child) =>
-        {
-            if (child.isMesh)
-            {
-                const uniforms = child.material.uniforms;
-                if (uniforms)
-                {
-                    uniforms.u_worldMatrix.value = child.matrixWorld;
-                    uniforms.u_viewProjectionMatrix.value = this.#_viewProjMat.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
+        if (uniforms.u_worldInverseTransposeMatrix)
+            uniforms.u_worldInverseTransposeMatrix.value =
+                new THREE.Matrix4().setFromMatrix3(this.#_normalMat.getNormalMatrix(child.matrixWorld));
 
-                    if (uniforms.u_viewPosition)
-                        uniforms.u_viewPosition.value = camera.getWorldPosition(this.#_worldViewPos);
-
-                    if (uniforms.u_worldInverseTransposeMatrix)
-                        uniforms.u_worldInverseTransposeMatrix.value =
-                            new THREE.Matrix4().setFromMatrix3(this.#_normalMat.getNormalMatrix(child.matrixWorld));
-                }
-            }
-        });
+        material.uniformsNeedUpdate = true;
     }
 
     /**
      * Update uniforms for all scene objects. This is called once per frame
      * and updates time and frame count uniforms.
      */
-    updateUniforms() {
+    updateTimeUniforms() {
         this._frame++;
 
         const scene = this.getScene();
@@ -296,13 +279,9 @@ export class Scene
                 if (uniforms)
                 {
                     if (uniforms.u_time)
-                    {
                         uniforms.u_time.value = time;
-                    }
                     if (uniforms.u_frame)
-                    {
                         uniforms.u_frame.value = frame;
-                    }
                 }
             }
         });
@@ -472,7 +451,6 @@ export class Scene
     #_normalMat = new THREE.Matrix3();
     #_viewProjMat = new THREE.Matrix4();
     #_worldViewPos = new THREE.Vector3();
-    #_updateTransforms = true;
 
     // Root node of imported scene
     #_rootNode = null;
@@ -867,9 +845,6 @@ export class Material
         // Update scene shader assignments
         this.updateMaterialAssignments(viewer, "");
 
-        // Mark transform update
-        viewer.getScene().setUpdateTransforms();
-
         console.log("Total material time: ", (performance.now() - startTime), "ms");
     }
 
@@ -1062,7 +1037,6 @@ export class Material
             }
         }
         viewer.getMaterial().updateMaterialAssignments(viewer, this._soloMaterial);
-        viewer.getScene().setUpdateTransforms();
     }
 
     //

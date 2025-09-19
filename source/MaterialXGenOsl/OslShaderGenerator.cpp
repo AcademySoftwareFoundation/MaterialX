@@ -12,7 +12,6 @@
 #include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
 
-#include <MaterialXGenOsl/Nodes/BlurNodeOsl.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -25,15 +24,6 @@ const string OslShaderGenerator::TARGET = "genosl";
 OslShaderGenerator::OslShaderGenerator(TypeSystemPtr typeSystem) :
     ShaderGenerator(typeSystem, OslSyntax::create(typeSystem))
 {
-    // Register built-in implementations
-
-    // <!-- <blur> -->
-    registerImplementation("IM_blur_float_" + OslShaderGenerator::TARGET, BlurNodeOsl::create);
-    registerImplementation("IM_blur_color3_" + OslShaderGenerator::TARGET, BlurNodeOsl::create);
-    registerImplementation("IM_blur_color4_" + OslShaderGenerator::TARGET, BlurNodeOsl::create);
-    registerImplementation("IM_blur_vector2_" + OslShaderGenerator::TARGET, BlurNodeOsl::create);
-    registerImplementation("IM_blur_vector3_" + OslShaderGenerator::TARGET, BlurNodeOsl::create);
-    registerImplementation("IM_blur_vector4_" + OslShaderGenerator::TARGET, BlurNodeOsl::create);
 }
 
 ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const
@@ -245,7 +235,7 @@ void OslShaderGenerator::registerShaderMetadata(const DocumentPtr& doc, GenConte
         { ValueElement::UI_STEP_ATTRIBUTE, "sensitivity" },
         { ValueElement::DOC_ATTRIBUTE, "help" }
     };
-    for (auto it : nameRemapping)
+    for (const auto& it : nameRemapping)
     {
         ShaderMetadata* data = registry->findMetadata(it.first);
         if (data)

@@ -42,14 +42,17 @@ void HwTransformNode::emitFunctionCall(const ShaderNode& node, GenContext& conte
 
         shadergen.emitLineBegin(stage);
         shadergen.emitOutput(output, true, false, context, stage);
-        shadergen.emitString(" = (", stage);
 
         const string toSpace = getToSpace(node);
         const string fromSpace = getFromSpace(node);
         const string& matrix = getMatrix(fromSpace, toSpace);
-        if (!matrix.empty())
+        if (matrix.empty())
         {
-            shadergen.emitString(matrix + " * ", stage);
+            shadergen.emitString(" = (", stage);
+        }
+        else
+        {
+            shadergen.emitString(" = mx_matrix_mul(" + matrix + ", ", stage);
         }
 
         const string type = shadergen.getSyntax().getTypeName(Type::VECTOR4);
