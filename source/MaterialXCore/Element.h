@@ -1011,6 +1011,28 @@ class MX_CORE_API ValueElement : public TypedElement
     }
 
     /// @}
+    /// @name Enum Names
+    /// @{
+
+    /// Set the enum names of an element.
+    void setEnumNames(const string& enumNames)
+    {
+        setAttribute(ENUM_ATTRIBUTE, enumNames);
+    }
+
+    /// Return true if the given element has enum names.
+    bool hasEnumNames() const
+    {
+        return hasAttribute(ENUM_ATTRIBUTE);
+    }
+
+    /// Return the enum names of an element.
+    const string& getEnumNames() const
+    {
+        return getAttribute(ENUM_ATTRIBUTE);
+    }
+
+    /// @}
     /// @name Typed Value
     /// @{
 
