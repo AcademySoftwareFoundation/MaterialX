@@ -16,6 +16,7 @@
 #include <MaterialXGenMdl/Nodes/CustomNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/ImageNodeMdl.h>
 
+#include <MaterialXGenShader/Exception.h>
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/ShaderStage.h>
