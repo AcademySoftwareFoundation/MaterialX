@@ -146,6 +146,14 @@ class MX_GENSHADER_API ShaderGenerator
     /// Return true if the node needs the additional ClosureData added
     virtual bool nodeNeedsClosureData(const ShaderNode& /*node*/) const { return false; }
 
+    /// Emit the closure data argument if required
+    /// Note this is an affordance for HwShaderGenerator
+    virtual void emitClosureDataArg(const ShaderNode& /*node*/, GenContext& /*context*/, ShaderStage& /*stage*/) const {}
+
+    /// Emit the closure data parameter if required.
+    /// Note this is an affordance for HwShaderGenerator
+    virtual void emitClosureDataParameter(const ShaderNode& /*node*/, GenContext& /*context*/, ShaderStage& /*stage*/) const {}
+
     /// Return the result of an upstream connection or value for an input.
     virtual string getUpstreamResult(const ShaderInput* input, GenContext& context) const;
 
