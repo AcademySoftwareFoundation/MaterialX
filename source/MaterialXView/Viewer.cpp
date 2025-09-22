@@ -255,6 +255,7 @@ Viewer::Viewer(const std::string& materialFilename,
     _genContext.getOptions().fileTextureVerticalFlip = true;
     _genContext.getOptions().hwShadowMap = true;
     _genContext.getOptions().hwImplicitBitangents = false;
+    _genContext.getOptions().optReplaceBsdfMixWithLinearCombination = true;
 
 #ifdef MATERIALXVIEW_METAL_BACKEND
     _renderPipeline = MetalRenderPipeline::create(this);
@@ -267,6 +268,7 @@ Viewer::Viewer(const std::string& materialFilename,
     _genContextEssl.getOptions().targetColorSpaceOverride = "lin_rec709";
     _genContextEssl.getOptions().fileTextureVerticalFlip = false;
     _genContextEssl.getOptions().hwMaxActiveLightSources = 1;
+    _genContextEssl.getOptions().optReplaceBsdfMixWithLinearCombination = true;
 #endif
 #if MATERIALX_BUILD_GEN_OSL
     // Set OSL generator options.

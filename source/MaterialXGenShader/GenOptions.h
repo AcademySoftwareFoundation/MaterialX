@@ -94,7 +94,8 @@ class MX_GENSHADER_API GenOptions
         hwNormalizeUdimTexCoords(false),
         hwWriteAlbedoTable(false),
         hwWriteEnvPrefilter(false),
-        hwImplicitBitangents(true)
+        hwImplicitBitangents(true),
+        optReplaceBsdfMixWithLinearCombination(false)
     {
     }
     virtual ~GenOptions() { }
@@ -197,6 +198,10 @@ class MX_GENSHADER_API GenOptions
     /// Calculate fallback bitangents from existing normals and tangents
     /// inside the bitangent node.
     bool hwImplicitBitangents;
+
+    /// Analyse the graph of ShaderNodes and replace any ND_mix_bsdf nodes
+    /// with a linear combination of their weighted inputs
+    bool optReplaceBsdfMixWithLinearCombination;
 };
 
 MATERIALX_NAMESPACE_END

@@ -971,12 +971,15 @@ void ShaderGraph::optimize(GenContext& context)
     }
 
     // we take a copy of the node list because we might modify it during the optimization
-    const vector<ShaderNode*> nodeList = getNodes();
-    for (ShaderNode* node : nodeList)
+    if (context.getOptions().optReplaceBsdfMixWithLinearCombination)
     {
-        if (node->hasClassification(ShaderNode::Classification::MIX_BSDF))
+        const vector<ShaderNode*> nodeList = getNodes();
+        for (ShaderNode* node : nodeList)
         {
-            optimizeMixBsdf(node, context);
+            if (node->hasClassification(ShaderNode::Classification::MIX_BSDF))
+            {
+                optimizeMixBsdf(node, context);
+            }
         }
     }
 }
