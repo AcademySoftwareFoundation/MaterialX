@@ -322,12 +322,6 @@ void SlangShaderGenerator::emitConstants(GenContext& context, ShaderStage& stage
 
 void SlangShaderGenerator::emitUniforms(GenContext& context, ShaderStage& stage, bool emitLighting) const
 {
-    emitLine("[__AttributeUsage(_AttributeTargets.Var)]", stage, false);
-    emitLine("struct DefaultValueAttribute", stage, false);
-    emitScopeBegin(stage);
-    emitLine("string mxValueString", stage);
-    emitScopeEnd(stage);
-
     if (emitLighting)
     {
         const unsigned int maxLights = std::max(1u, context.getOptions().hwMaxActiveLightSources);
@@ -809,29 +803,11 @@ void SlangShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, c
     // A file texture input needs special handling on Slang
     if (variable->getType() == Type::FILENAME)
     {
-        // Samplers and textures must always be uniforms.
-        // Default filename can be provided, but default strings are ignored.
-        if (variable->getType() != Type::STRING && variable->getValue())
-        {
-            emitString("[DefaultValue(\"" + variable->getValueString() + "\")]", stage);
-            emitLineEnd(stage, false);
-            emitLineBegin(stage);
-        }
-
         string str = qualifier.empty() ? EMPTY_STRING : qualifier + " ";
         emitString(str + "SamplerTexture2D " + variable->getVariable(), stage);
     }
     else
     {
-        // String variable defaults are ignored, will be set to all 0.
-        if (variable->getType() != Type::STRING && assignValue && qualifier == _syntax->getUniformQualifier())
-        {
-            string valueStr = variable->getValue() ? variable->getValueString() : _syntax->getDefaultValue(variable->getType(), true);
-            emitString("[DefaultValue(\"" + valueStr + "\")]", stage);
-            emitLineEnd(stage, false);
-            emitLineBegin(stage);
-        }
-
         string str = qualifier.empty() ? EMPTY_STRING : qualifier + " ";
         // Varying parameters of type int must be flat qualified on output from vertex stage and
         // input to pixel stage. The only way to get these is with geompropvalue_integer nodes.

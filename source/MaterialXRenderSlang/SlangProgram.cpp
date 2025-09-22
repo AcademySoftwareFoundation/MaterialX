@@ -888,177 +888,138 @@ const SlangProgram::UniformInputMap& SlangProgram::updateUniformsList()
         throw ExceptionRenderError("Cannot parse uniforms without a valid program");
     }
 
-    bool uniformTypeMismatchFound = false;
+    if (!_shader)
+    {
+        throw ExceptionRenderError("Cannot set default values without the shader present.");
+    }
+
     StringVec errors;
 
-    struct Params
+    // Check for any type mismatches between the program and the h/w shader.
+    // i.e the type indicated by the HwShader does not match what was generated.
+    bool uniformTypeMismatchFound = false;
+
+    auto addUniform = [this](UniformInput&& input)
     {
-        std::string name;
-        rhi::ShaderCursor slangCursor;
-        std::string slangDefaultValue;
-
-        TypeDesc mxTypeDesc = Type::NONE;
-        std::string mxElementPath;
-        std::string mxUnit;
-        std::string mxColorspace;
-        std::string mxSemantic;
-    };
-
-    auto populateUniformInput = [this, &uniformTypeMismatchFound, &errors](Params params, auto& thisFunc) -> void
-    {
-        slang::TypeLayoutReflection* typeLayout = params.slangCursor.m_typeLayout;
-
-        if (isScalarLikeType(typeLayout->getType()))
+        if (auto it = _uniformList.find(input.name); it != _uniformList.end())
         {
-            UniformInput input;
-            input.name = params.name;
-            input.slangCursors.push_back(params.slangCursor);
-            input.slangByteSize = getByteSize(typeLayout);
-            input.slangDefaultValue = makeDefaultValue(typeLayout, params.slangDefaultValue);
-
-            if (params.mxTypeDesc != Type::NONE)
+            if (it->second->slangCursors.back().m_typeLayout->getType() == input.slangCursors.back().m_typeLayout->getType() &&
+                it->second->slangByteSize == input.slangByteSize &&
+                (it->second->slangDefaultValue == input.slangDefaultValue ||
+                 it->second->slangDefaultValue->getValueString() == input.slangDefaultValue->getValueString()))
             {
-                input.mxElementPath = params.mxElementPath;
-                input.mxUnit = params.mxUnit;
-                input.mxColorspace = params.mxColorspace;
-
-                if (!isEqualType(typeLayout, params.mxTypeDesc))
-                {
-                    errors.push_back(
-                        "Variable `" + input.name + "` has a mismatch. " + " Slang type: \"" + getFullName(typeLayout) + "\". MaterialX type +\"" + params.mxTypeDesc.getName() + "\".");
-                    uniformTypeMismatchFound = true;
-                }
-            }
-
-            if (auto it = _uniformList.find(input.name); it != _uniformList.end())
-            {
-                if (it->second->slangCursors.back().m_typeLayout->getType() == typeLayout->getType() &&
-                    it->second->slangByteSize == input.slangByteSize &&
-                    (it->second->slangDefaultValue == input.slangDefaultValue ||
-                     it->second->slangDefaultValue->getValueString() == input.slangDefaultValue->getValueString()))
-                {
-                    it->second->slangCursors.push_back(params.slangCursor);
-                }
-                else
-                {
-                    throw ExceptionRenderError("Uniform variable `" + input.name + "` is defined in multiple stages, but with different values in each.");
-                }
+                it->second->slangCursors.insert(it->second->slangCursors.end(), input.slangCursors.begin(), input.slangCursors.end());
             }
             else
             {
-                _uniformList[input.name] = std::make_shared<UniformInput>(input);
-            }
-        }
-        else if (typeLayout->getKind() == slang::TypeReflection::Kind::Array)
-        {
-            if (params.mxTypeDesc != Type::NONE)
-            {
-                if (!params.mxTypeDesc.isArray())
-                    throw ExceptionRenderError("Slang type is an array `" + getFullName(typeLayout->getType()) + "` while the MaterialX type is " + params.mxTypeDesc.getName());
-            }
-
-            for (size_t i = 0; i < typeLayout->getElementCount(); ++i)
-            {
-                Params child = params;
-                child.slangCursor = params.slangCursor[i];
-                child.name = params.name + "[" + std::to_string(i) + "]";
-                child.slangDefaultValue = {};
-                thisFunc(child, thisFunc);
+                throw ExceptionRenderError("Uniform variable `" + input.name + "` is defined in multiple stages, but with different values in each.");
             }
         }
         else
         {
-            StringVec splitDefaultValues = parseStructValueString(params.slangDefaultValue);
-            if (!params.slangDefaultValue.empty())
+            _uniformList[input.name] = std::make_shared<UniformInput>(input);
+        }
+    };
+
+    auto populateUniformInput = [this, &uniformTypeMismatchFound, &errors, addUniform](rhi::ShaderCursor slangCursor, TypeDesc variableTypeDesc, const std::string& variableName, const ConstValuePtr& variableValue, const ShaderPort* shaderPort, auto& thisFunc) -> void
+    {
+        slang::TypeLayoutReflection* typeLayout = slangCursor.m_typeLayout;
+
+        // Several structs are considered scalar-like (e.g., SamplerTexture2D), so we need those as well as any non-structs
+        if (isScalarLikeType(typeLayout) || typeLayout->getKind() != slang::TypeReflection::Kind::Struct)
+        {
+            UniformInput input;
+            input.name = variableName;
+            input.slangCursors = { slangCursor };
+            input.slangByteSize = getByteSize(typeLayout);
+            input.slangDefaultValue = variableValue;
+            input.mxElementPath = shaderPort->getPath();
+            input.mxUnit = shaderPort->getUnit();
+            input.mxColorspace = shaderPort->getColorSpace();
+
+            if (!isEqualType(typeLayout, variableTypeDesc))
             {
-                if (splitDefaultValues.size() != typeLayout->getFieldCount())
-                    throw ExceptionRenderError("Default value `" + params.slangDefaultValue + "` has " + std::to_string(splitDefaultValues.size()) +
-                                               " init values for Slang struct `" + getFullName(typeLayout->getType()) + "` with " + std::to_string(typeLayout->getFieldCount()));
+                errors.push_back(
+                    "Variable `" + input.name + "` has a mismatch. " + " Slang type: \"" + getFullName(typeLayout) + "\". MaterialX type +\"" + variableTypeDesc.getName() + "\".");
+                uniformTypeMismatchFound = true;
             }
 
-            StructMemberDescVecPtr mxStructMembers;
-            if (params.mxTypeDesc != Type::NONE)
-            {
-                if (!params.mxTypeDesc.isStruct())
-                    throw ExceptionRenderError("Slang type is a struct `" + getFullName(typeLayout->getType()) + "` while the MaterialX type is " + params.mxTypeDesc.getName());
-                mxStructMembers = params.mxTypeDesc.getStructMembers();
-                if (mxStructMembers->size() != typeLayout->getFieldCount())
-                    throw ExceptionRenderError("MaterialX struct has " + std::to_string(splitDefaultValues.size()) +
-                                               " members, while Slang struct `" +
-                                               getFullName(typeLayout->getType()) + "` with " + std::to_string(typeLayout->getFieldCount()));
-            }
+            addUniform(std::move(input));
+        }
+        else
+        {
+            if (!variableTypeDesc.isStruct())
+                throw ExceptionRenderError("Slang type is a struct `" + getFullName(typeLayout->getType()) + "` while the MaterialX type is " + variableTypeDesc.getName());
+            auto variableStructMembers = variableTypeDesc.getStructMembers();
+            if (variableStructMembers->size() != typeLayout->getFieldCount())
+                throw ExceptionRenderError("MaterialX struct has " + std::to_string(variableStructMembers->size()) +
+                                           " members, while Slang struct `" +
+                                           getFullName(typeLayout->getType()) + "` with " + std::to_string(typeLayout->getFieldCount()));
+
+            // If we're a struct - we need to loop over each member
+            auto aggregateValue = std::static_pointer_cast<const AggregateValue>(variableValue);
 
             for (unsigned i = 0; i < typeLayout->getFieldCount(); ++i)
             {
-                slang::VariableLayoutReflection* slangVariable = typeLayout->getFieldByIndex(i);
-                Params child = params;
-                child.slangCursor = params.slangCursor[i];
-                child.name = params.name + "." + slangVariable->getName();
-                if (!splitDefaultValues.empty())
-                    child.slangDefaultValue = splitDefaultValues[i];
+                const auto& structMember = (*variableStructMembers)[i];
 
-                if (mxStructMembers)
-                    child.mxTypeDesc = (*mxStructMembers)[i].getType();
+                auto memberVariableSlangCursor = slangCursor[i];
+                auto memberVariableName = variableName + "." + structMember.getName();
+                auto memberVariableValue = aggregateValue->getMemberValue(i);
 
-                thisFunc(child, thisFunc);
+                thisFunc(memberVariableSlangCursor, structMember.getType(), memberVariableName, memberVariableValue, shaderPort, thisFunc);
             }
         }
     };
 
-    /// If we have shader attached, extract meta information for printing.
-    std::unordered_map<std::string, const ShaderPort*> uniformVariables;
-    if (_shader)
-    {
-        auto extractUniforms = [&uniformVariables](const ShaderStage& stage)
-        {
-            for (const auto& uniformMap : stage.getUniformBlocks())
-            {
-                const VariableBlock& uniforms = *uniformMap.second;
-                for (size_t i = 0; i < uniforms.size(); ++i)
-                {
-                    uniformVariables[uniforms[i]->getName()] = uniforms[i];
-                }
-            }
-        };
-
-        extractUniforms(_shader->getStage(Stage::PIXEL));
-        extractUniforms(_shader->getStage(Stage::VERTEX));
-    }
-
     /// Iterate over all uniforms in a block, either root or a constant buffer.
-    auto populateUniforms = [&](rhi::ShaderCursor cursor)
+    auto populateUniforms = [&](rhi::ShaderCursor cursor, const VariableBlockMap& variableBlocks)
     {
         if (cursor.m_typeLayout->getKind() == slang::TypeReflection::Kind::ConstantBuffer)
             cursor = cursor.getDereferenced();
 
-        for (unsigned i = 0; i < cursor.m_typeLayout->getFieldCount(); ++i)
+        unsigned fieldIndex = 0;
+        for (auto& uniformMap : variableBlocks)
         {
-            slang::VariableLayoutReflection* slangVariable = cursor.m_typeLayout->getFieldByIndex(i);
-
-            Params params;
-            params.slangCursor = cursor[i];
-            params.name = slangVariable->getName();
-            params.slangDefaultValue = getDefaultValueAttribute(slangVariable, _context->_slangGlobalSession);
-
-            if (auto it = uniformVariables.find(params.name); it != uniformVariables.end())
+            /// varName must be either portName, or portName + a digit (in case the portName is a reserved keyword)
+            auto checkName = [](const std::string& varName, const std::string& portName) -> bool
             {
-                if (it->second)
-                {
-                    params.mxTypeDesc = it->second->getType();
-                    params.mxElementPath = it->second->getPath();
-                    params.mxUnit = it->second->getUnit();
-                    params.mxColorspace = it->second->getColorSpace();
-                    params.mxSemantic = it->second->getSemantic();
-                }
-            }
+                if (varName == portName)
+                    return true;
+                if (varName.size() < portName.size())
+                    return false;
+                if (varName.compare(0, portName.size(), portName) != 0)
+                    return false;
+                return std::all_of(varName.begin() + portName.size(), varName.end(), ::isdigit);
+            };
 
-            populateUniformInput(params, populateUniformInput);
+            const VariableBlock& uniforms = *uniformMap.second;
+            if (uniforms.getName() == HW::LIGHT_DATA)
+                continue;
+
+            for (size_t i = 0; i < uniforms.size(); ++i, ++fieldIndex)
+            {
+                auto shaderPort = uniforms[i];
+
+                slang::VariableLayoutReflection* slangVariable = cursor.m_typeLayout->getFieldByIndex(fieldIndex);
+                auto slangCursor = cursor[fieldIndex];
+                auto typeDesc = shaderPort->getType();
+                auto value = shaderPort->getValue();
+                std::string name = slangVariable->getName();
+                if (!checkName(name, shaderPort->getName()))
+                    throw ExceptionRenderError("Expected variable " + name + " but instead found ShaderPort " + shaderPort->getName() + ".");
+
+                populateUniformInput(slangCursor, typeDesc, name, value, shaderPort, populateUniformInput);
+            }
         }
+
+        if (fieldIndex != cursor.m_typeLayout->getFieldCount())
+            throw ExceptionRenderError("ShaderCursor has " + std::to_string(cursor.m_typeLayout->getFieldCount()) + " members, while Uniforms have " + std::to_string(fieldIndex) + " ports.");
     };
 
     rhi::ShaderCursor cursor(_rootObject);
-    populateUniforms(cursor[(Stage::PIXEL + "CB").c_str()]);
-    populateUniforms(cursor[(Stage::VERTEX + "CB").c_str()]);
+    populateUniforms(cursor[(Stage::PIXEL + "CB").c_str()], _shader->getStage(Stage::PIXEL).getUniformBlocks());
+    populateUniforms(cursor[(Stage::VERTEX + "CB").c_str()], _shader->getStage(Stage::VERTEX).getUniformBlocks());
 
     // Throw an error if any type mismatches were found
     if (uniformTypeMismatchFound)

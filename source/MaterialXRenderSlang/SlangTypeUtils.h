@@ -32,7 +32,7 @@ inline bool isSamplerTexture2D(slang::TypeLayoutReflection* typeLayout)
 /// Returns true if the slangType is a string (found in User defined attributes for DefaultValue)
 bool isSlangString(slang::TypeReflection* slangType);
 
-/// Returns true for types that either are not structs, or are isScalarLikeStruct()
+/// Returns true for types that either are not structs, or are scalar-like structs (e.g. SamplerTexture2D)
 bool isScalarLikeType(slang::TypeReflection* type);
 inline bool isScalarLikeType(slang::TypeLayoutReflection* typeLaytout)
 {
@@ -69,18 +69,6 @@ inline void clearSlangValue(const rhi::ShaderCursor& cursor)
 {
     clearSlangValue(cursor, getByteSize(cursor.getTypeLayout()));
 }
-
-/// Returns the value of the `DefaultValue` Slang User Attribute used to provide.
-/// Returns empty string if the attribute is not present
-std::string getDefaultValueAttribute(slang::VariableReflection* variable, slang::IGlobalSession* globalSession);
-inline std::string getDefaultValueAttribute(slang::VariableLayoutReflection* variableLayout, slang::IGlobalSession* globalSession)
-{
-    return getDefaultValueAttribute(variableLayout->getVariable(), globalSession);
-}
-
-/// For given slang type and string default value, creates a MaterialX value object
-/// that is used to hold the binary data that will be set on the descriptor.
-ConstValuePtr makeDefaultValue(slang::TypeLayoutReflection* typeLayout, const std::string& defaultValue);
 
 MATERIALX_NAMESPACE_END
 
