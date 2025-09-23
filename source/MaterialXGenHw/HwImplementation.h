@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#ifndef MATERIALXGENHW_HWIMPLEMENTATION_H
-#define MATERIALXGENHW_HWIMPLEMENTATION_H
+#ifndef MATERIALX_HWIMPLEMENTATION_H
+#define MATERIALX_HWIMPLEMENTATION_H
 
 /// @file
 /// Hardware shader node implementation base class

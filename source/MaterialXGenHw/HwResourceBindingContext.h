@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#ifndef MATERIALXGENHW_HWRESOURCEBINDINGCONTEXT_H
-#define MATERIALXGENHW_HWRESOURCEBINDINGCONTEXT_H
+#ifndef MATERIALX_HWRESOURCEBINDINGCONTEXT_H
+#define MATERIALX_HWRESOURCEBINDINGCONTEXT_H
 
 /// @file
 /// Hardware resource bindings context base class

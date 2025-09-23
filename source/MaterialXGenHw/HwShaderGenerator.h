@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#ifndef MATERIALXGENHW_HWSHADERGENERATOR_H
-#define MATERIALXGENHW_HWSHADERGENERATOR_H
+#ifndef MATERIALX_HWSHADERGENERATOR_H
+#define MATERIALX_HWSHADERGENERATOR_H
 
 /// @file
 /// Hardware shader generator base class

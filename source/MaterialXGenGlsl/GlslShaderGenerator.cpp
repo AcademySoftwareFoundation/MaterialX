@@ -5,10 +5,8 @@
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 #include <MaterialXGenGlsl/GlslSyntax.h>
-
-#include <MaterialXGenHw/HwLightShaders.h>
-
 #include <MaterialXGenShader/Nodes/MaterialNode.h>
+#include <MaterialXGenHw/HwLightShaders.h>
 #include <MaterialXGenHw/Nodes/HwImageNode.h>
 #include <MaterialXGenHw/Nodes/HwGeomColorNode.h>
 #include <MaterialXGenHw/Nodes/HwGeomPropValueNode.h>

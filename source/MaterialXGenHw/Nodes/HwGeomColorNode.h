@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#ifndef MATERIALXGENHW_NODES_HWGEOMCOLORNODE_H
-#define MATERIALXGENHW_NODES_HWGEOMCOLORNODE_H
+#ifndef MATERIALX_HWGEOMCOLORNODE_H
+#define MATERIALX_HWGEOMCOLORNODE_H
 
 #include <MaterialXGenHw/HwImplementation.h>
 

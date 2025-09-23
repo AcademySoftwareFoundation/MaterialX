@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#ifndef MATERIALXGENHW_NODES_HWTEXCOORDNODE_H
-#define MATERIALXGENHW_NODES_HWTEXCOORDNODE_H
+#ifndef MATERIALX_HWTEXCOORDNODE_H
+#define MATERIALX_HWTEXCOORDNODE_H
 
 #include <MaterialXGenHw/Export.h>
 #include <MaterialXGenShader/ShaderNodeImpl.h>

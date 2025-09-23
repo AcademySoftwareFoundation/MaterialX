@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#ifndef MATERIALXGENHW_NODES_HWFRAMENODE_H
-#define MATERIALXGENHW_NODES_HWFRAMENODE_H
+#ifndef MATERIALX_HWFRAMENODE_H
+#define MATERIALX_HWFRAMENODE_H
 
 #include <MaterialXGenHw/HwImplementation.h>
 
