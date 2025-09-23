@@ -137,6 +137,8 @@ class MX_GENSHADER_API ShaderGraph : public ShaderNode
     /// Add a node to the graph
     void addNode(ShaderNodePtr node);
 
+    bool removeNode(ShaderNode* node);
+
     /// Add input sockets from an interface element (nodedef, nodegraph or node)
     void addInputSockets(const InterfaceElement& elem, GenContext& context);
 
@@ -166,7 +168,8 @@ class MX_GENSHADER_API ShaderGraph : public ShaderNode
     /// Optimize the graph, removing redundant paths.
     void optimize(GenContext& context);
 
-    void optimizeMixBsdf(ShaderNode* node, GenContext& context);
+    bool optimizeMixBsdf(ShaderNode* node, GenContext& context);
+    bool optimizeMixMixBsdf(ShaderNode* node, GenContext& context);
 
     /// Bypass a node for a particular input and output,
     /// effectively connecting the input's upstream connection
