@@ -698,7 +698,19 @@ void emitInputAnnotations(const MdlShaderGenerator& _this, const ShaderPort* var
 
     _this.emitLineEnd(stage, false);
     _this.emitLine("[[", stage, false);
-    _this.emitLine("\t" + mtlxParameterPathAnno, stage, false);
+    _this.emitLineBegin(stage);
+    _this.emitString(_this.getSyntax().getIndentation() + mtlxParameterPathAnno, stage);
+    const ShaderGraphInputSocket* input = static_cast<const ShaderGraphInputSocket*>(variable);
+
+    if (input->getConnections().empty())
+    {
+        _this.emitString(",", stage);
+        _this.emitLineEnd(stage, false);
+        _this.emitLineBegin(stage);
+        _this.emitString(_this.getSyntax().getIndentation() + "anno::unused()", stage);
+    }
+
+    _this.emitLineEnd(stage, false);
     _this.emitLineBegin(stage);
     _this.emitString("]]", stage); // line ending follows by caller
 }

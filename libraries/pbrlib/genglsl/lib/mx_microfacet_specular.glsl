@@ -374,7 +374,7 @@ vec3 mx_fresnel_airy(float cosTheta, FresnelData fd)
 
     // Reflectance term for m>0 (pairs of diracs)
     Cm = Rs - T121.x;
-    for (int m=1; m<=2; m++)
+    for (int m = 1; m <= AIRY_FRESNEL_ITERATIONS; m++)
     {
         Cm *= r123p;
         Sm  = 2.0 * mx_eval_sensitivity(float(m) * opd, float(m)*(phi23p+vec3(phi21.x)));
@@ -389,7 +389,7 @@ vec3 mx_fresnel_airy(float cosTheta, FresnelData fd)
 
     // Reflectance term for m>0 (pairs of diracs)
     Cm = Rp - T121.y;
-    for (int m=1; m<=2; m++)
+    for (int m = 1; m <= AIRY_FRESNEL_ITERATIONS; m++)
     {
         Cm *= r123s;
         Sm  = 2.0 * mx_eval_sensitivity(float(m) * opd, float(m)*(phi23s+vec3(phi21.y)));
