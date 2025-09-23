@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#ifndef MATERIALXGENHW_NODES_HWNUMLIGHTSNODE_H
-#define MATERIALXGENHW_NODES_HWNUMLIGHTSNODE_H
+#ifndef MATERIALX_HWNUMLIGHTSNODE_H
+#define MATERIALX_HWNUMLIGHTSNODE_H
 
 #include <MaterialXGenHw/HwImplementation.h>
 

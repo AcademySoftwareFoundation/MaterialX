@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#ifndef MATERIALXGENHW_HWCONSTANTS_H
-#define MATERIALXGENHW_HWCONSTANTS_H
+#ifndef MATERIALX_HWCONSTANTS_H
+#define MATERIALX_HWCONSTANTS_H
 
 /// @file
 /// Hardware shader generator constants

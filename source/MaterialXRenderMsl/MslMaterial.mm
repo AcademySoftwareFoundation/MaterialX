@@ -168,7 +168,7 @@ void MslMaterial::unbindImages(ImageHandlerPtr imageHandler)
     }
 }
 
-void MslMaterial::bindImages(ImageHandlerPtr /*imageHandler*/, const FileSearchPath& /*searchPath*/, bool enableMipmaps)
+void MslMaterial::bindImages(ImageHandlerPtr imageHandler, const FileSearchPath& searchPath, bool enableMipmaps)
 {
     if (!_glProgram)
     {
@@ -182,7 +182,7 @@ void MslMaterial::bindImages(ImageHandlerPtr /*imageHandler*/, const FileSearchP
 }
 
 ImagePtr MslMaterial::bindImage(const FilePath& filePath,
-                                const std::string& /*uniformName*/,
+                                const std::string& uniformName,
                                 ImageHandlerPtr imageHandler,
                                 const ImageSamplingProperties& samplingProperties)
 {

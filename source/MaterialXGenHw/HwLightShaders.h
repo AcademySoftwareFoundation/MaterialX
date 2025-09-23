@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#ifndef MATERIALXGENHW_HWLIGHTSHADERS_H
-#define MATERIALXGENHW_HWLIGHTSHADERS_H
+#ifndef MATERIALX_HWLIGHTSHADERS_H
+#define MATERIALX_HWLIGHTSHADERS_H
 
 /// @file
 /// Hardware shader generator lights
