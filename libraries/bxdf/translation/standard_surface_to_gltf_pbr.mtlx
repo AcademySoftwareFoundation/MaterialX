@@ -19,6 +19,8 @@
     <input name="coat_roughness" type="float" value="0.1" />
     <input name="emission" type="float" value="0" />
     <input name="emission_color" type="color3" value="1, 1, 1" />
+    <input name="normal" type="vector3" defaultgeomprop="Nworld" doc="Input geometric normal" />
+    <input name="tangent" type="vector3" defaultgeomprop="Tworld" doc="Input geometric tangent" />
 
     <output name="base_color_out" type="color3" />
     <output name="metallic_out" type="float" />
@@ -33,6 +35,8 @@
     <output name="clearcoat_out" type="float" />
     <output name="clearcoat_roughness_out" type="float" />
     <output name="emissive_out" type="color3" />
+    <output name="normal_out" type="vector3" />
+    <output name="tangent_out" type="vector3" />
   </nodedef>
 
   <nodegraph name="NG_standard_surface_to_gltf_pbr" nodedef="ND_standard_surface_to_gltf_pbr">
@@ -191,6 +195,15 @@
       <input name="in2" type="float" interfacename="emission" />
     </multiply>
 
+    <!-- Geometry -->
+    <dot name="normal" type="vector3">
+      <input name="in" type="vector3" interfacename="normal" />
+    </dot>
+
+    <dot name="tangent" type="vector3">
+      <input name="in" type="vector3" interfacename="tangent" />
+    </dot>
+
     <output name="base_color_out" type="color3" nodename="base_color" />
     <output name="metallic_out" type="float" nodename="metallic" />
     <output name="roughness_out" type="float" nodename="roughness" />
@@ -204,6 +217,7 @@
     <output name="clearcoat_out" type="float" nodename="clearcoat" />
     <output name="clearcoat_roughness_out" type="float" nodename="clearcoat_roughness" />
     <output name="emissive_out" type="color3" nodename="emissive" />
-
+    <output name="normal_out" type="vector3" nodename="normal" />
+    <output name="tangent_out" type="vector3" nodename="tangent" />
   </nodegraph>
 </materialx>
