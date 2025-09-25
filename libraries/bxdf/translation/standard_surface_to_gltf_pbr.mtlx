@@ -19,6 +19,7 @@
     <input name="coat_roughness" type="float" value="0.1" />
     <input name="emission" type="float" value="0" />
     <input name="emission_color" type="color3" value="1, 1, 1" />
+    <input name="specular_IOR" type="float" value="1.5" doc="Specular Index of Refraction" />
 
     <output name="base_color_out" type="color3" />
     <output name="metallic_out" type="float" />
@@ -33,6 +34,7 @@
     <output name="clearcoat_out" type="float" />
     <output name="clearcoat_roughness_out" type="float" />
     <output name="emissive_out" type="color3" />
+    <output name="ior_out" type="float" />
   </nodedef>
 
   <nodegraph name="NG_standard_surface_to_gltf_pbr" nodedef="ND_standard_surface_to_gltf_pbr">
@@ -191,6 +193,11 @@
       <input name="in2" type="float" interfacename="emission" />
     </multiply>
 
+    <!-- Specular Index of Refraction -->
+    <dot name="ior" type="float">
+      <input name="in" type="float" interfacename="specular_IOR" />
+    </dot>
+
     <output name="base_color_out" type="color3" nodename="base_color" />
     <output name="metallic_out" type="float" nodename="metallic" />
     <output name="roughness_out" type="float" nodename="roughness" />
@@ -204,6 +211,6 @@
     <output name="clearcoat_out" type="float" nodename="clearcoat" />
     <output name="clearcoat_roughness_out" type="float" nodename="clearcoat_roughness" />
     <output name="emissive_out" type="color3" nodename="emissive" />
-
+    <output name="ior_out" type="float" nodename="ior" />
   </nodegraph>
 </materialx>
