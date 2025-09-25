@@ -33,6 +33,7 @@
     <output name="clearcoat_out" type="float" />
     <output name="clearcoat_roughness_out" type="float" />
     <output name="emissive_out" type="color3" />
+    <output name="emissive_strength_out" type="float" />
   </nodedef>
 
   <nodegraph name="NG_standard_surface_to_gltf_pbr" nodedef="ND_standard_surface_to_gltf_pbr">
@@ -186,10 +187,12 @@
     </dot>
 
     <!-- Emission -->
-    <multiply name="emissive" type="color3">
-      <input name="in1" type="color3" interfacename="emission_color" />
-      <input name="in2" type="float" interfacename="emission" />
-    </multiply>
+    <dot name="emissive" type="color3">
+      <input name="in" type="color3" interfacename="emission_color" />
+    </dot>
+    <dot name="emissive_strength" type="float">
+      <input name="in" type="float" interfacename="emission" />
+    </dot>
 
     <output name="base_color_out" type="color3" nodename="base_color" />
     <output name="metallic_out" type="float" nodename="metallic" />
@@ -204,6 +207,7 @@
     <output name="clearcoat_out" type="float" nodename="clearcoat" />
     <output name="clearcoat_roughness_out" type="float" nodename="clearcoat_roughness" />
     <output name="emissive_out" type="color3" nodename="emissive" />
+    <output name="emissive_strength_out" type="float" nodename="emissive_strength" />
 
   </nodegraph>
 </materialx>
