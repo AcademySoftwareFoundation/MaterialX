@@ -199,7 +199,6 @@
     <dot name="normal" type="vector3">
       <input name="in" type="vector3" interfacename="normal" />
     </dot>
-
     <dot name="tangent" type="vector3">
       <input name="in" type="vector3" interfacename="tangent" />
     </dot>
@@ -219,5 +218,6 @@
     <output name="emissive_out" type="color3" nodename="emissive" />
     <output name="normal_out" type="vector3" nodename="normal" />
     <output name="tangent_out" type="vector3" nodename="tangent" />
+
   </nodegraph>
 </materialx>
