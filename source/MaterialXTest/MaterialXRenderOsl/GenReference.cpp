@@ -39,9 +39,8 @@ TEST_CASE("GenReference: OSL Reference", "[genreference]")
         {
             oslIncludePaths.append(oslStandardIncludePath);
         }
-        // Add in library include path for compile testing as the generated
-        // shader's includes added by the shader generator itself are not added with absolute paths.
-        // specifically "mx_funcs.h"
+        // Add in library include path for compile testing as the includes added by the shader
+        // generator itself are not added with absolute paths (specifically "mx_funcs.h").
         oslIncludePaths.append(searchPath.find("libraries/stdlib/genosl/include"));
         oslRenderer->setOslIncludePath(oslIncludePaths);
     }
