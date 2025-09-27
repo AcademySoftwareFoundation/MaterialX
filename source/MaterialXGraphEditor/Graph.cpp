@@ -3394,7 +3394,7 @@ void Graph::propertyEditor()
         float availableWidth = ImGui::GetContentRegionAvail().x; 
         ImGui::PushItemWidth(availableWidth); 
         ImGui::InputText("##edit", &temp);
-        ImGui::PopItemWidth(); 
+        ImGui::PopItemWidth();
 
         std::string docString = "NodeDef Doc String: \n";
         if (_currUiNode->getNode())
@@ -3696,6 +3696,81 @@ void Graph::propertyEditor()
             }
             ImGui::Checkbox("Show all inputs", &_currUiNode->_showAllInputs);
         }
+
+        // Find tokens within currUiNode
+        std::vector<mx::TokenPtr> tokens = {};
+        // The source of the tokens. Could be node itself, nodegraph, or nodedef
+        mx::InterfaceElementPtr source = nullptr;
+        mx::NodePtr node = _currUiNode->getNode();
+        mx::NodeGraphPtr nodegraph = _currUiNode->getNodeGraph();
+
+        // Check local node first
+        if (node != nullptr)
+        {
+            tokens = node->getActiveTokens();
+            source = node;
+
+            // Check nodedef if no tokens in local node
+            if (tokens.empty())
+            {
+                mx::NodeDefPtr nodedef = node->getNodeDef();
+                if (nodedef != nullptr)
+                {
+                    tokens = nodedef->getActiveTokens();
+                    source = nodedef;
+                }
+            }
+        }
+        else if (nodegraph != nullptr)
+        {
+            // Check nodegraph
+            tokens = nodegraph->getActiveTokens();
+            source = nodegraph;
+
+            if (tokens.empty())
+            {
+                // Check nodedef if no tokens in nodegraph
+                mx::NodeDefPtr nodedef = nodegraph->getNodeDef();
+                if (nodedef != nullptr)
+                {
+                    tokens = nodedef->getActiveTokens();
+                    source = nodedef;
+                }
+            }
+            
+        }
+        if (!tokens.empty())
+        {
+            ImGui::Text("Tokens: %llu", tokens.size());
+            if (source != nullptr)
+            {
+                std::string sourceName = source->getName();
+                ImGui::Text("Tokens Source: ");
+                ImGui::SameLine();
+
+                if (source == node || source == nodegraph)
+                {
+                    sourceName = "self";
+                }
+                else
+                {
+                    ImGui::Text("%s", source->getCategory().c_str());
+                    ImGui::SameLine();
+                }
+
+                ImGui::Text("%s", sourceName.c_str());
+            }
+
+            ImGui::Indent();
+            for (auto& token : tokens)
+            {
+                ImGui::Text("%s: ", token->getName().c_str());
+                ImGui::SameLine();
+                ImGui::Text("%s", token->getResolvedValueString().c_str());
+            }
+            ImGui::Unindent();
+        }
+
         ImGui::PopStyleColor();
         ImGui::PopStyleColor();
 
