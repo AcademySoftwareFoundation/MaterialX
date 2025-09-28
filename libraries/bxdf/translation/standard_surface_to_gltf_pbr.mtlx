@@ -8,6 +8,7 @@
     <input name="specular_anisotropy" type="float" value="0.0" />
     <input name="specular_rotation" type="float" value="0.0" />
     <input name="specular_roughness" type="float" value="0.2" />
+    <input name="specular_IOR" type="float" value="1.5" />
     <input name="transmission" type="float" value="0" />
     <input name="transmission_color" type="color3" value="1, 1, 1" />
     <input name="transmission_depth" type="float" value="0" />
@@ -23,6 +24,7 @@
     <output name="base_color_out" type="color3" />
     <output name="metallic_out" type="float" />
     <output name="roughness_out" type="float" />
+    <output name="ior_out" type="float" />
     <output name="anisotropy_strength_out" type="float" />
     <output name="anisotropy_rotation_out" type="float" />
     <output name="transmission_out" type="float" />
@@ -191,9 +193,15 @@
       <input name="in2" type="float" interfacename="emission" />
     </multiply>
 
+    <!-- Specular Index of Refraction -->
+    <dot name="ior" type="float">
+      <input name="in" type="float" interfacename="specular_IOR" />
+    </dot>
+
     <output name="base_color_out" type="color3" nodename="base_color" />
     <output name="metallic_out" type="float" nodename="metallic" />
     <output name="roughness_out" type="float" nodename="roughness" />
+    <output name="ior_out" type="float" nodename="ior" />
     <output name="anisotropy_strength_out" type="float" nodename="anisotropy_strength" />
     <output name="anisotropy_rotation_out" type="float" nodename="anisotropy_rotation" />
     <output name="transmission_out" type="float" nodename="transmission" />
