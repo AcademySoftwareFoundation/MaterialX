@@ -93,7 +93,7 @@ class MX_GENSHADER_API ShaderGraph : public ShaderNode
     const vector<ShaderGraphOutputSocket*>& getOutputSockets() const { return _inputOrder; }
 
     /// Apply color and unit transforms to each input of a node.
-    void applyInputTransforms(ConstNodePtr node, ShaderNodePtr shaderNode, GenContext& context);
+    void applyInputTransforms(ConstNodePtr node, ShaderNode* shaderNode, GenContext& context);
 
     /// Create a new node in the graph
     ShaderNode* createNode(ConstNodePtr node, GenContext& context);
@@ -129,8 +129,15 @@ class MX_GENSHADER_API ShaderGraph : public ShaderNode
                               ElementPtr connectingElement,
                               GenContext& context);
 
+    /// Create a new node in a graph from a node definition.
+    /// Note - this does not initialize the node instance with any concrete values, but
+    /// instead creates an empty instance of the provided node definition
+    ShaderNode* createNode(const string& name, ConstNodeDefPtr nodeDef, GenContext& context);
+
     /// Add a node to the graph
     void addNode(ShaderNodePtr node);
+
+    bool removeNode(ShaderNode* node);
 
     /// Add input sockets from an interface element (nodedef, nodegraph or node)
     void addInputSockets(const InterfaceElement& elem, GenContext& context);
@@ -159,7 +166,10 @@ class MX_GENSHADER_API ShaderGraph : public ShaderNode
     void finalize(GenContext& context);
 
     /// Optimize the graph, removing redundant paths.
-    void optimize();
+    void optimize(GenContext& context);
+
+    bool optimizeMixBsdf(ShaderNode* node, GenContext& context);
+    bool optimizeMixMixBsdf(ShaderNode* node, GenContext& context);
 
     /// Bypass a node for a particular input and output,
     /// effectively connecting the input's upstream connection
