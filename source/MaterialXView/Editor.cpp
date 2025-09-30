@@ -653,13 +653,42 @@ void PropertyEditor::updateContents(Viewer* viewer)
 
     // Shading model display
     mx::NodePtr node = elem->asA<mx::Node>();
+    std::vector<mx::TokenPtr> tokens = {};
+
     if (node)
     {
         std::string shaderName = node->getCategory();
+
+        // Find tokens upstream of Material
+        for (mx::Edge edge : node->traverseGraph())
+        {
+            tokens = edge.getUpstreamElement()->asA<mx::InterfaceElement>()->getActiveTokens();
+        }
+
         std::vector<mx::NodePtr> shaderNodes = mx::getShaderNodes(node);
         if (!shaderNodes.empty())
         {
             shaderName = shaderNodes[0]->getCategory();
+
+            if (!tokens.empty())
+            {
+                ng::ref<ng::Widget> tokenColumns = new ng::Widget(_container);
+                tokenColumns->set_layout(_gridLayout2);
+                ng::ref<ng::Label> tokenLabel = new ng::Label(tokenColumns, "Tokens");
+                tokenLabel->set_font_size(20);
+                tokenLabel->set_font("sans-bold");
+                std::string tokensSize = std::to_string(tokens.size());
+                ng::ref<ng::Label> tokenSizeLabel = new ng::Label(tokenColumns, tokensSize);
+                tokenSizeLabel->set_font_size(20);
+
+                for (auto& token : tokens)
+                {
+                    ng::ref<ng::Widget> twoColumns = new ng::Widget(_container);
+                    twoColumns->set_layout(_gridLayout2);
+                    new ng::Label(twoColumns, token->getName());
+                    new ng::Label(twoColumns, token->getResolvedValueString());
+                }
+            }
         }
         if (!shaderName.empty() && shaderName != "surface")
         {
@@ -699,7 +728,7 @@ void PropertyEditor::updateContents(Viewer* viewer)
         }
 
         // Then add items with unnamed groups.
-        bool addedLabel = false;
+        bool addedLabel = false; 
         for (auto it2 = unnamedGroups.begin(); it2 != unnamedGroups.end(); ++it2)
         {
             const mx::UIPropertyItem& item = it2->second;
