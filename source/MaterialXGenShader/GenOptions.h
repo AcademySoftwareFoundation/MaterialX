@@ -85,6 +85,7 @@ class MX_GENSHADER_API GenOptions
         hwSpecularEnvironmentMethod(SPECULAR_ENVIRONMENT_FIS),
         hwDirectionalAlbedoMethod(DIRECTIONAL_ALBEDO_ANALYTIC),
         hwTransmissionRenderMethod(TRANSMISSION_REFRACTION),
+        hwAiryFresnelIterations(2),
         hwSrgbEncodeOutput(false),
         hwWriteDepthMoments(false),
         hwShadowMap(false),
@@ -152,6 +153,11 @@ class MX_GENSHADER_API GenOptions
     /// Sets the method to use for transmission rendering
     /// for HW shader targets.
     HwTransmissionRenderMethod hwTransmissionRenderMethod;
+
+    /// Sets the number of iterations for Airy Fresnel reflection calculations.
+    /// Higher values provide more accurate thin-film interference patterns
+    /// but increase computational cost. Defaults to 2.
+    unsigned int hwAiryFresnelIterations;
 
     /// Enables an sRGB encoding for the color output on HW shader targets.
     /// Defaults to false.

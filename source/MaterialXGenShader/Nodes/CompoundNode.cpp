@@ -116,8 +116,12 @@ void CompoundNode::emitFunctionDefinition(const ShaderNode& node, GenContext& co
                 if (outputSocket->getConnection())
                 {
                     const ShaderNode* upstream = outputSocket->getConnection()->getNode();
+                    // Its important that the classification check here matches the logic inside
+                    // nodeOutputIsClosure() used above.
                     if (upstream->getParent() == _rootGraph.get() &&
-                        (upstream->hasClassification(ShaderNode::Classification::CLOSURE) || upstream->hasClassification(ShaderNode::Classification::SHADER)))
+                        (upstream->hasClassification(ShaderNode::Classification::CLOSURE) ||
+                            upstream->hasClassification(ShaderNode::Classification::SHADER) ||
+                            upstream->hasClassification(ShaderNode::Classification::MATERIAL)))
                     {
                         shadergen.emitFunctionCall(*upstream, context, stage);
                     }
