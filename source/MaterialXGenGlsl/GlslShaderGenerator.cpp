@@ -7,7 +7,6 @@
 
 #include <MaterialXGenGlsl/GlslSyntax.h>
 
-#include <MaterialXGenShader/Nodes/MaterialNode.h>
 #include <MaterialXGenHw/HwLightShaders.h>
 #include <MaterialXGenHw/Nodes/HwImageNode.h>
 #include <MaterialXGenHw/Nodes/HwGeomColorNode.h>
@@ -27,6 +26,8 @@
 #include <MaterialXGenHw/Nodes/HwLightShaderNode.h>
 #include <MaterialXGenHw/Nodes/HwNumLightsNode.h>
 #include <MaterialXGenHw/Nodes/HwSurfaceNode.h>
+
+#include <MaterialXGenShader/Nodes/MaterialNode.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
