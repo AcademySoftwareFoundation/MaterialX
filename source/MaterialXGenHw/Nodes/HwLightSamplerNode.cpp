@@ -5,9 +5,10 @@
 
 #include <MaterialXGenHw/Nodes/HwLightSamplerNode.h>
 
-#include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenHw/HwLightShaders.h>
 #include <MaterialXGenHw/HwConstants.h>
+
+#include <MaterialXGenShader/GenContext.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
