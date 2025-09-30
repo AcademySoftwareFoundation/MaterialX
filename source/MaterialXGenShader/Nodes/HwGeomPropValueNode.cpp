@@ -5,6 +5,7 @@
 
 #include <MaterialXGenShader/Nodes/HwGeomPropValueNode.h>
 
+#include <MaterialXGenShader/Exception.h>
 #include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenShader/Shader.h>
 

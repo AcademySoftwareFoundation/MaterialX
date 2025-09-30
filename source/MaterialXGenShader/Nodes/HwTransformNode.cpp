@@ -4,7 +4,8 @@
 //
 
 #include <MaterialXGenShader/Nodes/HwTransformNode.h>
-#include <MaterialXGenShader/HwShaderGenerator.h>
+
+#include <MaterialXGenShader/Exception.h>
 #include <MaterialXGenShader/Shader.h>
 
 MATERIALX_NAMESPACE_BEGIN

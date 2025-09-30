@@ -27,6 +27,8 @@
 #include <MaterialXGenShader/Nodes/HwNumLightsNode.h>
 #include <MaterialXGenShader/Nodes/HwSurfaceNode.h>
 
+#include <MaterialXGenShader/Exception.h>
+
 #include "MslResourceBindingContext.h"
 
 #include <cctype>

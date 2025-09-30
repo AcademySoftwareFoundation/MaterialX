@@ -5,10 +5,10 @@
 
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 
-#include <MaterialXGenShader/Shader.h>
-#include <MaterialXGenShader/ShaderGenerator.h>
-#include <MaterialXGenShader/ShaderNode.h>
+#include <MaterialXGenShader/Exception.h>
 #include <MaterialXGenShader/GenContext.h>
+#include <MaterialXGenShader/Shader.h>
+#include <MaterialXGenShader/ShaderNode.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
