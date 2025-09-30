@@ -4,7 +4,9 @@
 //
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
+
 #include <MaterialXGenGlsl/GlslSyntax.h>
+
 #include <MaterialXGenShader/Nodes/MaterialNode.h>
 #include <MaterialXGenHw/HwLightShaders.h>
 #include <MaterialXGenHw/Nodes/HwImageNode.h>
