@@ -39,6 +39,8 @@ EMSCRIPTEN_BINDINGS(xmlio)
     BIND_FUNC_RAW_PTR("_readFromXmlFile", mx::readFromXmlFile, 2, 4, mx::DocumentPtr, mx::FilePath,
         mx::FileSearchPath, const mx::XmlReadOptions*);
     BIND_FUNC_RAW_PTR("writeToXmlFile", mx::writeToXmlFile, 2, 3, mx::DocumentPtr, const mx::FilePath&, const mx::XmlWriteOptions *);
+    BIND_FUNC_RAW_PTR("readFromXmlString", mx::readFromXmlString, 2, 4, mx::DocumentPtr,
+        const mx::string&, const mx::FileSearchPath&, const mx::XmlReadOptions *);
     BIND_FUNC_RAW_PTR("writeToXmlString", mx::writeToXmlString, 1, 2, mx::DocumentPtr, const mx::XmlWriteOptions *);
     ems::function("prependXInclude", &mx::prependXInclude);
 }

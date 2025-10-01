@@ -5,7 +5,11 @@
 var postRegistrations = [];
 
 function onModuleReady(callback) {
-    postRegistrations.push(callback);
+    if (Module.calledRun) {
+        callback();
+    } else {
+        postRegistrations.push(callback);
+    }
 }
 
 // This callback should only be registered once in all post JS scripts.
