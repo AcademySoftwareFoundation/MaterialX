@@ -18,15 +18,10 @@ MATERIALX_NAMESPACE_BEGIN
 // ShaderGraph methods
 //
 
-ShaderGraph::ShaderGraph(const ShaderGraph* parent, const string& name, ConstDocumentPtr document, const StringSet& reservedWords) :
+ShaderGraph::ShaderGraph(const ShaderGraph* parent, const string& name, ConstDocumentPtr document, const StringSet& /*reservedWords*/) :
     ShaderNode(parent, name),
     _document(document)
 {
-    // Add all reserved words as taken identifiers
-    for (const string& n : reservedWords)
-    {
-        _identifiers[n] = 1;
-    }
 }
 
 void ShaderGraph::addInputSockets(const InterfaceElement& elem, GenContext& context)
