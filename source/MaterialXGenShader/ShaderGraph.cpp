@@ -18,7 +18,7 @@ MATERIALX_NAMESPACE_BEGIN
 // ShaderGraph methods
 //
 
-ShaderGraph::ShaderGraph(const ShaderGraph* parent, const string& name, ConstDocumentPtr document, const StringSet& /*reservedWords*/) :
+ShaderGraph::ShaderGraph(const ShaderGraph* parent, const string& name, ConstDocumentPtr document) :
     ShaderNode(parent, name),
     _document(document)
 {
@@ -438,7 +438,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const NodeGraph& n
 
     string graphName = nodeGraph.getName();
     context.getShaderGenerator().getSyntax().makeValidName(graphName);
-    ShaderGraphPtr graph = std::make_shared<ShaderGraph>(parent, graphName, nodeGraph.getDocument(), context.getReservedWords());
+    ShaderGraphPtr graph = std::make_shared<ShaderGraph>(parent, graphName, nodeGraph.getDocument());
 
     // Clear classification
     graph->_classification = 0;
@@ -497,7 +497,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
             throw ExceptionShaderGenError("Given output '" + output->getName() + "' has no interface valid for shader generation");
         }
 
-        graph = std::make_shared<ShaderGraph>(parent, name, element->getDocument(), context.getReservedWords());
+        graph = std::make_shared<ShaderGraph>(parent, name, element->getDocument());
 
         // Clear classification
         graph->_classification = 0;
@@ -533,7 +533,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
             throw ExceptionShaderGenError("Could not find a nodedef for node '" + node->getName() + "'");
         }
 
-        graph = std::make_shared<ShaderGraph>(parent, name, element->getDocument(), context.getReservedWords());
+        graph = std::make_shared<ShaderGraph>(parent, name, element->getDocument());
 
         // Create input sockets
         graph->addInputSockets(*nodeDef, context);
