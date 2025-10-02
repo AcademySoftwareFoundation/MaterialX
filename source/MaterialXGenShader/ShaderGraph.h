@@ -44,7 +44,7 @@ class MX_GENSHADER_API ShaderGraph : public ShaderNode
 {
   public:
     /// Constructor.
-    ShaderGraph(const ShaderGraph* parent, const string& name, ConstDocumentPtr document, const StringSet& reservedWords);
+    ShaderGraph(const ShaderGraph* parent, const string& name, ConstDocumentPtr document);
 
     /// Destructor.
     virtual ~ShaderGraph() { }
