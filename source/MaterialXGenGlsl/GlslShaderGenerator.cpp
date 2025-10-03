@@ -6,12 +6,6 @@
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
 #include <MaterialXGenGlsl/GlslSyntax.h>
-#include <MaterialXGenGlsl/Nodes/SurfaceNodeGlsl.h>
-#include <MaterialXGenGlsl/Nodes/LightNodeGlsl.h>
-#include <MaterialXGenGlsl/Nodes/LightCompoundNodeGlsl.h>
-#include <MaterialXGenGlsl/Nodes/LightShaderNodeGlsl.h>
-#include <MaterialXGenGlsl/Nodes/LightSamplerNodeGlsl.h>
-#include <MaterialXGenGlsl/Nodes/NumLightsNodeGlsl.h>
 
 #include <MaterialXGenShader/Nodes/MaterialNode.h>
 #include <MaterialXGenShader/Nodes/HwImageNode.h>
@@ -26,6 +20,12 @@
 #include <MaterialXGenShader/Nodes/HwFrameNode.h>
 #include <MaterialXGenShader/Nodes/HwTimeNode.h>
 #include <MaterialXGenShader/Nodes/HwViewDirectionNode.h>
+#include <MaterialXGenShader/Nodes/HwLightCompoundNode.h>
+#include <MaterialXGenShader/Nodes/HwLightNode.h>
+#include <MaterialXGenShader/Nodes/HwLightSamplerNode.h>
+#include <MaterialXGenShader/Nodes/HwLightShaderNode.h>
+#include <MaterialXGenShader/Nodes/HwNumLightsNode.h>
+#include <MaterialXGenShader/Nodes/HwSurfaceNode.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -83,17 +83,17 @@ GlslShaderGenerator::GlslShaderGenerator(TypeSystemPtr typeSystem) :
     registerImplementation("IM_viewdirection_vector3_" + GlslShaderGenerator::TARGET, HwViewDirectionNode::create);
 
     // <!-- <surface> -->
-    registerImplementation("IM_surface_" + GlslShaderGenerator::TARGET, SurfaceNodeGlsl::create);
+    registerImplementation("IM_surface_" + GlslShaderGenerator::TARGET, HwSurfaceNode::create);
 
     // <!-- <light> -->
-    registerImplementation("IM_light_" + GlslShaderGenerator::TARGET, LightNodeGlsl::create);
+    registerImplementation("IM_light_" + GlslShaderGenerator::TARGET, HwLightNode::create);
 
     // <!-- <point_light> -->
-    registerImplementation("IM_point_light_" + GlslShaderGenerator::TARGET, LightShaderNodeGlsl::create);
+    registerImplementation("IM_point_light_" + GlslShaderGenerator::TARGET, HwLightShaderNode::create);
     // <!-- <directional_light> -->
-    registerImplementation("IM_directional_light_" + GlslShaderGenerator::TARGET, LightShaderNodeGlsl::create);
+    registerImplementation("IM_directional_light_" + GlslShaderGenerator::TARGET, HwLightShaderNode::create);
     // <!-- <spot_light> -->
-    registerImplementation("IM_spot_light_" + GlslShaderGenerator::TARGET, LightShaderNodeGlsl::create);
+    registerImplementation("IM_spot_light_" + GlslShaderGenerator::TARGET, HwLightShaderNode::create);
 
     // <!-- <ND_transformpoint> ->
     registerImplementation("IM_transformpoint_vector3_" + GlslShaderGenerator::TARGET, HwTransformPointNode::create);
@@ -118,8 +118,8 @@ GlslShaderGenerator::GlslShaderGenerator(TypeSystemPtr typeSystem) :
     // <!-- <surfacematerial> -->
     registerImplementation("IM_surfacematerial_" + GlslShaderGenerator::TARGET, MaterialNode::create);
 
-    _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "numActiveLightSources", NumLightsNodeGlsl::create()));
-    _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "sampleLightSource", LightSamplerNodeGlsl::create()));
+    _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "numActiveLightSources", HwNumLightsNode::create()));
+    _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "sampleLightSource", HwLightSamplerNode::create()));
 }
 
 ShaderPtr GlslShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const
@@ -171,6 +171,10 @@ void GlslShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext& 
 
     // Add vertex data outputs block
     emitOutputs(context, stage);
+
+    // Add common math functions
+    emitLibraryInclude("stdlib/genglsl/lib/mx_math.glsl", context, stage);
+    emitLineBreak(stage);
 
     emitFunctionDefinitions(graph, context, stage);
 
@@ -358,15 +362,6 @@ string GlslShaderGenerator::getVertexDataPrefix(const VariableBlock& vertexData)
     return vertexData.getInstance() + ".";
 }
 
-bool GlslShaderGenerator::requiresLighting(const ShaderGraph& graph) const
-{
-    const bool isBsdf = graph.hasClassification(ShaderNode::Classification::BSDF);
-    const bool isLitSurfaceShader = graph.hasClassification(ShaderNode::Classification::SHADER) &&
-                                    graph.hasClassification(ShaderNode::Classification::SURFACE) &&
-                                    !graph.hasClassification(ShaderNode::Classification::UNLIT);
-    return isBsdf || isLitSurfaceShader;
-}
-
 void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
 {
     HwResourceBindingContextPtr resourceBindingCtx = getResourceBindingContext(context);
@@ -408,6 +403,10 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
         emitLine("#define DIRECTIONAL_ALBEDO_METHOD " + std::to_string(int(context.getOptions().hwDirectionalAlbedoMethod)), stage, false);
         emitLineBreak(stage);
     }
+
+    // Define Airy Fresnel iterations
+    emitLine("#define AIRY_FRESNEL_ITERATIONS " + std::to_string(context.getOptions().hwAiryFresnelIterations), stage, false);
+    emitLineBreak(stage);
 
     // Add lighting support
     if (lighting)
@@ -723,7 +722,7 @@ ShaderNodeImplPtr GlslShaderGenerator::getImplementation(const NodeDef& nodedef,
         // Use a compound implementation.
         if (outputType == Type::LIGHTSHADER)
         {
-            impl = LightCompoundNodeGlsl::create();
+            impl = HwLightCompoundNode::create();
         }
         else
         {

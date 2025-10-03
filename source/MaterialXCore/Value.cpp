@@ -21,155 +21,8 @@ namespace
 thread_local Value::FloatFormat _floatFormat = Value::FloatFormatDefault;
 thread_local int _floatPrecision = 6;
 
-template <class T> using enable_if_mx_vector_t =
-    typename std::enable_if<std::is_base_of<VectorBase, T>::value, T>::type;
-template <class T> using enable_if_mx_matrix_t =
-    typename std::enable_if<std::is_base_of<MatrixBase, T>::value, T>::type;
-
-template <class T> class is_std_vector : public std::false_type { };
-template <class T> class is_std_vector<vector<T>> : public std::true_type { };
-template <class T> using enable_if_std_vector_t =
-    typename std::enable_if<is_std_vector<T>::value, T>::type;
-
-template <class T> void stringToData(const string& str, T& data)
-{
-    std::stringstream ss(str);
-    ss.imbue(std::locale::classic());
-    if (!(ss >> data))
-    {
-        throw ExceptionTypeError("Type mismatch in generic stringToData: " + str);
-    }
-}
-
-template <> void stringToData(const string& str, bool& data)
-{
-    if (str == VALUE_STRING_TRUE)
-        data = true;
-    else if (str == VALUE_STRING_FALSE)
-        data = false;
-    else
-        throw ExceptionTypeError("Type mismatch in boolean stringToData: " + str);
-}
-
-template <> void stringToData(const string& str, string& data)
-{
-    data = str;
-}
-
-template <class T> void stringToData(const string& str, enable_if_mx_vector_t<T>& data)
-{
-    StringVec tokens = splitString(str, ARRAY_VALID_SEPARATORS);
-    if (tokens.size() != data.numElements())
-    {
-        throw ExceptionTypeError("Type mismatch in vector stringToData: " + str);
-    }
-    for (size_t i = 0; i < data.numElements(); i++)
-    {
-        stringToData(tokens[i], data[i]);
-    }
-}
-
-template <class T> void stringToData(const string& str, enable_if_mx_matrix_t<T>& data)
-{
-    StringVec tokens = splitString(str, ARRAY_VALID_SEPARATORS);
-    if (tokens.size() != data.numRows() * data.numColumns())
-    {
-        throw ExceptionTypeError("Type mismatch in matrix stringToData: " + str);
-    }
-    for (size_t i = 0; i < data.numRows(); i++)
-    {
-        for (size_t j = 0; j < data.numColumns(); j++)
-        {
-            stringToData(tokens[i * data.numRows() + j], data[i][j]);
-        }
-    }
-}
-
-template <class T> void stringToData(const string& str, enable_if_std_vector_t<T>& data)
-{
-    // This code path parses an array of arbitrary substrings, so we split the string
-    // in a fashion that preserves substrings with internal spaces.
-    const string COMMA_SEPARATOR = ",";
-    for (const string& token : splitString(str, COMMA_SEPARATOR))
-    {
-        typename T::value_type val;
-        stringToData(trimSpaces(token), val);
-        data.push_back(val);
-    }
-}
-
-template <class T> void dataToString(const T& data, string& str)
-{
-    std::stringstream ss;
-    ss.imbue(std::locale::classic());
-
-    // Set float format and precision for the stream
-    const Value::FloatFormat fmt = Value::getFloatFormat();
-    ss.setf(std::ios_base::fmtflags(
-            (fmt == Value::FloatFormatFixed ? std::ios_base::fixed :
-            (fmt == Value::FloatFormatScientific ? std::ios_base::scientific : 0))),
-        std::ios_base::floatfield);
-    ss.precision(Value::getFloatPrecision());
-
-    ss << data;
-    str = ss.str();
-}
-
-template <> void dataToString(const bool& data, string& str)
-{
-    str = data ? VALUE_STRING_TRUE : VALUE_STRING_FALSE;
-}
-
-template <> void dataToString(const string& data, string& str)
-{
-    str = data;
-}
-
-template <class T> void dataToString(const enable_if_mx_vector_t<T>& data, string& str)
-{
-    for (size_t i = 0; i < data.numElements(); i++)
-    {
-        string token;
-        dataToString(data[i], token);
-        str += token;
-        if (i + 1 < data.numElements())
-        {
-            str += ARRAY_PREFERRED_SEPARATOR;
-        }
-    }
-}
-
-template <class T> void dataToString(const enable_if_mx_matrix_t<T>& data, string& str)
-{
-    for (size_t i = 0; i < data.numRows(); i++)
-    {
-        for (size_t j = 0; j < data.numColumns(); j++)
-        {
-            string token;
-            dataToString(data[i][j], token);
-            str += token;
-            if (i + 1 < data.numRows() ||
-                j + 1 < data.numColumns())
-            {
-                str += ARRAY_PREFERRED_SEPARATOR;
-            }
-        }
-    }
-}
-
-template <class T> void dataToString(const enable_if_std_vector_t<T>& data, string& str)
-{
-    for (size_t i = 0; i < data.size(); i++)
-    {
-        string token;
-        dataToString<typename T::value_type>(data[i], token);
-        str += token;
-        if (i + 1 < data.size())
-        {
-            str += ARRAY_PREFERRED_SEPARATOR;
-        }
-    }
-}
+template <class T> inline constexpr bool is_std_vector_v = false;
+template <class T> inline constexpr bool is_std_vector_v<vector<T>> = true;
 
 } // anonymous namespace
 
@@ -184,15 +37,138 @@ template <class T> const string& getTypeString()
 
 template <class T> string toValueString(const T& data)
 {
-    string value;
-    dataToString<T>(data, value);
-    return value;
+    string str;
+    
+    if constexpr(std::is_same_v<T, string>)
+    {
+        str = data;
+    }
+    else if constexpr(std::is_same_v<T, bool>)
+    {
+        str = data ? VALUE_STRING_TRUE : VALUE_STRING_FALSE;
+    }
+    else if constexpr(std::is_base_of_v<VectorBase, T>)
+    {
+        for (size_t i = 0; i < data.numElements(); i++)
+        {
+            str += toValueString(data[i]);
+            if (i + 1 < data.numElements())
+            {
+                str += ARRAY_PREFERRED_SEPARATOR;
+            }
+        }
+    }
+    else if constexpr(std::is_base_of_v<MatrixBase, T>)
+    {
+        for (size_t i = 0; i < data.numRows(); i++)
+        {
+            for (size_t j = 0; j < data.numColumns(); j++)
+            {
+                str += toValueString(data[i][j]);
+                if (i + 1 < data.numRows() ||
+                    j + 1 < data.numColumns())
+                {
+                    str += ARRAY_PREFERRED_SEPARATOR;
+                }
+            }
+        }
+    }
+    else if constexpr(is_std_vector_v<T>)
+    {
+        for (size_t i = 0; i < data.size(); i++)
+        {
+            str += toValueString<typename T::value_type>(data[i]);
+            if (i + 1 < data.size())
+            {
+                str += ARRAY_PREFERRED_SEPARATOR;
+            }
+        }
+    }
+    else
+    {
+        std::stringstream ss;
+        ss.imbue(std::locale::classic());
+
+        // Set float format and precision for the stream
+        const Value::FloatFormat fmt = Value::getFloatFormat();
+        ss.setf(std::ios_base::fmtflags(
+                (fmt == Value::FloatFormatFixed ? std::ios_base::fixed :
+                (fmt == Value::FloatFormatScientific ? std::ios_base::scientific : 0))),
+            std::ios_base::floatfield);
+        ss.precision(Value::getFloatPrecision());
+
+        ss << data;
+        str = ss.str();
+    }
+    
+    return str;
 }
 
 template <class T> T fromValueString(const string& value)
 {
     T data;
-    stringToData<T>(value, data);
+    
+    if constexpr(std::is_same_v<T, string>)
+    {
+        data = value;
+    }
+    else if constexpr(std::is_same_v<T, bool>)
+    {
+        if (value == VALUE_STRING_TRUE)
+            data = true;
+        else if (value == VALUE_STRING_FALSE)
+            data = false;
+        else
+            throw ExceptionTypeError("Type mismatch in boolean fromValueString: " + value);
+    }
+    else if constexpr(std::is_base_of_v<VectorBase, T>)
+    {
+        StringVec tokens = splitString(value, ARRAY_VALID_SEPARATORS);
+        if (tokens.size() != data.numElements())
+        {
+            throw ExceptionTypeError("Type mismatch in vector fromValueString: " + value);
+        }
+        for (size_t i = 0; i < data.numElements(); i++)
+        {
+            data[i] = fromValueString<float>(tokens[i]);
+        }
+    }
+    else if constexpr(std::is_base_of_v<MatrixBase, T>)
+    {
+        StringVec tokens = splitString(value, ARRAY_VALID_SEPARATORS);
+        if (tokens.size() != data.numRows() * data.numColumns())
+        {
+            throw ExceptionTypeError("Type mismatch in matrix fromValueString: " + value);
+        }
+        for (size_t i = 0; i < data.numRows(); i++)
+        {
+            for (size_t j = 0; j < data.numColumns(); j++)
+            {
+                data[i][j] = fromValueString<float>(tokens[i * data.numRows() + j]);
+            }
+        }
+    }
+    else if constexpr(is_std_vector_v<T>)
+    {
+        // This code path parses an array of arbitrary substrings, so we split the string
+        // in a fashion that preserves substrings with internal spaces.
+        const string COMMA_SEPARATOR = ",";
+        for (const string& token : splitString(value, COMMA_SEPARATOR))
+        {
+            typename T::value_type val = fromValueString<typename T::value_type>(trimSpaces(token));
+            data.push_back(val);
+        }
+    }
+    else
+    {
+        std::stringstream ss(value);
+        ss.imbue(std::locale::classic());
+        if (!(ss >> data))
+        {
+            throw ExceptionTypeError("Type mismatch in generic fromValueString: " + value);
+        }
+    }
+    
     return data;
 }
 
