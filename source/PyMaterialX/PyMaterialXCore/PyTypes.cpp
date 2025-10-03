@@ -24,9 +24,17 @@ using IndexPair = std::pair<size_t, size_t>;
 .def(py::self == py::self)                              \
 .def(py::self != py::self)                              \
 .def(py::self + py::self)                               \
+.def(-py::self)                              \
+.def(+py::self)                              \
+.def("__iadd__", (&V::operator+=), py::return_value_policy::reference_internal)                              \
 .def(py::self - py::self)                               \
+.def("__isub__", (&V::operator-=), py::return_value_policy::reference_internal)                              \
 .def(py::self * py::self)                               \
+.def("__imul__", py::overload_cast<const V&>(&V::operator*=), py::return_value_policy::reference_internal)                              \
+.def("__imul__", py::overload_cast<float>(&V::operator*=), py::return_value_policy::reference_internal)                              \
 .def(py::self / py::self)                               \
+.def("__itruediv__", py::overload_cast<const V&>(&V::operator/=), py::return_value_policy::reference_internal)                              \
+.def("__itruediv__", py::overload_cast<float>(&V::operator/=), py::return_value_policy::reference_internal)                              \
 .def(py::self * float())                                \
 .def(py::self / float())                                \
 .def("getMagnitude", &V::getMagnitude)                  \
@@ -47,9 +55,17 @@ using IndexPair = std::pair<size_t, size_t>;
 .def(py::self == py::self)                              \
 .def(py::self != py::self)                              \
 .def(py::self + py::self)                               \
+.def(-py::self)                               \
+.def(+py::self)                               \
+.def("__iadd__", (&M::operator+=), py::return_value_policy::reference_internal)                               \
 .def(py::self - py::self)                               \
+.def("__isub__", (&M::operator-=), py::return_value_policy::reference_internal)                               \
 .def(py::self * py::self)                               \
+.def("__imul__", py::overload_cast<float>(&M::operator*=), py::return_value_policy::reference_internal)                               \
+.def("__imul__", py::overload_cast<const M&>(&M::operator*=), py::return_value_policy::reference_internal)                               \
 .def(py::self / py::self)                               \
+.def("__itruediv__", py::overload_cast<float>(&M::operator/=), py::return_value_policy::reference_internal)                               \
+.def("__itruediv__", py::overload_cast<const M&>(&M::operator/=), py::return_value_policy::reference_internal)                               \
 .def(py::self * float())                                \
 .def(py::self / float())                                \
 .def("__getitem__", [](const M& m, IndexPair i)         \
