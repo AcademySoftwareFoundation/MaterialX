@@ -153,6 +153,12 @@ void Syntax::makeValidName(string& name) const
 {
     std::replace_if(name.begin(), name.end(), isInvalidChar, '_');
     name = replaceSubstrings(name, _invalidTokens);
+    if (std::find(_reservedWords.begin(), _reservedWords.end(), name) != _reservedWords.end())
+    {
+        // We append "1" here because thats the prior behavior from makeIdentifier() below when
+        // the reservedWords were added to the identifiers list.
+        name = name+"1";
+    }
 }
 
 void Syntax::makeIdentifier(string& name, IdentifierMap& identifiers) const
