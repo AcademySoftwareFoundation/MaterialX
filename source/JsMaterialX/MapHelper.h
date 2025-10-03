@@ -72,13 +72,13 @@ struct BindingType<std::map<std::string, T>> {
     using ValBinding = BindingType<val>;
     using WireType = ValBinding::WireType;
 
-    static WireType toWireType(const std::map<std::string, T> &map) {        
+    static WireType toWireType(const std::map<std::string, T> &map, rvp::default_tag tag) {
         val obj = val::object();
         for (std::pair<std::string, T> element : map)
         {
             obj.set(element.first, element.second);
         }
-        return ValBinding::toWireType(obj);
+        return ValBinding::toWireType(obj, tag);
     }
 
     static std::map<std::string, T> fromWireType(WireType value) {
@@ -132,13 +132,13 @@ struct BindingType<std::unordered_map<std::string, T>> {
     using ValBinding = BindingType<val>;
     using WireType = ValBinding::WireType;
 
-    static WireType toWireType(const std::unordered_map<std::string, T> &map) {        
+    static WireType toWireType(const std::unordered_map<std::string, T> &map, rvp::default_tag tag) {
         val obj = val::object();
         for (std::pair<std::string, T> element : map)
         {
             obj.set(element.first, element.second);
         }
-        return ValBinding::toWireType(obj);
+        return ValBinding::toWireType(obj, tag);
     }
 
     static std::unordered_map<std::string, T> fromWireType(WireType value) {
