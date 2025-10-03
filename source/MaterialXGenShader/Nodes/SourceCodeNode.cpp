@@ -9,7 +9,6 @@
 #include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXFormat/Util.h>
-#include <MaterialXGenShader/HwShaderGenerator.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -190,10 +189,11 @@ void SourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext& contex
             // Emit function name.
             shadergen.emitString(_functionName + "(", stage);
 
-            if (context.getShaderGenerator().nodeNeedsClosureData(node))
-            {
-                shadergen.emitString(HW::CLOSURE_DATA_ARG + ", ", stage);
-            }
+            shadergen.emitClosureDataArg(node, context, stage);
+            // if (context.getShaderGenerator().nodeNeedsClosureData(node))
+            // {
+            //     shadergen.emitString(HW::CLOSURE_DATA_ARG + ", ", stage);
+            // }
 
             string delim;
 
