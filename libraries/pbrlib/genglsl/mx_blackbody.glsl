@@ -43,6 +43,6 @@ void mx_blackbody(float temperatureKelvin, out vec3 colorValue)
 
     vec3 XYZ = vec3(xc / yc, 1.0, (1.0 - xc - yc) / yc);
 
-    colorValue = XYZ_to_RGB * XYZ;
+    colorValue = mx_matrix_mul(XYZ_to_RGB, XYZ);
     colorValue = max(colorValue, vec3(0.0));
 }

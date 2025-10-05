@@ -6,12 +6,6 @@
 #include <MaterialXGenMsl/MslShaderGenerator.h>
 
 #include <MaterialXGenMsl/MslSyntax.h>
-#include <MaterialXGenMsl/Nodes/SurfaceNodeMsl.h>
-#include <MaterialXGenMsl/Nodes/LightNodeMsl.h>
-#include <MaterialXGenMsl/Nodes/LightCompoundNodeMsl.h>
-#include <MaterialXGenMsl/Nodes/LightShaderNodeMsl.h>
-#include <MaterialXGenMsl/Nodes/LightSamplerNodeMsl.h>
-#include <MaterialXGenMsl/Nodes/NumLightsNodeMsl.h>
 
 #include <MaterialXGenShader/Nodes/MaterialNode.h>
 #include <MaterialXGenShader/Nodes/HwImageNode.h>
@@ -26,6 +20,12 @@
 #include <MaterialXGenShader/Nodes/HwFrameNode.h>
 #include <MaterialXGenShader/Nodes/HwTimeNode.h>
 #include <MaterialXGenShader/Nodes/HwViewDirectionNode.h>
+#include <MaterialXGenShader/Nodes/HwLightCompoundNode.h>
+#include <MaterialXGenShader/Nodes/HwLightNode.h>
+#include <MaterialXGenShader/Nodes/HwLightSamplerNode.h>
+#include <MaterialXGenShader/Nodes/HwLightShaderNode.h>
+#include <MaterialXGenShader/Nodes/HwNumLightsNode.h>
+#include <MaterialXGenShader/Nodes/HwSurfaceNode.h>
 
 #include "MslResourceBindingContext.h"
 
@@ -88,17 +88,17 @@ MslShaderGenerator::MslShaderGenerator(TypeSystemPtr typeSystem) :
     registerImplementation("IM_viewdirection_vector3_" + MslShaderGenerator::TARGET, HwViewDirectionNode::create);
 
     // <!-- <surface> -->
-    registerImplementation("IM_surface_" + MslShaderGenerator::TARGET, SurfaceNodeMsl::create);
+    registerImplementation("IM_surface_" + MslShaderGenerator::TARGET, HwSurfaceNode::create);
 
     // <!-- <light> -->
-    registerImplementation("IM_light_" + MslShaderGenerator::TARGET, LightNodeMsl::create);
+    registerImplementation("IM_light_" + MslShaderGenerator::TARGET, HwLightNode::create);
 
     // <!-- <point_light> -->
-    registerImplementation("IM_point_light_" + MslShaderGenerator::TARGET, LightShaderNodeMsl::create);
+    registerImplementation("IM_point_light_" + MslShaderGenerator::TARGET, HwLightShaderNode::create);
     // <!-- <directional_light> -->
-    registerImplementation("IM_directional_light_" + MslShaderGenerator::TARGET, LightShaderNodeMsl::create);
+    registerImplementation("IM_directional_light_" + MslShaderGenerator::TARGET, HwLightShaderNode::create);
     // <!-- <spot_light> -->
-    registerImplementation("IM_spot_light_" + MslShaderGenerator::TARGET, LightShaderNodeMsl::create);
+    registerImplementation("IM_spot_light_" + MslShaderGenerator::TARGET, HwLightShaderNode::create);
 
     // <!-- <ND_transformpoint> ->
     registerImplementation("IM_transformpoint_vector3_" + MslShaderGenerator::TARGET, HwTransformPointNode::create);
@@ -123,8 +123,10 @@ MslShaderGenerator::MslShaderGenerator(TypeSystemPtr typeSystem) :
     // <!-- <surfacematerial> -->
     registerImplementation("IM_surfacematerial_" + MslShaderGenerator::TARGET, MaterialNode::create);
 
-    _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "numActiveLightSources", NumLightsNodeMsl::create()));
-    _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "sampleLightSource", LightSamplerNodeMsl::create()));
+    _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "numActiveLightSources", HwNumLightsNode::create()));
+    _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "sampleLightSource", HwLightSamplerNode::create()));
+
+    _tokenSubstitutions[HW::T_CLOSURE_DATA_CONSTRUCTOR] = "{closureType, L, V, N, P, occlusion}";
 }
 
 ShaderPtr MslShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const
@@ -548,6 +550,10 @@ void MslShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext& c
         emitGlobalVariables(context, stage, EMIT_GLOBAL_SCOPE_CONTEXT_CONSTRUCTOR_INIT, true, false);
         emitLine("{}", stage, false);
 
+        // Add common math functions
+        emitLibraryInclude("stdlib/genmsl/lib/mx_math.metal", context, stage);
+        emitLineBreak(stage);
+
         emitGlobalVariables(context, stage, EMIT_GLOBAL_SCOPE_CONTEXT_MEMBER_DECL, true, false);
 
         emitFunctionDefinitions(graph, context, stage);
@@ -824,15 +830,6 @@ string MslShaderGenerator::getVertexDataPrefix(const VariableBlock& vertexData) 
     return vertexData.getInstance() + ".";
 }
 
-bool MslShaderGenerator::requiresLighting(const ShaderGraph& graph) const
-{
-    const bool isBsdf = graph.hasClassification(ShaderNode::Classification::BSDF);
-    const bool isLitSurfaceShader = graph.hasClassification(ShaderNode::Classification::SHADER) &&
-                                    graph.hasClassification(ShaderNode::Classification::SURFACE) &&
-                                    !graph.hasClassification(ShaderNode::Classification::UNLIT);
-    return isBsdf || isLitSurfaceShader;
-}
-
 void MslShaderGenerator::emitMathMatrixScalarMathOperators(GenContext& context, ShaderStage& stage) const
 {
     emitLibraryInclude("stdlib/genmsl/lib/mx_matscalaroperators.metal", context, stage);
@@ -876,6 +873,10 @@ void MslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& co
         emitLine("#define DIRECTIONAL_ALBEDO_METHOD " + std::to_string(int(context.getOptions().hwDirectionalAlbedoMethod)), stage, false);
         emitLineBreak(stage);
     }
+
+    // Define Airy Fresnel iterations
+    emitLine("#define AIRY_FRESNEL_ITERATIONS " + std::to_string(context.getOptions().hwAiryFresnelIterations), stage, false);
+    emitLineBreak(stage);
 
     // Add lighting support
     if (lighting)
@@ -1238,7 +1239,7 @@ ShaderNodeImplPtr MslShaderGenerator::getImplementation(const NodeDef& nodedef, 
         // Use a compound implementation.
         if (outputType == Type::LIGHTSHADER)
         {
-            impl = LightCompoundNodeMsl::create();
+            impl = HwLightCompoundNode::create();
         }
         else
         {
