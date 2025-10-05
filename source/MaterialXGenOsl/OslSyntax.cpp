@@ -379,7 +379,7 @@ OslSyntax::OslSyntax(TypeSystemPtr typeSystem) : Syntax(typeSystem)
             this,
             "textureresource ",
             "textureresource (\"\", \"\")",
-            "(\"\", \"\")",
+            "{\"\", \"\"}",
             EMPTY_STRING,
             "struct textureresource { string filename; string colorspace; };"));
 
