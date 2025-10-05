@@ -67,33 +67,33 @@ jobs:
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
           python: 3.11
 
-        - name: MacOS_Xcode_16_Python312
-          os: macos-15
-          compiler: xcode
-          compiler_version: "16.1"
-          python: 3.12
-          test_shaders: ON
-
         - name: MacOS_Xcode_16_Python313
           os: macos-15
           compiler: xcode
-          compiler_version: "16.1"
+          compiler_version: "16.4"
+          python: 3.13
+          test_shaders: ON
+
+        - name: MacOS_Xcode_26_Python313
+          os: macos-26
+          compiler: xcode
+          compiler_version: "26.0"
           python: 3.13
           static_analysis: ON
           cmake_config: -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
         - name: MacOS_Xcode_DynamicAnalysis
-          os: macos-15
+          os: macos-26
           compiler: xcode
-          compiler_version: "16.1"
+          compiler_version: "26.0"
           python: None
           dynamic_analysis: ON
           cmake_config: -DMATERIALX_DYNAMIC_ANALYSIS=ON
 
-        - name: iOS_Xcode_16
-          os: macos-15
+        - name: iOS_Xcode_26
+          os: macos-26
           compiler: xcode
-          compiler_version: "16.1"
+          compiler_version: "26.0"
           python: None
           cmake_config: -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_SYSROOT=`xcrun --sdk iphoneos --show-sdk-path` -DCMAKE_OSX_ARCHITECTURES=arm64
 
@@ -144,15 +144,9 @@ jobs:
       if: runner.os == 'macOS'
       run: |
         if [ "${{ matrix.compiler_version }}" != 'None' ]; then
-          if [ "${{ matrix.compiler }}" = "gcc" ]; then
-            brew install gcc@${{ matrix.compiler_version }}
-            echo "CC=gcc-${{ matrix.compiler_version }}" >> $GITHUB_ENV
-            echo "CXX=g++-${{ matrix.compiler_version }}" >> $GITHUB_ENV
-          else
-            ls -ls /Applications/
-            sudo xcode-select -switch /Applications/Xcode_${{ matrix.compiler_version }}.app
-            echo "CC=clang" >> $GITHUB_ENV
-            echo "CXX=clang++" >> $GITHUB_ENV
+          sudo xcode-select -switch /Applications/Xcode_${{ matrix.compiler_version }}.app
+          if [ "${{ matrix.os }}" == 'macos-26' ]; then
+            xcodebuild -downloadComponent MetalToolchain
           fi
         fi
 

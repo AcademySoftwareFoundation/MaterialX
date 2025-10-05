@@ -174,7 +174,7 @@
 
   <!-- <geompropvalueuniform> -->
   <implementation name="IM_geompropvalue_string_genosl" nodedef="ND_geompropvalueuniform_string" file="mx_geompropvalue_string.osl" function="mx_geompropvalue_string" target="genosl" />
-  <implementation name="IM_geompropvalue_filename_genosl" nodedef="ND_geompropvalueuniform_filename" file="mx_geompropvalue_string.osl" function="mx_geompropvalue_string" target="genosl" />
+  <implementation name="IM_geompropvalue_filename_genosl" nodedef="ND_geompropvalueuniform_filename" file="mx_geompropvalue_filename.osl" function="mx_geompropvalue_filename" target="genosl" />
 
   <!-- ======================================================================== -->
   <!-- Application nodes                                                        -->
