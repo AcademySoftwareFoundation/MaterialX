@@ -3,18 +3,18 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#ifndef MATERIALX_LIGHTNODEGLSL_H
-#define MATERIALX_LIGHTNODEGLSL_H
+#ifndef MATERIALX_HWLIGHTNODE_H
+#define MATERIALX_HWLIGHTNODE_H
 
-#include <MaterialXGenGlsl/GlslShaderGenerator.h>
+#include <MaterialXGenShader/HwShaderGenerator.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
-/// Light node implementation for GLSL
-class MX_GENGLSL_API LightNodeGlsl : public HwImplementation
+/// Light node implementation for hardware languages.
+class MX_GENSHADER_API HwLightNode : public HwImplementation
 {
   public:
-    LightNodeGlsl();
+    HwLightNode();
 
     static ShaderNodeImplPtr create();
 

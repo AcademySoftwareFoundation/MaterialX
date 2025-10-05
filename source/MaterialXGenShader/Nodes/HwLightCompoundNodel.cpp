@@ -3,24 +3,24 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXGenMsl/Nodes/LightCompoundNodeMsl.h>
-#include <MaterialXGenMsl/MslShaderGenerator.h>
+#include <MaterialXGenShader/Nodes/HwLightCompoundNode.h>
+#include <MaterialXGenShader/HwShaderGenerator.h>
 
 #include <MaterialXGenShader/Util.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
-LightCompoundNodeMsl::LightCompoundNodeMsl() :
+HwLightCompoundNode::HwLightCompoundNode() :
     _lightUniforms(HW::LIGHT_DATA, EMPTY_STRING)
 {
 }
 
-ShaderNodeImplPtr LightCompoundNodeMsl::create()
+ShaderNodeImplPtr HwLightCompoundNode::create()
 {
-    return std::make_shared<LightCompoundNodeMsl>();
+    return std::make_shared<HwLightCompoundNode>();
 }
 
-void LightCompoundNodeMsl::initialize(const InterfaceElement& element, GenContext& context)
+void HwLightCompoundNode::initialize(const InterfaceElement& element, GenContext& context)
 {
     CompoundNode::initialize(element, context);
 
@@ -29,11 +29,12 @@ void LightCompoundNodeMsl::initialize(const InterfaceElement& element, GenContex
     NodeDefPtr nodeDef = graph.getNodeDef();
     for (InputPtr input : nodeDef->getActiveInputs())
     {
-        _lightUniforms.add(context.getTypeDesc(input->getType()), input->getName());
+        const TypeDesc type = context.getTypeDesc(input->getType());
+        _lightUniforms.add(type, input->getName());
     }
 }
 
-void LightCompoundNodeMsl::createVariables(const ShaderNode&, GenContext& context, Shader& shader) const
+void HwLightCompoundNode::createVariables(const ShaderNode&, GenContext& context, Shader& shader) const
 {
     // Create variables for all child nodes
     for (ShaderNode* childNode : _rootGraph->getNodes())
@@ -51,20 +52,20 @@ void LightCompoundNodeMsl::createVariables(const ShaderNode&, GenContext& contex
         lightData.add(u->getSelf());
     }
 
-    const MslShaderGenerator& shadergen = static_cast<const MslShaderGenerator&>(context.getShaderGenerator());
+    const HwShaderGenerator& shadergen = static_cast<const HwShaderGenerator&>(context.getShaderGenerator());
     shadergen.addStageLightingUniforms(context, ps);
 }
 
-void LightCompoundNodeMsl::emitFunctionDefinition(const ShaderNode& /*node*/, GenContext& context, ShaderStage& stage) const
+void HwLightCompoundNode::emitFunctionDefinition(const ShaderNode& /*node*/, GenContext& context, ShaderStage& stage) const
 {
     DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
     {
-        const MslShaderGenerator& shadergen = static_cast<const MslShaderGenerator&>(context.getShaderGenerator());
+        const HwShaderGenerator& shadergen = static_cast<const HwShaderGenerator&>(context.getShaderGenerator());
 
         // Emit functions for all child nodes
         shadergen.emitFunctionDefinitions(*_rootGraph, context, stage);
 
-        shadergen.emitLine("void " + _functionName + "(LightData light, float3 position, out lightshader result)", stage, false);
+        shadergen.emitLine("void " + _functionName + "(LightData light, vec3 position, out lightshader result)", stage, false);
 
         shadergen.emitFunctionBodyBegin(*_rootGraph, context, stage);
 
@@ -72,14 +73,14 @@ void LightCompoundNodeMsl::emitFunctionDefinition(const ShaderNode& /*node*/, Ge
         // closure/shader nodes and need to be emitted first.
         shadergen.emitFunctionCalls(*_rootGraph, context, stage, ShaderNode::Classification::TEXTURE);
 
-        shadergen.emitLine("ClosureData closureData = ClosureData(CLOSURE_TYPE_EMISSION, float3(0), -L, light.direction, float3(0), 0)", stage);
+        shadergen.emitLine("ClosureData closureData = makeClosureData(CLOSURE_TYPE_EMISSION, vec3(0), -L, light.direction, vec3(0), 0)", stage);
         shadergen.emitFunctionCalls(*_rootGraph, context, stage, ShaderNode::Classification::SHADER | ShaderNode::Classification::LIGHT);
 
         shadergen.emitFunctionBodyEnd(*_rootGraph, context, stage);
     }
 }
 
-void LightCompoundNodeMsl::emitFunctionCall(const ShaderNode&, GenContext& context, ShaderStage& stage) const
+void HwLightCompoundNode::emitFunctionCall(const ShaderNode&, GenContext& context, ShaderStage& stage) const
 {
     DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
     {
