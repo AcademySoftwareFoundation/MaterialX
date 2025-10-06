@@ -94,7 +94,9 @@ class MX_GENSHADER_API GenOptions
         hwNormalizeUdimTexCoords(false),
         hwWriteAlbedoTable(false),
         hwWriteEnvPrefilter(false),
-        hwImplicitBitangents(true)
+        hwImplicitBitangents(true),
+        oslImplicitSurfaceShaderConversion(true),
+        oslNodesConnectCiWrapper(false)
     {
     }
     virtual ~GenOptions() { }
@@ -197,6 +199,15 @@ class MX_GENSHADER_API GenOptions
     /// Calculate fallback bitangents from existing normals and tangents
     /// inside the bitangent node.
     bool hwImplicitBitangents;
+
+    // Enables OSL conversion of surfaceshader struct to closure color.
+    // Defaults to true.
+    bool oslImplicitSurfaceShaderConversion;
+
+    // Enables an OSL node that adds the root's output to the Ci variable
+    // for OSL Node targets.
+    // Defaults to false.
+    bool oslNodesConnectCiWrapper;
 };
 
 MATERIALX_NAMESPACE_END

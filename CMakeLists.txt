@@ -40,6 +40,7 @@ option(MATERIALX_BUILD_DOCS "Create HTML documentation using Doxygen. Requires t
 
 option(MATERIALX_BUILD_GEN_GLSL "Build the GLSL shader generator back-end." ON)
 option(MATERIALX_BUILD_GEN_OSL "Build the OSL shader generator back-end." ON)
+option(MATERIALX_BUILD_GEN_OSL_NODES "Build the OSL nodes shader generator back-end." ON)
 option(MATERIALX_BUILD_GEN_MDL "Build the MDL shader generator back-end." ON)
 option(MATERIALX_BUILD_GEN_MSL "Build the MSL shader generator back-end." ON)
 option(MATERIALX_BUILD_RENDER "Build the MaterialX Render modules." ON)
@@ -84,6 +85,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "iOS" OR CMAKE_SYSTEM_NAME MATCHES "tvOS" OR CMAKE
     set(MATERIALX_BUILD_GRAPH_EDITOR OFF)
     set(MATERIALX_BUILD_GEN_GLSL OFF)
     set(MATERIALX_BUILD_GEN_OSL OFF)
+    set(MATERIALX_BUILD_GEN_OSL_NODES OFF)
     set(MATERIALX_BUILD_GEN_MDL OFF)
     set(MATERIALX_BUILD_TESTS OFF)
 endif()
@@ -103,6 +105,7 @@ if (MATERIALX_BUILD_APPLE_FRAMEWORK)
 endif()
 
 if (MATERIALX_BUILD_JS)
+    set(MATERIALX_BUILD_GEN_OSL_NODES OFF)
     set(MATERIALX_BUILD_RENDER OFF)
     set(MATERIALX_BUILD_TESTS OFF)
 endif()
@@ -136,6 +139,12 @@ if(SKBUILD)
     set(MATERIALX_PYTHON_FOLDER_NAME "MaterialX")
 endif()
 
+if (MATERIALX_BUILD_GEN_OSL_NODES)
+  set(MATERIALX_BUILD_GEN_OSL ON)
+  set(MATERIALX_BUILD_RENDER ON)
+  set(MATERIALX_BUILD_RENDER_PLATFORMS ON)
+endif()
+
 # Helpers for MDL validation
 if (MATERIALX_BUILD_GEN_MDL)
     set(MATERIALX_MDLC_EXECUTABLE "" CACHE FILEPATH "Full path to the mdlc binary.")
@@ -162,6 +171,7 @@ set(MATERIALX_LIBNAME_SUFFIX "" CACHE STRING "Specify a suffix to all libraries 
 mark_as_advanced(MATERIALX_BUILD_DOCS)
 mark_as_advanced(MATERIALX_BUILD_GEN_GLSL)
 mark_as_advanced(MATERIALX_BUILD_GEN_OSL)
+mark_as_advanced(MATERIALX_BUILD_GEN_OSL_NODES)
 mark_as_advanced(MATERIALX_BUILD_GEN_MDL)
 mark_as_advanced(MATERIALX_BUILD_GEN_MSL)
 mark_as_advanced(MATERIALX_BUILD_RENDER)
@@ -215,7 +225,7 @@ endif()
 
 # Allow the OSL CMake package to provide binary locations for render tests.
 # This will not override explicitly provided oslc, testrender, and include paths.
-if(MATERIALX_BUILD_RENDER AND MATERIALX_BUILD_GEN_OSL AND MATERIALX_BUILD_TESTS)
+if((MATERIALX_BUILD_RENDER AND MATERIALX_BUILD_GEN_OSL AND MATERIALX_BUILD_TESTS) OR MATERIALX_BUILD_GEN_OSL_NODES)
     find_package(OSL QUIET)
     if(OSL_FOUND)
         if(NOT MATERIALX_OSL_BINARY_OSLC)
@@ -224,6 +234,10 @@ if(MATERIALX_BUILD_RENDER AND MATERIALX_BUILD_GEN_OSL AND MATERIALX_BUILD_TESTS)
         if(NOT MATERIALX_OSL_BINARY_TESTRENDER)
             # OSL does not yet export a CMake target for testrender.
             set(MATERIALX_OSL_BINARY_TESTRENDER $<TARGET_FILE_DIR:OSL::oslc>/testrender)
+        endif()
+        if(NOT MATERIALX_OSL_INCLUDE_PATH)
+            # OSL does not yet export a CMake target for testrender.
+            set(MATERIALX_OSL_INCLUDE_PATH $<TARGET_FILE_DIR:OSL::oslc>/../include)
         endif()
     endif()
 endif()
@@ -242,6 +256,10 @@ if (MATERIALX_BUILD_GEN_MDL)
     add_definitions(-DMATERIALX_MDL_RENDER_ARGUMENTS=\"${MATERIALX_MDL_RENDER_ARGUMENTS}\")
     add_definitions(-DMATERIALX_MDL_MODULE_PATHS=\"${MATERIALX_MDL_MODULE_PATHS}\")
     add_definitions(-DMATERIALX_INSTALL_MDL_MODULE_PATH=\"${MATERIALX_INSTALL_MDL_MODULE_PATH}\")
+endif()
+
+if (MATERIALX_BUILD_GEN_OSL_NODES)
+    set(MATERIALX_BUILD_DATA_LIBRARY ON)
 endif()
 
 # Adjust the default installation path
@@ -449,7 +467,7 @@ add_subdirectory(source/MaterialXFormat)
 
 # Add shader generation subdirectories
 add_subdirectory(source/MaterialXGenShader)
-if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL OR MATERIALX_BUILD_GEN_MDL OR MATERIALX_BUILD_GEN_MSL)
+if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL OR MATERIALX_BUILD_GEN_OSL_NODES OR MATERIALX_BUILD_GEN_MDL OR MATERIALX_BUILD_GEN_MSL)
     if (MATERIALX_BUILD_GEN_GLSL)
         add_definitions(-DMATERIALX_BUILD_GEN_GLSL)
         add_subdirectory(source/MaterialXGenGlsl)
@@ -457,6 +475,10 @@ if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL OR MATERIALX_BUILD_GEN_MD
     if (MATERIALX_BUILD_GEN_OSL)
         add_definitions(-DMATERIALX_BUILD_GEN_OSL)
         add_subdirectory(source/MaterialXGenOsl)
+    endif()
+    if (MATERIALX_BUILD_GEN_OSL_NODES)
+        add_definitions(-DMATERIALX_BUILD_GEN_OSL_NODES)
+        add_subdirectory(source/MaterialXGenOslNodes)
     endif()
     if (MATERIALX_BUILD_GEN_MDL)
         add_definitions(-DMATERIALX_BUILD_GEN_MDL)

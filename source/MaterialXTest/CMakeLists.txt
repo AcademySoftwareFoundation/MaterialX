@@ -51,6 +51,10 @@ if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL OR MATERIALX_BUILD_GEN_MD
   if(MATERIALX_BUILD_GEN_OSL)
     add_subdirectory(MaterialXGenOsl)
     target_link_libraries(MaterialXTest MaterialXGenOsl)
+
+    if(MATERIALX_BUILD_GEN_OSL_NODES)
+      target_link_libraries(MaterialXTest MaterialXGenOslNodes)
+    endif()
   endif()
   if(MATERIALX_BUILD_GEN_MDL)
     add_subdirectory(MaterialXGenMdl)

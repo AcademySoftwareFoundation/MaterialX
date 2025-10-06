@@ -92,6 +92,8 @@ def main():
             gentarget = opts.target
         if gentarget == 'osl':
             shadergen = mx_gen_osl.OslShaderGenerator.create()
+        if gentarget == 'oslnodes':
+            shadergen = mx_gen_osl.OslNodeShaderGenerator.create()
         elif gentarget == 'mdl':
             shadergen = mx_gen_mdl.MdlShaderGenerator.create()
         elif gentarget == 'essl':

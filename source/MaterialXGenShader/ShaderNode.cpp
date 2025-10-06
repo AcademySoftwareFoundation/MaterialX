@@ -161,16 +161,22 @@ const string ShaderNode::GEOMETRIC_GROUPNAME = "geometric";
 //
 
 ShaderNode::ShaderNode(const ShaderGraph* parent, const string& name) :
+    ShaderNode(parent, name, "")
+{
+}
+
+ShaderNode::ShaderNode(const ShaderGraph* parent, const string& name, const string& nodeDefName) :
     _parent(parent),
     _name(name),
     _classification(0),
-    _impl(nullptr)
+    _impl(nullptr),
+    _nodeDefName(nodeDefName)
 {
 }
 
 ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, const NodeDef& nodeDef, GenContext& context)
 {
-    ShaderNodePtr newNode = std::make_shared<ShaderNode>(parent, name);
+    ShaderNodePtr newNode = std::make_shared<ShaderNode>(parent, name, nodeDef.getName());
 
     const ShaderGenerator& shadergen = context.getShaderGenerator();
 
@@ -199,14 +205,14 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
             if (context.getShaderGenerator().getSyntax().remapEnumeration(portValue, portType, enumNames, enumResult))
             {
                 input = newNode->addInput(port->getName(), enumResult.first);
-                input->setValue(enumResult.second);
+                input->setValue(enumResult.second, true);
             }
             else
             {
                 input = newNode->addInput(port->getName(), portType);
                 if (!portValue.empty())
                 {
-                    input->setValue(port->getResolvedValue());
+                    input->setValue(port->getResolvedValue(), true);
                 }
             }
             if (port->getIsUniform())
