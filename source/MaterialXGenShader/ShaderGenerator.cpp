@@ -285,12 +285,12 @@ bool ShaderGenerator::implementationRegistered(const string& name) const
     return _implFactory.classRegistered(name);
 }
 
-ShaderNodeImplPtr ShaderGenerator::createShaderNodeImplForNodeGraph(const NodeDef& nodedef) const
+ShaderNodeImplPtr ShaderGenerator::createShaderNodeImplForNodeGraph(const NodeDef& /*nodedef*/) const
 {
     return CompoundNode::create();
 }
 
-ShaderNodeImplPtr ShaderGenerator::createShaderNodeImplForImplementation(const NodeDef& nodedef) const
+ShaderNodeImplPtr ShaderGenerator::createShaderNodeImplForImplementation(const NodeDef& /*nodedef*/) const
 {
     return SourceCodeNode::create();
 }
