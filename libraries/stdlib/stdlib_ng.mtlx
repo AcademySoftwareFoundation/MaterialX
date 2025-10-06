@@ -5408,7 +5408,7 @@
       <input name="value1" type="float" value="10.0" />
       <input name="value2" type="float" interfacename="which" />
       <input name="in1" type="color3" interfacename="in10" />
-      <input name="in2" type="color3" value="0,0,0" />
+      <input name="in2" type="color3" value="0.0, 0.0, 0.0" />
     </ifgreater>
     <ifgreater name="ifgreater_9" type="color3">
       <input name="value1" type="float" value="9.0" />
@@ -5471,7 +5471,7 @@
       <input name="value1" type="float" value="10.0" />
       <input name="value2" type="float" interfacename="which" />
       <input name="in1" type="color4" interfacename="in10" />
-      <input name="in2" type="color4" value="0,0,0,0" />
+      <input name="in2" type="color4" value="0.0, 0.0, 0.0, 0.0" />
     </ifgreater>
     <ifgreater name="ifgreater_9" type="color4">
       <input name="value1" type="float" value="9.0" />
@@ -5534,7 +5534,7 @@
       <input name="value1" type="float" value="10.0" />
       <input name="value2" type="float" interfacename="which" />
       <input name="in1" type="vector2" interfacename="in10" />
-      <input name="in2" type="vector2" value="0,0" />
+      <input name="in2" type="vector2" value="0.0, 0.0" />
     </ifgreater>
     <ifgreater name="ifgreater_9" type="vector2">
       <input name="value1" type="float" value="9.0" />
@@ -5597,7 +5597,7 @@
       <input name="value1" type="float" value="10.0" />
       <input name="value2" type="float" interfacename="which" />
       <input name="in1" type="vector3" interfacename="in10" />
-      <input name="in2" type="vector3" value="0,0,0" />
+      <input name="in2" type="vector3" value="0.0, 0.0, 0.0" />
     </ifgreater>
     <ifgreater name="ifgreater_9" type="vector3">
       <input name="value1" type="float" value="9.0" />
@@ -5660,7 +5660,7 @@
       <input name="value1" type="float" value="10.0" />
       <input name="value2" type="float" interfacename="which" />
       <input name="in1" type="vector4" interfacename="in10" />
-      <input name="in2" type="vector4" value="0,0,0,0" />
+      <input name="in2" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     </ifgreater>
     <ifgreater name="ifgreater_9" type="vector4">
       <input name="value1" type="float" value="9.0" />
@@ -5723,7 +5723,7 @@
       <input name="value1" type="float" value="10.0" />
       <input name="value2" type="float" interfacename="which" />
       <input name="in1" type="matrix33" interfacename="in10" />
-      <input name="in2" type="matrix33" value="0,0,0,0,0,0,0,0,0" />
+      <input name="in2" type="matrix33" value="0.0,0.0,0.0, 0.0,0.0,0.0, 0.0,0.0,0.0" />
     </ifgreater>
     <ifgreater name="ifgreater_9" type="matrix33">
       <input name="value1" type="float" value="9.0" />
@@ -5786,7 +5786,7 @@
       <input name="value1" type="float" value="10.0" />
       <input name="value2" type="float" interfacename="which" />
       <input name="in1" type="matrix44" interfacename="in10" />
-      <input name="in2" type="matrix44" value="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0" />
+      <input name="in2" type="matrix44" value="0.0,0.0,0.0,0.0, 0.0,0.0,0.0,0.0, 0.0,0.0,0.0,0.0, 0.0,0.0,0.0,0.0" />
     </ifgreater>
     <ifgreater name="ifgreater_9" type="matrix44">
       <input name="value1" type="float" value="9.0" />
@@ -5844,7 +5844,6 @@
     </ifgreater>
     <output name="out" type="matrix44" nodename="ifgreater_1" />
   </nodegraph>
-
   <nodegraph name="NG_switch_floatI" nodedef="ND_switch_floatI">
     <ifgreater name="ifgreater_10" type="float">
       <input name="value1" type="integer" value="10" />
@@ -5913,7 +5912,7 @@
       <input name="value1" type="integer" value="10" />
       <input name="value2" type="integer" interfacename="which" />
       <input name="in1" type="color3" interfacename="in10" />
-      <input name="in2" type="color3" value="0,0,0" />
+      <input name="in2" type="color3" value="0.0, 0.0, 0.0" />
     </ifgreater>
     <ifgreater name="ifgreater_9" type="color3">
       <input name="value1" type="integer" value="9" />
@@ -5976,7 +5975,7 @@
       <input name="value1" type="integer" value="10" />
       <input name="value2" type="integer" interfacename="which" />
       <input name="in1" type="color4" interfacename="in10" />
-      <input name="in2" type="color4" value="0,0,0,0" />
+      <input name="in2" type="color4" value="0.0, 0.0, 0.0, 0.0" />
     </ifgreater>
     <ifgreater name="ifgreater_9" type="color4">
       <input name="value1" type="integer" value="9" />
@@ -6039,7 +6038,7 @@
       <input name="value1" type="integer" value="10" />
       <input name="value2" type="integer" interfacename="which" />
       <input name="in1" type="vector2" interfacename="in10" />
-      <input name="in2" type="vector2" value="0,0" />
+      <input name="in2" type="vector2" value="0.0, 0.0" />
     </ifgreater>
     <ifgreater name="ifgreater_9" type="vector2">
       <input name="value1" type="integer" value="9" />
@@ -6102,7 +6101,7 @@
       <input name="value1" type="integer" value="10" />
       <input name="value2" type="integer" interfacename="which" />
       <input name="in1" type="vector3" interfacename="in10" />
-      <input name="in2" type="vector3" value="0,0,0" />
+      <input name="in2" type="vector3" value="0.0, 0.0, 0.0" />
     </ifgreater>
     <ifgreater name="ifgreater_9" type="vector3">
       <input name="value1" type="integer" value="9" />
@@ -6165,7 +6164,7 @@
       <input name="value1" type="integer" value="10" />
       <input name="value2" type="integer" interfacename="which" />
       <input name="in1" type="vector4" interfacename="in10" />
-      <input name="in2" type="vector4" value="0,0,0,0" />
+      <input name="in2" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     </ifgreater>
     <ifgreater name="ifgreater_9" type="vector4">
       <input name="value1" type="integer" value="9" />
@@ -6228,7 +6227,7 @@
       <input name="value1" type="integer" value="10" />
       <input name="value2" type="integer" interfacename="which" />
       <input name="in1" type="matrix33" interfacename="in10" />
-      <input name="in2" type="matrix33" value="0,0,0,0,0,0,0,0,0" />
+      <input name="in2" type="matrix33" value="0.0,0.0,0.0, 0.0,0.0,0.0, 0.0,0.0,0.0" />
     </ifgreater>
     <ifgreater name="ifgreater_9" type="matrix33">
       <input name="value1" type="integer" value="9" />
@@ -6291,7 +6290,7 @@
       <input name="value1" type="integer" value="10" />
       <input name="value2" type="integer" interfacename="which" />
       <input name="in1" type="matrix44" interfacename="in10" />
-      <input name="in2" type="matrix44" value="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0" />
+      <input name="in2" type="matrix44" value="0.0,0.0,0.0,0.0, 0.0,0.0,0.0,0.0, 0.0,0.0,0.0,0.0, 0.0,0.0,0.0,0.0" />
     </ifgreater>
     <ifgreater name="ifgreater_9" type="matrix44">
       <input name="value1" type="integer" value="9" />

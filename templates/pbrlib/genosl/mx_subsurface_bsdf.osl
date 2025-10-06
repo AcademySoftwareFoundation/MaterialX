@@ -1,0 +1,8 @@
+void mx_subsurface_bsdf(float weight, color albedo, color radius, float anisotropy, normal N, output BSDF bsdf)
+{
+#if OSL_VERSION_MAJOR >= 1 && OSL_VERSION_MINOR >= 14
+    bsdf = weight * subsurface_bssrdf(N, albedo, radius, anisotropy);
+#else
+    bsdf = weight * subsurface_bssrdf(N, albedo, 1.0, radius, anisotropy);
+#endif
+}

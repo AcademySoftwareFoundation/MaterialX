@@ -4,6 +4,8 @@
 //
 
 #include <MaterialXCore/Types.h>
+#include <MaterialXCore/Document.h>
+#include <MaterialXCore/Definition.h>
 
 #include <cctype>
 
@@ -177,6 +179,30 @@ string parentNamePath(const string& namePath)
         return createNamePath(nameVec);
     }
     return EMPTY_STRING;
+}
+
+
+const string& replaceConstantValues(const string& valueStr, const string& typeStr, ConstDocumentPtr doc)
+{
+    static const string typeValuePrefix = "Constant:";
+
+    if (!stringStartsWith(valueStr, typeValuePrefix))
+        return valueStr;
+
+    TypeDefPtr typeDef = doc->getTypeDef(typeStr);
+    if (!typeDef)
+    {
+        throw Exception("Unable to find typeDef '"+typeStr+"'");
+    }
+
+    string valueNameStr = valueStr.substr(typeValuePrefix.size());
+    ElementPtr constantElement = typeDef->getChild(valueNameStr);
+    if (!constantElement)
+    {
+        throw Exception("Unable to find named value '"+valueNameStr+"' for type '"+typeStr+"'");
+    }
+
+    return constantElement->getAttribute("value");
 }
 
 MATERIALX_NAMESPACE_END
