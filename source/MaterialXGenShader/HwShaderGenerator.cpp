@@ -6,6 +6,8 @@
 #include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
+#include <MaterialXGenShader/Nodes/HwLightCompoundNode.h>
+#include <MaterialXGenShader/Nodes/CompoundNode.h>
 
 #include <MaterialXCore/Document.h>
 #include <MaterialXCore/Definition.h>
@@ -567,9 +569,28 @@ void HwShaderGenerator::addStageLightingUniforms(GenContext& context, ShaderStag
     }
 }
 
+ShaderNodeImplPtr HwShaderGenerator::createShaderNodeImplForNodeGraph(const NodeDef& nodedef) const
+{
+    vector<OutputPtr> outputs = nodedef.getActiveOutputs();
+    if (outputs.empty())
+    {
+        throw ExceptionShaderGenError("NodeDef '" + nodedef.getName() + "' has no outputs defined");
+    }
+
+    const TypeDesc outputType = _typeSystem->getType(outputs[0]->getType());
+
+    // Use a compound implementation.
+    if (outputType == Type::LIGHTSHADER)
+    {
+        return HwLightCompoundNode::create();
+    }
+    return CompoundNode::create();
+}
+
 bool HwImplementation::isEditable(const ShaderInput& input) const
 {
     return IMMUTABLE_INPUTS.count(input.getName()) == 0;
 }
+
 
 MATERIALX_NAMESPACE_END
