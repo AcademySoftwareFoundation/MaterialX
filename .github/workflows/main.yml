@@ -317,7 +317,7 @@ jobs:
     - name: Install Node
       uses: actions/setup-node@v4
       with:
-         node-version: '22'
+         node-version: '22.16.0'
 
     - name: JavaScript CMake Generate
       run: cmake -S . -B javascript/build -DMATERIALX_BUILD_JS=ON -DMATERIALX_EMSDK_PATH=${{ env.EMSDK }}
