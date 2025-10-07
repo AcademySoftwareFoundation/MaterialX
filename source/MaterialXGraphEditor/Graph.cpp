@@ -3394,7 +3394,7 @@ void Graph::propertyEditor()
         float availableWidth = ImGui::GetContentRegionAvail().x; 
         ImGui::PushItemWidth(availableWidth); 
         ImGui::InputText("##edit", &temp);
-        ImGui::PopItemWidth();
+        ImGui::PopItemWidth(); 
 
         std::string docString = "NodeDef Doc String: \n";
         if (_currUiNode->getNode())
@@ -3786,7 +3786,7 @@ void Graph::propertyEditor()
             ImGui::Indent();
             for (auto& token : tokens)
             {
-                ImGui::Text("%s: ", token->getName().c_str());
+                ImGui::Text("%s: ", token->hasAttribute("uiname") ? token->getAttribute("uiname").c_str() : token->getName().c_str());
                 ImGui::SameLine();
                 ImGui::Text("%s", token->getResolvedValueString().c_str());
             }

@@ -653,11 +653,9 @@ void PropertyEditor::updateContents(Viewer* viewer)
 
     // Shading model display
     mx::NodePtr node = elem->asA<mx::Node>();
-
     if (node)
     {
         std::string shaderName = node->getCategory();
-
         std::vector<mx::NodePtr> shaderNodes = mx::getShaderNodes(node);
         if (!shaderNodes.empty())
         {
@@ -701,7 +699,7 @@ void PropertyEditor::updateContents(Viewer* viewer)
         }
 
         // Then add items with unnamed groups.
-        bool addedLabel = false; 
+        bool addedLabel = false;
         for (auto it2 = unnamedGroups.begin(); it2 != unnamedGroups.end(); ++it2)
         {
             const mx::UIPropertyItem& item = it2->second;
