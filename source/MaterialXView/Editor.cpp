@@ -769,10 +769,8 @@ void PropertyEditor::updateContents(Viewer* viewer)
 
             for (auto& token : tokens)
             {
-                ng::ref<ng::Widget> twoColumns = new ng::Widget(_container);
-                twoColumns->set_layout(_gridLayout2);
-                new ng::Label(twoColumns, token->hasAttribute("uiname") ? token->getAttribute("uiname") : token->getName());
-                new ng::Label(twoColumns, token->getResolvedValueString());
+                std::string tokenName = token->hasAttribute("uiname") ? token->getAttribute("uiname") : token->getName();
+                new ng::Label(_container, tokenName + ": " + token->getResolvedValueString());
             }
         }
     }
