@@ -653,42 +653,15 @@ void PropertyEditor::updateContents(Viewer* viewer)
 
     // Shading model display
     mx::NodePtr node = elem->asA<mx::Node>();
-    std::vector<mx::TokenPtr> tokens = {};
 
     if (node)
     {
         std::string shaderName = node->getCategory();
 
-        // Find tokens upstream of Material
-        for (mx::Edge edge : node->traverseGraph())
-        {
-            tokens = edge.getUpstreamElement()->asA<mx::InterfaceElement>()->getActiveTokens();
-        }
-
         std::vector<mx::NodePtr> shaderNodes = mx::getShaderNodes(node);
         if (!shaderNodes.empty())
         {
             shaderName = shaderNodes[0]->getCategory();
-
-            if (!tokens.empty())
-            {
-                ng::ref<ng::Widget> tokenColumns = new ng::Widget(_container);
-                tokenColumns->set_layout(_gridLayout2);
-                ng::ref<ng::Label> tokenLabel = new ng::Label(tokenColumns, "Tokens");
-                tokenLabel->set_font_size(20);
-                tokenLabel->set_font("sans-bold");
-                std::string tokensSize = std::to_string(tokens.size());
-                ng::ref<ng::Label> tokenSizeLabel = new ng::Label(tokenColumns, tokensSize);
-                tokenSizeLabel->set_font_size(20);
-
-                for (auto& token : tokens)
-                {
-                    ng::ref<ng::Widget> twoColumns = new ng::Widget(_container);
-                    twoColumns->set_layout(_gridLayout2);
-                    new ng::Label(twoColumns, token->getName());
-                    new ng::Label(twoColumns, token->getResolvedValueString());
-                }
-            }
         }
         if (!shaderName.empty() && shaderName != "surface")
         {
@@ -740,6 +713,72 @@ void PropertyEditor::updateContents(Viewer* viewer)
             }
         }
     }
+
+    if (node)
+    {
+        std::vector<mx::TokenPtr> tokens = {};
+        mx::InterfaceElementPtr source = node;
+
+        // Find tokens upstream of Material
+        for (mx::Edge edge : node->traverseGraph())
+        {
+            tokens = edge.getUpstreamElement()->asA<mx::InterfaceElement>()->getActiveTokens();
+            source = edge.getUpstreamElement()->asA<mx::InterfaceElement>();
+
+            if (tokens.empty())
+            {
+               
+                // Check nodedef
+                mx::NodeDefPtr nodedef = source->asA<mx::Node>()->getNodeDef();
+                if (nodedef != nullptr)
+                {
+                    tokens = nodedef->getActiveTokens();
+                    source = nodedef;
+                }
+                
+                // Check nodegraph
+                if (tokens.empty())
+                {
+                    if (edge.getUpstreamElement()->getParent() != nullptr)
+                    {
+                        mx::NodeGraphPtr nodegraph = edge.getUpstreamElement()->getParent()->asA<mx::NodeGraph>();
+                        if (nodegraph != nullptr)
+                        {
+                            tokens = nodegraph->getActiveTokens();
+                            source = nodegraph;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (!tokens.empty())
+        {
+            std::string tokensSize = std::to_string(tokens.size());
+            ng::ref<ng::Label> tokenLabel = new ng::Label(_container, "Tokens: " + tokensSize);
+            tokenLabel->set_font_size(20);
+            tokenLabel->set_font("sans-bold");
+
+            if (source != nullptr)
+            {
+                std::string sourceCategory = source->getCategory();
+                if (sourceCategory == source->getName())
+                {
+                    sourceCategory = "node";
+                }
+                new ng::Label(_container, "Tokens source: " + sourceCategory + " " + source->getName());
+            }
+
+            for (auto& token : tokens)
+            {
+                ng::ref<ng::Widget> twoColumns = new ng::Widget(_container);
+                twoColumns->set_layout(_gridLayout2);
+                new ng::Label(twoColumns, token->hasAttribute("uiname") ? token->getAttribute("uiname") : token->getName());
+                new ng::Label(twoColumns, token->getResolvedValueString());
+            }
+        }
+    }
+
     if (!addedItems)
     {
         new ng::Label(_container, "No Shader Inputs");
