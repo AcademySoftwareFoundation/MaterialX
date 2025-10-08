@@ -9,7 +9,7 @@
     "pretest": "npm run clean && npm run copyBuild",
     "test": "npm run mocha",
     "test:browser": "npm run karma -- --browsers ChromeHeadless --singleRun true",
-    "mocha": "mocha '*.spec.js' --require @babel/register --timeout 5000",
+    "mocha": "mocha *.spec.js --require @babel/register --timeout 5000",
     "karma": "karma start browser/karma.conf.js"
   },
   "keywords": [],
