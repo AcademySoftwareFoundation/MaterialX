@@ -73,6 +73,7 @@ jobs:
           compiler_version: "16.4"
           python: 3.13
           test_shaders: ON
+          test_render: ON
 
         - name: MacOS_Xcode_26_Python313
           os: macos-26
@@ -81,6 +82,13 @@ jobs:
           python: 3.13
           static_analysis: ON
           cmake_config: -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+
+        - name: MacOS_Xcode_26_RenderTests
+          os: macos-26
+          compiler: xcode
+          compiler_version: "26.0"
+          python: 3.13
+          test_render: ON
 
         - name: MacOS_Xcode_DynamicAnalysis
           os: macos-26
@@ -245,6 +253,13 @@ jobs:
       run: |
         Xvfb :1 -screen 0 1280x960x24 &
         echo "DISPLAY=:1" >> $GITHUB_ENV
+        echo "LIBGL_ALWAYS_SOFTWARE=1" >> $GITHUB_ENV
+
+    - name: Initialize Headless Rendering (macOS)
+      if: matrix.test_render == 'ON' && runner.os == 'macOS'
+      run: |
+        # macOS can render headlessly with Metal backend without virtual display
+        # Force software rendering for OpenGL backend compatibility
         echo "LIBGL_ALWAYS_SOFTWARE=1" >> $GITHUB_ENV
 
     - name: Render Script Tests
