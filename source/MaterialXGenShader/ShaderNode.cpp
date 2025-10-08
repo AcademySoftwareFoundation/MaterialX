@@ -292,7 +292,7 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
         newNode->_classification = Classification::VDF | Classification::CLOSURE;
     }
     // Second, check for specific nodes types
-    else if (nodeDef.getNodeString() == CONSTANT && context.getOptions().elideConstantNodes)
+    else if (nodeDef.getNodeString() == CONSTANT)
     {
         newNode->_classification = Classification::TEXTURE | Classification::CONSTANT;
     }
