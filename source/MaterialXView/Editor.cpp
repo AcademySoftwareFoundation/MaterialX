@@ -816,7 +816,7 @@ void PropertyEditor::updateContents(Viewer* viewer)
             {
                 sourceCategory = "node";
             }
-            new ng::Label(_container, "Tokens source: " + sourceCategory + " " + source->getName());
+            new ng::Label(_container, "Tokens Source: " + sourceCategory + " " + source->getName());
         }
 
         ng::ref<ng::Widget> tokensGroup = new ng::Widget(_container);
