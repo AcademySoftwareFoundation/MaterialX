@@ -168,7 +168,7 @@ class TestMaterialX(unittest.TestCase):
         self.assertTrue(quot3 == trans)
         self.assertTrue(quot4 == mx.Matrix44.IDENTITY)
 
-        # unary operation
+        # Unary operation
         self.assertTrue(-trans == mx.Matrix44(-1, 0, 0, 0,
                                              0, -1, 0, 0,
                                              0, 0, -1, 0,
