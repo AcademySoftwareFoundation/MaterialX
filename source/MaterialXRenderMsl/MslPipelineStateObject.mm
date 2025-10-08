@@ -325,7 +325,7 @@ bool MslProgram::bind(id<MTLRenderCommandEncoder> renderCmdEncoder)
 
 void MslProgram::prepareUsedResources(id<MTLRenderCommandEncoder> renderCmdEncoder,
                                       CameraPtr cam,
-                                      GeometryHandlerPtr geometryHandler,
+                                      GeometryHandlerPtr /*geometryHandler*/,
                                       ImageHandlerPtr imageHandler,
                                       LightHandlerPtr lightHandler)
 {
