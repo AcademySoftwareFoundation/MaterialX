@@ -112,7 +112,7 @@ void HwSurfaceNode::emitFunctionCall(const ShaderNode& node, GenContext& context
             if (context.getOptions().hwShadowMap)
             {
                 shadergen.emitLine("vec3 shadowCoord = mx_matrix_mul(" + HW::T_SHADOW_MATRIX + ", vec4(" + prefix + HW::T_POSITION_WORLD + ", 1.0)).xyz", stage);
-                shadergen.emitLine("shadowCoord = shadowCoord * 0.5 + 0.5", stage);
+                shadergen.emitLine("shadowCoord.xy = shadowCoord.xy * 0.5 + 0.5", stage);
                 shadergen.emitLine("vec2 shadowMoments = texture(" + HW::T_SHADOW_MAP + ", shadowCoord.xy).xy", stage);
                 shadergen.emitLine("occlusion = mx_variance_shadow_occlusion(shadowMoments, shadowCoord.z)", stage);
             }
