@@ -3763,7 +3763,7 @@ void Graph::propertyEditor()
 
         if (!tokens.empty())
         {
-            ImGui::Text("Tokens: %llu", tokens.size());
+            ImGui::Text("Tokens: %zu", tokens.size());
             if (source != nullptr)
             {
                 std::string sourceName = source->getName();
@@ -3795,7 +3795,7 @@ void Graph::propertyEditor()
 
         if (!childrenWithTokens.empty())
         {
-            ImGui::Text("Child Nodes with Tokens: %llu", childrenWithTokens.size());
+            ImGui::Text("Child Nodes with Tokens: %zu", childrenWithTokens.size());
             ImGui::Indent();
             for (auto& child : childrenWithTokens)
             {
