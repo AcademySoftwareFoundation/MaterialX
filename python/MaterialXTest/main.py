@@ -82,7 +82,7 @@ class TestMaterialX(unittest.TestCase):
         self.assertTrue(v1 * 2 == v2)
         self.assertTrue(v2 / 2 == v1)
 
-        # unary operation
+        # Unary operation
         self.assertTrue(-v1 == mx.Vector3(-1, -2, -3))
         v1 *= -1
         self.assertTrue(+v1 == mx.Vector3(-1, -2, -3))
