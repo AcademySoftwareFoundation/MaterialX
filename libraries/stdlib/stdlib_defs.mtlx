@@ -2354,8 +2354,8 @@
     <output name="out" type="vector2" defaultinput="in" />
   </nodedef>
   <nodedef name="ND_atan2_vector2" node="atan2" nodegroup="math">
-    <input name="iny" type="vector2" value="1.0, 1.0" />
-    <input name="inx" type="vector2" value="0.0, 0.0" />
+    <input name="iny" type="vector2" value="0.0, 0.0" />
+    <input name="inx" type="vector2" value="1.0, 1.0" />
     <output name="out" type="vector2" defaultinput="iny" />
   </nodedef>
   <nodedef name="ND_sin_vector3" node="sin" nodegroup="math">
@@ -2379,8 +2379,8 @@
     <output name="out" type="vector3" defaultinput="in" />
   </nodedef>
   <nodedef name="ND_atan2_vector3" node="atan2" nodegroup="math">
-    <input name="iny" type="vector3" value="1.0, 1.0, 1.0" />
-    <input name="inx" type="vector3" value="0.0, 0.0, 0.0" />
+    <input name="iny" type="vector3" value="0.0, 0.0, 0.0" />
+    <input name="inx" type="vector3" value="1.0, 1.0, 1.0" />
     <output name="out" type="vector3" defaultinput="iny" />
   </nodedef>
   <nodedef name="ND_sin_vector4" node="sin" nodegroup="math">
@@ -2404,8 +2404,8 @@
     <output name="out" type="vector4" defaultinput="in" />
   </nodedef>
   <nodedef name="ND_atan2_vector4" node="atan2" nodegroup="math">
-    <input name="iny" type="vector4" value="1.0, 1.0, 1.0, 1.0" />
-    <input name="inx" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="iny" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="inx" type="vector4" value="1.0, 1.0, 1.0, 1.0" />
     <output name="out" type="vector4" defaultinput="iny" />
   </nodedef>
 
