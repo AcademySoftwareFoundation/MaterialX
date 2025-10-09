@@ -1,0 +1,10 @@
+void mx_geompropvalue_filename(string geomprop, textureresource defaultVal, output textureresource out)
+{
+    // Initialize to the default
+    out = defaultVal;
+
+    // Replace the filename component from the geomprop
+    string defaultFilename = defaultVal.filename;
+    if (getattribute(geomprop, defaultFilename) == 0)
+        out.filename = defaultFilename;
+}
