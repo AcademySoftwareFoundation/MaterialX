@@ -1,7 +1,7 @@
 # MaterialX Version
 set(MATERIALX_MAJOR_VERSION 1)
 set(MATERIALX_MINOR_VERSION 39)
-set(MATERIALX_BUILD_VERSION 4)
+set(MATERIALX_BUILD_VERSION 5)
 set(MATERIALX_LIBRARY_VERSION ${MATERIALX_MAJOR_VERSION}.${MATERIALX_MINOR_VERSION}.${MATERIALX_BUILD_VERSION})
 
 # CMake setup
@@ -287,7 +287,7 @@ if(MSVC)
         add_compile_options(/WX)
     endif()
 else()
-    add_compile_options(-Wall -Wno-missing-braces)
+    add_compile_options(-Wall -Wunused-parameter -Wno-missing-braces)
     if(MATERIALX_WARNINGS_AS_ERRORS)
         add_compile_options(-Werror)
     endif()
@@ -575,7 +575,7 @@ if(NOT SKBUILD)
         # Export aliases for the MaterialX modules built in this monolithic build
         # to be less disruptive to downstream projects.
         get_property(MATERIALX_MODULES GLOBAL PROPERTY MATERIALX_MODULES)
-        set(EXPORT_ALIASES "# Aliased targets for the the monolithic build\n")
+        set(EXPORT_ALIASES "# Aliased targets for the monolithic build\n")
         foreach (MODULE ${MATERIALX_MODULES})
             string(APPEND EXPORT_ALIASES "add_library(${MODULE} ALIAS MaterialX)\n")
         endforeach ()

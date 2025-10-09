@@ -146,6 +146,7 @@ extern MX_GENSHADER_API const string T_VERTEX_DATA_INSTANCE;
 extern MX_GENSHADER_API const string T_LIGHT_DATA_INSTANCE;
 extern MX_GENSHADER_API const string T_TEX_SAMPLER_SAMPLER2D;
 extern MX_GENSHADER_API const string T_TEX_SAMPLER_SIGNATURE;
+extern MX_GENSHADER_API const string T_CLOSURE_DATA_CONSTRUCTOR;
 
 /// Default names for identifiers.
 /// Replacing above tokens in final code.
@@ -235,6 +236,9 @@ extern MX_GENSHADER_API const string DIR_V;
 extern MX_GENSHADER_API const string WORLD_POSITION;
 extern MX_GENSHADER_API const string OCCLUSION;
 
+/// Syntax for constructing ClosureData
+extern MX_GENSHADER_API const string CLOSURE_DATA_CONSTRUCTOR;
+
 /// Attribute names.
 extern MX_GENSHADER_API const string ATTR_TRANSPARENT;
 
@@ -321,6 +325,11 @@ class MX_GENSHADER_API HwShaderGenerator : public ShaderGenerator
     /// Return true if the node needs the ClosureData struct added
     bool nodeNeedsClosureData(const ShaderNode& node) const override;
 
+    /// Logic to indicate whether code to support direct lighting should be emitted.
+    /// By default if the graph is classified as a shader, or BSDF node then lighting is assumed to be required.
+    /// Derived classes can override this logic.
+    virtual bool requiresLighting(const ShaderGraph& graph) const;
+
     /// Bind a light shader to a light type id, for usage in surface shaders created
     /// by the generator. The lightTypeId should be a unique identifier for the light
     /// type (node definition) and the same id should be used when setting light parameters on a
@@ -335,6 +344,9 @@ class MX_GENSHADER_API HwShaderGenerator : public ShaderGenerator
 
     /// Determine the prefix of vertex data variables.
     virtual string getVertexDataPrefix(const VariableBlock& vertexData) const = 0;
+
+    /// Create the shader node implementation for a nodedef that has a NodeGraph implementation.
+    ShaderNodeImplPtr createShaderNodeImplForNodeGraph(const NodeDef& nodedef) const override;
 
     // Note : the order must match the order defined in libraries/pbrlib/genglsl/lib/mx_closure_type.glsl
     // TODO : investigate build time mechanism for ensuring these stay in sync.

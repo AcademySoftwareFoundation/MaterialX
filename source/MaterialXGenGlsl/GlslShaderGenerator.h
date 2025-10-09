@@ -49,10 +49,6 @@ class MX_GENGLSL_API GlslShaderGenerator : public HwShaderGenerator
     void emitVariableDeclaration(const ShaderPort* variable, const string& qualifier, GenContext& context, ShaderStage& stage,
                                  bool assignValue = true) const override;
 
-    /// Return a registered shader node implementation given an implementation element.
-    /// The element must be an Implementation or a NodeGraph acting as implementation.
-    ShaderNodeImplPtr getImplementation(const NodeDef& nodedef, GenContext& context) const override;
-
     /// Determine the prefix of vertex data variables.
     string getVertexDataPrefix(const VariableBlock& vertexData) const override;
 
@@ -75,11 +71,6 @@ class MX_GENGLSL_API GlslShaderGenerator : public HwShaderGenerator
     virtual void emitOutputs(GenContext& context, ShaderStage& stage) const;
 
     virtual HwResourceBindingContextPtr getResourceBindingContext(GenContext& context) const;
-
-    /// Logic to indicate whether code to support direct lighting should be emitted.
-    /// By default if the graph is classified as a shader, or BSDF node then lighting is assumed to be required.
-    /// Derived classes can override this logic.
-    virtual bool requiresLighting(const ShaderGraph& graph) const;
 
     /// Emit specular environment lookup code
     virtual void emitSpecularEnvironment(GenContext& context, ShaderStage& stage) const;
