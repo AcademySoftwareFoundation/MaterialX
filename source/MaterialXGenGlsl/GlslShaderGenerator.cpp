@@ -7,6 +7,7 @@
 
 #include <MaterialXGenGlsl/GlslSyntax.h>
 
+#include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/Nodes/MaterialNode.h>
 #include <MaterialXGenShader/Nodes/HwImageNode.h>
 #include <MaterialXGenShader/Nodes/HwGeomColorNode.h>
@@ -20,7 +21,6 @@
 #include <MaterialXGenShader/Nodes/HwFrameNode.h>
 #include <MaterialXGenShader/Nodes/HwTimeNode.h>
 #include <MaterialXGenShader/Nodes/HwViewDirectionNode.h>
-#include <MaterialXGenShader/Nodes/HwLightCompoundNode.h>
 #include <MaterialXGenShader/Nodes/HwLightNode.h>
 #include <MaterialXGenShader/Nodes/HwLightSamplerNode.h>
 #include <MaterialXGenShader/Nodes/HwLightShaderNode.h>
@@ -690,72 +690,6 @@ void GlslShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, co
 
         emitString(str, stage);
     }
-}
-
-ShaderNodeImplPtr GlslShaderGenerator::getImplementation(const NodeDef& nodedef, GenContext& context) const
-{
-    InterfaceElementPtr implElement = nodedef.getImplementation(getTarget());
-    if (!implElement)
-    {
-        return nullptr;
-    }
-
-    const string& name = implElement->getName();
-
-    // Check if it's created and cached already.
-    ShaderNodeImplPtr impl = context.findNodeImplementation(name);
-    if (impl)
-    {
-        return impl;
-    }
-
-    vector<OutputPtr> outputs = nodedef.getActiveOutputs();
-    if (outputs.empty())
-    {
-        throw ExceptionShaderGenError("NodeDef '" + nodedef.getName() + "' has no outputs defined");
-    }
-
-    const TypeDesc outputType = context.getTypeDesc(outputs[0]->getType());
-
-    if (implElement->isA<NodeGraph>())
-    {
-        // Use a compound implementation.
-        if (outputType == Type::LIGHTSHADER)
-        {
-            impl = HwLightCompoundNode::create();
-        }
-        else
-        {
-            impl = CompoundNode::create();
-        }
-    }
-    else if (implElement->isA<Implementation>())
-    {
-        if (getColorManagementSystem() && getColorManagementSystem()->hasImplementation(name))
-        {
-            impl = getColorManagementSystem()->createImplementation(name);
-        }
-        else
-        {
-            // Try creating a new in the factory.
-            impl = _implFactory.create(name);
-        }
-        if (!impl)
-        {
-            impl = SourceCodeNode::create();
-        }
-    }
-    if (!impl)
-    {
-        return nullptr;
-    }
-
-    impl->initialize(*implElement, context);
-
-    // Cache it.
-    context.addNodeImplementation(name, impl);
-
-    return impl;
 }
 
 MATERIALX_NAMESPACE_END
