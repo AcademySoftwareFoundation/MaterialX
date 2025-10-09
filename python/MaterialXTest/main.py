@@ -170,14 +170,14 @@ class TestMaterialX(unittest.TestCase):
 
         # Unary operation
         self.assertTrue(-trans == mx.Matrix44(-1, 0, 0, 0,
-                                             0, -1, 0, 0,
-                                             0, 0, -1, 0,
-                                             -1, -2, -3, -1))
+                                              0, -1, 0, 0,
+                                              0, 0, -1, 0,
+                                              -1, -2, -3, -1))
         trans *= -1
         self.assertTrue(+trans == mx.Matrix44(-1, 0, 0, 0,
-                                             0, -1, 0, 0,
-                                             0, 0, -1, 0,
-                                             -1, -2, -3, -1))
+                                              0, -1, 0, 0,
+                                              0, 0, -1, 0,
+                                              -1, -2, -3, -1))
         trans *= -1
 
         # 2D rotation
