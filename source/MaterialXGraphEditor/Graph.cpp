@@ -3699,7 +3699,6 @@ void Graph::propertyEditor()
 
         // Find tokens within currUiNode
         std::vector<mx::TokenPtr> tokens = {};
-        std::vector<std::string> childrenWithTokens = {};
         // The source of the tokens. Could be node itself, nodegraph, or nodedef
         mx::InterfaceElementPtr source = nullptr;
         mx::NodePtr node = _currUiNode->getNode();
@@ -3737,27 +3736,6 @@ void Graph::propertyEditor()
                     tokens = nodedef->getActiveTokens();
                     source = nodedef;
                 }
-
-                if (tokens.empty())
-                {
-                    // Only check if children of nodegraph if nodegraph itself or nodedef doesn't have tokens
-                    std::vector<mx::NodePtr> graphChildNodes = nodegraph->getNodes();
-                    for (auto& childNode : graphChildNodes)
-                    {
-                        bool childHasTokens = !childNode->getActiveTokens().empty();
-                        mx::NodeDefPtr childNodeDef = childNode->getNodeDef();
-
-                        if (!childHasTokens && childNodeDef != nullptr)
-                        {
-                            childHasTokens = !childNodeDef->getActiveTokens().empty();
-                        }
-
-                        if (childHasTokens)
-                        {
-                            childrenWithTokens.push_back(childNode->getName());
-                        }
-                    }
-                }
             }   
         }
 
@@ -3789,17 +3767,6 @@ void Graph::propertyEditor()
                 ImGui::Text("%s: ", token->hasAttribute("uiname") ? token->getAttribute("uiname").c_str() : token->getName().c_str());
                 ImGui::SameLine();
                 ImGui::Text("%s", token->getResolvedValueString().c_str());
-            }
-            ImGui::Unindent();
-        }
-
-        if (!childrenWithTokens.empty())
-        {
-            ImGui::Text("Child Nodes with Tokens: %zu", childrenWithTokens.size());
-            ImGui::Indent();
-            for (auto& child : childrenWithTokens)
-            {
-                ImGui::Text("%s", child.c_str());
             }
             ImGui::Unindent();
         }
