@@ -1,5 +1,6 @@
 //
-// Created by Lee Kerley on 10/8/25.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_SURFACENODEMSL_H
