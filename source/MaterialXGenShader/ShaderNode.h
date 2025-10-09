@@ -377,7 +377,6 @@ class MX_GENSHADER_API ShaderNode
   public:
     /// Constructor.
     ShaderNode(const ShaderGraph* parent, const string& name);
-    ShaderNode(const ShaderGraph* parent, const string& name, const string& nodeDefName);
 
     /// Create a new node from a nodedef.
     static ShaderNodePtr create(const ShaderGraph* parent, const string& name, const NodeDef& nodeDef,
@@ -433,12 +432,6 @@ class MX_GENSHADER_API ShaderNode
     const ShaderNodeImpl& getImplementation() const
     {
         return *_impl;
-    }
-
-    // Return the NodeDef name associated with this node.
-    const string& getNodeDefName() const
-    {
-        return _nodeDefName;
     }
 
     /// Initialize this shader node with all required data
@@ -510,8 +503,6 @@ class MX_GENSHADER_API ShaderNode
 
     ShaderNodeImplPtr _impl;
     ShaderMetadataVecPtr _metadata;
-
-    string _nodeDefName;
 
     friend class ShaderGraph;
 };

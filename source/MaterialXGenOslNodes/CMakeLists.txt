@@ -1,6 +1,7 @@
 file(GLOB_RECURSE materialx_source
   "${CMAKE_CURRENT_SOURCE_DIR}/OslNodesShaderGenerator.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/OslNodesSyntax.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Nodes/OsoNode.cpp"
 )
 file(GLOB_RECURSE materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
 

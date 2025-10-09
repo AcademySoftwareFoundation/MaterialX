@@ -36,6 +36,8 @@ class MX_GENOSLNODES_API OslNodesShaderGenerator : public ShaderGenerator
         return std::make_shared<OslNodesShaderGenerator>(typeSystem ? typeSystem : TypeSystem::create());
     }
 
+    ShaderNodeImplPtr createShaderNodeImplForImplementation(const NodeDef& nodedef) const override;
+
     /// Return a unique identifier for the target this generator is for
     const string& getTarget() const override { return TARGET; }
 

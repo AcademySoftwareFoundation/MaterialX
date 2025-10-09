@@ -161,22 +161,16 @@ const string ShaderNode::GEOMETRIC_GROUPNAME = "geometric";
 //
 
 ShaderNode::ShaderNode(const ShaderGraph* parent, const string& name) :
-    ShaderNode(parent, name, "")
-{
-}
-
-ShaderNode::ShaderNode(const ShaderGraph* parent, const string& name, const string& nodeDefName) :
     _parent(parent),
     _name(name),
     _classification(0),
-    _impl(nullptr),
-    _nodeDefName(nodeDefName)
+    _impl(nullptr)
 {
 }
 
 ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, const NodeDef& nodeDef, GenContext& context)
 {
-    ShaderNodePtr newNode = std::make_shared<ShaderNode>(parent, name, nodeDef.getName());
+    ShaderNodePtr newNode = std::make_shared<ShaderNode>(parent, name);
 
     const ShaderGenerator& shadergen = context.getShaderGenerator();
 

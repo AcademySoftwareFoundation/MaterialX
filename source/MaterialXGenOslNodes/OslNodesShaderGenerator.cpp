@@ -5,12 +5,12 @@
 
 #include <MaterialXGenOslNodes/OslNodesShaderGenerator.h>
 #include <MaterialXGenOslNodes/OslNodesSyntax.h>
+#include <MaterialXGenOslNodes/Nodes/OsoNode.h>
 
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/TypeDesc.h>
 #include <MaterialXGenShader/ShaderStage.h>
-#include <MaterialXGenShader/Nodes/SourceCodeNode.h>
 
 
 MATERIALX_NAMESPACE_BEGIN
@@ -24,6 +24,11 @@ const string OslNodesShaderGenerator::TARGET = "genoslnodes";
 OslNodesShaderGenerator::OslNodesShaderGenerator(TypeSystemPtr typeSystem) :
     ShaderGenerator(typeSystem, OslNodesSyntax::create(typeSystem))
 {
+}
+
+ShaderNodeImplPtr OslNodesShaderGenerator::createShaderNodeImplForImplementation(const NodeDef& /* nodedef */) const
+{
+    return OsoNode::create();
 }
 
 static string paramString(const string& paramType, const string& paramName, const string& paramValue)
@@ -106,21 +111,13 @@ ShaderPtr OslNodesShaderGenerator::generate(const string& name, ElementPtr eleme
         // Keep track of the root output, so we can connect it to our setCi node
         lastOutput = node->getOutput(0);
 
-        NodeDefPtr nodeDef = document->getNodeDef(node->getNodeDefName());
-        ImplementationPtr impl = nodeDef->getImplementation("genoslnodes")->asA<Implementation>();
+        const ShaderNodeImpl& impl = node->getImplementation();
+        const OsoNode& osoNodeImpl = dynamic_cast<const OsoNode&>(impl);
 
-        if (!impl)
-        {
-            printf("Skipping test due to missing implementation\n");
-            return nullptr;
-        }
-
-        string osoName = impl->getFunction();
-
-        string osoPath = impl->getFile();
+        const string osoPath = osoNodeImpl.getOsoPath();
         osoPaths.insert(osoPath);
 
-        emitLine("shader " + osoName + " " + nodeName + " ;", stage, false);
+        emitLine("shader " + osoNodeImpl.getOsoName() + " " + nodeName + " ;", stage, false);
         lastNodeName = nodeName;
     }
 
