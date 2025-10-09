@@ -1,4 +1,3 @@
-
 float mx_shadow_occlusion(
     MetalTexture shadow_map_tex,
     mat4 shadow_matrix,
