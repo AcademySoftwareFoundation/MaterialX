@@ -1,4 +1,3 @@
-
 float mx_shadow_occlusion(
     $texSamplerSignature,
     mat4 shadow_matrix,
