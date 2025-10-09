@@ -44,7 +44,7 @@ TEST_CASE("Vectors", "[types]")
     REQUIRE(v1.dot(v2) == 28);
     REQUIRE(v1.cross(v2) == mx::Vector3());
 
-    // Unary operator
+    // Unary operators
     REQUIRE(-v1 == mx::Vector3(-2, -4, -6));
     v1 *= -1;
     REQUIRE(+v1 == mx::Vector3(-2, -4, -6));
@@ -128,14 +128,14 @@ TEST_CASE("Matrices", "[types]")
     REQUIRE((rotX * rotZ).isEquivalent(mx::Matrix44::createScale({ -1, 1, -1 }), EPSILON));
     REQUIRE((rotY * rotZ).isEquivalent(mx::Matrix44::createScale({ 1, -1, -1 }), EPSILON));
 
-    // Unary operator
+    // Unary operators
     REQUIRE(-utrans == mx::Matrix44(-1, 0, 0, 0,
-                                   0, -1, 0, 0,
-                                   0, 0, -1, 0,
-                                   -1, -2, -3, -1));
+                                    0, -1, 0, 0,
+                                    0, 0, -1, 0,
+                                    -1, -2, -3, -1));
     utrans*=-1;
     REQUIRE(+utrans == mx::Matrix44(-1, 0, 0, 0,
-                                   0, -1, 0, 0,
-                                   0, 0, -1, 0,
-                                   -1, -2, -3, -1));
+                                    0, -1, 0, 0,
+                                    0, 0, -1, 0,
+                                    -1, -2, -3, -1));
 }
