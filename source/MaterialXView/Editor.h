@@ -6,7 +6,7 @@
 #ifndef MATERIALXVIEW_EDITOR_H
 #define MATERIALXVIEW_EDITOR_H
 
-#include <MaterialXGenShader/HwShaderGenerator.h>
+#include <MaterialXGenHw/HwShaderGenerator.h>
 #include <MaterialXGenShader/Util.h>
 #include <MaterialXRender/Util.h>
 

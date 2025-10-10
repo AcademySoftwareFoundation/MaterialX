@@ -45,6 +45,10 @@ namespace Stage
 /// Shader targets with multiple stages can add additional
 /// stage identifiers to the Stage namespace.
 extern MX_GENSHADER_API const string PIXEL;
+// technically this might only be needed in MaterialXGenHW, but including it here
+// now for simplicity - refactoring code in MaterialXGenShader may be possible
+// in the future
+extern MX_GENSHADER_API const string VERTEX;
 
 } // namespace Stage
 
