@@ -6,7 +6,6 @@
 #include <MaterialXGenHw/Nodes/HwImageNode.h>
 
 #include <MaterialXGenShader/GenContext.h>
-
 #include <MaterialXGenShader/Util.h>
 
 MATERIALX_NAMESPACE_BEGIN
