@@ -794,7 +794,8 @@ void Graph::setRenderMaterial(UiNodePtr node)
         {
             // As above, there is no logic to support traversing from inside a functional graph.
             // We add a check for output nodes to make sure it's accounted for in this case.
-            if(mtlxOutput){     
+            if(mtlxOutput)
+            {     
                 if (mtlxNodeGraph->getNodeDef())
                 {
                     return;
