@@ -30,7 +30,7 @@ using HwShaderGeneratorPtr = shared_ptr<class HwShaderGenerator>;
 
 /// @class HwShaderGenerator
 /// Base class for shader generators targeting HW rendering.
-class MX_GENSHADER_API HwShaderGenerator : public ShaderGenerator
+class MX_GENHW_API HwShaderGenerator : public ShaderGenerator
 {
   public:
     /// Emit code for active light count definitions and uniforms
