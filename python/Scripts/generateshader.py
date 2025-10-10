@@ -11,6 +11,7 @@ import MaterialX.PyMaterialXGenGlsl as mx_gen_glsl
 import MaterialX.PyMaterialXGenMdl as mx_gen_mdl
 import MaterialX.PyMaterialXGenMsl as mx_gen_msl
 import MaterialX.PyMaterialXGenOsl as mx_gen_osl
+import MaterialX.PyMaterialXGenOslNetwork as mx_gen_osl_network
 import MaterialX.PyMaterialXGenShader as mx_gen_shader
 
 def validateCode(sourceCodeFile, codevalidator, codevalidatorArgs):
@@ -92,8 +93,8 @@ def main():
             gentarget = opts.target
         if gentarget == 'osl':
             shadergen = mx_gen_osl.OslShaderGenerator.create()
-        if gentarget == 'oslnodes':
-            shadergen = mx_gen_osl.OslNodeShaderGenerator.create()
+        if gentarget == 'oslnetwork':
+            shadergen = mx_gen_osl_network.OslNetworkShaderGenerator.create()
         elif gentarget == 'mdl':
             shadergen = mx_gen_mdl.MdlShaderGenerator.create()
         elif gentarget == 'essl':

@@ -14,7 +14,7 @@
 #endif
 
 #include <MaterialXGenOsl/OslShaderGenerator.h>
-#include <MaterialXGenOslNodes/OslNodesShaderGenerator.h>
+#include <MaterialXGenOslNetwork/OslNetworkShaderGenerator.h>
 
 #include <MaterialXFormat/Util.h>
 
@@ -224,7 +224,7 @@ bool OslShaderRenderTester::runRenderer(const std::string& shaderName,
                 mx::GenOptions& contextOptions = context.getOptions();
                 contextOptions = options;
                 contextOptions.targetColorSpaceOverride = "lin_rec709";
-                contextOptions.oslNodesConnectCiWrapper = true;
+                contextOptions.oslNetworkConnectCiWrapper = true;
 
                 // Apply local overrides for shader generation.
                 shadergen.registerImplementation("IM_tangent_vector3_" + mx::OslShaderGenerator::TARGET, TangentOsl::create);
@@ -391,7 +391,7 @@ TEST_CASE("Render: OSL TestSuite", "[renderosl]")
     renderTester.validate(optionsFilePath);
 }
 
-TEST_CASE("Render: OSL Nodes TestSuite", "[renderoslnodes]")
+TEST_CASE("Render: OSL Nodes TestSuite", "[renderoslnetwork]")
 {
     if (std::string(MATERIALX_OSL_BINARY_OSLC).empty() &&
         std::string(MATERIALX_OSL_BINARY_TESTRENDER).empty())
@@ -403,6 +403,6 @@ TEST_CASE("Render: OSL Nodes TestSuite", "[renderoslnodes]")
     mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
     mx::FilePath optionsFilePath = searchPath.find("resources/Materials/TestSuite/_options.mtlx");
 
-    OslShaderRenderTester renderTester(mx::OslNodesShaderGenerator::create(), true);
+    OslShaderRenderTester renderTester(mx::OslNetworkShaderGenerator::create(), true);
     renderTester.validate(optionsFilePath);
 }

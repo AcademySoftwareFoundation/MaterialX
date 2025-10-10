@@ -22,7 +22,7 @@
 namespace mx = MaterialX;
 
 
-const std::string setCiOslNodeSource = R"(
+const std::string setCiOslNetworkSource = R"(
 
 #include "mx_funcs.h"
 
@@ -167,7 +167,7 @@ int main(int argc, char* const argv[])
             argPrefix = nextToken;
         else if (token == "--help")
         {
-            std::cout << "MaterialXGenOslNodes - LibsToOso version " << mx::getVersionString() << std::endl;
+            std::cout << "MaterialXGenOslNetwork - LibsToOso version " << mx::getVersionString() << std::endl;
             std::cout << options << std::endl;
 
             return 0;
@@ -260,8 +260,8 @@ int main(int argc, char* const argv[])
     else
         loadLibraries({ "libraries" }, librariesSearchPath, librariesDoc);
 
-    const std::string target = "genoslnodes";
-    mx::FilePath implMtlxDocFilePath = outputMtlxPath / "genoslnodes_impl.mtlx";
+    const std::string target = "genoslnetwork";
+    mx::FilePath implMtlxDocFilePath = outputMtlxPath / "genoslnetwork_impl.mtlx";
     mx::DocumentPtr implMtlxDoc = mx::createDocument();
 
     // Create and setup the `OslRenderer` that will be used to both generate the `.osl` files as well as compile
@@ -303,7 +303,7 @@ int main(int argc, char* const argv[])
         // TODO: Check that we have a valid/opened file descriptor before doing anything with it?
         oslFile.open(oslFilePath);
         // Dump the content of the codegen'd `NodeDef` to our `.osl` file.
-        oslFile << setCiOslNodeSource;
+        oslFile << setCiOslNetworkSource;
         oslFile.close();
 
         // Compile the `.osl` file to a `.oso` file next to it.

@@ -28,10 +28,9 @@ if(MATERIALX_BUILD_DATA_LIBRARY)
     add_custom_target(MaterialXBuildData ALL
         DEPENDS ${MATERIALX_DATA_LIBRARY_BUILD_FILES})
 
-    if (MATERIALX_BUILD_GEN_OSL_NODES AND MATERIALX_OSL_BINARY_OSLC)
-
-        set(OSO_BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/DataLibraryBuild/targets/genoslnodes/osos)
-        set(MTLX_BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/DataLibraryBuild/targets/genoslnodes)
+    if (MATERIALX_BUILD_GEN_OSL_NETWORK AND MATERIALX_OSL_BINARY_OSLC)
+        set(OSO_BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/DataLibraryBuild/targets/genoslnetwork/osos)
+        set(MTLX_BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/DataLibraryBuild/targets/genoslnetwork)
 
         set(SENTINEL_FILE ${CMAKE_CURRENT_BINARY_DIR}/buildosos.sentinel)
 
@@ -40,18 +39,18 @@ if(MATERIALX_BUILD_DATA_LIBRARY)
                 COMMAND touch ${SENTINEL_FILE}
                 COMMAND cmake -E make_directory ${OSO_BUILD_PATH}
                 COMMAND cmake -E make_directory ${MTLX_BUILD_PATH}
-                COMMAND MaterialXGenOslNodes_LibsToOso
+                COMMAND MaterialXGenOslNetwork_LibsToOso
                             --outputOsoPath ${OSO_BUILD_PATH}
                             --outputMtlxPath ${MTLX_BUILD_PATH}
                             --oslCompilerPath ${MATERIALX_OSL_BINARY_OSLC}
                             --oslIncludePath ${MATERIALX_OSL_INCLUDE_PATH}
-                            --libraryRelativeOsoPath libraries/targets/genoslnodes/osos
+                            --libraryRelativeOsoPath libraries/targets/genoslnetwork/osos
                             --removeNdPrefix true
-                DEPENDS ${MATERIALX_DATA_LIBRARY_SOURCE_FILES} MaterialXGenOslNodes_LibsToOso
+                DEPENDS ${MATERIALX_DATA_LIBRARY_SOURCE_FILES} MaterialXGenOslNetwork_LibsToOso
         )
 
-      add_custom_target(MaterialXBuild_genoslnodes_buildOsos ALL DEPENDS ${SENTINEL_FILE})
-      add_dependencies(MaterialXBuildData MaterialXBuild_genoslnodes_buildOsos)
+      add_custom_target(MaterialXBuild_genoslnetwork_buildOsos ALL DEPENDS ${SENTINEL_FILE})
+      add_dependencies(MaterialXBuildData MaterialXBuild_genoslnetwork_buildOsos)
 
     endif()
 

@@ -3,9 +3,9 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXGenOslNodes/OslNodesShaderGenerator.h>
-#include <MaterialXGenOslNodes/OslNodesSyntax.h>
-#include <MaterialXGenOslNodes/Nodes/OsoNode.h>
+#include <MaterialXGenOslNetwork/OslNetworkShaderGenerator.h>
+#include <MaterialXGenOslNetwork/OslNetworkSyntax.h>
+#include <MaterialXGenOslNetwork/Nodes/OsoNode.h>
 
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
@@ -15,18 +15,18 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-const string OslNodesShaderGenerator::TARGET = "genoslnodes";
+const string OslNetworkShaderGenerator::TARGET = "genoslnetwork";
 
 //
-// OslNodesShaderGenerator methods
+// OslNetworkShaderGenerator methods
 //
 
-OslNodesShaderGenerator::OslNodesShaderGenerator(TypeSystemPtr typeSystem) :
-    ShaderGenerator(typeSystem, OslNodesSyntax::create(typeSystem))
+OslNetworkShaderGenerator::OslNetworkShaderGenerator(TypeSystemPtr typeSystem) :
+    ShaderGenerator(typeSystem, OslNetworkSyntax::create(typeSystem))
 {
 }
 
-ShaderNodeImplPtr OslNodesShaderGenerator::createShaderNodeImplForImplementation(const NodeDef& /* nodedef */) const
+ShaderNodeImplPtr OslNetworkShaderGenerator::createShaderNodeImplForImplementation(const NodeDef& /* nodedef */) const
 {
     return OsoNode::create();
 }
@@ -41,7 +41,7 @@ static string connectString(const string& fromNode, const string& fromName, cons
     return "connect " + fromNode + "." + fromName + " " + toNode + "." + toName + " ;";
 }
 
-ShaderPtr OslNodesShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const
+ShaderPtr OslNetworkShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const
 {
     ShaderPtr shader = createShader(name, element, context);
     ShaderGraph& graph = shader->getGraph();
@@ -131,7 +131,7 @@ ShaderPtr OslNodesShaderGenerator::generate(const string& name, ElementPtr eleme
     }
 
     // During unit tests, wrap a special node that will add the output to Ci.
-    if (context.getOptions().oslNodesConnectCiWrapper) {
+    if (context.getOptions().oslNetworkConnectCiWrapper) {
         emitLine("shader setCi root ;", stage, false);
         string connect = connectString(
             lastNodeName,
@@ -160,7 +160,7 @@ ShaderPtr OslNodesShaderGenerator::generate(const string& name, ElementPtr eleme
 }
 
 
-ShaderPtr OslNodesShaderGenerator::createShader(const string& name, ElementPtr element, GenContext& context) const
+ShaderPtr OslNetworkShaderGenerator::createShader(const string& name, ElementPtr element, GenContext& context) const
 {
     // Create the root shader graph
     ShaderGraphPtr graph = ShaderGraph::create(nullptr, name, element, context);
@@ -168,15 +168,15 @@ ShaderPtr OslNodesShaderGenerator::createShader(const string& name, ElementPtr e
 
     // Create our stage.
     ShaderStagePtr stage = createStage(Stage::PIXEL, *shader);
-    stage->createUniformBlock(OSLNodes::UNIFORMS);
-    stage->createInputBlock(OSLNodes::INPUTS);
-    stage->createOutputBlock(OSLNodes::OUTPUTS);
+    stage->createUniformBlock(OSLNetwork::UNIFORMS);
+    stage->createInputBlock(OSLNetwork::INPUTS);
+    stage->createOutputBlock(OSLNetwork::OUTPUTS);
 
     // Create shader variables for all nodes that need this.
     createVariables(graph, context, *shader);
 
     // Create uniforms for the published graph interface.
-    VariableBlock& uniforms = stage->getUniformBlock(OSLNodes::UNIFORMS);
+    VariableBlock& uniforms = stage->getUniformBlock(OSLNetwork::UNIFORMS);
     for (ShaderGraphInputSocket* inputSocket : graph->getInputSockets())
     {
         // Only for inputs that are connected/used internally,
@@ -188,7 +188,7 @@ ShaderPtr OslNodesShaderGenerator::createShader(const string& name, ElementPtr e
     }
 
     // Create outputs from the graph interface.
-    VariableBlock& outputs = stage->getOutputBlock(OSLNodes::OUTPUTS);
+    VariableBlock& outputs = stage->getOutputBlock(OSLNetwork::OUTPUTS);
     for (ShaderGraphOutputSocket* outputSocket : graph->getOutputSockets())
     {
         outputs.add(outputSocket->getSelf());
@@ -198,7 +198,7 @@ ShaderPtr OslNodesShaderGenerator::createShader(const string& name, ElementPtr e
 }
 
 
-namespace OSLNodes
+namespace OSLNetwork
 {
 
 // Identifiers for OSL variable blocks

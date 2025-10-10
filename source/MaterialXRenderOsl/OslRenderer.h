@@ -248,7 +248,7 @@ class MX_RENDEROSL_API OslRenderer : public ShaderRenderer
     /// Render using OSL command string. Will throw an exception if an error occurs.
     /// @param dirPath Path to location containing input .oso file.
     /// @param shaderName Name of OSL shader. A corresponding .oso file is assumed to exist in the output path folder.
-    void renderOSLNodes(const FilePath& dirPath, const string& shaderName);
+    void renderOSLNetwork(const FilePath& dirPath, const string& shaderName);
 
     /// Constructor
     OslRenderer(unsigned int width, unsigned int height, Image::BaseType baseType);

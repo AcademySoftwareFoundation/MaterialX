@@ -7,14 +7,14 @@
 
 namespace py = pybind11;
 
-void bindPyOslNodesShaderGenerator(py::module& mod);
+void bindPyOslNetworkShaderGenerator(py::module& mod);
 
-PYBIND11_MODULE(PyMaterialXGenOslNodes, mod)
+PYBIND11_MODULE(PyMaterialXGenOslNetwork, mod)
 {
     mod.doc() = "Shader generation using Open Shading Language.";
 
     // PyMaterialXGenOsl depends on types defined in PyMaterialXGenShader
     PYMATERIALX_IMPORT_MODULE(PyMaterialXGenShader);
 
-    bindPyOslNodesShaderGenerator(mod);
+    bindPyOslNetworkShaderGenerator(mod);
 }

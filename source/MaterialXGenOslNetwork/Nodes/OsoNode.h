@@ -6,13 +6,13 @@
 #ifndef MATERIALX_OSONODE_H
 #define MATERIALX_OSONODE_H
 
-#include <MaterialXGenOslNodes/Export.h>
+#include <MaterialXGenOslNetwork/Export.h>
 
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
-class MX_GENOSLNODES_API OsoNode : public ShaderNodeImpl
+class MX_GENOSLNETWORK_API OsoNode : public ShaderNodeImpl
 {
 public:
     static ShaderNodeImplPtr create();

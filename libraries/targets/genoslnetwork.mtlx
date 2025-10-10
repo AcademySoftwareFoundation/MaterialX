@@ -9,6 +9,6 @@
   <!-- ======================================================================== -->
   <!-- Base target definition for OSL targets using shader generation.          -->
   <!-- ======================================================================== -->
-  <targetdef name="genoslnodes" />
+  <targetdef name="genoslnetwork" />
 
 </materialx>

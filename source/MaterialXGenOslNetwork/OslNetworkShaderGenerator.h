@@ -3,28 +3,28 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#ifndef MATERIALX_OSLNODESSHADERGENERATOR_H
-#define MATERIALX_OSLNODESSHADERGENERATOR_H
+#ifndef MATERIALX_OSLNETWORKSHADERGENERATOR_H
+#define MATERIALX_OSLNETWORKSHADERGENERATOR_H
 
 /// @file
 /// OSL shading language generator
 
-#include <MaterialXGenOslNodes/Export.h>
+#include <MaterialXGenOslNetwork/Export.h>
 
 #include <MaterialXGenShader/ShaderGenerator.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
-using OslNodesShaderGeneratorPtr = shared_ptr<class OslNodesShaderGenerator>;
+using OslNetworkShaderGeneratorPtr = shared_ptr<class OslNetworkShaderGenerator>;
 
-/// @class OslNodesShaderGenerator
+/// @class OslNetworkShaderGenerator
 /// Base class for OSL (Open Shading Language) shader generators.
 /// A generator for a specific OSL target should be derived from this class.
-class MX_GENOSLNODES_API OslNodesShaderGenerator : public ShaderGenerator
+class MX_GENOSLNETWORK_API OslNetworkShaderGenerator : public ShaderGenerator
 {
   public:
     /// Constructor.
-    OslNodesShaderGenerator(TypeSystemPtr typeSystem);
+    OslNetworkShaderGenerator(TypeSystemPtr typeSystem);
 
     /// Creator function.
     /// If a TypeSystem is not provided it will be created internally.
@@ -33,7 +33,7 @@ class MX_GENOSLNODES_API OslNodesShaderGenerator : public ShaderGenerator
     /// of the shader generator.
     static ShaderGeneratorPtr create(TypeSystemPtr typeSystem = nullptr)
     {
-        return std::make_shared<OslNodesShaderGenerator>(typeSystem ? typeSystem : TypeSystem::create());
+        return std::make_shared<OslNetworkShaderGenerator>(typeSystem ? typeSystem : TypeSystem::create());
     }
 
     ShaderNodeImplPtr createShaderNodeImplForImplementation(const NodeDef& nodedef) const override;
@@ -54,13 +54,13 @@ class MX_GENOSLNODES_API OslNodesShaderGenerator : public ShaderGenerator
 
 };
 
-namespace OSLNodes
+namespace OSLNetwork
 {
 
 /// Identifiers for OSL variable blocks
-extern MX_GENOSLNODES_API const string UNIFORMS;
-extern MX_GENOSLNODES_API const string INPUTS;
-extern MX_GENOSLNODES_API const string OUTPUTS;
+extern MX_GENOSLNETWORK_API const string UNIFORMS;
+extern MX_GENOSLNETWORK_API const string INPUTS;
+extern MX_GENOSLNETWORK_API const string OUTPUTS;
 
 } // namespace OSL
 

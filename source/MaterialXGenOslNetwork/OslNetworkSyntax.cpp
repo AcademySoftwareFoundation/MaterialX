@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXGenOslNodes/OslNodesSyntax.h>
+#include <MaterialXGenOslNetwork/OslNetworkSyntax.h>
 
 #include <MaterialXGenShader/ShaderGenerator.h>
 
@@ -15,10 +15,10 @@ namespace
 {
 
 template <class T>
-class OslNodesVectorTypeSyntax : public AggregateTypeSyntax
+class OslNetworkVectorTypeSyntax : public AggregateTypeSyntax
 {
   public:
-    OslNodesVectorTypeSyntax(const Syntax* parent, const string& name, const string& defaultValue, const string& uniformDefaultValue,
+    OslNetworkVectorTypeSyntax(const Syntax* parent, const string& name, const string& defaultValue, const string& uniformDefaultValue,
                              const string& typeAlias = EMPTY_STRING, const string& typeDefinition = EMPTY_STRING,
                              const StringVec& members = EMPTY_MEMBERS) :
         AggregateTypeSyntax(parent, name, defaultValue, uniformDefaultValue, typeAlias, typeDefinition, members)
@@ -208,18 +208,18 @@ class OSLFilenameTypeSyntax : public AggregateTypeSyntax
 
 } // anonymous namespace
 
-const string OslNodesSyntax::OUTPUT_QUALIFIER = "output";
-const string OslNodesSyntax::SOURCE_FILE_EXTENSION = ".osl";
-const StringVec OslNodesSyntax::VECTOR_MEMBERS = { "[0]", "[1]", "[2]" };
-const StringVec OslNodesSyntax::VECTOR2_MEMBERS = { ".x", ".y" };
-const StringVec OslNodesSyntax::VECTOR4_MEMBERS = { ".x", ".y", ".z", ".w" };
-const StringVec OslNodesSyntax::COLOR4_MEMBERS = { ".rgb[0]", ".rgb[1]", ".rgb[2]", ".a" };
+const string OslNetworkSyntax::OUTPUT_QUALIFIER = "output";
+const string OslNetworkSyntax::SOURCE_FILE_EXTENSION = ".osl";
+const StringVec OslNetworkSyntax::VECTOR_MEMBERS = { "[0]", "[1]", "[2]" };
+const StringVec OslNetworkSyntax::VECTOR2_MEMBERS = { ".x", ".y" };
+const StringVec OslNetworkSyntax::VECTOR4_MEMBERS = { ".x", ".y", ".z", ".w" };
+const StringVec OslNetworkSyntax::COLOR4_MEMBERS = { ".rgb[0]", ".rgb[1]", ".rgb[2]", ".a" };
 
 //
-// OslNodesSyntax methods
+// OslNetworkSyntax methods
 //
 
-OslNodesSyntax::OslNodesSyntax(TypeSystemPtr typeSystem) : Syntax(typeSystem)
+OslNetworkSyntax::OslNetworkSyntax(TypeSystemPtr typeSystem) : Syntax(typeSystem)
 {
     // Add in all reserved words and keywords in OSL
     registerReservedWords(
@@ -286,7 +286,7 @@ OslNodesSyntax::OslNodesSyntax(TypeSystemPtr typeSystem) : Syntax(typeSystem)
         // Note: the color type in OSL is a built in type and
         // should not use the custom OslStructTypeSyntax.
         Type::COLOR3,
-        std::make_shared<OslNodesVectorTypeSyntax<Color3>>(
+        std::make_shared<OslNetworkVectorTypeSyntax<Color3>>(
             this,
             "color",
             "color(0.0)",
@@ -297,7 +297,7 @@ OslNodesSyntax::OslNodesSyntax(TypeSystemPtr typeSystem) : Syntax(typeSystem)
 
     registerTypeSyntax(
         Type::COLOR4,
-        std::make_shared<OslNodesVectorTypeSyntax<Color4>>(
+        std::make_shared<OslNetworkVectorTypeSyntax<Color4>>(
             this,
             "color",
             "color(0.0)",
@@ -308,7 +308,7 @@ OslNodesSyntax::OslNodesSyntax(TypeSystemPtr typeSystem) : Syntax(typeSystem)
 
     registerTypeSyntax(
         Type::VECTOR2,
-        std::make_shared<OslNodesVectorTypeSyntax<Vector2>>(
+        std::make_shared<OslNetworkVectorTypeSyntax<Vector2>>(
             this,
             "vector2",
             "vector2(0.0, 0.0)",
@@ -321,7 +321,7 @@ OslNodesSyntax::OslNodesSyntax(TypeSystemPtr typeSystem) : Syntax(typeSystem)
         // Note: the vector type in OSL is a built in type and
         // should not use the custom OslStructTypeSyntax.
         Type::VECTOR3,
-        std::make_shared<OslNodesVectorTypeSyntax<Vector3>>(
+        std::make_shared<OslNetworkVectorTypeSyntax<Vector3>>(
             this,
             "vector",
             "vector(0.0)",
@@ -332,7 +332,7 @@ OslNodesSyntax::OslNodesSyntax(TypeSystemPtr typeSystem) : Syntax(typeSystem)
 
     registerTypeSyntax(
         Type::VECTOR4,
-        std::make_shared<OslNodesVectorTypeSyntax<Vector4>>(
+        std::make_shared<OslNetworkVectorTypeSyntax<Vector4>>(
             this,
             "vector4",
             "vector4(0.0, 0.0, 0.0, 0.0)",
@@ -456,7 +456,7 @@ OslNodesSyntax::OslNodesSyntax(TypeSystemPtr typeSystem) : Syntax(typeSystem)
             "#define MATERIAL closure color"));
 }
 
-const string& OslNodesSyntax::getOutputQualifier() const
+const string& OslNetworkSyntax::getOutputQualifier() const
 {
     return OUTPUT_QUALIFIER;
 }
