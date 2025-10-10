@@ -5,8 +5,7 @@
 
 #include <MaterialXGenGlsl/GlslSyntax.h>
 
-#include <MaterialXGenShader/ShaderGenerator.h>
-#include <MaterialXGenShader/HwShaderGenerator.h>
+#include <MaterialXGenShader/Exception.h>
 
 MATERIALX_NAMESPACE_BEGIN
 

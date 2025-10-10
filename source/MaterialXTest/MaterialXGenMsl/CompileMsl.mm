@@ -8,7 +8,7 @@
 #include <string>
 #include <streambuf>
 
-#include <MaterialXGenShader/ShaderGenerator.h>
+#include <MaterialXGenShader/Exception.h>
 
 #import <Metal/Metal.h>
 id<MTLDevice> device = nil;
