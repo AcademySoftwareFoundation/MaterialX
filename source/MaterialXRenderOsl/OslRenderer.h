@@ -187,6 +187,10 @@ class MX_RENDEROSL_API OslRenderer : public ShaderRenderer
     {
         _oslUtilityOSOPath = dirPath;
     }
+    void setDataLibraryOSOPath(const FilePath& dirPath)
+    {
+        _dataLibraryOSOPath = dirPath;
+    }
 
     /// Used to toggle to either use testrender or testshade during render validation
     /// By default testshade is used.
@@ -194,6 +198,12 @@ class MX_RENDEROSL_API OslRenderer : public ShaderRenderer
     void useTestRender(bool useTestRender)
     {
         _useTestRender = useTestRender;
+    }
+
+    /// Used to switch between testing oso files and osl command strings
+    void useOslCommandString(bool useOslCmdstr)
+    {
+        _useOSLCmdStr = useOslCmdstr;
     }
 
     /// Set the number of rays per pixel to be used for lit surfaces.
@@ -208,6 +218,11 @@ class MX_RENDEROSL_API OslRenderer : public ShaderRenderer
         _raysPerPixelUnlit = rays;
     }
 
+    /// Set the osl command string that is to be tested
+    void setOSLCmdStr(const string& oslCmd)
+    {
+        _oslCmdStr = oslCmd;
+    }
     ///
     /// Compile OSL code stored in a file. Will throw an exception if an error occurs.
     /// @param oslFilePath OSL file path.
@@ -230,6 +245,11 @@ class MX_RENDEROSL_API OslRenderer : public ShaderRenderer
     /// @param outputName Name of OSL shader output to use.
     void renderOSL(const FilePath& dirPath, const string& shaderName, const string& outputName);
 
+    /// Render using OSL command string. Will throw an exception if an error occurs.
+    /// @param dirPath Path to location containing input .oso file.
+    /// @param shaderName Name of OSL shader. A corresponding .oso file is assumed to exist in the output path folder.
+    void renderOSLNetwork(const FilePath& dirPath, const string& shaderName);
+
     /// Constructor
     OslRenderer(unsigned int width, unsigned int height, Image::BaseType baseType);
 
@@ -248,9 +268,12 @@ class MX_RENDEROSL_API OslRenderer : public ShaderRenderer
     string _oslShaderOutputName;
     string _oslShaderOutputType;
     FilePath _oslUtilityOSOPath;
+    FilePath _dataLibraryOSOPath;
     bool _useTestRender;
+    bool _useOSLCmdStr;
     int _raysPerPixelLit;
     int _raysPerPixelUnlit;
+    string _oslCmdStr;
 };
 
 MATERIALX_NAMESPACE_END
