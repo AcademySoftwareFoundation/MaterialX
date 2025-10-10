@@ -980,7 +980,8 @@ void ShaderGraph::optimize(GenContext& context)
         {
             // Constant nodes can be elided by moving their value downstream.
             bool canElide = context.getOptions().elideConstantNodes;
-            if (!canElide) {
+            if (!canElide)
+            {
                 // We always elide filename constant nodes regardless of the
                 // option. See DOT below.
                 ShaderInput* in = node->getInput("value");
@@ -989,7 +990,8 @@ void ShaderGraph::optimize(GenContext& context)
                     canElide = true;
                 }
             }
-            if (canElide) {
+            if (canElide)
+            {
                 bypass(node, 0);
                 ++numEdits;
             }
