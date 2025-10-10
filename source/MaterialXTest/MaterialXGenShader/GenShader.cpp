@@ -11,10 +11,11 @@
 #include <MaterialXFormat/File.h>
 #include <MaterialXFormat/Util.h>
 
+#include <MaterialXGenHw/HwConstants.h>
+
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/ShaderTranslator.h>
 #include <MaterialXGenShader/Util.h>
-#include <MaterialXGenHw/HwConstants.h>
 
 #ifdef MATERIALX_BUILD_GEN_GLSL
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
