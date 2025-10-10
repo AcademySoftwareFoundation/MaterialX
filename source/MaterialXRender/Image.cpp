@@ -532,7 +532,7 @@ ImagePtr Image::applyBoxDownsample(unsigned int factor)
 {
     factor = std::max(factor, (unsigned int) 2);
 
-    ImagePtr sampleImage = Image::create(getWidth() / factor, getHeight() / factor, getChannelCount(), getBaseType());
+    ImagePtr sampleImage = Image::create(std::max(getWidth() / factor, 1u), std::max(getHeight() / factor, 1u), getChannelCount(), getBaseType());
     sampleImage->createResourceBuffer();
 
     for (int y = 0; y < (int) sampleImage->getHeight(); y++)
