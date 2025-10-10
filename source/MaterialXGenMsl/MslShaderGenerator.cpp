@@ -8,6 +8,7 @@
 
 #include <MaterialXGenHw/HwLightShaders.h>
 
+#include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/Nodes/MaterialNode.h>
 #include <MaterialXGenHw/Nodes/HwImageNode.h>
@@ -22,7 +23,6 @@
 #include <MaterialXGenHw/Nodes/HwFrameNode.h>
 #include <MaterialXGenHw/Nodes/HwTimeNode.h>
 #include <MaterialXGenHw/Nodes/HwViewDirectionNode.h>
-#include <MaterialXGenHw/Nodes/HwLightCompoundNode.h>
 #include <MaterialXGenHw/Nodes/HwLightNode.h>
 #include <MaterialXGenHw/Nodes/HwLightSamplerNode.h>
 #include <MaterialXGenHw/Nodes/HwLightShaderNode.h>
