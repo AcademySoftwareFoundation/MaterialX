@@ -11,8 +11,8 @@
 #include <MaterialXRender/ShaderRenderer.h>
 
 #include <MaterialXGenMsl/MslShaderGenerator.h>
-#include <MaterialXGenShader/Util.h>
 #include <MaterialXGenHw/HwConstants.h>
+#include <MaterialXGenShader/Util.h>
 
 #include <iostream>
 
