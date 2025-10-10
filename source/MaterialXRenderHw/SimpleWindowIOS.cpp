@@ -21,8 +21,8 @@ SimpleWindow::SimpleWindow() :
     windowCount++;
 }
 
-bool SimpleWindow::initialize(const char* title,
-                              unsigned int width, unsigned int height,
+bool SimpleWindow::initialize(const char* /*title*/,
+                              unsigned int /*width*/, unsigned int /*height*/,
                               void* /*applicationShell*/)
 {
     _windowWrapper = WindowWrapper::create(nullptr);

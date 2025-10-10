@@ -7,25 +7,28 @@
 
 #include <MaterialXGenGlsl/GlslSyntax.h>
 
+#include <MaterialXGenHw/HwLightShaders.h>
+#include <MaterialXGenHw/Nodes/HwImageNode.h>
+#include <MaterialXGenHw/Nodes/HwGeomColorNode.h>
+#include <MaterialXGenHw/Nodes/HwGeomPropValueNode.h>
+#include <MaterialXGenHw/Nodes/HwTexCoordNode.h>
+#include <MaterialXGenHw/Nodes/HwTransformNode.h>
+#include <MaterialXGenHw/Nodes/HwPositionNode.h>
+#include <MaterialXGenHw/Nodes/HwNormalNode.h>
+#include <MaterialXGenHw/Nodes/HwTangentNode.h>
+#include <MaterialXGenHw/Nodes/HwBitangentNode.h>
+#include <MaterialXGenHw/Nodes/HwFrameNode.h>
+#include <MaterialXGenHw/Nodes/HwTimeNode.h>
+#include <MaterialXGenHw/Nodes/HwViewDirectionNode.h>
+#include <MaterialXGenHw/Nodes/HwLightCompoundNode.h>
+#include <MaterialXGenHw/Nodes/HwLightNode.h>
+#include <MaterialXGenHw/Nodes/HwLightSamplerNode.h>
+#include <MaterialXGenHw/Nodes/HwLightShaderNode.h>
+#include <MaterialXGenHw/Nodes/HwNumLightsNode.h>
+#include <MaterialXGenHw/Nodes/HwSurfaceNode.h>
+
+#include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/Nodes/MaterialNode.h>
-#include <MaterialXGenShader/Nodes/HwImageNode.h>
-#include <MaterialXGenShader/Nodes/HwGeomColorNode.h>
-#include <MaterialXGenShader/Nodes/HwGeomPropValueNode.h>
-#include <MaterialXGenShader/Nodes/HwTexCoordNode.h>
-#include <MaterialXGenShader/Nodes/HwTransformNode.h>
-#include <MaterialXGenShader/Nodes/HwPositionNode.h>
-#include <MaterialXGenShader/Nodes/HwNormalNode.h>
-#include <MaterialXGenShader/Nodes/HwTangentNode.h>
-#include <MaterialXGenShader/Nodes/HwBitangentNode.h>
-#include <MaterialXGenShader/Nodes/HwFrameNode.h>
-#include <MaterialXGenShader/Nodes/HwTimeNode.h>
-#include <MaterialXGenShader/Nodes/HwViewDirectionNode.h>
-#include <MaterialXGenShader/Nodes/HwLightCompoundNode.h>
-#include <MaterialXGenShader/Nodes/HwLightNode.h>
-#include <MaterialXGenShader/Nodes/HwLightSamplerNode.h>
-#include <MaterialXGenShader/Nodes/HwLightShaderNode.h>
-#include <MaterialXGenShader/Nodes/HwNumLightsNode.h>
-#include <MaterialXGenShader/Nodes/HwSurfaceNode.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -690,72 +693,6 @@ void GlslShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, co
 
         emitString(str, stage);
     }
-}
-
-ShaderNodeImplPtr GlslShaderGenerator::getImplementation(const NodeDef& nodedef, GenContext& context) const
-{
-    InterfaceElementPtr implElement = nodedef.getImplementation(getTarget());
-    if (!implElement)
-    {
-        return nullptr;
-    }
-
-    const string& name = implElement->getName();
-
-    // Check if it's created and cached already.
-    ShaderNodeImplPtr impl = context.findNodeImplementation(name);
-    if (impl)
-    {
-        return impl;
-    }
-
-    vector<OutputPtr> outputs = nodedef.getActiveOutputs();
-    if (outputs.empty())
-    {
-        throw ExceptionShaderGenError("NodeDef '" + nodedef.getName() + "' has no outputs defined");
-    }
-
-    const TypeDesc outputType = context.getTypeDesc(outputs[0]->getType());
-
-    if (implElement->isA<NodeGraph>())
-    {
-        // Use a compound implementation.
-        if (outputType == Type::LIGHTSHADER)
-        {
-            impl = HwLightCompoundNode::create();
-        }
-        else
-        {
-            impl = CompoundNode::create();
-        }
-    }
-    else if (implElement->isA<Implementation>())
-    {
-        if (getColorManagementSystem() && getColorManagementSystem()->hasImplementation(name))
-        {
-            impl = getColorManagementSystem()->createImplementation(name);
-        }
-        else
-        {
-            // Try creating a new in the factory.
-            impl = _implFactory.create(name);
-        }
-        if (!impl)
-        {
-            impl = SourceCodeNode::create();
-        }
-    }
-    if (!impl)
-    {
-        return nullptr;
-    }
-
-    impl->initialize(*implElement, context);
-
-    // Cache it.
-    context.addNodeImplementation(name, impl);
-
-    return impl;
 }
 
 MATERIALX_NAMESPACE_END

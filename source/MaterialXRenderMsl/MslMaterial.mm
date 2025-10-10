@@ -5,10 +5,11 @@
 
 #include <MaterialXRenderMsl/MslMaterial.h>
 
-#include <MaterialXGenMsl/MslShaderGenerator.h>
 #include <MaterialXRenderMsl/MetalTextureHandler.h>
 #include <MaterialXRenderMsl/MslPipelineStateObject.h>
 #include <MaterialXRender/Util.h>
+#include <MaterialXGenMsl/MslShaderGenerator.h>
+#include <MaterialXGenHw/HwConstants.h>
 #include <MaterialXFormat/Util.h>
 
 #include <MaterialXRenderMsl/MetalState.h>
@@ -167,7 +168,7 @@ void MslMaterial::unbindImages(ImageHandlerPtr imageHandler)
     }
 }
 
-void MslMaterial::bindImages(ImageHandlerPtr imageHandler, const FileSearchPath& searchPath, bool enableMipmaps)
+void MslMaterial::bindImages(ImageHandlerPtr /*imageHandler*/, const FileSearchPath& /*searchPath*/, bool enableMipmaps)
 {
     if (!_glProgram)
     {
@@ -181,7 +182,7 @@ void MslMaterial::bindImages(ImageHandlerPtr imageHandler, const FileSearchPath&
 }
 
 ImagePtr MslMaterial::bindImage(const FilePath& filePath,
-                                const std::string& uniformName,
+                                const std::string& /*uniformName*/,
                                 ImageHandlerPtr imageHandler,
                                 const ImageSamplingProperties& samplingProperties)
 {

@@ -105,11 +105,11 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     }
 
     /// Component-wise addition of two vectors.
-    VectorN& operator+=(const V& rhs)
+    V& operator+=(const V& rhs)
     {
         for (size_t i = 0; i < N; i++)
             _arr[i] += rhs[i];
-        return *this;
+        return *static_cast<V*>(this);
     }
 
     /// Component-wise subtraction of two vectors.
@@ -122,11 +122,11 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     }
 
     /// Component-wise subtraction of two vectors.
-    VectorN& operator-=(const V& rhs)
+    V& operator-=(const V& rhs)
     {
         for (size_t i = 0; i < N; i++)
             _arr[i] -= rhs[i];
-        return *this;
+        return *static_cast<V*>(this);
     }
 
     /// Component-wise multiplication of two vectors.
@@ -139,11 +139,11 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     }
 
     /// Component-wise multiplication of two vectors.
-    VectorN& operator*=(const V& rhs)
+    V& operator*=(const V& rhs)
     {
         for (size_t i = 0; i < N; i++)
             _arr[i] *= rhs[i];
-        return *this;
+        return *static_cast<V*>(this);
     }
 
     /// Component-wise division of two vectors.
@@ -156,11 +156,11 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     }
 
     /// Component-wise division of two vectors.
-    VectorN& operator/=(const V& rhs)
+    V& operator/=(const V& rhs)
     {
         for (size_t i = 0; i < N; i++)
             _arr[i] /= rhs[i];
-        return *this;
+        return *static_cast<V*>(this);
     }
 
     /// Component-wise multiplication of a vector by a scalar.
@@ -173,11 +173,11 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     }
 
     /// Component-wise multiplication of a vector by a scalar.
-    VectorN& operator*=(S s)
+    V& operator*=(S s)
     {
         for (size_t i = 0; i < N; i++)
             _arr[i] *= s;
-        return *this;
+        return *static_cast<V*>(this);
     }
 
     /// Component-wise division of a vector by a scalar.
@@ -190,11 +190,11 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     }
 
     /// Component-wise division of a vector by a scalar.
-    VectorN& operator/=(S s)
+    V& operator/=(S s)
     {
         for (size_t i = 0; i < N; i++)
             _arr[i] /= s;
-        return *this;
+        return *static_cast<V*>(this);
     }
 
     /// Unary negation of a vector.
@@ -203,6 +203,15 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
         V res(Uninit{});
         for (size_t i = 0; i < N; i++)
             res[i] = -_arr[i];
+        return res;
+    }
+
+    /// Unary plus of a vector. Returns the unaltered vector
+    V operator+() const
+    {
+        V res(Uninit{});
+        for (size_t i = 0; i < N; i++)
+            res[i] = _arr[i];
         return res;
     }
 
@@ -447,10 +456,10 @@ template <class M, class S, size_t N> class MatrixN : public MatrixBase
     }
 
     /// Component-wise addition of two matrices.
-    MatrixN& operator+=(const M& rhs)
+    M& operator+=(const M& rhs)
     {
         *this = *this + rhs;
-        return *this;
+        return *static_cast<M*>(this);
     }
 
     /// Component-wise subtraction of two matrices.
@@ -464,10 +473,10 @@ template <class M, class S, size_t N> class MatrixN : public MatrixBase
     }
 
     /// Component-wise subtraction of two matrices.
-    MatrixN& operator-=(const M& rhs)
+    M& operator-=(const M& rhs)
     {
         *this = *this - rhs;
-        return *this;
+        return *static_cast<M*>(this);
     }
 
     /// Component-wise multiplication of a matrix and a scalar.
@@ -481,10 +490,10 @@ template <class M, class S, size_t N> class MatrixN : public MatrixBase
     }
 
     /// Component-wise multiplication of a matrix and a scalar.
-    MatrixN& operator*=(S s)
+    M& operator*=(S s)
     {
         *this = *this * s;
-        return *this;
+        return *static_cast<M*>(this);
     }
 
     /// Component-wise division of a matrix by a scalar.
@@ -498,10 +507,10 @@ template <class M, class S, size_t N> class MatrixN : public MatrixBase
     }
 
     /// Component-wise division of a matrix by a scalar.
-    MatrixN& operator/=(S s)
+    M& operator/=(S s)
     {
         *this = *this / s;
-        return *this;
+        return *static_cast<M*>(this);
     }
 
     /// @}
@@ -520,10 +529,10 @@ template <class M, class S, size_t N> class MatrixN : public MatrixBase
     }
 
     /// Compute the matrix product.
-    MatrixN& operator*=(const M& rhs)
+    M& operator*=(const M& rhs)
     {
         *this = *this * rhs;
-        return *this;
+        return *static_cast<M*>(this);
     }
 
     /// Divide the first matrix by the second (computed as the product of the
@@ -535,10 +544,30 @@ template <class M, class S, size_t N> class MatrixN : public MatrixBase
 
     /// Divide the first matrix by the second (computed as the product of the
     /// first matrix and the inverse of the second).
-    MatrixN& operator/=(const M& rhs)
+    M& operator/=(const M& rhs)
     {
         *this *= rhs.getInverse();
-        return *this;
+        return *static_cast<M*>(this);
+    }
+
+    /// Unary negation of a matrix.
+    M operator-() const
+    {
+        M res(Uninit{});
+        for (size_t i = 0; i < N; i++)
+            for (size_t j = 0; j < N; j++)
+                res[i][j] = -_arr[i][j];
+        return res;
+    }
+
+    /// Unary plus of a matrix.
+    M operator+() const
+    {
+        M res(Uninit{});
+        for (size_t i = 0; i < N; i++)
+            for (size_t j = 0; j < N; j++)
+                res[i][j] = _arr[i][j];
+        return res;
     }
 
     /// @}

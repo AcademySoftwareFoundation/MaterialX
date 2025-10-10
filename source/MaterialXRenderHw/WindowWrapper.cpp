@@ -80,8 +80,8 @@ void WindowWrapper::release()
 #elif defined(__APPLE__)
 
 WindowWrapper::WindowWrapper(ExternalWindowHandle externalHandle,
-                             InternalWindowHandle internalHandle,
-                             DisplayHandle display)
+                             InternalWindowHandle /*internalHandle*/,
+                             DisplayHandle /*display*/)
 {
     _externalHandle = externalHandle;
 #ifndef TARGET_OS_IPHONE

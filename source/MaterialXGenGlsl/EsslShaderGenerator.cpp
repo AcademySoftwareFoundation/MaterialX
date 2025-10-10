@@ -6,7 +6,7 @@
 #include <MaterialXGenGlsl/EsslShaderGenerator.h>
 #include <MaterialXGenGlsl/EsslSyntax.h>
 
-#include <MaterialXGenShader/Nodes/HwImageNode.h>
+#include <MaterialXGenHw/HwConstants.h>
 
 MATERIALX_NAMESPACE_BEGIN
 

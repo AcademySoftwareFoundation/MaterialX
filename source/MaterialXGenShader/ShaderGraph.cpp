@@ -911,7 +911,7 @@ void ShaderGraph::finalize(GenContext& context)
     _outputUnitTransformMap.clear();
 
     // Optimize the graph, removing redundant paths.
-    optimize();
+    optimize(context);
 
     // Sort the nodes in topological order.
     topologicalSort();
@@ -971,7 +971,7 @@ void ShaderGraph::disconnect(ShaderNode* node) const
     }
 }
 
-void ShaderGraph::optimize()
+void ShaderGraph::optimize(GenContext& context)
 {
     size_t numEdits = 0;
     for (ShaderNode* node : getNodes())
@@ -979,8 +979,22 @@ void ShaderGraph::optimize()
         if (node->hasClassification(ShaderNode::Classification::CONSTANT))
         {
             // Constant nodes can be elided by moving their value downstream.
-            bypass(node, 0);
-            ++numEdits;
+            bool canElide = context.getOptions().elideConstantNodes;
+            if (!canElide)
+            {
+                // We always elide filename constant nodes regardless of the
+                // option. See DOT below.
+                ShaderInput* in = node->getInput("value");
+                if (in && in->getType() == Type::FILENAME)
+                {
+                    canElide = true;
+                }
+            }
+            if (canElide)
+            {
+                bypass(node, 0);
+                ++numEdits;
+            }
         }
         else if (node->hasClassification(ShaderNode::Classification::DOT))
         {

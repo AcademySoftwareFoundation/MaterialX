@@ -11,7 +11,9 @@
 #include <MaterialXFormat/File.h>
 #include <MaterialXFormat/Util.h>
 
-#include <MaterialXGenShader/HwShaderGenerator.h>
+#include <MaterialXGenHw/HwConstants.h>
+
+#include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/ShaderTranslator.h>
 #include <MaterialXGenShader/Util.h>
 

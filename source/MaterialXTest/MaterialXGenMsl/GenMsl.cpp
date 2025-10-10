@@ -7,15 +7,16 @@
 #include <MaterialXTest/MaterialXGenShader/GenShaderUtil.h>
 #include <MaterialXTest/MaterialXGenMsl/GenMsl.h>
 
-#include <MaterialXCore/Document.h>
-
-#include <MaterialXFormat/File.h>
-
-#include <MaterialXGenShader/TypeDesc.h>
-
 #include <MaterialXGenMsl/MslShaderGenerator.h>
 #include <MaterialXGenMsl/MslSyntax.h>
 #include <MaterialXGenMsl/MslResourceBindingContext.h>
+#include <MaterialXGenHw/HwConstants.h>
+#include <MaterialXGenShader/GenContext.h>
+#include <MaterialXGenShader/TypeDesc.h>
+
+#include <MaterialXFormat/File.h>
+
+#include <MaterialXCore/Document.h>
 
 namespace mx = MaterialX;
 
