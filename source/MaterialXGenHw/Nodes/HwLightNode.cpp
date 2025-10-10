@@ -5,10 +5,10 @@
 
 #include <MaterialXGenHw/Nodes/HwLightNode.h>
 
-#include <MaterialXGenShader/GenContext.h>
-#include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenHw/HwConstants.h>
 #include <MaterialXGenHw/HwShaderGenerator.h>
+#include <MaterialXGenShader/GenContext.h>
+#include <MaterialXGenShader/Shader.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -24,7 +24,8 @@ const string LIGHT_DIRECTION_CALCULATION =
 } // anonymous namespace
 
 HwLightNode::HwLightNode()
-{}
+{
+}
 
 ShaderNodeImplPtr HwLightNode::create()
 {

@@ -8,8 +8,8 @@
 
 #include <MaterialXGenHw/Export.h>
 
-#include <MaterialXGenShader/ShaderNodeImpl.h>
 #include <MaterialXGenHw/HwConstants.h>
+#include <MaterialXGenShader/ShaderNodeImpl.h>
 
 MATERIALX_NAMESPACE_BEGIN
 

@@ -4,16 +4,15 @@
 //
 
 #include <MaterialXGenHw/HwShaderGenerator.h>
+
 #include <MaterialXGenHw/HwConstants.h>
 #include <MaterialXGenHw/HwLightShaders.h>
 #include <MaterialXGenHw/Nodes/HwLightCompoundNode.h>
 #include <MaterialXGenShader/Nodes/CompoundNode.h>
-
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
-
-#include <MaterialXCore/Document.h>
 #include <MaterialXCore/Definition.h>
+#include <MaterialXCore/Document.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -156,7 +155,7 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     VariableBlockPtr psPrivateUniforms = ps->createUniformBlock(HW::PRIVATE_UNIFORMS, "u_prv");
     VariableBlockPtr psPublicUniforms = ps->createUniformBlock(HW::PUBLIC_UNIFORMS, "u_pub");
     VariableBlockPtr lightData = ps->createUniformBlock(HW::LIGHT_DATA, HW::T_LIGHT_DATA_INSTANCE);
-    lightData->add(Type::INTEGER, getLightDataTypevarString() );
+    lightData->add(Type::INTEGER, getLightDataTypevarString());
 
     // Add a block for data from vertex to pixel shader.
     addStageConnectorBlock(HW::VERTEX_DATA, HW::T_VERTEX_DATA_INSTANCE, *vs, *ps);
@@ -378,7 +377,7 @@ void HwShaderGenerator::unbindLightShaders(GenContext& context)
 
 bool HwShaderGenerator::nodeNeedsClosureData(const ShaderNode& node) const
 {
-    return (node.hasClassification(ShaderNode::Classification::BSDF) || node.hasClassification(ShaderNode::Classification::EDF) || node.hasClassification(ShaderNode::Classification::VDF)) ;
+    return (node.hasClassification(ShaderNode::Classification::BSDF) || node.hasClassification(ShaderNode::Classification::EDF) || node.hasClassification(ShaderNode::Classification::VDF));
 }
 
 void HwShaderGenerator::addStageLightingUniforms(GenContext& context, ShaderStage& stage) const
@@ -407,7 +406,6 @@ ShaderNodeImplPtr HwShaderGenerator::createShaderNodeImplForNodeGraph(const Node
     }
     return CompoundNode::create();
 }
-
 
 void HwShaderGenerator::emitClosureDataArg(const ShaderNode& node, GenContext& /*context*/, ShaderStage& stage) const
 {

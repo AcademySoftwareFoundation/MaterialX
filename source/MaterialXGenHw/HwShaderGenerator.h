@@ -18,9 +18,9 @@
 // during the refactor transition - The next breaking API point
 // we should remove them
 #include <MaterialXGenHw/HwConstants.h>
+#include <MaterialXGenHw/HwImplementation.h>
 #include <MaterialXGenHw/HwLightShaders.h>
 #include <MaterialXGenHw/HwResourceBindingContext.h>
-#include <MaterialXGenHw/HwImplementation.h>
 
 MATERIALX_NAMESPACE_BEGIN
 

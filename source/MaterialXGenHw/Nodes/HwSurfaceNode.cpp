@@ -5,15 +5,16 @@
 
 #include <MaterialXGenHw/Nodes/HwSurfaceNode.h>
 
-#include <MaterialXGenShader/GenContext.h>
-#include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenHw/HwConstants.h>
 #include <MaterialXGenHw/HwShaderGenerator.h>
+#include <MaterialXGenShader/GenContext.h>
+#include <MaterialXGenShader/Shader.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
 HwSurfaceNode::HwSurfaceNode()
-{}
+{
+}
 
 ShaderNodeImplPtr HwSurfaceNode::create()
 {
@@ -142,7 +143,8 @@ void HwSurfaceNode::emitFunctionCall(const ShaderNode& node, GenContext& context
             shadergen.emitScopeBegin(stage);
 
             // indirect lighting
-            if (bsdf->hasClassification(ShaderNode::Classification::BSDF_R)) {
+            if (bsdf->hasClassification(ShaderNode::Classification::BSDF_R))
+            {
                 shadergen.emitLine("ClosureData closureData = makeClosureData(CLOSURE_TYPE_INDIRECT, L, V, N, P, occlusion)", stage);
                 shadergen.emitFunctionCall(*bsdf, context, stage);
             }
@@ -168,7 +170,8 @@ void HwSurfaceNode::emitFunctionCall(const ShaderNode& node, GenContext& context
             shadergen.emitComment("Add surface emission", stage);
             shadergen.emitScopeBegin(stage);
 
-            if (edf->hasClassification(ShaderNode::Classification::EDF)) {
+            if (edf->hasClassification(ShaderNode::Classification::EDF))
+            {
                 shadergen.emitLine("ClosureData closureData = makeClosureData(CLOSURE_TYPE_EMISSION, L, V, N, P, occlusion)", stage);
                 shadergen.emitFunctionCall(*edf, context, stage);
             }
@@ -190,7 +193,8 @@ void HwSurfaceNode::emitFunctionCall(const ShaderNode& node, GenContext& context
         if (const ShaderNode* bsdf = bsdfInput->getConnectedSibling())
         {
             shadergen.emitComment("Calculate the BSDF transmission for viewing direction", stage);
-            if (bsdf->hasClassification(ShaderNode::Classification::BSDF_T) || bsdf->hasClassification(ShaderNode::Classification::VDF)) {
+            if (bsdf->hasClassification(ShaderNode::Classification::BSDF_T) || bsdf->hasClassification(ShaderNode::Classification::VDF))
+            {
                 shadergen.emitLine("ClosureData closureData = makeClosureData(CLOSURE_TYPE_TRANSMISSION, L, V, N, P, occlusion)", stage);
                 shadergen.emitFunctionCall(*bsdf, context, stage);
             }
@@ -249,7 +253,8 @@ void HwSurfaceNode::emitLightLoop(const ShaderNode& node, GenContext& context, S
         shadergen.emitLineBreak(stage);
 
         shadergen.emitComment("Calculate the BSDF response for this light source", stage);
-        if (bsdf->hasClassification(ShaderNode::Classification::BSDF_R)) {
+        if (bsdf->hasClassification(ShaderNode::Classification::BSDF_R))
+        {
             shadergen.emitLine("ClosureData closureData = makeClosureData(CLOSURE_TYPE_REFLECTION, L, V, N, P, occlusion)", stage);
             shadergen.emitFunctionCall(*bsdf, context, stage);
         }

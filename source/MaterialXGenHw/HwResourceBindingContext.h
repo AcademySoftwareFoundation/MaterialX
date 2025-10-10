@@ -11,8 +11,8 @@
 
 #include <MaterialXGenHw/Export.h>
 
-#include <MaterialXGenShader/GenUserData.h>
 #include <MaterialXCore/Util.h>
+#include <MaterialXGenShader/GenUserData.h>
 
 MATERIALX_NAMESPACE_BEGIN
 

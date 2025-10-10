@@ -161,8 +161,7 @@ const string USER_DATA_CLOSURE_CONTEXT        = "udcc";
 const string USER_DATA_LIGHT_SHADERS          = "udls";
 const string USER_DATA_BINDING_CONTEXT        = "udbinding";
 
-const TypeDesc ClosureDataType = TypeDesc("ClosureData", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_NONE, 1, 0);
+const TypeDesc ClosureDataType                = TypeDesc("ClosureData", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_NONE, 1, 0);
 } // namespace HW
-
 
 MATERIALX_NAMESPACE_END

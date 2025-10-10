@@ -17,8 +17,7 @@ namespace
 
 // When node inputs with these names are modified, we assume the
 // associated HW shader must be recompiled.
-const StringSet IMMUTABLE_INPUTS =
-{
+const StringSet IMMUTABLE_INPUTS = {
     "index",
     "space",
     "attrname"

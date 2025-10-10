@@ -5,9 +5,9 @@
 
 #include <MaterialXGenHw/Nodes/HwFrameNode.h>
 
+#include <MaterialXGenHw/HwConstants.h>
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
-#include <MaterialXGenHw/HwConstants.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
