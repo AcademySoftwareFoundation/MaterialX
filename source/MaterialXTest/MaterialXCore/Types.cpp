@@ -34,20 +34,27 @@ TEST_CASE("Vectors", "[types]")
     REQUIRE((v2 *= v1) == mx::Vector3(2, 8, 18));
     REQUIRE((v2 /= v1) == mx::Vector3(2, 4, 6));
     REQUIRE(v1 * 2 == v2);
-    REQUIRE(v2 / 2 == v1);
-    
+    REQUIRE((v1 *= 2) == mx::Vector3(2, 4, 6));
+    REQUIRE((v2 /= 2) == mx::Vector3(1, 2, 3));
+
     // Geometric methods
     mx::Vector4 v3(4);
     REQUIRE(v3.getMagnitude() == 8);
     REQUIRE(v3.getNormalized().getMagnitude() == 1);
     REQUIRE(v1.dot(v2) == 28);
     REQUIRE(v1.cross(v2) == mx::Vector3());
+
+    // Unary operators
+    REQUIRE(-v1 == mx::Vector3(-2, -4, -6));
+    v1 *= -1;
+    REQUIRE(+v1 == mx::Vector3(-2, -4, -6));
 }
 
 TEST_CASE("Matrices", "[types]")
 {
     // Translation and scale
     mx::Matrix44 trans = mx::Matrix44::createTranslation(mx::Vector3(1, 2, 3));
+    mx::Matrix44 utrans = mx::Matrix44::createTranslation(mx::Vector3(1, 2, 3));
     mx::Matrix44 scale = mx::Matrix44::createScale(mx::Vector3(2));
     REQUIRE(trans == mx::Matrix44(1, 0, 0, 0,
                                   0, 1, 0, 0,
@@ -117,7 +124,18 @@ TEST_CASE("Matrices", "[types]")
     mx::Matrix44 rotX = mx::Matrix44::createRotationX(PI);
     mx::Matrix44 rotY = mx::Matrix44::createRotationY(PI);
     mx::Matrix44 rotZ = mx::Matrix44::createRotationZ(PI);
-    REQUIRE((rotX * rotY).isEquivalent(mx::Matrix44::createScale({-1, -1, 1}), EPSILON));
-    REQUIRE((rotX * rotZ).isEquivalent(mx::Matrix44::createScale({-1, 1, -1}), EPSILON));
-    REQUIRE((rotY * rotZ).isEquivalent(mx::Matrix44::createScale({1, -1, -1}), EPSILON));
+    REQUIRE((rotX * rotY).isEquivalent(mx::Matrix44::createScale({ -1, -1, 1 }), EPSILON));
+    REQUIRE((rotX * rotZ).isEquivalent(mx::Matrix44::createScale({ -1, 1, -1 }), EPSILON));
+    REQUIRE((rotY * rotZ).isEquivalent(mx::Matrix44::createScale({ 1, -1, -1 }), EPSILON));
+
+    // Unary operators
+    REQUIRE(-utrans == mx::Matrix44(-1, 0, 0, 0,
+                                    0, -1, 0, 0,
+                                    0, 0, -1, 0,
+                                    -1, -2, -3, -1));
+    utrans*=-1;
+    REQUIRE(+utrans == mx::Matrix44(-1, 0, 0, 0,
+                                    0, -1, 0, 0,
+                                    0, 0, -1, 0,
+                                    -1, -2, -3, -1));
 }
