@@ -5,7 +5,7 @@
 
 #include <MaterialXRender/GeometryHandler.h>
 
-#include <MaterialXGenShader/HwShaderGenerator.h>
+#include <MaterialXGenHw/HwConstants.h>
 #include <MaterialXGenShader/Util.h>
 
 #include <limits>

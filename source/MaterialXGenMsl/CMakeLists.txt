@@ -7,7 +7,7 @@ mx_add_library(MaterialXGenMsl
     HEADER_FILES
         ${materialx_headers}
     MTLX_MODULES
-        MaterialXGenShader
+        MaterialXGenHw
         MaterialXCore
     EXPORT_DEFINE
         MATERIALX_GENMSL_EXPORTS)
