@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXGenHw/Nodes/HwNormalNode.h>
+#include "HwNormalNode.h"
 
 #include <MaterialXGenHw/HwConstants.h>
 #include <MaterialXGenHw/HwShaderGenerator.h>

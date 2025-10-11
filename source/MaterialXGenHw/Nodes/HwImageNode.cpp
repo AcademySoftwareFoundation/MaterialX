@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXGenHw/Nodes/HwImageNode.h>
+#include "HwImageNode.h"
 
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Util.h>
