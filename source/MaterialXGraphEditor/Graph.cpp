@@ -3705,6 +3705,114 @@ void Graph::propertyEditor()
             }
             ImGui::Checkbox("Show all inputs", &_currUiNode->_showAllInputs);
         }
+
+        // Find tokens within currUiNode
+        std::vector<mx::TokenPtr> tokens = {};
+        std::vector<std::string> childrenWithTokens = {};
+        // The source of the tokens. Could be node itself, nodegraph, or nodedef
+        mx::InterfaceElementPtr source = nullptr;
+        mx::NodePtr node = _currUiNode->getNode();
+        mx::NodeGraphPtr nodegraph = _currUiNode->getNodeGraph();
+
+        // Check local node first
+        if (node != nullptr)
+        {
+            tokens = node->getActiveTokens();
+            source = node;
+
+            // Check nodedef if no tokens in local node
+            if (tokens.empty())
+            {
+                mx::NodeDefPtr nodedef = node->getNodeDef();
+                if (nodedef != nullptr)
+                {
+                    tokens = nodedef->getActiveTokens();
+                    source = nodedef;
+                }
+            }
+        }
+        else if (nodegraph != nullptr)
+        {
+            // Check nodegraph
+            tokens = nodegraph->getActiveTokens();
+            source = nodegraph;
+
+            if (tokens.empty())
+            {
+                // Check nodedef if no tokens in nodegraph
+                mx::NodeDefPtr nodedef = nodegraph->getNodeDef();
+                if (nodedef != nullptr)
+                {
+                    tokens = nodedef->getActiveTokens();
+                    source = nodedef;
+                }
+
+                if (tokens.empty())
+                {
+                    // Only check if children of nodegraph if nodegraph itself or nodedef doesn't have tokens
+                    std::vector<mx::NodePtr> graphChildNodes = nodegraph->getNodes();
+                    for (auto& childNode : graphChildNodes)
+                    {
+                        bool childHasTokens = !childNode->getActiveTokens().empty();
+                        mx::NodeDefPtr childNodeDef = childNode->getNodeDef();
+
+                        if (!childHasTokens && childNodeDef != nullptr)
+                        {
+                            childHasTokens = !childNodeDef->getActiveTokens().empty();
+                        }
+
+                        if (childHasTokens)
+                        {
+                            childrenWithTokens.push_back(childNode->getName());
+                        }
+                    }
+                }
+            }   
+        }
+
+        if (!tokens.empty())
+        {
+            ImGui::Text("Tokens: %zu", tokens.size());
+            if (source != nullptr)
+            {
+                std::string sourceName = source->getName();
+                ImGui::Text("Tokens Source: ");
+                ImGui::SameLine();
+
+                if (source == node || source == nodegraph)
+                {
+                    sourceName = "self";
+                }
+                else
+                {
+                    ImGui::Text("%s", source->getCategory().c_str());
+                    ImGui::SameLine();
+                }
+
+                ImGui::Text("%s", sourceName.c_str());
+            }
+
+            ImGui::Indent();
+            for (auto& token : tokens)
+            {
+                ImGui::Text("%s: ", token->hasAttribute("uiname") ? token->getAttribute("uiname").c_str() : token->getName().c_str());
+                ImGui::SameLine();
+                ImGui::Text("%s", token->getResolvedValueString().c_str());
+            }
+            ImGui::Unindent();
+        }
+
+        if (!childrenWithTokens.empty())
+        {
+            ImGui::Text("Child Nodes with Tokens: %zu", childrenWithTokens.size());
+            ImGui::Indent();
+            for (auto& child : childrenWithTokens)
+            {
+                ImGui::Text("%s", child.c_str());
+            }
+            ImGui::Unindent();
+        }
+
         ImGui::PopStyleColor();
         ImGui::PopStyleColor();
 
