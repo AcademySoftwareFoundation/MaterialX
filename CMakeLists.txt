@@ -455,6 +455,10 @@ add_subdirectory(source/MaterialXFormat)
 # Add shader generation subdirectories
 add_subdirectory(source/MaterialXGenShader)
 if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL OR MATERIALX_BUILD_GEN_MDL OR MATERIALX_BUILD_GEN_MSL)
+    if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_MSL)
+        add_subdirectory(source/MaterialXGenHw)
+    endif()
+
     if (MATERIALX_BUILD_GEN_GLSL)
         add_definitions(-DMATERIALX_BUILD_GEN_GLSL)
         add_subdirectory(source/MaterialXGenGlsl)

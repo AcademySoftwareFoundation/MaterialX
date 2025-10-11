@@ -5,10 +5,11 @@
 
 #include <MaterialXRenderMsl/MslMaterial.h>
 
-#include <MaterialXGenMsl/MslShaderGenerator.h>
 #include <MaterialXRenderMsl/MetalTextureHandler.h>
 #include <MaterialXRenderMsl/MslPipelineStateObject.h>
 #include <MaterialXRender/Util.h>
+#include <MaterialXGenMsl/MslShaderGenerator.h>
+#include <MaterialXGenHw/HwConstants.h>
 #include <MaterialXFormat/Util.h>
 
 #include <MaterialXRenderMsl/MetalState.h>

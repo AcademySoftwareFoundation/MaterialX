@@ -140,6 +140,7 @@ target_link_libraries(JsMaterialXGenShader
     PUBLIC MaterialXCore
     PUBLIC MaterialXFormat
     PUBLIC MaterialXGenShader
+    PUBLIC MaterialXGenHw
     PUBLIC MaterialXGenGlsl
     PRIVATE ${CMAKE_DL_LIBS})
 
