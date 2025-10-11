@@ -7,10 +7,7 @@
 #include <MaterialXGenMdl/MdlShaderGenerator.h>
 #include <MaterialXGenMdl/MdlSyntax.h>
 
-#include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/Util.h>
-
-#include <MaterialXCore/Definition.h>
 
 MATERIALX_NAMESPACE_BEGIN
 

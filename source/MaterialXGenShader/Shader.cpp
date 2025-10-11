@@ -6,12 +6,7 @@
 #include <MaterialXGenShader/Shader.h>
 
 #include <MaterialXGenShader/ShaderGenerator.h>
-#include <MaterialXGenShader/Syntax.h>
 #include <MaterialXGenShader/Util.h>
-
-#include <MaterialXCore/Document.h>
-#include <MaterialXCore/Node.h>
-#include <MaterialXCore/Value.h>
 
 MATERIALX_NAMESPACE_BEGIN
 

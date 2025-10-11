@@ -16,9 +16,6 @@
 #include <MaterialXGenMdl/Nodes/CustomNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/ImageNodeMdl.h>
 
-#include <MaterialXGenShader/GenContext.h>
-#include <MaterialXGenShader/Shader.h>
-#include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/Util.h>
 
 MATERIALX_NAMESPACE_BEGIN

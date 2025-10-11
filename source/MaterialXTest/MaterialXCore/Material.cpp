@@ -6,7 +6,6 @@
 #include <MaterialXTest/External/Catch/catch.hpp>
 
 #include <MaterialXCore/Document.h>
-#include <MaterialXCore/Value.h>
 #include <MaterialXFormat/XmlIo.h>
 #include <MaterialXFormat/Util.h>
 

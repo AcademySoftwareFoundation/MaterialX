@@ -7,7 +7,6 @@
 
 #include <MaterialXGenOsl/OslShaderGenerator.h>
 
-#include <MaterialXFormat/File.h>
 #include <MaterialXFormat/Util.h>
 
 #include <fstream>

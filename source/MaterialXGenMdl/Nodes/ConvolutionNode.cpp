@@ -6,9 +6,6 @@
 #include <MaterialXGenMdl/Nodes/ConvolutionNode.h>
 
 #include <MaterialXGenShader/GenContext.h>
-#include <MaterialXGenShader/ShaderNode.h>
-#include <MaterialXGenShader/ShaderStage.h>
-#include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/Util.h>
 

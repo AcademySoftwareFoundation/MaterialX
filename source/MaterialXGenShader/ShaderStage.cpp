@@ -7,10 +7,7 @@
 
 #include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/GenContext.h>
-#include <MaterialXGenShader/Syntax.h>
 #include <MaterialXGenShader/Util.h>
-
-#include <MaterialXCore/Value.h>
 
 #include <MaterialXFormat/Util.h>
 

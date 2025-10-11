@@ -6,7 +6,6 @@
 #include <PyMaterialX/PyMaterialX.h>
 
 #include <MaterialXCore/Node.h>
-#include <MaterialXCore/Util.h>
 
 #include <MaterialXFormat/File.h>
 

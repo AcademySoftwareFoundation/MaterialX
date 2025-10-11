@@ -9,7 +9,6 @@
 #include <MaterialXRender/ShaderRenderer.h>
 #include <MaterialXRender/StbImageLoader.h>
 #include <MaterialXRender/TinyObjLoader.h>
-#include <MaterialXRender/Types.h>
 
 #include <MaterialXFormat/Util.h>
 

@@ -5,14 +5,7 @@
 
 #include <MaterialXGenHw/HwShaderGenerator.h>
 
-#include <MaterialXGenHw/HwConstants.h>
-#include <MaterialXGenHw/HwLightShaders.h>
 #include <MaterialXGenHw/Nodes/HwLightCompoundNode.h>
-#include <MaterialXGenShader/Nodes/CompoundNode.h>
-#include <MaterialXGenShader/GenContext.h>
-#include <MaterialXGenShader/Shader.h>
-#include <MaterialXCore/Definition.h>
-#include <MaterialXCore/Document.h>
 
 MATERIALX_NAMESPACE_BEGIN
 

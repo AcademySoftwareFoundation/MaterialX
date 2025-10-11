@@ -9,7 +9,6 @@
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 #include <MaterialXRenderGlsl/TextureBaker.h>
-#include <MaterialXRenderGlsl/GLFramebuffer.h>
 #include <MaterialXRenderGlsl/GlslMaterial.h>
 
 #include <nanogui/messagedialog.h>

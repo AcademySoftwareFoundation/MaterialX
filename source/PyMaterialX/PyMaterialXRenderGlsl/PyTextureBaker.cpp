@@ -6,7 +6,6 @@
 #include <PyMaterialX/PyMaterialX.h>
 
 #include <MaterialXRenderGlsl/TextureBaker.h>
-#include <MaterialXCore/Material.h>
 
 namespace py = pybind11;
 namespace mx = MaterialX;

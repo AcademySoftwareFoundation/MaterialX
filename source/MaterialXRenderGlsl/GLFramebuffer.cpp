@@ -7,7 +7,6 @@
 
 #include <MaterialXRenderGlsl/GlslProgram.h>
 #include <MaterialXRenderGlsl/GlslRenderer.h>
-#include <MaterialXRenderGlsl/GLTextureHandler.h>
 
 #include <MaterialXRenderGlsl/External/Glad/glad.h>
 

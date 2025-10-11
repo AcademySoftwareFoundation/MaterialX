@@ -7,8 +7,6 @@
 
 #include <MaterialXGenMsl/MslShaderGenerator.h>
 #include <MaterialXGenMsl/MslResourceBindingContext.h>
-#include <MaterialXGenShader/Shader.h>
-#include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/GenContext.h>
 
 namespace py = pybind11;

@@ -6,16 +6,9 @@
 #include <MaterialXGenShader/ShaderGenerator.h>
 
 #include <MaterialXGenShader/GenContext.h>
-#include <MaterialXGenShader/ShaderNodeImpl.h>
 #include <MaterialXGenShader/Nodes/CompoundNode.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
 #include <MaterialXGenShader/Util.h>
-
-#include <MaterialXFormat/File.h>
-
-#include <MaterialXCore/Document.h>
-#include <MaterialXCore/Node.h>
-#include <MaterialXCore/Value.h>
 
 #include <sstream>
 

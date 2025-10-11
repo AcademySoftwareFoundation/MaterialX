@@ -7,8 +7,6 @@
 
 #include <MaterialXFormat/External/PugiXML/pugixml.hpp>
 
-#include <MaterialXCore/Types.h>
-
 #include <cstring>
 #include <fstream>
 #include <sstream>

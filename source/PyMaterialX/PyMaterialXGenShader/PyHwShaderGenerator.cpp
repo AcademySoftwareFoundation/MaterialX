@@ -6,7 +6,6 @@
 #include <PyMaterialX/PyMaterialX.h>
 
 #include <MaterialXGenShader/GenContext.h>
-#include <MaterialXGenShader/GenUserData.h>
 #include <MaterialXGenHw/HwShaderGenerator.h>
 
 namespace py = pybind11;

@@ -6,7 +6,6 @@
 #include <MaterialXGenMdl/Nodes/MaterialNodeMdl.h>
 #include <MaterialXGenMdl/MdlShaderGenerator.h>
 #include <MaterialXGenMdl/MdlSyntax.h>
-#include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/GenContext.h>
 

@@ -6,11 +6,6 @@
 #include <PyMaterialX/PyMaterialX.h>
 
 #include <MaterialXCore/Document.h>
-#include <MaterialXCore/Geom.h>
-#include <MaterialXCore/Look.h>
-#include <MaterialXCore/Material.h>
-#include <MaterialXCore/Node.h>
-#include <MaterialXCore/Traversal.h>
 
 #define BIND_ELEMENT_FUNC_INSTANCE(T)                                                                           \
 .def("_addChild" #T, &mx::Element::addChild<mx::T>)                                                             \
