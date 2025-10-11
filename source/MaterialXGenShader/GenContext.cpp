@@ -4,7 +4,6 @@
 //
 
 #include <MaterialXGenShader/GenContext.h>
-#include <MaterialXGenShader/ShaderGenerator.h>
 
 MATERIALX_NAMESPACE_BEGIN
 

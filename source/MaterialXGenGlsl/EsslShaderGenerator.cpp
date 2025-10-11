@@ -6,8 +6,6 @@
 #include <MaterialXGenGlsl/EsslShaderGenerator.h>
 #include <MaterialXGenGlsl/EsslSyntax.h>
 
-#include <MaterialXGenHw/HwConstants.h>
-
 MATERIALX_NAMESPACE_BEGIN
 
 const string EsslShaderGenerator::TARGET = "essl";

@@ -5,8 +5,6 @@
 
 #include <MaterialXRender/Util.h>
 
-#include <MaterialXGenShader/ShaderGenerator.h>
-
 MATERIALX_NAMESPACE_BEGIN
 
 const Color3 DEFAULT_SCREEN_COLOR_SRGB(0.3f, 0.3f, 0.32f);

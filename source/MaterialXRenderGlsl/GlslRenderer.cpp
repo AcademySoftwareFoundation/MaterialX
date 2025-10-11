@@ -9,7 +9,6 @@
 #include <MaterialXRenderGlsl/GLContext.h>
 #include <MaterialXRenderGlsl/GLUtil.h>
 
-#include <MaterialXRenderHw/SimpleWindow.h>
 #include <MaterialXRender/TinyObjLoader.h>
 #include <MaterialXGenHw/HwConstants.h>
 

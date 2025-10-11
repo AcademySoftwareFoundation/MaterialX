@@ -6,18 +6,12 @@
 #include <MaterialXTest/External/Catch/catch.hpp>
 #include <MaterialXTest/MaterialXGenMdl/GenMdl.h>
 
-#include <MaterialXCore/Document.h>
-
-#include <MaterialXFormat/File.h>
 #include <MaterialXFormat/Util.h>
 
 #include <MaterialXGenMdl/MdlShaderGenerator.h>
 #include <MaterialXGenMdl/MdlSyntax.h>
 
-#include <MaterialXGenShader/DefaultColorManagementSystem.h>
 #include <MaterialXGenShader/GenContext.h>
-#include <MaterialXGenShader/Util.h>
-
 
 namespace mx = MaterialX;
 

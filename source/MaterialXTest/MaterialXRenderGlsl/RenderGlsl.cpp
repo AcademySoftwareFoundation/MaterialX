@@ -8,9 +8,7 @@
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 #include <MaterialXRenderGlsl/GlslRenderer.h>
-#include <MaterialXRenderGlsl/GLTextureHandler.h>
 
-#include <MaterialXRender/GeometryHandler.h>
 #include <MaterialXRender/StbImageLoader.h>
 #if defined(MATERIALX_BUILD_OIIO)
 #include <MaterialXRender/OiioImageLoader.h>

@@ -4,7 +4,6 @@
 //
 
 #include <MaterialXView/Viewer.h>
-#include <MaterialXView/RenderPipeline.h>
 
 #ifdef MATERIALXVIEW_METAL_BACKEND
 #include <MaterialXView/RenderPipelineMetal.h>

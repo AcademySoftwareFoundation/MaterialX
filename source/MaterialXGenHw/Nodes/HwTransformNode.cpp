@@ -5,7 +5,6 @@
 
 #include <MaterialXGenHw/Nodes/HwTransformNode.h>
 
-#include <MaterialXGenHw/HwConstants.h>
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
 

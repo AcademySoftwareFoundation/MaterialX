@@ -6,7 +6,6 @@
 #if defined(_WIN32)
 
 #include <MaterialXRenderHw/SimpleWindow.h>
-#include <MaterialXRenderHw/WindowWrapper.h>
 #include <string>
 
 MATERIALX_NAMESPACE_BEGIN

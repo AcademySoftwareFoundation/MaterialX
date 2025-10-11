@@ -6,12 +6,7 @@
 #include <MaterialXTest/External/Catch/catch.hpp>
 #include <MaterialXTest/MaterialXGenShader/GenShaderUtil.h>
 
-#include <MaterialXCore/Document.h>
-
-#include <MaterialXFormat/File.h>
 #include <MaterialXFormat/Util.h>
-
-#include <MaterialXGenShader/ShaderStage.h>
 
 #include <MaterialXGenOsl/OslShaderGenerator.h>
 #include <MaterialXGenOsl/OslSyntax.h>

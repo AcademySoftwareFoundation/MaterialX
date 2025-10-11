@@ -8,13 +8,8 @@
 #include <MaterialXGenShader/Nodes/OcioNode.h>
 #include <MaterialXGenShader/OcioColorManagementSystem.h>
 
-#include <MaterialXCore/Interface.h>
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
-#include <MaterialXGenShader/GenContext.h>
-#include <MaterialXGenShader/Library.h>
-#include <MaterialXGenShader/ShaderNode.h>
 #include <MaterialXGenShader/Shader.h>
-#include <MaterialXGenShader/ShaderStage.h>
 
 #include <cstring>
 

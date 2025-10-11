@@ -8,7 +8,6 @@
 #include <MaterialXRenderGlsl/GLTextureHandler.h>
 #include <MaterialXRenderGlsl/GLUtil.h>
 
-#include <MaterialXRender/LightHandler.h>
 #include <MaterialXRender/ShaderRenderer.h>
 
 #include <MaterialXGenHw/HwConstants.h>

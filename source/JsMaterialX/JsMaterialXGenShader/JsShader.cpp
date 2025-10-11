@@ -6,7 +6,6 @@
 #include <JsMaterialX/Helpers.h>
 
 #include <MaterialXGenShader/Shader.h>
-#include <MaterialXGenShader/ShaderStage.h>
 
 #include <emscripten/bind.h>
 

@@ -7,7 +7,6 @@
 
 #include <MaterialXCore/Unit.h>
 #include <MaterialXGenShader/GenContext.h>
-#include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
 #include <MaterialXFormat/Util.h>
 

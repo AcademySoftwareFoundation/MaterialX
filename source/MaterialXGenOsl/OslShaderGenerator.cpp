@@ -8,8 +8,6 @@
 
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
-#include <MaterialXGenShader/TypeDesc.h>
-#include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
 
 

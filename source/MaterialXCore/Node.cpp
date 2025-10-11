@@ -6,7 +6,6 @@
 #include <MaterialXCore/Node.h>
 
 #include <MaterialXCore/Document.h>
-#include <MaterialXCore/Material.h>
 
 #include <deque>
 

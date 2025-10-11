@@ -6,7 +6,6 @@
 #include <MaterialXGenMsl/MslShaderGenerator.h>
 #include <MaterialXGenMsl/MslSyntax.h>
 
-#include <MaterialXGenHw/HwLightShaders.h>
 #include <MaterialXGenHw/Nodes/HwImageNode.h>
 #include <MaterialXGenHw/Nodes/HwGeomColorNode.h>
 #include <MaterialXGenHw/Nodes/HwGeomPropValueNode.h>
@@ -26,7 +25,6 @@
 #include <MaterialXGenHw/Nodes/HwSurfaceNode.h>
 
 #include <MaterialXGenShader/GenContext.h>
-#include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/Nodes/MaterialNode.h>
 
 #include "MslResourceBindingContext.h"

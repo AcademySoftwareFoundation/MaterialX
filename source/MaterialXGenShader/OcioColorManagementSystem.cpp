@@ -9,8 +9,6 @@
 
 #include <MaterialXGenShader/OcioColorManagementSystem.h>
 
-#include <MaterialXCore/Definition.h>
-#include <MaterialXGenShader/ColorManagementSystem.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/Nodes/OcioNode.h>
 
