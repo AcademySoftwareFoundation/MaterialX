@@ -2033,6 +2033,7 @@ void Graph::addNode(const std::string& category, const std::string& name, const 
         newNode->setType(type);
         newNode->setNode(node);
         newNode->_showAllInputs = true;
+        newNode->_showAllTokens = true;
         node->setType(type);
         ++_graphTotalSize;
         for (mx::InputPtr input : defInputs)
@@ -3699,8 +3700,6 @@ void Graph::propertyEditor()
 
         // Find tokens within currUiNode
         std::vector<mx::TokenPtr> tokens = {};
-        // The source of the tokens. Could be node itself, nodegraph, or nodedef
-        mx::InterfaceElementPtr source = nullptr;
         mx::NodePtr node = _currUiNode->getNode();
         mx::NodeGraphPtr nodegraph = _currUiNode->getNodeGraph();
 
@@ -3708,7 +3707,6 @@ void Graph::propertyEditor()
         if (node != nullptr)
         {
             tokens = node->getActiveTokens();
-            source = node;
 
             // Check nodedef if no tokens in local node
             if (tokens.empty())
@@ -3717,7 +3715,6 @@ void Graph::propertyEditor()
                 if (nodedef != nullptr)
                 {
                     tokens = nodedef->getActiveTokens();
-                    source = nodedef;
                 }
             }
         }
@@ -3725,7 +3722,6 @@ void Graph::propertyEditor()
         {
             // Check nodegraph
             tokens = nodegraph->getActiveTokens();
-            source = nodegraph;
 
             if (tokens.empty())
             {
@@ -3734,33 +3730,12 @@ void Graph::propertyEditor()
                 if (nodedef != nullptr)
                 {
                     tokens = nodedef->getActiveTokens();
-                    source = nodedef;
                 }
             }   
         }
 
         if (!tokens.empty())
         {
-            ImGui::Text("Tokens: %zu", tokens.size());
-            if (source != nullptr)
-            {
-                std::string sourceName = source->getName();
-                ImGui::Text("Tokens Source: ");
-                ImGui::SameLine();
-
-                if (source == node || source == nodegraph)
-                {
-                    sourceName = "self";
-                }
-                else
-                {
-                    ImGui::Text("%s", source->getCategory().c_str());
-                    ImGui::SameLine();
-                }
-
-                ImGui::Text("%s", sourceName.c_str());
-            }
-
             ImGui::Indent();
             for (auto& token : tokens)
             {
