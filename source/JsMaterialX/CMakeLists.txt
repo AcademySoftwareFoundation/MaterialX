@@ -67,7 +67,7 @@ string(APPEND JS_LINK_FLAGS_CORE " -I${SOURCE_FOLDER} \
     -s FORCE_FILESYSTEM=1 ")
 
 # Add the post javascript files. The one in the root folder of this project needs to come first.
-string(APPEND JS_LINK_FLAGS_CORE "--post-js ${CMAKE_CURRENT_SOURCE_DIR}/post.js \
+string(APPEND JS_LINK_FLAGS_CORE "--pre-js ${CMAKE_CURRENT_SOURCE_DIR}/pre.js \
     --post-js ${FORMAT}post.js ")
 
 # Compiler flags

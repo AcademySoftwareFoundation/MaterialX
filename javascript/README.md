@@ -143,8 +143,40 @@ Functions that handle generic types in C++ via templates are mapped to JavaScrip
 #### Iterators
 MaterialX comes with a number of iterators (e.g. `TreeIterator`, `GraphIterator`). These iterators implement the iterable (and iterator) protocol in JS, and can therefore be used in `for ... of` loops.
 
+#### Memory Management (Embind)
+Objects that originate from C++ (e.g. `Document`, `Node`, `Shader`, `GenContext`) are backed by C++ instances. When you're done with them, explicitly call `.delete()` to release the underlying C++ object. This is especially important for objects returned as smart pointers in C++ (such as elements yielded by iterators or getters), otherwise you may see warnings like "Embind found a leaked C++ instance".
+
+Examples:
+
+```javascript
+// Documents and elements
+const doc = mx.createDocument();
+const node = doc.addNode('image');
+// ... use node ...
+node.delete();
+doc.delete();
+
+// Iterator-yielded elements
+for (const elem of doc.traverseTree()) {
+    // ... use elem ...
+    elem.delete();
+}
+
+// Edges in graph traversal
+for (const edge of output.traverseGraph()) {
+    const up = edge.getUpstreamElement();
+    const conn = edge.getConnectingElement();
+    const down = edge.getDownstreamElement();
+    // ... use them ...
+    up.delete();
+    conn.delete();
+    down.delete();
+    edge.delete();
+}
+```
+
 #### Exception Handling
-When a C++ function throws an exception, this exception will also be thrown by the corresponding JS function. However, you will only get a pointer (i.e. a number in JS) to the C++ exception object in a `try ... catch ...` block, due to some exception handling limitations of emscripten. The helper method `getExceptionMessage` can be used to extract the exception message from that pointer:
+When a C++ function throws an exception, the JS binding throws as well. Depending on the Emscripten version, the caught value may be either a numeric pointer to the C++ exception (legacy) or an exception object (Error-like). Use `getExceptionMessage` on the caught value in both cases:
 
 ```javascript
 const doc = mx.createDocument();
@@ -152,9 +184,9 @@ doc.addNode('category', 'node1');
 
 try {
     doc.addNode('category', 'node1');
-} catch (errPtr) {
-    // typeof errPtr === 'number' yields 'true'
-    console.log(mx.getExceptionMessage(errPtr)); // Prints 'Child name is not unique: node1'
+} catch (err) {
+    // Works with both a numeric pointer and an exception object
+    console.log(mx.getExceptionMessage(err)); // 'Child name is not unique: node1'
 }
 ```
 
@@ -199,6 +231,11 @@ const elem = mx.findRenderableElement(doc);
 const shader = gen.generate(elem.getNamePath(), elem, genContext);
 const fShader = shader.getSourceCode("pixel");    
 const vShader = shader.getSourceCode("vertex");
+// Cleanup when done
+shader.delete();
+stdlib.delete();
+genContext.delete();
+gen.delete();
 ```
 Shader generation options may be changed by getting the options from the context and altering its properties. Changes to these options must occur after the standard libraries have been loaded as the call to `mx.loadStandardLibraries(genContext)` sets the options to some defaults.
 ```javascript
