@@ -30,6 +30,12 @@ describe('Custom Bindings', () =>
 
         // Omitting non-optional parameter should throw
         expect(() => { nodeGraph.addNode(); }).to.throw;
+
+        // Cleanup
+        node.delete();
+        nodeGraph2.delete();
+        nodeGraph.delete();
+        doc.delete();
     });
 
     it('Vector <-> Array conversion', () =>
@@ -37,7 +43,7 @@ describe('Custom Bindings', () =>
         // Functions that return vectors in C++ should return an array in JS
         const doc = mx.createDocument();
         const nodeGraph = doc.addNodeGraph();
-        doc.addNodeGraph();
+        const nodeGraphB = doc.addNodeGraph();
         const nodeGraphs = doc.getNodeGraphs();
         expect(nodeGraphs).to.be.an.instanceof(Array);
         expect(nodeGraphs.length).to.equal(2);
@@ -68,6 +74,16 @@ describe('Custom Bindings', () =>
         expect(nodes[0].getName()).to.equal('node1'); // Name auto-constructed from category
         expect(nodes[1].getName()).to.equal('node2'); // Name auto-constructed from category
         expect(nodes[2].getName()).to.equal('anotherNode'); // Name set explicitly at creation time
+
+        // Cleanup created wrappers
+        nodes.forEach(n => n.delete());
+        backdrop.delete();
+        node3.delete();
+        node2.delete();
+        node1.delete();
+        nodeGraphB.delete();
+        nodeGraph.delete();
+        doc.delete();
     });
 
     it('C++ exception handling', () =>
@@ -81,17 +97,20 @@ describe('Custom Bindings', () =>
         expect(nodeGraph1.hasInheritanceCycle()).to.not.throw;
         expect(nodeGraph1.hasInheritanceCycle()).to.be.true;
 
-        // Exceptions that are not caught in C++ should throw with an exception pointer
+        // Exceptions that are not caught in C++ should throw
         nodeGraph1.addNode('node', 'node1');
         expect(() => { nodeGraph1.addNode('node', 'node1'); }).to.throw;
         try
         {
             nodeGraph1.addNode('node', 'node1');
-        } catch (errPtr)
+        } catch (err)
         {
-            expect(errPtr).to.be.a('number');
-            expect(mx.getExceptionMessage(errPtr)).to.be.a('string');
+            expect(mx.getExceptionMessage(err)).to.be.a('string');
         }
+        // Cleanup
+        nodeGraph2.delete();
+        nodeGraph1.delete();
+        doc.delete();
     });
 
     it('getReferencedSourceUris', async () =>
@@ -104,6 +123,7 @@ describe('Custom Bindings', () =>
         expect(sourceUris.length).to.equal(3);
         expect(sourceUris[0]).to.be.a('string');
         expect(sourceUris.includes('standard_surface_brass_tiled.mtlx')).to.be.true;
+        doc.delete();
     });
 
     it('Should invoke correct instance of \'validate\'', () =>
@@ -133,6 +153,11 @@ describe('Custom Bindings', () =>
         expect(token.validate()).to.be.false;
         expect(token.validate(message)).to.be.false;
         expect(message.message).to.include('Unit type definition does not exist in document')
+
+        // Cleanup
+        token.delete();
+        node.delete();
+        doc.delete();
     });
 
     it('StringResolver name substitution getters', () =>
@@ -164,6 +189,7 @@ describe('Custom Bindings', () =>
         expect(gnSubs).to.be.instanceof(Object);
         expect(Object.keys(gnSubs).length).to.equal(2);
         expect(gnSubs).to.deep.equal(gnTestData);
+        resolver.delete();
     });
 
     it('getShaderNodes', async () =>
@@ -184,6 +210,11 @@ describe('Custom Bindings', () =>
         shaderNodes = mx.getShaderNodes(matNode, mx.DISPLACEMENT_SHADER_TYPE_STRING);
         expect(shaderNodes).to.be.instanceof(Array);
         expect(shaderNodes.length).to.equal(0);
+
+        // Cleanup wrappers
+        shaderNodes.forEach(s => s.delete());
+        matNodes.forEach(n => n.delete());
+        doc.delete();
     });
 
     it('createValidName', () =>
@@ -211,6 +242,7 @@ describe('Custom Bindings', () =>
         expect(docVersion).to.be.instanceof(Array);
         expect(docVersion.length).to.equal(2);
         expect(docVersion).to.deep.equal(versionStringArr);
+        doc.delete();
 
         // InterfaceElement.getVersionIntegers (via NodeDef)
         // TODO: This function can currently not be called, since we have a linker issue that messes up this function.
