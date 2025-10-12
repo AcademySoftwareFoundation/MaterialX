@@ -6,12 +6,6 @@
 #include <MaterialXGenMsl/MslShaderGenerator.h>
 #include <MaterialXGenMsl/MslSyntax.h>
 
-// Including this file here just to ensure it compiles
-// Its not used anywhere in the MaterialX repo - but is
-// added to allow backwards compatibility with OpenUSD
-// codebase
-#include <MaterialXGenMsl/Nodes/SurfaceNodeMsl.h>
-
 #include <MaterialXGenHw/HwLightShaders.h>
 #include <MaterialXGenHw/Nodes/HwImageNode.h>
 #include <MaterialXGenHw/Nodes/HwGeomColorNode.h>

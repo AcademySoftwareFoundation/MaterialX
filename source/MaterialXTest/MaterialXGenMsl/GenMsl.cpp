@@ -7,6 +7,12 @@
 #include <MaterialXTest/MaterialXGenShader/GenShaderUtil.h>
 #include <MaterialXTest/MaterialXGenMsl/GenMsl.h>
 
+// Including this file here just to ensure it compiles
+// Its not used anywhere in the MaterialX repo - but is
+// added to allow backwards compatibility with OpenUSD
+// codebase
+#include <MaterialXGenMsl/Nodes/SurfaceNodeMsl.h>
+
 #include <MaterialXGenMsl/MslShaderGenerator.h>
 #include <MaterialXGenMsl/MslSyntax.h>
 #include <MaterialXGenMsl/MslResourceBindingContext.h>

@@ -7,12 +7,6 @@
 
 #include <MaterialXGenGlsl/GlslSyntax.h>
 
-// Including this file here just to ensure it compiles
-// Its not used anywhere in the MaterialX repo - but is
-// added to allow backwards compatibility with OpenUSD
-// codebase
-#include <MaterialXGenGlsl/Nodes/SurfaceNodeGlsl.h>
-
 #include <MaterialXGenHw/HwLightShaders.h>
 #include <MaterialXGenHw/Nodes/HwImageNode.h>
 #include <MaterialXGenHw/Nodes/HwGeomColorNode.h>
@@ -34,6 +28,8 @@
 #include <MaterialXGenHw/Nodes/HwSurfaceNode.h>
 
 #include <MaterialXGenShader/Shader.h>
+#include <MaterialXGenShader/Nodes/MaterialNode.h>
+
 MATERIALX_NAMESPACE_BEGIN
 
 const string GlslShaderGenerator::TARGET = "genglsl";
