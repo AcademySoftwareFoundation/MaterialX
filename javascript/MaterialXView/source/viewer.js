@@ -182,7 +182,7 @@ export class Scene
 
                 if (!child.geometry.attributes.normal)
                 {
-                    var startNormalTime = performance.new();
+                    var startNormalTime = performance.now();
                     child.geometry.computeVertexNormals();
                     normalTime += performance.now() - startNormalTime;
                 }
