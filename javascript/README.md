@@ -10,7 +10,7 @@ The emscripten SDK is required to generate the JavaScript bindings. There are se
 
 To install the SDK directly, follow the instructions of the [emscripten SDK installation Guide](https://emscripten.org/docs/getting_started/downloads.html#installation-instructions-using-the-emsdk-recommended). Make sure to install prerequisites depending on your platform and read usage hints first (e.g. differences between Unix / Windows scripts). 
 
-The current supported version is `2.0.20`. Do not automatically update to the latest version to avoid build issues.
+The recommended version is `4.0.8`. Do not automatically update to the latest version to avoid build issues.
 
 Note that following the instructions will set some environment variables that are required to use the  SDK. These variables are only set temporarily for the current terminal, though. Setting the environment variables in other terminals can be achieved by running
 ```sh
@@ -18,8 +18,7 @@ source ./emsdk_env.sh
 ```
 inside of the `emsdk` folder (check the documentation for the Windows equivalent). In case of the MaterialX project, it is not required to have these environment variables set. You can also use a CMake build flag instead, as described in the [build instructions](#build-steps) below.
 
-By default emsripten `2.0.20` will use an older version of NodeJs (`14.15.0`). It is recommended to use the version of NodeJs used to build the official release to avoid package compatibility or runtime issues. 
-The packages used are not currently compatible with version `18` of NodeJS.
+Emscripten installs its own Node.js runtime. We recommend using the Node.js bundled with your active emsdk to avoid package/runtime mismatches.
 
 Setting the environment variables permanently is also possible, either by adding a `--permanent` flag to the `activate` command, or by sourcing the `emsdk_env` script every time a shell is launched, e.g. by adding the `source` call to `~/.bash_profile` or an equivalent file. Note however, that the environment variables set by the emscripten SDK might override existing system settings, like the default Python, Java or NodeJs version, so setting them permanently might not be desired on all systems.
 
@@ -144,8 +143,40 @@ Functions that handle generic types in C++ via templates are mapped to JavaScrip
 #### Iterators
 MaterialX comes with a number of iterators (e.g. `TreeIterator`, `GraphIterator`). These iterators implement the iterable (and iterator) protocol in JS, and can therefore be used in `for ... of` loops.
 
+#### Memory Management (Embind)
+Objects that originate from C++ (e.g. `Document`, `Node`, `Shader`, `GenContext`) are backed by C++ instances. When you're done with them, explicitly call `.delete()` to release the underlying C++ object. This is especially important for objects returned as smart pointers in C++ (such as elements yielded by iterators or getters), otherwise you may see warnings like "Embind found a leaked C++ instance".
+
+Examples:
+
+```javascript
+// Documents and elements
+const doc = mx.createDocument();
+const node = doc.addNode('image');
+// ... use node ...
+node.delete();
+doc.delete();
+
+// Iterator-yielded elements
+for (const elem of doc.traverseTree()) {
+    // ... use elem ...
+    elem.delete();
+}
+
+// Edges in graph traversal
+for (const edge of output.traverseGraph()) {
+    const up = edge.getUpstreamElement();
+    const conn = edge.getConnectingElement();
+    const down = edge.getDownstreamElement();
+    // ... use them ...
+    up.delete();
+    conn.delete();
+    down.delete();
+    edge.delete();
+}
+```
+
 #### Exception Handling
-When a C++ function throws an exception, this exception will also be thrown by the corresponding JS function. However, you will only get a pointer (i.e. a number in JS) to the C++ exception object in a `try ... catch ...` block, due to some exception handling limitations of emscripten. The helper method `getExceptionMessage` can be used to extract the exception message from that pointer:
+When a C++ function throws an exception, the JS binding throws as well. Depending on the Emscripten version, the caught value may be either a numeric pointer to the C++ exception (legacy) or an exception object (Error-like). Use `getExceptionMessage` on the caught value in both cases:
 
 ```javascript
 const doc = mx.createDocument();
@@ -153,9 +184,9 @@ doc.addNode('category', 'node1');
 
 try {
     doc.addNode('category', 'node1');
-} catch (errPtr) {
-    // typeof errPtr === 'number' yields 'true'
-    console.log(mx.getExceptionMessage(errPtr)); // Prints 'Child name is not unique: node1'
+} catch (err) {
+    // Works with both a numeric pointer and an exception object
+    console.log(mx.getExceptionMessage(err)); // 'Child name is not unique: node1'
 }
 ```
 
@@ -200,6 +231,11 @@ const elem = mx.findRenderableElement(doc);
 const shader = gen.generate(elem.getNamePath(), elem, genContext);
 const fShader = shader.getSourceCode("pixel");    
 const vShader = shader.getSourceCode("vertex");
+// Cleanup when done
+shader.delete();
+stdlib.delete();
+genContext.delete();
+gen.delete();
 ```
 Shader generation options may be changed by getting the options from the context and altering its properties. Changes to these options must occur after the standard libraries have been loaded as the call to `mx.loadStandardLibraries(genContext)` sets the options to some defaults.
 ```javascript

@@ -8,7 +8,7 @@ namespace mx = MaterialX;
 
 EMSCRIPTEN_BINDINGS(xformatUtil)
 {
-  ems::constant("PATH_LIST_SEPARATOR", mx::PATH_LIST_SEPARATOR);
-  ems::constant("MATERIALX_SEARCH_PATH_ENV_VAR", mx::MATERIALX_SEARCH_PATH_ENV_VAR);
+  ems::function("getPathListSeparator", ems::optional_override([](){ return mx::PATH_LIST_SEPARATOR; }));
+  ems::function("getSearchPathEnvVar", ems::optional_override([](){ return mx::MATERIALX_SEARCH_PATH_ENV_VAR; }));
 }
 

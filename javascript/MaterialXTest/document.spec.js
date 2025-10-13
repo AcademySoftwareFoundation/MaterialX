@@ -162,5 +162,27 @@ describe('Document', () =>
         output2.setConnectedNode(null);
         expect(output1.getConnectedNode()).to.equal(null);
         expect(output2.getConnectedNode()).to.equal(null);
+        // Cleanup created wrappers
+        propertySetAssign.delete();
+        propertySet.delete();
+        propertyAssign.delete();
+        variantSet.delete();
+        collection.delete();
+        matAssign2.delete();
+        matAssign1.delete();
+        look.delete();
+        instanceRoughness.delete();
+        shaderNode.delete();
+        materialNode.delete();
+        simpleSrf.delete();
+        output2.delete();
+        output1.delete();
+        custom.delete();
+        color.delete();
+        image.delete();
+        constant.delete();
+        nodeDef.delete();
+        nodeGraph.delete();
+        doc.delete();
     });
 });

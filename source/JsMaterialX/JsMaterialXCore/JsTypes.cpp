@@ -116,23 +116,27 @@ EMSCRIPTEN_BINDINGS(types)
         .class_function("createRotationZ", &mx::Matrix44::createRotationZ)
         .class_property("IDENTITY", &mx::Matrix44::IDENTITY);
 
-    ems::constant("DEFAULT_TYPE_STRING", mx::DEFAULT_TYPE_STRING);
-    ems::constant("FILENAME_TYPE_STRING", mx::FILENAME_TYPE_STRING);
-    ems::constant("GEOMNAME_TYPE_STRING", mx::GEOMNAME_TYPE_STRING);
-    ems::constant("STRING_TYPE_STRING", mx::STRING_TYPE_STRING);
-    ems::constant("SURFACE_SHADER_TYPE_STRING", mx::SURFACE_SHADER_TYPE_STRING);
-    ems::constant("DISPLACEMENT_SHADER_TYPE_STRING", mx::DISPLACEMENT_SHADER_TYPE_STRING);
-    ems::constant("VOLUME_SHADER_TYPE_STRING", mx::VOLUME_SHADER_TYPE_STRING);
-    ems::constant("LIGHT_SHADER_TYPE_STRING", mx::LIGHT_SHADER_TYPE_STRING);
-    ems::constant("MATERIAL_TYPE_STRING", mx::MATERIAL_TYPE_STRING);
-    ems::constant("SURFACE_MATERIAL_NODE_STRING", mx::SURFACE_MATERIAL_NODE_STRING);
-    ems::constant("VOLUME_MATERIAL_NODE_STRING", mx::VOLUME_MATERIAL_NODE_STRING);
-    ems::constant("MULTI_OUTPUT_TYPE_STRING", mx::MULTI_OUTPUT_TYPE_STRING);
-    ems::constant("NONE_TYPE_STRING", mx::NONE_TYPE_STRING);
-    ems::constant("VALUE_STRING_TRUE", mx::VALUE_STRING_TRUE);
-    ems::constant("VALUE_STRING_FALSE", mx::VALUE_STRING_FALSE);
-    ems::constant("NAME_PREFIX_SEPARATOR", mx::NAME_PREFIX_SEPARATOR);
-    ems::constant("NAME_PATH_SEPARATOR", mx::NAME_PATH_SEPARATOR);
-    ems::constant("ARRAY_VALID_SEPARATORS", mx::ARRAY_VALID_SEPARATORS);
-    ems::constant("ARRAY_PREFERRED_SEPARATOR", mx::ARRAY_PREFERRED_SEPARATOR);
+    ems::function("getDefaultTypeString", ems::optional_override([](){ return mx::DEFAULT_TYPE_STRING; }));
+    ems::function("getFilenameTypeString", ems::optional_override([](){ return mx::FILENAME_TYPE_STRING; }));
+    ems::function("getGeomNameTypeString", ems::optional_override([](){ return mx::GEOMNAME_TYPE_STRING; }));
+    ems::function("getStringTypeString", ems::optional_override([](){ return mx::STRING_TYPE_STRING; }));
+    // Provide runtime getters to avoid static init order issues; post.js will assign the public constants from these
+    ems::function("getSurfaceShaderTypeString", ems::optional_override([](){ return mx::SURFACE_SHADER_TYPE_STRING; }));
+    ems::function("getDisplacementShaderTypeString", ems::optional_override([](){ return mx::DISPLACEMENT_SHADER_TYPE_STRING; }));
+    ems::function("getVolumeShaderTypeString", ems::optional_override([](){ return mx::VOLUME_SHADER_TYPE_STRING; }));
+    ems::function("getLightShaderTypeString", ems::optional_override([](){ return mx::LIGHT_SHADER_TYPE_STRING; }));
+    ems::function("getMaterialTypeString", ems::optional_override([](){ return mx::MATERIAL_TYPE_STRING; }));
+    ems::function("getSurfaceMaterialNodeString", ems::optional_override([](){ return mx::SURFACE_MATERIAL_NODE_STRING; }));
+    ems::function("getVolumeMaterialNodeString", ems::optional_override([](){ return mx::VOLUME_MATERIAL_NODE_STRING; }));
+    ems::function("getMultiOutputTypeString", ems::optional_override([](){ return mx::MULTI_OUTPUT_TYPE_STRING; }));
+    ems::function("getNoneTypeString", ems::optional_override([](){ return mx::NONE_TYPE_STRING; }));
+    ems::function("getValueStringTrue", ems::optional_override([](){ return mx::VALUE_STRING_TRUE; }));
+    ems::function("getValueStringFalse", ems::optional_override([](){ return mx::VALUE_STRING_FALSE; }));
+    ems::function("getNamePrefixSeparator", ems::optional_override([](){ return mx::NAME_PREFIX_SEPARATOR; }));
+    // Avoid reading global std::string during static binding; fetch at runtime instead
+    ems::function("getNamePathSeparator", ems::optional_override([]() {
+        return mx::NAME_PATH_SEPARATOR;
+    }));
+    ems::function("getArrayValidSeparators", ems::optional_override([](){ return mx::ARRAY_VALID_SEPARATORS; }));
+    ems::function("getArrayPreferredSeparator", ems::optional_override([](){ return mx::ARRAY_PREFERRED_SEPARATOR; }));
 }
