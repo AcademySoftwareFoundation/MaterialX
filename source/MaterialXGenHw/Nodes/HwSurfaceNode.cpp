@@ -271,6 +271,8 @@ void HwSurfaceNode::emitLightLoop(const ShaderNode& node, GenContext& context, S
         shadergen.emitComment("Accumulate the light's contribution", stage);
         shadergen.emitLine(outColor + " += lightShader.intensity * " + bsdf->getOutput()->getVariable() + ".response", stage);
 
+        shadergen.emitLineBreak(stage);
+
         shadergen.emitComment("Clear shadow factor for next light", stage);
         shadergen.emitLine("occlusion = 1.0", stage);
 
