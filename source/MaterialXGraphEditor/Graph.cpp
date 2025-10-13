@@ -3699,51 +3699,59 @@ void Graph::propertyEditor()
         }
 
         // Find tokens within currUiNode
-        std::vector<mx::TokenPtr> tokens = {};
-        mx::NodePtr node = _currUiNode->getNode();
-        mx::NodeGraphPtr nodegraph = _currUiNode->getNodeGraph();
-
-        // Check local node first
+        mx::ConstNodePtr node = _currUiNode->getNode();
         if (node != nullptr)
         {
-            tokens = node->getActiveTokens();
+            mx::StringResolverPtr resolver = node->createStringResolver();
+            const mx::StringMap& tokens = resolver->getFilenameSubstitutions();
 
-            // Check nodedef if no tokens in local node
-            if (tokens.empty())
+            if (!tokens.empty())
             {
-                mx::NodeDefPtr nodedef = node->getNodeDef();
-                if (nodedef != nullptr)
+                ImGui::Text("Tokens");
+                ImGui::Checkbox("Show all tokens", &_currUiNode->_showAllTokens);
+             
+                int count = _currUiNode->_showAllTokens ? tokens.size() : 1;
+                if (count)
                 {
-                    tokens = nodedef->getActiveTokens();
+                    ImVec2 tableSize(0.0f, TEXT_BASE_HEIGHT * std::min(SCROLL_LINE_COUNT, count));
+                    bool haveTable = ImGui::BeginTable("tokens_node_table", 2, tableFlags, tableSize);
+                    if (haveTable)
+                    {
+                        ImGui::SetWindowFontScale(_fontScale);
+
+                        // Show first token until show all is selected
+                        if (count == 1)
+                        {
+                            ImGui::TableNextRow();
+                            ImGui::TableNextColumn();
+                            ImGui::PushID(&tokens.begin()->first);
+                            ImGui::Text("%s", tokens.begin()->first.c_str());
+                            ImGui::TableNextColumn();
+                            ImGui::Text("%s", tokens.begin()->second.c_str());
+                            ImGui::PopID();
+                        }
+                        else if (_currUiNode->_showAllTokens)
+                        {
+                            for (const auto& [token, value] : tokens)
+                            {
+                               
+                                ImGui::TableNextRow();
+                                ImGui::TableNextColumn();
+                                ImGui::PushID(&token);
+
+                                ImGui::Text("%s", token.c_str());
+                                ImGui::TableNextColumn();
+                                ImGui::Text("%s", value.c_str());
+
+                                ImGui::PopID();
+                            }
+                        }
+
+                        ImGui::EndTable();
+                        ImGui::SetWindowFontScale(1.0f);
+                    }
                 }
             }
-        }
-        else if (nodegraph != nullptr)
-        {
-            // Check nodegraph
-            tokens = nodegraph->getActiveTokens();
-
-            if (tokens.empty())
-            {
-                // Check nodedef if no tokens in nodegraph
-                mx::NodeDefPtr nodedef = nodegraph->getNodeDef();
-                if (nodedef != nullptr)
-                {
-                    tokens = nodedef->getActiveTokens();
-                }
-            }   
-        }
-
-        if (!tokens.empty())
-        {
-            ImGui::Indent();
-            for (auto& token : tokens)
-            {
-                ImGui::Text("%s: ", token->hasAttribute("uiname") ? token->getAttribute("uiname").c_str() : token->getName().c_str());
-                ImGui::SameLine();
-                ImGui::Text("%s", token->getResolvedValueString().c_str());
-            }
-            ImGui::Unindent();
         }
 
         ImGui::PopStyleColor();
