@@ -6,7 +6,7 @@
 #ifndef MATERIALX_SURFACENODEMSL_H
 #define MATERIALX_SURFACENODEMSL_H
 
-#include <MaterialXGenShader/Nodes/HwSurfaceNode.h>
+#include <MaterialXGenHw/Nodes/HwSurfaceNode.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
