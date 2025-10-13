@@ -388,8 +388,8 @@ Note that the standard library includes definitions for [**`displacement`**](./M
 * **`artistic_ior`**: Converts the artistic parameterization reflectivity and edge_color to complex IOR values. To be used with the [&lt;conductor_bsdf>](#node-conductor-bsdf) node.
     * `reflectivity` (color3): Reflectivity per color component at facing angles. Defaults to (0.947, 0.776, 0.371).
     * `edge_color` (color3): Reflectivity per color component at grazing angles. Defaults to (1.0, 0.982, 0.753).
-    * `ior` (**output**, vector3): Computed index of refraction.
-    * `extinction` (**output**, vector3): Computed extinction coefficient.
+    * `ior` (**output**, color3): Computed index of refraction.
+    * `extinction` (**output**, color3): Computed extinction coefficient.
 
 <a id="node-chiang-hair-roughness"> </a>
 

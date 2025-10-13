@@ -11,7 +11,7 @@
 
 #include <MaterialXGenMsl/Export.h>
 
-#include <MaterialXGenShader/HwShaderGenerator.h>
+#include <MaterialXGenHw/HwResourceBindingContext.h>
 
 MATERIALX_NAMESPACE_BEGIN
 

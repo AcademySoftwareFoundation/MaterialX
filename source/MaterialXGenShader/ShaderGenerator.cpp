@@ -285,6 +285,16 @@ bool ShaderGenerator::implementationRegistered(const string& name) const
     return _implFactory.classRegistered(name);
 }
 
+ShaderNodeImplPtr ShaderGenerator::createShaderNodeImplForNodeGraph(const NodeDef& /*nodedef*/) const
+{
+    return CompoundNode::create();
+}
+
+ShaderNodeImplPtr ShaderGenerator::createShaderNodeImplForImplementation(const NodeDef& /*nodedef*/) const
+{
+    return SourceCodeNode::create();
+}
+
 ShaderNodeImplPtr ShaderGenerator::getImplementation(const NodeDef& nodedef, GenContext& context) const
 {
     InterfaceElementPtr implElement = nodedef.getImplementation(getTarget());
@@ -304,7 +314,7 @@ ShaderNodeImplPtr ShaderGenerator::getImplementation(const NodeDef& nodedef, Gen
 
     if (implElement->isA<NodeGraph>())
     {
-        impl = CompoundNode::create();
+        impl = createShaderNodeImplForNodeGraph(nodedef);
     }
     else if (implElement->isA<Implementation>())
     {
@@ -319,7 +329,7 @@ ShaderNodeImplPtr ShaderGenerator::getImplementation(const NodeDef& nodedef, Gen
         }
         if (!impl)
         {
-            impl = SourceCodeNode::create();
+            impl = createShaderNodeImplForImplementation(nodedef);
         }
     }
     if (!impl)
