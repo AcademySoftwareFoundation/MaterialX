@@ -2,8 +2,6 @@
 
 vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 alpha, int distribution, FresnelData fd)
 {
-    if ($envRadianceSamples == 0)
-        return vec3(0.0);
     // Generate tangent frame.
     X = normalize(X - dot(X, N) * N);
     vec3 Y = cross(N, X);
@@ -61,7 +59,7 @@ vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 alpha, int distributio
     radiance /= G1V * float(envRadianceSamples);
 
     // Return the final radiance.
-    return radiance * $envLightIntensity;
+    return ($envRadianceSamples == 0 ? vec3(0.0) : radiance) * $envLightIntensity;
 }
 
 vec3 mx_environment_irradiance(vec3 N)
