@@ -5,8 +5,6 @@
 
 #include <MaterialXGenShader/Util.h>
 
-#include <MaterialXGenShader/HwShaderGenerator.h>
-
 MATERIALX_NAMESPACE_BEGIN
 
 /// Gaussian kernel weights for different kernel sizes.
