@@ -13,7 +13,7 @@
 #import <Metal/Metal.h>
 id<MTLDevice> device = nil;
 
-void CompileMslShader(const char* pShaderFilePath, const char* pEntryFuncName)
+void CompileMslShader(const char* pShaderFilePath, const char* /*pEntryFuncName*/)
 {
     NSError* _Nullable error = nil;
     if(device == nil)
