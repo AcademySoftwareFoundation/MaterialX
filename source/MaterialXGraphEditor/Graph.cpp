@@ -3697,7 +3697,7 @@ void Graph::propertyEditor()
             }
             ImGui::Checkbox("Show all inputs", &_currUiNode->_showAllInputs);
         }
-
+      
         // Find tokens within currUiNode
         mx::ConstNodePtr node = _currUiNode->getNode();
         if (node != nullptr)
@@ -3710,7 +3710,19 @@ void Graph::propertyEditor()
                 ImGui::Text("Tokens");
                 ImGui::Checkbox("Show all tokens", &_currUiNode->_showAllTokens);
              
-                int count = _currUiNode->_showAllTokens ? tokens.size() : 1;
+                // Determine how many tokens to show in UI
+                int count = 0;
+                for (const auto& token: tokens)
+                {
+                    if (_currUiNode->_showAllTokens)
+                    {
+                        count++;
+                    }
+                    else
+                    {
+                        count = 1;
+                    }
+                }
                 if (count)
                 {
                     ImVec2 tableSize(0.0f, TEXT_BASE_HEIGHT * std::min(SCROLL_LINE_COUNT, count));
