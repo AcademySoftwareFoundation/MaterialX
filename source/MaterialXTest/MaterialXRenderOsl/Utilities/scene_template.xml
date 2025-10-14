@@ -1,6 +1,9 @@
 <!-- Template for a lit scene in testrender -->
 <World>
-   <Camera eye="0, 0, 3" dir="0, 0, -1" fov="79.334" />
+   <!-- The camera FOV is compensated for [-0.5, 0.5] screen coordinates,
+        and matches a 45 degree FOV with [-1, 1] screen coordinates.
+        FOV = atan(2 * tan(45 * PI/360)) * 360/PI = 79.27854 -->
+   <Camera eye="0, 0, 3" dir="0, 0, -1" fov="79.27854" />
 
    <!-- Background environment map. -->
    <ShaderGroup>

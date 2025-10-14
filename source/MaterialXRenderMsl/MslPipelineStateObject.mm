@@ -10,8 +10,8 @@
 #include <MaterialXRender/LightHandler.h>
 #include <MaterialXRender/ShaderRenderer.h>
 
-#include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenMsl/MslShaderGenerator.h>
+#include <MaterialXGenHw/HwConstants.h>
 #include <MaterialXGenShader/Util.h>
 
 #include <iostream>
@@ -325,7 +325,7 @@ bool MslProgram::bind(id<MTLRenderCommandEncoder> renderCmdEncoder)
 
 void MslProgram::prepareUsedResources(id<MTLRenderCommandEncoder> renderCmdEncoder,
                                       CameraPtr cam,
-                                      GeometryHandlerPtr geometryHandler,
+                                      GeometryHandlerPtr /*geometryHandler*/,
                                       ImageHandlerPtr imageHandler,
                                       LightHandlerPtr lightHandler)
 {

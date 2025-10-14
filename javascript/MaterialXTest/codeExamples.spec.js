@@ -76,6 +76,12 @@ describe('Code Examples', () =>
 
         // // Validate the value of roughness in the context of this material.
         // expect(roughness.getBoundValue(material).getValueString()).to.equal('0.5');
+        // Cleanup wrappers
+        nodeDefs.forEach(nd => nd.delete());
+        output.delete();
+        image.delete();
+        nodeGraph.delete();
+        doc.delete();
     });
 
     it('Traversing a Document Tree', async () =>
@@ -101,6 +107,7 @@ describe('Code Examples', () =>
             }
         }
         expect(imageCount).to.greaterThan(0);
+        doc.delete();
     });
 
     it('Building a MaterialX Document', async () =>
@@ -133,5 +140,6 @@ describe('Code Examples', () =>
 
         // expect(materialCount).to.equal(0);
         // expect(shaderInputCount).to.equal(0);
+        doc.delete();
     });
 });

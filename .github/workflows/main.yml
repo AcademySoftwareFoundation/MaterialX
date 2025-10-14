@@ -309,15 +309,15 @@ jobs:
       run: |
         git clone https://github.com/emscripten-core/emsdk --recursive
         cd emsdk
-        ./emsdk install 2.0.20
-        ./emsdk activate 2.0.20
+        ./emsdk install 4.0.8
+        ./emsdk activate 4.0.8
         source ./emsdk_env.sh
         echo "EMSDK=$EMSDK" >> $GITHUB_ENV
 
     - name: Install Node
       uses: actions/setup-node@v4
       with:
-         node-version: '16'
+         node-version: '22.16.0'
 
     - name: JavaScript CMake Generate
       run: cmake -S . -B javascript/build -DMATERIALX_BUILD_JS=ON -DMATERIALX_EMSDK_PATH=${{ env.EMSDK }}
