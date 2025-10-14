@@ -7,7 +7,7 @@
 
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/GenUserData.h>
-#include <MaterialXGenShader/HwShaderGenerator.h>
+#include <MaterialXGenHw/HwShaderGenerator.h>
 
 namespace py = pybind11;
 namespace mx = MaterialX;
