@@ -11,7 +11,7 @@
 
 #include <MaterialXRenderHw/SimpleWindow.h>
 #include <MaterialXRender/TinyObjLoader.h>
-#include <MaterialXGenShader/HwShaderGenerator.h>
+#include <MaterialXGenHw/HwConstants.h>
 
 MATERIALX_NAMESPACE_BEGIN
 

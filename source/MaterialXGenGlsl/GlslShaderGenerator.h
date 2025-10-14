@@ -11,7 +11,8 @@
 
 #include <MaterialXGenGlsl/Export.h>
 
-#include <MaterialXGenShader/HwShaderGenerator.h>
+#include <MaterialXGenHw/HwResourceBindingContext.h>
+#include <MaterialXGenHw/HwShaderGenerator.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -48,10 +49,6 @@ class MX_GENGLSL_API GlslShaderGenerator : public HwShaderGenerator
     /// Emit a shader variable.
     void emitVariableDeclaration(const ShaderPort* variable, const string& qualifier, GenContext& context, ShaderStage& stage,
                                  bool assignValue = true) const override;
-
-    /// Return a registered shader node implementation given an implementation element.
-    /// The element must be an Implementation or a NodeGraph acting as implementation.
-    ShaderNodeImplPtr getImplementation(const NodeDef& nodedef, GenContext& context) const override;
 
     /// Determine the prefix of vertex data variables.
     string getVertexDataPrefix(const VariableBlock& vertexData) const override;

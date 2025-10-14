@@ -81,6 +81,7 @@ class MX_GENSHADER_API GenOptions
         addUpstreamDependencies(true),
         libraryPrefix("libraries"),
         emitColorTransforms(true),
+        elideConstantNodes(true),
         hwTransparency(false),
         hwSpecularEnvironmentMethod(SPECULAR_ENVIRONMENT_FIS),
         hwDirectionalAlbedoMethod(DIRECTIONAL_ALBEDO_ANALYTIC),
@@ -134,6 +135,9 @@ class MX_GENSHADER_API GenOptions
     /// Enable emitting colorspace transform code if a color management
     /// system is defined. Defaults to true.
     bool emitColorTransforms;
+
+    /// Enable eliding constant nodes. Defaults to true.
+    bool elideConstantNodes;
 
     /// Sets if transparency is needed or not for HW shaders.
     /// If a surface shader has potential of being transparent

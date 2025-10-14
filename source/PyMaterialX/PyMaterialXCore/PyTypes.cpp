@@ -16,58 +16,74 @@ namespace mx = MaterialX;
 
 using IndexPair = std::pair<size_t, size_t>;
 
-#define BIND_VECTOR_SUBCLASS(V, N)                      \
-.def(py::init<>())                                      \
-.def(py::init<float>())                                 \
-.def(py::init<const std::array<float, N>&>())           \
-.def(py::init<const std::vector<float>&>())             \
-.def(py::self == py::self)                              \
-.def(py::self != py::self)                              \
-.def(py::self + py::self)                               \
-.def(py::self - py::self)                               \
-.def(py::self * py::self)                               \
-.def(py::self / py::self)                               \
-.def(py::self * float())                                \
-.def(py::self / float())                                \
-.def("getMagnitude", &V::getMagnitude)                  \
-.def("getNormalized", &V::getNormalized)                \
-.def("dot", &V::dot)                                    \
-.def("__getitem__", [](const V& v, size_t i)            \
-    { return v[i]; } )                                  \
-.def("__setitem__", [](V& v, size_t i, float f)         \
-    { v[i] = f; } )                                     \
-.def("__str__", [](const V& v)                          \
-    { return mx::toValueString(v); })                   \
-.def("copy", [](const V& v) { return V(v); })           \
+#define BIND_VECTOR_SUBCLASS(V, N)                                                                             \
+.def(py::init<>())                                                                                             \
+.def(py::init<float>())                                                                                        \
+.def(py::init<const std::array<float, N>&>())                                                                  \
+.def(py::init<const std::vector<float>&>())                                                                    \
+.def(py::self == py::self)                                                                                     \
+.def(py::self != py::self)                                                                                     \
+.def(py::self + py::self)                                                                                      \
+.def(-py::self)                                                                                                \
+.def(+py::self)                                                                                                \
+.def("__iadd__", (&V::operator+=), py::return_value_policy::reference_internal)                                \
+.def(py::self - py::self)                                                                                      \
+.def("__isub__", (&V::operator-=), py::return_value_policy::reference_internal)                                \
+.def(py::self * py::self)                                                                                      \
+.def("__imul__", py::overload_cast<const V&>(&V::operator*=), py::return_value_policy::reference_internal)     \
+.def("__imul__", py::overload_cast<float>(&V::operator*=), py::return_value_policy::reference_internal)        \
+.def(py::self / py::self)                                                                                      \
+.def("__itruediv__", py::overload_cast<const V&>(&V::operator/=), py::return_value_policy::reference_internal) \
+.def("__itruediv__", py::overload_cast<float>(&V::operator/=), py::return_value_policy::reference_internal)    \
+.def(py::self * float())                                                                                       \
+.def(py::self / float())                                                                                       \
+.def("getMagnitude", &V::getMagnitude)                                                                         \
+.def("getNormalized", &V::getNormalized)                                                                       \
+.def("dot", &V::dot)                                                                                           \
+.def("__getitem__", [](const V& v, size_t i)                                                                   \
+    { return v[i]; } )                                                                                         \
+.def("__setitem__", [](V& v, size_t i, float f)                                                                \
+    { v[i] = f; } )                                                                                            \
+.def("__str__", [](const V& v)                                                                                 \
+    { return mx::toValueString(v); })                                                                          \
+.def("copy", [](const V& v) { return V(v); })                                                                  \
 .def_static("__len__", &V::numElements)
 
-#define BIND_MATRIX_SUBCLASS(M, N)                      \
-.def(py::init<>())                                      \
-.def(py::init<float>())                                 \
-.def(py::self == py::self)                              \
-.def(py::self != py::self)                              \
-.def(py::self + py::self)                               \
-.def(py::self - py::self)                               \
-.def(py::self * py::self)                               \
-.def(py::self / py::self)                               \
-.def(py::self * float())                                \
-.def(py::self / float())                                \
-.def("__getitem__", [](const M& m, IndexPair i)         \
-    { return m[i.first][i.second]; } )                  \
-.def("__setitem__", [](M& m, IndexPair i, float f)      \
-    { m[i.first][i.second] = f; })                      \
-.def("__str__", [](const M& m)                          \
-    { return mx::toValueString(m); })                   \
-.def("copy", [](const M& m) { return M(m); })           \
-.def("isEquivalent", &M::isEquivalent)                  \
-.def("getTranspose", &M::getTranspose)                  \
-.def("getDeterminant", &M::getDeterminant)              \
-.def("getAdjugate", &M::getAdjugate)                    \
-.def("getInverse", &M::getInverse)                      \
-.def_static("createScale", &M::createScale)             \
-.def_static("createTranslation", &M::createTranslation) \
-.def_static("numRows", &M::numRows)                     \
-.def_static("numColumns", &M::numColumns)               \
+#define BIND_MATRIX_SUBCLASS(M, N)                                                                             \
+.def(py::init<>())                                                                                             \
+.def(py::init<float>())                                                                                        \
+.def(py::self == py::self)                                                                                     \
+.def(py::self != py::self)                                                                                     \
+.def(py::self + py::self)                                                                                      \
+.def(-py::self)                                                                                                \
+.def(+py::self)                                                                                                \
+.def("__iadd__", (&M::operator+=), py::return_value_policy::reference_internal)                                \
+.def(py::self - py::self)                                                                                      \
+.def("__isub__", (&M::operator-=), py::return_value_policy::reference_internal)                                \
+.def(py::self * py::self)                                                                                      \
+.def("__imul__", py::overload_cast<float>(&M::operator*=), py::return_value_policy::reference_internal)        \
+.def("__imul__", py::overload_cast<const M&>(&M::operator*=), py::return_value_policy::reference_internal)     \
+.def(py::self / py::self)                                                                                      \
+.def("__itruediv__", py::overload_cast<float>(&M::operator/=), py::return_value_policy::reference_internal)    \
+.def("__itruediv__", py::overload_cast<const M&>(&M::operator/=), py::return_value_policy::reference_internal) \
+.def(py::self * float())                                                                                       \
+.def(py::self / float())                                                                                       \
+.def("__getitem__", [](const M& m, IndexPair i)                                                                \
+    { return m[i.first][i.second]; } )                                                                         \
+.def("__setitem__", [](M& m, IndexPair i, float f)                                                             \
+    { m[i.first][i.second] = f; })                                                                             \
+.def("__str__", [](const M& m)                                                                                 \
+    { return mx::toValueString(m); })                                                                          \
+.def("copy", [](const M& m) { return M(m); })                                                                  \
+.def("isEquivalent", &M::isEquivalent)                                                                         \
+.def("getTranspose", &M::getTranspose)                                                                         \
+.def("getDeterminant", &M::getDeterminant)                                                                     \
+.def("getAdjugate", &M::getAdjugate)                                                                           \
+.def("getInverse", &M::getInverse)                                                                             \
+.def_static("createScale", &M::createScale)                                                                    \
+.def_static("createTranslation", &M::createTranslation)                                                        \
+.def_static("numRows", &M::numRows)                                                                            \
+.def_static("numColumns", &M::numColumns)                                                                      \
 .def_static("__len__", &M::numRows)
 
 void bindPyTypes(py::module& mod)
