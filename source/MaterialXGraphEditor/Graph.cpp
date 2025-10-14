@@ -3711,18 +3711,7 @@ void Graph::propertyEditor()
                 ImGui::Checkbox("Show all tokens", &_currUiNode->_showAllTokens);
              
                 // Determine how many tokens to show in UI
-                int count = 0;
-                for (const auto& token: tokens)
-                {
-                    if (_currUiNode->_showAllTokens)
-                    {
-                        count++;
-                    }
-                    else
-                    {
-                        count = 1;
-                    }
-                }
+                int count = _currUiNode->_showAllTokens ? static_cast<int>(tokens.size()) : 1;
                 if (count)
                 {
                     ImVec2 tableSize(0.0f, TEXT_BASE_HEIGHT * std::min(SCROLL_LINE_COUNT, count));
