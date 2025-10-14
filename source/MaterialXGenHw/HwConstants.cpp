@@ -4,6 +4,7 @@
 //
 
 #include "HwConstants.h"
+
 #include <MaterialXGenShader/TypeDesc.h>
 
 MATERIALX_NAMESPACE_BEGIN

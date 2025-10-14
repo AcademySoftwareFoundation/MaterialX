@@ -7,6 +7,7 @@
 
 #include <MaterialXGenHw/HwConstants.h>
 #include <MaterialXGenHw/HwShaderGenerator.h>
+
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
 
@@ -56,7 +57,7 @@ void HwLightNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
         shadergen.emitLineBreak(stage);
 
         const ShaderInput* edfInput = node.getInput("edf");
-        const ShaderNode* edf = edfInput->getConnectedSibling();
+        const ShaderNode* edf       = edfInput->getConnectedSibling();
         if (edf)
         {
 
@@ -70,7 +71,7 @@ void HwLightNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
             shadergen.emitLine("result.intensity = " + edf->getOutput()->getVariable() + " / (distance * distance)", stage);
 
             const ShaderInput* intensity = node.getInput("intensity");
-            const ShaderInput* exposure = node.getInput("exposure");
+            const ShaderInput* exposure  = node.getInput("exposure");
 
             shadergen.emitLineBegin(stage);
             shadergen.emitString("result.intensity *= ", stage);

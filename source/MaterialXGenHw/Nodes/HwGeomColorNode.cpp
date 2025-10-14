@@ -7,6 +7,7 @@
 
 #include <MaterialXGenHw/HwConstants.h>
 #include <MaterialXGenHw/HwShaderGenerator.h>
+
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
 
@@ -20,10 +21,10 @@ ShaderNodeImplPtr HwGeomColorNode::create()
 void HwGeomColorNode::createVariables(const ShaderNode& node, GenContext&, Shader& shader) const
 {
     const ShaderInput* indexInput = node.getInput(INDEX);
-    const string index = indexInput ? indexInput->getValue()->getValueString() : "0";
+    const string index            = indexInput ? indexInput->getValue()->getValueString() : "0";
 
-    ShaderStage& vs = shader.getStage(Stage::VERTEX);
-    ShaderStage& ps = shader.getStage(Stage::PIXEL);
+    ShaderStage& vs               = shader.getStage(Stage::VERTEX);
+    ShaderStage& ps               = shader.getStage(Stage::PIXEL);
     addStageInput(HW::VERTEX_INPUTS, Type::COLOR4, HW::T_IN_COLOR + "_" + index, vs);
     addStageConnector(HW::VERTEX_DATA, Type::COLOR4, HW::T_COLOR + "_" + index, vs, ps);
 }
@@ -32,16 +33,16 @@ void HwGeomColorNode::emitFunctionCall(const ShaderNode& node, GenContext& conte
 {
     const HwShaderGenerator& shadergen = static_cast<const HwShaderGenerator&>(context.getShaderGenerator());
 
-    const ShaderOutput* output = node.getOutput();
-    const ShaderInput* indexInput = node.getInput(INDEX);
-    string index = indexInput ? indexInput->getValue()->getValueString() : "0";
-    string variable = HW::T_COLOR + "_" + index;
+    const ShaderOutput* output         = node.getOutput();
+    const ShaderInput* indexInput      = node.getInput(INDEX);
+    string index                       = indexInput ? indexInput->getValue()->getValueString() : "0";
+    string variable                    = HW::T_COLOR + "_" + index;
 
     DEFINE_SHADER_STAGE(stage, Stage::VERTEX)
     {
         VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
-        const string prefix = shadergen.getVertexDataPrefix(vertexData);
-        ShaderPort* color = vertexData[variable];
+        const string prefix       = shadergen.getVertexDataPrefix(vertexData);
+        ShaderPort* color         = vertexData[variable];
         if (!color->isEmitted())
         {
             color->setEmitted();
@@ -61,8 +62,8 @@ void HwGeomColorNode::emitFunctionCall(const ShaderNode& node, GenContext& conte
             suffix = ".rgb";
         }
         VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
-        const string prefix = shadergen.getVertexDataPrefix(vertexData);
-        ShaderPort* color = vertexData[variable];
+        const string prefix       = shadergen.getVertexDataPrefix(vertexData);
+        ShaderPort* color         = vertexData[variable];
         shadergen.emitLineBegin(stage);
         shadergen.emitOutput(node.getOutput(), true, false, context, stage);
         shadergen.emitString(" = " + prefix + color->getVariable() + suffix, stage);

@@ -7,6 +7,7 @@
 
 #include <MaterialXGenHw/HwConstants.h>
 #include <MaterialXGenHw/HwLightShaders.h>
+
 #include <MaterialXGenShader/GenContext.h>
 
 MATERIALX_NAMESPACE_BEGIN

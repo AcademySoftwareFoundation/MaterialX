@@ -7,6 +7,7 @@
 #define MATERIALX_HWTEXCOORDNODE_H
 
 #include <MaterialXGenHw/Export.h>
+
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 
 MATERIALX_NAMESPACE_BEGIN

@@ -7,6 +7,7 @@
 
 #include <MaterialXGenHw/HwConstants.h>
 #include <MaterialXGenHw/HwShaderGenerator.h>
+
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
 
@@ -52,8 +53,8 @@ void HwSurfaceNode::emitFunctionCall(const ShaderNode& node, GenContext& context
     DEFINE_SHADER_STAGE(stage, Stage::VERTEX)
     {
         VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
-        const string prefix = shadergen.getVertexDataPrefix(vertexData);
-        ShaderPort* position = vertexData[HW::T_POSITION_WORLD];
+        const string prefix       = shadergen.getVertexDataPrefix(vertexData);
+        ShaderPort* position      = vertexData[HW::T_POSITION_WORLD];
         if (!position->isEmitted())
         {
             position->setEmitted();
@@ -79,7 +80,7 @@ void HwSurfaceNode::emitFunctionCall(const ShaderNode& node, GenContext& context
     DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
     {
         VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
-        const string prefix = shadergen.getVertexDataPrefix(vertexData);
+        const string prefix       = shadergen.getVertexDataPrefix(vertexData);
 
         // Declare the output variable
         const ShaderOutput* output = node.getOutput();
@@ -96,7 +97,7 @@ void HwSurfaceNode::emitFunctionCall(const ShaderNode& node, GenContext& context
         shadergen.emitLine("float occlusion = 1.0", stage);
         shadergen.emitLineBreak(stage);
 
-        const string outColor = output->getVariable() + ".color";
+        const string outColor        = output->getVariable() + ".color";
         const string outTransparency = output->getVariable() + ".transparency";
 
         const ShaderInput* bsdfInput = node.getInput("bsdf");
@@ -235,11 +236,11 @@ void HwSurfaceNode::emitLightLoop(const ShaderNode& node, GenContext& context, S
     if (context.getOptions().hwMaxActiveLightSources > 0)
     {
         const HwShaderGenerator& shadergen = static_cast<const HwShaderGenerator&>(context.getShaderGenerator());
-        const VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
-        const string prefix = shadergen.getVertexDataPrefix(vertexData);
+        const VariableBlock& vertexData    = stage.getInputBlock(HW::VERTEX_DATA);
+        const string prefix                = shadergen.getVertexDataPrefix(vertexData);
 
-        const ShaderInput* bsdfInput = node.getInput("bsdf");
-        const ShaderNode* bsdf = bsdfInput->getConnectedSibling();
+        const ShaderInput* bsdfInput       = node.getInput("bsdf");
+        const ShaderNode* bsdf             = bsdfInput->getConnectedSibling();
 
         shadergen.emitComment("Light loop", stage);
         shadergen.emitLine("int numLights = numActiveLightSources()", stage);

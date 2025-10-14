@@ -10,7 +10,7 @@
 
 MATERIALX_NAMESPACE_BEGIN
 // Additional implementation arguments for image nodes
-const string UV_SCALE = "uv_scale";
+const string UV_SCALE  = "uv_scale";
 const string UV_OFFSET = "uv_offset";
 
 ShaderNodeImplPtr HwImageNode::create()

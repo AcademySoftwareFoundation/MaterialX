@@ -7,6 +7,7 @@
 
 #include <MaterialXGenHw/HwConstants.h>
 #include <MaterialXGenHw/HwShaderGenerator.h>
+
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
 
@@ -25,7 +26,7 @@ void HwPositionNode::createVariables(const ShaderNode& node, GenContext&, Shader
     addStageInput(HW::VERTEX_INPUTS, Type::VECTOR3, HW::T_IN_POSITION, vs);
 
     const ShaderInput* spaceInput = node.getInput(SPACE);
-    const int space = spaceInput ? spaceInput->getValue()->asA<int>() : OBJECT_SPACE;
+    const int space               = spaceInput ? spaceInput->getValue()->asA<int>() : OBJECT_SPACE;
     if (space == WORLD_SPACE)
     {
         addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, HW::T_POSITION_WORLD, vs, ps);
@@ -40,13 +41,13 @@ void HwPositionNode::emitFunctionCall(const ShaderNode& node, GenContext& contex
 {
     const HwShaderGenerator& shadergen = static_cast<const HwShaderGenerator&>(context.getShaderGenerator());
 
-    const ShaderInput* spaceInput = node.getInput(SPACE);
-    const int space = spaceInput ? spaceInput->getValue()->asA<int>() : OBJECT_SPACE;
+    const ShaderInput* spaceInput      = node.getInput(SPACE);
+    const int space                    = spaceInput ? spaceInput->getValue()->asA<int>() : OBJECT_SPACE;
 
     DEFINE_SHADER_STAGE(stage, Stage::VERTEX)
     {
         VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
-        const string prefix = shadergen.getVertexDataPrefix(vertexData);
+        const string prefix       = shadergen.getVertexDataPrefix(vertexData);
         if (space == WORLD_SPACE)
         {
             ShaderPort* position = vertexData[HW::T_POSITION_WORLD];
@@ -70,7 +71,7 @@ void HwPositionNode::emitFunctionCall(const ShaderNode& node, GenContext& contex
     DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
     {
         VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
-        const string prefix = shadergen.getVertexDataPrefix(vertexData);
+        const string prefix       = shadergen.getVertexDataPrefix(vertexData);
         shadergen.emitLineBegin(stage);
         shadergen.emitOutput(node.getOutput(), true, false, context, stage);
         if (space == WORLD_SPACE)

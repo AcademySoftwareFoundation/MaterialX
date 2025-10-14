@@ -7,8 +7,8 @@
 #define MATERIALX_HWTRANSFORMNODE_H
 
 #include <MaterialXGenHw/Export.h>
-
 #include <MaterialXGenHw/HwConstants.h>
+
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 
 MATERIALX_NAMESPACE_BEGIN
@@ -24,7 +24,7 @@ class MX_GENHW_API HwTransformNode : public ShaderNodeImpl
     virtual const string& getMatrix(const string& fromSpace, const string& toSpace) const;
     virtual const string& getModelToWorldMatrix() const = 0;
     virtual const string& getWorldToModelMatrix() const = 0;
-    virtual string getHomogeneousCoordinate() const = 0;
+    virtual string getHomogeneousCoordinate() const     = 0;
     virtual bool shouldNormalize() const { return false; }
 
     virtual string getFromSpace(const ShaderNode&) const;
