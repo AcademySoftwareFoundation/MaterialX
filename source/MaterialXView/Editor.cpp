@@ -712,119 +712,32 @@ void PropertyEditor::updateContents(Viewer* viewer)
         }
     }
 
-    std::vector<mx::TokenPtr> tokens = {};
-    mx::InterfaceElementPtr source = node;
-
-    if (node)
+    mx::StringResolverPtr resolver = elem->createStringResolver();
+    if (node != nullptr)
     {
         // Find tokens upstream of Material
         for (mx::Edge edge : node->traverseGraph())
         {
-            tokens = edge.getUpstreamElement()->asA<mx::InterfaceElement>()->getActiveTokens();
-            source = edge.getUpstreamElement()->asA<mx::InterfaceElement>();
-
-            if (tokens.empty())
+            if (edge.getUpstreamElement())
             {
-                // Check nodedef
-                mx::NodeDefPtr nodedef = source->asA<mx::Node>()->getNodeDef();
-                if (nodedef != nullptr)
-                {
-                    tokens = nodedef->getActiveTokens();
-                    source = nodedef;
-                }
-                
-                // Check nodegraph
-                if (tokens.empty())
-                {
-                    if (edge.getUpstreamElement()->getParent() != nullptr)
-                    {
-                        mx::NodeGraphPtr nodegraph = edge.getUpstreamElement()->getParent()->asA<mx::NodeGraph>();
-                        if (nodegraph != nullptr)
-                        {
-                            tokens = nodegraph->getActiveTokens();
-                            source = nodegraph;
-                        }
-                    }
-                }
+                resolver->addTokenSubstitutions(edge.getUpstreamElement()->asA<mx::Element>());
             }
-        }
-    }
-    else if (elem->getParent() != nullptr)
-    {
-        // If not node, check nodegraph and nodedef of material, if possible
-        mx::NodeGraphPtr nodegraph = elem->getParent()->asA<mx::NodeGraph>();
-        if (nodegraph != nullptr)
-        {
-            tokens = nodegraph->getActiveTokens();
-            source = nodegraph;
-
-            if (tokens.empty())
-            {
-                // Only check children of nodegraph if nodegraph doesn't have tokens
-                for (auto& childNode : nodegraph->getNodes())
-                {
-                    bool childHasTokens = !childNode->getActiveTokens().empty();
-                    if (childHasTokens)
-                    {
-                        source = childNode;
-                    }
-                    
-                    mx::NodeDefPtr childNodeDef = childNode->getNodeDef();
-                    if (!childHasTokens && childNodeDef != nullptr)
-                    {
-                        childHasTokens = !childNodeDef->getActiveTokens().empty();
-                        if (childHasTokens)
-                        {
-                            source = childNodeDef;
-                        }
-                    }
-
-                    if (childHasTokens)
-                    {
-                        for (auto& childToken : source->getActiveTokens())
-                        {
-                            tokens.push_back(childToken);
-                        }
-                    }
-                }
-            }
-
-            if (tokens.empty())
-            {
-                // Check nodegraph's nodedef
-                mx::NodeDefPtr nodedef = nodegraph->getNodeDef();
-                if (nodedef != nullptr)
-                {
-                    tokens = nodedef->getActiveTokens();
-                    source = nodedef;
-                }
-            }
-        }
+        }   
     }
 
-    if (!tokens.empty())
+    const mx::StringMap& tokensMap = resolver->getFilenameSubstitutions();
+    if (!tokensMap.empty())
     {
-        std::string tokensSize = std::to_string(tokens.size());
-        ng::ref<ng::Label> tokenLabel = new ng::Label(_container, "Tokens: " + tokensSize);
+        ng::ref<ng::Label> tokenLabel = new ng::Label(_container, "Tokens");
         tokenLabel->set_font_size(20);
         tokenLabel->set_font("sans-bold");
 
-        if (source != nullptr)
-        {
-            std::string sourceCategory = source->getCategory();
-            if (sourceCategory == source->getName())
-            {
-                sourceCategory = "node";
-            }
-            new ng::Label(_container, "Tokens Source: " + sourceCategory + " " + source->getName());
-        }
-
         ng::ref<ng::Widget> tokensGroup = new ng::Widget(_container);
         tokensGroup->set_layout(new ng::GroupLayout(5, 0, 0, 20));
-        for (auto& token : tokens)
+
+        for (const auto& [token, value] : tokensMap)
         {
-            std::string tokenName = token->hasAttribute("uiname") ? token->getAttribute("uiname") : token->getName();
-            new ng::Label(tokensGroup, tokenName + ": " + token->getResolvedValueString());
+            new ng::Label(tokensGroup, token + ": " + value);
         }
     }
 
