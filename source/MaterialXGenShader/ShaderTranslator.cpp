@@ -19,7 +19,7 @@ void ShaderTranslator::connectTranslationInputs(NodePtr shader, NodeDefPtr trans
     std::set<OutputPtr> origOutputs;
     for (InputPtr shaderInput : origInputs)
     {
-        if (translationNodeDef->getInput(shaderInput->getName()))
+        if (translationNodeDef->getActiveInput(shaderInput->getName()))
         {
             InputPtr input = _translationNode->addInput(shaderInput->getName(), shaderInput->getType());
 
@@ -85,7 +85,7 @@ void ShaderTranslator::connectTranslationOutputs(NodePtr shader)
     }
 
     // Iterate through outputs of the translation graph.
-    for (OutputPtr translationGraphOutput : nodeDef->getOutputs())
+    for (OutputPtr translationGraphOutput : nodeDef->getActiveOutputs())
     {
         // Convert output name to input name, using a hardcoded naming convention for now.
         string outputName = translationGraphOutput->getName();
