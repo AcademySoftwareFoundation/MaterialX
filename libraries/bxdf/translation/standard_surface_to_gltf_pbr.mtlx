@@ -42,6 +42,7 @@
     <output name="normal_out" type="vector3" />
     <output name="tangent_out" type="vector3" />
     <output name="alpha_out" type="float" />
+    <output name="alpha_mode_out" type="integer" />
   </nodedef>
 
   <nodegraph name="NG_standard_surface_to_gltf_pbr" nodedef="ND_standard_surface_to_gltf_pbr">
@@ -225,6 +226,13 @@
       <input name="index" type="integer" value="0" />
     </extract>
 
+    <ifequal name="alpha_mode_from_opacity_luminance" type="integer">
+      <input name="value1" type="float" nodename="opacity_luminance_float" />
+      <input name="value2" type="float" value="1.0" />
+      <input name="in1" type="integer" value="0" />
+      <input name="in2" type="integer" value="2" />
+    </ifequal>
+
     <output name="base_color_out" type="color3" nodename="base_color" />
     <output name="metallic_out" type="float" nodename="metallic" />
     <output name="roughness_out" type="float" nodename="roughness" />
@@ -243,6 +251,7 @@
     <output name="normal_out" type="vector3" nodename="normal" />
     <output name="tangent_out" type="vector3" nodename="tangent" />
     <output name="alpha_out" type="float" nodename="opacity_luminance_float" />
+    <output name="alpha_mode_out" type="integer" nodename="alpha_mode_from_opacity_luminance" />
 
   </nodegraph>
 </materialx>
