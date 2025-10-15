@@ -4,28 +4,30 @@
 //
 
 #include <MaterialXGenMsl/MslShaderGenerator.h>
-
 #include <MaterialXGenMsl/MslSyntax.h>
 
+#include <MaterialXGenHw/HwLightShaders.h>
+#include <MaterialXGenHw/Nodes/HwImageNode.h>
+#include <MaterialXGenHw/Nodes/HwGeomColorNode.h>
+#include <MaterialXGenHw/Nodes/HwGeomPropValueNode.h>
+#include <MaterialXGenHw/Nodes/HwTexCoordNode.h>
+#include <MaterialXGenHw/Nodes/HwTransformNode.h>
+#include <MaterialXGenHw/Nodes/HwPositionNode.h>
+#include <MaterialXGenHw/Nodes/HwNormalNode.h>
+#include <MaterialXGenHw/Nodes/HwTangentNode.h>
+#include <MaterialXGenHw/Nodes/HwBitangentNode.h>
+#include <MaterialXGenHw/Nodes/HwFrameNode.h>
+#include <MaterialXGenHw/Nodes/HwTimeNode.h>
+#include <MaterialXGenHw/Nodes/HwViewDirectionNode.h>
+#include <MaterialXGenHw/Nodes/HwLightNode.h>
+#include <MaterialXGenHw/Nodes/HwLightSamplerNode.h>
+#include <MaterialXGenHw/Nodes/HwLightShaderNode.h>
+#include <MaterialXGenHw/Nodes/HwNumLightsNode.h>
+#include <MaterialXGenHw/Nodes/HwSurfaceNode.h>
+
+#include <MaterialXGenShader/GenContext.h>
+#include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/Nodes/MaterialNode.h>
-#include <MaterialXGenShader/Nodes/HwImageNode.h>
-#include <MaterialXGenShader/Nodes/HwGeomColorNode.h>
-#include <MaterialXGenShader/Nodes/HwGeomPropValueNode.h>
-#include <MaterialXGenShader/Nodes/HwTexCoordNode.h>
-#include <MaterialXGenShader/Nodes/HwTransformNode.h>
-#include <MaterialXGenShader/Nodes/HwPositionNode.h>
-#include <MaterialXGenShader/Nodes/HwNormalNode.h>
-#include <MaterialXGenShader/Nodes/HwTangentNode.h>
-#include <MaterialXGenShader/Nodes/HwBitangentNode.h>
-#include <MaterialXGenShader/Nodes/HwFrameNode.h>
-#include <MaterialXGenShader/Nodes/HwTimeNode.h>
-#include <MaterialXGenShader/Nodes/HwViewDirectionNode.h>
-#include <MaterialXGenShader/Nodes/HwLightCompoundNode.h>
-#include <MaterialXGenShader/Nodes/HwLightNode.h>
-#include <MaterialXGenShader/Nodes/HwLightSamplerNode.h>
-#include <MaterialXGenShader/Nodes/HwLightShaderNode.h>
-#include <MaterialXGenShader/Nodes/HwNumLightsNode.h>
-#include <MaterialXGenShader/Nodes/HwSurfaceNode.h>
 
 #include "MslResourceBindingContext.h"
 
@@ -127,6 +129,9 @@ MslShaderGenerator::MslShaderGenerator(TypeSystemPtr typeSystem) :
     _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "sampleLightSource", HwLightSamplerNode::create()));
 
     _tokenSubstitutions[HW::T_CLOSURE_DATA_CONSTRUCTOR] = "{closureType, L, V, N, P, occlusion}";
+
+    _tokenSubstitutions[HW::T_TEX_SAMPLER_SAMPLER2D]    = HW::TEX_SAMPLER_SAMPLER2D_MSL;
+    _tokenSubstitutions[HW::T_TEX_SAMPLER_SIGNATURE]    = HW::TEX_SAMPLER_SIGNATURE_MSL;
 }
 
 ShaderPtr MslShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const
@@ -154,6 +159,8 @@ ShaderPtr MslShaderGenerator::generate(const string& name, ElementPtr element, G
     ShaderStage& vs = shader->getStage(Stage::VERTEX);
     emitVertexStage(shader->getGraph(), context, vs);
     replaceTokens(_tokenSubstitutions, vs);
+
+    MetalizeGeneratedShader(vs);
 
     // Emit code for pixel shader stage
     ShaderStage& ps = shader->getStage(Stage::PIXEL);
@@ -220,7 +227,7 @@ void MslShaderGenerator::MetalizeGeneratedShader(ShaderStage& shaderStage) const
                     }
                     else
                     {
-                        sourceCode.replace(beg, typename_end - beg, "thread " + typeName + "&");
+                        sourceCode.replace(beg, typename_end - beg, "thread " + typeName + " &");
                     }
                 }
                 pos = sourceCode.find(keyword, pos);
@@ -234,6 +241,22 @@ void MslShaderGenerator::MetalizeGeneratedShader(ShaderStage& shaderStage) const
     replaceTokens["dFdy"] = "dfdy";
     replaceTokens["dFdx"] = "dfdx";
 
+    replaceTokens["vec2"] = "float2";
+    replaceTokens["vec3"] = "float3";
+    replaceTokens["vec4"] = "float4";
+    replaceTokens["ivec2"] = "int2";
+    replaceTokens["ivec3"] = "int3";
+    replaceTokens["ivec4"] = "int4";
+    replaceTokens["uvec2"] = "uint2";
+    replaceTokens["uvec3"] = "uint3";
+    replaceTokens["uvec4"] = "uint4";
+    replaceTokens["bvec2"] = "bool2";
+    replaceTokens["bvec3"] = "bool3";
+    replaceTokens["bvec4"] = "bool4";
+    replaceTokens["mat2"] = "float2x2";
+    replaceTokens["mat3"] = "float3x3";
+    replaceTokens["mat4"] = "float4x4";
+
     auto isAllowedAfterToken = [](char ch) -> bool
     {
         return std::isspace(ch) || ch == '(' || ch == ')' || ch == ',';
@@ -241,7 +264,7 @@ void MslShaderGenerator::MetalizeGeneratedShader(ShaderStage& shaderStage) const
 
     auto isAllowedBeforeToken = [](char ch) -> bool
     {
-        return std::isspace(ch) || ch == '(' || ch == ',' || ch == '-';
+        return std::isspace(ch) || ch == '(' || ch == ',' || ch == '+' || ch == '-';
     };
 
     for (const auto& t : replaceTokens)
@@ -293,7 +316,7 @@ void MslShaderGenerator::emitGlobalVariables(GenContext& context,
     {
         if (globalContextMembers)
         {
-            emitLine("vec4 gl_FragCoord", stage);
+            emitLine("float4 gl_FragCoord", stage);
         }
         if (globalContextConstructorInit)
         {
@@ -591,9 +614,9 @@ void MslShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext& c
         emitString("\tGlobalContext ctx {", stage);
         emitGlobalVariables(context, stage, EMIT_GLOBAL_SCOPE_CONTEXT_MEMBER_INIT, true, false);
         emitLine("}", stage, true);
-        emitLine(vertexData.getName() + " out = ctx.VertexMain()", stage, true);
-        emitLine("out.pos.y = -out.pos.y", stage, true);
-        emitLine("return out", stage, true);
+        emitLine(vertexData.getName() + " outVertex = ctx.VertexMain()", stage, true);
+        emitLine("outVertex.pos.y = -outVertex.pos.y", stage, true);
+        emitLine("return outVertex", stage, true);
     }
     emitScopeEnd(stage);
     emitLineBreak(stage);
@@ -647,22 +670,6 @@ void MslShaderGenerator::emitDirectives(GenContext&, ShaderStage& stage) const
     emitLine("#include <metal_stdlib>", stage, false);
     emitLine("#include <simd/simd.h>", stage, false);
     emitLine("using namespace metal;", stage, false);
-
-    emitLine("#define vec2 float2", stage, false);
-    emitLine("#define vec3 float3", stage, false);
-    emitLine("#define vec4 float4", stage, false);
-    emitLine("#define ivec2 int2", stage, false);
-    emitLine("#define ivec3 int3", stage, false);
-    emitLine("#define ivec4 int4", stage, false);
-    emitLine("#define uvec2 uint2", stage, false);
-    emitLine("#define uvec3 uint3", stage, false);
-    emitLine("#define uvec4 uint4", stage, false);
-    emitLine("#define bvec2 bool2", stage, false);
-    emitLine("#define bvec3 bool3", stage, false);
-    emitLine("#define bvec4 bool4", stage, false);
-    emitLine("#define mat2 float2x2", stage, false);
-    emitLine("#define mat3 float3x3", stage, false);
-    emitLine("#define mat4 float4x4", stage, false);
 
     emitLineBreak(stage);
 }
@@ -1207,72 +1214,6 @@ void MslShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, con
 
         emitString(str, stage);
     }
-}
-
-ShaderNodeImplPtr MslShaderGenerator::getImplementation(const NodeDef& nodedef, GenContext& context) const
-{
-    InterfaceElementPtr implElement = nodedef.getImplementation(getTarget());
-    if (!implElement)
-    {
-        return nullptr;
-    }
-
-    const string& name = implElement->getName();
-
-    // Check if it's created and cached already.
-    ShaderNodeImplPtr impl = context.findNodeImplementation(name);
-    if (impl)
-    {
-        return impl;
-    }
-
-    vector<OutputPtr> outputs = nodedef.getActiveOutputs();
-    if (outputs.empty())
-    {
-        throw ExceptionShaderGenError("NodeDef '" + nodedef.getName() + "' has no outputs defined");
-    }
-
-    const TypeDesc outputType = _typeSystem->getType(outputs[0]->getType());
-
-    if (implElement->isA<NodeGraph>())
-    {
-        // Use a compound implementation.
-        if (outputType == Type::LIGHTSHADER)
-        {
-            impl = HwLightCompoundNode::create();
-        }
-        else
-        {
-            impl = CompoundNode::create();
-        }
-    }
-    else if (implElement->isA<Implementation>())
-    {
-        if (getColorManagementSystem() && getColorManagementSystem()->hasImplementation(name))
-        {
-            impl = getColorManagementSystem()->createImplementation(name);
-        }
-        else
-        {
-            // Try creating a new in the factory.
-            impl = _implFactory.create(name);
-        }
-        if (!impl)
-        {
-            impl = SourceCodeNode::create();
-        }
-    }
-    if (!impl)
-    {
-        return nullptr;
-    }
-
-    impl->initialize(*implElement, context);
-
-    // Cache it.
-    context.addNodeImplementation(name, impl);
-
-    return impl;
 }
 
 MATERIALX_NAMESPACE_END

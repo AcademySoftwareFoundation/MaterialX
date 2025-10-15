@@ -5,7 +5,6 @@
 
 #include <MaterialXGenShader/Nodes/CompoundNode.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
-#include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenShader/Util.h>
 
 #include <MaterialXCore/Library.h>
@@ -73,10 +72,11 @@ void CompoundNode::emitFunctionDefinition(const ShaderNode& node, GenContext& co
         shadergen.emitLineBegin(stage);
         shadergen.emitString("void " + _functionName + "(", stage);
 
-        if (context.getShaderGenerator().nodeNeedsClosureData(node))
-        {
-            shadergen.emitString(HW::CLOSURE_DATA_TYPE + " " + HW::CLOSURE_DATA_ARG + ", ", stage);
-        }
+        shadergen.emitClosureDataParameter(node, context, stage);
+        // if (context.getShaderGenerator().nodeNeedsClosureData(node))
+        // {
+        //     shadergen.emitString(HW::CLOSURE_DATA_TYPE + " " + HW::CLOSURE_DATA_ARG + ", ", stage);
+        // }
 
         string delim;
 
@@ -116,8 +116,12 @@ void CompoundNode::emitFunctionDefinition(const ShaderNode& node, GenContext& co
                 if (outputSocket->getConnection())
                 {
                     const ShaderNode* upstream = outputSocket->getConnection()->getNode();
+                    // Its important that the classification check here matches the logic inside
+                    // nodeOutputIsClosure() used above.
                     if (upstream->getParent() == _rootGraph.get() &&
-                        (upstream->hasClassification(ShaderNode::Classification::CLOSURE) || upstream->hasClassification(ShaderNode::Classification::SHADER)))
+                        (upstream->hasClassification(ShaderNode::Classification::CLOSURE) ||
+                            upstream->hasClassification(ShaderNode::Classification::SHADER) ||
+                            upstream->hasClassification(ShaderNode::Classification::MATERIAL)))
                     {
                         shadergen.emitFunctionCall(*upstream, context, stage);
                     }
@@ -167,10 +171,11 @@ void CompoundNode::emitFunctionCall(const ShaderNode& node, GenContext& context,
         shadergen.emitString(_functionName + "(", stage);
 
         // Add an argument for closure data if needed
-        if (context.getShaderGenerator().nodeNeedsClosureData(node))
-        {
-            shadergen.emitString(HW::CLOSURE_DATA_ARG + ", ", stage);
-        }
+        shadergen.emitClosureDataArg(node, context, stage);
+        // if (context.getShaderGenerator().nodeNeedsClosureData(node))
+        // {
+        //     shadergen.emitString(HW::CLOSURE_DATA_ARG + ", ", stage);
+        // }
 
         string delim;
 

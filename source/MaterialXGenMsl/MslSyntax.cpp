@@ -6,7 +6,6 @@
 #include <MaterialXGenMsl/MslSyntax.h>
 
 #include <MaterialXGenShader/ShaderGenerator.h>
-#include <MaterialXGenShader/HwShaderGenerator.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -177,9 +176,9 @@ MslSyntax::MslSyntax(TypeSystemPtr typeSystem) : Syntax(typeSystem)
         Type::COLOR3,
         std::make_shared<AggregateTypeSyntax>(
             this,
-            "vec3",
-            "vec3(0.0)",
-            "vec3(0.0)",
+            "float3",
+            "float3(0.0)",
+            "float3(0.0)",
             EMPTY_STRING,
             EMPTY_STRING,
             VEC3_MEMBERS));
@@ -188,9 +187,9 @@ MslSyntax::MslSyntax(TypeSystemPtr typeSystem) : Syntax(typeSystem)
         Type::COLOR4,
         std::make_shared<AggregateTypeSyntax>(
             this,
-            "vec4",
-            "vec4(0.0)",
-            "vec4(0.0)",
+            "float4",
+            "float4(0.0)",
+            "float4(0.0)",
             EMPTY_STRING,
             EMPTY_STRING,
             VEC4_MEMBERS));
@@ -199,9 +198,9 @@ MslSyntax::MslSyntax(TypeSystemPtr typeSystem) : Syntax(typeSystem)
         Type::VECTOR2,
         std::make_shared<AggregateTypeSyntax>(
             this,
-            "vec2",
-            "vec2(0.0)",
-            "vec2(0.0)",
+            "float2",
+            "float2(0.0)",
+            "float2(0.0)",
             EMPTY_STRING,
             EMPTY_STRING,
             VEC2_MEMBERS));
@@ -210,9 +209,9 @@ MslSyntax::MslSyntax(TypeSystemPtr typeSystem) : Syntax(typeSystem)
         Type::VECTOR3,
         std::make_shared<AggregateTypeSyntax>(
             this,
-            "vec3",
-            "vec3(0.0)",
-            "vec3(0.0)",
+            "float3",
+            "float3(0.0)",
+            "float3(0.0)",
             EMPTY_STRING,
             EMPTY_STRING,
             VEC3_MEMBERS));
@@ -221,9 +220,9 @@ MslSyntax::MslSyntax(TypeSystemPtr typeSystem) : Syntax(typeSystem)
         Type::VECTOR4,
         std::make_shared<AggregateTypeSyntax>(
             this,
-            "vec4",
-            "vec4(0.0)",
-            "vec4(0.0)",
+            "float4",
+            "float4(0.0)",
+            "float4(0.0)",
             EMPTY_STRING,
             EMPTY_STRING,
             VEC4_MEMBERS));
@@ -232,17 +231,17 @@ MslSyntax::MslSyntax(TypeSystemPtr typeSystem) : Syntax(typeSystem)
         Type::MATRIX33,
         std::make_shared<AggregateTypeSyntax>(
             this,
-            "mat3",
-            "mat3(1.0)",
-            "mat3(1.0)"));
+            "float3x3",
+            "float3x3(1.0)",
+            "float3x3(1.0)"));
 
     registerTypeSyntax(
         Type::MATRIX44,
         std::make_shared<AggregateTypeSyntax>(
             this,
-            "mat4",
-            "mat4(1.0)",
-            "mat4(1.0)"));
+            "float4x4",
+            "float4x4(1.0)",
+            "float4x4(1.0)"));
 
     registerTypeSyntax(
         Type::STRING,
