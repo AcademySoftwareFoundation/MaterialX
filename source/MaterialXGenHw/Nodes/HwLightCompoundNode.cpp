@@ -61,11 +61,12 @@ void HwLightCompoundNode::emitFunctionDefinition(const ShaderNode& /*node*/, Gen
     DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
     {
         const HwShaderGenerator& shadergen = static_cast<const HwShaderGenerator&>(context.getShaderGenerator());
+        const Syntax& syntax = shadergen.getSyntax();
 
         // Emit functions for all child nodes
         shadergen.emitFunctionDefinitions(*_rootGraph, context, stage);
 
-        shadergen.emitLine("void " + _functionName + "(LightData light, vec3 position, out lightshader result)", stage, false);
+        shadergen.emitLine("void " + _functionName + "(LightData light, "+syntax.getTypeName(Type::VECTOR3)+" position, "+syntax.getOutputTypeName(Type::LIGHTSHADER)+" result)", stage, false);
 
         shadergen.emitFunctionBodyBegin(*_rootGraph, context, stage);
 
@@ -73,7 +74,7 @@ void HwLightCompoundNode::emitFunctionDefinition(const ShaderNode& /*node*/, Gen
         // closure/shader nodes and need to be emitted first.
         shadergen.emitFunctionCalls(*_rootGraph, context, stage, ShaderNode::Classification::TEXTURE);
 
-        shadergen.emitLine("ClosureData closureData = makeClosureData(CLOSURE_TYPE_EMISSION, vec3(0), -L, light.direction, vec3(0), 0)", stage);
+        shadergen.emitLine("ClosureData closureData = makeClosureData(CLOSURE_TYPE_EMISSION, "+syntax.getTypeName(Type::VECTOR3)+"(0), -L, light.direction, "+syntax.getTypeName(Type::VECTOR3)+"(0), 0)", stage);
         shadergen.emitFunctionCalls(*_rootGraph, context, stage, ShaderNode::Classification::SHADER | ShaderNode::Classification::LIGHT);
 
         shadergen.emitFunctionBodyEnd(*_rootGraph, context, stage);
