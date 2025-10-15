@@ -7,6 +7,9 @@ on:
   pull_request:
     paths-ignore:
       - '**.md'
+  schedule:
+    # Nightly build
+    - cron: '30 10 * * *'
   workflow_dispatch:
 
 jobs:
@@ -14,6 +17,8 @@ jobs:
   build:
     name: Build
     runs-on: ${{ matrix.os }}
+    env:
+      IS_EXTENDED_BUILD: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
     strategy:
       fail-fast: false
       matrix:
@@ -109,6 +114,7 @@ jobs:
           python: 3.13
           cmake_config: -G "Visual Studio 17 2022" -A "x64"
           test_shaders: ON
+          extended_build_oiio: ON
 
         - name: Windows_VS2022_x64_SharedLibs
           os: windows-2025
@@ -156,11 +162,10 @@ jobs:
         Add-Content $env:GITHUB_PATH "$PWD/build/installed/bin"
 
     - name: Install OpenImageIO
-      if: matrix.build_oiio == 'ON' && runner.os == 'Windows'
+      if: env.IS_EXTENDED_BUILD == 'true' && matrix.extended_build_oiio == 'ON' && runner.os == 'Windows'
       run: |
-        C:/vcpkg/vcpkg install openimageio --triplet=x64-windows-release
-        Add-Content $env:GITHUB_PATH "C:/vcpkg/installed/x64-windows-release/bin"
-        Add-Content $env:GITHUB_PATH "C:/vcpkg/installed/x64-windows-release/share/openimageio"
+        C:/vcpkg/vcpkg install openimageio --triplet=x64-windows
+        Add-Content $env:GITHUB_PATH "C:/vcpkg/installed/x64-windows/bin"
 
     - name: Install Python ${{ matrix.python }}
       if: matrix.python != 'None'
@@ -178,7 +183,12 @@ jobs:
       run: find source \( -name *.h -o -name *.cpp -o -name *.mm -o -name *.inl \) ! -path "*/External/*" ! -path "*/NanoGUI/*" | xargs clang-format -i --verbose
 
     - name: CMake Generate
-      run: cmake -S . -B build -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_BUILD_TESTS=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{matrix.cmake_config}}
+      shell: bash
+      run: |
+        if [ "${{ env.IS_EXTENDED_BUILD }}" == "true" ] && [ "${{ matrix.extended_build_oiio }}" == "ON" ]; then
+          EXTENDED_BUILD_CONFIG="-DMATERIALX_BUILD_OIIO=ON -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows"
+        fi
+        cmake -S . -B build -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_BUILD_TESTS=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON $EXTENDED_BUILD_CONFIG ${{matrix.cmake_config}}
 
     - name: CMake Build
       run: cmake --build build --target install --config Release --parallel 2
