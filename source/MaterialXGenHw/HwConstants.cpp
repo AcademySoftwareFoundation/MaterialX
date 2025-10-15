@@ -126,8 +126,10 @@ const string ENV_IRRADIANCE_SAMPLER2D_SPLIT   = "sampler2D(u_envIradiance_textur
 
 const string TEX_SAMPLER_SAMPLER2D            = "tex_sampler";
 const string TEX_SAMPLER_SAMPLER2D_SPLIT      = "sampler2D(tex_texture, tex_sampler)";
+const string TEX_SAMPLER_SAMPLER2D_MSL        = "tex_sampler";
 const string TEX_SAMPLER_SIGNATURE            = "sampler2D tex_sampler";
 const string TEX_SAMPLER_SIGNATURE_SPLIT      = "texture2D tex_texture, sampler tex_sampler";
+const string TEX_SAMPLER_SIGNATURE_MSL        = "MetalTexture tex_sampler";
 
 const string ENV_LIGHT_INTENSITY              = "u_envLightIntensity";
 const string ENV_PREFILTER_MIP                = "u_envPrefilterMip";
