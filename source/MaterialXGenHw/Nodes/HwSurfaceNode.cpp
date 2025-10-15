@@ -93,7 +93,7 @@ void HwSurfaceNode::emitFunctionCall(const ShaderNode& node, GenContext& context
         shadergen.emitLine(syntax.getTypeName(Type::VECTOR3)+" N = normalize(" + prefix + HW::T_NORMAL_WORLD + ")", stage);
         shadergen.emitLine(syntax.getTypeName(Type::VECTOR3)+" V = normalize(" + HW::T_VIEW_POSITION + " - " + prefix + HW::T_POSITION_WORLD + ")", stage);
         shadergen.emitLine(syntax.getTypeName(Type::VECTOR3)+" P = " + prefix + HW::T_POSITION_WORLD, stage);
-        shadergen.emitLine(syntax.getTypeName(Type::VECTOR3)+" L = "+syntax.getTypeName(Type::VECTOR3)+"(0,0,0)", stage);
+        shadergen.emitLine(syntax.getTypeName(Type::VECTOR3)+" L = "+syntax.getValue(Type::VECTOR3, HW::zeroVec3), stage);
         shadergen.emitLine("float occlusion = 1.0", stage);
         shadergen.emitLineBreak(stage);
 
@@ -132,7 +132,7 @@ void HwSurfaceNode::emitFunctionCall(const ShaderNode& node, GenContext& context
             if (context.getOptions().hwAmbientOcclusion)
             {
                 ShaderPort* texcoord = vertexData[HW::T_TEXCOORD + "_0"];
-                shadergen.emitLine(syntax.getTypeName(Type::VECTOR2)+" ambOccUv = mx_transform_uv(" + prefix + texcoord->getVariable() + ", "+syntax.getTypeName(Type::VECTOR2)+"(1.0), "+syntax.getTypeName(Type::VECTOR2)+"(0.0))", stage);
+                shadergen.emitLine(syntax.getTypeName(Type::VECTOR2)+" ambOccUv = mx_transform_uv(" + prefix + texcoord->getVariable() + ", "+syntax.getValue(Type::VECTOR2, HW::oneVec2)+", "+syntax.getValue(Type::VECTOR2, HW::zeroVec2)+")", stage);
                 shadergen.emitLine("occlusion = mix(1.0, texture(" + HW::T_AMB_OCC_MAP + ", ambOccUv).x, " + HW::T_AMB_OCC_GAIN + ")", stage);
             }
             else
@@ -220,7 +220,7 @@ void HwSurfaceNode::emitFunctionCall(const ShaderNode& node, GenContext& context
             shadergen.emitComment("Compute and apply surface opacity", stage);
             shadergen.emitScopeBegin(stage);
             shadergen.emitLine(outColor + " *= surfaceOpacity", stage);
-            shadergen.emitLine(outTransparency + " = mix("+syntax.getTypeName(Type::VECTOR3)+"(1.0), " + outTransparency + ", surfaceOpacity)", stage);
+            shadergen.emitLine(outTransparency + " = mix("+syntax.getValue(Type::VECTOR3, HW::oneVec3)+", " + outTransparency + ", surfaceOpacity)", stage);
             shadergen.emitScopeEnd(stage);
         }
 

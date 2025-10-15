@@ -54,7 +54,7 @@ void HwLightNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
         {
 
             shadergen.emitScopeBegin(stage);
-            shadergen.emitLine("ClosureData closureData = makeClosureData(CLOSURE_TYPE_EMISSION, "+syntax.getTypeName(Type::VECTOR3)+"(0), -L, light.direction, "+syntax.getTypeName(Type::VECTOR3)+"(0), 0)", stage);
+            shadergen.emitLine("ClosureData closureData = makeClosureData(CLOSURE_TYPE_EMISSION, "+syntax.getValue(Type::VECTOR3, HW::zeroVec3)+", -L, light.direction, "+syntax.getValue(Type::VECTOR3, HW::zeroVec3)+", 0)", stage);
             shadergen.emitFunctionCall(*edf, context, stage);
             shadergen.emitScopeEnd(stage);
             shadergen.emitLineBreak(stage);
@@ -82,7 +82,7 @@ void HwLightNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
         }
         else
         {
-            shadergen.emitLine("result.intensity = "+syntax.getTypeName(Type::VECTOR3)+"(0.0)", stage);
+            shadergen.emitLine("result.intensity = "+syntax.getValue(Type::VECTOR3, HW::zeroVec3), stage);
         }
     }
 }

@@ -38,8 +38,8 @@ void HwLightSamplerNode::emitFunctionDefinition(const ShaderNode& node, GenConte
         // Emit light sampler function with all bound light types
         shadergen.emitLine("void sampleLightSource(LightData light, "+syntax.getTypeName(Type::VECTOR3)+" position, "+syntax.getOutputTypeName(Type::LIGHTSHADER)+" result)", stage, false);
         shadergen.emitFunctionBodyBegin(node, context, stage);
-        shadergen.emitLine("result.intensity = "+syntax.getTypeName(Type::VECTOR3)+"(0.0)", stage);
-        shadergen.emitLine("result.direction = "+syntax.getTypeName(Type::VECTOR3)+"(0.0)", stage);
+        shadergen.emitLine("result.intensity = "+syntax.getValue(Type::VECTOR3, HW::zeroVec3), stage);
+        shadergen.emitLine("result.direction = "+syntax.getValue(Type::VECTOR3, HW::zeroVec3), stage);
 
         HwLightShadersPtr lightShaders = context.getUserData<HwLightShaders>(HW::USER_DATA_LIGHT_SHADERS);
         if (lightShaders)

@@ -11,6 +11,8 @@
 
 #include <MaterialXGenHw/Export.h>
 
+#include <MaterialXCore/Value.h>
+
 MATERIALX_NAMESPACE_BEGIN
 
 /*
@@ -247,6 +249,13 @@ extern MX_GENHW_API const string USER_DATA_BINDING_CONTEXT;
 
 /// Type Descriptor for closure context data.
 extern MX_GENHW_API const TypeDesc ClosureDataType;
+
+/// Constant Values
+extern MX_GENHW_API const TypedValue<Vector2> zeroVec2;
+extern MX_GENHW_API const TypedValue<Vector2> oneVec2;
+extern MX_GENHW_API const TypedValue<Vector3> zeroVec3;
+extern MX_GENHW_API const TypedValue<Vector3> oneVec3;
+
 } // namespace HW
 
 MATERIALX_NAMESPACE_END

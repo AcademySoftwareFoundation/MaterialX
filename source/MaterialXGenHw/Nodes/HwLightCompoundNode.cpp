@@ -74,7 +74,7 @@ void HwLightCompoundNode::emitFunctionDefinition(const ShaderNode& /*node*/, Gen
         // closure/shader nodes and need to be emitted first.
         shadergen.emitFunctionCalls(*_rootGraph, context, stage, ShaderNode::Classification::TEXTURE);
 
-        shadergen.emitLine("ClosureData closureData = makeClosureData(CLOSURE_TYPE_EMISSION, "+syntax.getTypeName(Type::VECTOR3)+"(0), -L, light.direction, "+syntax.getTypeName(Type::VECTOR3)+"(0), 0)", stage);
+        shadergen.emitLine("ClosureData closureData = makeClosureData(CLOSURE_TYPE_EMISSION, "+syntax.getValue(Type::VECTOR3, HW::zeroVec3)+", -L, light.direction, "+syntax.getValue(Type::VECTOR3, HW::zeroVec3)+", 0)", stage);
         shadergen.emitFunctionCalls(*_rootGraph, context, stage, ShaderNode::Classification::SHADER | ShaderNode::Classification::LIGHT);
 
         shadergen.emitFunctionBodyEnd(*_rootGraph, context, stage);
