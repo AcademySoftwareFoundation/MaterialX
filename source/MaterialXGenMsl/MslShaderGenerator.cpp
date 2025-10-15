@@ -227,7 +227,7 @@ void MslShaderGenerator::MetalizeGeneratedShader(ShaderStage& shaderStage) const
                     }
                     else
                     {
-                        sourceCode.replace(beg, typename_end - beg, "thread " + typeName + "&");
+                        sourceCode.replace(beg, typename_end - beg, "thread " + typeName + " &");
                     }
                 }
                 pos = sourceCode.find(keyword, pos);
@@ -264,7 +264,7 @@ void MslShaderGenerator::MetalizeGeneratedShader(ShaderStage& shaderStage) const
 
     auto isAllowedBeforeToken = [](char ch) -> bool
     {
-        return std::isspace(ch) || ch == '(' || ch == ',' || ch == '-';
+        return std::isspace(ch) || ch == '(' || ch == ',' || ch == '+' || ch == '-';
     };
 
     for (const auto& t : replaceTokens)
@@ -614,9 +614,9 @@ void MslShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext& c
         emitString("\tGlobalContext ctx {", stage);
         emitGlobalVariables(context, stage, EMIT_GLOBAL_SCOPE_CONTEXT_MEMBER_INIT, true, false);
         emitLine("}", stage, true);
-        emitLine(vertexData.getName() + " out = ctx.VertexMain()", stage, true);
-        emitLine("out.pos.y = -out.pos.y", stage, true);
-        emitLine("return out", stage, true);
+        emitLine(vertexData.getName() + " outVertex = ctx.VertexMain()", stage, true);
+        emitLine("outVertex.pos.y = -outVertex.pos.y", stage, true);
+        emitLine("return outVertex", stage, true);
     }
     emitScopeEnd(stage);
     emitLineBreak(stage);
