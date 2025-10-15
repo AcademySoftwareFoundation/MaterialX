@@ -319,7 +319,7 @@ bool OslShaderRenderTester::runRenderer(const std::string& shaderName,
                     // Get oslcmdstr
                     _renderer->setOSLCmdStr(oslCmdStr);
                     _renderer->useOslCommandString(_useOslCmdStr);
-                    // Osl Nodes Shaders record the oso path in an attribute
+                    // Osl Network Shaders record the oso path in an attribute
                     auto osoPathAttr = shader->getAttribute("osoPath");
                     if (osoPathAttr)
                     {
@@ -391,7 +391,7 @@ TEST_CASE("Render: OSL TestSuite", "[renderosl]")
     renderTester.validate(optionsFilePath);
 }
 
-TEST_CASE("Render: OSL Nodes TestSuite", "[renderoslnetwork]")
+TEST_CASE("Render: OSL Network TestSuite", "[renderoslnetwork]")
 {
     if (std::string(MATERIALX_OSL_BINARY_OSLC).empty() &&
         std::string(MATERIALX_OSL_BINARY_TESTRENDER).empty())

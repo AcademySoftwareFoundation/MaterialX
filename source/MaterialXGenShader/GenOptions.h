@@ -205,7 +205,7 @@ class MX_GENSHADER_API GenOptions
     bool oslImplicitSurfaceShaderConversion;
 
     // Enables an OSL node that adds the root's output to the Ci variable
-    // for OSL Node targets.
+    // for OSL Network targets.
     // Defaults to false.
     bool oslNetworkConnectCiWrapper;
 };

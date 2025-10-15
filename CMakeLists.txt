@@ -40,7 +40,7 @@ option(MATERIALX_BUILD_DOCS "Create HTML documentation using Doxygen. Requires t
 
 option(MATERIALX_BUILD_GEN_GLSL "Build the GLSL shader generator back-end." ON)
 option(MATERIALX_BUILD_GEN_OSL "Build the OSL shader generator back-end." ON)
-option(MATERIALX_BUILD_GEN_OSL_NETWORK "Build the OSL nodes shader generator back-end." ON)
+option(MATERIALX_BUILD_GEN_OSL_NETWORK "Build the OSL network shader generator back-end." ON)
 option(MATERIALX_BUILD_GEN_MDL "Build the MDL shader generator back-end." ON)
 option(MATERIALX_BUILD_GEN_MSL "Build the MSL shader generator back-end." ON)
 option(MATERIALX_BUILD_RENDER "Build the MaterialX Render modules." ON)
