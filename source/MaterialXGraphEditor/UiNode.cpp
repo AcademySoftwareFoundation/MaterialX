@@ -15,7 +15,6 @@ const int INVALID_POS = -10000;
 UiNode::UiNode() :
     _level(-1),
     _showAllInputs(false),
-    _showAllTokens(false),
     _id(0),
     _nodePos(INVALID_POS, INVALID_POS),
     _inputNodeNum(0)
@@ -25,7 +24,6 @@ UiNode::UiNode() :
 UiNode::UiNode(const std::string& name, int id) :
     _level(-1),
     _showAllInputs(false),
-    _showAllTokens(false),
     _id(id),
     _nodePos(INVALID_POS, INVALID_POS),
     _name(name),

@@ -2033,7 +2033,6 @@ void Graph::addNode(const std::string& category, const std::string& name, const 
         newNode->setType(type);
         newNode->setNode(node);
         newNode->_showAllInputs = true;
-        newNode->_showAllTokens = true;
         node->setType(type);
         ++_graphTotalSize;
         for (mx::InputPtr input : defInputs)
@@ -3708,49 +3707,29 @@ void Graph::propertyEditor()
             if (!tokens.empty())
             {
                 ImGui::Text("Tokens");
-                ImGui::Checkbox("Show all tokens", &_currUiNode->_showAllTokens);
              
-                // Determine how many tokens to show in UI
-                int count = _currUiNode->_showAllTokens ? static_cast<int>(tokens.size()) : 1;
-                if (count)
+                ImVec2 tableSize(0.0f, TEXT_BASE_HEIGHT * std::min(SCROLL_LINE_COUNT, static_cast<int>(tokens.size())));
+                bool haveTable = ImGui::BeginTable("tokens_node_table", 2, tableFlags, tableSize);
+                if (haveTable)
                 {
-                    ImVec2 tableSize(0.0f, TEXT_BASE_HEIGHT * std::min(SCROLL_LINE_COUNT, count));
-                    bool haveTable = ImGui::BeginTable("tokens_node_table", 2, tableFlags, tableSize);
-                    if (haveTable)
+                    ImGui::SetWindowFontScale(_fontScale);
+
+                    for (const auto& [token, value] : tokens)
                     {
-                        ImGui::SetWindowFontScale(_fontScale);
-
-                        // Show first token until show all is selected
-                        if (count == 1)
-                        {
-                            ImGui::TableNextRow();
-                            ImGui::TableNextColumn();
-                            ImGui::PushID(&tokens.begin()->first);
-                            ImGui::Text("%s", tokens.begin()->first.c_str());
-                            ImGui::TableNextColumn();
-                            ImGui::Text("%s", tokens.begin()->second.c_str());
-                            ImGui::PopID();
-                        }
-                        else if (_currUiNode->_showAllTokens)
-                        {
-                            for (const auto& [token, value] : tokens)
-                            {
                                
-                                ImGui::TableNextRow();
-                                ImGui::TableNextColumn();
-                                ImGui::PushID(&token);
+                        ImGui::TableNextRow();
+                        ImGui::TableNextColumn();
+                        ImGui::PushID(&token);
 
-                                ImGui::Text("%s", token.c_str());
-                                ImGui::TableNextColumn();
-                                ImGui::Text("%s", value.c_str());
+                        ImGui::Text("%s", token.c_str());
+                        ImGui::TableNextColumn();
+                        ImGui::Text("%s", value.c_str());
 
-                                ImGui::PopID();
-                            }
-                        }
-
-                        ImGui::EndTable();
-                        ImGui::SetWindowFontScale(1.0f);
+                        ImGui::PopID();
                     }
+                        
+                    ImGui::EndTable();
+                    ImGui::SetWindowFontScale(1.0f);
                 }
             }
         }

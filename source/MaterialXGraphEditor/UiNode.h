@@ -265,7 +265,6 @@ class UiNode
     mx::ElementPtr getElement();
     int _level;
     bool _showAllInputs;
-    bool _showAllTokens;
 
   private:
     int _id;
