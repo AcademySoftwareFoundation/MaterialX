@@ -165,13 +165,17 @@ class MX_GENSHADER_API ShaderPort : public std::enable_shared_from_this<ShaderPo
     const string& getSemantic() const { return _semantic; }
 
     /// Set a value on this port.
-    void setValue(ValuePtr value, bool isDefault = false) { _value = value; _isDefault = isDefault; }
+    void setValue(ValuePtr value, bool isAuthoredValue = true)
+    {
+        _value = value;
+        _isAuthoredValue = isAuthoredValue;
+    }
 
     /// Return the value set on this port.
     ValuePtr getValue() const { return _value; }
 
-    // Is the value still its default.
-    bool isDefault() const { return _isDefault; }
+    // Has the value been overridden.
+    bool isAuthoredValue() const { return _isAuthoredValue; }
 
     /// Return the value set on this port as a string, or an empty string if there is no value.
     string getValueString() const;
@@ -259,7 +263,7 @@ class MX_GENSHADER_API ShaderPort : public std::enable_shared_from_this<ShaderPo
     string _geomprop;
     ShaderMetadataVecPtr _metadata;
     uint32_t _flags;
-    bool _isDefault{false};
+    bool _isAuthoredValue{false};
 };
 
 /// @class ShaderInput

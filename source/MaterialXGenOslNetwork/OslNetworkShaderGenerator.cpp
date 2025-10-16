@@ -65,12 +65,12 @@ ShaderPtr OslNetworkShaderGenerator::generate(const string& name, ElementPtr ele
 
             const ShaderOutput* connection = input->getConnection();
             if (!connection || connection->getNode() == &graph) {
-                if (input->isDefault())
+                if (!input->isAuthoredValue())
                     continue;
 
                 if (input->getName() == "backsurfaceshader"
                     || input->getName() == "displacementshader")
-                    continue; // FIXME: these aren't getting pruned by isDefault
+                    continue; // FIXME: these aren't getting pruned by isAuthoredValue
 
                 string value = _syntax->getValue(input);
                 if (value == "null_closure()")
