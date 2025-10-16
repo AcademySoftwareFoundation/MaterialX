@@ -18,8 +18,8 @@ MATERIALX_NAMESPACE_BEGIN
 using OslNetworkShaderGeneratorPtr = shared_ptr<class OslNetworkShaderGenerator>;
 
 /// @class OslNetworkShaderGenerator
-/// Base class for OSL (Open Shading Language) shader generators.
-/// A generator for a specific OSL target should be derived from this class.
+/// OSL (Open Shading Language) Network shader generator.
+/// Generates a command string that OSL can use to build a ShaderGroup.
 class MX_GENOSLNETWORK_API OslNetworkShaderGenerator : public ShaderGenerator
 {
   public:

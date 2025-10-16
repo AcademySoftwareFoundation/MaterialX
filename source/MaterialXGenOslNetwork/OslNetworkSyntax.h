@@ -7,7 +7,7 @@
 #define MATERIALX_OSLNETWORKSYNTAX_H
 
 /// @file
-/// OSL syntax class
+/// OSL Network syntax class
 
 #include <MaterialXGenOslNetwork/Export.h>
 
@@ -15,8 +15,8 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-/// @class OslSyntax
-/// Syntax class for OSL (Open Shading Language)
+/// @class OslNetworkSyntax
+/// Syntax class for OSL (Open Shading Language) Network command strings
 class MX_GENOSLNETWORK_API OslNetworkSyntax : public Syntax
 {
   public:
