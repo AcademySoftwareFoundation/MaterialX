@@ -3,7 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXGenHw/HwConstants.h>
+#include "HwConstants.h"
+
 #include <MaterialXGenShader/TypeDesc.h>
 
 MATERIALX_NAMESPACE_BEGIN

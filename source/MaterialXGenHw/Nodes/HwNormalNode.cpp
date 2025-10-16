@@ -3,10 +3,11 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXGenHw/Nodes/HwNormalNode.h>
+#include "HwNormalNode.h"
 
 #include <MaterialXGenHw/HwConstants.h>
 #include <MaterialXGenHw/HwShaderGenerator.h>
+
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
 
@@ -25,7 +26,7 @@ void HwNormalNode::createVariables(const ShaderNode& node, GenContext&, Shader& 
     addStageInput(HW::VERTEX_INPUTS, Type::VECTOR3, HW::T_IN_NORMAL, vs);
 
     const ShaderInput* spaceInput = node.getInput(SPACE);
-    const int space = spaceInput ? spaceInput->getValue()->asA<int>() : OBJECT_SPACE;
+    const int space               = spaceInput ? spaceInput->getValue()->asA<int>() : OBJECT_SPACE;
     if (space == WORLD_SPACE)
     {
         addStageUniform(HW::PRIVATE_UNIFORMS, Type::MATRIX44, HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX, vs);
@@ -41,13 +42,13 @@ void HwNormalNode::emitFunctionCall(const ShaderNode& node, GenContext& context,
 {
     const HwShaderGenerator& shadergen = static_cast<const HwShaderGenerator&>(context.getShaderGenerator());
 
-    const ShaderInput* spaceInput = node.getInput(SPACE);
-    const int space = spaceInput ? spaceInput->getValue()->asA<int>() : OBJECT_SPACE;
+    const ShaderInput* spaceInput      = node.getInput(SPACE);
+    const int space                    = spaceInput ? spaceInput->getValue()->asA<int>() : OBJECT_SPACE;
 
     DEFINE_SHADER_STAGE(stage, Stage::VERTEX)
     {
         VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
-        const string prefix = shadergen.getVertexDataPrefix(vertexData);
+        const string prefix       = shadergen.getVertexDataPrefix(vertexData);
         if (space == WORLD_SPACE)
         {
             ShaderPort* normal = vertexData[HW::T_NORMAL_WORLD];
@@ -71,7 +72,7 @@ void HwNormalNode::emitFunctionCall(const ShaderNode& node, GenContext& context,
     DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
     {
         VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
-        const string prefix = shadergen.getVertexDataPrefix(vertexData);
+        const string prefix       = shadergen.getVertexDataPrefix(vertexData);
         shadergen.emitLineBegin(stage);
         shadergen.emitOutput(node.getOutput(), true, false, context, stage);
         if (space == WORLD_SPACE)

@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXGenHw/Nodes/HwLightCompoundNode.h>
+#include "HwLightCompoundNode.h"
 
 #include <MaterialXGenHw/HwConstants.h>
 #include <MaterialXGenHw/HwShaderGenerator.h>
@@ -26,7 +26,7 @@ void HwLightCompoundNode::initialize(const InterfaceElement& element, GenContext
 
     // Store light uniforms for all inputs on the interface
     const NodeGraph& graph = static_cast<const NodeGraph&>(element);
-    NodeDefPtr nodeDef = graph.getNodeDef();
+    NodeDefPtr nodeDef     = graph.getNodeDef();
     for (InputPtr input : nodeDef->getActiveInputs())
     {
         const TypeDesc type = context.getTypeDesc(input->getType());
@@ -42,7 +42,7 @@ void HwLightCompoundNode::createVariables(const ShaderNode&, GenContext& context
         childNode->getImplementation().createVariables(*childNode, context, shader);
     }
 
-    ShaderStage& ps = shader.getStage(Stage::PIXEL);
+    ShaderStage& ps          = shader.getStage(Stage::PIXEL);
     VariableBlock& lightData = ps.getUniformBlock(HW::LIGHT_DATA);
 
     // Create all light uniforms

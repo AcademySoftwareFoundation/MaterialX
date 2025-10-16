@@ -3,14 +3,16 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXGenHw/HwShaderGenerator.h>
+#include "HwShaderGenerator.h"
 
 #include <MaterialXGenHw/HwConstants.h>
 #include <MaterialXGenHw/HwLightShaders.h>
 #include <MaterialXGenHw/Nodes/HwLightCompoundNode.h>
-#include <MaterialXGenShader/Nodes/CompoundNode.h>
+
 #include <MaterialXGenShader/GenContext.h>
+#include <MaterialXGenShader/Nodes/CompoundNode.h>
 #include <MaterialXGenShader/Shader.h>
+
 #include <MaterialXCore/Definition.h>
 #include <MaterialXCore/Document.h>
 
@@ -25,73 +27,73 @@ HwShaderGenerator::HwShaderGenerator(TypeSystemPtr typeSystem, SyntaxPtr syntax)
 {
     // Assign default identifiers names for all tokens.
     // Derived generators can override these names.
-    _tokenSubstitutions[HW::T_IN_POSITION] = HW::IN_POSITION;
-    _tokenSubstitutions[HW::T_IN_NORMAL] = HW::IN_NORMAL;
-    _tokenSubstitutions[HW::T_IN_TANGENT] = HW::IN_TANGENT;
-    _tokenSubstitutions[HW::T_IN_BITANGENT] = HW::IN_BITANGENT;
-    _tokenSubstitutions[HW::T_IN_TEXCOORD] = HW::IN_TEXCOORD;
-    _tokenSubstitutions[HW::T_IN_GEOMPROP] = HW::IN_GEOMPROP;
-    _tokenSubstitutions[HW::T_IN_COLOR] = HW::IN_COLOR;
-    _tokenSubstitutions[HW::T_POSITION_WORLD] = HW::POSITION_WORLD;
-    _tokenSubstitutions[HW::T_NORMAL_WORLD] = HW::NORMAL_WORLD;
-    _tokenSubstitutions[HW::T_TANGENT_WORLD] = HW::TANGENT_WORLD;
-    _tokenSubstitutions[HW::T_BITANGENT_WORLD] = HW::BITANGENT_WORLD;
-    _tokenSubstitutions[HW::T_POSITION_OBJECT] = HW::POSITION_OBJECT;
-    _tokenSubstitutions[HW::T_NORMAL_OBJECT] = HW::NORMAL_OBJECT;
-    _tokenSubstitutions[HW::T_TANGENT_OBJECT] = HW::TANGENT_OBJECT;
-    _tokenSubstitutions[HW::T_BITANGENT_OBJECT] = HW::BITANGENT_OBJECT;
-    _tokenSubstitutions[HW::T_TEXCOORD] = HW::TEXCOORD;
-    _tokenSubstitutions[HW::T_COLOR] = HW::COLOR;
-    _tokenSubstitutions[HW::T_WORLD_MATRIX] = HW::WORLD_MATRIX;
-    _tokenSubstitutions[HW::T_WORLD_INVERSE_MATRIX] = HW::WORLD_INVERSE_MATRIX;
-    _tokenSubstitutions[HW::T_WORLD_TRANSPOSE_MATRIX] = HW::WORLD_TRANSPOSE_MATRIX;
+    _tokenSubstitutions[HW::T_IN_POSITION]                    = HW::IN_POSITION;
+    _tokenSubstitutions[HW::T_IN_NORMAL]                      = HW::IN_NORMAL;
+    _tokenSubstitutions[HW::T_IN_TANGENT]                     = HW::IN_TANGENT;
+    _tokenSubstitutions[HW::T_IN_BITANGENT]                   = HW::IN_BITANGENT;
+    _tokenSubstitutions[HW::T_IN_TEXCOORD]                    = HW::IN_TEXCOORD;
+    _tokenSubstitutions[HW::T_IN_GEOMPROP]                    = HW::IN_GEOMPROP;
+    _tokenSubstitutions[HW::T_IN_COLOR]                       = HW::IN_COLOR;
+    _tokenSubstitutions[HW::T_POSITION_WORLD]                 = HW::POSITION_WORLD;
+    _tokenSubstitutions[HW::T_NORMAL_WORLD]                   = HW::NORMAL_WORLD;
+    _tokenSubstitutions[HW::T_TANGENT_WORLD]                  = HW::TANGENT_WORLD;
+    _tokenSubstitutions[HW::T_BITANGENT_WORLD]                = HW::BITANGENT_WORLD;
+    _tokenSubstitutions[HW::T_POSITION_OBJECT]                = HW::POSITION_OBJECT;
+    _tokenSubstitutions[HW::T_NORMAL_OBJECT]                  = HW::NORMAL_OBJECT;
+    _tokenSubstitutions[HW::T_TANGENT_OBJECT]                 = HW::TANGENT_OBJECT;
+    _tokenSubstitutions[HW::T_BITANGENT_OBJECT]               = HW::BITANGENT_OBJECT;
+    _tokenSubstitutions[HW::T_TEXCOORD]                       = HW::TEXCOORD;
+    _tokenSubstitutions[HW::T_COLOR]                          = HW::COLOR;
+    _tokenSubstitutions[HW::T_WORLD_MATRIX]                   = HW::WORLD_MATRIX;
+    _tokenSubstitutions[HW::T_WORLD_INVERSE_MATRIX]           = HW::WORLD_INVERSE_MATRIX;
+    _tokenSubstitutions[HW::T_WORLD_TRANSPOSE_MATRIX]         = HW::WORLD_TRANSPOSE_MATRIX;
     _tokenSubstitutions[HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX] = HW::WORLD_INVERSE_TRANSPOSE_MATRIX;
-    _tokenSubstitutions[HW::T_VIEW_MATRIX] = HW::VIEW_MATRIX;
-    _tokenSubstitutions[HW::T_VIEW_INVERSE_MATRIX] = HW::VIEW_INVERSE_MATRIX;
-    _tokenSubstitutions[HW::T_VIEW_TRANSPOSE_MATRIX] = HW::VIEW_TRANSPOSE_MATRIX;
-    _tokenSubstitutions[HW::T_VIEW_INVERSE_TRANSPOSE_MATRIX] = HW::VIEW_INVERSE_TRANSPOSE_MATRIX;
-    _tokenSubstitutions[HW::T_PROJ_MATRIX] = HW::PROJ_MATRIX;
-    _tokenSubstitutions[HW::T_PROJ_INVERSE_MATRIX] = HW::PROJ_INVERSE_MATRIX;
-    _tokenSubstitutions[HW::T_PROJ_TRANSPOSE_MATRIX] = HW::PROJ_TRANSPOSE_MATRIX;
-    _tokenSubstitutions[HW::T_PROJ_INVERSE_TRANSPOSE_MATRIX] = HW::PROJ_INVERSE_TRANSPOSE_MATRIX;
-    _tokenSubstitutions[HW::T_WORLD_VIEW_MATRIX] = HW::WORLD_VIEW_MATRIX;
-    _tokenSubstitutions[HW::T_VIEW_PROJECTION_MATRIX] = HW::VIEW_PROJECTION_MATRIX;
-    _tokenSubstitutions[HW::T_WORLD_VIEW_PROJECTION_MATRIX] = HW::WORLD_VIEW_PROJECTION_MATRIX;
-    _tokenSubstitutions[HW::T_VIEW_POSITION] = HW::VIEW_POSITION;
-    _tokenSubstitutions[HW::T_VIEW_DIRECTION] = HW::VIEW_DIRECTION;
-    _tokenSubstitutions[HW::T_FRAME] = HW::FRAME;
-    _tokenSubstitutions[HW::T_TIME] = HW::TIME;
-    _tokenSubstitutions[HW::T_GEOMPROP] = HW::GEOMPROP;
-    _tokenSubstitutions[HW::T_ALPHA_THRESHOLD] = HW::ALPHA_THRESHOLD;
-    _tokenSubstitutions[HW::T_NUM_ACTIVE_LIGHT_SOURCES] = HW::NUM_ACTIVE_LIGHT_SOURCES;
-    _tokenSubstitutions[HW::T_ENV_MATRIX] = HW::ENV_MATRIX;
-    _tokenSubstitutions[HW::T_ENV_RADIANCE] = HW::ENV_RADIANCE;
-    _tokenSubstitutions[HW::T_ENV_RADIANCE_SAMPLER2D] = HW::ENV_RADIANCE_SAMPLER2D;
-    _tokenSubstitutions[HW::T_ENV_RADIANCE_MIPS] = HW::ENV_RADIANCE_MIPS;
-    _tokenSubstitutions[HW::T_ENV_RADIANCE_SAMPLES] = HW::ENV_RADIANCE_SAMPLES;
-    _tokenSubstitutions[HW::T_ENV_IRRADIANCE] = HW::ENV_IRRADIANCE;
-    _tokenSubstitutions[HW::T_ENV_IRRADIANCE_SAMPLER2D] = HW::ENV_IRRADIANCE_SAMPLER2D;
-    _tokenSubstitutions[HW::T_ENV_LIGHT_INTENSITY] = HW::ENV_LIGHT_INTENSITY;
-    _tokenSubstitutions[HW::T_REFRACTION_TWO_SIDED] = HW::REFRACTION_TWO_SIDED;
-    _tokenSubstitutions[HW::T_ALBEDO_TABLE] = HW::ALBEDO_TABLE;
-    _tokenSubstitutions[HW::T_ALBEDO_TABLE_SIZE] = HW::ALBEDO_TABLE_SIZE;
-    _tokenSubstitutions[HW::T_SHADOW_MAP] = HW::SHADOW_MAP;
-    _tokenSubstitutions[HW::T_SHADOW_MATRIX] = HW::SHADOW_MATRIX;
-    _tokenSubstitutions[HW::T_AMB_OCC_MAP] = HW::AMB_OCC_MAP;
-    _tokenSubstitutions[HW::T_AMB_OCC_GAIN] = HW::AMB_OCC_GAIN;
-    _tokenSubstitutions[HW::T_VERTEX_DATA_INSTANCE] = HW::VERTEX_DATA_INSTANCE;
-    _tokenSubstitutions[HW::T_LIGHT_DATA_INSTANCE] = HW::LIGHT_DATA_INSTANCE;
-    _tokenSubstitutions[HW::T_ENV_PREFILTER_MIP] = HW::ENV_PREFILTER_MIP;
-    _tokenSubstitutions[HW::T_TEX_SAMPLER_SAMPLER2D] = HW::TEX_SAMPLER_SAMPLER2D;
-    _tokenSubstitutions[HW::T_TEX_SAMPLER_SIGNATURE] = HW::TEX_SAMPLER_SIGNATURE;
-    _tokenSubstitutions[HW::T_CLOSURE_DATA_CONSTRUCTOR] = HW::CLOSURE_DATA_CONSTRUCTOR;
+    _tokenSubstitutions[HW::T_VIEW_MATRIX]                    = HW::VIEW_MATRIX;
+    _tokenSubstitutions[HW::T_VIEW_INVERSE_MATRIX]            = HW::VIEW_INVERSE_MATRIX;
+    _tokenSubstitutions[HW::T_VIEW_TRANSPOSE_MATRIX]          = HW::VIEW_TRANSPOSE_MATRIX;
+    _tokenSubstitutions[HW::T_VIEW_INVERSE_TRANSPOSE_MATRIX]  = HW::VIEW_INVERSE_TRANSPOSE_MATRIX;
+    _tokenSubstitutions[HW::T_PROJ_MATRIX]                    = HW::PROJ_MATRIX;
+    _tokenSubstitutions[HW::T_PROJ_INVERSE_MATRIX]            = HW::PROJ_INVERSE_MATRIX;
+    _tokenSubstitutions[HW::T_PROJ_TRANSPOSE_MATRIX]          = HW::PROJ_TRANSPOSE_MATRIX;
+    _tokenSubstitutions[HW::T_PROJ_INVERSE_TRANSPOSE_MATRIX]  = HW::PROJ_INVERSE_TRANSPOSE_MATRIX;
+    _tokenSubstitutions[HW::T_WORLD_VIEW_MATRIX]              = HW::WORLD_VIEW_MATRIX;
+    _tokenSubstitutions[HW::T_VIEW_PROJECTION_MATRIX]         = HW::VIEW_PROJECTION_MATRIX;
+    _tokenSubstitutions[HW::T_WORLD_VIEW_PROJECTION_MATRIX]   = HW::WORLD_VIEW_PROJECTION_MATRIX;
+    _tokenSubstitutions[HW::T_VIEW_POSITION]                  = HW::VIEW_POSITION;
+    _tokenSubstitutions[HW::T_VIEW_DIRECTION]                 = HW::VIEW_DIRECTION;
+    _tokenSubstitutions[HW::T_FRAME]                          = HW::FRAME;
+    _tokenSubstitutions[HW::T_TIME]                           = HW::TIME;
+    _tokenSubstitutions[HW::T_GEOMPROP]                       = HW::GEOMPROP;
+    _tokenSubstitutions[HW::T_ALPHA_THRESHOLD]                = HW::ALPHA_THRESHOLD;
+    _tokenSubstitutions[HW::T_NUM_ACTIVE_LIGHT_SOURCES]       = HW::NUM_ACTIVE_LIGHT_SOURCES;
+    _tokenSubstitutions[HW::T_ENV_MATRIX]                     = HW::ENV_MATRIX;
+    _tokenSubstitutions[HW::T_ENV_RADIANCE]                   = HW::ENV_RADIANCE;
+    _tokenSubstitutions[HW::T_ENV_RADIANCE_SAMPLER2D]         = HW::ENV_RADIANCE_SAMPLER2D;
+    _tokenSubstitutions[HW::T_ENV_RADIANCE_MIPS]              = HW::ENV_RADIANCE_MIPS;
+    _tokenSubstitutions[HW::T_ENV_RADIANCE_SAMPLES]           = HW::ENV_RADIANCE_SAMPLES;
+    _tokenSubstitutions[HW::T_ENV_IRRADIANCE]                 = HW::ENV_IRRADIANCE;
+    _tokenSubstitutions[HW::T_ENV_IRRADIANCE_SAMPLER2D]       = HW::ENV_IRRADIANCE_SAMPLER2D;
+    _tokenSubstitutions[HW::T_ENV_LIGHT_INTENSITY]            = HW::ENV_LIGHT_INTENSITY;
+    _tokenSubstitutions[HW::T_REFRACTION_TWO_SIDED]           = HW::REFRACTION_TWO_SIDED;
+    _tokenSubstitutions[HW::T_ALBEDO_TABLE]                   = HW::ALBEDO_TABLE;
+    _tokenSubstitutions[HW::T_ALBEDO_TABLE_SIZE]              = HW::ALBEDO_TABLE_SIZE;
+    _tokenSubstitutions[HW::T_SHADOW_MAP]                     = HW::SHADOW_MAP;
+    _tokenSubstitutions[HW::T_SHADOW_MATRIX]                  = HW::SHADOW_MATRIX;
+    _tokenSubstitutions[HW::T_AMB_OCC_MAP]                    = HW::AMB_OCC_MAP;
+    _tokenSubstitutions[HW::T_AMB_OCC_GAIN]                   = HW::AMB_OCC_GAIN;
+    _tokenSubstitutions[HW::T_VERTEX_DATA_INSTANCE]           = HW::VERTEX_DATA_INSTANCE;
+    _tokenSubstitutions[HW::T_LIGHT_DATA_INSTANCE]            = HW::LIGHT_DATA_INSTANCE;
+    _tokenSubstitutions[HW::T_ENV_PREFILTER_MIP]              = HW::ENV_PREFILTER_MIP;
+    _tokenSubstitutions[HW::T_TEX_SAMPLER_SAMPLER2D]          = HW::TEX_SAMPLER_SAMPLER2D;
+    _tokenSubstitutions[HW::T_TEX_SAMPLER_SIGNATURE]          = HW::TEX_SAMPLER_SIGNATURE;
+    _tokenSubstitutions[HW::T_CLOSURE_DATA_CONSTRUCTOR]       = HW::CLOSURE_DATA_CONSTRUCTOR;
 }
 
 ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element, GenContext& context) const
 {
     // Create the root shader graph
     ShaderGraphPtr graph = ShaderGraph::create(nullptr, name, element, context);
-    ShaderPtr shader = std::make_shared<Shader>(name, graph);
+    ShaderPtr shader     = std::make_shared<Shader>(name, graph);
 
     // Check if there are inputs with default geomprops assigned. In order to bind the
     // corresponding data to these inputs we insert geomprop nodes in the graph.
@@ -100,7 +102,7 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     {
         if (!socket->getGeomProp().empty())
         {
-            ConstDocumentPtr doc = element->getDocument();
+            ConstDocumentPtr doc    = element->getDocument();
             GeomPropDefPtr geomprop = doc->getGeomPropDef(socket->getGeomProp());
             if (geomprop)
             {
@@ -148,13 +150,13 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     vsPrivateUniforms.add(Type::MATRIX44, HW::T_VIEW_PROJECTION_MATRIX);
 
     // Create pixel stage.
-    ShaderStagePtr ps = createStage(Stage::PIXEL, *shader);
+    ShaderStagePtr ps          = createStage(Stage::PIXEL, *shader);
     VariableBlockPtr psOutputs = ps->createOutputBlock(HW::PIXEL_OUTPUTS, "o_ps");
 
     // Create required Uniform blocks and any additional blocks if needed.
     VariableBlockPtr psPrivateUniforms = ps->createUniformBlock(HW::PRIVATE_UNIFORMS, "u_prv");
-    VariableBlockPtr psPublicUniforms = ps->createUniformBlock(HW::PUBLIC_UNIFORMS, "u_pub");
-    VariableBlockPtr lightData = ps->createUniformBlock(HW::LIGHT_DATA, HW::T_LIGHT_DATA_INSTANCE);
+    VariableBlockPtr psPublicUniforms  = ps->createUniformBlock(HW::PUBLIC_UNIFORMS, "u_pub");
+    VariableBlockPtr lightData         = ps->createUniformBlock(HW::LIGHT_DATA, HW::T_LIGHT_DATA_INSTANCE);
     lightData->add(Type::INTEGER, getLightDataTypevarString());
 
     // Add a block for data from vertex to pixel shader.
@@ -229,7 +231,7 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     // so copy name and variable from the graph output but set type to color4.
     // TODO: Improve this to support multiple outputs and other data types.
     ShaderGraphOutputSocket* outputSocket = graph->getOutputSocket();
-    ShaderPort* output = psOutputs->add(Type::COLOR4, outputSocket->getName());
+    ShaderPort* output                    = psOutputs->add(Type::COLOR4, outputSocket->getName());
     output->setVariable(outputSocket->getVariable());
     output->setPath(outputSocket->getPath());
 
@@ -261,7 +263,7 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     {
         for (const auto& it : lightShaders->get())
         {
-            ShaderNode* node = it.second.get();
+            ShaderNode* node        = it.second.get();
             ShaderGraph* lightGraph = node->getImplementation().getGraph();
             if (lightGraph)
             {
@@ -313,7 +315,7 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
 
 bool HwShaderGenerator::requiresLighting(const ShaderGraph& graph) const
 {
-    const bool isBsdf = graph.hasClassification(ShaderNode::Classification::BSDF);
+    const bool isBsdf             = graph.hasClassification(ShaderNode::Classification::BSDF);
     const bool isLitSurfaceShader = graph.hasClassification(ShaderNode::Classification::SHADER) &&
                                     graph.hasClassification(ShaderNode::Classification::SURFACE) &&
                                     !graph.hasClassification(ShaderNode::Classification::UNLIT);

@@ -3,25 +3,26 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXGenHw/Nodes/HwTransformNode.h>
+#include "HwTransformNode.h"
 
 #include <MaterialXGenHw/HwConstants.h>
+
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
 const string HwTransformNode::FROM_SPACE = "fromspace";
-const string HwTransformNode::TO_SPACE = "tospace";
-const string HwTransformNode::MODEL = "model";
-const string HwTransformNode::OBJECT = "object";
-const string HwTransformNode::WORLD = "world";
+const string HwTransformNode::TO_SPACE   = "tospace";
+const string HwTransformNode::MODEL      = "model";
+const string HwTransformNode::OBJECT     = "object";
+const string HwTransformNode::WORLD      = "world";
 
 void HwTransformNode::createVariables(const ShaderNode& node, GenContext&, Shader& shader) const
 {
-    const string toSpace = getToSpace(node);
+    const string toSpace   = getToSpace(node);
     const string fromSpace = getFromSpace(node);
-    const string& matrix = getMatrix(fromSpace, toSpace);
+    const string& matrix   = getMatrix(fromSpace, toSpace);
     if (!matrix.empty())
     {
         ShaderStage& ps = shader.getStage(Stage::PIXEL);
@@ -35,8 +36,8 @@ void HwTransformNode::emitFunctionCall(const ShaderNode& node, GenContext& conte
     {
         const ShaderGenerator& shadergen = context.getShaderGenerator();
 
-        const ShaderOutput* output = node.getOutput();
-        const ShaderInput* inInput = node.getInput("in");
+        const ShaderOutput* output       = node.getOutput();
+        const ShaderInput* inInput       = node.getInput("in");
         if (inInput->getType() != Type::VECTOR3 && inInput->getType() != Type::VECTOR4)
         {
             throw ExceptionShaderGenError("Transform node must have 'in' type of vector3 or vector4.");
@@ -45,9 +46,9 @@ void HwTransformNode::emitFunctionCall(const ShaderNode& node, GenContext& conte
         shadergen.emitLineBegin(stage);
         shadergen.emitOutput(output, true, false, context, stage);
 
-        const string toSpace = getToSpace(node);
+        const string toSpace   = getToSpace(node);
         const string fromSpace = getFromSpace(node);
-        const string& matrix = getMatrix(fromSpace, toSpace);
+        const string& matrix   = getMatrix(fromSpace, toSpace);
         if (matrix.empty())
         {
             shadergen.emitString(" = (", stage);
@@ -57,7 +58,7 @@ void HwTransformNode::emitFunctionCall(const ShaderNode& node, GenContext& conte
             shadergen.emitString(" = mx_matrix_mul(" + matrix + ", ", stage);
         }
 
-        const string type = shadergen.getSyntax().getTypeName(Type::VECTOR4);
+        const string type  = shadergen.getSyntax().getTypeName(Type::VECTOR4);
         const string input = shadergen.getUpstreamResult(inInput, context);
         shadergen.emitString(type + "(" + input + ", " + getHomogeneousCoordinate() + ")).xyz", stage);
         shadergen.emitLineEnd(stage);

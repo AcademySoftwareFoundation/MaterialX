@@ -3,9 +3,10 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXGenHw/Nodes/HwNumLightsNode.h>
+#include "HwNumLightsNode.h"
 
 #include <MaterialXGenHw/HwConstants.h>
+
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
 
@@ -31,7 +32,7 @@ ShaderNodeImplPtr HwNumLightsNode::create()
 void HwNumLightsNode::createVariables(const ShaderNode&, GenContext&, Shader& shader) const
 {
     // Create uniform for number of active light sources
-    ShaderStage& ps = shader.getStage(Stage::PIXEL);
+    ShaderStage& ps             = shader.getStage(Stage::PIXEL);
     ShaderPort* numActiveLights = addStageUniform(HW::PRIVATE_UNIFORMS, Type::INTEGER, HW::T_NUM_ACTIVE_LIGHT_SOURCES, ps);
     numActiveLights->setValue(Value::createValue<int>(0));
 }

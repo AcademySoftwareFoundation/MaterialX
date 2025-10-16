@@ -3,9 +3,10 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXGenHw/Nodes/HwTimeNode.h>
+#include "HwTimeNode.h"
 
 #include <MaterialXGenHw/HwConstants.h>
+
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
 

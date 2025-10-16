@@ -3,10 +3,11 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXGenHw/Nodes/HwBitangentNode.h>
+#include "HwBitangentNode.h"
 
 #include <MaterialXGenHw/HwConstants.h>
 #include <MaterialXGenHw/HwShaderGenerator.h>
+
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
 
@@ -21,8 +22,8 @@ void HwBitangentNode::createVariables(const ShaderNode& node, GenContext& contex
 {
     const GenOptions& options = context.getOptions();
 
-    ShaderStage& vs = shader.getStage(Stage::VERTEX);
-    ShaderStage& ps = shader.getStage(Stage::PIXEL);
+    ShaderStage& vs           = shader.getStage(Stage::VERTEX);
+    ShaderStage& ps           = shader.getStage(Stage::PIXEL);
 
     if (options.hwImplicitBitangents)
     {
@@ -35,7 +36,7 @@ void HwBitangentNode::createVariables(const ShaderNode& node, GenContext& contex
     }
 
     const ShaderInput* spaceInput = node.getInput(SPACE);
-    const int space = spaceInput ? spaceInput->getValue()->asA<int>() : OBJECT_SPACE;
+    const int space               = spaceInput ? spaceInput->getValue()->asA<int>() : OBJECT_SPACE;
     if (space == WORLD_SPACE)
     {
         addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, HW::T_BITANGENT_WORLD, vs, ps);
@@ -57,15 +58,15 @@ void HwBitangentNode::createVariables(const ShaderNode& node, GenContext& contex
 void HwBitangentNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
     const HwShaderGenerator& shadergen = static_cast<const HwShaderGenerator&>(context.getShaderGenerator());
-    const GenOptions& options = context.getOptions();
+    const GenOptions& options          = context.getOptions();
 
-    const ShaderInput* spaceInput = node.getInput(SPACE);
-    const int space = spaceInput ? spaceInput->getValue()->asA<int>() : OBJECT_SPACE;
+    const ShaderInput* spaceInput      = node.getInput(SPACE);
+    const int space                    = spaceInput ? spaceInput->getValue()->asA<int>() : OBJECT_SPACE;
 
     DEFINE_SHADER_STAGE(stage, Stage::VERTEX)
     {
         VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
-        const string prefix = shadergen.getVertexDataPrefix(vertexData);
+        const string prefix       = shadergen.getVertexDataPrefix(vertexData);
         if (space == WORLD_SPACE)
         {
             ShaderPort* bitangent = vertexData[HW::T_BITANGENT_WORLD];
@@ -118,7 +119,7 @@ void HwBitangentNode::emitFunctionCall(const ShaderNode& node, GenContext& conte
     DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
     {
         VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
-        const string prefix = shadergen.getVertexDataPrefix(vertexData);
+        const string prefix       = shadergen.getVertexDataPrefix(vertexData);
         shadergen.emitLineBegin(stage);
         shadergen.emitOutput(node.getOutput(), true, false, context, stage);
         if (space == WORLD_SPACE)

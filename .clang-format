@@ -12,7 +12,24 @@ IndentPPDirectives: BeforeHash
 IndentWidth: 4
 LambdaBodyIndentation: OuterScope
 PointerAlignment: Left
-SortIncludes: false
 SpaceAfterCStyleCast: true
 SpaceInEmptyBlock: true
 UseTab: Never
+
+AlignConsecutiveAssignments: AcrossEmptyLines
+
+SortIncludes: true
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex:           '^<(MaterialXGenGlsl|MaterialXGenMdl|MaterialXGenMsl|MaterialXGenOsl|MaterialXGenHw)/'
+    Priority:        50
+  - Regex:           '^<MaterialXGenShader/'
+    Priority:        60
+  - Regex:           '^<(MaterialXRenderGlsl|MaterialXRenderMsl|MaterialXRenderOsl|MaterialXRenderHw)/'
+    Priority:        70
+  - Regex:           '^<MaterialXRender/'
+    Priority:        80
+  - Regex:           '^<MaterialXCore/'
+    Priority:        90
+  - Regex:           '^<MaterialXFormat/'
+    Priority:        100

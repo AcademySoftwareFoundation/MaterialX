@@ -3,13 +3,14 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXGenHw/HwImplementation.h>
+#include "HwImplementation.h"
+
 #include <MaterialXGenShader/ShaderNode.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
-const string HwImplementation::SPACE = "space";
-const string HwImplementation::INDEX = "index";
+const string HwImplementation::SPACE    = "space";
+const string HwImplementation::INDEX    = "index";
 const string HwImplementation::GEOMPROP = "geomprop";
 
 namespace

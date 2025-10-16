@@ -29,9 +29,9 @@ class MX_GENHW_API HwImplementation : public ShaderNodeImpl
     // The order must match the order given for the space enum string in stdlib.
     enum Space
     {
-        MODEL_SPACE = 0,
+        MODEL_SPACE  = 0,
         OBJECT_SPACE = 1,
-        WORLD_SPACE = 2
+        WORLD_SPACE  = 2
     };
 
     /// Internal string constants
