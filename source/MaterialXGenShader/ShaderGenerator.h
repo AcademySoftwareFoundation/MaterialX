@@ -12,13 +12,13 @@
 #include <MaterialXGenShader/Export.h>
 
 #include <MaterialXGenShader/ColorManagementSystem.h>
+#include <MaterialXGenShader/Exception.h>
 #include <MaterialXGenShader/Factory.h>
 #include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/Syntax.h>
 
 #include <MaterialXFormat/File.h>
 
-#include <MaterialXGenShader/Exception.h>
 
 MATERIALX_NAMESPACE_BEGIN
 

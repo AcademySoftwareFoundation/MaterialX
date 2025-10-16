@@ -6,7 +6,6 @@
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
 #include <MaterialXGenGlsl/GlslSyntax.h>
-#include <MaterialXGenShader/Exception.h>
 
 #include <MaterialXGenHw/HwLightShaders.h>
 #include <MaterialXGenHw/Nodes/HwImageNode.h>
@@ -28,6 +27,7 @@
 #include <MaterialXGenHw/Nodes/HwNumLightsNode.h>
 #include <MaterialXGenHw/Nodes/HwSurfaceNode.h>
 
+#include <MaterialXGenShader/Exception.h>
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/Nodes/MaterialNode.h>
 
