@@ -5,8 +5,6 @@
 
 #include <MaterialXGenShader/ShaderTranslator.h>
 
-#include <MaterialXCore/Material.h>
-
 MATERIALX_NAMESPACE_BEGIN
 
 //

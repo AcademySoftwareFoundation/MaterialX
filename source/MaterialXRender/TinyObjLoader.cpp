@@ -4,7 +4,6 @@
 //
 
 #include <MaterialXRender/TinyObjLoader.h>
-#include <MaterialXCore/Util.h>
 
 #if defined(__GNUC__) && !defined(__clang__)
     #pragma GCC diagnostic push

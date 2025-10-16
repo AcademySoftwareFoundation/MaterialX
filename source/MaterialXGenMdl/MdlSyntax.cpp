@@ -7,8 +7,6 @@
 
 #include <MaterialXGenShader/ShaderGenerator.h>
 
-#include <MaterialXFormat/File.h>
-
 #include <sstream>
 
 MATERIALX_NAMESPACE_BEGIN

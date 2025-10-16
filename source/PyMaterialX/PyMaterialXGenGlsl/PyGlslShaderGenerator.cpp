@@ -10,8 +10,6 @@
 #include <MaterialXGenGlsl/EsslShaderGenerator.h>
 #include <MaterialXGenGlsl/VkShaderGenerator.h>
 #include <MaterialXGenGlsl/WgslShaderGenerator.h>
-#include <MaterialXGenShader/Shader.h>
-#include <MaterialXGenShader/ShaderGenerator.h>
 
 namespace py = pybind11;
 namespace mx = MaterialX;

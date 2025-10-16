@@ -6,14 +6,11 @@
 #include <MaterialXTest/External/Catch/catch.hpp>
 #include <MaterialXTest/MaterialXGenOsl/GenOsl.h>
 
-#include <MaterialXFormat/File.h>
 #include <MaterialXFormat/Util.h>
 
-#include <MaterialXGenShader/TypeDesc.h>
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
 
-#include <MaterialXGenOsl/OslShaderGenerator.h>
 #include <MaterialXGenOsl/OslSyntax.h>
 
 namespace mx = MaterialX;

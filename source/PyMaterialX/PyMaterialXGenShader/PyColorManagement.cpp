@@ -8,7 +8,6 @@
 #include <MaterialXGenShader/ColorManagementSystem.h>
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
 #include <MaterialXGenShader/GenContext.h>
-#include <MaterialXGenShader/ShaderGraph.h>
 
 #ifdef MATERIALX_BUILD_OCIO
 #include <MaterialXGenShader/OcioColorManagementSystem.h>

@@ -7,11 +7,6 @@
 #include <JsMaterialX/Helpers.h>
 
 #include <MaterialXCore/Document.h>
-#include <MaterialXCore/Geom.h>
-#include <MaterialXCore/Look.h>
-#include <MaterialXCore/Material.h>
-#include <MaterialXCore/Node.h>
-#include <MaterialXCore/Traversal.h>
 
 #include <emscripten/bind.h>
 

@@ -6,8 +6,6 @@
 #include <MaterialXGenGlsl/WgslShaderGenerator.h>
 #include <MaterialXGenGlsl/WgslSyntax.h>
 
-#include <MaterialXGenHw/HwConstants.h>
-
 MATERIALX_NAMESPACE_BEGIN
 
 const string WgslShaderGenerator::LIGHTDATA_TYPEVAR_STRING = "light_type";

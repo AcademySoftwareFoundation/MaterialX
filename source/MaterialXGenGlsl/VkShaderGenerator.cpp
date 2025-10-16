@@ -5,7 +5,6 @@
 
 #include <MaterialXGenGlsl/VkShaderGenerator.h>
 #include <MaterialXGenGlsl/VkSyntax.h>
-#include <MaterialXGenHw/HwConstants.h>
 
 MATERIALX_NAMESPACE_BEGIN
 

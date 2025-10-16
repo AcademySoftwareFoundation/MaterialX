@@ -5,7 +5,6 @@
 
 #include <MaterialXGraphEditor/Graph.h>
 #include <MaterialXFormat/Environ.h>
-#include <MaterialXFormat/File.h>
 #include <MaterialXFormat/Util.h>
 
 #include <imgui_impl_glfw.h>

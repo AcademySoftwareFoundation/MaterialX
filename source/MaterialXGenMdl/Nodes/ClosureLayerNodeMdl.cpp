@@ -6,12 +6,6 @@
 #include <MaterialXGenMdl/Nodes/ClosureLayerNodeMdl.h>
 #include <MaterialXGenMdl/MdlShaderGenerator.h>
 
-#include <MaterialXGenShader/GenContext.h>
-#include <MaterialXGenShader/ShaderNode.h>
-#include <MaterialXGenShader/ShaderStage.h>
-#include <MaterialXGenShader/ShaderGenerator.h>
-#include <MaterialXGenShader/TypeDesc.h>
-
 MATERIALX_NAMESPACE_BEGIN
 
 const string StringConstantsMdl::TOP = "top";
