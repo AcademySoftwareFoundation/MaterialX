@@ -114,7 +114,7 @@ void HwSurfaceNode::emitFunctionCall(const ShaderNode& node, GenContext& context
             shadergen.emitComment("Shadow occlusion", stage);
             if (context.getOptions().hwShadowMap)
             {
-                shadergen.emitLine("occlusion = mx_shadow_occlusion(" + HW::T_SHADOW_MAP + ", " + HW::T_SHADOW_MATRIX + ", P)", stage);
+                shadergen.emitLine("occlusion = mx_shadow_occlusion(" + HW::T_SHADOW_MAP + ", " + HW::T_SHADOW_MATRIX + ", " + prefix + HW::T_POSITION_WORLD + ")", stage);
             }
             shadergen.emitLineBreak(stage);
 
