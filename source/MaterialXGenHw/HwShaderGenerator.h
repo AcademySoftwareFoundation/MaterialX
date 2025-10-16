@@ -12,6 +12,7 @@
 #include <MaterialXGenHw/Export.h>
 
 #include <MaterialXGenShader/ShaderGenerator.h>
+#include <MaterialXGenShader/GenContext.h>
 
 // These headers below are not required for inclusion here
 // they are included as an affordance to backwards compatibility
