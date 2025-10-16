@@ -232,6 +232,10 @@ mx::StringVec convertOptionToConsolidatedTypes(const mx::StringVec& options)
         "string", "filename",
         "surfaceshader", "displacementshader", "volumeshader", "lightshader"
     };
+    // TODO - for now we're just looking at stdlib - so we're just gonna skip these types
+    // this is because the `mix` node actually belongs in two separate documents
+    // standard nods and PBR nodes
+    static const std::vector<std::string> skipTypes = {"surfaceshader", "displacementshader", "volumeshader", "lightshader"};
 
     auto contains = [&](const std::vector<std::string>& array, const std::string& str) -> bool {
         return std::find(array.begin(), array.end(), str) != array.end();
@@ -277,6 +281,14 @@ mx::StringVec convertOptionToConsolidatedTypes(const mx::StringVec& options)
         remove(parts, "matrix44");
         parts.emplace_back("matrixNN");
     }
+
+    // remove the skipped types for now.
+    for (const auto& skipType : skipTypes)
+    {
+        if (contains(parts, skipType))
+            remove(parts, skipType);
+    }
+
 
     std::vector<std::string> res;
     for (const auto& part : preferredOptionOrder)

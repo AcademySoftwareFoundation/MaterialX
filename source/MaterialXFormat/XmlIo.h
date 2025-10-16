@@ -57,7 +57,7 @@ class MX_FORMAT_API XmlReadOptions
     /// Defaults to an empty vector.
     StringVec parentXIncludes;
 
-    /// Expand any <template> tags present in the document
+    /// Expand any template tags present in the document
     bool expandTemplateElems = false;
 };
 

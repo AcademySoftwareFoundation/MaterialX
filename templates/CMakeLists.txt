@@ -2,7 +2,7 @@
 # This is a temporary validation step - so I decided not to promote this setting
 # to a first class CMake option for now - we may decide we want to do this if
 # running this in CI is helpful -
-set(MATERIALX_COMPARE_TEMPLATES_TO_LIBRARY OFF)
+set(MATERIALX_COMPARE_TEMPLATES_TO_LIBRARY ON)
 
 if(MATERIALX_COMPARE_TEMPLATES_TO_LIBRARY)
     # Here we run both the "libraries" and "templates" folder through the
