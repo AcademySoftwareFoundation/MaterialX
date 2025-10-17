@@ -252,21 +252,15 @@ that may be thrown by a method should be documented using the `@throws` tag in
 the method's documentation. When catching exceptions, specific exception types
 should be caught rather than generic exceptions whenever possible.
 
-#### Coding Style
-
-The coding style of the MaterialX project is defined by a
-[clang-format](.clang-format) file in the repository, which is supported by
-Clang versions 13 and newer.
-
-When adding new source files to the repository, use the provided clang-format
-file to automatically align the code to MaterialX conventions. When modifying
-existing code, follow the surrounding formatting conventions so that new or
-modified code blends in with the current code.
-
 #### Header Includes
 
-In implementation files (.cpp), the corresponding header file should always be
-included first (e.g. the first include in `Element.cpp` should be `Element.h`).
+Header includes should be written with angle brackets, with paths relative to
+the root source folder (e.g. `#include <MaterialXCore/Element.h>`). This
+ensures consistent include paths across the entire codebase, regardless of the
+location of the referencing file.
+
+In implementation files (.cpp), the corresponding header file should be included
+first (e.g. the first include in `Element.cpp` should be `Element.h`).
 This ensures that the header file is self-contained and doesn't accidentally
 depend on includes from other headers.
 
@@ -279,10 +273,21 @@ include blocks, individual includes should be ordered alphabetically, providing
 a simple canonical order that is straightforward for developers to check.
 
 In the interest of avoiding include cycles, developers are free to leverage
-_forward declarations_ of classes that are trivially referenced within another
-header. In the interest of clarity and efficiency, developers are free to leverage
-_transitive header includes_, where low-level headers that have already been
-included by a high-level header do not need to be restated individually.
+forward declarations of classes that are trivially referenced within another
+header. In the interest of clarity and efficiency, developers are free to
+leverage transitive header includes, where low-level headers that have already
+been included by a high-level header do not need to be restated individually.
+
+#### Coding Style
+
+The coding style of the MaterialX project is defined by a
+[clang-format](.clang-format) file in the repository, which is supported by
+Clang versions 13 and newer.
+
+When adding new source files to the repository, use the provided clang-format
+file to automatically align the code to MaterialX conventions. When modifying
+existing code, follow the surrounding formatting conventions so that new or
+modified code blends in with the current code.
 
 #### Documentation Standards
 
