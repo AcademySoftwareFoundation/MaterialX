@@ -185,8 +185,8 @@ FilePathVec FilePath::getFilesInDirectory(const string& extension) const
 
 #if defined(_WIN32)
     WIN32_FIND_DATAA fd;
-    FilePath query = extension.empty() ? *this : (*this / ("*." + extension)
-    HANDLE hFind = FindFirstFileA((*this / wildcard).asString().c_str(), &fd);
+    FilePath query = extension.empty() ? *this : (*this / ("*." + extension);
+    HANDLE hFind = FindFirstFileA(query.asString().c_str(), &fd);
     if (hFind != INVALID_HANDLE_VALUE)
     {
         do
