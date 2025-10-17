@@ -50,6 +50,14 @@ void HwSurfaceNode::emitFunctionCall(const ShaderNode& node, GenContext& context
     const HwShaderGenerator& shadergen = static_cast<const HwShaderGenerator&>(context.getShaderGenerator());
     const Syntax& syntax = shadergen.getSyntax();
 
+    const string& vec2 = syntax.getTypeName(Type::VECTOR2);
+    const string& vec3 = syntax.getTypeName(Type::VECTOR3);
+    const string& vec4 = syntax.getTypeName(Type::VECTOR4);
+    const string& vec2_zero = syntax.getValue(Type::VECTOR2, HW::VEC3_ZERO);
+    const string& vec2_one = syntax.getValue(Type::VECTOR2, HW::VEC3_ONE);
+    const string& vec3_zero = syntax.getValue(Type::VECTOR3, HW::VEC3_ZERO);
+    const string& vec3_one = syntax.getValue(Type::VECTOR3, HW::VEC3_ONE);
+
     DEFINE_SHADER_STAGE(stage, Stage::VERTEX)
     {
         VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
@@ -90,10 +98,10 @@ void HwSurfaceNode::emitFunctionCall(const ShaderNode& node, GenContext& context
 
         shadergen.emitScopeBegin(stage);
 
-        shadergen.emitLine(syntax.getTypeName(Type::VECTOR3)+" N = normalize(" + prefix + HW::T_NORMAL_WORLD + ")", stage);
-        shadergen.emitLine(syntax.getTypeName(Type::VECTOR3)+" V = normalize(" + HW::T_VIEW_POSITION + " - " + prefix + HW::T_POSITION_WORLD + ")", stage);
-        shadergen.emitLine(syntax.getTypeName(Type::VECTOR3)+" P = " + prefix + HW::T_POSITION_WORLD, stage);
-        shadergen.emitLine(syntax.getTypeName(Type::VECTOR3)+" L = "+syntax.getValue(Type::VECTOR3, HW::zeroVec3), stage);
+        shadergen.emitLine(vec3+" N = normalize(" + prefix + HW::T_NORMAL_WORLD + ")", stage);
+        shadergen.emitLine(vec3+" V = normalize(" + HW::T_VIEW_POSITION + " - " + prefix + HW::T_POSITION_WORLD + ")", stage);
+        shadergen.emitLine(vec3+" P = " + prefix + HW::T_POSITION_WORLD, stage);
+        shadergen.emitLine(vec3+" L = "+vec3_zero, stage);
         shadergen.emitLine("float occlusion = 1.0", stage);
         shadergen.emitLineBreak(stage);
 
@@ -220,7 +228,7 @@ void HwSurfaceNode::emitFunctionCall(const ShaderNode& node, GenContext& context
             shadergen.emitComment("Compute and apply surface opacity", stage);
             shadergen.emitScopeBegin(stage);
             shadergen.emitLine(outColor + " *= surfaceOpacity", stage);
-            shadergen.emitLine(outTransparency + " = mix("+syntax.getValue(Type::VECTOR3, HW::oneVec3)+", " + outTransparency + ", surfaceOpacity)", stage);
+            shadergen.emitLine(outTransparency + " = mix("+vec3_one+", " + outTransparency + ", surfaceOpacity)", stage);
             shadergen.emitScopeEnd(stage);
         }
 

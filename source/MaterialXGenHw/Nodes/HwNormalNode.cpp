@@ -42,6 +42,8 @@ void HwNormalNode::emitFunctionCall(const ShaderNode& node, GenContext& context,
     const HwShaderGenerator& shadergen = static_cast<const HwShaderGenerator&>(context.getShaderGenerator());
     const Syntax& syntax = shadergen.getSyntax();
 
+    const string& vec4 = syntax.getTypeName(Type::VECTOR4);
+
     const ShaderInput* spaceInput = node.getInput(SPACE);
     const int space = spaceInput ? spaceInput->getValue()->asA<int>() : OBJECT_SPACE;
 
@@ -55,7 +57,7 @@ void HwNormalNode::emitFunctionCall(const ShaderNode& node, GenContext& context,
             if (!normal->isEmitted())
             {
                 normal->setEmitted();
-                shadergen.emitLine(prefix + normal->getVariable() + " = normalize(mx_matrix_mul(" + HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX + ", "+syntax.getTypeName(Type::VECTOR4)+"(" + HW::T_IN_NORMAL + ", 0.0)).xyz)", stage);
+                shadergen.emitLine(prefix + normal->getVariable() + " = normalize(mx_matrix_mul(" + HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX + ", "+vec4+"(" + HW::T_IN_NORMAL + ", 0.0)).xyz)", stage);
             }
         }
         else

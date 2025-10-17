@@ -251,10 +251,10 @@ extern MX_GENHW_API const string USER_DATA_BINDING_CONTEXT;
 extern MX_GENHW_API const TypeDesc ClosureDataType;
 
 /// Constant Values
-extern MX_GENHW_API const TypedValue<Vector2> zeroVec2;
-extern MX_GENHW_API const TypedValue<Vector2> oneVec2;
-extern MX_GENHW_API const TypedValue<Vector3> zeroVec3;
-extern MX_GENHW_API const TypedValue<Vector3> oneVec3;
+extern MX_GENHW_API const TypedValue<Vector2> VEC2_ZERO;
+extern MX_GENHW_API const TypedValue<Vector2> VEC2_ONE;
+extern MX_GENHW_API const TypedValue<Vector3> VEC3_ZERO;
+extern MX_GENHW_API const TypedValue<Vector3> VEC3_ONE;
 
 } // namespace HW
 
