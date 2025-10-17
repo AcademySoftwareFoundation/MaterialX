@@ -199,13 +199,14 @@ with these guidelines.
 
 #### Naming Conventions
 
-Member variables should use an underscore prefix, such as `_name` or `_parent`.
-Constants should be written in UPPER_CASE with underscores separating words,
-as in `EMPTY_STRING` or `CATEGORY`. Method names should use camelCase starting
-with a lowercase letter, for example `getNode` or `setName`. Class names should
-use PascalCase, such as `NodeGraph` or `ShaderGenerator`. Type aliases should
-append appropriate suffixes to indicate their purpose, using `Ptr` for pointers,
-`Vec` for vectors, `Map` for maps, and `Set` for sets.
+Class names should use PascalCase, as in `NodeGraph` or `ShaderGenerator`.
+Method names should use camelCase starting with a lowercase letter, for
+example `getNode` or `setName`. Protected and private member variables should
+use an underscore prefix, such as `_name` or `_parent`. Constants should be
+written in UPPER_CASE with underscores separating words, as in `EMPTY_STRING`
+or `CATEGORY`. Type aliases should append appropriate suffixes to indicate
+their purpose, using `Ptr` for pointers, `Vec` for vectors, `Map` for maps,
+and `Set` for sets.
 
 #### Static Constants and Class Organization
 
