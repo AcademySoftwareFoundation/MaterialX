@@ -291,11 +291,14 @@ modified code blends in with the current code.
 
 #### Documentation Standards
 
-All public API methods and classes should be documented with Doxygen comments.
-Documentation should include `@param`, `@return`, and `@throws` tags where
-applicable. Related methods should be grouped together using `/// @name GroupName`
-sections to improve readability. File-level documentation should be placed
-immediately after the copyright header using the `/// @file` directive.
+All classes and methods in the public API should be documented with Doxygen
+comments. Classes should be documented with the `@class` tag, and structs with
+the `@struct` tag, followed by a brief description and any detailed
+documentation. Method documentation should include `@param`, `@return`, and
+`@throws` tags where applicable. Related methods should be grouped together
+using `/// @name GroupName` sections to improve readability. File-level
+documentation should be placed immediately after the copyright header using
+the `/// @file` directive.
 
 #### Unit Tests
 
