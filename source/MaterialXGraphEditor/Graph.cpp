@@ -3705,6 +3705,44 @@ void Graph::propertyEditor()
             }
             ImGui::Checkbox("Show all inputs", &_currUiNode->_showAllInputs);
         }
+      
+        // Find tokens within currUiNode
+        mx::ConstNodePtr node = _currUiNode->getNode();
+        if (node != nullptr)
+        {
+            mx::StringResolverPtr resolver = node->createStringResolver();
+            const mx::StringMap& tokens = resolver->getFilenameSubstitutions();
+
+            if (!tokens.empty())
+            {
+                ImGui::Text("Tokens");
+             
+                ImVec2 tableSize(0.0f, TEXT_BASE_HEIGHT * std::min(SCROLL_LINE_COUNT, static_cast<int>(tokens.size())));
+                bool haveTable = ImGui::BeginTable("tokens_node_table", 2, tableFlags, tableSize);
+                if (haveTable)
+                {
+                    ImGui::SetWindowFontScale(_fontScale);
+
+                    for (const auto& [token, value] : tokens)
+                    {
+                               
+                        ImGui::TableNextRow();
+                        ImGui::TableNextColumn();
+                        ImGui::PushID(&token);
+
+                        ImGui::Text("%s", token.c_str());
+                        ImGui::TableNextColumn();
+                        ImGui::Text("%s", value.c_str());
+
+                        ImGui::PopID();
+                    }
+                        
+                    ImGui::EndTable();
+                    ImGui::SetWindowFontScale(1.0f);
+                }
+            }
+        }
+
         ImGui::PopStyleColor();
         ImGui::PopStyleColor();
 
