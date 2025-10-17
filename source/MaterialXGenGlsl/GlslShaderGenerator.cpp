@@ -434,7 +434,7 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     if (shadowing)
     {
         emitLibraryInclude("pbrlib/genglsl/lib/mx_shadow.glsl", context, stage);
-        emitLibraryInclude("pbrlib/genglsl/lib/mx_lighting.glsl", context, stage);
+        emitLibraryInclude("pbrlib/genglsl/lib/mx_shadow_platform.glsl", context, stage);
     }
 
     // Emit directional albedo table code.
