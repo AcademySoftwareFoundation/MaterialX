@@ -5,6 +5,8 @@
     <input name="base" type="float" value="1" />
     <input name="base_color" type="color3" value="0.8, 0.8, 0.8" />
     <input name="metalness" type="float" value="0" />
+    <input name="specular" type="float" value="1" />
+    <input name="specular_color" type="color3" value="1, 1, 1" />
     <input name="specular_anisotropy" type="float" value="0.0" />
     <input name="specular_rotation" type="float" value="0.0" />
     <input name="specular_roughness" type="float" value="0.2" />
@@ -23,12 +25,12 @@
     <input name="normal" type="vector3" defaultgeomprop="Nworld" />
     <input name="tangent" type="vector3" defaultgeomprop="Tworld" />
     <input name="opacity" type="color3" value="1, 1, 1" />
-    <input name="specular" type="float" value="1" />
-    <input name="specular_color" type="color3" value="1, 1, 1" />
 
     <output name="base_color_out" type="color3" />
     <output name="metallic_out" type="float" />
     <output name="roughness_out" type="float" />
+    <output name="specular_out" type="float" />
+    <output name="specular_color_out" type="color3" />
     <output name="ior_out" type="float" />
     <output name="anisotropy_strength_out" type="float" />
     <output name="anisotropy_rotation_out" type="float" />
@@ -45,8 +47,6 @@
     <output name="tangent_out" type="vector3" />
     <output name="alpha_out" type="float" />
     <output name="alpha_mode_out" type="integer" />
-    <output name="specular_out" type="float" />
-    <output name="specular_color_out" type="color3" />
   </nodedef>
 
   <nodegraph name="NG_standard_surface_to_gltf_pbr" nodedef="ND_standard_surface_to_gltf_pbr">
@@ -207,6 +207,14 @@
       <input name="in" type="float" interfacename="emission" />
     </dot>
 
+    <!-- Specular -->
+    <dot name="specular" type="float">
+      <input name="in" type="float" interfacename="specular" />
+    </dot>
+    <dot name="specular_color" type="color3">
+      <input name="in" type="color3" interfacename="specular_color" />
+    </dot>
+
     <!-- Specular Index of Refraction -->
     <dot name="ior" type="float">
       <input name="in" type="float" interfacename="specular_IOR" />
@@ -237,17 +245,11 @@
       <input name="in2" type="integer" value="2" />
     </ifequal>
 
-    <!-- Specular -->
-    <dot name="specular" type="float">
-      <input name="in" type="float" interfacename="specular" />
-    </dot>
-    <dot name="specular_color" type="color3">
-      <input name="in" type="color3" interfacename="specular_color" />
-    </dot>
-
     <output name="base_color_out" type="color3" nodename="base_color" />
     <output name="metallic_out" type="float" nodename="metallic" />
     <output name="roughness_out" type="float" nodename="roughness" />
+    <output name="specular_out" type="float" nodename="specular" />
+    <output name="specular_color_out" type="color3" nodename="specular_color" />
     <output name="ior_out" type="float" nodename="ior" />
     <output name="anisotropy_strength_out" type="float" nodename="anisotropy_strength" />
     <output name="anisotropy_rotation_out" type="float" nodename="anisotropy_rotation" />
@@ -264,8 +266,6 @@
     <output name="tangent_out" type="vector3" nodename="tangent" />
     <output name="alpha_out" type="float" nodename="opacity_luminance_float" />
     <output name="alpha_mode_out" type="integer" nodename="alpha_mode_from_opacity_luminance" />
-    <output name="specular_out" type="float" nodename="specular" />
-    <output name="specular_color_out" type="color3" nodename="specular_color" />
 
   </nodegraph>
 </materialx>
