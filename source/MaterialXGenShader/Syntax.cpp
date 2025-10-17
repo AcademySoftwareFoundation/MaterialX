@@ -5,7 +5,7 @@
 
 #include <MaterialXGenShader/Syntax.h>
 #include <MaterialXGenShader/TypeDesc.h>
-#include <MaterialXGenShader/ShaderGenerator.h>
+#include <MaterialXGenShader/Exception.h>
 #include <MaterialXGenShader/GenContext.h>
 
 #include <MaterialXCore/Value.h>
