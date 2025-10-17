@@ -3,41 +3,26 @@ const fs = require('fs');
 const CopyPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 
-const stdSurfaceMaterials = "../../resources/Materials/Examples/StandardSurface";
-const stdSurfaceMaterialsBaseURL = "Materials/Examples/StandardSurface";
-let dirent = fs.readdirSync(stdSurfaceMaterials).filter(
-    function (file) { if (file.lastIndexOf(".mtlx") > -1) return file; }
-)
-let materials = dirent
-    .map((fileName) => ({ name: fileName, value: `${stdSurfaceMaterialsBaseURL}/${fileName}` }));
+// Load material configuration from external JSON file
+const materialConfig = JSON.parse(fs.readFileSync('./example_materials.json', 'utf8'));
 
-const usdSurfaceMaterials = "../../resources/Materials/Examples/UsdPreviewSurface";
-const usdSurfaceMaterialsBaseURL = "Materials/Examples/UsdPreviewSurface";
-dirent = fs.readdirSync(usdSurfaceMaterials).filter(
-    function (file) { if (file.lastIndexOf(".mtlx") > -1) return file; }
-)
-let usdMaterials = dirent
-    .map((fileName) => ({ name: fileName, value: `${usdSurfaceMaterialsBaseURL}/${fileName}` }));
+// Function to process materials from a given path
+function processMaterialPath(materialPath, baseURL) {
+    const dirent = fs.readdirSync(materialPath).filter(
+        function (file) { if (file.lastIndexOf(".mtlx") > -1) return file; }
+    );
+    return dirent.map((fileName) => ({ 
+        name: fileName, 
+        value: `${baseURL}/${fileName}` 
+    }));
+}
 
-const gltfPbrMaterials = "../../resources/Materials/Examples/GltfPbr";
-const gltfPbrMaterialsBaseURL = "Materials/Examples/GltfPbr";
-dirent = fs.readdirSync(gltfPbrMaterials).filter(
-    function (file) { if (file.lastIndexOf(".mtlx") > -1) return file; }
-)
-let gltfMaterials = dirent
-    .map((fileName) => ({ name: fileName, value: `${gltfPbrMaterialsBaseURL}/${fileName}` }));
-
-const openPbrMaterials = "../../resources/Materials/Examples/OpenPbr";
-const openPbrMaterialsBaseURL = "Materials/Examples/OpenPbr";
-dirent = fs.readdirSync(openPbrMaterials).filter(
-    function (file) { if (file.lastIndexOf(".mtlx") > -1) return file; }
-)
-let openMaterials = dirent
-    .map((fileName) => ({ name: fileName, value: `${openPbrMaterialsBaseURL}/${fileName}` }));
-
-materials = materials.concat(usdMaterials);
-materials = materials.concat(gltfMaterials);
-materials = materials.concat(openMaterials);
+// Generate materials array from configuration
+let materials = [];
+materialConfig.materials.forEach(materialType => {
+    const materialFiles = processMaterialPath(materialType.path, materialType.baseURL);
+    materials = materials.concat(materialFiles);
+});
 
 const geometryFiles = "../../resources/Geometry";
 const geometryFilesURL = "Geometry";
@@ -77,10 +62,11 @@ module.exports = {
                 { from: "./public", to: 'public' },
                 { context: "../../resources/Lights", from: "*.*", to: "Lights" },
                 { context: "../../resources/Lights/irradiance", from: "*.*", to: "Lights/irradiance" },
-                { from: stdSurfaceMaterials, to: stdSurfaceMaterialsBaseURL },
-                { from: usdSurfaceMaterials, to: usdSurfaceMaterialsBaseURL },
-                { from: gltfPbrMaterials, to: gltfPbrMaterialsBaseURL },
-                { from: openPbrMaterials, to: openPbrMaterialsBaseURL },
+                // Dynamically generate material copy patterns from configuration
+                ...materialConfig.materials.map(materialType => ({
+                    from: materialType.path,
+                    to: materialType.baseURL
+                })),
                 { from: "../build/bin/JsMaterialXCore.wasm" },
                 { from: "../build/bin/JsMaterialXCore.js" },
                 { from: "../build/bin/JsMaterialXGenShader.wasm" },

@@ -6,11 +6,12 @@
 #include <MaterialXGenOsl/OslShaderGenerator.h>
 #include <MaterialXGenOsl/OslSyntax.h>
 
+#include <MaterialXGenShader/Exception.h>
 #include <MaterialXGenShader/GenContext.h>
-#include <MaterialXGenShader/Shader.h>
-#include <MaterialXGenShader/TypeDesc.h>
-#include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
+#include <MaterialXGenShader/Shader.h>
+#include <MaterialXGenShader/ShaderStage.h>
+#include <MaterialXGenShader/TypeDesc.h>
 
 
 MATERIALX_NAMESPACE_BEGIN

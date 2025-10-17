@@ -27,6 +27,7 @@
 #include <MaterialXGenHw/Nodes/HwNumLightsNode.h>
 #include <MaterialXGenHw/Nodes/HwSurfaceNode.h>
 
+#include <MaterialXGenShader/Exception.h>
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/Nodes/MaterialNode.h>
 
@@ -434,6 +435,7 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     if (shadowing)
     {
         emitLibraryInclude("pbrlib/genglsl/lib/mx_shadow.glsl", context, stage);
+        emitLibraryInclude("pbrlib/genglsl/lib/mx_shadow_platform.glsl", context, stage);
     }
 
     // Emit directional albedo table code.
