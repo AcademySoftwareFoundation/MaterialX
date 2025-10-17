@@ -259,10 +259,10 @@ the root source folder (e.g. `#include <MaterialXCore/Element.h>`). This
 ensures consistent include paths across the entire codebase, regardless of the
 location of the referencing file.
 
-In implementation files (.cpp), the corresponding header file should be included
-first (e.g. the first include in `Element.cpp` should be `Element.h`).
-This ensures that the header file is self-contained and doesn't accidentally
-depend on includes from other headers.
+Each implementation file should include its corresponding header file first,
+so the first include in `Element.cpp` should be `Element.h`. This ensures that
+the header file is self-contained and doesn't accidentally depend on includes
+from other headers.
 
 After the corresponding header, include blocks should be ordered hierarchically,
 with high-level modules listed before low-level modules (e.g.
