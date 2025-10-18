@@ -151,13 +151,12 @@ void GlslRenderer::render()
         throw ExceptionRenderError("Invalid OpenGL context in render");
     }
 
-    // Set up target
+    // Set up target. Will manage GL_FRAMEBUFFER_SRGB.
     _framebuffer->bind();
 
     glClearColor(_screenColor[0], _screenColor[1], _screenColor[2], 1.0f);
 
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_FRAMEBUFFER_SRGB);
     glDepthFunc(GL_LESS);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
