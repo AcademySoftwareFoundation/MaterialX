@@ -131,7 +131,7 @@ class MX_RENDER_API ImageLoader
 
     /// Returns a list of supported extensions
     /// @return List of support extensions
-    const StringSet& supportedExtensions() const
+    virtual const StringSet& supportedExtensions() const
     {
         return _extensions;
     }
