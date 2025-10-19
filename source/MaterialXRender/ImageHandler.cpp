@@ -159,7 +159,7 @@ bool ImageHandler::unbindImage(ImagePtr)
 
 void ImageHandler::unbindImages()
 {
-    for (auto iter : _imageCache)
+    for (const auto& iter : _imageCache)
     {
         unbindImage(iter.second);
     }

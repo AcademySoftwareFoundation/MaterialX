@@ -6,26 +6,30 @@
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
 #include <MaterialXGenGlsl/GlslSyntax.h>
-#include <MaterialXGenGlsl/Nodes/SurfaceNodeGlsl.h>
-#include <MaterialXGenGlsl/Nodes/LightNodeGlsl.h>
-#include <MaterialXGenGlsl/Nodes/LightCompoundNodeGlsl.h>
-#include <MaterialXGenGlsl/Nodes/LightShaderNodeGlsl.h>
-#include <MaterialXGenGlsl/Nodes/LightSamplerNodeGlsl.h>
-#include <MaterialXGenGlsl/Nodes/NumLightsNodeGlsl.h>
 
+#include <MaterialXGenHw/HwLightShaders.h>
+#include <MaterialXGenHw/Nodes/HwImageNode.h>
+#include <MaterialXGenHw/Nodes/HwGeomColorNode.h>
+#include <MaterialXGenHw/Nodes/HwGeomPropValueNode.h>
+#include <MaterialXGenHw/Nodes/HwTexCoordNode.h>
+#include <MaterialXGenHw/Nodes/HwTransformNode.h>
+#include <MaterialXGenHw/Nodes/HwPositionNode.h>
+#include <MaterialXGenHw/Nodes/HwNormalNode.h>
+#include <MaterialXGenHw/Nodes/HwTangentNode.h>
+#include <MaterialXGenHw/Nodes/HwBitangentNode.h>
+#include <MaterialXGenHw/Nodes/HwFrameNode.h>
+#include <MaterialXGenHw/Nodes/HwTimeNode.h>
+#include <MaterialXGenHw/Nodes/HwViewDirectionNode.h>
+#include <MaterialXGenHw/Nodes/HwLightCompoundNode.h>
+#include <MaterialXGenHw/Nodes/HwLightNode.h>
+#include <MaterialXGenHw/Nodes/HwLightSamplerNode.h>
+#include <MaterialXGenHw/Nodes/HwLightShaderNode.h>
+#include <MaterialXGenHw/Nodes/HwNumLightsNode.h>
+#include <MaterialXGenHw/Nodes/HwSurfaceNode.h>
+
+#include <MaterialXGenShader/Exception.h>
+#include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/Nodes/MaterialNode.h>
-#include <MaterialXGenShader/Nodes/HwImageNode.h>
-#include <MaterialXGenShader/Nodes/HwGeomColorNode.h>
-#include <MaterialXGenShader/Nodes/HwGeomPropValueNode.h>
-#include <MaterialXGenShader/Nodes/HwTexCoordNode.h>
-#include <MaterialXGenShader/Nodes/HwTransformNode.h>
-#include <MaterialXGenShader/Nodes/HwPositionNode.h>
-#include <MaterialXGenShader/Nodes/HwNormalNode.h>
-#include <MaterialXGenShader/Nodes/HwTangentNode.h>
-#include <MaterialXGenShader/Nodes/HwBitangentNode.h>
-#include <MaterialXGenShader/Nodes/HwFrameNode.h>
-#include <MaterialXGenShader/Nodes/HwTimeNode.h>
-#include <MaterialXGenShader/Nodes/HwViewDirectionNode.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -83,17 +87,17 @@ GlslShaderGenerator::GlslShaderGenerator(TypeSystemPtr typeSystem) :
     registerImplementation("IM_viewdirection_vector3_" + GlslShaderGenerator::TARGET, HwViewDirectionNode::create);
 
     // <!-- <surface> -->
-    registerImplementation("IM_surface_" + GlslShaderGenerator::TARGET, SurfaceNodeGlsl::create);
+    registerImplementation("IM_surface_" + GlslShaderGenerator::TARGET, HwSurfaceNode::create);
 
     // <!-- <light> -->
-    registerImplementation("IM_light_" + GlslShaderGenerator::TARGET, LightNodeGlsl::create);
+    registerImplementation("IM_light_" + GlslShaderGenerator::TARGET, HwLightNode::create);
 
     // <!-- <point_light> -->
-    registerImplementation("IM_point_light_" + GlslShaderGenerator::TARGET, LightShaderNodeGlsl::create);
+    registerImplementation("IM_point_light_" + GlslShaderGenerator::TARGET, HwLightShaderNode::create);
     // <!-- <directional_light> -->
-    registerImplementation("IM_directional_light_" + GlslShaderGenerator::TARGET, LightShaderNodeGlsl::create);
+    registerImplementation("IM_directional_light_" + GlslShaderGenerator::TARGET, HwLightShaderNode::create);
     // <!-- <spot_light> -->
-    registerImplementation("IM_spot_light_" + GlslShaderGenerator::TARGET, LightShaderNodeGlsl::create);
+    registerImplementation("IM_spot_light_" + GlslShaderGenerator::TARGET, HwLightShaderNode::create);
 
     // <!-- <ND_transformpoint> ->
     registerImplementation("IM_transformpoint_vector3_" + GlslShaderGenerator::TARGET, HwTransformPointNode::create);
@@ -118,8 +122,8 @@ GlslShaderGenerator::GlslShaderGenerator(TypeSystemPtr typeSystem) :
     // <!-- <surfacematerial> -->
     registerImplementation("IM_surfacematerial_" + GlslShaderGenerator::TARGET, MaterialNode::create);
 
-    _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "numActiveLightSources", NumLightsNodeGlsl::create()));
-    _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "sampleLightSource", LightSamplerNodeGlsl::create()));
+    _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "numActiveLightSources", HwNumLightsNode::create()));
+    _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "sampleLightSource", HwLightSamplerNode::create()));
 }
 
 ShaderPtr GlslShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const
@@ -171,6 +175,10 @@ void GlslShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext& 
 
     // Add vertex data outputs block
     emitOutputs(context, stage);
+
+    // Add common math functions
+    emitLibraryInclude("stdlib/genglsl/lib/mx_math.glsl", context, stage);
+    emitLineBreak(stage);
 
     emitFunctionDefinitions(graph, context, stage);
 
@@ -358,15 +366,6 @@ string GlslShaderGenerator::getVertexDataPrefix(const VariableBlock& vertexData)
     return vertexData.getInstance() + ".";
 }
 
-bool GlslShaderGenerator::requiresLighting(const ShaderGraph& graph) const
-{
-    const bool isBsdf = graph.hasClassification(ShaderNode::Classification::BSDF);
-    const bool isLitSurfaceShader = graph.hasClassification(ShaderNode::Classification::SHADER) &&
-                                    graph.hasClassification(ShaderNode::Classification::SURFACE) &&
-                                    !graph.hasClassification(ShaderNode::Classification::UNLIT);
-    return isBsdf || isLitSurfaceShader;
-}
-
 void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
 {
     HwResourceBindingContextPtr resourceBindingCtx = getResourceBindingContext(context);
@@ -409,6 +408,10 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
         emitLineBreak(stage);
     }
 
+    // Define Airy Fresnel iterations
+    emitLine("#define AIRY_FRESNEL_ITERATIONS " + std::to_string(context.getOptions().hwAiryFresnelIterations), stage, false);
+    emitLineBreak(stage);
+
     // Add lighting support
     if (lighting)
     {
@@ -432,6 +435,7 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     if (shadowing)
     {
         emitLibraryInclude("pbrlib/genglsl/lib/mx_shadow.glsl", context, stage);
+        emitLibraryInclude("pbrlib/genglsl/lib/mx_shadow_platform.glsl", context, stage);
     }
 
     // Emit directional albedo table code.
@@ -691,72 +695,6 @@ void GlslShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, co
 
         emitString(str, stage);
     }
-}
-
-ShaderNodeImplPtr GlslShaderGenerator::getImplementation(const NodeDef& nodedef, GenContext& context) const
-{
-    InterfaceElementPtr implElement = nodedef.getImplementation(getTarget());
-    if (!implElement)
-    {
-        return nullptr;
-    }
-
-    const string& name = implElement->getName();
-
-    // Check if it's created and cached already.
-    ShaderNodeImplPtr impl = context.findNodeImplementation(name);
-    if (impl)
-    {
-        return impl;
-    }
-
-    vector<OutputPtr> outputs = nodedef.getActiveOutputs();
-    if (outputs.empty())
-    {
-        throw ExceptionShaderGenError("NodeDef '" + nodedef.getName() + "' has no outputs defined");
-    }
-
-    const TypeDesc outputType = context.getTypeDesc(outputs[0]->getType());
-
-    if (implElement->isA<NodeGraph>())
-    {
-        // Use a compound implementation.
-        if (outputType == Type::LIGHTSHADER)
-        {
-            impl = LightCompoundNodeGlsl::create();
-        }
-        else
-        {
-            impl = CompoundNode::create();
-        }
-    }
-    else if (implElement->isA<Implementation>())
-    {
-        if (getColorManagementSystem() && getColorManagementSystem()->hasImplementation(name))
-        {
-            impl = getColorManagementSystem()->createImplementation(name);
-        }
-        else
-        {
-            // Try creating a new in the factory.
-            impl = _implFactory.create(name);
-        }
-        if (!impl)
-        {
-            impl = SourceCodeNode::create();
-        }
-    }
-    if (!impl)
-    {
-        return nullptr;
-    }
-
-    impl->initialize(*implElement, context);
-
-    // Cache it.
-    context.addNodeImplementation(name, impl);
-
-    return impl;
 }
 
 MATERIALX_NAMESPACE_END

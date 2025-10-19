@@ -507,7 +507,7 @@ float Graph::findAvgY(const std::vector<UiNodePtr>& nodes)
         total += ((size.y + pos.y) + pos.y) / 2;
         count++;
     }
-    return (total / count);
+    return count ? (total / count) : 0.0f;
 }
 
 void Graph::findYSpacing(float startY)
@@ -792,6 +792,15 @@ void Graph::setRenderMaterial(UiNodePtr node)
         }
         else if (mtlxNodeGraph)
         {
+            // As above, there is no logic to support traversing from inside a functional graph.
+            // We add a check for output nodes to make sure it's accounted for in this case.
+            if(mtlxOutput)
+            {     
+                if (mtlxNodeGraph->getNodeDef())
+                {
+                    return;
+                }
+            }
             testPaths.insert(mtlxNodeGraph->getNamePath());
         }
 
@@ -3696,6 +3705,44 @@ void Graph::propertyEditor()
             }
             ImGui::Checkbox("Show all inputs", &_currUiNode->_showAllInputs);
         }
+      
+        // Find tokens within currUiNode
+        mx::ConstNodePtr node = _currUiNode->getNode();
+        if (node != nullptr)
+        {
+            mx::StringResolverPtr resolver = node->createStringResolver();
+            const mx::StringMap& tokens = resolver->getFilenameSubstitutions();
+
+            if (!tokens.empty())
+            {
+                ImGui::Text("Tokens");
+             
+                ImVec2 tableSize(0.0f, TEXT_BASE_HEIGHT * std::min(SCROLL_LINE_COUNT, static_cast<int>(tokens.size())));
+                bool haveTable = ImGui::BeginTable("tokens_node_table", 2, tableFlags, tableSize);
+                if (haveTable)
+                {
+                    ImGui::SetWindowFontScale(_fontScale);
+
+                    for (const auto& [token, value] : tokens)
+                    {
+                               
+                        ImGui::TableNextRow();
+                        ImGui::TableNextColumn();
+                        ImGui::PushID(&token);
+
+                        ImGui::Text("%s", token.c_str());
+                        ImGui::TableNextColumn();
+                        ImGui::Text("%s", value.c_str());
+
+                        ImGui::PopID();
+                    }
+                        
+                    ImGui::EndTable();
+                    ImGui::SetWindowFontScale(1.0f);
+                }
+            }
+        }
+
         ImGui::PopStyleColor();
         ImGui::PopStyleColor();
 

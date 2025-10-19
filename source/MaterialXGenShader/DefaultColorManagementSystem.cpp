@@ -5,7 +5,7 @@
 
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
 
-#include <MaterialXGenShader/ShaderGenerator.h>
+#include <MaterialXGenShader/Exception.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -20,7 +20,21 @@ const StringMap COLOR_SPACE_REMAP =
     { "gamma18", "g18_rec709" },
     { "gamma22", "g22_rec709" },
     { "gamma24", "rec709_display" },
-    { "lin_ap1", "acescg" }
+    { "lin_ap1", "acescg" },
+
+    // In 1.39 we remap namespaces from ASWF recommended color interop spaces
+    //  See https://github.com/AcademySoftwareFoundation/ColorInterop
+    // This should improve interop with the nanocolor spaces found in USD.
+    {"lin_ap1_scene",       "acescg"},
+    {"lin_rec709_scene",    "lin_rec709"},
+    {"lin_p3d65_scene",     "lin_displayp3"},
+    {"lin_adobergb_scene",  "lin_adobergb"},
+    {"srgb_rec709_scene",   "srgb_texture"},
+    {"g22_rec709_scene",    "g22_rec709"},
+    {"g18_rec709_scene",    "g18_rec709"},
+    {"g22_ap1_scene",       "g22_ap1"},
+    {"srgb_p3d65_scene",    "srgb_displayp3"},
+    {"g22_adobergb_scene",  "adobergb"}
 };
 
 } // anonymous namespace

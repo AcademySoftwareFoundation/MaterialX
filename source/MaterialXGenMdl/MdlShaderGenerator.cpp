@@ -16,6 +16,7 @@
 #include <MaterialXGenMdl/Nodes/CustomNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/ImageNodeMdl.h>
 
+#include <MaterialXGenShader/Exception.h>
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/ShaderStage.h>
@@ -193,7 +194,7 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
     emitScopeBegin(stage, Syntax::PARENTHESES);
 
     // Emit shader inputs
-    emitShaderInputs(element->getDocument(), stage.getInputBlock(MDL::INPUTS), stage);
+    emitShaderInputs(stage.getInputBlock(MDL::INPUTS), stage);
 
     // End shader signature
     emitScopeEnd(stage);
@@ -329,23 +330,8 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
     return shader;
 }
 
-ShaderNodeImplPtr MdlShaderGenerator::getImplementation(const NodeDef& nodedef, GenContext& context) const
+ShaderNodeImplPtr MdlShaderGenerator::createShaderNodeImplForNodeGraph(const NodeDef& nodedef) const
 {
-    InterfaceElementPtr implElement = nodedef.getImplementation(getTarget());
-    if (!implElement)
-    {
-        return nullptr;
-    }
-
-    const string& name = implElement->getName();
-
-    // Check if it's created and cached already.
-    ShaderNodeImplPtr impl = context.findNodeImplementation(name);
-    if (impl)
-    {
-        return impl;
-    }
-
     vector<OutputPtr> outputs = nodedef.getActiveOutputs();
     if (outputs.empty())
     {
@@ -354,62 +340,38 @@ ShaderNodeImplPtr MdlShaderGenerator::getImplementation(const NodeDef& nodedef, 
 
     const TypeDesc outputType = _typeSystem->getType(outputs[0]->getType());
 
-    if (implElement->isA<NodeGraph>())
+    ShaderNodeImplPtr impl;
+    // Use a compound implementation.
+    if (outputType.isClosure())
     {
-        // Use a compound implementation.
-        if (outputType.isClosure())
-        {
-            impl = ClosureCompoundNodeMdl::create();
-        }
-        else
-        {
-            impl = CompoundNodeMdl::create();
-        }
+        return ClosureCompoundNodeMdl::create();
     }
-    else if (implElement->isA<Implementation>())
-    {
-        if (getColorManagementSystem() && getColorManagementSystem()->hasImplementation(name))
-        {
-            impl = getColorManagementSystem()->createImplementation(name);
-        }
-        else
-        {
-            // Try creating a new in the factory.
-            impl = _implFactory.create(name);
-        }
-        if (!impl)
-        {
-            // When `file` and `function` are provided we consider this node a user node
-            const string file = implElement->getTypedAttribute<string>("file");
-            const string function = implElement->getTypedAttribute<string>("function");
-            // Or, if `sourcecode` is provided we consider this node a user node with inline implementation
-            // inline implementations are not supposed to have replacement markers
-            const string sourcecode = implElement->getTypedAttribute<string>("sourcecode");
-            if ((!file.empty() && !function.empty()) || (!sourcecode.empty() && sourcecode.find("{{") == string::npos))
-            {
-                impl = CustomCodeNodeMdl::create();
-            }
-            else if (file.empty() && sourcecode.empty())
-            {
-                throw ExceptionShaderGenError("No valid MDL implementation found for '" + name + "'");
-            }
-            else
-            {
-                impl = SourceCodeNodeMdl::create();
-            }
-        }
-    }
-    if (!impl)
+    return CompoundNodeMdl::create();
+}
+
+ShaderNodeImplPtr MdlShaderGenerator::createShaderNodeImplForImplementation(const NodeDef& nodedef) const
+{
+    InterfaceElementPtr implElement = nodedef.getImplementation(getTarget());
+    if (!implElement)
     {
         return nullptr;
     }
 
-    impl->initialize(*implElement, context);
-
-    // Cache it.
-    context.addNodeImplementation(name, impl);
-
-    return impl;
+    // When `file` and `function` are provided we consider this node a user node
+    const string file = implElement->getTypedAttribute<string>("file");
+    const string function = implElement->getTypedAttribute<string>("function");
+    // Or, if `sourcecode` is provided we consider this node a user node with inline implementation
+    // inline implementations are not supposed to have replacement markers
+    const string sourcecode = implElement->getTypedAttribute<string>("sourcecode");
+    if ((!file.empty() && !function.empty()) || (!sourcecode.empty() && sourcecode.find("{{") == string::npos))
+    {
+        return CustomCodeNodeMdl::create();
+    }
+    if (file.empty() && sourcecode.empty())
+    {
+        throw ExceptionShaderGenError("No valid MDL implementation found for '" + implElement->getName() + "'");
+    }
+    return SourceCodeNodeMdl::create();
 }
 
 string MdlShaderGenerator::getUpstreamResult(const ShaderInput* input, GenContext& context) const
@@ -691,21 +653,33 @@ ShaderPtr MdlShaderGenerator::createShader(const string& name, ElementPtr elemen
 namespace
 {
 
-void emitInputAnnotations(const MdlShaderGenerator& _this, ConstDocumentPtr, const ShaderPort* variable, ShaderStage& stage)
+void emitInputAnnotations(const MdlShaderGenerator& _this, const ShaderPort* variable, ShaderStage& stage)
 {
     // allows to relate between MaterialX and MDL parameters when looking at the MDL code.
     const std::string mtlxParameterPathAnno = "materialx::core::origin(\"" + variable->getPath() + "\")";
 
     _this.emitLineEnd(stage, false);
     _this.emitLine("[[", stage, false);
-    _this.emitLine("\t" + mtlxParameterPathAnno, stage, false);
+    _this.emitLineBegin(stage);
+    _this.emitString(_this.getSyntax().getIndentation() + mtlxParameterPathAnno, stage);
+    const ShaderGraphInputSocket* input = static_cast<const ShaderGraphInputSocket*>(variable);
+
+    if (input->getConnections().empty())
+    {
+        _this.emitString(",", stage);
+        _this.emitLineEnd(stage, false);
+        _this.emitLineBegin(stage);
+        _this.emitString(_this.getSyntax().getIndentation() + "anno::unused()", stage);
+    }
+
+    _this.emitLineEnd(stage, false);
     _this.emitLineBegin(stage);
     _this.emitString("]]", stage); // line ending follows by caller
 }
 
 } // anonymous namespace
 
-void MdlShaderGenerator::emitShaderInputs(ConstDocumentPtr doc, const VariableBlock& inputs, ShaderStage& stage) const
+void MdlShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderStage& stage) const
 {
     const string uniformPrefix = _syntax->getUniformQualifier() + " ";
     for (size_t i = 0; i < inputs.size(); ++i)
@@ -732,7 +706,7 @@ void MdlShaderGenerator::emitShaderInputs(ConstDocumentPtr doc, const VariableBl
 
         emitLineBegin(stage);
         emitString(qualifier + type + " " + input->getVariable() + " = " + value, stage);
-        emitInputAnnotations(*this, doc, input, stage);
+        emitInputAnnotations(*this, input, stage);
 
         if (i < inputs.size() - 1)
         {

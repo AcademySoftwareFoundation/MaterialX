@@ -11,7 +11,7 @@
 
 void* NSOpenGLChoosePixelFormatWrapper(bool allRenders, int bufferType, int colorSize, int depthFormat,
                                 int stencilFormat, int auxBuffers, int accumSize, bool minimumPolicy,
-                                bool accelerated, bool mp_safe,  bool stereo, bool supportMultiSample)
+                                bool accelerated, bool /*mp_safe*/,  bool /*stereo*/, bool supportMultiSample)
 {
     // Create local autorelease pool for any objects that need to be autoreleased.
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
