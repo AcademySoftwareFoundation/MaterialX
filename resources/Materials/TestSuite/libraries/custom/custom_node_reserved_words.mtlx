@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+
+  <!-- definition -->
+  <nodedef name="ND_custom_node_reserved_param_name" node="custom_node_reserved_param_name" nodegroup="custom" doc="Shows how to handle reserved names in the parameter list">
+    <input name="a" type="float" value="0.8" />       <!-- "a" is NOT reserved in MDL -->
+    <input name="auto" type="float" value="0.8" />    <!-- "auto" is reserved in MDL -->
+    <output name="out" type="color3" />
+  </nodedef>
+  <!-- implementation -->
+  <!-- Note, ALL input and output port names are prefixed with "mxp_" to avoid collisions with reserved names -->
+  <implementation 
+    name="IM_custom_node_reserved_param_name"
+    nodedef="ND_custom_node_reserved_param_name"
+    file="mx_custom_node_reserved_words.mdl"
+    function="reserved_parmeter_name_function"
+    target="genmdl"/>
+  <!-- instantiation -->
+  <custom_node_reserved_param_name name="custom_node_reserved_param_name1" type="color3">
+    <input name="auto" type="float" value="0.9" />
+  </custom_node_reserved_param_name>
+  <burley_diffuse_bsdf name="burley_brdf1" type="BSDF">
+    <input name="color" type="color3" nodename="custom_node_reserved_param_name1"/>
+  </burley_diffuse_bsdf>
+  <surface name="surface1" type="surfaceshader">
+    <input name="bsdf" type="BSDF" nodename="burley_brdf1" />
+    <input name="opacity" type="float" value="1.0" />
+  </surface>
+  <surfacematerial name="custom_node_reserved_param_name_test" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="surface1" />
+  </surfacematerial>
+
+
+  <!-- definition -->
+  <nodedef name="ND_custom_node_reserved_output_name" node="custom_node_reserved_output_name" nodegroup="custom" doc="A simple example that illustrates multiple outputs.">
+    <input name="scale" type="float" value="1.0" />
+    <output name="out" type="color3" default="0.0, 0.0, 0.0"/> <!-- "out" is reserved in MDL. The code generator will prepend "mxp_" -->
+    <output name="private" type="float" value="0.0"/> <!-- "private" is reserved in MDL. The code generator will prepend "mxp_" -->
+  </nodedef>
+  <!-- implementation -->
+  <implementation 
+    name="IM_custom_node_reserved_output_name"
+    nodedef="ND_custom_node_reserved_output_name"
+    file="mx_custom_node_reserved_words.mdl"
+    function="reserved_output_name_function"
+    target="genmdl"/>
+  <!-- instantiation -->
+  <custom_node_reserved_output_name name="custom_node_reserved_output_name1" type="multioutput">
+    <input name="scale" type="float" value="0.9" />
+  </custom_node_reserved_output_name>
+  <burley_diffuse_bsdf name="burley_brdf2" type="BSDF">
+    <input name="color" type="color3" nodename="custom_node_reserved_output_name1" output="out" />
+    <input name="roughness" type="float" nodename="custom_node_reserved_output_name1" output="private" />
+  </burley_diffuse_bsdf>
+  <surface name="surface2" type="surfaceshader">
+    <input name="bsdf" type="BSDF" nodename="burley_brdf2" />
+    <input name="opacity" type="float" value="1.0" />
+  </surface>
+  <surfacematerial name="custom_node_reserved_output_name_test" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="surface2" />
+  </surfacematerial>
+
+
+</materialx>
