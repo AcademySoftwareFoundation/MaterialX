@@ -1,0 +1,229 @@
+<?xml version="1.0"?>
+<materialx version="1.39" colorspace="lin_rec709_scene">
+  <!-- Common texcoord -->
+  <texcoord name="texcoord1" type="vector2" nodedef="ND_texcoord_vector2" />
+  <separate2 name="separate1" type="multioutput" nodedef="ND_separate2_vector2">
+    <input name="in" type="vector2" nodename="texcoord1" />
+  </separate2>
+  <multiply name="multiply1" type="float" nodedef="ND_multiply_float">
+    <input name="in2" type="float" value="10" />
+    <input name="in1" type="float" nodename="separate1" output="outy" />
+  </multiply>
+
+  <standard_surface name="standard_surface1" type="surfaceshader" nodedef="ND_standard_surface_surfaceshader">
+    <input name="base_color" type="color3" nodename="convert1" />
+  </standard_surface>
+  <surfacematerial name="Standard_Surface1" type="material" nodedef="ND_surfacematerial">
+    <input name="surfaceshader" type="surfaceshader" nodename="standard_surface1" />
+  </surfacematerial>
+  <convert name="convert1" type="color3">
+    <input name="in" type="color4" nodename="switch1" />
+  </convert>
+  <switch name="switch1" type="color4">
+    <input name="in1" type="color4" value="0.5776, 0.1274, 0.0319, 1" />
+    <input name="in2" type="color4" value="0.5776, 0.1274, 0.0319, 1" colorspace="lin_rec709" />
+    <input name="in3" type="color4" value="0.7792, 0.3920, 0.2089, 1" colorspace="g22_rec709" />
+    <input name="in4" type="color4" value="0.5776, 0.1274, 0.0319, 1" />
+    <input name="in5" type="color4" value="0.7372, 0.3184, 0.1475, 1" colorspace="g18_rec709" />
+    <input name="in6" type="color4" value="0.7956, 0.4238, 0.2380, 1" colorspace="rec709_display" />
+    <input name="in7" type="color4" value="0.5776, 0.1274, 0.0319, 1" />
+    <input name="in8" type="color4" value="0.3989, 0.1578, 0.0536, 1" colorspace="acescg" />
+    <input name="in9" type="color4" value="0.6585, 0.4320, 0.2645, 1" colorspace="g22_ap1" />
+    <input name="in10" type="color4" value="0.5776, 0.1274, 0.0319, 1" />
+    <input name="which" type="float" nodename="multiply1" />
+  </switch>
+
+  <standard_surface name="standard_surface2" type="surfaceshader" nodedef="ND_standard_surface_surfaceshader">
+    <input name="base_color" type="color3" nodename="convert2" />
+  </standard_surface>
+  <surfacematerial name="Standard_Surface2" type="material" nodedef="ND_surfacematerial">
+    <input name="surfaceshader" type="surfaceshader" nodename="standard_surface2" />
+  </surfacematerial>
+  <convert name="convert2" type="color3">
+    <input name="in" type="color4" nodename="switch2" />
+  </convert>
+  <switch name="switch2" type="color4">
+    <input name="in1" type="color4" value="0.5776, 0.1274, 0.0319, 1" />
+    <input name="in2" type="color4" value="0.7843, 0.3922, 0.1961, 1" colorspace="srgb_texture" />
+    <input name="in3" type="color4" value="0.4493, 0.1274, 0.0358, 1" colorspace="lin_adobergb" />
+    <input name="in4" type="color4" value="0.5776, 0.1274, 0.0319, 1" />
+    <input name="in5" type="color4" value="0.6951, 0.3919, 0.2201, 1" colorspace="adobergb" />
+    <input name="in6" type="color4" value="0.7338, 0.4133, 0.2430, 1" colorspace="srgb_displayp3" />
+    <input name="in7" type="color4" value="0.5776, 0.1274, 0.0319, 1" />
+    <input name="in8" type="color4" value="0.4977, 0.1424, 0.0481, 1" colorspace="lin_displayp3" />
+    <input name="in9" type="color4" value="0.7372, 0.3184, 0.1475, 1" colorspace="gamma18" />
+    <input name="in10" type="color4" value="0.5776, 0.1274, 0.0319, 1" />
+    <input name="which" type="float" nodename="multiply1" />
+  </switch>
+
+  <standard_surface name="standard_surface3" type="surfaceshader" nodedef="ND_standard_surface_surfaceshader">
+    <input name="base_color" type="color3" nodename="convert3" />
+  </standard_surface>
+  <surfacematerial name="Standard_Surface3" type="material" nodedef="ND_surfacematerial">
+    <input name="surfaceshader" type="surfaceshader" nodename="standard_surface3" />
+  </surfacematerial>
+  <convert name="convert3" type="color3">
+    <input name="in" type="color4" nodename="switch3" />
+  </convert>
+  <switch name="switch3" type="color4">
+    <input name="in1" type="color4" value="0.5776, 0.1274, 0.0319, 1" />
+    <input name="in2" type="color4" value="0.7792, 0.3920, 0.2089, 1" colorspace="gamma22" />
+    <input name="in3" type="color4" value="0.7956, 0.4238, 0.2380, 1" colorspace="gamma24" />
+    <input name="in4" type="color4" value="0.5776, 0.1274, 0.0319, 1" />
+    <input name="in5" type="color4" value="0.3989, 0.1578, 0.0536, 1" colorspace="lin_ap1" />
+    <input name="in6" type="color4" value="0.3989, 0.1578, 0.0536, 1" colorspace="lin_ap1_scene" />
+    <input name="in7" type="color4" value="0.5776, 0.1274, 0.0319, 1" />
+    <input name="in8" type="color4" value="0.3084, 0.1586, 0.0521, 1" colorspace="lin_ap0_scene" />
+    <input name="in9" type="color4" value="0.5776, 0.1274, 0.0319, 1" colorspace="lin_rec709_scene" />
+    <input name="in10" type="color4" value="0.5776, 0.1274, 0.0319, 1" />
+    <input name="which" type="float" nodename="multiply1" />
+  </switch>
+
+  <standard_surface name="standard_surface4" type="surfaceshader" nodedef="ND_standard_surface_surfaceshader">
+    <input name="base_color" type="color3" nodename="convert4" />
+  </standard_surface>
+  <surfacematerial name="Standard_Surface4" type="material" nodedef="ND_surfacematerial">
+    <input name="surfaceshader" type="surfaceshader" nodename="standard_surface4" />
+  </surfacematerial>
+  <convert name="convert4" type="color3">
+    <input name="in" type="color4" nodename="switch4" />
+  </convert>
+  <switch name="switch4" type="color4">
+    <input name="in1" type="color4" value="0.5776, 0.1274, 0.0319, 1" />
+    <input name="in2" type="color4" value="0.4977, 0.1424, 0.0481, 1" colorspace="lin_p3d65_scene" />
+    <input name="in3" type="color4" value="0.4057, 0.1575, 0.0492, 1" colorspace="lin_rec2020_scene" />
+    <input name="in4" type="color4" value="0.5776, 0.1274, 0.0319, 1" />
+    <input name="in5" type="color4" value="0.4493, 0.1274, 0.0358, 1" colorspace="lin_adobergb_scene" />
+    <input name="in6" type="color4" value="0.5776, 0.1274, 0.0319, 1" />
+    <input name="in7" type="color4" value="0.5776, 0.1274, 0.0319, 1" />
+    <input name="in8" type="color4" value="0.7843, 0.3922, 0.1961, 1" colorspace="srgb_rec709_scene" />
+    <input name="in9" type="color4" value="0.7792, 0.3920, 0.2089, 1" colorspace="g22_rec709_scene" />
+    <input name="in10" type="color4" value="0.5776, 0.1274, 0.0319, 1" />
+    <input name="which" type="float" nodename="multiply1" />
+  </switch>
+
+  <standard_surface name="standard_surface5" type="surfaceshader" nodedef="ND_standard_surface_surfaceshader">
+    <input name="base_color" type="color3" nodename="convert5" />
+  </standard_surface>
+  <surfacematerial name="Standard_Surface5" type="material" nodedef="ND_surfacematerial">
+    <input name="surfaceshader" type="surfaceshader" nodename="standard_surface5" />
+  </surfacematerial>
+  <convert name="convert5" type="color3">
+    <input name="in" type="color4" nodename="switch5" />
+  </convert>
+  <switch name="switch5" type="color4">
+    <input name="in1" type="color4" value="0.5776, 0.1274, 0.0319, 1" />
+    <input name="in2" type="color4" value="0.7372, 0.3184, 0.1475, 1" colorspace="g18_rec709_scene" />
+    <input name="in3" type="color4" value="0.6644, 0.4337, 0.2567, 1" colorspace="srgb_ap1_scene" />
+    <input name="in4" type="color4" value="0.5776, 0.1274, 0.0319, 1" />
+    <input name="in5" type="color4" value="0.6585, 0.4320, 0.2645, 1" colorspace="g22_ap1_scene" />
+    <input name="in6" type="color4" value="0.7338, 0.4133, 0.2430, 1" colorspace="srgb_p3d65_scene" />
+    <input name="in7" type="color4" value="0.5776, 0.1274, 0.0319, 1" />
+    <input name="in8" type="color4" value="0.6951, 0.3919, 0.2201, 1" colorspace="g22_adobergb_scene" />
+    <input name="in9" type="color4" value="0.6951, 0.3919, 0.2201, 1" colorspace="g22_adobergb_scene" />
+    <input name="in10" type="color4" value="0.5776, 0.1274, 0.0319, 1" />
+    <input name="which" type="float" nodename="multiply1" />
+  </switch>
+
+  <standard_surface name="standard_surface6" type="surfaceshader" nodedef="ND_standard_surface_surfaceshader">
+    <input name="base_color" type="color3" nodename="switch6" />
+  </standard_surface>
+  <surfacematerial name="Standard_Surface6" type="material" nodedef="ND_surfacematerial">
+    <input name="surfaceshader" type="surfaceshader" nodename="standard_surface6" />
+  </surfacematerial>
+  <switch name="switch6" type="color3">
+     <input name="in1" type="color3" value="0.5776, 0.1274, 0.0319" />
+    <input name="in2" type="color3" value="0.5776, 0.1274, 0.0319" colorspace="lin_rec709" />
+    <input name="in3" type="color3" value="0.7792, 0.3920, 0.2089" colorspace="g22_rec709" />
+    <input name="in4" type="color3" value="0.5776, 0.1274, 0.0319" />
+    <input name="in5" type="color3" value="0.7372, 0.3184, 0.1475" colorspace="g18_rec709" />
+    <input name="in6" type="color3" value="0.7956, 0.4238, 0.2380" colorspace="rec709_display" />
+    <input name="in7" type="color3" value="0.5776, 0.1274, 0.0319" />
+    <input name="in8" type="color3" value="0.3989, 0.1578, 0.0536" colorspace="acescg" />
+    <input name="in9" type="color3" value="0.6585, 0.4320, 0.2645" colorspace="g22_ap1" />
+    <input name="in10" type="color3" value="0.5776, 0.1274, 0.0319" />
+    <input name="which" type="float" nodename="multiply1" />
+  </switch>
+
+  <standard_surface name="standard_surface7" type="surfaceshader" nodedef="ND_standard_surface_surfaceshader">
+    <input name="base_color" type="color3" nodename="switch7" />
+  </standard_surface>
+  <surfacematerial name="Standard_Surface7" type="material" nodedef="ND_surfacematerial">
+    <input name="surfaceshader" type="surfaceshader" nodename="standard_surface7" />
+  </surfacematerial>
+  <switch name="switch7" type="color3">
+     <input name="in1" type="color3" value="0.5776, 0.1274, 0.0319" />
+    <input name="in2" type="color3" value="0.7843, 0.3922, 0.1961" colorspace="srgb_texture" />
+    <input name="in3" type="color3" value="0.4493, 0.1274, 0.0358" colorspace="lin_adobergb" />
+    <input name="in4" type="color3" value="0.5776, 0.1274, 0.0319" />
+    <input name="in5" type="color3" value="0.6951, 0.3919, 0.2201" colorspace="adobergb" />
+    <input name="in6" type="color3" value="0.7338, 0.4133, 0.2430" colorspace="srgb_displayp3" />
+    <input name="in7" type="color3" value="0.5776, 0.1274, 0.0319" />
+    <input name="in8" type="color3" value="0.4977, 0.1424, 0.0481" colorspace="lin_displayp3" />
+    <input name="in9" type="color3" value="0.7372, 0.3184, 0.1475" colorspace="gamma18" />
+    <input name="in10" type="color3" value="0.5776, 0.1274, 0.0319" />
+    <input name="which" type="float" nodename="multiply1" />
+  </switch>
+
+  <standard_surface name="standard_surface8" type="surfaceshader" nodedef="ND_standard_surface_surfaceshader">
+    <input name="base_color" type="color3" nodename="switch8" />
+  </standard_surface>
+  <surfacematerial name="Standard_Surface8" type="material" nodedef="ND_surfacematerial">
+    <input name="surfaceshader" type="surfaceshader" nodename="standard_surface8" />
+  </surfacematerial>
+  <switch name="switch8" type="color3">
+    <input name="in1" type="color3" value="0.5776, 0.1274, 0.0319" />
+    <input name="in2" type="color3" value="0.7792, 0.3920, 0.2089" colorspace="gamma22" />
+    <input name="in3" type="color3" value="0.7956, 0.4238, 0.2380" colorspace="gamma24" />
+    <input name="in4" type="color3" value="0.5776, 0.1274, 0.0319" />
+    <input name="in5" type="color3" value="0.3989, 0.1578, 0.0536" colorspace="lin_ap1" />
+    <input name="in6" type="color3" value="0.3989, 0.1578, 0.0536" colorspace="lin_ap1_scene" />
+    <input name="in7" type="color3" value="0.5776, 0.1274, 0.0319" />
+    <input name="in8" type="color3" value="0.3084, 0.1586, 0.0521" colorspace="lin_ap0_scene" />
+    <input name="in9" type="color3" value="0.5776, 0.1274, 0.0319" colorspace="lin_rec709_scene" />
+    <input name="in10" type="color3" value="0.5776, 0.1274, 0.0319" />
+    <input name="which" type="float" nodename="multiply1" />
+  </switch>
+
+  <standard_surface name="standard_surface9" type="surfaceshader" nodedef="ND_standard_surface_surfaceshader">
+    <input name="base_color" type="color3" nodename="switch9" />
+  </standard_surface>
+  <surfacematerial name="Standard_Surface9" type="material" nodedef="ND_surfacematerial">
+    <input name="surfaceshader" type="surfaceshader" nodename="standard_surface9" />
+  </surfacematerial>
+  <switch name="switch9" type="color3">
+    <input name="in1" type="color3" value="0.5776, 0.1274, 0.0319" />
+    <input name="in2" type="color3" value="0.4977, 0.1424, 0.0481" colorspace="lin_p3d65_scene" />
+    <input name="in3" type="color3" value="0.4057, 0.1575, 0.0492" colorspace="lin_rec2020_scene" />
+    <input name="in4" type="color3" value="0.5776, 0.1274, 0.0319" />
+    <input name="in5" type="color3" value="0.4493, 0.1274, 0.0358" colorspace="lin_adobergb_scene" />
+    <input name="in6" type="color3" value="0.5776, 0.1274, 0.0319" />
+    <input name="in7" type="color3" value="0.5776, 0.1274, 0.0319" />
+    <input name="in8" type="color3" value="0.7843, 0.3922, 0.1961" colorspace="srgb_rec709_scene" />
+    <input name="in9" type="color3" value="0.7792, 0.3920, 0.2089" colorspace="g22_rec709_scene" />
+    <input name="in10" type="color3" value="0.5776, 0.1274, 0.0319" />
+    <input name="which" type="float" nodename="multiply1" />
+  </switch>
+
+  <standard_surface name="standard_surface10" type="surfaceshader" nodedef="ND_standard_surface_surfaceshader">
+    <input name="base_color" type="color3" nodename="switch10" />
+  </standard_surface>
+  <surfacematerial name="Standard_Surface10" type="material" nodedef="ND_surfacematerial">
+    <input name="surfaceshader" type="surfaceshader" nodename="standard_surface10" />
+  </surfacematerial>
+  <switch name="switch10" type="color3">
+    <input name="in1" type="color3" value="0.5776, 0.1274, 0.0319" />
+    <input name="in2" type="color3" value="0.7372, 0.3184, 0.1475" colorspace="g18_rec709_scene" />
+    <input name="in3" type="color3" value="0.6644, 0.4337, 0.2567" colorspace="srgb_ap1_scene" />
+    <input name="in4" type="color3" value="0.5776, 0.1274, 0.0319" />
+    <input name="in5" type="color3" value="0.6585, 0.4320, 0.2645" colorspace="g22_ap1_scene" />
+    <input name="in6" type="color3" value="0.7338, 0.4133, 0.2430" colorspace="srgb_p3d65_scene" />
+    <input name="in7" type="color3" value="0.5776, 0.1274, 0.0319" />
+    <input name="in8" type="color3" value="0.6951, 0.3919, 0.2201" colorspace="g22_adobergb_scene" />
+    <input name="in9" type="color3" value="0.6951, 0.3919, 0.2201" colorspace="g22_adobergb_scene" />
+    <input name="in10" type="color3" value="0.5776, 0.1274, 0.0319" />
+    <input name="which" type="float" nodename="multiply1" />
+  </switch>
+
+
+</materialx>

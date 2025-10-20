@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+  <!-- Common texcoord -->
+  <texcoord name="texcoord1" type="vector2" nodedef="ND_texcoord_vector2" />
+  <separate2 name="separate1" type="multioutput" nodedef="ND_separate2_vector2">
+    <input name="in" type="vector2" nodename="texcoord1" />
+  </separate2>
+  <multiply name="multiply1" type="float" nodedef="ND_multiply_float">
+    <input name="in2" type="float" value="8" />
+    <input name="in1" type="float" nodename="separate1" output="outy" />
+  </multiply>
+
+  <standard_surface name="standard_surface1" type="surfaceshader" nodedef="ND_standard_surface_surfaceshader">
+    <input name="base_color" type="color3" nodename="switch1" />
+  </standard_surface>
+  <surfacematerial name="Standard_Surface1" type="material" nodedef="ND_surfacematerial">
+    <input name="surfaceshader" type="surfaceshader" nodename="standard_surface1" />
+  </surfacematerial>
+  <!-- acescg becomes lin_ap1 -->
+  <acescg_to_lin_rec709 name="deprecated13" type="color3">
+    <input name="in" type="color3" value="0.3989, 0.1578, 0.0536" />
+  </acescg_to_lin_rec709>
+  <!-- displayp3 becomes p3d65 -->
+  <srgb_displayp3_to_lin_rec709 name="deprecated23" type="color3">
+    <input name="in" type="color3" value="0.7338, 0.4133, 0.2430" />
+  </srgb_displayp3_to_lin_rec709>
+  <lin_displayp3_to_lin_rec709 name="deprecated33" type="color3">
+    <input name="in" type="color3" value="0.4977, 0.1424, 0.0481" />
+  </lin_displayp3_to_lin_rec709>
+  <!-- srgb_texture becomes srgb_rec709 -->
+  <srgb_texture_to_lin_rec709 name="deprecated43" type="color3">
+    <input name="in" type="color3" value="0.7843, 0.3922, 0.1961" />
+  </srgb_texture_to_lin_rec709>
+  <!-- adobergb becomes g22_adobergb -->
+  <adobergb_to_lin_rec709 name="deprecated53" type="color3">
+    <input name="in" type="color3" value="0.6951, 0.3919, 0.2201" />
+  </adobergb_to_lin_rec709>
+  <switch name="switch1" type="color3">
+    <input name="in1" type="color3" value="0.5776, 0.1274, 0.0319" />
+    <input name="in2" type="color3" nodename="deprecated13" />
+    <input name="in3" type="color3" nodename="deprecated23" />
+    <input name="in4" type="color3" value="0.5776, 0.1274, 0.0319" />
+    <input name="in5" type="color3" nodename="deprecated33" />
+    <input name="in6" type="color3" nodename="deprecated43" />
+    <input name="in7" type="color3" nodename="deprecated53" />
+    <input name="in8" type="color3" value="0.5776, 0.1274, 0.0319" />
+    <input name="which" type="float" nodename="multiply1" />
+  </switch>
+
+  <standard_surface name="standard_surface2" type="surfaceshader" nodedef="ND_standard_surface_surfaceshader">
+    <input name="base_color" type="color3" nodename="convert2" />
+  </standard_surface>
+  <surfacematerial name="Standard_Surface2" type="material" nodedef="ND_surfacematerial">
+    <input name="surfaceshader" type="surfaceshader" nodename="standard_surface2" />
+  </surfacematerial>
+  <convert name="convert2" type="color3">
+    <input name="in" type="color4" nodename="switch2" />
+  </convert>
+  <!-- acescg becomes lin_ap1 -->
+  <acescg_to_lin_rec709 name="deprecated14" type="color4">
+    <input name="in" type="color4" value="0.3989, 0.1578, 0.0536, 1" />
+  </acescg_to_lin_rec709>
+  <!-- displayp3 becomes p3d65 -->
+  <srgb_displayp3_to_lin_rec709 name="deprecated24" type="color4">
+    <input name="in" type="color4" value="0.7338, 0.4133, 0.2430, 1" />
+  </srgb_displayp3_to_lin_rec709>
+  <lin_displayp3_to_lin_rec709 name="deprecated34" type="color4">
+    <input name="in" type="color4" value="0.4977, 0.1424, 0.0481, 1" />
+  </lin_displayp3_to_lin_rec709>
+  <!-- srgb_texture becomes srgb_rec709 -->
+  <srgb_texture_to_lin_rec709 name="deprecated44" type="color4">
+    <input name="in" type="color4" value="0.7843, 0.3922, 0.1961, 1" />
+  </srgb_texture_to_lin_rec709>
+  <!-- adobergb becomes g22_adobergb -->
+  <adobergb_to_lin_rec709 name="deprecated54" type="color4">
+    <input name="in" type="color4" value="0.6951, 0.3919, 0.2201, 1" />
+  </adobergb_to_lin_rec709>
+  <switch name="switch2" type="color4">
+    <input name="in1" type="color4" value="0.5776, 0.1274, 0.0319, 1" />
+    <input name="in2" type="color4" nodename="deprecated14" />
+    <input name="in3" type="color4" nodename="deprecated24" />
+    <input name="in4" type="color4" value="0.5776, 0.1274, 0.0319, 1" />
+    <input name="in5" type="color4" nodename="deprecated34" />
+    <input name="in6" type="color4" nodename="deprecated44" />
+    <input name="in7" type="color4" nodename="deprecated54" />
+    <input name="in8" type="color4" value="0.5776, 0.1274, 0.0319, 1" />
+    <input name="which" type="float" nodename="multiply1" />
+  </switch>
+
+
+</materialx>
