@@ -25,6 +25,7 @@
     <input name="normal" type="vector3" defaultgeomprop="Nworld" />
     <input name="tangent" type="vector3" defaultgeomprop="Tworld" />
     <input name="opacity" type="color3" value="1, 1, 1" />
+    <input name="transmission_dispersion" type="float" value="0" />
 
     <output name="base_color_out" type="color3" />
     <output name="metallic_out" type="float" />
@@ -47,6 +48,7 @@
     <output name="tangent_out" type="vector3" />
     <output name="alpha_out" type="float" />
     <output name="alpha_mode_out" type="integer" />
+    <output name="dispersion_out" type="float" />
   </nodedef>
 
   <nodegraph name="NG_standard_surface_to_gltf_pbr" nodedef="ND_standard_surface_to_gltf_pbr">
@@ -245,6 +247,19 @@
       <input name="in2" type="integer" value="2" />
     </ifequal>
 
+    <!-- Dispersion -->
+    <divide name="dispersion_from_abbe" type="float">
+      <input name="in1" type="float" value="20.0" />
+      <input name="in2" type="float" interfacename="transmission_dispersion" />
+    </divide>
+
+    <ifequal name="dispersion" type="float">
+      <input name="value1" type="float" interfacename="transmission_dispersion" />
+      <input name="value2" type="float" value="0.0" />
+      <input name="in1" type="float" value="0.0" />
+      <input name="in2" type="float" nodename="dispersion_from_abbe" />
+    </ifequal>
+
     <output name="base_color_out" type="color3" nodename="base_color" />
     <output name="metallic_out" type="float" nodename="metallic" />
     <output name="roughness_out" type="float" nodename="roughness" />
@@ -266,6 +281,7 @@
     <output name="tangent_out" type="vector3" nodename="tangent" />
     <output name="alpha_out" type="float" nodename="opacity_luminance_float" />
     <output name="alpha_mode_out" type="integer" nodename="alpha_mode_from_opacity_luminance" />
+    <output name="dispersion_out" type="float" nodename="dispersion" />
 
   </nodegraph>
 </materialx>
