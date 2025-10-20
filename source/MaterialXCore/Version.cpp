@@ -1187,7 +1187,47 @@ void Document::upgradeVersion()
                         }
                     }
 
-                    if (inInput->hasValue())
+                    // We convert to a constant node if "in" input is a constant value:
+                    bool convertToConstantNode = inInput->hasValue();
+                    // We also convert to a constant node if every destination
+                    // channel is constant:
+                    //   eg: "ND_swizzle_color3_color3" node with
+                    //       "010" in the "channels" input.
+                    if (!convertToConstantNode)
+                    {
+                        convertToConstantNode = true;
+                        for (size_t i = 0; i < destChannelCount; i++)
+                        {
+                            if (i < channelString.size())
+                            {
+                                if (CHANNEL_INDEX_MAP.count(channelString[i]))
+                                {
+                                    // Explicit channel: not constant
+                                    convertToConstantNode = false;
+                                    break;
+                                }
+                                else if (CHANNEL_CONSTANT_MAP.count(channelString[i]))
+                                {
+                                    // Still in constant territory:
+                                    continue;
+                                }
+                                else
+                                {
+                                    // Unknown channel: not constant
+                                    convertToConstantNode = false;
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                // Unassigned channel: not constant
+                                convertToConstantNode = false;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (convertToConstantNode)
                     {
                         // Replace swizzle with constant.
                         node->setCategory("constant");
@@ -1307,7 +1347,7 @@ void Document::upgradeVersion()
                             else
                             {
                                 combineInInput->setConnectedNode(separateNode);
-                                combineInInput->setOutputString(combineInInput->isColorType() ? "outr" : "outx");
+                                combineInInput->setOutputString(inInput->isColorType() ? "outr" : "outx");
                             }
                         }
                         copyInputWithBindings(node, inInput->getName(), separateNode, "in");
