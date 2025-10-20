@@ -1166,20 +1166,19 @@ void Document::upgradeVersion()
             else if (nodeCategory == "swizzle")
             {
                 InputPtr inInput = node->getInput("in");
-                InputPtr channelsInput = node->getInput("channels");
-                if (inInput &&
-                    CHANNEL_COUNT_MAP.count(inInput->getType()) &&
+                const string sourceType = inInput ? inInput->getType() : "float";
+                if (CHANNEL_COUNT_MAP.count(sourceType) &&
                     CHANNEL_COUNT_MAP.count(node->getType()))
                 {
+                    InputPtr channelsInput = node->getInput("channels");
                     string channelString = channelsInput ? channelsInput->getValueString() : EMPTY_STRING;
-                    string sourceType = inInput->getType();
                     string destType = node->getType();
                     size_t sourceChannelCount = CHANNEL_COUNT_MAP.at(sourceType);
                     size_t destChannelCount = CHANNEL_COUNT_MAP.at(destType);
 
                     // Resolve the invalid case of having both a connection and a value
                     // by removing the value attribute.
-                    if (inInput->hasValue())
+                    if (inInput && inInput->hasValue())
                     {
                         if (inInput->hasNodeName() || inInput->hasNodeGraphString() || inInput->hasInterfaceName())
                         {
@@ -1187,8 +1186,8 @@ void Document::upgradeVersion()
                         }
                     }
 
-                    // We convert to a constant node if "in" input is a constant value:
-                    bool convertToConstantNode = inInput->hasValue();
+                    // We convert to a constant node if "in" input is a constant value or does not exist:
+                    bool convertToConstantNode = !inInput || inInput->hasValue();
                     // We also convert to a constant node if every destination
                     // channel is constant:
                     //   eg: "ND_swizzle_color3_color3" node with
@@ -1235,7 +1234,7 @@ void Document::upgradeVersion()
                         {
                             node->setNodeDefString("ND_constant_" + node->getType());
                         }
-                        string valueString = inInput->getValueString();
+                        string valueString = inInput ? inInput->getValueString() : "0";
                         StringVec origValueTokens = splitString(valueString, ARRAY_VALID_SEPARATORS);
                         StringVec newValueTokens;
                         for (size_t i = 0; i < destChannelCount; i++)
@@ -1266,7 +1265,11 @@ void Document::upgradeVersion()
                         }
                         InputPtr valueInput = node->addInput("value", node->getType());
                         valueInput->setValueString(joinStrings(newValueTokens, ", "));
-                        node->removeInput(inInput->getName());
+                        // This is the last place we need to check for nullptr for inInput.
+                        if (inInput)
+                        {
+                            node->removeInput(inInput->getName());
+                        }
                     }
                     else if (destChannelCount == 1)
                     {
