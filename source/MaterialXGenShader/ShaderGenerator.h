@@ -12,13 +12,13 @@
 #include <MaterialXGenShader/Export.h>
 
 #include <MaterialXGenShader/ColorManagementSystem.h>
+#include <MaterialXGenShader/Exception.h>
 #include <MaterialXGenShader/Factory.h>
 #include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/Syntax.h>
 
 #include <MaterialXFormat/File.h>
 
-#include <MaterialXCore/Exception.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -146,6 +146,14 @@ class MX_GENSHADER_API ShaderGenerator
     /// Return true if the node needs the additional ClosureData added
     virtual bool nodeNeedsClosureData(const ShaderNode& /*node*/) const { return false; }
 
+    /// Emit the closure data argument if required
+    /// Note this is an affordance for HwShaderGenerator
+    virtual void emitClosureDataArg(const ShaderNode& /*node*/, GenContext& /*context*/, ShaderStage& /*stage*/) const {}
+
+    /// Emit the closure data parameter if required.
+    /// Note this is an affordance for HwShaderGenerator
+    virtual void emitClosureDataParameter(const ShaderNode& /*node*/, GenContext& /*context*/, ShaderStage& /*stage*/) const {}
+
     /// Return the result of an upstream connection or value for an input.
     virtual string getUpstreamResult(const ShaderInput* input, GenContext& context) const;
 
@@ -255,14 +263,6 @@ class MX_GENSHADER_API ShaderGenerator
     mutable StringMap _tokenSubstitutions;
 
     friend ShaderGraph;
-};
-
-/// @class ExceptionShaderGenError
-/// An exception that is thrown when shader generation fails.
-class MX_GENSHADER_API ExceptionShaderGenError : public Exception
-{
-  public:
-    using Exception::Exception;
 };
 
 MATERIALX_NAMESPACE_END

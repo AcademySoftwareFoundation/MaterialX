@@ -15,6 +15,7 @@ mx_add_library(MaterialXRender
         ${materialx_headers}
     MTLX_MODULES
         MaterialXGenShader
+        MaterialXGenHw # TODO - should this dependency be moved to RenderHw - currently needed for GeometryHandler and LightHandler
     EXPORT_DEFINE
         MATERIALX_RENDER_EXPORTS)
 

@@ -71,8 +71,11 @@ describe('XmlIo', () =>
                 {
                     valueElementCount++;
                 }
+                // Release wrapper created by iterator
+                elem.delete();
             }
             expect(valueElementCount).to.be.greaterThan(0);
+            doc.delete();
         };
     }
 
@@ -102,6 +105,9 @@ describe('XmlIo', () =>
         await mx.readFromXmlFile(doc, filename, examplesPath);
         expect(doc.validate()).to.be.true;
         expect(copy.equals(doc)).to.be.true;
+        copy.delete();
+        doc.delete();
+        libs.forEach(l => l.delete());
     }).timeout(TIMEOUT);
 
     it('Read XML from string', async () =>
@@ -126,6 +132,9 @@ describe('XmlIo', () =>
         await mx.readFromXmlString(doc, file);
         expect(doc.validate()).to.be.true;
         expect(copy.equals(doc)).to.be.true;
+        copy.delete();
+        doc.delete();
+        libs.forEach(l => l.delete());
     }).timeout(TIMEOUT);
 
     it('Read XML with recursive includes', async () =>
@@ -134,6 +143,7 @@ describe('XmlIo', () =>
         await mx.readFromXmlFile(doc, includeTestPath + '/root.mtlx');
         expect(doc.getChild('paint_semigloss')).to.exist;
         expect(doc.validate()).to.be.true;
+        doc.delete();
     });
 
     it('Locate XML includes via search path', async () =>
@@ -153,6 +163,8 @@ describe('XmlIo', () =>
         expect(doc2.getChild('paint_semigloss')).to.exist;
         expect(doc2.validate()).to.be.true;
         expect(doc2.equals(doc)).to.be.true;
+        doc2.delete();
+        doc.delete();
     });
 
     it('Locate XML includes via environment variable', async () =>
@@ -177,6 +189,8 @@ describe('XmlIo', () =>
         expect(doc2.getChild('paint_semigloss')).to.exist;
         expect(doc2.validate()).to.be.true;
         expect(doc2.equals(doc)).to.be.true;
+        doc2.delete();
+        doc.delete();
     });
 
     it('Locate XML includes via absolute search paths', async () =>
@@ -195,12 +209,14 @@ describe('XmlIo', () =>
         }
         const doc = mx.createDocument();
         await mx.readFromXmlFile(doc, 'root.mtlx', absolutePath);
+        doc.delete();
     });
 
     it('Detect XML include cycles', async () =>
     {
         const doc = mx.createDocument();
         expect(async () => await mx.readFromXmlFile(doc, includeTestPath + '/cycle.mtlx')).to.throw;
+        doc.delete();
     });
 
     it('Disabling XML includes', async () =>
@@ -209,6 +225,7 @@ describe('XmlIo', () =>
         const readOptions = new mx.XmlReadOptions();
         readOptions.readXIncludes = false;
         expect(async () => await mx.readFromXmlFile(doc, includeTestPath + '/cycle.mtlx', readOptions)).to.not.throw;
+        doc.delete();
     });
 
     it('Write to XML string', async () =>
@@ -224,11 +241,14 @@ describe('XmlIo', () =>
             const writeOptions = new mx.XmlWriteOptions();
             writeOptions.writeXIncludeEnable = false;
             const xmlString = mx.writeToXmlString(doc, writeOptions);
+            writeOptions.delete();
 
             // Verify that the serialized document is identical.
             const writtenDoc = mx.createDocument();
             await mx.readFromXmlString(writtenDoc, xmlString);
             expect(writtenDoc).to.eql(doc);
+            writtenDoc.delete();
+            doc.delete();
         };
     });
 
@@ -240,6 +260,8 @@ describe('XmlIo', () =>
         mx.prependXInclude(doc, includePath);
         const xmlString = mx.writeToXmlString(doc, writeOptions);
         expect(xmlString).to.include(includePath);
+        writeOptions.delete();
+        doc.delete();
     });
 
     // Node only, because we cannot read from a downloaded file in the browser
@@ -274,5 +296,9 @@ describe('XmlIo', () =>
         fileString = getMtlxStrings([filename], '')[0];
         matches = Array.from(fileString.matchAll(includeRegex));
         expect(matches.length).to.equal(0);
+        doc3.delete();
+        doc2.delete();
+        doc.delete();
+        writeOptions.delete();
     });
 });

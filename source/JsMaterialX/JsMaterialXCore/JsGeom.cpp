@@ -18,11 +18,11 @@ namespace mx = MaterialX;
 
 EMSCRIPTEN_BINDINGS(geom)
 {
-    ems::constant("GEOM_PATH_SEPARATOR", mx::GEOM_PATH_SEPARATOR);
-    ems::constant("UNIVERSAL_GEOM_NAME", mx::UNIVERSAL_GEOM_NAME);
-    ems::constant("UDIM_TOKEN", mx::UDIM_TOKEN);
-    ems::constant("UV_TILE_TOKEN", mx::UV_TILE_TOKEN);       
-    ems::constant("UDIM_SET_PROPERTY", mx::UDIM_SET_PROPERTY);
+    ems::function("getGeomPathSeparator", ems::optional_override([](){ return mx::GEOM_PATH_SEPARATOR; }));
+    ems::function("getUniversalGeomName", ems::optional_override([](){ return mx::UNIVERSAL_GEOM_NAME; }));
+    ems::function("getUdimToken", ems::optional_override([](){ return mx::UDIM_TOKEN; }));
+    ems::function("getUvTileToken", ems::optional_override([](){ return mx::UV_TILE_TOKEN; }));       
+    ems::function("getUdimSetProperty", ems::optional_override([](){ return mx::UDIM_SET_PROPERTY; }));
 
     ems::class_<mx::GeomElement, ems::base<mx::Element>>("GeomElement")
         .smart_ptr<std::shared_ptr<mx::GeomElement>>("GeomElement")
