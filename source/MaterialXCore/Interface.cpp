@@ -327,7 +327,7 @@ Edge Output::getUpstreamEdge(size_t index) const
         return Edge(getSelfNonConst(), nullptr, getConnectedNode());
     }
 
-    return NULL_EDGE;
+    return getNullEdge();
 }
 
 bool Output::hasUpstreamCycle() const
