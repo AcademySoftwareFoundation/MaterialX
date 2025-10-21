@@ -7,7 +7,7 @@
   -->
 
   <!-- ======================================================================== -->
-  <!-- Base target definition for OSL targets using shader generation.          -->
+  <!-- Base target definition for OSL Network targets using shader generation.  -->
   <!-- ======================================================================== -->
   <targetdef name="genoslnetwork" />
 

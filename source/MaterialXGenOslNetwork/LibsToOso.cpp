@@ -175,7 +175,7 @@ int main(int argc, char* const argv[])
         else
         {
             std::cout << "Unrecognized command-line option: " << token << std::endl;
-            std::cout << "Launch the graph editor with '--help' for a complete list of supported "
+            std::cout << "Run LibsToOso with '--help' for a complete list of supported "
                          "options."
                       << std::endl;
 
