@@ -61,14 +61,13 @@ string(APPEND JS_LINK_FLAGS_CORE " -I${SOURCE_FOLDER} \
     -s WASM=1 \
     -s DISABLE_EXCEPTION_CATCHING=0 \
     -s MODULARIZE=1 \
-    -s USE_ES6_IMPORT_META=0 \
     -s EXPORT_NAME='MaterialX' \
     -s MEMORY_GROWTH_LINEAR_STEP=32MB \
     -s ALLOW_MEMORY_GROWTH=1 \
     -s FORCE_FILESYSTEM=1 ")
 
 # Add the post javascript files. The one in the root folder of this project needs to come first.
-string(APPEND JS_LINK_FLAGS_CORE "--post-js ${CMAKE_CURRENT_SOURCE_DIR}/post.js \
+string(APPEND JS_LINK_FLAGS_CORE "--pre-js ${CMAKE_CURRENT_SOURCE_DIR}/pre.js \
     --post-js ${FORMAT}post.js ")
 
 # Compiler flags
@@ -141,6 +140,7 @@ target_link_libraries(JsMaterialXGenShader
     PUBLIC MaterialXCore
     PUBLIC MaterialXFormat
     PUBLIC MaterialXGenShader
+    PUBLIC MaterialXGenHw
     PUBLIC MaterialXGenGlsl
     PRIVATE ${CMAKE_DL_LIBS})
 

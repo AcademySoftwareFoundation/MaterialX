@@ -5,7 +5,8 @@
 
 #include <MaterialXGenOsl/OslSyntax.h>
 
-#include <MaterialXGenShader/ShaderGenerator.h>
+#include <MaterialXGenShader/Exception.h>
+#include <MaterialXGenShader/ShaderNode.h>
 
 #include <sstream>
 
@@ -379,7 +380,7 @@ OslSyntax::OslSyntax(TypeSystemPtr typeSystem) : Syntax(typeSystem)
             this,
             "textureresource ",
             "textureresource (\"\", \"\")",
-            "(\"\", \"\")",
+            "{\"\", \"\"}",
             EMPTY_STRING,
             "struct textureresource { string filename; string colorspace; };"));
 

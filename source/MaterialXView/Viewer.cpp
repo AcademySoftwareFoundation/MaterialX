@@ -65,6 +65,9 @@ const bool USE_FLOAT_BUFFER = false;
 const int MIN_ENV_SAMPLE_COUNT = 4;
 const int MAX_ENV_SAMPLE_COUNT = 1024;
 
+const int MIN_AIRY_FRESNEL_ITERATIONS = 1;
+const int MAX_AIRY_FRESNEL_ITERATIONS = 8;
+
 const int SHADOW_MAP_SIZE = 2048;
 const int ALBEDO_TABLE_SIZE = 128;
 const int IRRADIANCE_MAP_WIDTH = 256;
@@ -82,6 +85,8 @@ const float IDEAL_ENV_MAP_RADIANCE = 6.0f;
 const float IDEAL_MESH_SPHERE_RADIUS = 2.0f;
 
 const float PI = std::acos(-1.0f);
+
+const std::string UDIM_SEPARATORS = "._";
 
 void writeTextFile(const std::string& text, const std::string& filePath)
 {
@@ -890,6 +895,26 @@ void Viewer::createAdvancedSettings(ng::ref<Widget> parent)
         _lightHandler->setEnvSampleCount(MIN_ENV_SAMPLE_COUNT * (int) std::pow(4, index));
     });
 
+    ng::ref<ng::Widget> fresnelGroup = new Widget(settingsGroup);
+    fresnelGroup->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
+    new ng::Label(fresnelGroup, "Airy Fresnel Iterations:");
+    mx::StringVec fresnelOptions;
+    for (int i = MIN_AIRY_FRESNEL_ITERATIONS; i <= MAX_AIRY_FRESNEL_ITERATIONS; i *= 2)
+    {
+        fresnelOptions.push_back(std::to_string(i));
+    }
+    ng::ref<ng::ComboBox> fresnelBox = new ng::ComboBox(fresnelGroup, fresnelOptions);
+    fresnelBox->set_chevron_icon(-1);
+    fresnelBox->set_selected_index((int)std::log2(_genContext.getOptions().hwAiryFresnelIterations / MIN_AIRY_FRESNEL_ITERATIONS));
+    fresnelBox->set_callback([this](int index)
+    {
+        _genContext.getOptions().hwAiryFresnelIterations = MIN_AIRY_FRESNEL_ITERATIONS * (int)std::pow(2, index);
+#ifndef MATERIALXVIEW_METAL_BACKEND
+        _genContextEssl.getOptions().hwAiryFresnelIterations = _genContext.getOptions().hwAiryFresnelIterations;
+#endif
+        reloadShaders();
+    });
+
     ng::ref<ng::Label> lightingLabel = new ng::Label(settingsGroup, "Lighting Options");
     lightingLabel->set_font_size(20);
     lightingLabel->set_font("sans-bold");
@@ -1494,13 +1519,25 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
                 }
             }
 
-            // Apply implicit udim assignments, if any.
+            // Apply UDIM assignments, if any.
             for (mx::MaterialPtr mat : newMaterials)
             {
                 mx::NodePtr materialNode = mat->getMaterialNode();
                 if (materialNode)
                 {
+                    // First check for implicit UDIM assignments.
                     std::string udim = mat->getUdim();
+                    if (udim.empty())
+                    {
+                        // Fall back to name-based UDIM assignments.
+                        for (const std::string& token : mx::splitString(materialNode->getName(), UDIM_SEPARATORS))
+                        {
+                            if (token.size() == 4 && std::all_of(token.begin(), token.end(), isdigit))
+                            {
+                                udim = token;
+                            }
+                        }
+                    }
                     if (!udim.empty())
                     {
                         for (mx::MeshPartitionPtr geom : _geometryList)
