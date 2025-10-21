@@ -9,17 +9,6 @@ on:
       - '**.md'
   workflow_dispatch:
 
-env:
-  # Arbitrary suffix, change to force a cache miss, e.g., when adding ports
-  VCPKG_CACHE_SUFFIX: 2
-  VCPKG_ROOT_LINUX: /usr/local/share/vcpkg
-  VCPKG_ROOT_MACOS: /usr/local/share/vcpkg
-  VCPKG_ROOT_WINDOWS: C:/vcpkg
-  VCPKG_INSTALLED_LINUX: /usr/local/share/vcpkg/installed/x64-linux
-  VCPKG_INSTALLED_MACOS: /usr/local/share/vcpkg/installed/arm64-osx
-  VCPKG_INSTALLED_WINDOWS: C:/vcpkg/installed/x64-windows-release
-  VCPKG_TRIPLET_WINDOWS: x64-windows-release
-
 jobs:
 
   build:
@@ -47,10 +36,7 @@ jobs:
           compiler: gcc
           compiler_version: "14"
           python: 3.11
-          # Keep in sync with VCPKG_INSTALLED_LINUX
-          cmake_config: -DMATERIALX_MDL_SDK_DIR=/usr/local/share/vcpkg/installed/x64-linux
           test_render: ON
-          build_mdl_sdk: ON
 
         - name: Linux_GCC_CoverageAnalysis
           os: ubuntu-24.04
@@ -114,27 +100,19 @@ jobs:
         - name: Windows_VS2022_Win32_Python39
           os: windows-2022
           architecture: x86
-          compiler: msvc
-          compiler_version: 2022
           python: 3.9
           cmake_config: -G "Visual Studio 17 2022" -A "Win32"
 
         - name: Windows_VS2022_x64_Python311
           os: windows-2025
           architecture: x64
-          compiler: msvc
-          compiler_version: 2022
           python: 3.11
-          # Keep in sync with VCPKG_INSTALLED_WINDOWS
-          cmake_config: -G "Visual Studio 17 2022" -A "x64" -DMATERIALX_MDL_SDK_DIR=C:/vcpkg/installed/x64-windows-release
+          cmake_config: -G "Visual Studio 17 2022" -A "x64"
           test_shaders: ON
-          build_mdl_sdk: ON
 
         - name: Windows_VS2022_x64_SharedLibs
           os: windows-2025
           architecture: x64
-          compiler: msvc
-          compiler_version: 2022
           python: None
           cmake_config: -G "Visual Studio 17 2022" -A "x64" -DMATERIALX_BUILD_SHARED_LIBS=ON
           upload_shaders: ON
@@ -161,8 +139,6 @@ jobs:
             echo "CXX=clang++-${{ matrix.compiler_version }}" >> $GITHUB_ENV
           fi
         fi
-        echo "VCPKG_ROOT=${{ env.VCPKG_ROOT_LINUX }}" >> $GITHUB_ENV
-        echo "VCPKG_INSTALLED=${{ env.VCPKG_INSTALLED_LINUX }}" >> $GITHUB_ENV
 
     - name: Install Dependencies (MacOS)
       if: runner.os == 'macOS'
@@ -179,16 +155,18 @@ jobs:
             echo "CXX=clang++" >> $GITHUB_ENV
           fi
         fi
-        echo "VCPKG_ROOT=${{ env.VCPKG_ROOT_MACOS }}" >> $GITHUB_ENV
-        echo "VCPKG_INSTALLED=${{ env.VCPKG_INSTALLED_MACOS }}" >> $GITHUB_ENV
 
     - name: Install Dependencies (Windows)
       if: runner.os == 'Windows'
       run: |
         Add-Content $env:GITHUB_PATH "$PWD/build/installed/bin"
-        echo "VCPKG_ROOT=${{ env.VCPKG_ROOT_WINDOWS }}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-        echo "VCPKG_DEFAULT_TRIPLET=${{ env.VCPKG_TRIPLET_WINDOWS }}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-        echo "VCPKG_INSTALLED=${{ env.VCPKG_INSTALLED_WINDOWS }}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+    - name: Install OpenImageIO
+      if: matrix.build_oiio == 'ON' && runner.os == 'Windows'
+      run: |
+        C:/vcpkg/vcpkg install openimageio --triplet=x64-windows-release
+        Add-Content $env:GITHUB_PATH "C:/vcpkg/installed/x64-windows-release/bin"
+        Add-Content $env:GITHUB_PATH "C:/vcpkg/installed/x64-windows-release/share/openimageio"
 
     - name: Install Python ${{ matrix.python }}
       if: matrix.python != 'None'
@@ -204,41 +182,6 @@ jobs:
     - name: Run Clang Format
       if: matrix.clang_format == 'ON'
       run: find source \( -name *.h -o -name *.cpp -o -name *.mm -o -name *.inl \) ! -path "*/External/*" ! -path "*/NanoGUI/*" | xargs clang-format -i --verbose
-
-    # This is the version of the git tree, not of the vcpkg executable itself.
-    - name: Retrieve vcpkg version
-      shell: bash
-      run: |
-        cd ${{ env.VCPKG_ROOT }}
-        echo "VCPKG_VERSION=$(git rev-parse --short HEAD | tr -d '\n')" >> $GITHUB_ENV
-
-    # Set up a cache for vcpkg to speed up builds. Look up the cache key.
-    - name: Look up vcpkg cache
-      if: (matrix.build_oiio == 'ON' && runner.os == 'Windows') || matrix.build_mdl_sdk == 'ON' || (matrix.test_shaders == 'ON' && runner.os == 'Windows')
-      id: cache-vcpkg
-      uses: actions/cache@v4
-      with:
-        path: ${{ github.workspace }}/.vcpkg_cache
-        key: vcpkg-${{ matrix.name }}-${{ env.VCPKG_VERSION }}-${{ env.VCPKG_CACHE_SUFFIX }}
-
-    # This step is currently not used by any configuration.
-    - name: Install OpenImageIO
-      if: matrix.build_oiio == 'ON' && runner.os == 'Windows'
-      run: |
-        echo "vcpkg git version is ${{ env.VCPKG_VERSION }}"
-        ${{ env.VCPKG_ROOT }}/vcpkg install openimageio
-        Add-Content $env:GITHUB_PATH "${{ env.VCPKG_INSTALLED }}/bin"
-        Add-Content $env:GITHUB_PATH "${{ env.VCPKG_INSTALLED }}/share/openimageio"
-      env:
-        VCPKG_BINARY_SOURCES: "clear;files,${{ github.workspace }}/.vcpkg_cache,readwrite"
-
-    - name: Install MDL SDK
-      if: ${{ matrix.build_mdl_sdk == 'ON' }}
-      run: |
-        echo "vcpkg git version is ${{ env.VCPKG_VERSION }}"
-        ${{ env.VCPKG_ROOT }}/vcpkg install mdl-sdk
-      env:
-        VCPKG_BINARY_SOURCES: "clear;files,${{ github.workspace }}/.vcpkg_cache,readwrite"
 
     - name: CMake Generate
       run: cmake -S . -B build -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_BUILD_TESTS=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{matrix.cmake_config}}
@@ -272,15 +215,12 @@ jobs:
     - name: Shader Validation Tests (Windows)
       if: matrix.test_shaders == 'ON' && runner.os == 'Windows'
       run: |
-        echo "vcpkg git version is ${{ env.VCPKG_VERSION }}"
-        ${{ env.VCPKG_ROOT }}/vcpkg install glslang[tools]
-        ${{ env.VCPKG_INSTALLED }}/tools/glslang/glslangValidator.exe -v
-        python python/Scripts/generateshader.py resources/Materials/Examples --target glsl --validator ${{ env.VCPKG_INSTALLED }}/tools/glslang/glslangValidator.exe
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target essl --validator ${{ env.VCPKG_INSTALLED }}/tools/glslang/glslangValidator.exe
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target vulkan --validator ${{ env.VCPKG_INSTALLED }}/tools/glslang/glslangValidator.exe
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target wgsl --validator "${{ env.VCPKG_INSTALLED }}/tools/glslang/glslangValidator.exe --target-env vulkan1.3 --quiet"
-      env:
-        VCPKG_BINARY_SOURCES: "clear;files,${{ github.workspace }}/.vcpkg_cache,readwrite"
+        C:/vcpkg/vcpkg install glslang[tools] --triplet=x64-windows-release
+        C:/vcpkg/installed/x64-windows-release/tools/glslang/glslangValidator.exe -v
+        python python/Scripts/generateshader.py resources/Materials/Examples --target glsl --validator C:/vcpkg/installed/x64-windows-release/tools/glslang/glslangValidator.exe
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target essl --validator C:/vcpkg/installed/x64-windows-release/tools/glslang/glslangValidator.exe
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target vulkan --validator C:/vcpkg/installed/x64-windows-release/tools/glslang/glslangValidator.exe
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target wgsl --validator "C:/vcpkg/installed/x64-windows-release/tools/glslang/glslangValidator.exe --target-env vulkan1.3 --quiet"
 
     - name: Shader Validation Tests (MacOS)
       if: matrix.test_shaders == 'ON' && runner.os == 'macOS'
@@ -390,7 +330,7 @@ jobs:
 
     - name: JavaScript CMake Build
       run: cmake --build javascript/build --target install --config Release --parallel 2
-
+    
     - name: JavaScript Unit Tests
       run: |
         npm install
