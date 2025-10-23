@@ -29,7 +29,7 @@ TEST_CASE("IntraGraph Traversal", "[traversal]")
     // Create a node graph with the following structure:
     //
     // [image1] [constant]     [image2]
-    //        \ /                 |   
+    //        \ /                 |
     //    [multiply]          [contrast]         [noise3d]
     //             \____________  |  ____________/
     //                          [mix]
@@ -186,7 +186,7 @@ TEST_CASE("InterGraph Traversal", "[traversal]")
         {
             if (!interfaceInput->getNodeName().empty() || !interfaceInput->getNodeGraphString().empty())
             {
-                REQUIRE(interfaceInput->getConnectedNode() != nullptr);                    
+                REQUIRE(interfaceInput->getConnectedNode() != nullptr);
             }
         }
     }

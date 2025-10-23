@@ -301,11 +301,16 @@ bool Input::validate(string* message) const
     if (parent->isA<Node>())
     {
         int numBindings = 0;
-        if (hasValue()) numBindings++;
-        if (hasNodeName()) numBindings++;
-        if (hasNodeGraphString()) numBindings++;
-        if (hasInterfaceName()) numBindings++;
-        if (hasOutputString() && !(hasNodeName() || hasNodeGraphString()))  numBindings++;
+        if (hasValue())
+            numBindings++;
+        if (hasNodeName())
+            numBindings++;
+        if (hasNodeGraphString())
+            numBindings++;
+        if (hasInterfaceName())
+            numBindings++;
+        if (hasOutputString() && !(hasNodeName() || hasNodeGraphString()))
+            numBindings++;
         validateRequire(numBindings, res, message, "Node input binds no value or connection");
         validateRequire(numBindings <= 1, res, message, "Node input has too many bindings");
     }

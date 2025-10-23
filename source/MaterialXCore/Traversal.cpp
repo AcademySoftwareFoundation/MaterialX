@@ -9,20 +9,24 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-const Edge& getNullEdge() {
+const Edge& getNullEdge()
+{
     static const auto ret = new Edge(nullptr, nullptr, nullptr);
     return *ret;
 }
 
-const TreeIterator& getNullTreeIterator() {
+const TreeIterator& getNullTreeIterator()
+{
     static const auto ret = new TreeIterator(nullptr);
     return *ret;
 }
-const GraphIterator& getNullGraphIterator() {
+const GraphIterator& getNullGraphIterator()
+{
     static const auto ret = new GraphIterator(nullptr);
     return *ret;
 }
-const InheritanceIterator& getNullInheritanceIterator() {
+const InheritanceIterator& getNullInheritanceIterator()
+{
     static const auto ret = new InheritanceIterator(nullptr);
     return *ret;
 }
