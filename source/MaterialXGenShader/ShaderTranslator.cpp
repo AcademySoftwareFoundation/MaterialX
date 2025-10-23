@@ -19,7 +19,7 @@ void ShaderTranslator::connectTranslationInputs(NodePtr shader, NodeDefPtr trans
     std::set<OutputPtr> origOutputs;
     for (InputPtr shaderInput : origInputs)
     {
-        if (translationNodeDef->getInput(shaderInput->getName()))
+        if (translationNodeDef->getActiveInput(shaderInput->getName()))
         {
             InputPtr input = _translationNode->addInput(shaderInput->getName(), shaderInput->getType());
 
@@ -78,15 +78,14 @@ void ShaderTranslator::connectTranslationInputs(NodePtr shader, NodeDefPtr trans
 void ShaderTranslator::connectTranslationOutputs(NodePtr shader)
 {
     DocumentPtr doc = shader->getDocument();
-    InterfaceElementPtr implement = _translationNode->getImplementation();
-    NodeGraphPtr translationGraph = implement ? implement->asA<NodeGraph>() : nullptr;
-    if (!translationGraph)
+    NodeDefPtr nodeDef = _translationNode->getNodeDef();
+    if (!nodeDef)
     {
-        throw Exception("No graph implementation for " + _translationNode->getCategory() + " was found");
+        throw Exception("No nodedef for " + _translationNode->getCategory() + " was found");
     }
 
     // Iterate through outputs of the translation graph.
-    for (OutputPtr translationGraphOutput : translationGraph->getOutputs())
+    for (OutputPtr translationGraphOutput : nodeDef->getActiveOutputs())
     {
         // Convert output name to input name, using a hardcoded naming convention for now.
         string outputName = translationGraphOutput->getName();

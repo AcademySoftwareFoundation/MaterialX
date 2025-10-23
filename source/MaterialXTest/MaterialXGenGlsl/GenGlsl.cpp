@@ -7,6 +7,12 @@
 
 #include <MaterialXTest/MaterialXGenGlsl/GenGlsl.h>
 
+// Including this file here just to ensure it compiles
+// Its not used anywhere in the MaterialX repo - but is
+// added to allow backwards compatibility with OpenUSD
+// codebase
+#include <MaterialXGenGlsl/Nodes/SurfaceNodeGlsl.h>
+
 #include <MaterialXGenGlsl/EsslShaderGenerator.h>
 #include <MaterialXGenGlsl/EsslSyntax.h>
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
