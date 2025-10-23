@@ -114,10 +114,7 @@ void HwSurfaceNode::emitFunctionCall(const ShaderNode& node, GenContext& context
             shadergen.emitComment("Shadow occlusion", stage);
             if (context.getOptions().hwShadowMap)
             {
-                shadergen.emitLine("vec3 shadowCoord = mx_matrix_mul(" + HW::T_SHADOW_MATRIX + ", vec4(" + prefix + HW::T_POSITION_WORLD + ", 1.0)).xyz", stage);
-                shadergen.emitLine("shadowCoord = shadowCoord * 0.5 + 0.5", stage);
-                shadergen.emitLine("vec2 shadowMoments = texture(" + HW::T_SHADOW_MAP + ", shadowCoord.xy).xy", stage);
-                shadergen.emitLine("occlusion = mx_variance_shadow_occlusion(shadowMoments, shadowCoord.z)", stage);
+                shadergen.emitLine("occlusion = mx_shadow_occlusion(" + HW::T_SHADOW_MAP + ", " + HW::T_SHADOW_MATRIX + ", " + prefix + HW::T_POSITION_WORLD + ")", stage);
             }
             shadergen.emitLineBreak(stage);
 
@@ -269,6 +266,11 @@ void HwSurfaceNode::emitLightLoop(const ShaderNode& node, GenContext& context, S
 
         shadergen.emitComment("Accumulate the light's contribution", stage);
         shadergen.emitLine(outColor + " += lightShader.intensity * " + bsdf->getOutput()->getVariable() + ".response", stage);
+
+        shadergen.emitLineBreak(stage);
+
+        shadergen.emitComment("Clear shadow factor for next light", stage);
+        shadergen.emitLine("occlusion = 1.0", stage);
 
         shadergen.emitScopeEnd(stage);
         shadergen.emitLineBreak(stage);
