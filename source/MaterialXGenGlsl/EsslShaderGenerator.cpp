@@ -7,6 +7,7 @@
 #include <MaterialXGenGlsl/EsslSyntax.h>
 
 #include <MaterialXGenHw/HwConstants.h>
+#include <MaterialXGenShader/Exception.h>
 
 MATERIALX_NAMESPACE_BEGIN
 

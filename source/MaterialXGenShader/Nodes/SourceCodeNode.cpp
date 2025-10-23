@@ -4,10 +4,12 @@
 //
 
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
+
+#include <MaterialXGenShader/Exception.h>
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/ShaderNode.h>
 #include <MaterialXGenShader/ShaderStage.h>
-#include <MaterialXGenShader/ShaderGenerator.h>
+
 #include <MaterialXFormat/Util.h>
 
 MATERIALX_NAMESPACE_BEGIN
