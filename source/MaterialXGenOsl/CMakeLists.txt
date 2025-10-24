@@ -24,33 +24,31 @@ mx_add_library(MaterialXGenOsl
     EXPORT_DEFINE
         MATERIALX_GENOSL_EXPORTS)
 
-if (MATERIALX_BUILD_GEN_OSL_NETWORK)
-  file(GLOB GenNodes_SRC "${CMAKE_CURRENT_SOURCE_DIR}/LibsToOso.cpp")
+file(GLOB GenNodes_SRC "${CMAKE_CURRENT_SOURCE_DIR}/LibsToOso.cpp")
 
-  set(MATERIALX_LIBRARIES
-      MaterialXCore
-      MaterialXFormat
-      MaterialXGenShader
-      MaterialXGenOsl
-      MaterialXRenderOsl)
+set(MATERIALX_LIBRARIES
+    MaterialXCore
+    MaterialXFormat
+    MaterialXGenShader
+    MaterialXGenOsl
+    MaterialXRenderOsl)
 
-  add_executable(MaterialXGenOslNetwork_LibsToOso ${GenNodes_SRC})
+add_executable(MaterialXGenOslNetwork_LibsToOso ${GenNodes_SRC})
 
-  target_link_libraries(
-      MaterialXGenOslNetwork_LibsToOso
-      ${MATERIALX_LIBRARIES})
+target_link_libraries(
+    MaterialXGenOslNetwork_LibsToOso
+    ${MATERIALX_LIBRARIES})
 
-  set_target_properties(
-      MaterialXGenOslNetwork_LibsToOso PROPERTIES
-      INSTALL_RPATH "${MATERIALX_UP_ONE_RPATH}")
+set_target_properties(
+    MaterialXGenOslNetwork_LibsToOso PROPERTIES
+    INSTALL_RPATH "${MATERIALX_UP_ONE_RPATH}")
 
-  # TODO: We likely want to install that file elsewhere and not under `bin`,
-  # if at all, as we maybe want to keep this executable available at build time only.
-  install(TARGETS MaterialXGenOslNetwork_LibsToOso
-      EXPORT MaterialX
-      RUNTIME DESTINATION ${MATERIALX_INSTALL_BIN_PATH})
-  if(MSVC)
-      install(FILES $<TARGET_PDB_FILE:MaterialXGenOslNetwork_LibsToOso>
-              DESTINATION ${MATERIALX_INSTALL_BIN_PATH} OPTIONAL)
-  endif()
+# TODO: We likely want to install that file elsewhere and not under `bin`,
+# if at all, as we maybe want to keep this executable available at build time only.
+install(TARGETS MaterialXGenOslNetwork_LibsToOso
+    EXPORT MaterialX
+    RUNTIME DESTINATION ${MATERIALX_INSTALL_BIN_PATH})
+if(MSVC)
+    install(FILES $<TARGET_PDB_FILE:MaterialXGenOslNetwork_LibsToOso>
+            DESTINATION ${MATERIALX_INSTALL_BIN_PATH} OPTIONAL)
 endif()
