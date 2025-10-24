@@ -1166,20 +1166,19 @@ void Document::upgradeVersion()
             else if (nodeCategory == "swizzle")
             {
                 InputPtr inInput = node->getInput("in");
-                InputPtr channelsInput = node->getInput("channels");
-                if (inInput &&
-                    CHANNEL_COUNT_MAP.count(inInput->getType()) &&
+                const string sourceType = inInput ? inInput->getType() : "float";
+                if (CHANNEL_COUNT_MAP.count(sourceType) &&
                     CHANNEL_COUNT_MAP.count(node->getType()))
                 {
+                    InputPtr channelsInput = node->getInput("channels");
                     string channelString = channelsInput ? channelsInput->getValueString() : EMPTY_STRING;
-                    string sourceType = inInput->getType();
                     string destType = node->getType();
                     size_t sourceChannelCount = CHANNEL_COUNT_MAP.at(sourceType);
                     size_t destChannelCount = CHANNEL_COUNT_MAP.at(destType);
 
                     // Resolve the invalid case of having both a connection and a value
                     // by removing the value attribute.
-                    if (inInput->hasValue())
+                    if (inInput && inInput->hasValue())
                     {
                         if (inInput->hasNodeName() || inInput->hasNodeGraphString() || inInput->hasInterfaceName())
                         {
@@ -1187,7 +1186,32 @@ void Document::upgradeVersion()
                         }
                     }
 
-                    if (inInput->hasValue())
+                    // We convert to a constant node if "in" input is a constant value or does not exist:
+                    bool convertToConstantNode = !inInput || inInput->hasValue();
+                    // We also convert to a constant node if every destination
+                    // channel is constant:
+                    //   eg: "ND_swizzle_color3_color3" node with
+                    //       "010" in the "channels" input.
+                    if (!convertToConstantNode)
+                    {
+                        convertToConstantNode = true;
+                        for (size_t i = 0; i < destChannelCount; i++)
+                        {
+                            if (i < channelString.size())
+                            {
+                                if (CHANNEL_CONSTANT_MAP.count(channelString[i]))
+                                {
+                                    // Still in constant territory:
+                                    continue;
+                                }
+                            }
+                            // Every other scenario: not constant
+                            convertToConstantNode = false;
+                            break;
+                        }
+                    }
+
+                    if (convertToConstantNode)
                     {
                         // Replace swizzle with constant.
                         node->setCategory("constant");
@@ -1195,7 +1219,7 @@ void Document::upgradeVersion()
                         {
                             node->setNodeDefString("ND_constant_" + node->getType());
                         }
-                        string valueString = inInput->getValueString();
+                        string valueString = inInput ? inInput->getValueString() : "0";
                         StringVec origValueTokens = splitString(valueString, ARRAY_VALID_SEPARATORS);
                         StringVec newValueTokens;
                         for (size_t i = 0; i < destChannelCount; i++)
@@ -1208,25 +1232,25 @@ void Document::upgradeVersion()
                                     if (index < origValueTokens.size())
                                     {
                                         newValueTokens.push_back(origValueTokens[index]);
+                                        continue;
                                     }
                                 }
                                 else if (CHANNEL_CONSTANT_MAP.count(channelString[i]))
                                 {
                                     newValueTokens.push_back(std::to_string(CHANNEL_CONSTANT_MAP.at(channelString[i])));
-                                }
-                                else
-                                {
-                                    newValueTokens.push_back(origValueTokens[0]);
+                                    continue;
                                 }
                             }
-                            else
-                            {
-                                newValueTokens.push_back(origValueTokens[0]);
-                            }
+                            // Invalid channel name, or missing channel name:
+                            newValueTokens.push_back(origValueTokens[0]);
                         }
                         InputPtr valueInput = node->addInput("value", node->getType());
                         valueInput->setValueString(joinStrings(newValueTokens, ", "));
-                        node->removeInput(inInput->getName());
+                        // This is the last place we need to check for nullptr for inInput.
+                        if (inInput)
+                        {
+                            node->removeInput(inInput->getName());
+                        }
                     }
                     else if (destChannelCount == 1)
                     {
@@ -1298,17 +1322,17 @@ void Document::upgradeVersion()
                                 {
                                     combineInInput->setConnectedNode(separateNode);
                                     combineInInput->setOutputString(std::string("out") + channelString[i]);
+                                    continue;
                                 }
                                 else if (CHANNEL_CONSTANT_MAP.count(channelString[i]))
                                 {
                                     combineInInput->setValue(CHANNEL_CONSTANT_MAP.at(channelString[i]));
+                                    continue;
                                 }
                             }
-                            else
-                            {
-                                combineInInput->setConnectedNode(separateNode);
-                                combineInInput->setOutputString(combineInInput->isColorType() ? "outr" : "outx");
-                            }
+                            // Invalid channel name, or missing channel name:
+                            combineInInput->setConnectedNode(separateNode);
+                            combineInInput->setOutputString(inInput->isColorType() ? "outr" : "outx");
                         }
                         copyInputWithBindings(node, inInput->getName(), separateNode, "in");
                         node->removeInput(inInput->getName());
