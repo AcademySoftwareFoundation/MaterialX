@@ -9,7 +9,7 @@
 /// @file
 /// OSL Network syntax class
 
-#include <MaterialXGenOslNetwork/Export.h>
+#include <MaterialXGenOsl/Export.h>
 
 #include <MaterialXGenShader/Syntax.h>
 

@@ -5,7 +5,7 @@
 
 #include <PyMaterialX/PyMaterialX.h>
 
-#include <MaterialXGenOslNetwork/OslNetworkShaderGenerator.h>
+#include <MaterialXGenOsl/OslNetworkShaderGenerator.h>
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
 

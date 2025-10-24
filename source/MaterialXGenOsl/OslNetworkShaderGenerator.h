@@ -9,7 +9,7 @@
 /// @file
 /// OSL shading language generator
 
-#include <MaterialXGenOslNetwork/Export.h>
+#include <MaterialXGenOsl/Export.h>
 
 #include <MaterialXGenShader/ShaderGenerator.h>
 

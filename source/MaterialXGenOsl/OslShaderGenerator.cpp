@@ -37,7 +37,7 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     ShaderGraph& graph = shader->getGraph();
     ShaderStage& stage = shader->getStage(Stage::PIXEL);
 
-    emitLibraryIncludes(stage, context);
+    emitLibraryIncludes(stage, context);;
 
     // Add global constants and type definitions
     emitTypeDefinitions(context, stage);

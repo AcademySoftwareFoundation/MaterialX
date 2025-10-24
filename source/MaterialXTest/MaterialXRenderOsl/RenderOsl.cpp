@@ -16,7 +16,7 @@
 #include <MaterialXGenOsl/OslShaderGenerator.h>
 
 #ifdef MATERIALX_BUILD_GEN_OSL_NETWORK
-#include <MaterialXGenOslNetwork/OslNetworkShaderGenerator.h>
+#include <MaterialXGenOsl/OslNetworkShaderGenerator.h>
 #endif
 
 #include <MaterialXFormat/Util.h>

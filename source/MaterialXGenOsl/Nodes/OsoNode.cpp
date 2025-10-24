@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXGenOslNetwork/Nodes/OsoNode.h>
+#include <MaterialXGenOsl/Nodes/OsoNode.h>
 #include <MaterialXGenShader/GenContext.h>
 
 MATERIALX_NAMESPACE_BEGIN

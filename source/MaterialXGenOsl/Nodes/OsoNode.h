@@ -6,7 +6,7 @@
 #ifndef MATERIALX_OSONODE_H
 #define MATERIALX_OSONODE_H
 
-#include <MaterialXGenOslNetwork/Export.h>
+#include <MaterialXGenOsl/Export.h>
 
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 

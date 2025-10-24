@@ -484,7 +484,6 @@ if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL OR MATERIALX_BUILD_GEN_OS
     endif()
     if (MATERIALX_BUILD_GEN_OSL_NETWORK)
         add_definitions(-DMATERIALX_BUILD_GEN_OSL_NETWORK)
-        add_subdirectory(source/MaterialXGenOslNetwork)
     endif()
     if (MATERIALX_BUILD_GEN_MDL)
         add_definitions(-DMATERIALX_BUILD_GEN_MDL)

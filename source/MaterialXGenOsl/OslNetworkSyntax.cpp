@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXGenOslNetwork/OslNetworkSyntax.h>
+#include <MaterialXGenOsl/OslNetworkSyntax.h>
 
 #include <MaterialXGenShader/ShaderGenerator.h>
 
