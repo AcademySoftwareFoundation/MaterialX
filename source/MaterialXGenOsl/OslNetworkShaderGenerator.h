@@ -20,7 +20,7 @@ using OslNetworkShaderGeneratorPtr = shared_ptr<class OslNetworkShaderGenerator>
 /// @class OslNetworkShaderGenerator
 /// OSL (Open Shading Language) Network shader generator.
 /// Generates a command string that OSL can use to build a ShaderGroup.
-class MX_GENOSLNETWORK_API OslNetworkShaderGenerator : public ShaderGenerator
+class MX_GENOSL_API OslNetworkShaderGenerator : public ShaderGenerator
 {
   public:
     /// Constructor.
@@ -58,9 +58,9 @@ namespace OSLNetwork
 {
 
 /// Identifiers for OSL variable blocks
-extern MX_GENOSLNETWORK_API const string UNIFORMS;
-extern MX_GENOSLNETWORK_API const string INPUTS;
-extern MX_GENOSLNETWORK_API const string OUTPUTS;
+extern MX_GENOSL_API const string UNIFORMS;
+extern MX_GENOSL_API const string INPUTS;
+extern MX_GENOSL_API const string OUTPUTS;
 
 } // namespace OSL
 

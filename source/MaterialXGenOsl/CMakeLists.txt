@@ -1,10 +1,16 @@
 file(GLOB_RECURSE materialx_source
  "${CMAKE_CURRENT_SOURCE_DIR}/OslShaderGenerator.cpp"
- "${CMAKE_CURRENT_SOURCE_DIR}/OslSyntax.cpp")
+ "${CMAKE_CURRENT_SOURCE_DIR}/OslSyntax.cpp"
+ "${CMAKE_CURRENT_SOURCE_DIR}/OslNetworkShaderGenerator.cpp"
+ "${CMAKE_CURRENT_SOURCE_DIR}/OslNetworkSyntax.cpp"
+ "${CMAKE_CURRENT_SOURCE_DIR}/Nodes/OsoNode.cpp")
 
 file(GLOB_RECURSE materialx_headers
   "${CMAKE_CURRENT_SOURCE_DIR}/OslShaderGenerator.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/OslSyntax.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/OslNetworkShaderGenerator.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/OslNetworkSyntax.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Nodes/OsoNode.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/Export.h")
 
 mx_add_library(MaterialXGenOsl
@@ -18,30 +24,7 @@ mx_add_library(MaterialXGenOsl
     EXPORT_DEFINE
         MATERIALX_GENOSL_EXPORTS)
 
-
 if (MATERIALX_BUILD_GEN_OSL_NETWORK)
-  file(GLOB_RECURSE materialx_network_source
-    "${CMAKE_CURRENT_SOURCE_DIR}/OslNetworkShaderGenerator.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/OslNetworkSyntax.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/Nodes/OsoNode.cpp")
-
-  file(GLOB_RECURSE materialx_network_headers
-    "${CMAKE_CURRENT_SOURCE_DIR}/OslNetworkShaderGenerator.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/OslNetworkSyntax.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/Nodes/OsoNode.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/Export.h")
-
-  mx_add_library(MaterialXGenOslNetwork
-      SOURCE_FILES
-          ${materialx_network_source}
-      HEADER_FILES
-          ${materialx_network_headers}
-      MTLX_MODULES
-          MaterialXGenShader
-          MaterialXCore
-      EXPORT_DEFINE
-          MATERIALX_GENOSLNETWORK_EXPORTS)
-
   file(GLOB GenNodes_SRC "${CMAKE_CURRENT_SOURCE_DIR}/LibsToOso.cpp")
 
   set(MATERIALX_LIBRARIES

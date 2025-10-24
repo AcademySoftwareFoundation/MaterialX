@@ -17,7 +17,7 @@ MATERIALX_NAMESPACE_BEGIN
 
 /// @class OslNetworkSyntax
 /// Syntax class for OSL (Open Shading Language) Network command strings
-class MX_GENOSLNETWORK_API OslNetworkSyntax : public Syntax
+class MX_GENOSL_API OslNetworkSyntax : public Syntax
 {
   public:
     OslNetworkSyntax(TypeSystemPtr typeSystem);

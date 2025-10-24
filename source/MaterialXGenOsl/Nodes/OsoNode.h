@@ -12,7 +12,7 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-class MX_GENOSLNETWORK_API OsoNode : public ShaderNodeImpl
+class MX_GENOSL_API OsoNode : public ShaderNodeImpl
 {
 public:
     static ShaderNodeImplPtr create();
