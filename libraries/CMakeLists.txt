@@ -39,14 +39,14 @@ if(MATERIALX_BUILD_DATA_LIBRARY)
                 COMMAND touch ${SENTINEL_FILE}
                 COMMAND cmake -E make_directory ${OSO_BUILD_PATH}
                 COMMAND cmake -E make_directory ${MTLX_BUILD_PATH}
-                COMMAND MaterialXGenOslNetwork_LibsToOso
+                COMMAND MaterialXGenOsl_LibsToOso
                             --outputOsoPath ${OSO_BUILD_PATH}
                             --outputMtlxPath ${MTLX_BUILD_PATH}
                             --oslCompilerPath ${MATERIALX_OSL_BINARY_OSLC}
                             --oslIncludePath ${MATERIALX_OSL_INCLUDE_PATH}
                             --libraryRelativeOsoPath libraries/targets/genoslnetwork/osos
                             --removeNdPrefix true
-                DEPENDS ${MATERIALX_DATA_LIBRARY_SOURCE_FILES} MaterialXGenOslNetwork_LibsToOso
+                DEPENDS ${MATERIALX_DATA_LIBRARY_SOURCE_FILES} MaterialXGenOsl_LibsToOso
         )
 
       add_custom_target(MaterialXBuild_genoslnetwork_buildOsos ALL DEPENDS ${SENTINEL_FILE})

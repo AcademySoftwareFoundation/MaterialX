@@ -33,22 +33,22 @@ set(MATERIALX_LIBRARIES
     MaterialXGenOsl
     MaterialXRenderOsl)
 
-add_executable(MaterialXGenOslNetwork_LibsToOso ${GenNodes_SRC})
+add_executable(MaterialXGenOsl_LibsToOso ${GenNodes_SRC})
 
 target_link_libraries(
-    MaterialXGenOslNetwork_LibsToOso
+    MaterialXGenOsl_LibsToOso
     ${MATERIALX_LIBRARIES})
 
 set_target_properties(
-    MaterialXGenOslNetwork_LibsToOso PROPERTIES
+    MaterialXGenOsl_LibsToOso PROPERTIES
     INSTALL_RPATH "${MATERIALX_UP_ONE_RPATH}")
 
 # TODO: We likely want to install that file elsewhere and not under `bin`,
 # if at all, as we maybe want to keep this executable available at build time only.
-install(TARGETS MaterialXGenOslNetwork_LibsToOso
+install(TARGETS MaterialXGenOsl_LibsToOso
     EXPORT MaterialX
     RUNTIME DESTINATION ${MATERIALX_INSTALL_BIN_PATH})
 if(MSVC)
-    install(FILES $<TARGET_PDB_FILE:MaterialXGenOslNetwork_LibsToOso>
+    install(FILES $<TARGET_PDB_FILE:MaterialXGenOsl_LibsToOso>
             DESTINATION ${MATERIALX_INSTALL_BIN_PATH} OPTIONAL)
 endif()
