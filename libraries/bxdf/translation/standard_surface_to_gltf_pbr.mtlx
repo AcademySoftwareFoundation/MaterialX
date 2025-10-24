@@ -187,6 +187,9 @@
       <input name="in1" type="float" interfacename="sheen_roughness" />
       <input name="in2" type="float" value="0" />
     </ifgreater>
+    <sqrt name="sqrt_sheen_roughness" type="float">
+      <input name="in" type="float" nodename="sheen_roughness" />
+    </sqrt>
 
     <!-- Clearcoat -->
     <ifequal name="clearcoat" type="float">
@@ -257,7 +260,7 @@
     <output name="thickness_out" type="float" nodename="thickness" />
     <output name="attenuation_color_out" type="color3" nodename="attenuation_color" />
     <output name="sheen_color_out" type="color3" nodename="sheen_color" />
-    <output name="sheen_roughness_out" type="float" nodename="sheen_roughness" />
+    <output name="sheen_roughness_out" type="float" nodename="sqrt_sheen_roughness" />
     <output name="clearcoat_out" type="float" nodename="clearcoat" />
     <output name="clearcoat_roughness_out" type="float" nodename="clearcoat_roughness" />
     <output name="emissive_out" type="color3" nodename="emissive" />
