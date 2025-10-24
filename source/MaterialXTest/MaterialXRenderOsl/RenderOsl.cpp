@@ -14,10 +14,7 @@
 #endif
 
 #include <MaterialXGenOsl/OslShaderGenerator.h>
-
-#ifdef MATERIALX_BUILD_GEN_OSL_NETWORK
 #include <MaterialXGenOsl/OslNetworkShaderGenerator.h>
-#endif
 
 #include <MaterialXFormat/Util.h>
 
@@ -394,7 +391,7 @@ TEST_CASE("Render: OSL TestSuite", "[renderosl]")
     renderTester.validate(optionsFilePath);
 }
 
-#ifdef MATERIALX_BUILD_GEN_OSL_NETWORK
+#ifdef MATERIALX_BUILD_OSOS
 TEST_CASE("Render: OSL Network TestSuite", "[renderoslnetwork]")
 {
     if (std::string(MATERIALX_OSL_BINARY_OSLC).empty() &&

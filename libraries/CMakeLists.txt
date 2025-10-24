@@ -28,7 +28,7 @@ if(MATERIALX_BUILD_DATA_LIBRARY)
     add_custom_target(MaterialXBuildData ALL
         DEPENDS ${MATERIALX_DATA_LIBRARY_BUILD_FILES})
 
-    if (MATERIALX_BUILD_GEN_OSL_NETWORK AND MATERIALX_OSL_BINARY_OSLC)
+    if (MATERIALX_BUILD_OSOS AND MATERIALX_OSL_BINARY_OSLC)
         set(OSO_BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/DataLibraryBuild/targets/genoslnetwork/osos)
         set(MTLX_BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/DataLibraryBuild/targets/genoslnetwork)
 
