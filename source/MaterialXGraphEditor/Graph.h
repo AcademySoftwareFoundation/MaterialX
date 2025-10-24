@@ -236,6 +236,11 @@ class Graph
 
     void showHelp() const;
 
+    // Methods to capture snapshot to file
+    mx::ImagePtr performSnapshot(bool captureWindow = false) const;
+    void showSnapshotDialog();
+    void saveSnapshotToFile();
+
   private:
     mx::StringVec _geomFilter;
     mx::StringVec _mtlxFilter;
@@ -295,6 +300,7 @@ class Graph
     FileDialog _fileDialogSave;
     FileDialog _fileDialogImage;
     FileDialog _fileDialogGeom;
+    FileDialog _fileDialogSnapshot;
     std::string _fileDialogImageInputName;
 
     bool _isNodeGraph;
@@ -326,6 +332,14 @@ class Graph
 
     // Options
     bool _saveNodePositions;
+
+    // Panel information
+    float _leftPaneWidth = 375.0f;
+    float _nodeEditorIndent = 15.0f;
+    float _rightPaneWidth = 750.0f;
+
+    // Image capture
+    mx::ImagePtr _capturedImage;
 };
 
 #endif
