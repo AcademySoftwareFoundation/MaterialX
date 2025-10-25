@@ -12,6 +12,8 @@
 #include <MaterialXFormat/XmlIo.h>
 #include <MaterialXFormat/Util.h>
 
+#include <iostream>
+
 namespace mx = MaterialX;
 
 bool isTopologicalOrder(const std::vector<mx::ElementPtr>& elems)
@@ -675,6 +677,63 @@ TEST_CASE("Organization", "[nodegraph]")
     CHECK(nodeGraph->getBackdrops().empty());
 }
 
+void testFunctionalNodeDef()
+{
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::DocumentPtr doc = mx::createDocument();
+    mx::readFromXmlFile(doc, "resources/Materials/TestSuite/stdlib/definition/functional_nodedef.mtlx", searchPath);
+
+    std::vector<mx::NodeDefPtr> nodedefs = doc->getNodeDefs();
+    for (mx::NodeDefPtr nodeDef : nodedefs)
+    {
+        std::string nodeDefName = nodeDef->getName();
+        std::string nodeGraphName = "NG_" + nodeDefName.substr(3); // Remove the 'ND_' prefix
+
+        mx::InterfaceElementPtr implementation = nodeDef->getImplementation();
+        REQUIRE(implementation != nullptr);
+        std::string msg = "Testing NodeDef: " + nodeDefName + " with implementation: " +  implementation->getName();
+        INFO(msg);
+        mx::NodeGraphPtr functionalNodeGraph = implementation->asA<mx::NodeGraph>();
+        REQUIRE(functionalNodeGraph != nullptr);
+        if (functionalNodeGraph)
+        {
+            // Test that the child nodegraph is found via implementation search
+            REQUIRE(functionalNodeGraph->getName() == nodeGraphName);
+
+            // Test that this is actually a child nodegraph of the NodeDef
+            std::vector<mx::NodeGraphPtr> childNodeGraphs = nodeDef->getChildrenOfType<mx::NodeGraph>();
+            for (mx::NodeGraphPtr childNodeGraph : childNodeGraphs)
+            {
+                if (childNodeGraph->getName() == nodeGraphName)
+                {
+                    // Test that the child nodegraph is the functional graph
+                    REQUIRE(childNodeGraph == functionalNodeGraph);
+                }
+            }
+        }
+
+        std::string referenceGraphName = nodeGraphName + "_reference";
+        mx::NodeGraphPtr referenceNodeGraph = doc->getNodeGraph(referenceGraphName);
+        REQUIRE(referenceNodeGraph != nullptr);
+        if (referenceNodeGraph)
+        {
+            referenceNodeGraph->setNodeDefString(nodeDefName);
+
+            mx::InterfaceElementPtr implementation = nodeDef->getImplementation();
+            REQUIRE(implementation != nullptr);
+            std::string msg = "Testing NodeDef: " + nodeDefName + " with implementation: " +  implementation->getName();
+            INFO(msg);
+            mx::NodeGraphPtr functionalNodeGraph = implementation->asA<mx::NodeGraph>();
+            REQUIRE(functionalNodeGraph != nullptr);
+            if (functionalNodeGraph)
+            {
+                // Test the functional node graph is the reference graph 
+                REQUIRE(functionalNodeGraph->getName() == referenceGraphName);
+            }
+        }
+    }
+}
+
 void testNodeDefCreationFromGraph(mx::DefinitionOptions options)
 {
     mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
@@ -849,6 +908,11 @@ TEST_CASE("Node Definition Creation", "[nodedef_create]")
     {
         defOptions.addImplementationAsChild = true;
         testNodeDefCreationFromGraph(defOptions);
+    }
+
+    SECTION("Functional NodeDef test")
+    {
+        testFunctionalNodeDef();
     }
 }
 
