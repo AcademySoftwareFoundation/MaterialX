@@ -12,8 +12,6 @@
 #include <MaterialXFormat/XmlIo.h>
 #include <MaterialXFormat/Util.h>
 
-#include <iostream>
-
 namespace mx = MaterialX;
 
 bool isTopologicalOrder(const std::vector<mx::ElementPtr>& elems)
@@ -691,8 +689,6 @@ void testFunctionalNodeDef()
 
         mx::InterfaceElementPtr implementation = nodeDef->getImplementation();
         REQUIRE(implementation != nullptr);
-        std::string msg = "Testing NodeDef: " + nodeDefName + " with implementation: " +  implementation->getName();
-        INFO(msg);
         mx::NodeGraphPtr functionalNodeGraph = implementation->asA<mx::NodeGraph>();
         REQUIRE(functionalNodeGraph != nullptr);
         if (functionalNodeGraph)
@@ -719,11 +715,11 @@ void testFunctionalNodeDef()
         {
             referenceNodeGraph->setNodeDefString(nodeDefName);
 
-            mx::InterfaceElementPtr implementation = nodeDef->getImplementation();
+            implementation = nodeDef->getImplementation();
             REQUIRE(implementation != nullptr);
             std::string msg = "Testing NodeDef: " + nodeDefName + " with implementation: " +  implementation->getName();
             INFO(msg);
-            mx::NodeGraphPtr functionalNodeGraph = implementation->asA<mx::NodeGraph>();
+            functionalNodeGraph = implementation->asA<mx::NodeGraph>();
             REQUIRE(functionalNodeGraph != nullptr);
             if (functionalNodeGraph)
             {
