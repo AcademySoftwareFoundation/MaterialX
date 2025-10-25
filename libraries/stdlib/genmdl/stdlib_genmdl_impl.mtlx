@@ -744,7 +744,7 @@
   <!-- Logical operator nodes                                                   -->
   <!-- ======================================================================== -->
 
-  <implementation name="IM_logical_and_genmdl" nodedef="ND_logical_and" target="genmdl" sourcecode="{{in1}} && {{in2}}"/>
+  <implementation name="IM_logical_and_genmdl" nodedef="ND_logical_and" target="genmdl" sourcecode="{{in1}} &amp;&amp; {{in2}}"/>
   <implementation name="IM_logical_or_genmdl" nodedef="ND_logical_or" target="genmdl" sourcecode="{{in1}} || {{in2}}"/>
   <implementation name="IM_logical_not_genmdl" nodedef="ND_logical_not" target="genmdl" sourcecode="!{{in}}"/>
 
