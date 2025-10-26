@@ -19,15 +19,29 @@ The MaterialX codebase requires a compiler with support for C++17, and can be bu
 - GCC 8 or newer
 - Clang 5 or newer
 
-Make sure to use the appropriate generator for your chosen compiler. For example:
-
-- The `MinGW Makefiles` generator is typically used with **GCC**.
-- The `Ninja` generator is commonly used with **Clang**.
-- On **Windows**, Visual Studio includes the MSVC toolchain, which serves as both generator and compiler, eliminating the need to to install GCC, Clang, or Ninja separately.
-
 The Python bindings for MaterialX are based on [PyBind11](https://github.com/pybind/pybind11), and support Python versions 3.9 and greater. For details, see [Building MaterialX Python](#building-materialx-python).
 
-On macOS, you'll need to [install Xcode](https://developer.apple.com/xcode/resources/), in order to get access to the Metal Tools as well as compiler toolchains.
+## CMake Generators
+Here are some common generator–compiler combinations:
+
+### **On Windows**
+Common generator–compiler combinations include:
+
+* **`MinGW Makefiles`** with the **GCC** compiler (provided by MinGW).
+* **`Ninja`** with the **Clang** or **MSVC** compiler.
+* **Visual Studio**, which provides both a generator and the **MSVC** toolchain.
+  This setup doesn’t require separate installation of GCC, Clang, or Ninja, since Visual Studio handles both generation and compilation internally.
+
+### **On Linux**
+The **`Unix Makefiles`** generator is commonly used with either **GCC** or **Clang**.
+
+### **On macOS**
+You’ll need to [install Xcode](https://developer.apple.com/xcode/resources/), which provides both the **`Xcode`** generator and the **Clang** compiler, as well as **Metal Tools** for GPU development.
+
+Common combinations include:
+
+* **`Xcode`** with the **Clang** compiler.
+* **`Unix Makefiles`** with the **Clang** compiler.
 
 ## Build Methods
 
@@ -72,23 +86,25 @@ You can either pass build options directly using the `-D` flag or use [CMake Pre
 Basic usage examples are provided below. For more advanced configurations, see the [YAML build actions](../../.github/workflows/main.yml) in the repository.
 
 **Basic CLI Examples**
-- Using **MinGW Makefiles** with the **GCC** compiler:
+- A basic CMake build command automatically detects the default generator and compiler available on your system:
     ```bash
     cd MaterialX
     cmake -S . -B build -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON
     cmake --build ./build
     ```
-
-- Using **Ninja** with the **Clang** compiler:
+- To explicitly specify the generator and compiler, use the `-G` option and set the compiler variables `CMAKE_C_COMPILER` and `CMAKE_CXX_COMPILER`.
+    For example, to use **Ninja** with the **Clang** compiler:
     ```bash
+    cd MaterialX
     cmake -G "Ninja" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -S . -B build -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON
-    cmake --build build
+    cmake --build ./build
     ```
 
 **Basic CMake Presets Example**
 - Define build options in a simple JSON file (`CMakePresets.json`) at the project root.
+    Here are example presets for different operating systems, showing common combinations of generators and compilers.
  
-    <details><summary>Example: <code>CMakePresets.json</code></summary>
+    <details><summary>Windows (Visual Studio 2022 – MSVC)</summary>
 
     ```json
     {
@@ -102,7 +118,61 @@ Basic usage examples are provided below. For more advanced configurations, see t
         {
         "name": "default",
         "generator": "Visual Studio 17 2022",
-        "description": "Default build configuration",
+        "description": "Default build configuration for Visual Studio",
+        "hidden": false,
+        "binaryDir": "build",
+        "cacheVariables": {
+            "MATERIALX_BUILD_VIEWER": "ON",
+            "MATERIALX_BUILD_GRAPH_EDITOR": "ON"
+        }
+        }
+    ]
+    }
+    ```
+    </details>
+    <details><summary>Linux / macOS (Unix Makefiles – Clang)</summary>
+
+    ```json
+    {
+    "version": 3,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 23,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+        "name": "default",
+        "generator": "Unix Makefiles",
+        "description": "Default build configuration using Makefiles",
+        "hidden": false,
+        "binaryDir": "build",
+        "cacheVariables": {
+            "CMAKE_C_COMPILER": "clang",
+            "CMAKE_CXX_COMPILER": "clang++",
+            "MATERIALX_BUILD_VIEWER": "ON",
+            "MATERIALX_BUILD_GRAPH_EDITOR": "ON"
+        }
+        }
+    ]
+    }
+    ```
+    </details>
+    <details><summary>macOS (Xcode – Clang)</code></summary>
+
+    ```json
+    {
+    "version": 3,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 23,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+        "name": "default",
+        "generator": "Xcode",
+        "description": "Default build configuration using Xcode",
         "hidden": false,
         "binaryDir": "build",
         "cacheVariables": {
