@@ -713,11 +713,11 @@ class MX_CORE_API Document : public GraphElement
 };
 
 /// @class DefinitionOptions
-/// Options for defining a NodeDef from an immplementation
+/// Options for defining a NodeDef from an implementation
 class MX_CORE_API DefinitionOptions
 {
 public:
-    /// Add implementation as child of NodeDef as opposed a sibliing.
+    /// Add implementation as child of NodeDef as opposed a sibling.
     bool addImplementationAsChild = false;
 };
 
