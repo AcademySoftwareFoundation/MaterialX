@@ -20,7 +20,7 @@ def is_well_formed(xml_string):
 def main():
     parser = argparse.ArgumentParser(description="Reformat a folder of MaterialX documents in place.")
     parser.add_argument('-y', '--yes', dest='yes', action="store_true", help="Proceed without asking for confirmation from the user.")
-    parser.add_argument('-u' '--upgrade', dest='upgrade', action="store_true", help='Upgrade documents to the latest version of the standard.')
+    parser.add_argument('-u', '--upgrade', dest='upgrade', action="store_true", help='Upgrade documents to the latest version of the standard.')
     parser.add_argument('-v', '--validate', dest='validate', action="store_true", help='Perform MaterialX validation on documents after reformatting.')
     parser.add_argument('-x', '--xml_syntax', dest='xml_syntax', action="store_true", help='Check XML syntax after reformatting.')
     parser.add_argument(dest="inputFolder", help="An input folder to scan for MaterialX documents.")
