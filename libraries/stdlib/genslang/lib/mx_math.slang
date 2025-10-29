@@ -7,6 +7,7 @@
 #define mx_asin asin
 #define mx_acos acos
 #define mx_radians radians
+#define mx_float_bits_to_int asint
 
 /// The GLSL we are piggybacking on has all its matrices transposed compared to Slang and the MaterialX spec.
 /// (The matrices are defined like mat3(1, 2, 3, 4, 5, 6, 7, 8, 9) where the spec says it should be row-major order, but GLSL creates it as col-major)
