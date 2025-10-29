@@ -13,7 +13,7 @@
 #include <MaterialXRenderSlang/SlangTextureHandler.h>
 #include <MaterialXRenderSlang/SlangTypeUtils.h>
 #include <MaterialXRenderSlang/SlangFramebuffer.h>
-#include <MaterialXGenShader/HwShaderGenerator.h>
+#include <MaterialXGenHw/HwShaderGenerator.h>
 #include <MaterialXGenShader/Util.h>
 
 #include <iostream>
