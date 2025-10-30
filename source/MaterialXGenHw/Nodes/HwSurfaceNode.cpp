@@ -127,7 +127,11 @@ void HwSurfaceNode::emitFunctionCall(const ShaderNode& node, GenContext& context
             if (context.getOptions().hwAmbientOcclusion)
             {
                 ShaderPort* texcoord = vertexData[HW::T_TEXCOORD + "_0"];
-                shadergen.emitLine("vec2 ambOccUv = mx_transform_uv(" + prefix + texcoord->getVariable() + ", vec2(1.0), vec2(0.0))", stage);
+                shadergen.emitLine("vec2 ambOccUv = " + prefix + texcoord->getVariable(), stage);
+                if (context.getOptions().fileTextureVerticalFlip)
+                {
+                    shadergen.emitLine("ambOccUv = vec2(ambOccUv.x, 1.0 - ambOccUv.y)", stage);
+                }
                 shadergen.emitLine("occlusion = mix(1.0, texture(" + HW::T_AMB_OCC_MAP + ", ambOccUv).x, " + HW::T_AMB_OCC_GAIN + ")", stage);
             }
             else
