@@ -65,7 +65,7 @@ void HwLightCompoundNode::emitFunctionDefinition(const ShaderNode& /*node*/, Gen
 
         const string& vec3 = syntax.getTypeName(Type::VECTOR3);
         const string& out_lightshader = syntax.getOutputTypeName(Type::LIGHTSHADER);
-        const string& vec3_zero = syntax.getValue(Type::VECTOR3, HW::VEC3_ZERO);
+        const string vec3_zero = syntax.getValue(Type::VECTOR3, HW::VEC3_ZERO);
 
         // Emit functions for all child nodes
         shadergen.emitFunctionDefinitions(*_rootGraph, context, stage);

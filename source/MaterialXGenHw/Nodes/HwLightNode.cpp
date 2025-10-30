@@ -43,7 +43,7 @@ void HwLightNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
         const Syntax& syntax = shadergen.getSyntax();
 
         const string& vec3 = syntax.getTypeName(Type::VECTOR3);
-        const string& vec3_zero = syntax.getValue(Type::VECTOR3, HW::VEC3_ZERO);
+        const string vec3_zero = syntax.getValue(Type::VECTOR3, HW::VEC3_ZERO);
 
         shadergen.emitLine(vec3+" L = light.position - position", stage);
         shadergen.emitLine("float distance = length(L)", stage);

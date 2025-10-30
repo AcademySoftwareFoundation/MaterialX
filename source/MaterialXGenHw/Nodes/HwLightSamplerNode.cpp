@@ -37,7 +37,7 @@ void HwLightSamplerNode::emitFunctionDefinition(const ShaderNode& node, GenConte
 
         const string& vec3 = syntax.getTypeName(Type::VECTOR3);
         const string& out_lightshader = syntax.getOutputTypeName(Type::LIGHTSHADER);
-        const string& vec3_zero = syntax.getValue(Type::VECTOR3, HW::VEC3_ZERO);
+        const string vec3_zero = syntax.getValue(Type::VECTOR3, HW::VEC3_ZERO);
 
         // Emit light sampler function with all bound light types
         shadergen.emitLine("void sampleLightSource(LightData light, "+vec3+" position, "+out_lightshader+" result)", stage, false);
