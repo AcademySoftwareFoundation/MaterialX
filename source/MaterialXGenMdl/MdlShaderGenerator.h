@@ -75,10 +75,10 @@ class MX_GENMDL_API MdlShaderGenerator : public ShaderGenerator
     ShaderPtr generate(const string& name, ElementPtr element, GenContext& context) const override;
 
     /// Create the shader node implementation for a nodedef that has a NodeGraph implementation.
-    ShaderNodeImplPtr createShaderNodeImplForNodeGraph(const NodeDef& nodedef) const override;
+    ShaderNodeImplPtr createShaderNodeImplForNodeGraph(const NodeGraph& nodegraph) const override;
 
     /// Create the shader node implementation for a nodedef that has a Implementation implementation.
-    ShaderNodeImplPtr createShaderNodeImplForImplementation(const NodeDef& nodedef) const override;
+    ShaderNodeImplPtr createShaderNodeImplForImplementation(const Implementation& implementation) const override;
 
     /// Return the result of an upstream connection or value for an input.
     string getUpstreamResult(const ShaderInput* input, GenContext& context) const override;

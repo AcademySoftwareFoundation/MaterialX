@@ -170,10 +170,10 @@ class MX_GENSHADER_API ShaderGenerator
     bool implementationRegistered(const string& name) const;
 
     /// Create the shader node implementation for a nodedef that has a NodeGraph implementation.
-    virtual ShaderNodeImplPtr createShaderNodeImplForNodeGraph(const NodeDef& nodedef) const;
+    virtual ShaderNodeImplPtr createShaderNodeImplForNodeGraph(const NodeGraph& nodegraph) const;
 
     /// Create the shader node implementation for a nodedef that has a Implementation implementation.
-    virtual ShaderNodeImplPtr createShaderNodeImplForImplementation(const NodeDef& nodedef) const;
+    virtual ShaderNodeImplPtr createShaderNodeImplForImplementation(const Implementation& implementation) const;
 
     /// Return a registered shader node implementation for the given nodedef.
     virtual ShaderNodeImplPtr getImplementation(const NodeDef& nodedef, GenContext& context) const;
