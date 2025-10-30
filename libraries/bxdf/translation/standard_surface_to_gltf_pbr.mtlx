@@ -44,13 +44,13 @@
     <output name="sheen_roughness_out" type="float" />
     <output name="clearcoat_out" type="float" />
     <output name="clearcoat_roughness_out" type="float" />
+    <output name="dispersion_out" type="float" />
     <output name="emissive_out" type="color3" />
     <output name="emissive_strength_out" type="float" />
     <output name="normal_out" type="vector3" />
     <output name="tangent_out" type="vector3" />
     <output name="alpha_out" type="float" />
     <output name="alpha_mode_out" type="integer" />
-    <output name="dispersion_out" type="float" />
   </nodedef>
 
   <nodegraph name="NG_standard_surface_to_gltf_pbr" nodedef="ND_standard_surface_to_gltf_pbr">
@@ -236,6 +236,19 @@
       <input name="in" type="float" interfacename="specular_IOR" />
     </dot>
 
+    <!-- Dispersion -->
+    <divide name="dispersion_from_abbe" type="float">
+      <input name="in1" type="float" value="20.0" />
+      <input name="in2" type="float" interfacename="transmission_dispersion" />
+    </divide>
+
+    <ifequal name="dispersion" type="float">
+      <input name="value1" type="float" interfacename="transmission_dispersion" />
+      <input name="value2" type="float" value="0.0" />
+      <input name="in1" type="float" value="0.0" />
+      <input name="in2" type="float" nodename="dispersion_from_abbe" />
+    </ifequal>
+
     <!-- Geometry -->
     <dot name="normal" type="vector3">
       <input name="in" type="vector3" interfacename="normal" />
@@ -261,19 +274,6 @@
       <input name="in2" type="integer" value="2" />
     </ifequal>
 
-    <!-- Dispersion -->
-    <divide name="dispersion_from_abbe" type="float">
-      <input name="in1" type="float" value="20.0" />
-      <input name="in2" type="float" interfacename="transmission_dispersion" />
-    </divide>
-
-    <ifequal name="dispersion" type="float">
-      <input name="value1" type="float" interfacename="transmission_dispersion" />
-      <input name="value2" type="float" value="0.0" />
-      <input name="in1" type="float" value="0.0" />
-      <input name="in2" type="float" nodename="dispersion_from_abbe" />
-    </ifequal>
-
     <output name="base_color_out" type="color3" nodename="base_color" />
     <output name="metallic_out" type="float" nodename="metallic" />
     <output name="roughness_out" type="float" nodename="roughness" />
@@ -290,13 +290,13 @@
     <output name="sheen_roughness_out" type="float" nodename="sqrt_sheen_roughness" />
     <output name="clearcoat_out" type="float" nodename="clearcoat" />
     <output name="clearcoat_roughness_out" type="float" nodename="clearcoat_roughness" />
+    <output name="dispersion_out" type="float" nodename="dispersion" />
     <output name="emissive_out" type="color3" nodename="emissive" />
     <output name="emissive_strength_out" type="float" nodename="emissive_strength" />
     <output name="normal_out" type="vector3" nodename="normal" />
     <output name="tangent_out" type="vector3" nodename="tangent" />
     <output name="alpha_out" type="float" nodename="opacity_luminance_float" />
     <output name="alpha_mode_out" type="integer" nodename="alpha_mode_from_opacity_luminance" />
-    <output name="dispersion_out" type="float" nodename="dispersion" />
 
   </nodegraph>
 </materialx>
