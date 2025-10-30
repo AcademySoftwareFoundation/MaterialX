@@ -25,6 +25,7 @@
     <input name="normal" type="vector3" defaultgeomprop="Nworld" />
     <input name="tangent" type="vector3" defaultgeomprop="Tworld" />
     <input name="opacity" type="color3" value="1, 1, 1" />
+    <input name="thin_walled" type="boolean" value="false" />
 
     <output name="base_color_out" type="color3" />
     <output name="metallic_out" type="float" />
@@ -37,6 +38,7 @@
     <output name="transmission_out" type="float" />
     <output name="thickness_out" type="float" />
     <output name="attenuation_color_out" type="color3" />
+    <output name="attenuation_distance_out" type="float" />
     <output name="sheen_color_out" type="color3" />
     <output name="sheen_roughness_out" type="float" />
     <output name="clearcoat_out" type="float" />
@@ -160,7 +162,7 @@
     <dot name="transmission" type="float">
       <input name="in" type="float" interfacename="transmission" />
     </dot>
-    <dot name="thickness" type="float">
+    <dot name="attenuation_distance" type="float">
       <input name="in" type="float" interfacename="transmission_depth" />
     </dot>
     <ifgreater name="transmissionAttenuationColor" type="color3">
@@ -175,6 +177,15 @@
       <input name="in1" type="color3" nodename="transmissionAttenuationColor" />
       <input name="in2" type="color3" value="1, 1, 1" />
     </ifgreater>
+
+    <convert name="thin_walled_float" type="float">
+      <input name="in" type="boolean" interfacename="thin_walled" />
+    </convert>
+
+    <subtract name="thickness_from_thin_walled" type="float">
+      <input name="in1" type="float" value="1" />
+      <input name="in2" type="float" nodename="thin_walled_float" />
+    </subtract>
 
     <!-- Sheen -->
     <multiply name="sheen_color" type="color3">
@@ -257,8 +268,9 @@
     <output name="anisotropy_strength_out" type="float" nodename="anisotropy_strength" />
     <output name="anisotropy_rotation_out" type="float" nodename="anisotropy_rotation" />
     <output name="transmission_out" type="float" nodename="transmission" />
-    <output name="thickness_out" type="float" nodename="thickness" />
+    <output name="thickness_out" type="float" nodename="thickness_from_thin_walled" />
     <output name="attenuation_color_out" type="color3" nodename="attenuation_color" />
+    <output name="attenuation_distance_out" type="float" nodename="attenuation_distance" />
     <output name="sheen_color_out" type="color3" nodename="sheen_color" />
     <output name="sheen_roughness_out" type="float" nodename="sqrt_sheen_roughness" />
     <output name="clearcoat_out" type="float" nodename="clearcoat" />
