@@ -99,7 +99,7 @@ Because the same word can be used to mean slightly different things in different
 
 An **Element** is a named object within a MaterialX document, which may possess any number of child elements and attributes.  An **Attribute** is a named property of a MaterialX element.
 
-A **Node** is a function that generates or operates upon spatially-varying data.  This specification provides a set of standard nodes with precise definitions, and also supports the creation of custom nodes for application-specific uses.  The interface for a node’s incoming data is declared through **Inputs**, which may be spatially-varying or uniform, and **Tokens**, which are string values that can be substituted into filenames declared in node inputs.
+A **Node** is a function that generates or operates upon spatially-varying data.  This specification provides a set of standard nodes with precise definitions, and also supports the creation of custom nodes for application-specific uses.  The interface for a node’s incoming data is declared through **Inputs**, which may be spatially-varying or uniform, and **Tokens**, which are string values that can be substituted into filenames declared in node inputs.  The interface for a node's outgoing data is declared through one or more **Outputs**; a node's Inputs, Tokens and Outputs are collectively referred to as the node's **Ports**.
 
 A **Pattern** is a node that generates or processes simple scalar, vector, and color data, and has access to local properties of any geometry that has been bound.
 
@@ -937,7 +937,7 @@ Specific applications will commonly support sources and operators that do not ma
 
 ### Custom Node Declaration NodeDef Elements
 
-Each custom node must be explicitly declared with a &lt;nodedef> element, with child &lt;input>, &lt;token> and &lt;output> elements specifying the expected names and types of the node’s inputs and output(s).
+Each custom node must be explicitly declared with a &lt;nodedef> element, with child &lt;input>, &lt;token> and &lt;output> elements specifying the expected names and types of the node’s ports.
 
 Attributes for &lt;nodedef> elements:
 

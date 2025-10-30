@@ -38,6 +38,9 @@ void HwViewDirectionNode::createVariables(const ShaderNode& node, GenContext&, S
 void HwViewDirectionNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
     const HwShaderGenerator& shadergen = static_cast<const HwShaderGenerator&>(context.getShaderGenerator());
+    const Syntax& syntax = shadergen.getSyntax();
+
+    const string& vec4 = syntax.getTypeName(Type::VECTOR4);
 
     const ShaderInput* spaceInput = node.getInput(SPACE);
     const int space = spaceInput ? spaceInput->getValue()->asA<int>() : OBJECT_SPACE;
@@ -67,7 +70,7 @@ void HwViewDirectionNode::emitFunctionCall(const ShaderNode& node, GenContext& c
         }
         else
         {
-            shadergen.emitString(" = normalize(mx_matrix_mul(" + HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX + ", vec4(" + prefix + position->getVariable() + " - " + HW::T_VIEW_POSITION + ", 0.0)).xyz)", stage);
+            shadergen.emitString(" = normalize(mx_matrix_mul(" + HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX + ", "+vec4+"(" + prefix + position->getVariable() + " - " + HW::T_VIEW_POSITION + ", 0.0)).xyz)", stage);
         }
         shadergen.emitLineEnd(stage);
     }
