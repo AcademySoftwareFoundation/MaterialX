@@ -5,8 +5,8 @@
 
 #include <MaterialXGenShader/ShaderGraph.h>
 
+#include <MaterialXGenShader/Exception.h>
 #include <MaterialXGenShader/GenContext.h>
-#include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/Util.h>
 
 #include <iostream>
@@ -18,15 +18,10 @@ MATERIALX_NAMESPACE_BEGIN
 // ShaderGraph methods
 //
 
-ShaderGraph::ShaderGraph(const ShaderGraph* parent, const string& name, ConstDocumentPtr document, const StringSet& reservedWords) :
+ShaderGraph::ShaderGraph(const ShaderGraph* parent, const string& name, ConstDocumentPtr document) :
     ShaderNode(parent, name),
     _document(document)
 {
-    // Add all reserved words as taken identifiers
-    for (const string& n : reservedWords)
-    {
-        _identifiers[n] = 1;
-    }
 }
 
 void ShaderGraph::addInputSockets(const InterfaceElement& elem, GenContext& context)
@@ -443,7 +438,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const NodeGraph& n
 
     string graphName = nodeGraph.getName();
     context.getShaderGenerator().getSyntax().makeValidName(graphName);
-    ShaderGraphPtr graph = std::make_shared<ShaderGraph>(parent, graphName, nodeGraph.getDocument(), context.getReservedWords());
+    ShaderGraphPtr graph = std::make_shared<ShaderGraph>(parent, graphName, nodeGraph.getDocument());
 
     // Clear classification
     graph->_classification = 0;
@@ -502,7 +497,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
             throw ExceptionShaderGenError("Given output '" + output->getName() + "' has no interface valid for shader generation");
         }
 
-        graph = std::make_shared<ShaderGraph>(parent, name, element->getDocument(), context.getReservedWords());
+        graph = std::make_shared<ShaderGraph>(parent, name, element->getDocument());
 
         // Clear classification
         graph->_classification = 0;
@@ -538,7 +533,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
             throw ExceptionShaderGenError("Could not find a nodedef for node '" + node->getName() + "'");
         }
 
-        graph = std::make_shared<ShaderGraph>(parent, name, element->getDocument(), context.getReservedWords());
+        graph = std::make_shared<ShaderGraph>(parent, name, element->getDocument());
 
         // Create input sockets
         graph->addInputSockets(*nodeDef, context);
@@ -916,7 +911,7 @@ void ShaderGraph::finalize(GenContext& context)
     _outputUnitTransformMap.clear();
 
     // Optimize the graph, removing redundant paths.
-    optimize();
+    optimize(context);
 
     // Sort the nodes in topological order.
     topologicalSort();
@@ -976,7 +971,7 @@ void ShaderGraph::disconnect(ShaderNode* node) const
     }
 }
 
-void ShaderGraph::optimize()
+void ShaderGraph::optimize(GenContext& context)
 {
     size_t numEdits = 0;
     for (ShaderNode* node : getNodes())
@@ -984,8 +979,22 @@ void ShaderGraph::optimize()
         if (node->hasClassification(ShaderNode::Classification::CONSTANT))
         {
             // Constant nodes can be elided by moving their value downstream.
-            bypass(node, 0);
-            ++numEdits;
+            bool canElide = context.getOptions().elideConstantNodes;
+            if (!canElide)
+            {
+                // We always elide filename constant nodes regardless of the
+                // option. See DOT below.
+                ShaderInput* in = node->getInput("value");
+                if (in && in->getType() == Type::FILENAME)
+                {
+                    canElide = true;
+                }
+            }
+            if (canElide)
+            {
+                bypass(node, 0);
+                ++numEdits;
+            }
         }
         else if (node->hasClassification(ShaderNode::Classification::DOT))
         {

@@ -5,9 +5,7 @@
 
 #include <MaterialXGenMdl/Nodes/HeightToNormalNodeMdl.h>
 
-#include <MaterialXGenMdl/MdlShaderGenerator.h>
-
-#include <MaterialXGenShader/Shader.h>
+#include <MaterialXGenShader/Exception.h>
 #include <MaterialXGenShader/GenContext.h>
 
 MATERIALX_NAMESPACE_BEGIN

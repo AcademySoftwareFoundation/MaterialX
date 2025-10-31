@@ -6,6 +6,7 @@
 #include <MaterialXGenGlsl/WgslResourceBindingContext.h>
 
 #include <iostream>
+#include <MaterialXGenShader/GenContext.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
