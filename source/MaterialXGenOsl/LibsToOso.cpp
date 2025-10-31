@@ -21,7 +21,6 @@
 
 namespace mx = MaterialX;
 
-
 const std::string setCiOslNetworkSource = R"(
 
 #include "mx_funcs.h"
@@ -92,8 +91,6 @@ shader setCi (
     Ci = Out_Ci;
 }
 )";
-
-
 
 const std::string options =
     "    Options: \n"
@@ -313,7 +310,8 @@ int main(int argc, char* const argv[])
     catch (mx::ExceptionRenderError& exc)
     {
         std::cout << "Encountered a codegen/compilation related exception for the "
-                   "following node: " << std::endl;
+                     "following node: "
+                  << std::endl;
         std::cout << exc.what() << std::endl;
 
         // Dump details about the exception in the log file.
@@ -327,12 +325,11 @@ int main(int argc, char* const argv[])
     // Catch any other exceptions
     catch (mx::Exception& exc)
     {
-        std::cout << "Failed to codegen/compile the following node to OSL: "  << std::endl;
+        std::cout << "Failed to codegen/compile the following node to OSL: " << std::endl;
         std::cout << exc.what() << std::endl;
 
         hasFailed = true;
     }
-
 
     // We create and use a dedicated `NodeGraph` to avoid `NodeDef` names collision.
     mx::NodeGraphPtr librariesDocGraph = librariesDoc->addNodeGraph("librariesDocGraph");
@@ -434,7 +431,7 @@ int main(int argc, char* const argv[])
         }
     }
 
-    mx::writeToXmlFile(implMtlxDoc,  implMtlxDocFilePath);
+    mx::writeToXmlFile(implMtlxDoc, implMtlxDocFilePath);
 
     // If something went wrong, return an appropriate error code.
     if (hasFailed)

@@ -12,7 +12,6 @@
 #include <MaterialXGenShader/TypeDesc.h>
 #include <MaterialXGenShader/ShaderStage.h>
 
-
 MATERIALX_NAMESPACE_BEGIN
 
 const string OslNetworkShaderGenerator::TARGET = "genoslnetwork";
@@ -56,20 +55,22 @@ ShaderPtr OslNetworkShaderGenerator::generate(const string& name, ElementPtr ele
     std::set<std::string> osoPaths;
 
     // Walk the node graph, emitting shaders and param declarations.
-    for (auto&& node : graph.getNodes()) {
+    for (auto&& node : graph.getNodes())
+    {
         const string& nodeName = node->getName();
 
-        for (auto&& input : node->getInputs()) {
+        for (auto&& input : node->getInputs())
+        {
             string inputName = input->getName();
             _syntax->makeValidName(inputName);
 
             const ShaderOutput* connection = input->getConnection();
-            if (!connection || connection->getNode() == &graph) {
+            if (!connection || connection->getNode() == &graph)
+            {
                 if (!input->hasAuthoredValue())
                     continue;
 
-                if (input->getName() == "backsurfaceshader"
-                    || input->getName() == "displacementshader")
+                if (input->getName() == "backsurfaceshader" || input->getName() == "displacementshader")
                     continue; // FIXME: these aren't getting pruned by hasAuthoredValue
 
                 string value = _syntax->getValue(input);
@@ -78,30 +79,37 @@ ShaderPtr OslNetworkShaderGenerator::generate(const string& name, ElementPtr ele
 
                 // TODO: Figure out how to avoid special-casing struct-types in the generator, perhaps in the syntax?
                 auto inputType = input->getType();
-                if (inputType == Type::VECTOR2) {
+                if (inputType == Type::VECTOR2)
+                {
                     auto parts = splitString(value, " ");
                     emitLine(paramString(_syntax->getTypeName(Type::FLOAT), inputName + ".x", parts[0]), stage, false);
                     emitLine(paramString(_syntax->getTypeName(Type::FLOAT), inputName + ".y", parts[1]), stage, false);
                 }
-                else if (inputType == Type::VECTOR4) {
+                else if (inputType == Type::VECTOR4)
+                {
                     auto parts = splitString(value, " ");
                     emitLine(paramString(_syntax->getTypeName(Type::FLOAT), inputName + ".x", parts[0]), stage, false);
                     emitLine(paramString(_syntax->getTypeName(Type::FLOAT), inputName + ".y", parts[1]), stage, false);
                     emitLine(paramString(_syntax->getTypeName(Type::FLOAT), inputName + ".z", parts[2]), stage, false);
-                    emitLine(paramString(_syntax->getTypeName(Type::FLOAT), inputName + ".w", parts[3]), stage, false);}
-                else if (inputType == Type::COLOR4) {
+                    emitLine(paramString(_syntax->getTypeName(Type::FLOAT), inputName + ".w", parts[3]), stage, false);
+                }
+                else if (inputType == Type::COLOR4)
+                {
                     auto parts = splitString(value, " ");
                     emitLine(paramString(_syntax->getTypeName(Type::COLOR3), inputName + ".rgb", parts[0] + " " + parts[1] + " " + parts[2]), stage, false);
                     emitLine(paramString(_syntax->getTypeName(Type::FLOAT), inputName + ".a", parts[3]), stage, false);
                 }
-                else {
+                else
+                {
                     emitLine(paramString(_syntax->getTypeName(input->getType()), inputName, value), stage, false);
                 }
-            } else {
+            }
+            else
+            {
                 string connName = connection->getName();
                 _syntax->makeValidName(connName);
 
-                string connect = connectString(connection->getNode()->getName(), connName,  nodeName, inputName);
+                string connect = connectString(connection->getNode()->getName(), connName, nodeName, inputName);
                 // Save connect emits for the end, because they can't come
                 // before both connected shaders have been declared.
                 connections.push_back(connect);
@@ -121,24 +129,26 @@ ShaderPtr OslNetworkShaderGenerator::generate(const string& name, ElementPtr ele
         lastNodeName = nodeName;
     }
 
-    if (!lastOutput) {
+    if (!lastOutput)
+    {
         printf("Invalid shader\n");
         return nullptr;
     }
 
-    for (auto&& connect : connections) {
+    for (auto&& connect : connections)
+    {
         emitLine(connect, stage, false);
     }
 
     // During unit tests, wrap a special node that will add the output to Ci.
-    if (context.getOptions().oslNetworkConnectCiWrapper) {
+    if (context.getOptions().oslNetworkConnectCiWrapper)
+    {
         emitLine("shader setCi root ;", stage, false);
         string connect = connectString(
             lastNodeName,
             lastOutput->getName(),
             "root",
-            lastOutput->getType().getName() + "_input"
-        );
+            lastOutput->getType().getName() + "_input");
         emitLine(connect, stage, false);
     }
 
@@ -158,7 +168,6 @@ ShaderPtr OslNetworkShaderGenerator::generate(const string& name, ElementPtr ele
 
     return shader;
 }
-
 
 ShaderPtr OslNetworkShaderGenerator::createShader(const string& name, ElementPtr element, GenContext& context) const
 {
@@ -197,7 +206,6 @@ ShaderPtr OslNetworkShaderGenerator::createShader(const string& name, ElementPtr
     return shader;
 }
 
-
 namespace OSLNetwork
 {
 
@@ -206,6 +214,6 @@ const string UNIFORMS = "u";
 const string INPUTS = "i";
 const string OUTPUTS = "o";
 
-} // namespace OSL
+} // namespace OSLNetwork
 
 MATERIALX_NAMESPACE_END

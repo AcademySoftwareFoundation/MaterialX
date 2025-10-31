@@ -51,7 +51,6 @@ class MX_GENOSL_API OslNetworkShaderGenerator : public ShaderGenerator
   protected:
     /// Create and initialize a new OSL shader for shader generation.
     virtual ShaderPtr createShader(const string& name, ElementPtr element, GenContext& context) const;
-
 };
 
 namespace OSLNetwork
@@ -62,7 +61,7 @@ extern MX_GENOSL_API const string UNIFORMS;
 extern MX_GENOSL_API const string INPUTS;
 extern MX_GENOSL_API const string OUTPUTS;
 
-} // namespace OSL
+} // namespace OSLNetwork
 
 MATERIALX_NAMESPACE_END
 

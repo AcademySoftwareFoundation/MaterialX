@@ -311,7 +311,7 @@ bool OslShaderRenderTester::runRenderer(const std::string& shaderName,
 
                     const std::string& outputName = output->getVariable();
                     const std::string& outputType = typeSyntax.getTypeAlias().empty() ? typeSyntax.getName() : typeSyntax.getTypeAlias();
-                    const std::string& sceneTemplateFile = (_useOslCmdStr ? "scene_template_oslcmd.xml": "scene_template.xml");
+                    const std::string& sceneTemplateFile = (_useOslCmdStr ? "scene_template_oslcmd.xml" : "scene_template.xml");
 
                     // Set shader output name and type to use
                     _renderer->setOslShaderOutput(outputName, outputType);
@@ -323,7 +323,7 @@ bool OslShaderRenderTester::runRenderer(const std::string& shaderName,
                     auto osoPathAttr = shader->getAttribute("osoPath");
                     if (osoPathAttr)
                     {
-                        _renderer->setDataLibraryOSOPath( osoPathAttr->getValueString() );
+                        _renderer->setDataLibraryOSOPath(osoPathAttr->getValueString());
                     }
 
                     // Set scene template file. For now we only have the constant color scene file
