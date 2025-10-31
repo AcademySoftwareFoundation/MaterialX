@@ -25,7 +25,7 @@ OslNetworkShaderGenerator::OslNetworkShaderGenerator(TypeSystemPtr typeSystem) :
 {
 }
 
-ShaderNodeImplPtr OslNetworkShaderGenerator::createShaderNodeImplForImplementation(const NodeDef& /* nodedef */) const
+ShaderNodeImplPtr OslNetworkShaderGenerator::createShaderNodeImplForImplementation(const Implementation& /* implElement */) const
 {
     return OsoNode::create();
 }
