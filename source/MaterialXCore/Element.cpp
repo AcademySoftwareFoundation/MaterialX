@@ -388,7 +388,7 @@ bool Element::isEquivalent(ConstElementPtr rhs, const ElementEquivalenceOptions&
         return false;
     }
 
-    // Compare attribute names. 
+    // Compare attribute names.
     StringVec attributeNames = getAttributeNames();
     StringVec rhsAttributeNames = rhs->getAttributeNames();
 
@@ -397,12 +397,18 @@ bool Element::isEquivalent(ConstElementPtr rhs, const ElementEquivalenceOptions&
     if (!attributeExclusionList.empty())
     {
         attributeNames.erase(std::remove_if(attributeNames.begin(), attributeNames.end(),
-            [&attributeExclusionList](const string& attr) { return attributeExclusionList.find(attr) != attributeExclusionList.end(); }),
-            attributeNames.end());
+                                            [&attributeExclusionList](const string& attr)
+        {
+            return attributeExclusionList.find(attr) != attributeExclusionList.end();
+        }),
+                             attributeNames.end());
         rhsAttributeNames.erase(std::remove_if(rhsAttributeNames.begin(), rhsAttributeNames.end(),
-            [&attributeExclusionList](const string& attr) { return attributeExclusionList.find(attr) != attributeExclusionList.end(); }),
-            rhsAttributeNames.end());
-    }    
+                                               [&attributeExclusionList](const string& attr)
+        {
+            return attributeExclusionList.find(attr) != attributeExclusionList.end();
+        }),
+                                rhsAttributeNames.end());
+    }
 
     // Ignore attribute ordering by sorting names
     std::sort(attributeNames.begin(), attributeNames.end());
@@ -509,7 +515,7 @@ GraphIterator Element::traverseGraph() const
 
 Edge Element::getUpstreamEdge(size_t) const
 {
-    return NULL_EDGE;
+    return getNullEdge();
 }
 
 ElementPtr Element::getUpstreamElement(size_t index) const
@@ -713,18 +719,17 @@ const string& ValueElement::getActiveUnit() const
     return EMPTY_STRING;
 }
 
-bool ValueElement::isAttributeEquivalent(ConstElementPtr rhs, const string& attributeName, 
+bool ValueElement::isAttributeEquivalent(ConstElementPtr rhs, const string& attributeName,
                                          const ElementEquivalenceOptions& options, string* message) const
-{    
+{
     // Perform value comparisons
     bool performedValueComparison = false;
     if (options.performValueComparisons)
     {
-        const StringSet uiAttributes = 
-        {
-           ValueElement::UI_MIN_ATTRIBUTE, ValueElement::UI_MAX_ATTRIBUTE,
-           ValueElement::UI_SOFT_MIN_ATTRIBUTE, ValueElement::UI_SOFT_MAX_ATTRIBUTE,
-           ValueElement::UI_STEP_ATTRIBUTE
+        const StringSet uiAttributes = {
+            ValueElement::UI_MIN_ATTRIBUTE, ValueElement::UI_MAX_ATTRIBUTE,
+            ValueElement::UI_SOFT_MIN_ATTRIBUTE, ValueElement::UI_SOFT_MAX_ATTRIBUTE,
+            ValueElement::UI_STEP_ATTRIBUTE
         };
 
         // Get precision and format options
@@ -894,7 +899,6 @@ void StringResolver::addTokenSubstitutions(ConstElementPtr element)
                     }
                 }
             }
-
         }
         parent = parent->getParent();
     }
@@ -962,10 +966,10 @@ template <class T> class ElementRegistry
 // Template instantiations
 //
 
-#define INSTANTIATE_SUBCLASS(T)                                                                             \
-    template MX_CORE_API shared_ptr<T> Element::asA<T>();                                                   \
-    template MX_CORE_API shared_ptr<const T> Element::asA<T>() const;                                       \
-    template MX_CORE_API shared_ptr<T> Element::getChildOfType<T>(const string& name) const;                \
+#define INSTANTIATE_SUBCLASS(T)                                                              \
+    template MX_CORE_API shared_ptr<T> Element::asA<T>();                                    \
+    template MX_CORE_API shared_ptr<const T> Element::asA<T>() const;                        \
+    template MX_CORE_API shared_ptr<T> Element::getChildOfType<T>(const string& name) const; \
     template MX_CORE_API vector<shared_ptr<T>> Element::getChildrenOfType<T>(const string& category) const;
 
 INSTANTIATE_SUBCLASS(Element)
