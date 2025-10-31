@@ -430,8 +430,8 @@
   <nodedef name="ND_deon_hair_absorption_from_melanin" node="deon_hair_absorption_from_melanin" nodegroup="pbr" doc="Calculates hair absorption from melanin parameters.">
     <input name="melanin_concentration" type="float" value="0.25" />
     <input name="melanin_redness" type="float" value="0.5" />
-    <input name="eumelanin_color" type="color3" value="0.657704, 0.498077, 0.254107" colorspace="lin_rec709" doc="constant from d'Eon et al. 2011, converted to color via exp(-c)" uiadvanced="true"/>
-    <input name="pheomelanin_color" type="color3" value="0.829444, 0.67032, 0.349938" colorspace="lin_rec709" doc="constant from d'Eon et al. 2011, converted to color via exp(-c)" uiadvanced="true"/>
+    <input name="eumelanin_color" type="color3" value="0.657704, 0.498077, 0.254107" colorspace="lin_rec709" doc="constant from d'Eon et al. 2011, converted to color via exp(-c)" uiadvanced="true" />
+    <input name="pheomelanin_color" type="color3" value="0.829444, 0.67032, 0.349938" colorspace="lin_rec709" doc="constant from d'Eon et al. 2011, converted to color via exp(-c)" uiadvanced="true" />
     <output name="absorption" type="vector3" />
   </nodedef>
 

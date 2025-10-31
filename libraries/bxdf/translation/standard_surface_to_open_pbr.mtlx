@@ -14,12 +14,12 @@
     <input name="specular_anisotropy" type="float" value="0" />
 
     <input name="transmission" type="float" value="0" />
-    <input name="transmission_color" type="color3" value="1, 1, 1"/>
+    <input name="transmission_color" type="color3" value="1, 1, 1" />
     <input name="transmission_depth" type="float" value="0" />
     <input name="transmission_scatter" type="color3" value="0, 0, 0" />
     <input name="transmission_scatter_anisotropy" type="float" value="0" />
     <input name="transmission_dispersion" type="float" value="0" />
-    
+
     <input name="subsurface" type="float" value="0" uimin="0.0" />
     <input name="subsurface_color" type="color3" value="1, 1, 1" />
     <input name="subsurface_radius" type="color3" value="1, 1, 1" />
@@ -36,7 +36,7 @@
     <input name="coat_anisotropy" type="float" value="0.0" />
     <input name="coat_IOR" type="float" value="1.5" />
     <input name="coat_affect_roughness" type="float" value="0" />
-    
+
     <input name="thin_film_thickness" type="float" value="0" />
     <input name="thin_film_IOR" type="float" value="1.5" />
 
@@ -64,7 +64,7 @@
     <output name="transmission_scatter_out" type="color3" />
     <output name="transmission_scatter_anisotropy_out" type="float" />
     <output name="transmission_dispersion_scale_out" type="float" />
-    
+
     <output name="subsurface_weight_out" type="float" />
     <output name="subsurface_color_out" type="color3" />
     <output name="subsurface_radius_out" type="float" />
@@ -132,7 +132,7 @@
     </dotproduct>
     <!--Intentionally ignoring the original specular_color input for metals, since the translation between these concepts will take more thought.-->
     <ifequal name="specColor" type="color3">
-      <input name="value1" type="float" value="0.0"  />
+      <input name="value1" type="float" value="0.0" />
       <input name="value2" type="float" nodename="dotProd" />
       <input name="in1" type="color3" value="1.0, 1.0, 1.0" />
       <input name="in2" type="color3" interfacename="specular_color" />
@@ -271,7 +271,7 @@
     <output name="specular_roughness_out" type="float" nodename="specRoughness" />
     <output name="specular_ior_out" type="float" nodename="specIOR" />
     <output name="specular_roughness_anisotropy_out" type="float" nodename="specRoughnessAnisotropy" />
-    
+
     <output name="transmission_weight_out" type="float" nodename="transmissionWeight" />
     <output name="transmission_color_out" type="color3" nodename="transmissionColor" />
     <output name="transmission_depth_out" type="float" nodename="transmissionDepth" />

@@ -64,12 +64,12 @@
   <nodedef name="ND_UsdPrimvarReader_string" nodegroup="geometric" node="UsdPrimvarReader">
     <input name="varname" type="string" value="" uniform="true" />
     <input name="fallback" type="string" value="" uniform="true" />
-    <output name="out" type="string" uniform="true"/>
+    <output name="out" type="string" uniform="true" />
   </nodedef>
   <nodedef name="ND_UsdPrimvarReader_filename" nodegroup="geometric" node="UsdPrimvarReader">
     <input name="varname" type="string" value="" uniform="true" />
     <input name="fallback" type="filename" value="" uniform="true" />
-    <output name="out" type="filename" uniform="true"/>
+    <output name="out" type="filename" uniform="true" />
   </nodedef>
   <nodedef name="ND_UsdPrimvarReader_float" nodegroup="geometric" node="UsdPrimvarReader">
     <input name="varname" type="string" value="" uniform="true" />

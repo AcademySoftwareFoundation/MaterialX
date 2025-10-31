@@ -1201,7 +1201,7 @@
       <input name="prev_color" type="color4" interfacename="color1" />
       <input name="color2" type="color4" interfacename="color2" />
       <input name="x" type="float" nodename="ramp_type_selector" />
-    </ramp_gradient> 
+    </ramp_gradient>
     <ramp_gradient name="ramp_gradient2" type="color4" nodedef="ND_ramp_gradient">
       <input name="prev_color" type="color4" nodename="ramp_gradient1" />
       <input name="interpolation" type="integer" interfacename="interpolation" />
@@ -1212,7 +1212,7 @@
       <input name="color1" type="color4" interfacename="color2" />
       <input name="color2" type="color4" interfacename="color3" />
       <input name="x" type="float" nodename="ramp_type_selector" />
-    </ramp_gradient> 
+    </ramp_gradient>
     <ramp_gradient name="ramp_gradient3" type="color4" nodedef="ND_ramp_gradient">
       <input name="prev_color" type="color4" nodename="ramp_gradient2" />
       <input name="interpolation" type="integer" interfacename="interpolation" />
@@ -3285,26 +3285,26 @@
       <input name="in" type="color3" interfacename="high" />
     </separate3>
     <smoothstep name="smoothstep_r" type="float">
-      <input name="in" type="float" nodename="separate_in" output="outr"/>
-      <input name="low" type="float" nodename="separate_low" output="outr"/>
-      <input name="high" type="float" nodename="separate_high" output="outr"/>
+      <input name="in" type="float" nodename="separate_in" output="outr" />
+      <input name="low" type="float" nodename="separate_low" output="outr" />
+      <input name="high" type="float" nodename="separate_high" output="outr" />
     </smoothstep>
     <smoothstep name="smoothstep_g" type="float">
-      <input name="in" type="float" nodename="separate_in" output="outg"/>
-      <input name="low" type="float" nodename="separate_low" output="outg"/>
-      <input name="high" type="float" nodename="separate_high" output="outg"/>
+      <input name="in" type="float" nodename="separate_in" output="outg" />
+      <input name="low" type="float" nodename="separate_low" output="outg" />
+      <input name="high" type="float" nodename="separate_high" output="outg" />
     </smoothstep>
     <smoothstep name="smoothstep_b" type="float">
-      <input name="in" type="float" nodename="separate_in" output="outb"/>
-      <input name="low" type="float" nodename="separate_low" output="outb"/>
-      <input name="high" type="float" nodename="separate_high" output="outb"/>
+      <input name="in" type="float" nodename="separate_in" output="outb" />
+      <input name="low" type="float" nodename="separate_low" output="outb" />
+      <input name="high" type="float" nodename="separate_high" output="outb" />
     </smoothstep>
     <combine3 name="combine" type="color3">
-      <input name="in1" type="float" nodename="smoothstep_r"/>
-      <input name="in2" type="float" nodename="smoothstep_g"/>
-      <input name="in3" type="float" nodename="smoothstep_b"/>
+      <input name="in1" type="float" nodename="smoothstep_r" />
+      <input name="in2" type="float" nodename="smoothstep_g" />
+      <input name="in3" type="float" nodename="smoothstep_b" />
     </combine3>
-    <output name="out" type="color3" nodename="combine"/>
+    <output name="out" type="color3" nodename="combine" />
   </nodegraph>
   <nodegraph name="NG_smoothstep_color4" nodedef="ND_smoothstep_color4">
     <separate4 name="separate_in" type="multioutput">
@@ -3317,264 +3317,264 @@
       <input name="in" type="color4" interfacename="high" />
     </separate4>
     <smoothstep name="smoothstep_r" type="float">
-      <input name="in" type="float" nodename="separate_in" output="outr"/>
-      <input name="low" type="float" nodename="separate_low" output="outr"/>
-      <input name="high" type="float" nodename="separate_high" output="outr"/>
+      <input name="in" type="float" nodename="separate_in" output="outr" />
+      <input name="low" type="float" nodename="separate_low" output="outr" />
+      <input name="high" type="float" nodename="separate_high" output="outr" />
     </smoothstep>
     <smoothstep name="smoothstep_g" type="float">
-      <input name="in" type="float" nodename="separate_in" output="outg"/>
-      <input name="low" type="float" nodename="separate_low" output="outg"/>
-      <input name="high" type="float" nodename="separate_high" output="outg"/>
+      <input name="in" type="float" nodename="separate_in" output="outg" />
+      <input name="low" type="float" nodename="separate_low" output="outg" />
+      <input name="high" type="float" nodename="separate_high" output="outg" />
     </smoothstep>
     <smoothstep name="smoothstep_b" type="float">
-      <input name="in" type="float" nodename="separate_in" output="outb"/>
-      <input name="low" type="float" nodename="separate_low" output="outb"/>
-      <input name="high" type="float" nodename="separate_high" output="outb"/>
+      <input name="in" type="float" nodename="separate_in" output="outb" />
+      <input name="low" type="float" nodename="separate_low" output="outb" />
+      <input name="high" type="float" nodename="separate_high" output="outb" />
     </smoothstep>
     <smoothstep name="smoothstep_a" type="float">
-      <input name="in" type="float" nodename="separate_in" output="outa"/>
-      <input name="low" type="float" nodename="separate_low" output="outa"/>
-      <input name="high" type="float" nodename="separate_high" output="outa"/>
+      <input name="in" type="float" nodename="separate_in" output="outa" />
+      <input name="low" type="float" nodename="separate_low" output="outa" />
+      <input name="high" type="float" nodename="separate_high" output="outa" />
     </smoothstep>
     <combine4 name="combine" type="color4">
-      <input name="in1" type="float" nodename="smoothstep_r"/>
-      <input name="in2" type="float" nodename="smoothstep_g"/>
-      <input name="in3" type="float" nodename="smoothstep_b"/>
-      <input name="in4" type="float" nodename="smoothstep_a"/>
+      <input name="in1" type="float" nodename="smoothstep_r" />
+      <input name="in2" type="float" nodename="smoothstep_g" />
+      <input name="in3" type="float" nodename="smoothstep_b" />
+      <input name="in4" type="float" nodename="smoothstep_a" />
     </combine4>
-    <output name="out" type="color4" nodename="combine"/>
+    <output name="out" type="color4" nodename="combine" />
   </nodegraph>
   <nodegraph name="NG_smoothstep_color3FA" nodedef="ND_smoothstep_color3FA">
     <separate3 name="separate_in" type="multioutput">
       <input name="in" type="color3" interfacename="in" />
     </separate3>
     <smoothstep name="smoothstep_r" type="float">
-      <input name="in" type="float" nodename="separate_in" output="outr"/>
-      <input name="low" type="float" interfacename="low"/>
-      <input name="high" type="float" interfacename="high"/>
+      <input name="in" type="float" nodename="separate_in" output="outr" />
+      <input name="low" type="float" interfacename="low" />
+      <input name="high" type="float" interfacename="high" />
     </smoothstep>
     <smoothstep name="smoothstep_g" type="float">
-      <input name="in" type="float" nodename="separate_in" output="outg"/>
-      <input name="low" type="float" interfacename="low"/>
-      <input name="high" type="float" interfacename="high"/>
+      <input name="in" type="float" nodename="separate_in" output="outg" />
+      <input name="low" type="float" interfacename="low" />
+      <input name="high" type="float" interfacename="high" />
     </smoothstep>
     <smoothstep name="smoothstep_b" type="float">
-      <input name="in" type="float" nodename="separate_in" output="outb"/>
-      <input name="low" type="float" interfacename="low"/>
-      <input name="high" type="float" interfacename="high"/>
+      <input name="in" type="float" nodename="separate_in" output="outb" />
+      <input name="low" type="float" interfacename="low" />
+      <input name="high" type="float" interfacename="high" />
     </smoothstep>
     <combine3 name="combine" type="color3">
-      <input name="in1" type="float" nodename="smoothstep_r"/>
-      <input name="in2" type="float" nodename="smoothstep_g"/>
-      <input name="in3" type="float" nodename="smoothstep_b"/>
+      <input name="in1" type="float" nodename="smoothstep_r" />
+      <input name="in2" type="float" nodename="smoothstep_g" />
+      <input name="in3" type="float" nodename="smoothstep_b" />
     </combine3>
-    <output name="out" type="color3" nodename="combine"/>
+    <output name="out" type="color3" nodename="combine" />
   </nodegraph>
   <nodegraph name="NG_smoothstep_color4FA" nodedef="ND_smoothstep_color4FA">
     <separate4 name="separate_in" type="multioutput">
       <input name="in" type="color4" interfacename="in" />
     </separate4>
     <smoothstep name="smoothstep_r" type="float">
-      <input name="in" type="float" nodename="separate_in" output="outr"/>
-      <input name="low" type="float" interfacename="low"/>
-      <input name="high" type="float" interfacename="high"/>
+      <input name="in" type="float" nodename="separate_in" output="outr" />
+      <input name="low" type="float" interfacename="low" />
+      <input name="high" type="float" interfacename="high" />
     </smoothstep>
     <smoothstep name="smoothstep_g" type="float">
-      <input name="in" type="float" nodename="separate_in" output="outg"/>
-      <input name="low" type="float" interfacename="low"/>
-      <input name="high" type="float" interfacename="high"/>
+      <input name="in" type="float" nodename="separate_in" output="outg" />
+      <input name="low" type="float" interfacename="low" />
+      <input name="high" type="float" interfacename="high" />
     </smoothstep>
     <smoothstep name="smoothstep_b" type="float">
-      <input name="in" type="float" nodename="separate_in" output="outb"/>
-      <input name="low" type="float" interfacename="low"/>
-      <input name="high" type="float" interfacename="high"/>
+      <input name="in" type="float" nodename="separate_in" output="outb" />
+      <input name="low" type="float" interfacename="low" />
+      <input name="high" type="float" interfacename="high" />
     </smoothstep>
     <smoothstep name="smoothstep_a" type="float">
-      <input name="in" type="float" nodename="separate_in" output="outa"/>
-      <input name="low" type="float" interfacename="low"/>
-      <input name="high" type="float" interfacename="high"/>
+      <input name="in" type="float" nodename="separate_in" output="outa" />
+      <input name="low" type="float" interfacename="low" />
+      <input name="high" type="float" interfacename="high" />
     </smoothstep>
     <combine4 name="combine" type="color4">
-      <input name="in1" type="float" nodename="smoothstep_r"/>
-      <input name="in2" type="float" nodename="smoothstep_g"/>
-      <input name="in3" type="float" nodename="smoothstep_b"/>
-      <input name="in4" type="float" nodename="smoothstep_a"/>
+      <input name="in1" type="float" nodename="smoothstep_r" />
+      <input name="in2" type="float" nodename="smoothstep_g" />
+      <input name="in3" type="float" nodename="smoothstep_b" />
+      <input name="in4" type="float" nodename="smoothstep_a" />
     </combine4>
-    <output name="out" type="color4" nodename="combine"/>
+    <output name="out" type="color4" nodename="combine" />
   </nodegraph>
   <nodegraph name="NG_smoothstep_vector2" nodedef="ND_smoothstep_vector2">
     <separate2 name="separate_in" type="multioutput">
-      <input name="in" type="vector2" interfacename="in"/>
+      <input name="in" type="vector2" interfacename="in" />
     </separate2>
     <separate2 name="separate_low" type="multioutput">
-      <input name="in" type="vector2" interfacename="low"/>
+      <input name="in" type="vector2" interfacename="low" />
     </separate2>
     <separate2 name="separate_high" type="multioutput">
-      <input name="in" type="vector2" interfacename="high"/>
+      <input name="in" type="vector2" interfacename="high" />
     </separate2>
     <smoothstep name="smoothstep_x" type="float">
-      <input name="in" type="float" nodename="separate_in" output="outx"/>
-      <input name="low" type="float" nodename="separate_low" output="outx"/>
-      <input name="high" type="float" nodename="separate_high" output="outx"/>
+      <input name="in" type="float" nodename="separate_in" output="outx" />
+      <input name="low" type="float" nodename="separate_low" output="outx" />
+      <input name="high" type="float" nodename="separate_high" output="outx" />
     </smoothstep>
     <smoothstep name="smoothstep_y" type="float">
-      <input name="in" type="float" nodename="separate_in" output="outy"/>
-      <input name="low" type="float" nodename="separate_low" output="outy"/>
-      <input name="high" type="float" nodename="separate_high" output="outy"/>
+      <input name="in" type="float" nodename="separate_in" output="outy" />
+      <input name="low" type="float" nodename="separate_low" output="outy" />
+      <input name="high" type="float" nodename="separate_high" output="outy" />
     </smoothstep>
     <combine2 name="combine" type="vector2">
-      <input name="in1" type="float" nodename="smoothstep_x"/>
-      <input name="in2" type="float" nodename="smoothstep_y"/>
+      <input name="in1" type="float" nodename="smoothstep_x" />
+      <input name="in2" type="float" nodename="smoothstep_y" />
     </combine2>
-    <output name="out" type="vector2" nodename="combine"/>
+    <output name="out" type="vector2" nodename="combine" />
   </nodegraph>
   <nodegraph name="NG_smoothstep_vector3" nodedef="ND_smoothstep_vector3">
     <separate3 name="separate_in" type="multioutput">
-      <input name="in" type="vector3" interfacename="in"/>
+      <input name="in" type="vector3" interfacename="in" />
     </separate3>
     <separate3 name="separate_low" type="multioutput">
-      <input name="in" type="vector3" interfacename="low"/>
+      <input name="in" type="vector3" interfacename="low" />
     </separate3>
     <separate3 name="separate_high" type="multioutput">
-      <input name="in" type="vector3" interfacename="high"/>
+      <input name="in" type="vector3" interfacename="high" />
     </separate3>
     <smoothstep name="smoothstep_x" type="float">
-      <input name="in" type="float" nodename="separate_in" output="outx"/>
-      <input name="low" type="float" nodename="separate_low" output="outx"/>
-      <input name="high" type="float" nodename="separate_high" output="outx"/>
+      <input name="in" type="float" nodename="separate_in" output="outx" />
+      <input name="low" type="float" nodename="separate_low" output="outx" />
+      <input name="high" type="float" nodename="separate_high" output="outx" />
     </smoothstep>
     <smoothstep name="smoothstep_y" type="float">
-      <input name="in" type="float" nodename="separate_in" output="outy"/>
-      <input name="low" type="float" nodename="separate_low" output="outy"/>
-      <input name="high" type="float" nodename="separate_high" output="outy"/>
+      <input name="in" type="float" nodename="separate_in" output="outy" />
+      <input name="low" type="float" nodename="separate_low" output="outy" />
+      <input name="high" type="float" nodename="separate_high" output="outy" />
     </smoothstep>
     <smoothstep name="smoothstep_z" type="float">
-      <input name="in" type="float" nodename="separate_in" output="outz"/>
-      <input name="low" type="float" nodename="separate_low" output="outz"/>
-      <input name="high" type="float" nodename="separate_high" output="outz"/>
+      <input name="in" type="float" nodename="separate_in" output="outz" />
+      <input name="low" type="float" nodename="separate_low" output="outz" />
+      <input name="high" type="float" nodename="separate_high" output="outz" />
     </smoothstep>
     <combine3 name="combine" type="vector3">
-      <input name="in1" type="float" nodename="smoothstep_x"/>
-      <input name="in2" type="float" nodename="smoothstep_y"/>
-      <input name="in3" type="float" nodename="smoothstep_z"/>
+      <input name="in1" type="float" nodename="smoothstep_x" />
+      <input name="in2" type="float" nodename="smoothstep_y" />
+      <input name="in3" type="float" nodename="smoothstep_z" />
     </combine3>
-    <output name="out" type="vector3" nodename="combine"/>
+    <output name="out" type="vector3" nodename="combine" />
   </nodegraph>
   <nodegraph name="NG_smoothstep_vector4" nodedef="ND_smoothstep_vector4">
     <separate4 name="separate_in" type="multioutput">
-      <input name="in" type="vector4" interfacename="in"/>
+      <input name="in" type="vector4" interfacename="in" />
     </separate4>
     <separate4 name="separate_low" type="multioutput">
-      <input name="in" type="vector4" interfacename="low"/>
+      <input name="in" type="vector4" interfacename="low" />
     </separate4>
     <separate4 name="separate_high" type="multioutput">
-      <input name="in" type="vector4" interfacename="high"/>
+      <input name="in" type="vector4" interfacename="high" />
     </separate4>
     <smoothstep name="smoothstep_x" type="float">
-      <input name="in" type="float" nodename="separate_in" output="outx"/>
-      <input name="low" type="float" nodename="separate_low" output="outx"/>
-      <input name="high" type="float" nodename="separate_high" output="outx"/>
+      <input name="in" type="float" nodename="separate_in" output="outx" />
+      <input name="low" type="float" nodename="separate_low" output="outx" />
+      <input name="high" type="float" nodename="separate_high" output="outx" />
     </smoothstep>
     <smoothstep name="smoothstep_y" type="float">
-      <input name="in" type="float" nodename="separate_in" output="outy"/>
-      <input name="low" type="float" nodename="separate_low" output="outy"/>
-      <input name="high" type="float" nodename="separate_high" output="outy"/>
+      <input name="in" type="float" nodename="separate_in" output="outy" />
+      <input name="low" type="float" nodename="separate_low" output="outy" />
+      <input name="high" type="float" nodename="separate_high" output="outy" />
     </smoothstep>
     <smoothstep name="smoothstep_z" type="float">
-      <input name="in" type="float" nodename="separate_in" output="outz"/>
-      <input name="low" type="float" nodename="separate_low" output="outz"/>
-      <input name="high" type="float" nodename="separate_high" output="outz"/>
+      <input name="in" type="float" nodename="separate_in" output="outz" />
+      <input name="low" type="float" nodename="separate_low" output="outz" />
+      <input name="high" type="float" nodename="separate_high" output="outz" />
     </smoothstep>
     <smoothstep name="smoothstep_w" type="float">
-      <input name="in" type="float" nodename="separate_in" output="outw"/>
-      <input name="low" type="float" nodename="separate_low" output="outw"/>
-      <input name="high" type="float" nodename="separate_high" output="outw"/>
+      <input name="in" type="float" nodename="separate_in" output="outw" />
+      <input name="low" type="float" nodename="separate_low" output="outw" />
+      <input name="high" type="float" nodename="separate_high" output="outw" />
     </smoothstep>
     <combine4 name="combine" type="vector4">
-      <input name="in1" type="float" nodename="smoothstep_x"/>
-      <input name="in2" type="float" nodename="smoothstep_y"/>
-      <input name="in3" type="float" nodename="smoothstep_z"/>
-      <input name="in4" type="float" nodename="smoothstep_w"/>
+      <input name="in1" type="float" nodename="smoothstep_x" />
+      <input name="in2" type="float" nodename="smoothstep_y" />
+      <input name="in3" type="float" nodename="smoothstep_z" />
+      <input name="in4" type="float" nodename="smoothstep_w" />
     </combine4>
-    <output name="out" type="vector4" nodename="combine"/>
+    <output name="out" type="vector4" nodename="combine" />
   </nodegraph>
   <nodegraph name="NG_smoothstep_vector2FA" nodedef="ND_smoothstep_vector2FA">
     <separate2 name="separate_in" type="multioutput">
       <input name="in" type="vector2" interfacename="in" />
     </separate2>
     <smoothstep name="smoothstep_x" type="float">
-      <input name="in" type="float" nodename="separate_in" output="outx"/>
-      <input name="low" type="float" interfacename="low"/>
-      <input name="high" type="float" interfacename="high"/>
+      <input name="in" type="float" nodename="separate_in" output="outx" />
+      <input name="low" type="float" interfacename="low" />
+      <input name="high" type="float" interfacename="high" />
     </smoothstep>
     <smoothstep name="smoothstep_y" type="float">
-      <input name="in" type="float" nodename="separate_in" output="outy"/>
-      <input name="low" type="float" interfacename="low"/>
-      <input name="high" type="float" interfacename="high"/>
+      <input name="in" type="float" nodename="separate_in" output="outy" />
+      <input name="low" type="float" interfacename="low" />
+      <input name="high" type="float" interfacename="high" />
     </smoothstep>
     <combine2 name="combine" type="vector2">
-      <input name="in1" type="float" nodename="smoothstep_x"/>
-      <input name="in2" type="float" nodename="smoothstep_y"/>
+      <input name="in1" type="float" nodename="smoothstep_x" />
+      <input name="in2" type="float" nodename="smoothstep_y" />
     </combine2>
-    <output name="out" type="vector2" nodename="combine"/>
+    <output name="out" type="vector2" nodename="combine" />
   </nodegraph>
   <nodegraph name="NG_smoothstep_vector3FA" nodedef="ND_smoothstep_vector3FA">
     <separate3 name="separate_in" type="multioutput">
       <input name="in" type="vector3" interfacename="in" />
     </separate3>
     <smoothstep name="smoothstep_x" type="float">
-      <input name="in" type="float" nodename="separate_in" output="outx"/>
-      <input name="low" type="float" interfacename="low"/>
-      <input name="high" type="float" interfacename="high"/>
+      <input name="in" type="float" nodename="separate_in" output="outx" />
+      <input name="low" type="float" interfacename="low" />
+      <input name="high" type="float" interfacename="high" />
     </smoothstep>
     <smoothstep name="smoothstep_y" type="float">
-      <input name="in" type="float" nodename="separate_in" output="outy"/>
-      <input name="low" type="float" interfacename="low"/>
-      <input name="high" type="float" interfacename="high"/>
+      <input name="in" type="float" nodename="separate_in" output="outy" />
+      <input name="low" type="float" interfacename="low" />
+      <input name="high" type="float" interfacename="high" />
     </smoothstep>
     <smoothstep name="smoothstep_z" type="float">
-      <input name="in" type="float" nodename="separate_in" output="outz"/>
-      <input name="low" type="float" interfacename="low"/>
-      <input name="high" type="float" interfacename="high"/>
+      <input name="in" type="float" nodename="separate_in" output="outz" />
+      <input name="low" type="float" interfacename="low" />
+      <input name="high" type="float" interfacename="high" />
     </smoothstep>
     <combine3 name="combine" type="vector3">
-      <input name="in1" type="float" nodename="smoothstep_x"/>
-      <input name="in2" type="float" nodename="smoothstep_y"/>
-      <input name="in3" type="float" nodename="smoothstep_z"/>
+      <input name="in1" type="float" nodename="smoothstep_x" />
+      <input name="in2" type="float" nodename="smoothstep_y" />
+      <input name="in3" type="float" nodename="smoothstep_z" />
     </combine3>
-    <output name="out" type="vector3" nodename="combine"/>
+    <output name="out" type="vector3" nodename="combine" />
   </nodegraph>
   <nodegraph name="NG_smoothstep_vector4FA" nodedef="ND_smoothstep_vector4FA">
     <separate4 name="separate_in" type="multioutput">
       <input name="in" type="vector4" interfacename="in" />
     </separate4>
     <smoothstep name="smoothstep_x" type="float">
-      <input name="in" type="float" nodename="separate_in" output="outx"/>
-      <input name="low" type="float" interfacename="low"/>
-      <input name="high" type="float" interfacename="high"/>
+      <input name="in" type="float" nodename="separate_in" output="outx" />
+      <input name="low" type="float" interfacename="low" />
+      <input name="high" type="float" interfacename="high" />
     </smoothstep>
     <smoothstep name="smoothstep_y" type="float">
-      <input name="in" type="float" nodename="separate_in" output="outy"/>
-      <input name="low" type="float" interfacename="low"/>
-      <input name="high" type="float" interfacename="high"/>
+      <input name="in" type="float" nodename="separate_in" output="outy" />
+      <input name="low" type="float" interfacename="low" />
+      <input name="high" type="float" interfacename="high" />
     </smoothstep>
     <smoothstep name="smoothstep_z" type="float">
-      <input name="in" type="float" nodename="separate_in" output="outz"/>
-      <input name="low" type="float" interfacename="low"/>
-      <input name="high" type="float" interfacename="high"/>
+      <input name="in" type="float" nodename="separate_in" output="outz" />
+      <input name="low" type="float" interfacename="low" />
+      <input name="high" type="float" interfacename="high" />
     </smoothstep>
     <smoothstep name="smoothstep_w" type="float">
-      <input name="in" type="float" nodename="separate_in" output="outw"/>
-      <input name="low" type="float" interfacename="low"/>
-      <input name="high" type="float" interfacename="high"/>
+      <input name="in" type="float" nodename="separate_in" output="outw" />
+      <input name="low" type="float" interfacename="low" />
+      <input name="high" type="float" interfacename="high" />
     </smoothstep>
     <combine4 name="combine" type="vector4">
-      <input name="in1" type="float" nodename="smoothstep_x"/>
-      <input name="in2" type="float" nodename="smoothstep_y"/>
-      <input name="in3" type="float" nodename="smoothstep_z"/>
-      <input name="in4" type="float" nodename="smoothstep_w"/>
+      <input name="in1" type="float" nodename="smoothstep_x" />
+      <input name="in2" type="float" nodename="smoothstep_y" />
+      <input name="in3" type="float" nodename="smoothstep_z" />
+      <input name="in4" type="float" nodename="smoothstep_w" />
     </combine4>
-    <output name="out" type="vector4" nodename="combine"/>
+    <output name="out" type="vector4" nodename="combine" />
   </nodegraph>
 
   <!--
@@ -6361,10 +6361,10 @@
   -->
   <nodegraph name="NG_logical_xor" nodedef="ND_logical_xor">
     <not name="not_in1" type="boolean">
-      <input name="in" type="boolean" interfacename="in1"/>
+      <input name="in" type="boolean" interfacename="in1" />
     </not>
     <not name="not_in2" type="boolean">
-      <input name="in" type="boolean" interfacename="in2"/>
+      <input name="in" type="boolean" interfacename="in2" />
     </not>
     <and name="in1_and_not_in2" type="boolean">
       <input name="in1" type="boolean" interfacename="in1" />
@@ -6375,8 +6375,8 @@
       <input name="in2" type="boolean" nodename="not_in1" />
     </and>
     <or name="or" type="boolean">
-      <input name="in1" type="boolean" nodename="in1_and_not_in2"/>
-      <input name="in2" type="boolean" nodename="in2_and_not_in1"/>
+      <input name="in1" type="boolean" nodename="in1_and_not_in2" />
+      <input name="in2" type="boolean" nodename="in2_and_not_in1" />
     </or>
     <output name="out" type="boolean" nodename="or" />
   </nodegraph>
@@ -6386,37 +6386,37 @@
   -->
   <nodegraph name="NG_blur_float" nodedef="ND_blur_float">
     <constant name="const" type="float">
-      <input name="value" type="float" interfacename="in"/>
+      <input name="value" type="float" interfacename="in" />
     </constant>
     <output name="out" type="float" nodename="const" />
   </nodegraph>
   <nodegraph name="NG_blur_color3" nodedef="ND_blur_color3">
     <constant name="const" type="color3">
-      <input name="value" type="color3" interfacename="in"/>
+      <input name="value" type="color3" interfacename="in" />
     </constant>
     <output name="out" type="color3" nodename="const" />
   </nodegraph>
   <nodegraph name="NG_blur_color4" nodedef="ND_blur_color4">
     <constant name="const" type="color4">
-      <input name="value" type="color4" interfacename="in"/>
+      <input name="value" type="color4" interfacename="in" />
     </constant>
     <output name="out" type="color4" nodename="const" />
   </nodegraph>
   <nodegraph name="NG_blur_vector2" nodedef="ND_blur_vector2">
     <constant name="const" type="vector2">
-      <input name="value" type="vector2" interfacename="in"/>
+      <input name="value" type="vector2" interfacename="in" />
     </constant>
     <output name="out" type="vector2" nodename="const" />
   </nodegraph>
   <nodegraph name="NG_blur_vector3" nodedef="ND_blur_vector3">
     <constant name="const" type="vector3">
-      <input name="value" type="vector3" interfacename="in"/>
+      <input name="value" type="vector3" interfacename="in" />
     </constant>
     <output name="out" type="vector3" nodename="const" />
   </nodegraph>
   <nodegraph name="NG_blur_vector4" nodedef="ND_blur_vector4">
     <constant name="const" type="vector4">
-      <input name="value" type="vector4" interfacename="in"/>
+      <input name="value" type="vector4" interfacename="in" />
     </constant>
     <output name="out" type="vector4" nodename="const" />
   </nodegraph>

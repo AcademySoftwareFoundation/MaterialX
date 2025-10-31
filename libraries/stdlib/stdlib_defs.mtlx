@@ -303,7 +303,7 @@
     <input name="rotation" type="float" value="0.0" unittype="angle" unit="degree" uimin="0" uimax="360" uiname="Longitude Offset" />
     <output name="out" type="color3" default="0.0, 0.0, 0.0" />
   </nodedef>
-  
+
   <!--
     Node: <hextiledimage> Supplemental Node
     Samples data from a single image, with provisions for hex-tiling and randomizing the image
@@ -1583,7 +1583,8 @@
     The current time in seconds as defined by the host environment.
   -->
   <nodedef name="ND_time_float" node="time" nodegroup="application">
-    <input name="fps" type="float" value="24.0" /> <!-- An unused input, to be removed in a future specification version -->
+    <input name="fps" type="float" value="24.0" />
+    <!-- An unused input, to be removed in a future specification version -->
     <output name="out" type="float" default="0.0" />
   </nodedef>
 
@@ -4970,7 +4971,7 @@
   -->
   <nodedef name="ND_heighttonormal_vector3" node="heighttonormal" nodegroup="convolution2d">
     <input name="in" type="float" value="0.0" />
-    <input name="scale" type="float" value="1.0" uimin="0.0" uisoftmax="5.0"/>
+    <input name="scale" type="float" value="1.0" uimin="0.0" uisoftmax="5.0" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <output name="out" type="vector3" default="0.5, 0.5, 1.0" />
   </nodedef>
@@ -5015,7 +5016,7 @@
   -->
   <nodedef name="ND_logical_not" node="not" nodegroup="conditional">
     <input name="in" type="boolean" value="false" />
-    <output name="out" type="boolean" default="true"/>
+    <output name="out" type="boolean" default="true" />
   </nodedef>
 
   <!-- ======================================================================== -->
