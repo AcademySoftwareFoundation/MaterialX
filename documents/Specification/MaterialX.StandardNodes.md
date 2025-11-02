@@ -1907,7 +1907,7 @@ Output the value of the `in1` or `in2` stream depending on whether the `value1` 
 |--------|--------------------------------------------------|-----------------------------------------|--------|
 |`value1`|the first value to be compared                    |float, integer                           |__one__ |
 |`value2`|the second value to be compared                   |float, integer                           |__zero__|
-|`out`   |Output: true if `value1` > `value2                |boolean                                  |        |
+|`out`   |Output: true if `value1` > `value2                |boolean                                  |false   |
 
 <a id="node-ifgreatereq"> </a>
 
@@ -1927,7 +1927,7 @@ Output the value of the `in1` or `in2` stream depending on whether the `value1` 
 |--------|--------------------------------------------------|-----------------------------------------|--------|
 |`value1`|the first value to be compared                    |float, integer                           |__one__ |
 |`value2`|the second value to be compared                   |float, integer                           |__zero__|
-|`out`   |Output: true if `value1` >= `value2               |boolean                                  |        |
+|`out`   |Output: true if `value1` >= `value2               |boolean                                  |false   |
 
 <a id="node-ifequal"> </a>
 
@@ -1953,13 +1953,13 @@ Output the value of the `in1` or `in2` stream depending on whether the `value1` 
 |--------|--------------------------------------------------|-----------------------------------------|--------|
 |`value1`|the first value to be compared                    |float, integer                           |__one__ |
 |`value2`|the second value to be compared                   |float, integer                           |__zero__|
-|`out`   |Output: true if `value1` = `value2                |boolean                                  |        |
+|`out`   |Output: true if `value1` = `value2                |boolean                                  |false   |
 
 |Port    |Description                       |Type   |Default|
 |--------|----------------------------------|-------|-------|
 |`value1`|The first value to be compared    |boolean|false  |
 |`value2`|The first value to be compared    |boolean|false  |
-|`out`   |Output: true if `value1` = `value2|boolean|       |
+|`out`   |Output: true if `value1` = `value2|boolean|false  |
 
 <a id="node-switch"> </a>
 
