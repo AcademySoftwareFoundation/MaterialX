@@ -88,7 +88,7 @@ The `file` input can include one or more substitutions to change the file name t
 |`texcoord`      |The 2D texture coordinate at which the image data is read                                                        |vector2               |_UV0_    |                                 |
 |`uaddressmode`  |Determines how U coordinates outside the 0-1 range are processed before sampling the image                       |string                |periodic |constant, clamp, periodic, mirror|
 |`vaddressmode`  |Determines how V coordinates outside the 0-1 range are processed before sampling the image                       |string                |periodic |constant, clamp, periodic, mirror|
-|`filtertype`    |The type of texture filtering to use                                                                             |string                |linear   |closest,linear,cubic             |
+|`filtertype`    |The type of texture filtering to use                                                                             |string                |linear   |closest, linear, cubic           |
 |`framerange`    |A string 'minframe-maxframe', e.g. '10-99', to specify the range of frames that the image file is allowed to have|string                |__empty__|                                 |
 |`frameoffset`   |A number that is added to the current frame number to get the image file frame number                            |integer               |0        |                                 |
 |`frameendaction`|What to do when the resolved image frame number is outside the `framerange` range                                |string                |constant |constant, clamp, periodic, mirror|
@@ -110,7 +110,7 @@ The `file` input can include one or more substitutions to change the file name t
 |`uvoffset`          |The offset for the given image along the U and V axes                                                            |vector2               |0.0, 0.0 |                                 |
 |`realworldimagesize`|The real-world size represented by the file image                                                                |vector2               |1.0, 1.0 |                                 |
 |`realworldtilesize` |The real-world size of a single square 0-1 UV tile                                                               |vector2               |1.0, 1.0 |                                 |
-|`filtertype`        |The type of texture filtering to use                                                                             |string                |linear   |closest,linear,cubic             |
+|`filtertype`        |The type of texture filtering to use                                                                             |string                |linear   |closest, linear, cubic           |
 |`framerange`        |A string 'minframe-maxframe', e.g. '10-99', to specify the range of frames that the image file is allowed to have|string                |__empty__|                                 |
 |`frameoffset`       |A number that is added to the current frame number to get the image file frame number                            |integer               |0        |                                 |
 |`frameendaction`    |What to do when the resolved image frame number is outside the `framerange` range                                |string                |constant |constant, clamp, periodic, mirror|
@@ -149,7 +149,7 @@ Samples data from three images (or layers within multi-layer images), and projec
 |`normal`        |A spatially-varying input specifying the 3D normal vector used for blending                                      |vector3               |_Nobject_|                                 |
 |`upaxis`        |Which axis is considered to be 'up', either 0 for X, 1 for Y, or 2 for Z                                         |integer               |2        |0, 1, 2                          |
 |`blend`         |Weighting factor for blending samples using the geometric normal, with higher values giving softer blending      |float                 |1.0      |                                 |
-|`filtertype`    |The type of texture filtering to use                                                                             |string                |linear   |closest,linear,cubic             |
+|`filtertype`    |The type of texture filtering to use                                                                             |string                |linear   |closest, linear, cubic           |
 |`framerange`    |A string 'minframe-maxframe', e.g. '10-99', to specify the range of frames that the image file is allowed to have|string                |__empty__|                                 |
 |`frameoffset`   |A number that is added to the current frame number to get the image file frame number                            |integer               |0        |                                 |
 |`frameendaction`|What to do when the resolved image frame number is outside the `framerange` range                                |string                |constant |constant, clamp, periodic, mirror|
