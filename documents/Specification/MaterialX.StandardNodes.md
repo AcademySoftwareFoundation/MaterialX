@@ -1903,6 +1903,12 @@ Output the value of the `in1` or `in2` stream depending on whether the `value1` 
 |`in2`   |The value stream to output if `value1` <= `value2`|Same as `in1`                            |__zero__|
 |`out`   |Output: the result of the comparison              |Same as `in1`                            |`in1`   |
 
+|Port    |Description                                       |Type                                     |Default |
+|--------|--------------------------------------------------|-----------------------------------------|--------|
+|`value1`|the first value to be compared                    |float, integer                           |__one__ |
+|`value2`|the second value to be compared                   |float, integer                           |__zero__|
+|`out`   |Output: true if `value1` > `value2                |boolean                                  |        |
+
 <a id="node-ifgreatereq"> </a>
 
 ### `ifgreatereq`
@@ -1916,6 +1922,12 @@ Output the value of the `in1` or `in2` stream depending on whether the `value1` 
 |`in1`   |The value stream to output if `value1` >= `value2`|float, colorN, vectorN, matrixNN, integer|__zero__|
 |`in2`   |The value stream to output if `value1` < `value2` |Same as `in1`                            |__zero__|
 |`out`   |Output: the result of the comparison              |Same as `in1`                            |`in1`   |
+
+|Port    |Description                                       |Type                                     |Default |
+|--------|--------------------------------------------------|-----------------------------------------|--------|
+|`value1`|the first value to be compared                    |float, integer                           |__one__ |
+|`value2`|the second value to be compared                   |float, integer                           |__zero__|
+|`out`   |Output: true if `value1` >= `value2               |boolean                                  |        |
 
 <a id="node-ifequal"> </a>
 
@@ -1936,6 +1948,12 @@ Output the value of the `in1` or `in2` stream depending on whether the `value1` 
 |`in1`   |The value stream to output if `value1` = `value2` |float, colorN, vectorN, matrixNN, integer|__zero__|
 |`in2`   |The value stream to output if `value1` != `value2`|Same as `in1`                            |__zero__|
 |`out`   |Output: the result of the comparison              |Same as `in1`                            |`in1`   |
+
+|Port    |Description                                       |Type                                     |Default |
+|--------|--------------------------------------------------|-----------------------------------------|--------|
+|`value1`|the first value to be compared                    |float, integer                           |__one__ |
+|`value2`|the second value to be compared                   |float, integer                           |__zero__|
+|`out`   |Output: true if `value1` = `value2                |boolean                                  |        |
 
 |Port    |Description                       |Type   |Default|
 |--------|----------------------------------|-------|-------|
