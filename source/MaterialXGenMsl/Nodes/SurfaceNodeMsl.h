@@ -6,25 +6,13 @@
 #ifndef MATERIALX_SURFACENODEMSL_H
 #define MATERIALX_SURFACENODEMSL_H
 
-#include <MaterialXGenMsl/Export.h>
-#include <MaterialXGenMsl/MslShaderGenerator.h>
+#include <MaterialXGenHw/Nodes/HwSurfaceNode.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
-/// Surface node implementation for MSL
-class MX_GENMSL_API SurfaceNodeMsl : public HwImplementation
-{
-  public:
-    SurfaceNodeMsl();
-
-    static ShaderNodeImplPtr create();
-
-    void createVariables(const ShaderNode& node, GenContext& context, Shader& shader) const override;
-
-    void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
-
-    virtual void emitLightLoop(const ShaderNode& node, GenContext& context, ShaderStage& stage, const string& outColor) const;
-};
+// Backward compatibility header for OpenUSD and other external
+// projects referencing files that were removed in MaterialX 1.39.5
+using SurfaceNodeMsl = HwSurfaceNode;
 
 MATERIALX_NAMESPACE_END
 

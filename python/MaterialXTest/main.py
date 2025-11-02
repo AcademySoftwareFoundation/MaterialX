@@ -82,6 +82,12 @@ class TestMaterialX(unittest.TestCase):
         self.assertTrue(v1 * 2 == v2)
         self.assertTrue(v2 / 2 == v1)
 
+        # Unary operation
+        self.assertTrue(-v1 == mx.Vector3(-1, -2, -3))
+        v1 *= -1
+        self.assertTrue(+v1 == mx.Vector3(-1, -2, -3))
+        v1 *= -1
+
         # Geometric methods
         v3 = mx.Vector4(4)
         self.assertTrue(v3.getMagnitude() == 8)
@@ -125,11 +131,17 @@ class TestMaterialX(unittest.TestCase):
         self.assertTrue(trans.getInverse() ==
                         mx.Matrix44.createTranslation(mx.Vector3(-1, -2, -3)))
 
+        # Matrix copy
+        trans2 = trans.copy()
+        self.assertTrue(trans2 == trans)
+        trans2[0, 0] += 1;
+        self.assertTrue(trans2 != trans)
+
         # Matrix product
         prod1 = trans * scale
         prod2 = scale * trans
         prod3 = trans * 2
-        prod4 = trans
+        prod4 = trans.copy()
         prod4 *= scale
         self.assertTrue(prod1 == mx.Matrix44(2, 0, 0, 0,
                                              0, 2, 0, 0,
@@ -149,12 +161,24 @@ class TestMaterialX(unittest.TestCase):
         quot1 = prod1 / scale
         quot2 = prod2 / trans
         quot3 = prod3 / 2
-        quot4 = quot1
+        quot4 = quot1.copy()
         quot4 /= trans
         self.assertTrue(quot1 == trans)
         self.assertTrue(quot2 == scale)
         self.assertTrue(quot3 == trans)
         self.assertTrue(quot4 == mx.Matrix44.IDENTITY)
+
+        # Unary operation
+        self.assertTrue(-trans == mx.Matrix44(-1, 0, 0, 0,
+                                              0, -1, 0, 0,
+                                              0, 0, -1, 0,
+                                              -1, -2, -3, -1))
+        trans *= -1
+        self.assertTrue(+trans == mx.Matrix44(-1, 0, 0, 0,
+                                              0, -1, 0, 0,
+                                              0, 0, -1, 0,
+                                              -1, -2, -3, -1))
+        trans *= -1
 
         # 2D rotation
         rot1 = mx.Matrix33.createRotation(math.pi / 2)
@@ -175,11 +199,6 @@ class TestMaterialX(unittest.TestCase):
         self.assertTrue((rotY * rotZ).isEquivalent(
             mx.Matrix44.createScale(mx.Vector3(1, -1, -1)), _epsilon))
 
-        # Matrix copy
-        trans2 = trans.copy()
-        self.assertTrue(trans2 == trans)
-        trans2[0, 0] += 1;
-        self.assertTrue(trans2 != trans)
 
     def test_BuildDocument(self):
         # Create a document.

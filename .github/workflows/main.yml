@@ -7,6 +7,9 @@ on:
   pull_request:
     paths-ignore:
       - '**.md'
+  schedule:
+    # Nightly build
+    - cron: '30 10 * * *'
   workflow_dispatch:
 
 jobs:
@@ -14,6 +17,8 @@ jobs:
   build:
     name: Build
     runs-on: ${{ matrix.os }}
+    env:
+      IS_EXTENDED_BUILD: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
     strategy:
       fail-fast: false
       matrix:
@@ -25,17 +30,17 @@ jobs:
           python: 3.9
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON -DMATERIALX_BUILD_MONOLITHIC=ON
 
-        - name: Linux_GCC_14_Python39
+        - name: Linux_GCC_14_Python312
           os: ubuntu-24.04
           compiler: gcc
           compiler_version: "14"
-          python: 3.9
+          python: 3.12
 
-        - name: Linux_GCC_14_Python311
+        - name: Linux_GCC_14_Python313
           os: ubuntu-24.04
           compiler: gcc
           compiler_version: "14"
-          python: 3.11
+          python: 3.13
           test_render: ON
 
         - name: Linux_GCC_CoverageAnalysis
@@ -53,47 +58,47 @@ jobs:
           python: 3.9
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
 
-        - name: Linux_Clang_18_Python311
+        - name: Linux_Clang_18_Python313
           os: ubuntu-24.04
           compiler: clang
           compiler_version: "18"
-          python: 3.11
+          python: 3.13
           clang_format: ON
 
-        - name: MacOS_Xcode_15_Python39
+        - name: MacOS_Xcode_15_Python311
           os: macos-14
           compiler: xcode
           compiler_version: "15.4"
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
-          python: 3.9
+          python: 3.11
 
-        - name: MacOS_Xcode_15_Python311
+        - name: MacOS_Xcode_16_Python313
           os: macos-15
           compiler: xcode
-          compiler_version: "16.1"
-          python: 3.11
+          compiler_version: "16.4"
+          python: 3.13
           test_shaders: ON
 
-        - name: MacOS_Xcode_16_Python311
-          os: macos-15
+        - name: MacOS_Xcode_26_Python313
+          os: macos-26
           compiler: xcode
-          compiler_version: "16.1"
-          python: 3.11
+          compiler_version: "26.0"
+          python: 3.13
           static_analysis: ON
           cmake_config: -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
         - name: MacOS_Xcode_DynamicAnalysis
-          os: macos-15
+          os: macos-26
           compiler: xcode
-          compiler_version: "16.1"
+          compiler_version: "26.0"
           python: None
           dynamic_analysis: ON
           cmake_config: -DMATERIALX_DYNAMIC_ANALYSIS=ON
 
-        - name: iOS_Xcode_16
-          os: macos-15
+        - name: iOS_Xcode_26
+          os: macos-26
           compiler: xcode
-          compiler_version: "16.1"
+          compiler_version: "26.0"
           python: None
           cmake_config: -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_SYSROOT=`xcrun --sdk iphoneos --show-sdk-path` -DCMAKE_OSX_ARCHITECTURES=arm64
 
@@ -103,12 +108,13 @@ jobs:
           python: 3.9
           cmake_config: -G "Visual Studio 17 2022" -A "Win32"
 
-        - name: Windows_VS2022_x64_Python311
+        - name: Windows_VS2022_x64_Python313
           os: windows-2025
           architecture: x64
-          python: 3.11
+          python: 3.13
           cmake_config: -G "Visual Studio 17 2022" -A "x64"
           test_shaders: ON
+          extended_build_oiio: ON
 
         - name: Windows_VS2022_x64_SharedLibs
           os: windows-2025
@@ -144,15 +150,9 @@ jobs:
       if: runner.os == 'macOS'
       run: |
         if [ "${{ matrix.compiler_version }}" != 'None' ]; then
-          if [ "${{ matrix.compiler }}" = "gcc" ]; then
-            brew install gcc@${{ matrix.compiler_version }}
-            echo "CC=gcc-${{ matrix.compiler_version }}" >> $GITHUB_ENV
-            echo "CXX=g++-${{ matrix.compiler_version }}" >> $GITHUB_ENV
-          else
-            ls -ls /Applications/
-            sudo xcode-select -switch /Applications/Xcode_${{ matrix.compiler_version }}.app
-            echo "CC=clang" >> $GITHUB_ENV
-            echo "CXX=clang++" >> $GITHUB_ENV
+          sudo xcode-select -switch /Applications/Xcode_${{ matrix.compiler_version }}.app
+          if [ "${{ matrix.os }}" == 'macos-26' ]; then
+            xcodebuild -downloadComponent MetalToolchain
           fi
         fi
 
@@ -162,11 +162,10 @@ jobs:
         Add-Content $env:GITHUB_PATH "$PWD/build/installed/bin"
 
     - name: Install OpenImageIO
-      if: matrix.build_oiio == 'ON' && runner.os == 'Windows'
+      if: env.IS_EXTENDED_BUILD == 'true' && matrix.extended_build_oiio == 'ON' && runner.os == 'Windows'
       run: |
-        C:/vcpkg/vcpkg install openimageio --triplet=x64-windows-release
-        Add-Content $env:GITHUB_PATH "C:/vcpkg/installed/x64-windows-release/bin"
-        Add-Content $env:GITHUB_PATH "C:/vcpkg/installed/x64-windows-release/share/openimageio"
+        C:/vcpkg/vcpkg install openimageio --triplet=x64-windows
+        Add-Content $env:GITHUB_PATH "C:/vcpkg/installed/x64-windows/bin"
 
     - name: Install Python ${{ matrix.python }}
       if: matrix.python != 'None'
@@ -184,7 +183,12 @@ jobs:
       run: find source \( -name *.h -o -name *.cpp -o -name *.mm -o -name *.inl \) ! -path "*/External/*" ! -path "*/NanoGUI/*" | xargs clang-format -i --verbose
 
     - name: CMake Generate
-      run: cmake -S . -B build -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_BUILD_TESTS=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{matrix.cmake_config}}
+      shell: bash
+      run: |
+        if [ "${{ env.IS_EXTENDED_BUILD }}" == "true" ] && [ "${{ matrix.extended_build_oiio }}" == "ON" ]; then
+          EXTENDED_BUILD_CONFIG="-DMATERIALX_BUILD_OIIO=ON -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows"
+        fi
+        cmake -S . -B build -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_BUILD_TESTS=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON $EXTENDED_BUILD_CONFIG ${{matrix.cmake_config}}
 
     - name: CMake Build
       run: cmake --build build --target install --config Release --parallel 2
@@ -315,15 +319,15 @@ jobs:
       run: |
         git clone https://github.com/emscripten-core/emsdk --recursive
         cd emsdk
-        ./emsdk install 2.0.20
-        ./emsdk activate 2.0.20
+        ./emsdk install 4.0.8
+        ./emsdk activate 4.0.8
         source ./emsdk_env.sh
         echo "EMSDK=$EMSDK" >> $GITHUB_ENV
 
     - name: Install Node
       uses: actions/setup-node@v4
       with:
-         node-version: '16'
+         node-version: '22.16.0'
 
     - name: JavaScript CMake Generate
       run: cmake -S . -B javascript/build -DMATERIALX_BUILD_JS=ON -DMATERIALX_EMSDK_PATH=${{ env.EMSDK }}

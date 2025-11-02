@@ -711,6 +711,36 @@ void PropertyEditor::updateContents(Viewer* viewer)
             }
         }
     }
+
+    mx::StringResolverPtr resolver = elem->createStringResolver();
+    if (node != nullptr)
+    {
+        // Find tokens upstream of Material
+        for (mx::Edge edge : node->traverseGraph())
+        {
+            if (edge.getUpstreamElement())
+            {
+                resolver->addTokenSubstitutions(edge.getUpstreamElement()->asA<mx::Element>());
+            }
+        }   
+    }
+
+    const mx::StringMap& tokensMap = resolver->getFilenameSubstitutions();
+    if (!tokensMap.empty())
+    {
+        ng::ref<ng::Label> tokenLabel = new ng::Label(_container, "Tokens");
+        tokenLabel->set_font_size(20);
+        tokenLabel->set_font("sans-bold");
+
+        ng::ref<ng::Widget> tokensGroup = new ng::Widget(_container);
+        tokensGroup->set_layout(new ng::GroupLayout(5, 0, 0, 20));
+
+        for (const auto& [token, value] : tokensMap)
+        {
+            new ng::Label(tokensGroup, token + ": " + value);
+        }
+    }
+
     if (!addedItems)
     {
         new ng::Label(_container, "No Shader Inputs");

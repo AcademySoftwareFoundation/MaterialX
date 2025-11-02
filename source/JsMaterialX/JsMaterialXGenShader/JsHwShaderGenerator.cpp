@@ -3,7 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXGenShader/HwShaderGenerator.h>
+#include <MaterialXGenHw/HwShaderGenerator.h>
+#include <MaterialXGenShader/GenContext.h>
 
 #include <emscripten/bind.h>
 
