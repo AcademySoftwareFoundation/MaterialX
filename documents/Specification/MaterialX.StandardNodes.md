@@ -991,22 +991,22 @@ Round each channel of the incoming float/color/vector values to the nearest inte
 ### `power`
 Raise incoming float/color values to the specified exponent, commonly used for "gamma" adjustment.
 
-|Port |Description                   |Type                           |Default |
-|-----|------------------------------|-------------------------------|--------|
-|`in1`|The primary input stream      |float, colorN, vectorN         |__zero__|
-|`in2`|The exponent to raise `in1` to|Same as `in1` or float         |__one__ |
-|`out`|Output: `in1` raised to `in2` |Same as `in1`                  |`in1`   |
+|Port |Description                   |Type                  |Default |
+|-----|------------------------------|----------------------|--------|
+|`in1`|The primary input stream      |float, colorN, vectorN|__zero__|
+|`in2`|The exponent to raise `in1` to|Same as `in1` or float|__one__ |
+|`out`|Output: `in1` raised to `in2` |Same as `in1`         |`in1`   |
 
 <a id="node-safepower"> </a>
 
 ### `safepower`
 Raise incoming float/color values to the specified exponent. Negative "in1" values will result in negative output values.
 
-|Port |Description                   |Type                           |Default |
-|-----|------------------------------|-------------------------------|--------|
-|`in1`|The primary input stream      |float, colorN, vectorN         |__zero__|
-|`in2`|The exponent to raise `in1` to|Same as `in1` or float         |__one__ |
-|`out`|Output: `in1` raised to `in2` |Same as `in1`                  |`in1`   |
+|Port |Description                   |Type                  |Default |
+|-----|------------------------------|----------------------|--------|
+|`in1`|The primary input stream      |float, colorN, vectorN|__zero__|
+|`in2`|The exponent to raise `in1` to|Same as `in1` or float|__one__ |
+|`out`|Output: `in1` raised to `in2` |Same as `in1`         |`in1`   |
 
 <a id="node-sin"> </a>
 
