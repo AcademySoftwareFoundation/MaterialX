@@ -7,3 +7,6 @@
 [submodule "source/MaterialXGraphEditor/External/ImGuiNodeEditor"]
 	path = source/MaterialXGraphEditor/External/ImGuiNodeEditor
 	url = https://github.com/thedmd/imgui-node-editor
+[submodule "source/MaterialXRenderSlang/External/slang-rhi"]
+	path = source/MaterialXRenderSlang/External/slang-rhi
+	url = https://github.com/shader-slang/slang-rhi.git
