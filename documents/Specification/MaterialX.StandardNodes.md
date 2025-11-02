@@ -133,20 +133,29 @@ The `file` input can include one or more substitutions to change the file name t
 
 <a id="node-hextiledimage"> </a>
 
-* **`hextiledimage`**: samples data from a single image, with provisions for hex-tiling and randomizing the image across uv space.
-    * `file` (uniform filename): the URI of an image file.  The filename can include one or more substitutions to change the file name (including frame number) that is accessed, as described in the [Filename Substitutions](./MaterialX.Specification.md#filename-substitutions) section in the main Specification document.
-    * `default` (color<em>N</em>): a default value to use if the `file` reference can not be resolved (e.g. if a &lt;geomtoken>, [interfacetoken] or {hostattr} is included in the filename but no substitution value or default is defined, or if the resolved file URI cannot be read).  The `default` value must be the same type as the `<hextiledimage>` element itself.  If `default` is not defined, the default color value will be 0.0 in all channels.
-    * `texcoord` (vector2): the name of a vector2-type node specifying the 2D texture coordinate at which the image data is read.  Default is to use the current u,v coordinate.
-    * `tiling` (vector2): the tiling rate for the hexagon tiles along the U and V axes. Default value is (1.0, 1.0).
-    * `rotation` (float): per-tile rotation randomness in degrees. Default is 0.0.
-    * `rotationrange` (vector2): [min, max] range in degrees used to randomize rotation for each tile. Default is (0.0, 360.0).
-    * `scale` (float): per-tile scale randomness multiplier applied to tile size. Default is 1.0.
-    * `scalerange` (vector2): [min, max] range of scale multipliers used to randomize tile scale. Default is (0.5, 2.0).
-    * `offset` (float): per-tile translation randomness in UV units. Default is 0.0.
-    * `offsetrange` (vector2): [min, max] range of offset values in UV units used to randomize tile positions. Default is (0.0, 1.0).
-    * `falloff` (float): falloff width used to blend neighboring tiles at their edges; larger values produce smoother blends. Default is 0.5.
-    * `falloffcontrast` (float): contrast applied to the falloff blending to sharpen (values >1) or soften (values <1) transitions. Default is 0.5.
-    * `lumacoeffs` (uniform color3): the luma coefficients of the current working color space; if no specific color space can be determined, the ACEScg (ap1) luma coefficients [0.2722287, 0.6740818, 0.0536895] will be used.  Applications which support color management systems may choose to retrieve the luma coefficients of the working colorspace from the CMS to pass to the &lt;luminance> node's implementation directly, rather than exposing it to the user.
+### `hextiledimage`
+Samples data from a single image, with provisions for hex-tiling and randomizing the image across UV space.
+
+The `file` input can include one or more substitutions to change the file name that is accessed, as described in the [Filename Substitutions](./MaterialX.Specification.md#filename-substitutions) section in the main Specification document.
+
+The `lumacoeffs` input represents the luma coefficients of the current working color space. If no specific color space can be determined, the ACEScg (ap1) luma coefficients [0.2722287, 0.6740818, 0.0536895] will be used. Applications which support color management systems may choose to retrieve the luma coefficients of the working colorspace from the CMS to pass to the `luminance` node's implementation directly, rather than exposing it to the user.
+
+|Port                |Description                                                                                        |Type                  |Default                        |
+|--------------------|---------------------------------------------------------------------------------------------------|----------------------|-------------------------------|
+|`file`              |The URI of an image file                                                                           |filename              |__empty__                      |
+|`default`           |A default value to use if the file reference can not be resolved                                   |float, colorN, vectorN|__zero__                       |
+|`texcoord`          |The 2D texture coordinate at which the image data is read                                          |vector2               |_UV0_                          |
+|`tiling`            |The tiling rate for the given image along the U and V axes                                         |vector2               |1.0, 1.0                       |
+|`rotation`          |Per-tile rotation randomness in degrees                                                            |float                 |0.0                            |
+|`rotationrange`     |Range in degrees used to randomize rotation for each tile                                          |vector2               |0.0, 360.0                     |
+|`scale`             |Per-tile scale randomness multiplier applied to tile size                                          |float                 |1.0                            |
+|`scalerange`        |Range of scale multipliers used to randomize tile scale                                            |vector2               |0.5, 2.0                       |
+|`offset`            |Per-tile translation randomness in UV units                                                        |float                 |1.0                            |
+|`offsetrange`       |Range of offset values in UV units used to randomize tile positions                                |vector2               |0.0, 1.0                       |
+|`falloff`           |Falloff width used to blend neighboring tiles at their edges; larger values produce smoother blends|float                 |0.5                            |
+|`falloffcontrast`   |Contrast applied to the falloff blending to sharpen (values >1) or soften (values <1) transitions  |float                 |0.5                            |
+|`lumacoeffs`        |The luma coefficients of the current working color space                                           |color3                |0.2722287, 0.6740818, 0.0536895|
+|`out`               |Output: the sampled texture value                                                                  |Same as `default`     |__zero__                       |
 
 <a id="node-triplanarprojection"> </a>
 
