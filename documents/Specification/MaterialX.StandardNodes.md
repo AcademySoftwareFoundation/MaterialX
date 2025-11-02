@@ -857,11 +857,11 @@ Multiply two values together. Scalar and vector types multiply component-wise, w
 |`in2`|The stream to multiply `in1` by   |Same as `in1` or float|__one__ |
 |`out`|Output: product of `in1` and `in2`|Same as `in1`         |`in1`   |
 
-|Port |Description                       |Type                  |Default|
-|-----|----------------------------------|----------------------|-------|
-|`in1`|The primary input stream          |matrixNN              |__one__|
-|`in2`|The stream to multiply `in1` by   |Same as `in1` or float|__one__|
-|`out`|Output: product of `in1` and `in2`|Same as `in1`         |`in1`  |
+|Port |Description                       |Type         |Default|
+|-----|----------------------------------|-------------|-------|
+|`in1`|The primary input stream          |matrixNN     |__one__|
+|`in2`|The stream to multiply `in1` by   |Same as `in1`|__one__|
+|`out`|Output: product of `in1` and `in2`|Same as `in1`|`in1`  |
 
 <a id="node-divide"> </a>
 
