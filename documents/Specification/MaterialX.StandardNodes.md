@@ -391,66 +391,66 @@ Zero-centered 3D Fractal noise in 1, 2, 3 or 4 channels, created by summing seve
 ### `worleynoise2d`
 2D Worley noise using centered jitter, outputting float (distance metric to closest feature), vector2 (distance metrics to closest 2 features) or vector3 (distance metrics to closest 3 features).
 
-|Port      |Description                                              |Type                   |Default|
-|----------|---------------------------------------------------------|-----------------------|-------|
-|`texcoord`|The 2D texture coordinate at which the noise is evaluated|vector2                |_UV0_  |
-|`jitter`  |The amount to jitter the cell center position            |float                  |1.0    |
-|`style`   |The output style                                         |integer                |0      |
-|`out`     |Output: the computed noise value                         |float, vector2, vector3|0.0    |
+|Port      |Description                                              |Type                   |Default|Accepted Values|
+|----------|---------------------------------------------------------|-----------------------|-------|---------------|
+|`texcoord`|The 2D texture coordinate at which the noise is evaluated|vector2                |_UV0_  |               |
+|`jitter`  |The amount to jitter the cell center position            |float                  |1.0    |               |
+|`style`   |The output style                                         |integer                |0      |Distance, Solid|
+|`out`     |Output: the computed noise value                         |float, vector2, vector3|0.0    |               |
 
 <a id="node-worleynoise3d"> </a>
 
 ### `worleynoise3d`
 3D Worley noise using centered jitter, outputting float (distance metric to closest feature), vector2 (distance metrics to closest 2 features) or vector3 (distance metrics to closest 3 features).
 
-|Port      |Description                                    |Type                   |Default  |
-|----------|-----------------------------------------------|-----------------------|---------|
-|`position`|The 3D position at which the noise is evaluated|vector3                |_Pobject_|
-|`jitter`  |The amount to jitter the cell center position  |float                  |1.0      |
-|`style`   |The output style                               |integer                |0        |
-|`out`     |Output: the computed noise value               |float, vector2, vector3|__zero__ |
+|Port      |Description                                    |Type                   |Default  |Accepted Values|
+|----------|-----------------------------------------------|-----------------------|---------|---------------|
+|`position`|The 3D position at which the noise is evaluated|vector3                |_Pobject_|               |
+|`jitter`  |The amount to jitter the cell center position  |float                  |1.0      |               |
+|`style`   |The output style                               |integer                |0        |Distance, Solid|
+|`out`     |Output: the computed noise value               |float, vector2, vector3|__zero__ |               |
 
 <a id="node-unifiednoise2d"> </a>
 
 ### `unifiednoise2d`
 (NG): a single node supporting 2D Perlin, Cell, Worley or Fractal noise in a unified interface.
 
-|Port         |Description                                                                                |Type   |Default|
-|-------------|-------------------------------------------------------------------------------------------|-------|-------|
-|`texcoord`   |The 2D texture coordinate at which the noise is evaluated                                  |vector2|_UV0_  |
-|`freq`       |The noise frequency, with higher values producing smaller noise shapes.                    |vector2|1, 1   |
-|`offset`     |The amount to offset 2d space                                                              |vector2|0, 0   |
-|`jitter`     |The amount to jitter the cell center position                                              |float  |1      |
-|`outmin`     |The lowest output value                                                                    |float  |0      |
-|`outmax`     |The highest output value                                                                   |float  |1      |
-|`clampoutput`|If enabled the output is clamped between the min and max output values                     |boolean|true   |
-|`octaves`    |The number of octaves of noise to be summed                                                |integer|3      |
-|`lacunarity` |The exponential scale between successive octaves of noise                                  |float  |2      |
-|`diminish`   |The rate at which noise amplitude is diminished for each octave                            |float  |0.5    |
-|`type`       |The type of noise function to use.  One of 0 (Perlin), 1 (Cell), 2 (Worley), or 3 (Fractal)|integer|0      |
-|`style`      |The output style                                                                           |integer|0      |
-|`out`        |Output: the computed noise value                                                           |float  |0.0    |
+|Port         |Description                                                                                |Type   |Default|Accepted Values|
+|-------------|-------------------------------------------------------------------------------------------|-------|-------|---------------|
+|`texcoord`   |The 2D texture coordinate at which the noise is evaluated                                  |vector2|_UV0_  |               |
+|`freq`       |The noise frequency, with higher values producing smaller noise shapes.                    |vector2|1, 1   |               |
+|`offset`     |The amount to offset 2d space                                                              |vector2|0, 0   |               |
+|`jitter`     |The amount to jitter the cell center position                                              |float  |1      |               |
+|`outmin`     |The lowest output value                                                                    |float  |0      |               |
+|`outmax`     |The highest output value                                                                   |float  |1      |               |
+|`clampoutput`|If enabled the output is clamped between the min and max output values                     |boolean|true   |               |
+|`octaves`    |The number of octaves of noise to be summed                                                |integer|3      |               |
+|`lacunarity` |The exponential scale between successive octaves of noise                                  |float  |2      |               |
+|`diminish`   |The rate at which noise amplitude is diminished for each octave                            |float  |0.5    |               |
+|`type`       |The type of noise function to use.  One of 0 (Perlin), 1 (Cell), 2 (Worley), or 3 (Fractal)|integer|0      |               |
+|`style`      |The output style                                                                           |integer|0      |Distance, Solid|
+|`out`        |Output: the computed noise value                                                           |float  |0.0    |               |
 
 <a id="node-unifiednoise3d"> </a>
 
 ### `unifiednoise3d`
 (NG): a single node supporting 3D Perlin, Cell, Worley or Fractal noise in a unified interface.
 
-|Port         |Description                                                                                |Type   |Default  |
-|-------------|-------------------------------------------------------------------------------------------|-------|---------|
-|`position`   |The 3D position at which the noise is evaluated                                            |vector3|_Pobject_|
-|`freq`       |The noise frequency, with higher values producing smaller noise shapes.                    |vector3|1, 1, 1  |
-|`offset`     |The amount to offset 3d space                                                              |vector3|0, 0, 0  |
-|`jitter`     |The amount to jitter the cell center position                                              |float  |1        |
-|`outmin`     |The lowest output value                                                                    |float  |0        |
-|`outmax`     |The highest output value                                                                   |float  |1        |
-|`clampoutput`|If enabled the output is clamped between the min and max output values                     |boolean|true     |
-|`octaves`    |The number of octaves of noise to be summed                                                |integer|3        |
-|`lacunarity` |The exponential scale between successive octaves of noise                                  |float  |2        |
-|`diminish`   |The rate at which noise amplitude is diminished for each octave                            |float  |0.5      |
-|`type`       |The type of noise function to use.  One of 0 (Perlin), 1 (Cell), 2 (Worley), or 3 (Fractal)|integer|0        |
-|`style`      |The output style                                                                           |integer|0        |
-|`out`        |Output: the computed noise value                                                           |float  |0.0      |
+|Port         |Description                                                                                |Type   |Default  |Accepted Values|
+|-------------|-------------------------------------------------------------------------------------------|-------|---------|---------------|
+|`position`   |The 3D position at which the noise is evaluated                                            |vector3|_Pobject_|               |
+|`freq`       |The noise frequency, with higher values producing smaller noise shapes.                    |vector3|1, 1, 1  |               |
+|`offset`     |The amount to offset 3d space                                                              |vector3|0, 0, 0  |               |
+|`jitter`     |The amount to jitter the cell center position                                              |float  |1        |               |
+|`outmin`     |The lowest output value                                                                    |float  |0        |               |
+|`outmax`     |The highest output value                                                                   |float  |1        |               |
+|`clampoutput`|If enabled the output is clamped between the min and max output values                     |boolean|true     |               |
+|`octaves`    |The number of octaves of noise to be summed                                                |integer|3        |               |
+|`lacunarity` |The exponential scale between successive octaves of noise                                  |float  |2        |               |
+|`diminish`   |The rate at which noise amplitude is diminished for each octave                            |float  |0.5      |               |
+|`type`       |The type of noise function to use.  One of 0 (Perlin), 1 (Cell), 2 (Worley), or 3 (Fractal)|integer|0        |               |
+|`style`      |The output style                                                                           |integer|0        |Distance, Solid|
+|`out`        |Output: the computed noise value                                                           |float  |0.0      |               |
 
 
 To scale or offset the noise pattern generated by a 3D noise node such as `noise3d`, `fractal3d` or `cellnoise3d`, use a &lt;position> or other [Geometric Node](#geometric-nodes) (see below) connected to vector3 &lt;multiply> and/or &lt;add> nodes, in turn connected to the noise node's `position` input.  To scale or offset the noise pattern generated by a 2D noise node such as `noise2d` or `cellnoise2d`, use a &lt;texcoord> or similar Geometric node processed by vector2 &lt;multiply>, &lt;rotate> and/or &lt;add> nodes, and connect to the node's `texcoord` input.
