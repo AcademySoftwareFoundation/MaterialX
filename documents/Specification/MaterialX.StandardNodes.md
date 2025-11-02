@@ -877,11 +877,11 @@ Multiply two values together. Scalar and vector types multiply component-wise, w
 ### `divide`
 Divide one value by another. Scalar and vector types divide component-wise, while for matrices `in1` is multiplied with the inverse of `in2`.
 
-|Port |Description                   |Type                           |Default |
-|-----|------------------------------|-------------------------------|--------|
-|`in1`|The primary input stream      |float, colorN, vectorN         |__zero__|
-|`in2`|The stream to divide `in1` by |Same as `in1` or float         |__one__ |
-|`out`|Output: `in1` divided by `in2`|Same as `in1`                  |`in1`   |
+|Port |Description                   |Type                  |Default |
+|-----|------------------------------|----------------------|--------|
+|`in1`|The primary input stream      |float, colorN, vectorN|__zero__|
+|`in2`|The stream to divide `in1` by |Same as `in1` or float|__one__ |
+|`out`|Output: `in1` divided by `in2`|Same as `in1`         |`in1`   |
 
 |Port |Description                   |Type         |Default|
 |-----|------------------------------|-------------|-------|
