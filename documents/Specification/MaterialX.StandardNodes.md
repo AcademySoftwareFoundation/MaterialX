@@ -250,7 +250,7 @@ Outputs a constant value.
 <a id="node-ramplr"> </a>
 
 ### `ramplr`
-A left-to-right linear value ramp
+A left-to-right linear value ramp.
 
 |Port      |Description                                                        |Type                  |Default |
 |----------|-------------------------------------------------------------------|----------------------|--------|
@@ -1065,7 +1065,7 @@ The arccosine of the incoming value. The output will be expressed in radians.
 <a id="node-atan2"> </a>
 
 ### `atan2`
-the arctangent of the expression (`iny`/`inx`). The output will be expressed in radians.
+The arctangent of the expression (`iny`/`inx`). The output will be expressed in radians.
 
 |Port |Description                                                                                     |Type          |Default |
 |-----|------------------------------------------------------------------------------------------------|--------------|--------|
@@ -1425,7 +1425,7 @@ Logical operator nodes have one or two boolean typed inputs, and are used to con
 <a id="node-and"> </a>
 
 ### `and`
-logically AND the two input boolean values
+Logically AND the two input boolean values.
 
 |Port |Description            |Type   |Default|
 |-----|-----------------------|-------|-------|
@@ -1436,7 +1436,7 @@ logically AND the two input boolean values
 <a id="node-or"> </a>
 
 ### `or`
-logically Inclusive OR the two input boolean values
+Logically Inclusive OR the two input boolean values.
 
 |Port |Description            |Type   |Default|
 |-----|-----------------------|-------|-------|
@@ -1447,7 +1447,7 @@ logically Inclusive OR the two input boolean values
 <a id="node-xor"> </a>
 
 ### `xor`
-logically Exclusive OR the two input boolean values
+Logically Exclusive OR the two input boolean values.
 
 |Port |Description            |Type   |Default|
 |-----|-----------------------|-------|-------|
@@ -1458,7 +1458,7 @@ logically Exclusive OR the two input boolean values
 <a id="node-not"> </a>
 
 ### `not`
-logically NOT the input boolean value
+Logically NOT the input boolean value.
 
 |Port |Description     |Type   |Default|
 |-----|----------------|-------|-------|
@@ -1936,6 +1936,8 @@ Output the value of the `in1` or `in2` stream depending on whether the `value1` 
 <a id="node-ifequal"> </a>
 
 ### `ifequal`
+
+Output the value of the `in1` or `in2` stream depending on whether the `value1` input is equal to the `value2` input.
 
 |Port    |Description                                       |Type                                     |Default |
 |--------|--------------------------------------------------|-----------------------------------------|--------|
