@@ -1516,7 +1516,7 @@ Output a smooth, hermite-interpolated remapping of input values from [`low`, `hi
 ### `luminance`
 Output a grayscale value containing the luminance of the incoming RGB color in all color channels.
 
-Applications which support color management systems may choose to retrieve the luma coefficients of the working colorspace from the CMS to pass to the `luminance` node's implementation directly, rather than exposing it to the user.
+The `lumacoeffs` input represents the luma coefficients of the current working color space. If no specific color space can be determined, the ACEScg (ap1) luma coefficients [0.2722287, 0.6740818, 0.0536895] will be used. Applications which support color management systems may choose to retrieve the luma coefficients of the working colorspace from the CMS to pass to the `luminance` node's implementation directly, rather than exposing it to the user.
 
 |Port        |Description                                             |Type        |Default                        |
 |------------|--------------------------------------------------------|------------|-------------------------------|
@@ -1559,6 +1559,8 @@ Adjust the hue, saturation and value of an RGB color by converting the input col
 
 ### `saturate`
 Adjust the saturation of a color, the alpha channel will be unchanged if present.
+
+The `lumacoeffs` input represents the luma coefficients of the current working color space. If no specific color space can be determined, the ACEScg (ap1) luma coefficients [0.2722287, 0.6740818, 0.0536895] will be used. Applications which support color management systems may choose to retrieve the luma coefficients of the working colorspace from the CMS to pass to the `luminance` node's implementation directly, rather than exposing it to the user.
 
 |Port        |Description                                                    |Type        |Default                        |
 |------------|---------------------------------------------------------------|------------|-------------------------------|
