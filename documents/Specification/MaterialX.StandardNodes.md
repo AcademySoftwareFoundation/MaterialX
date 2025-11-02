@@ -1234,11 +1234,11 @@ Transform the incoming vectorN by the specified matrix.
 |`mat`|Matrix to transform `in` by      |matrix33|__one__ |
 |`out`|Output: `in` transformed by `mat`|vector2 |`in`    |
 
-|Port |Description                      |Type                |Default |
-|-----|---------------------------------|--------------------|--------|
-|`in` |Vector to be transformed         |vector3             |__zero__|
-|`mat`|Matrix to transform `in` by      |matrix33 or matrix44|__one__ |
-|`out`|Output: `in` transformed by `mat`|vector3             |`in`    |
+|Port |Description                      |Type    |Default |
+|-----|---------------------------------|--------|--------|
+|`in` |Vector to be transformed         |vector3 |__zero__|
+|`mat`|Matrix to transform `in` by      |matrixNN|__one__ |
+|`out`|Output: `in` transformed by `mat`|vector3 |`in`    |
 
 |Port |Description                      |Type    |Default |
 |-----|---------------------------------|--------|--------|
