@@ -1621,17 +1621,10 @@ Multiply the R or RGB channels of the input by the Alpha channel of the input.
 ### `unpremult`
 Divide the RGB channels of the input by the Alpha channel of the input. If the Alpha value is zero, it is passed through unchanged.
 
-|Port |Description                   |Type                  |Default |
-|-----|------------------------------|----------------------|--------|
-|`in1`|The primary input stream      |float, colorN, vectorN|__zero__|
-|`in2`|The exponent to raise `in1` to|Same as `in1`         |__one__ |
-|`out`|Output: `in1` raised to `in2` |Same as `in1`         |`in1`   |
-
-|Port |Description                   |Type           |Default |
-|-----|------------------------------|---------------|--------|
-|`in1`|The primary input stream      |colorN, vectorN|__zero__|
-|`in2`|The exponent to raise `in1` to|float          |1.0     |
-|`out`|Output: `in1` raised to `in2` |Same as `in1`  |`in1`   |
+|Port |Description                           |Type  |Default           |
+|-----|--------------------------------------|------|------------------|
+|`in` |The input stream to be unpremultiplied|color4|0.0, 0.0, 0.0, 1.0|
+|`out`|Output: unpremultiplied `in`          |color4|`in`              |
 
 
 ### Blend Nodes
