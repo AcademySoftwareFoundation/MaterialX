@@ -1333,10 +1333,10 @@ Output the determinant of the incoming matrix.
 ### `invertmatrix`
 Invert the incoming matrix.
 
-|Port |Description            |Type    |Default|
-|-----|-----------------------|--------|-------|
-|`in` |The input matrix       |matrixNN|__one__|
-|`out`|Output: inverse of `in`|matrixNN|`in`   |
+|Port |Description            |Type        |Default|
+|-----|-----------------------|------------|-------|
+|`in` |The input matrix       |matrixNN    |__one__|
+|`out`|Output: inverse of `in`|Same as `in`|`in`   |
 
 <a id="node-rotate2d"> </a>
 
