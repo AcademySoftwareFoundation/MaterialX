@@ -1275,23 +1275,32 @@ Transform a normal vector from the encoded tangent space to world space. The inp
 
 <a id="node-hextilednormalmap"> </a>
 
-* **`hextilednormalmap`**: samples data from a single normalmap, with provisions for hex-tiling and randomizing the normalmap across uv space.
-    * `file` (uniform filename): the URI of an image file.  The filename can include one or more substitutions to change the file name (including frame number) that is accessed, as described in the [Filename Substitutions](./MaterialX.Specification.md#filename-substitutions) section in the main Specification document.
-    * `default` (vector3): a default value to use if the `file` reference can not be resolved (e.g. if a &lt;geomtoken>, [interfacetoken] or {hostattr} is included in the filename but no substitution value or default is defined, or if the resolved file URI cannot be read). Default is (0.5, 0.5, 1.0).
-    * `texcoord` (vector2): the name of a vector2-type node specifying the 2D texture coordinate at which the image data is read.  Default is to use the current u,v coordinate.
-    * `tiling` (vector2): the tiling rate for the hexagon tiles along the U and V axes. Default value is (1.0, 1.0).
-    * `rotation` (float): per-tile rotation randomness in degrees. Default is 0.0.
-    * `rotationrange` (vector2): [min, max] range in degrees used to randomize rotation for each tile. Default is (0.0, 360.0).
-    * `scale` (float): per-tile scale randomness multiplier applied to tile size. Default is 1.0.
-    * `scalerange` (vector2): [min, max] range of scale multipliers used to randomize tile scale. Default is (0.5, 2.0).
-    * `offset` (float): per-tile translation randomness in UV units. Default is 0.0.
-    * `offsetrange` (vector2): [min, max] range of offset values in UV units used to randomize tile positions. Default is (0.0, 1.0).
-    * `falloff` (float): falloff width used to blend neighboring tiles at their edges; larger values produce smoother blends. Default is 0.5.
-    * `strength` (float): Controls how strongly the sampled normal map affects the final normal. A value of 0.0 leaves the surface normal unchanged, 1.0 applies the sampled normal at full strength, and values >1.0 amplify the normal perturbation. Default is 1.0.
-    * `flip_g` (boolean): If true, negate (flip) the green (G) channel of the sampled normal map to accommodate different tangent-space conventions (handedness). Default is false.
-    * `normal` (vector3): surface normal; defaults to the current world-space normal.
-    * `tangent` (vector3): surface tangent vector, defaults to the current world-space tangent vector. 
-    * `bitangent` (vector3): surface bitangent vector, defaults to the current world-space bitangent vector. 
+### `hextilednormalmap`
+Samples data from a single normalmap, with provisions for hex-tiling and randomizing the normalmap across uv space.
+
+The `file` input can include one or more substitutions to change the file name that is accessed, as described in the [Filename Substitutions](./MaterialX.Specification.md#filename-substitutions) section in the main Specification document.
+
+The `strength` input controls how strongly the sampled normal map affects the final normal. A value of 0.0 leaves the surface normal unchanged, 1.0 applies the sampled normal at full strength, and values >1.0 amplify the normal perturbation.
+
+|Port                |Description                                                                                         |Type    |Default      |
+|--------------------|----------------------------------------------------------------------------------------------------|--------|-------------|
+|`file`              |The URI of an image file                                                                            |filename|__empty__    |
+|`default`           |A default value to use if the file reference can not be resolved                                    |vector3 |0.5, 0.5, 1.0|
+|`texcoord`          |The 2D texture coordinate at which the image data is read                                           |vector2 |_UV0_        |
+|`tiling`            |The tiling rate for the given image along the U and V axes                                          |vector2 |1.0, 1.0     |
+|`rotation`          |Per-tile rotation randomness in degrees                                                             |float   |0.0          |
+|`rotationrange`     |Range in degrees used to randomize rotation for each tile                                           |vector2 |0.0, 360.0   |
+|`scale`             |Per-tile scale randomness multiplier applied to tile size                                           |float   |1.0          |
+|`scalerange`        |Range of scale multipliers used to randomize tile scale                                             |vector2 |0.5, 2.0     |
+|`offset`            |Per-tile translation randomness in UV units                                                         |float   |1.0          |
+|`offsetrange`       |Range of offset values in UV units used to randomize tile positions                                 |vector2 |0.0, 1.0     |
+|`falloff`           |Falloff width used to blend neighboring tiles at their edges; larger values produce smoother blends |float   |0.5          |
+|`strength`          |Controls how strongly the sampled normal map affects the final normal.                              |float   |1.0          |
+|`flip_g`            |If true, negate the green channel of the sampled normal map to accommodate tangent-space conventions|boolean |false        |
+|`normal`            |Surface normal                                                                                      |vector3 |_Nworld_     |
+|`tangent`           |Surface tangent vector                                                                              |vector3 |_Tworld_     |
+|`bitangent`         |Surface bitangent vector                                                                            |vector3 |_Bworld_     |
+|`out`               |Output: the sampled normal map value                                                                |vector3 |0.5, 0.5, 1.0|
 
 <a id="node-creatematrix"> </a>
 
