@@ -1128,7 +1128,7 @@ Generate a triangle wave from the given scalar input. The generated wave ranges 
 <a id="node-min"> </a>
 
 ### `min`
-Select the minimum of the two incoming values
+Select the minimum of the two incoming values.
 
 |Port |Description                       |Type                  |Default |
 |-----|----------------------------------|----------------------|--------|
@@ -1139,7 +1139,7 @@ Select the minimum of the two incoming values
 <a id="node-max"> </a>
 
 ### `max`
-Select the maximum of the two incoming values
+Select the maximum of the two incoming values.
 
 |Port |Description                       |Type                  |Default |
 |-----|----------------------------------|----------------------|--------|
@@ -1411,20 +1411,28 @@ Refract the incoming 3D vector through a surface with the given surface normal a
 ### `place2d`
 Transform incoming 2D texture coordinates from one frame of reference to another.
 
-|Port            |Description                                                                                                                                                                         |Type   |Default   |Accepted Values|
-|----------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------|----------|---------------|
-|`texcoord`      |Input texture coordinates to transform                                                                                                                                              |vector2|0.0, 0.0  |               |
-|`pivot`         |Pivot point around which to rotate and scale `texcoord`                                                                                                                             |vector2|0.0,0.0   |               |
-|`scale`         |Scaling factor to apply to `in`                                                                                                                                                     |vector2|1.0,1.0   |               |
-|`rotate`        |Amount to rotate `in`, in degrees                                                                                                                                                   |float  |0.0       |               |
-|`offset`        |Amount to translate `in`                                                                                                                                                            |vector2|0.0,0.0   |               |
-|`operationorder`|The order in which to perform the transform operations<br>- SRT/0: Performs -pivot, scale, rotate, translate, +pivot <br>- TRS/1: Performs -pivot, translate, rotate, scale, +pivot |integer|0         |SRT, TRS, 0, 1 |
-|`out`           |Output: transformed texture coordinates                                                                                                                                             |vector2|`texcoord`|               |
+The `operationorder` input controls the order in which transform operations are performed. The `SRT` option performs -pivot, scale, rotate, translate, +pivot. The `TRS` option performs -pivot, translate, rotate, scale, +pivot.
+
+|Port            |Description                                            |Type   |Default   |Accepted Values|
+|----------------|-------------------------------------------------------|-------|----------|---------------|
+|`texcoord`      |Input texture coordinates to transform                 |vector2|0.0, 0.0  |               |
+|`pivot`         |Pivot point around which to rotate and scale `texcoord`|vector2|0.0,0.0   |               |
+|`scale`         |Scaling factor to apply to `in`                        |vector2|1.0,1.0   |               |
+|`rotate`        |Amount to rotate `in`, in degrees                      |float  |0.0       |               |
+|`offset`        |Amount to translate `in`                               |vector2|0.0,0.0   |               |
+|`operationorder`|The order in which transform operations are performed  |integer|0         |SRT, TRS, 0, 1 |
+|`out`           |Output: transformed texture coordinates                |vector2|`texcoord`|               |
 
 <a id="node-dot"> </a>
 
-* **`dot`**: a no-op, passes its input through to its output unchanged.  Users can use dot nodes to shape edge connection paths or provide documentation checkpoints in node graph layout UI's.  Dot nodes may also pass uniform values from &lt;constant> or other nodes with uniform="true" outputs to uniform &lt;input>s and &lt;token>s.
-    * `in` (any type): the nodename to be connected to the Dot node's "in" input.
+A no-op, which passes its input through to its output unchanged.
+
+Users can use dot nodes to shape edge connection paths or provide documentation checkpoints in node graph layout UI's. Dot nodes may also pass uniform values from `constant` or other nodes with uniform="true" outputs to uniform inputs and tokens.
+
+|Port |Description                       |Type                                                                |Default |
+|-----|----------------------------------|--------------------------------------------------------------------|--------|
+|`in` |The input data stream             |float, colorN, vectorN, matrixNN, boolean, integer, string, filename|__zero__|
+|`out`|Output: the unchanged input stream|Same as `in`                                                        |__zero__|
 
 
 ## Logical Operator Nodes
