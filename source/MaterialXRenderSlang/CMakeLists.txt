@@ -13,6 +13,5 @@ mx_add_library(MaterialXRenderSlang
     SKIP_INSTALL)
 
 set(SLANG_RHI_BINARY_DIR ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIG>)
-add_subdirectory(External/slang-rhi)
-
+add_subdirectory(${MATERIALX_SLANG_RHI_SOURCE_DIR} build)
 target_link_libraries(MaterialXRenderSlang PUBLIC slang-rhi)

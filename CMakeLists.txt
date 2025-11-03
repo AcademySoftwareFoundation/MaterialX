@@ -135,6 +135,15 @@ set(MATERIALX_OSL_BINARY_OSLC "" CACHE FILEPATH "Full path to the OSL compiler b
 set(MATERIALX_OSL_BINARY_TESTRENDER "" CACHE FILEPATH "Full path to the OSL test render binary.")
 set(MATERIALX_OSL_INCLUDE_PATH "" CACHE PATH "Full path to OSL shader includes (e.g. 'stdosl.h').")
 
+# Helpers for Slang validation
+set(MATERIALX_SLANG_RHI_SOURCE_DIR "" CACHE FILEPATH "Full path to the Slang RHI build directory.")
+
+if (MATERIALX_BUILD_RENDER AND MATERIALX_BUILD_GEN_SLANG)
+    if (NOT MATERIALX_SLANG_RHI_SOURCE_DIR)
+        message(WARNING "MATERIALX_SLANG_RHI_SOURCE_DIR must be set to build MaterialXRenderSlang.")
+    endif()
+endif()
+
 set(MATERIALX_PYTHON_FOLDER_NAME "python/MaterialX" CACHE INTERNAL "Folder name to user for installing the Python library.")
 
 if(SKBUILD)
@@ -521,7 +530,7 @@ if(MATERIALX_BUILD_RENDER)
         if(MATERIALX_BUILD_GEN_OSL)
             add_subdirectory(source/MaterialXRenderOsl)
         endif()
-        if(MATERIALX_BUILD_GEN_SLANG)
+        if(MATERIALX_BUILD_GEN_SLANG AND MATERIALX_SLANG_RHI_SOURCE_DIR)
             add_subdirectory(source/MaterialXRenderSlang)
         endif()
     endif()
