@@ -527,12 +527,6 @@ void SlangShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& 
 
     _tokenSubstitutions[HW::T_TEX_SAMPLER_SIGNATURE] = "SamplerTexture2D tex_sampler";
 
-    // Emit uv transform code globally if needed.
-    if (context.getOptions().hwAmbientOcclusion)
-    {
-        emitLibraryInclude("stdlib/genglsl/lib/" + _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV], context, stage);
-    }
-
     emitLightFunctionDefinitions(graph, context, stage);
 
     // Emit function definitions for all nodes in the graph.
