@@ -224,7 +224,9 @@ ShaderPtr OslShaderGenerator::createShader(const string& name, ElementPtr elemen
     const auto& outputSockets = graph->getOutputSockets();
     const auto* singleOutput = outputSockets.size() == 1 ? outputSockets[0] : NULL;
 
-    const bool isSurfaceShaderOutput = singleOutput && singleOutput->getType() == Type::SURFACESHADER;
+    const bool isSurfaceShaderOutput = context.getOptions().oslImplicitSurfaceShaderConversion
+        && singleOutput && singleOutput->getType() == Type::SURFACESHADER;
+
     if (isSurfaceShaderOutput)
     {
         graph->inlineNodeBeforeOutput(outputSockets[0], "_surfacematerial_", "ND_surfacematerial", "surfaceshader", "out", context);
