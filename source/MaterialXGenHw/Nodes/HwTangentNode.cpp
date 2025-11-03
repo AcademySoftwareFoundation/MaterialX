@@ -40,6 +40,9 @@ void HwTangentNode::createVariables(const ShaderNode& node, GenContext&, Shader&
 void HwTangentNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
     const HwShaderGenerator& shadergen = static_cast<const HwShaderGenerator&>(context.getShaderGenerator());
+    const Syntax& syntax = shadergen.getSyntax();
+
+    const string& vec4 = syntax.getTypeName(Type::VECTOR4);
 
     const ShaderInput* spaceInput = node.getInput(SPACE);
     const int space = spaceInput ? spaceInput->getValue()->asA<int>() : OBJECT_SPACE;
@@ -54,7 +57,7 @@ void HwTangentNode::emitFunctionCall(const ShaderNode& node, GenContext& context
             if (!tangent->isEmitted())
             {
                 tangent->setEmitted();
-                shadergen.emitLine(prefix + tangent->getVariable() + " = normalize(mx_matrix_mul(" + HW::T_WORLD_MATRIX + ", vec4(" + HW::T_IN_TANGENT + ", 0.0)).xyz)", stage);
+                shadergen.emitLine(prefix + tangent->getVariable() + " = normalize(mx_matrix_mul(" + HW::T_WORLD_MATRIX + ", "+vec4+"(" + HW::T_IN_TANGENT + ", 0.0)).xyz)", stage);
             }
         }
         else

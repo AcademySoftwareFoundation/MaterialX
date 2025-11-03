@@ -102,6 +102,23 @@ The type of the &lt;image> node determines the number of channels output, which 
     * `viewdir` (vector3): the view direction determining the value sampled from the projected equiangular map.
     * `rotation` (float): the longitudinal sampling offset, in degrees.
 
+<a id="node-hextiledimage"> </a>
+
+* **`hextiledimage`**: samples data from a single image, with provisions for hex-tiling and randomizing the image across uv space.
+    * `file` (uniform filename): the URI of an image file.  The filename can include one or more substitutions to change the file name (including frame number) that is accessed, as described in the [Filename Substitutions](./MaterialX.Specification.md#filename-substitutions) section in the main Specification document.
+    * `default` (color<em>N</em>): a default value to use if the `file` reference can not be resolved (e.g. if a &lt;geomtoken>, [interfacetoken] or {hostattr} is included in the filename but no substitution value or default is defined, or if the resolved file URI cannot be read).  The `default` value must be the same type as the `<hextiledimage>` element itself.  If `default` is not defined, the default color value will be 0.0 in all channels.
+    * `texcoord` (vector2): the name of a vector2-type node specifying the 2D texture coordinate at which the image data is read.  Default is to use the current u,v coordinate.
+    * `tiling` (vector2): the tiling rate for the hexagon tiles along the U and V axes. Default value is (1.0, 1.0).
+    * `rotation` (float): per-tile rotation randomness in degrees. Default is 0.0.
+    * `rotationrange` (vector2): [min, max] range in degrees used to randomize rotation for each tile. Default is (0.0, 360.0).
+    * `scale` (float): per-tile scale randomness multiplier applied to tile size. Default is 1.0.
+    * `scalerange` (vector2): [min, max] range of scale multipliers used to randomize tile scale. Default is (0.5, 2.0).
+    * `offset` (float): per-tile translation randomness in UV units. Default is 0.0.
+    * `offsetrange` (vector2): [min, max] range of offset values in UV units used to randomize tile positions. Default is (0.0, 1.0).
+    * `falloff` (float): falloff width used to blend neighboring tiles at their edges; larger values produce smoother blends. Default is 0.5.
+    * `falloffcontrast` (float): contrast applied to the falloff blending to sharpen (values >1) or soften (values <1) transitions. Default is 0.5.
+    * `lumacoeffs` (uniform color3): the luma coefficients of the current working color space; if no specific color space can be determined, the ACEScg (ap1) luma coefficients [0.2722287, 0.6740818, 0.0536895] will be used.  Applications which support color management systems may choose to retrieve the luma coefficients of the working colorspace from the CMS to pass to the &lt;luminance> node's implementation directly, rather than exposing it to the user.
+
 <a id="node-triplanarprojection"> </a>
 
 * **`triplanarprojection`** (NG): samples data from three images (or layers within multi-layer images), and projects a tiled representation of the images along each of the three respective coordinate axes, computing a weighted blend of the three samples using the geometric normal.
@@ -763,6 +780,26 @@ Math nodes have one or two spatially-varying inputs, and are used to perform a m
 * **`normalmap`**: transform a normal vector from encoded tangent space to world space.  The input normal vector is assumed to be encoded with all channels in the [0-1] range, as would commonly be output from a normal map.
     * `in` (vector3): the input vector; default is (0.5, 0.5, 1.0).
     * `scale` (float or vector2): a scalar multiplier for the (x,y) components of the incoming vector; defaults to 1.0
+    * `normal` (vector3): surface normal; defaults to the current world-space normal.
+    * `tangent` (vector3): surface tangent vector, defaults to the current world-space tangent vector. 
+    * `bitangent` (vector3): surface bitangent vector, defaults to the current world-space bitangent vector. 
+
+<a id="node-hextilednormalmap"> </a>
+
+* **`hextilednormalmap`**: samples data from a single normalmap, with provisions for hex-tiling and randomizing the normalmap across uv space.
+    * `file` (uniform filename): the URI of an image file.  The filename can include one or more substitutions to change the file name (including frame number) that is accessed, as described in the [Filename Substitutions](./MaterialX.Specification.md#filename-substitutions) section in the main Specification document.
+    * `default` (vector3): a default value to use if the `file` reference can not be resolved (e.g. if a &lt;geomtoken>, [interfacetoken] or {hostattr} is included in the filename but no substitution value or default is defined, or if the resolved file URI cannot be read). Default is (0.5, 0.5, 1.0).
+    * `texcoord` (vector2): the name of a vector2-type node specifying the 2D texture coordinate at which the image data is read.  Default is to use the current u,v coordinate.
+    * `tiling` (vector2): the tiling rate for the hexagon tiles along the U and V axes. Default value is (1.0, 1.0).
+    * `rotation` (float): per-tile rotation randomness in degrees. Default is 0.0.
+    * `rotationrange` (vector2): [min, max] range in degrees used to randomize rotation for each tile. Default is (0.0, 360.0).
+    * `scale` (float): per-tile scale randomness multiplier applied to tile size. Default is 1.0.
+    * `scalerange` (vector2): [min, max] range of scale multipliers used to randomize tile scale. Default is (0.5, 2.0).
+    * `offset` (float): per-tile translation randomness in UV units. Default is 0.0.
+    * `offsetrange` (vector2): [min, max] range of offset values in UV units used to randomize tile positions. Default is (0.0, 1.0).
+    * `falloff` (float): falloff width used to blend neighboring tiles at their edges; larger values produce smoother blends. Default is 0.5.
+    * `strength` (float): Controls how strongly the sampled normal map affects the final normal. A value of 0.0 leaves the surface normal unchanged, 1.0 applies the sampled normal at full strength, and values >1.0 amplify the normal perturbation. Default is 1.0.
+    * `flip_g` (boolean): If true, negate (flip) the green (G) channel of the sampled normal map to accommodate different tangent-space conventions (handedness). Default is false.
     * `normal` (vector3): surface normal; defaults to the current world-space normal.
     * `tangent` (vector3): surface tangent vector, defaults to the current world-space tangent vector. 
     * `bitangent` (vector3): surface bitangent vector, defaults to the current world-space bitangent vector. 
