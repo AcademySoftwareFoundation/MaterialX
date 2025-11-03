@@ -21,7 +21,7 @@
     <output name="out" type="color3" nodename="tiledimage" />
   </nodegraph>
 
-  <!-- top level tokens are not support. bmp will be the found token -->
+  <!-- top level tokens are not support. png will be the found token -->
   <token name="Image_Extension" type="string" value="jpg" uiname="Image Extension" />
   <nodegraph name="Tokenized_Image_top_level">
     <tiledimage name="tiledimage" type="color3" nodedef="ND_tiledimage_color3">

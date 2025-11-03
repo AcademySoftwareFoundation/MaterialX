@@ -48,6 +48,14 @@ void HwSurfaceNode::createVariables(const ShaderNode&, GenContext& context, Shad
 void HwSurfaceNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
     const HwShaderGenerator& shadergen = static_cast<const HwShaderGenerator&>(context.getShaderGenerator());
+    const Syntax& syntax = shadergen.getSyntax();
+
+    const string& vec2 = syntax.getTypeName(Type::VECTOR2);
+    const string& vec3 = syntax.getTypeName(Type::VECTOR3);
+    const string vec2_zero = syntax.getValue(Type::VECTOR2, HW::VEC3_ZERO);
+    const string vec2_one = syntax.getValue(Type::VECTOR2, HW::VEC3_ONE);
+    const string vec3_zero = syntax.getValue(Type::VECTOR3, HW::VEC3_ZERO);
+    const string vec3_one = syntax.getValue(Type::VECTOR3, HW::VEC3_ONE);
 
     DEFINE_SHADER_STAGE(stage, Stage::VERTEX)
     {
@@ -63,7 +71,7 @@ void HwSurfaceNode::emitFunctionCall(const ShaderNode& node, GenContext& context
         if (!normal->isEmitted())
         {
             normal->setEmitted();
-            shadergen.emitLine(prefix + normal->getVariable() + " = normalize(mx_matrix_mul(" + HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX + ", vec4(" + HW::T_IN_NORMAL + ", 0)).xyz)", stage);
+            shadergen.emitLine(prefix + normal->getVariable() + " = normalize(mx_matrix_mul(" + HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX + ", "+syntax.getTypeName(Type::VECTOR4)+"(" + HW::T_IN_NORMAL + ", 0)).xyz)", stage);
         }
         if (context.getOptions().hwAmbientOcclusion)
         {
@@ -89,10 +97,10 @@ void HwSurfaceNode::emitFunctionCall(const ShaderNode& node, GenContext& context
 
         shadergen.emitScopeBegin(stage);
 
-        shadergen.emitLine("vec3 N = normalize(" + prefix + HW::T_NORMAL_WORLD + ")", stage);
-        shadergen.emitLine("vec3 V = normalize(" + HW::T_VIEW_POSITION + " - " + prefix + HW::T_POSITION_WORLD + ")", stage);
-        shadergen.emitLine("vec3 P = " + prefix + HW::T_POSITION_WORLD, stage);
-        shadergen.emitLine("vec3 L = vec3(0,0,0);", stage);
+        shadergen.emitLine(vec3+" N = normalize(" + prefix + HW::T_NORMAL_WORLD + ")", stage);
+        shadergen.emitLine(vec3+" V = normalize(" + HW::T_VIEW_POSITION + " - " + prefix + HW::T_POSITION_WORLD + ")", stage);
+        shadergen.emitLine(vec3+" P = " + prefix + HW::T_POSITION_WORLD, stage);
+        shadergen.emitLine(vec3+" L = "+vec3_zero, stage);
         shadergen.emitLine("float occlusion = 1.0", stage);
         shadergen.emitLineBreak(stage);
 
@@ -114,11 +122,7 @@ void HwSurfaceNode::emitFunctionCall(const ShaderNode& node, GenContext& context
             shadergen.emitComment("Shadow occlusion", stage);
             if (context.getOptions().hwShadowMap)
             {
-                shadergen.emitLine("vec4 shadowCoord4 = mx_matrix_mul(" + HW::T_SHADOW_MATRIX + ", vec4(" + prefix + HW::T_POSITION_WORLD + ", 1.0))", stage);
-                shadergen.emitLine("vec3 shadowCoord = shadowCoord4.xyz / shadowCoord4.w;", stage);
-                shadergen.emitLine("shadowCoord = shadowCoord * 0.5 + 0.5", stage);
-                shadergen.emitLine("vec2 shadowMoments = texture(" + HW::T_SHADOW_MAP + ", shadowCoord.xy).xy", stage);
-                shadergen.emitLine("occlusion = mx_variance_shadow_occlusion(shadowMoments, shadowCoord.z)", stage);
+                shadergen.emitLine("occlusion = mx_shadow_occlusion(" + HW::T_SHADOW_MAP + ", " + HW::T_SHADOW_MATRIX + ", " + prefix + HW::T_POSITION_WORLD + ")", stage);
             }
             shadergen.emitLineBreak(stage);
 
@@ -131,7 +135,11 @@ void HwSurfaceNode::emitFunctionCall(const ShaderNode& node, GenContext& context
             if (context.getOptions().hwAmbientOcclusion)
             {
                 ShaderPort* texcoord = vertexData[HW::T_TEXCOORD + "_0"];
-                shadergen.emitLine("vec2 ambOccUv = mx_transform_uv(" + prefix + texcoord->getVariable() + ", vec2(1.0), vec2(0.0))", stage);
+                shadergen.emitLine(vec2+" ambOccUv = " + prefix + texcoord->getVariable(), stage);
+                if (context.getOptions().fileTextureVerticalFlip)
+                {
+                    shadergen.emitLine("ambOccUv = "+vec2+"(ambOccUv.x, 1.0 - ambOccUv.y)", stage);
+                }
                 shadergen.emitLine("occlusion = mix(1.0, texture(" + HW::T_AMB_OCC_MAP + ", ambOccUv).x, " + HW::T_AMB_OCC_GAIN + ")", stage);
             }
             else
@@ -219,7 +227,7 @@ void HwSurfaceNode::emitFunctionCall(const ShaderNode& node, GenContext& context
             shadergen.emitComment("Compute and apply surface opacity", stage);
             shadergen.emitScopeBegin(stage);
             shadergen.emitLine(outColor + " *= surfaceOpacity", stage);
-            shadergen.emitLine(outTransparency + " = mix(vec3(1.0), " + outTransparency + ", surfaceOpacity)", stage);
+            shadergen.emitLine(outTransparency + " = mix("+vec3_one+", " + outTransparency + ", surfaceOpacity)", stage);
             shadergen.emitScopeEnd(stage);
         }
 

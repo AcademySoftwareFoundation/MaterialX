@@ -5,8 +5,8 @@
 
 #include <MaterialXGenShader/ShaderGraph.h>
 
+#include <MaterialXGenShader/Exception.h>
 #include <MaterialXGenShader/GenContext.h>
-#include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/Util.h>
 
 #include <iostream>

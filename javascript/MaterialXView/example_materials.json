@@ -1,0 +1,24 @@
+{
+  "materials": [
+    {
+      "name": "StandardSurface",
+      "path": "../../resources/Materials/Examples/StandardSurface",
+      "baseURL": "Materials/Examples/StandardSurface"
+    },
+    {
+      "name": "UsdPreviewSurface", 
+      "path": "../../resources/Materials/Examples/UsdPreviewSurface",
+      "baseURL": "Materials/Examples/UsdPreviewSurface"
+    },
+    {
+      "name": "GltfPbr",
+      "path": "../../resources/Materials/Examples/GltfPbr", 
+      "baseURL": "Materials/Examples/GltfPbr"
+    },
+    {
+      "name": "OpenPbr",
+      "path": "../../resources/Materials/Examples/OpenPbr",
+      "baseURL": "Materials/Examples/OpenPbr"
+    }
+  ]
+}

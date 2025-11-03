@@ -8,6 +8,7 @@
 #include <MaterialXGenHw/HwConstants.h>
 #include <MaterialXGenHw/HwLightShaders.h>
 #include <MaterialXGenHw/Nodes/HwLightCompoundNode.h>
+#include <MaterialXGenShader/Exception.h>
 #include <MaterialXGenShader/Nodes/CompoundNode.h>
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
@@ -389,12 +390,12 @@ void HwShaderGenerator::addStageLightingUniforms(GenContext& context, ShaderStag
         numActiveLights->setValue(Value::createValue<int>(0));
     }
 }
-ShaderNodeImplPtr HwShaderGenerator::createShaderNodeImplForNodeGraph(const NodeDef& nodedef) const
+ShaderNodeImplPtr HwShaderGenerator::createShaderNodeImplForNodeGraph(const NodeGraph& nodegraph) const
 {
-    vector<OutputPtr> outputs = nodedef.getActiveOutputs();
+    vector<OutputPtr> outputs = nodegraph.getActiveOutputs();
     if (outputs.empty())
     {
-        throw ExceptionShaderGenError("NodeDef '" + nodedef.getName() + "' has no outputs defined");
+        throw ExceptionShaderGenError("NodeGraph '" + nodegraph.getName() + "' has no outputs defined");
     }
 
     const TypeDesc outputType = _typeSystem->getType(outputs[0]->getType());

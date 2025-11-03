@@ -25,6 +25,7 @@
 #include <MaterialXGenHw/Nodes/HwNumLightsNode.h>
 #include <MaterialXGenHw/Nodes/HwSurfaceNode.h>
 
+#include <MaterialXGenShader/Exception.h>
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/Nodes/MaterialNode.h>
@@ -930,6 +931,7 @@ void MslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& co
         if (shadowing)
         {
             emitLibraryInclude("pbrlib/genglsl/lib/mx_shadow.glsl", context, stage);
+            emitLibraryInclude("pbrlib/genmsl/lib/mx_shadow_platform.metal", context, stage);
         }
 
         // Emit directional albedo table code.
@@ -955,12 +957,6 @@ void MslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& co
         else
         {
             _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "mx_transform_uv.glsl";
-        }
-
-        // Emit uv transform code globally if needed.
-        if (context.getOptions().hwAmbientOcclusion)
-        {
-            emitLibraryInclude("stdlib/genglsl/lib/" + _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV], context, stage);
         }
 
         emitLightFunctionDefinitions(graph, context, stage);
