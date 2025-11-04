@@ -8,19 +8,60 @@ from pathlib import Path
 DOXYGEN_XML_DIR = Path("build/documents/doxygen_xml")
 PYBIND_DIR = Path("source/PyMaterialX")
 
-# Output debug dump of extracted docs
-DEBUG_JSON = Path("doc_map.json")
-
-class pybind_doc_builder:
-    def __init__(self, doxygen_xml_dir: Path, pybind_dir: Path):
-        self.doxygen_xml_dir = doxygen_xml_dir
-        self.pybind_dir = pybind_dir
-        self.class_docs = {}
-        self.func_docs = {}
-
 # Extraction maps
 class_docs = {}   # key: "MaterialX::Document" -> docstring
 func_docs = {}    # key: "MaterialX::Document::addNodeDefFromGraph" -> dict {brief, detail, params:{name:desc}, returns, args_sig}
+
+# ----------------------------
+# Helper functions
+# ----------------------------
+def normalize_name(name: str) -> str:
+    """Ensure name has MaterialX:: prefix if not already present."""
+    if not name:
+        return name
+    return name if name.startswith("MaterialX::") else f"MaterialX::{name}"
+
+def generate_lookup_keys(name: str, include_variants: bool = True) -> list:
+    """Generate all possible lookup key variants for a given name."""
+    if not name:
+        return []
+    
+    keys = []
+    # Add MaterialX:: variant
+    normalized = normalize_name(name)
+    if normalized != name:
+        keys.append(normalized)
+    keys.append(name)
+    
+    # Add mx:: to MaterialX:: conversion
+    if name.startswith("mx::"):
+        keys.insert(0, name.replace("mx::", "MaterialX::"))
+    
+    # Add class::method and method-only variants
+    if include_variants and "::" in name:
+        parts = name.split("::")
+        if len(parts) >= 2:
+            keys.append("::".join(parts[-2:]))  # Class::method
+        keys.append(parts[-1])  # method only
+    
+    return keys
+
+def extract_detail_text(parent_elem, exclude_tags={'parameterlist', 'simplesect'}):
+    """Extract detail paragraphs from XML element, excluding specified child tags."""
+    parts = []
+    for para in parent_elem.findall("para"):
+        if not any(para.find(tag) is not None for tag in exclude_tags):
+            parts.append(_text_of(para))
+    return "\n\n".join(p for p in parts if p)
+
+def find_doc_by_suffix(func_docs: dict, *suffixes) -> dict:
+    """Find function doc by suffix match. Returns first match or None."""
+    for suffix in suffixes:
+        if suffix:
+            for key, value in func_docs.items():
+                if key.endswith(f"::{suffix}"):
+                    return value
+    return None
 
 def _text_of(elem):
     """Concatenate element text and children text, normalized whitespace."""
@@ -53,24 +94,12 @@ def extract_docs_from_xml():
         for compound in root.findall(".//compounddef[@kind='class']") + root.findall(".//compounddef[@kind='struct']"):
             compoundname = _text_of(compound.find("compoundname"))
             brief = _text_of(compound.find("briefdescription/para"))
-            # collect detailed paragraphs excluding parameterlist/simplesect which are typically for members
-            detail_parts = []
-            for para in compound.findall("detaileddescription/para"):
-                if para.find("parameterlist") is None and para.find("simplesect") is None:
-                    detail_parts.append(_text_of(para))
-            detail = "\n\n".join(p for p in detail_parts if p)
-            doc_parts = []
-            if brief:
-                doc_parts.append(brief)
-            if detail:
-                doc_parts.append(detail)
+            detail = extract_detail_text(compound.find("detaileddescription"))
+            
+            doc_parts = [p for p in [brief, detail] if p]
             full = "\n\n".join(doc_parts).strip()
             if full:
-                # normalize name to MaterialX::... if not already
-                key = compoundname
-                if key and not key.startswith("MaterialX::"):
-                    key = "MaterialX::" + key
-                class_docs[key] = full
+                class_docs[normalize_name(compoundname)] = full
 
         # Extract member functions
         for member in root.findall(".//memberdef[@kind='function']"):
@@ -86,13 +115,7 @@ def extract_docs_from_xml():
 
             # brief + detailed
             brief = _text_of(member.find("briefdescription/para"))
-            detail_parts = []
-            for para in member.findall("detaileddescription/para"):
-                # skip param lists and return sections here
-                if para.find("parameterlist") is not None or para.find("simplesect") is not None:
-                    continue
-                detail_parts.append(_text_of(para))
-            detail = "\n\n".join(p for p in detail_parts if p)
+            detail = extract_detail_text(member.find("detaileddescription"))
 
             # params
             params = {}
@@ -108,32 +131,23 @@ def extract_docs_from_xml():
                 ret_text = _text_of(retsect)
 
             # argsstring for overload disambiguation
-            argsstring = _text_of(member.find("argsstring"))  # e.g. "(NodeGraphPtr nodeGraph, const string &nodeDefName, ...)"
-            # canonicalize argsstring: remove repeated spaces and normalize commas
+            argsstring = _text_of(member.find("argsstring"))
             args_sig = ""
             if argsstring:
+                # Normalize argsstring
                 args_sig = re.sub(r'\s*,\s*', ',', argsstring)
                 args_sig = re.sub(r'\s+', ' ', args_sig).strip()
 
-            # normalize qualified name to MaterialX:: prefix variants
-            q1 = qualified
-            if q1 and not q1.startswith("MaterialX::"):
-                q_mat = "MaterialX::" + q1
-            else:
-                q_mat = q1
-
-            # choose a primary key for func_docs as the fully qualified name (prefer MaterialX::... form)
-            primary_key = q_mat if q_mat else q1
-            if not primary_key:
-                continue
-
-            func_docs[primary_key] = {
-                "brief": brief,
-                "detail": detail,
-                "params": params,
-                "returns": ret_text,
-                "args_sig": args_sig
-            }
+            # Store with normalized qualified name
+            if qualified:
+                primary_key = normalize_name(qualified)
+                func_docs[primary_key] = {
+                    "brief": brief,
+                    "detail": detail,
+                    "params": params,
+                    "returns": ret_text,
+                    "args_sig": args_sig
+                }
 
     print(f"Extracted {len(class_docs)} classes and {len(func_docs)} functions.")
 
@@ -172,308 +186,118 @@ def build_method_docstring(func_entry):
         parts.append("Returns:\n    " + func_entry["returns"])
     return "\n\n".join(parts).strip()
 
-def insert_docs_into_bindings_old():
-    """
-    Modify C++ pybind files in place:
-    - Insert class docstrings into the py::class_<...>(mod, "Name", "doc")
-    - Insert method docstrings into .def("name", &mx::Class::name, "doc")
-    """
-    cpp_files = list(PYBIND_DIR.rglob("*.cpp"))
-
-    # Regex patterns
-    # py::class_<...>(mod, "Document")
-    class_pattern = re.compile(r'(py::class_<[^>]+>\(\s*([A-Za-z0-9_:]+)\s*,\s*"([^"]+)"\s*)(\))')
-    # Then a variant where there are spaces/newline before closing paren: handle simpler by searching for 'py::class_<...' up to the first ')' on the same line.
-
-    # .def("name", &mx::Document::name, ...)
-    def_pattern = re.compile(r'\.def\(\s*"([^"]+)"\s*,\s*&([A-Za-z0-9_:]+)\s*([,)]?)')
-
-    for cpp in cpp_files:
-        text = cpp.read_text(encoding="utf-8")
-        orig_text = text
-
-        lines = text.splitlines()
-        new_lines = []
-        changed = False
-
-        for i, line in enumerate(lines):
-            # First: try class insertion when a py::class_ is declared
-            # We look for the pattern: py::class_<...>(mod, "Name")
-            class_match = re.search(r'py::class_<[^>]+>\(\s*([A-Za-z0-9_:]+)\s*,\s*"([^"]+)"\s*\)', line)
-            if class_match:
-                cpp_class_type = class_match.group(1)  # maybe mx::Document, etc
-                class_name = class_match.group(2)      # "Document"
-                # Normalize to MaterialX::ClassName
-                # We try keys: MaterialX::Document, Document, mx::Document
-                keys = []
-                if cpp_class_type:
-                    # if cpp_class_type includes 'mx::', remove and use just the class name
-                    short = class_name
-                    keys.append(f"MaterialX::{short}")
-                    keys.append(short)
-                    if cpp_class_type.startswith("mx::"):
-                        keys.append(cpp_class_type.replace("mx::", "MaterialX::"))
-                    else:
-                        keys.append(cpp_class_type)
-                else:
-                    keys.append(class_name)
-                    keys.append(f"MaterialX::{class_name}")
-
-                class_doc = None
-                for k in keys:
-                    if k in class_docs:
-                        class_doc = class_docs[k]
-                        break
-
-                if class_doc:
-                    # If the line already has a third argument (docstring) skip
-                    # Simple check: count commas inside the parentheses - but safer to check presence of a string literal after the class name
-                    if re.search(r'py::class_<[^>]+>\(\s*[A-Za-z0-9_:]+\s*,\s*"' + re.escape(class_name) + r'"\s*,', line):
-                        # already has doc - do nothing
-                        pass
-                    else:
-                        escaped = escape_docstring_for_cpp(class_doc)
-                        # Insert as third argument before the closing paren
-                        new_line = re.sub(r'\)\s*$', f', "{escaped}")', line)
-                        new_lines.append(new_line)
-                        changed = True
-                        continue  # skip default append at end
-            # Next: method .def insertion
-            m = def_pattern.search(line)
-            if m:
-                py_name = m.group(1)  # "createInput"
-                cpp_ref = m.group(2)  # mx::Document::addNodeDefFromGraph or Document::...
-                # Normalize cpp_ref to MaterialX::... form to lookup func_docs
-                lookup_keys = []
-                if cpp_ref.startswith("mx::"):
-                    lookup_keys.append(cpp_ref.replace("mx::", "MaterialX::"))
-                lookup_keys.append(cpp_ref)
-                # Also try without namespace
-                if "::" in cpp_ref:
-                    parts = cpp_ref.split("::")
-                    lookup_keys.append("::".join(parts[-2:]))  # Class::method
-                    lookup_keys.append(parts[-1])  # method only
-
-                func_entry = None
-                for k in lookup_keys:
-                    if k in func_docs:
-                        func_entry = func_docs[k]
-                        break
-
-                # If not found, try suffix match (sometimes args_sig stored)
-                if not func_entry:
-                    for k, v in func_docs.items():
-                        # match just by 'Class::method' ending part
-                        if k.endswith("::" + py_name):
-                            func_entry = v
-                            break
-
-                if func_entry:
-                    # Check if this .def already has a docstring (a string literal after the callable)
-                    # We'll consider the remainder of the line after the callable
-                    rest = line[m.end():].strip()
-                    already_has_doc = False
-                    # crude check: does a string literal appear before the closing ')'
-                    if '"' in rest or "R\"" in rest:
-                        already_has_doc = True
-
-                    if not already_has_doc:
-                        docstring = build_method_docstring(func_entry)
-                        if docstring:
-                            escaped = escape_docstring_for_cpp(docstring)
-                            # We must be careful to not break existing trailing arguments (py::arg(...))
-                            # We'll try to insert the docstring after the callable reference and before other args.
-                            # If line ends with ')' we can simply replace the trailing ')' with , "doc")
-                            if line.rstrip().endswith(")"):
-                                new_line = line.rstrip()
-                                # but avoid adding doc into lines that are multi-line function chains; this is a best-effort inline insertion
-                                new_line = new_line.rstrip(")")
-                                new_line = new_line + f', "{escaped}")'
-                                new_lines.append(new_line)
-                                changed = True
-                                continue
-                            else:
-                                # line doesn't end with ')', likely args continue on following lines; just add doc at line end for now
-                                new_line = line + f', "{escaped}"'
-                                new_lines.append(new_line)
-                                changed = True
-                                continue
-
-            # default: copy original line
-            new_lines.append(line)
-
-        # if changed, write back
-        if changed:
-            new_text = "\n".join(new_lines)
-            cpp.write_text(new_text, encoding="utf-8")
-            #print("new text", new_text)
-            print(f"Patched: {cpp}")
-
-    print("Insertion complete.")
-
-# Replace the previous insert_docs_into_bindings() with this more robust version.
+def _has_docstring(args):
+    """Check if any arg (after first) is a string literal, excluding py::arg calls."""
+    for arg_text, _, _ in args[1:]:
+        a = arg_text.strip()
+        if a.startswith("py::arg"):
+            continue
+        if re.match(r'^".*"$', a):
+            return True
+    return False
 
 def _find_matching_paren(s: str, start_idx: int) -> int:
-    """Find the index of the matching ')' for s[start_idx] == '('.
-    Handles nested parentheses and string literals roughly (so quotes inside strings are ignored)."""
-    i = start_idx
+    """Find the index of the matching ')' for '(' at start_idx.
+    Handles nested parentheses and string literals."""
     depth = 0
-    in_single = False
-    in_double = False
-    in_raw = False
-    raw_delim = None
-    L = len(s)
-    while i < L:
+    in_string = False
+    escape_next = False
+    i = start_idx
+    
+    while i < len(s):
         c = s[i]
-        # handle entering/exiting raw string literal R"delim(... )delim"
-        if not in_single and not in_double:
-            if s.startswith('R"', i):
-                # find raw delim start: R"delim(
-                # grab delim between R" and (
-                m = re.match(r'R"([^\(\s]*)\(', s[i:])
-                if m:
-                    in_raw = True
-                    raw_delim = m.group(1)
-                    i += 2 + len(raw_delim)  # position at '(' after delim
-                    depth += 1
-                    i += 1
-                    continue
-
-        if in_raw:
-            # raw literal ends with )delim"
-            # check for )raw_delim"
-            end_token = ')' + (raw_delim or '') + '"'
-            if s.startswith(end_token, i):
-                in_raw = False
-                i += len(end_token)
-                continue
-            else:
-                i += 1
-                continue
-
-        if c == '"' and not in_single:
-            # toggle double quotes (but ignore escaped quotes)
-            # ensure not escaped
-            prev = s[i-1] if i > 0 else ''
-            if prev != '\\':
-                in_double = not in_double
+        
+        if escape_next:
+            escape_next = False
             i += 1
             continue
-        if c == "'" and not in_double:
-            prev = s[i-1] if i > 0 else ''
-            if prev != '\\':
-                in_single = not in_single
+        
+        if c == '\\':
+            escape_next = True
             i += 1
             continue
-
-        if in_single or in_double:
+        
+        if c == '"':
+            in_string = not in_string
             i += 1
             continue
-
-        if c == '(':
-            depth += 1
-        elif c == ')':
-            depth -= 1
-            if depth == 0:
-                return i
+        
+        if not in_string:
+            if c == '(':
+                depth += 1
+            elif c == ')':
+                depth -= 1
+                if depth == 0:
+                    return i
+        
         i += 1
+    
     return -1
 
 
 def _split_top_level_args(arglist: str):
-    """Split a string of arguments (content inside parentheses) into a list of top-level args.
-    Returns list of (arg_text, start_index, end_index) relative to the arglist string.
-    Handles nested parentheses and string literals so commas inside those are ignored.
-    """
+    """Split arguments at top-level commas.
+    Returns list of (arg_text, start_index, end_index) tuples.
+    Handles nested parentheses and string literals."""
     args = []
     start = 0
     i = 0
     depth = 0
-    in_single = False
-    in_double = False
-    in_raw = False
-    raw_delim = None
-    L = len(arglist)
-    while i < L:
+    in_string = False
+    escape_next = False
+    
+    while i < len(arglist):
         c = arglist[i]
-        # raw string handling
-        if not in_single and not in_double:
-            if arglist.startswith('R"', i):
-                m = re.match(r'R"([^\(\s]*)\(', arglist[i:])
-                if m:
-                    in_raw = True
-                    raw_delim = m.group(1)
-                    i += 2 + len(raw_delim)  # move to '('
-                    depth += 1
-                    i += 1
-                    continue
-
-        if in_raw:
-            end_token = ')' + (raw_delim or '') + '"'
-            if arglist.startswith(end_token, i):
-                in_raw = False
-                i += len(end_token)
-                continue
-            else:
-                i += 1
-                continue
-
-        if c == '"' and not in_single:
-            prev = arglist[i-1] if i > 0 else ''
-            if prev != '\\':
-                in_double = not in_double
+        
+        if escape_next:
+            escape_next = False
             i += 1
             continue
-        if c == "'" and not in_double:
-            prev = arglist[i-1] if i > 0 else ''
-            if prev != '\\':
-                in_single = not in_single
+        
+        if c == '\\':
+            escape_next = True
             i += 1
             continue
-
-        if in_single or in_double:
+        
+        if c == '"':
+            in_string = not in_string
             i += 1
             continue
-
-        if c == '(':
-            depth += 1
-        elif c == ')':
-            if depth > 0:
+        
+        if not in_string:
+            if c == '(':
+                depth += 1
+            elif c == ')':
                 depth -= 1
-        elif c == ',' and depth == 0:
-            # top-level comma
-            args.append((arglist[start:i].strip(), start, i))
-            start = i + 1
+            elif c == ',' and depth == 0:
+                # Top-level comma found
+                args.append((arglist[start:i].strip(), start, i))
+                start = i + 1
+        
         i += 1
-
-    # append last arg
-    if start < L:
-        args.append((arglist[start:].strip(), start, L))
+    
+    # Append last argument
+    if start < len(arglist):
+        args.append((arglist[start:].strip(), start, len(arglist)))
+    
     return args
 
-def _has_docstring(args):
-    """
-    True if there is a string literal among top-level args that is not a py::arg(...)
-    """
-    for a, _, _ in args[1:]:  # skip first arg (Python name)
-        # strip whitespace
-        a_stripped = a.strip()
-        # skip py::arg(...) calls
-        if a_stripped.startswith("py::arg"):
-            continue
-        # crude string literal check
-        if re.match(r'^R?".*"$', a_stripped):
-            return True
-    return False
 
-
-def insert_docs_into_bindings():
+def insert_docs_into_bindings(force_replace=False):
     """
     Robust insertion: 
     1. Insert class docstrings into py::class_<...>(mod, "Name") -> py::class_<...>(mod, "Name", "doc")
     2. Parse each .def(...) call, split top-level args, and insert docstring
        after the second argument (callable) if no docstring is present.
+    
+    Args:
+        force_replace: If True, replace existing docstrings. If False, skip entries that already have docs.
     """
+    if force_replace:
+        print("Force replace mode: Will update existing docstrings")
+    else:
+        print("Normal mode: Will skip entries with existing docstrings")
+    
     cpp_files = list(PYBIND_DIR.rglob("*.cpp"))
     def_start_re = re.compile(r'\.def\s*\(')
     class_start_re = re.compile(r'py::class_<')
@@ -516,34 +340,58 @@ def insert_docs_into_bindings():
             
             # Check if there's already a third argument (docstring)
             if len(args) >= 3:
-                # Already has docstring
-                continue
+                if not force_replace:
+                    # Already has docstring, skip unless force_replace
+                    continue
+                else:
+                    # Force replace: we'll need to replace the third arg
+                    # Store as (start, end, new_doc) for replacement
+                    pass  # Handle below
             
             # Extract class name from second argument
             class_name = args[1][0].strip().strip('"')
             
-            # Try to find documentation
-            # Build lookup keys
-            lookup_keys = [
-                f"MaterialX::{class_name}",
-                class_name
-            ]
-            
+            # Find documentation using helper
             class_doc = None
-            for k in lookup_keys:
+            for k in generate_lookup_keys(class_name, include_variants=False):
                 if k in class_docs:
                     class_doc = class_docs[k]
                     break
             
             if class_doc:
                 escaped = escape_docstring_for_cpp(class_doc)
-                class_matches.append((paren_close, f', "{escaped}"'))
+                if len(args) >= 3 and force_replace:
+                    # Replace existing docstring (third argument) - just replace the quoted content
+                    # Find the position of the third argument in the original text
+                    arg3_start = paren_open + 1 + args[2][1]
+                    arg3_end = paren_open + 1 + args[2][2]
+                    original_arg = text[arg3_start:arg3_end]
+                    
+                    # Find the opening and closing quotes
+                    first_quote = original_arg.find('"')
+                    last_quote = original_arg.rfind('"')
+                    
+                    if first_quote != -1 and last_quote != -1 and first_quote < last_quote:
+                        # Replace only the content between quotes, preserving everything else
+                        new_arg = original_arg[:first_quote+1] + escaped + original_arg[last_quote:]
+                        class_matches.append((arg3_start, arg3_end, new_arg, True))
+                    else:
+                        # Fallback: replace entire argument
+                        class_matches.append((arg3_start, arg3_end, f'"{escaped}"', True))
+                else:
+                    # Insert new docstring (with space after comma to match original style)
+                    class_matches.append((paren_close, f', "{escaped}"', False))  # False = insert
                 class_changed = True
         
-        # Apply class documentation insertions in reverse order to preserve positions
+        # Apply class documentation changes in reverse order to preserve positions
         if class_changed:
-            for pos, insertion in reversed(class_matches):
-                text = text[:pos] + insertion + text[pos:]
+            for match in reversed(class_matches):
+                if len(match) == 4:  # Replace mode: (start, end, new_text, is_replace)
+                    start, end, new_text, _ = match
+                    text = text[:start] + new_text + text[end:]
+                else:  # Insert mode: (pos, insertion, is_replace)
+                    pos, insertion, _ = match
+                    text = text[:pos] + insertion + text[pos:]
         
         # Second pass: insert method documentation
         new_text_parts = []
@@ -587,81 +435,85 @@ def insert_docs_into_bindings():
 
             # determine if any existing argument is a string literal (treat raw string R"..." too)
             has_docstring = _has_docstring(args)
-            # A simpler check: presence of an unqualified string literal among top-level args other than the first (name) arg
-            if not has_docstring:
-                # build lookup keys using the second arg (callable)
-                cpp_ref = second_arg_text
-                # strip & and possible std::function wrappers, templates, whitespace
-                cpp_ref_clean = cpp_ref.strip()
+            
+            if not has_docstring or force_replace:
+                # Extract Python method name and C++ callable reference
+                py_method_name = first_arg_text.strip().strip('"')
+                cpp_ref_clean = second_arg_text.strip()
                 
-                # Check if this is a lambda function (starts with '[')
-                is_lambda = cpp_ref_clean.startswith('[')
+                # Extract the callable name (works for both regular functions and lambdas)
+                # For lambdas: try to find method calls like elem.method( or obj->method(
+                # For regular callables: extract the qualified name like &mx::Class::method
+                callable_name = None
                 
-                if is_lambda:
-                    # For lambda functions, try to infer the method name from the Python method name
-                    # and look for it being called within the lambda
-                    py_method_name = first_arg_text.strip().strip('"')
-                    lookup_keys = []
-                    
-                    # Try to find method calls within the lambda body
-                    # Look for patterns like elem.method( or obj->method(
-                    method_call_pattern = re.search(r'[\.\->](\w+)\s*\(', cpp_ref_clean)
-                    if method_call_pattern:
-                        called_method = method_call_pattern.group(1)
-                        # Try to match with various namespace prefixes
-                        lookup_keys.append(f"MaterialX::Element::{called_method}")
-                        lookup_keys.append(f"MaterialX::{called_method}")
-                        lookup_keys.append(called_method)
-                    
-                    # Also try using the Python method name directly
-                    lookup_keys.append(f"MaterialX::Element::{py_method_name}")
-                    lookup_keys.append(f"MaterialX::{py_method_name}")
-                    lookup_keys.append(py_method_name)
-                    
-                    possible = py_method_name
+                # Check for method call pattern (handles lambdas and some edge cases)
+                method_call = re.search(r'[\.\->](\w+)\s*\(', cpp_ref_clean)
+                if method_call:
+                    callable_name = method_call.group(1)
                 else:
-                    # remove address-of operator and potential casts like (py::cpp_function) &foo  — try to extract last token with ::method
-                    # crude heuristic: find last token containing :: and use everything from that token to end (remove trailing spaces)
+                    # Extract qualified name from regular callable reference
+                    # Find last token containing ::
                     tokens = re.split(r'\s+', cpp_ref_clean)
-                    possible = None
-                    for t in reversed(tokens):
-                        if '::' in t:
-                            possible = t
+                    for token in reversed(tokens):
+                        if '::' in token:
+                            callable_name = token.rstrip(',').strip()
                             break
-                    if not possible:
-                        possible = tokens[-1]
+                    if not callable_name and tokens:
+                        callable_name = tokens[-1].rstrip(',').strip()
+                
+                # Generate lookup keys
+                lookup_keys = generate_lookup_keys(callable_name if callable_name else py_method_name)
+                # Also try with Python method name if different
+                if callable_name != py_method_name:
+                    lookup_keys.extend(generate_lookup_keys(py_method_name))
 
-                    # strip trailing commas/parens etc
-                    possible = possible.rstrip(',').strip()
-
-                    # normalize to lookups used earlier
-                    lookup_keys = []
-                    if possible.startswith("mx::"):
-                        lookup_keys.append(possible.replace("mx::", "MaterialX::"))
-                    lookup_keys.append(possible)
-                    if "::" in possible:
-                        parts = possible.split("::")
-                        lookup_keys.append("::".join(parts[-2:]))  # Class::method
-                        lookup_keys.append(parts[-1])  # method only
-
+                # Find documentation
                 func_entry = None
                 for k in lookup_keys:
                     if k in func_docs:
                         func_entry = func_docs[k]
                         break
+                
+                # Fallback: suffix match
                 if not func_entry:
-                    # fallback: suffix match
-                    for k, v in func_docs.items():
-                        if k.endswith("::" + args[0][0].strip().strip('"')) or k.endswith("::" + possible.split("::")[-1]):
-                            func_entry = v
-                            break
+                    func_entry = find_doc_by_suffix(func_docs, callable_name, py_method_name)
 
                 if func_entry:
                     docstring = build_method_docstring(func_entry)
                     if docstring:
                         escaped = escape_docstring_for_cpp(docstring)
-                        # Simple approach: insert ", "docstring"" right before the closing )
-                        # This preserves all the original formatting and structure
+                        
+                        if has_docstring and force_replace:
+                            # Find and replace the existing docstring argument
+                            # Find which argument is the docstring (first string literal after callable)
+                            doc_arg_idx = None
+                            for i, (arg_text, _, _) in enumerate(args[2:], start=2):  # Start from 3rd arg
+                                a = arg_text.strip()
+                                if not a.startswith("py::arg") and re.match(r'^".*"$', a):
+                                    doc_arg_idx = i
+                                    break
+                            
+                            if doc_arg_idx is not None:
+                                # Replace only the quoted content, preserving all formatting
+                                arg_start = paren_open + 1 + args[doc_arg_idx][1]
+                                arg_end = paren_open + 1 + args[doc_arg_idx][2]
+                                original_arg = text[arg_start:arg_end]
+                                
+                                # Find the opening and closing quotes
+                                first_quote = original_arg.find('"')
+                                last_quote = original_arg.rfind('"')
+                                
+                                if first_quote != -1 and last_quote != -1 and first_quote < last_quote:
+                                    # Replace only content between quotes, preserving everything else
+                                    new_arg = original_arg[:first_quote+1] + escaped + original_arg[last_quote:]
+                                    # Copy everything before the docstring, insert new docstring, copy everything after
+                                    new_def_text = text[start:arg_start] + new_arg + text[arg_end:paren_close+1]
+                                    new_text_parts.append(new_def_text)
+                                    idx = paren_close + 1
+                                    changed = True
+                                    continue
+                        
+                        # Insert new docstring at the end
                         new_def_text = text[start:paren_close] + f', "{escaped}")' 
                         new_text_parts.append(new_def_text)
                         idx = paren_close + 1
@@ -690,37 +542,42 @@ def main():
                         help="Path to Doxygen XML output directory.")
     parser.add_argument("-p", "--pybind_dir", type=Path, default=Path("source/PyMaterialX"),
                         help="Path to pybind11 C++ bindings directory.")
-    parser.add_argument("-j", "--write_json", action='store_true', help="Write extracted docs to JSON file.")
+    parser.add_argument("-j", "--write_json", action='store_true', 
+                        help="Write extracted docs to JSON file.")
+    parser.add_argument("-f", "--force", action='store_true',
+                        help="Force replace existing docstrings. By default, existing docstrings are preserved.")
     
     args = parser.parse_args()
-    doxygen_xml_dir = args.doxygen_xml_dir
-    pybind_dir = args.pybind_dir
-    if not doxygen_xml_dir.exists():
-        print(f"Error: Doxygen XML directory does not exist: {doxygen-xml-dir}")
+    
+    # Validate paths
+    if not args.doxygen_xml_dir.exists():
+        print(f"Error: Doxygen XML directory does not exist: {args.doxygen_xml_dir}")
         return
-    if not pybind_dir.exists():
-        print(f"Error: Pybind directory does not exist: {pybind-dir}")
+    if not args.pybind_dir.exists():
+        print(f"Error: Pybind directory does not exist: {args.pybind_dir}")
         return
     
-    DOXYGEN_XML_DIR = doxygen_xml_dir
-    PYBIND_DIR = pybind_dir
+    # Set global paths (needed by extraction/insertion functions)
+    global DOXYGEN_XML_DIR, PYBIND_DIR
+    DOXYGEN_XML_DIR = args.doxygen_xml_dir
+    PYBIND_DIR = args.pybind_dir
 
     # Build documentation maps
     extract_docs_from_xml()
 
     # Update CPP files
-    insert_docs_into_bindings()
+    insert_docs_into_bindings(force_replace=args.force)
 
-    # Write extracted documentation to JSON files.    
-    write_json = args.write_json if args.write_json else False
-    if write_json:
-        json_path = Path("class_docs.json")
-        with json_path.open("w", encoding="utf-8") as f:
-            print("Writing class docs to", json_path)
+    # Write extracted documentation to JSON files
+    if args.write_json:
+        class_json = Path("class_docs.json")
+        with class_json.open("w", encoding="utf-8") as f:
+            print(f"Writing class docs to {class_json}")
             json.dump(class_docs, f, indent=2)
-        json_path = Path("func_docs.json")
-        with json_path.open("w", encoding="utf-8") as f:
-            print("Writing function docs to", json_path)
+        
+        func_json = Path("func_docs.json")
+        with func_json.open("w", encoding="utf-8") as f:
+            print(f"Writing function docs to {func_json}")
             json.dump(func_docs, f, indent=2)
 
     print("Done.")

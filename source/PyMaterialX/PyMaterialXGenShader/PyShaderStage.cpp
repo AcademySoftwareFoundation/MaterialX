@@ -29,7 +29,7 @@ void bindPyShaderStage(py::module& mod)
         {
             if (i >= vb.size()) throw py::index_error();
             return vb[i];
-        }, py::return_value_policy::reference_internal);
+        }, py::return_value_policy::reference_internal, "Return the number of strings in the path.");
 
     py::class_<mx::ShaderStage>(mod, "ShaderStage", "A shader stage, containing the state and resulting source code for the stage.")
         .def(py::init<const std::string&, mx::ConstSyntaxPtr>())
