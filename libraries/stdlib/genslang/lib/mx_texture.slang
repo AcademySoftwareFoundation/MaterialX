@@ -4,17 +4,17 @@ struct SamplerTexture2D
     SamplerState sampler;
 
     // needed for Storm
-    int get_width()
+    int get_width(int mipLevel = 0)
     {
         uint width, height, numberOfLevels;
-        tex.GetDimensions(0, width, height, numberOfLevels);
+        tex.GetDimensions(mipLevel, width, height, numberOfLevels);
         return width;
     }
 
-    int get_height()
+    int get_height(int mipLevel = 0)
     {
         uint width, height, numberOfLevels;
-        tex.GetDimensions(0, width, height, numberOfLevels);
+        tex.GetDimensions(mipLevel, width, height, numberOfLevels);
         return height;
     }
 
@@ -41,7 +41,7 @@ float4 textureGrad(SamplerTexture2D tex, float2 uv, float2 ddx_, float2 ddy_)
     return tex.tex.SampleGrad(tex.sampler, uv, ddx_, ddy_);
 }
 
-int2 textureSize(SamplerTexture2D mtlTex, int mipLevel)
+int2 textureSize(SamplerTexture2D tex, int mipLevel)
 {
-    return int2(mtlTex.get_width(), mtlTex.get_height());
+    return int2(tex.get_width(mipLevel), tex.get_height(mipLevel));
 }
