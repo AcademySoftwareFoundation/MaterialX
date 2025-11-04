@@ -72,6 +72,18 @@ TEST_CASE("GenReference: OSL Reference", "[genreference]")
     {
         std::string nodeName = nodedef->getName();
         std::string nodeNode = nodedef->getNodeString();
+ 
+        //TODO: this test needs to be updated to reflect newer workflows.
+        // strip namespaces
+        if (nodedef->hasNamespace())
+        {
+            std::string nodenamespace = nodedef->getNamespace();
+            size_t pos = nodeName.find(nodenamespace);
+            if (pos != std::string::npos) { 
+                nodeName.erase(pos, nodenamespace.length() + 1);
+            }
+        }
+        // strip nodedef prefix
         if (nodeName.size() > 3 && nodeName.substr(0, 3) == "ND_")
         {
             nodeName = nodeName.substr(3);
