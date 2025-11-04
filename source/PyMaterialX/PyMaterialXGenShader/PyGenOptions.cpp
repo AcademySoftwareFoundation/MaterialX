@@ -23,7 +23,7 @@ void bindPyGenOptions(py::module& mod)
         .value("SPECULAR_ENVIRONMENT_NONE", mx::HwSpecularEnvironmentMethod::SPECULAR_ENVIRONMENT_NONE)
         .export_values();
 
-    py::class_<mx::GenOptions>(mod, "GenOptions")
+    py::class_<mx::GenOptions>(mod, "GenOptions", "Class holding options to configure shader generation.")
         .def_readwrite("shaderInterfaceType", &mx::GenOptions::shaderInterfaceType)
         .def_readwrite("fileTextureVerticalFlip", &mx::GenOptions::fileTextureVerticalFlip)
         .def_readwrite("targetColorSpaceOverride", &mx::GenOptions::targetColorSpaceOverride)

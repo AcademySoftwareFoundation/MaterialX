@@ -12,8 +12,8 @@ namespace mx = MaterialX;
 
 void bindPyShaderTranslator(py::module& mod)
 {
-    py::class_<mx::ShaderTranslator, mx::ShaderTranslatorPtr>(mod, "ShaderTranslator")
+    py::class_<mx::ShaderTranslator, mx::ShaderTranslatorPtr>(mod, "ShaderTranslator", "A helper class for translating content between shading models.")
         .def_static("create", &mx::ShaderTranslator::create)
-        .def("translateShader", &mx::ShaderTranslator::translateShader)
-        .def("translateAllMaterials", &mx::ShaderTranslator::translateAllMaterials);
+        .def("translateShader", &mx::ShaderTranslator::translateShader, "Translate a shader node to the destination shading model.")
+        .def("translateAllMaterials", &mx::ShaderTranslator::translateAllMaterials, "Translate each material in the input document to the destination shading model.");
 }

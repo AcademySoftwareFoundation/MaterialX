@@ -12,8 +12,8 @@ namespace mx = MaterialX;
 
 void bindPyTinyObjLoader(py::module& mod)
 {
-    py::class_<mx::TinyObjLoader, mx::TinyObjLoaderPtr, mx::GeometryLoader>(mod, "TinyObjLoader")
+    py::class_<mx::TinyObjLoader, mx::TinyObjLoaderPtr, mx::GeometryLoader>(mod, "TinyObjLoader", "Wrapper for geometry loader to read in OBJ files using the TinyObj library.")
         .def_static("create", &mx::TinyObjLoader::create)
         .def(py::init<>())
-        .def("load", &mx::TinyObjLoader::load);
+        .def("load", &mx::TinyObjLoader::load, "Load geometry from file path.");
 }

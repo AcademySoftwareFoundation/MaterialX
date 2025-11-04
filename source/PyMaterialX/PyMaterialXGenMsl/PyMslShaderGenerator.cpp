@@ -29,9 +29,9 @@ void bindPyMslShaderGenerator(py::module& mod)
 {
     py::class_<mx::MslShaderGenerator, mx::HwShaderGenerator, mx::MslShaderGeneratorPtr>(mod, "MslShaderGenerator")
         .def_static("create", &MslShaderGenerator_create)
-        .def("generate", &mx::MslShaderGenerator::generate)
-        .def("getTarget", &mx::MslShaderGenerator::getTarget)
-        .def("getVersion", &mx::MslShaderGenerator::getVersion);
+        .def("generate", &mx::MslShaderGenerator::generate, "Generate a shader starting from the given element, translating the element and all dependencies upstream into shader code.")
+        .def("getTarget", &mx::MslShaderGenerator::getTarget, "Return a unique identifier for the target this generator is for.")
+        .def("getVersion", &mx::MslShaderGenerator::getVersion, "Return the version string for the ESSL version this generator is for.");
 }
 
 void bindPyMslResourceBindingContext(py::module &mod)

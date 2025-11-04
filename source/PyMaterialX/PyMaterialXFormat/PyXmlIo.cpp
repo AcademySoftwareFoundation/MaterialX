@@ -13,7 +13,7 @@ namespace mx = MaterialX;
 
 void bindPyXmlIo(py::module& mod)
 {
-    py::class_<mx::XmlReadOptions>(mod, "XmlReadOptions")
+    py::class_<mx::XmlReadOptions>(mod, "XmlReadOptions", "A set of options for controlling the behavior of XML read functions.")
         .def(py::init())
         .def_readwrite("readXIncludeFunction", &mx::XmlReadOptions::readXIncludeFunction)
         .def_readwrite("readComments", &mx::XmlReadOptions::readComments)
@@ -21,7 +21,7 @@ void bindPyXmlIo(py::module& mod)
         .def_readwrite("upgradeVersion", &mx::XmlReadOptions::upgradeVersion)        
         .def_readwrite("parentXIncludes", &mx::XmlReadOptions::parentXIncludes);
 
-    py::class_<mx::XmlWriteOptions>(mod, "XmlWriteOptions")
+    py::class_<mx::XmlWriteOptions>(mod, "XmlWriteOptions", "A set of options for controlling the behavior of XML write functions.")
         .def(py::init())
         .def_readwrite("writeXIncludeEnable", &mx::XmlWriteOptions::writeXIncludeEnable)
         .def_readwrite("elementPredicate", &mx::XmlWriteOptions::elementPredicate);
