@@ -36,7 +36,9 @@ project(MaterialX VERSION ${MATERIALX_LIBRARY_VERSION})
 option(MATERIALX_BUILD_PYTHON "Build the MaterialX Python package from C++ bindings. Requires Python 3.9 or greater." OFF)
 option(MATERIALX_BUILD_VIEWER "Build the MaterialX Viewer." OFF)
 option(MATERIALX_BUILD_GRAPH_EDITOR "Build the MaterialX Graph Editor." OFF)
-option(MATERIALX_BUILD_DOCS "Create HTML documentation using Doxygen. Requires that Doxygen be installed." OFF)
+option(MATERIALX_BUILD_DOCS "(deprecated) use MATERIALX_BUILD_DOXYGEN_DOCS." OFF)
+option(MATERIALX_BUILD_DOXYGEN_DOCS "Create HTML documentation using Doxygen. Requires that Doxygen be installed." OFF)
+option(MATERIALX_BUILD_SPECIFICATION_DOCS "Create Specification documentation, using the data library templates." OFF)
 
 option(MATERIALX_BUILD_GEN_GLSL "Build the GLSL shader generator back-end." ON)
 option(MATERIALX_BUILD_GEN_OSL "Build the OSL shader generator back-ends." ON)
@@ -52,6 +54,8 @@ option(MATERIALX_BUILD_OSOS "Build OSL .oso's of standard library shaders for th
 
 option(MATERIALX_BUILD_SHARED_LIBS "Build MaterialX libraries as shared rather than static." OFF)
 option(MATERIALX_BUILD_DATA_LIBRARY "Build generated products from the MaterialX data library." OFF)
+option(MATERIALX_BUILD_EXPAND_TEMPLATE_ELEMS "Process the data library files at build time to expand any template elements." ON)
+option(MATERIALX_BUILD_BAKE_NAMED_VALUES "Process the data library files at build time to bake out the named values." ON)
 option(MATERIALX_BUILD_MONOLITHIC "Build a single monolithic MaterialX library." OFF)
 option(MATERIALX_BUILD_USE_CCACHE "Enable the use of ccache to speed up build time, if present." ON)
 option(MATERIALX_PYTHON_LTO "Enable link-time optimizations for MaterialX Python." ON)
@@ -68,6 +72,10 @@ if (MATERIALX_BUILD_IOS)
     message(DEPRECATION "The MATERIALX_BUILD_IOS option is deprecated. Set CMAKE_SYSTEM_NAME to iOS instead.")
     set(CMAKE_SYSTEM_NAME iOS)
 endif()
+
+list(APPEND CMAKE_MODULE_PATH
+        ${PROJECT_SOURCE_DIR}/cmake/macros)
+include(Public)
 
 # Apple ecosystem cross-compilation
 # https://cmake.org/cmake/help/latest/manual/cmake-toolchains.7.html#cross-compiling-for-ios-tvos-visionos-or-watchos
@@ -108,6 +116,11 @@ if (MATERIALX_BUILD_JS)
     set(MATERIALX_BUILD_OSOS OFF)
     set(MATERIALX_BUILD_RENDER OFF)
     set(MATERIALX_BUILD_TESTS OFF)
+endif()
+
+# to maintain legacy cmake argument
+if (MATERIALX_BUILD_DOCS)
+    set(MATERIALX_BUILD_DOXYGEN_DOCS ON)
 endif()
 
 # All hardware shading languages currently depend on the GLSL shader generator.
@@ -457,6 +470,16 @@ else()
     set(BUILD_SHARED_LIBS "OFF")
 endif()
 
+# If we're baking the named "Constant:" entries - then we have to also expand any
+# template elements
+if (MATERIALX_BUILD_BAKE_NAMED_VALUES)
+    set(MATERIALX_BUILD_EXPAND_TEMPLATE_ELEMS ON)
+endif()
+
+if (MATERIALX_BUILD_EXPAND_TEMPLATE_ELEMS OR MATERIALX_BUILD_BAKE_NAMED_VALUES)
+    set(MATERIALX_BUILD_DATA_LIBRARY ON)
+endif()
+
 # Build a monolithic target - needs to be added before the other build targets that may be included.
 if (MATERIALX_BUILD_MONOLITHIC)
     set(MATERIALX_MONOLITHIC_TARGET MaterialX)
@@ -466,6 +489,32 @@ endif()
 # Add core subdirectories
 add_subdirectory(source/MaterialXCore)
 add_subdirectory(source/MaterialXFormat)
+if (MATERIALX_BUILD_EXPAND_TEMPLATE_ELEMS OR MATERIALX_BUILD_BAKE_NAMED_VALUES)
+    if (CMAKE_CROSSCOMPILING)
+        set(_MaterialXBuildLibrary "${CMAKE_BINARY_DIR}/BUILD_TOOLS/MaterialXBuildLibrary")
+
+        add_custom_command(
+                OUTPUT ${_MaterialXBuildLibrary}
+                COMMAND ${CMAKE_COMMAND}
+                -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+                -DCMAKE_RUNTIME_OUTPUT_DIRECTORY:PATH=${CMAKE_BINARY_DIR}/BUILD_TOOLS
+                -DMATERIALX_MAJOR_VERSION=${MATERIALX_MAJOR_VERSION}
+                -DMATERIALX_MINOR_VERSION=${MATERIALX_MINOR_VERSION}
+                -DMATERIALX_BUILD_VERSION=${MATERIALX_BUILD_VERSION}
+                -DMATERIALX_NAMESPACE=${MATERIALX_NAMESPACE}
+                -DMATERIALX_BUILD_BAKE_NAMED_VALUES=ON
+                -B"BUILD_TOOLS"
+                -H"${CMAKE_SOURCE_DIR}/source/MaterialXBuildTools"
+                COMMAND ${CMAKE_COMMAND} --build BUILD_TOOLS
+                DEPENDS MaterialXCore MaterialXFormat
+        )
+        add_custom_target(MaterialXBuildLibrary ALL
+        DEPENDS ${_MaterialXBuildLibrary})
+    else()
+        set(_MaterialXBuildLibrary MaterialXBuildLibrary)
+        add_subdirectory(source/MaterialXBuildTools/buildLibrary)
+    endif()
+endif()
 
 # Add shader generation subdirectories
 add_subdirectory(source/MaterialXGenShader)
@@ -494,6 +543,7 @@ if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL OR MATERIALX_BUILD_GEN_MD
         add_subdirectory(source/MaterialXGenMsl)
     endif()
     add_subdirectory(libraries)
+    add_subdirectory(templates)
 endif()
 
 # Add rendering and viewer subdirectories
@@ -538,8 +588,11 @@ if(MATERIALX_BUILD_PYTHON)
     add_subdirectory(python)
 endif()
 
-if(MATERIALX_BUILD_DOCS)
+if(MATERIALX_BUILD_DOXYGEN_DOCS OR MATERIALX_BUILD_SPECIFICATION_DOCS)
     add_subdirectory(documents)
+    if (MATERIALX_BUILD_SPECIFICATION_DOCS)
+        add_subdirectory(source/MaterialXBuildTools/buildDocs)
+    endif()
 endif()
 
 if(MATERIALX_BUILD_JS)

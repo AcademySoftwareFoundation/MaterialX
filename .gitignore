@@ -1,3 +1,8 @@
 build
 dist
 .DS_Store
+.cache
+
+# temporary addition while we're iterating on building the specification from source
+documents/SpecificationBuild
+

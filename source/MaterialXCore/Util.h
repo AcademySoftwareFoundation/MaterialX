@@ -15,6 +15,11 @@ MATERIALX_NAMESPACE_BEGIN
 
 extern MX_CORE_API const string EMPTY_STRING;
 
+class Document;
+using DocumentPtr = shared_ptr<Document>;
+using ConstDocumentPtr = shared_ptr<const Document>;
+
+
 /// Return the version of the MaterialX library as a string.
 MX_CORE_API string getVersionString();
 
@@ -68,6 +73,10 @@ MX_CORE_API string createNamePath(const StringVec& nameVec);
 
 /// Given a name path, return the parent name path
 MX_CORE_API string parentNamePath(const string& namePath);
+
+/// Replace the provided value string with a concrete value from constants in the associated TypeDef if
+/// the string starts with "Constant:", otherwise just return the original string.
+MX_CORE_API const string& replaceConstantValues(const string& valueStr, const string& typeStr, ConstDocumentPtr doc);
 
 MATERIALX_NAMESPACE_END
 

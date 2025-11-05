@@ -1,0 +1,8 @@
+void mx_anisotropic_vdf(color absorption, color scattering, float anisotropy, output VDF vdf)
+{
+    // Convert from absorption and scattering coefficients to
+    // extinction coefficient and single-scattering albedo.
+    color extinction = absorption + scattering;
+    color albedo = scattering / extinction;
+    vdf = anisotropic_vdf(albedo, extinction, anisotropy);
+}

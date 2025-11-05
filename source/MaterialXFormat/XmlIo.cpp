@@ -167,6 +167,210 @@ void elementFromXml(const xml_node& xmlNode, ElementPtr elem, const XmlReadOptio
     }
 }
 
+
+StringVec splitOptionsString(const std::string& input)
+{
+    StringVec result;
+
+    std::string currentPart = "";
+    uint32_t depth = 0;
+    for (unsigned int i = 0; i < input.size(); i++)
+    {
+        char c = input[i];
+        if (c == '(')
+        {
+            if (depth == 0)
+            {
+                currentPart = "";
+            }
+            else
+            {
+                currentPart += c;
+            }
+            depth += 1;
+        }
+        else if (c == ')')
+        {
+            if (depth == 1)
+            {
+                result.emplace_back(currentPart);
+            }
+            else
+            {
+                currentPart += c;
+            }
+            depth -= 1;
+        }
+        else
+        {
+            currentPart += c;
+        }
+
+    }
+    return result;
+}
+
+
+StringVec tokenizeOptionsString(const std::string& input)
+{
+    StringVec result;
+
+    std::string currentPart = "";
+    bool outside = true;
+    for (unsigned int i = 0; i < input.size(); i++)
+    {
+        char c = input[i];
+
+        if (c == ',' && outside)
+        {
+            result.emplace_back(currentPart);
+            currentPart = "";
+        }
+        else
+        {
+            if (c == '\'')
+            {
+                outside = !outside;
+            }
+            else
+            {
+                currentPart += c;
+            }
+        }
+    }
+    if (!currentPart.empty())
+        result.emplace_back(currentPart);
+
+    return result;
+}
+
+
+std::vector<StringVec> parseOptionsString(const std::string& input)
+{
+
+    std::vector<StringVec> result;
+    StringVec optionsStrs = splitOptionsString(input);
+
+    for (const auto& optionsStr : optionsStrs)
+    {
+        auto parts = tokenizeOptionsString(optionsStr);
+        auto& options = result.emplace_back(StringVec());
+        for (const auto& part : parts)
+        {
+            options.emplace_back( trimSpaces(part) );
+        }
+    }
+
+    return result;
+
+}
+
+
+void recursivelyReplaceStrings(ElementPtr elem, const StringMap& strReplaceMapping)
+{
+    // name is not an attribute so needs special handling
+    auto elemName = elem->getName();
+    auto newElemName = replaceSubstrings(elemName, strReplaceMapping);
+    if (elemName != newElemName)
+        elem->setName(newElemName);
+
+    for (const auto& attrName : elem->getAttributeNames())
+    {
+        auto attrValue = elem->getAttribute(attrName);
+        auto newAttrValue = replaceSubstrings(attrValue, strReplaceMapping);
+        if (attrValue != newAttrValue)
+            elem->setAttribute(attrName, newAttrValue);
+    }
+
+    for (auto childElem : elem->getChildren())
+    {
+        recursivelyReplaceStrings(childElem, strReplaceMapping);
+    }
+}
+
+
+void expandXMLTemplateElem(ElementPtr elem)
+{
+    if (!elem->hasAttribute("varnames") || !elem->hasAttribute("options")) {
+        return;
+    }
+
+    const auto varNamesAttr = elem->getAttribute("varnames");
+    const auto optionsAttr = elem->getAttribute("options");
+
+    const TemplateArgs templateArgs = parseTemplateArgs(varNamesAttr, optionsAttr);
+    const auto& varNamesVec = templateArgs.varNameVec;
+    const auto& optionsVec = templateArgs.optionsVec;
+    size_t optionsSize = optionsVec[0].size();
+
+    const auto childElems = elem->getChildren();
+
+    auto parentElem = elem->getParent();
+    const auto origIndex = parentElem->getChildIndex(elem->getName());
+
+    std::vector<ElementPtr> newElements;
+
+    for (const auto& childElem : childElems)
+    {
+        auto index = origIndex;
+
+        // loop over each of the options creating new elements.
+        for (unsigned int optionIndex = 0; optionIndex < optionsSize; optionIndex++)
+        {
+            // create a string replacement map for all the variables for this given option
+            StringMap strReplaceMapping;
+            for (unsigned int varNameIndex = 0; varNameIndex < varNamesVec.size(); varNameIndex++)
+            {
+                auto varName = varNamesVec[varNameIndex];
+                auto option = optionsVec[varNameIndex][optionIndex];
+                strReplaceMapping.insert({"@"+varName+"@", option});
+            }
+
+            // create a new name for the child element
+            string newName = replaceSubstrings(childElem->getName(), strReplaceMapping);
+
+            // create the new element, and insert it at the correct index
+            // and copy the content from the original child element
+            // and replace any variables in the content with the values from the options
+            auto newChildElem = parentElem->addChildOfCategory(childElem->getCategory(), newName);
+            newElements.emplace_back(newChildElem);
+            parentElem->setChildIndex(newChildElem->getName(), index++);
+            newChildElem->copyContentFrom(childElem);
+            recursivelyReplaceStrings(newChildElem, strReplaceMapping);
+        }
+
+        // finally remove the original templated element
+        std::string childToRemove = elem->getName();
+        parentElem->removeChild(childToRemove);
+    }
+
+    // recursively expand any child template elements.
+    for (auto childElem : newElements)
+    {
+        if (childElem->getCategory() == "template")
+        {
+            expandXMLTemplateElem(childElem);
+        }
+    }
+
+}
+
+void expandXMLTemplateElems(DocumentPtr doc)
+{
+    // replace node definitions that use a TypeList
+    // for (auto elem : doc->traverseTree())
+    // take copy of the whole list of children to iterate over here - because we're going to mutate the children as
+    // we process - thus invalidating the iterator.
+    ElementVec children = doc->getChildren();
+    for (auto elem : children)
+    {
+        if (elem->getCategory() != "template")
+            continue;
+
+        expandXMLTemplateElem(elem);
+    }
+}
+
 void documentFromXml(DocumentPtr doc, const xml_document& xmlDoc, const FileSearchPath& searchPath, const XmlReadOptions* readOptions)
 {
     xml_node xmlRoot = xmlDoc.child(Document::CATEGORY.c_str());
@@ -210,6 +414,11 @@ void documentFromXml(DocumentPtr doc, const xml_document& xmlDoc, const FileSear
 
     // Build the element tree.
     elementFromXml(xmlRoot, doc, readOptions);
+
+    if (readOptions && readOptions->expandTemplateElems)
+    {
+        expandXMLTemplateElems(doc);
+    }
 
     // Upgrade version if requested.
     if (!readOptions || readOptions->upgradeVersion)
@@ -263,14 +472,56 @@ unsigned int getParseOptions(const XmlReadOptions* readOptions)
 
 } // anonymous namespace
 
+
+//
+// const auto varNamesAttr = elem->getAttribute("varnames");
+// const auto optionsAttr = elem->getAttribute("options");
+
+TemplateArgs parseTemplateArgs(const string& varNamesAttr, const string& optionsAttr)
+{
+    auto varNamesVec = splitString(varNamesAttr, ",");
+    for (auto& varName : varNamesVec)
+    {
+        varName = trimSpaces(varName);
+    }
+
+    const auto optionsVec = parseOptionsString(optionsAttr);
+
+    if (varNamesVec.size() != optionsVec.size())
+    {
+        auto tmp = parseOptionsString(optionsAttr);
+        throw std::runtime_error("mis-matches number of typenames and options");
+    }
+
+    // we also need the option list for each variable to be the same length
+    size_t optionsSize = 0;
+    for (const auto& options : optionsVec)
+    {
+        if (optionsSize == 0)
+            optionsSize = options.size();
+        else
+        {
+            if (optionsSize != options.size())
+            {
+                auto tmp2 = parseOptionsString(optionsAttr);
+
+                throw std::runtime_error("oops we have options of different length");
+            }
+        }
+    }
+    if (optionsSize == 0)
+    {
+        throw std::runtime_error("oops we have no options.");
+    }
+
+    return {varNamesVec, optionsVec};
+}
+
 //
 // XmlReadOptions methods
 //
 
 XmlReadOptions::XmlReadOptions() :
-    readComments(false),
-    readNewlines(false),
-    upgradeVersion(true),
     readXIncludeFunction(readFromXmlFile)
 {
 }
@@ -279,8 +530,7 @@ XmlReadOptions::XmlReadOptions() :
 // XmlWriteOptions methods
 //
 
-XmlWriteOptions::XmlWriteOptions() :
-    writeXIncludeEnable(true)
+XmlWriteOptions::XmlWriteOptions()
 {
 }
 
@@ -355,6 +605,13 @@ void writeToXmlStream(DocumentPtr doc, std::ostream& stream, const XmlWriteOptio
 
 void writeToXmlFile(DocumentPtr doc, const FilePath& filename, const XmlWriteOptions* writeOptions)
 {
+    if (writeOptions && writeOptions->createDirectories)
+    {
+        if (!filename.getParentPath().isDirectory())
+        {
+            filename.getParentPath().createDirectory();
+        }
+    }
     std::ofstream ofs(filename.asString());
     writeToXmlStream(doc, ofs, writeOptions);
 }
