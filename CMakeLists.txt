@@ -136,10 +136,9 @@ set(MATERIALX_OSL_BINARY_TESTRENDER "" CACHE FILEPATH "Full path to the OSL test
 set(MATERIALX_OSL_INCLUDE_PATH "" CACHE PATH "Full path to OSL shader includes (e.g. 'stdosl.h').")
 
 # Helpers for Slang validation
-set(MATERIALX_SLANG_RHI_SOURCE_DIR "" CACHE FILEPATH "Full path to the Slang RHI build directory.")
-
-if (MATERIALX_BUILD_RENDER AND MATERIALX_BUILD_GEN_SLANG)
-    if (NOT MATERIALX_SLANG_RHI_SOURCE_DIR)
+if (MATERIALX_BUILD_GEN_SLANG)
+    set(MATERIALX_SLANG_RHI_SOURCE_DIR "" CACHE PATH "Full path to the Slang RHI build directory.")
+    if (MATERIALX_BUILD_RENDER AND NOT MATERIALX_SLANG_RHI_SOURCE_DIR)
         message(WARNING "MATERIALX_SLANG_RHI_SOURCE_DIR must be set to build MaterialXRenderSlang.")
     endif()
 endif()
@@ -225,6 +224,9 @@ if (MATERIALX_BUILD_GEN_MDL)
     mark_as_advanced(MATERIALX_MDL_RENDER_ARGUMENTS)
     mark_as_advanced(MATERIALX_MDL_MODULE_PATHS)
     mark_as_advanced(MATERIALX_INSTALL_MDL_MODULE_PATH)
+endif()
+if (MATERIALX_BUILD_GEN_SLANG)
+    mark_as_advanced(MATERIALX_SLANG_RHI_SOURCE_DIR)
 endif()
 
 if (MATERIALX_BUILD_USE_CCACHE)
