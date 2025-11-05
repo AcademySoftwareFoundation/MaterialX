@@ -193,11 +193,13 @@ jobs:
       shell: bash
       run: |
         if [ "${{ env.IS_EXTENDED_BUILD }}" == "true" ]; then
-          EXTENDED_BUILD_CONFIG="-DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows"
+          if [ "${{ runner.os }}" == "Windows" ]; then
+            EXTENDED_BUILD_CONFIG="-DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows"
+          fi
           if [ "${{ matrix.extended_build_oiio }}" == "ON" ]; then
             EXTENDED_BUILD_CONFIG="$EXTENDED_BUILD_CONFIG -DMATERIALX_BUILD_OIIO=ON"
           fi
-          if [ "${{ matrix.extended_build_mdl_sdk }}" == "ON" ]; then
+          if [ "${{ matrix.extended_build_mdl_sdk }}" == "ON" -a "${{ runner.os }}" == "Windows" ]; then
             EXTENDED_BUILD_CONFIG="$EXTENDED_BUILD_CONFIG -DMATERIALX_MDL_SDK_DIR=C:/vcpkg/installed/x64-windows"
           fi
         fi
