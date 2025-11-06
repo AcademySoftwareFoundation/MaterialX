@@ -33,7 +33,7 @@ Refer to the [test suite documentation](../../resources/Materials/TestSuite/READ
 - GenGlsl.cpp : GLSL shader generation tests which are run when the test tag `[genglsl]` is specified.
 - GenOsl.cpp : OSL shader generation tests which are run when the test tag `[genosl]` is specified.
 - GenMdl.cpp : MDL shader generation tests which are run when the test tag `[genmdl]` is specified.
-- GenMsl.cpp : MSL shader generation tests which are run when the test tag `[genmsl]` is specified. 
+- GenMsl.cpp : MSL shader generation tests which are run when the test tag `[genmsl]` is specified.
 
 Per-language tests will scan MaterialX files in the test suite for input materials.
 
@@ -65,9 +65,7 @@ When rendering tests are enabled through the `MATERIALX_TEST_RENDER` option, the
     - OSL versions 1.12.6 and later are supported.
 - `MDL` :
     - Set the following build options to enable MDL support:
-        - `MATERIALX_MDLC_EXECUTABLE`: Full path to the MDL compiler binary (e.g. `mdlc.exe').
-        - `MATERIALX_MDL_RENDER_EXECUTABLE`: Full path to the binary for render testing.
-    - Optionally, `MATERIALX_MDL_RENDER_ARGUMENTS` can be set to provide command line arguments for non-interactive rendering.
+        - `MATERIALX_MDL_SDK_DIR`: Path to the MDL SDK directory (containing 'include', 'lib', etc.).
     - MDL versions 1.6 and later are supported.
 - `MSL`:
     - Metal Shading Language (MSL) 2.0 and later are supported.
@@ -89,6 +87,6 @@ Processing MaterialX documents and generating shaders is an integral part of man
 
 Here is an example of how to run the benchmark test
 
- `MaterialXTest.exe "GenShader: GLSL Performance Test" --benchmark-samples 10` 
- 
+ `MaterialXTest.exe "GenShader: GLSL Performance Test" --benchmark-samples 10`
+
 This will iterate and gather 10 samples of the test case and report low, mean and high timing results.
