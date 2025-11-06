@@ -33,5 +33,15 @@ module.exports = function (config)
             'karma-mocha',
             'karma-mocha-reporter',
         ],
+        customLaunchers: {
+            ChromeHeadlessGL: {
+              base: 'Chrome',
+              flags: [
+                '--headless=new',
+                '--enable-gpu',
+                '--enable-webgl',
+              ],
+            },
+        },
     });
 };

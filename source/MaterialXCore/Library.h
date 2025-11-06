@@ -35,8 +35,8 @@
         #pragma warning(disable : 4661)
         #define MATERIALX_SYMBOL_EXPORT __declspec(dllexport)
         #define MATERIALX_SYMBOL_IMPORT __declspec(dllimport)
-        #define MATERIALX_EXPORT_EXTERN_TEMPLATE(...) template class MATERIALX_SYMBOL_EXPORT __VA_ARGS__
-        #define MATERIALX_IMPORT_EXTERN_TEMPLATE(...) extern template class MATERIALX_SYMBOL_IMPORT __VA_ARGS__
+        #define MATERIALX_EXPORT_EXTERN_TEMPLATE(...) template class __VA_ARGS__
+        #define MATERIALX_IMPORT_EXTERN_TEMPLATE(...) extern template class __VA_ARGS__
     #else
         #define MATERIALX_SYMBOL_EXPORT __attribute__((__visibility__("default")))
         #define MATERIALX_SYMBOL_IMPORT __attribute__((__visibility__("default")))

@@ -374,7 +374,7 @@ vec3 mx_fresnel_airy(float cosTheta, FresnelData fd)
 
     // Reflectance term for m>0 (pairs of diracs)
     Cm = Rs - T121.x;
-    for (int m=1; m<=2; m++)
+    for (int m = 1; m <= AIRY_FRESNEL_ITERATIONS; m++)
     {
         Cm *= r123p;
         Sm  = 2.0 * mx_eval_sensitivity(float(m) * opd, float(m)*(phi23p+vec3(phi21.x)));
@@ -389,7 +389,7 @@ vec3 mx_fresnel_airy(float cosTheta, FresnelData fd)
 
     // Reflectance term for m>0 (pairs of diracs)
     Cm = Rp - T121.y;
-    for (int m=1; m<=2; m++)
+    for (int m = 1; m <= AIRY_FRESNEL_ITERATIONS; m++)
     {
         Cm *= r123s;
         Sm  = 2.0 * mx_eval_sensitivity(float(m) * opd, float(m)*(phi23s+vec3(phi21.y)));
@@ -400,7 +400,7 @@ vec3 mx_fresnel_airy(float cosTheta, FresnelData fd)
     I *= 0.5;
 
     // Convert back to RGB reflectance
-    I = clamp(XYZ_TO_RGB * I, 0.0, 1.0);
+    I = clamp(mx_matrix_mul(XYZ_TO_RGB, I), 0.0, 1.0);
 
     return I;
 }
@@ -493,7 +493,7 @@ vec2 mx_latlong_projection(vec3 dir)
 
 vec3 mx_latlong_map_lookup(vec3 dir, mat4 transform, float lod, $texSamplerSignature)
 {
-    vec3 envDir = normalize((transform * vec4(dir,0.0)).xyz);
+    vec3 envDir = normalize(mx_matrix_mul(transform, vec4(dir,0.0)).xyz);
     vec2 uv = mx_latlong_projection(envDir);
     return textureLod($texSamplerSampler2D, uv, lod).rgb;
 }
