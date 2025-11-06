@@ -70,25 +70,8 @@ TEST_CASE("GenReference: OSL Reference", "[genreference]")
     bool failedGeneration = false;
     for (const mx::NodeDefPtr& nodedef : datalib->getNodeDefs())
     {
-        std::string nodeName = nodedef->getName();
-        std::string nodeNode = nodedef->getNodeString();
- 
-        //TODO: this test needs to be updated to reflect newer workflows.
-        // strip namespaces
-        if (nodedef->hasNamespace())
-        {
-            std::string nodenamespace = nodedef->getNamespace();
-            size_t pos = nodeName.find(nodenamespace);
-            if (pos != std::string::npos) { 
-                nodeName.erase(pos, nodenamespace.length() + 1);
-            }
-        }
-        // strip nodedef prefix
-        if (nodeName.size() > 3 && nodeName.substr(0, 3) == "ND_")
-        {
-            nodeName = nodeName.substr(3);
-        }
-
+        // determine the corresponding node for the nodedef
+        std::string nodeName = nodedef->getQualifiedName(nodedef->getNodeString());
         mx::InterfaceElementPtr interface = nodedef->getImplementation(generator->getTarget());
         if (!interface)
         {
@@ -96,6 +79,9 @@ TEST_CASE("GenReference: OSL Reference", "[genreference]")
             continue;
         }
 
+        // append a suffix to nodename to avoid conflicts.
+        // The node is used for shadergen and removed later.
+        nodeName.append("_test");
         mx::NodePtr node = datalib->addNodeInstance(nodedef, nodeName);
         REQUIRE(node);
 
