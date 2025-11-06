@@ -1,0 +1,26 @@
+<!-- Template for a lit scene in testrender -->
+<World>
+   <Camera eye="0, 0, 3" dir="0, 0, -1" fov="79.334" />
+
+   <!-- Background environment map. -->
+   <ShaderGroup>
+      %environment_shader_parameter_overrides%
+      shader envmap layer1;
+   </ShaderGroup>
+   <Background resolution="2048" />
+
+   <!-- Background quad with raytype test. -->
+   <ShaderGroup>
+      color Cin %background_color%;
+      %environment_shader_parameter_overrides%
+      shader raytype_background layer1;
+   </ShaderGroup>
+   <Quad corner="-340, -340, -800" edge_x="680, 0, 0" edge_y="0, 680, 0" />
+
+   <!-- Shader graph of generated OSL commands. -->
+   <ShaderGroup>
+      %oslCmd%
+   </ShaderGroup>
+
+   <Sphere center="0, 0, 0" radius="1" />
+</World>

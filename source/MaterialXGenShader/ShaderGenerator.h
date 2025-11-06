@@ -12,13 +12,13 @@
 #include <MaterialXGenShader/Export.h>
 
 #include <MaterialXGenShader/ColorManagementSystem.h>
+#include <MaterialXGenShader/Exception.h>
 #include <MaterialXGenShader/Factory.h>
 #include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/Syntax.h>
 
 #include <MaterialXFormat/File.h>
 
-#include <MaterialXCore/Exception.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -169,11 +169,11 @@ class MX_GENSHADER_API ShaderGenerator
     /// Determine if a shader node implementation has been registered for a given implementation element name
     bool implementationRegistered(const string& name) const;
 
-    /// Create the shader node implementation for a nodedef that has a NodeGraph implementation.
-    virtual ShaderNodeImplPtr createShaderNodeImplForNodeGraph(const NodeDef& nodedef) const;
+    /// Create the shader node implementation for a NodeGraph implementation.
+    virtual ShaderNodeImplPtr createShaderNodeImplForNodeGraph(const NodeGraph& nodegraph) const;
 
-    /// Create the shader node implementation for a nodedef that has a Implementation implementation.
-    virtual ShaderNodeImplPtr createShaderNodeImplForImplementation(const NodeDef& nodedef) const;
+    /// Create the shader node implementation for an Implementation implementation.
+    virtual ShaderNodeImplPtr createShaderNodeImplForImplementation(const Implementation& implementation) const;
 
     /// Return a registered shader node implementation for the given nodedef.
     virtual ShaderNodeImplPtr getImplementation(const NodeDef& nodedef, GenContext& context) const;
@@ -263,14 +263,6 @@ class MX_GENSHADER_API ShaderGenerator
     mutable StringMap _tokenSubstitutions;
 
     friend ShaderGraph;
-};
-
-/// @class ExceptionShaderGenError
-/// An exception that is thrown when shader generation fails.
-class MX_GENSHADER_API ExceptionShaderGenError : public Exception
-{
-  public:
-    using Exception::Exception;
 };
 
 MATERIALX_NAMESPACE_END

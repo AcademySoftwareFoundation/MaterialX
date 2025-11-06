@@ -16,6 +16,7 @@
 #include <MaterialXGenMdl/Nodes/CustomNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/ImageNodeMdl.h>
 
+#include <MaterialXGenShader/Exception.h>
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/ShaderStage.h>
@@ -329,12 +330,12 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
     return shader;
 }
 
-ShaderNodeImplPtr MdlShaderGenerator::createShaderNodeImplForNodeGraph(const NodeDef& nodedef) const
+ShaderNodeImplPtr MdlShaderGenerator::createShaderNodeImplForNodeGraph(const NodeGraph& nodegraph) const
 {
-    vector<OutputPtr> outputs = nodedef.getActiveOutputs();
+    vector<OutputPtr> outputs = nodegraph.getActiveOutputs();
     if (outputs.empty())
     {
-        throw ExceptionShaderGenError("NodeDef '" + nodedef.getName() + "' has no outputs defined");
+        throw ExceptionShaderGenError("NodeGraph '" + nodegraph.getName() + "' has no outputs defined");
     }
 
     const TypeDesc outputType = _typeSystem->getType(outputs[0]->getType());
@@ -348,27 +349,21 @@ ShaderNodeImplPtr MdlShaderGenerator::createShaderNodeImplForNodeGraph(const Nod
     return CompoundNodeMdl::create();
 }
 
-ShaderNodeImplPtr MdlShaderGenerator::createShaderNodeImplForImplementation(const NodeDef& nodedef) const
+ShaderNodeImplPtr MdlShaderGenerator::createShaderNodeImplForImplementation(const Implementation& implElement) const
 {
-    InterfaceElementPtr implElement = nodedef.getImplementation(getTarget());
-    if (!implElement)
-    {
-        return nullptr;
-    }
-
     // When `file` and `function` are provided we consider this node a user node
-    const string file = implElement->getTypedAttribute<string>("file");
-    const string function = implElement->getTypedAttribute<string>("function");
+    const string file = implElement.getTypedAttribute<string>("file");
+    const string function = implElement.getTypedAttribute<string>("function");
     // Or, if `sourcecode` is provided we consider this node a user node with inline implementation
     // inline implementations are not supposed to have replacement markers
-    const string sourcecode = implElement->getTypedAttribute<string>("sourcecode");
+    const string sourcecode = implElement.getTypedAttribute<string>("sourcecode");
     if ((!file.empty() && !function.empty()) || (!sourcecode.empty() && sourcecode.find("{{") == string::npos))
     {
         return CustomCodeNodeMdl::create();
     }
     if (file.empty() && sourcecode.empty())
     {
-        throw ExceptionShaderGenError("No valid MDL implementation found for '" + implElement->getName() + "'");
+        throw ExceptionShaderGenError("No valid MDL implementation found for '" + implElement.getName() + "'");
     }
     return SourceCodeNodeMdl::create();
 }

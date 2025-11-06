@@ -11,6 +11,8 @@
 
 #include <MaterialXGenHw/Export.h>
 
+#include <MaterialXCore/Value.h>
+
 MATERIALX_NAMESPACE_BEGIN
 
 /*
@@ -213,8 +215,10 @@ extern MX_GENHW_API const string LIGHT_DATA_MAX_LIGHT_SOURCES;
 /// Texture sampler parameters (for both combined and separate values)
 extern MX_GENHW_API const string TEX_SAMPLER_SAMPLER2D;
 extern MX_GENHW_API const string TEX_SAMPLER_SAMPLER2D_SPLIT;
+extern MX_GENHW_API const string TEX_SAMPLER_SAMPLER2D_MSL;
 extern MX_GENHW_API const string TEX_SAMPLER_SIGNATURE;
 extern MX_GENHW_API const string TEX_SAMPLER_SIGNATURE_SPLIT;
+extern MX_GENHW_API const string TEX_SAMPLER_SIGNATURE_MSL;
 
 /// Variable blocks names.
 extern MX_GENHW_API const string VERTEX_INPUTS;    // Geometric inputs for vertex stage.
@@ -245,6 +249,13 @@ extern MX_GENHW_API const string USER_DATA_BINDING_CONTEXT;
 
 /// Type Descriptor for closure context data.
 extern MX_GENHW_API const TypeDesc ClosureDataType;
+
+/// Constant Values
+extern MX_GENHW_API const TypedValue<Vector2> VEC2_ZERO;
+extern MX_GENHW_API const TypedValue<Vector2> VEC2_ONE;
+extern MX_GENHW_API const TypedValue<Vector3> VEC3_ZERO;
+extern MX_GENHW_API const TypedValue<Vector3> VEC3_ONE;
+
 } // namespace HW
 
 MATERIALX_NAMESPACE_END

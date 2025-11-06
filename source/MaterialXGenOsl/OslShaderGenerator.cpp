@@ -6,11 +6,12 @@
 #include <MaterialXGenOsl/OslShaderGenerator.h>
 #include <MaterialXGenOsl/OslSyntax.h>
 
+#include <MaterialXGenShader/Exception.h>
 #include <MaterialXGenShader/GenContext.h>
-#include <MaterialXGenShader/Shader.h>
-#include <MaterialXGenShader/TypeDesc.h>
-#include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
+#include <MaterialXGenShader/Shader.h>
+#include <MaterialXGenShader/ShaderStage.h>
+#include <MaterialXGenShader/TypeDesc.h>
 
 
 MATERIALX_NAMESPACE_BEGIN
@@ -223,7 +224,9 @@ ShaderPtr OslShaderGenerator::createShader(const string& name, ElementPtr elemen
     const auto& outputSockets = graph->getOutputSockets();
     const auto* singleOutput = outputSockets.size() == 1 ? outputSockets[0] : NULL;
 
-    const bool isSurfaceShaderOutput = singleOutput && singleOutput->getType() == Type::SURFACESHADER;
+    const bool isSurfaceShaderOutput = context.getOptions().oslImplicitSurfaceShaderConversion
+        && singleOutput && singleOutput->getType() == Type::SURFACESHADER;
+
     if (isSurfaceShaderOutput)
     {
         graph->inlineNodeBeforeOutput(outputSockets[0], "_surfacematerial_", "ND_surfacematerial", "surfaceshader", "out", context);

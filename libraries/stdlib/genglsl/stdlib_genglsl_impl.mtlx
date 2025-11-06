@@ -732,9 +732,9 @@
   <!-- Logical operator nodes                                                   -->
   <!-- ======================================================================== -->
 
-  <implementation name="IM_logical_and_genglsl" nodedef="ND_logical_and" target="genglsl" sourcecode="{{in1}} && {{in2}}"/>
-  <implementation name="IM_logical_or_genglsl" nodedef="ND_logical_or" target="genglsl" sourcecode="{{in1}} || {{in2}}"/>
-  <implementation name="IM_logical_not_genglsl" nodedef="ND_logical_not" target="genglsl" sourcecode="!{{in}}"/>
+  <implementation name="IM_logical_and_genglsl" nodedef="ND_logical_and" target="genglsl" sourcecode="{{in1}} &amp;&amp; {{in2}}" />
+  <implementation name="IM_logical_or_genglsl" nodedef="ND_logical_or" target="genglsl" sourcecode="{{in1}} || {{in2}}" />
+  <implementation name="IM_logical_not_genglsl" nodedef="ND_logical_not" target="genglsl" sourcecode="!{{in}}" />
 
   <!-- ======================================================================== -->
   <!-- Organization nodes                                                       -->
