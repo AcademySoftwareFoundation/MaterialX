@@ -70,7 +70,7 @@ TEST_CASE("GenReference: OSL Reference", "[genreference]")
     bool failedGeneration = false;
     for (const mx::NodeDefPtr& nodedef : datalib->getNodeDefs())
     {
-        // determine the corresponding nodes for the nodedef
+        // Determine the corresponding nodes for the nodedef
         std::string nodeName = nodedef->getQualifiedName(nodedef->getNodeString());
         mx::InterfaceElementPtr interface = nodedef->getImplementation(generator->getTarget());
         if (!interface)
@@ -79,7 +79,7 @@ TEST_CASE("GenReference: OSL Reference", "[genreference]")
             continue;
         }
 
-        // enumerate available nodes for nodedef and create node instances
+        // Enumerate available nodes for nodedef and create node instances
         for (const mx::OutputPtr& nodeOutput : nodedef->getOutputs())
         {
             mx::NodePtr node = datalib->addNodeInstance(nodedef, nodeName + "_" + nodeOutput->getType());
