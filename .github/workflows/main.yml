@@ -115,6 +115,7 @@ jobs:
           cmake_config: -G "Visual Studio 17 2022" -A "x64"
           test_shaders: ON
           extended_build_oiio: ON
+          extended_build_mdl_sdk: ON
 
         - name: Windows_VS2022_x64_SharedLibs
           os: windows-2025
@@ -167,6 +168,12 @@ jobs:
         C:/vcpkg/vcpkg install openimageio --triplet=x64-windows
         Add-Content $env:GITHUB_PATH "C:/vcpkg/installed/x64-windows/bin"
 
+    - name: Install MDL SDK
+      if: env.IS_EXTENDED_BUILD == 'true' && matrix.extended_build_mdl_sdk == 'ON' && runner.os == 'Windows'
+      run: |
+        C:/vcpkg/vcpkg install mdl-sdk --triplet=x64-windows
+        Add-Content $env:GITHUB_PATH "C:/vcpkg/installed/x64-windows/bin"
+
     - name: Install Python ${{ matrix.python }}
       if: matrix.python != 'None'
       uses: actions/setup-python@v5
@@ -185,8 +192,16 @@ jobs:
     - name: CMake Generate
       shell: bash
       run: |
-        if [ "${{ env.IS_EXTENDED_BUILD }}" == "true" ] && [ "${{ matrix.extended_build_oiio }}" == "ON" ]; then
-          EXTENDED_BUILD_CONFIG="-DMATERIALX_BUILD_OIIO=ON -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows"
+        if [ "${{ env.IS_EXTENDED_BUILD }}" == "true" ]; then
+          if [ "${{ runner.os }}" == "Windows" ]; then
+            EXTENDED_BUILD_CONFIG="-DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows"
+          fi
+          if [ "${{ matrix.extended_build_oiio }}" == "ON" ]; then
+            EXTENDED_BUILD_CONFIG="$EXTENDED_BUILD_CONFIG -DMATERIALX_BUILD_OIIO=ON"
+          fi
+          if [ "${{ matrix.extended_build_mdl_sdk }}" == "ON" -a "${{ runner.os }}" == "Windows" ]; then
+            EXTENDED_BUILD_CONFIG="$EXTENDED_BUILD_CONFIG -DMATERIALX_MDL_SDK_DIR=C:/vcpkg/installed/x64-windows"
+          fi
         fi
         cmake -S . -B build -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_BUILD_TESTS=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON $EXTENDED_BUILD_CONFIG ${{matrix.cmake_config}}
 

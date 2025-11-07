@@ -14,7 +14,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 
-# JavaScript setup 
+# JavaScript setup
 option(MATERIALX_BUILD_JS "Build the MaterialX JavaScript package from C++ bindings. Requires the emscripten environment." OFF)
 set(MATERIALX_EMSDK_PATH "" CACHE PATH "Path to EMSDK (e.g. 'D:/Projects/emsdk').")
 if (MATERIALX_BUILD_JS)
@@ -147,13 +147,8 @@ if (MATERIALX_BUILD_OSOS)
 endif()
 
 # Helpers for MDL validation
-if (MATERIALX_BUILD_GEN_MDL)
-    set(MATERIALX_MDLC_EXECUTABLE "" CACHE FILEPATH "Full path to the mdlc binary.")
-    set(MATERIALX_MDL_RENDER_EXECUTABLE "" CACHE FILEPATH "Full path to the mdl renderer binary.")
-    set(MATERIALX_MDL_RENDER_ARGUMENTS "" CACHE STRING "Custom arguments for renderer.")
-    set(MATERIALX_MDL_MODULE_PATHS "" CACHE FILEPATH "Comma separated list of MDL module paths.")
-    set(MATERIALX_INSTALL_MDL_MODULE_PATH ${MATERIALX_INSTALL_STDLIB_PATH} CACHE FILEPATH "Install path for mdl module.")
-endif()
+set(MATERIALX_MDL_SDK_DIR "" CACHE PATH "Path to the MDL SDK directory that contains 'include', 'lib', etc.")
+set(MATERIALX_MDL_MODULE_PATHS "" CACHE FILEPATH "Comma separated list of MDL module paths.")
 
 # Namespace
 set(MATERIALX_NAMESPACE_SUFFIX "" CACHE STRING "Add a suffix to the main MaterialX C++ namespace: Options include dev, staging, <YOURFACILITY> etc.")
@@ -207,13 +202,9 @@ mark_as_advanced(MATERIALX_BUILD_JS)
 mark_as_advanced(MATERIALX_EMSDK_PATH)
 mark_as_advanced(MATERIALX_BUILD_IOS)
 mark_as_advanced(MATERIALX_BUILD_APPLE_FRAMEWORK)
-if (MATERIALX_BUILD_GEN_MDL)
-    mark_as_advanced(MATERIALX_MDLC_EXECUTABLE)
-    mark_as_advanced(MATERIALX_MDL_RENDER_EXECUTABLE)
-    mark_as_advanced(MATERIALX_MDL_RENDER_ARGUMENTS)
-    mark_as_advanced(MATERIALX_MDL_MODULE_PATHS)
-    mark_as_advanced(MATERIALX_INSTALL_MDL_MODULE_PATH)
-endif()
+mark_as_advanced(MATERIALX_MDL_BINARY_MDLC)
+mark_as_advanced(MATERIALX_MDL_MODULE_PATHS)
+mark_as_advanced(MATERIALX_MDL_SDK_DIR)
 
 if (MATERIALX_BUILD_USE_CCACHE)
     # Setup CCache for C/C++ compilation
@@ -251,12 +242,11 @@ if (MATERIALX_BUILD_BENCHMARK_TESTS)
     add_definitions(-DMATERIALX_BUILD_BENCHMARK_TESTS)
 endif()
 
-if (MATERIALX_BUILD_GEN_MDL)
-    add_definitions(-DMATERIALX_MDLC_EXECUTABLE=\"${MATERIALX_MDLC_EXECUTABLE}\")
-    add_definitions(-DMATERIALX_MDL_RENDER_EXECUTABLE=\"${MATERIALX_MDL_RENDER_EXECUTABLE}\")
-    add_definitions(-DMATERIALX_MDL_RENDER_ARGUMENTS=\"${MATERIALX_MDL_RENDER_ARGUMENTS}\")
-    add_definitions(-DMATERIALX_MDL_MODULE_PATHS=\"${MATERIALX_MDL_MODULE_PATHS}\")
-    add_definitions(-DMATERIALX_INSTALL_MDL_MODULE_PATH=\"${MATERIALX_INSTALL_MDL_MODULE_PATH}\")
+# GEN MDL does not have any additional dependencies. For loading and compiling MDL, e.g., in the test renderer, the MDL SDK is needed.
+if(MATERIALX_MDL_SDK_DIR)
+    find_package(mdl QUIET CONFIG REQUIRED PATHS ${MATERIALX_MDL_SDK_DIR})
+    get_target_property(MATERIALX_MDL_BINARY_MDLC mdl::mdlc LOCATION)
+    set(MATERIALX_MDL_BINARY_MDLC ${MATERIALX_MDL_BINARY_MDLC} CACHE FILEPATH "Full path to the mdlc binary." FORCE)
 endif()
 
 # Adjust the default installation path
