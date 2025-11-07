@@ -43,7 +43,7 @@ export float3 mx_hextile_compute_blend_weights(float3 luminance_weights, float3 
 
 export struct mx_hextile_data
 {
-    float2 coords[3];
+    float2[3] coords;
     float3 weights;
     float3 rotations;
 };
