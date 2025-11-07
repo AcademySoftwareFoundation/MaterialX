@@ -82,44 +82,47 @@ TEST_CASE("GenReference: OSL Reference", "[genreference]")
         // Enumerate available nodes for nodedef and create node instances
         for (const mx::OutputPtr& nodeOutput : nodedef->getOutputs())
         {
-            mx::NodePtr node = datalib->addNodeInstance(nodedef, nodeName + "_" + nodeOutput->getType());
-            REQUIRE(node);
-
-            const std::string filename = nodeName + ".osl";
-            try
+            
+            for (const mx::InputPtr & nodeInput: nodedef->getInputs())
             {
-                mx::ShaderPtr shader = generator->generate(node->getName(), node, context);
+                mx::NodePtr node = datalib->addNodeInstance(nodedef, nodeName + "_" + nodeOutput->getType() + "_" + nodeInput->getType());
+                REQUIRE(node);
 
-                std::ofstream file;
-                const std::string filepath = (outputPath / filename).asString();
-                file.open(filepath);
-                REQUIRE(file.is_open());
-                file << shader->getSourceCode();
-                file.close();
-
-                if (oslRenderer)
+                const std::string filename = nodeName + ".osl";
+                try
                 {
-                    oslRenderer->compileOSL(filepath);
-                }
-            }
-            catch (mx::ExceptionRenderError& e)
-            {
-                logFile << "Error compiling OSL reference for '" << nodeName << "' : " << std::endl;
-                logFile << e.what() << std::endl;
-                for (const std::string& error : e.errorLog())
-                {
-                    logFile << error << std::endl;
-                }
-                failedGeneration = true;
-            }
-            catch (mx::Exception& e)
-            {
-                logFile << "Error generating OSL reference for '" << nodeName << "' : " << std::endl;
-                logFile << e.what() << std::endl;
-                failedGeneration = true;
-            }
+                    mx::ShaderPtr shader = generator->generate(node->getName(), node, context);
 
-            datalib->removeChild(node->getName());
+                    std::ofstream file;
+                    const std::string filepath = (outputPath / filename).asString();
+                    file.open(filepath);
+                    REQUIRE(file.is_open());
+                    file << shader->getSourceCode();
+                    file.close();
+
+                    if (oslRenderer)
+                    {
+                        oslRenderer->compileOSL(filepath);
+                    }
+                }
+                catch (mx::ExceptionRenderError& e)
+                {
+                    logFile << "Error compiling OSL reference for '" << nodeName << "' : " << std::endl;
+                    logFile << e.what() << std::endl;
+                    for (const std::string& error : e.errorLog())
+                    {
+                        logFile << error << std::endl;
+                    }
+                    failedGeneration = true;
+                }
+                catch (mx::Exception& e)
+                {
+                    logFile << "Error generating OSL reference for '" << nodeName << "' : " << std::endl;
+                    logFile << e.what() << std::endl;
+                    failedGeneration = true;
+                }
+                datalib->removeChild(node->getName());
+            }
         }
     }
 
