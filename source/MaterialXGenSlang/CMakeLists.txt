@@ -7,7 +7,7 @@ mx_add_library(MaterialXGenSlang
     HEADER_FILES
         ${materialx_headers}
     MTLX_MODULES
-        MaterialXGenShader
+        MaterialXGenHw
         MaterialXCore
     EXPORT_DEFINE
         MATERIALX_GENSLANG_EXPORTS)
