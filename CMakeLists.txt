@@ -42,7 +42,7 @@ option(MATERIALX_BUILD_GEN_GLSL "Build the GLSL shader generator back-end." ON)
 option(MATERIALX_BUILD_GEN_OSL "Build the OSL shader generator back-ends." ON)
 option(MATERIALX_BUILD_GEN_MDL "Build the MDL shader generator back-end." ON)
 option(MATERIALX_BUILD_GEN_MSL "Build the MSL shader generator back-end." ON)
-option(MATERIALX_BUILD_GEN_SLANG "Build the Slang shader generator back-end." OFF)
+option(MATERIALX_BUILD_GEN_SLANG "Build the Slang shader generator back-end." ON)
 option(MATERIALX_BUILD_RENDER "Build the MaterialX Render modules." ON)
 option(MATERIALX_BUILD_RENDER_PLATFORMS "Build platform-specific render modules for each shader generator." ON)
 option(MATERIALX_BUILD_OIIO "Build OpenImageIO support for MaterialXRender." OFF)
@@ -137,11 +137,6 @@ set(MATERIALX_OSL_INCLUDE_PATH "" CACHE PATH "Full path to OSL shader includes (
 
 # Helpers for Slang validation
 set(MATERIALX_SLANG_RHI_SOURCE_DIR "" CACHE PATH "Full path to the Slang RHI build directory.")
-if (MATERIALX_BUILD_GEN_SLANG)
-    if (MATERIALX_BUILD_RENDER AND NOT MATERIALX_SLANG_RHI_SOURCE_DIR)
-        message(WARNING "MATERIALX_SLANG_RHI_SOURCE_DIR must be set to build MaterialXRenderSlang.")
-    endif()
-endif()
 
 set(MATERIALX_PYTHON_FOLDER_NAME "python/MaterialX" CACHE INTERNAL "Folder name to user for installing the Python library.")
 
