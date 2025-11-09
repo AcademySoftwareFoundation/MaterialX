@@ -199,8 +199,12 @@ mx::StringVec launchFileDialog(const std::vector<std::pair<std::string, std::str
     if (save)
         cmd += "--save ";
     cmd += "--file-filter=\"";
-    for (auto pair : filetypes)
-        cmd += "\"*." + pair.first + "\" ";
+    for (size_t i = 0, n = filetypes.size(); i < n; ++i)
+    {
+        cmd += "\"*." + filetypes[i].first + "\"";
+        if (i+1 < n)
+            cmd += " ";
+    }
     cmd += "\"";
     FILE* output = popen(cmd.c_str(), "r");
     if (output == nullptr)

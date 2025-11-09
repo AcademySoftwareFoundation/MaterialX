@@ -210,21 +210,21 @@
     </multiply>
 
     <!-- Dielectric Base -->
-      <!-- apply IOR ratio inversion method to avoid TIR artifact (as in Coat TIR section of spec) -->
-      <divide name="specular_to_coat_ior_ratio" type="float">
-         <input name="in1" type="float" interfacename="specular_ior" />
-         <input name="in2" type="float" interfacename="coat_ior" />
-      </divide>
-      <divide name="coat_to_specular_ior_ratio" type="float">
-         <input name="in1" type="float" interfacename="coat_ior" />
-         <input name="in2" type="float" interfacename="specular_ior" />
-      </divide>
-      <ifgreater name="specular_to_coat_ior_ratio_tir_fix" type="float">
-         <input name="value1" type="float" nodename="specular_to_coat_ior_ratio" />
-         <input name="value2" type="float" value="1.0" />
-         <input name="in1" type="float" nodename="specular_to_coat_ior_ratio" />
-         <input name="in2" type="float" nodename="coat_to_specular_ior_ratio" />
-      </ifgreater>
+    <!-- apply IOR ratio inversion method to avoid TIR artifact (as in Coat TIR section of spec) -->
+    <divide name="specular_to_coat_ior_ratio" type="float">
+      <input name="in1" type="float" interfacename="specular_ior" />
+      <input name="in2" type="float" interfacename="coat_ior" />
+    </divide>
+    <divide name="coat_to_specular_ior_ratio" type="float">
+      <input name="in1" type="float" interfacename="coat_ior" />
+      <input name="in2" type="float" interfacename="specular_ior" />
+    </divide>
+    <ifgreater name="specular_to_coat_ior_ratio_tir_fix" type="float">
+      <input name="value1" type="float" nodename="specular_to_coat_ior_ratio" />
+      <input name="value2" type="float" value="1.0" />
+      <input name="in1" type="float" nodename="specular_to_coat_ior_ratio" />
+      <input name="in2" type="float" nodename="coat_to_specular_ior_ratio" />
+    </ifgreater>
     <mix name="eta_s" type="float">
       <input name="fg" type="float" nodename="specular_to_coat_ior_ratio_tir_fix" />
       <input name="bg" type="float" interfacename="specular_ior" />
@@ -326,7 +326,7 @@
     <layer name="dielectric_base_tf" type="BSDF">
       <input name="top" type="BSDF" nodename="dielectric_reflection_tf" />
       <input name="base" type="BSDF" nodename="dielectric_substrate" />
-    </layer >
+    </layer>
     <layer name="dielectric_base_notf" type="BSDF">
       <input name="top" type="BSDF" nodename="dielectric_reflection" />
       <input name="base" type="BSDF" nodename="dielectric_substrate" />
@@ -543,8 +543,7 @@
   <!--
     OpenPBR Anisotropy node definition
   -->
-  <nodedef name="ND_open_pbr_anisotropy" node="open_pbr_anisotropy" nodegroup="pbr"
-           doc="Computes anisotropic surface roughness as defined in the OpenPBR specification.">
+  <nodedef name="ND_open_pbr_anisotropy" node="open_pbr_anisotropy" nodegroup="pbr" doc="Computes anisotropic surface roughness as defined in the OpenPBR specification.">
     <input name="roughness" type="float" value="0.0" />
     <input name="anisotropy" type="float" value="0.0" />
     <output name="out" type="vector2" />
