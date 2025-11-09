@@ -72,68 +72,118 @@ Standard Texture nodes:
 
 <a id="node-image"> </a>
 
-* **`image`**: samples data from a single image, or from a layer within a multi-layer image.  When used in the context of rendering a geometry, the image is mapped onto the geometry based on geometry UV coordinates, with the lower-left corner of an image mapping to the (0,0) UV coordinate (or to the fractional (0,0) UV coordinate for tiled images).
-The type of the &lt;image> node determines the number of channels output, which may be less than the number of channels in the image file, outputting the first N channels from the image file.  So a `float` &lt;image> would return the Red channel of an RGB image, and a `color3` &lt;image> would return the RGB channels of an RGBA image.  If the type of the &lt;image> node has more channels than the referenced image file, then the output will contain zero values in all channels beyond the N channels of the image file.
-    * `file` (uniform filename): the URI of an image file.  The filename can include one or more substitutions to change the file name (including frame number) that is accessed, as described in the [Filename Substitutions](./MaterialX.Specification.md#filename-substitutions) section in the main Specification document.
-    * `layer` (uniform string): the name of the layer to extract from a multi-layer input file.  If no value for `layer` is provided and the input file has multiple layers, then the "default" layer will be used, or "rgba" if there is no "default" layer.  Note: the number of channels defined by the `type` of the `<image>` must match the number of channels in the named layer.
-    * `default` (float or color<em>N</em> or vector<em>N</em>): a default value to use if the `file` reference can not be resolved (e.g. if a &lt;_geometry token_>, [_interface token_] or {_hostattr_} is included in the filename but no substitution value or default is defined, or if the resolved `file` URI cannot be read), or if the specified `layer` does not exist in the file.  The `default` value must be the same type as the `<image>` element itself.  If `default` is not defined, the default color value will be 0.0 in all channels.
-    * `texcoord` (vector2): the name of a vector2-type node specifying the 2D texture coordinate at which the image data is read.  Default is to use the current u,v coordinate.
-    * `uaddressmode` (uniform string): determines how U coordinates outside the 0-1 range are processed before sampling the image; see below.  Default is "periodic".
-    * `vaddressmode` (uniform string): determines how V coordinates outside the 0-1 range are processed before sampling the image; see below.  Default is "periodic".
-    * `filtertype` (uniform string): the type of texture filtering to use; standard values include "closest" (nearest-neighbor single-sample), "linear", and "cubic".  If not specified, an application may use its own default texture filtering method.
+### `image`
+
+Samples data from a single image, or from a layer within a multi-layer image.  When used in the context of rendering a geometry, the image is mapped onto the geometry based on geometry UV coordinates, with the lower-left corner of an image mapping to the (0,0) UV coordinate (or to the fractional (0,0) UV coordinate for tiled images).
+
+The type of the `image` node determines the number of channels output, which may be less than the number of channels in the image file, outputting the first N channels from the image file.  So a `float` image would return the Red channel of an RGB image, and a `color3` image would return the RGB channels of an RGBA image.  If the type of the `image` node has more channels than the referenced image file, then the output will contain zero values in all channels beyond the N channels of the image file.
+
+The `file` input can include one or more substitutions to change the file name that is accessed, as described in the [Filename Substitutions](./MaterialX.Specification.md#filename-substitutions) section in the main Specification document.  The `filtertype` input supports options `closest` (nearest-neighbor single-sample), `linear`, and `cubic`.
+
+The `layer` input is the name of the layer to extract from a multi-layer input file. If no value for `layer` is provided and the input file has multiple layers, then the "default" layer will be used, or "rgba" if there is no "default" layer. Note: the number of channels defined by the type of the `image` must match the number of channels in the named layer.
+
+The `default` input is the default value to use if the file reference can not be resolved (e.g. if a geometry token, interface token, or hostattr is included in the filename but no substitution value or default is defined, or if the resolved file URI cannot be read), or if the specified layer does not exist in the file. The default value must be the same type as the `image` element itself. If default is not defined, the default color value will be 0.0 in all channels.
+
+|Port            |Description                                                                                                      |Type                  |Default  |Accepted Values                  |
+|----------------|-----------------------------------------------------------------------------------------------------------------|----------------------|---------|---------------------------------|
+|`file`          |The URI of an image file                                                                                         |filename              |__empty__|                                 |
+|`layer`         |The name of the layer to extract from a multi-layer input file                                                   |string                |__empty__|                                 |
+|`default`       |A default value to use if the file reference can not be resolved                                                 |float, colorN, vectorN|__zero__ |                                 |
+|`texcoord`      |The 2D texture coordinate at which the image data is read                                                        |vector2               |_UV0_    |                                 |
+|`uaddressmode`  |Determines how U coordinates outside the 0-1 range are processed before sampling the image                       |string                |periodic |constant, clamp, periodic, mirror|
+|`vaddressmode`  |Determines how V coordinates outside the 0-1 range are processed before sampling the image                       |string                |periodic |constant, clamp, periodic, mirror|
+|`filtertype`    |The type of texture filtering to use                                                                             |string                |linear   |closest, linear, cubic           |
+|`framerange`    |A string 'minframe-maxframe', e.g. '10-99', to specify the range of frames that the image file is allowed to have|string                |__empty__|                                 |
+|`frameoffset`   |A number that is added to the current frame number to get the image file frame number                            |integer               |0        |                                 |
+|`frameendaction`|What to do when the resolved image frame number is outside the `framerange` range                                |string                |constant |constant, clamp, periodic, mirror|
+|`out`           |Output: the sampled texture value                                                                                |Same as `default`     |__zero__ |                                 |
 
 <a id="node-tiledimage"> </a>
 
-* **`tiledimage`** (NG): samples data from a single image, with provisions for tiling and offsetting the image across uv space.
-    * `file` (uniform filename): the URI of an image file.  The filename can include one or more substitutions to change the file name (including frame number) that is accessed, as described in the [Filename Substitutions](./MaterialX.Specification.md#filename-substitutions) section in the main Specification document.
-    * `default` (float or color<em>N</em> or vector<em>N</em>): a default value to use if the `file` reference can not be resolved (e.g. if a &lt;geomtoken>, [interfacetoken] or {hostattr} is included in the filename but no substitution value or default is defined, or if the resolved file URI cannot be read), or if the specified `layer` does not exist in the file.  The `default` value must be the same type as the `<image>` element itself.  If `default` is not defined, the default color value will be 0.0 in all channels.
-    * `texcoord` (vector2): the name of a vector2-type node specifying the 2D texture coordinate at which the image data is read.  Default is to use the current u,v coordinate.
-    * `uvtiling` (vector2): the tiling rate for the given image along the U and V axes. Mathematically equivalent to multiplying the incoming texture coordinates by the given vector value. Default value is (1.0, 1.0).
-    * `uvoffset` (vector2): the offset for the given image along the U and V axes. Mathematically equivalent to subtracting the given vector value from the incoming texture coordinates. Default value is (0.0, 0.0).
-    * `realworldimagesize` (vector2): the real-world size represented by the `file` image, with unittype "distance".  A `unit` attribute may be provided to indicate the units that `realworldimagesize` is expressed in.
-    * `realworldtilesize` (vector2): the real-world size of a single square 0-1 UV tile, with unittype "distance".  A `unit` attribute may be provided to indicate the units that `realworldtilesize` is expressed in.
-    * `filtertype` (uniform string): the type of texture filtering to use; standard values include "closest" (nearest-neighbor single-sample), "linear", and "cubic".  If not specified, an application may use its own default texture filtering method.
+### `tiledimage`
+Samples data from a single image, with provisions for tiling and offsetting the image across uv space.
+
+The `file` input can include one or more substitutions to change the file name that is accessed, as described in the [Filename Substitutions](./MaterialX.Specification.md#filename-substitutions) section in the main Specification document.
+
+|Port                |Description                                                                                                      |Type                  |Default  |Accepted Values                  |
+|--------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|---------|---------------------------------|
+|`file`              |The URI of an image file                                                                                         |filename              |__empty__|                                 |
+|`default`           |A default value to use if the file reference can not be resolved                                                 |float, colorN, vectorN|__zero__ |                                 |
+|`texcoord`          |The 2D texture coordinate at which the image data is read                                                        |vector2               |_UV0_    |                                 |
+|`uvtiling`          |The tiling rate for the given image along the U and V axes                                                       |vector2               |1.0, 1.0 |                                 |
+|`uvoffset`          |The offset for the given image along the U and V axes                                                            |vector2               |0.0, 0.0 |                                 |
+|`realworldimagesize`|The real-world size represented by the file image                                                                |vector2               |1.0, 1.0 |                                 |
+|`realworldtilesize` |The real-world size of a single square 0-1 UV tile                                                               |vector2               |1.0, 1.0 |                                 |
+|`filtertype`        |The type of texture filtering to use                                                                             |string                |linear   |closest, linear, cubic           |
+|`framerange`        |A string 'minframe-maxframe', e.g. '10-99', to specify the range of frames that the image file is allowed to have|string                |__empty__|                                 |
+|`frameoffset`       |A number that is added to the current frame number to get the image file frame number                            |integer               |0        |                                 |
+|`frameendaction`    |What to do when the resolved image frame number is outside the `framerange` range                                |string                |constant |constant, clamp, periodic, mirror|
+|`out`               |Output: the sampled texture value                                                                                |Same as `default`     |__zero__ |                                 |
 
 <a id="node-latlongimage"> </a>
 
-* **`latlongimage`** (NG): samples an equiangular map along a view direction with adjustable latitudinal offset.
-    * `file` (uniform filename): the URI of an image file.  The filename can include one or more substitutions to change the file name (including frame number) that is accessed, as described in the [Filename Substitutions](#filename-substitutions) section above.
-    * `default` (float or color<em>N</em> or vector<em>N</em>): a default value to use if the `file` reference can not be resolved (e.g. if a &lt;_geometry token_>, [_interface token_] or {_hostattr_} is included in the filename but no substitution value or default is defined, or if the resolved `file` URI cannot be read), or if the specified `layer` does not exist in the file.  The `default` value must be the same type as the `<image>` element itself.  If `default` is not defined, the default color value will be 0.0 in all channels.
-    * `viewdir` (vector3): the view direction determining the value sampled from the projected equiangular map.
-    * `rotation` (float): the longitudinal sampling offset, in degrees.
+### `latlongimage`
+Samples an equiangular map along a view direction with adjustable latitudinal offset.
+
+The `file` input can include one or more substitutions to change the file name that is accessed, as described in the [Filename Substitutions](./MaterialX.Specification.md#filename-substitutions) section in the main Specification document.
+
+|Port      |Description                                                                        |Type    |Default      |
+|----------|-----------------------------------------------------------------------------------|--------|-------------|
+|`file`    |The URI of an image file                                                           |filename|__empty__    |
+|`default` |A default value to use if the file reference can not be resolved                   |color3  |0.0, 0.0, 0.0|
+|`viewdir` |The view direction determining the value sampled from the projected equiangular map|vector3 |0.0, 0.0, 1.0|
+|`rotation`|The longitudinal sampling offset, in degrees                                       |float   |0.0          |
+|`out`     |Output: the sampled texture value                                                  |color3  |0.0, 0.0, 0.0|
 
 <a id="node-hextiledimage"> </a>
 
-* **`hextiledimage`**: samples data from a single image, with provisions for hex-tiling and randomizing the image across uv space.
-    * `file` (uniform filename): the URI of an image file.  The filename can include one or more substitutions to change the file name (including frame number) that is accessed, as described in the [Filename Substitutions](./MaterialX.Specification.md#filename-substitutions) section in the main Specification document.
-    * `default` (color<em>N</em>): a default value to use if the `file` reference can not be resolved (e.g. if a &lt;geomtoken>, [interfacetoken] or {hostattr} is included in the filename but no substitution value or default is defined, or if the resolved file URI cannot be read).  The `default` value must be the same type as the `<hextiledimage>` element itself.  If `default` is not defined, the default color value will be 0.0 in all channels.
-    * `texcoord` (vector2): the name of a vector2-type node specifying the 2D texture coordinate at which the image data is read.  Default is to use the current u,v coordinate.
-    * `tiling` (vector2): the tiling rate for the hexagon tiles along the U and V axes. Default value is (1.0, 1.0).
-    * `rotation` (float): per-tile rotation randomness in degrees. Default is 0.0.
-    * `rotationrange` (vector2): [min, max] range in degrees used to randomize rotation for each tile. Default is (0.0, 360.0).
-    * `scale` (float): per-tile scale randomness multiplier applied to tile size. Default is 1.0.
-    * `scalerange` (vector2): [min, max] range of scale multipliers used to randomize tile scale. Default is (0.5, 2.0).
-    * `offset` (float): per-tile translation randomness in UV units. Default is 0.0.
-    * `offsetrange` (vector2): [min, max] range of offset values in UV units used to randomize tile positions. Default is (0.0, 1.0).
-    * `falloff` (float): falloff width used to blend neighboring tiles at their edges; larger values produce smoother blends. Default is 0.5.
-    * `falloffcontrast` (float): contrast applied to the falloff blending to sharpen (values >1) or soften (values <1) transitions. Default is 0.5.
-    * `lumacoeffs` (uniform color3): the luma coefficients of the current working color space; if no specific color space can be determined, the ACEScg (ap1) luma coefficients [0.2722287, 0.6740818, 0.0536895] will be used.  Applications which support color management systems may choose to retrieve the luma coefficients of the working colorspace from the CMS to pass to the &lt;luminance> node's implementation directly, rather than exposing it to the user.
+### `hextiledimage`
+Samples data from a single image, with provisions for hex-tiling and randomizing the image across UV space.
+
+The `file` input can include one or more substitutions to change the file name that is accessed, as described in the [Filename Substitutions](./MaterialX.Specification.md#filename-substitutions) section in the main Specification document.
+
+The `lumacoeffs` input represents the luma coefficients of the current working color space. If no specific color space can be determined, the ACEScg (ap1) luma coefficients [0.2722287, 0.6740818, 0.0536895] will be used. Applications which support color management systems may choose to retrieve the luma coefficients of the working colorspace from the CMS to pass to the `luminance` node's implementation directly, rather than exposing it to the user.
+
+|Port                |Description                                                                                        |Type                  |Default                        |
+|--------------------|---------------------------------------------------------------------------------------------------|----------------------|-------------------------------|
+|`file`              |The URI of an image file                                                                           |filename              |__empty__                      |
+|`default`           |A default value to use if the file reference can not be resolved                                   |float, colorN, vectorN|__zero__                       |
+|`texcoord`          |The 2D texture coordinate at which the image data is read                                          |vector2               |_UV0_                          |
+|`tiling`            |The tiling rate for the given image along the U and V axes                                         |vector2               |1.0, 1.0                       |
+|`rotation`          |Per-tile rotation randomness in degrees                                                            |float                 |0.0                            |
+|`rotationrange`     |Range in degrees used to randomize rotation for each tile                                          |vector2               |0.0, 360.0                     |
+|`scale`             |Per-tile scale randomness multiplier applied to tile size                                          |float                 |1.0                            |
+|`scalerange`        |Range of scale multipliers used to randomize tile scale                                            |vector2               |0.5, 2.0                       |
+|`offset`            |Per-tile translation randomness in UV units                                                        |float                 |1.0                            |
+|`offsetrange`       |Range of offset values in UV units used to randomize tile positions                                |vector2               |0.0, 1.0                       |
+|`falloff`           |Falloff width used to blend neighboring tiles at their edges; larger values produce smoother blends|float                 |0.5                            |
+|`falloffcontrast`   |Contrast applied to the falloff blending to sharpen (values >1) or soften (values <1) transitions  |float                 |0.5                            |
+|`lumacoeffs`        |The luma coefficients of the current working color space                                           |color3                |0.2722287, 0.6740818, 0.0536895|
+|`out`               |Output: the sampled texture value                                                                  |Same as `default`     |__zero__                       |
 
 <a id="node-triplanarprojection"> </a>
 
-* **`triplanarprojection`** (NG): samples data from three images (or layers within multi-layer images), and projects a tiled representation of the images along each of the three respective coordinate axes, computing a weighted blend of the three samples using the geometric normal.
-    * `filex` (uniform filename): the URI of an image file to be projected in the direction from the +X axis back toward the origin.
-    * `filey` (uniform filename): the URI of an image file to be projected in the direction from the +Y axis back toward the origin with the +X axis to the right.
-    * `filez` (uniform filename): the URI of an image file to be projected in the direction from the +Z axis back toward the origin.
-    * `layerx` (uniform string): the name of the layer to extract from a multi-layer input file for the x-axis projection.  If no value for `layerx` is provided and the input file has multiple layers, then the "default" layer will be used, or "rgba" if there is no "default" layer.  Note: the number of channels defined by the `type` of the `<image>` must match the number of channels in the named layer.
-    * `layery` (uniform string): the name of the layer to extract from a multi-layer input file for the y-axis projection.
-    * `layerz` (uniform string): the name of the layer to extract from a multi-layer input file for the z-axis projection.
-    * `default` (float or color<em>N</em> or vector<em>N</em>): a default value to use if any `file<em>X</em>` reference can not be resolved (e.g. if a &lt;geomtoken>, [interfacetoken] or {hostattr} is included in the filename but no substitution value or default is defined, or if the resolved file URI cannot be read)  The `default` value must be the same type as the `<triplanarprojection>` element itself.  If `default` is not defined, the default color value will be 0.0 in all channels.
-    * `position` (vector3): a spatially-varying input specifying the 3D position at which the projection is evaluated.  Default is to use the current 3D object-space coordinate.
-    * `normal` (vector3): a spatially-varying input specifying the 3D normal vector used for blending.  Default is to use the current object-space surface normal.
-    * `upaxis` (integer enum): which axis is considered to be "up", either 0 for X, 1 for Y, or 2 for Z.  Default is Y (1).
-    * `blend` (float): a 0-1 weighting factor for blending the three axis samples using the geometric normal, with higher values giving softer blending.  Default is 1.0.
-    * `filtertype` (uniform string): the type of texture filtering to use; standard values include "closest" (nearest-neighbor single-sample), "linear", and "cubic".  If not specified, an application may use its own default texture filtering method.
+### `triplanarprojection`
+Samples data from three images (or layers within multi-layer images), and projects a tiled representation of the images along each of the three respective coordinate axes, computing a weighted blend of the three samples using the geometric normal.
+
+|Port            |Description                                                                                                      |Type                  |Default  |Accepted Values                  |
+|----------------|-----------------------------------------------------------------------------------------------------------------|----------------------|---------|---------------------------------|
+|`filex`         |The URI of an image file to be projected in the direction from the +X axis back toward the origin                |filename              |__empty__|                                 |
+|`filey`         |The URI of an image file to be projected in the direction from the +Y axis back toward the origin                |filename              |__empty__|                                 |
+|`filez`         |The URI of an image file to be projected in the direction from the +Z axis back toward the origin                |filename              |__empty__|                                 |
+|`layerx`        |The name of the layer to extract from a multi-layer input file for the X-axis projection                         |string                |__empty__|                                 |
+|`layery`        |The name of the layer to extract from a multi-layer input file for the Y-axis projection                         |string                |__empty__|                                 |
+|`layerz`        |The name of the layer to extract from a multi-layer input file for the Z-axis projection                         |string                |__empty__|                                 |
+|`default`       |A default value to use if the file reference can not be resolved                                                 |float, colorN, vectorN|__zero__ |                                 |
+|`position`      |A spatially-varying input specifying the 3D position at which the projection is evaluated                        |vector3               |_Pobject_|                                 |
+|`normal`        |A spatially-varying input specifying the 3D normal vector used for blending                                      |vector3               |_Nobject_|                                 |
+|`upaxis`        |Which axis is considered to be 'up', either 0 for X, 1 for Y, or 2 for Z                                         |integer               |2        |0, 1, 2                          |
+|`blend`         |Weighting factor for blending samples using the geometric normal, with higher values giving softer blending      |float                 |1.0      |                                 |
+|`filtertype`    |The type of texture filtering to use                                                                             |string                |linear   |closest, linear, cubic           |
+|`framerange`    |A string 'minframe-maxframe', e.g. '10-99', to specify the range of frames that the image file is allowed to have|string                |__empty__|                                 |
+|`frameoffset`   |A number that is added to the current frame number to get the image file frame number                            |integer               |0        |                                 |
+|`frameendaction`|What to do when the resolved image frame number is outside the `framerange` range                                |string                |constant |constant, clamp, periodic, mirror|
+|`out`           |Output: the blended texture value                                                                                |Same as `default`     |__zero__ |                                 |
 
 
 <a id="addressmode-values"> </a>
@@ -178,47 +228,88 @@ Standard Procedural nodes:
 
 <a id="node-constant"> </a>
 
-* **`constant`**: a constant value.
-    * `value` (any non-shader-semantic type): the value to output
+### `constant`
+Outputs a constant value.
+
+|Port   |Description                         |Type                                    |Default |
+|-------|------------------------------------|----------------------------------------|--------|
+|`value`|The value that will be sent to `out`|float, colorN, vectorN, boolean, integer|__zero__|
+|`out`  |Output: `value`                     |Same as `value`                         |__zero__|
+
+|Port   |Description                         |Type           |Default|
+|-------|------------------------------------|---------------|-------|
+|`value`|The value that will be sent to `out`|matrixNN       |__one__|
+|`out`  |Output: `value`                     |Same as `value`|__one__|
+
+|Port   |Description                         |Type            |Default  |
+|-------|------------------------------------|----------------|---------|
+|`value`|The value that will be sent to `out`|string, filename|__empty__|
+|`out`  |Output: `value`                     |Same as `value` |__empty__|
+
 
 <a id="node-ramplr"> </a>
 
-* **`ramplr`**: a left-to-right linear value ramp.
-    * `valuel` (float or color<em>N</em> or vector<em>N</em>): the value at the left (U=0) edge
-    * `valuer` (float or color<em>N</em> or vector<em>N</em>): the value at the right (U=1) edge
-    * `texcoord` (vector2): the name of a vector2-type node specifying the 2D texture coordinate at which the ramp interpolation is evaluated.  Default is to use the first set of texture coordinates.
+### `ramplr`
+A left-to-right linear value ramp.
+
+|Port      |Description                                                        |Type                  |Default |
+|----------|-------------------------------------------------------------------|----------------------|--------|
+|`valuel`  |Value at the left (U=0) edge                                       |float, colorN, vectorN|__zero__|
+|`valuer`  |Value at the right (U=1) edge                                      |Same as `valuel`      |__zero__|
+|`texcoord`|2D texture coordinate at which the ramp interpolation is evaluated |vector2               |_UV0_   |
+|`out`     |Output: interpolated ramp value                                    |Same as `valuel`      |__zero__|
 
 <a id="node-ramptb"> </a>
 
-* **`ramptb`**: a top-to-bottom linear value ramp.
-    * `valuet` (float or color<em>N</em> or vector<em>N</em>): the value at the top (V=1) edge
-    * `valueb` (float or color<em>N</em> or vector<em>N</em>): the value at the bottom (V=0) edge
-    * `texcoord` (vector2): the name of a vector2-type node specifying the 2D texture coordinate at which the ramp interpolation is evaluated.  Default is to use the first set of texture coordinates.
+### `ramptb`
+A top-to-bottom linear value ramp.
+
+|Port      |Description                                                        |Type                  |Default |
+|----------|-------------------------------------------------------------------|----------------------|--------|
+|`valuet`  |Value at the top (V=1) edge                                        |float, colorN, vectorN|__zero__|
+|`valueb`  |Value at the bottom (V=0) edge                                     |Same as `valuet`      |__zero__|
+|`texcoord`|2D texture coordinate at which the ramp interpolation is evaluated |vector2               |_UV0_   |
+|`out`     |Output: interpolated ramp value                                    |Same as `valuet`      |__zero__|
 
 <a id="node-ramp4"> </a>
 
-* **`ramp4`** (NG): a 4-corner bilinear value ramp.
-    * `valuetl` (float or color<em>N</em> or vector<em>N</em>): the value at the top-left (U0V1) corner
-    * `valuetr` (float or color<em>N</em> or vector<em>N</em>): the value at the top-right (U1V1) corner
-    * `valuebl` (float or color<em>N</em> or vector<em>N</em>): the value at the bottom-left (U0V0) corner
-    * `valuebr` (float or color<em>N</em> or vector<em>N</em>): the value at the bottom-right (U1V0) corner
-    * `texcoord` (vector2, optional): the name of a vector2-type node specifying the 2D texture coordinate at which the ramp interpolation is evaluated.  Default is to use the first set of texture coordinates.
+### `ramp4`
+A 4-corner bilinear value ramp.
+
+|Port      |Description                                                        |Type                  |Default |
+|----------|-------------------------------------------------------------------|----------------------|--------|
+|`valuetl` |Value at the top-left (U=0, V=1) corner                            |float, colorN, vectorN|__zero__|
+|`valuetr` |Value at the top-right (U=1, V=1) corner                           |Same as `valuetl`     |__zero__|
+|`valuebl` |Value at the bottom-left (U=0, V=0) corner                         |Same as `valuetl`     |__zero__|
+|`valuebr` |Value at the bottom-right (U=1, V=0) corner                        |Same as `valuetl`     |__zero__|
+|`texcoord`|2D texture coordinate at which the ramp interpolation is evaluated |vector2               |_UV0_   |
+|`out`     |Output: interpolated ramp value                                    |Same as `valuetl`     |__zero__|
 
 <a id="node-splitlr"> </a>
 
-* **`splitlr`**: a left-right split matte, split at a specified U value.
-    * `valuel` (float or color<em>N</em> or vector<em>N</em>): the value at the left (U=0) edge
-    * `valuer` (float or color<em>N</em> or vector<em>N</em>): the value at the right (U=1) edge
-    * `center` (float): a value representing the U-coordinate of the split; all pixels to the left of "center" will be `valuel`, all pixels to the right of "center" will be `valuer`.  Default is 0.5.
-    * `texcoord` (vector2): the name of a vector2-type node specifying the 2D texture coordinate at which the split position is evaluated.  Default is to use the first set of texture coordinates.
+### `splitlr`
+A left-right split matte, split at a specified `U` value.
+
+|Port      |Description                                                         |Type                  |Default |
+|----------|--------------------------------------------------------------------|----------------------|--------|
+|`valuel`  |Value at the left (U=0) edge                                        |float, colorN, vectorN|__zero__|
+|`valuer`  |Value at the right (U=1) edge                                       |Same as `valuel`      |__zero__|
+|`center`  |U-coordinate of the split; left of it is `valuel`, right is `valuer`|float                 |0.5     |
+|`texcoord`|2D texture coordinate at which the ramp interpolation is evaluated  |vector2               |_UV0_   |
+|`out`     |Output: interpolated split value                                    |Same as `valuel`      |__zero__|
 
 <a id="node-splittb"> </a>
 
-* **`splittb`**: a top-bottom split matte, split at a specified V value.
-    * `valuet` (float or color<em>N</em> or vector<em>N</em>): the value at the top (V=1) edge
-    * `valueb` (float or color<em>N</em> or vector<em>N</em>): the value at the bottom (V=0) edge
-    * `center` (float): a value representing the V-coordinate of the split; all pixels above "center" will be `valuet`, all pixels below "center" will be `valueb`.  Default is 0.5.
-    * `texcoord` (vector2): the name of a vector2-type node specifying the 2D texture coordinate at which the split position is evaluated.  Default is to use the first set of texture coordinates.
+### `splittb`
+A top-bottom split matte, split at a specified `V`` value.
+
+|Port      |Description                                                        |Type                  |Default |
+|----------|-------------------------------------------------------------------|----------------------|--------|
+|`valuet`  |Value at the top (V=1) edge                                        |float, colorN, vectorN|__zero__|
+|`valueb`  |Value at the bottom (V=0) edge                                     |Same as `valuet`      |__zero__|
+|`center`  |                                                                   |float                 |0.5     |
+|`texcoord`|2D texture coordinate at which the ramp interpolation is evaluated |vector2               |_UV0_   |
+|`out`     |Output: interpolated split value                                   |Same as `valuet`      |__zero__|
 
 <a id="node-randomfloat"> </a>
 
@@ -260,17 +351,27 @@ Standard Noise nodes:
 
 <a id="node-noise2d"> </a>
 
-* **`noise2d`**: 2D Perlin noise in 1, 2, 3 or 4 channels.
-    * `amplitude` (float or vector<em>N</em>): the center-to-peak amplitude of the noise (peak-to-peak amplitude is 2x this value).  Default is 1.0.
-    * `pivot` (float): the center value of the output noise; effectively, this value is added to the result after the Perlin noise is multiplied by `amplitude`.  Default is 0.0.
-    * `texcoord` (vector2): the 2D texture coordinate at which the noise is evaluated.  Default is to use the first set of texture coordinates.
+### `noise2d`
+2D Perlin noise in 1, 2, 3 or 4 channels.
+
+|Port       |Description                                              |Type               |Default |
+|-----------|---------------------------------------------------------|-------------------|--------|
+|`amplitude`|The center-to-peak amplitude of the noise                |float, vectorN     |__one__ |
+|`pivot`    |The center value of the output noise                     |float              |0.0     |
+|`texcoord` |The 2D texture coordinate at which the noise is evaluated|vector2            |_UV0_   |
+|`out`      |Output: the computed noise value                         |Same as `amplitude`|__zero__|
 
 <a id="node-noise3d"> </a>
 
-* **`noise3d`**: 3D Perlin noise in 1, 2, 3 or 4 channels.
-    * `amplitude` (float or vector<em>N</em>): the center-to-peak amplitude of the noise (peak-to-peak amplitude is 2x this value).  Default is 1.0.
-    * `pivot` (float): the center value of the output noise; effectively, this value is added to the result after the Perlin noise is multiplied by `amplitude`.  Default is 0.0.
-    * `position` (vector3): the 3D position at which the noise is evaluated.  Default is to use the current 3D object-space coordinate.
+### `noise3d`
+3D Perlin noise in 1, 2, 3 or 4 channels.
+
+|Port       |Description                                    |Type               |Default  |
+|-----------|-----------------------------------------------|-------------------|---------|
+|`amplitude`|The center-to-peak amplitude of the noise      |float, vectorN     |__one__  |
+|`pivot`    |The center value of the output noise           |float              |0.0      |
+|`position` |The 3D position at which the noise is evaluated|vector3            |_Pobject_|
+|`out`      |Output: the computed noise value               |Same as `amplitude`|__zero__ |
 
 <a id="node-fractal2d"> </a>
 
@@ -283,66 +384,103 @@ Standard Noise nodes:
 
 <a id="node-fractal3d"> </a>
 
-* **`fractal3d`**: Zero-centered 3D Fractal noise in 1, 2, 3 or 4 channels, created by summing several octaves of 3D Perlin noise, increasing the frequency and decreasing the amplitude at each octave.
-    * `amplitude` (float or vector<em>N</em>): the center-to-peak amplitude of the noise (peak-to-peak amplitude is 2x this value).  Default is 1.0.
-    * `octaves` (integer): the number of octaves of noise to be summed.  Default is 3.
-    * `lacunarity` (float or vector<em>N</em>): the exponential scale between successive octaves of noise; must be an integer value if period is non-zero so the result is properly tileable.  Default is 2.0.  Vector<em>N</em>-output types can provide either a float (isotropic) or vector<em>N</em> (anisotropic) values for `lacunarity` and `diminish`.
-    * `diminish` (float or vector<em>N</em>): the rate at which noise amplitude is diminished for each octave.  Should be between 0.0 and 1.0; default is 0.5.  Vector<em>N</em>-output types can provide either a float (isotropic) or vector<em>N</em> (anisotropic) values for `lacunarity` and `diminish`.
-    * `position` (vector3): the 3D position at which the noise is evaluated.  Default is to use the current 3D object-space coordinate.
+### `fractal3d`
+Zero-centered 3D Fractal noise in 1, 2, 3 or 4 channels, created by summing several octaves of 3D Perlin noise, increasing the frequency and decreasing the amplitude at each octave.
+
+|Port        |Description                                                    |Type               |Default  |
+|------------|---------------------------------------------------------------|-------------------|---------|
+|`amplitude` |The center-to-peak amplitude of the noise                      |float, vectorN     |__one__  |
+|`octaves`   |The number of octaves of noise to be summed                    |integer            |3        |
+|`lacunarity`|The exponential scale between successive octaves of noise      |float              |2.0      |
+|`diminish`  |The rate at which noise amplitude is diminished for each octave|float              |0.5      |
+|`position`  |The 3D position at which the noise is evaluated                |vector3            |_Pobject_|
+|`out`       |Output: the computed noise value                               |Same as `amplitude`|__zero__ |
 
 <a id="node-cellnoise2d"> </a>
 
-* **`cellnoise2d`**: 2D cellular noise, 1 or 3 channels (type float or vector3).
-    * `texcoord` (vector2): the 2D position at which the noise is evaluated.  Default is to use the first set of texture coordinates.
+### `cellnoise2d`
+2D cellular noise, 1 or 3 channels (type float or vector3).
+
+|Port      |Description                                              |Type   |Default|
+|----------|---------------------------------------------------------|-------|-------|
+|`texcoord`|The 2D texture coordinate at which the noise is evaluated|vector2|_UV0_  |
+|`out`     |Output: the computed noise value                         |float  |0.0    |
 
 <a id="node-cellnoise3d"> </a>
 
-* **`cellnoise3d`**: 3D cellular noise, 1 or 3 channels (type float or vector3).
-    * `position` (vector3): the 3D position at which the noise is evaluated.  Default is to use the current 3D object-space coordinate.
+### `cellnoise3d`
+3D cellular noise, 1 or 3 channels (type float or vector3).
+
+|Port      |Description                                    |Type   |Default  |
+|----------|-----------------------------------------------|-------|---------|
+|`position`|The 3D position at which the noise is evaluated|vector3|_Pobject_|
+|`out`     |Output: the computed noise value               |float  |0.0      |
 
 <a id="node-worleynoise2d"> </a>
 
-* **`worleynoise2d`**: 2D Worley noise using centered jitter, outputting float (distance metric to closest feature), vector2 (distance metrics to closest 2 features) or vector3 (distance metrics to closest 3 features).
-    * `jitter` (float): amount to jitter the cell center position, with smaller values creating a more regular pattern.  Default is 1.0.
-    * `style` (integer): the output style, one of "distance" (distance to the cell center), or "solid" (constant value for each cell).
-    * `texcoord` (vector2): the 2D position at which the noise is evaluated.  Default is to use the first set of texture coordinates.
+### `worleynoise2d`
+2D Worley noise using centered jitter, outputting float (distance metric to closest feature), vector2 (distance metrics to closest 2 features) or vector3 (distance metrics to closest 3 features).
+
+|Port      |Description                                              |Type                   |Default|Accepted Values|
+|----------|---------------------------------------------------------|-----------------------|-------|---------------|
+|`texcoord`|The 2D texture coordinate at which the noise is evaluated|vector2                |_UV0_  |               |
+|`jitter`  |The amount to jitter the cell center position            |float                  |1.0    |               |
+|`style`   |The output style                                         |integer                |0      |Distance, Solid|
+|`out`     |Output: the computed noise value                         |float, vector2, vector3|0.0    |               |
 
 <a id="node-worleynoise3d"> </a>
 
-* **`worleynoise3d`**: 3D Worley noise using centered jitter, outputting float (distance metric to closest feature), vector2 (distance metrics to closest 2 features) or vector3 (distance metrics to closest 3 features).
-    * `jitter` (float): amount to jitter the cell center position, with smaller values creating a more regular pattern.  Default is 1.0.
-    * `style` (integer): the output style, one of "distance" (distance to the cell center), or "solid" (constant value for each cell). Default is "distance".
-    * `position` (vector3): the 3D position at which the noise is evaluated.  Default is to use the current 3D object-space coordinate.
+### `worleynoise3d`
+3D Worley noise using centered jitter, outputting float (distance metric to closest feature), vector2 (distance metrics to closest 2 features) or vector3 (distance metrics to closest 3 features).
+
+|Port      |Description                                    |Type                   |Default  |Accepted Values|
+|----------|-----------------------------------------------|-----------------------|---------|---------------|
+|`position`|The 3D position at which the noise is evaluated|vector3                |_Pobject_|               |
+|`jitter`  |The amount to jitter the cell center position  |float                  |1.0      |               |
+|`style`   |The output style                               |integer                |0        |Distance, Solid|
+|`out`     |Output: the computed noise value               |float, vector2, vector3|__zero__ |               |
 
 <a id="node-unifiednoise2d"> </a>
 
-* **`unifiednoise2d`** (NG): a single node supporting 2D Perlin, Cell, Worley or Fractal noise in a unified interface.
-    * `type` (integer): The type of noise function to use.  One of 0 (Perlin), 1 (Cell), 2 (Worley), or 3 (Fractal); default is Perlin.
-    * `texcoord` (vector2): the input 2d space. Default is the first texture coordinates.
-    * `freq` (vector2): Adjusts the noise frequency, with higher values producing smaller noise shapes. Default is (1,1).
-    * `offset` (vector2): Shift the noise in 2d space. Default is (0,0).
-    * `jitter` (float): Adjust uniformity of Worley noise; for other noise types jitters the results.
-    * `outmin` (float): The lowest values fit to the noise. Default is 0.0.
-    * `outmax` (float): The highest values fit to the noise. Default is 1.0.
-    * `clampoutput` (boolean): Clamp the output to the min and max output values.
-    * `octaves` (integer): The number of octaves of Fractal noise to be generated. Default is 3.
-    * `lacunarity` (float): The exponential scale between successive octaves of Fractal noise. Default is 2.0.
-    * `diminish` (float): The rate at which noise amplitude is diminished for each octave of Fractal noise. Default is 0.5.
+### `unifiednoise2d`
+(NG): a single node supporting 2D Perlin, Cell, Worley or Fractal noise in a unified interface.
+
+|Port         |Description                                                                                |Type   |Default|Accepted Values|
+|-------------|-------------------------------------------------------------------------------------------|-------|-------|---------------|
+|`texcoord`   |The 2D texture coordinate at which the noise is evaluated                                  |vector2|_UV0_  |               |
+|`freq`       |The noise frequency, with higher values producing smaller noise shapes.                    |vector2|1, 1   |               |
+|`offset`     |The amount to offset 2d space                                                              |vector2|0, 0   |               |
+|`jitter`     |The amount to jitter the cell center position                                              |float  |1      |               |
+|`outmin`     |The lowest output value                                                                    |float  |0      |               |
+|`outmax`     |The highest output value                                                                   |float  |1      |               |
+|`clampoutput`|If enabled the output is clamped between the min and max output values                     |boolean|true   |               |
+|`octaves`    |The number of octaves of noise to be summed                                                |integer|3      |               |
+|`lacunarity` |The exponential scale between successive octaves of noise                                  |float  |2      |               |
+|`diminish`   |The rate at which noise amplitude is diminished for each octave                            |float  |0.5    |               |
+|`type`       |The type of noise function to use.  One of 0 (Perlin), 1 (Cell), 2 (Worley), or 3 (Fractal)|integer|0      |               |
+|`style`      |The output style                                                                           |integer|0      |Distance, Solid|
+|`out`        |Output: the computed noise value                                                           |float  |0.0    |               |
 
 <a id="node-unifiednoise3d"> </a>
 
-* **`unifiednoise3d`** (NG): a single node supporting 3D Perlin, Cell, Worley or Fractal noise in a unified interface.
-    * `type` (integer): The type of noise function to use.  One of 0 (Perlin), 1 (Cell), 2 (Worley), or 3 (Fractal); default is Perlin.
-    * `position` (vector3): the input 3d space. Default is position in object-space.
-    * `freq` (vector3): Adjusts the noise frequency, with higher values producing smaller noise shapes. Default is (1,1,1).
-    * `offset` (vector3): Shift the noise in 3d space. Default is (0,0,0).
-    * `jitter` (float): Adjust uniformity of Worley noise; for other noise types jitters the results.
-    * `outmin` (float): The lowest values fit to the noise. Default is 0.0.
-    * `outmax` (float): The highest values fit to the noise. Default is 1.0.
-    * `clampoutput` (boolean): Clamp the output to the min and max output values.
-    * `octaves` (integer): The number of octaves of Fractal noise to be generated. Default is 3.
-    * `lacunarity` (float): The exponential scale between successive octaves of Fractal noise. Default is 2.0.
-    * `diminish` (float): The rate at which noise amplitude is diminished for each octave of Fractal noise. Default is 0.5.
+### `unifiednoise3d`
+(NG): a single node supporting 3D Perlin, Cell, Worley or Fractal noise in a unified interface.
+
+|Port         |Description                                                                                |Type   |Default  |Accepted Values|
+|-------------|-------------------------------------------------------------------------------------------|-------|---------|---------------|
+|`position`   |The 3D position at which the noise is evaluated                                            |vector3|_Pobject_|               |
+|`freq`       |The noise frequency, with higher values producing smaller noise shapes.                    |vector3|1, 1, 1  |               |
+|`offset`     |The amount to offset 3d space                                                              |vector3|0, 0, 0  |               |
+|`jitter`     |The amount to jitter the cell center position                                              |float  |1        |               |
+|`outmin`     |The lowest output value                                                                    |float  |0        |               |
+|`outmax`     |The highest output value                                                                   |float  |1        |               |
+|`clampoutput`|If enabled the output is clamped between the min and max output values                     |boolean|true     |               |
+|`octaves`    |The number of octaves of noise to be summed                                                |integer|3        |               |
+|`lacunarity` |The exponential scale between successive octaves of noise                                  |float  |2        |               |
+|`diminish`   |The rate at which noise amplitude is diminished for each octave                            |float  |0.5      |               |
+|`type`       |The type of noise function to use.  One of 0 (Perlin), 1 (Cell), 2 (Worley), or 3 (Fractal)|integer|0        |               |
+|`style`      |The output style                                                                           |integer|0        |Distance, Solid|
+|`out`        |Output: the computed noise value                                                           |float  |0.0      |               |
 
 
 To scale or offset the noise pattern generated by a 3D noise node such as `noise3d`, `fractal3d` or `cellnoise3d`, use a &lt;position> or other [Geometric Node](#geometric-nodes) (see below) connected to vector3 &lt;multiply> and/or &lt;add> nodes, in turn connected to the noise node's `position` input.  To scale or offset the noise pattern generated by a 2D noise node such as `noise2d` or `cellnoise2d`, use a &lt;texcoord> or similar Geometric node processed by vector2 &lt;multiply>, &lt;rotate> and/or &lt;add> nodes, and connect to the node's `texcoord` input.
@@ -365,87 +503,137 @@ Standard Shape nodes:
 
 <a id="node-checkerboard"> </a>
 
-* **`checkerboard`** (NG): a 2D checkerboard pattern.  Output type color3.
-    * `color1` (color3): The first color used in the checkerboard pattern.
-    * `color2` (color3): The second color used in the checkerboard pattern.
-    * `uvtiling` (vector2): The tiling of the checkerboard pattern along each axis, with higher values producing smaller squares. Default is (8, 8).
-    * `uvoffset` (vector2): The offset of the checkerboard pattern along each axis. Default is (0, 0).
-    * `texcoord` (vector2): The input 2d space. Default is the first texture coordinates.
+### `checkerboard`
+2D checkerboard pattern.
+
+|Port      |Description                                                                                          |Type   |Default      |
+|----------|-----------------------------------------------------------------------------------------------------|-------|-------------|
+|`color1`  |The first color used in the checkerboard pattern.                                                    |color3 |1.0, 1.0, 1.0|
+|`color2`  |The second color used in the checkerboard pattern.                                                   |color3 |0.0, 0.0, 0.0|
+|`uvtiling`|The tiling of the checkerboard pattern along each axis, with higher values producing smaller squares.|vector2|8, 8         |
+|`uvoffset`|The offset of the checkerboard pattern along each axis                                               |vector2|0, 0         |
+|`texcoord`|The input 2d space.                                                                                  |vector2|_UV0_        |
+|`out`     |Output: the checkerboard pattern                                                                     |color3 |             |
 
 <a id="node-line"> </a>
 
-* **`line`** (NG): Returns 1 if texcoord is at less than radius distance from a line segment defined by point1 and point2; otherwise returns 0.  Output type float.
-    * `texcoord` (vector2): The input 2d space. Default is the first texture coordinates.
-    * `center` (vector2): An offset value added to both the point1 and point2 coordinates, default is (0, 0).
-    * `radius` (float): The radius or "half thickness" of the line, default is 0.1.
-    * `point1` (vector2): The UV coordinate of the first endpoint, default is (0.25, 0.25).
-    * `point2` (vector2): The UV coordinate of the second endpoint, default is (0.75, 0.75).
+### `line`
+2D line pattern.
+
+|Port      |Description                                                    |Type   |Default   |
+|----------|---------------------------------------------------------------|-------|----------|
+|`texcoord`|The input 2d space                                             |vector2|_UV0_     |
+|`center`  |An offset value added to both the point1 and point2 coordinates|vector2|0, 0      |
+|`radius`  |The radius or 'half thickness' of the line                     |float  |0.1       |
+|`point1`  |The UV coordinate of the first endpoint                        |vector2|0.25, 0.25|
+|`point2`  |The UV coordinate of the second endpoint                       |vector2|0.75, 0.75|
+|`out`     |Output: the line pattern                                       |float  |          |
 
 <a id="node-circle"> </a>
 
-* **`circle`** (NG): Returns 1 if texcoord is inside a circle defined by center and radius; otherwise returns 0.  Output type float.
-    * `texcoord` (vector2): The input 2d space. Default is the first texture coordinates.
-    * `center` (vector2): The center coordinate of the circle, default is (0, 0).
-    * `radius` (float): The radius of the circle, default is 0.5.
+### `circle`
+2D circle(disk) pattern.
+
+|Port      |Description                        |Type   |Default|
+|----------|-----------------------------------|-------|-------|
+|`texcoord`|The input 2d space                 |vector2|_UV0_  |
+|`center`  |The center coordinate of the circle|vector2|0, 0   |
+|`radius`  |The radius of the circle           |float  |0.5    |
+|`out`     |Output: the circle pattern         |float  |       |
 
 <a id="node-cloverleaf"> </a>
 
-* **`cloverleaf`** (NG): Returns 1 if texcoord is inside a cloverleaf shape described by four semicircles on the edges of a square defined by center and radius; otherwise returns 0.  Output type float.
-    * `texcoord` (vector2): The input 2d space. Default is the first texture coordinates.
-    * `center` (vector2): 2x the coordinate of the center of the cloverleaf pattern, default is (0, 0); a value of (1,1) will center the cloverleaf in the 0-1 UV space.
-    * `radius` (float): The radius of the complete cloverleaf pattern, default is 0.5 resulting in a cloverleaf pattern filling the 0-1 UV boundary.
+### `cloverleaf`
+2D cloverleaf pattern: four semicircles on the edges of a square defined by center and radius.
+
+|Port      |Description                            |Type   |Default|
+|----------|---------------------------------------|-------|-------|
+|`texcoord`|The input 2d space                     |vector2|_UV0_  |
+|`center`  |The center coordinate of the cloverleaf|vector2|0, 0   |
+|`radius`  |The radius of the cloverleaf           |float  |0.5    |
+|`out`     |Output: the cloverleaf pattern         |float  |       |
 
 <a id="node-hexagon"> </a>
 
-* **`hexagon`** (NG): Returns 1 if texcoord is inside a hexagon shape inscribed by a circle defined by center and radius; otherwise returns 0.  Output type float.
-    * `texcoord` (vector2): The input 2d space. Default is the first texture coordinates.
-    * `center` (vector2): The center coordinate of the hexagon, default is (0, 0).
-    * `radius` (float): The inner (edge center to opposite edge center) radius of the hexagon, default is 0.5.
+### `hexagon`
+2D hexagon pattern.
+
+|Port      |Description                         |Type   |Default|
+|----------|------------------------------------|-------|-------|
+|`texcoord`|The input 2d space                  |vector2|_UV0_  |
+|`center`  |The center coordinate of the hexagon|vector2|0, 0   |
+|`radius`  |The radius of the hexagon           |float  |0.5    |
+|`out`     |Output: the hexagon pattern         |float  |       |
 
 <a id="node-grid"> </a>
 
-* **`grid`** (NG): Creates a grid pattern of (1, 1, 1) white lines on a (0, 0, 0) black background with the given tiling, offset, and line thickness.  Pattern can be regular or staggered.  Output type color3.
-    * `texcoord` (vector2): The input 2d space. Default is the first texture coordinates.
-    * `uvtiling` (vector2): Tiling factor, with higher values producing a denser grid.  Default is (1, 1).
-    * `uvoffset` (vector2): UV Offset, default is (0, 0).
-    * `thickness` (float): The thickness of the grid lines, default is 0.05.
-    * `staggered` (boolean): If true, every other row will be offset 50% to produce a "brick wall" pattern.  Default is false.
+### `grid`
+Creates a grid pattern of (1, 1, 1) white lines on a (0, 0, 0) black background with the given tiling, offset, and line thickness. Pattern can be regular or staggered.
+
+|Port       |Description                                                                  |Type   |Default |
+|-----------|-----------------------------------------------------------------------------|-------|--------|
+|`texcoord` |The input 2d space                                                           |vector2|_UV0_   |
+|`uvtiling` |Tiling factor, with higher values producing a denser grid.                   |vector2|1.0, 1.0|
+|`uvoffset` |UV Offset                                                                    |vector2|0.0, 0.0|
+|`thickness`|The thickness of the grid lines                                              |float  |0.05    |
+|`staggered`|If true, every other row will be offset 50% to produce a 'brick wall' pattern|boolean|false   |
+|`out`      |Output: the grid pattern                                                     |color3 |        |
 
 <a id="node-crosshatch"> </a>
 
-* **`crosshatch`** (NG): Creates a crosshatch pattern with the given tiling, offset, and line thickness.  Pattern can be regular or staggered.  Output type color3.
-    * `texcoord` (vector2): The input 2d space. Default is the first texture coordinates.
-    * `uvtiling` (vector2): Tiling factor, with higher values producing a denser grid.  Default is (1, 1).
-    * `uvoffset` (vector2): UV Offset, default is (0, 0).
-    * `thickness` (float): The thickness of the grid lines, default is 0.05.
-    * `staggered` (boolean): If true, every other row will be offset 50% to produce an "alternating diamond" pattern.  Default is false.
+### `crosshatch`
+Creates a crosshatch pattern with the given tiling, offset, and line thickness. Pattern can be regular or staggered.
+
+|Port       |Description                                                                            |Type   |Default |
+|-----------|---------------------------------------------------------------------------------------|-------|--------|
+|`texcoord` |The input 2d space                                                                     |vector2|_UV0_   |
+|`uvtiling` |Tiling factor, with higher values producing a denser grid.                             |vector2|1.0, 1.0|
+|`uvoffset` |UV Offset                                                                              |vector2|0.0, 0.0|
+|`thickness`|The thickness of the grid lines                                                        |float  |0.05    |
+|`staggered`|If true, every other row will be offset 50% to produce an 'alternating diamond' pattern|boolean|false   |
+|`out`      |Output: the crosshatch pattern                                                         |color3 |        |
 
 <a id="node-tiledcircles"> </a>
 
-* **`tiledcircles`** (NG): Creates a black and white pattern of circles with a defined tiling and size (diameter).  Pattern can be regular or staggered.  Output type color3.
-    * `texcoord` (vector2): The input 2d space. Default is the first texture coordinates.
-    * `uvtiling` (vector2): Tiling factor, with higher values producing a denser grid.  Default is (1, 1).
-    * `uvoffset` (vector2): UV Offset, default is (0, 0).
-    * `size` (float): The diameter of the circles in the tiled pattern, default is 0.5; if `size` is 1.0, the edges of adjacent circles in the tiling will exactly touch.
-    * `staggered` (boolean): If true, every other row will be offset 50%, and the spacing of the tiling will be adjusted in the V direction to center the circles on the vertices of an equilateral triangle grid.  Default is false.
+### `tiledcircles`
+Creates a black and white pattern of circles with a defined tiling and size (diameter). Pattern can be regular or staggered.
+
+|Port       |Description                                                                                                                                                                         |Type   |Default |
+|-----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------|--------|
+|`texcoord` |The input 2d space                                                                                                                                                                  |vector2|_UV0_   |
+|`uvtiling` |Tiling factor, with higher values producing a denser grid.                                                                                                                          |vector2|1.0, 1.0|
+|`uvoffset` |UV Offset                                                                                                                                                                           |vector2|0.0, 0.0|
+|`size`     |The diameter of the circles in the tiled pattern. If `size` is 1.0, the edges of adjacent circles in the tiling will exactly touch.                                                 |float  |0.5     |
+|`staggered`|If true, every other row will be offset 50%, and the spacing of the tiling will be adjusted in the V direction to center the circles on the vertices of an equilateral triangle grid|boolean|false   |
+|`out`      |Output: the tiled circle pattern                                                                                                                                                    |color3 |        |
 
 <a id="node-tiledcloverleafs"> </a>
 
-* **`tiledcloverleafs`** (NG): Creates a black and white pattern of cloverleafs with a defined tiling and size (diameter of the circles circumscribing the shape).  Pattern can be regular or staggered.  Output type color3.
-    * `texcoord` (vector2): The input 2d space. Default is the first texture coordinates.
-    * `uvtiling` (vector2): Tiling factor, with higher values producing a denser grid.  Default is (1, 1).
-    * `uvoffset` (vector2): UV Offset, default is (0, 0).
-    * `size` (float): The outer diameter of the cloverleafs in the tiled pattern, default is 0.5; if `size` is 1.0, the edges of adjacent cloverleafs in the tiling will exactly touch.
-    * `staggered` (boolean): If true, an additional pattern of cloverleafs will be generated in between the originals offset by 50% in both U and V.  Default is false.
+### `tiledcloverleafs`
+Creates a black and white pattern of cloverleafs with a defined tiling and size (diameter of the circles circumscribing the shape). Pattern can be regular or staggered.
+
+|Port       |Description                                                                                                                                    |Type   |Default |
+|-----------|-----------------------------------------------------------------------------------------------------------------------------------------------|-------|--------|
+|`texcoord` |The input 2d space                                                                                                                             |vector2|_UV0_   |
+|`uvtiling` |Tiling factor, with higher values producing a denser grid.                                                                                     |vector2|1.0, 1.0|
+|`uvoffset` |UV Offset                                                                                                                                      |vector2|0.0, 0.0|
+|`size`     |The outer diameter of the cloverleafs in the tiled pattern. If size is 1.0, the edges of adjacent cloverleafs in the tiling will exactly touch.|float  |0.5     |
+|`staggered`|If true, an additional pattern of cloverleafs will be generated in between the originals offset by 50% in both U and V                         |boolean|false   |
+|`out`      |Output: the tiled cloverleaf pattern                                                                                                           |color3 |        |
 
 <a id="node-tiledhexagons"> </a>
 
-* **`tiledhexagons`** (NG): Creates a black and white pattern of hexagons with a defined tiling and size (diameter of the circles circumscribing the shape).  Pattern can be regular or staggered.  Output type color3.
-    * `texcoord` (vector2): The input 2d space. Default is the first texture coordinates.
-    * `uvtiling` (vector2): Tiling factor, with higher values producing a denser grid.  Default is (1, 1).
-    * `uvoffset` (vector2): UV Offset, default is (0, 0).
-    * `size` (float): The inner diameter of the hexagons in the tiled pattern, default is 0.5; if `size` is 1.0, the edges of adjacent hexagons in the U-direcction tiling will exactly touch.
-    * `staggered` (boolean): If true, every other row will be offset 50%, and the spacing of the tiling will be adjusted in the V direction to center the hexagons on the vertices of an equilateral triangle grid.  Default is false.
+### `tiledhexagons`
+Creates a black and white pattern of hexagons with a defined tiling and size (diameter of the circles circumscribing the shape). Pattern can be regular or staggered.
+
+|Port       |Description                                                                                                                                                                           |Type   |Default |
+|-----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------|--------|
+|`texcoord` |The input 2d space                                                                                                                                                                    |vector2|_UV0_   |
+|`uvtiling` |Tiling factor, with higher values producing a denser grid.                                                                                                                            |vector2|1.0, 1.0|
+|`uvoffset` |UV Offset                                                                                                                                                                             |vector2|0.0, 0.0|
+|`size`     |The inner diameter of the hexagons in the tiled pattern. if size is 1.0, the edges of adjacent hexagons in the U-direcction tiling will exactly touch                                 |float  |0.5     |
+|`staggered`|If true, every other row will be offset 50%, and the spacing of the tiling will be adjusted in the V direction to center the hexagons on the vertices of an equilateral triangle grid.|boolean|false   |
+|`out`      |Output: the tiled hexagon pattern                                                                                                                                                     |color3 |        |
 
 
 
@@ -464,55 +652,102 @@ Standard Geometric nodes:
 
 <a id="node-position"> </a>
 
-* **`position`**: the coordinates associated with the currently-processed data, as defined in a specific coordinate space.  This node must be of type vector3.
-    * `space` (uniform string): the name of the coordinate space in which the position is defined.  Default is "object", see [Geometric Spaces](./MaterialX.Specification.md#geometric-spaces) in the main Specification document for supported options.
+### `position`
+The coordinates associated with the currently-processed data, as defined in a specific coordinate space.
+
+|Port   |Description                                |Type   |Default      |Accepted Values     |
+|-------|-------------------------------------------|-------|-------------|--------------------|
+|`space`|The coordinate space of the output position|string |object       |model, object, world|
+|`out`  |Output: the position in `space`            |vector3|0.0, 0.0, 0.0|                    |
 
 <a id="node-normal"> </a>
 
-* **`normal`**: the geometric normal associated with the currently-processed data, as defined in a specific coordinate space.  This node must be of type vector3.
-    * `space` (uniform string): the name of the coordinate space in which the normal vector is defined.  Default is "object", see [Geometric Spaces](./MaterialX.Specification.md#geometric-spaces) in the main Specification document for supported options.
+### `normal`
+The normalized geometric normal associated with the currently-processed data, as defined in a specific coordinate space.
+
+|Port   |Description                                |Type   |Default      |Accepted Values     |
+|-------|-------------------------------------------|-------|-------------|--------------------|
+|`space`|The coordinate space of the output position|string |object       |model, object, world|
+|`out`  |Output: the normal in `space`              |vector3|0.0, 1.0, 0.0|                    |
 
 <a id="node-tangent"> </a>
 
-* **`tangent`**: the geometric tangent vector associated with the currently-processed data, as defined in a specific coordinate space.  This node must be of type vector3.
-    * `space` (uniform string): the name of the coordinate space in which the tangent vector is defined.  Default is "object", see [Geometric Spaces](./MaterialX.Specification.md#geometric-spaces) in the main Specification document for supported options.
-    * `index` (uniform integer): the index of the texture coordinates against which the tangent is computed.  The default index is 0.
+### `tangent`
+The geometric tangent vector associated with the currently-processed data, as defined in a specific coordinate space.
+
+|Port   |Description                                                                          |Type   |Default      |Accepted Values     |
+|-------|-------------------------------------------------------------------------------------|-------|-------------|--------------------|
+|`space`|The coordinate space of the output position                                          |string |object       |model, object, world|
+|`index`|The index of the texcoord space to use to compute the tangent vector                 |integer|0            |                    |
+|`out`  |Output: the tangent vector associated with the `index`th coordinate space, in `space`|vector3|1.0, 0.0, 0.0|                    |
 
 <a id="node-bitangent"> </a>
 
-* **`bitangent`**: the geometric bitangent vector associated with the currently-processed data, as defined in a specific coordinate space.  This node must be of type vector3.
-    * `space` (uniform string): the name of the coordinate space in which the bitangent vector is defined.  Default is "object", see [Geometric Spaces](./MaterialX.Specification.md#geometric-spaces) in the main Specification document for supported options.
-    * `index` (uniform integer): the index of the texture coordinates against which the tangent is computed.  The default index is 0.
+### `bitangent`
+The geometric bi-tangent vector associated with the currently-processed data, as defined in a specific coordinate space.
+
+|Port   |Description                                                                            |Type   |Default      |Accepted Values     |
+|-------|---------------------------------------------------------------------------------------|-------|-------------|--------------------|
+|`space`|The coordinate space of the output position                                            |string |object       |model, object, world|
+|`index`|The index of the texcoord space to use to compute the bitangent vector                 |integer|0            |                    |
+|`out`  |Output: the bitangent vector associated with the `index`th coordinate space, in `space`|vector3|0.0, 0.0, 1.0|                    |
 
 <a id="node-bump"> </a>
 
-* **`bump`**: offset the surface normal by a scalar value.  This node must be of type type vector3, and is generally connected to a shader node's "normal" input.
-    * `height` (float): Amount to offset the surface normal.
-    * `scale` (float): Scalar to adjust the height amount.
-    * `normal` (vector3): Surface normal; defaults to the current world-space normal.
-    * `tangent` (vector3): Surface tangent vector, defaults to the current world-space tangent vector.
+### `bump`
+The normalized normal computed by offsetting the surface world space position along its world space normal.
+
+|Port       |Description                         |Type   |Default |
+|-----------|------------------------------------|-------|--------|
+|`height`   |Amount to offset the surface normal.|float  |0       |
+|`scale`    |Scalar to adjust the height amount. |float  |1       |
+|`normal`   |Surface normal                      |vector3|_Nworld_|
+|`tangent`  |Surface tangent vector              |vector3|_Tworld_|
+|`bitangent`|Surface bitangent vector            |vector3|_Bworld_|
+|`out`      |Output: offset surface normal       |vector3|        |
 
 <a id="node-texcoord"> </a>
 
-* **`texcoord`**: the 2D or 3D texture coordinates associated with the currently-processed data.  This node must be of type vector2 or vector3.
-    * `index` (uniform integer): the index of the texture coordinates to be referenced.  The default index is 0.
+### `texcoord`
+The 2D or 3D texture coordinates associated with the currently-processed data
+
+|Port   |Description                |Type            |Default |
+|-------|---------------------------|----------------|--------|
+|`index`|Texcoord index             |integer         |0       |
+|`out`  |Output: texture coordinates|vector2, vector3|__zero__|
 
 <a id="node-geomcolor"> </a>
 
-* **`geomcolor`**: the color associated with the current geometry at the current `position`, generally bound via per-vertex color values.  Can be of type float, color3 or color4, and must match the type of the "color" bound to the geometry.
-    * `index` (uniform integer): the index of the color to be referenced, default is 0.
+### `geomcolor`
+The color associated with the current geometry at the current position, generally bound via per-vertex color values. The type must match the type of the "color" bound to the geometry.
+
+|Port   |Description                 |Type         |Default |
+|-------|----------------------------|-------------|--------|
+|`index`|index of the geometric color|integer      |0       |
+|`out`  |Output: geometric color     |float, colorN|__zero__|
 
 <a id="node-geompropvalue"> </a>
 
-* **`geompropvalue`**: the value of the specified varying geometric property (defined using &lt;geompropdef>) of the currently-bound geometry.  This node's type must match that of the referenced geomprop.
-    * `geomprop` (uniform string): the geometric property to be referenced.
-    * `default` (same type as the geomprop's value): a value to return if the specified `geomprop` is not defined on the current geometry.
+### `geompropvalue`
+The value of the specified varying geometric property (defined using <geompropdef>) of the currently-bound geometry. This node's type must match that of the referenced geomprop.
+
+|Port      |Description                                                                         |Type                                    |Default  |
+|----------|------------------------------------------------------------------------------------|----------------------------------------|---------|
+|`geomprop`|The geometric property to be referenced                                             |string                                  |__empty__|
+|`default` |A value to return if the specified `geomprop` is not defined on the current geometry|float, colorN, vectorN, boolean, integer|__zero__ |
+|`out`     |Output: the `geomprop` value                                                        |Same as `default`                       |__zero__ |
 
 <a id="node-geompropvalueuniform"> </a>
 
-* **`geompropvalueuniform`**: the value of the specified uniform geometric property (defined using &lt;geompropdef>) of the currently-bound geometry.  This node's type must match that of the referenced geomprop.
-    * `geomprop` (uniform string): the geometric property to be referenced.
-    * `default` (same type as the geomprop's value): a value to return if the specified `geomprop` is not defined on the current geometry.
+### `geompropvalueuniform`
+The value of the specified uniform geometric property (defined using <geompropdef>) of the currently-bound geometry. This node's type must match that of the referenced geomprop.
+
+|Port      |Description                                                                                 |Type             |Default  |
+|----------|--------------------------------------------------------------------------------------------|-----------------|---------|
+|`geomprop`|The geometric property to be referenced                                                     |string           |__empty__|
+|`default` |A value to return if the specified `geomprop` is not defined on the current geometry        |string, filename |__zero__ |
+|`out`     |Output: A value to return if the specified `geomprop` is not defined on the current geometry|Same as `default`|__zero__ |
+
 
 Additionally, the `geomcolor` and `geompropvalue` nodes for color3/color4-type properties can take a `colorspace` attribute to declare what colorspace the color property value is in; the default is "none" for no colorspace declaration (and hence no colorspace conversion).
 
@@ -531,14 +766,21 @@ Standard Application nodes:
 
 <a id="node-frame"> </a>
 
-* **`frame`**: the current frame number as defined by the host environment.  This node must be of type float.  Applications may use whatever method is appropriate to communicate the current frame number to the &lt;frame> node's implementation, whether via an internal state variable, a custom input, or other method.
+### `frame`
+The current frame number as defined by the host environment.
+
+|Port |Description                                            |Type |Default|
+|-----|-------------------------------------------------------|-----|-------|
+|`out`|Output: frame number as defined by the host environment|float|1.0    |
 
 <a id="node-time"> </a>
 
-* **`time`**: the current time in seconds, as defined by the host environment.  This node must be of type float.  Applications may use whatever method is appropriate to communicate the current time to the &lt;time> node's implementation, whether via an internal state variable, a custom input, dividing the current frame number by a local "frames per second" value, or other method; real-time applications may return some variation of wall-clock time.
-    * `fps` (float): an unused input, to be removed in a future specification version.
+### `time`
+The current time in seconds, as defined by the host environment.
 
-<br>
+|Port |Description                                                      |Type |Default|
+|-----|-----------------------------------------------------------------|-----|-------|
+|`out`|Output: current time in secondsas defined by the host environment|float|0.0    |
 
 
 # Standard Operator Nodes
@@ -573,300 +815,626 @@ Math nodes have one or two spatially-varying inputs, and are used to perform a m
 
 <a id="node-add"> </a>
 
-* **`add`**: add a value to the incoming float/color/vector/matrix, or, add one integer value to another.
-    * `in1` (float or color<em>N</em> or vector<em>N</em> or matrix<em>NN</em>, or integer): the value or nodename for the primary input; for matrix types, the default is the zero matrix.
-    * `in2` (same type as `in1` or float, or integer): the value or nodename to add; for matrix types, the default is the zero matrix.
+### `add`
+Add a value to the incoming float/color/vector/matrix
+
+|Port |Description                   |Type                           |Default |
+|-----|------------------------------|-------------------------------|--------|
+|`in1`|The primary input stream      |float, colorN, vectorN, integer|__zero__|
+|`in2`|The stream to add to `in1`    |Same as `in1`                  |__zero__|
+|`out`|Output: sum of `in1` and `in2`|Same as `in1`                  |`in1`   |
+
+|Port |Description                   |Type           |Default |
+|-----|------------------------------|---------------|--------|
+|`in1`|The primary input stream      |colorN, vectorN|__zero__|
+|`in2`|The stream to add to `in1`    |float          |__zero__|
+|`out`|Output: sum of `in1` and `in2`|Same as `in1`  |`in1`   |
+
+|Port |Description                   |Type                  |Default |
+|-----|------------------------------|----------------------|--------|
+|`in1`|The primary input stream      |matrixNN              |__one__ |
+|`in2`|The stream to add to `in1`    |Same as `in1` or float|__zero__|
+|`out`|Output: sum of `in1` and `in2`|Same as `in1`         |`in1`   |
 
 <a id="node-subtract"> </a>
 
-* **`subtract`**: subtract a value from the incoming float/color/vector/matrix, or subtract one integer value from another; in either case, outputting "in1-in2".
-    * `in1` (float or color<em>N</em> or vector<em>N</em> or matrix<em>NN</em>, or integer): the value or nodename for the primary input; for matrix types, the default is the zero matrix.
-    * `in2` (same type as `in1` or float, or integer): the value or nodename to subtract; for matrix types, the default is the zero matrix
+### `subtract`
+Subtract a value from the incoming float/color/vector/matrix
+
+|Port |Description                      |Type                           |Default |
+|-----|---------------------------------|-------------------------------|--------|
+|`in1`|The primary input stream         |float, colorN, vectorN, integer|__zero__|
+|`in2`|The stream to subtract from `in1`|Same as `in1`                  |__zero__|
+|`out`|Output: `in1` minus `in2`        |Same as `in1`                  |`in1`   |
+
+|Port |Description                      |Type           |Default |
+|-----|---------------------------------|---------------|--------|
+|`in1`|The primary input stream         |colorN, vectorN|__zero__|
+|`in2`|The stream to subtract from `in1`|float          |__zero__|
+|`out`|Output: `in1` minus `in2`        |Same as `in1`  |`in1`   |
+
+|Port |Description                      |Type                  |Default |
+|-----|---------------------------------|----------------------|--------|
+|`in1`|The primary input stream         |matrixNN              |__one__ |
+|`in2`|The stream to subtract from `in1`|Same as `in1` or float|__zero__|
+|`out`|Output: `in1` minus `in2`        |Same as `in1`         |`in1`   |
 
 <a id="node-multiply"> </a>
 
-* **`multiply`**: multiply an incoming float/color/vector/matrix by a value.  Multiplication of two vectors is interpreted as a component-wise vector multiplication, while multiplication of two matrices is interpreted as a standard matrix product.  To multiply a vector and a matrix, use one of the `transform*` nodes.
-    * `in1` (float or color<em>N</em> or vector<em>N</em> or matrix<em>NN</em>): the value or nodename for the primary input
-    * `in2` (same type as `in1` or float): the value or nodename to multiply by; default is 1.0 in all channels for float/color/vector types, or the identity matrix for matrix types.
+### `multiply`
+Multiply two values together. Scalar and vector types multiply component-wise, while matrices multiply with the standard matrix product.
+
+|Port |Description                       |Type                  |Default |
+|-----|----------------------------------|----------------------|--------|
+|`in1`|The primary input stream          |float, colorN, vectorN|__zero__|
+|`in2`|The stream to multiply `in1` by   |Same as `in1` or float|__one__ |
+|`out`|Output: product of `in1` and `in2`|Same as `in1`         |`in1`   |
+
+|Port |Description                       |Type         |Default|
+|-----|----------------------------------|-------------|-------|
+|`in1`|The primary input stream          |matrixNN     |__one__|
+|`in2`|The stream to multiply `in1` by   |Same as `in1`|__one__|
+|`out`|Output: product of `in1` and `in2`|Same as `in1`|`in1`  |
 
 <a id="node-divide"> </a>
 
-* **`divide`**: divide an incoming float/color/vector/matrix by a value; dividing a channel value by 0 results in floating-point "NaN".  Division of two vectors is interpreted as a component-wise division of the first vector by the second, while division of two matrices is interpreted as a standard matrix product of the `in1` matrix and the inverse of the `in2` matrix.
-    * `in1` (float or color<em>N</em> or vector<em>N</em> or matrix<em>NN</em>): the value or nodename for the primary input
-    * `in2` (same type as `in1` or float): the value or nodename to divide by; default is 1.0 in all channels for float/color/vector types, or the identity matrix for matrix types.
+### `divide`
+Divide one value by another. Scalar and vector types divide component-wise, while for matrices `in1` is multiplied with the inverse of `in2`.
+
+|Port |Description                   |Type                  |Default |
+|-----|------------------------------|----------------------|--------|
+|`in1`|The primary input stream      |float, colorN, vectorN|__zero__|
+|`in2`|The stream to divide `in1` by |Same as `in1` or float|__one__ |
+|`out`|Output: `in1` divided by `in2`|Same as `in1`         |`in1`   |
+
+|Port |Description                   |Type         |Default|
+|-----|------------------------------|-------------|-------|
+|`in1`|The primary input stream      |matrixNN     |__one__|
+|`in2`|The stream to divide `in1` by |Same as `in1`|__one__|
+|`out`|Output: `in1` divided by `in2`|Same as `in1`|`in1`  |
 
 <a id="node-modulo"> </a>
 
-* **`modulo`**: the remaining fraction after dividing an incoming float/color/vector by a value and subtracting the integer portion.  Modulo always returns a non-negative result, matching the interpretation of the GLSL and OSL `mod()` function (not `fmod()`).
-    * `in1` (float or color<em>N</em> or vector<em>N</em>): the value or nodename for the primary input
-    * `in2` (same type as `in1` or float): the modulo value or nodename to divide by, cannot be 0 in any channel; default is 1.0 in all channels, which effectively returns the fractional part of a float value
+### `modulo`
+The remaining fraction after dividing an incoming float/color/vector by a value and subtracting the integer portion. Modulo always returns a non-negative result.
+
+|Port |Description                  |Type                  |Default |Accepted Values|
+|-----|-----------------------------|----------------------|--------|---------------|
+|`in1`|The primary input stream     |float, colorN, vectorN|__zero__|               |
+|`in2`|The stream to modulo `in1` by|Same as `in1` or float|__one__ |`in2` != 0     |
+|`out`|Output: `in1` modulo `in2`   |Same as `in1`         |`in1`   |               |
 
 <a id="node-fract"> </a>
 
-* **`fract`**: the fractional part of a float-based value.
-    * `in` (float or vector<em>N</em>): the value or nodename for the primary input
+### `fract`
+Returns the fractional part of the floating-point input.
+
+|Port |Description                        |Type                  |Default |
+|-----|-----------------------------------|----------------------|--------|
+|`in` |The primary input stream           |float, colorN, vectorN|__zero__|
+|`out`|Output: The fractional part of `in`|Same as `in`          |`in`    |
 
 <a id="node-invert"> </a>
 
-* **`invert`**: subtract the incoming float/color/vector from "amount" in all channels, outputting: `amount - in`.
-    * `in` (float or color<em>N</em> or vector<em>N</em>): the value or nodename for the primary input
-    * `amount` (same type as `in` or float): the value or nodename to subtract from; default is 1.0 in all channels
+### `invert`
+subtract the incoming float, color, or vector from `amount` in all channels, outputting: `amount - in`.
+
+|Port    |Description                    |Type                  |Default |
+|--------|-------------------------------|----------------------|--------|
+|`in`    |The primary input stream       |float, colorN, vectorN|__zero__|
+|`amount`|The value to subtract `in` from|Same as `in` or float |__one__ |
+|`out`   |Output: `amount` minus `in`    |Same as `in`          |`in`    |
 
 <a id="node-absval"> </a>
 
-* **`absval`**: the per-channel absolute value of the incoming float/color/vector.
-    * `in` (float or color<em>N</em> or vector<em>N</em>): the input value or nodename
+### `absval`
+The per-channel absolute value of the incoming float/color/vector.
+
+|Port |Description                   |Type                  |Default |
+|-----|------------------------------|----------------------|--------|
+|`in` |The primary input stream      |float, colorN, vectorN|__zero__|
+|`out`|Output: absolute value of `in`|Same as `in`          |`in`    |
 
 <a id="node-sign"> </a>
 
-* **`sign`**: the per-channel sign of the incoming float/color/vector value: -1 for negative, +1 for positive, or 0 for zero.
-    * `in` (float or color<em>N</em> or vector<em>N</em>): the input value or nodename
+### `sign`
+The per-channel sign of the incoming float/color/vector value: -1 for negative, +1 for positive, or 0 for zero.
+
+|Port |Description             |Type                  |Default |
+|-----|------------------------|----------------------|--------|
+|`in` |The primary input stream|float, colorN, vectorN|__zero__|
+|`out`|Output: sign of `in`    |Same as `in`          |`in`    |
 
 <a id="node-floor"> </a>
 
-* **`floor`**: the per-channel nearest integer value less than or equal to the incoming float/color/vector.  The output remains in floating point per-channel, i.e. the same type as the input, except that the floor(float) also has a variant outputting an integer type.
-    * `in` (float or color<em>N</em> or vector<em>N</em>): the input value or nodename
+### `floor`
+The per-channel nearest integer value less than or equal to the incoming float/color/vector. The output remains in floating point per-channel, i.e. the same type as the input, except that the floor(float) also has a variant outputting an integer type.
+
+|Port |Description                                       |Type                  |Default |
+|-----|--------------------------------------------------|----------------------|--------|
+|`in` |The primary input stream                          |float, colorN, vectorN|__zero__|
+|`out`|Output: nearest integer less than or equal to `in`|Same as `in`          |`in`    |
+
+|Port |Description                                       |Type   |Default|
+|-----|--------------------------------------------------|-------|-------|
+|`in` |The primary input stream                          |float  |0.0    |
+|`out`|Output: nearest integer less than or equal to `in`|integer|`in`   |
 
 <a id="node-ceil"> </a>
 
-* **`ceil`**: the per-channel nearest integer value greater than or equal to the incoming float/color/vector.  The output remains in floating point per-channel, i.e. the same type as the input, except that the ceil(float) also has a variant outputting an integer type.
-    * `in` (float or color<em>N</em> or vector<em>N</em>): the input value or nodename
+### `ceil`
+The per-channel nearest integer value greater than or equal to the incoming float/color/vector. The output remains in floating point per-channel, i.e. the same type as the input, except that the ceil(float) also has a variant outputting an integer type.
+
+|Port |Description                                          |Type                  |Default |
+|-----|-----------------------------------------------------|----------------------|--------|
+|`in` |The primary input stream                             |float, colorN, vectorN|__zero__|
+|`out`|Output: nearest integer greater than or equal to `in`|Same as `in`          |`in`    |
+
+|Port |Description                                          |Type   |Default|
+|-----|-----------------------------------------------------|-------|-------|
+|`in` |The primary input stream                             |float  |0.0    |
+|`out`|Output: nearest integer greater than or equal to `in`|integer|`in`   |
 
 <a id="node-round"> </a>
 
-* **`round`**: round each channel of the incoming float/color/vector values to the nearest integer value, e.g "floor(in+0.5)"; the round(float) also has a variant outputting an integer type.
-    * `in` (float or color<em>N</em> or vector<em>N</em>): the input value or nodename
+### `round`
+Round each channel of the incoming float/color/vector values to the nearest integer value.
+
+|Port |Description                                |Type                  |Default |
+|-----|-------------------------------------------|----------------------|--------|
+|`in` |The primary input stream                   |float, colorN, vectorN|__zero__|
+|`out`|Output: `in` rounded to the nearest integer|Same as `in`          |`in`    |
+
+|Port |Description                                |Type   |Default|
+|-----|-------------------------------------------|-------|-------|
+|`in` |The primary input stream                   |float  |0.0    |
+|`out`|Output: `in` rounded to the nearest integer|integer|`in`   |
 
 <a id="node-power"> </a>
 
-* **`power`**: raise incoming float/color values to the specified exponent, commonly used for "gamma" adjustment.
-    * `in1` (float or color<em>N</em> or vector<em>N</em>): the value or nodename for the primary input
-    * `in2` (same type as `in1` or float): exponent value or nodename; output = pow(in1, in2); default is 1.0 in all channels
+### `power`
+Raise incoming float/color values to the specified exponent, commonly used for "gamma" adjustment.
+
+|Port |Description                   |Type                  |Default |
+|-----|------------------------------|----------------------|--------|
+|`in1`|The primary input stream      |float, colorN, vectorN|__zero__|
+|`in2`|The exponent to raise `in1` to|Same as `in1` or float|__one__ |
+|`out`|Output: `in1` raised to `in2` |Same as `in1`         |`in1`   |
 
 <a id="node-safepower"> </a>
 
-* **`safepower`** (NG): raise incoming float/color values to the specified exponent.  Unlike the standard [&lt;power>](#node-power) node, negative `in1` values for &lt;safepower> will result in negative output values, e.g. `out = sign(in1)*pow(abs(in1),in2)`.
-    * `in1` (float or color<em>N</em> or vector<em>N</em>): the value or nodename for the primary input
-    * `in2` (same type as `in1` or float): exponent value or nodename; default is 1.0 in all channels
+### `safepower`
+Raise incoming float/color values to the specified exponent. Negative "in1" values will result in negative output values.
+
+|Port |Description                   |Type                  |Default |
+|-----|------------------------------|----------------------|--------|
+|`in1`|The primary input stream      |float, colorN, vectorN|__zero__|
+|`in2`|The exponent to raise `in1` to|Same as `in1` or float|__one__ |
+|`out`|Output: `in1` raised to `in2` |Same as `in1`         |`in1`   |
 
 <a id="node-sin"> </a>
 
-* **`sin`**: the sine of the incoming value, which is expected to be expressed in radians.
-    * `in` (float or vector<em>N</em>): the input value or nodename
+### `sin`
+The sine of the incoming value, which is expected to be expressed in radians.
+
+|Port |Description             |Type          |Default |
+|-----|------------------------|--------------|--------|
+|`in` |The primary input stream|float, vectorN|__zero__|
+|`out`|Output: sin of `in1`    |Same as `in`  |`in`    |
 
 <a id="node-cos"> </a>
 
-* **`cos`**: the cosine of the incoming value, which is expected to be expressed in radians.
-    * `in` (float or vector<em>N</em>): the input value or nodename
+### `cos`
+The cosine of the incoming value, which is expected to be expressed in radians.
+
+|Port |Description             |Type          |Default |
+|-----|------------------------|--------------|--------|
+|`in` |The primary input stream|float, vectorN|__zero__|
+|`out`|Output: cos of `in1`    |Same as `in`  |`in`    |
 
 <a id="node-tan"> </a>
 
-* **`tan`**: the tangent of the incoming value, which is expected to be expressed in radians.
-    * `in` (float or vector<em>N</em>): the input value or nodename
+### `tan`
+The tangent of the incoming value, which is expected to be expressed in radians.
+
+|Port |Description             |Type          |Default |
+|-----|------------------------|--------------|--------|
+|`in` |The primary input stream|float, vectorN|__zero__|
+|`out`|Output: cos of `in1`    |Same as `in`  |`in`    |
 
 <a id="node-asin"> </a>
 
-* **`asin`**: the arcsine of the incoming value; the output will be expressed in radians.
-    * `in` (float or vector<em>N</em>): the input value or nodename
+### `asin`
+The arcsine of the incoming value. The output will be expressed in radians.
+
+|Port |Description             |Type          |Default |Accepted Values    |
+|-----|------------------------|--------------|--------|-------------------|
+|`in` |The primary input stream|float, vectorN|__zero__|[-__one__, __one__)|
+|`out`|Output: asin of `in1`   |Same as `in`  |`in`    |                   |
 
 <a id="node-acos"> </a>
 
-* **`acos`**: the arccosine of the incoming value; the output will be expressed in radians.
-    * `in` (float or vector<em>N</em>): the input value or nodename
+### `acos`
+The arccosine of the incoming value. The output will be expressed in radians.
+
+|Port |Description             |Type          |Default |Accepted Values    |
+|-----|------------------------|--------------|--------|-------------------|
+|`in` |The primary input stream|float, vectorN|__zero__|[-__one__, __one__)|
+|`out`|Output: acos of `in1`   |Same as `in`  |`in`    |                   |
 
 <a id="node-atan2"> </a>
 
-* **`atan2`**: the arctangent of the expression (iny/inx); the output will be expressed in radians.  If both `iny` and `inx` are provided, they must be the same type.
-    * `iny` (float or vector<em>N</em>): the value or nodename for the "y" input; default is 0.0.
-    * `inx` (float or vector<em>N</em>): the value or nodename for the "x" input; default is 1.0.
+### `atan2`
+The arctangent of the expression (`iny`/`inx`). The output will be expressed in radians.
+
+|Port |Description                                                                                     |Type          |Default |
+|-----|------------------------------------------------------------------------------------------------|--------------|--------|
+|`iny`|Vertical component of the point to which the the angle is to be found                           |float, vectorN|__zero__|
+|`inx`|Horizontal component of the point to which the angle is to be found                             |Same as `iny` |__one__ |
+|`out`|Output: angle relative to the X-axis of the line joining the origin and the point (`inx`, `iny`)|Same as `iny` |`iny`   |
 
 <a id="node-sqrt"> </a>
 
-* **`sqrt`**: the square root of the incoming value.
-    * `in` (float or vector<em>N</em>): the input value or nodename
+### `sqrt`
+The square root of the incoming value. 
+
+|Port |Description                |Type          |Default |Accepted Values     |
+|-----|---------------------------|--------------|--------|--------------------|
+|`in` |The primary input stream   |float, vectorN|__zero__|[__zero__, __+inf__)|
+|`out`|Output: square root of `in`|Same as `in`  |`in`    |                    |
 
 <a id="node-ln"> </a>
 
-* **`ln`**: the natural log of the incoming value.
-    * `in` (float or vector<em>N</em>): the input value or nodename; default is 1.0.
+### `ln`
+The natural logarithm of the incoming value. 
+
+|Port |Description                      |Type          |Default|Accepted Values       |
+|-----|---------------------------------|--------------|-------|----------------------|
+|`in` |The primary input stream         |float, vectorN|__one__| (__zero__, __+inf__) |
+|`out`|Output: natural logarithm of `in`|Same as `in`  |`in`   |                      |
 
 <a id="node-exp"> </a>
 
-* **`exp`**: "e" to the power of the incoming value.
-    * `in` (float or vector<em>N</em>): the input value or nodename
+### `exp`
+$e$ to the power of the incoming value.
+
+|Port |Description                |Type          |Default |
+|-----|---------------------------|--------------|--------|
+|`in` |The primary input stream   |float, vectorN|__zero__|
+|`out`|Output: exponential of `in`|Same as `in`  |`in`    |
 
 <a id="node-clamp"> </a>
 
-* **`clamp`**: clamp incoming values per-channel to a specified range of float/color/vector values.
-    * `in` (float or color<em>N</em> or vector<em>N</em>): the input value or nodename
-    * `low` (same type as `in` or float): clamp low value; any value lower than this will be set to "low".  Default is 0 in all channels.
-    * `high` (same type as `in` or float): clamp high value; any value higher than this will be set to "high".  Default is 1 in all channels.
+### `clamp`
+Clamp incoming values per-channel to a specified range of float/color/vector values.
+
+|Port  |Description                                                       |Type                  |Default |
+|------|------------------------------------------------------------------|----------------------|--------|
+|`in`  |The input stream to be clamped                                    |float, colorN, vectorN|__zero__|
+|`low` |Any value of `in` lower than this value will be set to this value |Same as `in` or float |__zero__|
+|`high`|Any value of `in` higher than this value will be set to this value|Same as `low`         |__one__ |
+|`out` |Output: clamped `in`                                              |Same as `in`          |`in`    |
 
 <a id="node-trianglewave"> </a>
 
-* **`trianglewave`**: Generate a triangle wave from the given scalar input.  The generated wave ranges from zero to one and repeats on integer boundaries.
-    * `in` (float): the scalar value or nodename
+### `trianglewave`
+Generate a triangle wave from the given scalar input. The generated wave ranges from zero to one and repeats on integer boundaries.
+
+|Port |Description                  |Type |Default|
+|-----|-----------------------------|-----|-------|
+|`in` |The primary input stream     |float|0      |
+|`out`|Output: generated wave signal|float|       |
 
 <a id="node-min"> </a>
 
-* **`min`**: select the minimum of the two incoming values
-    * `in1` (float or color<em>N</em> or vector<em>N</em>): the first value or nodename
-    * `in2` (same type as `in1` or float): the second value or nodename
+### `min`
+Select the minimum of the two incoming values.
+
+|Port |Description                       |Type                  |Default |
+|-----|----------------------------------|----------------------|--------|
+|`in1`|The first input stream            |float, colorN, vectorN|__zero__|
+|`in2`|The second input stream           |Same as `in1` or float|__zero__|
+|`out`|Output: minimum of `in1` and `in2`|Same as `in1`         |`in1`   |
 
 <a id="node-max"> </a>
 
-* **`max`**: select the maximum of the two incoming values
-    * `in1` (float or color<em>N</em> or vector<em>N</em>): the first value or nodename
-    * `in2` (same type as `in1` or float): the second value or nodename
+### `max`
+Select the maximum of the two incoming values.
+
+|Port |Description                       |Type                  |Default |
+|-----|----------------------------------|----------------------|--------|
+|`in1`|The first input stream            |float, colorN, vectorN|__zero__|
+|`in2`|The second input stream           |Same as `in1` or float|__zero__|
+|`out`|Output: maximum of `in1` and `in2`|Same as `in1`         |`in1`   |
 
 <a id="node-normalize"> </a>
 
-* **`normalize`**: output the normalized vector<em>N</em> from the incoming vector<em>N</em> stream; cannot be used on float or color<em>N</em> streams.  Note: the fourth channel in vector4 streams is not treated any differently, e.g. not as a homogeneous "w" value.
-    * `in` (vector<em>N</em>): the input value or nodename
+### `normalize`
+Output the incoming vectorN stream normalized. 
+
+|Port |Description            |Type        |Default |
+|-----|-----------------------|------------|--------|
+|`in` |Vector to be normalized|vectorN     |__zero__|
+|`out`|Output: normalized `in`|Same as `in`|`in`    |
 
 <a id="node-magnitude"> </a>
 
-* **`magnitude`**: output the float magnitude (vector length) of the incoming vector<em>N</em> stream; cannot be used on float or color<em>N</em> streams.  Note: the fourth channel in vector4 streams is not treated any differently, e.g. not as a homogeneous "w" value.
-    * `in` (vector<em>N</em>): the input value or nodename
+### `magnitude`
+Output the float magnitude (vector length) of the incoming vectorN stream; cannot be used on float or colorN streams. Note: the fourth channel in vector4 streams is not treated any differently, e.g. not as a homogeneous "w" value.
 
+|Port |Description              |Type   |Default |
+|-----|-------------------------|-------|--------|
+|`in` |Input vector stream      |vectorN|__zero__|
+|`out`|Output: magnitude of `in`|float  |0.0     |
 
 <a id="node-distance"> </a>
 
-* **`distance`**: Measures the distance between two points in 2D, 3D, or 4D.
-    * `in1` (vector<em>N</em>): the first input value or nodename
-    * `in2` (same type as `in1`): the second input value or nodename
+### `distance`
+Measures the distance between two points in 2D, 3D, or 4D.
+
+|Port |Description                             |Type         |Default |
+|-----|----------------------------------------|-------------|--------|
+|`in1`|Point to calculate distance from        |vectorN      |__zero__|
+|`in2`|Point to calculate distance to          |Same as `in1`|__zero__|
+|`out`|Output: distance between `in1` and `in2`|float        |        |
 
 <a id="node-dotproduct"> </a>
 
-* **`dotproduct`**: output the (float) dot product of two incoming vector<em>N</em> streams; cannot be used on float or color<em>N</em> streams.
-    * `in1` (vector<em>N</em>): the input value or nodename for the primary input.
-    * `in2` (same type as `in1`): the secondary value or nodename
+### `dotproduct`
+Output the (float) dot product of two incoming vectorN streams; cannot be used on float or colorN streams.
+
+|Port |Description                           |Type         |Default |
+|-----|--------------------------------------|-------------|--------|
+|`in1`|The first input vector stream         |vectorN      |__zero__|
+|`in2`|The second input vector stream        |Same as `in1`|__zero__|
+|`out`|Output: dot product of `in1` and `in2`|float        |0.0     |
 
 <a id="node-crossproduct"> </a>
 
-* **`crossproduct`**: output the (vector3) cross product of two incoming vector3 streams; cannot be used on any other stream type.  A disabled `crossproduct` node passes through the value of `in1` unchanged.
-    * `in1` (vector3): the input value or nodename for the primary input.
-    * `in2` (vector3): the secondary value or nodename
+### `crossproduct`
+Output the (vector3) cross product of two incoming vector3 streams; cannot be used on any other stream type. A disabled crossproduct node passes through the value of `in1` unchanged.
+
+|Port |Description                             |Type   |Default      |
+|-----|----------------------------------------|-------|-------------|
+|`in1`|The first input vector stream           |vector3|0.0, 0.0, 0.0|
+|`in2`|The second input vector stream          |vector3|0.0, 0.0, 0.0|
+|`out`|Output: cross product of `in1` and `in2`|vector3|`in1`        |
 
 <a id="node-transformpoint"> </a>
 
-* **`transformpoint`**: transform the incoming vector3 coordinate from one specified space to another; cannot be used on any other stream type.
-    * `in` (vector3): the input coordinate vector.
-    * `fromspace` (uniform string): the name of a vector space understood by the rendering target to transform the `in` point from; see [Geometric Spaces](./MaterialX.Specification.md#geometric-spaces) in the main Specification document for supported options.
-    * `tospace` (uniform string): the name of a vector space understood by the rendering target for the space to transform the `in` point to.
+### `transformpoint`
+Transform the incoming vector3 coordinate from one specified space to another; cannot be used on any other stream type.
+
+|Port       |Description                                                                                                                                          |Type   |Default      |
+|-----------|-----------------------------------------------------------------------------------------------------------------------------------------------------|-------|-------------|
+|`in`       |The point to be transformed                                                                                                                          |vector3|0.0, 0.0, 0.0|
+|`fromspace`|The name of a vector space understood by the rendering target to transform the `in` point from; may be empty to specify the renderer's working space.|string |__empty__    |
+|`tospace`  |The name of a vector space understood by the rendering target for the space to transform the `in` point to.                                          |string |__empty__    |
+|`out`      |Output: point transformed from `fromspace` to `tospace`                                                                                              |vector3|`in`         |
 
 <a id="node-transformvector"> </a>
 
-* **`transformvector`**: transform the incoming vector3 vector from one specified space to another; cannot be used on any other stream type.
-    * `in` (vector3): the input vector.
-    * `fromspace` (uniform string): the name of a vector space understood by the rendering target to transform the `in` point from; see [Geometric Spaces](./MaterialX.Specification.md#geometric-spaces) in the main Specification document for supported options.
-    * `tospace` (uniform string): the name of a vector space understood by the rendering target for the space to transform the `in` point to.
+### `transformvector`
+Transform the incoming vector3 coordinate from one specified space to another; cannot be used on any other stream type.
+
+|Port       |Description                                                                                                                                           |Type   |Default      |
+|-----------|------------------------------------------------------------------------------------------------------------------------------------------------------|-------|-------------|
+|`in`       |The vector to be transformed                                                                                                                          |vector3|0.0, 0.0, 0.0|
+|`fromspace`|The name of a vector space understood by the rendering target to transform the `in` vector from; may be empty to specify the renderer's working space.|string |__empty__    |
+|`tospace`  |The name of a vector space understood by the rendering target for the space to transform the `in` vector to.                                          |string |__empty__    |
+|`out`      |Output: point transformed from `fromspace` to `tospace`                                                                                               |vector3|`in`         |
 
 <a id="node-transformnormal"> </a>
 
-* **`transformnormal`**: transform the incoming vector3 normal from one specified space to another; cannot be used on any other stream type.
-    * `in` (vector3): the input normal vector; default is (0,0,1).
-    * `fromspace` (uniform string): the name of a vector space understood by the rendering target to transform the `in` point from; see [Geometric Spaces](./MaterialX.Specification.md#geometric-spaces) in the main Specification document for supported options.
-    * `tospace` (uniform string): the name of a vector space understood by the rendering target for the space to transform the `in` point to.
+### `transformnormal`
+Transform the incoming vector3 normal from one specified space to another; cannot be used on any other stream type.
+
+|Port       |Description                                                                                                                                           |Type   |Default      |
+|-----------|------------------------------------------------------------------------------------------------------------------------------------------------------|-------|-------------|
+|`in`       |The normal to be transformed                                                                                                                          |vector3|0.0, 0.0, 1.0|
+|`fromspace`|The name of a vector space understood by the rendering target to transform the `in` normal from; may be empty to specify the renderer's working space.|string |__empty__    |
+|`tospace`  |The name of a vector space understood by the rendering target for the space to transform the `in` normal to.                                          |string |__empty__    |
+|`out`      |Output: point transformed from `fromspace` to `tospace`                                                                                               |vector3|`in`         |
 
 <a id="node-transformmatrix"> </a>
 
-* **`transformmatrix`**: transform the incoming vector<em>N</em> coordinate by the specified matrix.
-    * `in` (vector<em>N</em>): the input vector.  If needed, an additional 1.0 component will be temporarily appended to the `in` vector to make it match the dimension of the transforming `mat` matrix, then removed after transformation.
-    * `mat` matrix33/44): the matrix used to transform the vector; a vector2 `in` can be transformed by a matrix33, a vector3 by a matrix33 or a matrix44, and a vector4 by a matrix44.  Default is the identity matrix.
+### `transformmatrix`
+Transform the incoming vectorN by the specified matrix.
+
+|Port |Description                      |Type    |Default |
+|-----|---------------------------------|--------|--------|
+|`in` |Vector to be transformed         |vector2 |__zero__|
+|`mat`|Matrix to transform `in` by      |matrix33|__one__ |
+|`out`|Output: `in` transformed by `mat`|vector2 |`in`    |
+
+|Port |Description                      |Type    |Default |
+|-----|---------------------------------|--------|--------|
+|`in` |Vector to be transformed         |vector3 |__zero__|
+|`mat`|Matrix to transform `in` by      |matrixNN|__one__ |
+|`out`|Output: `in` transformed by `mat`|vector3 |`in`    |
+
+|Port |Description                      |Type    |Default |
+|-----|---------------------------------|--------|--------|
+|`in` |Vector to be transformed         |vector4 |__zero__|
+|`mat`|Matrix to transform `in` by      |matrix44|__one__ |
+|`out`|Output: `in` transformed by `mat`|vector4 |`in`    |
 
 <a id="node-normalmap"> </a>
 
-* **`normalmap`**: transform a normal vector from encoded tangent space to world space.  The input normal vector is assumed to be encoded with all channels in the [0-1] range, as would commonly be output from a normal map.
-    * `in` (vector3): the input vector; default is (0.5, 0.5, 1.0).
-    * `scale` (float or vector2): a scalar multiplier for the (x,y) components of the incoming vector; defaults to 1.0
-    * `normal` (vector3): surface normal; defaults to the current world-space normal.
-    * `tangent` (vector3): surface tangent vector, defaults to the current world-space tangent vector. 
-    * `bitangent` (vector3): surface bitangent vector, defaults to the current world-space bitangent vector. 
+### `normalmap`
+Transform a normal vector from the encoded tangent space to world space. The input normal vector is assumed to be encoded with all channels in the [0-1] range, as would commonly be output from a normal map.
+
+|Port       |Description                                                                     |Type          |Default      |
+|-----------|--------------------------------------------------------------------------------|--------------|-------------|
+|`in`       |Input normal in space of frame defined by `normal`, `tangent`, `bitangent` ports|vector3       |0.5, 0.5, 1.0|
+|`scale`    |Scaling factor to apply to the normal                                           |float, vector2|__one__      |
+|`normal`   |Normal of the local frame from which to transform `in`                          |vector3       |_Nworld_     |
+|`tangent`  |Tangent of the local frame from which to transform `in`                         |vector3       |_Tworld_     |
+|`bitangent`|Bitangent of the local frame from which to transform `in`                       |vector3       |_Bworld_     |
+|`out`      |Output: Ouptut normal in world space                                            |vector3       |`normal`     |
 
 <a id="node-hextilednormalmap"> </a>
 
-* **`hextilednormalmap`**: samples data from a single normalmap, with provisions for hex-tiling and randomizing the normalmap across uv space.
-    * `file` (uniform filename): the URI of an image file.  The filename can include one or more substitutions to change the file name (including frame number) that is accessed, as described in the [Filename Substitutions](./MaterialX.Specification.md#filename-substitutions) section in the main Specification document.
-    * `default` (vector3): a default value to use if the `file` reference can not be resolved (e.g. if a &lt;geomtoken>, [interfacetoken] or {hostattr} is included in the filename but no substitution value or default is defined, or if the resolved file URI cannot be read). Default is (0.5, 0.5, 1.0).
-    * `texcoord` (vector2): the name of a vector2-type node specifying the 2D texture coordinate at which the image data is read.  Default is to use the current u,v coordinate.
-    * `tiling` (vector2): the tiling rate for the hexagon tiles along the U and V axes. Default value is (1.0, 1.0).
-    * `rotation` (float): per-tile rotation randomness in degrees. Default is 0.0.
-    * `rotationrange` (vector2): [min, max] range in degrees used to randomize rotation for each tile. Default is (0.0, 360.0).
-    * `scale` (float): per-tile scale randomness multiplier applied to tile size. Default is 1.0.
-    * `scalerange` (vector2): [min, max] range of scale multipliers used to randomize tile scale. Default is (0.5, 2.0).
-    * `offset` (float): per-tile translation randomness in UV units. Default is 0.0.
-    * `offsetrange` (vector2): [min, max] range of offset values in UV units used to randomize tile positions. Default is (0.0, 1.0).
-    * `falloff` (float): falloff width used to blend neighboring tiles at their edges; larger values produce smoother blends. Default is 0.5.
-    * `strength` (float): Controls how strongly the sampled normal map affects the final normal. A value of 0.0 leaves the surface normal unchanged, 1.0 applies the sampled normal at full strength, and values >1.0 amplify the normal perturbation. Default is 1.0.
-    * `flip_g` (boolean): If true, negate (flip) the green (G) channel of the sampled normal map to accommodate different tangent-space conventions (handedness). Default is false.
-    * `normal` (vector3): surface normal; defaults to the current world-space normal.
-    * `tangent` (vector3): surface tangent vector, defaults to the current world-space tangent vector. 
-    * `bitangent` (vector3): surface bitangent vector, defaults to the current world-space bitangent vector. 
+### `hextilednormalmap`
+Samples data from a single normalmap, with provisions for hex-tiling and randomizing the normalmap across uv space.
+
+The `file` input can include one or more substitutions to change the file name that is accessed, as described in the [Filename Substitutions](./MaterialX.Specification.md#filename-substitutions) section in the main Specification document.
+
+The `strength` input controls how strongly the sampled normal map affects the final normal. A value of 0.0 leaves the surface normal unchanged, 1.0 applies the sampled normal at full strength, and values >1.0 amplify the normal perturbation.
+
+|Port                |Description                                                                                         |Type    |Default      |
+|--------------------|----------------------------------------------------------------------------------------------------|--------|-------------|
+|`file`              |The URI of an image file                                                                            |filename|__empty__    |
+|`default`           |A default value to use if the file reference can not be resolved                                    |vector3 |0.5, 0.5, 1.0|
+|`texcoord`          |The 2D texture coordinate at which the image data is read                                           |vector2 |_UV0_        |
+|`tiling`            |The tiling rate for the given image along the U and V axes                                          |vector2 |1.0, 1.0     |
+|`rotation`          |Per-tile rotation randomness in degrees                                                             |float   |0.0          |
+|`rotationrange`     |Range in degrees used to randomize rotation for each tile                                           |vector2 |0.0, 360.0   |
+|`scale`             |Per-tile scale randomness multiplier applied to tile size                                           |float   |1.0          |
+|`scalerange`        |Range of scale multipliers used to randomize tile scale                                             |vector2 |0.5, 2.0     |
+|`offset`            |Per-tile translation randomness in UV units                                                         |float   |1.0          |
+|`offsetrange`       |Range of offset values in UV units used to randomize tile positions                                 |vector2 |0.0, 1.0     |
+|`falloff`           |Falloff width used to blend neighboring tiles at their edges; larger values produce smoother blends |float   |0.5          |
+|`strength`          |Controls how strongly the sampled normal map affects the final normal.                              |float   |1.0          |
+|`flip_g`            |If true, negate the green channel of the sampled normal map to accommodate tangent-space conventions|boolean |false        |
+|`normal`            |Surface normal                                                                                      |vector3 |_Nworld_     |
+|`tangent`           |Surface tangent vector                                                                              |vector3 |_Tworld_     |
+|`bitangent`         |Surface bitangent vector                                                                            |vector3 |_Bworld_     |
+|`out`               |Output: the sampled normal map value                                                                |vector3 |0.5, 0.5, 1.0|
 
 <a id="node-creatematrix"> </a>
 
-* **`creatematrix`**: build a 3x3 or 4x4 matrix from three vector3 or four vector3 or vector4 inputs.  A matrix44 may also be created from vector3 input values, in which case the fourth value will be set to 0.0 for in1-in3, and to 1.0 for in4 when creating the matrix44.
-    * `in1` (vector3 or vector4): the vector for the first row of the matrix.  Default is (1,0,0) for matrix33 or (1,0,0,0) for matrix44.
-    * `in2` (vector3 or vector4): the vector for the second row of the matrix.  Default is (0,1,0) for matrix33 or (0,1,0,0) for matrix44.
-    * `in3` (vector3 or vector4): the vector for the third row of the matrix.  Default is (0,0,1) for matrix33 or (0,0,1,0) for matrix44.
-    * `in4` (vector3 or vector4): For matrix44 output type, the vector for the fourth row of the matrix.  Default is (0, 0, 0, 1).
+### `creatematrix`
+Build a 3x3 or 4x4 matrix from three vector3 or four vector3 or vector4 inputs. A matrix44 may also be created from vector3 input values, in which case the fourth value will be set to 0.0 for `in1`-`in3`, and to 1.0 for `in4` when creating the matrix44.
+
+|Port |Description            |Type    |Default      |
+|-----|-----------------------|--------|-------------|
+|`in1`|The first row of `out` |vector3 |1.0, 0.0, 0.0|
+|`in2`|The second row of `out`|vector3 |0.0, 1.0, 0.0|
+|`in3`|The third row of `out` |vector3 |0.0, 0.0, 1.0|
+|`out`|Output                 |matrix33|__one__      |
+
+|Port |Description                             |Type    |Default      |
+|-----|----------------------------------------|--------|-------------|
+|`in1`|The first row of `out`, appended with 0 |vector3 |1.0, 0.0, 0.0|
+|`in2`|The second row of `out`, appended with 0|vector3 |0.0, 1.0, 0.0|
+|`in3`|The third row of `out`, appended with 0 |vector3 |0.0, 0.0, 1.0|
+|`in4`|The fourth row of `out`, appended with 1|vector3 |0.0, 0.0, 0.0|
+|`out`|Output                                  |matrix44|__one__      |
+
+|Port |Description            |Type    |Default           |
+|-----|-----------------------|--------|------------------|
+|`in1`|The first row of `out` |vector4 |1.0, 0.0, 0.0, 0.0|
+|`in2`|The second row of `out`|vector4 |0.0, 1.0, 0.0, 0.0|
+|`in3`|The third row of `out` |vector4 |0.0, 0.0, 1.0, 0.0|
+|`in4`|The fourth row of `out`|vector4 |0.0, 0.0, 0.0, 1.0|
+|`out`|Output                 |matrix44|__one__           |
 
 <a id="node-transpose"> </a>
 
-* **`transpose`**: output the transpose of the incoming matrix.
-    * `in` (matrix<em>NN</em>): the input value or nodename
+### `transpose`
+Transpose the incoming matrix
+
+|Port |Description              |Type        |Default|
+|-----|-------------------------|------------|-------|
+|`in` |The input matrix         |matrixNN    |__one__|
+|`out`|Output: transpose of `in`|Same as `in`|`in`   |
 
 <a id="node-determinant"> </a>
 
-* **`determinant`**: output the float determinant of the incoming matrix<em>NN</em> stream.
-    * `in` (matrix<em>NN</em>): the input value or nodename
+### `determinant`
+Output the determinant of the incoming matrix.
+
+|Port |Description                |Type    |Default|
+|-----|---------------------------|--------|-------|
+|`in` |The input matrix           |matrixNN|__one__|
+|`out`|Output: determinant of `in`|float   |1.0    |
 
 <a id="node-invertmatrix"> </a>
 
-* **`invertmatrix`**: output the inverse of the incoming matrix; if the input matrix is not invertible, the output matrix will consist of all floating-point "NaN" values.
-    * `in` (matrix<em>NN</em>): the input value or nodename
+### `invertmatrix`
+Invert the incoming matrix.
+
+|Port |Description            |Type        |Default|
+|-----|-----------------------|------------|-------|
+|`in` |The input matrix       |matrixNN    |__one__|
+|`out`|Output: inverse of `in`|Same as `in`|`in`   |
 
 <a id="node-rotate2d"> </a>
 
-* **`rotate2d`**: rotate a vector2 value about the origin in 2D.
-    * `in` (vector2): the input value or nodename
-    * `amount` (float): the amount to rotate, specified in degrees, with positive values rotating the incoming vector counterclockwise.  Default is 0.
+### `rotate2d`
+Rotate the incoming 2D vector about the origin.
+
+|Port    |Description                                                                        |Type   |Default |
+|--------|-----------------------------------------------------------------------------------|-------|--------|
+|`in`    |The input vector to rotate                                                         |vector2|0.0, 0.0|
+|`amount`|The angle to rotate, specified in degrees. Positive values rotate counter-clockwise|float  |0.0     |
+|`out`   |Output: rotated vector                                                             |vector2|`in`    |
 
 <a id="node-rotate3d"> </a>
 
-* **`rotate3d`**: rotate a vector3 value about a specified unit axis vector.
-    * `in` (vector3): the input value or nodename
-    * `amount` (float): the amount to rotate, specified in degrees; default is 0.
-    * `axis` (vector3): For vector3 inputs only, the unit axis vector about which to rotate; default is (0,1,0).
+### `rotate3d`
+Rotate the incoming 3D vector about the specified unit axis vector.
+
+|Port    |Description                                                                        |Type   |Default      |
+|--------|-----------------------------------------------------------------------------------|-------|-------------|
+|`in`    |The input vector to rotate                                                         |vector3|0.0, 0.0, 0.0|
+|`amount`|The angle to rotate, specified in degrees. Positive values rotate counter-clockwise|float  |0.0          |
+|`axis`  |The unit axis vector to rotate `in` around                                         |vector3|0.0, 1.0, 0.0|
+|`out`   |Output: rotated vector                                                             |vector3|`in`         |
 
 <a id="node-reflect"> </a>
 
-* **`reflect`**: computes the vector3 reflection of an input vector against a surface normal vector.
-    * `in` (vector3): the input vector to reflect, defaults to (1.0, 0.0, 0.0).
-    * `normal` (vector3): the normal vector about which to reflect "in", defaults to the value of the "Nworld" (world space view direction) geometric property.  This vector is expected to be prenormalized to length 1.0.
+### `reflect`
+Reflect the incoming 3D vector about a surface normal vector.
+
+|Port    |Description                                             |Type   |Default      |
+|--------|--------------------------------------------------------|-------|-------------|
+|`in`    |Input vector to reflect                                 |vector3|1.0, 0.0, 0.0|
+|`normal`|Vector normal to the surface about which to reflect `in`|vector3|_Nworld_     |
+|`out`   |Output: reflection of `in` about `normal`               |vector3|             |
 
 <a id="node-refract"> </a>
 
-* **`refract`**: computes the vetor3 refraction vector of an input vector through a surface with a given index of refraction.
-    * `in` (vector3): the input vector to refract, defaults to (1.0, 0.0, 0.0).
-    * `normal` (vector3): the normal vector about which to refract "in", defaults to the value of the "Nworld" (world space view direction) geometric property.  This vector is expected to be prenormalized to length 1.0.
-    * `ior` (float): the index of refraction of the surface, defaults to 1.0.
+### `refract`
+Refract the incoming 3D vector through a surface with the given surface normal and relative index of refraction.
+
+|Port    |Description                                                                    |Type   |Default      |
+|--------|-------------------------------------------------------------------------------|-------|-------------|
+|`in`    |Input vector to refract                                                        |vector3|1.0, 0.0, 0.0|
+|`normal`|Vector normal to the surface through which to refract `in`                     |vector3|_Nworld_     |
+|`ior`   |The relative index of refraction of the interior of the surface to the exterior|float  |1.0          |
+|`out`   |Output: refraction of `in` through `normal`                                    |vector3|             |
 
 <a id="node-place2d"> </a>
 
-* **`place2d`** (NG): transform incoming UV texture coordinates for 2D texture placement.
-    * `texcoord` (vector2): the input UV coordinate to transform; defaults to the current surface index=0 uv coordinate.
-    * `pivot` (vector2): the pivot coordinate for scale and rotate: this is subtracted from u,v before applying scale/rotate, then added back after.  Default is (0,0).
-    * `scale` (vector2): divide the u,v coord (after subtracting `pivot`) by this, so a scale (2,2) makes the texture image appear twice as big.  Negative values can be used to flip or flop the texture space.  Default is (1,1).
-    * `rotate` (float): rotate u,v coord (after subtracting pivot) by this amount in degrees, so a positive value rotates UV coords counter-clockwise, and the image clockwise.  Default is 0.
-    * `offset` (vector2): subtract this amount from the scaled/rotated/“pivot added back” UV coordinate; since U0,V0 is typically the lower left corner, a positive offset moves the texture image up and right.  Default is (0,0).
-    * `operationorder` (integer enum): the order in which to perform the transform operations. "0" or "SRT" performs "<em>-pivot scale rotate translate +pivot</em>" as per the original implementation matching the behavior of certain DCC packages, and "1" or "TRS" performs "<em>-pivot translate rotate scale +pivot</em>" which does not introduce texture shear.  Default is 0 "SRT" for backward compatibility.
+### `place2d`
+Transform incoming 2D texture coordinates from one frame of reference to another.
+
+The `operationorder` input controls the order in which transform operations are performed. The `SRT` option performs -pivot, scale, rotate, translate, +pivot. The `TRS` option performs -pivot, translate, rotate, scale, +pivot.
+
+|Port            |Description                                            |Type   |Default   |Accepted Values|
+|----------------|-------------------------------------------------------|-------|----------|---------------|
+|`texcoord`      |Input texture coordinates to transform                 |vector2|0.0, 0.0  |               |
+|`pivot`         |Pivot point around which to rotate and scale `texcoord`|vector2|0.0,0.0   |               |
+|`scale`         |Scaling factor to apply to `in`                        |vector2|1.0,1.0   |               |
+|`rotate`        |Amount to rotate `in`, in degrees                      |float  |0.0       |               |
+|`offset`        |Amount to translate `in`                               |vector2|0.0,0.0   |               |
+|`operationorder`|The order in which transform operations are performed  |integer|0         |SRT, TRS, 0, 1 |
+|`out`           |Output: transformed texture coordinates                |vector2|`texcoord`|               |
 
 <a id="node-dot"> </a>
 
-* **`dot`**: a no-op, passes its input through to its output unchanged.  Users can use dot nodes to shape edge connection paths or provide documentation checkpoints in node graph layout UI's.  Dot nodes may also pass uniform values from &lt;constant> or other nodes with uniform="true" outputs to uniform &lt;input>s and &lt;token>s.
-    * `in` (any type): the nodename to be connected to the Dot node's "in" input.
+### `dot`
+A no-op, which passes its input through to its output unchanged.
+
+Users can use dot nodes to shape edge connection paths or provide documentation checkpoints in node graph layout UI's. Dot nodes may also pass uniform values from `constant` or other nodes with uniform="true" outputs to uniform inputs and tokens.
+
+|Port |Description                       |Type                                                                |Default |
+|-----|----------------------------------|--------------------------------------------------------------------|--------|
+|`in` |The input data stream             |float, colorN, vectorN, matrixNN, boolean, integer, string, filename|__zero__|
+|`out`|Output: the unchanged input stream|Same as `in`                                                        |__zero__|
+
 
 ## Logical Operator Nodes
 
@@ -874,26 +1442,46 @@ Logical operator nodes have one or two boolean typed inputs, and are used to con
 
 <a id="node-and"> </a>
 
-* **`and`**: logically And the two input boolean values.
-  * `in1` (boolean): the value or nodename for the first input; the default is false.
-  * `in2` (boolean): the value or nodename for the second input; the default is false.
+### `and`
+Logically AND the two input boolean values.
+
+|Port |Description            |Type   |Default|
+|-----|-----------------------|-------|-------|
+|`in1`|The first input stream |boolean|false  |
+|`in2`|The second input stream|boolean|false  |
+|`out`|Output: `in1` AND `in2`|boolean|`in1`  |
 
 <a id="node-or"> </a>
 
-* **`or`**: logically Inclusive Or the two input boolean values.
-  * `in1` (boolean): the value or nodename for the first input; the default is false.
-  * `in2` (boolean): the value or nodename for the second input; the default is false.
+### `or`
+Logically Inclusive OR the two input boolean values.
+
+|Port |Description            |Type   |Default|
+|-----|-----------------------|-------|-------|
+|`in1`|The first input stream |boolean|false  |
+|`in2`|The second input stream|boolean|false  |
+|`out`|Output: `in1` OR `in2` |boolean|`in1`  |
 
 <a id="node-xor"> </a>
 
-* **`xor`**: logically Exclusive Or the two input boolean values.
-  * `in1` (boolean): the value or nodename for the first input; the default is false.
-  * `in2` (boolean): the value or nodename for the second input; the default is false.
+### `xor`
+Logically Exclusive OR the two input boolean values.
+
+|Port |Description            |Type   |Default|
+|-----|-----------------------|-------|-------|
+|`in1`|The first input stream |boolean|false  |
+|`in2`|The second input stream|boolean|false  |
+|`out`|Output: `in1` XOR `in2`|boolean|`in1`  |
 
 <a id="node-not"> </a>
 
-* **`not`**: logically Not the input boolean value.
-  * `in` (boolean): the value or nodename for the input; the default is false.
+### `not`
+Logically NOT the input boolean value.
+
+|Port |Description     |Type   |Default|
+|-----|----------------|-------|-------|
+|`in` |The input stream|boolean|false  |
+|`out`|Output: NOT `in`|boolean|true   |
 
 
 ## Adjustment Nodes
@@ -902,80 +1490,133 @@ Adjustment nodes have one input named "in", and apply a specified function to va
 
 <a id="node-contrast"> </a>
 
-* **`contrast`** (NG): increase or decrease contrast of incoming float/color values using a linear slope multiplier.
-    * `in` (float or color<em>N</em> or vector<em>N</em>): the input value or nodename
-    * `amount` (same type as `in` or float): slope multiplier for contrast adjustment, 0.0 to infinity range.  Values greater than 1.0 increase contrast, values between 0.0 and 1.0 reduce contrast.  Default is 1.0 in all channels.
-    * `pivot` (same type as `in` or float): center pivot value of contrast adjustment; this is the value that will not change as contrast is adjusted.  Default is 0.5 in all channels.
+### `contrast`
+Increase or decrease the contrast of the incoming `in` values using `amount` as a linear slope multiplier.
+
+|Port    |Description                                                                                                                     |Type                  |Default |Accepted Values     |
+|--------|--------------------------------------------------------------------------------------------------------------------------------|----------------------|--------|--------------------|
+|`in`    |The input color stream to be adjusted                                                                                           |float, colorN, vectorN|__zero__|                    |
+|`amount`|Slope multiplier for contrast adjustment. Values greater than 1.0 increase contrast, values between 0.0 and 1.0 reduce contrast.|Same as `in` or float |__one__ |[__zero__, __+inf__)|
+|`pivot` |Center pivot value of contrast adjustment; this is the value that will not change as contrast is adjusted.                      |Same as `amount`      |__half__|                    |
+|`out`   |Output: the adjusted color value                                                                                                |Same as `in`          |`in`    |                    |
 
 <a id="node-remap"> </a>
 
-* **`remap`**: linearly remap incoming values from one range of float/color/vector values to another.
-    * `in` (float or color<em>N</em> or vector<em>N</em>): the input value or nodename
-    * `inlow` (same type as `in` or float): low value for input range; default is 0.0 in all channels
-    * `inhigh` (same type as `in` or float): high value for input range; default is 1.0 in all channels
-    * `outlow` (same type as `in` or float): low value for output range; default is 0.0 in all channels
-    * `outhigh` (same type as `in` or float): high value for output range; default is 1.0 in all channels
+### `remap`
+Linearly remap incoming values from one range of values [`inlow`, `inhigh`] to another [`outlow`, `outhigh`].
+
+|Port     |Description                    |Type                  |Default |
+|---------|-------------------------------|----------------------|--------|
+|`in`     |The input stream to be adjusted|float, colorN, vectorN|__zero__|
+|`inlow`  |Low value for the input range  |Same as `in` or float |__zero__|
+|`inhigh` |High value for the input range |Same as `inlow`       |__one__ |
+|`outlow` |Low value for the output range |Same as `inlow`       |__zero__|
+|`outhigh`|High value for the output range|Same as `inlow`       |__one__ |
+|`out`    |Output: the adjusted value     |Same as `in`          |`in`    |
 
 <a id="node-range"> </a>
 
-* **`range`** (NG): remap incoming values from one range of float/color/vector values to another, optionally applying a gamma correction "in the middle".  Input values below `inlow` or above `inhigh` are extrapolated unless `doclamp` is true, in which case the output values will be clamped to the `outlow`..`outhigh` range.
-    * `in` (float or color<em>N</em> or vector<em>N</em>): the input value or nodename
-    * `inlow` (same type as `in` or float): low value for input range.  Default is 0.0 in all channels.
-    * `inhigh` (same type as `in` or float): high value for input range.  Default is 1.0 in all channels.
-    * `gamma` (same type as `in` or float): inverse exponent applied to input value after first transforming from `inlow`..`inhigh` to 0..1; `gamma` values greater than 1.0 make midtones brighter.  Default is 1.0 in all channels.
-    * `outlow` (same type as `in` or float): low value for output range.  Default is 0.0 in all channels.
-    * `outhigh` (same type as `in` or float): high value for output range.  Default is 1.0 in all channels.
-    * `doclamp` (boolean): If true, the output is clamped to the range `outlow`..`outhigh`.  Default is false.
+### `range`
+Remap incoming values from one range of values to another, optionally applying a gamma correction "in the middle". 
+
+|Port     |Description                                             |Type                  |Default |
+|---------|--------------------------------------------------------|----------------------|--------|
+|`in`     |The input stream to be adjusted                         |float, colorN, vectorN|__zero__|
+|`inlow`  |Low value for the input range                           |Same as `in` or float |__zero__|
+|`inhigh` |High value for the input range                          |Same as `inlow`       |__one__ |
+|`gamma`  |Reciprocal of the exponent applied to the remapped input|Same as `inlow`       |__one__ |
+|`outlow` |Low value for the output range                          |Same as `inlow`       |__zero__|
+|`outhigh`|High value for the output range                         |Same as `inlow`       |__one__ |
+|`doclamp`|If true, the output is clamped to [`outlow`, `outhigh`] |boolean               |false   |
+|`out`    |Output: the adjusted value                              |Same as `in`          |`in`    |
 
 <a id="node-smoothstep"> </a>
 
-* **`smoothstep`**: output a smooth (hermite-interpolated) remapping of input values from low-high to output 0-1.
-    * `in` (float or color<em>N</em> or vector<em>N</em>): the input value or nodename
-    * `low` (same type as `in` or float): input low value; an input value of this or lower will result in an output value of 0; default is 0.0 in all channels
-    * `high` (same type as `in` or float): input high value; an input value of this or higher will result in an output value of 1; default is 1.0 in all channels
+### `smoothstep`
+Output a smooth, hermite-interpolated remapping of input values from [`low`, `high`] to [0,1].
+
+|Port  |Description                               |Type                  |Default |
+|------|------------------------------------------|----------------------|--------|
+|`in`  |The input value to the smoothstep function|float, colorN, vectorN|__zero__|
+|`low` |Low value for the input range             |Same as `in` or float |__zero__|
+|`high`|Low value for the output range            |Same as `low`         |__one__ |
+|`out` |Output: the adjusted value                |Same as `in`          |`in`    |
 
 <a id="node-luminance"> </a>
 
-* **`luminance`**: (color3 or color4 only) output a grayscale value containing the luminance of the incoming RGB color in all color channels, computed using the dot product of the incoming color with the luma coefficients of the working colorspace; the alpha channel is left unchanged if present.
-    * `in` (color3/color4): the input value or nodename
-    * `lumacoeffs` (uniform color3): the luma coefficients of the current working color space; if no specific color space can be determined, the ACEScg (ap1) luma coefficients [0.2722287, 0.6740818, 0.0536895] will be used.  Applications which support color management systems may choose to retrieve the luma coefficients of the working colorspace from the CMS to pass to the &lt;luminance> node's implementation directly, rather than exposing it to the user.
+### `luminance`
+Output a grayscale value containing the luminance of the incoming RGB color in all color channels.
+
+The `lumacoeffs` input represents the luma coefficients of the current working color space. If no specific color space can be determined, the ACEScg (ap1) luma coefficients [0.2722287, 0.6740818, 0.0536895] will be used. Applications which support color management systems may choose to retrieve the luma coefficients of the working colorspace from the CMS to pass to the `luminance` node's implementation directly, rather than exposing it to the user.
+
+|Port        |Description                                             |Type        |Default                        |
+|------------|--------------------------------------------------------|------------|-------------------------------|
+|`in`        |The input color stream to be converted                  |colorN      |__zero__                       |
+|`lumacoeffs`|The luma coefficients of the current working color space|color3      |0.2722287, 0.6740818, 0.0536895|
+|`out`       |Output: the luminance of `in`                           |Same as `in`|`in`                           |
 
 <a id="node-rgbtohsv"> </a>
 
-* **`rgbtohsv`**: (color3 or color4 only) convert an incoming color from RGB to HSV space (with H and S ranging from 0 to 1); the alpha channel is left unchanged if present.  This conversion is not affected by the current color space.
-    * `in` (color3/color4): the input value or nodename
+### `rgbtohsv`
+Convert an incoming color from RGB to HSV space (with H and S ranging from 0 to 1); the alpha channel is left unchanged if present. This conversion is not affected by the current color space.
+
+|Port |Description                           |Type        |Default |
+|-----|--------------------------------------|------------|--------|
+|`in` |The input color stream to be converted|colorN      |__zero__|
+|`out`|Output: `in` converted from RGB to HSV|Same as `in`|`in`    |
 
 <a id="node-hsvtorgb"> </a>
 
-* **`hsvtorgb`**: (color3 or color4 only) convert an incoming color from HSV to RGB space; the alpha channel is left unchanged if present.  This conversion is not affected by the current color space.
-    * `in` (color3/color4): the input value or nodename
+### `hsvtorgb`
+Convert an incoming color from HSV to RGB space; the alpha channel is left unchanged if present. This conversion is not affected by the current color space.
+
+|Port |Description                           |Type        |Default |
+|-----|--------------------------------------|------------|--------|
+|`in` |The input color stream to be converted|colorN      |__zero__|
+|`out`|Output: `in` converted from HSV to RGB|Same as `in`|`in`    |
 
 <a id="node-hsvadjust"> </a>
 
-* **`hsvadjust`** (NG): adjust the hue, saturation and value of an RGB color by converting the input color to HSV, adding amount.x to the hue, multiplying the saturation by amount.y, multiplying the value by amount.z, then converting back to RGB.  A positive "amount.x" rotates hue in the "red to green to blue" direction, with amount of 1.0 being the equivalent to a 360 degree (e.g. no-op) rotation.  Negative or greater-than-1.0 hue adjustment values are allowed, wrapping at the 0-1 boundaries.  The internal conversions between RGB and HSV spaces are not affected by the current color space.  For color4 inputs, the alpha value is unchanged.
-    * `in` (color3 or color4): the input value or nodename
-    * `amount` (vector3): the HSV adjustment; a value of (0, 1, 1) is "no change" and is the default.
+### `hsvadjust`
+Adjust the hue, saturation and value of an RGB color by converting the input color to HSV, adding amount.x to the hue, multiplying the saturation by amount.y, multiplying the value by amount.z, then converting back to RGB.
+
+|Port    |Description                                                                 |Type        |Default      |
+|--------|----------------------------------------------------------------------------|------------|-------------|
+|`in`    |The input color stream to be adjusted                                       |colorN      |__zero__     |
+|`amount`|Hue offset, saturation scale, and luminance scale in (x, y, z), respectively|vector3     |0.0, 1.0, 1.0|
+|`out`   |Output: the adjusted value                                                  |Same as `in`|`in`         |
 
 <a id="node-saturate"> </a>
 
-* **`saturate`** (NG): (color3 or color4 only) adjust the saturation of a color; the alpha channel will be unchanged if present.  Note that this operation is **not** equivalent to the "amount.y" saturation adjustment of `hsvadjust`, as that operator does not take the working or any other colorspace into account.
-    * `in` (float or color<em>N</em> or vector<em>N</em>): the input value or nodename
-    * `amount` (float): a multiplier for saturation; the saturate operator performs a linear interpolation between the luminance of the incoming color value (copied to all three color channels) and the incoming color value itself.  Note that setting amount to 0 will result in an R=G=B gray value equal to the value that the `luminance` node (below) returns.  Default is 1.0.
-    * `lumacoeffs` (uniform color3): the luma coefficients of the current working color space; if no specific color space can be determined, the ACEScg (ap1) luma coefficients [0.272287, 0.6740818, 0.0536895] will be used.  Applications which support color management systems may choose to retrieve this value from the CMS to pass to the &lt;saturate> node's implementation directly, rather than exposing it to the user.
+### `saturate`
+Adjust the saturation of a color, the alpha channel will be unchanged if present.
+
+The `lumacoeffs` input represents the luma coefficients of the current working color space. If no specific color space can be determined, the ACEScg (ap1) luma coefficients [0.2722287, 0.6740818, 0.0536895] will be used. Applications which support color management systems may choose to retrieve the luma coefficients of the working colorspace from the CMS to pass to the `luminance` node's implementation directly, rather than exposing it to the user.
+
+|Port        |Description                                                    |Type        |Default                        |
+|------------|---------------------------------------------------------------|------------|-------------------------------|
+|`in`        |The input color stream to be adjusted                          |colorN      |__zero__                       |
+|`amount`    |Multiplier on the saturation `in`                              |float       |1.0                            |
+|`lumacoeffs`|The luma coefficients to use to calculate the desaturated value|color3      |0.2722287, 0.6740818, 0.0536895|
+|`out`       |Output: the adjusted value                                     |Same as `in`|`in`                           |
 
 <a id="node-colorcorrect"> </a>
 
-* **`colorcorrect`** (NG): Combines various adjustment nodes into one artist-friendly color correction node.  For color4 inputs, the alpha value is unchanged.
-    * `in` (color3 or color4): the input color to be adjusted.
-    * `hue` (float): Rotates the color hue, with values wrapping at 0-1 boundaries; default is 0.
-    * `saturation` (float): Multiplies the input color saturation level; default is 1.
-    * `gamma` (float): Applies a gamma correction to the color; default is 1.
-    * `lift` (float): Raise the dark color values, leaving the white values unchanged; default is 0.
-    * `gain` (float): Multiplier increases lighter color values, leaving black values unchanged; default is 1.
-    * `contrast` (float): Linearly increase or decrease the color contrast; default is 1.
-    * `contrastpivot` (float): Pivot value around which contrast applies. This value will not change as contrast is adjusted; default is 0.5.
-    * `exposure` (float): Multiplier which increases or decreases color brightness by 2^value; default is 0.
+### `colorcorrect`
+Combines various adjustment nodes into one artist-friendly color correction node. For color4 inputs, the alpha value is unchanged.
 
+|Port           |Description                                                              |Type        |Default|
+|---------------|-------------------------------------------------------------------------|------------|-------|
+|`in`           |The input color stream                                                   |colorN      |__one__|
+|`hue`          |Rotates the color hue                                                    |float       |0      |
+|`saturation`   |Multiplies the input color saturation level                              |float       |1      |
+|`gamma`        |Applies a gamma correction to the color                                  |float       |1      |
+|`lift`         |Raises the dark color values, leaving the white values unchanged         |float       |0      |
+|`gain`         |Multiplier increases lighter color values, leaving black values unchanged|float       |1      |
+|`contrast`     |Linearly increase or decrease the color contrast                         |float       |1      |
+|`contrastpivot`|Pivot value around which contrast applies                                |float       |0.5    |
+|`exposure`     |Logarithmic brightness multiplier as 2^`exposure`                        |float       |0      |
+|`out`          |Output: the color-corrected value                                        |Same as `in`|       |
 
 
 ## Compositing Nodes
@@ -989,13 +1630,23 @@ Premult nodes operate on 4-channel (color4) inputs/outputs, have one input named
 
 <a id="node-premult"> </a>
 
-* **`premult`**: multiply the RGB channels of the input by the Alpha channel of the input.
-    * `in` (color4): the input value or nodename; default is (0,0,0,1).
+### `premult`
+Multiply the R or RGB channels of the input by the Alpha channel of the input.
+
+|Port |Description                         |Type  |Default           |
+|-----|------------------------------------|------|------------------|
+|`in` |The input stream to be premultiplied|color4|0.0, 0.0, 0.0, 1.0|
+|`out`|Output: premultiplied `in`          |color4|`in`              |
 
 <a id="node-unpremult"> </a>
 
-* **`unpremult`**: divide the RGB channels of the input by the Alpha channel of the input.  If the Alpha value is zero, the original color4 input value is passed through unchanged.
-    * `in` (color4): the input value or nodename; default is (0,0,0,1).
+### `unpremult`
+Divide the RGB channels of the input by the Alpha channel of the input. If the Alpha value is zero, it is passed through unchanged.
+
+|Port |Description                           |Type  |Default           |
+|-----|--------------------------------------|------|------------------|
+|`in` |The input stream to be unpremultiplied|color4|0.0, 0.0, 0.0, 1.0|
+|`out`|Output: unpremultiplied `in`          |color4|`in`              |
 
 
 ### Blend Nodes
@@ -1005,59 +1656,100 @@ Blend nodes take two 1-4 channel inputs and apply the same operator to all chann
 
 <a id="node-plus"> </a>
 
-* **`plus`**: returns the sum of the bg and fg inputs (B+F)
-    * `bg` (float or color<em>N</em>): the background value or nodename; default is 0.
-    * `fg` (float or color<em>N</em>): the foreground value or nodename; default is 0.
-    * `mix` (float): a 0-1 mixing value between "bg" (mix=0) and the result of the "plus" operation (mix=1); default is 1.
+### `plus`
+Add two 1-4 channel inputs, with optional mixing between the bg input and the result.
 
+|Port |Description                                                                       |Type         |Default |Accepted Values|
+|-----|----------------------------------------------------------------------------------|-------------|--------|---------------|
+|`fg` |The foreground input stream                                                       |float, colorN|__zero__|               |
+|`bg` |The background input stream                                                       |Same as `fg` |__zero__|               |
+|`mix`|A mixing value between `bg` (mix=0) and the result of the 'plus' operation (mix=1)|float        |1.0     |[0, 1]         |
+|`out`|Output: `fg` plus `bg`                                                            |Same as `fg` |`bg`    |               |
 
 <a id="node-minus"> </a>
 
-* **`minus`**: returns the difference of bg and fg (B-F)
-    * `bg` (float or color<em>N</em>): the background value or nodename; default is 0.
-    * `fg` (float or color<em>N</em>): the foreground value or nodename; default is 0.
-    * `mix` (float): a 0-1 mixing value between "bg" (mix=0) and the result of the "minus" operation (mix=1); default is 1.
+### `minus`
+Subtract two 1-4 channel inputs, with optional mixing between the bg input and the result.
 
+|Port |Description                                                                        |Type         |Default |Accepted Values|
+|-----|-----------------------------------------------------------------------------------|-------------|--------|---------------|
+|`fg` |The foreground input stream                                                        |float, colorN|__zero__|               |
+|`bg` |The background input stream                                                        |Same as `fg` |__zero__|               |
+|`mix`|A mixing value between `bg` (mix=0) and the result of the 'minus' operation (mix=1)|float        |1.0     |[0, 1]         |
+|`out`|Output                                                                             |Same as `fg` |`bg`    |               |
 
 <a id="node-difference"> </a>
 
-* **`difference`**: returns the absolute-value difference of bg and fg (abs(B-F))
-    * `bg` (float or color<em>N</em>): the background value or nodename; default is 0.
-    * `fg` (float or color<em>N</em>): the foreground value or nodename; default is 0.
-    * `mix` (float): a 0-1 mixing value between "bg" (mix=0) and the result of the "difference" operation (mix=1); default is 1.
+### `difference`
+Absolute-value difference of two 1-4 channel inputs, with optional mixing between the bg input and the result.
 
+|Port |Description                                                                             |Type         |Default |Accepted Values|
+|-----|----------------------------------------------------------------------------------------|-------------|--------|---------------|
+|`fg` |The foreground input stream                                                             |float, colorN|__zero__|               |
+|`bg` |The background input stream                                                             |Same as `fg` |__zero__|               |
+|`mix`|A mixing value between `bg` (mix=0) and the result of the 'difference' operation (mix=1)|float        |1.0     |[0, 1]         |
+|`out`|Output                                                                                  |Same as `fg` |`bg`    |               |
 
 <a id="node-burn"> </a>
 
-* **`burn`**: a "burn" operation of bg and fg (1-(1-B)/F)
-    * `bg` (float or color<em>N</em>): the background value or nodename; default is 0.
-    * `fg` (float or color<em>N</em>): the foreground value or nodename; default is 0.
-    * `mix` (float): a 0-1 mixing value between "bg" (mix=0) and the result of the "burn" operation (mix=1); default is 1.
+### `burn`
+Take two 1-4 channel inputs and apply the same operator to all channels:
+```
+1-(1-B)/F
+```
 
+|Port |Description                                                                       |Type         |Default |Accepted Values|
+|-----|----------------------------------------------------------------------------------|-------------|--------|---------------|
+|`fg` |The foreground input stream                                                       |float, colorN|__zero__|               |
+|`bg` |The background input stream                                                       |Same as `fg` |__zero__|               |
+|`mix`|A mixing value between `bg` (mix=0) and the result of the 'burn' operation (mix=1)|float        |1.0     |[0, 1]         |
+|`out`|Output                                                                            |Same as `fg` |`bg`    |               |
 
 <a id="node-dodge"> </a>
 
-* **`dodge`**: a "dodge" operation of bg and fg (B/(1-F))
-    * `bg` (float or color<em>N</em>): the background value or nodename; default is 0.
-    * `fg` (float or color<em>N</em>): the foreground value or nodename; default is 0.
-    * `mix` (float): a 0-1 mixing value between "bg" (mix=0) and the result of the "dodge" operation (mix=1); default is 1.
+### `dodge`
+Take two 1-4 channel inputs and apply the same operator to all channels:
+```
+B/(1-F)
+```
 
+|Port |Description                                                                        |Type         |Default |Accepted Values|
+|-----|-----------------------------------------------------------------------------------|-------------|--------|---------------|
+|`fg` |The foreground input stream                                                        |float, colorN|__zero__|               |
+|`bg` |The background input stream                                                        |Same as `fg` |__zero__|               |
+|`mix`|A mixing value between `bg` (mix=0) and the result of the 'dodge' operation (mix=1)|float        |1.0     |[0, 1]         |
+|`out`|Output                                                                             |Same as `fg` |`bg`    |               |
 
 <a id="node-screen"> </a>
 
-* **`screen`**: a "screen" operation of bg and fg (1-(1-F)(1-B))
-    * `bg` (float or color<em>N</em>): the background value or nodename; default is 0.
-    * `fg` (float or color<em>N</em>): the foreground value or nodename; default is 0.
-    * `mix` (float): a 0-1 mixing value between "bg" (mix=0) and the result of the "screen" operation (mix=1); default is 1.
+### `screen`
+Take two 1-4 channel inputs and apply the same operator to all channels:
+```
+1-(1-F)*(1-B)
+```
 
+|Port |Description                                                                         |Type         |Default |Accepted Values|
+|-----|------------------------------------------------------------------------------------|-------------|--------|---------------|
+|`fg` |The foreground input stream                                                         |float, colorN|__zero__|               |
+|`bg` |The background input stream                                                         |Same as `fg` |__zero__|               |
+|`mix`|A mixing value between `bg` (mix=0) and the result of the 'screen' operation (mix=1)|float        |1.0     |[0, 1]         |
+|`out`|Output                                                                              |Same as `fg` |`bg`    |               |
 
 <a id="node-overlay"> </a>
 
-* **`overlay`**: an "overlay" operation of bg and fg (2FB if B&lt;0.5, or 1-2(1-F)(1-B) if B>=0.5)
-    * `bg` (float or color<em>N</em>): the background value or nodename; default is 0.
-    * `fg` (float or color<em>N</em>): the foreground value or nodename; default is 0.
-    * `mix` (float): a 0-1 mixing value between "bg" (mix=0) and the result of the "overlay" operation (mix=1); default is 1.
+### `overlay`
+Take two 1-4 channel inputs and apply the same operator to all channels:
+```
+2FB if B<0.5;
+1-2(1-F)(1-B) if B>=0.5
+```
 
+|Port |Description                                                                          |Type         |Default |Accepted Values|
+|-----|-------------------------------------------------------------------------------------|-------------|--------|---------------|
+|`fg` |The foreground input stream                                                          |float, colorN|__zero__|               |
+|`bg` |The background input stream                                                          |Same as `fg` |__zero__|               |
+|`mix`|A mixing value between `bg` (mix=0) and the result of the 'overlay' operation (mix=1)|float        |1.0     |[0, 1]         |
+|`out`|Output                                                                               |Same as `fg` |`bg`    |               |
 
 
 ### Merge Nodes
@@ -1067,46 +1759,96 @@ Merge nodes take two 4-channel (color4) inputs and use the built-in alpha channe
 
 <a id="node-disjointover"> </a>
 
-* **`disjointover`**: a "disjointover" operation returning RGB = F+B if f+b&lt;=1 or F+B(1-f)/b if f+b>1, and Alpha = min(f+b,1)
-    * `bg` (color4): the background value or nodename; default is 0.
-    * `fg` (color4): the foreground value or nodename; default is 0.
-    * `mix` (float): a 0-1 mixing value between "bg" (mix=0) and the result of the "disjointover" operation (mix=1); default is 1.
+### `disjointover`
+Take two color4 inputs and use the built-in alpha channel(s) to control the compositing of the fg and bg inputs:
+```
+F+B         if f+b<=1
+F+B(1-f)/b  if f+b>1
+alpha: min(f+b,1)
+```
+
+|Port |Description                                                                               |Type  |Default           |Accepted Values|
+|-----|------------------------------------------------------------------------------------------|------|------------------|---------------|
+|`fg` |The foreground input stream                                                               |color4|0.0, 0.0, 0.0, 0.0|               |
+|`bg` |The background input stream                                                               |color4|0.0, 0.0, 0.0, 0.0|               |
+|`mix`|A mixing value between `bg` (mix=0) and the result of the 'disjointover' operation (mix=1)|float |1.0               |[0, 1]         |
+|`out`|Output                                                                                    |color4|`bg`              |               |
 
 <a id="node-in"> </a>
 
-* **`in`**: an "in" operation returning RGB = Fb and Alpha = fb
-    * `bg` (color4): the background value or nodename; default is 0.
-    * `fg` (color4): the foreground value or nodename; default is 0.
-    * `mix` (float): a 0-1 mixing value between "bg" (mix=0) and the result of the "in" operation (mix=1); default is 1.
+### `in`
+Take two color4 inputs and use the built-in alpha channel(s) to control the compositing of the fg and bg inputs:
+```
+RGB = Fb
+Alpha = fb
+```
+
+|Port |Description                                                                     |Type  |Default           |Accepted Values|
+|-----|--------------------------------------------------------------------------------|------|------------------|---------------|
+|`fg` |The foreground input stream                                                     |color4|0.0, 0.0, 0.0, 0.0|               |
+|`bg` |The background input stream                                                     |color4|0.0, 0.0, 0.0, 0.0|               |
+|`mix`|A mixing value between `bg` (mix=0) and the result of the 'in' operation (mix=1)|float |1.0               |[0, 1]         |
+|`out`|Output                                                                          |color4|`bg`              |               |
 
 <a id="node-mask"> </a>
 
-* **`mask`**: a "mask" operation returning RGB = Bf and Alpha = bf
-    * `bg` (color4): the background value or nodename; default is 0.
-    * `fg` (color4): the foreground value or nodename; default is 0.
-    * `mix` (float): a 0-1 mixing value between "bg" (mix=0) and the result of the "mask" operation (mix=1); default is 1.
+### `mask`
+Take two color4 inputs and use the built-in alpha channel(s) to control the compositing of the fg and bg inputs:
+```
+Bf  (alpha: bf)
+```
+
+|Port |Description                                                                       |Type  |Default           |Accepted Values|
+|-----|----------------------------------------------------------------------------------|------|------------------|---------------|
+|`fg` |The foreground input stream                                                       |color4|0.0, 0.0, 0.0, 0.0|               |
+|`bg` |The background input stream                                                       |color4|0.0, 0.0, 0.0, 0.0|               |
+|`mix`|A mixing value between `bg` (mix=0) and the result of the 'mask' operation (mix=1)|float |1.0               |[0, 1]         |
+|`out`|Output                                                                            |color4|`bg`              |               |
 
 <a id="node-matte"> </a>
 
-* **`matte`**: a "matte" operation returning RGB = Ff+B(1-f) and Alpha = f+b(1-f)
-    * `bg` (color4): the background value or nodename; default is 0.
-    * `fg` (color4): the foreground value or nodename; default is 0.
-    * `mix` (float): a 0-1 mixing value between "bg" (mix=0) and the result of the "matte" operation (mix=1); default is 1.
+### `matte`
+Take two color4 inputs and use the built-in alpha channel(s) to control the compositing of the fg and bg inputs:
+```
+Ff+B(1-f)  (alpha: f+b(1-f))
+```
+
+|Port |Description                                                                        |Type  |Default           |Accepted Values|
+|-----|-----------------------------------------------------------------------------------|------|------------------|---------------|
+|`fg` |The foreground input stream                                                        |color4|0.0, 0.0, 0.0, 0.0|               |
+|`bg` |The background input stream                                                        |color4|0.0, 0.0, 0.0, 0.0|               |
+|`mix`|A mixing value between `bg` (mix=0) and the result of the 'matte' operation (mix=1)|float |1.0               |[0, 1]         |
+|`out`|Output                                                                             |color4|`bg`              |               |
 
 <a id="node-out"> </a>
 
-* **`out`**: an "out" operation returning RGB = F(1-b) and Alpha = f(1-b)
-    * `bg` (color4): the background value or nodename; default is 0.
-    * `fg` (color4): the foreground value or nodename; default is 0.
-    * `mix` (float): a 0-1 mixing value between "bg" (mix=0) and the result of the "out" operation (mix=1); default is 1.
+### `out`
+Take two color4 inputs and use the built-in alpha channel(s) to control the compositing of the fg and bg inputs:
+```
+F(1-b)  (alpha: f(1-b))
+```
+
+|Port |Description                                                                      |Type  |Default           |Accepted Values|
+|-----|---------------------------------------------------------------------------------|------|------------------|---------------|
+|`fg` |The foreground input stream                                                      |color4|0.0, 0.0, 0.0, 0.0|               |
+|`bg` |The background input stream                                                      |color4|0.0, 0.0, 0.0, 0.0|               |
+|`mix`|A mixing value between `bg` (mix=0) and the result of the 'out' operation (mix=1)|float |1.0               |[0, 1]         |
+|`out`|Output                                                                           |color4|`bg`              |               |
 
 <a id="node-over"> </a>
 
-* **`over`**: an "over" operation returning RGB = F+B(1-f) and Alpha = f+b(1-f)
-    * `bg` (color4): the background value or nodename; default is 0.
-    * `fg` (color4): the foreground value or nodename; default is 0.
-    * `mix` (float): a 0-1 mixing value between "bg" (mix=0) and the result of the "over" operation (mix=1); default is 1.
+### `over`
+Take two color4 inputs and use the built-in alpha channel(s) to control the compositing of the fg and bg inputs:
+```
+F+B(1-f)  (alpha: f+b(1-f))
+```
 
+|Port |Description                                                                       |Type  |Default           |Accepted Values|
+|-----|----------------------------------------------------------------------------------|------|------------------|---------------|
+|`fg` |The foreground input stream                                                       |color4|0.0, 0.0, 0.0, 0.0|               |
+|`bg` |The background input stream                                                       |color4|0.0, 0.0, 0.0, 0.0|               |
+|`mix`|A mixing value between `bg` (mix=0) and the result of the 'over' operation (mix=1)|float |1.0               |[0, 1]         |
+|`out`|Output                                                                            |color4|`bg`              |               |
 
 
 ### Masking Nodes
@@ -1116,16 +1858,25 @@ Masking nodes take one 1-4 channel input `in` plus a separate float `mask` input
 
 <a id="node-inside"> </a>
 
-* **`inside`**: an "inside" mask operation returning Fm
-    * `in` (float or color<em>N</em>): the foreground value or nodename; default is 0.
-    * `mask` (float): the 0-1 mask value or nodename; default is 1.
+### `inside`
+An "inside" mask operation returning Fm
+
+|Port  |Description                      |Type         |Default |Accepted Values|
+|------|---------------------------------|-------------|--------|---------------|
+|`in`  |The input stream to be masked    |float, colorN|__zero__|               |
+|`mask`|The masking input signal         |float        |1.0     |[0, 1]         |
+|`out` |Output: `in` multiplied by `mask`|Same as `in` |`in`    |               |
 
 <a id="node-outside"> </a>
 
-* **`outside`** an "outside" mask operation returning F(1-m)
-    * `in` (float or color<em>N</em>): the foreground value or nodename; default is 0.
-    * `mask` (float): the 0-1 mask value or nodename; default is 0.
+### `outside`
+An "outside" mask operation returning F(1-m)
 
+|Port  |Description                        |Type         |Default |Accepted Values|
+|------|-----------------------------------|-------------|--------|---------------|
+|`in`  |The input stream to be masked      |float, colorN|__zero__|               |
+|`mask`|The masking input signal           |float        |1.0     |[0, 1]         |
+|`out` |Output: `in` multiplied by 1-`mask`|Same as `in` |`in`    |               |
 
 
 ### Mix Node
@@ -1134,11 +1885,22 @@ The Mix node takes two 1-4 channel inputs `fg` and `bg` plus a separate 1-channe
 
 <a id="node-mix"> </a>
 
-* **`mix`**: a "mix" operation blending from "bg" to "fg" according to the mix amount, returning Fm+B(1-m)
-    * `bg` (float or color<em>N</em> or vector<em>N</em>): the background value or nodename; default is 0.
-    * `fg` (same type as `bg`): the foreground value or nodename; default is 0.
-    * `mix` (float or same type as `bg`): the 0-1 mixing value; default is 0.
+### `mix`
+A "mix" operation blending from "bg" to "fg" according to the mix amount, returning Fm+B(1-m)
 
+|Port |Description                            |Type                  |Default |Accepted Values|
+|-----|---------------------------------------|----------------------|--------|---------------|
+|`fg` |The foreground input stream            |float, colorN, vectorN|__zero__|               |
+|`bg` |The background input stream            |Same as `fg`          |__zero__|               |
+|`mix`|The amount to mix `bg` to `fg`         |float                 |0.0     |[0, 1]         |
+|`out`|Output: the result of the mix operation|Same as `fg`          |`bg`    |               |
+
+|Port |Description                |Type           |Default |
+|-----|---------------------------|---------------|--------|
+|`fg` |The foreground input stream|colorN, vectorN|__zero__|
+|`bg` |The background input stream|Same as `fg`   |__zero__|
+|`mix`|                           |Same as `fg`   |__zero__|
+|`out`|Output                     |Same as `fg`   |`bg`    |
 
 See also the [Standard Shader Nodes](#standard-shader-nodes) section below for additional shader-semantic variants of the [`mix` node](#node-mix-shader).
 
@@ -1151,33 +1913,98 @@ Conditional nodes are used to compare values of two streams, or to select a valu
 
 <a id="node-ifgreater"> </a>
 
-* **`ifgreater`**: output the value of the `in1` or `in2` stream depending on whether the value of one test input is greater than the value of another.  Ifgreater nodes can be of output type float, integer, color<em>N</em>, vector<em>N</em> or matrix<em>NN</em>.  There is also a "boolean" output-type **`ifgreater`** node, with `value1` and `value2` inputs but no `in1` or `in2`: output is "true" if `value1` > `value2`.
-    * `value1` (integer or float): the first value or nodename to compare.  Default is 1.0.
-    * `value2` (integer or float): the second value or nodename to compare must be the same type as `value1`.  Default is 0.0.
-    * `in1` (float or integer or color<em>N</em> or vector<em>N</em> or matrix<em>NN</em>): the value or nodename to output if `value1` > `value2`; must be the same type as the `ifgreater` node's output.  Default is 0.0 in all channels.
-    * `in2` (float or integer or color<em>N</em> or vector<em>N</em> or matrix<em>NN</em>): the value or nodename to output if `value1` &lt;= `value2`; must be the same type as the `ifgreater` node's output.  Default is 0.0 in all channels.
+### `ifgreater`
+
+Output the value of the `in1` or `in2` stream depending on whether the `value1` input is greater than the `value2` input.
+
+|Port    |Description                                       |Type                                     |Default |
+|--------|--------------------------------------------------|-----------------------------------------|--------|
+|`value1`|The first value to be compared                    |float, integer                           |__one__ |
+|`value2`|The second value to be compared                   |float, integer                           |__zero__|
+|`in1`   |The value stream to output if `value1` > `value2` |float, colorN, vectorN, matrixNN, integer|__zero__|
+|`in2`   |The value stream to output if `value1` <= `value2`|Same as `in1`                            |__zero__|
+|`out`   |Output: the result of the comparison              |Same as `in1`                            |`in1`   |
+
+|Port    |Description                                       |Type                                     |Default |
+|--------|--------------------------------------------------|-----------------------------------------|--------|
+|`value1`|the first value to be compared                    |float, integer                           |__one__ |
+|`value2`|the second value to be compared                   |float, integer                           |__zero__|
+|`out`   |Output: true if `value1` > `value2                |boolean                                  |false   |
 
 <a id="node-ifgreatereq"> </a>
 
-* **`ifgreatereq`**: output the value of the `in1` or `in2` stream depending on whether the value of one test input is greater than or equal to the value of another.  Ifgreatereq nodes can be of output type float, integer, color<em>N</em>, vector<em>N</em> or matrix<em>NN</em>. There is also a "boolean" output-type **`ifgreatereq`** node, with `value1` and `value2` inputs but no `in1` or `in2`: output is "true" if `value1` >= `value2`.
-    * `value1` (integer or float): the first value or nodename to compare.  Default is 1.0.
-    * `value2` (integer or float): the second value or nodename to compare; must be the same type as `value1`.  Default is 0.0.
-    * `in1` (float or integer or color<em>N </em>or vector<em>N</em> or matrix<em>NN</em>): the value or nodename to output if `value1` >= `value2`; must be the same type as the `ifgreatereq` node's output.  Default is 0.0 in all channels.
-    * `in2` (float or integer or color<em>N </em>or vector<em>N</em> or matrix<em>NN</em>): the value or nodename to output if `value1` &lt; `value2`; must be the same type as the `ifgreatereq` node's output.  Default is 0.0 in all channels.
+### `ifgreatereq`
+
+Output the value of the `in1` or `in2` stream depending on whether the `value1` input is greater or equal to the `value2` input.
+
+|Port    |Description                                       |Type                                     |Default |
+|--------|--------------------------------------------------|-----------------------------------------|--------|
+|`value1`|the first value to be compared                    |float, integer                           |__one__ |
+|`value2`|the second value to be compared                   |float, integer                           |__zero__|
+|`in1`   |The value stream to output if `value1` >= `value2`|float, colorN, vectorN, matrixNN, integer|__zero__|
+|`in2`   |The value stream to output if `value1` < `value2` |Same as `in1`                            |__zero__|
+|`out`   |Output: the result of the comparison              |Same as `in1`                            |`in1`   |
+
+|Port    |Description                                       |Type                                     |Default |
+|--------|--------------------------------------------------|-----------------------------------------|--------|
+|`value1`|the first value to be compared                    |float, integer                           |__one__ |
+|`value2`|the second value to be compared                   |float, integer                           |__zero__|
+|`out`   |Output: true if `value1` >= `value2               |boolean                                  |false   |
 
 <a id="node-ifequal"> </a>
 
-* **`ifequal`**: output the value of the `in1` or `in2` stream depending on whether the value of two test inputs are equal or not.  Ifequal nodes can be of output type float, integer, color<em>N</em>, vector<em>N</em> or matrix<em>NN</em>. There is also a "boolean" output-type **`ifequal`** node, with `value1` and `value2` inputs but no `in1` or `in2`: output is "true" if `value1` == `value2`.
-    * `value1` (boolean or integer or float): the first value or nodename to compare.  Default is 0 or "false".
-    * `value2` (boolean or integer or float): the second value or nodename to compare; must be the same type as `value1`.  Default is 0 or "false".
-    * `in1` (float or integer or color<em>N </em>or vector<em>N</em> or matrix<em>NN</em>): the value or nodename to output if `value1` == `value2`; must be the same type as the `ifequal` node's output.  Default is 0.0 in all channels.
-    * `in2` (float or integer or color<em>N </em>or vector<em>N</em> or matrix<em>NN</em>): the value or nodename to output if `value1` != `value2`; must be the same type as the `ifequal` node's output.  Default is 0.0 in all channels.
+### `ifequal`
+
+Output the value of the `in1` or `in2` stream depending on whether the `value1` input is equal to the `value2` input.
+
+|Port    |Description                                       |Type                                     |Default |
+|--------|--------------------------------------------------|-----------------------------------------|--------|
+|`value1`|the first value to be compared                    |float, integer                           |__one__ |
+|`value2`|the second value to be compared                   |float, integer                           |__zero__|
+|`in1`   |The value stream to output if `value1` = `value2` |float, colorN, vectorN, matrixNN, integer|__zero__|
+|`in2`   |The value stream to output if `value1` != `value2`|Same as `in1`                            |__zero__|
+|`out`   |Output: the result of the comparison              |Same as `in1`                            |`in1`   |
+
+|Port    |Description                                       |Type                                     |Default |
+|--------|--------------------------------------------------|-----------------------------------------|--------|
+|`value1`|The first value to be compared                    |boolean                                  |false   |
+|`value2`|The second value to be compared                   |boolean                                  |false   |
+|`in1`   |The value stream to output if `value1` = `value2` |float, colorN, vectorN, matrixNN, integer|__zero__|
+|`in2`   |The value stream to output if `value1` != `value2`|Same as `in1`                            |__zero__|
+|`out`   |Output: the result of the comparison              |Same as `in1`                            |`in1`   |
+
+|Port    |Description                                       |Type                                     |Default |
+|--------|--------------------------------------------------|-----------------------------------------|--------|
+|`value1`|the first value to be compared                    |float, integer                           |__one__ |
+|`value2`|the second value to be compared                   |float, integer                           |__zero__|
+|`out`   |Output: true if `value1` = `value2                |boolean                                  |false   |
+
+|Port    |Description                       |Type   |Default|
+|--------|----------------------------------|-------|-------|
+|`value1`|The first value to be compared    |boolean|false  |
+|`value2`|The first value to be compared    |boolean|false  |
+|`out`   |Output: true if `value1` = `value2|boolean|false  |
 
 <a id="node-switch"> </a>
 
-* **`switch`**: output the value of one of up to ten input streams, according to the value of a selector input `which`.  Switch nodes can be of output type float, color<em>N</em>, vector<em>N</em> or matrix<em>NN</em>, and have ten inputs, in1 through in10 (not all of which need be connected), which must match the output type.
-    * `in1`, `in2`, `in3`, `in4`, `in5`, `in6`, `in7`, `in8`, `in9`, `in10` (float or color<em>N</em> or vector<em>N</em> or matrix<em>NN</em>): the values or nodenames to select from based on the value of the `which` input.  The types of the various `in`<em>N</em> inputs must match the type of the `switch` node itself.  The default value of all `in`<em>N</em> inputs is 0.0 in all channels.
-    * `which` (integer or float): a selector to choose which input to take values from; the output comes from input "floor(`which`)+1", clamped to the 1-10 range.  So `which`&lt;1 will pass on the value from in1, 1&lt;=`which`&lt;2 will pass the value from in2, 2&lt;=`which`&lt;3 will pass the value from in3, and so on up to 9&lt;=`which` will pass the value from in10.  The default value of `which` is 0.
+### `switch`
+
+Output the value of one of up to ten input streams, according to the value of a selector input `which`. Note that not all inputs need to be connected. The output has the same type as `in1`, with a default value of __zero__.
+
+|Port   |Description                                                                                                                |Type                            |Default |
+|-------|---------------------------------------------------------------------------------------------------------------------------|--------------------------------|--------|
+|`in1`  |Input stream to select from using `which`                                                                                  |float, colorN, vectorN, matrixNN|__zero__|
+|`in2`  |Input stream to select from using `which`                                                                                  |Same as `in1`                   |__zero__|
+|`in3`  |Input stream to select from using `which`                                                                                  |Same as `in1`                   |__zero__|
+|`in4`  |Input stream to select from using `which`                                                                                  |Same as `in1`                   |__zero__|
+|`in5`  |Input stream to select from using `which`                                                                                  |Same as `in1`                   |__zero__|
+|`in6`  |Input stream to select from using `which`                                                                                  |Same as `in1`                   |__zero__|
+|`in7`  |Input stream to select from using `which`                                                                                  |Same as `in1`                   |__zero__|
+|`in8`  |Input stream to select from using `which`                                                                                  |Same as `in1`                   |__zero__|
+|`in9`  |Input stream to select from using `which`                                                                                  |Same as `in1`                   |__zero__|
+|`in10` |Input stream to select from using `which`                                                                                  |Same as `in1`                   |__zero__|
+|`which`|Selector to choose which input to take values from; the output comes from input floor(`which`)+1, clamped to the 1-10 range|float, integer                  |__zero__|
+|`out`  |Output: the selected input                                                                                                 |Same as `in1`                   |`in1`   |
 
 
 
@@ -1188,9 +2015,41 @@ Channel nodes are used to perform channel manipulations and data type conversion
 
 <a id="node-extract"> </a>
 
-* **`extract`**: extract the specified channel number from a color<em>N</em> or vector<em>N</em> stream.
-    * `in` (color<em>N</em> or vector<em>N</em>): the input value or nodename
-    * `index` (integer): the channel number to extract.  For color<em>N</em> streams, use "0" to extract the red channel, "1" for green, "2" for blue and "3" for alpha; for vector<em>N</em> streams, use "0" to extract the x channel, "1" for y, "2" for z and "3" for w.  Default is 0.
+### `extract`
+
+Isolate a single float channel from a __vectorN__ or __colorN__ stream. The output value is of type `float` with a default value of __zero__.
+
+|Port   |Description                                 |Type   |Default      |
+|-------|--------------------------------------------|-------|-------------|
+|`in`   |The input stream from which to extract `out`|color3 |0.0, 0.0, 0.0|
+|`index`|The index of the channel in `in` to extract |integer|0            |
+|`out`  |Output: the `index`th channel of `in`       |float  |0.0          |
+
+|Port   |Description                                 |Type   |Default           |
+|-------|--------------------------------------------|-------|------------------|
+|`in`   |The input stream from which to extract `out`|color4 |0.0, 0.0, 0.0, 0.0|
+|`index`|The index of the channel in `in` to extract |integer|0                 |
+|`out`  |Output: the `index`th channel of `in`       |float  |0.0               |
+
+|Port   |Description                                 |Type   |Default |
+|-------|--------------------------------------------|-------|--------|
+|`in`   |The input stream from which to extract `out`|vector2|0.0, 0.0|
+|`index`|The index of the channel in `in` to extract |integer|0       |
+|`out`  |Output: the `index`th channel of `in`       |float  |0.0     |
+
+|Port   |Description                                 |Type   |Default      |
+|-------|--------------------------------------------|-------|-------------|
+|`in`   |The input stream from which to extract `out`|vector3|0.0, 0.0, 0.0|
+|`index`|The index of the channel in `in` to extract |integer|0            |
+|`out`  |Output: the `index`th channel of `in`       |float  |0.0          |
+
+|Port   |Description                                 |Type   |Default           |
+|-------|--------------------------------------------|-------|------------------|
+|`in`   |The input stream from which to extract `out`|vector4|0.0, 0.0, 0.0, 0.0|
+|`index`|The index of the channel in `in` to extract |integer|0                 |
+|`out`  |Output: the `index`th channel of `in`       |float  |0.0               |
+
+The valid range for `index` should be clamped to $[0,N)$ in the user interface, where __N__ is the size of the input vector stream. `index` is a uniform, non-varying value. Any `index` values outside of the valid range should result in an error.
 
 <a id="node-convert"> </a>
 
@@ -1198,65 +2057,125 @@ Channel nodes are used to perform channel manipulations and data type conversion
     * `in` (boolean or integer or float or color<em>N</em> or vector<em>N</em>): the input value or nodename
 
 <a id="node-combine2"> </a>
+
+### `combine2`
+
+Combine the channels from two streams into the same number of channels of a single output stream of a compatible type.
+
+|Port |Description                                                      |Type   |Default |
+|-----|-----------------------------------------------------------------|-------|--------|
+|`in1`|The input stream that will be sent to the first channel of `out` |float  |0.0     |
+|`in2`|The input stream that will be sent to the second channel of `out`|float  |0.0     |
+|`out`|Output: the combined value                                       |vector2|0.0, 0.0|
+
+|Port |Description                                                      |Type  |Default           |
+|-----|-----------------------------------------------------------------|------|------------------|
+|`in1`|The input stream that will be sent to the first channel of `out` |color3|0.0, 0.0, 0.0     |
+|`in2`|The input stream that will be sent to the second channel of `out`|float |0.0               |
+|`out`|Output: the combined value                                       |color4|0.0, 0.0, 0.0, 0.0|
+
+|Port |Description                                                      |Type   |Default           |
+|-----|-----------------------------------------------------------------|-------|------------------|
+|`in1`|The input stream that will be sent to the first channel of `out` |vector3|0.0, 0.0, 0.0     |
+|`in2`|The input stream that will be sent to the second channel of `out`|float  |0.0               |
+|`out`|Output: the combined value                                       |vector4|0.0, 0.0, 0.0, 0.0|
+
+|Port |Description                                                      |Type   |Default           |
+|-----|-----------------------------------------------------------------|-------|------------------|
+|`in1`|The input stream that will be sent to the first channel of `out` |vector2|0.0, 0.0          |
+|`in2`|The input stream that will be sent to the second channel of `out`|vector2|0.0, 0.0          |
+|`out`|Output: the combined value                                       |vector4|0.0, 0.0, 0.0, 0.0|
+
 <a id="node-combine3"> </a>
+
+### `combine3`
+
+Combine the channels from three streams into the same number of channels of a single output stream of a compatible type.
+
+|Port |Description                                                      |Type           |Default |
+|-----|-----------------------------------------------------------------|---------------|--------|
+|`in1`|The input stream that will be sent to the first channel of `out` |float          |0.0     |
+|`in2`|The input stream that will be sent to the second channel of `out`|float          |0.0     |
+|`in3`|The input stream that will be sent to the third channel of `out` |float          |0.0     |
+|`out`|Output: the combined value                                       |color3, vector3|__zero__|
+
 <a id="node-combine4"> </a>
 
-* **`combine2`**, **`combine3`**, **`combine4`**: combine the channels from two, three or four streams into the same total number of channels of a single output stream of a specified compatible type; please see the table below for a list of all supported combinations of input and output types.  For colorN output types, no colorspace conversion will take place; the channels are simply copied as-is.
-    * `in1` (float/color3/vector2/vector3): the input value or nodename which will be sent to the N channels of the output; default is 0.0 in all channels
-    * `in2` (float/vector2): the input value or nodename which will be sent to the next N channels of the output; default is 0.0 in all channels
-    * `in3` (float): for **`combine3`** or **`combine4`**, the input value or nodename which will be sent to the next channel of the output after `in2`; default is 0.0
-    * `in4` (float): for **`combine4`**, the input value or nodename which will be sent to the last channel of the output; default is 0.0
+### `combine4`
+
+Combine the channels from four streams into the same number of channels of a single output stream of a compatible type.
+
+|Port |Description                                                      |Type           |Default |
+|-----|-----------------------------------------------------------------|---------------|--------|
+|`in1`|The input stream that will be sent to the first channel of `out` |float          |0.0     |
+|`in2`|The input stream that will be sent to the second channel of `out`|float          |0.0     |
+|`in3`|The input stream that will be sent to the third channel of `out` |float          |0.0     |
+|`in4`|The input stream that will be sent to the fourth channel of `out`|float          |0.0     |
+|`out`|Output: the combined value                                       |color4, vector4|__zero__|
 
 <a id="node-separate2"> </a>
 
-* **`separate2`** (NG): output each of the channels of a vector2 as a separate float output.
-    * `in` (vector2): the input value or nodename
-    * `outx` (**output**, float): the value of x channel.
-    * `outy` (**output**, float): the value of y channel.
+### `separate2`
+
+Split the channels of a 2-channel stream into separate float outputs.
+
+|Port  |Description                     |Type   |Default |
+|------|--------------------------------|-------|--------|
+|`in`  |The input stream to be separated|vector2|0.0, 0.0|
+|`outx`|Output: the x channel of `in`   |float  |0.0     |
+|`outy`|Output: the y channel of `in`   |float  |0.0     |
+
+For the vector2-input `in`, `outx` and `outy` correspond to the x- and y-components of `in`..
 
 <a id="node-separate3"> </a>
 
-* **`separate3`** (NG): output each of the channels of a color3 or vector3 as a separate float output.
-    * `in` (color3 or vector3): the input value or nodename
-    * `outr`/`outx` (**output**, float): the value of the red (for color3 streams) or x (for vector3 streams) channel.
-    * `outg`/`outy` (**output**, float): the value of the green (for color3 streams) or y (for vector3 streams) channel.
-    * `outb`/`outz` (**output**, float): the value of the blue (for color3 streams) or z (for vector3 streams) channel.
+### `separate3`
+
+Split the channels of a 3-channel stream into separate float outputs.
+
+|Port  |Description                     |Type  |Default      |
+|------|--------------------------------|------|-------------|
+|`in`  |The input stream to be separated|color3|0.0, 0.0, 0.0|
+|`outr`|Output: the r channel of `in`   |float |0.0          |
+|`outg`|Output: the g channel of `in`   |float |0.0          |
+|`outb`|Output: the b channel of `in`   |float |0.0          |
+
+|Port  |Description                     |Type   |Default      |
+|------|--------------------------------|-------|-------------|
+|`in`  |The input stream to be separated|vector3|0.0, 0.0, 0.0|
+|`outx`|Output: the x channel of `in`   |float  |0.0          |
+|`outy`|Output: the y channel of `in`   |float  |0.0          |
+|`outz`|Output: the z channel of `in`   |float  |0.0          |
+
+When the input `in` is a color3, `outr`, `outg`, and `outb` correspond to the r-, g-, and b-components of `in`, respectively.
+
+When the input `in` is a vector3, `outx`, `outy`, and `outz` correspond to the x-, y-, and z-components of `in`, respectively.
 
 <a id="node-separate4"> </a>
 
-* **`separate4`** (NG): output each of the channels of a color4 or vector4 as a separate float output.
-    * `in` (color4 or vector4): the input value or nodename
-    * `outr`/`outx` (**output**, float): the value of the red (for color4 streams) or x (for vector4 streams) channel.
-    * `outg`/`outy` (**output**, float): the value of the green (for color4 streams) or y (for vector4 streams) channel.
-    * `outb`/`outz` (**output**, float): the value of the blue (for color4 streams) or z (for vector4 streams) channel.
-    * `outa`/`outw` (**output**, float): the value of the alpha (for color4 streams) or w (for vector4 streams) channel.
+### `separate4`
 
+Split the channels of a 4-channel stream into separate float outputs.
 
-The following input/output data type conversions are supported by **`convert`**:
+|Port  |Description                     |Type  |Default           |
+|------|--------------------------------|------|------------------|
+|`in`  |The input stream to be separated|color4|0.0, 0.0, 0.0, 0.0|
+|`outr`|Output: the r channel of `in`   |float |0.0               |
+|`outg`|Output: the g channel of `in`   |float |0.0               |
+|`outb`|Output: the b channel of `in`   |float |0.0               |
+|`outa`|Output: the a channel of `in`   |float |0.0               |
 
-* boolean or integer to float: output is 0.0 or 1.0
-* boolean to integer: output is 0 or 1
-* integer to boolean: true for any non-zero input value
-* float/integer/boolean to color<em>N</em>/vector<em>N</em>: copy the input value to all channels of the output
-* color<em>N</em> / vector<em>N</em> to color<em>M</em> / vector<em>M</em>
-  * if _N_ is the same as _M_, then channels are directly copied. 
-  * if _N_ is larger than _M_, then channels the first _N_ channels are used.
-  * if _N_ is smaller than _M_, then channels are directly copied and additional channels are populated with 0, aside from the fourth channel which is populated with 1
+|Port  |Description                     |Type   |Default           |
+|------|--------------------------------|-------|------------------|
+|`in`  |The input stream to be separated|vector4|0.0, 0.0, 0.0, 0.0|
+|`outx`|Output: the x channel of `in`   |float  |0.0               |
+|`outy`|Output: the y channel of `in`   |float  |0.0               |
+|`outz`|Output: the z channel of `in`   |float  |0.0               |
+|`outw`|Output: the w channel of `in`   |float  |0.0               |
 
-Table of allowable input/output types for **`combine2`**, **`combine3`**, **`combine4`**:
+When the input `in` is a color4, `outr`, `outg`, `outb`, and `outa` correspond to the r-, g-, b-, and alpha components of `in`, respectively.
 
-| Operator | `type` | `in1` | `in2` | `in3` | `in4` | Output |
-| --- | --- | --- | --- | --- | --- | --- |
-| `combine2` | `vector2` | `float` "x" | `float` "y" | n/a | n/a | "xy" |
-| `combine3` | `color3` | `float` "r" | `float` "g" | `float` "b" | n/a | "rgb" |
-| `combine3` | `vector3` | `float` "x" | `float` "y" | `float` "z" | n/a | "xyz" |
-| `combine4` | `color4` | `float` "r" | `float` "g" | `float` "b" | `float` "a" | "rgba" |
-| `combine4` | `vector4` | `float` "x" | `float` "y" | `float` "z" | `float` "w" | "xyzw" |
-| `combine2` | `color4` | `color3` "rgb" | `float` "a" | n/a | n/a | "rgba" |
-| `combine2` | `vector4` | `vector3` "xyz" | `float` "w" | n/a | n/a | "xyzw" |
-| `combine2` | `vector4` | `vector2` "xy" | `vector2` "zw" | n/a | n/a | "xyzw" |
-
-
+When the input `in` is a vector4, `outx`, `outy`, `outz`, and `outw` correspond to the x-, y-, z-, and w-components of `in`, respectively.
 
 
 ## Convolution Nodes
@@ -1266,19 +2185,29 @@ Convolution nodes have one input named "in", and apply a defined convolution fun
 
 <a id="node-blur"> </a>
 
-* **`blur`**: a convolution blur.
-    * `in` (float or color<em>N</em> or vector<em>N</em>): the input value or nodename
-    * `size` (float): the size of the blur kernel, relative to 0-1 UV space; default is 0.
-    * `filtertype` (uniform string): the spatial filter used in the blur, either "box" for a linear box filter, or "gaussian" for a gaussian filter.  Default is "box".
+### `blur`
+
+Applies a convolution blur to the input stream.
+
+|Port        |Description                                |Type                  |Default |Accepted Values|
+|------------|-------------------------------------------|----------------------|--------|---------------|
+|`in`        |The input stream to be blurred             |float, colorN, vectorN|__zero__|               |
+|`size`      |The size of the blur kernel in 0-1 UV space|float                 |0.0     |               |
+|`filtertype`|The spatial filter used in the blur        |string                |box     |box, gaussian  |
+|`out`       |Output: the blurred `in`                   |Same as `in`          |`in`    |               |
 
 <a id="node-heighttonormal"> </a>
 
-* **`heighttonormal`**: convert a scalar height map to a tangent-space normal map of type vector3.  The normal at each point is computed from the gradient of the heightfield signal with respect to the input texture coordinates.  The output normal map is encoded with all channels in the [0-1] range, enabling its storage in unsigned image formats.
-    * `in` (float): the input value or nodename
-    * `scale` (float): the scale of normal map deflections relative to the gradient of the height map.  Default is 1.0.
-    * `texcoord` (vector2): the texture coordinates that the heightfield gradient is computed with respect to.  Default is to use the first set of texture coordinates.
+### `heighttonormal`
 
-<br>
+Convert a scalar height map to a tangent-space normal map of type `vector3`. The output normal map is encoded with all channels in the [0-1] range, enabling its storage in unsigned image formats.
+
+|Port      |Description                                                                      |Type   |Default      |
+|----------|---------------------------------------------------------------------------------|-------|-------------|
+|`in`      |The input scalar height map                                                      |float  |0.0          |
+|`scale`   |Multiplier applied to the `in` signal                                            |float  |1.0          |
+|`texcoord`|The texture coordinates that the heightfield gradient is computed with respect to|vector2|_UV0_        |
+|`out`     |Output: tangent-space normal computed from `in`                                  |vector3|0.5, 0.5, 1.0|
 
 
 # Standard Shader Nodes
