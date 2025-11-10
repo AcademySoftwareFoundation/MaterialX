@@ -17,6 +17,7 @@ The MaterialX Specification defines a content schema to describe materials, imag
 
 This document describes a specific set of **Standard Nodes** that can be used to read and process image and geometric attribute data, as well as create new image data procedurally.  These "stdlib" nodes are an essential core part of all MaterialX implementations.  Additional nodes are described in companion documents [**MaterialX Physically Based Shading Nodes**](./MaterialX.PBRSpec.md) and [**MaterialX NPR Shading Nodes**](./MaterialX.NPRSpec.md).
 
+In the node descriptions below, tables define the names, allowable types, default values, and where appropriate, accepted values for the node's inputs and output(s).  For outputs, the Default value specified is the value output (or passed through from an input) if the node is disabled.  Node descriptions with multiple tables accept any combination of inputs/outputs/types described within any single table.
 
 ## Table of Contents
 
@@ -85,18 +86,18 @@ The `file` input value can include one or more substitutions to change the file 
 
 If no value for `layer` is provided and the input file has multiple layers, then the "default" layer will be used, or "rgba" if there is no "default" layer. Note: the number of channels defined by the type of the `image` must match the number of channels in the named layer.
 
-The `default` input is the default value to use if the file reference can not be resolved (e.g. if a geometry token, interface token, or hostattr is included in the filename but no substitution value or default is defined, or if the resolved file URI cannot be read), or if the specified layer does not exist in the file. The default value must be the same type as the &lt;image> element itself. If default is not defined, the default color value will be 0.0 in all channels.
+The `default` input is the default value to use if the file reference can not be resolved (e.g. if a geometry token, interface token, or hostattr is included in the filename but no substitution value or default is defined, or if the resolved file URI cannot be read), or if the specified layer does not exist in the file. The default value must be the same type as the &lt;image> element itself. If `default` is not defined, the default color value will be 0.0 in all channels.
 
 |Port            |Description                                                                                                      |Type                  |Default  |Accepted Values                  |
 |----------------|-----------------------------------------------------------------------------------------------------------------|----------------------|---------|---------------------------------|
-|`file`          |The URI of an image file                                                                                         |filename              |__empty__|                                 |
+|`file`          |The URI of the image file                                                                                        |filename              |__empty__|                                 |
 |`layer`         |The name of the layer to extract from a multi-layer input file                                                   |string                |__empty__|                                 |
 |`default`       |A default value to use if the file reference can not be resolved                                                 |float, colorN, vectorN|__zero__ |                                 |
 |`texcoord`      |The 2D texture coordinate at which the image data is read                                                        |vector2               |_UV0_    |                                 |
 |`uaddressmode`  |Determines how U coordinates outside the 0-1 range are processed before sampling the image                       |string                |periodic |constant, clamp, periodic, mirror|
 |`vaddressmode`  |Determines how V coordinates outside the 0-1 range are processed before sampling the image                       |string                |periodic |constant, clamp, periodic, mirror|
 |`filtertype`    |The type of texture filtering to use                                                                             |string                |linear   |closest, linear, cubic           |
-|`framerange`    |A string 'minframe-maxframe', e.g. '10-99', to specify the range of frames that the image file is allowed to have|string                |__empty__|                                 |
+|`framerange`    |A string "minframe-maxframe", e.g. "10-99", to specify the range of frames that the image file is allowed to have|string                |__empty__|                                 |
 |`frameoffset`   |A number that is added to the current frame number to get the image file frame number                            |integer               |0        |                                 |
 |`frameendaction`|What to do when the resolved image frame number is outside the `framerange` range                                |string                |constant |constant, clamp, periodic, mirror|
 |`out`           |Output: the sampled texture value                                                                                |Same as `default`     |__zero__ |                                 |
@@ -104,13 +105,13 @@ The `default` input is the default value to use if the file reference can not be
 <a id="node-tiledimage"> </a>
 
 ### `tiledimage`
-Samples data from a single image, with provisions for tiling and offsetting the image across uv space.
+Samples data from a single image, with provisions for tiling and offsetting the image across UV space.
 
 The `file` input can include one or more substitutions to change the file name that is accessed, as described in the [Filename Substitutions](./MaterialX.Specification.md#filename-substitutions) section in the main Specification document.
 
 |Port                |Description                                                                                                      |Type                  |Default  |Accepted Values                  |
 |--------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|---------|---------------------------------|
-|`file`              |The URI of an image file                                                                                         |filename              |__empty__|                                 |
+|`file`              |The URI of the image file                                                                                        |filename              |__empty__|                                 |
 |`default`           |A default value to use if the file reference can not be resolved                                                 |float, colorN, vectorN|__zero__ |                                 |
 |`texcoord`          |The 2D texture coordinate at which the image data is read                                                        |vector2               |_UV0_    |                                 |
 |`uvtiling`          |The tiling rate for the given image along the U and V axes                                                       |vector2               |1.0, 1.0 |                                 |
@@ -118,7 +119,7 @@ The `file` input can include one or more substitutions to change the file name t
 |`realworldimagesize`|The real-world size represented by the file image                                                                |vector2               |1.0, 1.0 |                                 |
 |`realworldtilesize` |The real-world size of a single square 0-1 UV tile                                                               |vector2               |1.0, 1.0 |                                 |
 |`filtertype`        |The type of texture filtering to use                                                                             |string                |linear   |closest, linear, cubic           |
-|`framerange`        |A string 'minframe-maxframe', e.g. '10-99', to specify the range of frames that the image file is allowed to have|string                |__empty__|                                 |
+|`framerange`        |A string "minframe-maxframe", e.g. "10-99", to specify the range of frames that the image file is allowed to have|string                |__empty__|                                 |
 |`frameoffset`       |A number that is added to the current frame number to get the image file frame number                            |integer               |0        |                                 |
 |`frameendaction`    |What to do when the resolved image frame number is outside the `framerange` range                                |string                |constant |constant, clamp, periodic, mirror|
 |`out`               |Output: the sampled texture value                                                                                |Same as `default`     |__zero__ |                                 |
@@ -132,7 +133,7 @@ The `file` input can include one or more substitutions to change the file name t
 
 |Port      |Description                                                                        |Type    |Default      |
 |----------|-----------------------------------------------------------------------------------|--------|-------------|
-|`file`    |The URI of an image file                                                           |filename|__empty__    |
+|`file`    |The URI of the image file                                                          |filename|__empty__    |
 |`default` |A default value to use if the file reference can not be resolved                   |color3  |0.0, 0.0, 0.0|
 |`viewdir` |The view direction determining the value sampled from the projected equiangular map|vector3 |0.0, 0.0, 1.0|
 |`rotation`|The longitudinal sampling offset, in degrees                                       |float   |0.0          |
@@ -145,11 +146,11 @@ Samples data from a single image, with provisions for hex-tiling and randomizing
 
 The `file` input can include one or more substitutions to change the file name that is accessed, as described in the [Filename Substitutions](./MaterialX.Specification.md#filename-substitutions) section in the main Specification document.
 
-The `lumacoeffs` input represents the luma coefficients of the current working color space. If no specific color space can be determined, the ACEScg (ap1) luma coefficients [0.2722287, 0.6740818, 0.0536895] will be used. Applications which support color management systems may choose to retrieve the luma coefficients of the working colorspace from the CMS to pass to the `luminance` node's implementation directly, rather than exposing it to the user.
+The `lumacoeffs` input represents the luma coefficients of the current working color space. If no specific color space can be determined, the ACEScg (ap1) luma coefficients [0.2722287, 0.6740818, 0.0536895] will be used. Applications which support color management systems may choose to retrieve the luma coefficients of the working colorspace from the CMS to pass to the node's implementation directly, rather than exposing it to the user.
 
 |Port                |Description                                                                                        |Type                  |Default                        |
 |--------------------|---------------------------------------------------------------------------------------------------|----------------------|-------------------------------|
-|`file`              |The URI of an image file                                                                           |filename              |__empty__                      |
+|`file`              |The URI of the image file                                                                          |filename              |__empty__                      |
 |`default`           |A default value to use if the file reference can not be resolved                                   |float, colorN, vectorN|__zero__                       |
 |`texcoord`          |The 2D texture coordinate at which the image data is read                                          |vector2               |_UV0_                          |
 |`tiling`            |The tiling rate for the given image along the U and V axes                                         |vector2               |1.0, 1.0                       |
@@ -171,9 +172,9 @@ Samples data from three images (or layers within multi-layer images), and projec
 
 |Port            |Description                                                                                                      |Type                  |Default  |Accepted Values                  |
 |----------------|-----------------------------------------------------------------------------------------------------------------|----------------------|---------|---------------------------------|
-|`filex`         |The URI of an image file to be projected in the direction from the +X axis back toward the origin                |filename              |__empty__|                                 |
-|`filey`         |The URI of an image file to be projected in the direction from the +Y axis back toward the origin                |filename              |__empty__|                                 |
-|`filez`         |The URI of an image file to be projected in the direction from the +Z axis back toward the origin                |filename              |__empty__|                                 |
+|`filex`         |The URI of the image file to be projected in the direction from the +X axis back toward the origin               |filename              |__empty__|                                 |
+|`filey`         |The URI of the image file to be projected in the direction from the +Y axis back toward the origin               |filename              |__empty__|                                 |
+|`filez`         |The URI of the image file to be projected in the direction from the +Z axis back toward the origin               |filename              |__empty__|                                 |
 |`layerx`        |The name of the layer to extract from a multi-layer input file for the X-axis projection                         |string                |__empty__|                                 |
 |`layery`        |The name of the layer to extract from a multi-layer input file for the Y-axis projection                         |string                |__empty__|                                 |
 |`layerz`        |The name of the layer to extract from a multi-layer input file for the Z-axis projection                         |string                |__empty__|                                 |
@@ -183,7 +184,7 @@ Samples data from three images (or layers within multi-layer images), and projec
 |`upaxis`        |Which axis is considered to be 'up', either 0 for X, 1 for Y, or 2 for Z                                         |integer               |2        |0, 1, 2                          |
 |`blend`         |Weighting factor for blending samples using the geometric normal, with higher values giving softer blending      |float                 |1.0      |                                 |
 |`filtertype`    |The type of texture filtering to use                                                                             |string                |linear   |closest, linear, cubic           |
-|`framerange`    |A string 'minframe-maxframe', e.g. '10-99', to specify the range of frames that the image file is allowed to have|string                |__empty__|                                 |
+|`framerange`    |A string "minframe-maxframe", e.g. "10-99", to specify the range of frames that the image file is allowed to have|string                |__empty__|                                 |
 |`frameoffset`   |A number that is added to the current frame number to get the image file frame number                            |integer               |0        |                                 |
 |`frameendaction`|What to do when the resolved image frame number is outside the `framerange` range                                |string                |constant |constant, clamp, periodic, mirror|
 |`out`           |Output: the blended texture value                                                                                |Same as `default`     |__zero__ |                                 |
@@ -300,7 +301,7 @@ A 4-corner bilinear value ramp.
 <a id="node-splitlr"> </a>
 
 ### `splitlr`
-A left-right split matte, split at a specified `U` value.
+A left-right split matte, split at a specified U value.
 
 |Port      |Description                                                         |Type                  |Default |
 |----------|--------------------------------------------------------------------|----------------------|--------|
@@ -313,7 +314,7 @@ A left-right split matte, split at a specified `U` value.
 <a id="node-splittb"> </a>
 
 ### `splittb`
-A top-bottom split matte, split at a specified `V`` value.
+A top-bottom split matte, split at a specified V value.
 
 |Port      |Description                                                        |Type                  |Default |
 |----------|-------------------------------------------------------------------|----------------------|--------|
@@ -326,7 +327,7 @@ A top-bottom split matte, split at a specified `V`` value.
 <a id="node-randomfloat"> </a>
 
 ### `randomfloat`
-Produces a stable randomized float value between 'min' and 'max', based on an 'input' signal and 'seed' value.  Uses a 2d cellnoise function to produce the output.
+Produces a stable randomized float value between `min` and `max`, based on an input signal and optional `seed` value.  Uses a 2d cellnoise function to produce the output.
 
 |Port      |Description                                                        |Type          |Default |
 |----------|-------------------------------------------------------------------|--------------|--------|
@@ -339,7 +340,7 @@ Produces a stable randomized float value between 'min' and 'max', based on an 'i
 <a id="node-randomcolor"> </a>
 
 ### `randomcolor`
-Produces a randomized RGB color within a randomized hue, saturation and brightness range, based on an 'input' signal and 'seed' value.  Output type color3.
+Produces a randomized RGB color within a randomized hue, saturation and brightness range, based on an input signal and optional `seed` value.  Output type color3.
 
 |Port            |Description                                                  |Type          |Default |
 |----------------|-------------------------------------------------------------|--------------|--------|
@@ -356,7 +357,7 @@ Produces a randomized RGB color within a randomized hue, saturation and brightne
 
 ### Procedural Node Notes
 
-To scale or offset `rampX` or `splitX` input coordinates, use a &lt;texcoord> or similar Geometric node processed by vector2 &lt;multiply>, &lt;rotate> and/or &lt;add> nodes, and connect to the node's `texcoord` input.
+To scale or offset the input coordinates for `rampX` or `splitX` or any other node with a `texcoord` input, use a &lt;place2d> node, or a &lt;texcoord> or similar Geometric node processed by vector2 &lt;multiply>, &lt;rotate> and/or &lt;add> nodes, and connect to the node's `texcoord` input.
 
 
 
@@ -448,73 +449,75 @@ Zero-centered 3D Fractal noise in 1, 2, 3 or 4 channels, created by summing seve
 <a id="node-worleynoise2d"> </a>
 
 ### `worleynoise2d`
-2D Worley noise using centered jitter, outputting float (distance metric to closest feature), vector2 (distance metrics to closest 2 features) or vector3 (distance metrics to closest 3 features).
+2D Worley noise using centered jitter, outputting float (distance metric to closest feature), vector2 (distance metrics to closest 2 features) or vector3 (distance metrics to closest 3 features) values.
 
-|Port      |Description                                              |Type                   |Default|Accepted Values|
-|----------|---------------------------------------------------------|-----------------------|-------|---------------|
-|`texcoord`|The 2D texture coordinate at which the noise is evaluated|vector2                |_UV0_  |               |
-|`jitter`  |The amount to jitter the cell center position            |float                  |1.0    |               |
-|`style`   |The output style                                         |integer                |0      |Distance, Solid|
-|`out`     |Output: the computed noise value                         |float, vector2, vector3|0.0    |               |
+|Port      |Description                                              |Type                   |Default|Accepted Values        |
+|----------|---------------------------------------------------------|-----------------------|-------|-----------------------|
+|`texcoord`|The 2D texture coordinate at which the noise is evaluated|vector2                |_UV0_  |                       |
+|`jitter`  |The amount to jitter the cell center position            |float                  |1.0    |                       |
+|`style`   |The output style                                         |integer                |0      |0 (Distance), 1 (Solid)|
+|`out`     |Output: the computed noise value                         |float, vector2, vector3|0.0    |                       |
 
 <a id="node-worleynoise3d"> </a>
 
 ### `worleynoise3d`
-3D Worley noise using centered jitter, outputting float (distance metric to closest feature), vector2 (distance metrics to closest 2 features) or vector3 (distance metrics to closest 3 features).
+3D Worley noise using centered jitter, outputting float (distance metric to closest feature), vector2 (distance metrics to closest 2 features) or vector3 (distance metrics to closest 3 features) values.
 
-|Port      |Description                                    |Type                   |Default  |Accepted Values|
-|----------|-----------------------------------------------|-----------------------|---------|---------------|
-|`position`|The 3D position at which the noise is evaluated|vector3                |_Pobject_|               |
-|`jitter`  |The amount to jitter the cell center position  |float                  |1.0      |               |
-|`style`   |The output style                               |integer                |0        |Distance, Solid|
-|`out`     |Output: the computed noise value               |float, vector2, vector3|__zero__ |               |
+|Port      |Description                                    |Type                   |Default  |Accepted Values        |
+|----------|-----------------------------------------------|-----------------------|---------|-----------------------|
+|`position`|The 3D position at which the noise is evaluated|vector3                |_Pobject_|                       |
+|`jitter`  |The amount to jitter the cell center position  |float                  |1.0      |                       |
+|`style`   |The output style                               |integer                |0        |0 (Distance), 1 (Solid)|
+|`out`     |Output: the computed noise value               |float, vector2, vector3|__zero__ |                       |
 
 <a id="node-unifiednoise2d"> </a>
 
 ### `unifiednoise2d`
 A single node supporting 2D Perlin, Cell, Worley or Fractal noise in a unified interface.
 
-|Port         |Description                                                                                |Type   |Default|Accepted Values|
-|-------------|-------------------------------------------------------------------------------------------|-------|-------|---------------|
-|`texcoord`   |The 2D texture coordinate at which the noise is evaluated                                  |vector2|_UV0_  |               |
-|`freq`       |The noise frequency, with higher values producing smaller noise shapes.                    |vector2|1, 1   |               |
-|`offset`     |The amount to offset 2d space                                                              |vector2|0, 0   |               |
-|`jitter`     |The amount to jitter the cell center position                                              |float  |1      |               |
-|`outmin`     |The lowest output value                                                                    |float  |0      |               |
-|`outmax`     |The highest output value                                                                   |float  |1      |               |
-|`clampoutput`|If enabled the output is clamped between the min and max output values                     |boolean|true   |               |
-|`octaves`    |The number of octaves of noise to be summed                                                |integer|3      |               |
-|`lacunarity` |The exponential scale between successive octaves of noise                                  |float  |2      |               |
-|`diminish`   |The rate at which noise amplitude is diminished for each octave                            |float  |0.5    |               |
-|`type`       |The type of noise function to use.  One of 0 (Perlin), 1 (Cell), 2 (Worley), or 3 (Fractal)|integer|0      |               |
-|`style`      |The output style                                                                           |integer|0      |Distance, Solid|
-|`out`        |Output: the computed noise value                                                           |float  |0.0    |               |
+|Port         |Description                                                                                |Type   |Default|Accepted Values        |
+|-------------|-------------------------------------------------------------------------------------------|-------|-------|-----------------------|
+|`texcoord`   |The 2D texture coordinate at which the noise is evaluated                                  |vector2|_UV0_  |                       |
+|`freq`       |The noise frequency, with higher values producing smaller noise shapes.                    |vector2|1, 1   |                       |
+|`offset`     |The amount to offset 2d space                                                              |vector2|0, 0   |                       |
+|`jitter`     |The amount to jitter the cell center position                                              |float  |1      |                       |
+|`outmin`     |The lowest output value                                                                    |float  |0      |                       |
+|`outmax`     |The highest output value                                                                   |float  |1      |                       |
+|`clampoutput`|If enabled the output is clamped between the min and max output values                     |boolean|true   |                       |
+|`octaves`    |The number of octaves of noise to be summed                                                |integer|3      |                       |
+|`lacunarity` |The exponential scale between successive octaves of noise                                  |float  |2      |                       |
+|`diminish`   |The rate at which noise amplitude is diminished for each octave                            |float  |0.5    |                       |
+|`type`       |The type of noise function to use.  One of 0 (Perlin), 1 (Cell), 2 (Worley), or 3 (Fractal)|integer|0      |                       |
+|`style`      |The output style                                                                           |integer|0      |0 (Distance), 1 (Solid)|
+|`out`        |Output: the computed noise value                                                           |float  |0.0    |                       |
 
 <a id="node-unifiednoise3d"> </a>
 
 ### `unifiednoise3d`
 A single node supporting 3D Perlin, Cell, Worley or Fractal noise in a unified interface.
 
-|Port         |Description                                                                                |Type   |Default  |Accepted Values|
-|-------------|-------------------------------------------------------------------------------------------|-------|---------|---------------|
-|`position`   |The 3D position at which the noise is evaluated                                            |vector3|_Pobject_|               |
-|`freq`       |The noise frequency, with higher values producing smaller noise shapes.                    |vector3|1, 1, 1  |               |
-|`offset`     |The amount to offset 3d space                                                              |vector3|0, 0, 0  |               |
-|`jitter`     |The amount to jitter the cell center position                                              |float  |1        |               |
-|`outmin`     |The lowest output value                                                                    |float  |0        |               |
-|`outmax`     |The highest output value                                                                   |float  |1        |               |
-|`clampoutput`|If enabled the output is clamped between the min and max output values                     |boolean|true     |               |
-|`octaves`    |The number of octaves of noise to be summed                                                |integer|3        |               |
-|`lacunarity` |The exponential scale between successive octaves of noise                                  |float  |2        |               |
-|`diminish`   |The rate at which noise amplitude is diminished for each octave                            |float  |0.5      |               |
-|`type`       |The type of noise function to use.  One of 0 (Perlin), 1 (Cell), 2 (Worley), or 3 (Fractal)|integer|0        |               |
-|`style`      |The output style                                                                           |integer|0        |Distance, Solid|
-|`out`        |Output: the computed noise value                                                           |float  |0.0      |               |
+|Port         |Description                                                                                |Type   |Default  |Accepted Values        |
+|-------------|-------------------------------------------------------------------------------------------|-------|---------|-----------------------|
+|`position`   |The 3D position at which the noise is evaluated                                            |vector3|_Pobject_|                       |
+|`freq`       |The noise frequency, with higher values producing smaller noise shapes.                    |vector3|1, 1, 1  |                       |
+|`offset`     |The amount to offset 3d space                                                              |vector3|0, 0, 0  |                       |
+|`jitter`     |The amount to jitter the cell center position                                              |float  |1        |                       |
+|`outmin`     |The lowest output value                                                                    |float  |0        |                       |
+|`outmax`     |The highest output value                                                                   |float  |1        |                       |
+|`clampoutput`|If enabled the output is clamped between the min and max output values                     |boolean|true     |                       |
+|`octaves`    |The number of octaves of noise to be summed                                                |integer|3        |                       |
+|`lacunarity` |The exponential scale between successive octaves of noise                                  |float  |2        |                       |
+|`diminish`   |The rate at which noise amplitude is diminished for each octave                            |float  |0.5      |                       |
+|`type`       |The type of noise function to use.  One of 0 (Perlin), 1 (Cell), 2 (Worley), or 3 (Fractal)|integer|0        |                       |
+|`style`      |The output style                                                                           |integer|0        |0 (Distance), 1 (Solid)|
+|`out`        |Output: the computed noise value                                                           |float  |0.0      |                       |
 
 
 ### Noise Node Notes
 
-To scale or offset the noise pattern generated by a 3D noise node such as `noise3d`, `fractal3d` or `cellnoise3d`, use a &lt;position> or other [Geometric Node](#geometric-nodes) (see below) connected to vector3 &lt;multiply> and/or &lt;add> nodes, in turn connected to the noise node's `position` input.  To scale or offset the noise pattern generated by a 2D noise node such as `noise2d` or `cellnoise2d`, use a &lt;texcoord> or similar Geometric node processed by vector2 &lt;multiply>, &lt;rotate> and/or &lt;add> nodes, and connect to the node's `texcoord` input.
+To scale or offset the noise pattern generated by a 3D noise node such as `noise3d`, `fractal3d` or `cellnoise3d`, use a &lt;position> or other [Geometric Node](#geometric-nodes) (see below) connected to vector3 &lt;multiply> and/or &lt;add> nodes, in turn connected to the noise node's `position` input.
+
+To scale or offset the noise pattern generated by a 2D noise node such as `noise2d` or `cellnoise2d`, use a &lt;place2d> node, or a &lt;texcoord> or similar Geometric node processed by vector2 &lt;multiply>, &lt;rotate> and/or &lt;add> nodes, and connect to the node's `texcoord` input.
 
 
 
@@ -842,7 +845,7 @@ Operator nodes process one or more required input streams to form an output.  Li
   </add>
 ```
 
-The inputs of compositing operators are called "fg" and "bg" (plus "alpha" for float and color3 variants, and "mix" for all variants of the `mix` operator), while the inputs of other operators are called "in" if there is exactly one input, or "in1", "in2" etc. if there are more than one input.  If an implementation does not support a particular operator, it should pass through the "bg", "in" or "in1" input unchanged.
+The inputs of compositing operators are called "fg" and "bg" (plus "alpha" for float and color3 variants, and "mix" for all variants of the `mix` operator), while the inputs of most other operators are called "in" if there is exactly one input, or "in1", "in2" etc. if there are more than one input.  If an implementation does not support a particular operator, it should generally pass through the "bg", "in" or "in1" input unchanged.
 
 This section defines the Operator Nodes that all MaterialX implementations are expected to support.  Standard Operator Nodes are grouped into the following classifications: [Math Nodes](#math-nodes), [Adjustment Nodes](#adjustment-nodes), [Compositing Nodes](#compositing-nodes), [Conditional Nodes](#conditional-nodes), [Channel Nodes](#channel-nodes) and [Convolution Nodes](#convolution-nodes).
 
@@ -1089,7 +1092,7 @@ The arcsine of the incoming value. The output will be expressed in radians.
 
 |Port |Description             |Type          |Default |Accepted Values    |
 |-----|------------------------|--------------|--------|-------------------|
-|`in` |The primary input stream|float, vectorN|__zero__|[-__one__, __one__)|
+|`in` |The primary input stream|float, vectorN|__zero__|[-__one__, __one__]|
 |`out`|Output: asin of `in1`   |Same as `in`  |`in`    |                   |
 
 <a id="node-acos"> </a>
@@ -1099,7 +1102,7 @@ The arccosine of the incoming value. The output will be expressed in radians.
 
 |Port |Description             |Type          |Default |Accepted Values    |
 |-----|------------------------|--------------|--------|-------------------|
-|`in` |The primary input stream|float, vectorN|__zero__|[-__one__, __one__)|
+|`in` |The primary input stream|float, vectorN|__zero__|[-__one__, __one__]|
 |`out`|Output: acos of `in1`   |Same as `in`  |`in`    |                   |
 
 <a id="node-atan2"> </a>
@@ -1316,7 +1319,7 @@ Transform a normal vector from the encoded tangent space to world space. The inp
 <a id="node-hextilednormalmap"> </a>
 
 ### `hextilednormalmap`
-Samples data from a single normalmap, with provisions for hex-tiling and randomizing the normalmap across uv space.
+Samples data from a single normalmap, with provisions for hex-tiling and randomizing the normalmap across UV space.
 
 The `file` input can include one or more substitutions to change the file name that is accessed, as described in the [Filename Substitutions](./MaterialX.Specification.md#filename-substitutions) section in the main Specification document.
 
@@ -1324,7 +1327,7 @@ The `strength` input controls how strongly the sampled normal map affects the fi
 
 |Port                |Description                                                                                         |Type    |Default      |
 |--------------------|----------------------------------------------------------------------------------------------------|--------|-------------|
-|`file`              |The URI of an image file                                                                            |filename|__empty__    |
+|`file`              |The URI of the image file                                                                           |filename|__empty__    |
 |`default`           |A default value to use if the file reference can not be resolved                                    |vector3 |0.5, 0.5, 1.0|
 |`texcoord`          |The 2D texture coordinate at which the image data is read                                           |vector2 |_UV0_        |
 |`tiling`            |The tiling rate for the given image along the U and V axes                                          |vector2 |1.0, 1.0     |
@@ -1347,12 +1350,12 @@ The `strength` input controls how strongly the sampled normal map affects the fi
 ### `creatematrix`
 Build a 3x3 or 4x4 matrix from three vector3 or four vector3 or vector4 inputs. A matrix44 may also be created from vector3 input values, in which case the fourth value will be set to 0.0 for `in1`-`in3`, and to 1.0 for `in4` when creating the matrix44.
 
-|Port |Description            |Type    |Default      |
-|-----|-----------------------|--------|-------------|
-|`in1`|The first row of `out` |vector3 |1.0, 0.0, 0.0|
-|`in2`|The second row of `out`|vector3 |0.0, 1.0, 0.0|
-|`in3`|The third row of `out` |vector3 |0.0, 0.0, 1.0|
-|`out`|Output                 |matrix33|__one__      |
+|Port |Description                   |Type    |Default      |
+|-----|------------------------------|--------|-------------|
+|`in1`|The first row of `out`        |vector3 |1.0, 0.0, 0.0|
+|`in2`|The second row of `out`       |vector3 |0.0, 1.0, 0.0|
+|`in3`|The third row of `out`        |vector3 |0.0, 0.0, 1.0|
+|`out`|Output: the constructed matrix|matrix33|__one__      |
 
 |Port |Description                             |Type    |Default      |
 |-----|----------------------------------------|--------|-------------|
@@ -1360,15 +1363,15 @@ Build a 3x3 or 4x4 matrix from three vector3 or four vector3 or vector4 inputs. 
 |`in2`|The second row of `out`, appended with 0|vector3 |0.0, 1.0, 0.0|
 |`in3`|The third row of `out`, appended with 0 |vector3 |0.0, 0.0, 1.0|
 |`in4`|The fourth row of `out`, appended with 1|vector3 |0.0, 0.0, 0.0|
-|`out`|Output                                  |matrix44|__one__      |
+|`out`|Output: the constructed matrix          |matrix44|__one__      |
 
-|Port |Description            |Type    |Default           |
-|-----|-----------------------|--------|------------------|
-|`in1`|The first row of `out` |vector4 |1.0, 0.0, 0.0, 0.0|
-|`in2`|The second row of `out`|vector4 |0.0, 1.0, 0.0, 0.0|
-|`in3`|The third row of `out` |vector4 |0.0, 0.0, 1.0, 0.0|
-|`in4`|The fourth row of `out`|vector4 |0.0, 0.0, 0.0, 1.0|
-|`out`|Output                 |matrix44|__one__           |
+|Port |Description                   |Type    |Default           |
+|-----|------------------------------|--------|------------------|
+|`in1`|The first row of `out`        |vector4 |1.0, 0.0, 0.0, 0.0|
+|`in2`|The second row of `out`       |vector4 |0.0, 1.0, 0.0, 0.0|
+|`in3`|The third row of `out`        |vector4 |0.0, 0.0, 1.0, 0.0|
+|`in4`|The fourth row of `out`       |vector4 |0.0, 0.0, 0.0, 1.0|
+|`out`|Output: the constructed matrix|matrix44|__one__           |
 
 <a id="node-transpose"> </a>
 
@@ -1587,7 +1590,7 @@ Output a smooth, hermite-interpolated remapping of input values from [`low`, `hi
 ### `luminance`
 Output a grayscale value containing the luminance of the incoming RGB color in all color channels.
 
-The `lumacoeffs` input represents the luma coefficients of the current working color space. If no specific color space can be determined, the ACEScg (ap1) luma coefficients [0.2722287, 0.6740818, 0.0536895] will be used. Applications which support color management systems may choose to retrieve the luma coefficients of the working colorspace from the CMS to pass to the `luminance` node's implementation directly, rather than exposing it to the user.
+The `lumacoeffs` input represents the luma coefficients of the current working color space. If no specific color space can be determined, the ACEScg (ap1) luma coefficients [0.2722287, 0.6740818, 0.0536895] will be used. Applications which support color management systems may choose to retrieve the luma coefficients of the working colorspace from the CMS to pass to the &lt;luminance> node's implementation directly, rather than exposing it to the user.
 
 |Port        |Description                                             |Type        |Default                        |
 |------------|--------------------------------------------------------|------------|-------------------------------|
@@ -1633,7 +1636,7 @@ Positive `amount.x` values rotate hue in the "red to green to blue" direction, w
 ### `saturate`
 Adjust the saturation of a color, the alpha channel will be unchanged if present.
 
-The `lumacoeffs` input represents the luma coefficients of the current working color space. If no specific color space can be determined, the ACEScg (ap1) luma coefficients [0.2722287, 0.6740818, 0.0536895] will be used. Applications which support color management systems may choose to retrieve the luma coefficients of the working colorspace from the CMS to pass to the `luminance` node's implementation directly, rather than exposing it to the user.
+The `lumacoeffs` input represents the luma coefficients of the current working color space. If no specific color space can be determined, the ACEScg (ap1) luma coefficients [0.2722287, 0.6740818, 0.0536895] will be used. Applications which support color management systems may choose to retrieve the luma coefficients of the working colorspace from the CMS to pass to the node's implementation directly, rather than exposing it to the user.
 
 |Port        |Description                                                    |Type        |Default                        |
 |------------|---------------------------------------------------------------|------------|-------------------------------|
@@ -2023,13 +2026,13 @@ Output the value of the `in1` or `in2` stream depending on whether the `value1` 
 |--------|--------------------------------------------------|-----------------------------------------|--------|
 |`value1`|the first value to be compared                    |float, integer                           |__one__ |
 |`value2`|the second value to be compared                   |float, integer                           |__zero__|
-|`out`   |Output: true if `value1` = `value2                |boolean                                  |false   |
+|`out`   |Output: true if `value1` = `value2`               |boolean                                  |false   |
 
-|Port    |Description                       |Type   |Default|
-|--------|----------------------------------|-------|-------|
-|`value1`|The first value to be compared    |boolean|false  |
-|`value2`|The first value to be compared    |boolean|false  |
-|`out`   |Output: true if `value1` = `value2|boolean|false  |
+|Port    |Description                        |Type   |Default|
+|--------|-----------------------------------|-------|-------|
+|`value1`|The first value to be compared     |boolean|false  |
+|`value2`|The first value to be compared     |boolean|false  |
+|`out`   |Output: true if `value1` = `value2`|boolean|false  |
 
 <a id="node-switch"> </a>
 
