@@ -290,44 +290,6 @@ int main(int argc, char* const argv[])
 
     // We'll use this boolean to return an error code is one of the `NodeDef` failed to codegen/compile.
     bool hasFailed = false;
-    try
-    {
-        const std::string& oslFilePath = (outputOsoPath / "setCi.osl").asString();
-        std::ofstream oslFile;
-
-        // TODO: Check that we have a valid/opened file descriptor before doing anything with it?
-        oslFile.open(oslFilePath);
-        // Dump the content of the codegen'd `NodeDef` to our `.osl` file.
-        oslFile << setCiOslNetworkSource;
-        oslFile.close();
-
-        // Compile the `.osl` file to a `.oso` file next to it.
-        oslRenderer->compileOSL(oslFilePath);
-    }
-    // Catch any codegen/compilation related exceptions.
-    catch (mx::ExceptionRenderError& exc)
-    {
-        std::cout << "Encountered a codegen/compilation related exception for the "
-                     "following node: "
-                  << std::endl;
-        std::cout << exc.what() << std::endl;
-
-        // Dump details about the exception in the log file.
-        for (const std::string& error : exc.errorLog())
-        {
-            std::cout << error << std::endl;
-        }
-
-        hasFailed = true;
-    }
-    // Catch any other exceptions
-    catch (mx::Exception& exc)
-    {
-        std::cout << "Failed to codegen/compile the following node to OSL: " << std::endl;
-        std::cout << exc.what() << std::endl;
-
-        hasFailed = true;
-    }
 
     // We create and use a dedicated `NodeGraph` to avoid `NodeDef` names collision.
     mx::NodeGraphPtr librariesDocGraph = librariesDoc->addNodeGraph("librariesDocGraph");

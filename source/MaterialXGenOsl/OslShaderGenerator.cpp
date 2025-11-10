@@ -5,6 +5,7 @@
 
 #include <MaterialXGenOsl/OslShaderGenerator.h>
 #include <MaterialXGenOsl/OslSyntax.h>
+#include <MaterialXGenOsl/OslUtil.h>
 
 #include <MaterialXGenShader/Exception.h>
 #include <MaterialXGenShader/GenContext.h>
@@ -12,7 +13,6 @@
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/TypeDesc.h>
-
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -35,6 +35,12 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     ScopedFloatFormatting fmt(Value::FloatFormatFixed);
 
     ShaderGraph& graph = shader->getGraph();
+
+    if (context.getOptions().oslConnectCiWrapper)
+    {
+        addSetCiTerminalNode(graph, element->getDocument(), getTypeSystem(), context);
+    }
+
     ShaderStage& stage = shader->getStage(Stage::PIXEL);
 
     emitLibraryIncludes(stage, context);
@@ -191,8 +197,7 @@ void OslShaderGenerator::registerShaderMetadata(const DocumentPtr& doc, GenConte
     }
 
     // Rename the standard metadata names to corresponding OSL metadata names.
-    const StringMap nameRemapping =
-    {
+    const StringMap nameRemapping = {
         { ValueElement::UI_NAME_ATTRIBUTE, "label" },
         { ValueElement::UI_FOLDER_ATTRIBUTE, "page" },
         { ValueElement::UI_MIN_ATTRIBUTE, "min" },
@@ -224,8 +229,7 @@ ShaderPtr OslShaderGenerator::createShader(const string& name, ElementPtr elemen
     const auto& outputSockets = graph->getOutputSockets();
     const auto* singleOutput = outputSockets.size() == 1 ? outputSockets[0] : NULL;
 
-    const bool isSurfaceShaderOutput = context.getOptions().oslImplicitSurfaceShaderConversion
-        && singleOutput && singleOutput->getType() == Type::SURFACESHADER;
+    const bool isSurfaceShaderOutput = context.getOptions().oslImplicitSurfaceShaderConversion && singleOutput && singleOutput->getType() == Type::SURFACESHADER;
 
     if (isSurfaceShaderOutput)
     {
@@ -287,8 +291,7 @@ void OslShaderGenerator::emitLibraryIncludes(ShaderStage& stage, GenContext& con
 {
     static const string INCLUDE_PREFIX = "#include \"";
     static const string INCLUDE_SUFFIX = "\"";
-    static const StringVec INCLUDE_FILES =
-    {
+    static const StringVec INCLUDE_FILES = {
         "mx_funcs.h"
     };
 
@@ -309,8 +312,7 @@ void OslShaderGenerator::emitLibraryIncludes(ShaderStage& stage, GenContext& con
 
 void OslShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderStage& stage) const
 {
-    static const std::unordered_map<string, string> GEOMPROP_DEFINITIONS =
-    {
+    static const std::unordered_map<string, string> GEOMPROP_DEFINITIONS = {
         { "Pobject", "transform(\"object\", P)" },
         { "Pworld", "P" },
         { "Nobject", "transform(\"object\", N)" },
@@ -402,16 +404,14 @@ void OslShaderGenerator::emitShaderOutputs(const VariableBlock& outputs, ShaderS
 
 void OslShaderGenerator::emitMetadata(const ShaderPort* port, ShaderStage& stage) const
 {
-    static const std::unordered_map<TypeDesc, ShaderMetadata, TypeDesc::Hasher> UI_WIDGET_METADATA =
-    {
-        { Type::FLOAT, ShaderMetadata("widget", Type::STRING,  Type::STRING.createValueFromStrings("number")) },
-        { Type::INTEGER, ShaderMetadata("widget", Type::STRING,  Type::STRING.createValueFromStrings("number")) },
-        { Type::FILENAME, ShaderMetadata("widget", Type::STRING,  Type::STRING.createValueFromStrings("filename")) },
-        { Type::BOOLEAN, ShaderMetadata("widget", Type::STRING,  Type::STRING.createValueFromStrings("checkBox")) }
+    static const std::unordered_map<TypeDesc, ShaderMetadata, TypeDesc::Hasher> UI_WIDGET_METADATA = {
+        { Type::FLOAT, ShaderMetadata("widget", Type::STRING, Type::STRING.createValueFromStrings("number")) },
+        { Type::INTEGER, ShaderMetadata("widget", Type::STRING, Type::STRING.createValueFromStrings("number")) },
+        { Type::FILENAME, ShaderMetadata("widget", Type::STRING, Type::STRING.createValueFromStrings("filename")) },
+        { Type::BOOLEAN, ShaderMetadata("widget", Type::STRING, Type::STRING.createValueFromStrings("checkBox")) }
     };
 
-    static const std::set<TypeDesc> METADATA_TYPE_BLACKLIST =
-    {
+    static const std::set<TypeDesc> METADATA_TYPE_BLACKLIST = {
         Type::VECTOR2,  // Custom struct types doesn't support metadata declarations.
         Type::VECTOR4,  //
         Type::COLOR4,   //
