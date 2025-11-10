@@ -42,6 +42,7 @@ option(MATERIALX_BUILD_GEN_GLSL "Build the GLSL shader generator back-end." ON)
 option(MATERIALX_BUILD_GEN_OSL "Build the OSL shader generator back-ends." ON)
 option(MATERIALX_BUILD_GEN_MDL "Build the MDL shader generator back-end." ON)
 option(MATERIALX_BUILD_GEN_MSL "Build the MSL shader generator back-end." ON)
+option(MATERIALX_BUILD_GEN_SLANG "Build the Slang shader generator back-end." ON)
 option(MATERIALX_BUILD_RENDER "Build the MaterialX Render modules." ON)
 option(MATERIALX_BUILD_RENDER_PLATFORMS "Build platform-specific render modules for each shader generator." ON)
 option(MATERIALX_BUILD_OIIO "Build OpenImageIO support for MaterialXRender." OFF)
@@ -86,6 +87,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "iOS" OR CMAKE_SYSTEM_NAME MATCHES "tvOS" OR CMAKE
     set(MATERIALX_BUILD_GEN_GLSL OFF)
     set(MATERIALX_BUILD_GEN_OSL OFF)
     set(MATERIALX_BUILD_GEN_MDL OFF)
+    set(MATERIALX_BUILD_GEN_SLANG OFF)
     set(MATERIALX_BUILD_OSOS OFF)
     set(MATERIALX_BUILD_TESTS OFF)
 endif()
@@ -133,6 +135,9 @@ set(MATERIALX_OSL_BINARY_OSLC "" CACHE FILEPATH "Full path to the OSL compiler b
 set(MATERIALX_OSL_BINARY_TESTRENDER "" CACHE FILEPATH "Full path to the OSL test render binary.")
 set(MATERIALX_OSL_INCLUDE_PATH "" CACHE PATH "Full path to OSL shader includes (e.g. 'stdosl.h').")
 
+# Helpers for Slang validation
+set(MATERIALX_SLANG_RHI_SOURCE_DIR "" CACHE PATH "Full path to the Slang RHI build directory.")
+
 set(MATERIALX_PYTHON_FOLDER_NAME "python/MaterialX" CACHE INTERNAL "Folder name to user for installing the Python library.")
 
 if(SKBUILD)
@@ -166,6 +171,7 @@ set(MATERIALX_LIBNAME_SUFFIX "" CACHE STRING "Specify a suffix to all libraries 
 
 mark_as_advanced(MATERIALX_BUILD_DOCS)
 mark_as_advanced(MATERIALX_BUILD_GEN_GLSL)
+mark_as_advanced(MATERIALX_BUILD_GEN_SLANG)
 mark_as_advanced(MATERIALX_BUILD_GEN_OSL)
 mark_as_advanced(MATERIALX_BUILD_GEN_MDL)
 mark_as_advanced(MATERIALX_BUILD_GEN_MSL)
@@ -205,6 +211,7 @@ mark_as_advanced(MATERIALX_BUILD_APPLE_FRAMEWORK)
 mark_as_advanced(MATERIALX_MDL_BINARY_MDLC)
 mark_as_advanced(MATERIALX_MDL_MODULE_PATHS)
 mark_as_advanced(MATERIALX_MDL_SDK_DIR)
+mark_as_advanced(MATERIALX_SLANG_RHI_SOURCE_DIR)
 
 if (MATERIALX_BUILD_USE_CCACHE)
     # Setup CCache for C/C++ compilation
@@ -330,7 +337,7 @@ function(assign_source_group prefix)
 endfunction(assign_source_group)
 
 function(mx_add_library MATERIALX_MODULE_NAME)
-    set(options ADD_OBJECTIVE_C_CODE)
+    set(options ADD_OBJECTIVE_C_CODE SKIP_INSTALL)
     set(oneValueArgs EXPORT_DEFINE)
     set(multiValueArgs
         SOURCE_FILES
@@ -415,7 +422,7 @@ function(mx_add_library MATERIALX_MODULE_NAME)
 
     target_compile_definitions(${TARGET_NAME} PRIVATE "-D${args_EXPORT_DEFINE}")
 
-    if(NOT SKBUILD)
+    if(NOT SKBUILD AND NOT args_SKIP_INSTALL)
         if(NOT MATERIALX_BUILD_MONOLITHIC)
             install(TARGETS ${MATERIALX_MODULE_NAME}
                     EXPORT MaterialX
@@ -459,14 +466,17 @@ add_subdirectory(source/MaterialXFormat)
 
 # Add shader generation subdirectories
 add_subdirectory(source/MaterialXGenShader)
-if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL OR MATERIALX_BUILD_GEN_MDL OR MATERIALX_BUILD_GEN_MSL)
-    if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_MSL)
+if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL OR MATERIALX_BUILD_GEN_MDL OR MATERIALX_BUILD_GEN_MSL OR MATERIALX_BUILD_GEN_SLANG)
+    if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_MSL OR MATERIALX_BUILD_GEN_SLANG)
         add_subdirectory(source/MaterialXGenHw)
     endif()
-
     if (MATERIALX_BUILD_GEN_GLSL)
         add_definitions(-DMATERIALX_BUILD_GEN_GLSL)
         add_subdirectory(source/MaterialXGenGlsl)
+    endif()
+    if (MATERIALX_BUILD_GEN_SLANG)
+        add_definitions(-DMATERIALX_BUILD_GEN_SLANG)
+        add_subdirectory(source/MaterialXGenSlang)
     endif()
     if (MATERIALX_BUILD_GEN_OSL)
         add_definitions(-DMATERIALX_BUILD_GEN_OSL)
@@ -504,6 +514,9 @@ if(MATERIALX_BUILD_RENDER)
         endif()
         if(MATERIALX_BUILD_GEN_OSL)
             add_subdirectory(source/MaterialXRenderOsl)
+        endif()
+        if(MATERIALX_BUILD_GEN_SLANG AND MATERIALX_SLANG_RHI_SOURCE_DIR)
+            add_subdirectory(source/MaterialXRenderSlang)
         endif()
     endif()
     if(MATERIALX_BUILD_VIEWER)

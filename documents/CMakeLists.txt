@@ -9,6 +9,7 @@ set(MATERIALX_DOXYGEN_SOURCE_FOLDERS
     ${PROJECT_SOURCE_DIR}/source/MaterialXGenShader/Nodes
     ${PROJECT_SOURCE_DIR}/source/MaterialXGenGlsl
     ${PROJECT_SOURCE_DIR}/source/MaterialXGenGlsl/Nodes
+    ${PROJECT_SOURCE_DIR}/source/MaterialXGenSlang
     ${PROJECT_SOURCE_DIR}/source/MaterialXGenOsl
     ${PROJECT_SOURCE_DIR}/source/MaterialXGenMdl
     ${PROJECT_SOURCE_DIR}/source/MaterialXRender
