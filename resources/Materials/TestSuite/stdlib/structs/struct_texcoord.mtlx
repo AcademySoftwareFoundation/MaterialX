@@ -15,6 +15,7 @@
   <implementation name="IM_extract_s_texcoord_genmsl" nodedef="ND_extract_s_texcoord" target="genmsl" sourcecode="{{in}}.ss" />
   <implementation name="IM_extract_s_texcoord_genosl" nodedef="ND_extract_s_texcoord" target="genosl" sourcecode="{{in}}.ss" />
   <implementation name="IM_extract_s_texcoord_genmdl" nodedef="ND_extract_s_texcoord" target="genmdl" sourcecode="{{in}}.ss" />
+  <implementation name="IM_extract_s_texcoord_genslang" nodedef="ND_extract_s_texcoord" target="genslang" sourcecode="{{in}}.ss" />
 
   <extract_s name="extract" type="float">
     <input name="in" type="texcoord_struct" value="{0.01;0.5}"/>
