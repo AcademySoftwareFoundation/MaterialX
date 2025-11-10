@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+
+  <!-- <surface> -->
+  <implementation name="IM_surface_genslang" nodedef="ND_surface" target="genslang" />
+
+  <!-- <light> -->
+  <implementation name="IM_light_genslang" nodedef="ND_light" target="genslang" />
+
+</materialx>

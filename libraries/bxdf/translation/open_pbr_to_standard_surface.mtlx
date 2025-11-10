@@ -53,7 +53,7 @@
     <output name="diffuse_roughness_out" type="float" />
     <output name="metalness_out" type="float" />
 
-    <output name="specular_out" type="float"/>
+    <output name="specular_out" type="float" />
     <output name="specular_color_out" type="color3" />
     <output name="specular_roughness_out" type="float" />
     <output name="specular_IOR_out" type="float" />

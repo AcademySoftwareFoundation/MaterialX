@@ -353,7 +353,7 @@
       <input name="in" type="vector3" nodename="rotate_tangent" />
     </normalize>
     <absval name="abs_anisotropy_rotation" type="float">
-      <input name="in" type="float" interfacename="anisotropy_rotation"/>
+      <input name="in" type="float" interfacename="anisotropy_rotation" />
     </absval>
     <ifgreater name="selected_tangent" type="vector3">
       <input name="value1" type="float" nodename="abs_anisotropy_rotation" />

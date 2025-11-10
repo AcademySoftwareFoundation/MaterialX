@@ -70,13 +70,8 @@ TEST_CASE("GenReference: OSL Reference", "[genreference]")
     bool failedGeneration = false;
     for (const mx::NodeDefPtr& nodedef : datalib->getNodeDefs())
     {
-        std::string nodeName = nodedef->getName();
-        std::string nodeNode = nodedef->getNodeString();
-        if (nodeName.size() > 3 && nodeName.substr(0, 3) == "ND_")
-        {
-            nodeName = nodeName.substr(3);
-        }
-
+        // Determine the corresponding nodes for the nodedef
+        std::string nodeName = nodedef->getQualifiedName(nodedef->getNodeString());
         mx::InterfaceElementPtr interface = nodedef->getImplementation(generator->getTarget());
         if (!interface)
         {
@@ -84,44 +79,51 @@ TEST_CASE("GenReference: OSL Reference", "[genreference]")
             continue;
         }
 
-        mx::NodePtr node = datalib->addNodeInstance(nodedef, nodeName);
-        REQUIRE(node);
-
-        const std::string filename = nodeName + ".osl";
-        try
+        // Enumerate available nodes for nodedef and create node instances
+        for (const mx::OutputPtr& nodeOutput : nodedef->getOutputs())
         {
-            mx::ShaderPtr shader = generator->generate(node->getName(), node, context);
-
-            std::ofstream file;
-            const std::string filepath = (outputPath / filename).asString();
-            file.open(filepath);
-            REQUIRE(file.is_open());
-            file << shader->getSourceCode();
-            file.close();
-
-            if (oslRenderer)
+            
+            for (const mx::InputPtr & nodeInput: nodedef->getInputs())
             {
-                oslRenderer->compileOSL(filepath);
+                mx::NodePtr node = datalib->addNodeInstance(nodedef, nodeName + "_" + nodeOutput->getType() + "_" + nodeInput->getType());
+                REQUIRE(node);
+
+                const std::string filename = nodeName + ".osl";
+                try
+                {
+                    mx::ShaderPtr shader = generator->generate(node->getName(), node, context);
+
+                    std::ofstream file;
+                    const std::string filepath = (outputPath / filename).asString();
+                    file.open(filepath);
+                    REQUIRE(file.is_open());
+                    file << shader->getSourceCode();
+                    file.close();
+
+                    if (oslRenderer)
+                    {
+                        oslRenderer->compileOSL(filepath);
+                    }
+                }
+                catch (mx::ExceptionRenderError& e)
+                {
+                    logFile << "Error compiling OSL reference for '" << nodeName << "' : " << std::endl;
+                    logFile << e.what() << std::endl;
+                    for (const std::string& error : e.errorLog())
+                    {
+                        logFile << error << std::endl;
+                    }
+                    failedGeneration = true;
+                }
+                catch (mx::Exception& e)
+                {
+                    logFile << "Error generating OSL reference for '" << nodeName << "' : " << std::endl;
+                    logFile << e.what() << std::endl;
+                    failedGeneration = true;
+                }
+                datalib->removeChild(node->getName());
             }
         }
-        catch (mx::ExceptionRenderError& e)
-        {
-            logFile << "Error compiling OSL reference for '" << nodeName << "' : " << std::endl;
-            logFile << e.what() << std::endl;
-            for (const std::string& error : e.errorLog())
-            {
-                logFile << error << std::endl;
-            }
-            failedGeneration = true;
-        }
-        catch (mx::Exception& e)
-        {
-            logFile << "Error generating OSL reference for '" << nodeName << "' : " << std::endl;
-            logFile << e.what() << std::endl;
-            failedGeneration = true;
-        }
-
-        datalib->removeChild(node->getName());
     }
 
     logFile.close();
