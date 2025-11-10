@@ -29,6 +29,9 @@
 #ifdef MATERIALX_BUILD_GEN_MSL
 #include <MaterialXGenMsl/MslShaderGenerator.h>
 #endif
+#ifdef MATERIALX_BUILD_GEN_SLANG
+#include <MaterialXGenSlang/SlangShaderGenerator.h>
+#endif
 
 #include <cstdlib>
 #include <iostream>
@@ -274,6 +277,13 @@ TEST_CASE("GenShader: Deterministic Generation", "[genshader]")
         testDeterministicGeneration(libraries, context);
     }
 #endif
+#ifdef MATERIALX_BUILD_GEN_SLANG
+    {
+        mx::GenContext context(mx::SlangShaderGenerator::create());
+        context.registerSourceCodeSearchPath(searchPath);
+        testDeterministicGeneration(libraries, context);
+    }
+#endif
 }
 
 void checkPixelDependencies(mx::DocumentPtr libraries, mx::GenContext& context)
@@ -320,6 +330,13 @@ TEST_CASE("GenShader: Track Dependencies", "[genshader]")
 #ifdef MATERIALX_BUILD_GEN_MDL
     {
         mx::GenContext context(mx::MdlShaderGenerator::create());
+        context.registerSourceCodeSearchPath(searchPath);
+        checkPixelDependencies(libraries, context);
+    }
+#endif
+#ifdef MATERIALX_BUILD_GEN_SLANG
+    {
+        mx::GenContext context(mx::SlangShaderGenerator::create());
         context.registerSourceCodeSearchPath(searchPath);
         checkPixelDependencies(libraries, context);
     }
@@ -421,6 +438,14 @@ TEST_CASE("GenShader: Track Application Variables", "[genshader]")
 #ifdef MATERIALX_BUILD_GEN_MDL
     {
         mx::GenContext context(mx::MdlShaderGenerator::create());
+        context.registerSourceCodeSearchPath(searchPath);
+        context.setApplicationVariableHandler(variableTracker);
+        mx::ShaderPtr shader = context.getShaderGenerator().generate(testElement, element, context);
+    }
+#endif
+#ifdef MATERIALX_BUILD_GEN_SLANG
+    {
+        mx::GenContext context(mx::SlangShaderGenerator::create());
         context.registerSourceCodeSearchPath(searchPath);
         context.setApplicationVariableHandler(variableTracker);
         mx::ShaderPtr shader = context.getShaderGenerator().generate(testElement, element, context);
