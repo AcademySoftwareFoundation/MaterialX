@@ -1,6 +1,7 @@
 file(GLOB_RECURSE materialx_source
  "${CMAKE_CURRENT_SOURCE_DIR}/OslShaderGenerator.cpp"
  "${CMAKE_CURRENT_SOURCE_DIR}/OslSyntax.cpp"
+ "${CMAKE_CURRENT_SOURCE_DIR}/OslUtil.cpp"
  "${CMAKE_CURRENT_SOURCE_DIR}/OslNetworkShaderGenerator.cpp"
  "${CMAKE_CURRENT_SOURCE_DIR}/OslNetworkSyntax.cpp"
  "${CMAKE_CURRENT_SOURCE_DIR}/Nodes/OsoNode.cpp")
@@ -8,6 +9,7 @@ file(GLOB_RECURSE materialx_source
 file(GLOB_RECURSE materialx_headers
   "${CMAKE_CURRENT_SOURCE_DIR}/OslShaderGenerator.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/OslSyntax.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/OslUtil.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/OslNetworkShaderGenerator.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/OslNetworkSyntax.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/Nodes/OsoNode.h"
