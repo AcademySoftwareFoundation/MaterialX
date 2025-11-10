@@ -164,6 +164,12 @@ const string USER_DATA_LIGHT_SHADERS          = "udls";
 const string USER_DATA_BINDING_CONTEXT        = "udbinding";
 
 const TypeDesc ClosureDataType                = TypeDesc("ClosureData", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_NONE, 1, 0);
+
+const TypedValue<Vector2> VEC2_ZERO            = TypedValue(Vector2(0.f, 0.f));
+const TypedValue<Vector2> VEC2_ONE             = TypedValue(Vector2(1.f, 1.f));
+const TypedValue<Vector3> VEC3_ZERO            = TypedValue(Vector3(0.f, 0.f, 0.f));
+const TypedValue<Vector3> VEC3_ONE             = TypedValue(Vector3(1.f, 1.f, 1.f));
+
 } // namespace HW
 
 MATERIALX_NAMESPACE_END
