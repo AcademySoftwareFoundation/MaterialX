@@ -1,0 +1,135 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+  <!--
+    Copyright Contributors to the MaterialX Project
+    SPDX-License-Identifier: Apache-2.0
+
+    Declarations for slang implementations of standard nodes included in the MaterialX specification.
+  -->
+
+  <!-- ======================================================================== -->
+  <!-- Shader nodes                                                             -->
+  <!-- ======================================================================== -->
+
+  <!-- <surfacematerial> -->
+  <implementation name="IM_surfacematerial_genslang" nodedef="ND_surfacematerial" target="genslang" />
+
+  <!-- ======================================================================== -->
+  <!-- Texture nodes                                                            -->
+  <!-- ======================================================================== -->
+
+  <!-- <image> -->
+  <implementation name="IM_image_float_genslang" nodedef="ND_image_float" file="../genglsl/mx_image_float.glsl" function="mx_image_float" target="genslang">
+    <input name="default" type="float" implname="default_value" />
+  </implementation>
+  <implementation name="IM_image_color3_genslang" nodedef="ND_image_color3" file="../genglsl/mx_image_color3.glsl" function="mx_image_color3" target="genslang">
+    <input name="default" type="color3" implname="default_value" />
+  </implementation>
+  <implementation name="IM_image_color4_genslang" nodedef="ND_image_color4" file="../genglsl/mx_image_color4.glsl" function="mx_image_color4" target="genslang">
+    <input name="default" type="color4" implname="default_value" />
+  </implementation>
+  <implementation name="IM_image_vector2_genslang" nodedef="ND_image_vector2" file="../genglsl/mx_image_vector2.glsl" function="mx_image_vector2" target="genslang">
+    <input name="default" type="vector2" implname="default_value" />
+  </implementation>
+  <implementation name="IM_image_vector3_genslang" nodedef="ND_image_vector3" file="../genglsl/mx_image_vector3.glsl" function="mx_image_vector3" target="genslang">
+    <input name="default" type="vector3" implname="default_value" />
+  </implementation>
+  <implementation name="IM_image_vector4_genslang" nodedef="ND_image_vector4" file="../genglsl/mx_image_vector4.glsl" function="mx_image_vector4" target="genslang">
+    <input name="default" type="vector4" implname="default_value" />
+  </implementation>
+
+  <!-- ======================================================================== -->
+  <!-- Procedural nodes                                                         -->
+  <!-- ======================================================================== -->
+
+  <!-- ======================================================================== -->
+  <!-- Geometric nodes                                                          -->
+  <!-- ======================================================================== -->
+
+  <!-- <position> -->
+  <implementation name="IM_position_vector3_genslang" nodedef="ND_position_vector3" target="genslang" />
+
+  <!-- <normal> -->
+  <implementation name="IM_normal_vector3_genslang" nodedef="ND_normal_vector3" target="genslang" />
+
+  <!-- <tangent> -->
+  <implementation name="IM_tangent_vector3_genslang" nodedef="ND_tangent_vector3" target="genslang" />
+
+  <!-- <bitangent> -->
+  <implementation name="IM_bitangent_vector3_genslang" nodedef="ND_bitangent_vector3" target="genslang" />
+
+  <!-- <texcoord> -->
+  <implementation name="IM_texcoord_vector2_genslang" nodedef="ND_texcoord_vector2" target="genslang" />
+  <implementation name="IM_texcoord_vector3_genslang" nodedef="ND_texcoord_vector3" target="genslang" />
+
+  <!-- <geomcolor> -->
+  <implementation name="IM_geomcolor_float_genslang" nodedef="ND_geomcolor_float" target="genslang" />
+  <implementation name="IM_geomcolor_color3_genslang" nodedef="ND_geomcolor_color3" target="genslang" />
+  <implementation name="IM_geomcolor_color4_genslang" nodedef="ND_geomcolor_color4" target="genslang" />
+
+  <!-- <geompropvalue> -->
+  <implementation name="IM_geompropvalue_integer_genslang" nodedef="ND_geompropvalue_integer" function="mx_geompropvalue_int" target="genslang" />
+  <implementation name="IM_geompropvalue_boolean_genslang" nodedef="ND_geompropvalue_boolean" function="mx_geompropvalue_bool" target="genslang" />
+  <implementation name="IM_geompropvalue_float_genslang" nodedef="ND_geompropvalue_float" function="mx_geompropvalue_float" target="genslang" />
+  <implementation name="IM_geompropvalue_color3_genslang" nodedef="ND_geompropvalue_color3" function="mx_geompropvalue_color" target="genslang" />
+  <implementation name="IM_geompropvalue_color4_genslang" nodedef="ND_geompropvalue_color4" function="mx_geompropvalue_color4" target="genslang" />
+  <implementation name="IM_geompropvalue_vector2_genslang" nodedef="ND_geompropvalue_vector2" function="mx_geompropvalue_vector2" target="genslang" />
+  <implementation name="IM_geompropvalue_vector3_genslang" nodedef="ND_geompropvalue_vector3" function="mx_geompropvalue_vector" target="genslang" />
+  <implementation name="IM_geompropvalue_vector4_genslang" nodedef="ND_geompropvalue_vector4" function="mx_geompropvalue_vector4" target="genslang" />
+
+  <!-- <geompropvalueuniform> -->
+  <implementation name="IM_geompropvalue_string_genslang" nodedef="ND_geompropvalueuniform_string" function="mx_geompropvalue_string" target="genslang" />
+  <implementation name="IM_geompropvalue_filename_genslang" nodedef="ND_geompropvalueuniform_filename" function="mx_geompropvalue_string" target="genslang" />
+
+  <!-- ======================================================================== -->
+  <!-- Application nodes                                                        -->
+  <!-- ======================================================================== -->
+
+  <!-- <frame> -->
+  <implementation name="IM_frame_float_genslang" nodedef="ND_frame_float" function="mx_frame_float" target="genslang" />
+
+  <!-- <time> -->
+  <implementation name="IM_time_float_genslang" nodedef="ND_time_float" function="mx_time_float" target="genslang" />
+
+  <!-- ======================================================================== -->
+  <!-- Math nodes                                                               -->
+  <!-- ======================================================================== -->
+
+  <!-- <transformpoint> -->
+  <implementation name="IM_transformpoint_vector3_genslang" nodedef="ND_transformpoint_vector3" target="genslang" />
+
+  <!-- <transformvector> -->
+  <implementation name="IM_transformvector_vector3_genslang" nodedef="ND_transformvector_vector3" target="genslang" />
+
+  <!-- <transformnormal> -->
+  <implementation name="IM_transformnormal_vector3_genslang" nodedef="ND_transformnormal_vector3" target="genslang" />
+
+  <!-- ======================================================================== -->
+  <!-- Adjustment nodes                                                         -->
+  <!-- ======================================================================== -->
+
+  <!-- ======================================================================== -->
+  <!-- Compositing nodes                                                        -->
+  <!-- ======================================================================== -->
+
+  <!-- ======================================================================== -->
+  <!-- Conditional nodes                                                        -->
+  <!-- ======================================================================== -->
+
+  <!-- ======================================================================== -->
+  <!-- Channel nodes                                                            -->
+  <!-- ======================================================================== -->
+
+  <!-- ======================================================================== -->
+  <!-- Convolution nodes                                                        -->
+  <!-- ======================================================================== -->
+
+  <!-- ======================================================================== -->
+  <!-- Logical operator nodes                                                   -->
+  <!-- ======================================================================== -->
+
+  <!-- ======================================================================== -->
+  <!-- Organization nodes                                                       -->
+  <!-- ======================================================================== -->
+
+</materialx>
