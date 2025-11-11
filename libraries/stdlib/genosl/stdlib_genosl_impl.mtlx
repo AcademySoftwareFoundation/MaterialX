@@ -722,9 +722,9 @@
   <!-- Logical operator nodes                                                   -->
   <!-- ======================================================================== -->
 
-  <implementation name="IM_logical_and_genosl" nodedef="ND_logical_and" target="genosl" sourcecode="{{in1}} && {{in2}}"/>
-  <implementation name="IM_logical_or_genosl" nodedef="ND_logical_or" target="genosl" sourcecode="{{in1}} || {{in2}}"/>
-  <implementation name="IM_logical_not_genosl" nodedef="ND_logical_not" target="genosl" sourcecode="!{{in}}"/>
+  <implementation name="IM_logical_and_genosl" nodedef="ND_logical_and" target="genosl" sourcecode="{{in1}} &amp;&amp; {{in2}}" />
+  <implementation name="IM_logical_or_genosl" nodedef="ND_logical_or" target="genosl" sourcecode="{{in1}} || {{in2}}" />
+  <implementation name="IM_logical_not_genosl" nodedef="ND_logical_not" target="genosl" sourcecode="!{{in}}" />
 
   <!-- ======================================================================== -->
   <!-- Organization nodes                                                       -->
