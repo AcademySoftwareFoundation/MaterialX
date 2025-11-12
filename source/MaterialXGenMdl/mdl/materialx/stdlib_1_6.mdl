@@ -676,9 +676,9 @@ export color mx_hextiledimage_color3(
 	);
 
 	// lookup texture
-	color c1 = tex::lookup_color(tex: mxp_file, coord: tile_data.coord1);
-	color c2 = tex::lookup_color(tex: mxp_file, coord: tile_data.coord2);
-	color c3 = tex::lookup_color(tex: mxp_file, coord: tile_data.coord3);
+	color c1 = tex::lookup_color(tex: mxp_file, coord: tile_data.coords[0]);
+	color c2 = tex::lookup_color(tex: mxp_file, coord: tile_data.coords[1]);
+	color c3 = tex::lookup_color(tex: mxp_file, coord: tile_data.coords[2]);
 
 	// luminance as weight
 	float3 cw = float3(math::dot(float3(c1), float3(mxp_lumacoeffs)),
@@ -686,18 +686,7 @@ export color mx_hextiledimage_color3(
 					   math::dot(float3(c3), float3(mxp_lumacoeffs)));
 	cw = math::lerp(float3(1.0), cw, float3(mxp_falloff_contrast));
 
-	// blend weights
-	float3 w = cw * math::pow(tile_data.weights, 7.0);
-	w /= (w.x + w.y + w.z);
-
-	// apply s-curve gain
-	if (mxp_falloff != 0.5)
-	{
-		w.x = hextile::mx_schlick_gain(w.x, mxp_falloff);
-		w.y = hextile::mx_schlick_gain(w.y, mxp_falloff);
-		w.z = hextile::mx_schlick_gain(w.z, mxp_falloff);
-		w /= (w.x + w.y + w.z);
-	}
+	float3 w = hextile::mx_hextile_compute_blend_weights(cw, tile_data.weights, mxp_falloff);
 
 	// blend colors
 	return color(w.x * c1 + w.y * c2 + w.z * c3);
@@ -777,9 +766,9 @@ export core::color4 mx_hextiledimage_color4(
 	);
 
 	// lookup texture
-	core::color4 c1 = core::mk_color4(tex::lookup_float4(tex: mxp_file, coord: tile_data.coord1));
-	core::color4 c2 = core::mk_color4(tex::lookup_float4(tex: mxp_file, coord: tile_data.coord2));
-	core::color4 c3 = core::mk_color4(tex::lookup_float4(tex: mxp_file, coord: tile_data.coord3));
+	core::color4 c1 = core::mk_color4(tex::lookup_float4(tex: mxp_file, coord: tile_data.coords[0]));
+	core::color4 c2 = core::mk_color4(tex::lookup_float4(tex: mxp_file, coord: tile_data.coords[1]));
+	core::color4 c3 = core::mk_color4(tex::lookup_float4(tex: mxp_file, coord: tile_data.coords[2]));
 
 	// luminance as weight
 	float3 cw = float3(math::dot(float3(c1.rgb), float3(mxp_lumacoeffs)),
@@ -787,20 +776,12 @@ export core::color4 mx_hextiledimage_color4(
 					   math::dot(float3(c3.rgb), float3(mxp_lumacoeffs)));
 	cw = math::lerp(float3(1.0), cw, float3(mxp_falloff_contrast));
 
-	// blend weights
-	float3 w = cw * math::pow(tile_data.weights, 7.0);
-	w /= (w.x + w.y + w.z);
+	float3 w = hextile::mx_hextile_compute_blend_weights(cw, tile_data.weights, mxp_falloff);
 
 	// alpha
 	float a = (c1.a + c2.a + c3.a) / 3.0;
-
-	// apply s-curve gain
 	if (mxp_falloff != 0.5)
 	{
-		w.x = hextile::mx_schlick_gain(w.x, mxp_falloff);
-		w.y = hextile::mx_schlick_gain(w.y, mxp_falloff);
-		w.z = hextile::mx_schlick_gain(w.z, mxp_falloff);
-		w /= (w.x + w.y + w.z);
 		a = hextile::mx_schlick_gain(a, mxp_falloff);
 	}
 
@@ -2503,9 +2484,9 @@ export float3 mx_hextilednormalmap_vector3(
 	);
 
 	// lookup normalmap
-	float3 nm1 = tex::lookup_float3(tex: mxp_file, coord: tile_data.coord1);
-	float3 nm2 = tex::lookup_float3(tex: mxp_file, coord: tile_data.coord2);
-	float3 nm3 = tex::lookup_float3(tex: mxp_file, coord: tile_data.coord3);
+	float3 nm1 = tex::lookup_float3(tex: mxp_file, coord: tile_data.coords[0]);
+	float3 nm2 = tex::lookup_float3(tex: mxp_file, coord: tile_data.coords[1]);
+	float3 nm3 = tex::lookup_float3(tex: mxp_file, coord: tile_data.coords[2]);
 	nm1.y = mxp_flip_g ? 1.0 - nm1.y : nm1.y;
 	nm2.y = mxp_flip_g ? 1.0 - nm2.y : nm2.y;
 	nm3.y = mxp_flip_g ? 1.0 - nm3.y : nm3.y;
@@ -2514,9 +2495,9 @@ export float3 mx_hextilednormalmap_vector3(
 	nm1 = 2.0 * nm1 - 1.0;
 	nm2 = 2.0 * nm2 - 1.0;
 	nm3 = 2.0 * nm3 - 1.0;
-	float3x3 tangent_rot_mat1 = mx_mat44_to_mat33(mx_rotationMatrix(mxp_normal, -tile_data.rot_radian1));
-	float3x3 tangent_rot_mat2 = mx_mat44_to_mat33(mx_rotationMatrix(mxp_normal, -tile_data.rot_radian2));
-	float3x3 tangent_rot_mat3 = mx_mat44_to_mat33(mx_rotationMatrix(mxp_normal, -tile_data.rot_radian3));
+	float3x3 tangent_rot_mat1 = mx_mat44_to_mat33(mx_rotationMatrix(mxp_normal, -tile_data.rotations.x));
+	float3x3 tangent_rot_mat2 = mx_mat44_to_mat33(mx_rotationMatrix(mxp_normal, -tile_data.rotations.y));
+	float3x3 tangent_rot_mat3 = mx_mat44_to_mat33(mx_rotationMatrix(mxp_normal, -tile_data.rotations.z));
 	float3 T1 = tangent_rot_mat1 * mxp_tangent * mxp_strength;
 	float3 T2 = tangent_rot_mat2 * mxp_tangent * mxp_strength;
 	float3 T3 = tangent_rot_mat3 * mxp_tangent * mxp_strength;
@@ -2528,17 +2509,7 @@ export float3 mx_hextilednormalmap_vector3(
 	float3 N3 = math::normalize(T3 * nm3.x + B3 * nm3.y + mxp_normal * nm3.z);
 
 	// blend normals
-	float3 w = math::pow(tile_data.weights, 7.0);
-	w /= (w.x + w.y + w.z);
-
-	// apply s-curve gain
-	if (mxp_falloff != 0.5)
-	{
-		w.x = hextile::mx_schlick_gain(w.x, mxp_falloff);
-		w.y = hextile::mx_schlick_gain(w.y, mxp_falloff);
-		w.z = hextile::mx_schlick_gain(w.z, mxp_falloff);
-		w /= (w.x + w.y + w.z);
-	}
+	float3 w = hextile::mx_hextile_compute_blend_weights(float3(1.0), tile_data.weights, mxp_falloff);
 
 	// blend
 	return mx_gradient_blend_3_normals(mxp_normal, N1, w.x, N2, w.y, N3, w.z);
