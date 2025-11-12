@@ -66,7 +66,7 @@ class OslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
         whiteList =
         {
             "displacementshader", "volumeshader",
-            "IM_constant_", "IM_dot_", "IM_angle", "IM_geompropvalue", "IM_geompropvalueuniform"
+            "IM_constant_", "IM_dot_", "IM_angle", "IM_geompropvalue", "IM_geompropvalueuniform", "IM_osl_set_ci"
         };
         ShaderGeneratorTester::getImplementationWhiteList(whiteList);
     }
