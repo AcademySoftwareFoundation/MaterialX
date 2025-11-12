@@ -78,6 +78,7 @@ jobs:
           compiler_version: "16.4"
           python: 3.13
           test_shaders: ON
+          test_render: ON
 
         - name: MacOS_Xcode_26_Python313
           os: macos-26
@@ -265,11 +266,22 @@ jobs:
         fi
         cppcheck --project=build/compile_commands.json --error-exitcode=1 --suppress=normalCheckLevelMaxBranches --suppress=*:*/External/* --suppress=*:*/NanoGUI/*
 
-    - name: Initialize Virtual Framebuffer
+    - name: Initialize Rendering (Linux)
       if: matrix.test_render == 'ON' && runner.os == 'Linux'
       run: |
         Xvfb :1 -screen 0 1280x960x24 &
         echo "DISPLAY=:1" >> $GITHUB_ENV
+        echo "LIBGL_ALWAYS_SOFTWARE=1" >> $GITHUB_ENV
+
+    - name: Initialize Rendering (macOS)
+      if: matrix.test_render == 'ON' && runner.os == 'macOS'
+      run: |
+        # macOS can render headlessly with Metal backend without virtual display
+        # Force software rendering for Metal backend
+        echo "MTL_HARDWARE_RENDERING=0" >> $GITHUB_ENV
+        # Enable Metal debug layer for better debugging in CI
+        echo "MTL_DEBUG_LAYER=1" >> $GITHUB_ENV
+        # Force software rendering for OpenGL backend compatibility
         echo "LIBGL_ALWAYS_SOFTWARE=1" >> $GITHUB_ENV
 
     - name: Render Script Tests
