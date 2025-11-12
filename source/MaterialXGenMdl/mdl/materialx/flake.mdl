@@ -1,0 +1,173 @@
+//
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
+//
+
+mdl 1.6;
+
+import ::state::*;
+import ::math::*;
+
+int mx_flake_hash(int seed, int i)
+{
+    return (i ^ seed) * 1075385539;
+}
+
+int mx_flake_init_seed(int3 i)
+{
+    return mx_flake_hash(mx_flake_hash(mx_flake_hash(0, i.x), i.y), i.z);
+}
+
+int mx_flake_xorshift32(int seed)
+{
+    // xorshift32 using signed int
+    seed ^= seed << 13;
+    seed ^= seed >>> 17;  // unsigned right-shift
+    seed ^= seed << 5;
+    return seed;
+}
+
+float mx_int_to_01(int x)
+{
+    return math::abs(float(x) * 4.6566e-10f);  // scale to [0, 1)
+}
+
+// "Fast Random Rotation Matrices" by James Arvo, Graphics Gems3 P.117
+float3 mx_rotate_flake(float3 p, float3 i)
+{
+    float theta = math::PI * 2.0 * i.x;
+    float phi = math::PI * 2.0 * i.y;
+    float z = i.z * 2.0;
+
+    float r = math::sqrt(z);
+    float[2] sc_phi = math::sincos(phi);
+    float vx = sc_phi[0] * r;
+    float vy = sc_phi[1] * r;
+    float vz = math::sqrt(2.0 - z);
+
+    float[2] sc_theta = math::sincos(theta);
+    float sx = vx * sc_theta[1] - vy * sc_theta[0];
+    float sy = vx * sc_theta[0] + vy * sc_theta[1];
+
+    float3x3 m(
+        vx * sx - sc_theta[1], vx * sy - sc_theta[0], vx * vz,
+        vy * sx + sc_theta[0], vy * sy - sc_theta[1], vy * vz,
+        vz * sx              , vz * sy              , 1.0 - z
+    );
+
+    return m * p;
+}
+
+// compute a flake probability for a given flake coverage density x
+float mx_flake_density_to_probability(float x)
+{
+    // constants for numerical fitted curve to observed flake noise density behavior
+    const float4 abcd = float4(-26.19771808f, 26.39663835f, 85.53857017f, -102.35069432f);
+    const float2 ef = float2(-101.42634862f, 118.45082288f);
+    float xx = x * x;
+
+    return (abcd.x * xx + abcd.y * x) / (abcd.z * xx * x + abcd.w * xx  + ef.x * x + ef.y);
+}
+
+export struct mx_flake__result
+{
+    int mxp_id;              // random integer [0, INT32_MAX], 0 for no flake
+    float mxp_rand;          // random float [0, 1], 0 for no flake
+    float mxp_presence;      // flake presence [0, 1], 0 for no flake
+    float3 mxp_flakenormal;  // flake normal
+
+};
+
+export mx_flake__result mx_flake(
+    float size,
+    float roughness,
+    float coverage,
+    float3 position,
+    float3 normal,
+    float3 tangent,
+    float3 bitangent
+)
+{
+
+    float probability = mx_flake_density_to_probability(math::saturate(coverage));
+    const float flake_diameter = 1.5 / math::sqrt(3.0);
+
+    float3 P = position / float3(size);
+    float3 base_P = math::floor(P);
+    int3 base_P_int = int3(base_P);
+
+    // flake priority in [0..1], 0: no flake, flakes with higher priority shadow flakes "below" them
+    float flake_priority = 0.0;
+    int flake_seed = 0;
+
+    // Examine the 3×3×3 lattice neighborhood around the sample cell. Flakes are seeded at cell
+    // centers but can overlap adjacent cells by up to flake_diameter, so neighbors may contribute
+    // at the sample position. For each neighbor we deterministically generate a seed, reject it
+    // by the density probability, compute a per-flake priority, and test the rotated, centered
+    // flake position for overlap. The highest-priority overlapping flake is selected.
+    for (int i = -1; i < 2; ++i)
+    {
+        for (int j = -1; j < 2; ++j)
+        {
+            for (int k = -1; k < 2; ++k)
+            {
+                int seed = mx_flake_init_seed(base_P_int + int3(i, j, k));
+
+                seed = mx_flake_xorshift32(seed);
+                if (mx_int_to_01(seed) > probability)
+                    continue;
+
+                seed = mx_flake_xorshift32(seed);
+                float priority = mx_int_to_01(seed);
+                if (priority < flake_priority)
+                    continue;
+
+                float3 flake_P = base_P + float3(i, j, k) + float3(0.5);
+                float3 PP = P - flake_P;
+                if (math::dot(PP, PP) >= flake_diameter * flake_diameter * 4.0)
+                    continue;
+
+                float3 rot;
+                seed = mx_flake_xorshift32(seed); rot.x = mx_int_to_01(seed);
+                seed = mx_flake_xorshift32(seed); rot.y = mx_int_to_01(seed);
+                seed = mx_flake_xorshift32(seed); rot.z = mx_int_to_01(seed);
+                PP = mx_rotate_flake(PP, rot);
+
+                if (math::abs(PP.x) <= flake_diameter &&
+                    math::abs(PP.y) <= flake_diameter &&
+                    math::abs(PP.z) <= flake_diameter)
+                {
+                    flake_priority = priority;
+                    flake_seed = seed;
+                }
+            }
+        }
+    }
+
+
+    mx_flake__result flake_out(0, 0.0, 0.0, normal);
+
+    if (flake_priority <= 0.0)
+        return flake_out;  // no flake
+
+    // create a flake normal by importance sampling a microfacet distribution with given roughness
+    int seed = flake_seed;
+    float xi0 = mx_int_to_01(seed); seed = mx_flake_xorshift32(seed);
+    float xi1 = mx_int_to_01(seed); seed = mx_flake_xorshift32(seed);
+    flake_out.mxp_id = seed;
+    flake_out.mxp_rand = mx_int_to_01(seed);
+    flake_out.mxp_presence = flake_priority;
+
+    float phi = math::PI * 2.0 * xi0;
+    float tan_theta = roughness * roughness * math::sqrt(xi1) / math::sqrt(1.0 - xi1);  // GGX
+    float sin_theta = tan_theta / math::sqrt(1.0 + tan_theta * tan_theta);
+    float cos_theta = math::sqrt(1.0 - sin_theta * sin_theta);
+
+    float[2] sc_phi = math::sincos(phi);
+    flake_out.mxp_flakenormal = tangent * sc_phi[1] * sin_theta +
+                                bitangent * sc_phi[0] * sin_theta +
+                                normal * cos_theta;
+    flake_out.mxp_flakenormal = math::normalize(flake_out.mxp_flakenormal);
+
+    return flake_out;
+}

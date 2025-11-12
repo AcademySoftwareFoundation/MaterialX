@@ -1238,6 +1238,42 @@
   </nodedef>
 
   <!--
+    Node: <flake2d>
+    3D flake pattern generator.
+  -->
+  <nodedef name="ND_flake2d" node="flake2d" nodegroup="procedural2d">
+    <input name="size" type="float" value="0.01" doc="Size of individual flakes." />
+    <input name="roughness" type="float" value="0.1" doc="Roughness of the flake normal distribution." />
+    <input name="coverage" type="float" value="0.5" doc="Density of flake coverage (0 = no flakes, 1 = full coverage)." />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" doc="The input 2d space. Default is the first texture coordinates." />
+    <input name="normal" type="vector3" defaultgeomprop="Nworld" doc="Surface normal; defaults to the current world-space normal." />
+    <input name="tangent" type="vector3" defaultgeomprop="Tworld" doc="Surface tangent vector, defaults to the current world-space tangent vector." />
+    <input name="bitangent" type="vector3" defaultgeomprop="Bworld" doc="Surface bitangent vector, defaults to the current world-space bitangent vector." />
+    <output name="id" type="integer" default="0" doc="Unique identifier for each flake (0 for no flake)." />
+    <output name="rand" type="float" default="0.0" doc="Random value per flake for additional variation (0 for no flake)." />
+    <output name="presence" type="float" default="0.0" doc="Depth-based presence value per flake for additional variation (0 for no flake)." />
+    <output name="flakenormal" type="vector3" default="Nworld" doc="The computed flake normal (base normal if no flake present)." />
+  </nodedef>
+
+  <!--
+    Node: <flake3d>
+    2D flake pattern generator.
+  -->
+  <nodedef name="ND_flake3d" node="flake3d" nodegroup="procedural3d">
+    <input name="size" type="float" value="0.01" doc="Size of individual flakes." />
+    <input name="roughness" type="float" value="0.1" doc="Roughness of the flake normal distribution." />
+    <input name="coverage" type="float" value="0.5" doc="Density of flake coverage (0 = no flakes, 1 = full coverage)." />
+    <input name="position" type="vector3" defaultgeomprop="Pobject" doc="The input 3d space. Default is position in object-space." />
+    <input name="normal" type="vector3" defaultgeomprop="Nworld" doc="Surface normal; defaults to the current world-space normal." />
+    <input name="tangent" type="vector3" defaultgeomprop="Tworld" doc="Surface tangent vector, defaults to the current world-space tangent vector." />
+    <input name="bitangent" type="vector3" defaultgeomprop="Bworld" doc="Surface bitangent vector, defaults to the current world-space bitangent vector." />
+    <output name="id" type="integer" default="0" doc="Unique identifier for each flake (0 for no flake)." />
+    <output name="rand" type="float" default="0.0" doc="Random value per flake for additional variation (0 for no flake)." />
+    <output name="presence" type="float" default="0.0" doc="Depth-based presence value per flake for additional variation (0 for no flake)." />
+    <output name="flakenormal" type="vector3" default="Nworld" doc="The computed flake normal (base normal if no flake present)." />
+  </nodedef>
+
+  <!--
     Node: <randomfloat>
     Produces a randomized float, based on an 'input' signal and 'seed' value.
   -->

@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+  <surfacematerial name="flake_surfaceshader" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="standard_surface_surfaceshader" />
+  </surfacematerial>
+  <standard_surface name="standard_surface_surfaceshader" type="surfaceshader">
+    <input name="normal" type="vector3" output="flakenormal" nodename="flake3d" />
+    <input name="metalness" type="float" value="1" />
+    <input name="coat" type="float" value="1" />
+    <input name="specular_roughness" type="float" value="0.1" />
+    <input name="coat_roughness" type="float" value="0" />
+    <input name="specular" type="float" value="1" />
+    <input name="base_color" type="color3" nodename="multiply_color3FA" />
+    <input name="base" type="float" value="1" />
+  </standard_surface>
+  <flake3d name="flake3d" type="multioutput">
+    <input name="coverage" type="float" value="1" />
+    <input name="roughness" type="float" value="0.2" />
+    <input name="size" type="float" value="0.002" />
+    <output name="id" type="integer" />
+    <output name="presence" type="float" />
+    <output name="flakenormal" type="vector3" />
+  </flake3d>
+  <randomcolor name="randomcolor_float" type="color3">
+    <input name="seed" type="integer" output="id" nodename="flake3d" />
+    <output name="out" type="color3" />
+    <input name="saturationhigh" type="float" value="0" />
+    <input name="saturationlow" type="float" value="0.5" />
+  </randomcolor>
+  <multiply name="multiply_color3" type="color3">
+    <input name="in2" type="color3" nodename="randomcolor_float" />
+    <output name="out" type="color3" />
+    <input name="in1" type="color3" value="0.399894, 0.0183279, 0.530191" />
+  </multiply>
+  <multiply name="multiply_color3FA" type="color3">
+    <input name="in2" type="float" nodename="safepower_float" />
+    <input name="in1" type="color3" nodename="multiply_color3" />
+    <output name="out" type="color3" />
+  </multiply>
+  <safepower name="safepower_float" type="float">
+    <input name="in1" type="float" output="presence" nodename="flake3d" />
+    <input name="in2" type="float" value="8" />
+  </safepower>
+</materialx>

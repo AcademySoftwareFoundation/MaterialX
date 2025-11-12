@@ -1,4 +1,5 @@
 #define M_FLOAT_EPS 1e-8
+#define M_PI 3.1415926535897932
 
 #define mx_sin metal::sin
 #define mx_cos metal::cos
