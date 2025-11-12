@@ -18,20 +18,28 @@ float mx_schlick_gain(float x, float r)
 
 struct HextileData
 {
-    vec2 coord1;
-    vec2 coord2;
-    vec2 coord3;
+    vec2 coords[3];
     vec3 weights;
-    float rot_radian1;
-    float rot_radian2;
-    float rot_radian3;
-    vec2 ddx1;
-    vec2 ddx2;
-    vec2 ddx3;
-    vec2 ddy1;
-    vec2 ddy2;
-    vec2 ddy3;
+    vec3 rotations;
+    vec2 ddx[3];
+    vec2 ddy[3];
 };
+
+// Helper function to compute blend weights with optional falloff
+vec3 mx_hextile_compute_blend_weights(vec3 luminance_weights, vec3 tile_weights, float falloff)
+{
+    vec3 w = luminance_weights * pow(tile_weights, vec3(7.0));
+    w /= (w.x + w.y + w.z);
+
+    if (falloff != 0.5)
+    {
+        w.x = mx_schlick_gain(w.x, falloff);
+        w.y = mx_schlick_gain(w.y, falloff);
+        w.z = mx_schlick_gain(w.z, falloff);
+        w /= (w.x + w.y + w.z);
+    }
+    return w;
+}
 
 // Morten S. Mikkelsen, Practical Real-Time Hex-Tiling, Journal of Computer Graphics
 // Techniques (JCGT), vol. 11, no. 2, 77-94, 2022
@@ -88,24 +96,20 @@ HextileData mx_hextile_coord(
 
     // randomized rotation matrix
     vec2 rr = mx_radians(rotation_range);
-    float rv1 = mix(rr.x, rr.y, rand1.x * rotation);
-    float rv2 = mix(rr.x, rr.y, rand2.x * rotation);
-    float rv3 = mix(rr.x, rr.y, rand3.x * rotation);
-    float sin_r1 = sin(rv1);
-    float sin_r2 = sin(rv2);
-    float sin_r3 = sin(rv3);
-    float cos_r1 = cos(rv1);
-    float cos_r2 = cos(rv2);
-    float cos_r3 = cos(rv3);
-    mat2 rm1 = mat2(cos_r1, -sin_r1, sin_r1, cos_r1);
-    mat2 rm2 = mat2(cos_r2, -sin_r2, sin_r2, cos_r2);
-    mat2 rm3 = mat2(cos_r3, -sin_r3, sin_r3, cos_r3);
+    vec3 rand_x = vec3(rand1.x, rand2.x, rand3.x);
+    vec3 rotations = mix(vec3(rr.x), vec3(rr.y), rand_x * rotation);
+    vec3 sin_r = sin(rotations);
+    vec3 cos_r = cos(rotations);
+    mat2 rm1 = mat2(cos_r.x, -sin_r.x, sin_r.x, cos_r.x);
+    mat2 rm2 = mat2(cos_r.y, -sin_r.y, sin_r.y, cos_r.y);
+    mat2 rm3 = mat2(cos_r.z, -sin_r.z, sin_r.z, cos_r.z);
 
     // randomized scale
-    vec2 sr = scale_range;
-    vec2 scale1 = vec2(mix(1.0, mix(sr.x, sr.y, rand1.y), scale));
-    vec2 scale2 = vec2(mix(1.0, mix(sr.x, sr.y, rand2.y), scale));
-    vec2 scale3 = vec2(mix(1.0, mix(sr.x, sr.y, rand3.y), scale));
+    vec3 rand_y = vec3(rand1.y, rand2.y, rand3.y);
+    vec3 scales = mix(vec3(1.0), mix(vec3(scale_range.x), vec3(scale_range.y), rand_y), scale);
+    vec2 scale1 = vec2(scales.x);
+    vec2 scale2 = vec2(scales.y);
+    vec2 scale3 = vec2(scales.z);
 
     // randomized offset
     vec2 offset1 = mix(vec2(offset_range.x), vec2(offset_range.y), rand1 * offset);
@@ -114,24 +118,22 @@ HextileData mx_hextile_coord(
 
     HextileData tile_data;
     tile_data.weights = vec3(w1, w2, w3);
-    tile_data.rot_radian1 = rv1;
-    tile_data.rot_radian2 = rv2;
-    tile_data.rot_radian3 = rv3;
+    tile_data.rotations = rotations;
 
     // get coord
-    tile_data.coord1 = (mx_matrix_mul((coord - ctr1), rm1) / scale1) + ctr1 + offset1;
-    tile_data.coord2 = (mx_matrix_mul((coord - ctr2), rm2) / scale2) + ctr2 + offset2;
-    tile_data.coord3 = (mx_matrix_mul((coord - ctr3), rm3) / scale3) + ctr3 + offset3;
+    tile_data.coords[0] = (mx_matrix_mul((coord - ctr1), rm1) / scale1) + ctr1 + offset1;
+    tile_data.coords[1] = (mx_matrix_mul((coord - ctr2), rm2) / scale2) + ctr2 + offset2;
+    tile_data.coords[2] = (mx_matrix_mul((coord - ctr3), rm3) / scale3) + ctr3 + offset3;
 
     // derivatives
     vec2 ddx = dFdx(coord);
     vec2 ddy = dFdy(coord);
-    tile_data.ddx1 = mx_matrix_mul(ddx, rm1) / scale1;
-    tile_data.ddx2 = mx_matrix_mul(ddx, rm2) / scale2;
-    tile_data.ddx3 = mx_matrix_mul(ddx, rm3) / scale3;
-    tile_data.ddy1 = mx_matrix_mul(ddy, rm1) / scale1;
-    tile_data.ddy2 = mx_matrix_mul(ddy, rm2) / scale2;
-    tile_data.ddy3 = mx_matrix_mul(ddy, rm3) / scale3;
+    tile_data.ddx[0] = mx_matrix_mul(ddx, rm1) / scale1;
+    tile_data.ddx[1] = mx_matrix_mul(ddx, rm2) / scale2;
+    tile_data.ddx[2] = mx_matrix_mul(ddx, rm3) / scale3;
+    tile_data.ddy[0] = mx_matrix_mul(ddy, rm1) / scale1;
+    tile_data.ddy[1] = mx_matrix_mul(ddy, rm2) / scale2;
+    tile_data.ddy[2] = mx_matrix_mul(ddy, rm3) / scale3;
 
     return tile_data;
 }

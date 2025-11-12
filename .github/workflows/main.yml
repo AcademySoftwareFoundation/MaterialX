@@ -85,7 +85,7 @@ jobs:
           compiler_version: "26.0"
           python: 3.13
           static_analysis: ON
-          cmake_config: -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+          cmake_config: -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DMATERIALX_BUILD_DATA_LIBRARY=ON
 
         - name: MacOS_Xcode_DynamicAnalysis
           os: macos-26
