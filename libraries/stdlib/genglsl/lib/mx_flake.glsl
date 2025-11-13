@@ -1,5 +1,3 @@
-#include "mx_math.glsl"
-
 uint mx_flake_hash(uint seed, uint i)
 {
     return (i ^ seed) * 1075385539u; 
