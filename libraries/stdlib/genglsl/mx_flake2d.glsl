@@ -14,6 +14,7 @@ void mx_flake2d(
     out vec3 flakenormal
 )
 {
+    // reuse the 3d flake implementation. this could be optimized by using a 2d flake implementation
     vec3 position = vec3(texcoord.x, texcoord.y, 0.0);
     mx_flake(size, roughness, coverage, position, normal, tangent, bitangent, id, rand, presence, flakenormal);
 }
