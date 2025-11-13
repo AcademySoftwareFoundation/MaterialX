@@ -341,7 +341,13 @@ jobs:
       if: matrix.test_render == 'ON' && runner.os == 'macOS'
       run: |
         mkdir -p build/artifacts
-        zip -r build/artifacts/resources.zip resources
+        if [ ! -d build/bin/resources ]; then
+          echo "Missing build/bin/resources"
+          echo "Contents of build/bin (if present):"
+          ls -la build/bin || true
+          exit 1
+        fi
+        zip -r build/artifacts/resources.zip build/bin/resources
 
     - name: Upload Resources Archive (macOS)
       uses: actions/upload-artifact@v4
