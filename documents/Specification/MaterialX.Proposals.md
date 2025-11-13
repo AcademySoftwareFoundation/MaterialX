@@ -157,6 +157,115 @@ Materials can inherit from other materials, to add or change shaders connected t
 Inheritance of material-type custom nodes is also allowed, so that new or changed input values can be applied on top of those specified in the inherited material.
 
 
+
+### TypeDef Token Elements
+
+TypeDef token elements allow the definition of value strings with a consistent meaning across types, e.g. a `half` value that corresponds to "0.5" for the `float` type and "0.5, 0.5, 0.5" for the `vector3` type.  Their primary use case is in the expansion of `template` elements, as described in the next section.
+
+```xml
+  <typedef name="float">
+    <token name="zero" type="float" value="0.0" />
+    <token name="half" type="float" value="0.5" />
+    <token name="one" type="float" value="1.0" />
+  </typedef>
+  <typedef name="color3" semantic="color" >
+    <token name="zero" type="color3" value="0.0, 0.0, 0.0" />
+    <token name="half" type="color3" value="0.5, 0.5, 0.5" />
+    <token name="one" type="color3" value="1.0, 1.0, 1.0" />
+  </typedef>
+  <typedef name="color4" semantic="color">
+    <token name="zero" type="color4" value="0.0, 0.0, 0.0, 0.0" />
+    <token name="half" type="color4" value="0.5, 0.5, 0.5, 0.5" />
+    <token name="one" type="color4" value="1.0, 1.0, 1.0, 1.0" />
+  </typedef>
+  <typedef name="vector2" >
+    <token name="zero" type="vector2" value="0.0, 0.0" />
+    <token name="half" type="vector2" value="0.5, 0.5" />
+    <token name="one" type="vector2" value="1.0, 1.0" />
+  </typedef>
+  <typedef name="vector3" >
+    <token name="zero" type="vector3" value="0.0, 0.0, 0.0" />
+    <token name="half" type="vector3" value="0.5, 0.5, 0.5" />
+    <token name="one" type="vector3" value="1.0, 1.0, 1.0" />
+  </typedef>
+  <typedef name="vector4">
+    <token name="zero" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
+    <token name="half" type="vector4" value="0.5, 0.5, 0.5, 0.5" />
+    <token name="one" type="vector4" value="1.0, 1.0, 1.0, 1.0" />
+  </typedef>
+```
+
+### Template Elements
+
+Template elements allow a single template pattern to be used in instantiating an arbitrary number of elements at runtime, with each reference to the provided `key` being replaced with one of the corresponding strings in the `values` array.  Each element within the scope of the `template` will be instantiated separately for each string in the `values` array.
+
+References to the template `key` are expressed as the string value of the `key` bracketed by the `(` and `)` characters, e.g. `(keystring)`.  Substitution of key-value pairs takes precedence over any other supported substitutions within the scope of a `template` element.
+
+To support generic typed values, TypeDef `token` strings may be used in place of any literal value within a `template` element, using the same bracketing syntax as template keys.  At template expansion time, any typed value that corresponds to a TypeDef `token` will be replaced with the corresponding literal value for the given `token` and type.
+
+Template elements may be nested to any depth, allowing for efficient authoring of combinatorial element templates.
+
+The following example show how the full set of `nodedef` and `nodegraph` variations for the `contrast` node in MaterialX would be expressed using two `template` elements.
+
+```xml
+  <template name="T_contrast" key="type" values="float, color3, color4, vector2, vector3, vector4">
+    <nodedef name="ND_contrast_(type)" node="contrast" nodegroup="adjustment">
+      <input name="in" type="(type)" value="(zero)" />
+      <input name="amount" type="(type)" value="(one)" />
+      <input name="pivot" type="(type)" value="(half)" />
+      <output name="out" type="(type)" defaultinput="in" />
+    </nodedef>
+    <nodegraph name="NG_contrast_(type)" nodedef="ND_contrast_(type)">
+      <subtract name="N_sub_(type)" type="(type)">
+        <input name="in1" type="(type)" interfacename="in" />
+        <input name="in2" type="(type)" interfacename="pivot" />
+      </subtract>
+      <multiply name="N_mul_vector3" type="(type)">
+        <input name="in1" type="(type)" nodename="N_sub_(type)" />
+        <input name="in2" type="(type)" interfacename="amount" />
+      </multiply>
+      <add name="N_add_(type)" type="(type)">
+        <input name="in1" type="(type)" nodename="N_mul_(type)" />
+        <input name="in2" type="(type)" interfacename="pivot" />
+      </add>
+      <output name="out" type="(type)" nodename="N_add_(type)" />
+    </nodegraph>
+  </template>
+
+  <template name="T_contrast_FA" key="type" values="color3, color4, vector2, vector3, vector4">
+    <nodedef name="ND_contrast_(type)FA" node="contrast" nodegroup="adjustment">
+      <input name="in" type="(type)" value="(zero)" />
+      <input name="amount" type="float" value="1.0" />
+      <input name="pivot" type="float" value="0.5" />
+      <output name="out" type="(type)" defaultinput="in" />
+    </nodedef>
+    <nodegraph name="NG_contrast_(type)FA" nodedef="ND_contrast_(type)FA">
+      <subtract name="N_sub_(type)" type="(type)">
+        <input name="in1" type="(type)" interfacename="in" />
+        <input name="in2" type="float" interfacename="pivot" />
+      </subtract>
+      <multiply name="N_mul_vector3" type="(type)">
+        <input name="in1" type="(type)" nodename="N_sub_(type)" />
+        <input name="in2" type="float" interfacename="amount" />
+      </multiply>
+      <add name="N_add_(type)" type="(type)">
+        <input name="in1" type="(type)" nodename="N_mul_(type)" />
+        <input name="in2" type="float" interfacename="pivot" />
+      </add>
+      <output name="out" type="(type)" nodename="N_add_(type)" />
+    </nodegraph>
+  </template>
+```
+
+#### Proposed Template Implementation
+
+When a document containing `template` elements is loaded through the MaterialX API, its templates are automatically expanded to their full form through a built-in `Document::expandTemplates` method.  This allows the document to be authored and stored on disk in its clearest and most compact form, while MaterialX runtimes and downstream clients can assume templates are fully expanded at load time, allowing them to operate as if no templates are present.
+
+For an initial implementation of this feature, a proposed approach is to implement the `TemplateElement` class, the TypeDef form of the `Token` class, and the `Document::expandTemplates` method in the MaterialX runtime, and to add a single example of a `template` to the MaterialX data libraries (e.g. the `contrast` example above), in order to prove out the syntax and logic before committing to a full data library upgrade.  This represents roughly 2-4 days of work for a developer that is familiar with the MaterialX C++ codebase.
+
+An important property of this proposed implementation is that downstream clients such as OpenUSD will require no changes to support it, as the template expansion logic will be fully contained within existing MaterialX API calls.  Clients that define custom MaterialX nodes will have the option of using `template` elements for efficiency and clarity, but will be under no obligation to do so, and they can effectively ignore the presence of template functionality if they choose.
+
+
 <p>&nbsp;<p><hr><p>
 
 # Proposals: Stdlib Nodes<a id="propose-stdlib-nodes"></a>
