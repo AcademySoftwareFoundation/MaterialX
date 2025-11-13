@@ -259,7 +259,7 @@ The following example show how the full set of `nodedef` and `nodegraph` variati
 
 #### Proposed Template Implementation
 
-When a document containing `template` elements is loaded through the MaterialX API, its templates are automatically expanded to their full form through a built-in `Document::expandTemplates` method.  This allows the document to be authored and stored on disk in its clearest and most compact form, while MaterialX runtimes and downstream clients can assume templates are fully expanded at load time, allowing them to operate as if no templates are present.
+When a document containing `template` elements is loaded through the MaterialX API, its templates are expanded to their full form through a built-in `Document::expandTemplates` method, which is invoked automatically at load-time in the same fashion as the existing `Document::upgradeVersion` method.  This allows the document to be authored and stored on disk in its clearest and most compact form, while MaterialX runtimes and downstream clients can assume templates are fully expanded at load time, allowing them to operate as if no templates are present.
 
 For an initial implementation of this feature, a proposed approach is to implement the `TemplateElement` class, the TypeDef form of the `Token` class, and the `Document::expandTemplates` method in the MaterialX runtime, and to add a single example of a `template` to the MaterialX data libraries (e.g. the `contrast` example above), in order to prove out the syntax and logic before committing to a full data library upgrade.  This represents roughly 2-4 days of work for a developer that is familiar with the MaterialX C++ codebase.
 
