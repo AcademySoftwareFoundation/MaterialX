@@ -266,7 +266,7 @@ jobs:
         fi
         cppcheck --project=build/compile_commands.json --error-exitcode=1 --suppress=normalCheckLevelMaxBranches --suppress=*:*/External/* --suppress=*:*/NanoGUI/*
 
-    - name: Initialize Rendering (Linux)
+    - name: Initialize Virtual Framebuffer (Linux)
       if: matrix.test_render == 'ON' && runner.os == 'Linux'
       run: |
         Xvfb :1 -screen 0 1280x960x24 &
@@ -276,12 +276,11 @@ jobs:
     - name: Initialize Rendering (macOS)
       if: matrix.test_render == 'ON' && runner.os == 'macOS'
       run: |
-        # macOS can render headlessly with Metal backend without virtual display
-        # Force software rendering for Metal backend
+        # macOS can render headless with Metal backend without virtual display
+        # Force software rendering for Metal backend (more reliable in CI)
         echo "MTL_HARDWARE_RENDERING=0" >> $GITHUB_ENV
         # Enable Metal debug layer for better debugging in CI
         echo "MTL_DEBUG_LAYER=1" >> $GITHUB_ENV
-        # Force software rendering for OpenGL backend compatibility
         echo "LIBGL_ALWAYS_SOFTWARE=1" >> $GITHUB_ENV
 
     - name: Render Script Tests
@@ -296,6 +295,11 @@ jobs:
       run: |
         ../installed/bin/MaterialXView --material brass_average_baked.mtlx --mesh ../../resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --shadowMap false --captureFilename Viewer_BrassAverage.png
         ../installed/bin/MaterialXView --material usd_preview_surface_carpaint.mtlx --mesh ../../resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --shadowMap false --captureFilename Viewer_CarpaintTranslated.png
+      working-directory: build/render
+
+    - name: Render Application Tests (GraphEditor - Linux only)
+      if: matrix.test_render == 'ON' && runner.os == 'Linux'
+      run: |
         ../installed/bin/MaterialXGraphEditor --material ../../resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --viewWidth 128 --viewHeight 128 --captureFilename GraphEditor_MarbleSolid.png
       working-directory: build/render
 
