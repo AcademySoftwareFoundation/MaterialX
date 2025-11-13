@@ -171,11 +171,6 @@ int main(int argc, char* const argv[])
     if (!captureFilename.empty())
     {
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-#if defined(__APPLE__)
-        // On macOS, when running headless we need to allow fallback to software rendering
-        // to avoid "Failed to find a suitable pixel format" errors in CI environments
-        glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_FALSE);
-#endif
     }
 
     // Create window with graphics context
