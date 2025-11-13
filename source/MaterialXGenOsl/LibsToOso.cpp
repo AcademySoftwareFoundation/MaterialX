@@ -335,7 +335,7 @@ int main(int argc, char* const argv[])
     mx::NodeGraphPtr librariesDocGraph = librariesDoc->addNodeGraph("librariesDocGraph");
 
     // Loop over all the `NodeDef` gathered in our documents from the provided libraries.
-    for (const mx::NodeDefPtr& nodeDef : librariesDoc->getNodeDefs())
+    for (mx::NodeDefPtr nodeDef : librariesDoc->getNodeDefs())
     {
         std::string nodeName = nodeDef->getName();
 
