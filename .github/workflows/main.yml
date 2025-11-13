@@ -337,6 +337,19 @@ jobs:
         name: Renders_${{ matrix.name }}
         path: build/render/*.png
 
+    - name: Archive Resources (macOS)
+      if: matrix.test_render == 'ON' && runner.os == 'macOS'
+      run: |
+        mkdir -p build/artifacts
+        zip -r build/artifacts/resources.zip resources
+
+    - name: Upload Resources Archive (macOS)
+      uses: actions/upload-artifact@v4
+      if: matrix.test_render == 'ON' && runner.os == 'macOS'
+      with:
+        name: Resources_${{ matrix.name }}
+        path: build/artifacts/resources.zip
+
     - name: Upload Coverage Report
       uses: actions/upload-artifact@v4
       if: matrix.coverage_analysis == 'ON'
