@@ -112,9 +112,10 @@ using ShaderMetadataRegistryPtr = shared_ptr<ShaderMetadataRegistry>;
 class MX_GENSHADER_API ShaderPortFlag
 {
   public:
-    static const uint32_t UNIFORM    = 1u << 0;
-    static const uint32_t EMITTED    = 1u << 1;
-    static const uint32_t BIND_INPUT = 1u << 2;
+    static const uint32_t UNIFORM        = 1u << 0;
+    static const uint32_t EMITTED        = 1u << 1;
+    static const uint32_t BIND_INPUT     = 1u << 2;
+    static const uint32_t AUTHORED_VALUE = 1u << 3;
 };
 
 /// @class ShaderPort
@@ -165,7 +166,11 @@ class MX_GENSHADER_API ShaderPort : public std::enable_shared_from_this<ShaderPo
     const string& getSemantic() const { return _semantic; }
 
     /// Set a value on this port.
-    void setValue(ValuePtr value) { _value = value; }
+    void setValue(ValuePtr value, bool authoredValue = true)
+    {
+        _value = value;
+        setFlag(ShaderPortFlag::AUTHORED_VALUE, authoredValue);
+    }
 
     /// Return the value set on this port.
     ValuePtr getValue() const { return _value; }
@@ -233,6 +238,9 @@ class MX_GENSHADER_API ShaderPort : public std::enable_shared_from_this<ShaderPo
 
     /// Return the emitted state of this port.
     bool isBindInput() const { return (_flags & ShaderPortFlag::BIND_INPUT) != 0; }
+
+    // Has the value been overridden.
+    bool hasAuthoredValue() const { return (_flags & ShaderPortFlag::AUTHORED_VALUE) != 0; }
 
     /// Set the metadata vector.
     void setMetadata(ShaderMetadataVecPtr metadata) { _metadata = metadata; }

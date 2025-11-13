@@ -7,6 +7,9 @@ on:
   pull_request:
     paths-ignore:
       - '**.md'
+  schedule:
+    # Nightly build
+    - cron: '30 10 * * *'
   workflow_dispatch:
 
 jobs:
@@ -14,10 +17,60 @@ jobs:
   build:
     name: Build
     runs-on: ${{ matrix.os }}
+    env:
+      IS_EXTENDED_BUILD: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
     strategy:
       fail-fast: false
       matrix:
         include:
+        - name: Linux_GCC_10_Python39
+          os: ubuntu-22.04
+          compiler: gcc
+          compiler_version: "10"
+          python: 3.9
+          cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON -DMATERIALX_BUILD_MONOLITHIC=ON
+
+        - name: Linux_GCC_14_Python312
+          os: ubuntu-24.04
+          compiler: gcc
+          compiler_version: "14"
+          python: 3.12
+
+        - name: Linux_GCC_14_Python313
+          os: ubuntu-24.04
+          compiler: gcc
+          compiler_version: "14"
+          python: 3.13
+          test_render: ON
+
+        - name: Linux_GCC_CoverageAnalysis
+          os: ubuntu-24.04
+          compiler: gcc
+          compiler_version: "None"
+          python: None
+          coverage_analysis: ON
+          cmake_config: -DMATERIALX_COVERAGE_ANALYSIS=ON -DMATERIALX_BUILD_RENDER=OFF -DMATERIALX_BUILD_PYTHON=OFF
+
+        - name: Linux_Clang_13_Python39
+          os: ubuntu-22.04
+          compiler: clang
+          compiler_version: "13"
+          python: 3.9
+          cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
+
+        - name: Linux_Clang_18_Python313
+          os: ubuntu-24.04
+          compiler: clang
+          compiler_version: "18"
+          python: 3.13
+          clang_format: ON
+
+        - name: MacOS_Xcode_15_Python311
+          os: macos-14
+          compiler: xcode
+          compiler_version: "15.4"
+          cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
+          python: 3.11
 
         - name: MacOS_Xcode_16_Python313
           os: macos-15
@@ -27,12 +80,50 @@ jobs:
           test_shaders: ON
           test_render: ON
 
-        - name: MacOS_Xcode_26_RenderTests
+        - name: MacOS_Xcode_26_Python313
           os: macos-26
           compiler: xcode
           compiler_version: "26.0"
           python: 3.13
-          test_render: ON
+          static_analysis: ON
+          cmake_config: -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DMATERIALX_BUILD_DATA_LIBRARY=ON
+
+        - name: MacOS_Xcode_DynamicAnalysis
+          os: macos-26
+          compiler: xcode
+          compiler_version: "26.0"
+          python: None
+          dynamic_analysis: ON
+          cmake_config: -DMATERIALX_DYNAMIC_ANALYSIS=ON
+
+        - name: iOS_Xcode_26
+          os: macos-26
+          compiler: xcode
+          compiler_version: "26.0"
+          python: None
+          cmake_config: -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_SYSROOT=`xcrun --sdk iphoneos --show-sdk-path` -DCMAKE_OSX_ARCHITECTURES=arm64
+
+        - name: Windows_VS2022_Win32_Python39
+          os: windows-2022
+          architecture: x86
+          python: 3.9
+          cmake_config: -G "Visual Studio 17 2022" -A "Win32"
+
+        - name: Windows_VS2022_x64_Python313
+          os: windows-2025
+          architecture: x64
+          python: 3.13
+          cmake_config: -G "Visual Studio 17 2022" -A "x64"
+          test_shaders: ON
+          extended_build_oiio: ON
+          extended_build_mdl_sdk: ON
+
+        - name: Windows_VS2022_x64_SharedLibs
+          os: windows-2025
+          architecture: x64
+          python: None
+          cmake_config: -G "Visual Studio 17 2022" -A "x64" -DMATERIALX_BUILD_SHARED_LIBS=ON
+          upload_shaders: ON
 
     steps:
     - name: Sync Repository
@@ -73,11 +164,16 @@ jobs:
         Add-Content $env:GITHUB_PATH "$PWD/build/installed/bin"
 
     - name: Install OpenImageIO
-      if: matrix.build_oiio == 'ON' && runner.os == 'Windows'
+      if: env.IS_EXTENDED_BUILD == 'true' && matrix.extended_build_oiio == 'ON' && runner.os == 'Windows'
       run: |
-        C:/vcpkg/vcpkg install openimageio --triplet=x64-windows-release
-        Add-Content $env:GITHUB_PATH "C:/vcpkg/installed/x64-windows-release/bin"
-        Add-Content $env:GITHUB_PATH "C:/vcpkg/installed/x64-windows-release/share/openimageio"
+        C:/vcpkg/vcpkg install openimageio --triplet=x64-windows
+        Add-Content $env:GITHUB_PATH "C:/vcpkg/installed/x64-windows/bin"
+
+    - name: Install MDL SDK
+      if: env.IS_EXTENDED_BUILD == 'true' && matrix.extended_build_mdl_sdk == 'ON' && runner.os == 'Windows'
+      run: |
+        C:/vcpkg/vcpkg install mdl-sdk --triplet=x64-windows
+        Add-Content $env:GITHUB_PATH "C:/vcpkg/installed/x64-windows/bin"
 
     - name: Install Python ${{ matrix.python }}
       if: matrix.python != 'None'
@@ -95,7 +191,20 @@ jobs:
       run: find source \( -name *.h -o -name *.cpp -o -name *.mm -o -name *.inl \) ! -path "*/External/*" ! -path "*/NanoGUI/*" | xargs clang-format -i --verbose
 
     - name: CMake Generate
-      run: cmake -S . -B build -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_BUILD_TESTS=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{matrix.cmake_config}}
+      shell: bash
+      run: |
+        if [ "${{ env.IS_EXTENDED_BUILD }}" == "true" ]; then
+          if [ "${{ runner.os }}" == "Windows" ]; then
+            EXTENDED_BUILD_CONFIG="-DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows"
+          fi
+          if [ "${{ matrix.extended_build_oiio }}" == "ON" ]; then
+            EXTENDED_BUILD_CONFIG="$EXTENDED_BUILD_CONFIG -DMATERIALX_BUILD_OIIO=ON"
+          fi
+          if [ "${{ matrix.extended_build_mdl_sdk }}" == "ON" -a "${{ runner.os }}" == "Windows" ]; then
+            EXTENDED_BUILD_CONFIG="$EXTENDED_BUILD_CONFIG -DMATERIALX_MDL_SDK_DIR=C:/vcpkg/installed/x64-windows"
+          fi
+        fi
+        cmake -S . -B build -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_BUILD_TESTS=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON $EXTENDED_BUILD_CONFIG ${{matrix.cmake_config}}
 
     - name: CMake Build
       run: cmake --build build --target install --config Release --parallel 2
@@ -157,7 +266,7 @@ jobs:
         fi
         cppcheck --project=build/compile_commands.json --error-exitcode=1 --suppress=normalCheckLevelMaxBranches --suppress=*:*/External/* --suppress=*:*/NanoGUI/*
 
-    - name: Initialize Virtual Framebuffer
+    - name: Initialize Virtual Framebuffer (Linux)
       if: matrix.test_render == 'ON' && runner.os == 'Linux'
       run: |
         Xvfb :1 -screen 0 1280x960x24 &
@@ -167,12 +276,11 @@ jobs:
     - name: Initialize Headless Rendering (macOS)
       if: matrix.test_render == 'ON' && runner.os == 'macOS'
       run: |
-        # macOS can render headlessly with Metal backend without virtual display
+        # macOS can render headless with Metal backend without virtual display
         # Force software rendering for Metal backend (more reliable in CI)
         echo "MTL_HARDWARE_RENDERING=0" >> $GITHUB_ENV
         # Enable Metal debug layer for better debugging in CI
         echo "MTL_DEBUG_LAYER=1" >> $GITHUB_ENV
-        # Force software rendering for OpenGL backend compatibility
         echo "LIBGL_ALWAYS_SOFTWARE=1" >> $GITHUB_ENV
 
     - name: Render Script Tests
@@ -187,6 +295,7 @@ jobs:
       run: |
         ../installed/bin/MaterialXView --material brass_average_baked.mtlx --mesh ../../resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --shadowMap false --captureFilename Viewer_BrassAverage.png
         ../installed/bin/MaterialXView --material usd_preview_surface_carpaint.mtlx --mesh ../../resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --shadowMap false --captureFilename Viewer_CarpaintTranslated.png
+        ../installed/bin/MaterialXGraphEditor --material ../../resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --viewWidth 128 --viewHeight 128 --captureFilename GraphEditor_MarbleSolid.png
       working-directory: build/render
 
     - name: Upload Installed Package
@@ -236,15 +345,15 @@ jobs:
       run: |
         git clone https://github.com/emscripten-core/emsdk --recursive
         cd emsdk
-        ./emsdk install 2.0.20
-        ./emsdk activate 2.0.20
+        ./emsdk install 4.0.8
+        ./emsdk activate 4.0.8
         source ./emsdk_env.sh
         echo "EMSDK=$EMSDK" >> $GITHUB_ENV
 
     - name: Install Node
       uses: actions/setup-node@v4
       with:
-         node-version: '16'
+         node-version: '22.16.0'
 
     - name: JavaScript CMake Generate
       run: cmake -S . -B javascript/build -DMATERIALX_BUILD_JS=ON -DMATERIALX_EMSDK_PATH=${{ env.EMSDK }}

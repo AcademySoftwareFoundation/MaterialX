@@ -12,6 +12,10 @@ function createStandardSurfaceMaterial(mx)
     shaderElement.setType('surfaceshader');
     shaderElement.setNodeName(ssName);
     expect(doc.validate()).to.be.true;
+    // Release local wrappers
+    shaderElement.delete();
+    smNode.delete();
+    ssNode.delete();
     return doc;
 }
 
@@ -94,13 +98,32 @@ describe('Generate Shaders', function ()
                         console.error("--- PIXEL SHADER END ---");
                     }
                     expect(gl.getShaderParameter(glPixelShader, gl.COMPILE_STATUS)).to.equal(true);
+                    // Cleanup GL shaders
+                    gl.deleteShader(glVertexShader);
+                    gl.deleteShader(glPixelShader);
                 }
+                // Cleanup shader wrapper
+                mxShader.delete();
             }
             catch (errPtr)
             {
                 console.error("-------- Failed code generation: ----------------");
-                console.error(mx.getExceptionMessage(errPtr));
+                if (typeof mx.getExceptionMessage === 'function')
+                {
+                    console.error(mx.getExceptionMessage(errPtr));
+                }
+                else
+                {
+                    console.error(errPtr);
+                }
             }
+            // Cleanup per-generator wrappers
+            stdlib.delete();
+            genContext.delete();
+            gen.delete();
         }
+        // Cleanup element and document
+        elem.delete();
+        doc.delete();
     });
 });

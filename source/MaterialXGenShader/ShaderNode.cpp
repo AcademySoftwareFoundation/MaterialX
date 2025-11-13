@@ -5,8 +5,8 @@
 
 #include <MaterialXGenShader/ShaderNode.h>
 
+#include <MaterialXGenShader/Exception.h>
 #include <MaterialXGenShader/GenContext.h>
-#include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/Util.h>
 
 MATERIALX_NAMESPACE_BEGIN
@@ -199,14 +199,14 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
             if (context.getShaderGenerator().getSyntax().remapEnumeration(portValue, portType, enumNames, enumResult))
             {
                 input = newNode->addInput(port->getName(), enumResult.first);
-                input->setValue(enumResult.second);
+                input->setValue(enumResult.second, false);
             }
             else
             {
                 input = newNode->addInput(port->getName(), portType);
                 if (!portValue.empty())
                 {
-                    input->setValue(port->getResolvedValue());
+                    input->setValue(port->getResolvedValue(), false);
                 }
             }
             if (port->getIsUniform())

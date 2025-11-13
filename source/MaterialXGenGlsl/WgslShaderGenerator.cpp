@@ -6,7 +6,7 @@
 #include <MaterialXGenGlsl/WgslShaderGenerator.h>
 #include <MaterialXGenGlsl/WgslSyntax.h>
 
-#include <MaterialXGenShader/Nodes/HwImageNode.h>
+#include <MaterialXGenHw/HwConstants.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
