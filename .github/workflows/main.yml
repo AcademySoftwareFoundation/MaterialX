@@ -266,14 +266,14 @@ jobs:
         fi
         cppcheck --project=build/compile_commands.json --error-exitcode=1 --suppress=normalCheckLevelMaxBranches --suppress=*:*/External/* --suppress=*:*/NanoGUI/*
 
-    - name: Initialize Virtual Framebuffer (Linux)
+    - name: Setup Rendering Environment (Linux)
       if: matrix.test_render == 'ON' && runner.os == 'Linux'
       run: |
         Xvfb :1 -screen 0 1280x960x24 &
         echo "DISPLAY=:1" >> $GITHUB_ENV
         echo "LIBGL_ALWAYS_SOFTWARE=1" >> $GITHUB_ENV
 
-    - name: Initialize Rendering (macOS)
+    - name: Setup Rendering Environment (MacOS)
       if: matrix.test_render == 'ON' && runner.os == 'macOS'
       run: |
         # macOS can render headless with Metal backend without virtual display
@@ -290,14 +290,14 @@ jobs:
         python python/Scripts/baketextures.py resources/Materials/Examples/StandardSurface/standard_surface_brass_tiled.mtlx build/render/brass_average_baked.mtlx --average
         python python/Scripts/translateshader.py resources/Materials/Examples/StandardSurface/standard_surface_carpaint.mtlx build/render/usd_preview_surface_carpaint.mtlx UsdPreviewSurface --hdr
 
-    - name: Render Application Tests
+    - name: Viewer Tests 
       if: matrix.test_render == 'ON'
       run: |
         ../installed/bin/MaterialXView --material brass_average_baked.mtlx --mesh ../../resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --shadowMap false --captureFilename Viewer_BrassAverage.png
         ../installed/bin/MaterialXView --material usd_preview_surface_carpaint.mtlx --mesh ../../resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --shadowMap false --captureFilename Viewer_CarpaintTranslated.png
       working-directory: build/render
 
-    - name: Render Application Tests (GraphEditor - Linux only)
+    - name: Graph Editor Tests
       if: matrix.test_render == 'ON' && runner.os == 'Linux'
       run: |
         ../installed/bin/MaterialXGraphEditor --material ../../resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --viewWidth 128 --viewHeight 128 --captureFilename GraphEditor_MarbleSolid.png
