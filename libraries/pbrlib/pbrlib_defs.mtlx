@@ -70,6 +70,7 @@
     <input name="tangent" type="vector3" defaultgeomprop="Tworld" />
     <input name="distribution" type="string" value="ggx" enum="ggx" uniform="true" />
     <input name="scatter_mode" type="string" value="R" enum="R,T,RT" uniform="true" />
+    <input name="abbe_number" type="float" value="0" uimin="0.0" uisoftmin="9.0" uisoftmax="91.0" />
     <output name="out" type="BSDF" />
   </nodedef>
 
