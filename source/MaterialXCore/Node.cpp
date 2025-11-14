@@ -126,7 +126,7 @@ Edge Node::getUpstreamEdge(size_t index) const
         }
     }
 
-    return NULL_EDGE;
+    return getNullEdge();
 }
 
 OutputPtr Node::getNodeDefOutput(ElementPtr connectingElement)
