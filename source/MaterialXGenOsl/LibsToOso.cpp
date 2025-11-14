@@ -364,7 +364,7 @@ int main(int argc, char* const argv[])
         }
 
         // TODO: Check for the existence/validity of the `Node`?
-        mx::NodePtr node = librariesDoc->addNodeInstance(nodeDef, nodeName);
+        mx::NodePtr node = librariesDocGraph->addNodeInstance(nodeDef, nodeName);
 
         std::string oslShaderName = node->getName();
         oslShaderGen->getSyntax().makeValidName(oslShaderName);

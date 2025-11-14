@@ -185,20 +185,23 @@ TEST_CASE("Get all files in directory", "[file]")
     mx::FilePathVec results;
 
     results = lightsDir.getFilesInDirectory("mtlx");
-    for (const mx::FilePath& filename : results)
+    REQUIRE(results.size() > 0);
+    for (const mx::FilePath& filename : mtlxFilenames)
     {
-        REQUIRE(std::find(mtlxFilenames.begin(), mtlxFilenames.end(), filename) != mtlxFilenames.end());
+        REQUIRE(std::find(results.begin(), results.end(), filename) != results.end());
     }
 
     results = lightsDir.getFilesInDirectory("hdr");
-    for (const mx::FilePath& filename : results)
+    REQUIRE(results.size() > 0);
+    for (const mx::FilePath& filename : hdrFilenames)
     {
-        REQUIRE(std::find(hdrFilenames.begin(), hdrFilenames.end(), filename) != hdrFilenames.end());
+        REQUIRE(std::find(results.begin(), results.end(), filename) != results.end());
     }
 
     results = lightsDir.getFilesInDirectory();
-    for (const mx::FilePath& filename : results)
+    REQUIRE(results.size() > 0);
+    for (const mx::FilePath& filename : allFilesnames)
     {
-        REQUIRE(std::find(allFilesnames.begin(), allFilesnames.end(), filename) != allFilesnames.end());
+        REQUIRE(std::find(results.begin(), results.end(), filename) != results.end());
     }
 }
