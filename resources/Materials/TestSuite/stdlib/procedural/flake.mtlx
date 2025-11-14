@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+  <!--
+  Basic flake2d unit test.
+  -->
+  <flake2d name="flake2d" type="multioutput">
+    <input name="coverage" type="float" value="1" />
+    <input name="size" type="float" value="0.001" />
+    <input name="roughness" type="float" value="0.2" />
+    <output name="flakenormal" type="vector3" />
+  </flake2d>
+  <output name="flake2d_flakenormal_output" type="vector3" nodename="flake2d" output="flakenormal" />
+
+  <!--
+  Basic flake3d unit test.
+  -->
+  <flake3d name="flake3d" type="multioutput">
+    <input name="coverage" type="float" value="1" />
+    <input name="size" type="float" value="0.001" />
+    <input name="roughness" type="float" value="0.2" />
+    <output name="flakenormal" type="vector3" />
+  </flake3d>
+  <output name="flake3d_flakenormal_output" type="vector3" nodename="flake3d" output="flakenormal" />
+</materialx>

@@ -148,6 +148,12 @@
   <implementation name="IM_worleynoise3d_vector2_genglsl" nodedef="ND_worleynoise3d_vector2" file="mx_worleynoise3d_vector2.glsl" function="mx_worleynoise3d_vector2" target="genglsl" />
   <implementation name="IM_worleynoise3d_vector3_genglsl" nodedef="ND_worleynoise3d_vector3" file="mx_worleynoise3d_vector3.glsl" function="mx_worleynoise3d_vector3" target="genglsl" />
 
+  <!-- <flake2d> -->
+  <implementation name="IM_flake2d_genglsl" nodedef="ND_flake2d" file="mx_flake2d.glsl" function="mx_flake2d" target="genglsl" />
+
+  <!-- <flake3d> -->
+  <implementation name="IM_flake3d_genglsl" nodedef="ND_flake3d" file="mx_flake3d.glsl" function="mx_flake3d" target="genglsl" />
+
   <!-- ======================================================================== -->
   <!-- Geometric nodes                                                          -->
   <!-- ======================================================================== -->

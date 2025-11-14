@@ -113,6 +113,7 @@ class OslShaderRenderTester : public RenderUtil::ShaderRenderTester
         _skipFiles.insert("network_surfaceshader.mtlx");
         _skipFiles.insert("sheen.mtlx");
         _skipFiles.insert("toon_shade.mtlx");
+        _skipFiles.insert("flake_surfaceshader.mtlx");
     }
 
     bool saveImage(const mx::FilePath& filePath, mx::ConstImagePtr image, bool /*verticalFlip*/) const override

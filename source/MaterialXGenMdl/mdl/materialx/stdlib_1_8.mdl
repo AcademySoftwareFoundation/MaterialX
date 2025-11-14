@@ -22,6 +22,7 @@ import ::state::*;
 import .::core::*;
 import .::noise::*;
 import .::hsv::*;
+import .::flake::*;
 
 // Changes since MDL 1.7
 // - Scene data lookups used for PrimVar readers allow non-literal string names
@@ -323,6 +324,9 @@ export using .::stdlib_1_7 import mx_worleynoise2d_float3;
 export using .::stdlib_1_7 import mx_worleynoise3d_float;
 export using .::stdlib_1_7 import mx_worleynoise3d_float2;
 export using .::stdlib_1_7 import mx_worleynoise3d_float3;
+export using .::flake      import mx_flake__result;
+export using .::stdlib_1_7 import mx_flake2d;
+export using .::stdlib_1_7 import mx_flake3d;
 export using .::stdlib_1_7 import mx_combine2_color4CF;
 
 // NOTE: Not planned to be implemented.
