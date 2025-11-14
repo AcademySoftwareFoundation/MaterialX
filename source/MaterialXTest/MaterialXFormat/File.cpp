@@ -185,18 +185,21 @@ TEST_CASE("Get all files in directory", "[file]")
     mx::FilePathVec results;
 
     results = lightsDir.getFilesInDirectory("mtlx");
+    REQUIRE(results.size() > 0);
     for (const mx::FilePath& filename : mtlxFilenames)
     {
         REQUIRE(std::find(results.begin(), results.end(), filename) != results.end());
     }
 
     results = lightsDir.getFilesInDirectory("hdr");
+    REQUIRE(results.size() > 0);
     for (const mx::FilePath& filename : hdrFilenames)
     {
         REQUIRE(std::find(results.begin(), results.end(), filename) != results.end());
     }
 
     results = lightsDir.getFilesInDirectory();
+    REQUIRE(results.size() > 0);
     for (const mx::FilePath& filename : allFilesnames)
     {
         REQUIRE(std::find(results.begin(), results.end(), filename) != results.end());
