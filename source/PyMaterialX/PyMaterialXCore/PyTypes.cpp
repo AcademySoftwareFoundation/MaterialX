@@ -37,16 +37,16 @@ using IndexPair = std::pair<size_t, size_t>;
 .def("__itruediv__", py::overload_cast<float>(&V::operator/=), py::return_value_policy::reference_internal)    \
 .def(py::self * float())                                                                                       \
 .def(py::self / float())                                                                                       \
-.def("getMagnitude", &V::getMagnitude)                                                                         \
-.def("getNormalized", &V::getNormalized)                                                                       \
-.def("dot", &V::dot)                                                                                           \
+.def("getMagnitude", &V::getMagnitude, "Return the magnitude of the vector.")                                                                         \
+.def("getNormalized", &V::getNormalized, "Return a normalized version of the given path, collapsing current path and parent path references so that 'a/.\n\n/b' and 'c/../d/../a/b' become 'a/b'.")                                                                       \
+.def("dot", &V::dot, "Return the dot product of two vectors.")                                                                                           \
 .def("__getitem__", [](const V& v, size_t i)                                                                   \
     { return v[i]; } )                                                                                         \
 .def("__setitem__", [](V& v, size_t i, float f)                                                                \
     { v[i] = f; } )                                                                                            \
 .def("__str__", [](const V& v)                                                                                 \
     { return mx::toValueString(v); })                                                                          \
-.def("copy", [](const V& v) { return V(v); })                                                                  \
+.def("copy", [](const V& v) { return V(v); }, "Create a deep copy of the value.")                                                                  \
 .def_static("__len__", &V::numElements)
 
 #define BIND_MATRIX_SUBCLASS(M, N)                                                                             \
@@ -74,12 +74,12 @@ using IndexPair = std::pair<size_t, size_t>;
     { m[i.first][i.second] = f; })                                                                             \
 .def("__str__", [](const M& m)                                                                                 \
     { return mx::toValueString(m); })                                                                          \
-.def("copy", [](const M& m) { return M(m); })                                                                  \
-.def("isEquivalent", &M::isEquivalent)                                                                         \
-.def("getTranspose", &M::getTranspose)                                                                         \
-.def("getDeterminant", &M::getDeterminant)                                                                     \
-.def("getAdjugate", &M::getAdjugate)                                                                           \
-.def("getInverse", &M::getInverse)                                                                             \
+.def("copy", [](const M& m) { return M(m); }, "Create a deep copy of the value.")                                                                  \
+.def("isEquivalent", &M::isEquivalent, "Return true if the given element tree, including all descendents, is considered to be equivalent to this one based on the equivalence criteria provided.\n\nArgs:\n    rhs: Element to compare against\n    options: Equivalence criteria\n    message: Optional text description of differences\n\nReturns:\n    True if the elements are equivalent. False otherwise.")                                                                         \
+.def("getTranspose", &M::getTranspose, "Return the transpose of the matrix.")                                                                         \
+.def("getDeterminant", &M::getDeterminant, "Return the determinant of the matrix.")                                                                     \
+.def("getAdjugate", &M::getAdjugate, "Return the adjugate of the matrix.")                                                                           \
+.def("getInverse", &M::getInverse, "Return the inverse of the matrix.")                                                                             \
 .def_static("createScale", &M::createScale)                                                                    \
 .def_static("createTranslation", &M::createTranslation)                                                        \
 .def_static("numRows", &M::numRows)                                                                            \
@@ -88,60 +88,60 @@ using IndexPair = std::pair<size_t, size_t>;
 
 void bindPyTypes(py::module& mod)
 {
-    py::class_<mx::VectorBase>(mod, "VectorBase");
-    py::class_<mx::MatrixBase>(mod, "MatrixBase");
+    py::class_<mx::VectorBase>(mod, "VectorBase", "The base class for vectors of scalar values.");
+    py::class_<mx::MatrixBase>(mod, "MatrixBase", "The base class for square matrices of scalar values.");
 
-    py::class_<mx::Vector2, mx::VectorBase>(mod, "Vector2")
+    py::class_<mx::Vector2, mx::VectorBase>(mod, "Vector2", "A vector of two floating-point values.")
         BIND_VECTOR_SUBCLASS(mx::Vector2, 2)
         .def(py::init<float, float>())
-        .def("cross", &mx::Vector2::cross)
+        .def("cross", &mx::Vector2::cross, "Return the cross product of two vectors.")
         .def("asTuple", [](const mx::Vector2& v) { return std::make_tuple(v[0], v[1]); });
 
-    py::class_<mx::Vector3, mx::VectorBase>(mod, "Vector3")
+    py::class_<mx::Vector3, mx::VectorBase>(mod, "Vector3", "A vector of three floating-point values.")
         BIND_VECTOR_SUBCLASS(mx::Vector3, 3)
         .def(py::init<float, float, float>())
-        .def("cross", &mx::Vector3::cross)
+        .def("cross", &mx::Vector3::cross, "Return the cross product of two vectors.")
         .def("asTuple", [](const mx::Vector3& v) { return std::make_tuple(v[0], v[1], v[2]); });
 
-    py::class_<mx::Vector4, mx::VectorBase>(mod, "Vector4")
+    py::class_<mx::Vector4, mx::VectorBase>(mod, "Vector4", "A vector of four floating-point values.")
         BIND_VECTOR_SUBCLASS(mx::Vector4, 4)
         .def(py::init<float, float, float, float>())
         .def("asTuple", [](const mx::Vector4& v) { return std::make_tuple(v[0], v[1], v[2], v[3]); });
 
-    py::class_<mx::Color3, mx::VectorBase>(mod, "Color3")
+    py::class_<mx::Color3, mx::VectorBase>(mod, "Color3", "A three-component color value.")
         BIND_VECTOR_SUBCLASS(mx::Color3, 3)
         .def(py::init<float, float, float>())
-        .def("linearToSrgb", &mx::Color3::linearToSrgb)
-        .def("srgbToLinear", &mx::Color3::srgbToLinear)
+        .def("linearToSrgb", &mx::Color3::linearToSrgb, "Transform the given color from linear RGB to the sRGB encoding, returning the result as a new value.")
+        .def("srgbToLinear", &mx::Color3::srgbToLinear, "Transform the given color from the sRGB encoding to linear RGB, returning the result as a new value.")
         .def("asTuple", [](const mx::Color3& v) { return std::make_tuple(v[0], v[1], v[2]); });
 
-    py::class_<mx::Color4, mx::VectorBase>(mod, "Color4")
+    py::class_<mx::Color4, mx::VectorBase>(mod, "Color4", "A four-component color value.")
         BIND_VECTOR_SUBCLASS(mx::Color4, 4)
         .def(py::init<float, float, float, float>())
         .def("asTuple", [](const mx::Color4& v) { return std::make_tuple(v[0], v[1], v[2], v[3]); });
 
-    py::class_<mx::Matrix33, mx::MatrixBase>(mod, "Matrix33")
+    py::class_<mx::Matrix33, mx::MatrixBase>(mod, "Matrix33", "A 3x3 matrix of floating-point values.\n\nVector transformation methods follow the row-vector convention, with matrix-vector multiplication computed as v' = vM.")
         BIND_MATRIX_SUBCLASS(mx::Matrix33, 3)
         .def(py::init<float, float, float,
                       float, float, float,
                       float, float, float>())
-        .def("multiply", &mx::Matrix33::multiply)
-        .def("transformPoint", &mx::Matrix33::transformPoint)
-        .def("transformVector", &mx::Matrix33::transformVector)
-        .def("transformNormal", &mx::Matrix33::transformNormal)
+        .def("multiply", &mx::Matrix33::multiply, "Return the product of this matrix and a 3D vector.")
+        .def("transformPoint", &mx::Matrix33::transformPoint, "Transform the given 2D point.")
+        .def("transformVector", &mx::Matrix33::transformVector, "Transform the given 2D direction vector.")
+        .def("transformNormal", &mx::Matrix33::transformNormal, "Transform the given 3D normal vector.")
         .def_static("createRotation", &mx::Matrix33::createRotation)
         .def_readonly_static("IDENTITY", &mx::Matrix33::IDENTITY);
 
-    py::class_<mx::Matrix44, mx::MatrixBase>(mod, "Matrix44")
+    py::class_<mx::Matrix44, mx::MatrixBase>(mod, "Matrix44", "A 4x4 matrix of floating-point values.\n\nVector transformation methods follow the row-vector convention, with matrix-vector multiplication computed as v' = vM.")
         BIND_MATRIX_SUBCLASS(mx::Matrix44, 4)
         .def(py::init<float, float, float, float,
                       float, float, float, float,
                       float, float, float, float,
                       float, float, float, float>())
-        .def("multiply", &mx::Matrix44::multiply)
-        .def("transformPoint", &mx::Matrix44::transformPoint)
-        .def("transformVector", &mx::Matrix44::transformVector)
-        .def("transformNormal", &mx::Matrix44::transformNormal)
+        .def("multiply", &mx::Matrix44::multiply, "Return the product of this matrix and a 3D vector.")
+        .def("transformPoint", &mx::Matrix44::transformPoint, "Transform the given 2D point.")
+        .def("transformVector", &mx::Matrix44::transformVector, "Transform the given 2D direction vector.")
+        .def("transformNormal", &mx::Matrix44::transformNormal, "Transform the given 3D normal vector.")
         .def_static("createRotationX", &mx::Matrix44::createRotationX)
         .def_static("createRotationY", &mx::Matrix44::createRotationY)
         .def_static("createRotationZ", &mx::Matrix44::createRotationZ)

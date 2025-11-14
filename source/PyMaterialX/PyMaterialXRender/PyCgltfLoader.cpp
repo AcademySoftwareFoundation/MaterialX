@@ -11,8 +11,8 @@ namespace mx = MaterialX;
 
 void bindPyCgltfLoader(py::module& mod)
 {
-    py::class_<mx::CgltfLoader, mx::CgltfLoaderPtr, mx::GeometryLoader>(mod, "CgltfLoader")
+    py::class_<mx::CgltfLoader, mx::CgltfLoaderPtr, mx::GeometryLoader>(mod, "CgltfLoader", "Wrapper for loader to read in GLTF files using the Cgltf library.")
         .def_static("create", &mx::CgltfLoader::create)
         .def(py::init<>())
-        .def("load", &mx::CgltfLoader::load);
+        .def("load", &mx::CgltfLoader::load, "Load geometry from file path.");
 }

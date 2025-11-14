@@ -22,7 +22,7 @@ namespace
 
 void bindPyMdlShaderGenerator(py::module& mod)
 {
-    py::class_<mx::MdlShaderGenerator, mx::ShaderGenerator, mx::MdlShaderGeneratorPtr>(mod, "MdlShaderGenerator")
+    py::class_<mx::MdlShaderGenerator, mx::ShaderGenerator, mx::MdlShaderGeneratorPtr>(mod, "MdlShaderGenerator", "Shader generator for MDL (Material Definition Language).")
         .def_static("create", &MdlShaderGenerator_create)
-        .def("getTarget", &mx::MdlShaderGenerator::getTarget);
+        .def("getTarget", &mx::MdlShaderGenerator::getTarget, "Return a unique identifier for the target this generator is for.");
 }

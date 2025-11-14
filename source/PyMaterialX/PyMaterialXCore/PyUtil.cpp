@@ -15,8 +15,8 @@ namespace mx = MaterialX;
 
 void bindPyUtil(py::module& mod)
 {
-    mod.def("getVersionString", &mx::getVersionString);
-    mod.def("getVersionIntegers", &mx::getVersionIntegers);
+    mod.def("getVersionString", &mx::getVersionString, "Return the version string of this interface.");
+    mod.def("getVersionIntegers", &mx::getVersionIntegers, "Return the major and minor versions as an integer pair.");
     mod.def("createValidName", &mx::createValidName, py::arg("name"), py::arg("replaceChar") = '_');
     mod.def("isValidName", &mx::isValidName);
     mod.def("incrementName", &mx::incrementName);

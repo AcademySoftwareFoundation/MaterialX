@@ -47,27 +47,27 @@ class PyColorManagementSystem : public mx::ColorManagementSystem
 
 void bindPyColorManagement(py::module& mod)
 {
-    py::class_<mx::ColorSpaceTransform>(mod, "ColorSpaceTransform")
+    py::class_<mx::ColorSpaceTransform>(mod, "ColorSpaceTransform", "Structure that represents color space transform information.")
         .def(py::init<const std::string&, const std::string&, mx::TypeDesc>())
         .def_readwrite("sourceSpace", &mx::ColorSpaceTransform::sourceSpace)
         .def_readwrite("targetSpace", &mx::ColorSpaceTransform::targetSpace)
         .def_readwrite("type", &mx::ColorSpaceTransform::type);
 
-    py::class_<mx::ColorManagementSystem, PyColorManagementSystem, mx::ColorManagementSystemPtr>(mod, "ColorManagementSystem")
+    py::class_<mx::ColorManagementSystem, PyColorManagementSystem, mx::ColorManagementSystemPtr>(mod, "ColorManagementSystem", "Abstract base class for color management systems.")
         .def(py::init<>())
-        .def("getName", &mx::ColorManagementSystem::getName)
-        .def("loadLibrary", &mx::ColorManagementSystem::loadLibrary)
-        .def("supportsTransform", &mx::ColorManagementSystem::supportsTransform);
+        .def("getName", &mx::ColorManagementSystem::getName, "Return the ColorManagementSystem name.")
+        .def("loadLibrary", &mx::ColorManagementSystem::loadLibrary, "Load a library of implementations from the provided document, replacing any previously loaded content.")
+        .def("supportsTransform", &mx::ColorManagementSystem::supportsTransform, "Returns whether this color management system supports a provided transform.");
 
-    py::class_<mx::DefaultColorManagementSystem, mx::DefaultColorManagementSystemPtr, mx::ColorManagementSystem>(mod, "DefaultColorManagementSystem")
+    py::class_<mx::DefaultColorManagementSystem, mx::DefaultColorManagementSystemPtr, mx::ColorManagementSystem>(mod, "DefaultColorManagementSystem", "Class for a default color management system.")
         .def_static("create", &mx::DefaultColorManagementSystem::create)
-        .def("getName", &mx::DefaultColorManagementSystem::getName);
+        .def("getName", &mx::DefaultColorManagementSystem::getName, "Return the ColorManagementSystem name.");
 
 #ifdef MATERIALX_BUILD_OCIO
     py::class_<mx::OcioColorManagementSystem, mx::OcioColorManagementSystemPtr, mx::ColorManagementSystem>(mod, "OcioColorManagementSystem")
         .def_static("createFromEnv", &mx::OcioColorManagementSystem::createFromEnv)
         .def_static("createFromFile", &mx::OcioColorManagementSystem::createFromFile)
         .def_static("createFromBuiltinConfig", &mx::OcioColorManagementSystem::createFromBuiltinConfig)
-        .def("getName", &mx::OcioColorManagementSystem::getName);
+        .def("getName", &mx::OcioColorManagementSystem::getName, "Return the ColorManagementSystem name.");
 #endif
 }

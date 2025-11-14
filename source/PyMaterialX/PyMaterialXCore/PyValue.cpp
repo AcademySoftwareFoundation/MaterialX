@@ -10,8 +10,8 @@
 
 #define BIND_TYPE_INSTANCE(NAME, T)                                                                         \
 py::class_<mx::TypedValue<T>, std::shared_ptr< mx::TypedValue<T> >, mx::Value>(mod, "TypedValue_" #NAME)    \
-    .def("getData", &mx::TypedValue<T>::getData)                                                            \
-    .def("getValueString", &mx::TypedValue<T>::getValueString)                                              \
+    .def("getData", &mx::TypedValue<T>::getData, "Return the raw float vector.")                                                            \
+    .def("getValueString", &mx::TypedValue<T>::getValueString, "Return value string.")                                              \
     .def_static("createValue", &mx::Value::createValue<T>)                                                  \
     .def_readonly_static("TYPE", &mx::TypedValue<T>::TYPE);
 
@@ -20,9 +20,9 @@ namespace mx = MaterialX;
 
 void bindPyValue(py::module& mod)
 {
-    py::class_<mx::Value, mx::ValuePtr>(mod, "Value")
-        .def("getValueString", &mx::Value::getValueString)
-        .def("getTypeString", &mx::Value::getTypeString)
+    py::class_<mx::Value, mx::ValuePtr>(mod, "Value", "A generic, discriminated value, whose type may be queried dynamically.")
+        .def("getValueString", &mx::Value::getValueString, "Return value string.")
+        .def("getTypeString", &mx::Value::getTypeString, "Return type string.")
         .def_static("createValueFromStrings", &mx::Value::createValueFromStrings,
                     py::arg("value"),
                     py::arg("type"),
