@@ -53,7 +53,7 @@ def main(args=None):
     parser.add_argument('-l1', '--lang1', dest='lang1', action='store', help='First target language for comparison. Default is glsl', default="glsl")
     parser.add_argument('-l2', '--lang2', dest='lang2', action='store', help='Second target language for comparison. Default is osl', default="osl")
     parser.add_argument('-l3', '--lang3', dest='lang3', action='store', help='Third target language for comparison. Default is empty', default="")
-    parser.add_argument('-e', '--error', dest='error', action='store', help='Tolerance: only write rows where any RMS diff is greater than this (applies only when --diff is set). Default 0.', default=0, type=float)
+    parser.add_argument('-e', '--error', dest='error', action='store', help='Tolerance threshold. Default -1 disables pruning. When > 0 (and --diff is set), rows with all RMS < tolerance are omitted.', default=-1, type=float)
     parser.add_argument('-f', '--format', dest='format', choices=['html', 'json', 'markdown'], help='Output format: html, json, or markdown', default='html')
 
     args = parser.parse_args(args)
@@ -171,8 +171,10 @@ def main(args=None):
                         diffPath3 = base_prefix + "_" + args.lang2 + "-2_vs_" + args.lang3 + "-3_diff.png"
                         diffRms3 = computeDiff(fullPath2, fullPath3, diffPath3)
 
-                # If diffing is enabled, only write a row when any computed RMS exceeds tolerance
-                if args.CREATE_DIFF and DIFF_ENABLED:
+                # Row filtering based on tolerance:
+                # - If error < 0: do not prune (always include rows)
+                # - If error > 0: prune rows where all computed RMS values are below the threshold
+                if args.CREATE_DIFF and DIFF_ENABLED and args.error > 0:
                     diffs_present = []
                     if diffRms1 is not None:
                         diffs_present.append(diffRms1)
@@ -180,8 +182,8 @@ def main(args=None):
                         diffs_present.append(diffRms2)
                     if diffRms3 is not None:
                         diffs_present.append(diffRms3)
-                    # If no diffs were computed or none exceed tolerance, skip the row
-                    if not any(d > args.error for d in diffs_present):
+                    # If we have at least one diff value and all are below the threshold, skip this row
+                    if diffs_present and all(d < args.error for d in diffs_present):
                         continue
 
                 # Detect group change and create group container (ensure not None)
