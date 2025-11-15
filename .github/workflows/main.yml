@@ -230,6 +230,7 @@ jobs:
         python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target osl
         python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target mdl
         python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target msl
+        python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target slang
       working-directory: python
 
     - name: Shader Validation Tests (Windows)
