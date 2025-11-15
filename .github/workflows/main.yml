@@ -204,7 +204,13 @@ jobs:
             EXTENDED_BUILD_CONFIG="$EXTENDED_BUILD_CONFIG -DMATERIALX_MDL_SDK_DIR=C:/vcpkg/installed/x64-windows"
           fi
         fi
-        cmake -S . -B build -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_BUILD_TESTS=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON $EXTENDED_BUILD_CONFIG ${{matrix.cmake_config}}
+        TEST_RENDER_CONFIG="-DMATERIALX_TEST_RENDER=OFF"
+        if [ "${{ matrix.test_render }}" == "ON" ]; then
+          if [ "${{ runner.os }}" == "macOS" ]; then
+            TEST_RENDER_CONFIG="$TEST_RENDER_CONFIG -DMATERIALX_TEST_RENDER=ON -DMATERIALX_RENDER_MSL_ONLY=ON"
+          fi
+        fi
+        cmake -S . -B build -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_BUILD_TESTS=ON -DMATERIALX_WARNINGS_AS_ERRORS=ON $TEST_RENDER_CONFIG $EXTENDED_BUILD_CONFIG ${{matrix.cmake_config}}
 
     - name: CMake Build
       run: cmake --build build --target install --config Release --parallel 2
@@ -331,6 +337,25 @@ jobs:
       with:
         name: Renders_${{ matrix.name }}
         path: build/render/*.png
+
+    - name: Archive Resources (macOS)
+      if: matrix.test_render == 'ON' && runner.os == 'macOS'
+      run: |
+        mkdir -p build/artifacts
+        if [ ! -d build/bin/resources ]; then
+          echo "Missing build/bin/resources"
+          echo "Contents of build/bin (if present):"
+          ls -la build/bin || true
+          exit 1
+        fi
+        zip -r build/artifacts/resources.zip build/bin/resources
+
+    - name: Upload Resources Archive (macOS)
+      uses: actions/upload-artifact@v4
+      if: matrix.test_render == 'ON' && runner.os == 'macOS'
+      with:
+        name: Resources_${{ matrix.name }}
+        path: build/artifacts/resources.zip
 
     - name: Upload Coverage Report
       uses: actions/upload-artifact@v4
