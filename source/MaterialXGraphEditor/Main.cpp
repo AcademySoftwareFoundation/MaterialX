@@ -167,10 +167,11 @@ int main(int argc, char* const argv[])
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 #endif
 
-    // For headless operation (when captureFilename is specified), make window invisible
+    // When captureFilename is specified, make window invisible
+    // to avoid issues with headless rendering.
     if (!captureFilename.empty())
     {
-        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+        glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
     }
 
     // Create window with graphics context
