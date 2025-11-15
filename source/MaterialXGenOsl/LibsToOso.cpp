@@ -100,8 +100,6 @@ const std::string options =
     "        --oslCompilerPath [FILEPATH]    TODO\n"
     "        --oslIncludePath [DIRPATH]      TODO\n"
     "        --libraries [STRING]            TODO\n"
-    "        --removeNdPrefix [BOOLEAN]      TODO\n"
-    "        --prefix [STRING]               TODO\n"
     "        --help                          Display the complete list of command-line options\n";
 
 template <class T> void parseToken(std::string token, std::string type, T& res)
@@ -137,8 +135,6 @@ int main(int argc, char* const argv[])
     std::string argOslCompilerPath;
     std::string argOslIncludePath;
     std::string argLibraries;
-    bool argRemoveNdPrefix = false;
-    std::string argPrefix;
 
     // Loop over the provided arguments, and store their associated values.
     for (size_t i = 0; i < tokens.size(); i++)
@@ -158,10 +154,6 @@ int main(int argc, char* const argv[])
             argOslIncludePath = nextToken;
         else if (token == "--libraries")
             argLibraries = nextToken;
-        else if (token == "--removeNdPrefix")
-            parseToken(nextToken, "boolean", argRemoveNdPrefix);
-        else if (token == "--prefix")
-            argPrefix = nextToken;
         else if (token == "--help")
         {
             std::cout << "MaterialXGenOslNetwork - LibsToOso version " << mx::getVersionString() << std::endl;
@@ -187,7 +179,6 @@ int main(int argc, char* const argv[])
 
     // Ensure we have a valid output path.
     mx::FilePath outputOsoPath(argOutputOsoPath);
-
     if (!outputOsoPath.exists() || !outputOsoPath.isDirectory())
     {
         outputOsoPath.createDirectory();
@@ -219,21 +210,17 @@ int main(int argc, char* const argv[])
 
     // Ensure we have a valid path to the OSL compiler.
     mx::FilePath oslCompilerPath(argOslCompilerPath);
-
     if (!oslCompilerPath.exists())
     {
         std::cerr << "The provided path to the OSL compiler is not valid: " << oslCompilerPath.asString() << std::endl;
-
         return 1;
     }
 
     // Ensure we have a valid path to the OSL includes.
     mx::FilePath oslIncludePath(argOslIncludePath);
-
     if (!oslIncludePath.exists() || !oslIncludePath.isDirectory())
     {
         std::cerr << "The provided path to the OSL includes is not valid: " << oslIncludePath.asString() << std::endl;
-
         return 1;
     }
 
@@ -337,19 +324,6 @@ int main(int argc, char* const argv[])
     // Loop over all the `NodeDef` gathered in our documents from the provided libraries.
     for (mx::NodeDefPtr nodeDef : librariesDoc->getNodeDefs())
     {
-        std::string nodeName = nodeDef->getName();
-
-        // Remove the "ND_" prefix from a valid `NodeDef` name.
-        if (argRemoveNdPrefix)
-        {
-            if (nodeName.size() > 3 && nodeName.substr(0, 3) == "ND_")
-                nodeName = nodeName.substr(3);
-
-            // Add a prefix to the shader's name, both in the filename as well as inside the shader itself.
-            if (!argPrefix.empty())
-                nodeName = argPrefix + "_" + nodeName;
-        }
-
         // Determine whether or not there's a valid implementation of the current `NodeDef` for the type associated
         // to our OSL shader generator, i.e. OSL, and if not, skip it.
         mx::InterfaceElementPtr nodeImpl = nodeDef->getImplementation(oslShaderGen->getTarget());
@@ -362,6 +336,10 @@ int main(int argc, char* const argv[])
 
             continue;
         }
+
+        // intention is here is to name the new node the same as the genosl implementation name
+        // but replacing "_genosl" with "_genoslnetwork"
+        std::string nodeName = nodeImpl->getName()+"network";
 
         // TODO: Check for the existence/validity of the `Node`?
         mx::NodePtr node = librariesDocGraph->addNodeInstance(nodeDef, nodeName);

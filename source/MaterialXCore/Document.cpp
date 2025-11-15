@@ -93,18 +93,7 @@ class Document::Cache
                         ImplementationPtr impl = interface->asA<Implementation>();
                         if (impl)
                         {
-                            // Check for implementation which specifies a nodegraph as the implementation
-                            const string& nodeGraphString = impl->getNodeGraph();
-                            if (!nodeGraphString.empty())
-                            {
-                                NodeGraphPtr nodeGraph = impl->getDocument()->getNodeGraph(nodeGraphString);
-                                if (nodeGraph)
-                                    implementationMap[interface->getQualifiedName(nodeDefString)].push_back(nodeGraph);
-                            }
-                            else
-                            {
-                                implementationMap[interface->getQualifiedName(nodeDefString)].push_back(interface);
-                            }
+                            implementationMap[interface->getQualifiedName(nodeDefString)].push_back(interface);
                         }
                     }
                 }
