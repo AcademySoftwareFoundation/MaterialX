@@ -106,6 +106,7 @@ class OslShaderRenderTester : public RenderUtil::ShaderRenderTester
     void addSkipFiles() override
     {
         _skipFiles.insert("standard_surface_onyx_hextiled.mtlx");
+        #ifdef MATERIALX_BUILD_OSOS
         _skipFiles.insert("hextiled.mtlx");
         _skipFiles.insert("filename_cm_test.mtlx");
         _skipFiles.insert("shader_ops.mtlx");
@@ -113,6 +114,7 @@ class OslShaderRenderTester : public RenderUtil::ShaderRenderTester
         _skipFiles.insert("network_surfaceshader.mtlx");
         _skipFiles.insert("sheen.mtlx");
         _skipFiles.insert("toon_shade.mtlx");
+        #endif
     }
 
     bool saveImage(const mx::FilePath& filePath, mx::ConstImagePtr image, bool /*verticalFlip*/) const override
