@@ -654,6 +654,9 @@
     <input name="file" type="filename" uniform="true" value="" />
     <input name="default" type="vector3" value="0.5, 0.5, 1" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <input name="normal" type="vector3" defaultgeomprop="Nworld" />
+    <input name="tangent" type="vector3" defaultgeomprop="Tworld" />
+    <input name="bitangent" type="vector3" defaultgeomprop="Bworld" />
     <input name="pivot" type="vector2" value="0, 1" />
     <input name="scale" type="vector2" value="1, 1" />
     <input name="rotate" type="float" value="0" unit="degree" unittype="angle" uimin="0" uimax="360" />
@@ -675,6 +678,9 @@
     </image>
     <normalmap name="normalmap" type="vector3">
       <input name="in" type="vector3" nodename="image" />
+      <input name="normal" type="vector3" interfacename="normal" />
+      <input name="tangent" type="vector3" interfacename="tangent" />
+      <input name="bitangent" type="vector3" interfacename="bitangent" />
     </normalmap>
     <divide name="invert_scale" type="vector2">
       <input name="in1" type="vector2" value="1.0, 1.0" />
