@@ -335,7 +335,7 @@ int main(int argc, char* const argv[])
     mx::NodeGraphPtr librariesDocGraph = librariesDoc->addNodeGraph("librariesDocGraph");
 
     // Loop over all the `NodeDef` gathered in our documents from the provided libraries.
-    for (const mx::NodeDefPtr& nodeDef : librariesDoc->getNodeDefs())
+    for (mx::NodeDefPtr nodeDef : librariesDoc->getNodeDefs())
     {
         std::string nodeName = nodeDef->getName();
 
@@ -364,7 +364,7 @@ int main(int argc, char* const argv[])
         }
 
         // TODO: Check for the existence/validity of the `Node`?
-        mx::NodePtr node = librariesDoc->addNodeInstance(nodeDef, nodeName);
+        mx::NodePtr node = librariesDocGraph->addNodeInstance(nodeDef, nodeName);
 
         std::string oslShaderName = node->getName();
         oslShaderGen->getSyntax().makeValidName(oslShaderName);

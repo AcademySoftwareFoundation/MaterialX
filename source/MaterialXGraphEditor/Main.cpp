@@ -167,6 +167,13 @@ int main(int argc, char* const argv[])
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 #endif
 
+    // When captureFilename is specified, make window invisible
+    // to avoid issues with headless rendering.
+    if (!captureFilename.empty())
+    {
+        glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
+    }
+
     // Create window with graphics context
     GLFWwindow* window = glfwCreateWindow(1280, 960, "MaterialX Graph Editor", NULL, NULL);
     if (!window)

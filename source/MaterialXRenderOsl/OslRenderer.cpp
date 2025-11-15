@@ -28,6 +28,7 @@ OslRendererPtr OslRenderer::create(unsigned int width, unsigned int height, Imag
 OslRenderer::OslRenderer(unsigned int width, unsigned int height, Image::BaseType baseType) :
     ShaderRenderer(width, height, baseType),
     _useTestRender(true),
+    _useOSLCmdStr(false),
     _raysPerPixelLit(1),
     _raysPerPixelUnlit(1)
 {
