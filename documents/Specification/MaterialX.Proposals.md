@@ -160,7 +160,7 @@ Inheritance of material-type custom nodes is also allowed, so that new or change
 
 ### TypeDef Token Elements
 
-TypeDef token elements allow the definition of value strings with a consistent meaning across types, e.g. a `half` value that corresponds to "0.5" for the `float` type and "0.5, 0.5, 0.5" for the `vector3` type.  Their primary use case is in the expansion of `template` elements, as described in the next section.
+TypeDef token elements allow the definition of value strings with a consistent meaning across types, e.g. a `half` value that corresponds to "0.5" for the `float` type and "0.5, 0.5, 0.5" for the `vector3` type.  References to TypeDef tokens are restricted to typed `value` attributes, and are bracketed by the `[` and `]` characters, e.g. `[half]`.  Within a typed `value` attribute, TypeDef token substitutions are applied before all other token substitutions.
 
 ```xml
   <typedef name="float">
@@ -201,7 +201,7 @@ Template elements allow a single template pattern to be used in instantiating an
 
 References to the template `key` are expressed as the string value of the `key` bracketed by the `(` and `)` characters, e.g. `(keystring)`.  Substitution of key-value pairs takes precedence over any other supported substitutions within the scope of a `template` element.
 
-To support generic typed values, TypeDef `token` strings may be used in place of any literal value within a `template` element, using the same bracketing syntax as template keys.  At template expansion time, any typed value that corresponds to a TypeDef `token` will be replaced with the corresponding literal value for the given `token` and type.
+To support generic typed values, TypeDef `token` strings may be used in place of any literal value within a `template` element, bracketed by the `[` and `]` characters.  At template expansion time, any typed value that corresponds to a TypeDef `token` will be replaced with the corresponding literal value for the given `token` and type.
 
 Template elements may be nested to any depth, allowing for efficient authoring of combinatorial element templates.
 
@@ -210,9 +210,9 @@ The following example show how the full set of `nodedef` and `nodegraph` variati
 ```xml
   <template name="T_contrast" key="type" values="float, color3, color4, vector2, vector3, vector4">
     <nodedef name="ND_contrast_(type)" node="contrast" nodegroup="adjustment">
-      <input name="in" type="(type)" value="(zero)" />
-      <input name="amount" type="(type)" value="(one)" />
-      <input name="pivot" type="(type)" value="(half)" />
+      <input name="in" type="(type)" value="[zero]" />
+      <input name="amount" type="(type)" value="[one]" />
+      <input name="pivot" type="(type)" value="[half]" />
       <output name="out" type="(type)" defaultinput="in" />
     </nodedef>
     <nodegraph name="NG_contrast_(type)" nodedef="ND_contrast_(type)">
@@ -234,7 +234,7 @@ The following example show how the full set of `nodedef` and `nodegraph` variati
 
   <template name="T_contrast_FA" key="type" values="color3, color4, vector2, vector3, vector4">
     <nodedef name="ND_contrast_(type)FA" node="contrast" nodegroup="adjustment">
-      <input name="in" type="(type)" value="(zero)" />
+      <input name="in" type="(type)" value="[zero]" />
       <input name="amount" type="float" value="1.0" />
       <input name="pivot" type="float" value="0.5" />
       <output name="out" type="(type)" defaultinput="in" />
