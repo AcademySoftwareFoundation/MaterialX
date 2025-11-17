@@ -537,7 +537,7 @@ if(MATERIALX_BUILD_TESTS)
     add_subdirectory(source/MaterialXTest)
 endif()
 
-if (MATERIALX_BUILD_DOCS OR MATERIALX_BUILD_PYTHON)
+if (MATERIALX_BUILD_DOCS)
     add_subdirectory(documents)
 endif()
 
