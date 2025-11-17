@@ -56,15 +56,23 @@ logging.level = "DEBUG"
 # where the package is.
 wheel.packages = ["python/MaterialX"]
 
+sdist.include = [
+    "/documents",
+]
+
 sdist.exclude = [
     "/build",
     "/dist",
     "/resources",
     "/javascript",
-    "/documents",
     "/.github",
     "MANIFEST.in",
     "/source/JsMaterialX",
+]
+
+wheel.exclude = [
+    "/documents",
+    "documents/",
 ]
 
 [tool.scikit-build.metadata.version]
