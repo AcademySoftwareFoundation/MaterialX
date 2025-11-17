@@ -123,6 +123,7 @@ set(MATERIALX_PYTHON_EXECUTABLE "" CACHE FILEPATH
     "Python executable to be used in building the MaterialX Python package (e.g. 'C:/Python39/python.exe').")
 set(MATERIALX_PYTHON_PYBIND11_DIR "" CACHE PATH
     "Path to a folder containing the PyBind11 source to be used in building MaterialX Python.")
+option(MATERIALX_PYTHON_FORCE_REPLACE_DOCS "Force replace existing docstrings when generating Python binding documentation from Doxygen." OFF)
 
 # Settings to define installation layout
 set(MATERIALX_INSTALL_INCLUDE_PATH "include" CACHE STRING "Install header include path (e.g. 'inc', 'include').")
@@ -197,6 +198,7 @@ mark_as_advanced(MATERIALX_DYNAMIC_ANALYSIS)
 mark_as_advanced(MATERIALX_PYTHON_VERSION)
 mark_as_advanced(MATERIALX_PYTHON_EXECUTABLE)
 mark_as_advanced(MATERIALX_PYTHON_PYBIND11_DIR)
+mark_as_advanced(MATERIALX_PYTHON_FORCE_REPLACE_DOCS)
 mark_as_advanced(MATERIALX_OSL_BINARY_OSLC)
 mark_as_advanced(MATERIALX_OSL_BINARY_TESTRENDER)
 mark_as_advanced(MATERIALX_OSL_INCLUDE_PATH)
@@ -535,14 +537,14 @@ if(MATERIALX_BUILD_TESTS)
     add_subdirectory(source/MaterialXTest)
 endif()
 
+if (MATERIALX_BUILD_DOCS OR MATERIALX_BUILD_PYTHON)
+    add_subdirectory(documents)
+endif()
+
 # Add Python subdirectories
 if(MATERIALX_BUILD_PYTHON)
     add_subdirectory(source/PyMaterialX)
     add_subdirectory(python)
-endif()
-
-if(MATERIALX_BUILD_DOCS)
-    add_subdirectory(documents)
 endif()
 
 if(MATERIALX_BUILD_JS)
