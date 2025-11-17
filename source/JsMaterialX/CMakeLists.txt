@@ -8,6 +8,7 @@ set(GENMSL ${CMAKE_CURRENT_SOURCE_DIR}/JsMaterialXGenMsl/)
 set(GENVK ${CMAKE_CURRENT_SOURCE_DIR}/JsMaterialXGenVk/)
 set(GENMDL ${CMAKE_CURRENT_SOURCE_DIR}/JsMaterialXGenMdl/)
 set(GENWGSL ${CMAKE_CURRENT_SOURCE_DIR}/JsMaterialXGenWgsl/)
+set(GENSLANG ${CMAKE_CURRENT_SOURCE_DIR}/JsMaterialXGenSlang/)
 
 set(SOURCE_FOLDER ${PROJECT_SOURCE_DIR}/source)
 
@@ -50,6 +51,7 @@ set(GENMSL_DEPS ${GENMSL}JsMslShaderGenerator.cpp)
 set(GENVK_DEPS ${GENVK}JsVkShaderGenerator.cpp)
 set(GENWGSL_DEPS ${GENWGSL}JsWgslShaderGenerator.cpp)
 set(GENMDL_DEPS ${GENMDL}JsMdlShaderGenerator.cpp)
+set(GENSLANG_DEPS ${GENSLANG}JsSlangShaderGenerator.cpp)
 
 # Linker flags
 set(JS_LINK_FLAGS_CORE "")
@@ -114,6 +116,10 @@ if (MATERIALX_BUILD_GEN_MSL)
     message("JS: Building JsMaterialXGenShader with MSL support")
     target_sources(JsMaterialXGenShader PRIVATE ${GENMSL_DEPS})
 endif()
+if (MATERIALX_BUILD_GEN_SLANG)
+    message("JS: Building JsMaterialXGenShader with Slang support")
+    target_sources(JsMaterialXGenShader PRIVATE ${GENSLANG_DEPS})
+endif()
 
 set_target_properties(JsMaterialXCore
     PROPERTIES
@@ -152,7 +158,10 @@ if (MATERIALX_BUILD_GEN_MDL)
 endif()
 if (MATERIALX_BUILD_GEN_MSL)
     target_link_libraries(JsMaterialXGenShader PUBLIC MaterialXGenMsl)
-endif()    
+endif()
+if (MATERIALX_BUILD_GEN_SLANG)
+    target_link_libraries(JsMaterialXGenShader PUBLIC MaterialXGenSlang)
+endif()
 
 # Install the JavaScript output
 install(TARGETS JsMaterialXCore DESTINATION "JavaScript/MaterialX")
