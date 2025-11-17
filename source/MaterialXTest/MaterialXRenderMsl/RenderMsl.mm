@@ -165,7 +165,7 @@ bool MslShaderRenderTester::runRenderer(const std::string& shaderName,
                                           std::ostream& log,
                                           const GenShaderUtil::TestSuiteOptions& testOptions,
                                           RenderUtil::RenderProfileTimes& profileTimes,
-                                          const mx::FileSearchPath& /*imageSearchPath*/,
+                                          const mx::FileSearchPath& imageSearchPath,
                                           const std::string& outputPath,
                                           mx::ImageVec* imageVec)
 {
@@ -351,7 +351,7 @@ bool MslShaderRenderTester::runRenderer(const std::string& shaderName,
 
                 {
                     mx::ScopedTimer renderTimer(&profileTimes.languageTimes.renderTime);
-                    _renderer->getImageHandler()->setSearchPath(mx::getDefaultDataSearchPath());
+                    _renderer->getImageHandler()->setSearchPath(imageSearchPath);
                     unsigned int width = (unsigned int) testOptions.renderSize[0] * supersampleFactor;
                     unsigned int height = (unsigned int) testOptions.renderSize[1] * supersampleFactor;
                     _renderer->setSize(width, height);
