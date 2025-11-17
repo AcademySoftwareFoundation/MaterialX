@@ -41,9 +41,9 @@ void MaterialNodeMdl::emitFunctionCall(const ShaderNode& _node, GenContext& cont
 
         // Emit the function call for upstream backsurface shader.
         ShaderInput* backsurfaceshaderInput = node.getInput(ShaderNode::BACKSURFACESHADER);
-        if (backsurfaceshaderInput->getConnectedSibling()) {
-            const ShaderNode* backsurfaceshaderNode
-                = backsurfaceshaderInput->getConnection()->getNode();
+        if (backsurfaceshaderInput->getConnectedSibling())
+        {
+            const ShaderNode* backsurfaceshaderNode = backsurfaceshaderInput->getConnection()->getNode();
             shadergen.emitFunctionCall(*backsurfaceshaderNode, context, stage);
         }
 
