@@ -512,6 +512,43 @@ A single node supporting 3D Perlin, Cell, Worley or Fractal noise in a unified i
 |`style`      |The output style                                                                           |integer|0        |0 (Distance), 1 (Solid)|
 |`out`        |Output: the computed noise value                                                           |float  |0.0      |                       |
 
+<a id="node-flake2d"> </a>
+
+### `flake2d`
+Generates a procedural flake pattern in 2D space, suitable for simulating metallic flakes in materials such as car paint.
+
+|Port         |Description                                                                        |Type   |Default |
+|-------------|-----------------------------------------------------------------------------------|-------|--------|
+|`size`       |The size of individual flakes, with smaller values producing larger flakes         |float  |0.01    |
+|`roughness`  |The surface roughness of individual flakes, controlling the variation in normal    |float  |0.1     |
+|`coverage`   |The density of flakes in the pattern, ranging from 0.0 (no flakes) to 1.0 (maximum)|float  |0.5     |
+|`texcoord`   |The 2D texture coordinate at which the flake pattern is evaluated                  |vector2|_UV0_   |
+|`normal`     |The surface normal vector used as the base for flake normal perturbations          |vector3|_Nworld_|
+|`tangent`    |The surface tangent vector, used to construct the tangent space                    |vector3|_Tworld_|
+|`bitangent`  |The surface bitangent vector, used to construct the tangent space                  |vector3|_Bworld_|
+|`id`         |Output: unique identifier for each flake. 0 for no flake                           |integer|0       |
+|`rand`       |Output: random value per flake for additional variation. 0.0 for no flake          |float  |0.0     |
+|`presence`   |Output: presence value per flake. 0.0 for no flake                                 |float  |0.0     |
+|`flakenormal`|Output: the computed flake normal. Base normal if no flake present                 |vector3|_Nworld_|
+
+<a id="node-flake3d"> </a>
+
+### `flake3d`
+Generates a procedural flake pattern in 3D space, suitable for simulating metallic flakes in materials such as car paint.
+
+|Port         |Description                                                                        |Type   |Default  |
+|-------------|-----------------------------------------------------------------------------------|-------|---------|
+|`size`       |The size of individual flakes, with smaller values producing larger flakes         |float  |0.01     |
+|`roughness`  |The surface roughness of individual flakes, controlling the variation in normal    |float  |0.1      |
+|`coverage`   |The density of flakes in the pattern, ranging from 0.0 (no flakes) to 1.0 (maximum)|float  |0.5      |
+|`position`   |The 3D position at which the flake pattern is evaluated                            |vector3|_Pobject_|
+|`normal`     |The surface normal vector used as the base for flake normal perturbations          |vector3|_Nworld_ |
+|`tangent`    |The surface tangent vector, used to construct the tangent space                    |vector3|_Tworld_ |
+|`bitangent`  |The surface bitangent vector, used to construct the tangent space                  |vector3|_Bworld_ |
+|`id`         |Output: unique identifier for each flake. 0 for no flake                           |integer|0        |
+|`rand`       |Output: random value per flake for additional variation. 0.0 for no flake          |float  |0.0      |
+|`presence`   |Output: presence value per flake. 0.0 for no flake                                 |float  |0.0      |
+|`flakenormal`|Output: the computed flake normal. Base normal if no flake present                 |vector3|_Nworld_ |
 
 ### Noise Node Notes
 

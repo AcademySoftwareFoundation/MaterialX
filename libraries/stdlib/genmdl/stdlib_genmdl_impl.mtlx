@@ -150,6 +150,12 @@
   <implementation name="IM_worleynoise3d_vector2_genmdl" nodedef="ND_worleynoise3d_vector2" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_worleynoise3d_float2(mxp_position:{{position}}, mxp_jitter:{{jitter}})" target="genmdl" />
   <implementation name="IM_worleynoise3d_vector3_genmdl" nodedef="ND_worleynoise3d_vector3" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_worleynoise3d_float3(mxp_position:{{position}}, mxp_jitter:{{jitter}})" target="genmdl" />
 
+  <!-- <flake2d> -->
+  <implementation name="IM_flake2d_genmdl" nodedef="ND_flake2d" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_flake2d(mxp_size:{{size}}, mxp_roughness:{{roughness}}, mxp_coverage:{{coverage}}, mxp_texcoord:{{texcoord}}, mxp_normal:{{normal}}, mxp_tangent:{{tangent}}, mxp_bitangent:{{bitangent}})" target="genmdl" />
+
+  <!-- <flake3d> -->
+  <implementation name="IM_flake3d_genmdl" nodedef="ND_flake3d" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_flake3d(mxp_size:{{size}}, mxp_roughness:{{roughness}}, mxp_coverage:{{coverage}}, mxp_position:{{position}}, mxp_normal:{{normal}}, mxp_tangent:{{tangent}}, mxp_bitangent:{{bitangent}})" target="genmdl" />
+
   <!-- ======================================================================== -->
   <!-- Geometric nodes                                                          -->
   <!-- ======================================================================== -->

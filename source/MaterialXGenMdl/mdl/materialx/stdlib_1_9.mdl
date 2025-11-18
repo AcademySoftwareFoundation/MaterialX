@@ -23,6 +23,7 @@ import ::state::*;
 import .::core::*;
 import .::noise::*;
 import .::hsv::*;
+import .::flake::*;
 
 // Changes since MDL 1.8
 // - lift the restriction of uniform IORs
@@ -323,6 +324,9 @@ export using .::stdlib_1_7 import mx_worleynoise2d_float3;
 export using .::stdlib_1_7 import mx_worleynoise3d_float;
 export using .::stdlib_1_7 import mx_worleynoise3d_float2;
 export using .::stdlib_1_7 import mx_worleynoise3d_float3;
+export using .::flake      import mx_flake__result;
+export using .::stdlib_1_7 import mx_flake2d;
+export using .::stdlib_1_7 import mx_flake3d;
 export using .::stdlib_1_7 import mx_combine2_color4CF;
 
 export using .::stdlib_1_7 import mx_geompropvalue_string;
