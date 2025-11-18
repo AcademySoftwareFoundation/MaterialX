@@ -181,16 +181,7 @@ int main(int argc, char* const argv[])
             i++;
     }
 
-    bool osoNameStrategy_implementation = true;
-    if (argOsoNameStrategy == "implementation")
-    {
-        // do nothing this is the default
-    }
-    else if (argOsoNameStrategy == "nodedef")
-    {
-        osoNameStrategy_implementation = false;
-    }
-    else
+    if (!(argOsoNameStrategy == "implementation" || argOsoNameStrategy == "nodedef"))
     {
         std::cerr << "Unrecognized value for --osoNameStrategy '" << argOsoNameStrategy <<
             "'. Must be 'implementation' or 'nodedef'" << std::endl;
@@ -360,7 +351,7 @@ int main(int argc, char* const argv[])
         // intention is here is to name the new node the same as the genosl implementation name
         // but replacing "_genosl" with "_genoslnetwork"
         std::string nodeName;
-        if (osoNameStrategy_implementation)
+        if (argOsoNameStrategy == "implementation")
         {
             // name the node the same as the implementation with _genoslnetwork added as a suffix.
             // NOTE : if the implementation currently has _genosl as a suffix then we remove it.
