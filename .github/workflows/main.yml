@@ -337,24 +337,12 @@ jobs:
         name: Renders_${{ matrix.name }}
         path: build/render/*.png
 
-    - name: Archive Resources (macOS)
-      if: matrix.test_render == 'ON' && runner.os == 'macOS'
-      run: |
-        mkdir -p build/artifacts
-        if [ ! -d build/bin/resources ]; then
-          echo "Missing build/bin/resources"
-          echo "Contents of build/bin (if present):"
-          ls -la build/bin || true
-          exit 1
-        fi
-        zip -r build/artifacts/resources.zip build/bin/resources
-
-    - name: Upload Resources Archive (macOS)
+    - name: Upload Resources (MacOS)
       uses: actions/upload-artifact@v4
       if: matrix.test_render == 'ON' && runner.os == 'macOS'
       with:
         name: Resources_${{ matrix.name }}
-        path: build/artifacts/resources.zip
+        path: build/bin/resources
 
     - name: Upload Coverage Report
       uses: actions/upload-artifact@v4
