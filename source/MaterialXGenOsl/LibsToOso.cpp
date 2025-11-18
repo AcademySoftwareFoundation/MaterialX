@@ -100,8 +100,7 @@ const std::string options =
     "        --oslCompilerPath [FILEPATH]    TODO\n"
     "        --oslIncludePath [DIRPATH]      TODO\n"
     "        --libraries [STRING]            TODO\n"
-    "        --removeNdPrefix [BOOLEAN]      TODO\n"
-    "        --prefix [STRING]               TODO\n"
+    "        --osoNameStrategy [STRING]      TODO - either 'implementation' or 'nodedef' (default:'implementation')\n"
     "        --help                          Display the complete list of command-line options\n";
 
 template <class T> void parseToken(std::string token, std::string type, T& res)
@@ -137,8 +136,7 @@ int main(int argc, char* const argv[])
     std::string argOslCompilerPath;
     std::string argOslIncludePath;
     std::string argLibraries;
-    bool argRemoveNdPrefix = false;
-    std::string argPrefix;
+    std::string argOsoNameStrategy = "implementation";
 
     // Loop over the provided arguments, and store their associated values.
     for (size_t i = 0; i < tokens.size(); i++)
@@ -158,10 +156,8 @@ int main(int argc, char* const argv[])
             argOslIncludePath = nextToken;
         else if (token == "--libraries")
             argLibraries = nextToken;
-        else if (token == "--removeNdPrefix")
-            parseToken(nextToken, "boolean", argRemoveNdPrefix);
-        else if (token == "--prefix")
-            argPrefix = nextToken;
+        else if (token == "--osoNameStrategy")
+            argOsoNameStrategy = nextToken;
         else if (token == "--help")
         {
             std::cout << "MaterialXGenOslNetwork - LibsToOso version " << mx::getVersionString() << std::endl;
@@ -185,9 +181,15 @@ int main(int argc, char* const argv[])
             i++;
     }
 
+    if (!(argOsoNameStrategy == "implementation" || argOsoNameStrategy == "nodedef"))
+    {
+        std::cerr << "Unrecognized value for --osoNameStrategy '" << argOsoNameStrategy <<
+            "'. Must be 'implementation' or 'nodedef'" << std::endl;
+        return 1;
+    }
+
     // Ensure we have a valid output path.
     mx::FilePath outputOsoPath(argOutputOsoPath);
-
     if (!outputOsoPath.exists() || !outputOsoPath.isDirectory())
     {
         outputOsoPath.createDirectory();
@@ -219,21 +221,17 @@ int main(int argc, char* const argv[])
 
     // Ensure we have a valid path to the OSL compiler.
     mx::FilePath oslCompilerPath(argOslCompilerPath);
-
     if (!oslCompilerPath.exists())
     {
         std::cerr << "The provided path to the OSL compiler is not valid: " << oslCompilerPath.asString() << std::endl;
-
         return 1;
     }
 
     // Ensure we have a valid path to the OSL includes.
     mx::FilePath oslIncludePath(argOslIncludePath);
-
     if (!oslIncludePath.exists() || !oslIncludePath.isDirectory())
     {
         std::cerr << "The provided path to the OSL includes is not valid: " << oslIncludePath.asString() << std::endl;
-
         return 1;
     }
 
@@ -337,19 +335,6 @@ int main(int argc, char* const argv[])
     // Loop over all the `NodeDef` gathered in our documents from the provided libraries.
     for (mx::NodeDefPtr nodeDef : librariesDoc->getNodeDefs())
     {
-        std::string nodeName = nodeDef->getName();
-
-        // Remove the "ND_" prefix from a valid `NodeDef` name.
-        if (argRemoveNdPrefix)
-        {
-            if (nodeName.size() > 3 && nodeName.substr(0, 3) == "ND_")
-                nodeName = nodeName.substr(3);
-
-            // Add a prefix to the shader's name, both in the filename as well as inside the shader itself.
-            if (!argPrefix.empty())
-                nodeName = argPrefix + "_" + nodeName;
-        }
-
         // Determine whether or not there's a valid implementation of the current `NodeDef` for the type associated
         // to our OSL shader generator, i.e. OSL, and if not, skip it.
         mx::InterfaceElementPtr nodeImpl = nodeDef->getImplementation(oslShaderGen->getTarget());
@@ -363,8 +348,29 @@ int main(int argc, char* const argv[])
             continue;
         }
 
-        // TODO: Check for the existence/validity of the `Node`?
+        // Intention is here is to name the new node the same as the genosl implementation name
+        // but replacing "_genosl" with "_genoslnetwork"
+        std::string nodeName;
+        if (argOsoNameStrategy == "implementation")
+        {
+            // Name the node the same as the implementation with _genoslnetwork added as a suffix.
+            // NOTE : If the implementation currently has _genosl as a suffix then we remove it.
+            nodeName = nodeImpl->getName();
+            nodeName = mx::replaceSubstrings(nodeName, {{"_genosl", ""}});
+            nodeName += "_genoslnetwork";
+        }
+        else
+        {
+            // Name the node the same as the node definition
+            nodeName = nodeDef->getName();
+        }
+
         mx::NodePtr node = librariesDocGraph->addNodeInstance(nodeDef, nodeName);
+        if (!node)
+        {
+            std::cerr << "Unable to create Node instance for NodeDef - '" << nodeDef->getName() << "'" << std::endl;
+            return 1;
+        }
 
         std::string oslShaderName = node->getName();
         oslShaderGen->getSyntax().makeValidName(oslShaderName);
