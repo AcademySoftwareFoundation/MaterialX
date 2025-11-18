@@ -13,7 +13,7 @@ namespace mx = MaterialX;
 void bindPyCamera(py::module& mod)
 {
     py::class_<mx::Camera, mx::CameraPtr>(mod, "Camera", "A simple camera class, supporting transform matrices and arcball functionality for object-viewing applications.")
-        .def_static("create", &mx::Camera::create)
+        .def_static("create", &mx::Camera::create, "Create a new camera.")
         .def("setWorldMatrix", &mx::Camera::setWorldMatrix, "Set the world matrix.")
         .def("getWorldMatrix", &mx::Camera::getWorldMatrix, "Return the world matrix.")
         .def("setViewMatrix", &mx::Camera::setViewMatrix, "Set the view matrix.")
@@ -27,8 +27,8 @@ void bindPyCamera(py::module& mod)
         .def("getViewportSize", &mx::Camera::getViewportSize, "Return the size of the viewport window.")
         .def("projectToViewport", &mx::Camera::projectToViewport, "Project a position from object to viewport space.")
         .def("unprojectFromViewport", &mx::Camera::unprojectFromViewport, "Unproject a position from viewport to object space.")
-        .def_static("createViewMatrix", &mx::Camera::createViewMatrix)
-        .def_static("createPerspectiveMatrix", &mx::Camera::createPerspectiveMatrix)
-        .def_static("createOrthographicMatrix", &mx::Camera::createOrthographicMatrix)
-        .def_static("transformPointPerspective", &mx::Camera::transformPointPerspective);
+        .def_static("createViewMatrix", &mx::Camera::createViewMatrix, "Create a view matrix given an eye position, a target position and an up vector.")
+        .def_static("createPerspectiveMatrix", &mx::Camera::createPerspectiveMatrix, "Create a perspective projection matrix given a set of clip planes with [-1,1] projected Z.")
+        .def_static("createOrthographicMatrix", &mx::Camera::createOrthographicMatrix, "Create an orthographic projection matrix given a set of clip planes with [-1,1] projected Z.")
+        .def_static("transformPointPerspective", &mx::Camera::transformPointPerspective, "Apply a perspective transform to the given 3D point, performing a homogeneous divide on the transformed result.");
 }

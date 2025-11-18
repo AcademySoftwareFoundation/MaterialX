@@ -23,15 +23,14 @@ void bindPyGeom(py::module& mod)
         .def("hasCollectionString", &mx::GeomElement::hasCollectionString, "Return true if this element has a collection string.")
         .def("getCollectionString", &mx::GeomElement::getCollectionString, "Return the collection string of this element.")
         .def("setCollection", &mx::GeomElement::setCollection, "Assign a Collection to this element.")
-        .def("getCollection", &mx::GeomElement::getCollection, "Return the Collection, if any, with the given name.");
+        .def("getCollection", &mx::GeomElement::getCollection, "Return the Collection that is assigned to this element.");
 
     py::class_<mx::GeomInfo, mx::GeomInfoPtr, mx::GeomElement>(mod, "GeomInfo", "A geometry info element within a Document.")
         .def("addGeomProp", &mx::GeomInfo::addGeomProp, "Add a GeomProp to this element.\n\nArgs:\n    name: The name of the new GeomProp. If no name is specified, then a unique name will automatically be generated.\n\nReturns:\n    A shared pointer to the new GeomProp.")
         .def("getGeomProp", &mx::GeomInfo::getGeomProp, "Return the GeomProp, if any, with the given name.")
         .def("getGeomProps", &mx::GeomInfo::getGeomProps, "Return a vector of all GeomProp elements.")
         .def("removeGeomProp", &mx::GeomInfo::removeGeomProp, "Remove the GeomProp, if any, with the given name.")
-        .def("addToken", &mx::GeomInfo::addToken,
-            py::arg("name") = mx::DEFAULT_TYPE_STRING, "Add a Token to this element.\n\nArgs:\n    name: The name of the new Token. If no name is specified, then a unique name will automatically be generated.\n\nReturns:\n    A shared pointer to the new Token.")
+        .def("addToken", &mx::GeomInfo::addToken, py::arg("name") = mx::DEFAULT_TYPE_STRING, "Add a Token to this element.\n\nArgs:\n    name: The name of the new Token. If no name is specified, then a unique name will automatically be generated.\n\nReturns:\n    A shared pointer to the new Token.")
         .def("getToken", &mx::GeomInfo::getToken, "Return the Token, if any, with the given name.")
         .def("getTokens", &mx::GeomInfo::getTokens, "Return a vector of all Token elements.")
         .def("removeToken", &mx::GeomInfo::removeToken, "Remove the Token, if any, with the given name.")
@@ -59,7 +58,7 @@ void bindPyGeom(py::module& mod)
     py::class_<mx::GeomPropDef, mx::GeomPropDefPtr, mx::TypedElement>(mod, "GeomPropDef", "An element representing a declaration of geometric property data.\n\nA GeomPropDef element contains a reference to a geometric node and a set of modifiers for that node. For example, a world-space normal can be declared as a reference to the \"normal\" geometric node with a space setting of \"world\", or a specific set of texture coordinates can be declared as a reference to the \"texcoord\" geometric node with an index setting of \"1\".")
         .def("setGeomProp", &mx::GeomPropDef::setGeomProp, "Set the geometric property string of this element.")
         .def("hasGeomProp", &mx::GeomPropDef::hasGeomProp, "Return true if this element has a geometric property string.")
-        .def("getGeomProp", &mx::GeomPropDef::getGeomProp, "Return the GeomProp, if any, with the given name.")
+        .def("getGeomProp", &mx::GeomPropDef::getGeomProp, "Return the geometric property string of this element.")
         .def("setSpace", &mx::GeomPropDef::setSpace, "Set the geometric space string of this element.")
         .def("hasSpace", &mx::GeomPropDef::hasSpace, "Return true if this element has a geometric space string.")
         .def("getSpace", &mx::GeomPropDef::getSpace, "Return the geometric space string of this element.")
@@ -68,7 +67,7 @@ void bindPyGeom(py::module& mod)
         .def("getIndex", &mx::GeomPropDef::getIndex, "Return the index string of this element.")
         .def("setGeomProp", &mx::GeomPropDef::setGeomProp, "Set the geometric property string of this element.")
         .def("hasGeomProp", &mx::GeomPropDef::hasGeomProp, "Return true if this element has a geometric property string.")
-        .def("getGeomProp", &mx::GeomPropDef::getGeomProp, "Return the GeomProp, if any, with the given name.")
+        .def("getGeomProp", &mx::GeomPropDef::getGeomProp, "Return the geometric property string of this element.")
         .def_readonly_static("CATEGORY", &mx::GeomPropDef::CATEGORY);
 
     py::class_<mx::Collection, mx::CollectionPtr, mx::Element>(mod, "Collection", "A collection element within a Document.")
@@ -88,7 +87,7 @@ void bindPyGeom(py::module& mod)
         .def("matchesGeomString", &mx::Collection::matchesGeomString, "Return true if this collection and the given geometry string have any geometries in common.")
         .def_readonly_static("CATEGORY", &mx::Collection::CATEGORY);
 
-    mod.def("geomStringsMatch", &mx::geomStringsMatch);
+    mod.def("geomStringsMatch", &mx::geomStringsMatch, "Given two geometry strings, each containing an array of geom names, return true if they have any geometries in common.\n\nAn empty geometry string matches no geometries, while the universal geometry string \"/\" matches all non-empty geometries.\n\nIf the contains argument is set to true, then we require that a geom path in the first string completely contains a geom path in the second string.");
 
     mod.attr("GEOM_PATH_SEPARATOR") = mx::GEOM_PATH_SEPARATOR;
     mod.attr("UNIVERSAL_GEOM_NAME") = mx::UNIVERSAL_GEOM_NAME;

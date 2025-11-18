@@ -60,14 +60,14 @@ void bindPyColorManagement(py::module& mod)
         .def("supportsTransform", &mx::ColorManagementSystem::supportsTransform, "Returns whether this color management system supports a provided transform.");
 
     py::class_<mx::DefaultColorManagementSystem, mx::DefaultColorManagementSystemPtr, mx::ColorManagementSystem>(mod, "DefaultColorManagementSystem", "Class for a default color management system.")
-        .def_static("create", &mx::DefaultColorManagementSystem::create)
-        .def("getName", &mx::DefaultColorManagementSystem::getName, "Return the ColorManagementSystem name.");
+        .def_static("create", &mx::DefaultColorManagementSystem::create, "Create a new DefaultColorManagementSystem.")
+        .def("getName", &mx::DefaultColorManagementSystem::getName, "Return the DefaultColorManagementSystem name.");
 
 #ifdef MATERIALX_BUILD_OCIO
     py::class_<mx::OcioColorManagementSystem, mx::OcioColorManagementSystemPtr, mx::ColorManagementSystem>(mod, "OcioColorManagementSystem")
         .def_static("createFromEnv", &mx::OcioColorManagementSystem::createFromEnv)
         .def_static("createFromFile", &mx::OcioColorManagementSystem::createFromFile)
         .def_static("createFromBuiltinConfig", &mx::OcioColorManagementSystem::createFromBuiltinConfig)
-        .def("getName", &mx::OcioColorManagementSystem::getName, "Return the ColorManagementSystem name.");
+        .def("getName", &mx::OcioColorManagementSystem::getName, "Return the name of this port.");
 #endif
 }

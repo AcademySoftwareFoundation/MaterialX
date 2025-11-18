@@ -18,28 +18,28 @@ void bindPyTraversal(py::module& mod)
         .def("getDownstreamElement", &mx::Edge::getDownstreamElement, "Return the downstream element of the edge.")
         .def("getConnectingElement", &mx::Edge::getConnectingElement, "Return the connecting element of the edge, if any.")
         .def("getUpstreamElement", &mx::Edge::getUpstreamElement, "Return the upstream element of the edge.")
-        .def("getName", &mx::Edge::getName, "Return the ColorManagementSystem name.");
+        .def("getName", &mx::Edge::getName, "Return the name of this edge, if any.");
 
     py::class_<mx::TreeIterator>(mod, "TreeIterator", "An iterator object representing the state of a tree traversal.")
-        .def("getElement", &mx::TreeIterator::getElement)
-        .def("getElementDepth", &mx::TreeIterator::getElementDepth, "Return the element depth of the current traversal, where a single edge between two elements represents a depth of one.")
+        .def("getElement", &mx::TreeIterator::getElement, "Return the current element in the traversal.")
+        .def("getElementDepth", &mx::TreeIterator::getElementDepth, "Return the element depth of the current traversal, where the starting element represents a depth of zero.")
         .def("setPruneSubtree", &mx::TreeIterator::setPruneSubtree, "Set the prune subtree flag, which controls whether the current subtree is pruned from traversal.\n\nArgs:\n    prune: If set to true, then the current subtree will be pruned.")
         .def("getPruneSubtree", &mx::TreeIterator::getPruneSubtree, "Return the prune subtree flag, which controls whether the current subtree is pruned from traversal.")
         .def("__iter__", [](mx::TreeIterator& it) -> mx::TreeIterator&
             {
                 return it.begin(1);
-            })
+            }, "Interpret this object as an iteration range, and return its begin iterator.", "Return a reference to this iterator to begin traversal.", "Return a reference to this iterator to begin traversal.", "Interpret this object as an iteration range, and return its begin iterator.", "Interpret this object as an iteration range, and return its begin iterator.", "Interpret this object as an iteration range, and return its begin iterator.", "Interpret this object as an iteration range, and return its begin iterator.", "Interpret this object as an iteration range, and return its begin iterator.", "Interpret this object as an iteration range, and return its begin iterator.", "Interpret this object as an iteration range, and return its begin iterator.", "Interpret this object as an iteration range, and return its begin iterator.", "Interpret this object as an iteration range, and return its begin iterator.", "Interpret this object as an iteration range, and return its begin iterator.", "Interpret this object as an iteration range, and return its begin iterator.")
         .def("__next__", [](mx::TreeIterator& it)
             {
                 if (++it == it.end())
                     throw py::stop_iteration();
                 return *it;
-            });
+            }, "Return the end iterator.");
 
     py::class_<mx::GraphIterator>(mod, "GraphIterator", "An iterator object representing the state of an upstream graph traversal.")
-        .def("getDownstreamElement", &mx::GraphIterator::getDownstreamElement, "Return the downstream element of the edge.")
-        .def("getConnectingElement", &mx::GraphIterator::getConnectingElement, "Return the connecting element of the edge, if any.")
-        .def("getUpstreamElement", &mx::GraphIterator::getUpstreamElement, "Return the upstream element of the edge.")
+        .def("getDownstreamElement", &mx::GraphIterator::getDownstreamElement, "Return the downstream element of the current edge.")
+        .def("getConnectingElement", &mx::GraphIterator::getConnectingElement, "Return the connecting element, if any, of the current edge.")
+        .def("getUpstreamElement", &mx::GraphIterator::getUpstreamElement, "Return the upstream element of the current edge.")
         .def("getUpstreamIndex", &mx::GraphIterator::getUpstreamIndex, "Return the index of the current edge within the range of upstream edges available to the downstream element.")
         .def("getElementDepth", &mx::GraphIterator::getElementDepth, "Return the element depth of the current traversal, where a single edge between two elements represents a depth of one.")
         .def("getNodeDepth", &mx::GraphIterator::getNodeDepth, "Return the node depth of the current traversal, where a single edge between two nodes represents a depth of one.")
@@ -48,25 +48,25 @@ void bindPyTraversal(py::module& mod)
         .def("__iter__", [](mx::GraphIterator& it) -> mx::GraphIterator&
             {
                 return it.begin(1);
-            })
+            }, "Interpret this object as an iteration range, and return its begin iterator.", "Return a reference to this iterator to begin traversal.", "Return a reference to this iterator to begin traversal.", "Interpret this object as an iteration range, and return its begin iterator.", "Interpret this object as an iteration range, and return its begin iterator.", "Interpret this object as an iteration range, and return its begin iterator.", "Interpret this object as an iteration range, and return its begin iterator.", "Interpret this object as an iteration range, and return its begin iterator.", "Interpret this object as an iteration range, and return its begin iterator.", "Interpret this object as an iteration range, and return its begin iterator.", "Interpret this object as an iteration range, and return its begin iterator.", "Interpret this object as an iteration range, and return its begin iterator.", "Interpret this object as an iteration range, and return its begin iterator.", "Interpret this object as an iteration range, and return its begin iterator.")
         .def("__next__", [](mx::GraphIterator& it)
             {
                 if (++it == it.end())
                     throw py::stop_iteration();
                 return *it;
-            });
+            }, "Return the end iterator.");
 
     py::class_<mx::InheritanceIterator>(mod, "InheritanceIterator", "An iterator object representing the current state of an inheritance traversal.")
         .def("__iter__", [](mx::InheritanceIterator& it) -> mx::InheritanceIterator&
             {
                 return it.begin(1);
-            })
+            }, "Interpret this object as an iteration range, and return its begin iterator.", "Return a reference to this iterator to begin traversal.", "Return a reference to this iterator to begin traversal.", "Interpret this object as an iteration range, and return its begin iterator.", "Interpret this object as an iteration range, and return its begin iterator.", "Interpret this object as an iteration range, and return its begin iterator.", "Interpret this object as an iteration range, and return its begin iterator.", "Interpret this object as an iteration range, and return its begin iterator.", "Interpret this object as an iteration range, and return its begin iterator.", "Interpret this object as an iteration range, and return its begin iterator.", "Interpret this object as an iteration range, and return its begin iterator.", "Interpret this object as an iteration range, and return its begin iterator.", "Interpret this object as an iteration range, and return its begin iterator.", "Interpret this object as an iteration range, and return its begin iterator.")
         .def("__next__", [](mx::InheritanceIterator& it)
             {
                 if (++it == it.end())
                     throw py::stop_iteration();
                 return *it;
-            });
+            }, "Return the end iterator.");
 
     py::register_exception<mx::ExceptionFoundCycle>(mod, "ExceptionFoundCycle");
 }

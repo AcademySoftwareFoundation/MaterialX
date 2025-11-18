@@ -29,7 +29,7 @@ void bindPyProperty(py::module& mod)
         .def("hasCollectionString", &mx::PropertyAssign::hasCollectionString, "Return true if this element has a collection string.")
         .def("getCollectionString", &mx::PropertyAssign::getCollectionString, "Return the collection string of this element.")
         .def("setCollection", &mx::PropertyAssign::setCollection, "Assign a Collection to this element.")
-        .def("getCollection", &mx::PropertyAssign::getCollection, "Return the Collection, if any, with the given name.")
+        .def("getCollection", &mx::PropertyAssign::getCollection, "Return the Collection that is assigned to this element.")
         .def_readonly_static("CATEGORY", &mx::PropertyAssign::CATEGORY);
 
     py::class_<mx::PropertySet, mx::PropertySetPtr, mx::Element>(mod, "PropertySet", "A property set element within a Document.")
@@ -59,6 +59,6 @@ void bindPyProperty(py::module& mod)
         .def("hasPropertySetString", &mx::PropertySetAssign::hasPropertySetString, "Return true if this element has a property set string.")
         .def("getPropertySetString", &mx::PropertySetAssign::getPropertySetString, "Return the property set string of this element.")
         .def("setPropertySet", &mx::PropertySetAssign::setPropertySet, "Assign a property set to this element.")
-        .def("getPropertySet", &mx::PropertySetAssign::getPropertySet, "Return the PropertySet, if any, with the given name.")
+        .def("getPropertySet", &mx::PropertySetAssign::getPropertySet, "Return the property set that is assigned to this element.")
         .def_readonly_static("CATEGORY", &mx::PropertySetAssign::CATEGORY);
 }

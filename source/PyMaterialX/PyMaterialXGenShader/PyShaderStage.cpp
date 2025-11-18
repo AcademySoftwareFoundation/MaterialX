@@ -18,24 +18,24 @@ void bindPyShaderStage(py::module& mod)
 
     py::class_<mx::VariableBlock, mx::VariableBlockPtr>(mod, "VariableBlock", "A block of variables in a shader stage.")
         .def(py::init<const std::string&, const std::string&>())
-        .def("getName", &mx::VariableBlock::getName, "Return the ColorManagementSystem name.")
+        .def("getName", &mx::VariableBlock::getName, "Get the name of this block.")
         .def("getInstance", &mx::VariableBlock::getInstance, "Get the instance name of this block.")
         .def("empty", &mx::VariableBlock::empty, "Return true if the block has no variables.")
-        .def("size", &mx::VariableBlock::size, "Return the number of strings in the path.")
-        .def("find", static_cast<mx::ShaderPort* (mx::VariableBlock::*)(const std::string&)>(&mx::VariableBlock::find), "Given an input filename, iterate through each path in this sequence, returning the first combined path found on the file system.\n\nOn success, the combined path is returned; otherwise the original filename is returned unmodified.")
-        .def("find", (mx::ShaderPort* (mx::VariableBlock::*)(const mx::ShaderPortPredicate& )) &mx::VariableBlock::find, "Given an input filename, iterate through each path in this sequence, returning the first combined path found on the file system.\n\nOn success, the combined path is returned; otherwise the original filename is returned unmodified.")
-        .def("__len__", &mx::VariableBlock::size, "Return the number of strings in the path.")
+        .def("size", &mx::VariableBlock::size, "Return the number of variables in this block.")
+        .def("find", static_cast<mx::ShaderPort* (mx::VariableBlock::*)(const std::string&)>(&mx::VariableBlock::find), "Find a port based on a predicate.")
+        .def("find", (mx::ShaderPort* (mx::VariableBlock::*)(const mx::ShaderPortPredicate& )) &mx::VariableBlock::find, "Find a port based on a predicate.")
+        .def("__len__", &mx::VariableBlock::size, "Return the number of variables in this block.")
         .def("__getitem__", [](const mx::VariableBlock &vb, size_t i)
         {
             if (i >= vb.size()) throw py::index_error();
             return vb[i];
-        }, py::return_value_policy::reference_internal, "Return the number of strings in the path.");
+        }, py::return_value_policy::reference_internal, "Return the number of variables in this block.", "Return the number of paths in the sequence.", "Return the number of paths in the sequence.", "Return the number of variables in this block.", "Return the number of variables in this block.", "Return the number of variables in this block.", "Return the number of variables in this block.", "Return the number of variables in this block.", "Return the number of variables in this block.", "Return the number of variables in this block.", "Return the number of variables in this block.", "Return the number of variables in this block.", "Return the number of variables in this block.", "Return the number of variables in this block.");
 
     py::class_<mx::ShaderStage>(mod, "ShaderStage", "A shader stage, containing the state and resulting source code for the stage.")
         .def(py::init<const std::string&, mx::ConstSyntaxPtr>())
-        .def("getName", &mx::ShaderStage::getName, "Return the ColorManagementSystem name.")
+        .def("getName", &mx::ShaderStage::getName, "Return the stage name.")
         .def("getFunctionName", &mx::ShaderStage::getFunctionName, "Return the stage function name.")
-        .def("getSourceCode", &mx::ShaderStage::getSourceCode, "Return the shader source code for a given shader stage.")
+        .def("getSourceCode", &mx::ShaderStage::getSourceCode, "Return the stage source code.")
         .def("getUniformBlock", static_cast<mx::VariableBlock& (mx::ShaderStage::*)(const std::string&)>(&mx::ShaderStage::getUniformBlock), "Return the uniform variable block with given name.")
         .def("getInputBlock", static_cast<mx::VariableBlock& (mx::ShaderStage::*)(const std::string&)>(&mx::ShaderStage::getInputBlock), "Return the input variable block with given name.")
         .def("getOutputBlock", static_cast<mx::VariableBlock& (mx::ShaderStage::*)(const std::string&)>(&mx::ShaderStage::getOutputBlock), "Return the output variable block with given name.")

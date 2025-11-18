@@ -22,9 +22,9 @@ void bindPyImage(py::module& mod)
     py::class_<mx::ImageBufferDeallocator>(mod, "ImageBufferDeallocator");
 
     py::class_<mx::Image, mx::ImagePtr>(mod, "Image", "Class representing an image in system memory.")
-        .def_static("create", &mx::Image::create)
-        .def("getWidth", &mx::Image::getWidth, "Return the width attribute of the backdrop.")
-        .def("getHeight", &mx::Image::getHeight, "Return the height attribute of the backdrop.")
+        .def_static("create", &mx::Image::create, "Create an empty image with the given properties.")
+        .def("getWidth", &mx::Image::getWidth, "Return the width of the image.")
+        .def("getHeight", &mx::Image::getHeight, "Return the height of the image.")
         .def("getChannelCount", &mx::Image::getChannelCount, "Return the channel count of the image.")
         .def("getBaseType", &mx::Image::getBaseType, "Return the base type of the image.")
         .def("getBaseStride", &mx::Image::getBaseStride, "Return the stride of our base type in bytes.")
@@ -35,7 +35,7 @@ void bindPyImage(py::module& mod)
         .def("setUniformColor", &mx::Image::setUniformColor, "Set all texels of this image to a uniform color.")
         .def("applyMatrixTransform", &mx::Image::applyMatrixTransform, "Apply the given matrix transform to all texels of this image.")
         .def("applyGammaTransform", &mx::Image::applyGammaTransform, "Apply the given gamma transform to all texels of this image.")
-        .def("copy", &mx::Image::copy, "Create a deep copy of the value.")
+        .def("copy", &mx::Image::copy, "Create a copy of this image with the given channel count and base type.")
         .def("applyBoxBlur", &mx::Image::applyBoxBlur, "Apply a 3x3 box blur to this image, returning a new blurred image.")
         .def("applyGaussianBlur", &mx::Image::applyGaussianBlur, "Apply a 7x7 Gaussian blur to this image, returning a new blurred image.")
         .def("applyBoxDownsample", &mx::Image::applyBoxDownsample, "Downsample this image by an integer factor using a box filter, returning the new reduced image.")
@@ -47,7 +47,7 @@ void bindPyImage(py::module& mod)
         .def("setResourceBufferDeallocator", &mx::Image::setResourceBufferDeallocator, "Set the resource buffer deallocator for this image.")
         .def("getResourceBufferDeallocator", &mx::Image::getResourceBufferDeallocator, "Return the resource buffer deallocator for this image.");
 
-        mod.def("createUniformImage", &mx::createUniformImage);
-        mod.def("createImageStrip", &mx::createImageStrip);
-        mod.def("getMaxDimensions", &mx::getMaxDimensions);
+        mod.def("createUniformImage", &mx::createUniformImage, "Create a uniform-color image with the given properties.");
+        mod.def("createImageStrip", &mx::createImageStrip, "Create a horizontal image strip from a vector of images with identical resolutions and formats.");
+        mod.def("getMaxDimensions", &mx::getMaxDimensions, "Compute the maximum width and height of all images in the given vector.");
 }

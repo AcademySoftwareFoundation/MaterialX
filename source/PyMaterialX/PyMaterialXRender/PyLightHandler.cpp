@@ -15,7 +15,7 @@ namespace mx = MaterialX;
 void bindPyLightHandler(py::module& mod)
 {
     py::class_<mx::LightHandler, mx::LightHandlerPtr>(mod, "LightHandler", "Utility light handler for creating and providing light data for shader binding.")
-        .def_static("create", &mx::LightHandler::create)
+        .def_static("create", &mx::LightHandler::create, "Create a new light handler.")
         .def(py::init<>())
         .def("setLightTransform", &mx::LightHandler::setLightTransform, "Set the light transform.")
         .def("getLightTransform", &mx::LightHandler::getLightTransform, "Return the light transform.")

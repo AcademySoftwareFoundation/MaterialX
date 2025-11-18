@@ -30,5 +30,5 @@ void bindPyGenContext(py::module& mod)
 void bindPyGenUserData(py::module& mod)
 {
     py::class_<mx::GenUserData, mx::GenUserDataPtr>(mod, "GenUserData", "Base class for custom user data needed during shader generation.")
-        .def("getSelf", static_cast<mx::GenUserDataPtr(mx::GenUserData::*)()>(&mx::GenUserData::getSelf), "Return our self pointer.");
+        .def("getSelf", static_cast<mx::GenUserDataPtr(mx::GenUserData::*)()>(&mx::GenUserData::getSelf), "Return a shared pointer for this object.");
 }

@@ -1,586 +1,514 @@
+#!/usr/bin/env python
+"""
+pybind11 documentation insertion tool.
+
+Extracts documentation from Doxygen XML and inserts it into pybind11 bindings
+using  string matching via signature lookup table.
+
+Logic:
+- Builds a multi-key lookup for all functions (MaterialX::, mx::, Class::method, method)
+- Handles free functions without <qualifiedname> by assuming MaterialX namespace
+- Adds class context tracking to correctly document lambda-based bindings
+- Supports .def(...) and .def_static(...); skips .def_readonly_static(...)
+"""
+
 import argparse
 import re
 import json
 import xml.etree.ElementTree as ET
 from pathlib import Path
+from typing import Dict, Optional
 
-# Adjust these paths as needed
+# Defaults (can be overridden by CLI)
 DOXYGEN_XML_DIR = Path("build/documents/doxygen_xml")
 PYBIND_DIR = Path("source/PyMaterialX")
 
-# Extraction maps
-class_docs = {}   # key: "MaterialX::Document" -> docstring
-func_docs = {}    # key: "MaterialX::Document::addNodeDefFromGraph" -> dict {brief, detail, params:{name:desc}, returns, args_sig}
 
-# ----------------------------
-# Helper functions
-# ----------------------------
-def normalize_name(name: str) -> str:
-    """Ensure name has MaterialX:: prefix if not already present."""
-    if not name:
-        return name
-    return name if name.startswith("MaterialX::") else f"MaterialX::{name}"
+class DocExtractor:
+    """Extracts documentation from Doxygen XML files and builds a lookup table."""
 
-def generate_lookup_keys(name: str, include_variants: bool = True) -> list:
-    """Generate all possible lookup key variants for a given name."""
-    if not name:
-        return []
-    
-    keys = []
-    # Add MaterialX:: variant
-    normalized = normalize_name(name)
-    if normalized != name:
-        keys.append(normalized)
-    keys.append(name)
-    
-    # Add mx:: to MaterialX:: conversion
-    if name.startswith("mx::"):
-        keys.insert(0, name.replace("mx::", "MaterialX::"))
-    
-    # Add class::method and method-only variants
-    if include_variants and "::" in name:
-        parts = name.split("::")
-        if len(parts) >= 2:
-            keys.append("::".join(parts[-2:]))  # Class::method
-        keys.append(parts[-1])  # method only
-    
-    return keys
+    def __init__(self, xml_dir: Path):
+        self.xml_dir = xml_dir
+        self.class_docs: Dict[str, str] = {}
+        self.func_docs: Dict[str, Dict] = {}
+        # Multi-key lookup: all name variants point to the same doc
+        self.func_lookup: Dict[str, Dict] = {}
 
-def extract_detail_text(parent_elem, exclude_tags={'parameterlist', 'simplesect'}):
-    """Extract detail paragraphs from XML element, excluding specified child tags."""
-    parts = []
-    for para in parent_elem.findall("para"):
-        if not any(para.find(tag) is not None for tag in exclude_tags):
-            parts.append(_text_of(para))
-    return "\n\n".join(p for p in parts if p)
+    def extract(self):
+        if not self.xml_dir.exists():
+            raise FileNotFoundError(f"Doxygen XML directory not found: {self.xml_dir}")
 
-def find_doc_by_suffix(func_docs: dict, *suffixes) -> dict:
-    """Find function doc by suffix match. Returns first match or None."""
-    for suffix in suffixes:
-        if suffix:
-            for key, value in func_docs.items():
-                if key.endswith(f"::{suffix}"):
-                    return value
-    return None
+        for xml_file in self.xml_dir.glob("*.xml"):
+            self._process_xml_file(xml_file)
 
-def _text_of(elem):
-    """Concatenate element text and children text, normalized whitespace."""
-    if elem is None:
-        return ""
-    text = "".join(elem.itertext())
-    text = re.sub(r'\s+', ' ', text).strip()
-    return text
+        self._build_lookup_table()
+        print(f"Extracted {len(self.class_docs)} classes and {len(self.func_docs)} functions")
+        print(f"Built lookup table with {len(self.func_lookup)} keys")
 
-def _param_desc_tuple(param_item):
-    """Return (name, description) for a <parameteritem> element."""
-    name = _text_of(param_item.find("parameternamelist/parametername"))
-    desc_elem = param_item.find("parameterdescription")
-    desc = _text_of(desc_elem)
-    return name, desc
-
-def extract_docs_from_xml():
-    """
-    Populate class_docs and func_docs.
-    """
-    if not DOXYGEN_XML_DIR.exists():
-        raise FileNotFoundError(f"Doxygen XML directory not found: {DOXYGEN_XML_DIR}")
-
-    # Iterate over xml files
-    for xml_file in DOXYGEN_XML_DIR.glob("*.xml"):
+    def _process_xml_file(self, xml_file: Path):
         tree = ET.parse(xml_file)
         root = tree.getroot()
 
-        # Extract class/struct compound docs
+        # Class / struct documentation
         for compound in root.findall(".//compounddef[@kind='class']") + root.findall(".//compounddef[@kind='struct']"):
-            compoundname = _text_of(compound.find("compoundname"))
-            brief = _text_of(compound.find("briefdescription/para"))
-            detail = extract_detail_text(compound.find("detaileddescription"))
-            
-            doc_parts = [p for p in [brief, detail] if p]
-            full = "\n\n".join(doc_parts).strip()
-            if full:
-                class_docs[normalize_name(compoundname)] = full
+            self._extract_class_doc(compound)
 
-        # Extract member functions
+        # Function documentation
         for member in root.findall(".//memberdef[@kind='function']"):
-            name = _text_of(member.find("name"))
-            qualified = _text_of(member.find("qualifiedname"))
+            self._extract_func_doc(member)
 
-            # try to build qualified if missing using parent compoundname
-            if not qualified and name:
-                compound = member.find("../../compoundname")
-                compound_name = _text_of(compound) if compound is not None else ""
-                if compound_name:
-                    qualified = compound_name + "::" + name
+    def _extract_class_doc(self, compound):
+        name = self._get_text(compound.find("compoundname"))
+        brief = self._get_text(compound.find("briefdescription/para"))
+        detail = self._extract_detail(compound.find("detaileddescription"))
+        doc = "\n\n".join(filter(None, [brief, detail]))
+        if doc:
+            normalized = self._normalize_name(name)
+            self.class_docs[normalized] = doc
 
-            # brief + detailed
-            brief = _text_of(member.find("briefdescription/para"))
-            detail = extract_detail_text(member.find("detaileddescription"))
+    def _extract_func_doc(self, member):
+        name = self._get_text(member.find("name"))
+        qualified = self._get_text(member.find("qualifiedname"))
 
-            # params
-            params = {}
-            for param_item in member.findall(".//parameterlist[@kind='param']/parameteritem"):
-                pname, pdesc = _param_desc_tuple(param_item)
-                if pname:
-                    params[pname] = pdesc
+        # Many free functions have no <qualifiedname>; use the bare name
+        # and normalize to MaterialX::name so lookups can resolve.
+        if not qualified and name:
+            qualified = name
 
-            # returns
-            ret_text = ""
-            retsect = member.find(".//simplesect[@kind='return']")
-            if retsect is not None:
-                ret_text = _text_of(retsect)
+        if not qualified:
+            return
 
-            # argsstring for overload disambiguation
-            argsstring = _text_of(member.find("argsstring"))
-            args_sig = ""
-            if argsstring:
-                # Normalize argsstring
-                args_sig = re.sub(r'\s*,\s*', ',', argsstring)
-                args_sig = re.sub(r'\s+', ' ', args_sig).strip()
+        brief = self._get_text(member.find("briefdescription/para"))
+        detail = self._extract_detail(member.find("detaileddescription"))
+        params = self._extract_params(member)
+        returns = self._get_text(member.find(".//simplesect[@kind='return']"))
 
-            # Store with normalized qualified name
-            if qualified:
-                primary_key = normalize_name(qualified)
-                func_docs[primary_key] = {
-                    "brief": brief,
-                    "detail": detail,
-                    "params": params,
-                    "returns": ret_text,
-                    "args_sig": args_sig
-                }
+        normalized = self._normalize_name(qualified)
+        self.func_docs[normalized] = {
+            "brief": brief,
+            "detail": detail,
+            "params": params,
+            "returns": returns,
+        }
 
-    print(f"Extracted {len(class_docs)} classes and {len(func_docs)} functions.")
+    def _build_lookup_table(self):
+        for qualified_name, doc in self.func_docs.items():
+            for variant in self._generate_name_variants(qualified_name):
+                if variant not in self.func_lookup:
+                    self.func_lookup[variant] = doc
 
-# ----------------------------
-# Insertion code
-# ----------------------------
-def escape_docstring_for_cpp(s: str) -> str:
-    # escape double quotes and backslashes, then represent newlines as \n in a C++ string literal
-    # keep it as a single-line C++ string literal with explicit \n sequences
-    if s is None:
-        return ""
-    s = s.replace("\\", "\\\\").replace('"', '\\"')
-    s = s.replace("\r\n", "\n").replace("\r", "\n")
-    s = s.replace("\n", "\\n")
-    return s
+    def _generate_name_variants(self, qualified_name: str) -> list:
+        variants = [qualified_name]
+        parts = qualified_name.split("::")
+        # Class::method
+        if len(parts) >= 2:
+            variants.append("::".join(parts[-2:]))
+        # method
+        if len(parts) >= 1:
+            variants.append(parts[-1])
+        # mx:: variant if MaterialX::
+        if qualified_name.startswith("MaterialX::"):
+            mx_variant = qualified_name.replace("MaterialX::", "mx::", 1)
+            variants.append(mx_variant)
+            if len(parts) >= 3:
+                variants.append(f"mx::{parts[-2]}::{parts[-1]}")
+        return variants
 
-def build_method_docstring(func_entry):
-    """Build a readable docstring for a method from func_entry dict."""
-    parts = []
-    if func_entry.get("brief"):
-        parts.append(func_entry["brief"])
-    if func_entry.get("detail"):
-        parts.append(func_entry["detail"])
-    # Args block
-    params = func_entry.get("params", {})
-    if params:
-        param_lines = []
-        for pname, pdesc in params.items():
-            if pdesc:
-                param_lines.append(f"    {pname}: {pdesc}")
-            else:
-                param_lines.append(f"    {pname}:")
-        parts.append("Args:\n" + "\n".join(param_lines))
-    # Returns
-    if func_entry.get("returns"):
-        parts.append("Returns:\n    " + func_entry["returns"])
-    return "\n\n".join(parts).strip()
+    def _normalize_name(self, name: str) -> str:
+        if not name:
+            return name
+        return name if name.startswith("MaterialX::") else f"MaterialX::{name}"
 
-def _has_docstring(args):
-    """Check if any arg (after first) is a string literal, excluding py::arg calls."""
-    for arg_text, _, _ in args[1:]:
-        a = arg_text.strip()
-        if a.startswith("py::arg"):
-            continue
-        if re.match(r'^".*"$', a):
+    def _get_text(self, elem) -> str:
+        if elem is None:
+            return ""
+        text = "".join(elem.itertext())
+        return re.sub(r"\s+", " ", text).strip()
+
+    def _extract_detail(self, elem, exclude_tags={"parameterlist", "simplesect"}) -> str:
+        if elem is None:
+            return ""
+        parts = []
+        for para in elem.findall("para"):
+            if not any(para.find(tag) is not None for tag in exclude_tags):
+                t = self._get_text(para)
+                if t:
+                    parts.append(t)
+        return "\n\n".join(parts)
+
+    def _extract_params(self, member) -> Dict[str, str]:
+        params = {}
+        for param_item in member.findall(".//parameterlist[@kind='param']/parameteritem"):
+            name = self._get_text(param_item.find("parameternamelist/parametername"))
+            desc = self._get_text(param_item.find("parameterdescription"))
+            if name:
+                params[name] = desc
+        return params
+
+
+class DocInserter:
+    """Inserts documentation into pybind11 binding files."""
+
+    def __init__(self, extractor: DocExtractor, pybind_dir: Path, force_replace: bool = False):
+        self.extractor = extractor
+        self.pybind_dir = pybind_dir
+        self.force_replace = force_replace
+
+        self.class_pattern = re.compile(r"py::class_<")
+        self.def_pattern = re.compile(r"\.def(?:_static)?\s*\(")
+        # Match .def and .def_static; skip .def_readonly_static (constants)
+        self.def_pattern = re.compile(r"\.def(?:_static)?\s*\(")
+        self.skip_pattern = re.compile(r"\.def_readonly_static\s*\(")
+
+    def process_all_files(self):
+        cpp_files = list(self.pybind_dir.rglob("*.cpp"))
+        patched = 0
+        for cpp_file in cpp_files:
+            if self._process_file(cpp_file):
+                patched += 1
+        print(f"\nProcessed {len(cpp_files)} files, patched {patched}")
+
+    def _process_file(self, cpp_file: Path) -> bool:
+        content = cpp_file.read_text(encoding="utf-8")
+        original = content
+
+        content = self._insert_class_docs(content)
+        content = self._insert_method_docs(content)
+
+        if content != original:
+            cpp_file.write_text(content, encoding="utf-8")
+            print(f"  ✓ {cpp_file.relative_to(self.pybind_dir.parent)}")
             return True
-    return False
+        else:
+            print(f"  - {cpp_file.relative_to(self.pybind_dir.parent)}")
+            return False
 
-def _find_matching_paren(s: str, start_idx: int) -> int:
-    """Find the index of the matching ')' for '(' at start_idx.
-    Handles nested parentheses and string literals."""
-    depth = 0
-    in_string = False
-    escape_next = False
-    i = start_idx
-    
-    while i < len(s):
-        c = s[i]
-        
-        if escape_next:
-            escape_next = False
-            i += 1
-            continue
-        
-        if c == '\\':
-            escape_next = True
-            i += 1
-            continue
-        
-        if c == '"':
-            in_string = not in_string
-            i += 1
-            continue
-        
-        if not in_string:
-            if c == '(':
-                depth += 1
-            elif c == ')':
-                depth -= 1
-                if depth == 0:
-                    return i
-        
-        i += 1
-    
-    return -1
+    def _insert_class_docs(self, content: str) -> str:
+        result = []
+        pos = 0
 
+        for match in self.class_pattern.finditer(content):
+            result.append(content[pos:match.start()])
 
-def _split_top_level_args(arglist: str):
-    """Split arguments at top-level commas.
-    Returns list of (arg_text, start_index, end_index) tuples.
-    Handles nested parentheses and string literals."""
-    args = []
-    start = 0
-    i = 0
-    depth = 0
-    in_string = False
-    escape_next = False
-    
-    while i < len(arglist):
-        c = arglist[i]
-        
-        if escape_next:
-            escape_next = False
-            i += 1
-            continue
-        
-        if c == '\\':
-            escape_next = True
-            i += 1
-            continue
-        
-        if c == '"':
-            in_string = not in_string
-            i += 1
-            continue
-        
-        if not in_string:
-            if c == '(':
-                depth += 1
-            elif c == ')':
-                depth -= 1
-            elif c == ',' and depth == 0:
-                # Top-level comma found
-                args.append((arglist[start:i].strip(), start, i))
-                start = i + 1
-        
-        i += 1
-    
-    # Append last argument
-    if start < len(arglist):
-        args.append((arglist[start:].strip(), start, len(arglist)))
-    
-    return args
-
-
-def insert_docs_into_bindings(force_replace=False):
-    """
-    Robust insertion: 
-    1. Insert class docstrings into py::class_<...>(mod, "Name") -> py::class_<...>(mod, "Name", "doc")
-    2. Parse each .def(...) call, split top-level args, and insert docstring
-       after the second argument (callable) if no docstring is present.
-    
-    Args:
-        force_replace: If True, replace existing docstrings. If False, skip entries that already have docs.
-    """
-    if force_replace:
-        print("Force replace mode: Will update existing docstrings")
-    else:
-        print("Normal mode: Will skip entries with existing docstrings")
-    
-    cpp_files = list(PYBIND_DIR.rglob("*.cpp"))
-    def_start_re = re.compile(r'\.def\s*\(')
-    class_start_re = re.compile(r'py::class_<')
-
-    for cpp in cpp_files:
-        text = cpp.read_text(encoding="utf-8")
-        
-        # First pass: insert class documentation
-        # Look for py::class_<...>(mod, "Name") and add docstring as third parameter
-        class_changed = False
-        class_matches = []
-        for m in class_start_re.finditer(text):
-            start = m.start()
-            # Find the opening paren after py::class_<...>
-            # First find the closing > of the template
-            template_start = start + len('py::class_<')
-            depth = 1
-            i = template_start
-            while i < len(text) and depth > 0:
-                if text[i] == '<':
-                    depth += 1
-                elif text[i] == '>':
-                    depth -= 1
-                i += 1
-            # Now find the opening paren
-            paren_open = text.find('(', i)
-            if paren_open == -1:
-                continue
-            paren_close = _find_matching_paren(text, paren_open)
-            if paren_close == -1:
-                continue
-            
-            # Extract arguments
-            arglist = text[paren_open+1:paren_close]
-            args = _split_top_level_args(arglist)
-            
-            # We expect at least 2 args: (mod, "ClassName")
-            if len(args) < 2:
-                continue
-            
-            # Check if there's already a third argument (docstring)
-            if len(args) >= 3:
-                if not force_replace:
-                    # Already has docstring, skip unless force_replace
-                    continue
-                else:
-                    # Force replace: we'll need to replace the third arg
-                    # Store as (start, end, new_doc) for replacement
-                    pass  # Handle below
-            
-            # Extract class name from second argument
-            class_name = args[1][0].strip().strip('"')
-            
-            # Find documentation using helper
-            class_doc = None
-            for k in generate_lookup_keys(class_name, include_variants=False):
-                if k in class_docs:
-                    class_doc = class_docs[k]
-                    break
-            
-            if class_doc:
-                escaped = escape_docstring_for_cpp(class_doc)
-                if len(args) >= 3 and force_replace:
-                    # Replace existing docstring (third argument) - just replace the quoted content
-                    # Find the position of the third argument in the original text
-                    arg3_start = paren_open + 1 + args[2][1]
-                    arg3_end = paren_open + 1 + args[2][2]
-                    original_arg = text[arg3_start:arg3_end]
-                    
-                    # Find the opening and closing quotes
-                    first_quote = original_arg.find('"')
-                    last_quote = original_arg.rfind('"')
-                    
-                    if first_quote != -1 and last_quote != -1 and first_quote < last_quote:
-                        # Replace only the content between quotes, preserving everything else
-                        new_arg = original_arg[:first_quote+1] + escaped + original_arg[last_quote:]
-                        class_matches.append((arg3_start, arg3_end, new_arg, True))
-                    else:
-                        # Fallback: replace entire argument
-                        class_matches.append((arg3_start, arg3_end, f'"{escaped}"', True))
-                else:
-                    # Insert new docstring (with space after comma to match original style)
-                    class_matches.append((paren_close, f', "{escaped}"', False))  # False = insert
-                class_changed = True
-        
-        # Apply class documentation changes in reverse order to preserve positions
-        if class_changed:
-            for match in reversed(class_matches):
-                if len(match) == 4:  # Replace mode: (start, end, new_text, is_replace)
-                    start, end, new_text, _ = match
-                    text = text[:start] + new_text + text[end:]
-                else:  # Insert mode: (pos, insertion, is_replace)
-                    pos, insertion, _ = match
-                    text = text[:pos] + insertion + text[pos:]
-        
-        # Second pass: insert method documentation
-        new_text_parts = []
-        idx = 0
-        changed = False
-        while True:
-            m = def_start_re.search(text, idx)
-            if not m:
-                # append rest and break
-                new_text_parts.append(text[idx:])
-                break
-
-            start = m.start()
-            new_text_parts.append(text[idx:start])  # content up to .def(
-            paren_open = text.find('(', start)
-            if paren_open == -1:
-                # shouldn't happen; append rest and break
-                new_text_parts.append(text[start:])
-                break
-
-            paren_close = _find_matching_paren(text, paren_open)
-            if paren_close == -1:
-                # unmatched, append rest
-                new_text_parts.append(text[start:])
-                break
-
-            # argument list content (without outer parentheses)
-            arglist = text[paren_open+1:paren_close]
-            args = _split_top_level_args(arglist)
-
-            # if we have less than 2 args, we can't determine callable; just copy as-is
-            if len(args) < 2:
-                new_text_parts.append(text[start:paren_close+1])
-                idx = paren_close + 1
+            start = match.start()
+            template_end = self._find_template_end(content, start)
+            if template_end == -1:
+                result.append(content[start:match.end()])
+                pos = match.end()
                 continue
 
-            # first arg is typically the python name string literal (e.g. "addNode")
-            # second arg is the callable, e.g. &mx::Document::addNodeGraph
-            first_arg_text = args[0][0]
-            second_arg_text = args[1][0]
+            paren_start = content.find('(', template_end)
+            if paren_start == -1:
+                result.append(content[start:match.end()])
+                pos = match.end()
+                continue
 
-            # determine if any existing argument is a string literal (treat raw string R"..." too)
-            has_docstring = _has_docstring(args)
-            
-            if not has_docstring or force_replace:
-                # Extract Python method name and C++ callable reference
-                py_method_name = first_arg_text.strip().strip('"')
-                cpp_ref_clean = second_arg_text.strip()
-                
-                # Extract the callable name (works for both regular functions and lambdas)
-                # For lambdas: try to find method calls like elem.method( or obj->method(
-                # For regular callables: extract the qualified name like &mx::Class::method
-                callable_name = None
-                
-                # Check for method call pattern (handles lambdas and some edge cases)
-                method_call = re.search(r'[\.\->](\w+)\s*\(', cpp_ref_clean)
-                if method_call:
-                    callable_name = method_call.group(1)
-                else:
-                    # Extract qualified name from regular callable reference
-                    # Find last token containing ::
-                    tokens = re.split(r'\s+', cpp_ref_clean)
-                    for token in reversed(tokens):
-                        if '::' in token:
-                            callable_name = token.rstrip(',').strip()
-                            break
-                    if not callable_name and tokens:
-                        callable_name = tokens[-1].rstrip(',').strip()
-                
-                # Generate lookup keys
-                lookup_keys = generate_lookup_keys(callable_name if callable_name else py_method_name)
-                # Also try with Python method name if different
-                if callable_name != py_method_name:
-                    lookup_keys.extend(generate_lookup_keys(py_method_name))
+            paren_end = self._find_matching_paren(content, paren_start)
+            if paren_end == -1:
+                result.append(content[start:match.end()])
+                pos = match.end()
+                continue
 
-                # Find documentation
-                func_entry = None
-                for k in lookup_keys:
-                    if k in func_docs:
-                        func_entry = func_docs[k]
-                        break
-                
-                # Fallback: suffix match
-                if not func_entry:
-                    func_entry = find_doc_by_suffix(func_docs, callable_name, py_method_name)
+            args_text = content[paren_start + 1:paren_end]
+            class_name = self._extract_class_name(args_text)
 
-                if func_entry:
-                    docstring = build_method_docstring(func_entry)
-                    if docstring:
-                        escaped = escape_docstring_for_cpp(docstring)
-                        
-                        if has_docstring and force_replace:
-                            # Find and replace the existing docstring argument
-                            # Find which argument is the docstring (first string literal after callable)
-                            doc_arg_idx = None
-                            for i, (arg_text, _, _) in enumerate(args[2:], start=2):  # Start from 3rd arg
-                                a = arg_text.strip()
-                                if not a.startswith("py::arg") and re.match(r'^".*"$', a):
-                                    doc_arg_idx = i
-                                    break
-                            
-                            if doc_arg_idx is not None:
-                                # Replace only the quoted content, preserving all formatting
-                                arg_start = paren_open + 1 + args[doc_arg_idx][1]
-                                arg_end = paren_open + 1 + args[doc_arg_idx][2]
-                                original_arg = text[arg_start:arg_end]
-                                
-                                # Find the opening and closing quotes
-                                first_quote = original_arg.find('"')
-                                last_quote = original_arg.rfind('"')
-                                
-                                if first_quote != -1 and last_quote != -1 and first_quote < last_quote:
-                                    # Replace only content between quotes, preserving everything else
-                                    new_arg = original_arg[:first_quote+1] + escaped + original_arg[last_quote:]
-                                    # Copy everything before the docstring, insert new docstring, copy everything after
-                                    new_def_text = text[start:arg_start] + new_arg + text[arg_end:paren_close+1]
-                                    new_text_parts.append(new_def_text)
-                                    idx = paren_close + 1
-                                    changed = True
-                                    continue
-                        
-                        # Insert new docstring at the end
-                        new_def_text = text[start:paren_close] + f', "{escaped}")' 
-                        new_text_parts.append(new_def_text)
-                        idx = paren_close + 1
-                        changed = True
+            if class_name:
+                doc = self.extractor.class_docs.get(self.extractor._normalize_name(class_name))
+                if doc:
+                    args = self._split_args(args_text)
+                    if len(args) >= 3 and not self.force_replace:
+                        result.append(content[start:paren_end + 1])
+                        pos = paren_end + 1
                         continue
 
-            # no insertion performed — copy original .def(...) exactly
-            new_text_parts.append(text[start:paren_close+1])
-            idx = paren_close + 1
+                    escaped = self._escape_for_cpp(doc)
+                    if len(args) >= 3 and self.force_replace:
+                        new_args = args[:2] + [f'"{escaped}"'] + args[3:]
+                        result.append(content[start:paren_start + 1])
+                        result.append(", ".join(new_args))
+                        result.append(")")
+                    else:
+                        result.append(content[start:paren_end])
+                        result.append(f', "{escaped}")')
+                    pos = paren_end + 1
+                    continue
 
-        if changed or class_changed:
-            new_text = "".join(new_text_parts)
-            cpp.write_text(new_text, encoding="utf-8")
-            print(f"- Patched: {cpp}")
-        else:
-            # no changes; nothing to write
-            print('- No changes needed for:', cpp)
-            pass
+            result.append(content[start:paren_end + 1])
+            pos = paren_end + 1
 
-    print("Code insertion complete.")
+        result.append(content[pos:])
+        return "".join(result)
+
+    def _insert_method_docs(self, content: str) -> str:
+        # Build a map of line numbers to class contexts
+        class_contexts = self._extract_class_contexts(content)
+
+        result = []
+        pos = 0
+
+        for match in self.def_pattern.finditer(content):
+            if self.skip_pattern.match(content, match.start()):
+                continue
+
+            result.append(content[pos:match.start()])
+
+            start = match.start()
+            paren_start = content.find('(', start)
+            if paren_start == -1:
+                result.append(content[start:match.end()])
+                pos = match.end()
+                continue
+
+            paren_end = self._find_matching_paren(content, paren_start)
+            if paren_end == -1:
+                result.append(content[start:match.end()])
+                pos = match.end()
+                continue
+
+            args_text = content[paren_start + 1:paren_end]
+            args = self._split_args(args_text)
+
+            if len(args) < 2:
+                result.append(content[start:paren_end + 1])
+                pos = paren_end + 1
+                continue
+
+            has_doc = self._has_docstring(args)
+            if has_doc and not self.force_replace:
+                result.append(content[start:paren_end + 1])
+                pos = paren_end + 1
+                continue
+
+            callable_ref = args[1].strip()
+
+            current_line = content[:start].count('\n')
+            class_context = class_contexts.get(current_line)
+
+            doc_entry = self._find_doc_for_callable(callable_ref, class_context)
+
+            if doc_entry:
+                docstring = self._build_docstring(doc_entry)
+                escaped = self._escape_for_cpp(docstring)
+
+                if has_doc and self.force_replace:
+                    doc_idx = self._find_docstring_arg_index(args)
+                    if doc_idx is not None:
+                        new_args = args[:doc_idx] + [f'"{escaped}"'] + args[doc_idx + 1:]
+                        result.append(content[start:paren_start + 1])
+                        result.append(", ".join(new_args))
+                        result.append(")")
+                        pos = paren_end + 1
+                        continue
+
+                result.append(content[start:paren_end])
+                result.append(f', "{escaped}")')
+                pos = paren_end + 1
+                continue
+
+            result.append(content[start:paren_end + 1])
+            pos = paren_end + 1
+
+        result.append(content[pos:])
+        return "".join(result)
+
+    def _extract_class_contexts(self, content: str) -> Dict[int, str]:
+        contexts = {}
+        for match in self.class_pattern.finditer(content):
+            start = match.start()
+            template_end = self._find_template_end(content, start)
+            if template_end == -1:
+                continue
+            template_start = content.find('<', start) + 1
+            template_content = content[template_start:template_end - 1]
+            class_type = template_content.split(',')[0].strip()
+            class_name = class_type.split('::')[-1] if '::' in class_type else class_type
+
+            start_line = content[:start].count('\n')
+            end_pos = content.find(';', start)
+            if end_pos != -1:
+                end_line = content[:end_pos].count('\n')
+                for line in range(start_line, end_line + 1):
+                    contexts[line] = class_name
+        return contexts
+
+    def _find_doc_for_callable(self, callable_ref: str, class_context: Optional[str] = None) -> Optional[Dict]:
+        callable_ref = callable_ref.strip()
+
+        # Function pointers like &mx::Class::method or &MaterialX::name
+        if callable_ref.startswith('&'):
+            name = callable_ref[1:].strip()
+            name = re.sub(r'[,\s]+$', '', name)
+            return self.extractor.func_lookup.get(name)
+
+        # Lambdas: look for elem.method( or obj->method(
+        method_match = re.search(r'[\.\->](\w+)\s*\(', callable_ref)
+        if method_match:
+            method_name = method_match.group(1)
+            if class_context:
+                for prefix in ("", "mx::", "MaterialX::"):
+                    qualified = f"{prefix}{class_context}::{method_name}" if prefix else f"{class_context}::{method_name}"
+                    doc = self.extractor.func_lookup.get(qualified)
+                    if doc:
+                        return doc
+            return self.extractor.func_lookup.get(method_name)
+
+        return None
+
+    def _build_docstring(self, doc_entry: Dict) -> str:
+        parts = []
+        if doc_entry.get("brief"):
+            parts.append(doc_entry["brief"])
+        if doc_entry.get("detail"):
+            parts.append(doc_entry["detail"])
+        params = doc_entry.get("params", {})
+        if params:
+            param_lines = ["Args:"]
+            for name, desc in params.items():
+                param_lines.append(f"    {name}: {desc}" if desc else f"    {name}:")
+            parts.append("\n".join(param_lines))
+        if doc_entry.get("returns"):
+            parts.append(f"Returns:\n    {doc_entry['returns']}")
+        return "\n\n".join(parts)
+
+    def _escape_for_cpp(self, s: str) -> str:
+        if not s:
+            return ""
+        s = s.replace("\\", "\\\\").replace('"', '\\"')
+        s = s.replace("\n", "\\n")
+        return s
+
+    def _find_template_end(self, content: str, start: int) -> int:
+        pos = content.find('<', start)
+        if pos == -1:
+            return -1
+        depth = 1
+        i = pos + 1
+        in_string = False
+        while i < len(content) and depth > 0:
+            c = content[i]
+            if c == '"' and content[i - 1] != '\\':
+                in_string = not in_string
+            elif not in_string:
+                if c == '<':
+                    depth += 1
+                elif c == '>':
+                    depth -= 1
+            i += 1
+        return i if depth == 0 else -1
+
+    def _find_matching_paren(self, content: str, start: int) -> int:
+        depth = 0
+        in_string = False
+        escape = False
+        for i in range(start, len(content)):
+            c = content[i]
+            if escape:
+                escape = False
+                continue
+            if c == '\\':
+                escape = True
+                continue
+            if c == '"':
+                in_string = not in_string
+                continue
+            if not in_string:
+                if c == '(':
+                    depth += 1
+                elif c == ')':
+                    depth -= 1
+                    if depth == 0:
+                        return i
+        return -1
+
+    def _split_args(self, args_text: str) -> list:
+        args = []
+        current = []
+        depth = 0
+        in_string = False
+        escape = False
+        for c in args_text:
+            if escape:
+                current.append(c)
+                escape = False
+                continue
+            if c == '\\':
+                current.append(c)
+                escape = True
+                continue
+            if c == '"':
+                in_string = not in_string
+                current.append(c)
+                continue
+            if not in_string:
+                if c in '(<':
+                    depth += 1
+                elif c in ')>':
+                    depth -= 1
+                elif c == ',' and depth == 0:
+                    args.append("".join(current).strip())
+                    current = []
+                    continue
+            current.append(c)
+        if current:
+            args.append("".join(current).strip())
+        return args
+
+    def _extract_class_name(self, args_text: str) -> Optional[str]:
+        args = self._split_args(args_text)
+        if len(args) >= 2:
+            return args[1].strip().strip('"')
+        return None
+
+    def _has_docstring(self, args: list) -> bool:
+        for arg in args[2:]:
+            a = arg.strip()
+            if not a.startswith("py::arg") and a.startswith('"'):
+                return True
+        return False
+
+    def _find_docstring_arg_index(self, args: list) -> Optional[int]:
+        for i, arg in enumerate(args[2:], start=2):
+            a = arg.strip()
+            if not a.startswith("py::arg") and a.startswith('"'):
+                return i
+        return None
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Extract Doxygen XML docs and insert into pybind11 bindings.")
-    parser.add_argument("-d", "--doxygen_xml_dir", type=Path, default=Path("build/documents/doxygen_xml"),
-                        help="Path to Doxygen XML output directory.")
-    parser.add_argument("-p", "--pybind_dir", type=Path, default=Path("source/PyMaterialX"),
-                        help="Path to pybind11 C++ bindings directory.")
-    parser.add_argument("-j", "--write_json", action='store_true', 
-                        help="Write extracted docs to JSON file.")
-    parser.add_argument("-f", "--force", action='store_true',
-                        help="Force replace existing docstrings. By default, existing docstrings are preserved.")
-    
+    parser = argparse.ArgumentParser(description="Extract Doxygen docs and insert into pybind11 bindings (simplified)")
+    parser.add_argument("-d", "--doxygen_xml_dir", type=Path, default=Path("build/documents/doxygen_xml"), help="Path to Doxygen XML output directory")
+    parser.add_argument("-p", "--pybind_dir", type=Path, default=Path("source/PyMaterialX"), help="Path to pybind11 bindings directory")
+    parser.add_argument("-f", "--force", action="store_true", help="Force replace existing docstrings")
+    parser.add_argument("-j", "--write_json", action="store_true", help="Write extracted docs to JSON files")
+
     args = parser.parse_args()
-    
-    # Validate paths
+
     if not args.doxygen_xml_dir.exists():
-        print(f"Error: Doxygen XML directory does not exist: {args.doxygen_xml_dir}")
-        return
+        print(f"Error: Doxygen XML directory not found: {args.doxygen_xml_dir}")
+        return 1
     if not args.pybind_dir.exists():
-        print(f"Error: Pybind directory does not exist: {args.pybind_dir}")
-        return
-    
-    # Set global paths (needed by extraction/insertion functions)
-    global DOXYGEN_XML_DIR, PYBIND_DIR
-    DOXYGEN_XML_DIR = args.doxygen_xml_dir
-    PYBIND_DIR = args.pybind_dir
+        print(f"Error: Pybind directory not found: {args.pybind_dir}")
+        return 1
 
-    # Build documentation maps
-    extract_docs_from_xml()
+    print("Extracting documentation from Doxygen XML...")
+    extractor = DocExtractor(args.doxygen_xml_dir)
+    extractor.extract()
 
-    # Update CPP files
-    insert_docs_into_bindings(force_replace=args.force)
-
-    # Write extracted documentation to JSON files
     if args.write_json:
-        class_json = Path("class_docs.json")
-        with class_json.open("w", encoding="utf-8") as f:
-            print(f"Writing class docs to {class_json}")
-            json.dump(class_docs, f, indent=2)
-        
-        func_json = Path("func_docs.json")
-        with func_json.open("w", encoding="utf-8") as f:
-            print(f"Writing function docs to {func_json}")
-            json.dump(func_docs, f, indent=2)
+        print("\nWriting JSON files...")
+        Path("class_docs.json").write_text(json.dumps(extractor.class_docs, indent=2), encoding="utf-8")
+        Path("func_docs.json").write_text(json.dumps(extractor.func_docs, indent=2), encoding="utf-8")
+        print("  ✓ class_docs.json")
+        print("  ✓ func_docs.json")
 
-    print("Done.")
+    print(f"\n{'Replacing' if args.force else 'Inserting'} documentation in pybind11 files...")
+    inserter = DocInserter(extractor, args.pybind_dir, args.force)
+    inserter.process_all_files()
+
+    print("\nDone!")
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    exit(main())
+ 

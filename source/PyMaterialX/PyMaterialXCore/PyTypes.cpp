@@ -46,7 +46,7 @@ using IndexPair = std::pair<size_t, size_t>;
     { v[i] = f; } )                                                                                            \
 .def("__str__", [](const V& v)                                                                                 \
     { return mx::toValueString(v); })                                                                          \
-.def("copy", [](const V& v) { return V(v); }, "Create a deep copy of the value.")                                                                  \
+.def("copy", [](const V& v) { return V(v); }, "Create a deep copy of the document.")                                                                  \
 .def_static("__len__", &V::numElements)
 
 #define BIND_MATRIX_SUBCLASS(M, N)                                                                             \
@@ -74,16 +74,16 @@ using IndexPair = std::pair<size_t, size_t>;
     { m[i.first][i.second] = f; })                                                                             \
 .def("__str__", [](const M& m)                                                                                 \
     { return mx::toValueString(m); })                                                                          \
-.def("copy", [](const M& m) { return M(m); }, "Create a deep copy of the value.")                                                                  \
-.def("isEquivalent", &M::isEquivalent, "Return true if the given element tree, including all descendents, is considered to be equivalent to this one based on the equivalence criteria provided.\n\nArgs:\n    rhs: Element to compare against\n    options: Equivalence criteria\n    message: Optional text description of differences\n\nReturns:\n    True if the elements are equivalent. False otherwise.")                                                                         \
+.def("copy", [](const M& m) { return M(m); }, "Create a deep copy of the document.")                                                                  \
+.def("isEquivalent", &M::isEquivalent, "Return true if the given matrix is equivalent to this one within a given floating-point tolerance.")                                                                         \
 .def("getTranspose", &M::getTranspose, "Return the transpose of the matrix.")                                                                         \
 .def("getDeterminant", &M::getDeterminant, "Return the determinant of the matrix.")                                                                     \
 .def("getAdjugate", &M::getAdjugate, "Return the adjugate of the matrix.")                                                                           \
 .def("getInverse", &M::getInverse, "Return the inverse of the matrix.")                                                                             \
-.def_static("createScale", &M::createScale)                                                                    \
-.def_static("createTranslation", &M::createTranslation)                                                        \
-.def_static("numRows", &M::numRows)                                                                            \
-.def_static("numColumns", &M::numColumns)                                                                      \
+.def_static("createScale", &M::createScale, "Create a scale matrix.")                                                                    \
+.def_static("createTranslation", &M::createTranslation, "Create a translation matrix.")                                                        \
+.def_static("numRows", &M::numRows, "Return the number of rows in this matrix.")                                                                            \
+.def_static("numColumns", &M::numColumns, "Return the number of columns in this matrix.")                                                                      \
 .def_static("__len__", &M::numRows)
 
 void bindPyTypes(py::module& mod)
@@ -129,7 +129,7 @@ void bindPyTypes(py::module& mod)
         .def("transformPoint", &mx::Matrix33::transformPoint, "Transform the given 2D point.")
         .def("transformVector", &mx::Matrix33::transformVector, "Transform the given 2D direction vector.")
         .def("transformNormal", &mx::Matrix33::transformNormal, "Transform the given 3D normal vector.")
-        .def_static("createRotation", &mx::Matrix33::createRotation)
+        .def_static("createRotation", &mx::Matrix33::createRotation, "Create a rotation matrix.\n\nArgs:\n    angle: Angle in radians")
         .def_readonly_static("IDENTITY", &mx::Matrix33::IDENTITY);
 
     py::class_<mx::Matrix44, mx::MatrixBase>(mod, "Matrix44", "A 4x4 matrix of floating-point values.\n\nVector transformation methods follow the row-vector convention, with matrix-vector multiplication computed as v' = vM.")
@@ -138,13 +138,13 @@ void bindPyTypes(py::module& mod)
                       float, float, float, float,
                       float, float, float, float,
                       float, float, float, float>())
-        .def("multiply", &mx::Matrix44::multiply, "Return the product of this matrix and a 3D vector.")
-        .def("transformPoint", &mx::Matrix44::transformPoint, "Transform the given 2D point.")
-        .def("transformVector", &mx::Matrix44::transformVector, "Transform the given 2D direction vector.")
+        .def("multiply", &mx::Matrix44::multiply, "Return the product of this matrix and a 4D vector.")
+        .def("transformPoint", &mx::Matrix44::transformPoint, "Transform the given 3D point.")
+        .def("transformVector", &mx::Matrix44::transformVector, "Transform the given 3D direction vector.")
         .def("transformNormal", &mx::Matrix44::transformNormal, "Transform the given 3D normal vector.")
-        .def_static("createRotationX", &mx::Matrix44::createRotationX)
-        .def_static("createRotationY", &mx::Matrix44::createRotationY)
-        .def_static("createRotationZ", &mx::Matrix44::createRotationZ)
+        .def_static("createRotationX", &mx::Matrix44::createRotationX, "Create a rotation matrix about the X-axis.\n\nArgs:\n    angle: Angle in radians")
+        .def_static("createRotationY", &mx::Matrix44::createRotationY, "Create a rotation matrix about the Y-axis.\n\nArgs:\n    angle: Angle in radians")
+        .def_static("createRotationZ", &mx::Matrix44::createRotationZ, "Create a rotation matrix about the Z-axis.\n\nArgs:\n    angle: Angle in radians")
         .def_readonly_static("IDENTITY", &mx::Matrix44::IDENTITY);
 
     mod.attr("DEFAULT_TYPE_STRING") = mx::DEFAULT_TYPE_STRING;
