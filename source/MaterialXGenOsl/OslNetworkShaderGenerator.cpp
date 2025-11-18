@@ -5,7 +5,6 @@
 
 #include <MaterialXGenOsl/OslNetworkShaderGenerator.h>
 #include <MaterialXGenOsl/OslNetworkSyntax.h>
-#include <MaterialXGenOsl/OslUtil.h>
 #include <MaterialXGenOsl/Nodes/OsoNode.h>
 
 #include <MaterialXGenShader/GenContext.h>
