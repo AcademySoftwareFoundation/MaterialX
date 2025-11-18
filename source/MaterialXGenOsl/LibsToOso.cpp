@@ -100,6 +100,7 @@ const std::string options =
     "        --oslCompilerPath [FILEPATH]    TODO\n"
     "        --oslIncludePath [DIRPATH]      TODO\n"
     "        --libraries [STRING]            TODO\n"
+    "        --osoNameStrategy [STRING]      TODO - either 'implementation' or 'nodedef' (default:'implementation')\n"
     "        --help                          Display the complete list of command-line options\n";
 
 template <class T> void parseToken(std::string token, std::string type, T& res)
@@ -135,6 +136,7 @@ int main(int argc, char* const argv[])
     std::string argOslCompilerPath;
     std::string argOslIncludePath;
     std::string argLibraries;
+    std::string argOsoNameStrategy = "implementation";
 
     // Loop over the provided arguments, and store their associated values.
     for (size_t i = 0; i < tokens.size(); i++)
@@ -154,6 +156,8 @@ int main(int argc, char* const argv[])
             argOslIncludePath = nextToken;
         else if (token == "--libraries")
             argLibraries = nextToken;
+        else if (token == "--osoNameStrategy")
+            argOsoNameStrategy = nextToken;
         else if (token == "--help")
         {
             std::cout << "MaterialXGenOslNetwork - LibsToOso version " << mx::getVersionString() << std::endl;
@@ -175,6 +179,22 @@ int main(int argc, char* const argv[])
             std::cout << "Expected another token following command-line option: " << token << std::endl;
         else
             i++;
+    }
+
+    bool osoNameStrategy_implementation = true;
+    if (argOsoNameStrategy == "implementation")
+    {
+        // do nothing this is the default
+    }
+    else if (argOsoNameStrategy == "nodedef")
+    {
+        osoNameStrategy_implementation = false;
+    }
+    else
+    {
+        std::cerr << "Unrecognized value for --osoNameStrategy '" << argOsoNameStrategy <<
+            "'. Must be 'implementation' or 'nodedef'" << std::endl;
+        return 1;
     }
 
     // Ensure we have a valid output path.
@@ -339,10 +359,27 @@ int main(int argc, char* const argv[])
 
         // intention is here is to name the new node the same as the genosl implementation name
         // but replacing "_genosl" with "_genoslnetwork"
-        std::string nodeName = nodeImpl->getName()+"network";
+        std::string nodeName;
+        if (osoNameStrategy_implementation)
+        {
+            // name the node the same as the implementation with _genoslnetwork added as a suffix.
+            // NOTE : if the implementation currently has _genosl as a suffix then we remove it.
+            nodeName = nodeImpl->getName();
+            nodeName = mx::replaceSubstrings(nodeName, {{"_genosl", ""}});
+            nodeName += "_genoslnetwork";
+        }
+        else
+        {
+            // name the node the same as the node definition
+            nodeName = nodeDef->getName();
+        }
 
-        // TODO: Check for the existence/validity of the `Node`?
         mx::NodePtr node = librariesDocGraph->addNodeInstance(nodeDef, nodeName);
+        if (!node)
+        {
+            std::cerr << "Unable to create Node instance for NodeDef - '" << nodeDef->getName() << "'" << std::endl;
+            return 1;
+        }
 
         std::string oslShaderName = node->getName();
         oslShaderGen->getSyntax().makeValidName(oslShaderName);
