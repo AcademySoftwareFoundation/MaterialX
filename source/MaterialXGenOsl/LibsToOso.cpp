@@ -348,20 +348,20 @@ int main(int argc, char* const argv[])
             continue;
         }
 
-        // intention is here is to name the new node the same as the genosl implementation name
+        // Intention is here is to name the new node the same as the genosl implementation name
         // but replacing "_genosl" with "_genoslnetwork"
         std::string nodeName;
         if (argOsoNameStrategy == "implementation")
         {
-            // name the node the same as the implementation with _genoslnetwork added as a suffix.
-            // NOTE : if the implementation currently has _genosl as a suffix then we remove it.
+            // Name the node the same as the implementation with _genoslnetwork added as a suffix.
+            // NOTE : If the implementation currently has _genosl as a suffix then we remove it.
             nodeName = nodeImpl->getName();
             nodeName = mx::replaceSubstrings(nodeName, {{"_genosl", ""}});
             nodeName += "_genoslnetwork";
         }
         else
         {
-            // name the node the same as the node definition
+            // Name the node the same as the node definition
             nodeName = nodeDef->getName();
         }
 
