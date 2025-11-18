@@ -7,6 +7,11 @@
     Declarations for OSL implementations of standard nodes included in the MaterialX specification.
   -->
 
+  <!-- This nodedef is an implementation detail of the OSL shader generators, and does not
+  represent a node in the MaterialX specification.
+  This node is used to ensure that the final output from an OSL shader, either direct
+  shader source, or generated shader group, is renderable by encoding conversions
+  for all necessary types to a `closure color -->
   <nodedef name="ND_osl_set_ci" node="osl_set_ci">
     <input name="output_mode" type="integer" default="0"/>
     <input name="input_surfaceshader" type="surfaceshader" default=""/>

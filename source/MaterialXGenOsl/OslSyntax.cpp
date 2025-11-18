@@ -222,6 +222,37 @@ class OSLFilenameTypeSyntax : public AggregateTypeSyntax
     }
 };
 
+/// Specialization of TypeSyntax for aggregate types.
+class OslStructTypeSyntax : public StructTypeSyntax
+{
+public:
+    using StructTypeSyntax::StructTypeSyntax;
+
+    string getValue(const Value& value, bool /* uniform */) const override
+    {
+        const AggregateValue& aggValue = static_cast<const AggregateValue&>(value);
+
+        string result = aggValue.getTypeString() + "(";
+
+        string separator = "";
+        for (const auto& memberValue : aggValue.getMembers())
+        {
+            result += separator;
+            separator = ",";
+
+            const string& memberTypeName = memberValue->getTypeString();
+            const TypeDesc memberTypeDesc = _parent->getType(memberTypeName);
+
+            // Recursively use the syntax to generate the output, so we can supported nested structs.
+            result += _parent->getValue(memberTypeDesc, *memberValue, true);
+        }
+
+        result += ")";
+
+        return result;
+    }
+};
+
 } // anonymous namespace
 
 const string OslSyntax::OUTPUT_QUALIFIER = "output";
@@ -482,30 +513,6 @@ StructTypeSyntaxPtr OslSyntax::createStructSyntax(const string& structTypeName, 
         uniformDefaultValue,
         typeAlias,
         typeDefinition);
-}
-
-string OslStructTypeSyntax::getValue(const Value& value, bool /* uniform */) const
-{
-    const AggregateValue& aggValue = static_cast<const AggregateValue&>(value);
-
-    string result = aggValue.getTypeString() + "(";
-
-    string separator = "";
-    for (const auto& memberValue : aggValue.getMembers())
-    {
-        result += separator;
-        separator = ",";
-
-        const string& memberTypeName = memberValue->getTypeString();
-        const TypeDesc memberTypeDesc = _parent->getType(memberTypeName);
-
-        // Recursively use the syntax to generate the output, so we can supported nested structs.
-        result += _parent->getValue(memberTypeDesc, *memberValue, true);
-    }
-
-    result += ")";
-
-    return result;
 }
 
 MATERIALX_NAMESPACE_END

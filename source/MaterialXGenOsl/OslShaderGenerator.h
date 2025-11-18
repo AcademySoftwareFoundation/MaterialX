@@ -67,6 +67,8 @@ class MX_GENOSL_API OslShaderGenerator : public ShaderGenerator
 
     /// Emit metadata for a shader parameter.
     virtual void emitMetadata(const ShaderPort* port, ShaderStage& stage) const;
+
+    void addSetCiTerminalNode(ShaderGraph& graph, ConstDocumentPtr document, GenContext& context) const;
 };
 
 namespace OSL

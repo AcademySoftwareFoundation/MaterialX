@@ -22,8 +22,9 @@ const string OslNetworkShaderGenerator::TARGET = "genoslnetwork";
 //
 
 OslNetworkShaderGenerator::OslNetworkShaderGenerator(TypeSystemPtr typeSystem) :
-    ShaderGenerator(typeSystem, OslNetworkSyntax::create(typeSystem))
+    OslShaderGenerator(typeSystem)
 {
+    _syntax = OslNetworkSyntax::create(typeSystem);
 }
 
 ShaderNodeImplPtr OslNetworkShaderGenerator::createShaderNodeImplForImplementation(const Implementation& /* implElement */) const
@@ -49,7 +50,7 @@ ShaderPtr OslNetworkShaderGenerator::generate(const string& name, ElementPtr ele
 
     if (context.getOptions().oslConnectCiWrapper)
     {
-        addSetCiTerminalNode(graph, element->getDocument(), getTypeSystem(), context);
+        addSetCiTerminalNode(graph, element->getDocument(), context);
     }
 
     ConstDocumentPtr document = element->getDocument();

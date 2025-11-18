@@ -40,15 +40,6 @@ class MX_GENOSL_API OslSyntax : public Syntax
     static const StringVec COLOR4_MEMBERS;
 };
 
-/// Specialization of TypeSyntax for aggregate types.
-class MX_GENOSL_API OslStructTypeSyntax : public StructTypeSyntax
-{
-  public:
-    using StructTypeSyntax::StructTypeSyntax;
-
-    string getValue(const Value& value, bool uniform) const override;
-};
-
 MATERIALX_NAMESPACE_END
 
 #endif

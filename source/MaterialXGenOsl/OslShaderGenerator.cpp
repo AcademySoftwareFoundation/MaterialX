@@ -38,7 +38,7 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
 
     if (context.getOptions().oslConnectCiWrapper)
     {
-        addSetCiTerminalNode(graph, element->getDocument(), getTypeSystem(), context);
+        addSetCiTerminalNode(graph, element->getDocument(), context);
     }
 
     ShaderStage& stage = shader->getStage(Stage::PIXEL);
@@ -465,6 +465,38 @@ void OslShaderGenerator::emitMetadata(const ShaderPort* port, ShaderStage& stage
         }
     }
 }
+
+
+void OslShaderGenerator::addSetCiTerminalNode(ShaderGraph& graph, ConstDocumentPtr document, GenContext& context) const
+{
+    string setCiNodeDefName = "ND_osl_set_ci";
+    NodeDefPtr setCiNodeDef = document->getNodeDef(setCiNodeDefName);
+
+    std::unordered_map<TypeDesc, ValuePtr, TypeDesc::Hasher> outputModeMap;
+    int index = 0;
+    for (auto input : setCiNodeDef->getInputs())
+    {
+        string inputName = input->getName();
+        if (stringStartsWith(inputName, "input_"))
+        {
+            TypeDesc inputType = _typeSystem->getType(input->getType());
+            outputModeMap[inputType] = std::make_shared<TypedValue<int>>(index++);
+        }
+    }
+
+    for (auto output : graph.getOutputSockets())
+    {
+        auto outputType = output->getType();
+        string typeName = outputType.getName();
+        auto setCiNode = graph.inlineNodeBeforeOutput(output, "oslSetCi", setCiNodeDefName, "input_" + typeName, "out_ci", context);
+        auto typeInput = setCiNode->getInput("output_mode");
+
+        auto outputModeValue = outputModeMap[outputType];
+
+        typeInput->setValue(outputModeValue);
+    }
+}
+
 
 namespace OSL
 {
