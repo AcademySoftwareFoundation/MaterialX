@@ -177,7 +177,7 @@ class DocInserter:
 
         if content != original:
             cpp_file.write_text(content, encoding="utf-8")
-            print(f"  ✓ {cpp_file.relative_to(self.pybind_dir.parent)}")
+            print(f"  - {cpp_file.relative_to(self.pybind_dir.parent)}")
             return True
         else:
             print(f"  - {cpp_file.relative_to(self.pybind_dir.parent)}")
@@ -498,8 +498,8 @@ def main():
         print("\nWriting JSON files...")
         Path("class_docs.json").write_text(json.dumps(extractor.class_docs, indent=2), encoding="utf-8")
         Path("func_docs.json").write_text(json.dumps(extractor.func_docs, indent=2), encoding="utf-8")
-        print("  ✓ class_docs.json")
-        print("  ✓ func_docs.json")
+        print("  - class_docs.json")
+        print("  - func_docs.json")
 
     print(f"\n{'Replacing' if args.force else 'Inserting'} documentation in pybind11 files...")
     inserter = DocInserter(extractor, args.pybind_dir, args.force)
