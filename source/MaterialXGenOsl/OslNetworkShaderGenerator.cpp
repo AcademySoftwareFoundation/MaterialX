@@ -21,8 +21,9 @@ const string OslNetworkShaderGenerator::TARGET = "genoslnetwork";
 //
 
 OslNetworkShaderGenerator::OslNetworkShaderGenerator(TypeSystemPtr typeSystem) :
-    ShaderGenerator(typeSystem, OslNetworkSyntax::create(typeSystem))
+    OslShaderGenerator(typeSystem)
 {
+    _syntax = OslNetworkSyntax::create(typeSystem);
 }
 
 ShaderNodeImplPtr OslNetworkShaderGenerator::createShaderNodeImplForImplementation(const Implementation& /* implElement */) const
@@ -45,6 +46,11 @@ ShaderPtr OslNetworkShaderGenerator::generate(const string& name, ElementPtr ele
     ShaderPtr shader = createShader(name, element, context);
     ShaderGraph& graph = shader->getGraph();
     ShaderStage& stage = shader->getStage(Stage::PIXEL);
+
+    if (context.getOptions().oslConnectCiWrapper)
+    {
+        addSetCiTerminalNode(graph, element->getDocument(), context);
+    }
 
     ConstDocumentPtr document = element->getDocument();
 
@@ -137,18 +143,6 @@ ShaderPtr OslNetworkShaderGenerator::generate(const string& name, ElementPtr ele
 
     for (auto&& connect : connections)
     {
-        emitLine(connect, stage, false);
-    }
-
-    // During unit tests, wrap a special node that will add the output to Ci.
-    if (context.getOptions().oslNetworkConnectCiWrapper)
-    {
-        emitLine("shader setCi root ;", stage, false);
-        string connect = connectString(
-            lastNodeName,
-            lastOutput->getName(),
-            "root",
-            lastOutput->getType().getName() + "_input");
         emitLine(connect, stage, false);
     }
 

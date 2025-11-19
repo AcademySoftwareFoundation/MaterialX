@@ -231,7 +231,7 @@ bool OslShaderRenderTester::runRenderer(const std::string& shaderName,
                 mx::GenOptions& contextOptions = context.getOptions();
                 contextOptions = options;
                 contextOptions.targetColorSpaceOverride = "lin_rec709";
-                contextOptions.oslNetworkConnectCiWrapper = true;
+                contextOptions.oslConnectCiWrapper = true;
 
                 // Apply local overrides for shader generation.
                 shadergen.registerImplementation("IM_tangent_vector3_" + mx::OslShaderGenerator::TARGET, TangentOsl::create);

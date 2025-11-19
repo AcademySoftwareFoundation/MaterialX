@@ -21,77 +21,6 @@
 
 namespace mx = MaterialX;
 
-const std::string setCiOslNetworkSource = R"(
-
-#include "mx_funcs.h"
-
-#define true 1
-#define false 0
-struct textureresource { string filename; string colorspace; };
-#define BSDF closure color
-#define EDF closure color
-#define VDF closure color
-struct surfaceshader { closure color bsdf; closure color edf; float opacity; };
-#define volumeshader closure color
-#define displacementshader vector
-#define lightshader closure color
-#define MATERIAL closure color
-
-#define M_FLOAT_EPS 1e-8
-closure color null_closure() { closure color null_closure = 0; return null_closure; }
-
-shader setCi (
-    float float_input = 0,
-    color color3_input = 0,
-    color4 color4_input = {0,0},
-    vector2 vector2_input = {0,0},
-    vector vector3_input = 0,
-    vector4 vector4_input = {0,0},
-    surfaceshader surfaceshader_input = {0,0,0},
-    BSDF BSDF_input = 0,
-    EDF EDF_input = 0,
-    MATERIAL material_input = 0,
-
-    output closure color Out_Ci = 0
-)
-{
-    color c = 0;
-    float a = 1;
-
-    if (isconnected(surfaceshader_input)) {
-
-        float opacity_weight = clamp(surfaceshader_input.opacity, 0.0, 1.0);
-        Out_Ci =  (surfaceshader_input.bsdf + surfaceshader_input.edf) * opacity_weight + transparent() * (1.0 - opacity_weight);
-
-    } else if (isconnected(material_input)) {
-        Out_Ci = material_input;
-    } else if (isconnected(BSDF_input)) {
-        Out_Ci = BSDF_input;
-    } else if (isconnected(EDF_input)) {
-        Out_Ci = EDF_input;
-    } else {
-        if (isconnected(float_input)) {
-            c = float_input;
-        } else if (isconnected(color3_input)) {
-            c = color3_input;
-        } else if (isconnected(color4_input)) {
-            c = color4_input.rgb;
-            a = color4_input.a;
-        } else if (isconnected(vector2_input)) {
-            c = color(vector2_input.x, vector2_input.y, 0);
-        } else if (isconnected(vector3_input)) {
-            c = color(vector3_input);
-        } else if (isconnected(vector4_input)) {
-            c = color(vector4_input.x, vector4_input.y, vector4_input.z);
-            a = vector4_input.w;
-        }
-        Out_Ci = c * a * emission() + (1-a) * transparent();
-    }
-
-    Ci = Out_Ci;
-}
-)";
-
 const std::string options =
     "    Options: \n"
     "        --outputOsoPath [DIRPATH]       TODO\n"
@@ -290,44 +219,6 @@ int main(int argc, char* const argv[])
 
     // We'll use this boolean to return an error code is one of the `NodeDef` failed to codegen/compile.
     bool hasFailed = false;
-    try
-    {
-        const std::string& oslFilePath = (outputOsoPath / "setCi.osl").asString();
-        std::ofstream oslFile;
-
-        // TODO: Check that we have a valid/opened file descriptor before doing anything with it?
-        oslFile.open(oslFilePath);
-        // Dump the content of the codegen'd `NodeDef` to our `.osl` file.
-        oslFile << setCiOslNetworkSource;
-        oslFile.close();
-
-        // Compile the `.osl` file to a `.oso` file next to it.
-        oslRenderer->compileOSL(oslFilePath);
-    }
-    // Catch any codegen/compilation related exceptions.
-    catch (mx::ExceptionRenderError& exc)
-    {
-        std::cout << "Encountered a codegen/compilation related exception for the "
-                     "following node: "
-                  << std::endl;
-        std::cout << exc.what() << std::endl;
-
-        // Dump details about the exception in the log file.
-        for (const std::string& error : exc.errorLog())
-        {
-            std::cout << error << std::endl;
-        }
-
-        hasFailed = true;
-    }
-    // Catch any other exceptions
-    catch (mx::Exception& exc)
-    {
-        std::cout << "Failed to codegen/compile the following node to OSL: " << std::endl;
-        std::cout << exc.what() << std::endl;
-
-        hasFailed = true;
-    }
 
     // We create and use a dedicated `NodeGraph` to avoid `NodeDef` names collision.
     mx::NodeGraphPtr librariesDocGraph = librariesDoc->addNodeGraph("librariesDocGraph");
