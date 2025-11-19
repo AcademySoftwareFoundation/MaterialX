@@ -193,6 +193,7 @@ jobs:
     - name: CMake Generate
       shell: bash
       run: |
+        EXTENDED_BUILD_CONFIG=""
         if [ "${{ env.IS_EXTENDED_BUILD }}" == "true" ]; then
           if [ "${{ runner.os }}" == "Windows" ]; then
             EXTENDED_BUILD_CONFIG="-DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows"
@@ -207,10 +208,11 @@ jobs:
         TEST_RENDER_CONFIG="-DMATERIALX_TEST_RENDER=OFF"
         if [ "${{ matrix.test_render }}" == "ON" ]; then
           if [ "${{ runner.os }}" == "macOS" ]; then
-            TEST_RENDER_CONFIG="$TEST_RENDER_CONFIG -DMATERIALX_TEST_RENDER=ON -DMATERIALX_RENDER_MSL_ONLY=ON"
+            TEST_RENDER_CONFIG="-DMATERIALX_TEST_RENDER=ON -DMATERIALX_RENDER_MSL_ONLY=ON"
           fi
         fi
-        cmake -S . -B build -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_BUILD_TESTS=ON -DMATERIALX_WARNINGS_AS_ERRORS=ON $TEST_RENDER_CONFIG $EXTENDED_BUILD_CONFIG ${{matrix.cmake_config}}
+        EXTENDED_BUILD_CONFIG="$EXTENDED_BUILD_CONFIG $TEST_RENDER_CONFIG" 
+        cmake -S . -B build -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_BUILD_TESTS=ON -DMATERIALX_WARNINGS_AS_ERRORS=ON $EXTENDED_BUILD_CONFIG ${{matrix.cmake_config}}
 
     - name: CMake Build
       run: cmake --build build --target install --config Release --parallel 2
