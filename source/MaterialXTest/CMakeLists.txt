@@ -112,14 +112,14 @@ endif()
 
 # Copy resources to build directory - always runs during build
 add_custom_target(MaterialXTestResources ALL
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
     ${CMAKE_CURRENT_SOURCE_DIR}/../../resources ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resources
     COMMENT "Copying resources to build directory")
 
 # Copy OSL utilities to build directory - always runs during build
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/MaterialXRenderOsl/Utilities")
     add_custom_target(MaterialXTestOslUtilities ALL
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
         ${CMAKE_CURRENT_SOURCE_DIR}/MaterialXRenderOsl/Utilities ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resources/Utilities
         COMMENT "Copying OSL utilities to build directory")
     add_dependencies(MaterialXTestResources MaterialXTestOslUtilities)
