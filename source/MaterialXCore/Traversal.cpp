@@ -9,21 +9,25 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-const Edge& getNullEdge() {
-    static const auto ret = new Edge(nullptr, nullptr, nullptr);
+const Edge& getNullEdge()
+{
+    static const std::unique_ptr<Edge> ret = std::make_unique<Edge>(nullptr, nullptr, nullptr);
     return *ret;
 }
 
-const TreeIterator& getNullTreeIterator() {
-    static const auto ret = new TreeIterator(nullptr);
+const TreeIterator& getNullTreeIterator()
+{
+    static const std::unique_ptr<TreeIterator> ret = std::make_unique<TreeIterator>(nullptr);
     return *ret;
 }
-const GraphIterator& getNullGraphIterator() {
-    static const auto ret = new GraphIterator(nullptr);
+const GraphIterator& getNullGraphIterator()
+{
+    static const std::unique_ptr<GraphIterator> ret = std::make_unique<GraphIterator>(nullptr);
     return *ret;
 }
-const InheritanceIterator& getNullInheritanceIterator() {
-    static const auto ret = new InheritanceIterator(nullptr);
+const InheritanceIterator& getNullInheritanceIterator()
+{
+    static const std::unique_ptr<InheritanceIterator> ret = std::make_unique<InheritanceIterator>(nullptr);
     return *ret;
 }
 
