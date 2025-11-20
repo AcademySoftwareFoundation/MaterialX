@@ -21,77 +21,6 @@
 
 namespace mx = MaterialX;
 
-const std::string setCiOslNetworkSource = R"(
-
-#include "mx_funcs.h"
-
-#define true 1
-#define false 0
-struct textureresource { string filename; string colorspace; };
-#define BSDF closure color
-#define EDF closure color
-#define VDF closure color
-struct surfaceshader { closure color bsdf; closure color edf; float opacity; };
-#define volumeshader closure color
-#define displacementshader vector
-#define lightshader closure color
-#define MATERIAL closure color
-
-#define M_FLOAT_EPS 1e-8
-closure color null_closure() { closure color null_closure = 0; return null_closure; }
-
-shader setCi (
-    float float_input = 0,
-    color color3_input = 0,
-    color4 color4_input = {0,0},
-    vector2 vector2_input = {0,0},
-    vector vector3_input = 0,
-    vector4 vector4_input = {0,0},
-    surfaceshader surfaceshader_input = {0,0,0},
-    BSDF BSDF_input = 0,
-    EDF EDF_input = 0,
-    MATERIAL material_input = 0,
-
-    output closure color Out_Ci = 0
-)
-{
-    color c = 0;
-    float a = 1;
-
-    if (isconnected(surfaceshader_input)) {
-
-        float opacity_weight = clamp(surfaceshader_input.opacity, 0.0, 1.0);
-        Out_Ci =  (surfaceshader_input.bsdf + surfaceshader_input.edf) * opacity_weight + transparent() * (1.0 - opacity_weight);
-
-    } else if (isconnected(material_input)) {
-        Out_Ci = material_input;
-    } else if (isconnected(BSDF_input)) {
-        Out_Ci = BSDF_input;
-    } else if (isconnected(EDF_input)) {
-        Out_Ci = EDF_input;
-    } else {
-        if (isconnected(float_input)) {
-            c = float_input;
-        } else if (isconnected(color3_input)) {
-            c = color3_input;
-        } else if (isconnected(color4_input)) {
-            c = color4_input.rgb;
-            a = color4_input.a;
-        } else if (isconnected(vector2_input)) {
-            c = color(vector2_input.x, vector2_input.y, 0);
-        } else if (isconnected(vector3_input)) {
-            c = color(vector3_input);
-        } else if (isconnected(vector4_input)) {
-            c = color(vector4_input.x, vector4_input.y, vector4_input.z);
-            a = vector4_input.w;
-        }
-        Out_Ci = c * a * emission() + (1-a) * transparent();
-    }
-
-    Ci = Out_Ci;
-}
-)";
-
 const std::string options =
     "    Options: \n"
     "        --outputOsoPath [DIRPATH]       TODO\n"
@@ -100,8 +29,7 @@ const std::string options =
     "        --oslCompilerPath [FILEPATH]    TODO\n"
     "        --oslIncludePath [DIRPATH]      TODO\n"
     "        --libraries [STRING]            TODO\n"
-    "        --removeNdPrefix [BOOLEAN]      TODO\n"
-    "        --prefix [STRING]               TODO\n"
+    "        --osoNameStrategy [STRING]      TODO - either 'implementation' or 'nodedef' (default:'implementation')\n"
     "        --help                          Display the complete list of command-line options\n";
 
 template <class T> void parseToken(std::string token, std::string type, T& res)
@@ -137,8 +65,7 @@ int main(int argc, char* const argv[])
     std::string argOslCompilerPath;
     std::string argOslIncludePath;
     std::string argLibraries;
-    bool argRemoveNdPrefix = false;
-    std::string argPrefix;
+    std::string argOsoNameStrategy = "implementation";
 
     // Loop over the provided arguments, and store their associated values.
     for (size_t i = 0; i < tokens.size(); i++)
@@ -158,10 +85,8 @@ int main(int argc, char* const argv[])
             argOslIncludePath = nextToken;
         else if (token == "--libraries")
             argLibraries = nextToken;
-        else if (token == "--removeNdPrefix")
-            parseToken(nextToken, "boolean", argRemoveNdPrefix);
-        else if (token == "--prefix")
-            argPrefix = nextToken;
+        else if (token == "--osoNameStrategy")
+            argOsoNameStrategy = nextToken;
         else if (token == "--help")
         {
             std::cout << "MaterialXGenOslNetwork - LibsToOso version " << mx::getVersionString() << std::endl;
@@ -185,9 +110,15 @@ int main(int argc, char* const argv[])
             i++;
     }
 
+    if (!(argOsoNameStrategy == "implementation" || argOsoNameStrategy == "nodedef"))
+    {
+        std::cerr << "Unrecognized value for --osoNameStrategy '" << argOsoNameStrategy <<
+            "'. Must be 'implementation' or 'nodedef'" << std::endl;
+        return 1;
+    }
+
     // Ensure we have a valid output path.
     mx::FilePath outputOsoPath(argOutputOsoPath);
-
     if (!outputOsoPath.exists() || !outputOsoPath.isDirectory())
     {
         outputOsoPath.createDirectory();
@@ -219,21 +150,17 @@ int main(int argc, char* const argv[])
 
     // Ensure we have a valid path to the OSL compiler.
     mx::FilePath oslCompilerPath(argOslCompilerPath);
-
     if (!oslCompilerPath.exists())
     {
         std::cerr << "The provided path to the OSL compiler is not valid: " << oslCompilerPath.asString() << std::endl;
-
         return 1;
     }
 
     // Ensure we have a valid path to the OSL includes.
     mx::FilePath oslIncludePath(argOslIncludePath);
-
     if (!oslIncludePath.exists() || !oslIncludePath.isDirectory())
     {
         std::cerr << "The provided path to the OSL includes is not valid: " << oslIncludePath.asString() << std::endl;
-
         return 1;
     }
 
@@ -292,44 +219,6 @@ int main(int argc, char* const argv[])
 
     // We'll use this boolean to return an error code is one of the `NodeDef` failed to codegen/compile.
     bool hasFailed = false;
-    try
-    {
-        const std::string& oslFilePath = (outputOsoPath / "setCi.osl").asString();
-        std::ofstream oslFile;
-
-        // TODO: Check that we have a valid/opened file descriptor before doing anything with it?
-        oslFile.open(oslFilePath);
-        // Dump the content of the codegen'd `NodeDef` to our `.osl` file.
-        oslFile << setCiOslNetworkSource;
-        oslFile.close();
-
-        // Compile the `.osl` file to a `.oso` file next to it.
-        oslRenderer->compileOSL(oslFilePath);
-    }
-    // Catch any codegen/compilation related exceptions.
-    catch (mx::ExceptionRenderError& exc)
-    {
-        std::cout << "Encountered a codegen/compilation related exception for the "
-                     "following node: "
-                  << std::endl;
-        std::cout << exc.what() << std::endl;
-
-        // Dump details about the exception in the log file.
-        for (const std::string& error : exc.errorLog())
-        {
-            std::cout << error << std::endl;
-        }
-
-        hasFailed = true;
-    }
-    // Catch any other exceptions
-    catch (mx::Exception& exc)
-    {
-        std::cout << "Failed to codegen/compile the following node to OSL: " << std::endl;
-        std::cout << exc.what() << std::endl;
-
-        hasFailed = true;
-    }
 
     // We create and use a dedicated `NodeGraph` to avoid `NodeDef` names collision.
     mx::NodeGraphPtr librariesDocGraph = librariesDoc->addNodeGraph("librariesDocGraph");
@@ -337,19 +226,6 @@ int main(int argc, char* const argv[])
     // Loop over all the `NodeDef` gathered in our documents from the provided libraries.
     for (mx::NodeDefPtr nodeDef : librariesDoc->getNodeDefs())
     {
-        std::string nodeName = nodeDef->getName();
-
-        // Remove the "ND_" prefix from a valid `NodeDef` name.
-        if (argRemoveNdPrefix)
-        {
-            if (nodeName.size() > 3 && nodeName.substr(0, 3) == "ND_")
-                nodeName = nodeName.substr(3);
-
-            // Add a prefix to the shader's name, both in the filename as well as inside the shader itself.
-            if (!argPrefix.empty())
-                nodeName = argPrefix + "_" + nodeName;
-        }
-
         // Determine whether or not there's a valid implementation of the current `NodeDef` for the type associated
         // to our OSL shader generator, i.e. OSL, and if not, skip it.
         mx::InterfaceElementPtr nodeImpl = nodeDef->getImplementation(oslShaderGen->getTarget());
@@ -363,8 +239,29 @@ int main(int argc, char* const argv[])
             continue;
         }
 
-        // TODO: Check for the existence/validity of the `Node`?
+        // Intention is here is to name the new node the same as the genosl implementation name
+        // but replacing "_genosl" with "_genoslnetwork"
+        std::string nodeName;
+        if (argOsoNameStrategy == "implementation")
+        {
+            // Name the node the same as the implementation with _genoslnetwork added as a suffix.
+            // NOTE : If the implementation currently has _genosl as a suffix then we remove it.
+            nodeName = nodeImpl->getName();
+            nodeName = mx::replaceSubstrings(nodeName, {{"_genosl", ""}});
+            nodeName += "_genoslnetwork";
+        }
+        else
+        {
+            // Name the node the same as the node definition
+            nodeName = nodeDef->getName();
+        }
+
         mx::NodePtr node = librariesDocGraph->addNodeInstance(nodeDef, nodeName);
+        if (!node)
+        {
+            std::cerr << "Unable to create Node instance for NodeDef - '" << nodeDef->getName() << "'" << std::endl;
+            return 1;
+        }
 
         std::string oslShaderName = node->getName();
         oslShaderGen->getSyntax().makeValidName(oslShaderName);

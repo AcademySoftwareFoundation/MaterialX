@@ -11,7 +11,7 @@
 
 #include <MaterialXGenOsl/Export.h>
 
-#include <MaterialXGenShader/ShaderGenerator.h>
+#include <MaterialXGenOsl/OslShaderGenerator.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -20,7 +20,7 @@ using OslNetworkShaderGeneratorPtr = shared_ptr<class OslNetworkShaderGenerator>
 /// @class OslNetworkShaderGenerator
 /// OSL (Open Shading Language) Network shader generator.
 /// Generates a command string that OSL can use to build a ShaderGroup.
-class MX_GENOSL_API OslNetworkShaderGenerator : public ShaderGenerator
+class MX_GENOSL_API OslNetworkShaderGenerator : public OslShaderGenerator
 {
   public:
     /// Constructor.
@@ -50,7 +50,7 @@ class MX_GENOSL_API OslNetworkShaderGenerator : public ShaderGenerator
 
   protected:
     /// Create and initialize a new OSL shader for shader generation.
-    virtual ShaderPtr createShader(const string& name, ElementPtr element, GenContext& context) const;
+    ShaderPtr createShader(const string& name, ElementPtr element, GenContext& context) const override;
 };
 
 namespace OSLNetwork
