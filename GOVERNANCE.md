@@ -70,6 +70,7 @@ The current Stakeholders of the MaterialX TSC are:
 - Lutz Kettner - NVIDIA
 - Chris Kulla - Epic Games
 - Bernard Kwok - Khronos Group
+- Karen Lucknavalai - Pixar USD
 - André Mazzone - ILM
 - Magnus Pettersson - IKEA
 - Dimitar Toshev - Chaos
