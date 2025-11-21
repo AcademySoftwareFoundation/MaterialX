@@ -307,6 +307,11 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
         newNode->_classification = Classification::TEXTURE | Classification::FILETEXTURE;
     }
 
+    if (nodeDef.getName() == "ND_mix_bsdf")
+    {
+        newNode->_classification |= Classification::MIX_BSDF;
+    }
+
     // Add in classification based on group name
     if (groupName == TEXTURE2D_GROUPNAME || groupName == PROCEDURAL2D_GROUPNAME)
     {
