@@ -479,19 +479,19 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     /// @{
 
     /// Set the value string of the given attribute.
-    void setAttribute(const string& attrib, const string& value);
+    void setAttribute(std::string_view attrib, const string& value);
 
     /// Return true if the given attribute is present.
-    bool hasAttribute(const string& attrib) const
+    bool hasAttribute(std::string_view attrib) const
     {
-        return _attributeMap.count(attrib) != 0;
+        return _attributeMap.count(string(attrib)) != 0;
     }
 
     /// Return the value string of the given attribute.  If the given attribute
     /// is not present, then an empty string is returned.
-    const string& getAttribute(const string& attrib) const
+    const string& getAttribute(std::string_view attrib) const
     {
-        StringMap::const_iterator it = _attributeMap.find(attrib);
+        StringMap::const_iterator it = _attributeMap.find(string(attrib));
         return (it != _attributeMap.end()) ? it->second : EMPTY_STRING;
     }
 
@@ -528,7 +528,7 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     }
 
     /// Remove the given attribute, if present.
-    void removeAttribute(const string& attrib);
+    void removeAttribute(std::string_view attrib);
 
     /// @}
     /// @name Self And Ancestor Elements
