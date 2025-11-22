@@ -106,13 +106,20 @@ class OslShaderRenderTester : public RenderUtil::ShaderRenderTester
     void addSkipFiles() override
     {
         _skipFiles.insert("standard_surface_onyx_hextiled.mtlx");
-        _skipFiles.insert("hextiled.mtlx");
-        _skipFiles.insert("filename_cm_test.mtlx");
-        _skipFiles.insert("shader_ops.mtlx");
-        _skipFiles.insert("chiang_hair_surfaceshader.mtlx");
-        _skipFiles.insert("network_surfaceshader.mtlx");
-        _skipFiles.insert("sheen.mtlx");
-        _skipFiles.insert("toon_shade.mtlx");
+        if (_useOslCmdStr)
+        {
+            _skipFiles.insert("hextiled.mtlx");
+            _skipFiles.insert("filename_cm_test.mtlx");
+            _skipFiles.insert("shader_ops.mtlx");
+            _skipFiles.insert("chiang_hair_surfaceshader.mtlx");
+            _skipFiles.insert("network_surfaceshader.mtlx");
+            _skipFiles.insert("sheen.mtlx");
+            _skipFiles.insert("toon_shade.mtlx");
+            _skipFiles.insert("bsdf_graph.mtlx");
+            _skipFiles.insert("varying_ior.mtlx");
+            _skipFiles.insert("vertical_layering.mtlx");
+            _skipFiles.insert("mix_bsdf.mtlx");
+        }
     }
 
     bool saveImage(const mx::FilePath& filePath, mx::ConstImagePtr image, bool /*verticalFlip*/) const override
@@ -224,7 +231,7 @@ bool OslShaderRenderTester::runRenderer(const std::string& shaderName,
                 mx::GenOptions& contextOptions = context.getOptions();
                 contextOptions = options;
                 contextOptions.targetColorSpaceOverride = "lin_rec709";
-                contextOptions.oslNetworkConnectCiWrapper = true;
+                contextOptions.oslConnectCiWrapper = true;
 
                 // Apply local overrides for shader generation.
                 shadergen.registerImplementation("IM_tangent_vector3_" + mx::OslShaderGenerator::TARGET, TangentOsl::create);

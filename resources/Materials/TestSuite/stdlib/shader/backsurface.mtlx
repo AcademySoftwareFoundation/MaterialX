@@ -1,0 +1,13 @@
+<?xml version="1.0"?>                                                                          
+<materialx version="1.39" colorspace="lin_rec709">    
+  <standard_surface name="SR_surface" type="surfaceshader">      
+    <input name="base_color" type="color3" value="1, 0, 0" />                   
+  </standard_surface>                                                                          
+  <standard_surface name="SR_backsurface" type="surfaceshader">       
+    <input name="base_color" type="color3" value="0, 1, 0" />                   
+  </standard_surface>                                                                          
+  <surfacematerial name="backsurface" type="material">                   
+    <input name="surfaceshader" type="surfaceshader" nodename="SR_surface" />                     
+    <input name="backsurfaceshader" type="surfaceshader" nodename="SR_backsurface" />                
+  </surfacematerial>                                                                           
+</materialx>                                                                                   

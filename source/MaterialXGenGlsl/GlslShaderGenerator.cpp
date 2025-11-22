@@ -631,7 +631,7 @@ void GlslShaderGenerator::toVec4(TypeDesc type, string& variable)
     {
         variable = "vec4(" + variable + ", 0.0, 1.0)";
     }
-    else if (type == Type::FLOAT || type == Type::INTEGER)
+    else if (type == Type::FLOAT || type == Type::INTEGER || type == Type::BOOLEAN)
     {
         variable = "vec4(" + variable + ", " + variable + ", " + variable + ", 1.0)";
     }

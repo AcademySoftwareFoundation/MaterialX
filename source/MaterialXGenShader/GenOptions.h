@@ -97,7 +97,7 @@ class MX_GENSHADER_API GenOptions
         hwWriteEnvPrefilter(false),
         hwImplicitBitangents(true),
         oslImplicitSurfaceShaderConversion(true),
-        oslNetworkConnectCiWrapper(false)
+        oslConnectCiWrapper(false)
     {
     }
     virtual ~GenOptions() { }
@@ -209,9 +209,9 @@ class MX_GENSHADER_API GenOptions
     bool oslImplicitSurfaceShaderConversion;
 
     // Enables an OSL node that adds the root's output to the Ci variable
-    // for OSL Network targets.
+    // for OSL targets.
     // Defaults to false.
-    bool oslNetworkConnectCiWrapper;
+    bool oslConnectCiWrapper;
 };
 
 MATERIALX_NAMESPACE_END
