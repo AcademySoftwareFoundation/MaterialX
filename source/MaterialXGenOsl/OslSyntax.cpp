@@ -89,12 +89,12 @@ class OslIntegerArrayTypeSyntax : public OslArrayTypeSyntax
 
 // In OSL vector2, vector4, and color4 are custom struct types and require a different
 // value syntax for uniforms. So override the aggregate type syntax to support this.
-class OslStructTypeSyntax : public AggregateTypeSyntax
+class OslVecTypeSyntax : public AggregateTypeSyntax
 {
   public:
-    OslStructTypeSyntax(const Syntax* parent, const string& name, const string& defaultValue, const string& uniformDefaultValue,
-                        const string& typeAlias = EMPTY_STRING, const string& typeDefinition = EMPTY_STRING,
-                        const StringVec& members = EMPTY_MEMBERS) :
+    OslVecTypeSyntax(const Syntax* parent, const string& name, const string& defaultValue, const string& uniformDefaultValue,
+                     const string& typeAlias = EMPTY_STRING, const string& typeDefinition = EMPTY_STRING,
+                     const StringVec& members = EMPTY_MEMBERS) :
         AggregateTypeSyntax(parent, name, defaultValue, uniformDefaultValue, typeAlias, typeDefinition, members)
     {
     }
@@ -119,11 +119,11 @@ class OslStructTypeSyntax : public AggregateTypeSyntax
 //    float a;
 // }
 //
-class OslColor4TypeSyntax : public OslStructTypeSyntax
+class OslColor4TypeSyntax : public OslVecTypeSyntax
 {
   public:
     OslColor4TypeSyntax(const Syntax* parent) :
-        OslStructTypeSyntax(parent, "color4", "color4(color(0.0), 0.0)", "{color(0.0), 0.0}", EMPTY_STRING, EMPTY_STRING, OslSyntax::COLOR4_MEMBERS)
+        OslVecTypeSyntax(parent, "color4", "color4(color(0.0), 0.0)", "{color(0.0), 0.0}", EMPTY_STRING, EMPTY_STRING, OslSyntax::COLOR4_MEMBERS)
     {
     }
 
@@ -222,6 +222,37 @@ class OSLFilenameTypeSyntax : public AggregateTypeSyntax
     }
 };
 
+/// Specialization of TypeSyntax for aggregate types.
+class OslStructTypeSyntax : public StructTypeSyntax
+{
+public:
+    using StructTypeSyntax::StructTypeSyntax;
+
+    string getValue(const Value& value, bool /* uniform */) const override
+    {
+        const AggregateValue& aggValue = static_cast<const AggregateValue&>(value);
+
+        string result = aggValue.getTypeString() + "(";
+
+        string separator = "";
+        for (const auto& memberValue : aggValue.getMembers())
+        {
+            result += separator;
+            separator = ",";
+
+            const string& memberTypeName = memberValue->getTypeString();
+            const TypeDesc memberTypeDesc = _parent->getType(memberTypeName);
+
+            // Recursively use the syntax to generate the output, so we can supported nested structs.
+            result += _parent->getValue(memberTypeDesc, *memberValue, true);
+        }
+
+        result += ")";
+
+        return result;
+    }
+};
+
 } // anonymous namespace
 
 const string OslSyntax::OUTPUT_QUALIFIER = "output";
@@ -235,7 +266,8 @@ const StringVec OslSyntax::COLOR4_MEMBERS = { ".rgb[0]", ".rgb[1]", ".rgb[2]", "
 // OslSyntax methods
 //
 
-OslSyntax::OslSyntax(TypeSystemPtr typeSystem) : Syntax(typeSystem)
+OslSyntax::OslSyntax(TypeSystemPtr typeSystem) :
+    Syntax(typeSystem)
 {
     // Add in all reserved words and keywords in OSL
     registerReservedWords(
@@ -300,7 +332,7 @@ OslSyntax::OslSyntax(TypeSystemPtr typeSystem) : Syntax(typeSystem)
 
     registerTypeSyntax(
         // Note: the color type in OSL is a built in type and
-        // should not use the custom OslStructTypeSyntax.
+        // should not use the custom OslVecTypeSyntax.
         Type::COLOR3,
         std::make_shared<AggregateTypeSyntax>(
             this,
@@ -317,7 +349,7 @@ OslSyntax::OslSyntax(TypeSystemPtr typeSystem) : Syntax(typeSystem)
 
     registerTypeSyntax(
         Type::VECTOR2,
-        std::make_shared<OslStructTypeSyntax>(
+        std::make_shared<OslVecTypeSyntax>(
             this,
             "vector2",
             "vector2(0.0, 0.0)",
@@ -328,7 +360,7 @@ OslSyntax::OslSyntax(TypeSystemPtr typeSystem) : Syntax(typeSystem)
 
     registerTypeSyntax(
         // Note: the vector type in OSL is a built in type and
-        // should not use the custom OslStructTypeSyntax.
+        // should not use the custom OslVecTypeSyntax.
         Type::VECTOR3,
         std::make_shared<AggregateTypeSyntax>(
             this,
@@ -341,7 +373,7 @@ OslSyntax::OslSyntax(TypeSystemPtr typeSystem) : Syntax(typeSystem)
 
     registerTypeSyntax(
         Type::VECTOR4,
-        std::make_shared<OslStructTypeSyntax>(
+        std::make_shared<OslVecTypeSyntax>(
             this,
             "vector4",
             "vector4(0.0, 0.0, 0.0, 0.0)",
@@ -468,6 +500,19 @@ OslSyntax::OslSyntax(TypeSystemPtr typeSystem) : Syntax(typeSystem)
 const string& OslSyntax::getOutputQualifier() const
 {
     return OUTPUT_QUALIFIER;
+}
+
+StructTypeSyntaxPtr OslSyntax::createStructSyntax(const string& structTypeName, const string& defaultValue,
+                                                  const string& uniformDefaultValue, const string& typeAlias,
+                                                  const string& typeDefinition) const
+{
+    return std::make_shared<OslStructTypeSyntax>(
+        this,
+        structTypeName,
+        defaultValue,
+        uniformDefaultValue,
+        typeAlias,
+        typeDefinition);
 }
 
 MATERIALX_NAMESPACE_END

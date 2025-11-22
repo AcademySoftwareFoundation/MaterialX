@@ -103,7 +103,8 @@ void checkImplementations(mx::GenContext& context,
         "absorption_vdf",
         "geompropvalue",
         "surfacematerial",
-        "volumematerial"
+        "volumematerial",
+        "osl_set_ci"
     };
     skipNodeTypes.insert(generatorSkipNodeTypes.begin(), generatorSkipNodeTypes.end());
 
@@ -117,7 +118,8 @@ void checkImplementations(mx::GenContext& context,
         "ND_mix_volumeshader",
         "ND_mix_vdf",
         "ND_surfacematerial",
-        "ND_volumematerial"
+        "ND_volumematerial",
+        "ND_osl_set_ci"
     };
     skipNodeDefs.insert(generatorSkipNodeDefs.begin(), generatorSkipNodeDefs.end());
 
