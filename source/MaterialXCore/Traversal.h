@@ -392,11 +392,11 @@ class MX_CORE_API ExceptionFoundCycle : public Exception
     using Exception::Exception;
 };
 
-extern MX_CORE_API const Edge NULL_EDGE;
+MX_CORE_API const Edge& getNullEdge();
 
-extern MX_CORE_API const TreeIterator NULL_TREE_ITERATOR;
-extern MX_CORE_API const GraphIterator NULL_GRAPH_ITERATOR;
-extern MX_CORE_API const InheritanceIterator NULL_INHERITANCE_ITERATOR;
+MX_CORE_API const TreeIterator& getNullTreeIterator();
+MX_CORE_API const GraphIterator& getNullGraphIterator();
+MX_CORE_API const InheritanceIterator& getNullInheritanceIterator();
 
 MATERIALX_NAMESPACE_END
 
