@@ -48,7 +48,7 @@ def main(args=None):
     parser.add_argument('-o', '--outputfile', dest='outputfile', action='store', help='Output file name', default="tests.html")
     parser.add_argument('-d', '--diff', dest='CREATE_DIFF', action='store_true', help='Perform image diff', default=False)
     parser.add_argument('-t', '--timestamp', dest='ENABLE_TIMESTAMPS', action='store_true', help='Write image timestamps', default=False)
-    parser.add_argument('-w', '--imagewidth', type=int, dest='imagewidth', action='store', help='Set image display width. Default is 256. <= 0 means to resize dynamically', default=256)
+    parser.add_argument('-w', '--imagewidth', type=int, dest='imagewidth', action='store', help='Set image display width. Default is 512. <= 0 means to resize dynamically', default=512)
     parser.add_argument('-l1', '--lang1', dest='lang1', action='store', help='First target language for comparison. Default is glsl', default="glsl")
     parser.add_argument('-l2', '--lang2', dest='lang2', action='store', help='Second target language for comparison. Default is osl', default="osl")
     parser.add_argument('-l3', '--lang3', dest='lang3', action='store', help='Third target language for comparison. Default is empty', default="")
@@ -344,26 +344,26 @@ def main(args=None):
         html_parts.append("  </style>\n")
         html_parts.append("</head>\n")
         html_parts.append("<body>\n")
-        html_parts.append("  <div style='font-size:9pt;' class='small container-fluid py-4'>\n")
+        html_parts.append("  <div style='font-size:14pt;' class='small container-fluid py-4'>\n")
 
         if useThirdLang:
-            html_parts.append("    <div class='mb-4'>" + args.lang1 + " (in: " + args.inputdir1 + ") vs "+ args.lang2 + " (in: " + args.inputdir2 + ") vs "+ args.lang3 + " (in: " + args.inputdir3 + ")</div>\n")
+            html_parts.append("    <div class='h2 mb-4'>" + args.lang1 + " (in: " + args.inputdir1 + ") vs "+ args.lang2 + " (in: " + args.inputdir2 + ") vs "+ args.lang3 + " (in: " + args.inputdir3 + ")</div>\n")
         else:
-            html_parts.append("    <div class='mb-4'>" + args.lang1 + " (in: " + args.inputdir1 + ") vs "+ args.lang2 + " (in: " + args.inputdir2 + ")</div>\n")
+            html_parts.append("    <div class='h2 mb-4'>" + args.lang1 + " (in: " + args.inputdir1 + ") vs "+ args.lang2 + " (in: " + args.inputdir2 + ")</div>\n")
 
         for group in groups:
-            html_parts.append("    <div class='border border-dark p-0 mb-0'>\n")
-            html_parts.append("      <div class='text-break w-64' style='font-size:9pt; word-break:break-all;'>" + group["group"] + ":</div>\n")
+            html_parts.append("    <div class='p-0 mb-0'>\n")
+            html_parts.append("      <div class='text-break w-64' style='font-size:10pt; word-break:break-all;'>" + group["group"] + ":</div>\n")
             for row in group["rows"]:
-                html_parts.append("      <div class='d-flex flex-nowrap align-items-start p-2 mb-0'>\n")
+                html_parts.append("      <div class='d-flex flex-nowrap align-items-start px-2 mb-0'>\n")
                 for col in row["columns"]:
                     if args.imagewidth and args.imagewidth > 0:
-                        html_parts.append("        <div class='d-inline-block text-start me-0'>\n")
+                        html_parts.append("        <div class='border border-dark d-inline-block text-start me-0'>\n")
                     else:
-                        html_parts.append("        <div class='d-inline-block text-start me-0' style='width:100%;'>\n")
+                        html_parts.append("        <div class='border border-dark d-inline-block text-start me-0' style='width:100%;'>\n")
                     if col.get("image"):
                         html_parts.append("          <img src='" + col["image"] + "' class='test-image img-fluid' loading='lazy' alt='" + col.get("text", "").replace("<br>", " ") + "'/>")
-                    html_parts.append("          <div class='text-break mt-0 mb-0'>" + col.get("text", "") + "</div>\n")
+                    html_parts.append("          <div class='text-break font-size:10pt mt-0 mb-0'>" + col.get("text", "") + "</div>\n")
                     html_parts.append("        </div>\n")
                 html_parts.append("      </div>\n")
             html_parts.append("    </div>\n")
