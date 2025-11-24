@@ -115,7 +115,6 @@ jobs:
           python: 3.13
           cmake_config: -G "Visual Studio 17 2022" -A "x64"
           test_shaders: ON
-          extended_build_oiio: ON
           extended_build_mdl_sdk: ON
 
         - name: Windows_VS2022_x64_SharedLibs
@@ -123,6 +122,7 @@ jobs:
           architecture: x64
           python: None
           cmake_config: -G "Visual Studio 17 2022" -A "x64" -DMATERIALX_BUILD_SHARED_LIBS=ON
+          extended_build_oiio: ON
           upload_shaders: ON
 
     steps:
