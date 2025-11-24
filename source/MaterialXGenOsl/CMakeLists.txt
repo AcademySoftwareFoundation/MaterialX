@@ -14,22 +14,26 @@ mx_add_library(MaterialXGenOsl
     EXPORT_DEFINE
         MATERIALX_GENOSL_EXPORTS)
 
-# FIXME: LibsToOso has a dependency on the OslRenderer.
-if (MATERIALX_BUILD_OSOS AND MATERIALX_BUILD_RENDER)
+if (MATERIALX_BUILD_OSOS)
     file(GLOB GenNodes_SRC "${CMAKE_CURRENT_SOURCE_DIR}/LibsToOso.cpp")
-
-    set(MATERIALX_LIBRARIES
-        MaterialXCore
-        MaterialXFormat
-        MaterialXGenShader
-        MaterialXGenOsl
-        MaterialXRenderOsl)
 
     add_executable(MaterialXGenOsl_LibsToOso ${GenNodes_SRC})
 
-    target_link_libraries(
-        MaterialXGenOsl_LibsToOso
-        ${MATERIALX_LIBRARIES})
+    target_link_libraries(MaterialXGenOsl_LibsToOso
+        PRIVATE
+            MaterialXCore
+            MaterialXFormat
+            MaterialXGenShader
+            MaterialXGenOsl)
+
+    if (OSL_FOUND)
+        target_link_libraries(MaterialXGenOsl_LibsToOso
+            PRIVATE
+                OSL::oslcomp)
+        target_compile_definitions(MaterialXGenOsl_LibsToOso
+            PRIVATE
+                USE_OSLCOMP)
+    endif()
 
     set_target_properties(
         MaterialXGenOsl_LibsToOso PROPERTIES

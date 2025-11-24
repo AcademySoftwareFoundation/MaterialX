@@ -148,6 +148,7 @@ const string ShaderNode::CONSTANT = "constant";
 const string ShaderNode::DOT = "dot";
 const string ShaderNode::IMAGE = "image";
 const string ShaderNode::SURFACESHADER = "surfaceshader";
+const string ShaderNode::BACKSURFACESHADER = "backsurfaceshader";
 const string ShaderNode::BSDF_R = "R";
 const string ShaderNode::BSDF_T = "T";
 const string ShaderNode::TEXTURE2D_GROUPNAME = "texture2d";

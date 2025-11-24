@@ -59,10 +59,10 @@
       <input name="in1" type="float" nodename="smooth_gradient" />
       <input name="in2" type="float" nodename="max_float" />
     </multiply>
-    <power name="specular_intensity_power" type="float">
+    <safepower name="specular_intensity_power" type="float">
       <input name="in1" type="float" nodename="multiply_float" />
       <input name="in2" type="float" interfacename="glossiness" />
-    </power>
+    </safepower>
     <convert name="specular_intensity_color" type="color3">
       <input name="in" type="float" nodename="specular_remap" />
     </convert>
@@ -117,10 +117,10 @@
     <constant name="rim_threshold" type="float">
       <input name="value" type="float" value="0.1" />
     </constant>
-    <power name="rim_power" type="float">
+    <safepower name="rim_power" type="float">
       <input name="in1" type="float" nodename="NdotL" />
       <input name="in2" type="float" nodename="rim_threshold" />
-    </power>
+    </safepower>
     <multiply name="multiply_vector4" type="vector3">
       <input name="in1" type="vector3" nodename="unit_light_direction" />
       <input name="in2" type="vector3" value="-1, -1, -1" />

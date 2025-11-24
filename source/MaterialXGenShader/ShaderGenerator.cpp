@@ -318,9 +318,24 @@ ShaderNodeImplPtr ShaderGenerator::getImplementation(const NodeDef& nodedef, Gen
     }
     else if (implElement->isA<Implementation>())
     {
+        ImplementationPtr implementationElement = implElement->asA<Implementation>();
         if (getColorManagementSystem() && getColorManagementSystem()->hasImplementation(name))
         {
             impl = getColorManagementSystem()->createImplementation(name);
+        }
+        else if (implementationElement->hasNodeGraph())
+        {
+            const string& nodegraphElementName = implementationElement->getNodeGraph();
+            NodeGraphPtr nodegraph = implElement->getDocument()->getNodeGraph(nodegraphElementName);
+            if (nodegraph)
+            {
+                impl = createShaderNodeImplForNodeGraph(*nodegraph);
+                implElement = nodegraph;
+            }
+            else
+            {
+                return nullptr;
+            }
         }
         else
         {
