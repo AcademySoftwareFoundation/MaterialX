@@ -13,7 +13,96 @@ try:
 except Exception:
     DIFF_ENABLED = False
 
-def computeDiff(image1Path, image2Path, imageDiffPath):
+try:
+    # Install modules for image resizing and base64 encoding.
+    import base64
+    import cv2
+    import numpy as np
+    REDUCE_ENABLED = True
+    DIFF_ENABLED = True
+except Exception:
+    REDUCE_ENABLED = False
+
+def computeDiff(image1Path, image2Path, imageDiffPath, reduced=False, width=512):
+    if not image1Path or not image2Path:
+        return 1.0
+
+    try:
+        # Remove existing diff image if present
+        if os.path.exists(imageDiffPath):
+            os.remove(imageDiffPath)
+
+        # Check input existence
+        if not os.path.exists(image1Path):
+            print("Image diff input missing: " + image1Path)
+            return 1.0, ""
+        if not os.path.exists(image2Path):
+            print("Image diff input missing: " + image2Path)
+            return 1.0, ""
+
+        # Read images in color (BGR)
+        img1 = cv2.imread(image1Path, cv2.IMREAD_COLOR)
+        img2 = cv2.imread(image2Path, cv2.IMREAD_COLOR)
+        if img1 is None or img2 is None:
+            print("Failed to read images.")
+            return 1.0, ""
+
+        # Ensure both images have the same shape
+        if img1.shape != img2.shape:
+            print("Images have different dimensions or channels.")
+            return 1.0, ""
+
+        # Compute absolute difference
+        diff = cv2.absdiff(img1, img2)
+
+        # Save diff image (BGR, same as original OpenCV read)
+        if reduced:
+            imageDiffPath = get_reduced_image_data_img(diff, width)  # Resize diff image for smaller size
+        else:
+            cv2.imwrite(imageDiffPath, diff)
+
+        # Compute RMS per channel (same as Pillow ImageStat.Stat(diff).rms)
+        diff_float = diff.astype(np.float32)
+        rms = np.sqrt(np.mean(np.square(diff_float), axis=(0, 1)))  # per channel
+        return float(np.mean(rms) / 255.0), imageDiffPath  # normalized average across RGB channels
+
+    except Exception as e:
+        if not reduced and os.path.exists(imageDiffPath):
+            os.remove(imageDiffPath)
+        print(f"Failed to create image diff between: {image1Path}, {image2Path}")
+        print(str(e))
+    
+    print('Returning default RMS of 1.0 due to error.')
+    return 1.0, ""
+
+def get_reduced_image_data(image_path, width):
+    if not image_path or not os.path.isfile(image_path):
+        return None
+    try:
+        img = cv2.imread(image_path)
+    except Exception:
+        return None
+    return get_reduced_image_data_img(img, width)
+
+def get_reduced_image_data_img(img, width):
+    if img is None:
+        return None
+    try:
+        h, w0 = img.shape[:2]
+        w = width if width and width > 0 else 512
+        aspect = h / w0
+        new_size = (w, int(w * aspect))
+        resized = cv2.resize(img, new_size, interpolation=cv2.INTER_AREA)
+        # Encode as JPEG for smaller memory size
+        ret, buf = cv2.imencode('.jpg', resized, [int(cv2.IMWRITE_JPEG_QUALITY), 80])
+        if not ret:
+            return None
+        b64 = base64.b64encode(buf.tobytes()).decode('utf-8')
+        return f"data:image/jpeg;base64,{b64}"
+    except Exception:
+        return None
+
+def computeDiff_PIL(image1Path, image2Path, imageDiffPath):
     if not image1Path or not image2Path:
         return 0
     try:
@@ -54,6 +143,7 @@ def main(args=None):
     parser.add_argument('-l3', '--lang3', dest='lang3', action='store', help='Third target language for comparison. Default is empty', default="")
     parser.add_argument('-e', '--error', dest='error', action='store', help='Filter out results with RMS less than this. Negative means all results are kept.', default=-1, type=float)
     parser.add_argument('-f', '--format', dest='format', choices=['html', 'json', 'markdown'], help='Output format: html, json, or markdown', default='html')
+    parser.add_argument('-r', '--reduced', dest='reduced', action='store_true', help='Produce reduced-size images for display', default=False)
 
     args = parser.parse_args(args)
     # Build report data (groups -> rows -> columns), then render to desired format.
@@ -141,10 +231,12 @@ def main(args=None):
         else:
             return filepath
 
-    # groups: list of { group: str, rows: [ { columns: [ { image: str, text: str } ] } ] }
+    # groups: list of { group: str, rows: [ { columns: [ { image: str, reduced_image: str, text: str } ] } ] }
     groups = []
 
     def build_groups():
+
+
         if langFiles1:
             curPath = ""
             current_group = None
@@ -160,15 +252,15 @@ def main(args=None):
                     if fullPath1 and fullPath2:
                         base_prefix = fullPath1[:-8] if len(fullPath1) >= 8 else fullPath1
                         diffPath1 = base_prefix + "_" + args.lang1 + "-1_vs_" + args.lang2 + "-2_diff.png"
-                        diffRms1 = computeDiff(fullPath1, fullPath2, diffPath1)
+                        diffRms1, diffPath1 = computeDiff(fullPath1, fullPath2, diffPath1, args.reduced, args.imagewidth)
 
                 if useThirdLang and file1 and file3 and DIFF_ENABLED and args.CREATE_DIFF:
                     if fullPath1 and fullPath3:
                         base_prefix = fullPath1[:-8] if len(fullPath1) >= 8 else fullPath1
                         diffPath2 = base_prefix + "_" + args.lang1 + "-1_vs_" + args.lang3 + "-3_diff.png"
-                        diffRms2 = computeDiff(fullPath1, fullPath3, diffPath2)
+                        diffRms2, diffPath2 = computeDiff(fullPath1, fullPath3, diffPath2, args.reduced)
                         diffPath3 = base_prefix + "_" + args.lang2 + "-2_vs_" + args.lang3 + "-3_diff.png"
-                        diffRms3 = computeDiff(fullPath2, fullPath3, diffPath3)
+                        diffRms3, diffPath3 = computeDiff(fullPath2, fullPath3, diffPath3, args.reduced, args.imagewidth)
 
                 # Row filtering based on tolerance:
                 # - If error < 0: do not prune (always include rows)
@@ -197,42 +289,49 @@ def main(args=None):
                 # Build columns for this row in the order: images (1..3) then diffs (1..3)
                 columns = []
 
+                def make_column(image_path, text):
+                    col = {"image": prependFileUri(image_path, args.format), "text": text}
+                    if args.reduced and REDUCE_ENABLED:
+                        col["reduced_image"] = get_reduced_image_data(image_path, args.imagewidth)
+                    else:
+                        col["reduced_image"] = None
+                    return col
+
                 if fullPath1:
                     text1 = file1
                     if args.ENABLE_TIMESTAMPS and os.path.isfile(fullPath1):
                         text1 += "<br>(" + str(datetime.datetime.fromtimestamp(os.path.getmtime(fullPath1))) + ")"
-                    columns.append({"image": prependFileUri(fullPath1, args.format), "text": text1})
+                    columns.append(make_column(fullPath1, text1))
 
                 if fullPath2:
                     text2 = file2
                     if args.ENABLE_TIMESTAMPS and os.path.isfile(fullPath2):
                         text2 += "<br>(" + str(datetime.datetime.fromtimestamp(os.path.getmtime(fullPath2))) + ")"
-                    columns.append({"image": prependFileUri(fullPath2, args.format), "text": text2})
+                    columns.append(make_column(fullPath2, text2))
 
                 if fullPath3:
                     text3 = file3
                     if args.ENABLE_TIMESTAMPS and os.path.isfile(fullPath3):
                         text3 += "<br>(" + str(datetime.datetime.fromtimestamp(os.path.getmtime(fullPath3))) + ")"
-                    columns.append({"image": prependFileUri(fullPath3, args.format), "text": text3})
+                    columns.append(make_column(fullPath3, text3))
+
+                def make_diff_column(diff_path, label, rms):
+                    col = {"image": prependFileUri(diff_path, args.format), "text": label}
+                    if args.reduced and REDUCE_ENABLED:
+                        col["reduced_image"] = get_reduced_image_data(diff_path, args.imagewidth)
+                    else:
+                        col["reduced_image"] = None
+                    return col
 
                 if diffPath1:
                     rms = (" (RMS " + "%.5f" % diffRms1 + ")") if diffRms1 is not None else ""
-                    columns.append({
-                        "image": prependFileUri(diffPath1, args.format),
-                        "text": args.lang1.upper() + " vs. " + args.lang2.upper() + rms
-                    })
+                    columns.append(make_diff_column(diffPath1, args.lang1.upper() + " vs. " + args.lang2.upper() + rms, diffRms1))
                 if diffPath2:
                     rms = (" (RMS " + "%.5f" % diffRms2 + ")") if diffRms2 is not None else ""
-                    columns.append({
-                        "image": prependFileUri(diffPath2, args.format),
-                        "text": args.lang1.upper() + " vs. " + args.lang3.upper() + rms
-                    })
+                    columns.append(make_diff_column(diffPath2, args.lang1.upper() + " vs. " + args.lang3.upper() + rms, diffRms2))
                 if diffPath3:
                     rms = (" (RMS " + "%.5f" % diffRms3 + ")") if diffRms3 is not None else ""
-                    columns.append({
-                        "image": prependFileUri(diffPath3, args.format),
-                        "text": args.lang2.upper() + " vs. " + args.lang3.upper() + rms
-                    })
+                    columns.append(make_diff_column(diffPath3, args.lang2.upper() + " vs. " + args.lang3.upper() + rms, diffRms3))
 
                 current_group["rows"].append({"columns": columns})
             
@@ -296,11 +395,9 @@ def main(args=None):
                 # Image row
                 md_parts.append("|")
                 for col in row["columns"]:
-                    if col.get("image"):
-                        col_image = col["image"]
-                        # Use a fixed pixel width to ensure consistent display size across Markdown renderers (e.g., GitHub).
-                        # Percentage-based widths may be ignored in some viewers; pixel width is reliable and preserves aspect ratio.
-                        md_parts.append(f" <img src='{col_image}' width='{args.imagewidth}' /> |")
+                    img_src = col.get("reduced_image") if args.reduced and col.get("reduced_image") else col.get("image")
+                    if img_src:
+                        md_parts.append(f" <img src='{img_src}' width='{args.imagewidth}' /> |")
                     else:
                         md_parts.append(" |")
                 md_parts.append("\n")
@@ -344,7 +441,7 @@ def main(args=None):
         html_parts.append("  </style>\n")
         html_parts.append("</head>\n")
         html_parts.append("<body>\n")
-        html_parts.append("  <div style='font-size:14pt;' class='small container-fluid py-4'>\n")
+        html_parts.append("  <div style='font-size:12pt;' class='small container-fluid py-4'>\n")
 
         if useThirdLang:
             html_parts.append("    <div class='h2 mb-4'>" + args.lang1 + " (in: " + args.inputdir1 + ") vs "+ args.lang2 + " (in: " + args.inputdir2 + ") vs "+ args.lang3 + " (in: " + args.inputdir3 + ")</div>\n")
@@ -361,9 +458,10 @@ def main(args=None):
                         html_parts.append("        <div class='border border-dark d-inline-block text-start me-0'>\n")
                     else:
                         html_parts.append("        <div class='border border-dark d-inline-block text-start me-0' style='width:100%;'>\n")
-                    if col.get("image"):
-                        html_parts.append("          <img src='" + col["image"] + "' class='test-image img-fluid' loading='lazy' alt='" + col.get("text", "").replace("<br>", " ") + "'/>")
-                    html_parts.append("          <div class='text-break font-size:10pt mt-0 mb-0'>" + col.get("text", "") + "</div>\n")
+                    img_src = col.get("reduced_image") if args.reduced and col.get("reduced_image") else col.get("image")
+                    if img_src:
+                        html_parts.append("          <img src='" + img_src + "' class='test-image img-fluid' loading='lazy' alt='" + col.get("text", "").replace("<br>", " ") + "'/>")
+                    html_parts.append("          <div class='text-break mt-0 mb-0' style='font-size:10pt'>" + col.get("text", "") + "</div>\n")
                     html_parts.append("        </div>\n")
                 html_parts.append("      </div>\n")
             html_parts.append("    </div>\n")
