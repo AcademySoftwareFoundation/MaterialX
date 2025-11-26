@@ -81,6 +81,7 @@ class MX_GENSHADER_API GenOptions
         addUpstreamDependencies(true),
         libraryPrefix("libraries"),
         emitColorTransforms(true),
+        elideConstantNodes(true),
         hwTransparency(false),
         hwSpecularEnvironmentMethod(SPECULAR_ENVIRONMENT_FIS),
         hwDirectionalAlbedoMethod(DIRECTIONAL_ALBEDO_ANALYTIC),
@@ -94,7 +95,9 @@ class MX_GENSHADER_API GenOptions
         hwNormalizeUdimTexCoords(false),
         hwWriteAlbedoTable(false),
         hwWriteEnvPrefilter(false),
-        hwImplicitBitangents(true)
+        hwImplicitBitangents(true),
+        oslImplicitSurfaceShaderConversion(true),
+        oslConnectCiWrapper(false)
     {
     }
     virtual ~GenOptions() { }
@@ -134,6 +137,9 @@ class MX_GENSHADER_API GenOptions
     /// Enable emitting colorspace transform code if a color management
     /// system is defined. Defaults to true.
     bool emitColorTransforms;
+
+    /// Enable eliding constant nodes. Defaults to true.
+    bool elideConstantNodes;
 
     /// Sets if transparency is needed or not for HW shaders.
     /// If a surface shader has potential of being transparent
@@ -197,6 +203,15 @@ class MX_GENSHADER_API GenOptions
     /// Calculate fallback bitangents from existing normals and tangents
     /// inside the bitangent node.
     bool hwImplicitBitangents;
+
+    // Enables OSL conversion of surfaceshader struct to closure color.
+    // Defaults to true.
+    bool oslImplicitSurfaceShaderConversion;
+
+    // Enables an OSL node that adds the root's output to the Ci variable
+    // for OSL targets.
+    // Defaults to false.
+    bool oslConnectCiWrapper;
 };
 
 MATERIALX_NAMESPACE_END

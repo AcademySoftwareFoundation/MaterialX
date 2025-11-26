@@ -5,7 +5,9 @@
 
 #include <MaterialXGenShader/TypeDesc.h>
 
-#include <MaterialXGenShader/ShaderGenerator.h>
+#include <MaterialXGenShader/Exception.h>
+
+#include <sstream>
 
 MATERIALX_NAMESPACE_BEGIN
 
