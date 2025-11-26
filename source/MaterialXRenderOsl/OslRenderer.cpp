@@ -28,6 +28,7 @@ OslRendererPtr OslRenderer::create(unsigned int width, unsigned int height, Imag
 OslRenderer::OslRenderer(unsigned int width, unsigned int height, Image::BaseType baseType) :
     ShaderRenderer(width, height, baseType),
     _useTestRender(true),
+    _useOSLCmdStr(false),
     _raysPerPixelLit(1),
     _raysPerPixelUnlit(1)
 {
@@ -99,8 +100,7 @@ void OslRenderer::renderOSL(const FilePath& dirPath, const string& shaderName, c
     const string CLOSURE_PASSTHROUGH_SHADER_STRING("closure_passthrough");
     const string CONSTANT_COLOR_SHADER_STRING("constant_color");
     const string CONSTANT_COLOR_SHADER_PREFIX_STRING("constant_");
-    string outputShader = isColorClosure ? CLOSURE_PASSTHROUGH_SHADER_STRING :
-        (isRemappable ? CONSTANT_COLOR_SHADER_PREFIX_STRING + _oslShaderOutputType : CONSTANT_COLOR_SHADER_STRING);
+    string outputShader = isColorClosure ? CLOSURE_PASSTHROUGH_SHADER_STRING : (isRemappable ? CONSTANT_COLOR_SHADER_PREFIX_STRING + _oslShaderOutputType : CONSTANT_COLOR_SHADER_STRING);
 
     // Perform token replacement
     const string ENVIRONMENT_SHADER_PARAMETER_OVERRIDES("%environment_shader_parameter_overrides%");
@@ -146,7 +146,7 @@ void OslRenderer::renderOSL(const FilePath& dirPath, const string& shaderName, c
     rootPath.setCurrentPath();
 
     // Write scene file
-    const string sceneFileName(shaderName + "_scene_template.xml");
+    const string sceneFileName = (dirPath / (shaderName + "_scene_template.xml")).asString();
     std::ofstream shaderFileStream;
     shaderFileStream.open(sceneFileName);
     if (shaderFileStream.is_open())
@@ -271,7 +271,7 @@ void OslRenderer::renderOSLNetwork(const FilePath& dirPath, const string& shader
     rootPath.setCurrentPath();
 
     // Write scene file
-    const string sceneFileName("scene_template_oslcmd.xml");
+    const string sceneFileName = (dirPath / (shaderName + "_scene_template_oslcmd.xml")).asString();
     std::ofstream shaderFileStream;
     shaderFileStream.open(sceneFileName);
 

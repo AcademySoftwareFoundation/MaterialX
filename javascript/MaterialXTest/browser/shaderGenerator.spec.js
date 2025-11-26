@@ -51,6 +51,8 @@ describe('Generate Shaders', function ()
             generators.push(mx.WgslShaderGenerator.create());
         if (typeof mx.MdlShaderGenerator != 'undefined')
             generators.push(mx.MdlShaderGenerator.create());
+        if (typeof mx.SlangShaderGenerator != 'undefined')
+            generators.push(mx.SlangShaderGenerator.create());
 
         const elem = mx.findRenderableElement(doc);
         for (let gen of generators)

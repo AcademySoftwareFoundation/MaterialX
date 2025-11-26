@@ -78,6 +78,7 @@ jobs:
           compiler_version: "16.4"
           python: 3.13
           test_shaders: ON
+          test_render: ON
 
         - name: MacOS_Xcode_26_Python313
           os: macos-26
@@ -114,7 +115,6 @@ jobs:
           python: 3.13
           cmake_config: -G "Visual Studio 17 2022" -A "x64"
           test_shaders: ON
-          extended_build_oiio: ON
           extended_build_mdl_sdk: ON
 
         - name: Windows_VS2022_x64_SharedLibs
@@ -122,6 +122,7 @@ jobs:
           architecture: x64
           python: None
           cmake_config: -G "Visual Studio 17 2022" -A "x64" -DMATERIALX_BUILD_SHARED_LIBS=ON
+          extended_build_oiio: ON
           upload_shaders: ON
 
     steps:
@@ -192,6 +193,7 @@ jobs:
     - name: CMake Generate
       shell: bash
       run: |
+        EXTENDED_BUILD_CONFIG=""
         if [ "${{ env.IS_EXTENDED_BUILD }}" == "true" ]; then
           if [ "${{ runner.os }}" == "Windows" ]; then
             EXTENDED_BUILD_CONFIG="-DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows"
@@ -203,7 +205,14 @@ jobs:
             EXTENDED_BUILD_CONFIG="$EXTENDED_BUILD_CONFIG -DMATERIALX_MDL_SDK_DIR=C:/vcpkg/installed/x64-windows"
           fi
         fi
-        cmake -S . -B build -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_BUILD_TESTS=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON $EXTENDED_BUILD_CONFIG ${{matrix.cmake_config}}
+        TEST_RENDER_CONFIG="-DMATERIALX_TEST_RENDER=OFF"
+        if [ "${{ matrix.test_render }}" == "ON" ]; then
+          if [ "${{ runner.os }}" == "macOS" ]; then
+            TEST_RENDER_CONFIG="-DMATERIALX_TEST_RENDER=ON -DMATERIALX_RENDER_MSL_ONLY=ON"
+          fi
+        fi
+        EXTENDED_BUILD_CONFIG="$EXTENDED_BUILD_CONFIG $TEST_RENDER_CONFIG" 
+        cmake -S . -B build -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_BUILD_TESTS=ON -DMATERIALX_WARNINGS_AS_ERRORS=ON $EXTENDED_BUILD_CONFIG ${{matrix.cmake_config}}
 
     - name: CMake Build
       run: cmake --build build --target install --config Release --parallel 2
@@ -229,6 +238,7 @@ jobs:
         python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target osl
         python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target mdl
         python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target msl
+        python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target slang
       working-directory: python
 
     - name: Shader Validation Tests (Windows)
@@ -265,11 +275,21 @@ jobs:
         fi
         cppcheck --project=build/compile_commands.json --error-exitcode=1 --suppress=normalCheckLevelMaxBranches --suppress=*:*/External/* --suppress=*:*/NanoGUI/*
 
-    - name: Initialize Virtual Framebuffer
+    - name: Setup Rendering Environment (Linux)
       if: matrix.test_render == 'ON' && runner.os == 'Linux'
       run: |
         Xvfb :1 -screen 0 1280x960x24 &
         echo "DISPLAY=:1" >> $GITHUB_ENV
+        echo "LIBGL_ALWAYS_SOFTWARE=1" >> $GITHUB_ENV
+
+    - name: Setup Rendering Environment (MacOS)
+      if: matrix.test_render == 'ON' && runner.os == 'macOS'
+      run: |
+        # macOS can render headless with Metal backend without virtual display
+        # Force software rendering for Metal backend (more reliable in CI)
+        echo "MTL_HARDWARE_RENDERING=0" >> $GITHUB_ENV
+        # Enable Metal debug layer for better debugging in CI
+        echo "MTL_DEBUG_LAYER=1" >> $GITHUB_ENV
         echo "LIBGL_ALWAYS_SOFTWARE=1" >> $GITHUB_ENV
 
     - name: Render Script Tests
@@ -279,11 +299,16 @@ jobs:
         python python/Scripts/baketextures.py resources/Materials/Examples/StandardSurface/standard_surface_brass_tiled.mtlx build/render/brass_average_baked.mtlx --average
         python python/Scripts/translateshader.py resources/Materials/Examples/StandardSurface/standard_surface_carpaint.mtlx build/render/usd_preview_surface_carpaint.mtlx UsdPreviewSurface --hdr
 
-    - name: Render Application Tests
+    - name: Viewer Tests 
       if: matrix.test_render == 'ON'
       run: |
         ../installed/bin/MaterialXView --material brass_average_baked.mtlx --mesh ../../resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --shadowMap false --captureFilename Viewer_BrassAverage.png
         ../installed/bin/MaterialXView --material usd_preview_surface_carpaint.mtlx --mesh ../../resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --shadowMap false --captureFilename Viewer_CarpaintTranslated.png
+      working-directory: build/render
+
+    - name: Graph Editor Tests
+      if: matrix.test_render == 'ON' && runner.os == 'Linux'
+      run: |
         ../installed/bin/MaterialXGraphEditor --material ../../resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --viewWidth 128 --viewHeight 128 --captureFilename GraphEditor_MarbleSolid.png
       working-directory: build/render
 
@@ -314,6 +339,13 @@ jobs:
       with:
         name: Renders_${{ matrix.name }}
         path: build/render/*.png
+
+    - name: Upload Resources (MacOS)
+      uses: actions/upload-artifact@v4
+      if: matrix.test_render == 'ON' && runner.os == 'macOS'
+      with:
+        name: Resources_${{ matrix.name }}
+        path: build/bin/resources
 
     - name: Upload Coverage Report
       uses: actions/upload-artifact@v4

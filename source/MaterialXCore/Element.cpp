@@ -509,7 +509,7 @@ GraphIterator Element::traverseGraph() const
 
 Edge Element::getUpstreamEdge(size_t) const
 {
-    return NULL_EDGE;
+    return getNullEdge();
 }
 
 ElementPtr Element::getUpstreamElement(size_t index) const

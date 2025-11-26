@@ -7,6 +7,32 @@
     Declarations for OSL implementations of standard nodes included in the MaterialX specification.
   -->
 
+  <!-- This nodedef is an implementation detail of the OSL shader generators, and does not
+  represent a node in the MaterialX specification.
+  This node is used to ensure that the final output from an OSL shader, either direct
+  shader source, or generated shader group, is renderable by encoding conversions
+  for all necessary types to a `closure color -->
+  <nodedef name="ND_osl_set_ci" node="osl_set_ci">
+    <input name="output_mode" type="integer" default="0"/>
+    <input name="input_surfaceshader" type="surfaceshader" default=""/>
+    <input name="input_material" type="material" default=""/>
+    <input name="input_BSDF" type="BSDF" default=""/>
+    <input name="input_EDF" type="EDF" default=""/>
+    <input name="input_float" type="float" default=""/>
+    <input name="input_color3" type="color3" default=""/>
+    <input name="input_color4" type="color4" default=""/>
+    <input name="input_vector2" type="vector2" default=""/>
+    <input name="input_vector3" type="vector3" default=""/>
+    <input name="input_vector4" type="vector4" default=""/>
+    <input name="input_integer" type="integer" default=""/>
+    <input name="input_boolean" type="boolean" default=""/>
+    <input name="input_matrix33" type="matrix33" default=""/>
+    <input name="input_matrix44" type="matrix44" default=""/>
+    <input name="input_displacementshader" type="displacementshader" default=""/>
+    <output name="out_ci" type="material"/>
+  </nodedef>
+  <implementation name="IM_osl_set_ci_genosl" nodedef="ND_osl_set_ci" file="mx_set_ci.osl" function="mx_set_ci" target="genosl"/>
+
   <!-- ======================================================================== -->
   <!-- Shader nodes                                                             -->
   <!-- ======================================================================== -->
