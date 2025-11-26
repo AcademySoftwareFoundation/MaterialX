@@ -14,14 +14,14 @@ namespace mx = MaterialX;
 TEST_CASE("IntraGraph Traversal", "[traversal]")
 {
     // Test null iterators.
-    mx::TreeIterator nullTree = mx::NULL_TREE_ITERATOR;
-    mx::GraphIterator nullGraph = mx::NULL_GRAPH_ITERATOR;
+    mx::TreeIterator nullTree = mx::getNullTreeIterator();
+    mx::GraphIterator nullGraph = mx::getNullGraphIterator();
     REQUIRE(*nullTree == nullptr);
-    REQUIRE(*nullGraph == mx::NULL_EDGE);
+    REQUIRE(*nullGraph == mx::getNullEdge());
     ++nullTree;
     ++nullGraph;
-    REQUIRE((nullTree == mx::NULL_TREE_ITERATOR));
-    REQUIRE((nullGraph == mx::NULL_GRAPH_ITERATOR));
+    REQUIRE((nullTree == mx::getNullTreeIterator()));
+    REQUIRE((nullGraph == mx::getNullGraphIterator()));
 
     // Create a document.
     mx::DocumentPtr doc = mx::createDocument();

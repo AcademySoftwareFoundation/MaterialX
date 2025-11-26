@@ -64,8 +64,5 @@ EMSCRIPTEN_BINDINGS(traversal)
         .smart_ptr_constructor("InheritanceIterator", &std::make_shared<mx::InheritanceIterator, mx::ConstElementPtr>)
         BIND_ITERABLE_PROTOCOL(InheritanceIterator)
 
-    // Avoid binding complex sentinels by value at static init time; fetch at runtime
-    ems::function("getNullEdge", ems::optional_override([](){ return mx::NULL_EDGE; }));
-    // Iterator sentinels are complex non-POD types; avoid binding by value as constants
-    // to prevent costly copies during module initialization under newer Emscripten.
+    ems::function("getNullEdge", &mx::getNullEdge);
 }

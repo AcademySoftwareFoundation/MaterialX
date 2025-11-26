@@ -21,7 +21,7 @@
 
     <!-- Comma separated list of target" specifiers to indicate which
          code generators to use. -->
-    <input name="targets" type="string" value="genglsl,genosl,genmdl,genessl,genmsl" />
+    <input name="targets" type="string" value="genglsl,genosl,genoslnetwork,genmdl,genessl,genmsl,genslang" />
 
     <!-- Check the count of number of implementations used for a given generator -->
     <input name="checkImplCount" type="boolean" value="true" />
@@ -62,7 +62,7 @@
     <input name="extraLibraryPaths" type="string" value="" />
 
     <!-- List of document paths for render tests -->
-    <input name="renderTestPaths" type="string" value="resources/Materials/Examples/StandardSurface,resources/Materials/TestSuite/stdlib/convolution,resources/Materials/TestSuite/stdlib/color_management,resources/Materials/TestSuite/stdlib/procedural,resources/Materials/TestSuite/pbrlib/surfaceshader,resources/Materials/TestSuite/nprlib" />
+    <input name="renderTestPaths" type="string" value="resources/Materials/Examples/StandardSurface,resources/Materials/TestSuite/stdlib/convolution,resources/Materials/TestSuite/stdlib/color_management,resources/Materials/TestSuite/stdlib/procedural,resources/Materials/TestSuite/pbrlib/surfaceshader,resources/Materials/TestSuite/nprlib,resources/Materials/TestSuite/pbrlib/bsdf" />
 
     <!-- Enable reference quality rendering.
          This option enables higher sample counts and supersampling in render tests,

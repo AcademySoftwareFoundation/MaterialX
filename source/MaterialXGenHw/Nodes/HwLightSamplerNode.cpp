@@ -33,12 +33,17 @@ void HwLightSamplerNode::emitFunctionDefinition(const ShaderNode& node, GenConte
     DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
     {
         const ShaderGenerator& shadergen = context.getShaderGenerator();
+        const Syntax& syntax = shadergen.getSyntax();
+
+        const string& vec3 = syntax.getTypeName(Type::VECTOR3);
+        const string& out_lightshader = syntax.getOutputTypeName(Type::LIGHTSHADER);
+        const string vec3_zero = syntax.getValue(Type::VECTOR3, HW::VEC3_ZERO);
 
         // Emit light sampler function with all bound light types
-        shadergen.emitLine(SAMPLE_LIGHTS_FUNC_SIGNATURE, stage, false);
+        shadergen.emitLine("void sampleLightSource(LightData light, "+vec3+" position, "+out_lightshader+" result)", stage, false);
         shadergen.emitFunctionBodyBegin(node, context, stage);
-        shadergen.emitLine("result.intensity = vec3(0.0)", stage);
-        shadergen.emitLine("result.direction = vec3(0.0)", stage);
+        shadergen.emitLine("result.intensity = "+vec3_zero, stage);
+        shadergen.emitLine("result.direction = "+vec3_zero, stage);
 
         HwLightShadersPtr lightShaders = context.getUserData<HwLightShaders>(HW::USER_DATA_LIGHT_SHADERS);
         if (lightShaders)

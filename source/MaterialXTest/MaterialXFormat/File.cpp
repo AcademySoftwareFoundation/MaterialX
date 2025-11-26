@@ -154,3 +154,54 @@ TEST_CASE("Path normalization test", "[file]")
         REQUIRE((REFERENCE_ABS_PREFIX / path).getNormalized() == (REFERENCE_ABS_PREFIX / REFERENCE_REL_PATH));
     }
 }
+
+TEST_CASE("Get all files in directory", "[file]")
+{
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+
+    mx::FilePath lightsDir = searchPath.find("resources/Lights");
+
+    mx::FilePathVec mtlxFilenames =
+    {
+        "environment_map.mtlx",
+        "goegap_split.mtlx",
+        "san_giuseppe_bridge_split.mtlx",
+        "table_mountain_split.mtlx"
+    };
+
+    mx::FilePathVec hdrFilenames =
+    {
+        "goegap.hdr",
+        "goegap_split.hdr",
+        "san_giuseppe_bridge.hdr",
+        "san_giuseppe_bridge_split.hdr",
+        "table_mountain.hdr",
+        "table_mountain_split.hdr",
+    };
+
+    mx::FilePathVec allFilesnames = hdrFilenames;
+    allFilesnames.insert(allFilesnames.begin(), mtlxFilenames.begin(), mtlxFilenames.end());
+
+    mx::FilePathVec results;
+
+    results = lightsDir.getFilesInDirectory("mtlx");
+    REQUIRE(results.size() > 0);
+    for (const mx::FilePath& filename : mtlxFilenames)
+    {
+        REQUIRE(std::find(results.begin(), results.end(), filename) != results.end());
+    }
+
+    results = lightsDir.getFilesInDirectory("hdr");
+    REQUIRE(results.size() > 0);
+    for (const mx::FilePath& filename : hdrFilenames)
+    {
+        REQUIRE(std::find(results.begin(), results.end(), filename) != results.end());
+    }
+
+    results = lightsDir.getFilesInDirectory();
+    REQUIRE(results.size() > 0);
+    for (const mx::FilePath& filename : allFilesnames)
+    {
+        REQUIRE(std::find(results.begin(), results.end(), filename) != results.end());
+    }
+}

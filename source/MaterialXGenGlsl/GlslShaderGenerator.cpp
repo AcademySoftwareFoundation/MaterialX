@@ -463,12 +463,6 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
         _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "mx_transform_uv.glsl";
     }
 
-    // Emit uv transform code globally if needed.
-    if (context.getOptions().hwAmbientOcclusion)
-    {
-        emitLibraryInclude("stdlib/genglsl/lib/" + _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV], context, stage);
-    }
-
     emitLightFunctionDefinitions(graph, context, stage);
 
     // Emit function definitions for all nodes in the graph.
@@ -637,7 +631,7 @@ void GlslShaderGenerator::toVec4(TypeDesc type, string& variable)
     {
         variable = "vec4(" + variable + ", 0.0, 1.0)";
     }
-    else if (type == Type::FLOAT || type == Type::INTEGER)
+    else if (type == Type::FLOAT || type == Type::INTEGER || type == Type::BOOLEAN)
     {
         variable = "vec4(" + variable + ", " + variable + ", " + variable + ", 1.0)";
     }
