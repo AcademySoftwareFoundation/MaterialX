@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+
+  <!-- definition -->
+  <!-- specifies the interface of the node, including:
+    - the `node` that defines the name of the element during instantiation
+    - all input parameter types and names
+    - all output parameter types and names
+    - all inputs and outputs can have defaults
+    - the `name` that needs to br referenced when adding the implementation with the actual source code
+  -->
+  <nodedef name="ND_custom_inline_node" node="custom_inline_node" nodegroup="custom" doc="A simple custom inline node.">
+    <input name="red" type="float" />
+    <input name="green" type="float" value="0.0" />
+    <input name="blue" type="float" value="0.75" />
+    <output name="out" type="color3" />
+  </nodedef>
+
+  <!-- implementation -->
+  <!-- specifies the body of the function.
+    There is no need to add a signature because it will be generated from the definition.
+    Input and output variables can just be used as if they where declared and initialized with the corresponding defaults before.
+    Functions are not allowed to return, also no early returns allowed.
+    All input and output names in the MDL implementation have a "mxp_" prefix in order to avoid collisions with reserved names.
+    When adding comments in the inline sourcecode, use `/* comment */` as `//` is not supported at this point.
+  -->
+  <implementation 
+    name="IM_custom_inline_node"
+    nodedef="ND_custom_inline_node"
+    target="genmdl"
+    sourcecode="
+      float green2 = 2.0 * mxp_green;
+      mxp_out = color(mxp_red, green2, mxp_blue);
+    "/>
+
+  <!-- instantiation -->
+  <!-- creates an instance of a node to be called.
+    Can appear multiple times for the same node.
+    Parameters can be overridden or default values are used.
+  -->
+  <custom_inline_node name="custom1" type="color3">
+    <input name="red" type="float" value="0.25" />
+    <input name="green" type="float" value="0.25" />
+  </custom_inline_node>
+  <!-- add another instance to test that function definitions are emitted only once -->
+  <!-- also add some input node to test input connections -->
+  <texcoord name="texcoord1" type="vector2" />
+  <multiply name="texcoord_scaled1" type="vector2">
+    <input name="in1" type="vector2" nodename="texcoord1" />
+    <input name="in2" type="float" value="10" />
+  </multiply>
+  <noise2d name="custom_node_input1" type="float">
+    <input name="amplitude" type="float" value="1.0" />
+    <input name="texcoord" type="vector2" nodename="texcoord_scaled1" />
+  </noise2d>
+  <custom_inline_node name="custom2" type="color3">
+    <input name="red" type="float" value="0.05" />
+    <input name="green" type="float" value="0.55" />
+    <input name="blue" type="float" nodename="custom_node_input1" />
+  </custom_inline_node>
+  <mix name="blend1" type="color3">
+    <input name="fg" type="color3" nodename="custom1" />
+    <input name="bg" type="color3" nodename="custom2" />
+    <input name="mix" type="float" value="0.5" />
+  </mix>
+  <burley_diffuse_bsdf name="burley_brdf1" type="BSDF">
+    <input name="color" type="color3" nodename="blend1" />
+    <input name="roughness" type="float" value="0.2" />
+  </burley_diffuse_bsdf>
+  <surface name="surface1" type="surfaceshader">
+    <input name="bsdf" type="BSDF" nodename="burley_brdf1" />
+    <input name="opacity" type="float" value="1.0" />
+  </surface>
+
+  <surfacematerial name="code_constant_color" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="surface1" />
+  </surfacematerial>
+
+</materialx>
