@@ -151,7 +151,7 @@ TEST_CASE("GenShader: Slang Shader Generation", "[genslang]")
     generator = mx::SlangShaderGenerator::create();
 
     const mx::FilePath logPath("genslang_generate_test.txt");
-    SlangShaderGeneratorTester tester(generator, testRootPaths, searchPath, logPath, true);
+    SlangShaderGeneratorTester tester(generator, testRootPaths, searchPath, logPath, false);
 
     // Handle resource binding layouts if requested.
     const mx::GenOptions genOptions;
