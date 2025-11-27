@@ -110,13 +110,22 @@ if(MATERIALX_BUILD_GEN_MDL)
         DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${MATERIALX_INSTALL_STDLIB_PATH}/mdl)
 endif()
 
-add_custom_command(TARGET MaterialXTest POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../resources ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resources)
+# Copy resources to build directory - always runs during build
+add_custom_target(MaterialXTestResources ALL
+    COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../resources ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resources
+    COMMENT "Copying resources to build directory")
 
-add_custom_command(TARGET MaterialXTest POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_CURRENT_SOURCE_DIR}/MaterialXRenderOsl/Utilities ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resources/Utilities)
+# Copy OSL utilities to build directory - always runs during build
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/MaterialXRenderOsl/Utilities")
+    add_custom_target(MaterialXTestOslUtilities ALL
+        COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
+        ${CMAKE_CURRENT_SOURCE_DIR}/MaterialXRenderOsl/Utilities ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resources/Utilities
+        COMMENT "Copying OSL utilities to build directory")
+    add_dependencies(MaterialXTestResources MaterialXTestOslUtilities)
+endif()
+
+add_dependencies(MaterialXTest MaterialXTestResources)
 
 set_target_properties(
     MaterialXTest PROPERTIES
