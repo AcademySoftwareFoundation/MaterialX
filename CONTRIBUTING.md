@@ -73,7 +73,7 @@ through the *EasyCLA* system, which is integrated with GitHub as a pull
 request check.
 
 Prior to submitting a pull request, you can sign the form through
-[this link](https://contributor.easycla.lfx.linuxfoundation.org/#/cla/project/68fa91fe-51fe-41ac-a21d-e0a0bf688a53/user/564e571e-12d7-4857-abd4-898939accdd7).
+[this link](https://organization.lfx.linuxfoundation.org/foundation/a09410000182dD2AAI/project/a092M00001KWrdoQAD/cla).
 If you submit a pull request before the form is signed, the EasyCLA check
 will fail with a red *NOT COVERED* message, and you'll have another
 opportunity to sign the form through the provided link.
