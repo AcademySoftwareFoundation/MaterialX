@@ -259,15 +259,73 @@
       <input name="base" type="BSDF" nodename="sheen_layer" />
     </layer>
 
+<!-- Calculate clearcoat_freshnel used by emission -->
+    <viewdirection name="viewdirection_world" type="vector3">
+      <input name="space" type="string" value="world" />
+    </viewdirection>
+
+    <dotproduct name="VdotNc" type="float">
+      <input name="in1" type="vector3" nodename="viewdirection_world" />
+      <input name="in2" type="vector3" interfacename="clearcoat_normal" />
+    </dotproduct>
+
+    <absval name="absVdotNc" type="float">
+      <input name="in" type="float" nodename="VdotNc" />
+    </absval>
+
+    <subtract name="sub_abs_VdotNc" type="float">
+      <input name="in1" type="float" value="1.0" />
+      <input name="in2" type="float" nodename="absVdotNc" />
+    </subtract>
+
+    <power name="pow_5" type="float">
+      <input name="in1" type="float" nodename="sub_abs_VdotNc" />
+      <input name="in2" type="float" value="5" />
+    </power>
+
+    <constant name="f0_clearcoat" type="float">
+      <input name="value" type="float" value="0.04" />
+    </constant>
+
+    <subtract name="sub_f0_clearcoat" type="float">
+      <input name="in1" type="float" value="1" />
+      <input name="in2" type="float" nodename="f0_clearcoat" />
+    </subtract>
+
+    <multiply name="multiply_float" type="float">
+      <input name="in2" type="float" nodename="sub_f0_clearcoat" />
+      <input name="in1" type="float" nodename="pow_5" />
+    </multiply>
+
+    <add name="clearcoat_fresnel" type="float">
+      <input name="in2" type="float" nodename="f0_clearcoat" />
+      <input name="in1" type="float" nodename="multiply_float" />
+    </add>
+
     <!-- Emission -->
+
+    <multiply name="clearcoat_contribution" type="float">
+      <input name="in1" type="float" nodename="clearcoat_fresnel" />
+      <input name="in2" type="float" interfacename="clearcoat" />
+    </multiply>
+
+    <subtract name="clearcoat_emission_scaler" type="float">
+      <input name="in1" type="float" value="1.0" />
+      <input name="in2" type="float" nodename="clearcoat_contribution" />
+    </subtract>
 
     <multiply name="emission_color" type="color3">
       <input name="in1" type="color3" interfacename="emissive" />
       <input name="in2" type="float" interfacename="emissive_strength" />
     </multiply>
 
+    <multiply name="coated_emission" type="color3">
+      <input name="in2" type="float" nodename="clearcoat_emission_scaler" />
+      <input name="in1" type="color3" nodename="emission_color" />
+    </multiply>
+
     <uniform_edf name="emission" type="EDF">
-      <input name="color" type="color3" nodename="emission_color" />
+      <input name="color" type="color3" nodename="coated_emission" />
     </uniform_edf>
 
     <!-- Alpha -->
