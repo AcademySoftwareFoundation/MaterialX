@@ -873,6 +873,10 @@ bool ShaderGraph::removeNode(ShaderNode* node)
     {
         input->breakConnection();
     }
+    for (ShaderOutput* output : node->getOutputs())
+    {
+        output->breakConnections();
+    }
     _nodeMap.erase(mapIt);
     _nodeOrder.erase(vecIt);
     return true;
@@ -1072,9 +1076,13 @@ void ShaderGraph::optimize(GenContext& context)
         const vector<ShaderNode*> nodeList = getNodes();
         for (ShaderNode* node : nodeList)
         {
+            // Cache the node name before potentially deleting the node,
+            // since removeNode() will deallocate it.
+            const string nodeName = node->getName();
+            
             // first check the node is still in the graph, and hasn't been removed by a
             // prior optimization
-            if (!getNode(node->getName()))
+            if (!getNode(nodeName))
                 continue;
 
             if (node->hasClassification(ShaderNode::Classification::MIX_BSDF))
