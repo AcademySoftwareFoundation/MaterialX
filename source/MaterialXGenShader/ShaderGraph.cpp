@@ -1076,13 +1076,9 @@ void ShaderGraph::optimize(GenContext& context)
         const vector<ShaderNode*> nodeList = getNodes();
         for (ShaderNode* node : nodeList)
         {
-            // Cache the node name before potentially deleting the node,
-            // since removeNode() will deallocate it.
-            const string nodeName = node->getName();
-            
             // first check the node is still in the graph, and hasn't been removed by a
             // prior optimization
-            if (!getNode(nodeName))
+            if (!getNode(node->getName()))
                 continue;
 
             if (node->hasClassification(ShaderNode::Classification::MIX_BSDF))
