@@ -873,6 +873,10 @@ bool ShaderGraph::removeNode(ShaderNode* node)
     {
         input->breakConnection();
     }
+    for (ShaderOutput* output : node->getOutputs())
+    {
+        output->breakConnections();
+    }
     _nodeMap.erase(mapIt);
     _nodeOrder.erase(vecIt);
     return true;
