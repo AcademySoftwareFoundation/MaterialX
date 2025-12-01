@@ -34,6 +34,7 @@ class SlangShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
     {
         _skipNodeDefs.insert("ND_displacement_float");
         _skipNodeDefs.insert("ND_displacement_vector3");
+        _skipNodeDefs.insert("ND_lightcompoundtest");
         ParentClass::addSkipNodeDefs();
     }
 
