@@ -13,6 +13,7 @@
 #include <MaterialXRender/OiioImageLoader.h>
 #endif
 
+#include <MaterialXGenOsl/Nodes/OsoNode.h>
 #include <MaterialXGenOsl/OslShaderGenerator.h>
 #include <MaterialXGenOsl/OslNetworkShaderGenerator.h>
 
@@ -72,6 +73,30 @@ class BitangentOsl : public mx::ShaderNodeImpl
     }
 };
 
+class TangentOslNetwork : public mx::OsoNode
+{
+public:
+    TangentOslNetwork() : OsoNode("IM_tangent_vector3_genoslnetwork_test","")
+    {}
+
+    static mx::ShaderNodeImplPtr create()
+    {
+        return std::make_shared<TangentOslNetwork>();
+    }
+};
+
+class BitangentOslNetwork : public mx::OsoNode
+{
+public:
+    BitangentOslNetwork() : OsoNode("IM_bitangent_vector3_genoslnetwork_test","")
+    {}
+
+    static mx::ShaderNodeImplPtr create()
+    {
+        return std::make_shared<BitangentOslNetwork>();
+    }
+};
+
 } // anonymous namespace
 
 class OslShaderRenderTester : public RenderUtil::ShaderRenderTester
@@ -99,20 +124,6 @@ class OslShaderRenderTester : public RenderUtil::ShaderRenderTester
 
     void addSkipFiles() override
     {
-        if (_useOslCmdStr)
-        {
-            _skipFiles.insert("filename_cm_test.mtlx");
-            _skipFiles.insert("shader_ops.mtlx");
-            _skipFiles.insert("chiang_hair_surfaceshader.mtlx");
-            _skipFiles.insert("network_surfaceshader.mtlx");
-            _skipFiles.insert("sheen.mtlx");
-            _skipFiles.insert("toon_shade.mtlx");
-            _skipFiles.insert("bsdf_graph.mtlx");
-            _skipFiles.insert("varying_ior.mtlx");
-            _skipFiles.insert("vertical_layering.mtlx");
-            _skipFiles.insert("mix_bsdf.mtlx");
-        }
-
         RenderUtil::ShaderRenderTester::addSkipFiles();
     }
 
@@ -201,6 +212,7 @@ RenderUtil::RenderProfileResult OslShaderRenderTester::runRenderer(
     mx::TypedElementPtr element = item.element;
     const GenShaderUtil::TestSuiteOptions& testOptions = session.testOptions;
     std::ostream& log = session.log;
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
 
     std::cout << "Validating OSL rendering for: " << doc->getSourceUri() << std::endl;
 
@@ -228,9 +240,18 @@ RenderUtil::RenderProfileResult OslShaderRenderTester::runRenderer(
                 contextOptions.targetColorSpaceOverride = "lin_rec709";
                 contextOptions.oslConnectCiWrapper = true;
 
-                // Apply local overrides for shader generation.
-                shadergen.registerImplementation("IM_tangent_vector3_" + mx::OslShaderGenerator::TARGET, TangentOsl::create);
-                shadergen.registerImplementation("IM_bitangent_vector3_" + mx::OslShaderGenerator::TARGET, BitangentOsl::create);
+                if (_useOslCmdStr)
+                {
+                    // Apply local overrides for shader generation.
+                    shadergen.registerImplementation("IM_tangent_vector3_" + mx::OslNetworkShaderGenerator::TARGET, TangentOslNetwork::create);
+                    shadergen.registerImplementation("IM_bitangent_vector3_" + mx::OslNetworkShaderGenerator::TARGET, BitangentOslNetwork::create);
+                }
+                else
+                {
+                    // Apply local overrides for shader generation.
+                    shadergen.registerImplementation("IM_tangent_vector3_" + mx::OslShaderGenerator::TARGET, TangentOsl::create);
+                    shadergen.registerImplementation("IM_bitangent_vector3_" + mx::OslShaderGenerator::TARGET, BitangentOsl::create);
+                }
 
                 shader = shadergen.generate(shaderName, element, context);
             }
@@ -249,6 +270,12 @@ RenderUtil::RenderProfileResult OslShaderRenderTester::runRenderer(
             CHECK(shader->getSourceCode().length() > 0);
 
             std::string oslCmdStr = shader->getSourceCode();
+
+            // Because we're embedding the command string inside the XML scene template we need
+            // to replace any invalid characters.
+            const mx::StringMap xmlReplaceMapping = { { "<", "&lt;" }, { ">", "&gt;" } };
+            oslCmdStr = mx::replaceSubstrings(oslCmdStr, xmlReplaceMapping);
+
 
             std::string shaderPath;
             mx::FilePath outputFilePath = item.outputPath;
@@ -302,9 +329,10 @@ RenderUtil::RenderProfileResult OslShaderRenderTester::runRenderer(
                 const mx::ShaderStage& stage = shader->getStage(mx::Stage::PIXEL);
 
                 // Bind IBL image name overrides.
+                mx::FilePath envmapPath = searchPath.find(mx::FilePath(testOptions.radianceIBLPath));
                 mx::StringVec envOverrides;
                 std::string envmap_filename("string envmap_filename \"");
-                envmap_filename += testOptions.radianceIBLPath;
+                envmap_filename += envmapPath.asString();
                 envmap_filename += "\";\n";
                 envOverrides.push_back(envmap_filename);
 
@@ -334,7 +362,6 @@ RenderUtil::RenderProfileResult OslShaderRenderTester::runRenderer(
                     }
 
                     // Set scene template file. For now we only have the constant color scene file
-                    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
                     mx::FilePath sceneTemplatePath = searchPath.find("resources/Utilities/");
                     sceneTemplatePath = sceneTemplatePath / sceneTemplateFile;
                     _renderer->setOslTestRenderSceneTemplateFile(sceneTemplatePath.asString());

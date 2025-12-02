@@ -97,6 +97,9 @@ class MX_GENSHADER_API ShaderNodeImpl
         return true;
     }
 
+    void addPortImplName(const string& portName, const string& implName);
+    const string& getPortName(const string& portName) const;
+
   protected:
     /// Protected constructor
     ShaderNodeImpl();
@@ -109,6 +112,9 @@ class MX_GENSHADER_API ShaderNodeImpl
   protected:
     string _name;
     size_t _hash;
+
+  private:
+    std::unordered_map<string, string> _portImplNames;
 };
 
 /// A no operation node, to be used for organizational nodes that has no code to execute.
