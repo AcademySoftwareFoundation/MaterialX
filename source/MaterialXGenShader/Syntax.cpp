@@ -39,7 +39,7 @@ Syntax::Syntax(TypeSystemPtr typeSystem) :
 {
 }
 
-void Syntax::registerTypeSyntax(TypeDesc type, TypeSyntaxPtr syntax)
+void Syntax::registerTypeSyntax(TypeDesc type, TypeSyntaxPtr syntax, bool isCustomSyntax)
 {
     auto it = _typeSyntaxIndexByType.find(type);
     if (it != _typeSyntaxIndexByType.end())
@@ -49,6 +49,10 @@ void Syntax::registerTypeSyntax(TypeDesc type, TypeSyntaxPtr syntax)
     else
     {
         _typeSyntaxes.push_back(syntax);
+        if (isCustomSyntax)
+        {
+            _customTypeSyntaxes.push_back({type,syntax});
+        }
         _typeSyntaxIndexByType[type] = _typeSyntaxes.size() - 1;
     }
 

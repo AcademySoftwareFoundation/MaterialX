@@ -57,7 +57,7 @@ class MX_GENSHADER_API Syntax
 
     /// Register syntax handling for a data type.
     /// Required to be set for all supported data types.
-    void registerTypeSyntax(TypeDesc type, TypeSyntaxPtr syntax);
+    void registerTypeSyntax(TypeDesc type, TypeSyntaxPtr syntax, bool isCustomSyntax=false);
     [[deprecated]] void registerTypeSyntax(const TypeDesc* type, TypeSyntaxPtr syntax) { registerTypeSyntax(*type, syntax); }
 
     /// Register names that are reserved words not to be used by a code generator when naming
@@ -83,6 +83,9 @@ class MX_GENSHADER_API Syntax
 
     /// Returns an array of all registered type syntax objects
     const vector<TypeSyntaxPtr>& getTypeSyntaxes() const { return _typeSyntaxes; }
+
+    /// Returns an array of all the custom type syntaxes registered and their corresponding TypeDesc objects
+    const vector<std::pair<TypeDesc,TypeSyntaxPtr>>& getCustomTypeSyntaxes() const { return _customTypeSyntaxes; }
 
     /// Return a type description for the given type name.
     TypeDesc getType(const string& name) const { return _typeSystem->getType(name); }
@@ -212,6 +215,7 @@ class MX_GENSHADER_API Syntax
 
     TypeSystemPtr _typeSystem;
     vector<TypeSyntaxPtr> _typeSyntaxes;
+    vector<std::pair<TypeDesc,TypeSyntaxPtr>> _customTypeSyntaxes;
     std::unordered_map<TypeDesc, size_t, TypeDesc::Hasher> _typeSyntaxIndexByType;
 
     StringSet _reservedWords;

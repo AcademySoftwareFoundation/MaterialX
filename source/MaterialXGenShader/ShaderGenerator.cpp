@@ -340,6 +340,8 @@ ShaderNodeImplPtr ShaderGenerator::getImplementation(const NodeDef& nodedef, Gen
 
     impl->initialize(*implElement, context);
 
+    addPortImplementationNames(implElement, *impl);
+
     // Cache it.
     context.addNodeImplementation(name, impl);
 
@@ -410,7 +412,7 @@ void ShaderGenerator::registerTypeDefs(const DocumentPtr& doc)
             typeAlias,
             typeDefinition);
 
-        _syntax->registerTypeSyntax(typeDesc, structTypeSyntax);
+        _syntax->registerTypeSyntax(typeDesc, structTypeSyntax, true);
     }
 }
 

@@ -195,7 +195,11 @@ class MX_FORMAT_API FilePath
     FilePathVec getSubDirectories() const;
 
     /// Create a directory on the file system at the given path.
-    void createDirectory() const;
+    /// @param recursive If true, creates parent directories as needed.
+    ///    If false (default), only creates the final directory.
+    /// @note Succeeds silently if directory already exists. Does not return
+    ///    error status - use exists() or isDirectory() to verify success.
+    void createDirectory(bool recursive=false) const;
 
     /// Set the current working directory of the file system.
     bool setCurrentPath();
@@ -207,6 +211,18 @@ class MX_FORMAT_API FilePath
 
     /// Return the directory containing the executable module.
     static FilePath getModulePath();
+
+    /// Create a temporary directory with a unique name.
+    /// @param parentDir The parent directory for the temporary directory.
+    ///    If empty, uses the system's default temporary directory.
+    /// @return A FilePath to the created temporary directory.
+    /// @throws Exception if the temporary directory cannot be created.
+    static FilePath createTemporaryDirectory(const FilePath& parentDir = FilePath());
+
+    /// Return the system's default temporary directory.
+    /// @return A FilePath to the system temporary directory.
+    /// @throws Exception if the system temporary directory cannot be determined.
+    static FilePath getSystemTemporaryDirectory();
 
   private:
     StringVec _vec;

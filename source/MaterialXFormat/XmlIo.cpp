@@ -355,6 +355,13 @@ void writeToXmlStream(DocumentPtr doc, std::ostream& stream, const XmlWriteOptio
 
 void writeToXmlFile(DocumentPtr doc, const FilePath& filename, const XmlWriteOptions* writeOptions)
 {
+    if (writeOptions && writeOptions->createDirectories)
+    {
+        if (!filename.getParentPath().isDirectory())
+        {
+            filename.getParentPath().createDirectory(true);
+        }
+    }
     std::ofstream ofs(filename.asString());
     writeToXmlStream(doc, ofs, writeOptions);
 }

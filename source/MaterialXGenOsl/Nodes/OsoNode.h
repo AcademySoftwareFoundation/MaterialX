@@ -15,7 +15,12 @@ MATERIALX_NAMESPACE_BEGIN
 class MX_GENOSL_API OsoNode : public ShaderNodeImpl
 {
 public:
+    OsoNode() {}
+    OsoNode(const string& osoName, const string& osoPath) :
+        _osoName(osoName), _osoPath(osoPath) {}
+
     static ShaderNodeImplPtr create();
+    static ShaderNodeImplPtr create(const string& osoName, const string& osoPath);
 
     void initialize(const InterfaceElement& element, GenContext& context) override;
 
