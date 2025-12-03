@@ -136,7 +136,8 @@ Graph::Graph(const std::string& materialFilename,
              const mx::FileSearchPath& searchPath,
              const mx::FilePathVec& libraryFolders,
              int viewWidth,
-             int viewHeight) :
+             int viewHeight,
+             float previewWidth) :
     _materialFilename(materialFilename),
     _searchPath(searchPath),
     _libraryFolders(libraryFolders),
@@ -154,6 +155,7 @@ Graph::Graph(const std::string& materialFilename,
     _autoLayout(false),
     _frameCount(INT_MIN),
     _fontScale(1.0f),
+    _previewSize(previewWidth),
     _saveNodePositions(true)
 {
     loadStandardLibraries();
@@ -1132,12 +1134,60 @@ void Graph::showPropertyEditorValue(UiNodePtr node, mx::InputPtr& input, const m
     }
     else if (input->getType() == "filename")
     {
-        mx::ValuePtr val = input->getValue();
+        mx::ValuePtr val = input->getResolvedValue();
 
         if (val && val->isA<std::string>())
         {
             std::string prev, temp;
             prev = temp = val->asA<std::string>();
+            mx::FilePath filePath(temp);
+
+            bool drawPreview = _previewSize > 0;
+            if (drawPreview)
+            {
+                float previewSize = _previewSize;
+                // Clamp preview size to width of panel
+                float panelWidth = ImGui::GetContentRegionAvail().x;
+                if (previewSize > panelWidth)
+                {
+                    previewSize = panelWidth;
+                }   
+
+                ImGui::BeginChild("imagePreview", ImVec2(previewSize, previewSize), false,
+                    ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+
+                // Show image preview if file exists and is an image
+                if (!temp.empty())
+                {
+                    mx::ImageHandlerPtr imageHandler = _renderer ? _renderer->getImageHandler() : nullptr;
+                    if (imageHandler)
+                    {
+                        unsigned int textureId = 0;
+                        int width = 0, height = 0;
+                        mx::ImagePtr image = imageHandler->acquireImage(filePath);
+                        if (image)
+                        {
+                            textureId = image->getResourceId();
+                            width = image->getWidth();
+                            height = image->getHeight();
+                        }
+                        else
+                        {
+                            std::cout << "filename not loaded: " << temp << std::endl;
+                        }
+                        if (textureId)
+                        {
+                            float aspect = (height > 0) ? (float)width / (float)height : 1.0f;
+                            ImVec2 imagePreviewSize(previewSize, previewSize / aspect);
+
+                            ImGui::Image((void*)(intptr_t)textureId, imagePreviewSize);
+                        }
+                    }
+                }
+                ImGui::EndChild();
+                //ImGui::PopItemWidth();
+            }
+
             ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(.15f, .15f, .15f, 1.0f));
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(.2f, .4f, .6f, 1.0f));
 
@@ -1152,7 +1202,9 @@ void Graph::showPropertyEditorValue(UiNodePtr node, mx::InputPtr& input, const m
             }
             ImGui::PopItemWidth();
             ImGui::SameLine();
-            ImGui::Text("%s", mx::FilePath(temp).getBaseName().c_str());
+
+            ImGui::Text("%s", filePath.getBaseName().c_str());
+
             ImGui::PopStyleColor();
             ImGui::PopStyleColor();
 
@@ -3518,6 +3570,9 @@ void Graph::propertyEditor()
 
     if (_currUiNode)
     {
+        // Set font scale
+        ImGui::SetWindowFontScale(_fontScale * 0.5);
+
         // Set and edit name
         ImGui::Text("Name: ");
         ImGui::SameLine();
@@ -3658,16 +3713,30 @@ void Graph::propertyEditor()
             ImGui::Checkbox("Show output connections", &_currUiNode->_showOutputsInEditor);
 
             int count = 0;
+            float totalImagePadding = 0.0f;
+            float imagePadding = 0.0f;
+            if (_previewSize > 0.0f)
+            {
+                imagePadding = (_previewSize > availableWidth) ? availableWidth : _previewSize;
+            }
             for (UiPinPtr input : _currUiNode->inputPins)
             {
                 if (_currUiNode->_showAllInputs || (input->getConnected() || _currUiNode->getNode()->getInput(input->_name)))
                 {
                     count++;
+                    
+                    // Add space for image previews
+                    if (imagePadding > 0.0f && input->_input->getType() == "filename")
+                    {
+                        totalImagePadding += imagePadding;
+                    }
                 }
             }
             if (count)
             {
-                ImVec2 tableSize(0.0f, TEXT_BASE_HEIGHT * std::min(SCROLL_LINE_COUNT, count));
+                //ImVec2 tableSize(0.0f, TEXT_BASE_HEIGHT * std::min(SCROLL_LINE_COUNT, count));
+                float baseHeight = TEXT_BASE_HEIGHT * std::min(SCROLL_LINE_COUNT, count);
+                ImVec2 tableSize(0.0f, baseHeight + totalImagePadding);
                 bool haveTable = ImGui::BeginTable("inputs_node_table", 2, tableFlags, tableSize);
                 if (haveTable)
                 {
