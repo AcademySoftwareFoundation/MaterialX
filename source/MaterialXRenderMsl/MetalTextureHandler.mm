@@ -45,8 +45,7 @@ id<MTLSamplerState> MetalTextureHandler::getSamplerState(const ImageSamplingProp
         MTLSamplerMinMagFilter minmagFilter;
         MTLSamplerMipFilter mipFilter;
         mapFilterTypeToMetal(samplingProperties.filterType, samplingProperties.enableMipmaps, minmagFilter, mipFilter);
-        // Magnification filters are more restrictive than minification
-        [samplerDesc setMagFilter:MTLSamplerMinMagFilterLinear];
+        [samplerDesc setMagFilter:minmagFilter];
         [samplerDesc setMinFilter:minmagFilter];
         [samplerDesc setMipFilter:mipFilter];
         [samplerDesc setMaxAnisotropy:16];

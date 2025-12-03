@@ -621,31 +621,6 @@ void GlslShaderGenerator::emitLightFunctionDefinitions(const ShaderGraph& graph,
     }
 }
 
-void GlslShaderGenerator::toVec4(TypeDesc type, string& variable)
-{
-    if (type.isFloat3())
-    {
-        variable = "vec4(" + variable + ", 1.0)";
-    }
-    else if (type.isFloat2())
-    {
-        variable = "vec4(" + variable + ", 0.0, 1.0)";
-    }
-    else if (type == Type::FLOAT || type == Type::INTEGER || type == Type::BOOLEAN)
-    {
-        variable = "vec4(" + variable + ", " + variable + ", " + variable + ", 1.0)";
-    }
-    else if (type == Type::BSDF || type == Type::EDF)
-    {
-        variable = "vec4(" + variable + ", 1.0)";
-    }
-    else
-    {
-        // Can't understand other types. Just return black.
-        variable = "vec4(0.0, 0.0, 0.0, 1.0)";
-    }
-}
-
 void GlslShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, const string& qualifier,
                                                   GenContext&, ShaderStage& stage,
                                                   bool assignValue) const
