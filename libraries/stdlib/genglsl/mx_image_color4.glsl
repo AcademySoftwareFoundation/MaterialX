@@ -4,12 +4,11 @@ void mx_image_color4($texSamplerSignature, int layer, vec4 defaultval, vec2 texc
 {
     vec2 uv = mx_transform_uv(texcoord, uv_scale, uv_offset);
 
-    // "constant" wrap mode directly implemented in shader source because MSL and GLSL implementations don't align
-    if ((uaddressmode == 0 && (uv[0] < 0 || uv[0] > 1)) || (vaddressmode == 0 && (uv[1] < 0 || uv[1] > 1)))
-    {
-        result = defaultval;
-        return;
-    }
+    bool outsideU = (uaddressmode == 0) && (uv.x < 0.0 || uv.x > 1.0);
+    bool outsideV = (vaddressmode == 0) && (uv.y < 0.0 || uv.y > 1.0);
+    bool useDefault = outsideU || outsideV;
 
-    result = texture($texSamplerSampler2D, uv);
+    vec4 sampled =  texture($texSamplerSampler2D, uv);
+
+    result = mix(sampled, defaultval, float(useDefault));
 }
