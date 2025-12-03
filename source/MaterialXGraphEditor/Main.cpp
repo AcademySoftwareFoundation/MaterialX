@@ -73,7 +73,7 @@ int main(int argc, char* const argv[])
     float uiScale = 0.0f;
     std::string fontFilename;
     int fontSize = 18;
-    float previewWidth = 128.0f;
+    float previewWidth = 256.0f;
     std::string captureFilename;
 
     for (size_t i = 0; i < tokens.size(); i++)

@@ -1173,7 +1173,7 @@ void Graph::showPropertyEditorValue(UiNodePtr node, mx::InputPtr& input, const m
                         }
                         else
                         {
-                            std::cout << "filename not loaded: " << temp << std::endl;
+                            std::cout << "Image file not loaded: " << temp << std::endl;
                         }
                         if (textureId)
                         {
@@ -1202,7 +1202,6 @@ void Graph::showPropertyEditorValue(UiNodePtr node, mx::InputPtr& input, const m
             }
             ImGui::PopItemWidth();
             ImGui::SameLine();
-
             ImGui::Text("%s", filePath.getBaseName().c_str());
 
             ImGui::PopStyleColor();
@@ -3570,9 +3569,6 @@ void Graph::propertyEditor()
 
     if (_currUiNode)
     {
-        // Set font scale
-        ImGui::SetWindowFontScale(_fontScale * 0.5);
-
         // Set and edit name
         ImGui::Text("Name: ");
         ImGui::SameLine();
