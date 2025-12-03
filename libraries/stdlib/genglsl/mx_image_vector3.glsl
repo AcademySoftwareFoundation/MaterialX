@@ -8,6 +8,7 @@ void mx_image_vector3($texSamplerSignature, int layer, vec3 defaultval, vec2 tex
     bool outsideV = (vaddressmode == 0) && (uv.y < 0.0 || uv.y > 1.0);
     bool useDefault = outsideU || outsideV;
 
+    // Always sample once (avoids divergent control flow)
     vec3 sampled = texture($texSamplerSampler2D, uv).rgb;
 
     result = mix(sampled, defaultval, float(useDefault));

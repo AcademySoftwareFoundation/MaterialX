@@ -10,5 +10,5 @@ void mx_image_float($texSamplerSignature, int layer, float defaultval, vec2 texc
 
     float sampled = texture($texSamplerSampler2D, uv).r;
 
-    result = mix(sampled, defaultval, float(useDefault))
+    result = mix(sampled, defaultval, float(useDefault));
 }
