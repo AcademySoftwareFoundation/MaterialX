@@ -10,6 +10,17 @@
 #define mx_acos acos
 #define mx_atan atan
 #define mx_radians radians
+#define mx_float_bits_to_int floatBitsToInt
+
+vec2 mx_matrix_mul(vec2 v, mat2 m) { return v * m; }
+vec3 mx_matrix_mul(vec3 v, mat3 m) { return v * m; }
+vec4 mx_matrix_mul(vec4 v, mat4 m) { return v * m; }
+vec2 mx_matrix_mul(mat2 m, vec2 v) { return m * v; }
+vec3 mx_matrix_mul(mat3 m, vec3 v) { return m * v; }
+vec4 mx_matrix_mul(mat4 m, vec4 v) { return m * v; }
+mat2 mx_matrix_mul(mat2 m1, mat2 m2) { return m1 * m2; }
+mat3 mx_matrix_mul(mat3 m1, mat3 m2) { return m1 * m2; }
+mat4 mx_matrix_mul(mat4 m1, mat4 m2) { return m1 * m2; }
 
 float mx_square(float x)
 {

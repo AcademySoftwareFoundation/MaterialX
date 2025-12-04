@@ -5,10 +5,16 @@
     <input name="base" type="float" value="1" />
     <input name="base_color" type="color3" value="0.8, 0.8, 0.8" />
     <input name="metalness" type="float" value="0" />
+    <input name="specular" type="float" value="1" />
+    <input name="specular_color" type="color3" value="1, 1, 1" />
+    <input name="specular_anisotropy" type="float" value="0.0" />
+    <input name="specular_rotation" type="float" value="0.0" />
     <input name="specular_roughness" type="float" value="0.2" />
+    <input name="specular_IOR" type="float" value="1.5" />
     <input name="transmission" type="float" value="0" />
     <input name="transmission_color" type="color3" value="1, 1, 1" />
     <input name="transmission_depth" type="float" value="0" />
+    <input name="transmission_dispersion" type="float" value="0" />
     <input name="sheen" type="float" value="0" />
     <input name="sheen_color" type="color3" value="1, 1, 1" />
     <input name="sheen_roughness" type="float" value="0.3" />
@@ -17,18 +23,34 @@
     <input name="coat_roughness" type="float" value="0.1" />
     <input name="emission" type="float" value="0" />
     <input name="emission_color" type="color3" value="1, 1, 1" />
+    <input name="normal" type="vector3" defaultgeomprop="Nworld" />
+    <input name="tangent" type="vector3" defaultgeomprop="Tworld" />
+    <input name="opacity" type="color3" value="1, 1, 1" />
+    <input name="thin_walled" type="boolean" value="false" />
 
     <output name="base_color_out" type="color3" />
     <output name="metallic_out" type="float" />
     <output name="roughness_out" type="float" />
+    <output name="specular_out" type="float" />
+    <output name="specular_color_out" type="color3" />
+    <output name="ior_out" type="float" />
+    <output name="anisotropy_strength_out" type="float" />
+    <output name="anisotropy_rotation_out" type="float" />
     <output name="transmission_out" type="float" />
     <output name="thickness_out" type="float" />
     <output name="attenuation_color_out" type="color3" />
+    <output name="attenuation_distance_out" type="float" />
     <output name="sheen_color_out" type="color3" />
     <output name="sheen_roughness_out" type="float" />
     <output name="clearcoat_out" type="float" />
     <output name="clearcoat_roughness_out" type="float" />
+    <output name="dispersion_out" type="float" />
     <output name="emissive_out" type="color3" />
+    <output name="emissive_strength_out" type="float" />
+    <output name="normal_out" type="vector3" />
+    <output name="tangent_out" type="vector3" />
+    <output name="alpha_out" type="float" />
+    <output name="alpha_mode_out" type="integer" />
   </nodedef>
 
   <nodegraph name="NG_standard_surface_to_gltf_pbr" nodedef="ND_standard_surface_to_gltf_pbr">
@@ -41,6 +63,9 @@
     <convert name="constantOneThirdVector" type="vector3">
       <input name="in" type="float" nodename="constantOneThird" />
     </convert>
+    <constant name="negativeTwoPI" type="float">
+      <input name="value" type="float" value="-6.283" />
+    </constant>
 
     <!-- Coat attenuation -->
     <convert name="coatColorVector" type="vector3">
@@ -75,7 +100,7 @@
       <input name="in2" type="vector3" nodename="constantOneThirdVector" />
     </dotproduct>
 
-    <!-- Metallic roughness -->
+    <!-- Metallic  -->
     <ifequal name="baseColor" type="color3">
       <input name="value1" type="float" nodename="hasCoatColor" />
       <input name="value2" type="float" value="0" />
@@ -97,15 +122,49 @@
     <dot name="metallic" type="float">
       <input name="in" type="float" interfacename="metalness" />
     </dot>
-    <dot name="roughness" type="float">
-      <input name="in" type="float" interfacename="specular_roughness" />
-    </dot>
+
+    <!-- Roughness Anisotropy -->
+    <roughness_anisotropy name="roughness_anisotropy" type="vector2" nodedef="ND_roughness_anisotropy">
+      <input name="roughness" type="float" interfacename="specular_roughness" />
+      <input name="anisotropy" type="float" interfacename="specular_anisotropy" />
+    </roughness_anisotropy>
+    <separate2 name="separate_roughness" type="multioutput">
+      <input name="in" type="vector2" nodename="roughness_anisotropy" />
+    </separate2>
+    <sqrt name="roughness" type="float">
+      <input name="in" type="float" nodename="separate_roughness" output="outy" />
+    </sqrt>
+    <subtract name="numerator" type="float">
+      <input name="in1" type="float" nodename="separate_roughness" output="outx" />
+      <input name="in2" type="float" nodename="separate_roughness" output="outy" />
+    </subtract>
+    <subtract name="denumerator" type="float">
+      <input name="in1" type="float" value="1" />
+      <input name="in2" type="float" nodename="separate_roughness" output="outy" />
+    </subtract>
+    <divide name="anisotropy_sq" type="float">
+      <input name="in1" type="float" nodename="numerator" />
+      <input name="in2" type="float" nodename="denumerator" />
+    </divide>
+    <sqrt name="anisotropy" type="float">
+      <input name="in" type="float" nodename="anisotropy_sq" />
+    </sqrt>
+    <multiply name="anisotropy_rotation" type="float">
+      <input name="in1" type="float" interfacename="specular_rotation" />
+      <input name="in2" type="float" nodename="negativeTwoPI" />
+    </multiply>
+    <ifgreatereq name="anisotropy_strength" type="float">
+      <input name="value1" type="float" value="0.0" />
+      <input name="value2" type="float" nodename="denumerator" />
+      <input name="in1" type="float" value="0.0" />
+      <input name="in2" type="float" nodename="anisotropy" />
+    </ifgreatereq>
 
     <!-- Transmission -->
     <dot name="transmission" type="float">
       <input name="in" type="float" interfacename="transmission" />
     </dot>
-    <dot name="thickness" type="float">
+    <dot name="attenuation_distance" type="float">
       <input name="in" type="float" interfacename="transmission_depth" />
     </dot>
     <ifgreater name="transmissionAttenuationColor" type="color3">
@@ -121,6 +180,15 @@
       <input name="in2" type="color3" value="1, 1, 1" />
     </ifgreater>
 
+    <convert name="thin_walled_float" type="float">
+      <input name="in" type="boolean" interfacename="thin_walled" />
+    </convert>
+
+    <subtract name="thickness_from_thin_walled" type="float">
+      <input name="in1" type="float" value="1" />
+      <input name="in2" type="float" nodename="thin_walled_float" />
+    </subtract>
+
     <!-- Sheen -->
     <multiply name="sheen_color" type="color3">
       <input name="in1" type="color3" interfacename="sheen_color" />
@@ -132,6 +200,9 @@
       <input name="in1" type="float" interfacename="sheen_roughness" />
       <input name="in2" type="float" value="0" />
     </ifgreater>
+    <sqrt name="sqrt_sheen_roughness" type="float">
+      <input name="in" type="float" nodename="sheen_roughness" />
+    </sqrt>
 
     <!-- Clearcoat -->
     <ifequal name="clearcoat" type="float">
@@ -145,22 +216,87 @@
     </dot>
 
     <!-- Emission -->
-    <multiply name="emissive" type="color3">
-      <input name="in1" type="color3" interfacename="emission_color" />
-      <input name="in2" type="float" interfacename="emission" />
-    </multiply>
+    <dot name="emissive" type="color3">
+      <input name="in" type="color3" interfacename="emission_color" />
+    </dot>
+    <dot name="emissive_strength" type="float">
+      <input name="in" type="float" interfacename="emission" />
+    </dot>
+
+    <!-- Specular -->
+    <dot name="specular" type="float">
+      <input name="in" type="float" interfacename="specular" />
+    </dot>
+    <dot name="specular_color" type="color3">
+      <input name="in" type="color3" interfacename="specular_color" />
+    </dot>
+
+    <!-- Specular Index of Refraction -->
+    <dot name="ior" type="float">
+      <input name="in" type="float" interfacename="specular_IOR" />
+    </dot>
+
+    <!-- Dispersion -->
+    <divide name="dispersion_from_abbe" type="float">
+      <input name="in1" type="float" value="20.0" />
+      <input name="in2" type="float" interfacename="transmission_dispersion" />
+    </divide>
+
+    <ifequal name="dispersion" type="float">
+      <input name="value1" type="float" interfacename="transmission_dispersion" />
+      <input name="value2" type="float" value="0.0" />
+      <input name="in1" type="float" value="0.0" />
+      <input name="in2" type="float" nodename="dispersion_from_abbe" />
+    </ifequal>
+
+    <!-- Geometry -->
+    <dot name="normal" type="vector3">
+      <input name="in" type="vector3" interfacename="normal" />
+    </dot>
+    <dot name="tangent" type="vector3">
+      <input name="in" type="vector3" interfacename="tangent" />
+    </dot>
+
+    <!-- Opacity -->
+    <luminance name="opacity_luminance" type="color3">
+      <input name="in" type="color3" interfacename="opacity" />
+    </luminance>
+
+    <extract name="opacity_luminance_float" type="float">
+      <input name="in" type="color3" nodename="opacity_luminance" />
+      <input name="index" type="integer" value="0" />
+    </extract>
+
+    <ifequal name="alpha_mode_from_opacity_luminance" type="integer">
+      <input name="value1" type="float" nodename="opacity_luminance_float" />
+      <input name="value2" type="float" value="1.0" />
+      <input name="in1" type="integer" value="0" />
+      <input name="in2" type="integer" value="2" />
+    </ifequal>
 
     <output name="base_color_out" type="color3" nodename="base_color" />
     <output name="metallic_out" type="float" nodename="metallic" />
     <output name="roughness_out" type="float" nodename="roughness" />
+    <output name="specular_out" type="float" nodename="specular" />
+    <output name="specular_color_out" type="color3" nodename="specular_color" />
+    <output name="ior_out" type="float" nodename="ior" />
+    <output name="anisotropy_strength_out" type="float" nodename="anisotropy_strength" />
+    <output name="anisotropy_rotation_out" type="float" nodename="anisotropy_rotation" />
     <output name="transmission_out" type="float" nodename="transmission" />
-    <output name="thickness_out" type="float" nodename="thickness" />
+    <output name="thickness_out" type="float" nodename="thickness_from_thin_walled" />
     <output name="attenuation_color_out" type="color3" nodename="attenuation_color" />
+    <output name="attenuation_distance_out" type="float" nodename="attenuation_distance" />
     <output name="sheen_color_out" type="color3" nodename="sheen_color" />
-    <output name="sheen_roughness_out" type="float" nodename="sheen_roughness" />
+    <output name="sheen_roughness_out" type="float" nodename="sqrt_sheen_roughness" />
     <output name="clearcoat_out" type="float" nodename="clearcoat" />
     <output name="clearcoat_roughness_out" type="float" nodename="clearcoat_roughness" />
+    <output name="dispersion_out" type="float" nodename="dispersion" />
     <output name="emissive_out" type="color3" nodename="emissive" />
+    <output name="emissive_strength_out" type="float" nodename="emissive_strength" />
+    <output name="normal_out" type="vector3" nodename="normal" />
+    <output name="tangent_out" type="vector3" nodename="tangent" />
+    <output name="alpha_out" type="float" nodename="opacity_luminance_float" />
+    <output name="alpha_mode_out" type="integer" nodename="alpha_mode_from_opacity_luminance" />
 
   </nodegraph>
 </materialx>

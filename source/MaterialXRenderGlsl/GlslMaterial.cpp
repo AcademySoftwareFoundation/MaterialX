@@ -11,6 +11,8 @@
 
 #include <MaterialXRender/Util.h>
 
+#include <MaterialXGenHw/HwConstants.h>
+
 #include <MaterialXFormat/Util.h>
 
 MATERIALX_NAMESPACE_BEGIN

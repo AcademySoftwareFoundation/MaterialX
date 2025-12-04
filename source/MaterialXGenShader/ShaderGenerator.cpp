@@ -285,6 +285,16 @@ bool ShaderGenerator::implementationRegistered(const string& name) const
     return _implFactory.classRegistered(name);
 }
 
+ShaderNodeImplPtr ShaderGenerator::createShaderNodeImplForNodeGraph(const NodeGraph& /*nodegraph*/) const
+{
+    return CompoundNode::create();
+}
+
+ShaderNodeImplPtr ShaderGenerator::createShaderNodeImplForImplementation(const Implementation& /*implementation*/) const
+{
+    return SourceCodeNode::create();
+}
+
 ShaderNodeImplPtr ShaderGenerator::getImplementation(const NodeDef& nodedef, GenContext& context) const
 {
     InterfaceElementPtr implElement = nodedef.getImplementation(getTarget());
@@ -304,13 +314,28 @@ ShaderNodeImplPtr ShaderGenerator::getImplementation(const NodeDef& nodedef, Gen
 
     if (implElement->isA<NodeGraph>())
     {
-        impl = CompoundNode::create();
+        impl = createShaderNodeImplForNodeGraph(*implElement->asA<NodeGraph>());
     }
     else if (implElement->isA<Implementation>())
     {
+        ImplementationPtr implementationElement = implElement->asA<Implementation>();
         if (getColorManagementSystem() && getColorManagementSystem()->hasImplementation(name))
         {
             impl = getColorManagementSystem()->createImplementation(name);
+        }
+        else if (implementationElement->hasNodeGraph())
+        {
+            const string& nodegraphElementName = implementationElement->getNodeGraph();
+            NodeGraphPtr nodegraph = implElement->getDocument()->getNodeGraph(nodegraphElementName);
+            if (nodegraph)
+            {
+                impl = createShaderNodeImplForNodeGraph(*nodegraph);
+                implElement = nodegraph;
+            }
+            else
+            {
+                return nullptr;
+            }
         }
         else
         {
@@ -319,7 +344,7 @@ ShaderNodeImplPtr ShaderGenerator::getImplementation(const NodeDef& nodedef, Gen
         }
         if (!impl)
         {
-            impl = SourceCodeNode::create();
+            impl = createShaderNodeImplForImplementation(*implElement->asA<Implementation>());
         }
     }
     if (!impl)

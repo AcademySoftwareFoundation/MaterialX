@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
+#include <MaterialXGenShader/Exception.h>
 #include <MaterialXGenShader/GenContext.h>
-#include <MaterialXGenShader/ShaderGenerator.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -53,7 +53,7 @@ ShaderNodeImplPtr GenContext::findNodeImplementation(const string& name) const
 
 void GenContext::getNodeImplementationNames(StringSet& names)
 {
-    for (auto it : _nodeImpls)
+    for (const auto& it : _nodeImpls)
     {
         names.insert(it.first);
     }

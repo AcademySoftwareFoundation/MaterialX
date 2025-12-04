@@ -303,7 +303,7 @@
     <input name="rotation" type="float" value="0.0" unittype="angle" unit="degree" uimin="0" uimax="360" uiname="Longitude Offset" />
     <output name="out" type="color3" default="0.0, 0.0, 0.0" />
   </nodedef>
-  
+
   <!--
     Node: <hextiledimage> Supplemental Node
     Samples data from a single image, with provisions for hex-tiling and randomizing the image
@@ -935,6 +935,99 @@
   </nodedef>
 
   <!--
+    Node: <fractal2d>
+    2D Fractal noise in 1, 2, 3 or 4 channels.
+  -->
+  <nodedef name="ND_fractal2d_float" node="fractal2d" nodegroup="procedural2d">
+    <input name="amplitude" type="float" value="1.0" />
+    <input name="octaves" type="integer" value="3" />
+    <input name="lacunarity" type="float" value="2.0" />
+    <input name="diminish" type="float" value="0.5" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <output name="out" type="float" default="0.0" />
+  </nodedef>
+  <nodedef name="ND_fractal2d_color3" node="fractal2d" nodegroup="procedural2d">
+    <input name="amplitude" type="vector3" value="1.0, 1.0, 1.0" />
+    <input name="octaves" type="integer" value="3" />
+    <input name="lacunarity" type="float" value="2.0" />
+    <input name="diminish" type="float" value="0.5" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <output name="out" type="color3" default="0.0, 0.0, 0.0" />
+  </nodedef>
+  <nodedef name="ND_fractal2d_color4" node="fractal2d" nodegroup="procedural2d">
+    <input name="amplitude" type="vector4" value="1.0, 1.0, 1.0, 1.0" />
+    <input name="octaves" type="integer" value="3" />
+    <input name="lacunarity" type="float" value="2.0" />
+    <input name="diminish" type="float" value="0.5" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <output name="out" type="color4" default="0.0, 0.0, 0.0, 0.0" />
+  </nodedef>
+  <nodedef name="ND_fractal2d_vector2" node="fractal2d" nodegroup="procedural2d">
+    <input name="amplitude" type="vector2" value="1.0, 1.0" />
+    <input name="octaves" type="integer" value="3" />
+    <input name="lacunarity" type="float" value="2.0" />
+    <input name="diminish" type="float" value="0.5" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <output name="out" type="vector2" default="0.0, 0.0" />
+  </nodedef>
+  <nodedef name="ND_fractal2d_vector3" node="fractal2d" nodegroup="procedural2d">
+    <input name="amplitude" type="vector3" value="1.0, 1.0, 1.0" />
+    <input name="octaves" type="integer" value="3" />
+    <input name="lacunarity" type="float" value="2.0" />
+    <input name="diminish" type="float" value="0.5" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <output name="out" type="vector3" default="0.0, 0.0, 0.0" />
+  </nodedef>
+  <nodedef name="ND_fractal2d_vector4" node="fractal2d" nodegroup="procedural2d">
+    <input name="amplitude" type="vector4" value="1.0, 1.0, 1.0, 1.0" />
+    <input name="octaves" type="integer" value="3" />
+    <input name="lacunarity" type="float" value="2.0" />
+    <input name="diminish" type="float" value="0.5" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <output name="out" type="vector4" default="0.0, 0.0, 0.0, 0.0" />
+  </nodedef>
+  <nodedef name="ND_fractal2d_color3FA" node="fractal2d" nodegroup="procedural2d">
+    <input name="amplitude" type="float" value="1.0" />
+    <input name="octaves" type="integer" value="3" />
+    <input name="lacunarity" type="float" value="2.0" />
+    <input name="diminish" type="float" value="0.5" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <output name="out" type="color3" default="0.0, 0.0, 0.0" />
+  </nodedef>
+  <nodedef name="ND_fractal2d_color4FA" node="fractal2d" nodegroup="procedural2d">
+    <input name="amplitude" type="float" value="1.0" />
+    <input name="octaves" type="integer" value="3" />
+    <input name="lacunarity" type="float" value="2.0" />
+    <input name="diminish" type="float" value="0.5" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <output name="out" type="color4" default="0.0, 0.0, 0.0, 0.0" />
+  </nodedef>
+  <nodedef name="ND_fractal2d_vector2FA" node="fractal2d" nodegroup="procedural2d">
+    <input name="amplitude" type="float" value="1.0" />
+    <input name="octaves" type="integer" value="3" />
+    <input name="lacunarity" type="float" value="2.0" />
+    <input name="diminish" type="float" value="0.5" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <output name="out" type="vector2" default="0.0, 0.0" />
+  </nodedef>
+  <nodedef name="ND_fractal2d_vector3FA" node="fractal2d" nodegroup="procedural2d">
+    <input name="amplitude" type="float" value="1.0" />
+    <input name="octaves" type="integer" value="3" />
+    <input name="lacunarity" type="float" value="2.0" />
+    <input name="diminish" type="float" value="0.5" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <output name="out" type="vector3" default="0.0, 0.0, 0.0" />
+  </nodedef>
+  <nodedef name="ND_fractal2d_vector4FA" node="fractal2d" nodegroup="procedural2d">
+    <input name="amplitude" type="float" value="1.0" />
+    <input name="octaves" type="integer" value="3" />
+    <input name="lacunarity" type="float" value="2.0" />
+    <input name="diminish" type="float" value="0.5" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <output name="out" type="vector4" default="0.0, 0.0, 0.0, 0.0" />
+  </nodedef>
+
+  <!--
     Node: <fractal3d>
     3D Fractal noise in 1, 2, 3 or 4 channels.
   -->
@@ -1121,7 +1214,7 @@
     <input name="diminish" type="float" uiname="Diminish" uifolder="Fractal" uisoftmin="0.0" uisoftmax="1.0" value="0.5" doc="The rate at which noise amplitude is diminished for each octave of Fractal noise. Default is 0.5." />
     <input name="type" type="integer" uiname="Noise Type" uifolder="Common" uisoftmin="0" uisoftmax="3" value="0" enum="Perlin,Cell,Worley,Fractal" enumvalues="0,1,2,3" doc="Menu to select the type of noise: Perlin, Cell, Worley, or Fractal. Default is Perlin." />
     <input name="style" uiname="Worley Cell Style" type="integer" value="0" enum="Distance,Solid" enumvalues="0,1" doc="Sets the style of cell used when Noise Type is set to Worley." />
-    <output name="out" type="float" />
+    <output name="out" type="float" default="0.0" />
   </nodedef>
 
   <!--
@@ -1141,7 +1234,7 @@
     <input name="diminish" type="float" uiname="Diminish" uifolder="Fractal" uisoftmin="0.0" uisoftmax="1.0" value="0.5" doc="The rate at which noise amplitude is diminished for each octave of Fractal noise. Default is 0.5." />
     <input name="type" type="integer" uiname="Noise Type" uifolder="Common" uisoftmin="0" uisoftmax="3" value="0" enum="Perlin,Cell,Worley,Fractal" enumvalues="0,1,2,3" doc="Menu to select the type of noise: Perlin, Cell, Worley, or Fractal. Default is Perlin." />
     <input name="style" uiname="Worley Cell Style" type="integer" value="0" enum="Distance,Solid" enumvalues="0,1" doc="Sets the style of cell used when Noise Type is set to Worley." />
-    <output name="out" type="float" />
+    <output name="out" type="float" default="0.0" />
   </nodedef>
 
   <!--
@@ -1490,7 +1583,8 @@
     The current time in seconds as defined by the host environment.
   -->
   <nodedef name="ND_time_float" node="time" nodegroup="application">
-    <input name="fps" type="float" value="24.0" /> <!-- An unused input, to be removed in a future specification version -->
+    <input name="fps" type="float" value="24.0" />
+    <!-- An unused input, to be removed in a future specification version -->
     <output name="out" type="float" default="0.0" />
   </nodedef>
 
@@ -2261,8 +2355,8 @@
     <output name="out" type="vector2" defaultinput="in" />
   </nodedef>
   <nodedef name="ND_atan2_vector2" node="atan2" nodegroup="math">
-    <input name="iny" type="vector2" value="1.0, 1.0" />
-    <input name="inx" type="vector2" value="0.0, 0.0" />
+    <input name="iny" type="vector2" value="0.0, 0.0" />
+    <input name="inx" type="vector2" value="1.0, 1.0" />
     <output name="out" type="vector2" defaultinput="iny" />
   </nodedef>
   <nodedef name="ND_sin_vector3" node="sin" nodegroup="math">
@@ -2286,8 +2380,8 @@
     <output name="out" type="vector3" defaultinput="in" />
   </nodedef>
   <nodedef name="ND_atan2_vector3" node="atan2" nodegroup="math">
-    <input name="iny" type="vector3" value="1.0, 1.0, 1.0" />
-    <input name="inx" type="vector3" value="0.0, 0.0, 0.0" />
+    <input name="iny" type="vector3" value="0.0, 0.0, 0.0" />
+    <input name="inx" type="vector3" value="1.0, 1.0, 1.0" />
     <output name="out" type="vector3" defaultinput="iny" />
   </nodedef>
   <nodedef name="ND_sin_vector4" node="sin" nodegroup="math">
@@ -2311,8 +2405,8 @@
     <output name="out" type="vector4" defaultinput="in" />
   </nodedef>
   <nodedef name="ND_atan2_vector4" node="atan2" nodegroup="math">
-    <input name="iny" type="vector4" value="1.0, 1.0, 1.0, 1.0" />
-    <input name="inx" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="iny" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="inx" type="vector4" value="1.0, 1.0, 1.0, 1.0" />
     <output name="out" type="vector4" defaultinput="iny" />
   </nodedef>
 
@@ -4877,7 +4971,7 @@
   -->
   <nodedef name="ND_heighttonormal_vector3" node="heighttonormal" nodegroup="convolution2d">
     <input name="in" type="float" value="0.0" />
-    <input name="scale" type="float" value="1.0" uimin="0.0" uisoftmax="5.0"/>
+    <input name="scale" type="float" value="1.0" uimin="0.0" uisoftmax="5.0" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <output name="out" type="vector3" default="0.5, 0.5, 1.0" />
   </nodedef>
@@ -4922,7 +5016,7 @@
   -->
   <nodedef name="ND_logical_not" node="not" nodegroup="conditional">
     <input name="in" type="boolean" value="false" />
-    <output name="out" type="boolean" default="true"/>
+    <output name="out" type="boolean" default="true" />
   </nodedef>
 
   <!-- ======================================================================== -->

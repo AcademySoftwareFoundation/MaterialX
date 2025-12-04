@@ -29,6 +29,7 @@
     <input name="attenuation_color" uniform="true" type="color3" value="1, 1, 1" uimin="0, 0, 0" uimax="1, 1, 1" uiname="Attenuation Color" uifolder="Volume" />
     <input name="anisotropy_strength" type="float" value="0" uimin="0" uimax="1" uiname="Anisotropy Strength" uifolder="Anisotropy" />
     <input name="anisotropy_rotation" type="float" value="0" uimin="0" uimax="6.283185" uiname="Anisotropy Rotation" uifolder="Anisotropy" />
+    <input name="dispersion" type="float" value="0" uimin="0" uisoftmax="1.0" uiname="Dispersion" uifolder="Dispersion" />
     <output name="out" type="surfaceshader" />
   </nodedef>
 
@@ -352,7 +353,7 @@
       <input name="in" type="vector3" nodename="rotate_tangent" />
     </normalize>
     <absval name="abs_anisotropy_rotation" type="float">
-      <input name="in" type="float" interfacename="anisotropy_rotation"/>
+      <input name="in" type="float" interfacename="anisotropy_rotation" />
     </absval>
     <ifgreater name="selected_tangent" type="vector3">
       <input name="value1" type="float" nodename="abs_anisotropy_rotation" />

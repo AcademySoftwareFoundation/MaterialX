@@ -6,14 +6,12 @@
 #include <MaterialXGenOsl/OslShaderGenerator.h>
 #include <MaterialXGenOsl/OslSyntax.h>
 
+#include <MaterialXGenShader/Exception.h>
 #include <MaterialXGenShader/GenContext.h>
-#include <MaterialXGenShader/Shader.h>
-#include <MaterialXGenShader/TypeDesc.h>
-#include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
-
-#include <MaterialXGenOsl/Nodes/BlurNodeOsl.h>
-#include <MaterialXGenOsl/Nodes/MaterialNodeOsl.h>
+#include <MaterialXGenShader/Shader.h>
+#include <MaterialXGenShader/ShaderStage.h>
+#include <MaterialXGenShader/TypeDesc.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -26,21 +24,6 @@ const string OslShaderGenerator::TARGET = "genosl";
 OslShaderGenerator::OslShaderGenerator(TypeSystemPtr typeSystem) :
     ShaderGenerator(typeSystem, OslSyntax::create(typeSystem))
 {
-    // Register built-in implementations
-
-    // <!-- <blur> -->
-    registerImplementation("IM_blur_float_" + OslShaderGenerator::TARGET, BlurNodeOsl::create);
-    registerImplementation("IM_blur_color3_" + OslShaderGenerator::TARGET, BlurNodeOsl::create);
-    registerImplementation("IM_blur_color4_" + OslShaderGenerator::TARGET, BlurNodeOsl::create);
-    registerImplementation("IM_blur_vector2_" + OslShaderGenerator::TARGET, BlurNodeOsl::create);
-    registerImplementation("IM_blur_vector3_" + OslShaderGenerator::TARGET, BlurNodeOsl::create);
-    registerImplementation("IM_blur_vector4_" + OslShaderGenerator::TARGET, BlurNodeOsl::create);
-
-    // <!-- <surface> -->
-    registerImplementation("IM_surface_" + OslShaderGenerator::TARGET, SourceCodeNode::create);
-
-    // <!-- <surfacematerial> -->
-    registerImplementation("IM_surfacematerial_" + OslShaderGenerator::TARGET, MaterialNodeOsl::create);
 }
 
 ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const
@@ -51,6 +34,12 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     ScopedFloatFormatting fmt(Value::FloatFormatFixed);
 
     ShaderGraph& graph = shader->getGraph();
+
+    if (context.getOptions().oslConnectCiWrapper)
+    {
+        addSetCiTerminalNode(graph, element->getDocument(), context);
+    }
+
     ShaderStage& stage = shader->getStage(Stage::PIXEL);
 
     emitLibraryIncludes(stage, context);
@@ -58,6 +47,7 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     // Add global constants and type definitions
     emitTypeDefinitions(context, stage);
     emitLine("#define M_FLOAT_EPS 1e-8", stage, false);
+    emitLine("closure color null_closure() { closure color null_closure = 0; return null_closure; } ", stage, false);
     emitLineBreak(stage);
 
     // Set the include file to use for uv transformations,
@@ -127,25 +117,9 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     emitShaderInputs(stage.getInputBlock(OSL::INPUTS), stage);
     emitShaderInputs(stage.getUniformBlock(OSL::UNIFORMS), stage);
 
-    // Emit shader output
+    // Emit shader outputs
     const VariableBlock& outputs = stage.getOutputBlock(OSL::OUTPUTS);
-    const ShaderPort* singleOutput = outputs.size() == 1 ? outputs[0] : NULL;
-
-    const bool isSurfaceShaderOutput = singleOutput && singleOutput->getType() == Type::SURFACESHADER;
-
-    if (isSurfaceShaderOutput)
-    {
-        // Special case for having 'surfaceshader' as final output type.
-        // This type is a struct internally (BSDF, EDF, opacity) so we must
-        // declare this as a single closure color type in order for renderers
-        // to understand this output.
-        emitLine("output closure color " + singleOutput->getVariable() + " = 0", stage, false);
-    }
-    else
-    {
-        // Just emit all outputs the way they are declared.
-        emitShaderOutputs(outputs, stage);
-    }
+    emitShaderOutputs(outputs, stage);
 
     // End shader signature
     emitScopeEnd(stage);
@@ -180,49 +154,25 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
         }
     }
 
-    // Emit all texturing nodes. These are inputs to any
-    // closure/shader nodes and need to be emitted first.
-    emitFunctionCalls(graph, context, stage, ShaderNode::Classification::TEXTURE);
-
-    // Emit function calls for "root" closure/shader nodes.
-    // These will internally emit function calls for any dependent closure nodes upstream.
+    // Emit function calls for all nodes in the graph, starting each output
+    // port and walking backwards along the incoming connections
     for (ShaderGraphOutputSocket* socket : graph.getOutputSockets())
     {
         if (socket->getConnection())
         {
             const ShaderNode* upstream = socket->getConnection()->getNode();
-            if (upstream->getParent() == &graph &&
-                (upstream->hasClassification(ShaderNode::Classification::CLOSURE) ||
-                 upstream->hasClassification(ShaderNode::Classification::SHADER)))
+            if (upstream->getParent() == &graph)
             {
-                emitFunctionCall(*upstream, context, stage);
+                emitAllDependentFunctionCalls(*upstream, context, stage);
             }
         }
     }
 
-    // Emit final outputs
-    if (isSurfaceShaderOutput)
+    // Assign results to final outputs.
+    for (size_t i = 0; i < outputs.size(); ++i)
     {
-        // Special case for having 'surfaceshader' as final output type.
-        // This type is a struct internally (BSDF, EDF, opacity) so we must
-        // convert this to a single closure color type in order for renderers
-        // to understand this output.
-        const ShaderGraphOutputSocket* socket = graph.getOutputSocket(0);
-        const string result = getUpstreamResult(socket, context);
-        emitScopeBegin(stage);
-        emitLine("float opacity_weight = clamp(" + result + ".opacity, 0.0, 1.0)", stage);
-        emitLine(singleOutput->getVariable() + " = (" + result + ".bsdf + " + result + ".edf) * opacity_weight + transparent() * (1.0 - opacity_weight)", stage);
-        emitScopeEnd(stage);
-    }
-    else
-    {
-        // Assign results to final outputs.
-        for (size_t i = 0; i < outputs.size(); ++i)
-        {
-            const ShaderGraphOutputSocket* outputSocket = graph.getOutputSocket(i);
-            const string result = getUpstreamResult(outputSocket, context);
-            emitLine(outputSocket->getVariable() + " = " + result, stage);
-        }
+        const ShaderGraphOutputSocket* outputSocket = graph.getOutputSocket(i);
+        emitLine(outputSocket->getVariable() + " = " + getUpstreamResult(outputSocket, context), stage);
     }
 
     // End shader body
@@ -257,7 +207,7 @@ void OslShaderGenerator::registerShaderMetadata(const DocumentPtr& doc, GenConte
         { ValueElement::UI_STEP_ATTRIBUTE, "sensitivity" },
         { ValueElement::DOC_ATTRIBUTE, "help" }
     };
-    for (auto it : nameRemapping)
+    for (const auto& it : nameRemapping)
     {
         ShaderMetadata* data = registry->findMetadata(it.first);
         if (data)
@@ -271,6 +221,21 @@ ShaderPtr OslShaderGenerator::createShader(const string& name, ElementPtr elemen
 {
     // Create the root shader graph
     ShaderGraphPtr graph = ShaderGraph::create(nullptr, name, element, context);
+
+    // Special handling for surfaceshader type output - if we have a material
+    // that outputs a single surfaceshader then we will implicitly add a surfacematerial
+    // node to create the final closure color - the surfaceshader type is a struct and needs
+    // flattening to a single closure in the surfacematerial node.
+    const auto& outputSockets = graph->getOutputSockets();
+    const auto* singleOutput = outputSockets.size() == 1 ? outputSockets[0] : NULL;
+
+    const bool isSurfaceShaderOutput = context.getOptions().oslImplicitSurfaceShaderConversion && singleOutput && singleOutput->getType() == Type::SURFACESHADER;
+
+    if (isSurfaceShaderOutput)
+    {
+        graph->inlineNodeBeforeOutput(outputSockets[0], "_surfacematerial_", "ND_surfacematerial", "surfaceshader", "out", context);
+    }
+
     ShaderPtr shader = std::make_shared<Shader>(name, graph);
 
     // Create our stage.
@@ -304,38 +269,21 @@ ShaderPtr OslShaderGenerator::createShader(const string& name, ElementPtr elemen
     return shader;
 }
 
-void OslShaderGenerator::emitFunctionCalls(const ShaderGraph& graph, GenContext& context, ShaderStage& stage, uint32_t classification) const
+// TODO - determine it's better if this lives in ShaderGenerator as a useful API function
+void OslShaderGenerator::emitAllDependentFunctionCalls(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    // Special handling for closures functions.
-    if ((classification & ShaderNode::Classification::CLOSURE) != 0)
+    // Check if it's emitted already.
+    if (!stage.isEmitted(node, context))
     {
-        // Emit function calls for closures connected to the outputs.
-        // These will internally emit other closure function calls
-        // for upstream nodes if needed.
-        for (ShaderGraphOutputSocket* outputSocket : graph.getOutputSockets())
+        // Emit function calls for upstream connected nodes
+        for (const auto& input : node.getInputs())
         {
-            const ShaderNode* upstream = outputSocket->getConnection() ? outputSocket->getConnection()->getNode() : nullptr;
-            if (upstream && upstream->hasClassification(classification))
+            if (const auto& upstream = input->getConnectedSibling())
             {
-                emitFunctionCall(*upstream, context, stage);
+                emitAllDependentFunctionCalls(*upstream, context, stage);
             }
         }
-    }
-    else
-    {
-        // Not a closures graph so just generate all
-        // function calls in order.
-        ShaderGenerator::emitFunctionCalls(graph, context, stage, classification);
-    }
-}
-
-void OslShaderGenerator::emitFunctionBodyBegin(const ShaderNode& node, GenContext&, ShaderStage& stage, Syntax::Punctuation punc) const
-{
-    emitScopeBegin(stage, punc);
-
-    if (node.hasClassification(ShaderNode::Classification::SHADER) || node.hasClassification(ShaderNode::Classification::CLOSURE))
-    {
-        emitLine("closure color null_closure = 0", stage);
+        stage.addFunctionCall(node, context);
     }
 }
 
@@ -460,10 +408,10 @@ void OslShaderGenerator::emitMetadata(const ShaderPort* port, ShaderStage& stage
 {
     static const std::unordered_map<TypeDesc, ShaderMetadata, TypeDesc::Hasher> UI_WIDGET_METADATA =
     {
-        { Type::FLOAT, ShaderMetadata("widget", Type::STRING,  Type::STRING.createValueFromStrings("number")) },
-        { Type::INTEGER, ShaderMetadata("widget", Type::STRING,  Type::STRING.createValueFromStrings("number")) },
-        { Type::FILENAME, ShaderMetadata("widget", Type::STRING,  Type::STRING.createValueFromStrings("filename")) },
-        { Type::BOOLEAN, ShaderMetadata("widget", Type::STRING,  Type::STRING.createValueFromStrings("checkBox")) }
+        { Type::FLOAT, ShaderMetadata("widget", Type::STRING, Type::STRING.createValueFromStrings("number")) },
+        { Type::INTEGER, ShaderMetadata("widget", Type::STRING, Type::STRING.createValueFromStrings("number")) },
+        { Type::FILENAME, ShaderMetadata("widget", Type::STRING, Type::STRING.createValueFromStrings("filename")) },
+        { Type::BOOLEAN, ShaderMetadata("widget", Type::STRING, Type::STRING.createValueFromStrings("checkBox")) }
     };
 
     static const std::set<TypeDesc> METADATA_TYPE_BLACKLIST =
@@ -521,6 +469,38 @@ void OslShaderGenerator::emitMetadata(const ShaderPort* port, ShaderStage& stage
         }
     }
 }
+
+
+void OslShaderGenerator::addSetCiTerminalNode(ShaderGraph& graph, ConstDocumentPtr document, GenContext& context) const
+{
+    string setCiNodeDefName = "ND_osl_set_ci";
+    NodeDefPtr setCiNodeDef = document->getNodeDef(setCiNodeDefName);
+
+    std::unordered_map<TypeDesc, ValuePtr, TypeDesc::Hasher> outputModeMap;
+    int index = 0;
+    for (auto input : setCiNodeDef->getInputs())
+    {
+        string inputName = input->getName();
+        if (stringStartsWith(inputName, "input_"))
+        {
+            TypeDesc inputType = _typeSystem->getType(input->getType());
+            outputModeMap[inputType] = std::make_shared<TypedValue<int>>(index++);
+        }
+    }
+
+    for (auto output : graph.getOutputSockets())
+    {
+        auto outputType = output->getType();
+        string typeName = outputType.getName();
+        auto setCiNode = graph.inlineNodeBeforeOutput(output, "oslSetCi", setCiNodeDefName, "input_" + typeName, "out_ci", context);
+        auto typeInput = setCiNode->getInput("output_mode");
+
+        auto outputModeValue = outputModeMap[outputType];
+
+        typeInput->setValue(outputModeValue);
+    }
+}
+
 
 namespace OSL
 {

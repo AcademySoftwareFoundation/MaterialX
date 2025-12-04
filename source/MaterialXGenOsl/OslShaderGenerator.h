@@ -28,9 +28,9 @@ class MX_GENOSL_API OslShaderGenerator : public ShaderGenerator
 
     /// Creator function.
     /// If a TypeSystem is not provided it will be created internally.
-    /// Optionally pass in an externally created TypeSystem here, 
+    /// Optionally pass in an externally created TypeSystem here,
     /// if you want to keep type descriptions alive after the lifetime
-    /// of the shader generator. 
+    /// of the shader generator.
     static ShaderGeneratorPtr create(TypeSystemPtr typeSystem = nullptr)
     {
         return std::make_shared<OslShaderGenerator>(typeSystem ? typeSystem : TypeSystem::create());
@@ -43,12 +43,8 @@ class MX_GENOSL_API OslShaderGenerator : public ShaderGenerator
     /// the element and all dependencies upstream into shader code.
     ShaderPtr generate(const string& name, ElementPtr element, GenContext& context) const override;
 
-    /// Add all function calls for a graph. If a classification mask is given only functions for
-    /// nodes matching this classification will be emitted.
-    void emitFunctionCalls(const ShaderGraph& graph, GenContext& context, ShaderStage& stage, uint32_t classification = 0u) const override;
-
-    /// Emit code for starting a new function body.
-    void emitFunctionBodyBegin(const ShaderNode& node, GenContext& context, ShaderStage& stage, Syntax::Punctuation punc = Syntax::CURLY_BRACKETS) const override;
+    /// Add all function calls for a node, and all upstream nodes.
+    void emitAllDependentFunctionCalls(const ShaderNode& node, GenContext& context, ShaderStage& stage) const;
 
     /// Unique identifier for this generator target
     static const string TARGET;
@@ -71,6 +67,8 @@ class MX_GENOSL_API OslShaderGenerator : public ShaderGenerator
 
     /// Emit metadata for a shader parameter.
     virtual void emitMetadata(const ShaderPort* port, ShaderStage& stage) const;
+
+    void addSetCiTerminalNode(ShaderGraph& graph, ConstDocumentPtr document, GenContext& context) const;
 };
 
 namespace OSL

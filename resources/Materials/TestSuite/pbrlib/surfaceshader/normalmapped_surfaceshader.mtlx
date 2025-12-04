@@ -17,7 +17,7 @@
       <input name="scale" type="float" value="1.1" />
     </normalmap>
     <tiledimage name="tiledimage" type="vector3">
-      <input name="file" type="filename" value="resources/images/mesh_wire_norm.png" />
+      <input name="file" type="filename" value="resources/Images/mesh_wire_norm.png" />
       <input name="realworldimagesize" type="vector2" value="1.0, 2.0" unit="centimeter" unittype="distance" />
       <input name="realworldtilesize" type="vector2" value="3.0, 2.0" unit="centimeter" unittype="distance" />
       <input name="uvtiling" type="vector2" value="12, 10" />
@@ -41,7 +41,7 @@
       <input name="scale" type="vector2" value="1.1, 1.1" />
     </normalmap>
     <tiledimage name="tiledimage2" type="vector3">
-      <input name="file" type="filename" value="resources/images/mesh_wire_norm.png" />
+      <input name="file" type="filename" value="resources/Images/mesh_wire_norm.png" />
       <input name="realworldimagesize" type="vector2" value="1.0, 2.0" unit="centimeter" unittype="distance" />
       <input name="realworldtilesize" type="vector2" value="3.0, 2.0" unit="centimeter" unittype="distance" />
       <input name="uvtiling" type="vector2" value="12, 10" />

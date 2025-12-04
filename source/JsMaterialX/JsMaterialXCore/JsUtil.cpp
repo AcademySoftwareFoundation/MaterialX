@@ -14,7 +14,7 @@ namespace mx = MaterialX;
 
 EMSCRIPTEN_BINDINGS(util)
 {
-    ems::constant("EMPTY_STRING", mx::EMPTY_STRING);
+    ems::function("getEmptyString", ems::optional_override([](){ return mx::EMPTY_STRING; }));
 
     ems::function("getVersionString", &mx::getVersionString);
 

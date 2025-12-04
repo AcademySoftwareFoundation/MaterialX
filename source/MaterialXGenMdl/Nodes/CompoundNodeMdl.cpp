@@ -7,7 +7,6 @@
 #include <MaterialXGenMdl/MdlShaderGenerator.h>
 #include <MaterialXGenMdl/MdlSyntax.h>
 
-#include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/Util.h>
 
@@ -254,7 +253,22 @@ void CompoundNodeMdl::emitFunctionSignature(const ShaderNode&, GenContext& conte
         }
 
         const string& delim = --count > 0 ? Syntax::COMMA : EMPTY_STRING;
-        shadergen.emitLine(qualifier + type + " " + input->getVariable() + " = " + value + delim, stage, false);
+        shadergen.emitLineBegin(stage);
+        shadergen.emitString(qualifier + type + " " + input->getVariable() + " = " + value, stage);
+
+        if (input->getConnections().empty())
+        {
+            shadergen.emitLineEnd(stage, false);
+            shadergen.emitLine("[[", stage, false);
+            shadergen.emitLineBegin(stage);
+            shadergen.emitString(syntax.getIndentation() + "anno::unused()", stage);
+            shadergen.emitLineEnd(stage, false);
+            shadergen.emitLineBegin(stage);
+            shadergen.emitString("]]", stage);
+        }
+
+        shadergen.emitString(delim, stage);
+        shadergen.emitLineEnd(stage, false);
     }
 
     // End function signature.

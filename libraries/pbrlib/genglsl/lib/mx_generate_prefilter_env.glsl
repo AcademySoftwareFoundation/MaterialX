@@ -27,11 +27,7 @@ vec3 mx_generate_prefilter_env()
     float NdotV = 1.0;
 
     // Compute derived properties.
-#ifdef HW_SEPARATE_SAMPLERS
-    vec2 uv = gl_FragCoord.xy * pow(2.0, $envPrefilterMip) / vec2(textureSize(sampler2D($envRadiance_texture, $envRadiance_sampler), 0));
-#else
-    vec2 uv = gl_FragCoord.xy * pow(2.0, $envPrefilterMip) / vec2(textureSize($envRadiance, 0));
-#endif
+    vec2 uv = gl_FragCoord.xy * pow(2.0, $envPrefilterMip) / vec2(textureSize($envRadianceSampler2D, 0));
     vec3 worldN = mx_latlong_map_projection_inverse(uv);
     mat3 tangentToWorld = mx_orthonormal_basis(worldN);
     float alpha = mx_latlong_lod_to_alpha(float($envPrefilterMip));
@@ -56,14 +52,10 @@ vec3 mx_generate_prefilter_env()
         float G = mx_ggx_smith_G2(NdotL, NdotV, alpha);
 
         // Sample the environment light from the given direction.
-        vec3 Lw = tangentToWorld * L;
+        vec3 Lw = mx_matrix_mul(tangentToWorld, L);
         float pdf = mx_ggx_NDF(H, vec2(alpha)) * G1V / (4.0 * NdotV);
         float lod = mx_latlong_compute_lod(Lw, pdf, float($envRadianceMips - 1), envRadianceSamples);
-#ifdef HW_SEPARATE_SAMPLERS
-        vec3 sampleColor = mx_latlong_map_lookup(Lw, $envMatrix, lod, $envRadiance_texture, $envRadiance_sampler);
-#else
         vec3 sampleColor = mx_latlong_map_lookup(Lw, $envMatrix, lod, $envRadiance);
-#endif
 
         // Add the radiance contribution of this sample.
         radiance += G * sampleColor;

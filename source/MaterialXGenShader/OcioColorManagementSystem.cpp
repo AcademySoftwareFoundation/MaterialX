@@ -27,6 +27,7 @@ namespace OCIO = OCIO_NAMESPACE;
 MATERIALX_NAMESPACE_BEGIN
 
 const string OcioColorManagementSystem::IMPL_PREFIX = "IMPL_MXOCIO_";
+const string OcioColorManagementSystem::OCIO_SOURCE_URI = "materialx://OcioColorManagementSystem.cpp";
 const string ND_PREFIX = "ND_MXOCIO_";
 
 namespace
@@ -162,6 +163,7 @@ NodeDefPtr OcioColorManagementSystemImpl::getNodeDef(const ColorSpaceTransform& 
     {
         nodeDef = document->addNodeDef(nodeDefName, "", functionName);
         nodeDef->setNodeGroup("colortransform");
+        nodeDef->setSourceUri(OcioColorManagementSystem::OCIO_SOURCE_URI);
 
         nodeDef->addInput("in", transform.type.getName());
         nodeDef->addOutput("out", transform.type.getName());
@@ -169,6 +171,7 @@ NodeDefPtr OcioColorManagementSystemImpl::getNodeDef(const ColorSpaceTransform& 
         auto implementation = document->addImplementation(implName);
         implementation->setTarget(_target);
         implementation->setNodeDef(nodeDef);
+        implementation->setSourceUri(OcioColorManagementSystem::OCIO_SOURCE_URI);
     }
 
     _implementations.emplace(implName, gpuProcessor);
