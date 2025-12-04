@@ -86,6 +86,8 @@ class MX_GENHW_API HwShaderGenerator : public ShaderGenerator
 
     /// Create and initialize a new HW shader for shader generation.
     virtual ShaderPtr createShader(const string& name, ElementPtr element, GenContext& context) const;
+
+    void toVec4(TypeDesc type, string& variable) const;
 };
 
 MATERIALX_NAMESPACE_END

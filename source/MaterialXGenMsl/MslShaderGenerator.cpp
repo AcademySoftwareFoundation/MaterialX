@@ -1140,31 +1140,6 @@ void MslShaderGenerator::emitLightFunctionDefinitions(const ShaderGraph& graph, 
     }
 }
 
-void MslShaderGenerator::toVec4(TypeDesc type, string& variable)
-{
-    if (type.isFloat3())
-    {
-        variable = "float4(" + variable + ", 1.0)";
-    }
-    else if (type.isFloat2())
-    {
-        variable = "float4(" + variable + ", 0.0, 1.0)";
-    }
-    else if (type == Type::FLOAT || type == Type::INTEGER)
-    {
-        variable = "float4(" + variable + ", " + variable + ", " + variable + ", 1.0)";
-    }
-    else if (type == Type::BSDF || type == Type::EDF)
-    {
-        variable = "float4(" + variable + ", 1.0)";
-    }
-    else
-    {
-        // Can't understand other types. Just return black.
-        variable = "float4(0.0, 0.0, 0.0, 1.0)";
-    }
-}
-
 void MslShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, const string& qualifier,
                                                  GenContext&, ShaderStage& stage,
                                                  bool assignValue) const
