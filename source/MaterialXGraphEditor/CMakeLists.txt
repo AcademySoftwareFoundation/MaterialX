@@ -9,9 +9,9 @@ endif()
 if(MSVC)
     add_compile_options(-wd4100 -wd4152 -wd4201 -wd4244 -wd4456)
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    add_compile_options(-Wno-unused -Wno-deprecated -Wno-comment -Wno-unused-variable)
+    add_compile_options(-Wno-unused -Wno-deprecated -Wno-comment -Wno-unused-variable -Wno-unused-parameter)
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    add_compile_options(-Wno-format-truncation -Wno-use-after-free -Wno-comment -Wno-unused-but-set-variable)
+    add_compile_options(-Wno-format-truncation -Wno-use-after-free -Wno-comment -Wno-unused-but-set-variable -Wno-unused-parameter)
 endif()
 
 file(GLOB materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
@@ -93,6 +93,8 @@ target_link_libraries(
 
 install(TARGETS MaterialXGraphEditor
     EXPORT MaterialX
-    RUNTIME DESTINATION bin)
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/MaterialXGraphEditor.pdb"
-    DESTINATION "${CMAKE_INSTALL_PREFIX}/bin/" OPTIONAL)
+    RUNTIME DESTINATION ${MATERIALX_INSTALL_BIN_PATH})
+if(MSVC)
+    install(FILES $<TARGET_PDB_FILE:MaterialXGraphEditor>
+            DESTINATION ${MATERIALX_INSTALL_BIN_PATH} OPTIONAL)
+endif()

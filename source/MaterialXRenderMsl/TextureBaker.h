@@ -19,7 +19,7 @@
 MATERIALX_NAMESPACE_BEGIN
 
 /// A shared pointer to a TextureBakerMsl
-using TextureBakerMslPtr = shared_ptr<class TextureBakerMsl>;
+using TextureBakerPtr = shared_ptr<class TextureBakerMsl>;
 
 /// A vector of baked documents with their associated names.
 using BakedDocumentVec = std::vector<std::pair<std::string, DocumentPtr>>;
@@ -31,9 +31,9 @@ using BakedDocumentVec = std::vector<std::pair<std::string, DocumentPtr>>;
 class MX_RENDERMSL_API TextureBakerMsl : public TextureBaker<MslRenderer, MslShaderGenerator>
 {
   public:
-    static TextureBakerMslPtr create(unsigned int width = 1024, unsigned int height = 1024, Image::BaseType baseType = Image::BaseType::UINT8)
+    static TextureBakerPtr create(unsigned int width = 1024, unsigned int height = 1024, Image::BaseType baseType = Image::BaseType::UINT8)
     {
-        return TextureBakerMslPtr(new TextureBakerMsl(width, height, baseType));
+        return TextureBakerPtr(new TextureBakerMsl(width, height, baseType));
     }
 
   protected:

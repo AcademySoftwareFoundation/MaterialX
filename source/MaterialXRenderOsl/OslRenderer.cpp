@@ -28,6 +28,7 @@ OslRendererPtr OslRenderer::create(unsigned int width, unsigned int height, Imag
 OslRenderer::OslRenderer(unsigned int width, unsigned int height, Image::BaseType baseType) :
     ShaderRenderer(width, height, baseType),
     _useTestRender(true),
+    _useOSLCmdStr(false),
     _raysPerPixelLit(1),
     _raysPerPixelUnlit(1)
 {
@@ -99,8 +100,7 @@ void OslRenderer::renderOSL(const FilePath& dirPath, const string& shaderName, c
     const string CLOSURE_PASSTHROUGH_SHADER_STRING("closure_passthrough");
     const string CONSTANT_COLOR_SHADER_STRING("constant_color");
     const string CONSTANT_COLOR_SHADER_PREFIX_STRING("constant_");
-    string outputShader = isColorClosure ? CLOSURE_PASSTHROUGH_SHADER_STRING :
-        (isRemappable ? CONSTANT_COLOR_SHADER_PREFIX_STRING + _oslShaderOutputType : CONSTANT_COLOR_SHADER_STRING);
+    string outputShader = isColorClosure ? CLOSURE_PASSTHROUGH_SHADER_STRING : (isRemappable ? CONSTANT_COLOR_SHADER_PREFIX_STRING + _oslShaderOutputType : CONSTANT_COLOR_SHADER_STRING);
 
     // Perform token replacement
     const string ENVIRONMENT_SHADER_PARAMETER_OVERRIDES("%environment_shader_parameter_overrides%");
@@ -146,7 +146,7 @@ void OslRenderer::renderOSL(const FilePath& dirPath, const string& shaderName, c
     rootPath.setCurrentPath();
 
     // Write scene file
-    const string sceneFileName("scene_template.xml");
+    const string sceneFileName = (dirPath / (shaderName + "_scene_template.xml")).asString();
     std::ofstream shaderFileStream;
     shaderFileStream.open(sceneFileName);
     if (shaderFileStream.is_open())
@@ -167,6 +167,133 @@ void OslRenderer::renderOSL(const FilePath& dirPath, const string& shaderName, c
     command += " -r " + std::to_string(_width) + " " + std::to_string(_height);
     command += " --path " + osoPaths;
     command += " -aa " + std::to_string(isColorClosure ? _raysPerPixelLit : _raysPerPixelUnlit);
+    command += " > " + errorFile + redirectString;
+
+    // Repeat the render command to allow for sporadic errors.
+    int returnValue = 0;
+    for (int i = 0; i < 5; i++)
+    {
+        returnValue = std::system(command.c_str());
+        if (!returnValue)
+        {
+            break;
+        }
+    }
+
+    // Restore the working directory after rendering.
+    origWorkingPath.setCurrentPath();
+
+    // Report errors on a non-zero return value.
+    if (returnValue)
+    {
+        std::ifstream errorStream(errorFile);
+        StringVec result;
+        string line;
+        unsigned int errCount = 0;
+        while (std::getline(errorStream, line))
+        {
+            if (errCount++ > 10)
+            {
+                break;
+            }
+            result.push_back(line);
+        }
+
+        StringVec errors;
+        errors.push_back("Errors reported in renderOSL:");
+        for (size_t i = 0; i < result.size(); i++)
+        {
+            errors.push_back(result[i]);
+        }
+        errors.push_back("Command string: " + command);
+        errors.push_back("Command return code: " + std::to_string(returnValue));
+        throw ExceptionRenderError("OSL rendering error", errors);
+    }
+}
+
+void OslRenderer::renderOSLNetwork(const FilePath& dirPath, const string& shaderName)
+{
+    // If command options missing, skip testing.
+    if (_oslTestRenderExecutable.isEmpty() ||
+        _oslTestRenderSceneTemplateFile.isEmpty() || _oslUtilityOSOPath.isEmpty())
+    {
+        throw ExceptionRenderError("Command input arguments are missing");
+    }
+
+    // Determine the shader path from output path and shader name
+    FilePath shaderFilePath(dirPath);
+    shaderFilePath = shaderFilePath / shaderName;
+    string shaderPath = shaderFilePath.asString();
+
+    // Set output image name.
+    string outputFileName = shaderPath + "_oslcmd.png";
+    _oslOutputFileName = outputFileName;
+
+    // Use a known error file name to check
+    string errorFile(shaderPath + "_render_errors_oslcmd.txt");
+    const string redirectString(" 2>&1");
+
+    // Read in scene template and replace the applicable tokens to have a valid ShaderGroup.
+    // Write to local file to use as input for rendering.
+    std::ifstream sceneTemplateStream(_oslTestRenderSceneTemplateFile);
+    string sceneTemplateString;
+    sceneTemplateString.assign(std::istreambuf_iterator<char>(sceneTemplateStream),
+                               std::istreambuf_iterator<char>());
+
+    // Perform token replacement
+    const string ENVIRONMENT_SHADER_PARAMETER_OVERRIDES("%environment_shader_parameter_overrides%");
+    const string BACKGROUND_COLOR_STRING("%background_color%");
+    const string OSL_COMMANDS("%oslCmd%");
+
+    StringMap replacementMap;
+
+    string envOverrideString;
+    for (const auto& param : _envOslShaderParameterOverrides)
+    {
+        envOverrideString.append(param);
+    }
+    replacementMap[ENVIRONMENT_SHADER_PARAMETER_OVERRIDES] = envOverrideString;
+    replacementMap[OSL_COMMANDS] = _oslCmdStr;
+    replacementMap[BACKGROUND_COLOR_STRING] = std::to_string(DEFAULT_SCREEN_COLOR_LIN_REC709[0]) + " " +
+                                              std::to_string(DEFAULT_SCREEN_COLOR_LIN_REC709[1]) + " " +
+                                              std::to_string(DEFAULT_SCREEN_COLOR_LIN_REC709[2]);
+    string sceneString = replaceSubstrings(sceneTemplateString, replacementMap);
+    if ((sceneString == sceneTemplateString) || sceneTemplateString.empty())
+    {
+        throw ExceptionRenderError("Scene template file: " + _oslTestRenderSceneTemplateFile.asString() +
+                                   " does not include proper tokens for rendering");
+    }
+
+    // Set the working directory for rendering.
+    FileSearchPath searchPath = getDefaultDataSearchPath();
+    FilePath rootPath = searchPath.isEmpty() ? FilePath() : searchPath[0];
+    FilePath origWorkingPath = FilePath::getCurrentPath();
+    rootPath.setCurrentPath();
+
+    // Write scene file
+    const string sceneFileName = (dirPath / (shaderName + "_scene_template_oslcmd.xml")).asString();
+    std::ofstream shaderFileStream;
+    shaderFileStream.open(sceneFileName);
+
+    if (shaderFileStream.is_open())
+    {
+        shaderFileStream << sceneString;
+        shaderFileStream.close();
+    }
+
+    // Set oso file paths
+    string osoPaths(_oslUtilityOSOPath);
+    osoPaths += PATH_LIST_SEPARATOR + _dataLibraryOSOPath.asString();
+    osoPaths += PATH_LIST_SEPARATOR + dirPath.asString();
+    osoPaths += PATH_LIST_SEPARATOR + dirPath.getParentPath().asString();
+
+    // Build and run render command
+    string command(_oslTestRenderExecutable);
+    command += " " + sceneFileName;
+    command += " " + outputFileName;
+    command += " -r " + std::to_string(_width) + " " + std::to_string(_height);
+    command += " --path " + osoPaths;
+    command += " -aa " + std::to_string(_raysPerPixelLit);
     command += " > " + errorFile + redirectString;
 
     // Repeat the render command to allow for sporadic errors.
@@ -280,12 +407,24 @@ void OslRenderer::compileOSL(const FilePath& oslFilePath)
         return;
     }
 
-    FilePath outputFileName = oslFilePath;
-    outputFileName.removeExtension();
-    outputFileName.addExtension("oso");
+    FilePath osoFilePath;
+
+    // If it has been specified, build the OSO output path using the one set up in the class, otherwise use the
+    // provided OSL file path.
+    if (_oslOutputFilePath.isEmpty())
+    {
+        osoFilePath = oslFilePath;
+    }
+    else
+    {
+        osoFilePath = FilePath(_oslOutputFilePath.asString() + "/" + oslFilePath.getBaseName());
+    }
+
+    osoFilePath.removeExtension();
+    osoFilePath.addExtension("oso");
 
     // Use a known error file name to check
-    string errorFile(oslFilePath.asString() + "_compile_errors.txt");
+    string errorFile(osoFilePath.asString() + "_compile_errors.txt");
     const string redirectString(" 2>&1");
 
     // Run the command and get back the result. If non-empty string throw exception with error
@@ -294,7 +433,7 @@ void OslRenderer::compileOSL(const FilePath& oslFilePath)
     {
         command += " -I\"" + p.asString() + "\" ";
     }
-    command += oslFilePath.asString() + " -o " + outputFileName.asString() + " > " + errorFile + redirectString;
+    command += oslFilePath.asString() + " -o " + osoFilePath.asString() + " > " + errorFile + redirectString;
 
     int returnValue = std::system(command.c_str());
 
@@ -381,20 +520,27 @@ void OslRenderer::render()
 
     _oslOutputFileName.assign(EMPTY_STRING);
 
-    // Use testshade
-    if (!_useTestRender)
+    if (_useOSLCmdStr)
     {
-        shadeOSL(_oslOutputFilePath, _oslShaderName, _oslShaderOutputName);
+        renderOSLNetwork(_oslOutputFilePath, _oslShaderName);
     }
-
-    // Use testrender
     else
     {
-        if (_oslShaderName.empty())
+        // Use testshade
+        if (!_useTestRender)
         {
-            throw ExceptionRenderError("OSL shader name has not been specified");
+            shadeOSL(_oslOutputFilePath, _oslShaderName, _oslShaderOutputName);
         }
-        renderOSL(_oslOutputFilePath, _oslShaderName, _oslShaderOutputName);
+
+        // Use testrender
+        else
+        {
+            if (_oslShaderName.empty())
+            {
+                throw ExceptionRenderError("OSL shader name has not been specified");
+            }
+            renderOSL(_oslOutputFilePath, _oslShaderName, _oslShaderOutputName);
+        }
     }
 }
 

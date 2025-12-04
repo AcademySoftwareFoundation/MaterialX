@@ -78,7 +78,7 @@ float mx_ggx_smith_G2(float NdotL, float NdotV, float alpha)
     float alpha2 = mx_square(alpha);
     float lambdaL = sqrt(alpha2 + (1.0 - alpha2) * mx_square(NdotL));
     float lambdaV = sqrt(alpha2 + (1.0 - alpha2) * mx_square(NdotV));
-    return 2.0 / (lambdaL / NdotL + lambdaV / NdotV);
+    return 2.0 * NdotL * NdotV / (lambdaL * NdotV + lambdaV * NdotL);
 }
 
 // Rational quadratic fit to Monte Carlo data for GGX directional albedo.
@@ -374,7 +374,7 @@ vec3 mx_fresnel_airy(float cosTheta, FresnelData fd)
 
     // Reflectance term for m>0 (pairs of diracs)
     Cm = Rs - T121.x;
-    for (int m=1; m<=2; m++)
+    for (int m = 1; m <= AIRY_FRESNEL_ITERATIONS; m++)
     {
         Cm *= r123p;
         Sm  = 2.0 * mx_eval_sensitivity(float(m) * opd, float(m)*(phi23p+vec3(phi21.x)));
@@ -389,7 +389,7 @@ vec3 mx_fresnel_airy(float cosTheta, FresnelData fd)
 
     // Reflectance term for m>0 (pairs of diracs)
     Cm = Rp - T121.y;
-    for (int m=1; m<=2; m++)
+    for (int m = 1; m <= AIRY_FRESNEL_ITERATIONS; m++)
     {
         Cm *= r123s;
         Sm  = 2.0 * mx_eval_sensitivity(float(m) * opd, float(m)*(phi23s+vec3(phi21.y)));
@@ -400,7 +400,7 @@ vec3 mx_fresnel_airy(float cosTheta, FresnelData fd)
     I *= 0.5;
 
     // Convert back to RGB reflectance
-    I = clamp(XYZ_TO_RGB * I, 0.0, 1.0);
+    I = clamp(mx_matrix_mul(XYZ_TO_RGB, I), 0.0, 1.0);
 
     return I;
 }
@@ -491,11 +491,11 @@ vec2 mx_latlong_projection(vec3 dir)
     return vec2(longitude, latitude);
 }
 
-vec3 mx_latlong_map_lookup(vec3 dir, mat4 transform, float lod, sampler2D envSampler)
+vec3 mx_latlong_map_lookup(vec3 dir, mat4 transform, float lod, $texSamplerSignature)
 {
-    vec3 envDir = normalize((transform * vec4(dir,0.0)).xyz);
+    vec3 envDir = normalize(mx_matrix_mul(transform, vec4(dir,0.0)).xyz);
     vec2 uv = mx_latlong_projection(envDir);
-    return textureLod(envSampler, uv, lod).rgb;
+    return textureLod($texSamplerSampler2D, uv, lod).rgb;
 }
 
 // Return the mip level with the appropriate coverage for a filtered importance sample.

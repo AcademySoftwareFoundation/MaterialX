@@ -11,7 +11,12 @@ if(APPLE)
       set(USE_OPENGL_BACKEND_ON_APPLE_PLATFORM ON)
     endif()
     
-    if(USE_OPENGL_BACKEND_ON_APPLE_PLATFORM)
+    # Force Metal backend if MSL-only rendering is enabled
+    if(MATERIALX_RENDER_MSL_ONLY)
+        set(USE_OPENGL_BACKEND_ON_APPLE_PLATFORM OFF)
+        set(NANOGUI_PREFERRED_BACKEND Metal)
+        set(MATERIALXVIEW_RENDER_BACKEND_DEFINITIONS "-DMATERIALXVIEW_METAL_BACKEND=1")
+    elseif(USE_OPENGL_BACKEND_ON_APPLE_PLATFORM)
         set(NANOGUI_PREFERRED_BACKEND OpenGL)
 	set(MATERIALXVIEW_RENDER_BACKEND_DEFINITIONS "-DMATERIALXVIEW_OPENGL_BACKEND=1")
     else()
@@ -66,9 +71,9 @@ else()
     if(MSVC)
         add_compile_options(-wd4389)
     elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-        add_compile_options(-Wno-deprecated)
+        add_compile_options(-Wno-deprecated -Wno-unused-parameter)
     elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-        add_compile_options(-Wno-format-truncation -Wno-stringop-overflow -Wno-use-after-free)
+        add_compile_options(-Wno-format-truncation -Wno-stringop-overflow -Wno-use-after-free -Wno-unused-parameter)
     endif()
 
     # Disable NanoGUI compiler modifications for Clang
@@ -141,6 +146,8 @@ set_target_properties(
 
 install(TARGETS MaterialXView
     EXPORT MaterialX
-    RUNTIME DESTINATION bin)
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/MaterialXView.pdb"
-    DESTINATION "bin" OPTIONAL)
+    RUNTIME DESTINATION ${MATERIALX_INSTALL_BIN_PATH})
+if(MSVC)
+    install(FILES $<TARGET_PDB_FILE:MaterialXView>
+            DESTINATION ${MATERIALX_INSTALL_BIN_PATH} OPTIONAL)
+endif()

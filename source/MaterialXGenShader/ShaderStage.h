@@ -19,6 +19,7 @@
 
 #include <MaterialXCore/Node.h>
 
+#include <map>
 #include <sstream>
 
 // Restrict a scoped block of statements to a specific shader stage, as
@@ -44,14 +45,19 @@ namespace Stage
 /// Shader targets with multiple stages can add additional
 /// stage identifiers to the Stage namespace.
 extern MX_GENSHADER_API const string PIXEL;
+// technically this might only be needed in MaterialXGenHW, but including it here
+// now for simplicity - refactoring code in MaterialXGenShader may be possible
+// in the future
+extern MX_GENSHADER_API const string VERTEX;
 
 } // namespace Stage
 
 class VariableBlock;
 /// Shared pointer to a VariableBlock
 using VariableBlockPtr = std::shared_ptr<VariableBlock>;
-/// Shared pointer to a map between string identifiers and VariableBlocks
-using VariableBlockMap = std::unordered_map<string, VariableBlockPtr>;
+/// Shared pointer to a map between string identifiers and VariableBlocks.
+/// The order may affect the order of the respective definitions in the generated code.
+using VariableBlockMap = std::map<string, VariableBlockPtr>;
 /// A standard function predicate taking an ShaderPort pointer and returning a boolean.
 using ShaderPortPredicate = std::function<bool(ShaderPort*)>;
 

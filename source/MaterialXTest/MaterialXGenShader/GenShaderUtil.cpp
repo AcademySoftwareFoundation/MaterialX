@@ -6,19 +6,22 @@
 #include <MaterialXTest/External/Catch/catch.hpp>
 #include <MaterialXTest/MaterialXGenShader/GenShaderUtil.h>
 
-#include <MaterialXCore/Material.h>
-#include <MaterialXCore/Unit.h>
+#include <MaterialXGenHw/HwConstants.h>
+#include <MaterialXGenHw/HwShaderGenerator.h>
+
+#include <MaterialXGenShader/GenContext.h>
+#include <MaterialXGenShader/Shader.h>
+#include <MaterialXGenShader/TypeDesc.h>
+#include <MaterialXGenShader/Util.h>
+#ifdef MATERIALX_BUILD_OCIO
+#include <MaterialXGenShader/OcioColorManagementSystem.h>
+#endif
 
 #include <MaterialXFormat/File.h>
 #include <MaterialXFormat/Util.h>
 
-#include <MaterialXGenShader/Shader.h>
-#include <MaterialXGenShader/Util.h>
-#include <MaterialXGenShader/TypeDesc.h>
-
-#ifdef MATERIALX_BUILD_OCIO
-#include <MaterialXGenShader/OcioColorManagementSystem.h>
-#endif
+#include <MaterialXCore/Material.h>
+#include <MaterialXCore/Unit.h>
 
 #include <iostream>
 
@@ -100,7 +103,8 @@ void checkImplementations(mx::GenContext& context,
         "absorption_vdf",
         "geompropvalue",
         "surfacematerial",
-        "volumematerial"
+        "volumematerial",
+        "osl_set_ci"
     };
     skipNodeTypes.insert(generatorSkipNodeTypes.begin(), generatorSkipNodeTypes.end());
 
@@ -114,7 +118,8 @@ void checkImplementations(mx::GenContext& context,
         "ND_mix_volumeshader",
         "ND_mix_vdf",
         "ND_surfacematerial",
-        "ND_volumematerial"
+        "ND_volumematerial",
+        "ND_osl_set_ci"
     };
     skipNodeDefs.insert(generatorSkipNodeDefs.begin(), generatorSkipNodeDefs.end());
 

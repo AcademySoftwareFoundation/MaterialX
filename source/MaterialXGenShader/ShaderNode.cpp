@@ -5,8 +5,8 @@
 
 #include <MaterialXGenShader/ShaderNode.h>
 
+#include <MaterialXGenShader/Exception.h>
 #include <MaterialXGenShader/GenContext.h>
-#include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/Util.h>
 
 MATERIALX_NAMESPACE_BEGIN
@@ -148,6 +148,7 @@ const string ShaderNode::CONSTANT = "constant";
 const string ShaderNode::DOT = "dot";
 const string ShaderNode::IMAGE = "image";
 const string ShaderNode::SURFACESHADER = "surfaceshader";
+const string ShaderNode::BACKSURFACESHADER = "backsurfaceshader";
 const string ShaderNode::BSDF_R = "R";
 const string ShaderNode::BSDF_T = "T";
 const string ShaderNode::TEXTURE2D_GROUPNAME = "texture2d";
@@ -199,14 +200,14 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
             if (context.getShaderGenerator().getSyntax().remapEnumeration(portValue, portType, enumNames, enumResult))
             {
                 input = newNode->addInput(port->getName(), enumResult.first);
-                input->setValue(enumResult.second);
+                input->setValue(enumResult.second, false);
             }
             else
             {
                 input = newNode->addInput(port->getName(), portType);
                 if (!portValue.empty())
                 {
-                    input->setValue(port->getResolvedValue());
+                    input->setValue(port->getResolvedValue(), false);
                 }
             }
             if (port->getIsUniform())
@@ -353,16 +354,21 @@ void ShaderNode::initialize(const Node& node, const NodeDef& nodeDef, GenContext
                 }
             }
             const string& valueString = portValue ? portValue->getValueString() : EMPTY_STRING;
-            std::pair<TypeDesc, ValuePtr> enumResult;
-            const string& enumNames = nodeDefInput->getAttribute(ValueElement::ENUM_ATTRIBUTE);
-            const TypeDesc type = context.getTypeDesc(nodeDefInput->getType());
-            if (context.getShaderGenerator().getSyntax().remapEnumeration(valueString, type, enumNames, enumResult))
+            if (!valueString.empty())
             {
-                input->setValue(enumResult.second);
-            }
-            else if (!valueString.empty())
-            {
-                input->setValue(portValue);
+                // We explicitly check the valueString is not empty before checking the enumeration,
+                // because otherwise the enumeration value would always return nullptr
+                std::pair<TypeDesc, ValuePtr> enumResult;
+                const string& enumNames = nodeDefInput->getAttribute(ValueElement::ENUM_ATTRIBUTE);
+                const TypeDesc type = context.getTypeDesc(nodeDefInput->getType());
+                if (context.getShaderGenerator().getSyntax().remapEnumeration(valueString, type, enumNames, enumResult))
+                {
+                    input->setValue(enumResult.second);
+                }
+                else
+                {
+                    input->setValue(portValue);
+                }
             }
         }
     }

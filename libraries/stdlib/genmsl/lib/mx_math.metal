@@ -5,18 +5,29 @@
 #define mx_tan metal::tan
 #define mx_asin metal::asin
 #define mx_acos metal::acos
+#define mx_float_bits_to_int as_type<int>
+
+float2 mx_matrix_mul(float2 v, float2x2 m) { return v * m; }
+float3 mx_matrix_mul(float3 v, float3x3 m) { return v * m; }
+float4 mx_matrix_mul(float4 v, float4x4 m) { return v * m; }
+float2 mx_matrix_mul(float2x2 m, float2 v) { return m * v; }
+float3 mx_matrix_mul(float3x3 m, float3 v) { return m * v; }
+float4 mx_matrix_mul(float4x4 m, float4 v) { return m * v; }
+float2x2 mx_matrix_mul(float2x2 m1, float2x2 m2) { return m1 * m2; }
+float3x3 mx_matrix_mul(float3x3 m1, float3x3 m2) { return m1 * m2; }
+float4x4 mx_matrix_mul(float4x4 m1, float4x4 m2) { return m1 * m2; }
 
 float mx_square(float x)
 {
     return x*x;
 }
 
-vec2 mx_square(vec2 x)
+float2 mx_square(float2 x)
 {
     return x*x;
 }
 
-vec3 mx_square(vec3 x)
+float3 mx_square(float3 x)
 {
     return x*x;
 }
@@ -108,17 +119,17 @@ float mx_atan(float y, float x)
     return metal::atan2(y, x);
 }
 
-vec2 mx_atan(vec2 y, vec2 x)
+float2 mx_atan(float2 y, float2 x)
 {
     return metal::atan2(y, x);
 }
 
-vec3 mx_atan(vec3 y, vec3 x)
+float3 mx_atan(float3 y, float3 x)
 {
     return metal::atan2(y, x);
 }
 
-vec4 mx_atan(vec4 y, vec4 x)
+float4 mx_atan(float4 y, float4 x)
 {
     return metal::atan2(y, x);
 }
@@ -128,7 +139,7 @@ float mx_radians(float degree)
     return (degree * M_PI_F / 180.0f);
 }
 
-vec2 mx_radians(vec2 degree)
+float2 mx_radians(float2 degree)
 {
     return (degree * M_PI_F / 180.0f);
 }

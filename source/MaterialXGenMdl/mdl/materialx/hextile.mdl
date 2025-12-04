@@ -1,0 +1,137 @@
+//
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
+//
+
+mdl 1.6;
+
+import ::math::*;
+
+// https://www.shadertoy.com/view/4djSRW
+float2 mx_hextile_hash(float2 p)
+{
+    float3 p3 = math::frac(float3(p.x, p.y, p.x) * float3(0.1031, 0.1030, 0.0973));
+    p3 += math::dot(p3, float3(p3.y, p3.z, p3.x) + 33.33);
+    return math::frac((float2(p3.x, p3.x) + float2(p3.y, p3.z)) * float2(p3.z, p3.y));
+}
+
+// Christophe Schlick. “Fast Alternatives to Perlin’s Bias and Gain Functions”.
+// In Graphics Gems IV, Morgan Kaufmann, 1994, pages 401–403.
+// https://dept-info.labri.fr/~schlick/DOC/gem2.html
+export float mx_schlick_gain(float x, float r)
+{
+    float rr = math::clamp(r, 0.001, 0.999);  // to avoid glitch
+    float a = (1.0 / rr - 2.0) * (1.0 - 2.0 * x);
+    return (x < 0.5) ? x / (a + 1.0) : (a - x) / (a - 1.0);
+}
+
+// Helper function to compute blend weights with optional falloff
+export float3 mx_hextile_compute_blend_weights(float3 luminance_weights, float3 tile_weights, float falloff)
+{
+    float3 w = luminance_weights * math::pow(tile_weights, 7.0);
+    w /= (w.x + w.y + w.z);
+
+    if (falloff != 0.5)
+    {
+        w.x = mx_schlick_gain(w.x, falloff);
+        w.y = mx_schlick_gain(w.y, falloff);
+        w.z = mx_schlick_gain(w.z, falloff);
+        w /= (w.x + w.y + w.z);
+    }
+    return w;
+}
+
+export struct mx_hextile_data
+{
+    float2[3] coords;
+    float3 weights;
+    float3 rotations;
+};
+
+// Morten S. Mikkelsen, Practical Real-Time Hex-Tiling, Journal of Computer Graphics
+// Techniques (JCGT), vol. 11, no. 2, 77-94, 2022
+// http://jcgt.org/published/0011/03/05/
+export mx_hextile_data mx_hextile_coord(
+    float2 coord,
+    float rotation,
+    float2 rotation_range,
+    float scale,
+    float2 scale_range,
+    float offset,
+    float2 offset_range
+)
+{
+    float sqrt3_2 = math::sqrt(3.0) * 2.0;
+
+    // scale coord to maintain the original fit
+    float2 st = coord * sqrt3_2;
+
+    // skew input space into simplex triangle grid
+    // (1, 0, -tan(30), 2*tan(30))
+    float2x2 to_skewed = float2x2(1.0, 0.0, -0.57735027, 1.15470054);
+    float2 st_skewed = to_skewed * st;
+
+    // barycentric weights
+    float2 st_frac = math::frac(st_skewed);
+    float3 temp = float3(st_frac.x, st_frac.y, 0.0);
+    temp.z = 1.0 - temp.x - temp.y;
+
+    float s = math::step(0.0, -temp.z);
+    float s2 = 2.0 * s - 1.0;
+
+    float w1 = -temp.z * s2;
+    float w2 = s - temp.y * s2;
+    float w3 = s - temp.x * s2;
+
+    // vertex IDs
+    int2 base_id = int2(math::floor(st_skewed));
+    int si = int(s);
+    int2 id1 = base_id + int2(si, si);
+    int2 id2 = base_id + int2(si, 1 - si);
+    int2 id3 = base_id + int2(1 - si, si);
+
+    // tile center
+    float2x2 inv_skewed = float2x2(1.0, 0.0, 0.5, 1.0 / 1.15470054);
+    float2 ctr1 = inv_skewed * float2(id1) / float2(sqrt3_2);
+    float2 ctr2 = inv_skewed * float2(id2) / float2(sqrt3_2);
+    float2 ctr3 = inv_skewed * float2(id3) / float2(sqrt3_2);
+
+    // reuse hash for performance
+    float2 seed_offset = float2(0.12345);  // to avoid some zeros
+    float2 rand1 = mx_hextile_hash(float2(id1) + seed_offset);
+    float2 rand2 = mx_hextile_hash(float2(id2) + seed_offset);
+    float2 rand3 = mx_hextile_hash(float2(id3) + seed_offset);
+
+    // randomized rotation matrix
+    float2 rr = math::radians(rotation_range);
+    float3 rand_x = float3(rand1.x, rand2.x, rand3.x);
+    float3 rotations = math::lerp(float3(rr.x), float3(rr.y), rand_x * rotation);
+    float3 sin_r = math::sin(rotations);
+    float3 cos_r = math::cos(rotations);
+    float2x2 rm1 = float2x2(cos_r.x, -sin_r.x, sin_r.x, cos_r.x);
+    float2x2 rm2 = float2x2(cos_r.y, -sin_r.y, sin_r.y, cos_r.y);
+    float2x2 rm3 = float2x2(cos_r.z, -sin_r.z, sin_r.z, cos_r.z);
+
+    // randomized scale
+    float3 rand_y = float3(rand1.y, rand2.y, rand3.y);
+    float3 scales = math::lerp(float3(1.0), math::lerp(float3(scale_range.x), float3(scale_range.y), rand_y), scale);
+    float2 scale1 = float2(scales.x);
+    float2 scale2 = float2(scales.y);
+    float2 scale3 = float2(scales.z);
+
+    // randomized offset
+    float2 offset1 = math::lerp(float2(offset_range.x), float2(offset_range.y), rand1 * offset);
+    float2 offset2 = math::lerp(float2(offset_range.x), float2(offset_range.y), rand2 * offset);
+    float2 offset3 = math::lerp(float2(offset_range.x), float2(offset_range.y), rand3 * offset);    
+
+    mx_hextile_data tile_data;
+    tile_data.weights = float3(w1, w2, w3);
+    tile_data.rotations = rotations;
+
+    // get coord
+    tile_data.coords[0] = ((coord - ctr1) * rm1 / scale1) + ctr1 + offset1;
+    tile_data.coords[1] = ((coord - ctr2) * rm2 / scale2) + ctr2 + offset2;
+    tile_data.coords[2] = ((coord - ctr3) * rm3 / scale3) + ctr3 + offset3;
+    
+    return tile_data;
+}

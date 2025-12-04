@@ -4,19 +4,25 @@
 //
 
 #include <MaterialXGenShader/Nodes/CompoundNode.h>
+#include <MaterialXGenShader/Exception.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
-#include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenShader/Util.h>
 
-#include <MaterialXCore/Library.h>
 #include <MaterialXCore/Definition.h>
 #include <MaterialXCore/Document.h>
+#include <MaterialXCore/Library.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
 ShaderNodeImplPtr CompoundNode::create()
 {
     return std::make_shared<CompoundNode>();
+}
+
+void CompoundNode::addClassification(ShaderNode& node) const
+{
+    // Add classification from the graph implementation.
+    node.addClassification(_rootGraph->getClassification());
 }
 
 void CompoundNode::initialize(const InterfaceElement& element, GenContext& context)
@@ -54,33 +60,40 @@ void CompoundNode::createVariables(const ShaderNode&, GenContext& context, Shade
     }
 }
 
-void CompoundNode::emitFunctionDefinition(const ShaderNode&, GenContext& context, ShaderStage& stage) const
+void CompoundNode::emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
     DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
     {
         const ShaderGenerator& shadergen = context.getShaderGenerator();
-        const Syntax& syntax = shadergen.getSyntax();
 
         // Emit functions for all child nodes
         shadergen.emitFunctionDefinitions(*_rootGraph, context, stage);
 
         // Begin function signature.
         shadergen.emitLineBegin(stage);
-        shadergen.emitString("void " + _functionName + +"(", stage);
+        shadergen.emitString("void " + _functionName + "(", stage);
 
-        string delim = "";
+        shadergen.emitClosureDataParameter(node, context, stage);
+        // if (context.getShaderGenerator().nodeNeedsClosureData(node))
+        // {
+        //     shadergen.emitString(HW::CLOSURE_DATA_TYPE + " " + HW::CLOSURE_DATA_ARG + ", ", stage);
+        // }
+
+        string delim;
 
         // Add all inputs
         for (ShaderGraphInputSocket* inputSocket : _rootGraph->getInputSockets())
         {
-            shadergen.emitString(delim + syntax.getTypeName(inputSocket->getType()) + " " + inputSocket->getVariable(), stage);
+            shadergen.emitString(delim, stage);
+            shadergen.emitFunctionDefinitionParameter(inputSocket, false, context, stage);
             delim = ", ";
         }
 
         // Add all outputs
         for (ShaderGraphOutputSocket* outputSocket : _rootGraph->getOutputSockets())
         {
-            shadergen.emitString(delim + syntax.getOutputTypeName(outputSocket->getType()) + " " + outputSocket->getVariable(), stage);
+            shadergen.emitString(delim, stage);
+            shadergen.emitFunctionDefinitionParameter(outputSocket, true, context, stage);
             delim = ", ";
         }
 
@@ -90,7 +103,36 @@ void CompoundNode::emitFunctionDefinition(const ShaderNode&, GenContext& context
 
         // Begin function body.
         shadergen.emitFunctionBodyBegin(*_rootGraph, context, stage);
-        shadergen.emitFunctionCalls(*_rootGraph, context, stage);
+
+        if (nodeOutputIsClosure(node))
+        {
+            // Emit all texturing nodes. These are inputs to the
+            // closure nodes and need to be emitted first.
+            shadergen.emitFunctionCalls(*_rootGraph, context, stage, ShaderNode::Classification::TEXTURE);
+
+            // Emit function calls for internal closures nodes connected to the graph sockets.
+            // These will in turn emit function calls for any dependent closure nodes upstream.
+            for (ShaderGraphOutputSocket* outputSocket : _rootGraph->getOutputSockets())
+            {
+                if (outputSocket->getConnection())
+                {
+                    const ShaderNode* upstream = outputSocket->getConnection()->getNode();
+                    // Its important that the classification check here matches the logic inside
+                    // nodeOutputIsClosure() used above.
+                    if (upstream->getParent() == _rootGraph.get() &&
+                        (upstream->hasClassification(ShaderNode::Classification::CLOSURE) ||
+                            upstream->hasClassification(ShaderNode::Classification::SHADER) ||
+                            upstream->hasClassification(ShaderNode::Classification::MATERIAL)))
+                    {
+                        shadergen.emitFunctionCall(*upstream, context, stage);
+                    }
+                }
+            }
+        }
+        else
+        {
+            shadergen.emitFunctionCalls(*_rootGraph, context, stage);
+        }
 
         // Emit final results
         for (ShaderGraphOutputSocket* outputSocket : _rootGraph->getOutputSockets())
@@ -116,6 +158,12 @@ void CompoundNode::emitFunctionCall(const ShaderNode& node, GenContext& context,
 
     DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
     {
+        if (nodeOutputIsClosure(node))
+        {
+            // Emit calls for any closure dependencies upstream from this nodedef
+            shadergen.emitDependentFunctionCalls(node, context, stage, ShaderNode::Classification::CLOSURE);
+        }
+
         // Declare the output variables.
         emitOutputVariables(node, context, stage);
 
@@ -123,7 +171,14 @@ void CompoundNode::emitFunctionCall(const ShaderNode& node, GenContext& context,
         shadergen.emitLineBegin(stage);
         shadergen.emitString(_functionName + "(", stage);
 
-        string delim = "";
+        // Add an argument for closure data if needed
+        shadergen.emitClosureDataArg(node, context, stage);
+        // if (context.getShaderGenerator().nodeNeedsClosureData(node))
+        // {
+        //     shadergen.emitString(HW::CLOSURE_DATA_ARG + ", ", stage);
+        // }
+
+        string delim;
 
         // Emit inputs.
         for (ShaderInput* input : node.getInputs())

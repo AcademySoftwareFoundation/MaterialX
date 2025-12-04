@@ -5,10 +5,10 @@
 
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 
-#include <MaterialXGenShader/Shader.h>
-#include <MaterialXGenShader/ShaderGenerator.h>
-#include <MaterialXGenShader/ShaderNode.h>
+#include <MaterialXGenShader/Exception.h>
 #include <MaterialXGenShader/GenContext.h>
+#include <MaterialXGenShader/Shader.h>
+#include <MaterialXGenShader/ShaderNode.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -74,6 +74,18 @@ void ShaderNodeImpl::emitOutputVariables(const ShaderNode& node, GenContext& con
 ShaderGraph* ShaderNodeImpl::getGraph() const
 {
     return nullptr;
+}
+
+bool ShaderNodeImpl::nodeOutputIsClosure(const ShaderNode& node) const
+{
+    const auto& outputs = node.getOutputs();
+    if (outputs.empty())
+    {
+        // This should never happen as we auto populate the default 'out' output based on the
+        // node type if no output is present.
+        throw ExceptionShaderGenError("Node has no outputs defined'");
+    }
+    return outputs[0]->getType().isClosure();
 }
 
 ShaderNodeImplPtr NopNode::create()

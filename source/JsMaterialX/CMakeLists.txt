@@ -7,6 +7,8 @@ set(GENGLSL ${CMAKE_CURRENT_SOURCE_DIR}/JsMaterialXGenGlsl/)
 set(GENMSL ${CMAKE_CURRENT_SOURCE_DIR}/JsMaterialXGenMsl/)
 set(GENVK ${CMAKE_CURRENT_SOURCE_DIR}/JsMaterialXGenVk/)
 set(GENMDL ${CMAKE_CURRENT_SOURCE_DIR}/JsMaterialXGenMdl/)
+set(GENWGSL ${CMAKE_CURRENT_SOURCE_DIR}/JsMaterialXGenWgsl/)
+set(GENSLANG ${CMAKE_CURRENT_SOURCE_DIR}/JsMaterialXGenSlang/)
 
 set(SOURCE_FOLDER ${PROJECT_SOURCE_DIR}/source)
 
@@ -47,7 +49,9 @@ set(GENOSL_DEPS ${GENOSL}JsOslShaderGenerator.cpp)
 set(GENGLSL_DEPS ${GENGLSL}JsGlslShaderGenerator.cpp)
 set(GENMSL_DEPS ${GENMSL}JsMslShaderGenerator.cpp)
 set(GENVK_DEPS ${GENVK}JsVkShaderGenerator.cpp)
+set(GENWGSL_DEPS ${GENWGSL}JsWgslShaderGenerator.cpp)
 set(GENMDL_DEPS ${GENMDL}JsMdlShaderGenerator.cpp)
+set(GENSLANG_DEPS ${GENSLANG}JsSlangShaderGenerator.cpp)
 
 # Linker flags
 set(JS_LINK_FLAGS_CORE "")
@@ -59,14 +63,13 @@ string(APPEND JS_LINK_FLAGS_CORE " -I${SOURCE_FOLDER} \
     -s WASM=1 \
     -s DISABLE_EXCEPTION_CATCHING=0 \
     -s MODULARIZE=1 \
-    -s USE_ES6_IMPORT_META=0 \
     -s EXPORT_NAME='MaterialX' \
     -s MEMORY_GROWTH_LINEAR_STEP=32MB \
     -s ALLOW_MEMORY_GROWTH=1 \
     -s FORCE_FILESYSTEM=1 ")
 
 # Add the post javascript files. The one in the root folder of this project needs to come first.
-string(APPEND JS_LINK_FLAGS_CORE "--post-js ${CMAKE_CURRENT_SOURCE_DIR}/post.js \
+string(APPEND JS_LINK_FLAGS_CORE "--pre-js ${CMAKE_CURRENT_SOURCE_DIR}/pre.js \
     --post-js ${FORMAT}post.js ")
 
 # Compiler flags
@@ -98,8 +101,8 @@ add_executable(JsMaterialXGenShader MaterialXLib.cpp
     ${GENESSL_DEPS})
 
 if (MATERIALX_BUILD_GEN_GLSL)
-    message("JS: Building JsMaterialXGenShader with GLSL, VK support")
-    target_sources(JsMaterialXGenShader PRIVATE ${GENGLSL_DEPS} ${GENVK_DEPS})
+    message("JS: Building JsMaterialXGenShader with GLSL, VK, WGSL support")
+    target_sources(JsMaterialXGenShader PRIVATE ${GENGLSL_DEPS} ${GENVK_DEPS} ${GENWGSL_DEPS})
 endif()
 if (MATERIALX_BUILD_GEN_OSL)
     message("JS: Building JsMaterialXGenShader with OSL support")
@@ -112,6 +115,10 @@ endif()
 if (MATERIALX_BUILD_GEN_MSL)
     message("JS: Building JsMaterialXGenShader with MSL support")
     target_sources(JsMaterialXGenShader PRIVATE ${GENMSL_DEPS})
+endif()
+if (MATERIALX_BUILD_GEN_SLANG)
+    message("JS: Building JsMaterialXGenShader with Slang support")
+    target_sources(JsMaterialXGenShader PRIVATE ${GENSLANG_DEPS})
 endif()
 
 set_target_properties(JsMaterialXCore
@@ -139,6 +146,7 @@ target_link_libraries(JsMaterialXGenShader
     PUBLIC MaterialXCore
     PUBLIC MaterialXFormat
     PUBLIC MaterialXGenShader
+    PUBLIC MaterialXGenHw
     PUBLIC MaterialXGenGlsl
     PRIVATE ${CMAKE_DL_LIBS})
 
@@ -150,7 +158,10 @@ if (MATERIALX_BUILD_GEN_MDL)
 endif()
 if (MATERIALX_BUILD_GEN_MSL)
     target_link_libraries(JsMaterialXGenShader PUBLIC MaterialXGenMsl)
-endif()    
+endif()
+if (MATERIALX_BUILD_GEN_SLANG)
+    target_link_libraries(JsMaterialXGenShader PUBLIC MaterialXGenSlang)
+endif()
 
 # Install the JavaScript output
 install(TARGETS JsMaterialXCore DESTINATION "JavaScript/MaterialX")

@@ -8,7 +8,7 @@
 
 #include <MaterialXGenMdl/Export.h>
 
-#include <MaterialXGenShader/Nodes/ConvolutionNode.h>
+#include <MaterialXGenMdl/Nodes/ConvolutionNode.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -19,8 +19,6 @@ class MX_GENMDL_API HeightToNormalNodeMdl : public ConvolutionNode
     static ShaderNodeImplPtr create();
 
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
-
-    const string& getTarget() const override;
 
   protected:
     /// Return if given type is an acceptable input

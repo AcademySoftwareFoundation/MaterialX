@@ -11,7 +11,8 @@
 
 #include <MaterialXGenMsl/Export.h>
 
-#include <MaterialXGenShader/HwShaderGenerator.h>
+#include <MaterialXGenHw/HwShaderGenerator.h>
+#include <MaterialXGenHw/HwResourceBindingContext.h>
 
 #define TEXTURE_NAME(t) ((t) + "_tex")
 #define SAMPLER_NAME(t) ((t) + "_sampler")
@@ -51,10 +52,6 @@ class MX_GENMSL_API MslShaderGenerator : public HwShaderGenerator
     /// Emit a shader variable.
     void emitVariableDeclaration(const ShaderPort* variable, const string& qualifier, GenContext& context, ShaderStage& stage,
                                  bool assignValue = true) const override;
-
-    /// Return a registered shader node implementation given an implementation element.
-    /// The element must be an Implementation or a NodeGraph acting as implementation.
-    ShaderNodeImplPtr getImplementation(const NodeDef& nodedef, GenContext& context) const override;
 
     /// Determine the prefix of vertex data variables.
     string getVertexDataPrefix(const VariableBlock& vertexData) const override;
@@ -103,11 +100,6 @@ class MX_GENMSL_API MslShaderGenerator : public HwShaderGenerator
 
     virtual HwResourceBindingContextPtr getResourceBindingContext(GenContext& context) const;
 
-    /// Logic to indicate whether code to support direct lighting should be emitted.
-    /// By default if the graph is classified as a shader, or BSDF node then lighting is assumed to be required.
-    /// Derived classes can override this logic.
-    virtual bool requiresLighting(const ShaderGraph& graph) const;
-
     /// Emit specular environment lookup code
     virtual void emitSpecularEnvironment(GenContext& context, ShaderStage& stage) const;
 
@@ -117,21 +109,8 @@ class MX_GENMSL_API MslShaderGenerator : public HwShaderGenerator
     /// Emit function definitions for lighting code
     virtual void emitLightFunctionDefinitions(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const;
 
-    static void toVec4(TypeDesc type, string& variable);
-    [[deprecated]] static void toVec4(const TypeDesc* type, string& variable) { toVec4(*type, variable); }
-
     /// Nodes used internally for light sampling.
     vector<ShaderNodePtr> _lightSamplingNodes;
-};
-
-/// Base class for common MSL node implementations
-class MX_GENMSL_API MslImplementation : public HwImplementation
-{
-  public:
-    const string& getTarget() const override;
-
-  protected:
-    MslImplementation() { }
 };
 
 MATERIALX_NAMESPACE_END

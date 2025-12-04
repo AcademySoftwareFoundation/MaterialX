@@ -7,6 +7,9 @@ on:
   pull_request:
     paths-ignore:
       - '**.md'
+  schedule:
+    # Nightly build
+    - cron: '30 10 * * *'
   workflow_dispatch:
 
 jobs:
@@ -14,6 +17,8 @@ jobs:
   build:
     name: Build
     runs-on: ${{ matrix.os }}
+    env:
+      IS_EXTENDED_BUILD: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
     strategy:
       fail-fast: false
       matrix:
@@ -25,17 +30,17 @@ jobs:
           python: 3.9
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON -DMATERIALX_BUILD_MONOLITHIC=ON
 
-        - name: Linux_GCC_14_Python39
+        - name: Linux_GCC_14_Python312
           os: ubuntu-24.04
           compiler: gcc
           compiler_version: "14"
-          python: 3.9
+          python: 3.12
 
-        - name: Linux_GCC_14_Python311
+        - name: Linux_GCC_14_Python313
           os: ubuntu-24.04
           compiler: gcc
           compiler_version: "14"
-          python: 3.11
+          python: 3.13
           test_render: ON
 
         - name: Linux_GCC_CoverageAnalysis
@@ -53,68 +58,71 @@ jobs:
           python: 3.9
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
 
-        - name: Linux_Clang_18_Python311
+        - name: Linux_Clang_18_Python313
           os: ubuntu-24.04
           compiler: clang
           compiler_version: "18"
-          python: 3.11
+          python: 3.13
           clang_format: ON
 
-        - name: MacOS_Xcode_15_Python39
+        - name: MacOS_Xcode_15_Python311
           os: macos-14
           compiler: xcode
           compiler_version: "15.4"
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
-          python: 3.9
+          python: 3.11
 
-        - name: MacOS_Xcode_15_Python311
+        - name: MacOS_Xcode_16_Python313
           os: macos-15
           compiler: xcode
-          compiler_version: "15.4"
-          python: 3.11
+          compiler_version: "16.4"
+          python: 3.13
           test_shaders: ON
+          test_render: ON
 
-        - name: MacOS_Xcode_16_Python311
-          os: macos-15
+        - name: MacOS_Xcode_26_Python313
+          os: macos-26
           compiler: xcode
-          compiler_version: "16.1"
-          python: 3.11
+          compiler_version: "26.0"
+          python: 3.13
           static_analysis: ON
-          cmake_config: -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+          cmake_config: -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DMATERIALX_BUILD_DATA_LIBRARY=ON
 
         - name: MacOS_Xcode_DynamicAnalysis
-          os: macos-15
+          os: macos-26
           compiler: xcode
-          compiler_version: "16.1"
+          compiler_version: "26.0"
           python: None
           dynamic_analysis: ON
           cmake_config: -DMATERIALX_DYNAMIC_ANALYSIS=ON
 
-        - name: iOS_Xcode_16
-          os: macos-15
+        - name: iOS_Xcode_26
+          os: macos-26
           compiler: xcode
-          compiler_version: "16.1"
+          compiler_version: "26.0"
           python: None
           cmake_config: -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_SYSROOT=`xcrun --sdk iphoneos --show-sdk-path` -DCMAKE_OSX_ARCHITECTURES=arm64
 
-        - name: Windows_VS2019_Win32_Python39
-          os: windows-2019
+        - name: Windows_VS2022_Win32_Python39
+          os: windows-2022
           architecture: x86
           python: 3.9
-          cmake_config: -G "Visual Studio 16 2019" -A "Win32"
+          cmake_config: -G "Visual Studio 17 2022" -A "Win32"
 
-        - name: Windows_VS2022_x64_Python311
+        - name: Windows_VS2022_x64_Python313
           os: windows-2025
           architecture: x64
-          python: 3.11
+          python: 3.13
           cmake_config: -G "Visual Studio 17 2022" -A "x64"
           test_shaders: ON
+          extended_build_mdl_sdk: ON
 
         - name: Windows_VS2022_x64_SharedLibs
           os: windows-2025
           architecture: x64
           python: None
           cmake_config: -G "Visual Studio 17 2022" -A "x64" -DMATERIALX_BUILD_SHARED_LIBS=ON
+          extended_build_oiio: ON
           upload_shaders: ON
 
     steps:
@@ -144,15 +152,9 @@ jobs:
       if: runner.os == 'macOS'
       run: |
         if [ "${{ matrix.compiler_version }}" != 'None' ]; then
-          if [ "${{ matrix.compiler }}" = "gcc" ]; then
-            brew install gcc@${{ matrix.compiler_version }}
-            echo "CC=gcc-${{ matrix.compiler_version }}" >> $GITHUB_ENV
-            echo "CXX=g++-${{ matrix.compiler_version }}" >> $GITHUB_ENV
-          else
-            ls -ls /Applications/
-            sudo xcode-select -switch /Applications/Xcode_${{ matrix.compiler_version }}.app
-            echo "CC=clang" >> $GITHUB_ENV
-            echo "CXX=clang++" >> $GITHUB_ENV
+          sudo xcode-select -switch /Applications/Xcode_${{ matrix.compiler_version }}.app
+          if [ "${{ matrix.os }}" == 'macos-26' ]; then
+            xcodebuild -downloadComponent MetalToolchain
           fi
         fi
 
@@ -162,11 +164,16 @@ jobs:
         Add-Content $env:GITHUB_PATH "$PWD/build/installed/bin"
 
     - name: Install OpenImageIO
-      if: matrix.build_oiio == 'ON' && runner.os == 'Windows'
+      if: env.IS_EXTENDED_BUILD == 'true' && matrix.extended_build_oiio == 'ON' && runner.os == 'Windows'
       run: |
-        C:/vcpkg/vcpkg install openimageio --triplet=x64-windows-release
-        Add-Content $env:GITHUB_PATH "C:/vcpkg/installed/x64-windows-release/bin"
-        Add-Content $env:GITHUB_PATH "C:/vcpkg/installed/x64-windows-release/share/openimageio"
+        C:/vcpkg/vcpkg install openimageio --triplet=x64-windows
+        Add-Content $env:GITHUB_PATH "C:/vcpkg/installed/x64-windows/bin"
+
+    - name: Install MDL SDK
+      if: env.IS_EXTENDED_BUILD == 'true' && matrix.extended_build_mdl_sdk == 'ON' && runner.os == 'Windows'
+      run: |
+        C:/vcpkg/vcpkg install mdl-sdk --triplet=x64-windows
+        Add-Content $env:GITHUB_PATH "C:/vcpkg/installed/x64-windows/bin"
 
     - name: Install Python ${{ matrix.python }}
       if: matrix.python != 'None'
@@ -179,17 +186,33 @@ jobs:
       if: matrix.python != 'None'
       run: pip install setuptools
 
-    - name: Install CMake
-      uses: lukka/get-cmake@28983e0d3955dba2bb0a6810caae0c6cf268ec0c # v4.0.0
-      with:
-        cmakeVersion: 3.26
-
     - name: Run Clang Format
       if: matrix.clang_format == 'ON'
       run: find source \( -name *.h -o -name *.cpp -o -name *.mm -o -name *.inl \) ! -path "*/External/*" ! -path "*/NanoGUI/*" | xargs clang-format -i --verbose
 
     - name: CMake Generate
-      run: cmake -S . -B build -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_BUILD_TESTS=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{matrix.cmake_config}}
+      shell: bash
+      run: |
+        EXTENDED_BUILD_CONFIG=""
+        if [ "${{ env.IS_EXTENDED_BUILD }}" == "true" ]; then
+          if [ "${{ runner.os }}" == "Windows" ]; then
+            EXTENDED_BUILD_CONFIG="-DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows"
+          fi
+          if [ "${{ matrix.extended_build_oiio }}" == "ON" ]; then
+            EXTENDED_BUILD_CONFIG="$EXTENDED_BUILD_CONFIG -DMATERIALX_BUILD_OIIO=ON"
+          fi
+          if [ "${{ matrix.extended_build_mdl_sdk }}" == "ON" -a "${{ runner.os }}" == "Windows" ]; then
+            EXTENDED_BUILD_CONFIG="$EXTENDED_BUILD_CONFIG -DMATERIALX_MDL_SDK_DIR=C:/vcpkg/installed/x64-windows"
+          fi
+        fi
+        TEST_RENDER_CONFIG="-DMATERIALX_TEST_RENDER=OFF"
+        if [ "${{ matrix.test_render }}" == "ON" ]; then
+          if [ "${{ runner.os }}" == "macOS" ]; then
+            TEST_RENDER_CONFIG="-DMATERIALX_TEST_RENDER=ON -DMATERIALX_RENDER_MSL_ONLY=ON"
+          fi
+        fi
+        EXTENDED_BUILD_CONFIG="$EXTENDED_BUILD_CONFIG $TEST_RENDER_CONFIG" 
+        cmake -S . -B build -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_BUILD_TESTS=ON -DMATERIALX_WARNINGS_AS_ERRORS=ON $EXTENDED_BUILD_CONFIG ${{matrix.cmake_config}}
 
     - name: CMake Build
       run: cmake --build build --target install --config Release --parallel 2
@@ -211,9 +234,11 @@ jobs:
         python Scripts/mxdoc.py --docType html ../libraries/bxdf/standard_surface.mtlx
         python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target glsl
         python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target vulkan
+        python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target wgsl
         python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target osl
         python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target mdl
         python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target msl
+        python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target slang
       working-directory: python
 
     - name: Shader Validation Tests (Windows)
@@ -224,6 +249,7 @@ jobs:
         python python/Scripts/generateshader.py resources/Materials/Examples --target glsl --validator C:/vcpkg/installed/x64-windows-release/tools/glslang/glslangValidator.exe
         python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target essl --validator C:/vcpkg/installed/x64-windows-release/tools/glslang/glslangValidator.exe
         python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target vulkan --validator C:/vcpkg/installed/x64-windows-release/tools/glslang/glslangValidator.exe
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target wgsl --validator "C:/vcpkg/installed/x64-windows-release/tools/glslang/glslangValidator.exe --target-env vulkan1.3 --quiet"
 
     - name: Shader Validation Tests (MacOS)
       if: matrix.test_shaders == 'ON' && runner.os == 'macOS'
@@ -249,11 +275,21 @@ jobs:
         fi
         cppcheck --project=build/compile_commands.json --error-exitcode=1 --suppress=normalCheckLevelMaxBranches --suppress=*:*/External/* --suppress=*:*/NanoGUI/*
 
-    - name: Initialize Virtual Framebuffer
+    - name: Setup Rendering Environment (Linux)
       if: matrix.test_render == 'ON' && runner.os == 'Linux'
       run: |
         Xvfb :1 -screen 0 1280x960x24 &
         echo "DISPLAY=:1" >> $GITHUB_ENV
+        echo "LIBGL_ALWAYS_SOFTWARE=1" >> $GITHUB_ENV
+
+    - name: Setup Rendering Environment (MacOS)
+      if: matrix.test_render == 'ON' && runner.os == 'macOS'
+      run: |
+        # macOS can render headless with Metal backend without virtual display
+        # Force software rendering for Metal backend (more reliable in CI)
+        echo "MTL_HARDWARE_RENDERING=0" >> $GITHUB_ENV
+        # Enable Metal debug layer for better debugging in CI
+        echo "MTL_DEBUG_LAYER=1" >> $GITHUB_ENV
         echo "LIBGL_ALWAYS_SOFTWARE=1" >> $GITHUB_ENV
 
     - name: Render Script Tests
@@ -263,11 +299,16 @@ jobs:
         python python/Scripts/baketextures.py resources/Materials/Examples/StandardSurface/standard_surface_brass_tiled.mtlx build/render/brass_average_baked.mtlx --average
         python python/Scripts/translateshader.py resources/Materials/Examples/StandardSurface/standard_surface_carpaint.mtlx build/render/usd_preview_surface_carpaint.mtlx UsdPreviewSurface --hdr
 
-    - name: Render Application Tests
+    - name: Viewer Tests 
       if: matrix.test_render == 'ON'
       run: |
         ../installed/bin/MaterialXView --material brass_average_baked.mtlx --mesh ../../resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --shadowMap false --captureFilename Viewer_BrassAverage.png
         ../installed/bin/MaterialXView --material usd_preview_surface_carpaint.mtlx --mesh ../../resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --shadowMap false --captureFilename Viewer_CarpaintTranslated.png
+      working-directory: build/render
+
+    - name: Graph Editor Tests
+      if: matrix.test_render == 'ON' && runner.os == 'Linux'
+      run: |
         ../installed/bin/MaterialXGraphEditor --material ../../resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --viewWidth 128 --viewHeight 128 --captureFilename GraphEditor_MarbleSolid.png
       working-directory: build/render
 
@@ -299,6 +340,13 @@ jobs:
         name: Renders_${{ matrix.name }}
         path: build/render/*.png
 
+    - name: Upload Resources (MacOS)
+      uses: actions/upload-artifact@v4
+      if: matrix.test_render == 'ON' && runner.os == 'macOS'
+      with:
+        name: Resources_${{ matrix.name }}
+        path: build/bin/resources
+
     - name: Upload Coverage Report
       uses: actions/upload-artifact@v4
       if: matrix.coverage_analysis == 'ON'
@@ -318,15 +366,15 @@ jobs:
       run: |
         git clone https://github.com/emscripten-core/emsdk --recursive
         cd emsdk
-        ./emsdk install 2.0.20
-        ./emsdk activate 2.0.20
+        ./emsdk install 4.0.8
+        ./emsdk activate 4.0.8
         source ./emsdk_env.sh
         echo "EMSDK=$EMSDK" >> $GITHUB_ENV
 
     - name: Install Node
       uses: actions/setup-node@v4
       with:
-         node-version: '16'
+         node-version: '22.16.0'
 
     - name: JavaScript CMake Generate
       run: cmake -S . -B javascript/build -DMATERIALX_BUILD_JS=ON -DMATERIALX_EMSDK_PATH=${{ env.EMSDK }}

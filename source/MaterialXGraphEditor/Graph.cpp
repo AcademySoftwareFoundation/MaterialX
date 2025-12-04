@@ -104,6 +104,15 @@ std::string getUserNodeDefName(const std::string& val)
     return result;
 }
 
+static void EnableSRGBCallback(const ImDrawList*, const ImDrawCmd*)
+{
+    glEnable(GL_FRAMEBUFFER_SRGB);
+}
+static void DisableSRGBCallback(const ImDrawList*, const ImDrawCmd*)
+{
+    glDisable(GL_FRAMEBUFFER_SRGB);
+}
+
 } // anonymous namespace
 
 //
@@ -498,7 +507,7 @@ float Graph::findAvgY(const std::vector<UiNodePtr>& nodes)
         total += ((size.y + pos.y) + pos.y) / 2;
         count++;
     }
-    return (total / count);
+    return count ? (total / count) : 0.0f;
 }
 
 void Graph::findYSpacing(float startY)
@@ -622,7 +631,7 @@ ImVec2 Graph::layoutPosition(UiNodePtr layoutNode, ImVec2 startingPos, bool init
         {
             // Insert new vector into key
             std::vector<UiNodePtr> newValue = { layoutNode };
-            _levelMap.insert({ layoutNode->_level, newValue });
+            _levelMap.emplace(layoutNode->_level, newValue);
         }
         std::vector<UiPinPtr> pins = layoutNode->inputPins;
         if (initialLayout)
@@ -783,6 +792,15 @@ void Graph::setRenderMaterial(UiNodePtr node)
         }
         else if (mtlxNodeGraph)
         {
+            // As above, there is no logic to support traversing from inside a functional graph.
+            // We add a check for output nodes to make sure it's accounted for in this case.
+            if(mtlxOutput)
+            {     
+                if (mtlxNodeGraph->getNodeDef())
+                {
+                    return;
+                }
+            }
             testPaths.insert(mtlxNodeGraph->getNamePath());
         }
 
@@ -793,7 +811,7 @@ void Graph::setRenderMaterial(UiNodePtr node)
             for (const std::string& testPath : testPaths)
             {
                 mx::ElementPtr testElem = _graphDoc->getDescendant(testPath);
-                mx::NodePtr testNode = testElem->asA<mx::Node>();
+                mx::NodePtr testNode = testElem ? testElem->asA<mx::Node>() : nullptr;
                 std::vector<mx::PortElementPtr> downstreamPorts;
                 if (testNode)
                 {
@@ -913,7 +931,7 @@ void Graph::updateMaterials(mx::InputPtr input /* = nullptr */, mx::ValuePtr val
     }
 }
 
-void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIProperties& uiProperties)
+void Graph::showPropertyEditorValue(UiNodePtr node, mx::InputPtr& input, const mx::UIProperties& uiProperties)
 {
     ImGui::PushItemWidth(-1);
 
@@ -971,21 +989,27 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         if (val && val->isA<mx::Color3>())
         {
             mx::Color3 prev, temp;
-            prev = temp = val->asA<mx::Color3>();
-            float min = minVal ? minVal->asA<mx::Color3>()[0] : 0.f;
-            float max = maxVal ? maxVal->asA<mx::Color3>()[0] : 100.f;
-            float speed = (max - min) / 1000.0f;
-            ImGui::PushItemWidth(-100);
-            ImGui::DragFloat3("##hidelabel", &temp[0], speed, min, max);
-            ImGui::PopItemWidth();
-            ImGui::SameLine();
-            ImGui::ColorEdit3("##color", &temp[0], ImGuiColorEditFlags_NoInputs);
+
+            // Read material value in converted display space
+            prev = temp = val->asA<mx::Color3>().linearToSrgb();
+
+            // Use ImGuiColorEditFlags_Uint8 flag for built-in Uint8 input fields
+            ImGui::ColorEdit3("##color", &temp[0], ImGuiColorEditFlags_Uint8);
+            if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+            {
+                ImGui::SetTooltip("Color is selected and rendered to Viewer in sRGB display space, \nbut written to .mtlx file in linear format.");
+            }
 
             // Set input value and update materials if different from previous value
             if (prev != temp)
             {
+                // Convert back to linear color space for writing to material and node input
+                mx::Color3 linearCol = temp.srgbToLinear();
+
                 addNodeInput(_currUiNode, input);
-                input->setValue(temp, input->getType());
+                input->setValue(linearCol, input->getType());
+
+                mx::ValuePtr linearVal = mx::Value::createValue<mx::Color3>(linearCol);
                 updateMaterials(input, input->getValue());
             }
         }
@@ -995,25 +1019,33 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         mx::ValuePtr val = input->getValue();
         if (val && val->isA<mx::Color4>())
         {
-            mx::Color4 prev, temp;
-            prev = temp = val->asA<mx::Color4>();
-            float min = minVal ? minVal->asA<mx::Color4>()[0] : 0.f;
-            float max = maxVal ? maxVal->asA<mx::Color4>()[0] : 100.f;
-            float speed = (max - min) / 1000.0f;
-            ImGui::PushItemWidth(-100);
-            ImGui::DragFloat4("##hidelabel", &temp[0], speed, min, max);
-            ImGui::PopItemWidth();
-            ImGui::SameLine();
+            // Read material value and convert RGB components to display space
+            mx::Color4 linearCol = val->asA<mx::Color4>();
+            mx::Color3 displayCol3 = mx::Color3(linearCol[0], linearCol[1], linearCol[2]).linearToSrgb();
 
-            // Color edit for the color picker to the right of the color floats
-            ImGui::ColorEdit4("##color", &temp[0], ImGuiColorEditFlags_NoInputs);
+            mx::Color4 prev, temp;
+            // Create 4D vector with converted RGB and non-converted, stored Alpha value
+            prev = temp = mx::Color4(displayCol3[0], displayCol3[1], displayCol3[2], linearCol[3]);
+
+            // Use ImGuiColorEditFlags_Uint8 flag for built-in Uint8 input fields
+            ImGui::ColorEdit4("##color", &temp[0], ImGuiColorEditFlags_Uint8);
+            if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+            {
+                ImGui::SetTooltip("Color is selected and rendered to Viewer in sRGB display space, \nbut written to .mtlx file in linear format.");
+            }
 
             // Set input value and update materials if different from previous value
             if (temp != prev)
             {
+                // Convert back to linear color space for writing to material and node input
+                mx::Color3 linearCol3 = mx::Color3(temp[0], temp[1], temp[2]).srgbToLinear();
+                mx::Color4 linearCol = mx::Color4(linearCol3[0], linearCol3[1], linearCol3[2], temp[3]); // Use new Alpha val
+
                 addNodeInput(_currUiNode, input);
-                input->setValue(temp, input->getType());
-                updateMaterials(input, input->getValue());
+                input->setValue(linearCol, input->getType());
+
+                mx::ValuePtr linearVal = mx::Value::createValue<mx::Color4>(linearCol);
+                updateMaterials(input, linearVal);
             }
         }
     }
@@ -3319,13 +3351,19 @@ void Graph::graphButtons()
 
     if (_renderer)
     {
-        glEnable(GL_FRAMEBUFFER_SRGB);
+        // Enable sRGB conversion for framebuffer ONLY when drawing material preview
+        ImGui::GetWindowDrawList()->AddCallback(EnableSRGBCallback,  nullptr);
+
         _renderer->getViewCamera()->setViewportSize(mx::Vector2(screenSize[0], screenSize[1]));
         GLuint64 my_image_texture = _renderer->_textureID;
         mx::Vector2 vec = _renderer->getViewCamera()->getViewportSize();
-        // current image has correct color space but causes problems for gui
+
         ImGui::Image((ImTextureID) my_image_texture, screenSize, ImVec2(0, 1), ImVec2(1, 0));
+
+        // Disable sRGB conversion for all other imgui ui components.
+        ImGui::GetWindowDrawList()->AddCallback(DisableSRGBCallback,  nullptr);
     }
+
     ImGui::Separator();
 
     // Property editor for current nodes
@@ -3337,6 +3375,128 @@ void Graph::graphButtons()
     {
         handleRenderViewInputs();
     }
+}
+
+void Graph::showPropertyEditorOutputConnections(UiNodePtr node)
+{
+    if (node->_showOutputsInEditor)
+    {
+        size_t pinCount = 0;
+        for (UiPinPtr outputPin : node->outputPins)
+        {
+            std::vector<UiPinPtr> connectedPins = outputPin->getConnections();
+            pinCount += connectedPins.size();
+        }
+
+        if (pinCount > 0)
+        {
+            const float TEXT_BASE_HEIGHT = ImGui::GetTextLineHeightWithSpacing() * 1.3f;
+            const int SCROLL_LINE_COUNT = 20;
+            ImGuiTableFlags tableFlags = ImGuiTableFlags_ScrollY | ImGuiTableFlags_Resizable | ImGuiTableFlags_NoSavedSettings |
+                ImGuiTableFlags_BordersOuterH | ImGuiTableFlags_NoBordersInBody;
+
+            ImVec2 tableSize(0.0f, TEXT_BASE_HEIGHT * std::min(SCROLL_LINE_COUNT, (int)pinCount));
+            bool haveTable = ImGui::BeginTable("outputs_node_table", 2, tableFlags, tableSize);
+            if (haveTable)
+            {
+                ImGui::SetWindowFontScale(_fontScale);
+                for (UiPinPtr outputPin : node->outputPins)
+                {
+                    bool firstPin = true;
+                    std::string outputPinName = outputPin->_name;
+                    std::string blankPinName;
+                    for (size_t i = 0; i < outputPinName.length(); i++)
+                    {
+                        blankPinName += ' ';
+                    }
+
+                    std::vector<UiPinPtr> connectedPins = outputPin->getConnections();
+                    for (UiPinPtr connectedPin : connectedPins)
+                    {
+                        ImGui::TableNextRow();
+                        ImGui::TableNextColumn();
+
+                        std::string connectedPinName = connectedPin->_name;
+                        if (connectedPin->_pinNode)
+                        {
+                            connectedPinName = connectedPin->_pinNode->getName() + "." + connectedPinName;
+                        }
+                        // Display outputPin name, and connectedPinName in same row
+                        //
+                        if (firstPin)
+                        {
+                            ImGui::Text("%s", outputPinName.c_str());
+                            firstPin = false;
+                        }
+                        else
+                        {
+                            ImGui::Text("%s", blankPinName.c_str());
+                        }
+
+                        std::string displayString = connectedPinName;
+                        ImGui::SameLine();
+                        ImGui::TableNextColumn();
+                        ImGui::PushItemWidth(-1);
+
+                        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.15f, 0.15f, 0.15f, 1.0f));
+                        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.2f, 0.4f, 0.6f, 1.0f));
+                        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.1f, 0.2f, 0.4f, 1.0f));
+
+                        if (ImGui::Button(displayString.c_str()))
+                        {
+                            std::shared_ptr<UiNode> pinNode = connectedPin->_pinNode;
+                            if (pinNode)
+                            {
+                                ed::SelectNode(pinNode->getId());
+                                ed::NavigateToSelection();
+                            }
+                        }
+                        ImGui::PopStyleColor(3);
+                        ImGui::PopItemWidth();
+                    }
+                }
+                ImGui::EndTable();
+                ImGui::SetWindowFontScale(1.0f);
+            }
+        }
+    }
+
+}
+
+void Graph::showPropertyEditorInputConnection(UiPinPtr displayPin)
+{
+    // Allow for upstream traversal via button
+    //
+    std::string displayString = displayPin->_input->getType();
+    const std::vector<UiPinPtr>& connections = displayPin->getConnections();
+    std::shared_ptr<UiNode> pinNode = nullptr;
+    if (!connections.empty())
+    {
+        UiPinPtr pin = connections[0];
+        std::string pinName = std::string(pin->_name);
+
+        pinNode = pin->_pinNode;
+        if (pinNode)
+        {
+            pinName = std::string(pinNode->getName()) + "." + pinName;
+        }
+        displayString = pinName;
+    }
+
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.15f, 0.15f, 0.15f, 1.0f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.2f, 0.4f, 0.6f, 1.0f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.1f, 0.2f, 0.4f, 1.0f));
+    ImGui::PushItemWidth(-1);
+    if (ImGui::Button(displayString.c_str()))
+    {
+        if (pinNode)
+        {
+            ed::SelectNode(pinNode->getId());
+            ed::NavigateToSelection();
+        }
+    }
+    ImGui::PopItemWidth();
+    ImGui::PopStyleColor(3);
 }
 
 void Graph::propertyEditor()
@@ -3494,6 +3654,7 @@ void Graph::propertyEditor()
             }
 
             ImGui::Checkbox("Show all inputs", &_currUiNode->_showAllInputs);
+            ImGui::Checkbox("Show output connections", &_currUiNode->_showOutputsInEditor);
 
             int count = 0;
             for (UiPinPtr input : _currUiNode->inputPins)
@@ -3542,12 +3703,11 @@ void Graph::propertyEditor()
                             ImGui::TableNextColumn();
                             if (!input->getConnected())
                             {
-                                setConstant(_currUiNode, input->_input, uiProperties);
+                                showPropertyEditorValue(_currUiNode, input->_input, uiProperties);
                             }
                             else
                             {
-                                std::string typeText = " [" + input->_input->getType() + "]";
-                                ImGui::Text("%s", typeText.c_str());
+                                showPropertyEditorInputConnection(input);
                             }
 
                             ImGui::PopID();
@@ -3558,6 +3718,8 @@ void Graph::propertyEditor()
                     ImGui::SetWindowFontScale(1.0f);
                 }
             }
+
+            showPropertyEditorOutputConnections(_currUiNode);;
         }
 
         else if (_currUiNode->getInput() != nullptr)
@@ -3592,12 +3754,11 @@ void Graph::propertyEditor()
                         // Set constant sliders for input values
                         if (!inputs[i]->getConnected())
                         {
-                            setConstant(_currUiNode, inputs[i]->_input, uiProperties);
+                            showPropertyEditorValue(_currUiNode, inputs[i]->_input, uiProperties);
                         }
                         else
                         {
-                            std::string typeText = " [" + inputs[i]->_input->getType() + "]";
-                            ImGui::Text("%s", typeText.c_str());
+                            showPropertyEditorInputConnection(inputs[i]);
                         }
                         ImGui::PopID();
                     }
@@ -3605,6 +3766,8 @@ void Graph::propertyEditor()
                     ImGui::SetWindowFontScale(1.0f);
                 }
             }
+
+            showPropertyEditorOutputConnections(_currUiNode);;
         }
         else if (_currUiNode->getOutput() != nullptr)
         {
@@ -3612,8 +3775,13 @@ void Graph::propertyEditor()
         }
         else if (_currUiNode->getNodeGraph() != nullptr)
         {
+
             std::vector<UiPinPtr> inputs = _currUiNode->inputPins;
             ImGui::Text("%s", _currUiNode->getCategory().c_str());
+
+            ImGui::Checkbox("Show all inputs", &_currUiNode->_showAllInputs);
+            ImGui::Checkbox("Show output connections", &_currUiNode->_showOutputsInEditor);
+
             int count = 0;
             for (UiPinPtr input : inputs)
             {
@@ -3650,12 +3818,11 @@ void Graph::propertyEditor()
                             ImGui::TableNextColumn();
                             if (!input->_input->getConnectedNode() && _currUiNode->getNodeGraph()->getActiveInput(input->_input->getName()))
                             {
-                                setConstant(_currUiNode, input->_input, uiProperties);
+                                showPropertyEditorValue(_currUiNode, input->_input, uiProperties);
                             }
                             else
                             {
-                                std::string typeText = " [" + input->_input->getType() + "]";
-                                ImGui::Text("%s", typeText.c_str());
+                                showPropertyEditorInputConnection(input);
                             }
 
                             ImGui::PopID();
@@ -3665,8 +3832,47 @@ void Graph::propertyEditor()
                     ImGui::SetWindowFontScale(1.0f);
                 }
             }
-            ImGui::Checkbox("Show all inputs", &_currUiNode->_showAllInputs);
+
+            showPropertyEditorOutputConnections(_currUiNode);;
         }
+      
+        // Find tokens within currUiNode
+        mx::ConstNodePtr node = _currUiNode->getNode();
+        if (node != nullptr)
+        {
+            mx::StringResolverPtr resolver = node->createStringResolver();
+            const mx::StringMap& tokens = resolver->getFilenameSubstitutions();
+
+            if (!tokens.empty())
+            {
+                ImGui::Text("Tokens");
+             
+                ImVec2 tableSize(0.0f, TEXT_BASE_HEIGHT * std::min(SCROLL_LINE_COUNT, static_cast<int>(tokens.size())));
+                bool haveTable = ImGui::BeginTable("tokens_node_table", 2, tableFlags, tableSize);
+                if (haveTable)
+                {
+                    ImGui::SetWindowFontScale(_fontScale);
+
+                    for (const auto& [token, value] : tokens)
+                    {
+                               
+                        ImGui::TableNextRow();
+                        ImGui::TableNextColumn();
+                        ImGui::PushID(&token);
+
+                        ImGui::Text("%s", token.c_str());
+                        ImGui::TableNextColumn();
+                        ImGui::Text("%s", value.c_str());
+
+                        ImGui::PopID();
+                    }
+                        
+                    ImGui::EndTable();
+                    ImGui::SetWindowFontScale(1.0f);
+                }
+            }
+        }
+
         ImGui::PopStyleColor();
         ImGui::PopStyleColor();
 
@@ -4002,6 +4208,53 @@ void Graph::handleRenderViewInputs()
     }
 }
 
+
+UiNodePtr Graph::traverseConnection(UiNodePtr node, bool traverseDownstream)
+{
+    if (!node)
+    {
+        return nullptr;
+    }
+
+    // Get first connected downstream node
+    if (traverseDownstream)
+    {
+        for (UiPinPtr outputPin : node->outputPins)
+        {
+            // Update downNode info
+            for (UiPinPtr connectedPin : outputPin.get()->getConnections())
+            {
+                std::shared_ptr<UiNode> pinNode = connectedPin->_pinNode;
+                if (pinNode)
+                {
+                    return pinNode;
+                }
+            }
+        }
+    }
+
+    // Get first upstream connected node
+    else 
+    {
+        for (UiPinPtr inputPin: node->inputPins)
+        {
+            const std::vector<UiPinPtr>& connections = inputPin->getConnections();
+            std::shared_ptr<UiNode> pinNode = nullptr;
+            if (!connections.empty())
+            {
+                UiPinPtr pin = connections[0];
+                pinNode = pin->_pinNode;
+                if (pinNode)
+                {
+                    return pinNode;
+                }
+            }
+        }
+    }  
+    
+    return nullptr;
+}
+
 void Graph::drawGraph(ImVec2 mousePos)
 {
     if (_searchNodeId > 0)
@@ -4090,7 +4343,7 @@ void Graph::drawGraph(ImVec2 mousePos)
                     int pos = findNode((int) selected.Get());
                     if (pos >= 0)
                     {
-                        _copiedNodes.insert(std::pair<UiNodePtr, UiNodePtr>(_graphNodes[pos], nullptr));
+                        _copiedNodes.emplace(_graphNodes[pos], nullptr);
                     }
                 }
             }
@@ -4106,7 +4359,7 @@ void Graph::drawGraph(ImVec2 mousePos)
                         int pos = findNode((int) selected.Get());
                         if (pos >= 0)
                         {
-                            _copiedNodes.insert(std::pair<UiNodePtr, UiNodePtr>(_graphNodes[pos], nullptr));
+                            _copiedNodes.emplace(_graphNodes[pos], nullptr);
                         }
                     }
                     _isCut = true;
@@ -4223,7 +4476,47 @@ void Graph::drawGraph(ImVec2 mousePos)
         // or if the shortcut for cut is used
         if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootWindow))
         {
-            if (ImGui::IsKeyReleased(ImGuiKey_Delete) || _isCut)
+            bool traverseDownstream = ImGui::IsKeyReleased(ImGuiKey_RightArrow); 
+            bool traverseUpstream = ImGui::IsKeyReleased(ImGuiKey_LeftArrow);
+
+            // Traverse connections with arrow keys
+            if (traverseDownstream || traverseUpstream)
+            {
+                UiNodePtr selectedNode = nullptr;
+                if (selectedNodes.size() > 0)
+                {
+                    for (ed::NodeId id : selectedNodes)
+                    {
+                        if (int(id.Get()) > 0)
+                        {
+                            int pos = findNode(int(id.Get()));
+                            if (pos >= 0)
+                            {
+                                selectedNode = _graphNodes[pos];
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (selectedNode && _currUiNode)
+                {
+                    selectedNode = _currUiNode;
+                }
+
+                if (selectedNode)
+                {
+                    UiNodePtr connectedNode = traverseConnection(selectedNode, traverseDownstream);
+                    if (connectedNode)
+                    {
+                        _currUiNode = connectedNode;
+                        ed::SelectNode(connectedNode->getId());
+                        ed::NavigateToSelection();
+                    }
+
+                }
+            }            
+
+            else if (ImGui::IsKeyReleased(ImGuiKey_Delete) || ImGui::IsKeyReleased(ImGuiKey_Backspace) || _isCut)
             {
                 if (selectedNodes.size() > 0)
                 {
@@ -4251,17 +4544,38 @@ void Graph::drawGraph(ImVec2 mousePos)
                     }
                     linkGraph();
                 }
+                else if (selectedLinks.size() > 0)
+                {
+                    _frameCount = ImGui::GetFrameCount();
+                    _renderer->setMaterialCompilation(true);
+                    for (ed::LinkId id : selectedLinks)
+                    {
+                        if (int(id.Get()) > 0 && !readOnly())
+                        {
+                            deleteLink(id);
+                            _delete = true;
+                            ed::DeselectLink(id);
+                            ed::DeleteLink(id);
+                            _currUiNode = nullptr;
+                        }
+                        else if (readOnly())
+                        {
+                            _popup = true;
+                        }
+                    }
+                    linkGraph();
+                }
                 _isCut = false;
             }
 
             // Hotkey to frame selected node(s)
-            if (ImGui::IsKeyReleased(ImGuiKey_F) && !_fileDialogSave.isOpened())
+            else if (ImGui::IsKeyReleased(ImGuiKey_F) && !_fileDialogSave.isOpened())
             {
                 ed::NavigateToSelection();
             }
 
             // Go back up from inside a subgraph
-            if (ImGui::IsKeyReleased(ImGuiKey_U) && (!ImGui::IsPopupOpen("add node")) && (!ImGui::IsPopupOpen("search")) && !_fileDialogSave.isOpened())
+            else if (ImGui::IsKeyReleased(ImGuiKey_U) && (!ImGui::IsPopupOpen("add node")) && (!ImGui::IsPopupOpen("search")) && !_fileDialogSave.isOpened())
             {
                 upNodeGraph();
             }

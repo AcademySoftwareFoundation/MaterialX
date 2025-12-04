@@ -14,9 +14,18 @@
 #include <MaterialXRender/LightHandler.h>
 #include <MaterialXRender/ImageHandler.h>
 #include <MaterialXRender/Image.h>
+#include <MaterialXRender/Timer.h>
 
 #include <MaterialXCore/Value.h>
 #include <MaterialXCore/Unit.h>
+
+MATERIALX_NAMESPACE_BEGIN
+#ifdef MATERIALXVIEW_METAL_BACKEND
+using TextureBakerPtr = shared_ptr<class TextureBakerMsl>;
+#else
+using TextureBakerPtr = shared_ptr<class TextureBakerGlsl>;
+#endif
+MATERIALX_NAMESPACE_END
 
 #include <memory>
 
@@ -61,6 +70,7 @@ class RenderPipeline
 
   public:
     Viewer* _viewer;
+    mx::ScopedTimer _timer;
     unsigned int _frame;
 };
 #endif // RENDER_PIPELINE_H

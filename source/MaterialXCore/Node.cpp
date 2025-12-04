@@ -20,6 +20,17 @@ const string Backdrop::HEIGHT_ATTRIBUTE = "height";
 // Node methods
 //
 
+void Node::setNameGlobal(const string& name)
+{
+    vector<PortElementPtr> downStreamPorts = getDownstreamPorts();
+    setName(name);
+    const string& newName = getName();
+    for (PortElementPtr& port : downStreamPorts)
+    {
+        port->setNodeName(newName);
+    }
+}
+
 void Node::setConnectedNode(const string& inputName, ConstNodePtr node)
 {
     InputPtr input = getInput(inputName);
@@ -115,7 +126,7 @@ Edge Node::getUpstreamEdge(size_t index) const
         }
     }
 
-    return NULL_EDGE;
+    return getNullEdge();
 }
 
 OutputPtr Node::getNodeDefOutput(ElementPtr connectingElement)
@@ -570,6 +581,17 @@ string GraphElement::asStringDot() const
 //
 // NodeGraph methods
 //
+
+void NodeGraph::setNameGlobal(const string& name)
+{
+    vector<PortElementPtr> downStreamPorts = getDownstreamPorts();
+    setName(name);
+    const string& newName = getName();
+    for (PortElementPtr& port : downStreamPorts)
+    {
+        port->setNodeGraphString(newName);
+    }
+}
 
 vector<OutputPtr> NodeGraph::getMaterialOutputs() const
 {

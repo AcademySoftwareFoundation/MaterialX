@@ -17,7 +17,7 @@ MaterialX is an open standard for representing rich material and look-developmen
 - Point CMake to the root of the MaterialX library and generate C++ projects for your platform and compiler.
 - Select the `MATERIALX_BUILD_PYTHON` option to build Python bindings.
 - Select the `MATERIALX_BUILD_VIEWER` option to build the [MaterialX Viewer](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/documents/DeveloperGuide/Viewer.md).
-- Select the `MATERIALX_BUILD_GRAPH_EDITOR` option to build the [MaterialX Graph Editor](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/documents/DeveloperGuide/GraphEditor.md). 
+- Select the `MATERIALX_BUILD_GRAPH_EDITOR` option to build the [MaterialX Graph Editor](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/documents/DeveloperGuide/GraphEditor.md).
 
 ## Supported Platforms
 
@@ -82,4 +82,4 @@ The following packages contain pre-built binaries for the latest release, includ
 - The [Developer Guide](http://www.materialx.org/docs/api/index.html) contains a developer-oriented overview of MaterialX with Build and API documentation.
 - The [Python Scripts](python/Scripts) folder contains standalone examples of MaterialX Python code.
 - The [JavaScript](javascript) folder contains details on building JavaScript bindings for MaterialX.
-- Presentations at [ASWF Open Source Days](https://materialx.org/assets/ASWF_OSD2024_MaterialX_Final.pdf) and the [SIGGRAPH Physically Based Shading Course](https://blog.selfshadow.com/publications/s2020-shading-course/#materialx) provide details on the roadmap for MaterialX development.
+- Presentations at [ASWF Open Source Days](https://materialx.org/assets/ASWF_OSD2025_MaterialX_Final.pdf) and the [SIGGRAPH Physically Based Shading Course](https://blog.selfshadow.com/publications/s2020-shading-course/#materialx) provide details on the roadmap for MaterialX development.

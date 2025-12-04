@@ -4,11 +4,12 @@
 //
 
 /**
- * Include this in every file that defines Emscripten bindings for functions with
- * std::unordered_map parameters or return types, to automatically convert them to / from JS objects.
+ * Include this in every file that defines Emscripten bindings for functions
+ * with std::map or std::unordered_map parameters or return types, to
+ * automatically convert them to / from JS objects.
  * It actually doesn't hurt to include this in every binding file ;)
- * Note that this only works for types that are known to Emscripten, i.e. primitive (built-in) types
- * and types that have bindings defined.
+ * Note that this only works for types that are known to Emscripten,
+ * i.e. primitive (built-in) types and types that have bindings defined.
  */
 
 #ifndef JSMATERIALX_MAP_HELPER_H
@@ -18,11 +19,72 @@
 
 #include <emscripten/bind.h>
 
+#include <map>
 #include <memory>
 #include <unordered_map>
 
 namespace emscripten {
 namespace internal {
+
+template <typename T>
+std::map<std::string, T> mapFromJSObject(const val& m) {
+
+    val keys = val::global("Object").call<val>("entries", m);
+    size_t length = keys["length"].as<size_t>();
+    std::map<std::string, T> rm;
+    for (size_t i = 0; i < length; ++i) {
+        rm.set(m[i][0].as<T>(), m[i][1].as<T>());
+    }
+    
+    return rm;
+}
+
+template<typename T>
+struct TypeID<std::map<std::string, T>> {
+    static constexpr TYPEID get() {
+        return LightTypeID<val>::get();
+    }
+};
+
+template<typename T>
+struct TypeID<const std::map<std::string, T>> {
+    static constexpr TYPEID get() {
+        return LightTypeID<val>::get();
+    }
+};
+
+template<typename T>
+struct TypeID<std::map<std::string, T>&> {
+    static constexpr TYPEID get() {
+        return LightTypeID<val>::get();
+    }
+};
+
+template<typename T>
+struct TypeID<const std::map<std::string, T>&> {
+    static constexpr TYPEID get() {
+        return LightTypeID<val>::get();
+    }
+};
+
+template<typename T>
+struct BindingType<std::map<std::string, T>> {
+    using ValBinding = BindingType<val>;
+    using WireType = ValBinding::WireType;
+
+    static WireType toWireType(const std::map<std::string, T> &map, rvp::default_tag tag) {
+        val obj = val::object();
+        for (std::pair<std::string, T> element : map)
+        {
+            obj.set(element.first, element.second);
+        }
+        return ValBinding::toWireType(obj, tag);
+    }
+
+    static std::map<std::string, T> fromWireType(WireType value) {
+        return mapFromJSObject<T>(ValBinding::fromWireType(value));
+    }
+};
 
 template <typename T>
 std::unordered_map<std::string, T> unorderedMapFromJSObject(const val& m) {
@@ -70,13 +132,13 @@ struct BindingType<std::unordered_map<std::string, T>> {
     using ValBinding = BindingType<val>;
     using WireType = ValBinding::WireType;
 
-    static WireType toWireType(const std::unordered_map<std::string, T> &map) {        
+    static WireType toWireType(const std::unordered_map<std::string, T> &map, rvp::default_tag tag) {
         val obj = val::object();
         for (std::pair<std::string, T> element : map)
         {
             obj.set(element.first, element.second);
         }
-        return ValBinding::toWireType(obj);
+        return ValBinding::toWireType(obj, tag);
     }
 
     static std::unordered_map<std::string, T> fromWireType(WireType value) {

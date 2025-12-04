@@ -27,6 +27,9 @@
     <input name="thickness" uniform="false" type="float" value="0" uimin="0" uiname="Thickness" uifolder="Volume" />
     <input name="attenuation_distance" uniform="true" type="float" uimin="0" uiname="Attenuation Distance" uifolder="Volume" />
     <input name="attenuation_color" uniform="true" type="color3" value="1, 1, 1" uimin="0, 0, 0" uimax="1, 1, 1" uiname="Attenuation Color" uifolder="Volume" />
+    <input name="anisotropy_strength" type="float" value="0" uimin="0" uimax="1" uiname="Anisotropy Strength" uifolder="Anisotropy" />
+    <input name="anisotropy_rotation" type="float" value="0" uimin="0" uimax="6.283185" uiname="Anisotropy Rotation" uifolder="Anisotropy" />
+    <input name="dispersion" type="float" value="0" uimin="0" uisoftmax="1.0" uiname="Dispersion" uifolder="Dispersion" />
     <output name="out" type="surfaceshader" />
   </nodedef>
 
@@ -104,9 +107,33 @@
 
     <!-- Roughness -->
 
-    <roughness_anisotropy name="roughness_uv" type="vector2">
-      <input name="roughness" type="float" interfacename="roughness" />
-    </roughness_anisotropy>
+    <combine2 name="roughness_uv" type="vector2">
+      <input name="in1" type="float" nodename="clamped_at" />
+      <input name="in2" type="float" nodename="clamped_ab" />
+    </combine2>
+    <clamp name="clamped_at" type="float">
+      <input name="in" type="float" nodename="at" />
+      <input name="low" type="float" value="0.00001" />
+      <input name="high" type="float" value="1.0" />
+    </clamp>
+    <clamp name="clamped_ab" type="float">
+      <input name="in" type="float" nodename="alpha_roughness" />
+      <input name="low" type="float" value="0.00001" />
+      <input name="high" type="float" value="1.0" />
+    </clamp>
+    <multiply name="alpha_roughness" type="float">
+      <input name="in1" type="float" interfacename="roughness" />
+      <input name="in2" type="float" interfacename="roughness" />
+    </multiply>
+    <multiply name="strength_2" type="float">
+      <input name="in1" type="float" interfacename="anisotropy_strength" />
+      <input name="in2" type="float" interfacename="anisotropy_strength" />
+    </multiply>
+    <mix name="at" type="float">
+      <input name="fg" type="float" value="1" />
+      <input name="bg" type="float" nodename="alpha_roughness" />
+      <input name="mix" type="float" nodename="strength_2" />
+    </mix>
 
     <!-- Dielectric -->
 
@@ -121,7 +148,7 @@
       <input name="ior" type="float" interfacename="ior" />
       <input name="roughness" type="vector2" nodename="roughness_uv" />
       <input name="normal" type="vector3" interfacename="normal" />
-      <input name="tangent" type="vector3" interfacename="tangent" />
+      <input name="tangent" type="vector3" nodename="selected_tangent" />
       <input name="scatter_mode" type="string" value="T" />
     </dielectric_bsdf>
 
@@ -130,7 +157,7 @@
       <input name="color90" type="color3" nodename="dielectric_f90" />
       <input name="roughness" type="vector2" nodename="roughness_uv" />
       <input name="normal" type="vector3" interfacename="normal" />
-      <input name="tangent" type="vector3" interfacename="tangent" />
+      <input name="tangent" type="vector3" nodename="selected_tangent" />
       <input name="scatter_mode" type="string" value="R" />
     </generalized_schlick_bsdf>
 
@@ -153,7 +180,7 @@
       <input name="color90" type="color3" nodename="dielectric_f90" />
       <input name="roughness" type="vector2" nodename="roughness_uv" />
       <input name="normal" type="vector3" interfacename="normal" />
-      <input name="tangent" type="vector3" interfacename="tangent" />
+      <input name="tangent" type="vector3" nodename="selected_tangent" />
       <input name="scatter_mode" type="string" value="R" />
       <input name="thinfilm_thickness" type="float" interfacename="iridescence_thickness" />
       <input name="thinfilm_ior" type="float" interfacename="iridescence_ior" />
@@ -178,7 +205,7 @@
       <input name="color90" type="color3" value="1, 1, 1" />
       <input name="roughness" type="vector2" nodename="roughness_uv" />
       <input name="normal" type="vector3" interfacename="normal" />
-      <input name="tangent" type="vector3" interfacename="tangent" />
+      <input name="tangent" type="vector3" nodename="selected_tangent" />
     </generalized_schlick_bsdf>
 
     <!-- Thin-film + Metal
@@ -189,7 +216,7 @@
       <input name="color90" type="color3" value="1, 1, 1" />
       <input name="roughness" type="vector2" nodename="roughness_uv" />
       <input name="normal" type="vector3" interfacename="normal" />
-      <input name="tangent" type="vector3" interfacename="tangent" />
+      <input name="tangent" type="vector3" nodename="selected_tangent" />
       <input name="thinfilm_thickness" type="float" interfacename="iridescence_thickness" />
       <input name="thinfilm_ior" type="float" interfacename="iridescence_ior" />
     </generalized_schlick_bsdf>
@@ -311,6 +338,30 @@
       <input name="in2" type="float" nodename="opacity_mask" />
     </ifequal>
 
+    <!-- Anisotropy -->
+
+    <multiply name="rad_2_deg" type="float">
+      <input name="in1" type="float" interfacename="anisotropy_rotation" />
+      <input name="in2" type="float" value="-57.295780" />
+    </multiply>
+    <rotate3d name="rotate_tangent" type="vector3">
+      <input name="in" type="vector3" interfacename="tangent" />
+      <input name="amount" type="float" nodename="rad_2_deg" />
+      <input name="axis" type="vector3" interfacename="normal" />
+    </rotate3d>
+    <normalize name="normalize_tangent" type="vector3">
+      <input name="in" type="vector3" nodename="rotate_tangent" />
+    </normalize>
+    <absval name="abs_anisotropy_rotation" type="float">
+      <input name="in" type="float" interfacename="anisotropy_rotation" />
+    </absval>
+    <ifgreater name="selected_tangent" type="vector3">
+      <input name="value1" type="float" nodename="abs_anisotropy_rotation" />
+      <input name="value2" type="float" value="0.0" />
+      <input name="in1" type="vector3" nodename="normalize_tangent" />
+      <input name="in2" type="vector3" interfacename="tangent" />
+    </ifgreater>
+
     <!-- Surface -->
 
     <surface name="shader_constructor" type="surfaceshader">
@@ -380,8 +431,8 @@
     <output name="outa" type="float" nodename="separate_alpha" />
   </nodegraph>
 
-  <!--- 
-    Node: <gltf_image> 
+  <!---
+    Node: <gltf_image>
     color3 image lookup which matches glTF
   -->
   <nodedef name="ND_gltf_image_color3_color3_1_0" node="gltf_image" version="1.0" isdefaultversion="true" nodegroup="texture2d">
@@ -435,8 +486,8 @@
     <output name="out" type="color3" nodename="scale_image" />
   </nodegraph>
 
-  <!--- 
-    Node: <gltf_image> 
+  <!---
+    Node: <gltf_image>
     color4 image lookup which matches glTF
   -->
   <nodedef name="ND_gltf_image_color4_color4_1_0" node="gltf_image" version="1.0" isdefaultversion="true" nodegroup="texture2d">
@@ -490,8 +541,8 @@
     <output name="out" type="color4" nodename="scale_image" />
   </nodegraph>
 
-  <!--- 
-    Node: <gltf_image> 
+  <!---
+    Node: <gltf_image>
     float image lookup which matches glTF
   -->
   <nodedef name="ND_gltf_image_float_float_1_0" node="gltf_image" version="1.0" isdefaultversion="true" nodegroup="texture2d">
@@ -545,8 +596,8 @@
     <output name="out" type="float" nodename="scale_image" />
   </nodegraph>
 
-  <!--- 
-    Node: <gltf_image> 
+  <!---
+    Node: <gltf_image>
     vector3 image lookup which matches glTF
   -->
   <nodedef name="ND_gltf_image_vector3_vector3_1_0" node="gltf_image" version="1.0" isdefaultversion="true" nodegroup="texture2d">
@@ -595,8 +646,8 @@
     <output name="out" type="vector3" nodename="image" />
   </nodegraph>
 
-  <!--- 
-    Node: <gltf_normalmap> 
+  <!---
+    Node: <gltf_normalmap>
     normalmap image lookup which matches glTF
   -->
   <nodedef name="ND_gltf_normalmap_vector3_1_0" node="gltf_normalmap" version="1.0" isdefaultversion="true" nodegroup="texture2d">
@@ -649,8 +700,8 @@
   </nodegraph>
 
   <!--
-    Node: <gltf_iridescence> 
-    normalmap image lookup which matches glTF  
+    Node: <gltf_iridescence>
+    normalmap image lookup which matches glTF
   -->
   <nodedef name="ND_gltf_iridescence_thickness_float_1_0" node="gltf_iridescence_thickness" version="1.0" isdefaultversion="true" nodegroup="texture2d">
     <input name="file" type="filename" uniform="true" value="" uifolder="Image" />
@@ -690,6 +741,76 @@
       <input name="index" type="integer" uniform="true" value="1" />
     </extract>
     <output name="out" type="float" nodename="mixThickness" />
+  </nodegraph>
+
+  <!--
+    Node: <gltf_anisotropy_image>
+  -->
+  <nodedef name="ND_gltf_anisotropy_image" node="gltf_anisotropy_image" version="1.0" isdefaultversion="true" nodegroup="texture2d">
+    <input name="file" type="filename" uniform="true" value="" uifolder="Image" />
+    <input name="default" type="vector3" value="1.0, 0.5, 1" uifolder="Image" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" uifolder="Image" />
+    <input name="pivot" type="vector2" value="0, 1" uifolder="Image" />
+    <input name="scale" type="vector2" value="1, 1" uifolder="Image" />
+    <input name="rotate" type="float" value="0" unit="degree" unittype="angle" uimin="0" uimax="360" uifolder="Image" />
+    <input name="offset" type="vector2" value="0, 0" uifolder="Image" />
+    <input name="operationorder" type="integer" value="0" uifolder="Image" />
+    <input name="uaddressmode" type="string" uniform="true" value="periodic" enum="constant,clamp,periodic,mirror" uifolder="Image" />
+    <input name="vaddressmode" type="string" uniform="true" value="periodic" enum="constant,clamp,periodic,mirror" uifolder="Image" />
+    <input name="filtertype" type="string" uniform="true" value="linear" enum="closest,linear,cubic" uifolder="Image" />
+    <input name="anisotropy_strength" type="float" value="1" uimin="0" uimax="1" uifolder="Anisotropy" uiname="Anisotropy Strength" />
+    <input name="anisotropy_rotation" type="float" value="0" uimin="0" uimax="6.283185" uifolder="Anisotropy" uiname="Anisotropy Rotation" />
+    <output name="anisotropy_strength_out" type="float" value="0" />
+    <output name="anisotropy_rotation_out" type="float" value="0" />
+  </nodedef>
+
+  <nodegraph name="NG_gltf_anisotropy_image_1_0" nodedef="ND_gltf_anisotropy_image">
+    <gltf_image name="gltf_anisotropy_image_src" type="vector3" nodedef="ND_gltf_image_vector3_vector3_1_0">
+      <input name="file" type="filename" uniform="true" interfacename="file" />
+      <input name="default" type="vector3" interfacename="default" />
+      <input name="texcoord" type="vector2" interfacename="texcoord" />
+      <input name="pivot" type="vector2" interfacename="pivot" />
+      <input name="scale" type="vector2" interfacename="scale" />
+      <input name="rotate" type="float" interfacename="rotate" />
+      <input name="offset" type="vector2" interfacename="offset" />
+      <input name="operationorder" type="integer" value="0" />
+      <input name="uaddressmode" type="string" uniform="true" value="periodic" />
+      <input name="vaddressmode" type="string" uniform="true" value="periodic" />
+      <input name="filtertype" type="string" uniform="true" interfacename="filtertype" />
+    </gltf_image>
+    <separate3 name="separate3" type="multioutput">
+      <input name="in" type="vector3" nodename="gltf_anisotropy_image_src" />
+    </separate3>
+    <multiply name="strength_multiply" type="float">
+      <input name="in1" type="float" interfacename="anisotropy_strength" />
+      <input name="in2" type="float" nodename="separate3" output="outz" />
+    </multiply>
+    <atan2 name="direction_to_rotation" type="float">
+      <input name="iny" type="float" nodename="subtract_y" />
+      <input name="inx" type="float" nodename="subtract_x" />
+    </atan2>
+    <add name="rotation_add" type="float">
+      <input name="in1" type="float" interfacename="anisotropy_rotation" />
+      <input name="in2" type="float" nodename="direction_to_rotation" />
+    </add>
+    <multiply name="multiply_x" type="float">
+      <input name="in1" type="float" nodename="separate3" output="outx" />
+      <input name="in2" type="float" value="2.0" />
+    </multiply>
+    <subtract name="subtract_x" type="float">
+      <input name="in1" type="float" nodename="multiply_x" />
+      <input name="in2" type="float" value="1.0" />
+    </subtract>
+    <subtract name="subtract_y" type="float">
+      <input name="in1" type="float" nodename="multiply_y" />
+      <input name="in2" type="float" value="1.0" />
+    </subtract>
+    <multiply name="multiply_y" type="float">
+      <input name="in1" type="float" nodename="separate3" output="outy" />
+      <input name="in2" type="float" value="2.0" />
+    </multiply>
+    <output name="anisotropy_strength_out" type="float" nodename="strength_multiply" />
+    <output name="anisotropy_rotation_out" type="float" nodename="rotation_add" />
   </nodegraph>
 
 </materialx>

@@ -50,6 +50,7 @@ describe('Traversal', () =>
             {
                 nodeCount++;
             }
+            elem.delete();
         }
         expect(nodeCount).to.equal(7);
 
@@ -64,6 +65,7 @@ describe('Traversal', () =>
                 nodeCount++;
             }
             maxElementDepth = Math.max(maxElementDepth, treeIter.getElementDepth());
+            elem.delete();
         }
         expect(nodeCount).to.equal(7);
         expect(maxElementDepth).to.equal(3);
@@ -81,6 +83,7 @@ describe('Traversal', () =>
             {
                 treeIter.setPruneSubtree(true);
             }
+            elem.delete();
         }
         expect(nodeCount).to.equal(0);
 
@@ -99,6 +102,10 @@ describe('Traversal', () =>
                     expect(connectingElem instanceof mx.Input).to.be.true;
                 }
             }
+            if (upstreamElem) upstreamElem.delete();
+            if (connectingElem) connectingElem.delete();
+            if (downstreamElem) downstreamElem.delete();
+            if (edge) edge.delete();
         }
         expect(nodeCount).to.equal(7);
 
@@ -116,6 +123,8 @@ describe('Traversal', () =>
             }
             maxElementDepth = Math.max(maxElementDepth, graphIter.getElementDepth());
             maxNodeDepth = Math.max(maxNodeDepth, graphIter.getNodeDepth());
+            if (upstreamElem) upstreamElem.delete();
+            if (edge) edge.delete();
         }
         expect(nodeCount).to.equal(7);
         expect(maxElementDepth).to.equal(3);
@@ -136,6 +145,8 @@ describe('Traversal', () =>
             {
                 graphIter.setPruneSubgraph(true);
             }
+            if (upstreamElem) upstreamElem.delete();
+            if (edge) edge.delete();
         }
         expect(nodeCount).to.equal(5);
 
@@ -154,14 +165,27 @@ describe('Traversal', () =>
         contrast.setConnectedNode('in', image2);
         expect(output.hasUpstreamCycle()).to.be.false;
         expect(doc.validate()).to.be.true;
+
+        // Cleanup wrappers
+        output.delete();
+        mix.delete();
+        noise3d.delete();
+        contrast.delete();
+        multiply.delete();
+        constant.delete();
+        image2.delete();
+        image1.delete();
+        nodeGraph.delete();
+        doc.delete();
     });
 
     describe("Traverse inheritance", () =>
     {
         let nodeDefInheritanceLevel2, nodeDefInheritanceLevel1, nodeDefParent;
+        let doc;
         beforeEach(() =>
         {
-            const doc = mx.createDocument();
+            doc = mx.createDocument();
             nodeDefParent = doc.addNodeDef();
             nodeDefParent.setName('BaseClass');
             nodeDefInheritanceLevel1 = doc.addNodeDef();
@@ -170,6 +194,13 @@ describe('Traversal', () =>
             nodeDefInheritanceLevel2.setName('InheritanceLevel2');
             nodeDefInheritanceLevel2.setInheritsFrom(nodeDefInheritanceLevel1);
             nodeDefInheritanceLevel1.setInheritsFrom(nodeDefParent);
+        });
+        afterEach(() =>
+        {
+            nodeDefInheritanceLevel2.delete();
+            nodeDefInheritanceLevel1.delete();
+            nodeDefParent.delete();
+            doc.delete();
         });
 
         it('for of loop', () =>
