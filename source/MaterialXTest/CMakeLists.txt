@@ -30,60 +30,81 @@ function(add_tests _sources)
   endforeach()
 endfunction()
 
+function(mx_add_test_module MODULE_NAME)
+    file(GLOB_RECURSE module_source "${CMAKE_CURRENT_SOURCE_DIR}/${MODULE_NAME}/*.cpp")
+    if(APPLE)
+        file(GLOB_RECURSE objc_source "${CMAKE_CURRENT_SOURCE_DIR}/${MODULE_NAME}/*.mm")
+        list(APPEND module_source ${objc_source})
+    endif()
+    file(GLOB_RECURSE module_headers "${CMAKE_CURRENT_SOURCE_DIR}/${MODULE_NAME}/*.h")
+
+    target_sources(MaterialXTest PUBLIC ${module_source} ${module_headers})
+    target_link_libraries(MaterialXTest ${MODULE_NAME})
+
+    add_tests("${module_source}")
+
+    assign_source_group("Source Files" ${module_source})
+    assign_source_group("Header Files" ${module_headers})
+endfunction()
+
 add_executable(MaterialXTest ${materialx_source} ${materialx_headers})
 
 target_include_directories( MaterialXTest PUBLIC
     ${EXTERNAL_INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}/../)
 
-add_subdirectory(MaterialXCore)
-target_link_libraries(MaterialXTest MaterialXCore)
-add_subdirectory(MaterialXFormat)
-target_link_libraries(MaterialXTest MaterialXFormat)
+mx_add_test_module(MaterialXCore)
+mx_add_test_module(MaterialXFormat)
 
-add_subdirectory(MaterialXGenShader)
-target_link_libraries(MaterialXTest MaterialXGenShader)
+mx_add_test_module(MaterialXGenShader)
 if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL OR MATERIALX_BUILD_GEN_MDL OR MATERIALX_BUILD_GEN_MSL OR MATERIALX_BUILD_GEN_SLANG)
   if(MATERIALX_BUILD_GEN_GLSL)
-    add_subdirectory(MaterialXGenGlsl)
-    target_link_libraries(MaterialXTest MaterialXGenGlsl)
+    mx_add_test_module(MaterialXGenGlsl)
   endif()
   if(MATERIALX_BUILD_GEN_SLANG)
-    add_subdirectory(MaterialXGenSlang)
-    target_link_libraries(MaterialXTest MaterialXGenSlang)
+    mx_add_test_module(MaterialXGenSlang)
   endif()
   if(MATERIALX_BUILD_GEN_OSL)
-    add_subdirectory(MaterialXGenOsl)
-    target_link_libraries(MaterialXTest MaterialXGenOsl)
+    mx_add_test_module(MaterialXGenOsl)
   endif()
   if(MATERIALX_BUILD_GEN_MDL)
-    add_subdirectory(MaterialXGenMdl)
-    target_link_libraries(MaterialXTest MaterialXGenMdl)
+    mx_add_test_module(MaterialXGenMdl)
+    if (NOT MATERIALX_BUILD_MONOLITHIC)
+        get_target_property(MaterialXGenMdl_SOURCE_DIR MaterialXGenMdl SOURCE_DIR)
+    else()
+        get_target_property(PROJECT_SOURCE_DIR ${MATERIALX_MONOLITHIC_TARGET} SOURCE_DIR)
+        set(MaterialXGenMdl_SOURCE_DIR "${PROJECT_SOURCE_DIR}/MaterialXGenMdl")
+    endif()
+    target_compile_definitions(MaterialXTest PRIVATE
+        MATERIALX_MDL_BINARY_MDLC=\"${MATERIALX_MDL_BINARY_MDLC}\"
+        MATERIALX_MDL_IMPL_MODULE_PATH=\"${MaterialXGenMdl_SOURCE_DIR}/mdl\"
+        MATERIALX_INSTALL_MDL_MODULE_PATH=\"${MATERIALX_INSTALL_STDLIB_PATH}\"
+        MATERIALX_MDL_MODULE_PATHS=\"${MATERIALX_MDL_MODULE_PATHS}\"
+    )
   endif()
   if(MATERIALX_BUILD_GEN_MSL)
-    add_subdirectory(MaterialXGenMsl)
-    target_link_libraries(MaterialXTest MaterialXGenMsl)
+    mx_add_test_module(MaterialXGenMsl)
   endif()
 endif()
 
 if(MATERIALX_BUILD_RENDER)
-  add_subdirectory(MaterialXRender)
-  target_link_libraries(MaterialXTest MaterialXRender)
+  mx_add_test_module(MaterialXRender)
   if(MATERIALX_BUILD_GEN_GLSL AND NOT MATERIALX_RENDER_MSL_ONLY)
-    add_subdirectory(MaterialXRenderGlsl)
-    target_link_libraries(MaterialXTest MaterialXRenderGlsl)
+    mx_add_test_module(MaterialXRenderGlsl)
   endif()
   if(MATERIALX_BUILD_GEN_SLANG AND MATERIALX_SLANG_RHI_SOURCE_DIR)
-    add_subdirectory(MaterialXRenderSlang)
-    target_link_libraries(MaterialXTest MaterialXRenderSlang)
+    mx_add_test_module(MaterialXRenderSlang)
   endif()
   if(MATERIALX_BUILD_GEN_OSL)
-    add_subdirectory(MaterialXRenderOsl)
-    target_link_libraries(MaterialXTest MaterialXRenderOsl)
+    mx_add_test_module(MaterialXRenderOsl)
+    target_compile_definitions(MaterialXTest PRIVATE
+        MATERIALX_OSL_BINARY_OSLC=\"${MATERIALX_OSL_BINARY_OSLC}\"
+        MATERIALX_OSL_BINARY_TESTRENDER=\"${MATERIALX_OSL_BINARY_TESTRENDER}\"
+        MATERIALX_OSL_INCLUDE_PATH=\"${MATERIALX_OSL_INCLUDE_PATH}\"
+    )
   endif()
   if(APPLE AND MATERIALX_BUILD_GEN_MSL)
-    add_subdirectory(MaterialXRenderMsl)
-    target_link_libraries(MaterialXTest MaterialXRenderMsl)
+    mx_add_test_module(MaterialXRenderMsl)
   endif()
   if(MATERIALX_BUILD_OIIO AND OPENIMAGEIO_ROOT_DIR)
       add_custom_command(TARGET MaterialXTest POST_BUILD
