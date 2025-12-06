@@ -3,6 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
+#ifdef MATERIALX_BUILD_OIIO
+
 #include <MaterialXRender/OiioImageLoader.h>
 
 #if defined(_MSC_VER)
@@ -116,3 +118,5 @@ ImagePtr OiioImageLoader::loadImage(const FilePath& filePath)
 }
 
 MATERIALX_NAMESPACE_END
+
+#endif
