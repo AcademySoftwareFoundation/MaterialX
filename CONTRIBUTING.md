@@ -73,7 +73,7 @@ through the *EasyCLA* system, which is integrated with GitHub as a pull
 request check.
 
 Prior to submitting a pull request, you can sign the form through
-[this link](https://contributor.easycla.lfx.linuxfoundation.org/#/cla/project/68fa91fe-51fe-41ac-a21d-e0a0bf688a53/user/564e571e-12d7-4857-abd4-898939accdd7).
+[this link](https://organization.lfx.linuxfoundation.org/foundation/a09410000182dD2AAI/project/a092M00001KWrdoQAD/cla).
 If you submit a pull request before the form is signed, the EasyCLA check
 will fail with a red *NOT COVERED* message, and you'll have another
 opportunity to sign the form through the provided link.
@@ -200,13 +200,13 @@ with these guidelines.
 #### Naming Conventions
 
 Class names should use PascalCase, as in `NodeGraph` or `ShaderGenerator`.
-Method names should use camelCase starting with a lowercase letter, for
-example `getNode` or `setName`. Protected and private member variables should
-use an underscore prefix, such as `_name` or `_parent`. Constants should be
-written in UPPER_CASE with underscores separating words, as in `EMPTY_STRING`
-or `CATEGORY`. Type aliases should append appropriate suffixes to indicate
-their purpose, using `Ptr` for pointers, `Vec` for vectors, `Map` for maps,
-and `Set` for sets.
+Variable and function names should use camelCase starting with a lowercase
+letter, as in `childName` or `getNode`. Protected and private member variables
+additionally require an underscore prefix, as in `_parent` or `_childMap`.
+Constants should be written in UPPER_CASE with underscores separating words,
+as in `EMPTY_STRING` or `CATEGORY`. Type aliases should append appropriate
+suffixes to indicate their purpose, using `Ptr` for pointers, `Vec` for
+vectors, `Map` for maps, and `Set` for sets.
 
 #### Static Constants and Class Organization
 

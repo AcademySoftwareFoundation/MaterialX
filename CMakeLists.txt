@@ -14,7 +14,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 
-# JavaScript setup 
+# JavaScript setup
 option(MATERIALX_BUILD_JS "Build the MaterialX JavaScript package from C++ bindings. Requires the emscripten environment." OFF)
 set(MATERIALX_EMSDK_PATH "" CACHE PATH "Path to EMSDK (e.g. 'D:/Projects/emsdk').")
 if (MATERIALX_BUILD_JS)
@@ -39,15 +39,18 @@ option(MATERIALX_BUILD_GRAPH_EDITOR "Build the MaterialX Graph Editor." OFF)
 option(MATERIALX_BUILD_DOCS "Create HTML documentation using Doxygen. Requires that Doxygen be installed." OFF)
 
 option(MATERIALX_BUILD_GEN_GLSL "Build the GLSL shader generator back-end." ON)
-option(MATERIALX_BUILD_GEN_OSL "Build the OSL shader generator back-end." ON)
+option(MATERIALX_BUILD_GEN_OSL "Build the OSL shader generator back-ends." ON)
 option(MATERIALX_BUILD_GEN_MDL "Build the MDL shader generator back-end." ON)
 option(MATERIALX_BUILD_GEN_MSL "Build the MSL shader generator back-end." ON)
+option(MATERIALX_BUILD_GEN_SLANG "Build the Slang shader generator back-end." ON)
 option(MATERIALX_BUILD_RENDER "Build the MaterialX Render modules." ON)
 option(MATERIALX_BUILD_RENDER_PLATFORMS "Build platform-specific render modules for each shader generator." ON)
+option(MATERIALX_RENDER_MSL_ONLY "On macOS, use Metal Shading Language only for tests and viewer (skips GLSL render tests)." OFF)
 option(MATERIALX_BUILD_OIIO "Build OpenImageIO support for MaterialXRender." OFF)
 option(MATERIALX_BUILD_OCIO "Build OpenColorIO support for shader generators." OFF)
 option(MATERIALX_BUILD_TESTS "Build unit tests." OFF)
 option(MATERIALX_BUILD_BENCHMARK_TESTS "Build benchmark tests." OFF)
+option(MATERIALX_BUILD_OSOS "Build OSL .oso's of standard library shaders for the OSL Network generator" OFF)
 
 option(MATERIALX_BUILD_SHARED_LIBS "Build MaterialX libraries as shared rather than static." OFF)
 option(MATERIALX_BUILD_DATA_LIBRARY "Build generated products from the MaterialX data library." OFF)
@@ -85,6 +88,8 @@ if (CMAKE_SYSTEM_NAME MATCHES "iOS" OR CMAKE_SYSTEM_NAME MATCHES "tvOS" OR CMAKE
     set(MATERIALX_BUILD_GEN_GLSL OFF)
     set(MATERIALX_BUILD_GEN_OSL OFF)
     set(MATERIALX_BUILD_GEN_MDL OFF)
+    set(MATERIALX_BUILD_GEN_SLANG OFF)
+    set(MATERIALX_BUILD_OSOS OFF)
     set(MATERIALX_BUILD_TESTS OFF)
 endif()
 
@@ -103,8 +108,20 @@ if (MATERIALX_BUILD_APPLE_FRAMEWORK)
 endif()
 
 if (MATERIALX_BUILD_JS)
+    set(MATERIALX_BUILD_OSOS OFF)
     set(MATERIALX_BUILD_RENDER OFF)
     set(MATERIALX_BUILD_TESTS OFF)
+endif()
+
+# Validate MSL-only rendering option
+if(MATERIALX_RENDER_MSL_ONLY)
+    if(NOT APPLE)
+        message(FATAL_ERROR "MATERIALX_RENDER_MSL_ONLY can only be enabled on Apple platforms")
+    endif()
+    if(NOT MATERIALX_BUILD_GEN_MSL)
+        message(FATAL_ERROR "MATERIALX_RENDER_MSL_ONLY requires MATERIALX_BUILD_GEN_MSL to be enabled")
+    endif()
+    message(STATUS "MSL-only testing mode enabled - MaterialXTest will not link MaterialXRenderGlsl")
 endif()
 
 # All hardware shading languages currently depend on the GLSL shader generator.
@@ -130,20 +147,25 @@ set(MATERIALX_OSL_BINARY_OSLC "" CACHE FILEPATH "Full path to the OSL compiler b
 set(MATERIALX_OSL_BINARY_TESTRENDER "" CACHE FILEPATH "Full path to the OSL test render binary.")
 set(MATERIALX_OSL_INCLUDE_PATH "" CACHE PATH "Full path to OSL shader includes (e.g. 'stdosl.h').")
 
+# Helpers for Slang validation
+set(MATERIALX_SLANG_RHI_SOURCE_DIR "" CACHE PATH "Full path to the Slang RHI build directory.")
+
 set(MATERIALX_PYTHON_FOLDER_NAME "python/MaterialX" CACHE INTERNAL "Folder name to user for installing the Python library.")
 
 if(SKBUILD)
     set(MATERIALX_PYTHON_FOLDER_NAME "MaterialX")
 endif()
 
-# Helpers for MDL validation
-if (MATERIALX_BUILD_GEN_MDL)
-    set(MATERIALX_MDLC_EXECUTABLE "" CACHE FILEPATH "Full path to the mdlc binary.")
-    set(MATERIALX_MDL_RENDER_EXECUTABLE "" CACHE FILEPATH "Full path to the mdl renderer binary.")
-    set(MATERIALX_MDL_RENDER_ARGUMENTS "" CACHE STRING "Custom arguments for renderer.")
-    set(MATERIALX_MDL_MODULE_PATHS "" CACHE FILEPATH "Comma separated list of MDL module paths.")
-    set(MATERIALX_INSTALL_MDL_MODULE_PATH ${MATERIALX_INSTALL_STDLIB_PATH} CACHE FILEPATH "Install path for mdl module.")
+if (MATERIALX_BUILD_OSOS)
+    set(MATERIALX_BUILD_DATA_LIBRARY ON)
+    set(MATERIALX_BUILD_GEN_OSL ON)
+    set(MATERIALX_BUILD_RENDER ON)
+    set(MATERIALX_BUILD_RENDER_PLATFORMS ON)
 endif()
+
+# Helpers for MDL validation
+set(MATERIALX_MDL_SDK_DIR "" CACHE PATH "Path to the MDL SDK directory that contains 'include', 'lib', etc.")
+set(MATERIALX_MDL_MODULE_PATHS "" CACHE FILEPATH "Comma separated list of MDL module paths.")
 
 # Namespace
 set(MATERIALX_NAMESPACE_SUFFIX "" CACHE STRING "Add a suffix to the main MaterialX C++ namespace: Options include dev, staging, <YOURFACILITY> etc.")
@@ -161,11 +183,14 @@ set(MATERIALX_LIBNAME_SUFFIX "" CACHE STRING "Specify a suffix to all libraries 
 
 mark_as_advanced(MATERIALX_BUILD_DOCS)
 mark_as_advanced(MATERIALX_BUILD_GEN_GLSL)
+mark_as_advanced(MATERIALX_BUILD_GEN_SLANG)
 mark_as_advanced(MATERIALX_BUILD_GEN_OSL)
 mark_as_advanced(MATERIALX_BUILD_GEN_MDL)
 mark_as_advanced(MATERIALX_BUILD_GEN_MSL)
+mark_as_advanced(MATERIALX_BUILD_OSOS)
 mark_as_advanced(MATERIALX_BUILD_RENDER)
 mark_as_advanced(MATERIALX_BUILD_RENDER_PLATFORMS)
+mark_as_advanced(MATERIALX_RENDER_MSL_ONLY)
 mark_as_advanced(MATERIALX_BUILD_OIIO)
 mark_as_advanced(MATERIALX_BUILD_OCIO)
 mark_as_advanced(MATERIALX_BUILD_BENCHMARK_TESTS)
@@ -196,13 +221,10 @@ mark_as_advanced(MATERIALX_BUILD_JS)
 mark_as_advanced(MATERIALX_EMSDK_PATH)
 mark_as_advanced(MATERIALX_BUILD_IOS)
 mark_as_advanced(MATERIALX_BUILD_APPLE_FRAMEWORK)
-if (MATERIALX_BUILD_GEN_MDL)
-    mark_as_advanced(MATERIALX_MDLC_EXECUTABLE)
-    mark_as_advanced(MATERIALX_MDL_RENDER_EXECUTABLE)
-    mark_as_advanced(MATERIALX_MDL_RENDER_ARGUMENTS)
-    mark_as_advanced(MATERIALX_MDL_MODULE_PATHS)
-    mark_as_advanced(MATERIALX_INSTALL_MDL_MODULE_PATH)
-endif()
+mark_as_advanced(MATERIALX_MDL_BINARY_MDLC)
+mark_as_advanced(MATERIALX_MDL_MODULE_PATHS)
+mark_as_advanced(MATERIALX_MDL_SDK_DIR)
+mark_as_advanced(MATERIALX_SLANG_RHI_SOURCE_DIR)
 
 if (MATERIALX_BUILD_USE_CCACHE)
     # Setup CCache for C/C++ compilation
@@ -215,7 +237,7 @@ endif()
 
 # Allow the OSL CMake package to provide binary locations for render tests.
 # This will not override explicitly provided oslc, testrender, and include paths.
-if(MATERIALX_BUILD_RENDER AND MATERIALX_BUILD_GEN_OSL AND MATERIALX_BUILD_TESTS)
+if((MATERIALX_BUILD_RENDER AND MATERIALX_BUILD_GEN_OSL AND MATERIALX_BUILD_TESTS) OR MATERIALX_BUILD_OSOS)
     find_package(OSL QUIET)
     if(OSL_FOUND)
         if(NOT MATERIALX_OSL_BINARY_OSLC)
@@ -224,6 +246,10 @@ if(MATERIALX_BUILD_RENDER AND MATERIALX_BUILD_GEN_OSL AND MATERIALX_BUILD_TESTS)
         if(NOT MATERIALX_OSL_BINARY_TESTRENDER)
             # OSL does not yet export a CMake target for testrender.
             set(MATERIALX_OSL_BINARY_TESTRENDER $<TARGET_FILE_DIR:OSL::oslc>/testrender)
+        endif()
+        if(NOT MATERIALX_OSL_INCLUDE_PATH)
+            # OSL does not yet export a CMake target for testrender.
+            set(MATERIALX_OSL_INCLUDE_PATH $<TARGET_FILE_DIR:OSL::oslc>/../include)
         endif()
     endif()
 endif()
@@ -236,12 +262,11 @@ if (MATERIALX_BUILD_BENCHMARK_TESTS)
     add_definitions(-DMATERIALX_BUILD_BENCHMARK_TESTS)
 endif()
 
-if (MATERIALX_BUILD_GEN_MDL)
-    add_definitions(-DMATERIALX_MDLC_EXECUTABLE=\"${MATERIALX_MDLC_EXECUTABLE}\")
-    add_definitions(-DMATERIALX_MDL_RENDER_EXECUTABLE=\"${MATERIALX_MDL_RENDER_EXECUTABLE}\")
-    add_definitions(-DMATERIALX_MDL_RENDER_ARGUMENTS=\"${MATERIALX_MDL_RENDER_ARGUMENTS}\")
-    add_definitions(-DMATERIALX_MDL_MODULE_PATHS=\"${MATERIALX_MDL_MODULE_PATHS}\")
-    add_definitions(-DMATERIALX_INSTALL_MDL_MODULE_PATH=\"${MATERIALX_INSTALL_MDL_MODULE_PATH}\")
+# GEN MDL does not have any additional dependencies. For loading and compiling MDL, e.g., in the test renderer, the MDL SDK is needed.
+if(MATERIALX_MDL_SDK_DIR)
+    find_package(mdl QUIET CONFIG REQUIRED PATHS ${MATERIALX_MDL_SDK_DIR})
+    get_target_property(MATERIALX_MDL_BINARY_MDLC mdl::mdlc LOCATION)
+    set(MATERIALX_MDL_BINARY_MDLC ${MATERIALX_MDL_BINARY_MDLC} CACHE FILEPATH "Full path to the mdlc binary." FORCE)
 endif()
 
 # Adjust the default installation path
@@ -325,7 +350,7 @@ function(assign_source_group prefix)
 endfunction(assign_source_group)
 
 function(mx_add_library MATERIALX_MODULE_NAME)
-    set(options ADD_OBJECTIVE_C_CODE)
+    set(options ADD_OBJECTIVE_C_CODE SKIP_INSTALL)
     set(oneValueArgs EXPORT_DEFINE)
     set(multiValueArgs
         SOURCE_FILES
@@ -410,7 +435,7 @@ function(mx_add_library MATERIALX_MODULE_NAME)
 
     target_compile_definitions(${TARGET_NAME} PRIVATE "-D${args_EXPORT_DEFINE}")
 
-    if(NOT SKBUILD)
+    if(NOT SKBUILD AND NOT args_SKIP_INSTALL)
         if(NOT MATERIALX_BUILD_MONOLITHIC)
             install(TARGETS ${MATERIALX_MODULE_NAME}
                     EXPORT MaterialX
@@ -454,18 +479,24 @@ add_subdirectory(source/MaterialXFormat)
 
 # Add shader generation subdirectories
 add_subdirectory(source/MaterialXGenShader)
-if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL OR MATERIALX_BUILD_GEN_MDL OR MATERIALX_BUILD_GEN_MSL)
-    if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_MSL)
+if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL OR MATERIALX_BUILD_GEN_MDL OR MATERIALX_BUILD_GEN_MSL OR MATERIALX_BUILD_GEN_SLANG)
+    if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_MSL OR MATERIALX_BUILD_GEN_SLANG)
         add_subdirectory(source/MaterialXGenHw)
     endif()
-
     if (MATERIALX_BUILD_GEN_GLSL)
         add_definitions(-DMATERIALX_BUILD_GEN_GLSL)
         add_subdirectory(source/MaterialXGenGlsl)
     endif()
+    if (MATERIALX_BUILD_GEN_SLANG)
+        add_definitions(-DMATERIALX_BUILD_GEN_SLANG)
+        add_subdirectory(source/MaterialXGenSlang)
+    endif()
     if (MATERIALX_BUILD_GEN_OSL)
         add_definitions(-DMATERIALX_BUILD_GEN_OSL)
         add_subdirectory(source/MaterialXGenOsl)
+    endif()
+    if (MATERIALX_BUILD_OSOS)
+        add_definitions(-DMATERIALX_BUILD_OSOS)
     endif()
     if (MATERIALX_BUILD_GEN_MDL)
         add_definitions(-DMATERIALX_BUILD_GEN_MDL)
@@ -496,6 +527,9 @@ if(MATERIALX_BUILD_RENDER)
         endif()
         if(MATERIALX_BUILD_GEN_OSL)
             add_subdirectory(source/MaterialXRenderOsl)
+        endif()
+        if(MATERIALX_BUILD_GEN_SLANG AND MATERIALX_SLANG_RHI_SOURCE_DIR)
+            add_subdirectory(source/MaterialXRenderSlang)
         endif()
     endif()
     if(MATERIALX_BUILD_VIEWER)

@@ -959,12 +959,6 @@ void MslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& co
             _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "mx_transform_uv.glsl";
         }
 
-        // Emit uv transform code globally if needed.
-        if (context.getOptions().hwAmbientOcclusion)
-        {
-            emitLibraryInclude("stdlib/genglsl/lib/" + _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV], context, stage);
-        }
-
         emitLightFunctionDefinitions(graph, context, stage);
 
         // Emit function definitions for all nodes in the graph.
@@ -1143,31 +1137,6 @@ void MslShaderGenerator::emitLightFunctionDefinitions(const ShaderGraph& graph, 
                 }
             }
         }
-    }
-}
-
-void MslShaderGenerator::toVec4(TypeDesc type, string& variable)
-{
-    if (type.isFloat3())
-    {
-        variable = "float4(" + variable + ", 1.0)";
-    }
-    else if (type.isFloat2())
-    {
-        variable = "float4(" + variable + ", 0.0, 1.0)";
-    }
-    else if (type == Type::FLOAT || type == Type::INTEGER)
-    {
-        variable = "float4(" + variable + ", " + variable + ", " + variable + ", 1.0)";
-    }
-    else if (type == Type::BSDF || type == Type::EDF)
-    {
-        variable = "float4(" + variable + ", 1.0)";
-    }
-    else
-    {
-        // Can't understand other types. Just return black.
-        variable = "float4(0.0, 0.0, 0.0, 1.0)";
     }
 }
 

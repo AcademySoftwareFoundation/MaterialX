@@ -13,7 +13,6 @@
 #include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/TypeDesc.h>
 
-
 MATERIALX_NAMESPACE_BEGIN
 
 const string OslShaderGenerator::TARGET = "genosl";
@@ -35,6 +34,12 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     ScopedFloatFormatting fmt(Value::FloatFormatFixed);
 
     ShaderGraph& graph = shader->getGraph();
+
+    if (context.getOptions().oslConnectCiWrapper)
+    {
+        addSetCiTerminalNode(graph, element->getDocument(), context);
+    }
+
     ShaderStage& stage = shader->getStage(Stage::PIXEL);
 
     emitLibraryIncludes(stage, context);
@@ -224,7 +229,8 @@ ShaderPtr OslShaderGenerator::createShader(const string& name, ElementPtr elemen
     const auto& outputSockets = graph->getOutputSockets();
     const auto* singleOutput = outputSockets.size() == 1 ? outputSockets[0] : NULL;
 
-    const bool isSurfaceShaderOutput = singleOutput && singleOutput->getType() == Type::SURFACESHADER;
+    const bool isSurfaceShaderOutput = context.getOptions().oslImplicitSurfaceShaderConversion && singleOutput && singleOutput->getType() == Type::SURFACESHADER;
+
     if (isSurfaceShaderOutput)
     {
         graph->inlineNodeBeforeOutput(outputSockets[0], "_surfacematerial_", "ND_surfacematerial", "surfaceshader", "out", context);
@@ -402,10 +408,10 @@ void OslShaderGenerator::emitMetadata(const ShaderPort* port, ShaderStage& stage
 {
     static const std::unordered_map<TypeDesc, ShaderMetadata, TypeDesc::Hasher> UI_WIDGET_METADATA =
     {
-        { Type::FLOAT, ShaderMetadata("widget", Type::STRING,  Type::STRING.createValueFromStrings("number")) },
-        { Type::INTEGER, ShaderMetadata("widget", Type::STRING,  Type::STRING.createValueFromStrings("number")) },
-        { Type::FILENAME, ShaderMetadata("widget", Type::STRING,  Type::STRING.createValueFromStrings("filename")) },
-        { Type::BOOLEAN, ShaderMetadata("widget", Type::STRING,  Type::STRING.createValueFromStrings("checkBox")) }
+        { Type::FLOAT, ShaderMetadata("widget", Type::STRING, Type::STRING.createValueFromStrings("number")) },
+        { Type::INTEGER, ShaderMetadata("widget", Type::STRING, Type::STRING.createValueFromStrings("number")) },
+        { Type::FILENAME, ShaderMetadata("widget", Type::STRING, Type::STRING.createValueFromStrings("filename")) },
+        { Type::BOOLEAN, ShaderMetadata("widget", Type::STRING, Type::STRING.createValueFromStrings("checkBox")) }
     };
 
     static const std::set<TypeDesc> METADATA_TYPE_BLACKLIST =
@@ -463,6 +469,38 @@ void OslShaderGenerator::emitMetadata(const ShaderPort* port, ShaderStage& stage
         }
     }
 }
+
+
+void OslShaderGenerator::addSetCiTerminalNode(ShaderGraph& graph, ConstDocumentPtr document, GenContext& context) const
+{
+    string setCiNodeDefName = "ND_osl_set_ci";
+    NodeDefPtr setCiNodeDef = document->getNodeDef(setCiNodeDefName);
+
+    std::unordered_map<TypeDesc, ValuePtr, TypeDesc::Hasher> outputModeMap;
+    int index = 0;
+    for (auto input : setCiNodeDef->getInputs())
+    {
+        string inputName = input->getName();
+        if (stringStartsWith(inputName, "input_"))
+        {
+            TypeDesc inputType = _typeSystem->getType(input->getType());
+            outputModeMap[inputType] = std::make_shared<TypedValue<int>>(index++);
+        }
+    }
+
+    for (auto output : graph.getOutputSockets())
+    {
+        auto outputType = output->getType();
+        string typeName = outputType.getName();
+        auto setCiNode = graph.inlineNodeBeforeOutput(output, "oslSetCi", setCiNodeDefName, "input_" + typeName, "out_ci", context);
+        auto typeInput = setCiNode->getInput("output_mode");
+
+        auto outputModeValue = outputModeMap[outputType];
+
+        typeInput->setValue(outputModeValue);
+    }
+}
+
 
 namespace OSL
 {

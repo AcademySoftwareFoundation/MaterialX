@@ -12,17 +12,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-namespace
-{
-
-const string LIGHT_DIRECTION_CALCULATION =
-    "vec3 L = light.position - position;\n"
-    "float distance = length(L);\n"
-    "L /= distance;\n"
-    "result.direction = L;\n";
-
-} // anonymous namespace
-
 HwLightNode::HwLightNode()
 {
 }
@@ -51,8 +40,15 @@ void HwLightNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
     DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
     {
         const HwShaderGenerator& shadergen = static_cast<const HwShaderGenerator&>(context.getShaderGenerator());
+        const Syntax& syntax = shadergen.getSyntax();
 
-        shadergen.emitBlock(LIGHT_DIRECTION_CALCULATION, FilePath(), context, stage);
+        const string& vec3 = syntax.getTypeName(Type::VECTOR3);
+        const string vec3_zero = syntax.getValue(Type::VECTOR3, HW::VEC3_ZERO);
+
+        shadergen.emitLine(vec3+" L = light.position - position", stage);
+        shadergen.emitLine("float distance = length(L)", stage);
+        shadergen.emitLine("L /= distance", stage);
+        shadergen.emitLine("result.direction = L", stage);
         shadergen.emitLineBreak(stage);
 
         const ShaderInput* edfInput = node.getInput("edf");
@@ -61,7 +57,7 @@ void HwLightNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
         {
 
             shadergen.emitScopeBegin(stage);
-            shadergen.emitLine("ClosureData closureData = makeClosureData(CLOSURE_TYPE_EMISSION, vec3(0), -L, light.direction, vec3(0), 0)", stage);
+            shadergen.emitLine("ClosureData closureData = makeClosureData(CLOSURE_TYPE_EMISSION, "+vec3_zero+", -L, light.direction, "+vec3_zero+", 0)", stage);
             shadergen.emitFunctionCall(*edf, context, stage);
             shadergen.emitScopeEnd(stage);
             shadergen.emitLineBreak(stage);
@@ -89,7 +85,7 @@ void HwLightNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
         }
         else
         {
-            shadergen.emitLine("result.intensity = vec3(0.0)", stage);
+            shadergen.emitLine("result.intensity = "+vec3_zero, stage);
         }
     }
 }

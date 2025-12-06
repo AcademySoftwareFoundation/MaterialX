@@ -63,8 +63,8 @@ class MX_GENHW_API HwShaderGenerator : public ShaderGenerator
     /// Determine the prefix of vertex data variables.
     virtual string getVertexDataPrefix(const VariableBlock& vertexData) const = 0;
 
-    /// Create the shader node implementation for a nodedef that has a NodeGraph implementation.
-    ShaderNodeImplPtr createShaderNodeImplForNodeGraph(const NodeDef& nodedef) const override;
+    /// Create the shader node implementation for a NodeGraph implementation.
+    ShaderNodeImplPtr createShaderNodeImplForNodeGraph(const NodeGraph& nodegraph) const override;
 
     // Note : the order must match the order defined in libraries/pbrlib/genglsl/lib/mx_closure_type.glsl
     // TODO : investigate build time mechanism for ensuring these stay in sync.
@@ -86,6 +86,8 @@ class MX_GENHW_API HwShaderGenerator : public ShaderGenerator
 
     /// Create and initialize a new HW shader for shader generation.
     virtual ShaderPtr createShader(const string& name, ElementPtr element, GenContext& context) const;
+
+    void toVec4(TypeDesc type, string& variable) const;
 };
 
 MATERIALX_NAMESPACE_END

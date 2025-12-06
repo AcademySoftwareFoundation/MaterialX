@@ -43,10 +43,14 @@ target_link_libraries(MaterialXTest MaterialXFormat)
 
 add_subdirectory(MaterialXGenShader)
 target_link_libraries(MaterialXTest MaterialXGenShader)
-if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL OR MATERIALX_BUILD_GEN_MDL OR MATERIALX_BUILD_GEN_MSL)
+if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL OR MATERIALX_BUILD_GEN_MDL OR MATERIALX_BUILD_GEN_MSL OR MATERIALX_BUILD_GEN_SLANG)
   if(MATERIALX_BUILD_GEN_GLSL)
     add_subdirectory(MaterialXGenGlsl)
     target_link_libraries(MaterialXTest MaterialXGenGlsl)
+  endif()
+  if(MATERIALX_BUILD_GEN_SLANG)
+    add_subdirectory(MaterialXGenSlang)
+    target_link_libraries(MaterialXTest MaterialXGenSlang)
   endif()
   if(MATERIALX_BUILD_GEN_OSL)
     add_subdirectory(MaterialXGenOsl)
@@ -55,13 +59,6 @@ if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL OR MATERIALX_BUILD_GEN_MD
   if(MATERIALX_BUILD_GEN_MDL)
     add_subdirectory(MaterialXGenMdl)
     target_link_libraries(MaterialXTest MaterialXGenMdl)
-    if (NOT MATERIALX_BUILD_MONOLITHIC)
-        get_target_property(MaterialXGenMdl_SOURCE_DIR MaterialXGenMdl SOURCE_DIR)
-    else()
-        get_target_property(PROJECT_SOURCE_DIR ${MATERIALX_MONOLITHIC_TARGET} SOURCE_DIR)
-        set(MaterialXGenMdl_SOURCE_DIR "{PROJECT_SOURCE_DIR}/MaterialXGenMdl")
-    endif()
-    target_compile_definitions(MaterialXTest PRIVATE -DMATERIALX_MDL_IMPL_MODULE_PATH=\"${MaterialXGenMdl_SOURCE_DIR}/mdl\")
   endif()
   if(MATERIALX_BUILD_GEN_MSL)
     add_subdirectory(MaterialXGenMsl)
@@ -72,9 +69,13 @@ endif()
 if(MATERIALX_BUILD_RENDER)
   add_subdirectory(MaterialXRender)
   target_link_libraries(MaterialXTest MaterialXRender)
-  if(MATERIALX_BUILD_GEN_GLSL)
+  if(MATERIALX_BUILD_GEN_GLSL AND NOT MATERIALX_RENDER_MSL_ONLY)
     add_subdirectory(MaterialXRenderGlsl)
     target_link_libraries(MaterialXTest MaterialXRenderGlsl)
+  endif()
+  if(MATERIALX_BUILD_GEN_SLANG AND MATERIALX_SLANG_RHI_SOURCE_DIR)
+    add_subdirectory(MaterialXRenderSlang)
+    target_link_libraries(MaterialXTest MaterialXRenderSlang)
   endif()
   if(MATERIALX_BUILD_GEN_OSL)
     add_subdirectory(MaterialXRenderOsl)
@@ -106,16 +107,25 @@ endif()
 
 if(MATERIALX_BUILD_GEN_MDL)
     install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../source/MaterialXGenMdl/mdl/"
-        DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${MATERIALX_INSTALL_MDL_MODULE_PATH}/mdl)
+        DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${MATERIALX_INSTALL_STDLIB_PATH}/mdl)
 endif()
 
-add_custom_command(TARGET MaterialXTest POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../resources ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resources)
+# Copy resources to build directory - always runs during build
+add_custom_target(MaterialXTestResources ALL
+    COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../resources ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resources
+    COMMENT "Copying resources to build directory")
 
-add_custom_command(TARGET MaterialXTest POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_CURRENT_SOURCE_DIR}/MaterialXRenderOsl/Utilities ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resources/Utilities)
+# Copy OSL utilities to build directory - always runs during build
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/MaterialXRenderOsl/Utilities")
+    add_custom_target(MaterialXTestOslUtilities ALL
+        COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
+        ${CMAKE_CURRENT_SOURCE_DIR}/MaterialXRenderOsl/Utilities ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resources/Utilities
+        COMMENT "Copying OSL utilities to build directory")
+    add_dependencies(MaterialXTestResources MaterialXTestOslUtilities)
+endif()
+
+add_dependencies(MaterialXTest MaterialXTestResources)
 
 set_target_properties(
     MaterialXTest PROPERTIES

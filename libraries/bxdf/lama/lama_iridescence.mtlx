@@ -72,7 +72,7 @@
     <rotate3d name="tangent_rotate" type="vector3">
       <input name="in" type="vector3" interfacename="anisotropyDirection" />
       <input name="amount" type="float" nodename="tangent_rotate_degree_offset" />
-      <input name="axis" type="vector3" nodename="tangent_normal" /> />
+      <input name="axis" type="vector3" nodename="tangent_normal" />
     </rotate3d>
     <normalize name="tangent_rotate_normalize" type="vector3">
       <input name="in" type="vector3" nodename="tangent_rotate" />
