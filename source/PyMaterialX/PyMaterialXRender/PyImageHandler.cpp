@@ -18,7 +18,39 @@ void bindPyImageHandler(py::module& mod)
         .def_readwrite("filterType", &mx::ImageSamplingProperties::filterType)
         .def_readwrite("defaultColor", &mx::ImageSamplingProperties::defaultColor);
 
-    py::class_<mx::ImageLoader, mx::ImageLoaderPtr>(mod, "ImageLoader")
+    // Trampoline class for Python overrides
+    class PyImageLoader : public mx::ImageLoader {
+    public:
+        using mx::ImageLoader::ImageLoader;
+        mx::ImagePtr loadImage(const mx::FilePath& filePath) override 
+        {
+            PYBIND11_OVERRIDE_PURE(
+                mx::ImagePtr,
+                mx::ImageLoader,
+                loadImage,
+                filePath
+            );
+        }
+        bool saveImage(const mx::FilePath& filePath, mx::ConstImagePtr image, bool verticalFlip = false) override 
+        {
+            PYBIND11_OVERRIDE_PURE(
+                bool,
+                mx::ImageLoader,
+                saveImage,
+                filePath, image, verticalFlip
+            );
+        }
+        const mx::StringSet& supportedExtensions() const override {
+            PYBIND11_OVERRIDE(
+                const mx::StringSet&,
+                mx::ImageLoader,
+                supportedExtensions
+            );
+        }
+    };
+
+    py::class_<mx::ImageLoader, PyImageLoader, mx::ImageLoaderPtr>(mod, "ImageLoader")
+        .def(py::init<>())
         .def_readonly_static("BMP_EXTENSION", &mx::ImageLoader::BMP_EXTENSION)
         .def_readonly_static("EXR_EXTENSION", &mx::ImageLoader::EXR_EXTENSION)
         .def_readonly_static("GIF_EXTENSION", &mx::ImageLoader::GIF_EXTENSION)
@@ -32,7 +64,7 @@ void bindPyImageHandler(py::module& mod)
         .def_readonly_static("TIF_EXTENSION", &mx::ImageLoader::TIF_EXTENSION)
         .def_readonly_static("TIFF_EXTENSION", &mx::ImageLoader::TIFF_EXTENSION)
         .def_readonly_static("TXT_EXTENSION", &mx::ImageLoader::TXT_EXTENSION)
-        .def("supportedExtensions", &mx::ImageLoader::supportedExtensions)
+        .def("supportedExtensions", &mx::ImageLoader::supportedExtensions, py::return_value_policy::reference_internal)
         .def("saveImage", &mx::ImageLoader::saveImage)
         .def("loadImage", &mx::ImageLoader::loadImage);
 
