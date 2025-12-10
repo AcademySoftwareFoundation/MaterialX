@@ -1849,7 +1849,7 @@ void Viewer::loadStandardLibraries()
     // Create the list of supported distance units.
     auto unitScales = _distanceUnitConverter->getUnitScale();
     _distanceUnitOptions.resize(unitScales.size());
-    for (auto unitScale : unitScales)
+    for (const auto& unitScale : unitScales)
     {
         int location = _distanceUnitConverter->getUnitAsInteger(unitScale.first);
         _distanceUnitOptions[location] = unitScale.first;
