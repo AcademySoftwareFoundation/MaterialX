@@ -27,8 +27,8 @@ void bindPyOslShaderGenerator(py::module& mod)
     mod.attr("OSL_INPUTS") = mx::OSL::INPUTS;
     mod.attr("OSL_OUTPUTS") = mx::OSL::OUTPUTS;
 
-    py::class_<mx::OslShaderGenerator, mx::ShaderGenerator, mx::OslShaderGeneratorPtr>(mod, "OslShaderGenerator", "Base class for OSL (Open Shading Language) shader generators.\n\nA generator for a specific OSL target should be derived from this class.")
-        .def_static("create", &OslShaderGenerator_create, "Creator function.\n\nIf a TypeSystem is not provided it will be created internally. Optionally pass in an externally created TypeSystem here, if you want to keep type descriptions alive after the lifetime of the shader generator.")
-        .def("getTarget", &mx::OslShaderGenerator::getTarget, "Return a unique identifier for the target this generator is for.")
-        .def("generate", &mx::OslShaderGenerator::generate, "Generate a shader starting from the given element, translating the element and all dependencies upstream into shader code.");
+    py::class_<mx::OslShaderGenerator, mx::ShaderGenerator, mx::OslShaderGeneratorPtr>(mod, "OslShaderGenerator")
+        .def_static("create", &OslShaderGenerator_create)
+        .def("getTarget", &mx::OslShaderGenerator::getTarget)
+        .def("generate", &mx::OslShaderGenerator::generate);
 }

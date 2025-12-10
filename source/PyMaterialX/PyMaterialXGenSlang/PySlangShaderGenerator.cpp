@@ -25,9 +25,9 @@ namespace
 
 void bindPySlangShaderGenerator(py::module& mod)
 {
-    py::class_<mx::SlangShaderGenerator, mx::HwShaderGenerator, mx::SlangShaderGeneratorPtr>(mod, "SlangShaderGenerator", "Base class for Slang code generation.\n\nA generator for a specific Slang target should be derived from this class.")
-        .def_static("create", &SlangShaderGenerator_create, "Creator function.\n\nIf a TypeSystem is not provided it will be created internally. Optionally pass in an externally created TypeSystem here, if you want to keep type descriptions alive after the lifetime of the shader generator.")
-        .def("generate", &mx::SlangShaderGenerator::generate, "Generate a shader starting from the given element, translating the element and all dependencies upstream into shader code.")
-        .def("getTarget", &mx::SlangShaderGenerator::getTarget, "Return a unique identifier for the target this generator is for.")
-        .def("getVersion", &mx::SlangShaderGenerator::getVersion, "Return the version string for the Slang version this generator is for.");
+    py::class_<mx::SlangShaderGenerator, mx::HwShaderGenerator, mx::SlangShaderGeneratorPtr>(mod, "SlangShaderGenerator")
+        .def_static("create", &SlangShaderGenerator_create)
+        .def("generate", &mx::SlangShaderGenerator::generate)
+        .def("getTarget", &mx::SlangShaderGenerator::getTarget)
+        .def("getVersion", &mx::SlangShaderGenerator::getVersion);
 }

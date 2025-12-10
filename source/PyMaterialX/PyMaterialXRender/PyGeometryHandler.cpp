@@ -33,21 +33,21 @@ class PyGeometryLoader : public mx::GeometryLoader
 
 void bindPyGeometryHandler(py::module& mod)
 {
-    py::class_<mx::GeometryLoader, PyGeometryLoader, mx::GeometryLoaderPtr>(mod, "GeometryLoader", "Base class representing a geometry loader.\n\nA loader can be associated with one or more file extensions.")
+    py::class_<mx::GeometryLoader, PyGeometryLoader, mx::GeometryLoaderPtr>(mod, "GeometryLoader")
         .def(py::init<>())
-        .def("supportedExtensions", &mx::GeometryLoader::supportedExtensions, "Returns a list of supported extensions.\n\nReturns:\n    List of support extensions")
-        .def("load", &mx::GeometryLoader::load, "Load geometry from disk.\n\nArgs:\n    filePath: Path to file to load\n    meshList: List of meshes to update\n    texcoordVerticalFlip: Flip texture coordinates in V when loading\n\nReturns:\n    True if load was successful");
+        .def("supportedExtensions", &mx::GeometryLoader::supportedExtensions)
+        .def("load", &mx::GeometryLoader::load);
 
-    py::class_<mx::GeometryHandler, mx::GeometryHandlerPtr>(mod, "GeometryHandler", "Class which holds a set of geometry loaders.\n\nEach loader is associated with a given set of file extensions.")
+    py::class_<mx::GeometryHandler, mx::GeometryHandlerPtr>(mod, "GeometryHandler")
         .def(py::init<>())
-        .def_static("create", &mx::GeometryHandler::create, "Create a new geometry handler.")
-        .def("addLoader", &mx::GeometryHandler::addLoader, "Add a geometry loader.\n\nArgs:\n    loader: Loader to add to list of available loaders.")
-        .def("clearGeometry", &mx::GeometryHandler::clearGeometry, "Clear all loaded geometry.")
-        .def("hasGeometry", &mx::GeometryHandler::hasGeometry, "")
-        .def("getGeometry", &mx::GeometryHandler::getGeometry, "")
-        .def("loadGeometry", &mx::GeometryHandler::loadGeometry, "Load geometry from a given location.\n\nArgs:\n    filePath: Path to geometry\n    texcoordVerticalFlip: Flip texture coordinates in V. Default is to not flip.")
-        .def("getMeshes", &mx::GeometryHandler::getMeshes, "Get list of meshes.")
-        .def("findParentMesh", &mx::GeometryHandler::findParentMesh, "Return the first mesh in our list containing the given partition.\n\nIf no matching mesh is found, then nullptr is returned.")
-        .def("getMinimumBounds", &mx::GeometryHandler::getMinimumBounds, "Return the minimum bounds for all meshes.")
-        .def("getMaximumBounds", &mx::GeometryHandler::getMaximumBounds, "Return the minimum bounds for all meshes.");
+        .def_static("create", &mx::GeometryHandler::create)
+        .def("addLoader", &mx::GeometryHandler::addLoader)
+        .def("clearGeometry", &mx::GeometryHandler::clearGeometry)
+        .def("hasGeometry", &mx::GeometryHandler::hasGeometry)
+        .def("getGeometry", &mx::GeometryHandler::getGeometry)
+        .def("loadGeometry", &mx::GeometryHandler::loadGeometry)
+        .def("getMeshes", &mx::GeometryHandler::getMeshes)
+        .def("findParentMesh", &mx::GeometryHandler::findParentMesh)
+        .def("getMinimumBounds", &mx::GeometryHandler::getMinimumBounds)
+        .def("getMaximumBounds", &mx::GeometryHandler::getMaximumBounds);
 }
