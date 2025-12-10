@@ -6,22 +6,17 @@ import datetime
 import argparse
 import json
 
+REDUCE_ENABLED = False
+DIFF_ENABLED = False
 try:
-    # Install pillow via pip to enable image differencing and statistics.
-    from PIL import Image, ImageChops, ImageStat
-    DIFF_ENABLED = True
-except Exception:
-    DIFF_ENABLED = False
-
-try:
-    # Install modules for image resizing and base64 encoding.
+    # Load modules for image diff, resizing and base64 encoding.
     import base64
     import cv2
     import numpy as np
     REDUCE_ENABLED = True
     DIFF_ENABLED = True
 except Exception:
-    REDUCE_ENABLED = False
+    print("- OpenCV and NumPy need to be installed for image diff and reduced image features to be supported.")
 
 def computeDiff(image1Path, image2Path, imageDiffPath, reduced=False, width=512):
     if not image1Path or not image2Path:
@@ -61,7 +56,7 @@ def computeDiff(image1Path, image2Path, imageDiffPath, reduced=False, width=512)
         else:
             cv2.imwrite(imageDiffPath, diff)
 
-        # Compute RMS per channel (same as Pillow ImageStat.Stat(diff).rms)
+        # Compute RMS per channel
         diff_float = diff.astype(np.float32)
         rms = np.sqrt(np.mean(np.square(diff_float), axis=(0, 1)))  # per channel
         return float(np.mean(rms) / 255.0), imageDiffPath  # normalized average across RGB channels
@@ -101,32 +96,6 @@ def get_reduced_image_data_img(img, width):
         return f"data:image/jpeg;base64,{b64}"
     except Exception:
         return None
-
-def computeDiff_PIL(image1Path, image2Path, imageDiffPath):
-    if not image1Path or not image2Path:
-        return 0
-    try:
-        if os.path.exists(imageDiffPath):
-            os.remove(imageDiffPath)
-
-        if not os.path.exists(image1Path):
-            print ("Image diff input missing: " + image1Path)
-            return
-
-        if not os.path.exists(image2Path):
-            print ("Image diff input missing: " + image2Path)
-            return
-
-        image1 = Image.open(image1Path).convert('RGB')
-        image2 = Image.open(image2Path).convert('RGB')
-        diff = ImageChops.difference(image1, image2)
-        diff.save(imageDiffPath)
-        diffStat = ImageStat.Stat(diff)
-        return sum(diffStat.rms) / (3.0 * 255.0)
-    except Exception:
-        if os.path.exists(imageDiffPath):
-            os.remove(imageDiffPath)
-        print ("Failed to create image diff between: " + image1Path + ", " + image2Path)
 
 def main(args=None):
 
@@ -324,14 +293,14 @@ def main(args=None):
                     return col
 
                 if diffPath1:
-                    rms = (" (RMS " + "%.5f" % diffRms1 + ")") if diffRms1 is not None else ""
-                    columns.append(make_diff_column(diffPath1, args.lang1.upper() + " vs. " + args.lang2.upper() + rms, diffRms1))
+                    rms = ("RMS: " + "%.5f" % diffRms1 ) if diffRms1 is not None else ""
+                    columns.append(make_diff_column(diffPath1, rms, diffRms1))
                 if diffPath2:
-                    rms = (" (RMS " + "%.5f" % diffRms2 + ")") if diffRms2 is not None else ""
-                    columns.append(make_diff_column(diffPath2, args.lang1.upper() + " vs. " + args.lang3.upper() + rms, diffRms2))
+                    rms = ("RMS: " + "%.5f" % diffRms2 ) if diffRms2 is not None else ""
+                    columns.append(make_diff_column(diffPath2, rms, diffRms2))
                 if diffPath3:
-                    rms = (" (RMS " + "%.5f" % diffRms3 + ")") if diffRms3 is not None else ""
-                    columns.append(make_diff_column(diffPath3, args.lang2.upper() + " vs. " + args.lang3.upper() + rms, diffRms3))
+                    rms = ("RMS: " + "%.5f" % diffRms3 ) if diffRms3 is not None else ""
+                    columns.append(make_diff_column(diffPath3, rms, diffRms3))
 
                 current_group["rows"].append({"columns": columns})
             
