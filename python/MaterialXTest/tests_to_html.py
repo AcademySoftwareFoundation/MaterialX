@@ -16,86 +16,139 @@ try:
     REDUCE_ENABLED = True
     DIFF_ENABLED = True
 except Exception:
-    print("- OpenCV and NumPy need to be installed for image diff and reduced image features to be supported.")
+    print("- OpenCV and NumPy need to be installed for image diff and base64 for reduced image features to be supported.")
 
-def computeDiff(image1Path, image2Path, imageDiffPath, reduced=False, width=512):
-    if not image1Path or not image2Path:
-        return 1.0
+class OpenCVImageUtils:
+    def __init__(self):
+        self.compute_reduced : bool = False
+        self.reduced_width : int = 512
+        self.difference_method = 'RMS'
+        self.MAX_DIFFERENCE : float = 1.0
+        self.hash_function = None
+        self._reset()
 
-    try:
-        # Remove existing diff image if present
-        if os.path.exists(imageDiffPath):
-            os.remove(imageDiffPath)
+    def _reset(self):
+        self.difference_image : str = ""
+        self.difference_value : float = self.MAX_DIFFERENCE
+        self.difference_image : str = ""
 
-        # Check input existence
-        if not os.path.exists(image1Path):
-            print("Image diff input missing: " + image1Path)
-            return 1.0, ""
-        if not os.path.exists(image2Path):
-            print("Image diff input missing: " + image2Path)
-            return 1.0, ""
+    def set_reduced(self, compute_reduced: bool, width: int):
+        self.compute_reduced = compute_reduced
+        self.reduced_width = width
+        if self.reduced_width <= 16:
+            self.reduced_width = 16
 
-        # Read images in color (BGR)
-        img1 = cv2.imread(image1Path, cv2.IMREAD_COLOR)
-        img2 = cv2.imread(image2Path, cv2.IMREAD_COLOR)
-        if img1 is None or img2 is None:
-            print("Failed to read images.")
-            return 1.0, ""
-
-        # Ensure both images have the same shape
-        if img1.shape != img2.shape:
-            print("Images have different dimensions or channels.")
-            return 1.0, ""
-
-        # Compute absolute difference
-        diff = cv2.absdiff(img1, img2)
-
-        # Save diff image (BGR, same as original OpenCV read)
-        if reduced:
-            imageDiffPath = get_reduced_image_data_img(diff, width)  # Resize diff image for smaller size
+    def set_difference_method(self, method: str):
+        self.difference_method = method
+        if method == 'COLORMOMENT':
+            self.hash_function = cv2.img_hash.ColorMomentHash_create()
+            print('- Setting hash function to: ' + method)
+            self.MAX_DIFFERENCE = 100.0
+        elif method == 'RMS':
+            self.hash_function = None
+            self.MAX_DIFFERENCE = 1.0
         else:
-            cv2.imwrite(imageDiffPath, diff)
+            self.hash_function = None
+            self.MAX_DIFFERENCE = 1.0
 
-        # Compute RMS per channel
-        diff_float = diff.astype(np.float32)
-        rms = np.sqrt(np.mean(np.square(diff_float), axis=(0, 1)))  # per channel
-        return float(np.mean(rms) / 255.0), imageDiffPath  # normalized average across RGB channels
-
-    except Exception as e:
-        if not reduced and os.path.exists(imageDiffPath):
-            os.remove(imageDiffPath)
-        print(f"Failed to create image diff between: {image1Path}, {image2Path}")
-        print(str(e))
+    def get_difference_image(self) -> str:
+        return self.difference_image
     
-    print('Returning default RMS of 1.0 due to error.')
-    return 1.0, ""
+    def get_difference_value(self) -> float:
+        return self.difference_value
 
-def get_reduced_image_data(image_path, width):
-    if not image_path or not os.path.isfile(image_path):
-        return None
-    try:
-        img = cv2.imread(image_path)
-    except Exception:
-        return None
-    return get_reduced_image_data_img(img, width)
+    def compute_difference(self, image1Path, image2Path, imagediff_path_):        
 
-def get_reduced_image_data_img(img, width):
-    if img is None:
-        return None
-    try:
-        h, w0 = img.shape[:2]
-        w = width if width and width > 0 else 512
-        aspect = h / w0
-        new_size = (w, int(w * aspect))
-        resized = cv2.resize(img, new_size, interpolation=cv2.INTER_AREA)
-        # Encode as JPEG for smaller memory size
-        ret, buf = cv2.imencode('.jpg', resized, [int(cv2.IMWRITE_JPEG_QUALITY), 80])
-        if not ret:
+        self._reset()
+
+        if not image1Path or not image2Path:
+            return False
+
+        try:
+            # Remove existing diff image if present
+            if not self.compute_reduced and os.path.exists(imagediff_path_):
+                os.remove(imagediff_path_)
+
+            # Check input existence
+            if not os.path.exists(image1Path):
+                print("Image diff input missing: " + image1Path)
+                return False
+            if not os.path.exists(image2Path):
+                print("Image diff input missing: " + image2Path)
+                return False
+            
+            # Read images
+            img1 = cv2.imread(image1Path, cv2.IMREAD_COLOR)
+            img2 = cv2.imread(image2Path, cv2.IMREAD_COLOR)
+            if img1 is None or img2 is None:
+                print("Failed to read images.")
+                return False
+
+            # Resize to same dimensions
+            if img1.shape != img2.shape:
+                img2 = cv2.resize(img2, (img1.shape[1], img1.shape[0]))        
+
+            # Compute absolute difference
+            diff = cv2.absdiff(img1, img2)
+
+            # Save diff image or compute reduced version
+            if self.compute_reduced:
+                self.difference_image = self.get_reduced_image_data_img(diff, self.reduced_width)  # Resize diff image for smaller size
+            else:
+                cv2.imwrite(imagediff_path_, diff)
+                self.difference_image = imagediff_path_
+
+            # Compute RMS per channel
+            if self.difference_method == 'RMS':
+                diff_float = diff.astype(np.float32)
+                rms = np.sqrt(np.mean(np.square(diff_float), axis=(0, 1)))  # per channel
+                self.difference_value = float(np.mean(rms) / 255.0)  # normalized average across RGB channels
+                #print(f"RMS difference between images: {self.difference_value}")
+                return True
+            elif self.difference_method == 'COLORMOMENT' and self.hash_function is not None:
+                hash1 = self.hash_function.compute(img1)
+                hash2 = self.hash_function.compute(img2)
+                self.difference_value = self.hash_function.compare(hash1, hash2)
+                #print(f"Color Moments difference between images: {self.difference_value}")
+                return True
+            else:
+                #print(f"Unsupported difference method: {self.difference_method}")
+                return False
+
+        except Exception as e:
+            if not self.compute_difference and os.path.exists(imagediff_path_):
+                os.remove(imagediff_path_)
+            print(f"Failed to create image diff between: {image1Path}, {image2Path}")
+            print(str(e))
+        
+        return False
+
+    def get_reduced_image_data(self, image_path, width):
+        if not image_path or not os.path.isfile(image_path):
             return None
-        b64 = base64.b64encode(buf.tobytes()).decode('utf-8')
-        return f"data:image/jpeg;base64,{b64}"
-    except Exception:
-        return None
+        try:
+            img = cv2.imread(image_path)
+        except Exception:
+            return None
+        return self.get_reduced_image_data_img(img, width)
+
+    def get_reduced_image_data_img(self, img, width):
+        if img is None:
+            return None
+        try:
+            h, w0 = img.shape[:2]
+            w = width if width and width > 0 else 512
+            aspect = h / w0
+            new_size = (w, int(w * aspect))
+            resized = cv2.resize(img, new_size, interpolation=cv2.INTER_AREA)
+            # Encode as JPEG for smaller memory size
+            ret, buf = cv2.imencode('.jpg', resized, [int(cv2.IMWRITE_JPEG_QUALITY), 80])
+            if not ret:
+                return None
+            b64 = base64.b64encode(buf.tobytes()).decode('utf-8')
+            return f"data:image/jpeg;base64,{b64}"
+        except Exception:
+            return None
 
 def main(args=None):
 
@@ -105,12 +158,13 @@ def main(args=None):
     parser.add_argument('-i3', '--inputdir3', dest='inputdir3', action='store', help='Third input directory', default="")
     parser.add_argument('-o', '--outputfile', dest='outputfile', action='store', help='Output file name', default="tests.html")
     parser.add_argument('-d', '--diff', dest='CREATE_DIFF', action='store_true', help='Perform image diff', default=False)
+    parser.add_argument('-dm', '--diffmethod', dest='diffmethod', choices=['RMS','COLORMOMENT'], help='Image difference method to use. Currently only RMS is supported.', default='RMS')
+    parser.add_argument('-e', '--error', dest='error', action='store', help='Filter out results with RMS less than this. Negative means all results are kept.', default=-1, type=float)
     parser.add_argument('-t', '--timestamp', dest='ENABLE_TIMESTAMPS', action='store_true', help='Write image timestamps', default=False)
     parser.add_argument('-w', '--imagewidth', type=int, dest='imagewidth', action='store', help='Set image display width. Default is 512. <= 0 means to resize dynamically', default=512)
     parser.add_argument('-l1', '--lang1', dest='lang1', action='store', help='First target language for comparison. Default is glsl', default="glsl")
     parser.add_argument('-l2', '--lang2', dest='lang2', action='store', help='Second target language for comparison. Default is osl', default="osl")
     parser.add_argument('-l3', '--lang3', dest='lang3', action='store', help='Third target language for comparison. Default is empty', default="")
-    parser.add_argument('-e', '--error', dest='error', action='store', help='Filter out results with RMS less than this. Negative means all results are kept.', default=-1, type=float)
     parser.add_argument('-f', '--format', dest='format', choices=['html', 'json', 'markdown'], help='Output format: html, json, or markdown', default='html')
     parser.add_argument('-r', '--reduced', dest='reduced', action='store_true', help='Produce reduced-size images for display', default=False)
 
@@ -132,8 +186,24 @@ def main(args=None):
 
     useThirdLang = args.lang3
 
-    if not DIFF_ENABLED and args.CREATE_DIFF:
-        print("--diff argument ignored. Diff utility not installed.")
+    image_utils = None
+    if args.CREATE_DIFF:
+        if not DIFF_ENABLED: 
+            print("--diff argument ignored. Diff utility not installed.")
+        else:
+            image_utils = OpenCVImageUtils()
+    if args.reduced:
+        if not REDUCE_ENABLED:
+            print("--reduced argument ignored. Image reduction utility not installed.")
+        else:
+            if image_utils is None:
+                image_utils = OpenCVImageUtils()
+
+    difference_method = args.diffmethod
+    if image_utils:
+        print(f"Using difference method: '{difference_method}' and reduced images: '{args.reduced}' with width: '{args.imagewidth}'")
+        image_utils.set_reduced(args.reduced, args.imagewidth)
+        image_utils.set_difference_method(difference_method)
 
     # Remove potential trailing path separators
     if args.inputdir1[-1:] == '/' or args.inputdir1[-1:] == '\\':
@@ -184,7 +254,7 @@ def main(args=None):
     # Helper to format image paths based on output format.
     # - html: use file:/// scheme for absolute paths
     # - markdown/json: use paths relative to the output file directory when possible
-    def prependFileUri(filepath: str, for_format: str) -> str:
+    def prepend_file_uri(filepath: str, for_format: str) -> str:
         if filepath is None:
             return None
         if os.path.isabs(filepath):
@@ -205,43 +275,47 @@ def main(args=None):
 
     def build_groups():
 
-
         if langFiles1:
             curPath = ""
             current_group = None
             for file1, file2, file3, path1, path2, path3 in zip(langFiles1, langFiles2, langFiles3, langPaths1, langPaths2, langPaths3):
 
-                fullPath1 = os.path.join(path1, file1) if file1 else None
-                fullPath2 = os.path.join(path2, file2) if file2 else None
-                fullPath3 = os.path.join(path3, file3) if file3 else None
-                diffPath1 = diffPath2 = diffPath3 = None
-                diffRms1 = diffRms2 = diffRms3 = None
+                full_path_1 = os.path.join(path1, file1) if file1 else None
+                full_path_2 = os.path.join(path2, file2) if file2 else None
+                full_path_3 = os.path.join(path3, file3) if file3 else None
+                diff_path_1 = diff_path_2 = diff_path_3 = None
+                diff_value_1 = diff_value_2 = diff_value_3 = None
 
-                if file1 and file2 and DIFF_ENABLED and args.CREATE_DIFF:
-                    if fullPath1 and fullPath2:
-                        base_prefix = fullPath1[:-8] if len(fullPath1) >= 8 else fullPath1
-                        diffPath1 = base_prefix + "_" + args.lang1 + "-1_vs_" + args.lang2 + "-2_diff.png"
-                        diffRms1, diffPath1 = computeDiff(fullPath1, fullPath2, diffPath1, args.reduced, args.imagewidth)
-
-                if useThirdLang and file1 and file3 and DIFF_ENABLED and args.CREATE_DIFF:
-                    if fullPath1 and fullPath3:
-                        base_prefix = fullPath1[:-8] if len(fullPath1) >= 8 else fullPath1
-                        diffPath2 = base_prefix + "_" + args.lang1 + "-1_vs_" + args.lang3 + "-3_diff.png"
-                        diffRms2, diffPath2 = computeDiff(fullPath1, fullPath3, diffPath2, args.reduced)
-                        diffPath3 = base_prefix + "_" + args.lang2 + "-2_vs_" + args.lang3 + "-3_diff.png"
-                        diffRms3, diffPath3 = computeDiff(fullPath2, fullPath3, diffPath3, args.reduced, args.imagewidth)
+                if file1 and file2 and image_utils:
+                    if full_path_1 and full_path_2:
+                        base_prefix = full_path_1[:-8] if len(full_path_1) >= 8 else full_path_1
+                        diff_path_1 = base_prefix + "_" + args.lang1 + "-1_vs_" + args.lang2 + "-2_diff.png"
+                        if (image_utils.compute_difference(full_path_1, full_path_2, diff_path_1)):
+                            diff_value_1 = image_utils.get_difference_value()
+                            diff_path_1 = image_utils.get_difference_image()
+                if useThirdLang and file1 and file3 and image_utils:
+                    if full_path_1 and full_path_3:
+                        base_prefix = full_path_1[:-8] if len(full_path_1) >= 8 else full_path_1
+                        diff_path_2 = base_prefix + "_" + args.lang1 + "-1_vs_" + args.lang3 + "-3_diff.png"
+                        if (image_utils.compute_difference(full_path_1, full_path_3, diff_path_2)):
+                            diff_value_2 = image_utils.get_difference_value()
+                            diff_path_2 = image_utils.get_difference_image()
+                        diff_path_3 = base_prefix + "_" + args.lang2 + "-2_vs_" + args.lang3 + "-3_diff.png"
+                        if (image_utils.compute_difference(full_path_2, full_path_3, diff_path_3)):
+                            diff_value_3 = image_utils.get_difference_value()
+                            diff_path_3 = image_utils.get_difference_image()
 
                 # Row filtering based on tolerance:
                 # - If error < 0: do not prune (always include rows)
-                # - If error > 0: prune rows where all computed RMS values are below the threshold
-                if args.CREATE_DIFF and DIFF_ENABLED and args.error > 0:
+                # - If error > 0: prune rows where all computed difference values are below the threshold
+                if image_utils and args.error > 0:
                     diffs_present = []
-                    if diffRms1 is not None:
-                        diffs_present.append(diffRms1)
-                    if diffRms2 is not None:
-                        diffs_present.append(diffRms2)
-                    if diffRms3 is not None:
-                        diffs_present.append(diffRms3)
+                    if diff_value_1 is not None:
+                        diffs_present.append(diff_value_1)
+                    if diff_value_2 is not None:
+                        diffs_present.append(diff_value_2)
+                    if diff_value_3 is not None:
+                        diffs_present.append(diff_value_3)
                     # If we have at least one diff value and all are below the threshold, skip this row
                     if diffs_present and all(d < args.error for d in diffs_present):
                         continue
@@ -259,48 +333,48 @@ def main(args=None):
                 columns = []
 
                 def make_column(image_path, text):
-                    col = {"image": prependFileUri(image_path, args.format), "text": text}
-                    if args.reduced and REDUCE_ENABLED:
-                        col["reduced_image"] = get_reduced_image_data(image_path, args.imagewidth)
+                    col = {"image": prepend_file_uri(image_path, args.format), "text": text}
+                    if args.reduced and image_utils:
+                        col["reduced_image"] = image_utils.get_reduced_image_data(image_path, args.imagewidth)
                     else:
                         col["reduced_image"] = None
                     return col
 
-                if fullPath1:
+                if full_path_1:
                     text1 = file1
-                    if args.ENABLE_TIMESTAMPS and os.path.isfile(fullPath1):
-                        text1 += "<br>(" + str(datetime.datetime.fromtimestamp(os.path.getmtime(fullPath1))) + ")"
-                    columns.append(make_column(fullPath1, text1))
+                    if args.ENABLE_TIMESTAMPS and os.path.isfile(full_path_1):
+                        text1 += "<br>(" + str(datetime.datetime.fromtimestamp(os.path.getmtime(full_path_1))) + ")"
+                    columns.append(make_column(full_path_1, text1))
 
-                if fullPath2:
+                if full_path_2:
                     text2 = file2
-                    if args.ENABLE_TIMESTAMPS and os.path.isfile(fullPath2):
-                        text2 += "<br>(" + str(datetime.datetime.fromtimestamp(os.path.getmtime(fullPath2))) + ")"
-                    columns.append(make_column(fullPath2, text2))
+                    if args.ENABLE_TIMESTAMPS and os.path.isfile(full_path_2):
+                        text2 += "<br>(" + str(datetime.datetime.fromtimestamp(os.path.getmtime(full_path_2))) + ")"
+                    columns.append(make_column(full_path_2, text2))
 
-                if fullPath3:
+                if full_path_3:
                     text3 = file3
-                    if args.ENABLE_TIMESTAMPS and os.path.isfile(fullPath3):
-                        text3 += "<br>(" + str(datetime.datetime.fromtimestamp(os.path.getmtime(fullPath3))) + ")"
-                    columns.append(make_column(fullPath3, text3))
+                    if args.ENABLE_TIMESTAMPS and os.path.isfile(full_path_3):
+                        text3 += "<br>(" + str(datetime.datetime.fromtimestamp(os.path.getmtime(full_path_3))) + ")"
+                    columns.append(make_column(full_path_3, text3))
 
-                def make_diff_column(diff_path, label, rms):
-                    col = {"image": prependFileUri(diff_path, args.format), "text": label}
-                    if args.reduced and REDUCE_ENABLED:
-                        col["reduced_image"] = get_reduced_image_data(diff_path, args.imagewidth)
+                def make_diff_column(diff_path, label, diff_value):
+                    col = {"image": prepend_file_uri(diff_path, args.format), "text": label}
+                    if args.reduced and image_utils:
+                        col["reduced_image"] = image_utils.get_reduced_image_data(diff_path, args.imagewidth)
                     else:
                         col["reduced_image"] = None
                     return col
 
-                if diffPath1:
-                    rms = ("RMS: " + "%.5f" % diffRms1 ) if diffRms1 is not None else ""
-                    columns.append(make_diff_column(diffPath1, rms, diffRms1))
-                if diffPath2:
-                    rms = ("RMS: " + "%.5f" % diffRms2 ) if diffRms2 is not None else ""
-                    columns.append(make_diff_column(diffPath2, rms, diffRms2))
-                if diffPath3:
-                    rms = ("RMS: " + "%.5f" % diffRms3 ) if diffRms3 is not None else ""
-                    columns.append(make_diff_column(diffPath3, rms, diffRms3))
+                if diff_path_1:
+                    label = (f"{difference_method}: " + "%.5f" % diff_value_1 ) if diff_value_1 is not None else ""
+                    columns.append(make_diff_column(diff_path_1, label, diff_value_1))
+                if diff_path_2:
+                    label = (f"{difference_method}: " + "%.5f" % diff_value_2 ) if diff_value_2 is not None else ""
+                    columns.append(make_diff_column(diff_path_2, label, diff_value_2))
+                if diff_path_3:
+                    label = (f"{difference_method}: " + "%.5f" % diff_value_3 ) if diff_value_3 is not None else ""
+                    columns.append(make_diff_column(diff_path_3, label, diff_value_3))
 
                 current_group["rows"].append({"columns": columns})
             
@@ -314,6 +388,8 @@ def main(args=None):
                 "lang2": args.lang2,
                 "lang3": args.lang3,
                 "createDiff": bool(args.CREATE_DIFF and DIFF_ENABLED),
+                "diffMethod": args.diffmethod,
+                "diffMax": args.diffmax,                
                 "timestamps": bool(args.ENABLE_TIMESTAMPS),
                 "imagewidth": args.imagewidth,
                 "tolerance": args.error,
