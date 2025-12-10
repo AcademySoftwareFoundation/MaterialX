@@ -6,7 +6,7 @@
 #ifndef MATERIALX_OIIOIMAGELOADER_H
 #define MATERIALX_OIIOIMAGELOADER_H
 
-#if MATERIALX_BUILD_OIIO
+#ifdef MATERIALX_BUILD_OIIO
 
 /// @file
 /// Image loader wrapper using OpenImageIO

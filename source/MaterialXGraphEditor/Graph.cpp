@@ -3741,7 +3741,6 @@ void Graph::showPropertyEditorOutputConnections(UiNodePtr node)
 {
     if (node->_showOutputsInEditor)
     {
-        std::vector<UiPinPtr> pinList = node->outputPins;
         size_t pinCount = 0;
         for (UiPinPtr outputPin : node->outputPins)
         {

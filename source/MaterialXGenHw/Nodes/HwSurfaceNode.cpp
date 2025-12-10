@@ -52,8 +52,6 @@ void HwSurfaceNode::emitFunctionCall(const ShaderNode& node, GenContext& context
 
     const string& vec2 = syntax.getTypeName(Type::VECTOR2);
     const string& vec3 = syntax.getTypeName(Type::VECTOR3);
-    const string vec2_zero = syntax.getValue(Type::VECTOR2, HW::VEC3_ZERO);
-    const string vec2_one = syntax.getValue(Type::VECTOR2, HW::VEC3_ONE);
     const string vec3_zero = syntax.getValue(Type::VECTOR3, HW::VEC3_ZERO);
     const string vec3_one = syntax.getValue(Type::VECTOR3, HW::VEC3_ONE);
 
