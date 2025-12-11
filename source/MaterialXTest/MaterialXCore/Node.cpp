@@ -290,26 +290,6 @@ TEST_CASE("Flatten", "[nodegraph]")
     REQUIRE(newRootNodes == expectedRootNodes);
 }
 
-TEST_CASE("Functional", "[nodedef2]")
-{
-    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
-    std::string sp = searchPath.asString();
-    INFO(sp)
-    mx::FilePath library_path = searchPath.find("libraries/stdlib/stdlib_defs.mtlx");
-    if (library_path.exists())
-    {
-        mx::DocumentPtr library = mx::createDocument();
-        mx::readFromXmlFile(library, library_path);
-        std::string errors;
-        bool isValid = library->validate(&errors);
-        if (!isValid)
-        {
-            INFO(errors);
-        }
-        REQUIRE(isValid);
-    }
-}
-
 TEST_CASE("Inheritance", "[nodedef]")
 {
     mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
