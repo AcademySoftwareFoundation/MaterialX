@@ -359,6 +359,8 @@ class MX_GENSHADER_API ShaderNode
         static const uint32_t SAMPLE3D      = 1 << 18; /// Can be sampled in 3D (position)
         static const uint32_t GEOMETRIC     = 1 << 19; /// Geometric input
         static const uint32_t DOT           = 1 << 20; /// A dot node
+        // Types based on node definition
+        static const uint32_t MIX_BSDF     = 1 << 21; /// A BSDF mix node
     };
 
     static const ShaderNodePtr NONE;
