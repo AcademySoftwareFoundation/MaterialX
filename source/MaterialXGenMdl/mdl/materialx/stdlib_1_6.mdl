@@ -991,7 +991,7 @@ export float mx_ramptb_float(
 		anno::description("Node Group: procedural2d")
 	]]
 {
-	return math::lerp(mxp_valuet, mxp_valueb, math::clamp(mxp_texcoord.y, 0.0, 1.0));
+	return math::lerp(mxp_valueb, mxp_valuet, math::clamp(mxp_texcoord.y, 0.0, 1.0));
 }
 
 export color mx_ramptb_color3(
@@ -1003,7 +1003,7 @@ export color mx_ramptb_color3(
 		anno::description("Node Group: procedural2d")
 	]]
 {
-	return math::lerp(mxp_valuet, mxp_valueb, math::clamp(mxp_texcoord.y, 0.0, 1.0));
+	return math::lerp(mxp_valueb, mxp_valuet, math::clamp(mxp_texcoord.y, 0.0, 1.0));
 }
 
 export core::color4 mx_ramptb_color4(
@@ -1015,8 +1015,8 @@ export core::color4 mx_ramptb_color4(
 		anno::description("Node Group: procedural2d")
 	]]
 {
-	color rgb = math::lerp(mxp_valuet.rgb, mxp_valueb.rgb, math::clamp(mxp_texcoord.y, 0.0, 1.0));
-	float a = math::lerp(mxp_valuet.a, mxp_valueb.a, math::clamp(mxp_texcoord.y, 0.0, 1.0));
+	color rgb = math::lerp(mxp_valueb.rgb, mxp_valuet.rgb, math::clamp(mxp_texcoord.y, 0.0, 1.0));
+	float a = math::lerp(mxp_valueb.a, mxp_valuet.a, math::clamp(mxp_texcoord.y, 0.0, 1.0));
 	return core::color4(rgb, a);}
 
 export float2 mx_ramptb_vector2(
@@ -1028,7 +1028,7 @@ export float2 mx_ramptb_vector2(
 		anno::description("Node Group: procedural2d")
 	]]
 {
-	return math::lerp(mxp_valuet, mxp_valueb, math::clamp(mxp_texcoord.y, 0.0, 1.0));
+	return math::lerp(mxp_valueb, mxp_valuet, math::clamp(mxp_texcoord.y, 0.0, 1.0));
 }
 
 export float3 mx_ramptb_vector3(
@@ -1040,7 +1040,7 @@ export float3 mx_ramptb_vector3(
 		anno::description("Node Group: procedural2d")
 	]]
 {
-	return math::lerp(mxp_valuet, mxp_valueb, math::clamp(mxp_texcoord.y, 0.0, 1.0));
+	return math::lerp(mxp_valueb, mxp_valuet, math::clamp(mxp_texcoord.y, 0.0, 1.0));
 }
 
 export float4 mx_ramptb_vector4(
@@ -1052,7 +1052,7 @@ export float4 mx_ramptb_vector4(
 		anno::description("Node Group: procedural2d")
 	]]
 {
-	return math::lerp(mxp_valuet, mxp_valueb, math::clamp(mxp_texcoord.y, 0.0, 1.0));
+	return math::lerp(mxp_valueb, mxp_valuet, math::clamp(mxp_texcoord.y, 0.0, 1.0));
 }
 
 // Nodedef: ND_ramp4_float is represented by a nodegraph: NG_ramp4_float
@@ -1215,7 +1215,7 @@ export float mx_splittb_float(
 		anno::description("Node Group: procedural2d")
 	]]
 {
-	return math::lerp(mxp_valuet, mxp_valueb, math::step(mxp_center, math::clamp(mxp_texcoord.x,0,1)));
+	return math::lerp(mxp_valueb, mxp_valuet, math::step(mxp_center, math::clamp(mxp_texcoord.x,0,1)));
 }
 
 export color mx_splittb_color3(
@@ -1237,7 +1237,7 @@ export color mx_splittb_color3(
 		anno::description("Node Group: procedural2d")
 	]]
 {
-	return math::lerp(mxp_valuet, mxp_valueb, math::step(mxp_center, math::clamp(mxp_texcoord.x,0,1)));
+	return math::lerp(mxp_valueb, mxp_valuet, math::step(mxp_center, math::clamp(mxp_texcoord.x,0,1)));
 }
 
 export core::color4 mx_splittb_color4(
@@ -1259,7 +1259,7 @@ export core::color4 mx_splittb_color4(
 		anno::description("Node Group: procedural2d")
 	]]
 {
-	color rgb = math::lerp(mxp_valuet.rgb, mxp_valueb.rgb, math::step(mxp_center, math::clamp(mxp_texcoord.x,0,1)));	float a = math::lerp(mxp_valuet.a, mxp_valueb.a, math::step(mxp_center, math::clamp(mxp_texcoord.x,0,1)));	return core::color4(rgb, a);
+	color rgb = math::lerp(mxp_valueb.rgb, mxp_valuet.rgb, math::step(mxp_center, math::clamp(mxp_texcoord.x,0,1)));	float a = math::lerp(mxp_valueb.a, mxp_valuet.a, math::step(mxp_center, math::clamp(mxp_texcoord.x,0,1)));	return core::color4(rgb, a);
 }
 
 export float2 mx_splittb_vector2(
@@ -1281,7 +1281,7 @@ export float2 mx_splittb_vector2(
 		anno::description("Node Group: procedural2d")
 	]]
 {
-	return math::lerp(mxp_valuet, mxp_valueb, math::step(mxp_center, math::clamp(mxp_texcoord.x,0,1)));
+	return math::lerp(mxp_valueb, mxp_valuet, math::step(mxp_center, math::clamp(mxp_texcoord.x,0,1)));
 }
 
 export float3 mx_splittb_vector3(
@@ -1303,7 +1303,7 @@ export float3 mx_splittb_vector3(
 		anno::description("Node Group: procedural2d")
 	]]
 {
-	return math::lerp(mxp_valuet, mxp_valueb, math::step(mxp_center, math::clamp(mxp_texcoord.x,0,1)));
+	return math::lerp(mxp_valueb, mxp_valuet, math::step(mxp_center, math::clamp(mxp_texcoord.x,0,1)));
 }
 
 export float4 mx_splittb_vector4(
@@ -1325,7 +1325,7 @@ export float4 mx_splittb_vector4(
 		anno::description("Node Group: procedural2d")
 	]]
 {
-	return math::lerp(mxp_valuet, mxp_valueb, math::step(mxp_center, math::clamp(mxp_texcoord.x,0,1)));
+	return math::lerp(mxp_valueb, mxp_valuet, math::step(mxp_center, math::clamp(mxp_texcoord.x,0,1)));
 }
 
 export float3 mx_position_vector3(
