@@ -398,7 +398,7 @@ int main(int argc, char* const argv[])
     {
         // Determine whether or not there's a valid implementation of the current `NodeDef` for the type associated
         // to our OSL shader generator, i.e. OSL, and if not, skip it.
-        mx::InterfaceElementPtr nodeImpl = nodeDef->getImplementation(oslShaderGen->getTarget());
+        mx::InterfaceElementPtr nodeImpl = nodeDef->getUnmappedImplementation(oslShaderGen->getTarget());
 
         if (!nodeImpl)
         {
