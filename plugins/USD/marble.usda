@@ -1,0 +1,23 @@
+#usda 1.0
+(
+    defaultPrim = "/World/Scene"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+def "World"
+{
+    def Xform "Scene"
+    {
+    }
+
+    def "MaterialX"
+    {
+        def "Materials" (
+            prepend references = @plugins/USD/marble.mtlx@</MaterialX>
+        )
+        {
+        }
+    }
+}
+

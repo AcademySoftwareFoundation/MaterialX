@@ -1,0 +1,312 @@
+{
+    "mimetype": "application/mtlx+json",
+    "materialx": {
+        "version": "1.39",
+        "colorspace": "lin_rec709",
+        "children": [
+            {
+                "name": "NG_marble1",
+                "category": "nodegraph",
+                "inputs": [
+                    {
+                        "name": "base_color_1",
+                        "type": "color3",
+                        "value": "0.8, 0.8, 0.8",
+                        "uiname": "Color 1",
+                        "uifolder": "Marble Color"
+                    },
+                    {
+                        "name": "base_color_2",
+                        "type": "color3",
+                        "value": "0.1, 0.1, 0.3",
+                        "uiname": "Color 2",
+                        "uifolder": "Marble Color"
+                    },
+                    {
+                        "name": "noise_scale_1",
+                        "type": "float",
+                        "value": "6.0",
+                        "uisoftmin": "1.0",
+                        "uisoftmax": "10.0",
+                        "uiname": "Scale 1",
+                        "uifolder": "Marble Noise"
+                    },
+                    {
+                        "name": "noise_scale_2",
+                        "type": "float",
+                        "value": "4.0",
+                        "uisoftmin": "1.0",
+                        "uisoftmax": "10.0",
+                        "uiname": "Scale 2",
+                        "uifolder": "Marble Noise"
+                    },
+                    {
+                        "name": "noise_power",
+                        "type": "float",
+                        "value": "3.0",
+                        "uisoftmin": "1.0",
+                        "uisoftmax": "10.0",
+                        "uiname": "Power",
+                        "uifolder": "Marble Noise"
+                    },
+                    {
+                        "name": "noise_octaves",
+                        "type": "integer",
+                        "value": "3",
+                        "uisoftmin": "1",
+                        "uisoftmax": "8",
+                        "uiname": "Octaves",
+                        "uifolder": "Marble Noise"
+                    }
+                ],
+                "children": [
+                    {
+                        "name": "obj_pos",
+                        "category": "position",
+                        "type": "vector3"
+                    },
+                    {
+                        "name": "add_xyz",
+                        "category": "dotproduct",
+                        "type": "float",
+                        "inputs": [
+                            {
+                                "name": "in1",
+                                "type": "vector3",
+                                "nodename": "obj_pos"
+                            },
+                            {
+                                "name": "in2",
+                                "type": "vector3",
+                                "value": "1, 1, 1"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "scale_xyz",
+                        "category": "multiply",
+                        "type": "float",
+                        "inputs": [
+                            {
+                                "name": "in1",
+                                "type": "float",
+                                "nodename": "add_xyz"
+                            },
+                            {
+                                "name": "in2",
+                                "type": "float",
+                                "interfacename": "noise_scale_1"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "scale_pos",
+                        "category": "multiply",
+                        "type": "vector3",
+                        "inputs": [
+                            {
+                                "name": "in1",
+                                "type": "vector3",
+                                "nodename": "obj_pos"
+                            },
+                            {
+                                "name": "in2",
+                                "type": "float",
+                                "interfacename": "noise_scale_2"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "noise",
+                        "category": "fractal3d",
+                        "type": "float",
+                        "inputs": [
+                            {
+                                "name": "octaves",
+                                "type": "integer",
+                                "interfacename": "noise_octaves"
+                            },
+                            {
+                                "name": "position",
+                                "type": "vector3",
+                                "nodename": "scale_pos"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "scale_noise",
+                        "category": "multiply",
+                        "type": "float",
+                        "inputs": [
+                            {
+                                "name": "in1",
+                                "type": "float",
+                                "nodename": "noise"
+                            },
+                            {
+                                "name": "in2",
+                                "type": "float",
+                                "value": "3.0"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "sum",
+                        "category": "add",
+                        "type": "float",
+                        "inputs": [
+                            {
+                                "name": "in1",
+                                "type": "float",
+                                "nodename": "scale_xyz"
+                            },
+                            {
+                                "name": "in2",
+                                "type": "float",
+                                "nodename": "scale_noise"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "sin",
+                        "category": "sin",
+                        "type": "float",
+                        "inputs": [
+                            {
+                                "name": "in",
+                                "type": "float",
+                                "nodename": "sum"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "scale",
+                        "category": "multiply",
+                        "type": "float",
+                        "inputs": [
+                            {
+                                "name": "in1",
+                                "type": "float",
+                                "nodename": "sin"
+                            },
+                            {
+                                "name": "in2",
+                                "type": "float",
+                                "value": "0.5"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "bias",
+                        "category": "add",
+                        "type": "float",
+                        "inputs": [
+                            {
+                                "name": "in1",
+                                "type": "float",
+                                "nodename": "scale"
+                            },
+                            {
+                                "name": "in2",
+                                "type": "float",
+                                "value": "0.5"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "power",
+                        "category": "power",
+                        "type": "float",
+                        "inputs": [
+                            {
+                                "name": "in1",
+                                "type": "float",
+                                "nodename": "bias"
+                            },
+                            {
+                                "name": "in2",
+                                "type": "float",
+                                "interfacename": "noise_power"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "color_mix",
+                        "category": "mix",
+                        "type": "color3",
+                        "inputs": [
+                            {
+                                "name": "bg",
+                                "type": "color3",
+                                "interfacename": "base_color_1"
+                            },
+                            {
+                                "name": "fg",
+                                "type": "color3",
+                                "interfacename": "base_color_2"
+                            },
+                            {
+                                "name": "mix",
+                                "type": "float",
+                                "nodename": "power"
+                            }
+                        ]
+                    }
+                ],
+                "outputs": [
+                    {
+                        "name": "out",
+                        "type": "color3",
+                        "nodename": "color_mix"
+                    }
+                ]
+            },
+            {
+                "name": "SR_marble1",
+                "category": "standard_surface",
+                "type": "surfaceshader",
+                "inputs": [
+                    {
+                        "name": "base",
+                        "type": "float",
+                        "value": "1"
+                    },
+                    {
+                        "name": "base_color",
+                        "type": "color3",
+                        "nodegraph": "NG_marble1",
+                        "output": "out"
+                    },
+                    {
+                        "name": "specular_roughness",
+                        "type": "float",
+                        "value": "0.1"
+                    },
+                    {
+                        "name": "subsurface",
+                        "type": "float",
+                        "value": "0.4"
+                    },
+                    {
+                        "name": "subsurface_color",
+                        "type": "color3",
+                        "nodegraph": "NG_marble1",
+                        "output": "out"
+                    }
+                ]
+            },
+            {
+                "name": "Marble_3D",
+                "category": "surfacematerial",
+                "type": "material",
+                "inputs": [
+                    {
+                        "name": "surfaceshader",
+                        "type": "surfaceshader",
+                        "nodename": "SR_marble1"
+                    }
+                ]
+            }
+        ]
+    }
+}

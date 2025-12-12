@@ -17,6 +17,11 @@ endif()
 file(GLOB materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 file(GLOB materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
 
+# Remove PluginIntegration.cpp if Python support is not enabled
+if(NOT MATERIALX_BUILD_PYTHON)
+    list(REMOVE_ITEM materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/PluginIntegration.cpp")
+endif()
+
 if (APPLE)
     list(APPEND materialx_source ${CMAKE_CURRENT_SOURCE_DIR}/FileDialog_Darwin.mm)
 endif ()
@@ -67,6 +72,19 @@ if(MSVC)
     SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /ENTRY:mainCRTStartup")
 endif()
 
+# Setup pybind11 for PluginIntegration.cpp
+if(MATERIALX_BUILD_PYTHON)
+    # Follow pybind11 embedding documentation approach
+    find_package(pybind11 QUIET)
+    
+    # If not found, add pybind11 as subdirectory
+    if(NOT pybind11_FOUND)
+        # Use the same path as PyMaterialX
+        set(MATERIALX_PYTHON_PYBIND11_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../PyMaterialX/External/PyBind11")
+        add_subdirectory(${MATERIALX_PYTHON_PYBIND11_DIR} ${CMAKE_CURRENT_BINARY_DIR}/pybind11)
+    endif()
+endif()
+
 add_executable(MaterialXGraphEditor
     ${materialx_source}
     ${materialx_headers}
@@ -78,6 +96,7 @@ add_executable(MaterialXGraphEditor
 set(MATERIALX_LIBRARIES
     MaterialXFormat
     MaterialXGenGlsl
+    MaterialXRender
     MaterialXRenderGlsl)
 
 if(APPLE)
@@ -90,6 +109,14 @@ target_link_libraries(
     PRIVATE
     ${MATERIALX_LIBRARIES}
  	glfw_minimal)
+
+# Link pybind11 if building with Python support
+if(MATERIALX_BUILD_PYTHON)
+    # Follow pybind11 documentation: just link pybind11::embed
+    target_link_libraries(MaterialXGraphEditor PRIVATE pybind11::embed)
+    # Define that Python support is enabled
+    target_compile_definitions(MaterialXGraphEditor PRIVATE MATERIALX_BUILD_PYTHON=1)
+endif()
 
 install(TARGETS MaterialXGraphEditor
     EXPORT MaterialX

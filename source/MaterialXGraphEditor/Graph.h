@@ -9,6 +9,7 @@
 #include <MaterialXGraphEditor/FileDialog.h>
 #include <MaterialXGraphEditor/RenderView.h>
 #include <MaterialXGraphEditor/UiNode.h>
+#include <MaterialXRender/PluginManager.h>
 
 #include <imgui_node_editor.h>
 
@@ -66,10 +67,12 @@ class Graph
           const mx::FileSearchPath& searchPath,
           const mx::FilePathVec& libraryFolders,
           int viewWidth,
-          int viewHeight);
+          int viewHeight,
+          mx::PluginManagerPtr pluginManager);
     ~Graph() = default;
 
     mx::DocumentPtr loadDocument(const mx::FilePath& filename);
+    mx::DocumentPtr loadDocumentFromPlugin(const std::string& pluginName, const mx::FilePath& filename);
     void drawGraph(ImVec2 mousePos);
 
     RenderViewPtr getRenderer()
@@ -180,6 +183,7 @@ class Graph
     void removeEdge(int downNode, int upNode, UiPinPtr pin);
 
     void saveDocument(mx::FilePath filePath);
+    void saveDocumentToPlugin(const std::string& pluginName, mx::FilePath filePath);
 
     // Set position attributes for nodes which changed position
     void savePosition();
@@ -237,10 +241,14 @@ class Graph
 
     void clearGraph();
     void loadGraphFromFile(bool prompt);
+    void loadGraphFromPlugin(const std::string& pluginName, const mx::StringVec& extensions, bool prompt);
     void saveGraphToFile();
+    void saveGraphToPlugin(const std::string& pluginName, const mx::StringVec& extensions);
     void loadGeometry();
 
     void showHelp() const;
+
+    void addPluginMenu();
 
   private:
     mx::StringVec _geomFilter;
@@ -302,7 +310,12 @@ class Graph
     FileDialog _fileDialogImage;
     FileDialog _fileDialogGeom;
     std::string _fileDialogImageInputName;
-
+    FileDialog _filePluginDialog;
+    std::string _filePluginDialogPluginName;
+    mx::StringVec _filePluginDialogPluginExtensions;
+    FileDialog _fileDialogPluginSave;
+    mx::StringVec _filePluginSavePluginExtensions;
+    
     bool _isNodeGraph;
 
     int _graphTotalSize;
@@ -332,6 +345,9 @@ class Graph
 
     // Options
     bool _saveNodePositions;
+
+    // Plugins
+    mx::PluginManagerPtr _pluginManager = nullptr;
 };
 
 #endif
