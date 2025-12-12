@@ -100,12 +100,12 @@
   <implementation name="IM_ramplr_vector4_genosl" nodedef="ND_ramplr_vector4" target="genosl" sourcecode="mix({{valuel}}, {{valuer}}, clamp({{texcoord}}.x, 0, 1))" />
 
   <!-- <ramptb> -->
-  <implementation name="IM_ramptb_float_genosl" nodedef="ND_ramptb_float" target="genosl" sourcecode="mix({{valuet}}, {{valueb}}, clamp({{texcoord}}.y, 0, 1))" />
-  <implementation name="IM_ramptb_color3_genosl" nodedef="ND_ramptb_color3" target="genosl" sourcecode="mix({{valuet}}, {{valueb}}, clamp({{texcoord}}.y, 0, 1))" />
-  <implementation name="IM_ramptb_color4_genosl" nodedef="ND_ramptb_color4" target="genosl" sourcecode="mix({{valuet}}, {{valueb}}, clamp({{texcoord}}.y, 0, 1))" />
-  <implementation name="IM_ramptb_vector2_genosl" nodedef="ND_ramptb_vector2" target="genosl" sourcecode="mix({{valuet}}, {{valueb}}, clamp({{texcoord}}.y, 0, 1))" />
-  <implementation name="IM_ramptb_vector3_genosl" nodedef="ND_ramptb_vector3" target="genosl" sourcecode="mix({{valuet}}, {{valueb}}, clamp({{texcoord}}.y, 0, 1))" />
-  <implementation name="IM_ramptb_vector4_genosl" nodedef="ND_ramptb_vector4" target="genosl" sourcecode="mix({{valuet}}, {{valueb}}, clamp({{texcoord}}.y, 0, 1))" />
+  <implementation name="IM_ramptb_float_genosl" nodedef="ND_ramptb_float" target="genosl" sourcecode="mix({{valueb}}, {{valuet}}, clamp({{texcoord}}.y, 0, 1))" />
+  <implementation name="IM_ramptb_color3_genosl" nodedef="ND_ramptb_color3" target="genosl" sourcecode="mix({{valueb}}, {{valuet}}, clamp({{texcoord}}.y, 0, 1))" />
+  <implementation name="IM_ramptb_color4_genosl" nodedef="ND_ramptb_color4" target="genosl" sourcecode="mix({{valueb}}, {{valuet}}, clamp({{texcoord}}.y, 0, 1))" />
+  <implementation name="IM_ramptb_vector2_genosl" nodedef="ND_ramptb_vector2" target="genosl" sourcecode="mix({{valueb}}, {{valuet}}, clamp({{texcoord}}.y, 0, 1))" />
+  <implementation name="IM_ramptb_vector3_genosl" nodedef="ND_ramptb_vector3" target="genosl" sourcecode="mix({{valueb}}, {{valuet}}, clamp({{texcoord}}.y, 0, 1))" />
+  <implementation name="IM_ramptb_vector4_genosl" nodedef="ND_ramptb_vector4" target="genosl" sourcecode="mix({{valueb}}, {{valuet}}, clamp({{texcoord}}.y, 0, 1))" />
 
   <!-- <splitlr> -->
   <implementation name="IM_splitlr_float_genosl" nodedef="ND_splitlr_float" target="genosl" sourcecode="mix({{valuel}}, {{valuer}}, aastep({{center}}, {{texcoord}}.x))" />
@@ -116,12 +116,12 @@
   <implementation name="IM_splitlr_vector4_genosl" nodedef="ND_splitlr_vector4" target="genosl" sourcecode="mix({{valuel}}, {{valuer}}, aastep({{center}}, {{texcoord}}.x))" />
 
   <!-- <splittb> -->
-  <implementation name="IM_splittb_float_genosl" nodedef="ND_splittb_float" target="genosl" sourcecode="mix({{valuet}}, {{valueb}}, aastep({{center}}, {{texcoord}}.y))" />
-  <implementation name="IM_splittb_color3_genosl" nodedef="ND_splittb_color3" target="genosl" sourcecode="mix({{valuet}}, {{valueb}}, aastep({{center}}, {{texcoord}}.y))" />
-  <implementation name="IM_splittb_color4_genosl" nodedef="ND_splittb_color4" target="genosl" sourcecode="mix({{valuet}}, {{valueb}}, aastep({{center}}, {{texcoord}}.y))" />
-  <implementation name="IM_splittb_vector2_genosl" nodedef="ND_splittb_vector2" target="genosl" sourcecode="mix({{valuet}}, {{valueb}}, aastep({{center}}, {{texcoord}}.y))" />
-  <implementation name="IM_splittb_vector3_genosl" nodedef="ND_splittb_vector3" target="genosl" sourcecode="mix({{valuet}}, {{valueb}}, aastep({{center}}, {{texcoord}}.y))" />
-  <implementation name="IM_splittb_vector4_genosl" nodedef="ND_splittb_vector4" target="genosl" sourcecode="mix({{valuet}}, {{valueb}}, aastep({{center}}, {{texcoord}}.y))" />
+  <implementation name="IM_splittb_float_genosl" nodedef="ND_splittb_float" target="genosl" sourcecode="mix({{valueb}}, {{valuet}}, aastep({{center}}, {{texcoord}}.y))" />
+  <implementation name="IM_splittb_color3_genosl" nodedef="ND_splittb_color3" target="genosl" sourcecode="mix({{valueb}}, {{valuet}}, aastep({{center}}, {{texcoord}}.y))" />
+  <implementation name="IM_splittb_color4_genosl" nodedef="ND_splittb_color4" target="genosl" sourcecode="mix({{valueb}}, {{valuet}}, aastep({{center}}, {{texcoord}}.y))" />
+  <implementation name="IM_splittb_vector2_genosl" nodedef="ND_splittb_vector2" target="genosl" sourcecode="mix({{valueb}}, {{valuet}}, aastep({{center}}, {{texcoord}}.y))" />
+  <implementation name="IM_splittb_vector3_genosl" nodedef="ND_splittb_vector3" target="genosl" sourcecode="mix({{valueb}}, {{valuet}}, aastep({{center}}, {{texcoord}}.y))" />
+  <implementation name="IM_splittb_vector4_genosl" nodedef="ND_splittb_vector4" target="genosl" sourcecode="mix({{valueb}}, {{valuet}}, aastep({{center}}, {{texcoord}}.y))" />
 
   <!-- <noise2d> -->
   <implementation name="IM_noise2d_float_genosl" nodedef="ND_noise2d_float" file="mx_noise2d_float.osl" function="mx_noise2d_float" target="genosl" />
