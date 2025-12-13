@@ -548,8 +548,14 @@ class MX_CORE_API Document : public GraphElement
 
     /// Return a vector of all node implementations that match the given
     /// NodeDef string.  Note that a node implementation may be either an
-    /// Implementation element or NodeGraph element.
+    /// Implementation element or NodeGraph element. Resolving any inheritance
+    /// chain present in the implementations.
     vector<InterfaceElementPtr> getMatchingImplementations(const string& nodeDef) const;
+
+    /// Return a vector of all node implementations that match the given
+    /// NodeDef string.  Note that a node implementation may be either an
+    /// Implementation element or NodeGraph element.
+    vector<InterfaceElementPtr> getMatchingUnmappedImplementations(const string& nodeDef) const;
 
     /// @}
     /// @name UnitDef Elements
