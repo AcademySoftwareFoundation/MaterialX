@@ -323,20 +323,6 @@ ShaderNodeImplPtr ShaderGenerator::getImplementation(const NodeDef& nodedef, Gen
         {
             impl = getColorManagementSystem()->createImplementation(name);
         }
-        else if (implementationElement->hasNodeGraph())
-        {
-            const string& nodegraphElementName = implementationElement->getNodeGraph();
-            NodeGraphPtr nodegraph = implElement->getDocument()->getNodeGraph(nodegraphElementName);
-            if (nodegraph)
-            {
-                impl = createShaderNodeImplForNodeGraph(*nodegraph);
-                implElement = nodegraph;
-            }
-            else
-            {
-                return nullptr;
-            }
-        }
         else
         {
             // Try creating a new in the factory.
