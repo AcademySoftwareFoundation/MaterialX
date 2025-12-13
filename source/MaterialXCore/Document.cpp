@@ -44,8 +44,7 @@ class Document::Cache
             // Clear the existing cache.
             portElementMap.clear();
             nodeDefMap.clear();
-            implementationDirectMap.clear();
-            implementationIndirectMap.clear();
+            implementationMap.clear();
 
             // Traverse the document to build a new cache.
             for (ElementPtr elem : doc.lock()->traverseTree())
@@ -87,28 +86,9 @@ class Document::Cache
                     InterfaceElementPtr interface = elem->asA<InterfaceElement>();
                     if (interface)
                     {
-                        if (interface->isA<NodeGraph>())
+                        if (interface->isA<Implementation>() || interface->isA<NodeGraph>())
                         {
-                            implementationDirectMap[interface->getQualifiedName(nodeDefString)].push_back(interface);
-                            implementationIndirectMap[interface->getQualifiedName(nodeDefString)].push_back(interface);
-                        }
-                        ImplementationPtr impl = interface->asA<Implementation>();
-                        if (impl)
-                        {
-                            implementationDirectMap[interface->getQualifiedName(nodeDefString)].push_back(interface);
-
-                            // Check for implementation which specifies a nodegraph as the implementation
-                            const string& nodeGraphString = impl->getNodeGraph();
-                            if (!nodeGraphString.empty())
-                            {
-                                NodeGraphPtr nodeGraph = impl->getDocument()->getNodeGraph(nodeGraphString);
-                                if (nodeGraph)
-                                    implementationIndirectMap[interface->getQualifiedName(nodeDefString)].push_back(nodeGraph);
-                            }
-                            else
-                            {
-                                implementationIndirectMap[interface->getQualifiedName(nodeDefString)].push_back(interface);
-                            }
+                            implementationMap[interface->getQualifiedName(nodeDefString)].push_back(interface);
                         }
                     }
                 }
@@ -124,8 +104,7 @@ class Document::Cache
     bool valid;
     std::unordered_map<string, std::vector<PortElementPtr>> portElementMap;
     std::unordered_map<string, std::vector<NodeDefPtr>> nodeDefMap;
-    std::unordered_map<string, std::vector<InterfaceElementPtr>> implementationDirectMap;
-    std::unordered_map<string, std::vector<InterfaceElementPtr>> implementationIndirectMap;
+    std::unordered_map<string, std::vector<InterfaceElementPtr>> implementationMap;
 };
 
 //
@@ -390,28 +369,9 @@ vector<InterfaceElementPtr> Document::getMatchingImplementations(const string& n
     _cache->refresh();
 
     // Return all implementations matching the given nodedef string.
-    if (_cache->implementationIndirectMap.count(nodeDef))
+    if (_cache->implementationMap.count(nodeDef))
     {
-        matchingImplementations.insert(matchingImplementations.end(), _cache->implementationIndirectMap.at(nodeDef).begin(), _cache->implementationIndirectMap.at(nodeDef).end());
-    }
-
-    return matchingImplementations;
-}
-
-vector<InterfaceElementPtr> Document::getMatchingUnmappedImplementations(const string& nodeDef) const
-{
-    // Recurse to data library if present.
-    vector<InterfaceElementPtr> matchingImplementations = hasDataLibrary() ?
-                                                          getDataLibrary()->getMatchingUnmappedImplementations(nodeDef) :
-                                                          vector<InterfaceElementPtr>();
-
-    // Refresh the cache.
-    _cache->refresh();
-
-    // Return all implementations matching the given nodedef string.
-    if (_cache->implementationDirectMap.count(nodeDef))
-    {
-        matchingImplementations.insert(matchingImplementations.end(), _cache->implementationDirectMap.at(nodeDef).begin(), _cache->implementationDirectMap.at(nodeDef).end());
+        matchingImplementations.insert(matchingImplementations.end(), _cache->implementationMap.at(nodeDef).begin(), _cache->implementationMap.at(nodeDef).end());
     }
 
     return matchingImplementations;
