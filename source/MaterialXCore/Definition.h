@@ -184,6 +184,26 @@ class MX_CORE_API NodeDef : public InterfaceElement
     ///    by the given target name.
     ConstInterfaceElementPtr getDeclaration(const string& target = EMPTY_STRING) const override;
 
+    /// Get definitions that this definition inherits from. 
+    StringVec getMatchingDefinitions() const;    
+
+    /// Check to see if an implementation is reused across more than one definition
+    /// @param target Target name. If empty will use the first matching implementation.
+    bool hasSharedImplementation(const string& target = EMPTY_STRING) const;
+    
+    /// For the given target, this method locates associated implementation,
+    /// creates an copy of each implementation as a child of this definition, 
+    /// and removes the original association between the implementation and the definition.
+    /// The original implementation element remain unchanged elsewhere in the document.
+    /// 
+    /// Currently only implementations which are functional node graphs are supported.
+    /// 
+    /// @param target Target name. If empty will use the first matching implementation.
+    /// @param requireExclusive If true and a shared implementation is encountered,
+    ///        the method will not inline that implementation.
+    /// @return The reference to the child graph, or nullptr if no implementation was found.
+    InterfaceElementPtr inlineImplementation(const string& target = EMPTY_STRING, bool requireExclusive = false);
+
     /// @}
 
   public:

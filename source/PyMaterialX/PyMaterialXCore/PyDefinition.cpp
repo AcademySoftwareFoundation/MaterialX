@@ -25,6 +25,11 @@ void bindPyDefinition(py::module& mod)
         .def("getImplementation", &mx::NodeDef::getImplementation,
             py::arg("target") = mx::EMPTY_STRING)
         .def("isVersionCompatible", &mx::NodeDef::isVersionCompatible)
+        .def("getDeclaration", &mx::NodeDef::getDeclaration,
+            py::arg("target") = mx::EMPTY_STRING)
+        .def("getMatchingDefinitions", &mx::NodeDef::getMatchingDefinitions)
+        .def("inlineImplementation", &mx::NodeDef::inlineImplementation,
+            py::arg("target") = mx::EMPTY_STRING, py::arg("requireExclusive") = false)
         .def_readonly_static("CATEGORY", &mx::NodeDef::CATEGORY)
         .def_readonly_static("NODE_ATTRIBUTE", &mx::NodeDef::NODE_ATTRIBUTE)
         .def_readonly_static("TEXTURE_NODE_GROUP", &mx::NodeDef::TEXTURE_NODE_GROUP)
