@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 '''
-Compare MaterialX node definitions between a data library MTLX document
-and a specification markdown document.
+Compare node definitions between a specification Markdown document and a
+data library MaterialX document.
 
-Report any differences between the two in their supported node sets,
-typed node signatures, and default values.
+Report any differences between the two in their supported node sets, typed
+node signatures, and default values.
 '''
 
 import argparse
@@ -188,7 +188,6 @@ class Difference:
     valueType: str = None
     specDefault: str = None
     libDefault: str = None
-
 
 def formatDifference(diff):
     '''Format a Difference for display, returning a list of lines.'''
@@ -844,11 +843,11 @@ def printDifferences(differences):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Compare MaterialX node definitions between a data library MTLX document and a specification markdown document.")
-    parser.add_argument('--mtlx', dest='mtlxFile',
-        help='Path to the data library MTLX document. Defaults to libraries/stdlib/stdlib_defs.mtlx')
+        description="Compare node definitions between a specification Markdown document and a data library MaterialX document.")
     parser.add_argument('--spec', dest='specFile',
-        help='Path to the specification markdown document. Defaults to documents/Specification/MaterialX.StandardNodes.md')
+        help='Path to the specification Markdown document. Defaults to documents/Specification/MaterialX.StandardNodes.md')
+    parser.add_argument('--mtlx', dest='mtlxFile',
+        help='Path to the data library MaterialX document. Defaults to libraries/stdlib/stdlib_defs.mtlx')
     parser.add_argument('--defaults', dest='compareDefaults', action='store_true',
         help='Compare default values for inputs using MaterialX typed value comparison')
     parser.add_argument('--listNodes', dest='listNodes', action='store_true',
@@ -858,15 +857,15 @@ def main():
     # Determine file paths
     repoRoot = Path(__file__).resolve().parent.parent.parent
 
-    mtlxPath = Path(opts.mtlxFile) if opts.mtlxFile else repoRoot / 'libraries' / 'stdlib' / 'stdlib_defs.mtlx'
     specPath = Path(opts.specFile) if opts.specFile else repoRoot / 'documents' / 'Specification' / 'MaterialX.StandardNodes.md'
+    mtlxPath = Path(opts.mtlxFile) if opts.mtlxFile else repoRoot / 'libraries' / 'stdlib' / 'stdlib_defs.mtlx'
 
     # Verify files exist
-    if not mtlxPath.exists():
-        raise FileNotFoundError(f"MTLX document not found: {mtlxPath}")
-
     if not specPath.exists():
         raise FileNotFoundError(f"Specification document not found: {specPath}")
+
+    if not mtlxPath.exists():
+        raise FileNotFoundError(f"MTLX document not found: {mtlxPath}")
 
     print(f"Comparing:")
     print(f"  Specification: {specPath}")
