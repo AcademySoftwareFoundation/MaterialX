@@ -26,11 +26,9 @@ def loadStandardLibraries():
     mx.loadLibraries(mx.getDefaultDataLibraryFolders(), mx.getDefaultDataSearchPath(), stdlib)
     return stdlib
 
-
 def getStandardTypes(stdlib):
     '''Extract the set of standard type names from library TypeDefs.'''
     return {td.getName() for td in stdlib.getTypeDefs()}
-
 
 def buildTypeGroups(stdlib):
     '''
@@ -52,7 +50,6 @@ def buildTypeGroups(stdlib):
             groups.setdefault('matrixNN', set()).add(name)
     return groups
 
-
 def buildTypeGroupVariables(typeGroups):
     '''Build type group variables (e.g., colorM from colorN) for "must differ" constraints.'''
     variables = {}
@@ -61,7 +58,6 @@ def buildTypeGroupVariables(typeGroups):
             variantName = groupName[:-1] + 'M'
             variables[variantName] = groupName
     return variables
-
 
 def parseSpecTypes(typeStr):
     '''
@@ -92,7 +88,6 @@ def parseSpecTypes(typeStr):
 
     return result, None
 
-
 def expandTypeSet(types, typeGroups, typeGroupVariables):
     '''Expand type groups to concrete types. Returns list of (concreteType, groupName) tuples.'''
     result = []
@@ -118,7 +113,6 @@ class MatchType(Enum):
     EXACT = 'exact'  # Identical inputs and outputs
     DIFFERENT_INPUTS = 'different_inputs'  # Same outputs but different inputs
 
-
 class DiffType(Enum):
     '''Categories of differences between spec and library, with display labels.'''
 
@@ -136,7 +130,6 @@ class DiffType(Enum):
     # Default value differences
     DEFAULT_MISMATCH = 'Default Value Mismatches'
 
-
 @dataclass
 class PortInfo:
     '''Information about an input or output port from the specification.'''
@@ -144,7 +137,6 @@ class PortInfo:
     types: set = field(default_factory=set)
     typeRef: str = None  # For "Same as X" references
     default: str = None  # Spec default string (before type-specific expansion)
-
 
 @dataclass(frozen=True)
 class NodeSignature:
@@ -177,14 +169,12 @@ class NodeSignature:
         outsStr = ', '.join(f'{n}:{t}' for n, t in self._displayOutputs)
         return f'({insStr}) -> {outsStr}'
 
-
 @dataclass
 class NodeInfo:
     '''A node and its supported signatures.'''
     name: str
     signatures: set = field(default_factory=set)
     _specInputs: dict = field(default_factory=dict)  # For default value comparison
-
 
 @dataclass
 class Difference:
@@ -242,7 +232,6 @@ def buildGeompropNames(stdlib):
     '''Extract geomprop names from standard library GeomPropDefs.'''
     return {gpd.getName() for gpd in stdlib.getGeomPropDefs()}
 
-
 def getComponentCount(typeName):
     '''Get the number of components for a MaterialX type, or None if unknown.'''
     if typeName in ('float', 'integer', 'boolean'):
@@ -256,7 +245,6 @@ def getComponentCount(typeName):
     if match:
         return int(match.group(1)) * int(match.group(2))
     return None
-
 
 def expandDefaultPlaceholder(placeholder, typeName):
     '''Expand a placeholder (0, 1, 0.5) to a type-appropriate value string.'''
@@ -286,14 +274,12 @@ def expandDefaultPlaceholder(placeholder, typeName):
 
     return None
 
-
 def parseSpecDefault(value, specDefaultNotation):
     '''Parse specification default value notation into normalized form.'''
     if value is None:
         return None
     value = value.strip()
     return specDefaultNotation.get(value, value)
-
 
 def expandSpecDefaultToValue(specDefault, valueType, geompropNames):
     '''Parse a spec default to a typed MaterialX value. Returns (value, isGeomprop).'''
@@ -314,7 +300,6 @@ def expandSpecDefaultToValue(specDefault, valueType, geompropNames):
         return mx.createValueFromStrings(specDefault, valueType), False
     except Exception:
         return None, False
-
 
 def formatDefaultValue(value, valueType, geompropNames):
     '''Format a default value for display using spec notation (__zero__, etc.).'''
@@ -424,7 +409,6 @@ def isValidTypeGroupAssignment(driverNames, combo, typeGroupVariables):
 
     return True, typeAssignment
 
-
 def expandSpecSignatures(inputs, outputs, typeGroups, typeGroupVariables):
     '''
     Expand spec port definitions into concrete NodeSignatures.
@@ -475,7 +459,6 @@ def expandSpecSignatures(inputs, outputs, typeGroups, typeGroupVariables):
 
     return signatures
 
-
 def resolveTypeAssignment(baseAssignment, allPorts):
     '''Resolve "Same as X" references to complete port type assignments.'''
     assignment = baseAssignment.copy()
@@ -498,7 +481,6 @@ def resolveTypeAssignment(baseAssignment, allPorts):
 
     return assignment
 
-
 def resolvePortTypeRefs(ports):
     '''Resolve type references between ports by copying types. Modifies ports in place.'''
     # Limit iterations to handle circular refs
@@ -513,7 +495,6 @@ def resolvePortTypeRefs(ports):
                     changed = True
         if not changed:
             break
-
 
 def parseSpecDocument(specPath, stdlib, geompropNames):
     '''Parse a specification markdown document. Returns (nodes, invalidEntries).'''
@@ -711,7 +692,6 @@ def compareSignatureDefaults(nodeName, signature, specNode, libDefaults, geompro
 
     return differences
 
-
 def findLibraryMatch(specSig, libSigs):
     '''Find a matching library signature. Returns (matchType, libSig, extraInLib, extraInSpec).'''
     specInputs = set(specSig.inputs)
@@ -741,7 +721,6 @@ def findLibraryMatch(specSig, libSigs):
             return MatchType.DIFFERENT_INPUTS, libSig, extraInLib, extraInSpec
 
     return None, None, None, None
-
 
 def compareNodes(specNodes, libNodes, libDefaults, geompropNames, compareDefaults=False):
     '''Compare nodes between spec and library. Returns list of Differences.'''
@@ -890,8 +869,8 @@ def main():
         raise FileNotFoundError(f"Specification document not found: {specPath}")
 
     print(f"Comparing:")
-    print(f"  Data Library: {mtlxPath}")
     print(f"  Specification: {specPath}")
+    print(f"  Data Library: {mtlxPath}")
 
     # Load standard libraries
     stdlib = loadStandardLibraries()
