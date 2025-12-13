@@ -57,12 +57,42 @@ const string& NodeDef::getType() const
     }
 }
 
-namespace
+InterfaceElementPtr NodeDef::getImplementation(const string& target, bool graphIndirect) const
 {
-InterfaceElementPtr selectImplementation(const vector<InterfaceElementPtr>& interfaces, const TargetDefPtr targetDef)
-{
+    vector<InterfaceElementPtr> interfaces = getDocument()->getMatchingImplementations(getQualifiedName(getName()));
+    vector<InterfaceElementPtr> secondary = getDocument()->getMatchingImplementations(getName());
+    interfaces.insert(interfaces.end(), secondary.begin(), secondary.end());
+
+    // If requested, follow indirections from implementations to node graphs.
+    if (graphIndirect)
+    {
+        for (size_t i = 0; i < interfaces.size(); ++i)
+        {
+            ImplementationPtr impl = interfaces[i]->asA<Implementation>();
+            if (impl)
+            {
+                const string& nodeGraphString = impl->getNodeGraph();
+                if (!nodeGraphString.empty())
+                {
+                    NodeGraphPtr nodeGraph = impl->getDocument()->getNodeGraph(nodeGraphString);
+                    if (nodeGraph)
+                    {
+                        interfaces[i] = nodeGraph;
+                    }
+                }
+            }
+        }
+    }
+
+    // Return the first implementation when no target is specified.
+    if (target.empty())
+    {
+        return !interfaces.empty() ? interfaces[0] : InterfaceElementPtr();
+    }
+
     // Get all candidate targets matching the given target,
     // taking inheritance into account.
+    const TargetDefPtr targetDef = getDocument()->getTargetDef(target);
     const StringVec candidateTargets = targetDef ? targetDef->getMatchingTargets() : StringVec();
 
     // First, search for a target-specific match.
@@ -90,35 +120,6 @@ InterfaceElementPtr selectImplementation(const vector<InterfaceElementPtr>& inte
     }
 
     return InterfaceElementPtr();
-}
-};
-
-InterfaceElementPtr NodeDef::getImplementation(const string& target) const
-{
-    vector<InterfaceElementPtr> interfaces = getDocument()->getMatchingImplementations(getQualifiedName(getName()));
-    vector<InterfaceElementPtr> secondary = getDocument()->getMatchingImplementations(getName());
-    interfaces.insert(interfaces.end(), secondary.begin(), secondary.end());
-
-    if (target.empty())
-    {
-        return !interfaces.empty() ? interfaces[0] : InterfaceElementPtr();
-    }
-
-    return selectImplementation(interfaces, getDocument()->getTargetDef(target));
-}
-
-InterfaceElementPtr NodeDef::getUnmappedImplementation(const string& target) const
-{
-    vector<InterfaceElementPtr> interfaces = getDocument()->getMatchingUnmappedImplementations(getQualifiedName(getName()));
-    vector<InterfaceElementPtr> secondary = getDocument()->getMatchingUnmappedImplementations(getName());
-    interfaces.insert(interfaces.end(), secondary.begin(), secondary.end());
-
-    if (target.empty())
-    {
-        return !interfaces.empty() ? interfaces[0] : InterfaceElementPtr();
-    }
-
-    return selectImplementation(interfaces, getDocument()->getTargetDef(target));
 }
 
 StringMap NodeDef::getInputHints() const
