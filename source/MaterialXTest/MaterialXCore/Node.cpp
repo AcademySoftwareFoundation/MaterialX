@@ -730,6 +730,74 @@ void testFunctionalNodeDef()
     }
 }
 
+void testInlineImplementation()
+{
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::DocumentPtr stdlib = mx::createDocument();
+    mx::loadLibraries({ "libraries" }, searchPath, stdlib);
+
+    // Test inline nodegraph implementation
+    std::string testName = "ND_tiledimage_color3";
+    mx::NodeDefPtr nodeDef = stdlib->getNodeDef(testName);
+    mx::InterfaceElementPtr prevImpl = nodeDef->getImplementation();
+    mx::InterfaceElementPtr newImpl = nodeDef->inlineImplementation(mx::EMPTY_STRING, false);
+    REQUIRE(newImpl != nullptr);
+
+    // Checks for validity of inlined implementation
+    REQUIRE(newImpl->getName() == prevImpl->getName());
+    REQUIRE(newImpl->getNodeDefString().empty());
+    REQUIRE(prevImpl->getNodeDefString().empty());
+
+    // Try to refind the inlined implementation and make sure they are equivalent
+    mx::ElementPtr findImpl = nodeDef->getImplementation();
+    REQUIRE(findImpl != prevImpl);
+    REQUIRE(newImpl->getName() == findImpl->getName());
+    mx::ElementEquivalenceOptions options;
+    std::string message;
+    bool equivalent = newImpl->isEquivalent(prevImpl, options, &message);
+    REQUIRE(equivalent == true);
+    WARN("New impl: " + newImpl->getNamePath() + " is equivalent to old impl: " + prevImpl->getNamePath() + "\n" + mx::prettyPrint(nodeDef));
+
+    // Firewall test to disallow inlining non-graph implementations
+    testName = "ND_position_vector3";
+    nodeDef = stdlib->getNodeDef(testName);
+    newImpl = nodeDef->inlineImplementation(mx::EMPTY_STRING, false);
+    REQUIRE(newImpl == nullptr);
+
+    // Convert entire inhertance chain for a definition
+    testName = "ND_UsdUVTexture";
+    nodeDef = stdlib->getNodeDef(testName);
+    mx::StringVec matchingDefs = nodeDef->getMatchingDefinitions();
+    REQUIRE(matchingDefs.size() > 1);
+    bool hasSharedImplementation = nodeDef->hasSharedImplementation();
+    REQUIRE(hasSharedImplementation == false);
+    for (const std::string& defName : matchingDefs)
+    {
+        nodeDef = stdlib->getNodeDef(defName);
+        prevImpl = nodeDef->getImplementation();
+        newImpl = nodeDef->inlineImplementation(mx::EMPTY_STRING, false);
+        REQUIRE(newImpl != nullptr);
+        equivalent = newImpl->isEquivalent(prevImpl, options, &message);
+        REQUIRE(equivalent == true);
+    }
+
+    // Test for disallowing inline shared implementations
+    testName = "ND_standard_surface_surfaceshader";
+    nodeDef = stdlib->getNodeDef(testName);
+    hasSharedImplementation = nodeDef->hasSharedImplementation();
+    REQUIRE(hasSharedImplementation == true);
+    newImpl = nodeDef->inlineImplementation(mx::EMPTY_STRING, true);
+    REQUIRE(newImpl == nullptr);
+
+    // Test flag to ignore shared implementations
+    nodeDef = stdlib->getNodeDef(testName);
+    prevImpl = nodeDef->getImplementation();
+    newImpl = nodeDef->inlineImplementation(mx::EMPTY_STRING, false);
+    REQUIRE(newImpl != nullptr);
+    equivalent = newImpl->isEquivalent(prevImpl, options, &message);
+    REQUIRE(equivalent == true);
+}
+
 void testNodeDefCreationFromGraph(mx::DefinitionOptions options)
 {
     mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
@@ -910,7 +978,12 @@ TEST_CASE("Node Definition Creation", "[nodedef_create]")
     {
         testFunctionalNodeDef();
     }
-}
+
+    SECTION("Functional Nodef Inlining test")
+    {
+        testInlineImplementation();
+    }
+}   
 
 TEST_CASE("Set Name Global", "[node, nodegraph]")
 {
