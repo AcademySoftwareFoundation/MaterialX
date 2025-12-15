@@ -134,6 +134,13 @@ class MX_RENDEROSL_API OslRenderer : public ShaderRenderer
         _envOslShaderParameterOverrides = parameterOverrides;
     }
 
+    /// Set shader parameter string to be added to the scene XML file. These
+    /// strings will set the obj path used in the scene.
+    void setObjPath(const string& objPath)
+    {
+        _objPath = objPath;
+    }
+
     /// Set the OSL shader output.
     /// This is used during render validation if "testshade" or "testrender" is executed.
     /// For testrender this value is used to replace the %shader_output% token in the
@@ -265,6 +272,7 @@ class MX_RENDEROSL_API OslRenderer : public ShaderRenderer
     string _oslShaderName;
     StringVec _oslShaderParameterOverrides;
     StringVec _envOslShaderParameterOverrides;
+    string _objPath;
     string _oslShaderOutputName;
     string _oslShaderOutputType;
     FilePath _oslUtilityOSOPath;
