@@ -34,5 +34,5 @@
       connect inputShader.%input_shader_output% outputShader.%output_shader_input%;
    </ShaderGroup>
 
-   <Sphere center="0, 0, 0" radius="1" />
+   <Model filename="%obj_path%" />
 </World>
