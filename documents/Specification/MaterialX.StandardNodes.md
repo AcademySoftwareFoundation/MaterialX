@@ -148,22 +148,22 @@ The `file` input can include one or more substitutions to change the file name t
 
 The `lumacoeffs` input represents the luma coefficients of the current working color space. If no specific color space can be determined, the ACEScg (ap1) luma coefficients [0.2722287, 0.6740818, 0.0536895] will be used. Applications which support color management systems may choose to retrieve the luma coefficients of the working colorspace from the CMS to pass to the node's implementation directly, rather than exposing it to the user.
 
-|Port                |Description                                                                                        |Type                  |Default                        |
-|--------------------|---------------------------------------------------------------------------------------------------|----------------------|-------------------------------|
-|`file`              |The URI of the image file                                                                          |filename              |__empty__                      |
-|`default`           |A default value to use if the file reference can not be resolved                                   |float, colorN, vectorN|__zero__                       |
-|`texcoord`          |The 2D texture coordinate at which the image data is read                                          |vector2               |_UV0_                          |
-|`tiling`            |The tiling rate for the given image along the U and V axes                                         |vector2               |1.0, 1.0                       |
-|`rotation`          |Per-tile rotation randomness in degrees                                                            |float                 |0.0                            |
-|`rotationrange`     |Range in degrees used to randomize rotation for each tile                                          |vector2               |0.0, 360.0                     |
-|`scale`             |Per-tile scale randomness multiplier applied to tile size                                          |float                 |1.0                            |
-|`scalerange`        |Range of scale multipliers used to randomize tile scale                                            |vector2               |0.5, 2.0                       |
-|`offset`            |Per-tile translation randomness in UV units                                                        |float                 |1.0                            |
-|`offsetrange`       |Range of offset values in UV units used to randomize tile positions                                |vector2               |0.0, 1.0                       |
-|`falloff`           |Falloff width used to blend neighboring tiles at their edges; larger values produce smoother blends|float                 |0.5                            |
-|`falloffcontrast`   |Contrast applied to the falloff blending to sharpen (values >1) or soften (values <1) transitions  |float                 |0.5                            |
-|`lumacoeffs`        |The luma coefficients of the current working color space                                           |color3                |0.2722287, 0.6740818, 0.0536895|
-|`out`               |Output: the sampled texture value                                                                  |Same as `default`     |__zero__                       |
+|Port                |Description                                                                                        |Type             |Default                        |
+|--------------------|---------------------------------------------------------------------------------------------------|-----------------|-------------------------------|
+|`file`              |The URI of the image file                                                                          |filename         |__empty__                      |
+|`default`           |A default value to use if the file reference can not be resolved                                   |colorN           |__zero__                       |
+|`texcoord`          |The 2D texture coordinate at which the image data is read                                          |vector2          |_UV0_                          |
+|`tiling`            |The tiling rate for the given image along the U and V axes                                         |vector2          |1.0, 1.0                       |
+|`rotation`          |Per-tile rotation randomness in degrees                                                            |float            |0.0                            |
+|`rotationrange`     |Range in degrees used to randomize rotation for each tile                                          |vector2          |0.0, 360.0                     |
+|`scale`             |Per-tile scale randomness multiplier applied to tile size                                          |float            |1.0                            |
+|`scalerange`        |Range of scale multipliers used to randomize tile scale                                            |vector2          |0.5, 2.0                       |
+|`offset`            |Per-tile translation randomness in UV units                                                        |float            |1.0                            |
+|`offsetrange`       |Range of offset values in UV units used to randomize tile positions                                |vector2          |0.0, 1.0                       |
+|`falloff`           |Falloff width used to blend neighboring tiles at their edges; larger values produce smoother blends|float            |0.5                            |
+|`falloffcontrast`   |Contrast applied to the falloff blending to sharpen (values >1) or soften (values <1) transitions  |float            |0.5                            |
+|`lumacoeffs`        |The luma coefficients of the current working color space                                           |color3           |0.2722287, 0.6740818, 0.0536895|
+|`out`               |Output: the sampled texture value                                                                  |Same as `default`|__zero__                       |
 
 <a id="node-triplanarprojection"> </a>
 
@@ -379,52 +379,52 @@ Standard Noise nodes:
 ### `noise2d`
 2D Perlin noise in 1, 2, 3 or 4 channels.
 
-|Port       |Description                                              |Type               |Default |
-|-----------|---------------------------------------------------------|-------------------|--------|
-|`amplitude`|The center-to-peak amplitude of the noise                |float, vectorN     |__one__ |
-|`pivot`    |The center value of the output noise                     |float              |0.0     |
-|`texcoord` |The 2D texture coordinate at which the noise is evaluated|vector2            |_UV0_   |
-|`out`      |Output: the computed noise value                         |Same as `amplitude`|__zero__|
+|Port       |Description                                              |Type                  |Default |
+|-----------|---------------------------------------------------------|----------------------|--------|
+|`amplitude`|The center-to-peak amplitude of the noise                |Same as `out` or float|__one__ |
+|`pivot`    |The center value of the output noise                     |float                 |0.0     |
+|`texcoord` |The 2D texture coordinate at which the noise is evaluated|vector2               |_UV0_   |
+|`out`      |Output: the computed noise value                         |float, vectorN        |__zero__|
 
 <a id="node-noise3d"> </a>
 
 ### `noise3d`
 3D Perlin noise in 1, 2, 3 or 4 channels.
 
-|Port       |Description                                    |Type               |Default  |
-|-----------|-----------------------------------------------|-------------------|---------|
-|`amplitude`|The center-to-peak amplitude of the noise      |float, vectorN     |__one__  |
-|`pivot`    |The center value of the output noise           |float              |0.0      |
-|`position` |The 3D position at which the noise is evaluated|vector3            |_Pobject_|
-|`out`      |Output: the computed noise value               |Same as `amplitude`|__zero__ |
+|Port       |Description                                    |Type                  |Default  |
+|-----------|-----------------------------------------------|----------------------|---------|
+|`amplitude`|The center-to-peak amplitude of the noise      |Same as `out` or float|__one__  |
+|`pivot`    |The center value of the output noise           |float                 |0.0      |
+|`position` |The 3D position at which the noise is evaluated|vector3               |_Pobject_|
+|`out`      |Output: the computed noise value               |float, vectorN        |__zero__ |
 
 <a id="node-fractal2d"> </a>
 
 ### `fractal2d`
 Zero-centered 2D Fractal noise in 1, 2, 3 or 4 channels, created by summing several octaves of 2D Perlin noise, increasing the frequency and decreasing the amplitude at each octave.
 
-|Port        |Description                                                    |Type               |Default  |
-|------------|---------------------------------------------------------------|-------------------|---------|
-|`amplitude` |The center-to-peak amplitude of the noise                      |float, vectorN     |__one__  |
-|`octaves`   |The number of octaves of noise to be summed                    |integer            |3        |
-|`lacunarity`|The exponential scale between successive octaves of noise      |float              |2.0      |
-|`diminish`  |The rate at which noise amplitude is diminished for each octave|float              |0.5      |
-|`texcoord`  |The 2D texture coordinate at which the noise is evaluated      |vector2            |_UV0_    |
-|`out`       |Output: the computed noise value                               |Same as `amplitude`|__zero__ |
+|Port        |Description                                                    |Type                  |Default  |
+|------------|---------------------------------------------------------------|----------------------|---------|
+|`amplitude` |The center-to-peak amplitude of the noise                      |Same as `out` or float|__one__  |
+|`octaves`   |The number of octaves of noise to be summed                    |integer               |3        |
+|`lacunarity`|The exponential scale between successive octaves of noise      |float                 |2.0      |
+|`diminish`  |The rate at which noise amplitude is diminished for each octave|float                 |0.5      |
+|`texcoord`  |The 2D texture coordinate at which the noise is evaluated      |vector2               |_UV0_    |
+|`out`       |Output: the computed noise value                               |float, vectorN        |__zero__ |
 
 <a id="node-fractal3d"> </a>
 
 ### `fractal3d`
 Zero-centered 3D Fractal noise in 1, 2, 3 or 4 channels, created by summing several octaves of 3D Perlin noise, increasing the frequency and decreasing the amplitude at each octave.
 
-|Port        |Description                                                    |Type               |Default  |
-|------------|---------------------------------------------------------------|-------------------|---------|
-|`amplitude` |The center-to-peak amplitude of the noise                      |float, vectorN     |__one__  |
-|`octaves`   |The number of octaves of noise to be summed                    |integer            |3        |
-|`lacunarity`|The exponential scale between successive octaves of noise      |float              |2.0      |
-|`diminish`  |The rate at which noise amplitude is diminished for each octave|float              |0.5      |
-|`position`  |The 3D position at which the noise is evaluated                |vector3            |_Pobject_|
-|`out`       |Output: the computed noise value                               |Same as `amplitude`|__zero__ |
+|Port        |Description                                                    |Type                  |Default  |
+|------------|---------------------------------------------------------------|----------------------|---------|
+|`amplitude` |The center-to-peak amplitude of the noise                      |Same as `out` or float|__one__  |
+|`octaves`   |The number of octaves of noise to be summed                    |integer               |3        |
+|`lacunarity`|The exponential scale between successive octaves of noise      |float                 |2.0      |
+|`diminish`  |The rate at which noise amplitude is diminished for each octave|float                 |0.5      |
+|`position`  |The 3D position at which the noise is evaluated                |vector3               |_Pobject_|
+|`out`       |Output: the computed noise value                               |float, vectorN        |__zero__ |
 
 <a id="node-cellnoise2d"> </a>
 
@@ -1969,7 +1969,7 @@ Output the value of the `in1` or `in2` stream depending on whether the `value1` 
 |Port    |Description                                       |Type                                     |Default |
 |--------|--------------------------------------------------|-----------------------------------------|--------|
 |`value1`|The first value to be compared                    |float, integer                           |__one__ |
-|`value2`|The second value to be compared                   |float, integer                           |__zero__|
+|`value2`|The second value to be compared                   |Same as `value1`                         |__zero__|
 |`in1`   |The value stream to output if `value1` > `value2` |float, colorN, vectorN, matrixNN, integer|__zero__|
 |`in2`   |The value stream to output if `value1` <= `value2`|Same as `in1`                            |__zero__|
 |`out`   |Output: the result of the comparison              |Same as `in1`                            |`in1`   |
@@ -1977,7 +1977,7 @@ Output the value of the `in1` or `in2` stream depending on whether the `value1` 
 |Port    |Description                                       |Type                                     |Default |
 |--------|--------------------------------------------------|-----------------------------------------|--------|
 |`value1`|the first value to be compared                    |float, integer                           |__one__ |
-|`value2`|the second value to be compared                   |float, integer                           |__zero__|
+|`value2`|the second value to be compared                   |Same as `value1`                         |__zero__|
 |`out`   |Output: true if `value1` > `value2                |boolean                                  |false   |
 
 <a id="node-ifgreatereq"> </a>
@@ -1989,7 +1989,7 @@ Output the value of the `in1` or `in2` stream depending on whether the `value1` 
 |Port    |Description                                       |Type                                     |Default |
 |--------|--------------------------------------------------|-----------------------------------------|--------|
 |`value1`|the first value to be compared                    |float, integer                           |__one__ |
-|`value2`|the second value to be compared                   |float, integer                           |__zero__|
+|`value2`|the second value to be compared                   |Same as `value1`                         |__zero__|
 |`in1`   |The value stream to output if `value1` >= `value2`|float, colorN, vectorN, matrixNN, integer|__zero__|
 |`in2`   |The value stream to output if `value1` < `value2` |Same as `in1`                            |__zero__|
 |`out`   |Output: the result of the comparison              |Same as `in1`                            |`in1`   |
@@ -1997,7 +1997,7 @@ Output the value of the `in1` or `in2` stream depending on whether the `value1` 
 |Port    |Description                                       |Type                                     |Default |
 |--------|--------------------------------------------------|-----------------------------------------|--------|
 |`value1`|the first value to be compared                    |float, integer                           |__one__ |
-|`value2`|the second value to be compared                   |float, integer                           |__zero__|
+|`value2`|the second value to be compared                   |Same as `value1`                         |__zero__|
 |`out`   |Output: true if `value1` >= `value2               |boolean                                  |false   |
 
 <a id="node-ifequal"> </a>
@@ -2009,7 +2009,7 @@ Output the value of the `in1` or `in2` stream depending on whether the `value1` 
 |Port    |Description                                       |Type                                     |Default |
 |--------|--------------------------------------------------|-----------------------------------------|--------|
 |`value1`|the first value to be compared                    |float, integer                           |__one__ |
-|`value2`|the second value to be compared                   |float, integer                           |__zero__|
+|`value2`|the second value to be compared                   |Same as `value1`                         |__zero__|
 |`in1`   |The value stream to output if `value1` = `value2` |float, colorN, vectorN, matrixNN, integer|__zero__|
 |`in2`   |The value stream to output if `value1` != `value2`|Same as `in1`                            |__zero__|
 |`out`   |Output: the result of the comparison              |Same as `in1`                            |`in1`   |
@@ -2025,7 +2025,7 @@ Output the value of the `in1` or `in2` stream depending on whether the `value1` 
 |Port    |Description                                       |Type                                     |Default |
 |--------|--------------------------------------------------|-----------------------------------------|--------|
 |`value1`|the first value to be compared                    |float, integer                           |__one__ |
-|`value2`|the second value to be compared                   |float, integer                           |__zero__|
+|`value2`|the second value to be compared                   |Same as `value1`                         |__zero__|
 |`out`   |Output: true if `value1` = `value2`               |boolean                                  |false   |
 
 |Port    |Description                        |Type   |Default|
