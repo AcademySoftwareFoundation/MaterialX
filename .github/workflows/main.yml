@@ -232,6 +232,7 @@ jobs:
       run: |
         python MaterialXTest/main.py
         python MaterialXTest/genshader.py
+        python Scripts/comparenodedefs.py
         python Scripts/creatematerial.py ../resources/Materials/Examples/StandardSurface/chess_set --texturePrefix chessboard --shadingModel standard_surface
         python Scripts/creatematerial.py ../resources/Materials/Examples/GltfPbr/boombox --shadingModel gltf_pbr
         python Scripts/mxformat.py ../resources/Materials/TestSuite/stdlib/upgrade --yes --upgrade
