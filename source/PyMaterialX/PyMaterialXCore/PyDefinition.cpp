@@ -28,6 +28,8 @@ void bindPyDefinition(py::module& mod)
         .def("getDeclaration", &mx::NodeDef::getDeclaration,
             py::arg("target") = mx::EMPTY_STRING)
         .def("getMatchingDefinitions", &mx::NodeDef::getMatchingDefinitions)
+        .def("hasSharedImplementation", &mx::NodeDef::hasSharedImplementation,
+            py::arg("target") = mx::EMPTY_STRING)
         .def("inlineImplementation", &mx::NodeDef::inlineImplementation,
             py::arg("target") = mx::EMPTY_STRING, py::arg("requireExclusive") = false)
         .def_readonly_static("CATEGORY", &mx::NodeDef::CATEGORY)
