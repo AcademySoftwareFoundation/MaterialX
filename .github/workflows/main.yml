@@ -2,11 +2,7 @@ name: main
 
 on:
   push:
-    paths-ignore:
-      - '**.md'
   pull_request:
-    paths-ignore:
-      - '**.md'
   schedule:
     # Nightly build
     - cron: '30 10 * * *'
