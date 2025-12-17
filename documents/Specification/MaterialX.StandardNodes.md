@@ -92,7 +92,7 @@ The `default` input is the default value to use if the file reference can not be
 |----------------|-----------------------------------------------------------------------------------------------------------------|----------------------|---------|---------------------------------|
 |`file`          |The URI of the image file                                                                                        |filename              |__empty__|                                 |
 |`layer`         |The name of the layer to extract from a multi-layer input file                                                   |string                |__empty__|                                 |
-|`default`       |A default value to use if the file reference can not be resolved                                                 |float, colorN, vectorN|__zero__ |                                 |
+|`default`       |A default value to use if the file reference can not be resolved                                                 |Same as `out`         |__zero__ |                                 |
 |`texcoord`      |The 2D texture coordinate at which the image data is read                                                        |vector2               |_UV0_    |                                 |
 |`uaddressmode`  |Determines how U coordinates outside the 0-1 range are processed before sampling the image                       |string                |periodic |constant, clamp, periodic, mirror|
 |`vaddressmode`  |Determines how V coordinates outside the 0-1 range are processed before sampling the image                       |string                |periodic |constant, clamp, periodic, mirror|
@@ -100,7 +100,7 @@ The `default` input is the default value to use if the file reference can not be
 |`framerange`    |A string "minframe-maxframe", e.g. "10-99", to specify the range of frames that the image file is allowed to have|string                |__empty__|                                 |
 |`frameoffset`   |A number that is added to the current frame number to get the image file frame number                            |integer               |0        |                                 |
 |`frameendaction`|What to do when the resolved image frame number is outside the `framerange` range                                |string                |constant |constant, clamp, periodic, mirror|
-|`out`           |Output: the sampled texture value                                                                                |Same as `default`     |__zero__ |                                 |
+|`out`           |Output: the sampled texture value                                                                                |float, colorN, vectorN|__zero__ |                                 |
 
 <a id="node-tiledimage"> </a>
 
@@ -112,7 +112,7 @@ The `file` input can include one or more substitutions to change the file name t
 |Port                |Description                                                                                                      |Type                  |Default  |Accepted Values                  |
 |--------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|---------|---------------------------------|
 |`file`              |The URI of the image file                                                                                        |filename              |__empty__|                                 |
-|`default`           |A default value to use if the file reference can not be resolved                                                 |float, colorN, vectorN|__zero__ |                                 |
+|`default`           |A default value to use if the file reference can not be resolved                                                 |Same as `out`         |__zero__ |                                 |
 |`texcoord`          |The 2D texture coordinate at which the image data is read                                                        |vector2               |_UV0_    |                                 |
 |`uvtiling`          |The tiling rate for the given image along the U and V axes                                                       |vector2               |1.0, 1.0 |                                 |
 |`uvoffset`          |The offset for the given image along the U and V axes                                                            |vector2               |0.0, 0.0 |                                 |
@@ -122,7 +122,7 @@ The `file` input can include one or more substitutions to change the file name t
 |`framerange`        |A string "minframe-maxframe", e.g. "10-99", to specify the range of frames that the image file is allowed to have|string                |__empty__|                                 |
 |`frameoffset`       |A number that is added to the current frame number to get the image file frame number                            |integer               |0        |                                 |
 |`frameendaction`    |What to do when the resolved image frame number is outside the `framerange` range                                |string                |constant |constant, clamp, periodic, mirror|
-|`out`               |Output: the sampled texture value                                                                                |Same as `default`     |__zero__ |                                 |
+|`out`               |Output: the sampled texture value                                                                                |float, colorN, vectorN|__zero__ |                                 |
 
 <a id="node-latlongimage"> </a>
 
@@ -151,7 +151,7 @@ The `lumacoeffs` input represents the luma coefficients of the current working c
 |Port                |Description                                                                                        |Type             |Default                        |
 |--------------------|---------------------------------------------------------------------------------------------------|-----------------|-------------------------------|
 |`file`              |The URI of the image file                                                                          |filename         |__empty__                      |
-|`default`           |A default value to use if the file reference can not be resolved                                   |colorN           |__zero__                       |
+|`default`           |A default value to use if the file reference can not be resolved                                   |Same as `out`    |__zero__                       |
 |`texcoord`          |The 2D texture coordinate at which the image data is read                                          |vector2          |_UV0_                          |
 |`tiling`            |The tiling rate for the given image along the U and V axes                                         |vector2          |1.0, 1.0                       |
 |`rotation`          |Per-tile rotation randomness in degrees                                                            |float            |0.0                            |
@@ -163,7 +163,7 @@ The `lumacoeffs` input represents the luma coefficients of the current working c
 |`falloff`           |Falloff width used to blend neighboring tiles at their edges; larger values produce smoother blends|float            |0.5                            |
 |`falloffcontrast`   |Contrast applied to the falloff blending to sharpen (values >1) or soften (values <1) transitions  |float            |0.5                            |
 |`lumacoeffs`        |The luma coefficients of the current working color space                                           |color3           |0.2722287, 0.6740818, 0.0536895|
-|`out`               |Output: the sampled texture value                                                                  |Same as `default`|__zero__                       |
+|`out`               |Output: the sampled texture value                                                                  |colorN           |__zero__                       |
 
 <a id="node-triplanarprojection"> </a>
 
@@ -178,7 +178,7 @@ Samples data from three images (or layers within multi-layer images), and projec
 |`layerx`        |The name of the layer to extract from a multi-layer input file for the X-axis projection                         |string                |__empty__|                                 |
 |`layery`        |The name of the layer to extract from a multi-layer input file for the Y-axis projection                         |string                |__empty__|                                 |
 |`layerz`        |The name of the layer to extract from a multi-layer input file for the Z-axis projection                         |string                |__empty__|                                 |
-|`default`       |A default value to use if the file reference can not be resolved                                                 |float, colorN, vectorN|__zero__ |                                 |
+|`default`       |A default value to use if the file reference can not be resolved                                                 |Same as `out`         |__zero__ |                                 |
 |`position`      |A spatially-varying input specifying the 3D position at which the projection is evaluated                        |vector3               |_Pobject_|                                 |
 |`normal`        |A spatially-varying input specifying the 3D normal vector used for blending                                      |vector3               |_Nobject_|                                 |
 |`upaxis`        |Which axis is considered to be 'up', either 0 for X, 1 for Y, or 2 for Z                                         |integer               |2        |0, 1, 2                          |
@@ -187,7 +187,7 @@ Samples data from three images (or layers within multi-layer images), and projec
 |`framerange`    |A string "minframe-maxframe", e.g. "10-99", to specify the range of frames that the image file is allowed to have|string                |__empty__|                                 |
 |`frameoffset`   |A number that is added to the current frame number to get the image file frame number                            |integer               |0        |                                 |
 |`frameendaction`|What to do when the resolved image frame number is outside the `framerange` range                                |string                |constant |constant, clamp, periodic, mirror|
-|`out`           |Output: the blended texture value                                                                                |Same as `default`     |__zero__ |                                 |
+|`out`           |Output: the blended texture value                                                                                |float, colorN, vectorN|__zero__ |                                 |
 
 
 ### Texture Node Notes
