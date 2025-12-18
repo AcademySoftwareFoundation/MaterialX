@@ -367,13 +367,13 @@ def main(args=None):
                     return col
 
                 if diff_path_1:
-                    label = (f"{difference_method}: " + "%.5f" % diff_value_1 ) if diff_value_1 is not None else ""
+                    label = (f"{args.lang1.upper()} vs. {args.lang2.upper()} ({difference_method}: " + "%.5f)" % diff_value_1 ) if diff_value_1 is not None else ""
                     columns.append(make_diff_column(diff_path_1, label, diff_value_1))
                 if diff_path_2:
-                    label = (f"{difference_method}: " + "%.5f" % diff_value_2 ) if diff_value_2 is not None else ""
+                    label = (f"{args.lang2.upper()} vs. {args.lang3.upper()} ({difference_method}: " + "%.5f)" % diff_value_2 ) if diff_value_2 is not None else ""
                     columns.append(make_diff_column(diff_path_2, label, diff_value_2))
                 if diff_path_3:
-                    label = (f"{difference_method}: " + "%.5f" % diff_value_3 ) if diff_value_3 is not None else ""
+                    label = (f"{args.lang2.upper()} vs. {args.lang3.upper()} ({difference_method}: " + "%.5f)" % diff_value_3 ) if diff_value_3 is not None else ""
                     columns.append(make_diff_column(diff_path_3, label, diff_value_3))
 
                 current_group["rows"].append({"columns": columns})
@@ -489,15 +489,15 @@ def main(args=None):
         html_parts.append("  <div style='font-size:12pt;' class='small container-fluid py-4'>\n")
 
         if useThirdLang:
-            html_parts.append("    <div class='h2 mb-4'>" + args.lang1 + " (in: " + args.inputdir1 + ") vs "+ args.lang2 + " (in: " + args.inputdir2 + ") vs "+ args.lang3 + " (in: " + args.inputdir3 + ")</div>\n")
+            html_parts.append("    <div class='h3 mb-4'>" + args.lang1 + " (in: " + args.inputdir1 + ") vs "+ args.lang2 + " (in: " + args.inputdir2 + ") vs "+ args.lang3 + " (in: " + args.inputdir3 + ")</div>\n")
         else:
-            html_parts.append("    <div class='h2 mb-4'>" + args.lang1 + " (in: " + args.inputdir1 + ") vs "+ args.lang2 + " (in: " + args.inputdir2 + ")</div>\n")
+            html_parts.append("    <div class='h3 mb-4'>" + args.lang1 + " (in: " + args.inputdir1 + ") vs "+ args.lang2 + " (in: " + args.inputdir2 + ")</div>\n")
 
         for group in groups:
             html_parts.append("    <div class='p-0 mb-0'>\n")
             html_parts.append("      <div class='text-break w-64' style='font-size:10pt; word-break:break-all;'>" + group["group"] + ":</div>\n")
             for row in group["rows"]:
-                html_parts.append("      <div class='d-flex flex-nowrap align-items-start px-2 mb-0'>\n")
+                html_parts.append("      <div class='d-flex flex-nowrap align-items-start p-0 mb-0'>\n")
                 for col in row["columns"]:
                     if args.imagewidth and args.imagewidth > 0:
                         html_parts.append("        <div class='border border-dark d-inline-block text-start me-0'>\n")
@@ -506,7 +506,7 @@ def main(args=None):
                     img_src = col.get("reduced_image") if args.reduced and col.get("reduced_image") else col.get("image")
                     if img_src:
                         html_parts.append("          <img src='" + img_src + "' class='test-image img-fluid' loading='lazy' alt='" + col.get("text", "").replace("<br>", " ") + "'/>")
-                    html_parts.append("          <div class='text-break mt-0 mb-0' style='font-size:10pt'>" + col.get("text", "") + "</div>\n")
+                    html_parts.append("          <div class='text-break mt-0 mb-0 text-center' style='font-size:10pt'>" + col.get("text", "") + "</div>\n")
                     html_parts.append("        </div>\n")
                 html_parts.append("      </div>\n")
             html_parts.append("    </div>\n")
