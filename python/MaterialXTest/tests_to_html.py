@@ -370,7 +370,7 @@ def main(args=None):
                     label = (f"{args.lang1.upper()} vs. {args.lang2.upper()} ({difference_method}: " + "%.5f)" % diff_value_1 ) if diff_value_1 is not None else ""
                     columns.append(make_diff_column(diff_path_1, label, diff_value_1))
                 if diff_path_2:
-                    label = (f"{args.lang2.upper()} vs. {args.lang3.upper()} ({difference_method}: " + "%.5f)" % diff_value_2 ) if diff_value_2 is not None else ""
+                    label = (f"{args.lang1.upper()} vs. {args.lang3.upper()} ({difference_method}: " + "%.5f)" % diff_value_2 ) if diff_value_2 is not None else ""
                     columns.append(make_diff_column(diff_path_2, label, diff_value_2))
                 if diff_path_3:
                     label = (f"{args.lang2.upper()} vs. {args.lang3.upper()} ({difference_method}: " + "%.5f)" % diff_value_3 ) if diff_value_3 is not None else ""
