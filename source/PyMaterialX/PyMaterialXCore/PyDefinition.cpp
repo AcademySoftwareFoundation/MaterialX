@@ -23,7 +23,7 @@ void bindPyDefinition(py::module& mod)
         .def("getNodeGroup", &mx::NodeDef::getNodeGroup)
         .def("getImplementation", &mx::NodeDef::getImplementation,
             py::arg("target") = mx::EMPTY_STRING,
-            py::arg("graphIndirect") = true)
+            py::arg("resolveNodeGraph") = true)
         .def("isVersionCompatible", &mx::NodeDef::isVersionCompatible)
         .def_readonly_static("CATEGORY", &mx::NodeDef::CATEGORY)
         .def_readonly_static("NODE_ATTRIBUTE", &mx::NodeDef::NODE_ATTRIBUTE)

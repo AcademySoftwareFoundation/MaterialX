@@ -57,14 +57,14 @@ const string& NodeDef::getType() const
     }
 }
 
-InterfaceElementPtr NodeDef::getImplementation(const string& target, bool graphIndirect) const
+InterfaceElementPtr NodeDef::getImplementation(const string& target, bool resolveNodeGraph) const
 {
     vector<InterfaceElementPtr> interfaces = getDocument()->getMatchingImplementations(getQualifiedName(getName()));
     vector<InterfaceElementPtr> secondary = getDocument()->getMatchingImplementations(getName());
     interfaces.insert(interfaces.end(), secondary.begin(), secondary.end());
 
     // If requested, follow indirections from implementations to node graphs.
-    if (graphIndirect)
+    if (resolveNodeGraph)
     {
         for (size_t i = 0; i < interfaces.size(); ++i)
         {
