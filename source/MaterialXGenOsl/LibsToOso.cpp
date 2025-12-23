@@ -24,7 +24,7 @@
 
 namespace mx = MaterialX;
 
-const std::string options =
+const std::string argOptions =
     " Options: \n"
     "    --outputOsoPath [DIRPATH]       TODO\n"
     "    --libraryRelativeOsoPath [DIRPATH]       TODO\n"
@@ -263,7 +263,7 @@ int main(int argc, char* const argv[])
             std::cout << " - Compiled with liboslcomp";
 #endif
             std::cout << std::endl;
-            std::cout << options << std::endl;
+            std::cout << argOptions << std::endl;
 
             return 0;
         }

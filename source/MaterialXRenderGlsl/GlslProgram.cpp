@@ -942,9 +942,9 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
                 continue;
             }
 
-            for (size_t i = 0; i < uniforms.size(); ++i)
+            for (size_t uniformIndex = 0; uniformIndex < uniforms.size(); ++uniformIndex)
             {
-                const ShaderPort* v = uniforms[i];
+                const ShaderPort* v = uniforms[uniformIndex];
 
                 const auto& variablePath = v->getPath();
                 const auto& variableUnit = v->getUnit();
@@ -957,15 +957,15 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
                 {
                     auto populateUniformInput_impl =
                         [this, variablePath, variableUnit, variableColorspace, variableSemantic, &errors, uniforms, &uniformTypeMismatchFound]
-                        (TypeDesc typedesc, const string& variableName, ConstValuePtr variableValue, auto& populateUniformInput_ref) -> void
+                        (TypeDesc typedesc_impl, const string& variableName_impl, ConstValuePtr variableValue_impl, auto& populateUniformInput_ref) -> void
                     {
-                        if (!typedesc.isStruct())
+                        if (!typedesc_impl.isStruct())
                         {
                             // Handle non-struct types
-                            int glType = mapTypeToOpenGLType(typedesc);
+                            int glType = mapTypeToOpenGLType(typedesc_impl);
 
                             // There is no way to match with an unnamed variable
-                            if (variableName.empty())
+                            if (variableName_impl.empty())
                             {
                                 return;
                             }
@@ -976,26 +976,26 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
                                 return;
                             }
 
-                            auto inputIt = _uniformList.find(variableName);
+                            auto inputIt = _uniformList.find(variableName_impl);
                             if (inputIt != _uniformList.end())
                             {
                                 Input* input = inputIt->second.get();
                                 input->path = variablePath;
                                 input->unit = variableUnit;
                                 input->colorspace = variableColorspace;
-                                input->value = variableValue;
+                                input->value = variableValue_impl;
                                 if (input->gltype == glType)
                                 {
-                                    input->typeString = typedesc.getName();
+                                    input->typeString = typedesc_impl.getName();
                                 }
                                 else
                                 {
                                     errors.push_back(
                                         "Pixel shader uniform block type mismatch [" + uniforms.getName() + "]. "
-                                        + "Name: \"" + variableName
-                                        + "\". Type: \"" + typedesc.getName()
+                                        + "Name: \"" + variableName_impl
+                                        + "\". Type: \"" + typedesc_impl.getName()
                                         + "\". Semantic: \"" + variableSemantic
-                                        + "\". Value: \"" + (variableValue ? variableValue->getValueString() : "<none>")
+                                        + "\". Value: \"" + (variableValue_impl ? variableValue_impl->getValueString() : "<none>")
                                         + "\". Unit: \"" + (!variableUnit.empty() ? variableUnit : "<none>")
                                         + "\". Colorspace: \"" + (!variableColorspace.empty() ? variableColorspace : "<none>")
                                         + "\". GLType: " + std::to_string(glType));
@@ -1005,16 +1005,16 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
                         }
                         else
                         {
-                            auto variableStructMembers = typedesc.getStructMembers();
+                            auto variableStructMembers = typedesc_impl.getStructMembers();
                             if (variableStructMembers)
                             {
                                 // If we're a struct - we need to loop over each member
-                                auto aggregateValue = std::static_pointer_cast<const AggregateValue>(variableValue);
+                                auto aggregateValue = std::static_pointer_cast<const AggregateValue>(variableValue_impl);
 
                                 for (size_t i = 0, n = variableStructMembers->size(); i < n; ++i)
                                 {
                                     const auto& structMember = (*variableStructMembers)[i];
-                                    auto memberVariableName = variableName + "." + structMember.getName();
+                                    auto memberVariableName = variableName_impl + "." + structMember.getName();
                                     auto memberVariableValue = aggregateValue->getMemberValue(i);
 
                                     populateUniformInput_ref(structMember.getType(), memberVariableName, memberVariableValue, populateUniformInput_ref);
