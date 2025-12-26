@@ -63,22 +63,18 @@ InterfaceElementPtr NodeDef::getImplementation(const string& target, bool resolv
     vector<InterfaceElementPtr> secondary = getDocument()->getMatchingImplementations(getName());
     interfaces.insert(interfaces.end(), secondary.begin(), secondary.end());
 
-    // If requested, follow indirections from implementations to node graphs.
+    // If requested, resolve Implementation elements to their linked NodeGraph elements.
     if (resolveNodeGraph)
     {
         for (size_t i = 0; i < interfaces.size(); ++i)
         {
             ImplementationPtr impl = interfaces[i]->asA<Implementation>();
-            if (impl)
+            if (impl && impl->hasNodeGraph())
             {
-                const string& nodeGraphString = impl->getNodeGraph();
-                if (!nodeGraphString.empty())
+                NodeGraphPtr nodeGraph = getDocument()->getNodeGraph(impl->getNodeGraph());
+                if (nodeGraph)
                 {
-                    NodeGraphPtr nodeGraph = impl->getDocument()->getNodeGraph(nodeGraphString);
-                    if (nodeGraph)
-                    {
-                        interfaces[i] = nodeGraph;
-                    }
+                    interfaces[i] = nodeGraph;
                 }
             }
         }
