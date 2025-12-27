@@ -41,7 +41,7 @@ void mx_hextiledimage_color3(
                        "swidth", filter_width, "twidth", filter_width,
                        "missingcolor", default_value,
                        "swrap", "periodic", "twrap", "periodic"
-#if OSL_VERSION_MAJOR >= 1 && OSL_VERSION_MINOR >= 14
+#if (OSL_VERSION_MAJOR == 1 && OSL_VERSION_MINOR >= 14) || (OSL_VERSION_MAJOR > 1)
                        , "colorspace", file.colorspace
 #endif
                        );
