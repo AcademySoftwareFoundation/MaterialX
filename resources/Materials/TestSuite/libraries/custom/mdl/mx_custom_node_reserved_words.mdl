@@ -1,0 +1,34 @@
+//
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
+//
+
+// Note, this module has to be placed in an MDL search path in order to get picked up correctly.
+// For all reserved words, please see the latest MDL Specification document.
+
+mdl 1.6;
+
+// "auto" is a reserved word in MDL.
+// if the MaterialX node definition has a parameter that conflicts with such a reserved word,
+// a prefix "mxp_" needs to be added.
+// "a" is not a reserved word and no prefix is added. This allow to integrate existing MDL modules without changes.
+export color reserved_parmeter_name_function(float a, float mxp_auto)
+{
+    return a * color(mxp_auto * 0.25, mxp_auto * 0.5, mxp_auto * 1.0);
+}
+
+// "out" and "private" are also reserved words.
+// A prefix "mxp_" needs to be added when an output name in the MaterialX node definition conflicts
+// with a reserved word in MDL.
+export struct custom_struct
+{
+    color mxp_out = color(0.0);
+    float mxp_private = 0.0;
+};
+export custom_struct reserved_output_name_function(float scale)
+{
+    custom_struct output;
+    output.mxp_out = color(0.1, scale, 0.1);
+    output.mxp_private = scale;
+    return output;
+}

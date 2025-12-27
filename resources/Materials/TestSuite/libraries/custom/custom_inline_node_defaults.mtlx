@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+
+  <!-- definition -->
+  <nodedef name="ND_custom_inline_node_defaults" node="custom_inline_node_defaults" nodegroup="custom" doc="A simple custom inline node.">
+    <output name="out" type="color3" value="0.0 1.0 0.0" />  <!-- want to see this color returned by the node if not changed -->
+  </nodedef>
+
+  <!-- implementation -->
+  <!-- Note, source code contains only a NO-OP -->
+  <implementation 
+    name="IM_custom_inline_node_defaults"
+    nodedef="ND_custom_inline_node_defaults"
+    target="genmdl"
+    sourcecode="
+      mxp_out = mxp_out;
+    "/>
+
+  <!-- instantiation -->
+  <custom_inline_node_defaults name="custom1" type="color3" />
+  <burley_diffuse_bsdf name="burley_brdf1" type="BSDF">
+    <input name="color" type="color3" nodename="custom1" />
+  </burley_diffuse_bsdf>
+  <surface name="surface1" type="surfaceshader">
+    <input name="bsdf" type="BSDF" nodename="burley_brdf1" />
+    <input name="opacity" type="float" value="1.0" />
+  </surface>
+
+  <surfacematerial name="code_constant_color" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="surface1" />
+  </surfacematerial>
+
+</materialx>
