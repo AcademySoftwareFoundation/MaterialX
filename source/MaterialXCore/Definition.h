@@ -138,13 +138,16 @@ class MX_CORE_API NodeDef : public InterfaceElement
     /// @{
 
     /// Return the first implementation for this nodedef, optionally filtered
-    /// by the given target name.
+    /// by the given target name. Resolving any indirection chain in the
+    /// implementations.
     /// @param target An optional target name, which will be used to filter
     ///    the implementations that are considered.
+    /// @param resolveNodeGraph Allow resolution of Implementation elements
+    ///     to their linked NodeGraph elements.  Defaults to true.
     /// @return An implementation for this nodedef, or an empty shared pointer
     ///    if none was found.  Note that a node implementation may be either
     ///    an Implementation element or a NodeGraph element.
-    InterfaceElementPtr getImplementation(const string& target = EMPTY_STRING) const;
+    InterfaceElementPtr getImplementation(const string& target = EMPTY_STRING, bool resolveNodeGraph = true) const;
 
     /// @}
     /// @name Hints

@@ -86,12 +86,7 @@ class Document::Cache
                     InterfaceElementPtr interface = elem->asA<InterfaceElement>();
                     if (interface)
                     {
-                        if (interface->isA<NodeGraph>())
-                        {
-                            implementationMap[interface->getQualifiedName(nodeDefString)].push_back(interface);
-                        }
-                        ImplementationPtr impl = interface->asA<Implementation>();
-                        if (impl)
+                        if (interface->isA<Implementation>() || interface->isA<NodeGraph>())
                         {
                             implementationMap[interface->getQualifiedName(nodeDefString)].push_back(interface);
                         }

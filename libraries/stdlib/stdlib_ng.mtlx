@@ -1372,8 +1372,8 @@
       <input name="mix" type="float" nodename="N_s_float" />
     </mix>
     <mix name="N_mix_float" type="float">
-      <input name="bg" type="float" nodename="N_mixtop_float" />
-      <input name="fg" type="float" nodename="N_mixbot_float" />
+      <input name="bg" type="float" nodename="N_mixbot_float" />
+      <input name="fg" type="float" nodename="N_mixtop_float" />
       <input name="mix" type="float" nodename="N_t_float" />
     </mix>
     <output name="out" type="float" nodename="N_mix_float" />
@@ -1401,8 +1401,8 @@
       <input name="mix" type="float" nodename="N_s_color3" />
     </mix>
     <mix name="N_mix_color3" type="color3">
-      <input name="bg" type="color3" nodename="N_mixtop_color3" />
-      <input name="fg" type="color3" nodename="N_mixbot_color3" />
+      <input name="bg" type="color3" nodename="N_mixbot_color3" />
+      <input name="fg" type="color3" nodename="N_mixtop_color3" />
       <input name="mix" type="float" nodename="N_t_color3" />
     </mix>
     <output name="out" type="color3" nodename="N_mix_color3" />
@@ -1430,8 +1430,8 @@
       <input name="mix" type="float" nodename="N_s_color4" />
     </mix>
     <mix name="N_mix_color4" type="color4">
-      <input name="bg" type="color4" nodename="N_mixtop_color4" />
-      <input name="fg" type="color4" nodename="N_mixbot_color4" />
+      <input name="bg" type="color4" nodename="N_mixbot_color4" />
+      <input name="fg" type="color4" nodename="N_mixtop_color4" />
       <input name="mix" type="float" nodename="N_t_color4" />
     </mix>
     <output name="out" type="color4" nodename="N_mix_color4" />
@@ -1459,8 +1459,8 @@
       <input name="mix" type="float" nodename="N_s_vector2" />
     </mix>
     <mix name="N_mix_vector2" type="vector2">
-      <input name="bg" type="vector2" nodename="N_mixtop_vector2" />
-      <input name="fg" type="vector2" nodename="N_mixbot_vector2" />
+      <input name="bg" type="vector2" nodename="N_mixbot_vector2" />
+      <input name="fg" type="vector2" nodename="N_mixtop_vector2" />
       <input name="mix" type="float" nodename="N_t_vector2" />
     </mix>
     <output name="out" type="vector2" nodename="N_mix_vector2" />
@@ -1488,8 +1488,8 @@
       <input name="mix" type="float" nodename="N_s_vector3" />
     </mix>
     <mix name="N_mix_vector3" type="vector3">
-      <input name="bg" type="vector3" nodename="N_mixtop_vector3" />
-      <input name="fg" type="vector3" nodename="N_mixbot_vector3" />
+      <input name="bg" type="vector3" nodename="N_mixbot_vector3" />
+      <input name="fg" type="vector3" nodename="N_mixtop_vector3" />
       <input name="mix" type="float" nodename="N_t_vector3" />
     </mix>
     <output name="out" type="vector3" nodename="N_mix_vector3" />
@@ -1517,8 +1517,8 @@
       <input name="mix" type="float" nodename="N_s_vector4" />
     </mix>
     <mix name="N_mix_vector4" type="vector4">
-      <input name="bg" type="vector4" nodename="N_mixtop_vector4" />
-      <input name="fg" type="vector4" nodename="N_mixbot_vector4" />
+      <input name="bg" type="vector4" nodename="N_mixbot_vector4" />
+      <input name="fg" type="vector4" nodename="N_mixtop_vector4" />
       <input name="mix" type="float" nodename="N_t_vector4" />
     </mix>
     <output name="out" type="vector4" nodename="N_mix_vector4" />
