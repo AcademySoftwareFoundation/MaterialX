@@ -18,7 +18,7 @@ void mx_image_color4(textureresource file, string layer, color4 default_value, v
                         "subimage", layer, "interp", filtertype,
                         "missingcolor", missingColor, "missingalpha", missingAlpha,
                         "swrap", uaddressmode, "twrap", vaddressmode
-#if OSL_VERSION_MAJOR >= 1 && OSL_VERSION_MINOR >= 14
+#if (OSL_VERSION_MAJOR == 1 && OSL_VERSION_MINOR >= 14) || (OSL_VERSION_MAJOR > 1)
                         , "colorspace", file.colorspace
 #endif
                         );
