@@ -324,30 +324,30 @@ VariableBlock* GlslMaterial::getPublicUniforms() const
 
 ShaderPort* GlslMaterial::findUniform(const std::string& path) const
 {
-    ShaderPort* port = nullptr;
+    ShaderPort* shaderPort = nullptr;
     VariableBlock* publicUniforms = getPublicUniforms();
     if (publicUniforms)
     {
         // Scan block based on path match predicate
-        port = publicUniforms->find([path](ShaderPort* port)
+        shaderPort = publicUniforms->find([path](ShaderPort* port)
         {
             return (port && stringEndsWith(port->getPath(), path));
         });
-        if (!port)
+        if (!shaderPort)
         {
-            port = publicUniforms->find([path](ShaderPort* port)
+            shaderPort = publicUniforms->find([path](ShaderPort* port)
             {
                 return (port && stringEndsWith(path, port->getName()));
             });
         }
 
         // Check if the uniform exists in the shader program
-        if (port && !_glProgram->getUniformsList().count(port->getVariable()))
+        if (shaderPort && !_glProgram->getUniformsList().count(shaderPort->getVariable()))
         {
-            port = nullptr;
+            shaderPort = nullptr;
         }
     }
-    return port;
+    return shaderPort;
 }
 
 void GlslMaterial::modifyUniform(const std::string& path, ConstValuePtr value, std::string valueString)
