@@ -2,11 +2,7 @@ name: main
 
 on:
   push:
-    paths-ignore:
-      - '**.md'
   pull_request:
-    paths-ignore:
-      - '**.md'
   schedule:
     # Nightly build
     - cron: '30 10 * * *'
@@ -232,6 +228,7 @@ jobs:
       run: |
         python MaterialXTest/main.py
         python MaterialXTest/genshader.py
+        python Scripts/comparenodedefs.py
         python Scripts/creatematerial.py ../resources/Materials/Examples/StandardSurface/chess_set --texturePrefix chessboard --shadingModel standard_surface
         python Scripts/creatematerial.py ../resources/Materials/Examples/GltfPbr/boombox --shadingModel gltf_pbr
         python Scripts/mxformat.py ../resources/Materials/TestSuite/stdlib/upgrade --yes --upgrade
@@ -479,7 +476,9 @@ jobs:
         CIBW_SKIP: '*musllinux*'
         CIBW_ARCHS: 'auto64'
         CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
-        CIBW_BEFORE_ALL_LINUX: yum install -y libXt-devel
+        CIBW_BEFORE_ALL_LINUX: yum install -y libXt-devel doxygen
+        CIBW_BEFORE_ALL_MACOS: brew install doxygen
+        CIBW_BEFORE_ALL_WINDOWS: choco install doxygen.install -y
         CIBW_BUILD_VERBOSITY: 1
         CIBW_ENVIRONMENT: CMAKE_BUILD_PARALLEL_LEVEL=2
         MACOSX_DEPLOYMENT_TARGET: '11.0'
