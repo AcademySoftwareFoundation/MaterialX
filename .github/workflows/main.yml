@@ -476,7 +476,9 @@ jobs:
         CIBW_SKIP: '*musllinux*'
         CIBW_ARCHS: 'auto64'
         CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
-        CIBW_BEFORE_ALL_LINUX: yum install -y libXt-devel
+        CIBW_BEFORE_ALL_LINUX: yum install -y libXt-devel doxygen
+        CIBW_BEFORE_ALL_MACOS: brew install doxygen
+        CIBW_BEFORE_ALL_WINDOWS: choco install doxygen.install -y
         CIBW_BUILD_VERBOSITY: 1
         CIBW_ENVIRONMENT: CMAKE_BUILD_PARALLEL_LEVEL=2
         MACOSX_DEPLOYMENT_TARGET: '11.0'

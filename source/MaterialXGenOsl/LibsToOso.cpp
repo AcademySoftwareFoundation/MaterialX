@@ -24,7 +24,7 @@
 
 namespace mx = MaterialX;
 
-const std::string options =
+const std::string argOptions =
     " Options: \n"
     "    --outputOsoPath [DIRPATH]       TODO\n"
     "    --libraryRelativeOsoPath [DIRPATH]       TODO\n"
@@ -263,7 +263,7 @@ int main(int argc, char* const argv[])
             std::cout << " - Compiled with liboslcomp";
 #endif
             std::cout << std::endl;
-            std::cout << options << std::endl;
+            std::cout << argOptions << std::endl;
 
             return 0;
         }
@@ -398,7 +398,7 @@ int main(int argc, char* const argv[])
     {
         // Determine whether or not there's a valid implementation of the current `NodeDef` for the type associated
         // to our OSL shader generator, i.e. OSL, and if not, skip it.
-        mx::InterfaceElementPtr nodeImpl = nodeDef->getUnmappedImplementation(oslShaderGen->getTarget());
+        mx::InterfaceElementPtr nodeImpl = nodeDef->getImplementation(oslShaderGen->getTarget(), false);
 
         if (!nodeImpl)
         {
