@@ -35,6 +35,61 @@ if(CMAKE_CXX_COMPILER_ID MATCHES Clang)
     endif()
 endif()
 
+function(mx_add_python_module MODULE_NAME)
+    set(options)
+    set(oneValueArgs SOURCE_EXTENSION)
+    set(multiValueArgs
+        LIBRARIES
+        EXCLUDE_FILES)
+    cmake_parse_arguments(args
+        "${options}"
+        "${oneValueArgs}"
+        "${multiValueArgs}"
+        ${ARGN})
+
+    # Default to .cpp source files if not specified
+    if (NOT args_SOURCE_EXTENSION)
+        set(args_SOURCE_EXTENSION "cpp")
+    endif()
+
+    # Gather source and header files
+    file(GLOB module_source "${CMAKE_CURRENT_SOURCE_DIR}/*.${args_SOURCE_EXTENSION}")
+    file(GLOB module_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
+
+    # Exclude specific files if requested
+    if (args_EXCLUDE_FILES)
+        foreach(exclude_file ${args_EXCLUDE_FILES})
+            list(REMOVE_ITEM module_source "${CMAKE_CURRENT_SOURCE_DIR}/${exclude_file}")
+        endforeach()
+    endif()
+
+    # Create the pybind11 module
+    pybind11_add_module(${MODULE_NAME} SHARED ${PYBIND11_MODULE_FLAGS} ${module_source} ${module_headers})
+
+    # Apple-specific visibility setting
+    if (APPLE)
+        set_target_properties(${MODULE_NAME} PROPERTIES CXX_VISIBILITY_PRESET "default")
+    endif()
+
+    # Set common target properties
+    set_target_properties(
+        ${MODULE_NAME} PROPERTIES
+        OUTPUT_NAME ${MODULE_NAME}
+        COMPILE_FLAGS "${EXTERNAL_COMPILE_FLAGS}"
+        LINK_FLAGS "${EXTERNAL_LINK_FLAGS}"
+        INSTALL_RPATH "${MATERIALX_UP_TWO_RPATH}"
+        DEBUG_POSTFIX "${MATERIALX_PYTHON_DEBUG_POSTFIX}")
+
+    # Link libraries
+    target_link_libraries(${MODULE_NAME}
+        PUBLIC ${args_LIBRARIES}
+        PRIVATE ${CMAKE_DL_LIBS})
+
+    # Install target
+    install(TARGETS ${MODULE_NAME}
+            DESTINATION "${MATERIALX_PYTHON_FOLDER_NAME}")
+endfunction()
+
 add_subdirectory(PyMaterialXCore)
 add_subdirectory(PyMaterialXFormat)
 if (MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL OR MATERIALX_BUILD_GEN_MDL OR MATERIALX_BUILD_GEN_MSL OR MATERIALX_BUILD_GEN_SLANG)
