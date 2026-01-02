@@ -457,12 +457,12 @@ If the `edf` input is left unconnected, no emission will occur from the medium.
 ### `light`
 Constructs a light shader describing an explicit light source. The light shader will emit light according to the connected EDF. If the shader is attached to geometry both sides will be considered for light emission and the EDF controls if light is emitted from both sides or not.
 
-|Port       |Description                                        |Type        |Default|
-|-----------|---------------------------------------------------|------------|-------|
-|`edf`      |Emission distribution function for the light source|EDF         |       |
-|`intensity`|Intensity multiplier for the EDF's emittance       |float       |1.0    |
-|`exposure` |Exposure control for the EDF's emittance           |float       |0.0    |
-|`out`      |Output: the computed light shader                  |lightshader |       |
+|Port       |Description                                        |Type        |Default |
+|-----------|---------------------------------------------------|------------|--------|
+|`edf`      |Emission distribution function for the light source|EDF         |__zero__|
+|`intensity`|Intensity multiplier for the EDF's emittance       |float       |1.0     |
+|`exposure` |Exposure control for the EDF's emittance           |float       |0.0     |
+|`out`      |Output: the computed light shader                  |lightshader |        |
 
 <a id="node-displacement"> </a>
 
