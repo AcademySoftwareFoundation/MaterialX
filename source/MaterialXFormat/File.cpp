@@ -30,7 +30,7 @@
 #include <array>
 #include <cctype>
 #include <cerrno>
-// #include <cstring>
+#include <cstring>
 #include <random>
 #include <filesystem>
 
