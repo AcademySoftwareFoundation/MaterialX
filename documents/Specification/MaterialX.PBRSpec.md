@@ -471,11 +471,11 @@ Constructs a displacement shader describing geometric modification to surfaces.
 
 The scalar signature displaces along the surface normal direction, while the vector signature allows displacement in tangent/normal space using (dPdu, dPdv, N) coordinates.
 
-|Port          |Description                              |Type            |Default  |
-|--------------|-----------------------------------------|----------------|---------|
-|`displacement`|Displacement amount or direction         |float, vector3  |__zero__ |
-|`scale`       |Scale factor for the displacement        |float           |1.0      |
-|`out`         |Output: the computed displacement shader |displacementshader|       |
+|Port          |Description                             |Type              |Default |
+|--------------|----------------------------------------|------------------|--------|
+|`displacement`|Displacement amount or direction        |float, vector3    |__zero__|
+|`scale`       |Scale factor for the displacement       |float             |1.0     |
+|`out`         |Output: the computed displacement shader|displacementshader|        |
 
 Note that the standard library includes a definition for the [**`surface_unlit`**](./MaterialX.StandardNodes.md#node-surfaceunlit) shader node.
 
