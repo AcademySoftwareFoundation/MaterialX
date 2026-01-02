@@ -2322,23 +2322,6 @@ An unlit surface shader node, representing a surface that can emit and transmit 
 |`opacity`           |Surface cutout opacity               |float        |1.0          |
 |`out`               |Output: unlit surface shader closure |surfaceshader|             |
 
-<a id="node-displacement"> </a>
-
-### `displacement`
-Constructs a displacement shader describing geometric modification to surfaces.
-
-|Port          |Description                                                 |Type              |Default|
-|--------------|------------------------------------------------------------|------------------|-------|
-|`displacement`|Scalar along the surface normal direction for each position.|float             |0.0    |
-|`scale`       |Scale factor for the displacement vector.                   |float             |1.0    |
-|`out`         |Output: displacement shader closure                         |displacementshader|       |
-
-|Port          |Description                                                                   |Type              |Default      |
-|--------------|------------------------------------------------------------------------------|------------------|-------------|
-|`displacement`|Vector displacement in (dPdu, dPdv, N) tangent/normal space for each position.|vector3           |0.0, 0.0, 0.0|
-|`scale`       |Scale factor for the displacement vector.                                     |float             |1.0          |
-|`out`         |Output: displacement shader closure                                           |displacementshader|             |
-
 <a id="node-mix-shader"> </a>
 
 ### `mix`
