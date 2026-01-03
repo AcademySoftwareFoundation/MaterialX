@@ -70,6 +70,13 @@ class MX_GENSHADER_API GenContext
         _sourceCodeSearchPath.append(path);
     }
 
+    /// Return the search path used for finding source code during
+    /// code generation
+    const FileSearchPath& getSourceCodeSearchPath() const
+    {
+        return _sourceCodeSearchPath;
+    }
+
     /// Resolve a source code filename, first checking the given local path
     /// then checking any file paths registered by the user.
     FilePath resolveSourceFile(const FilePath& filename, const FilePath& localPath) const
