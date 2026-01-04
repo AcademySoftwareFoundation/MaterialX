@@ -439,19 +439,6 @@ If the `edf` input is left unconnected, no emission will occur from the surface.
 |`thin_walled`|Set to true to make the surface thin-walled   |boolean      |false   |
 |`out`        |Output: the computed surface shader           |surfaceshader|        |
 
-<a id="node-displacement"> </a>
-
-### `displacement`
-Constructs a displacement shader describing geometric modification to surfaces.
-
-The scalar signature displaces along the surface normal direction, while the vector signature allows displacement in tangent/normal space using (dPdu, dPdv, N) coordinates.
-
-|Port          |Description                             |Type              |Default |
-|--------------|----------------------------------------|------------------|--------|
-|`displacement`|Displacement amount or direction        |float, vector3    |__zero__|
-|`scale`       |Scale factor for the displacement       |float             |1.0     |
-|`out`         |Output: the computed displacement shader|displacementshader|        |
-
 <a id="node-volume"> </a>
 
 ### `volume`
@@ -477,7 +464,7 @@ Constructs a light shader describing an explicit light source. The light shader 
 |`exposure` |Exposure control for the EDF's emittance           |float       |0.0     |
 |`out`      |Output: the computed light shader                  |lightshader |        |
 
-Note that the standard library includes a definition for the [**`surface_unlit`**](./MaterialX.StandardNodes.md#node-surfaceunlit) shader node.
+Note that the standard library includes definitions for [**`displacement`**](./MaterialX.Specification.md#node-displacement) and [**`surface_unlit`**](./MaterialX.Specification.md#node-surfaceunlit) shader nodes.
 
 
 ## Utility Nodes
