@@ -2327,17 +2327,13 @@ An unlit surface shader node, representing a surface that can emit and transmit 
 ### `displacement`
 Constructs a displacement shader describing geometric modification to surfaces.
 
-|Port          |Description                                                 |Type              |Default|
-|--------------|------------------------------------------------------------|------------------|-------|
-|`displacement`|Scalar along the surface normal direction for each position.|float             |0.0    |
-|`scale`       |Scale factor for the displacement vector.                   |float             |1.0    |
-|`out`         |Output: displacement shader closure                         |displacementshader|       |
+The scalar signature displaces along the surface normal direction, while the vector signature allows displacement in tangent/normal space using (dPdu, dPdv, N) coordinates.
 
-|Port          |Description                                                                   |Type              |Default      |
-|--------------|------------------------------------------------------------------------------|------------------|-------------|
-|`displacement`|Vector displacement in (dPdu, dPdv, N) tangent/normal space for each position.|vector3           |0.0, 0.0, 0.0|
-|`scale`       |Scale factor for the displacement vector.                                     |float             |1.0          |
-|`out`         |Output: displacement shader closure                                           |displacementshader|             |
+|Port          |Description                             |Type              |Default |
+|--------------|----------------------------------------|------------------|--------|
+|`displacement`|Displacement amount or direction        |float, vector3    |__zero__|
+|`scale`       |Scale factor for the displacement       |float             |1.0     |
+|`out`         |Output: the computed displacement shader|displacementshader|        |
 
 <a id="node-mix-shader"> </a>
 

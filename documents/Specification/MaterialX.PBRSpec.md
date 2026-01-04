@@ -398,11 +398,11 @@ Adds a directionally varying factor to an EDF. Scales the emission distribution 
 ### `absorption_vdf`
 Constructs a VDF for pure light absorption.
 
-The `absorption` input represents the absorption rate per distance traveled in the medium, stated in _m<sup>−1</sup>_, with independent control for each color channel.
+The `absorption` input represents the absorption rate per distance traveled in the medium, stated in _m<sup>−1</sup>_, with independent control for each wavelength.
 
 |Port        |Description                   |Type   |Default      |
 |------------|------------------------------|-------|-------------|
-|`absorption`|Absorption rate for the medium|color3 |0.0, 0.0, 0.0|
+|`absorption`|Absorption rate for the medium|vector3|0.0, 0.0, 0.0|
 |`out`       |Output: the computed VDF      |VDF    |             |
 
 <a id="node-anisotropic-vdf"> </a>
@@ -410,16 +410,16 @@ The `absorption` input represents the absorption rate per distance traveled in t
 ### `anisotropic_vdf`
 Constructs a VDF scattering light for a participating medium, based on the Henyey-Greenstein phase function[^Pharr2023]. Forward, backward and uniform scattering is supported and controlled by the anisotropy input.
 
-The `absorption` input represents the absorption rate per distance traveled in the medium, stated in _m<sup>−1</sup>_, with independent control for each color channel.
+The `absorption` input represents the absorption rate per distance traveled in the medium, stated in _m<sup>−1</sup>_, with independent control for each wavelength.
 
-The `anisotropy` input controls the scattering direction: negative values produce backwards scattering, positive values produce forward scattering, and 0.0 produces uniform scattering. Both absorption and scattering rates are specified per color channel/wavelength.
+The `anisotropy` input controls the scattering direction: negative values produce backwards scattering, positive values produce forward scattering, and 0.0 produces uniform scattering. Both absorption and scattering rates are specified per wavelength.
 
-|Port        |Description                               |Type  |Default      |Accepted Values|
-|------------|------------------------------------------|------|-------------|---------------|
-|`absorption`|Absorption rate for the medium            |color3|0.0, 0.0, 0.0|               |
-|`scattering`|Scattering rate for the medium            |color3|0.0, 0.0, 0.0|               |
-|`anisotropy`|Anisotropy factor for scattering direction|float |0.0          |[-1, 1]        |
-|`out`       |Output: the computed VDF                  |VDF   |             |               |
+|Port        |Description                               |Type   |Default      |Accepted Values|
+|------------|------------------------------------------|-------|-------------|---------------|
+|`absorption`|Absorption rate for the medium            |vector3|0.0, 0.0, 0.0|               |
+|`scattering`|Scattering rate for the medium            |vector3|0.0, 0.0, 0.0|               |
+|`anisotropy`|Anisotropy factor for scattering direction|float  |0.0          |[-1, 1]        |
+|`out`       |Output: the computed VDF                  |VDF    |             |               |
 
 
 ## PBR Shader Nodes
@@ -457,15 +457,14 @@ If the `edf` input is left unconnected, no emission will occur from the medium.
 ### `light`
 Constructs a light shader describing an explicit light source. The light shader will emit light according to the connected EDF. If the shader is attached to geometry both sides will be considered for light emission and the EDF controls if light is emitted from both sides or not.
 
-|Port       |Description                                        |Type        |Default      |
-|-----------|---------------------------------------------------|------------|-------------|
-|`edf`      |Emission distribution function for the light source|EDF         |__zero__     |
-|`intensity`|Intensity multiplier for the EDF's emittance       |color3      |1.0, 1.0, 1.0|
-|`exposure` |Exposure control for the EDF's emittance           |float       |0.0          |
-|`out`      |Output: the computed light shader                  |lightshader |             |
+|Port       |Description                                        |Type        |Default |
+|-----------|---------------------------------------------------|------------|--------|
+|`edf`      |Emission distribution function for the light source|EDF         |__zero__|
+|`intensity`|Intensity multiplier for the EDF's emittance       |float       |1.0     |
+|`exposure` |Exposure control for the EDF's emittance           |float       |0.0     |
+|`out`      |Output: the computed light shader                  |lightshader |        |
 
 Note that the standard library includes definitions for [**`displacement`**](./MaterialX.Specification.md#node-displacement) and [**`surface_unlit`**](./MaterialX.Specification.md#node-surfaceunlit) shader nodes.
-
 
 
 ## Utility Nodes
@@ -595,7 +594,7 @@ Converts the hair melanin parameterization to absorption coefficient based on pi
 |`melanin_redness`      |Amount of redness affected to the output            |float  |0.5                         |[0, 1]         |
 |`eumelanin_color`      |Eumelanin color                                     |color3 |0.657704, 0.498077, 0.254107|               |
 |`pheomelanin_color`    |Pheomelanin color                                   |color3 |0.829444, 0.67032, 0.349938 |               |
-|`out`                  |Output: the computed absorption coefficient         |vector3|                            |               |
+|`absorption`           |Output: the computed absorption coefficient         |vector3|                            |               |
 
 <a id="node-chiang-hair-absorption-from-color"> </a>
 
@@ -606,7 +605,7 @@ Converts the hair scattering color to absorption coefficient using the mapping m
 |---------------------|------------------------------------------------|-------|-------------|---------------|
 |`color`              |Scattering color                                |color3 |1.0, 1.0, 1.0|               |
 |`azimuthal_roughness`|Azimuthal roughness                             |float  |0.2          |[0, 1]         |
-|`out`                |Output: the computed absorption coefficient     |vector3|             |               |
+|`absorption`         |Output: the computed absorption coefficient     |vector3|             |               |
 
 <br>
 
