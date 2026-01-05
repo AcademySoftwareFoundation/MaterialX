@@ -5,6 +5,7 @@
 
 #include <MaterialXCore/Document.h>
 
+#include <mutex>
 #include <shared_mutex>
 
 MATERIALX_NAMESPACE_BEGIN
