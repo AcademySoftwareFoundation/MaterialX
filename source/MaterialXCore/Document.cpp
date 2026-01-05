@@ -98,10 +98,12 @@ class Document::Cache
 
     void rebuild(DocumentPtr doc)
     {
+        // Clear the existing cache.
         _portElementMap.clear();
         _nodeDefMap.clear();
         _implementationMap.clear();
 
+        // Traverse the document to build a new cache.
         for (ElementPtr elem : doc->traverseTree())
         {
             const string& nodeName = elem->getAttribute(PortElement::NODE_NAME_ATTRIBUTE);
