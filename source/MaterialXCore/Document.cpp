@@ -5,8 +5,7 @@
 
 #include <MaterialXCore/Document.h>
 
-#include <atomic>
-#include <mutex>
+#include <shared_mutex>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -37,65 +36,72 @@ class Document::Cache
 
     void setDocument(weak_ptr<Document> document)
     {
+        std::unique_lock<std::shared_mutex> lock(_mutex);
         _doc = document;
-        invalidate();
+        _valid = false;
     }
 
     void invalidate()
     {
-        _valid.store(false, std::memory_order_relaxed);
+        std::unique_lock<std::shared_mutex> lock(_mutex);
+        _valid = false;
     }
 
     vector<PortElementPtr> getMatchingPorts(const string& nodeName)
     {
-        refresh();
+        auto lock = refreshWithLock();
         auto it = _portElementMap.find(nodeName);
         return (it != _portElementMap.end()) ? it->second : vector<PortElementPtr>();
     }
 
     vector<NodeDefPtr> getMatchingNodeDefs(const string& nodeName)
     {
-        refresh();
+        auto lock = refreshWithLock();
         auto it = _nodeDefMap.find(nodeName);
         return (it != _nodeDefMap.end()) ? it->second : vector<NodeDefPtr>();
     }
 
     vector<InterfaceElementPtr> getMatchingImplementations(const string& nodeDef)
     {
-        refresh();
+        auto lock = refreshWithLock();
         auto it = _implementationMap.find(nodeDef);
         return (it != _implementationMap.end()) ? it->second : vector<InterfaceElementPtr>();
     }
 
   private:
-    void refresh()
+    std::shared_lock<std::shared_mutex> refreshWithLock()
     {
-        // Perform a lock-free read and return if the cache is valid.
-        if (_valid.load(std::memory_order_acquire))
+        std::shared_lock<std::shared_mutex> lock(_mutex);
+
+        if (_valid)
         {
-            return;
+            return lock;
         }
 
-        // Acquire a lock and double-check the valid flag for robustness.
-        std::lock_guard<std::mutex> lock(_mutex);
-        if (_valid.load(std::memory_order_relaxed))
+        lock.unlock();
+
         {
-            return;
+            std::unique_lock<std::shared_mutex> writeLock(_mutex);
+            if (!_valid)
+            {
+                auto doc = _doc.lock();
+                if (doc)
+                {
+                    rebuild(doc);
+                }
+            }
         }
 
-        // Verify that the document is still valid.
-        auto doc = _doc.lock();
-        if (!doc)
-        {
-            return;
-        }
+        lock.lock();
+        return lock;
+    }
 
-        // Clear the existing cache.
+    void rebuild(DocumentPtr doc)
+    {
         _portElementMap.clear();
         _nodeDefMap.clear();
         _implementationMap.clear();
 
-        // Traverse the document to build a new cache.
         for (ElementPtr elem : doc->traverseTree())
         {
             const string& nodeName = elem->getAttribute(PortElement::NODE_NAME_ATTRIBUTE);
@@ -133,14 +139,13 @@ class Document::Cache
             }
         }
 
-        // Release semantics ensure all map writes are visible before valid becomes true.
-        _valid.store(true, std::memory_order_release);
+        _valid = true;
     }
 
   private:
     weak_ptr<Document> _doc;
-    std::mutex _mutex;
-    std::atomic<bool> _valid;
+    mutable std::shared_mutex _mutex;
+    bool _valid;
     std::unordered_map<string, std::vector<PortElementPtr>> _portElementMap;
     std::unordered_map<string, std::vector<NodeDefPtr>> _nodeDefMap;
     std::unordered_map<string, std::vector<InterfaceElementPtr>> _implementationMap;
