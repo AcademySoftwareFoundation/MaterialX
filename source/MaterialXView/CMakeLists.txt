@@ -71,9 +71,9 @@ else()
     if(MSVC)
         add_compile_options(-wd4389)
     elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-        add_compile_options(-Wno-deprecated -Wno-unused-parameter)
+        add_compile_options(-Wno-deprecated -Wno-unused-parameter -Wno-shadow)
     elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-        add_compile_options(-Wno-format-truncation -Wno-stringop-overflow -Wno-use-after-free -Wno-unused-parameter)
+        add_compile_options(-Wno-format-truncation -Wno-stringop-overflow -Wno-use-after-free -Wno-unused-parameter -Wno-shadow)
     endif()
 
     # Disable NanoGUI compiler modifications for Clang
