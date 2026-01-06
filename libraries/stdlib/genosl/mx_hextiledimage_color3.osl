@@ -30,15 +30,13 @@ void mx_hextiledimage_color3(
 
     HextileData tile_data = mx_hextile_coord(coord, rotation, rotationrange, scale, scalerange, offset, offsetrange);
 
-    // Sample textures with explicit derivatives
+    // Sample textures for each tile
     color c[3];
     vector cw;
 
     for (int i = 0; i < 3; i++)
     {
-        float filter_width = length(tile_data.ddx[i]) + length(tile_data.ddy[i]);
         c[i] = texture(file.filename, tile_data.coords[i].x, tile_data.coords[i].y,
-                       "swidth", filter_width, "twidth", filter_width,
                        "missingcolor", default_value,
                        "swrap", "periodic", "twrap", "periodic"
 #if (OSL_VERSION_MAJOR == 1 && OSL_VERSION_MINOR >= 14) || (OSL_VERSION_MAJOR > 1)

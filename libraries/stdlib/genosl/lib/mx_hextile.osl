@@ -21,8 +21,6 @@ struct HextileData
     vector2 coords[3];
     vector weights;
     vector rotations;
-    vector2 ddx[3];
-    vector2 ddy[3];
 };
 
 // Helper function to compute blend weights with optional falloff
@@ -117,10 +115,7 @@ HextileData mx_hextile_coord(
     tile_data.weights = vector(w1, w2, w3);
     tile_data.rotations = rotations;
 
-    // Transform coordinates and derivatives for each tile
-    vector2 ddx_coord = vector2(Dx(coord.x), Dx(coord.y));
-    vector2 ddy_coord = vector2(Dy(coord.x), Dy(coord.y));
-
+    // Transform coordinates for each tile
     for (int i = 0; i < 3; i++)
     {
         vector2 d = coord - ctr[i];
@@ -131,14 +126,6 @@ HextileData mx_hextile_coord(
         tile_data.coords[i] = vector2(
             (d.x * c - d.y * s) / sc + ctr[i].x + offsets[i].x,
             (d.x * s + d.y * c) / sc + ctr[i].y + offsets[i].y);
-
-        tile_data.ddx[i] = vector2(
-            (ddx_coord.x * c - ddx_coord.y * s) / sc,
-            (ddx_coord.x * s + ddx_coord.y * c) / sc);
-
-        tile_data.ddy[i] = vector2(
-            (ddy_coord.x * c - ddy_coord.y * s) / sc,
-            (ddy_coord.x * s + ddy_coord.y * c) / sc);
     }
 
     return tile_data;
