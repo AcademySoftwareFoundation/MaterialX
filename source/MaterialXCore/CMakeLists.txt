@@ -3,6 +3,11 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Generated.h.in ${CMAKE_CURRENT_BINARY
 file(GLOB materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 file(GLOB materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h" "${CMAKE_CURRENT_BINARY_DIR}/*.h")
 
+# Exclude Perfetto implementation when tracing is disabled
+if(NOT MATERIALX_BUILD_TRACING)
+    list(REMOVE_ITEM materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/MxTracePerfetto.cpp")
+endif()
+
 mx_add_library(MaterialXCore
     SOURCE_FILES
         ${materialx_source}
@@ -15,3 +20,17 @@ mx_add_library(MaterialXCore
 target_include_directories(${TARGET_NAME}
         PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../>)
+
+# Perfetto tracing support
+if(MATERIALX_BUILD_TRACING)
+    # Add Perfetto SDK source file (single-file amalgamation)
+    target_sources(${TARGET_NAME} PRIVATE 
+        "${perfetto_SOURCE_DIR}/sdk/perfetto.cc")
+    target_include_directories(${TARGET_NAME} PUBLIC 
+        "${perfetto_SOURCE_DIR}/sdk")
+    target_compile_definitions(${TARGET_NAME} PUBLIC MATERIALX_BUILD_TRACING)
+    if(WIN32)
+        # Perfetto requires ws2_32 on Windows
+        target_link_libraries(${TARGET_NAME} PRIVATE ws2_32)
+    endif()
+endif()

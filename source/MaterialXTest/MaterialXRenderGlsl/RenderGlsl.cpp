@@ -12,6 +12,7 @@
 
 #include <MaterialXRender/GeometryHandler.h>
 #include <MaterialXRender/StbImageLoader.h>
+#include <MaterialXCore/MxTrace.h>
 #if defined(MATERIALX_BUILD_OIIO)
 #include <MaterialXRender/OiioImageLoader.h>
 #endif
@@ -161,6 +162,7 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                                           const std::string& outputPath,
                                           mx::ImageVec* imageVec)
 {
+    MX_TRACE_SCOPE(MX_TRACE_CAT_RENDER, "GlslShaderRenderTester::runRenderer");
     std::cout << "Validating GLSL rendering for: " << doc->getSourceUri() << std::endl;
 
     mx::ScopedTimer totalGLSLTime(&profileTimes.languageTimes.totalTime);
@@ -201,6 +203,7 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                 transpTimer.endTimer();
 
                 mx::ScopedTimer generationTimer(&profileTimes.languageTimes.generationTime);
+                MX_TRACE_SCOPE(MX_TRACE_CAT_SHADERGEN, "GenerateShader");
                 mx::GenOptions& contextOptions = context.getOptions();
                 contextOptions = options;
                 contextOptions.targetColorSpaceOverride = "lin_rec709";
@@ -277,6 +280,7 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                 _renderer->setLightHandler(isShader ? _lightHandler : nullptr);
 
                 {
+                    MX_TRACE_SCOPE(MX_TRACE_CAT_RENDER, "CompileShader");
                     mx::ScopedTimer compileTimer(&profileTimes.languageTimes.compileTime);
                     _renderer->createProgram(shader);
                     _renderer->validateInputs();
@@ -343,6 +347,7 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                 int supersampleFactor = testOptions.enableReferenceQuality ? 8 : 1;
 
                 {
+                    MX_TRACE_SCOPE(MX_TRACE_CAT_RENDER, "RenderMaterial");
                     mx::ScopedTimer renderTimer(&profileTimes.languageTimes.renderTime);
                     _renderer->getImageHandler()->setSearchPath(imageSearchPath);
                     unsigned int width = (unsigned int) testOptions.renderSize[0] * supersampleFactor;

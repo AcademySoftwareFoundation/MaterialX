@@ -8,6 +8,11 @@
 #include <MaterialXTest/External/Catch/catch.hpp>
 #include <MaterialXFormat/File.h>
 
+#ifdef MATERIALX_BUILD_TRACING
+#include <MaterialXCore/MxTrace.h>
+#include <MaterialXCore/MxTracePerfetto.h>
+#endif
+
 namespace mx = MaterialX;
 
 int main(int argc, char* const argv[])
@@ -33,5 +38,20 @@ int main(int argc, char* const argv[])
         return returnCode;
     }
 
-    return session.run();
+#ifdef MATERIALX_BUILD_TRACING
+    // Initialize Perfetto tracing
+    auto perfettoBackend = mx::MxPerfettoBackend::create();
+    perfettoBackend->initialize();
+    mx::MxTraceCollector::getInstance().setBackend(perfettoBackend);
+#endif
+
+    int result = session.run();
+
+#ifdef MATERIALX_BUILD_TRACING
+    // Shutdown tracing and write trace file
+    mx::MxTraceCollector::getInstance().setBackend(nullptr);
+    perfettoBackend->shutdown("materialx_test_trace.perfetto-trace");
+#endif
+
+    return result;
 }
