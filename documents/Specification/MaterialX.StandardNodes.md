@@ -2105,40 +2105,37 @@ The valid range for `index` should be clamped to $[0,N)$ in the user interface, 
 ### `convert`
 Convert a stream from one data type to another.
 
-|Port |Description                                    |Type   |Default |
-|-----|-----------------------------------------------|-------|--------|
-|`in` |The input stream to convert                    |boolean|false   |
-|`out`|Output: the converted value, either 0.0 or 1.0 |float  |0.0     |
+|Port |Description                |Type           |Default |
+|-----|---------------------------|---------------|--------|
+|`in` |The input stream to convert|boolean        |false   |
+|`out`|Output: the converted value|float, integer |__zero__|
 
-|Port |Description                                    |Type   |Default |
-|-----|-----------------------------------------------|-------|--------|
-|`in` |The input stream to convert                    |integer|0       |
-|`out`|Output: the converted value                    |float  |0.0     |
+|Port |Description                              |Type   |Default|
+|-----|-----------------------------------------|-------|-------|
+|`in` |The input stream to convert              |integer|0      |
+|`out`|Output: true for any non-zero input value|boolean|false  |
 
-|Port |Description                                    |Type   |Default |
-|-----|-----------------------------------------------|-------|--------|
-|`in` |The input stream to convert                    |boolean|false   |
-|`out`|Output: the converted value, either 0 or 1     |integer|0       |
+|Port |Description                |Type   |Default|
+|-----|---------------------------|-------|-------|
+|`in` |The input stream to convert|integer|0      |
+|`out`|Output: the converted value|float  |0.0    |
 
-|Port |Description                                    |Type   |Default |
-|-----|-----------------------------------------------|-------|--------|
-|`in` |The input stream to convert                    |integer|0       |
-|`out`|Output: true for any non-zero input value      |boolean|false   |
+|Port |Description                             |Type                   |Default |
+|-----|----------------------------------------|-----------------------|--------|
+|`in` |The input stream to convert             |boolean, float, integer|__zero__|
+|`out`|Output: copy input value to all channels|colorN, vectorN        |__zero__|
 
-|Port |Description                                    |Type          |Default |
-|-----|-----------------------------------------------|--------------|--------|
-|`in` |The input stream to convert                    |float,integer |__zero__|
-|`out`|Output: copy input value to all channels       |colorN,vectorN|__zero__|
+|Port |Description                |Type           |Default |
+|-----|---------------------------|---------------|--------|
+|`in` |The input stream to convert|colorN, vectorN|__zero__|
+|`out`|Output: see below          |colorM, vectorM|__zero__|
 
-|Port |Description                                       |Type          |Default |
-|-----|--------------------------------------------------|--------------|--------|
-|`in` |The input stream to convert                       |boolean       |false   |
-|`out`|Output: 1 in all channels if `in`=true, 0 if false|colorN,vectorN|__zero__|
+|Port |Description                                                      |Type                                    |Default |
+|-----|-----------------------------------------------------------------|----------------------------------------|--------|
+|`in` |The input stream to convert                                      |boolean, integer, float, colorN, vectorN|__zero__|
+|`out`|Output: an unlit surface shader emitting the input value as color|surfaceshader                           |        |
 
-|Port |Description                  |Type          |Default |
-|-----|-----------------------------|--------------|--------|
-|`in` |The input stream to convert  |colorN,vectorN|__zero__|
-|`out`|Output: see below            |colorM,vectorM|__zero__|
+For boolean input values, all numeric output values will be either __zero__ or __one__.
 
 For colorN/vectorN to colorM/vectorM:
 
@@ -2327,17 +2324,13 @@ An unlit surface shader node, representing a surface that can emit and transmit 
 ### `displacement`
 Constructs a displacement shader describing geometric modification to surfaces.
 
-|Port          |Description                                                 |Type              |Default|
-|--------------|------------------------------------------------------------|------------------|-------|
-|`displacement`|Scalar along the surface normal direction for each position.|float             |0.0    |
-|`scale`       |Scale factor for the displacement vector.                   |float             |1.0    |
-|`out`         |Output: displacement shader closure                         |displacementshader|       |
+The scalar signature displaces along the surface normal direction, while the vector signature allows displacement in tangent/normal space using (dPdu, dPdv, N) coordinates.
 
-|Port          |Description                                                                   |Type              |Default      |
-|--------------|------------------------------------------------------------------------------|------------------|-------------|
-|`displacement`|Vector displacement in (dPdu, dPdv, N) tangent/normal space for each position.|vector3           |0.0, 0.0, 0.0|
-|`scale`       |Scale factor for the displacement vector.                                     |float             |1.0          |
-|`out`         |Output: displacement shader closure                                           |displacementshader|             |
+|Port          |Description                             |Type              |Default |
+|--------------|----------------------------------------|------------------|--------|
+|`displacement`|Displacement amount or direction        |float, vector3    |__zero__|
+|`scale`       |Scale factor for the displacement       |float             |1.0     |
+|`out`         |Output: the computed displacement shader|displacementshader|        |
 
 <a id="node-mix-shader"> </a>
 

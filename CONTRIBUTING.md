@@ -242,6 +242,14 @@ be cheap to copy. When returning shared pointers, they should be returned by
 value rather than by reference. Methods should be marked as `const` whenever
 they do not modify the object's state.
 
+#### Thread Safety
+
+MaterialX classes support multiple concurrent readers, but not concurrent
+reads and writes, following the pattern of standard C++ containers.  This
+design enables efficient parallel processing in read-heavy workloads such
+as shader generation and scene traversal, while keeping the implementation 
+simple and avoiding the overhead of fine-grained locking.
+
 #### Exception Handling
 
 Exceptions should be used for exceptional conditions rather than for normal
