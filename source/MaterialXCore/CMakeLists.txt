@@ -3,8 +3,9 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Generated.h.in ${CMAKE_CURRENT_BINARY
 file(GLOB materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 file(GLOB materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h" "${CMAKE_CURRENT_BINARY_DIR}/*.h")
 
-# Exclude Perfetto implementation when tracing is disabled
+# Exclude all tracing implementation when tracing is disabled (zero overhead)
 if(NOT MATERIALX_BUILD_TRACING)
+    list(REMOVE_ITEM materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/MxTrace.cpp")
     list(REMOVE_ITEM materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/MxTracePerfetto.cpp")
 endif()
 
