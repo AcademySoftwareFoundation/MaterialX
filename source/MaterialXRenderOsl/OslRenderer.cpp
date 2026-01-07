@@ -111,6 +111,7 @@ void OslRenderer::renderOSL(const FilePath& dirPath, const string& shaderName, c
     const string INPUT_SHADER_PARAMETER_OVERRIDES("%input_shader_parameter_overrides%");
     const string INPUT_SHADER_OUTPUT_STRING("%input_shader_output%");
     const string BACKGROUND_COLOR_STRING("%background_color%");
+    const string OBJ_PATH_STRING("%obj_path%");
 
     StringMap replacementMap;
     replacementMap[OUTPUT_SHADER_TYPE_STRING] = outputShader;
@@ -128,6 +129,7 @@ void OslRenderer::renderOSL(const FilePath& dirPath, const string& shaderName, c
     }
     replacementMap[INPUT_SHADER_PARAMETER_OVERRIDES] = overrideString;
     replacementMap[ENVIRONMENT_SHADER_PARAMETER_OVERRIDES] = envOverrideString;
+    replacementMap[OBJ_PATH_STRING] = _objPath;
     replacementMap[INPUT_SHADER_OUTPUT_STRING] = outputName;
     replacementMap[BACKGROUND_COLOR_STRING] = std::to_string(DEFAULT_SCREEN_COLOR_LIN_REC709[0]) + " " +
                                               std::to_string(DEFAULT_SCREEN_COLOR_LIN_REC709[1]) + " " +
@@ -244,6 +246,7 @@ void OslRenderer::renderOSLNetwork(const FilePath& dirPath, const string& shader
     const string ENVIRONMENT_SHADER_PARAMETER_OVERRIDES("%environment_shader_parameter_overrides%");
     const string BACKGROUND_COLOR_STRING("%background_color%");
     const string OSL_COMMANDS("%oslCmd%");
+    const string OBJ_PATH_STRING("%obj_path%");
 
     StringMap replacementMap;
 
@@ -254,6 +257,7 @@ void OslRenderer::renderOSLNetwork(const FilePath& dirPath, const string& shader
     }
     replacementMap[ENVIRONMENT_SHADER_PARAMETER_OVERRIDES] = envOverrideString;
     replacementMap[OSL_COMMANDS] = _oslCmdStr;
+    replacementMap[OBJ_PATH_STRING] = _objPath;
     replacementMap[BACKGROUND_COLOR_STRING] = std::to_string(DEFAULT_SCREEN_COLOR_LIN_REC709[0]) + " " +
                                               std::to_string(DEFAULT_SCREEN_COLOR_LIN_REC709[1]) + " " +
                                               std::to_string(DEFAULT_SCREEN_COLOR_LIN_REC709[2]);
