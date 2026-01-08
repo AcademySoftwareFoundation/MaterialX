@@ -12,6 +12,11 @@
 #include <MaterialXGenShader/OcioColorManagementSystem.h>
 #endif
 
+#ifdef MATERIALX_BUILD_TRACING
+#include <MaterialXCore/MxTrace.h>
+#include <MaterialXCore/MxTracePerfetto.h>
+#endif
+
 namespace mx = MaterialX;
 
 namespace RenderUtil
@@ -81,13 +86,37 @@ void ShaderRenderTester::loadDependentLibraries(GenShaderUtil::TestSuiteOptions 
 
 bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
 {
+    // Read options first so we can use outputDirectory for log files
+    GenShaderUtil::TestSuiteOptions options;
+    if (!options.readOptions(optionsFilePath))
+    {
+        std::cerr << "Can't find options file. Skip test." << std::endl;
+        return false;
+    }
+    if (!runTest(options))
+    {
+        std::cerr << "Target: " << _shaderGenerator->getTarget() << " not set to run. Skip test." << std::endl;
+        return false;
+    }
+
+#ifdef MATERIALX_BUILD_TRACING
+    // Initialize tracing with target-specific trace filename
+    mx::FilePath tracePath = options.resolveOutputPath(_shaderGenerator->getTarget() + "_render_trace.perfetto-trace");
+    auto perfettoBackend = mx::MxPerfettoBackend::create();
+    perfettoBackend->initialize();
+    mx::MxTraceCollector::getInstance().setBackend(perfettoBackend);
+#endif
+
 #ifdef LOG_TO_FILE
-    std::ofstream logfile(_shaderGenerator->getTarget() + "_render_log.txt");
+    mx::FilePath logPath = options.resolveOutputPath(_shaderGenerator->getTarget() + "_render_log.txt");
+    std::ofstream logfile(logPath.asString());
     std::ostream& log(logfile);
-    std::string docValidLogFilename = _shaderGenerator->getTarget() + "_render_doc_validation_log.txt";
+    mx::FilePath docValidLogPath = options.resolveOutputPath(_shaderGenerator->getTarget() + "_render_doc_validation_log.txt");
+    std::string docValidLogFilename = docValidLogPath.asString();
     std::ofstream docValidLogFile(docValidLogFilename);
     std::ostream& docValidLog(docValidLogFile);
-    std::ofstream profilingLogfile(_shaderGenerator->getTarget() + "_render_profiling_log.txt");
+    mx::FilePath profilingLogPath = options.resolveOutputPath(_shaderGenerator->getTarget() + "_render_profiling_log.txt");
+    std::ofstream profilingLogfile(profilingLogPath.asString());
     std::ostream& profilingLog(profilingLogfile);
 #else
     std::ostream& log(std::cout);
@@ -95,20 +124,6 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
     std::ostream& docValidLog(std::cout);
     std::ostream& profilingLog(std::cout);
 #endif
-
-    // Test has been turned off so just do nothing.
-    // Check for an option file
-    GenShaderUtil::TestSuiteOptions options;
-    if (!options.readOptions(optionsFilePath))
-    {
-        log << "Can't find options file. Skip test." << std::endl;
-        return false;
-    }
-    if (!runTest(options))
-    {
-        log << "Target: " << _shaderGenerator->getTarget() << " not set to run. Skip test." << std::endl;
-        return false;
-    }
 
     // Profiling times
     RenderUtil::RenderProfileTimes profileTimes;
@@ -288,6 +303,15 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
 
         mx::FilePath outputPath = filename;
         outputPath.removeExtension();
+        
+        // If outputDirectory is set, redirect output to that directory
+        // while preserving the material name as a subdirectory
+        if (!options.outputDirectory.isEmpty())
+        {
+            // Get just the material directory name (e.g., "standard_surface_carpaint")
+            mx::FilePath materialDir = outputPath.getBaseName();
+            outputPath = options.outputDirectory / materialDir;
+        }
 
         renderableSearchTimer.startTimer();
         std::vector<mx::TypedElementPtr> elements;
@@ -312,6 +336,12 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
     // Dump out profiling information
     totalTime.endTimer();
     printRunLog(profileTimes, options, profilingLog, dependLib);
+
+#ifdef MATERIALX_BUILD_TRACING
+    // Shutdown tracing and write trace file
+    mx::MxTraceCollector::getInstance().setBackend(nullptr);
+    perfettoBackend->shutdown(tracePath.asString());
+#endif
 
     return true;
 }
