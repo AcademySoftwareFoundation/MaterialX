@@ -77,6 +77,6 @@
          Supports absolute paths or paths relative to the test working directory.
          The directory will be created if it doesn't exist.
     -->
-    <input name="outputDirectory" type="string" value="" />
+    <input name="outputDirectory" type="string" value="C:/Users/penenkp/dev/TestAssets/MaterialXTest" />
   </nodedef>
 </materialx>

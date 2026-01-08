@@ -950,6 +950,12 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     {
         _logFile.close();
     }
+
+    // Print effective output directory for easy access (clickable in terminals)
+    if (!options.outputDirectory.isEmpty())
+    {
+        std::cout << std::endl << "Test artifacts written to: " << options.outputDirectory.asString() << std::endl;
+    }
 }
 
 void TestSuiteOptions::print(std::ostream& output) const

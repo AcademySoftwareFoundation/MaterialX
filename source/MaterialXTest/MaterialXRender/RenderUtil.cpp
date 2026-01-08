@@ -343,6 +343,12 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
     perfettoBackend->shutdown(tracePath.asString());
 #endif
 
+    // Print effective output directory for easy access (clickable in terminals)
+    if (!options.outputDirectory.isEmpty())
+    {
+        std::cout << std::endl << "Test artifacts written to: " << options.outputDirectory.asString() << std::endl;
+    }
+
     return true;
 }
 
