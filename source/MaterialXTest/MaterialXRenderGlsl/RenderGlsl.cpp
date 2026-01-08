@@ -162,7 +162,8 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                                           const std::string& outputPath,
                                           mx::ImageVec* imageVec)
 {
-    MX_TRACE_SCOPE(MX_TRACE_CAT_RENDER, "GlslShaderRenderTester::runRenderer");
+    MX_TRACE_FUNCTION(MX_TRACE_CAT_RENDER);
+    MX_TRACE_SCOPE(MX_TRACE_CAT_MATERIAL, shaderName.c_str());
     std::cout << "Validating GLSL rendering for: " << doc->getSourceUri() << std::endl;
 
     mx::ScopedTimer totalGLSLTime(&profileTimes.languageTimes.totalTime);

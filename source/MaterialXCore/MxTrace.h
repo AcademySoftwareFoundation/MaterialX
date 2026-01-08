@@ -16,6 +16,7 @@
 /// - API similar to USD's TraceCollector/TraceScope for familiarity
 /// - Abstract backend allows USD to inject its own tracing when calling MaterialX
 /// - Zero overhead when tracing is disabled (macros compile to nothing)
+/// - Constexpr category strings for compile-time validation
 
 #include <MaterialXCore/Export.h>
 
@@ -24,10 +25,32 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-// Trace category constants (similar to USD's TraceCategory)
-#define MX_TRACE_CAT_RENDER    "mx.render"
-#define MX_TRACE_CAT_SHADERGEN "mx.shadergen"
-#define MX_TRACE_CAT_OPTIMIZE  "mx.optimize"
+/// @namespace MxTraceCategory
+/// Constexpr trace category identifiers.
+/// 
+/// These are compile-time constant strings that identify trace event categories.
+/// Using constexpr ensures type safety and enables compile-time validation.
+/// The USD TraceCollector backend can map these to its own categories.
+namespace MxTraceCategory
+{
+    /// Rendering operations (GPU commands, frame capture, etc.)
+    constexpr const char* Render = "mx.render";
+    
+    /// Shader generation (code generation, optimization passes)
+    constexpr const char* ShaderGen = "mx.shadergen";
+    
+    /// Optimization passes (constant folding, dead code elimination)
+    constexpr const char* Optimize = "mx.optimize";
+    
+    /// Material/shader identity markers (for filtering/grouping in traces)
+    constexpr const char* Material = "mx.material";
+}
+
+// Legacy macros for backward compatibility (deprecated)
+#define MX_TRACE_CAT_RENDER    MaterialX::MxTraceCategory::Render
+#define MX_TRACE_CAT_SHADERGEN MaterialX::MxTraceCategory::ShaderGen
+#define MX_TRACE_CAT_OPTIMIZE  MaterialX::MxTraceCategory::Optimize
+#define MX_TRACE_CAT_MATERIAL  MaterialX::MxTraceCategory::Material
 
 /// @class MxTraceBackend
 /// Abstract tracing backend interface.
@@ -144,15 +167,19 @@ MATERIALX_NAMESPACE_END
 // When MATERIALX_BUILD_TRACING is defined, these macros generate trace events.
 // Otherwise, they compile to nothing (zero overhead).
 
+// Helper macros for token pasting with __LINE__ expansion
+#define MX_TRACE_CONCAT_IMPL(a, b) a##b
+#define MX_TRACE_CONCAT(a, b) MX_TRACE_CONCAT_IMPL(a, b)
+
 #ifdef MATERIALX_BUILD_TRACING
 
 /// Create a scoped trace event. Event ends when scope exits.
 #define MX_TRACE_SCOPE(category, name) \
-    MaterialX::MxTraceScope _mxTraceScope##__LINE__(category, name)
+    MaterialX::MxTraceScope MX_TRACE_CONCAT(_mxTraceScope_, __LINE__)(category, name)
 
 /// Create a scoped trace event using the current function name.
 #define MX_TRACE_FUNCTION(category) \
-    MX_TRACE_SCOPE(category, __FUNCTION__)
+    MaterialX::MxTraceScope MX_TRACE_CONCAT(_mxTraceFn_, __LINE__)(category, __FUNCTION__)
 
 /// Record a counter value.
 #define MX_TRACE_COUNTER(category, name, value) \

@@ -11,14 +11,40 @@
 #ifdef MATERIALX_BUILD_TRACING
 #include <MaterialXCore/MxTrace.h>
 #include <MaterialXCore/MxTracePerfetto.h>
+#include <chrono>
+#include <iomanip>
+#include <sstream>
 #endif
 
 namespace mx = MaterialX;
+
+#ifdef MATERIALX_BUILD_TRACING
+// Generate timestamp string for trace filename (format: YYYYMMDD_HHMMSS)
+std::string getTimestampString()
+{
+    auto now = std::chrono::system_clock::now();
+    auto time = std::chrono::system_clock::to_time_t(now);
+    std::tm tm_buf;
+#ifdef _WIN32
+    localtime_s(&tm_buf, &time);
+#else
+    localtime_r(&time, &tm_buf);
+#endif
+    std::ostringstream oss;
+    oss << std::put_time(&tm_buf, "%Y%m%d_%H%M%S");
+    return oss.str();
+}
+#endif
 
 int main(int argc, char* const argv[])
 {
     Catch::Session session;
     session.configData().showDurations = Catch::ShowDurations::Always;
+
+#ifdef MATERIALX_BUILD_TRACING
+    // Capture start timestamp for trace filename
+    std::string traceTimestamp = getTimestampString();
+#endif
 
 #ifdef CATCH_PLATFORM_WINDOWS
     BOOL inDebugger = IsDebuggerPresent();
@@ -48,9 +74,10 @@ int main(int argc, char* const argv[])
     int result = session.run();
 
 #ifdef MATERIALX_BUILD_TRACING
-    // Shutdown tracing and write trace file
+    // Shutdown tracing and write trace file with timestamp
     mx::MxTraceCollector::getInstance().setBackend(nullptr);
-    perfettoBackend->shutdown("materialx_test_trace.perfetto-trace");
+    std::string traceFilename = "materialx_test_" + traceTimestamp + ".perfetto-trace";
+    perfettoBackend->shutdown(traceFilename);
 #endif
 
     return result;
