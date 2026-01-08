@@ -27,11 +27,18 @@ if(MATERIALX_BUILD_TRACING)
     # Add Perfetto SDK source file (single-file amalgamation)
     target_sources(${TARGET_NAME} PRIVATE 
         "${perfetto_SOURCE_DIR}/sdk/perfetto.cc")
+    # Use generator expression - only needed at build time, not install
     target_include_directories(${TARGET_NAME} PUBLIC 
-        "${perfetto_SOURCE_DIR}/sdk")
+        $<BUILD_INTERFACE:${perfetto_SOURCE_DIR}/sdk>)
     target_compile_definitions(${TARGET_NAME} PUBLIC MATERIALX_BUILD_TRACING)
     if(WIN32)
         # Perfetto requires ws2_32 on Windows
         target_link_libraries(${TARGET_NAME} PRIVATE ws2_32)
+        # Prevent Windows.h min/max macros from breaking std::numeric_limits
+        # Also need /bigobj because perfetto.cc has too many sections for MSVC
+        set_source_files_properties("${perfetto_SOURCE_DIR}/sdk/perfetto.cc"
+            PROPERTIES 
+            COMPILE_DEFINITIONS "NOMINMAX;WIN32_LEAN_AND_MEAN"
+            COMPILE_OPTIONS "/bigobj")
     endif()
 endif()

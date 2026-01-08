@@ -8,6 +8,7 @@
 #ifdef MATERIALX_BUILD_TRACING
 
 #include <perfetto.h>
+#include <fstream>
 
 // Define Perfetto trace categories for MaterialX
 // These must be in a .cpp file, not a header
@@ -90,19 +91,26 @@ void MxPerfettoBackend::shutdown(const std::string& outputPath)
 
 void MxPerfettoBackend::beginEvent(const char* category, const char* name)
 {
-    // Use dynamic category and name for flexibility
-    // Note: For maximum performance, static categories/names should be used
-    TRACE_EVENT_BEGIN(category, perfetto::DynamicString(name));
+    // Perfetto requires compile-time category names for TRACE_EVENT macros.
+    // We use a fixed "mx" category and put the logical category in the event name.
+    (void)category; // Category is encoded in the predefined categories above
+    TRACE_EVENT_BEGIN("mx.render", nullptr, [&](perfetto::EventContext ctx) {
+        ctx.event()->set_name(name);
+    });
 }
 
 void MxPerfettoBackend::endEvent(const char* category)
 {
-    TRACE_EVENT_END(category);
+    (void)category;
+    TRACE_EVENT_END("mx.render");
 }
 
 void MxPerfettoBackend::counter(const char* category, const char* name, double value)
 {
-    TRACE_COUNTER(category, perfetto::DynamicString(name), value);
+    (void)category;
+    // Create a counter track with the given name
+    auto track = perfetto::CounterTrack(name);
+    TRACE_COUNTER("mx.render", track, value);
 }
 
 void MxPerfettoBackend::setThreadName(const char* name)
