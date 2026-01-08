@@ -46,11 +46,9 @@ namespace MxTraceCategory
     constexpr const char* Material = "mx.material";
 }
 
-// Legacy macros for backward compatibility (deprecated)
-#define MX_TRACE_CAT_RENDER    MaterialX::MxTraceCategory::Render
-#define MX_TRACE_CAT_SHADERGEN MaterialX::MxTraceCategory::ShaderGen
-#define MX_TRACE_CAT_OPTIMIZE  MaterialX::MxTraceCategory::Optimize
-#define MX_TRACE_CAT_MATERIAL  MaterialX::MxTraceCategory::Material
+// Usage: Add a namespace alias in your .cpp file for brevity:
+//   namespace cat = MaterialX::MxTraceCategory;
+//   MX_TRACE_SCOPE(cat::Render, "MyEvent");
 
 /// @class MxTraceBackend
 /// Abstract tracing backend interface.

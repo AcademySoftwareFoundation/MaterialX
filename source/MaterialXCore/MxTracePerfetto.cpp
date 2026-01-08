@@ -4,11 +4,26 @@
 //
 
 #include <MaterialXCore/MxTracePerfetto.h>
+#include <MaterialXCore/MxTrace.h>
 
 #ifdef MATERIALX_BUILD_TRACING
 
+// Suppress verbose warnings from Perfetto SDK templates
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4127) // conditional expression is constant
+#pragma warning(disable : 4146) // unary minus on unsigned type
+#pragma warning(disable : 4369) // enumerator value cannot be represented
+#endif
+
 #include <perfetto.h>
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
+
 #include <fstream>
+#include <cstring>
 
 // Define Perfetto trace categories for MaterialX
 // These must be in a .cpp file, not a header
@@ -18,7 +33,9 @@ PERFETTO_DEFINE_CATEGORIES(
     perfetto::Category("mx.shadergen")
         .SetDescription("MaterialX shader generation"),
     perfetto::Category("mx.optimize")
-        .SetDescription("MaterialX optimization passes")
+        .SetDescription("MaterialX optimization passes"),
+    perfetto::Category("mx.material")
+        .SetDescription("MaterialX material identity markers")
 );
 
 // Required for Perfetto SDK - provides static storage for track events
@@ -89,20 +106,62 @@ void MxPerfettoBackend::shutdown(const std::string& outputPath)
     _impl->session.reset();
 }
 
+// Helper to check category match (pointer comparison first for constexpr, then strcmp)
+static bool categoryMatches(const char* category, const char* target)
+{
+    return category == target || (category && std::strcmp(category, target) == 0);
+}
+
 void MxPerfettoBackend::beginEvent(const char* category, const char* name)
 {
     // Perfetto requires compile-time category names for TRACE_EVENT macros.
-    // We use a fixed "mx" category and put the logical category in the event name.
-    (void)category; // Category is encoded in the predefined categories above
-    TRACE_EVENT_BEGIN("mx.render", nullptr, [&](perfetto::EventContext ctx) {
-        ctx.event()->set_name(name);
-    });
+    // We dispatch based on the runtime category to the appropriate compile-time macro.
+    // Pointer comparison catches constexpr usage, strcmp handles dynamic strings.
+    if (categoryMatches(category, MxTraceCategory::ShaderGen))
+    {
+        TRACE_EVENT_BEGIN("mx.shadergen", nullptr, [&](perfetto::EventContext ctx) {
+            ctx.event()->set_name(name);
+        });
+    }
+    else if (categoryMatches(category, MxTraceCategory::Optimize))
+    {
+        TRACE_EVENT_BEGIN("mx.optimize", nullptr, [&](perfetto::EventContext ctx) {
+            ctx.event()->set_name(name);
+        });
+    }
+    else if (categoryMatches(category, MxTraceCategory::Material))
+    {
+        TRACE_EVENT_BEGIN("mx.material", nullptr, [&](perfetto::EventContext ctx) {
+            ctx.event()->set_name(name);
+        });
+    }
+    else // Default to mx.render
+    {
+        TRACE_EVENT_BEGIN("mx.render", nullptr, [&](perfetto::EventContext ctx) {
+            ctx.event()->set_name(name);
+        });
+    }
 }
 
 void MxPerfettoBackend::endEvent(const char* category)
 {
-    (void)category;
-    TRACE_EVENT_END("mx.render");
+    // Must match the category used in beginEvent
+    if (categoryMatches(category, MxTraceCategory::ShaderGen))
+    {
+        TRACE_EVENT_END("mx.shadergen");
+    }
+    else if (categoryMatches(category, MxTraceCategory::Optimize))
+    {
+        TRACE_EVENT_END("mx.optimize");
+    }
+    else if (categoryMatches(category, MxTraceCategory::Material))
+    {
+        TRACE_EVENT_END("mx.material");
+    }
+    else
+    {
+        TRACE_EVENT_END("mx.render");
+    }
 }
 
 void MxPerfettoBackend::counter(const char* category, const char* name, double value)
