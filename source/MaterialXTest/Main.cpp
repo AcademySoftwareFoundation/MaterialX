@@ -64,20 +64,39 @@ int main(int argc, char* const argv[])
         return returnCode;
     }
 
+    // Check if we're in list/discovery mode (used by test adapters)
+    bool isListMode = false;
+    for (int i = 1; i < argc; ++i)
+    {
+        std::string arg(argv[i]);
+        if (arg.find("--list") == 0)
+        {
+            isListMode = true;
+            break;
+        }
+    }
+
 #ifdef MATERIALX_BUILD_TRACING
-    // Initialize Perfetto tracing
-    auto perfettoBackend = mx::MxPerfettoBackend::create();
-    perfettoBackend->initialize();
-    mx::MxTraceCollector::getInstance().setBackend(perfettoBackend);
+    std::shared_ptr<mx::MxPerfettoBackend> perfettoBackend;
+    // Skip tracing initialization during test discovery (--list-* commands)
+    if (!isListMode)
+    {
+        perfettoBackend = mx::MxPerfettoBackend::create();
+        perfettoBackend->initialize();
+        mx::MxTraceCollector::getInstance().setBackend(perfettoBackend);
+    }
 #endif
 
     int result = session.run();
 
 #ifdef MATERIALX_BUILD_TRACING
-    // Shutdown tracing and write trace file with timestamp
-    mx::MxTraceCollector::getInstance().setBackend(nullptr);
-    std::string traceFilename = "materialx_test_" + traceTimestamp + ".perfetto-trace";
-    perfettoBackend->shutdown(traceFilename);
+    // Shutdown tracing and write trace file with timestamp (skip if in list mode)
+    if (!isListMode && perfettoBackend)
+    {
+        mx::MxTraceCollector::getInstance().setBackend(nullptr);
+        std::string traceFilename = "materialx_test_" + traceTimestamp + ".perfetto-trace";
+        perfettoBackend->shutdown(traceFilename);
+    }
 #endif
 
     return result;
