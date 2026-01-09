@@ -652,24 +652,24 @@ void ShaderGeneratorTester::registerLights(mx::DocumentPtr doc, const std::vecto
 
 void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, const std::string& optionsFilePath)
 {
-    // Start logging
-    _logFile.open(_logFilePath);
-
-    // Check for an option file
+    // Check for an option file first (before opening log) so we can use outputDirectory
     TestSuiteOptions options;
     if (!options.readOptions(optionsFilePath))
     {
-        _logFile << "Cannot read options file: " << optionsFilePath << ". Skipping test." << std::endl;
-        _logFile.close();
+        std::cerr << "Cannot read options file: " << optionsFilePath << ". Skipping test." << std::endl;
         return;
     }
     // Test has been turned off so just do nothing.
     if (!runTest(options))
     {
-        _logFile << "Target: " << _targetString << " not set to run. Skipping test." << std::endl;
-        _logFile.close();
+        std::cerr << "Target: " << _targetString << " not set to run. Skipping test." << std::endl;
         return;
     }
+
+    // Start logging - use outputDirectory if set
+    mx::FilePath logPath = options.resolveOutputPath(_logFilePath);
+    _logFile.open(logPath.asString());
+
     options.print(_logFile);
 
     // Add files to override the files in the test suite to be examined.
@@ -879,6 +879,17 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
                             path = searchPath.isEmpty() ? mx::FilePath() : searchPath[0];
                         }
 
+                        // Redirect to outputDirectory if set
+                        if (!options.outputDirectory.isEmpty())
+                        {
+                            mx::FilePath materialDir = path.getBaseName();
+                            path = options.outputDirectory / materialDir;
+                            if (!path.exists())
+                            {
+                                path.createDirectory();
+                            }
+                        }
+
                         std::vector<mx::FilePath> sourceCodePaths;
                         if (sourceCode.size() > 1)
                         {
@@ -939,6 +950,12 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     {
         _logFile.close();
     }
+
+    // Print effective output directory for easy access (clickable in terminals)
+    if (!options.outputDirectory.isEmpty())
+    {
+        std::cout << std::endl << "Test artifacts written to: " << options.outputDirectory.asString() << std::endl;
+    }
 }
 
 void TestSuiteOptions::print(std::ostream& output) const
@@ -968,6 +985,7 @@ void TestSuiteOptions::print(std::ostream& output) const
     output << "\tExtra library paths: " << extraLibraryPaths.asString() << std::endl;
     output << "\tRender test paths: " << renderTestPaths.asString() << std::endl;
     output << "\tEnable Reference Quality: " << enableReferenceQuality << std::endl;
+    output << "\tOutput Directory: " << (outputDirectory.isEmpty() ? "(default)" : outputDirectory.asString()) << std::endl;
 }
 
 bool TestSuiteOptions::readOptions(const std::string& optionFile)
@@ -993,6 +1011,7 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
     const std::string EXTRA_LIBRARY_PATHS("extraLibraryPaths");
     const std::string RENDER_TEST_PATHS("renderTestPaths");
     const std::string ENABLE_REFERENCE_QUALITY("enableReferenceQuality");
+    const std::string OUTPUT_DIRECTORY_STRING("outputDirectory");
 
     overrideFiles.clear();
     dumpGeneratedCode = false;
@@ -1090,6 +1109,19 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
                     else if (name == ENABLE_REFERENCE_QUALITY)
                     {
                         enableReferenceQuality = val->asA<bool>();
+                    }
+                    else if (name == OUTPUT_DIRECTORY_STRING)
+                    {
+                        std::string dirPath = p->getValueString();
+                        if (!dirPath.empty())
+                        {
+                            outputDirectory = mx::FilePath(dirPath);
+                            // Create the directory if it doesn't exist
+                            if (!outputDirectory.exists())
+                            {
+                                outputDirectory.createDirectory();
+                            }
+                        }
                     }
                 }
             }

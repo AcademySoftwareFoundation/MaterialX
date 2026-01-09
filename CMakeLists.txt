@@ -51,6 +51,7 @@ option(MATERIALX_BUILD_OCIO "Build OpenColorIO support for shader generators." O
 option(MATERIALX_BUILD_TESTS "Build unit tests." OFF)
 option(MATERIALX_BUILD_BENCHMARK_TESTS "Build benchmark tests." OFF)
 option(MATERIALX_BUILD_OSOS "Build OSL .oso's of standard library shaders for the OSL Network generator" OFF)
+option(MATERIALX_BUILD_TRACING "Build with Perfetto tracing support for performance analysis." OFF)
 
 option(MATERIALX_BUILD_SHARED_LIBS "Build MaterialX libraries as shared rather than static." OFF)
 option(MATERIALX_BUILD_DATA_LIBRARY "Build generated products from the MaterialX data library." OFF)
@@ -227,6 +228,23 @@ mark_as_advanced(MATERIALX_MDL_BINARY_MDLC)
 mark_as_advanced(MATERIALX_MDL_MODULE_PATHS)
 mark_as_advanced(MATERIALX_MDL_SDK_DIR)
 mark_as_advanced(MATERIALX_SLANG_RHI_SOURCE_DIR)
+mark_as_advanced(MATERIALX_BUILD_TRACING)
+
+# Perfetto tracing support
+if(MATERIALX_BUILD_TRACING)
+    include(FetchContent)
+    FetchContent_Declare(
+        perfetto
+        GIT_REPOSITORY https://android.googlesource.com/platform/external/perfetto
+        GIT_TAG v43.0
+        GIT_SHALLOW TRUE
+    )
+    # Only fetch the SDK, not the full Perfetto source
+    set(PERFETTO_SDK_INCLUDE_DIR "${CMAKE_BINARY_DIR}/_deps/perfetto-src/sdk")
+    FetchContent_MakeAvailable(perfetto)
+    add_definitions(-DMATERIALX_BUILD_TRACING)
+    message(STATUS "Perfetto tracing support enabled")
+endif()
 
 if (MATERIALX_BUILD_USE_CCACHE)
     # Setup CCache for C/C++ compilation

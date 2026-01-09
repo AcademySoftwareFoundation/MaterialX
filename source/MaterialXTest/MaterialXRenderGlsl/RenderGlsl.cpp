@@ -12,6 +12,7 @@
 
 #include <MaterialXRender/GeometryHandler.h>
 #include <MaterialXRender/StbImageLoader.h>
+#include <MaterialXCore/Tracing.h>
 #if defined(MATERIALX_BUILD_OIIO)
 #include <MaterialXRender/OiioImageLoader.h>
 #endif
@@ -19,6 +20,7 @@
 #include <MaterialXFormat/Util.h>
 
 namespace mx = MaterialX;
+namespace cat = mx::Tracing::Category;
 
 //
 // Render validation tester for the GLSL shading language
@@ -161,6 +163,8 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                                           const std::string& outputPath,
                                           mx::ImageVec* imageVec)
 {
+    MX_TRACE_FUNCTION(cat::Render);
+    MX_TRACE_SCOPE(cat::Material, shaderName.c_str());
     std::cout << "Validating GLSL rendering for: " << doc->getSourceUri() << std::endl;
 
     mx::ScopedTimer totalGLSLTime(&profileTimes.languageTimes.totalTime);
@@ -201,6 +205,7 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                 transpTimer.endTimer();
 
                 mx::ScopedTimer generationTimer(&profileTimes.languageTimes.generationTime);
+                MX_TRACE_SCOPE(cat::ShaderGen, "GenerateShader");
                 mx::GenOptions& contextOptions = context.getOptions();
                 contextOptions = options;
                 contextOptions.targetColorSpaceOverride = "lin_rec709";
@@ -277,6 +282,7 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                 _renderer->setLightHandler(isShader ? _lightHandler : nullptr);
 
                 {
+                    MX_TRACE_SCOPE(cat::Render, "CompileShader");
                     mx::ScopedTimer compileTimer(&profileTimes.languageTimes.compileTime);
                     _renderer->createProgram(shader);
                     _renderer->validateInputs();
@@ -343,6 +349,7 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                 int supersampleFactor = testOptions.enableReferenceQuality ? 8 : 1;
 
                 {
+                    MX_TRACE_SCOPE(cat::Render, "RenderMaterial");
                     mx::ScopedTimer renderTimer(&profileTimes.languageTimes.renderTime);
                     _renderer->getImageHandler()->setSearchPath(imageSearchPath);
                     unsigned int width = (unsigned int) testOptions.renderSize[0] * supersampleFactor;
