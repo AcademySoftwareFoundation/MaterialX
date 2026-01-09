@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#ifndef MATERIALX_MXTRACE_H
-#define MATERIALX_MXTRACE_H
+#ifndef MATERIALX_TRACING_H
+#define MATERIALX_TRACING_H
 
 /// @file
 /// Tracing infrastructure for performance analysis.
@@ -14,7 +14,7 @@
 ///
 /// Design goals:
 /// - API similar to USD's TraceCollector/TraceScope for familiarity
-/// - Abstract backend allows USD to inject its own tracing when calling MaterialX
+/// - Abstract sink allows USD to inject its own tracing when calling MaterialX
 /// - Zero overhead when tracing is disabled (macros compile to nothing)
 /// - Constexpr category strings for compile-time validation
 
@@ -25,13 +25,18 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-/// @namespace MxTraceCategory
+/// @namespace Tracing
+/// Tracing infrastructure for performance analysis.
+namespace Tracing
+{
+
+/// @namespace Category
 /// Constexpr trace category identifiers.
 /// 
 /// These are compile-time constant strings that identify trace event categories.
 /// Using constexpr ensures type safety and enables compile-time validation.
 /// The USD TraceCollector backend can map these to its own categories.
-namespace MxTraceCategory
+namespace Category
 {
     /// Rendering operations (GPU commands, frame capture, etc.)
     constexpr const char* Render = "mx.render";
@@ -47,18 +52,18 @@ namespace MxTraceCategory
 }
 
 // Usage: Add a namespace alias in your .cpp file for brevity:
-//   namespace cat = MaterialX::MxTraceCategory;
-//   MX_TRACE_SCOPE(cat::Render, "MyEvent");
+//   namespace trace = MaterialX::Tracing;
+//   MX_TRACE_SCOPE(trace::Category::Render, "MyEvent");
 
-/// @class MxTraceBackend
-/// Abstract tracing backend interface.
+/// @class Sink
+/// Abstract tracing sink interface.
 /// 
 /// Implementations can delegate to Perfetto, USD TraceCollector, or custom systems.
 /// This allows USD/Hydra to inject their own tracing when calling MaterialX code.
-class MX_CORE_API MxTraceBackend
+class MX_CORE_API Sink
 {
   public:
-    virtual ~MxTraceBackend() = default;
+    virtual ~Sink() = default;
 
     /// Begin a trace event with the given category and name.
     virtual void beginEvent(const char* category, const char* name) = 0;
@@ -73,89 +78,94 @@ class MX_CORE_API MxTraceBackend
     virtual void setThreadName(const char* name) = 0;
 };
 
-/// @class MxTraceCollector
-/// Global trace collector singleton (similar to USD's TraceCollector).
+/// @class Dispatcher
+/// Global trace dispatcher singleton.
 /// 
+/// Holds a reference to the active sink and dispatches trace events to it.
+/// Similar in role to USD's TraceCollector but acts as a passthrough dispatcher.
+///
 /// Usage:
-///   MxTraceCollector::getInstance().setBackend(myBackend);
-///   MxTraceCollector::getInstance().beginEvent("mx.render", "RenderFrame");
-class MX_CORE_API MxTraceCollector
+///   Tracing::Dispatcher::getInstance().setSink(mySink);
+///   Tracing::Dispatcher::getInstance().beginEvent("mx.render", "RenderFrame");
+class MX_CORE_API Dispatcher
 {
   public:
     /// Get the singleton instance.
-    static MxTraceCollector& getInstance();
+    static Dispatcher& getInstance();
 
-    /// Set the tracing backend. Pass nullptr to disable tracing.
-    void setBackend(std::shared_ptr<MxTraceBackend> backend);
+    /// Set the tracing sink. Pass nullptr to disable tracing.
+    void setSink(std::shared_ptr<Sink> sink);
 
-    /// Get the current backend (may be nullptr).
-    MxTraceBackend* getBackend() const { return _backend.get(); }
+    /// Get the current sink (may be nullptr).
+    Sink* getSink() const { return _sink.get(); }
 
     /// Check if tracing is currently enabled.
-    bool isEnabled() const { return _backend != nullptr; }
+    bool isEnabled() const { return _sink != nullptr; }
 
     /// Begin a trace event.
     void beginEvent(const char* category, const char* name)
     {
-        if (_backend)
-            _backend->beginEvent(category, name);
+        if (_sink)
+            _sink->beginEvent(category, name);
     }
 
     /// End a trace event.
     void endEvent(const char* category)
     {
-        if (_backend)
-            _backend->endEvent(category);
+        if (_sink)
+            _sink->endEvent(category);
     }
 
     /// Record a counter value.
     void counter(const char* category, const char* name, double value)
     {
-        if (_backend)
-            _backend->counter(category, name, value);
+        if (_sink)
+            _sink->counter(category, name, value);
     }
 
   private:
-    MxTraceCollector() = default;
-    MxTraceCollector(const MxTraceCollector&) = delete;
-    MxTraceCollector& operator=(const MxTraceCollector&) = delete;
+    Dispatcher() = default;
+    Dispatcher(const Dispatcher&) = delete;
+    Dispatcher& operator=(const Dispatcher&) = delete;
 
-    std::shared_ptr<MxTraceBackend> _backend;
+    std::shared_ptr<Sink> _sink;
 };
 
-/// @class MxTraceScope
+/// @class Scope
 /// RAII scope guard for trace events (similar to USD's TraceScope).
 /// 
 /// Usage:
 ///   {
-///       MxTraceScope scope("mx.render", "RenderMaterial");
+///       Tracing::Scope scope("mx.render", "RenderMaterial");
 ///       // ... code to trace ...
 ///   } // Event automatically ends here
-class MX_CORE_API MxTraceScope
+class MX_CORE_API Scope
 {
   public:
-    MxTraceScope(const char* category, const char* name)
+    Scope(const char* category, const char* name)
         : _category(category)
-        , _enabled(MxTraceCollector::getInstance().isEnabled())
+        , _enabled(Dispatcher::getInstance().isEnabled())
     {
         if (_enabled)
-            MxTraceCollector::getInstance().beginEvent(category, name);
+            Dispatcher::getInstance().beginEvent(category, name);
     }
 
-    ~MxTraceScope()
+    ~Scope()
     {
         if (_enabled)
-            MxTraceCollector::getInstance().endEvent(_category);
+            Dispatcher::getInstance().endEvent(_category);
     }
 
     // Non-copyable
-    MxTraceScope(const MxTraceScope&) = delete;
-    MxTraceScope& operator=(const MxTraceScope&) = delete;
+    Scope(const Scope&) = delete;
+    Scope& operator=(const Scope&) = delete;
 
   private:
     const char* _category;
     bool _enabled;
 };
+
+} // namespace Tracing
 
 MATERIALX_NAMESPACE_END
 
@@ -173,23 +183,23 @@ MATERIALX_NAMESPACE_END
 
 /// Create a scoped trace event. Event ends when scope exits.
 #define MX_TRACE_SCOPE(category, name) \
-    MaterialX::MxTraceScope MX_TRACE_CONCAT(_mxTraceScope_, __LINE__)(category, name)
+    MaterialX::Tracing::Scope MX_TRACE_CONCAT(_mxTraceScope_, __LINE__)(category, name)
 
 /// Create a scoped trace event using the current function name.
 #define MX_TRACE_FUNCTION(category) \
-    MaterialX::MxTraceScope MX_TRACE_CONCAT(_mxTraceFn_, __LINE__)(category, __FUNCTION__)
+    MaterialX::Tracing::Scope MX_TRACE_CONCAT(_mxTraceFn_, __LINE__)(category, __FUNCTION__)
 
 /// Record a counter value.
 #define MX_TRACE_COUNTER(category, name, value) \
-    MaterialX::MxTraceCollector::getInstance().counter(category, name, value)
+    MaterialX::Tracing::Dispatcher::getInstance().counter(category, name, value)
 
 /// Begin a trace event (must be paired with MX_TRACE_END).
 #define MX_TRACE_BEGIN(category, name) \
-    MaterialX::MxTraceCollector::getInstance().beginEvent(category, name)
+    MaterialX::Tracing::Dispatcher::getInstance().beginEvent(category, name)
 
 /// End a trace event.
 #define MX_TRACE_END(category) \
-    MaterialX::MxTraceCollector::getInstance().endEvent(category)
+    MaterialX::Tracing::Dispatcher::getInstance().endEvent(category)
 
 #else // MATERIALX_BUILD_TRACING not defined
 
@@ -201,5 +211,5 @@ MATERIALX_NAMESPACE_END
 
 #endif // MATERIALX_BUILD_TRACING
 
-#endif // MATERIALX_MXTRACE_H
+#endif // MATERIALX_TRACING_H
 

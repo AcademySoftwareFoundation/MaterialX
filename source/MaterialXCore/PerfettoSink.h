@@ -3,23 +3,24 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#ifndef MATERIALX_MXTRACEPERFETTO_H
-#define MATERIALX_MXTRACEPERFETTO_H
+#ifndef MATERIALX_PERFETTOSINK_H
+#define MATERIALX_PERFETTOSINK_H
 
 /// @file
-/// Perfetto-based implementation of the MxTraceBackend interface.
+/// Perfetto-based implementation of the Tracing::Sink interface.
 ///
 /// Usage:
-///   #include <MaterialXCore/MxTracePerfetto.h>
-///   auto backend = mx::MxPerfettoBackend::create();
-///   backend->initialize();
-///   mx::MxTraceCollector::getInstance().setBackend(backend);
+///   #include <MaterialXCore/PerfettoSink.h>
+///   namespace trace = mx::Tracing;
+///   auto sink = trace::PerfettoSink::create();
+///   sink->initialize();
+///   trace::Dispatcher::getInstance().setSink(sink);
 ///   // ... run application with tracing ...
-///   mx::MxTraceCollector::getInstance().setBackend(nullptr);
-///   backend->shutdown("trace.perfetto-trace");
+///   trace::Dispatcher::getInstance().setSink(nullptr);
+///   sink->shutdown("trace.perfetto-trace");
 ///   // Open the .perfetto-trace file at https://ui.perfetto.dev
 
-#include <MaterialXCore/MxTrace.h>
+#include <MaterialXCore/Tracing.h>
 
 #ifdef MATERIALX_BUILD_TRACING
 
@@ -28,19 +29,22 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-/// @class MxPerfettoBackend
-/// Perfetto-based implementation of MxTraceBackend.
+namespace Tracing
+{
+
+/// @class PerfettoSink
+/// Perfetto-based implementation of Tracing::Sink.
 ///
 /// This class provides a concrete implementation using Perfetto SDK's
 /// in-process tracing backend. Trace data is written to a .perfetto-trace
 /// file that can be visualized at https://ui.perfetto.dev
-class MX_CORE_API MxPerfettoBackend : public MxTraceBackend
+class MX_CORE_API PerfettoSink : public Sink
 {
   public:
-    /// Create a new Perfetto backend instance.
-    static std::shared_ptr<MxPerfettoBackend> create();
+    /// Create a new Perfetto sink instance.
+    static std::shared_ptr<PerfettoSink> create();
 
-    ~MxPerfettoBackend() override;
+    ~PerfettoSink() override;
 
     /// Initialize Perfetto tracing. Must be called before any trace events.
     /// @param bufferSizeKb Size of the trace buffer in KB (default 32MB)
@@ -50,22 +54,24 @@ class MX_CORE_API MxPerfettoBackend : public MxTraceBackend
     /// @param outputPath Path to write the trace file (e.g., "trace.perfetto-trace")
     void shutdown(const std::string& outputPath);
 
-    // MxTraceBackend interface implementation
+    // Sink interface implementation
     void beginEvent(const char* category, const char* name) override;
     void endEvent(const char* category) override;
     void counter(const char* category, const char* name, double value) override;
     void setThreadName(const char* name) override;
 
   private:
-    MxPerfettoBackend();
+    PerfettoSink();
     
     class Impl;
     std::unique_ptr<Impl> _impl;
 };
 
+} // namespace Tracing
+
 MATERIALX_NAMESPACE_END
 
 #endif // MATERIALX_BUILD_TRACING
 
-#endif // MATERIALX_MXTRACEPERFETTO_H
+#endif // MATERIALX_PERFETTOSINK_H
 

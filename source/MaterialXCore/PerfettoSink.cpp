@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXCore/MxTracePerfetto.h>
-#include <MaterialXCore/MxTrace.h>
+#include <MaterialXCore/PerfettoSink.h>
+#include <MaterialXCore/Tracing.h>
 
 #ifdef MATERIALX_BUILD_TRACING
 
@@ -43,25 +43,28 @@ PERFETTO_TRACK_EVENT_STATIC_STORAGE();
 
 MATERIALX_NAMESPACE_BEGIN
 
-class MxPerfettoBackend::Impl
+namespace Tracing
+{
+
+class PerfettoSink::Impl
 {
   public:
     std::unique_ptr<perfetto::TracingSession> session;
 };
 
-MxPerfettoBackend::MxPerfettoBackend() : _impl(new Impl())
+PerfettoSink::PerfettoSink() : _impl(new Impl())
 {
 }
 
-MxPerfettoBackend::~MxPerfettoBackend() = default;
+PerfettoSink::~PerfettoSink() = default;
 
-std::shared_ptr<MxPerfettoBackend> MxPerfettoBackend::create()
+std::shared_ptr<PerfettoSink> PerfettoSink::create()
 {
     // Use shared_ptr with custom destructor to handle private constructor
-    return std::shared_ptr<MxPerfettoBackend>(new MxPerfettoBackend());
+    return std::shared_ptr<PerfettoSink>(new PerfettoSink());
 }
 
-void MxPerfettoBackend::initialize(size_t bufferSizeKb)
+void PerfettoSink::initialize(size_t bufferSizeKb)
 {
     // Initialize Perfetto with in-process backend
     perfetto::TracingInitArgs args;
@@ -84,7 +87,7 @@ void MxPerfettoBackend::initialize(size_t bufferSizeKb)
     _impl->session->StartBlocking();
 }
 
-void MxPerfettoBackend::shutdown(const std::string& outputPath)
+void PerfettoSink::shutdown(const std::string& outputPath)
 {
     if (!_impl->session)
         return;
@@ -112,24 +115,24 @@ static bool categoryMatches(const char* category, const char* target)
     return category == target || (category && std::strcmp(category, target) == 0);
 }
 
-void MxPerfettoBackend::beginEvent(const char* category, const char* name)
+void PerfettoSink::beginEvent(const char* category, const char* name)
 {
     // Perfetto requires compile-time category names for TRACE_EVENT macros.
     // We dispatch based on the runtime category to the appropriate compile-time macro.
     // Pointer comparison catches constexpr usage, strcmp handles dynamic strings.
-    if (categoryMatches(category, MxTraceCategory::ShaderGen))
+    if (categoryMatches(category, Category::ShaderGen))
     {
         TRACE_EVENT_BEGIN("mx.shadergen", nullptr, [&](perfetto::EventContext ctx) {
             ctx.event()->set_name(name);
         });
     }
-    else if (categoryMatches(category, MxTraceCategory::Optimize))
+    else if (categoryMatches(category, Category::Optimize))
     {
         TRACE_EVENT_BEGIN("mx.optimize", nullptr, [&](perfetto::EventContext ctx) {
             ctx.event()->set_name(name);
         });
     }
-    else if (categoryMatches(category, MxTraceCategory::Material))
+    else if (categoryMatches(category, Category::Material))
     {
         TRACE_EVENT_BEGIN("mx.material", nullptr, [&](perfetto::EventContext ctx) {
             ctx.event()->set_name(name);
@@ -143,18 +146,18 @@ void MxPerfettoBackend::beginEvent(const char* category, const char* name)
     }
 }
 
-void MxPerfettoBackend::endEvent(const char* category)
+void PerfettoSink::endEvent(const char* category)
 {
     // Must match the category used in beginEvent
-    if (categoryMatches(category, MxTraceCategory::ShaderGen))
+    if (categoryMatches(category, Category::ShaderGen))
     {
         TRACE_EVENT_END("mx.shadergen");
     }
-    else if (categoryMatches(category, MxTraceCategory::Optimize))
+    else if (categoryMatches(category, Category::Optimize))
     {
         TRACE_EVENT_END("mx.optimize");
     }
-    else if (categoryMatches(category, MxTraceCategory::Material))
+    else if (categoryMatches(category, Category::Material))
     {
         TRACE_EVENT_END("mx.material");
     }
@@ -164,7 +167,7 @@ void MxPerfettoBackend::endEvent(const char* category)
     }
 }
 
-void MxPerfettoBackend::counter(const char* category, const char* name, double value)
+void PerfettoSink::counter(const char* category, const char* name, double value)
 {
     (void)category;
     // Create a counter track with the given name
@@ -172,7 +175,7 @@ void MxPerfettoBackend::counter(const char* category, const char* name, double v
     TRACE_COUNTER("mx.render", track, value);
 }
 
-void MxPerfettoBackend::setThreadName(const char* name)
+void PerfettoSink::setThreadName(const char* name)
 {
     // Set thread name for trace visualization
     auto track = perfetto::ThreadTrack::Current();
@@ -180,6 +183,8 @@ void MxPerfettoBackend::setThreadName(const char* name)
     desc.mutable_thread()->set_thread_name(name);
     perfetto::TrackEvent::SetTrackDescriptor(track, desc);
 }
+
+} // namespace Tracing
 
 MATERIALX_NAMESPACE_END
 

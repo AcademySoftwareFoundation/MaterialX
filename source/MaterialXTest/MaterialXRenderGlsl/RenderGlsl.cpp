@@ -12,7 +12,7 @@
 
 #include <MaterialXRender/GeometryHandler.h>
 #include <MaterialXRender/StbImageLoader.h>
-#include <MaterialXCore/MxTrace.h>
+#include <MaterialXCore/Tracing.h>
 #if defined(MATERIALX_BUILD_OIIO)
 #include <MaterialXRender/OiioImageLoader.h>
 #endif
@@ -20,7 +20,7 @@
 #include <MaterialXFormat/Util.h>
 
 namespace mx = MaterialX;
-namespace cat = mx::MxTraceCategory;
+namespace cat = mx::Tracing::Category;
 
 //
 // Render validation tester for the GLSL shading language

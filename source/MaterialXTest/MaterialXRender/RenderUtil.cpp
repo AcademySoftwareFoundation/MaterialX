@@ -13,8 +13,8 @@
 #endif
 
 #ifdef MATERIALX_BUILD_TRACING
-#include <MaterialXCore/MxTrace.h>
-#include <MaterialXCore/MxTracePerfetto.h>
+#include <MaterialXCore/Tracing.h>
+#include <MaterialXCore/PerfettoSink.h>
 #endif
 
 namespace mx = MaterialX;
@@ -102,9 +102,9 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
 #ifdef MATERIALX_BUILD_TRACING
     // Initialize tracing with target-specific trace filename
     mx::FilePath tracePath = options.resolveOutputPath(_shaderGenerator->getTarget() + "_render_trace.perfetto-trace");
-    auto perfettoBackend = mx::MxPerfettoBackend::create();
-    perfettoBackend->initialize();
-    mx::MxTraceCollector::getInstance().setBackend(perfettoBackend);
+    auto perfettoSink = mx::Tracing::PerfettoSink::create();
+    perfettoSink->initialize();
+    mx::Tracing::Dispatcher::getInstance().setSink(perfettoSink);
 #endif
 
 #ifdef LOG_TO_FILE
@@ -339,8 +339,8 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
 
 #ifdef MATERIALX_BUILD_TRACING
     // Shutdown tracing and write trace file
-    mx::MxTraceCollector::getInstance().setBackend(nullptr);
-    perfettoBackend->shutdown(tracePath.asString());
+    mx::Tracing::Dispatcher::getInstance().setSink(nullptr);
+    perfettoSink->shutdown(tracePath.asString());
 #endif
 
     // Print effective output directory for easy access (clickable in terminals)

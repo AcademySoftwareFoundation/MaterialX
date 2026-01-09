@@ -5,8 +5,8 @@ file(GLOB materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h" "${CMAKE_CURRENT_B
 
 # Exclude all tracing implementation when tracing is disabled (zero overhead)
 if(NOT MATERIALX_BUILD_TRACING)
-    list(REMOVE_ITEM materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/MxTrace.cpp")
-    list(REMOVE_ITEM materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/MxTracePerfetto.cpp")
+    list(REMOVE_ITEM materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/Tracing.cpp")
+    list(REMOVE_ITEM materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/PerfettoSink.cpp")
 endif()
 
 mx_add_library(MaterialXCore
