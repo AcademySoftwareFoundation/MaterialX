@@ -448,7 +448,7 @@ class MX_CORE_API InterfaceElement : public TypedElement
     vector<OutputPtr> getActiveOutputs() const;
 
     /// Set the output to which the given input is connected, creating a
-    /// child input if needed.  If the node argument is null, then any
+    /// child input if needed.  If the output argument is null, then any
     /// existing output connection on the input will be cleared.
     void setConnectedOutput(const string& inputName, OutputPtr output);
 
