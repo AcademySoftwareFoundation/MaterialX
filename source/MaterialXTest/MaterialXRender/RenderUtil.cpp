@@ -105,9 +105,7 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
     mx::Tracing::Dispatcher::getInstance().setSink(
         std::make_unique<mx::Tracing::PerfettoSink>(tracePath.asString()));
     // Scope guard ensures tracing is shut down on any exit path (return, exception, etc.)
-    struct TracingGuard {
-        ~TracingGuard() { mx::Tracing::Dispatcher::getInstance().shutdownSink(); }
-    } tracingGuard;
+    mx::Tracing::Dispatcher::ShutdownGuard tracingGuard;
 #endif
 
 #ifdef LOG_TO_FILE

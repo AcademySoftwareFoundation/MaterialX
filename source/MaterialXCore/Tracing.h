@@ -103,6 +103,22 @@ class MX_CORE_API Dispatcher
     /// The sink's destructor handles writing output.
     void shutdownSink();
 
+    /// Scope guard that calls shutdownSink() on destruction.
+    /// Ensures tracing is properly shut down on any exit path (return, exception, etc.)
+    ///
+    /// Usage:
+    ///   Dispatcher::getInstance().setSink(std::make_unique<PerfettoSink>(...));
+    ///   Dispatcher::ShutdownGuard guard;
+    ///   // ... traced work ...
+    ///   // guard destructor calls shutdownSink()
+    struct ShutdownGuard
+    {
+        ~ShutdownGuard() { Dispatcher::getInstance().shutdownSink(); }
+        ShutdownGuard() = default;
+        ShutdownGuard(const ShutdownGuard&) = delete;
+        ShutdownGuard& operator=(const ShutdownGuard&) = delete;
+    };
+
     /// Check if tracing is currently enabled.
     bool isEnabled() const { return _sink != nullptr; }
 
