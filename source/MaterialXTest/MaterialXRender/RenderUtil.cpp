@@ -15,6 +15,7 @@
 #ifdef MATERIALX_BUILD_TRACING
 #include <MaterialXCore/Tracing.h>
 #include <MaterialXCore/PerfettoSink.h>
+#include <optional>
 #endif
 
 namespace mx = MaterialX;
@@ -100,12 +101,16 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
     }
 
 #ifdef MATERIALX_BUILD_TRACING
-    // Initialize tracing with target-specific trace filename
-    mx::FilePath tracePath = options.resolveOutputPath(_shaderGenerator->getTarget() + "_render_trace.perfetto-trace");
-    mx::Tracing::Dispatcher::getInstance().setSink(
-        std::make_unique<mx::Tracing::PerfettoSink>(tracePath.asString()));
-    // Scope guard ensures tracing is shut down on any exit path (return, exception, etc.)
-    mx::Tracing::Dispatcher::ShutdownGuard tracingGuard;
+    // Initialize tracing with target-specific trace filename (if enabled in options)
+    std::optional<mx::Tracing::Dispatcher::ShutdownGuard> tracingGuard;
+    if (options.enableTracing)
+    {
+        mx::FilePath tracePath = options.resolveOutputPath(_shaderGenerator->getTarget() + "_render_trace.perfetto-trace");
+        mx::Tracing::Dispatcher::getInstance().setSink(
+            std::make_unique<mx::Tracing::PerfettoSink>(tracePath.asString()));
+        // Scope guard ensures tracing is shut down on any exit path (return, exception, etc.)
+        tracingGuard.emplace();
+    }
 #endif
 
 #ifdef LOG_TO_FILE

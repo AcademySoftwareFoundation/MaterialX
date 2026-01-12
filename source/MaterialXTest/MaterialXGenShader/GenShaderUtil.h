@@ -122,6 +122,10 @@ class TestSuiteOptions
     // If empty, use default locations. If set, all artifacts go to this directory.
     mx::FilePath outputDirectory;
 
+    // Enable Perfetto tracing during render tests (requires MATERIALX_BUILD_TRACING).
+    // Default is false to avoid overhead when not profiling.
+    bool enableTracing = false;
+
     // Helper to resolve output path for an artifact.
     // If outputDirectory is set, returns outputDirectory/filename.
     // Otherwise returns the original path unchanged.

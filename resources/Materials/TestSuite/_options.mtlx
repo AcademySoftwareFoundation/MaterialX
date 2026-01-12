@@ -78,5 +78,11 @@
          The directory will be created if it doesn't exist.
     -->
     <input name="outputDirectory" type="string" value="" />
+
+    <!-- Enable Perfetto tracing during render tests (requires MATERIALX_BUILD_TRACING).
+         When enabled, generates .perfetto-trace files in outputDirectory.
+         Default is false to avoid overhead when not profiling.
+    -->
+    <input name="enableTracing" type="boolean" value="false" />
   </nodedef>
 </materialx>
