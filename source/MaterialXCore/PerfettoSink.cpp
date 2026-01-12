@@ -136,10 +136,25 @@ void PerfettoSink::endEvent(Category category)
 
 void PerfettoSink::counter(Category category, const char* name, double value)
 {
-    (void)category;
-    // Create a counter track with the given name
     auto track = perfetto::CounterTrack(name);
-    TRACE_COUNTER("mx.render", track, value);
+    switch (category)
+    {
+        case Category::Render:
+            TRACE_COUNTER("mx.render", track, value);
+            break;
+        case Category::ShaderGen:
+            TRACE_COUNTER("mx.shadergen", track, value);
+            break;
+        case Category::Optimize:
+            TRACE_COUNTER("mx.optimize", track, value);
+            break;
+        case Category::Material:
+            TRACE_COUNTER("mx.material", track, value);
+            break;
+        default:
+            TRACE_COUNTER("mx.render", track, value);
+            break;
+    }
 }
 
 void PerfettoSink::setThreadName(const char* name)
