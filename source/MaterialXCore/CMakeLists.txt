@@ -24,7 +24,11 @@ target_include_directories(${TARGET_NAME}
 
 # Perfetto tracing support
 if(MATERIALX_BUILD_TRACING)
-    # Add Perfetto SDK source file (single-file amalgamation)
+    # The Perfetto SDK is distributed as an amalgamated single-file source (sdk/perfetto.cc).
+    # This is the official recommended integration method per Google's documentation:
+    # https://perfetto.dev/docs/instrumentation/tracing-sdk
+    # Compiling directly (vs. linking a library) simplifies integration and enables
+    # better compiler optimizations within a single translation unit.
     target_sources(${TARGET_NAME} PRIVATE 
         "${perfetto_SOURCE_DIR}/sdk/perfetto.cc")
     # Use generator expression - only needed at build time, not install
@@ -32,7 +36,8 @@ if(MATERIALX_BUILD_TRACING)
         $<BUILD_INTERFACE:${perfetto_SOURCE_DIR}/sdk>)
     target_compile_definitions(${TARGET_NAME} PUBLIC MATERIALX_BUILD_TRACING)
     if(WIN32)
-        # Perfetto requires ws2_32 on Windows
+        # ws2_32: Windows Sockets 2 library. Perfetto uses Winsock internally for
+        # inter-process communication (IPC), even in single-process tracing mode.
         target_link_libraries(${TARGET_NAME} PRIVATE ws2_32)
         # Prevent Windows.h min/max macros from breaking std::numeric_limits
         # Also need /bigobj because perfetto.cc has too many sections for MSVC
