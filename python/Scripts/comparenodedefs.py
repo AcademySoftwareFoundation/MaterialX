@@ -62,7 +62,12 @@ def buildTypeGroupVariables(typeGroups):
 def parseSpecTypes(typeStr):
     '''
     Parse a specification type string into (types, typeRef).
-    Handles "Same as X" and "Same as X or Y" patterns.
+
+    Supported patterns:
+      - Simple types: "float", "color3"
+      - Comma-separated: "float, color3"
+      - Union with "or": "BSDF or VDF", "BSDF, EDF, or VDF"
+      - Type references: "Same as bg", "Same as in1 or float"
     '''
     if typeStr is None or not typeStr.strip():
         return set(), None
@@ -79,12 +84,14 @@ def parseSpecTypes(typeStr):
             extraSet, _ = parseSpecTypes(extraTypes)
         return extraSet, refPort
 
+    # Normalize "or" to comma: "X or Y" -> "X, Y", "X, Y, or Z" -> "X, Y, Z"
+    normalized = re.sub(r',?\s+or\s+', ', ', typeStr)
+
     result = set()
-    for t in typeStr.split(','):
+    for t in normalized.split(','):
         t = t.strip()
-        if not t:
-            continue
-        result.add(t)
+        if t:
+            result.add(t)
 
     return result, None
 

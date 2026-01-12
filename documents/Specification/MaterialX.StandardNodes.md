@@ -1063,7 +1063,7 @@ The sine of the incoming value, which is expected to be expressed in radians.
 |Port |Description             |Type          |Default |
 |-----|------------------------|--------------|--------|
 |`in` |The primary input stream|float, vectorN|__zero__|
-|`out`|Output: sin of `in1`    |Same as `in`  |`in`    |
+|`out`|Output: sin of `in`     |Same as `in`  |`in`    |
 
 <a id="node-cos"> </a>
 
@@ -1073,7 +1073,7 @@ The cosine of the incoming value, which is expected to be expressed in radians.
 |Port |Description             |Type          |Default |
 |-----|------------------------|--------------|--------|
 |`in` |The primary input stream|float, vectorN|__zero__|
-|`out`|Output: cos of `in1`    |Same as `in`  |`in`    |
+|`out`|Output: cos of `in`     |Same as `in`  |`in`    |
 
 <a id="node-tan"> </a>
 
@@ -1083,7 +1083,7 @@ The tangent of the incoming value, which is expected to be expressed in radians.
 |Port |Description             |Type          |Default |
 |-----|------------------------|--------------|--------|
 |`in` |The primary input stream|float, vectorN|__zero__|
-|`out`|Output: cos of `in1`    |Same as `in`  |`in`    |
+|`out`|Output: tan of `in`     |Same as `in`  |`in`    |
 
 <a id="node-asin"> </a>
 
@@ -1093,7 +1093,7 @@ The arcsine of the incoming value. The output will be expressed in radians.
 |Port |Description             |Type          |Default |Accepted Values    |
 |-----|------------------------|--------------|--------|-------------------|
 |`in` |The primary input stream|float, vectorN|__zero__|[-__one__, __one__]|
-|`out`|Output: asin of `in1`   |Same as `in`  |`in`    |                   |
+|`out`|Output: asin of `in`    |Same as `in`  |`in`    |                   |
 
 <a id="node-acos"> </a>
 
@@ -1103,7 +1103,7 @@ The arccosine of the incoming value. The output will be expressed in radians.
 |Port |Description             |Type          |Default |Accepted Values    |
 |-----|------------------------|--------------|--------|-------------------|
 |`in` |The primary input stream|float, vectorN|__zero__|[-__one__, __one__]|
-|`out`|Output: acos of `in1`   |Same as `in`  |`in`    |                   |
+|`out`|Output: acos of `in`    |Same as `in`  |`in`    |                   |
 
 <a id="node-atan2"> </a>
 
@@ -1974,11 +1974,11 @@ Output the value of the `in1` or `in2` stream depending on whether the `value1` 
 |`in2`   |The value stream to output if `value1` <= `value2`|Same as `in1`                            |__zero__|
 |`out`   |Output: the result of the comparison              |Same as `in1`                            |`in1`   |
 
-|Port    |Description                                       |Type                                     |Default |
-|--------|--------------------------------------------------|-----------------------------------------|--------|
-|`value1`|the first value to be compared                    |float, integer                           |__one__ |
-|`value2`|the second value to be compared                   |Same as `value1`                         |__zero__|
-|`out`   |Output: true if `value1` > `value2                |boolean                                  |false   |
+|Port    |Description                        |Type            |Default |
+|--------|-----------------------------------|----------------|--------|
+|`value1`|The first value to be compared     |float, integer  |__one__ |
+|`value2`|The second value to be compared    |Same as `value1`|__zero__|
+|`out`   |Output: true if `value1` > `value2`|boolean         |false   |
 
 <a id="node-ifgreatereq"> </a>
 
@@ -1988,17 +1988,17 @@ Output the value of the `in1` or `in2` stream depending on whether the `value1` 
 
 |Port    |Description                                       |Type                                     |Default |
 |--------|--------------------------------------------------|-----------------------------------------|--------|
-|`value1`|the first value to be compared                    |float, integer                           |__one__ |
-|`value2`|the second value to be compared                   |Same as `value1`                         |__zero__|
+|`value1`|The first value to be compared                    |float, integer                           |__one__ |
+|`value2`|The second value to be compared                   |Same as `value1`                         |__zero__|
 |`in1`   |The value stream to output if `value1` >= `value2`|float, colorN, vectorN, matrixNN, integer|__zero__|
 |`in2`   |The value stream to output if `value1` < `value2` |Same as `in1`                            |__zero__|
 |`out`   |Output: the result of the comparison              |Same as `in1`                            |`in1`   |
 
-|Port    |Description                                       |Type                                     |Default |
-|--------|--------------------------------------------------|-----------------------------------------|--------|
-|`value1`|the first value to be compared                    |float, integer                           |__one__ |
-|`value2`|the second value to be compared                   |Same as `value1`                         |__zero__|
-|`out`   |Output: true if `value1` >= `value2               |boolean                                  |false   |
+|Port    |Description                         |Type            |Default |
+|--------|------------------------------------|----------------|--------|
+|`value1`|The first value to be compared      |float, integer  |__one__ |
+|`value2`|The second value to be compared     |Same as `value1`|__zero__|
+|`out`   |Output: true if `value1` >= `value2`|boolean         |false   |
 
 <a id="node-ifequal"> </a>
 
@@ -2008,8 +2008,8 @@ Output the value of the `in1` or `in2` stream depending on whether the `value1` 
 
 |Port    |Description                                       |Type                                     |Default |
 |--------|--------------------------------------------------|-----------------------------------------|--------|
-|`value1`|the first value to be compared                    |float, integer                           |__one__ |
-|`value2`|the second value to be compared                   |Same as `value1`                         |__zero__|
+|`value1`|The first value to be compared                    |float, integer                           |__one__ |
+|`value2`|The second value to be compared                   |Same as `value1`                         |__zero__|
 |`in1`   |The value stream to output if `value1` = `value2` |float, colorN, vectorN, matrixNN, integer|__zero__|
 |`in2`   |The value stream to output if `value1` != `value2`|Same as `in1`                            |__zero__|
 |`out`   |Output: the result of the comparison              |Same as `in1`                            |`in1`   |
@@ -2022,16 +2022,16 @@ Output the value of the `in1` or `in2` stream depending on whether the `value1` 
 |`in2`   |The value stream to output if `value1` != `value2`|Same as `in1`                            |__zero__|
 |`out`   |Output: the result of the comparison              |Same as `in1`                            |`in1`   |
 
-|Port    |Description                                       |Type                                     |Default |
-|--------|--------------------------------------------------|-----------------------------------------|--------|
-|`value1`|the first value to be compared                    |float, integer                           |__one__ |
-|`value2`|the second value to be compared                   |Same as `value1`                         |__zero__|
-|`out`   |Output: true if `value1` = `value2`               |boolean                                  |false   |
+|Port    |Description                        |Type            |Default |
+|--------|-----------------------------------|----------------|--------|
+|`value1`|The first value to be compared     |float, integer  |__one__ |
+|`value2`|The second value to be compared    |Same as `value1`|__zero__|
+|`out`   |Output: true if `value1` = `value2`|boolean         |false   |
 
 |Port    |Description                        |Type   |Default|
 |--------|-----------------------------------|-------|-------|
 |`value1`|The first value to be compared     |boolean|false  |
-|`value2`|The first value to be compared     |boolean|false  |
+|`value2`|The second value to be compared    |boolean|false  |
 |`out`   |Output: true if `value1` = `value2`|boolean|false  |
 
 <a id="node-switch"> </a>
@@ -2066,37 +2066,13 @@ Channel nodes are used to perform channel manipulations and data type conversion
 
 ### `extract`
 
-Isolate a single float channel from a __vectorN__ or __colorN__ stream. The output value is of type `float` with a default value of __zero__.
+Isolate a single float channel from a __vectorN__ or __colorN__ stream.
 
-|Port   |Description                                 |Type   |Default      |
-|-------|--------------------------------------------|-------|-------------|
-|`in`   |The input stream from which to extract `out`|color3 |0.0, 0.0, 0.0|
-|`index`|The index of the channel in `in` to extract |integer|0            |
-|`out`  |Output: the `index`th channel of `in`       |float  |0.0          |
-
-|Port   |Description                                 |Type   |Default           |
-|-------|--------------------------------------------|-------|------------------|
-|`in`   |The input stream from which to extract `out`|color4 |0.0, 0.0, 0.0, 0.0|
-|`index`|The index of the channel in `in` to extract |integer|0                 |
-|`out`  |Output: the `index`th channel of `in`       |float  |0.0               |
-
-|Port   |Description                                 |Type   |Default |
-|-------|--------------------------------------------|-------|--------|
-|`in`   |The input stream from which to extract `out`|vector2|0.0, 0.0|
-|`index`|The index of the channel in `in` to extract |integer|0       |
-|`out`  |Output: the `index`th channel of `in`       |float  |0.0     |
-
-|Port   |Description                                 |Type   |Default      |
-|-------|--------------------------------------------|-------|-------------|
-|`in`   |The input stream from which to extract `out`|vector3|0.0, 0.0, 0.0|
-|`index`|The index of the channel in `in` to extract |integer|0            |
-|`out`  |Output: the `index`th channel of `in`       |float  |0.0          |
-
-|Port   |Description                                 |Type   |Default           |
-|-------|--------------------------------------------|-------|------------------|
-|`in`   |The input stream from which to extract `out`|vector4|0.0, 0.0, 0.0, 0.0|
-|`index`|The index of the channel in `in` to extract |integer|0                 |
-|`out`  |Output: the `index`th channel of `in`       |float  |0.0               |
+|Port   |Description                                 |Type           |Default |
+|-------|--------------------------------------------|---------------|--------|
+|`in`   |The input stream from which to extract `out`|colorN, vectorN|__zero__|
+|`index`|The index of the channel in `in` to extract |integer        |0       |
+|`out`  |Output: the `index`th channel of `in`       |float          |0.0     |
 
 The valid range for `index` should be clamped to $[0,N)$ in the user interface, where __N__ is the size of the input vector stream. `index` is a uniform, non-varying value. Any `index` values outside of the valid range should result in an error.
 
@@ -2105,40 +2081,37 @@ The valid range for `index` should be clamped to $[0,N)$ in the user interface, 
 ### `convert`
 Convert a stream from one data type to another.
 
-|Port |Description                                    |Type   |Default |
-|-----|-----------------------------------------------|-------|--------|
-|`in` |The input stream to convert                    |boolean|false   |
-|`out`|Output: the converted value, either 0.0 or 1.0 |float  |0.0     |
+|Port |Description                |Type           |Default |
+|-----|---------------------------|---------------|--------|
+|`in` |The input stream to convert|boolean        |false   |
+|`out`|Output: the converted value|float, integer |__zero__|
 
-|Port |Description                                    |Type   |Default |
-|-----|-----------------------------------------------|-------|--------|
-|`in` |The input stream to convert                    |integer|0       |
-|`out`|Output: the converted value                    |float  |0.0     |
+|Port |Description                              |Type   |Default|
+|-----|-----------------------------------------|-------|-------|
+|`in` |The input stream to convert              |integer|0      |
+|`out`|Output: true for any non-zero input value|boolean|false  |
 
-|Port |Description                                    |Type   |Default |
-|-----|-----------------------------------------------|-------|--------|
-|`in` |The input stream to convert                    |boolean|false   |
-|`out`|Output: the converted value, either 0 or 1     |integer|0       |
+|Port |Description                |Type   |Default|
+|-----|---------------------------|-------|-------|
+|`in` |The input stream to convert|integer|0      |
+|`out`|Output: the converted value|float  |0.0    |
 
-|Port |Description                                    |Type   |Default |
-|-----|-----------------------------------------------|-------|--------|
-|`in` |The input stream to convert                    |integer|0       |
-|`out`|Output: true for any non-zero input value      |boolean|false   |
+|Port |Description                             |Type                   |Default |
+|-----|----------------------------------------|-----------------------|--------|
+|`in` |The input stream to convert             |boolean, float, integer|__zero__|
+|`out`|Output: copy input value to all channels|colorN, vectorN        |__zero__|
 
-|Port |Description                                    |Type          |Default |
-|-----|-----------------------------------------------|--------------|--------|
-|`in` |The input stream to convert                    |float,integer |__zero__|
-|`out`|Output: copy input value to all channels       |colorN,vectorN|__zero__|
+|Port |Description                |Type           |Default |
+|-----|---------------------------|---------------|--------|
+|`in` |The input stream to convert|colorN, vectorN|__zero__|
+|`out`|Output: the converted value|colorM, vectorM|__zero__|
 
-|Port |Description                                       |Type          |Default |
-|-----|--------------------------------------------------|--------------|--------|
-|`in` |The input stream to convert                       |boolean       |false   |
-|`out`|Output: 1 in all channels if `in`=true, 0 if false|colorN,vectorN|__zero__|
+|Port |Description                                                      |Type                                    |Default |
+|-----|-----------------------------------------------------------------|----------------------------------------|--------|
+|`in` |The input stream to convert                                      |boolean, integer, float, colorN, vectorN|__zero__|
+|`out`|Output: an unlit surface shader emitting the input value as color|surfaceshader                           |        |
 
-|Port |Description                  |Type          |Default |
-|-----|-----------------------------|--------------|--------|
-|`in` |The input stream to convert  |colorN,vectorN|__zero__|
-|`out`|Output: see below            |colorM,vectorM|__zero__|
+For boolean input values, all numeric output values will be either __zero__ or __one__.
 
 For colorN/vectorN to colorM/vectorM:
 
@@ -2216,7 +2189,7 @@ Split the channels of a 2-channel stream into separate float outputs.
 |`outx`|Output: the x channel of `in`   |float  |0.0     |
 |`outy`|Output: the y channel of `in`   |float  |0.0     |
 
-For the vector2-input `in`, `outx` and `outy` correspond to the x- and y-components of `in`..
+For the vector2-input `in`, `outx` and `outy` correspond to the x- and y-components of `in`.
 
 <a id="node-separate3"> </a>
 
@@ -2327,17 +2300,13 @@ An unlit surface shader node, representing a surface that can emit and transmit 
 ### `displacement`
 Constructs a displacement shader describing geometric modification to surfaces.
 
-|Port          |Description                                                 |Type              |Default|
-|--------------|------------------------------------------------------------|------------------|-------|
-|`displacement`|Scalar along the surface normal direction for each position.|float             |0.0    |
-|`scale`       |Scale factor for the displacement vector.                   |float             |1.0    |
-|`out`         |Output: displacement shader closure                         |displacementshader|       |
+The scalar signature displaces along the surface normal direction, while the vector signature allows displacement in tangent/normal space using (dPdu, dPdv, N) coordinates.
 
-|Port          |Description                                                                   |Type              |Default      |
-|--------------|------------------------------------------------------------------------------|------------------|-------------|
-|`displacement`|Vector displacement in (dPdu, dPdv, N) tangent/normal space for each position.|vector3           |0.0, 0.0, 0.0|
-|`scale`       |Scale factor for the displacement vector.                                     |float             |1.0          |
-|`out`         |Output: displacement shader closure                                           |displacementshader|             |
+|Port          |Description                             |Type              |Default |
+|--------------|----------------------------------------|------------------|--------|
+|`displacement`|Displacement amount or direction        |float, vector3    |__zero__|
+|`scale`       |Scale factor for the displacement       |float             |1.0     |
+|`out`         |Output: the computed displacement shader|displacementshader|        |
 
 <a id="node-mix-shader"> </a>
 
