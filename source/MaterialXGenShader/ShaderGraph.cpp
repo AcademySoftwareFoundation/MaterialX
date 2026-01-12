@@ -976,6 +976,9 @@ void ShaderGraph::optimize(GenContext& context)
     size_t numEdits = 0;
     for (ShaderNode* node : getNodes())
     {
+        if (node->numInputs() == 0) {
+            continue;
+        }
         if (node->hasClassification(ShaderNode::Classification::CONSTANT))
         {
             // Constant nodes can be elided by moving their value downstream.
