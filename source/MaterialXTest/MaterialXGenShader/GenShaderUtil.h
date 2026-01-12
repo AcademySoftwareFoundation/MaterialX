@@ -139,30 +139,6 @@ class TestSuiteOptions
         return outputDirectory / path.getBaseName();
     }
 
-    // Helper to resolve output path preserving subdirectory structure.
-    // If outputDirectory is set, returns outputDirectory/relativePath.
-    // Otherwise returns the original path unchanged.
-    mx::FilePath resolveOutputPathWithSubdir(const mx::FilePath& path, const mx::FilePath& baseDir) const
-    {
-        if (outputDirectory.isEmpty())
-        {
-            return path;
-        }
-        // Try to make the path relative to baseDir to preserve structure
-        std::string pathStr = path.asString();
-        std::string baseStr = baseDir.asString();
-        if (pathStr.find(baseStr) == 0)
-        {
-            std::string relative = pathStr.substr(baseStr.length());
-            if (!relative.empty() && (relative[0] == '/' || relative[0] == '\\'))
-            {
-                relative = relative.substr(1);
-            }
-            return outputDirectory / mx::FilePath(relative);
-        }
-        return outputDirectory / path.getBaseName();
-    }
-
     // Bake parameters
     struct BakeSetting
     {
