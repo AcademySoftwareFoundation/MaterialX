@@ -16,12 +16,20 @@ Dispatcher& Dispatcher::getInstance()
     return instance;
 }
 
-void Dispatcher::setSink(std::shared_ptr<Sink> sink)
+void Dispatcher::setSink(std::unique_ptr<Sink> sink)
 {
-    _sink = sink;
+    // Assert if a sink is already set - caller should shutdownSink() first.
+    // This catches programming errors; if triggered, the old sink will still
+    // write its output when destroyed by this assignment.
+    assert(!_sink && "Sink already set - call shutdownSink() first");
+    _sink = std::move(sink);
+}
+
+void Dispatcher::shutdownSink()
+{
+    _sink.reset();  // Destructor handles writing output
 }
 
 } // namespace Tracing
 
 MATERIALX_NAMESPACE_END
-

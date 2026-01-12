@@ -102,9 +102,12 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
 #ifdef MATERIALX_BUILD_TRACING
     // Initialize tracing with target-specific trace filename
     mx::FilePath tracePath = options.resolveOutputPath(_shaderGenerator->getTarget() + "_render_trace.perfetto-trace");
-    auto perfettoSink = mx::Tracing::PerfettoSink::create();
-    perfettoSink->initialize();
-    mx::Tracing::Dispatcher::getInstance().setSink(perfettoSink);
+    mx::Tracing::Dispatcher::getInstance().setSink(
+        std::make_unique<mx::Tracing::PerfettoSink>(tracePath.asString()));
+    // Scope guard ensures tracing is shut down on any exit path (return, exception, etc.)
+    struct TracingGuard {
+        ~TracingGuard() { mx::Tracing::Dispatcher::getInstance().shutdownSink(); }
+    } tracingGuard;
 #endif
 
 #ifdef LOG_TO_FILE
@@ -336,12 +339,6 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
     // Dump out profiling information
     totalTime.endTimer();
     printRunLog(profileTimes, options, profilingLog, dependLib);
-
-#ifdef MATERIALX_BUILD_TRACING
-    // Shutdown tracing and write trace file
-    mx::Tracing::Dispatcher::getInstance().setSink(nullptr);
-    perfettoSink->shutdown(tracePath.asString());
-#endif
 
     // Print effective output directory for easy access (clickable in terminals)
     if (!options.outputDirectory.isEmpty())

@@ -20,6 +20,7 @@
 
 #include <MaterialXCore/Export.h>
 
+#include <cassert>
 #include <memory>
 #include <string>
 
@@ -81,23 +82,26 @@ class MX_CORE_API Sink
 /// @class Dispatcher
 /// Global trace dispatcher singleton.
 /// 
-/// Holds a reference to the active sink and dispatches trace events to it.
-/// Similar in role to USD's TraceCollector but acts as a passthrough dispatcher.
+/// Owns the active sink and dispatches trace events to it.
+/// The Dispatcher takes ownership of the sink via unique_ptr.
 ///
 /// Usage:
-///   Tracing::Dispatcher::getInstance().setSink(mySink);
-///   Tracing::Dispatcher::getInstance().beginEvent("mx.render", "RenderFrame");
+///   Dispatcher::getInstance().setSink(std::make_unique<PerfettoSink>(...));
+///   // ... traced work ...
+///   Dispatcher::getInstance().shutdownSink();
 class MX_CORE_API Dispatcher
 {
   public:
     /// Get the singleton instance.
     static Dispatcher& getInstance();
 
-    /// Set the tracing sink. Pass nullptr to disable tracing.
-    void setSink(std::shared_ptr<Sink> sink);
+    /// Set the tracing sink. Takes ownership.
+    /// Asserts if a sink is already set (call shutdownSink() first).
+    void setSink(std::unique_ptr<Sink> sink);
 
-    /// Get the current sink (may be nullptr).
-    Sink* getSink() const { return _sink.get(); }
+    /// Shutdown and destroy the current sink.
+    /// The sink's destructor handles writing output.
+    void shutdownSink();
 
     /// Check if tracing is currently enabled.
     bool isEnabled() const { return _sink != nullptr; }
@@ -128,7 +132,7 @@ class MX_CORE_API Dispatcher
     Dispatcher(const Dispatcher&) = delete;
     Dispatcher& operator=(const Dispatcher&) = delete;
 
-    std::shared_ptr<Sink> _sink;
+    std::unique_ptr<Sink> _sink;
 };
 
 /// @class Scope
@@ -144,16 +148,13 @@ class MX_CORE_API Scope
   public:
     Scope(const char* category, const char* name)
         : _category(category)
-        , _enabled(Dispatcher::getInstance().isEnabled())
     {
-        if (_enabled)
-            Dispatcher::getInstance().beginEvent(category, name);
+        Dispatcher::getInstance().beginEvent(category, name);
     }
 
     ~Scope()
     {
-        if (_enabled)
-            Dispatcher::getInstance().endEvent(_category);
+        Dispatcher::getInstance().endEvent(_category);
     }
 
     // Non-copyable
@@ -161,8 +162,7 @@ class MX_CORE_API Scope
     Scope& operator=(const Scope&) = delete;
 
   private:
-    const char* _category;
-    bool _enabled;
+    const char* const _category;
 };
 
 } // namespace Tracing
@@ -212,4 +212,3 @@ MATERIALX_NAMESPACE_END
 #endif // MATERIALX_BUILD_TRACING
 
 #endif // MATERIALX_TRACING_H
-

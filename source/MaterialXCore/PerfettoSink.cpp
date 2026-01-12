@@ -4,26 +4,12 @@
 //
 
 #include <MaterialXCore/PerfettoSink.h>
-#include <MaterialXCore/Tracing.h>
 
 #ifdef MATERIALX_BUILD_TRACING
 
-// Suppress verbose warnings from Perfetto SDK templates
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable : 4127) // conditional expression is constant
-#pragma warning(disable : 4146) // unary minus on unsigned type
-#pragma warning(disable : 4369) // enumerator value cannot be represented
-#endif
-
-#include <perfetto.h>
-
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
-
 #include <fstream>
 #include <cstring>
+#include <mutex>
 
 // Define Perfetto trace categories for MaterialX
 // These must be in a .cpp file, not a header
@@ -46,67 +32,50 @@ MATERIALX_NAMESPACE_BEGIN
 namespace Tracing
 {
 
-class PerfettoSink::Impl
+// One-time global Perfetto initialization flag
+static std::once_flag g_perfettoInitFlag;
+
+PerfettoSink::PerfettoSink(std::string outputPath, size_t bufferSizeKb)
+    : _outputPath(std::move(outputPath))
 {
-  public:
-    std::unique_ptr<perfetto::TracingSession> session;
-};
+    // One-time global Perfetto initialization (safe to call from multiple instances)
+    std::call_once(g_perfettoInitFlag, []() {
+        perfetto::TracingInitArgs args;
+        args.backends |= perfetto::kInProcessBackend;
+        perfetto::Tracing::Initialize(args);
+        perfetto::TrackEvent::Register();
+    });
 
-PerfettoSink::PerfettoSink() : _impl(new Impl())
-{
-}
-
-PerfettoSink::~PerfettoSink() = default;
-
-std::shared_ptr<PerfettoSink> PerfettoSink::create()
-{
-    // Use shared_ptr with custom destructor to handle private constructor
-    return std::shared_ptr<PerfettoSink>(new PerfettoSink());
-}
-
-void PerfettoSink::initialize(size_t bufferSizeKb)
-{
-    // Initialize Perfetto with in-process backend
-    perfetto::TracingInitArgs args;
-    args.backends |= perfetto::kInProcessBackend;
-    perfetto::Tracing::Initialize(args);
-
-    // Register track event data source
-    perfetto::TrackEvent::Register();
-
-    // Configure tracing session
+    // Create and start a tracing session for this sink
     perfetto::TraceConfig cfg;
     cfg.add_buffers()->set_size_kb(static_cast<uint32_t>(bufferSizeKb));
 
     auto* ds_cfg = cfg.add_data_sources()->mutable_config();
     ds_cfg->set_name("track_event");
 
-    // Start tracing session
-    _impl->session = perfetto::Tracing::NewTrace();
-    _impl->session->Setup(cfg);
-    _impl->session->StartBlocking();
+    _session = perfetto::Tracing::NewTrace();
+    _session->Setup(cfg);
+    _session->StartBlocking();
 }
 
-void PerfettoSink::shutdown(const std::string& outputPath)
+PerfettoSink::~PerfettoSink()
 {
-    if (!_impl->session)
+    if (!_session)
         return;
 
     // Flush any pending trace data
     perfetto::TrackEvent::Flush();
 
     // Stop the tracing session
-    _impl->session->StopBlocking();
+    _session->StopBlocking();
 
     // Read trace data and write to file
-    std::vector<char> traceData(_impl->session->ReadTraceBlocking());
+    std::vector<char> traceData(_session->ReadTraceBlocking());
     if (!traceData.empty())
     {
-        std::ofstream output(outputPath, std::ios::binary);
+        std::ofstream output(_outputPath, std::ios::binary);
         output.write(traceData.data(), static_cast<std::streamsize>(traceData.size()));
     }
-
-    _impl->session.reset();
 }
 
 // Helper to check category match (pointer comparison first for constexpr, then strcmp)
@@ -189,4 +158,3 @@ void PerfettoSink::setThreadName(const char* name)
 MATERIALX_NAMESPACE_END
 
 #endif // MATERIALX_BUILD_TRACING
-
