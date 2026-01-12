@@ -16,11 +16,12 @@
 /// - API similar to USD's TraceCollector/TraceScope for familiarity
 /// - Abstract sink allows USD to inject its own tracing when calling MaterialX
 /// - Zero overhead when tracing is disabled (macros compile to nothing)
-/// - Constexpr category strings for compile-time validation
+/// - Enum-based categories for type safety and efficient dispatch
 
 #include <MaterialXCore/Export.h>
 
 #include <cassert>
+#include <cstddef>
 #include <memory>
 #include <string>
 
@@ -31,30 +32,28 @@ MATERIALX_NAMESPACE_BEGIN
 namespace Tracing
 {
 
-/// @namespace Category
-/// Constexpr trace category identifiers.
+/// @enum Category
+/// Trace event categories for filtering and organization.
 /// 
-/// These are compile-time constant strings that identify trace event categories.
-/// Using constexpr ensures type safety and enables compile-time validation.
-/// The USD TraceCollector backend can map these to its own categories.
-namespace Category
+/// These are used to categorize trace events for filtering in the UI
+/// and to enable/disable specific categories at runtime.
+enum class Category
 {
     /// Rendering operations (GPU commands, frame capture, etc.)
-    constexpr const char* Render = "mx.render";
+    Render = 0,
     
     /// Shader generation (code generation, optimization passes)
-    constexpr const char* ShaderGen = "mx.shadergen";
+    ShaderGen,
     
     /// Optimization passes (constant folding, dead code elimination)
-    constexpr const char* Optimize = "mx.optimize";
+    Optimize,
     
     /// Material/shader identity markers (for filtering/grouping in traces)
-    constexpr const char* Material = "mx.material";
-}
-
-// Usage: Add a namespace alias in your .cpp file for brevity:
-//   namespace trace = MaterialX::Tracing;
-//   MX_TRACE_SCOPE(trace::Category::Render, "MyEvent");
+    Material,
+    
+    /// Number of categories (must be last)
+    Count
+};
 
 /// @class Sink
 /// Abstract tracing sink interface.
@@ -67,13 +66,13 @@ class MX_CORE_API Sink
     virtual ~Sink() = default;
 
     /// Begin a trace event with the given category and name.
-    virtual void beginEvent(const char* category, const char* name) = 0;
+    virtual void beginEvent(Category category, const char* name) = 0;
 
     /// End the current trace event for the given category.
-    virtual void endEvent(const char* category) = 0;
+    virtual void endEvent(Category category) = 0;
 
     /// Record a counter value (e.g., GPU time, memory usage).
-    virtual void counter(const char* category, const char* name, double value) = 0;
+    virtual void counter(Category category, const char* name, double value) = 0;
 
     /// Set the current thread's name for trace visualization.
     virtual void setThreadName(const char* name) = 0;
@@ -123,21 +122,21 @@ class MX_CORE_API Dispatcher
     bool isEnabled() const { return _sink != nullptr; }
 
     /// Begin a trace event.
-    void beginEvent(const char* category, const char* name)
+    void beginEvent(Category category, const char* name)
     {
         if (_sink)
             _sink->beginEvent(category, name);
     }
 
     /// End a trace event.
-    void endEvent(const char* category)
+    void endEvent(Category category)
     {
         if (_sink)
             _sink->endEvent(category);
     }
 
     /// Record a counter value.
-    void counter(const char* category, const char* name, double value)
+    void counter(Category category, const char* name, double value)
     {
         if (_sink)
             _sink->counter(category, name, value);
@@ -154,31 +153,31 @@ class MX_CORE_API Dispatcher
 /// @class Scope
 /// RAII scope guard for trace events (similar to USD's TraceScope).
 /// 
+/// Template parameter Cat is the category enum value, known at compile time.
+/// This avoids storing the category on the stack.
+///
 /// Usage:
 ///   {
-///       Tracing::Scope scope("mx.render", "RenderMaterial");
+///       Tracing::Scope<Category::Render> scope("RenderMaterial");
 ///       // ... code to trace ...
 ///   } // Event automatically ends here
-class MX_CORE_API Scope
+template<Category Cat>
+class Scope
 {
   public:
-    Scope(const char* category, const char* name)
-        : _category(category)
+    explicit Scope(const char* name)
     {
-        Dispatcher::getInstance().beginEvent(category, name);
+        Dispatcher::getInstance().beginEvent(Cat, name);
     }
 
     ~Scope()
     {
-        Dispatcher::getInstance().endEvent(_category);
+        Dispatcher::getInstance().endEvent(Cat);
     }
 
     // Non-copyable
     Scope(const Scope&) = delete;
     Scope& operator=(const Scope&) = delete;
-
-  private:
-    const char* const _category;
 };
 
 } // namespace Tracing
@@ -198,12 +197,13 @@ MATERIALX_NAMESPACE_END
 #ifdef MATERIALX_BUILD_TRACING
 
 /// Create a scoped trace event. Event ends when scope exits.
+/// Category must be a Tracing::Category enum value.
 #define MX_TRACE_SCOPE(category, name) \
-    MaterialX::Tracing::Scope MX_TRACE_CONCAT(_mxTraceScope_, __LINE__)(category, name)
+    MaterialX::Tracing::Scope<category> MX_TRACE_CONCAT(_mxTraceScope_, __LINE__)(name)
 
 /// Create a scoped trace event using the current function name.
 #define MX_TRACE_FUNCTION(category) \
-    MaterialX::Tracing::Scope MX_TRACE_CONCAT(_mxTraceFn_, __LINE__)(category, __FUNCTION__)
+    MaterialX::Tracing::Scope<category> MX_TRACE_CONCAT(_mxTraceFn_, __LINE__)(__FUNCTION__)
 
 /// Record a counter value.
 #define MX_TRACE_COUNTER(category, name, value) \

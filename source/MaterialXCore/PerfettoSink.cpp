@@ -8,7 +8,6 @@
 #ifdef MATERIALX_BUILD_TRACING
 
 #include <fstream>
-#include <cstring>
 #include <mutex>
 
 // Define Perfetto trace categories for MaterialX
@@ -78,65 +77,64 @@ PerfettoSink::~PerfettoSink()
     }
 }
 
-// Helper to check category match (pointer comparison first for constexpr, then strcmp)
-static bool categoryMatches(const char* category, const char* target)
-{
-    return category == target || (category && std::strcmp(category, target) == 0);
-}
-
-void PerfettoSink::beginEvent(const char* category, const char* name)
+void PerfettoSink::beginEvent(Category category, const char* name)
 {
     // Perfetto requires compile-time category names for TRACE_EVENT macros.
-    // We dispatch based on the runtime category to the appropriate compile-time macro.
-    // Pointer comparison catches constexpr usage, strcmp handles dynamic strings.
-    if (categoryMatches(category, Category::ShaderGen))
+    // Switch on the enum lets the compiler optimize to a jump table.
+    switch (category)
     {
-        TRACE_EVENT_BEGIN("mx.shadergen", nullptr, [&](perfetto::EventContext ctx) {
-            ctx.event()->set_name(name);
-        });
-    }
-    else if (categoryMatches(category, Category::Optimize))
-    {
-        TRACE_EVENT_BEGIN("mx.optimize", nullptr, [&](perfetto::EventContext ctx) {
-            ctx.event()->set_name(name);
-        });
-    }
-    else if (categoryMatches(category, Category::Material))
-    {
-        TRACE_EVENT_BEGIN("mx.material", nullptr, [&](perfetto::EventContext ctx) {
-            ctx.event()->set_name(name);
-        });
-    }
-    else // Default to mx.render
-    {
-        TRACE_EVENT_BEGIN("mx.render", nullptr, [&](perfetto::EventContext ctx) {
-            ctx.event()->set_name(name);
-        });
+        case Category::Render:
+            TRACE_EVENT_BEGIN("mx.render", nullptr, [&](perfetto::EventContext ctx) {
+                ctx.event()->set_name(name);
+            });
+            break;
+        case Category::ShaderGen:
+            TRACE_EVENT_BEGIN("mx.shadergen", nullptr, [&](perfetto::EventContext ctx) {
+                ctx.event()->set_name(name);
+            });
+            break;
+        case Category::Optimize:
+            TRACE_EVENT_BEGIN("mx.optimize", nullptr, [&](perfetto::EventContext ctx) {
+                ctx.event()->set_name(name);
+            });
+            break;
+        case Category::Material:
+            TRACE_EVENT_BEGIN("mx.material", nullptr, [&](perfetto::EventContext ctx) {
+                ctx.event()->set_name(name);
+            });
+            break;
+        default:
+            // Fallback for any future categories
+            TRACE_EVENT_BEGIN("mx.render", nullptr, [&](perfetto::EventContext ctx) {
+                ctx.event()->set_name(name);
+            });
+            break;
     }
 }
 
-void PerfettoSink::endEvent(const char* category)
+void PerfettoSink::endEvent(Category category)
 {
-    // Must match the category used in beginEvent
-    if (categoryMatches(category, Category::ShaderGen))
+    switch (category)
     {
-        TRACE_EVENT_END("mx.shadergen");
-    }
-    else if (categoryMatches(category, Category::Optimize))
-    {
-        TRACE_EVENT_END("mx.optimize");
-    }
-    else if (categoryMatches(category, Category::Material))
-    {
-        TRACE_EVENT_END("mx.material");
-    }
-    else
-    {
-        TRACE_EVENT_END("mx.render");
+        case Category::Render:
+            TRACE_EVENT_END("mx.render");
+            break;
+        case Category::ShaderGen:
+            TRACE_EVENT_END("mx.shadergen");
+            break;
+        case Category::Optimize:
+            TRACE_EVENT_END("mx.optimize");
+            break;
+        case Category::Material:
+            TRACE_EVENT_END("mx.material");
+            break;
+        default:
+            TRACE_EVENT_END("mx.render");
+            break;
     }
 }
 
-void PerfettoSink::counter(const char* category, const char* name, double value)
+void PerfettoSink::counter(Category category, const char* name, double value)
 {
     (void)category;
     // Create a counter track with the given name

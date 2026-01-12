@@ -81,9 +81,9 @@ class MX_CORE_API PerfettoSink : public Sink
     PerfettoSink& operator=(PerfettoSink&&) = delete;
 
     // Sink interface implementation
-    void beginEvent(const char* category, const char* name) override;
-    void endEvent(const char* category) override;
-    void counter(const char* category, const char* name, double value) override;
+    void beginEvent(Category category, const char* name) override;
+    void endEvent(Category category) override;
+    void counter(Category category, const char* name, double value) override;
     void setThreadName(const char* name) override;
 
   private:
