@@ -976,10 +976,7 @@ void ShaderGraph::optimize(GenContext& context)
     size_t numEdits = 0;
     for (ShaderNode* node : getNodes())
     {
-        if (node->numInputs() == 0) {
-            continue;
-        }
-        if (node->hasClassification(ShaderNode::Classification::CONSTANT))
+        if (node->matchClassification(ShaderNode::Classification::CONSTANT))
         {
             // Constant nodes can be elided by moving their value downstream.
             bool canElide = context.getOptions().elideConstantNodes;
@@ -999,7 +996,7 @@ void ShaderGraph::optimize(GenContext& context)
                 ++numEdits;
             }
         }
-        else if (node->hasClassification(ShaderNode::Classification::DOT))
+        else if (node->matchClassification(ShaderNode::Classification::DOT))
         {
             // Filename dot nodes must be elided so they do not create extra samplers.
             ShaderInput* in = node->getInput("in");
@@ -1056,6 +1053,15 @@ void ShaderGraph::optimize(GenContext& context)
 
 void ShaderGraph::bypass(ShaderNode* node, size_t inputIndex, size_t outputIndex)
 {
+    if (inputIndex >= node->numInputs())
+    {
+        throw ExceptionShaderGenError("Input index '" + std::to_string(inputIndex) + "' out of bounds for node '" + node->getName() + "'");
+    }
+    if (outputIndex >= node->numOutputs())
+    {
+        throw ExceptionShaderGenError("Output index '" + std::to_string(outputIndex) + "' out of bounds for node '" + node->getName() + "'");
+    }
+
     ShaderInput* input = node->getInput(inputIndex);
     ShaderOutput* output = node->getOutput(outputIndex);
 
