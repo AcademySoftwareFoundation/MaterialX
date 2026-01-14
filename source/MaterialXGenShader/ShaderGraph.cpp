@@ -976,8 +976,13 @@ void ShaderGraph::optimize(GenContext& context)
     size_t numEdits = 0;
     for (ShaderNode* node : getNodes())
     {
-        if (node->matchClassification(ShaderNode::Classification::CONSTANT))
+        if (node->hasClassification(ShaderNode::Classification::CONSTANT))
         {
+            if (node->numInputs() == 0)
+            {
+                // Cannot elide a constant node with no inputs.
+                continue;
+            }
             // Constant nodes can be elided by moving their value downstream.
             bool canElide = context.getOptions().elideConstantNodes;
             if (!canElide)
@@ -996,8 +1001,13 @@ void ShaderGraph::optimize(GenContext& context)
                 ++numEdits;
             }
         }
-        else if (node->matchClassification(ShaderNode::Classification::DOT))
+        else if (node->hasClassification(ShaderNode::Classification::DOT))
         {
+            if (node->numInputs() == 0)
+            {
+                // Cannot elide a dot node with no inputs.
+                continue;
+            }
             // Filename dot nodes must be elided so they do not create extra samplers.
             ShaderInput* in = node->getInput("in");
             if (in && in->getType() == Type::FILENAME)

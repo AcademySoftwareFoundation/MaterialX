@@ -418,16 +418,10 @@ class MX_GENSHADER_API ShaderNode
         _classification |= c;
     }
 
-    /// Return true if this node has the given classification bits.
+    /// Return true if this node matches the given classification.
     bool hasClassification(uint32_t c) const
     {
         return (_classification & c) == c;
-    }
-
-    /// Return true if this node explicitly matches the given classification bits.
-    bool matchClassification(uint32_t c) const
-    {
-        return _classification == c;
     }
 
     /// Return the name of this node.
