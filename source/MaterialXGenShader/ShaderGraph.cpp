@@ -978,6 +978,11 @@ void ShaderGraph::optimize(GenContext& context)
     {
         if (node->hasClassification(ShaderNode::Classification::CONSTANT))
         {
+            if (node->numInputs() == 0)
+            {
+                // Cannot elide a constant node with no inputs.
+                continue;
+            }
             // Constant nodes can be elided by moving their value downstream.
             bool canElide = context.getOptions().elideConstantNodes;
             if (!canElide)
@@ -998,6 +1003,11 @@ void ShaderGraph::optimize(GenContext& context)
         }
         else if (node->hasClassification(ShaderNode::Classification::DOT))
         {
+            if (node->numInputs() == 0)
+            {
+                // Cannot elide a dot node with no inputs.
+                continue;
+            }
             // Filename dot nodes must be elided so they do not create extra samplers.
             ShaderInput* in = node->getInput("in");
             if (in && in->getType() == Type::FILENAME)
@@ -1053,6 +1063,15 @@ void ShaderGraph::optimize(GenContext& context)
 
 void ShaderGraph::bypass(ShaderNode* node, size_t inputIndex, size_t outputIndex)
 {
+    if (inputIndex >= node->numInputs())
+    {
+        throw ExceptionShaderGenError("Input index '" + std::to_string(inputIndex) + "' out of bounds for node '" + node->getName() + "'");
+    }
+    if (outputIndex >= node->numOutputs())
+    {
+        throw ExceptionShaderGenError("Output index '" + std::to_string(outputIndex) + "' out of bounds for node '" + node->getName() + "'");
+    }
+
     ShaderInput* input = node->getInput(inputIndex);
     ShaderOutput* output = node->getOutput(outputIndex);
 
