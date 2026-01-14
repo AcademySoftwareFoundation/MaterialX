@@ -241,9 +241,6 @@ export material mx_generalized_schlick_bsdf(
 );
 
 
-// TODO MDL 1.8
-// * will add support for thin film above a color_custom_curve_layer node until then, thin_film will have no effect
-// * thin_film(thickness: 0.0, ior: < 1.0) will be handled properly
 export material mx_dielectric_bsdf(
     float  mxp_weight    = 1.0,
     color  mxp_tint      = color(1.0),
