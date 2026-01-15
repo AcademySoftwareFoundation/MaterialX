@@ -224,6 +224,7 @@ mark_as_advanced(MATERIALX_EMSDK_PATH)
 mark_as_advanced(MATERIALX_BUILD_IOS)
 mark_as_advanced(MATERIALX_BUILD_APPLE_FRAMEWORK)
 mark_as_advanced(MATERIALX_MDL_BINARY_MDLC)
+mark_as_advanced(MATERIALX_MDL_BINARY_TESTRENDER)
 mark_as_advanced(MATERIALX_MDL_MODULE_PATHS)
 mark_as_advanced(MATERIALX_MDL_SDK_DIR)
 mark_as_advanced(MATERIALX_SLANG_RHI_SOURCE_DIR)
@@ -264,11 +265,23 @@ if (MATERIALX_BUILD_BENCHMARK_TESTS)
     add_definitions(-DMATERIALX_BUILD_BENCHMARK_TESTS)
 endif()
 
-# GEN MDL does not have any additional dependencies. For loading and compiling MDL, e.g., in the test renderer, the MDL SDK is needed.
+# MaterialXGenMdl does not have any additional dependencies.
+# MaterialXTest/MaterialXGenMdl performs a syntax check if the mdlc binary is available.
+# MaterialXTest/MaterialXRenderMdl needs the df_vulkan example, SDK library, and image plugins.
 if(MATERIALX_MDL_SDK_DIR)
     find_package(mdl QUIET CONFIG REQUIRED PATHS ${MATERIALX_MDL_SDK_DIR})
     get_target_property(MATERIALX_MDL_BINARY_MDLC mdl::mdlc LOCATION)
     set(MATERIALX_MDL_BINARY_MDLC ${MATERIALX_MDL_BINARY_MDLC} CACHE FILEPATH "Full path to the mdlc binary." FORCE)
+    if((${mdl_VERSION} VERSION_GREATER_EQUAL "2025.0.3") OR (${mdl_VERSION} STREQUAL "trunk"))
+        find_program(MATERIALX_MDL_BINARY_TESTRENDER
+            NAMES df_vulkan
+            HINTS
+                ${MATERIALX_MDL_SDK_DIR}/examples/mdl_sdk/df_vulkan   # regular install layout
+                ${MATERIALX_MDL_SDK_DIR}/tools/mdl-sdk)               # vcpkg layout
+    else()
+        message(WARNING "The MDL df_vulkan test renderer requires an MDL SDK >= 2025.0.3 (found ${mdl_VERSION}).")
+        set(MATERIALX_MDL_BINARY_TESTRENDER "" CACHE FILEPATH "Full path to the MDL df_vulkan test renderer.")
+    endif()
 endif()
 
 # Adjust the default installation path

@@ -220,8 +220,8 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
              inputSocket->getType().getSemantic() == TypeDesc::SEMANTIC_CLOSURE ||
              inputSocket->getType().getSemantic() == TypeDesc::SEMANTIC_MATERIAL))
         {
-            const string& qualifier = inputSocket->isUniform() || inputSocket->getType() == Type::FILENAME 
-                ? uniformPrefix 
+            const string& qualifier = inputSocket->isUniform() || inputSocket->getType() == Type::FILENAME
+                ? uniformPrefix
                 : EMPTY_STRING;
             const string& type = _syntax->getTypeName(inputSocket->getType());
 
