@@ -12,7 +12,7 @@
 
 #include <MaterialXRender/GeometryHandler.h>
 #include <MaterialXRender/StbImageLoader.h>
-#include <MaterialXCore/Tracing.h>
+#include <MaterialXTrace/Tracing.h>
 #if defined(MATERIALX_BUILD_OIIO)
 #include <MaterialXRender/OiioImageLoader.h>
 #endif

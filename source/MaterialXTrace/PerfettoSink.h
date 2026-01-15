@@ -10,7 +10,7 @@
 /// Perfetto-based implementation of the Tracing::Sink interface.
 ///
 /// Usage:
-///   #include <MaterialXCore/PerfettoSink.h>
+///   #include <MaterialXTrace/PerfettoSink.h>
 ///   namespace trace = mx::Tracing;
 ///
 ///   trace::Dispatcher::getInstance().setSink(
@@ -27,7 +27,7 @@
 ///   // which writes the trace file to the path specified in constructor.
 ///   // Open the .perfetto-trace file at https://ui.perfetto.dev
 
-#include <MaterialXCore/Tracing.h>
+#include <MaterialXTrace/Tracing.h>
 
 #ifdef MATERIALX_BUILD_TRACING
 
@@ -63,7 +63,7 @@ namespace Tracing
 ///
 /// Multiple PerfettoSink instances can coexist (each with its own session),
 /// though typically only one is active at a time via the Dispatcher.
-class MX_CORE_API PerfettoSink : public Sink
+class MX_TRACE_API PerfettoSink : public Sink
 {
   public:
     /// Construct and start a Perfetto tracing session.

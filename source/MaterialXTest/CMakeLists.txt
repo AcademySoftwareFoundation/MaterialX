@@ -40,6 +40,7 @@ add_subdirectory(MaterialXCore)
 target_link_libraries(MaterialXTest MaterialXCore)
 add_subdirectory(MaterialXFormat)
 target_link_libraries(MaterialXTest MaterialXFormat)
+target_link_libraries(MaterialXTest MaterialXTrace)
 
 add_subdirectory(MaterialXGenShader)
 target_link_libraries(MaterialXTest MaterialXGenShader)

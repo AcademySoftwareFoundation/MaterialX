@@ -18,7 +18,7 @@
 /// - Zero overhead when tracing is disabled (macros compile to nothing)
 /// - Enum-based categories for type safety and efficient dispatch
 
-#include <MaterialXCore/Export.h>
+#include <MaterialXTrace/Export.h>
 
 #include <cassert>
 #include <cstddef>
@@ -60,7 +60,7 @@ enum class Category
 /// 
 /// Implementations can delegate to Perfetto, USD TraceCollector, or custom systems.
 /// This allows USD/Hydra to inject their own tracing when calling MaterialX code.
-class MX_CORE_API Sink
+class MX_TRACE_API Sink
 {
   public:
     virtual ~Sink() = default;
@@ -88,7 +88,7 @@ class MX_CORE_API Sink
 ///   Dispatcher::getInstance().setSink(std::make_unique<PerfettoSink>(...));
 ///   // ... traced work ...
 ///   Dispatcher::getInstance().shutdownSink();
-class MX_CORE_API Dispatcher
+class MX_TRACE_API Dispatcher
 {
   public:
     /// Get the singleton instance.

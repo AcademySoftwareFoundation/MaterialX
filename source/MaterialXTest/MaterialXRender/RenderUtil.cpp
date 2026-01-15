@@ -13,8 +13,8 @@
 #endif
 
 #ifdef MATERIALX_BUILD_TRACING
-#include <MaterialXCore/Tracing.h>
-#include <MaterialXCore/PerfettoSink.h>
+#include <MaterialXTrace/Tracing.h>
+#include <MaterialXTrace/PerfettoSink.h>
 #include <optional>
 #endif
 

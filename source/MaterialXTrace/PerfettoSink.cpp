@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXCore/PerfettoSink.h>
+#include <MaterialXTrace/PerfettoSink.h>
 
 #ifdef MATERIALX_BUILD_TRACING
 
