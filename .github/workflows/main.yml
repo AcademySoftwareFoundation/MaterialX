@@ -360,6 +360,14 @@ jobs:
         name: MaterialX_Coverage
         path: build/coverage
 
+    - name: Upload Perfetto Traces
+      uses: actions/upload-artifact@v4
+      if: env.IS_EXTENDED_BUILD == 'true'
+      with:
+        name: Traces_${{ matrix.name }}
+        path: build/bin/*.perfetto-trace
+        if-no-files-found: ignore
+
   javascript:
     name: JavaScript
     runs-on: ubuntu-latest
