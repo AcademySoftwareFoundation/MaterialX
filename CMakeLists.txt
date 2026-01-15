@@ -496,7 +496,9 @@ endif()
 # Add core subdirectories
 add_subdirectory(source/MaterialXCore)
 add_subdirectory(source/MaterialXFormat)
-add_subdirectory(source/MaterialXTrace)
+if(MATERIALX_BUILD_TRACING)
+    add_subdirectory(source/MaterialXTrace)
+endif()
 
 # Add shader generation subdirectories
 add_subdirectory(source/MaterialXGenShader)
