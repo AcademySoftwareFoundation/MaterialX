@@ -206,6 +206,8 @@ jobs:
           if [ "${{ matrix.extended_build_mdl_sdk }}" == "ON" -a "${{ runner.os }}" == "Windows" ]; then
             EXTENDED_BUILD_CONFIG="$EXTENDED_BUILD_CONFIG -DMATERIALX_MDL_SDK_DIR=C:/vcpkg/installed/x64-windows"
           fi
+          # Enable Perfetto tracing for nightly builds
+          EXTENDED_BUILD_CONFIG="$EXTENDED_BUILD_CONFIG -DMATERIALX_BUILD_TRACING=ON"
         fi
         TEST_RENDER_CONFIG="-DMATERIALX_TEST_RENDER=OFF"
         if [ "${{ matrix.test_render }}" == "ON" ]; then

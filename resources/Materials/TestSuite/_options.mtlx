@@ -83,6 +83,6 @@
          When enabled, generates .perfetto-trace files in outputDirectory.
          Default is false to avoid overhead when not profiling.
     -->
-    <input name="enableTracing" type="boolean" value="false" />
+    <input name="enableTracing" type="boolean" value="true" />
   </nodedef>
 </materialx>
