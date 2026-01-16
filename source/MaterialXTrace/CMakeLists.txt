@@ -36,6 +36,10 @@ if(MATERIALX_BUILD_TRACING)
     target_include_directories(${TARGET_NAME} PUBLIC 
         $<BUILD_INTERFACE:${perfetto_SOURCE_DIR}/sdk>)
     target_compile_definitions(${TARGET_NAME} PUBLIC MATERIALX_BUILD_TRACING)
+    # For shared library builds, Perfetto needs proper symbol visibility
+    if(BUILD_SHARED_LIBS OR MATERIALX_BUILD_SHARED_LIBS)
+        target_compile_definitions(${TARGET_NAME} PRIVATE PERFETTO_COMPONENT_EXPORT=MX_TRACE_API)
+    endif()
     if(WIN32)
         # ws2_32: Windows Sockets 2 library. Perfetto uses Winsock internally for
         # inter-process communication (IPC), even in single-process tracing mode.
@@ -56,10 +60,11 @@ if(MATERIALX_BUILD_TRACING)
         endif()
         # Suppress warnings from Perfetto SDK (they use patterns that trigger GCC/Clang warnings)
         # This prevents build failures when MATERIALX_WARNINGS_AS_ERRORS is ON
+        # Also ensure proper symbol visibility for shared library builds
         # Note: Use COMPILE_FLAGS (not COMPILE_OPTIONS) for source file properties
         set_source_files_properties("${perfetto_SOURCE_DIR}/sdk/perfetto.cc"
             PROPERTIES
-            COMPILE_FLAGS "-Wno-error")
+            COMPILE_FLAGS "-Wno-error -fvisibility=default")
     endif()
 endif()
 
