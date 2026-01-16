@@ -42,10 +42,11 @@ if(MATERIALX_BUILD_TRACING)
         target_link_libraries(${TARGET_NAME} PRIVATE ws2_32)
         # Prevent Windows.h min/max macros from breaking std::numeric_limits
         # Also need /bigobj because perfetto.cc has too many sections for MSVC
+        # Note: Use COMPILE_FLAGS (not COMPILE_OPTIONS) for source file properties
         set_source_files_properties("${perfetto_SOURCE_DIR}/sdk/perfetto.cc"
             PROPERTIES 
             COMPILE_DEFINITIONS "NOMINMAX;WIN32_LEAN_AND_MEAN"
-            COMPILE_OPTIONS "/bigobj")
+            COMPILE_FLAGS "/bigobj")
     elseif(UNIX)
         # Perfetto requires pthread on Linux/Unix for thread-local storage and synchronization
         # On iOS/macOS, threads are built-in to the system libraries
@@ -55,9 +56,10 @@ if(MATERIALX_BUILD_TRACING)
         endif()
         # Suppress warnings from Perfetto SDK (they use patterns that trigger GCC/Clang warnings)
         # This prevents build failures when MATERIALX_WARNINGS_AS_ERRORS is ON
+        # Note: Use COMPILE_FLAGS (not COMPILE_OPTIONS) for source file properties
         set_source_files_properties("${perfetto_SOURCE_DIR}/sdk/perfetto.cc"
             PROPERTIES
-            COMPILE_OPTIONS "-Wno-error")
+            COMPILE_FLAGS "-Wno-error")
     endif()
 endif()
 
