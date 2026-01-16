@@ -37,6 +37,18 @@ string ShaderPort::getValueString() const
     return getValue() ? getValue()->getValueString() : EMPTY_STRING;
 }
 
+void ShaderPort::copyToPort(ShaderPort* to) const
+{
+    to->setPath(getPath());
+    to->setSemantic(getSemantic());
+    to->setValue(getValue());
+    to->setUnit(getUnit());
+    to->setColorSpace(getColorSpace());
+    to->setGeomProp(getGeomProp());
+    to->setMetadata(getMetadata());
+    to->setFlags(getFlags());
+}
+
 //
 // ShaderInput methods
 //
@@ -539,6 +551,11 @@ ShaderOutput* ShaderNode::addOutput(const string& name, TypeDesc type)
     _outputOrder.push_back(output.get());
 
     return output.get();
+}
+
+const string& ShaderNode::getPortName(const string& portName) const
+{
+    return _impl ? _impl->getPortName(portName) : portName;
 }
 
 MATERIALX_NAMESPACE_END

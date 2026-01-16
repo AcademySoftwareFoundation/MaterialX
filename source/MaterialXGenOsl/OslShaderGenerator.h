@@ -15,6 +15,9 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
+class OslSyntax;
+using OslSyntaxPtr = shared_ptr<OslSyntax>;
+
 using OslShaderGeneratorPtr = shared_ptr<class OslShaderGenerator>;
 
 /// @class OslShaderGenerator
@@ -25,16 +28,17 @@ class MX_GENOSL_API OslShaderGenerator : public ShaderGenerator
   public:
     /// Constructor.
     OslShaderGenerator(TypeSystemPtr typeSystem);
+    OslShaderGenerator(TypeSystemPtr typeSystem, OslSyntaxPtr syntax);
 
     /// Creator function.
     /// If a TypeSystem is not provided it will be created internally.
     /// Optionally pass in an externally created TypeSystem here,
     /// if you want to keep type descriptions alive after the lifetime
     /// of the shader generator.
-    static ShaderGeneratorPtr create(TypeSystemPtr typeSystem = nullptr)
-    {
-        return std::make_shared<OslShaderGenerator>(typeSystem ? typeSystem : TypeSystem::create());
-    }
+    /// If a OslSyntax is not provided it will be created internally.
+    /// Optionally pass in an externally created OslSyntax here,
+    /// if you want to modify the syntax object before code generation.
+    static ShaderGeneratorPtr create(TypeSystemPtr typeSystem = nullptr, OslSyntaxPtr syntax = nullptr);
 
     /// Return a unique identifier for the target this generator is for
     const string& getTarget() const override { return TARGET; }
@@ -52,6 +56,8 @@ class MX_GENOSL_API OslShaderGenerator : public ShaderGenerator
     /// Register metadata that should be exported to the generated shaders.
     void registerShaderMetadata(const DocumentPtr& doc, GenContext& context) const override;
 
+    static void addSetCiTerminalNode(ShaderGraph& graph, ConstDocumentPtr document, TypeSystemPtr typeSystem, GenContext& context);
+
   protected:
     /// Create and initialize a new OSL shader for shader generation.
     virtual ShaderPtr createShader(const string& name, ElementPtr element, GenContext& context) const;
@@ -67,8 +73,6 @@ class MX_GENOSL_API OslShaderGenerator : public ShaderGenerator
 
     /// Emit metadata for a shader parameter.
     virtual void emitMetadata(const ShaderPort* port, ShaderStage& stage) const;
-
-    void addSetCiTerminalNode(ShaderGraph& graph, ConstDocumentPtr document, GenContext& context) const;
 };
 
 namespace OSL
