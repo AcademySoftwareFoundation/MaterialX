@@ -268,7 +268,7 @@ jobs:
       run: |
         sudo apt-get install gcovr
         mkdir coverage
-        gcovr --html --html-details --output coverage/index.html --exclude .*\/External\/.* --root .. .
+        gcovr --html --html-details --output coverage/index.html --exclude .*\/External\/.* --exclude .*perfetto.* --root .. .
       working-directory: build
 
     - name: Static Analysis Tests
