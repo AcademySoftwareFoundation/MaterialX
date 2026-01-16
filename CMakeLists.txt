@@ -252,7 +252,8 @@ if(MATERIALX_BUILD_TRACING)
         set(MATERIALX_PERFETTO_COMPILE_DEFINITIONS "NOMINMAX;WIN32_LEAN_AND_MEAN" CACHE INTERNAL "")
         # /bigobj: perfetto.cc has too many sections for default MSVC object format
         # /W0: disable all warnings for third-party Perfetto SDK code
-        set(MATERIALX_PERFETTO_COMPILE_FLAGS "/bigobj /W0" CACHE INTERNAL "")
+        # /WX-: disable warnings-as-errors (overrides project-level /WX)
+        set(MATERIALX_PERFETTO_COMPILE_FLAGS "/bigobj /W0 /WX-" CACHE INTERNAL "")
     else()
         set(MATERIALX_PERFETTO_COMPILE_DEFINITIONS "" CACHE INTERNAL "")
         # -Wno-error: Don't treat warnings as errors (Perfetto has shadowing issues)
