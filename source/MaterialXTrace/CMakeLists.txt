@@ -50,6 +50,11 @@ if(MATERIALX_BUILD_TRACING)
         # Perfetto requires pthread on Linux/Unix for thread-local storage and synchronization
         find_package(Threads REQUIRED)
         target_link_libraries(${TARGET_NAME} PRIVATE Threads::Threads)
+        # Suppress warnings from Perfetto SDK (they use patterns that trigger GCC/Clang warnings)
+        # This prevents build failures when MATERIALX_WARNINGS_AS_ERRORS is ON
+        set_source_files_properties("${perfetto_SOURCE_DIR}/sdk/perfetto.cc"
+            PROPERTIES
+            COMPILE_OPTIONS "-Wno-error")
     endif()
 endif()
 
