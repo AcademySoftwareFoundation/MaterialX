@@ -279,7 +279,7 @@ jobs:
         else
           brew install cppcheck
         fi
-        cppcheck --project=build/compile_commands.json --error-exitcode=1 --suppress=normalCheckLevelMaxBranches --suppress=*:*/External/* --suppress=*:*/NanoGUI/*
+        cppcheck --project=build/compile_commands.json --error-exitcode=1 --suppress=normalCheckLevelMaxBranches --suppress=*:*/External/* --suppress=*:*/NanoGUI/* --suppress=*:*perfetto*
 
     - name: Setup Rendering Environment (Linux)
       if: matrix.test_render == 'ON' && runner.os == 'Linux'

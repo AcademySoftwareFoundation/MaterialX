@@ -250,7 +250,9 @@ if(MATERIALX_BUILD_TRACING)
     # but apply them in the directories where targets are created.
     if(MSVC)
         set(MATERIALX_PERFETTO_COMPILE_DEFINITIONS "NOMINMAX;WIN32_LEAN_AND_MEAN" CACHE INTERNAL "")
-        set(MATERIALX_PERFETTO_COMPILE_FLAGS "/bigobj" CACHE INTERNAL "")
+        # /bigobj: perfetto.cc has too many sections for default MSVC object format
+        # /W0: disable all warnings for third-party Perfetto SDK code
+        set(MATERIALX_PERFETTO_COMPILE_FLAGS "/bigobj /W0" CACHE INTERNAL "")
     else()
         set(MATERIALX_PERFETTO_COMPILE_DEFINITIONS "" CACHE INTERNAL "")
         # -Wno-error: Don't treat warnings as errors (Perfetto has shadowing issues)
