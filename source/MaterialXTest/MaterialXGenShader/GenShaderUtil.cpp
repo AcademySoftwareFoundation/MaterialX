@@ -23,7 +23,10 @@
 #include <MaterialXCore/Material.h>
 #include <MaterialXCore/Unit.h>
 
+#include <MaterialXTrace/Tracing.h>
+
 #include <iostream>
+#include <optional>
 
 namespace mx = MaterialX;
 
@@ -666,6 +669,18 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
         return;
     }
 
+#ifdef MATERIALX_BUILD_TRACING
+    // Set up Perfetto tracing if enabled
+    std::optional<mx::Tracing::Dispatcher::ShutdownGuard> tracingGuard;
+    if (options.enableTracing)
+    {
+        mx::FilePath tracePath = options.resolveOutputPath(_shaderGenerator->getTarget() + "_gen_trace.perfetto-trace");
+        mx::Tracing::Dispatcher::getInstance().setSink(
+            mx::Tracing::createPerfettoSink(tracePath.asString()));
+        tracingGuard.emplace();
+    }
+#endif
+
     // Start logging - use outputDirectory if set
     mx::FilePath logPath = options.resolveOutputPath(_logFilePath);
     _logFile.open(logPath.asString());
@@ -839,7 +854,11 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
                     _logFile << "------------ Run validation with element: " << namePath << "------------" << std::endl;
 
                     mx::StringVec sourceCode;
-                    const bool generatedCode = generateCode(context, elementName, element, _logFile, _testStages, sourceCode);
+                    bool generatedCode = false;
+                    {
+                        MX_TRACE_SCOPE(mx::Tracing::Category::ShaderGen, elementName.c_str());
+                        generatedCode = generateCode(context, elementName, element, _logFile, _testStages, sourceCode);
+                    }
 
                     // Record implementations tested
                     if (options.checkImplCount)
