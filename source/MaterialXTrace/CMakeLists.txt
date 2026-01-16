@@ -20,7 +20,7 @@ mx_add_library(MaterialXTrace
         ${materialx_headers}
     EXPORT_DEFINE
         MATERIALX_TRACE_EXPORTS
-    LIBRARIES
+    MTLX_MODULES
         MaterialXCore)
 
 # Perfetto tracing support
