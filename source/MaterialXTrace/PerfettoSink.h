@@ -9,23 +9,11 @@
 /// @file
 /// Perfetto-based implementation of the Tracing::Sink interface.
 ///
-/// Usage:
-///   #include <MaterialXTrace/PerfettoSink.h>
-///   namespace trace = mx::Tracing;
+/// This header is internal to MaterialXTrace. Users should NOT include it
+/// directly. Instead, use the createPerfettoSink() factory in Tracing.h:
 ///
-///   trace::Dispatcher::getInstance().setSink(
-///       std::make_unique<trace::PerfettoSink>("trace.perfetto-trace"));
-///
-///   // Use a local scope guard for exception safety
-///   struct SinkGuard {
-///       ~SinkGuard() { trace::Dispatcher::getInstance().shutdownSink(); }
-///   } guard;
-///
-///   // ... traced work ...
-///
-///   // guard destructor calls shutdownSink(), which destroys PerfettoSink,
-///   // which writes the trace file to the path specified in constructor.
-///   // Open the .perfetto-trace file at https://ui.perfetto.dev
+///   #include <MaterialXTrace/Tracing.h>
+///   auto sink = mx::Tracing::createPerfettoSink("trace.perfetto-trace");
 
 #include <MaterialXTrace/Tracing.h>
 
@@ -56,14 +44,12 @@ namespace Tracing
 /// @class PerfettoSink
 /// Perfetto-based implementation of Tracing::Sink.
 ///
-/// This class provides a concrete implementation using Perfetto SDK's
-/// in-process tracing backend. The constructor starts a tracing session,
-/// and the destructor stops the session and writes trace data to a
-/// .perfetto-trace file that can be visualized at https://ui.perfetto.dev
+/// Uses Perfetto SDK's in-process tracing backend. The constructor starts
+/// a tracing session, and the destructor stops it and writes trace data
+/// to a .perfetto-trace file viewable at https://ui.perfetto.dev
 ///
-/// Multiple PerfettoSink instances can coexist (each with its own session),
-/// though typically only one is active at a time via the Dispatcher.
-class MX_TRACE_API PerfettoSink : public Sink
+/// @note Do not use this class directly. Use createPerfettoSink() factory.
+class PerfettoSink : public Sink
 {
   public:
     /// Construct and start a Perfetto tracing session.

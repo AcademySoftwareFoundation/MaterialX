@@ -180,6 +180,31 @@ class Scope
     Scope& operator=(const Scope&) = delete;
 };
 
+// ============================================================================
+// Sink Factory Functions
+// ============================================================================
+
+#ifdef MATERIALX_BUILD_TRACING
+
+/// Create a Perfetto-based tracing sink.
+/// 
+/// The returned sink writes trace data to a .perfetto-trace file that can be
+/// visualized at https://ui.perfetto.dev
+///
+/// @param outputPath Path to write the trace file when the sink is destroyed
+/// @param bufferSizeKb Size of the trace buffer in KB (default 32MB)
+/// @return A unique_ptr to the Perfetto sink
+///
+/// Usage:
+///   Dispatcher::getInstance().setSink(createPerfettoSink("trace.perfetto-trace"));
+///   Dispatcher::ShutdownGuard guard;
+///   // ... traced work ...
+///   // guard destructor writes the trace file
+MX_TRACE_API std::unique_ptr<Sink> createPerfettoSink(
+    const std::string& outputPath, size_t bufferSizeKb = 32768);
+
+#endif // MATERIALX_BUILD_TRACING
+
 } // namespace Tracing
 
 MATERIALX_NAMESPACE_END

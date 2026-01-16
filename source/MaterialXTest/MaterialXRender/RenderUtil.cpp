@@ -14,7 +14,6 @@
 
 #ifdef MATERIALX_BUILD_TRACING
 #include <MaterialXTrace/Tracing.h>
-#include <MaterialXTrace/PerfettoSink.h>
 #include <optional>
 #endif
 
@@ -107,7 +106,7 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
     {
         mx::FilePath tracePath = options.resolveOutputPath(_shaderGenerator->getTarget() + "_render_trace.perfetto-trace");
         mx::Tracing::Dispatcher::getInstance().setSink(
-            std::make_unique<mx::Tracing::PerfettoSink>(tracePath.asString()));
+            mx::Tracing::createPerfettoSink(tracePath.asString()));
         // Scope guard ensures tracing is shut down on any exit path (return, exception, etc.)
         tracingGuard.emplace();
     }

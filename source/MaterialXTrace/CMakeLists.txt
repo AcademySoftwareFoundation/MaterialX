@@ -36,10 +36,6 @@ if(MATERIALX_BUILD_TRACING)
     target_include_directories(${TARGET_NAME} PUBLIC 
         $<BUILD_INTERFACE:${perfetto_SOURCE_DIR}/sdk>)
     target_compile_definitions(${TARGET_NAME} PUBLIC MATERIALX_BUILD_TRACING)
-    # For shared library builds, Perfetto needs proper symbol visibility
-    if(BUILD_SHARED_LIBS OR MATERIALX_BUILD_SHARED_LIBS)
-        target_compile_definitions(${TARGET_NAME} PRIVATE PERFETTO_COMPONENT_EXPORT=MX_TRACE_API)
-    endif()
     if(WIN32)
         # ws2_32: Windows Sockets 2 library. Perfetto uses Winsock internally for
         # inter-process communication (IPC), even in single-process tracing mode.

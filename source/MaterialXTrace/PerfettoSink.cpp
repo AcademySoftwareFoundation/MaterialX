@@ -31,21 +31,19 @@ MATERIALX_NAMESPACE_BEGIN
 namespace Tracing
 {
 
-// One-time global Perfetto initialization flag
-static std::once_flag g_perfettoInitFlag;
-
 PerfettoSink::PerfettoSink(std::string outputPath, size_t bufferSizeKb)
     : _outputPath(std::move(outputPath))
 {
-    // One-time global Perfetto initialization (safe to call from multiple instances)
-    std::call_once(g_perfettoInitFlag, []() {
+    // One-time global Perfetto initialization
+    static std::once_flag initFlag;
+    std::call_once(initFlag, []() {
         perfetto::TracingInitArgs args;
         args.backends |= perfetto::kInProcessBackend;
         perfetto::Tracing::Initialize(args);
         perfetto::TrackEvent::Register();
     });
 
-    // Create and start a tracing session for this sink
+    // Create and start a tracing session
     perfetto::TraceConfig cfg;
     cfg.add_buffers()->set_size_kb(static_cast<uint32_t>(bufferSizeKb));
 
@@ -164,6 +162,12 @@ void PerfettoSink::setThreadName(const char* name)
     auto desc = track.Serialize();
     desc.mutable_thread()->set_thread_name(name);
     perfetto::TrackEvent::SetTrackDescriptor(track, desc);
+}
+
+// Factory function - the exported entry point
+std::unique_ptr<Sink> createPerfettoSink(const std::string& outputPath, size_t bufferSizeKb)
+{
+    return std::make_unique<PerfettoSink>(outputPath, bufferSizeKb);
 }
 
 } // namespace Tracing
