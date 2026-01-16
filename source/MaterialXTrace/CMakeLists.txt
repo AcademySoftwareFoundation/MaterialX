@@ -48,8 +48,11 @@ if(MATERIALX_BUILD_TRACING)
             COMPILE_OPTIONS "/bigobj")
     elseif(UNIX)
         # Perfetto requires pthread on Linux/Unix for thread-local storage and synchronization
-        find_package(Threads REQUIRED)
-        target_link_libraries(${TARGET_NAME} PRIVATE Threads::Threads)
+        # On iOS/macOS, threads are built-in to the system libraries
+        if(NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
+            find_package(Threads REQUIRED)
+            target_link_libraries(${TARGET_NAME} PRIVATE Threads::Threads)
+        endif()
         # Suppress warnings from Perfetto SDK (they use patterns that trigger GCC/Clang warnings)
         # This prevents build failures when MATERIALX_WARNINGS_AS_ERRORS is ON
         set_source_files_properties("${perfetto_SOURCE_DIR}/sdk/perfetto.cc"
