@@ -365,7 +365,7 @@ jobs:
       if: env.IS_EXTENDED_BUILD == 'true'
       with:
         name: Traces_${{ matrix.name }}
-        path: build/bin/*.perfetto-trace
+        path: build/**/*.perfetto-trace
         if-no-files-found: ignore
 
   javascript:
