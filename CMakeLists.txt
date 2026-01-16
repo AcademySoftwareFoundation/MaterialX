@@ -243,6 +243,25 @@ if(MATERIALX_BUILD_TRACING)
     set(PERFETTO_SDK_INCLUDE_DIR "${CMAKE_BINARY_DIR}/_deps/perfetto-src/sdk")
     FetchContent_MakeAvailable(perfetto)
     add_definitions(-DMATERIALX_BUILD_TRACING)
+    
+    # Define compile flags for perfetto.cc (Perfetto SDK triggers various warnings)
+    # These variables are used here for monolithic builds and in MaterialXTrace for non-monolithic
+    if(MSVC)
+        set(MATERIALX_PERFETTO_COMPILE_DEFINITIONS "NOMINMAX;WIN32_LEAN_AND_MEAN" CACHE INTERNAL "")
+        set(MATERIALX_PERFETTO_COMPILE_FLAGS "/bigobj" CACHE INTERNAL "")
+    else()
+        set(MATERIALX_PERFETTO_COMPILE_DEFINITIONS "" CACHE INTERNAL "")
+        # -Wno-error: Don't treat warnings as errors (Perfetto has shadowing issues)
+        # -Wno-shadow: Suppress shadow warnings (kDevNull shadows global)
+        set(MATERIALX_PERFETTO_COMPILE_FLAGS "-Wno-error -Wno-shadow" CACHE INTERNAL "")
+    endif()
+    
+    # Apply flags here for monolithic builds (set_source_files_properties is directory-scoped)
+    set_source_files_properties("${perfetto_SOURCE_DIR}/sdk/perfetto.cc"
+        PROPERTIES
+        COMPILE_DEFINITIONS "${MATERIALX_PERFETTO_COMPILE_DEFINITIONS}"
+        COMPILE_FLAGS "${MATERIALX_PERFETTO_COMPILE_FLAGS}")
+    
     message(STATUS "Perfetto tracing support enabled")
 endif()
 

@@ -4,7 +4,12 @@
 # different implementations (Perfetto, USD TraceCollector, etc.).
 
 file(GLOB materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
-file(GLOB materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
+
+# Public headers only - PerfettoSink.h is internal (includes Perfetto SDK headers)
+set(materialx_headers
+    ${CMAKE_CURRENT_SOURCE_DIR}/Export.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/Tracing.h
+)
 
 # Exclude Perfetto sink when tracing is disabled
 if(NOT MATERIALX_BUILD_TRACING)
@@ -30,37 +35,32 @@ if(MATERIALX_BUILD_TRACING)
     # https://perfetto.dev/docs/instrumentation/tracing-sdk
     # Compiling directly (vs. linking a library) simplifies integration and enables
     # better compiler optimizations within a single translation unit.
+    #
+    # NOTE: Compile flags for perfetto.cc are set in root CMakeLists.txt so they apply
+    # to all targets (including monolithic builds which aggregate sources).
     target_sources(${TARGET_NAME} PRIVATE 
         "${perfetto_SOURCE_DIR}/sdk/perfetto.cc")
     # Use generator expression - only needed at build time, not install
     target_include_directories(${TARGET_NAME} PUBLIC 
         $<BUILD_INTERFACE:${perfetto_SOURCE_DIR}/sdk>)
     target_compile_definitions(${TARGET_NAME} PUBLIC MATERIALX_BUILD_TRACING)
+    
+    # Platform-specific link libraries
     if(WIN32)
-        # ws2_32: Windows Sockets 2 library. Perfetto uses Winsock internally for
-        # inter-process communication (IPC), even in single-process tracing mode.
+        # ws2_32: Windows Sockets 2 library for Perfetto IPC
         target_link_libraries(${TARGET_NAME} PRIVATE ws2_32)
-        # Prevent Windows.h min/max macros from breaking std::numeric_limits
-        # Also need /bigobj because perfetto.cc has too many sections for MSVC
-        # Note: Use COMPILE_FLAGS (not COMPILE_OPTIONS) for source file properties
-        set_source_files_properties("${perfetto_SOURCE_DIR}/sdk/perfetto.cc"
-            PROPERTIES 
-            COMPILE_DEFINITIONS "NOMINMAX;WIN32_LEAN_AND_MEAN"
-            COMPILE_FLAGS "/bigobj")
-    elseif(UNIX)
-        # Perfetto requires pthread on Linux/Unix for thread-local storage and synchronization
-        # On iOS/macOS, threads are built-in to the system libraries
-        if(NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
-            find_package(Threads REQUIRED)
-            target_link_libraries(${TARGET_NAME} PRIVATE Threads::Threads)
-        endif()
-        # Suppress warnings from Perfetto SDK (they use patterns that trigger GCC/Clang warnings)
-        # This prevents build failures when MATERIALX_WARNINGS_AS_ERRORS is ON
-        # Also ensure proper symbol visibility for shared library builds
-        # Note: Use COMPILE_FLAGS (not COMPILE_OPTIONS) for source file properties
-        set_source_files_properties("${perfetto_SOURCE_DIR}/sdk/perfetto.cc"
-            PROPERTIES
-            COMPILE_FLAGS "-Wno-error -fvisibility=default")
+    elseif(UNIX AND NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
+        # Perfetto requires pthread on Linux/Unix (but not iOS where it's built-in)
+        find_package(Threads REQUIRED)
+        target_link_libraries(${TARGET_NAME} PRIVATE Threads::Threads)
     endif()
+    
+    # Apply Perfetto compile flags (defined in root CMakeLists.txt)
+    # NOTE: set_source_files_properties is directory-scoped, so we must set them
+    # here for non-monolithic builds AND in root CMakeLists.txt for monolithic builds.
+    set_source_files_properties("${perfetto_SOURCE_DIR}/sdk/perfetto.cc"
+        PROPERTIES
+        COMPILE_DEFINITIONS "${MATERIALX_PERFETTO_COMPILE_DEFINITIONS}"
+        COMPILE_FLAGS "${MATERIALX_PERFETTO_COMPILE_FLAGS}")
 endif()
 
