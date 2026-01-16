@@ -46,6 +46,10 @@ if(MATERIALX_BUILD_TRACING)
             PROPERTIES 
             COMPILE_DEFINITIONS "NOMINMAX;WIN32_LEAN_AND_MEAN"
             COMPILE_OPTIONS "/bigobj")
+    elseif(UNIX)
+        # Perfetto requires pthread on Linux/Unix for thread-local storage and synchronization
+        find_package(Threads REQUIRED)
+        target_link_libraries(${TARGET_NAME} PRIVATE Threads::Threads)
     endif()
 endif()
 
