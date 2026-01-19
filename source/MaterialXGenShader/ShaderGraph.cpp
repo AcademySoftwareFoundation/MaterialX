@@ -978,9 +978,10 @@ void ShaderGraph::optimize(GenContext& context)
     {
         if (node->hasClassification(ShaderNode::Classification::CONSTANT))
         {
-            if (node->numInputs() == 0)
+            bool expectedConstantIO = node->numInputs() == 1 && node->numOutputs() == 1;
+            if (!expectedConstantIO)
             {
-                // Cannot elide a constant node with no inputs.
+                // Constant node dont follow expected interface, cannot elide.
                 continue;
             }
             // Constant nodes can be elided by moving their value downstream.
@@ -1003,9 +1004,9 @@ void ShaderGraph::optimize(GenContext& context)
         }
         else if (node->hasClassification(ShaderNode::Classification::DOT))
         {
-            if (node->numInputs() == 0)
+            if (node->numOutputs() != 1)
             {
-                // Cannot elide a dot node with no inputs.
+                // Undefiend which output to elide node to, skipping elide.
                 continue;
             }
             // Filename dot nodes must be elided so they do not create extra samplers.
