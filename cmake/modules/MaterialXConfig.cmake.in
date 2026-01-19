@@ -10,6 +10,13 @@
 
 include(CMakeFindDependencyMacro)
 
+if(NOT @MATERIALX_BUILD_SHARED_LIBS@)
+    if(NOT APPLE AND UNIX)
+        find_dependency(OpenGL)
+        find_dependency(X11)
+    endif()
+endif()
+
 # Gather MaterialX targets:
 include("${CMAKE_CURRENT_LIST_DIR}/@CMAKE_PROJECT_NAME@Targets.cmake")
 
