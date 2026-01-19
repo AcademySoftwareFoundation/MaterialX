@@ -676,7 +676,9 @@ Creates a black and white pattern of hexagons with a defined tiling and size (di
 Geometric nodes are used to reference local geometric properties from within a node graph:
 
 ```xml
-  <position name="wp1" type="vector3" space="world"/>
+  <position name="wp1" type="vector3">
+    <input name="space" type="string" value="world"/>
+  </position>
   <texcoord name="c1" type="vector2">
     <input name="index" type="integer" value="1"/>
   </texcoord>
