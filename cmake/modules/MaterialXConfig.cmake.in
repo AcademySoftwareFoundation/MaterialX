@@ -41,6 +41,10 @@ endif()
 
 if(UNIX AND NOT APPLE)
     find_dependency(X11 REQUIRED COMPONENTS Xt)
+    if("RenderGlsl" IN_LIST MaterialX_FIND_COMPONENTS)
+        find_dependency(OpenGL REQUIRED)
+        set(MaterialX_RenderGlsl_FOUND TRUE)
+    endif()
 endif()
 
 check_required_components(@CMAKE_PROJECT_NAME@)
