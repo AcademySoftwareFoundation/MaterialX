@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<materialx version="1.39" colorspace="lin_rec709">
+
+  <!-- definition -->
+  <nodedef name="ND_custom_node_gen_versioning" node="custom_node_gen_versioning" nodegroup="custom" doc="A simple function in a module with MDL language versioning.">
+    <input name="scale" type="float" value="1.0" />
+    <output name="out" type="color3" />
+  </nodedef>
+  <!-- implementation -->
+  <!-- 
+    {{MDL_VERSION_SUFFIX}} is used as placeholder MDL version number appended to the module
+    to make use of new language features while maintaining backwards compatibility. (see pbrlib_*.mdl for an example)
+  -->
+  <implementation 
+    name="IM_custom_node_gen_versioning"
+    nodedef="ND_custom_node_gen_versioning"
+    file="mx_custom_library_{{MDL_VERSION_SUFFIX}}.mdl"
+    function="custom_library_function"
+    target="genmdl"/> 
+  <!-- instantiation -->
+  <custom_node_gen_versioning name="custom_node_gen_versioning1" type="color3">
+    <input name="scale" type="float" value="1.0"/>
+  </custom_node_gen_versioning>
+  <burley_diffuse_bsdf name="burley_brdf1" type="BSDF">
+    <input name="color" type="color3" nodename="custom_node_gen_versioning1" />
+  </burley_diffuse_bsdf>
+  <surface name="surface1" type="surfaceshader">
+    <input name="bsdf" type="BSDF" nodename="burley_brdf1" />
+    <input name="opacity" type="float" value="1.0" />
+  </surface>
+  <surfacematerial name="custom_node_gen_versioning_test" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="surface1" />
+  </surfacematerial>
+</materialx>

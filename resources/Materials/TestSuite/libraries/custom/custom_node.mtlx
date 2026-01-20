@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+
+  <!-- definition -->
+  <!-- specifies the interface of the node, including:
+    - the `node` that defines the name of the element during instantiation
+    - all input parameter types and names
+    - all output parameter types and names
+    - all inputs and outputs can have defaults
+    - the `name` that needs to br referenced when adding the implementation with the actual source code
+  -->
+  <nodedef name="ND_custom_node" node="custom_node" nodegroup="custom" doc="A simple example that creates a color.">
+    <input name="red" type="float" value="0.0" />
+    <input name="green" type="float" value="0.0" />
+    <input name="blue" type="float" value="0.0" />
+    <output name="out" type="color3" />
+  </nodedef>
+
+  <!-- implementation -->
+  <!-- specifies where to find the implementation of the custom node.
+    Input and output names in the MDL implementation have a "mxp_" prefix in case they would collide with reserved names.
+    Note, the defaults for output parameters (if present) must be matched in the MDL implementation
+    in case the outputs remain unchanged in at least one code path.
+  -->
+  <implementation 
+    name="IM_custom_node"
+    nodedef="ND_custom_node"
+    file="mx_custom_node.mdl"
+    function="custom_node_function"
+    target="genmdl"/>
+
+  <!-- instantiations -->
+  <!-- creates an instance of a custom node to be called.
+    Can appear multiple times for the same node.
+    Parameters can be overridden or default values are used.
+  -->
+  <!-- also add some input node to test input connections -->
+  <texcoord name="texcoord1" type="vector2" />
+  <multiply name="texcoord_scaled1" type="vector2">
+    <input name="in1" type="vector2" nodename="texcoord1" />
+    <input name="in2" type="float" value="10" />
+  </multiply>
+  <noise2d name="custom_node_input1" type="float">
+    <input name="amplitude" type="float" value="1.0" />
+    <input name="texcoord" type="vector2" nodename="texcoord_scaled1" />
+  </noise2d>
+  <custom_node name="custom_node1" type="color3">
+    <input name="red" type="float" value="0.35" />
+    <input name="green" type="float" value="0.45" />
+    <input name="blue" type="float" nodename="custom_node_input1" />
+  </custom_node>
+
+  <burley_diffuse_bsdf name="burley_brdf1" type="BSDF">
+    <input name="color" type="color3" nodename="custom_node1" />
+    <input name="roughness" type="float" value="0.2" />
+  </burley_diffuse_bsdf>
+
+  <surface name="surface1" type="surfaceshader">
+    <input name="bsdf" type="BSDF" nodename="burley_brdf1" />
+    <input name="opacity" type="float" value="1.0" />
+  </surface>
+
+  <surfacematerial name="custom_node_test" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="surface1" />
+  </surfacematerial>
+
+</materialx>

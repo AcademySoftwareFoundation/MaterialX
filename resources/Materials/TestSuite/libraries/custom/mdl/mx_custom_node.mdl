@@ -1,0 +1,55 @@
+//
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
+//
+
+// Note, this module has to be placed in an MDL search path in order to get picked up correctly.
+
+
+// MDL language version number
+// Select the version that supports the required features based on the MDL specification.
+// Since the MDL generator in MaterialX requires MDL 1.6 it's a good default.
+// If you have MDL functions in an older language version it's not required to increase the version number.
+// If your module requires functionality of a higher version, `targetVersion` has to be adjusted accordingly
+// during code generation in `GenMdlOption`. The default option always uses the latest version,
+// which means no changes are required unless the option was set manually.
+mdl 1.6;
+
+// MDL standard modules
+import ::math::*;
+import ::tex::*;
+import ::state::*;
+
+// A simple example of a custom node implementation in MDL.
+export color custom_node_function(float red, float green, float blue)
+{
+    return color(red * 0.25, green * 0.5, blue * 0.75);
+}
+
+// Example to illustrate implementations for multiple output nodes in MDL.
+// It uses a structure that might be defined locally.
+// The actual name of struct is anonymous to the code code generator.
+export struct custom_struct
+{
+    color tint = color(0.0);
+    float roughness = 0.0;
+    bool unused = false;  // not part of the MaterialX node definition.
+};
+export custom_struct custom_node_multiple_output_function(float scale)
+{
+    custom_struct output;
+    output.tint = color(0.1, scale, 0.1);
+    output.roughness = scale;
+    return output;
+}
+
+// Example for nodes with resource parameters.
+export color custom_node_image_luminance(
+    uniform texture_2d file = texture_2d(),
+    float2 texcoord = float2(::state::texture_coordinate(0).x, ::state::texture_coordinate(0).y)
+)
+{
+    float3 c = tex::lookup_float3(tex: file, coord: texcoord);
+    float lum = math::dot(c, float3(0.212671f, 0.715160f, 0.072169f));
+    return color(lum);
+}

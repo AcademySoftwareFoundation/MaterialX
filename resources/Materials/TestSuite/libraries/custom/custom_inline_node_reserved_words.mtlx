@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+
+  <!-- definition -->
+  <nodedef name="ND_custom_inline_node_reserved_words" node="custom_inline_node_reserved_words" nodegroup="custom" doc="A simple custom inline node.">
+    <input name="a" type="float" value="0.8" />       <!-- "a" is NOT reserved in MDL -->
+    <input name="auto" type="float" value="0.8" />    <!-- "auto" is reserved in MDL -->
+    <output name="out" type="color3" />               <!-- "out" is a reserved word in MDL -->
+    <output name="shader" type="float" value="1.0" /> <!-- "shader" is a reserved word in MDL -->
+  </nodedef>
+
+  <!-- implementation -->
+  <!-- Note, ALL input and output port names are prefixed with "mxp_" to avoid collisions with reserved names -->
+  <implementation 
+    name="IM_custom_inline_node_reserved_words"
+    nodedef="ND_custom_inline_node_reserved_words"
+    target="genmdl"
+    sourcecode="
+      mxp_out = color(0.1, mxp_a, mxp_auto);
+      mxp_shader = math::max(mxp_auto, 0.5);
+    "/>
+
+  <!-- instantiations -->
+  <custom_inline_node_reserved_words name="custom1" type="multioutput">
+    <input name="auto" type="float" value="0.2" />
+  </custom_inline_node_reserved_words>
+
+  <burley_diffuse_bsdf name="burley_brdf1" type="BSDF">
+    <input name="color" type="color3" nodename="custom1" output="out" />
+    <input name="roughness" type="float" value="0.2" />
+  </burley_diffuse_bsdf>
+  <surface name="surface1" type="surfaceshader">
+    <input name="bsdf" type="BSDF" nodename="burley_brdf1" />
+    <input name="opacity" type="float" nodename="custom1" output="shader" />
+  </surface>
+
+  <surfacematerial name="code_constant_color" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="surface1" />
+  </surfacematerial>
+</materialx>
