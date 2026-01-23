@@ -916,40 +916,57 @@ void ShaderGraph::finalize(GenContext& context)
     // Sort the nodes in topological order.
     topologicalSort();
 
-    if (context.getOptions().shaderInterfaceType == SHADER_INTERFACE_COMPLETE)
+    // Publish node inputs that should be exposed as graph input sockets.
+    // In COMPLETE mode, all unconnected editable inputs are published.
+    // In REDUCED mode, only filename inputs are published since file paths
+    // can't be inlined as literals in real-time shading languages.
+    const bool completeInterface = (context.getOptions().shaderInterfaceType == SHADER_INTERFACE_COMPLETE);
+    for (const ShaderNode* node : getNodes())
     {
-        // Publish all node inputs that has not been connected already.
-        for (const ShaderNode* node : getNodes())
+        for (ShaderInput* input : node->getInputs())
         {
-            for (ShaderInput* input : node->getInputs())
+            if (!input->getConnection())
             {
-                if (!input->getConnection())
+                bool shouldPublish = false;
+                bool forceUniform = false;
+
+                if (completeInterface)
                 {
                     // Check if the type is editable otherwise we can't
                     // publish the input as an editable uniform.
                     if (!input->getType().isClosure() && node->isEditable(*input))
                     {
-                        // Use a consistent naming convention: <nodename>_<inputname>
-                        // so application side can figure out what uniforms to set
-                        // when node inputs change on application side.
-                        const string interfaceName = node->getName() + "_" + input->getName();
-
-                        ShaderGraphInputSocket* inputSocket = getInputSocket(interfaceName);
-                        if (!inputSocket)
-                        {
-                            inputSocket = addInputSocket(interfaceName, input->getType());
-                            inputSocket->setPath(input->getPath());
-                            inputSocket->setValue(input->getValue());
-                            inputSocket->setUnit(input->getUnit());
-                            inputSocket->setColorSpace(input->getColorSpace());
-                            if (input->isUniform())
-                            {
-                                inputSocket->setUniform();
-                            }
-                        }
-                        inputSocket->makeConnection(input);
-                        inputSocket->setMetadata(input->getMetadata());
+                        shouldPublish = true;
                     }
+                }
+                else if (input->getType() == Type::FILENAME)
+                {
+                    shouldPublish = true;
+                    forceUniform = true;
+                }
+
+                if (shouldPublish)
+                {
+                    // Use a consistent naming convention: <nodename>_<inputname>
+                    // so application side can figure out what uniforms to set
+                    // when node inputs change on application side.
+                    const string interfaceName = node->getName() + "_" + input->getName();
+
+                    ShaderGraphInputSocket* inputSocket = getInputSocket(interfaceName);
+                    if (!inputSocket)
+                    {
+                        inputSocket = addInputSocket(interfaceName, input->getType());
+                        inputSocket->setPath(input->getPath());
+                        inputSocket->setValue(input->getValue());
+                        inputSocket->setUnit(input->getUnit());
+                        inputSocket->setColorSpace(input->getColorSpace());
+                        if (input->isUniform() || forceUniform)
+                        {
+                            inputSocket->setUniform();
+                        }
+                    }
+                    inputSocket->makeConnection(input);
+                    inputSocket->setMetadata(input->getMetadata());
                 }
             }
         }
