@@ -26,6 +26,21 @@ OslShaderGenerator::OslShaderGenerator(TypeSystemPtr typeSystem) :
 {
 }
 
+OslShaderGenerator::OslShaderGenerator(TypeSystemPtr typeSystem, OslSyntaxPtr syntax) :
+    ShaderGenerator(typeSystem, syntax)
+{
+}
+
+ShaderGeneratorPtr OslShaderGenerator::create(TypeSystemPtr typeSystem, OslSyntaxPtr syntax)
+{
+    if (!typeSystem)
+        typeSystem = TypeSystem::create();
+    if (!syntax)
+        syntax = std::static_pointer_cast<OslSyntax>(OslSyntax::create(typeSystem));
+
+    return std::make_shared<OslShaderGenerator>(typeSystem, syntax);
+}
+
 ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const
 {
     ShaderPtr shader = createShader(name, element, context);
@@ -37,7 +52,7 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
 
     if (context.getOptions().oslConnectCiWrapper)
     {
-        addSetCiTerminalNode(graph, element->getDocument(), context);
+        addSetCiTerminalNode(graph, element->getDocument(), getTypeSystem(), context);
     }
 
     ShaderStage& stage = shader->getStage(Stage::PIXEL);
@@ -145,7 +160,7 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
         if (input->getType() == Type::FILENAME)
         {
             // Construct the textureresource variable.
-            const string newVariableName = input->getVariable() + "_";
+            const string newVariableName = input->getVariable() + "_resource";
             const string& type = _syntax->getTypeName(input->getType());
             emitLine(type + newVariableName + " = {" + input->getVariable() + ", " + input->getVariable() + "_colorspace}", stage);
 
@@ -470,8 +485,7 @@ void OslShaderGenerator::emitMetadata(const ShaderPort* port, ShaderStage& stage
     }
 }
 
-
-void OslShaderGenerator::addSetCiTerminalNode(ShaderGraph& graph, ConstDocumentPtr document, GenContext& context) const
+void OslShaderGenerator::addSetCiTerminalNode(ShaderGraph& graph, ConstDocumentPtr document, TypeSystemPtr typeSystem, GenContext& context)
 {
     string setCiNodeDefName = "ND_osl_set_ci";
     NodeDefPtr setCiNodeDef = document->getNodeDef(setCiNodeDefName);
@@ -483,7 +497,7 @@ void OslShaderGenerator::addSetCiTerminalNode(ShaderGraph& graph, ConstDocumentP
         string inputName = input->getName();
         if (stringStartsWith(inputName, "input_"))
         {
-            TypeDesc inputType = _typeSystem->getType(input->getType());
+            TypeDesc inputType = typeSystem->getType(input->getType());
             outputModeMap[inputType] = std::make_shared<TypedValue<int>>(index++);
         }
     }
@@ -500,7 +514,6 @@ void OslShaderGenerator::addSetCiTerminalNode(ShaderGraph& graph, ConstDocumentP
         typeInput->setValue(outputModeValue);
     }
 }
-
 
 namespace OSL
 {

@@ -265,6 +265,29 @@ class MX_GENSHADER_API ShaderGenerator
     friend ShaderGraph;
 };
 
+template <typename T>
+void addPortImplementationNames(ConstInterfaceElementPtr implElement, T& dest)
+{
+    if (implElement)
+    {
+        for (const auto& port : implElement->getActiveInputs())
+        {
+            if (port->hasImplementationName())
+            {
+                dest.addPortImplName(port->getName(), port->getImplementationName());
+            }
+        }
+
+        for (const auto& port : implElement->getActiveOutputs())
+        {
+            if (port->hasImplementationName())
+            {
+                dest.addPortImplName(port->getName(), port->getImplementationName());
+            }
+        }
+    }
+}
+
 MATERIALX_NAMESPACE_END
 
 #endif // MATERIALX_SHADERGENERATOR_H
