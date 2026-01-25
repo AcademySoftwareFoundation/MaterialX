@@ -70,5 +70,19 @@
          but requiring a more powerful GPU and longer CPU render times.
     -->
     <input name="enableReferenceQuality" type="boolean" value="false" />
+
+    <!-- Base directory for all test output artifacts (shaders, images, logs).
+         If empty (default), artifacts are written to their default locations
+         (CWD for logs, alongside source materials for shaders/images).
+         Supports absolute paths or paths relative to the test working directory.
+         The directory will be created if it doesn't exist.
+    -->
+    <input name="outputDirectory" type="string" value="" />
+
+    <!-- Enable Perfetto tracing during render tests (requires MATERIALX_BUILD_TRACING).
+         When enabled, generates .perfetto-trace files in outputDirectory.
+         Default is false to avoid overhead when not profiling.
+    -->
+    <input name="enableTracing" type="boolean" value="true" />
   </nodedef>
 </materialx>
