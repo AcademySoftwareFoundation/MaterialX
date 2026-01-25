@@ -22,5 +22,5 @@
       %oslCmd%
    </ShaderGroup>
 
-   <Sphere center="0, 0, 0" radius="1" />
+   <Model filename="%obj_path%" />
 </World>
