@@ -468,6 +468,10 @@ jobs:
         name: MaterialX_Python_SDist
         path: sdist
 
+    - name: Install Doxygen (Windows)
+      uses: ssciwr/doxygen-install@v1
+      if: runner.os == 'Windows'
+
     - name: Build Wheel
       uses: pypa/cibuildwheel@v2.23.2
       with:
@@ -479,7 +483,6 @@ jobs:
         CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
         CIBW_BEFORE_ALL_LINUX: yum install -y libXt-devel doxygen
         CIBW_BEFORE_ALL_MACOS: brew install doxygen
-        CIBW_BEFORE_ALL_WINDOWS: choco install doxygen.install -y
         CIBW_BUILD_VERBOSITY: 1
         CIBW_ENVIRONMENT: CMAKE_BUILD_PARALLEL_LEVEL=2
         MACOSX_DEPLOYMENT_TARGET: '11.0'

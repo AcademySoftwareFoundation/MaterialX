@@ -39,6 +39,14 @@ if(@MATERIALX_BUILD_RENDER@ AND @MATERIALX_INSTALL_RESOURCES@)
     set_and_check(MATERIALX_RESOURCES_DIR "@PACKAGE_CMAKE_INSTALL_PREFIX@/resources")
 endif()
 
+if(UNIX AND NOT APPLE)
+    find_dependency(X11 REQUIRED COMPONENTS Xt)
+    if("RenderGlsl" IN_LIST MaterialX_FIND_COMPONENTS)
+        find_dependency(OpenGL REQUIRED)
+        set(MaterialX_RenderGlsl_FOUND TRUE)
+    endif()
+endif()
+
 check_required_components(@CMAKE_PROJECT_NAME@)
 
 @EXPORT_ALIASES@
