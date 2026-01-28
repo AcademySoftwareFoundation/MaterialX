@@ -76,7 +76,7 @@ class UiPin
     ed::PinId getPinId() const { return _pinId; }
     const std::string& getName() const;
     const std::string& getType() const;
-    std::shared_ptr<UiNode> getNode() const { return _pinNode; }
+    std::shared_ptr<UiNode> getUiNode() const { return _pinNode; }
     ed::PinKind getKind() const { return _kind; }
     mx::PortElementPtr getElement() const { return _element; }
     mx::InputPtr getInput() const;

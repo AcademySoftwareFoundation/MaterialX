@@ -319,13 +319,13 @@ ed::PinId Graph::getOutputPin(UiNodePtr node, UiNodePtr upNode, UiPinPtr input)
     {
         // For nodegraph need to get the correct output pin according to the names of the output nodes
         mx::OutputPtr output;
-        if (input->getNode()->getNode())
+        if (input->getUiNode()->getNode())
         {
-            output = input->getNode()->getNode()->getConnectedOutput(input->getName());
+            output = input->getUiNode()->getNode()->getConnectedOutput(input->getName());
         }
-        else if (input->getNode()->getNodeGraph())
+        else if (input->getUiNode()->getNodeGraph())
         {
-            output = input->getNode()->getNodeGraph()->getConnectedOutput(input->getName());
+            output = input->getUiNode()->getNodeGraph()->getConnectedOutput(input->getName());
         }
 
         if (output)
@@ -2085,7 +2085,7 @@ int Graph::getNodeId(ed::PinId pinId)
     {
         if (pin->getPinId() == pinId)
         {
-            return findNode(pin->getNode()->getId());
+            return findNode(pin->getUiNode()->getId());
         }
     }
     return -1;
@@ -2999,11 +2999,11 @@ void Graph::deleteNode(UiNodePtr node)
         for (UiPinPtr pin : outputPin.get()->getConnections())
         {
             mx::ValuePtr val;
-            if (pin->getNode()->getNode())
+            if (pin->getUiNode()->getNode())
             {
-                mx::NodeDefPtr nodeDef = pin->getNode()->getNode()->getNodeDef(pin->getNode()->getNode()->getName());
+                mx::NodeDefPtr nodeDef = pin->getUiNode()->getNode()->getNodeDef(pin->getUiNode()->getNode()->getName());
                 val = nodeDef->getActiveInput(pin->getInput()->getName())->getValue();
-                if (pin->getNode()->getNode()->getType() == mx::SURFACE_SHADER_TYPE_STRING)
+                if (pin->getUiNode()->getNode()->getType() == mx::SURFACE_SHADER_TYPE_STRING)
                 {
                     pin->getInput()->setConnectedOutput(nullptr);
                 }
@@ -3018,11 +3018,11 @@ void Graph::deleteNode(UiNodePtr node)
                     setDefaults(pin->getInput());
                 }
             }
-            else if (pin->getNode()->getNodeGraph())
+            else if (pin->getUiNode()->getNodeGraph())
             {
                 if (node->getInput())
                 {
-                    pin->getNode()->getNodeGraph()->getInput(pin->getName())->setConnectedInterfaceName(mx::EMPTY_STRING);
+                    pin->getUiNode()->getNodeGraph()->getInput(pin->getName())->setConnectedInterfaceName(mx::EMPTY_STRING);
                 }
                 pin->getInput()->setConnectedNode(nullptr);
                 pin->setConnected(false);
@@ -3035,23 +3035,23 @@ void Graph::deleteNode(UiNodePtr node)
                 pin->getInput()->setValueString(val->getValueString());
             }
 
-            int num = pin->getNode()->getEdgeIndex(node->getId(), pin);
+            int num = pin->getUiNode()->getEdgeIndex(node->getId(), pin);
             if (num != -1)
             {
-                if (pin->getNode()->getEdges().size() == 1)
+                if (pin->getUiNode()->getEdges().size() == 1)
                 {
-                    pin->getNode()->getEdges().erase(pin->getNode()->getEdges().begin() + 0);
+                    pin->getUiNode()->getEdges().erase(pin->getUiNode()->getEdges().begin() + 0);
                 }
-                else if (pin->getNode()->getEdges().size() > 1)
+                else if (pin->getUiNode()->getEdges().size() > 1)
                 {
-                    pin->getNode()->getEdges().erase(pin->getNode()->getEdges().begin() + num);
+                    pin->getUiNode()->getEdges().erase(pin->getUiNode()->getEdges().begin() + num);
                 }
             }
 
-            pin->getNode()->setInputNodeNum(-1);
+            pin->getUiNode()->setInputNodeNum(-1);
 
             // Not really necessary since it will be deleted
-            node->removeOutputConnection(pin->getNode()->getName());
+            node->removeOutputConnection(pin->getUiNode()->getName());
         }
     }
 
@@ -3425,9 +3425,9 @@ void Graph::showPropertyEditorOutputConnections(UiNodePtr node)
                         ImGui::TableNextColumn();
 
                         std::string connectedPinName = connectedPin->getName();
-                        if (connectedPin->getNode())
+                        if (connectedPin->getUiNode())
                         {
-                            connectedPinName = connectedPin->getNode()->getName() + "." + connectedPinName;
+                            connectedPinName = connectedPin->getUiNode()->getName() + "." + connectedPinName;
                         }
                         // Display outputPin name, and connectedPinName in same row
                         //
@@ -3452,7 +3452,7 @@ void Graph::showPropertyEditorOutputConnections(UiNodePtr node)
 
                         if (ImGui::Button(displayString.c_str()))
                         {
-                            std::shared_ptr<UiNode> pinNode = connectedPin->getNode();
+                            std::shared_ptr<UiNode> pinNode = connectedPin->getUiNode();
                             if (pinNode)
                             {
                                 ed::SelectNode(pinNode->getId());
@@ -3483,7 +3483,7 @@ void Graph::showPropertyEditorInputConnection(UiPinPtr displayPin)
         UiPinPtr pin = connections[0];
         std::string pinName = std::string(pin->getName());
 
-        pinNode = pin->getNode();
+        pinNode = pin->getUiNode();
         if (pinNode)
         {
             pinName = std::string(pinNode->getName()) + "." + pinName;
@@ -4248,7 +4248,7 @@ UiNodePtr Graph::traverseConnection(UiNodePtr node, bool traverseDownstream)
             // Update downNode info
             for (UiPinPtr connectedPin : outputPin.get()->getConnections())
             {
-                std::shared_ptr<UiNode> pinNode = connectedPin->getNode();
+                std::shared_ptr<UiNode> pinNode = connectedPin->getUiNode();
                 if (pinNode)
                 {
                     return pinNode;
@@ -4267,7 +4267,7 @@ UiNodePtr Graph::traverseConnection(UiNodePtr node, bool traverseDownstream)
             if (!connections.empty())
             {
                 UiPinPtr pin = connections[0];
-                pinNode = pin->getNode();
+                pinNode = pin->getUiNode();
                 if (pinNode)
                 {
                     return pinNode;
