@@ -675,7 +675,130 @@ TEST_CASE("Organization", "[nodegraph]")
     CHECK(nodeGraph->getBackdrops().empty());
 }
 
-TEST_CASE("Node Definition Creation", "[nodedef]")
+void testFunctionalNodeDef()
+{
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::DocumentPtr doc = mx::createDocument();
+    mx::readFromXmlFile(doc, "resources/Materials/TestSuite/stdlib/definition/functional_nodedef.mtlx", searchPath);
+
+    std::vector<mx::NodeDefPtr> nodedefs = doc->getNodeDefs();
+    for (mx::NodeDefPtr nodeDef : nodedefs)
+    {
+        std::string nodeDefName = nodeDef->getName();
+        std::string nodeGraphName = "NG_" + nodeDefName.substr(3); // Remove the 'ND_' prefix
+
+        mx::InterfaceElementPtr implementation = nodeDef->getImplementation();
+        REQUIRE(implementation != nullptr);
+        mx::NodeGraphPtr functionalNodeGraph = implementation->asA<mx::NodeGraph>();
+        REQUIRE(functionalNodeGraph != nullptr);
+        if (functionalNodeGraph)
+        {
+            // Test that the child nodegraph is found via implementation search
+            REQUIRE(functionalNodeGraph->getName() == nodeGraphName);
+
+            // Test that this is actually a child nodegraph of the NodeDef
+            std::vector<mx::NodeGraphPtr> childNodeGraphs = nodeDef->getChildrenOfType<mx::NodeGraph>();
+            for (mx::NodeGraphPtr childNodeGraph : childNodeGraphs)
+            {
+                if (childNodeGraph->getName() == nodeGraphName)
+                {
+                    // Test that the child nodegraph is the functional graph
+                    REQUIRE(childNodeGraph == functionalNodeGraph);
+                }
+            }
+        }
+
+        std::string referenceGraphName = nodeGraphName + "_reference";
+        mx::NodeGraphPtr referenceNodeGraph = doc->getNodeGraph(referenceGraphName);
+        REQUIRE(referenceNodeGraph != nullptr);
+        if (referenceNodeGraph)
+        {
+            referenceNodeGraph->setNodeDefString(nodeDefName);
+
+            implementation = nodeDef->getImplementation();
+            REQUIRE(implementation != nullptr);
+            std::string msg = "Testing NodeDef: " + nodeDefName + " with implementation: " +  implementation->getName();
+            INFO(msg);
+            functionalNodeGraph = implementation->asA<mx::NodeGraph>();
+            REQUIRE(functionalNodeGraph != nullptr);
+            if (functionalNodeGraph)
+            {
+                // Test the functional node graph is the reference graph 
+                REQUIRE(functionalNodeGraph->getName() == referenceGraphName);
+            }
+        }
+    }
+}
+
+void testInlineImplementation()
+{
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::DocumentPtr stdlib = mx::createDocument();
+    mx::loadLibraries({ "libraries" }, searchPath, stdlib);
+
+    // Test inline nodegraph implementation
+    std::string testName = "ND_tiledimage_color3";
+    mx::NodeDefPtr nodeDef = stdlib->getNodeDef(testName);
+    mx::InterfaceElementPtr prevImpl = nodeDef->getImplementation();
+    mx::InterfaceElementPtr newImpl = nodeDef->inlineImplementation(mx::EMPTY_STRING, false);
+    REQUIRE(newImpl != nullptr);
+
+    // Checks for validity of inlined implementation
+    REQUIRE(newImpl->getName() == prevImpl->getName());
+    REQUIRE(newImpl->getNodeDefString().empty());
+    REQUIRE(prevImpl->getNodeDefString().empty());
+
+    // Try to refind the inlined implementation and make sure they are equivalent
+    mx::ElementPtr findImpl = nodeDef->getImplementation();
+    REQUIRE(findImpl != prevImpl);
+    REQUIRE(newImpl->getName() == findImpl->getName());
+    mx::ElementEquivalenceOptions options;
+    std::string message;
+    bool equivalent = newImpl->isEquivalent(prevImpl, options, &message);
+    REQUIRE(equivalent == true);
+    WARN("New impl: " + newImpl->getNamePath() + " is equivalent to old impl: " + prevImpl->getNamePath() + "\n" + mx::prettyPrint(nodeDef));
+
+    // Firewall test to disallow inlining non-graph implementations
+    testName = "ND_position_vector3";
+    nodeDef = stdlib->getNodeDef(testName);
+    newImpl = nodeDef->inlineImplementation(mx::EMPTY_STRING, false);
+    REQUIRE(newImpl == nullptr);
+
+    // Convert entire inhertance chain for a definition
+    testName = "ND_UsdUVTexture";
+    nodeDef = stdlib->getNodeDef(testName);
+    mx::StringVec matchingDefs = nodeDef->getMatchingDefinitions();
+    REQUIRE(matchingDefs.size() > 1);
+    bool hasSharedImplementation = nodeDef->hasSharedImplementation();
+    REQUIRE(hasSharedImplementation == false);
+    for (const std::string& defName : matchingDefs)
+    {
+        nodeDef = stdlib->getNodeDef(defName);
+        prevImpl = nodeDef->getImplementation();
+        newImpl = nodeDef->inlineImplementation(mx::EMPTY_STRING, false);
+        REQUIRE(newImpl != nullptr);
+        equivalent = newImpl->isEquivalent(prevImpl, options, &message);
+        REQUIRE(equivalent == true);
+    }
+
+    // Test for disallowing inline shared implementations
+    testName = "ND_standard_surface_surfaceshader";
+    nodeDef = stdlib->getNodeDef(testName);
+    hasSharedImplementation = nodeDef->hasSharedImplementation();
+    REQUIRE(hasSharedImplementation == true);
+    newImpl = nodeDef->inlineImplementation(mx::EMPTY_STRING, true);
+    REQUIRE(newImpl == nullptr);
+
+    // Test flag to ignore shared implementations
+    nodeDef = stdlib->getNodeDef(testName);
+    prevImpl = nodeDef->getImplementation();
+    newImpl = nodeDef->inlineImplementation(mx::EMPTY_STRING, false);
+    REQUIRE(newImpl != nullptr);
+    equivalent = newImpl->isEquivalent(prevImpl, options, &message);
+    REQUIRE(equivalent == true);
+}
+
+void testNodeDefCreationFromGraph(mx::DefinitionOptions options)
 {
     mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
     mx::DocumentPtr stdlib = mx::createDocument();
@@ -714,10 +837,12 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
         bool isDefaultVersion = false;
         const std::string NODENAME = graph->getName();
 
+
         // Create a new functional graph and definition from a compound graph
+        bool addAsChild = options.addImplementationAsChild;
         std::string newNodeDefName = doc->createValidChildName("ND_" + graph->getName());
         std::string newGraphName = doc->createValidChildName("NG_" + graph->getName());
-        mx::NodeDefPtr nodeDef = doc->addNodeDefFromGraph(graph, newNodeDefName, NODENAME, newGraphName);
+        mx::NodeDefPtr nodeDef = doc->addNodeDefFromGraph(graph, newNodeDefName, NODENAME, newGraphName, &options);
         REQUIRE(nodeDef != nullptr);
         nodeDef->setVersionString(VERSION1);
         nodeDef->setDefaultVersion(isDefaultVersion);
@@ -759,9 +884,16 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
         }
 
         // Check validity of new functional nodegraph
-        mx::NodeGraphPtr newGraph = doc->getNodeGraph(newGraphName);
+        mx::NodeGraphPtr newGraph = !addAsChild ? doc->getNodeGraph(newGraphName) : nodeDef->getChildOfType<mx::NodeGraph>(newGraphName);
         REQUIRE(newGraph != nullptr);
-        REQUIRE(newGraph->getNodeDefString() == newNodeDefName);
+        if (!addAsChild)
+        {
+            REQUIRE(newGraph->getNodeDefString() == newNodeDefName);
+        }
+        else
+        {
+            REQUIRE(newGraph->getNodeDefString().empty());
+        }
         mx::ConstInterfaceElementPtr decl = newGraph->getDeclaration();
         REQUIRE(decl->getName() == nodeDef->getName());
         REQUIRE(doc->validate());
@@ -825,6 +957,33 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
 
     REQUIRE(doc->validate());
 }
+
+TEST_CASE("Node Definition Creation", "[nodedef_create]")
+{
+    mx::DefinitionOptions defOptions;
+
+    SECTION("Without implementation as child")
+    {
+        defOptions.addImplementationAsChild = false;
+        testNodeDefCreationFromGraph(defOptions);
+    }
+
+    SECTION("With implementation as child")
+    {
+        defOptions.addImplementationAsChild = true;
+        testNodeDefCreationFromGraph(defOptions);
+    }
+
+    SECTION("Functional NodeDef test")
+    {
+        testFunctionalNodeDef();
+    }
+
+    SECTION("Functional Nodef Inlining test")
+    {
+        testInlineImplementation();
+    }
+}   
 
 TEST_CASE("Set Name Global", "[node, nodegraph]")
 {
