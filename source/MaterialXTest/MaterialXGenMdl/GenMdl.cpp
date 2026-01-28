@@ -281,8 +281,7 @@ TEST_CASE("GenShader: MDL Shader Generation", "[genmdl]")
 
     mx::FilePathVec testRootPaths;
     testRootPaths.push_back(searchPath.find("resources/Materials/TestSuite"));
-    testRootPaths.push_back(searchPath.find("resources/Materials/Examples/StandardSurface"));
-    testRootPaths.push_back(searchPath.find("resources/Materials/Examples/UsdPreviewSurface"));
+    testRootPaths.push_back(searchPath.find("resources/Materials/Examples"));
 
     const mx::FilePath logPath("genmdl_mdl_generate_test.txt");
 
