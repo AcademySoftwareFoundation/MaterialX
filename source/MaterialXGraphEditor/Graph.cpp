@@ -4690,14 +4690,6 @@ void Graph::drawGraph(ImVec2 mousePos)
             {
                 savePosition();
 
-                // Determine the display name for this graph.
-                std::string graphName = targetGraph->getName();
-                if (readOnly())
-                {
-                    graphName += " (Read Only)";
-                    _popup = true;
-                }
-
                 // Save current state and set up new graph level.
                 _parentStates.push_back(std::move(_state));
                 if (enteringCompoundGraph)
@@ -4709,9 +4701,17 @@ void Graph::drawGraph(ImVec2 mousePos)
 
                 _state = GraphState();
                 buildUiNodeGraph(targetGraph);
-                _state.name = graphName;
                 _state.graphElem = targetGraph;
                 _state.isCompoundNodeGraph = enteringCompoundGraph;
+
+                // Determine the display name for this graph.
+                _state.name = targetGraph->getName();
+                if (readOnly())
+                {
+                    _state.name += " (Read Only)";
+                    _popup = true;
+                }
+
                 _needsLayout = true;
                 _needsNavigation = true;
             }
