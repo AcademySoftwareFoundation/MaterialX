@@ -12,31 +12,97 @@ const int INVALID_POS = -10000;
 
 } // anonymous namespace
 
+//
+// UiPin methods
+//
+
+const std::string& UiPin::getName() const
+{
+    return _element ? _element->getName() : mx::EMPTY_STRING;
+}
+
+const std::string& UiPin::getType() const
+{
+    if (_element)
+    {
+        return _element->getType();
+    }
+
+    // Derive type from parent node for synthetic output pins.
+    if (_pinNode)
+    {
+        if (auto input = _pinNode->getInput())
+        {
+            return input->getType();
+        }
+        if (auto output = _pinNode->getOutput())
+        {
+            return output->getType();
+        }
+    }
+
+    return mx::EMPTY_STRING;
+}
+
+mx::InputPtr UiPin::getInput() const
+{
+    return _element ? _element->asA<mx::Input>() : nullptr;
+}
+
+mx::OutputPtr UiPin::getOutput() const
+{
+    return _element ? _element->asA<mx::Output>() : nullptr;
+}
+
+//
+// UiNode methods
+//
+
 UiNode::UiNode() :
-    _level(-1),
-    _showAllInputs(false),
-    _showOutputsInEditor(true),
     _id(0),
     _nodePos(INVALID_POS, INVALID_POS),
-    _inputNodeNum(0)
+    _inputNodeNum(0),
+    _level(-1),
+    _showAllInputs(false),
+    _showOutputsInEditor(true)
 {
 }
 
 UiNode::UiNode(const std::string& name, int id) :
-    _level(-1),
-    _showAllInputs(false),
-    _showOutputsInEditor(true),
     _id(id),
     _nodePos(INVALID_POS, INVALID_POS),
     _name(name),
-    _inputNodeNum(0)
+    _inputNodeNum(0),
+    _level(-1),
+    _showAllInputs(false),
+    _showOutputsInEditor(true)
 {
+}
+
+mx::NodePtr UiNode::getNode() const
+{
+    return _element ? _element->asA<mx::Node>() : nullptr;
+}
+
+mx::InputPtr UiNode::getInput() const
+{
+    return _element ? _element->asA<mx::Input>() : nullptr;
+}
+
+mx::OutputPtr UiNode::getOutput() const
+{
+    return _element ? _element->asA<mx::Output>() : nullptr;
+}
+
+mx::NodeGraphPtr UiNode::getNodeGraph() const
+{
+    return _element ? _element->asA<mx::NodeGraph>() : nullptr;
 }
 
 // return the uiNode connected with input name
 UiNodePtr UiNode::getConnectedNode(const std::string& name)
 {
-    for (UiEdge edge : edges)
+    for (const UiEdge& edge : _edges)
     {
         if (edge.getInputName() == name)
         {
@@ -47,7 +113,7 @@ UiNodePtr UiNode::getConnectedNode(const std::string& name)
             return edge.getDown();
         }
     }
-    for (UiEdge edge : edges)
+    for (const UiEdge& edge : _edges)
     {
         if (edge.getInputName().empty())
         {
@@ -94,9 +160,10 @@ float UiNode::getMinX()
 int UiNode::getEdgeIndex(int id, UiPinPtr pin)
 {
     int count = 0;
-    for (UiEdge edge : edges)
+    for (const UiEdge& edge : _edges)
     {
-        if ((edge.getUp()->getId() == id && pin->_input == edge._input) || (edge.getDown()->getId() == id && pin->_input == edge._input))
+        if ((edge.getUp()->getId() == id && pin->getInput() == edge.getInput()) ||
+            (edge.getDown()->getId() == id && pin->getInput() == edge.getInput()))
         {
             return count;
         }
@@ -113,25 +180,5 @@ void UiNode::removeOutputConnection(const std::string& name)
         {
             _outputConnections.erase(_outputConnections.begin() + i);
         }
-    }
-}
-
-mx::ElementPtr UiNode::getElement()
-{
-    if (_currNode != nullptr)
-    {
-        return _currNode;
-    }
-    else if (_currInput != nullptr)
-    {
-        return _currInput;
-    }
-    else if (_currOutput != nullptr)
-    {
-        return _currOutput;
-    }
-    else
-    {
-        return nullptr;
     }
 }
