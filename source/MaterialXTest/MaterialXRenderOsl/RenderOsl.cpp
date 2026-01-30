@@ -20,60 +20,6 @@
 
 namespace mx = MaterialX;
 
-namespace
-{
-
-//
-// Define local overrides for the tangent frame in shader generation, aligning conventions
-// between MaterialXRender and testrender.
-//
-
-class TangentOsl : public mx::ShaderNodeImpl
-{
-  public:
-    static mx::ShaderNodeImplPtr create()
-    {
-        return std::make_shared<TangentOsl>();
-    }
-
-    void emitFunctionCall(const  mx::ShaderNode& node, mx::GenContext& context, mx::ShaderStage& stage) const override
-    {
-        const mx::ShaderGenerator& shadergen = context.getShaderGenerator();
-
-        DEFINE_SHADER_STAGE(stage, mx::Stage::PIXEL)
-        {
-            shadergen.emitLineBegin(stage);
-            shadergen.emitOutput(node.getOutput(), true, false, context, stage);
-            shadergen.emitString(" = normalize(vector(N[2], 0, -N[0]))", stage);
-            shadergen.emitLineEnd(stage);
-        }
-    }
-};
-
-class BitangentOsl : public mx::ShaderNodeImpl
-{
-  public:
-    static mx::ShaderNodeImplPtr create()
-    {
-        return std::make_shared<BitangentOsl>();
-    }
-
-    void emitFunctionCall(const  mx::ShaderNode& node, mx::GenContext& context, mx::ShaderStage& stage) const override
-    {
-        const mx::ShaderGenerator& shadergen = context.getShaderGenerator();
-
-        DEFINE_SHADER_STAGE(stage, mx::Stage::PIXEL)
-        {
-            shadergen.emitLineBegin(stage);
-            shadergen.emitOutput(node.getOutput(), true, false, context, stage);
-            shadergen.emitString(" = normalize(cross(N, vector(N[2], 0, -N[0])))", stage);
-            shadergen.emitLineEnd(stage);
-        }
-    }
-};
-
-} // anonymous namespace
-
 class OslShaderRenderTester : public RenderUtil::ShaderRenderTester
 {
   public:
@@ -106,9 +52,9 @@ class OslShaderRenderTester : public RenderUtil::ShaderRenderTester
     void addSkipFiles() override
     {
         _skipFiles.insert("standard_surface_onyx_hextiled.mtlx");
+        _skipFiles.insert("hextiled.mtlx");
         if (_useOslCmdStr)
         {
-            _skipFiles.insert("hextiled.mtlx");
             _skipFiles.insert("filename_cm_test.mtlx");
             _skipFiles.insert("shader_ops.mtlx");
             _skipFiles.insert("chiang_hair_surfaceshader.mtlx");
@@ -203,7 +149,7 @@ bool OslShaderRenderTester::runRenderer(const std::string& shaderName,
                                          std::ostream& log,
                                          const GenShaderUtil::TestSuiteOptions& testOptions,
                                          RenderUtil::RenderProfileTimes& profileTimes,
-                                         const mx::FileSearchPath&,
+                                         const mx::FileSearchPath& searchPath,
                                          const std::string& outputPath,
                                          mx::ImageVec* imageVec)
 {
@@ -232,10 +178,6 @@ bool OslShaderRenderTester::runRenderer(const std::string& shaderName,
                 contextOptions = options;
                 contextOptions.targetColorSpaceOverride = "lin_rec709";
                 contextOptions.oslConnectCiWrapper = true;
-
-                // Apply local overrides for shader generation.
-                shadergen.registerImplementation("IM_tangent_vector3_" + mx::OslShaderGenerator::TARGET, TangentOsl::create);
-                shadergen.registerImplementation("IM_bitangent_vector3_" + mx::OslShaderGenerator::TARGET, BitangentOsl::create);
 
                 shader = shadergen.generate(shaderName, element, context);
             }
@@ -301,14 +243,21 @@ bool OslShaderRenderTester::runRenderer(const std::string& shaderName,
 
                 const mx::ShaderStage& stage = shader->getStage(mx::Stage::PIXEL);
 
-                // Bind IBL image name overrides.
+                // Bind IBL image name overrides - use the searchPath to generate complete
+                // paths this makes the resolved test template relocatable and easier to debug
+                mx::FilePath envmapPath = searchPath.find(mx::FilePath(testOptions.radianceIBLPath));
                 mx::StringVec envOverrides;
                 std::string envmap_filename("string envmap_filename \"");
-                envmap_filename += testOptions.radianceIBLPath;
+                envmap_filename += envmapPath.asString();
                 envmap_filename += "\";\n";
                 envOverrides.push_back(envmap_filename);
 
                 _renderer->setEnvShaderParameterOverrides(envOverrides);
+
+                // Set the OBJ path to render
+                mx::FilePath resourcesPath = searchPath.find(mx::FilePath("resources"));
+                mx::FilePath objPath = resourcesPath / "Geometry" / testOptions.renderGeometry;
+                _renderer->setObjPath(objPath);
 
                 const mx::VariableBlock& outputs = stage.getOutputBlock(mx::OSL::OUTPUTS);
                 if (outputs.size() > 0)
@@ -334,9 +283,7 @@ bool OslShaderRenderTester::runRenderer(const std::string& shaderName,
                     }
 
                     // Set scene template file. For now we only have the constant color scene file
-                    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
-                    mx::FilePath sceneTemplatePath = searchPath.find("resources/Utilities/");
-                    sceneTemplatePath = sceneTemplatePath / sceneTemplateFile;
+                    mx::FilePath sceneTemplatePath = resourcesPath/ "Utilities" / sceneTemplateFile;
                     _renderer->setOslTestRenderSceneTemplateFile(sceneTemplatePath.asString());
 
                     // Validate rendering
