@@ -73,7 +73,7 @@ through the *EasyCLA* system, which is integrated with GitHub as a pull
 request check.
 
 Prior to submitting a pull request, you can sign the form through
-[this link](https://contributor.easycla.lfx.linuxfoundation.org/#/cla/project/68fa91fe-51fe-41ac-a21d-e0a0bf688a53/user/564e571e-12d7-4857-abd4-898939accdd7).
+[this link](https://organization.lfx.linuxfoundation.org/foundation/a09410000182dD2AAI/project/a092M00001KWrdoQAD/cla).
 If you submit a pull request before the form is signed, the EasyCLA check
 will fail with a red *NOT COVERED* message, and you'll have another
 opportunity to sign the form through the provided link.
@@ -189,7 +189,104 @@ in the ASWF Slack or in TSC meetings before any PR is submitted, in order to
 solicit feedback, build consensus, and alert all stakeholders to be on the
 lookout for the eventual PR when it appears.
 
-### Coding Conventions
+### Developer Guidelines
+
+The following guidelines represent coding standards that we strive to follow
+in the MaterialX project. While not all existing code may adhere to these
+standards yet, we encourage all new contributions to follow these practices,
+and we welcome incremental improvements to bring existing code into alignment
+with these guidelines.
+
+#### Naming Conventions
+
+Class names should use PascalCase, as in `NodeGraph` or `ShaderGenerator`.
+Variable and function names should use camelCase starting with a lowercase
+letter, as in `childName` or `getNode`. Protected and private member variables
+additionally require an underscore prefix, as in `_parent` or `_childMap`.
+Constants should be written in UPPER_CASE with underscores separating words,
+as in `EMPTY_STRING` or `CATEGORY`. Type aliases should append appropriate
+suffixes to indicate their purpose, using `Ptr` for pointers, `Vec` for
+vectors, `Map` for maps, and `Set` for sets.
+
+#### Static Constants and Class Organization
+
+Class members should be organized in order of decreasing visibility: public,
+protected, then private. Static constants should be placed at the end of their
+respective visibility section. String constants should be defined in implementation
+files rather than headers to avoid One Definition Rule violations. The
+`EMPTY_STRING` constant should be used instead of empty string literals (`""`)
+for clarity and consistency.
+
+#### Smart Pointer Conventions
+
+Heap-allocated objects in the public API should always use `shared_ptr` for
+memory management. Type aliases should be defined for all shared pointers,
+following the pattern of `ElementPtr` for `shared_ptr<Element>`. Both mutable
+and const versions of these type aliases should be provided, e.g. `ElementPtr`
+and `ConstElementPtr`. Raw pointers should be avoided except when representing
+non-owning references within implementation details.
+
+#### Const Correctness
+
+Methods that do not modify an object's state should be marked as `const`.
+Accessor methods should provide const versions to enable their use on const
+objects. Type aliases following the pattern `ConstElementPtr` should be used to
+indicate read-only access through shared pointers. Parameters that should not
+be modified within a function should be declared as const.
+
+#### Parameter Passing and Return Values
+
+Strings and complex objects should be passed by `const&` to avoid unnecessary
+copies. Shared pointers should be passed by value since they are designed to
+be cheap to copy. When returning shared pointers, they should be returned by
+value rather than by reference. Methods should be marked as `const` whenever
+they do not modify the object's state.
+
+#### Thread Safety
+
+MaterialX classes support multiple concurrent readers, but not concurrent
+reads and writes, following the pattern of standard C++ containers.  This
+design enables efficient parallel processing in read-heavy workloads such
+as shader generation and scene traversal, while keeping the implementation 
+simple and avoiding the overhead of fine-grained locking.
+
+#### Exception Handling
+
+Exceptions should be used for exceptional conditions rather than for normal
+control flow. Custom exception types should be defined by inheriting from
+`Exception` to represent specific error categories. Exception messages should
+be descriptive and include relevant context to aid in debugging. All exceptions
+that may be thrown by a method should be documented using the `@throws` tag in
+the method's documentation. When catching exceptions, specific exception types
+should be caught rather than generic exceptions whenever possible.
+
+#### Header Includes
+
+Header includes should be written with angle brackets, with paths relative to
+the root source folder (e.g. `#include <MaterialXCore/Element.h>`). This
+ensures consistent include paths across the entire codebase, regardless of the
+location of the referencing file.
+
+Each implementation file should include its corresponding header file first,
+so the first include in `Element.cpp` should be `Element.h`. This ensures that
+the header file is self-contained and doesn't accidentally depend on includes
+from other headers.
+
+After the corresponding header, include blocks should be ordered hierarchically,
+with high-level modules listed before low-level modules (e.g.
+`MaterialXGenShader`, followed by `MaterialXFormat`, followed by
+`MaterialXCore`). This maximizes opportunities to catch missing dependencies in
+the high-level modules, which might otherwise be hidden at build time. Within
+include blocks, individual includes should be ordered alphabetically, providing
+a simple canonical order that is straightforward for developers to check.
+
+In the interest of avoiding include cycles, developers are free to leverage
+forward declarations of classes that are trivially referenced within another
+header. In the interest of clarity and efficiency, developers are free to
+leverage transitive header includes, where low-level headers that have already
+been included by a high-level header do not need to be restated individually.
+
+#### Coding Style
 
 The coding style of the MaterialX project is defined by a
 [clang-format](.clang-format) file in the repository, which is supported by
@@ -200,7 +297,18 @@ file to automatically align the code to MaterialX conventions. When modifying
 existing code, follow the surrounding formatting conventions so that new or
 modified code blends in with the current code.
 
-### Unit Tests
+#### Documentation Standards
+
+All classes and methods in the public API should be documented with Doxygen
+comments. Classes should be documented with the `@class` tag, and structs with
+the `@struct` tag, followed by a brief description and any detailed
+documentation. Method documentation should include `@param`, `@return`, and
+`@throws` tags where applicable. Related methods should be grouped together
+using `/// @name GroupName` sections to improve readability. File-level
+documentation should be placed immediately after the copyright header using
+the `/// @file` directive.
+
+#### Unit Tests
 
 Each MaterialX module has a companion folder within the
 [MaterialXTest](source/MaterialXTest) module, containing a set of unit tests

@@ -147,6 +147,25 @@ color mx_f0_to_ior(color F0)
     return color((float3(1.0) + sqrtF0) / (float3(1.0) - sqrtF0));
 }
 
+// Heuristic used to decide if this node is used only to apply coat to the base material:
+// Use base_ior if the base material explicitly defines IOR (volume properties) and the scatter
+// mode is reflection only. If the scatter mode contains transmission, this node itself will set
+// the volume IOR via mxp_ior.
+export color preserve_volume_ior(
+    uniform mx_scatter_mode mxp_scatter_mode,
+    float mxp_weight,
+    color mxp_ior,
+    color base_ior)
+{
+    // Avoid changing the IOR if the weight of this node is zero.
+    if (mxp_weight <= 0.0)
+        return base_ior;
+
+    // Use either base_ior or mxp_ior, no blending of IORs.
+    return (math::max_value(base_ior) > 1.0) && (mxp_scatter_mode == mx_scatter_mode_R)
+        ? base_ior : mxp_ior;
+}
+
 export material mx_generalized_schlick_bsdf(
     float  mxp_weight    = 1.0,
     color  mxp_color0    = color(1.0),
@@ -216,15 +235,12 @@ export material mx_generalized_schlick_bsdf(
             )
         )
     ),
-    ior: mx_f0_to_ior(mxp_color0),
-    // we need to carry volume properties along for SSS
+    // we need to preserve volume properties, e.g. for SSS
+    ior: preserve_volume_ior(mxp_scatter_mode, mxp_weight, mx_f0_to_ior(mxp_color0), mxp_base.ior),
     volume: mxp_base.volume
 );
 
 
-// TODO MDL 1.8 
-// * will add support for thin film above a color_custom_curve_layer node until then, thin_film will have no effect
-// * thin_film(thickness: 0.0, ior: < 1.0) will be handled properly
 export material mx_dielectric_bsdf(
     float  mxp_weight    = 1.0,
     color  mxp_tint      = color(1.0),
@@ -295,8 +311,8 @@ export material mx_dielectric_bsdf(
     surface: material_surface(
         scattering: bsdf_selected
     ),
-    // we need to carry volume properties along for SSS
-    ior: color(mxp_ior),
+    // we need to preserve volume properties, e.g. for SSS
+    ior: preserve_volume_ior(mxp_scatter_mode, mxp_weight, color(mxp_ior), mxp_base.ior),
     volume: mxp_base.volume
 );
 

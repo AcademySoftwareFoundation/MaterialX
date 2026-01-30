@@ -5,7 +5,7 @@
 
 #include <MaterialXGenShader/ShaderStage.h>
 
-#include <MaterialXGenShader/ShaderGenerator.h>
+#include <MaterialXGenShader/Exception.h>
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Syntax.h>
 #include <MaterialXGenShader/Util.h>
@@ -20,6 +20,7 @@ namespace Stage
 {
 
 const string PIXEL = "pixel";
+const string VERTEX = "vertex";
 
 } // namespace Stage
 

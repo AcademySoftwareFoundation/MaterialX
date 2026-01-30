@@ -187,14 +187,20 @@ class Graph
     // Check if node has already been assigned a position
     bool checkPosition(UiNodePtr node);
 
-    // Add input pointer to node based on input pin
-    void addNodeInput(UiNodePtr node, mx::InputPtr& input);
+    // Add an input to a node based on its NodeDef input definition.
+    mx::InputPtr addNodeInput(UiNodePtr node, mx::InputPtr nodeDefInput);
 
+    // Traversal methods
     void upNodeGraph();
+    UiNodePtr traverseConnection(UiNodePtr node, bool traverseDownstream);
 
-    // Set the value of the selected node constants in the node property editor
-    void setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIProperties& uiProperties);
-
+    // Show input values in property editor for a given input
+    void showPropertyEditorValue(UiNodePtr node, mx::InputPtr input, const mx::UIProperties& uiProperties);
+    // Show input connections in property editor for a given node
+    void showPropertyEditorOutputConnections(UiNodePtr node);
+    // Show output connections in property editor for a given output pin
+    void showPropertyEditorInputConnection(UiPinPtr pin);
+    // Show property editor for a given node
     void propertyEditor();
     void setDefaults(mx::InputPtr input);
 

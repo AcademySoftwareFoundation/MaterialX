@@ -450,9 +450,9 @@ void ShaderRenderTester::addAdditionalTestStreams(mx::MeshPtr mesh)
         mesh->addStream(geomColor4Stream);
     }
 
-    auto sineData = [](float uv, float freq){
+    auto sineData = [](float texCoord, float freq){
         const float PI = std::acos(-1.0f);
-        float angle = uv * 2 * PI * freq;
+        float angle = texCoord * 2 * PI * freq;
         return std::sin(angle) / 2.0f + 1.0f;
     };
     if (!uv.empty())

@@ -9,11 +9,23 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-const Edge NULL_EDGE(nullptr, nullptr, nullptr);
+const Edge& getNullEdge() {
+    static const auto ret = new Edge(nullptr, nullptr, nullptr);
+    return *ret;
+}
 
-const TreeIterator NULL_TREE_ITERATOR(nullptr);
-const GraphIterator NULL_GRAPH_ITERATOR(nullptr);
-const InheritanceIterator NULL_INHERITANCE_ITERATOR(nullptr);
+const TreeIterator& getNullTreeIterator() {
+    static const auto ret = new TreeIterator(nullptr);
+    return *ret;
+}
+const GraphIterator& getNullGraphIterator() {
+    static const auto ret = new GraphIterator(nullptr);
+    return *ret;
+}
+const InheritanceIterator& getNullInheritanceIterator() {
+    static const auto ret = new InheritanceIterator(nullptr);
+    return *ret;
+}
 
 //
 // Edge methods
@@ -21,7 +33,7 @@ const InheritanceIterator NULL_INHERITANCE_ITERATOR(nullptr);
 
 Edge::operator bool() const
 {
-    return *this != NULL_EDGE;
+    return *this != getNullEdge();
 }
 
 string Edge::getName() const
@@ -35,7 +47,7 @@ string Edge::getName() const
 
 const TreeIterator& TreeIterator::end()
 {
-    return NULL_TREE_ITERATOR;
+    return getNullTreeIterator();
 }
 
 TreeIterator& TreeIterator::operator++()
@@ -97,7 +109,7 @@ size_t GraphIterator::getNodeDepth() const
 
 const GraphIterator& GraphIterator::end()
 {
-    return NULL_GRAPH_ITERATOR;
+    return getNullGraphIterator();
 }
 
 GraphIterator& GraphIterator::operator++()
@@ -189,7 +201,7 @@ bool GraphIterator::skipOrMarkAsVisited(const Edge& edge)
 
 const InheritanceIterator& InheritanceIterator::end()
 {
-    return NULL_INHERITANCE_ITERATOR;
+    return getNullInheritanceIterator();
 }
 
 InheritanceIterator& InheritanceIterator::operator++()

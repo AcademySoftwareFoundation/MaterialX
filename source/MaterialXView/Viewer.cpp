@@ -66,6 +66,9 @@ const bool USE_FLOAT_BUFFER = false;
 const int MIN_ENV_SAMPLE_COUNT = 4;
 const int MAX_ENV_SAMPLE_COUNT = 1024;
 
+const int MIN_AIRY_FRESNEL_ITERATIONS = 1;
+const int MAX_AIRY_FRESNEL_ITERATIONS = 8;
+
 const int SHADOW_MAP_SIZE = 2048;
 const int ALBEDO_TABLE_SIZE = 128;
 const int IRRADIANCE_MAP_WIDTH = 256;
@@ -901,6 +904,26 @@ void Viewer::createAdvancedSettings(ng::ref<Widget> parent)
     sampleBox->set_callback([this](int index)
     {
         _lightHandler->setEnvSampleCount(MIN_ENV_SAMPLE_COUNT * (int) std::pow(4, index));
+    });
+
+    ng::ref<ng::Widget> fresnelGroup = new Widget(settingsGroup);
+    fresnelGroup->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
+    new ng::Label(fresnelGroup, "Airy Fresnel Iterations:");
+    mx::StringVec fresnelOptions;
+    for (int i = MIN_AIRY_FRESNEL_ITERATIONS; i <= MAX_AIRY_FRESNEL_ITERATIONS; i *= 2)
+    {
+        fresnelOptions.push_back(std::to_string(i));
+    }
+    ng::ref<ng::ComboBox> fresnelBox = new ng::ComboBox(fresnelGroup, fresnelOptions);
+    fresnelBox->set_chevron_icon(-1);
+    fresnelBox->set_selected_index((int)std::log2(_genContext.getOptions().hwAiryFresnelIterations / MIN_AIRY_FRESNEL_ITERATIONS));
+    fresnelBox->set_callback([this](int index)
+    {
+        _genContext.getOptions().hwAiryFresnelIterations = MIN_AIRY_FRESNEL_ITERATIONS * (int)std::pow(2, index);
+#ifndef MATERIALXVIEW_METAL_BACKEND
+        _genContextEssl.getOptions().hwAiryFresnelIterations = _genContext.getOptions().hwAiryFresnelIterations;
+#endif
+        reloadShaders();
     });
 
     ng::ref<ng::Label> lightingLabel = new ng::Label(settingsGroup, "Lighting Options");
@@ -1850,7 +1873,7 @@ void Viewer::loadStandardLibraries()
     // Create the list of supported distance units.
     auto unitScales = _distanceUnitConverter->getUnitScale();
     _distanceUnitOptions.resize(unitScales.size());
-    for (auto unitScale : unitScales)
+    for (const auto& unitScale : unitScales)
     {
         int location = _distanceUnitConverter->getUnitAsInteger(unitScale.first);
         _distanceUnitOptions[location] = unitScale.first;
