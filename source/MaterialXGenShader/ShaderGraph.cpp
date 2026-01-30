@@ -97,7 +97,7 @@ void ShaderGraph::createConnectedNodes(const ElementPtr& downstreamElement,
         {
             continue;
         }
-        
+
         InputPtr graphInput = activeInput->getInterfaceInput();
         if (graphInput && graphInput->hasDefaultGeomPropString())
         {
@@ -978,9 +978,9 @@ void ShaderGraph::optimize(GenContext& context)
     {
         if (node->hasClassification(ShaderNode::Classification::CONSTANT))
         {
-            if (node->numInputs() == 0)
+            if (node->numInputs() != 1 || node->numOutputs() != 1)
             {
-                // Cannot elide a constant node with no inputs.
+                // Constant node doesn't follow expected interface, cannot elide.
                 continue;
             }
             // Constant nodes can be elided by moving their value downstream.
@@ -1003,9 +1003,9 @@ void ShaderGraph::optimize(GenContext& context)
         }
         else if (node->hasClassification(ShaderNode::Classification::DOT))
         {
-            if (node->numInputs() == 0)
+            if (node->numOutputs() != 1)
             {
-                // Cannot elide a dot node with no inputs.
+                // Dot node dosen't follow expected interface, cannot elide.
                 continue;
             }
             // Filename dot nodes must be elided so they do not create extra samplers.
