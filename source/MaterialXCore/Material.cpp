@@ -20,7 +20,19 @@ vector<NodePtr> getShaderNodes(NodePtr materialNode, const string& nodeType, con
         NodePtr shaderNode = input->getConnectedNode();
         if (shaderNode && !shaderNodeSet.count(shaderNode))
         {
-            if (!nodeType.empty() && shaderNode->getType() != nodeType)
+            bool inputMatchesOutputType = !nodeType.empty() && shaderNode->getType() == nodeType;
+            
+            if (shaderNode->isMultiOutputType())
+            {
+                const vector<OutputPtr>& activeOutputs = shaderNode->getActiveOutputs();
+                bool multiOutputMatches = std::any_of(activeOutputs.begin(), activeOutputs.end(), [&nodeType](const OutputPtr& output)
+                {
+                    return output->getType() == nodeType;
+                });
+                inputMatchesOutputType = multiOutputMatches || inputMatchesOutputType;
+            }
+            
+            if (!inputMatchesOutputType)
             {
                 continue;
             }
