@@ -159,17 +159,29 @@ float UiNode::getMinX()
 
 int UiNode::getEdgeIndex(int id, UiPinPtr pin)
 {
+    mx::InputPtr pinInput = pin ? pin->getInput() : nullptr;
     int count = 0;
     for (const UiEdge& edge : _edges)
     {
-        if ((edge.getUp()->getId() == id && pin->getInput() == edge.getInput()) ||
-            (edge.getDown()->getId() == id && pin->getInput() == edge.getInput()))
+        if ((edge.getUp()->getId() == id || edge.getDown()->getId() == id) &&
+            pinInput == edge.getInput())
         {
             return count;
         }
         count++;
     }
     return -1;
+}
+
+bool UiNode::eraseEdge(int id, UiPinPtr pin)
+{
+    int num = getEdgeIndex(id, pin);
+    if (num == -1)
+    {
+        return false;
+    }
+    _edges.erase(_edges.begin() + num);
+    return true;
 }
 
 void UiNode::removeOutputConnection(const std::string& name)
@@ -179,6 +191,7 @@ void UiNode::removeOutputConnection(const std::string& name)
         if (_outputConnections[i]->getName() == name)
         {
             _outputConnections.erase(_outputConnections.begin() + i);
+            break;
         }
     }
 }

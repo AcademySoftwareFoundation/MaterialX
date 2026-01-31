@@ -50,10 +50,15 @@ class MenuItem
 // Based on the Link struct from ImGui Node Editor blueprints-examples.cpp
 struct Link
 {
-    Link();
+    Link(int id, int startAttr, int endAttr) :
+        _id(id),
+        _startAttr(startAttr),
+        _endAttr(endAttr)
+    {
+    }
 
-    int _startAttr, _endAttr;
     int _id;
+    int _startAttr, _endAttr;
 };
 
 // The UI state associated with a graph level (document or nodegraph).
@@ -131,7 +136,7 @@ class Graph
     int findLinkPosition(int id);
 
     // Check if link exists in the current link vector
-    bool linkExists(Link newLink);
+    bool linkExists(const Link& newLink);
 
     // Check if link can be added. Show a diagnostic message as the label.
     bool checkCanAddLink(ed::PinId startPinId, ed::PinId endPinId);
@@ -195,9 +200,11 @@ class Graph
     void setUiNodeInfo(UiNodePtr node, const std::string& type, const std::string& category);
 
     // Check if edge exists in edge vector
-    bool edgeExists(UiEdge edge);
+    bool edgeExists(const UiEdge& edge);
 
-    void createEdge(UiNodePtr upNode, UiNodePtr downNode, mx::InputPtr connectingInput);
+    // Create an edge between two nodes if it doesn't already exist.
+    // Returns true if the edge was created, false if invalid or already exists.
+    bool createEdge(UiNodePtr upNode, UiNodePtr downNode, mx::InputPtr connectingInput);
 
     // Remove node edge based on connecting input
     void removeEdge(int downNode, int upNode, UiPinPtr pin);
