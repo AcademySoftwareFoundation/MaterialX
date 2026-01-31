@@ -1693,7 +1693,15 @@ void Graph::copyUiNode(UiNodePtr node)
 {
     UiNodePtr copyNode = std::make_shared<UiNode>(mx::EMPTY_STRING, int(_state.nextUiId + 1));
     ++_state.nextUiId;
-    if (node->getElement())
+    if (node->getNodeGraph())
+    {
+        _graphDoc->addNodeGraph();
+        std::string nodeGraphName = _graphDoc->getNodeGraphs().back()->getName();
+        copyNode->setNodeGraph(_graphDoc->getNodeGraphs().back());
+        copyNode->setName(nodeGraphName);
+        copyNodeGraph(node, copyNode);
+    }
+    else if (node->getElement())
     {
         std::string newName = _state.graphElem->createValidChildName(node->getName());
         if (node->getNode())
@@ -1721,14 +1729,6 @@ void Graph::copyUiNode(UiNodePtr node)
         }
         copyNode->getElement()->setName(newName);
         copyNode->setName(newName);
-    }
-    else if (node->getNodeGraph())
-    {
-        _graphDoc->addNodeGraph();
-        std::string nodeGraphName = _graphDoc->getNodeGraphs().back()->getName();
-        copyNode->setNodeGraph(_graphDoc->getNodeGraphs().back());
-        copyNode->setName(nodeGraphName);
-        copyNodeGraph(node, copyNode);
     }
     _copiedNodes[node] = copyNode;
     setUiNodeInfo(copyNode, node->getType(), node->getCategory());
