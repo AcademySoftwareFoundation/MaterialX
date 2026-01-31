@@ -34,6 +34,17 @@ void ShaderNodeImpl::initialize(const InterfaceElement& element, GenContext&)
     _hash = std::hash<string>{}(_name);
 }
 
+void ShaderNodeImpl::addPortImplName(const string& portName, const string& implName)
+{
+    _portImplNames[portName] = implName;
+}
+
+const string& ShaderNodeImpl::getPortName(const string& portName) const
+{
+    auto it = _portImplNames.find(portName);
+    return it != _portImplNames.end() ? it->second : portName;
+}
+
 void ShaderNodeImpl::addInputs(ShaderNode&, GenContext&) const
 {
 }

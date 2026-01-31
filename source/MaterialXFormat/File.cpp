@@ -31,6 +31,8 @@
 #include <cctype>
 #include <cerrno>
 #include <cstring>
+#include <random>
+#include <filesystem>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -278,8 +280,12 @@ FilePathVec FilePath::getSubDirectories() const
     return dirs;
 }
 
-void FilePath::createDirectory() const
+void FilePath::createDirectory(bool recursive) const
 {
+    if (recursive && !getParentPath().isDirectory())
+    {
+        getParentPath().createDirectory(recursive);
+    }
 #if defined(_WIN32)
     _mkdir(asString().c_str());
 #else
@@ -375,6 +381,60 @@ FileSearchPath getEnvironmentPath(const string& sep)
 {
     string searchPathEnv = getEnviron(MATERIALX_SEARCH_PATH_ENV_VAR);
     return FileSearchPath(searchPathEnv, sep);
+}
+
+FilePath FilePath::createTemporaryDirectory(const FilePath& parentDir)
+{
+    // Get the parent directory - use system temp if empty
+    FilePath tempParent = parentDir;
+    if (tempParent.isEmpty())
+    {
+        tempParent = getSystemTemporaryDirectory();
+    }
+
+    // Ensure parent directory exists
+    if (!tempParent.exists())
+    {
+        tempParent.createDirectory(true);
+    }
+
+    if (!tempParent.isDirectory())
+    {
+        throw Exception("Parent path is not a directory: " + tempParent.asString());
+    }
+
+    // Generate a unique temporary directory name using std::filesystem
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(100000, 999999);
+
+    constexpr int maxAttempts = 1000;
+    for (int attempt = 0; attempt < maxAttempts; ++attempt)
+    {
+        string tempDirName = "materialx_tmp_" + std::to_string(dis(gen));
+        FilePath tempDirPath = tempParent / tempDirName;
+
+        if (!tempDirPath.isDirectory())
+        {
+            tempDirPath.createDirectory(true);
+            return tempDirPath;
+        }
+    }
+
+    throw Exception("Failed to create temporary directory after " + std::to_string(maxAttempts) + " attempts");
+}
+
+FilePath FilePath::getSystemTemporaryDirectory()
+{
+    try
+    {
+        std::filesystem::path tempPath = std::filesystem::temp_directory_path();
+        return FilePath(tempPath.string());
+    }
+    catch (const std::filesystem::filesystem_error& ex)
+    {
+        throw Exception("Error getting system temporary directory: " + string(ex.what()));
+    }
 }
 
 MATERIALX_NAMESPACE_END

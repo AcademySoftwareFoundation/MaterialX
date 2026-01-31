@@ -1,0 +1,9 @@
+shader IM_bitangent_vector3_genoslnetwork_test
+(
+    string space = "object",
+    int index = 0,
+    output vector out = vector(0.0)
+)
+{
+    out = normalize(cross(N, vector(N[2], 0, -N[0])));
+}
