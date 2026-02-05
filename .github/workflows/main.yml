@@ -361,6 +361,7 @@ jobs:
   javascript:
     name: JavaScript
     runs-on: ubuntu-latest
+    if: github.repository == 'AcademySoftwareFoundation/MaterialX'
 
     steps:
     - name: Sync Repository
