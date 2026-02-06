@@ -105,10 +105,8 @@ class OslShaderRenderTester : public RenderUtil::ShaderRenderTester
 
     void addSkipFiles() override
     {
-        _skipFiles.insert("standard_surface_onyx_hextiled.mtlx");
         if (_useOslCmdStr)
         {
-            _skipFiles.insert("hextiled.mtlx");
             _skipFiles.insert("filename_cm_test.mtlx");
             _skipFiles.insert("shader_ops.mtlx");
             _skipFiles.insert("chiang_hair_surfaceshader.mtlx");
