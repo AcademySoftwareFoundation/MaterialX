@@ -271,6 +271,7 @@ class UiNode
     float getAverageY();
     float getMinX();
     int getEdgeIndex(int id, UiPinPtr pin);
+    bool eraseEdge(int id, UiPinPtr pin);
     void removeOutputConnection(const std::string& name);
 
   private:
