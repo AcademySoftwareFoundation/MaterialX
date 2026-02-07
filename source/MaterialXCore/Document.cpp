@@ -103,6 +103,7 @@ class Document::Cache
         _portElementMap.clear();
         _nodeDefMap.clear();
         _implementationMap.clear();
+        std::unordered_map<string, std::vector<InterfaceElementPtr>> funcNodeDefMap;
 
         // Traverse the document to build a new cache.
         for (ElementPtr elem : doc->traverseTree())
@@ -127,6 +128,13 @@ class Document::Cache
                 if (nodeDef)
                 {
                     _nodeDefMap[nodeDef->getQualifiedName(nodeString)].push_back(nodeDef);
+
+                    // Look for child nodegraph implementations
+                    vector<NodeGraphPtr> nodeGraphs = nodeDef->getChildrenOfType<NodeGraph>();
+                    for (NodeGraphPtr nodeGraph : nodeGraphs)
+                    {
+                        funcNodeDefMap[elem->getName()].push_back(nodeGraph);
+                    }
                 }
             }
             if (!nodeDefString.empty())
@@ -139,6 +147,16 @@ class Document::Cache
                         _implementationMap[interface->getQualifiedName(nodeDefString)].push_back(interface);
                     }
                 }
+            }
+
+            // Functional node definitions have lower precedence than non-functional ones.
+            // So append them to the back of implementation list associated
+            // with any existing nodedef entry (or create a new one if does not exist).
+            //
+            for (const auto& [nodedefKey, appendImplementations] : funcNodeDefMap)
+            {
+                auto& implementations = _implementationMap[nodedefKey];
+                implementations.insert(implementations.end(), appendImplementations.begin(), appendImplementations.end());
             }
         }
 
@@ -178,7 +196,8 @@ void Document::initialize()
 }
 
 NodeDefPtr Document::addNodeDefFromGraph(NodeGraphPtr nodeGraph, const string& nodeDefName,
-                                         const string& category, const string& newGraphName)
+                                         const string& category, const string& newGraphName,
+                                         DefinitionOptions *options)
 {
     if (category.empty())
     {
@@ -190,14 +209,20 @@ NodeDefPtr Document::addNodeDefFromGraph(NodeGraphPtr nodeGraph, const string& n
         throw Exception("Cannot create duplicate nodedef: " + nodeDefName);
     }
 
-    if (getNodeGraph(newGraphName))
+    bool addAsChild = options ? options->addImplementationAsChild : false;
+
+    if (!addAsChild && getNodeGraph(newGraphName))
     {
         throw Exception("Cannot create duplicate nodegraph: " + newGraphName);
     }
 
+    // Create a new nodedef and set its category
+    NodeDefPtr nodeDef = addNodeDef(nodeDefName, EMPTY_STRING);
+    nodeDef->setNodeString(category);
+
     // Create a new functional nodegraph, and copy over the
     // contents from the compound nodegraph
-    NodeGraphPtr graph = addNodeGraph(newGraphName);
+    NodeGraphPtr graph = !addAsChild ? addNodeGraph(newGraphName) : nodeDef->addChild<NodeGraph>(newGraphName);
     graph->copyContentFrom(nodeGraph);
 
     for (auto graphChild : graph->getChildren())
@@ -205,11 +230,13 @@ NodeDefPtr Document::addNodeDefFromGraph(NodeGraphPtr nodeGraph, const string& n
         graphChild->removeAttribute(Element::XPOS_ATTRIBUTE);
         graphChild->removeAttribute(Element::YPOS_ATTRIBUTE);
     }
-    graph->setNodeDefString(nodeDefName);
 
-    // Create a new nodedef and set its category
-    NodeDefPtr nodeDef = addNodeDef(nodeDefName, EMPTY_STRING);
-    nodeDef->setNodeString(category);
+    // Reference from nodegraph to nodedef is not required
+    // as the graph is a child of the nodedef.
+    if (!addAsChild)
+    {
+        graph->setNodeDefString(nodeDefName);
+    }
 
     // Expose any existing interfaces from the graph.
     // Any connection attributes ("nodegraph", "nodename", "interfacename") on the
