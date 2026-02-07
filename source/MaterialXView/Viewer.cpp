@@ -255,6 +255,7 @@ Viewer::Viewer(const std::string& materialFilename,
     _genContext.getOptions().fileTextureVerticalFlip = true;
     _genContext.getOptions().hwShadowMap = true;
     _genContext.getOptions().hwImplicitBitangents = false;
+    _genContext.getOptions().optReplaceBsdfMixWithLinearCombination = true;
 
 #ifdef MATERIALXVIEW_METAL_BACKEND
     _renderPipeline = MetalRenderPipeline::create(this);
@@ -267,6 +268,7 @@ Viewer::Viewer(const std::string& materialFilename,
     _genContextEssl.getOptions().targetColorSpaceOverride = "lin_rec709";
     _genContextEssl.getOptions().fileTextureVerticalFlip = false;
     _genContextEssl.getOptions().hwMaxActiveLightSources = 1;
+    _genContextEssl.getOptions().optReplaceBsdfMixWithLinearCombination = true;
 #endif
 #if MATERIALX_BUILD_GEN_OSL
     // Set OSL generator options.
@@ -844,6 +846,13 @@ void Viewer::createAdvancedSettings(ng::ref<Widget> parent)
     {
         mx::ShaderInterfaceType interfaceType = enable ? mx::SHADER_INTERFACE_REDUCED : mx::SHADER_INTERFACE_COMPLETE;
         setShaderInterfaceType(interfaceType);
+    });
+
+    ng::ref<ng::CheckBox> optimizeBsdfMixBox = new ng::CheckBox(settingsGroup, "Optimize BSDF Mix");
+    optimizeBsdfMixBox->set_checked(_genContext.getOptions().optReplaceBsdfMixWithLinearCombination);
+    optimizeBsdfMixBox->set_callback([this](bool enable)
+    {
+        _genContext.getOptions().optReplaceBsdfMixWithLinearCombination = enable;
     });
 
     ng::ref<ng::Widget> albedoGroup = new Widget(settingsGroup);
