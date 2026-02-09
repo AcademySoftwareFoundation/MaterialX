@@ -232,6 +232,7 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
 
             if (testOptions.dumpGeneratedCode)
             {
+                MX_TRACE_SCOPE(Cat::Render, "DumpGeneratedCode");
                 mx::ScopedTimer dumpTimer(&profileTimes.languageTimes.ioTime);
                 std::ofstream file;
                 file.open(shaderPath + "_vs.glsl");
@@ -291,6 +292,7 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
 
                 if (testOptions.dumpUniformsAndAttributes)
                 {
+                    MX_TRACE_SCOPE(Cat::Render, "DumpUniformsAndAttributes");
                     mx::ScopedTimer printTimer(&profileTimes.languageTimes.ioTime);
                     log << "* Uniform:" << std::endl;
                     program->printUniforms(log);
@@ -360,6 +362,7 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                 }
 
                 {
+                    MX_TRACE_SCOPE(Cat::Render, "CaptureAndSaveImage");
                     mx::ScopedTimer ioTimer(&profileTimes.languageTimes.imageSaveTime);
                     std::string fileName = shaderPath + "_glsl.png";
                     mx::ImagePtr image = _renderer->captureImage();
