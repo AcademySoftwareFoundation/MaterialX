@@ -29,19 +29,19 @@ class UiEdge
         _input(input)
     {
     }
-    mx::InputPtr getInput()
+    mx::InputPtr getInput() const
     {
         return _input;
     }
-    UiNodePtr getDown()
+    UiNodePtr getDown() const
     {
         return _uiDown;
     }
-    UiNodePtr getUp()
+    UiNodePtr getUp() const
     {
         return _uiUp;
     }
-    std::string getInputName()
+    std::string getInputName() const
     {
         if (_input != nullptr)
         {
@@ -52,6 +52,8 @@ class UiEdge
             return mx::EMPTY_STRING;
         }
     }
+
+  private:
     UiNodePtr _uiDown;
     UiNodePtr _uiUp;
     mx::InputPtr _input;
@@ -61,24 +63,31 @@ class UiEdge
 class UiPin
 {
   public:
-    UiPin(int id, const char* name, const std::string& type, std::shared_ptr<UiNode> node, ed::PinKind kind, mx::InputPtr input, mx::OutputPtr output) :
+    UiPin(int id, std::shared_ptr<UiNode> node, ed::PinKind kind, mx::PortElementPtr element) :
         _pinId(id),
-        _name(name),
-        _type(type),
         _pinNode(node),
         _kind(kind),
-        _input(input),
-        _output(output),
+        _element(element),
         _connected(false)
     {
     }
+
+    // Accessor methods
+    ed::PinId getPinId() const { return _pinId; }
+    const std::string& getName() const;
+    const std::string& getType() const;
+    std::shared_ptr<UiNode> getUiNode() const { return _pinNode; }
+    ed::PinKind getKind() const { return _kind; }
+    mx::PortElementPtr getElement() const { return _element; }
+    mx::InputPtr getInput() const;
+    mx::OutputPtr getOutput() const;
 
     void setConnected(bool connected)
     {
         _connected = connected;
     }
 
-    bool getConnected()
+    bool getConnected() const
     {
         return _connected;
     }
@@ -92,7 +101,7 @@ class UiPin
 
         for (size_t i = 0; i < _connections.size(); i++)
         {
-            if (_connections[i]->_pinId == pin->_pinId)
+            if (_connections[i]->getPinId() == pin->getPinId())
             {
                 return;
             }
@@ -107,18 +116,27 @@ class UiPin
             return;
         }
 
+        // Remove pin from our connection list.
         for (size_t i = 0; i < _connections.size(); i++)
         {
-            if (_connections[i]->_pinId == pin->_pinId)
+            if (_connections[i]->getPinId() == pin->getPinId())
             {
                 _connections.erase(_connections.begin() + i);
+                break;
             }
         }
+        if (_connections.size() == 0)
+        {
+            _connected = false;
+        }
+
+        // Remove ourselves from pin's connection list.
         for (size_t i = 0; i < pin->_connections.size(); i++)
         {
-            if (pin->_connections[i]->_pinId == _pinId)
+            if (pin->_connections[i]->getPinId() == _pinId)
             {
                 pin->_connections.erase(pin->_connections.begin() + i);
+                break;
             }
         }
         if (pin->_connections.size() == 0)
@@ -127,19 +145,16 @@ class UiPin
         }
     }
 
-    const std::vector<UiPinPtr>& getConnections()
+    const std::vector<UiPinPtr>& getConnections() const
     {
         return _connections;
     }
 
-  public:
+  private:
     ed::PinId _pinId;
-    std::string _name;
-    std::string _type;
     std::shared_ptr<UiNode> _pinNode;
     ed::PinKind _kind;
-    mx::InputPtr _input;
-    mx::OutputPtr _output;
+    mx::PortElementPtr _element;
     std::vector<UiPinPtr> _connections;
     bool _connected;
 };
@@ -152,38 +167,40 @@ class UiNode
     UiNode(const std::string& name, int id);
     ~UiNode() = default;
 
-    std::string getName()
+    std::string getName() const
     {
         return _name;
     }
-    ImVec2 getPos()
+    ImVec2 getPos() const
     {
         return _nodePos;
     }
-    int getInputConnect()
+    int getInputConnect() const
     {
         return _inputNodeNum;
     }
-    int getId()
+    int getId() const
     {
         return _id;
     }
-    const std::vector<UiNodePtr>& getOutputConnections()
+    const std::vector<UiNodePtr>& getOutputConnections() const
     {
         return _outputConnections;
     }
-    mx::NodePtr getNode()
-    {
-        return _currNode;
-    }
-    mx::InputPtr getInput()
-    {
-        return _currInput;
-    }
-    mx::OutputPtr getOutput()
-    {
-        return _currOutput;
-    }
+
+    // Element accessors
+    mx::ElementPtr getElement() const { return _element; }
+    mx::NodePtr getNode() const;
+    mx::InputPtr getInput() const;
+    mx::OutputPtr getOutput() const;
+    mx::NodeGraphPtr getNodeGraph() const;
+
+    // Element setters
+    void setElement(mx::ElementPtr element) { _element = element; }
+    void setNode(mx::NodePtr node) { _element = node; }
+    void setInput(mx::InputPtr input) { _element = input; }
+    void setOutput(mx::OutputPtr output) { _element = output; }
+    void setNodeGraph(mx::NodeGraphPtr nodeGraph) { _element = nodeGraph; }
 
     void setName(const std::string& newName)
     {
@@ -197,18 +214,6 @@ class UiNode
     {
         _inputNodeNum += num;
     }
-    void setNode(mx::NodePtr node)
-    {
-        _currNode = node;
-    }
-    void setInput(mx::InputPtr input)
-    {
-        _currInput = input;
-    }
-    void setOutput(mx::OutputPtr output)
-    {
-        _currOutput = output;
-    }
     void setOutputConnection(UiNodePtr connections)
     {
         _outputConnections.push_back(connections);
@@ -219,7 +224,7 @@ class UiNode
         _message = message;
     }
 
-    const std::string& getMessage()
+    const std::string& getMessage() const
     {
         return _message;
     }
@@ -229,7 +234,7 @@ class UiNode
         _category = category;
     }
 
-    const std::string& getCategory()
+    const std::string& getCategory() const
     {
         return _category;
     }
@@ -239,49 +244,54 @@ class UiNode
         _type = type;
     }
 
-    const std::string& getType()
+    const std::string& getType() const
     {
         return _type;
     }
 
-    mx::NodeGraphPtr getNodeGraph()
-    {
-        return _currNodeGraph;
-    }
+    // Pin collection accessors
+    std::vector<UiPinPtr>& getInputPins() { return _inputPins; }
+    const std::vector<UiPinPtr>& getInputPins() const { return _inputPins; }
+    std::vector<UiPinPtr>& getOutputPins() { return _outputPins; }
+    const std::vector<UiPinPtr>& getOutputPins() const { return _outputPins; }
 
-    void setNodeGraph(mx::NodeGraphPtr nodeGraph)
-    {
-        _currNodeGraph = nodeGraph;
-    }
+    // Edge collection accessors
+    std::vector<UiEdge>& getEdges() { return _edges; }
+    const std::vector<UiEdge>& getEdges() const { return _edges; }
+
+    // Layout/display accessors
+    int getLevel() const { return _level; }
+    void setLevel(int level) { _level = level; }
+    bool getShowAllInputs() const { return _showAllInputs; }
+    void setShowAllInputs(bool show) { _showAllInputs = show; }
+    bool getShowOutputsInEditor() const { return _showOutputsInEditor; }
+    void setShowOutputsInEditor(bool show) { _showOutputsInEditor = show; }
 
     UiNodePtr getConnectedNode(const std::string& name);
     float getAverageY();
     float getMinX();
     int getEdgeIndex(int id, UiPinPtr pin);
-    std::vector<UiEdge> edges;
-    std::vector<UiPinPtr> inputPins;
-    std::vector<UiPinPtr> outputPins;
+    bool eraseEdge(int id, UiPinPtr pin);
     void removeOutputConnection(const std::string& name);
-    mx::ElementPtr getElement();
-    int _level;
-    bool _showAllInputs;
-    bool _showOutputsInEditor;
 
   private:
     int _id;
     ImVec2 _nodePos;
     std::string _name;
     int _inputNodeNum;
-    std::vector<std::pair<int, std::string>> _inputs;
-    std::vector<std::pair<int, std::string>> _outputs;
     std::vector<UiNodePtr> _outputConnections;
-    mx::NodePtr _currNode;
-    mx::InputPtr _currInput;
-    mx::OutputPtr _currOutput;
+    mx::ElementPtr _element;
     std::string _category;
     std::string _message;
     std::string _type;
-    mx::NodeGraphPtr _currNodeGraph;
+
+    std::vector<UiPinPtr> _inputPins;
+    std::vector<UiPinPtr> _outputPins;
+    std::vector<UiEdge> _edges;
+
+    int _level;
+    bool _showAllInputs;
+    bool _showOutputsInEditor;
 };
 
 #endif

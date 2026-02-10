@@ -174,8 +174,8 @@ jobs:
     - name: Install MDL SDK
       if: env.IS_EXTENDED_BUILD == 'true' && matrix.extended_build_mdl_sdk == 'ON' && runner.os == 'Windows'
       run: |
-        C:/vcpkg/vcpkg install mdl-sdk --triplet=x64-windows
-        Add-Content $env:GITHUB_PATH "C:/vcpkg/installed/x64-windows/bin"
+        C:/vcpkg/vcpkg install mdl-sdk[dds,df-vulkan,openimageio] --triplet=x64-windows-release
+        Add-Content $env:GITHUB_PATH "C:/vcpkg/installed/x64-windows-release/bin"
 
     - name: Install Python ${{ matrix.python }}
       if: matrix.python != 'None'
@@ -198,13 +198,13 @@ jobs:
         EXTENDED_BUILD_CONFIG=""
         if [ "${{ env.IS_EXTENDED_BUILD }}" == "true" ]; then
           if [ "${{ runner.os }}" == "Windows" ]; then
-            EXTENDED_BUILD_CONFIG="-DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows"
+            EXTENDED_BUILD_CONFIG="-DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake"
           fi
           if [ "${{ matrix.extended_build_oiio }}" == "ON" ]; then
-            EXTENDED_BUILD_CONFIG="$EXTENDED_BUILD_CONFIG -DMATERIALX_BUILD_OIIO=ON"
+            EXTENDED_BUILD_CONFIG="$EXTENDED_BUILD_CONFIG -DVCPKG_TARGET_TRIPLET=x64-windows -DMATERIALX_BUILD_OIIO=ON"
           fi
           if [ "${{ matrix.extended_build_mdl_sdk }}" == "ON" -a "${{ runner.os }}" == "Windows" ]; then
-            EXTENDED_BUILD_CONFIG="$EXTENDED_BUILD_CONFIG -DMATERIALX_MDL_SDK_DIR=C:/vcpkg/installed/x64-windows"
+            EXTENDED_BUILD_CONFIG="$EXTENDED_BUILD_CONFIG -DVCPKG_TARGET_TRIPLET=x64-windows-release -DMATERIALX_MDL_SDK_DIR=C:/vcpkg/installed/x64-windows-release"
           fi
         fi
         TEST_RENDER_CONFIG="-DMATERIALX_TEST_RENDER=OFF"
@@ -468,6 +468,10 @@ jobs:
         name: MaterialX_Python_SDist
         path: sdist
 
+    - name: Install Doxygen (Windows)
+      uses: ssciwr/doxygen-install@v1
+      if: runner.os == 'Windows'
+
     - name: Build Wheel
       uses: pypa/cibuildwheel@v2.23.2
       with:
@@ -479,7 +483,6 @@ jobs:
         CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
         CIBW_BEFORE_ALL_LINUX: yum install -y libXt-devel doxygen
         CIBW_BEFORE_ALL_MACOS: brew install doxygen
-        CIBW_BEFORE_ALL_WINDOWS: choco install doxygen.install -y
         CIBW_BUILD_VERBOSITY: 1
         CIBW_ENVIRONMENT: CMAKE_BUILD_PARALLEL_LEVEL=2
         MACOSX_DEPLOYMENT_TARGET: '11.0'
