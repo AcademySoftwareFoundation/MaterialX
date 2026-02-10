@@ -1,0 +1,65 @@
+#include "lib/$fileTransformUv"
+#include "lib/mx_hextile.osl"
+
+// Morten S. Mikkelsen, Practical Real-Time Hex-Tiling, Journal of Computer Graphics
+// Techniques (JCGT), vol. 11, no. 2, 77-94, 2022
+// http://jcgt.org/published/0011/03/05/
+void mx_hextiledimage_color4(
+    textureresource file,
+    color4 default_value,
+    vector2 texcoord,
+    vector2 tiling,
+    float rotation,
+    vector2 rotationrange,
+    float scale,
+    vector2 scalerange,
+    float offset,
+    vector2 offsetrange,
+    float falloff,
+    float falloffcontrast,
+    color lumacoeffs,
+    output color4 result)
+{
+    if (file.filename == "")
+    {
+        result = default_value;
+        return;
+    }
+
+    vector2 coord = mx_transform_uv(texcoord) * tiling;
+
+    HextileData tile_data = mx_hextile_coord(coord, rotation, rotationrange, scale, scalerange, offset, offsetrange);
+
+    // Sample textures for each tile
+    color c[3];
+    float alpha[3];
+    vector cw;
+
+    for (int i = 0; i < 3; i++)
+    {
+        c[i] = texture(file.filename, tile_data.coords[i].x, tile_data.coords[i].y,
+                       "alpha", alpha[i],
+                       "missingcolor", default_value.rgb, "missingalpha", default_value.a,
+                       "swrap", "periodic", "twrap", "periodic"
+#if (OSL_VERSION_MAJOR == 1 && OSL_VERSION_MINOR >= 14) || (OSL_VERSION_MAJOR > 1)
+                       , "colorspace", file.colorspace
+#endif
+                       );
+        cw[i] = dot(vector(c[i]), vector(lumacoeffs));
+    }
+
+    // Luminance-based blend weights
+    cw = mix(vector(1.0), cw, vector(falloffcontrast));
+    vector w = mx_hextile_compute_blend_weights(cw, tile_data.weights, falloff);
+
+    // Alpha (average with optional falloff adjustment)
+    float a = (alpha[0] + alpha[1] + alpha[2]) / 3.0;
+    if (falloff != 0.5)
+    {
+        a = mx_schlick_gain(a, falloff);
+    }
+
+    // Blend colors
+    result.rgb = w[0] * c[0] + w[1] * c[1] + w[2] * c[2];
+    result.a = a;
+}

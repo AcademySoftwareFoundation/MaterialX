@@ -1,0 +1,68 @@
+#include "lib/$fileTransformUv"
+#include "lib/mx_hextile.osl"
+
+// Morten S. Mikkelsen, Practical Real-Time Hex-Tiling, Journal of Computer Graphics
+// Techniques (JCGT), vol. 11, no. 2, 77-94, 2022
+// http://jcgt.org/published/0011/03/05/
+void mx_hextilednormalmap_vector3(
+    textureresource file,
+    vector default_value,
+    vector2 texcoord,
+    vector2 tiling,
+    float rotation,
+    vector2 rotationrange,
+    float scale,
+    vector2 scalerange,
+    float offset,
+    vector2 offsetrange,
+    float falloff,
+    float strength,
+    int flip_g,
+    vector N,
+    vector T,
+    vector B,
+    output vector result)
+{
+    if (file.filename == "")
+    {
+        result = N;
+        return;
+    }
+
+    vector2 coord = mx_transform_uv(texcoord) * tiling;
+
+    HextileData tile_data = mx_hextile_coord(coord, rotation, rotationrange, scale, scalerange, offset, offsetrange);
+
+    // Process each tile: sample, decode, transform, and compute normals
+    vector tile_normals[3];
+
+    for (int i = 0; i < 3; i++)
+    {
+        // Sample normal map for this tile
+        color nm_raw = texture(file.filename, tile_data.coords[i].x, tile_data.coords[i].y,
+                               "missingcolor", color(default_value),
+                               "swrap", "periodic", "twrap", "periodic");
+
+        // Convert to vector and decode normal map
+        vector nm = vector(nm_raw);
+        if (flip_g)
+            nm[1] = 1.0 - nm[1];
+        nm = 2.0 * nm - 1.0;
+
+        // Rotate tangent frame for this tile
+        matrix tangent_rot_mat = mx_axis_rotation_matrix(N, -tile_data.rotations[i]);
+        vector Ti = transform(tangent_rot_mat, T) * strength;
+        vector Bi = transform(tangent_rot_mat, B) * strength;
+
+        // The OSL backend uses dPdu and dPdv for tangents and bitangents, but these vectors are not
+        // guaranteed to be orthonormal. Orthogonalize the tangent frame using Gram-Schmidt.
+        vector Tn = normalize(Ti - dot(Ti, N) * N);
+        vector Bn = normalize(Bi - dot(Bi, N) * N - dot(Bi, Tn) * Tn);
+
+        tile_normals[i] = normalize(Tn * nm[0] + Bn * nm[1] + N * nm[2]);
+    }
+
+    // Blend weights and normals using gradient blending
+    vector w = mx_hextile_compute_blend_weights(vector(1.0), tile_data.weights, falloff);
+    result = mx_gradient_blend_3_normals(N, tile_normals[0], w[0], tile_normals[1], w[1], tile_normals[2], w[2]);
+}
