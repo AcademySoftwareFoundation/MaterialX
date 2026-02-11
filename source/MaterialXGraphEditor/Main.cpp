@@ -7,6 +7,7 @@
 #include <MaterialXFormat/Environ.h>
 #include <MaterialXFormat/File.h>
 #include <MaterialXFormat/Util.h>
+#include <MaterialXGenShader/Util.h>
 
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
@@ -34,6 +35,7 @@ const std::string options =
     "    --font [FILENAME]              Specify the name of the custom font file to use.  If not specified the default font will be used.\n"
     "    --fontSize [SIZE]              Specify font size to use for the custom font.  If not specified a default of 18 will be used.\n"
     "    --captureFilename [FILENAME]   Specify the filename to which the first rendered frame should be written\n"
+    "    --report [FORMAT]              Validate and analyze the material document, then exit. Format: text or json (defaults to json). Outputs to stderr.\n"
     "    --help                         Display the complete list of command-line options\n";
 
 template <class T> void parseToken(std::string token, std::string type, T& res)
@@ -73,6 +75,8 @@ int main(int argc, char* const argv[])
     std::string fontFilename;
     int fontSize = 18;
     std::string captureFilename;
+    bool reportMode = false;
+    std::string reportFormat = "json";
 
     for (size_t i = 0; i < tokens.size(); i++)
     {
@@ -119,6 +123,15 @@ int main(int argc, char* const argv[])
         {
             parseToken(nextToken, "string", captureFilename);
         }
+        else if (token == "--report")
+        {
+            reportMode = true;
+            if (!nextToken.empty() && nextToken[0] != '-')
+            {
+                reportFormat = nextToken;
+                i++;
+            }
+        }
         else if (token == "--help")
         {
             std::cout << " MaterialXGraphEditor version " << mx::getVersionString() << std::endl;
@@ -140,6 +153,11 @@ int main(int argc, char* const argv[])
         {
             i++;
         }
+    }
+
+    if (reportMode)
+    {
+        return mx::runMaterialReport(materialFilename, searchPath, reportFormat, std::cerr);
     }
 
     // Append the standard library folder, giving it a lower precedence than user-supplied libraries.

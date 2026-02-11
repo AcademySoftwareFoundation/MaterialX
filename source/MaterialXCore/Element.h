@@ -15,6 +15,8 @@
 #include <MaterialXCore/Util.h>
 #include <MaterialXCore/Value.h>
 
+#include <vector>
+
 MATERIALX_NAMESPACE_BEGIN
 
 class Element;
@@ -753,6 +755,40 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     /// @}
     /// @name Validation
     /// @{
+
+    enum class ValidationSeverity
+    {
+        ERROR,
+        WARNING,
+        HINT
+    };
+
+    struct ValidationError
+    {
+        string message;
+        string path;
+        string source;
+        string file;
+        ValidationSeverity severity = ValidationSeverity::ERROR;
+    };
+
+    using ValidationErrors = vector<ValidationError>;
+
+    class MX_CORE_API ValidationErrorScope
+    {
+        public:
+            explicit ValidationErrorScope(ValidationErrors* errors);
+            ~ValidationErrorScope();
+
+        private:
+            ValidationErrors* _prev = nullptr;
+    };
+
+    static const char* validationSeverityToString(ValidationSeverity severity);
+    static string formatValidationErrorsJson(const ValidationErrors& errors);
+
+    /// Escape a string for safe inclusion in JSON output.
+    static string escapeJsonString(const string& input);
 
     /// Validate that the given element tree, including all descendants, is
     /// consistent with the MaterialX specification.

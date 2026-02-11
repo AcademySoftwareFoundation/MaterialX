@@ -1,3 +1,5 @@
 build
 dist
 .DS_Store
+python/MaterialX/__pycache__
+python/MaterialX/*.so

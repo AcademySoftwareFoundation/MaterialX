@@ -12,6 +12,11 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
+namespace
+{
+thread_local Element::ValidationErrors* g_validationErrors = nullptr;
+} // anonymous namespace
+
 const string Element::NAME_ATTRIBUTE = "name";
 const string Element::FILE_PREFIX_ATTRIBUTE = "fileprefix";
 const string Element::GEOM_PREFIX_ATTRIBUTE = "geomprefix";
@@ -627,9 +632,87 @@ void Element::validateRequire(bool expression, bool& res, string* message, const
         res = false;
         if (message)
         {
-            *message += errorDesc + ": " + asString() + "\n";
+            string location = getNamePath();
+            const string& sourceUri = getActiveSourceUri();
+            if (!sourceUri.empty())
+            {
+                location += " (file=" + sourceUri + ")";
+            }
+            *message += errorDesc + " at " + location + ": " + asString() + "\n";
+        }
+        if (g_validationErrors)
+        {
+            ValidationError err;
+            err.message = errorDesc;
+            err.path = getNamePath();
+            err.source = asString();
+            err.file = getActiveSourceUri();
+            err.severity = ValidationSeverity::ERROR;
+            g_validationErrors->push_back(err);
         }
     }
+}
+
+Element::ValidationErrorScope::ValidationErrorScope(ValidationErrors* errors)
+{
+    _prev = g_validationErrors;
+    g_validationErrors = errors;
+}
+
+Element::ValidationErrorScope::~ValidationErrorScope()
+{
+    g_validationErrors = _prev;
+}
+
+const char* Element::validationSeverityToString(ValidationSeverity severity)
+{
+    switch (severity)
+    {
+        case ValidationSeverity::ERROR: return "error";
+        case ValidationSeverity::WARNING: return "warning";
+        case ValidationSeverity::HINT: return "hint";
+        default: return "error";
+    }
+}
+
+string Element::formatValidationErrorsJson(const ValidationErrors& errors)
+{
+    string json = "[";
+    for (size_t i = 0; i < errors.size(); i++)
+    {
+        if (i > 0)
+        {
+            json += ",";
+        }
+        json += "{\"message\":\"" + escapeJsonString(errors[i].message) + "\"";
+        json += ",\"path\":\"" + escapeJsonString(errors[i].path) + "\"";
+        json += ",\"source\":\"" + escapeJsonString(errors[i].source) + "\"";
+        json += ",\"file\":\"" + escapeJsonString(errors[i].file) + "\"";
+        json += ",\"severity\":\"" + string(validationSeverityToString(errors[i].severity)) + "\"}";
+    }
+    json += "]";
+    return json;
+}
+
+string Element::escapeJsonString(const string& input)
+{
+    string out;
+    out.reserve(input.size());
+    for (char c : input)
+    {
+        switch (c)
+        {
+            case '"': out += "\\\""; break;
+            case '\\': out += "\\\\"; break;
+            case '\b': out += "\\b"; break;
+            case '\f': out += "\\f"; break;
+            case '\n': out += "\\n"; break;
+            case '\r': out += "\\r"; break;
+            case '\t': out += "\\t"; break;
+            default: out += c; break;
+        }
+    }
+    return out;
 }
 
 //

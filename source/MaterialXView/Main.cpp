@@ -8,8 +8,10 @@
 #include <MaterialXRender/Util.h>
 #include <MaterialXFormat/Util.h>
 #include <MaterialXCore/Util.h>
+#include <MaterialXGenShader/Util.h>
 
 #include <iostream>
+
 
 NANOGUI_FORCE_DISCRETE_GPU();
 
@@ -46,6 +48,7 @@ const std::string options =
     "    --remap [TOKEN1:TOKEN2]        Specify the remapping from one token to another when MaterialX document is loaded\n"
     "    --skip [NAME]                  Specify to skip elements matching the given name attribute\n"
     "    --terminator [STRING]          Specify to enforce the given terminator string for file prefixes\n"
+    "    --report [FORMAT]              Validate and analyze the material document, then exit. Format: text or json (defaults to json). Outputs to stderr.\n"
     "    --help                         Display the complete list of command-line options\n";
 
 template <class T> void parseToken(std::string token, std::string type, T& res)
@@ -103,6 +106,8 @@ int main(int argc, char* const argv[])
     std::string bakeFilename;
     float refresh = 50.0f;
     bool frameTiming = false;
+    bool reportMode = false;
+    std::string reportFormat = "json";
 
     for (size_t i = 0; i < tokens.size(); i++)
     {
@@ -248,6 +253,15 @@ int main(int argc, char* const argv[])
         {
             modifiers.filePrefixTerminator = nextToken;
         }
+        else if (token == "--report")
+        {
+            reportMode = true;
+            if (!nextToken.empty() && nextToken[0] != '-')
+            {
+                reportFormat = nextToken;
+                i++;
+            }
+        }
         else if (token == "--help")
         {
             std::cout << " MaterialXView version " << mx::getVersionString() << std::endl;
@@ -269,6 +283,11 @@ int main(int argc, char* const argv[])
         {
             i++;
         }
+    }
+
+    if (reportMode)
+    {
+        return mx::runMaterialReport(materialFilename, searchPath, reportFormat, std::cerr);
     }
 
     // Append the standard library folder, giving it a lower precedence than user-supplied libraries.

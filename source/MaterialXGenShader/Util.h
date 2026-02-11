@@ -12,8 +12,11 @@
 #include <MaterialXGenShader/Export.h>
 
 #include <MaterialXCore/Document.h>
+#include <MaterialXFormat/File.h>
 
 #include <unordered_set>
+#include <vector>
+#include <ostream>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -24,6 +27,18 @@ class ShaderGenerator;
 extern MX_GENSHADER_API const std::array<float, 3> GAUSSIAN_KERNEL_3;
 extern MX_GENSHADER_API const std::array<float, 5> GAUSSIAN_KERNEL_5;
 extern MX_GENSHADER_API const std::array<float, 7> GAUSSIAN_KERNEL_7;
+
+/// Information about a transparency-relevant input that deviates from its opaque default.
+struct TransparencyInput
+{
+    string name;       ///< Input name (e.g. "opacity", "transmission", "alpha")
+    string valueType;  ///< Value type (e.g. "float", "color3")
+    string value;      ///< Current value as string, or "[connected]" if driven by a node
+    float opaqueAt;    ///< The value at which this input is considered opaque
+
+    /// Serialize this input to a JSON object string.
+    MX_GENSHADER_API string toJson() const;
+};
 
 /// Returns true if the given element is a surface shader with the potential
 /// of being transparent. This can be used by HW shader generators to determine
@@ -37,7 +52,22 @@ extern MX_GENSHADER_API const std::array<float, 7> GAUSSIAN_KERNEL_7;
 /// function and transparency for such nodes must be tracked separately by the
 /// target application.
 ///
-MX_GENSHADER_API bool isTransparentSurface(ElementPtr element, const string& target = EMPTY_STRING);
+/// @param outInputs If non-null, populated with the transparency-relevant inputs
+///                  that caused the surface to be classified as transparent.
+///
+MX_GENSHADER_API bool isTransparentSurface(ElementPtr element, const string& target = EMPTY_STRING,
+                                           vector<TransparencyInput>* outInputs = nullptr);
+
+/// Resolve the surface shader node from a renderable element.
+/// Handles material nodes (via getShaderNodes), direct shader nodes,
+/// and output elements connected to shader nodes.
+/// @return The resolved shader node, or nullptr if not found.
+MX_GENSHADER_API NodePtr resolveShaderNode(ElementPtr element, const string& target = EMPTY_STRING);
+
+/// Returns true if the given element is an unlit surface shader
+/// (i.e. uses the surface_unlit node, which has no lighting and uses
+/// a scalar emission+transmission model).
+MX_GENSHADER_API bool isUnlitSurface(ElementPtr element, const string& target = EMPTY_STRING);
 
 /// Maps a value to a four channel color if it is of the appropriate type.
 /// Supported types include float, Vector2, Vector3, Vector4,
@@ -61,6 +91,54 @@ MX_GENSHADER_API vector<TypedElementPtr> findRenderableMaterialNodes(ConstDocume
 /// @param doc Document to examine
 /// @return A vector of renderable elements
 MX_GENSHADER_API vector<TypedElementPtr> findRenderableElements(ConstDocumentPtr doc);
+
+/// Analysis of a single renderable element's shader generation decisions.
+struct RenderableAnalysis
+{
+    string path;           ///< Element name path in the document
+    string file;           ///< Source file URI
+    string type;           ///< Element type (e.g. "material", "surfaceshader")
+    string shaderNode;     ///< Shader node category (e.g. "gltf_pbr", "standard_surface", "open_pbr_surface")
+    string shaderNodeDef;  ///< NodeDef name (e.g. "ND_gltf_pbr_surfaceshader")
+    string shaderNodeDefVersion;  ///< NodeDef version (e.g. "2.0.1" for gltf_pbr, "2.6" for UsdPreviewSurface)
+
+    bool transparency = false;   ///< Would HW shader gen enable hwTransparency?
+    bool displacement = false;   ///< Is this a displacement shader?
+    bool isUnlit = false;        ///< True when shader is surface_unlit (no lighting, scalar emission model)
+
+    /// Alpha mode inferred from the shader graph structure.
+    /// "opaque"  - no transparency handling needed (all transparency inputs at opaque defaults)
+    /// "mask"    - binary cutout (e.g. gltf_pbr alpha_mode=1 with alpha_cutoff)
+    /// "blend"   - smooth alpha blending (e.g. gltf_pbr alpha_mode=2, or non-default opacity)
+    string alphaMode = "opaque";
+
+    /// Alpha cutoff threshold, meaningful when alphaMode == "mask".
+    float alphaCutoff = 0.0f;
+
+    /// List of transparency-relevant inputs that deviate from opaque defaults.
+    vector<TransparencyInput> transparencyInputs;
+
+    /// Serialize this analysis to a JSON object string.
+    MX_GENSHADER_API string toJson() const;
+};
+
+/// Find renderable elements and return analysis information for each,
+/// including transparency mode detection and shader generation decisions.
+MX_GENSHADER_API void getRenderableAnalysis(ConstDocumentPtr doc,
+                                            const string& target,
+                                            vector<RenderableAnalysis>& out);
+
+/// Run the material report pipeline: load the document, validate it,
+/// analyze renderables, and write the result to the given output stream.
+/// @param materialFilename Path to the MTLX document
+/// @param searchPath Search path for resolving libraries and references
+/// @param reportFormat Output format: "json" or "text"
+/// @param out Output stream (typically std::cerr)
+/// @return 0 on success (valid document), 1 on validation failure or load error
+MX_GENSHADER_API int runMaterialReport(const string& materialFilename,
+                                       const FileSearchPath& searchPath,
+                                       const string& reportFormat,
+                                       std::ostream& out);
 
 /// Given a node input, return the corresponding input within its matching nodedef.
 /// The optional target string can be used to guide the selection of nodedef declarations.

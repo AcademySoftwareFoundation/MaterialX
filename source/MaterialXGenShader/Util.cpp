@@ -6,6 +6,12 @@
 #include <MaterialXGenShader/Util.h>
 
 #include <MaterialXGenShader/HwShaderGenerator.h>
+#include <MaterialXCore/Material.h>
+#include <MaterialXCore/Element.h>
+#include <MaterialXCore/Util.h>
+#include <MaterialXFormat/Util.h>
+
+#include <sstream>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -20,9 +26,6 @@ const std::array<float, 7> GAUSSIAN_KERNEL_7 = {
     0.00598f, 0.060626f, 0.241843f, 0.383103f, 0.241843f, 0.060626f, 0.00598f // Sigma 1
 };
 
-namespace
-{
-
 using OpaqueTestPair = std::pair<string, float>;
 using OpaqueTestPairList = vector<OpaqueTestPair>;
 
@@ -31,6 +34,9 @@ const OpaqueTestPairList DEFAULT_INPUT_PAIR_LIST = { { "opacity", 1.0f },
                                                      { "existence", 1.0f },
                                                      { "alpha", 1.0f },
                                                      { "transmission", 0.0f } };
+
+namespace
+{
 
 const string MIX_CATEGORY("mix");
 const string MIX_FG_INPUT("fg");
@@ -82,28 +88,42 @@ InputPtr getInputInterface(const string& interfaceName, NodePtr node)
     return interfaceInput;
 }
 
-bool hasTransparentInputs(const OpaqueTestPairList& opaqueInputList, NodePtr node)
+bool hasTransparentInputs(const OpaqueTestPairList& opaqueInputList, NodePtr node,
+                          vector<TransparencyInput>* outInputs = nullptr)
 {
-    for (auto opaqueInput : opaqueInputList)
+    bool found = false;
+    for (const auto& opaqueInput : opaqueInputList)
     {
         InputPtr interfaceInput = node->getInput(opaqueInput.first);
         if (interfaceInput)
         {
-            if (interfaceInput->getConnectedNode())
+            NodePtr connectedNode = interfaceInput->getConnectedNode();
+            if (connectedNode)
             {
-                return true;
+                if (!outInputs) return true;
+                outInputs->push_back({ opaqueInput.first, interfaceInput->getType(),
+                                       "[connected:" + connectedNode->getCategory() + "]",
+                                       opaqueInput.second });
+                found = true;
             }
-            ValuePtr value = interfaceInput->getValue();
-            if (value && !isEqual(value, opaqueInput.second))
+            else
             {
-                return true;
+                ValuePtr value = interfaceInput->getValue();
+                if (value && !isEqual(value, opaqueInput.second))
+                {
+                    if (!outInputs) return true;
+                    outInputs->push_back({ opaqueInput.first, interfaceInput->getType(),
+                                           value->getValueString(), opaqueInput.second });
+                    found = true;
+                }
             }
         }
     }
-    return false;
+    return found;
 }
 
-bool isTransparentShaderNode(NodePtr node, NodePtr interfaceNode)
+bool isTransparentShaderNode(NodePtr node, NodePtr interfaceNode,
+                             vector<TransparencyInput>* outInputs = nullptr)
 {
     if (!node || node->getType() != SURFACE_SHADER_TYPE_STRING)
     {
@@ -112,19 +132,22 @@ bool isTransparentShaderNode(NodePtr node, NodePtr interfaceNode)
 
     if (node->getCategory() == MIX_CATEGORY)
     {
+        bool found = false;
         const InputPtr fg = node->getInput(MIX_FG_INPUT);
         const NodePtr fgNode = fg ? fg->getConnectedNode() : nullptr;
-        if (fgNode && isTransparentShaderNode(fgNode, nullptr))
+        if (fgNode && isTransparentShaderNode(fgNode, nullptr, outInputs))
         {
-            return true;
+            if (!outInputs) return true;
+            found = true;
         }
         const InputPtr bg = node->getInput(MIX_BG_INPUT);
         const NodePtr bgNode = bg ? bg->getConnectedNode() : nullptr;
-        if (bgNode && isTransparentShaderNode(bgNode, nullptr))
+        if (bgNode && isTransparentShaderNode(bgNode, nullptr, outInputs))
         {
-            return true;
+            if (!outInputs) return true;
+            found = true;
         }
-        return false;
+        return found;
     }
 
     // Check against nodedef input hints
@@ -144,6 +167,8 @@ bool isTransparentShaderNode(NodePtr node, NodePtr interfaceNode)
         }
     }
 
+    bool found = false;
+
     // Check against the interface if a node is passed in to check against
     OpaqueTestPairList interfaceNames;
     if (interfaceNode)
@@ -162,9 +187,10 @@ bool isTransparentShaderNode(NodePtr node, NodePtr interfaceNode)
         }
         if (!interfaceNames.empty())
         {
-            if (hasTransparentInputs(interfaceNames, interfaceNode))
+            if (hasTransparentInputs(interfaceNames, interfaceNode, outInputs))
             {
-                return true;
+                if (!outInputs) return true;
+                found = true;
             }
         }
     }
@@ -187,7 +213,8 @@ bool isTransparentShaderNode(NodePtr node, NodePtr interfaceNode)
                 }
                 else
                 {
-                    return false;
+                    if (!outInputs) return false;
+                    continue;
                 }
             }
 
@@ -200,7 +227,17 @@ bool isTransparentShaderNode(NodePtr node, NodePtr interfaceNode)
                 if (nodeGroup != NodeDef::ADJUSTMENT_NODE_GROUP &&
                     nodeGroup != NodeDef::CHANNEL_NODE_GROUP)
                 {
-                    return true;
+                    if (outInputs)
+                    {
+                        outInputs->push_back({ inputPair.first, checkInput->getType(),
+                                               "[connected:" + inputNode->getCategory() + "]",
+                                               inputPair.second });
+                        found = true;
+                    }
+                    else
+                    {
+                        return true;
+                    }
                 }
             }
             else
@@ -208,16 +245,27 @@ bool isTransparentShaderNode(NodePtr node, NodePtr interfaceNode)
                 ValuePtr value = checkInput->getValue();
                 if (value && !isEqual(value, inputPair.second))
                 {
-                    return true;
+                    if (outInputs)
+                    {
+                        outInputs->push_back({ inputPair.first, checkInput->getType(),
+                                               value->getValueString(), inputPair.second });
+                        found = true;
+                    }
+                    else
+                    {
+                        return true;
+                    }
                 }
             }
         }
     }
-    return false;
+    return found;
 }
 
-bool isTransparentShaderGraph(OutputPtr output, const string& target, NodePtr interfaceNode)
+bool isTransparentShaderGraph(OutputPtr output, const string& target, NodePtr interfaceNode,
+                              vector<TransparencyInput>* outInputs = nullptr)
 {
+    bool found = false;
     for (GraphIterator it = output->traverseGraph().begin(); it != GraphIterator::end(); ++it)
     {
         ElementPtr upstreamElem = it.getUpstreamElement();
@@ -230,9 +278,10 @@ bool isTransparentShaderGraph(OutputPtr output, const string& target, NodePtr in
         {
             // Handle shader nodes.
             NodePtr node = upstreamElem->asA<Node>();
-            if (isTransparentShaderNode(node, interfaceNode))
+            if (isTransparentShaderNode(node, interfaceNode, outInputs))
             {
-                return true;
+                if (!outInputs) return true;
+                found = true;
             }
 
             // Handle graph definitions.
@@ -249,9 +298,10 @@ bool isTransparentShaderGraph(OutputPtr output, const string& target, NodePtr in
                         if (outputs.size() > 0)
                         {
                             const OutputPtr& graphOutput = outputs[0];
-                            if (isTransparentShaderGraph(graphOutput, target, node))
+                            if (isTransparentShaderGraph(graphOutput, target, node, outInputs))
                             {
-                                return true;
+                                if (!outInputs) return true;
+                                found = true;
                             }
                         }
                     }
@@ -260,65 +310,106 @@ bool isTransparentShaderGraph(OutputPtr output, const string& target, NodePtr in
         }
     }
 
-    return false;
+    return found;
 }
 
 } // anonymous namespace
 
-bool isTransparentSurface(ElementPtr element, const string& target)
+NodePtr resolveShaderNode(ElementPtr element, const string& target)
 {
     NodePtr node = element->asA<Node>();
     if (node)
     {
-        // Handle material nodes.
         if (node->getCategory() == SURFACE_MATERIAL_NODE_STRING)
         {
-            vector<NodePtr> shaderNodes = getShaderNodes(node);
+            vector<NodePtr> shaderNodes = getShaderNodes(node, SURFACE_SHADER_TYPE_STRING, target);
             if (!shaderNodes.empty())
             {
-                node = shaderNodes[0];
+                return shaderNodes[0];
             }
         }
-
-        // Handle shader nodes.
-        if (isTransparentShaderNode(node, nullptr))
+        else if (node->getType() == SURFACE_SHADER_TYPE_STRING)
         {
-            return true;
-        }
-
-        // Handle graph definitions.
-        NodeDefPtr nodeDef = node->getNodeDef();
-        InterfaceElementPtr impl = nodeDef ? nodeDef->getImplementation(target) : nullptr;
-        if (impl && impl->isA<NodeGraph>())
-        {
-            NodeGraphPtr graph = impl->asA<NodeGraph>();
-
-            vector<OutputPtr> outputs = graph->getActiveOutputs();
-            if (!outputs.empty())
-            {
-                const OutputPtr& output = outputs[0];
-                if (output->getType() == SURFACE_SHADER_TYPE_STRING)
-                {
-                    if (isTransparentShaderGraph(output, target, node))
-                    {
-                        return true;
-                    }
-                }
-            }
+            return node;
         }
     }
     else if (element->isA<Output>())
     {
-        // Handle output elements.
         OutputPtr output = element->asA<Output>();
-        NodePtr outputNode = output->getConnectedNode();
-        if (outputNode)
+        NodePtr connectedNode = output->getConnectedNode();
+        if (connectedNode && connectedNode->getType() == SURFACE_SHADER_TYPE_STRING)
         {
-            return isTransparentSurface(outputNode, target);
+            return connectedNode;
+        }
+    }
+    return nullptr;
+}
+
+bool isUnlitSurface(ElementPtr element, const string& target)
+{
+    NodePtr shaderNode = resolveShaderNode(element, target);
+    if (!shaderNode)
+    {
+        return false;
+    }
+    // Match the classification logic in ShaderNode::create():
+    // ND_surface_unlit -> Classification::SHADER | Classification::SURFACE | Classification::UNLIT
+    NodeDefPtr nodeDef = shaderNode->getNodeDef(target);
+    const string& nodeDefName = nodeDef ? nodeDef->getName() : EMPTY_STRING;
+    return nodeDefName == "ND_surface_unlit";
+}
+
+bool isTransparentSurface(ElementPtr element, const string& target, vector<TransparencyInput>* outInputs)
+{
+    NodePtr node = resolveShaderNode(element, target);
+    if (!node)
+    {
+        // Handle output elements whose connected node isn't a direct shader
+        // (e.g. connects to a non-surfaceshader node that wraps one).
+        if (element->isA<Output>())
+        {
+            OutputPtr output = element->asA<Output>();
+            NodePtr outputNode = output->getConnectedNode();
+            if (outputNode)
+            {
+                return isTransparentSurface(outputNode, target, outInputs);
+            }
+        }
+        return false;
+    }
+
+    bool found = false;
+
+    // Handle shader nodes.
+    if (isTransparentShaderNode(node, nullptr, outInputs))
+    {
+        if (!outInputs) return true;
+        found = true;
+    }
+
+    // Handle graph definitions.
+    NodeDefPtr nodeDef = node->getNodeDef();
+    InterfaceElementPtr impl = nodeDef ? nodeDef->getImplementation(target) : nullptr;
+    if (impl && impl->isA<NodeGraph>())
+    {
+        NodeGraphPtr graph = impl->asA<NodeGraph>();
+
+        vector<OutputPtr> outputs = graph->getActiveOutputs();
+        if (!outputs.empty())
+        {
+            const OutputPtr& output = outputs[0];
+            if (output->getType() == SURFACE_SHADER_TYPE_STRING)
+            {
+                if (isTransparentShaderGraph(output, target, node, outInputs))
+                {
+                    if (!outInputs) return true;
+                    found = true;
+                }
+            }
         }
     }
 
-    return false;
+    return found;
 }
 
 void mapValueToColor(ConstValuePtr value, Color4& color)
@@ -448,6 +539,251 @@ vector<TypedElementPtr> findRenderableElements(ConstDocumentPtr doc)
         }
     }
     return renderableElements;
+}
+
+void getRenderableAnalysis(ConstDocumentPtr doc,
+                           const string& target,
+                           vector<RenderableAnalysis>& out)
+{
+    out.clear();
+    vector<TypedElementPtr> elems = findRenderableElements(doc);
+    for (TypedElementPtr elem : elems)
+    {
+        RenderableAnalysis info;
+        info.path = elem->getNamePath();
+        info.file = elem->getActiveSourceUri();
+        info.type = elem->getType();
+        info.displacement = (elem->getType() == DISPLACEMENT_SHADER_TYPE_STRING);
+
+        // Use the shared transparency detection — same code path as shader gen.
+        // The outInputs parameter makes the decision observable without duplication.
+        info.transparency = isTransparentSurface(elem, target, &info.transparencyInputs);
+
+        // Use the shared unlit detection — matches ShaderNode::create() classification.
+        info.isUnlit = isUnlitSurface(elem, target);
+
+        // Use the shared shader node resolution.
+        NodePtr shaderNode = resolveShaderNode(elem, target);
+        if (shaderNode)
+        {
+            info.shaderNode = shaderNode->getCategory();
+            NodeDefPtr nodeDef = shaderNode->getNodeDef(target);
+            if (nodeDef)
+            {
+                info.shaderNodeDef = nodeDef->getName();
+                if (nodeDef->hasVersionString())
+                {
+                    info.shaderNodeDefVersion = nodeDef->getVersionString();
+                }
+            }
+
+            // Infer alpha mode from shader-specific inputs.
+            // This reads the same inputs that the compiled nodegraph will evaluate,
+            // predicting the resulting alpha behavior at the graph structure level.
+            string category = shaderNode->getCategory();
+            if (category == "gltf_pbr")
+            {
+                int alphaMode = 0;
+                float alphaCutoff = 0.5f;
+                InputPtr alphaModeInput = shaderNode->getActiveInput("alpha_mode");
+                if (alphaModeInput)
+                {
+                    ValuePtr val = alphaModeInput->getValue();
+                    if (val && val->isA<int>())
+                    {
+                        alphaMode = val->asA<int>();
+                    }
+                }
+                InputPtr alphaCutoffInput = shaderNode->getActiveInput("alpha_cutoff");
+                if (alphaCutoffInput)
+                {
+                    ValuePtr val = alphaCutoffInput->getValue();
+                    if (val && val->isA<float>())
+                    {
+                        alphaCutoff = val->asA<float>();
+                    }
+                }
+
+                if (alphaMode == 0)
+                {
+                    info.alphaMode = "opaque";
+                }
+                else if (alphaMode == 1)
+                {
+                    info.alphaMode = "mask";
+                    info.alphaCutoff = alphaCutoff;
+                }
+                else if (alphaMode == 2)
+                {
+                    info.alphaMode = "blend";
+                }
+            }
+            else if (category == "UsdPreviewSurface")
+            {
+                // USD uses opacityMode: 0 = transparent (cutout), 1 = presence (cutout with zero-check)
+                int opacityMode = 0;
+                float opacityThreshold = 0.0f;
+                InputPtr opacityModeInput = shaderNode->getActiveInput("opacityMode");
+                if (opacityModeInput)
+                {
+                    ValuePtr val = opacityModeInput->getValue();
+                    if (val && val->isA<int>())
+                    {
+                        opacityMode = val->asA<int>();
+                    }
+                }
+                (void)opacityMode; // reserved for richer alpha mode inference
+                InputPtr opacityThreshInput = shaderNode->getActiveInput("opacityThreshold");
+                if (opacityThreshInput)
+                {
+                    ValuePtr val = opacityThreshInput->getValue();
+                    if (val && val->isA<float>())
+                    {
+                        opacityThreshold = val->asA<float>();
+                    }
+                }
+
+                if (info.transparency)
+                {
+                    // USD always uses cutout-style opacity — never smooth blending.
+                    info.alphaMode = "mask";
+                    info.alphaCutoff = opacityThreshold;
+                }
+                else
+                {
+                    info.alphaMode = "opaque";
+                }
+            }
+            else
+            {
+                // Generic surface shaders (standard_surface, open_pbr_surface, etc.)
+                // If transparent, classify as "blend" since the HW shader will use
+                // alpha blending with the transparency channel.
+                info.alphaMode = info.transparency ? "blend" : "opaque";
+            }
+        }
+
+        out.push_back(info);
+    }
+}
+
+string TransparencyInput::toJson() const
+{
+    return "{\"name\":\"" + Element::escapeJsonString(name) +
+           "\",\"valueType\":\"" + Element::escapeJsonString(valueType) +
+           "\",\"value\":\"" + Element::escapeJsonString(value) +
+           "\",\"opaqueAt\":" + Value::createValue(opaqueAt)->getValueString() + "}";
+}
+
+string RenderableAnalysis::toJson() const
+{
+    string json = "{\"path\":\"" + Element::escapeJsonString(path) +
+                  "\",\"file\":\"" + Element::escapeJsonString(file) +
+                  "\",\"type\":\"" + Element::escapeJsonString(type) +
+                  "\",\"shaderNode\":\"" + Element::escapeJsonString(shaderNode) +
+                  "\",\"shaderNodeDef\":\"" + Element::escapeJsonString(shaderNodeDef) + "\"";
+    if (!shaderNodeDefVersion.empty())
+    {
+        json += ",\"shaderNodeDefVersion\":\"" + Element::escapeJsonString(shaderNodeDefVersion) + "\"";
+    }
+    json += ",\"isUnlit\":";
+    json += isUnlit ? "true" : "false";
+    json += ",\"transparency\":";
+    json += transparency ? "true" : "false";
+    json += ",\"alphaMode\":\"" + Element::escapeJsonString(alphaMode) + "\"";
+    if (alphaMode == "mask")
+    {
+        json += ",\"alphaCutoff\":" + Value::createValue(alphaCutoff)->getValueString();
+    }
+    json += ",\"displacement\":";
+    json += displacement ? "true" : "false";
+    if (!transparencyInputs.empty())
+    {
+        json += ",\"transparencyInputs\":[";
+        for (size_t i = 0; i < transparencyInputs.size(); i++)
+        {
+            if (i > 0)
+            {
+                json += ",";
+            }
+            json += transparencyInputs[i].toJson();
+        }
+        json += "]";
+    }
+    json += "}";
+    return json;
+}
+
+int runMaterialReport(const string& materialFilename,
+                      const FileSearchPath& searchPath,
+                      const string& reportFormat,
+                      std::ostream& out)
+{
+    DocumentPtr doc = createDocument();
+    Element::ValidationErrors errors;
+    try
+    {
+        readFromXmlFile(doc, materialFilename);
+        DocumentPtr stdlib = createDocument();
+        loadLibraries(FilePathVec{"libraries"}, searchPath, stdlib);
+        doc->setDataLibrary(stdlib);
+    }
+    catch (const Exception& e)
+    {
+        Element::ValidationError err;
+        err.message = "Failed to load document";
+        err.source = e.what();
+        err.file = materialFilename;
+        err.severity = Element::ValidationSeverity::ERROR;
+        errors.push_back(err);
+
+        if (reportFormat == "json")
+        {
+            out << "{\"materialXVersion\":\"" << Element::escapeJsonString(getVersionString()) << "\""
+                << ",\"valid\": false, \"errors\":" << Element::formatValidationErrorsJson(errors)
+                << ", \"renderables\": []}" << std::endl;
+        }
+        else
+        {
+            out << "Failed to load document: " << e.what() << std::endl;
+        }
+        return 1;
+    }
+
+    string message;
+    bool isValid = true;
+    {
+        Element::ValidationErrorScope scope(&errors);
+        isValid = doc->validate(&message);
+    }
+
+    if (reportFormat == "json")
+    {
+        vector<RenderableAnalysis> renderables;
+        getRenderableAnalysis(doc, EMPTY_STRING, renderables);
+        string renderableJson = "[";
+        for (size_t i = 0; i < renderables.size(); i++)
+        {
+            if (i > 0)
+            {
+                renderableJson += ",";
+            }
+            renderableJson += renderables[i].toJson();
+        }
+        renderableJson += "]";
+        out << "{\"materialXVersion\":\"" << Element::escapeJsonString(getVersionString()) << "\""
+            << ",\"valid\": " << (isValid ? "true" : "false")
+            << ", \"errors\":" << Element::formatValidationErrorsJson(errors)
+            << ", \"renderables\": " << renderableJson << "}" << std::endl;
+    }
+    else
+    {
+        if (!isValid)
+        {
+            out << message << std::endl;
+        }
+    }
+    return isValid ? 0 : 1;
 }
 
 InputPtr getNodeDefInput(InputPtr nodeInput, const string& target)
