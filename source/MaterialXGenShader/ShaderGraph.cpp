@@ -83,8 +83,7 @@ void ShaderGraph::createConnectedNodes(const ElementPtr& downstreamElement,
         throw ExceptionShaderGenError("Upstream element to connect is not a node '" +
                                       upstreamElement->getName() + "'");
     }
-    const string& newNodeName = upstreamNode->getName();
-    ShaderNode* newNode = getNode(newNodeName);
+    ShaderNode* newNode = getNode(upstreamNode->getNamePath());
     if (!newNode)
     {
         newNode = createNode(upstreamNode, context);
@@ -101,7 +100,7 @@ void ShaderGraph::createConnectedNodes(const ElementPtr& downstreamElement,
         InputPtr graphInput = activeInput->getInterfaceInput();
         if (graphInput && graphInput->hasDefaultGeomPropString())
         {
-            ShaderInput* shaderInput = getNode(upstreamNode->getName())->getInput(activeInput->getName());
+            ShaderInput* shaderInput = newNode->getInput(activeInput->getName());
             addDefaultGeomNode(shaderInput, *graphInput->getDefaultGeomProp(), context);
         }
     }
@@ -127,12 +126,11 @@ void ShaderGraph::createConnectedNodes(const ElementPtr& downstreamElement,
                                       "' on upstream node '" + upstreamNode->getName() + "'");
     }
 
-    // Check if it was a node downstream
+    // Connect to downstream node or graph output socket.
     NodePtr downstreamNode = downstreamElement->asA<Node>();
     if (downstreamNode)
     {
-        // We have a node downstream
-        ShaderNode* downstream = getNode(downstreamNode->getName());
+        ShaderNode* downstream = getNode(downstreamNode->getNamePath());
         if (downstream)
         {
             if (downstream == newNode)
@@ -152,7 +150,7 @@ void ShaderGraph::createConnectedNodes(const ElementPtr& downstreamElement,
             }
             else
             {
-                throw ExceptionShaderGenError("Could not find downstream node ' " + downstreamNode->getName() + "'");
+                throw ExceptionShaderGenError("No connecting element for downstream node '" + downstreamNode->getName() + "'");
             }
         }
     }
@@ -542,8 +540,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
         graph->addOutputSockets(*nodeDef, context);
 
         // Create this shader node in the graph.
-        ShaderNodePtr newNode = ShaderNode::create(graph.get(), node->getName(), *nodeDef, context);
-        graph->addNode(newNode);
+        ShaderNode* newNode = graph->createNode(node->getName(), node->getNamePath(), nodeDef, context);
 
         // Share metadata.
         graph->setMetadata(newNode->getMetadata());
@@ -624,7 +621,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
         }
 
         // Apply color and unit transforms to each input.
-        graph->applyInputTransforms(node, newNode.get(), context);
+        graph->applyInputTransforms(node, newNode, context);
 
         // Set root for upstream dependency traversal
         root = node;
@@ -696,7 +693,7 @@ void ShaderGraph::applyInputTransforms(ConstNodePtr node, ShaderNode* shaderNode
     }
 }
 
-ShaderNode* ShaderGraph::createNode(const string& name, ConstNodeDefPtr nodeDef, GenContext& context)
+ShaderNode* ShaderGraph::createNode(const string& name, const string& uniqueId, ConstNodeDefPtr nodeDef, GenContext& context)
 {
     if (!nodeDef)
     {
@@ -705,7 +702,8 @@ ShaderNode* ShaderGraph::createNode(const string& name, ConstNodeDefPtr nodeDef,
 
     // Create this node in the graph.
     ShaderNodePtr newNode = ShaderNode::create(this, name, *nodeDef, context);
-    _nodeMap[name] = newNode;
+    newNode->_uniqueId = uniqueId;
+    _nodeMap[uniqueId] = newNode;
     _nodeOrder.push_back(newNode.get());
 
     return newNode.get();
@@ -717,7 +715,7 @@ ShaderNode* ShaderGraph::createNode(ConstNodePtr node, GenContext& context)
 
     // Create this node in the graph.
     context.pushParentNode(node);
-    ShaderNode* newNode = createNode(node->getName(), nodeDef, context);
+    ShaderNode* newNode = createNode(node->getName(), node->getNamePath(), nodeDef, context);
     newNode->initialize(*node, *nodeDef, context);
     context.popParentNode();
 
@@ -807,7 +805,7 @@ ShaderNode* ShaderGraph::inlineNodeBeforeOutput(ShaderGraphOutputSocket* output,
     }
 
     // create the new node, and connect its output to the provided graph output
-    auto newNode = createNode(newNodeName, nodeDef, context);
+    auto newNode = createNode(newNodeName, newNodeName, nodeDef, context);
     if (!newNode)
     {
         throw ExceptionShaderGenError("Error while creating node '"+newNodeName+"' of type '"+nodeDefName+"'");
@@ -852,19 +850,19 @@ ShaderGraphEdgeIterator ShaderGraph::traverseUpstream(ShaderOutput* output)
 
 void ShaderGraph::addNode(ShaderNodePtr node)
 {
-    _nodeMap[node->getName()] = node;
+    _nodeMap[node->getUniqueId()] = node;
     _nodeOrder.push_back(node.get());
 }
 
-ShaderNode* ShaderGraph::getNode(const string& name)
+ShaderNode* ShaderGraph::getNode(const string& uniqueId)
 {
-    auto it = _nodeMap.find(name);
+    auto it = _nodeMap.find(uniqueId);
     return it != _nodeMap.end() ? it->second.get() : nullptr;
 }
 
-const ShaderNode* ShaderGraph::getNode(const string& name) const
+const ShaderNode* ShaderGraph::getNode(const string& uniqueId) const
 {
-    return const_cast<ShaderGraph*>(this)->getNode(name);
+    return const_cast<ShaderGraph*>(this)->getNode(uniqueId);
 }
 
 void ShaderGraph::finalize(GenContext& context)
@@ -1045,15 +1043,19 @@ void ShaderGraph::optimize(GenContext& context)
         }
 
         // Remove any unused nodes
-        for (ShaderNode* node : _nodeOrder)
+        for (auto it = _nodeMap.begin(); it != _nodeMap.end();)
         {
-            if (usedNodesSet.count(node) == 0)
+            if (usedNodesSet.count(it->second.get()) == 0)
             {
                 // Break all connections
-                disconnect(node);
+                disconnect(it->second.get());
 
                 // Erase from storage
-                _nodeMap.erase(node->getName());
+                it = _nodeMap.erase(it);
+            }
+            else
+            {
+                ++it;
             }
         }
 
