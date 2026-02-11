@@ -693,7 +693,7 @@ void ShaderGraph::applyInputTransforms(ConstNodePtr node, ShaderNode* shaderNode
     }
 }
 
-ShaderNode* ShaderGraph::createNode(const string& name, const string& namePath, ConstNodeDefPtr nodeDef, GenContext& context)
+ShaderNode* ShaderGraph::createNode(const string& name, const string& uniqueId, ConstNodeDefPtr nodeDef, GenContext& context)
 {
     if (!nodeDef)
     {
@@ -702,8 +702,8 @@ ShaderNode* ShaderGraph::createNode(const string& name, const string& namePath, 
 
     // Create this node in the graph.
     ShaderNodePtr newNode = ShaderNode::create(this, name, *nodeDef, context);
-    newNode->_namePath = namePath;
-    _nodeMap[namePath] = newNode;
+    newNode->_uniqueId = uniqueId;
+    _nodeMap[uniqueId] = newNode;
     _nodeOrder.push_back(newNode.get());
 
     return newNode.get();
@@ -850,19 +850,19 @@ ShaderGraphEdgeIterator ShaderGraph::traverseUpstream(ShaderOutput* output)
 
 void ShaderGraph::addNode(ShaderNodePtr node)
 {
-    _nodeMap[node->getNamePath()] = node;
+    _nodeMap[node->getUniqueId()] = node;
     _nodeOrder.push_back(node.get());
 }
 
-ShaderNode* ShaderGraph::getNode(const string& namePath)
+ShaderNode* ShaderGraph::getNode(const string& uniqueId)
 {
-    auto it = _nodeMap.find(namePath);
+    auto it = _nodeMap.find(uniqueId);
     return it != _nodeMap.end() ? it->second.get() : nullptr;
 }
 
-const ShaderNode* ShaderGraph::getNode(const string& namePath) const
+const ShaderNode* ShaderGraph::getNode(const string& uniqueId) const
 {
-    return const_cast<ShaderGraph*>(this)->getNode(namePath);
+    return const_cast<ShaderGraph*>(this)->getNode(uniqueId);
 }
 
 void ShaderGraph::finalize(GenContext& context)
