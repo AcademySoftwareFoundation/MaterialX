@@ -51,6 +51,7 @@ option(MATERIALX_BUILD_OCIO "Build OpenColorIO support for shader generators." O
 option(MATERIALX_BUILD_TESTS "Build unit tests." OFF)
 option(MATERIALX_BUILD_BENCHMARK_TESTS "Build benchmark tests." OFF)
 option(MATERIALX_BUILD_OSOS "Build OSL .oso's of standard library shaders for the OSL Network generator" OFF)
+option(MATERIALX_BUILD_PERFETTO_TRACING "Build with Perfetto tracing support for performance analysis." OFF)
 
 option(MATERIALX_BUILD_SHARED_LIBS "Build MaterialX libraries as shared rather than static." OFF)
 option(MATERIALX_BUILD_DATA_LIBRARY "Build generated products from the MaterialX data library." OFF)
@@ -228,6 +229,41 @@ mark_as_advanced(MATERIALX_MDL_BINARY_TESTRENDER)
 mark_as_advanced(MATERIALX_MDL_MODULE_PATHS)
 mark_as_advanced(MATERIALX_MDL_SDK_DIR)
 mark_as_advanced(MATERIALX_SLANG_RHI_SOURCE_DIR)
+mark_as_advanced(MATERIALX_BUILD_PERFETTO_TRACING)
+
+# Perfetto tracing support
+if(MATERIALX_BUILD_PERFETTO_TRACING)
+    include(FetchContent)
+    FetchContent_Declare(
+        perfetto
+        GIT_REPOSITORY https://android.googlesource.com/platform/external/perfetto
+        GIT_TAG v43.0
+        GIT_SHALLOW TRUE
+    )
+    # Only fetch the SDK, not the full Perfetto source
+    set(PERFETTO_SDK_INCLUDE_DIR "${CMAKE_BINARY_DIR}/_deps/perfetto-src/sdk")
+    FetchContent_MakeAvailable(perfetto)
+    add_definitions(-DMATERIALX_BUILD_PERFETTO_TRACING)
+    
+    # Define compile flags for perfetto.cc (Perfetto SDK triggers various warnings)
+    # These variables are used in source/CMakeLists.txt (monolithic) and MaterialXTrace (non-monolithic)
+    # Note: set_source_files_properties is directory-scoped, so we define variables here
+    # but apply them in the directories where targets are created.
+    if(MSVC)
+        set(MATERIALX_PERFETTO_COMPILE_DEFINITIONS "NOMINMAX;WIN32_LEAN_AND_MEAN" CACHE INTERNAL "")
+        # /bigobj: perfetto.cc has too many sections for default MSVC object format
+        # /W0: disable all warnings for third-party Perfetto SDK code
+        # /WX-: disable warnings-as-errors (overrides project-level /WX)
+        set(MATERIALX_PERFETTO_COMPILE_FLAGS "/bigobj /W0 /WX-" CACHE INTERNAL "")
+    else()
+        set(MATERIALX_PERFETTO_COMPILE_DEFINITIONS "" CACHE INTERNAL "")
+        # -Wno-error: Don't treat warnings as errors (Perfetto has shadowing issues)
+        # -Wno-shadow: Suppress shadow warnings (kDevNull shadows global)
+        set(MATERIALX_PERFETTO_COMPILE_FLAGS "-Wno-error -Wno-shadow" CACHE INTERNAL "")
+    endif()
+    
+    message(STATUS "Perfetto tracing support enabled")
+endif()
 
 if (MATERIALX_BUILD_USE_CCACHE)
     # Setup CCache for C/C++ compilation
@@ -491,6 +527,9 @@ endif()
 # Add core subdirectories
 add_subdirectory(source/MaterialXCore)
 add_subdirectory(source/MaterialXFormat)
+if(MATERIALX_BUILD_PERFETTO_TRACING)
+    add_subdirectory(source/MaterialXTrace)
+endif()
 
 # Add shader generation subdirectories
 add_subdirectory(source/MaterialXGenShader)

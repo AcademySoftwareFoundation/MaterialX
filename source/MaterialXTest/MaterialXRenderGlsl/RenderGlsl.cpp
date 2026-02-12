@@ -12,6 +12,7 @@
 
 #include <MaterialXRender/GeometryHandler.h>
 #include <MaterialXRender/StbImageLoader.h>
+#include <MaterialXTrace/Tracing.h>
 #if defined(MATERIALX_BUILD_OIIO)
 #include <MaterialXRender/OiioImageLoader.h>
 #endif
@@ -161,6 +162,8 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                                           const std::string& outputPath,
                                           mx::ImageVec* imageVec)
 {
+    MX_TRACE_FUNCTION(mx::Tracing::Category::Render);
+    MX_TRACE_SCOPE(mx::Tracing::Category::Material, shaderName.c_str());
     std::cout << "Validating GLSL rendering for: " << doc->getSourceUri() << std::endl;
 
     mx::ScopedTimer totalGLSLTime(&profileTimes.languageTimes.totalTime);
@@ -180,16 +183,18 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
             profileTimes.elementsTested++;
 
             mx::FilePath outputFilePath = outputPath;
-            // Use separate directory for reduced output
-            if (options.shaderInterfaceType == mx::SHADER_INTERFACE_REDUCED)
-            {
-                outputFilePath = outputFilePath / mx::FilePath("reduced");
-            }
-
+            
             // Note: mkdir will fail if the directory already exists which is ok.
             {
                 mx::ScopedTimer ioDir(&profileTimes.languageTimes.ioTime);
                 outputFilePath.createDirectory();
+                
+                // Use separate directory for reduced output
+                if (options.shaderInterfaceType == mx::SHADER_INTERFACE_REDUCED)
+                {
+                    outputFilePath = outputFilePath / mx::FilePath("reduced");
+                    outputFilePath.createDirectory();
+                }
             }
 
             std::string shaderPath = mx::FilePath(outputFilePath) / mx::FilePath(shaderName);
@@ -201,6 +206,7 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                 transpTimer.endTimer();
 
                 mx::ScopedTimer generationTimer(&profileTimes.languageTimes.generationTime);
+                MX_TRACE_SCOPE(mx::Tracing::Category::ShaderGen, "GenerateShader");
                 mx::GenOptions& contextOptions = context.getOptions();
                 contextOptions = options;
                 contextOptions.targetColorSpaceOverride = "lin_rec709";
@@ -277,6 +283,7 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                 _renderer->setLightHandler(isShader ? _lightHandler : nullptr);
 
                 {
+                    MX_TRACE_SCOPE(mx::Tracing::Category::Render, "CompileShader");
                     mx::ScopedTimer compileTimer(&profileTimes.languageTimes.compileTime);
                     _renderer->createProgram(shader);
                     _renderer->validateInputs();
@@ -343,6 +350,7 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                 int supersampleFactor = testOptions.enableReferenceQuality ? 8 : 1;
 
                 {
+                    MX_TRACE_SCOPE(mx::Tracing::Category::Render, "RenderMaterial");
                     mx::ScopedTimer renderTimer(&profileTimes.languageTimes.renderTime);
                     _renderer->getImageHandler()->setSearchPath(imageSearchPath);
                     unsigned int width = (unsigned int) testOptions.renderSize[0] * supersampleFactor;

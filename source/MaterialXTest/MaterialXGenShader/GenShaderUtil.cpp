@@ -23,7 +23,10 @@
 #include <MaterialXCore/Material.h>
 #include <MaterialXCore/Unit.h>
 
+#include <MaterialXTrace/Tracing.h>
+
 #include <iostream>
+#include <optional>
 
 namespace mx = MaterialX;
 
@@ -652,24 +655,36 @@ void ShaderGeneratorTester::registerLights(mx::DocumentPtr doc, const std::vecto
 
 void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, const std::string& optionsFilePath)
 {
-    // Start logging
-    _logFile.open(_logFilePath);
-
-    // Check for an option file
+    // Check for an option file first (before opening log) so we can use outputDirectory
     TestSuiteOptions options;
     if (!options.readOptions(optionsFilePath))
     {
-        _logFile << "Cannot read options file: " << optionsFilePath << ". Skipping test." << std::endl;
-        _logFile.close();
+        std::cerr << "Cannot read options file: " << optionsFilePath << ". Skipping test." << std::endl;
         return;
     }
     // Test has been turned off so just do nothing.
     if (!runTest(options))
     {
-        _logFile << "Target: " << _targetString << " not set to run. Skipping test." << std::endl;
-        _logFile.close();
+        std::cerr << "Target: " << _targetString << " not set to run. Skipping test." << std::endl;
         return;
     }
+
+#ifdef MATERIALX_BUILD_PERFETTO_TRACING
+    // Set up Perfetto tracing if enabled
+    std::optional<mx::Tracing::Dispatcher::ShutdownGuard> tracingGuard;
+    if (options.enableTracing)
+    {
+        mx::FilePath tracePath = options.resolveOutputPath(_shaderGenerator->getTarget() + "_gen_trace.perfetto-trace");
+        mx::Tracing::Dispatcher::getInstance().setSink(
+            mx::Tracing::createPerfettoSink(tracePath.asString()));
+        tracingGuard.emplace();
+    }
+#endif
+
+    // Start logging - use outputDirectory if set
+    mx::FilePath logPath = options.resolveOutputPath(_logFilePath);
+    _logFile.open(logPath.asString());
+
     options.print(_logFile);
 
     // Add files to override the files in the test suite to be examined.
@@ -839,7 +854,11 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
                     _logFile << "------------ Run validation with element: " << namePath << "------------" << std::endl;
 
                     mx::StringVec sourceCode;
-                    const bool generatedCode = generateCode(context, elementName, element, _logFile, _testStages, sourceCode);
+                    bool generatedCode = false;
+                    {
+                        MX_TRACE_SCOPE(mx::Tracing::Category::ShaderGen, elementName.c_str());
+                        generatedCode = generateCode(context, elementName, element, _logFile, _testStages, sourceCode);
+                    }
 
                     // Record implementations tested
                     if (options.checkImplCount)
@@ -877,6 +896,17 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
                         {
                             mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
                             path = searchPath.isEmpty() ? mx::FilePath() : searchPath[0];
+                        }
+
+                        // Redirect to outputDirectory if set
+                        if (!options.outputDirectory.isEmpty())
+                        {
+                            mx::FilePath materialDir = path.getBaseName();
+                            path = options.outputDirectory / materialDir;
+                            if (!path.exists())
+                            {
+                                path.createDirectory();
+                            }
                         }
 
                         std::vector<mx::FilePath> sourceCodePaths;
@@ -939,6 +969,12 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     {
         _logFile.close();
     }
+
+    // Print effective output directory for easy access (clickable in terminals)
+    if (!options.outputDirectory.isEmpty())
+    {
+        std::cout << std::endl << "Test artifacts written to: " << options.outputDirectory.asString() << std::endl;
+    }
 }
 
 void TestSuiteOptions::print(std::ostream& output) const
@@ -968,6 +1004,8 @@ void TestSuiteOptions::print(std::ostream& output) const
     output << "\tExtra library paths: " << extraLibraryPaths.asString() << std::endl;
     output << "\tRender test paths: " << renderTestPaths.asString() << std::endl;
     output << "\tEnable Reference Quality: " << enableReferenceQuality << std::endl;
+    output << "\tOutput Directory: " << (outputDirectory.isEmpty() ? "(default)" : outputDirectory.asString()) << std::endl;
+    output << "\tEnable Tracing: " << enableTracing << std::endl;
 }
 
 bool TestSuiteOptions::readOptions(const std::string& optionFile)
@@ -993,6 +1031,8 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
     const std::string EXTRA_LIBRARY_PATHS("extraLibraryPaths");
     const std::string RENDER_TEST_PATHS("renderTestPaths");
     const std::string ENABLE_REFERENCE_QUALITY("enableReferenceQuality");
+    const std::string OUTPUT_DIRECTORY_STRING("outputDirectory");
+    const std::string ENABLE_TRACING_STRING("enableTracing");
 
     overrideFiles.clear();
     dumpGeneratedCode = false;
@@ -1090,6 +1130,23 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
                     else if (name == ENABLE_REFERENCE_QUALITY)
                     {
                         enableReferenceQuality = val->asA<bool>();
+                    }
+                    else if (name == OUTPUT_DIRECTORY_STRING)
+                    {
+                        std::string dirPath = p->getValueString();
+                        if (!dirPath.empty())
+                        {
+                            outputDirectory = mx::FilePath(dirPath);
+                            // Create the directory if it doesn't exist
+                            if (!outputDirectory.exists())
+                            {
+                                outputDirectory.createDirectory();
+                            }
+                        }
+                    }
+                    else if (name == ENABLE_TRACING_STRING)
+                    {
+                        enableTracing = val->asA<bool>();
                     }
                 }
             }
