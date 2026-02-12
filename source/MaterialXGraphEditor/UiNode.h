@@ -116,18 +116,27 @@ class UiPin
             return;
         }
 
+        // Remove pin from our connection list.
         for (size_t i = 0; i < _connections.size(); i++)
         {
             if (_connections[i]->getPinId() == pin->getPinId())
             {
                 _connections.erase(_connections.begin() + i);
+                break;
             }
         }
+        if (_connections.size() == 0)
+        {
+            _connected = false;
+        }
+
+        // Remove ourselves from pin's connection list.
         for (size_t i = 0; i < pin->_connections.size(); i++)
         {
             if (pin->_connections[i]->getPinId() == _pinId)
             {
                 pin->_connections.erase(pin->_connections.begin() + i);
+                break;
             }
         }
         if (pin->_connections.size() == 0)
@@ -262,6 +271,7 @@ class UiNode
     float getAverageY();
     float getMinX();
     int getEdgeIndex(int id, UiPinPtr pin);
+    bool eraseEdge(int id, UiPinPtr pin);
     void removeOutputConnection(const std::string& name);
 
   private:

@@ -67,11 +67,24 @@
     <input name="default" type="vector4" implname="default_value" />
   </implementation>
 
+  <!-- <hextiledimage> -->
+  <implementation name="IM_hextiledimage_color3_genosl" nodedef="ND_hextiledimage_color3" file="mx_hextiledimage_color3.osl" function="mx_hextiledimage_color3" target="genosl">
+    <input name="default" type="color3" implname="default_value" />
+  </implementation>
+  <implementation name="IM_hextiledimage_color4_genosl" nodedef="ND_hextiledimage_color4" file="mx_hextiledimage_color4.osl" function="mx_hextiledimage_color4" target="genosl">
+    <input name="default" type="color4" implname="default_value" />
+  </implementation>
+
   <!-- <triplanarprojection> -->
 
   <!-- <normalmap> -->
   <implementation name="IM_normalmap_float_genosl" nodedef="ND_normalmap_float" file="mx_normalmap.osl" function="mx_normalmap_float" target="genosl" />
   <implementation name="IM_normalmap_vector2_genosl" nodedef="ND_normalmap_vector2" file="mx_normalmap.osl" function="mx_normalmap_vector2" target="genosl" />
+
+  <!-- <hextilednormalmap> -->
+  <implementation name="IM_hextilednormalmap_vector3_genosl" nodedef="ND_hextilednormalmap_vector3" file="mx_hextilednormalmap_vector3.osl" function="mx_hextilednormalmap_vector3" target="genosl">
+    <input name="default" type="vector3" implname="default_value" />
+  </implementation>
 
   <!-- ======================================================================== -->
   <!-- Procedural nodes                                                         -->

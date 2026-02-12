@@ -430,6 +430,13 @@ class MX_GENSHADER_API ShaderNode
         return _name;
     }
 
+    /// Return the unique identifier for this node, used as its key
+    /// in the parent graph's node map.
+    const string& getUniqueId() const
+    {
+        return _uniqueId;
+    }
+
     /// Return the implementation used for this node.
     const ShaderNodeImpl& getImplementation() const
     {
@@ -495,6 +502,7 @@ class MX_GENSHADER_API ShaderNode
 
     const ShaderGraph* _parent;
     string _name;
+    string _uniqueId;
     uint32_t _classification;
 
     std::unordered_map<string, ShaderInputPtr> _inputMap;

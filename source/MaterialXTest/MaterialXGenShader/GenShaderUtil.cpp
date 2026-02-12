@@ -316,7 +316,7 @@ void testUniqueNames(mx::GenContext& context, const std::string& stage)
     // Make sure the output and internal node output has their variable names set
     const mx::ShaderGraphOutputSocket* sgOutputSocket = shader->getGraph().getOutputSocket();
     REQUIRE(sgOutputSocket->getVariable() != outputQualifier);
-    const mx::ShaderNode* sgNode1 = shader->getGraph().getNode(node1->getName());
+    const mx::ShaderNode* sgNode1 = shader->getGraph().getNode(node1->getNamePath());
     REQUIRE(sgNode1->getOutput()->getVariable() == "unique_names_out");
 }
 
