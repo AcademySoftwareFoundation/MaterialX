@@ -184,7 +184,7 @@ class Scope
 // Sink Factory Functions
 // ============================================================================
 
-#ifdef MATERIALX_BUILD_TRACING
+#ifdef MATERIALX_BUILD_PERFETTO_TRACING
 
 /// Create a Perfetto-based tracing sink.
 /// 
@@ -203,7 +203,7 @@ class Scope
 MX_TRACE_API std::unique_ptr<Sink> createPerfettoSink(
     const std::string& outputPath, size_t bufferSizeKb = 32768);
 
-#endif // MATERIALX_BUILD_TRACING
+#endif // MATERIALX_BUILD_PERFETTO_TRACING
 
 } // namespace Tracing
 
@@ -212,14 +212,14 @@ MATERIALX_NAMESPACE_END
 // ============================================================================
 // Tracing Macros
 // ============================================================================
-// When MATERIALX_BUILD_TRACING is defined, these macros generate trace events.
+// When MATERIALX_BUILD_PERFETTO_TRACING is defined, these macros generate trace events.
 // Otherwise, they compile to nothing (zero overhead).
 
 // Helper macros for token pasting with __LINE__ expansion
 #define MX_TRACE_CONCAT_IMPL(a, b) a##b
 #define MX_TRACE_CONCAT(a, b) MX_TRACE_CONCAT_IMPL(a, b)
 
-#ifdef MATERIALX_BUILD_TRACING
+#ifdef MATERIALX_BUILD_PERFETTO_TRACING
 
 /// Create a scoped trace event. Event ends when scope exits.
 /// Category must be a Tracing::Category enum value.
@@ -242,7 +242,7 @@ MATERIALX_NAMESPACE_END
 #define MX_TRACE_END(category) \
     MaterialX::Tracing::Dispatcher::getInstance().endEvent(category)
 
-#else // MATERIALX_BUILD_TRACING not defined
+#else // MATERIALX_BUILD_PERFETTO_TRACING not defined
 
 #define MX_TRACE_SCOPE(category, name)
 #define MX_TRACE_FUNCTION(category)
@@ -250,6 +250,6 @@ MATERIALX_NAMESPACE_END
 #define MX_TRACE_BEGIN(category, name)
 #define MX_TRACE_END(category)
 
-#endif // MATERIALX_BUILD_TRACING
+#endif // MATERIALX_BUILD_PERFETTO_TRACING
 
 #endif // MATERIALX_TRACING_H

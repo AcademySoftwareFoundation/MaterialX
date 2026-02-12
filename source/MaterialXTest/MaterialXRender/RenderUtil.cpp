@@ -12,7 +12,7 @@
 #include <MaterialXGenShader/OcioColorManagementSystem.h>
 #endif
 
-#ifdef MATERIALX_BUILD_TRACING
+#ifdef MATERIALX_BUILD_PERFETTO_TRACING
 #include <MaterialXTrace/Tracing.h>
 #include <optional>
 #endif
@@ -99,7 +99,7 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
         return false;
     }
 
-#ifdef MATERIALX_BUILD_TRACING
+#ifdef MATERIALX_BUILD_PERFETTO_TRACING
     // Initialize tracing with target-specific trace filename (if enabled in options)
     std::optional<mx::Tracing::Dispatcher::ShutdownGuard> tracingGuard;
     if (options.enableTracing)

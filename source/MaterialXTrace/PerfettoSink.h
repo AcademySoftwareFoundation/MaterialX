@@ -17,7 +17,7 @@
 
 #include <MaterialXTrace/Tracing.h>
 
-#ifdef MATERIALX_BUILD_TRACING
+#ifdef MATERIALX_BUILD_PERFETTO_TRACING
 
 // Suppress verbose warnings from Perfetto SDK templates
 #ifdef _MSC_VER
@@ -81,6 +81,6 @@ class PerfettoSink : public Sink
 
 MATERIALX_NAMESPACE_END
 
-#endif // MATERIALX_BUILD_TRACING
+#endif // MATERIALX_BUILD_PERFETTO_TRACING
 
 #endif // MATERIALX_PERFETTOSINK_H

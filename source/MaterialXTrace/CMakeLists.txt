@@ -12,7 +12,7 @@ set(materialx_headers
 )
 
 # Exclude Perfetto sink when tracing is disabled
-if(NOT MATERIALX_BUILD_TRACING)
+if(NOT MATERIALX_BUILD_PERFETTO_TRACING)
     list(REMOVE_ITEM materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/Tracing.cpp")
     list(REMOVE_ITEM materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/PerfettoSink.cpp")
     # Keep headers but they'll be no-ops via macros
@@ -29,7 +29,7 @@ mx_add_library(MaterialXTrace
         MaterialXCore)
 
 # Perfetto tracing support
-if(MATERIALX_BUILD_TRACING)
+if(MATERIALX_BUILD_PERFETTO_TRACING)
     # The Perfetto SDK is distributed as an amalgamated single-file source (sdk/perfetto.cc).
     # This is the official recommended integration method per Google's documentation:
     # https://perfetto.dev/docs/instrumentation/tracing-sdk
@@ -43,7 +43,7 @@ if(MATERIALX_BUILD_TRACING)
     # Use generator expression - only needed at build time, not install
     target_include_directories(${TARGET_NAME} PUBLIC 
         $<BUILD_INTERFACE:${perfetto_SOURCE_DIR}/sdk>)
-    target_compile_definitions(${TARGET_NAME} PUBLIC MATERIALX_BUILD_TRACING)
+    target_compile_definitions(${TARGET_NAME} PUBLIC MATERIALX_BUILD_PERFETTO_TRACING)
     
     # Platform-specific link libraries
     if(WIN32)

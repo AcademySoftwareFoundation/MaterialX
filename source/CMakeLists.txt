@@ -7,7 +7,7 @@ if (MATERIALX_BUILD_MONOLITHIC)
 
     # Apply Perfetto compile flags for monolithic builds
     # (set_source_files_properties is directory-scoped, must be called here)
-    if(MATERIALX_BUILD_TRACING)
+    if(MATERIALX_BUILD_PERFETTO_TRACING)
         set_source_files_properties("${perfetto_SOURCE_DIR}/sdk/perfetto.cc"
             PROPERTIES
             COMPILE_DEFINITIONS "${MATERIALX_PERFETTO_COMPILE_DEFINITIONS}"

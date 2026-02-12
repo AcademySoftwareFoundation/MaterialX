@@ -5,7 +5,7 @@
 
 #include <MaterialXTrace/PerfettoSink.h>
 
-#ifdef MATERIALX_BUILD_TRACING
+#ifdef MATERIALX_BUILD_PERFETTO_TRACING
 
 #include <fstream>
 #include <mutex>
@@ -174,4 +174,4 @@ std::unique_ptr<Sink> createPerfettoSink(const std::string& outputPath, size_t b
 
 MATERIALX_NAMESPACE_END
 
-#endif // MATERIALX_BUILD_TRACING
+#endif // MATERIALX_BUILD_PERFETTO_TRACING

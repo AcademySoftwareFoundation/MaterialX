@@ -669,7 +669,7 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
         return;
     }
 
-#ifdef MATERIALX_BUILD_TRACING
+#ifdef MATERIALX_BUILD_PERFETTO_TRACING
     // Set up Perfetto tracing if enabled
     std::optional<mx::Tracing::Dispatcher::ShutdownGuard> tracingGuard;
     if (options.enableTracing)

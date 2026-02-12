@@ -40,7 +40,7 @@ add_subdirectory(MaterialXCore)
 target_link_libraries(MaterialXTest MaterialXCore)
 add_subdirectory(MaterialXFormat)
 target_link_libraries(MaterialXTest MaterialXFormat)
-if(MATERIALX_BUILD_TRACING)
+if(MATERIALX_BUILD_PERFETTO_TRACING)
     target_link_libraries(MaterialXTest MaterialXTrace)
 endif()
 

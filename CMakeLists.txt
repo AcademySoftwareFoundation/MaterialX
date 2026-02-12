@@ -51,7 +51,7 @@ option(MATERIALX_BUILD_OCIO "Build OpenColorIO support for shader generators." O
 option(MATERIALX_BUILD_TESTS "Build unit tests." OFF)
 option(MATERIALX_BUILD_BENCHMARK_TESTS "Build benchmark tests." OFF)
 option(MATERIALX_BUILD_OSOS "Build OSL .oso's of standard library shaders for the OSL Network generator" OFF)
-option(MATERIALX_BUILD_TRACING "Build with Perfetto tracing support for performance analysis." OFF)
+option(MATERIALX_BUILD_PERFETTO_TRACING "Build with Perfetto tracing support for performance analysis." OFF)
 
 option(MATERIALX_BUILD_SHARED_LIBS "Build MaterialX libraries as shared rather than static." OFF)
 option(MATERIALX_BUILD_DATA_LIBRARY "Build generated products from the MaterialX data library." OFF)
@@ -229,10 +229,10 @@ mark_as_advanced(MATERIALX_MDL_BINARY_TESTRENDER)
 mark_as_advanced(MATERIALX_MDL_MODULE_PATHS)
 mark_as_advanced(MATERIALX_MDL_SDK_DIR)
 mark_as_advanced(MATERIALX_SLANG_RHI_SOURCE_DIR)
-mark_as_advanced(MATERIALX_BUILD_TRACING)
+mark_as_advanced(MATERIALX_BUILD_PERFETTO_TRACING)
 
 # Perfetto tracing support
-if(MATERIALX_BUILD_TRACING)
+if(MATERIALX_BUILD_PERFETTO_TRACING)
     include(FetchContent)
     FetchContent_Declare(
         perfetto
@@ -243,7 +243,7 @@ if(MATERIALX_BUILD_TRACING)
     # Only fetch the SDK, not the full Perfetto source
     set(PERFETTO_SDK_INCLUDE_DIR "${CMAKE_BINARY_DIR}/_deps/perfetto-src/sdk")
     FetchContent_MakeAvailable(perfetto)
-    add_definitions(-DMATERIALX_BUILD_TRACING)
+    add_definitions(-DMATERIALX_BUILD_PERFETTO_TRACING)
     
     # Define compile flags for perfetto.cc (Perfetto SDK triggers various warnings)
     # These variables are used in source/CMakeLists.txt (monolithic) and MaterialXTrace (non-monolithic)
@@ -527,7 +527,7 @@ endif()
 # Add core subdirectories
 add_subdirectory(source/MaterialXCore)
 add_subdirectory(source/MaterialXFormat)
-if(MATERIALX_BUILD_TRACING)
+if(MATERIALX_BUILD_PERFETTO_TRACING)
     add_subdirectory(source/MaterialXTrace)
 endif()
 
