@@ -364,7 +364,7 @@ jobs:
 
     - name: Upload Perfetto Traces
       uses: actions/upload-artifact@v4
-      if: env.IS_EXTENDED_BUILD == 'true'
+      if: matrix.extended_build_perfetto == 'ON' && env.IS_EXTENDED_BUILD == 'true'
       with:
         name: Traces_${{ matrix.name }}
         path: build/**/*.perfetto-trace
