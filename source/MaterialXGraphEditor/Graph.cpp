@@ -129,6 +129,7 @@ Graph::Graph(const std::string& materialFilename,
     _searchPath(searchPath),
     _libraryFolders(libraryFolders),
     _needsLayout(false),
+    _layoutPending(false),
     _needsNavigation(false),
     _delete(false),
     _fileDialogSave(FileDialog::EnterNewFilename),
@@ -437,243 +438,39 @@ int Graph::findLinkPosition(int id)
     return -1;
 }
 
-bool Graph::checkPosition(UiNodePtr node)
+void Graph::applyLayout(const std::vector<int>& outputNodeIndices)
 {
-    mx::ElementPtr elem = node->getElement();
-    return elem && !elem->getAttribute(mx::Element::XPOS_ATTRIBUTE).empty();
-}
-
-// Calculate the total vertical space the node level takes up
-float Graph::totalHeight(int level)
-{
-    float total = 0.f;
-    for (UiNodePtr node : _state.levelMap[level])
+    // If not auto-layouting and the first output node has saved positions, restore them.
+    if (!_autoLayout && !outputNodeIndices.empty())
     {
-        total += ed::GetNodeSize(node->getId()).y;
+        UiNodePtr firstOutput = _state.nodes[outputNodeIndices[0]];
+        mx::ElementPtr elem = firstOutput->getElement();
+        if (elem && !elem->getAttribute(mx::Element::XPOS_ATTRIBUTE).empty())
+        {
+            restorePositions();
+            return;
+        }
     }
-    return total;
-}
 
-// Set the y-position of node based on the starting position and the nodes above it
-void Graph::setYSpacing(int level, float startingPos)
-{
-    // set the y spacing for each node
-    float currPos = startingPos;
-    for (UiNodePtr node : _state.levelMap[level])
+    // Build output node ID list from output node indices.
+    std::vector<int> outputNodeIds;
+    for (int idx : outputNodeIndices)
     {
-        ImVec2 oldPos = ed::GetNodePosition(node->getId());
-        ed::SetNodePosition(node->getId(), ImVec2(oldPos.x, currPos));
-        currPos += ed::GetNodeSize(node->getId()).y + 40;
+        outputNodeIds.push_back(_state.nodes[idx]->getId());
     }
-}
 
-// Calculate the average y-position for a specific node level
-float Graph::findAvgY(const std::vector<UiNodePtr>& nodes)
-{
-    // find the mid point of node level grou[
-    float total = 0.f;
-    int count = 0;
-    for (UiNodePtr node : nodes)
+    // Compute layout directly from UI types.
+    auto results = _layout.compute(_state.nodes, _state.edges, outputNodeIds, _fontScale);
+
+    // Apply results to nodes.
+    for (const UiNodePtr& node : _state.nodes)
     {
-        ImVec2 pos = ed::GetNodePosition(node->getId());
-        ImVec2 size = ed::GetNodeSize(node->getId());
-
-        total += ((size.y + pos.y) + pos.y) / 2;
-        count++;
-    }
-    return count ? (total / count) : 0.0f;
-}
-
-void Graph::findYSpacing(float startY)
-{
-    // Assume level 0 is set
-    // For each level find the average y position of the previous level to use as a spacing guide
-    int i = 0;
-    for (std::pair<int, std::vector<UiNodePtr>> levelChunk : _state.levelMap)
-    {
-        if (_state.levelMap[i].size() > 0)
+        auto it = results.find(node->getId());
+        if (it != results.end())
         {
-            if (_state.levelMap[i][0]->getLevel() > 0)
-            {
-                int prevLevel = _state.levelMap[i].front()->getLevel() - 1;
-                float avgY = findAvgY(_state.levelMap[prevLevel]);
-                float height = totalHeight(_state.levelMap[i].front()->getLevel());
-                // calculate the starting position to be above the previous level's center so that it is evenly spaced on either side of the center
-                float startingPos = avgY - ((height + (_state.levelMap[i].size() * 20)) / 2) + startY;
-                setYSpacing(_state.levelMap[i].front()->getLevel(), startingPos);
-            }
-            else
-            {
-                setYSpacing(_state.levelMap[i].front()->getLevel(), startY);
-            }
-        }
-        ++i;
-    }
-}
-
-ImVec2 Graph::layoutPosition(UiNodePtr layoutNode, ImVec2 startingPos, bool initialLayout, int level)
-{
-    if (checkPosition(layoutNode) && !_autoLayout)
-    {
-        for (UiNodePtr node : _state.nodes)
-        {
-            // Since nodegraph nodes do not have MaterialX info they are placed based on their connected node
-            if (node->getNodeGraph() != nullptr)
-            {
-                std::vector<UiNodePtr> outputCon = node->getOutputConnections();
-                if (outputCon.size() > 0)
-                {
-                    ImVec2 outputPos = ed::GetNodePosition(outputCon[0]->getId());
-                    ed::SetNodePosition(node->getId(), ImVec2(outputPos.x - 400, outputPos.y));
-                    node->setPos(ImVec2(outputPos.x - 400, outputPos.y));
-                }
-            }
-            else
-            {
-                // Don't set position of group nodes
-                if (node->getMessage().empty())
-                {
-                    mx::ElementPtr elem = node->getElement();
-                    if (elem && elem->hasAttribute(mx::Element::XPOS_ATTRIBUTE))
-                    {
-                        float x = std::stof(elem->getAttribute(mx::Element::XPOS_ATTRIBUTE));
-                        if (elem->hasAttribute(mx::Element::YPOS_ATTRIBUTE))
-                        {
-                            float y = std::stof(elem->getAttribute(mx::Element::YPOS_ATTRIBUTE));
-                            x *= DEFAULT_NODE_SIZE.x;
-                            y *= DEFAULT_NODE_SIZE.y;
-                            ed::SetNodePosition(node->getId(), ImVec2(x, y));
-                            node->setPos(ImVec2(x, y));
-                        }
-                    }
-                }
-            }
-        }
-        return ImVec2(0.f, 0.f);
-    }
-    else
-    {
-        ImVec2 currPos = startingPos;
-        ImVec2 newPos = currPos;
-        if (layoutNode->getLevel() != -1)
-        {
-            if (layoutNode->getLevel() < level)
-            {
-                // Remove the old instance of the node from the map
-                int levelNum = 0;
-                int removeNum = -1;
-                for (UiNodePtr levelNode : _state.levelMap[layoutNode->getLevel()])
-                {
-                    if (levelNode->getName() == layoutNode->getName())
-                    {
-                        removeNum = levelNum;
-                    }
-                    levelNum++;
-                }
-                if (removeNum > -1)
-                {
-                    _state.levelMap[layoutNode->getLevel()].erase(_state.levelMap[layoutNode->getLevel()].begin() + removeNum);
-                }
-
-                layoutNode->setLevel(level);
-            }
-        }
-        else
-        {
-            layoutNode->setLevel(level);
-        }
-
-        auto it = _state.levelMap.find(layoutNode->getLevel());
-        if (it != _state.levelMap.end())
-        {
-            // Key already exists so add to it
-            bool nodeFound = false;
-            for (UiNodePtr node : it->second)
-            {
-                if (node && node->getName() == layoutNode->getName())
-                {
-                    nodeFound = true;
-                    break;
-                }
-            }
-            if (!nodeFound)
-            {
-                _state.levelMap[layoutNode->getLevel()].push_back(layoutNode);
-            }
-        }
-        else
-        {
-            // Insert new vector into key
-            std::vector<UiNodePtr> newValue = { layoutNode };
-            _state.levelMap.emplace(layoutNode->getLevel(), newValue);
-        }
-        std::vector<UiPinPtr> pins = layoutNode->getInputPins();
-        if (initialLayout)
-        {
-            // Check number of inputs that are connected to node
-            if (layoutNode->getInputConnect() > 0)
-            {
-                // Not top of node graph so stop recursion
-                if (pins.size() != 0 && layoutNode->getInput() == nullptr)
-                {
-                    for (size_t i = 0; i < pins.size(); i++)
-                    {
-                        // Get upstream node for all inputs
-                        newPos = startingPos;
-                        UiNodePtr nextNode = layoutNode->getConnectedNode(pins[i]->getName());
-                        if (nextNode)
-                        {
-                            startingPos.x = (1200.f - ((layoutNode->getLevel()) * 250)) * _fontScale;
-                            ed::SetNodePosition(layoutNode->getId(), startingPos);
-                            layoutNode->setPos(ImVec2(startingPos));
-
-                            // Call layout position on upstream node with newPos to the left of current node
-                            layoutPosition(nextNode, ImVec2(newPos.x, startingPos.y), initialLayout, layoutNode->getLevel() + 1);
-                        }
-                    }
-                }
-            }
-            else
-            {
-                startingPos.x = (1200.f - ((layoutNode->getLevel()) * 250)) * _fontScale;
-                layoutNode->setPos(ImVec2(startingPos));
-
-                // Set current node position
-                ed::SetNodePosition(layoutNode->getId(), ImVec2(startingPos));
-            }
-        }
-        return ImVec2(0.f, 0.f);
-    }
-}
-
-void Graph::layoutInputs()
-{
-    // Layout inputs after other nodes so that they can be all in a line on far left side of node graph
-    if (_state.levelMap.begin() != _state.levelMap.end())
-    {
-        int levelCount = -1;
-        for (std::pair<int, std::vector<UiNodePtr>> nodes : _state.levelMap)
-        {
-            ++levelCount;
-        }
-        ImVec2 startingPos = ed::GetNodePosition(_state.levelMap[levelCount].back()->getId());
-        startingPos.y += ed::GetNodeSize(_state.levelMap[levelCount].back()->getId()).y + 20;
-
-        for (UiNodePtr uiNode : _state.nodes)
-        {
-            if (uiNode->getOutputConnections().size() == 0 && (uiNode->getInput() != nullptr))
-            {
-                ed::SetNodePosition(uiNode->getId(), ImVec2(startingPos));
-                startingPos.y += ed::GetNodeSize(uiNode->getId()).y;
-                startingPos.y += 23;
-            }
-            else if (uiNode->getOutputConnections().size() == 0 && (uiNode->getNode() != nullptr))
-            {
-                if (uiNode->getNode()->getCategory() != mx::SURFACE_MATERIAL_NODE_STRING)
-                {
-                    layoutPosition(uiNode, ImVec2(1200, 750), _needsLayout, 0);
-                }
-            }
+            ImVec2 pos(it->second.x, it->second.y);
+            ed::SetNodePosition(node->getId(), pos);
+            node->setPos(pos);
         }
     }
 }
@@ -3120,6 +2917,7 @@ void Graph::graphButtons()
             if (ImGui::MenuItem("Auto Layout"))
             {
                 _autoLayout = true;
+                _needsNavigation = true;
             }
             ImGui::EndMenu();
         }
@@ -4329,35 +4127,32 @@ void Graph::drawGraph(ImVec2 mousePos)
             }
         }
 
-        // Layout and link graph when needed
-        if (_needsLayout || _autoLayout)
+        // Layout and link graph when needed.
+        // When _needsLayout is set, new nodes exist whose rendered sizes are
+        // unknown. We use a two-frame approach:
+        //   Frame 1 (sizing): position nodes off-screen so the editor can
+        //                     compute their rendered sizes.
+        //   Frame 2 (layout): run the actual layout with accurate sizes.
+        if (_needsLayout && !_layoutPending)
         {
-            _state.links.clear();
-            _state.levelMap.clear();
-            float y = 0.f;
-
-            // Start layout with output or material nodes since layout algorithm works right to left
-            for (int outN : outputNum)
+            // Sizing frame: place nodes off-screen and link the graph so the
+            // editor measures their rendered dimensions.
+            for (const UiNodePtr& node : _state.nodes)
             {
-                layoutPosition(_state.nodes[outN], ImVec2(1200.f, y), true, 0);
-                y += 350;
-            }
-
-            // If there are no output or material nodes but the nodes have position layout each individual node
-            if (_state.nodes.size() > 0)
-            {
-
-                if (outputNum.size() == 0 && _state.nodes[0]->getElement())
-                {
-                    for (UiNodePtr node : _state.nodes)
-                    {
-                        layoutPosition(node, ImVec2(0, 0), true, 0);
-                    }
-                }
+                ed::SetNodePosition(node->getId(), ImVec2(-10000.0f, -10000.0f));
             }
             linkGraph();
-            findYSpacing(0.f);
-            layoutInputs();
+            _layoutPending = true;
+            _needsLayout = false;
+        }
+        else if (_layoutPending || _autoLayout)
+        {
+            // Layout frame: node sizes are now available from ed::GetNodeSize().
+            _state.links.clear();
+            applyLayout(outputNum);
+            linkGraph();
+            _layoutPending = false;
+            _autoLayout = false;
         }
         if (_delete)
         {
@@ -4367,12 +4162,8 @@ void Graph::drawGraph(ImVec2 mousePos)
         }
         connectLinks();
 
-        // Reset layout flags after processing
-        _needsLayout = false;
-        _autoLayout = false;
-
-        // Navigate to content when requested
-        if (_needsNavigation)
+        // Navigate to content when requested (deferred until after layout).
+        if (_needsNavigation && !_layoutPending)
         {
             ed::NavigateToContent();
             _needsNavigation = false;
