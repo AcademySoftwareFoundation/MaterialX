@@ -70,9 +70,8 @@ float mx_imageworks_sheen_dir_albedo_monte_carlo(float NdotV, float roughness)
         float reflectance = mx_imageworks_sheen_brdf(NdotL, NdotV, NdotH, roughness);
 
         // Add the radiance contribution of this sample.
-        //   uniform_pdf = 1 / (2 * PI)
         //   radiance = reflectance * NdotL / uniform_pdf;
-        radiance += reflectance * NdotL * 2.0 * M_PI;
+        radiance += reflectance * NdotL / mx_uniform_hemisphere_PDF();
     }
 
     // Return the final directional albedo.
@@ -153,7 +152,7 @@ float mx_zeltner_sheen_brdf(vec3 L, vec3 V, vec3 N, float NdotV, float roughness
     //      = Do(wo) . |M^-1| / dot(wo, wo)^2
     //      = Do(wo) . aInv^2 / dot(wo, wo)^2
     //      = Do(wo) . (aInv / dot(wo, wo))^2
-    return max(wo.z, 0.0) * M_PI_INV * mx_square(aInv / lenSqr);
+    return mx_cosine_hemisphere_PDF(wo.z) * mx_square(aInv / lenSqr);
 }
 
 vec3 mx_zeltner_sheen_importance_sample(vec2 Xi, vec3 V, vec3 N, float roughness, out float pdf)
@@ -180,7 +179,7 @@ vec3 mx_zeltner_sheen_importance_sample(vec2 Xi, vec3 V, vec3 N, float roughness
     //      = Do(w) . ||M.wo||^4 / |M| (possible because M doesn't change z component)
     //      = Do(w) . dot(w, w)^2 * aInv^2
     //      = Do(w) . (aInv * dot(w, w))^2
-    pdf = max(w.z, 0.0) * M_PI_INV * mx_square(aInv * lenSqr);
+    pdf = mx_cosine_hemisphere_PDF(w.z) * mx_square(aInv * lenSqr);
 
     mat3 fromLTC = mx_orthonormal_basis_ltc(V, N, NdotV);
     w = mx_matrix_mul(fromLTC, w);

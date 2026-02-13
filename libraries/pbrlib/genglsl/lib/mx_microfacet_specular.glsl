@@ -204,6 +204,14 @@ vec3 mx_f0_to_ior(vec3 F0)
     return (vec3(1.0) + sqrtF0) / (vec3(1.0) - sqrtF0);
 }
 
+// PDF of the VNDF-based GGX importance sampling strategy.
+float mx_ggx_VNDF_PDF(vec3 H, vec2 alpha, float NdotV)
+{
+    float avgAlpha = mx_average_alpha(alpha);
+    float G1V = mx_ggx_smith_G1(NdotV, avgAlpha);
+    return mx_ggx_NDF(H, alpha) * G1V / (4.0 * NdotV);
+}
+
 // https://renderwonk.com/publications/wp-generalization-adobe/gen-adobe.pdf
 vec3 mx_fresnel_hoffman_schlick(float cosTheta, FresnelData fd)
 {
