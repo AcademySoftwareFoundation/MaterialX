@@ -19,14 +19,14 @@
 
 #include <MaterialXFormat/Util.h>
 
-#ifdef MATERIALX_BUILD_TRACING
+#ifdef MATERIALX_BUILD_PERFETTO_TRACING
 #include <MaterialXRenderGlsl/External/Glad/glad.h>
 #include <chrono>
 #endif
 
 namespace mx = MaterialX;
 
-#ifdef MATERIALX_BUILD_TRACING
+#ifdef MATERIALX_BUILD_PERFETTO_TRACING
 // GPU timing utilities
 namespace {
 
@@ -74,7 +74,7 @@ class GpuTimerQuery
 };
 
 } // anonymous namespace
-#endif // MATERIALX_BUILD_TRACING
+#endif // MATERIALX_BUILD_PERFETTO_TRACING
 
 //
 // Render validation tester for the GLSL shading language
@@ -418,7 +418,7 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                     // Frame 0 often includes driver shader compilation; analyze in Python to discard warmup
                     for (unsigned int frameIdx = 0; frameIdx < testOptions.framesPerMaterial; ++frameIdx)
                     {
-#ifdef MATERIALX_BUILD_TRACING
+#ifdef MATERIALX_BUILD_PERFETTO_TRACING
                         // GPU timing with timer queries
                         uint64_t cpuStartNs = getCurrentTimeNs();
                         GpuTimerQuery gpuTimer;
@@ -426,7 +426,7 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
 #endif
                         _renderer->render();
 
-#ifdef MATERIALX_BUILD_TRACING
+#ifdef MATERIALX_BUILD_PERFETTO_TRACING
                         gpuTimer.end();
                         
                         // glFinish ensures GPU is done, making CPU trace scope accurate
