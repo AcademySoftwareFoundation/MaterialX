@@ -83,7 +83,7 @@
          When enabled, generates .perfetto-trace files in outputDirectory.
          Default is false to avoid overhead when not profiling.
     -->
-    <input name="enableTracing" type="boolean" value="false" />
+    <input name="enableTracing" type="boolean" value="true" />
 
     <!-- Number of frames to render per material for GPU timing.
          Default is 1. Set higher (e.g., 5-10) for statistical validity.
