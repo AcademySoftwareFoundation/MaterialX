@@ -17,6 +17,8 @@
 #include <MaterialXCore/Node.h>
 #include <MaterialXCore/Value.h>
 
+#include <MaterialXTrace/Tracing.h>
+
 #include <sstream>
 
 MATERIALX_NAMESPACE_BEGIN
@@ -106,6 +108,9 @@ void ShaderGenerator::emitFunctionDefinitionParameter(const ShaderPort* shaderPo
 
 void ShaderGenerator::emitFunctionDefinitions(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
 {
+    MX_TRACE_FUNCTION(Tracing::Category::ShaderGen);
+    MX_TRACE_SCOPE(Tracing::Category::ShaderGen, graph.getName().c_str());
+
     // Emit function definitions for all nodes in the graph.
     for (ShaderNode* node : graph.getNodes())
     {
@@ -130,6 +135,9 @@ void ShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& conte
 
 void ShaderGenerator::emitFunctionCalls(const ShaderGraph& graph, GenContext& context, ShaderStage& stage, uint32_t classification) const
 {
+    MX_TRACE_FUNCTION(Tracing::Category::ShaderGen);
+    MX_TRACE_SCOPE(Tracing::Category::ShaderGen, graph.getName().c_str());
+
     for (ShaderNode* node : graph.getNodes())
     {
         if (!classification || node->hasClassification(classification))
@@ -297,6 +305,9 @@ ShaderNodeImplPtr ShaderGenerator::createShaderNodeImplForImplementation(const I
 
 ShaderNodeImplPtr ShaderGenerator::getImplementation(const NodeDef& nodedef, GenContext& context) const
 {
+    MX_TRACE_FUNCTION(Tracing::Category::ShaderGen);
+    MX_TRACE_SCOPE(Tracing::Category::ShaderGen, nodedef.getName().c_str());
+
     InterfaceElementPtr implElement = nodedef.getImplementation(getTarget());
     if (!implElement)
     {

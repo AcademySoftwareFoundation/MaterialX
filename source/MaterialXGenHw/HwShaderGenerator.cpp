@@ -15,6 +15,8 @@
 #include <MaterialXCore/Definition.h>
 #include <MaterialXCore/Document.h>
 
+#include <MaterialXTrace/Tracing.h>
+
 MATERIALX_NAMESPACE_BEGIN
 
 //
@@ -90,6 +92,9 @@ HwShaderGenerator::HwShaderGenerator(TypeSystemPtr typeSystem, SyntaxPtr syntax)
 
 ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element, GenContext& context) const
 {
+    MX_TRACE_FUNCTION(Tracing::Category::ShaderGen);
+    MX_TRACE_SCOPE(Tracing::Category::ShaderGen, name.c_str());
+
     // Create the root shader graph
     ShaderGraphPtr graph = ShaderGraph::create(nullptr, name, element, context);
     ShaderPtr shader = std::make_shared<Shader>(name, graph);
