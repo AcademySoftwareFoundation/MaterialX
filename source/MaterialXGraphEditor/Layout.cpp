@@ -33,7 +33,7 @@ void Layout::clear()
 {
     _nodes.clear();
     _layers.clear();
-    _nextDummyId = -1;
+    _nextVirtualId = -1;
 }
 
 void Layout::buildGraph(const std::vector<UiNodePtr>& nodes, const std::vector<UiEdge>& edges)
@@ -64,15 +64,51 @@ void Layout::buildGraph(const std::vector<UiNodePtr>& nodes, const std::vector<U
         {
             continue;
         }
-        int sourceId = edge.getUp()->getId();
-        int targetId = edge.getDown()->getId();
-        if (_nodes.find(sourceId) == _nodes.end() || _nodes.find(targetId) == _nodes.end())
+        int srcId = edge.getUp()->getId();
+        int dstId = edge.getDown()->getId();
+        if (_nodes.find(srcId) == _nodes.end() || _nodes.find(dstId) == _nodes.end())
         {
             continue;
         }
-        _nodes[sourceId].downstream.push_back(targetId);
-        _nodes[targetId].upstream.push_back(sourceId);
+        _nodes[srcId].downstream.push_back(dstId);
+        _nodes[dstId].upstream.push_back(srcId);
     }
+}
+
+LayoutResults Layout::compute(const std::vector<UiNodePtr>& nodes,
+                              const std::vector<UiEdge>& edges,
+                              const std::vector<int>& outputNodeIds,
+                              float fontScale)
+{
+    clear();
+    buildGraph(nodes, edges);
+
+    if (_nodes.empty())
+    {
+        return {};
+    }
+
+    assignLayers(outputNodeIds);
+    if (options.insertVirtualNodes)
+    {
+        insertVirtualNodes();
+    }
+    if (options.minimizeCrossings)
+    {
+        minimizeCrossings();
+    }
+    assignCoordinates(fontScale);
+
+    // Collect results for non-virtual nodes only.
+    LayoutResults results;
+    for (const auto& pair : _nodes)
+    {
+        if (!pair.second.isVirtual)
+        {
+            results[pair.first] = mx::Vector2(pair.second.x, pair.second.y);
+        }
+    }
+    return results;
 }
 
 // Phase 1: Assign layers using reverse topological order from output nodes.
@@ -82,7 +118,7 @@ void Layout::assignLayers(const std::vector<int>& outputNodeIds)
 {
     // Collect all output nodes: explicitly provided ones plus any with no downstream edges.
     std::unordered_set<int> outputSet(outputNodeIds.begin(), outputNodeIds.end());
-    for (auto& pair : _nodes)
+    for (const auto& pair : _nodes)
     {
         if (pair.second.downstream.empty())
         {
@@ -129,7 +165,7 @@ void Layout::assignLayers(const std::vector<int>& outputNodeIds)
 
     // Build _layers vector.
     int maxLayer = 0;
-    for (auto& pair : _nodes)
+    for (const auto& pair : _nodes)
     {
         if (pair.second.layer > maxLayer)
         {
@@ -138,21 +174,20 @@ void Layout::assignLayers(const std::vector<int>& outputNodeIds)
     }
 
     _layers.resize(maxLayer + 1);
-    for (auto& pair : _nodes)
+    for (const auto& pair : _nodes)
     {
         _layers[pair.second.layer].push_back(pair.first);
     }
 }
 
-// Phase 2: Insert dummy nodes for edges that span more than one layer.
-void Layout::insertDummyNodes()
+// Phase 2: Insert virtual nodes for edges that span more than one layer.
+void Layout::insertVirtualNodes()
 {
-    // Collect edges to process (avoid modifying containers while iterating).
+    // Collect long edges to process.
     std::vector<std::pair<int, int>> longEdges;
-
-    for (auto& pair : _nodes)
+    for (const auto& pair : _nodes)
     {
-        Node& src = pair.second;
+        const Node& src = pair.second;
         for (int downId : src.downstream)
         {
             int span = src.layer - _nodes[downId].layer;
@@ -163,40 +198,41 @@ void Layout::insertDummyNodes()
         }
     }
 
-    for (const auto& le : longEdges)
+    // Iterate over long edges.
+    for (const auto& edge : longEdges)
     {
-        int srcId = le.first;
-        int tgtId = le.second;
+        int srcId = edge.first;
+        int dstId = edge.second;
         int srcLayer = _nodes[srcId].layer;
-        int tgtLayer = _nodes[tgtId].layer;
+        int dstLayer = _nodes[dstId].layer;
 
-        // Remove the direct edge between source and target.
+        // Remove the direct edge between source and destination.
         auto& srcDown = _nodes[srcId].downstream;
-        srcDown.erase(std::remove(srcDown.begin(), srcDown.end(), tgtId), srcDown.end());
-        auto& tgtUp = _nodes[tgtId].upstream;
-        tgtUp.erase(std::remove(tgtUp.begin(), tgtUp.end(), srcId), tgtUp.end());
+        srcDown.erase(std::remove(srcDown.begin(), srcDown.end(), dstId), srcDown.end());
+        auto& dstUp = _nodes[dstId].upstream;
+        dstUp.erase(std::remove(dstUp.begin(), dstUp.end(), srcId), dstUp.end());
 
-        // Create chain of dummy nodes.
+        // Create chain of virtual nodes.
         int prevId = srcId;
-        for (int layer = srcLayer - 1; layer > tgtLayer; --layer)
+        for (int layer = srcLayer - 1; layer > dstLayer; --layer)
         {
-            Node dummy;
-            dummy.id = _nextDummyId--;
-            dummy.layer = layer;
-            dummy.isDummy = true;
-            _nodes[dummy.id] = dummy;
+            Node virtualNode;
+            virtualNode.id = _nextVirtualId--;
+            virtualNode.layer = layer;
+            virtualNode.isVirtual = true;
+            _nodes[virtualNode.id] = virtualNode;
 
-            // Link previous node to this dummy.
-            _nodes[prevId].downstream.push_back(dummy.id);
-            _nodes[dummy.id].upstream.push_back(prevId);
+            // Link previous node to this virtual node.
+            _nodes[prevId].downstream.push_back(virtualNode.id);
+            _nodes[virtualNode.id].upstream.push_back(prevId);
 
-            _layers[layer].push_back(dummy.id);
-            prevId = dummy.id;
+            _layers[layer].push_back(virtualNode.id);
+            prevId = virtualNode.id;
         }
 
-        // Link the last dummy (or source if span==2) to the target.
-        _nodes[prevId].downstream.push_back(tgtId);
-        _nodes[tgtId].upstream.push_back(prevId);
+        // Link the last virtual node (or source if span==2) to the destination.
+        _nodes[prevId].downstream.push_back(dstId);
+        _nodes[dstId].upstream.push_back(prevId);
     }
 }
 
@@ -479,52 +515,21 @@ void Layout::assignCoordinates(float fontScale)
     }
 
     // Y refinement passes: shift nodes toward the median Y of their neighbors.
-    for (int pass = 0; pass < 2; ++pass)
+    if (options.refinePositions)
     {
-        // Forward pass: align toward downstream neighbors.
-        for (size_t i = 1; i < _layers.size(); ++i)
+        for (int pass = 0; pass < 2; ++pass)
         {
-            refineLayerY(static_cast<int>(i), true);
-        }
+            // Forward pass: align toward downstream neighbors.
+            for (size_t i = 1; i < _layers.size(); ++i)
+            {
+                refineLayerY(static_cast<int>(i), true);
+            }
 
-        // Backward pass: align toward upstream neighbors.
-        for (int i = static_cast<int>(_layers.size()) - 2; i >= 0; --i)
-        {
-            refineLayerY(i, false);
-        }
-    }
-}
-
-std::unordered_map<int, Layout::Result> Layout::compute(
-    const std::vector<UiNodePtr>& nodes,
-    const std::vector<UiEdge>& edges,
-    const std::vector<int>& outputNodeIds,
-    float fontScale)
-{
-    clear();
-    buildGraph(nodes, edges);
-
-    if (_nodes.empty())
-    {
-        return {};
-    }
-
-    assignLayers(outputNodeIds);
-    insertDummyNodes();
-    minimizeCrossings();
-    assignCoordinates(fontScale);
-
-    // Collect results for non-dummy nodes only.
-    std::unordered_map<int, Result> results;
-    for (const auto& pair : _nodes)
-    {
-        if (!pair.second.isDummy)
-        {
-            Result r;
-            r.x = pair.second.x;
-            r.y = pair.second.y;
-            results[pair.first] = r;
+            // Backward pass: align toward upstream neighbors.
+            for (int i = static_cast<int>(_layers.size()) - 2; i >= 0; --i)
+            {
+                refineLayerY(i, false);
+            }
         }
     }
-    return results;
 }

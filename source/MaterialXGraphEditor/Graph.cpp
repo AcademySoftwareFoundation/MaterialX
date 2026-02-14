@@ -460,7 +460,7 @@ void Graph::applyLayout(const std::vector<int>& outputNodeIndices)
     }
 
     // Compute layout directly from UI types.
-    auto results = _layout.compute(_state.nodes, _state.edges, outputNodeIds, _fontScale);
+    LayoutResults results = _layout.compute(_state.nodes, _state.edges, outputNodeIds, _fontScale);
 
     // Apply results to nodes.
     for (const UiNodePtr& node : _state.nodes)
@@ -468,7 +468,7 @@ void Graph::applyLayout(const std::vector<int>& outputNodeIndices)
         auto it = results.find(node->getId());
         if (it != results.end())
         {
-            ImVec2 pos(it->second.x, it->second.y);
+            ImVec2 pos(it->second[0], it->second[1]);
             ed::SetNodePosition(node->getId(), pos);
             node->setPos(pos);
         }
@@ -2915,6 +2915,23 @@ void Graph::graphButtons()
         if (ImGui::BeginMenu("Graph"))
         {
             if (ImGui::MenuItem("Auto Layout"))
+            {
+                _autoLayout = true;
+                _needsNavigation = true;
+            }
+            ImGui::Separator();
+            Layout::Options& opts = _layout.options;
+            if (ImGui::Checkbox("Insert Virtual Nodes", &opts.insertVirtualNodes))
+            {
+                _autoLayout = true;
+                _needsNavigation = true;
+            }
+            if (ImGui::Checkbox("Minimize Crossings", &opts.minimizeCrossings))
+            {
+                _autoLayout = true;
+                _needsNavigation = true;
+            }
+            if (ImGui::Checkbox("Refine Positions", &opts.refinePositions))
             {
                 _autoLayout = true;
                 _needsNavigation = true;
