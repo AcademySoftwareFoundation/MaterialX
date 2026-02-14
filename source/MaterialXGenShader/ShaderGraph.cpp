@@ -10,7 +10,7 @@
 #include <MaterialXGenShader/Util.h>
 
 #include <iostream>
-#include <queue>
+#include <set>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -927,10 +927,15 @@ void ShaderGraph::finalize(GenContext& context)
                     // publish the input as an editable uniform.
                     if (!input->getType().isClosure() && node->isEditable(*input))
                     {
-                        // Use a consistent naming convention: <nodename>_<inputname>
-                        // so application side can figure out what uniforms to set
-                        // when node inputs change on application side.
-                        const string interfaceName = node->getName() + "_" + input->getName();
+                        // For surface shader nodes, use just the input name
+                        // so uniforms are consistent across different material instances.
+                        // For all other nodes, use the full (node-prefixed) name
+                        // to avoid collisions between nodes with same-named inputs.
+                        const bool isShaderNode = node->hasClassification(ShaderNode::Classification::SHADER) ||
+                                                  node->hasClassification(ShaderNode::Classification::CLOSURE);
+                        const string interfaceName = isShaderNode
+                            ? input->getName()
+                            : input->getFullName();
 
                         ShaderGraphInputSocket* inputSocket = getInputSocket(interfaceName);
                         if (!inputSocket)
@@ -1123,9 +1128,19 @@ void ShaderGraph::topologicalSort()
     //
     // Running time: O(numNodes + numEdges).
 
+    // Use a sorted set for deterministic ordering of nodes at the same
+    // topological level. This ensures that materials with the same set of
+    // functions always emit them in the same order, regardless of which
+    // inputs happen to be connected.
+    auto compareNodes = [](const ShaderNode* a, const ShaderNode* b) {
+        if (a->getName() != b->getName())
+            return a->getName() < b->getName();
+        return a->getUniqueId() < b->getUniqueId();
+    };
+
     // Calculate in-degrees for all nodes, and enqueue those with degree 0.
     std::unordered_map<ShaderNode*, int> inDegree(_nodeMap.size());
-    std::deque<ShaderNode*> nodeQueue;
+    std::set<ShaderNode*, decltype(compareNodes)> nodeQueue(compareNodes);
     for (ShaderNode* node : _nodeOrder)
     {
         int connectionCount = 0;
@@ -1141,7 +1156,7 @@ void ShaderGraph::topologicalSort()
 
         if (connectionCount == 0)
         {
-            nodeQueue.push_back(node);
+            nodeQueue.insert(node);
         }
     }
 
@@ -1150,9 +1165,10 @@ void ShaderGraph::topologicalSort()
 
     while (!nodeQueue.empty())
     {
-        // Pop the queue and add to topological order.
-        ShaderNode* node = nodeQueue.front();
-        nodeQueue.pop_front();
+        // Pop the smallest node and add to topological order.
+        auto it = nodeQueue.begin();
+        ShaderNode* node = *it;
+        nodeQueue.erase(it);
         _nodeOrder[count++] = node;
 
         // Find connected nodes and decrease their in-degree,
@@ -1166,7 +1182,7 @@ void ShaderGraph::topologicalSort()
                 {
                     if (--inDegree[downstreamNode] <= 0)
                     {
-                        nodeQueue.push_back(downstreamNode);
+                        nodeQueue.insert(downstreamNode);
                     }
                 }
             }
@@ -1201,7 +1217,21 @@ void ShaderGraph::setVariableNames(GenContext& context)
         }
         for (ShaderOutput* output : node->getOutputs())
         {
-            string variable = output->getFullName();
+            string variable;
+            // Use generic names for material and surfaceshader outputs to ensure consistency
+            // The identifier map will handle uniqueness if there are multiple nodes of the same type
+            if (output->getType() == Type::MATERIAL)
+            {
+                variable = "material_out";
+            }
+            else if (output->getType() == Type::SURFACESHADER)
+            {
+                variable = "surfaceshader_out";
+            }
+            else
+            {
+                variable = output->getFullName();
+            }
             variable = syntax.getVariableName(variable, output->getType(), _identifiers);
             output->setVariable(variable);
         }
