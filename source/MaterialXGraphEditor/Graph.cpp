@@ -1480,7 +1480,6 @@ bool Graph::createEdge(UiNodePtr upNode, UiNodePtr downNode, mx::InputPtr connec
     }
 
     downNode->getEdges().push_back(newEdge);
-    downNode->setInputNodeNum(1);
     upNode->setOutputConnection(downNode);
     _state.edges.push_back(newEdge);
     return true;
@@ -1616,8 +1615,7 @@ void Graph::copyInputs()
                         copyNode->getOutput()->setConnectedNode(upNode->getNode());
                     }
 
-                    // Update input node num and output connections
-                    copyNode->setInputNodeNum(1);
+                    // Update output connections
                     upNode->setOutputConnection(copyNode);
                 }
                 else if (pin->getInput())
@@ -2517,10 +2515,7 @@ void Graph::removeEdge(int downNode, int upNode, UiPinPtr pin)
         return;
     }
 
-    if (_state.nodes[downNode]->eraseEdge(_state.nodes[upNode]->getId(), pin))
-    {
-        _state.nodes[downNode]->setInputNodeNum(-1);
-    }
+    _state.nodes[downNode]->eraseEdge(_state.nodes[upNode]->getId(), pin);
     _state.nodes[upNode]->removeOutputConnection(_state.nodes[downNode]->getName());
 
     // Remove from the global edge list to keep it in sync.
@@ -2710,9 +2705,6 @@ void Graph::deleteNode(UiNodePtr node)
             }
 
             pin->getUiNode()->eraseEdge(node->getId(), pin);
-            pin->getUiNode()->setInputNodeNum(-1);
-
-            // Not really necessary since it will be deleted
             node->removeOutputConnection(pin->getUiNode()->getName());
         }
     }
