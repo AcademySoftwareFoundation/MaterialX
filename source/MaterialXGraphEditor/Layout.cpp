@@ -33,6 +33,44 @@ const ImVec2 DEFAULT_NODE_SIZE = ImVec2(138, 116);
 // Layout methods
 //
 
+LayoutResults Layout::compute(const std::vector<UiNodePtr>& nodes,
+                              const std::vector<UiEdge>& edges,
+                              const std::vector<int>& outputNodeIds,
+                              float fontScale)
+{
+    _nodes.clear();
+    _layers.clear();
+    _nextVirtualId = -1;
+    buildGraph(nodes, edges);
+
+    if (_nodes.empty())
+    {
+        return {};
+    }
+
+    assignLayers(outputNodeIds);
+    if (options.insertVirtualNodes)
+    {
+        insertVirtualNodes();
+    }
+    if (options.minimizeCrossings)
+    {
+        minimizeCrossings();
+    }
+    assignCoordinates(fontScale);
+
+    // Collect results for non-virtual nodes only.
+    LayoutResults results;
+    for (const auto& pair : _nodes)
+    {
+        if (!pair.second.isVirtual)
+        {
+            results[pair.first] = mx::Vector2(pair.second.x, pair.second.y);
+        }
+    }
+    return results;
+}
+
 void Layout::buildGraph(const std::vector<UiNodePtr>& nodes, const std::vector<UiEdge>& edges)
 {
     for (const UiNodePtr& uiNode : nodes)
@@ -70,44 +108,6 @@ void Layout::buildGraph(const std::vector<UiNodePtr>& nodes, const std::vector<U
         _nodes[srcId].downstream.push_back(dstId);
         _nodes[dstId].upstream.push_back(srcId);
     }
-}
-
-LayoutResults Layout::compute(const std::vector<UiNodePtr>& nodes,
-                              const std::vector<UiEdge>& edges,
-                              const std::vector<int>& outputNodeIds,
-                              float fontScale)
-{
-    _nodes.clear();
-    _layers.clear();
-    _nextVirtualId = -1;
-    buildGraph(nodes, edges);
-
-    if (_nodes.empty())
-    {
-        return {};
-    }
-
-    assignLayers(outputNodeIds);
-    if (options.insertVirtualNodes)
-    {
-        insertVirtualNodes();
-    }
-    if (options.minimizeCrossings)
-    {
-        minimizeCrossings();
-    }
-    assignCoordinates(fontScale);
-
-    // Collect results for non-virtual nodes only.
-    LayoutResults results;
-    for (const auto& pair : _nodes)
-    {
-        if (!pair.second.isVirtual)
-        {
-            results[pair.first] = mx::Vector2(pair.second.x, pair.second.y);
-        }
-    }
-    return results;
 }
 
 void Layout::assignLayers(const std::vector<int>& outputNodeIds)
@@ -230,12 +230,55 @@ void Layout::insertVirtualNodes()
     }
 }
 
-int Layout::connectivityPriority(int nodeId) const
+void Layout::minimizeCrossings()
 {
-    const Node& n = _nodes.at(nodeId);
-    int dirs = (!n.upstream.empty() ? 1 : 0) + (!n.downstream.empty() ? 1 : 0);
-    int total = static_cast<int>(n.upstream.size() + n.downstream.size());
-    return dirs * 1000 + total;
+    initializeOrder();
+
+    // Save best ordering.
+    auto saveLayers = _layers;
+    auto countAllCrossings = [&]() -> int
+    {
+        int total = 0;
+        for (size_t i = 1; i < _layers.size(); ++i)
+        {
+            total += countCrossings(static_cast<int>(i));
+        }
+        return total;
+    };
+
+    int bestCrossings = countAllCrossings();
+
+    for (int pass = 0; pass < CROSSING_PASSES; ++pass)
+    {
+        // Forward sweep: layer 1 to max, using downstream barycenter.
+        for (size_t i = 1; i < _layers.size(); ++i)
+        {
+            sortByBarycenter(_layers[i], true);
+        }
+
+        // Backward sweep: max-1 to 0, using upstream barycenter.
+        for (int i = static_cast<int>(_layers.size()) - 2; i >= 0; --i)
+        {
+            sortByBarycenter(_layers[i], false);
+        }
+
+        int currentCrossings = countAllCrossings();
+        if (currentCrossings < bestCrossings)
+        {
+            bestCrossings = currentCrossings;
+            saveLayers = _layers;
+        }
+    }
+
+    // Restore best ordering.
+    _layers = saveLayers;
+    for (const auto& layer : _layers)
+    {
+        for (size_t i = 0; i < layer.size(); ++i)
+        {
+            _nodes[layer[i]].order = static_cast<int>(i);
+        }
+    }
 }
 
 void Layout::initializeOrder()
@@ -253,22 +296,19 @@ void Layout::initializeOrder()
     }
 }
 
-float Layout::barycenter(int nodeId, bool useDownstream) const
+void Layout::sortByBarycenter(std::vector<int>& layer, bool useDownstream)
 {
-    const Node& node = _nodes.at(nodeId);
-    const std::vector<int>& neighbors = useDownstream ? node.downstream : node.upstream;
-
-    if (neighbors.empty())
+    std::stable_sort(layer.begin(), layer.end(), [&](int a, int b)
     {
-        return static_cast<float>(node.order);
-    }
-
-    float sum = 0.0f;
-    for (int nId : neighbors)
+        float ba = barycenter(a, useDownstream);
+        float bb = barycenter(b, useDownstream);
+        if (ba != bb) return ba < bb;
+        return connectivityPriority(a) > connectivityPriority(b);
+    });
+    for (size_t i = 0; i < layer.size(); ++i)
     {
-        sum += static_cast<float>(_nodes.at(nId).order);
+        _nodes[layer[i]].order = static_cast<int>(i);
     }
-    return sum / static_cast<float>(neighbors.size());
 }
 
 int Layout::countCrossings(int layerIndex) const
@@ -319,68 +359,90 @@ int Layout::countCrossings(int layerIndex) const
     return crossings;
 }
 
-void Layout::sortByBarycenter(std::vector<int>& layer, bool useDownstream)
+float Layout::barycenter(int nodeId, bool useDownstream) const
 {
-    std::stable_sort(layer.begin(), layer.end(), [&](int a, int b)
+    const Node& node = _nodes.at(nodeId);
+    const std::vector<int>& neighbors = useDownstream ? node.downstream : node.upstream;
+
+    if (neighbors.empty())
     {
-        float ba = barycenter(a, useDownstream);
-        float bb = barycenter(b, useDownstream);
-        if (ba != bb) return ba < bb;
-        return connectivityPriority(a) > connectivityPriority(b);
-    });
-    for (size_t i = 0; i < layer.size(); ++i)
-    {
-        _nodes[layer[i]].order = static_cast<int>(i);
+        return static_cast<float>(node.order);
     }
+
+    float sum = 0.0f;
+    for (int nId : neighbors)
+    {
+        sum += static_cast<float>(_nodes.at(nId).order);
+    }
+    return sum / static_cast<float>(neighbors.size());
 }
 
-void Layout::minimizeCrossings()
+int Layout::connectivityPriority(int nodeId) const
 {
-    initializeOrder();
+    const Node& n = _nodes.at(nodeId);
+    int dirs = (!n.upstream.empty() ? 1 : 0) + (!n.downstream.empty() ? 1 : 0);
+    int total = static_cast<int>(n.upstream.size() + n.downstream.size());
+    return dirs * 1000 + total;
+}
 
-    // Save best ordering.
-    auto saveLayers = _layers;
-    auto countAllCrossings = [&]() -> int
+void Layout::assignCoordinates(float fontScale)
+{
+    // Compute max node width per layer for variable-width spacing.
+    std::vector<float> maxWidthPerLayer(_layers.size(), 0.0f);
+    for (size_t i = 0; i < _layers.size(); ++i)
     {
-        int total = 0;
-        for (size_t i = 1; i < _layers.size(); ++i)
+        for (int nodeId : _layers[i])
         {
-            total += countCrossings(static_cast<int>(i));
-        }
-        return total;
-    };
-
-    int bestCrossings = countAllCrossings();
-
-    for (int pass = 0; pass < CROSSING_PASSES; ++pass)
-    {
-        // Forward sweep: layer 1 to max, using downstream barycenter.
-        for (size_t i = 1; i < _layers.size(); ++i)
-        {
-            sortByBarycenter(_layers[i], true);
-        }
-
-        // Backward sweep: max-1 to 0, using upstream barycenter.
-        for (int i = static_cast<int>(_layers.size()) - 2; i >= 0; --i)
-        {
-            sortByBarycenter(_layers[i], false);
-        }
-
-        int currentCrossings = countAllCrossings();
-        if (currentCrossings < bestCrossings)
-        {
-            bestCrossings = currentCrossings;
-            saveLayers = _layers;
+            const Node& n = _nodes[nodeId];
+            if (n.width > maxWidthPerLayer[i])
+            {
+                maxWidthPerLayer[i] = n.width;
+            }
         }
     }
 
-    // Restore best ordering.
-    _layers = saveLayers;
+    // Assign X positions from the rightmost layer, accumulating leftward
+    // with per-layer widths to prevent overlap.
+    std::vector<float> layerX(_layers.size(), 0.0f);
+    layerX[0] = START_X * fontScale;
+    for (size_t i = 1; i < _layers.size(); ++i)
+    {
+        layerX[i] = layerX[i - 1] - (maxWidthPerLayer[i] + LAYER_SPACING) * fontScale;
+    }
+    for (auto& pair : _nodes)
+    {
+        Node& n = pair.second;
+        n.x = layerX[n.layer];
+    }
+
+    // Assign initial Y positions by stacking nodes in each layer with spacing.
     for (const auto& layer : _layers)
     {
-        for (size_t i = 0; i < layer.size(); ++i)
+        float y = 0.0f;
+        for (int nodeId : layer)
         {
-            _nodes[layer[i]].order = static_cast<int>(i);
+            Node& n = _nodes[nodeId];
+            n.y = y;
+            y += n.height + NODE_SPACING;
+        }
+    }
+
+    // Refine Y positions by shifting nodes toward the median Y of their neighbors.
+    if (options.refinePositions)
+    {
+        for (int pass = 0; pass < 2; ++pass)
+        {
+            // Forward pass: align toward downstream neighbors.
+            for (size_t i = 1; i < _layers.size(); ++i)
+            {
+                refineLayerY(static_cast<int>(i), true);
+            }
+
+            // Backward pass: align toward upstream neighbors.
+            for (int i = static_cast<int>(_layers.size()) - 2; i >= 0; --i)
+            {
+                refineLayerY(i, false);
+            }
         }
     }
 }
@@ -442,68 +504,6 @@ void Layout::refineLayerY(int layerIndex, bool preferDownstream)
         for (int nodeId : layer)
         {
             _nodes[nodeId].y += shift;
-        }
-    }
-}
-
-void Layout::assignCoordinates(float fontScale)
-{
-    // Compute max node width per layer for variable-width spacing.
-    std::vector<float> maxWidthPerLayer(_layers.size(), 0.0f);
-    for (size_t i = 0; i < _layers.size(); ++i)
-    {
-        for (int nodeId : _layers[i])
-        {
-            const Node& n = _nodes[nodeId];
-            if (n.width > maxWidthPerLayer[i])
-            {
-                maxWidthPerLayer[i] = n.width;
-            }
-        }
-    }
-
-    // Assign X positions from the rightmost layer, accumulating leftward
-    // with per-layer widths to prevent overlap.
-    std::vector<float> layerX(_layers.size(), 0.0f);
-    layerX[0] = START_X * fontScale;
-    for (size_t i = 1; i < _layers.size(); ++i)
-    {
-        layerX[i] = layerX[i - 1] - (maxWidthPerLayer[i] + LAYER_SPACING) * fontScale;
-    }
-    for (auto& pair : _nodes)
-    {
-        Node& n = pair.second;
-        n.x = layerX[n.layer];
-    }
-
-    // Assign initial Y positions by stacking nodes in each layer with spacing.
-    for (const auto& layer : _layers)
-    {
-        float y = 0.0f;
-        for (int nodeId : layer)
-        {
-            Node& n = _nodes[nodeId];
-            n.y = y;
-            y += n.height + NODE_SPACING;
-        }
-    }
-
-    // Refine Y positions by shifting nodes toward the median Y of their neighbors.
-    if (options.refinePositions)
-    {
-        for (int pass = 0; pass < 2; ++pass)
-        {
-            // Forward pass: align toward downstream neighbors.
-            for (size_t i = 1; i < _layers.size(); ++i)
-            {
-                refineLayerY(static_cast<int>(i), true);
-            }
-
-            // Backward pass: align toward upstream neighbors.
-            for (int i = static_cast<int>(_layers.size()) - 2; i >= 0; --i)
-            {
-                refineLayerY(i, false);
-            }
         }
     }
 }

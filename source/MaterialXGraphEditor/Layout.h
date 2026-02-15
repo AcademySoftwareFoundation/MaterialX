@@ -58,22 +58,15 @@ class Layout
     // Phase 2: Insert virtual nodes for edges that span more than one layer.
     void insertVirtualNodes();
 
+    // Phase 3: Minimize edge crossings using barycenter heuristic.
+    void minimizeCrossings();
+
     // Set initial ordering within each layer, placing main-chain nodes
     // before leaf nodes so the primary flow gets the best Y positions.
     void initializeOrder();
 
     // Sort a single layer by barycenter position and assign order values.
     void sortByBarycenter(std::vector<int>& layer, bool useDownstream);
-
-    // Phase 3: Minimize edge crossings using barycenter heuristic.
-    void minimizeCrossings();
-
-    // Phase 4: Assign X and Y coordinates.
-    void assignCoordinates(float fontScale);
-
-    // Refine Y positions for a single layer by shifting nodes toward the
-    // median Y of their neighbors, resolving overlaps, and centering.
-    void refineLayerY(int layerIndex, bool preferDownstream);
 
     // Count crossings between two adjacent layers.
     int countCrossings(int layerIndex) const;
@@ -85,6 +78,13 @@ class Layout
     // Return a priority score favoring nodes connected in both directions
     // (main chain) over those connected in only one direction (leaf nodes).
     int connectivityPriority(int nodeId) const;
+
+    // Phase 4: Assign X and Y coordinates.
+    void assignCoordinates(float fontScale);
+
+    // Refine Y positions for a single layer by shifting nodes toward the
+    // median Y of their neighbors, resolving overlaps, and centering.
+    void refineLayerY(int layerIndex, bool preferDownstream);
 
   private:
     std::unordered_map<int, Node> _nodes;
