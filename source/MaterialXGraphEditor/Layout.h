@@ -25,6 +25,7 @@ class Layout
         bool refinePositions = true;
     };
 
+    // Compute layout positions for the given nodes and edges.
     LayoutResults compute(const std::vector<UiNodePtr>& nodes,
                           const std::vector<UiEdge>& edges,
                           const std::vector<int>& outputNodeIds,
@@ -48,17 +49,42 @@ class Layout
         std::vector<int> downstream;
     };
 
+    // Build internal graph representation from UI nodes and edges.
     void buildGraph(const std::vector<UiNodePtr>& nodes, const std::vector<UiEdge>& edges);
+
+    // Phase 1: Assign layers using reverse topological order from output nodes.
     void assignLayers(const std::vector<int>& outputNodeIds);
+
+    // Phase 2: Insert virtual nodes for edges that span more than one layer.
     void insertVirtualNodes();
+
+    // Set initial ordering within each layer, placing main-chain nodes
+    // before leaf nodes so the primary flow gets the best Y positions.
     void initializeOrder();
+
+    // Sort a single layer by barycenter position and assign order values.
+    void sortByBarycenter(std::vector<int>& layer, bool useDownstream);
+
+    // Phase 3: Minimize edge crossings using barycenter heuristic.
     void minimizeCrossings();
+
+    // Phase 4: Assign X and Y coordinates.
     void assignCoordinates(float fontScale);
+
+    // Refine Y positions for a single layer by shifting nodes toward the
+    // median Y of their neighbors, resolving overlaps, and centering.
     void refineLayerY(int layerIndex, bool preferDownstream);
+
+    // Count crossings between two adjacent layers.
     int countCrossings(int layerIndex) const;
+
+    // Compute the barycenter (average position) of a node's neighbors
+    // in the adjacent layer.
     float barycenter(int nodeId, bool useDownstream) const;
+
+    // Return a priority score favoring nodes connected in both directions
+    // (main chain) over those connected in only one direction (leaf nodes).
     int connectivityPriority(int nodeId) const;
-    void clear();
 
   private:
     std::unordered_map<int, Node> _nodes;
