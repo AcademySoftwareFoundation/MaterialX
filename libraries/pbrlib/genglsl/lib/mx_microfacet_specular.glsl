@@ -61,6 +61,12 @@ vec3 mx_ggx_importance_sample_VNDF(vec2 Xi, vec3 V, vec2 alpha)
     return H;
 }
 
+// PDF of the VNDF-based GGX importance sampling strategy.
+float mx_ggx_VNDF_PDF(vec3 H, vec2 alpha, float G1V, float NdotV)
+{
+    return mx_ggx_NDF(H, alpha) * G1V / (4.0 * NdotV);
+}
+
 // https://www.cs.cornell.edu/~srm/publications/EGSR07-btdf.pdf
 // Equation 34
 float mx_ggx_smith_G1(float cosTheta, float alpha)
@@ -202,12 +208,6 @@ vec3 mx_f0_to_ior(vec3 F0)
 {
     vec3 sqrtF0 = sqrt(clamp(F0, 0.01, 0.99));
     return (vec3(1.0) + sqrtF0) / (vec3(1.0) - sqrtF0);
-}
-
-// PDF of the VNDF-based GGX importance sampling strategy.
-float mx_ggx_VNDF_PDF(vec3 H, vec2 alpha, float G1V, float NdotV)
-{
-    return mx_ggx_NDF(H, alpha) * G1V / (4.0 * NdotV);
 }
 
 // https://renderwonk.com/publications/wp-generalization-adobe/gen-adobe.pdf
