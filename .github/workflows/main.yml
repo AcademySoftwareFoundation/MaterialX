@@ -31,6 +31,7 @@ jobs:
           compiler: gcc
           compiler_version: "14"
           python: 3.13
+          extended_build_perfetto: ON
 
         - name: Linux_GCC_14_Python314
           os: ubuntu-24.04
@@ -174,8 +175,8 @@ jobs:
     - name: Install MDL SDK
       if: env.IS_EXTENDED_BUILD == 'true' && matrix.extended_build_mdl_sdk == 'ON' && runner.os == 'Windows'
       run: |
-        C:/vcpkg/vcpkg install mdl-sdk --triplet=x64-windows
-        Add-Content $env:GITHUB_PATH "C:/vcpkg/installed/x64-windows/bin"
+        C:/vcpkg/vcpkg install mdl-sdk[dds,df-vulkan,openimageio] --triplet=x64-windows-release
+        Add-Content $env:GITHUB_PATH "C:/vcpkg/installed/x64-windows-release/bin"
 
     - name: Install Python ${{ matrix.python }}
       if: matrix.python != 'None'
@@ -198,13 +199,16 @@ jobs:
         EXTENDED_BUILD_CONFIG=""
         if [ "${{ env.IS_EXTENDED_BUILD }}" == "true" ]; then
           if [ "${{ runner.os }}" == "Windows" ]; then
-            EXTENDED_BUILD_CONFIG="-DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows"
+            EXTENDED_BUILD_CONFIG="-DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake"
           fi
           if [ "${{ matrix.extended_build_oiio }}" == "ON" ]; then
-            EXTENDED_BUILD_CONFIG="$EXTENDED_BUILD_CONFIG -DMATERIALX_BUILD_OIIO=ON"
+            EXTENDED_BUILD_CONFIG="$EXTENDED_BUILD_CONFIG -DVCPKG_TARGET_TRIPLET=x64-windows -DMATERIALX_BUILD_OIIO=ON"
           fi
           if [ "${{ matrix.extended_build_mdl_sdk }}" == "ON" -a "${{ runner.os }}" == "Windows" ]; then
-            EXTENDED_BUILD_CONFIG="$EXTENDED_BUILD_CONFIG -DMATERIALX_MDL_SDK_DIR=C:/vcpkg/installed/x64-windows"
+            EXTENDED_BUILD_CONFIG="$EXTENDED_BUILD_CONFIG -DVCPKG_TARGET_TRIPLET=x64-windows-release -DMATERIALX_MDL_SDK_DIR=C:/vcpkg/installed/x64-windows-release"
+          fi
+          if [ "${{ matrix.extended_build_perfetto }}" == "ON" ]; then
+            EXTENDED_BUILD_CONFIG="$EXTENDED_BUILD_CONFIG -DMATERIALX_BUILD_PERFETTO_TRACING=ON"
           fi
         fi
         TEST_RENDER_CONFIG="-DMATERIALX_TEST_RENDER=OFF"
@@ -266,7 +270,7 @@ jobs:
       run: |
         sudo apt-get install gcovr
         mkdir coverage
-        gcovr --html --html-details --output coverage/index.html --exclude .*\/External\/.* --root .. .
+        gcovr --html --html-details --output coverage/index.html --exclude .*\/External\/.* --exclude .*perfetto.* --root .. .
       working-directory: build
 
     - name: Static Analysis Tests
@@ -277,7 +281,7 @@ jobs:
         else
           brew install cppcheck
         fi
-        cppcheck --project=build/compile_commands.json --error-exitcode=1 --suppress=normalCheckLevelMaxBranches --suppress=*:*/External/* --suppress=*:*/NanoGUI/*
+        cppcheck --project=build/compile_commands.json --error-exitcode=1 --suppress=normalCheckLevelMaxBranches --suppress=*:*/External/* --suppress=*:*/NanoGUI/* --suppress=*:*perfetto*
 
     - name: Setup Rendering Environment (Linux)
       if: matrix.test_render == 'ON' && runner.os == 'Linux'
@@ -357,6 +361,14 @@ jobs:
       with:
         name: MaterialX_Coverage
         path: build/coverage
+
+    - name: Upload Perfetto Traces
+      uses: actions/upload-artifact@v4
+      if: matrix.extended_build_perfetto == 'ON' && env.IS_EXTENDED_BUILD == 'true'
+      with:
+        name: Traces_${{ matrix.name }}
+        path: build/**/*.perfetto-trace
+        if-no-files-found: ignore
 
   javascript:
     name: JavaScript

@@ -90,10 +90,6 @@ TEST_CASE("GenShader: OSL Implementation Check", "[genosl]")
     generatorSkipNodeTypes.insert("light");
 
     mx::StringSet generatorSkipNodeDefs;
-    generatorSkipNodeDefs.insert("ND_hextiledimage_color3");
-    generatorSkipNodeDefs.insert("ND_hextiledimage_color4");
-    generatorSkipNodeDefs.insert("ND_hextilednormalmap_vector3");
-
     GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs);
 }
 
@@ -187,7 +183,7 @@ static void generateOslCode()
 
     mx::FilePathVec testRootPaths;
     testRootPaths.push_back(searchPath.find("resources/Materials/TestSuite"));
-    testRootPaths.push_back(searchPath.find("resources/Materials/Examples/StandardSurface"));
+    testRootPaths.push_back(searchPath.find("resources/Materials/Examples"));
 
     const mx::FilePath logPath("genosl_vanilla_generate_test.txt");
 
