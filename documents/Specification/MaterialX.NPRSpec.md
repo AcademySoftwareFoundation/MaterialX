@@ -53,7 +53,7 @@ The view direction is a normalized vector from the viewer position to the curren
 <a id="node-facingratio"> </a>
 
 ### `facingratio`
-The geometric facing ratio of surface normals and the view direction.
+The geometric facing ratio of the view direction and surface normal.
 
 Facing ratio is computed as the dot product between the view direction and surface normal.
 
