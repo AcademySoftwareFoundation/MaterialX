@@ -687,8 +687,7 @@ void MslProgram::bindLighting(LightHandlerPtr lightHandler, ImageHandlerPtr imag
 
     // Set the number of active light sources
     size_t lightCount = lightHandler->getLightSources().size();
-    auto numActiveLightSourcesInput = uniformList.find(HW::NUM_ACTIVE_LIGHT_SOURCES);
-    if (numActiveLightSourcesInput == uniformList.end())
+    if (!hasUniform(HW::NUM_ACTIVE_LIGHT_SOURCES))
     {
         // No lighting information so nothing further to do
         lightCount = 0;
