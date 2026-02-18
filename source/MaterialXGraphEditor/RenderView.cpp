@@ -16,6 +16,9 @@
 #include <MaterialXRender/TinyObjLoader.h>
 
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
+#ifdef MATERIALX_BUILD_OCIO
+#include <MaterialXGenShader/OcioColorManagementSystem.h>
+#endif
 
 #include <MaterialXFormat/Util.h>
 
