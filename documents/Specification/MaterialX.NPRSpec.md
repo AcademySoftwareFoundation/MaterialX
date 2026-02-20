@@ -36,9 +36,15 @@ This document describes a number of MaterialX nodes primarily applicable to non-
 
 <a id="node-viewdirection"> </a>
 
-* **`viewdirection`**: the current scene view direction (e.g. from the viewing/camera position to the current shading position).  If `viewdirection` is used in a PBR shading context, it should be noted that this would be the same as the incident ray direction for primary ("camera") rays but **not** for secondary/reflection rays.  This node must be of type vector3.
+### `viewdirection`
+The current scene view direction, as defined by the shading environment.
 
-    * `space` (uniform string):  the space in which to return the view vector direction, defaults to `world`. 
+The view direction is a normalized vector from the viewer position to the current shading position. In a PBR shading context, it represents the incident direction for primary camera rays, independent of any secondary or reflection rays.
+
+|Port   |Description                           |Type   |Default|Accepted Values     |
+|-------|--------------------------------------|-------|-------|--------------------|
+|`space`|The space of the view direction vector|string |world  |model, object, world|
+|`out`  |Output: view direction                |vector3|       |                    |
 
 
 
@@ -46,12 +52,19 @@ This document describes a number of MaterialX nodes primarily applicable to non-
 
 <a id="node-facingratio"> </a>
 
-* **`facingratio`**: returns the geometric facing ratio, computed as the dot product between the view direction and geometric normal.  Output is a float between 0.0 and 1.0.
+### `facingratio`
+The geometric facing ratio of the view direction and surface normal.
 
-    * `viewdirection` (vector3): the viewing direction, defaults to the value of the "Vworld" (world space view direction) geometric property.
-    * `normal` (vector3): the surface normal vector, defaults to the value of the "Nworld" (world space view direction) geometric property.  This vector is expected to be prenormalized to length 1.0.
-    * `faceforward` (boolean): description needed; default is false.
-    * `invert` (boolean): description needed; default is false.
+Facing ratio is computed as the dot product between the view direction and surface normal.
+
+|Port           |Description                                                               |Type   |Default |
+|---------------|--------------------------------------------------------------------------|-------|--------|
+|`viewdirection`|The input view direction vector                                           |vector3|_Vworld_|
+|`normal`       |The input surface normal vector                                           |vector3|_Nworld_|
+|`faceforward`  |Makes the output always positive, facing towards the view direction       |boolean|true    |
+|`invert`       |Inverts the output values by multiplying them by -1                       |boolean|false   |
+|`out`          |Output: the float representing the ratio between view direction and normal|float  |        |
+
 
 
 
@@ -59,12 +72,19 @@ This document describes a number of MaterialX nodes primarily applicable to non-
 
 <a id="node-gooch-shade"> </a>
 
-* **`gooch_shade`**: Computes the single-pass shading portion of the Gooch[^Gooch1998] lighting model.  Output type `surfaceshader`.
-    * `warm_color` (color3): the "warm" color for shading, defaults to (0.8, 0.8, 0.7) in the `lin_rec709` colorspace.
-    * `cool_color` (color3): the "cool" color for shading, defaults to (0.3, 0.3, 0.8) in the `lin_rec709` colorspace.
-    * `specular_intensity` (float): the intensity of the specular component. Defaults to 1.0.
-    * `shininess` (float): the specular power typically ranging from 1 to 256, defaults to 64.
-    * `light_direction` (vector3): the incoming predominant lighting direction in world space, defaults to (1.0, -0.5, -0.5).
+### `gooch_shade`
+Computes the color from single-pass shading portion of the Gooch[^Gooch1998] lighting model.
+
+Gooch shade provides an illustrative shading effect by blending colors based on the angle between the surface normal and the light direction. It also provides a simple Phong specular highlight, on top of the warm and cool colors.
+
+|Port                |Description                            |Type   |Default      |
+|--------------------|---------------------------------------|-------|-------------|
+|`warm_color`        |The color facing toward the light      |color3 |0.8, 0.8, 0.7|
+|`cool_color`        |The color facing away from the light   |color3 |0.3, 0.3, 0.8|
+|`specular_intensity`|The intensity of the highlight         |float  |1            |
+|`shininess`         |The size of the highlight              |float  |64           |
+|`light_direction`   |The world-space direction of the light |vector3|1, -0.5, -0.5|
+|`out`               |Output: the Gooch lighting model result|color3 |             |
 
 <br>
 

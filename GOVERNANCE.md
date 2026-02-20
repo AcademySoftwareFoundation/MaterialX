@@ -48,6 +48,8 @@ The current Voting Members of the MaterialX TSC are:
 - Doug Smythe - Industrial Light & Magic
 - Niklas Harrysson - Lumiere Software
 - Orn Gunnarsson - Autodesk
+- Lee Kerley - Apple
+- Frankie Liu - NVIDIA
 - Andréa Machizaud - Adobe
 
 ### Stakeholders
@@ -66,8 +68,6 @@ The current Stakeholders of the MaterialX TSC are:
 - Fran González García - Pixar RenderMan
 - Ole Gulbrandsen - Sony Pictures Imageworks
 - Rafal Jaroszkiewicz - SideFX
-- Lee Kerley - Apple
-- Lutz Kettner - NVIDIA
 - Chris Kulla - Epic Games
 - Bernard Kwok - Khronos Group
 - Karen Lucknavalai - Pixar USD

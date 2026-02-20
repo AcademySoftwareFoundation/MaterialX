@@ -93,6 +93,18 @@ vec3 mx_cosine_sample_hemisphere(vec2 Xi)
                 cosTheta);
 }
 
+// PDF of a cosine-weighted hemisphere sample.
+float mx_cosine_hemisphere_PDF(float cosTheta)
+{
+    return max(cosTheta, 0.0) * M_PI_INV;
+}
+
+// PDF of a uniform hemisphere sample.
+float mx_uniform_hemisphere_PDF()
+{
+    return 0.5 * M_PI_INV;
+}
+
 // Construct an orthonormal basis from a unit vector.
 // https://graphics.pixar.com/library/OrthonormalB/paper.pdf
 mat3 mx_orthonormal_basis(vec3 N)
