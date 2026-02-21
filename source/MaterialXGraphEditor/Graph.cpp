@@ -3411,6 +3411,14 @@ void Graph::propertyEditor()
                             if (!input->getConnected())
                             {
                                 showPropertyEditorValue(_currUiNode, input->getInput(), uiProperties);
+
+                                // Update pin to reference the node's input if one was created
+                                // during editing, so that subsequent frames read the correct value.
+                                mx::InputPtr nodeInput = _currUiNode->getNode()->getInput(input->getName());
+                                if (nodeInput && nodeInput != input->getInput())
+                                {
+                                    input->setElement(nodeInput);
+                                }
                             }
                             else
                             {

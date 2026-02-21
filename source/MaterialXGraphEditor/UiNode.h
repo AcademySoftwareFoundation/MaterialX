@@ -79,6 +79,7 @@ class UiPin
     std::shared_ptr<UiNode> getUiNode() const { return _pinNode; }
     ed::PinKind getKind() const { return _kind; }
     mx::PortElementPtr getElement() const { return _element; }
+    void setElement(mx::PortElementPtr element) { _element = element; }
     mx::InputPtr getInput() const;
     mx::OutputPtr getOutput() const;
 
