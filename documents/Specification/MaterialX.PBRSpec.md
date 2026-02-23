@@ -212,7 +212,7 @@ The `scatter_mode` controls whether the surface reflects light (`R`), transmits 
 |`tint`              |Color weight to tint the reflected and transmitted light       |color3 |1.0, 1.0, 1.0|               |
 |`ior`               |Index of refraction of the surface                             |float  |1.5          |               |
 |`roughness`         |Surface roughness along the tangent and bitangent              |vector2|0.05, 0.05   |[0, 1]         |
-|`retroeflective`   |Enable retroreflection mode for the BSDF                       |boolean|false        |               |
+|`retroeflective`    |Enable retroreflection mode for the BSDF                       |boolean|false        |               |
 |`thinfilm_thickness`|Thickness of the iridescent thin-film layer in nanometers      |float  |0.0          |               |
 |`thinfilm_ior`      |Index of refraction of the thin-film layer                     |float  |1.5          |               |
 |`normal`            |Normal vector of the surface                                   |vector3|Nworld       |               |
