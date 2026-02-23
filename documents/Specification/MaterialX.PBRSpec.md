@@ -677,8 +677,6 @@ The MaterialX PBS Library includes a number of nodegraphs that can be used to ap
 
 
 # References
-[^Raab2025]: Matthias Raab et al., **The Minimal Retroreflective Microfacet Model**, to appear, 2025
-
 [^Andersson2024]: Andersson et al., **OpenPBR Surface Specification**, <https://academysoftwarefoundation.github.io/OpenPBR/>, 2024.
 
 [^Belcour2017]: Laurent Belcour, Pascal Barla, **A Practical Extension to Microfacet Theory for the Modeling of Varying Iridescence**, <https://belcour.github.io/blog/research/publication/2017/05/01/brdf-thin-film.html>, 2017
@@ -711,6 +709,8 @@ Path Tracing**, <https://media.disneyanimation.com/uploads/production/publicatio
 [^Pixar2019]: Pixar Animation Studios, **UsdPreviewSurface Specification**, <https://openusd.org/release/spec_usdpreviewsurface.html>, 2019.
 
 [^Portsmouth2025]: Portsmouth et al., **EON: A practical energy-preserving rough diffuse BRDF**, <https://www.jcgt.org/published/0014/01/06/>, 2025.
+
+[^Raab2025]: Matthias Raab et al., **The Minimal Retroreflective Microfacet Model**, to appear, 2025
 
 [^Turquin2019]: Emmanuel Turquin, **Practical multiple scattering compensation for microfacet models**, <https://blog.selfshadow.com/publications/turquin/ms_comp_final.pdf>, 2019.
 
