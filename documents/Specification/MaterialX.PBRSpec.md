@@ -206,20 +206,20 @@ Thin-film iridescence effects[^Belcour2017] may be enabled by setting `thinfilm_
 
 The `scatter_mode` controls whether the surface reflects light (`R`), transmits light (`T`), or both (`RT`). In `RT` mode, reflection and transmission occur both when entering and leaving a surface, with their respective intensities controlled by the Fresnel curve. Depending on the IOR and incident angle, total internal reflection may occur even when transmission modes are selected.
 
-|Port                |Description                                                    |Type    |Default      |Accepted Values|
-|--------------------|---------------------------------------------------------------|--------|-------------|---------------|
-|`weight`            |Weight of the BSDF contribution                                |float   |1.0          |[0, 1]         |
-|`tint`              |Color weight to tint the reflected and transmitted light       |color3  |1.0, 1.0, 1.0|               |
-|`ior`               |Index of refraction of the surface                             |float   |1.5          |               |
-|`roughness`         |Surface roughness along the tangent and bitangent              |vector2 |0.05, 0.05   |[0, 1]         |
-|`retroreflective`   |Enable retroreflection mode for the BSDF                       |boolean |false        |               |
-|`thinfilm_thickness`|Thickness of the iridescent thin-film layer in nanometers      |float   |0.0          |               |
-|`thinfilm_ior`      |Index of refraction of the thin-film layer                     |float   |1.5          |               |
-|`normal`            |Normal vector of the surface                                   |vector3 |Nworld       |               |
-|`tangent`           |Tangent vector of the surface                                  |vector3 |Tworld       |               |
-|`distribution`      |Microfacet distribution type                                   |string  |ggx          |ggx            |
-|`scatter_mode`      |Surface Scatter mode, specifying reflection and/or transmission|string  |R            |R, T, RT       |
-|`out`               |Output: the computed BSDF                                      |BSDF    |             |               |
+|Port                |Description                                                    |Type   |Default      |Accepted Values|
+|--------------------|---------------------------------------------------------------|-------|-------------|---------------|
+|`weight`            |Weight of the BSDF contribution                                |float  |1.0          |[0, 1]         |
+|`tint`              |Color weight to tint the reflected and transmitted light       |color3 |1.0, 1.0, 1.0|               |
+|`ior`               |Index of refraction of the surface                             |float  |1.5          |               |
+|`roughness`         |Surface roughness along the tangent and bitangent              |vector2|0.05, 0.05   |[0, 1]         |
+|`retroeflective`   |Enable retroreflection mode for the BSDF                       |boolean|false        |               |
+|`thinfilm_thickness`|Thickness of the iridescent thin-film layer in nanometers      |float  |0.0          |               |
+|`thinfilm_ior`      |Index of refraction of the thin-film layer                     |float  |1.5          |               |
+|`normal`            |Normal vector of the surface                                   |vector3|Nworld       |               |
+|`tangent`           |Tangent vector of the surface                                  |vector3|Tworld       |               |
+|`distribution`      |Microfacet distribution type                                   |string |ggx          |ggx            |
+|`scatter_mode`      |Surface Scatter mode, specifying reflection and/or transmission|string |R            |R, T, RT       |
+|`out`               |Output: the computed BSDF                                      |BSDF   |             |               |
 
 <a id="node-conductor-bsdf"> </a>
 
@@ -234,19 +234,19 @@ Setting `retroreflective` to true switches the BSDF to retroreflection mode, whe
 
 Thin-film iridescence effects[^Belcour2017] may be enabled by setting `thinfilm_thickness` to a non-zero value.
 
-|Port                |Description                                              |Type    |Default               |Accepted Values|
-|--------------------|---------------------------------------------------------|--------|----------------------|---------------|
-|`weight`            |Weight of the BSDF contribution                          |float   |1.0                   |[0, 1]         |
-|`ior`               |Index of refraction                                      |color3  |0.183, 0.421, 1.373   |               |
-|`extinction`        |Extinction coefficient                                   |color3  |3.424, 2.346, 1.770   |               |
-|`roughness`         |Surface roughness                                        |vector2 |0.05, 0.05            |[0, 1]         |
-|`retroreflective`   |Enable retroreflection mode for the BSDF                 |boolean |false                 |               |
-|`thinfilm_thickness`|Thickness of the iridescent thin-film layer in nanometers|float   |0.0                   |               |
-|`thinfilm_ior`      |Index of refraction of the thin-film layer               |float   |1.5                   |               |
-|`normal`            |Normal vector of the surface                             |vector3 |Nworld                |               |
-|`tangent`           |Tangent vector of the surface                            |vector3 |Tworld                |               |
-|`distribution`      |Microfacet distribution type                             |string  |ggx                   |ggx            |
-|`out`               |Output: the computed BSDF                                |BSDF    |                      |               |
+|Port                |Description                                              |Type   |Default               |Accepted Values|
+|--------------------|---------------------------------------------------------|-------|----------------------|---------------|
+|`weight`            |Weight of the BSDF contribution                          |float  |1.0                   |[0, 1]         |
+|`ior`               |Index of refraction                                      |color3 |0.183, 0.421, 1.373   |               |
+|`extinction`        |Extinction coefficient                                   |color3 |3.424, 2.346, 1.770   |               |
+|`roughness`         |Surface roughness                                        |vector2|0.05, 0.05            |[0, 1]         |
+|`retroreflective`   |Enable retroreflection mode for the BSDF                 |boolean|false                 |               |
+|`thinfilm_thickness`|Thickness of the iridescent thin-film layer in nanometers|float  |0.0                   |               |
+|`thinfilm_ior`      |Index of refraction of the thin-film layer               |float  |1.5                   |               |
+|`normal`            |Normal vector of the surface                             |vector3|Nworld                |               |
+|`tangent`           |Tangent vector of the surface                            |vector3|Tworld                |               |
+|`distribution`      |Microfacet distribution type                             |string |ggx                   |ggx            |
+|`out`               |Output: the computed BSDF                                |BSDF   |                      |               |
 
 <a id="node-generalized-schlick-bsdf"> </a>
 
@@ -263,22 +263,22 @@ Thin-film iridescence effects[^Belcour2017] may be enabled by setting `thinfilm_
 
 The `scatter_mode` behavior matches that of `dielectric_bsdf`: in `RT` mode, reflection and transmission occur both when entering and leaving a surface, with intensities controlled by the Fresnel curve. Total internal reflection may occur depending on the incident angle.
 
-|Port                |Description                                                    |Type    |Default      |Accepted Values|
-|--------------------|---------------------------------------------------------------|--------|-------------|---------------|
-|`weight`            |Weight of the BSDF contribution                                |float   |1.0          |[0, 1]         |
-|`color0`            |Reflectivity per color component at facing angles              |color3  |1.0, 1.0, 1.0|               |
-|`color82`           |Reflectivity multiplier at 82 degrees                          |color3  |1.0, 1.0, 1.0|               |
-|`color90`           |Reflectivity per color component at grazing angles             |color3  |1.0, 1.0, 1.0|               |
-|`exponent`          |Exponent for Schlick blending between color0 and color90       |float   |5.0          |               |
-|`roughness`         |Surface roughness along the tangent and bitangent              |vector2 |0.05, 0.05   |[0, 1]         |
-|`retroreflective`   |Enable retroreflection mode for the BSDF                       |boolean |false        |               |
-|`thinfilm_thickness`|Thickness of the iridescent thin-film layer in nanometers      |float   |0.0          |               |
-|`thinfilm_ior`      |Index of refraction of the thin-film layer                     |float   |1.5          |               |
-|`normal`            |Normal vector of the surface                                   |vector3 |Nworld       |               |
-|`tangent`           |Tangent vector of the surface                                  |vector3 |Tworld       |               |
-|`distribution`      |Microfacet distribution type                                   |string  |ggx          |ggx            |
-|`scatter_mode`      |Surface Scatter mode, specifying reflection and/or transmission|string  |R            |R, T, RT       |
-|`out`               |Output: the computed BSDF                                      |BSDF    |             |               |
+|Port                |Description                                                    |Type   |Default      |Accepted Values|
+|--------------------|---------------------------------------------------------------|-------|-------------|---------------|
+|`weight`            |Weight of the BSDF contribution                                |float  |1.0          |[0, 1]         |
+|`color0`            |Reflectivity per color component at facing angles              |color3 |1.0, 1.0, 1.0|               |
+|`color82`           |Reflectivity multiplier at 82 degrees                          |color3 |1.0, 1.0, 1.0|               |
+|`color90`           |Reflectivity per color component at grazing angles             |color3 |1.0, 1.0, 1.0|               |
+|`exponent`          |Exponent for Schlick blending between color0 and color90       |float  |5.0          |               |
+|`roughness`         |Surface roughness along the tangent and bitangent              |vector2|0.05, 0.05   |[0, 1]         |
+|`retroreflective`   |Enable retroreflection mode for the BSDF                       |boolean|false        |               |
+|`thinfilm_thickness`|Thickness of the iridescent thin-film layer in nanometers      |float  |0.0          |               |
+|`thinfilm_ior`      |Index of refraction of the thin-film layer                     |float  |1.5          |               |
+|`normal`            |Normal vector of the surface                                   |vector3|Nworld       |               |
+|`tangent`           |Tangent vector of the surface                                  |vector3|Tworld       |               |
+|`distribution`      |Microfacet distribution type                                   |string |ggx          |ggx            |
+|`scatter_mode`      |Surface Scatter mode, specifying reflection and/or transmission|string |R            |R, T, RT       |
+|`out`               |Output: the computed BSDF                                      |BSDF   |             |               |
 
 <a id="node-translucent-bsdf"> </a>
 
