@@ -79,6 +79,7 @@ class UiPin
     std::shared_ptr<UiNode> getUiNode() const { return _pinNode; }
     ed::PinKind getKind() const { return _kind; }
     mx::PortElementPtr getElement() const { return _element; }
+    void setElement(mx::PortElementPtr element) { _element = element; }
     mx::InputPtr getInput() const;
     mx::OutputPtr getOutput() const;
 
@@ -175,10 +176,6 @@ class UiNode
     {
         return _nodePos;
     }
-    int getInputConnect() const
-    {
-        return _inputNodeNum;
-    }
     int getId() const
     {
         return _id;
@@ -209,10 +206,6 @@ class UiNode
     void setPos(ImVec2 pos)
     {
         _nodePos = pos;
-    }
-    void setInputNodeNum(int num)
-    {
-        _inputNodeNum += num;
     }
     void setOutputConnection(UiNodePtr connections)
     {
@@ -260,16 +253,12 @@ class UiNode
     const std::vector<UiEdge>& getEdges() const { return _edges; }
 
     // Layout/display accessors
-    int getLevel() const { return _level; }
-    void setLevel(int level) { _level = level; }
     bool getShowAllInputs() const { return _showAllInputs; }
     void setShowAllInputs(bool show) { _showAllInputs = show; }
     bool getShowOutputsInEditor() const { return _showOutputsInEditor; }
     void setShowOutputsInEditor(bool show) { _showOutputsInEditor = show; }
 
     UiNodePtr getConnectedNode(const std::string& name);
-    float getAverageY();
-    float getMinX();
     int getEdgeIndex(int id, UiPinPtr pin);
     bool eraseEdge(int id, UiPinPtr pin);
     void removeOutputConnection(const std::string& name);
@@ -278,7 +267,6 @@ class UiNode
     int _id;
     ImVec2 _nodePos;
     std::string _name;
-    int _inputNodeNum;
     std::vector<UiNodePtr> _outputConnections;
     mx::ElementPtr _element;
     std::string _category;
@@ -289,7 +277,6 @@ class UiNode
     std::vector<UiPinPtr> _outputPins;
     std::vector<UiEdge> _edges;
 
-    int _level;
     bool _showAllInputs;
     bool _showOutputsInEditor;
 };
