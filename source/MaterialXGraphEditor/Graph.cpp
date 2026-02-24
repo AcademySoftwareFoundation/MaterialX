@@ -1926,7 +1926,7 @@ void Graph::drawInputPin(UiPinPtr pin)
     ImGui::PopID();
     ed::EndPin();
 
-    ImGui::SameLine();
+    ImGui::SameLine(0, 5.0f);
     ImGui::TextUnformatted(pin->getName().c_str());
 }
 
