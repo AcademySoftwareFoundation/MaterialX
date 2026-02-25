@@ -12,7 +12,6 @@
 #include <imgui_node_editor_internal.h>
 #include <widgets.h>
 
-#include <algorithm>
 #include <cctype>
 #include <iostream>
 
