@@ -916,11 +916,11 @@ void ShaderGraph::finalize(GenContext& context)
 
     if (context.getOptions().shaderInterfaceType == SHADER_INTERFACE_COMPLETE)
     {
-        // Helper lambda function to resolve the name of the input socket
-
-        // Track shared sockets 
+        // Track shared sockets so that different nodes with the same input name
+        // get separate sockets deterministically.
         std::unordered_map<string, const ShaderNode*> sharedSockets;
 
+        // Helper lambda function to resolve the name of the input socket
         auto resolveInputSocketName = [this, &sharedSockets, &context](
             const ShaderNode* node, ShaderInput* input, bool useGenericName)
             -> std::pair<string, ShaderGraphInputSocket*>
@@ -962,7 +962,9 @@ void ShaderGraph::finalize(GenContext& context)
                         // Create simpler names for generic nodes if possible
                         // so application side can employ techniques to easily switch between materials
                         // that are similar and only differ in unifrom values. 
-                        const bool useGenericName = (node->getClassification() & GENERIC_NAMED_NODES) != 0;
+                        const bool useGenericName = (node->getClassification() & (ShaderNode::Classification::SHADER |
+                                                                                  ShaderNode::Classification::CLOSURE |
+                                                                                  ShaderNode::Classification::MATERIAL)) != 0;
                         auto [interfaceName, inputSocket] = resolveInputSocketName(node, input, useGenericName);
 
                         if (!inputSocket)
@@ -1238,6 +1240,14 @@ void ShaderGraph::setVariableNames(GenContext& context)
 
     const Syntax& syntax = context.getShaderGenerator().getSyntax();
 
+    // Use generic base names for material and surfaceshader so multiple outputs get
+    // consistent names (surfaceshader_out, surfaceshader_out1, ...) via getVariableName.
+    auto variableBaseName = [](const TypeDesc& type, const string& defaultName) -> string {
+        if (type == Type::MATERIAL) return "material_out";
+        if (type == Type::SURFACESHADER) return "surfaceshader_out";
+        return defaultName;
+    };
+
     for (ShaderGraphInputSocket* inputSocket : getInputSockets())
     {
         const string variable = syntax.getVariableName(inputSocket->getName(), inputSocket->getType(), _identifiers);
@@ -1245,7 +1255,8 @@ void ShaderGraph::setVariableNames(GenContext& context)
     }
     for (ShaderGraphOutputSocket* outputSocket : getOutputSockets())
     {
-        const string variable = syntax.getVariableName(outputSocket->getName(), outputSocket->getType(), _identifiers);
+        const string baseName = variableBaseName(outputSocket->getType(), outputSocket->getName());
+        const string variable = syntax.getVariableName(baseName, outputSocket->getType(), _identifiers);
         outputSocket->setVariable(variable);
     }
     for (ShaderNode* node : getNodes())
@@ -1258,21 +1269,8 @@ void ShaderGraph::setVariableNames(GenContext& context)
         }
         for (ShaderOutput* output : node->getOutputs())
         {
-            string variable;
-            // Use generic names for material and surfaceshader outputs to ensure consistency
-            if (output->getType() == Type::MATERIAL)
-            {
-                variable = "material_out";
-            }
-            else if (output->getType() == Type::SURFACESHADER)
-            {
-                variable = "surfaceshader_out";
-            }
-            else
-            {
-                variable = output->getFullName();
-            }
-            variable = syntax.getVariableName(variable, output->getType(), _identifiers);
+            const string baseName = variableBaseName(output->getType(), output->getFullName());
+            const string variable = syntax.getVariableName(baseName, output->getType(), _identifiers);
             output->setVariable(variable);
         }
     }
