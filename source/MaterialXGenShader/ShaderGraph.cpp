@@ -9,10 +9,8 @@
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Util.h>
 
-#include <algorithm>
-#include <deque>
 #include <iostream>
-#include <set>
+#include <deque>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -918,6 +916,38 @@ void ShaderGraph::finalize(GenContext& context)
 
     if (context.getOptions().shaderInterfaceType == SHADER_INTERFACE_COMPLETE)
     {
+        // Helper lambda function to resolve the name of the input socket
+
+        // Track shared sockets 
+        std::unordered_map<string, const ShaderNode*> sharedSockets;
+
+        auto resolveInputSocketName = [this, &sharedSockets, &context](
+            const ShaderNode* node, ShaderInput* input, bool useGenericName)
+            -> std::pair<string, ShaderGraphInputSocket*>
+        {
+            string name = useGenericName ? input->getName() : input->getFullName();
+            ShaderGraphInputSocket* socket = getInputSocket(name);
+            if (socket && socket->getType() != input->getType())
+            {
+                name = input->getFullName();
+                socket = getInputSocket(name);
+            }
+            if (socket && useGenericName)
+            {
+                auto it = sharedSockets.find(name);
+                if (it != sharedSockets.end() && it->second != node)
+                {
+                    string sanitized = node->getUniqueId();
+                    context.getShaderGenerator().getSyntax().makeValidName(sanitized);
+                    if (!sanitized.empty() && sanitized[0] == '_')
+                        sanitized.erase(0, 1);
+                    name = input->getName() + "_" + sanitized;
+                    socket = getInputSocket(name);
+                }
+            }
+            return { name, socket };
+        };
+
         // Publish all node inputs that has not been connected already.
         for (const ShaderNode* node : getNodes())
         {
@@ -929,25 +959,12 @@ void ShaderGraph::finalize(GenContext& context)
                     // publish the input as an editable uniform.
                     if (!input->getType().isClosure() && node->isEditable(*input))
                     {
-                        // For shader, closure, and material nodes, use just the input name
-                        // so uniforms are consistent across different material instances.
-                        // For all other nodes, use the full (node-prefixed) name
-                        // to avoid collisions between nodes with same-named inputs.
-                        const bool useGenericName = node->hasClassification(ShaderNode::Classification::SHADER) ||
-                                                    node->hasClassification(ShaderNode::Classification::CLOSURE) ||
-                                                    node->hasClassification(ShaderNode::Classification::MATERIAL);
-                        string interfaceName = useGenericName
-                            ? input->getName()
-                            : input->getFullName();
+                        // Create simpler names for generic nodes if possible
+                        // so application side can employ techniques to easily switch between materials
+                        // that are similar and only differ in unifrom values. 
+                        const bool useGenericName = (node->getClassification() & GENERIC_NAMED_NODES) != 0;
+                        auto [interfaceName, inputSocket] = resolveInputSocketName(node, input, useGenericName);
 
-                        ShaderGraphInputSocket* inputSocket = getInputSocket(interfaceName);
-                        if (inputSocket && inputSocket->getType() != input->getType())
-                        {
-                            // Type conflict with existing socket — fall back to the
-                            // full node-prefixed name to avoid a type mismatch.
-                            interfaceName = input->getFullName();
-                            inputSocket = getInputSocket(interfaceName);
-                        }
                         if (!inputSocket)
                         {
                             inputSocket = addInputSocket(interfaceName, input->getType());
@@ -958,6 +975,10 @@ void ShaderGraph::finalize(GenContext& context)
                             if (input->isUniform())
                             {
                                 inputSocket->setUniform();
+                            }
+                            if (useGenericName)
+                            {
+                                sharedSockets[interfaceName] = node;
                             }
                         }
                         inputSocket->makeConnection(input);
@@ -1149,7 +1170,6 @@ void ShaderGraph::topologicalSort()
     std::unordered_map<ShaderNode*, int> inDegree(_nodeMap.size());
     std::unordered_map<ShaderNode*, int> depth(_nodeMap.size());
     std::deque<ShaderNode*> nodeQueue;
-
     for (ShaderNode* node : _nodeOrder)
     {
         int connectionCount = 0;
@@ -1175,6 +1195,7 @@ void ShaderGraph::topologicalSort()
 
     while (!nodeQueue.empty())
     {
+        // Pop the queue and add to topological order.
         ShaderNode* node = nodeQueue.front();
         nodeQueue.pop_front();
         _nodeOrder[count++] = node;
@@ -1239,7 +1260,6 @@ void ShaderGraph::setVariableNames(GenContext& context)
         {
             string variable;
             // Use generic names for material and surfaceshader outputs to ensure consistency
-            // The identifier map will handle uniqueness if there are multiple nodes of the same type
             if (output->getType() == Type::MATERIAL)
             {
                 variable = "material_out";
