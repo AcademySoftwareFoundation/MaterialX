@@ -181,6 +181,9 @@ class Graph
     // account for input/output UiNodes with same names as MaterialX nodes
     int findNode(const std::string& name, const std::string& type);
 
+    // Return the node position of the upstream connection from the given input.
+    int findUpstreamNode(mx::InputPtr input);
+
     // Add node to graphNodes based on nodedef information
     void addNode(const std::string& category, const std::string& name, const std::string& type);
 
@@ -195,6 +198,9 @@ class Graph
     // Create an edge between two nodes if it doesn't already exist.
     // Returns true if the edge was created, false if invalid or already exists.
     bool createEdge(UiNodePtr upNode, UiNodePtr downNode, mx::InputPtr connectingInput);
+
+    // Create an edge from an output element to its connected upstream node.
+    void createEdgeForOutput(mx::OutputPtr output);
 
     // Remove node edge based on connecting input
     void removeEdge(int downNode, int upNode, UiPinPtr pin);

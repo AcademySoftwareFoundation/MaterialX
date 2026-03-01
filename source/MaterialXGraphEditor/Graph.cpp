@@ -544,6 +544,17 @@ void Graph::setRenderMaterial(UiNodePtr node)
                 mtlxNodeGraph = parent->asA<mx::NodeGraph>();
             else if (parent->isA<mx::Node>())
                 mtlxNode = parent->asA<mx::Node>();
+            else if (parent->isA<mx::Document>())
+            {
+                // Document-scope outputs are directly renderable.
+                if (_currRenderNode != node)
+                {
+                    _currRenderNode = node;
+                    _frameCount = ImGui::GetFrameCount();
+                    _renderer->setMaterialCompilation(true);
+                }
+                return;
+            }
         }
         mx::StringSet testPaths;
         if (mtlxNode)
@@ -1161,28 +1172,22 @@ void Graph::buildUiBaseGraph(mx::DocumentPtr doc)
         setUiNodeInfo(currNode, output->getType(), output->getCategory());
     }
 
-    // Create edges for nodegraphs
-    for (mx::NodeGraphPtr graph : nodeGraphs)
+    // Create edges for nodegraph and node inputs
+    for (size_t i = 0; i < _state.nodes.size(); i++)
     {
-        int downNum = findNode(graph->getName(), "nodegraph");
-        if (downNum < 0)
+        UiNodePtr& uiNode = _state.nodes[i];
+        mx::ElementPtr elem = uiNode->getElement();
+        mx::InterfaceElementPtr interface = elem ? elem->asA<mx::InterfaceElement>() : nullptr;
+        if (!interface)
         {
             continue;
         }
-        for (mx::InputPtr input : graph->getActiveInputs())
-        {
-            int upNum = -1;
-            mx::string nodeGraphName = input->getNodeGraphString();
-            mx::NodePtr connectedNode = input->getConnectedNode();
-            if (!nodeGraphName.empty())
-            {
-                upNum = findNode(nodeGraphName, "nodegraph");
-            }
-            else if (connectedNode)
-            {
-                upNum = findNode(connectedNode->getName(), "node");
-            }
 
+        int downNum = static_cast<int>(i);
+
+        for (mx::InputPtr input : interface->getActiveInputs())
+        {
+            int upNum = findUpstreamNode(input);
             if (upNum >= 0)
             {
                 createEdge(_state.nodes[upNum], _state.nodes[downNum], input);
@@ -1190,38 +1195,10 @@ void Graph::buildUiBaseGraph(mx::DocumentPtr doc)
         }
     }
 
-    // Create edges for surface and material nodes
-    for (mx::NodePtr node : docNodes)
+    // Create edges for document-scope outputs
+    for (mx::OutputPtr output : outputNodes)
     {
-        mx::NodeDefPtr nD = node->getNodeDef(node->getName());
-        for (mx::InputPtr input : node->getActiveInputs())
-        {
-            mx::string nodeGraphName = input->getNodeGraphString();
-            mx::NodePtr connectedNode = input->getConnectedNode();
-            mx::OutputPtr connectedOutput = input->getConnectedOutput();
-            int upNum = -1;
-            int downNum = findNode(node->getName(), "node");
-            if (!nodeGraphName.empty())
-            {
-                upNum = findNode(nodeGraphName, "nodegraph");
-            }
-            else if (connectedNode)
-            {
-                upNum = findNode(connectedNode->getName(), "node");
-            }
-            else if (connectedOutput)
-            {
-                upNum = findNode(connectedOutput->getName(), "output");
-            }
-            else if (!input->getInterfaceName().empty())
-            {
-                upNum = findNode(input->getInterfaceName(), "input");
-            }
-            if (upNum >= 0 && downNum >= 0)
-            {
-                createEdge(_state.nodes[upNum], _state.nodes[downNum], input);
-            }
-        }
+        createEdgeForOutput(output);
     }
 }
 
@@ -1232,7 +1209,6 @@ void Graph::buildUiNodeGraph(const mx::NodeGraphPtr& nodeGraphs)
         mx::NodeGraphPtr nodeGraph = nodeGraphs;
         std::vector<mx::ElementPtr> children = nodeGraph->topologicalSort();
         mx::NodeDefPtr nodeDef = nodeGraph->getNodeDef();
-        mx::NodeDefPtr currNodeDef;
 
         // Create input nodes
         if (nodeDef)
@@ -1285,13 +1261,13 @@ void Graph::buildUiNodeGraph(const mx::NodeGraphPtr& nodeGraphs)
                     mx::ElementPtr connectingElem = edge.getConnectingElement();
 
                     mx::NodePtr upstreamNode = upstreamElem->asA<mx::Node>();
-                    mx::NodePtr downstreamNode = downstreamElem->asA<mx::Node>();
                     mx::InputPtr upstreamInput = upstreamElem->asA<mx::Input>();
-                    mx::InputPtr downstreamInput = downstreamElem->asA<mx::Input>();
                     mx::OutputPtr upstreamOutput = upstreamElem->asA<mx::Output>();
+                    mx::NodePtr downstreamNode = downstreamElem->asA<mx::Node>();
+                    mx::InputPtr downstreamInput = downstreamElem->asA<mx::Input>();
                     mx::OutputPtr downstreamOutput = downstreamElem->asA<mx::Output>();
-                    std::string downName = downstreamElem->getName();
                     std::string upName = upstreamElem->getName();
+                    std::string downName = downstreamElem->getName();
                     std::string upstreamType;
                     std::string downstreamType;
                     if (upstreamNode)
@@ -1363,44 +1339,23 @@ void Graph::buildUiNodeGraph(const mx::NodeGraphPtr& nodeGraphs)
             mx::OutputPtr output = elem->asA<mx::Output>();
             if (node)
             {
+                int downNum = findNode(node->getName(), "node");
+                if (downNum < 0)
+                {
+                    continue;
+                }
                 for (mx::InputPtr input : node->getActiveInputs())
                 {
-                    mx::NodePtr connectedNode = input->getConnectedNode();
-                    int downNum = findNode(node->getName(), "node");
-                    if (downNum < 0)
+                    int upNum = findUpstreamNode(input);
+                    if (upNum >= 0)
                     {
-                        continue;
-                    }
-                    if (connectedNode)
-                    {
-                        int upNum = findNode(connectedNode->getName(), "node");
-                        if (upNum >= 0)
-                        {
-                            createEdge(_state.nodes[upNum], _state.nodes[downNum], input);
-                        }
-                    }
-                    else if (input->getInterfaceInput())
-                    {
-                        int upNum = findNode(input->getInterfaceInput()->getName(), "input");
-                        if (upNum >= 0)
-                        {
-                            createEdge(_state.nodes[upNum], _state.nodes[downNum], input);
-                        }
+                        createEdge(_state.nodes[upNum], _state.nodes[downNum], input);
                     }
                 }
             }
             else if (output)
             {
-                mx::NodePtr connectedNode = output->getConnectedNode();
-                if (connectedNode)
-                {
-                    int upNum = findNode(connectedNode->getName(), "node");
-                    int downNum = findNode(output->getName(), "output");
-                    if (upNum >= 0 && downNum >= 0)
-                    {
-                        createEdge(_state.nodes[upNum], _state.nodes[downNum], nullptr);
-                    }
-                }
+                createEdgeForOutput(output);
             }
         }
     }
@@ -1432,6 +1387,35 @@ int Graph::findNode(const std::string& name, const std::string& type)
         }
         count++;
     }
+    return -1;
+}
+
+int Graph::findUpstreamNode(mx::InputPtr input)
+{
+    const mx::string& nodeGraphName = input->getNodeGraphString();
+    if (!nodeGraphName.empty())
+    {
+        return findNode(nodeGraphName, "nodegraph");
+    }
+
+    mx::NodePtr connectedNode = input->getConnectedNode();
+    if (connectedNode)
+    {
+        return findNode(connectedNode->getName(), "node");
+    }
+
+    mx::OutputPtr connectedOutput = input->getConnectedOutput();
+    if (connectedOutput)
+    {
+        return findNode(connectedOutput->getName(), "output");
+    }
+
+    const mx::string& interfaceName = input->getInterfaceName();
+    if (!interfaceName.empty())
+    {
+        return findNode(interfaceName, "input");
+    }
+
     return -1;
 }
 
@@ -1484,6 +1468,20 @@ bool Graph::createEdge(UiNodePtr upNode, UiNodePtr downNode, mx::InputPtr connec
     upNode->setOutputConnection(downNode);
     _state.edges.push_back(newEdge);
     return true;
+}
+
+void Graph::createEdgeForOutput(mx::OutputPtr output)
+{
+    mx::NodePtr connectedNode = output->getConnectedNode();
+    if (connectedNode)
+    {
+        int upNum = findNode(connectedNode->getName(), "node");
+        int downNum = findNode(output->getName(), "output");
+        if (upNum >= 0 && downNum >= 0)
+        {
+            createEdge(_state.nodes[upNum], _state.nodes[downNum], nullptr);
+        }
+    }
 }
 
 void Graph::copyUiNode(UiNodePtr node)
