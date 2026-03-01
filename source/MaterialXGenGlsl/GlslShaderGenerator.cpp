@@ -31,6 +31,8 @@
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/Nodes/MaterialNode.h>
 
+#include <MaterialXTrace/Tracing.h>
+
 MATERIALX_NAMESPACE_BEGIN
 
 const string GlslShaderGenerator::TARGET = "genglsl";
@@ -128,6 +130,9 @@ GlslShaderGenerator::GlslShaderGenerator(TypeSystemPtr typeSystem) :
 
 ShaderPtr GlslShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const
 {
+    MX_TRACE_FUNCTION(Tracing::Category::ShaderGen);
+    MX_TRACE_SCOPE(Tracing::Category::ShaderGen, name.c_str());
+
     ShaderPtr shader = createShader(name, element, context);
 
     // Request fixed floating-point notation for consistency across targets.

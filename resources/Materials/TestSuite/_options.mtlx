@@ -79,10 +79,24 @@
     -->
     <input name="outputDirectory" type="string" value="" />
 
-    <!-- Enable Perfetto tracing during render tests (requires MATERIALX_BUILD_TRACING).
+    <!-- Enable Perfetto tracing during render tests (requires MATERIALX_BUILD_PERFETTO_TRACING).
          When enabled, generates .perfetto-trace files in outputDirectory.
          Default is false to avoid overhead when not profiling.
     -->
     <input name="enableTracing" type="boolean" value="true" />
+
+    <!-- Number of frames to render per material for GPU timing.
+         Default is 1. Set higher (e.g., 5-10) for statistical validity.
+         First frame often includes driver shader compilation overhead;
+         analyze in Python to discard warmup frames and compute averages.
+    -->
+    <input name="framesPerMaterial" type="integer" value="1" />
+
+    <!-- Number of environment radiance samples for IBL lighting.
+         Default is 1024. Lower values (1-16) are more representative
+         of real-time rendering and make shader complexity a larger
+         fraction of GPU time.
+    -->
+    <input name="envSampleCount" type="integer" value="1024" />
   </nodedef>
 </materialx>
