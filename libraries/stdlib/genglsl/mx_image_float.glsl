@@ -3,5 +3,12 @@
 void mx_image_float($texSamplerSignature, int layer, float defaultval, vec2 texcoord, int uaddressmode, int vaddressmode, int filtertype, int framerange, int frameoffset, int frameendaction, vec2 uv_scale, vec2 uv_offset, out float result)
 {
     vec2 uv = mx_transform_uv(texcoord, uv_scale, uv_offset);
-    result = texture($texSamplerSampler2D, uv).r;
+
+    bool outsideU = (uaddressmode == 0) && (uv.x < 0.0 || uv.x > 1.0);
+    bool outsideV = (vaddressmode == 0) && (uv.y < 0.0 || uv.y > 1.0);
+    bool useDefault = outsideU || outsideV;
+
+    float sampled = texture($texSamplerSampler2D, uv).r;
+
+    result = mix(sampled, defaultval, float(useDefault));
 }
