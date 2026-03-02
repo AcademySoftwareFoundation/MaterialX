@@ -3442,16 +3442,14 @@ void Graph::propertyEditor()
                 imagePadding = (_previewSize > availableWidth) ? availableWidth : _previewSize;
             }
 
-
-            int count = 0;
-            for (UiPinPtr input : _currUiNode->inputPins)
+            for (UiPinPtr input : _currUiNode->getInputPins())
             {
                 if (_currUiNode->getShowAllInputs() || (input->getConnected() || _currUiNode->getNode()->getInput(input->getName())))
                 {
                     count++;
                     
                     // Add space for image previews
-                    if (imagePadding > 0.0f && input->_input->getType() == "filename")
+                    if (imagePadding > 0.0f && input->getInput()->getType() == "filename")
                     {
                         totalImagePadding += imagePadding;
                     }
@@ -3459,7 +3457,6 @@ void Graph::propertyEditor()
             }
             if (count)
             {
-                //ImVec2 tableSize(0.0f, TEXT_BASE_HEIGHT * std::min(SCROLL_LINE_COUNT, count));
                 float baseHeight = TEXT_BASE_HEIGHT * std::min(SCROLL_LINE_COUNT, count);
                 ImVec2 tableSize(0.0f, baseHeight + totalImagePadding);
                 bool haveTable = ImGui::BeginTable("inputs_node_table", 2, tableFlags, tableSize);
