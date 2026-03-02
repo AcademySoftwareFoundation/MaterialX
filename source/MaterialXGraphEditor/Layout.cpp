@@ -451,9 +451,7 @@ void Layout::refineLayerY(int layerIndex, bool preferDownstream)
 {
     std::vector<int>& layer = _layers[layerIndex];
 
-    // Compute ideal Y for each node and track desired center.
-    float idealCenterSum = 0.0f;
-    int idealCount = 0;
+    // Compute ideal Y for each node based on the median neighbor center.
     for (int nodeId : layer)
     {
         Node& n = _nodes[nodeId];
@@ -472,13 +470,21 @@ void Layout::refineLayerY(int layerIndex, bool preferDownstream)
             neighborYs.push_back(nn.y + nn.height * 0.5f);
         }
         std::sort(neighborYs.begin(), neighborYs.end());
-        float medianY = neighborYs[neighborYs.size() / 2];
+        size_t mid = neighborYs.size() / 2;
+        float medianY = (neighborYs.size() % 2 != 0) ?
+                        neighborYs[mid] :
+                        (neighborYs[mid - 1] + neighborYs[mid]) * 0.5f;
         n.y = medianY - n.height * 0.5f;
-        idealCenterSum += medianY;
-        idealCount++;
     }
 
-    // Resolve overlaps while maintaining order.
+    // Save median-placed positions.
+    std::vector<float> medianY(layer.size());
+    for (size_t i = 0; i < layer.size(); ++i)
+    {
+        medianY[i] = _nodes[layer[i]].y;
+    }
+
+    // Top-to-bottom pass.
     for (size_t i = 1; i < layer.size(); ++i)
     {
         Node& prev = _nodes[layer[i - 1]];
@@ -490,20 +496,34 @@ void Layout::refineLayerY(int layerIndex, bool preferDownstream)
         }
     }
 
-    // Center the layer around the desired position.
-    if (idealCount > 0 && layer.size() > 1)
+    // Save top-to-bottom results.
+    std::vector<float> downY(layer.size());
+    for (size_t i = 0; i < layer.size(); ++i)
     {
-        float idealCenter = idealCenterSum / idealCount;
-        float actualCenterSum = 0.0f;
-        for (int nodeId : layer)
+        downY[i] = _nodes[layer[i]].y;
+    }
+
+    // Restore median positions for bottom-to-top pass.
+    for (size_t i = 0; i < layer.size(); ++i)
+    {
+        _nodes[layer[i]].y = medianY[i];
+    }
+
+    // Bottom-to-top pass.
+    for (int i = static_cast<int>(layer.size()) - 2; i >= 0; --i)
+    {
+        Node& above = _nodes[layer[i]];
+        Node& below = _nodes[layer[i + 1]];
+        float maxY = below.y - NODE_SPACING - above.height;
+        if (above.y > maxY)
         {
-            actualCenterSum += _nodes[nodeId].y + _nodes[nodeId].height * 0.5f;
+            above.y = maxY;
         }
-        float actualCenter = actualCenterSum / static_cast<float>(layer.size());
-        float shift = idealCenter - actualCenter;
-        for (int nodeId : layer)
-        {
-            _nodes[nodeId].y += shift;
-        }
+    }
+
+    // Average the two passes for symmetric spreading.
+    for (size_t i = 0; i < layer.size(); ++i)
+    {
+        _nodes[layer[i]].y = (downY[i] + _nodes[layer[i]].y) * 0.5f;
     }
 }

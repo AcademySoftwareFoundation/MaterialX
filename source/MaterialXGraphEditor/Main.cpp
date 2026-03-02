@@ -199,6 +199,15 @@ int main(int argc, char* const argv[])
     }
     if (!customFont)
     {
+        const mx::FilePath defaultFontFile("resources/Fonts/Roboto-Regular.ttf");
+        mx::FilePath resolvedFontPath = searchPath.find(defaultFontFile);
+        if (!resolvedFontPath.isEmpty())
+        {
+            customFont = io.Fonts->AddFontFromFileTTF(resolvedFontPath.asString().c_str(), fontSize);
+        }
+    }
+    if (!customFont)
+    {
         io.Fonts->AddFontDefault();
     }
 
@@ -251,6 +260,11 @@ int main(int argc, char* const argv[])
         config.CustomZoomLevels.push_back(level);
     }
     ed::SetCurrentEditor(editorContext);
+    ed::Style& editorStyle = ed::GetStyle();
+    editorStyle.NodeRounding  = 5.0f;
+    editorStyle.PinRounding   = 2.0f;
+    editorStyle.GroupRounding = 3.0f;
+    editorStyle.LinkStrength  = 125.0f;
 
     // Main loop
     while (!glfwWindowShouldClose(window))

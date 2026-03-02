@@ -12,6 +12,7 @@
 #include <imgui_node_editor_internal.h>
 #include <widgets.h>
 
+#include <cctype>
 #include <iostream>
 
 namespace
@@ -1875,8 +1876,9 @@ void Graph::drawOutputPins(UiNodePtr node, const std::string& longestInputLabel)
             longestLabel = pin->getName();
     }
 
-    // Create output pins
-    float nodeWidth = ImGui::CalcTextSize(longestLabel.c_str()).x;
+    // Create output pins with extra right padding
+    const float outputPinExtraPad = 20.0f;
+    float nodeWidth = ImGui::CalcTextSize(longestLabel.c_str()).x + outputPinExtraPad;
     for (UiPinPtr pin : node->getOutputPins())
     {
         const float indent = nodeWidth - ImGui::CalcTextSize(pin->getName().c_str()).x;
@@ -1923,13 +1925,22 @@ void Graph::drawInputPin(UiPinPtr pin)
     ImGui::PopID();
     ed::EndPin();
 
-    ImGui::SameLine();
+    ImGui::SameLine(0, 5.0f);
     ImGui::TextUnformatted(pin->getName().c_str());
 }
 
 std::vector<int> Graph::createNodes(bool nodegraph)
 {
     std::vector<int> outputNum;
+
+    const auto& nodeEditorStyle = ed::GetStyle();
+    const float hdrInset = nodeEditorStyle.NodeBorderWidth;
+    const float hdrPadL = nodeEditorStyle.NodePadding.x - hdrInset;
+    const float hdrPadT = nodeEditorStyle.NodePadding.y - hdrInset;
+    const float hdrPadB = hdrPadT;
+    const float hdrTextIndent = 4.0f;
+    const float hdrBottomSpacing = hdrPadB;
+    const float hdrRounding = std::max(nodeEditorStyle.NodeRounding - hdrInset, 0.0f);
 
     for (UiNodePtr node : _state.nodes)
     {
@@ -1947,15 +1958,18 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                 ImGui::PushID(node->getId());
                 ImGui::SetWindowFontScale(1.2f * _fontScale);
                 ImGui::GetWindowDrawList()->AddRectFilled(
-                    ImGui::GetCursorScreenPos() + ImVec2(-7.0, -8.0),
-                    ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - 9.f, ImGui::GetTextLineHeight() + 2.f),
-                    ImColor(ImColor(55, 55, 55, 255)), 12.f);
+                    ImGui::GetCursorScreenPos() + ImVec2(-hdrPadL, -hdrPadT),
+                    ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - hdrPadL - 2.f * hdrInset, ImGui::GetTextLineHeight() + hdrPadB),
+                    ImColor(ImColor(55, 55, 55, 255)), hdrRounding);
                 ImGui::GetWindowDrawList()->AddRectFilled(
-                    ImGui::GetCursorScreenPos() + ImVec2(-7.0, 3),
-                    ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - 9.f, ImGui::GetTextLineHeight() + 2.f),
+                    ImGui::GetCursorScreenPos() + ImVec2(-hdrPadL, 3),
+                    ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - hdrPadL - 2.f * hdrInset, ImGui::GetTextLineHeight() + hdrPadB),
                     ImColor(ImColor(55, 55, 55, 255)), 0.f);
+                ImGui::Indent(hdrTextIndent);
                 ImGui::Text("%s", node->getName().c_str());
+                ImGui::Unindent(hdrTextIndent);
                 ImGui::SetWindowFontScale(_fontScale);
+                ImGui::Dummy(ImVec2(0, hdrBottomSpacing));
 
                 std::string longestInputLabel = node->getName();
                 for (UiPinPtr pin : node->getInputPins())
@@ -2015,15 +2029,18 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                 ImGui::PushID(node->getId());
                 ImGui::SetWindowFontScale(1.2f * _fontScale);
                 ImGui::GetWindowDrawList()->AddRectFilled(
-                    ImGui::GetCursorScreenPos() + ImVec2(-7.0f, -8.0f),
-                    ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - 9.f, ImGui::GetTextLineHeight() + 2.f),
-                    ImColor(ImColor(85, 85, 85, 255)), 12.f);
+                    ImGui::GetCursorScreenPos() + ImVec2(-hdrPadL, -hdrPadT),
+                    ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - hdrPadL - 2.f * hdrInset, ImGui::GetTextLineHeight() + hdrPadB),
+                    ImColor(ImColor(85, 85, 85, 255)), hdrRounding);
                 ImGui::GetWindowDrawList()->AddRectFilled(
-                    ImGui::GetCursorScreenPos() + ImVec2(-7.0f, 3.f),
-                    ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - 9.f, ImGui::GetTextLineHeight() + 2.f),
+                    ImGui::GetCursorScreenPos() + ImVec2(-hdrPadL, 3.f),
+                    ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - hdrPadL - 2.f * hdrInset, ImGui::GetTextLineHeight() + hdrPadB),
                     ImColor(ImColor(85, 85, 85, 255)), 0.f);
+                ImGui::Indent(hdrTextIndent);
                 ImGui::Text("%s", node->getName().c_str());
+                ImGui::Unindent(hdrTextIndent);
                 ImGui::SetWindowFontScale(_fontScale);
+                ImGui::Dummy(ImVec2(0, hdrBottomSpacing));
 
                 outputType = node->getInput()->getType();
                 for (UiPinPtr pin : node->getInputPins())
@@ -2085,15 +2102,18 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                 ImGui::PushID(node->getId());
                 ImGui::SetWindowFontScale(1.2f * _fontScale);
                 ImGui::GetWindowDrawList()->AddRectFilled(
-                    ImGui::GetCursorScreenPos() + ImVec2(-7.0, -8.0),
-                    ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - 9.f, ImGui::GetTextLineHeight() + 2.f),
-                    ImColor(ImColor(35, 35, 35, 255)), 12.f);
+                    ImGui::GetCursorScreenPos() + ImVec2(-hdrPadL, -hdrPadT),
+                    ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - hdrPadL - 2.f * hdrInset, ImGui::GetTextLineHeight() + hdrPadB),
+                    ImColor(ImColor(35, 35, 35, 255)), hdrRounding);
                 ImGui::GetWindowDrawList()->AddRectFilled(
-                    ImGui::GetCursorScreenPos() + ImVec2(-7.0, 3),
-                    ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - 9.f, ImGui::GetTextLineHeight() + 2.f),
+                    ImGui::GetCursorScreenPos() + ImVec2(-hdrPadL, 3),
+                    ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - hdrPadL - 2.f * hdrInset, ImGui::GetTextLineHeight() + hdrPadB),
                     ImColor(ImColor(35, 35, 35, 255)), 0);
+                ImGui::Indent(hdrTextIndent);
                 ImGui::Text("%s", node->getName().c_str());
+                ImGui::Unindent(hdrTextIndent);
                 ImGui::SetWindowFontScale(_fontScale);
+                ImGui::Dummy(ImVec2(0, hdrBottomSpacing));
 
                 outputType = node->getOutput()->getType();
 
@@ -2160,15 +2180,18 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                 ImGui::PushID(node->getId());
                 ImGui::SetWindowFontScale(1.2f * _fontScale);
                 ImGui::GetWindowDrawList()->AddRectFilled(
-                    ImGui::GetCursorScreenPos() + ImVec2(-7.0, -8.0),
-                    ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - 9.f, ImGui::GetTextLineHeight() + 2.f),
-                    ImColor(ImColor(35, 35, 35, 255)), 12.f);
+                    ImGui::GetCursorScreenPos() + ImVec2(-hdrPadL, -hdrPadT),
+                    ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - hdrPadL - 2.f * hdrInset, ImGui::GetTextLineHeight() + hdrPadB),
+                    ImColor(ImColor(35, 35, 35, 255)), hdrRounding);
                 ImGui::GetWindowDrawList()->AddRectFilled(
-                    ImGui::GetCursorScreenPos() + ImVec2(-7.0, 3),
-                    ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - 9.f, ImGui::GetTextLineHeight() + 2.f),
+                    ImGui::GetCursorScreenPos() + ImVec2(-hdrPadL, 3),
+                    ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - hdrPadL - 2.f * hdrInset, ImGui::GetTextLineHeight() + hdrPadB),
                     ImColor(ImColor(35, 35, 35, 255)), 0);
+                ImGui::Indent(hdrTextIndent);
                 ImGui::Text("%s", node->getName().c_str());
+                ImGui::Unindent(hdrTextIndent);
                 ImGui::SetWindowFontScale(_fontScale);
+                ImGui::Dummy(ImVec2(0, hdrBottomSpacing));
                 for (UiPinPtr pin : node->getInputPins())
                 {
                     if (node->getConnectedNode(pin->getName()) != nullptr)
@@ -3725,13 +3748,19 @@ void Graph::addNodePopup(bool cursor)
                 // Allow spaces to be used to search for node names
                 std::replace(subs.begin(), subs.end(), ' ', '_');
 
-                if (subs.size() == 0 || str.find(subs) != std::string::npos)
+                std::string strLower(str);
+                std::string subsLower(subs);
+                std::transform(strLower.begin(), strLower.end(), strLower.begin(), ::tolower);
+                std::transform(subsLower.begin(), subsLower.end(), subsLower.begin(), ::tolower);
+
+                if (subs.size() == 0 || strLower.find(subsLower) != std::string::npos)
                 {
                     if (ImGui::MenuItem(getUserNodeDefName(nodeName).c_str()) || (ImGui::IsItemFocused() && ImGui::IsKeyPressedMap(ImGuiKey_Enter)))
                     {
                         addNode(node.getCategory(), getUserNodeDefName(nodeName), node.getType());
                         _addNewNode = true;
                         memset(input, '\0', sizeof(input));
+                        ImGui::CloseCurrentPopup();
                     }
                 }
             }
@@ -3749,6 +3778,7 @@ void Graph::addNodePopup(bool cursor)
                         {
                             addNode(node.getCategory(), getUserNodeDefName(name), node.getType());
                             _addNewNode = true;
+                            ImGui::CloseCurrentPopup();
                         }
                     }
                     else
@@ -3759,6 +3789,7 @@ void Graph::addNodePopup(bool cursor)
                             {
                                 addNode(node.getCategory(), getUserNodeDefName(name), node.getType());
                                 _addNewNode = true;
+                                ImGui::CloseCurrentPopup();
                             }
                             ImGui::EndMenu();
                         }
@@ -4127,6 +4158,7 @@ void Graph::drawGraph(ImVec2 mousePos)
             else if (!_state.nodes.empty())
             {
                 ed::SetNodePosition(_state.nodes.back()->getId(), canvasPos);
+                ed::SelectNode(_state.nodes.back()->getId());
             }
             _copiedNodes.clear();
             _addNewNode = false;
