@@ -75,7 +75,6 @@ export struct mx_flake__result
     float mxp_rand;          // random float [0, 1], 0 for no flake
     float mxp_presence;      // flake presence [0, 1], 0 for no flake
     float3 mxp_flakenormal;  // flake normal
-
 };
 
 export mx_flake__result mx_flake(
@@ -88,7 +87,6 @@ export mx_flake__result mx_flake(
     float3 bitangent
 )
 {
-
     float probability = mx_flake_density_to_probability(math::saturate(coverage));
     const float flake_diameter = 1.5 / math::sqrt(3.0);
 
@@ -143,7 +141,6 @@ export mx_flake__result mx_flake(
             }
         }
     }
-
 
     mx_flake__result flake_out(0, 0.0, 0.0, normal);
 
