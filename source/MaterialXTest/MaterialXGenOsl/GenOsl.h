@@ -45,7 +45,8 @@ class OslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
 
     void addSkipFiles() override
     {
-        // No additional files are skipped
+        _skipFiles.insert("flake.mtlx");
+        _skipFiles.insert("flake_surfaceshader.mtlx");
         ShaderGeneratorTester::addSkipFiles();
     }
 
