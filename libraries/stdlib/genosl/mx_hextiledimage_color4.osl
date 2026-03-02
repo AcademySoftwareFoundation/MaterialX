@@ -51,15 +51,9 @@ void mx_hextiledimage_color4(
     // Luminance-based blend weights
     cw = mix(vector(1.0), cw, vector(falloffcontrast));
     vector w = mx_hextile_compute_blend_weights(cw, tile_data.weights, falloff);
-
-    // Alpha (average with optional falloff adjustment)
-    float a = (alpha[0] + alpha[1] + alpha[2]) / 3.0;
-    if (falloff != 0.5)
-    {
-        a = mx_schlick_gain(a, falloff);
-    }
+    vector aw = mx_hextile_compute_blend_weights(vector(1.0), tile_data.weights, falloff);
 
     // Blend colors
     result.rgb = w[0] * c[0] + w[1] * c[1] + w[2] * c[2];
-    result.a = a;
+    result.a = aw[0] * alpha[0] + aw[1] * alpha[1] + aw[2] * alpha[2];
 }
