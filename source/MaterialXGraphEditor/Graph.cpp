@@ -2851,6 +2851,8 @@ void Graph::initializeGraph()
     _state.graphElem = _graphDoc;
     _state.isCompoundNodeGraph = false;
     _prevUiNode = nullptr;
+    _currUiNode = nullptr;
+    _currRenderNode = nullptr;
 
     // Set the display name from the current material filename.
     mx::FilePath materialPath(_materialFilename);
