@@ -106,7 +106,7 @@ def main(args=None):
     langFiles1 = []
     langPaths1 = []
     for subdir, _, files in os.walk(args.inputdir1):
-        for curFile in files:
+        for curFile in sorted(files):
             if curFile.endswith(args.lang1 + ".png"):
                 langFiles1.append(curFile)
                 langPaths1.append(subdir)

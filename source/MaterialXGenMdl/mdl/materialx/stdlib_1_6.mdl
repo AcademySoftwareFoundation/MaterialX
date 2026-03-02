@@ -777,16 +777,11 @@ export core::color4 mx_hextiledimage_color4(
 	cw = math::lerp(float3(1.0), cw, float3(mxp_falloff_contrast));
 
 	float3 w = hextile::mx_hextile_compute_blend_weights(cw, tile_data.weights, mxp_falloff);
-
-	// alpha
-	float a = (c1.a + c2.a + c3.a) / 3.0;
-	if (mxp_falloff != 0.5)
-	{
-		a = hextile::mx_schlick_gain(a, mxp_falloff);
-	}
+	float3 aw = hextile::mx_hextile_compute_blend_weights(float3(1.0), tile_data.weights, mxp_falloff);
 
 	// blend
-	return core::mk_color4(w.x * c1.rgb + w.y * c2.rgb + w.z * c3.rgb, a);
+	return core::mk_color4(w.x * c1.rgb + w.y * c2.rgb + w.z * c3.rgb,
+	  					   aw.x * c1.a + aw.y * c2.a + aw.z * c3.a);
 }
 
 export float mx_constant_float(

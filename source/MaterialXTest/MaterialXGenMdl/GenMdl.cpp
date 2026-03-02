@@ -58,13 +58,20 @@ void MdlStringResolver::initialize(
         paths.append(addSp);
     }
 
+    // use a set to remove duplicates while keeping the order
+    auto less = [](const mx::FilePath& lhs, const mx::FilePath& rhs)
+        { return lhs.asString() < rhs.asString(); };
+    std::set<mx::FilePath, decltype(less)> unique_paths(less);
+
     _mdl_searchPaths.clear();
     for (const auto& path : paths)
     {
         // normalize all search paths, as we need this later in `resolve`
         auto normalizedPath = path.getNormalized();
-        if (normalizedPath.exists())
+        if (normalizedPath.exists() && unique_paths.insert(normalizedPath).second)
+        {
             _mdl_searchPaths.append(normalizedPath);
+        }
     }
 
     _logFile = logFile;
@@ -105,7 +112,7 @@ std::string MdlStringResolver::resolve(const std::string& str, const std::string
     }
     if (_logFile)
     {
-        *_logFile << "MaterialX resource can not be accessed through an MDL search path. "
+        *_logFile << "Failed to resolve a MaterialX resource via the given search paths. "
                   << "Dropping the resource from the Material. Resource Path: "
                   << normalizedPath.asString().c_str() << std::endl;
     }
@@ -244,7 +251,7 @@ void MdlShaderGeneratorTester::compileSource(const std::vector<mx::FilePath>& so
     mdlcCommand += " ::" + moduleToTest;
 
     // redirect output
-    mx::FilePath errorFile = moduleToTestPath / (moduleToTest + ".mdl_compile_errors.txt");
+    mx::FilePath errorFile = moduleToTestPath / (moduleToTest + "_log.txt");
     mdlcCommand += " > " + errorFile.asString() + " 2>&1";
 
     // execute the compiler and evaluate return code and the output stream
@@ -281,8 +288,7 @@ TEST_CASE("GenShader: MDL Shader Generation", "[genmdl]")
 
     mx::FilePathVec testRootPaths;
     testRootPaths.push_back(searchPath.find("resources/Materials/TestSuite"));
-    testRootPaths.push_back(searchPath.find("resources/Materials/Examples/StandardSurface"));
-    testRootPaths.push_back(searchPath.find("resources/Materials/Examples/UsdPreviewSurface"));
+    testRootPaths.push_back(searchPath.find("resources/Materials/Examples"));
 
     const mx::FilePath logPath("genmdl_mdl_generate_test.txt");
 

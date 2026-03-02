@@ -12,6 +12,11 @@
 #include <MaterialXGenShader/OcioColorManagementSystem.h>
 #endif
 
+#ifdef MATERIALX_BUILD_PERFETTO_TRACING
+#include <MaterialXTrace/Tracing.h>
+#include <optional>
+#endif
+
 namespace mx = MaterialX;
 
 namespace RenderUtil
@@ -81,13 +86,42 @@ void ShaderRenderTester::loadDependentLibraries(GenShaderUtil::TestSuiteOptions 
 
 bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
 {
+    // Read options first so we can use outputDirectory for log files
+    GenShaderUtil::TestSuiteOptions options;
+    if (!options.readOptions(optionsFilePath))
+    {
+        std::cerr << "Can't find options file. Skip test." << std::endl;
+        return false;
+    }
+    if (!runTest(options))
+    {
+        std::cerr << "Target: " << _shaderGenerator->getTarget() << " not set to run. Skip test." << std::endl;
+        return false;
+    }
+
+#ifdef MATERIALX_BUILD_PERFETTO_TRACING
+    // Initialize tracing with target-specific trace filename (if enabled in options)
+    std::optional<mx::Tracing::Dispatcher::ShutdownGuard> tracingGuard;
+    if (options.enableTracing)
+    {
+        mx::FilePath tracePath = options.resolveOutputPath(_shaderGenerator->getTarget() + "_render_trace.perfetto-trace");
+        mx::Tracing::Dispatcher::getInstance().setSink(
+            mx::Tracing::createPerfettoSink(tracePath.asString()));
+        // Scope guard ensures tracing is shut down on any exit path (return, exception, etc.)
+        tracingGuard.emplace();
+    }
+#endif
+
 #ifdef LOG_TO_FILE
-    std::ofstream logfile(_shaderGenerator->getTarget() + "_render_log.txt");
+    mx::FilePath logPath = options.resolveOutputPath(_shaderGenerator->getTarget() + "_render_log.txt");
+    std::ofstream logfile(logPath.asString());
     std::ostream& log(logfile);
-    std::string docValidLogFilename = _shaderGenerator->getTarget() + "_render_doc_validation_log.txt";
+    mx::FilePath docValidLogPath = options.resolveOutputPath(_shaderGenerator->getTarget() + "_render_doc_validation_log.txt");
+    std::string docValidLogFilename = docValidLogPath.asString();
     std::ofstream docValidLogFile(docValidLogFilename);
     std::ostream& docValidLog(docValidLogFile);
-    std::ofstream profilingLogfile(_shaderGenerator->getTarget() + "_render_profiling_log.txt");
+    mx::FilePath profilingLogPath = options.resolveOutputPath(_shaderGenerator->getTarget() + "_render_profiling_log.txt");
+    std::ofstream profilingLogfile(profilingLogPath.asString());
     std::ostream& profilingLog(profilingLogfile);
 #else
     std::ostream& log(std::cout);
@@ -95,20 +129,6 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
     std::ostream& docValidLog(std::cout);
     std::ostream& profilingLog(std::cout);
 #endif
-
-    // Test has been turned off so just do nothing.
-    // Check for an option file
-    GenShaderUtil::TestSuiteOptions options;
-    if (!options.readOptions(optionsFilePath))
-    {
-        log << "Can't find options file. Skip test." << std::endl;
-        return false;
-    }
-    if (!runTest(options))
-    {
-        log << "Target: " << _shaderGenerator->getTarget() << " not set to run. Skip test." << std::endl;
-        return false;
-    }
 
     // Profiling times
     RenderUtil::RenderProfileTimes profileTimes;
@@ -288,6 +308,15 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
 
         mx::FilePath outputPath = filename;
         outputPath.removeExtension();
+        
+        // If outputDirectory is set, redirect output to that directory
+        // while preserving the material name as a subdirectory
+        if (!options.outputDirectory.isEmpty())
+        {
+            // Get just the material directory name (e.g., "standard_surface_carpaint")
+            mx::FilePath materialDir = outputPath.getBaseName();
+            outputPath = options.outputDirectory / materialDir;
+        }
 
         renderableSearchTimer.startTimer();
         std::vector<mx::TypedElementPtr> elements;
@@ -312,6 +341,12 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
     // Dump out profiling information
     totalTime.endTimer();
     printRunLog(profileTimes, options, profilingLog, dependLib);
+
+    // Print effective output directory for easy access (clickable in terminals)
+    if (!options.outputDirectory.isEmpty())
+    {
+        std::cout << std::endl << "Test artifacts written to: " << options.outputDirectory.asString() << std::endl;
+    }
 
     return true;
 }
