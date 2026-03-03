@@ -28,5 +28,6 @@ void bindPyShader(py::module& mod)
         .def("hasAttribute", &mx::Shader::hasAttribute)
         .def("getAttribute", &mx::Shader::getAttribute)
         .def("setAttribute", static_cast<void (mx::Shader::*)(const std::string&)>(&mx::Shader::setAttribute))
-        .def("setAttribute", static_cast<void (mx::Shader::*)(const std::string&, mx::ValuePtr)>(&mx::Shader::setAttribute));
+        .def("setAttribute", static_cast<void (mx::Shader::*)(const std::string&, mx::ValuePtr)>(&mx::Shader::setAttribute))
+        .def("createMermaidGraph", &mx::Shader::createMermaidGraph);
 }

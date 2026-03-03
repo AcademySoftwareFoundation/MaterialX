@@ -1308,6 +1308,58 @@ void ShaderGraph::populateUnitTransformMap(UnitSystemPtr unitSystem, ShaderPort*
     }
 }
 
+string ShaderGraph::createMermaidGraph(bool showInputValues) const
+{
+    std::ostringstream oss;
+    oss << "graph LR\n";
+
+    // Emit nodes
+    for (const ShaderNode* node : getNodes())
+    {
+        const string& id  = node->getUniqueId();
+        oss << "    " << id << "[\"" << id << "\"]\n";
+    }
+
+    for (const ShaderNode* node : getNodes())
+    {
+        const string& nodeId = node->getUniqueId();
+
+        // Emit connections
+        for (const ShaderOutput* output : node->getOutputs())
+        {
+            const ShaderInputVec& connections = output->getConnections();
+            for (const ShaderInput* input : connections)
+            {
+                if (input && input->getNode())
+                {
+                    const string connector = " --\"" + output->getName() + " --> " + input->getName() + "\"--> ";
+                    oss << "    " << nodeId << connector << input->getNode()->getUniqueId() << "\n";
+                }
+            }
+        }
+
+        // Optionally emit input values
+        if (showInputValues)
+        {
+            for (const ShaderInput* input : node->getInputs())
+            {
+                if (input)
+                {
+                    const string& valueString = input->getValueString();
+                    if (!valueString.empty())
+                    {
+                        oss << "    " << node->getUniqueId() << "/" << input->getName();
+                        oss <<  "[\""  << input->getName() << " = " << valueString << "\"]";
+                        oss << " --> " << nodeId << "\n";
+                    }
+                }
+            }
+        }
+    }   
+
+    return oss.str();
+}
+
 namespace
 {
 static const ShaderGraphEdgeIterator NULL_EDGE_ITERATOR(nullptr);

@@ -70,6 +70,11 @@ class MX_GENSHADER_API ShaderGraph : public ShaderNode
     /// Get a vector of all nodes in order
     const vector<ShaderNode*>& getNodes() const { return _nodeOrder; }
 
+    /// Generate a Mermaid graph representing this shader graph.
+    /// @param showInputValues If true, the graph will include the values of any unconnected input sockets 
+    /// @return Mermaid graph as a string.
+    string createMermaidGraph(bool showInputValues) const;
+
     /// Get number of input sockets
     size_t numInputSockets() const { return numOutputs(); }
 
