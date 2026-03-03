@@ -81,6 +81,30 @@ TEST_CASE("Interface Input Validation", "[node]")
         }
         REQUIRE(valid);
     }
+
+    // Test that a nodegraph input can reference a document-level input
+    // via its interface name.
+    mx::InputPtr docInput = doc->addInput("doc_color", "color3");
+    mx::InputPtr graphInput = nodegraph->addInput("graph_color", "color3");
+    graphInput->setInterfaceName(docInput->getName());
+    bool valid = doc->validate(&validationErrors);
+    if (!valid)
+    {
+        INFO(validationErrors);
+    }
+    REQUIRE(valid);
+
+    // Test that an invalid interface name on a nodegraph input is caught.
+    graphInput->setInterfaceName("invalid");
+    valid = doc->validate(&validationErrors);
+    REQUIRE(!valid);
+
+    // Test that a nodegraph input cannot reference a sibling input
+    // via its interface name.
+    mx::InputPtr graphInput2 = nodegraph->addInput("graph_color2", "color3");
+    graphInput2->setInterfaceName("graph_color");
+    valid = doc->validate(&validationErrors);
+    REQUIRE(!valid);
 }
 
 TEST_CASE("Node Type Multioutput Validation", "[Node]")
