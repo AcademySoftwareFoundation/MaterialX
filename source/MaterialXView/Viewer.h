@@ -423,6 +423,7 @@ class Viewer : public ng::Screen
     mx::GenContext _genContext;
 #ifndef MATERIALXVIEW_METAL_BACKEND
     mx::GenContext _genContextEssl;
+    mx::GenContext _genContextWgsl;
 #endif
 #if MATERIALX_BUILD_GEN_OSL
     mx::GenContext _genContextOsl;

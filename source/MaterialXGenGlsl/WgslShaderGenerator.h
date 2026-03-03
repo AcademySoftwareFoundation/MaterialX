@@ -35,6 +35,11 @@ class MX_GENGLSL_API WgslShaderGenerator : public VkShaderGenerator
         return std::make_shared<WgslShaderGenerator>(typeSystem ? typeSystem : TypeSystem::create());
     }
 
+    const string& getTarget() const override { return TARGET; }
+
+    /// Unique identifier for this generator target
+    static const string TARGET;
+
     void emitDirectives(GenContext& context, ShaderStage& stage) const override;
 
     const string& getLightDataTypevarString() const override { return LIGHTDATA_TYPEVAR_STRING; }
