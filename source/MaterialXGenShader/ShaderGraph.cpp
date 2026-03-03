@@ -9,6 +9,7 @@
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Util.h>
 
+#include <cassert>
 #include <iostream>
 #include <queue>
 
@@ -495,7 +496,15 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
             throw ExceptionShaderGenError("Given output '" + output->getName() + "' has no interface valid for shader generation");
         }
 
-        graph = std::make_shared<ShaderGraph>(parent, name, element->getDocument());
+        // The identifier is already needed by the base class constructor, but the identifier map is
+        // only initialized later (and the context/syntax is not available). Use a local variable
+        // and move it after construction.
+        string identifier = name;
+        IdentifierMap localMap;
+        context.getShaderGenerator().getSyntax().makeIdentifier(identifier, localMap);
+        graph = std::make_shared<ShaderGraph>(parent, identifier, element->getDocument());
+        assert(graph->getIdentifierMap().empty());
+        graph->getIdentifierMap() = std::move(localMap);
 
         // Clear classification
         graph->_classification = 0;
@@ -531,7 +540,15 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
             throw ExceptionShaderGenError("Could not find a nodedef for node '" + node->getName() + "'");
         }
 
-        graph = std::make_shared<ShaderGraph>(parent, name, element->getDocument());
+        // The identifier is already needed by the base class constructor, but the identifier map is
+        // only initialized later (and the context/syntax is not available). Use a local variable
+        // and move it after construction.
+        string identifier = name;
+        IdentifierMap localMap;
+        context.getShaderGenerator().getSyntax().makeIdentifier(identifier, localMap);
+        graph = std::make_shared<ShaderGraph>(parent, identifier, element->getDocument());
+        assert(graph->getIdentifierMap().empty());
+        graph->getIdentifierMap() = std::move(localMap);
 
         // Create input sockets
         graph->addInputSockets(*nodeDef, context);
