@@ -12,6 +12,7 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
+const string WgslShaderGenerator::TARGET = "wgsl";
 const string WgslShaderGenerator::LIGHTDATA_TYPEVAR_STRING = "light_type";
 
 WgslShaderGenerator::WgslShaderGenerator(TypeSystemPtr typeSystem) :
@@ -73,40 +74,55 @@ void WgslShaderGenerator::emitInput(const ShaderInput* input, GenContext& contex
 
 void WgslShaderGenerator::replaceTokens(const StringMap& substitutions, ShaderStage& stage) const
 {
-    // Let the base handle all interface and code substitution with a safe map
-    // (T_REFRACTION_TWO_SIDED -> u_refractionTwoSided, no bool wrap).
-    StringMap safeSubstitutions = substitutions;
-    safeSubstitutions[HW::T_REFRACTION_TWO_SIDED] = HW::REFRACTION_TWO_SIDED;
-    ShaderGenerator::replaceTokens(safeSubstitutions, stage);
-
-    // Now fix up code only: wrap bool-as-int uniform names in bool() at use sites,
-    // but skip declaration lines (pattern: " name;").
-    // Add more entries here if additional bool uniforms are introduced.
-    const vector<std::pair<string, string>> boolUniforms = {
-        { HW::REFRACTION_TWO_SIDED, "bool(" + HW::REFRACTION_TWO_SIDED + ")" },
+    // Bool-as-int uniform tokens. Add new entries when introducing more bool uniforms.
+    // Local static avoids static initialization order issues with extern HW:: constants.
+    static const vector<std::pair<string, string>> boolUniformTokens = {
+        { HW::T_REFRACTION_TWO_SIDED, HW::REFRACTION_TWO_SIDED },
     };
+
+    // Source code: bool-as-int uniform tokens get wrapped in bool() so that
+    // uses like "if ($refractionTwoSided)" become "if (bool(u_refractionTwoSided))".
+    const StringMap codeSubstitutions = [&]() {
+        StringMap subs = substitutions;
+        for (const auto& entry : boolUniformTokens)
+            subs[entry.first] = "bool(" + entry.second + ")";
+        return subs;
+    }();
+
     string code = stage.getSourceCode();
-    for (const auto& entry : boolUniforms)
-    {
-        const string& plainName = entry.first;
-        const string& castName = entry.second;
-        for (size_t pos = 0; (pos = code.find(plainName, pos)) != string::npos; )
-        {
-            bool isDecl = (pos > 0 && code[pos - 1] == ' ' &&
-                           pos + plainName.size() < code.size() &&
-                           code[pos + plainName.size()] == ';');
-            if (isDecl)
-            {
-                pos += plainName.size();
-            }
-            else
-            {
-                code.replace(pos, plainName.size(), castName);
-                pos += castName.size();
-            }
-        }
-    }
+    tokenSubstitution(codeSubstitutions, code);
     stage.setSourceCode(code);
+
+    // Interface ports: bool-as-int uniform tokens stay as plain names so that
+    // uniform declarations and application-side binding remain correct.
+    const StringMap portSubstitutions = [&]() {
+        StringMap subs = substitutions;
+        for (const auto& entry : boolUniformTokens)
+            subs[entry.first] = entry.second;
+        return subs;
+    }();
+
+    auto replacePorts = [&portSubstitutions](VariableBlock& block)
+    {
+        for (size_t i = 0; i < block.size(); ++i)
+        {
+            ShaderPort* port = block[i];
+            string name = port->getName();
+            tokenSubstitution(portSubstitutions, name);
+            port->setName(name);
+            string variable = port->getVariable();
+            tokenSubstitution(portSubstitutions, variable);
+            port->setVariable(variable);
+        }
+    };
+
+    replacePorts(stage.getConstantBlock());
+    for (const auto& it : stage.getUniformBlocks())
+        replacePorts(*it.second);
+    for (const auto& it : stage.getInputBlocks())
+        replacePorts(*it.second);
+    for (const auto& it : stage.getOutputBlocks())
+        replacePorts(*it.second);
 }
 
 MATERIALX_NAMESPACE_END

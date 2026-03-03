@@ -46,11 +46,20 @@ void WgslResourceBindingContext::emitResourceBindings(GenContext& context, const
         {
             if (uniform->getType() != Type::FILENAME)
             {
-                if ( uniform->getType() == Type::BOOLEAN )
+                if (uniform->getType() == Type::BOOLEAN)
                 {
-                    // WGSL does not support boolean uniforms; emit as integer.
-                    // Cast to bool is emitted at use site (emitInput / replaceTokens).
-                    uniform->setType( Type::INTEGER );
+                    // WGSL does not support boolean uniforms; emit as integer
+                    // with the resolved variable name so that replaceTokens
+                    // (which wraps bool-uniform tokens in bool()) won't corrupt
+                    // the declaration. Cast to bool at use sites is handled by
+                    // WgslShaderGenerator::emitInput and replaceTokens.
+                    uniform->setType(Type::INTEGER);
+
+                    string tokenName = uniform->getVariable();
+                    const auto& subs = generator.getTokenSubstitutions();
+                    auto it = subs.find(tokenName);
+                    if (it != subs.end())
+                        uniform->setVariable(it->second);
 
                     generator.emitLineBegin(stage);
                     generator.emitVariableDeclaration(uniform, EMPTY_STRING, context, stage, false);
