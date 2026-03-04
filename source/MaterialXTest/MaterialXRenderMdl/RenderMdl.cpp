@@ -185,6 +185,8 @@ bool MdlShaderRenderTester::runRenderer(const std::string& shaderName,
                 command += " --materialxtest_mode"; // align texcoord space with OSL
 
                 // Application setup
+                command += " --noaux";
+                command += " --nocc";
                 command += " --no_shader_opt";      // does not pay off for the testsuite
                 command += " --no_window";
                 command += " --warning";            // filter info messages from the log
@@ -225,14 +227,6 @@ bool MdlShaderRenderTester::runRenderer(const std::string& shaderName,
                     log << "\tLog: " << line << std::endl;
                 }
                 validated = true;
-
-                // Remove output images for auxiliary buffers (not needed here, no error checking)
-                std::string aux_buffers[]
-                    = { "_albedo", "_normal", "_albedo_diffuse", "_albedo_glossy", "_roughness" };
-                for (const auto& aux_buffer : aux_buffers)
-                {
-                    std::remove((shaderPath + "_mdl" + aux_buffer + ext).c_str());
-                }
             }
             catch (mx::ExceptionRenderError& e)
             {
