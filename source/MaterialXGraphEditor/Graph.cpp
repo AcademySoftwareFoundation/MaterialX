@@ -956,7 +956,6 @@ void Graph::showPropertyEditorValue(UiNodePtr node, mx::InputPtr input, const mx
                     }
                 }
                 ImGui::EndChild();
-                //ImGui::PopItemWidth();
             }
 
             ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(.15f, .15f, .15f, 1.0f));
@@ -3433,6 +3432,12 @@ void Graph::propertyEditor()
             {
                 _currUiNode->setShowAllInputs(showAllInputs);
             }
+
+            bool showOutputsInEditor = _currUiNode->getShowOutputsInEditor();
+            if (ImGui::Checkbox("Show output connections", &showOutputsInEditor))
+            {
+                _currUiNode->setShowOutputsInEditor(showOutputsInEditor);
+            }            
 
             int count = 0;
             float totalImagePadding = 0.0f;
