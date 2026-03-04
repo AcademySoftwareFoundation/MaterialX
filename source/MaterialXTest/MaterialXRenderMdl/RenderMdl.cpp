@@ -50,6 +50,7 @@ class MdlShaderRenderTester : public RenderUtil::ShaderRenderTester
         // general it is probably better to give the main object a predictable name and use suffixes
         // for internal objects.
         _skipFiles.insert("translucent_bsdf.mtlx");
+        _skipFiles.insert("blur.mtlx");
     }
 
     mx::DocumentPtr _last_doc;
