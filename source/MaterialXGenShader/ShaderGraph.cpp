@@ -932,7 +932,7 @@ void ShaderGraph::finalize(GenContext& context)
                 name = input->getFullName();
                 socket = getInputSocket(name);
             }
-            if (socket && useGenericName)
+            if (socket)
             {
                 auto it = sharedSockets.find(name);
                 if (it != sharedSockets.end() && it->second != node)
@@ -941,7 +941,8 @@ void ShaderGraph::finalize(GenContext& context)
                     context.getShaderGenerator().getSyntax().makeValidName(sanitized);
                     if (!sanitized.empty() && sanitized[0] == '_')
                         sanitized.erase(0, 1);
-                    name = input->getName() + "_" + sanitized;
+                    string baseName = useGenericName ? input->getName() : input->getFullName();
+                    name = baseName + "_" + sanitized;
                     socket = getInputSocket(name);
                 }
             }
@@ -978,10 +979,7 @@ void ShaderGraph::finalize(GenContext& context)
                             {
                                 inputSocket->setUniform();
                             }
-                            if (useGenericName)
-                            {
-                                sharedSockets[interfaceName] = node;
-                            }
+                            sharedSockets[interfaceName] = node;
                         }
                         inputSocket->makeConnection(input);
                         inputSocket->setMetadata(input->getMetadata());
