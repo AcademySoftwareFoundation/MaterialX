@@ -21,6 +21,12 @@
 #include <MaterialXGenGlsl/VkShaderGenerator.h>
 #include <MaterialXGenGlsl/WgslShaderGenerator.h>
 #include <MaterialXGenHw/HwConstants.h>
+#include <MaterialXGenShader/ShaderGraphHash.h>
+#include <MaterialXGenShader/Shader.h>
+#include <MaterialXFormat/Util.h>
+
+#include <iomanip>
+#include <sstream>
 
 namespace mx = MaterialX;
 
@@ -219,4 +225,110 @@ TEST_CASE("GenShader: Vulkan GLSL Shader Generation", "[genglsl]")
 TEST_CASE("GenShader: Wgsl GLSL Shader Generation", "[genglsl]")
 {
     generateGlslCode(GlslType::GlslWgsl);
+}
+
+TEST_CASE("GenShader: GLSL Structural Hash", "[genglsl]")
+{
+    mx::DocumentPtr nodeLibrary = mx::createDocument();
+    const mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+
+    loadLibraries({ "libraries" }, searchPath, nodeLibrary);
+
+    mx::GenContext context(mx::GlslShaderGenerator::create());
+    context.registerSourceCodeSearchPath(searchPath);
+
+    mx::DefaultColorManagementSystemPtr colorManagementSystem =
+        mx::DefaultColorManagementSystem::create(context.getShaderGenerator().getTarget());
+    REQUIRE(colorManagementSystem);
+    context.getShaderGenerator().setColorManagementSystem(colorManagementSystem);
+    colorManagementSystem->loadLibrary(nodeLibrary);
+
+    mx::UnitSystemPtr unitSystem = mx::UnitSystem::create(context.getShaderGenerator().getTarget());
+    REQUIRE(unitSystem);
+    context.getShaderGenerator().setUnitSystem(unitSystem);
+    unitSystem->loadLibrary(nodeLibrary);
+    unitSystem->setUnitConverterRegistry(mx::UnitConverterRegistry::create());
+    mx::UnitTypeDefPtr distanceTypeDef = nodeLibrary->getUnitTypeDef("distance");
+    unitSystem->getUnitConverterRegistry()->addUnitConverter(distanceTypeDef, mx::LinearUnitConverter::create(distanceTypeDef));
+    mx::UnitTypeDefPtr angleTypeDef = nodeLibrary->getUnitTypeDef("angle");
+    unitSystem->getUnitConverterRegistry()->addUnitConverter(angleTypeDef, mx::LinearUnitConverter::create(angleTypeDef));
+    context.getOptions().targetDistanceUnit = "meter";
+
+    mx::FilePathVec testRootPaths;
+    testRootPaths.push_back(searchPath.find("resources/Materials/Examples/StandardSurface"));
+
+    std::vector<mx::DocumentPtr> loadedDocuments;
+    mx::StringVec documentsPaths;
+    mx::StringVec errorLog;
+
+    for (const auto& testRoot : testRootPaths)
+    {
+        mx::loadDocuments(testRoot, searchPath, {}, {}, loadedDocuments, documentsPaths,
+                          nullptr, &errorLog);
+    }
+
+    REQUIRE(loadedDocuments.size() > 0);
+
+    std::ostringstream hashLog;
+    hashLog << std::hex << std::setfill('0');
+    hashLog << "\n=== Structural Hash Results ===\n";
+
+    for (size_t docIdx = 0; docIdx < loadedDocuments.size(); ++docIdx)
+    {
+        mx::DocumentPtr doc = loadedDocuments[docIdx];
+        doc->setDataLibrary(nodeLibrary);
+
+        std::string message;
+        bool docValid = doc->validate(&message);
+        if (!docValid)
+        {
+            continue;
+        }
+
+        context.getShaderGenerator().registerTypeDefs(doc);
+
+        std::vector<mx::TypedElementPtr> elements = mx::findRenderableElements(doc);
+        for (const mx::TypedElementPtr& element : elements)
+        {
+            mx::ShaderPtr shader;
+            try
+            {
+                shader = context.getShaderGenerator().generate(element->getName(), element, context);
+            }
+            catch (const std::exception&)
+            {
+                continue;
+            }
+
+            REQUIRE(shader != nullptr);
+
+            size_t hash1 = mx::computeStructuralHash(shader->getGraph());
+            REQUIRE(hash1 != 0);
+
+            // Determinism check: generate the same shader again and verify the hash matches.
+            mx::ShaderPtr shader2;
+            try
+            {
+                shader2 = context.getShaderGenerator().generate(element->getName(), element, context);
+            }
+            catch (const std::exception&)
+            {
+                continue;
+            }
+
+            REQUIRE(shader2 != nullptr);
+            size_t hash2 = mx::computeStructuralHash(shader2->getGraph());
+            REQUIRE(hash1 == hash2);
+
+            hashLog << "  " << documentsPaths[docIdx] << " | "
+                    << element->getName() << " | 0x"
+                    << std::setw(sizeof(size_t) * 2) << hash1 << "\n";
+        }
+    }
+
+    hashLog << "=== End Structural Hash Results ===\n";
+
+    // Output to Catch2 INFO so it appears with -s flag
+    INFO(hashLog.str());
+    SUCCEED();
 }
