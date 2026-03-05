@@ -467,10 +467,22 @@ void MetalRenderPipeline::renderFrame(void* color_texture, int shadowMapSize, co
     {
         [renderpassDesc.colorAttachments[0] setTexture:MTL(currentFramebuffer())->getColorTexture()];
     }
+    // The Metal framebuffer stores linear color values (MTLPixelFormatRGBA16Float).
+    // macOS applies gamma correction when displaying linear float values, so the sRGB
+    // background color must be converted to linear before being set as the clear color.
+    // On OpenGL (Windows), the background is stored directly in a non-linear framebuffer
+    // and no conversion is needed.
+    auto srgbToLinear = [](float srgb) -> float {
+        if (srgb <= 0.04045f)
+            return srgb / 12.92f;
+        else
+            return std::pow((srgb + 0.055f) / 1.055f, 2.4f);
+    };
+
     [renderpassDesc.colorAttachments[0] setClearColor:MTLClearColorMake(
-                                        _viewer->m_background[0],
-                                        _viewer->m_background[1],
-                                        _viewer->m_background[2],
+                                        srgbToLinear(_viewer->m_background[0]),
+                                        srgbToLinear(_viewer->m_background[1]),
+                                        srgbToLinear(_viewer->m_background[2]),
                                         _viewer->m_background[3])];
     [renderpassDesc.colorAttachments[0] setLoadAction:MTLLoadActionClear];
     [renderpassDesc.colorAttachments[0] setStoreAction:MTLStoreActionStore];
