@@ -92,7 +92,8 @@ class Graph
           const mx::FileSearchPath& searchPath,
           const mx::FilePathVec& libraryFolders,
           int viewWidth,
-          int viewHeight);
+          int viewHeight,
+          float previewWidth);
     ~Graph() = default;
 
     mx::DocumentPtr loadDocument(const mx::FilePath& filename);
@@ -349,6 +350,9 @@ class Graph
 
     // Layout engine
     Layout _layout;
+
+    // Preview area size
+    float _previewSize;
 
     // Options
     bool _saveNodePositions;

@@ -8,8 +8,42 @@
     <style>
       body {
         margin: 0;
-        font-family: Arial
+        font-family: "Segoe UI", Roboto, Arial, sans-serif;
+        font-size: 12px;
       }
+
+      /* Responsive select menus */
+      select {
+        max-width: 40vw;
+        width: 100%;
+        box-sizing: border-box;
+        white-space: normal;
+        overflow-wrap: break-word;
+        word-break: break-word;
+        background: #000;
+        color: #fff;
+        border: 1px solid #444;
+        font-family: inherit;
+        font-size: inherit;
+      }
+
+      select option {
+        background: #000;
+        color: #fff;
+        font-family: inherit;
+        font-size: inherit;
+      }
+
+      .select-row {
+        color: rgb(255, 255, 255);
+        background: rgba(0,0,0,0.4);
+        position: absolute;
+        margin: 1em;
+        display: flex;
+        align-items: center;
+        gap: 0.5em;
+      }
+
 
       /* Property editor item color */
       .peditoritem {
@@ -20,32 +54,51 @@
         background-color: #333333;
       }
 
+      /* Move property editor down to align with Material row */
+      .lil-gui {
+        top: 1.0em !important;
+      }
+
      .peditor_material_assigned {
         background-color: #006cb8;
       }
       .peditor_material_assigned:hover {
         background-color: #32adff;
       }
+
+      .fps-overlay {
+        position: fixed;
+        left: 10px;
+        bottom: 10px;
+        padding: 4px 10px;
+        background: rgba(0,0,0,0.4);
+        color: rgb(255, 255, 255);
+        font-family: inherit;
+        font-size: inherit;
+        z-index: 1000;
+        pointer-events: none;
+      }
+
     </style>
   </head>
   <body style="margin: 0px; overflow: hidden;">
     <div id="container">
-      <div style="color:white; position: absolute; top: 0em; margin: 1em">
-        <label for="materials">Material:</label>
-        <select name="materials" id="materials">
+      <div class="select-row" style="top: 0em;">
+        <label for="materials" style="margin: 0; padding: 0 0.2em; font-family: inherit; font-size: inherit;">Material:</label>
+        <select name="materials" id="materials" style="flex: 1 1 0; min-width: 0;">
           <% materials.forEach(function(m){ %>
             <option value="<%-m.value%>">
-              <%-m.name%>
+              <%- m.name.replace(/_/g, ' ').replace(/\.(mtlx|glb)$/, '').replace(/\w\S*/g, function(txt){return ' ' + txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();}) %>
             </option>
             <% }); %>
         </select>
       </div>
-      <div style="color:white; position: absolute; top: 1.5em; margin: 1em">
-        <label for="geometry">Geometry:</label>
-        <select name="geometry" id="geometry">
+      <div class="select-row" style="top: 1.5em;">
+        <label for="geometry" style="margin: 0; padding: 0 0.2em; font-family: inherit; font-size: inherit;">Geometry:</label>
+        <select name="geometry" id="geometry" style="flex: 1 1 0; min-width: 0;">
           <% geometry.forEach(function(m){ %>
             <option value="<%-m.value%>">
-              <%-m.name%>
+              <%- m.name.replace(/_/g, ' ').replace(/\.(mtlx|glb)$/, '').replace(/\w\S*/g, function(txt){return ' ' + txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();}) %>
             </option>
             <% }); %>
         </select>

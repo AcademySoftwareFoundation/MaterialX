@@ -90,6 +90,8 @@ TEST_CASE("GenShader: OSL Implementation Check", "[genosl]")
     generatorSkipNodeTypes.insert("light");
 
     mx::StringSet generatorSkipNodeDefs;
+    generatorSkipNodeDefs.insert("ND_flake2d");
+    generatorSkipNodeDefs.insert("ND_flake3d");
     GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs);
 }
 

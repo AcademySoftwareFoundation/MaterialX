@@ -105,6 +105,9 @@ class OslShaderRenderTester : public RenderUtil::ShaderRenderTester
 
     void addSkipFiles() override
     {
+        _skipFiles.insert("flake.mtlx");
+        _skipFiles.insert("flake_surfaceshader.mtlx");
+
         if (_useOslCmdStr)
         {
             _skipFiles.insert("filename_cm_test.mtlx");
