@@ -376,6 +376,8 @@ jobs:
   javascript:
     name: JavaScript
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
     - name: Sync Repository
