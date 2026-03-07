@@ -16,6 +16,11 @@ namespace mx = MaterialX;
 EMSCRIPTEN_BINDINGS(document)
 {
     ems::function("createDocument", &mx::createDocument);
+
+    ems::class_<mx::DefinitionOptions>("DefinitionOptions")
+        .constructor<>()
+        .property("addImplementationAsChild", &mx::DefinitionOptions::addImplementationAsChild);
+
     ems::class_<mx::Document, ems::base<mx::GraphElement>>("Document")
         .smart_ptr_constructor("Document", &std::make_shared<mx::Document, mx::ElementPtr, const std::string &>)
         .smart_ptr<std::shared_ptr<const mx::Document>>("Document")
@@ -62,8 +67,8 @@ EMSCRIPTEN_BINDINGS(document)
         .function("getTypeDefs", &mx::Document::getTypeDefs)
         .function("removeTypeDef", &mx::Document::removeTypeDef)
         BIND_MEMBER_FUNC("addNodeDef", mx::Document, addNodeDef, 0, 3, stRef, stRef, stRef)
-        BIND_MEMBER_FUNC("addNodeDefFromGraph", mx::Document, addNodeDefFromGraph, 4, 4, mx::NodeGraphPtr,
-            const std::string&, const std::string&, const std::string&)
+        BIND_MEMBER_FUNC_RAW_PTR("addNodeDefFromGraph", mx::Document, addNodeDefFromGraph, 4, 5, mx::NodeGraphPtr,
+            const std::string&, const std::string&, const std::string&, mx::DefinitionOptions*)
         .function("getNodeDef", &mx::Document::getNodeDef)
         .function("getNodeDefs", &mx::Document::getNodeDefs)
         .function("removeNodeDef", &mx::Document::removeNodeDef)
