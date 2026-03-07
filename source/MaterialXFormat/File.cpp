@@ -280,6 +280,17 @@ FilePathVec FilePath::getSubDirectories() const
 
 void FilePath::createDirectory() const
 {
+    if (isEmpty() || exists())
+    {
+        return;
+    }
+
+    FilePath parent = getParentPath();
+    if (!parent.isEmpty() && !parent.exists())
+    {
+        parent.createDirectory();
+    }
+
 #if defined(_WIN32)
     _mkdir(asString().c_str());
 #else
