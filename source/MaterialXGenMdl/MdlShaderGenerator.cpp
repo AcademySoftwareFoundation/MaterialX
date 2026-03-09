@@ -273,9 +273,9 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
             emitLine("float3 displacement__ = float3(0.0)", stage);
             std::string finalOutput = "mk_color3(0.0)";
             if (outputType == Type::BOOLEAN)
-                finalOutput = result + " ? mk_color3(0.0, 1.0, 0.0) : mk_color3(1.0, 0.0, 0.0)";
+                finalOutput = result + " ? mk_color3(1.0, 1.0, 1.0) : mk_color3(0.0, 0.0, 0.0)";
             else if (outputType == Type::INTEGER)
-                finalOutput = "mk_color3(" + result + " / 100)"; // arbitrary
+                finalOutput = "mk_color3(" + result + ")";
             else if (outputType == Type::FLOAT)
                 finalOutput = "mk_color3(" + result + ")";
             else if (outputType == Type::VECTOR2)
