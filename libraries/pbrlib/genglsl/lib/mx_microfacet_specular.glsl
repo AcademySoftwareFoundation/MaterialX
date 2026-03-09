@@ -482,6 +482,35 @@ vec3 mx_compute_fresnel(float cosTheta, FresnelData fd)
     }
 }
 
+// Directional albedo accounting for different Fresnel functions.
+vec3 mx_ggx_dir_albedo(float NdotV, float alpha, FresnelData fd)
+{
+    if (fd.airy)
+    {
+        // Approximation using a blend between mirror (alpha = 0)
+        // and rougher cases. This helps to maintain angular
+        // color variation at lower roughness values.
+        vec3 mirrorDirAlbedo = mx_compute_fresnel(NdotV, fd);
+        vec3 F0 = mx_fresnel_airy(1.0, fd);
+        vec3 roughDirAlbedo = mx_ggx_dir_albedo(NdotV, alpha, F0, vec3(1.0));
+        return mix(mirrorDirAlbedo, roughDirAlbedo, sqrt(alpha));
+    }
+    else if (fd.model == FRESNEL_MODEL_DIELECTRIC)
+    {
+        float F0 = mx_ior_to_f0(fd.ior.x);
+        return mx_ggx_dir_albedo(NdotV, alpha, F0, 1.0);
+    }
+    else if (fd.model == FRESNEL_MODEL_CONDUCTOR)
+    {
+        vec3 F0 = mx_fresnel_conductor(1.0, fd.ior, fd.extinction);
+        return mx_ggx_dir_albedo(NdotV, alpha, F0, vec3(1.0));
+    }
+    else
+    {
+        return mx_ggx_dir_albedo(NdotV, alpha, fd.F0, fd.F90);
+    }
+}
+
 // Compute the refraction of a ray through a solid sphere.
 vec3 mx_refraction_solid_sphere(vec3 R, vec3 N, float ior)
 {
