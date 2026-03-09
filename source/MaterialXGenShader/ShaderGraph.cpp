@@ -51,6 +51,7 @@ void ShaderGraph::addInputSockets(const InterfaceElement& elem, GenContext& cont
         {
             inputSocket->setUniform();
         }
+        inputSocket->setPath(input->getNamePath());
         GeomPropDefPtr geomprop = input->getDefaultGeomProp();
         if (geomprop)
         {
@@ -384,6 +385,12 @@ void ShaderGraph::addUnitTransformNode(ShaderInput* input, const UnitTransform& 
         shaderInput->setPath(input->getPath());
         shaderInput->setUnit(input->getUnit());
         shaderInput->setColorSpace(input->getColorSpace());
+
+        ShaderInput* shaderInput2 = unitTransformNode->getInput(1);
+        if (shaderInput2)
+        {
+            shaderInput2->setPath(input->getPath());
+        }
 
         if (input->isBindInput())
         {
