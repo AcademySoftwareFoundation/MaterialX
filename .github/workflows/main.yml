@@ -467,7 +467,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-minor: ['9', '10', '11', '12', '13']
+        python-minor: ['9', '10', '11', '12', '13', '14']
         os: ['ubuntu-24.04', 'windows-2022', 'macos-15']
 
     steps:
@@ -490,7 +490,7 @@ jobs:
       if: runner.os == 'Windows'
 
     - name: Build Wheel
-      uses: pypa/cibuildwheel@6a41245b42fcb325223b8793746f10456ed07436 # v2.23.2
+      uses: pypa/cibuildwheel@ee02a1537ce3071a004a6b08c41e72f0fdc42d9a # v3.4.0
       with:
         package-dir: ${{ github.workspace }}/sdist/${{ needs.sdist.outputs.sdist_filename }}
       env:
@@ -498,7 +498,7 @@ jobs:
         CIBW_SKIP: '*musllinux*'
         CIBW_ARCHS: 'auto64'
         CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
-        CIBW_BEFORE_ALL_LINUX: yum install -y libXt-devel doxygen
+        CIBW_BEFORE_ALL_LINUX: dnf install -y libXt-devel doxygen
         CIBW_BEFORE_ALL_MACOS: brew install doxygen
         CIBW_BUILD_VERBOSITY: 1
         CIBW_ENVIRONMENT: CMAKE_BUILD_PARALLEL_LEVEL=2
