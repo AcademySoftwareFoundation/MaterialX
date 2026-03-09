@@ -10,6 +10,13 @@ import { dropHandler, dragOverHandler, setLoadingCallback, setSceneLoadingCallba
 
 let renderer, orbitControls;
 
+// FPS overlay state
+let fpsOverlay = null;
+let showFPS = true; 
+let lastFrameTime = performance.now();
+let frameCount = 0;
+let fps = 0;
+
 // Turntable option. For now the step size is fixed.
 let turntableEnabled = false;
 let turntableSteps = 360;
@@ -25,6 +32,24 @@ if (!materialFilename)
 }
 
 let viewer = Viewer.create();
+
+// Create FPS overlay
+function createFPSOverlay() {
+    fpsOverlay = document.createElement('div');
+    fpsOverlay.className = 'fps-overlay';
+    fpsOverlay.innerText = 'FPS: 0';
+    document.body.appendChild(fpsOverlay);
+}
+
+function setFPSOverlayVisible(visible) {
+    if (fpsOverlay) {
+        fpsOverlay.style.display = visible ? 'block' : 'none';
+    }
+}
+
+createFPSOverlay();
+setFPSOverlayVisible(showFPS);
+
 init();
 viewer.getEditor().updateProperties(0.9);
 
@@ -81,10 +106,16 @@ function init()
 
     // Add hotkey 'f' to capture the current frame and save an image file.
     // See check inside the render loop when a capture can be performed.
-    document.addEventListener('keydown', (event) =>
-    {
-        if (event.key === 'f')
-        {
+
+    document.addEventListener('keydown', (event) => {
+        // Toggle FPS timer with T key
+        if (event.key === 't' || event.key === 'T') {
+            showFPS = !showFPS;
+            setFPSOverlayVisible(showFPS);
+            event.preventDefault();
+        }
+        // Capture frame with Shift+F
+        else if ((event.key === 'f' || event.key === 'F') && event.shiftKey) {
             captureRequested = true;
         }
     });
@@ -164,6 +195,18 @@ function animate()
 {
     requestAnimationFrame(animate);
     const scene = viewer.getScene();
+
+    // Compute FPS and update overlay every 1/2 second.
+    const now = performance.now();
+    frameCount++;
+    if (now - lastFrameTime >= 500) { 
+        fps = Math.round((frameCount * 1000) / (now - lastFrameTime));
+        if (fpsOverlay && showFPS) {
+            fpsOverlay.innerText = `FPS: ${fps}`;
+        }
+        lastFrameTime = now;
+        frameCount = 0;
+    }
 
     if (turntableEnabled)
     {
