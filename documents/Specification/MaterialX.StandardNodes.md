@@ -92,7 +92,7 @@ The `default` input is the default value to use if the file reference can not be
 |----------------|-----------------------------------------------------------------------------------------------------------------|----------------------|---------|---------------------------------|
 |`file`          |The URI of the image file                                                                                        |filename              |__empty__|                                 |
 |`layer`         |The name of the layer to extract from a multi-layer input file                                                   |string                |__empty__|                                 |
-|`default`       |A default value to use if the file reference can not be resolved                                                 |float, colorN, vectorN|__zero__ |                                 |
+|`default`       |A default value to use if the file reference can not be resolved                                                 |Same as `out`         |__zero__ |                                 |
 |`texcoord`      |The 2D texture coordinate at which the image data is read                                                        |vector2               |_UV0_    |                                 |
 |`uaddressmode`  |Determines how U coordinates outside the 0-1 range are processed before sampling the image                       |string                |periodic |constant, clamp, periodic, mirror|
 |`vaddressmode`  |Determines how V coordinates outside the 0-1 range are processed before sampling the image                       |string                |periodic |constant, clamp, periodic, mirror|
@@ -100,7 +100,7 @@ The `default` input is the default value to use if the file reference can not be
 |`framerange`    |A string "minframe-maxframe", e.g. "10-99", to specify the range of frames that the image file is allowed to have|string                |__empty__|                                 |
 |`frameoffset`   |A number that is added to the current frame number to get the image file frame number                            |integer               |0        |                                 |
 |`frameendaction`|What to do when the resolved image frame number is outside the `framerange` range                                |string                |constant |constant, clamp, periodic, mirror|
-|`out`           |Output: the sampled texture value                                                                                |Same as `default`     |__zero__ |                                 |
+|`out`           |Output: the sampled texture value                                                                                |float, colorN, vectorN|__zero__ |                                 |
 
 <a id="node-tiledimage"> </a>
 
@@ -112,7 +112,7 @@ The `file` input can include one or more substitutions to change the file name t
 |Port                |Description                                                                                                      |Type                  |Default  |Accepted Values                  |
 |--------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|---------|---------------------------------|
 |`file`              |The URI of the image file                                                                                        |filename              |__empty__|                                 |
-|`default`           |A default value to use if the file reference can not be resolved                                                 |float, colorN, vectorN|__zero__ |                                 |
+|`default`           |A default value to use if the file reference can not be resolved                                                 |Same as `out`         |__zero__ |                                 |
 |`texcoord`          |The 2D texture coordinate at which the image data is read                                                        |vector2               |_UV0_    |                                 |
 |`uvtiling`          |The tiling rate for the given image along the U and V axes                                                       |vector2               |1.0, 1.0 |                                 |
 |`uvoffset`          |The offset for the given image along the U and V axes                                                            |vector2               |0.0, 0.0 |                                 |
@@ -122,7 +122,7 @@ The `file` input can include one or more substitutions to change the file name t
 |`framerange`        |A string "minframe-maxframe", e.g. "10-99", to specify the range of frames that the image file is allowed to have|string                |__empty__|                                 |
 |`frameoffset`       |A number that is added to the current frame number to get the image file frame number                            |integer               |0        |                                 |
 |`frameendaction`    |What to do when the resolved image frame number is outside the `framerange` range                                |string                |constant |constant, clamp, periodic, mirror|
-|`out`               |Output: the sampled texture value                                                                                |Same as `default`     |__zero__ |                                 |
+|`out`               |Output: the sampled texture value                                                                                |float, colorN, vectorN|__zero__ |                                 |
 
 <a id="node-latlongimage"> </a>
 
@@ -148,22 +148,22 @@ The `file` input can include one or more substitutions to change the file name t
 
 The `lumacoeffs` input represents the luma coefficients of the current working color space. If no specific color space can be determined, the ACEScg (ap1) luma coefficients [0.2722287, 0.6740818, 0.0536895] will be used. Applications which support color management systems may choose to retrieve the luma coefficients of the working colorspace from the CMS to pass to the node's implementation directly, rather than exposing it to the user.
 
-|Port                |Description                                                                                        |Type                  |Default                        |
-|--------------------|---------------------------------------------------------------------------------------------------|----------------------|-------------------------------|
-|`file`              |The URI of the image file                                                                          |filename              |__empty__                      |
-|`default`           |A default value to use if the file reference can not be resolved                                   |float, colorN, vectorN|__zero__                       |
-|`texcoord`          |The 2D texture coordinate at which the image data is read                                          |vector2               |_UV0_                          |
-|`tiling`            |The tiling rate for the given image along the U and V axes                                         |vector2               |1.0, 1.0                       |
-|`rotation`          |Per-tile rotation randomness in degrees                                                            |float                 |0.0                            |
-|`rotationrange`     |Range in degrees used to randomize rotation for each tile                                          |vector2               |0.0, 360.0                     |
-|`scale`             |Per-tile scale randomness multiplier applied to tile size                                          |float                 |1.0                            |
-|`scalerange`        |Range of scale multipliers used to randomize tile scale                                            |vector2               |0.5, 2.0                       |
-|`offset`            |Per-tile translation randomness in UV units                                                        |float                 |1.0                            |
-|`offsetrange`       |Range of offset values in UV units used to randomize tile positions                                |vector2               |0.0, 1.0                       |
-|`falloff`           |Falloff width used to blend neighboring tiles at their edges; larger values produce smoother blends|float                 |0.5                            |
-|`falloffcontrast`   |Contrast applied to the falloff blending to sharpen (values >1) or soften (values <1) transitions  |float                 |0.5                            |
-|`lumacoeffs`        |The luma coefficients of the current working color space                                           |color3                |0.2722287, 0.6740818, 0.0536895|
-|`out`               |Output: the sampled texture value                                                                  |Same as `default`     |__zero__                       |
+|Port                |Description                                                                                        |Type             |Default                        |
+|--------------------|---------------------------------------------------------------------------------------------------|-----------------|-------------------------------|
+|`file`              |The URI of the image file                                                                          |filename         |__empty__                      |
+|`default`           |A default value to use if the file reference can not be resolved                                   |Same as `out`    |__zero__                       |
+|`texcoord`          |The 2D texture coordinate at which the image data is read                                          |vector2          |_UV0_                          |
+|`tiling`            |The tiling rate for the given image along the U and V axes                                         |vector2          |1.0, 1.0                       |
+|`rotation`          |Per-tile rotation randomness in degrees                                                            |float            |0.0                            |
+|`rotationrange`     |Range in degrees used to randomize rotation for each tile                                          |vector2          |0.0, 360.0                     |
+|`scale`             |Per-tile scale randomness multiplier applied to tile size                                          |float            |1.0                            |
+|`scalerange`        |Range of scale multipliers used to randomize tile scale                                            |vector2          |0.5, 2.0                       |
+|`offset`            |Per-tile translation randomness in UV units                                                        |float            |1.0                            |
+|`offsetrange`       |Range of offset values in UV units used to randomize tile positions                                |vector2          |0.0, 1.0                       |
+|`falloff`           |Falloff width used to blend neighboring tiles at their edges; larger values produce smoother blends|float            |0.5                            |
+|`falloffcontrast`   |Contrast applied to the falloff blending to sharpen (values >1) or soften (values <1) transitions  |float            |0.5                            |
+|`lumacoeffs`        |The luma coefficients of the current working color space                                           |color3           |0.2722287, 0.6740818, 0.0536895|
+|`out`               |Output: the sampled texture value                                                                  |colorN           |__zero__                       |
 
 <a id="node-triplanarprojection"> </a>
 
@@ -178,7 +178,7 @@ Samples data from three images (or layers within multi-layer images), and projec
 |`layerx`        |The name of the layer to extract from a multi-layer input file for the X-axis projection                         |string                |__empty__|                                 |
 |`layery`        |The name of the layer to extract from a multi-layer input file for the Y-axis projection                         |string                |__empty__|                                 |
 |`layerz`        |The name of the layer to extract from a multi-layer input file for the Z-axis projection                         |string                |__empty__|                                 |
-|`default`       |A default value to use if the file reference can not be resolved                                                 |float, colorN, vectorN|__zero__ |                                 |
+|`default`       |A default value to use if the file reference can not be resolved                                                 |Same as `out`         |__zero__ |                                 |
 |`position`      |A spatially-varying input specifying the 3D position at which the projection is evaluated                        |vector3               |_Pobject_|                                 |
 |`normal`        |A spatially-varying input specifying the 3D normal vector used for blending                                      |vector3               |_Nobject_|                                 |
 |`upaxis`        |Which axis is considered to be 'up', either 0 for X, 1 for Y, or 2 for Z                                         |integer               |2        |0, 1, 2                          |
@@ -187,7 +187,7 @@ Samples data from three images (or layers within multi-layer images), and projec
 |`framerange`    |A string "minframe-maxframe", e.g. "10-99", to specify the range of frames that the image file is allowed to have|string                |__empty__|                                 |
 |`frameoffset`   |A number that is added to the current frame number to get the image file frame number                            |integer               |0        |                                 |
 |`frameendaction`|What to do when the resolved image frame number is outside the `framerange` range                                |string                |constant |constant, clamp, periodic, mirror|
-|`out`           |Output: the blended texture value                                                                                |Same as `default`     |__zero__ |                                 |
+|`out`           |Output: the blended texture value                                                                                |float, colorN, vectorN|__zero__ |                                 |
 
 
 ### Texture Node Notes
@@ -379,52 +379,52 @@ Standard Noise nodes:
 ### `noise2d`
 2D Perlin noise in 1, 2, 3 or 4 channels.
 
-|Port       |Description                                              |Type               |Default |
-|-----------|---------------------------------------------------------|-------------------|--------|
-|`amplitude`|The center-to-peak amplitude of the noise                |float, vectorN     |__one__ |
-|`pivot`    |The center value of the output noise                     |float              |0.0     |
-|`texcoord` |The 2D texture coordinate at which the noise is evaluated|vector2            |_UV0_   |
-|`out`      |Output: the computed noise value                         |Same as `amplitude`|__zero__|
+|Port       |Description                                              |Type                  |Default |
+|-----------|---------------------------------------------------------|----------------------|--------|
+|`amplitude`|The center-to-peak amplitude of the noise                |Same as `out` or float|__one__ |
+|`pivot`    |The center value of the output noise                     |float                 |0.0     |
+|`texcoord` |The 2D texture coordinate at which the noise is evaluated|vector2               |_UV0_   |
+|`out`      |Output: the computed noise value                         |float, vectorN        |__zero__|
 
 <a id="node-noise3d"> </a>
 
 ### `noise3d`
 3D Perlin noise in 1, 2, 3 or 4 channels.
 
-|Port       |Description                                    |Type               |Default  |
-|-----------|-----------------------------------------------|-------------------|---------|
-|`amplitude`|The center-to-peak amplitude of the noise      |float, vectorN     |__one__  |
-|`pivot`    |The center value of the output noise           |float              |0.0      |
-|`position` |The 3D position at which the noise is evaluated|vector3            |_Pobject_|
-|`out`      |Output: the computed noise value               |Same as `amplitude`|__zero__ |
+|Port       |Description                                    |Type                  |Default  |
+|-----------|-----------------------------------------------|----------------------|---------|
+|`amplitude`|The center-to-peak amplitude of the noise      |Same as `out` or float|__one__  |
+|`pivot`    |The center value of the output noise           |float                 |0.0      |
+|`position` |The 3D position at which the noise is evaluated|vector3               |_Pobject_|
+|`out`      |Output: the computed noise value               |float, vectorN        |__zero__ |
 
 <a id="node-fractal2d"> </a>
 
 ### `fractal2d`
 Zero-centered 2D Fractal noise in 1, 2, 3 or 4 channels, created by summing several octaves of 2D Perlin noise, increasing the frequency and decreasing the amplitude at each octave.
 
-|Port        |Description                                                    |Type               |Default  |
-|------------|---------------------------------------------------------------|-------------------|---------|
-|`amplitude` |The center-to-peak amplitude of the noise                      |float, vectorN     |__one__  |
-|`octaves`   |The number of octaves of noise to be summed                    |integer            |3        |
-|`lacunarity`|The exponential scale between successive octaves of noise      |float              |2.0      |
-|`diminish`  |The rate at which noise amplitude is diminished for each octave|float              |0.5      |
-|`texcoord`  |The 2D texture coordinate at which the noise is evaluated      |vector2            |_UV0_    |
-|`out`       |Output: the computed noise value                               |Same as `amplitude`|__zero__ |
+|Port        |Description                                                    |Type                  |Default  |
+|------------|---------------------------------------------------------------|----------------------|---------|
+|`amplitude` |The center-to-peak amplitude of the noise                      |Same as `out` or float|__one__  |
+|`octaves`   |The number of octaves of noise to be summed                    |integer               |3        |
+|`lacunarity`|The exponential scale between successive octaves of noise      |float                 |2.0      |
+|`diminish`  |The rate at which noise amplitude is diminished for each octave|float                 |0.5      |
+|`texcoord`  |The 2D texture coordinate at which the noise is evaluated      |vector2               |_UV0_    |
+|`out`       |Output: the computed noise value                               |float, vectorN        |__zero__ |
 
 <a id="node-fractal3d"> </a>
 
 ### `fractal3d`
 Zero-centered 3D Fractal noise in 1, 2, 3 or 4 channels, created by summing several octaves of 3D Perlin noise, increasing the frequency and decreasing the amplitude at each octave.
 
-|Port        |Description                                                    |Type               |Default  |
-|------------|---------------------------------------------------------------|-------------------|---------|
-|`amplitude` |The center-to-peak amplitude of the noise                      |float, vectorN     |__one__  |
-|`octaves`   |The number of octaves of noise to be summed                    |integer            |3        |
-|`lacunarity`|The exponential scale between successive octaves of noise      |float              |2.0      |
-|`diminish`  |The rate at which noise amplitude is diminished for each octave|float              |0.5      |
-|`position`  |The 3D position at which the noise is evaluated                |vector3            |_Pobject_|
-|`out`       |Output: the computed noise value                               |Same as `amplitude`|__zero__ |
+|Port        |Description                                                    |Type                  |Default  |
+|------------|---------------------------------------------------------------|----------------------|---------|
+|`amplitude` |The center-to-peak amplitude of the noise                      |Same as `out` or float|__one__  |
+|`octaves`   |The number of octaves of noise to be summed                    |integer               |3        |
+|`lacunarity`|The exponential scale between successive octaves of noise      |float                 |2.0      |
+|`diminish`  |The rate at which noise amplitude is diminished for each octave|float                 |0.5      |
+|`position`  |The 3D position at which the noise is evaluated                |vector3               |_Pobject_|
+|`out`       |Output: the computed noise value                               |float, vectorN        |__zero__ |
 
 <a id="node-cellnoise2d"> </a>
 
@@ -512,6 +512,43 @@ A single node supporting 3D Perlin, Cell, Worley or Fractal noise in a unified i
 |`style`      |The output style                                                                           |integer|0        |0 (Distance), 1 (Solid)|
 |`out`        |Output: the computed noise value                                                           |float  |0.0      |                       |
 
+<a id="node-flake2d"> </a>
+
+### `flake2d`
+Generates a procedural flake pattern in 2D space, suitable for simulating metallic flakes in materials such as car paint.
+
+|Port         |Description                                                                                        |Type   |Default |
+|-------------|---------------------------------------------------------------------------------------------------|-------|--------|
+|`texcoord`   |The 2D texture coordinate at which the flake pattern is evaluated                                  |vector2|_UV0_   |
+|`size`       |The size of individual flakes, with smaller values producing larger flakes                         |float  |0.01    |
+|`roughness`  |The surface roughness of individual flakes, controlling the variation in normal                    |float  |0.1     |
+|`coverage`   |The density of flakes in the pattern, ranging from 0.0 (no flakes) to 1.0 (maximum)                |float  |0.5     |
+|`normal`     |The surface normal vector used as the base for flake normal perturbations                          |vector3|_Nworld_|
+|`tangent`    |The surface tangent vector, used to construct the tangent space                                    |vector3|_Tworld_|
+|`bitangent`  |The surface bitangent vector, used to construct the tangent space                                  |vector3|_Bworld_|
+|`id`         |Output: unique identifier for each flake. 0 for no flake                                           |integer|0       |
+|`rand`       |Output: random value per flake for additional variation. 0.0 for no flake                          |float  |0.0     |
+|`presence`   |Output: presence per flake; a depth-like value (higher is closer to the surface). 0.0 for no flake.|float  |0.0     |
+|`flakenormal`|Output: the computed flake normal. Base normal if no flake present                                 |vector3|_Nworld_|
+
+<a id="node-flake3d"> </a>
+
+### `flake3d`
+Generates a procedural flake pattern in 3D space, suitable for simulating metallic flakes in materials such as car paint.
+
+|Port         |Description                                                                                        |Type   |Default  |
+|-------------|---------------------------------------------------------------------------------------------------|-------|---------|
+|`position`   |The 3D position at which the flake pattern is evaluated                                            |vector3|_Pobject_|
+|`size`       |The size of individual flakes, with smaller values producing larger flakes                         |float  |0.01     |
+|`roughness`  |The surface roughness of individual flakes, controlling the variation in normal                    |float  |0.1      |
+|`coverage`   |The density of flakes in the pattern, ranging from 0.0 (no flakes) to 1.0 (maximum)                |float  |0.5      |
+|`normal`     |The surface normal vector used as the base for flake normal perturbations                          |vector3|_Nworld_ |
+|`tangent`    |The surface tangent vector, used to construct the tangent space                                    |vector3|_Tworld_ |
+|`bitangent`  |The surface bitangent vector, used to construct the tangent space                                  |vector3|_Bworld_ |
+|`id`         |Output: unique identifier for each flake. 0 for no flake                                           |integer|0        |
+|`rand`       |Output: random value per flake for additional variation. 0.0 for no flake                          |float  |0.0      |
+|`presence`   |Output: presence per flake; a depth-like value (higher is closer to the surface). 0.0 for no flake.|float  |0.0      |
+|`flakenormal`|Output: the computed flake normal. Base normal if no flake present                                 |vector3|_Nworld_ |
 
 ### Noise Node Notes
 
@@ -676,7 +713,9 @@ Creates a black and white pattern of hexagons with a defined tiling and size (di
 Geometric nodes are used to reference local geometric properties from within a node graph:
 
 ```xml
-  <position name="wp1" type="vector3" space="world"/>
+  <position name="wp1" type="vector3">
+    <input name="space" type="string" value="world"/>
+  </position>
   <texcoord name="c1" type="vector2">
     <input name="index" type="integer" value="1"/>
   </texcoord>
@@ -1063,7 +1102,7 @@ The sine of the incoming value, which is expected to be expressed in radians.
 |Port |Description             |Type          |Default |
 |-----|------------------------|--------------|--------|
 |`in` |The primary input stream|float, vectorN|__zero__|
-|`out`|Output: sin of `in1`    |Same as `in`  |`in`    |
+|`out`|Output: sin of `in`     |Same as `in`  |`in`    |
 
 <a id="node-cos"> </a>
 
@@ -1073,7 +1112,7 @@ The cosine of the incoming value, which is expected to be expressed in radians.
 |Port |Description             |Type          |Default |
 |-----|------------------------|--------------|--------|
 |`in` |The primary input stream|float, vectorN|__zero__|
-|`out`|Output: cos of `in1`    |Same as `in`  |`in`    |
+|`out`|Output: cos of `in`     |Same as `in`  |`in`    |
 
 <a id="node-tan"> </a>
 
@@ -1083,7 +1122,7 @@ The tangent of the incoming value, which is expected to be expressed in radians.
 |Port |Description             |Type          |Default |
 |-----|------------------------|--------------|--------|
 |`in` |The primary input stream|float, vectorN|__zero__|
-|`out`|Output: cos of `in1`    |Same as `in`  |`in`    |
+|`out`|Output: tan of `in`     |Same as `in`  |`in`    |
 
 <a id="node-asin"> </a>
 
@@ -1093,7 +1132,7 @@ The arcsine of the incoming value. The output will be expressed in radians.
 |Port |Description             |Type          |Default |Accepted Values    |
 |-----|------------------------|--------------|--------|-------------------|
 |`in` |The primary input stream|float, vectorN|__zero__|[-__one__, __one__]|
-|`out`|Output: asin of `in1`   |Same as `in`  |`in`    |                   |
+|`out`|Output: asin of `in`    |Same as `in`  |`in`    |                   |
 
 <a id="node-acos"> </a>
 
@@ -1103,7 +1142,7 @@ The arccosine of the incoming value. The output will be expressed in radians.
 |Port |Description             |Type          |Default |Accepted Values    |
 |-----|------------------------|--------------|--------|-------------------|
 |`in` |The primary input stream|float, vectorN|__zero__|[-__one__, __one__]|
-|`out`|Output: acos of `in1`   |Same as `in`  |`in`    |                   |
+|`out`|Output: acos of `in`    |Same as `in`  |`in`    |                   |
 
 <a id="node-atan2"> </a>
 
@@ -1969,16 +2008,16 @@ Output the value of the `in1` or `in2` stream depending on whether the `value1` 
 |Port    |Description                                       |Type                                     |Default |
 |--------|--------------------------------------------------|-----------------------------------------|--------|
 |`value1`|The first value to be compared                    |float, integer                           |__one__ |
-|`value2`|The second value to be compared                   |float, integer                           |__zero__|
+|`value2`|The second value to be compared                   |Same as `value1`                         |__zero__|
 |`in1`   |The value stream to output if `value1` > `value2` |float, colorN, vectorN, matrixNN, integer|__zero__|
 |`in2`   |The value stream to output if `value1` <= `value2`|Same as `in1`                            |__zero__|
 |`out`   |Output: the result of the comparison              |Same as `in1`                            |`in1`   |
 
-|Port    |Description                                       |Type                                     |Default |
-|--------|--------------------------------------------------|-----------------------------------------|--------|
-|`value1`|the first value to be compared                    |float, integer                           |__one__ |
-|`value2`|the second value to be compared                   |float, integer                           |__zero__|
-|`out`   |Output: true if `value1` > `value2                |boolean                                  |false   |
+|Port    |Description                        |Type            |Default |
+|--------|-----------------------------------|----------------|--------|
+|`value1`|The first value to be compared     |float, integer  |__one__ |
+|`value2`|The second value to be compared    |Same as `value1`|__zero__|
+|`out`   |Output: true if `value1` > `value2`|boolean         |false   |
 
 <a id="node-ifgreatereq"> </a>
 
@@ -1988,17 +2027,17 @@ Output the value of the `in1` or `in2` stream depending on whether the `value1` 
 
 |Port    |Description                                       |Type                                     |Default |
 |--------|--------------------------------------------------|-----------------------------------------|--------|
-|`value1`|the first value to be compared                    |float, integer                           |__one__ |
-|`value2`|the second value to be compared                   |float, integer                           |__zero__|
+|`value1`|The first value to be compared                    |float, integer                           |__one__ |
+|`value2`|The second value to be compared                   |Same as `value1`                         |__zero__|
 |`in1`   |The value stream to output if `value1` >= `value2`|float, colorN, vectorN, matrixNN, integer|__zero__|
 |`in2`   |The value stream to output if `value1` < `value2` |Same as `in1`                            |__zero__|
 |`out`   |Output: the result of the comparison              |Same as `in1`                            |`in1`   |
 
-|Port    |Description                                       |Type                                     |Default |
-|--------|--------------------------------------------------|-----------------------------------------|--------|
-|`value1`|the first value to be compared                    |float, integer                           |__one__ |
-|`value2`|the second value to be compared                   |float, integer                           |__zero__|
-|`out`   |Output: true if `value1` >= `value2               |boolean                                  |false   |
+|Port    |Description                         |Type            |Default |
+|--------|------------------------------------|----------------|--------|
+|`value1`|The first value to be compared      |float, integer  |__one__ |
+|`value2`|The second value to be compared     |Same as `value1`|__zero__|
+|`out`   |Output: true if `value1` >= `value2`|boolean         |false   |
 
 <a id="node-ifequal"> </a>
 
@@ -2008,8 +2047,8 @@ Output the value of the `in1` or `in2` stream depending on whether the `value1` 
 
 |Port    |Description                                       |Type                                     |Default |
 |--------|--------------------------------------------------|-----------------------------------------|--------|
-|`value1`|the first value to be compared                    |float, integer                           |__one__ |
-|`value2`|the second value to be compared                   |float, integer                           |__zero__|
+|`value1`|The first value to be compared                    |float, integer                           |__one__ |
+|`value2`|The second value to be compared                   |Same as `value1`                         |__zero__|
 |`in1`   |The value stream to output if `value1` = `value2` |float, colorN, vectorN, matrixNN, integer|__zero__|
 |`in2`   |The value stream to output if `value1` != `value2`|Same as `in1`                            |__zero__|
 |`out`   |Output: the result of the comparison              |Same as `in1`                            |`in1`   |
@@ -2022,16 +2061,16 @@ Output the value of the `in1` or `in2` stream depending on whether the `value1` 
 |`in2`   |The value stream to output if `value1` != `value2`|Same as `in1`                            |__zero__|
 |`out`   |Output: the result of the comparison              |Same as `in1`                            |`in1`   |
 
-|Port    |Description                                       |Type                                     |Default |
-|--------|--------------------------------------------------|-----------------------------------------|--------|
-|`value1`|the first value to be compared                    |float, integer                           |__one__ |
-|`value2`|the second value to be compared                   |float, integer                           |__zero__|
-|`out`   |Output: true if `value1` = `value2`               |boolean                                  |false   |
+|Port    |Description                        |Type            |Default |
+|--------|-----------------------------------|----------------|--------|
+|`value1`|The first value to be compared     |float, integer  |__one__ |
+|`value2`|The second value to be compared    |Same as `value1`|__zero__|
+|`out`   |Output: true if `value1` = `value2`|boolean         |false   |
 
 |Port    |Description                        |Type   |Default|
 |--------|-----------------------------------|-------|-------|
 |`value1`|The first value to be compared     |boolean|false  |
-|`value2`|The first value to be compared     |boolean|false  |
+|`value2`|The second value to be compared    |boolean|false  |
 |`out`   |Output: true if `value1` = `value2`|boolean|false  |
 
 <a id="node-switch"> </a>
@@ -2066,37 +2105,13 @@ Channel nodes are used to perform channel manipulations and data type conversion
 
 ### `extract`
 
-Isolate a single float channel from a __vectorN__ or __colorN__ stream. The output value is of type `float` with a default value of __zero__.
+Isolate a single float channel from a __vectorN__ or __colorN__ stream.
 
-|Port   |Description                                 |Type   |Default      |
-|-------|--------------------------------------------|-------|-------------|
-|`in`   |The input stream from which to extract `out`|color3 |0.0, 0.0, 0.0|
-|`index`|The index of the channel in `in` to extract |integer|0            |
-|`out`  |Output: the `index`th channel of `in`       |float  |0.0          |
-
-|Port   |Description                                 |Type   |Default           |
-|-------|--------------------------------------------|-------|------------------|
-|`in`   |The input stream from which to extract `out`|color4 |0.0, 0.0, 0.0, 0.0|
-|`index`|The index of the channel in `in` to extract |integer|0                 |
-|`out`  |Output: the `index`th channel of `in`       |float  |0.0               |
-
-|Port   |Description                                 |Type   |Default |
-|-------|--------------------------------------------|-------|--------|
-|`in`   |The input stream from which to extract `out`|vector2|0.0, 0.0|
-|`index`|The index of the channel in `in` to extract |integer|0       |
-|`out`  |Output: the `index`th channel of `in`       |float  |0.0     |
-
-|Port   |Description                                 |Type   |Default      |
-|-------|--------------------------------------------|-------|-------------|
-|`in`   |The input stream from which to extract `out`|vector3|0.0, 0.0, 0.0|
-|`index`|The index of the channel in `in` to extract |integer|0            |
-|`out`  |Output: the `index`th channel of `in`       |float  |0.0          |
-
-|Port   |Description                                 |Type   |Default           |
-|-------|--------------------------------------------|-------|------------------|
-|`in`   |The input stream from which to extract `out`|vector4|0.0, 0.0, 0.0, 0.0|
-|`index`|The index of the channel in `in` to extract |integer|0                 |
-|`out`  |Output: the `index`th channel of `in`       |float  |0.0               |
+|Port   |Description                                 |Type           |Default |
+|-------|--------------------------------------------|---------------|--------|
+|`in`   |The input stream from which to extract `out`|colorN, vectorN|__zero__|
+|`index`|The index of the channel in `in` to extract |integer        |0       |
+|`out`  |Output: the `index`th channel of `in`       |float          |0.0     |
 
 The valid range for `index` should be clamped to $[0,N)$ in the user interface, where __N__ is the size of the input vector stream. `index` is a uniform, non-varying value. Any `index` values outside of the valid range should result in an error.
 
@@ -2105,40 +2120,37 @@ The valid range for `index` should be clamped to $[0,N)$ in the user interface, 
 ### `convert`
 Convert a stream from one data type to another.
 
-|Port |Description                                    |Type   |Default |
-|-----|-----------------------------------------------|-------|--------|
-|`in` |The input stream to convert                    |boolean|false   |
-|`out`|Output: the converted value, either 0.0 or 1.0 |float  |0.0     |
+|Port |Description                |Type           |Default |
+|-----|---------------------------|---------------|--------|
+|`in` |The input stream to convert|boolean        |false   |
+|`out`|Output: the converted value|float, integer |__zero__|
 
-|Port |Description                                    |Type   |Default |
-|-----|-----------------------------------------------|-------|--------|
-|`in` |The input stream to convert                    |integer|0       |
-|`out`|Output: the converted value                    |float  |0.0     |
+|Port |Description                              |Type   |Default|
+|-----|-----------------------------------------|-------|-------|
+|`in` |The input stream to convert              |integer|0      |
+|`out`|Output: true for any non-zero input value|boolean|false  |
 
-|Port |Description                                    |Type   |Default |
-|-----|-----------------------------------------------|-------|--------|
-|`in` |The input stream to convert                    |boolean|false   |
-|`out`|Output: the converted value, either 0 or 1     |integer|0       |
+|Port |Description                |Type   |Default|
+|-----|---------------------------|-------|-------|
+|`in` |The input stream to convert|integer|0      |
+|`out`|Output: the converted value|float  |0.0    |
 
-|Port |Description                                    |Type   |Default |
-|-----|-----------------------------------------------|-------|--------|
-|`in` |The input stream to convert                    |integer|0       |
-|`out`|Output: true for any non-zero input value      |boolean|false   |
+|Port |Description                             |Type                   |Default |
+|-----|----------------------------------------|-----------------------|--------|
+|`in` |The input stream to convert             |boolean, float, integer|__zero__|
+|`out`|Output: copy input value to all channels|colorN, vectorN        |__zero__|
 
-|Port |Description                                    |Type          |Default |
-|-----|-----------------------------------------------|--------------|--------|
-|`in` |The input stream to convert                    |float,integer |__zero__|
-|`out`|Output: copy input value to all channels       |colorN,vectorN|__zero__|
+|Port |Description                |Type           |Default |
+|-----|---------------------------|---------------|--------|
+|`in` |The input stream to convert|colorN, vectorN|__zero__|
+|`out`|Output: the converted value|colorM, vectorM|__zero__|
 
-|Port |Description                                       |Type          |Default |
-|-----|--------------------------------------------------|--------------|--------|
-|`in` |The input stream to convert                       |boolean       |false   |
-|`out`|Output: 1 in all channels if `in`=true, 0 if false|colorN,vectorN|__zero__|
+|Port |Description                                                      |Type                                    |Default |
+|-----|-----------------------------------------------------------------|----------------------------------------|--------|
+|`in` |The input stream to convert                                      |boolean, integer, float, colorN, vectorN|__zero__|
+|`out`|Output: an unlit surface shader emitting the input value as color|surfaceshader                           |        |
 
-|Port |Description                  |Type          |Default |
-|-----|-----------------------------|--------------|--------|
-|`in` |The input stream to convert  |colorN,vectorN|__zero__|
-|`out`|Output: see below            |colorM,vectorM|__zero__|
+For boolean input values, all numeric output values will be either __zero__ or __one__.
 
 For colorN/vectorN to colorM/vectorM:
 
@@ -2216,7 +2228,7 @@ Split the channels of a 2-channel stream into separate float outputs.
 |`outx`|Output: the x channel of `in`   |float  |0.0     |
 |`outy`|Output: the y channel of `in`   |float  |0.0     |
 
-For the vector2-input `in`, `outx` and `outy` correspond to the x- and y-components of `in`..
+For the vector2-input `in`, `outx` and `outy` correspond to the x- and y-components of `in`.
 
 <a id="node-separate3"> </a>
 
@@ -2327,17 +2339,13 @@ An unlit surface shader node, representing a surface that can emit and transmit 
 ### `displacement`
 Constructs a displacement shader describing geometric modification to surfaces.
 
-|Port          |Description                                                 |Type              |Default|
-|--------------|------------------------------------------------------------|------------------|-------|
-|`displacement`|Scalar along the surface normal direction for each position.|float             |0.0    |
-|`scale`       |Scale factor for the displacement vector.                   |float             |1.0    |
-|`out`         |Output: displacement shader closure                         |displacementshader|       |
+The scalar signature displaces along the surface normal direction, while the vector signature allows displacement in tangent/normal space using (dPdu, dPdv, N) coordinates.
 
-|Port          |Description                                                                   |Type              |Default      |
-|--------------|------------------------------------------------------------------------------|------------------|-------------|
-|`displacement`|Vector displacement in (dPdu, dPdv, N) tangent/normal space for each position.|vector3           |0.0, 0.0, 0.0|
-|`scale`       |Scale factor for the displacement vector.                                     |float             |1.0          |
-|`out`         |Output: displacement shader closure                                           |displacementshader|             |
+|Port          |Description                             |Type              |Default |
+|--------------|----------------------------------------|------------------|--------|
+|`displacement`|Displacement amount or direction        |float, vector3    |__zero__|
+|`scale`       |Scale factor for the displacement       |float             |1.0     |
+|`out`         |Output: the computed displacement shader|displacementshader|        |
 
 <a id="node-mix-shader"> </a>
 

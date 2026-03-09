@@ -2,15 +2,14 @@ name: main
 
 on:
   push:
-    paths-ignore:
-      - '**.md'
   pull_request:
-    paths-ignore:
-      - '**.md'
   schedule:
     # Nightly build
     - cron: '30 10 * * *'
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
 
@@ -30,17 +29,18 @@ jobs:
           python: 3.9
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON -DMATERIALX_BUILD_MONOLITHIC=ON
 
-        - name: Linux_GCC_14_Python312
-          os: ubuntu-24.04
-          compiler: gcc
-          compiler_version: "14"
-          python: 3.12
-
         - name: Linux_GCC_14_Python313
           os: ubuntu-24.04
           compiler: gcc
           compiler_version: "14"
           python: 3.13
+          extended_build_perfetto: ON
+
+        - name: Linux_GCC_14_Python314
+          os: ubuntu-24.04
+          compiler: gcc
+          compiler_version: "14"
+          python: 3.14
           test_render: ON
 
         - name: Linux_GCC_CoverageAnalysis
@@ -58,11 +58,11 @@ jobs:
           python: 3.9
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
 
-        - name: Linux_Clang_18_Python313
+        - name: Linux_Clang_18_Python314
           os: ubuntu-24.04
           compiler: clang
           compiler_version: "18"
-          python: 3.13
+          python: 3.14
           clang_format: ON
 
         - name: MacOS_Xcode_15_Python311
@@ -80,11 +80,11 @@ jobs:
           test_shaders: ON
           test_render: ON
 
-        - name: MacOS_Xcode_26_Python313
+        - name: MacOS_Xcode_26_Python314
           os: macos-26
           compiler: xcode
           compiler_version: "26.0"
-          python: 3.13
+          python: 3.14
           static_analysis: ON
           cmake_config: -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DMATERIALX_BUILD_DATA_LIBRARY=ON
 
@@ -114,20 +114,26 @@ jobs:
           architecture: x64
           python: 3.13
           cmake_config: -G "Visual Studio 17 2022" -A "x64"
-          test_shaders: ON
           extended_build_mdl_sdk: ON
+
+        - name: Windows_VS2022_x64_Python314
+          os: windows-2025
+          architecture: x64
+          python: 3.14
+          cmake_config: -G "Visual Studio 17 2022" -A "x64"
+          test_shaders: ON
+          extended_build_oiio: ON
 
         - name: Windows_VS2022_x64_SharedLibs
           os: windows-2025
           architecture: x64
           python: None
           cmake_config: -G "Visual Studio 17 2022" -A "x64" -DMATERIALX_BUILD_SHARED_LIBS=ON
-          extended_build_oiio: ON
           upload_shaders: ON
 
     steps:
     - name: Sync Repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       with:
         submodules: recursive
 
@@ -172,12 +178,12 @@ jobs:
     - name: Install MDL SDK
       if: env.IS_EXTENDED_BUILD == 'true' && matrix.extended_build_mdl_sdk == 'ON' && runner.os == 'Windows'
       run: |
-        C:/vcpkg/vcpkg install mdl-sdk --triplet=x64-windows
-        Add-Content $env:GITHUB_PATH "C:/vcpkg/installed/x64-windows/bin"
+        C:/vcpkg/vcpkg install mdl-sdk[dds,df-vulkan,openimageio] --triplet=x64-windows-release
+        Add-Content $env:GITHUB_PATH "C:/vcpkg/installed/x64-windows-release/bin"
 
     - name: Install Python ${{ matrix.python }}
       if: matrix.python != 'None'
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
       with:
         python-version: ${{ matrix.python }}
         architecture: ${{ matrix.architecture }}
@@ -196,13 +202,16 @@ jobs:
         EXTENDED_BUILD_CONFIG=""
         if [ "${{ env.IS_EXTENDED_BUILD }}" == "true" ]; then
           if [ "${{ runner.os }}" == "Windows" ]; then
-            EXTENDED_BUILD_CONFIG="-DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows"
+            EXTENDED_BUILD_CONFIG="-DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake"
           fi
           if [ "${{ matrix.extended_build_oiio }}" == "ON" ]; then
-            EXTENDED_BUILD_CONFIG="$EXTENDED_BUILD_CONFIG -DMATERIALX_BUILD_OIIO=ON"
+            EXTENDED_BUILD_CONFIG="$EXTENDED_BUILD_CONFIG -DVCPKG_TARGET_TRIPLET=x64-windows -DMATERIALX_BUILD_OIIO=ON"
           fi
           if [ "${{ matrix.extended_build_mdl_sdk }}" == "ON" -a "${{ runner.os }}" == "Windows" ]; then
-            EXTENDED_BUILD_CONFIG="$EXTENDED_BUILD_CONFIG -DMATERIALX_MDL_SDK_DIR=C:/vcpkg/installed/x64-windows"
+            EXTENDED_BUILD_CONFIG="$EXTENDED_BUILD_CONFIG -DVCPKG_TARGET_TRIPLET=x64-windows-release -DMATERIALX_MDL_SDK_DIR=C:/vcpkg/installed/x64-windows-release"
+          fi
+          if [ "${{ matrix.extended_build_perfetto }}" == "ON" ]; then
+            EXTENDED_BUILD_CONFIG="$EXTENDED_BUILD_CONFIG -DMATERIALX_BUILD_PERFETTO_TRACING=ON"
           fi
         fi
         TEST_RENDER_CONFIG="-DMATERIALX_TEST_RENDER=OFF"
@@ -226,6 +235,8 @@ jobs:
       run: |
         python MaterialXTest/main.py
         python MaterialXTest/genshader.py
+        python Scripts/comparenodedefs.py --spec ../documents/Specification/MaterialX.StandardNodes.md --mtlx ../libraries/stdlib/stdlib_defs.mtlx
+        python Scripts/comparenodedefs.py --spec ../documents/Specification/MaterialX.PBRSpec.md --mtlx ../libraries/pbrlib/pbrlib_defs.mtlx
         python Scripts/creatematerial.py ../resources/Materials/Examples/StandardSurface/chess_set --texturePrefix chessboard --shadingModel standard_surface
         python Scripts/creatematerial.py ../resources/Materials/Examples/GltfPbr/boombox --shadingModel gltf_pbr
         python Scripts/mxformat.py ../resources/Materials/TestSuite/stdlib/upgrade --yes --upgrade
@@ -262,7 +273,7 @@ jobs:
       run: |
         sudo apt-get install gcovr
         mkdir coverage
-        gcovr --html --html-details --output coverage/index.html --exclude .*\/External\/.* --root .. .
+        gcovr --html --html-details --output coverage/index.html --exclude .*\/External\/.* --exclude .*perfetto.* --root .. .
       working-directory: build
 
     - name: Static Analysis Tests
@@ -273,7 +284,7 @@ jobs:
         else
           brew install cppcheck
         fi
-        cppcheck --project=build/compile_commands.json --error-exitcode=1 --suppress=normalCheckLevelMaxBranches --suppress=*:*/External/* --suppress=*:*/NanoGUI/*
+        cppcheck --project=build/compile_commands.json --error-exitcode=1 --suppress=normalCheckLevelMaxBranches --suppress=*:*/External/* --suppress=*:*/NanoGUI/* --suppress=*:*perfetto*
 
     - name: Setup Rendering Environment (Linux)
       if: matrix.test_render == 'ON' && runner.os == 'Linux'
@@ -314,53 +325,63 @@ jobs:
 
     - name: Upload Installed Package
       if: matrix.python != 'None'
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
       with:
         name: MaterialX_${{ matrix.name }}
         path: build/installed/
 
     - name: Upload Formatted Source
       if: matrix.clang_format == 'ON'
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
       with:
         name: MaterialX_ClangFormat
         path: source
 
     - name: Upload Reference Shaders
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
       if: matrix.upload_shaders == 'ON'
       with:
         name: MaterialX_ReferenceShaders
         path: build/bin/reference/
 
     - name: Upload Renders
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
       if: matrix.test_render == 'ON'
       with:
         name: Renders_${{ matrix.name }}
         path: build/render/*.png
 
     - name: Upload Resources (MacOS)
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
       if: matrix.test_render == 'ON' && runner.os == 'macOS'
       with:
         name: Resources_${{ matrix.name }}
         path: build/bin/resources
 
     - name: Upload Coverage Report
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
       if: matrix.coverage_analysis == 'ON'
       with:
         name: MaterialX_Coverage
         path: build/coverage
 
+    - name: Upload Perfetto Traces
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      if: matrix.extended_build_perfetto == 'ON' && env.IS_EXTENDED_BUILD == 'true'
+      with:
+        name: Traces_${{ matrix.name }}
+        path: build/**/*.perfetto-trace
+        if-no-files-found: ignore
+
   javascript:
     name: JavaScript
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
     - name: Sync Repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
     - name: Install Emscripten
       run: |
@@ -372,7 +393,7 @@ jobs:
         echo "EMSDK=$EMSDK" >> $GITHUB_ENV
 
     - name: Install Node
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
       with:
          node-version: '22.16.0'
 
@@ -404,7 +425,7 @@ jobs:
         single-commit: true
 
     - name: Upload JavaScript Package
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
       with:
         name: MaterialX_JavaScript
         path: javascript/build/installed/JavaScript/MaterialX
@@ -418,10 +439,10 @@ jobs:
 
     steps:
     - name: Sync Repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
     - name: Install Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
       with:
         python-version: 3.11
 
@@ -433,7 +454,7 @@ jobs:
         echo "filename=$(ls dist)" >> "$GITHUB_OUTPUT"
 
     - name: Upload SDist
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
       with:
         name: MaterialX_Python_SDist
         path: dist/*.tar.gz
@@ -446,26 +467,30 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-minor: ['9', '10', '11', '12', '13']
+        python-minor: ['9', '10', '11', '12', '13', '14']
         os: ['ubuntu-24.04', 'windows-2022', 'macos-15']
 
     steps:
     - name: Sync Repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
     - name: Install Python 3.${{ matrix.python-minor }}
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
       with:
         python-version: 3.${{ matrix.python-minor }}
 
     - name: Download Sdist
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
       with:
         name: MaterialX_Python_SDist
         path: sdist
 
+    - name: Install Doxygen (Windows)
+      uses: ssciwr/doxygen-install@f13be1686235deee0aeb6cdf56640170691dc96b # v1
+      if: runner.os == 'Windows'
+
     - name: Build Wheel
-      uses: pypa/cibuildwheel@v2.23.2
+      uses: pypa/cibuildwheel@ee02a1537ce3071a004a6b08c41e72f0fdc42d9a # v3.4.0
       with:
         package-dir: ${{ github.workspace }}/sdist/${{ needs.sdist.outputs.sdist_filename }}
       env:
@@ -473,7 +498,8 @@ jobs:
         CIBW_SKIP: '*musllinux*'
         CIBW_ARCHS: 'auto64'
         CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
-        CIBW_BEFORE_ALL_LINUX: yum install -y libXt-devel
+        CIBW_BEFORE_ALL_LINUX: dnf install -y libXt-devel doxygen
+        CIBW_BEFORE_ALL_MACOS: brew install doxygen
         CIBW_BUILD_VERBOSITY: 1
         CIBW_ENVIRONMENT: CMAKE_BUILD_PARALLEL_LEVEL=2
         MACOSX_DEPLOYMENT_TARGET: '11.0'
@@ -488,7 +514,7 @@ jobs:
       working-directory: python
 
     - name: Upload Wheel
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
       with:
         name: MaterialX_Python_Wheel_${{ runner.os }}_3_${{ matrix.python-minor }}
         path: wheelhouse/*.whl

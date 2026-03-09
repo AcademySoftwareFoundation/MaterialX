@@ -61,6 +61,12 @@ vec3 mx_ggx_importance_sample_VNDF(vec2 Xi, vec3 V, vec2 alpha)
     return H;
 }
 
+// PDF of a reflection direction sampled from the GGX VNDF.
+float mx_ggx_VNDF_reflection_PDF(vec3 H, vec2 alpha, float G1V, float NdotV)
+{
+    return mx_ggx_NDF(H, alpha) * G1V / (4.0 * NdotV);
+}
+
 // https://www.cs.cornell.edu/~srm/publications/EGSR07-btdf.pdf
 // Equation 34
 float mx_ggx_smith_G1(float cosTheta, float alpha)

@@ -24,6 +24,7 @@ import ::limits::*;
 import .::core::*;
 import .::noise::*;
 import .::hsv::*;
+import .::flake::*;
 import .::hextile::*;
 
 // NOTE: To insulate MaterialX names from MDL names, in particular 
@@ -777,16 +778,11 @@ export core::color4 mx_hextiledimage_color4(
 	cw = math::lerp(float3(1.0), cw, float3(mxp_falloff_contrast));
 
 	float3 w = hextile::mx_hextile_compute_blend_weights(cw, tile_data.weights, mxp_falloff);
-
-	// alpha
-	float a = (c1.a + c2.a + c3.a) / 3.0;
-	if (mxp_falloff != 0.5)
-	{
-		a = hextile::mx_schlick_gain(a, mxp_falloff);
-	}
+	float3 aw = hextile::mx_hextile_compute_blend_weights(float3(1.0), tile_data.weights, mxp_falloff);
 
 	// blend
-	return core::mk_color4(w.x * c1.rgb + w.y * c2.rgb + w.z * c3.rgb, a);
+	return core::mk_color4(w.x * c1.rgb + w.y * c2.rgb + w.z * c3.rgb,
+	  					   aw.x * c1.a + aw.y * c2.a + aw.z * c3.a);
 }
 
 export float mx_constant_float(
@@ -991,7 +987,7 @@ export float mx_ramptb_float(
 		anno::description("Node Group: procedural2d")
 	]]
 {
-	return math::lerp(mxp_valuet, mxp_valueb, math::clamp(mxp_texcoord.y, 0.0, 1.0));
+	return math::lerp(mxp_valueb, mxp_valuet, math::clamp(mxp_texcoord.y, 0.0, 1.0));
 }
 
 export color mx_ramptb_color3(
@@ -1003,7 +999,7 @@ export color mx_ramptb_color3(
 		anno::description("Node Group: procedural2d")
 	]]
 {
-	return math::lerp(mxp_valuet, mxp_valueb, math::clamp(mxp_texcoord.y, 0.0, 1.0));
+	return math::lerp(mxp_valueb, mxp_valuet, math::clamp(mxp_texcoord.y, 0.0, 1.0));
 }
 
 export core::color4 mx_ramptb_color4(
@@ -1015,8 +1011,8 @@ export core::color4 mx_ramptb_color4(
 		anno::description("Node Group: procedural2d")
 	]]
 {
-	color rgb = math::lerp(mxp_valuet.rgb, mxp_valueb.rgb, math::clamp(mxp_texcoord.y, 0.0, 1.0));
-	float a = math::lerp(mxp_valuet.a, mxp_valueb.a, math::clamp(mxp_texcoord.y, 0.0, 1.0));
+	color rgb = math::lerp(mxp_valueb.rgb, mxp_valuet.rgb, math::clamp(mxp_texcoord.y, 0.0, 1.0));
+	float a = math::lerp(mxp_valueb.a, mxp_valuet.a, math::clamp(mxp_texcoord.y, 0.0, 1.0));
 	return core::color4(rgb, a);}
 
 export float2 mx_ramptb_vector2(
@@ -1028,7 +1024,7 @@ export float2 mx_ramptb_vector2(
 		anno::description("Node Group: procedural2d")
 	]]
 {
-	return math::lerp(mxp_valuet, mxp_valueb, math::clamp(mxp_texcoord.y, 0.0, 1.0));
+	return math::lerp(mxp_valueb, mxp_valuet, math::clamp(mxp_texcoord.y, 0.0, 1.0));
 }
 
 export float3 mx_ramptb_vector3(
@@ -1040,7 +1036,7 @@ export float3 mx_ramptb_vector3(
 		anno::description("Node Group: procedural2d")
 	]]
 {
-	return math::lerp(mxp_valuet, mxp_valueb, math::clamp(mxp_texcoord.y, 0.0, 1.0));
+	return math::lerp(mxp_valueb, mxp_valuet, math::clamp(mxp_texcoord.y, 0.0, 1.0));
 }
 
 export float4 mx_ramptb_vector4(
@@ -1052,7 +1048,7 @@ export float4 mx_ramptb_vector4(
 		anno::description("Node Group: procedural2d")
 	]]
 {
-	return math::lerp(mxp_valuet, mxp_valueb, math::clamp(mxp_texcoord.y, 0.0, 1.0));
+	return math::lerp(mxp_valueb, mxp_valuet, math::clamp(mxp_texcoord.y, 0.0, 1.0));
 }
 
 // Nodedef: ND_ramp4_float is represented by a nodegraph: NG_ramp4_float
@@ -1215,7 +1211,7 @@ export float mx_splittb_float(
 		anno::description("Node Group: procedural2d")
 	]]
 {
-	return math::lerp(mxp_valuet, mxp_valueb, math::step(mxp_center, math::clamp(mxp_texcoord.x,0,1)));
+	return math::lerp(mxp_valueb, mxp_valuet, math::step(mxp_center, math::clamp(mxp_texcoord.x,0,1)));
 }
 
 export color mx_splittb_color3(
@@ -1237,7 +1233,7 @@ export color mx_splittb_color3(
 		anno::description("Node Group: procedural2d")
 	]]
 {
-	return math::lerp(mxp_valuet, mxp_valueb, math::step(mxp_center, math::clamp(mxp_texcoord.x,0,1)));
+	return math::lerp(mxp_valueb, mxp_valuet, math::step(mxp_center, math::clamp(mxp_texcoord.x,0,1)));
 }
 
 export core::color4 mx_splittb_color4(
@@ -1259,7 +1255,7 @@ export core::color4 mx_splittb_color4(
 		anno::description("Node Group: procedural2d")
 	]]
 {
-	color rgb = math::lerp(mxp_valuet.rgb, mxp_valueb.rgb, math::step(mxp_center, math::clamp(mxp_texcoord.x,0,1)));	float a = math::lerp(mxp_valuet.a, mxp_valueb.a, math::step(mxp_center, math::clamp(mxp_texcoord.x,0,1)));	return core::color4(rgb, a);
+	color rgb = math::lerp(mxp_valueb.rgb, mxp_valuet.rgb, math::step(mxp_center, math::clamp(mxp_texcoord.x,0,1)));	float a = math::lerp(mxp_valueb.a, mxp_valuet.a, math::step(mxp_center, math::clamp(mxp_texcoord.x,0,1)));	return core::color4(rgb, a);
 }
 
 export float2 mx_splittb_vector2(
@@ -1281,7 +1277,7 @@ export float2 mx_splittb_vector2(
 		anno::description("Node Group: procedural2d")
 	]]
 {
-	return math::lerp(mxp_valuet, mxp_valueb, math::step(mxp_center, math::clamp(mxp_texcoord.x,0,1)));
+	return math::lerp(mxp_valueb, mxp_valuet, math::step(mxp_center, math::clamp(mxp_texcoord.x,0,1)));
 }
 
 export float3 mx_splittb_vector3(
@@ -1303,7 +1299,7 @@ export float3 mx_splittb_vector3(
 		anno::description("Node Group: procedural2d")
 	]]
 {
-	return math::lerp(mxp_valuet, mxp_valueb, math::step(mxp_center, math::clamp(mxp_texcoord.x,0,1)));
+	return math::lerp(mxp_valueb, mxp_valuet, math::step(mxp_center, math::clamp(mxp_texcoord.x,0,1)));
 }
 
 export float4 mx_splittb_vector4(
@@ -1325,7 +1321,7 @@ export float4 mx_splittb_vector4(
 		anno::description("Node Group: procedural2d")
 	]]
 {
-	return math::lerp(mxp_valuet, mxp_valueb, math::step(mxp_center, math::clamp(mxp_texcoord.x,0,1)));
+	return math::lerp(mxp_valueb, mxp_valuet, math::step(mxp_center, math::clamp(mxp_texcoord.x,0,1)));
 }
 
 export float3 mx_position_vector3(
@@ -4733,6 +4729,33 @@ export float3 mx_worleynoise3d_float3(
 )
 {
     return noise::mx_worley_noise_float3(mxp_position, mxp_jitter, 0);
+}
+
+export flake::mx_flake__result mx_flake2d(
+	float mxp_size = 0.01,
+	float mxp_roughness = 0.1,
+	float mxp_coverage = 0.5,
+    float2 mxp_texcoord = core::mx_swizzle_xy(state::texture_coordinate(0)),
+	float3 mxp_normal = state::normal(),
+	float3 mxp_tangent = state::texture_tangent_u(0),
+	float3 mxp_bitangent = state::texture_tangent_v(0)
+)
+{
+	float3 position = float3(mxp_texcoord.x, mxp_texcoord.y, 0.0);
+	return flake::mx_flake(mxp_size, mxp_roughness, mxp_coverage, position, mxp_normal, mxp_tangent, mxp_bitangent);
+}
+
+export flake::mx_flake__result mx_flake3d(
+	float mxp_size = 0.01,
+	float mxp_roughness = 0.1,
+	float mxp_coverage = 0.5,
+	float3 mxp_position = state::transform_point(state::coordinate_internal, state::coordinate_object, state::position()),
+	float3 mxp_normal = state::normal(),
+	float3 mxp_tangent = state::texture_tangent_u(0),
+	float3 mxp_bitangent = state::texture_tangent_v(0)
+)
+{
+	return flake::mx_flake(mxp_size, mxp_roughness, mxp_coverage, mxp_position, mxp_normal, mxp_tangent, mxp_bitangent);
 }
 
 export core::color4 mx_combine2_color4CF(color in1, float in2)

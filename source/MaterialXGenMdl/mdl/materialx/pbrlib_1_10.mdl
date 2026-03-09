@@ -80,6 +80,7 @@ export using .::pbrlib_1_7 import mx_add_vdf;
 export using .::pbrlib_1_7 import mx_generalized_schlick_edf;
 export using .::pbrlib_1_7 import mx_volume;
 
+export using .::pbrlib_1_9 import preserve_volume_ior;
 export using .::pbrlib_1_9 import mx_mix_bsdf;
 export using .::pbrlib_1_9 import mx_mix_vdf;
 export using .::pbrlib_1_9 import mx_dielectric_bsdf;
@@ -228,7 +229,7 @@ export material mx_generalized_schlick_bsdf(
             )
         )
     ),
-    ior: mx_f0_to_ior(mxp_color0),
-    // we need to carry volume properties along for SSS
+    // we need to preserve volume properties, e.g. for SSS
+    ior: preserve_volume_ior(mxp_scatter_mode, mxp_weight, mx_f0_to_ior(mxp_color0), mxp_base.ior),
     volume: mxp_base.volume
 );

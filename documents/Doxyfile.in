@@ -23,3 +23,6 @@ FULL_SIDEBAR           = NO
 
 QUIET                  = YES
 WARN_IF_UNDOCUMENTED   = NO
+
+GENERATE_XML = YES
+XML_OUTPUT = doxygen_xml

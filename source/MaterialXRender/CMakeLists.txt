@@ -2,10 +2,6 @@ file(GLOB_RECURSE materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 file(GLOB_RECURSE materialx_inlined "${CMAKE_CURRENT_SOURCE_DIR}/*.inl")
 file(GLOB_RECURSE materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
 
-if(NOT MATERIALX_BUILD_OIIO)
-    list(REMOVE_ITEM materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/OiioImageLoader.cpp")
-endif()
-
 mx_add_library(MaterialXRender
     SOURCE_FILES
         ${materialx_source}
@@ -29,5 +25,5 @@ endif()
 if(MATERIALX_BUILD_OIIO)
     find_package(OpenImageIO CONFIG REQUIRED)
     target_link_libraries(${TARGET_NAME} PRIVATE OpenImageIO::OpenImageIO OpenImageIO::OpenImageIO_Util)
-    target_compile_definitions(MaterialXRender PUBLIC MATERIALX_BUILD_OIIO)
+    target_compile_definitions(${TARGET_NAME} PUBLIC MATERIALX_BUILD_OIIO)
 endif()

@@ -370,9 +370,6 @@ class MX_GENSHADER_API ShaderNode
     static const string BACKSURFACESHADER;
     static const string BSDF_R;
     static const string BSDF_T;
-    static const string TRANSFORM_POINT;
-    static const string TRANSFORM_VECTOR;
-    static const string TRANSFORM_NORMAL;
     static const string TEXTURE2D_GROUPNAME;
     static const string TEXTURE3D_GROUPNAME;
     static const string PROCEDURAL2D_GROUPNAME;
@@ -431,6 +428,13 @@ class MX_GENSHADER_API ShaderNode
     const string& getName() const
     {
         return _name;
+    }
+
+    /// Return the unique identifier for this node, used as its key
+    /// in the parent graph's node map.
+    const string& getUniqueId() const
+    {
+        return _uniqueId;
     }
 
     /// Return the implementation used for this node.
@@ -498,6 +502,7 @@ class MX_GENSHADER_API ShaderNode
 
     const ShaderGraph* _parent;
     string _name;
+    string _uniqueId;
     uint32_t _classification;
 
     std::unordered_map<string, ShaderInputPtr> _inputMap;

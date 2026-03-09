@@ -188,16 +188,18 @@ bool MslShaderRenderTester::runRenderer(const std::string& shaderName,
             profileTimes.elementsTested++;
 
             mx::FilePath outputFilePath = outputPath;
-            // Use separate directory for reduced output
-            if (options.shaderInterfaceType == mx::SHADER_INTERFACE_REDUCED)
-            {
-                outputFilePath = outputFilePath / mx::FilePath("reduced");
-            }
-
+            
             // Note: mkdir will fail if the directory already exists which is ok.
             {
                 mx::ScopedTimer ioDir(&profileTimes.languageTimes.ioTime);
                 outputFilePath.createDirectory();
+                
+                // Use separate directory for reduced output
+                if (options.shaderInterfaceType == mx::SHADER_INTERFACE_REDUCED)
+                {
+                    outputFilePath = outputFilePath / mx::FilePath("reduced");
+                    outputFilePath.createDirectory();
+                }
             }
 
             std::string shaderPath = mx::FilePath(outputFilePath) / mx::FilePath(shaderName);
