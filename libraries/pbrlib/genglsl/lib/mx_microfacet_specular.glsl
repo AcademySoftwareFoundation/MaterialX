@@ -476,7 +476,7 @@ vec3 mx_compute_fresnel(float cosTheta, FresnelData fd)
     {
         return mx_fresnel_conductor(cosTheta, fd.ior, fd.extinction);
     }
-    else
+    else // FRESNEL_MODEL_SCHLICK
     {
         return mx_fresnel_hoffman_schlick(cosTheta, fd);
     }
@@ -505,7 +505,7 @@ vec3 mx_ggx_dir_albedo(float NdotV, float alpha, FresnelData fd)
         vec3 F0 = mx_fresnel_conductor(1.0, fd.ior, fd.extinction);
         return mx_ggx_dir_albedo(NdotV, alpha, F0, vec3(1.0));
     }
-    else
+    else // FRESNEL_MODEL_SCHLICK
     {
         return mx_ggx_dir_albedo(NdotV, alpha, fd.F0, fd.F90);
     }
