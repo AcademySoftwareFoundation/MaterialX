@@ -498,7 +498,7 @@ vec3 mx_ggx_dir_albedo(float NdotV, float alpha, FresnelData fd)
     else if (fd.model == FRESNEL_MODEL_DIELECTRIC)
     {
         float F0 = mx_ior_to_f0(fd.ior.x);
-        return mx_ggx_dir_albedo(NdotV, alpha, F0, 1.0);
+        return mx_ggx_dir_albedo(NdotV, alpha, vec3(F0), vec3(1.0));
     }
     else if (fd.model == FRESNEL_MODEL_CONDUCTOR)
     {
