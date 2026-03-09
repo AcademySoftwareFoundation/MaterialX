@@ -201,7 +201,7 @@ A constant "interface token" value, may only be connected to &lt;token>s in node
 <a id="node-worleynoise2d"> </a>
 
 ### `worleynoise2d`
-2D Worley noise using centered jitter, outputting the distance metric to the closest 1, 2, or 3 features.
+This proposal extends the existing `worleynoise2d` node to support different distance metrics and periodicity.
 
 |Port    |Description                              |Type                   |Default |Accepted Values                          |
 |--------|-----------------------------------------|-----------------------|--------|-----------------------------------------|
@@ -212,7 +212,7 @@ A constant "interface token" value, may only be connected to &lt;token>s in node
 <a id="node-worleynoise3d"> </a>
 
 ### `worleynoise3d`
-3D Worley noise using centered jitter, outputting the distance metric to the closest 1, 2, or 3 features.
+This proposal extends the existing `worleynoise3d` node to support different distance metrics and periodicity.
 
 |Port    |Description                              |Type                   |Default |Accepted Values                          |
 |--------|-----------------------------------------|-----------------------|--------|-----------------------------------------|
