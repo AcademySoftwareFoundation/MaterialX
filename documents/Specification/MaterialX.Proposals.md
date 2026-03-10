@@ -242,6 +242,8 @@ In #1201 it was decided that separate periodic versions of all of the noises is 
 ### `ambientocclusion`
 Compute the ambient occlusion at the current surface point, returning a scalar value between 0 and 1.  Ambient occlusion represents the accessibility of each surface point to ambient lighting, with larger values representing greater accessibility to light.
 
+The `coneangle` input defines a half-angle about the surface normal, so the default value of 90 degrees represents the full hemisphere.
+
 |Port         |Description                                      |Type |Default|
 |-------------|-------------------------------------------------|-----|-------|
 |`coneangle`  |The half-angle of the occlusion cone, in degrees |float|90.0   |
@@ -284,6 +286,8 @@ Transform the incoming color from one specified colorspace to another, ignoring 
 Samples data from three inputs, and projects a tiled representation of the images along each of the three respective coordinate axes, computing a weighted blend of the three samples using the geometric normal.
 
 The `iny` input is projected in the direction from the +Y axis back toward the origin, with the +X axis to the right.
+
+If adopted, the existing `triplanarprojection` node would be reimplemented as a wrapper that resolves its three image inputs and passes them to `triplanarblend`.
 
 |Port        |Description                                                                                    |Type           |Default  |Accepted Values       |
 |------------|-----------------------------------------------------------------------------------------------|---------------|---------|----------------------|
