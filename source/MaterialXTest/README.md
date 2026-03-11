@@ -67,6 +67,7 @@ When rendering tests are enabled through the `MATERIALX_TEST_RENDER` option, the
     - Set the following build options to enable MDL support:
         - `MATERIALX_MDL_SDK_DIR`: Path to the MDL SDK directory (containing 'include', 'lib', etc.).
     - MDL versions 1.6 and later are supported.
+    - For installations via vcpkg: the core `mdl-sdk` package is sufficient for syntax checks via `mdlc`. The `df_vulkan` test render binary needs the package features `dds`, `openimageio`, and `df-vulkan`.
 - `MSL`:
     - Metal Shading Language (MSL) 2.0 and later are supported.
     - Minimum tested operating system version is macOS Catalina 10.15.7
