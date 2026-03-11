@@ -2458,6 +2458,7 @@ void Graph::addLink(ed::PinId startPinId, ed::PinId endPinId)
             {
                 // Get or create the actual node's input (not the NodeDef's input)
                 mx::InputPtr nodeInput = addNodeInput(uiDownNode, pin->getInput());
+                pin->setElement(nodeInput);
 
                 // Update value to be empty
                 if (uiDownNode->getNode() && uiDownNode->getNode()->getType() == mx::SURFACE_SHADER_TYPE_STRING)
@@ -2700,24 +2701,20 @@ void Graph::deleteLinkInfo(int startAttr, int endAttr)
 
 void Graph::deleteLink(ed::LinkId deletedLinkId)
 {
-    // If you agree that link can be deleted, accept deletion.
-    if (ed::AcceptDeletedItem())
+    _renderer->setMaterialCompilation(true);
+    _frameCount = ImGui::GetFrameCount();
+    int link_id = int(deletedLinkId.Get());
+
+    // Remove link from the current link vector.
+    int pos = findLinkPosition(link_id);
+    if (pos < 0)
     {
-        _renderer->setMaterialCompilation(true);
-        _frameCount = ImGui::GetFrameCount();
-        int link_id = int(deletedLinkId.Get());
-
-        // Then remove link from your data.
-        int pos = findLinkPosition(link_id);
-        if (pos < 0)
-        {
-            return;
-        }
-
-        Link currLink = _state.links[pos];
-        deleteLinkInfo(currLink._startAttr, currLink._endAttr);
-        _state.links.erase(_state.links.begin() + pos);
+        return;
     }
+
+    Link currLink = _state.links[pos];
+    deleteLinkInfo(currLink._startAttr, currLink._endAttr);
+    _state.links.erase(_state.links.begin() + pos);
 }
 
 void Graph::deleteNode(UiNodePtr node)
@@ -4458,7 +4455,10 @@ void Graph::drawGraph(ImVec2 mousePos)
             {
                 if (!readOnly())
                 {
-                    deleteLink(deletedLinkId);
+                    if (ed::AcceptDeletedItem())
+                    {
+                        deleteLink(deletedLinkId);
+                    }
                 }
                 else
                 {
