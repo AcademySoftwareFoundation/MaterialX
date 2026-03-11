@@ -9,7 +9,6 @@
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Util.h>
 
-#include <cassert>
 #include <iostream>
 #include <queue>
 
@@ -19,10 +18,12 @@ MATERIALX_NAMESPACE_BEGIN
 // ShaderGraph methods
 //
 
-ShaderGraph::ShaderGraph(const ShaderGraph* parent, const string& name, ConstDocumentPtr document) :
-    ShaderNode(parent, name),
+ShaderGraph::ShaderGraph(const ShaderGraph* parent, const string& name, ConstDocumentPtr document,
+                         GenContext& context)
+  : ShaderNode(parent, name),
     _document(document)
 {
+    context.getShaderGenerator().getSyntax().makeIdentifier(_name, getIdentifierMap());
 }
 
 void ShaderGraph::addInputSockets(const InterfaceElement& elem, GenContext& context)
@@ -437,7 +438,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const NodeGraph& n
 
     string graphName = nodeGraph.getName();
     context.getShaderGenerator().getSyntax().makeValidName(graphName);
-    ShaderGraphPtr graph = std::make_shared<ShaderGraph>(parent, graphName, nodeGraph.getDocument());
+    ShaderGraphPtr graph = std::make_shared<ShaderGraph>(parent, graphName, nodeGraph.getDocument(), context);
 
     // Clear classification
     graph->_classification = 0;
@@ -496,15 +497,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
             throw ExceptionShaderGenError("Given output '" + output->getName() + "' has no interface valid for shader generation");
         }
 
-        // The identifier is already needed by the base class constructor, but the identifier map is
-        // only initialized later (and the context/syntax is not available). Use a local variable
-        // and move it after construction.
-        string identifier = name;
-        IdentifierMap localMap;
-        context.getShaderGenerator().getSyntax().makeIdentifier(identifier, localMap);
-        graph = std::make_shared<ShaderGraph>(parent, identifier, element->getDocument());
-        assert(graph->getIdentifierMap().empty());
-        graph->getIdentifierMap() = std::move(localMap);
+        graph = std::make_shared<ShaderGraph>(parent, name, element->getDocument(), context);
 
         // Clear classification
         graph->_classification = 0;
@@ -540,15 +533,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
             throw ExceptionShaderGenError("Could not find a nodedef for node '" + node->getName() + "'");
         }
 
-        // The identifier is already needed by the base class constructor, but the identifier map is
-        // only initialized later (and the context/syntax is not available). Use a local variable
-        // and move it after construction.
-        string identifier = name;
-        IdentifierMap localMap;
-        context.getShaderGenerator().getSyntax().makeIdentifier(identifier, localMap);
-        graph = std::make_shared<ShaderGraph>(parent, identifier, element->getDocument());
-        assert(graph->getIdentifierMap().empty());
-        graph->getIdentifierMap() = std::move(localMap);
+        graph = std::make_shared<ShaderGraph>(parent, name, element->getDocument(), context);
 
         // Create input sockets
         graph->addInputSockets(*nodeDef, context);
