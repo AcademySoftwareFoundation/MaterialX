@@ -106,18 +106,18 @@ UiNodePtr UiNode::getConnectedNode(const std::string& name)
     {
         if (edge.getInputName() == name)
         {
-            return edge.getDown();
+            return edge.getUp();
         }
-        else if (edge.getDown()->getName() == name)
+        else if (edge.getUp()->getName() == name)
         {
-            return edge.getDown();
+            return edge.getUp();
         }
     }
     for (const UiEdge& edge : _edges)
     {
         if (edge.getInputName().empty())
         {
-            return edge.getDown();
+            return edge.getUp();
         }
     }
     return nullptr;

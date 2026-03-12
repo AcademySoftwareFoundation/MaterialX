@@ -23,9 +23,9 @@ using UiPinPtr = std::shared_ptr<UiPin>;
 class UiEdge
 {
   public:
-    UiEdge(UiNodePtr uiDown, UiNodePtr uiUp, mx::InputPtr input) :
-        _uiDown(uiDown),
+    UiEdge(UiNodePtr uiUp, UiNodePtr uiDown, mx::InputPtr input) :
         _uiUp(uiUp),
+        _uiDown(uiDown),
         _input(input)
     {
     }
@@ -33,13 +33,13 @@ class UiEdge
     {
         return _input;
     }
-    UiNodePtr getDown() const
-    {
-        return _uiDown;
-    }
     UiNodePtr getUp() const
     {
         return _uiUp;
+    }
+    UiNodePtr getDown() const
+    {
+        return _uiDown;
     }
     std::string getInputName() const
     {
@@ -54,8 +54,8 @@ class UiEdge
     }
 
   private:
-    UiNodePtr _uiDown;
     UiNodePtr _uiUp;
+    UiNodePtr _uiDown;
     mx::InputPtr _input;
 };
 

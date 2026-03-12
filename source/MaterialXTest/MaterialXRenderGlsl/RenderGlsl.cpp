@@ -154,7 +154,7 @@ void GlslShaderRenderTester::registerLights(mx::DocumentPtr document,
     // Apply light settings for render tests.
     _lightHandler->setEnvRadianceMap(envRadiance);
     _lightHandler->setEnvIrradianceMap(envIrradiance);
-    _lightHandler->setEnvSampleCount(options.envSampleCount);
+    _lightHandler->setEnvSampleCount(options.enableReferenceQuality ? 4096 : 1024);
     _lightHandler->setRefractionTwoSided(true);
 }
 
@@ -414,31 +414,19 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                     unsigned int height = (unsigned int) testOptions.renderSize[1] * supersampleFactor;
                     _renderer->setSize(width, height);
 
-                    // Render multiple frames for statistical validity (configurable via framesPerMaterial)
-                    // Frame 0 often includes driver shader compilation; analyze in Python to discard warmup
-                    for (unsigned int frameIdx = 0; frameIdx < testOptions.framesPerMaterial; ++frameIdx)
-                    {
 #ifdef MATERIALX_BUILD_PERFETTO_TRACING
-                        // GPU timing with timer queries
-                        uint64_t cpuStartNs = getCurrentTimeNs();
-                        GpuTimerQuery gpuTimer;
-                        gpuTimer.begin();
+                    uint64_t cpuStartNs = getCurrentTimeNs();
+                    GpuTimerQuery gpuTimer;
+                    gpuTimer.begin();
 #endif
-                        _renderer->render();
+                    _renderer->render();
 
 #ifdef MATERIALX_BUILD_PERFETTO_TRACING
-                        gpuTimer.end();
-                        
-                        // glFinish ensures GPU is done, making CPU trace scope accurate
-                        glFinish();
-                        
-                        // Get GPU duration (query result blocks until available)
-                        uint64_t gpuDurationNs = gpuTimer.getDurationNs();
-                        
-                        // Emit async event on GPU track showing actual GPU work duration
-                        MX_TRACE_ASYNC(mx::Tracing::AsyncTrack::GPU, mx::Tracing::Category::Render, shaderName.c_str(), cpuStartNs, gpuDurationNs);
+                    gpuTimer.end();
+                    glFinish();
+                    uint64_t gpuDurationNs = gpuTimer.getDurationNs();
+                    MX_TRACE_ASYNC(mx::Tracing::AsyncTrack::GPU, mx::Tracing::Category::Render, shaderName.c_str(), cpuStartNs, gpuDurationNs);
 #endif
-                    }
                 }
 
                 {
