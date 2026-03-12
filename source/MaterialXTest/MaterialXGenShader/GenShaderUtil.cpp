@@ -1045,6 +1045,8 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
     enableIndirectLighting = true;
     enableReferenceQuality = false;
 
+    bool envSampleCountSet = false;
+
     mx::DocumentPtr doc = mx::createDocument();
     try
     {
@@ -1161,9 +1163,17 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
                     {
                         int count = val->asA<int>();
                         envSampleCount = (count >= 1) ? count : 1024;
+                        envSampleCountSet = true;
                     }
                 }
             }
+        }
+
+        // If reference quality is enabled and envSampleCount wasn't explicitly
+        // overridden, use the higher sample count for reference-quality rendering.
+        if (enableReferenceQuality && !envSampleCountSet)
+        {
+            envSampleCount = 4096;
         }
 
         // Handle direct and indirect lighting toggles.
