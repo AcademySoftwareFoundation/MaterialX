@@ -169,16 +169,6 @@ Inheritance of material-type custom nodes is also allowed, so that new or change
 ### `tokenvalue`
 A constant "interface token" value, may only be connected to &lt;token>s in nodes, not to &lt;input>s.
 
-|Port   |Description                         |Type                                    |Default |
-|-------|------------------------------------|----------------------------------------|--------|
-|`value`|The value that will be sent to `out`|float, colorN, vectorN, boolean, integer|__zero__|
-|`out`  |Output: `value`                     |Same as `value`                         |__zero__|
-
-|Port   |Description                         |Type           |Default|
-|-------|------------------------------------|---------------|-------|
-|`value`|The value that will be sent to `out`|matrixNN       |__one__|
-|`out`  |Output: `value`                     |Same as `value`|__one__|
-
 |Port   |Description                         |Type            |Default  |
 |-------|------------------------------------|----------------|---------|
 |`value`|The value that will be sent to `out`|string, filename|__empty__|
@@ -386,17 +376,6 @@ Output the value of one of two input streams, according to whether the value of 
 
 
 ### Channel Nodes
-
-<a id="node-extractrowvector"> </a>
-
-### `extractrowvector`
-Extract the specified row vector number from a matrixN stream.
-
-|Port   |Description                                                                       |Type   |Default|
-|-------|----------------------------------------------------------------------------------|-------|-------|
-|`in`   |The input matrix                                                                  |matrixN|       |
-|`index`|The row number to extract; should be 0-2 for matrix33 streams, or 0-3 for matrix44|integer|0      |
-|`out`  |Output: the extracted row vector                                                  |vectorN|       |
 
 <a id="node-separatecolor4"> </a>
 
