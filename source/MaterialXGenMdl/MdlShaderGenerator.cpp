@@ -237,6 +237,7 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
 
     // Emit function calls for "root" closure/shader nodes.
     // These will internally emit function calls for any dependent closure nodes upstream.
+    bool rootFunctionCallEmitted = false;
     for (ShaderGraphOutputSocket* socket : graph.getOutputSockets())
     {
         if (socket->getConnection())
@@ -247,6 +248,7 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
                  upstream->hasClassification(ShaderNode::Classification::SHADER)))
             {
                 emitFunctionCall(*upstream, context, stage);
+                rootFunctionCallEmitted = true;
             }
         }
     }
@@ -314,7 +316,15 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
     }
     else
     {
-        emitLine(_syntax->getTypeSyntax(outputType).getName() + " finalOutput__ = " + result, stage);
+        if (rootFunctionCallEmitted)
+        {
+            emitLine(_syntax->getTypeSyntax(outputType).getName() + " finalOutput__ = " + result, stage);
+        }
+        else
+        {
+            // No code has been emitted for "result". Use default material as fallback.
+            emitLine(_syntax->getTypeSyntax(outputType).getName() + " finalOutput__ = material()", stage);
+        }
 
         // End shader body
         emitScopeEnd(stage);
