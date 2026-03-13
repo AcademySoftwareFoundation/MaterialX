@@ -186,9 +186,8 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
     const ShaderGraphOutputSocket* outputSocket = graph.getOutputSocket(0);
     emitString("export material ", stage);
 
-    // Begin shader signature. Note that makeIdentifier() will sanitize the name.
+    // Begin shader signature. Note that the function name is already sanitized.
     string functionName = shader->getName();
-    _syntax->makeIdentifier(functionName, graph.getIdentifierMap());
     setFunctionName(functionName, stage);
     emitLine(functionName, stage, false);
     emitScopeBegin(stage, Syntax::PARENTHESES);
@@ -273,9 +272,9 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
             emitLine("float3 displacement__ = float3(0.0)", stage);
             std::string finalOutput = "mk_color3(0.0)";
             if (outputType == Type::BOOLEAN)
-                finalOutput = result + " ? mk_color3(0.0, 1.0, 0.0) : mk_color3(1.0, 0.0, 0.0)";
+                finalOutput = result + " ? mk_color3(1.0, 1.0, 1.0) : mk_color3(0.0, 0.0, 0.0)";
             else if (outputType == Type::INTEGER)
-                finalOutput = "mk_color3(" + result + " / 100)"; // arbitrary
+                finalOutput = "mk_color3(" + result + ")";
             else if (outputType == Type::FLOAT)
                 finalOutput = "mk_color3(" + result + ")";
             else if (outputType == Type::VECTOR2)
