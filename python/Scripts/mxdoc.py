@@ -50,7 +50,7 @@ def main():
             for h in HEADERS:
                 print('<th>' + h + '</th>')
             print('</tr>')
-            inputList = nd.getActiveInputs() if opts.showInherited  else nd.getInputs()            
+            inputList = nd.getActiveInputs() if opts.showInherited  else nd.getInputs()
             tokenList = nd.getActiveTokens() if opts.showInherited  else nd.getTokens()
             outputList = nd.getActiveOutputs() if opts.showInherited  else nd.getOutputs()
             totalList = inputList + tokenList + outputList;
@@ -65,7 +65,7 @@ def main():
                     infos.append('<b>'+ port.getName() + '</b>')
                 infos.append(port.getType())
                 val = port.getValue()
-                if port.getType() == "float":
+                if val is not None and port.getType() == "float":
                     val = round(val, 6)
                 infos.append(str(val))
                 for attrname in ATTR_NAMES:
@@ -102,7 +102,7 @@ def main():
                     infos.append('**'+ port.getName() + '**')
                 infos.append(port.getType())
                 val = port.getValue()
-                if port.getType() == "float":
+                if val is not None and port.getType() == "float":
                     val = round(val, 6)
                 infos.append(str(val))
                 for attrname in ATTR_NAMES:
