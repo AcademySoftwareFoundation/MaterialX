@@ -166,36 +166,51 @@ Inheritance of material-type custom nodes is also allowed, so that new or change
 
 <a id="node-tokenvalue"> </a>
 
-* **`tokenvalue`**: a constant "interface token" value, may only be connected to &lt;token>s in nodes, not to &lt;input>s.
-    * `value` (any uniform non-shader-semantic type): the token value to output; "enum" and "enumvalues" attributes may be provided to define a specific set of allowed token values.
+### `tokenvalue`
+A constant "interface token" value, may only be connected to &lt;token>s in nodes, not to &lt;input>s.
 
+|Port   |Description                         |Type            |Default  |
+|-------|------------------------------------|----------------|---------|
+|`value`|The value that will be sent to `out`|string, filename|__empty__|
+|`out`  |Output: `value`                     |Same as `value` |__empty__|
 
 
 ### Noise Nodes
 
 <a id="node-cellnoise1d"> </a>
 
-1D Cell noise was proposed an an alternative approach to random value generation.
+### `cellnoise1d`
+1D cellular noise, proposed as an alternative approach to random value generation.
 
-* **`cellnoise1d`**: 1D cellular noise, 1 or 3 channels (type float or vector3).
-    * `period` (float or vector3): the positive integer distance at which the noise function returns the same value for input coordinate repeated at that step.  Default is 0, meaning the noise is not periodic.
-    * `in` (float): the 1D coordinate at which the noise is evaluated.
+|Port    |Description                                      |Type            |Default |
+|--------|-------------------------------------------------|----------------|--------|
+|`in`    |The 1D coordinate at which the noise is evaluated|float           |        |
+|`period`|The period of the noise                          |float, vector3  |__zero__|
+|`out`   |Output: the computed noise value                 |float, vector3  |__zero__|
 
 <a id="node-worleynoise2d"> </a>
 
-Expanded 2D Worley noise to support different distance metrics and periodicity. 
+### `worleynoise2d`
+This proposal extends the existing `worleynoise2d` node to support different distance metrics and periodicity.
 
-* **`worleynoise2d`**: 2D Worley noise using centered jitter, outputting float (distance metric to closest feature), vector2 (distance metrics to closest 2 features) or vector3 (distance metrics to closest 3 features).
-    * `metric` (uniform string): the distance metric to return, one of "distance" (Euclidean distance to feature), "distance2" (Euclidean distance squared), "manhattan" or "chebyshev".  Default is "distance".
-    * `period` (float or vector3): the positive integer distance at which the noise function returns the same value for texture coordinates repeated at that step.  Default is 0, meaning the noise is not periodic.
+|Port    |Description                              |Type                   |Default |Accepted Values                          |
+|--------|-----------------------------------------|-----------------------|--------|-----------------------------------------|
+|`metric`|The distance metric to return            |string                 |distance|distance, distance2, manhattan, chebyshev|
+|`period`|The period of the noise                  |float, vector3         |__zero__|                                         |
+|`out`   |Output: the computed noise value         |float, vector2, vector3|__zero__|                                         |
 
 <a id="node-worleynoise3d"> </a>
 
-Expanded 3D Worley noise to support different distance metrics and periodicity.
+### `worleynoise3d`
+This proposal extends the existing `worleynoise3d` node to support different distance metrics and periodicity.
 
-* **`worleynoise3d`**: 3D Worley noise using centered jitter, outputting float (distance metric to closest feature), vector2 (distance metrics to closest 2 features) or vector3 (distance metrics to closest 3 features).
-    * `metric` (uniform string): the distance metric to return, one of "distance" (Euclidean distance to feature), "distance2" (Euclidean distance squared), "manhattan" or "chebyshev".  Default is "distance".
-    * `period` (float or vector3): the positive integer distance at which the noise function returns the same value for position coordinates repeated at that step.  Default is 0, meaning the noise is not periodic.
+|Port    |Description                              |Type                   |Default |Accepted Values                          |
+|--------|-----------------------------------------|-----------------------|--------|-----------------------------------------|
+|`metric`|The distance metric to return            |string                 |distance|distance, distance2, manhattan, chebyshev|
+|`period`|The period of the noise                  |float, vector3         |__zero__|                                         |
+|`out`   |Output: the computed noise value         |float, vector2, vector3|__zero__|                                         |
+
+The `period` input is a positive integer distance at which the noise function returns the same value for coordinates repeated at that step.  A value of 0 means the noise is not periodic.
 
 #### Periodic Noises
 
@@ -208,20 +223,22 @@ In #1201 it was decided that separate periodic versions of all of the noises is 
 
 ### Geometric Nodes
 
-<a id="node-bump"> </a>
-
-* **`bump`**: Existing node, proposal to add a vector3 `bitangent` input
-
-Note: when &lt;geompropvalueuniform> is added, the text in the first paragraph of the Specification about Node Inputs should be revised to include "&lt;geompropvalueuniform>" as an example of "or any other node whose output is explicitly declared to be uniform".
 
 
 ### Global Nodes
 
 <a id="node-ambientocclusion"> </a>
 
-* **`ambientocclusion`**: Compute the ambient occlusion at the current surface point, returning a scalar value between 0 and 1.  Ambient occlusion represents the accessibility of each surface point to ambient lighting, with larger values representing greater accessibility to light.  This node must be of type float.
-    * `coneangle` (float): the half-angle of a cone about the surface normal, within which geometric surface features are considered as potential occluders.  The unit for this input is degrees, and its default value is 90.0 (full hemisphere).
-    * `maxdistance` (float): the maximum distance from the surface point at which geometric surface features are considered as potential occluders.  Defaults to 1e38, e.g. "unlimited".
+### `ambientocclusion`
+Compute the ambient occlusion at the current surface point, returning a scalar value between 0 and 1.  Ambient occlusion represents the accessibility of each surface point to ambient lighting, with larger values representing greater accessibility to light.
+
+The `coneangle` input defines a half-angle about the surface normal, so the default value of 90 degrees represents the full hemisphere.
+
+|Port         |Description                                      |Type |Default|
+|-------------|-------------------------------------------------|-----|-------|
+|`coneangle`  |The half-angle of the occlusion cone, in degrees |float|90.0   |
+|`maxdistance`|The maximum distance to consider for occlusion   |float|1e38   |
+|`out`        |Output: the computed ambient occlusion value     |float|       |
 
 
 
@@ -229,8 +246,13 @@ Note: when &lt;geompropvalueuniform> is added, the text in the first paragraph o
 
 <a id="node-updirection"> </a>
 
-* **`updirection`**: the current scene "up vector" direction, as defined by the shading environment.  This node must be of type vector3.
-    * `space` (uniform string):  the space in which to return the up vector direction, defaults to "world". 
+### `updirection`
+The current scene "up vector" direction, as defined by the shading environment.
+
+|Port   |Description                                         |Type   |Default|Accepted Values     |
+|-------|----------------------------------------------------|-------|-------|--------------------|
+|`space`|The space in which to return the up vector direction|string |world  |model, object, world|
+|`out`  |Output: the up direction in `space`                 |vector3|       |                    |
 
 
 
@@ -238,21 +260,35 @@ Note: when &lt;geompropvalueuniform> is added, the text in the first paragraph o
 
 <a id="node-transformcolor"> </a>
 
-* **`transformcolor`**: transform the incoming color from one specified colorspace to another, ignoring any colorspace declarations that may have been provided upstream.  For color4 types, the alpha channel value is unaffected.
-    * `in` (color3 or color4): the input color.
-    * `fromspace` (uniform string): the name of a standard colorspace or a colorspace understood by the application to transform the `in` color from; may be empty (the default) to specify the document's working colorspace.
-    * `tospace` (uniform string): the name of a standard colorspace or a colorspace understood by the application to transform the `in` color to; may be empty (the default) to specify the document's working colorspace.
+### `transformcolor`
+Transform the incoming color from one specified colorspace to another, ignoring any colorspace declarations that may have been provided upstream.  For color4 types, the alpha channel value is unaffected.  The `fromspace` and `tospace` inputs accept the name of a standard colorspace or a colorspace understood by the application; either may be empty to specify the document's working colorspace.
+
+|Port       |Description                          |Type          |Default  |
+|-----------|-------------------------------------|--------------|---------|
+|`in`       |The input color                      |color3, color4|__zero__ |
+|`fromspace`|The colorspace to transform `in` from|string        |__empty__|
+|`tospace`  |The colorspace to transform `in` to  |string        |__empty__|
+|`out`      |Output: the transformed color        |Same as `in`  |         |
 
 <a id="node-triplanarblend"> </a>
 
-* **`triplanarblend`** (NG): samples data from three inputs, and projects a tiled representation of the images along each of the three respective coordinate axes, computing a weighted blend of the three samples using the geometric normal.
-    * `inx` (float or colorN): the image to be projected in the direction from the +X axis back toward the origin.  Default is 0 in all channels.
-    * `iny` (float or colorN): the image to be projected in the direction from the +Y axis back toward the origin with the +X axis to the right.  Default is 0 in all channels.
-    * `inz` (float or colorN): the image to be projected in the direction from the +Z axis back toward the origin.  Default is 0 in all channels.
-    * `position` (vector3): a spatially-varying input specifying the 3D position at which the projection is evaluated.  Default is to use the current 3D object-space coordinate.
-    * `normal` (vector3): a spatially-varying input specifying the 3D normal vector used for blending.  Default is to use the current object-space surface normal.
-    * `blend` (float): a 0-1 weighting factor for blending the three axis samples using the geometric normal, with higher values giving softer blending.  Default is 1.0.
-    * `filtertype` (uniform string): the type of texture filtering to use; standard values include "closest" (nearest-neighbor single-sample), "linear", and "cubic".  If not specified, an application may use its own default texture filtering method.
+### `triplanarblend`
+Samples data from three inputs, and projects a tiled representation of the images along each of the three respective coordinate axes, computing a weighted blend of the three samples using the geometric normal.
+
+The `iny` input is projected in the direction from the +Y axis back toward the origin, with the +X axis to the right.
+
+If adopted, the existing `triplanarprojection` node would be reimplemented as a wrapper that resolves its three image inputs and passes them to `triplanarblend`.
+
+|Port        |Description                                                                                    |Type           |Default  |Accepted Values       |
+|------------|-----------------------------------------------------------------------------------------------|---------------|---------|----------------------|
+|`inx`       |The image to be projected in the direction from the +X axis back toward the origin             |float or colorN|__zero__ |                      |
+|`iny`       |The image to be projected in the direction from the +Y axis back toward the origin             |float or colorN|__zero__ |                      |
+|`inz`       |The image to be projected in the direction from the +Z axis back toward the origin             |float or colorN|__zero__ |                      |
+|`position`  |The 3D position at which the projection is evaluated                                           |vector3        |_Pobject_|                      |
+|`normal`    |The 3D normal vector used for blending                                                         |vector3        |_Nobject_|                      |
+|`blend`     |Weighting factor for blending the three axis samples, with higher values giving softer blending|float          |1.0      |[0, 1]                |
+|`filtertype`|The type of texture filtering to use                                                           |string         |linear   |closest, linear, cubic|
+|`out`       |Output: the blended value                                                                      |Same as `inx`  |__zero__ |                      |
 
 
 
@@ -260,37 +296,62 @@ Note: when &lt;geompropvalueuniform> is added, the text in the first paragraph o
 
 <a id="node-curveinversecubic"> </a>
 
-* **`curveinversecubic`**: remap a 0-1 input float value using an inverse Catmull-Rom spline lookup on the input `knots` values.  Outputs a 0-1 float interpolant value.
-    * `in` (float): the input value or nodename
-    * `knots` (uniform floatarray): the list of non-uniformly distributed input values defining the curve for the remapping.  At least 2 values must be provided, and the first and last knot have multiplicity 2.
+### `curveinversecubic`
+Remap a 0-1 input value using an inverse Catmull-Rom spline lookup on the input `knots` values.  At least 2 knot values must be provided, and the first and last knot have multiplicity 2.
+
+|Port   |Description                                    |Type      |Default|
+|-------|-----------------------------------------------|----------|-------|
+|`in`   |The input value                                |float     |0.0    |
+|`knots`|The list of input knot values for the remapping|floatarray|       |
+|`out`  |Output: the remapped value                     |float     |       |
 
 <a id="node-curveuniformlinear"> </a>
 
-* **`curveuniformlinear`**: output a float, color<em>N</em> or vector<em>N</em> value linearly interpolated between a number of `knotvalues` values, using the value of `in` as the interpolant.
-    * `in` (float): the input interpolant value or nodename
-    * `knotvalues` (uniform floatarray or color<em>N</em>array or vector<em>N</em>array): the array of at least 2 values to interpolate between.
+### `curveuniformlinear`
+Output a float, colorN or vectorN value linearly interpolated between a number of `knotvalues` values, using the value of `in` as the interpolant.
+
+|Port        |Description                                          |Type                                 |Default|
+|------------|-----------------------------------------------------|-------------------------------------|-------|
+|`in`        |The input interpolant value                          |float                                |0.0    |
+|`knotvalues`|The array of at least 2 values to interpolate between|floatarray, colorNarray, vectorNarray|       |
+|`out`       |Output: the interpolated value                       |float, colorN, vectorN               |       |
 
 <a id="node-curveuniformcubic"> </a>
 
-* **`curveuniformcubic`**: output a float, color<em>N</em> or vector<em>N</em> value smoothly interpolated between a number of `knotvalues` values using a Catmull-Rom spline with the value of `in` as the interpolant.
-    * `in` (float): the input interpolant value or nodename
-    * `knotvalues` (uniform floatarray or color<em>N</em>array or vector<em>N</em>array): the array of at least 2 values to interpolate between.
+### `curveuniformcubic`
+Output a float, colorN or vectorN value smoothly interpolated between a number of `knotvalues` values using a Catmull-Rom spline with the value of `in` as the interpolant.
+
+|Port        |Description                                          |Type                                 |Default|
+|------------|-----------------------------------------------------|-------------------------------------|-------|
+|`in`        |The input interpolant value                          |float                                |0.0    |
+|`knotvalues`|The array of at least 2 values to interpolate between|floatarray, colorNarray, vectorNarray|       |
+|`out`       |Output: the interpolated value                       |float, colorN, vectorN               |       |
 
 <a id="node-curveadjust"> </a>
 
-* **`curveadjust`** (NG): output a smooth remapping of input values using the centripetal Catmull-Rom cubic spline curve defined by specified knot values, using an inverse spline lookup on input knot values and a forward spline through output knot values.  All channels of the input will be remapped using the same curve.
-    * `in` (float or colorN or vectorN): the input value or nodename
-    * `numknots` (uniform integer): the number of values in the knots and knotvalues arrays
-    * `knots` (uniform floatarray): the list of input values defining the curve for the remapping.  At least 2 and at most 16 values must be provided.
-    * `knotvalues` (uniform floatarray): the list of output values defining the curve for the remapping.  Must be the same length as knots.
+### `curveadjust`
+Output a smooth remapping of input values using the centripetal Catmull-Rom cubic spline curve defined by specified knot values, using an inverse spline lookup on input knot values and a forward spline through output knot values.  All channels of the input will be remapped using the same curve.
+
+|Port        |Description                                                                                     |Type                  |Default |
+|------------|------------------------------------------------------------------------------------------------|----------------------|--------|
+|`in`        |The input value                                                                                 |float, colorN, vectorN|__zero__|
+|`numknots`  |The number of values in the knots and knotvalues arrays                                         |integer               |2       |
+|`knots`     |The list of input values defining the curve for the remapping; at least 2 and at most 16 values |floatarray            |        |
+|`knotvalues`|The list of output values defining the curve for the remapping; must be the same length as knots|floatarray            |        |
+|`out`       |Output: the remapped value                                                                      |Same as `in`          |        |
 
 <a id="node-curvelookup"> </a>
 
-* **`curvelookup`** (NG): output a float, colorN or vectorN value smoothly interpolated between a number of knotvalue values, using the position of in within knots as the knotvalues interpolant.
-    * `in` (float): the input interpolant value or nodename
-    * `numknots` (uniform integer): the number of values in the knots and knotvalues arrays
-    * `knots` (uniform floatarray): the list of knot values to interpolate in within.  At least 2 and at most 16 values must be provided.
-    * `knotvalues` (uniform floatarray or colorNarray or vectorNarray): the values at each knot position to interpolate between. Must be the same length as knots.
+### `curvelookup`
+Output a float, colorN or vectorN value smoothly interpolated between a number of knotvalue values, using the position of `in` within `knots` as the knotvalues interpolant.
+
+|Port        |Description                                                                              |Type                                 |Default|
+|------------|-----------------------------------------------------------------------------------------|-------------------------------------|-------|
+|`in`        |The input interpolant value                                                              |float                                |0.0    |
+|`numknots`  |The number of values in the knots and knotvalues arrays                                  |integer                              |2      |
+|`knots`     |The list of knot values to interpolate `in` within; at least 2 and at most 16 values     |floatarray                           |       |
+|`knotvalues`|The values at each knot position to interpolate between; must be the same length as knots|floatarray, colorNarray, vectorNarray|       |
+|`out`       |Output: the interpolated value                                                           |float, colorN, vectorN               |       |
 
 
 
@@ -302,26 +363,30 @@ Note: when &lt;geompropvalueuniform> is added, the text in the first paragraph o
 
 <a id="node-ifelse"> </a>
 
-* **`ifelse`**: output the value of one of two input streams, according to whether the value of a boolean selector input is true or false
-    * `infalse`, `intrue` (float or color<em>N</em> or vector<em>N</em>): the values or nodenames to select from based on the value of the `which` input.  The types of the various `in<em>N</em>` inputs must match the type of the `switch` node itself.  The default value of all `in<em>N</em>` inputs is 0.0 in all channels.
-    * `which` (boolean): a selector to choose which input to take values from; default is "false".
+### `ifelse`
+Output the value of one of two input streams, according to whether the value of a boolean selector input is true or false.
+
+|Port     |Description                                         |Type                  |Default |
+|---------|----------------------------------------------------|----------------------|--------|
+|`infalse`|The value to output if `which` is false             |float, colorN, vectorN|__zero__|
+|`intrue` |The value to output if `which` is true              |Same as `infalse`     |__zero__|
+|`which`  |A selector to choose which input to take values from|boolean               |false   |
+|`out`    |Output: the selected input                          |Same as `infalse`     |        |
 
 
 
 ### Channel Nodes
 
-<a id="node-extractrowvector"> </a>
-
-* **`extractrowvector`**: extract the specified row vector number from a matrix<em>N</em> stream.
-    * `in` (matrix<em>N</em>): the input value or nodename
-    * `index` (integer): the row number to extract, should be 0-2 for matrix33 streams, or 0-3 for matrix44 streams.
-
 <a id="node-separatecolor4"> </a>
 
-* **`separatecolor4`** (NG): output the RGB and alpha channels of a color4 as separate outputs.
-    * `in` (color4): the input value or nodename
-    * `outcolor` (output, color3): the RGB channel values.
-    * `outa` (output, float): the value of the alpha channel.
+### `separatecolor4`
+Output the RGB and alpha channels of a color4 as separate outputs.
+
+|Port      |Description                      |Type  |Default           |
+|----------|---------------------------------|------|------------------|
+|`in`      |The input color4 value           |color4|0.0, 0.0, 0.0, 0.0|
+|`outcolor`|Output: the RGB channels of `in` |color3|0.0, 0.0, 0.0     |
+|`outa`    |Output: the alpha channel of `in`|float |0.0               |
 
 
 
