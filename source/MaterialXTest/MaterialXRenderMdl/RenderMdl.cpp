@@ -42,17 +42,6 @@ class MdlShaderRenderTester : public RenderUtil::ShaderRenderTester
                      const std::string& outputPath = ".",
                      mx::ImageVec* imageVec = nullptr) override;
 
-    void addSkipFiles() override
-    {
-        // The command-line assembled in runRenderer() assumes that the simple name of the MDL
-        // material is the same as "shaderName", but for this file the MDL material name gets a "1"
-        // suffix. Communicating the generated name from the stage to the shader could help, but in
-        // general it is probably better to give the main object a predictable name and use suffixes
-        // for internal objects.
-        _skipFiles.insert("translucent_bsdf.mtlx");
-        _skipFiles.insert("blur.mtlx");
-    }
-
     mx::DocumentPtr _last_doc;
 };
 
