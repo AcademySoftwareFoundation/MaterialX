@@ -15,6 +15,7 @@ MATERIALX_NAMESPACE_BEGIN
 namespace
 {
 
+const string MATERIAL_TYPE = "material";
 const string SURFACE_CATEGORY = "surface";
 
 } // anonymous namespace
@@ -35,32 +36,39 @@ void HwMaterialCompoundNode::initialize(const InterfaceElement& element, GenCont
 
     const NodeGraph& graph = static_cast<const NodeGraph&>(element);
 
-    // Find the first surface node in the compound and trace its
-    // bsdf/edf/opacity inputs back through interfacename to the
-    // nodedef's external input names.
-    for (NodePtr node : graph.getNodes())
+    // Find the material-type output and traverse upstream to discover the
+    // surface node, reading its bsdf/edf/opacity interface name mappings.
+    for (OutputPtr output : graph.getOutputs())
     {
-        if (node->getCategory() == SURFACE_CATEGORY)
+        if (output->getType() == MATERIAL_TYPE)
         {
-            InputPtr bsdfIn = node->getInput("bsdf");
-            if (bsdfIn && !bsdfIn->getInterfaceName().empty())
+            for (Edge edge : output->traverseGraph())
             {
-                _bsdfInputName = bsdfIn->getInterfaceName();
-            }
+                ElementPtr upstream = edge.getUpstreamElement();
+                NodePtr upstreamNode = upstream ? upstream->asA<Node>() : nullptr;
+                if (upstreamNode && upstreamNode->getCategory() == SURFACE_CATEGORY)
+                {
+                    InputPtr bsdfIn = upstreamNode->getInput("bsdf");
+                    if (bsdfIn && !bsdfIn->getInterfaceName().empty())
+                    {
+                        _bsdfInputName = bsdfIn->getInterfaceName();
+                    }
 
-            InputPtr edfIn = node->getInput("edf");
-            if (edfIn && !edfIn->getInterfaceName().empty())
-            {
-                _edfInputName = edfIn->getInterfaceName();
-            }
+                    InputPtr edfIn = upstreamNode->getInput("edf");
+                    if (edfIn && !edfIn->getInterfaceName().empty())
+                    {
+                        _edfInputName = edfIn->getInterfaceName();
+                    }
 
-            InputPtr opacityIn = node->getInput("opacity");
-            if (opacityIn && !opacityIn->getInterfaceName().empty())
-            {
-                _opacityInputName = opacityIn->getInterfaceName();
-            }
+                    InputPtr opacityIn = upstreamNode->getInput("opacity");
+                    if (opacityIn && !opacityIn->getInterfaceName().empty())
+                    {
+                        _opacityInputName = opacityIn->getInterfaceName();
+                    }
 
-            break;
+                    return;
+                }
+            }
         }
     }
 }
