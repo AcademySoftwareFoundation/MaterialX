@@ -88,6 +88,12 @@ HwShaderGenerator::HwShaderGenerator(TypeSystemPtr typeSystem, SyntaxPtr syntax)
     _tokenSubstitutions[HW::T_CLOSURE_DATA_CONSTRUCTOR] = HW::CLOSURE_DATA_CONSTRUCTOR;
 }
 
+void HwShaderGenerator::setDefaultOptions(GenOptions& options) const
+{
+    ShaderGenerator::setDefaultOptions(options);
+    options.premultipliedBsdfAdd = true;
+}
+
 ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element, GenContext& context) const
 {
     // Create the root shader graph
