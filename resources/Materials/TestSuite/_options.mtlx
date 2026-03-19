@@ -92,11 +92,14 @@
     -->
     <input name="framesPerMaterial" type="integer" value="1" />
 
-    <!-- Number of environment radiance samples for IBL lighting.
-         Default is 1024. Lower values (1-16) are more representative
-         of real-time rendering and make shader complexity a larger
-         fraction of GPU time.
-    -->
+    <!-- envSampleCount (integer, default 1024):
+         Number of environment radiance samples for IBL lighting.
+         Lower values (1-16) are more representative of real-time
+         rendering and make shader complexity a larger fraction of
+         GPU time. When not set, enableReferenceQuality=true
+         overrides the default to 4096.
+         Uncomment to activate:
     <input name="envSampleCount" type="integer" value="1024" />
+    -->
   </nodedef>
 </materialx>
