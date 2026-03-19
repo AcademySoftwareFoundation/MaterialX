@@ -114,6 +114,7 @@ jobs:
           architecture: x64
           python: 3.13
           cmake_config: -G "Visual Studio 17 2022" -A "x64"
+          test_render: ON
           extended_build_mdl_sdk: ON
 
         - name: Windows_VS2022_x64_Python314
