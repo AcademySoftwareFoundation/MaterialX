@@ -158,12 +158,17 @@
       <input name="normal" type="vector3" nodename="surface_normal" />
       <input name="scatter_mode" type="string" value="T" />
     </dielectric_bsdf>
-    <ifgreater name="transmission_mix_amount" type="float">
+    <ifgreater name="transmission_mix_amount_transparent" type="float">
       <input name="value1" type="float" interfacename="opacityThreshold" />
       <input name="value2" type="float" value="0" />
       <input name="in1" type="float" value="1" />
       <input name="in2" type="float" interfacename="opacity" />
     </ifgreater>
+    <switch name="transmission_mix_amount" type="float">
+      <input name="in1" type="float" nodename="transmission_mix_amount_transparent" />
+      <input name="in2" type="float" value="1.0" />
+      <input name="which" type="integer" interfacename="opacityMode" />
+    </switch>
     <mix name="transmission_mix" type="BSDF">
       <input name="fg" type="BSDF" nodename="diffuse_bsdf" />
       <input name="bg" type="BSDF" nodename="transmission_bsdf" />
@@ -285,12 +290,12 @@
       <input name="in1" type="float" value="1" />
       <input name="in2" type="float" value="0" />
     </ifgreatereq>
-    <ifequal name="opacity_presence" type="float">
-      <input name="value1" type="float" interfacename="opacity" />
-      <input name="value2" type="float" value="0.0" />
-      <input name="in1" type="float" value="0.0" />
-      <input name="in2" type="float" nodename="cutout_opacity" />
-    </ifequal>
+    <ifgreater name="opacity_presence" type="float">
+      <input name="value1" type="float" interfacename="opacityThreshold" />
+      <input name="value2" type="float" value="0" />
+      <input name="in1" type="float" nodename="cutout_opacity" />
+      <input name="in2" type="float" interfacename="opacity" />
+    </ifgreater>
     <switch name="opacity_switch" type="float">
       <input name="in1" type="float" nodename="cutout_opacity" />
       <input name="in2" type="float" nodename="opacity_presence" />
