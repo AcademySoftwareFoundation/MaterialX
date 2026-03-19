@@ -357,7 +357,10 @@ bool MslShaderRenderTester::runRenderer(const std::string& shaderName,
                     unsigned int width = (unsigned int) testOptions.renderSize[0] * supersampleFactor;
                     unsigned int height = (unsigned int) testOptions.renderSize[1] * supersampleFactor;
                     _renderer->setSize(width, height);
-                    _renderer->render();
+                    for (unsigned int frame = 0; frame < testOptions.framesPerMaterial; frame++)
+                    {
+                        _renderer->render();
+                    }
                 }
 
                 {
