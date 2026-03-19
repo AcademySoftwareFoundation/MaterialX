@@ -81,9 +81,6 @@ export using .::stdlib_1_7 import mx_tangent_vector3;
 export using .::stdlib_1_7 import mx_bitangent_vector3;
 export using .::stdlib_1_7 import mx_texcoord_vector2;
 export using .::stdlib_1_7 import mx_texcoord_vector3;
-export using .::stdlib_1_7 import mx_geomcolor_float;
-export using .::stdlib_1_7 import mx_geomcolor_color3;
-export using .::stdlib_1_7 import mx_geomcolor_color4;
 export using .::stdlib_1_7 import mx_time_float;
 export using .::stdlib_1_7 import mx_modulo_color3;
 export using .::stdlib_1_7 import mx_modulo_color4;
@@ -331,6 +328,10 @@ export using .::stdlib_1_7 import mx_flake3d;
 export using .::stdlib_1_7 import mx_combine2_color4CF;
 
 export using .::stdlib_1_7 import mx_geompropvalue_string;
+
+export using .::stdlib_1_8 import mx_geomcolor_float;
+export using .::stdlib_1_8 import mx_geomcolor_color3;
+export using .::stdlib_1_8 import mx_geomcolor_color4;
 export using .::stdlib_1_8 import mx_geompropvalue_boolean;
 export using .::stdlib_1_8 import mx_geompropvalue_integer;
 export using .::stdlib_1_8 import mx_geompropvalue_float;
