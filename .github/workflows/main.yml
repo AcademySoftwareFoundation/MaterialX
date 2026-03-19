@@ -217,8 +217,9 @@ jobs:
         fi
         TEST_RENDER_CONFIG="-DMATERIALX_TEST_RENDER=OFF"
         if [ "${{ matrix.test_render }}" == "ON" ]; then
+          TEST_RENDER_CONFIG="-DMATERIALX_TEST_RENDER=ON"
           if [ "${{ runner.os }}" == "macOS" ]; then
-            TEST_RENDER_CONFIG="-DMATERIALX_TEST_RENDER=ON -DMATERIALX_RENDER_MSL_ONLY=ON"
+            TEST_RENDER_CONFIG="$TEST_RENDER_CONFIG -DMATERIALX_RENDER_MSL_ONLY=ON"
           fi
         fi
         EXTENDED_BUILD_CONFIG="$EXTENDED_BUILD_CONFIG $TEST_RENDER_CONFIG" 
