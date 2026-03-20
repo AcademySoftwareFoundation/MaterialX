@@ -2105,7 +2105,9 @@ Channel nodes are used to perform channel manipulations and data type conversion
 
 ### `extract`
 
-Isolate a single float channel from a __vectorN__ or __colorN__ stream.
+Isolate a single channel from a __colorN__, __vectorN__, or __matrixNN__ stream.
+
+When the input is a __colorN__ or __vectorN__, the node extracts a single float component by index. When the input is a __matrix33__ or __matrix44__, the node extracts a row vector by index.
 
 |Port   |Description                                 |Type           |Default |
 |-------|--------------------------------------------|---------------|--------|
@@ -2113,7 +2115,13 @@ Isolate a single float channel from a __vectorN__ or __colorN__ stream.
 |`index`|The index of the channel in `in` to extract |integer        |0       |
 |`out`  |Output: the `index`th channel of `in`       |float          |0.0     |
 
-The valid range for `index` should be clamped to $[0,N)$ in the user interface, where __N__ is the size of the input vector stream. `index` is a uniform, non-varying value. Any `index` values outside of the valid range should result in an error.
+|Port   |Description                                  |Type              |Default |
+|-------|---------------------------------------------|------------------|--------|
+|`in`   |The input matrix from which to extract a row |matrix33, matrix44|__zero__|
+|`index`|The index of the row in `in` to extract      |integer           |0       |
+|`out`  |Output: the `index`th row of `in` as a vector|vector3, vector4  |__zero__|
+
+The valid range for `index` should be clamped to $[0,N)$ in the user interface, where __N__ is the number of components (for vector/color inputs) or rows (for matrix inputs). `index` is a uniform, non-varying value. Any `index` values outside of the valid range should result in an error.
 
 <a id="node-convert"> </a>
 

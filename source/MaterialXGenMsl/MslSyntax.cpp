@@ -280,9 +280,11 @@ MslSyntax::MslSyntax(TypeSystemPtr typeSystem) : Syntax(typeSystem)
         Type::VDF,
         std::make_shared<AggregateTypeSyntax>(
             this,
-            "BSDF",
-            "BSDF{float3(0.0),float3(1.0)}",
-            EMPTY_STRING));
+            "VDF",
+            "VDF{float3(0.0),float3(1.0)}",
+            EMPTY_STRING,
+            EMPTY_STRING,
+            "struct VDF { float3 response; float3 throughput; };"));
 
     registerTypeSyntax(
         Type::SURFACESHADER,
