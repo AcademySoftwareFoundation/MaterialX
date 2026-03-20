@@ -249,7 +249,7 @@ jobs:
       shell: bash
       run: |
         if [ "${{ runner.os }}" == "Windows" ]; then
-          # Exclude renderglsl which crashes for unknown reasons in CI
+          # Exclude renderglsl on Windows since there are no GPUs avilable in CI
           ctest -VV --output-on-failure --build-config Release -E Render_GLSL
         else
           ctest -VV --output-on-failure --build-config Release
@@ -316,20 +316,26 @@ jobs:
       if: matrix.test_render == 'ON'
       run: |
         mkdir build/render
-        python python/Scripts/baketextures.py resources/Materials/Examples/StandardSurface/standard_surface_brass_tiled.mtlx build/render/brass_average_baked.mtlx --average
-        python python/Scripts/translateshader.py resources/Materials/Examples/StandardSurface/standard_surface_carpaint.mtlx build/render/usd_preview_surface_carpaint.mtlx UsdPreviewSurface --hdr
+        if [ "${{ runner.os }}" != "Windows" -o "${{ matrix.test_render }}" == "OFF" ]; then
+          python python/Scripts/baketextures.py resources/Materials/Examples/StandardSurface/standard_surface_brass_tiled.mtlx build/render/brass_average_baked.mtlx --average
+          python python/Scripts/translateshader.py resources/Materials/Examples/StandardSurface/standard_surface_carpaint.mtlx build/render/usd_preview_surface_carpaint.mtlx UsdPreviewSurface --hdr
+        fi
 
     - name: Viewer Tests 
       if: matrix.test_render == 'ON'
       run: |
-        ../installed/bin/MaterialXView --material brass_average_baked.mtlx --mesh ../../resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --shadowMap false --captureFilename Viewer_BrassAverage.png
-        ../installed/bin/MaterialXView --material usd_preview_surface_carpaint.mtlx --mesh ../../resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --shadowMap false --captureFilename Viewer_CarpaintTranslated.png
+        if [ "${{ runner.os }}" != "Windows" -o "${{ matrix.test_render }}" == "OFF" ]; then
+          ../installed/bin/MaterialXView --material brass_average_baked.mtlx --mesh ../../resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --shadowMap false --captureFilename Viewer_BrassAverage.png
+          ../installed/bin/MaterialXView --material usd_preview_surface_carpaint.mtlx --mesh ../../resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --shadowMap false --captureFilename Viewer_CarpaintTranslated.png
+        fi
       working-directory: build/render
 
     - name: Graph Editor Tests
       if: matrix.test_render == 'ON' && runner.os == 'Linux'
       run: |
-        ../installed/bin/MaterialXGraphEditor --material ../../resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --viewWidth 128 --viewHeight 128 --captureFilename GraphEditor_MarbleSolid.png
+        if [ "${{ runner.os }}" != "Windows" -o "${{ matrix.test_render }}" == "OFF" ]; then
+          ../installed/bin/MaterialXGraphEditor --material ../../resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --viewWidth 128 --viewHeight 128 --captureFilename GraphEditor_MarbleSolid.png
+        fi
       working-directory: build/render
 
     - name: Upload Installed Package
