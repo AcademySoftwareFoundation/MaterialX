@@ -125,9 +125,9 @@ MdlShaderGenerator::MdlShaderGenerator(TypeSystemPtr typeSystem) :
     registerImplementation("IM_image_vector4_" + MdlShaderGenerator::TARGET, ImageNodeMdl::create);
 }
 
-void MdlShaderGenerator::setDefaultOptions(GenOptions& options) const
+void MdlShaderGenerator::applyDefaultOptions(GenOptions& options) const
 {
-    ShaderGenerator::setDefaultOptions(options);
+    ShaderGenerator::applyDefaultOptions(options);
     options.distributeLayerOverBsdfMix = true;
 }
 

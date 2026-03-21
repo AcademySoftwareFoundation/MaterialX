@@ -21,7 +21,7 @@ GenContext::GenContext(ShaderGeneratorPtr sg) :
     }
 
     // Apply the generator's default options for its target.
-    _sg->setDefaultOptions(_options);
+    _sg->applyDefaultOptions(_options);
 
     // Collect and cache reserved words from the shader generator
     StringSet reservedWords;

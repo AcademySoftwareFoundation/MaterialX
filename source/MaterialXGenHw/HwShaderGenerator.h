@@ -43,8 +43,8 @@ class MX_GENHW_API HwShaderGenerator : public ShaderGenerator
     void emitClosureDataArg(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
     void emitClosureDataParameter(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
-    /// Set the default GenOptions for hardware shader generation.
-    void setDefaultOptions(GenOptions& options) const override;
+    /// Apply the default GenOptions for hardware shader generation.
+    void applyDefaultOptions(GenOptions& options) const override;
 
     /// Logic to indicate whether code to support direct lighting should be emitted.
     /// By default if the graph is classified as a shader, or BSDF node then lighting is assumed to be required.

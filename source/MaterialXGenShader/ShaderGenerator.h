@@ -227,8 +227,8 @@ class MX_GENSHADER_API ShaderGenerator
         return _refactors;
     }
 
-    /// Set the default GenOptions for this generator's target.
-    virtual void setDefaultOptions(GenOptions& options) const;
+    /// Apply the default GenOptions for this generator's target.
+    virtual void applyDefaultOptions(GenOptions& options) const;
 
     /// Register type definitions from the document.
     virtual void registerTypeDefs(const DocumentPtr& doc);

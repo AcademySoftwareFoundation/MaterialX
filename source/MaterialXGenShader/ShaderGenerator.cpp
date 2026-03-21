@@ -38,7 +38,7 @@ ShaderGenerator::ShaderGenerator(TypeSystemPtr typeSystem, SyntaxPtr syntax) :
     registerRefactor(std::make_shared<DistributeLayerOverMixRefactor>());
 }
 
-void ShaderGenerator::setDefaultOptions(GenOptions& /*options*/) const
+void ShaderGenerator::applyDefaultOptions(GenOptions& /*options*/) const
 {
     // Base implementation sets no additional defaults.
     // Derived generators override to set target-specific defaults.
