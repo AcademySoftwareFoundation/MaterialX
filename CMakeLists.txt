@@ -533,6 +533,7 @@ endif()
 
 # Add shader generation subdirectories
 add_subdirectory(source/MaterialXGenShader)
+add_subdirectory(source/MaterialXGenShader2)
 if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL OR MATERIALX_BUILD_GEN_MDL OR MATERIALX_BUILD_GEN_MSL OR MATERIALX_BUILD_GEN_SLANG)
     if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_MSL OR MATERIALX_BUILD_GEN_SLANG)
         add_subdirectory(source/MaterialXGenHw)

@@ -3,6 +3,7 @@
 ## [1.39.5] - Development
 
 ### Added
+- Added a new [MaterialXGenShader2](source/MaterialXGenShader2) module introducing an abstract `IShaderSource` interface that decouples shader graph construction from the MaterialX data model. Any system that can answer graph topology queries — a MaterialX Document, a USD/Hydra HdMaterialNetwork, a runtime node graph — can drive shader generation via `DataHandle` tokens without constructing a MaterialX Element hierarchy. Includes `MxElementAdapter` (the MX-backed reference implementation), `ShaderGraphBuilder` (BFS graph traversal replacing `ShaderGraph::addUpstreamDependencies`), and `GenContextCreate` (entry point). See [issue #2566](https://github.com/AcademySoftwareFoundation/MaterialX/issues/2566).
 - Added support for the [Slang shading language](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2548) in MaterialX shader generation and rendering, with [language bindings](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2679) for Python and JavaScript.
 - Added [OSL implementations](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2734) for hex-tiled images, completing cross-language coverage for hextiling nodes.
 - Added an [OSL command string code generator](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2603), enabling the mixing of external OSL shaders with MaterialX-generated nodes.
