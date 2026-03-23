@@ -247,6 +247,8 @@ jobs:
 
     - name: CMake Unit Tests
       shell: bash
+      id: ctest
+      continue-on-error: true
       run: |
         if [ "${{ runner.os }}" == "Windows" ]; then
           # Exclude renderglsl on Windows since there are no GPUs avilable in CI
@@ -527,3 +529,14 @@ jobs:
       with:
         name: MaterialX_Python_Wheel_${{ runner.os }}_3_${{ matrix.python-minor }}
         path: wheelhouse/*.whl
+
+    - name: Upload logs on failure
+      if: steps.ctest.outcome == 'failure'
+      uses: actions/upload-artifact@v4
+      with:
+        name: failure-logs
+        path: build/**/*.txt
+
+    - name: Fail the job
+      if: steps.ctest.outcome == 'failure'
+      run: exit 1
