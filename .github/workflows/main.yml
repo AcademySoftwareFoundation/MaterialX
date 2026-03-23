@@ -384,6 +384,16 @@ jobs:
         path: build/**/*.perfetto-trace
         if-no-files-found: ignore
 
+    - name: Upload Log Files
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      with:
+        name: Log_files_${{ matrix.name }}
+        path: build/**/*.txt
+
+    - name: Fail the job if unit tests failed
+      if: steps.ctest.outcome == 'failure'
+      run: exit 1
+
   javascript:
     name: JavaScript
     runs-on: ubuntu-latest
@@ -529,14 +539,3 @@ jobs:
       with:
         name: MaterialX_Python_Wheel_${{ runner.os }}_3_${{ matrix.python-minor }}
         path: wheelhouse/*.whl
-
-    - name: Upload logs on failure
-      if: steps.ctest.outcome == 'failure'
-      uses: actions/upload-artifact@v4
-      with:
-        name: failure-logs
-        path: build/**/*.txt
-
-    - name: Fail the job
-      if: steps.ctest.outcome == 'failure'
-      run: exit 1
