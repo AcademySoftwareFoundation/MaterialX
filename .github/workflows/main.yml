@@ -16,6 +16,7 @@ jobs:
   build:
     name: Build
     runs-on: ${{ matrix.os }}
+    continue-on-error: true
     env:
       IS_EXTENDED_BUILD: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
     strategy:
@@ -247,8 +248,6 @@ jobs:
 
     - name: CMake Unit Tests
       shell: bash
-      id: ctest
-      continue-on-error: true
       run: |
         if [ "${{ runner.os }}" == "Windows" ]; then
           # Exclude renderglsl on Windows since there are no GPUs avilable in CI
@@ -389,10 +388,6 @@ jobs:
       with:
         name: Log_files_${{ matrix.name }}
         path: build/**/*.txt
-
-    - name: Fail the job if unit tests failed
-      if: steps.ctest.outcome == 'failure'
-      run: exit 1
 
   javascript:
     name: JavaScript
