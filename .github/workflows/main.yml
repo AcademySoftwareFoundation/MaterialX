@@ -178,7 +178,7 @@ jobs:
     - name: Install MDL SDK
       if: env.IS_EXTENDED_BUILD == 'true' && matrix.extended_build_mdl_sdk == 'ON' && runner.os == 'Windows'
       run: |
-        C:/vcpkg/vcpkg install mdl-sdk[dds,df-vulkan,openimageio] --triplet=x64-windows-release
+        C:/vcpkg/vcpkg install mdl-sdk --triplet=x64-windows-release
         Add-Content $env:GITHUB_PATH "C:/vcpkg/installed/x64-windows-release/bin"
 
     - name: Install Python ${{ matrix.python }}
