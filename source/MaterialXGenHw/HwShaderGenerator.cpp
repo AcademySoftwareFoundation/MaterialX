@@ -8,6 +8,7 @@
 #include <MaterialXGenHw/HwConstants.h>
 #include <MaterialXGenHw/HwLightShaders.h>
 #include <MaterialXGenHw/Nodes/HwLightCompoundNode.h>
+#include <MaterialXGenHw/Nodes/HwMaterialCompoundNode.h>
 #include <MaterialXGenShader/Exception.h>
 #include <MaterialXGenShader/Nodes/CompoundNode.h>
 #include <MaterialXGenShader/GenContext.h>
@@ -400,11 +401,17 @@ ShaderNodeImplPtr HwShaderGenerator::createShaderNodeImplForNodeGraph(const Node
 
     const TypeDesc outputType = _typeSystem->getType(outputs[0]->getType());
 
-    // Use a compound implementation.
+    // Use specialized implementations for nodes that output light shaders and materials.
     if (outputType == Type::LIGHTSHADER)
     {
         return HwLightCompoundNode::create();
     }
+    if (outputType == Type::MATERIAL)
+    {
+        return HwMaterialCompoundNode::create();
+    }
+
+    // Use the base implementation for nodes that output other types.
     return CompoundNode::create();
 }
 

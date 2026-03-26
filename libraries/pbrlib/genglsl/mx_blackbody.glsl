@@ -8,16 +8,20 @@ void mx_blackbody(float temperatureKelvin, out vec3 colorValue)
     float xc, yc;
     float t, t2, t3, xc2, xc3;
 
-    // if value outside valid range of approximation clamp to accepted temperature range
-    temperatureKelvin = clamp(temperatureKelvin, 1667.0, 25000.0);
+    // Clamp to the range supported by the approximation.
+    // Lower limit is near the Draper point (~798K), the minimum temperature for visible blackbody emission.
+    // The Kang et al. (2002) xc polynomial is valid from 1000K, and extrapolates acceptably down to ~800K.
+    temperatureKelvin = clamp(temperatureKelvin, 800.0, 25000.0);
 
     t = 1000.0 / temperatureKelvin;
     t2 = t * t;
     t3 = t * t * t;
 
-    // Cubic spline approximation for Kelvin temperature to sRGB conversion
+    // Cubic spline approximation for Kelvin temperature to CIE xy chromaticity
     // (https://en.wikipedia.org/wiki/Planckian_locus#Approximation)
-    if (temperatureKelvin < 4000.0) {  // 1667K <= temperatureKelvin < 4000K
+    // Kang et al. (2002): the same xc polynomial covers 1000K–4000K, so the
+    // old 1667K lower clamp was unnecessarily conservative.
+    if (temperatureKelvin < 4000.0) {  // 800K <= temperatureKelvin < 4000K
       xc = -0.2661239 * t3 - 0.2343580 * t2 + 0.8776956 * t + 0.179910;
     }
     else {  // 4000K <= temperatureKelvin <= 25000K
@@ -26,7 +30,7 @@ void mx_blackbody(float temperatureKelvin, out vec3 colorValue)
     xc2 = xc * xc;
     xc3 = xc * xc * xc;
 
-    if (temperatureKelvin < 2222.0) {  // 1667K <= temperatureKelvin < 2222K
+    if (temperatureKelvin < 2222.0) {  // 800K <= temperatureKelvin < 2222K
       yc = -1.1063814 * xc3 - 1.34811020 * xc2 + 2.18555832 * xc - 0.20219683;
     }
     else if (temperatureKelvin < 4000.0) {  // 2222K <= temperatureKelvin < 4000K

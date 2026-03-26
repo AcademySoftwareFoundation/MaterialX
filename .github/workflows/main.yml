@@ -8,6 +8,9 @@ on:
     - cron: '30 10 * * *'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
 
   build:
@@ -130,7 +133,7 @@ jobs:
 
     steps:
     - name: Sync Repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       with:
         submodules: recursive
 
@@ -175,12 +178,12 @@ jobs:
     - name: Install MDL SDK
       if: env.IS_EXTENDED_BUILD == 'true' && matrix.extended_build_mdl_sdk == 'ON' && runner.os == 'Windows'
       run: |
-        C:/vcpkg/vcpkg install mdl-sdk[dds,df-vulkan,openimageio] --triplet=x64-windows-release
+        C:/vcpkg/vcpkg install mdl-sdk --triplet=x64-windows-release
         Add-Content $env:GITHUB_PATH "C:/vcpkg/installed/x64-windows-release/bin"
 
     - name: Install Python ${{ matrix.python }}
       if: matrix.python != 'None'
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
       with:
         python-version: ${{ matrix.python }}
         architecture: ${{ matrix.architecture }}
@@ -322,48 +325,48 @@ jobs:
 
     - name: Upload Installed Package
       if: matrix.python != 'None'
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
       with:
         name: MaterialX_${{ matrix.name }}
         path: build/installed/
 
     - name: Upload Formatted Source
       if: matrix.clang_format == 'ON'
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
       with:
         name: MaterialX_ClangFormat
         path: source
 
     - name: Upload Reference Shaders
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
       if: matrix.upload_shaders == 'ON'
       with:
         name: MaterialX_ReferenceShaders
         path: build/bin/reference/
 
     - name: Upload Renders
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
       if: matrix.test_render == 'ON'
       with:
         name: Renders_${{ matrix.name }}
         path: build/render/*.png
 
     - name: Upload Resources (MacOS)
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
       if: matrix.test_render == 'ON' && runner.os == 'macOS'
       with:
         name: Resources_${{ matrix.name }}
         path: build/bin/resources
 
     - name: Upload Coverage Report
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
       if: matrix.coverage_analysis == 'ON'
       with:
         name: MaterialX_Coverage
         path: build/coverage
 
     - name: Upload Perfetto Traces
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
       if: matrix.extended_build_perfetto == 'ON' && env.IS_EXTENDED_BUILD == 'true'
       with:
         name: Traces_${{ matrix.name }}
@@ -373,10 +376,12 @@ jobs:
   javascript:
     name: JavaScript
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
     - name: Sync Repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
     - name: Install Emscripten
       run: |
@@ -388,7 +393,7 @@ jobs:
         echo "EMSDK=$EMSDK" >> $GITHUB_ENV
 
     - name: Install Node
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
       with:
          node-version: '22.16.0'
 
@@ -413,14 +418,14 @@ jobs:
 
     - name: Deploy Web Viewer
       if: github.event_name != 'pull_request'
-      uses: JamesIves/github-pages-deploy-action@6c2d9db40f9296374acc17b90404b6e8864128c8 # v4.7.3
+      uses: JamesIves/github-pages-deploy-action@d92aa235d04922e8f08b40ce78cc5442fcfbfa2f # v4.8.0
       with:
         branch: gh-pages
         folder: javascript/MaterialXView/dist
         single-commit: true
 
     - name: Upload JavaScript Package
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
       with:
         name: MaterialX_JavaScript
         path: javascript/build/installed/JavaScript/MaterialX
@@ -434,10 +439,10 @@ jobs:
 
     steps:
     - name: Sync Repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
     - name: Install Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
       with:
         python-version: 3.11
 
@@ -449,7 +454,7 @@ jobs:
         echo "filename=$(ls dist)" >> "$GITHUB_OUTPUT"
 
     - name: Upload SDist
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
       with:
         name: MaterialX_Python_SDist
         path: dist/*.tar.gz
@@ -462,30 +467,30 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-minor: ['9', '10', '11', '12', '13']
+        python-minor: ['9', '10', '11', '12', '13', '14']
         os: ['ubuntu-24.04', 'windows-2022', 'macos-15']
 
     steps:
     - name: Sync Repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
     - name: Install Python 3.${{ matrix.python-minor }}
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
       with:
         python-version: 3.${{ matrix.python-minor }}
 
     - name: Download Sdist
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
       with:
         name: MaterialX_Python_SDist
         path: sdist
 
     - name: Install Doxygen (Windows)
-      uses: ssciwr/doxygen-install@v1
+      uses: ssciwr/doxygen-install@f13be1686235deee0aeb6cdf56640170691dc96b # v1
       if: runner.os == 'Windows'
 
     - name: Build Wheel
-      uses: pypa/cibuildwheel@v2.23.2
+      uses: pypa/cibuildwheel@ee02a1537ce3071a004a6b08c41e72f0fdc42d9a # v3.4.0
       with:
         package-dir: ${{ github.workspace }}/sdist/${{ needs.sdist.outputs.sdist_filename }}
       env:
@@ -493,7 +498,7 @@ jobs:
         CIBW_SKIP: '*musllinux*'
         CIBW_ARCHS: 'auto64'
         CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
-        CIBW_BEFORE_ALL_LINUX: yum install -y libXt-devel doxygen
+        CIBW_BEFORE_ALL_LINUX: dnf install -y libXt-devel doxygen
         CIBW_BEFORE_ALL_MACOS: brew install doxygen
         CIBW_BUILD_VERBOSITY: 1
         CIBW_ENVIRONMENT: CMAKE_BUILD_PARALLEL_LEVEL=2
@@ -509,7 +514,7 @@ jobs:
       working-directory: python
 
     - name: Upload Wheel
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
       with:
         name: MaterialX_Python_Wheel_${{ runner.os }}_3_${{ matrix.python-minor }}
         path: wheelhouse/*.whl
