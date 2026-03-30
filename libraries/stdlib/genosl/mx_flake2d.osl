@@ -1,0 +1,20 @@
+#include "lib/mx_flake.osl"
+
+void mx_flake2d(
+    float size,
+    float roughness,
+    float coverage,
+    vector2 texcoord,
+    vector N,
+    vector tangent,
+    vector bitangent,
+    output int id,
+    output float rand,
+    output float presence,
+    output vector flakenormal
+)
+{
+    // reuse the 3d flake implementation. this could be optimized by using a 2d flake implementation
+    vector position = vector(texcoord.x, texcoord.y, 0.0);
+    mx_flake(size, roughness, coverage, position, N, tangent, bitangent, id, rand, presence, flakenormal);
+}
