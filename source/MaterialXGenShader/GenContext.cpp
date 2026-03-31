@@ -62,6 +62,7 @@ void GenContext::getNodeImplementationNames(StringSet& names)
 void GenContext::clearNodeImplementations()
 {
     _nodeImpls.clear();
+    _nodeGraphTopologyCache.clear();
 }
 
 void GenContext::clearUserData()

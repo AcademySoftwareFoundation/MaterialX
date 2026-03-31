@@ -5,6 +5,7 @@
 
 #include <MaterialXGenShader/Nodes/CompoundNode.h>
 #include <MaterialXGenShader/Exception.h>
+#include <MaterialXGenShader/NodeGraphTopology.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/Util.h>
 
@@ -14,10 +15,17 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-ShaderNodeImplPtr CompoundNode::create()
+ShaderNodeImplPtr CompoundNode::create(std::unique_ptr<NodeGraphPermutation> permutation)
 {
-    return std::make_shared<CompoundNode>();
+    return std::make_shared<CompoundNode>(std::move(permutation));
 }
+
+CompoundNode::CompoundNode(std::unique_ptr<NodeGraphPermutation> permutation) :
+    _permutation(std::move(permutation))
+{
+}
+
+CompoundNode::~CompoundNode() = default;
 
 void CompoundNode::addClassification(ShaderNode& node) const
 {
@@ -43,12 +51,12 @@ void CompoundNode::initialize(const InterfaceElement& element, GenContext& conte
     // so always use the reduced interface for this graph.
     const ShaderInterfaceType oldShaderInterfaceType = context.getOptions().shaderInterfaceType;
     context.getOptions().shaderInterfaceType = SHADER_INTERFACE_REDUCED;
-    _rootGraph = ShaderGraph::create(nullptr, graph, context);
+    _rootGraph = ShaderGraph::create(nullptr, graph, context, _permutation.get());
     context.getOptions().shaderInterfaceType = oldShaderInterfaceType;
 
-    // Set hash using the function name.
-    // TODO: Could be improved to include the full function signature.
-    _hash = std::hash<string>{}(_functionName);
+    // Hash includes function name and permutation key (if any)
+    const string& permKey = _permutation ? _permutation->getKey() : EMPTY_STRING;
+    _hash = std::hash<string>{}(_functionName + permKey);
 }
 
 void CompoundNode::createVariables(const ShaderNode&, GenContext& context, Shader& shader) const

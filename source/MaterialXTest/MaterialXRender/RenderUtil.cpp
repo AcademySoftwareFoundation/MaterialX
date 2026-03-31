@@ -43,6 +43,7 @@ void ShaderRenderTester::getGenerationOptions(const GenShaderUtil::TestSuiteOpti
     {
         mx::GenOptions reducedOption = originalOptions;
         reducedOption.shaderInterfaceType = mx::SHADER_INTERFACE_REDUCED;
+        reducedOption.enableLobePruning = testOptions.enableLobePruning;
         optionsList.push_back(reducedOption);
     }
     // Always fallback to complete if no options specified.
@@ -50,6 +51,7 @@ void ShaderRenderTester::getGenerationOptions(const GenShaderUtil::TestSuiteOpti
     {
         mx::GenOptions completeOption = originalOptions;
         completeOption.shaderInterfaceType = mx::SHADER_INTERFACE_COMPLETE;
+        completeOption.enableLobePruning = testOptions.enableLobePruning;
         optionsList.push_back(completeOption);
     }
 }

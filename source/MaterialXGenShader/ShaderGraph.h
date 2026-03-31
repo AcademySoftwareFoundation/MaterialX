@@ -26,6 +26,7 @@ class Syntax;
 class ShaderGraphEdge;
 class ShaderGraphEdgeIterator;
 class GenOptions;
+class NodeGraphPermutation;
 
 /// An internal input socket in a shader graph,
 /// used for connecting internal nodes to the outside
@@ -56,8 +57,13 @@ class MX_GENSHADER_API ShaderGraph : public ShaderNode
                                  GenContext& context);
 
     /// Create a new shader graph from a nodegraph.
+    /// @param parent Parent graph, or nullptr for root graph.
+    /// @param nodeGraph The NodeGraph to create from.
+    /// @param context Generation context.
+    /// @param permutation Optional permutation for early pruning (skip nodes).
     static ShaderGraphPtr create(const ShaderGraph* parent, const NodeGraph& nodeGraph,
-                                 GenContext& context);
+                                 GenContext& context,
+                                 const NodeGraphPermutation* permutation = nullptr);
 
     /// Return true if this node is a graph.
     bool isAGraph() const override { return true; }
@@ -129,13 +135,15 @@ class MX_GENSHADER_API ShaderGraph : public ShaderNode
   protected:
     /// Create node connections corresponding to the connection between a pair of elements.
     /// @param downstreamElement Element representing the node to connect to.
-    /// @param upstreamElement Element representing the node to connect from
+    /// @param upstreamElement Element representing the node to connect from.
     /// @param connectingElement If non-null, specifies the element on on the downstream node to connect to.
     /// @param context Context for generation.
+    /// @param permutation Optional permutation for early pruning.
     void createConnectedNodes(const ElementPtr& downstreamElement,
                               const ElementPtr& upstreamElement,
                               ElementPtr connectingElement,
-                              GenContext& context);
+                              GenContext& context,
+                              const NodeGraphPermutation* permutation);
 
     /// Create a new node in a graph from a node definition.
     /// The uniqueId argument is used as the node's key in the graph's node map.
@@ -155,7 +163,11 @@ class MX_GENSHADER_API ShaderGraph : public ShaderNode
     /// Traverse from the given root element and add all dependencies upstream.
     /// The traversal is done in the context of a material, if given, to include
     /// bind input elements in the traversal.
-    void addUpstreamDependencies(const Element& root, GenContext& context);
+    /// @param root Root element to traverse from.
+    /// @param context Generation context.
+    /// @param permutation Optional permutation for early pruning.
+    void addUpstreamDependencies(const Element& root, GenContext& context,
+                                 const NodeGraphPermutation* permutation);
 
     /// Add a color transform node and connect to the given input.
     void addColorTransformNode(ShaderInput* input, const ColorSpaceTransform& transform, GenContext& context);

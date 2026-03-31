@@ -19,8 +19,11 @@
 
 #include <MaterialXFormat/File.h>
 
+#include <memory>
 
 MATERIALX_NAMESPACE_BEGIN
+
+class NodeGraphPermutation;
 
 /// @class ShaderGenerator
 /// Base class for shader generators
@@ -170,7 +173,11 @@ class MX_GENSHADER_API ShaderGenerator
     bool implementationRegistered(const string& name) const;
 
     /// Create the shader node implementation for a NodeGraph implementation.
-    virtual ShaderNodeImplPtr createShaderNodeImplForNodeGraph(const NodeGraph& nodegraph) const;
+    /// @param nodegraph The NodeGraph to create an implementation for
+    /// @param permutation Permutation for this instance, or nullptr (ownership transferred)
+    virtual ShaderNodeImplPtr createShaderNodeImplForNodeGraph(
+        const NodeGraph& nodegraph,
+        std::unique_ptr<NodeGraphPermutation> permutation) const;
 
     /// Create the shader node implementation for an Implementation implementation.
     virtual ShaderNodeImplPtr createShaderNodeImplForImplementation(const Implementation& implementation) const;

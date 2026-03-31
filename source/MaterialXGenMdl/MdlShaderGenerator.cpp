@@ -339,7 +339,9 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
     return shader;
 }
 
-ShaderNodeImplPtr MdlShaderGenerator::createShaderNodeImplForNodeGraph(const NodeGraph& nodegraph) const
+ShaderNodeImplPtr MdlShaderGenerator::createShaderNodeImplForNodeGraph(
+    const NodeGraph& nodegraph,
+    std::unique_ptr<NodeGraphPermutation> permutation) const
 {
     vector<OutputPtr> outputs = nodegraph.getActiveOutputs();
     if (outputs.empty())
@@ -349,13 +351,12 @@ ShaderNodeImplPtr MdlShaderGenerator::createShaderNodeImplForNodeGraph(const Nod
 
     const TypeDesc outputType = _typeSystem->getType(outputs[0]->getType());
 
-    ShaderNodeImplPtr impl;
-    // Use a compound implementation.
+    // Use a compound implementation with permutation support
     if (outputType.isClosure())
     {
-        return ClosureCompoundNodeMdl::create();
+        return ClosureCompoundNodeMdl::create(std::move(permutation));
     }
-    return CompoundNodeMdl::create();
+    return CompoundNodeMdl::create(std::move(permutation));
 }
 
 ShaderNodeImplPtr MdlShaderGenerator::createShaderNodeImplForImplementation(const Implementation& implElement) const

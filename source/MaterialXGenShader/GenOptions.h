@@ -96,6 +96,7 @@ class MX_GENSHADER_API GenOptions
         hwWriteAlbedoTable(false),
         hwWriteEnvPrefilter(false),
         hwImplicitBitangents(true),
+        enableLobePruning(false),
         oslImplicitSurfaceShaderConversion(true),
         oslConnectCiWrapper(false)
     {
@@ -203,6 +204,16 @@ class MX_GENSHADER_API GenOptions
     /// Calculate fallback bitangents from existing normals and tangents
     /// inside the bitangent node.
     bool hwImplicitBitangents;
+
+    /// Enable lobe pruning during ShaderGraph construction.
+    /// When enabled, performs topology analysis on NodeGraphs to identify
+    /// "permutation-defining" inputs (e.g., mix weights). If these inputs
+    /// are constant 0 or 1 at a call site, the corresponding dead branches
+    /// are pruned during ShaderGraph creation, avoiding unnecessary node
+    /// instantiation. This produces more compact shaders at the cost of
+    /// more ShaderNodeImpl permutations.
+    /// Defaults to false.
+    bool enableLobePruning;
 
     // Enables OSL conversion of surfaceshader struct to closure color.
     // Defaults to true.

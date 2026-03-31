@@ -84,5 +84,12 @@
          Default is false to avoid overhead when not profiling.
     -->
     <input name="enableTracing" type="boolean" value="true" />
+
+    <!-- Enable lobe pruning during ShaderGraph construction.
+         When a NodeGraph has topological inputs (e.g. mix weights) that are
+         compile-time constant 0 or 1, skip creating the dead branch nodes.
+         Default is false.
+    -->
+    <input name="enableLobePruning" type="boolean" value="false" />
   </nodedef>
 </materialx>

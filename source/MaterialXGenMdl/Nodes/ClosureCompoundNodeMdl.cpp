@@ -13,9 +13,14 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-ShaderNodeImplPtr ClosureCompoundNodeMdl::create()
+ShaderNodeImplPtr ClosureCompoundNodeMdl::create(std::unique_ptr<NodeGraphPermutation> permutation)
 {
-    return std::make_shared<ClosureCompoundNodeMdl>();
+    return std::make_shared<ClosureCompoundNodeMdl>(std::move(permutation));
+}
+
+ClosureCompoundNodeMdl::ClosureCompoundNodeMdl(std::unique_ptr<NodeGraphPermutation> permutation) :
+    CompoundNodeMdl(std::move(permutation))
+{
 }
 
 void ClosureCompoundNodeMdl::addClassification(ShaderNode& node) const

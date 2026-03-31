@@ -75,7 +75,9 @@ class MX_GENMDL_API MdlShaderGenerator : public ShaderGenerator
     ShaderPtr generate(const string& name, ElementPtr element, GenContext& context) const override;
 
     /// Create the shader node implementation for a NodeGraph implementation.
-    ShaderNodeImplPtr createShaderNodeImplForNodeGraph(const NodeGraph& nodegraph) const override;
+    ShaderNodeImplPtr createShaderNodeImplForNodeGraph(
+        const NodeGraph& nodegraph,
+        std::unique_ptr<NodeGraphPermutation> permutation) const override;
 
     /// Create the shader node implementation for an mplementation implementation.
     ShaderNodeImplPtr createShaderNodeImplForImplementation(const Implementation& implementation) const override;

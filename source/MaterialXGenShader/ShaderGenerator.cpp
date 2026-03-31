@@ -6,6 +6,7 @@
 #include <MaterialXGenShader/ShaderGenerator.h>
 
 #include <MaterialXGenShader/GenContext.h>
+#include <MaterialXGenShader/NodeGraphTopology.h>
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 #include <MaterialXGenShader/Nodes/CompoundNode.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
@@ -285,9 +286,11 @@ bool ShaderGenerator::implementationRegistered(const string& name) const
     return _implFactory.classRegistered(name);
 }
 
-ShaderNodeImplPtr ShaderGenerator::createShaderNodeImplForNodeGraph(const NodeGraph& /*nodegraph*/) const
+ShaderNodeImplPtr ShaderGenerator::createShaderNodeImplForNodeGraph(
+    const NodeGraph& /*nodegraph*/,
+    std::unique_ptr<NodeGraphPermutation> permutation) const
 {
-    return CompoundNode::create();
+    return CompoundNode::create(std::move(permutation));
 }
 
 ShaderNodeImplPtr ShaderGenerator::createShaderNodeImplForImplementation(const Implementation& /*implementation*/) const
@@ -303,7 +306,31 @@ ShaderNodeImplPtr ShaderGenerator::getImplementation(const NodeDef& nodedef, Gen
         return nullptr;
     }
 
-    const string& name = implElement->getName();
+    string name = implElement->getName();
+
+    // For NodeGraphs, compute permutation and append it to the cache key
+    std::unique_ptr<NodeGraphPermutation> permutation;
+
+    if (context.getOptions().enableLobePruning && implElement->isA<NodeGraph>())
+    {
+        const NodeGraph& graph = *implElement->asA<NodeGraph>();
+
+        // The node instance is needed to read call-site input values.
+        // It's on the parent node stack, pushed by createConnectedNodes().
+        const vector<ConstNodePtr>& parentNodes = context.getParentNodes();
+        if (!parentNodes.empty())
+        {
+            permutation = context.getNodeGraphTopologyCache().createPermutation(
+                graph, *parentNodes.back());
+
+            const string& key = permutation->getKey();
+            if (permutation && !key.empty())
+            {
+                name += "_";
+                name += key;
+            }
+        }
+    }
 
     // Check if it's created and cached already.
     ShaderNodeImplPtr impl = context.findNodeImplementation(name);
@@ -312,20 +339,19 @@ ShaderNodeImplPtr ShaderGenerator::getImplementation(const NodeDef& nodedef, Gen
         return impl;
     }
 
+    // Cache miss - create the implementation
     if (implElement->isA<NodeGraph>())
     {
-        impl = createShaderNodeImplForNodeGraph(*implElement->asA<NodeGraph>());
+        impl = createShaderNodeImplForNodeGraph(*implElement->asA<NodeGraph>(), std::move(permutation));
     }
     else if (implElement->isA<Implementation>())
     {
-        ImplementationPtr implementationElement = implElement->asA<Implementation>();
         if (getColorManagementSystem() && getColorManagementSystem()->hasImplementation(name))
         {
             impl = getColorManagementSystem()->createImplementation(name);
         }
         else
         {
-            // Try creating a new in the factory.
             impl = _implFactory.create(name);
         }
         if (!impl)
