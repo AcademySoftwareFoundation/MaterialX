@@ -125,7 +125,7 @@ bool MdlShaderRenderTester::runRenderer(const std::string& shaderName,
             // Note: mkdir will fail if the directory already exists which is ok.
             {
                 mx::ScopedTimer ioDir(&profileTimes.languageTimes.ioTime);
-                outputFilePath.createDirectory();
+                outputFilePath.createDirectory(true);
             }
 
             shaderPath = outputFilePath / mx::FilePath(shaderName);
