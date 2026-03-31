@@ -1140,7 +1140,7 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
                             // Create the directory if it doesn't exist
                             if (!outputDirectory.exists())
                             {
-                                outputDirectory.createDirectory();
+                                outputDirectory.createDirectory(true);
                             }
                         }
                     }
