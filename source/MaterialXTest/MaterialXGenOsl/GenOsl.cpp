@@ -179,6 +179,45 @@ TEST_CASE("GenShader: OSL Metadata", "[genosl]")
     REQUIRE(shader != nullptr);
 }
 
+TEST_CASE("GenShader: OSL TransformMatrix Point Semantics", "[genosl]")
+{
+    const std::string expectedSourceCode = "transform({{mat}}, point({{in}}))";
+    const std::string testDocumentString = R"(<materialx version="1.39">
+  <nodegraph name="NG_transformmatrix_vector3M4">
+    <transformmatrix name="transform" type="vector3">
+      <input name="in" type="vector3" value="1.0, 2.0, 3.0" />
+      <input name="mat" type="matrix44" value="1.0,0.0,0.0,0.0, 0.0,1.0,0.0,0.0, 0.0,0.0,1.0,0.0, 4.0,5.0,6.0,1.0" />
+    </transformmatrix>
+    <output name="out" type="vector3" nodename="transform" />
+  </nodegraph>
+</materialx>)";
+
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::DocumentPtr libraries = mx::createDocument();
+    mx::loadLibraries({ "libraries" }, searchPath, libraries);
+
+    mx::ImplementationPtr implementation = libraries->getImplementation("IM_transformmatrix_vector3M4_genosl");
+    REQUIRE(implementation != nullptr);
+    REQUIRE(implementation->getAttribute("sourcecode") == expectedSourceCode);
+
+    mx::DocumentPtr doc = mx::createDocument();
+    mx::readFromXmlString(doc, testDocumentString);
+    doc->setDataLibrary(libraries);
+
+    mx::NodeGraphPtr nodeGraph = doc->getNodeGraph("NG_transformmatrix_vector3M4");
+    REQUIRE(nodeGraph != nullptr);
+
+    mx::OutputPtr output = nodeGraph->getOutput("out");
+    REQUIRE(output != nullptr);
+
+    mx::GenContext context(mx::OslShaderGenerator::create());
+    context.registerSourceCodeSearchPath(searchPath);
+
+    mx::ShaderPtr shader = context.getShaderGenerator().generate("transformmatrix_point_semantics", output, context);
+    REQUIRE(shader != nullptr);
+    REQUIRE(shader->getSourceCode().find("point(") != std::string::npos);
+}
+
 static void generateOslCode()
 {
     mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
