@@ -278,17 +278,20 @@ FilePathVec FilePath::getSubDirectories() const
     return dirs;
 }
 
-void FilePath::createDirectory() const
+void FilePath::createDirectory(bool recursive) const
 {
-    if (isEmpty() || exists())
+    if (recursive)
     {
-        return;
-    }
+        if (isEmpty() || exists())
+        {
+            return;
+        }
 
-    FilePath parent = getParentPath();
-    if (!parent.isEmpty() && !parent.exists())
-    {
-        parent.createDirectory();
+        FilePath parent = getParentPath();
+        if (!parent.isEmpty() && !parent.exists())
+        {
+            parent.createDirectory(true);
+        }
     }
 
 #if defined(_WIN32)
