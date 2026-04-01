@@ -4,6 +4,7 @@
     <generalized_schlick_bsdf name="schlick_R" type="BSDF">
       <input name="color0" type="color3" value="0.8, 0.8, 0.8" />
       <input name="roughness" type="vector2" value="0.02, 0.02" />
+      <input name="retroreflective" type="boolean" value="false" />
       <input name="scatter_mode" type="string" value="R" />
     </generalized_schlick_bsdf>
     <surface name="surface_R" type="surfaceshader">

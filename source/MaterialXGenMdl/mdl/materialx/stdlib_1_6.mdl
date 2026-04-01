@@ -24,6 +24,7 @@ import ::limits::*;
 import .::core::*;
 import .::noise::*;
 import .::hsv::*;
+import .::flake::*;
 import .::hextile::*;
 
 // NOTE: To insulate MaterialX names from MDL names, in particular 
@@ -4471,6 +4472,39 @@ export float mx_extract_vector4(
 	}
 }
 
+export float3 mx_extract_matrix33(
+	float3x3 mxp_in = float3x3(0.0),
+	int mxp_index = int(0)
+)
+	[[
+		anno::description("Node Group: channel")
+	]]
+{
+	switch (mxp_index)
+	{
+		case 0: return mxp_in[0];
+		case 1: return mxp_in[1];
+		default: return mxp_in[2];
+	}
+}
+
+export float4 mx_extract_matrix44(
+	float4x4 mxp_in = float4x4(0.0),
+	int mxp_index = int(0)
+)
+	[[
+		anno::description("Node Group: channel")
+	]]
+{
+	switch (mxp_index)
+	{
+		case 0: return mxp_in[0];
+		case 1: return mxp_in[1];
+		case 2: return mxp_in[2];
+		default: return mxp_in[3];
+	}
+}
+
 // Nodedef: ND_separate2_vector2 is represented by a nodegraph: NG_separate2_vector2
 // Nodedef: ND_separate3_color3 is represented by a nodegraph: NG_separate3_color3
 // Nodedef: ND_separate3_vector3 is represented by a nodegraph: NG_separate3_vector3
@@ -4728,6 +4762,33 @@ export float3 mx_worleynoise3d_float3(
 )
 {
     return noise::mx_worley_noise_float3(mxp_position, mxp_jitter, 0);
+}
+
+export flake::mx_flake__result mx_flake2d(
+	float mxp_size = 0.01,
+	float mxp_roughness = 0.1,
+	float mxp_coverage = 0.5,
+    float2 mxp_texcoord = core::mx_swizzle_xy(state::texture_coordinate(0)),
+	float3 mxp_normal = state::normal(),
+	float3 mxp_tangent = state::texture_tangent_u(0),
+	float3 mxp_bitangent = state::texture_tangent_v(0)
+)
+{
+	float3 position = float3(mxp_texcoord.x, mxp_texcoord.y, 0.0);
+	return flake::mx_flake(mxp_size, mxp_roughness, mxp_coverage, position, mxp_normal, mxp_tangent, mxp_bitangent);
+}
+
+export flake::mx_flake__result mx_flake3d(
+	float mxp_size = 0.01,
+	float mxp_roughness = 0.1,
+	float mxp_coverage = 0.5,
+	float3 mxp_position = state::transform_point(state::coordinate_internal, state::coordinate_object, state::position()),
+	float3 mxp_normal = state::normal(),
+	float3 mxp_tangent = state::texture_tangent_u(0),
+	float3 mxp_bitangent = state::texture_tangent_v(0)
+)
+{
+	return flake::mx_flake(mxp_size, mxp_roughness, mxp_coverage, mxp_position, mxp_normal, mxp_tangent, mxp_bitangent);
 }
 
 export core::color4 mx_combine2_color4CF(color in1, float in2)
