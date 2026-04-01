@@ -1006,6 +1006,8 @@ void TestSuiteOptions::print(std::ostream& output) const
     output << "\tEnable Reference Quality: " << enableReferenceQuality << std::endl;
     output << "\tOutput Directory: " << (outputDirectory.isEmpty() ? "(default)" : outputDirectory.asString()) << std::endl;
     output << "\tEnable Tracing: " << enableTracing << std::endl;
+    output << "\tFrames Per Material: " << framesPerMaterial << std::endl;
+    output << "\tEnv Sample Count: " << envSampleCount << std::endl;
 }
 
 bool TestSuiteOptions::readOptions(const std::string& optionFile)
@@ -1033,6 +1035,8 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
     const std::string ENABLE_REFERENCE_QUALITY("enableReferenceQuality");
     const std::string OUTPUT_DIRECTORY_STRING("outputDirectory");
     const std::string ENABLE_TRACING_STRING("enableTracing");
+    const std::string FRAMES_PER_MATERIAL_STRING("framesPerMaterial");
+    const std::string ENV_SAMPLE_COUNT_STRING("envSampleCount");
 
     overrideFiles.clear();
     dumpGeneratedCode = false;
@@ -1040,6 +1044,8 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
     enableDirectLighting = true;
     enableIndirectLighting = true;
     enableReferenceQuality = false;
+
+    bool envSampleCountSet = false;
 
     mx::DocumentPtr doc = mx::createDocument();
     try
@@ -1148,8 +1154,26 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
                     {
                         enableTracing = val->asA<bool>();
                     }
+                    else if (name == FRAMES_PER_MATERIAL_STRING)
+                    {
+                        int frames = val->asA<int>();
+                        framesPerMaterial = (frames >= 1) ? static_cast<unsigned int>(frames) : 1u;
+                    }
+                    else if (name == ENV_SAMPLE_COUNT_STRING)
+                    {
+                        int count = val->asA<int>();
+                        envSampleCount = (count >= 1) ? count : 1024;
+                        envSampleCountSet = true;
+                    }
                 }
             }
+        }
+
+        // If reference quality is enabled and envSampleCount wasn't explicitly
+        // overridden, use the higher sample count for reference-quality rendering.
+        if (enableReferenceQuality && !envSampleCountSet)
+        {
+            envSampleCount = 4096;
         }
 
         // Handle direct and indirect lighting toggles.

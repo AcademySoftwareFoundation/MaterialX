@@ -99,7 +99,7 @@ void GlslShaderRenderTester::registerLights(mx::DocumentPtr document,
     // Apply light settings for render tests.
     _lightHandler->setEnvRadianceMap(envRadiance);
     _lightHandler->setEnvIrradianceMap(envIrradiance);
-    _lightHandler->setEnvSampleCount(options.enableReferenceQuality ? 4096 : 1024);
+    _lightHandler->setEnvSampleCount(options.envSampleCount);
     _lightHandler->setRefractionTwoSided(true);
 }
 
@@ -356,7 +356,10 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                     unsigned int width = (unsigned int) testOptions.renderSize[0] * supersampleFactor;
                     unsigned int height = (unsigned int) testOptions.renderSize[1] * supersampleFactor;
                     _renderer->setSize(width, height);
-                    _renderer->render();
+                    for (unsigned int frame = 0; frame < testOptions.framesPerMaterial; frame++)
+                    {
+                        _renderer->render();
+                    }
                 }
 
                 {
