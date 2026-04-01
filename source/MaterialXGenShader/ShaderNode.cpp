@@ -284,14 +284,28 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
         {
             newNode->_classification |= Classification::LAYER;
         }
+
+        // Check specifically for the mix node
+        if (nodeDefName == "ND_mix_bsdf")
+        {
+            newNode->_classification |= Classification::MIX;
+        }
     }
     else if (primaryOutput->getType() == Type::EDF)
     {
         newNode->_classification = Classification::EDF | Classification::CLOSURE;
+        if (nodeDefName == "ND_mix_edf")
+        {
+            newNode->_classification |= Classification::MIX;
+        }
     }
     else if (primaryOutput->getType() == Type::VDF)
     {
         newNode->_classification = Classification::VDF | Classification::CLOSURE;
+        if (nodeDefName == "ND_mix_vdf")
+        {
+            newNode->_classification |= Classification::MIX;
+        }
     }
     // Second, check for specific nodes types
     else if (nodeDef.getNodeString() == CONSTANT)
