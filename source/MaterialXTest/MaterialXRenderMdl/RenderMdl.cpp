@@ -42,16 +42,6 @@ class MdlShaderRenderTester : public RenderUtil::ShaderRenderTester
                      const std::string& outputPath = ".",
                      mx::ImageVec* imageVec = nullptr) override;
 
-    void addSkipFiles() override
-    {
-        // The command-line assembled in runRenderer() assumes that the simple name of the MDL
-        // material is the same as "shaderName", but for this file the MDL material name gets a "1"
-        // suffix. Communicating the generated name from the stage to the shader could help, but in
-        // general it is probably better to give the main object a predictable name and use suffixes
-        // for internal objects.
-        _skipFiles.insert("translucent_bsdf.mtlx");
-    }
-
     mx::DocumentPtr _last_doc;
 };
 
@@ -135,7 +125,7 @@ bool MdlShaderRenderTester::runRenderer(const std::string& shaderName,
             // Note: mkdir will fail if the directory already exists which is ok.
             {
                 mx::ScopedTimer ioDir(&profileTimes.languageTimes.ioTime);
-                outputFilePath.createDirectory();
+                outputFilePath.createDirectory(true);
             }
 
             shaderPath = outputFilePath / mx::FilePath(shaderName);
@@ -184,6 +174,8 @@ bool MdlShaderRenderTester::runRenderer(const std::string& shaderName,
                 command += " --materialxtest_mode"; // align texcoord space with OSL
 
                 // Application setup
+                command += " --noaux";
+                command += " --nocc";
                 command += " --no_shader_opt";      // does not pay off for the testsuite
                 command += " --no_window";
                 command += " --warning";            // filter info messages from the log
@@ -224,14 +216,6 @@ bool MdlShaderRenderTester::runRenderer(const std::string& shaderName,
                     log << "\tLog: " << line << std::endl;
                 }
                 validated = true;
-
-                // Remove output images for auxiliary buffers (not needed here, no error checking)
-                std::string aux_buffers[]
-                    = { "_albedo", "_normal", "_albedo_diffuse", "_albedo_glossy", "_roughness" };
-                for (const auto& aux_buffer : aux_buffers)
-                {
-                    std::remove((shaderPath + "_mdl" + aux_buffer + ext).c_str());
-                }
             }
             catch (mx::ExceptionRenderError& e)
             {

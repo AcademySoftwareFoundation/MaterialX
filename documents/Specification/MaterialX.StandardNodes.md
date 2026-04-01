@@ -512,6 +512,43 @@ A single node supporting 3D Perlin, Cell, Worley or Fractal noise in a unified i
 |`style`      |The output style                                                                           |integer|0        |0 (Distance), 1 (Solid)|
 |`out`        |Output: the computed noise value                                                           |float  |0.0      |                       |
 
+<a id="node-flake2d"> </a>
+
+### `flake2d`
+Generates a procedural flake pattern in 2D space, suitable for simulating metallic flakes in materials such as car paint.
+
+|Port         |Description                                                                                        |Type   |Default |
+|-------------|---------------------------------------------------------------------------------------------------|-------|--------|
+|`texcoord`   |The 2D texture coordinate at which the flake pattern is evaluated                                  |vector2|_UV0_   |
+|`size`       |The size of individual flakes, with smaller values producing larger flakes                         |float  |0.01    |
+|`roughness`  |The surface roughness of individual flakes, controlling the variation in normal                    |float  |0.1     |
+|`coverage`   |The density of flakes in the pattern, ranging from 0.0 (no flakes) to 1.0 (maximum)                |float  |0.5     |
+|`normal`     |The surface normal vector used as the base for flake normal perturbations                          |vector3|_Nworld_|
+|`tangent`    |The surface tangent vector, used to construct the tangent space                                    |vector3|_Tworld_|
+|`bitangent`  |The surface bitangent vector, used to construct the tangent space                                  |vector3|_Bworld_|
+|`id`         |Output: unique identifier for each flake. 0 for no flake                                           |integer|0       |
+|`rand`       |Output: random value per flake for additional variation. 0.0 for no flake                          |float  |0.0     |
+|`presence`   |Output: presence per flake; a depth-like value (higher is closer to the surface). 0.0 for no flake.|float  |0.0     |
+|`flakenormal`|Output: the computed flake normal. Base normal if no flake present                                 |vector3|_Nworld_|
+
+<a id="node-flake3d"> </a>
+
+### `flake3d`
+Generates a procedural flake pattern in 3D space, suitable for simulating metallic flakes in materials such as car paint.
+
+|Port         |Description                                                                                        |Type   |Default  |
+|-------------|---------------------------------------------------------------------------------------------------|-------|---------|
+|`position`   |The 3D position at which the flake pattern is evaluated                                            |vector3|_Pobject_|
+|`size`       |The size of individual flakes, with smaller values producing larger flakes                         |float  |0.01     |
+|`roughness`  |The surface roughness of individual flakes, controlling the variation in normal                    |float  |0.1      |
+|`coverage`   |The density of flakes in the pattern, ranging from 0.0 (no flakes) to 1.0 (maximum)                |float  |0.5      |
+|`normal`     |The surface normal vector used as the base for flake normal perturbations                          |vector3|_Nworld_ |
+|`tangent`    |The surface tangent vector, used to construct the tangent space                                    |vector3|_Tworld_ |
+|`bitangent`  |The surface bitangent vector, used to construct the tangent space                                  |vector3|_Bworld_ |
+|`id`         |Output: unique identifier for each flake. 0 for no flake                                           |integer|0        |
+|`rand`       |Output: random value per flake for additional variation. 0.0 for no flake                          |float  |0.0      |
+|`presence`   |Output: presence per flake; a depth-like value (higher is closer to the surface). 0.0 for no flake.|float  |0.0      |
+|`flakenormal`|Output: the computed flake normal. Base normal if no flake present                                 |vector3|_Nworld_ |
 
 ### Noise Node Notes
 
@@ -2068,7 +2105,9 @@ Channel nodes are used to perform channel manipulations and data type conversion
 
 ### `extract`
 
-Isolate a single float channel from a __vectorN__ or __colorN__ stream.
+Isolate a single channel from a __colorN__, __vectorN__, or __matrixNN__ stream.
+
+When the input is a __colorN__ or __vectorN__, the node extracts a single float component by index. When the input is a __matrix33__ or __matrix44__, the node extracts a row vector by index.
 
 |Port   |Description                                 |Type           |Default |
 |-------|--------------------------------------------|---------------|--------|
@@ -2076,7 +2115,13 @@ Isolate a single float channel from a __vectorN__ or __colorN__ stream.
 |`index`|The index of the channel in `in` to extract |integer        |0       |
 |`out`  |Output: the `index`th channel of `in`       |float          |0.0     |
 
-The valid range for `index` should be clamped to $[0,N)$ in the user interface, where __N__ is the size of the input vector stream. `index` is a uniform, non-varying value. Any `index` values outside of the valid range should result in an error.
+|Port   |Description                                  |Type              |Default |
+|-------|---------------------------------------------|------------------|--------|
+|`in`   |The input matrix from which to extract a row |matrix33, matrix44|__zero__|
+|`index`|The index of the row in `in` to extract      |integer           |0       |
+|`out`  |Output: the `index`th row of `in` as a vector|vector3, vector4  |__zero__|
+
+The valid range for `index` should be clamped to $[0,N)$ in the user interface, where __N__ is the number of components (for vector/color inputs) or rows (for matrix inputs). `index` is a uniform, non-varying value. Any `index` values outside of the valid range should result in an error.
 
 <a id="node-convert"> </a>
 

@@ -186,9 +186,8 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
     const ShaderGraphOutputSocket* outputSocket = graph.getOutputSocket(0);
     emitString("export material ", stage);
 
-    // Begin shader signature. Note that makeIdentifier() will sanitize the name.
+    // Begin shader signature. Note that the function name is already sanitized.
     string functionName = shader->getName();
-    _syntax->makeIdentifier(functionName, graph.getIdentifierMap());
     setFunctionName(functionName, stage);
     emitLine(functionName, stage, false);
     emitScopeBegin(stage, Syntax::PARENTHESES);
@@ -238,6 +237,7 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
 
     // Emit function calls for "root" closure/shader nodes.
     // These will internally emit function calls for any dependent closure nodes upstream.
+    bool rootFunctionCallEmitted = false;
     for (ShaderGraphOutputSocket* socket : graph.getOutputSockets())
     {
         if (socket->getConnection())
@@ -248,6 +248,7 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
                  upstream->hasClassification(ShaderNode::Classification::SHADER)))
             {
                 emitFunctionCall(*upstream, context, stage);
+                rootFunctionCallEmitted = true;
             }
         }
     }
@@ -273,9 +274,9 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
             emitLine("float3 displacement__ = float3(0.0)", stage);
             std::string finalOutput = "mk_color3(0.0)";
             if (outputType == Type::BOOLEAN)
-                finalOutput = result + " ? mk_color3(0.0, 1.0, 0.0) : mk_color3(1.0, 0.0, 0.0)";
+                finalOutput = result + " ? mk_color3(1.0, 1.0, 1.0) : mk_color3(0.0, 0.0, 0.0)";
             else if (outputType == Type::INTEGER)
-                finalOutput = "mk_color3(" + result + " / 100)"; // arbitrary
+                finalOutput = "mk_color3(" + result + ")";
             else if (outputType == Type::FLOAT)
                 finalOutput = "mk_color3(" + result + ")";
             else if (outputType == Type::VECTOR2)
@@ -315,7 +316,15 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
     }
     else
     {
-        emitLine(_syntax->getTypeSyntax(outputType).getName() + " finalOutput__ = " + result, stage);
+        if (rootFunctionCallEmitted)
+        {
+            emitLine(_syntax->getTypeSyntax(outputType).getName() + " finalOutput__ = " + result, stage);
+        }
+        else
+        {
+            // No code has been emitted for "result". Use default material as fallback.
+            emitLine(_syntax->getTypeSyntax(outputType).getName() + " finalOutput__ = material()", stage);
+        }
 
         // End shader body
         emitScopeEnd(stage);

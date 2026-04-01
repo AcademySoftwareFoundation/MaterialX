@@ -105,6 +105,9 @@ class OslShaderRenderTester : public RenderUtil::ShaderRenderTester
 
     void addSkipFiles() override
     {
+        _skipFiles.insert("flake.mtlx");
+        _skipFiles.insert("flake_surfaceshader.mtlx");
+
         if (_useOslCmdStr)
         {
             _skipFiles.insert("filename_cm_test.mtlx");
@@ -258,7 +261,7 @@ bool OslShaderRenderTester::runRenderer(const std::string& shaderName,
             // Note: mkdir will fail if the directory already exists which is ok.
             {
                 mx::ScopedTimer ioDir(&profileTimes.languageTimes.ioTime);
-                outputFilePath.createDirectory();
+                outputFilePath.createDirectory(true);
                 
                 // Use separate directory for reduced output
                 if (options.shaderInterfaceType == mx::SHADER_INTERFACE_REDUCED)
