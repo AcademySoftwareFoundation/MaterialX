@@ -91,6 +91,12 @@ HwShaderGenerator::HwShaderGenerator(TypeSystemPtr typeSystem, SyntaxPtr syntax)
     _tokenSubstitutions[HW::T_CLOSURE_DATA_CONSTRUCTOR] = HW::CLOSURE_DATA_CONSTRUCTOR;
 }
 
+void HwShaderGenerator::applyDefaultOptions(GenOptions& options) const
+{
+    ShaderGenerator::applyDefaultOptions(options);
+    options.premultipliedBsdfAdd = true;
+}
+
 ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element, GenContext& context) const
 {
     MX_TRACE_FUNCTION(Tracing::Category::ShaderGen);

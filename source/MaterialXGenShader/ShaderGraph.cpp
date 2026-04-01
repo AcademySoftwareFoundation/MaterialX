@@ -7,6 +7,7 @@
 
 #include <MaterialXGenShader/Exception.h>
 #include <MaterialXGenShader/GenContext.h>
+#include <MaterialXGenShader/ShaderGraphRefactor.h>
 #include <MaterialXGenShader/Util.h>
 
 #include <MaterialXTrace/Tracing.h>
@@ -920,8 +921,18 @@ void ShaderGraph::finalize(GenContext& context)
     _inputUnitTransformMap.clear();
     _outputUnitTransformMap.clear();
 
-    // Optimize the graph, removing redundant paths.
-    optimize(context);
+    // Run registered graph refactoring passes.
+    size_t totalEdits = 0;
+    for (auto& refactor : context.getShaderGenerator().getRefactors())
+    {
+        totalEdits += refactor->execute(*this, context);
+    }
+
+    // Remove unused nodes if any refactoring pass made edits.
+    if (totalEdits > 0)
+    {
+        removeUnusedNodes();
+    }
 
     // Sort the nodes in topological order.
     topologicalSort();
@@ -981,97 +992,57 @@ void ShaderGraph::disconnect(ShaderNode* node) const
     }
 }
 
-void ShaderGraph::optimize(GenContext& context)
+void ShaderGraph::removeUnusedNodes()
 {
-    size_t numEdits = 0;
-    for (ShaderNode* node : getNodes())
+    std::set<ShaderNode*> usedNodesSet;
+    std::vector<ShaderNode*> usedNodesVec;
+
+    // Traverse the graph to find nodes still in use.
+    for (ShaderGraphOutputSocket* outputSocket : getOutputSockets())
     {
-        if (node->hasClassification(ShaderNode::Classification::CONSTANT))
+        // Make sure to not include connections to the graph itself.
+        ShaderOutput* upstreamPort = outputSocket->getConnection();
+        if (upstreamPort && upstreamPort->getNode() != this)
         {
-            if (node->numInputs() != 1 || node->numOutputs() != 1)
+            for (ShaderGraphEdge edge : traverseUpstream(upstreamPort))
             {
-                // Constant node doesn't follow expected interface, cannot elide.
-                continue;
-            }
-            // Constant nodes can be elided by moving their value downstream.
-            bool canElide = context.getOptions().elideConstantNodes;
-            if (!canElide)
-            {
-                // We always elide filename constant nodes regardless of the
-                // option. See DOT below.
-                ShaderInput* in = node->getInput("value");
-                if (in && in->getType() == Type::FILENAME)
+                ShaderNode* node = edge.upstream->getNode();
+                if (usedNodesSet.count(node) == 0)
                 {
-                    canElide = true;
+                    usedNodesSet.insert(node);
+                    usedNodesVec.push_back(node);
                 }
             }
-            if (canElide)
-            {
-                bypass(node, 0);
-                ++numEdits;
-            }
         }
-        else if (node->hasClassification(ShaderNode::Classification::DOT))
-        {
-            if (node->numOutputs() != 1)
-            {
-                // Dot node dosen't follow expected interface, cannot elide.
-                continue;
-            }
-            // Filename dot nodes must be elided so they do not create extra samplers.
-            ShaderInput* in = node->getInput("in");
-            if (in && in->getType() == Type::FILENAME)
-            {
-                bypass(node, 0);
-                ++numEdits;
-            }
-        }
-        // Adding more nodes here requires them to have an input that is tagged
-        // "uniform" in the NodeDef or to handle very specific cases, like FILENAME.
     }
 
-    if (numEdits > 0)
+    // Remove any unused nodes.
+    for (auto it = _nodeMap.begin(); it != _nodeMap.end();)
     {
-        std::set<ShaderNode*> usedNodesSet;
-        std::vector<ShaderNode*> usedNodesVec;
-
-        // Traverse the graph to find nodes still in use
-        for (ShaderGraphOutputSocket* outputSocket : getOutputSockets())
+        if (usedNodesSet.count(it->second.get()) == 0)
         {
-            // Make sure to not include connections to the graph itself.
-            ShaderOutput* upstreamPort = outputSocket->getConnection();
-            if (upstreamPort && upstreamPort->getNode() != this)
-            {
-                for (ShaderGraphEdge edge : traverseUpstream(upstreamPort))
-                {
-                    ShaderNode* node = edge.upstream->getNode();
-                    if (usedNodesSet.count(node) == 0)
-                    {
-                        usedNodesSet.insert(node);
-                        usedNodesVec.push_back(node);
-                    }
-                }
-            }
-        }
+            // Break all connections.
+            disconnect(it->second.get());
 
-        // Remove any unused nodes
-        for (auto it = _nodeMap.begin(); it != _nodeMap.end();)
+            // Erase from storage.
+            it = _nodeMap.erase(it);
+        }
+        else
         {
-            if (usedNodesSet.count(it->second.get()) == 0)
-            {
-                // Break all connections
-                disconnect(it->second.get());
-
-                // Erase from storage
-                it = _nodeMap.erase(it);
-            }
-            else
-            {
-                ++it;
-            }
+            ++it;
         }
+    }
 
-        _nodeOrder = usedNodesVec;
+    _nodeOrder = usedNodesVec;
+}
+
+void ShaderGraph::replaceOutput(ShaderOutput* oldOutput, ShaderOutput* newOutput)
+{
+    ShaderInputVec downstreamConnections = oldOutput->getConnections();
+    for (ShaderInput* downstream : downstreamConnections)
+    {
+        oldOutput->breakConnection(downstream);
+        downstream->makeConnection(newOutput);
     }
 }
 
