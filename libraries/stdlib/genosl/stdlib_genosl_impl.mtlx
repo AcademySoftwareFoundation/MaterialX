@@ -755,8 +755,8 @@
   <implementation name="IM_extract_vector2_genosl" nodedef="ND_extract_vector2" sourcecode="mx_extract({{in}}, {{index}})" target="genosl" />
   <implementation name="IM_extract_vector3_genosl" nodedef="ND_extract_vector3" sourcecode="mx_extract({{in}}, {{index}})" target="genosl" />
   <implementation name="IM_extract_vector4_genosl" nodedef="ND_extract_vector4" sourcecode="mx_extract({{in}}, {{index}})" target="genosl" />
-  <implementation name="IM_extract_matrix33_genosl" nodedef="ND_extract_matrix33" sourcecode="mx_extract({{in}}, {{index}})" target="genosl" />
-  <implementation name="IM_extract_matrix44_genosl" nodedef="ND_extract_matrix44" sourcecode="mx_extract({{in}}, {{index}})" target="genosl" />
+  <implementation name="IM_extract_matrix33_genosl" nodedef="ND_extract_matrix33" sourcecode="mx_extract_matrix33({{in}}, {{index}})" target="genosl" />
+  <implementation name="IM_extract_matrix44_genosl" nodedef="ND_extract_matrix44" sourcecode="mx_extract_matrix44({{in}}, {{index}})" target="genosl" />
 
   <!-- ======================================================================== -->
   <!-- Convolution nodes                                                        -->
