@@ -34,6 +34,11 @@ class MX_RENDER_API CgltfLoader : public GeometryLoader
     /// Load geometry from file path
     bool load(const FilePath& filePath, MeshList& meshList, bool texcoordVerticalFlip = false) override;
 
+    bool requiresTexcoordVerticalFlip() const override
+    {
+        return true;
+    }
+
   private:
     unsigned int _debugLevel;
 };
