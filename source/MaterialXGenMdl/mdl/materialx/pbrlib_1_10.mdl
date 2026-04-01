@@ -165,6 +165,7 @@ export material mx_generalized_schlick_bsdf(
     color  mxp_color90   = color(1.0),
     float  mxp_exponent  = 5.0,
     float2 mxp_roughness = float2(0.05),
+    uniform bool mxp_retroreflective = false [[ anno::unused() ]],
     float3 mxp_normal    = state::normal(),
     float3 mxp_tangent   = state::texture_tangent_u(0),
     uniform core::mx_distribution_type mxp_distribution = core::mx_distribution_type_ggx [[ anno::unused() ]],

@@ -76,8 +76,11 @@ void OslRenderer::renderOSL(const FilePath& dirPath, const string& shaderName, c
     const bool isColorClosure = _oslShaderOutputType == "closure color";
     const bool isRemappable = REMAPPABLE_TYPES.count(_oslShaderOutputType) != 0;
 
+    // Resolve to absolute path so that paths remain valid after CWD changes.
+    const FilePath absDir = dirPath.isAbsolute() ? dirPath : (FilePath::getCurrentPath() / dirPath);
+
     // Determine the shader path from output path and shader name
-    FilePath shaderFilePath(dirPath);
+    FilePath shaderFilePath(absDir);
     shaderFilePath = shaderFilePath / shaderName;
     string shaderPath = shaderFilePath.asString();
 
@@ -146,7 +149,7 @@ void OslRenderer::renderOSL(const FilePath& dirPath, const string& shaderName, c
     rootPath.setCurrentPath();
 
     // Write scene file
-    const string sceneFileName = (dirPath / (shaderName + "_scene_template.xml")).asString();
+    const string sceneFileName = (absDir / (shaderName + "_scene_template.xml")).asString();
     std::ofstream shaderFileStream;
     shaderFileStream.open(sceneFileName);
     if (shaderFileStream.is_open())
@@ -157,8 +160,8 @@ void OslRenderer::renderOSL(const FilePath& dirPath, const string& shaderName, c
 
     // Set oso file paths
     string osoPaths(_oslUtilityOSOPath);
-    osoPaths += PATH_LIST_SEPARATOR + dirPath.asString();
-    osoPaths += PATH_LIST_SEPARATOR + dirPath.getParentPath().asString();
+    osoPaths += PATH_LIST_SEPARATOR + absDir.asString();
+    osoPaths += PATH_LIST_SEPARATOR + absDir.getParentPath().asString();
 
     // Build and run render command
     string command(_oslTestRenderExecutable);
@@ -220,8 +223,11 @@ void OslRenderer::renderOSLNetwork(const FilePath& dirPath, const string& shader
         throw ExceptionRenderError("Command input arguments are missing");
     }
 
+    // Resolve to absolute path so that paths remain valid after CWD changes.
+    const FilePath absDir = dirPath.isAbsolute() ? dirPath : (FilePath::getCurrentPath() / dirPath);
+
     // Determine the shader path from output path and shader name
-    FilePath shaderFilePath(dirPath);
+    FilePath shaderFilePath(absDir);
     shaderFilePath = shaderFilePath / shaderName;
     string shaderPath = shaderFilePath.asString();
 
@@ -271,7 +277,7 @@ void OslRenderer::renderOSLNetwork(const FilePath& dirPath, const string& shader
     rootPath.setCurrentPath();
 
     // Write scene file
-    const string sceneFileName = (dirPath / (shaderName + "_scene_template_oslcmd.xml")).asString();
+    const string sceneFileName = (absDir / (shaderName + "_scene_template_oslcmd.xml")).asString();
     std::ofstream shaderFileStream;
     shaderFileStream.open(sceneFileName);
 
@@ -284,8 +290,8 @@ void OslRenderer::renderOSLNetwork(const FilePath& dirPath, const string& shader
     // Set oso file paths
     string osoPaths(_oslUtilityOSOPath);
     osoPaths += PATH_LIST_SEPARATOR + _dataLibraryOSOPath.asString();
-    osoPaths += PATH_LIST_SEPARATOR + dirPath.asString();
-    osoPaths += PATH_LIST_SEPARATOR + dirPath.getParentPath().asString();
+    osoPaths += PATH_LIST_SEPARATOR + absDir.asString();
+    osoPaths += PATH_LIST_SEPARATOR + absDir.getParentPath().asString();
 
     // Build and run render command
     string command(_oslTestRenderExecutable);

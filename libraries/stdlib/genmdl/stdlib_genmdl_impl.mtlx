@@ -740,6 +740,8 @@
   <implementation name="IM_extract_vector2_genmdl" nodedef="ND_extract_vector2" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_extract_vector2({{in}}, {{index}})" target="genmdl" />
   <implementation name="IM_extract_vector3_genmdl" nodedef="ND_extract_vector3" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_extract_vector3({{in}}, {{index}})" target="genmdl" />
   <implementation name="IM_extract_vector4_genmdl" nodedef="ND_extract_vector4" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_extract_vector4({{in}}, {{index}})" target="genmdl" />
+  <implementation name="IM_extract_matrix33_genmdl" nodedef="ND_extract_matrix33" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_extract_matrix33({{in}}, {{index}})" target="genmdl" />
+  <implementation name="IM_extract_matrix44_genmdl" nodedef="ND_extract_matrix44" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_extract_matrix44({{in}}, {{index}})" target="genmdl" />
 
   <!-- ======================================================================== -->
   <!-- Convolution nodes                                                        -->
