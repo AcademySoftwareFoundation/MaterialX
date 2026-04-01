@@ -12,6 +12,7 @@
 #include <MaterialXRender/ShaderRenderer.h>
 
 #include <MaterialXGenHw/HwConstants.h>
+
 #include <MaterialXTrace/Tracing.h>
 
 #include <iostream>
