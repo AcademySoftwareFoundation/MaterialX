@@ -1,6 +1,7 @@
+import path from 'path';
 import Module from './_build/JsMaterialXCore.js';
 import { expect } from 'chai';
-import { getMtlxStrings } from './testHelpers';
+import { getMtlxStrings } from './testHelpers.js';
 
 const TIMEOUT = 60000;
 
@@ -204,8 +205,7 @@ describe('XmlIo', () =>
         } else if (typeof process === 'object')
         {
             // We're in Node
-            const nodePath = require('path');
-            absolutePath = nodePath.resolve(includeTestPath);
+            absolutePath = path.resolve(includeTestPath);
         }
         const doc = mx.createDocument();
         await mx.readFromXmlFile(doc, 'root.mtlx', absolutePath);

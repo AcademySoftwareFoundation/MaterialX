@@ -410,17 +410,20 @@ jobs:
     - name: JavaScript CMake Build
       run: cmake --build javascript/build --target install --config Release --parallel 2
     
+    - name: Install JavaScript Dependencies
+      run: |
+        npm ci
+        npx playwright install --with-deps chromium
+      working-directory: javascript
+
     - name: JavaScript Unit Tests
       run: |
-        npm install
         npm run test
         npm run test:browser
       working-directory: javascript/MaterialXTest
 
     - name: Build Web Viewer
-      run: |
-        npm install
-        npm run build
+      run: npm run build
       working-directory: javascript/MaterialXView
 
     - name: Deploy Web Viewer
