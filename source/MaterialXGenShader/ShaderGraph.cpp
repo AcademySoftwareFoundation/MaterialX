@@ -10,6 +10,8 @@
 #include <MaterialXGenShader/ShaderGraphRefactor.h>
 #include <MaterialXGenShader/Util.h>
 
+#include <MaterialXTrace/Tracing.h>
+
 #include <iostream>
 #include <queue>
 
@@ -79,6 +81,8 @@ void ShaderGraph::createConnectedNodes(const ElementPtr& downstreamElement,
                                        ElementPtr connectingElement,
                                        GenContext& context)
 {
+    MX_TRACE_FUNCTION(Tracing::Category::ShaderGen);
+
     // Create the node if it doesn't exist.
     NodePtr upstreamNode = upstreamElement->asA<Node>();
     if (!upstreamNode)
@@ -170,6 +174,9 @@ void ShaderGraph::createConnectedNodes(const ElementPtr& downstreamElement,
 
 void ShaderGraph::addUpstreamDependencies(const Element& root, GenContext& context)
 {
+    MX_TRACE_FUNCTION(Tracing::Category::ShaderGen);
+    MX_TRACE_SCOPE(Tracing::Category::ShaderGen, root.getName().c_str());
+
     std::set<ElementPtr> processedOutputs;
 
     for (Edge edge : root.traverseGraph())
@@ -698,6 +705,9 @@ void ShaderGraph::applyInputTransforms(ConstNodePtr node, ShaderNode* shaderNode
 
 ShaderNode* ShaderGraph::createNode(const string& name, const string& uniqueId, ConstNodeDefPtr nodeDef, GenContext& context)
 {
+    MX_TRACE_FUNCTION(Tracing::Category::ShaderGen);
+    MX_TRACE_SCOPE(Tracing::Category::ShaderGen, name.c_str());
+
     if (!nodeDef)
     {
         throw ExceptionShaderGenError("Could not find a nodedef for node '" + name + "'");
