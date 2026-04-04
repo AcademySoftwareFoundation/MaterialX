@@ -14,6 +14,7 @@
 #include <MaterialXGenShader/ColorManagementSystem.h>
 #include <MaterialXGenShader/Exception.h>
 #include <MaterialXGenShader/Factory.h>
+#include <MaterialXGenShader/ShaderGraphRefactor.h>
 #include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/Syntax.h>
 
@@ -214,6 +215,21 @@ class MX_GENSHADER_API ShaderGenerator
         return _tokenSubstitutions;
     }
 
+    /// Register a shader graph refactoring pass.
+    void registerRefactor(ShaderGraphRefactorPtr refactor)
+    {
+        _refactors.push_back(refactor);
+    }
+
+    /// Return the registered graph refactoring passes.
+    const vector<ShaderGraphRefactorPtr>& getRefactors() const
+    {
+        return _refactors;
+    }
+
+    /// Apply the default GenOptions for this generator's target.
+    virtual void applyDefaultOptions(GenOptions& options) const;
+
     /// Register type definitions from the document.
     virtual void registerTypeDefs(const DocumentPtr& doc);
 
@@ -261,6 +277,7 @@ class MX_GENSHADER_API ShaderGenerator
     ColorManagementSystemPtr _colorManagementSystem;
     UnitSystemPtr _unitSystem;
     mutable StringMap _tokenSubstitutions;
+    vector<ShaderGraphRefactorPtr> _refactors;
 
     friend ShaderGraph;
 };
