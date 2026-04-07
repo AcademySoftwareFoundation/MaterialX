@@ -8,29 +8,7 @@ mdl 1.6;
 import ::state::*;
 import ::math::*;
 
-int mx_flake_hash(int seed, int i)
-{
-    return (i ^ seed) * 1075385539;
-}
-
-int mx_flake_init_seed(int3 i)
-{
-    return mx_flake_hash(mx_flake_hash(mx_flake_hash(0, i.x), i.y), i.z);
-}
-
-int mx_flake_xorshift32(int seed)
-{
-    // xorshift32 using signed int
-    seed ^= seed << 13;
-    seed ^= seed >>> 17;  // unsigned right-shift
-    seed ^= seed << 5;
-    return seed;
-}
-
-float mx_int_to_01(int x)
-{
-    return math::abs(float(x) * 4.6566e-10f);  // scale to [0, 1)
-}
+import .::noise::*;
 
 // "Fast Random Rotation Matrices" by James Arvo, Graphics Gems3 P.117
 float3 mx_rotate_flake(float3 p, float3 i)
@@ -92,43 +70,33 @@ export mx_flake__result mx_flake(
 
     float3 P = position / float3(size);
     float3 base_P = math::floor(P);
-    int3 base_P_int = int3(base_P);
 
     // flake priority in [0..1], 0: no flake, flakes with higher priority shadow flakes "below" them
     float flake_priority = 0.0;
-    int flake_seed = 0;
+    float3 flake_cell = float3(0.0);
 
-    // Examine the 3×3×3 lattice neighborhood around the sample cell. Flakes are seeded at cell
-    // centers but can overlap adjacent cells by up to flake_diameter, so neighbors may contribute
-    // at the sample position. For each neighbor we deterministically generate a seed, reject it
-    // by the density probability, compute a per-flake priority, and test the rotated, centered
-    // flake position for overlap. The highest-priority overlapping flake is selected.
+    // Examine the 3x3x3 neighborhood of cells around the sample position, selecting the
+    // highest-priority overlapping flake.
     for (int i = -1; i < 2; ++i)
     {
         for (int j = -1; j < 2; ++j)
         {
             for (int k = -1; k < 2; ++k)
             {
-                int seed = mx_flake_init_seed(base_P_int + int3(i, j, k));
+                float3 cell_pos = base_P + float3(i, j, k);
 
-                seed = mx_flake_xorshift32(seed);
-                if (mx_int_to_01(seed) > probability)
+                float3 PP = P - cell_pos - float3(0.5);
+                if (math::dot(PP, PP) >= flake_diameter * flake_diameter * 3.0)
                     continue;
 
-                seed = mx_flake_xorshift32(seed);
-                float priority = mx_int_to_01(seed);
+                if (noise::mx_cell_noise_float(cell_pos) > probability)
+                    continue;
+
+                float priority = noise::mx_cell_noise_float(float4(cell_pos.x, cell_pos.y, cell_pos.z, 3.0));
                 if (priority < flake_priority)
                     continue;
 
-                float3 flake_P = base_P + float3(i, j, k) + float3(0.5);
-                float3 PP = P - flake_P;
-                if (math::dot(PP, PP) >= flake_diameter * flake_diameter * 4.0)
-                    continue;
-
-                float3 rot;
-                seed = mx_flake_xorshift32(seed); rot.x = mx_int_to_01(seed);
-                seed = mx_flake_xorshift32(seed); rot.y = mx_int_to_01(seed);
-                seed = mx_flake_xorshift32(seed); rot.z = mx_int_to_01(seed);
+                float3 rot = noise::mx_cell_noise_float3(cell_pos);
                 PP = mx_rotate_flake(PP, rot);
 
                 if (math::abs(PP.x) <= flake_diameter &&
@@ -136,7 +104,7 @@ export mx_flake__result mx_flake(
                     math::abs(PP.z) <= flake_diameter)
                 {
                     flake_priority = priority;
-                    flake_seed = seed;
+                    flake_cell = cell_pos;
                 }
             }
         }
@@ -148,11 +116,12 @@ export mx_flake__result mx_flake(
         return flake_out;  // no flake
 
     // create a flake normal by importance sampling a microfacet distribution with given roughness
-    int seed = flake_seed;
-    float xi0 = mx_int_to_01(seed); seed = mx_flake_xorshift32(seed);
-    float xi1 = mx_int_to_01(seed); seed = mx_flake_xorshift32(seed);
-    flake_out.mxp_id = seed;
-    flake_out.mxp_rand = mx_int_to_01(seed);
+    float3 flake_noise = noise::mx_cell_noise_float3(float4(flake_cell.x, flake_cell.y, flake_cell.z, 2.0));
+    float xi0 = flake_noise.x;
+    float xi1 = flake_noise.y;
+
+    flake_out.mxp_rand = flake_noise.z;
+    flake_out.mxp_id = int(flake_out.mxp_rand * 2147483647.0);
     flake_out.mxp_presence = flake_priority;
 
     float phi = math::PI * 2.0 * xi0;

@@ -82,6 +82,8 @@ class MX_GENSHADER_API GenOptions
         libraryPrefix("libraries"),
         emitColorTransforms(true),
         elideConstantNodes(true),
+        premultipliedBsdfAdd(false),
+        distributeLayerOverBsdfMix(false),
         hwTransparency(false),
         hwSpecularEnvironmentMethod(SPECULAR_ENVIRONMENT_FIS),
         hwDirectionalAlbedoMethod(DIRECTIONAL_ALBEDO_ANALYTIC),
@@ -140,6 +142,17 @@ class MX_GENSHADER_API GenOptions
 
     /// Enable eliding constant nodes. Defaults to true.
     bool elideConstantNodes;
+
+    /// Enable replacing BSDF mix nodes with premultiplied add nodes.
+    /// This folds the mix weight into each BSDF's weight input, enabling
+    /// hardware shading languages to skip BSDF evaluation via dynamic
+    /// branching when the weight is zero. Defaults to false.
+    bool premultipliedBsdfAdd;
+
+    /// Enable distributing layer operations over mix nodes.
+    /// Transforms layer(mix(A, B, w), C) into mix(layer(A, C), layer(B, C), w)
+    /// for backends with limited layering capabilities. Defaults to false.
+    bool distributeLayerOverBsdfMix;
 
     /// Sets if transparency is needed or not for HW shaders.
     /// If a surface shader has potential of being transparent

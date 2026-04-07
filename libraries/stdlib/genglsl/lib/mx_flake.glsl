@@ -1,25 +1,4 @@
-uint mx_flake_hash(uint seed, uint i)
-{
-    return (i ^ seed) * 1075385539u; 
-}
-
-uint mx_flake_init_seed(ivec3 i)
-{
-    return mx_flake_hash(mx_flake_hash(mx_flake_hash(0, i.x), i.y), i.z);
-}
-
-uint mx_flake_xorshift32(uint seed)
-{
-    seed ^= seed << 13;
-    seed ^= seed >> 17;
-    seed ^= seed << 5;
-    return seed;
-}
-
-float mx_uint_to_01(uint x)
-{
-    return float(x) / float(0xffffffffu);  // scale to [0, 1)
-}
+#include "mx_noise.glsl"
 
 // "Fast Random Rotation Matrices" by James Arvo, Graphics Gems3 P.117
 vec3 mx_rotate_flake(vec3 p, vec3 i)
@@ -35,12 +14,12 @@ vec3 mx_rotate_flake(vec3 p, vec3 i)
 
     float s_theta = sin(theta);
     float c_theta = cos(theta);
-    float sx = vx * s_theta - vy * s_theta;
-    float sy = vx * c_theta + vy * c_theta;
+    float sx = vx * c_theta - vy * s_theta;
+    float sy = vx * s_theta + vy * c_theta;
 
     mat3 m = mat3(
-        vx * sx - s_theta, vx * sy - s_theta, vx * vz,
-        vy * sx + c_theta, vy * sy - c_theta, vy * vz,
+        vx * sx - c_theta, vx * sy - s_theta, vx * vz,
+        vy * sx + s_theta, vy * sy - c_theta, vy * vz,
         vz * sx          , vz * sy          , 1.0 - z
     );
 
@@ -77,43 +56,33 @@ void mx_flake(
 
     vec3 P = position / vec3(size);
     vec3 base_P = floor(P);
-    ivec3 base_P_int = ivec3(base_P);
 
     // flake priority in [0..1], 0: no flake, flakes with higher priority shadow flakes "below" them
     float flake_priority = 0.0;
-    uint flake_seed = 0;
+    vec3 flake_cell = vec3(0.0);
 
-    // Examine the 3×3×3 lattice neighborhood around the sample cell. Flakes are seeded at cell
-    // centers but can overlap adjacent cells by up to flake_diameter, so neighbors may contribute
-    // at the sample position. For each neighbor we deterministically generate a seed, reject it
-    // by the density probability, compute a per-flake priority, and test the rotated, centered
-    // flake position for overlap. The highest-priority overlapping flake is selected.
+    // Examine the 3x3x3 neighborhood of cells around the sample position, selecting the
+    // highest-priority overlapping flake.
     for (int i = -1; i < 2; ++i)
     {
         for (int j = -1; j < 2; ++j)
         {
             for (int k = -1; k < 2; ++k)
             {
-                uint seed = mx_flake_init_seed(base_P_int + ivec3(i, j, k));
+                vec3 cell_pos = base_P + vec3(i, j, k);
 
-                seed = mx_flake_xorshift32(seed);
-                if (mx_uint_to_01(seed) > probability)
+                vec3 PP = P - cell_pos - vec3(0.5);
+                if (dot(PP, PP) >= flake_diameter * flake_diameter * 3.0)
                     continue;
 
-                seed = mx_flake_xorshift32(seed);
-                float priority = mx_uint_to_01(seed);
+                if (mx_cell_noise_float(cell_pos) > probability)
+                    continue;
+
+                float priority = mx_cell_noise_float(vec4(cell_pos, 3.0));
                 if (priority < flake_priority)
                     continue;
 
-                vec3 flake_P = base_P + vec3(i, j, k) + vec3(0.5);
-                vec3 PP = P - flake_P;
-                if (dot(PP, PP) >= flake_diameter * flake_diameter * 4.0)
-                    continue;
-
-                vec3 rot;
-                seed = mx_flake_xorshift32(seed); rot.x = mx_uint_to_01(seed);
-                seed = mx_flake_xorshift32(seed); rot.y = mx_uint_to_01(seed);
-                seed = mx_flake_xorshift32(seed); rot.z = mx_uint_to_01(seed);
+                vec3 rot = mx_cell_noise_vec3(cell_pos);
                 PP = mx_rotate_flake(PP, rot);
 
                 if (abs(PP.x) <= flake_diameter &&
@@ -121,7 +90,7 @@ void mx_flake(
                     abs(PP.z) <= flake_diameter)
                 {
                     flake_priority = priority;
-                    flake_seed = seed;
+                    flake_cell = cell_pos;
                 }
             }
         }
@@ -138,12 +107,12 @@ void mx_flake(
     }
 
     // create a flake normal by importance sampling a microfacet distribution with given roughness
-    uint seed = flake_seed;
-    float xi0 = mx_uint_to_01(seed); seed = mx_flake_xorshift32(seed);
-    float xi1 = mx_uint_to_01(seed); seed = mx_flake_xorshift32(seed);
+    vec3 flake_noise = mx_cell_noise_vec3(vec4(flake_cell, 2.0));
+    float xi0 = flake_noise.x;
+    float xi1 = flake_noise.y;
 
-    id = int(seed);  // not ideal but MaterialX does not support unsigned integer type
-    rand = mx_uint_to_01(seed);
+    rand = flake_noise.z;
+    id = int(rand * 2147483647.0);
     presence = flake_priority;
 
     float phi = M_PI * 2.0 * xi0;

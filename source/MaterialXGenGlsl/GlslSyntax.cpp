@@ -299,9 +299,11 @@ GlslSyntax::GlslSyntax(TypeSystemPtr typeSystem) :
         Type::VDF,
         std::make_shared<AggregateTypeSyntax>(
             this,
-            "BSDF",
-            "BSDF(vec3(0.0),vec3(1.0))",
-            EMPTY_STRING));
+            "VDF",
+            "VDF(vec3(0.0),vec3(1.0))",
+            EMPTY_STRING,
+            EMPTY_STRING,
+            "struct VDF { vec3 response; vec3 throughput; };"));
 
     registerTypeSyntax(
         Type::SURFACESHADER,

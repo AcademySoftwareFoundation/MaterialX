@@ -846,6 +846,30 @@ void Viewer::createAdvancedSettings(ng::ref<Widget> parent)
         setShaderInterfaceType(interfaceType);
     });
 
+    ng::ref<ng::CheckBox> constantElisionBox = new ng::CheckBox(settingsGroup, "Constant Elision");
+    constantElisionBox->set_checked(_genContext.getOptions().elideConstantNodes);
+    constantElisionBox->set_callback([this](bool enable)
+    {
+        _genContext.getOptions().elideConstantNodes = enable;
+        reloadShaders();
+    });
+
+    ng::ref<ng::CheckBox> premultipliedBsdfAddBox = new ng::CheckBox(settingsGroup, "Premultiplied BSDF Add");
+    premultipliedBsdfAddBox->set_checked(_genContext.getOptions().premultipliedBsdfAdd);
+    premultipliedBsdfAddBox->set_callback([this](bool enable)
+    {
+        _genContext.getOptions().premultipliedBsdfAdd = enable;
+        reloadShaders();
+    });
+
+    ng::ref<ng::CheckBox> distributeLayerBox = new ng::CheckBox(settingsGroup, "Distribute Layer Over Mix");
+    distributeLayerBox->set_checked(_genContext.getOptions().distributeLayerOverBsdfMix);
+    distributeLayerBox->set_callback([this](bool enable)
+    {
+        _genContext.getOptions().distributeLayerOverBsdfMix = enable;
+        reloadShaders();
+    });
+
     ng::ref<ng::Widget> albedoGroup = new Widget(settingsGroup);
     albedoGroup->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
     new ng::Label(albedoGroup, "Albedo Method:");

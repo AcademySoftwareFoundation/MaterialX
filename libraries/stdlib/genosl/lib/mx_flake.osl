@@ -1,0 +1,129 @@
+// "Fast Random Rotation Matrices" by James Arvo, Graphics Gems3 P.117
+vector mx_rotate_flake(vector p, vector i)
+{
+    float theta = M_PI * 2.0 * i[0];
+    float phi = M_PI * 2.0 * i[1];
+    float z = i[2] * 2.0;
+
+    float r = sqrt(z);
+    float vx = sin(phi) * r;
+    float vy = cos(phi) * r;
+    float vz = sqrt(2.0 - z);
+
+    float s_theta = sin(theta);
+    float c_theta = cos(theta);
+    float sx = vx * c_theta - vy * s_theta;
+    float sy = vx * s_theta + vy * c_theta;
+
+    // Matrix-vector multiply (matching GLSL mat3 column-major layout)
+    vector result;
+    result[0] = (vx * sx - c_theta) * p[0] + (vy * sx + s_theta) * p[1] + (vz * sx) * p[2];
+    result[1] = (vx * sy - s_theta) * p[0] + (vy * sy - c_theta) * p[1] + (vz * sy) * p[2];
+    result[2] = (vx * vz) * p[0] + (vy * vz) * p[1] + (1.0 - z) * p[2];
+
+    return result;
+}
+
+// compute a flake probability for a given flake coverage density x
+float mx_flake_density_to_probability(float x)
+{
+    // constants for numerical fitted curve to observed flake noise density behavior
+    float a = -26.19771808;
+    float b = 26.39663835;
+    float c = 85.53857017;
+    float d = -102.35069432;
+    float e = -101.42634862;
+    float f = 118.45082288;
+    float xx = x * x;
+
+    return (a * xx + b * x) / (c * xx * x + d * xx + e * x + f);
+}
+
+void mx_flake(
+    float size,
+    float roughness,
+    float coverage,
+    vector position,
+    vector N,
+    vector tangent,
+    vector bitangent,
+    output int id,
+    output float rand,
+    output float presence,
+    output vector flakenormal
+)
+{
+    float probability = mx_flake_density_to_probability(clamp(coverage, 0.0, 1.0));
+    float flake_diameter = 1.5 / sqrt(3.0);
+
+    vector P = position / vector(size);
+    point base_P = point(floor(P));
+
+    // flake priority in [0..1], 0: no flake, flakes with higher priority shadow flakes "below" them
+    float flake_priority = 0.0;
+    point flake_cell = point(0);
+
+    // Examine the 3x3x3 neighborhood of cells around the sample position, selecting the
+    // highest-priority overlapping flake.
+    for (int i = -1; i < 2; ++i)
+    {
+        for (int j = -1; j < 2; ++j)
+        {
+            for (int k = -1; k < 2; ++k)
+            {
+                point cell_pos = base_P + vector(i, j, k);
+
+                vector PP = P - vector(cell_pos) - vector(0.5);
+                if (dot(PP, PP) >= flake_diameter * flake_diameter * 3.0)
+                    continue;
+
+                if ((float) cellnoise(cell_pos) > probability)
+                    continue;
+
+                float priority = (float) cellnoise(cell_pos, 3.0);
+                if (priority < flake_priority)
+                    continue;
+
+                vector rot = (vector) cellnoise(cell_pos);
+                PP = mx_rotate_flake(PP, rot);
+
+                if (abs(PP[0]) <= flake_diameter &&
+                    abs(PP[1]) <= flake_diameter &&
+                    abs(PP[2]) <= flake_diameter)
+                {
+                    flake_priority = priority;
+                    flake_cell = cell_pos;
+                }
+            }
+        }
+    }
+
+    if (flake_priority <= 0.0)
+    {
+        // no flake
+        id = 0;
+        rand = 0.0;
+        presence = 0.0;
+        flakenormal = N;
+        return;
+    }
+
+    // create a flake normal by importance sampling a microfacet distribution with given roughness
+    vector flake_noise = cellnoise(flake_cell, 2.0);
+    float xi0 = flake_noise[0];
+    float xi1 = flake_noise[1];
+
+    rand = flake_noise[2];
+    id = (int)(rand * 2147483647.0);
+    presence = flake_priority;
+
+    float phi = M_PI * 2.0 * xi0;
+    float tan_theta = roughness * roughness * sqrt(xi1) / sqrt(1.0 - xi1);  // GGX
+    float sin_theta = tan_theta / sqrt(1.0 + tan_theta * tan_theta);
+    float cos_theta = sqrt(1.0 - sin_theta * sin_theta);
+
+    flakenormal = tangent * cos(phi) * sin_theta +
+                  bitangent * sin(phi) * sin_theta +
+                  N * cos_theta;
+    flakenormal = normalize(flakenormal);
+}

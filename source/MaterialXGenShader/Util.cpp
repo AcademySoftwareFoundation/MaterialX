@@ -269,7 +269,7 @@ bool isTransparentSurface(ElementPtr element, const string& target)
     if (node)
     {
         // Handle material nodes.
-        if (node->getCategory() == SURFACE_MATERIAL_NODE_STRING)
+        if (node->getType() == MATERIAL_TYPE_STRING)
         {
             vector<NodePtr> shaderNodes = getShaderNodes(node);
             if (!shaderNodes.empty())
