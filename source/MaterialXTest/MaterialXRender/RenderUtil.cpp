@@ -43,8 +43,9 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
     if (!loadOptions(optionsFilePath, runState))
         return false;
 
-    // Start instrumentation after options are loaded, so that profiling
-    // excludes setup time and log file paths are available.
+    // Start instrumentation after options are loaded so that log file paths
+    // are available. Profiling excludes option loading, but includes the
+    // subsequent test-file collection, library loading, and generator setup.
     const std::string& target = _shaderGenerator->getTarget();
 #ifdef MATERIALX_BUILD_PERFETTO_TRACING
     TestRunTracer tracer;
