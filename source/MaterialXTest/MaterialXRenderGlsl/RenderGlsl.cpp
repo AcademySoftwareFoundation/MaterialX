@@ -238,7 +238,7 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
             // Note: mkdir will fail if the directory already exists which is ok.
             {
                 mx::ScopedTimer ioDir(&profileTimes.languageTimes.ioTime);
-                outputFilePath.createDirectory();
+                outputFilePath.createDirectory(true);
                 
                 // Use separate directory for reduced output
                 if (options.shaderInterfaceType == mx::SHADER_INTERFACE_REDUCED)
@@ -283,6 +283,7 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
 
             if (testOptions.dumpGeneratedCode)
             {
+                MX_TRACE_SCOPE(mx::Tracing::Category::Render, "DumpGeneratedCode");
                 mx::ScopedTimer dumpTimer(&profileTimes.languageTimes.ioTime);
                 std::ofstream file;
                 file.open(shaderPath + "_vs.glsl");
@@ -342,6 +343,7 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
 
                 if (testOptions.dumpUniformsAndAttributes)
                 {
+                    MX_TRACE_SCOPE(mx::Tracing::Category::Render, "DumpUniformsAndAttributes");
                     mx::ScopedTimer printTimer(&profileTimes.languageTimes.ioTime);
                     log << "* Uniform:" << std::endl;
                     program->printUniforms(log);
@@ -424,6 +426,7 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                 }
 
                 {
+                    MX_TRACE_SCOPE(mx::Tracing::Category::Render, "CaptureAndSaveImage");
                     mx::ScopedTimer ioTimer(&profileTimes.languageTimes.imageSaveTime);
                     std::string fileName = shaderPath + "_glsl.png";
                     mx::ImagePtr image = _renderer->captureImage();

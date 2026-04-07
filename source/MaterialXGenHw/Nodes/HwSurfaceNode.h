@@ -23,6 +23,16 @@ class MX_GENHW_API HwSurfaceNode : public HwImplementation
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
     virtual void emitLightLoop(const ShaderNode& node, GenContext& context, ShaderStage& stage, const string& outColor) const;
+
+  protected:
+    /// Return the name of the BSDF input on the node.
+    virtual const string& getBsdfInputName() const;
+
+    /// Return the name of the EDF input on the node.
+    virtual const string& getEdfInputName() const;
+
+    /// Return the name of the opacity input on the node.
+    virtual const string& getOpacityInputName() const;
 };
 
 MATERIALX_NAMESPACE_END

@@ -1,7 +1,7 @@
 #include "lib/mx_closure_type.glsl"
 #include "lib/mx_microfacet_specular.glsl"
 
-void mx_conductor_bsdf(ClosureData closureData, float weight, vec3 ior_n, vec3 ior_k, vec2 roughness, float thinfilm_thickness, float thinfilm_ior, vec3 N, vec3 X, int distribution, inout BSDF bsdf)
+void mx_conductor_bsdf(ClosureData closureData, float weight, vec3 ior_n, vec3 ior_k, vec2 roughness, bool retroreflective, float thinfilm_thickness, float thinfilm_ior, vec3 N, vec3 X, int distribution, inout BSDF bsdf)
 {
     bsdf.throughput = vec3(0.0);
 
@@ -13,6 +13,7 @@ void mx_conductor_bsdf(ClosureData closureData, float weight, vec3 ior_n, vec3 i
     vec3 V = closureData.V;
     vec3 L = closureData.L;
 
+    V = retroreflective ? reflect(-V, N) : V;
     N = mx_forward_facing_normal(N, V);
     float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);
 

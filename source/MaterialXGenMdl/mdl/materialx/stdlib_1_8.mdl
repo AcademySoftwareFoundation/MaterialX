@@ -80,9 +80,6 @@ export using .::stdlib_1_7 import mx_tangent_vector3;
 export using .::stdlib_1_7 import mx_bitangent_vector3;
 export using .::stdlib_1_7 import mx_texcoord_vector2;
 export using .::stdlib_1_7 import mx_texcoord_vector3;
-export using .::stdlib_1_7 import mx_geomcolor_float;
-export using .::stdlib_1_7 import mx_geomcolor_color3;
-export using .::stdlib_1_7 import mx_geomcolor_color4;
 export using .::stdlib_1_7 import mx_time_float;
 export using .::stdlib_1_7 import mx_modulo_color3;
 export using .::stdlib_1_7 import mx_modulo_color4;
@@ -455,4 +452,44 @@ export float mx_frame_float()
 	]]
 {
 	return scene::data_lookup_float("FRAME", 1.0);
+}
+
+export float mx_geomcolor_float(
+	uniform int mxp_index = int(0)
+)
+	[[
+		anno::description("Node Group: geometric")
+	]]
+{
+	float defaultValue = float(0.0);
+	return mxp_index == 0
+		? scene::data_lookup_float("GEOMCOLOR0", defaultValue)
+		: defaultValue;
+}
+
+export color mx_geomcolor_color3(
+	uniform int mxp_index = int(0)
+)
+	[[
+		anno::description("Node Group: geometric")
+	]]
+{
+	color defaultValue = color(0.0, 0.0, 0.0);
+	return mxp_index == 0
+		? scene::data_lookup_color("GEOMCOLOR0", defaultValue)
+		: defaultValue;
+}
+
+export core::color4 mx_geomcolor_color4(
+	uniform int mxp_index = int(0)
+)
+	[[
+		anno::description("Node Group: geometric")
+	]]
+{
+	float4 defaultValue = float4(0.0, 0.0, 0.0, 0.0);
+	float4 value = mxp_index == 0
+		? scene::data_lookup_float4("GEOMCOLOR0", defaultValue)
+		: defaultValue;
+	return core::mk_color4(value.x, value.y, value.z, value.w);
 }
