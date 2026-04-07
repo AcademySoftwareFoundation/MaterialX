@@ -20,6 +20,9 @@ GenContext::GenContext(ShaderGeneratorPtr sg) :
         throw ExceptionShaderGenError("GenContext must have a valid shader generator");
     }
 
+    // Apply the generator's default options for its target.
+    _sg->applyDefaultOptions(_options);
+
     // Collect and cache reserved words from the shader generator
     StringSet reservedWords;
 

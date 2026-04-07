@@ -13,6 +13,8 @@
 #include <MaterialXCore/Document.h>
 #include <MaterialXCore/Library.h>
 
+#include <MaterialXTrace/Tracing.h>
+
 MATERIALX_NAMESPACE_BEGIN
 
 ShaderNodeImplPtr CompoundNode::create(std::unique_ptr<NodeGraphPermutation> permutation)
@@ -35,6 +37,9 @@ void CompoundNode::addClassification(ShaderNode& node) const
 
 void CompoundNode::initialize(const InterfaceElement& element, GenContext& context)
 {
+    MX_TRACE_FUNCTION(Tracing::Category::ShaderGen);
+    MX_TRACE_SCOPE(Tracing::Category::ShaderGen, element.getName().c_str());
+
     ShaderNodeImpl::initialize(element, context);
 
     if (!element.isA<NodeGraph>())
@@ -70,6 +75,9 @@ void CompoundNode::createVariables(const ShaderNode&, GenContext& context, Shade
 
 void CompoundNode::emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
+    MX_TRACE_FUNCTION(Tracing::Category::ShaderGen);
+    MX_TRACE_SCOPE(Tracing::Category::ShaderGen, _functionName.c_str());
+
     DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
     {
         const ShaderGenerator& shadergen = context.getShaderGenerator();
@@ -156,6 +164,9 @@ void CompoundNode::emitFunctionDefinition(const ShaderNode& node, GenContext& co
 
 void CompoundNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
+    MX_TRACE_FUNCTION(Tracing::Category::ShaderGen);
+    MX_TRACE_SCOPE(Tracing::Category::ShaderGen, _functionName.c_str());
+
     const ShaderGenerator& shadergen = context.getShaderGenerator();
 
     DEFINE_SHADER_STAGE(stage, Stage::VERTEX)

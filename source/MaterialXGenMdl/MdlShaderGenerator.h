@@ -70,6 +70,9 @@ class MX_GENMDL_API MdlShaderGenerator : public ShaderGenerator
     /// Return a unique identifier for the target this generator is for
     const string& getTarget() const override { return TARGET; }
 
+    /// Apply the default GenOptions for MDL shader generation.
+    void applyDefaultOptions(GenOptions& options) const override;
+
     /// Generate a shader starting from the given element, translating
     /// the element and all dependencies upstream into shader code.
     ShaderPtr generate(const string& name, ElementPtr element, GenContext& context) const override;

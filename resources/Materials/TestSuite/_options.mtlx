@@ -79,7 +79,7 @@
     -->
     <input name="outputDirectory" type="string" value="" />
 
-    <!-- Enable Perfetto tracing during render tests (requires MATERIALX_BUILD_TRACING).
+    <!-- Enable Perfetto tracing during render tests (requires MATERIALX_BUILD_PERFETTO_TRACING).
          When enabled, generates .perfetto-trace files in outputDirectory.
          Default is false to avoid overhead when not profiling.
     -->
