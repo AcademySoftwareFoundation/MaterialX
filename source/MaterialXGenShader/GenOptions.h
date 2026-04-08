@@ -220,8 +220,7 @@ class MX_GENSHADER_API GenOptions
 
     /// If true, emit a #version directive at the top of the generated HW
     /// shader source. Set to false when the consuming framework manages the
-    /// directive itself (e.g. three.js's ShaderMaterial in GLSL3 mode, which
-    /// injects its own #version line). Defaults to true.
+    /// directive itself. Defaults to true.
     bool hwEmitVersionDirective;
 
     // Enables OSL conversion of surfaceshader struct to closure color.
