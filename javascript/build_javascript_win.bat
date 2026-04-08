@@ -14,17 +14,21 @@ cd %MATERIALX_LOCATION%
 cmake -S . -B javascript/build -DMATERIALX_BUILD_JS=ON -DMATERIALX_EMSDK_PATH=%EMSDK_LOCATION% -G Ninja
 cmake --build javascript/build --target install --config RelWithDebInfo --parallel 2
 if NOT ["%errorlevel%"]==["0"] pause
+@echo --------------------- Install JavaScript Dependencies ---------------------
+@echo on
+cd javascript
+call npm install
+if NOT ["%errorlevel%"]==["0"] pause
 @echo --------------------- Run JavaScript Tests ---------------------
 @echo on
-cd javascript/MaterialXTest
-call npm install
+cd MaterialXTest
+call npx playwright install chromium
 call npm run test
 call npm run test:browser
 if NOT ["%errorlevel%"]==["0"] pause
 @echo --------------------- Run Interactive Viewer ---------------------
 @echo on
-cd ../MaterialXView
-call npm install
+cd ..\MaterialXView
 call npm run build
 call npm run start
 if NOT ["%errorlevel%"]==["0"] pause

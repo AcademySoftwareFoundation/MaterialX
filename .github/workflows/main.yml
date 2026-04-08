@@ -227,7 +227,7 @@ jobs:
       run: cmake --build build --target install --config Release --parallel 2
 
     - name: CMake Unit Tests
-      run: ctest -VV --output-on-failure --build-config Release
+      run: ctest --output-on-failure --build-config Release
       working-directory: build
 
     - name: Python Tests
@@ -373,12 +373,13 @@ jobs:
         path: build/**/*.perfetto-trace
         if-no-files-found: ignore
 
-    - name: Upload Log Files
+    - name: Upload Test Logs
       uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
       if: always()
       with:
-        name: Log_files_${{ matrix.name }}
+        name: TestLog_${{ matrix.name }}
         path: build/bin/**/*.txt
+        if-no-files-found: ignore
 
   javascript:
     name: JavaScript
@@ -410,17 +411,20 @@ jobs:
     - name: JavaScript CMake Build
       run: cmake --build javascript/build --target install --config Release --parallel 2
     
+    - name: Install JavaScript Dependencies
+      run: |
+        npm ci
+        npx playwright install --with-deps chromium
+      working-directory: javascript
+
     - name: JavaScript Unit Tests
       run: |
-        npm install
         npm run test
         npm run test:browser
       working-directory: javascript/MaterialXTest
 
     - name: Build Web Viewer
-      run: |
-        npm install
-        npm run build
+      run: npm run build
       working-directory: javascript/MaterialXView
 
     - name: Deploy Web Viewer
