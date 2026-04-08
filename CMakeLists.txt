@@ -698,3 +698,8 @@ if(NOT SKBUILD)
             "${PROJECT_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}Config.cmake"
             DESTINATION "${MATERIALX_GEN_CONFIG_PATH}")
 endif()
+
+# Run pip install after all install steps
+if(MATERIALX_BUILD_PYTHON AND MATERIALX_INSTALL_PYTHON AND PYTHON_EXECUTABLE AND NOT SKBUILD)
+    install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} -m pip install . WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/python)")
+endif()
