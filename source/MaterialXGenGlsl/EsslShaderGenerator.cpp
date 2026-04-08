@@ -23,10 +23,14 @@ EsslShaderGenerator::EsslShaderGenerator(TypeSystemPtr typeSystem) :
     _syntax->registerReservedWords(reservedWords);
 }
 
-void EsslShaderGenerator::emitDirectives(GenContext&, ShaderStage& stage) const
+void EsslShaderGenerator::emitDirectives(GenContext& context, ShaderStage& stage) const
 {
-    emitLine("#version " + getVersion(), stage, false);
-    emitLineBreak(stage);
+    if (context.getOptions().hwEmitVersionDirective)
+    {
+        emitLine("#version " + getVersion(), stage, false);
+        emitLineBreak(stage);
+    }
+
     // ESSL 3.0+ is used where highp float is considered mandatory.
     // (See https://registry.khronos.org/OpenGL/specs/es/3.0/GLSL_ES_Specification_3.00.pdf)
     emitLine("precision highp float", stage);

@@ -4,8 +4,8 @@
 //
 
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { HDRLoader } from 'three/examples/jsm/loaders/HDRLoader.js';
 
 import { prepareEnvTexture, getLightRotation, findLights, registerLights, getUniformValues } from './helper.js'
 import { Group } from 'three';
@@ -36,7 +36,6 @@ export class Scene
     {
         this._scene = new THREE.Scene();
         this._scene.background = new THREE.Color(this.#_backgroundColor);
-        this._scene.background.convertSRGBToLinear();
 
         const aspectRatio = window.innerWidth / window.innerHeight;
         const cameraNearDist = 0.05;
@@ -416,7 +415,6 @@ export class Scene
             return this.#_backgroundTexture;
         }
         var color = new THREE.Color(this.#_backgroundColor);
-        color.convertSRGBToLinear();
         return color;
     }
 
@@ -964,6 +962,7 @@ export class Material
             uniforms: uniforms,
             vertexShader: vShader,
             fragmentShader: fShader,
+            glslVersion: THREE.GLSL3,
             transparent: isTransparent,
             blendEquation: THREE.AddEquation,
             blendSrc: THREE.OneMinusSrcAlphaFactor,
@@ -1526,7 +1525,7 @@ export class Viewer
         this.materials.push(new Material());
 
         this.fileLoader = new THREE.FileLoader();
-        this.hdrLoader = new RGBELoader();
+        this.hdrLoader = new HDRLoader();
     }
 
     //
@@ -1540,6 +1539,7 @@ export class Viewer
         // Initialize base document
         this.generator = this.mx.EsslShaderGenerator.create();
         this.genContext = new this.mx.GenContext(this.generator);
+        this.genContext.getOptions().hwEmitVersionDirective = false;
 
         this.document = this.mx.createDocument();
         this.stdlib = this.mx.loadStandardLibraries(this.genContext);
