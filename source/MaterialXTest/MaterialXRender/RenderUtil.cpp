@@ -32,6 +32,90 @@ ShaderRenderTester::~ShaderRenderTester()
 {
 }
 
+bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
+{
+    // per-run state objects, logger, profiler
+    TestRunState runState;
+    TestRunLogger logger;
+    TestRunProfiler profiler;
+
+    // Read options first so we can use outputDirectory for log files
+    if (!loadOptions(optionsFilePath, runState))
+        return false;
+
+    // Start instrumentation after options are loaded so that log file paths
+    // are available. Profiling excludes option loading, but includes the
+    // subsequent test-file collection, library loading, and generator setup.
+    const std::string& target = _shaderGenerator->getTarget();
+#ifdef MATERIALX_BUILD_PERFETTO_TRACING
+    TestRunTracer tracer;
+    tracer.start(target, runState.options);
+#endif
+    logger.start(target, runState.options);
+    profiler.start();
+
+    // Data search path
+    runState.searchPath = mx::getDefaultDataSearchPath();
+
+    mx::ScopedTimer ioTimer(&profiler.times().ioTime);
+    mx::FilePathVec files = collectTestFiles(runState);
+    ioTimer.endTimer();
+
+    // Load in the library dependencies once.
+    // This will be imported in each test document below.
+    ioTimer.startTimer();
+    loadDependentLibraries(runState);
+    ioTimer.endTimer();
+
+    // Create renderers and generators
+    initializeGeneratorContext(runState, logger, profiler);
+
+    // Map to replace "/" in Element path and ":" in namespaced names with "_".
+    mx::StringMap pathMap;
+    pathMap["/"] = "_";
+    pathMap[":"] = "_";
+
+    for (const mx::FilePath& filename : files)
+    {
+        DocumentInfo docInfo = loadAndValidateDocument(filename, runState, logger, profiler);
+
+        if (!docInfo.doc || !docInfo.valid)
+            continue;
+
+        for (const auto& element : docInfo.elements)
+        {
+            mx::string elementName = mx::createValidName(mx::replaceSubstrings(element->getNamePath(), pathMap));
+            runRenderer(elementName, element, *runState.context, docInfo.doc, logger.renderLog(), runState.options,
+                        profiler.times(), docInfo.imageSearchPath, docInfo.outputPath, nullptr);
+        }
+    }
+
+    // Print profiling summary on the normal path.
+    // All resource cleanup is handled by destructors.
+    profiler.printSummary(runState.options, logger.profilingLog());
+
+    return true;
+}
+
+void ShaderRenderTester::loadDependentLibraries(TestRunState& runState)
+{
+    runState.dependLib = mx::createDocument();
+
+    mx::loadLibraries({ "libraries" }, runState.searchPath, runState.dependLib);
+    for (size_t i = 0; i < runState.options.extraLibraryPaths.size(); i++)
+    {
+        const mx::FilePath& libraryPath = runState.options.extraLibraryPaths[i];
+        for (const mx::FilePath& libraryFile : libraryPath.getFilesInDirectory("mtlx"))
+        {
+            std::cout << "Extra library path: " << (libraryPath / libraryFile).asString() << std::endl;
+            mx::loadLibrary((libraryPath / libraryFile), runState.dependLib);
+        }
+    }
+
+    // Load any additional per-renderer libraries
+    loadAdditionalLibraries(runState.dependLib, runState.options);
+}
+
 // Create a list of generation options based on unit test options
 // These options will override the original generation context options.
 void ShaderRenderTester::getGenerationOptions(const GenShaderUtil::TestSuiteOptions& testOptions,
@@ -52,303 +136,6 @@ void ShaderRenderTester::getGenerationOptions(const GenShaderUtil::TestSuiteOpti
         completeOption.shaderInterfaceType = mx::SHADER_INTERFACE_COMPLETE;
         optionsList.push_back(completeOption);
     }
-}
-
-void ShaderRenderTester::printRunLog(const RenderProfileTimes &profileTimes,
-                                     const GenShaderUtil::TestSuiteOptions& options,
-                                     std::ostream& stream,
-                                     mx::DocumentPtr)
-{
-    profileTimes.print(stream);
-
-    stream << "---------------------------------------" << std::endl;
-    options.print(stream);
-}
-
-void ShaderRenderTester::loadDependentLibraries(GenShaderUtil::TestSuiteOptions options, mx::FileSearchPath searchPath, mx::DocumentPtr& dependLib)
-{
-    dependLib = mx::createDocument();
-
-    mx::loadLibraries({ "libraries" }, searchPath, dependLib);
-    for (size_t i = 0; i < options.extraLibraryPaths.size(); i++)
-    {
-        const mx::FilePath& libraryPath = options.extraLibraryPaths[i];
-        for (const mx::FilePath& libraryFile : libraryPath.getFilesInDirectory("mtlx"))
-        {
-            std::cout << "Extra library path: " << (libraryPath / libraryFile).asString() << std::endl;
-            mx::loadLibrary((libraryPath / libraryFile), dependLib);
-        }
-    }
-
-    // Load any addition per renderer libraries
-    loadAdditionalLibraries(dependLib, options);
-}
-
-bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
-{
-    // Read options first so we can use outputDirectory for log files
-    GenShaderUtil::TestSuiteOptions options;
-    if (!options.readOptions(optionsFilePath))
-    {
-        std::cerr << "Can't find options file. Skip test." << std::endl;
-        return false;
-    }
-    if (!runTest(options))
-    {
-        std::cerr << "Target: " << _shaderGenerator->getTarget() << " not set to run. Skip test." << std::endl;
-        return false;
-    }
-
-#ifdef MATERIALX_BUILD_PERFETTO_TRACING
-    // Initialize tracing with target-specific trace filename (if enabled in options)
-    std::optional<mx::Tracing::Dispatcher::ShutdownGuard> tracingGuard;
-    if (options.enableTracing)
-    {
-        mx::FilePath tracePath = options.resolveOutputPath(_shaderGenerator->getTarget() + "_render_trace.perfetto-trace");
-        mx::Tracing::Dispatcher::getInstance().setSink(
-            mx::Tracing::createPerfettoSink(tracePath.asString()));
-        // Scope guard ensures tracing is shut down on any exit path (return, exception, etc.)
-        tracingGuard.emplace();
-    }
-#endif
-
-#ifdef LOG_TO_FILE
-    mx::FilePath logPath = options.resolveOutputPath(_shaderGenerator->getTarget() + "_render_log.txt");
-    std::ofstream logfile(logPath.asString());
-    std::ostream& log(logfile);
-    mx::FilePath docValidLogPath = options.resolveOutputPath(_shaderGenerator->getTarget() + "_render_doc_validation_log.txt");
-    std::string docValidLogFilename = docValidLogPath.asString();
-    std::ofstream docValidLogFile(docValidLogFilename);
-    std::ostream& docValidLog(docValidLogFile);
-    mx::FilePath profilingLogPath = options.resolveOutputPath(_shaderGenerator->getTarget() + "_render_profiling_log.txt");
-    std::ofstream profilingLogfile(profilingLogPath.asString());
-    std::ostream& profilingLog(profilingLogfile);
-#else
-    std::ostream& log(std::cout);
-    std::string docValidLogFilename = "std::cout";
-    std::ostream& docValidLog(std::cout);
-    std::ostream& profilingLog(std::cout);
-#endif
-
-    // Profiling times
-    RenderUtil::RenderProfileTimes profileTimes;
-    // Global setup timer
-    mx::ScopedTimer totalTime(&profileTimes.totalTime);
-
-    // Add files to override the files in the test suite to be tested.
-    mx::StringSet testfileOverride;
-    for (const auto& filterFile : options.overrideFiles)
-    {
-        testfileOverride.insert(filterFile);
-    }
-
-    // Data search path
-    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
-
-    const std::string MTLX_EXTENSION("mtlx");
-    mx::ScopedTimer ioTimer(&profileTimes.ioTime);
-    mx::FilePathVec files;
-    for (const auto& root : options.renderTestPaths)
-    {
-        auto resolvedRoot = searchPath.find(root);
-        if (!resolvedRoot.exists())
-            continue;
-        if (resolvedRoot.isDirectory())
-        {
-            mx::FilePathVec testRootDirs = searchPath.find(root).getSubDirectories();
-            for (auto& dir : testRootDirs)
-            {
-                mx::FilePathVec dirFiles = dir.getFilesInDirectory(MTLX_EXTENSION);
-                files.reserve(files.size() + dirFiles.size());
-                for (auto& file: dirFiles)
-                    files.push_back(dir / file);
-            }
-        }
-        else
-        {
-            files.push_back(resolvedRoot);
-        }
-    }
-    ioTimer.endTimer();
-
-    // Load in the library dependencies once
-    // This will be imported in each test document below
-    ioTimer.startTimer();
-    mx::DocumentPtr dependLib;
-    loadDependentLibraries(options, searchPath, dependLib);
-    ioTimer.endTimer();
-
-    // Create renderers and generators
-    mx::ScopedTimer setupTime(&profileTimes.languageTimes.setupTime);
-
-    createRenderer(log);
-
-    addSkipFiles();
-
-    mx::ColorManagementSystemPtr colorManagementSystem;
-#ifdef MATERIALX_BUILD_OCIO
-    try
-    {
-        colorManagementSystem =
-            mx::OcioColorManagementSystem::createFromBuiltinConfig(
-                "ocio://studio-config-latest",
-                _shaderGenerator->getTarget());
-    }
-    catch (const std::exception& /*e*/)
-    {
-        colorManagementSystem = mx::DefaultColorManagementSystem::create(_shaderGenerator->getTarget());
-    }
-#else
-    colorManagementSystem = mx::DefaultColorManagementSystem::create(_shaderGenerator->getTarget());
-#endif
-    colorManagementSystem->loadLibrary(dependLib);
-    _shaderGenerator->setColorManagementSystem(colorManagementSystem);
-
-    // Setup Unit system and working space
-    mx::UnitSystemPtr unitSystem = mx::UnitSystem::create(_shaderGenerator->getTarget());
-    _shaderGenerator->setUnitSystem(unitSystem);
-    mx::UnitConverterRegistryPtr registry = mx::UnitConverterRegistry::create();
-    mx::UnitTypeDefPtr distanceTypeDef = dependLib->getUnitTypeDef("distance");
-    registry->addUnitConverter(distanceTypeDef, mx::LinearUnitConverter::create(distanceTypeDef));
-    mx::UnitTypeDefPtr angleTypeDef = dependLib->getUnitTypeDef("angle");
-    registry->addUnitConverter(angleTypeDef, mx::LinearUnitConverter::create(angleTypeDef));
-    _shaderGenerator->getUnitSystem()->loadLibrary(dependLib);
-    _shaderGenerator->getUnitSystem()->setUnitConverterRegistry(registry);
-
-    mx::GenContext context(_shaderGenerator);
-    context.registerSourceCodeSearchPath(searchPath);
-    context.registerSourceCodeSearchPath(searchPath.find("libraries/stdlib/genosl/include"));
-
-    // Set target unit space
-    context.getOptions().targetDistanceUnit = "meter";
-
-    // Register shader metadata defined in the libraries.
-    _shaderGenerator->registerShaderMetadata(dependLib, context);
-
-    setupTime.endTimer();
-
-    if (!options.enableDirectLighting)
-    {
-        context.getOptions().hwMaxActiveLightSources = 0;
-    }
-    registerLights(dependLib, options, context);
-
-    // Map to replace "/" in Element path and ":" in namespaced names with "_".
-    mx::StringMap pathMap;
-    pathMap["/"] = "_";
-    pathMap[":"] = "_";
-
-    mx::ScopedTimer validateTimer(&profileTimes.validateTime);
-    mx::ScopedTimer renderableSearchTimer(&profileTimes.renderableSearchTime);
-
-    mx::StringSet usedImpls;
-
-    for (const mx::FilePath& filename : files)
-    {
-        ioTimer.startTimer();
-        // Check if a file override set is used and ignore all files
-        // not part of the override set
-        if (testfileOverride.size() && testfileOverride.count(filename.getBaseName()) == 0)
-        {
-            ioTimer.endTimer();
-            continue;
-        }
-
-        if (_skipFiles.count(filename.getBaseName()) > 0)
-        {
-            ioTimer.endTimer();
-            continue;
-        }
-
-        mx::DocumentPtr doc = mx::createDocument();
-        try
-        {
-            mx::readFromXmlFile(doc, filename, searchPath);
-        }
-        catch (mx::Exception& e)
-        {
-            docValidLog << "Failed to load in file: " << filename.asString() << ". Error: " << e.what() << std::endl;
-            WARN("Failed to load in file: " + filename.asString() + "See: " + docValidLogFilename + " for details.");
-        }
-
-        // For each new file clear the implementation cache.
-        // Since the new file might contain implementations with names
-        // colliding with implementations in previous test cases.
-        context.clearNodeImplementations();
-
-        doc->setDataLibrary(dependLib);
-
-        // Register types from the document.
-        _shaderGenerator->registerTypeDefs(doc);
-
-        ioTimer.endTimer();
-
-        validateTimer.startTimer();
-        log << "MTLX Filename: " << filename.asString() << std::endl;
-
-        // Validate the test document
-        std::string validationErrors;
-        bool validDoc = doc->validate(&validationErrors);
-        if (!validDoc)
-        {
-            docValidLog << filename.asString() << std::endl;
-            docValidLog << validationErrors << std::endl;
-        }
-        validateTimer.endTimer();
-        CHECK(validDoc);
-
-        mx::FileSearchPath imageSearchPath(filename.getParentPath());
-        imageSearchPath.append(searchPath);
-
-        // Resolve file names if specified
-        if (_resolveImageFilenames)
-        {
-            mx::flattenFilenames(doc, imageSearchPath, _customFilenameResolver);
-        }
-
-        mx::FilePath outputPath = filename;
-        outputPath.removeExtension();
-        
-        // If outputDirectory is set, redirect output to that directory
-        // while preserving the material name as a subdirectory
-        if (!options.outputDirectory.isEmpty())
-        {
-            // Get just the material directory name (e.g., "standard_surface_carpaint")
-            mx::FilePath materialDir = outputPath.getBaseName();
-            outputPath = options.outputDirectory / materialDir;
-        }
-
-        renderableSearchTimer.startTimer();
-        std::vector<mx::TypedElementPtr> elements;
-        try
-        {
-            elements = mx::findRenderableElements(doc);
-        }
-        catch (mx::Exception& e)
-        {
-            docValidLog << e.what() << std::endl;
-            WARN("Shader generation error in " + filename.asString() + ": " + e.what());
-        }
-        renderableSearchTimer.endTimer();
-
-        for (const auto& element : elements)
-        {
-            mx::string elementName = mx::createValidName(mx::replaceSubstrings(element->getNamePath(), pathMap));
-            runRenderer(elementName, element, context, doc, log, options, profileTimes, imageSearchPath, outputPath, nullptr);
-        }
-    }
-
-    // Dump out profiling information
-    totalTime.endTimer();
-    printRunLog(profileTimes, options, profilingLog, dependLib);
-
-    // Print effective output directory for easy access (clickable in terminals)
-    if (!options.outputDirectory.isEmpty())
-    {
-        std::cout << std::endl << "Test artifacts written to: " << options.outputDirectory.asString() << std::endl;
-    }
-
-    return true;
 }
 
 void ShaderRenderTester::addAdditionalTestStreams(mx::MeshPtr mesh)
@@ -568,5 +355,302 @@ void ShaderRenderTester::addAdditionalTestStreams(mx::MeshPtr mesh)
         }
     }
 }
+
+bool ShaderRenderTester::loadOptions(const mx::FilePath& optionsFilePath, TestRunState& runState)
+{
+    // Read options first so we can use outputDirectory for log files
+    runState.options = GenShaderUtil::TestSuiteOptions();
+    if (!runState.options.readOptions(optionsFilePath))
+    {
+        std::cerr << "Can't find options file. Skip test." << std::endl;
+        return false;
+    }
+    if (!runTest(runState.options))
+    {
+        std::cerr << "Target: " << _shaderGenerator->getTarget() << " not set to run. Skip test." << std::endl;
+        return false;
+    }
+    return true;
+}
+
+mx::FilePathVec ShaderRenderTester::collectTestFiles(const TestRunState& runState)
+{
+    const std::string MTLX_EXTENSION("mtlx");
+
+    // Add files to override the files in the test suite to be tested.
+    mx::StringSet testfileOverride;
+    for (const auto& filterFile : runState.options.overrideFiles)
+    {
+        testfileOverride.insert(filterFile);
+    }
+
+    mx::FilePathVec files;
+    for (const auto& root : runState.options.renderTestPaths)
+    {
+        auto resolvedRoot = runState.searchPath.find(root);
+        if (!resolvedRoot.exists())
+            continue;
+        if (resolvedRoot.isDirectory())
+        {
+            mx::FilePathVec testRootDirs = resolvedRoot.getSubDirectories();
+            for (auto& dir : testRootDirs)
+            {
+                mx::FilePathVec dirFiles = dir.getFilesInDirectory(MTLX_EXTENSION);
+                files.reserve(files.size() + dirFiles.size());
+                for (auto& file : dirFiles)
+                    files.push_back(dir / file);
+            }
+        }
+        else
+        {
+            files.push_back(resolvedRoot);
+        }
+    }
+
+    if (!testfileOverride.empty())
+    {
+        mx::FilePathVec filtered;
+        for (const auto& f : files)
+        {
+            if (testfileOverride.count(f.getBaseName()))
+                filtered.push_back(f);
+        }
+        return filtered;
+    }
+
+    return files;
+}
+
+void ShaderRenderTester::initializeGeneratorContext(TestRunState& runState, TestRunLogger& logger,
+                                                    TestRunProfiler& profiler)
+{
+    mx::ScopedTimer setupTime(&profiler.times().languageTimes.setupTime);
+
+    createRenderer(logger.renderLog());
+
+    addSkipFiles();
+
+    mx::ColorManagementSystemPtr colorManagementSystem;
+#ifdef MATERIALX_BUILD_OCIO
+    try
+    {
+        colorManagementSystem =
+            mx::OcioColorManagementSystem::createFromBuiltinConfig(
+                "ocio://studio-config-latest",
+                _shaderGenerator->getTarget());
+    }
+    catch (const std::exception& /*e*/)
+    {
+        colorManagementSystem = mx::DefaultColorManagementSystem::create(_shaderGenerator->getTarget());
+    }
+#else
+    colorManagementSystem = mx::DefaultColorManagementSystem::create(_shaderGenerator->getTarget());
+#endif
+    colorManagementSystem->loadLibrary(runState.dependLib);
+    _shaderGenerator->setColorManagementSystem(colorManagementSystem);
+
+    // Setup Unit system and working space
+    mx::UnitSystemPtr unitSystem = mx::UnitSystem::create(_shaderGenerator->getTarget());
+    _shaderGenerator->setUnitSystem(unitSystem);
+    mx::UnitConverterRegistryPtr registry = mx::UnitConverterRegistry::create();
+    mx::UnitTypeDefPtr distanceTypeDef = runState.dependLib->getUnitTypeDef("distance");
+    registry->addUnitConverter(distanceTypeDef, mx::LinearUnitConverter::create(distanceTypeDef));
+    mx::UnitTypeDefPtr angleTypeDef = runState.dependLib->getUnitTypeDef("angle");
+    registry->addUnitConverter(angleTypeDef, mx::LinearUnitConverter::create(angleTypeDef));
+    _shaderGenerator->getUnitSystem()->loadLibrary(runState.dependLib);
+    _shaderGenerator->getUnitSystem()->setUnitConverterRegistry(registry);
+
+    runState.context = std::make_unique<mx::GenContext>(_shaderGenerator);
+    runState.context->registerSourceCodeSearchPath(runState.searchPath);
+    runState.context->registerSourceCodeSearchPath(runState.searchPath.find("libraries/stdlib/genosl/include"));
+
+    // Set target unit space
+    runState.context->getOptions().targetDistanceUnit = "meter";
+
+    // Register shader metadata defined in the libraries.
+    _shaderGenerator->registerShaderMetadata(runState.dependLib, *runState.context);
+
+    setupTime.endTimer();
+
+    if (!runState.options.enableDirectLighting)
+    {
+        runState.context->getOptions().hwMaxActiveLightSources = 0;
+    }
+    registerLights(runState.dependLib, runState.options, *runState.context);
+}
+
+DocumentInfo ShaderRenderTester::loadAndValidateDocument(const mx::FilePath& filename,
+                                                         TestRunState& runState,
+                                                         TestRunLogger& logger,
+                                                         TestRunProfiler& profiler)
+{
+    DocumentInfo info;
+
+    mx::ScopedTimer ioTimer(&profiler.times().ioTime);
+
+    if (_skipFiles.count(filename.getBaseName()) > 0)
+        return info;
+
+    info.doc = mx::createDocument();
+    try
+    {
+        mx::readFromXmlFile(info.doc, filename, runState.searchPath);
+    }
+    catch (mx::Exception& e)
+    {
+        logger.validationLog() << "Failed to load in file: " << filename.asString() << ". Error: " << e.what() << std::endl;
+        FAIL_CHECK("Failed to load in file: " + filename.asString() + ". See: " + logger.validationLogFilename() + " for details.");
+        return info;
+    }
+
+    // For each new file clear the implementation cache.
+    // Since the new file might contain implementations with names
+    // colliding with implementations in previous test cases.
+    runState.context->clearNodeImplementations();
+
+    info.doc->setDataLibrary(runState.dependLib);
+
+    // Register types from the document.
+    _shaderGenerator->registerTypeDefs(info.doc);
+
+    ioTimer.endTimer();
+
+    mx::ScopedTimer validateTimer(&profiler.times().validateTime);
+    logger.renderLog() << "MTLX Filename: " << filename.asString() << std::endl;
+
+    // Validate the test document
+    std::string validationErrors;
+    info.valid = info.doc->validate(&validationErrors);
+    if (!info.valid)
+    {
+        logger.validationLog() << filename.asString() << std::endl;
+        logger.validationLog() << validationErrors << std::endl;
+    }
+    validateTimer.endTimer();
+    CHECK(info.valid);
+
+    info.imageSearchPath = mx::FileSearchPath(filename.getParentPath());
+    info.imageSearchPath.append(runState.searchPath);
+
+    // Resolve file names if specified
+    if (_resolveImageFilenames)
+    {
+        mx::flattenFilenames(info.doc, info.imageSearchPath, _customFilenameResolver);
+    }
+
+    info.outputPath = filename;
+    info.outputPath.removeExtension();
+
+    // If outputDirectory is set, redirect output to that directory
+    // while preserving the material name as a subdirectory
+    if (!runState.options.outputDirectory.isEmpty())
+    {
+        // Get just the material directory name (e.g., "standard_surface_carpaint")
+        mx::FilePath materialDir = info.outputPath.getBaseName();
+        info.outputPath = runState.options.outputDirectory / materialDir;
+    }
+
+    mx::ScopedTimer renderableSearchTimer(&profiler.times().renderableSearchTime);
+    try
+    {
+        info.elements = mx::findRenderableElements(info.doc);
+    }
+    catch (mx::Exception& e)
+    {
+        logger.validationLog() << e.what() << std::endl;
+        WARN("Shader generation error in " + filename.asString() + ": " + e.what());
+    }
+    renderableSearchTimer.endTimer();
+
+    return info;
+}
+
+// ---------------------------------------------------------------------------
+// TestRunLogger
+// ---------------------------------------------------------------------------
+
+void TestRunLogger::start(const std::string& target, const GenShaderUtil::TestSuiteOptions& options)
+{
+#ifdef LOG_TO_FILE
+    mx::FilePath logPath = options.resolveOutputPath(target + "_render_log.txt");
+    _renderLog = std::make_unique<std::ofstream>(logPath.asString());
+
+    mx::FilePath docValidLogPath = options.resolveOutputPath(target + "_render_doc_validation_log.txt");
+    _validationLogFilename = docValidLogPath.asString();
+    _validationLog = std::make_unique<std::ofstream>(_validationLogFilename);
+
+    mx::FilePath profilingLogPath = options.resolveOutputPath(target + "_render_profiling_log.txt");
+    _profilingLog = std::make_unique<std::ofstream>(profilingLogPath.asString());
+#else
+    _renderLog.reset();
+    _validationLog.reset();
+    _profilingLog.reset();
+    _validationLogFilename = "std::cout";
+#endif
+}
+
+TestRunLogger::~TestRunLogger()
+{
+    _renderLog.reset();
+    _validationLog.reset();
+    _profilingLog.reset();
+}
+
+// ---------------------------------------------------------------------------
+// TestRunProfiler
+// ---------------------------------------------------------------------------
+
+void TestRunProfiler::start()
+{
+    _profileTimes = RenderProfileTimes();
+    _totalTimer = std::make_unique<mx::ScopedTimer>(&_profileTimes.totalTime);
+}
+
+void TestRunProfiler::printSummary(const GenShaderUtil::TestSuiteOptions& options,
+                                   std::ostream& profilingLog)
+{
+    _totalTimer.reset();
+    _profileTimes.print(profilingLog);
+    profilingLog << "---------------------------------------" << std::endl;
+    options.print(profilingLog);
+
+    // Print effective output directory for easy access (clickable in terminals)
+    if (!options.outputDirectory.isEmpty())
+    {
+        std::cout << std::endl << "Test artifacts written to: " << options.outputDirectory.asString() << std::endl;
+    }
+}
+
+// ---------------------------------------------------------------------------
+// TestRunTracer
+// ---------------------------------------------------------------------------
+
+#ifdef MATERIALX_BUILD_PERFETTO_TRACING
+
+struct TestRunTracer::State
+{
+    std::optional<mx::Tracing::Dispatcher::ShutdownGuard> guard;
+};
+
+void TestRunTracer::start(const std::string& target, const GenShaderUtil::TestSuiteOptions& options)
+{
+    _state = std::make_unique<State>();
+    // Initialize tracing with target-specific trace filename (if enabled in options)
+    if (options.enableTracing)
+    {
+        mx::FilePath tracePath = options.resolveOutputPath(target + "_render_trace.perfetto-trace");
+        mx::Tracing::Dispatcher::getInstance().setSink(
+            mx::Tracing::createPerfettoSink(tracePath.asString()));
+        // Scope guard ensures tracing is shut down on any exit path (return, exception, etc.)
+        _state->guard.emplace();
+    }
+}
+
+TestRunTracer::~TestRunTracer()
+{
+    _state.reset();
+}
+
+#endif // MATERIALX_BUILD_PERFETTO_TRACING
 
 } // namespace RenderUtil
