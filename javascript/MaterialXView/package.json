@@ -10,8 +10,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "fflate": "^0.8.2",
     "lil-gui": "^0.19.2",
-    "three": "^0.152.2"
+    "three": "^0.183.2"
   },
   "devDependencies": {
     "copy-webpack-plugin": "^14.0.0",
