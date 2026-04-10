@@ -52,6 +52,5 @@ EMSCRIPTEN_BINDINGS(GenOptions)
         .property("hwWriteAlbedoTable", &mx::GenOptions::hwWriteAlbedoTable)
         .property("hwWriteEnvPrefilter", &mx::GenOptions::hwWriteEnvPrefilter)
         .property("hwImplicitBitangents", &mx::GenOptions::hwImplicitBitangents)
-        .property("hwEmitVersionDirective", &mx::GenOptions::hwEmitVersionDirective)
         ;
 }

@@ -24,13 +24,10 @@ VkShaderGenerator::VkShaderGenerator(TypeSystemPtr typeSystem) :
     _resourceBindingCtx = std::make_shared<MaterialX::VkResourceBindingContext>(0);
 }
 
-void VkShaderGenerator::emitDirectives(GenContext& context, ShaderStage& stage) const
+void VkShaderGenerator::emitDirectives(GenContext&, ShaderStage& stage) const
 {
-    if (context.getOptions().hwEmitVersionDirective)
-    {
-        emitLine("#version " + getVersion(), stage, false);
-        emitLineBreak(stage);
-    }
+    emitLine("#version " + getVersion(), stage, false);
+    emitLineBreak(stage);
 }
 
 void VkShaderGenerator::emitInputs(GenContext& context, ShaderStage& stage) const

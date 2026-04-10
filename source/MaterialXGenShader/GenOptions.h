@@ -98,7 +98,6 @@ class MX_GENSHADER_API GenOptions
         hwWriteAlbedoTable(false),
         hwWriteEnvPrefilter(false),
         hwImplicitBitangents(true),
-        hwEmitVersionDirective(true),
         oslImplicitSurfaceShaderConversion(true),
         oslConnectCiWrapper(false)
     {
@@ -217,11 +216,6 @@ class MX_GENSHADER_API GenOptions
     /// Calculate fallback bitangents from existing normals and tangents
     /// inside the bitangent node.
     bool hwImplicitBitangents;
-
-    /// If true, emit a #version directive at the top of the generated HW
-    /// shader source. Set to false when the consuming framework manages the
-    /// directive itself. Defaults to true.
-    bool hwEmitVersionDirective;
 
     // Enables OSL conversion of surfaceshader struct to closure color.
     // Defaults to true.

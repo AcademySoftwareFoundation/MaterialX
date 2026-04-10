@@ -243,13 +243,10 @@ void GlslShaderGenerator::emitTransmissionRender(GenContext& context, ShaderStag
     emitLineBreak(stage);
 }
 
-void GlslShaderGenerator::emitDirectives(GenContext& context, ShaderStage& stage) const
+void GlslShaderGenerator::emitDirectives(GenContext&, ShaderStage& stage) const
 {
-    if (context.getOptions().hwEmitVersionDirective)
-    {
-        emitLine("#version " + getVersion(), stage, false);
-        emitLineBreak(stage);
-    }
+    emitLine("#version " + getVersion(), stage, false);
+    emitLineBreak(stage);
 }
 
 void GlslShaderGenerator::emitConstants(GenContext& context, ShaderStage& stage) const

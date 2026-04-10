@@ -935,9 +935,10 @@ export class Material
 
         var startUniformUpdate = performance.now();
 
-        // Get shaders and uniform values
-        let vShader = shader.getSourceCode("vertex");
-        let fShader = shader.getSourceCode("pixel");
+        // Get shaders and uniform values, removing version directives
+        // that are already managed by the Three.js runtime.
+        let vShader = shader.getSourceCode("vertex").replace(/^#version\s+.*\n/, '');
+        let fShader = shader.getSourceCode("pixel").replace(/^#version\s+.*\n/, '');
 
         let theScene = viewer.getScene();
         let flipV = theScene.getFlipGeometryV();
@@ -1539,7 +1540,6 @@ export class Viewer
         // Initialize base document
         this.generator = this.mx.EsslShaderGenerator.create();
         this.genContext = new this.mx.GenContext(this.generator);
-        this.genContext.getOptions().hwEmitVersionDirective = false;
 
         this.document = this.mx.createDocument();
         this.stdlib = this.mx.loadStandardLibraries(this.genContext);
