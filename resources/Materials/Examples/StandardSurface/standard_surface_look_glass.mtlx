@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
 <materialx version="1.39" xmlns:xi="http://www.w3.org/2001/XInclude">
-  <xi:include href="standard_surface_brass_tiled.mtlx" />
+  <xi:include href="standard_surface_glass.mtlx" />
   <xi:include href="standard_surface_greysphere_calibration.mtlx" />
   <xi:include href="standard_surface_greysphere.mtlx" />
   <look name="Brass_Look">
-    <materialassign name="preview" geom="Preview_Mesh" material="Tiled_Brass" />
+    <materialassign name="preview" geom="Preview_Mesh" material="Glass" />
     <materialassign name="calibration" geom="Calibration_Mesh" material="Greysphere_Calibration" />
-    <materialassign name="usdpreview" geom="material_surface" material="Tiled_Brass" />
+    <materialassign name="usdpreview" geom="material_surface" material="Glass" />
     <materialassign name="usddefault" geom="base,core,sss_bars" material="Greysphere" />
   </look>
 </materialx>
