@@ -97,6 +97,7 @@ function init()
     // Set up renderer
     renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
     renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.debug.checkShaderErrors = false;
 
     window.addEventListener('resize', onWindowResize);
