@@ -102,6 +102,12 @@ class Viewer : public ng::Screen
         _genContext.getOptions().hwSpecularEnvironmentMethod = method;
     }
 
+    // Set the method for transmission rendering.
+    void setTransmissionRenderMethod(mx::HwTransmissionRenderMethod method)
+    {
+        _genContext.getOptions().hwTransmissionRenderMethod = method;
+    }
+
     // Set the number of environment samples.
     void setEnvSampleCount(int count)
     {
