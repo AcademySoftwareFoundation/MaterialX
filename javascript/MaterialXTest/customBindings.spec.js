@@ -120,7 +120,7 @@ describe('Custom Bindings', () =>
         await mx.readFromXmlFile(doc, filename, examplesPath);
         const sourceUris = doc.getReferencedSourceUris();
         expect(sourceUris).to.be.instanceof(Array);
-        expect(sourceUris.length).to.equal(3);
+        expect(sourceUris.length).to.equal(4);
         expect(sourceUris[0]).to.be.a('string');
         expect(sourceUris.includes('standard_surface_brass_tiled.mtlx')).to.be.true;
         doc.delete();
