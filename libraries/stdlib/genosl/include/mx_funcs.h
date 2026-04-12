@@ -132,14 +132,14 @@ float mx_extract(vector4 in, int index)
     else return in.w;
 }
 
-vector mx_extract(matrix33 in, int index)
+vector mx_extract_matrix33(matrix in, int index)
 {
-    if (index == 0) return vector(in.m[0][0], in.m[0][1], in.m[0][2]);
-    else if (index == 1) return vector(in.m[1][0], in.m[1][1], in.m[1][2]);
-    else return vector(in.m[2][0], in.m[2][1], in.m[2][2]);
+    if (index == 0) return vector(in[0][0], in[0][1], in[0][2]);
+    else if (index == 1) return vector(in[1][0], in[1][1], in[1][2]);
+    else return vector(in[2][0], in[2][1], in[2][2]);
 }
 
-vector4 mx_extract(matrix in, int index)
+vector4 mx_extract_matrix44(matrix in, int index)
 {
     if (index == 0) return vector4(in[0][0], in[0][1], in[0][2], in[0][3]);
     else if (index == 1) return vector4(in[1][0], in[1][1], in[1][2], in[1][3]);

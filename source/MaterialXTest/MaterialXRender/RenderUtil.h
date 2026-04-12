@@ -13,6 +13,10 @@
 #include <MaterialXRender/Timer.h>
 #include <MaterialXRender/Util.h>
 
+#include <fstream>
+#include <iostream>
+#include <memory>
+
 #define LOG_TO_FILE
 
 namespace mx = MaterialX;
@@ -84,6 +88,79 @@ class RenderProfileTimes
     unsigned int elementsTested = 0;
 };
 
+// Result of loading and validating a single .mtlx test document.
+struct DocumentInfo
+{
+    mx::DocumentPtr doc;
+    mx::FileSearchPath imageSearchPath;
+    mx::FilePath outputPath;
+    std::vector<mx::TypedElementPtr> elements;
+    bool valid = false;
+};
+
+// Manages log file streams for a test run.
+// When LOG_TO_FILE is defined, log output goes to per-target files;
+// otherwise it falls back to std::cout.
+class TestRunLogger
+{
+  public:
+    ~TestRunLogger();
+
+    void start(const std::string& target, const GenShaderUtil::TestSuiteOptions& options);
+
+    std::ostream& renderLog() { return _renderLog ? *_renderLog : std::cout; }
+    std::ostream& validationLog() { return _validationLog ? *_validationLog : std::cout; }
+    std::ostream& profilingLog() { return _profilingLog ? *_profilingLog : std::cout; }
+    const std::string& validationLogFilename() const { return _validationLogFilename; }
+
+  private:
+    std::unique_ptr<std::ofstream> _renderLog;
+    std::unique_ptr<std::ofstream> _validationLog;
+    std::unique_ptr<std::ofstream> _profilingLog;
+    std::string _validationLogFilename;
+};
+
+// Manages profiling timers and summary output for a test run.
+class TestRunProfiler
+{
+  public:
+    ~TestRunProfiler() { _totalTimer.reset(); }
+
+    void start();
+    void printSummary(const GenShaderUtil::TestSuiteOptions& options,
+                      std::ostream& profilingLog);
+
+    RenderProfileTimes& times() { return _profileTimes; }
+
+  private:
+    RenderProfileTimes _profileTimes;
+    std::unique_ptr<mx::ScopedTimer> _totalTimer;
+};
+
+#ifdef MATERIALX_BUILD_PERFETTO_TRACING
+// Manages Perfetto tracing for a test run.
+class TestRunTracer
+{
+  public:
+    ~TestRunTracer();
+
+    void start(const std::string& target, const GenShaderUtil::TestSuiteOptions& options);
+
+  private:
+    struct State;
+    std::unique_ptr<State> _state;
+};
+#endif
+
+// Per-run state populated during validate()
+struct TestRunState
+{
+    GenShaderUtil::TestSuiteOptions options;
+    mx::FileSearchPath searchPath;
+    mx::DocumentPtr dependLib;
+    std::unique_ptr<mx::GenContext> context;
+};
+
 // Base class used for performing compilation and render tests for a given
 // shading language and target.
 //
@@ -110,8 +187,7 @@ class ShaderRenderTester
 #endif
 
     // Load dependencies
-    void loadDependentLibraries(GenShaderUtil::TestSuiteOptions options, mx::FileSearchPath searchPath,
-                             mx::DocumentPtr& dependLib);
+    void loadDependentLibraries(TestRunState& runState);
 
     // Load any additional libraries required by the generator
     virtual void loadAdditionalLibraries(mx::DocumentPtr /*dependLib*/,
@@ -154,18 +230,25 @@ class ShaderRenderTester
                               const mx::GenOptions& originalOptions,
                               std::vector<mx::GenOptions>& optionsList);
 
-    // Print execution summary
-    void printRunLog(const RenderProfileTimes &profileTimes,
-                     const GenShaderUtil::TestSuiteOptions& options,
-                     std::ostream& stream,
-                     mx::DocumentPtr dependLib);
-
     // If these streams don't exist add them for testing purposes
     void addAdditionalTestStreams(mx::MeshPtr mesh);
 
     // Add any paths to explicitly skip here
     virtual void addSkipFiles() {}
 
+    // Read test suite options and check if this target should run.
+    bool loadOptions(const mx::FilePath& optionsFilePath, TestRunState& runState);
+
+    // Gather .mtlx test files, applying any override filters.
+    mx::FilePathVec collectTestFiles(const TestRunState& runState);
+
+    // Set up the renderer, color management, unit system, and generation context.
+    void initializeGeneratorContext(TestRunState& runState, TestRunLogger& logger, TestRunProfiler& profiler);
+    
+    // Load a single .mtlx document, validate it, and find renderable elements.
+    DocumentInfo loadAndValidateDocument(const mx::FilePath& filename, TestRunState& runState,
+                                         TestRunLogger& logger, TestRunProfiler& profiler);
+    
     // Generator to use
     mx::ShaderGeneratorPtr _shaderGenerator;
     // Whether to resolve image file name references before code generation

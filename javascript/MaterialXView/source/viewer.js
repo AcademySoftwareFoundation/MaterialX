@@ -4,8 +4,8 @@
 //
 
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { HDRLoader } from 'three/examples/jsm/loaders/HDRLoader.js';
 
 import { prepareEnvTexture, getLightRotation, findLights, registerLights, getUniformValues } from './helper.js'
 import { Group } from 'three';
@@ -36,7 +36,6 @@ export class Scene
     {
         this._scene = new THREE.Scene();
         this._scene.background = new THREE.Color(this.#_backgroundColor);
-        this._scene.background.convertSRGBToLinear();
 
         const aspectRatio = window.innerWidth / window.innerHeight;
         const cameraNearDist = 0.05;
@@ -416,7 +415,6 @@ export class Scene
             return this.#_backgroundTexture;
         }
         var color = new THREE.Color(this.#_backgroundColor);
-        color.convertSRGBToLinear();
         return color;
     }
 
@@ -937,9 +935,10 @@ export class Material
 
         var startUniformUpdate = performance.now();
 
-        // Get shaders and uniform values
-        let vShader = shader.getSourceCode("vertex");
-        let fShader = shader.getSourceCode("pixel");
+        // Get shaders and uniform values, removing version directives
+        // that are already managed by the Three.js runtime.
+        let vShader = shader.getSourceCode("vertex").replace(/^#version\s+.*\n/, '');
+        let fShader = shader.getSourceCode("pixel").replace(/^#version\s+.*\n/, '');
 
         let theScene = viewer.getScene();
         let flipV = theScene.getFlipGeometryV();
@@ -964,6 +963,7 @@ export class Material
             uniforms: uniforms,
             vertexShader: vShader,
             fragmentShader: fShader,
+            glslVersion: THREE.GLSL3,
             transparent: isTransparent,
             blendEquation: THREE.AddEquation,
             blendSrc: THREE.OneMinusSrcAlphaFactor,
@@ -1526,7 +1526,7 @@ export class Viewer
         this.materials.push(new Material());
 
         this.fileLoader = new THREE.FileLoader();
-        this.hdrLoader = new RGBELoader();
+        this.hdrLoader = new HDRLoader();
     }
 
     //

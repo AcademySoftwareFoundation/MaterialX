@@ -176,6 +176,12 @@
   <implementation name="IM_worleynoise3d_vector2_genosl" nodedef="ND_worleynoise3d_vector2" file="mx_worleynoise3d_vector2.osl" function="mx_worleynoise3d_vector2" target="genosl" />
   <implementation name="IM_worleynoise3d_vector3_genosl" nodedef="ND_worleynoise3d_vector3" file="mx_worleynoise3d_vector3.osl" function="mx_worleynoise3d_vector3" target="genosl" />
 
+  <!-- <flake2d> -->
+  <implementation name="IM_flake2d_genosl" nodedef="ND_flake2d" file="mx_flake2d.osl" function="mx_flake2d" target="genosl" />
+
+  <!-- <flake3d> -->
+  <implementation name="IM_flake3d_genosl" nodedef="ND_flake3d" file="mx_flake3d.osl" function="mx_flake3d" target="genosl" />
+
   <!-- ======================================================================== -->
   <!-- Geometric nodes                                                          -->
   <!-- ======================================================================== -->
@@ -749,8 +755,8 @@
   <implementation name="IM_extract_vector2_genosl" nodedef="ND_extract_vector2" sourcecode="mx_extract({{in}}, {{index}})" target="genosl" />
   <implementation name="IM_extract_vector3_genosl" nodedef="ND_extract_vector3" sourcecode="mx_extract({{in}}, {{index}})" target="genosl" />
   <implementation name="IM_extract_vector4_genosl" nodedef="ND_extract_vector4" sourcecode="mx_extract({{in}}, {{index}})" target="genosl" />
-  <implementation name="IM_extract_matrix33_genosl" nodedef="ND_extract_matrix33" sourcecode="mx_extract({{in}}, {{index}})" target="genosl" />
-  <implementation name="IM_extract_matrix44_genosl" nodedef="ND_extract_matrix44" sourcecode="mx_extract({{in}}, {{index}})" target="genosl" />
+  <implementation name="IM_extract_matrix33_genosl" nodedef="ND_extract_matrix33" sourcecode="mx_extract_matrix33({{in}}, {{index}})" target="genosl" />
+  <implementation name="IM_extract_matrix44_genosl" nodedef="ND_extract_matrix44" sourcecode="mx_extract_matrix44({{in}}, {{index}})" target="genosl" />
 
   <!-- ======================================================================== -->
   <!-- Convolution nodes                                                        -->
