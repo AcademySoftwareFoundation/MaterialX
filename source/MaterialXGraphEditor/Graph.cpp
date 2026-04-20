@@ -3324,35 +3324,54 @@ void Graph::propertyEditor()
         }
         else if (_currUiNode->getInput())
         {
+            mx::InputPtr currUINodeInput = _currUiNode->getInput();
+
             if (temp != original)
             {
-                std::string name = _currUiNode->getInput()->getParent()->createValidChildName(temp);
-                std::vector<UiNodePtr> downstreamNodes = _currUiNode->getOutputConnections();
-                for (UiNodePtr uiNode : downstreamNodes)
+                std::string name = currUINodeInput->getParent()->createValidChildName(temp);
+
+                for (UiNodePtr uiNode : _currUiNode->getOutputConnections())
                 {
+                    // Is not an input port
                     if (uiNode->getInput() == nullptr)
                     {
+                        // Is a node
                         if (uiNode->getNode())
                         {
                             for (mx::InputPtr input : uiNode->getNode()->getActiveInputs())
                             {
-                                if (input->getInterfaceInput() == _currUiNode->getInput())
+                                if (input->getInterfaceInput() == currUINodeInput)
                                 {
-                                    _currUiNode->getInput()->setName(name);
-                                    mx::ValuePtr val = _currUiNode->getInput()->getValue();
+                                    currUINodeInput->setName(name);
                                     input->setConnectedInterfaceName(name);
-                                    mx::InputPtr pt = input->getInterfaceInput();
+                                }
+                            }
+                        }
+                        // Is a node graph
+                        else if (uiNode->getNodeGraph())
+                        {
+                            for (mx::InputPtr input : uiNode->getNodeGraph()->getActiveInputs())
+                            {
+                                if (input->getInterfaceName() == currUINodeInput->getName())
+                                {
+                                    currUINodeInput->setName(name);
+                                    input->setConnectedInterfaceName(name);
                                 }
                             }
                         }
                         else
                         {
-                            uiNode->getOutput()->setConnectedNode(_currUiNode->getNode());
+                            // Is an output port
+                            mx::OutputPtr outputPtr = uiNode->getOutput();
+                            if (outputPtr)
+                            {
+                                outputPtr->setConnectedNode(_currUiNode->getNode());
+                            }
                         }
                     }
                 }
 
-                _currUiNode->getInput()->setName(name);
+                currUINodeInput->setName(name);
                 _currUiNode->setName(name);
             }
         }
