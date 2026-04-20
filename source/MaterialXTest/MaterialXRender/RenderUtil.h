@@ -53,6 +53,19 @@ class LanguageProfileTimes
         output << "\tI/O: " << ioTime << " seconds" << std::endl;
         output << "\tImage save: " << imageSaveTime << " seconds" << std::endl;
     }
+
+    void accumulate(const LanguageProfileTimes& other)
+    {
+        totalTime += other.totalTime;
+        setupTime += other.setupTime;
+        transparencyTime += other.transparencyTime;
+        generationTime += other.generationTime;
+        compileTime += other.compileTime;
+        renderTime += other.renderTime;
+        ioTime += other.ioTime;
+        imageSaveTime += other.imageSaveTime;
+    }
+
     double totalTime = 0.0;
     double setupTime = 0.0;
     double transparencyTime = 0.0;
@@ -104,8 +117,6 @@ struct DocumentInfo
 class TestRunLogger
 {
   public:
-    ~TestRunLogger();
-
     void start(const std::string& target, const GenShaderUtil::TestSuiteOptions& options);
 
     std::ostream& renderLog() { return _renderLog ? *_renderLog : std::cout; }
@@ -124,7 +135,7 @@ class TestRunLogger
 class TestRunProfiler
 {
   public:
-    ~TestRunProfiler() { _totalTimer.reset(); }
+    ~TestRunProfiler() = default;
 
     void start();
     void printSummary(const GenShaderUtil::TestSuiteOptions& options,
@@ -159,6 +170,59 @@ struct TestRunState
     mx::FileSearchPath searchPath;
     mx::DocumentPtr dependLib;
     std::unique_ptr<mx::GenContext> context;
+};
+
+// Read-only test configuration for the entire validate() run.
+// Note: the log stream requires synchronization for concurrent use.
+struct RenderSession
+{
+    const GenShaderUtil::TestSuiteOptions& testOptions;
+    std::ostream& log;
+};
+
+// Per-element data passed to each runRenderer call.
+struct RenderItem
+{
+    RenderItem(mx::TypedElementPtr elem,
+               mx::FileSearchPath searchPath,
+               mx::FilePath outPath,
+               mx::ImageVec* images = nullptr)
+        : element(std::move(elem)),
+          imageSearchPath(std::move(searchPath)),
+          outputPath(std::move(outPath)),
+          imageVec(images) {}
+
+    mx::TypedElementPtr element;
+    mx::FileSearchPath imageSearchPath;
+    mx::FilePath outputPath;
+    mx::ImageVec* imageVec = nullptr;
+
+    const std::string& shaderName() const
+    {
+        if (_cachedShaderName.empty())
+        {
+            mx::StringMap pathMap;
+            pathMap["/"] = "_";
+            pathMap[":"] = "_";
+            _cachedShaderName = mx::createValidName(
+                mx::replaceSubstrings(element->getNamePath(), pathMap));
+        }
+        return _cachedShaderName;
+    }
+
+    mx::DocumentPtr doc() const { return element->getDocument(); }
+
+  private:
+    mutable std::string _cachedShaderName;
+};
+
+// Returned by runRenderer — each call produces its own isolated profiling data.
+// The caller accumulates results, making future parallelism straightforward.
+struct RenderProfileResult
+{
+    LanguageProfileTimes languageTimes;
+    unsigned int elementsTested = 0;
+    bool success = true;
 };
 
 // Base class used for performing compilation and render tests for a given
@@ -209,17 +273,13 @@ class ShaderRenderTester
     // Create a renderer for the generated code
     virtual void createRenderer(std::ostream& log) = 0;
 
-    // Run the renderer
-    virtual bool runRenderer(const std::string& shaderName,
-        mx::TypedElementPtr element,
-        mx::GenContext& context,
-        mx::DocumentPtr doc,
-        std::ostream& log,
-        const GenShaderUtil::TestSuiteOptions& testOptions,
-        RenderProfileTimes& profileTimes,
-        const mx::FileSearchPath& imageSearchPath,
-        const std::string& outputPath = ".",
-        mx::ImageVec* imageVec = nullptr) = 0;
+    // Run the renderer.
+    // GenContext is a separate argument because it is mutable (written per-element)
+    // and must be cloned per-thread for future parallel execution.
+    virtual RenderProfileResult runRenderer(
+        const RenderSession& session,
+        const RenderItem& item,
+        mx::GenContext& context) = 0;
 
     // Save an image
     virtual bool saveImage(const mx::FilePath&, mx::ConstImagePtr, bool) const { return false;  };

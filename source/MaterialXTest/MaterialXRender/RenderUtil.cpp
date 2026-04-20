@@ -57,23 +57,23 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
     // Data search path
     runState.searchPath = mx::getDefaultDataSearchPath();
 
-    mx::ScopedTimer ioTimer(&profiler.times().ioTime);
-    mx::FilePathVec files = collectTestFiles(runState);
-    ioTimer.endTimer();
+    mx::FilePathVec files;
+    {
+        mx::ScopedTimer t(&profiler.times().ioTime);
+        files = collectTestFiles(runState);
+    }
 
     // Load in the library dependencies once.
     // This will be imported in each test document below.
-    ioTimer.startTimer();
-    loadDependentLibraries(runState);
-    ioTimer.endTimer();
+    {
+        mx::ScopedTimer t(&profiler.times().ioTime);
+        loadDependentLibraries(runState);
+    }
 
     // Create renderers and generators
     initializeGeneratorContext(runState, logger, profiler);
 
-    // Map to replace "/" in Element path and ":" in namespaced names with "_".
-    mx::StringMap pathMap;
-    pathMap["/"] = "_";
-    pathMap[":"] = "_";
+    RenderSession session { runState.options, logger.renderLog() };
 
     for (const mx::FilePath& filename : files)
     {
@@ -84,9 +84,10 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
 
         for (const auto& element : docInfo.elements)
         {
-            mx::string elementName = mx::createValidName(mx::replaceSubstrings(element->getNamePath(), pathMap));
-            runRenderer(elementName, element, *runState.context, docInfo.doc, logger.renderLog(), runState.options,
-                        profiler.times(), docInfo.imageSearchPath, docInfo.outputPath, nullptr);
+            RenderItem item { element, docInfo.imageSearchPath, docInfo.outputPath, nullptr };
+            auto result = runRenderer(session, item, *runState.context);
+            profiler.times().languageTimes.accumulate(result.languageTimes);
+            profiler.times().elementsTested += result.elementsTested;
         }
     }
 
@@ -486,11 +487,10 @@ DocumentInfo ShaderRenderTester::loadAndValidateDocument(const mx::FilePath& fil
 {
     DocumentInfo info;
 
-    mx::ScopedTimer ioTimer(&profiler.times().ioTime);
-
     if (_skipFiles.count(filename.getBaseName()) > 0)
         return info;
 
+    mx::ScopedTimer ioTimer(&profiler.times().ioTime);
     info.doc = mx::createDocument();
     try
     {
@@ -589,13 +589,6 @@ void TestRunLogger::start(const std::string& target, const GenShaderUtil::TestSu
 #endif
 }
 
-TestRunLogger::~TestRunLogger()
-{
-    _renderLog.reset();
-    _validationLog.reset();
-    _profilingLog.reset();
-}
-
 // ---------------------------------------------------------------------------
 // TestRunProfiler
 // ---------------------------------------------------------------------------
@@ -646,10 +639,7 @@ void TestRunTracer::start(const std::string& target, const GenShaderUtil::TestSu
     }
 }
 
-TestRunTracer::~TestRunTracer()
-{
-    _state.reset();
-}
+TestRunTracer::~TestRunTracer() = default;
 
 #endif // MATERIALX_BUILD_PERFETTO_TRACING
 
