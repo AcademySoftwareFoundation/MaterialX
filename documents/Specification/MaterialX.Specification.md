@@ -612,7 +612,33 @@ Unless specified otherwise, all inputs default to a value of 0 in all channels f
 
 Standard MaterialX nodes have exactly one output, while custom nodes may have any number of outputs; please see the [Custom Nodes](#custom-nodes) section for details.
 
+### Input Nodes
 
+Input nodes (&lt;input>) may be defined at the root level of a MaterialX document. The input values of these nodes are considered to be part of the interface of the document.
+
+Input ports on nodes or nodegraphs may referenced input nodes at the same scope as the node or nodegraph by specifying the name of the input node as the value of the `interfacename` attribute of the port.  
+
+```xml
+  <nodegraph name="nodegraph">
+    <input name="graph_input" type="color3" interfacename="root_input" />
+  </nodegraph>
+  <add name="add" type="color3">
+    <input name="in1" type="color3" interfacename="root_input" />
+    <input name="in2" type="color3" value="0, 0, 0" />
+  </add>
+  <input name="root_input" type="color3" value="0, 0, 0" />
+```
+
+Input nodes may not be connected to the output of any node or nodegraph.
+
+```xml
+  <add name="node_reference" type="color3" />
+  <nodegraph name="nodegraph_reference" />
+  <input name="input_node_reference" type="color3" value="0, 0, 0" />
+  <input name="input_node_1" type="color3" interfacename="input_node_reference" />
+  <input name="input_node_2" type="color3" nodename="node_reference" />
+  <input name="input_node_3" type="color3" nodegraph="nodegraph_reference" />
+```
 
 ## Node Graph Elements
 
@@ -1193,7 +1219,11 @@ A **compound &lt;nodegraph>** element may specify one or more child &lt;input> a
   </nodegraph>
 ```
 
-A compound nodegraph provides a set of named input and output connection ports which may be referenced by its contained nodes using `interfacename` attributes, and interface token names whose values may be substituted into filenames used within the nodegraph; nodes within this &lt;nodegraph> adopt the context of that nodegraph.  The &lt;input>s and &lt;token>s of a compound nodegraph may also be connected to other nodes outside the &lt;nodegraph> at the same scope as the &lt;nodegraph> itself using `nodename` attributes; inputs of nodes within a compound nodegraph may only be connected to the outputs of other nodes within the same compound nodegraph, or to the input connection ports using interfacename.   This is in contrast to a &lt;backdrop> node whose contained nodes connect directly to nodes outside the backdrop at the same level of context without going through an intermediate named &lt;input>.  A &lt;nodegraph> element of this form may specify the same float `width` and `height` and boolean `minimized` attributes as &lt;backdrop> nodes.  Inputs of other nodes, or the inputs of a compound nodegraph, can connect to an output of a (different) compound nodegraph using a `nodegraph` attribute (and for multiple-output compound nodegraphs, an `output` attribute as well) on a node's &lt;input>.
+A compound nodegraph provides a set of named input and output connection ports which may be referenced by its contained nodes using `interfacename` attributes, and interface token names whose values may be substituted into filenames used within the nodegraph; nodes within this &lt;nodegraph> adopt the context of that nodegraph.
+
+The &lt;input> ports of a compound graph may reference &lt;input> nodes outside the &lt;nodegraph> at the same scope as the &lt;nodegraph> itself using `interfacename` attributes, but may not reference sibling &lt;input> ports within the nodegraph. 
+
+The &lt;input>s and &lt;token>s of a compound nodegraph may also be connected to other non-input nodes outside the &lt;nodegraph> at the same scope as the &lt;nodegraph> itself using `nodename` attributes; inputs of nodes within a compound nodegraph may only be connected to the outputs of other nodes within the same compound nodegraph, or to the input connection ports using interfacename.   This is in contrast to a &lt;backdrop> node whose contained nodes connect directly to nodes outside the backdrop at the same level of context without going through an intermediate named &lt;input>.  A &lt;nodegraph> element of this form may specify the same float `width` and `height` and boolean `minimized` attributes as &lt;backdrop> nodes.  Inputs of other nodes, or the inputs of a compound nodegraph, can connect to an output of a (different) compound nodegraph using a `nodegraph` attribute (and for multiple-output compound nodegraphs, an `output` attribute as well) on a node's &lt;input>.
 
 It is permissible to define multiple nodegraph- and/or file-based implementations for a custom node for the same combination of input and output types, as long as the specified `version`/`target`/`format` combinations are unique, e.g. one implementation for target "oslpattern" and another for "glsl", or one "osl" target with `format="shader"` and another with `format="fragment"`.  It is allowable for there to be both a &lt;nodegraph> and an &lt;implementation> for the same nodedef target/version, with the &lt;implementation> generally prevailing in order to allow for optimized native-code node implementations, although ultimately it would be up to the host application to determine which implementation to actually use.
 
