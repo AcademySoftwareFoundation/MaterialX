@@ -580,7 +580,7 @@ MaterialX::ConstValuePtr MslProgram::findUniformValue(const string& uniformName,
 }
 
 void MslProgram::bindTextures(id<MTLRenderCommandEncoder> renderCmdEncoder,
-                              LightHandlerPtr lightHandler,
+                              LightHandlerPtr /*lightHandler*/,
                               ImageHandlerPtr imageHandler)
 {
     const VariableBlock& publicUniforms = _shader->getStage(Stage::PIXEL).getUniformBlock(HW::PUBLIC_UNIFORMS);
@@ -589,32 +589,6 @@ void MslProgram::bindTextures(id<MTLRenderCommandEncoder> renderCmdEncoder,
         if (arg.type == MTLArgumentTypeTexture)
         {
             bool found = false;
-
-            if (lightHandler)
-            {
-                // Bind environment lights.
-                ImageMap envLights =
-                {
-                    { HW::ENV_RADIANCE, lightHandler->getUsePrefilteredMap() ? lightHandler->getEnvPrefilteredMap() : lightHandler->getEnvRadianceMap() },
-                    { HW::ENV_IRRADIANCE, lightHandler->getEnvIrradianceMap() }
-                };
-                for (const auto& env : envLights)
-                {
-                    std::string str(arg.name.UTF8String);
-                    size_t loc = str.find(env.first);
-                    if (loc != std::string::npos && env.second)
-                    {
-                        ImageSamplingProperties samplingProperties;
-                        samplingProperties.uaddressMode = ImageSamplingProperties::AddressMode::PERIODIC;
-                        samplingProperties.vaddressMode = ImageSamplingProperties::AddressMode::CLAMP;
-                        samplingProperties.filterType = ImageSamplingProperties::FilterType::LINEAR;
-
-                        static_cast<MaterialX::MetalTextureHandler*>(imageHandler.get())->bindImage(env.second, samplingProperties);
-                        bindTexture(renderCmdEncoder, (unsigned int) arg.index, env.second, imageHandler);
-                        found = true;
-                    }
-                }
-            }
 
             if (!found)
             {
@@ -705,14 +679,23 @@ void MslProgram::bindLighting(LightHandlerPtr lightHandler, ImageHandlerPtr imag
     bindUniform(HW::ENV_MATRIX, Value::createValue(envRotation), false);
     bindUniform(HW::ENV_RADIANCE_SAMPLES, Value::createValue(lightHandler->getEnvSampleCount()), false);
     bindUniform(HW::ENV_LIGHT_INTENSITY, Value::createValue(lightHandler->getEnvLightIntensity()), false);
-    ImageMap envLights =
+    ImageMap envLights;
+    if (lightHandler->getIndirectLighting())
     {
-        { HW::ENV_RADIANCE, lightHandler->getEnvRadianceMap() },
-        { HW::ENV_IRRADIANCE, lightHandler->getEnvIrradianceMap() }
-    };
-    for (const auto& env : envLights)
+        envLights[HW::ENV_RADIANCE] = lightHandler->getUsePrefilteredMap() ?
+            lightHandler->getEnvPrefilteredMap() :
+            lightHandler->getEnvRadianceMap();
+        envLights[HW::ENV_IRRADIANCE] = lightHandler->getEnvIrradianceMap();
+    }
+    else
     {
-        auto iblUniform = uniformList.find(TEXTURE_NAME(env.first));
+        envLights[HW::ENV_RADIANCE] = imageHandler->getZeroImage();
+        envLights[HW::ENV_IRRADIANCE] = imageHandler->getZeroImage();
+    }
+    for (const auto& env : envLights) {
+        const auto uniformName = TEXTURE_NAME(env.first);
+
+        auto iblUniform = uniformList.find(uniformName);
         MslProgram::InputPtr inputPtr = iblUniform != uniformList.end() ? iblUniform->second : nullptr;
         if (inputPtr)
         {
@@ -736,7 +719,7 @@ void MslProgram::bindLighting(LightHandlerPtr lightHandler, ImageHandlerPtr imag
                 samplingProperties.uaddressMode = ImageSamplingProperties::AddressMode::PERIODIC;
                 samplingProperties.vaddressMode = ImageSamplingProperties::AddressMode::CLAMP;
                 samplingProperties.filterType = ImageSamplingProperties::FilterType::LINEAR;
-                imageHandler->bindImage(image, samplingProperties);
+                bindTexture(imageHandler, uniformName, image, samplingProperties);
             }
         }
     }
@@ -976,12 +959,9 @@ const MslProgram::InputMap& MslProgram::updateUniformsList()
 
         if (arg.type == MTLArgumentTypeTexture)
         {
-            if (HW::ENV_RADIANCE != arg.name.UTF8String && HW::ENV_IRRADIANCE != arg.name.UTF8String)
-            {
-                std::string texture_name = arg.name.UTF8String;
-                InputPtr inputPtr = std::make_shared<Input>(arg.index, MTLDataTypeTexture, -1, EMPTY_STRING);
-                _uniformList[texture_name] = inputPtr;
-            }
+            std::string texture_name = arg.name.UTF8String;
+            InputPtr inputPtr = std::make_shared<Input>(arg.index, MTLDataTypeTexture, -1, EMPTY_STRING);
+            _uniformList[texture_name] = inputPtr;
         }
     }
 
