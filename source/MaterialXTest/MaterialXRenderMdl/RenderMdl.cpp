@@ -46,7 +46,7 @@ RenderUtil::RenderProfileResult MdlShaderRenderTester::runRenderer(
     mx::GenContext& context)
 {
     RenderUtil::RenderProfileResult result;
-    const std::string& shaderName = item.shaderName();
+    const std::string& shaderName = item.shaderName;
     mx::DocumentPtr doc = item.doc();
     mx::TypedElementPtr element = item.element;
     const GenShaderUtil::TestSuiteOptions& testOptions = session.testOptions;

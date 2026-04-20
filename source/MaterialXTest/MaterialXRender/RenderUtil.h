@@ -190,30 +190,22 @@ struct RenderItem
         : element(std::move(elem)),
           imageSearchPath(std::move(searchPath)),
           outputPath(std::move(outPath)),
-          imageVec(images) {}
+          imageVec(images)
+    {
+        mx::StringMap pathMap;
+        pathMap["/"] = "_";
+        pathMap[":"] = "_";
+        shaderName = mx::createValidName(
+            mx::replaceSubstrings(element->getNamePath(), pathMap));
+    }
 
     mx::TypedElementPtr element;
     mx::FileSearchPath imageSearchPath;
     mx::FilePath outputPath;
     mx::ImageVec* imageVec = nullptr;
-
-    const std::string& shaderName() const
-    {
-        if (_cachedShaderName.empty())
-        {
-            mx::StringMap pathMap;
-            pathMap["/"] = "_";
-            pathMap[":"] = "_";
-            _cachedShaderName = mx::createValidName(
-                mx::replaceSubstrings(element->getNamePath(), pathMap));
-        }
-        return _cachedShaderName;
-    }
+    std::string shaderName;
 
     mx::DocumentPtr doc() const { return element->getDocument(); }
-
-  private:
-    mutable std::string _cachedShaderName;
 };
 
 // Returned by runRenderer — each call produces its own isolated profiling data.
