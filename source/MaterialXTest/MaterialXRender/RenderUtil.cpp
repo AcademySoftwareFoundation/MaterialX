@@ -75,6 +75,7 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
 
     RenderSession session { runState.options, logger.renderLog() };
 
+    bool allSucceeded = true;
     for (const mx::FilePath& filename : files)
     {
         DocumentInfo docInfo = loadAndValidateDocument(filename, runState, logger, profiler);
@@ -88,6 +89,8 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
             auto result = runRenderer(session, item, *runState.context);
             profiler.times().languageTimes.accumulate(result.languageTimes);
             profiler.times().elementsTested += result.elementsTested;
+            if (!result.success)
+                allSucceeded = false;
         }
     }
 
@@ -95,7 +98,7 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
     // All resource cleanup is handled by destructors.
     profiler.printSummary(runState.options, logger.profilingLog());
 
-    return true;
+    return allSucceeded;
 }
 
 void ShaderRenderTester::loadDependentLibraries(TestRunState& runState)
