@@ -16,6 +16,7 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <utility>
 
 #define LOG_TO_FILE
 
@@ -186,18 +187,7 @@ struct RenderItem
     RenderItem(mx::TypedElementPtr elem,
                mx::FileSearchPath searchPath,
                mx::FilePath outPath,
-               mx::ImageVec* images = nullptr)
-        : element(std::move(elem)),
-          imageSearchPath(std::move(searchPath)),
-          outputPath(std::move(outPath)),
-          imageVec(images)
-    {
-        mx::StringMap pathMap;
-        pathMap["/"] = "_";
-        pathMap[":"] = "_";
-        shaderName = mx::createValidName(
-            mx::replaceSubstrings(element->getNamePath(), pathMap));
-    }
+               mx::ImageVec* images = nullptr);
 
     mx::TypedElementPtr element;
     mx::FileSearchPath imageSearchPath;

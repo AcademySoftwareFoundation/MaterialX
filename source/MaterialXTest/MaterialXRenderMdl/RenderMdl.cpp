@@ -226,6 +226,8 @@ RenderUtil::RenderProfileResult MdlShaderRenderTester::runRenderer(
                 log << e.what() << "\n";
             }
             CHECK(validated);
+            if (!validated)
+                result.success = false;
         }
     }
 

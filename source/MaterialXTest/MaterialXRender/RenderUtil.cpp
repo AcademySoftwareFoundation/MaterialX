@@ -32,6 +32,25 @@ ShaderRenderTester::~ShaderRenderTester()
 {
 }
 
+RenderItem::RenderItem(mx::TypedElementPtr elem,
+                       mx::FileSearchPath searchPath,
+                       mx::FilePath outPath,
+                       mx::ImageVec* images)
+    : element(std::move(elem)),
+      imageSearchPath(std::move(searchPath)),
+      outputPath(std::move(outPath)),
+      imageVec(images)
+{
+    static const mx::StringMap pathMap = []() {
+        mx::StringMap m;
+        m["/"] = "_";
+        m[":"] = "_";
+        return m;
+    }();
+    shaderName = mx::createValidName(
+        mx::replaceSubstrings(element->getNamePath(), pathMap));
+}
+
 bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
 {
     // per-run state objects, logger, profiler

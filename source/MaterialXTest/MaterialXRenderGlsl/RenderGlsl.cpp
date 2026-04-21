@@ -403,6 +403,8 @@ RenderUtil::RenderProfileResult GlslShaderRenderTester::runRenderer(
                 WARN(std::string(e.what()) + " in " + shaderPath);
             }
             CHECK(validated);
+            if (!validated)
+                result.success = false;
         }
     }
     return result;

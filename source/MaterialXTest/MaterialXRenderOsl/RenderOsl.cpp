@@ -372,6 +372,8 @@ RenderUtil::RenderProfileResult OslShaderRenderTester::runRenderer(
                 log << e.what();
             }
             CHECK(validated);
+            if (!validated)
+                result.success = false;
         }
     }
 
