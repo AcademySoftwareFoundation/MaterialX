@@ -153,8 +153,8 @@ RenderUtil::RenderProfileResult MdlShaderRenderTester::runRenderer(
                     command += " --mdl_path \"" + sp.asString() + "\"";
                 }
 
-                // Set MDL search path for the module itself.
-                command += " --mdl_path \"" + item.outputPath.asString() + "\"";
+                // Set MDL search path for the module itself (directory containing the .mdl file).
+                command += " --mdl_path \"" + outputFilePath.asString() + "\"";
 
                 // Set environment
                 mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
