@@ -49,6 +49,7 @@ RenderItem::RenderItem(mx::TypedElementPtr elem,
     }();
     shaderName = mx::createValidName(
         mx::replaceSubstrings(element->getNamePath(), pathMap));
+    document = element ? element->getDocument() : nullptr;
 }
 
 bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)

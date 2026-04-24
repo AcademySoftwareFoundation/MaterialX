@@ -190,12 +190,13 @@ struct RenderItem
                mx::ImageVec* images = nullptr);
 
     mx::TypedElementPtr element;
+    mx::DocumentPtr document;
     mx::FileSearchPath imageSearchPath;
     mx::FilePath outputPath;
     mx::ImageVec* imageVec = nullptr;
     std::string shaderName;
 
-    mx::DocumentPtr doc() const { return element->getDocument(); }
+    mx::DocumentPtr doc() const { return document; }
 };
 
 // Returned by runRenderer — each call produces its own isolated profiling data.
