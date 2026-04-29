@@ -192,6 +192,31 @@ float mx_average_alpha(vec2 alpha)
     return sqrt(alpha.x * alpha.y);
 }
 
+// Approximate anisotropic IBL with a bent normal from alpha.x / alpha.y.
+// https://google.github.io/filament/Filament.md.html Section Anisotropy
+vec3 mx_bent_normal_anisotropy(vec3 N, vec3 V, vec3 X, vec3 Y, vec2 alpha)
+{
+    float maxAlpha = max(max(alpha.x, alpha.y), M_FLOAT_EPS);
+    float minOverMax = min(alpha.x, alpha.y) / maxAlpha;
+    float anisotropy = 1.0 - clamp(minOverMax, 0.0, 1.0);
+    float anisotropySign = (alpha.x >= alpha.y) ? 1.0 : -1.0;
+    float signedAnisotropy = anisotropy * anisotropySign;
+
+    vec3 anisotropicDirection = (signedAnisotropy >= 0.0) ? Y : X;
+    vec3 anisotropicTangent = cross(anisotropicDirection, V);
+    float tangentLenSq = dot(anisotropicTangent, anisotropicTangent);
+    vec3 anisotropicNormal = (tangentLenSq > M_FLOAT_EPS) ?
+        normalize(cross(anisotropicTangent, anisotropicDirection)) : N;
+
+    float roughness = clamp(sqrt(mx_average_alpha(alpha)), 0.0, 1.0);
+    float bend = abs(signedAnisotropy) * (1.0 - roughness);
+    float normalWeight = 1.0 - bend;
+    normalWeight *= normalWeight;
+    normalWeight *= normalWeight;
+
+    return normalize(mix(anisotropicNormal, N, normalWeight));
+}
+
 // Convert a real-valued index of refraction to normal-incidence reflectivity.
 float mx_ior_to_f0(float ior)
 {
