@@ -290,6 +290,25 @@ If adopted, the existing `triplanarprojection` node would be reimplemented as a 
 |`filtertype`|The type of texture filtering to use                                                           |string         |linear   |closest, linear, cubic|
 |`out`       |Output: the blended value                                                                      |Same as `inx`  |__zero__ |                      |
 
+<a id="node-maxcomponent"> </a>
+
+### `maxcomponent`
+Output the maximum of all components of the incoming vectorN or colorN stream as a float value.
+
+|Port |Description                          |Type            |Default  |
+|-----|-------------------------------------|----------------|---------|
+|`in` |The input value                      |vectorN, colorN |__zero__ |
+|`out`|Output: maximum component of `in`    |float           |0.0      |
+
+<a id="node-mincomponent"> </a>
+
+### `mincomponent`
+Output the minimum of all components of the incoming vectorN or colorN stream as a float value.
+
+|Port |Description                          |Type            |Default  |
+|-----|-------------------------------------|----------------|---------|
+|`in` |The input value                      |vectorN, colorN |__zero__ |
+|`out`|Output: minimum component of `in`    |float           |0.0      |
 
 
 ### Adjustment Nodes
