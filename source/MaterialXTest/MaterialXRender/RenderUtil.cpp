@@ -47,8 +47,9 @@ RenderItem::RenderItem(mx::TypedElementPtr elem,
         m[":"] = "_";
         return m;
     }();
-    shaderName = mx::createValidName(
-        mx::replaceSubstrings(element->getNamePath(), pathMap));
+    shaderName = element ?
+        mx::createValidName(mx::replaceSubstrings(element->getNamePath(), pathMap)) :
+        mx::EMPTY_STRING;
     document = element ? element->getDocument() : nullptr;
 }
 
