@@ -36,6 +36,7 @@
 #include <MaterialXGenOsl/OslShaderGenerator.h>
 #endif
 #include <MaterialXGenGlsl/EsslShaderGenerator.h>
+#include <MaterialXGenGlsl/WgslShaderGenerator.h>
 
 #include <MaterialXFormat/Environ.h>
 #include <MaterialXFormat/Util.h>
@@ -202,6 +203,7 @@ Viewer::Viewer(const std::string& materialFilename,
 #ifndef MATERIALXVIEW_METAL_BACKEND
     _genContext(mx::GlslShaderGenerator::create(_typeSystem)),
     _genContextEssl(mx::EsslShaderGenerator::create(_typeSystem)),
+    _genContextWgsl(mx::WgslShaderGenerator::create(_typeSystem)),
 #else
     _genContext(mx::MslShaderGenerator::create(_typeSystem)),
 #endif
@@ -267,6 +269,10 @@ Viewer::Viewer(const std::string& materialFilename,
     _genContextEssl.getOptions().targetColorSpaceOverride = "lin_rec709";
     _genContextEssl.getOptions().fileTextureVerticalFlip = false;
     _genContextEssl.getOptions().hwMaxActiveLightSources = 1;
+
+    // Set Wgsl generator options
+    _genContextWgsl.getOptions().targetColorSpaceOverride = "lin_rec709";
+    _genContextWgsl.getOptions().fileTextureVerticalFlip = false;
 #endif
 #if MATERIALX_BUILD_GEN_OSL
     // Set OSL generator options.
@@ -504,6 +510,7 @@ void Viewer::applyDirectLights(mx::DocumentPtr doc)
         _lightHandler->registerLights(doc, lights, _genContext);
 #ifndef MATERIALXVIEW_METAL_BACKEND
         _lightHandler->registerLights(doc, lights, _genContextEssl);
+        //_lightHandler->registerLights(doc, lights, _genContextWgsl);
 #endif
         _lightHandler->setLightSources(lights);
     }
@@ -815,6 +822,7 @@ void Viewer::createAdvancedSettings(ng::ref<Widget> parent)
         _genContext.getOptions().hwSpecularEnvironmentMethod = enable ? mx::SPECULAR_ENVIRONMENT_FIS : mx::SPECULAR_ENVIRONMENT_PREFILTER;
 #ifndef MATERIALXVIEW_METAL_BACKEND
         _genContextEssl.getOptions().hwSpecularEnvironmentMethod = _genContext.getOptions().hwSpecularEnvironmentMethod;
+        _genContextWgsl.getOptions().hwSpecularEnvironmentMethod = _genContext.getOptions().hwSpecularEnvironmentMethod;
 #endif
         _lightHandler->setUsePrefilteredMap(!enable);
         reloadShaders();
@@ -827,6 +835,7 @@ void Viewer::createAdvancedSettings(ng::ref<Widget> parent)
         _genContext.getOptions().hwTransmissionRenderMethod = enable ? mx::TRANSMISSION_REFRACTION : mx::TRANSMISSION_OPACITY;
 #ifndef MATERIALXVIEW_METAL_BACKEND
         _genContextEssl.getOptions().hwTransmissionRenderMethod = _genContext.getOptions().hwTransmissionRenderMethod;
+        _genContextWgsl.getOptions().hwTransmissionRenderMethod = _genContext.getOptions().hwTransmissionRenderMethod;
 #endif
         reloadShaders();
     });
@@ -935,6 +944,7 @@ void Viewer::createAdvancedSettings(ng::ref<Widget> parent)
         _genContext.getOptions().hwAiryFresnelIterations = MIN_AIRY_FRESNEL_ITERATIONS * (int)std::pow(2, index);
 #ifndef MATERIALXVIEW_METAL_BACKEND
         _genContextEssl.getOptions().hwAiryFresnelIterations = _genContext.getOptions().hwAiryFresnelIterations;
+        _genContextWgsl.getOptions().hwAiryFresnelIterations = _genContext.getOptions().hwAiryFresnelIterations;
 #endif
         reloadShaders();
     });
@@ -1019,6 +1029,7 @@ void Viewer::createAdvancedSettings(ng::ref<Widget> parent)
         _genContext.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
 #ifndef MATERIALXVIEW_METAL_BACKEND
         _genContextEssl.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
+        _genContextWgsl.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
 #endif
 #if MATERIALX_BUILD_GEN_OSL
         _genContextOsl.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
@@ -1337,6 +1348,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
     _genContext.clearUserData();
 #ifndef MATERIALXVIEW_METAL_BACKEND
     _genContextEssl.clearUserData();
+    _genContextWgsl.clearUserData();
 #endif
 
     // Clear materials if merging is not requested.
@@ -1467,6 +1479,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
             _genContext.clearNodeImplementations();
 #ifndef MATERIALXVIEW_METAL_BACKEND
             _genContextEssl.clearNodeImplementations();
+            _genContextWgsl.clearNodeImplementations();
 #endif
 
             // Add new materials to the global vector.
@@ -1667,6 +1680,16 @@ void Viewer::saveShaderSource(mx::GenContext& context)
                 writeTextFile(pixelShader, sourceFilename.asString() + "_essl_ps.glsl");
                 new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved ESSL source: ",
                     sourceFilename.asString() + "_essl_*.glsl");
+            }
+            else if (context.getShaderGenerator().getTarget() == mx::WgslShaderGenerator::TARGET)
+            {
+                mx::ShaderPtr shader = createShader(elem->getNamePath(), context, elem);
+                const std::string& pixelShader = shader->getSourceCode(mx::Stage::PIXEL);
+                const std::string& vertexShader = shader->getSourceCode(mx::Stage::VERTEX);
+                writeTextFile(vertexShader, sourceFilename.asString() + "_wgsl_vs.wgsl");
+                writeTextFile(pixelShader, sourceFilename.asString() + "_wgsl_ps.wgsl");
+                new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved WGSL source: ",
+                    sourceFilename.asString() + "_wgsl_*.wgsl");
             }
 #else
             if (context.getShaderGenerator().getTarget() == mx::MslShaderGenerator::TARGET)
@@ -1883,6 +1906,7 @@ void Viewer::loadStandardLibraries()
     initContext(_genContext);
 #ifndef MATERIALXVIEW_METAL_BACKEND
     initContext(_genContextEssl);
+    initContext(_genContextWgsl);
 #endif
 #if MATERIALX_BUILD_GEN_OSL
     initContext(_genContextOsl);
@@ -1957,6 +1981,15 @@ bool Viewer::keyboard_event(int key, int scancode, int action, int modifiers)
     {
 #ifndef MATERIALXVIEW_METAL_BACKEND
         saveShaderSource(_genContextEssl);
+#endif
+        return true;
+    }
+
+    // Save WGSL shader source to file.
+    if (key == GLFW_KEY_W && action == GLFW_PRESS)
+    {
+#ifndef MATERIALXVIEW_METAL_BACKEND
+        saveShaderSource(_genContextWgsl);
 #endif
         return true;
     }
@@ -2628,6 +2661,7 @@ void Viewer::setShaderInterfaceType(mx::ShaderInterfaceType interfaceType)
     _genContext.getOptions().shaderInterfaceType = interfaceType;
 #ifndef MATERIALXVIEW_METAL_BACKEND
     _genContextEssl.getOptions().shaderInterfaceType = interfaceType;
+    _genContextWgsl.getOptions().shaderInterfaceType = interfaceType;
 #endif
 #if MATERIALX_BUILD_GEN_OSL
     _genContextOsl.getOptions().shaderInterfaceType = interfaceType;

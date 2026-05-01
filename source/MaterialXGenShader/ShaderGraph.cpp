@@ -13,7 +13,7 @@
 #include <MaterialXTrace/Tracing.h>
 
 #include <iostream>
-#include <queue>
+#include <deque>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -940,6 +940,39 @@ void ShaderGraph::finalize(GenContext& context)
 
     if (context.getOptions().shaderInterfaceType == SHADER_INTERFACE_COMPLETE)
     {
+        // Track shared sockets so that different nodes with the same input name
+        // get separate sockets deterministically.
+        std::unordered_map<string, const ShaderNode*> sharedSockets;
+
+        // Helper lambda function to resolve the name of the input socket
+        auto resolveInputSocketName = [this, &sharedSockets, &context](
+            const ShaderNode* node, ShaderInput* input, bool useGenericName)
+            -> std::pair<string, ShaderGraphInputSocket*>
+        {
+            string name = useGenericName ? input->getName() : input->getFullName();
+            ShaderGraphInputSocket* socket = getInputSocket(name);
+            if (socket && socket->getType() != input->getType())
+            {
+                name = input->getFullName();
+                socket = getInputSocket(name);
+            }
+            if (socket)
+            {
+                auto it = sharedSockets.find(name);
+                if (it != sharedSockets.end() && it->second != node)
+                {
+                    string sanitized = node->getUniqueId();
+                    context.getShaderGenerator().getSyntax().makeValidName(sanitized);
+                    if (!sanitized.empty() && sanitized[0] == '_')
+                        sanitized.erase(0, 1);
+                    string baseName = useGenericName ? input->getName() : input->getFullName();
+                    name = baseName + "_" + sanitized;
+                    socket = getInputSocket(name);
+                }
+            }
+            return { name, socket };
+        };
+
         // Publish all node inputs that has not been connected already.
         for (const ShaderNode* node : getNodes())
         {
@@ -951,12 +984,14 @@ void ShaderGraph::finalize(GenContext& context)
                     // publish the input as an editable uniform.
                     if (!input->getType().isClosure() && node->isEditable(*input))
                     {
-                        // Use a consistent naming convention: <nodename>_<inputname>
-                        // so application side can figure out what uniforms to set
-                        // when node inputs change on application side.
-                        const string interfaceName = node->getName() + "_" + input->getName();
+                        // Create simpler names for generic nodes if possible
+                        // so application side can employ techniques to easily switch between materials
+                        // that are similar and only differ in unifrom values. 
+                        const bool useGenericName = (node->getClassification() & (ShaderNode::Classification::SHADER |
+                                                                                  ShaderNode::Classification::CLOSURE |
+                                                                                  ShaderNode::Classification::MATERIAL)) != 0;
+                        auto [interfaceName, inputSocket] = resolveInputSocketName(node, input, useGenericName);
 
-                        ShaderGraphInputSocket* inputSocket = getInputSocket(interfaceName);
                         if (!inputSocket)
                         {
                             inputSocket = addInputSocket(interfaceName, input->getType());
@@ -968,6 +1003,7 @@ void ShaderGraph::finalize(GenContext& context)
                             {
                                 inputSocket->setUniform();
                             }
+                            sharedSockets[interfaceName] = node;
                         }
                         inputSocket->makeConnection(input);
                         inputSocket->setMetadata(input->getMetadata());
@@ -1105,10 +1141,18 @@ void ShaderGraph::topologicalSort()
     // Calculate a topological order of the children, using Kahn's algorithm
     // to avoid recursion.
     //
-    // Running time: O(numNodes + numEdges).
+    // Running time: O((numNodes + numEdges) + numNodes * log(numNodes)).
+    //
+    // The BFS traversal runs in O(numNodes + numEdges). A final stable sort
+    // over the result, keyed by topological depth then by name, ensures
+    // deterministic ordering of nodes at the same depth. This guarantees that
+    // materials with the same set of functions always emit them in the same
+    // order, regardless of which inputs happen to be connected.
 
-    // Calculate in-degrees for all nodes, and enqueue those with degree 0.
+    // Calculate in-degrees and topological depth for all nodes,
+    // and enqueue those with degree 0.
     std::unordered_map<ShaderNode*, int> inDegree(_nodeMap.size());
+    std::unordered_map<ShaderNode*, int> depth(_nodeMap.size());
     std::deque<ShaderNode*> nodeQueue;
     for (ShaderNode* node : _nodeOrder)
     {
@@ -1122,6 +1166,7 @@ void ShaderGraph::topologicalSort()
         }
 
         inDegree[node] = connectionCount;
+        depth[node] = 0;
 
         if (connectionCount == 0)
         {
@@ -1140,7 +1185,7 @@ void ShaderGraph::topologicalSort()
         _nodeOrder[count++] = node;
 
         // Find connected nodes and decrease their in-degree,
-        // adding node to the queue if in-degrees becomes 0.
+        // adding node to the queue if in-degree becomes 0.
         for (const ShaderOutput* output : node->getOutputs())
         {
             for (const ShaderInput* input : output->getConnections())
@@ -1148,6 +1193,7 @@ void ShaderGraph::topologicalSort()
                 ShaderNode* downstreamNode = const_cast<ShaderNode*>(input->getNode());
                 if (downstreamNode != this)
                 {
+                    depth[downstreamNode] = std::max(depth[downstreamNode], depth[node] + 1);
                     if (--inDegree[downstreamNode] <= 0)
                     {
                         nodeQueue.push_back(downstreamNode);
@@ -1156,6 +1202,17 @@ void ShaderGraph::topologicalSort()
             }
         }
     }
+
+    // Stable sort by (depth, name, uniqueId) for deterministic output
+    // while preserving topological correctness.
+    std::stable_sort(_nodeOrder.begin(), _nodeOrder.begin() + count,
+        [&depth](ShaderNode* a, ShaderNode* b) {
+            if (depth[a] != depth[b])
+                return depth[a] < depth[b];
+            if (a->getName() != b->getName())
+                return a->getName() < b->getName();
+            return a->getUniqueId() < b->getUniqueId();
+        });
 }
 
 void ShaderGraph::setVariableNames(GenContext& context)
@@ -1165,6 +1222,14 @@ void ShaderGraph::setVariableNames(GenContext& context)
 
     const Syntax& syntax = context.getShaderGenerator().getSyntax();
 
+    // Use generic base names for material and surfaceshader so multiple outputs get
+    // consistent names (surfaceshader_out, surfaceshader_out1, ...) via getVariableName.
+    auto variableBaseName = [](const TypeDesc& type, const string& defaultName) -> string {
+        if (type == Type::MATERIAL) return "material_out";
+        if (type == Type::SURFACESHADER) return "surfaceshader_out";
+        return defaultName;
+    };
+
     for (ShaderGraphInputSocket* inputSocket : getInputSockets())
     {
         const string variable = syntax.getVariableName(inputSocket->getName(), inputSocket->getType(), _identifiers);
@@ -1172,7 +1237,8 @@ void ShaderGraph::setVariableNames(GenContext& context)
     }
     for (ShaderGraphOutputSocket* outputSocket : getOutputSockets())
     {
-        const string variable = syntax.getVariableName(outputSocket->getName(), outputSocket->getType(), _identifiers);
+        const string baseName = variableBaseName(outputSocket->getType(), outputSocket->getName());
+        const string variable = syntax.getVariableName(baseName, outputSocket->getType(), _identifiers);
         outputSocket->setVariable(variable);
     }
     for (ShaderNode* node : getNodes())
@@ -1185,8 +1251,8 @@ void ShaderGraph::setVariableNames(GenContext& context)
         }
         for (ShaderOutput* output : node->getOutputs())
         {
-            string variable = output->getFullName();
-            variable = syntax.getVariableName(variable, output->getType(), _identifiers);
+            const string baseName = variableBaseName(output->getType(), output->getFullName());
+            const string variable = syntax.getVariableName(baseName, output->getType(), _identifiers);
             output->setVariable(variable);
         }
     }
