@@ -186,17 +186,13 @@ struct RenderItem
 {
     RenderItem(mx::TypedElementPtr elem,
                mx::FileSearchPath searchPath,
-               mx::FilePath outPath,
-               mx::ImageVec* images = nullptr);
+               mx::FilePath outPath);
 
-    mx::TypedElementPtr element;
-    mx::DocumentPtr document;
-    mx::FileSearchPath imageSearchPath;
-    mx::FilePath outputPath;
-    mx::ImageVec* imageVec = nullptr;
-    std::string shaderName;
-
-    mx::DocumentPtr doc() const { return document; }
+    const mx::TypedElementPtr element;
+    const mx::DocumentPtr document;
+    const mx::FileSearchPath imageSearchPath;
+    const mx::FilePath outputPath;
+    const std::string shaderName;
 };
 
 // Returned by runRenderer — each call produces its own isolated profiling data.
@@ -204,6 +200,7 @@ struct RenderItem
 struct RenderProfileResult
 {
     LanguageProfileTimes languageTimes;
+    mx::ImageVec images;
     unsigned int elementsTested = 0;
     bool success = true;
 };

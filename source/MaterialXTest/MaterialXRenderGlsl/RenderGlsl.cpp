@@ -152,7 +152,7 @@ RenderUtil::RenderProfileResult GlslShaderRenderTester::runRenderer(
 {
     RenderUtil::RenderProfileResult result;
     const std::string& shaderName = item.shaderName;
-    mx::DocumentPtr doc = item.doc();
+    mx::DocumentPtr doc = item.document;
     mx::TypedElementPtr element = item.element;
     const GenShaderUtil::TestSuiteOptions& testOptions = session.testOptions;
     std::ostream& log = session.log;
@@ -370,10 +370,7 @@ RenderUtil::RenderProfileResult GlslShaderRenderTester::runRenderer(
                             image = image->applyBoxDownsample(supersampleFactor);
                         }
                         _renderer->getImageHandler()->saveImage(fileName, image, true);
-                        if (item.imageVec)
-                        {
-                            item.imageVec->push_back(image);
-                        }
+                        result.images.push_back(image);
                     }
                 }
 

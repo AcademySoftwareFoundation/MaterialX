@@ -32,25 +32,31 @@ ShaderRenderTester::~ShaderRenderTester()
 {
 }
 
-RenderItem::RenderItem(mx::TypedElementPtr elem,
-                       mx::FileSearchPath searchPath,
-                       mx::FilePath outPath,
-                       mx::ImageVec* images)
-    : element(std::move(elem)),
-      imageSearchPath(std::move(searchPath)),
-      outputPath(std::move(outPath)),
-      imageVec(images)
+namespace
 {
-    static const mx::StringMap pathMap = []() {
+const mx::StringMap& shaderNameSubstitutions()
+{
+    static const mx::StringMap map = []() {
         mx::StringMap m;
         m["/"] = "_";
         m[":"] = "_";
         return m;
     }();
-    shaderName = element ?
-        mx::createValidName(mx::replaceSubstrings(element->getNamePath(), pathMap)) :
-        mx::EMPTY_STRING;
-    document = element ? element->getDocument() : nullptr;
+    return map;
+}
+} // anonymous namespace
+
+RenderItem::RenderItem(mx::TypedElementPtr elem,
+                       mx::FileSearchPath searchPath,
+                       mx::FilePath outPath)
+    : element(std::move(elem)),
+      document(element ? element->getDocument() : nullptr),
+      imageSearchPath(std::move(searchPath)),
+      outputPath(std::move(outPath)),
+      shaderName(element
+          ? mx::createValidName(mx::replaceSubstrings(element->getNamePath(), shaderNameSubstitutions()))
+          : mx::EMPTY_STRING)
+{
 }
 
 bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
@@ -106,7 +112,7 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
 
         for (const auto& element : docInfo.elements)
         {
-            RenderItem item { element, docInfo.imageSearchPath, docInfo.outputPath, nullptr };
+            RenderItem item { element, docInfo.imageSearchPath, docInfo.outputPath };
             auto result = runRenderer(session, item, *runState.context);
             profiler.times().languageTimes.accumulate(result.languageTimes);
             profiler.times().elementsTested += result.elementsTested;

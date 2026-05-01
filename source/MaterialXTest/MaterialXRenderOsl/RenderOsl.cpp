@@ -195,7 +195,7 @@ RenderUtil::RenderProfileResult OslShaderRenderTester::runRenderer(
 {
     RenderUtil::RenderProfileResult result;
     const std::string& shaderName = item.shaderName;
-    mx::DocumentPtr doc = item.doc();
+    mx::DocumentPtr doc = item.document;
     mx::TypedElementPtr element = item.element;
     const GenShaderUtil::TestSuiteOptions& testOptions = session.testOptions;
     std::ostream& log = session.log;
@@ -339,10 +339,7 @@ RenderUtil::RenderProfileResult OslShaderRenderTester::runRenderer(
                     {
                         mx::ScopedTimer renderTimer(&result.languageTimes.renderTime);
                         _renderer->render();
-                        if (item.imageVec)
-                        {
-                            item.imageVec->push_back(_renderer->captureImage());
-                        }
+                        result.images.push_back(_renderer->captureImage());
                     }
                 }
                 else
