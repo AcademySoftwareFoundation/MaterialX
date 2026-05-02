@@ -504,7 +504,7 @@
   <!-- <transformmatrix> -->
   <implementation name="IM_transformmatrix_vector2M3_genosl" nodedef="ND_transformmatrix_vector2M3" function="mx_transformmatrix_vector2M3" file="mx_transformmatrix_vector2M3.osl" target="genosl" />
   <implementation name="IM_transformmatrix_vector3_genosl" nodedef="ND_transformmatrix_vector3" target="genosl" sourcecode="transform({{mat}}, {{in}})" />
-  <implementation name="IM_transformmatrix_vector3M4_genosl" nodedef="ND_transformmatrix_vector3M4" target="genosl" sourcecode="transform({{mat}}, {{in}})" />
+  <implementation name="IM_transformmatrix_vector3M4_genosl" nodedef="ND_transformmatrix_vector3M4" target="genosl" sourcecode="transform({{mat}}, point({{in}}))" />
   <implementation name="IM_transformmatrix_vector4_genosl" nodedef="ND_transformmatrix_vector4" target="genosl" sourcecode="transform({{mat}}, {{in}})" />
 
   <!-- <transpose> -->
