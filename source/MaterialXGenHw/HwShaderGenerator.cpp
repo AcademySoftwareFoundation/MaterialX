@@ -8,12 +8,15 @@
 #include <MaterialXGenHw/HwConstants.h>
 #include <MaterialXGenHw/HwLightShaders.h>
 #include <MaterialXGenHw/Nodes/HwLightCompoundNode.h>
+#include <MaterialXGenHw/Nodes/HwMaterialCompoundNode.h>
 #include <MaterialXGenShader/Exception.h>
 #include <MaterialXGenShader/Nodes/CompoundNode.h>
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXCore/Definition.h>
 #include <MaterialXCore/Document.h>
+
+#include <MaterialXTrace/Tracing.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -88,8 +91,17 @@ HwShaderGenerator::HwShaderGenerator(TypeSystemPtr typeSystem, SyntaxPtr syntax)
     _tokenSubstitutions[HW::T_CLOSURE_DATA_CONSTRUCTOR] = HW::CLOSURE_DATA_CONSTRUCTOR;
 }
 
+void HwShaderGenerator::applyDefaultOptions(GenOptions& options) const
+{
+    ShaderGenerator::applyDefaultOptions(options);
+    options.premultipliedBsdfAdd = true;
+}
+
 ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element, GenContext& context) const
 {
+    MX_TRACE_FUNCTION(Tracing::Category::ShaderGen);
+    MX_TRACE_SCOPE(Tracing::Category::ShaderGen, name.c_str());
+
     // Create the root shader graph
     ShaderGraphPtr graph = ShaderGraph::create(nullptr, name, element, context);
     ShaderPtr shader = std::make_shared<Shader>(name, graph);
@@ -400,11 +412,17 @@ ShaderNodeImplPtr HwShaderGenerator::createShaderNodeImplForNodeGraph(const Node
 
     const TypeDesc outputType = _typeSystem->getType(outputs[0]->getType());
 
-    // Use a compound implementation.
+    // Use specialized implementations for nodes that output light shaders and materials.
     if (outputType == Type::LIGHTSHADER)
     {
         return HwLightCompoundNode::create();
     }
+    if (outputType == Type::MATERIAL)
+    {
+        return HwMaterialCompoundNode::create();
+    }
+
+    // Use the base implementation for nodes that output other types.
     return CompoundNode::create();
 }
 

@@ -61,6 +61,12 @@ vec3 mx_ggx_importance_sample_VNDF(vec2 Xi, vec3 V, vec2 alpha)
     return H;
 }
 
+// PDF of a reflection direction sampled from the GGX VNDF.
+float mx_ggx_VNDF_reflection_PDF(vec3 H, vec2 alpha, float G1V, float NdotV)
+{
+    return mx_ggx_NDF(H, alpha) * G1V / (4.0 * NdotV);
+}
+
 // https://www.cs.cornell.edu/~srm/publications/EGSR07-btdf.pdf
 // Equation 34
 float mx_ggx_smith_G1(float cosTheta, float alpha)
@@ -470,9 +476,38 @@ vec3 mx_compute_fresnel(float cosTheta, FresnelData fd)
     {
         return mx_fresnel_conductor(cosTheta, fd.ior, fd.extinction);
     }
-    else
+    else // FRESNEL_MODEL_SCHLICK
     {
         return mx_fresnel_hoffman_schlick(cosTheta, fd);
+    }
+}
+
+// Directional albedo accounting for different Fresnel functions.
+vec3 mx_ggx_dir_albedo(float NdotV, float alpha, FresnelData fd)
+{
+    if (fd.airy)
+    {
+        // Approximation using a blend between mirror (alpha = 0)
+        // and rougher cases. This helps to maintain angular
+        // color variation at lower roughness values.
+        vec3 mirrorDirAlbedo = mx_compute_fresnel(NdotV, fd);
+        vec3 F0 = mx_fresnel_airy(1.0, fd);
+        vec3 roughDirAlbedo = mx_ggx_dir_albedo(NdotV, alpha, F0, vec3(1.0));
+        return mix(mirrorDirAlbedo, roughDirAlbedo, sqrt(alpha));
+    }
+    else if (fd.model == FRESNEL_MODEL_DIELECTRIC)
+    {
+        float F0 = mx_ior_to_f0(fd.ior.x);
+        return mx_ggx_dir_albedo(NdotV, alpha, vec3(F0), vec3(1.0));
+    }
+    else if (fd.model == FRESNEL_MODEL_CONDUCTOR)
+    {
+        vec3 F0 = mx_fresnel_conductor(1.0, fd.ior, fd.extinction);
+        return mx_ggx_dir_albedo(NdotV, alpha, F0, vec3(1.0));
+    }
+    else // FRESNEL_MODEL_SCHLICK
+    {
+        return mx_ggx_dir_albedo(NdotV, alpha, fd.F0, fd.F90);
     }
 }
 

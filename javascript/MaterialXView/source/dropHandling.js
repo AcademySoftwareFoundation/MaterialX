@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import * as fflate from 'three/examples/jsm/libs/fflate.module.js';
+import * as fflate from 'fflate';
 
 const debugFileHandling = false;
 let loadingCallback = null;

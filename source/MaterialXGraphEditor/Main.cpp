@@ -34,6 +34,7 @@ const std::string options =
     "    --font [FILENAME]              Specify the name of the custom font file to use.  If not specified the default font will be used.\n"
     "    --fontSize [SIZE]              Specify font size to use for the custom font.  If not specified a default of 18 will be used.\n"
     "    --captureFilename [FILENAME]   Specify the filename to which the first rendered frame should be written\n"
+    "    --previewWidth [WIDTH]         Specify the width for image previews\n"
     "    --help                         Display the complete list of command-line options\n";
 
 template <class T> void parseToken(std::string token, std::string type, T& res)
@@ -72,6 +73,7 @@ int main(int argc, char* const argv[])
     float uiScale = 0.0f;
     std::string fontFilename;
     int fontSize = 18;
+    float previewWidth = 256.0f;
     std::string captureFilename;
 
     for (size_t i = 0; i < tokens.size(); i++)
@@ -114,6 +116,10 @@ int main(int argc, char* const argv[])
         else if (token == "--fontSize")
         {
             parseToken(nextToken, "integer", fontSize);
+        }
+        else if (token == "--previewWidth")
+        {
+            parseToken(nextToken, "float", previewWidth);
         }
         else if (token == "--captureFilename")
         {
@@ -199,6 +205,15 @@ int main(int argc, char* const argv[])
     }
     if (!customFont)
     {
+        const mx::FilePath defaultFontFile("resources/Fonts/Roboto-Regular.ttf");
+        mx::FilePath resolvedFontPath = searchPath.find(defaultFontFile);
+        if (!resolvedFontPath.isEmpty())
+        {
+            customFont = io.Fonts->AddFontFromFileTTF(resolvedFontPath.asString().c_str(), fontSize);
+        }
+    }
+    if (!customFont)
+    {
         io.Fonts->AddFontDefault();
     }
 
@@ -215,7 +230,8 @@ int main(int argc, char* const argv[])
                              searchPath,
                              libraryFolders,
                              viewWidth,
-                             viewHeight);
+                             viewHeight,
+                             previewWidth);
     if (!captureFilename.empty())
     {
         graph->getRenderer()->requestFrameCapture(captureFilename);
@@ -251,6 +267,11 @@ int main(int argc, char* const argv[])
         config.CustomZoomLevels.push_back(level);
     }
     ed::SetCurrentEditor(editorContext);
+    ed::Style& editorStyle = ed::GetStyle();
+    editorStyle.NodeRounding  = 5.0f;
+    editorStyle.PinRounding   = 2.0f;
+    editorStyle.GroupRounding = 3.0f;
+    editorStyle.LinkStrength  = 125.0f;
 
     // Main loop
     while (!glfwWindowShouldClose(window))

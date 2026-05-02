@@ -793,10 +793,21 @@ bool ValueElement::validate(string* message) const
     if (hasInterfaceName())
     {
         validateRequire(isA<Input>() || isA<Token>(), res, message, "Only input and token elements support interface names");
-        ConstNodeGraphPtr nodeGraph = getAncestorOfType<NodeGraph>();
-        ConstInterfaceElementPtr decl = nodeGraph ? nodeGraph->getDeclaration() : nullptr;
-        if (decl)
+        ConstGraphElementPtr graph = getAncestorOfType<GraphElement>();
+        if (graph && graph == getParent())
         {
+            // This element is a direct child of a graph element, so its
+            // interface name references a value element in the parent scope.
+            ConstElementPtr graphParent = graph->getParent();
+            graph = graphParent ? graphParent->getAncestorOfType<GraphElement>() : nullptr;
+        }
+        if (graph)
+        {
+            ConstInterfaceElementPtr decl = graph->getDeclaration();
+            if (!decl)
+            {
+                decl = graph;
+            }
             ValueElementPtr valueElem = decl->getActiveValueElement(getInterfaceName());
             validateRequire(valueElem != nullptr, res, message, "Interface name not found in referenced declaration");
             if (valueElem)

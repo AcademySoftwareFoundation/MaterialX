@@ -31,45 +31,30 @@ class MdlShaderRenderTester : public RenderUtil::ShaderRenderTester
   protected:
     void createRenderer(std::ostream& /*log*/) override { };
 
-    bool runRenderer(const std::string& shaderName,
-                     mx::TypedElementPtr element,
-                     mx::GenContext& context,
-                     mx::DocumentPtr doc,
-                     std::ostream& log,
-                     const GenShaderUtil::TestSuiteOptions& testOptions,
-                     RenderUtil::RenderProfileTimes& profileTimes,
-                     const mx::FileSearchPath& imageSearchPath,
-                     const std::string& outputPath = ".",
-                     mx::ImageVec* imageVec = nullptr) override;
-
-    void addSkipFiles() override
-    {
-        // The command-line assembled in runRenderer() assumes that the simple name of the MDL
-        // material is the same as "shaderName", but for this file the MDL material name gets a "1"
-        // suffix. Communicating the generated name from the stage to the shader could help, but in
-        // general it is probably better to give the main object a predictable name and use suffixes
-        // for internal objects.
-        _skipFiles.insert("translucent_bsdf.mtlx");
-    }
+    RenderUtil::RenderProfileResult runRenderer(
+        const RenderUtil::RenderSession& session,
+        const RenderUtil::RenderItem& item,
+        mx::GenContext& context) override;
 
     mx::DocumentPtr _last_doc;
 };
 
 // Renderer execution
-bool MdlShaderRenderTester::runRenderer(const std::string& shaderName,
-                                        mx::TypedElementPtr element,
-                                        mx::GenContext& context,
-                                        mx::DocumentPtr doc,
-                                        std::ostream& log,
-                                        const GenShaderUtil::TestSuiteOptions& testOptions,
-                                        RenderUtil::RenderProfileTimes& profileTimes,
-                                        const mx::FileSearchPath&,
-                                        const std::string& outputPath,
-                                        mx::ImageVec* /*imageVec*/)
+RenderUtil::RenderProfileResult MdlShaderRenderTester::runRenderer(
+    const RenderUtil::RenderSession& session,
+    const RenderUtil::RenderItem& item,
+    mx::GenContext& context)
 {
+    RenderUtil::RenderProfileResult result;
+    const std::string& shaderName = item.shaderName;
+    mx::DocumentPtr doc = item.document;
+    mx::TypedElementPtr element = item.element;
+    const GenShaderUtil::TestSuiteOptions& testOptions = session.testOptions;
+    std::ostream& log = session.log;
+
     std::cout << "Validating MDL rendering for: " << doc->getSourceUri() << ", element: " << element->getNamePath() << std::endl;
 
-    mx::ScopedTimer totalMDLTime(&profileTimes.languageTimes.totalTime);
+    mx::ScopedTimer totalMDLTime(&result.languageTimes.totalTime);
 
     mx::ShaderGenerator& shadergen = context.getShaderGenerator();
 
@@ -91,12 +76,12 @@ bool MdlShaderRenderTester::runRenderer(const std::string& shaderName,
 
         for (const auto& options : optionsList)
         {
-            profileTimes.elementsTested++;
+            result.elementsTested++;
 
             mx::ShaderPtr shader;
             try
             {
-                mx::ScopedTimer genTimer(&profileTimes.languageTimes.generationTime);
+                mx::ScopedTimer genTimer(&result.languageTimes.generationTime);
                 mx::GenOptions& contextOptions = context.getOptions();
                 contextOptions = options;
                 contextOptions.targetColorSpaceOverride = "lin_rec709";
@@ -118,14 +103,15 @@ bool MdlShaderRenderTester::runRenderer(const std::string& shaderName,
             if (shader == nullptr)
             {
                 log << ">> Failed to generate shader\n";
-                return false;
+                result.success = false;
+                return result;
             }
             CHECK(shader->getSourceCode().length() > 0);
 
             std::string mdlCmdStr = shader->getSourceCode();
 
             std::string shaderPath;
-            mx::FilePath outputFilePath = outputPath;
+            mx::FilePath outputFilePath = item.outputPath;
             // Use separate directory for reduced output
             if (options.shaderInterfaceType == mx::SHADER_INTERFACE_REDUCED)
             {
@@ -134,15 +120,15 @@ bool MdlShaderRenderTester::runRenderer(const std::string& shaderName,
 
             // Note: mkdir will fail if the directory already exists which is ok.
             {
-                mx::ScopedTimer ioDir(&profileTimes.languageTimes.ioTime);
-                outputFilePath.createDirectory();
+                mx::ScopedTimer ioDir(&result.languageTimes.ioTime);
+                outputFilePath.createDirectory(true);
             }
 
             shaderPath = outputFilePath / mx::FilePath(shaderName);
 
             // Write out mdl file
             {
-                mx::ScopedTimer ioTimer(&profileTimes.languageTimes.ioTime);
+                mx::ScopedTimer ioTimer(&result.languageTimes.ioTime);
                 std::ofstream file;
                 file.open(shaderPath + ".rendermdl.mdl");
                 file << shader->getSourceCode();
@@ -167,8 +153,8 @@ bool MdlShaderRenderTester::runRenderer(const std::string& shaderName,
                     command += " --mdl_path \"" + sp.asString() + "\"";
                 }
 
-                // Set MDL search path for the module itself.
-                command += " --mdl_path \"" + outputPath + "\"";
+                // Set MDL search path for the module itself (directory containing the .mdl file).
+                command += " --mdl_path \"" + outputFilePath.asString() + "\"";
 
                 // Set environment
                 mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
@@ -184,6 +170,8 @@ bool MdlShaderRenderTester::runRenderer(const std::string& shaderName,
                 command += " --materialxtest_mode"; // align texcoord space with OSL
 
                 // Application setup
+                command += " --noaux";
+                command += " --nocc";
                 command += " --no_shader_opt";      // does not pay off for the testsuite
                 command += " --no_window";
                 command += " --warning";            // filter info messages from the log
@@ -224,14 +212,6 @@ bool MdlShaderRenderTester::runRenderer(const std::string& shaderName,
                     log << "\tLog: " << line << std::endl;
                 }
                 validated = true;
-
-                // Remove output images for auxiliary buffers (not needed here, no error checking)
-                std::string aux_buffers[]
-                    = { "_albedo", "_normal", "_albedo_diffuse", "_albedo_glossy", "_roughness" };
-                for (const auto& aux_buffer : aux_buffers)
-                {
-                    std::remove((shaderPath + "_mdl" + aux_buffer + ext).c_str());
-                }
             }
             catch (mx::ExceptionRenderError& e)
             {
@@ -246,10 +226,12 @@ bool MdlShaderRenderTester::runRenderer(const std::string& shaderName,
                 log << e.what() << "\n";
             }
             CHECK(validated);
+            if (!validated)
+                result.success = false;
         }
     }
 
-    return true;
+    return result;
 }
 
 TEST_CASE("Render: MDL TestSuite", "[rendermdl]")

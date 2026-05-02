@@ -126,6 +126,12 @@ class Viewer : public ng::Screen
         _genContext.getOptions().hwShadowMap = enable;
     }
 
+    // Enable or disable direct lighting.
+    void setDirectLightEnable(bool enable)
+    {
+        _lightHandler->setDirectLighting(enable);
+    }
+
     // Enable or disable drawing environment as the background.
     void setDrawEnvironment(bool enable)
     {
