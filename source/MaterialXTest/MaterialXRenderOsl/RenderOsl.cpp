@@ -92,16 +92,10 @@ class OslShaderRenderTester : public RenderUtil::ShaderRenderTester
   protected:
     void createRenderer(std::ostream& log) override;
 
-    bool runRenderer(const std::string& shaderName,
-                     mx::TypedElementPtr element,
-                     mx::GenContext& context,
-                     mx::DocumentPtr doc,
-                     std::ostream& log,
-                     const GenShaderUtil::TestSuiteOptions& testOptions,
-                     RenderUtil::RenderProfileTimes& profileTimes,
-                     const mx::FileSearchPath& imageSearchPath,
-                     const std::string& outputPath = ".",
-                     mx::ImageVec* imageVec = nullptr) override;
+    RenderUtil::RenderProfileResult runRenderer(
+        const RenderUtil::RenderSession& session,
+        const RenderUtil::RenderItem& item,
+        mx::GenContext& context) override;
 
     void addSkipFiles() override
     {
@@ -194,20 +188,21 @@ void OslShaderRenderTester::createRenderer(std::ostream& log)
 }
 
 // Renderer execution
-bool OslShaderRenderTester::runRenderer(const std::string& shaderName,
-                                         mx::TypedElementPtr element,
-                                         mx::GenContext& context,
-                                         mx::DocumentPtr doc,
-                                         std::ostream& log,
-                                         const GenShaderUtil::TestSuiteOptions& testOptions,
-                                         RenderUtil::RenderProfileTimes& profileTimes,
-                                         const mx::FileSearchPath&,
-                                         const std::string& outputPath,
-                                         mx::ImageVec* imageVec)
+RenderUtil::RenderProfileResult OslShaderRenderTester::runRenderer(
+    const RenderUtil::RenderSession& session,
+    const RenderUtil::RenderItem& item,
+    mx::GenContext& context)
 {
+    RenderUtil::RenderProfileResult result;
+    const std::string& shaderName = item.shaderName;
+    mx::DocumentPtr doc = item.document;
+    mx::TypedElementPtr element = item.element;
+    const GenShaderUtil::TestSuiteOptions& testOptions = session.testOptions;
+    std::ostream& log = session.log;
+
     std::cout << "Validating OSL rendering for: " << doc->getSourceUri() << std::endl;
 
-    mx::ScopedTimer totalOSLTime(&profileTimes.languageTimes.totalTime);
+    mx::ScopedTimer totalOSLTime(&result.languageTimes.totalTime);
 
     mx::ShaderGenerator& shadergen = context.getShaderGenerator();
 
@@ -220,12 +215,12 @@ bool OslShaderRenderTester::runRenderer(const std::string& shaderName,
 
         for (const auto& options : optionsList)
         {
-            profileTimes.elementsTested++;
+            result.elementsTested++;
 
             mx::ShaderPtr shader;
             try
             {
-                mx::ScopedTimer genTimer(&profileTimes.languageTimes.generationTime);
+                mx::ScopedTimer genTimer(&result.languageTimes.generationTime);
                 mx::GenOptions& contextOptions = context.getOptions();
                 contextOptions = options;
                 contextOptions.targetColorSpaceOverride = "lin_rec709";
@@ -246,18 +241,19 @@ bool OslShaderRenderTester::runRenderer(const std::string& shaderName,
             if (shader == nullptr)
             {
                 log << ">> Failed to generate shader\n";
-                return false;
+                result.success = false;
+                return result;
             }
             CHECK(shader->getSourceCode().length() > 0);
 
             std::string oslCmdStr = shader->getSourceCode();
 
             std::string shaderPath;
-            mx::FilePath outputFilePath = outputPath;
+            mx::FilePath outputFilePath = item.outputPath;
             
             // Note: mkdir will fail if the directory already exists which is ok.
             {
-                mx::ScopedTimer ioDir(&profileTimes.languageTimes.ioTime);
+                mx::ScopedTimer ioDir(&result.languageTimes.ioTime);
                 outputFilePath.createDirectory(true);
                 
                 // Use separate directory for reduced output
@@ -273,7 +269,7 @@ bool OslShaderRenderTester::runRenderer(const std::string& shaderName,
             // Write out osl file
             if (testOptions.dumpGeneratedCode)
             {
-                mx::ScopedTimer ioTimer(&profileTimes.languageTimes.ioTime);
+                mx::ScopedTimer ioTimer(&result.languageTimes.ioTime);
                 std::ofstream file;
                 file.open(shaderPath + (_useOslCmdStr ? ".oslcmd" : ".osl"));
                 file << shader->getSourceCode();
@@ -293,7 +289,7 @@ bool OslShaderRenderTester::runRenderer(const std::string& shaderName,
                 // Validate compilation
                 if (!_useOslCmdStr)
                 {
-                    mx::ScopedTimer compileTimer(&profileTimes.languageTimes.compileTime);
+                    mx::ScopedTimer compileTimer(&result.languageTimes.compileTime);
                     _renderer->createProgram(shader);
                 }
 
@@ -341,12 +337,9 @@ bool OslShaderRenderTester::runRenderer(const std::string& shaderName,
 
                     // Validate rendering
                     {
-                        mx::ScopedTimer renderTimer(&profileTimes.languageTimes.renderTime);
+                        mx::ScopedTimer renderTimer(&result.languageTimes.renderTime);
                         _renderer->render();
-                        if (imageVec)
-                        {
-                            imageVec->push_back(_renderer->captureImage());
-                        }
+                        result.images.push_back(_renderer->captureImage());
                     }
                 }
                 else
@@ -376,10 +369,12 @@ bool OslShaderRenderTester::runRenderer(const std::string& shaderName,
                 log << e.what();
             }
             CHECK(validated);
+            if (!validated)
+                result.success = false;
         }
     }
 
-    return true;
+    return result;
 }
 
 TEST_CASE("Render: OSL TestSuite", "[renderosl]")

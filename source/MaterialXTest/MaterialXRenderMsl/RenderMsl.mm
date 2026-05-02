@@ -44,16 +44,10 @@ class MslShaderRenderTester : public RenderUtil::ShaderRenderTester
 
     void createRenderer(std::ostream& log) override;
 
-    bool runRenderer(const std::string& shaderName,
-                     mx::TypedElementPtr element,
-                     mx::GenContext& context,
-                     mx::DocumentPtr doc,
-                     std::ostream& log,
-                     const GenShaderUtil::TestSuiteOptions& testOptions,
-                     RenderUtil::RenderProfileTimes& profileTimes,
-                     const mx::FileSearchPath& imageSearchPath,
-                     const std::string& outputPath = ".",
-                     mx::ImageVec* imageVec = nullptr) override;
+    RenderUtil::RenderProfileResult runRenderer(
+        const RenderUtil::RenderSession& session,
+        const RenderUtil::RenderItem& item,
+        mx::GenContext& context) override;
 
     bool saveImage(const mx::FilePath& filePath, mx::ConstImagePtr image, bool verticalFlip) const override;
 
@@ -158,20 +152,21 @@ bool MslShaderRenderTester::saveImage(const mx::FilePath& filePath, mx::ConstIma
     return _renderer->getImageHandler()->saveImage(filePath, image, verticalFlip);
 }
 
-bool MslShaderRenderTester::runRenderer(const std::string& shaderName,
-                                          mx::TypedElementPtr element,
-                                          mx::GenContext& context,
-                                          mx::DocumentPtr doc,
-                                          std::ostream& log,
-                                          const GenShaderUtil::TestSuiteOptions& testOptions,
-                                          RenderUtil::RenderProfileTimes& profileTimes,
-                                          const mx::FileSearchPath& imageSearchPath,
-                                          const std::string& outputPath,
-                                          mx::ImageVec* imageVec)
+RenderUtil::RenderProfileResult MslShaderRenderTester::runRenderer(
+    const RenderUtil::RenderSession& session,
+    const RenderUtil::RenderItem& item,
+    mx::GenContext& context)
 {
+    RenderUtil::RenderProfileResult result;
+    const std::string& shaderName = item.shaderName;
+    mx::DocumentPtr doc = item.document;
+    mx::TypedElementPtr element = item.element;
+    const GenShaderUtil::TestSuiteOptions& testOptions = session.testOptions;
+    std::ostream& log = session.log;
+
     std::cout << "Validating MSL rendering for: " << doc->getSourceUri() << std::endl;
 
-    mx::ScopedTimer totalMSLTime(&profileTimes.languageTimes.totalTime);
+    mx::ScopedTimer totalMSLTime(&result.languageTimes.totalTime);
     mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
 
     const mx::ShaderGenerator& shadergen = context.getShaderGenerator();
@@ -185,13 +180,13 @@ bool MslShaderRenderTester::runRenderer(const std::string& shaderName,
 
         for (auto options : optionsList)
         {
-            profileTimes.elementsTested++;
+            result.elementsTested++;
 
-            mx::FilePath outputFilePath = outputPath;
+            mx::FilePath outputFilePath = item.outputPath;
             
             // Note: mkdir will fail if the directory already exists which is ok.
             {
-                mx::ScopedTimer ioDir(&profileTimes.languageTimes.ioTime);
+                mx::ScopedTimer ioDir(&result.languageTimes.ioTime);
                 outputFilePath.createDirectory(true);
                 
                 // Use separate directory for reduced output
@@ -206,11 +201,11 @@ bool MslShaderRenderTester::runRenderer(const std::string& shaderName,
             mx::ShaderPtr shader;
             try
             {
-                mx::ScopedTimer transpTimer(&profileTimes.languageTimes.transparencyTime);
+                mx::ScopedTimer transpTimer(&result.languageTimes.transparencyTime);
                 options.hwTransparency = mx::isTransparentSurface(element, shadergen.getTarget());
                 transpTimer.endTimer();
 
-                mx::ScopedTimer generationTimer(&profileTimes.languageTimes.generationTime);
+                mx::ScopedTimer generationTimer(&result.languageTimes.generationTime);
                 mx::GenOptions& contextOptions = context.getOptions();
                 contextOptions = options;
                 contextOptions.targetColorSpaceOverride = "lin_rec709";
@@ -227,7 +222,8 @@ bool MslShaderRenderTester::runRenderer(const std::string& shaderName,
             if (shader == nullptr)
             {
                 log << ">> Failed to generate shader\n";
-                return false;
+                result.success = false;
+                return result;
             }
             const std::string& vertexSourceCode = shader->getSourceCode(mx::Stage::VERTEX);
             const std::string& pixelSourceCode = shader->getSourceCode(mx::Stage::PIXEL);
@@ -236,7 +232,7 @@ bool MslShaderRenderTester::runRenderer(const std::string& shaderName,
 
             if (testOptions.dumpGeneratedCode)
             {
-                mx::ScopedTimer dumpTimer(&profileTimes.languageTimes.ioTime);
+                mx::ScopedTimer dumpTimer(&result.languageTimes.ioTime);
                 std::ofstream file;
                 file.open(shaderPath + "_vs.metal");
                 file << vertexSourceCode;
@@ -285,7 +281,7 @@ bool MslShaderRenderTester::runRenderer(const std::string& shaderName,
                 bool isShader = mx::elementRequiresShading(element);
                 _renderer->setLightHandler(isShader ? _lightHandler : nullptr);
                 {
-                    mx::ScopedTimer compileTimer(&profileTimes.languageTimes.compileTime);
+                    mx::ScopedTimer compileTimer(&result.languageTimes.compileTime);
                     _renderer->createProgram(shader);
                     _renderer->validateInputs();
                 }
@@ -293,7 +289,7 @@ bool MslShaderRenderTester::runRenderer(const std::string& shaderName,
                 if (testOptions.dumpUniformsAndAttributes)
                 {
                     MaterialX::MslProgramPtr program = _renderer->getProgram();
-                    mx::ScopedTimer printTimer(&profileTimes.languageTimes.ioTime);
+                    mx::ScopedTimer printTimer(&result.languageTimes.ioTime);
                     log << "* Uniform:" << std::endl;
                     program->printUniforms(log);
                     log << "* Attributes:" << std::endl;
@@ -352,8 +348,8 @@ bool MslShaderRenderTester::runRenderer(const std::string& shaderName,
                 int supersampleFactor = testOptions.enableReferenceQuality ? 8 : 1;
 
                 {
-                    mx::ScopedTimer renderTimer(&profileTimes.languageTimes.renderTime);
-                    _renderer->getImageHandler()->setSearchPath(imageSearchPath);
+                    mx::ScopedTimer renderTimer(&result.languageTimes.renderTime);
+                    _renderer->getImageHandler()->setSearchPath(item.imageSearchPath);
                     unsigned int width = (unsigned int) testOptions.renderSize[0] * supersampleFactor;
                     unsigned int height = (unsigned int) testOptions.renderSize[1] * supersampleFactor;
                     _renderer->setSize(width, height);
@@ -361,7 +357,7 @@ bool MslShaderRenderTester::runRenderer(const std::string& shaderName,
                 }
 
                 {
-                    mx::ScopedTimer ioTimer(&profileTimes.languageTimes.imageSaveTime);
+                    mx::ScopedTimer ioTimer(&result.languageTimes.imageSaveTime);
                     std::string fileName = shaderPath + "_msl.png";
                     mx::ImagePtr image = _renderer->captureImage();
                     if (image)
@@ -371,10 +367,7 @@ bool MslShaderRenderTester::runRenderer(const std::string& shaderName,
                             image = image->applyBoxDownsample(supersampleFactor);
                         }
                         _renderer->getImageHandler()->saveImage(fileName, image, true);
-                        if (imageVec)
-                        {
-                            imageVec->push_back(image);
-                        }
+                        result.images.push_back(image);
                     }
                 }
 
@@ -404,9 +397,11 @@ bool MslShaderRenderTester::runRenderer(const std::string& shaderName,
                 WARN(std::string(e.what()) + " in " + shaderPath);
             }
             CHECK(validated);
+            if (!validated)
+                result.success = false;
         }
     }
-    return true;
+    return result;
 }
 
 TEST_CASE("Render: MSL TestSuite", "[rendermsl]")
