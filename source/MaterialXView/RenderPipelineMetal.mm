@@ -755,5 +755,12 @@ mx::ImagePtr MetalRenderPipeline::getFrameImage()
     }
     
     framebuffer = nullptr;
+    unsigned int downsampleFactor = (unsigned int) std::round(_viewer->m_pixel_ratio);
+    if (downsampleFactor > 1 &&
+        frame->getWidth() == (unsigned int) _viewer->m_size.x() * downsampleFactor &&
+        frame->getHeight() == (unsigned int) _viewer->m_size.y() * downsampleFactor)
+    {
+        frame = frame->applyBoxDownsample(downsampleFactor);
+    }
     return frame;
 }
