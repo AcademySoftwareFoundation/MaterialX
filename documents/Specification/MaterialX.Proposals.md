@@ -37,6 +37,49 @@ As such, those forward-looking proposals have been moved from the formal Specifi
 # Proposals: General<a id="propose-general"></a>
 
 
+## Standardized Metadata
+
+Many 3D content formats, include glTF and USD, include metadata for display, licensing, provenance, and indexing.  MaterialX can represent this metadata using `attributedef` declarations and attributes on the root `<materialx>` element.  A good initial set of standardized, but optional metadata fields, would be:
+
+| Field | Format | Notes |
+|-------|--------|-------|
+| `materialx_name` | string | Human-readable material name |
+| `materialx_authors` | string | Comma-separated author list; email addresses may be included |
+| `materialx_license` | string | SPDX identifier such as `CC0-1.0`, `CC-BY-4.0`, or `MIT`; free strings are also allowed |
+| `materialx_license_url` | URL | Link to the full license text |
+| `materialx_source_url` | URL | Canonical source location for the material |
+| `materialx_version` | string | Material asset version, such as a SemVer value |
+| `materialx_description` | string | Free-text material description |
+| `materialx_keywords` | string | Comma-separated search and discovery keywords |
+
+Example:
+
+```xml
+<?xml version="1.0"?>
+<materialx version="1.39" colorspace="lin_rec709"
+  materialx_name="Marble Cliff"
+  materialx_authors="Ben Houston (ben@ben3d.ca), jcaron"
+  materialx_license="CC0-1.0"
+  materialx_license_url="https://creativecommons.org/publicdomain/zero/1.0/"
+  materialx_source_url="https://example.com/materials/marble-cliff"
+  materialx_version="1.0.0"
+  materialx_description="A weathered marble cliff face with natural veining and displacement."
+  materialx_keywords="marble, cliff, rock, natural, displacement, tiled">
+
+  <attributedef name="materialx_name"        attrname="materialx_name"        type="string" value="" elements="materialx"/>
+  <attributedef name="materialx_authors"     attrname="materialx_authors"     type="string" value="" elements="materialx"/>
+  <attributedef name="materialx_license"     attrname="materialx_license"     type="string" value="" elements="materialx"/>
+  <attributedef name="materialx_license_url" attrname="materialx_license_url" type="string" value="" elements="materialx"/>
+  <attributedef name="materialx_source_url"  attrname="materialx_source_url"  type="string" value="" elements="materialx"/>
+  <attributedef name="materialx_version"     attrname="materialx_version"     type="string" value="" elements="materialx"/>
+  <attributedef name="materialx_description" attrname="materialx_description" type="string" value="" elements="materialx"/>
+  <attributedef name="materialx_keywords"    attrname="materialx_keywords"    type="string" value="" elements="materialx"/>
+
+  <!-- material graph ... -->
+</materialx>
+```
+
+
 ## Single-File MaterialX Container
 
 A number of users and developers have discussed the usefulness of a single-file MaterialX container format, along with features that would make such a format practical for online material libraries, publishing workflows, and interchange between applications.  This proposal suggests formalizing the `.mtlx.zip` convention already used by the [AMD Material Library](https://matlib.gpuopen.com/main/materials/all) and [Poly Haven](https://polyhaven.com/materials) as a dedicated `.mtlz` format.
@@ -82,50 +125,6 @@ For efficient streaming, the root `.mtlx` file should be stored first in the zip
 For efficient direct access, package writers should consider storing files without zip compression.  This follows the same general rationale as USDZ, where uncompressed zip storage can support direct memory access to package contents.  Many texture formats are already internally compressed, so zip compression may provide limited benefit while adding decoding overhead.
 
 These layout recommendations are not required for a package to be structurally valid, but they provide useful guidance for tools that create `.mtlz` files intended for web delivery, rendering, or large material libraries.
-
-### Metadata
-
-Many package formats include metadata for display, licensing, provenance, and indexing.  MaterialX can represent this metadata using `attributedef` declarations and attributes on the root `<materialx>` element.  The following optional metadata fields are proposed for `.mtlz` packages and may also be useful in ordinary `.mtlx` files:
-
-| Field | Format | Notes |
-|-------|--------|-------|
-| `materialx_name` | string | Human-readable material name |
-| `materialx_authors` | string | Comma-separated author list; email addresses may be included |
-| `materialx_license` | string | SPDX identifier such as `CC0-1.0`, `CC-BY-4.0`, or `MIT`; free strings are also allowed |
-| `materialx_license_url` | URL | Link to the full license text |
-| `materialx_source_url` | URL | Canonical source location for the material |
-| `materialx_version` | string | Material asset version, such as a SemVer value |
-| `materialx_description` | string | Free-text material description |
-| `materialx_keywords` | string | Comma-separated search and discovery keywords |
-
-Example:
-
-```xml
-<?xml version="1.0"?>
-<materialx version="1.39" colorspace="lin_rec709"
-  materialx_name="Marble Cliff"
-  materialx_authors="Ben Houston (ben@ben3d.ca), jcaron"
-  materialx_license="CC0-1.0"
-  materialx_license_url="https://creativecommons.org/publicdomain/zero/1.0/"
-  materialx_source_url="https://example.com/materials/marble-cliff"
-  materialx_version="1.0.0"
-  materialx_description="A weathered marble cliff face with natural veining and displacement."
-  materialx_keywords="marble, cliff, rock, natural, displacement, tiled">
-
-  <attributedef name="materialx_name"        attrname="materialx_name"        type="string" value="" elements="materialx"/>
-  <attributedef name="materialx_authors"     attrname="materialx_authors"     type="string" value="" elements="materialx"/>
-  <attributedef name="materialx_license"     attrname="materialx_license"     type="string" value="" elements="materialx"/>
-  <attributedef name="materialx_license_url" attrname="materialx_license_url" type="string" value="" elements="materialx"/>
-  <attributedef name="materialx_source_url"  attrname="materialx_source_url"  type="string" value="" elements="materialx"/>
-  <attributedef name="materialx_version"     attrname="materialx_version"     type="string" value="" elements="materialx"/>
-  <attributedef name="materialx_description" attrname="materialx_description" type="string" value="" elements="materialx"/>
-  <attributedef name="materialx_keywords"    attrname="materialx_keywords"    type="string" value="" elements="materialx"/>
-
-  <!-- material graph ... -->
-</materialx>
-```
-
-All of these fields are optional for baseline `.mtlz` validity.  Material libraries, marketplaces, or production pipelines may choose to require a subset of them for indexing, moderation, provenance, or discovery.
 
 ### Command-Line Tooling
 
