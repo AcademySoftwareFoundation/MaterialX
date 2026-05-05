@@ -56,7 +56,7 @@ struct MX_RENDERMSL_API MetalState
     id<MTLRenderCommandEncoder> renderCmdEncoder = nil;
     std::stack<MaterialX::MetalFramebufferPtr> framebufferStack;
 
-    bool supportsTiledPipeline;
+    bool supportsTiledPipeline = false;
 
     id<MTLDepthStencilState> opaqueDepthStencilState = nil;
     id<MTLDepthStencilState> transparentDepthStencilState = nil;
