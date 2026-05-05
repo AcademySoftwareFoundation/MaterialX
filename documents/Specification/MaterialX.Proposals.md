@@ -94,15 +94,27 @@ A single-file package also makes it easier to extract one material from a larger
 
 A dedicated `.mtlz` extension and media type would make the package recognizable to operating systems, browsers, CDNs, and applications.  The extension communicates that the file is a MaterialX material package, while the archive structure makes the root `.mtlx` file unambiguous.
 
+Specific painpoints:
+
+* The issue with formats that have multiple files instead of containers when it comes to user downloads is that most browsers do not support multi-file downloads, especially if some of those files are intended to have relative paths to each other.  So most websites that allow you to get multi-file formats just zip them up anyhow.
+
+* The issue with multiple files for uploads is two fold.  First one has to run validation on the server to ensure that all of the files expected have been uploaded, which is painful for users and workflows in general.  Second, mtlx files can have relative paths, but a user upload of multiple files will generally result in a flat list, thus necessitating guessing to resolve those relative paths.
+
+* The issue with multiple downloads for consumption by a website (e.g 3D viewer), is that if you have multiple files with dependencies between, you have to download the first mtlx file, parse it, and then make subsequent requests to the server for the textures/resources.  Those subsequent requests best case are around 100ms later because of this sequentialization.  Downloading the file zip at once, especially if you are incrementally parsing, means you avoid that additional roundtrip request.
+
 ### Technical Format
 
 An `.mtlz` package is a zip archive with the following baseline rules:
 
-* The archive contains exactly one `.mtlx` file at the root level.  This file is the root MaterialX document to load.
+* The archive contains exactly one `.mtlx` file at the root level AND it is also the first file stored in the zip archive.  This file is the root MaterialX document to load.
 * All other content is stored in subdirectories, including textures, included node definitions, and other referenced resources.
 * Relative file references in the root `.mtlx` document are resolved within the package.
 * The file extension is `.mtlz`.
 * The media type is `model/materialx+zip`.
+* Archive must be in ZIP32 format (not ZIP64).
+* Archive must not be encrypted.
+* Resource files in the archive must not be compressed.
+* Resource files in the archive must be aligned at 64 byte boundaries.
 
 A typical package layout might be:
 
@@ -118,13 +130,15 @@ marble_cliff.mtlz
 
 The rule that exactly one `.mtlx` file appears at the root lets readers identify the package entry point without requiring a manifest.  Other `.mtlx` files may be included in subdirectories when referenced by the root document.
 
-### Archive Layout Recommendations
+### Efficient Archive Layout
 
-For efficient streaming, the root `.mtlx` file should be stored first in the zip archive.  This lets a reader inspect the MaterialX graph and its referenced resources before the rest of the archive has been downloaded.
+Rational for the archive layout requirements (replicated from the USDZ standard) are:
 
-For efficient direct access, package writers should consider storing files without zip compression.  This follows the same general rationale as USDZ, where uncompressed zip storage can support direct memory access to package contents.  Many texture formats are already internally compressed, so zip compression may provide limited benefit while adding decoding overhead.
+* For efficient streaming, the root `.mtlx` file must be stored first in the zip archive (not just as the first entry in the zip table of contents).  This lets a streaming reader inspect the MaterialX graph and its referenced resources before the rest of the archive has been downloaded.
 
-These layout recommendations are not required for a package to be structurally valid, but they provide useful guidance for tools that create `.mtlz` files intended for web delivery, rendering, or large material libraries.
+* To enable rendering directly from .mtlz files, the resources files must be stored without no compression.  This enables the files to be memory mapped from within the archive for direct access by renders.
+
+* For cache efficiency when memory mapping, it is necessary that the start of assets in the archive be aligned at 64 byte boundaries offset from the beginning of the archive.  64 bytes is the standard cache line for current AMD64/ARM64 processors used across the industry.
 
 ### Command-Line Tooling
 
