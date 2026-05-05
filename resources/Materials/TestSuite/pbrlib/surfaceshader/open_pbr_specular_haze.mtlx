@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<materialx version="1.39" colorspace="lin_rec709">
+  <surfacematerial name="dielectric_haze" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="dielectric_haze_shader" />
+  </surfacematerial>
+  <open_pbr_surface name="dielectric_haze_shader" type="surfaceshader">
+    <input name="specular_roughness" type="float" value="0.1" />
+    <input name="specular_haze" type="float" value="0.5" />
+    <input name="specular_haze_spread" type="float" value="0.5" />
+  </open_pbr_surface>
+  <surfacematerial name="metallic_haze" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="metallic_haze_shader" />
+  </surfacematerial>
+  <open_pbr_surface name="metallic_haze_shader" type="surfaceshader">
+    <input name="base_metalness" type="float" value="1.0" />
+    <input name="base_color" type="color3" value="0.9, 0.7, 0.4" />
+    <input name="specular_roughness" type="float" value="0.15" />
+    <input name="specular_haze" type="float" value="0.5" />
+    <input name="specular_haze_spread" type="float" value="0.3" />
+  </open_pbr_surface>
+</materialx>

@@ -250,6 +250,8 @@ class Graph
     void addPinPopup();
     bool readOnly();
     void readOnlyPopup();
+    void nodeVersionPopup();
+    void switchNodeVersion(UiNodePtr node, mx::NodeDefPtr newNodeDef);
 
     // Compiling shaders message
     void shaderPopup();
@@ -329,6 +331,7 @@ class Graph
     bool _popup;
     bool _shaderPopup;
     int _searchNodeId;
+    int _contextMenuNodeId;
     bool _addNewNode;
     bool _ctrlClick;
     bool _isCut;

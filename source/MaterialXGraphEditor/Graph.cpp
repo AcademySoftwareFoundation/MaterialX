@@ -12,8 +12,10 @@
 #include <imgui_node_editor_internal.h>
 #include <widgets.h>
 
+#include <algorithm>
 #include <cctype>
 #include <iostream>
+#include <set>
 
 namespace
 {
@@ -138,6 +140,7 @@ Graph::Graph(const std::string& materialFilename,
     _popup(false),
     _shaderPopup(false),
     _searchNodeId(-1),
+    _contextMenuNodeId(-1),
     _addNewNode(false),
     _ctrlClick(false),
     _isCut(false),
@@ -1129,6 +1132,11 @@ void Graph::createNodeUIList(mx::DocumentPtr doc)
 
     for (const auto& nodeDef : nodeDefs)
     {
+        // Skip non-default versions from the add-node menu.
+        // Users create the default version, then switch via right-click context menu.
+        if (!nodeDef->getVersionString().empty() && !nodeDef->getDefaultVersion())
+            continue;
+
         std::string group = nodeDef->getNodeGroup();
         if (group.empty())
         {
@@ -3975,6 +3983,144 @@ void Graph::readOnlyPopup()
     }
 }
 
+void Graph::nodeVersionPopup()
+{
+    if (ImGui::BeginPopup("node version"))
+    {
+        int pos = findNode(_contextMenuNodeId);
+        if (pos >= 0)
+        {
+            UiNodePtr uiNode = _state.nodes[pos];
+            mx::NodePtr mxNode = uiNode->getNode();
+            if (mxNode)
+            {
+                std::string category = mxNode->getCategory();
+                std::vector<mx::NodeDefPtr> matchingNodeDefs = _graphDoc->getMatchingNodeDefs(category);
+
+                if (matchingNodeDefs.size() > 1)
+                {
+                    ImGui::Text("Switch Version: %s", category.c_str());
+                    ImGui::Separator();
+                    mx::NodeDefPtr currentNodeDef = mxNode->getNodeDef();
+                    for (mx::NodeDefPtr nodeDef : matchingNodeDefs)
+                    {
+                        std::string version = nodeDef->getVersionString();
+                        std::string label = version.empty() ? getUserNodeDefName(nodeDef->getName()) : "v" + version;
+                        bool isCurrent = currentNodeDef && (currentNodeDef->getName() == nodeDef->getName());
+                        if (isCurrent)
+                        {
+                            ImGui::Text("[current] %s", label.c_str());
+                        }
+                        else if (!readOnly() && ImGui::MenuItem(label.c_str()))
+                        {
+                            switchNodeVersion(uiNode, nodeDef);
+                            ImGui::CloseCurrentPopup();
+                        }
+                    }
+                }
+                else
+                {
+                    ImGui::Text("No other versions available");
+                }
+            }
+        }
+        ImGui::EndPopup();
+    }
+}
+
+void Graph::switchNodeVersion(UiNodePtr uiNode, mx::NodeDefPtr newNodeDef)
+{
+    mx::NodePtr mxNode = uiNode->getNode();
+    if (!mxNode || !newNodeDef)
+        return;
+
+    // Bind the node to the new version using the version attribute (spec-compliant).
+    // This keeps saved files clean — no internal auto-renamed nodedef strings are written out.
+    mxNode->removeAttribute(mx::InterfaceElement::NODE_DEF_ATTRIBUTE);
+    if (!newNodeDef->getVersionString().empty() && !newNodeDef->getDefaultVersion())
+        mxNode->setVersionString(newNodeDef->getVersionString());
+    else
+        mxNode->removeAttribute(mx::InterfaceElement::VERSION_ATTRIBUTE);
+
+    // Collect input names defined by the new nodedef
+    std::set<std::string> newInputNames;
+    for (mx::InputPtr input : newNodeDef->getActiveInputs())
+        newInputNames.insert(input->getName());
+
+    // Remove inputs from the MX node that are not in the new nodedef
+    std::vector<std::string> inputsToRemove;
+    for (mx::InputPtr input : mxNode->getInputs())
+    {
+        if (newInputNames.find(input->getName()) == newInputNames.end())
+            inputsToRemove.push_back(input->getName());
+    }
+    for (const std::string& name : inputsToRemove)
+        mxNode->removeInput(name);
+
+    // Disconnect UI edges for input pins that are being removed
+    for (UiPinPtr pin : uiNode->getInputPins())
+    {
+        if (newInputNames.find(pin->getName()) == newInputNames.end())
+        {
+            UiNodePtr upNode = uiNode->getConnectedNode(pin->getName());
+            if (upNode)
+            {
+                upNode->removeOutputConnection(uiNode->getName());
+                uiNode->eraseEdge(upNode->getId(), pin);
+            }
+        }
+    }
+
+    // Remove obsolete edges from the global edge list
+    for (size_t i = _state.edges.size(); i > 0; --i)
+    {
+        const UiEdge& edge = _state.edges[i - 1];
+        if (edge.getDown()->getId() == uiNode->getId())
+        {
+            mx::InputPtr edgeInput = edge.getInput();
+            if (edgeInput && newInputNames.find(edgeInput->getName()) == newInputNames.end())
+                _state.edges.erase(_state.edges.begin() + (i - 1));
+        }
+    }
+
+    // Remove all existing pins for this node from the global pin list
+    for (UiPinPtr pin : uiNode->getInputPins())
+        _state.pins.erase(std::remove(_state.pins.begin(), _state.pins.end(), pin), _state.pins.end());
+    for (UiPinPtr pin : uiNode->getOutputPins())
+        _state.pins.erase(std::remove(_state.pins.begin(), _state.pins.end(), pin), _state.pins.end());
+
+    // Clear pin collections on the UiNode
+    uiNode->getInputPins().clear();
+    uiNode->getOutputPins().clear();
+
+    // Rebuild input pins from the new nodedef
+    for (mx::InputPtr input : newNodeDef->getActiveInputs())
+    {
+        // Use the node's actual input element if it exists (preserves connected/valued inputs)
+        if (mxNode->getInput(input->getName()))
+            input = mxNode->getInput(input->getName());
+        UiPinPtr inPin = std::make_shared<UiPin>(_state.nextUiId, uiNode, ax::NodeEditor::PinKind::Input, input);
+        uiNode->getInputPins().push_back(inPin);
+        _state.pins.push_back(inPin);
+        ++_state.nextUiId;
+    }
+
+    // Rebuild output pins from the new nodedef
+    for (mx::OutputPtr output : newNodeDef->getActiveOutputs())
+    {
+        if (mxNode->getOutput(output->getName()))
+            output = mxNode->getOutput(output->getName());
+        UiPinPtr outPin = std::make_shared<UiPin>(_state.nextUiId, uiNode, ax::NodeEditor::PinKind::Output, output);
+        uiNode->getOutputPins().push_back(outPin);
+        _state.pins.push_back(outPin);
+        ++_state.nextUiId;
+    }
+
+    // Rebuild UI links and trigger material recompilation
+    linkGraph();
+    updateMaterials();
+}
+
 void Graph::shaderPopup()
 {
     if (_renderer->getMaterialCompilation())
@@ -4115,6 +4261,16 @@ void Graph::drawGraph(ImVec2 mousePos)
     {
         ed::Suspend();
 
+        // Detect right-click on node for version switch context menu
+        {
+            ed::NodeId contextNodeId;
+            if (ed::ShowNodeContextMenu(&contextNodeId))
+            {
+                _contextMenuNodeId = (int)contextNodeId.Get();
+                ImGui::OpenPopup("node version");
+            }
+        }
+
         // Set up popups for adding a node when tab is pressed
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8.f, 8.f));
         ImGui::SetNextWindowSizeConstraints(ImVec2(250.0f, 300.0f), ImVec2(-1.0f, 500.0f));
@@ -4122,6 +4278,7 @@ void Graph::drawGraph(ImVec2 mousePos)
         searchNodePopup(TextCursor);
         addPinPopup();
         readOnlyPopup();
+        nodeVersionPopup();
         ImGui::PopStyleVar();
 
         ed::Resume();
