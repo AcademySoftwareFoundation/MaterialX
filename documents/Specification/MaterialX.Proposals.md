@@ -39,46 +39,36 @@ As such, those forward-looking proposals have been moved from the formal Specifi
 
 ## Standardized Metadata
 
-Many 3D content formats, include glTF and USD, include metadata for display, licensing, provenance, and indexing.  MaterialX can represent this metadata using `attributedef` declarations and attributes on the root `<materialx>` element.  A good initial set of standardized, but optional metadata fields, would be:
+Many 3D content formats, including glTF and USD, include metadata for display, licensing, provenance, and indexing.  MaterialX should support a small set of universal, optional metadata attributes directly on the root `<materialx>` element.  These would be standard MaterialX attributes rather than custom attributes declared with `attributedef`, and would be valid for both ordinary `.mtlx` documents and packaged `.mtlz` files.
 
-| Field | Format | Notes |
+| Attribute | Format | Notes |
 |-------|--------|-------|
-| `materialx_name` | string | Human-readable material name |
-| `materialx_authors` | string | Comma-separated author list; email addresses may be included |
-| `materialx_license` | string | SPDX identifier such as `CC0-1.0`, `CC-BY-4.0`, or `MIT`; free strings are also allowed |
-| `materialx_license_url` | URL | Link to the full license text |
-| `materialx_source_url` | URL | Canonical source location for the material |
-| `materialx_version` | string | Material asset version, such as a SemVer value |
-| `materialx_description` | string | Free-text material description |
-| `materialx_keywords` | string | Comma-separated search and discovery keywords |
+| `assetname` | string | Human-readable material or asset name |
+| `authors` | stringarray | Author or contributor list; email addresses may be included |
+| `license` | string | SPDX identifier such as `CC0-1.0`, `CC-BY-4.0`, or `MIT`; free strings are also allowed |
+| `licenseurl` | URI | Link to the full license text |
+| `sourceuri` | URI | Canonical source location for the material or asset |
+| `assetversion` | string | Material asset version, such as a SemVer value; distinct from the MaterialX document `version` |
+| `description` | string | Free-text material or asset description |
+| `keywords` | stringarray | Search and discovery keywords |
 
 Example:
 
 ```xml
 <?xml version="1.0"?>
 <materialx version="1.39" colorspace="lin_rec709"
-  materialx_name="Marble Cliff"
-  materialx_authors="Ben Houston (ben@ben3d.ca), jcaron"
-  materialx_license="CC0-1.0"
-  materialx_license_url="https://creativecommons.org/publicdomain/zero/1.0/"
-  materialx_source_url="https://example.com/materials/marble-cliff"
-  materialx_version="1.0.0"
-  materialx_description="A weathered marble cliff face with natural veining and displacement."
-  materialx_keywords="marble, cliff, rock, natural, displacement, tiled">
-
-  <attributedef name="materialx_name"        attrname="materialx_name"        type="string" value="" elements="materialx"/>
-  <attributedef name="materialx_authors"     attrname="materialx_authors"     type="string" value="" elements="materialx"/>
-  <attributedef name="materialx_license"     attrname="materialx_license"     type="string" value="" elements="materialx"/>
-  <attributedef name="materialx_license_url" attrname="materialx_license_url" type="string" value="" elements="materialx"/>
-  <attributedef name="materialx_source_url"  attrname="materialx_source_url"  type="string" value="" elements="materialx"/>
-  <attributedef name="materialx_version"     attrname="materialx_version"     type="string" value="" elements="materialx"/>
-  <attributedef name="materialx_description" attrname="materialx_description" type="string" value="" elements="materialx"/>
-  <attributedef name="materialx_keywords"    attrname="materialx_keywords"    type="string" value="" elements="materialx"/>
+  assetname="Marble Cliff"
+  authors="Ben Houston (ben@ben3d.ca), jcaron"
+  license="CC0-1.0"
+  licenseurl="https://creativecommons.org/publicdomain/zero/1.0/"
+  sourceuri="https://example.com/materials/marble-cliff"
+  assetversion="1.0.0"
+  description="A weathered marble cliff face with natural veining and displacement."
+  keywords="marble, cliff, rock, natural, displacement, tiled">
 
   <!-- material graph ... -->
 </materialx>
 ```
-
 
 ## Single-File MaterialX Container
 
