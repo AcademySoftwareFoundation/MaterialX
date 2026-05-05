@@ -252,7 +252,6 @@ Viewer::Viewer(const std::string& materialFilename,
 
     // Set default Glsl generator options.
     _genContext.getOptions().targetColorSpaceOverride = "lin_rec709";
-    _genContext.getOptions().fileTextureVerticalFlip = true;
     _genContext.getOptions().hwShadowMap = true;
     _genContext.getOptions().hwImplicitBitangents = false;
 

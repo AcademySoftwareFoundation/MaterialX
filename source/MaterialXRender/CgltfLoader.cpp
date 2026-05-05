@@ -128,7 +128,7 @@ void decodeVec4Tangents(MeshStreamPtr vec4TangentStream, MeshStreamPtr normalStr
 
 } // anonymous namespace
 
-bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool /*texcoordVerticalFlip*/)
+bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList)
 {
     const string input_filename = filePath.asString();
     const string ext = stringToLower(filePath.getExtension());

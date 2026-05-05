@@ -42,9 +42,8 @@ class MX_RENDER_API GeometryLoader
     /// Load geometry from disk. Must be implemented by derived classes.
     /// @param filePath Path to file to load
     /// @param meshList List of meshes to update
-    /// @param texcoordVerticalFlip Flip texture coordinates in V when loading
     /// @return True if load was successful
-    virtual bool load(const FilePath& filePath, MeshList& meshList, bool texcoordVerticalFlip = false) = 0;
+    virtual bool load(const FilePath& filePath, MeshList& meshList) = 0;
 
   protected:
     // List of supported string extensions
@@ -92,8 +91,7 @@ class MX_RENDER_API GeometryHandler
 
     /// Load geometry from a given location
     /// @param filePath Path to geometry
-    /// @param texcoordVerticalFlip Flip texture coordinates in V. Default is to not flip.
-    bool loadGeometry(const FilePath& filePath, bool texcoordVerticalFlip = false);
+    bool loadGeometry(const FilePath& filePath);
 
     /// Get list of meshes
     const MeshList& getMeshes() const

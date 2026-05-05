@@ -85,7 +85,7 @@ void GeometryHandler::computeBounds()
     }
 }
 
-bool GeometryHandler::loadGeometry(const FilePath& filePath, bool texcoordVerticalFlip)
+bool GeometryHandler::loadGeometry(const FilePath& filePath)
 {
     // Early return if already loaded
     if (hasGeometry(filePath))
@@ -102,7 +102,7 @@ bool GeometryHandler::loadGeometry(const FilePath& filePath, bool texcoordVertic
     GeometryLoaderMap::iterator last = --range.first;
     for (auto it = first; it != last; --it)
     {
-        loaded = it->second->load(filePath, _meshes, texcoordVerticalFlip);
+        loaded = it->second->load(filePath, _meshes);
         if (loaded)
         {
             break;
