@@ -66,6 +66,55 @@ const mx::StringMap& shaderNameSubstitutions()
     return substitutions;
 }
 
+//
+// Define local overrides for the tangent frame in shader generation, aligning conventions
+// between MaterialXRender and testrender.
+//
+
+class TangentOsl : public mx::ShaderNodeImpl
+{
+  public:
+    static mx::ShaderNodeImplPtr create()
+    {
+        return std::make_shared<TangentOsl>();
+    }
+
+    void emitFunctionCall(const mx::ShaderNode& node, mx::GenContext& context, mx::ShaderStage& stage) const override
+    {
+        const mx::ShaderGenerator& shadergen = context.getShaderGenerator();
+
+        DEFINE_SHADER_STAGE(stage, mx::Stage::PIXEL)
+        {
+            shadergen.emitLineBegin(stage);
+            shadergen.emitOutput(node.getOutput(), true, false, context, stage);
+            shadergen.emitString(" = normalize(vector(N[2], 0, -N[0]))", stage);
+            shadergen.emitLineEnd(stage);
+        }
+    }
+};
+
+class BitangentOsl : public mx::ShaderNodeImpl
+{
+  public:
+    static mx::ShaderNodeImplPtr create()
+    {
+        return std::make_shared<BitangentOsl>();
+    }
+
+    void emitFunctionCall(const mx::ShaderNode& node, mx::GenContext& context, mx::ShaderStage& stage) const override
+    {
+        const mx::ShaderGenerator& shadergen = context.getShaderGenerator();
+
+        DEFINE_SHADER_STAGE(stage, mx::Stage::PIXEL)
+        {
+            shadergen.emitLineBegin(stage);
+            shadergen.emitOutput(node.getOutput(), true, false, context, stage);
+            shadergen.emitString(" = normalize(cross(N, vector(N[2], 0, -N[0])))", stage);
+            shadergen.emitLineEnd(stage);
+        }
+    }
+};
+
 struct Options
 {
     mx::FilePath material;
@@ -658,6 +707,9 @@ void render(const Options& options, char** argv)
     context.getOptions().fileTextureVerticalFlip = true;
     context.getOptions().oslConnectCiWrapper = true;
     generator->registerShaderMetadata(libraries, context);
+
+    generator->registerImplementation("IM_tangent_vector3_" + mx::OslShaderGenerator::TARGET, TangentOsl::create);
+    generator->registerImplementation("IM_bitangent_vector3_" + mx::OslShaderGenerator::TARGET, BitangentOsl::create);
 
     mx::TypedElementPtr element = elements.front();
     const std::string generatedShaderName = shaderName(element);

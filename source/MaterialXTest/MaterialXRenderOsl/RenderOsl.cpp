@@ -15,10 +15,66 @@
 
 #include <MaterialXGenOsl/OslShaderGenerator.h>
 #include <MaterialXGenOsl/OslNetworkShaderGenerator.h>
+#include <MaterialXGenShader/ShaderNode.h>
+#include <MaterialXGenShader/ShaderStage.h>
 
 #include <MaterialXFormat/Util.h>
 
 namespace mx = MaterialX;
+
+namespace
+{
+
+//
+// Define local overrides for the tangent frame in shader generation, aligning conventions
+// between MaterialXRender and testrender.
+//
+
+class TangentOsl : public mx::ShaderNodeImpl
+{
+  public:
+    static mx::ShaderNodeImplPtr create()
+    {
+        return std::make_shared<TangentOsl>();
+    }
+
+    void emitFunctionCall(const mx::ShaderNode& node, mx::GenContext& context, mx::ShaderStage& stage) const override
+    {
+        const mx::ShaderGenerator& shadergen = context.getShaderGenerator();
+
+        DEFINE_SHADER_STAGE(stage, mx::Stage::PIXEL)
+        {
+            shadergen.emitLineBegin(stage);
+            shadergen.emitOutput(node.getOutput(), true, false, context, stage);
+            shadergen.emitString(" = normalize(vector(N[2], 0, -N[0]))", stage);
+            shadergen.emitLineEnd(stage);
+        }
+    }
+};
+
+class BitangentOsl : public mx::ShaderNodeImpl
+{
+  public:
+    static mx::ShaderNodeImplPtr create()
+    {
+        return std::make_shared<BitangentOsl>();
+    }
+
+    void emitFunctionCall(const mx::ShaderNode& node, mx::GenContext& context, mx::ShaderStage& stage) const override
+    {
+        const mx::ShaderGenerator& shadergen = context.getShaderGenerator();
+
+        DEFINE_SHADER_STAGE(stage, mx::Stage::PIXEL)
+        {
+            shadergen.emitLineBegin(stage);
+            shadergen.emitOutput(node.getOutput(), true, false, context, stage);
+            shadergen.emitString(" = normalize(cross(N, vector(N[2], 0, -N[0])))", stage);
+            shadergen.emitLineEnd(stage);
+        }
+    }
+};
+
+} // anonymous namespace
 
 class OslShaderRenderTester : public RenderUtil::ShaderRenderTester
 {
@@ -171,6 +227,10 @@ RenderUtil::RenderProfileResult OslShaderRenderTester::runRenderer(
                 contextOptions = options;
                 contextOptions.targetColorSpaceOverride = "lin_rec709";
                 contextOptions.oslConnectCiWrapper = true;
+
+                // Apply local overrides for shader generation.
+                shadergen.registerImplementation("IM_tangent_vector3_" + mx::OslShaderGenerator::TARGET, TangentOsl::create);
+                shadergen.registerImplementation("IM_bitangent_vector3_" + mx::OslShaderGenerator::TARGET, BitangentOsl::create);
 
                 shader = shadergen.generate(shaderName, element, context);
             }
