@@ -647,7 +647,7 @@ void render(const Options& options, char** argv)
         context.registerSourceCodeSearchPath(genOslIncludePath);
     }
     context.getOptions().targetColorSpaceOverride = "lin_rec709";
-    context.getOptions().fileTextureVerticalFlip = false;
+    context.getOptions().fileTextureVerticalFlip = true;
     context.getOptions().oslConnectCiWrapper = true;
     generator->registerShaderMetadata(libraries, context);
 
