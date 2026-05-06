@@ -15,6 +15,8 @@
 
 #include <MaterialXGenOsl/OslShaderGenerator.h>
 #include <MaterialXGenOsl/OslNetworkShaderGenerator.h>
+#include <MaterialXGenShader/ShaderNode.h>
+#include <MaterialXGenShader/ShaderStage.h>
 
 #include <MaterialXFormat/Util.h>
 
@@ -36,7 +38,7 @@ class TangentOsl : public mx::ShaderNodeImpl
         return std::make_shared<TangentOsl>();
     }
 
-    void emitFunctionCall(const  mx::ShaderNode& node, mx::GenContext& context, mx::ShaderStage& stage) const override
+    void emitFunctionCall(const mx::ShaderNode& node, mx::GenContext& context, mx::ShaderStage& stage) const override
     {
         const mx::ShaderGenerator& shadergen = context.getShaderGenerator();
 
@@ -58,7 +60,7 @@ class BitangentOsl : public mx::ShaderNodeImpl
         return std::make_shared<BitangentOsl>();
     }
 
-    void emitFunctionCall(const  mx::ShaderNode& node, mx::GenContext& context, mx::ShaderStage& stage) const override
+    void emitFunctionCall(const mx::ShaderNode& node, mx::GenContext& context, mx::ShaderStage& stage) const override
     {
         const mx::ShaderGenerator& shadergen = context.getShaderGenerator();
 

@@ -30,7 +30,8 @@ OslRenderer::OslRenderer(unsigned int width, unsigned int height, Image::BaseTyp
     _useTestRender(true),
     _useOSLCmdStr(false),
     _raysPerPixelLit(1),
-    _raysPerPixelUnlit(1)
+    _raysPerPixelUnlit(1),
+    _oslShadows(true)
 {
 }
 
@@ -169,6 +170,7 @@ void OslRenderer::renderOSL(const FilePath& dirPath, const string& shaderName, c
     command += " " + outputFileName;
     command += " -r " + std::to_string(_width) + " " + std::to_string(_height);
     command += " --path " + osoPaths;
+    command += _oslShadows ? " --shadows true" : " --shadows false";
     command += " -aa " + std::to_string(isColorClosure ? _raysPerPixelLit : _raysPerPixelUnlit);
     command += " > " + errorFile + redirectString;
 
@@ -299,6 +301,7 @@ void OslRenderer::renderOSLNetwork(const FilePath& dirPath, const string& shader
     command += " " + outputFileName;
     command += " -r " + std::to_string(_width) + " " + std::to_string(_height);
     command += " --path " + osoPaths;
+    command += _oslShadows ? " --shadows true" : " --shadows false";
     command += " -aa " + std::to_string(_raysPerPixelLit);
     command += " > " + errorFile + redirectString;
 
@@ -493,15 +496,9 @@ void OslRenderer::createProgram(const StageMap& stages)
         fileName += ".osl";
     }
 
-    // TODO: Seems testrender will crash currently when trying to convert to "object" space.
-    // Thus we replace all instances of "object" with "world" to avoid issues.
-    StringMap spaceMap;
-    spaceMap["\"object\""] = "\"world\"";
-    string oslCode = replaceSubstrings(stages.begin()->second, spaceMap);
-
     std::ofstream file;
     file.open(fileName);
-    file << oslCode;
+    file << stages.begin()->second;
     file.close();
 
     // Try compiling the code
