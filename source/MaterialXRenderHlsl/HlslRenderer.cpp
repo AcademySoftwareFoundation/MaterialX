@@ -269,16 +269,60 @@ void HlslRenderer::bindCameraToVertexCbuffer()
     // patchVariable searches every vertex-stage cbuffer, so the renderer
     // works in both default mode (one stage-named cbuffer) and the
     // binding-context path that splits uniforms across separate cbuffers.
+    // Two corrections applied here:
+    //
+    // (1) Matrix transpose. MaterialX stores matrices row-major and the
+    //     HLSL VS uses row-vector math (`mul(vec, M)`). HLSL's default
+    //     column-major cbuffer layout would read our row-major bytes
+    //     transposed - which mangles the projection. Transposing at
+    //     upload time gives HLSL bytes whose column-major
+    //     interpretation equals MaterialX's intended row-vector matrix.
+    //     (Equivalent to the D3DCOMPILE_PACK_MATRIX_ROW_MAJOR flag, but
+    //     keeps the cbuffer layout that D3D reflection reports for the
+    //     default-compiled shader, so existing reflection-based code
+    //     stays correct.)
+    // (2) X-flip on the projection. Camera::createPerspectiveMatrix is
+    //     a right-handed projection (the GLSL renderer's convention).
+    //     D3D11 rasterises in left-handed clip space, so feeding the RH
+    //     matrix through unchanged horizontally mirrors the render.
+    //     Composing with a diagonal X-flip on the right side of the
+    //     projection corrects it, matching what GlslRenderer produces
+    //     visually.
+    // GL projection produces clip Z in [-w, w] (NDC [-1, 1]).
+    // D3D11 rasterizer clips against [0, w] (NDC [0, 1]). Without
+    // remapping, vertices with NDC z < 0 (front of sphere) get
+    // clipped, leaving only back-facing surfaces visible - which then
+    // appear X-mirrored under lighting because their normals point
+    // away from the actual lit side of the scene.
+    //
+    // Compose with a remap matrix that converts z_gl in [-w, w] to
+    // z_d3d in [0, w]:  z_new = (z + w) / 2.
+    Matrix44 zRemap = Matrix44::IDENTITY;
+    zRemap[2][2] = 0.5f;
+    zRemap[3][2] = 0.5f;
+    Matrix44 proj = _camera->getProjectionMatrix();
+    Matrix44 viewProj = _camera->getViewMatrix() * (proj * zRemap);
     const std::array<std::pair<const char*, Matrix44>, 3> entries = { {
-        { "u_worldMatrix",                  _camera->getWorldMatrix() },
-        { "u_viewProjectionMatrix",         _camera->getViewMatrix() * _camera->getProjectionMatrix() },
-        { "u_worldInverseTransposeMatrix",  _camera->getWorldMatrix().getInverse().getTranspose() },
+        { "u_worldMatrix",                  _camera->getWorldMatrix().getTranspose() },
+        { "u_viewProjectionMatrix",         viewProj.getTranspose() },
+        { "u_worldInverseTransposeMatrix",  _camera->getWorldMatrix().getInverse() },
     } };
     for (const auto& e : entries)
     {
         _material->patchVariable(HlslMaterial::Stage::Vertex, e.first,
                                  e.second.data(), sizeof(float) * 16);
     }
+
+    // u_viewPosition / u_viewDirection live on the pixel stage and feed
+    // the PS view-direction calculation (Fresnel, half-vector for the
+    // Cook-Torrance specular). Without them the PS computes view from
+    // the world origin, biasing every glossy material's highlight.
+    const Vector3 viewPos = _camera->getViewPosition();
+    _material->patchVariable(HlslMaterial::Stage::Pixel, "u_viewPosition",
+                             viewPos.data(), sizeof(float) * 3);
+    const Vector3 viewDir = _camera->getViewDirection();
+    _material->patchVariable(HlslMaterial::Stage::Pixel, "u_viewDirection",
+                             viewDir.data(), sizeof(float) * 3);
 }
 
 void HlslRenderer::bindFileTexturesFromImageHandler()
@@ -325,6 +369,11 @@ void HlslRenderer::render()
         throw ExceptionRenderError("HlslRenderer::render: program / framebuffer not initialised.");
 
     ensureFullscreenGeometry();
+    // Material uniforms (base_color, opacity, roughness, ...) must be
+    // pushed before the lighting / per-light passes so subsequent
+    // patchVariable calls don't see a stale or zero-init cbuffer when
+    // they read-modify-write neighbouring members.
+    bindMaterialUniformsFromShader();
     bindCameraToVertexCbuffer();
     bindFileTexturesFromImageHandler();
     bindEnvironmentImagesFromLightHandler();
@@ -528,20 +577,18 @@ void HlslRenderer::bindLightSourcesFromLightHandler()
         if (!nodeDef)
             continue;
 
-        const std::string prefix = HW::LIGHT_DATA_INSTANCE + "[" + std::to_string(i) + "]";
-
-        // Light type id. patchVariable looks up the right cbuffer, so
-        // this works both with the default single-pixelCB layout and
-        // with the binding context's split LightData_pixel cbuffer.
+        // Light type id, then each input value on the light node.
+        // patchArrayMember resolves "<HW::LIGHT_DATA_INSTANCE>[i].<name>"
+        // by walking the reflected LightData struct - composing the name
+        // and feeding patchVariable would silently fail because D3D
+        // reflection doesn't expose array element members by name.
         {
             auto it = idMap.find(nodeDef->getName());
             const int typeValue = (it != idMap.end()) ? static_cast<int>(it->second) : 0;
-            _material->patchVariable(HlslMaterial::Stage::Pixel,
-                                     prefix + ".type",
-                                     &typeValue, sizeof(int));
+            _material->patchArrayMember(HlslMaterial::Stage::Pixel,
+                                        HW::LIGHT_DATA_INSTANCE, i, "type",
+                                        &typeValue, sizeof(int));
         }
-
-        // Each input on the light node.
         for (InputPtr input : light->getInputs())
         {
             if (!input || !input->hasValue())
@@ -550,10 +597,42 @@ void HlslRenderer::bindLightSourcesFromLightHandler()
             const std::size_t n = valueToBytes(input->getValue(), buf);
             if (n == 0)
                 continue;
-            _material->patchVariable(HlslMaterial::Stage::Pixel,
-                                     prefix + "." + input->getName(),
-                                     buf, n);
+            _material->patchArrayMember(HlslMaterial::Stage::Pixel,
+                                        HW::LIGHT_DATA_INSTANCE, i,
+                                        input->getName(),
+                                        buf, n);
         }
+    }
+}
+
+void HlslRenderer::bindMaterialUniformsFromShader()
+{
+    if (!_material || !_shader)
+        return;
+    const ShaderStage& ps = _shader->getStage(Stage::PIXEL);
+    const VariableBlockMap& blocks = ps.getUniformBlocks();
+    auto it = blocks.find(HW::PUBLIC_UNIFORMS);
+    if (it == blocks.end() || !it->second)
+        return;
+    const VariableBlock& block = *it->second;
+    for (size_t i = 0; i < block.size(); ++i)
+    {
+        const ShaderPort* port = block[i];
+        if (!port || !port->getValue())
+            continue;
+        // FILENAME inputs are bound as textures elsewhere
+        // (bindFileTexturesFromImageHandler). Closure types and other
+        // structural inputs (surfaceshader, displacementshader, BSDF,
+        // EDF, ...) don't have packable byte representations and will
+        // be skipped by valueToBytes returning 0.
+        if (port->getType() == Type::FILENAME)
+            continue;
+        uint8_t buf[64];
+        const std::size_t n = valueToBytes(port->getValue(), buf);
+        if (n == 0)
+            continue;
+        _material->patchVariable(HlslMaterial::Stage::Pixel,
+                                 port->getName(), buf, n);
     }
 }
 

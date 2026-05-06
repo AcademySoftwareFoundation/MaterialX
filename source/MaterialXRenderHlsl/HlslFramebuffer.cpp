@@ -52,22 +52,30 @@ HlslFramebuffer::HlslFramebuffer(HlslContextPtr context, unsigned int width, uns
     td.MiscFlags = 0;
 
     // Color target: render-target + shader-resource so a downstream pass
-    // can sample the result.
-    td.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    // can sample the result. The texture itself uses TYPELESS storage so
+    // we can attach an sRGB-encoding RTV (linear -> sRGB at write time)
+    // alongside an SRV that returns the raw bytes. This matches the
+    // GlslRenderer which calls glEnable(GL_FRAMEBUFFER_SRGB) - without
+    // gamma encoding the HLSL output is linear while GLSL is sRGB, and
+    // the two backends produce wildly different brightness even from
+    // the same emission color.
+    td.Format = DXGI_FORMAT_R8G8B8A8_TYPELESS;
     td.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
     if (FAILED(device->CreateTexture2D(&td, nullptr, &_colorTexture)))
         throw ExceptionRenderError("HlslFramebuffer: failed to create color texture.");
 
-    // Render-target view over the color texture.
+    // Render-target view: sRGB so writes go through a linear -> sRGB
+    // gamma transform.
     D3D11_RENDER_TARGET_VIEW_DESC rtvd = {};
-    rtvd.Format = td.Format;
+    rtvd.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
     rtvd.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
     if (FAILED(device->CreateRenderTargetView(_colorTexture, &rtvd, &_colorRtv)))
         throw ExceptionRenderError("HlslFramebuffer: failed to create RTV.");
 
-    // Shader-resource view so a sampled pass can read the result.
+    // Shader-resource view: UNORM so callers reading the texture get
+    // the bytes as stored (already gamma-encoded by the SRGB write).
     D3D11_SHADER_RESOURCE_VIEW_DESC srvd = {};
-    srvd.Format = td.Format;
+    srvd.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
     srvd.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
     srvd.Texture2D.MostDetailedMip = 0;
     srvd.Texture2D.MipLevels = 1;
@@ -88,7 +96,11 @@ HlslFramebuffer::HlslFramebuffer(HlslContextPtr context, unsigned int width, uns
         throw ExceptionRenderError("HlslFramebuffer: failed to create DSV.");
 
     // Staging texture used by readColor() to copy GPU pixels back to CPU.
+    // Stays as plain UNORM (not TYPELESS) so Map() can read the bytes -
+    // the SRGB encoding has already been applied to the texture data
+    // by the RTV write, so the bytes here are sRGB-encoded already.
     D3D11_TEXTURE2D_DESC sd = td;
+    sd.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
     sd.Usage = D3D11_USAGE_STAGING;
     sd.BindFlags = 0;
     sd.CPUAccessFlags = D3D11_CPU_ACCESS_READ;

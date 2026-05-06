@@ -274,6 +274,93 @@ bool HlslMaterial::patchVariable(Stage stage, const std::string& memberName,
     return false;
 }
 
+namespace
+{
+
+// Walk an HLSL struct type and return the declared offset of the named
+// member, or SIZE_MAX if the type isn't a struct or no such member.
+std::size_t findStructMemberOffset(ID3D11ShaderReflectionType* structType,
+                                   const std::string& memberName)
+{
+    if (!structType)
+        return std::size_t(-1);
+    D3D11_SHADER_TYPE_DESC td = {};
+    if (FAILED(structType->GetDesc(&td)) || td.Class != D3D_SVC_STRUCT)
+        return std::size_t(-1);
+    for (UINT i = 0; i < td.Members; ++i)
+    {
+        const char* mname = structType->GetMemberTypeName(i);
+        if (!mname || memberName != mname)
+            continue;
+        ID3D11ShaderReflectionType* memberType = structType->GetMemberTypeByIndex(i);
+        if (!memberType)
+            return std::size_t(-1);
+        D3D11_SHADER_TYPE_DESC mtd = {};
+        if (FAILED(memberType->GetDesc(&mtd)))
+            return std::size_t(-1);
+        return mtd.Offset;
+    }
+    return std::size_t(-1);
+}
+
+} // namespace
+
+bool HlslMaterial::patchArrayMember(Stage stage, const std::string& arrayName,
+                                    std::size_t index, const std::string& memberName,
+                                    const void* data, std::size_t count)
+{
+    const auto& bytecode = (stage == Stage::Vertex)
+                         ? _program->getVertexBytecode()
+                         : _program->getPixelBytecode();
+    if (bytecode.empty())
+        return false;
+
+    ComPtr<ID3D11ShaderReflection> refl;
+    if (FAILED(::D3DReflect(bytecode.data(), bytecode.size(),
+                            IID_PPV_ARGS(refl.GetAddressOf()))) || !refl)
+        return false;
+
+    // Walk every cbuffer on the requested stage looking for the array.
+    // The HLSL generator emits u_lightData into exactly one cbuffer per
+    // stage, but which one depends on whether a binding context is
+    // attached - search every cbuffer rather than hard-coding "pixelCB".
+    const auto& nameMap = (stage == Stage::Vertex) ? _vsCbufferNameToSlot : _psCbufferNameToSlot;
+    for (const auto& kv : nameMap)
+    {
+        ID3D11ShaderReflectionConstantBuffer* cb = refl->GetConstantBufferByName(kv.first.c_str());
+        if (!cb)
+            continue;
+        ID3D11ShaderReflectionVariable* var = cb->GetVariableByName(arrayName.c_str());
+        if (!var)
+            continue;
+
+        D3D11_SHADER_VARIABLE_DESC vd = {};
+        if (FAILED(var->GetDesc(&vd)))
+            continue;
+
+        ID3D11ShaderReflectionType* arrayType = var->GetType();
+        if (!arrayType)
+            continue;
+        D3D11_SHADER_TYPE_DESC atd = {};
+        if (FAILED(arrayType->GetDesc(&atd)) || atd.Elements == 0)
+            continue;
+        if (index >= atd.Elements)
+            continue;
+
+        // D3D reports the total array byte size in vd.Size; the per-
+        // element stride is therefore Size / Elements (HLSL pads the
+        // element stride up to a 16-byte boundary).
+        const std::size_t stride = vd.Size / atd.Elements;
+        const std::size_t memberOffset = findStructMemberOffset(arrayType, memberName);
+        if (memberOffset == std::size_t(-1))
+            continue;
+
+        const std::size_t off = vd.StartOffset + index * stride + memberOffset;
+        return setCbufferRange(stage, kv.second, off, data, count);
+    }
+    return false;
+}
+
 std::size_t HlslMaterial::lookupVariableOffset(Stage stage, const std::string& cbufferName,
                                                const std::string& memberName) const
 {

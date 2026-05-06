@@ -120,12 +120,24 @@ class MX_RENDERHLSL_API HlslRenderer : public ShaderRenderer
     /// Walk LightHandler::getLightSources(), write each light's type id
     /// (from computeLightIdMap) and each MaterialX input value into the
     /// matching member of the corresponding u_lightData[i] struct. Uses
-    /// D3D shader reflection's indexed-name lookup
-    /// ("u_lightData[0].position" etc.) to find each member's byte
-    /// offset, so the layout doesn't need to be hard-coded. Inputs that
-    /// don't have a matching member in the reflected layout are skipped
-    /// silently.
+    /// HlslMaterial::patchArrayMember which walks the reflected struct
+    /// type for u_lightData to compute member offsets - D3D reflection
+    /// doesn't expose array element members by composed name, so a
+    /// composed-name lookup like `u_lightData[0].position` returns
+    /// NOT_FOUND. Inputs without a matching reflected member are
+    /// skipped silently.
     void bindLightSourcesFromLightHandler();
+
+    /// Walk the most-recently-bound shader's pixel-stage PUBLIC_UNIFORMS
+    /// for scalar/vector members and write each value into the cbuffer
+    /// that owns it. The HLSL generator emits PUBLIC_UNIFORMS values as
+    /// metadata in the cbuffer struct, but the GPU buffer itself is
+    /// zero-initialised by D3D11 - without this pass, surface
+    /// parameters like base_color, opacity, emission stay zero in the
+    /// shader and the surface evaluates to black. FILENAME-typed
+    /// uniforms are skipped here; they're handled by
+    /// bindFileTexturesFromImageHandler.
+    void bindMaterialUniformsFromShader();
 
     /// Build and stash a fullscreen-triangle vertex buffer on first use.
     void ensureFullscreenGeometry();

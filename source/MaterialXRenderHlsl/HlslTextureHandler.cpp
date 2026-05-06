@@ -165,37 +165,52 @@ bool HlslTextureHandler::bindImage(ImagePtr image, const ImageSamplingProperties
 
     ID3D11Device* device = _context->getDevice();
 
+    const UINT w = image->getWidth();
+    const UINT h = image->getHeight();
+
+    // Mip chain. The MaterialX HLSL light loop samples env radiance
+    // at a roughness-derived LOD via SampleLevel; without a real mip
+    // chain that sample reads garbage (or mip 0 only) and an HDR env
+    // map produces visible banding on glossy materials.
+    // GenerateMips needs USAGE_DEFAULT + SHADER_RESOURCE | RENDER_TARGET
+    // bind flags + the GENERATE_MIPS misc flag. We upload mip 0 with
+    // UpdateSubresource then call ::GenerateMips on the SRV.
+    // (Windows.h leaks min/max macros without NOMINMAX; use a ternary.)
+    UINT maxMips = 1;
+    for (UINT s = (w > h ? w : h); s > 1; s >>= 1)
+        ++maxMips;
+
     D3D11_TEXTURE2D_DESC td = {};
-    td.Width = image->getWidth();
-    td.Height = image->getHeight();
-    td.MipLevels = 1;
+    td.Width = w;
+    td.Height = h;
+    td.MipLevels = maxMips;
     td.ArraySize = 1;
     td.Format = format;
     td.SampleDesc.Count = 1;
-    td.Usage = D3D11_USAGE_IMMUTABLE;
-    td.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+    td.Usage = D3D11_USAGE_DEFAULT;
+    td.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
     td.CPUAccessFlags = 0;
-    td.MiscFlags = 0;
-
-    D3D11_SUBRESOURCE_DATA sd = {};
-    sd.pSysMem = image->getResourceBuffer();
-    sd.SysMemPitch = static_cast<UINT>(image->getWidth()) * bytesPerPixel;
-    sd.SysMemSlicePitch = 0;
+    td.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
 
     CacheEntry entry;
-    if (FAILED(device->CreateTexture2D(&td, &sd, &entry.texture)))
+    if (FAILED(device->CreateTexture2D(&td, nullptr, &entry.texture)))
         return false;
+
+    _context->getDeviceContext()->UpdateSubresource(
+        entry.texture, 0, nullptr,
+        image->getResourceBuffer(), w * bytesPerPixel, 0);
 
     D3D11_SHADER_RESOURCE_VIEW_DESC srvd = {};
     srvd.Format = format;
     srvd.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
     srvd.Texture2D.MostDetailedMip = 0;
-    srvd.Texture2D.MipLevels = 1;
+    srvd.Texture2D.MipLevels = maxMips;
     if (FAILED(device->CreateShaderResourceView(entry.texture, &srvd, &entry.srv)))
     {
         entry.texture->Release();
         return false;
     }
+    _context->getDeviceContext()->GenerateMips(entry.srv);
 
     entry.sampler = createSampler(device, samplingProperties);
     if (!entry.sampler)

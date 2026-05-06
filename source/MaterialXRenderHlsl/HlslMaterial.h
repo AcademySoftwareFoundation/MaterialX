@@ -120,6 +120,19 @@ class MX_RENDERHLSL_API HlslMaterial
     bool patchVariable(Stage stage, const std::string& memberName,
                        const void* data, std::size_t count);
 
+    /// Patch `count` bytes into a struct-array member,
+    /// `<arrayName>[<index>].<memberName>`. Required because D3D shader
+    /// reflection only exposes the array variable itself
+    /// (`u_lightData`), not its individual element members - the
+    /// composed name `u_lightData[0].position` returns NOT_FOUND from
+    /// GetVariableByName. This helper resolves the array's base offset
+    /// and per-element stride, walks the struct's members for the named
+    /// field, and writes at base + index * stride + memberOffset.
+    /// Returns true when one cbuffer accepted the write.
+    bool patchArrayMember(Stage stage, const std::string& arrayName,
+                          std::size_t index, const std::string& memberName,
+                          const void* data, std::size_t count);
+
     /// Bind a shader-resource view to a t# slot. Borrowed pointer; caller
     /// keeps the SRV alive for as long as it is bound.
     void setTexture(unsigned int slot, ID3D11ShaderResourceView* srv);
