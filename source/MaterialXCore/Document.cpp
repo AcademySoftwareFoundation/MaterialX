@@ -5,6 +5,8 @@
 
 #include <MaterialXCore/Document.h>
 
+#include <algorithm>
+#include <map>
 #include <mutex>
 #include <shared_mutex>
 
@@ -265,6 +267,52 @@ void Document::importLibrary(const ConstDocumentPtr& library)
         return;
     }
 
+    // Phase 1: Build a rename map for versioned nodedef conflicts.
+    // When an incoming nodedef has the same name as an existing one but a
+    // different version, auto-rename it to <name>_<version> (dots→underscores)
+    // so both can coexist in the merged document.
+    std::map<string, string> renames;
+    for (const auto& child : library->getChildren())
+    {
+        ConstNodeDefPtr newNodeDef = child->asA<NodeDef>();
+        if (!newNodeDef || newNodeDef->getVersionString().empty())
+            continue;
+        const string childName = child->getQualifiedName(child->getName());
+        ConstElementPtr previous = getChild(childName);
+        if (!previous)
+            continue;
+        ConstNodeDefPtr prevNodeDef = previous->asA<NodeDef>();
+        if (!prevNodeDef)
+            continue;
+        if (newNodeDef->getVersionString() != prevNodeDef->getVersionString())
+        {
+            string vSuffix = newNodeDef->getVersionString();
+            std::replace(vSuffix.begin(), vSuffix.end(), '.', '_');
+            renames[childName] = childName + "_" + vSuffix;
+        }
+    }
+
+    // Phase 2: Extend renames to nodegraphs that implement a renamed nodedef.
+    if (!renames.empty())
+    {
+        for (const auto& child : library->getChildren())
+        {
+            if (!child->asA<NodeGraph>())
+                continue;
+            const string ndAttr = child->getAttribute(InterfaceElement::NODE_DEF_ATTRIBUTE);
+            if (ndAttr.empty())
+                continue;
+            const string qualNd = child->getQualifiedName(ndAttr);
+            auto it = renames.find(qualNd);
+            if (it == renames.end())
+                continue;
+            const string ngName = child->getQualifiedName(child->getName());
+            const string suffix = it->second.substr(it->first.size());
+            renames[ngName] = ngName + suffix;
+        }
+    }
+
+    // Phase 3: Import all children, applying renames and updating references.
     for (auto child : library->getChildren())
     {
         if (child->getCategory().empty())
@@ -272,9 +320,11 @@ void Document::importLibrary(const ConstDocumentPtr& library)
             throw Exception("Trying to import child without a category: " + child->getName());
         }
 
-        const string childName = child->getQualifiedName(child->getName());
+        const string originalName = child->getQualifiedName(child->getName());
+        auto renameIt = renames.find(originalName);
+        const string childName = (renameIt != renames.end()) ? renameIt->second : originalName;
 
-        // Check for duplicate elements.
+        // Check for duplicate elements (after applying any rename).
         ConstElementPtr previous = getChild(childName);
         if (previous)
         {
@@ -284,6 +334,21 @@ void Document::importLibrary(const ConstDocumentPtr& library)
         // Create the imported element.
         ElementPtr childCopy = addChildOfCategory(child->getCategory(), childName);
         childCopy->copyContentFrom(child);
+
+        // If this nodegraph's nodedef reference was renamed, update it.
+        if (!renames.empty() && child->asA<NodeGraph>())
+        {
+            const string ndAttr = childCopy->getAttribute(InterfaceElement::NODE_DEF_ATTRIBUTE);
+            if (!ndAttr.empty())
+            {
+                const string qualNd = child->getQualifiedName(ndAttr);
+                auto ndRename = renames.find(qualNd);
+                if (ndRename != renames.end())
+                    childCopy->setAttribute(InterfaceElement::NODE_DEF_ATTRIBUTE, ndRename->second);
+
+            }
+        }
+
         if (!childCopy->hasFilePrefix() && library->hasFilePrefix())
         {
             childCopy->setFilePrefix(library->getFilePrefix());

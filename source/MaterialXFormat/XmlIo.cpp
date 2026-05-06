@@ -9,8 +9,10 @@
 
 #include <MaterialXCore/Types.h>
 
+#include <algorithm>
 #include <cstring>
 #include <fstream>
+#include <map>
 #include <sstream>
 
 using namespace pugi;
@@ -123,6 +125,9 @@ void elementFromXml(const xml_node& xmlNode, ElementPtr elem, const XmlReadOptio
         }
     }
 
+    // Track auto-renames for versioned nodedef conflicts within this element's children.
+    std::map<string, string> versionedRenames;
+
     // Create child elements and recurse.
     for (const xml_node& xmlChild : xmlNode.children())
     {
@@ -133,12 +138,47 @@ void elementFromXml(const xml_node& xmlNode, ElementPtr elem, const XmlReadOptio
             continue;
         }
 
-        // Get child name and skip duplicates.
+        // Get child name and handle duplicates.
         string name = xmlChild.attribute(Element::NAME_ATTRIBUTE.c_str()).value();
         ConstElementPtr previous = elem->getChild(name);
         if (previous)
         {
-            continue;
+            // Auto-rename versioned nodedef conflicts instead of skipping.
+            if (category == NodeDef::CATEGORY)
+            {
+                string newVersion = xmlChild.attribute(InterfaceElement::VERSION_ATTRIBUTE.c_str()).value();
+                ConstNodeDefPtr prevNodeDef = previous->asA<NodeDef>();
+                if (prevNodeDef && !newVersion.empty() && newVersion != prevNodeDef->getVersionString())
+                {
+                    string vSuffix = newVersion;
+                    std::replace(vSuffix.begin(), vSuffix.end(), '.', '_');
+                    name = name + "_" + vSuffix;
+                    versionedRenames[xmlChild.attribute(Element::NAME_ATTRIBUTE.c_str()).value()] = name;
+                }
+                else
+                {
+                    continue;
+                }
+            }
+            else if (category == NodeGraph::CATEGORY && !versionedRenames.empty())
+            {
+                // Auto-rename nodegraphs that implement a renamed nodedef.
+                string ndAttr = xmlChild.attribute(InterfaceElement::NODE_DEF_ATTRIBUTE.c_str()).value();
+                auto it = versionedRenames.find(ndAttr);
+                if (it != versionedRenames.end())
+                {
+                    string suffix = it->second.substr(it->first.size());
+                    name = name + suffix;
+                }
+                else
+                {
+                    continue;
+                }
+            }
+            else
+            {
+                continue;
+            }
         }
 
         // Enforce maximum tree depth.
@@ -150,6 +190,17 @@ void elementFromXml(const xml_node& xmlNode, ElementPtr elem, const XmlReadOptio
         // Create the child element.
         ElementPtr child = elem->addChildOfCategory(category, name);
         elementFromXml(xmlChild, child, readOptions, depth + 1);
+
+        // Update nodedef reference on auto-renamed nodegraphs.
+        if (category == NodeGraph::CATEGORY && !versionedRenames.empty())
+        {
+            string ndAttr = child->getAttribute(InterfaceElement::NODE_DEF_ATTRIBUTE);
+            auto it = versionedRenames.find(ndAttr);
+            if (it != versionedRenames.end())
+            {
+                child->setAttribute(InterfaceElement::NODE_DEF_ATTRIBUTE, it->second);
+            }
+        }
 
         // Handle the interpretation of XML comments and newlines.
         if (readOptions && category.empty())
