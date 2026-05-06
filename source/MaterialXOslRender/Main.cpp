@@ -66,50 +66,6 @@ const mx::StringMap& shaderNameSubstitutions()
     return substitutions;
 }
 
-class TangentOsl : public mx::ShaderNodeImpl
-{
-  public:
-    static mx::ShaderNodeImplPtr create()
-    {
-        return std::make_shared<TangentOsl>();
-    }
-
-    void emitFunctionCall(const mx::ShaderNode& node, mx::GenContext& context, mx::ShaderStage& stage) const override
-    {
-        const mx::ShaderGenerator& shadergen = context.getShaderGenerator();
-
-        DEFINE_SHADER_STAGE(stage, mx::Stage::PIXEL)
-        {
-            shadergen.emitLineBegin(stage);
-            shadergen.emitOutput(node.getOutput(), true, false, context, stage);
-            shadergen.emitString(" = normalize(vector(N[2], 0, -N[0]))", stage);
-            shadergen.emitLineEnd(stage);
-        }
-    }
-};
-
-class BitangentOsl : public mx::ShaderNodeImpl
-{
-  public:
-    static mx::ShaderNodeImplPtr create()
-    {
-        return std::make_shared<BitangentOsl>();
-    }
-
-    void emitFunctionCall(const mx::ShaderNode& node, mx::GenContext& context, mx::ShaderStage& stage) const override
-    {
-        const mx::ShaderGenerator& shadergen = context.getShaderGenerator();
-
-        DEFINE_SHADER_STAGE(stage, mx::Stage::PIXEL)
-        {
-            shadergen.emitLineBegin(stage);
-            shadergen.emitOutput(node.getOutput(), true, false, context, stage);
-            shadergen.emitString(" = normalize(cross(N, vector(N[2], 0, -N[0])))", stage);
-            shadergen.emitLineEnd(stage);
-        }
-    }
-};
-
 struct Options
 {
     mx::FilePath material;
@@ -471,7 +427,8 @@ NormalizedMeshExport exportNormalizedObj(const mx::FilePath& meshPath, const mx:
         obj << "o " << mx::createValidName(mesh->getName()) << "\n";
         for (size_t i = 0; i < positions->getSize(); ++i)
         {
-            const mx::Vector3 position = getPosition(positions, i);
+            // testrender does not apply named transforms to model geometry, so write common-space vertices.
+            const mx::Vector3 position = (getPosition(positions, i) - center) * scale;
             obj << "v " << position[0] << ' ' << position[1] << ' ' << position[2] << "\n";
         }
         if (texcoords && texcoords->getSize() >= positions->getSize())
@@ -562,11 +519,12 @@ mx::FilePath writeSceneTemplate(const Options& options, const mx::FilePath& outp
           << "0, " << meshExport.objectToCommonScale << ", 0, 0, "
           << "0, 0, " << meshExport.objectToCommonScale << ", 0, "
           << objectTranslation[0] << ", " << objectTranslation[1] << ", " << objectTranslation[2] << ", 1\" />\n";
-    const mx::Vector3 cameraTarget = meshExport.objectCenter;
-    const mx::Vector3 cameraEye = cameraTarget + mx::Vector3(0.0f, 0.0f, 5.0f / meshExport.objectToCommonScale);
-    scene << "   <Camera eye=\"" << cameraEye[0] << ", " << cameraEye[1] << ", " << cameraEye[2]
-          << "\" look_at=\"" << cameraTarget[0] << ", " << cameraTarget[1] << ", " << cameraTarget[2]
-          << "\" up=\"0, 1, 0\" fov=\"" << TESTRENDER_FOV_FOR_45_DEGREES << "\" />\n\n";
+    scene << "   <Transform name=\"model\" matrix=\""
+          << meshExport.objectToCommonScale << ", 0, 0, 0, "
+          << "0, " << meshExport.objectToCommonScale << ", 0, 0, "
+          << "0, 0, " << meshExport.objectToCommonScale << ", 0, "
+          << objectTranslation[0] << ", " << objectTranslation[1] << ", " << objectTranslation[2] << ", 1\" />\n";
+    scene << "   <Camera eye=\"0, 0, 5\" look_at=\"0, 0, 0\" up=\"0, 1, 0\" fov=\"" << TESTRENDER_FOV_FOR_45_DEGREES << "\" />\n\n";
     if (options.drawEnvironment)
     {
         scene << "   <ShaderGroup>\n";
@@ -692,9 +650,6 @@ void render(const Options& options, char** argv)
     context.getOptions().fileTextureVerticalFlip = false;
     context.getOptions().oslConnectCiWrapper = true;
     generator->registerShaderMetadata(libraries, context);
-
-    generator->registerImplementation("IM_tangent_vector3_" + mx::OslShaderGenerator::TARGET, TangentOsl::create);
-    generator->registerImplementation("IM_bitangent_vector3_" + mx::OslShaderGenerator::TARGET, BitangentOsl::create);
 
     mx::TypedElementPtr element = elements.front();
     const std::string generatedShaderName = shaderName(element);

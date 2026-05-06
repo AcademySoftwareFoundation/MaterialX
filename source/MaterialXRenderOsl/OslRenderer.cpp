@@ -493,15 +493,9 @@ void OslRenderer::createProgram(const StageMap& stages)
         fileName += ".osl";
     }
 
-    // TODO: Seems testrender will crash currently when trying to convert to "object" space.
-    // Thus we replace all instances of "object" with "world" to avoid issues.
-    StringMap spaceMap;
-    spaceMap["\"object\""] = "\"world\"";
-    string oslCode = replaceSubstrings(stages.begin()->second, spaceMap);
-
     std::ofstream file;
     file.open(fileName);
-    file << oslCode;
+    file << stages.begin()->second;
     file.close();
 
     // Try compiling the code
