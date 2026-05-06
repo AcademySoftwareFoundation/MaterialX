@@ -1,9 +1,11 @@
 // https://www.shadertoy.com/view/4djSRW
 vector2 mx_hextile_hash(vector2 p)
 {
-    vector pp3 = fmod(vector(p.x, p.y, p.x) * vector(0.1031, 0.1030, 0.0973), 1.0);
+    vector pp3 = vector(p.x, p.y, p.x) * vector(0.1031, 0.1030, 0.0973);
+    pp3 -= floor(pp3);
     pp3 += dot(pp3, vector(pp3[1], pp3[2], pp3[0]) + 33.33);
-    return fmod(vector2(pp3[0] + pp3[1], pp3[0] + pp3[2]) * vector2(pp3[2], pp3[1]), 1.0);
+    vector2 result = vector2(pp3[0] + pp3[1], pp3[0] + pp3[2]) * vector2(pp3[2], pp3[1]);
+    return result - floor(result);
 }
 
 // Christophe Schlick. "Fast Alternatives to Perlin's Bias and Gain Functions".
