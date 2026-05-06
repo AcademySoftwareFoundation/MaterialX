@@ -1,0 +1,5 @@
+void mx_transformmatrix_vector3M4(vector val, matrix m, output vector result)
+{
+    vector4 res = transform(m, vector4(val[0], val[1], val[2], 1.0));
+    result = vector(res.x, res.y, res.z);
+}
