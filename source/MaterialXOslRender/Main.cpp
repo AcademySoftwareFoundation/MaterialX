@@ -436,7 +436,7 @@ NormalizedMeshExport exportNormalizedObj(const mx::FilePath& meshPath, const mx:
             for (size_t i = 0; i < positions->getSize(); ++i)
             {
                 const mx::Vector2 uv = getTexCoord(texcoords, i);
-                obj << "vt " << uv[0] << ' ' << (1.0f - uv[1]) << "\n";
+                obj << "vt " << uv[0] << ' ' << uv[1] << "\n";
             }
         }
         else
