@@ -60,8 +60,12 @@ HlslRenderer::~HlslRenderer()
 {
     releaseAndNull(reinterpret_cast<IUnknown**>(&_rasterState));
     releaseAndNull(reinterpret_cast<IUnknown**>(&_fullscreenVbuf));
-    releaseAndNull(reinterpret_cast<IUnknown**>(&_meshIbuf));
-    releaseAndNull(reinterpret_cast<IUnknown**>(&_meshVbuf));
+    for (auto& kv : _meshVbufCache)
+        releaseAndNull(reinterpret_cast<IUnknown**>(&kv.second));
+    _meshVbufCache.clear();
+    for (auto& d : _meshDraws)
+        releaseAndNull(reinterpret_cast<IUnknown**>(&d.ibuf));
+    _meshDraws.clear();
 }
 
 HlslRendererPtr HlslRenderer::create(unsigned int width, unsigned int height, Image::BaseType baseType)
@@ -168,96 +172,142 @@ void HlslRenderer::ensureFullscreenGeometry()
         throw ExceptionRenderError("HlslRenderer: failed to create rasterizer state.");
 }
 
-unsigned int HlslRenderer::ensureMeshGeometry()
+bool HlslRenderer::ensureMeshGeometry()
 {
     if (!_geometryHandler)
-        return 0;
+        return false;
     const auto& meshes = _geometryHandler->getMeshes();
     if (meshes.empty())
-        return 0;
-    MeshPtr mesh = meshes.front();
-    if (!mesh || mesh->getPartitionCount() == 0)
-        return 0;
-    MeshPartitionPtr partition = mesh->getPartition(0);
-    if (!partition)
-        return 0;
+        return false;
 
-    void* key = partition.get();
-    if (key == _meshKey && _meshVbuf && _meshIbuf)
-        return _meshIndexCount;
-
-    // Discard the old buffers; new mesh -> new upload.
-    releaseAndNull(reinterpret_cast<IUnknown**>(&_meshIbuf));
-    releaseAndNull(reinterpret_cast<IUnknown**>(&_meshVbuf));
-    _meshIndexCount = 0;
-
-    MeshStreamPtr posStream     = mesh->getStream(MeshStream::POSITION_ATTRIBUTE, 0);
-    MeshStreamPtr normalStream  = mesh->getStream(MeshStream::NORMAL_ATTRIBUTE,   0);
-    MeshStreamPtr tangentStream = mesh->getStream(MeshStream::TANGENT_ATTRIBUTE,  0);
-    MeshStreamPtr uvStream      = mesh->getStream(MeshStream::TEXCOORD_ATTRIBUTE, 0);
-    if (!posStream)
-        return 0;
-
-    const std::size_t vertexCount = mesh->getVertexCount();
-    if (vertexCount == 0)
-        return 0;
-
-    // Pack interleaved (POSITION, NORMAL, TANGENT, TEXCOORD0) per vertex
-    // into the same 11-float layout the fullscreen triangle uses, so
-    // both render paths share an input layout. Missing streams get
-    // zero-filled.
-    constexpr unsigned int kFloatsPerVertex = kVertexStrideFloats;
-    std::vector<float> interleaved(vertexCount * kFloatsPerVertex, 0.0f);
-    auto writeStream = [&](const MeshStreamPtr& s, unsigned int dstOffset, unsigned int dstWidth)
+    // Build the (Mesh*, Partition*) sequence that the current scene
+    // wants to draw and short-circuit when it matches the cache. When
+    // _activeMeshes is non-empty, restrict iteration to meshes whose
+    // name is in the set (used for multi-pass shaderball-style renders).
+    auto meshActive = [&](const MeshPtr& m)
     {
-        if (!s)
-            return;
-        const auto& src = s->getData();
-        const unsigned int srcStride = s->getStride();
-        const unsigned int copyN = std::min(dstWidth, srcStride);
-        const std::size_t n = std::min(vertexCount, src.size() / (srcStride ? srcStride : 1));
-        for (std::size_t i = 0; i < n; ++i)
-        {
-            for (unsigned int c = 0; c < copyN; ++c)
-                interleaved[i * kFloatsPerVertex + dstOffset + c] = src[i * srcStride + c];
-        }
+        return _activeMeshes.empty() || _activeMeshes.count(m->getName()) > 0;
     };
-    writeStream(posStream,     0, 3);
-    writeStream(normalStream,  3, 3);
-    writeStream(tangentStream, 6, 3);
-    writeStream(uvStream,      9, 2);
+    std::vector<std::pair<void*, void*>> wantKey;
+    wantKey.reserve(meshes.size());
+    for (const MeshPtr& mesh : meshes)
+    {
+        if (!mesh || !meshActive(mesh))
+            continue;
+        for (size_t i = 0; i < mesh->getPartitionCount(); ++i)
+        {
+            MeshPartitionPtr part = mesh->getPartition(i);
+            if (!part)
+                continue;
+            wantKey.emplace_back(mesh.get(), part.get());
+        }
+    }
+    if (wantKey.empty())
+        return false;
+    if (wantKey == _meshCacheKey && !_meshDraws.empty())
+        return true;
+
+    // Different scene-graph identity: discard owned buffers and rebuild.
+    for (auto& kv : _meshVbufCache)
+        releaseAndNull(reinterpret_cast<IUnknown**>(&kv.second));
+    _meshVbufCache.clear();
+    for (auto& d : _meshDraws)
+        releaseAndNull(reinterpret_cast<IUnknown**>(&d.ibuf));
+    _meshDraws.clear();
+    _meshCacheKey.clear();
 
     ID3D11Device* device = _context->getDevice();
 
-    D3D11_BUFFER_DESC vbd = {};
-    vbd.ByteWidth = static_cast<UINT>(interleaved.size() * sizeof(float));
-    vbd.Usage = D3D11_USAGE_IMMUTABLE;
-    vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-    D3D11_SUBRESOURCE_DATA vbInit = { interleaved.data(), 0, 0 };
-    if (FAILED(device->CreateBuffer(&vbd, &vbInit, &_meshVbuf)))
-        throw ExceptionRenderError("HlslRenderer: failed to create mesh vertex buffer.");
-
-    const auto& indices = partition->getIndices();
-    if (indices.empty())
+    auto buildVbuf = [&](const MeshPtr& mesh) -> ID3D11Buffer*
     {
-        releaseAndNull(reinterpret_cast<IUnknown**>(&_meshVbuf));
-        return 0;
+        auto it = _meshVbufCache.find(mesh.get());
+        if (it != _meshVbufCache.end())
+            return it->second;
+
+        MeshStreamPtr posStream     = mesh->getStream(MeshStream::POSITION_ATTRIBUTE, 0);
+        MeshStreamPtr normalStream  = mesh->getStream(MeshStream::NORMAL_ATTRIBUTE,   0);
+        MeshStreamPtr tangentStream = mesh->getStream(MeshStream::TANGENT_ATTRIBUTE,  0);
+        MeshStreamPtr uvStream      = mesh->getStream(MeshStream::TEXCOORD_ATTRIBUTE, 0);
+        if (!posStream)
+            return nullptr;
+
+        const std::size_t vertexCount = mesh->getVertexCount();
+        if (vertexCount == 0)
+            return nullptr;
+
+        // Pack interleaved (POSITION, NORMAL, TANGENT, TEXCOORD0) per
+        // vertex into the same 11-float layout the fullscreen triangle
+        // uses, so both render paths share an input layout. Missing
+        // streams get zero-filled.
+        constexpr unsigned int kFloatsPerVertex = kVertexStrideFloats;
+        std::vector<float> interleaved(vertexCount * kFloatsPerVertex, 0.0f);
+        auto writeStream = [&](const MeshStreamPtr& s, unsigned int dstOffset, unsigned int dstWidth)
+        {
+            if (!s)
+                return;
+            const auto& src = s->getData();
+            const unsigned int srcStride = s->getStride();
+            const unsigned int copyN = std::min(dstWidth, srcStride);
+            const std::size_t n = std::min(vertexCount, src.size() / (srcStride ? srcStride : 1));
+            for (std::size_t i = 0; i < n; ++i)
+            {
+                for (unsigned int c = 0; c < copyN; ++c)
+                    interleaved[i * kFloatsPerVertex + dstOffset + c] = src[i * srcStride + c];
+            }
+        };
+        writeStream(posStream,     0, 3);
+        writeStream(normalStream,  3, 3);
+        writeStream(tangentStream, 6, 3);
+        writeStream(uvStream,      9, 2);
+
+        D3D11_BUFFER_DESC vbd = {};
+        vbd.ByteWidth = static_cast<UINT>(interleaved.size() * sizeof(float));
+        vbd.Usage = D3D11_USAGE_IMMUTABLE;
+        vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+        D3D11_SUBRESOURCE_DATA vbInit = { interleaved.data(), 0, 0 };
+        ID3D11Buffer* vbuf = nullptr;
+        if (FAILED(device->CreateBuffer(&vbd, &vbInit, &vbuf)))
+            throw ExceptionRenderError("HlslRenderer: failed to create mesh vertex buffer.");
+        _meshVbufCache.emplace(mesh.get(), vbuf);
+        return vbuf;
+    };
+
+    for (const MeshPtr& mesh : meshes)
+    {
+        if (!mesh || !meshActive(mesh))
+            continue;
+        ID3D11Buffer* vbuf = buildVbuf(mesh);
+        if (!vbuf)
+            continue;
+
+        for (size_t i = 0; i < mesh->getPartitionCount(); ++i)
+        {
+            MeshPartitionPtr part = mesh->getPartition(i);
+            if (!part)
+                continue;
+            const auto& indices = part->getIndices();
+            if (indices.empty())
+                continue;
+
+            D3D11_BUFFER_DESC ibd = {};
+            ibd.ByteWidth = static_cast<UINT>(indices.size() * sizeof(uint32_t));
+            ibd.Usage = D3D11_USAGE_IMMUTABLE;
+            ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+            D3D11_SUBRESOURCE_DATA ibInit = { indices.data(), 0, 0 };
+            ID3D11Buffer* ibuf = nullptr;
+            if (FAILED(device->CreateBuffer(&ibd, &ibInit, &ibuf)))
+                throw ExceptionRenderError("HlslRenderer: failed to create mesh index buffer.");
+
+            MeshDraw d;
+            d.vbuf = vbuf;
+            d.ibuf = ibuf;
+            d.indexCount = static_cast<unsigned int>(indices.size());
+            _meshDraws.push_back(d);
+        }
     }
 
-    D3D11_BUFFER_DESC ibd = {};
-    ibd.ByteWidth = static_cast<UINT>(indices.size() * sizeof(uint32_t));
-    ibd.Usage = D3D11_USAGE_IMMUTABLE;
-    ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-    D3D11_SUBRESOURCE_DATA ibInit = { indices.data(), 0, 0 };
-    if (FAILED(device->CreateBuffer(&ibd, &ibInit, &_meshIbuf)))
-    {
-        releaseAndNull(reinterpret_cast<IUnknown**>(&_meshVbuf));
-        throw ExceptionRenderError("HlslRenderer: failed to create mesh index buffer.");
-    }
-
-    _meshKey = key;
-    _meshIndexCount = static_cast<unsigned int>(indices.size());
-    return _meshIndexCount;
+    _meshCacheKey = std::move(wantKey);
+    return !_meshDraws.empty();
 }
 
 void HlslRenderer::bindCameraToVertexCbuffer()
@@ -359,7 +409,16 @@ void HlslRenderer::bindFileTexturesFromImageHandler()
         }
         if (!image)
             continue;
-        bindImage(uniformName, image);
+        // Pull per-uniform sampling properties (uaddressmode,
+        // vaddressmode, filtertype, defaultcolor) from the cbuffer
+        // sibling uniforms so the sampler matches the material's
+        // intent. Without this, every texture binds with the default
+        // CLAMP/LINEAR sampler, which makes UV-tiled materials (e.g.
+        // wood with uvtiling=4,4) sample at the texture edge instead
+        // of repeating the pattern.
+        ImageSamplingProperties sp;
+        sp.setProperties(uniformName, block);
+        bindImage(uniformName, image, &sp);
     }
 }
 
@@ -383,19 +442,17 @@ void HlslRenderer::render()
     // Prefer real mesh geometry when the geometry handler has any. Fall
     // back to the fullscreen triangle so renderer tests that only set a
     // shader still produce output.
-    const unsigned int indexCount = ensureMeshGeometry();
-    const bool useMesh = indexCount > 0;
+    const bool useMesh = ensureMeshGeometry();
 
     ID3D11DeviceContext* dc = _context->getDeviceContext();
 
     _framebuffer->bind();
-    _framebuffer->clear(_screenColor);
+    if (_clearOnRender)
+        _framebuffer->clear(_screenColor);
     dc->RSSetState(_rasterState);
 
-    ID3D11Buffer* vbuf = useMesh ? _meshVbuf : _fullscreenVbuf;
     UINT stride = kFullscreenStride; // Same 9-float layout for both paths.
     UINT offset = 0;
-    dc->IASetVertexBuffers(0, 1, &vbuf, &stride, &offset);
     dc->IASetInputLayout(_material->getInputLayout());
     dc->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -403,11 +460,20 @@ void HlslRenderer::render()
 
     if (useMesh)
     {
-        dc->IASetIndexBuffer(_meshIbuf, DXGI_FORMAT_R32_UINT, 0);
-        dc->DrawIndexed(indexCount, 0, 0);
+        // Mirror GlslRenderer: bind each mesh's VBO, then draw every
+        // partition of that mesh. The vbuf pointer changes only when
+        // we move to a new mesh, but D3D11 doesn't care if we re-bind
+        // the same buffer per partition.
+        for (const MeshDraw& d : _meshDraws)
+        {
+            dc->IASetVertexBuffers(0, 1, &d.vbuf, &stride, &offset);
+            dc->IASetIndexBuffer(d.ibuf, DXGI_FORMAT_R32_UINT, 0);
+            dc->DrawIndexed(d.indexCount, 0, 0);
+        }
     }
     else
     {
+        dc->IASetVertexBuffers(0, 1, &_fullscreenVbuf, &stride, &offset);
         dc->Draw(3, 0);
     }
 
@@ -661,17 +727,21 @@ void HlslRenderer::bindEnvironmentImagesFromLightHandler()
     if (irradiance) bindImage(HW::ENV_IRRADIANCE, irradiance);
 }
 
-bool HlslRenderer::bindImage(const std::string& uniformName, ImagePtr image)
+bool HlslRenderer::bindImage(const std::string& uniformName, ImagePtr image,
+                             const ImageSamplingProperties* properties)
 {
     if (!_material || !_textureHandler || !image)
         return false;
 
-    // Default sampling properties: linear, clamp. Callers that need
-    // explicit sampling control can call _textureHandler->bindImage
-    // first with custom ImageSamplingProperties, then leave the
-    // renderer's bindImage to retrieve the cached SRV/sampler.
+    // Use the supplied per-uniform sampling properties when available;
+    // otherwise fall back to defaults (CLAMP / LINEAR). The properties
+    // come from the shader's PUBLIC_UNIFORMS sibling uniforms
+    // (<file>_uaddressmode etc.) and let UV-tiled materials sample
+    // with WRAP, materials with custom filters use point/cubic, and
+    // missing-image fallbacks use the requested default colour.
     ImageSamplingProperties defaultSP;
-    if (!_textureHandler->bindImage(image, defaultSP))
+    const ImageSamplingProperties& sp = properties ? *properties : defaultSP;
+    if (!_textureHandler->bindImage(image, sp))
         return false;
 
     ID3D11ShaderResourceView* srv     = _textureHandler->getBoundSrv(image->getResourceId());

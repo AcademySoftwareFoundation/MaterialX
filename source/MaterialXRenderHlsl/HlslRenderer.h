@@ -19,6 +19,10 @@
 #include <MaterialXRender/ImageHandler.h>
 #include <MaterialXRender/ShaderRenderer.h>
 
+#include <unordered_map>
+#include <utility>
+#include <vector>
+
 struct ID3D11Buffer;
 struct ID3D11RasterizerState;
 
@@ -75,6 +79,18 @@ class MX_RENDERHLSL_API HlslRenderer : public ShaderRenderer
     void setScreenColor(const Color4& color) { _screenColor = color; }
     const Color4& getScreenColor() const { return _screenColor; }
 
+    /// Restrict draw iteration to meshes whose Mesh::getName() is in
+    /// this set. Empty set (default) renders every mesh exposed by the
+    /// geometry handler. Used by the shaderball convention to render
+    /// the Preview_Mesh under the user material and Calibration_Mesh
+    /// under a separate reference material in two passes.
+    void setActiveMeshes(const StringSet& names) { _activeMeshes = names; }
+
+    /// Skip the framebuffer clear at the top of render(). Used for
+    /// multi-pass renders where pass N>0 must overwrite only the pixels
+    /// it actually rasterises. Defaults to true.
+    void setClearOnRender(bool clear) { _clearOnRender = clear; }
+
     /// Upload `image` via the renderer's HlslTextureHandler and bind it
     /// to the texture/sampler slots of the named SamplerTexture2D handle
     /// in the pixel stage. The HLSL generator emits each file-texture
@@ -85,7 +101,8 @@ class MX_RENDERHLSL_API HlslRenderer : public ShaderRenderer
     /// bindings, finds both, and routes the SRV / sampler from the
     /// uploaded image into the matching t# / s# slots. Returns true
     /// when at least one slot was bound.
-    bool bindImage(const std::string& uniformName, ImagePtr image);
+    bool bindImage(const std::string& uniformName, ImagePtr image,
+                   const ImageSamplingProperties* properties = nullptr);
 
     /// Borrowed accessors.
     HlslContextPtr        getContext()        const { return _context; }
@@ -142,11 +159,14 @@ class MX_RENDERHLSL_API HlslRenderer : public ShaderRenderer
     /// Build and stash a fullscreen-triangle vertex buffer on first use.
     void ensureFullscreenGeometry();
 
-    /// Build and stash interleaved (POSITION + NORMAL + TANGENT) vertex
-    /// and index buffers from the geometry handler's first mesh. Cached
-    /// by mesh pointer so subsequent renders reuse the GPU buffers.
-    /// Returns the partition index count, or 0 if no mesh is available.
-    unsigned int ensureMeshGeometry();
+    /// Build and stash interleaved (POSITION + NORMAL + TANGENT + UV)
+    /// vertex buffers per mesh and index buffers per partition for every
+    /// mesh/partition the geometry handler exposes. Mirrors GlslRenderer's
+    /// "iterate all meshes, draw all partitions" loop. Cached by the
+    /// (Mesh*, Partition*) identity vector; a different scene-graph
+    /// invalidates the cache and re-uploads. Returns true if at least one
+    /// drawable partition is available.
+    bool ensureMeshGeometry();
 
     /// Copy the current camera's world and view-projection matrices into
     /// the vertexCB at the offsets reported by reflection. Silently does
@@ -166,17 +186,26 @@ class MX_RENDERHLSL_API HlslRenderer : public ShaderRenderer
     ShaderPtr _shader;
 
     Color4 _screenColor = Color4(0.0f, 0.0f, 0.0f, 1.0f);
+    StringSet _activeMeshes;          // empty = render every mesh
+    bool _clearOnRender = true;
 
     ID3D11Buffer*           _fullscreenVbuf = nullptr;
     ID3D11RasterizerState*  _rasterState = nullptr;
 
-    // Mesh geometry cache. _meshKey is the void* identity of the most
-    // recently bound MeshPartition; if the geometry handler returns a
-    // different partition we discard the cached buffers and re-upload.
-    void*           _meshKey = nullptr;
-    ID3D11Buffer*   _meshVbuf = nullptr;
-    ID3D11Buffer*   _meshIbuf = nullptr;
-    unsigned int    _meshIndexCount = 0;
+    // Mesh geometry cache. One MeshDraw per partition. Cached vertex
+    // buffers are shared across partitions of the same mesh via the
+    // _meshVbufCache map; partitions own their own index buffer. The
+    // _meshCacheKey vector is the (Mesh*, Partition*) identity sequence
+    // captured on the most recent build; if a later render finds a
+    // different sequence we tear down and rebuild.
+    struct MeshDraw {
+        ID3D11Buffer* vbuf = nullptr;        // borrowed from _meshVbufCache
+        ID3D11Buffer* ibuf = nullptr;        // owned
+        unsigned int  indexCount = 0;
+    };
+    std::vector<std::pair<void*, void*>>           _meshCacheKey;
+    std::unordered_map<void*, ID3D11Buffer*>       _meshVbufCache;
+    std::vector<MeshDraw>                          _meshDraws;
 };
 
 MATERIALX_NAMESPACE_END
