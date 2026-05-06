@@ -7,6 +7,7 @@
 
 #include <MaterialXGenShader/Exception.h>
 #include <MaterialXGenShader/GenContext.h>
+#include <MaterialXGenShader/NodeGraphTopology.h>
 #include <MaterialXGenShader/ShaderGraphRefactor.h>
 #include <MaterialXGenShader/Util.h>
 
@@ -80,7 +81,8 @@ void ShaderGraph::addOutputSockets(const InterfaceElement& elem, GenContext& con
 void ShaderGraph::createConnectedNodes(const ElementPtr& downstreamElement,
                                        const ElementPtr& upstreamElement,
                                        ElementPtr connectingElement,
-                                       GenContext& context)
+                                       GenContext& context,
+                                       const NodeGraphPermutation* permutation)
 {
     MX_TRACE_FUNCTION(Tracing::Category::ShaderGen);
 
@@ -91,6 +93,14 @@ void ShaderGraph::createConnectedNodes(const ElementPtr& downstreamElement,
         throw ExceptionShaderGenError("Upstream element to connect is not a node '" +
                                       upstreamElement->getName() + "'");
     }
+    // Check if this node should be pruned
+    if (permutation && permutation->shouldPrune(upstreamNode->getName()))
+    {
+        // Prune this node entirely. The downstream input will remain
+        // unconnected and use its default value (e.g., transparent BSDF).
+        return;
+    }
+
     ShaderNode* newNode = getNode(upstreamNode->getNamePath());
     if (!newNode)
     {
@@ -173,7 +183,8 @@ void ShaderGraph::createConnectedNodes(const ElementPtr& downstreamElement,
     }
 }
 
-void ShaderGraph::addUpstreamDependencies(const Element& root, GenContext& context)
+void ShaderGraph::addUpstreamDependencies(const Element& root, GenContext& context,
+                                          const NodeGraphPermutation* permutation)
 {
     MX_TRACE_FUNCTION(Tracing::Category::ShaderGen);
     MX_TRACE_SCOPE(Tracing::Category::ShaderGen, root.getName().c_str());
@@ -215,7 +226,8 @@ void ShaderGraph::addUpstreamDependencies(const Element& root, GenContext& conte
         createConnectedNodes(downstreamElement,
                              upstreamElement,
                              edge.getConnectingElement(),
-                             context);
+                             context,
+                             permutation);
     }
 }
 
@@ -437,7 +449,8 @@ void ShaderGraph::addUnitTransformNode(ShaderOutput* output, const UnitTransform
     }
 }
 
-ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const NodeGraph& nodeGraph, GenContext& context)
+ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const NodeGraph& nodeGraph,
+                                   GenContext& context, const NodeGraphPermutation* permutation)
 {
     NodeDefPtr nodeDef = nodeGraph.getNodeDef();
     if (!nodeDef)
@@ -461,7 +474,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const NodeGraph& n
     // Traverse all outputs and create all internal nodes
     for (OutputPtr graphOutput : nodeGraph.getActiveOutputs())
     {
-        graph->addUpstreamDependencies(*graphOutput, context);
+        graph->addUpstreamDependencies(*graphOutput, context, permutation);
     }
 
     // Finalize the graph
@@ -646,7 +659,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
     // Traverse and create all dependencies upstream
     if (root && context.getOptions().addUpstreamDependencies)
     {
-        graph->addUpstreamDependencies(*root, context);
+        graph->addUpstreamDependencies(*root, context, nullptr);
     }
 
     graph->finalize(context);
