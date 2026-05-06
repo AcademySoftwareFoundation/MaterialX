@@ -77,6 +77,7 @@ struct Options
     unsigned int screenWidth = 512;
     unsigned int screenHeight = 512;
     bool drawEnvironment = true;
+    bool shadows = true;
     bool help = false;
 };
 
@@ -96,6 +97,7 @@ void printUsage()
         << "  --drawEnvironment <bool>      Accepted for MaterialXView CLI compatibility\n"
         << "  --enableDirectLight <bool>    Accepted for MaterialXView CLI compatibility\n"
         << "  --shadowMap <bool>            Accepted for MaterialXView CLI compatibility\n"
+        << "  --shadows <bool>              Enable or disable OSL shadow occlusion rays\n"
         << "  --help                        Show this help\n";
 }
 
@@ -113,7 +115,8 @@ bool optionNeedsValue(const std::string& option)
         "--screenColor",
         "--drawEnvironment",
         "--enableDirectLight",
-        "--shadowMap"
+        "--shadowMap",
+        "--shadows"
     };
     return options.count(option) != 0;
 }
@@ -174,6 +177,11 @@ Options parseOptions(int argc, char** argv)
         else if (arg == "--drawEnvironment")
         {
             options.drawEnvironment = mx::stringToLower(value) != "false" && value != "0";
+        }
+        else if (arg == "--shadows")
+        {
+            const std::string lowerValue = mx::stringToLower(value);
+            options.shadows = lowerValue != "false" && lowerValue != "0" && lowerValue != "off" && lowerValue != "no";
         }
     }
     return options;
@@ -684,6 +692,7 @@ void render(const Options& options, char** argv)
     renderer->setOslShaderName(generatedShaderName);
     renderer->setRaysPerPixelLit(4);
     renderer->setRaysPerPixelUnlit(1);
+    renderer->setOslShadows(options.shadows);
     renderer->setSize(options.screenWidth, options.screenHeight);
 
     mx::StringVec envOverrides;

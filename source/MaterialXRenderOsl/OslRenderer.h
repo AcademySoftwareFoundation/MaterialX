@@ -218,6 +218,12 @@ class MX_RENDEROSL_API OslRenderer : public ShaderRenderer
         _raysPerPixelUnlit = rays;
     }
 
+    /// Set whether testrender should trace shadow occlusion rays.
+    void setOslShadows(bool shadows)
+    {
+        _oslShadows = shadows;
+    }
+
     /// Set the osl command string that is to be tested
     void setOSLCmdStr(const string& oslCmd)
     {
@@ -273,6 +279,7 @@ class MX_RENDEROSL_API OslRenderer : public ShaderRenderer
     bool _useOSLCmdStr;
     int _raysPerPixelLit;
     int _raysPerPixelUnlit;
+    bool _oslShadows;
     string _oslCmdStr;
 };
 
