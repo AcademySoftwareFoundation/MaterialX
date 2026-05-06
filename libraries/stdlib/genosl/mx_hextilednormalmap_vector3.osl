@@ -29,7 +29,7 @@ void mx_hextilednormalmap_vector3(
         return;
     }
 
-    vector2 coord = mx_transform_uv(texcoord) * tiling;
+    vector2 coord = mx_transform_uv(texcoord * tiling);
 
     HextileData tile_data = mx_hextile_coord(coord, rotation, rotationrange, scale, scalerange, offset, offsetrange);
 
