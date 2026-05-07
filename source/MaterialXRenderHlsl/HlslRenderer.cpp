@@ -480,6 +480,22 @@ void HlslRenderer::render()
     _framebuffer->unbind();
 }
 
+void HlslRenderer::renderTextureSpace(const Vector2& /*uvMin*/, const Vector2& /*uvMax*/)
+{
+    // Texture-space rendering for the baker. The baker calls this with
+    // (0,0)/(1,1) by default, which is exactly what the existing
+    // fullscreen-triangle path produces. To force that path we
+    // temporarily detach the geometry handler so render() falls back
+    // to the fullscreen triangle, then restore it. Non-default UV
+    // ranges are not yet honoured - `getTextureSpaceMin/Max` would
+    // need to thread through to a quad with custom UVs; the baker
+    // doesn't currently set them.
+    GeometryHandlerPtr saved = _geometryHandler;
+    _geometryHandler.reset();
+    render();
+    _geometryHandler = saved;
+}
+
 ImagePtr HlslRenderer::captureImage(ImagePtr /*image*/)
 {
     if (!_framebuffer)

@@ -69,6 +69,16 @@ class MX_RENDERHLSL_API HlslFramebuffer
     /// framebuffer otherwise made the active render target.
     void clear(const Color4& color);
 
+    /// Select whether shader writes are gamma-encoded (sRGB RTV) or
+    /// pass through linear (UNORM RTV). Both views target the same
+    /// underlying TYPELESS texture, so the switch is free at bind
+    /// time. Defaults to true to match the GLSL renderer's
+    /// glEnable(GL_FRAMEBUFFER_SRGB). The texture baker flips this
+    /// off when baking non-color outputs (roughness, metallic) so
+    /// they stay in linear.
+    void setEncodeSrgb(bool encode) { _encodeSrgb = encode; }
+    bool getEncodeSrgb() const { return _encodeSrgb; }
+
     /// Read the color attachment back to CPU memory and return it as a
     /// MaterialX Image. The image is RGBA8 with origin in the top-left
     /// (D3D's natural orientation).
@@ -86,9 +96,11 @@ class MX_RENDERHLSL_API HlslFramebuffer
     ID3D11Texture2D* _colorTexture = nullptr;
     ID3D11Texture2D* _depthTexture = nullptr;
     ID3D11Texture2D* _stagingTexture = nullptr;
-    ID3D11RenderTargetView* _colorRtv = nullptr;
+    ID3D11RenderTargetView* _colorRtvSrgb = nullptr;
+    ID3D11RenderTargetView* _colorRtvLinear = nullptr;
     ID3D11DepthStencilView* _depthDsv = nullptr;
     ID3D11ShaderResourceView* _colorSrv = nullptr;
+    bool _encodeSrgb = true;
 };
 
 MATERIALX_NAMESPACE_END

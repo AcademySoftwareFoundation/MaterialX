@@ -53,8 +53,7 @@ bool compileMaterial(const mx::FilePath& mtlxPath, mx::DocumentPtr libraries,
     }
     doc->setDataLibrary(libraries);
 
-    std::vector<mx::TypedElementPtr> renderable;
-    mx::findRenderableElements(doc, renderable);
+    std::vector<mx::TypedElementPtr> renderable = mx::findRenderableElements(doc);
     if (renderable.empty())
         return true;
 

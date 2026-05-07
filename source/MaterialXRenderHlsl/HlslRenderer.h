@@ -73,6 +73,16 @@ class MX_RENDERHLSL_API HlslRenderer : public ShaderRenderer
     void validateInputs() override;
     void setSize(unsigned int width, unsigned int height) override;
     void render() override;
+
+    /// Render a fullscreen quad covering the given UV range. Used by
+    /// the texture baker to render a shader's output into texture
+    /// space. Mirrors GlslRenderer::renderTextureSpace; uvMin/uvMax
+    /// default to (0,0)/(1,1) on the baker side, which is the only
+    /// case the current implementation hits, so we just route to the
+    /// existing fullscreen-triangle path. Non-default UV ranges are
+    /// not yet honoured.
+    void renderTextureSpace(const Vector2& uvMin, const Vector2& uvMax);
+
     ImagePtr captureImage(ImagePtr image = nullptr) override;
 
     /// Background color used for the framebuffer clear before render().

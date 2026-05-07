@@ -64,13 +64,19 @@ HlslFramebuffer::HlslFramebuffer(HlslContextPtr context, unsigned int width, uns
     if (FAILED(device->CreateTexture2D(&td, nullptr, &_colorTexture)))
         throw ExceptionRenderError("HlslFramebuffer: failed to create color texture.");
 
-    // Render-target view: sRGB so writes go through a linear -> sRGB
-    // gamma transform.
+    // Two RTVs over the same TYPELESS texture: SRGB encodes writes
+    // (linear -> sRGB), UNORM passes them through. setEncodeSrgb
+    // chooses which one bind/clear use. The texture baker flips
+    // sRGB off for non-color outputs (roughness, metallic, normal)
+    // so they stay linear.
     D3D11_RENDER_TARGET_VIEW_DESC rtvd = {};
-    rtvd.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
     rtvd.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-    if (FAILED(device->CreateRenderTargetView(_colorTexture, &rtvd, &_colorRtv)))
-        throw ExceptionRenderError("HlslFramebuffer: failed to create RTV.");
+    rtvd.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+    if (FAILED(device->CreateRenderTargetView(_colorTexture, &rtvd, &_colorRtvSrgb)))
+        throw ExceptionRenderError("HlslFramebuffer: failed to create sRGB RTV.");
+    rtvd.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    if (FAILED(device->CreateRenderTargetView(_colorTexture, &rtvd, &_colorRtvLinear)))
+        throw ExceptionRenderError("HlslFramebuffer: failed to create linear RTV.");
 
     // Shader-resource view: UNORM so callers reading the texture get
     // the bytes as stored (already gamma-encoded by the SRGB write).
@@ -112,7 +118,8 @@ HlslFramebuffer::~HlslFramebuffer()
 {
     releaseAndNull(reinterpret_cast<IUnknown**>(&_colorSrv));
     releaseAndNull(reinterpret_cast<IUnknown**>(&_depthDsv));
-    releaseAndNull(reinterpret_cast<IUnknown**>(&_colorRtv));
+    releaseAndNull(reinterpret_cast<IUnknown**>(&_colorRtvLinear));
+    releaseAndNull(reinterpret_cast<IUnknown**>(&_colorRtvSrgb));
     releaseAndNull(reinterpret_cast<IUnknown**>(&_stagingTexture));
     releaseAndNull(reinterpret_cast<IUnknown**>(&_depthTexture));
     releaseAndNull(reinterpret_cast<IUnknown**>(&_colorTexture));
@@ -121,7 +128,8 @@ HlslFramebuffer::~HlslFramebuffer()
 void HlslFramebuffer::bind()
 {
     ID3D11DeviceContext* ctx = _context->getDeviceContext();
-    ctx->OMSetRenderTargets(1, &_colorRtv, _depthDsv);
+    ID3D11RenderTargetView* rtv = _encodeSrgb ? _colorRtvSrgb : _colorRtvLinear;
+    ctx->OMSetRenderTargets(1, &rtv, _depthDsv);
 
     D3D11_VIEWPORT vp = {};
     vp.TopLeftX = 0;
@@ -144,7 +152,8 @@ void HlslFramebuffer::clear(const Color4& color)
 {
     ID3D11DeviceContext* ctx = _context->getDeviceContext();
     const float c[4] = { color[0], color[1], color[2], color[3] };
-    ctx->ClearRenderTargetView(_colorRtv, c);
+    ID3D11RenderTargetView* rtv = _encodeSrgb ? _colorRtvSrgb : _colorRtvLinear;
+    ctx->ClearRenderTargetView(rtv, c);
     ctx->ClearDepthStencilView(_depthDsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 
