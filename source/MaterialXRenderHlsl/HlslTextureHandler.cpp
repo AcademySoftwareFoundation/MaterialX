@@ -187,7 +187,6 @@ bool HlslTextureHandler::bindImage(ImagePtr image, const ImageSamplingProperties
     // had the loader returned RGBA.
     std::vector<uint8_t> padded;
     const void* uploadData = image->getResourceBuffer();
-    UINT uploadStride = 0;
     // Three-channel formats need padding because:
     //   - UINT8: D3D11 has no 24-bit RGB UNORM at all
     //   - HALF / FLOAT: 3-channel exists (R16G16B16/R32G32B32) but
