@@ -1172,12 +1172,12 @@ void MslProgram::bindUniformBuffers(id<MTLRenderCommandEncoder> renderCmdEncoder
         }
         if (uniformName == HW::WORLD_INVERSE_MATRIX)
         {
-            memcpy((void*) &data[offset], invWorld.getTranspose().data(), 4 * 4 * sizeof(float));
+            memcpy((void*) &data[offset], invWorld.data(), 4 * 4 * sizeof(float));
             return true;
         }
         if (uniformName == HW::WORLD_INVERSE_TRANSPOSE_MATRIX)
         {
-            memcpy((void*) &data[offset], invTransWorld.getTranspose().data(), 4 * 4 * sizeof(float));
+            memcpy((void*) &data[offset], invTransWorld.data(), 4 * 4 * sizeof(float));
             return true;
         }
         if (uniformName == HW::FRAME)
