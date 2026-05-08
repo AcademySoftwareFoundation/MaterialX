@@ -574,6 +574,10 @@ TEST_CASE("Render: Hlsl Renderer DrawsMeshWhenAvailable", "[renderhlsl]")
         }
     )";
     REQUIRE_NOTHROW(renderer->createProgram(stages));
+    // Test asserts raw PS-output bytes (0.4 * 255 = 102 etc.); opt out
+    // of the framebuffer's default sRGB encoding so the linear RTV is
+    // bound for this draw.
+    renderer->getFramebuffer()->setEncodeSrgb(false);
     REQUIRE_NOTHROW(renderer->render());
 
     mx::ImagePtr out = renderer->captureImage();

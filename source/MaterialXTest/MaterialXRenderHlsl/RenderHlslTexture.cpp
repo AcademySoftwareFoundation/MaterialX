@@ -108,6 +108,12 @@ TEST_CASE("Render: Hlsl Texture SampleAndDraw", "[renderhlsl]")
     // and exposes the underlying SRV / sampler via accessors.
     mx::HlslTextureHandlerPtr texHandler = mx::HlslTextureHandler::create(ctx, nullptr);
     mx::ImageSamplingProperties sp;
+    // Test asserts raw corner-texel byte values from a 2x2 source, so use
+    // CLOSEST (point) filtering. The texture handler builds a full mip
+    // chain by default; trilinear sampling on a 2x2 image would blend
+    // mip 0 with the gray average of mip 1 and corner reads wouldn't
+    // come back as the original texels.
+    sp.filterType = mx::ImageSamplingProperties::FilterType::CLOSEST;
     REQUIRE(texHandler->bindImage(image, sp));
     ID3D11ShaderResourceView* srv     = texHandler->getBoundSrv(image->getResourceId());
     ID3D11SamplerState*       sampler = texHandler->getBoundSampler(image->getResourceId());
@@ -146,6 +152,7 @@ TEST_CASE("Render: Hlsl Texture SampleAndDraw", "[renderhlsl]")
     constexpr unsigned int W = 64;
     constexpr unsigned int H = 64;
     mx::HlslFramebufferPtr fb = mx::HlslFramebuffer::create(ctx, W, H);
+    fb->setEncodeSrgb(false);   // assert raw sampled texel byte values
     fb->bind();
     fb->clear(mx::Color4(0.0f, 0.0f, 0.0f, 1.0f));
 

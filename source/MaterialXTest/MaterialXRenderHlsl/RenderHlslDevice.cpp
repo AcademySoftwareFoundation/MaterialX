@@ -66,6 +66,10 @@ TEST_CASE("Render: Hlsl Framebuffer ClearAndReadback", "[renderhlsl]")
     REQUIRE(fb->getWidth() == W);
     REQUIRE(fb->getHeight() == H);
 
+    // Test asserts raw byte values (0.25 -> 64, 0.5 -> 128, 0.75 -> 191),
+    // i.e. linear-pass-through. Disable sRGB encoding so the framebuffer
+    // uses the UNORM RTV instead of the default UNORM_SRGB one.
+    fb->setEncodeSrgb(false);
     fb->bind();
     fb->clear(mx::Color4(0.25f, 0.5f, 0.75f, 1.0f));
     fb->unbind();

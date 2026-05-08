@@ -105,6 +105,8 @@ TEST_CASE("Render: Hlsl Draw Triangle", "[renderhlsl]")
     constexpr unsigned int W = 32;
     constexpr unsigned int H = 32;
     mx::HlslFramebufferPtr fb = mx::HlslFramebuffer::create(ctx, W, H);
+    // Test asserts raw shader output bytes; opt out of sRGB encoding.
+    fb->setEncodeSrgb(false);
     fb->bind();
     fb->clear(mx::Color4(0.0f, 0.0f, 0.0f, 1.0f));
 

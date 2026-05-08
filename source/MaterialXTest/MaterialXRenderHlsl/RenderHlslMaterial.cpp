@@ -114,6 +114,7 @@ TEST_CASE("Render: Hlsl Material BindCbufferAndDraw", "[renderhlsl]")
     constexpr unsigned int W = 32;
     constexpr unsigned int H = 32;
     mx::HlslFramebufferPtr fb = mx::HlslFramebuffer::create(ctx, W, H);
+    fb->setEncodeSrgb(false);   // assert raw cbuffer-driven byte values
     fb->bind();
     fb->clear(mx::Color4(0.0f, 0.0f, 0.0f, 1.0f));
 
