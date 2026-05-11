@@ -149,7 +149,12 @@ vector4 mx_extract_matrix44(matrix in, int index)
 
 float mx_remap(float in, float inLow, float inHigh, float outLow, float outHigh, int doClamp)
 {
-      float x = (in - inLow)/(inHigh-inLow);
+      float denom = inHigh - inLow;
+      if (abs(denom) < 1e-8)
+      {
+           return outLow;
+      }
+      float x = (in - inLow) / denom;
       if (doClamp == 1) {
            x = clamp(x, 0, 1);
       }

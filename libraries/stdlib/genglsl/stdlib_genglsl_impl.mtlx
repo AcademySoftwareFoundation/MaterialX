@@ -504,7 +504,7 @@
   <!-- <contrast> -->
 
   <!-- <remap> -->
-  <implementation name="IM_remap_float_genglsl" nodedef="ND_remap_float" target="genglsl" sourcecode="{{outlow}} + ({{in}} - {{inlow}}) * ({{outhigh}} - {{outlow}}) / ({{inhigh}} - {{inlow}})" />
+  <implementation name="IM_remap_float_genglsl" nodedef="ND_remap_float" target="genglsl" sourcecode="(abs({{inhigh}} - {{inlow}}) &gt; M_FLOAT_EPS) ? ({{outlow}} + ({{in}} - {{inlow}}) * ({{outhigh}} - {{outlow}}) / ({{inhigh}} - {{inlow}})) : {{outlow}}" />
   <implementation name="IM_remap_color3_genglsl" nodedef="ND_remap_color3" target="genglsl" sourcecode="{{outlow}} + ({{in}} - {{inlow}}) * ({{outhigh}} - {{outlow}}) / ({{inhigh}} - {{inlow}})" />
   <implementation name="IM_remap_color3FA_genglsl" nodedef="ND_remap_color3FA" target="genglsl" sourcecode="{{outlow}} + ({{in}} - {{inlow}}) * ({{outhigh}} - {{outlow}}) / ({{inhigh}} - {{inlow}})" />
   <implementation name="IM_remap_color4_genglsl" nodedef="ND_remap_color4" target="genglsl" sourcecode="{{outlow}} + ({{in}} - {{inlow}}) * ({{outhigh}} - {{outlow}}) / ({{inhigh}} - {{inlow}})" />
