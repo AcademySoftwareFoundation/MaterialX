@@ -416,7 +416,7 @@
   <implementation name="IM_sqrt_vector4_genosl" nodedef="ND_sqrt_vector4" target="genosl" sourcecode="sqrt({{in}})" />
 
   <!-- <ln> -->
-  <implementation name="IM_ln_float_genosl" nodedef="ND_ln_float" target="genosl" sourcecode="log({{in}})" />
+  <implementation name="IM_ln_float_genosl" nodedef="ND_ln_float" target="genosl" sourcecode="mx_ternary({{in}} > 0.0, log({{in}}), 0.0)" />
   <implementation name="IM_ln_vector2_genosl" nodedef="ND_ln_vector2" target="genosl" sourcecode="log({{in}})" />
   <implementation name="IM_ln_vector3_genosl" nodedef="ND_ln_vector3" target="genosl" sourcecode="log({{in}})" />
   <implementation name="IM_ln_vector4_genosl" nodedef="ND_ln_vector4" target="genosl" sourcecode="log({{in}})" />
