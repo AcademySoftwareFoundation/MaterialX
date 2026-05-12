@@ -544,9 +544,9 @@
 
   <!-- <smoothstep> -->
   <implementation name="IM_smoothstep_float_genosl" nodedef="ND_smoothstep_float" target="genosl" sourcecode="mx_ternary({{high}} > {{low}}, smoothstep({{low}}, {{high}}, {{in}}), mx_ternary({{in}} < {{high}}, 0.0, 1.0))" />
-  <implementation name="IM_smoothstep_vector2_genosl" nodedef="ND_smoothstep_vector2" target="genosl" sourcecode="smoothstep({{low}}, {{high}}, {{in}})" />
-  <implementation name="IM_smoothstep_vector3_genosl" nodedef="ND_smoothstep_vector3" target="genosl" sourcecode="smoothstep({{low}}, {{high}}, {{in}})" />
-  <implementation name="IM_smoothstep_vector4_genosl" nodedef="ND_smoothstep_vector4" target="genosl" sourcecode="smoothstep({{low}}, {{high}}, {{in}})" />
+  <implementation name="IM_smoothstep_vector2_genosl" nodedef="ND_smoothstep_vector2" target="genosl" sourcecode="vector2(mx_ternary({{high}}.x &gt; {{low}}.x, smoothstep({{low}}.x, {{high}}.x, {{in}}.x), mx_ternary({{in}}.x &lt; {{high}}.x, 0.0, 1.0)), mx_ternary({{high}}.y &gt; {{low}}.y, smoothstep({{low}}.y, {{high}}.y, {{in}}.y), mx_ternary({{in}}.y &lt; {{high}}.y, 0.0, 1.0)))" />
+  <implementation name="IM_smoothstep_vector3_genosl" nodedef="ND_smoothstep_vector3" target="genosl" sourcecode="vector(mx_ternary({{high}}.x &gt; {{low}}.x, smoothstep({{low}}.x, {{high}}.x, {{in}}.x), mx_ternary({{in}}.x &lt; {{high}}.x, 0.0, 1.0)), mx_ternary({{high}}.y &gt; {{low}}.y, smoothstep({{low}}.y, {{high}}.y, {{in}}.y), mx_ternary({{in}}.y &lt; {{high}}.y, 0.0, 1.0)), mx_ternary({{high}}.z &gt; {{low}}.z, smoothstep({{low}}.z, {{high}}.z, {{in}}.z), mx_ternary({{in}}.z &lt; {{high}}.z, 0.0, 1.0)))" />
+  <implementation name="IM_smoothstep_vector4_genosl" nodedef="ND_smoothstep_vector4" target="genosl" sourcecode="vector4(mx_ternary({{high}}.x &gt; {{low}}.x, smoothstep({{low}}.x, {{high}}.x, {{in}}.x), mx_ternary({{in}}.x &lt; {{high}}.x, 0.0, 1.0)), mx_ternary({{high}}.y &gt; {{low}}.y, smoothstep({{low}}.y, {{high}}.y, {{in}}.y), mx_ternary({{in}}.y &lt; {{high}}.y, 0.0, 1.0)), mx_ternary({{high}}.z &gt; {{low}}.z, smoothstep({{low}}.z, {{high}}.z, {{in}}.z), mx_ternary({{in}}.z &lt; {{high}}.z, 0.0, 1.0)), mx_ternary({{high}}.w &gt; {{low}}.w, smoothstep({{low}}.w, {{high}}.w, {{in}}.w), mx_ternary({{in}}.w &lt; {{high}}.w, 0.0, 1.0)))" />
 
   <!-- <luminance> -->
   <implementation name="IM_luminance_color3_genosl" nodedef="ND_luminance_color3" file="mx_luminance_color3.osl" function="mx_luminance_color3" target="genosl" />
