@@ -417,9 +417,9 @@
 
   <!-- <ln> -->
   <implementation name="IM_ln_float_genosl" nodedef="ND_ln_float" target="genosl" sourcecode="mx_ternary({{in}} > 0.0, log({{in}}), 0.0)" />
-  <implementation name="IM_ln_vector2_genosl" nodedef="ND_ln_vector2" target="genosl" sourcecode="log({{in}})" />
-  <implementation name="IM_ln_vector3_genosl" nodedef="ND_ln_vector3" target="genosl" sourcecode="log({{in}})" />
-  <implementation name="IM_ln_vector4_genosl" nodedef="ND_ln_vector4" target="genosl" sourcecode="log({{in}})" />
+  <implementation name="IM_ln_vector2_genosl" nodedef="ND_ln_vector2" target="genosl" sourcecode="vector2(mx_ternary({{in}}.x &gt; 0.0, log({{in}}.x), 0.0), mx_ternary({{in}}.y &gt; 0.0, log({{in}}.y), 0.0))" />
+  <implementation name="IM_ln_vector3_genosl" nodedef="ND_ln_vector3" target="genosl" sourcecode="vector(mx_ternary({{in}}.x &gt; 0.0, log({{in}}.x), 0.0), mx_ternary({{in}}.y &gt; 0.0, log({{in}}.y), 0.0), mx_ternary({{in}}.z &gt; 0.0, log({{in}}.z), 0.0))" />
+  <implementation name="IM_ln_vector4_genosl" nodedef="ND_ln_vector4" target="genosl" sourcecode="vector4(mx_ternary({{in}}.x &gt; 0.0, log({{in}}.x), 0.0), mx_ternary({{in}}.y &gt; 0.0, log({{in}}.y), 0.0), mx_ternary({{in}}.z &gt; 0.0, log({{in}}.z), 0.0), mx_ternary({{in}}.w &gt; 0.0, log({{in}}.w), 0.0))" />
 
   <!-- <exp> -->
   <implementation name="IM_exp_float_genosl" nodedef="ND_exp_float" target="genosl" sourcecode="exp({{in}})" />
