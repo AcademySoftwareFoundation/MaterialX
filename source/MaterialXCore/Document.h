@@ -78,6 +78,18 @@ class MX_CORE_API Document : public GraphElement
         return _dataLibrary;
     }
 
+    /// Using the input name as a starting point, modify it to create a valid,
+    /// unique name for a child element.
+    string createValidChildName(string name) const override
+    {
+        name = name.empty() ? "_" : createValidName(name);
+        while (_childMap.count(name) || (_dataLibrary && _dataLibrary->getChild(name)))
+        {
+            name = incrementName(name);
+        }
+        return name;
+    }
+
     /// Import the given data library into this document.
     /// The contents of the data library are copied into this one, and
     /// are assigned the source URI of the library.
