@@ -14,6 +14,7 @@
 
 #include <cctype>
 #include <iostream>
+#include <unordered_set>
 
 namespace
 {
@@ -359,6 +360,7 @@ ed::PinId Graph::getOutputPin(UiNodePtr node, UiNodePtr upNode, UiPinPtr input)
 void Graph::linkGraph()
 {
     _state.links.clear();
+    _diagnostics.clear();
 
     // Start with bottom of graph
     for (UiNodePtr node : _state.nodes)
@@ -385,17 +387,33 @@ void Graph::linkGraph()
 
                     if (start >= 0)
                     {
-                        // Connect the correct output pin to this input
+                        // Connect the correct output pin to this input, and detect type mismatches.
+                        bool erroneous = false;
+                        const std::string& inputType = inputs[i]->getType();
                         for (UiPinPtr outPin : inputNode->getOutputPins())
                         {
                             if (outPin->getPinId() == outputId)
                             {
                                 outPin->setConnected(true);
                                 outPin->addConnection(inputs[i]);
+                                const std::string& outputType = outPin->getType();
+                                if (!inputType.empty() && !outputType.empty() &&
+                                    outputType != mx::MULTI_OUTPUT_TYPE_STRING &&
+                                    outputType != inputType)
+                                {
+                                    erroneous = true;
+                                    LinkDiagnostic diag;
+                                    diag.nodeId    = node->getId();
+                                    diag.nodeName  = node->getName();
+                                    diag.inputName = inputs[i]->getName();
+                                    diag.inputType  = inputType;
+                                    diag.outputType = outputType;
+                                    _diagnostics.push_back(diag);
+                                }
                             }
                         }
 
-                        Link link(_state.nextUiId++, start, end);
+                        Link link(_state.nextUiId++, start, end, erroneous);
                         if (!linkExists(link))
                         {
                             _state.links.push_back(link);
@@ -423,7 +441,14 @@ void Graph::connectLinks()
 {
     for (Link const& link : _state.links)
     {
-        ed::Link(link._id, link._startAttr, link._endAttr);
+        if (link._erroneous)
+        {
+            ed::Link(link._id, link._startAttr, link._endAttr, ImVec4(1.f, 0.1f, 0.1f, 1.f), 2.f);
+        }
+        else
+        {
+            ed::Link(link._id, link._startAttr, link._endAttr);
+        }
     }
 }
 
@@ -1990,6 +2015,14 @@ std::vector<int> Graph::createNodes(bool nodegraph)
     const float hdrBottomSpacing = hdrPadB;
     const float hdrRounding = std::max(nodeEditorStyle.NodeRounding - hdrInset, 0.0f);
 
+    // Build a lookup of input pin IDs that are the receiving end of an erroneous link.
+    std::unordered_set<int> erroneousEndPins;
+    for (const Link& link : _state.links)
+    {
+        if (link._erroneous)
+            erroneousEndPins.insert(link._endAttr);
+    }
+
     for (UiNodePtr node : _state.nodes)
     {
         if (node->getCategory() == "group")
@@ -1998,6 +2031,19 @@ std::vector<int> Graph::createNodes(bool nodegraph)
         }
         else
         {
+            // Highlight the node border red if any of its input pins receive an erroneous link.
+            bool hasErroneousInput = false;
+            for (const UiPinPtr& pin : node->getInputPins())
+            {
+                if (erroneousEndPins.count(int(pin->getPinId().Get())))
+                {
+                    hasErroneousInput = true;
+                    break;
+                }
+            }
+            if (hasErroneousInput)
+                ed::PushStyleColor(ed::StyleColor_NodeBorder, ImVec4(1.f, 0.1f, 0.1f, 1.f));
+
             // Color for output pin
             std::string outputType;
             if (node->getNode() != nullptr)
@@ -2258,6 +2304,8 @@ std::vector<int> Graph::createNodes(bool nodegraph)
             }
             ImGui::PopID();
             ed::EndNode();
+            if (hasErroneousInput)
+                ed::PopStyleColor();
         }
     }
     ImGui::SetWindowFontScale(_fontScale);
@@ -4111,7 +4159,17 @@ void Graph::drawGraph(ImVec2 mousePos)
     io2.MouseDoubleClickTime = .5;
     graphButtons();
 
-    ed::Begin("My Editor");
+    // Wrap the node editor and the diagnostic panel together so they share the right pane.
+    ImGui::BeginChild("##node_editor_pane", ImVec2(0.f, 0.f), false,
+                      ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+
+    // Reserve vertical space for the diagnostic panel when there are errors.
+    const float diagLineH = ImGui::GetTextLineHeightWithSpacing();
+    const float diagH = _diagnostics.empty() ? 0.f :
+        diagLineH * (std::min((int)_diagnostics.size(), 4) + 1) +
+        ImGui::GetStyle().WindowPadding.y * 2.f + ImGui::GetStyle().ItemSpacing.y;
+
+    ed::Begin("My Editor", ImVec2(0.f, ImGui::GetContentRegionAvail().y - diagH));
     {
         ed::Suspend();
 
@@ -4577,6 +4635,41 @@ void Graph::drawGraph(ImVec2 mousePos)
     }
 
     ed::End();
+
+    // Diagnostic panel — drawn below the node editor inside the same right-pane container.
+    if (!_diagnostics.empty())
+    {
+        ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.14f, 0.08f, 0.08f, 1.f));
+        ImGui::BeginChild("##diagnostics", ImVec2(0.f, diagH), false, ImGuiWindowFlags_NoScrollbar);
+        ImGui::PopStyleColor();
+
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 0.4f, 0.4f, 1.f));
+        ImGui::Text("Type mismatch errors: %d", (int)_diagnostics.size());
+        ImGui::PopStyleColor();
+
+        ImGui::Separator();
+
+        for (const LinkDiagnostic& d : _diagnostics)
+        {
+            std::string label = d.nodeName + "." + d.inputName +
+                                "  [expects " + d.inputType +
+                                ", got " + d.outputType + "]";
+            ImGui::PushStyleColor(ImGuiCol_Button,        ImVec4(0.f, 0.f, 0.f, 0.f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.f, 0.2f, 0.2f, 0.25f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive,  ImVec4(1.f, 0.2f, 0.2f, 0.45f));
+            ImGui::PushStyleColor(ImGuiCol_Text,          ImVec4(1.f, 0.6f, 0.6f, 1.f));
+            if (ImGui::Button(label.c_str(), ImVec2(-1.f, 0.f)))
+            {
+                _searchNodeId = d.nodeId;
+            }
+            ImGui::PopStyleColor(4);
+        }
+
+        ImGui::EndChild();
+    }
+
+    ImGui::EndChild(); // ##node_editor_pane
+
     ImGui::End();
 
     _fileDialog.display();

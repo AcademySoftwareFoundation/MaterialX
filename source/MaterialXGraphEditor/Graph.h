@@ -51,15 +51,27 @@ class MenuItem
 // Based on the Link struct from ImGui Node Editor blueprints-examples.cpp
 struct Link
 {
-    Link(int id, int startAttr, int endAttr) :
+    Link(int id, int startAttr, int endAttr, bool erroneous = false) :
         _id(id),
         _startAttr(startAttr),
-        _endAttr(endAttr)
+        _endAttr(endAttr),
+        _erroneous(erroneous)
     {
     }
 
     int _id;
     int _startAttr, _endAttr;
+    bool _erroneous;
+};
+
+// Describes a single type-mismatch detected when loading an external document.
+struct LinkDiagnostic
+{
+    int nodeId;
+    std::string nodeName;
+    std::string inputName;
+    std::string inputType;
+    std::string outputType;
 };
 
 // The UI state associated with a graph level (document or nodegraph).
@@ -356,6 +368,9 @@ class Graph
 
     // Options
     bool _saveNodePositions;
+
+    // Diagnostic entries collected by linkGraph() for type-mismatched connections.
+    std::vector<LinkDiagnostic> _diagnostics;
 };
 
 #endif
