@@ -452,3 +452,94 @@ TEST_CASE("GenShader: Track Application Variables", "[genshader]")
     }
 #endif
 }
+
+// A geompropvalue node wrapped inside a nodegraph (e.g. UsdPrimvarReader) receives
+// the name of the geometric property to read through the graph interface rather than
+// as a local value. This verifies that hardware shader generation resolves that name
+// across more than one level of nested compounds, so the geometric stream is bound.
+TEST_CASE("GenShader: Nested geompropvalue interface", "[genshader]")
+{
+    // "outer_primvar" wraps "inner_primvar", which wraps a geompropvalue node. The
+    // "geomprop" name is threaded down through both graph interfaces from the top
+    // level value "st", so resolution must climb two compound instances to find it.
+    std::string testDocumentString =
+    "<?xml version=\"1.0\"?> \
+      <materialx version=\"1.39\"> \
+      <nodedef name=\"ND_inner_primvar\" node=\"inner_primvar\" nodegroup=\"geometric\"> \
+        <input name=\"geomprop\" type=\"string\" value=\"\" uniform=\"true\" /> \
+        <output name=\"out\" type=\"vector2\" /> \
+      </nodedef> \
+      <nodegraph name=\"NG_inner_primvar\" nodedef=\"ND_inner_primvar\"> \
+        <geompropvalue name=\"gpv\" type=\"vector2\"> \
+          <input name=\"geomprop\" type=\"string\" uniform=\"true\" interfacename=\"geomprop\" /> \
+        </geompropvalue> \
+        <output name=\"out\" type=\"vector2\" nodename=\"gpv\" /> \
+      </nodegraph> \
+      <nodedef name=\"ND_outer_primvar\" node=\"outer_primvar\" nodegroup=\"geometric\"> \
+        <input name=\"geomprop\" type=\"string\" value=\"\" uniform=\"true\" /> \
+        <output name=\"out\" type=\"vector2\" /> \
+      </nodedef> \
+      <nodegraph name=\"NG_outer_primvar\" nodedef=\"ND_outer_primvar\"> \
+        <inner_primvar name=\"inner1\" type=\"vector2\"> \
+          <input name=\"geomprop\" type=\"string\" uniform=\"true\" interfacename=\"geomprop\" /> \
+        </inner_primvar> \
+        <output name=\"out\" type=\"vector2\" nodename=\"inner1\" /> \
+      </nodegraph> \
+      <nodegraph name=\"NG_main\"> \
+        <outer_primvar name=\"outer1\" type=\"vector2\"> \
+          <input name=\"geomprop\" type=\"string\" uniform=\"true\" value=\"st\" /> \
+        </outer_primvar> \
+        <output name=\"out\" type=\"vector2\" nodename=\"outer1\" /> \
+      </nodegraph> \
+    </materialx>";
+
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::DocumentPtr libraries = mx::createDocument();
+    mx::loadLibraries({ "libraries" }, searchPath, libraries);
+
+    mx::DocumentPtr testDoc = mx::createDocument();
+    mx::readFromXmlString(testDoc, testDocumentString);
+    testDoc->setDataLibrary(libraries);
+
+    mx::NodeGraphPtr graph = testDoc->getNodeGraph("NG_main");
+    REQUIRE(graph);
+    mx::OutputPtr output = graph->getOutput("out");
+    REQUIRE(output);
+
+    // The geomprop name "st" resolves through both graph interfaces to the bound
+    // vertex attribute "i_geomprop_st" only when nested compounds are climbed in
+    // tandem with the instance stack.
+    const std::string expectedAttribute = mx::HW::IN_GEOMPROP + "_st";
+
+    // Only the hardware backends use HwGeomPropValueNode; OSL and MDL do not.
+#ifdef MATERIALX_BUILD_GEN_GLSL
+    {
+        mx::GenContext context(mx::GlslShaderGenerator::create());
+        context.registerSourceCodeSearchPath(searchPath);
+        mx::ShaderPtr shader = context.getShaderGenerator().generate("NestedPrimvar", output, context);
+        REQUIRE(shader);
+        const std::string source = shader->getSourceCode(mx::Stage::VERTEX) + shader->getSourceCode(mx::Stage::PIXEL);
+        CHECK(source.find(expectedAttribute) != std::string::npos);
+    }
+#endif
+#ifdef MATERIALX_BUILD_GEN_MSL
+    {
+        mx::GenContext context(mx::MslShaderGenerator::create());
+        context.registerSourceCodeSearchPath(searchPath);
+        mx::ShaderPtr shader = context.getShaderGenerator().generate("NestedPrimvar", output, context);
+        REQUIRE(shader);
+        const std::string source = shader->getSourceCode(mx::Stage::VERTEX) + shader->getSourceCode(mx::Stage::PIXEL);
+        CHECK(source.find(expectedAttribute) != std::string::npos);
+    }
+#endif
+#ifdef MATERIALX_BUILD_GEN_SLANG
+    {
+        mx::GenContext context(mx::SlangShaderGenerator::create());
+        context.registerSourceCodeSearchPath(searchPath);
+        mx::ShaderPtr shader = context.getShaderGenerator().generate("NestedPrimvar", output, context);
+        REQUIRE(shader);
+        const std::string source = shader->getSourceCode(mx::Stage::VERTEX) + shader->getSourceCode(mx::Stage::PIXEL);
+        CHECK(source.find(expectedAttribute) != std::string::npos);
+    }
+#endif
+}
