@@ -399,6 +399,11 @@ class MX_CORE_API NodeGraph : public GraphElement
     /// @param interfaceName The new interface name.
     void modifyInterfaceName(const string& inputPath, const string& interfaceName);
 
+    /// Modify the nodes that can be converted explicitly within the associated NodeGraph.
+    /// @param addedNodes List of added nodes that were successfully integrated (w.r.t. the connection).
+    /// @param invalidConnections List of connections that could not be successfully converted.
+    void addExplicitTypeConversions(vector<NodePtr>& addedNodes, vector<NodePtr>& invalidConnections);
+
     /// @}
     /// @name Validation
     /// @{

@@ -155,6 +155,33 @@ TEST_CASE("Node Type Validation", "[Node]")
     REQUIRE(!node->validate());
 }
 
+TEST_CASE("Node Type Explicit Conversion", "[Node]")
+{
+    // Create a document
+    mx::DocumentPtr doc = mx::createDocument();
+
+    // Create a graph
+    mx::NodeGraphPtr graph = doc->addNodeGraph("NG_custom_node");
+    mx::NodePtr src = graph->addNode("constant", "src", "vector3");
+    mx::NodePtr dst = graph->addNode("constant", "dst", "color3");
+
+    // Connect incorrect inputs/outputs
+    mx::InputPtr input = dst->addInput("in", "color3");
+    input->setConnectedNode(src);
+
+    // Should fail as there is a type mismatch
+    REQUIRE(graph->validate());
+
+    // Insert utility method here
+    std::vector<mx::NodePtr> addedNodes;
+    std::vector<mx::NodePtr> invalidConnections;
+
+    graph->addExplicitTypeConversions(addedNodes, invalidConnections);
+    
+    REQUIRE(graph->validate());
+
+}
+
 TEST_CASE("Node", "[node]")
 {
     // Create a document.

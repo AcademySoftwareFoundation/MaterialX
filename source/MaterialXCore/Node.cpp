@@ -739,6 +739,20 @@ void NodeGraph::modifyInterfaceName(const string& inputPath, const string& inter
     }
 }
 
+void NodeGraph::addExplicitTypeConversions(vector<NodePtr>& addedNodes, vector<NodePtr>& invalidConnections) 
+{
+
+    // More than likely will need to either loop through the node graph to get all nodes but eventually I want to just use the validate case to just get the nodes that I desire
+
+    // Check each of the nodes connections between the input and output. See if there is a type mismatch. If true, see if there is a conversion possible.
+    // Fail cases that are mismatches and do not have a conversion possible.
+
+    // For the nodes that have a conversion possible, add the correct convert node, and then make sure that this is successfully connected to the correct input and output
+
+    // Finally, make sure that the converted nodes are added to the correct lists and the failed nodes as well.
+    return;
+}
+
 NodeDefPtr NodeGraph::getNodeDef() const
 {
     NodeDefPtr nodedef = resolveNameReference<NodeDef>(getNodeDefString());
