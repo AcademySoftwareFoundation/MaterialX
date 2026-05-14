@@ -14,7 +14,7 @@
 #include <MaterialXFormat/Util.h>
 
 #ifdef MATERIALX_BUILD_OIIO
-    #include <MaterialXRender/OiioImageLoader.h>
+#include <MaterialXRender/OiioImageLoader.h>
 #endif
 
 #include <cstdio>
@@ -27,12 +27,14 @@ namespace mx = MaterialX;
 
 TEST_CASE("Render: Half Float", "[rendercore]")
 {
-    const std::vector<float> exactValues = {
+    const std::vector<float> exactValues =
+    {
         0.0f, 0.25f, 0.5f, 0.75f,
         1.0f, 8.0f, 64.0f, 512.0f,
         std::numeric_limits<float>::infinity()
     };
-    const std::vector<float> nearValues = {
+    const std::vector<float> nearValues =
+    {
         1.0f / 3.0f, 1.0f / 5.0f, 1.0f / 7.0f,
         std::numeric_limits<float>::denorm_min()
     };
