@@ -1240,14 +1240,10 @@ export class Material
                                 var step = 0;
                                 if (nodeDefInput)
                                 {
-                                    if (nodeDefInput.hasAttribute('uisoftmin'))
-                                        minValue = parseFloat(nodeDefInput.getAttribute('uisoftmin'));
-                                    else if (nodeDefInput.hasAttribute('uimin'))
+                                    if (nodeDefInput.hasAttribute('uimin'))
                                         minValue = parseFloat(nodeDefInput.getAttribute('uimin'));
 
-                                    if (nodeDefInput.hasAttribute('uisoftmax'))
-                                        maxValue = parseFloat(nodeDefInput.getAttribute('uisoftmax'));
-                                    else if (nodeDefInput.hasAttribute('uimax'))
+                                    if (nodeDefInput.hasAttribute('uimax'))
                                         maxValue = parseFloat(nodeDefInput.getAttribute('uimax'));
 
                                     if (nodeDefInput.hasAttribute('uistep'))
@@ -1292,14 +1288,10 @@ export class Material
                                     }
                                     else
                                     {
-                                        if (nodeDefInput.hasAttribute('uisoftmin'))
-                                            minValue = parseInt(nodeDefInput.getAttribute('uisoftmin'));
-                                        else if (nodeDefInput.hasAttribute('uimin'))
+                                        if (nodeDefInput.hasAttribute('uimin'))
                                             minValue = parseInt(nodeDefInput.getAttribute('uimin'));
 
-                                        if (nodeDefInput.hasAttribute('uisoftmax'))
-                                            maxValue = parseInt(nodeDefInput.getAttribute('uisoftmax'));
-                                        else if (nodeDefInput.hasAttribute('uimax'))
+                                        if (nodeDefInput.hasAttribute('uimax'))
                                             maxValue = parseInt(nodeDefInput.getAttribute('uimax'));
 
                                         if (nodeDefInput.hasAttribute('uistep'))
@@ -1377,14 +1369,10 @@ export class Material
 
                                 if (nodeDefInput)
                                 {
-                                    if (nodeDefInput.hasAttribute('uisoftmin'))
-                                        minValue = nodeDefInput.getAttribute('uisoftmin').split(',').map(Number);
-                                    else if (nodeDefInput.hasAttribute('uimin'))
+                                    if (nodeDefInput.hasAttribute('uimin'))
                                         minValue = nodeDefInput.getAttribute('uimin').split(',').map(Number);
 
-                                    if (nodeDefInput.hasAttribute('uisoftmax'))
-                                        maxValue = nodeDefInput.getAttribute('uisoftmax').split(',').map(Number);
-                                    else if (nodeDefInput.hasAttribute('uimax'))
+                                    if (nodeDefInput.hasAttribute('uimax'))
                                         maxValue = nodeDefInput.getAttribute('uimax').split(',').map(Number);
 
                                     if (nodeDefInput.hasAttribute('uistep'))
