@@ -3667,9 +3667,15 @@ void Graph::propertyEditor()
         mx::ConstNodePtr node = _currUiNode->getNode();
         if (node != nullptr)
         {
-            mx::StringResolverPtr resolver = node->createStringResolver();
-            const mx::StringMap& tokens = resolver->getFilenameSubstitutions();
-
+            // Traverse node inputs and accumulate current tokens to display in UI
+            mx::StringMap tokens;
+            for (const auto& input : node->getActiveInputs())
+            {
+                mx::StringResolverPtr input_resolver = input->createStringResolver();
+                const mx::StringMap& input_tokens = input_resolver->getFilenameSubstitutions();
+                tokens.insert(input_tokens.begin(), input_tokens.end());
+            }
+            
             if (!tokens.empty())
             {
                 ImGui::Text("Tokens");
