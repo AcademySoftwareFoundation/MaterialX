@@ -27,6 +27,8 @@
     <input name="tangent" type="vector3" defaultgeomprop="Tworld" />
     <input name="opacity" type="color3" value="1, 1, 1" />
     <input name="thin_walled" type="boolean" value="false" />
+    <input name="thin_film_thickness" type="float" value="0.0" />
+    <input name="thin_film_IOR" type="float" value="1.5" />
 
     <output name="base_color_out" type="color3" />
     <output name="metallic_out" type="float" />
@@ -44,6 +46,9 @@
     <output name="sheen_roughness_out" type="float" />
     <output name="clearcoat_out" type="float" />
     <output name="clearcoat_roughness_out" type="float" />
+    <output name="iridescence_out" type="float" />
+    <output name="iridescence_ior_out" type="float" />
+    <output name="iridescence_thickness_out" type="float" />
     <output name="dispersion_out" type="float" />
     <output name="emissive_out" type="color3" />
     <output name="emissive_strength_out" type="float" />
@@ -249,6 +254,23 @@
       <input name="in2" type="float" nodename="dispersion_from_abbe" />
     </ifequal>
 
+    <!-- Iridescence -->
+    <ifgreater name="iridescence" type="float">
+      <input name="value1" type="float" interfacename="thin_film_thickness" />
+      <input name="value2" type="float" value="0.0" />
+      <input name="in1" type="float" value="1.0" />
+      <input name="in2" type="float" value="0.0" />
+    </ifgreater>
+    <ifgreater name="iridescence_ior" type="float">
+      <input name="value1" type="float" interfacename="thin_film_thickness" />
+      <input name="value2" type="float" value="0.0" />
+      <input name="in1" type="float" interfacename="thin_film_IOR" />
+      <input name="in2" type="float" value="1.3" />
+    </ifgreater>
+    <dot name="iridescence_thickness" type="float">
+      <input name="in" type="float" interfacename="thin_film_thickness" />
+    </dot>
+
     <!-- Geometry -->
     <dot name="normal" type="vector3">
       <input name="in" type="vector3" interfacename="normal" />
@@ -290,6 +312,9 @@
     <output name="sheen_roughness_out" type="float" nodename="sqrt_sheen_roughness" />
     <output name="clearcoat_out" type="float" nodename="clearcoat" />
     <output name="clearcoat_roughness_out" type="float" nodename="clearcoat_roughness" />
+    <output name="iridescence_out" type="float" nodename="iridescence" />
+    <output name="iridescence_ior_out" type="float" nodename="iridescence_ior" />
+    <output name="iridescence_thickness_out" type="float" nodename="iridescence_thickness" />
     <output name="dispersion_out" type="float" nodename="dispersion" />
     <output name="emissive_out" type="color3" nodename="emissive" />
     <output name="emissive_strength_out" type="float" nodename="emissive_strength" />
