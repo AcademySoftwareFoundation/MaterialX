@@ -4658,10 +4658,12 @@ void Graph::drawGraph(ImVec2 mousePos)
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.f, 0.2f, 0.2f, 0.25f));
             ImGui::PushStyleColor(ImGuiCol_ButtonActive,  ImVec4(1.f, 0.2f, 0.2f, 0.45f));
             ImGui::PushStyleColor(ImGuiCol_Text,          ImVec4(1.f, 0.6f, 0.6f, 1.f));
+            ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.f, 0.5f));
             if (ImGui::Button(label.c_str(), ImVec2(-1.f, 0.f)))
             {
                 _searchNodeId = d.nodeId;
             }
+            ImGui::PopStyleVar();
             ImGui::PopStyleColor(4);
         }
 
