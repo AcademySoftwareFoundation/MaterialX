@@ -261,9 +261,12 @@
       <input name="in1" type="float" value="1.0" />
       <input name="in2" type="float" value="0.0" />
     </ifgreater>
-    <dot name="iridescence_ior" type="float">
-      <input name="in" type="float" interfacename="thin_film_IOR" />
-    </dot>
+    <ifgreater name="iridescence_ior" type="float">
+      <input name="value1" type="float" interfacename="thin_film_thickness" />
+      <input name="value2" type="float" value="0.0" />
+      <input name="in1" type="float" interfacename="thin_film_IOR" />
+      <input name="in2" type="float" value="1.3" />
+    </ifgreater>
     <dot name="iridescence_thickness" type="float">
       <input name="in" type="float" interfacename="thin_film_thickness" />
     </dot>
