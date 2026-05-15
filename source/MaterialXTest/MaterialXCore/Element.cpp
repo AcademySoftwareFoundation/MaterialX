@@ -60,6 +60,19 @@ TEST_CASE("Element", "[element]")
     REQUIRE_THROWS_AS(doc2->setChildIndex("elem1", 100), mx::Exception);
     REQUIRE(*doc2 == *doc);
 
+    // Check content document membership.
+    mx::DocumentPtr contentDoc = mx::createDocument();
+    contentDoc->setSourceUri("content.mtlx");
+    mx::ElementPtr contentElem = contentDoc->addChildOfCategory("generic", "contentElem");
+    REQUIRE(contentElem->belongsToContentDocument());
+    mx::DocumentPtr lib = mx::createDocument();
+    lib->setSourceUri("library.mtlx");
+    lib->addChildOfCategory("generic", "libElem");
+    contentDoc->importLibrary(lib);
+    mx::ElementPtr libElem = contentDoc->getChild("libElem");
+    REQUIRE(libElem);
+    REQUIRE(!libElem->belongsToContentDocument());
+
     // Create and test an orphaned element.
     mx::ElementPtr orphan;
     {

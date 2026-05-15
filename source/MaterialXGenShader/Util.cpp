@@ -414,7 +414,7 @@ vector<TypedElementPtr> findRenderableElements(ConstDocumentPtr doc)
         {
             for (OutputPtr output : graph->getOutputs())
             {
-                if (output->getActiveSourceUri() == doc->getActiveSourceUri())
+                if (output->belongsToContentDocument())
                 {
                     graphOutputs.push_back(output);
                 }
@@ -422,7 +422,7 @@ vector<TypedElementPtr> findRenderableElements(ConstDocumentPtr doc)
         }
         for (OutputPtr output : doc->getOutputs())
         {
-            if (output->getActiveSourceUri() == doc->getActiveSourceUri())
+            if (output->belongsToContentDocument())
             {
                 graphOutputs.push_back(output);
             }

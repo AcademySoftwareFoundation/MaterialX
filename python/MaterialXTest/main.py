@@ -199,6 +199,21 @@ class TestMaterialX(unittest.TestCase):
         self.assertTrue((rotY * rotZ).isEquivalent(
             mx.Matrix44.createScale(mx.Vector3(1, -1, -1)), _epsilon))
 
+    def test_ElementContentDocument(self):
+        # Create a document.
+        doc = mx.createDocument()
+
+        # Test content document membership.
+        doc.setSourceUri('content.mtlx')
+        contentElem = doc.addChildOfCategory('generic', 'contentElem')
+        self.assertTrue(contentElem.belongsToContentDocument())
+        lib = mx.createDocument()
+        lib.setSourceUri('library.mtlx')
+        lib.addChildOfCategory('generic', 'libElem')
+        doc.importLibrary(lib)
+        libElem = doc.getChild('libElem')
+        self.assertTrue(libElem)
+        self.assertFalse(libElem.belongsToContentDocument())
 
     def test_BuildDocument(self):
         # Create a document.

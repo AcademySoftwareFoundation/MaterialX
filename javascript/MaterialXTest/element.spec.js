@@ -38,6 +38,25 @@ describe('Element', () =>
         doc.delete();
     });
 
+    it('should detect content document membership', () =>
+    {
+        const contentDoc = mx.createDocument();
+        contentDoc.setSourceUri('content.mtlx');
+        const contentElem = contentDoc.addChildOfCategory('generic', 'contentElem');
+        expect(contentElem.belongsToContentDocument()).to.equal(true);
+
+        const libDoc = mx.createDocument();
+        libDoc.setSourceUri('library.mtlx');
+        libDoc.addChildOfCategory('generic', 'libElem');
+        contentDoc.importLibrary(libDoc);
+
+        const libElem = contentDoc.getChild('libElem');
+        expect(libElem.belongsToContentDocument()).to.equal(false);
+
+        contentDoc.delete();
+        libDoc.delete();
+    });
+
     describe('value setters', () =>
     {
         const checkValue = (types, assertionCallback) =>
