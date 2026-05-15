@@ -114,7 +114,7 @@ In order to simplify authoring of complex materials, our model supports the noti
 
 ### Bump and Normal Mapping
 
-The surface normal used for shading calculations is supplied as input to each BSDF that requires it. The normal can be perturbed by bump or normal mapping, before it is given to the BSDF. As a result, one can supply different normals for different BSDFs for the same shading point. When layering BSDFs, each layer can use different bump and normal maps.
+The surface normal used for shading calculations is supplied as input to each BSDF that requires it. The normal can be perturbed by bump or normal mapping, before it is given to the BSDF. As a result, one can supply different normals for different BSDFs for the same shading point. When layering BSDFs, each layer can use different bump and normal maps. Normals, tangents, and bitangents used for bump or normal mapping are expected to be normalized.
 
 
 ## Volumes

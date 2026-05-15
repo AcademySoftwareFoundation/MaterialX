@@ -5,7 +5,7 @@ MaterialX Proposals v1.39
 
 # MaterialX: Proposed Additions and Changes
 
-**Proposals for Version 1.39**  
+**Proposals for Version 1.39**
 September 15, 2024
 
 
@@ -19,17 +19,17 @@ As such, those forward-looking proposals have been moved from the formal Specifi
 
 ## Table of Contents
 
-**[Introduction](#introduction)**  
+**[Introduction](#introduction)**
 
-**[Proposals: General](#propose-general)**  
+**[Proposals: General](#propose-general)**
 
-**[Proposals: Elements](#propose-elements)**  
+**[Proposals: Elements](#propose-elements)**
 
-**[Proposals: Stdlib Nodes](#propose-stdlib-nodes)**  
+**[Proposals: Stdlib Nodes](#propose-stdlib-nodes)**
 
-**[Proposals: PBR Nodes](#propose-pbr-nodes)**  
+**[Proposals: PBR Nodes](#propose-pbr-nodes)**
 
-**[Proposals: NPR Nodes](#propose-npr-nodes)**  
+**[Proposals: NPR Nodes](#propose-npr-nodes)**
 
 
 <p>&nbsp;<p><hr><p>
@@ -394,6 +394,16 @@ Output the RGB and alpha channels of a color4 as separate outputs.
 
 # Proposals: PBR Nodes<a id="propose-pbr-nodes"></a>
 
+### Unit-Length Normal and Tangent-Frame Inputs
+
+Normals, tangents, bitangent inputs should be unit-length direction vectors
+in the given coordinate space. This follows from the existing math used by BSDFs
+and EDFs:
+- where the dot products with a normal are used a cosines.
+- microfacet distributions construct local frames from the vectors.
+- sampling PDFs are defined over unit (hemi)spheres.
+
+Non-unit normals could then change energy, sampling density, reflected/transmitted directions. The alternative is to define that they do not have to be unit length, and then amend the GLSL implementations to handle this.
 
 
 <p>&nbsp;<p><hr><p>
