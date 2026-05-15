@@ -160,6 +160,29 @@ class UiPin
     bool _connected;
 };
 
+struct UiToken
+{
+    std::string value;
+    std::vector<mx::PortElementPtr> affectedInputs;
+
+    std::string buildAffectedInputsString() const
+    {
+        std::string result;
+        for (size_t i = 0; i < affectedInputs.size(); ++i)
+        {
+            result += affectedInputs[i]->getName();
+            if (i < affectedInputs.size() - 1)
+            {
+                result += ", ";
+            }
+        }
+        return result;
+    }
+
+    UiToken(const std::string& val) : value(val) { }
+};
+using UiTokenPtr = std::shared_ptr<UiToken>;
+
 // The visual representation of a node in a graph.
 class UiNode
 {
@@ -248,6 +271,9 @@ class UiNode
     std::vector<UiPinPtr>& getOutputPins() { return _outputPins; }
     const std::vector<UiPinPtr>& getOutputPins() const { return _outputPins; }
 
+    std::unordered_map<std::string, UiTokenPtr>& getTokenMap() { return _tokenMap; }
+    const std::unordered_map<std::string, UiTokenPtr>& getTokenMap() const { return _tokenMap; }
+
     // Edge collection accessors
     std::vector<UiEdge>& getEdges() { return _edges; }
     const std::vector<UiEdge>& getEdges() const { return _edges; }
@@ -276,6 +302,8 @@ class UiNode
     std::vector<UiPinPtr> _inputPins;
     std::vector<UiPinPtr> _outputPins;
     std::vector<UiEdge> _edges;
+
+    std::unordered_map<std::string, UiTokenPtr> _tokenMap;
 
     bool _showAllInputs;
     bool _showOutputsInEditor;
