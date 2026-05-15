@@ -740,17 +740,48 @@ void NodeGraph::modifyInterfaceName(const string& inputPath, const string& inter
 }
 
 void NodeGraph::addExplicitTypeConversions(vector<NodePtr>& addedNodes, vector<NodePtr>& invalidConnections) 
-{
+{    
+    // Loop through each of the nodes within the graph
+    for(const NodePtr& node : getNodes()) {
+        
+        // Check the inputs of each node
+        for(const InputPtr& input : node->getInputs()) {
 
-    // More than likely will need to either loop through the node graph to get all nodes but eventually I want to just use the validate case to just get the nodes that I desire
+            // Concerned with only connected input nodes
+            NodePtr connectedNode = input->getConnectedNode();
+            
+            if(!connectedNode) {
+                continue;
+            }
 
-    // Check each of the nodes connections between the input and output. See if there is a type mismatch. If true, see if there is a conversion possible.
-    // Fail cases that are mismatches and do not have a conversion possible.
+            // Concerned with only nodes of mismatched types
+            if(node->getType() == connectedNode->getType()) {
+                continue;
+            }
 
-    // For the nodes that have a conversion possible, add the correct convert node, and then make sure that this is successfully connected to the correct input and output
+            std::string conversion_label = "ND_convert_" + connectedNode->getType() + "_" + input->getType();
+            NodeDefPtr convert_def = getDocument()->getNodeDef(conversion_label);
+            
+            // If the types are mismatched, does a conversion node exist?
+            if(convert_def) {
 
-    // Finally, make sure that the converted nodes are added to the correct lists and the failed nodes as well.
-    return;
+                // Now create a conversion node in between the mismatched nodes
+                NodePtr convert_node = addNode(convert_def->getNodeString(), convert_def->getName(), convert_def->getType());
+                InputPtr new_input = convert_node->addInput("in", connectedNode->getType());
+                input->setConnectedNode(convert_node);
+                new_input->setConnectedNode(connectedNode);
+
+                // Finally add the new node to the successfully added list
+                addedNodes.push_back(convert_node);
+            }
+
+            // If the mismatched types do not have a conversion node, push to invalid list
+            else {
+                invalidConnections.push_back(node);
+                invalidConnections.push_back(connectedNode);
+            }
+        }
+    }
 }
 
 NodeDefPtr NodeGraph::getNodeDef() const
