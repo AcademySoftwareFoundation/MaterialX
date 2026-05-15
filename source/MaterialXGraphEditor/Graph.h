@@ -51,17 +51,17 @@ class MenuItem
 // Based on the Link struct from ImGui Node Editor blueprints-examples.cpp
 struct Link
 {
-    Link(int id, int startAttr, int endAttr, bool erroneous = false) :
+    Link(int id, int startAttr, int endAttr, bool invalid = false) :
         _id(id),
         _startAttr(startAttr),
         _endAttr(endAttr),
-        _erroneous(erroneous)
+        _invalid(invalid)
     {
     }
 
     int _id;
     int _startAttr, _endAttr;
-    bool _erroneous;
+    bool _invalid;
 };
 
 // Describes a single type-mismatch detected when loading an external document.

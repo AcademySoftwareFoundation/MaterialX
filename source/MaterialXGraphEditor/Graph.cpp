@@ -388,7 +388,7 @@ void Graph::linkGraph()
                     if (start >= 0)
                     {
                         // Connect the correct output pin to this input, and detect type mismatches.
-                        bool erroneous = false;
+                        bool invalid = false;
                         const std::string& inputType = inputs[i]->getType();
                         for (UiPinPtr outPin : inputNode->getOutputPins())
                         {
@@ -401,7 +401,7 @@ void Graph::linkGraph()
                                     outputType != mx::MULTI_OUTPUT_TYPE_STRING &&
                                     outputType != inputType)
                                 {
-                                    erroneous = true;
+                                    invalid = true;
                                     LinkDiagnostic diag;
                                     diag.nodeId    = node->getId();
                                     diag.nodeName  = node->getName();
@@ -413,7 +413,7 @@ void Graph::linkGraph()
                             }
                         }
 
-                        Link link(_state.nextUiId++, start, end, erroneous);
+                        Link link(_state.nextUiId++, start, end, invalid);
                         if (!linkExists(link))
                         {
                             _state.links.push_back(link);
@@ -441,7 +441,7 @@ void Graph::connectLinks()
 {
     for (Link const& link : _state.links)
     {
-        if (link._erroneous)
+        if (link._invalid)
         {
             ed::Link(link._id, link._startAttr, link._endAttr, ImVec4(1.f, 0.1f, 0.1f, 1.f), 2.f);
         }
@@ -2019,7 +2019,7 @@ std::vector<int> Graph::createNodes(bool nodegraph)
     std::unordered_set<int> erroneousEndPins;
     for (const Link& link : _state.links)
     {
-        if (link._erroneous)
+        if (link._invalid)
             erroneousEndPins.insert(link._endAttr);
     }
 
