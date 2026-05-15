@@ -1111,8 +1111,14 @@ export class Material
                     {
                         continue;
                     }
-                    
-                    // Skip non-input types and anything > 2 levels deep 
+
+                    // Skip elements from the referenced data library
+                    if (currentElem.getActiveSourceUri() !== elem.getDocument().getSourceUri())
+                    {
+                        continue;
+                    }
+
+                    // Skip non-input types and anything > 2 levels deep
                     if (!currentElem.asAInput() || currentElem.getNamePath().split('/').length > 2)
                     {
                         continue;
