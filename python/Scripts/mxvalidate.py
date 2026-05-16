@@ -12,7 +12,6 @@ def main():
     parser = argparse.ArgumentParser(description="Verify that the given file is a valid MaterialX document.")
     parser.add_argument("--resolve", dest="resolve", action="store_true", help="Resolve inheritance and string substitutions.")
     parser.add_argument("--verbose", dest="verbose", action="store_true", help="Print summary of elements found in the document.")
-    parser.add_argument("--stdlib", dest="stdlib", action="store_true", help="Deprecated: Standard MaterialX libraries are imported automatically.")
     parser.add_argument(dest="inputFilename", help="Filename of the input document.")
     opts = parser.parse_args()
 
