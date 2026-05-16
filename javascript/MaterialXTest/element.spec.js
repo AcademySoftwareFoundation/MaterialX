@@ -47,12 +47,20 @@ describe('Element', () =>
 
         const libDoc = mx.createDocument();
         libDoc.setSourceUri('library.mtlx');
-        libDoc.addChildOfCategory('generic', 'libElem');
+        const sourceLibElem = libDoc.addChildOfCategory('generic', 'libElem');
+        sourceLibElem.setSourceUri('library.mtlx');
         contentDoc.importLibrary(libDoc);
 
         const libElem = contentDoc.getChild('libElem');
         expect(libElem.belongsToContentDocument()).to.equal(false);
 
+        const referencedContentDoc = mx.createDocument();
+        referencedContentDoc.setDataLibrary(libDoc);
+        const referencedLibElem = referencedContentDoc.getChild('libElem');
+        expect(referencedLibElem).to.exist;
+        expect(referencedLibElem.belongsToContentDocument()).to.equal(false);
+
+        referencedContentDoc.delete();
         contentDoc.delete();
         libDoc.delete();
     });

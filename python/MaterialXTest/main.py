@@ -215,6 +215,21 @@ class TestMaterialX(unittest.TestCase):
         self.assertTrue(libElem)
         self.assertFalse(libElem.belongsToContentDocument())
 
+        stdlib = mx.createDocument()
+        mx.loadLibraries(mx.getDefaultDataLibraryFolders(), mx.getDefaultDataSearchPath(), stdlib)
+
+        docWithDataLibrary = mx.createDocument()
+        docWithDataLibrary.setDataLibrary(stdlib)
+        referencedNodeDef = docWithDataLibrary.getChild('ND_image_color3')
+        self.assertTrue(referencedNodeDef)
+        self.assertFalse(referencedNodeDef.belongsToContentDocument())
+
+        docWithImportedLibrary = mx.createDocument()
+        docWithImportedLibrary.importLibrary(stdlib)
+        importedNodeDef = docWithImportedLibrary.getChild('ND_image_color3')
+        self.assertTrue(importedNodeDef)
+        self.assertFalse(importedNodeDef.belongsToContentDocument())
+
     def test_BuildDocument(self):
         # Create a document.
         doc = mx.createDocument()
