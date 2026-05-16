@@ -4,6 +4,8 @@ import Module from './_build/JsMaterialXCore.js';
 describe('Element', () =>
 {
     let mx, doc, valueTypes;
+    const libraryPath = '../../libraries/stdlib';
+    const libraryFilenames = ['stdlib_defs.mtlx', 'stdlib_ng.mtlx'];
 
     const primitiveValueTypes = {
         Integer: 10,
@@ -38,7 +40,7 @@ describe('Element', () =>
         doc.delete();
     });
 
-    it('should detect content document membership', () =>
+    it('should detect content document membership', async () =>
     {
         const contentDoc = mx.createDocument();
         contentDoc.setSourceUri('content.mtlx');
@@ -54,16 +56,33 @@ describe('Element', () =>
         const libElem = contentDoc.getChild('libElem');
         expect(libElem.belongsToContentDocument()).to.equal(false);
 
-        const referencedContentDoc = mx.createDocument();
-        referencedContentDoc.setDataLibrary(libDoc);
-        const referencedLibElem = referencedContentDoc.getChild('libElem');
-        expect(referencedLibElem).to.exist;
-        expect(referencedLibElem.belongsToContentDocument()).to.equal(false);
+        const stdlib = mx.createDocument();
+        for (const file of libraryFilenames)
+        {
+            const lib = mx.createDocument();
+            await mx.readFromXmlFile(lib, file, libraryPath);
+            stdlib.importLibrary(lib);
+            lib.delete();
+        }
 
+        const referencedContentDoc = mx.createDocument();
+        referencedContentDoc.setDataLibrary(stdlib);
+        const referencedNodeDef = referencedContentDoc.getChild('ND_image_color3');
+        expect(referencedNodeDef).to.exist;
+        expect(referencedNodeDef.belongsToContentDocument()).to.equal(false);
+
+        const importedContentDoc = mx.createDocument();
+        importedContentDoc.importLibrary(stdlib);
+        const importedNodeDef = importedContentDoc.getChild('ND_image_color3');
+        expect(importedNodeDef).to.exist;
+        expect(importedNodeDef.belongsToContentDocument()).to.equal(false);
+
+        importedContentDoc.delete();
         referencedContentDoc.delete();
+        stdlib.delete();
         contentDoc.delete();
         libDoc.delete();
-    });
+    }).timeout(10000);
 
     describe('value setters', () =>
     {
