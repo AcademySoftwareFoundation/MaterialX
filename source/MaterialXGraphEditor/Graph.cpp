@@ -453,6 +453,57 @@ void Graph::linkGraph()
             }
         }
     }
+
+    // When at the top level, also scan all nested nodegraphs for type mismatches.
+    if (_parentStates.empty())
+    {
+        scanNestedGraphDiagnostics();
+    }
+}
+
+void Graph::scanNestedGraphDiagnostics()
+{
+    for (mx::NodeGraphPtr ng : _graphDoc->getNodeGraphs())
+    {
+        const std::string& graphName = ng->getName();
+        for (mx::NodePtr node : ng->getNodes())
+        {
+            for (mx::InputPtr input : node->getInputs())
+            {
+                mx::NodePtr upstream = input->getConnectedNode();
+                if (!upstream)
+                    continue;
+
+                const std::string& inputType = input->getType();
+                std::string outputType = upstream->getType();
+
+                if (outputType == mx::MULTI_OUTPUT_TYPE_STRING)
+                {
+                    mx::NodeDefPtr nodeDef = upstream->getNodeDef();
+                    if (nodeDef)
+                    {
+                        mx::OutputPtr defOut = nodeDef->getOutput(input->getOutputString());
+                        if (defOut)
+                            outputType = defOut->getType();
+                    }
+                }
+
+                if (!inputType.empty() && !outputType.empty() &&
+                    outputType != mx::MULTI_OUTPUT_TYPE_STRING &&
+                    outputType != inputType)
+                {
+                    LinkDiagnostic diag;
+                    diag.nodeName = node->getName();
+                    diag.inputName = input->getName();
+                    diag.inputType = inputType;
+                    diag.outputType = outputType;
+                    diag.graphPath = graphName;
+                    diag.nodeGraph = ng;
+                    _diagnostics.push_back(diag);
+                }
+            }
+        }
+    }
 }
 
 void Graph::connectLinks()
@@ -2059,8 +2110,25 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                     break;
                 }
             }
+            // Highlight nodegraph nodes orange when they contain internal type mismatches.
+            bool hasNestedErrors = false;
+            if (!hasErroneousInput && node->getNodeGraph())
+            {
+                const mx::NodeGraphPtr ng = node->getNodeGraph();
+                for (const LinkDiagnostic& d : _diagnostics)
+                {
+                    if (d.nodeGraph == ng)
+                    {
+                        hasNestedErrors = true;
+                        break;
+                    }
+                }
+            }
+
             if (hasErroneousInput)
                 ed::PushStyleColor(ed::StyleColor_NodeBorder, ImVec4(1.f, 0.1f, 0.1f, 1.f));
+            else if (hasNestedErrors)
+                ed::PushStyleColor(ed::StyleColor_NodeBorder, ImVec4(1.f, 0.55f, 0.1f, 1.f));
 
             // Color for output pin
             std::string outputType;
@@ -2322,7 +2390,7 @@ std::vector<int> Graph::createNodes(bool nodegraph)
             }
             ImGui::PopID();
             ed::EndNode();
-            if (hasErroneousInput)
+            if (hasErroneousInput || hasNestedErrors)
                 ed::PopStyleColor();
         }
     }
@@ -4669,9 +4737,12 @@ void Graph::drawGraph(ImVec2 mousePos)
 
         for (const LinkDiagnostic& d : _diagnostics)
         {
-            std::string label = d.nodeName + "." + d.inputName +
-                                "  [expects " + d.inputType +
-                                ", got " + d.outputType + "]";
+            std::string label;
+            if (!d.graphPath.empty())
+                label = d.graphPath + " / ";
+            label += d.nodeName + "." + d.inputName +
+                     "  [expects " + d.inputType +
+                     ", got " + d.outputType + "]";
             ImGui::PushStyleColor(ImGuiCol_Button,        ImVec4(0.f, 0.f, 0.f, 0.f));
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.f, 0.2f, 0.2f, 0.25f));
             ImGui::PushStyleColor(ImGuiCol_ButtonActive,  ImVec4(1.f, 0.2f, 0.2f, 0.45f));
@@ -4679,7 +4750,31 @@ void Graph::drawGraph(ImVec2 mousePos)
             ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.f, 0.5f));
             if (ImGui::Button(label.c_str(), ImVec2(-1.f, 0.f)))
             {
-                _searchNodeId = d.nodeId;
+                if (!d.nodeGraph)
+                {
+                    _searchNodeId = d.nodeId;
+                }
+                else
+                {
+                    savePosition();
+                    _parentStates.push_back(std::move(_state));
+                    _state = GraphState();
+                    buildUiNodeGraph(d.nodeGraph);
+                    _state.graphElem = d.nodeGraph;
+                    _state.isCompoundNodeGraph = false;
+                    _state.name = d.nodeGraph->getName();
+                    _needsLayout = true;
+                    _needsNavigation = true;
+                    linkGraph();
+                    for (const UiNodePtr& n : _state.nodes)
+                    {
+                        if (n->getName() == d.nodeName)
+                        {
+                            _searchNodeId = n->getId();
+                            break;
+                        }
+                    }
+                }
             }
             ImGui::PopStyleVar();
             ImGui::PopStyleColor(4);
