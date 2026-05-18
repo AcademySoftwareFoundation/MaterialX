@@ -67,7 +67,7 @@ struct Link
 // Describes a single type-mismatch detected when loading an external document.
 struct LinkDiagnostic
 {
-    int nodeId = -1;            // UiNode ID; -1 when the error is in a nested nodegraph
+    int nodeId = -1; // UiNode ID; -1 when the error is in a nested nodegraph
     std::string nodeName;
     std::string inputName;
     std::string inputType;

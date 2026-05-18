@@ -25,8 +25,7 @@ const ImVec2 DEFAULT_NODE_SIZE = ImVec2(138, 116);
 const int DEFAULT_ALPHA = 255;
 const int FILTER_ALPHA = 50;
 
-const std::array<std::string, 22> NODE_GROUP_ORDER =
-{
+const std::array<std::string, 22> NODE_GROUP_ORDER = {
     "texture2d",
     "texture3d",
     "procedural",
@@ -226,8 +225,7 @@ mx::DocumentPtr Graph::loadDocument(const mx::FilePath& filename)
             }
             catch (mx::Exception& e)
             {
-                std::cerr << "Failed to read include file: " << filename.asString() << ". " <<
-                    std::string(e.what()) << std::endl;
+                std::cerr << "Failed to read include file: " << filename.asString() << ". " << std::string(e.what()) << std::endl;
             }
         }
         else
@@ -256,8 +254,7 @@ mx::DocumentPtr Graph::loadDocument(const mx::FilePath& filename)
     }
     catch (mx::Exception& e)
     {
-        std::cerr << "Failed to read file: " << filename.asString() << ": \"" <<
-            std::string(e.what()) << "\"" << std::endl;
+        std::cerr << "Failed to read file: " << filename.asString() << ": \"" << std::string(e.what()) << "\"" << std::endl;
     }
     _parentStates.clear();
     return doc;
@@ -673,8 +670,8 @@ void Graph::setRenderMaterial(UiNodePtr node)
         {
             // As above, there is no logic to support traversing from inside a functional graph.
             // We add a check for output nodes to make sure it's accounted for in this case.
-            if(mtlxOutput)
-            {     
+            if (mtlxOutput)
+            {
                 if (mtlxNodeGraph->getNodeDef())
                 {
                     return;
@@ -1027,10 +1024,10 @@ void Graph::showPropertyEditorValue(UiNodePtr node, mx::InputPtr input, const mx
                 if (previewSize > panelWidth)
                 {
                     previewSize = panelWidth;
-                }   
+                }
 
                 ImGui::BeginChild("imagePreview", ImVec2(previewSize, previewSize), false,
-                    ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+                                  ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 
                 // Show image preview if file exists and is an image
                 if (!temp.empty())
@@ -1053,10 +1050,10 @@ void Graph::showPropertyEditorValue(UiNodePtr node, mx::InputPtr input, const mx
                         }
                         if (textureId)
                         {
-                            float aspect = (height > 0) ? (float)width / (float)height : 1.0f;
+                            float aspect = (height > 0) ? (float) width / (float) height : 1.0f;
                             ImVec2 imagePreviewSize(previewSize, previewSize / aspect);
 
-                            ImGui::Image((void*)(intptr_t)textureId, imagePreviewSize);
+                            ImGui::Image((void*) (intptr_t) textureId, imagePreviewSize);
                         }
                     }
                 }
@@ -2547,7 +2544,6 @@ void Graph::addLink(ed::PinId startPinId, ed::PinId endPinId)
     UiPinPtr outputPin = getPin(outputPinId);
     UiPinPtr inputPin = getPin(inputPinId);
 
-
     int upNode = getNodeId(outputPinId);
     int downNode = getNodeId(inputPinId);
     if (upNode < 0 || downNode < 0)
@@ -3255,7 +3251,7 @@ void Graph::graphButtons()
     if (_renderer)
     {
         // Enable sRGB conversion for framebuffer ONLY when drawing material preview
-        ImGui::GetWindowDrawList()->AddCallback(EnableSRGBCallback,  nullptr);
+        ImGui::GetWindowDrawList()->AddCallback(EnableSRGBCallback, nullptr);
 
         _renderer->getViewCamera()->setViewportSize(mx::Vector2(screenSize[0], screenSize[1]));
         GLuint64 my_image_texture = _renderer->_textureID;
@@ -3264,7 +3260,7 @@ void Graph::graphButtons()
         ImGui::Image((ImTextureID) my_image_texture, screenSize, ImVec2(0, 1), ImVec2(1, 0));
 
         // Disable sRGB conversion for all other imgui ui components.
-        ImGui::GetWindowDrawList()->AddCallback(DisableSRGBCallback,  nullptr);
+        ImGui::GetWindowDrawList()->AddCallback(DisableSRGBCallback, nullptr);
     }
 
     ImGui::Separator();
@@ -3296,9 +3292,9 @@ void Graph::showPropertyEditorOutputConnections(UiNodePtr node)
             const float TEXT_BASE_HEIGHT = ImGui::GetTextLineHeightWithSpacing() * 1.3f;
             const int SCROLL_LINE_COUNT = 20;
             ImGuiTableFlags tableFlags = ImGuiTableFlags_ScrollY | ImGuiTableFlags_Resizable | ImGuiTableFlags_NoSavedSettings |
-                ImGuiTableFlags_BordersOuterH | ImGuiTableFlags_NoBordersInBody;
+                                         ImGuiTableFlags_BordersOuterH | ImGuiTableFlags_NoBordersInBody;
 
-            ImVec2 tableSize(0.0f, TEXT_BASE_HEIGHT * std::min(SCROLL_LINE_COUNT, (int)pinCount));
+            ImVec2 tableSize(0.0f, TEXT_BASE_HEIGHT * std::min(SCROLL_LINE_COUNT, (int) pinCount));
             bool haveTable = ImGui::BeginTable("outputs_node_table", 2, tableFlags, tableSize);
             if (haveTable)
             {
@@ -3363,7 +3359,6 @@ void Graph::showPropertyEditorOutputConnections(UiNodePtr node)
             }
         }
     }
-
 }
 
 void Graph::showPropertyEditorInputConnection(UiPinPtr displayPin)
@@ -3405,12 +3400,12 @@ void Graph::showPropertyEditorInputConnection(UiPinPtr displayPin)
 void Graph::propertyEditor()
 {
     // Get parent dimensions
-    ImVec2 textPos = ImGui::GetCursorScreenPos(); // Position for the background
+    ImVec2 textPos = ImGui::GetCursorScreenPos();         // Position for the background
     float parentWidth = ImGui::GetContentRegionAvail().x; // Available width in the parent
-    
+
     // Draw the title bar
     const ImGuiStyle& style = ImGui::GetStyle();
-    ImVec4 menuBarBgColor = style.Colors[ImGuiCol_MenuBarBg]; 
+    ImVec4 menuBarBgColor = style.Colors[ImGuiCol_MenuBarBg];
     ImU32 bgColor = ImGui::ColorConvertFloat4ToU32(menuBarBgColor); // Convert to 32-bit color
     ImDrawList* drawList = ImGui::GetWindowDrawList();
     drawList->AddRectFilled(textPos,
@@ -3425,10 +3420,10 @@ void Graph::propertyEditor()
         ImGui::SameLine();
         std::string original = _currUiNode->getName();
         std::string temp = original;
-        float availableWidth = ImGui::GetContentRegionAvail().x; 
-        ImGui::PushItemWidth(availableWidth); 
+        float availableWidth = ImGui::GetContentRegionAvail().x;
+        ImGui::PushItemWidth(availableWidth);
         ImGui::InputText("##edit", &temp);
-        ImGui::PopItemWidth(); 
+        ImGui::PopItemWidth();
 
         std::string docString = "NodeDef Doc String: \n";
         if (_currUiNode->getNode())
@@ -3585,7 +3580,7 @@ void Graph::propertyEditor()
             if (ImGui::Checkbox("Show output connections", &showOutputsInEditor))
             {
                 _currUiNode->setShowOutputsInEditor(showOutputsInEditor);
-            }            
+            }
 
             int count = 0;
             float totalImagePadding = 0.0f;
@@ -3600,7 +3595,7 @@ void Graph::propertyEditor()
                 if (_currUiNode->getShowAllInputs() || (input->getConnected() || _currUiNode->getNode()->getInput(input->getName())))
                 {
                     count++;
-                    
+
                     // Add space for image previews
                     if (imagePadding > 0.0f && input->getInput()->getType() == "filename")
                     {
@@ -3672,7 +3667,8 @@ void Graph::propertyEditor()
                 }
             }
 
-            showPropertyEditorOutputConnections(_currUiNode);;
+            showPropertyEditorOutputConnections(_currUiNode);
+            ;
         }
 
         else if (_currUiNode->getInput() != nullptr)
@@ -3720,7 +3716,8 @@ void Graph::propertyEditor()
                 }
             }
 
-            showPropertyEditorOutputConnections(_currUiNode);;
+            showPropertyEditorOutputConnections(_currUiNode);
+            ;
         }
         else if (_currUiNode->getOutput() != nullptr)
         {
@@ -3794,9 +3791,10 @@ void Graph::propertyEditor()
                 }
             }
 
-            showPropertyEditorOutputConnections(_currUiNode);;
+            showPropertyEditorOutputConnections(_currUiNode);
+            ;
         }
-      
+
         // Find tokens within currUiNode
         mx::ConstNodePtr node = _currUiNode->getNode();
         if (node != nullptr)
@@ -3807,7 +3805,7 @@ void Graph::propertyEditor()
             if (!tokens.empty())
             {
                 ImGui::Text("Tokens");
-             
+
                 ImVec2 tableSize(0.0f, TEXT_BASE_HEIGHT * std::min(SCROLL_LINE_COUNT, static_cast<int>(tokens.size())));
                 bool haveTable = ImGui::BeginTable("tokens_node_table", 2, tableFlags, tableSize);
                 if (haveTable)
@@ -3816,7 +3814,7 @@ void Graph::propertyEditor()
 
                     for (const auto& [token, value] : tokens)
                     {
-                               
+
                         ImGui::TableNextRow();
                         ImGui::TableNextColumn();
                         ImGui::PushID(&token);
@@ -3827,7 +3825,7 @@ void Graph::propertyEditor()
 
                         ImGui::PopID();
                     }
-                        
+
                     ImGui::EndTable();
                     ImGui::SetWindowFontScale(1.0f);
                 }
@@ -3898,7 +3896,7 @@ void Graph::showHelp() const
 void Graph::addNodePopup(bool cursor)
 {
     bool open_AddPopup = (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootWindow) && ImGui::IsKeyReleased(ImGuiKey_Tab)) ||
-        (_pinFilterType != mx::EMPTY_STRING && ImGui::IsMouseReleased(0));
+                         (_pinFilterType != mx::EMPTY_STRING && ImGui::IsMouseReleased(0));
     static char input[32]{ "" };
     if (open_AddPopup)
     {
@@ -3931,7 +3929,7 @@ void Graph::addNodePopup(bool cursor)
                 {
                     // Drawing a forward Link from an output pin
                     // Filter out nodes that has no inputs of the type matching to the _menuFilterType
-                    if (node.getInputTypes().count(_menuFilterType)==0)
+                    if (node.getInputTypes().count(_menuFilterType) == 0)
                     {
                         continue;
                     }
@@ -3940,7 +3938,7 @@ void Graph::addNodePopup(bool cursor)
                 {
                     // Drawing a backward Link from an input pin
                     // Filter out nodes whose type do not match the _menuFilterType
-                    if (node.getOutputTypes().count(_menuFilterType)==0)
+                    if (node.getOutputTypes().count(_menuFilterType) == 0)
                     {
                         continue;
                     }
@@ -4177,7 +4175,6 @@ void Graph::handleRenderViewInputs()
     }
 }
 
-
 UiNodePtr Graph::traverseConnection(UiNodePtr node, bool traverseDownstream)
 {
     if (!node)
@@ -4203,9 +4200,9 @@ UiNodePtr Graph::traverseConnection(UiNodePtr node, bool traverseDownstream)
     }
 
     // Get first upstream connected node
-    else 
+    else
     {
-        for (UiPinPtr inputPin: node->getInputPins())
+        for (UiPinPtr inputPin : node->getInputPins())
         {
             const std::vector<UiPinPtr>& connections = inputPin->getConnections();
             std::shared_ptr<UiNode> pinNode = nullptr;
@@ -4219,8 +4216,8 @@ UiNodePtr Graph::traverseConnection(UiNodePtr node, bool traverseDownstream)
                 }
             }
         }
-    }  
-    
+    }
+
     return nullptr;
 }
 
@@ -4466,7 +4463,7 @@ void Graph::drawGraph(ImVec2 mousePos)
         // or if the shortcut for cut is used
         if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootWindow))
         {
-            bool traverseDownstream = ImGui::IsKeyReleased(ImGuiKey_RightArrow); 
+            bool traverseDownstream = ImGui::IsKeyReleased(ImGuiKey_RightArrow);
             bool traverseUpstream = ImGui::IsKeyReleased(ImGuiKey_LeftArrow);
 
             // Traverse connections with arrow keys
@@ -4502,9 +4499,8 @@ void Graph::drawGraph(ImVec2 mousePos)
                         ed::SelectNode(connectedNode->getId());
                         ed::NavigateToSelection();
                     }
-
                 }
-            }            
+            }
 
             else if (ImGui::IsKeyReleased(ImGuiKey_Delete) || ImGui::IsKeyReleased(ImGuiKey_Backspace) || _isCut)
             {
@@ -4765,10 +4761,10 @@ void Graph::drawGraph(ImVec2 mousePos)
             const std::string displayName = path.empty() ? "Document" : path;
             std::string headerLabel = displayName + "  (" + std::to_string(entries.size()) + ")##" + path;
 
-            ImGui::PushStyleColor(ImGuiCol_Header,        ImVec4(0.28f, 0.10f, 0.10f, 1.f));
+            ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.28f, 0.10f, 0.10f, 1.f));
             ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.38f, 0.14f, 0.14f, 1.f));
-            ImGui::PushStyleColor(ImGuiCol_HeaderActive,  ImVec4(0.45f, 0.16f, 0.16f, 1.f));
-            ImGui::PushStyleColor(ImGuiCol_Text,          ImVec4(1.f,   0.45f, 0.45f, 1.f));
+            ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImVec4(0.45f, 0.16f, 0.16f, 1.f));
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 0.45f, 0.45f, 1.f));
             const bool open = ImGui::CollapsingHeader(headerLabel.c_str(), ImGuiTreeNodeFlags_DefaultOpen);
             ImGui::PopStyleColor(4);
 
@@ -4779,10 +4775,10 @@ void Graph::drawGraph(ImVec2 mousePos)
                     std::string label = "  " + d->nodeName + "." + d->inputName +
                                         "  [expects " + d->inputType +
                                         ", got " + d->outputType + "]";
-                    ImGui::PushStyleColor(ImGuiCol_Button,        ImVec4(0.f, 0.f, 0.f, 0.f));
+                    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
                     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.f, 0.2f, 0.2f, 0.25f));
-                    ImGui::PushStyleColor(ImGuiCol_ButtonActive,  ImVec4(1.f, 0.2f, 0.2f, 0.45f));
-                    ImGui::PushStyleColor(ImGuiCol_Text,          ImVec4(1.f, 0.6f, 0.6f, 1.f));
+                    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1.f, 0.2f, 0.2f, 0.45f));
+                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 0.6f, 0.6f, 1.f));
                     ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.f, 0.5f));
                     if (ImGui::Button(label.c_str(), ImVec2(-1.f, 0.f)))
                     {
