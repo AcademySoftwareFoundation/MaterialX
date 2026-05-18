@@ -49,7 +49,7 @@ float mx_flake_density_to_probability(float x)
 
 export struct mx_flake__result
 {
-    int mxp_id;              // random integer [0, INT32_MAX], 0 for no flake
+    int mxp_id;              // random integer [0, 2^24 - 1], 0 for no flake
     float mxp_rand;          // random float [0, 1], 0 for no flake
     float mxp_presence;      // flake presence [0, 1], 0 for no flake
     float3 mxp_flakenormal;  // flake normal
@@ -121,7 +121,8 @@ export mx_flake__result mx_flake(
     float xi1 = flake_noise.y;
 
     flake_out.mxp_rand = flake_noise.z;
-    flake_out.mxp_id = int(flake_out.mxp_rand * 2147483647.0);
+    // 2^24 - 1 is exact in float32, keeping id stable across precisions.
+    flake_out.mxp_id = int(flake_out.mxp_rand * 16777215.0);
     flake_out.mxp_presence = flake_priority;
 
     float phi = math::PI * 2.0 * xi0;
