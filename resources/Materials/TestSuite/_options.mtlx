@@ -64,7 +64,10 @@
     <!-- List of document paths for render tests -->
     <input name="renderTestPaths" type="string" value="resources/Materials/Examples/StandardSurface,resources/Materials/Examples/OpenPbr,resources/Materials/Examples/UsdPreviewSurface,resources/Materials/TestSuite/pbrlib/bsdf,resources/Materials/TestSuite/stdlib/procedural,resources/Materials/TestSuite/stdlib/color_management,resources/Materials/TestSuite/stdlib/convolution,resources/Materials/TestSuite/nprlib" />
 
-    <!-- List of document base names to exclude from render tests -->
+    <!-- List of document base names to exclude from render tests.
+         The render test suite operates on standalone materials, so look
+         documents (which reference other materials) and multi-material scene
+         files are excluded here. -->
     <input name="renderTestExcludeFiles" type="string" value="standard_surface_look_brass_tiled.mtlx,standard_surface_look_wood_tiled.mtlx,standard_surface_chess_set.mtlx" />
 
     <!-- Base directory for all test output artifacts (shaders, images, logs).
