@@ -4251,9 +4251,22 @@ void Graph::drawGraph(ImVec2 mousePos)
 
     // Reserve vertical space for the diagnostic panel when there are errors.
     const float diagLineH = ImGui::GetTextLineHeightWithSpacing();
-    const float diagH = _diagnostics.empty() ? 0.f :
-        diagLineH * (std::min((int)_diagnostics.size(), 4) + 1) +
-        ImGui::GetStyle().WindowPadding.y * 2.f + ImGui::GetStyle().ItemSpacing.y;
+    int diagNumGroups = 0;
+    if (!_diagnostics.empty())
+    {
+        std::string lastPath = "\x01"; // sentinel that won't match any real path
+        for (const LinkDiagnostic& d : _diagnostics)
+        {
+            if (d.graphPath != lastPath)
+            {
+                diagNumGroups++;
+                lastPath = d.graphPath;
+            }
+        }
+    }
+    // Height: title + group headers + entry rows, capped at 8 rows total.
+    const int diagVisibleRows = std::min(diagNumGroups + (int) _diagnostics.size() + 1, 8);
+    const float diagH = _diagnostics.empty() ? 0.f : diagLineH * diagVisibleRows + ImGui::GetStyle().WindowPadding.y * 2.f + ImGui::GetStyle().ItemSpacing.y;
 
     ed::Begin("My Editor", ImVec2(0.f, ImGui::GetContentRegionAvail().y - diagH));
     {
@@ -4726,58 +4739,83 @@ void Graph::drawGraph(ImVec2 mousePos)
     if (!_diagnostics.empty())
     {
         ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.14f, 0.08f, 0.08f, 1.f));
-        ImGui::BeginChild("##diagnostics", ImVec2(0.f, diagH), false, ImGuiWindowFlags_NoScrollbar);
+        ImGui::BeginChild("##diagnostics", ImVec2(0.f, diagH), false, ImGuiWindowFlags_None);
         ImGui::PopStyleColor();
 
         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 0.4f, 0.4f, 1.f));
-        ImGui::Text("Type mismatch errors: %d", (int)_diagnostics.size());
+        ImGui::Text("Type mismatch errors: %d", (int) _diagnostics.size());
         ImGui::PopStyleColor();
 
         ImGui::Separator();
 
+        // Group diagnostics by graphPath, preserving insertion order.
+        std::vector<std::string> groupOrder;
+        std::unordered_map<std::string, std::vector<const LinkDiagnostic*>> groups;
         for (const LinkDiagnostic& d : _diagnostics)
         {
-            std::string label;
-            if (!d.graphPath.empty())
-                label = d.graphPath + " / ";
-            label += d.nodeName + "." + d.inputName +
-                     "  [expects " + d.inputType +
-                     ", got " + d.outputType + "]";
-            ImGui::PushStyleColor(ImGuiCol_Button,        ImVec4(0.f, 0.f, 0.f, 0.f));
-            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.f, 0.2f, 0.2f, 0.25f));
-            ImGui::PushStyleColor(ImGuiCol_ButtonActive,  ImVec4(1.f, 0.2f, 0.2f, 0.45f));
-            ImGui::PushStyleColor(ImGuiCol_Text,          ImVec4(1.f, 0.6f, 0.6f, 1.f));
-            ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.f, 0.5f));
-            if (ImGui::Button(label.c_str(), ImVec2(-1.f, 0.f)))
+            if (groups.find(d.graphPath) == groups.end())
+                groupOrder.push_back(d.graphPath);
+            groups[d.graphPath].push_back(&d);
+        }
+
+        for (const std::string& path : groupOrder)
+        {
+            const std::vector<const LinkDiagnostic*>& entries = groups.at(path);
+
+            const std::string displayName = path.empty() ? "Document" : path;
+            std::string headerLabel = displayName + "  (" + std::to_string(entries.size()) + ")##" + path;
+
+            ImGui::PushStyleColor(ImGuiCol_Header,        ImVec4(0.28f, 0.10f, 0.10f, 1.f));
+            ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.38f, 0.14f, 0.14f, 1.f));
+            ImGui::PushStyleColor(ImGuiCol_HeaderActive,  ImVec4(0.45f, 0.16f, 0.16f, 1.f));
+            ImGui::PushStyleColor(ImGuiCol_Text,          ImVec4(1.f,   0.45f, 0.45f, 1.f));
+            const bool open = ImGui::CollapsingHeader(headerLabel.c_str(), ImGuiTreeNodeFlags_DefaultOpen);
+            ImGui::PopStyleColor(4);
+
+            if (open)
             {
-                if (!d.nodeGraph)
+                for (const LinkDiagnostic* d : entries)
                 {
-                    _searchNodeId = d.nodeId;
-                }
-                else
-                {
-                    savePosition();
-                    _parentStates.push_back(std::move(_state));
-                    _state = GraphState();
-                    buildUiNodeGraph(d.nodeGraph);
-                    _state.graphElem = d.nodeGraph;
-                    _state.isCompoundNodeGraph = false;
-                    _state.name = d.nodeGraph->getName();
-                    _needsLayout = true;
-                    _needsNavigation = true;
-                    linkGraph();
-                    for (const UiNodePtr& n : _state.nodes)
+                    std::string label = "  " + d->nodeName + "." + d->inputName +
+                                        "  [expects " + d->inputType +
+                                        ", got " + d->outputType + "]";
+                    ImGui::PushStyleColor(ImGuiCol_Button,        ImVec4(0.f, 0.f, 0.f, 0.f));
+                    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.f, 0.2f, 0.2f, 0.25f));
+                    ImGui::PushStyleColor(ImGuiCol_ButtonActive,  ImVec4(1.f, 0.2f, 0.2f, 0.45f));
+                    ImGui::PushStyleColor(ImGuiCol_Text,          ImVec4(1.f, 0.6f, 0.6f, 1.f));
+                    ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.f, 0.5f));
+                    if (ImGui::Button(label.c_str(), ImVec2(-1.f, 0.f)))
                     {
-                        if (n->getName() == d.nodeName)
+                        if (!d->nodeGraph)
                         {
-                            _searchNodeId = n->getId();
-                            break;
+                            _searchNodeId = d->nodeId;
+                        }
+                        else
+                        {
+                            savePosition();
+                            _parentStates.push_back(std::move(_state));
+                            _state = GraphState();
+                            buildUiNodeGraph(d->nodeGraph);
+                            _state.graphElem = d->nodeGraph;
+                            _state.isCompoundNodeGraph = false;
+                            _state.name = d->nodeGraph->getName();
+                            _needsLayout = true;
+                            _needsNavigation = true;
+                            linkGraph();
+                            for (const UiNodePtr& n : _state.nodes)
+                            {
+                                if (n->getName() == d->nodeName)
+                                {
+                                    _searchNodeId = n->getId();
+                                    break;
+                                }
+                            }
                         }
                     }
+                    ImGui::PopStyleVar();
+                    ImGui::PopStyleColor(4);
                 }
             }
-            ImGui::PopStyleVar();
-            ImGui::PopStyleColor(4);
         }
 
         ImGui::EndChild();
