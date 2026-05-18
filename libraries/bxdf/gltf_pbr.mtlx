@@ -360,6 +360,7 @@
       <input name="bsdf" type="BSDF" nodename="clearcoat_layer" />
       <input name="edf" type="EDF" nodename="emission" />
       <input name="opacity" type="float" nodename="opacity" />
+      <input name="occlusion" type="float" interfacename="occlusion" />
     </surface>
     <output name="out" type="surfaceshader" nodename="shader_constructor" />
   </nodegraph>
