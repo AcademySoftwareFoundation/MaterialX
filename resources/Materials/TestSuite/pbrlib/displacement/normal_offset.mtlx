@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+  <!-- Simple normal offset displacement matching Unity ShaderGraph:
+       Position = ObjectPosition + Normal * Strength
+       MaterialX displacement vector3 = Normal * Strength (offset only) -->
+
+  <standard_surface name="surf" type="surfaceshader">
+    <input name="base_color" type="color3" value="0.8, 0.8, 0.8" />
+    <input name="specular_roughness" type="float" value="0.5" />
+  </standard_surface>
+
+  <normal name="normal1" type="vector3">
+    <input name="space" type="string" value="object" />
+  </normal>
+  <multiply name="offset" type="vector3">
+    <input name="in1" type="vector3" nodename="normal1" />
+    <input name="in2" type="float" value="0.2" />
+  </multiply>
+  <displacement name="disp1" type="displacementshader">
+    <input name="displacement" type="vector3" nodename="offset" />
+    <input name="scale" type="float" value="1.0" />
+  </displacement>
+
+  <surfacematerial name="normal_offset_mat" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="surf" />
+    <input name="displacementshader" type="displacementshader" nodename="disp1" />
+  </surfacematerial>
+</materialx>

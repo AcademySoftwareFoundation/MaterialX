@@ -6,6 +6,7 @@
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
 #include <MaterialXGenGlsl/GlslSyntax.h>
+#include <MaterialXGenGlsl/Nodes/DisplacementNodeGlsl.h>
 
 #include <MaterialXGenHw/HwLightShaders.h>
 #include <MaterialXGenHw/Nodes/HwImageNode.h>
@@ -32,6 +33,9 @@
 #include <MaterialXGenShader/Nodes/MaterialNode.h>
 
 #include <MaterialXTrace/Tracing.h>
+
+#include <functional>
+#include <set>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -91,6 +95,10 @@ GlslShaderGenerator::GlslShaderGenerator(TypeSystemPtr typeSystem) :
     // <!-- <surface> -->
     registerImplementation("IM_surface_" + GlslShaderGenerator::TARGET, HwSurfaceNode::create);
 
+    // <!-- <displacement> -->
+    registerImplementation("IM_displacement_float_" + GlslShaderGenerator::TARGET, DisplacementNodeGlsl::create);
+    registerImplementation("IM_displacement_vector3_" + GlslShaderGenerator::TARGET, DisplacementNodeGlsl::create);
+
     // <!-- <light> -->
     registerImplementation("IM_light_" + GlslShaderGenerator::TARGET, HwLightNode::create);
 
@@ -145,6 +153,17 @@ ShaderPtr GlslShaderGenerator::generate(const string& name, ElementPtr element, 
         resourceBindingCtx->initialize();
     }
 
+    // Set the include file for uv transformations early, before the vertex
+    // stage, so displacement nodes using texture sampling can resolve it.
+    if (context.getOptions().fileTextureVerticalFlip)
+    {
+        _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "mx_transform_uv_vflip.glsl";
+    }
+    else
+    {
+        _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "mx_transform_uv.glsl";
+    }
+
     // Emit code for vertex shader stage
     ShaderStage& vs = shader->getStage(Stage::VERTEX);
     emitVertexStage(shader->getGraph(), context, vs);
@@ -169,6 +188,9 @@ void GlslShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext& 
     }
     emitLineBreak(stage);
 
+    // Add type definitions (needed for displacementshader struct in vertex stage)
+    emitTypeDefinitions(context, stage);
+
     // Add all constants
     emitConstants(context, stage);
 
@@ -185,22 +207,250 @@ void GlslShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext& 
     emitLibraryInclude("stdlib/genglsl/lib/mx_math.glsl", context, stage);
     emitLineBreak(stage);
 
+    // Check for displacement nodes and collect dependency chain early —
+    // needed for uniform filtering and function definitions.
+    const ShaderNode* displacementNode = nullptr;
+    const ShaderOutput* displacementOutput = nullptr;  // specific output for multioutput nodes
+    std::set<const ShaderNode*> dispDeps;
+    for (const ShaderNode* node : graph.getNodes())
+    {
+        if (node->getOutput()->getType() == Type::DISPLACEMENTSHADER)
+        {
+            // Skip default displacement nodes from surfacematerial's unconnected
+            // inputs. Check that the displacement input connects to a real
+            // computation node, not just a graph input socket.
+            bool isDefault = true;
+            const ShaderInput* dispIn = node->getInput("displacement");
+            if (dispIn && dispIn->getConnection())
+            {
+                const ShaderNode* upstream = dispIn->getConnection()->getNode();
+                // Real nodes have inputs with connections; graph input socket nodes don't
+                if (upstream)
+                {
+                    for (ShaderInput* upIn : upstream->getInputs())
+                    {
+                        if (upIn->getConnection()) { isDefault = false; break; }
+                    }
+                }
+            }
+            if (!isDefault)
+            {
+                displacementNode = node;
+                displacementOutput = node->getOutput();
+                break;
+            }
+        }
+        // Also check MaterialNode's displacementshader input — the displacement
+        // may be connected through a nodedef compound node rather than being
+        // a direct top-level node in the graph.
+        if (node->getOutput()->getType() == Type::MATERIAL)
+        {
+            const ShaderInput* dispInput = node->getInput(ShaderNode::DISPLACEMENTSHADER);
+            if (dispInput && dispInput->getConnection())
+            {
+                const ShaderNode* candidate = dispInput->getConnection()->getNode();
+                // Skip self-connections and graph-node connections
+                // (default unconnected displacement loops back via graph input sockets)
+                if (!candidate || candidate == node || candidate == &graph) continue;
+                if (candidate)
+                {
+                    // Check that the displacement node has real upstream computation.
+                    // Default displacement nodes (from unconnected surfacematerial inputs)
+                    // only connect to the graph's own input sockets.
+                    bool hasRealInput = false;
+
+                    // For compound/multioutput nodes (nodedef instances), displacement
+                    // is inside the compound graph — just check if the node has
+                    // a displacement output, which means it was authored.
+                    if (candidate->numOutputs() > 1)
+                    {
+                        // Compound node: check if it has a displacement-related output
+                        for (size_t oi = 0; oi < candidate->numOutputs(); ++oi)
+                        {
+                            if (candidate->getOutput(oi)->getType() == Type::DISPLACEMENTSHADER)
+                            {
+                                hasRealInput = true;
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // Default displacement nodes auto-created by the graph
+                        // builder have names starting with their type name
+                        // (e.g. "displacementshader1"). Authored nodes have
+                        // user-defined names (e.g. "disp1", "needle_displacement").
+                        const string& name = candidate->getName();
+                        if (name.find("displacementshader") != 0)
+                        {
+                            hasRealInput = true;
+                        }
+                    }
+                    if (hasRealInput)
+                    {
+                        displacementOutput = dispInput->getConnection();
+                        displacementNode = candidate;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    if (displacementNode)
+    {
+        std::function<void(const ShaderNode*)> collectDeps = [&](const ShaderNode* n) {
+            if (dispDeps.count(n)) return;
+            dispDeps.insert(n);
+            for (ShaderInput* input : n->getInputs())
+            {
+                const ShaderNode* upstream = input->getConnectedSibling();
+                if (upstream) collectDeps(upstream);
+            }
+        };
+        collectDeps(displacementNode);
+
+        // Emit public uniforms in the vertex shader so displacement
+        // dependencies can access them. We emit all editable graph input
+        // sockets as direct uniform declarations rather than adding to the
+        // vertex stage's uniform block, because the uniform block approach
+        // causes binding conflicts in GlslProgram::updateUniformsList().
+        // Shared GLSL uniforms between vertex and pixel stages are fine —
+        // they reference the same uniform location.
+        // ESSL 300 (WebGL 2) does not support uniform initializers.
+        const bool assignValues = (getVersion().find("es") == string::npos);
+        emitComment("Public uniforms (shared with pixel stage)", stage);
+        for (ShaderGraphInputSocket* inputSocket : graph.getInputSockets())
+        {
+            if (inputSocket->getConnections().empty() || !graph.isEditable(*inputSocket))
+                continue;
+
+            const TypeDesc& type = inputSocket->getType();
+
+            // Skip types that can't be GLSL uniforms
+            if (type.isClosure() || type.isStruct())
+                continue;
+
+            const string& qualifier = _syntax->getUniformQualifier();
+            const string typeName = _syntax->getTypeName(type);
+
+            // Texture/filename types become sampler2D uniforms — emit
+            // without an initializer since their "value" is a file path.
+            if (type.getSemantic() == TypeDesc::SEMANTIC_FILENAME)
+            {
+                emitLine(qualifier + " " + typeName + " " + inputSocket->getVariable(), stage);
+                continue;
+            }
+
+            if (assignValues)
+            {
+                string valueStr;
+                if (inputSocket->getValue())
+                {
+                    valueStr = _syntax->getValue(type, *inputSocket->getValue());
+                }
+                else
+                {
+                    valueStr = _syntax->getDefaultValue(type);
+                }
+                emitLine(qualifier + " " + typeName + " " + inputSocket->getVariable() +
+                         (valueStr.empty() ? "" : " = " + valueStr), stage);
+            }
+            else
+            {
+                emitLine(qualifier + " " + typeName + " " + inputSocket->getVariable(), stage);
+            }
+        }
+        emitLineBreak(stage);
+
+        context.setEmitVertexDisplacement(true);
+
+    }
+
     emitFunctionDefinitions(graph, context, stage);
 
     // Add main function
     setFunctionName("main", stage);
     emitLine("void main()", stage, false);
     emitFunctionBodyBegin(graph, context, stage);
-    emitLine("vec4 hPositionWorld = " + HW::T_WORLD_MATRIX + " * vec4(" + HW::T_IN_POSITION + ", 1.0)", stage);
-    emitLine("gl_Position = " + HW::T_VIEW_PROJECTION_MATRIX + " * hPositionWorld", stage);
 
-    // Emit all function calls in order
-    for (const ShaderNode* node : graph.getNodes())
+    if (displacementNode)
     {
-        emitFunctionCall(*node, context, stage);
+        // Enable vertex displacement flag so SourceCodeNode allows
+        // emission in the vertex stage for displacement dependencies.
+        context.setEmitVertexDisplacement(true);
+
+        // Emit displacement dependency nodes in topological order.
+        for (const ShaderNode* node : graph.getNodes())
+        {
+            if (dispDeps.count(node))
+            {
+                emitFunctionCall(*node, context, stage);
+            }
+        }
+
+        context.setEmitVertexDisplacement(false);
+
+        // Apply displacement along the vertex normal.
+        // Float displacement stores the value in offset.z (via vec3(0,0,disp)).
+        // Vector3 displacement uses the full offset directly.
+        // Use the specific displacement output (important for multioutput compound nodes).
+        const string& dispVar = displacementOutput->getVariable();
+        emitComment("Apply vertex displacement along normal", stage);
+        // Use the magnitude of the offset for normal-direction displacement.
+        // For float displacement: offset = (0,0,d) → length = |d|, sign from d.
+        // For vector3 displacement: offset = (dx,dy,dz) → applied as-is.
+        const ShaderInput* dispInput = displacementNode->getInput("displacement");
+        if (dispInput && dispInput->getType() == Type::FLOAT)
+        {
+            emitLine("vec3 displacedPosition = " + HW::T_IN_POSITION + " + " +
+                     HW::T_IN_NORMAL + " * " + dispVar + ".offset.z * " + dispVar + ".scale", stage);
+        }
+        else
+        {
+            emitLine("vec3 displacedPosition = " + HW::T_IN_POSITION + " + " +
+                     dispVar + ".offset * " + dispVar + ".scale", stage);
+        }
+        emitLine("vec4 hPositionWorld = " + HW::T_WORLD_MATRIX + " * vec4(displacedPosition, 1.0)", stage);
+        emitLine("gl_Position = " + HW::T_VIEW_PROJECTION_MATRIX + " * hPositionWorld", stage);
+
+        // Emit remaining nodes for vertex data connectors.
+        // Displacement dep nodes were already emitted above. For compound
+        // nodes that are in dispDeps, force re-emit their vertex data
+        // connectors (normalWorld, positionWorld, etc.) since their first
+        // emission only handled displacement-related internal nodes.
+        for (const ShaderNode* node : graph.getNodes())
+        {
+            if (dispDeps.count(node))
+            {
+                // Force vertex data emission for compound nodes
+                node->getImplementation().emitFunctionCall(*node, context, stage);
+            }
+            else
+            {
+                emitFunctionCall(*node, context, stage);
+            }
+        }
+    }
+    else
+    {
+        // Standard vertex position transformation.
+        emitLine("vec4 hPositionWorld = " + HW::T_WORLD_MATRIX + " * vec4(" + HW::T_IN_POSITION + ", 1.0)", stage);
+        emitLine("gl_Position = " + HW::T_VIEW_PROJECTION_MATRIX + " * hPositionWorld", stage);
+
+        // Emit all function calls in order.
+        for (const ShaderNode* node : graph.getNodes())
+        {
+            emitFunctionCall(*node, context, stage);
+        }
     }
 
+    context.setEmitVertexDisplacement(false);
     emitFunctionBodyEnd(graph, context, stage);
+}
+
+void GlslShaderGenerator::emitCommonMathLibrary(GenContext& context, ShaderStage& stage) const
+{
+    emitLibraryInclude("stdlib/genglsl/lib/mx_math.glsl", context, stage);
 }
 
 void GlslShaderGenerator::emitSpecularEnvironment(GenContext& context, ShaderStage& stage) const
@@ -400,7 +650,7 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     emitOutputs(context, stage);
 
     // Add common math functions
-    emitLibraryInclude("stdlib/genglsl/lib/mx_math.glsl", context, stage);
+    emitCommonMathLibrary(context, stage);
     emitLineBreak(stage);
 
     // Determine whether lighting is required

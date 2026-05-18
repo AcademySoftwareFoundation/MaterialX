@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+  <!-- Complex displacement test: multioutput nodedef with noise function,
+       multiple type conversions (testing variable scoping), and texcoords.
+       Exercises the CompoundNode's vertex-stage scoped emission. -->
+
+  <nodedef name="ND_ComplexDisp" node="ComplexDisp">
+    <input name="strength" type="float" value="0.0" />
+    <input name="density" type="float" value="5.0" />
+    <output name="out" type="surfaceshader" />
+    <output name="disp_out" type="displacementshader" />
+  </nodedef>
+
+  <nodegraph name="NG_ComplexDisp" nodedef="ND_ComplexDisp">
+    <standard_surface name="surf" type="surfaceshader">
+      <input name="base_color" type="color3" value="0.6, 0.6, 0.8" />
+      <input name="specular_roughness" type="float" value="0.4" />
+    </standard_surface>
+
+    <normal name="normal1" type="vector3">
+      <input name="space" type="string" value="object" />
+    </normal>
+    <position name="pos" type="vector3">
+      <input name="space" type="string" value="object" />
+    </position>
+    <multiply name="pos_scaled" type="vector3">
+      <input name="in1" type="vector3" nodename="pos" />
+      <input name="in2" type="float" interfacename="density" />
+    </multiply>
+    <fractal3d name="noise" type="float">
+      <input name="amplitude" type="float" value="1.0" />
+      <input name="octaves" type="integer" value="2" />
+      <input name="position" type="vector3" nodename="pos_scaled" />
+    </fractal3d>
+    <multiply name="noise_scaled" type="float">
+      <input name="in1" type="float" nodename="noise" />
+      <input name="in2" type="float" interfacename="strength" />
+    </multiply>
+    <convert name="to_vec3" type="vector3">
+      <input name="in" type="float" nodename="noise_scaled" />
+    </convert>
+    <multiply name="offset" type="vector3">
+      <input name="in1" type="vector3" nodename="normal1" />
+      <input name="in2" type="vector3" nodename="to_vec3" />
+    </multiply>
+    <displacement name="disp" type="displacementshader">
+      <input name="displacement" type="vector3" nodename="offset" />
+    </displacement>
+
+    <output name="out" type="surfaceshader" nodename="surf" />
+    <output name="disp_out" type="displacementshader" nodename="disp" />
+  </nodegraph>
+
+  <ComplexDisp name="mat1" type="multioutput">
+    <input name="strength" type="float" value="0.1" />
+    <input name="density" type="float" value="8.0" />
+  </ComplexDisp>
+  <surfacematerial name="complex_disp_mat" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="mat1" output="out" />
+    <input name="displacementshader" type="displacementshader" nodename="mat1" output="disp_out" />
+  </surfacematerial>
+</materialx>

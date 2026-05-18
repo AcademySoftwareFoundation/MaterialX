@@ -22,6 +22,11 @@
 #include <MaterialXGenGlsl/WgslShaderGenerator.h>
 #include <MaterialXGenHw/HwConstants.h>
 
+#include <MaterialXFormat/Util.h>
+#include <MaterialXGenShader/Util.h>
+#include <MaterialXGenShader/Shader.h>
+#include <MaterialXGenShader/HwShaderGenerator.h>
+
 namespace mx = MaterialX;
 
 TEST_CASE("GenShader: GLSL Syntax Check", "[genglsl]")
@@ -219,4 +224,97 @@ TEST_CASE("GenShader: Vulkan GLSL Shader Generation", "[genglsl]")
 TEST_CASE("GenShader: Wgsl GLSL Shader Generation", "[genglsl]")
 {
     generateGlslCode(GlslType::GlslWgsl);
+}
+
+// Helper to generate a shader from a material file and return vertex/pixel source
+static std::pair<std::string, std::string> generateFromMtlx(
+    const std::string& filename,
+    mx::ShaderGeneratorPtr generator,
+    mx::HwSpecularEnvironmentMethod specularMethod = mx::SPECULAR_ENVIRONMENT_FIS)
+{
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::DocumentPtr doc = mx::createDocument();
+    mx::loadLibraries({ "libraries" }, searchPath, doc);
+    mx::readFromXmlFile(doc, searchPath.find(filename));
+
+    mx::GenContext context(generator);
+    context.getOptions().hwSpecularEnvironmentMethod = specularMethod;
+    context.registerSourceCodeSearchPath(searchPath);
+
+    std::vector<mx::TypedElementPtr> renderables = mx::findRenderableElements(doc);
+    REQUIRE(!renderables.empty());
+
+    mx::ShaderPtr shader = generator->generate(renderables[0]->getNamePath(), renderables[0], context);
+    REQUIRE(shader != nullptr);
+
+    return {
+        shader->getSourceCode(mx::Stage::VERTEX),
+        shader->getSourceCode(mx::Stage::PIXEL)
+    };
+}
+
+TEST_CASE("GenShader: GLSL Displacement", "[genglsl][displacement]")
+{
+    mx::ShaderGeneratorPtr glslGen = mx::GlslShaderGenerator::create();
+    mx::ShaderGeneratorPtr esslGen = mx::EsslShaderGenerator::create();
+
+    SECTION("Flat displacement: normal offset")
+    {
+        auto [vs, ps] = generateFromMtlx(
+            "resources/Materials/TestSuite/pbrlib/displacement/normal_offset.mtlx", glslGen);
+        REQUIRE(vs.find("displacedPosition") != std::string::npos);
+        REQUIRE(vs.find("displacementActive") != std::string::npos);
+        // Normal recomputation in pixel stage
+        REQUIRE(ps.find("dFdx") != std::string::npos);
+    }
+
+    SECTION("Flat displacement: procedural noise")
+    {
+        auto [vs, ps] = generateFromMtlx(
+            "resources/Materials/TestSuite/pbrlib/displacement/displaced_material.mtlx", glslGen);
+        REQUIRE(vs.find("displacedPosition") != std::string::npos);
+        REQUIRE(vs.find("fractal3d") != std::string::npos);
+    }
+
+    SECTION("Multioutput displacement: nodedef with surfaceshader + displacementshader")
+    {
+        auto [vs, ps] = generateFromMtlx(
+            "resources/Materials/TestSuite/pbrlib/displacement/multioutput_displacement.mtlx", glslGen);
+        REQUIRE(vs.find("displacedPosition") != std::string::npos);
+        // No surface shader internals leaked into vertex stage
+        REQUIRE(vs.find("coat_roughness") == std::string::npos);
+    }
+
+    SECTION("No displacement: marble (no regression)")
+    {
+        auto [vs, ps] = generateFromMtlx(
+            "resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx", glslGen);
+        REQUIRE(vs.find("displacedPosition") == std::string::npos);
+        REQUIRE(vs.find("displacementActive") == std::string::npos);
+    }
+
+    SECTION("ESSL displacement: normal offset")
+    {
+        auto [vs, ps] = generateFromMtlx(
+            "resources/Materials/TestSuite/pbrlib/displacement/normal_offset.mtlx", esslGen,
+            mx::SPECULAR_ENVIRONMENT_PREFILTER);
+        REQUIRE(vs.find("displacedPosition") != std::string::npos);
+        // ESSL uses float marker, not struct varying
+        REQUIRE(vs.find("out float displacementActive") != std::string::npos);
+        // No uniform initializers in ESSL
+        REQUIRE(vs.find("uniform") != std::string::npos);
+    }
+
+    SECTION("Complex displacement: multioutput nodedef with noise and scoped variables")
+    {
+        auto [vs, ps] = generateFromMtlx(
+            "resources/Materials/TestSuite/pbrlib/displacement/complex_displacement.mtlx", glslGen);
+        REQUIRE(vs.find("displacedPosition") != std::string::npos);
+        // Noise function definition must be in vertex stage
+        REQUIRE(vs.find("mx_fractal3d") != std::string::npos);
+        // No surface shader internals leaked
+        REQUIRE(vs.find("coat_roughness") == std::string::npos);
+        // Scope block must be present to prevent variable collisions
+        REQUIRE(vs.find("{") != std::string::npos);
+    }
 }

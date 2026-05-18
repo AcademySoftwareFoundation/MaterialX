@@ -26,6 +26,13 @@ void MaterialNode::addClassification(ShaderNode& node) const
         if (!surfaceshaderNode->isAGraph())
             node.addClassification(surfaceshaderNode->getClassification());
     }
+
+    const ShaderInput* displacementInput = node.getInput(ShaderNode::DISPLACEMENTSHADER);
+    if (displacementInput && displacementInput->getConnection())
+    {
+        const ShaderNode* displacementNode = displacementInput->getConnection()->getNode();
+        node.addClassification(displacementNode->getClassification());
+    }
 }
 
 void MaterialNode::emitFunctionCall(const ShaderNode& _node, GenContext& context, ShaderStage& stage) const
