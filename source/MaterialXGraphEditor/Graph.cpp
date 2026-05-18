@@ -397,17 +397,35 @@ void Graph::linkGraph()
                                 outPin->setConnected(true);
                                 outPin->addConnection(inputs[i]);
                                 const std::string& outputType = outPin->getType();
-                                if (!inputType.empty() && !outputType.empty() &&
-                                    outputType != mx::MULTI_OUTPUT_TYPE_STRING &&
-                                    outputType != inputType)
+                                std::string resolvedOutputType = outputType;
+                                if (outputType == mx::MULTI_OUTPUT_TYPE_STRING)
+                                {
+                                    // Resolve the specific output type from the nodedef
+                                    mx::NodePtr mxNode = inputNode->getNode();
+                                    if (mxNode)
+                                    {
+                                        mx::NodeDefPtr nodeDef = mxNode->getNodeDef();
+                                        if (nodeDef)
+                                        {
+                                            mx::OutputPtr defOutput = nodeDef->getOutput(outPin->getName());
+                                            if (defOutput)
+                                            {
+                                                resolvedOutputType = defOutput->getType();
+                                            }
+                                        }
+                                    }
+                                }
+                                if (!inputType.empty() && !resolvedOutputType.empty() &&
+                                    resolvedOutputType != mx::MULTI_OUTPUT_TYPE_STRING &&
+                                    resolvedOutputType != inputType)
                                 {
                                     invalid = true;
                                     LinkDiagnostic diag;
-                                    diag.nodeId    = node->getId();
-                                    diag.nodeName  = node->getName();
+                                    diag.nodeId = node->getId();
+                                    diag.nodeName = node->getName();
                                     diag.inputName = inputs[i]->getName();
-                                    diag.inputType  = inputType;
-                                    diag.outputType = outputType;
+                                    diag.inputType = inputType;
+                                    diag.outputType = resolvedOutputType;
                                     _diagnostics.push_back(diag);
                                 }
                             }
