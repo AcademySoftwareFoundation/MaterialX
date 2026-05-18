@@ -270,9 +270,16 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
                     {
                         continue;
                     }
-                    // Only load one stream of each type for now.
                     cgltf_int streamIndex = attribute->index;
-                    if (streamIndex != 0)
+
+                    bool isPositionStream = (attribute->type == cgltf_attribute_type_position);
+                    bool isNormalStream = (attribute->type == cgltf_attribute_type_normal);
+                    bool isTangentStream = (attribute->type == cgltf_attribute_type_tangent);
+                    bool isColorStream = (attribute->type == cgltf_attribute_type_color);
+                    bool isTexCoordStream = (attribute->type == cgltf_attribute_type_texcoord);
+
+                    // Only positions, normals, and tangents use the primary glTF stream.
+                    if ((isPositionStream || isNormalStream || isTangentStream) && streamIndex != 0)
                     {
                         continue;
                     }
@@ -287,12 +294,6 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
                     size_t desiredVectorSize = 3;
 
                     MeshStreamPtr geomStream = nullptr;
-
-                    bool isPositionStream = (attribute->type == cgltf_attribute_type_position);
-                    bool isNormalStream = (attribute->type == cgltf_attribute_type_normal);
-                    bool isTangentStream = (attribute->type == cgltf_attribute_type_tangent);
-                    bool isColorStream = (attribute->type == cgltf_attribute_type_color);
-                    bool isTexCoordStream = (attribute->type == cgltf_attribute_type_texcoord);
 
                     if (isPositionStream)
                     {
@@ -328,14 +329,18 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
                     }
                     else if (isTexCoordStream)
                     {
-                        texcoordStream = MeshStream::create("i_" + MeshStream::TEXCOORD_ATTRIBUTE + "_0", MeshStream::TEXCOORD_ATTRIBUTE, 0);
-                        mesh->addStream(texcoordStream);
+                        auto tcStream = MeshStream::create("i_" + MeshStream::TEXCOORD_ATTRIBUTE + "_" + std::to_string(streamIndex), MeshStream::TEXCOORD_ATTRIBUTE, streamIndex);
+                        mesh->addStream(tcStream);
                         if (vectorSize == 2)
                         {
-                            texcoordStream->setStride(MeshStream::STRIDE_2D);
+                            tcStream->setStride(MeshStream::STRIDE_2D);
                             desiredVectorSize = 2;
                         }
-                        geomStream = texcoordStream;
+                        geomStream = tcStream;
+                        if (streamIndex == 0)
+                        {
+                            texcoordStream = tcStream;
+                        }
                     }
                     else
                     {
