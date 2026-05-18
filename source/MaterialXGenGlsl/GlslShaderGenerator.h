@@ -73,6 +73,9 @@ class MX_GENGLSL_API GlslShaderGenerator : public HwShaderGenerator
 
     virtual HwResourceBindingContextPtr getResourceBindingContext(GenContext& context) const;
 
+    /// Emit common math library (shared between vertex and pixel stages)
+    virtual void emitCommonMathLibrary(GenContext& context, ShaderStage& stage) const;
+
     /// Emit specular environment lookup code
     virtual void emitSpecularEnvironment(GenContext& context, ShaderStage& stage) const;
 

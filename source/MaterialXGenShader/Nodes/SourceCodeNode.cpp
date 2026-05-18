@@ -92,25 +92,40 @@ void SourceCodeNode::emitFunctionDefinition(const ShaderNode&, GenContext& conte
         return;
     }
 
-    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
+    // Emit function definitions for vertex stage only when displacement
+    // is being evaluated, and always for pixel stage.
+    if (stage.getName() != Stage::PIXEL && !context.getEmitVertexDisplacement())
     {
-        if (!stage.hasSourceDependency(_sourceFilename))
-        {
-            const ShaderGenerator& shadergen = context.getShaderGenerator();
-            shadergen.emitBlock(_functionSource, _sourceFilename, context, stage);
-            shadergen.emitLineBreak(stage);
-            stage.addSourceDependency(_sourceFilename);
-        }
+        return;
+    }
+
+    if (!stage.hasSourceDependency(_sourceFilename))
+    {
+        const ShaderGenerator& shadergen = context.getShaderGenerator();
+        shadergen.emitBlock(_functionSource, _sourceFilename, context, stage);
+        shadergen.emitLineBreak(stage);
+        stage.addSourceDependency(_sourceFilename);
     }
 }
 
 void SourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
+    // Allow vertex stage emission when displacement is being evaluated.
+    // The GlslShaderGenerator sets this flag around the displacement
+    // dependency emission loop.
+    if (stage.getName() != Stage::PIXEL &&
+        !(stage.getName() == Stage::VERTEX && context.getEmitVertexDisplacement()))
+    {
+        return;
+    }
+    if (stage.getName() == Stage::VERTEX && nodeOutputIsClosure(node))
+    {
+        return;
+    }
     {
         const ShaderGenerator& shadergen = context.getShaderGenerator();
 
-        if (nodeOutputIsClosure(node))
+        if (stage.getName() == Stage::PIXEL && nodeOutputIsClosure(node))
         {
             // Emit calls for any closure dependencies upstream from this nodedef
             shadergen.emitDependentFunctionCalls(node, context, stage, ShaderNode::Classification::CLOSURE);

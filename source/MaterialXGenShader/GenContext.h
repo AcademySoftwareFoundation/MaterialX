@@ -204,6 +204,13 @@ class MX_GENSHADER_API GenContext
         return _applicationVariableHandler;
     }
 
+    /// Set whether vertex displacement emission is active.
+    /// When true, SourceCodeNode emits in vertex stage for displacement deps.
+    void setEmitVertexDisplacement(bool value) { _emitVertexDisplacement = value; }
+
+    /// Check if vertex displacement emission is active.
+    bool getEmitVertexDisplacement() const { return _emitVertexDisplacement; }
+
   protected:
     GenContext() = delete;
 
@@ -220,6 +227,7 @@ class MX_GENSHADER_API GenContext
     vector<ConstNodePtr> _parentNodes;
 
     ApplicationVariableHandler _applicationVariableHandler;
+    bool _emitVertexDisplacement = false;
 };
 
 /// A RAII class for overriding port variable names.

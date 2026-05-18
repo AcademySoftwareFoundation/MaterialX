@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+  <!-- Hybrid approach: nodegraph outputs the displacement offset as vector3,
+       top-level displacement node wraps it. Computation is shared via nodedef,
+       only the thin displacement wrapper is per-material. -->
+
+  <nodedef name="ND_DisplacedSurface" node="DisplacedSurface">
+    <input name="strength" type="float" value="0.0" />
+    <output name="out" type="surfaceshader" />
+    <output name="disp_offset" type="vector3" />
+  </nodedef>
+
+  <nodegraph name="NG_DisplacedSurface" nodedef="ND_DisplacedSurface">
+    <standard_surface name="surf" type="surfaceshader">
+      <input name="base_color" type="color3" value="0.8, 0.8, 0.8" />
+      <input name="specular_roughness" type="float" value="0.5" />
+    </standard_surface>
+
+    <normal name="normal1" type="vector3">
+      <input name="space" type="string" value="object" />
+    </normal>
+    <convert name="strength_to_vec3" type="vector3">
+      <input name="in" type="float" interfacename="strength" />
+    </convert>
+    <multiply name="offset" type="vector3">
+      <input name="in1" type="vector3" nodename="normal1" />
+      <input name="in2" type="vector3" nodename="strength_to_vec3" />
+    </multiply>
+
+    <output name="out" type="surfaceshader" nodename="surf" />
+    <output name="disp_offset" type="vector3" nodename="offset" />
+  </nodegraph>
+
+  <!-- Material 1: strength 0.2 -->
+  <DisplacedSurface name="mat1_shader" type="multioutput">
+    <input name="strength" type="float" value="0.2" />
+  </DisplacedSurface>
+  <displacement name="mat1_disp" type="displacementshader">
+    <input name="displacement" type="vector3" nodename="mat1_shader" output="disp_offset" />
+  </displacement>
+  <surfacematerial name="displaced_mat_1" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="mat1_shader" output="out" />
+    <input name="displacementshader" type="displacementshader" nodename="mat1_disp" />
+  </surfacematerial>
+
+  <!-- Material 2: strength 0.5 -->
+  <DisplacedSurface name="mat2_shader" type="multioutput">
+    <input name="strength" type="float" value="0.5" />
+  </DisplacedSurface>
+  <displacement name="mat2_disp" type="displacementshader">
+    <input name="displacement" type="vector3" nodename="mat2_shader" output="disp_offset" />
+  </displacement>
+  <surfacematerial name="displaced_mat_2" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="mat2_shader" output="out" />
+    <input name="displacementshader" type="displacementshader" nodename="mat2_disp" />
+  </surfacematerial>
+</materialx>

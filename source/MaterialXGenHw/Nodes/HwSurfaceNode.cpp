@@ -87,7 +87,8 @@ void HwSurfaceNode::emitFunctionCall(const ShaderNode& node, GenContext& context
         if (!position->isEmitted())
         {
             position->setEmitted();
-            shadergen.emitLine(prefix + position->getVariable() + " = hPositionWorld.xyz", stage);
+            shadergen.emitLine(prefix + position->getVariable() + " = (" +
+                               HW::T_WORLD_MATRIX + " * "+syntax.getTypeName(Type::VECTOR4)+"(" + HW::T_IN_POSITION + ", 1.0)).xyz", stage);
         }
         ShaderPort* normal = vertexData[HW::T_NORMAL_WORLD];
         if (!normal->isEmitted())
@@ -119,7 +120,28 @@ void HwSurfaceNode::emitFunctionCall(const ShaderNode& node, GenContext& context
 
         shadergen.emitScopeBegin(stage);
 
-        shadergen.emitLine(vec3+" N = normalize(" + prefix + HW::T_NORMAL_WORLD + ")", stage);
+        // Check if displacement is active by looking for the displacement
+        // marker in the vertex data. When active, recompute the geometric
+        // normal from screen-space derivatives of the displaced world position.
+        bool hasDisplacement = false;
+        for (size_t vi = 0; vi < vertexData.size(); ++vi)
+        {
+            if (vertexData[vi]->getVariable() == HW::T_DISPLACEMENT_ACTIVE)
+            {
+                hasDisplacement = true;
+                break;
+            }
+        }
+        if (hasDisplacement)
+        {
+            shadergen.emitComment("Recompute normal from displaced surface using screen-space derivatives", stage);
+            shadergen.emitLine(vec3+" N = normalize(cross(dFdx(" + prefix + HW::T_POSITION_WORLD + "), "
+                               "dFdy(" + prefix + HW::T_POSITION_WORLD + ")))", stage);
+        }
+        else
+        {
+            shadergen.emitLine(vec3+" N = normalize(" + prefix + HW::T_NORMAL_WORLD + ")", stage);
+        }
         shadergen.emitLine(vec3+" V = normalize(" + HW::T_VIEW_POSITION + " - " + prefix + HW::T_POSITION_WORLD + ")", stage);
         shadergen.emitLine(vec3+" P = " + prefix + HW::T_POSITION_WORLD, stage);
         shadergen.emitLine(vec3+" L = "+vec3_zero, stage);

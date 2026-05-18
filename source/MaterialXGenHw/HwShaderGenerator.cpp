@@ -37,6 +37,7 @@ HwShaderGenerator::HwShaderGenerator(TypeSystemPtr typeSystem, SyntaxPtr syntax)
     _tokenSubstitutions[HW::T_IN_GEOMPROP] = HW::IN_GEOMPROP;
     _tokenSubstitutions[HW::T_IN_COLOR] = HW::IN_COLOR;
     _tokenSubstitutions[HW::T_POSITION_WORLD] = HW::POSITION_WORLD;
+    _tokenSubstitutions[HW::T_DISPLACEMENT_ACTIVE] = HW::DISPLACEMENT_ACTIVE;
     _tokenSubstitutions[HW::T_NORMAL_WORLD] = HW::NORMAL_WORLD;
     _tokenSubstitutions[HW::T_TANGENT_WORLD] = HW::TANGENT_WORLD;
     _tokenSubstitutions[HW::T_BITANGENT_WORLD] = HW::BITANGENT_WORLD;

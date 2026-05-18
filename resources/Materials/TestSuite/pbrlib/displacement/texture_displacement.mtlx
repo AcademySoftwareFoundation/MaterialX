@@ -1,0 +1,111 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+  <!-- Procedural displacement test: builds spherical bump offsets from tiled UVs
+       and colors the surface from the same distance-offset signal. -->
+  <texcoord name="texcoord1" type="vector2" />
+
+  <multiply name="scaled_uv" type="vector2">
+    <input name="in1" type="vector2" nodename="texcoord1" />
+    <input name="in2" type="vector2" value="8, 4" />
+  </multiply>
+  <fract name="cell_uv" type="vector2">
+    <input name="in" type="vector2" nodename="scaled_uv" />
+  </fract>
+  <floor name="cell_id" type="vector2">
+    <input name="in" type="vector2" nodename="scaled_uv" />
+  </floor>
+  <subtract name="centered_uv" type="vector2">
+    <input name="in1" type="vector2" nodename="cell_uv" />
+    <input name="in2" type="vector2" value="0.5, 0.5" />
+  </subtract>
+  <magnitude name="distance_from_center" type="float">
+    <input name="in" type="vector2" nodename="centered_uv" />
+  </magnitude>
+
+  <extract name="cell_x" type="float">
+    <input name="in" type="vector2" nodename="cell_id" />
+    <input name="index" type="integer" value="0" />
+  </extract>
+  <extract name="cell_y" type="float">
+    <input name="in" type="vector2" nodename="cell_id" />
+    <input name="index" type="integer" value="1" />
+  </extract>
+  <multiply name="seed_x" type="float">
+    <input name="in1" type="float" nodename="cell_x" />
+    <input name="in2" type="float" value="12.9898" />
+  </multiply>
+  <multiply name="seed_y" type="float">
+    <input name="in1" type="float" nodename="cell_y" />
+    <input name="in2" type="float" value="78.233" />
+  </multiply>
+  <add name="seed" type="float">
+    <input name="in1" type="float" nodename="seed_x" />
+    <input name="in2" type="float" nodename="seed_y" />
+  </add>
+  <sin name="seed_sin" type="float">
+    <input name="in" type="float" nodename="seed" />
+  </sin>
+  <multiply name="seed_scaled" type="float">
+    <input name="in1" type="float" nodename="seed_sin" />
+    <input name="in2" type="float" value="43758.5453" />
+  </multiply>
+  <fract name="cell_random" type="float">
+    <input name="in" type="float" nodename="seed_scaled" />
+  </fract>
+  <mix name="bump_radius" type="float">
+    <input name="fg" type="float" value="0.49" />
+    <input name="bg" type="float" value="0.34" />
+    <input name="mix" type="float" nodename="cell_random" />
+  </mix>
+
+  <divide name="normalized_distance" type="float">
+    <input name="in1" type="float" nodename="distance_from_center" />
+    <input name="in2" type="float" nodename="bump_radius" />
+  </divide>
+  <multiply name="distance_squared" type="float">
+    <input name="in1" type="float" nodename="normalized_distance" />
+    <input name="in2" type="float" nodename="normalized_distance" />
+  </multiply>
+  <subtract name="sphere_profile" type="float">
+    <input name="in1" type="float" value="1.0" />
+    <input name="in2" type="float" nodename="distance_squared" />
+  </subtract>
+  <clamp name="sphere_profile_clamped" type="float">
+    <input name="in" type="float" nodename="sphere_profile" />
+    <input name="low" type="float" value="0.0" />
+    <input name="high" type="float" value="1.0" />
+  </clamp>
+  <sqrt name="height_value" type="float">
+    <input name="in" type="float" nodename="sphere_profile_clamped" />
+  </sqrt>
+
+  <mix name="low_to_mid_color" type="color3">
+    <input name="fg" type="color3" value="0.90, 0.66, 0.20" />
+    <input name="bg" type="color3" value="0.08, 0.16, 0.20" />
+    <input name="mix" type="float" nodename="height_value" />
+  </mix>
+  <smoothstep name="highlight_mix" type="float">
+    <input name="in" type="float" nodename="height_value" />
+    <input name="low" type="float" value="0.55" />
+    <input name="high" type="float" value="0.95" />
+  </smoothstep>
+  <mix name="bump_color" type="color3">
+    <input name="fg" type="color3" value="1.0, 0.97, 0.70" />
+    <input name="bg" type="color3" nodename="low_to_mid_color" />
+    <input name="mix" type="float" nodename="highlight_mix" />
+  </mix>
+
+  <standard_surface name="surf" type="surfaceshader">
+    <input name="base_color" type="color3" nodename="bump_color" />
+    <input name="specular_roughness" type="float" value="0.4" />
+  </standard_surface>
+
+  <displacement name="disp1" type="displacementshader">
+    <input name="displacement" type="float" nodename="height_value" />
+    <input name="scale" type="float" value="0.16" />
+  </displacement>
+  <surfacematerial name="texdisp_mat" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="surf" />
+    <input name="displacementshader" type="displacementshader" nodename="disp1" />
+  </surfacematerial>
+</materialx>
