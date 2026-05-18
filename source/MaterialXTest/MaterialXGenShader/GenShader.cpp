@@ -452,4 +452,3 @@ TEST_CASE("GenShader: Track Application Variables", "[genshader]")
     }
 #endif
 }
-
