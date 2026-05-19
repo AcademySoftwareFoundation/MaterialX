@@ -46,7 +46,7 @@ jobs:
           compiler: gcc
           compiler_version: "14"
           python: 3.14
-          render_captures: ON
+          tool_render_captures: ON
 
         - name: Linux_GCC_CoverageAnalysis
           os: ubuntu-24.04
@@ -82,7 +82,7 @@ jobs:
           compiler: xcode
           compiler_version: "16.4"
           python: 3.13
-          render_captures: ON
+          tool_render_captures: ON
           extended_build_osl: ON
           cmake_config: -DMATERIALX_TEST_RENDER_GLSL=OFF
           extended_cmake_config: -DMATERIALX_TEST_REFERENCE_QUALITY=ON
@@ -316,33 +316,33 @@ jobs:
         cppcheck --project=build/compile_commands.json --error-exitcode=1 --suppress=normalCheckLevelMaxBranches --suppress=*:*/External/* --suppress=*:*/NanoGUI/* --suppress=*:*perfetto*
 
     - name: Setup Rendering Environment (Linux)
-      if: (matrix.render_captures == 'ON' || matrix.extended_build_osl == 'ON') && runner.os == 'Linux'
+      if: (matrix.tool_render_captures == 'ON' || matrix.extended_build_osl == 'ON') && runner.os == 'Linux'
       run: |
         Xvfb :1 -screen 0 1280x960x24 &
         echo "DISPLAY=:1" >> $GITHUB_ENV
         echo "LIBGL_ALWAYS_SOFTWARE=1" >> $GITHUB_ENV
 
     - name: Setup Rendering Environment (MacOS)
-      if: (matrix.render_captures == 'ON' || matrix.extended_build_osl == 'ON') && runner.os == 'macOS' && env.IS_EXTENDED_BUILD == 'true'
+      if: (matrix.tool_render_captures == 'ON' || matrix.extended_build_osl == 'ON') && runner.os == 'macOS' && env.IS_EXTENDED_BUILD == 'true'
       run: |
         echo "MTL_DEBUG_LAYER=1" >> $GITHUB_ENV
 
     - name: Run Render Scripts
-      if: matrix.render_captures == 'ON'
+      if: matrix.tool_render_captures == 'ON'
       run: |
         mkdir build/render
         python python/Scripts/baketextures.py resources/Materials/Examples/StandardSurface/standard_surface_brass_tiled.mtlx build/render/brass_average_baked.mtlx --average
         python python/Scripts/translateshader.py resources/Materials/Examples/StandardSurface/standard_surface_carpaint.mtlx build/render/usd_preview_surface_carpaint.mtlx UsdPreviewSurface --hdr
 
     - name: Capture Viewer Renders
-      if: matrix.render_captures == 'ON'
+      if: matrix.tool_render_captures == 'ON'
       run: |
         ../installed/bin/MaterialXView --material brass_average_baked.mtlx --mesh ../../resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --shadowMap false --captureFilename Viewer_BrassAverage.png
         ../installed/bin/MaterialXView --material usd_preview_surface_carpaint.mtlx --mesh ../../resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --shadowMap false --captureFilename Viewer_CarpaintTranslated.png
       working-directory: build/render
 
     - name: Capture Graph Editor Renders
-      if: matrix.render_captures == 'ON' && runner.os == 'Linux'
+      if: matrix.tool_render_captures == 'ON' && runner.os == 'Linux'
       run: |
         ../installed/bin/MaterialXGraphEditor --material ../../resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --viewWidth 128 --viewHeight 128 --captureFilename GraphEditor_MarbleSolid.png
       working-directory: build/render
@@ -391,7 +391,7 @@ jobs:
 
     - name: Upload Render Captures
       uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
-      if: matrix.render_captures == 'ON'
+      if: matrix.tool_render_captures == 'ON'
       with:
         name: MaterialX_RenderCaptures_${{ matrix.name }}
         path: build/render/*.png
