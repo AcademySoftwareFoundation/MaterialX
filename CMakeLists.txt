@@ -50,6 +50,7 @@ option(MATERIALX_BUILD_OIIO "Build OpenImageIO support for MaterialXRender." OFF
 option(MATERIALX_BUILD_OCIO "Build OpenColorIO support for shader generators." OFF)
 option(MATERIALX_BUILD_TESTS "Build unit tests." OFF)
 option(MATERIALX_BUILD_BENCHMARK_TESTS "Build benchmark tests." OFF)
+option(MATERIALX_BUILD_FUZZ_TESTS "Build Google FuzzTest fuzz tests for the XML I/O layer." OFF)
 option(MATERIALX_BUILD_OSOS "Build OSL .oso's of standard library shaders for the OSL Network generator" OFF)
 option(MATERIALX_BUILD_PERFETTO_TRACING "Build with Perfetto tracing support for performance analysis." OFF)
 
@@ -376,6 +377,14 @@ else()
         add_compile_options(${DYNAMIC_ANALYSIS_OPTIONS})
         add_link_options(${DYNAMIC_ANALYSIS_OPTIONS})
     endif()
+    if(MATERIALX_BUILD_FUZZ_TESTS AND FUZZTEST_FUZZING_MODE)
+        # Add SanitizerCoverage instrumentation to all MaterialX libraries.
+        # -fsanitize=fuzzer-no-link injects edge counters and cmp tables without
+        # linking any fuzzer runtime — FuzzTest's own engine reads those counters
+        # to guide mutation.
+        add_compile_options(-fsanitize=fuzzer-no-link)
+        add_link_options(-fsanitize=fuzzer-no-link)
+    endif()
     if(MATERIALX_BUILD_JS)
         if (CMAKE_BUILD_TYPE MATCHES Debug)
             add_compile_options(-fexceptions)
@@ -600,6 +609,29 @@ endif()
 # Add test subdirectory
 if(MATERIALX_BUILD_TESTS)
     add_subdirectory(source/MaterialXTest)
+endif()
+
+# Add Google FuzzTest subdirectory
+if(MATERIALX_BUILD_FUZZ_TESTS)
+    include(FetchContent)
+    FetchContent_Declare(
+        fuzztest
+        GIT_REPOSITORY https://github.com/google/fuzztest.git
+        GIT_TAG        main
+        SYSTEM
+    )
+
+    # CMake propagates the current directory's COMPILE_OPTIONS into every
+    # subdirectory added from this point. Temporarily clear them before fetching
+    # FuzzTest so that FuzzTest, abseil, re2, and googletest compile with their
+    # own warning policies rather than MaterialX's -Wshadow/-Wunused-parameter/etc.
+    # Restore afterwards so source/MaterialXFuzz still gets the full set.
+    get_directory_property(_mx_saved_compile_options COMPILE_OPTIONS)
+    set_directory_properties(PROPERTIES COMPILE_OPTIONS "")
+    FetchContent_MakeAvailable(fuzztest)
+    set_directory_properties(PROPERTIES COMPILE_OPTIONS "${_mx_saved_compile_options}")
+
+    add_subdirectory(source/MaterialXFuzz)
 endif()
 
 if (MATERIALX_BUILD_DOCS)
