@@ -229,7 +229,11 @@ jobs:
 
     - name: Install Python Dependencies
       if: matrix.python != 'None'
-      run: pip install setuptools ${{ env.IS_EXTENDED_BUILD == 'true' && matrix.extended_build_osl == 'ON' && 'Pillow' || '' }}
+      run: pip install setuptools
+
+    - name: Install Render Test Dependencies
+      if: env.IS_EXTENDED_BUILD == 'true' && matrix.extended_build_osl == 'ON'
+      run: pip install -r python/MaterialXTest/requirements.txt
 
     - name: Run Clang Format
       if: matrix.clang_format == 'ON'
