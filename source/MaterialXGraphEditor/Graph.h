@@ -272,6 +272,11 @@ class Graph
 
     void showHelp() const;
 
+    // A compile-time constant member variable that corresponds to the function below. Defined in header as visibility is desirable here.
+    static constexpr char HELP_MARKER_TEXT[] = "(?)";
+    // Static helper function to draw a marker via ImGui which shows a tooltip when hovered
+    static void drawHelpMarker(const char* content);
+
     // Static helper function to display tooltips for headers in an ImGui table
     template <std::size_t N> static void drawTableHeadersRowWithTooltips(const std::array<const char*, N>& tooltips)
     {

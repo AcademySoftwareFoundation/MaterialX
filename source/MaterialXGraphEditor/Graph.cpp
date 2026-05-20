@@ -3671,6 +3671,8 @@ void Graph::propertyEditor()
         if (const auto& currTokenMap = _currUiNode->getUiTokenMap(); !currTokenMap.empty())
         {
             ImGui::Text("Tokens");
+            ImGui::SameLine();
+            drawHelpMarker("All tokens that are within scope of the selected node. Token values will be string-substituted into listed 'Affected Inputs'.");
 
             int tokenCount = static_cast<int>(currTokenMap.size() + 1u); // Add 1 to account for header row
             ImVec2 tableHeight(0.0f, TEXT_BASE_HEIGHT * std::min(SCROLL_LINE_COUNT, tokenCount));
@@ -3686,7 +3688,7 @@ void Graph::propertyEditor()
                 ImGui::TableSetupColumn("Affected Inputs");
 
                 // Set tooltips for each of table's columns
-                constexpr std::array tableHeadersTooltips = { "", "Press <enter> to set token value.", "", "" };
+                constexpr std::array tableHeadersTooltips = { "", "Press <enter> to set token value.", "The graph element where the token is declared.", "Node inputs which reference the token." };
                 drawTableHeadersRowWithTooltips(tableHeadersTooltips);
 
                 for (const auto& [tokenName, tokenPtr] : currTokenMap)
@@ -3783,6 +3785,20 @@ void Graph::showHelp() const
         ImGui::BulletText("\"Show all inputs\" Will toggle between showing all inputs and\n only those that have been modified.");
         ImGui::BulletText("\"Node Info\" Will toggle showing node information.");
     }
+}
+void Graph::drawHelpMarker(const char* content)
+{
+    constexpr float WRAP_POSITION = 32.f;
+
+    ImGui::TextDisabled(HELP_MARKER_TEXT); // Draw help marker
+    if (!ImGui::IsItemHovered())
+        return; // If help marker isn't hovered return early
+
+    ImGui::BeginTooltip();
+    ImGui::PushTextWrapPos(ImGui::GetFontSize() * WRAP_POSITION);
+    ImGui::TextUnformatted(content);
+    ImGui::PopTextWrapPos();
+    ImGui::EndTooltip();
 }
 
 void Graph::addNodePopup(bool cursor)
