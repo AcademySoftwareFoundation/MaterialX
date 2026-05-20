@@ -272,6 +272,30 @@ class Graph
 
     void showHelp() const;
 
+    // Static helper function to display tooltips for headers in an ImGui table
+    template <std::size_t N> static void drawTableHeadersRowWithTooltips(const std::array<const char*, N>& tooltips)
+    {
+        const int columnCount = ImGui::TableGetColumnCount();
+        if (columnCount == 0 || columnCount != N)
+            return; // Given array size should match number of columns in table
+
+        ImGui::TableNextRow(ImGuiTableRowFlags_Headers);
+        for (int col = 0; col < columnCount; ++col)
+        {
+            if (!ImGui::TableSetColumnIndex(col))
+                continue;                                       // Do not draw if column is not visible
+            ImGui::TableHeader(ImGui::TableGetColumnName(col)); // Header name
+
+            std::string colTooltip = tooltips[col];
+            if (!colTooltip.empty() && ImGui::IsItemHovered())
+            {
+                ImGui::BeginTooltip();
+                ImGui::TextUnformatted(tooltips[col]);
+                ImGui::EndTooltip();
+            }
+        }
+    }
+
   private:
     mx::StringVec _geomFilter;
     mx::StringVec _mtlxFilter;
@@ -357,5 +381,4 @@ class Graph
     // Options
     bool _saveNodePositions;
 };
-
 #endif

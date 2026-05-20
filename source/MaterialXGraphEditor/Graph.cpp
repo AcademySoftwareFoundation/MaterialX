@@ -14,7 +14,6 @@
 
 #include <cctype>
 #include <iostream>
-#include <numeric>
 
 namespace
 {
@@ -1011,7 +1010,7 @@ void Graph::showPropertyEditorValue(UiNodePtr node, mx::InputPtr input, const mx
                 nodeInput->setValue(temp, nodeInput->getType());
                 updateMaterials();
 
-                _currUiNode->buildUiTokenMap(); // re-build token map
+                _currUiNode->buildUiTokenMap(); // Re-build token map
             }
         }
     }
@@ -1095,7 +1094,7 @@ void Graph::setUiNodeInfo(UiNodePtr node, const std::string& type, const std::st
                 }
             }
 
-            node->buildUiTokenMap(); // Build token map for the first time
+            node->buildUiTokenMap(); // Build initial token map
         }
         else if (node->getInput())
         {
@@ -3668,14 +3667,16 @@ void Graph::propertyEditor()
             showPropertyEditorOutputConnections(_currUiNode);;
         }
 
+        // Draw token table
         if (const auto& currTokenMap = _currUiNode->getUiTokenMap(); !currTokenMap.empty())
         {
             ImGui::Text("Tokens");
 
-            int tokenCount = static_cast<int>(currTokenMap.size() + 1u);
-            ImVec2 tableSize(0.0f, TEXT_BASE_HEIGHT * std::min(SCROLL_LINE_COUNT, tokenCount));
+            int tokenCount = static_cast<int>(currTokenMap.size() + 1u); // Add 1 to account for header row
+            ImVec2 tableHeight(0.0f, TEXT_BASE_HEIGHT * std::min(SCROLL_LINE_COUNT, tokenCount));
 
-            if (ImGui::BeginTable("tokens_node_table", 4, tableFlags, tableSize))
+            // Use `ImGuiTableFlags_SizingFixedFit` to set default column width to fit content
+            if (ImGui::BeginTable("tokens_node_table", 4, tableFlags | ImGuiTableFlags_SizingFixedFit, tableHeight))
             {
                 ImGui::SetWindowFontScale(_fontScale);
 
@@ -3684,34 +3685,42 @@ void Graph::propertyEditor()
                 ImGui::TableSetupColumn("Source Element");
                 ImGui::TableSetupColumn("Affected Inputs");
 
-                ImGui::TableHeadersRow();
+                // Set tooltips for each of table's columns
+                constexpr std::array tableHeadersTooltips = { "", "Press <enter> to set token value.", "", "" };
+                drawTableHeadersRowWithTooltips(tableHeadersTooltips);
 
-                for (const auto& [tokenName, uiToken] : currTokenMap)
+                for (const auto& [tokenName, tokenPtr] : currTokenMap)
                 {
-                    ImGui::TableNextRow();
-                    ImGui::TableNextColumn();
+                    ImGui::TableNextRow(); // Start new row
                     ImGui::PushID(&tokenName);
+
+                    // Name
+                    ImGui::TableNextColumn();
                     ImGui::Text("%s", tokenName.c_str());
 
+                    // Value
                     ImGui::TableNextColumn();
-                    std::string uiTokenValue = uiToken->getValue();
-                    if (ImGui::InputText("##token_value", &uiTokenValue, ImGuiInputTextFlags_EnterReturnsTrue))
+                    std::string tokenValue = tokenPtr->getValue();
+
+                    if (ImGui::InputText("##token_value", &tokenValue, ImGuiInputTextFlags_EnterReturnsTrue))
                     {
-                        uiToken->setValue(uiTokenValue); // Write out new token value
+                        tokenPtr->setValue(tokenValue);  // Write out new token value
                         updateMaterials();               // Trigger update of material
                     }
 
+                    // Source Element
                     ImGui::TableNextColumn();
-                    ImGui::Text("%s", uiToken->getSourceElementString().c_str());
+                    ImGui::Text("%s", tokenPtr->getSourceElementString().c_str());
 
+                    // Affected Inputs
                     ImGui::TableNextColumn();
-                    ImGui::Text("%s", uiToken->getAffectedInputsString().c_str());
+                    ImGui::Text("%s", tokenPtr->getAffectedInputsString().c_str());
 
                     ImGui::PopID();
                 }
 
                 ImGui::EndTable();
-                ImGui::SetWindowFontScale(1.0f);
+                ImGui::SetWindowFontScale(1.0f); // Restore font scale
             }
         }
 
