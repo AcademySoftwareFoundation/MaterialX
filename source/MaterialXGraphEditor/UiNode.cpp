@@ -119,13 +119,18 @@ void UiNode::buildUiTokenMap()
         {
             handleTokenMapping(interfaceElem, currElem);
 
-            // If the node is a nodegraph, also check for tokens on corresponding nodedef
+            // If the node is a nodegraph, check for tokens on corresponding nodedef
             if (mx::ConstNodeGraphPtr nodegraph = currElem->asA<mx::NodeGraph>())
             {
                 if (mx::NodeDefPtr nodedef = nodegraph->getNodeDef())
-                {
                     handleTokenMapping(nodedef, nodedef);
-                }
+            }
+            
+            // If the node is a custom node instance, check for tokens on corresponding nodedef
+            if (mx::NodePtr node = currElem->asA<mx::Node>())
+            {
+                if (mx::NodeDefPtr nodedef = node->getNodeDef())
+                    handleTokenMapping(nodedef, nodedef);
             }
         }
         currElem = currElem->getParent();
@@ -161,6 +166,7 @@ void UiNode::buildUiTokenMap()
         }
     }
 }
+
 // return the uiNode connected with input name
 UiNodePtr UiNode::getConnectedNode(const std::string& name)
 {
