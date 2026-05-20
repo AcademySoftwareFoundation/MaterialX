@@ -95,6 +95,72 @@ mx::NodeGraphPtr UiNode::getNodeGraph() const
     return _element ? _element->asA<mx::NodeGraph>() : nullptr;
 }
 
+void UiNode::buildUiTokenMap()
+{
+    _uiTokenMap.clear(); // Assume we want clean slate
+
+    mx::ElementPtr currNode = getNode();
+    while (currNode)
+    {
+        if (mx::ConstInterfaceElementPtr interfaceElem = currNode->asA<mx::InterfaceElement>())
+        {
+            std::vector<mx::TokenPtr> tokens = interfaceElem->getActiveTokens();
+            for (auto token : tokens)
+            {
+                std::string key = token->getName();
+                if (!_uiTokenMap.count(key)) // Do not allow parent values to override child values
+                {
+                    // Create a new entry in map
+                    _uiTokenMap[key] = std::make_shared<UiToken>(token, currNode);
+                }
+            }
+
+            // If the node is a nodegraph, also check for tokens on corresponding nodedef
+            if (mx::ConstNodeGraphPtr nodegraph = currNode->asA<mx::NodeGraph>())
+            {
+                if (mx::NodeDefPtr nodedef = nodegraph->getNodeDef())
+                {
+                    tokens = nodedef->getActiveTokens();
+                    for (auto token : tokens)
+                    {
+                        std::string key = token->getName();
+                        if (!_uiTokenMap.count(key)) // Do not allow parent values to override child values
+                        {
+                            // Create a new entry in map
+                            _uiTokenMap[key] = std::make_shared<UiToken>(token, currNode);
+                        }
+                    }
+                }
+            }
+        }
+        currNode = currNode->getParent();
+    }
+
+    // Traverse through inputs and determine which tokens their value depends on
+    for (const auto& input : getNode()->getActiveInputs())
+    {
+        if (input->getType() != "filename")
+            continue;
+
+        mx::StringResolverPtr inputResolver = input->createStringResolver();
+        const mx::StringMap& inputTokens = inputResolver->getFilenameSubstitutions();
+
+        mx::StringMap inputTokensRenormalized;
+        for (const auto& entry : inputTokens)
+        {
+            inputTokensRenormalized[entry.first] = entry.first.substr(1, entry.first.size() - 2);
+        }
+        
+        const std::string value = input->getValueString();
+        for (const auto& [key, value] : inputTokens)
+        {
+            if (value.find(key) != std::string::npos)
+            {
+                _uiTokenMap[inputTokensRenormalized[key]]->addAffectedInput(input);
+            }
+        }
+    }
+}
 // return the uiNode connected with input name
 UiNodePtr UiNode::getConnectedNode(const std::string& name)
 {
