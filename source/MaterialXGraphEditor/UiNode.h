@@ -189,7 +189,7 @@ class UiToken
     std::string getAffectedInputsString()
     {
         if (_isAffectedInputsDirty.load())
-            _buildAffectedInputsStream();
+            buildAffectedInputsStream();
         return _affectedInputsStream.str();
     }
 
@@ -205,7 +205,7 @@ class UiToken
     // Track whether changes were made to inputs in order to re-build stream accordingly
     std::atomic<bool> _isAffectedInputsDirty{ true };
 
-    void _buildAffectedInputsStream()
+    void buildAffectedInputsStream()
     {
         if (!_isAffectedInputsDirty.load())
             return;
