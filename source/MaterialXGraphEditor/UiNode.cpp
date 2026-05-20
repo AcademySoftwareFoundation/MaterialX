@@ -148,15 +148,20 @@ void UiNode::buildUiTokenMap()
         mx::StringMap inputTokensRenormalized;
         for (const auto& entry : inputTokens)
         {
+            // Store tokens without excess delimiters
             inputTokensRenormalized[entry.first] = entry.first.substr(1, entry.first.size() - 2);
         }
-        
-        const std::string value = input->getValueString();
-        for (const auto& [key, value] : inputTokens)
+
+        std::string inputValue = input->getValueString();
+        if (inputValue.empty() && input->hasInterfaceName())
+            inputValue = input->getInterfaceInput()->getValueString(); // Get value from referenced interface
+
+        for (const auto& entry : inputTokens)
         {
-            if (value.find(key) != std::string::npos)
+            if (inputValue.find(entry.first) != std::string::npos)
             {
-                _uiTokenMap[inputTokensRenormalized[key]]->addAffectedInput(input);
+                // Append to affected inputs of corresponding entry in token map
+                _uiTokenMap[inputTokensRenormalized[entry.first]]->addAffectedInput(input);
             }
         }
     }

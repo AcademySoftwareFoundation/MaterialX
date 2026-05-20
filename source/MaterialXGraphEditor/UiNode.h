@@ -10,6 +10,7 @@
 
 #include <imgui_node_editor.h>
 
+#include <atomic>
 #include <sstream>
 
 namespace mx = MaterialX;
@@ -185,24 +186,10 @@ class UiToken
         _isAffectedInputsDirty.store(true);
     }
 
-    void buildAffectedInputsStream()
-    {
-        if (!_isAffectedInputsDirty.load())
-            return;
-        _affectedInputsStream.clear();
-        for (size_t i = 0; i < _affectedInputs.size(); ++i)
-        {
-            _affectedInputsStream << _affectedInputs[i]->getName();
-            if (i < _affectedInputs.size() - 1)
-                _affectedInputsStream << ", ";
-        }
-        _isAffectedInputsDirty.store(false);
-    }
-
     std::string getAffectedInputsString()
     {
         if (_isAffectedInputsDirty.load())
-            buildAffectedInputsStream();
+            _buildAffectedInputsStream();
         return _affectedInputsStream.str();
     }
 
@@ -217,6 +204,20 @@ class UiToken
 
     // Track whether changes were made to inputs in order to re-build stream accordingly
     std::atomic<bool> _isAffectedInputsDirty{ true };
+
+    void _buildAffectedInputsStream()
+    {
+        if (!_isAffectedInputsDirty.load())
+            return;
+        _affectedInputsStream.clear();
+        for (size_t i = 0; i < _affectedInputs.size(); ++i)
+        {
+            _affectedInputsStream << _affectedInputs[i]->getName();
+            if (i < _affectedInputs.size() - 1)
+                _affectedInputsStream << ", ";
+        }
+        _isAffectedInputsDirty.store(false);
+    }
 };
 
 using UiTokenPtr = std::shared_ptr<UiToken>;
@@ -311,7 +312,7 @@ class UiNode
 
     const std::unordered_map<std::string, UiTokenPtr>& getUiTokenMap() const { return _uiTokenMap; }
 
-    // Build a map of relevant UI info for tokens in scope of this node
+    // Build a map of relevant UI info for tokens in scope of this node. Should be called lazily (i.e. only when needed)
     void buildUiTokenMap();
 
     // Edge collection accessors

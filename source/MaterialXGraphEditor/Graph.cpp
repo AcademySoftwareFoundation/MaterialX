@@ -1095,7 +1095,7 @@ void Graph::setUiNodeInfo(UiNodePtr node, const std::string& type, const std::st
                 }
             }
 
-            node->buildUiTokenMap();
+            node->buildUiTokenMap(); // Build token map for the first time
         }
         else if (node->getInput())
         {
@@ -3697,8 +3697,8 @@ void Graph::propertyEditor()
                     std::string uiTokenValue = uiToken->getValue();
                     if (ImGui::InputText("##token_value", &uiTokenValue, ImGuiInputTextFlags_EnterReturnsTrue))
                     {
-                        // Write out new token value
-                        uiToken->setValue(uiTokenValue);
+                        uiToken->setValue(uiTokenValue); // Write out new token value
+                        updateMaterials();               // Trigger update of material
                     }
 
                     ImGui::TableNextColumn();
