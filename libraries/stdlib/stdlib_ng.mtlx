@@ -3158,52 +3158,30 @@
     Output the maximum component of the incoming vector or color stream.
   -->
   <nodegraph name="NG_maxcomponent_color3" nodedef="ND_maxcomponent_color3">
-    <extract name="N_extract_0" type="float">
+    <separate3 name="N_separate" type="multioutput">
       <input name="in" type="color3" interfacename="in" />
-      <input name="index" type="integer" value="0" />
-    </extract>
-    <extract name="N_extract_1" type="float">
-      <input name="in" type="color3" interfacename="in" />
-      <input name="index" type="integer" value="1" />
-    </extract>
-    <extract name="N_extract_2" type="float">
-      <input name="in" type="color3" interfacename="in" />
-      <input name="index" type="integer" value="2" />
-    </extract>
+    </separate3>
     <max name="N_max_01" type="float">
-      <input name="in1" type="float" nodename="N_extract_0" />
-      <input name="in2" type="float" nodename="N_extract_1" />
+      <input name="in1" type="float" nodename="N_separate" output="outr" />
+      <input name="in2" type="float" nodename="N_separate" output="outg" />
     </max>
     <max name="N_max" type="float">
       <input name="in1" type="float" nodename="N_max_01" />
-      <input name="in2" type="float" nodename="N_extract_2" />
+      <input name="in2" type="float" nodename="N_separate" output="outb" />
     </max>
     <output name="out" type="float" nodename="N_max" />
   </nodegraph>
   <nodegraph name="NG_maxcomponent_color4" nodedef="ND_maxcomponent_color4">
-    <extract name="N_extract_0" type="float">
+    <separate4 name="N_separate" type="multioutput">
       <input name="in" type="color4" interfacename="in" />
-      <input name="index" type="integer" value="0" />
-    </extract>
-    <extract name="N_extract_1" type="float">
-      <input name="in" type="color4" interfacename="in" />
-      <input name="index" type="integer" value="1" />
-    </extract>
-    <extract name="N_extract_2" type="float">
-      <input name="in" type="color4" interfacename="in" />
-      <input name="index" type="integer" value="2" />
-    </extract>
-    <extract name="N_extract_3" type="float">
-      <input name="in" type="color4" interfacename="in" />
-      <input name="index" type="integer" value="3" />
-    </extract>
+    </separate4>
     <max name="N_max_01" type="float">
-      <input name="in1" type="float" nodename="N_extract_0" />
-      <input name="in2" type="float" nodename="N_extract_1" />
+      <input name="in1" type="float" nodename="N_separate" output="outr" />
+      <input name="in2" type="float" nodename="N_separate" output="outg" />
     </max>
     <max name="N_max_23" type="float">
-      <input name="in1" type="float" nodename="N_extract_2" />
-      <input name="in2" type="float" nodename="N_extract_3" />
+      <input name="in1" type="float" nodename="N_separate" output="outb" />
+      <input name="in2" type="float" nodename="N_separate" output="outa" />
     </max>
     <max name="N_max" type="float">
       <input name="in1" type="float" nodename="N_max_01" />
@@ -3212,67 +3190,40 @@
     <output name="out" type="float" nodename="N_max" />
   </nodegraph>
   <nodegraph name="NG_maxcomponent_vector2" nodedef="ND_maxcomponent_vector2">
-    <extract name="N_extract_0" type="float">
+    <separate2 name="N_separate" type="multioutput">
       <input name="in" type="vector2" interfacename="in" />
-      <input name="index" type="integer" value="0" />
-    </extract>
-    <extract name="N_extract_1" type="float">
-      <input name="in" type="vector2" interfacename="in" />
-      <input name="index" type="integer" value="1" />
-    </extract>
+    </separate2>
     <max name="N_max" type="float">
-      <input name="in1" type="float" nodename="N_extract_0" />
-      <input name="in2" type="float" nodename="N_extract_1" />
+      <input name="in1" type="float" nodename="N_separate" output="outx" />
+      <input name="in2" type="float" nodename="N_separate" output="outy" />
     </max>
     <output name="out" type="float" nodename="N_max" />
   </nodegraph>
   <nodegraph name="NG_maxcomponent_vector3" nodedef="ND_maxcomponent_vector3">
-    <extract name="N_extract_0" type="float">
+    <separate3 name="N_separate" type="multioutput">
       <input name="in" type="vector3" interfacename="in" />
-      <input name="index" type="integer" value="0" />
-    </extract>
-    <extract name="N_extract_1" type="float">
-      <input name="in" type="vector3" interfacename="in" />
-      <input name="index" type="integer" value="1" />
-    </extract>
-    <extract name="N_extract_2" type="float">
-      <input name="in" type="vector3" interfacename="in" />
-      <input name="index" type="integer" value="2" />
-    </extract>
+    </separate3>
     <max name="N_max_01" type="float">
-      <input name="in1" type="float" nodename="N_extract_0" />
-      <input name="in2" type="float" nodename="N_extract_1" />
+      <input name="in1" type="float" nodename="N_separate" output="outx" />
+      <input name="in2" type="float" nodename="N_separate" output="outy" />
     </max>
     <max name="N_max" type="float">
       <input name="in1" type="float" nodename="N_max_01" />
-      <input name="in2" type="float" nodename="N_extract_2" />
+      <input name="in2" type="float" nodename="N_separate" output="outz" />
     </max>
     <output name="out" type="float" nodename="N_max" />
   </nodegraph>
   <nodegraph name="NG_maxcomponent_vector4" nodedef="ND_maxcomponent_vector4">
-    <extract name="N_extract_0" type="float">
+    <separate4 name="N_separate" type="multioutput">
       <input name="in" type="vector4" interfacename="in" />
-      <input name="index" type="integer" value="0" />
-    </extract>
-    <extract name="N_extract_1" type="float">
-      <input name="in" type="vector4" interfacename="in" />
-      <input name="index" type="integer" value="1" />
-    </extract>
-    <extract name="N_extract_2" type="float">
-      <input name="in" type="vector4" interfacename="in" />
-      <input name="index" type="integer" value="2" />
-    </extract>
-    <extract name="N_extract_3" type="float">
-      <input name="in" type="vector4" interfacename="in" />
-      <input name="index" type="integer" value="3" />
-    </extract>
+    </separate4>
     <max name="N_max_01" type="float">
-      <input name="in1" type="float" nodename="N_extract_0" />
-      <input name="in2" type="float" nodename="N_extract_1" />
+      <input name="in1" type="float" nodename="N_separate" output="outx" />
+      <input name="in2" type="float" nodename="N_separate" output="outy" />
     </max>
     <max name="N_max_23" type="float">
-      <input name="in1" type="float" nodename="N_extract_2" />
-      <input name="in2" type="float" nodename="N_extract_3" />
+      <input name="in1" type="float" nodename="N_separate" output="outz" />
+      <input name="in2" type="float" nodename="N_separate" output="outw" />
     </max>
     <max name="N_max" type="float">
       <input name="in1" type="float" nodename="N_max_01" />
@@ -3286,52 +3237,30 @@
     Output the minimum component of the incoming vector or color stream.
   -->
   <nodegraph name="NG_mincomponent_color3" nodedef="ND_mincomponent_color3">
-    <extract name="N_extract_0" type="float">
+    <separate3 name="N_separate" type="multioutput">
       <input name="in" type="color3" interfacename="in" />
-      <input name="index" type="integer" value="0" />
-    </extract>
-    <extract name="N_extract_1" type="float">
-      <input name="in" type="color3" interfacename="in" />
-      <input name="index" type="integer" value="1" />
-    </extract>
-    <extract name="N_extract_2" type="float">
-      <input name="in" type="color3" interfacename="in" />
-      <input name="index" type="integer" value="2" />
-    </extract>
+    </separate3>
     <min name="N_min_01" type="float">
-      <input name="in1" type="float" nodename="N_extract_0" />
-      <input name="in2" type="float" nodename="N_extract_1" />
+      <input name="in1" type="float" nodename="N_separate" output="outr" />
+      <input name="in2" type="float" nodename="N_separate" output="outg" />
     </min>
     <min name="N_min" type="float">
       <input name="in1" type="float" nodename="N_min_01" />
-      <input name="in2" type="float" nodename="N_extract_2" />
+      <input name="in2" type="float" nodename="N_separate" output="outb" />
     </min>
     <output name="out" type="float" nodename="N_min" />
   </nodegraph>
   <nodegraph name="NG_mincomponent_color4" nodedef="ND_mincomponent_color4">
-    <extract name="N_extract_0" type="float">
+    <separate4 name="N_separate" type="multioutput">
       <input name="in" type="color4" interfacename="in" />
-      <input name="index" type="integer" value="0" />
-    </extract>
-    <extract name="N_extract_1" type="float">
-      <input name="in" type="color4" interfacename="in" />
-      <input name="index" type="integer" value="1" />
-    </extract>
-    <extract name="N_extract_2" type="float">
-      <input name="in" type="color4" interfacename="in" />
-      <input name="index" type="integer" value="2" />
-    </extract>
-    <extract name="N_extract_3" type="float">
-      <input name="in" type="color4" interfacename="in" />
-      <input name="index" type="integer" value="3" />
-    </extract>
+    </separate4>
     <min name="N_min_01" type="float">
-      <input name="in1" type="float" nodename="N_extract_0" />
-      <input name="in2" type="float" nodename="N_extract_1" />
+      <input name="in1" type="float" nodename="N_separate" output="outr" />
+      <input name="in2" type="float" nodename="N_separate" output="outg" />
     </min>
     <min name="N_min_23" type="float">
-      <input name="in1" type="float" nodename="N_extract_2" />
-      <input name="in2" type="float" nodename="N_extract_3" />
+      <input name="in1" type="float" nodename="N_separate" output="outb" />
+      <input name="in2" type="float" nodename="N_separate" output="outa" />
     </min>
     <min name="N_min" type="float">
       <input name="in1" type="float" nodename="N_min_01" />
@@ -3340,67 +3269,40 @@
     <output name="out" type="float" nodename="N_min" />
   </nodegraph>
   <nodegraph name="NG_mincomponent_vector2" nodedef="ND_mincomponent_vector2">
-    <extract name="N_extract_0" type="float">
+    <separate2 name="N_separate" type="multioutput">
       <input name="in" type="vector2" interfacename="in" />
-      <input name="index" type="integer" value="0" />
-    </extract>
-    <extract name="N_extract_1" type="float">
-      <input name="in" type="vector2" interfacename="in" />
-      <input name="index" type="integer" value="1" />
-    </extract>
+    </separate2>
     <min name="N_min" type="float">
-      <input name="in1" type="float" nodename="N_extract_0" />
-      <input name="in2" type="float" nodename="N_extract_1" />
+      <input name="in1" type="float" nodename="N_separate" output="outx" />
+      <input name="in2" type="float" nodename="N_separate" output="outy" />
     </min>
     <output name="out" type="float" nodename="N_min" />
   </nodegraph>
   <nodegraph name="NG_mincomponent_vector3" nodedef="ND_mincomponent_vector3">
-    <extract name="N_extract_0" type="float">
+    <separate3 name="N_separate" type="multioutput">
       <input name="in" type="vector3" interfacename="in" />
-      <input name="index" type="integer" value="0" />
-    </extract>
-    <extract name="N_extract_1" type="float">
-      <input name="in" type="vector3" interfacename="in" />
-      <input name="index" type="integer" value="1" />
-    </extract>
-    <extract name="N_extract_2" type="float">
-      <input name="in" type="vector3" interfacename="in" />
-      <input name="index" type="integer" value="2" />
-    </extract>
+    </separate3>
     <min name="N_min_01" type="float">
-      <input name="in1" type="float" nodename="N_extract_0" />
-      <input name="in2" type="float" nodename="N_extract_1" />
+      <input name="in1" type="float" nodename="N_separate" output="outx" />
+      <input name="in2" type="float" nodename="N_separate" output="outy" />
     </min>
     <min name="N_min" type="float">
       <input name="in1" type="float" nodename="N_min_01" />
-      <input name="in2" type="float" nodename="N_extract_2" />
+      <input name="in2" type="float" nodename="N_separate" output="outz" />
     </min>
     <output name="out" type="float" nodename="N_min" />
   </nodegraph>
   <nodegraph name="NG_mincomponent_vector4" nodedef="ND_mincomponent_vector4">
-    <extract name="N_extract_0" type="float">
+    <separate4 name="N_separate" type="multioutput">
       <input name="in" type="vector4" interfacename="in" />
-      <input name="index" type="integer" value="0" />
-    </extract>
-    <extract name="N_extract_1" type="float">
-      <input name="in" type="vector4" interfacename="in" />
-      <input name="index" type="integer" value="1" />
-    </extract>
-    <extract name="N_extract_2" type="float">
-      <input name="in" type="vector4" interfacename="in" />
-      <input name="index" type="integer" value="2" />
-    </extract>
-    <extract name="N_extract_3" type="float">
-      <input name="in" type="vector4" interfacename="in" />
-      <input name="index" type="integer" value="3" />
-    </extract>
+    </separate4>
     <min name="N_min_01" type="float">
-      <input name="in1" type="float" nodename="N_extract_0" />
-      <input name="in2" type="float" nodename="N_extract_1" />
+      <input name="in1" type="float" nodename="N_separate" output="outx" />
+      <input name="in2" type="float" nodename="N_separate" output="outy" />
     </min>
     <min name="N_min_23" type="float">
-      <input name="in1" type="float" nodename="N_extract_2" />
-      <input name="in2" type="float" nodename="N_extract_3" />
+      <input name="in1" type="float" nodename="N_separate" output="outz" />
+      <input name="in2" type="float" nodename="N_separate" output="outw" />
     </min>
     <min name="N_min" type="float">
       <input name="in1" type="float" nodename="N_min_01" />
