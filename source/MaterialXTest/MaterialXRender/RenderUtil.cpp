@@ -449,6 +449,18 @@ mx::FilePathVec ShaderRenderTester::collectTestFiles(const TestRunState& runStat
         return filtered;
     }
 
+    if (!runState.options.renderTestExcludeFiles.empty())
+    {
+        mx::FilePathVec filtered;
+        filtered.reserve(files.size());
+        for (const auto& f : files)
+        {
+            if (!runState.options.renderTestExcludeFiles.count(f.getBaseName()))
+                filtered.push_back(f);
+        }
+        return filtered;
+    }
+
     return files;
 }
 
