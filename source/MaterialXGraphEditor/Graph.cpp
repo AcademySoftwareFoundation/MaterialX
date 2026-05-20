@@ -3788,7 +3788,7 @@ void Graph::showHelp() const
 }
 void Graph::drawHelpMarker(const char* content)
 {
-    constexpr float WRAP_POSITION = 32.f;
+    constexpr float WRAP_POSITION = 32.f; // Compile-time definition of text-wrap position
 
     ImGui::TextDisabled(HELP_MARKER_TEXT); // Draw help marker
     if (!ImGui::IsItemHovered())
