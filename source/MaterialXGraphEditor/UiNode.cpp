@@ -97,43 +97,38 @@ mx::NodeGraphPtr UiNode::getNodeGraph() const
 
 void UiNode::buildUiTokenMap()
 {
+    // Helper inline lambda function to avoid repeating code for mapping of tokens declared on element itself vs on element's corresponding nodedef
+    auto handleTokenMapping = [&](const mx::ConstInterfaceElementPtr& interfaceElem, mx::ElementPtr sourceElem)
+    {
+        std::vector<mx::TokenPtr> tokens = interfaceElem->getActiveTokens();
+        for (auto token : tokens)
+        {
+            std::string key = token->getName();
+            
+            // Insert into map, but do not allow parent values to override child values
+            _uiTokenMap.try_emplace(key, std::make_shared<UiToken>(token, sourceElem));
+        }
+    };
+    
     _uiTokenMap.clear(); // Assume we want clean slate
 
-    mx::ElementPtr currNode = getNode();
-    while (currNode)
+    mx::ElementPtr currElem = getNode();
+    while (currElem)
     {
-        if (mx::ConstInterfaceElementPtr interfaceElem = currNode->asA<mx::InterfaceElement>())
+        if (mx::ConstInterfaceElementPtr interfaceElem = currElem->asA<mx::InterfaceElement>())
         {
-            std::vector<mx::TokenPtr> tokens = interfaceElem->getActiveTokens();
-            for (auto token : tokens)
-            {
-                std::string key = token->getName();
-                if (!_uiTokenMap.count(key)) // Do not allow parent values to override child values
-                {
-                    // Create a new entry in map
-                    _uiTokenMap[key] = std::make_shared<UiToken>(token, currNode);
-                }
-            }
+            handleTokenMapping(interfaceElem, currElem);
 
             // If the node is a nodegraph, also check for tokens on corresponding nodedef
-            if (mx::ConstNodeGraphPtr nodegraph = currNode->asA<mx::NodeGraph>())
+            if (mx::ConstNodeGraphPtr nodegraph = currElem->asA<mx::NodeGraph>())
             {
                 if (mx::NodeDefPtr nodedef = nodegraph->getNodeDef())
                 {
-                    tokens = nodedef->getActiveTokens();
-                    for (auto token : tokens)
-                    {
-                        std::string key = token->getName();
-                        if (!_uiTokenMap.count(key)) // Do not allow parent values to override child values
-                        {
-                            // Create a new entry in map
-                            _uiTokenMap[key] = std::make_shared<UiToken>(token, currNode);
-                        }
-                    }
+                    handleTokenMapping(nodedef, nodedef);
                 }
             }
         }
-        currNode = currNode->getParent();
+        currElem = currElem->getParent();
     }
 
     // Traverse through inputs and determine which tokens their value depends on
