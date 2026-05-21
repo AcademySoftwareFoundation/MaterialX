@@ -118,14 +118,14 @@
       <input name="in1" type="color3" value="1, 1, 1" />
       <input name="in2" type="color3" interfacename="transmission_color" />
     </ifgreater>
-    <multiply name="transmissionPower" type="float">
+    <multiply name="transmissionWeightSq" type="float">
       <input name="in1" type="float" interfacename="transmission" />
       <input name="in2" type="float" interfacename="transmission" />
     </multiply>
     <mix name="transmissionBaseColorMix" type="color3">
       <input name="fg" type="color3" nodename="transmissionBaseColor" />
       <input name="bg" type="color3" nodename="baseColor" />
-      <input name="mix" type="float" nodename="transmissionPower" />
+      <input name="mix" type="float" nodename="transmissionWeightSq" />
     </mix>
 
     <!-- Metallic  -->
