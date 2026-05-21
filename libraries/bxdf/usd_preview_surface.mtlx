@@ -50,6 +50,23 @@
     <output name="rgb" type="color3" />
   </nodedef>
 
+  <!-- adding variant with scale and bias defined as vector4 type - we may decide to remove the original version
+    in a future MaterialX version with an upgrade function -->
+  <nodedef name="ND_UsdUVTexture_23_vector4" node="UsdUVTexture" nodegroup="texture2d" version="2.3">
+    <input name="file" type="filename" value="" uniform="true" />
+    <input name="st" type="vector2" defaultgeomprop="UV0" />
+    <input name="wrapS" type="string" value="periodic" enum="black,clamp,periodic,mirror" uniform="true" />
+    <input name="wrapT" type="string" value="periodic" enum="black,clamp,periodic,mirror" uniform="true" />
+    <input name="fallback" type="color4" value="0, 0, 0, 1" />
+    <input name="scale" type="vector4" value="1, 1, 1, 1" uniform="true" />
+    <input name="bias" type="vector4" value="0, 0, 0, 0" uniform="true" />
+    <output name="r" type="float" />
+    <output name="g" type="float" />
+    <output name="b" type="float" />
+    <output name="a" type="float" />
+    <output name="rgb" type="color3" />
+  </nodedef>
+
   <!-- Node: UsdPrimvarReader -->
   <nodedef name="ND_UsdPrimvarReader_integer" nodegroup="geometric" node="UsdPrimvarReader">
     <input name="varname" type="string" value="" uniform="true" />
@@ -363,6 +380,41 @@
     </separate4>
     <convert name="image_bias_color3" type="color3">
       <input name="in" type="color4" nodename="image_bias" />
+    </convert>
+    <output name="r" type="float" nodename="image_bias_separate" output="outr" />
+    <output name="g" type="float" nodename="image_bias_separate" output="outg" />
+    <output name="b" type="float" nodename="image_bias_separate" output="outb" />
+    <output name="a" type="float" nodename="image_bias_separate" output="outa" />
+    <output name="rgb" type="color3" nodename="image_bias_color3" />
+  </nodegraph>
+
+  <nodegraph name="IMP_UsdUVTexture_23_vector4" nodedef="ND_UsdUVTexture_23_vector4">
+    <image name="image_reader" type="color4">
+      <input name="file" type="filename" interfacename="file" />
+      <input name="default" type="color4" interfacename="fallback" />
+      <input name="texcoord" type="vector2" interfacename="st" />
+      <input name="uaddressmode" type="string" interfacename="wrapS" />
+      <input name="vaddressmode" type="string" interfacename="wrapT" />
+    </image>
+    <convert name="convert_vector4" type="vector4">
+      <input name="in" type="color4" nodename="image_reader" />
+    </convert>
+    <multiply name="image_scale" type="vector4">
+      <input name="in1" type="vector4" nodename="convert_vector4" />
+      <input name="in2" type="vector4" interfacename="scale" />
+    </multiply>
+    <add name="image_bias" type="vector4">
+      <input name="in1" type="vector4" nodename="image_scale" />
+      <input name="in2" type="vector4" interfacename="bias" />
+    </add>
+    <convert name="comvert_color4" type="color4">
+      <input name="in" type="vector4" nodename="image_bias" />
+    </convert>
+    <separate4 name="image_bias_separate" type="multioutput" nodedef="ND_separate4_color4">
+      <input name="in" type="color4" nodename="comvert_color4" />
+    </separate4>
+    <convert name="image_bias_color3" type="color3">
+      <input name="in" type="color4" nodename="comvert_color4" />
     </convert>
     <output name="r" type="float" nodename="image_bias_separate" output="outr" />
     <output name="g" type="float" nodename="image_bias_separate" output="outg" />
