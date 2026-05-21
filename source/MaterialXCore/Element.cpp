@@ -827,7 +827,18 @@ bool ValueElement::validate(string* message) const
             validateRequire(valueElem != nullptr, res, message, "Interface name not found in referenced declaration");
             if (valueElem)
             {
-                validateRequire(getType() == valueElem->getType(), res, message, "Interface name refers to value element of a different type");
+                bool typesMatch = getType() == valueElem->getType();
+                if (!typesMatch)
+                {
+                    // if the types don't match - we might have an enumeration at the interface.
+                    if (valueElem->getType() == STRING_TYPE_STRING &&
+                        getType() == INTEGER_TYPE_STRING &&
+                        valueElem->hasAttribute(ValueElement::ENUM_ATTRIBUTE))
+                    {
+                        typesMatch = true;
+                    }
+                }
+                validateRequire(typesMatch, res, message, "Interface name refers to value element of a different type");
             }
         }
     }
