@@ -97,9 +97,9 @@ jobs:
           cmake_config: -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
         - name: MacOS_Xcode_DynamicAnalysis
-          os: macos-26
+          os: macos-15
           compiler: xcode
-          compiler_version: "26.0"
+          compiler_version: "16.4"
           python: None
           dynamic_analysis: ON
           cmake_config: -DMATERIALX_DYNAMIC_ANALYSIS=ON
