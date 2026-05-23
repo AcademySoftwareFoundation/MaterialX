@@ -97,19 +97,6 @@ mx::NodeGraphPtr UiNode::getNodeGraph() const
 
 void UiNode::buildUiTokenMap()
 {
-    // Helper inline lambda function to avoid repeating code for mapping of tokens declared on element itself vs on element's corresponding nodedef
-    auto handleTokenMapping = [&](const mx::ConstInterfaceElementPtr& interfaceElem, mx::ElementPtr sourceElem)
-    {
-        std::vector<mx::TokenPtr> tokens = interfaceElem->getActiveTokens();
-        for (auto token : tokens)
-        {
-            std::string key = token->getName();
-            
-            // Insert into map, but do not allow parent values to override child values
-            _uiTokenMap.try_emplace(key, std::make_shared<UiToken>(token, sourceElem));
-        }
-    };
-    
     _uiTokenMap.clear(); // Assume we want clean slate
 
     mx::ElementPtr currElem = getNode();
@@ -117,20 +104,20 @@ void UiNode::buildUiTokenMap()
     {
         if (mx::ConstInterfaceElementPtr interfaceElem = currElem->asA<mx::InterfaceElement>())
         {
-            handleTokenMapping(interfaceElem, currElem);
+            UiToken::applyTokenMapping(&_uiTokenMap, interfaceElem, currElem);
 
             // If the node is a nodegraph, check for tokens on corresponding nodedef
             if (mx::ConstNodeGraphPtr nodegraph = currElem->asA<mx::NodeGraph>())
             {
                 if (mx::NodeDefPtr nodedef = nodegraph->getNodeDef())
-                    handleTokenMapping(nodedef, nodedef);
+                    UiToken::applyTokenMapping(&_uiTokenMap, nodedef, nodedef);
             }
             
             // If the node is a custom node instance, check for tokens on corresponding nodedef
             if (mx::NodePtr node = currElem->asA<mx::Node>())
             {
                 if (mx::NodeDefPtr nodedef = node->getNodeDef())
-                    handleTokenMapping(nodedef, nodedef);
+                    UiToken::applyTokenMapping(&_uiTokenMap, nodedef, nodedef);
             }
         }
         currElem = currElem->getParent();

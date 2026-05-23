@@ -18,9 +18,11 @@ namespace ed = ax::NodeEditor;
 
 class UiNode;
 class UiPin;
+class UiToken;
 
 using UiNodePtr = std::shared_ptr<UiNode>;
 using UiPinPtr = std::shared_ptr<UiPin>;
+using UiTokenPtr = std::shared_ptr<UiToken>;
 
 // An edge between two UiNodes, storing the two nodes and connecting input.
 class UiEdge
@@ -194,6 +196,19 @@ class UiToken
     }
 
     const std::vector<mx::InputPtr>& getAffectedInputs() const { return _affectedInputs; };
+    
+    // Handle update of given map pointer by iterating through active tokens of an interface element
+    static void applyTokenMapping(std::unordered_map<std::string, UiTokenPtr>* uiTokenMapPtr, const mx::ConstInterfaceElementPtr& interfaceElem, mx::ElementPtr sourceElem)
+    {
+        std::vector<mx::TokenPtr> tokens = interfaceElem->getActiveTokens();
+        for (auto token : tokens)
+        {
+            std::string key = token->getName();
+
+            // Insert into map, but do not allow parent values to override child values
+            uiTokenMapPtr->try_emplace(key, std::make_shared<UiToken>(token, sourceElem));
+        }
+    }
 
   private:
     const mx::TokenPtr _tokenPtr;
@@ -219,8 +234,6 @@ class UiToken
         _isAffectedInputsDirty.store(false);
     }
 };
-
-using UiTokenPtr = std::shared_ptr<UiToken>;
 
 // The visual representation of a node in a graph.
 class UiNode
