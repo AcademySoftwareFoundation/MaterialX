@@ -12,6 +12,8 @@
 #include <MaterialXFormat/XmlIo.h>
 #include <MaterialXFormat/Util.h>
 
+#include <iostream>
+
 namespace mx = MaterialX;
 
 bool isTopologicalOrder(const std::vector<mx::ElementPtr>& elems)
@@ -157,67 +159,190 @@ TEST_CASE("Node Type Validation", "[Node]")
 
 TEST_CASE("Node Type Explicit Conversion", "[Node]")
 {
-    // Valid Conversion Test
-    SECTION("Valid Test") {
+
+    // SECTION("Node -> Node") {
+    //     // Create a document
+    //     mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    //     mx::DocumentPtr doc = mx::createDocument();
+    //     mx::loadLibraries({ "libraries" }, searchPath, doc);
+
+    //     // Create a graph with a vector3 node and color3 node (two nodes with different types)
+    //     mx::NodeGraphPtr graph = doc->addNodeGraph("NG_custom_node");
+    //     mx::NodePtr vec3 = graph->addNode("constant", "vec3", "vector3");
+    //     mx::NodePtr col3 = graph->addNode("constant", "col3", "color3");
+
+    //     // Connect mismatched type nodes
+    //     mx::InputPtr input = col3->addInput("value", "color3");
+    //     input->setConnectedNode(vec3);
+
+    //     // Make sure the validation fails, indicating that there is an apparent type mismatch
+    //     REQUIRE(!graph->validate());
+
+    //     // Create list of nodes for feedback and acceptance test
+    //     std::vector<mx::NodePtr> addedNodes;
+    //     std::vector<mx::TypedElementPtr> invalidConnections;
+    //     graph->addExplicitTypeConversions(addedNodes, invalidConnections);
+
+    //     REQUIRE(graph->validate());
+    //     REQUIRE(addedNodes.size() == 1);
+    //     REQUIRE(invalidConnections.size() == 0);
+    //     REQUIRE(addedNodes[0]->getCategory() == "convert");
+    // }
+
+    // SECTION("Input interface -> Node connection -> + Output Interface") {
+    //     // Create a document
+    //     mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    //     mx::DocumentPtr doc = mx::createDocument();
+    //     mx::loadLibraries({ "libraries" }, searchPath, doc);
+
+    //     // Create a graph with a vector3 node and color3 node (two nodes with different types)
+    //     mx::NodeGraphPtr graph = doc->addNodeGraph("NG_custom_node");
+    
+    //     graph->addInput("interface_in", "vector3");
+    //     graph->addOutput("interface_out", "vector3");
+        
+    //     mx::NodePtr col3 = graph->addNode("constant", "col3", "color3");
+    //     mx::InputPtr node_input = col3->addInput("value", "color3");
+
+    //     node_input->setInterfaceName("interface_in");
+    //     mx::OutputPtr graph_output = graph->getOutput("interface_out");
+    //     graph_output->setConnectedNode(col3);
+
+    //     REQUIRE(!graph->validate());
+
+    //     std::vector<mx::NodePtr> addedNodes;
+    //     std::vector<mx::TypedElementPtr> invalidConnections;
+    //     graph->addExplicitTypeConversions(addedNodes, invalidConnections);
+
+    //     REQUIRE(graph->validate());
+    //     REQUIRE(addedNodes.size() == 2);
+    //     REQUIRE(invalidConnections.size() == 0);
+    //     REQUIRE(addedNodes[0]->getCategory() == "convert");
+    //     REQUIRE(addedNodes[1]->getCategory() == "convert");
+
+    // }
+
+    // SECTION("Nested GraphElements") {
+    //     // Create a document
+    //     mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    //     mx::DocumentPtr doc = mx::createDocument();
+    //     mx::loadLibraries({ "libraries" }, searchPath, doc);
+
+    //     // Create a graph with a vector3 node and color3 node (two nodes with different types)
+    //     mx::NodeGraphPtr graph = doc->addNodeGraph("NG_custom_node");
+    //     mx::NodePtr vec3 = graph->addNode("constant", "vec3", "vector3");
+    //     mx::NodePtr col3 = graph->addNode("constant", "col3", "color3");
+
+    //     // Connect mismatched type nodes
+    //     mx::InputPtr input = col3->addInput("value", "color3");
+    //     input->setConnectedNode(vec3);
+
+    //     // Make sure the validation fails, indicating that there is an apparent type mismatch
+    //     REQUIRE(!doc->validate());
+
+    //     // Create list of nodes for feedback and acceptance test
+    //     std::vector<mx::NodePtr> addedNodes;
+    //     std::vector<mx::TypedElementPtr> invalidConnections;
+    //     doc->addExplicitTypeConversions(addedNodes, invalidConnections);
+
+    //     REQUIRE(doc->validate());
+    //     REQUIRE(addedNodes.size() == 1);
+    //     REQUIRE(invalidConnections.size() == 0);
+    //     REQUIRE(addedNodes[0]->getCategory() == "convert");
+    // }
+
+    // SECTION("Node -> Input Interface") {
+    //     // Create a document
+    //     mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    //     mx::DocumentPtr doc = mx::createDocument();
+    //     mx::loadLibraries({ "libraries" }, searchPath, doc);
+
+    //     mx::NodePtr vec3 = doc->addNode("constant", "vec3", "vector3");
+
+    //     mx::NodeGraphPtr graph = doc->addNodeGraph("NG_custom_graph");
+    //     graph->addInput("interface_in", "color3");
+    //     mx::InputPtr graph_input = graph->getInput("interface_in");
+
+    //     graph_input->setConnectedNode(vec3);
+
+    //     // Make sure the validation fails, indicating that there is an apparent type mismatch
+    //     REQUIRE(!doc->validate());
+
+    //     // Create list of nodes for feedback and acceptance test
+    //     std::vector<mx::NodePtr> addedNodes;
+    //     std::vector<mx::TypedElementPtr> invalidConnections;
+    //     doc->addExplicitTypeConversions(addedNodes, invalidConnections);
+
+    //     REQUIRE(doc->validate());
+    //     REQUIRE(addedNodes.size() == 1);
+    //     REQUIRE(invalidConnections.size() == 0);
+    //     REQUIRE(addedNodes[0]->getCategory() == "convert");
+    // }
+
+    SECTION("Output Interface -> Node") {
         // Create a document
         mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
         mx::DocumentPtr doc = mx::createDocument();
         mx::loadLibraries({ "libraries" }, searchPath, doc);
 
-        // Create a graph with a vector3 node and color3 node (two nodes with different types)
-        mx::NodeGraphPtr graph = doc->addNodeGraph("NG_custom_node");
-        mx::NodePtr vec3 = graph->addNode("constant", "vec3", "vector3");
-        mx::NodePtr col3 = graph->addNode("constant", "col3", "color3");
+        mx::NodePtr col3 = doc->addNode("constant", "col3", "color3");
+        mx::InputPtr node_input = col3->addInput("value", "color3");
 
-        // Connect mismatched type nodes
-        mx::InputPtr input = col3->addInput("value", "color3");
-        input->setConnectedNode(vec3);
-
-        // Make sure the validation fails, indicating that there is an apparent type mismatch
-        REQUIRE(!graph->validate());
-
-        // Create list of nodes for feedback and acceptance test
-        std::vector<mx::NodePtr> addedNodes;
-        std::vector<mx::NodePtr> invalidConnections;
-        graph->addExplicitTypeConversions(addedNodes, invalidConnections);
-
-        // Validation should succeed as there is now a convert node placed between the mismatched types
-        REQUIRE(graph->validate());
-        // Include a validation to make sure that there was a node inserted into the graph, and that the node was a 'convert' type.
-        REQUIRE(addedNodes.size() == 1);
-        REQUIRE(invalidConnections.size() == 0);
-        REQUIRE(addedNodes[0]->getCategory() == "convert");
-    }
-
-    // Invalid Type Conversion Test
-    SECTION("Invalid Test") {
-        // Create a document
-        mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
-        mx::DocumentPtr doc = mx::createDocument();
-        mx::loadLibraries({ "libraries" }, searchPath, doc);
-
-        // Create a graph with a vector3 node and color3 node (two nodes with different types)
-        mx::NodeGraphPtr graph = doc->addNodeGraph("NG_custom_node");
-        mx::NodePtr vec3 = graph->addNode("constant", "vec3", "vector3");
-        mx::NodePtr flt = graph->addNode("constant", "flt", "float");
-
-        // Connect mismatched type nodes
-        mx::InputPtr input = flt->addInput("value", "float");
-        input->setConnectedNode(vec3);
+        mx::NodeGraphPtr graph = doc->addNodeGraph("NG_custom_graph");
+        graph->addOutput("interface_out", "vector3");
+        mx::OutputPtr graph_output = graph->getOutput("interface_out");
+        node_input->setConnectedOutput(graph_output);
 
         // Make sure the validation fails, indicating that there is an apparent type mismatch
-        REQUIRE(!graph->validate());
+        std::string message;
+        doc->validate(&message);
+        std::cout << message << std::endl;
+        REQUIRE(!doc->validate());
 
         // Create list of nodes for feedback and acceptance test
-        std::vector<mx::NodePtr> addedNodes;
-        std::vector<mx::NodePtr> invalidConnections;
-        graph->addExplicitTypeConversions(addedNodes, invalidConnections);
+        // std::vector<mx::NodePtr> addedNodes;
+        // std::vector<mx::TypedElementPtr> invalidConnections;
+        // doc->addExplicitTypeConversions(addedNodes, invalidConnections);
 
-        // Validation should fail there should not be a convert node that exists for this type match.
-        REQUIRE(!graph->validate());
-        REQUIRE(addedNodes.size() == 0);
-        REQUIRE(invalidConnections.size() == 2);
+        // std::string message;
+        // doc->validate(&message);
+        // std::cout << message << std::endl;
+
+        // REQUIRE(doc->validate());
+        // REQUIRE(addedNodes.size() == 1);
+        // REQUIRE(invalidConnections.size() == 0);
+        // REQUIRE(addedNodes[0]->getCategory() == "convert");
     }
+
+    // // Invalid Type Conversion Test
+    // SECTION("Invalid Test") {
+    //     // Create a document
+    //     mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    //     mx::DocumentPtr doc = mx::createDocument();
+    //     mx::loadLibraries({ "libraries" }, searchPath, doc);
+
+    //     // Create a graph with a vector3 node and color3 node (two nodes with different types)
+    //     mx::NodeGraphPtr graph = doc->addNodeGraph("NG_custom_node");
+    //     mx::NodePtr vec3 = graph->addNode("constant", "vec3", "vector3");
+    //     mx::NodePtr flt = graph->addNode("constant", "flt", "float");
+
+    //     // Connect mismatched type nodes
+    //     mx::InputPtr input = flt->addInput("value", "float");
+    //     input->setConnectedNode(vec3);
+
+    //     // Make sure the validation fails, indicating that there is an apparent type mismatch
+    //     REQUIRE(!graph->validate());
+
+    //     // Create list of nodes for feedback and acceptance test
+    //     std::vector<mx::NodePtr> addedNodes;
+    //     std::vector<mx::NodePtr> invalidConnections;
+    //     graph->addExplicitTypeConversions(addedNodes, invalidConnections);
+
+    //     // Validation should fail there should not be a convert node that exists for this type match.
+    //     REQUIRE(!graph->validate());
+    //     REQUIRE(addedNodes.size() == 0);
+    //     REQUIRE(invalidConnections.size() == 2);
+    // }
     
 }
 

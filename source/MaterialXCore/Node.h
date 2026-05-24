@@ -323,6 +323,11 @@ class MX_CORE_API GraphElement : public InterfaceElement
     /// formatting details.
     string asStringDot() const;
 
+    /// Modify the nodes that can be converted explicitly within the associated NodeGraph.
+    /// @param addedNodes List of added nodes that were successfully integrated (w.r.t. the connection).
+    /// @param invalidConnections List of connections that could not be successfully converted.
+    void addExplicitTypeConversions(vector<NodePtr>& addedNodes, vector<TypedElementPtr>& invalidConnections);
+
     /// @}
 };
 
@@ -398,11 +403,6 @@ class MX_CORE_API NodeGraph : public GraphElement
     /// @param inputPath Path to an input descendant of this graph.
     /// @param interfaceName The new interface name.
     void modifyInterfaceName(const string& inputPath, const string& interfaceName);
-
-    /// Modify the nodes that can be converted explicitly within the associated NodeGraph.
-    /// @param addedNodes List of added nodes that were successfully integrated (w.r.t. the connection).
-    /// @param invalidConnections List of connections that could not be successfully converted.
-    void addExplicitTypeConversions(vector<NodePtr>& addedNodes, vector<NodePtr>& invalidConnections);
 
     /// @}
     /// @name Validation
