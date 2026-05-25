@@ -1229,6 +1229,26 @@ Select the maximum of the two incoming values.
 |`in2`|The second input stream           |Same as `in1` or float|__zero__|
 |`out`|Output: maximum of `in1` and `in2`|Same as `in1`         |`in1`   |
 
+<a id="node-mincomponent"> </a>
+
+### `mincomponent`
+Output the minimum component of the incoming vectorN or colorN stream as a float value.
+
+|Port |Description                       |Type           |Default |
+|-----|----------------------------------|---------------|--------|
+|`in` |Input vector or color stream      |vectorN, colorN|__zero__|
+|`out`|Output: minimum component of `in` |float          |0.0     |
+
+<a id="node-maxcomponent"> </a>
+
+### `maxcomponent`
+Output the maximum component of the incoming vectorN or colorN stream as a float value.
+
+|Port |Description                       |Type           |Default |
+|-----|----------------------------------|---------------|--------|
+|`in` |Input vector or color stream      |vectorN, colorN|__zero__|
+|`out`|Output: maximum component of `in` |float          |0.0     |
+
 <a id="node-normalize"> </a>
 
 ### `normalize`
@@ -1270,26 +1290,6 @@ Output the (float) dot product of two incoming vectorN streams; cannot be used o
 |`in1`|The first input vector stream         |vectorN      |__zero__|
 |`in2`|The second input vector stream        |Same as `in1`|__zero__|
 |`out`|Output: dot product of `in1` and `in2`|float        |0.0     |
-
-<a id="node-maxcomponent"> </a>
-
-### `maxcomponent`
-Output the maximum component of the incoming vectorN or colorN stream as a float value.
-
-|Port |Description                       |Type           |Default |
-|-----|----------------------------------|---------------|--------|
-|`in` |Input vector or color stream      |vectorN, colorN|__zero__|
-|`out`|Output: maximum component of `in` |float          |0.0     |
-
-<a id="node-mincomponent"> </a>
-
-### `mincomponent`
-Output the minimum component of the incoming vectorN or colorN stream as a float value.
-
-|Port |Description                       |Type           |Default |
-|-----|----------------------------------|---------------|--------|
-|`in` |Input vector or color stream      |vectorN, colorN|__zero__|
-|`out`|Output: minimum component of `in` |float          |0.0     |
 
 <a id="node-crossproduct"> </a>
 
