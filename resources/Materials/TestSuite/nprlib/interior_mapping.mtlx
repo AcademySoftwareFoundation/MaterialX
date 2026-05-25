@@ -134,6 +134,7 @@
     </combine2>
 
     <!-- Sample equirectangular room image -->
+    <!-- closest filter is deliberate: bilinear would bleed across the 0/1 UV wrap seam -->
     <image name="room_image" type="color3">
       <input name="file" type="filename" value="room.png" />
       <input name="texcoord" type="vector2" nodename="map_uv" />
