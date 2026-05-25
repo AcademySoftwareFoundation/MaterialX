@@ -3119,38 +3119,82 @@
   </nodegraph>
 
   <!--
-    Node: <distance>
-    Measures the distance between two points in 2D, 3D, or 4D.
+    Node: <mincomponent>
+    Output the minimum component of the incoming vector or color stream.
   -->
-  <nodegraph name="NG_distance_vector2" nodedef="ND_distance_vector2">
-    <subtract name="N_mtlxsubtract" type="vector2">
-      <input name="in1" type="vector2" interfacename="in1" />
-      <input name="in2" type="vector2" interfacename="in2" />
-    </subtract>
-    <magnitude name="N_mtlxmagnitude" type="float">
-      <input name="in" type="vector2" nodename="N_mtlxsubtract" />
-    </magnitude>
-    <output name="out" type="float" nodename="N_mtlxmagnitude" />
+  <nodegraph name="NG_mincomponent_color3" nodedef="ND_mincomponent_color3">
+    <separate3 name="N_separate" type="multioutput">
+      <input name="in" type="color3" interfacename="in" />
+    </separate3>
+    <min name="N_min_01" type="float">
+      <input name="in1" type="float" nodename="N_separate" output="outr" />
+      <input name="in2" type="float" nodename="N_separate" output="outg" />
+    </min>
+    <min name="N_min" type="float">
+      <input name="in1" type="float" nodename="N_min_01" />
+      <input name="in2" type="float" nodename="N_separate" output="outb" />
+    </min>
+    <output name="out" type="float" nodename="N_min" />
   </nodegraph>
-  <nodegraph name="NG_distance_vector3" nodedef="ND_distance_vector3">
-    <subtract name="N_mtlxsubtract" type="vector3">
-      <input name="in1" type="vector3" interfacename="in1" />
-      <input name="in2" type="vector3" interfacename="in2" />
-    </subtract>
-    <magnitude name="N_mtlxmagnitude" type="float">
-      <input name="in" type="vector3" nodename="N_mtlxsubtract" />
-    </magnitude>
-    <output name="out" type="float" nodename="N_mtlxmagnitude" />
+  <nodegraph name="NG_mincomponent_color4" nodedef="ND_mincomponent_color4">
+    <separate4 name="N_separate" type="multioutput">
+      <input name="in" type="color4" interfacename="in" />
+    </separate4>
+    <min name="N_min_01" type="float">
+      <input name="in1" type="float" nodename="N_separate" output="outr" />
+      <input name="in2" type="float" nodename="N_separate" output="outg" />
+    </min>
+    <min name="N_min_23" type="float">
+      <input name="in1" type="float" nodename="N_separate" output="outb" />
+      <input name="in2" type="float" nodename="N_separate" output="outa" />
+    </min>
+    <min name="N_min" type="float">
+      <input name="in1" type="float" nodename="N_min_01" />
+      <input name="in2" type="float" nodename="N_min_23" />
+    </min>
+    <output name="out" type="float" nodename="N_min" />
   </nodegraph>
-  <nodegraph name="NG_distance_vector4" nodedef="ND_distance_vector4">
-    <subtract name="N_mtlxsubtract" type="vector4">
-      <input name="in1" type="vector4" interfacename="in1" />
-      <input name="in2" type="vector4" interfacename="in2" />
-    </subtract>
-    <magnitude name="N_mtlxmagnitude" type="float">
-      <input name="in" type="vector4" nodename="N_mtlxsubtract" />
-    </magnitude>
-    <output name="out" type="float" nodename="N_mtlxmagnitude" />
+  <nodegraph name="NG_mincomponent_vector2" nodedef="ND_mincomponent_vector2">
+    <separate2 name="N_separate" type="multioutput">
+      <input name="in" type="vector2" interfacename="in" />
+    </separate2>
+    <min name="N_min" type="float">
+      <input name="in1" type="float" nodename="N_separate" output="outx" />
+      <input name="in2" type="float" nodename="N_separate" output="outy" />
+    </min>
+    <output name="out" type="float" nodename="N_min" />
+  </nodegraph>
+  <nodegraph name="NG_mincomponent_vector3" nodedef="ND_mincomponent_vector3">
+    <separate3 name="N_separate" type="multioutput">
+      <input name="in" type="vector3" interfacename="in" />
+    </separate3>
+    <min name="N_min_01" type="float">
+      <input name="in1" type="float" nodename="N_separate" output="outx" />
+      <input name="in2" type="float" nodename="N_separate" output="outy" />
+    </min>
+    <min name="N_min" type="float">
+      <input name="in1" type="float" nodename="N_min_01" />
+      <input name="in2" type="float" nodename="N_separate" output="outz" />
+    </min>
+    <output name="out" type="float" nodename="N_min" />
+  </nodegraph>
+  <nodegraph name="NG_mincomponent_vector4" nodedef="ND_mincomponent_vector4">
+    <separate4 name="N_separate" type="multioutput">
+      <input name="in" type="vector4" interfacename="in" />
+    </separate4>
+    <min name="N_min_01" type="float">
+      <input name="in1" type="float" nodename="N_separate" output="outx" />
+      <input name="in2" type="float" nodename="N_separate" output="outy" />
+    </min>
+    <min name="N_min_23" type="float">
+      <input name="in1" type="float" nodename="N_separate" output="outz" />
+      <input name="in2" type="float" nodename="N_separate" output="outw" />
+    </min>
+    <min name="N_min" type="float">
+      <input name="in1" type="float" nodename="N_min_01" />
+      <input name="in2" type="float" nodename="N_min_23" />
+    </min>
+    <output name="out" type="float" nodename="N_min" />
   </nodegraph>
 
   <!--
@@ -3233,82 +3277,38 @@
   </nodegraph>
 
   <!--
-    Node: <mincomponent>
-    Output the minimum component of the incoming vector or color stream.
+    Node: <distance>
+    Measures the distance between two points in 2D, 3D, or 4D.
   -->
-  <nodegraph name="NG_mincomponent_color3" nodedef="ND_mincomponent_color3">
-    <separate3 name="N_separate" type="multioutput">
-      <input name="in" type="color3" interfacename="in" />
-    </separate3>
-    <min name="N_min_01" type="float">
-      <input name="in1" type="float" nodename="N_separate" output="outr" />
-      <input name="in2" type="float" nodename="N_separate" output="outg" />
-    </min>
-    <min name="N_min" type="float">
-      <input name="in1" type="float" nodename="N_min_01" />
-      <input name="in2" type="float" nodename="N_separate" output="outb" />
-    </min>
-    <output name="out" type="float" nodename="N_min" />
+  <nodegraph name="NG_distance_vector2" nodedef="ND_distance_vector2">
+    <subtract name="N_mtlxsubtract" type="vector2">
+      <input name="in1" type="vector2" interfacename="in1" />
+      <input name="in2" type="vector2" interfacename="in2" />
+    </subtract>
+    <magnitude name="N_mtlxmagnitude" type="float">
+      <input name="in" type="vector2" nodename="N_mtlxsubtract" />
+    </magnitude>
+    <output name="out" type="float" nodename="N_mtlxmagnitude" />
   </nodegraph>
-  <nodegraph name="NG_mincomponent_color4" nodedef="ND_mincomponent_color4">
-    <separate4 name="N_separate" type="multioutput">
-      <input name="in" type="color4" interfacename="in" />
-    </separate4>
-    <min name="N_min_01" type="float">
-      <input name="in1" type="float" nodename="N_separate" output="outr" />
-      <input name="in2" type="float" nodename="N_separate" output="outg" />
-    </min>
-    <min name="N_min_23" type="float">
-      <input name="in1" type="float" nodename="N_separate" output="outb" />
-      <input name="in2" type="float" nodename="N_separate" output="outa" />
-    </min>
-    <min name="N_min" type="float">
-      <input name="in1" type="float" nodename="N_min_01" />
-      <input name="in2" type="float" nodename="N_min_23" />
-    </min>
-    <output name="out" type="float" nodename="N_min" />
+  <nodegraph name="NG_distance_vector3" nodedef="ND_distance_vector3">
+    <subtract name="N_mtlxsubtract" type="vector3">
+      <input name="in1" type="vector3" interfacename="in1" />
+      <input name="in2" type="vector3" interfacename="in2" />
+    </subtract>
+    <magnitude name="N_mtlxmagnitude" type="float">
+      <input name="in" type="vector3" nodename="N_mtlxsubtract" />
+    </magnitude>
+    <output name="out" type="float" nodename="N_mtlxmagnitude" />
   </nodegraph>
-  <nodegraph name="NG_mincomponent_vector2" nodedef="ND_mincomponent_vector2">
-    <separate2 name="N_separate" type="multioutput">
-      <input name="in" type="vector2" interfacename="in" />
-    </separate2>
-    <min name="N_min" type="float">
-      <input name="in1" type="float" nodename="N_separate" output="outx" />
-      <input name="in2" type="float" nodename="N_separate" output="outy" />
-    </min>
-    <output name="out" type="float" nodename="N_min" />
-  </nodegraph>
-  <nodegraph name="NG_mincomponent_vector3" nodedef="ND_mincomponent_vector3">
-    <separate3 name="N_separate" type="multioutput">
-      <input name="in" type="vector3" interfacename="in" />
-    </separate3>
-    <min name="N_min_01" type="float">
-      <input name="in1" type="float" nodename="N_separate" output="outx" />
-      <input name="in2" type="float" nodename="N_separate" output="outy" />
-    </min>
-    <min name="N_min" type="float">
-      <input name="in1" type="float" nodename="N_min_01" />
-      <input name="in2" type="float" nodename="N_separate" output="outz" />
-    </min>
-    <output name="out" type="float" nodename="N_min" />
-  </nodegraph>
-  <nodegraph name="NG_mincomponent_vector4" nodedef="ND_mincomponent_vector4">
-    <separate4 name="N_separate" type="multioutput">
-      <input name="in" type="vector4" interfacename="in" />
-    </separate4>
-    <min name="N_min_01" type="float">
-      <input name="in1" type="float" nodename="N_separate" output="outx" />
-      <input name="in2" type="float" nodename="N_separate" output="outy" />
-    </min>
-    <min name="N_min_23" type="float">
-      <input name="in1" type="float" nodename="N_separate" output="outz" />
-      <input name="in2" type="float" nodename="N_separate" output="outw" />
-    </min>
-    <min name="N_min" type="float">
-      <input name="in1" type="float" nodename="N_min_01" />
-      <input name="in2" type="float" nodename="N_min_23" />
-    </min>
-    <output name="out" type="float" nodename="N_min" />
+  <nodegraph name="NG_distance_vector4" nodedef="ND_distance_vector4">
+    <subtract name="N_mtlxsubtract" type="vector4">
+      <input name="in1" type="vector4" interfacename="in1" />
+      <input name="in2" type="vector4" interfacename="in2" />
+    </subtract>
+    <magnitude name="N_mtlxmagnitude" type="float">
+      <input name="in" type="vector4" nodename="N_mtlxsubtract" />
+    </magnitude>
+    <output name="out" type="float" nodename="N_mtlxmagnitude" />
   </nodegraph>
 
   <!--
