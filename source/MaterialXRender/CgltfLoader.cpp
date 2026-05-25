@@ -426,7 +426,7 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
                 }
                 else
                 {
-                    indexCount = positionStream->getData().size();
+                    indexCount = positionStream->getData().size() / MeshStream::STRIDE_3D;
                 }
                 size_t faceCount = indexCount / FACE_VERTEX_COUNT;
                 part->setFaceCount(faceCount);
