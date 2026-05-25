@@ -997,7 +997,6 @@ export class Material
                 matTitle.classList.remove('peditor_material_assigned');
                 let img = matTitle.getElementsByTagName('img')[0];
                 img.src = 'public/shader_ball.svg';
-                //matTitle.classList.remove('peditor_material_unassigned');
             }
         }
     }
@@ -1007,33 +1006,44 @@ export class Material
         // Prevent the event from being passed to parent folder
         event.stopPropagation();
 
+        let materialNameList = new Set()
         for (let i = 0; i < materials.length; ++i)
         {
             let matassign = materials[i];
             // Need to use path vs name to get a unique key.
             let materialName = matassign.getMaterial().getNamePath();
-            var matUI = matassign.getMaterialUI();
-            let matTitle = matUI.domElement.getElementsByClassName('title')[0];
-            let img = matTitle.getElementsByTagName('img')[0];
-            if (materialName == elemPath)
+            if (materialNameList.has(materialName))
             {
-                if (this._soloMaterial == elemPath)
+                continue;
+            }
+
+            var matUI = matassign.getMaterialUI();
+            if (matUI)
+            {
+                materialNameList.add(materialName);
+
+                let matTitle = matUI.domElement.getElementsByClassName('title')[0];
+                let img = matTitle.getElementsByTagName('img')[0];
+                if (materialName == elemPath)
                 {
-                    img.src = 'public/shader_ball.svg';
-                    matTitle.classList.remove('peditor_material_assigned');
-                    this._soloMaterial = "";
+                    if (this._soloMaterial == elemPath)
+                    {
+                        img.src = 'public/shader_ball.svg';
+                        matTitle.classList.remove('peditor_material_assigned');
+                        this._soloMaterial = "";
+                    }
+                    else
+                    {
+                        img.src = 'public/shader_ball2.svg';
+                        matTitle.classList.add('peditor_material_assigned');
+                        this._soloMaterial = elemPath;
+                    }
                 }
                 else
                 {
-                    img.src = 'public/shader_ball2.svg';
-                    matTitle.classList.add('peditor_material_assigned');
-                    this._soloMaterial = elemPath;
+                    img.src = 'public/shader_ball.svg';
+                    matTitle.classList.remove('peditor_material_assigned');
                 }
-            }
-            else
-            {
-                img.src = 'public/shader_ball.svg';
-                matTitle.classList.remove('peditor_material_assigned');
             }
         }
         viewer.getMaterial().updateMaterialAssignments(viewer, this._soloMaterial);
@@ -1056,22 +1066,27 @@ export class Material
         const elemPath = elem.getNamePath();
 
         // Create and cache associated UI
-        var matUI = gui.addFolder(elemPath);
+        let matUI = gui.addFolder(elemPath);
+        console.log('Set material UI for: ', elemPath, matUI);
         matassign.setMaterialUI(matUI);
 
-        let matTitle = matUI.domElement.getElementsByClassName('title')[0];
-        // Add a icon to the title to allow for assigning the material to geometry
-        // Clicking on the icon will "solo" the material to the geometry.
-        // Clicking on the title will open/close the material folder.
-        matTitle.innerHTML = "<img id='" + elemPath + "' src='public/shader_ball.svg' width='16' height='16' style='vertical-align:middle; margin-right: 5px;'>" + elem.getNamePath();
-        let img = matTitle.getElementsByTagName('img')[0];
-        if (img)
+        let matTitle = null
+        if (matUI && matUI.domElement)
         {
-            // Add event listener to icon to call updateSoloMaterial function
-            img.addEventListener('click', function (event)
+            matTitle = matUI.domElement.getElementsByClassName('title')[0];
+            // Add a icon to the title to allow for assigning the material to geometry
+            // Clicking on the icon will "solo" the material to the geometry.
+            // Clicking on the title will open/close the material folder.
+            matTitle.innerHTML = "<img id='" + elemPath + "' src='public/shader_ball.svg' width='16' height='16' style='vertical-align:middle; margin-right: 5px;'>" + elem.getNamePath();
+            let img = matTitle.getElementsByTagName('img')[0];
+            if (img)
             {
-                Material.updateSoloMaterial(viewer, elemPath, materials, event);
-            });
+                // Add event listener to icon to call updateSoloMaterial function
+                img.addEventListener('click', function (event)
+                {
+                    Material.updateSoloMaterial(viewer, elemPath, materials, event);
+                });
+            }
         }
 
         if (closeUI)
