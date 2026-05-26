@@ -2081,12 +2081,12 @@ std::vector<int> Graph::createNodes(bool nodegraph)
     const float hdrBottomSpacing = hdrPadB;
     const float hdrRounding = std::max(nodeEditorStyle.NodeRounding - hdrInset, 0.0f);
 
-    // Build a lookup of input pin IDs that are the receiving end of an erroneous link.
-    std::unordered_set<int> erroneousEndPins;
+    // Build a lookup of input pin IDs that are the receiving end of an invalid link.
+    std::unordered_set<int> invalidEndPins;
     for (const Link& link : _state.links)
     {
         if (link._invalid)
-            erroneousEndPins.insert(link._endAttr);
+            invalidEndPins.insert(link._endAttr);
     }
 
     for (UiNodePtr node : _state.nodes)
@@ -2097,19 +2097,19 @@ std::vector<int> Graph::createNodes(bool nodegraph)
         }
         else
         {
-            // Highlight the node border red if any of its input pins receive an erroneous link.
-            bool hasErroneousInput = false;
+            // Highlight the node border red if any of its input pins receive an invalid link.
+            bool hasInvalidInput = false;
             for (const UiPinPtr& pin : node->getInputPins())
             {
-                if (erroneousEndPins.count(int(pin->getPinId().Get())))
+                if (invalidEndPins.count(int(pin->getPinId().Get())))
                 {
-                    hasErroneousInput = true;
+                    hasInvalidInput = true;
                     break;
                 }
             }
             // Highlight nodegraph nodes orange when they contain internal type mismatches.
             bool hasNestedErrors = false;
-            if (!hasErroneousInput && node->getNodeGraph())
+            if (!hasInvalidInput && node->getNodeGraph())
             {
                 const mx::NodeGraphPtr ng = node->getNodeGraph();
                 for (const LinkDiagnostic& d : _diagnostics)
@@ -2122,7 +2122,7 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                 }
             }
 
-            if (hasErroneousInput)
+            if (hasInvalidInput)
                 ed::PushStyleColor(ed::StyleColor_NodeBorder, ImVec4(1.f, 0.1f, 0.1f, 1.f));
             else if (hasNestedErrors)
                 ed::PushStyleColor(ed::StyleColor_NodeBorder, ImVec4(1.f, 0.55f, 0.1f, 1.f));
@@ -2387,7 +2387,7 @@ std::vector<int> Graph::createNodes(bool nodegraph)
             }
             ImGui::PopID();
             ed::EndNode();
-            if (hasErroneousInput || hasNestedErrors)
+            if (hasInvalidInput || hasNestedErrors)
                 ed::PopStyleColor();
         }
     }
