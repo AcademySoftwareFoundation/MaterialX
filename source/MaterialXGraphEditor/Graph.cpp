@@ -471,9 +471,11 @@ void Graph::scanNestedGraphDiagnostics()
                 if (!upstream)
                     continue;
 
-                const std::string& inputType = input->getType();
-                std::string outputType = upstream->getType();
+                if (input->validate())
+                    continue;
 
+                // Resolve the upstream output type for display in the diagnostic.
+                std::string outputType = upstream->getType();
                 if (outputType == mx::MULTI_OUTPUT_TYPE_STRING)
                 {
                     mx::NodeDefPtr nodeDef = upstream->getNodeDef();
@@ -485,19 +487,14 @@ void Graph::scanNestedGraphDiagnostics()
                     }
                 }
 
-                if (!inputType.empty() && !outputType.empty() &&
-                    outputType != mx::MULTI_OUTPUT_TYPE_STRING &&
-                    outputType != inputType)
-                {
-                    LinkDiagnostic diag;
-                    diag.nodeName = node->getName();
-                    diag.inputName = input->getName();
-                    diag.inputType = inputType;
-                    diag.outputType = outputType;
-                    diag.graphPath = graphName;
-                    diag.nodeGraph = ng;
-                    _diagnostics.push_back(diag);
-                }
+                LinkDiagnostic diag;
+                diag.nodeName = node->getName();
+                diag.inputName = input->getName();
+                diag.inputType = input->getType();
+                diag.outputType = outputType;
+                diag.graphPath = graphName;
+                diag.nodeGraph = ng;
+                _diagnostics.push_back(diag);
             }
         }
     }
