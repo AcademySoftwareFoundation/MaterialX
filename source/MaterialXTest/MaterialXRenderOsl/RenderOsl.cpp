@@ -283,8 +283,10 @@ RenderUtil::RenderProfileResult OslShaderRenderTester::runRenderer(
                 // Set renderer properties.
                 _renderer->setOslOutputFilePath(outputFilePath);
                 _renderer->setOslShaderName(shaderName);
-                _renderer->setRaysPerPixelLit(testOptions.enableReferenceQuality ? 32 : 4);
-                _renderer->setRaysPerPixelUnlit(testOptions.enableReferenceQuality ? 8 : 1);
+                // The antialiasing flag in testrender traces N*N samples per pixel,
+                // so these values are effectively squared.
+                _renderer->setAaLit(testOptions.enableReferenceQuality ? 16 : 2);
+                _renderer->setAaUnlit(testOptions.enableReferenceQuality ? 2 : 1);
 
                 // Validate compilation
                 if (!_useOslCmdStr)

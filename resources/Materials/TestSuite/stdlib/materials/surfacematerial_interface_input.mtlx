@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+  <nodegraph name="green_material_graph">
+    <input name="input_shader" type="surfaceshader" />
+    <surfacematerial name="mat" type="material">
+      <input name="surfaceshader" type="surfaceshader" interfacename="input_shader" />
+    </surfacematerial>
+    <output name="out" type="material" nodename="mat" />
+  </nodegraph>
+</materialx>
