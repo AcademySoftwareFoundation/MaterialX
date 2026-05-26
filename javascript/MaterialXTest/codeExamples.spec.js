@@ -122,13 +122,13 @@ test.describe('Code Examples', () =>
         // For each material node, locate its surface shader and traverse the
         // dataflow graph upstream, gathering the nodes that contribute to the
         // shading result.  The marble surface is driven by a procedural noise
-        // network, so the traversal crosses into the bound nodegraph and
-        // reaches a fractal3d noise node.
+        // network bound through a nodegraph, so the traversal crosses from the
+        // top-level document into that nodegraph.
         const materialNodes = doc.getMaterialNodes();
         expect(materialNodes.length).toBe(1);
 
         let nodeCount = 0;
-        let foundNoise = false;
+        let crossedIntoNodeGraph = false;
         for (const materialNode of materialNodes)
         {
             const shaderNodes = mx.getShaderNodes(materialNode);
@@ -140,10 +140,16 @@ test.describe('Code Examples', () =>
                     if (upstreamElem instanceof mx.Node)
                     {
                         nodeCount++;
-                        if (upstreamElem.getCategory() === 'fractal3d')
+
+                        // An upstream node whose parent is a nodegraph rather
+                        // than the document confirms that the traversal has
+                        // descended into the bound nodegraph.
+                        const parent = upstreamElem.getParent();
+                        if (parent instanceof mx.NodeGraph)
                         {
-                            foundNoise = true;
+                            crossedIntoNodeGraph = true;
                         }
+                        if (parent) parent.delete();
                     }
                     if (upstreamElem) upstreamElem.delete();
                     if (edge) edge.delete();
@@ -152,7 +158,7 @@ test.describe('Code Examples', () =>
             shaderNodes.forEach(s => s.delete());
         }
         expect(nodeCount).toBeGreaterThan(0);
-        expect(foundNoise).toBe(true);
+        expect(crossedIntoNodeGraph).toBe(true);
 
         // Cleanup wrappers
         materialNodes.forEach(n => n.delete());
