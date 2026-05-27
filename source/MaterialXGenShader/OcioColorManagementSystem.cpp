@@ -154,8 +154,17 @@ NodeDefPtr OcioColorManagementSystemImpl::getNodeDef(const ColorSpaceTransform& 
         return {};
     }
 
+     static const auto NODE_NAME = string{ "ocio_color_conversion" };
+-    const auto functionName = NODE_NAME + "_" + processor->getCacheID();
++    const auto functionName = createValidName(NODE_NAME + "_" + processor->getCacheID());
+     const auto implName = OcioColorManagementSystem::IMPL_PREFIX + functionName + "_" + transform.type.getName();
+     const auto nodeDefName = ND_PREFIX + functionName + "_" + transform.type.getName();
+     auto nodeDef = document->getNodeDef(nodeDefName);
+
+
     static const auto NODE_NAME = string{ "ocio_color_conversion" };
-    const auto functionName = NODE_NAME + "_" + processor->getCacheID();
+    const string cacheID = processor->getCacheID();                                                                                           
+    const auto functionName = createValidName(NODE_NAME + "_" + sourceColorSpace + "_to_" + targetColorSpace + "_" + cacheID.substr(0, 6));      
     const auto implName = OcioColorManagementSystem::IMPL_PREFIX + functionName + "_" + transform.type.getName();
     const auto nodeDefName = ND_PREFIX + functionName + "_" + transform.type.getName();
     auto nodeDef = document->getNodeDef(nodeDefName);
