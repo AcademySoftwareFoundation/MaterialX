@@ -697,10 +697,7 @@ void Graph::updateMaterials(mx::InputPtr input /* = nullptr */, mx::ValuePtr val
     {
         if (!input)
         {
-            mx::ElementPtr elem = nullptr;
-            {
-                elem = _graphDoc->getDescendant(renderablePath);
-            }
+            const mx::ElementPtr elem = _graphDoc->getDescendant(renderablePath);
             mx::TypedElementPtr typedElem = elem ? elem->asA<mx::TypedElement>() : nullptr;
             _renderer->updateMaterials(typedElem);
         }
