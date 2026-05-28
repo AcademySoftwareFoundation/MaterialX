@@ -30,6 +30,13 @@ class SlangShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
     }
 
     // Ignore trying to create shader code for displacementshaders
+    void addSkipFiles() override
+    {
+        // ocio_color_management.mtlx uses color spaces which require OCIO and is not supported by Slang.
+        _skipFiles.insert("ocio_color_management.mtlx");
+        ParentClass::addSkipFiles();
+    }
+
     void addSkipNodeDefs() override
     {
         _skipNodeDefs.insert("ND_displacement_float");
