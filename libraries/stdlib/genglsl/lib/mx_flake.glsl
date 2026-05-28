@@ -112,7 +112,8 @@ void mx_flake(
     float xi1 = flake_noise.y;
 
     rand = flake_noise.z;
-    id = int(rand * 2147483647.0);
+    // 2^24 - 1 is exact in float32, keeping id stable across precisions.
+    id = int(rand * 16777215.0);
     presence = flake_priority;
 
     float phi = M_PI * 2.0 * xi0;

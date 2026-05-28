@@ -1,7 +1,7 @@
-import { expect } from 'chai';
+import { test, expect } from '@playwright/test';
 import Module from './_build/JsMaterialXCore.js';
 
-describe('Element', () =>
+test.describe('Element', () =>
 {
     let mx, doc, valueTypes;
 
@@ -16,7 +16,7 @@ describe('Element', () =>
         BooleanArray: [true, true, false],
     }
 
-    before(async () =>
+    test.beforeAll(async () =>
     {
         mx = await Module();
         doc = mx.createDocument();
@@ -31,14 +31,14 @@ describe('Element', () =>
         };
     });
 
-    after(() =>
+    test.afterAll(() =>
     {
         // Cleanup typed helper objects and document
         Object.values(valueTypes).forEach(v => v.delete());
         doc.delete();
     });
 
-    describe('value setters', () =>
+    test.describe('value setters', () =>
     {
         const checkValue = (types, assertionCallback) =>
         {
@@ -52,31 +52,31 @@ describe('Element', () =>
             elem.delete();
         };
 
-        it('should work with expected type', () =>
+        test('should work with expected type', () =>
         {
             checkValue(valueTypes, (returnedValue, typeName) =>
             {
-                expect(returnedValue).to.be.an.instanceof(mx[`${typeName}`]);
-                expect(returnedValue.equals(valueTypes[typeName])).to.equal(true);
+                expect(returnedValue).toBeInstanceOf(mx[`${typeName}`]);
+                expect(returnedValue.equals(valueTypes[typeName])).toBe(true);
             });
         });
 
-        it('should work with expected primitive type', () =>
+        test('should work with expected primitive type', () =>
         {
             checkValue(primitiveValueTypes, (returnedValue, typeName) =>
             {
-                expect(returnedValue).to.eql(primitiveValueTypes[typeName]);
+                expect(returnedValue).toEqual(primitiveValueTypes[typeName]);
             });
         });
 
-        it('should fail for incorrect type', () =>
+        test('should fail for incorrect type', () =>
         {
             const elem = doc.addChildOfCategory('geomprop');
-            expect(() => elem.Matrix33(true)).to.throw();
+            expect(() => elem.Matrix33(true)).toThrow();
         });
     });
 
-    describe('typed value setters', () =>
+    test.describe('typed value setters', () =>
     {
         const checkTypes = (types, assertionCallback) =>
         {
@@ -91,30 +91,30 @@ describe('Element', () =>
             elem.delete();
         };
 
-        it('should work with expected custom type', () =>
+        test('should work with expected custom type', () =>
         {
             checkTypes(valueTypes, (returnedValue, originalValue) =>
             {
-                expect(returnedValue.equals(originalValue)).to.equal(true);
+                expect(returnedValue.equals(originalValue)).toBe(true);
             });
         });
 
-        it('should work with expected primitive type', () =>
+        test('should work with expected primitive type', () =>
         {
             checkTypes(primitiveValueTypes, (returnedValue, originalValue) =>
             {
-                expect(returnedValue).to.eql(originalValue);
+                expect(returnedValue).toEqual(originalValue);
             });
         });
 
-        it('should fail for incorrect type', () =>
+        test('should fail for incorrect type', () =>
         {
             const elem = doc.addChildOfCategory('geomprop');
-            expect(() => elem.setTypedAttributeColor3('wrongType', true)).to.throw();
+            expect(() => elem.setTypedAttributeColor3('wrongType', true)).toThrow();
         });
     });
 
-    it('factory invocation should match specialized functions', () =>
+    test('factory invocation should match specialized functions', () =>
     {
         // List based in source/MaterialXCore/Element.cpp
         const elemtypeArr = [
@@ -154,8 +154,8 @@ describe('Element', () =>
             const specializedFn = `addChild${typeName}`;
             const factoryName = typeName.toLowerCase();
             const type = mx[typeName];
-            expect(doc[specializedFn]()).to.be.an.instanceof(type);
-            expect(doc.addChildOfCategory(factoryName)).to.be.an.instanceof(type);
+            expect(doc[specializedFn]()).toBeInstanceOf(type);
+            expect(doc.addChildOfCategory(factoryName)).toBeInstanceOf(type);
         });
 
         const specialElemType = {
@@ -168,18 +168,18 @@ describe('Element', () =>
         {
             const specializedFn = `addChild${typeName}`;
             const factoryName = typeName.toLowerCase();
-            expect(doc[specializedFn]()).to.be.an.instanceof(specialElemType[typeName]);
-            expect(doc.addChildOfCategory(factoryName)).to.be.an.instanceof(specialElemType[typeName]);
+            expect(doc[specializedFn]()).toBeInstanceOf(specialElemType[typeName]);
+            expect(doc.addChildOfCategory(factoryName)).toBeInstanceOf(specialElemType[typeName]);
         });
-        // No doc.delete() here; cleaned up in after()
+        // No doc.delete() here; cleaned up in afterAll()
     });
 });
 
-describe('Equivalence', () =>
+test.describe('Equivalence', () =>
 {
     let mx, doc, doc2
 
-    before(async () => {
+    test.beforeAll(async () => {
         mx = await Module();
         doc = mx.createDocument();
         doc.addNodeGraph("graph");
@@ -187,15 +187,15 @@ describe('Equivalence', () =>
         doc2.addNodeGraph("graph1");
     });
 
-    it('Compare document equivalency', () =>
+    test('Compare document equivalency', () =>
     {
         let options = new mx.ElementEquivalenceOptions();
         let differences = {};
         options.performValueComparisons = false;
         let result = doc.isEquivalent(doc2, options, differences);
-        expect(result).to.be.false;
-        expect(differences.message).to.not.be.empty;
+        expect(result).toBe(false);
+        expect(differences.message).toBeTruthy();
         result = doc.isEquivalent(doc2, options, undefined);
-        expect(result).to.be.false;
+        expect(result).toBe(false);
     });
 });
