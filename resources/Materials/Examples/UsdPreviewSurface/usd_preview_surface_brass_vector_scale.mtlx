@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<materialx version="1.39" colorspace="lin_rec709">
+  <UsdUVTexture name="image_color" type="multioutput">
+    <input name="file" type="filename" value="../../../Images/brass_color.jpg" colorspace="srgb_texture" />
+    <input name="scale" type="vector4" value="0.5, 0.5, 0.5, 1" />
+  </UsdUVTexture>
+  <UsdUVTexture name="image_roughness" type="multioutput">
+    <input name="file" type="filename" value="../../../Images/brass_roughness.jpg" />
+  </UsdUVTexture>
+  <UsdPreviewSurface name="SR_brass1" type="surfaceshader">
+    <input name="diffuseColor" type="color3" nodename="image_color" output="rgb" />
+    <input name="metallic" type="float" value="1" />
+    <input name="roughness" type="float" nodename="image_roughness" output="r" />
+  </UsdPreviewSurface>
+  <surfacematerial name="USD_Tiled_Brass" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="SR_brass1" />
+  </surfacematerial>
+</materialx>
