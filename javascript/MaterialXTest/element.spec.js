@@ -4,8 +4,6 @@ import Module from './_build/JsMaterialXCore.js';
 test.describe('Element', () =>
 {
     let mx, doc, valueTypes;
-    const libraryPath = '../../libraries/stdlib';
-    const libraryFilenames = ['stdlib_defs.mtlx', 'stdlib_ng.mtlx'];
 
     const primitiveValueTypes = {
         Integer: 10,
