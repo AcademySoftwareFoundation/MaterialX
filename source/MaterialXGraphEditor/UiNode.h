@@ -10,7 +10,6 @@
 
 #include <imgui_node_editor.h>
 
-#include <atomic>
 #include <sstream>
 
 namespace mx = MaterialX;
@@ -185,12 +184,12 @@ class UiToken
     void addAffectedInput(const mx::InputPtr& input)
     {
         _affectedInputs.push_back(input);
-        _isAffectedInputsDirty.store(true);
+        _isAffectedInputsDirty = true;
     }
 
     std::string getAffectedInputsString()
     {
-        if (_isAffectedInputsDirty.load())
+        if (_isAffectedInputsDirty)
             buildAffectedInputsStream();
         return _affectedInputsStream.str();
     }
@@ -218,11 +217,11 @@ class UiToken
     std::ostringstream _affectedInputsStream{};
 
     // Track whether changes were made to inputs in order to re-build stream accordingly
-    std::atomic<bool> _isAffectedInputsDirty{ true };
+    bool _isAffectedInputsDirty{ true };
 
     void buildAffectedInputsStream()
     {
-        if (!_isAffectedInputsDirty.load())
+        if (!_isAffectedInputsDirty)
             return;
         _affectedInputsStream.clear();
         for (size_t i = 0; i < _affectedInputs.size(); ++i)
@@ -231,7 +230,7 @@ class UiToken
             if (i < _affectedInputs.size() - 1)
                 _affectedInputsStream << ", ";
         }
-        _isAffectedInputsDirty.store(false);
+        _isAffectedInputsDirty = false;
     }
 };
 
