@@ -5,7 +5,7 @@ MaterialX Proposals v1.39
 
 # MaterialX: Proposed Additions and Changes
 
-**Proposals for Version 1.39**  
+**Proposals for Version 1.39**
 September 15, 2024
 
 
@@ -19,17 +19,17 @@ As such, those forward-looking proposals have been moved from the formal Specifi
 
 ## Table of Contents
 
-**[Introduction](#introduction)**  
+**[Introduction](#introduction)**
 
-**[Proposals: General](#propose-general)**  
+**[Proposals: General](#propose-general)**
 
-**[Proposals: Elements](#propose-elements)**  
+**[Proposals: Elements](#propose-elements)**
 
-**[Proposals: Stdlib Nodes](#propose-stdlib-nodes)**  
+**[Proposals: Stdlib Nodes](#propose-stdlib-nodes)**
 
-**[Proposals: PBR Nodes](#propose-pbr-nodes)**  
+**[Proposals: PBR Nodes](#propose-pbr-nodes)**
 
-**[Proposals: NPR Nodes](#propose-npr-nodes)**  
+**[Proposals: NPR Nodes](#propose-npr-nodes)**
 
 
 <p>&nbsp;<p><hr><p>
@@ -394,6 +394,22 @@ Output the RGB and alpha channels of a color4 as separate outputs.
 
 # Proposals: PBR Nodes<a id="propose-pbr-nodes"></a>
 
+### Zero-Weight BSDF and EDF Distribution Values
+
+The PBS library should define empty values for BSDF and EDF distributions. An empty BSDF represents no surface scattering contribution, and an empty EDF represents no emission contribution.
+
+This clarification is needed because the same authored graph can currently have target-dependent results. For example, consider a `layer(top=multiply(dielectric_bsdf, 0.0), base=oren_nayar_diffuse_bsdf)`. In GLSL, `dielectric_bsdf` computes a non-identity throughput, `multiply` clears the response but preserves that throughput, and `layer` still attenuates the diffuse base. In OSL, `multiply` is emitted as closure multiplication, so `0.0 * dielectric_bsdf` is the null closure and `layer` returns the diffuse base unchanged.
+
+Multiplying a BSDF or EDF by zero, should produce the empty distribution of the corresponding type. This rule applies only to distribution-function composition.
+
+For vertical layering, the empty BSDF should have zero reflectance and act as the identity top layer:
+
+```text
+layer(empty, base) = base
+layer(multiply(top, 0), base) = base
+```
+
+BSDF and EDF nodes with zero weights should produce empty distribution values, unless the node explicitly documents independent non-distribution effects.
 
 
 <p>&nbsp;<p><hr><p>
