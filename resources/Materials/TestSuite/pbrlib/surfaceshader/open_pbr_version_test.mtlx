@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<materialx version="1.39" colorspace="lin_rec709">
+  <!-- Explicit v1.2 with specular haze -->
+  <surfacematerial name="open_pbr_v1_2_explicit" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="v1_2_shader" />
+  </surfacematerial>
+  <open_pbr_surface name="v1_2_shader" type="surfaceshader" version="1.2">
+    <input name="base_color" type="color3" value="0.9, 0.1, 0.1" />
+    <input name="specular_roughness" type="float" value="0.1" />
+    <input name="specular_haze" type="float" value="0.3" />
+    <input name="specular_haze_spread" type="float" value="0.4" />
+  </open_pbr_surface>
+
+  <!-- Explicit v1.1.1 without haze params -->
+  <surfacematerial name="open_pbr_v1_1_1_explicit" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="v1_1_1_shader" />
+  </surfacematerial>
+  <open_pbr_surface name="v1_1_1_shader" type="surfaceshader" version="1.1.1">
+    <input name="base_color" type="color3" value="0.1, 0.9, 0.1" />
+    <input name="specular_roughness" type="float" value="0.25" />
+    <input name="coat_weight" type="float" value="0.3" />
+  </open_pbr_surface>
+
+  <!-- Implicit default (should resolve to v1.2) with haze params -->
+  <surfacematerial name="open_pbr_default_version" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="default_shader" />
+  </surfacematerial>
+  <open_pbr_surface name="default_shader" type="surfaceshader">
+    <input name="base_color" type="color3" value="0.1, 0.1, 0.9" />
+    <input name="specular_roughness" type="float" value="0.05" />
+    <input name="specular_haze" type="float" value="0.6" />
+    <input name="specular_haze_spread" type="float" value="0.2" />
+  </open_pbr_surface>
+</materialx>

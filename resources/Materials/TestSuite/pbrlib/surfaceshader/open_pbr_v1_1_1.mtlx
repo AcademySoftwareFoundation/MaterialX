@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<materialx version="1.39" colorspace="lin_rec709">
+  <surfacematerial name="open_pbr_v1_1_1_mat" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="open_pbr_v1_1_1_shader" />
+  </surfacematerial>
+  <open_pbr_surface name="open_pbr_v1_1_1_shader" type="surfaceshader" version="1.1.1">
+    <input name="base_color" type="color3" value="0.2, 0.5, 0.8" />
+    <input name="specular_roughness" type="float" value="0.2" />
+    <input name="coat_weight" type="float" value="0.5" />
+    <input name="coat_color" type="color3" value="1, 1, 1" />
+    <input name="coat_roughness" type="float" value="0.1" />
+  </open_pbr_surface>
+</materialx>
