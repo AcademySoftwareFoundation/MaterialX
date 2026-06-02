@@ -499,6 +499,7 @@ vec3 mx_ggx_dir_albedo(float NdotV, float alpha, FresnelData fd)
 }
 
 // Compute the cosine-weighted average of the Fresnel reflectance over the hemisphere.
+// https://blog.selfshadow.com/publications/s2017-shading-course/imageworks/s2017_pbs_imageworks_slides_v2.pdf
 vec3 mx_fresnel_average(FresnelData fd)
 {
     vec3 F0 = mx_compute_fresnel(1.0, fd);
