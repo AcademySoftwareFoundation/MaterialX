@@ -164,11 +164,11 @@ void CompoundNode::emitFunctionCall(const ShaderNode& node, GenContext& context,
     MX_TRACE_SCOPE(Tracing::Category::ShaderGen, _functionName.c_str());
 
     const ShaderGenerator& shadergen = context.getShaderGenerator();
+    ScopedSetCompoundInstanceNode scopedInstance(context, &node);
 
     DEFINE_SHADER_STAGE(stage, Stage::VERTEX)
     {
         // Emit function calls for all child nodes to the vertex shader stage
-        ScopedSetCompoundInstanceNode scopedInstance(context, &node);
         shadergen.emitFunctionCalls(*_rootGraph, context, stage);
     }
 
