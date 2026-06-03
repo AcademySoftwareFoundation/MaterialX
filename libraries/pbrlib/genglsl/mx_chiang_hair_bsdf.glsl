@@ -260,7 +260,7 @@ void mx_chiang_hair_bsdf(ClosureData closureData, vec3 tint_R, vec3 tint_TT, vec
         {
             tint[i] = max(tint[i], vec3(0.0));
             float Mp = mx_hair_longitudinal_scattering(angles[i].x, angles[i].y, sinThetaO, cosThetaO, vs[i].x);
-            float Np = (i == 3) ?  (1.0 / 2.0 * M_PI) : mx_hair_azimuthal_scattering(phi, i, vs[i].y, gammaO, gammaT);
+            float Np = mx_hair_azimuthal_scattering(phi, i, vs[i].y, gammaO, gammaT);
             F += Mp * Np * tint[i] * Ap[i];
         }
 
