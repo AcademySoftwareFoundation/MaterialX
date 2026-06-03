@@ -1990,7 +1990,7 @@ void Graph::buildGroupNode(UiNodePtr node)
 bool Graph::readOnly()
 {
     // If the sources are not the same then the current graph cannot be modified
-    return _state.graphElem->getActiveSourceUri() != _graphDoc->getActiveSourceUri();
+    return !_state.graphElem->belongsToContentDocument();
 }
 
 void Graph::drawOutputPins(UiNodePtr node, const std::string& longestInputLabel)
