@@ -4233,26 +4233,10 @@ void Graph::drawGraph(ImVec2 mousePos)
     ImGui::BeginChild("##node_editor_pane", ImVec2(0.f, 0.f), false,
                       ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 
-    // Reserve vertical space for the diagnostic panel when there are errors.
-    const float diagLineH = ImGui::GetTextLineHeightWithSpacing();
-    int diagNumGroups = 0;
-    if (!_diagnostics.empty())
-    {
-        std::string lastPath = "\x01"; // sentinel that won't match any real path
-        for (const LinkDiagnostic& d : _diagnostics)
-        {
-            if (d.graphPath != lastPath)
-            {
-                diagNumGroups++;
-                lastPath = d.graphPath;
-            }
-        }
-    }
-    // Height: title + group headers + entry rows, capped at 8 rows total.
-    const int diagVisibleRows = std::min(diagNumGroups + (int) _diagnostics.size() + 1, 8);
-    const float diagH = _diagnostics.empty() ? 0.f : diagLineH * diagVisibleRows + ImGui::GetStyle().WindowPadding.y * 2.f + ImGui::GetStyle().ItemSpacing.y;
+    const float splitterH = _diagnostics.empty() ? 0.f : 4.f;
+    const float diagH     = _diagnostics.empty() ? 0.f : _diagPanelHeight;
 
-    ed::Begin("My Editor", ImVec2(0.f, ImGui::GetContentRegionAvail().y - diagH));
+    ed::Begin("My Editor", ImVec2(0.f, ImGui::GetContentRegionAvail().y - diagH - splitterH));
     {
         ed::Suspend();
 
@@ -4721,12 +4705,29 @@ void Graph::drawGraph(ImVec2 mousePos)
     // Diagnostic panel — drawn below the node editor inside the same right-pane container.
     if (!_diagnostics.empty())
     {
+        // Resize handle between the node editor and the diagnostic panel.
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.6f, 0.6f, 0.6f, 0.15f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.6f, 0.6f, 0.6f, 0.25f));
+        ImGui::Button("##diag_splitter", ImVec2(-1.f, splitterH));
+        ImGui::PopStyleColor(3);
+        if (ImGui::IsItemActive())
+        {
+            const float minH = ImGui::GetTextLineHeightWithSpacing() * 2.f;
+            const float maxH = ImGui::GetWindowHeight() * 0.6f;
+            _diagPanelHeight -= ImGui::GetIO().MouseDelta.y;
+            _diagPanelHeight = std::max(_diagPanelHeight, minH);
+            _diagPanelHeight = std::min(_diagPanelHeight, maxH);
+        }
+        if (ImGui::IsItemHovered() || ImGui::IsItemActive())
+            ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNS);
+
         ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.14f, 0.08f, 0.08f, 1.f));
-        ImGui::BeginChild("##diagnostics", ImVec2(0.f, diagH), false, ImGuiWindowFlags_None);
+        ImGui::BeginChild("##diagnostics", ImVec2(0.f, _diagPanelHeight), false, ImGuiWindowFlags_None);
         ImGui::PopStyleColor();
 
         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 0.4f, 0.4f, 1.f));
-        ImGui::Text("Type mismatch errors: %d", (int) _diagnostics.size());
+        ImGui::Text("Invalid connections: %d", (int) _diagnostics.size());
         ImGui::PopStyleColor();
 
         ImGui::Separator();
@@ -4759,9 +4760,11 @@ void Graph::drawGraph(ImVec2 mousePos)
             {
                 for (const LinkDiagnostic* d : entries)
                 {
-                    std::string label = "  " + d->nodeName + "." + d->inputName +
-                                        "  [expects " + d->inputType +
-                                        ", got " + d->outputType + "]";
+                    std::string label = "  " + d->nodeName + "." + d->inputName;
+                    if (!d->inputType.empty() && !d->outputType.empty() && d->inputType != d->outputType)
+                        label += "  [expects " + d->inputType + ", got " + d->outputType + "]";
+                    else if (!d->message.empty())
+                        label += "  [" + d->message + "]";
                     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
                     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.f, 0.2f, 0.2f, 0.25f));
                     ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1.f, 0.2f, 0.2f, 0.45f));

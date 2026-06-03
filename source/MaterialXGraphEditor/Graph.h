@@ -385,6 +385,9 @@ class Graph
 
     // Diagnostic entries collected by linkGraph() for invalid connections.
     std::vector<LinkDiagnostic> _diagnostics;
+
+    // Current height of the diagnostic panel; adjusted by the resize handle.
+    float _diagPanelHeight = 120.f;
 };
 
 #endif
