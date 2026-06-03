@@ -3655,7 +3655,6 @@ void Graph::propertyEditor()
             }
 
             showPropertyEditorOutputConnections(_currUiNode);
-            ;
         }
 
         else if (_currUiNode->getInput() != nullptr)
@@ -3704,7 +3703,6 @@ void Graph::propertyEditor()
             }
 
             showPropertyEditorOutputConnections(_currUiNode);
-            ;
         }
         else if (_currUiNode->getOutput() != nullptr)
         {
@@ -3779,7 +3777,6 @@ void Graph::propertyEditor()
             }
 
             showPropertyEditorOutputConnections(_currUiNode);
-            ;
         }
 
         // Find tokens within currUiNode
