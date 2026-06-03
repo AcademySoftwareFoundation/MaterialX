@@ -64,14 +64,15 @@ struct Link
     bool _invalid;
 };
 
-// Describes a single type-mismatch detected when loading an external document.
+// Describes a single invalid connection detected by core validation.
 struct LinkDiagnostic
 {
-    int nodeId = -1; // UiNode ID; -1 when the error is in a nested nodegraph
+    int nodeId = -1;            // UiNode ID; -1 when the error is in a nested nodegraph
     std::string nodeName;
     std::string inputName;
     std::string inputType;
-    std::string outputType;
+    std::string outputType;     // resolved upstream type, best-effort, for display only
+    std::string message;        // message returned by Element::validate()
     std::string graphPath;      // empty = top-level; otherwise the containing nodegraph name
     mx::NodeGraphPtr nodeGraph; // nullptr = top-level; navigate here on click
 };
@@ -142,8 +143,16 @@ class Graph
     // Connect links via connected nodes in UiNodePtr
     void linkGraph();
 
-    // Walk all mx::NodeGraph elements in _graphDoc and append type-mismatch diagnostics.
+    // Walk all NodeGraph elements in _graphDoc and append invalid-connection diagnostics.
     void scanNestedGraphDiagnostics();
+
+    // If the given connected input fails core validation, append a diagnostic and return true.
+    bool addInvalidInputDiagnostic(mx::InputPtr input, const std::string& nodeName,
+                                   int uiNodeId, const std::string& graphPath,
+                                   mx::NodeGraphPtr ng);
+
+    // Best-effort resolution of the upstream output type feeding an input (for display only).
+    std::string resolveUpstreamOutputType(mx::InputPtr input) const;
 
     // Connect all links via the graph editor library
     void connectLinks();
@@ -374,7 +383,7 @@ class Graph
     // Options
     bool _saveNodePositions;
 
-    // Diagnostic entries collected by linkGraph() for type-mismatched connections.
+    // Diagnostic entries collected by linkGraph() for invalid connections.
     std::vector<LinkDiagnostic> _diagnostics;
 };
 

@@ -12,6 +12,7 @@
 #include <imgui_node_editor_internal.h>
 #include <widgets.h>
 
+#include <algorithm>
 #include <cctype>
 #include <iostream>
 #include <unordered_set>
@@ -354,6 +355,51 @@ ed::PinId Graph::getOutputPin(UiNodePtr node, UiNodePtr upNode, UiPinPtr input)
     }
 }
 
+std::string Graph::resolveUpstreamOutputType(mx::InputPtr input) const
+{
+    mx::NodePtr upstream = input->getConnectedNode();
+    if (!upstream)
+        return mx::EMPTY_STRING;
+
+    std::string outputType = upstream->getType();
+    if (outputType == mx::MULTI_OUTPUT_TYPE_STRING)
+    {
+        mx::NodeDefPtr nodeDef = upstream->getNodeDef();
+        if (nodeDef)
+        {
+            mx::OutputPtr defOut = nodeDef->getOutput(input->getOutputString());
+            if (defOut)
+                outputType = defOut->getType();
+        }
+    }
+    return outputType;
+}
+
+bool Graph::addInvalidInputDiagnostic(mx::InputPtr input, const std::string& nodeName,
+                                      int uiNodeId, const std::string& graphPath,
+                                      mx::NodeGraphPtr ng)
+{
+    if (!input || !input->getConnectedNode())
+        return false;
+
+    std::string message;
+    if (input->validate(&message))
+        return false;
+
+    LinkDiagnostic diag;
+    diag.nodeId    = uiNodeId;
+    diag.nodeName  = nodeName;
+    diag.inputName = input->getName();
+    diag.inputType = input->getType();
+    diag.outputType = resolveUpstreamOutputType(input);
+    message.erase(std::remove(message.begin(), message.end(), '\n'), message.end());
+    diag.message   = message;
+    diag.graphPath = graphPath;
+    diag.nodeGraph = ng;
+    _diagnostics.push_back(diag);
+    return true;
+}
+
 void Graph::linkGraph()
 {
     _state.links.clear();
@@ -384,49 +430,20 @@ void Graph::linkGraph()
 
                     if (start >= 0)
                     {
-                        // Connect the correct output pin to this input, and detect type mismatches.
-                        bool invalid = false;
-                        const std::string& inputType = inputs[i]->getType();
+                        // Connect the correct output pin to this input.
                         for (UiPinPtr outPin : inputNode->getOutputPins())
                         {
                             if (outPin->getPinId() == outputId)
                             {
                                 outPin->setConnected(true);
                                 outPin->addConnection(inputs[i]);
-                                const std::string& outputType = outPin->getType();
-                                std::string resolvedOutputType = outputType;
-                                if (outputType == mx::MULTI_OUTPUT_TYPE_STRING)
-                                {
-                                    // Resolve the specific output type from the nodedef
-                                    mx::NodePtr mxNode = inputNode->getNode();
-                                    if (mxNode)
-                                    {
-                                        mx::NodeDefPtr nodeDef = mxNode->getNodeDef();
-                                        if (nodeDef)
-                                        {
-                                            mx::OutputPtr defOutput = nodeDef->getOutput(outPin->getName());
-                                            if (defOutput)
-                                            {
-                                                resolvedOutputType = defOutput->getType();
-                                            }
-                                        }
-                                    }
-                                }
-                                if (!inputType.empty() && !resolvedOutputType.empty() &&
-                                    resolvedOutputType != mx::MULTI_OUTPUT_TYPE_STRING &&
-                                    resolvedOutputType != inputType)
-                                {
-                                    invalid = true;
-                                    LinkDiagnostic diag;
-                                    diag.nodeId = node->getId();
-                                    diag.nodeName = node->getName();
-                                    diag.inputName = inputs[i]->getName();
-                                    diag.inputType = inputType;
-                                    diag.outputType = resolvedOutputType;
-                                    _diagnostics.push_back(diag);
-                                }
                             }
                         }
+
+                        // Flag invalid connections via the core validation system.
+                        bool invalid = addInvalidInputDiagnostic(
+                            inputs[i]->getInput(), node->getName(), node->getId(),
+                            mx::EMPTY_STRING, nullptr);
 
                         Link link(_state.nextUiId++, start, end, invalid);
                         if (!linkExists(link))
@@ -467,34 +484,7 @@ void Graph::scanNestedGraphDiagnostics()
         {
             for (mx::InputPtr input : node->getInputs())
             {
-                mx::NodePtr upstream = input->getConnectedNode();
-                if (!upstream)
-                    continue;
-
-                if (input->validate())
-                    continue;
-
-                // Resolve the upstream output type for display in the diagnostic.
-                std::string outputType = upstream->getType();
-                if (outputType == mx::MULTI_OUTPUT_TYPE_STRING)
-                {
-                    mx::NodeDefPtr nodeDef = upstream->getNodeDef();
-                    if (nodeDef)
-                    {
-                        mx::OutputPtr defOut = nodeDef->getOutput(input->getOutputString());
-                        if (defOut)
-                            outputType = defOut->getType();
-                    }
-                }
-
-                LinkDiagnostic diag;
-                diag.nodeName = node->getName();
-                diag.inputName = input->getName();
-                diag.inputType = input->getType();
-                diag.outputType = outputType;
-                diag.graphPath = graphName;
-                diag.nodeGraph = ng;
-                _diagnostics.push_back(diag);
+                addInvalidInputDiagnostic(input, node->getName(), -1, graphName, ng);
             }
         }
     }
