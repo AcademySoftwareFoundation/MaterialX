@@ -278,6 +278,21 @@ ElementPtr Element::changeChildCategory(ElementPtr child, const string& category
     return newChild;
 }
 
+ElementPtr Element::getChild(const string& name) const
+{
+    ElementMap::const_iterator it = _childMap.find(name);
+    if (it != _childMap.end())
+    {
+        return it->second;
+    }
+    ConstDocumentPtr doc = asA<Document>();
+    if (doc && doc->hasDataLibrary())
+    {
+        return doc->getDataLibrary()->getChild(name);
+    }
+    return ElementPtr();
+}
+
 template <class T> shared_ptr<T> Element::getChildOfType(const string& name) const
 {
     ElementPtr child;
@@ -342,6 +357,11 @@ DocumentPtr Element::getDocument()
 ConstDocumentPtr Element::getDocument() const
 {
     return getRoot()->asA<Document>();
+}
+
+bool Element::belongsToContentDocument() const
+{
+    return getActiveSourceUri() == getDocument()->getSourceUri();
 }
 
 bool Element::hasInheritedBase(ConstElementPtr base) const

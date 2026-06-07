@@ -199,6 +199,36 @@ class TestMaterialX(unittest.TestCase):
         self.assertTrue((rotY * rotZ).isEquivalent(
             mx.Matrix44.createScale(mx.Vector3(1, -1, -1)), _epsilon))
 
+    def test_ElementContentDocument(self):
+        # Create a document.
+        doc = mx.createDocument()
+
+        # Test content document membership.
+        doc.setSourceUri('content.mtlx')
+        contentElem = doc.addChildOfCategory('generic', 'contentElem')
+        self.assertTrue(contentElem.belongsToContentDocument())
+        lib = mx.createDocument()
+        lib.setSourceUri('library.mtlx')
+        lib.addChildOfCategory('generic', 'libElem')
+        doc.importLibrary(lib)
+        libElem = doc.getChild('libElem')
+        self.assertTrue(libElem)
+        self.assertFalse(libElem.belongsToContentDocument())
+
+        stdlib = mx.createDocument()
+        mx.loadLibraries(mx.getDefaultDataLibraryFolders(), mx.getDefaultDataSearchPath(), stdlib)
+
+        docWithDataLibrary = mx.createDocument()
+        docWithDataLibrary.setDataLibrary(stdlib)
+        referencedNodeDef = docWithDataLibrary.getChild('ND_image_color3')
+        self.assertTrue(referencedNodeDef)
+        self.assertFalse(referencedNodeDef.belongsToContentDocument())
+
+        docWithImportedLibrary = mx.createDocument()
+        docWithImportedLibrary.importLibrary(stdlib)
+        importedNodeDef = docWithImportedLibrary.getChild('ND_image_color3')
+        self.assertTrue(importedNodeDef)
+        self.assertFalse(importedNodeDef.belongsToContentDocument())
 
     def test_BuildDocument(self):
         # Create a document.
