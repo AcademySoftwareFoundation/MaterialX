@@ -559,7 +559,7 @@ When $\eta^2 + c^2 < 1$, the quantity $g$ is imaginary and total internal reflec
 
 #### Thin-Film Iridescence
 
-When `thinfilm_thickness` is non-zero, the Fresnel reflectance $F$ above is replaced by the Airy reflectance $F_{\text{airy}}$ defined in [Thin-Film Iridescence](#thin-film-iridescence). The substrate IOR $\eta_3$ is set to the node's `ior` input $\eta$, with $\kappa_3 = 0$ (lossless dielectric).
+When `thinfilm_thickness` is non-zero, the Fresnel reflectance $F$ above is replaced by the Airy reflectance $F_{\text{airy}}$ defined in [Thin-Film Iridescence](#thin-film-iridescence). The substrate IOR $\eta_3$ is set to the node's `ior` input $\eta$, with $\kappa_3 = 0$ (lossless dielectric). The polarized phase shifts at the film–substrate interface are computed using the complex phase formulas given in the [Thin-Film Iridescence Model](#thin-film-iridescence-model) appendix, evaluated with $\kappa_3 = 0$; these capture the phase flip of the parallel polarization at the film–substrate Brewster angle, as well as the continuous phase shifts arising from total internal reflection within the film.
 
 <a id="node-conductor-bsdf"> </a>
 
@@ -621,7 +621,7 @@ F = \tfrac{1}{2}(R_s + R_p)
 
 #### Thin-Film Iridescence
 
-When `thinfilm_thickness` is non-zero, the Fresnel reflectance $F$ above is replaced by the Airy reflectance $F_{\text{airy}}$ defined in [Thin-Film Iridescence](#thin-film-iridescence). The substrate is defined by the node's complex index of refraction, with $\eta_3 = \eta$ and $\kappa_3 = \kappa$. The polarized phase shifts at the film–substrate interface are computed using the conductor phase formula given in the [Thin-Film Iridescence Model](#thin-film-iridescence-model) appendix.
+When `thinfilm_thickness` is non-zero, the Fresnel reflectance $F$ above is replaced by the Airy reflectance $F_{\text{airy}}$ defined in [Thin-Film Iridescence](#thin-film-iridescence). The substrate is defined by the node's complex index of refraction, with $\eta_3 = \eta$ and $\kappa_3 = \kappa$. The polarized phase shifts at the film–substrate interface are computed using the complex phase formulas given in the [Thin-Film Iridescence Model](#thin-film-iridescence-model) appendix.
 
 <a id="node-generalized-schlick-bsdf"> </a>
 
@@ -678,7 +678,7 @@ F_{\theta} = r_0 + (r_{90} - r_0)(1 - \cos\theta)^{q} - a \cdot \cos\theta (1 - 
 
 #### Thin-Film Iridescence
 
-When `thinfilm_thickness` is non-zero, the Fresnel reflectance $F_{\theta}$ above is replaced by the Airy reflectance $F_{\text{airy}}$ defined in [Thin-Film Iridescence](#thin-film-iridescence). The substrate IOR $\eta_3$ is derived from the `color0` input $r_0$ using the standard Schlick-to-IOR inversion, with $\kappa_3 = 0$.
+When `thinfilm_thickness` is non-zero, the Fresnel reflectance $F_{\theta}$ above is replaced by the Airy reflectance $F_{\text{airy}}$ defined in [Thin-Film Iridescence](#thin-film-iridescence). The substrate IOR $\eta_3$ is derived from the `color0` input $r_0$ using the standard Schlick-to-IOR inversion, with $\kappa_3 = 0$. The phase shift at the film–substrate interface uses the step-function approximation given in the [Thin-Film Iridescence Model](#thin-film-iridescence-model) appendix, applied equally to both polarization states.
 
 <a id="node-translucent-bsdf"> </a>
 
@@ -1703,20 +1703,9 @@ The phase shift $\phi_{21}$ at the air–film interface depends on the incidence
 ```
 <p></p>
 
-#### Second Interface Phase (Dielectric Substrate)
+#### Second Interface Phase (Dielectric and Conductor Substrates)
 
-For a dielectric or Schlick substrate, the phase shift at the film–substrate interface is:
-
-```math
-\phi_{23} = \begin{cases} \pi & \text{if } \eta_3 < \eta_2 \\ 0 & \text{otherwise} \end{cases}
-```
-<p></p>
-
-applied equally to both polarization states.
-
-#### Second Interface Phase (Conductor Substrate)
-
-For a conductor substrate with complex IOR $(\eta_3, \kappa_3)$, the phase shifts are computed from the complex Fresnel coefficients. Defining the intermediate quantities:
+For a dielectric or conductor substrate with complex IOR $(\eta_3, \kappa_3)$, where $\kappa_3 = 0$ for a lossless dielectric, the phase shifts are computed from the complex Fresnel coefficients. Defining the intermediate quantities:
 
 ```math
 \bar{k} = \kappa_3 / \eta_3
@@ -1743,17 +1732,30 @@ V = \max\left(0, \sqrt{(B - A) / 2}\right)
 ```
 <p></p>
 
-The polarized phase shifts are:
+The polarized phase shifts are computed with the two-argument arctangent $\operatorname{atan2}(y, x)$, which is required to resolve the correct quadrant:
 
 ```math
-\phi_{23}^s = \arctan\frac{2\eta_2 V \cos\theta_t}{U^2 + V^2 - (\eta_2 \cos\theta_t)^2}
+\phi_{23}^s = \operatorname{atan2}\left(2\eta_2 V \cos\theta_t,\; U^2 + V^2 - (\eta_2 \cos\theta_t)^2\right)
 ```
 <p></p>
 
 ```math
-\phi_{23}^p = \arctan\frac{2\eta_2 \eta_3^2 \cos\theta_t \left(2\bar{k}U - (1 - \bar{k}^2)V\right)}{(\eta_3^2 (1 + \bar{k}^2) \cos\theta_t)^2 - \eta_2^2 (U^2 + V^2)}
+\phi_{23}^p = \operatorname{atan2}\left(2\eta_2 \eta_3^2 \cos\theta_t \left(2\bar{k}U - (1 - \bar{k}^2)V\right),\; \left(\eta_3^2 (1 + \bar{k}^2) \cos\theta_t\right)^2 - \eta_2^2 (U^2 + V^2)\right)
 ```
 <p></p>
+
+In the dielectric case ($\kappa_3 = 0$), these expressions reduce below the critical angle to step functions of $0$ and $\pi$: the perpendicular phase $\phi_{23}^s$ is $\pi$ when $\eta_3 < \eta_2$ and $0$ otherwise, while the parallel phase $\phi_{23}^p$ additionally flips by $\pi$ at the film–substrate Brewster angle $\arctan(\eta_3 / \eta_2)$. Beyond the critical angle, total internal reflection at the film–substrate interface produces continuously varying phase shifts in both polarization states, which the expressions above handle directly.
+
+#### Second Interface Phase (Schlick Substrate)
+
+For a Schlick substrate, the phase shift at the film–substrate interface is approximated by the step function:
+
+```math
+\phi_{23} = \begin{cases} \pi & \text{if } \eta_3 < \eta_2 \\ 0 & \text{otherwise} \end{cases}
+```
+<p></p>
+
+applied equally to both polarization states, where $\eta_3$ is the effective substrate IOR derived from the `color0` input.
 
 
 ### Optical Path Difference
