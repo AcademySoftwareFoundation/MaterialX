@@ -70,6 +70,11 @@ class MX_FORMAT_API XmlWriteOptions
     /// XIncludes rather than explicit data.  Defaults to true.
     bool writeXIncludeEnable;
 
+    /// If true output will follow a strict interpretation of the XML specification.  
+    /// If false, then MaterialX customizations which deviate from the XML specification will be allowed.  
+    // Defaults to false. 
+    bool strictXML = false; 
+
     /// If provided, this function will be used to exclude specific elements
     /// (those returning false) from the write operation.  Defaults to nullptr.
     ElementPredicate elementPredicate;
