@@ -90,7 +90,7 @@ The initial requirements for a physically-plausible material are that it 1) shou
 
 ## Quantities and Units
 
-Radiometric quantities are used by the material model for interactions with the renderer. The fundamental radiometric quantity is **radiance** (measured in $W\\,m^{-2}\\,sr^{-1}$) and gives the intensity of light arriving at, or leaving from, a given point in a given direction. If incident radiance is integrated over all directions we get **irradiance** (measured in $W\\,m^{-2}$), and if we integrate this over surface area we get **power** (measured in $W$). Input parameters for materials and lights specified in photometric units can be suitably converted to their radiometric counterparts before being submitted to the renderer.
+Radiometric quantities are used by the material model for interactions with the renderer. The fundamental radiometric quantity is **radiance** (measured in $`W\,m^{-2}\,sr^{-1}`$) and gives the intensity of light arriving at, or leaving from, a given point in a given direction. If incident radiance is integrated over all directions we get **irradiance** (measured in $`W\,m^{-2}`$), and if we integrate this over surface area we get **power** (measured in $W$). Input parameters for materials and lights specified in photometric units can be suitably converted to their radiometric counterparts before being submitted to the renderer.
 
 When the renderer operates in RGB rather than on a full spectrum, each of the red, green, and blue channels carries the convolution of a spectral radiance distribution with a sensor response function, so the quantity actually transported is neither spectral radiance nor luminance, but an _integrated radiance_, also called a _tristimulus weight_. The radiometric units used throughout this document should therefore be understood as nominal: they identify the physical quantity that each value represents in an idealized spectral sense, and fix the relative scaling between quantities, while the absolute scale of emission and the mapping to displayed pixel values are governed by the renderer's exposure and color-management conventions.
 
@@ -141,9 +141,9 @@ The surface normal used for shading calculations is supplied as input to each BS
 
 ## Volumes
 
-In our volume shader model the scattering of light in a participating medium is controlled by a volume distribution function (VDF), with coefficients controlling the rate of absorption and scattering. The VDF represents what physicists call a _phase function, _describing how the light is distributed from its current direction when it is scattered in the medium. This is analogous to how a BSDF describes scattering at a surface, but with one important difference: a VDF is normalized, summing to 1.0 if all directions are considered. Additionally, the amount of absorption and scattering is controlled by coefficients that gives the rate (probability) per distance traveled in world space. The **absorption coefficient** sets the rate of absorption for light traveling through the medium, and the **scattering coefficient** sets the rate of which the light is scattered from its current direction. The unit for these are $m^{-1}$.
+In our volume shader model the scattering of light in a participating medium is controlled by a volume distribution function (VDF), with coefficients controlling the rate of absorption and scattering. The VDF represents what physicists call a _phase function_, describing how the light is distributed from its current direction when it is scattered in the medium. This is analogous to how a BSDF describes scattering at a surface, but with one important difference: a VDF is normalized, summing to 1.0 if all directions are considered. Additionally, the amount of absorption and scattering is controlled by coefficients that gives the rate (probability) per distance traveled in world space. The **absorption coefficient** sets the rate of absorption for light traveling through the medium, and the **scattering coefficient** sets the rate of which the light is scattered from its current direction. The unit for these are $m^{-1}$.
 
-Light can also be emitted from a volume. This is represented by an EDF analog to emission from surfaces, but in this context the emission is given as radiance per distance traveled through the medium. The unit for this is $W\\,m^{-3}\\,sr^{-1}$. The emission distribution is oriented along the current direction.
+Light can also be emitted from a volume. This is represented by an EDF analog to emission from surfaces, but in this context the emission is given as radiance per distance traveled through the medium. The unit for this is $`W\,m^{-3}\,sr^{-1}`$. The emission distribution is oriented along the current direction.
 
 The [&lt;volume>](#node-volume) node in the PBS library constructs a volume shader from individual VDF and EDF components. There are also nodes to construct various VDFs, as well as nodes to combine them to build more complex ones.
 
@@ -221,7 +221,7 @@ L_e(\omega_o) = \frac{d^2\Phi_e}{dA \, \cos\theta_o \; d\omega_o}
 ```
 <p></p>
 
-where $dA$ is the differential area around $p$. Unlike the BSDF, the EDF is a function of a single direction and carries no dependence on an incident direction or cosine factor. For surface EDFs, $L_e$ has units of $W\\,m^{-2}\\,sr^{-1}$; for volume EDFs, $W\\,m^{-3}\\,sr^{-1}$.
+where $dA$ is the differential area around $p$. Unlike the BSDF, the EDF is a function of a single direction and carries no dependence on an incident direction or cosine factor. For surface EDFs, $L_e$ has units of $`W\,m^{-2}\,sr^{-1}`$; for volume EDFs, $`W\,m^{-3}\,sr^{-1}`$.
 
 
 ### Reflection and Transmission
@@ -394,7 +394,7 @@ For a participating medium, radiance is continuously attenuated by absorption an
 ```
 <p></p>
 
-The first term attenuates radiance by the extinction coefficient $\sigma_t = \sigma_a + \sigma_s$. The second adds radiance scattered into $\omega_o$ from all directions, weighted by the scattering coefficient $\sigma_s$ and the phase function $f_p$. The final term $L_e$ is the volume emission, stated in $W\\,m^{-3}\\,sr^{-1}$; it corresponds to the product $\sigma_a L_e$ of an absorption coefficient and an emitted radiance in the formulation of Pharr et al.[^Pharr2023]. The coefficients $\sigma_a$, $\sigma_s$ and the phase function $f_p$ are supplied by the medium's [VDF](#vdf-nodes), and $L_e$ by its [EDF](#edf-nodes).
+The first term attenuates radiance by the extinction coefficient $\sigma_t = \sigma_a + \sigma_s$. The second adds radiance scattered into $\omega_o$ from all directions, weighted by the scattering coefficient $\sigma_s$ and the phase function $f_p$. The final term $L_e$ is the volume emission, stated in $`W\,m^{-3}\,sr^{-1}`$; it corresponds to the product $\sigma_a L_e$ of an absorption coefficient and an emitted radiance in the formulation of Pharr et al.[^Pharr2023]. The coefficients $\sigma_a$, $\sigma_s$ and the phase function $f_p$ are supplied by the medium's [VDF](#vdf-nodes), and $L_e$ by its [EDF](#edf-nodes).
 
 <br>
 
@@ -865,7 +865,7 @@ L_e(\omega_o) = c\cdot\mathrm{smoothstep}(c_{\text{out}},\, c_{\text{in}},\, \co
 ```
 <p></p>
 
-where $\mathrm{smoothstep}(a, b, x) = t^2(3 - 2t)$ with $t = \mathrm{clamp}\\!\left(\dfrac{x - a}{b - a},\\, 0,\\, 1\right)$.
+where $\mathrm{smoothstep}(a, b, x) = t^2(3 - 2t)$ with $`t = \mathrm{clamp}\!\left(\dfrac{x - a}{b - a},\, 0,\, 1\right)`$.
 
 <a id="node-measured-edf"> </a>
 
@@ -1732,15 +1732,15 @@ V = \max\left(0, \sqrt{(B - A) / 2}\right)
 ```
 <p></p>
 
-The polarized phase shifts are computed with the two-argument arctangent $\operatorname{atan2}(y, x)$, which is required to resolve the correct quadrant:
+The polarized phase shifts are computed with the two-argument arctangent $\mathrm{atan2}(y, x)$, which is required to resolve the correct quadrant:
 
 ```math
-\phi_{23}^s = \operatorname{atan2}\left(2\eta_2 V \cos\theta_t,\; U^2 + V^2 - (\eta_2 \cos\theta_t)^2\right)
+\phi_{23}^s = \mathrm{atan2}\left(2\eta_2 V \cos\theta_t,\; U^2 + V^2 - (\eta_2 \cos\theta_t)^2\right)
 ```
 <p></p>
 
 ```math
-\phi_{23}^p = \operatorname{atan2}\left(2\eta_2 \eta_3^2 \cos\theta_t \left(2\bar{k}U - (1 - \bar{k}^2)V\right),\; \left(\eta_3^2 (1 + \bar{k}^2) \cos\theta_t\right)^2 - \eta_2^2 (U^2 + V^2)\right)
+\phi_{23}^p = \mathrm{atan2}\left(2\eta_2 \eta_3^2 \cos\theta_t \left(2\bar{k}U - (1 - \bar{k}^2)V\right),\; \left(\eta_3^2 (1 + \bar{k}^2) \cos\theta_t\right)^2 - \eta_2^2 (U^2 + V^2)\right)
 ```
 <p></p>
 
