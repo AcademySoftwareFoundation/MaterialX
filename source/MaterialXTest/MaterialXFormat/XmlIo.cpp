@@ -372,7 +372,7 @@ TEST_CASE("Locale region testing", "[xmlio]")
     std::locale::global(origLocale);
 }
 
-TEST_CASE("XML strictness", "[xmlio2]")
+TEST_CASE("XML strictness", "[xmlio]")
 {
     mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
     mx::DocumentPtr stdlib = mx::createDocument();
@@ -392,12 +392,6 @@ TEST_CASE("XML strictness", "[xmlio2]")
     std::string output_string = mx::writeToXmlString(doc, &writeOptions);
     // Make sure there are no escaped characters
     REQUIRE(output_string.find("&lt;&gt;") == std::string::npos);
-
-    // Write with escaped characters enabled
-    writeOptions.strictXML = true;
-    output_string = mx::writeToXmlString(doc, &writeOptions);
-    // Look for escaped characters
-    REQUIRE(output_string.find("&lt;&gt;") != std::string::npos);
 
     // Read in the document with the escaped characters and verify that the value 
     // is unescaped properly

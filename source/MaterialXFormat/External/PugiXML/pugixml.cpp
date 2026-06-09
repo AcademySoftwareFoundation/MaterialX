@@ -3927,7 +3927,7 @@ PUGI__NS_BEGIN
 		xml_encoding encoding;
 	};
 
-	PUGI__FN void text_output_escaped(xml_buffered_writer& writer, const char_t* s, chartypex_t type, unsigned int flags)
+	PUGI__FN void text_output_escaped(xml_buffered_writer& writer, const char_t* s, chartypex_t type)
 	{
 		while (*s)
 		{
@@ -3946,19 +3946,11 @@ PUGI__NS_BEGIN
 					++s;
 					break;
 				case '<':
-					// MaterialX: Allow angle brackets in MTLX serialization.
-					if (flags & format_mtlx)
-						writer.write('<');
-					else
-						writer.write('&', 'l', 't', ';');
+					writer.write('&', 'l', 't', ';');
 					++s;
 					break;
 				case '>':
-					// MaterialX: Allow angle brackets in MTLX serialization.					
-					if (flags & format_mtlx)
-						writer.write('>');
-					else
-						writer.write('&', 'g', 't', ';');
+					writer.write('&', 'g', 't', ';');
 					++s;
 					break;
 				case '"':
@@ -3981,7 +3973,7 @@ PUGI__NS_BEGIN
 		if (flags & format_no_escapes)
 			writer.write_string(s);
 		else
-			text_output_escaped(writer, s, type, flags);
+			text_output_escaped(writer, s, type);
 	}
 
 	PUGI__FN void text_output_cdata(xml_buffered_writer& writer, const char_t* s)

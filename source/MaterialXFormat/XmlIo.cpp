@@ -347,19 +347,10 @@ void readFromXmlString(DocumentPtr doc, const string& str, const FileSearchPath&
 
 void writeToXmlStream(DocumentPtr doc, std::ostream& stream, const XmlWriteOptions* writeOptions)
 {
-    // Check for XML strictness
-    unsigned int flags = format_default;
-    bool strictXML = writeOptions ? writeOptions->strictXML : false;
-    if (!strictXML)
-    {
-        // If not strict add MaterialX specific output formatting.
-        flags |= format_mtlx;
-    }
-
     xml_document xmlDoc;
     xml_node xmlRoot = xmlDoc.append_child("materialx");
     documentToXml(doc, xmlRoot, writeOptions);
-    xmlDoc.save(stream, "  ", flags);
+    xmlDoc.save(stream, "  ");
 }
 
 void writeToXmlFile(DocumentPtr doc, const FilePath& filename, const XmlWriteOptions* writeOptions)
