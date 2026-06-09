@@ -44,7 +44,7 @@ void mx_dielectric_bsdf(ClosureData closureData, float weight, vec3 tint, float 
         float D = mx_ggx_NDF(Ht, safeAlpha);
         float G = mx_ggx_smith_G2(NdotL, NdotV, avgAlpha);
 
-        vec3 comp = mx_ggx_energy_compensation(NdotV, avgAlpha, F);
+        vec3 comp = mx_ggx_energy_compensation(NdotV, avgAlpha, fd);
         vec3 dirAlbedo = mx_ggx_dir_albedo(NdotV, avgAlpha, F0, 1.0) * comp;
         bsdf.throughput = 1.0 - dirAlbedo * weight;
 
@@ -52,9 +52,7 @@ void mx_dielectric_bsdf(ClosureData closureData, float weight, vec3 tint, float 
     }
     else if (closureData.closureType == CLOSURE_TYPE_TRANSMISSION)
     {
-        vec3 F = mx_compute_fresnel(NdotV, fd);
-
-        vec3 comp = mx_ggx_energy_compensation(NdotV, avgAlpha, F);
+        vec3 comp = mx_ggx_energy_compensation(NdotV, avgAlpha, fd);
         vec3 dirAlbedo = mx_ggx_dir_albedo(NdotV, avgAlpha, F0, 1.0) * comp;
         bsdf.throughput = 1.0 - dirAlbedo * weight;
 
@@ -65,9 +63,7 @@ void mx_dielectric_bsdf(ClosureData closureData, float weight, vec3 tint, float 
     }
     else if (closureData.closureType == CLOSURE_TYPE_INDIRECT)
     {
-        vec3 F = mx_compute_fresnel(NdotV, fd);
-
-        vec3 comp = mx_ggx_energy_compensation(NdotV, avgAlpha, F);
+        vec3 comp = mx_ggx_energy_compensation(NdotV, avgAlpha, fd);
         vec3 dirAlbedo = mx_ggx_dir_albedo(NdotV, avgAlpha, F0, 1.0) * comp;
         bsdf.throughput = 1.0 - dirAlbedo * weight;
 

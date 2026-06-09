@@ -29,8 +29,8 @@ OslRenderer::OslRenderer(unsigned int width, unsigned int height, Image::BaseTyp
     ShaderRenderer(width, height, baseType),
     _useTestRender(true),
     _useOSLCmdStr(false),
-    _raysPerPixelLit(1),
-    _raysPerPixelUnlit(1)
+    _aaLit(1),
+    _aaUnlit(1)
 {
 }
 
@@ -169,7 +169,7 @@ void OslRenderer::renderOSL(const FilePath& dirPath, const string& shaderName, c
     command += " " + outputFileName;
     command += " -r " + std::to_string(_width) + " " + std::to_string(_height);
     command += " --path " + osoPaths;
-    command += " -aa " + std::to_string(isColorClosure ? _raysPerPixelLit : _raysPerPixelUnlit);
+    command += " -aa " + std::to_string(isColorClosure ? _aaLit : _aaUnlit);
     command += " > " + errorFile + redirectString;
 
     // Repeat the render command to allow for sporadic errors.
@@ -299,7 +299,7 @@ void OslRenderer::renderOSLNetwork(const FilePath& dirPath, const string& shader
     command += " " + outputFileName;
     command += " -r " + std::to_string(_width) + " " + std::to_string(_height);
     command += " --path " + osoPaths;
-    command += " -aa " + std::to_string(_raysPerPixelLit);
+    command += " -aa " + std::to_string(_aaLit);
     command += " > " + errorFile + redirectString;
 
     // Repeat the render command to allow for sporadic errors.

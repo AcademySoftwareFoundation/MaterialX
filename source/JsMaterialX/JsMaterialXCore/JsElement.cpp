@@ -169,6 +169,7 @@ EMSCRIPTEN_BINDINGS(element)
         .function("hasSourceUri", &mx::Element::hasSourceUri)
         .function("getSourceUri", &mx::Element::getSourceUri)
         .function("getActiveSourceUri", &mx::Element::getActiveSourceUri)
+        .function("belongsToContentDocument", &mx::Element::belongsToContentDocument)
         .function("validate", ems::optional_override([](mx::Element &self) {
             return self.validate();
         }))
