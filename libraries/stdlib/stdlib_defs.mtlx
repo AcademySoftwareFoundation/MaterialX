@@ -1239,7 +1239,7 @@
 
   <!--
     Node: <flake2d>
-    3D flake pattern generator.
+    2D flake pattern generator.
   -->
   <nodedef name="ND_flake2d" node="flake2d" nodegroup="procedural2d">
     <input name="size" type="float" value="0.01" doc="Size of individual flakes." />
@@ -1249,7 +1249,7 @@
     <input name="normal" type="vector3" defaultgeomprop="Nworld" doc="Surface normal; defaults to the current world-space normal." />
     <input name="tangent" type="vector3" defaultgeomprop="Tworld" doc="Surface tangent vector, defaults to the current world-space tangent vector." />
     <input name="bitangent" type="vector3" defaultgeomprop="Bworld" doc="Surface bitangent vector, defaults to the current world-space bitangent vector." />
-    <output name="id" type="integer" default="0" doc="Unique identifier for each flake (0 for no flake)." />
+    <output name="id" type="integer" default="0" doc="Stable pseudo-random integer label for the selected flake, not guaranteed to be unique (0 for no flake)." />
     <output name="rand" type="float" default="0.0" doc="Random value per flake for additional variation (0 for no flake)." />
     <output name="presence" type="float" default="0.0" doc="Depth-based presence value per flake for additional variation (0 for no flake)." />
     <output name="flakenormal" type="vector3" default="Nworld" doc="The computed flake normal (base normal if no flake present)." />
@@ -1257,7 +1257,7 @@
 
   <!--
     Node: <flake3d>
-    2D flake pattern generator.
+    3D flake pattern generator.
   -->
   <nodedef name="ND_flake3d" node="flake3d" nodegroup="procedural3d">
     <input name="size" type="float" value="0.01" doc="Size of individual flakes." />
@@ -1267,7 +1267,7 @@
     <input name="normal" type="vector3" defaultgeomprop="Nworld" doc="Surface normal; defaults to the current world-space normal." />
     <input name="tangent" type="vector3" defaultgeomprop="Tworld" doc="Surface tangent vector, defaults to the current world-space tangent vector." />
     <input name="bitangent" type="vector3" defaultgeomprop="Bworld" doc="Surface bitangent vector, defaults to the current world-space bitangent vector." />
-    <output name="id" type="integer" default="0" doc="Unique identifier for each flake (0 for no flake)." />
+    <output name="id" type="integer" default="0" doc="Stable pseudo-random integer label for the selected flake, not guaranteed to be unique (0 for no flake)." />
     <output name="rand" type="float" default="0.0" doc="Random value per flake for additional variation (0 for no flake)." />
     <output name="presence" type="float" default="0.0" doc="Depth-based presence value per flake for additional variation (0 for no flake)." />
     <output name="flakenormal" type="vector3" default="Nworld" doc="The computed flake normal (base normal if no flake present)." />
@@ -2717,6 +2717,56 @@
     <input name="in1" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="in2" type="float" value="0.0" />
     <output name="out" type="vector4" defaultinput="in1" />
+  </nodedef>
+
+  <!--
+    Node: <mincomponent>
+    Output the minimum component of the incoming vector or color stream.
+  -->
+  <nodedef name="ND_mincomponent_color3" node="mincomponent" nodegroup="math">
+    <input name="in" type="color3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="float" default="0.0" />
+  </nodedef>
+  <nodedef name="ND_mincomponent_color4" node="mincomponent" nodegroup="math">
+    <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0" />
+    <output name="out" type="float" default="0.0" />
+  </nodedef>
+  <nodedef name="ND_mincomponent_vector2" node="mincomponent" nodegroup="math">
+    <input name="in" type="vector2" value="0.0, 0.0" />
+    <output name="out" type="float" default="0.0" />
+  </nodedef>
+  <nodedef name="ND_mincomponent_vector3" node="mincomponent" nodegroup="math">
+    <input name="in" type="vector3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="float" default="0.0" />
+  </nodedef>
+  <nodedef name="ND_mincomponent_vector4" node="mincomponent" nodegroup="math">
+    <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
+    <output name="out" type="float" default="0.0" />
+  </nodedef>
+
+  <!--
+    Node: <maxcomponent>
+    Output the maximum component of the incoming vector or color stream.
+  -->
+  <nodedef name="ND_maxcomponent_color3" node="maxcomponent" nodegroup="math">
+    <input name="in" type="color3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="float" default="0.0" />
+  </nodedef>
+  <nodedef name="ND_maxcomponent_color4" node="maxcomponent" nodegroup="math">
+    <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0" />
+    <output name="out" type="float" default="0.0" />
+  </nodedef>
+  <nodedef name="ND_maxcomponent_vector2" node="maxcomponent" nodegroup="math">
+    <input name="in" type="vector2" value="0.0, 0.0" />
+    <output name="out" type="float" default="0.0" />
+  </nodedef>
+  <nodedef name="ND_maxcomponent_vector3" node="maxcomponent" nodegroup="math">
+    <input name="in" type="vector3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="float" default="0.0" />
+  </nodedef>
+  <nodedef name="ND_maxcomponent_vector4" node="maxcomponent" nodegroup="math">
+    <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
+    <output name="out" type="float" default="0.0" />
   </nodedef>
 
   <!--

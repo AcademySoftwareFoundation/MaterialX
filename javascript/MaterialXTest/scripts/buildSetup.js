@@ -1,4 +1,5 @@
-// Cross-platform clean and copy of build artifacts for testing.
+// Cross-platform clean and copy of build artifacts for testing, used as
+// Playwright's globalSetup.
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -8,13 +9,16 @@ const testRoot = path.resolve(__dirname, '..');
 const buildDir = path.join(testRoot, '_build');
 const srcDir = path.resolve(testRoot, '..', 'build', 'bin');
 
-fs.rmSync(buildDir, { recursive: true, force: true });
-fs.mkdirSync(buildDir, { recursive: true });
-
-for (const file of fs.readdirSync(srcDir))
+export default function buildSetup()
 {
-    if (file.startsWith('JsMaterialX'))
+    fs.rmSync(buildDir, { recursive: true, force: true });
+    fs.mkdirSync(buildDir, { recursive: true });
+
+    for (const file of fs.readdirSync(srcDir))
     {
-        fs.copyFileSync(path.join(srcDir, file), path.join(buildDir, file));
+        if (file.startsWith('JsMaterialX'))
+        {
+            fs.copyFileSync(path.join(srcDir, file), path.join(buildDir, file));
+        }
     }
 }

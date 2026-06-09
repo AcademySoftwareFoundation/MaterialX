@@ -57,6 +57,7 @@ Per language tests will scan MaterialX files in the test suite for input materia
 When rendering tests are enabled through the `MATERIALX_TEST_RENDER` option, the test suite will generate shader code for each test material and supported language.  Rendering will also be performed in languages for which support libraries have been provided:
 - `GLSL`:
     - OpenGL version 4.0 and later are supported.
+    - Set `MATERIALX_TEST_RENDER_GLSL=OFF` to skip GLSL render tests (e.g. in MacOS environments that only require MSL).
 - `OSL`:
     - Set the following build options to enable OSL support:
         - `MATERIALX_OSL_BINARY_OSLC`: Path to the OSL compiler binary (e.g. `oslc.exe`).
@@ -81,6 +82,7 @@ When rendering tests are enabled through the `MATERIALX_TEST_RENDER` option, the
 #### HTML Render Comparisons
 - A `tests_to_html` Python script is provided in the [`python/MaterialXTest`](../../python/MaterialXTest) folder, which can be run to generate an HTML file comparing the rendered results in each shading language.
 - Example render comparisons may be found in [commits to the MaterialX repository](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1164), and we encourage developers to post their own results when making changes that have the potential to impact generated shaders.
+- Set `MATERIALX_TEST_REFERENCE_QUALITY=ON` to render the test suite at higher sample counts, reducing sampling noise so that small visual differences across shading languages can be accurately compared.  This is a build-time option and requires a more capable GPU and longer render times than the default.
 
 #### Benchmark Tests
 
