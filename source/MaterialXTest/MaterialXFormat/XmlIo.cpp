@@ -387,11 +387,11 @@ TEST_CASE("XML strictness", "[xmlio]")
     mx::InputPtr fileInput = imageNode->getInput("file");
     fileInput->setValue("<>");
 
-    // Write to string with default options
+    // Write to string with escaped characters
     mx::XmlWriteOptions writeOptions;
     std::string output_string = mx::writeToXmlString(doc, &writeOptions);
-    // Make sure there are no escaped characters
-    REQUIRE(output_string.find("&lt;&gt;") == std::string::npos);
+    // Make sure there are escaped characters
+    REQUIRE(output_string.find("&lt;&gt;") != std::string::npos);
 
     // Read in the document with the escaped characters and verify that the value 
     // is unescaped properly
