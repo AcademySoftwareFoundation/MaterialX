@@ -16,6 +16,7 @@ def is_well_formed(xml_string):
         ET.fromstring(xml_string)  
     except ET.ParseError as e:
         error = str(e)
+    return error
 
 def main():
     parser = argparse.ArgumentParser(description="Reformat a folder of MaterialX documents in place.")
