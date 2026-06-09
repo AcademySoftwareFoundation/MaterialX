@@ -291,7 +291,6 @@ If adopted, the existing `triplanarprojection` node would be reimplemented as a 
 |`out`       |Output: the blended value                                                                      |Same as `inx`  |__zero__ |                      |
 
 
-
 ### Adjustment Nodes
 
 <a id="node-curveinversecubic"> </a>
