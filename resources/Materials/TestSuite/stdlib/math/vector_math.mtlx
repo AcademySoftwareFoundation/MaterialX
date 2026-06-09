@@ -139,4 +139,64 @@
     </transpose>
     <output name="out" type="vector4" nodename="transformvector1" />
   </nodegraph>
+  <nodegraph name="maxcomponent_color3">
+    <maxcomponent name="maxcomponent1" type="float">
+      <input name="in" type="color3" value="0.2000, 0.9000, 0.5000" />
+    </maxcomponent>
+    <output name="out" type="float" nodename="maxcomponent1" />
+  </nodegraph>
+  <nodegraph name="maxcomponent_vector2">
+    <maxcomponent name="maxcomponent1" type="float">
+      <input name="in" type="vector2" value="0.1000, 0.9000" />
+    </maxcomponent>
+    <output name="out" type="float" nodename="maxcomponent1" />
+  </nodegraph>
+  <nodegraph name="maxcomponent_vector3">
+    <maxcomponent name="maxcomponent1" type="float">
+      <input name="in" type="vector3" value="-0.3000, 0.5000, 0.9000" />
+    </maxcomponent>
+    <output name="out" type="float" nodename="maxcomponent1" />
+  </nodegraph>
+  <nodegraph name="maxcomponent_vector4">
+    <maxcomponent name="maxcomponent1" type="float">
+      <input name="in" type="vector4" value="0.1000, 0.9000, 0.5000, 0.3000" />
+    </maxcomponent>
+    <output name="out" type="float" nodename="maxcomponent1" />
+  </nodegraph>
+  <nodegraph name="maxcomponent_vector3_precision">
+    <maxcomponent name="maxcomponent1" type="float">
+      <input name="in" type="vector3" value="0.9000, 0.9001, 0.8999" />
+    </maxcomponent>
+    <output name="out" type="float" nodename="maxcomponent1" />
+  </nodegraph>
+  <nodegraph name="mincomponent_color3">
+    <mincomponent name="mincomponent1" type="float">
+      <input name="in" type="color3" value="0.1000, 0.9000, 0.5000" />
+    </mincomponent>
+    <output name="out" type="float" nodename="mincomponent1" />
+  </nodegraph>
+  <nodegraph name="mincomponent_vector2">
+    <mincomponent name="mincomponent1" type="float">
+      <input name="in" type="vector2" value="0.1000, 0.9000" />
+    </mincomponent>
+    <output name="out" type="float" nodename="mincomponent1" />
+  </nodegraph>
+  <nodegraph name="mincomponent_vector3">
+    <mincomponent name="mincomponent1" type="float">
+      <input name="in" type="vector3" value="-0.3000, 0.5000, 0.9000" />
+    </mincomponent>
+    <output name="out" type="float" nodename="mincomponent1" />
+  </nodegraph>
+  <nodegraph name="mincomponent_vector4">
+    <mincomponent name="mincomponent1" type="float">
+      <input name="in" type="vector4" value="0.1000, 0.9000, 0.5000, 0.3000" />
+    </mincomponent>
+    <output name="out" type="float" nodename="mincomponent1" />
+  </nodegraph>
+  <nodegraph name="mincomponent_vector3_precision">
+    <mincomponent name="mincomponent1" type="float">
+      <input name="in" type="vector3" value="0.1000, 0.1001, 0.0999" />
+    </mincomponent>
+    <output name="out" type="float" nodename="mincomponent1" />
+  </nodegraph>
 </materialx>
