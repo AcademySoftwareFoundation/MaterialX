@@ -142,7 +142,10 @@ SlangSyntax::SlangSyntax(TypeSystemPtr typeSystem) :
                             "extension", "associatedtype", "this", "namespace", "This", "using",
                             "__generic", "__exported", "import", "enum", "break", "continue",
                             "discard", "defer", "cbuffer", "tbuffer", "func", "is",
-                            "as", "nullptr", "none", "true", "false", "SamplerTexture2D" });
+                            "as", "nullptr", "none", "true", "false", "SamplerTexture2D",
+                            // Slang codegen translates GLSL mix() calls to lerp(), so protect both the source token
+                            // and the target intrinsic from generated variable names.
+                            "mix", "lerp" });
 
     // Register restricted tokens in Slang
     // No invalid tokens

@@ -14,6 +14,20 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
+namespace
+{
+
+// Match the copyData shader [numthreads(16, 16, 1)] declaration below.
+constexpr uint32_t COPY_DATA_THREAD_GROUP_SIZE_X = 16;
+constexpr uint32_t COPY_DATA_THREAD_GROUP_SIZE_Y = 16;
+
+uint32_t divideRoundUp(uint32_t value, uint32_t divisor)
+{
+    return (value + divisor - 1) / divisor;
+}
+
+} // namespace
+
 SlangTextureHandler::SlangTextureHandler(SlangContextPtr context, ImageLoaderPtr imageLoader) :
     ImageHandler(std::move(imageLoader)), _context(std::move(context)), _device(_context->getDevice())
 {
@@ -310,7 +324,10 @@ rhi::ComPtr<rhi::ITexture> SlangTextureHandler::makeTexture(SlangCommandEncoderP
 
         cursor["dst"].setBinding(texture);
         cursor["src"].setBinding(srcBuffer);
-        passEncoder->dispatchCompute(image->getWidth(), image->getHeight(), 1);
+        passEncoder->dispatchCompute(
+            divideRoundUp(image->getWidth(), COPY_DATA_THREAD_GROUP_SIZE_X),
+            divideRoundUp(image->getHeight(), COPY_DATA_THREAD_GROUP_SIZE_Y),
+            1);
         passEncoder->end();
     }
 
