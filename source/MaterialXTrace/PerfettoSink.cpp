@@ -172,8 +172,8 @@ void PerfettoSink::counter(Category category, const char* name, double value)
 void PerfettoSink::asyncEvent(AsyncTrack track, Category category,
                               const char* eventName, uint64_t startNs, uint64_t durationNs)
 {
-    // Currently only GPU track is supported
     assert(track == AsyncTrack::GPU && "Only AsyncTrack::GPU is currently supported");
+    (void) track;
     perfetto::Track perfTrack(GPU_TRACK_ID);
 
     // Emit begin and end events with explicit timestamps
