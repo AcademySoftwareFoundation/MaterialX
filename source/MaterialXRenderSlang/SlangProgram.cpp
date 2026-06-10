@@ -129,7 +129,7 @@ bool SlangProgram::build()
             diagnosticVec.push_back((const char*) diagnosticsBlob->getBufferPointer());
 
         if (!module)
-            throw ExceptionRenderError("Failed to compile frament shaders", diagnosticVec);
+            throw ExceptionRenderError("Failed to compile fragment shaders", diagnosticVec);
 
         ComPtr<slang::IEntryPoint> entryPoint;
         SLANG_RETURN_ON_FAIL(module->findEntryPointByName("fragmentMain", entryPoint.writeRef()));
