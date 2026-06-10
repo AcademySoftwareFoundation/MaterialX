@@ -10,8 +10,6 @@ Two modes:
   --slice NAME    Compare CPU slice durations per material (child slices under
                   material parent slices). Multiple names produce multiple charts.
 
-For image comparison, see diff_images.py in the same directory.
-
 Usage:
     python diff_traces.py <baseline_dir> <optimized_dir> --gpu
     python diff_traces.py <baseline_dir> <optimized_dir> --slice GenerateShader
@@ -291,7 +289,6 @@ Examples:
   %(prog)s ./baseline/ ./optimized/ --gpu --slice GenerateShader
   %(prog)s ./baseline/ ./optimized/ --gpu -o custom_name.html
 
-For image comparison, see diff_images.py in the same directory.
 ''')
 
     parser.add_argument('baseline', type=Path,
