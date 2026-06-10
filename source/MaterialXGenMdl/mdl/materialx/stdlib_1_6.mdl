@@ -4472,6 +4472,39 @@ export float mx_extract_vector4(
 	}
 }
 
+export float3 mx_extract_matrix33(
+	float3x3 mxp_in = float3x3(0.0),
+	int mxp_index = int(0)
+)
+	[[
+		anno::description("Node Group: channel")
+	]]
+{
+	switch (mxp_index)
+	{
+		case 0: return mxp_in[0];
+		case 1: return mxp_in[1];
+		default: return mxp_in[2];
+	}
+}
+
+export float4 mx_extract_matrix44(
+	float4x4 mxp_in = float4x4(0.0),
+	int mxp_index = int(0)
+)
+	[[
+		anno::description("Node Group: channel")
+	]]
+{
+	switch (mxp_index)
+	{
+		case 0: return mxp_in[0];
+		case 1: return mxp_in[1];
+		case 2: return mxp_in[2];
+		default: return mxp_in[3];
+	}
+}
+
 // Nodedef: ND_separate2_vector2 is represented by a nodegraph: NG_separate2_vector2
 // Nodedef: ND_separate3_color3 is represented by a nodegraph: NG_separate3_color3
 // Nodedef: ND_separate3_vector3 is represented by a nodegraph: NG_separate3_vector3

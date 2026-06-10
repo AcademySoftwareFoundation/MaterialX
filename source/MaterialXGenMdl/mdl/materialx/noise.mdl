@@ -209,23 +209,6 @@ int mx_hash_int(int x, int y, int z, int xx)
     return mx_bjfinal(a, b, c);
 }
 
-int mx_hash_int(int x, int y, int z, int xx, int yy)
-{
-    int len = 5;
-    int a, b, c;
-    a = b = c = int(0xdeadbeef) + (len << 2) + 13;
-    a += x;
-    b += y;
-    c += z;
-    int3 abc = mx_bjmix(a, b, c);
-    a = abc.x;
-    b = abc.y;
-    c = abc.z;
-    a += xx;
-    b += yy;
-    return mx_bjfinal(a, b, c);
-}
-
 int3 mx_hash_int3(int mxp_x, int mxp_y)
 {
     int h = mx_hash_int(mxp_x, mxp_y);
@@ -433,32 +416,47 @@ export float3 mx_cell_noise_float3(
 export float3 mx_cell_noise_float3(
     float3 mxp_p = state::transform_point(state::coordinate_internal, state::coordinate_object, state::position()))
 [[
-    anno::noinline() 
+    anno::noinline()
 ]]
 {
     int ix = math::floor(mxp_p.x);
     int iy = math::floor(mxp_p.y);
     int iz = math::floor(mxp_p.z);
+    int a, b, c;
+    a = b = c = int(0xdeadbeef) + (4 << 2) + 13;
+    a += ix;
+    b += iy;
+    c += iz;
+    int3 abc = mx_bjmix(a, b, c);
+    a = abc.x; b = abc.y; c = abc.z;
     return float3(
-        mx_bits_to_01(mx_hash_int(ix, iy, iz, 0)),
-        mx_bits_to_01(mx_hash_int(ix, iy, iz, 1)),
-        mx_bits_to_01(mx_hash_int(ix, iy, iz, 2))
+        mx_bits_to_01(mx_bjfinal(a,     b, c)),
+        mx_bits_to_01(mx_bjfinal(a + 1, b, c)),
+        mx_bits_to_01(mx_bjfinal(a + 2, b, c))
     );
 }
 
 export float3 mx_cell_noise_float3(float4 mxp_p)
 [[
-    anno::noinline() 
+    anno::noinline()
 ]]
 {
     int ix = math::floor(mxp_p.x);
     int iy = math::floor(mxp_p.y);
     int iz = math::floor(mxp_p.z);
     int iw = math::floor(mxp_p.w);
+    int a, b, c;
+    a = b = c = int(0xdeadbeef) + (5 << 2) + 13;
+    a += ix;
+    b += iy;
+    c += iz;
+    int3 abc = mx_bjmix(a, b, c);
+    a = abc.x; b = abc.y; c = abc.z;
+    a += iw;
     return float3(
-        mx_bits_to_01(mx_hash_int(ix, iy, iz, iw, 0)),
-        mx_bits_to_01(mx_hash_int(ix, iy, iz, iw, 1)),
-        mx_bits_to_01(mx_hash_int(ix, iy, iz, iw, 2))
+        mx_bits_to_01(mx_bjfinal(a, b,     c)),
+        mx_bits_to_01(mx_bjfinal(a, b + 1, c)),
+        mx_bits_to_01(mx_bjfinal(a, b + 2, c))
     );
 }
 

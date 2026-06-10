@@ -212,10 +212,10 @@ function getWrapping(mode)
  */
 function getMinFilter(type, generateMipmaps)
 {
-    const filterType = generateMipmaps ? THREE.LinearMipMapLinearFilter : THREE.LinearFilter;
+    let filterType = generateMipmaps ? THREE.LinearMipmapLinearFilter : THREE.LinearFilter;
     if (type === 0)
     {
-        filterType = generateMipmaps ? THREE.NearestMipMapNearestFilter : THREE.NearestFilter;
+        filterType = generateMipmaps ? THREE.NearestMipmapNearestFilter : THREE.NearestFilter;
     }
     return filterType;
 }

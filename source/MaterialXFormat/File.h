@@ -195,7 +195,8 @@ class MX_FORMAT_API FilePath
     FilePathVec getSubDirectories() const;
 
     /// Create a directory on the file system at the given path.
-    void createDirectory() const;
+    /// If recursive is true, any missing parent directories will be created as well.
+    void createDirectory(bool recursive = false) const;
 
     /// Set the current working directory of the file system.
     bool setCurrentPath();

@@ -1,10 +1,9 @@
+import path from 'path';
+import { test, expect } from '@playwright/test';
 import Module from './_build/JsMaterialXCore.js';
-import { expect } from 'chai';
-import { getMtlxStrings } from './testHelpers';
+import { getMtlxStrings } from './testHelpers.js';
 
-const TIMEOUT = 60000;
-
-describe('XmlIo', () =>
+test.describe('XmlIo', () =>
 {
     let mx;
 
@@ -60,7 +59,7 @@ describe('XmlIo', () =>
             {
                 doc.importLibrary(lib);
             }
-            expect(doc.validate()).to.be.true;
+            expect(doc.validate()).toBe(true);
 
             // Make sure the document does actually contain something.
             let valueElementCount = 0;
@@ -74,17 +73,17 @@ describe('XmlIo', () =>
                 // Release wrapper created by iterator
                 elem.delete();
             }
-            expect(valueElementCount).to.be.greaterThan(0);
+            expect(valueElementCount).toBeGreaterThan(0);
             doc.delete();
         };
     }
 
-    before(async () =>
+    test.beforeAll(async () =>
     {
         mx = await Module();
     });
 
-    it('Read XML from file', async () =>
+    test('Read XML from file', async () =>
     {
         // Read the standard library
         const libs = await readStdLibrary(false);
@@ -103,14 +102,14 @@ describe('XmlIo', () =>
         await mx.readFromXmlFile(doc, filename, examplesPath);
         const copy = doc.copy();
         await mx.readFromXmlFile(doc, filename, examplesPath);
-        expect(doc.validate()).to.be.true;
-        expect(copy.equals(doc)).to.be.true;
+        expect(doc.validate()).toBe(true);
+        expect(copy.equals(doc)).toBe(true);
         copy.delete();
         doc.delete();
         libs.forEach(l => l.delete());
-    }).timeout(TIMEOUT);
+    });
 
-    it('Read XML from string', async () =>
+    test('Read XML from string', async () =>
     {
         // Read the standard library
         const libs = await readStdLibrary(true);
@@ -130,70 +129,72 @@ describe('XmlIo', () =>
         await mx.readFromXmlString(doc, file);
         const copy = doc.copy();
         await mx.readFromXmlString(doc, file);
-        expect(doc.validate()).to.be.true;
-        expect(copy.equals(doc)).to.be.true;
+        expect(doc.validate()).toBe(true);
+        expect(copy.equals(doc)).toBe(true);
         copy.delete();
         doc.delete();
         libs.forEach(l => l.delete());
-    }).timeout(TIMEOUT);
+    });
 
-    it('Read XML with recursive includes', async () =>
+    test('Read XML with recursive includes', async () =>
     {
         const doc = mx.createDocument();
         await mx.readFromXmlFile(doc, includeTestPath + '/root.mtlx');
-        expect(doc.getChild('paint_semigloss')).to.exist;
-        expect(doc.validate()).to.be.true;
+        expect(doc.getChild('paint_semigloss')).toBeTruthy();
+        expect(doc.validate()).toBe(true);
         doc.delete();
     });
 
-    it('Locate XML includes via search path', async () =>
+    test('Locate XML includes via search path', async () =>
     {
         const searchPath = includeTestPath + ';' + includeTestPath + '/folder';
         const filename = 'non_relative_includes.mtlx';
         const doc = mx.createDocument();
-        expect(async () => await mx.readFromXmlFile(doc, filename, includeTestPath)).to.throw;
+        // Includes cannot be resolved without 'folder' on the search path.
+        await expect(mx.readFromXmlFile(doc, filename, includeTestPath)).rejects.toThrow();
         await mx.readFromXmlFile(doc, filename, searchPath);
-        expect(doc.getChild('paint_semigloss')).to.exist;
-        expect(doc.validate()).to.be.true;
+        expect(doc.getChild('paint_semigloss')).toBeTruthy();
+        expect(doc.validate()).toBe(true);
 
         const doc2 = mx.createDocument();
         const mtlxString = getMtlxStrings([filename], includeTestPath);
-        expect(async () => await mx.readFromXmlString(doc2, mtlxString[0])).to.throw;
+        await expect(mx.readFromXmlString(doc2, mtlxString[0])).rejects.toThrow();
         await mx.readFromXmlString(doc2, mtlxString[0], searchPath);
-        expect(doc2.getChild('paint_semigloss')).to.exist;
-        expect(doc2.validate()).to.be.true;
-        expect(doc2.equals(doc)).to.be.true;
+        expect(doc2.getChild('paint_semigloss')).toBeTruthy();
+        expect(doc2.validate()).toBe(true);
+        expect(doc2.equals(doc)).toBe(true);
         doc2.delete();
         doc.delete();
     });
 
-    it('Locate XML includes via environment variable', async () =>
+    test('Locate XML includes via environment variable', async () =>
     {
         const searchPath = includeTestPath + ';' + includeTestPath + '/folder';
         const filename = 'non_relative_includes.mtlx';
 
         const doc = mx.createDocument();
-        expect(async () => await mx.readFromXmlFile(doc, includeTestPath + '/' + filename)).to.throw;
+        // Includes cannot be resolved with no search path configured.
+        await expect(mx.readFromXmlFile(doc, includeTestPath + '/' + filename)).rejects.toThrow();
         mx.setEnviron(mx.MATERIALX_SEARCH_PATH_ENV_VAR, searchPath);
         await mx.readFromXmlFile(doc, filename);
         mx.removeEnviron(mx.MATERIALX_SEARCH_PATH_ENV_VAR);
-        expect(doc.getChild('paint_semigloss')).to.exist;
-        expect(doc.validate()).to.be.true;
+        expect(doc.getChild('paint_semigloss')).toBeTruthy();
+        expect(doc.validate()).toBe(true);
 
         const doc2 = mx.createDocument();
         const mtlxString = getMtlxStrings([filename], includeTestPath);
-        expect(async () => await mx.readFromXmlString(doc2, mtlxString[0])).to.throw;
+        await expect(mx.readFromXmlString(doc2, mtlxString[0])).rejects.toThrow();
         mx.setEnviron(mx.MATERIALX_SEARCH_PATH_ENV_VAR, searchPath);
         await mx.readFromXmlString(doc2, mtlxString[0]);
         mx.removeEnviron(mx.MATERIALX_SEARCH_PATH_ENV_VAR);
-        expect(doc2.getChild('paint_semigloss')).to.exist;
-        expect(doc2.validate()).to.be.true;
-        expect(doc2.equals(doc)).to.be.true;
+        expect(doc2.getChild('paint_semigloss')).toBeTruthy();
+        expect(doc2.validate()).toBe(true);
+        expect(doc2.equals(doc)).toBe(true);
         doc2.delete();
         doc.delete();
     });
 
-    it('Locate XML includes via absolute search paths', async () =>
+    test('Locate XML includes via absolute search paths', async () =>
     {
         let absolutePath;
         if (typeof window === 'object')
@@ -204,31 +205,32 @@ describe('XmlIo', () =>
         } else if (typeof process === 'object')
         {
             // We're in Node
-            const nodePath = require('path');
-            absolutePath = nodePath.resolve(includeTestPath);
+            absolutePath = path.resolve(includeTestPath);
         }
         const doc = mx.createDocument();
         await mx.readFromXmlFile(doc, 'root.mtlx', absolutePath);
         doc.delete();
     });
 
-    it('Detect XML include cycles', async () =>
+    test('Detect XML include cycles', async () =>
     {
         const doc = mx.createDocument();
-        expect(async () => await mx.readFromXmlFile(doc, includeTestPath + '/cycle.mtlx')).to.throw;
+        // A self-referential include chain must be rejected.
+        await expect(mx.readFromXmlFile(doc, includeTestPath + '/cycle.mtlx')).rejects.toThrow();
         doc.delete();
     });
 
-    it('Disabling XML includes', async () =>
+    test('Disabling XML includes', async () =>
     {
         const doc = mx.createDocument();
         const readOptions = new mx.XmlReadOptions();
         readOptions.readXIncludes = false;
-        expect(async () => await mx.readFromXmlFile(doc, includeTestPath + '/cycle.mtlx', readOptions)).to.not.throw;
+        // With includes disabled, the cycle is never followed (readOptions is the 4th arg).
+        await expect(mx.readFromXmlFile(doc, includeTestPath + '/cycle.mtlx', '', readOptions)).resolves.toBeUndefined();
         doc.delete();
     });
 
-    it('Write to XML string', async () =>
+    test('Write to XML string', async () =>
     {
         // Read all example documents and write them to an XML string
         const searchPath = libraryPath + ';' + examplesPath;
@@ -246,26 +248,26 @@ describe('XmlIo', () =>
             // Verify that the serialized document is identical.
             const writtenDoc = mx.createDocument();
             await mx.readFromXmlString(writtenDoc, xmlString);
-            expect(writtenDoc).to.eql(doc);
+            expect(writtenDoc.equals(doc)).toBe(true);
             writtenDoc.delete();
             doc.delete();
         };
     });
 
-    it('Prepend include tag', () =>
+    test('Prepend include tag', () =>
     {
         const doc = mx.createDocument();
         const includePath = "SomePath";
         const writeOptions = new mx.XmlWriteOptions();
         mx.prependXInclude(doc, includePath);
         const xmlString = mx.writeToXmlString(doc, writeOptions);
-        expect(xmlString).to.include(includePath);
+        expect(xmlString).toContain(includePath);
         writeOptions.delete();
         doc.delete();
     });
 
     // Node only, because we cannot read from a downloaded file in the browser
-    it('Write XML to file', async () =>
+    test('Write XML to file', async () =>
     {
         const filename = '_build/testFile.mtlx';
         const includeRegex = /<xi:include href="(.*)"\s*\/>/g;
@@ -277,11 +279,11 @@ describe('XmlIo', () =>
         // Read written document and compare with the original
         const doc2 = mx.createDocument();
         await mx.readFromXmlFile(doc2, filename, includeTestPath);
-        expect(doc2.equals(doc));
+        expect(doc2.equals(doc)).toBe(true);
         // Read written file content and verify that includes are preserved
         let fileString = getMtlxStrings([filename], '')[0];
         let matches = Array.from(fileString.matchAll(includeRegex));
-        expect(matches.length).to.be.greaterThan(0);
+        expect(matches.length).toBeGreaterThan(0);
 
         // Write inlining included content
         const writeOptions = new mx.XmlWriteOptions();
@@ -290,12 +292,12 @@ describe('XmlIo', () =>
         // Read written document and compare with the original
         const doc3 = mx.createDocument();
         await mx.readFromXmlFile(doc3, filename);
-        expect(doc3.equals(doc));
-        expect(doc.getChild('paint_semigloss')).to.exist;
+        expect(doc3.equals(doc)).toBe(true);
+        expect(doc.getChild('paint_semigloss')).toBeTruthy();
         // Read written file content and verify that includes are inlined
         fileString = getMtlxStrings([filename], '')[0];
         matches = Array.from(fileString.matchAll(includeRegex));
-        expect(matches.length).to.equal(0);
+        expect(matches.length).toBe(0);
         doc3.delete();
         doc2.delete();
         doc.delete();

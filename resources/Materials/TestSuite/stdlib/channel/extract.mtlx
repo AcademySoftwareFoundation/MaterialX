@@ -35,4 +35,18 @@
     </extract>
     <output name="out" type="float" nodename="extract1" />
   </nodegraph>
+  <nodegraph name="extract_matrix33">
+    <extract name="extract1" type="vector3">
+      <input name="in" type="matrix33" value="1.0, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.25" />
+      <input name="index" type="integer" value="1" />
+    </extract>
+    <output name="out" type="vector3" nodename="extract1" />
+  </nodegraph>
+  <nodegraph name="extract_matrix44">
+    <extract name="extract1" type="vector4">
+      <input name="in" type="matrix44" value="1.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.25, 0.0, 0.0, 0.0, 0.0, 0.125" />
+      <input name="index" type="integer" value="1" />
+    </extract>
+    <output name="out" type="vector4" nodename="extract1" />
+  </nodegraph>
 </materialx>
