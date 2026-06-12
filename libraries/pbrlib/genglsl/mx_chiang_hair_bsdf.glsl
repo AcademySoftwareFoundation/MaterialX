@@ -260,7 +260,7 @@ void mx_chiang_hair_bsdf(ClosureData closureData, vec3 tint_R, vec3 tint_TT, vec
         {
             tint[i] = max(tint[i], vec3(0.0));
             float Mp = mx_hair_longitudinal_scattering(angles[i].x, angles[i].y, sinThetaO, cosThetaO, vs[i].x);
-            float Np = (i == 3) ?  (1.0 / 2.0 * M_PI) : mx_hair_azimuthal_scattering(phi, i, vs[i].y, gammaO, gammaT);
+            float Np = mx_hair_azimuthal_scattering(phi, i, vs[i].y, gammaO, gammaT);
             F += Mp * Np * tint[i] * Ap[i];
         }
 
@@ -272,7 +272,6 @@ void mx_chiang_hair_bsdf(ClosureData closureData, vec3 tint_R, vec3 tint_TT, vec
 
         float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);
         FresnelData fd = mx_init_fresnel_dielectric(ior, 0.0, 1.0);
-        vec3 F = mx_compute_fresnel(NdotV, fd);
 
         vec2 roughness = (roughness_R + roughness_TT + roughness_TRT) / vec2(3.0);  // ?
         vec2 safeAlpha = clamp(roughness, M_FLOAT_EPS, 1.0);
@@ -280,7 +279,7 @@ void mx_chiang_hair_bsdf(ClosureData closureData, vec3 tint_R, vec3 tint_TT, vec
 
         // Use GGX to match the behavior of mx_environment_radiance.
         float F0 = mx_ior_to_f0(ior);
-        vec3 comp = mx_ggx_energy_compensation(NdotV, avgAlpha, F);
+        vec3 comp = mx_ggx_energy_compensation(NdotV, avgAlpha, fd);
         vec3 dirAlbedo = mx_ggx_dir_albedo(NdotV, avgAlpha, F0, 1.0) * comp;
 
         vec3 Li = mx_environment_radiance(N, V, X, safeAlpha, 0, fd);
