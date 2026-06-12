@@ -1,131 +1,183 @@
-// MaterialX is served through a script tag in the test setup.
+import { test, expect } from '@playwright/test';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-function createStandardSurfaceMaterial(mx)
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const testRoot = path.resolve(__dirname, '..');
+
+const MIME_TYPES = {
+    '.html': 'text/html',
+    '.js': 'application/javascript',
+    '.wasm': 'application/wasm',
+    '.data': 'application/octet-stream'
+};
+
+//
+// Route handler that serves files from the local test build.
+//
+async function routeHandler(route)
 {
-    const doc = mx.createDocument();
-    const ssName = 'SR_default';
-    const ssNode = doc.addChildOfCategory('standard_surface', ssName);
-    ssNode.setType('surfaceshader');
-    const smNode = doc.addChildOfCategory('surfacematerial', 'Default');
-    smNode.setType('material');
-    const shaderElement = smNode.addInput('surfaceshader');
-    shaderElement.setType('surfaceshader');
-    shaderElement.setNodeName(ssName);
-    expect(doc.validate()).to.be.true;
-    // Release local wrappers
-    shaderElement.delete();
-    smNode.delete();
-    ssNode.delete();
-    return doc;
+    const url = new URL(route.request().url());
+
+    if (url.pathname === '/')
+    {
+        return route.fulfill({
+            contentType: 'text/html',
+            body: '<!DOCTYPE html><html><body></body></html>'
+        });
+    }
+
+    //
+    // The Emscripten file packager may fetch .data relative to the page or
+    // relative to the module. Always resolve it to _build/ to handle both cases.
+    //
+    let filePath;
+    if (path.basename(url.pathname) === 'JsMaterialXGenShader.data')
+    {
+        filePath = path.join(testRoot, '_build', 'JsMaterialXGenShader.data');
+    }
+    else
+    {
+        filePath = path.join(testRoot, url.pathname);
+    }
+
+    filePath = path.resolve(filePath);
+    if (!filePath.startsWith(testRoot + path.sep))
+    {
+        return route.fulfill({ status: 403 });
+    }
+
+    if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory())
+    {
+        return route.fulfill({ status: 404 });
+    }
+
+    const ext = path.extname(filePath);
+    return route.fulfill({
+        body: fs.readFileSync(filePath),
+        contentType: MIME_TYPES[ext] || 'application/octet-stream'
+    });
 }
 
-describe('Generate Shaders', function ()
+test.describe('Generate Shaders', () =>
 {
-    let mx;
-    const canvas = document.createElement('canvas');
-    const gl = canvas.getContext('webgl2');
-
-    this.timeout(60000);
-
-    before(async function ()
+    test('Compile Shaders', async ({ page }) =>
     {
-        mx = await MaterialX();
-    });
-
-    it('Compile Shaders', () =>
-    {
-        const doc = createStandardSurfaceMaterial(mx);
-
-        const generators = []
-        if (typeof mx.EsslShaderGenerator != 'undefined')
-            generators.push(mx.EsslShaderGenerator.create());
-        if (typeof mx.GlslShaderGenerator != 'undefined')
-            generators.push(mx.GlslShaderGenerator.create());
-        if (typeof mx.MslShaderGenerator != 'undefined')
-            generators.push(mx.MslShaderGenerator.create());
-        if (typeof mx.OslShaderGenerator != 'undefined')
-            generators.push(mx.OslShaderGenerator.create());
-        if (typeof mx.VkShaderGenerator != 'undefined')
-            generators.push(mx.VkShaderGenerator.create());
-        if (typeof mx.WgslShaderGenerator != 'undefined')
-            generators.push(mx.WgslShaderGenerator.create());
-        if (typeof mx.MdlShaderGenerator != 'undefined')
-            generators.push(mx.MdlShaderGenerator.create());
-        if (typeof mx.SlangShaderGenerator != 'undefined')
-            generators.push(mx.SlangShaderGenerator.create());
-
-        const elem = mx.findRenderableElement(doc);
-        for (let gen of generators)
+        page.on('console', (msg) =>
         {
-            console.log("Generating shader for " + gen.getTarget() + "...");
-            
-            const genContext = new mx.GenContext(gen);
-            const stdlib = mx.loadStandardLibraries(genContext);
-            doc.importLibrary(stdlib);
-    
-            try
+            if (msg.type() === 'error')
             {
-                const mxShader = gen.generate(elem.getNamePath(), elem, genContext);
-
-                const fShader = mxShader.getSourceCode("pixel");
-
-                if (gen.getTarget() == 'essl')
-                {
-                    const vShader = mxShader.getSourceCode("vertex");
-
-                    const glVertexShader = gl.createShader(gl.VERTEX_SHADER);
-                    gl.shaderSource(glVertexShader, vShader);
-                    gl.compileShader(glVertexShader);
-                    if (!gl.getShaderParameter(glVertexShader, gl.COMPILE_STATUS))
-                    {
-                        console.error("-------- VERTEX SHADER FAILED TO COMPILE: ----------------");
-                        console.error("--- VERTEX SHADER LOG ---");
-                        console.error(gl.getShaderInfoLog(glVertexShader));
-                        console.error("--- VERTEX SHADER START ---");
-                        console.error(fShader);
-                        console.error("--- VERTEX SHADER END ---");
-                    }
-                    expect(gl.getShaderParameter(glVertexShader, gl.COMPILE_STATUS)).to.equal(true);
-
-                    const glPixelShader = gl.createShader(gl.FRAGMENT_SHADER);
-                    gl.shaderSource(glPixelShader, fShader);
-                    gl.compileShader(glPixelShader);
-                    if (!gl.getShaderParameter(glPixelShader, gl.COMPILE_STATUS))
-                    {
-                        console.error("-------- PIXEL SHADER FAILED TO COMPILE: ----------------");
-                        console.error("--- PIXEL SHADER LOG ---");
-                        console.error(gl.getShaderInfoLog(glPixelShader));
-                        console.error("--- PIXEL SHADER START ---");
-                        console.error(fShader);
-                        console.error("--- PIXEL SHADER END ---");
-                    }
-                    expect(gl.getShaderParameter(glPixelShader, gl.COMPILE_STATUS)).to.equal(true);
-                    // Cleanup GL shaders
-                    gl.deleteShader(glVertexShader);
-                    gl.deleteShader(glPixelShader);
-                }
-                // Cleanup shader wrapper
-                mxShader.delete();
+                console.error(msg.text());
             }
-            catch (errPtr)
+            else
             {
-                console.error("-------- Failed code generation: ----------------");
-                if (typeof mx.getExceptionMessage === 'function')
-                {
-                    console.error(mx.getExceptionMessage(errPtr));
-                }
-                else
-                {
-                    console.error(errPtr);
-                }
+                console.log(msg.text());
             }
-            // Cleanup per-generator wrappers
-            stdlib.delete();
-            genContext.delete();
-            gen.delete();
+        });
+
+        await page.route('**/*', routeHandler);
+        await page.goto('http://materialx-test/');
+
+        const { error, generators } = await page.evaluate(async () =>
+        {
+            const { default: MaterialX } = await import('/_build/JsMaterialXGenShader.js');
+            const mx = await MaterialX();
+
+            const doc = mx.createDocument();
+            const ssName = 'SR_default';
+            const ssNode = doc.addChildOfCategory('standard_surface', ssName);
+            ssNode.setType('surfaceshader');
+            const smNode = doc.addChildOfCategory('surfacematerial', 'Default');
+            smNode.setType('material');
+            const shaderInput = smNode.addInput('surfaceshader');
+            shaderInput.setType('surfaceshader');
+            shaderInput.setNodeName(ssName);
+
+            const valid = doc.validate();
+            shaderInput.delete();
+            smNode.delete();
+            ssNode.delete();
+            if (!valid) return { error: 'Document validation failed', generators: [] };
+
+            const canvas = document.createElement('canvas');
+            const gl = canvas.getContext('webgl2');
+
+            const generatorNames = [
+                'EsslShaderGenerator', 'GlslShaderGenerator', 'MslShaderGenerator',
+                'OslShaderGenerator', 'VkShaderGenerator', 'WgslShaderGenerator',
+                'MdlShaderGenerator', 'SlangShaderGenerator'
+            ];
+
+            const elem = mx.findRenderableElement(doc);
+            const generators = [];
+
+            for (const name of generatorNames)
+            {
+                if (typeof mx[name] === 'undefined') continue;
+                const gen = mx[name].create();
+                const target = gen.getTarget();
+                console.log('Generating shader for ' + target + '...');
+
+                const genContext = new mx.GenContext(gen);
+                const stdlib = mx.loadStandardLibraries(genContext);
+                doc.importLibrary(stdlib);
+
+                try
+                {
+                    const mxShader = gen.generate(elem.getNamePath(), elem, genContext);
+                    const fShader = mxShader.getSourceCode('pixel');
+                    const errors = [];
+
+                    if (target === 'essl')
+                    {
+                        const vShader = mxShader.getSourceCode('vertex');
+
+                        const glVS = gl.createShader(gl.VERTEX_SHADER);
+                        gl.shaderSource(glVS, vShader);
+                        gl.compileShader(glVS);
+                        if (!gl.getShaderParameter(glVS, gl.COMPILE_STATUS))
+                        {
+                            errors.push('Vertex shader: ' + gl.getShaderInfoLog(glVS));
+                        }
+
+                        const glFS = gl.createShader(gl.FRAGMENT_SHADER);
+                        gl.shaderSource(glFS, fShader);
+                        gl.compileShader(glFS);
+                        if (!gl.getShaderParameter(glFS, gl.COMPILE_STATUS))
+                        {
+                            errors.push('Fragment shader: ' + gl.getShaderInfoLog(glFS));
+                        }
+
+                        gl.deleteShader(glVS);
+                        gl.deleteShader(glFS);
+                    }
+
+                    generators.push({ target, ok: errors.length === 0, errors });
+                    mxShader.delete();
+                }
+                catch (errPtr)
+                {
+                    const msg = typeof mx.getExceptionMessage === 'function'
+                        ? mx.getExceptionMessage(errPtr) : String(errPtr);
+                    generators.push({ target, ok: false, errors: [msg] });
+                }
+
+                stdlib.delete();
+                genContext.delete();
+                gen.delete();
+            }
+
+            elem.delete();
+            doc.delete();
+            return { generators };
+        });
+
+        expect(error).toBeUndefined();
+        expect(generators.length).toBeGreaterThan(0);
+        for (const { target, ok, errors } of generators)
+        {
+            expect(ok, `${target} shader generation failed: ${errors.join('; ')}`).toBe(true);
         }
-        // Cleanup element and document
-        elem.delete();
-        doc.delete();
     });
 });

@@ -57,6 +57,7 @@ void ShaderGraph::addInputSockets(const InterfaceElement& elem, GenContext& cont
         {
             inputSocket->setUniform();
         }
+        inputSocket->setPath(input->getNamePath());
         GeomPropDefPtr geomprop = input->getDefaultGeomProp();
         if (geomprop)
         {
