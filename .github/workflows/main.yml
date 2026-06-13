@@ -38,6 +38,7 @@ jobs:
           compiler: gcc
           compiler_version: "14"
           python: 3.13
+          test_slang: ON
           extended_build_perfetto: ON
           extended_cmake_config: -DMATERIALX_BUILD_PERFETTO_TRACING=ON
 
@@ -296,6 +297,18 @@ jobs:
       run: |
         python python/Scripts/generateshader.py resources/Materials/Examples --target msl --validator "xcrun metal --language=metal" --validatorArgs="-w"
         python python/Scripts/generateshader.py resources/Materials/TestSuite/stdlib --target msl --validator "xcrun metal --language=metal" --validatorArgs="-w"
+
+    - name: Shader Validation Tests (Slang)
+      if: matrix.test_slang == 'ON' && runner.os == 'Linux'
+      run: |
+        SLANG_VERSION=2026.10.2
+        curl -fsSL -o slang.tar.gz "https://github.com/shader-slang/slang/releases/download/v${SLANG_VERSION}/slang-${SLANG_VERSION}-linux-x86_64.tar.gz"
+        mkdir -p slang-release
+        tar -xzf slang.tar.gz -C slang-release
+        SLANGC="$PWD/slang-release/bin/slangc"
+        "$SLANGC" -v || true
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target slang --validator "$SLANGC"
+        python python/Scripts/generateshader.py resources/Materials/TestSuite/stdlib --target slang --validator "$SLANGC"
 
     - name: Coverage Analysis Tests
       if: matrix.coverage_analysis == 'ON'
