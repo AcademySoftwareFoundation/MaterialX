@@ -147,8 +147,11 @@ void UiNode::buildUiTokenMap()
         {
             if (inputValue.find(entry.first) != std::string::npos)
             {
-                // Append to affected inputs of corresponding entry in token map
-                _uiTokenMap[inputTokensRenormalized[entry.first]]->addAffectedInput(input);
+                // Ensure that the token exists in the pre-built map
+                if (auto it = _uiTokenMap.find(inputTokensRenormalized[entry.first]); it != _uiTokenMap.end())
+                {
+                    it->second->addAffectedInput(input); // Append to affected inputs of corresponding entry in token map
+                }
             }
         }
     }

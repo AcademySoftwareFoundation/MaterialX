@@ -223,7 +223,7 @@ class UiToken
     {
         if (!_isAffectedInputsDirty)
             return;
-        _affectedInputsStream.clear();
+        _affectedInputsStream.str(""); // Clear current contents of `ostringstream` object
         for (size_t i = 0; i < _affectedInputs.size(); ++i)
         {
             _affectedInputsStream << _affectedInputs[i]->getName();
