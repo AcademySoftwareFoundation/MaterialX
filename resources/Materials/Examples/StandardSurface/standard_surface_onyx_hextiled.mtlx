@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <materialx version="1.39" colorspace="lin_rec709">
-  <nodegraph name="NG_OnyxHextiled" fileprefix="resources/Images/">
+  <nodegraph name="NG_OnyxHextiled" fileprefix="../../../Images/">
     <input name="tiling" type="float" value="4.0" uiname="Tiling" uifolder="Hex Tiling" />
     <input name="rotation" type="float" value="1.0" uiname="Rotation" uifolder="Hex Tiling" />
     <input name="scale" type="float" value="1.0" uiname="Scale" uifolder="Hex Tiling" />

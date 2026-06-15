@@ -1,4 +1,4 @@
-void mx_generalized_schlick_bsdf(float weight, color color0, color color82, color color90, float exponent, vector2 roughness, float thinfilm_thickness, float thinfilm_ior, normal N, vector U, string distribution, string scatter_mode, output BSDF bsdf)
+void mx_generalized_schlick_bsdf(float weight, color color0, color color82, color color90, float exponent, vector2 roughness, int retroreflective, float thinfilm_thickness, float thinfilm_ior, normal N, vector U, string distribution, string scatter_mode, output BSDF bsdf)
 {
     color reflection_tint = (scatter_mode == "T") ? color(0.0) : color(1.0);
     color transmission_tint = (scatter_mode == "R") ? color(0.0) : color(1.0);

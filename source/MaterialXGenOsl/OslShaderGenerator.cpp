@@ -80,9 +80,8 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
         emitString("shader ", stage);
     }
 
-    // Begin shader signature. Note that makeIdentifier() will sanitize the name.
+    // Begin shader signature. Note that the function name is already sanitized.
     string functionName = shader->getName();
-    _syntax->makeIdentifier(functionName, graph.getIdentifierMap());
     setFunctionName(functionName, stage);
     emitLine(functionName, stage, false);
 

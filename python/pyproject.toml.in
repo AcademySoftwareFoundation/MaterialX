@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "MaterialX"
+version = "${MATERIALX_MAJOR_VERSION}.${MATERIALX_MINOR_VERSION}.${MATERIALX_BUILD_VERSION}"
+
+[tool.setuptools]
+packages = ["MaterialX"]
+
+[tool.setuptools.package-data]
+MaterialX = ["**/*"]

@@ -132,6 +132,20 @@ float mx_extract(vector4 in, int index)
     else return in.w;
 }
 
+vector mx_extract_matrix33(matrix in, int index)
+{
+    if (index == 0) return vector(in[0][0], in[0][1], in[0][2]);
+    else if (index == 1) return vector(in[1][0], in[1][1], in[1][2]);
+    else return vector(in[2][0], in[2][1], in[2][2]);
+}
+
+vector4 mx_extract_matrix44(matrix in, int index)
+{
+    if (index == 0) return vector4(in[0][0], in[0][1], in[0][2], in[0][3]);
+    else if (index == 1) return vector4(in[1][0], in[1][1], in[1][2], in[1][3]);
+    else if (index == 2) return vector4(in[2][0], in[2][1], in[2][2], in[2][3]);
+    else return vector4(in[3][0], in[3][1], in[3][2], in[3][3]);
+}
 
 float mx_remap(float in, float inLow, float inHigh, float outLow, float outHigh, int doClamp)
 {

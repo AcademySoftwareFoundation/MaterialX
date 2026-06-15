@@ -27,7 +27,9 @@ void EsslShaderGenerator::emitDirectives(GenContext&, ShaderStage& stage) const
 {
     emitLine("#version " + getVersion(), stage, false);
     emitLineBreak(stage);
-    emitLine("precision mediump float", stage);
+    // ESSL 3.0+ is used where highp float is considered mandatory.
+    // (See https://registry.khronos.org/OpenGL/specs/es/3.0/GLSL_ES_Specification_3.00.pdf)
+    emitLine("precision highp float", stage);
     emitLineBreak(stage);
 }
 

@@ -23,6 +23,7 @@ import ::state::*;
 import .::core::*;
 import .::noise::*;
 import .::hsv::*;
+import .::flake::*;
 
 // Changes since MDL 1.8
 // - lift the restriction of uniform IORs
@@ -80,10 +81,6 @@ export using .::stdlib_1_7 import mx_tangent_vector3;
 export using .::stdlib_1_7 import mx_bitangent_vector3;
 export using .::stdlib_1_7 import mx_texcoord_vector2;
 export using .::stdlib_1_7 import mx_texcoord_vector3;
-export using .::stdlib_1_7 import mx_geomcolor_float;
-export using .::stdlib_1_7 import mx_geomcolor_color3;
-export using .::stdlib_1_7 import mx_geomcolor_color4;
-export using .::stdlib_1_7 import mx_frame_float;
 export using .::stdlib_1_7 import mx_time_float;
 export using .::stdlib_1_7 import mx_modulo_color3;
 export using .::stdlib_1_7 import mx_modulo_color4;
@@ -298,6 +295,8 @@ export using .::stdlib_1_7 import mx_extract_color4;
 export using .::stdlib_1_7 import mx_extract_vector2;
 export using .::stdlib_1_7 import mx_extract_vector3;
 export using .::stdlib_1_7 import mx_extract_vector4;
+export using .::stdlib_1_7 import mx_extract_matrix33;
+export using .::stdlib_1_7 import mx_extract_matrix44;
 export using .::stdlib_1_7 import mx_heighttonormal_vector3;
 export using .::stdlib_1_7 import mx_noise2d_float;
 export using .::stdlib_1_7 import mx_noise2d_float2;
@@ -323,9 +322,16 @@ export using .::stdlib_1_7 import mx_worleynoise2d_float3;
 export using .::stdlib_1_7 import mx_worleynoise3d_float;
 export using .::stdlib_1_7 import mx_worleynoise3d_float2;
 export using .::stdlib_1_7 import mx_worleynoise3d_float3;
+export using .::flake      import mx_flake__result;
+export using .::stdlib_1_7 import mx_flake2d;
+export using .::stdlib_1_7 import mx_flake3d;
 export using .::stdlib_1_7 import mx_combine2_color4CF;
 
 export using .::stdlib_1_7 import mx_geompropvalue_string;
+
+export using .::stdlib_1_8 import mx_geomcolor_float;
+export using .::stdlib_1_8 import mx_geomcolor_color3;
+export using .::stdlib_1_8 import mx_geomcolor_color4;
 export using .::stdlib_1_8 import mx_geompropvalue_boolean;
 export using .::stdlib_1_8 import mx_geompropvalue_integer;
 export using .::stdlib_1_8 import mx_geompropvalue_float;
@@ -335,6 +341,7 @@ export using .::stdlib_1_8 import mx_geompropvalue_vector2;
 export using .::stdlib_1_8 import mx_geompropvalue_vector3;
 export using .::stdlib_1_8 import mx_geompropvalue_vector4;
 export using .::stdlib_1_8 import mx_viewdirection_vector3;
+export using .::stdlib_1_8 import mx_frame_float;
 
 
 

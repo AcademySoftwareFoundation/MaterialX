@@ -200,9 +200,11 @@ Implementations are expected to preserve energy as the roughness of the surface 
 
 The `tint` input colors the reflected and transmitted light but should be left at white (1,1,1) for physically correct results. Setting the `ior` input to zero disables the Fresnel curve, allowing reflectivity to be controlled purely by weight and tint.
 
-The `scatter_mode` controls whether the surface reflects light (`R`), transmits light (`T`), or both (`RT`). In `RT` mode, reflection and transmission occur both when entering and leaving a surface, with their respective intensities controlled by the Fresnel curve. Depending on the IOR and incident angle, total internal reflection may occur even when transmission modes are selected.
+Setting `retroreflective` to true switches the BSDF to retroreflection mode, where light is reflected back toward the incoming direction rather than the mirror reflection direction[^Raab2025].
 
 Thin-film iridescence effects[^Belcour2017] may be enabled by setting `thinfilm_thickness` to a non-zero value.
+
+The `scatter_mode` controls whether the surface reflects light (`R`), transmits light (`T`), or both (`RT`). In `RT` mode, reflection and transmission occur both when entering and leaving a surface, with their respective intensities controlled by the Fresnel curve. Depending on the IOR and incident angle, total internal reflection may occur even when transmission modes are selected.
 
 |Port                |Description                                                    |Type   |Default      |Accepted Values|
 |--------------------|---------------------------------------------------------------|-------|-------------|---------------|
@@ -210,6 +212,7 @@ Thin-film iridescence effects[^Belcour2017] may be enabled by setting `thinfilm_
 |`tint`              |Color weight to tint the reflected and transmitted light       |color3 |1.0, 1.0, 1.0|               |
 |`ior`               |Index of refraction of the surface                             |float  |1.5          |               |
 |`roughness`         |Surface roughness along the tangent and bitangent              |vector2|0.05, 0.05   |[0, 1]         |
+|`retroreflective`   |Enable retroreflection mode for the BSDF                       |boolean|false        |               |
 |`thinfilm_thickness`|Thickness of the iridescent thin-film layer in nanometers      |float  |0.0          |               |
 |`thinfilm_ior`      |Index of refraction of the thin-film layer                     |float  |1.5          |               |
 |`normal`            |Normal vector of the surface                                   |vector3|Nworld       |               |
@@ -227,6 +230,8 @@ Implementations are expected to preserve energy as the roughness of the surface 
 
 The default values for `ior` and `extinction` represent approximate values for gold.
 
+Setting `retroreflective` to true switches the BSDF to retroreflection mode, where light is reflected back toward the incoming direction rather than the mirror reflection direction[^Raab2025].
+
 Thin-film iridescence effects[^Belcour2017] may be enabled by setting `thinfilm_thickness` to a non-zero value.
 
 |Port                |Description                                              |Type   |Default               |Accepted Values|
@@ -235,6 +240,7 @@ Thin-film iridescence effects[^Belcour2017] may be enabled by setting `thinfilm_
 |`ior`               |Index of refraction                                      |color3 |0.183, 0.421, 1.373   |               |
 |`extinction`        |Extinction coefficient                                   |color3 |3.424, 2.346, 1.770   |               |
 |`roughness`         |Surface roughness                                        |vector2|0.05, 0.05            |[0, 1]         |
+|`retroreflective`   |Enable retroreflection mode for the BSDF                 |boolean|false                 |               |
 |`thinfilm_thickness`|Thickness of the iridescent thin-film layer in nanometers|float  |0.0                   |               |
 |`thinfilm_ior`      |Index of refraction of the thin-film layer               |float  |1.5                   |               |
 |`normal`            |Normal vector of the surface                             |vector3|Nworld                |               |
@@ -251,9 +257,11 @@ Implementations are expected to preserve energy as the roughness of the surface 
 
 The `color82` input provides a multiplier on reflectivity at 82 degrees, useful for capturing the characteristic "dip" in the reflectance curve of metallic surfaces. Setting it to (1,1,1) effectively disables this feature for backward compatibility.
 
-The `scatter_mode` behavior matches that of `dielectric_bsdf`: in `RT` mode, reflection and transmission occur both when entering and leaving a surface, with intensities controlled by the Fresnel curve. Total internal reflection may occur depending on the incident angle.
+Setting `retroreflective` to true switches the BSDF to retroreflection mode, where light is reflected back toward the incoming direction rather than the mirror reflection direction[^Raab2025].
 
 Thin-film iridescence effects[^Belcour2017] may be enabled by setting `thinfilm_thickness` to a non-zero value.
+
+The `scatter_mode` behavior matches that of `dielectric_bsdf`: in `RT` mode, reflection and transmission occur both when entering and leaving a surface, with intensities controlled by the Fresnel curve. Total internal reflection may occur depending on the incident angle.
 
 |Port                |Description                                                    |Type   |Default      |Accepted Values|
 |--------------------|---------------------------------------------------------------|-------|-------------|---------------|
@@ -263,6 +271,7 @@ Thin-film iridescence effects[^Belcour2017] may be enabled by setting `thinfilm_
 |`color90`           |Reflectivity per color component at grazing angles             |color3 |1.0, 1.0, 1.0|               |
 |`exponent`          |Exponent for Schlick blending between color0 and color90       |float  |5.0          |               |
 |`roughness`         |Surface roughness along the tangent and bitangent              |vector2|0.05, 0.05   |[0, 1]         |
+|`retroreflective`   |Enable retroreflection mode for the BSDF                       |boolean|false        |               |
 |`thinfilm_thickness`|Thickness of the iridescent thin-film layer in nanometers      |float  |0.0          |               |
 |`thinfilm_ior`      |Index of refraction of the thin-film layer                     |float  |1.5          |               |
 |`normal`            |Normal vector of the surface                                   |vector3|Nworld       |               |
@@ -701,6 +710,8 @@ Path Tracing**, <https://media.disneyanimation.com/uploads/production/publicatio
 [^Pixar2019]: Pixar Animation Studios, **UsdPreviewSurface Specification**, <https://openusd.org/release/spec_usdpreviewsurface.html>, 2019.
 
 [^Portsmouth2025]: Portsmouth et al., **EON: A practical energy-preserving rough diffuse BRDF**, <https://www.jcgt.org/published/0014/01/06/>, 2025.
+
+[^Raab2025]: Matthias Raab et al., **The Minimal Retroreflective Microfacet Model**, to appear, 2025
 
 [^Turquin2019]: Emmanuel Turquin, **Practical multiple scattering compensation for microfacet models**, <https://blog.selfshadow.com/publications/turquin/ms_comp_final.pdf>, 2019.
 

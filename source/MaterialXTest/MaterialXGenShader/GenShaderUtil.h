@@ -115,8 +115,47 @@ class TestSuiteOptions
     // Render test paths
     mx::FileSearchPath renderTestPaths;
 
-    // Enable reference quality rendering. Default is false.
-    bool enableReferenceQuality;
+    // Files to exclude from render tests, matched by basename (e.g. "example.mtlx").
+    mx::StringSet renderTestExcludeFiles;
+
+    // Enable reference quality rendering (set by MATERIALX_TEST_REFERENCE_QUALITY).
+    bool enableReferenceQuality = false;
+
+    // Environment-light sample count for rasterized render tests (GLSL/MSL/Slang).
+    // Reference quality uses a higher count to drive sampling noise below the
+    // threshold of small visual regressions when comparing across targets.
+    int getRasterEnvSampleCount() const
+    {
+        return enableReferenceQuality ? 4096 : 1024;
+    }
+
+    // Per-axis supersample factor for rasterized render tests. The captured
+    // image is rendered at (renderSize * factor) and box-downsampled.
+    int getRasterSupersampleFactor() const
+    {
+        return enableReferenceQuality ? 2 : 1;
+    }
+
+    // Base directory for all test output artifacts (shaders, images, logs).
+    // If empty, use default locations. If set, all artifacts go to this directory.
+    mx::FilePath outputDirectory;
+
+    // Enable Perfetto tracing during render tests (requires MATERIALX_BUILD_PERFETTO_TRACING).
+    // Default is false to avoid overhead when not profiling.
+    bool enableTracing = false;
+
+    // Helper to resolve output path for an artifact.
+    // If outputDirectory is set, returns outputDirectory/filename.
+    // Otherwise returns the original path unchanged.
+    mx::FilePath resolveOutputPath(const mx::FilePath& path) const
+    {
+        if (outputDirectory.isEmpty())
+        {
+            return path;
+        }
+        // Extract just the filename and place it in outputDirectory
+        return outputDirectory / path.getBaseName();
+    }
 
     // Bake parameters
     struct BakeSetting

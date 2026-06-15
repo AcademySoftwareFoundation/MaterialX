@@ -22,6 +22,7 @@ import ::state::*;
 import .::core::*;
 import .::noise::*;
 import .::hsv::*;
+import .::flake::*;
 
 // Changes since MDL 1.7
 // - Scene data lookups used for PrimVar readers allow non-literal string names
@@ -79,10 +80,6 @@ export using .::stdlib_1_7 import mx_tangent_vector3;
 export using .::stdlib_1_7 import mx_bitangent_vector3;
 export using .::stdlib_1_7 import mx_texcoord_vector2;
 export using .::stdlib_1_7 import mx_texcoord_vector3;
-export using .::stdlib_1_7 import mx_geomcolor_float;
-export using .::stdlib_1_7 import mx_geomcolor_color3;
-export using .::stdlib_1_7 import mx_geomcolor_color4;
-export using .::stdlib_1_7 import mx_frame_float;
 export using .::stdlib_1_7 import mx_time_float;
 export using .::stdlib_1_7 import mx_modulo_color3;
 export using .::stdlib_1_7 import mx_modulo_color4;
@@ -298,6 +295,8 @@ export using .::stdlib_1_7 import mx_extract_color4;
 export using .::stdlib_1_7 import mx_extract_vector2;
 export using .::stdlib_1_7 import mx_extract_vector3;
 export using .::stdlib_1_7 import mx_extract_vector4;
+export using .::stdlib_1_7 import mx_extract_matrix33;
+export using .::stdlib_1_7 import mx_extract_matrix44;
 export using .::stdlib_1_7 import mx_heighttonormal_vector3;
 export using .::stdlib_1_7 import mx_noise2d_float;
 export using .::stdlib_1_7 import mx_noise2d_float2;
@@ -323,6 +322,9 @@ export using .::stdlib_1_7 import mx_worleynoise2d_float3;
 export using .::stdlib_1_7 import mx_worleynoise3d_float;
 export using .::stdlib_1_7 import mx_worleynoise3d_float2;
 export using .::stdlib_1_7 import mx_worleynoise3d_float3;
+export using .::flake      import mx_flake__result;
+export using .::stdlib_1_7 import mx_flake2d;
+export using .::stdlib_1_7 import mx_flake3d;
 export using .::stdlib_1_7 import mx_combine2_color4CF;
 
 // NOTE: Not planned to be implemented.
@@ -442,4 +444,52 @@ export float3 mx_viewdirection_vector3(
 			::state::coordinate_internal,
 			::state::coordinate_object,
 			internal_space_direction));
+}
+
+export float mx_frame_float()
+	[[
+		anno::description("Node Group: application")
+	]]
+{
+	return scene::data_lookup_float("FRAME", 1.0);
+}
+
+export float mx_geomcolor_float(
+	uniform int mxp_index = int(0)
+)
+	[[
+		anno::description("Node Group: geometric")
+	]]
+{
+	float defaultValue = float(0.0);
+	return mxp_index == 0
+		? scene::data_lookup_float("GEOMCOLOR0", defaultValue)
+		: defaultValue;
+}
+
+export color mx_geomcolor_color3(
+	uniform int mxp_index = int(0)
+)
+	[[
+		anno::description("Node Group: geometric")
+	]]
+{
+	color defaultValue = color(0.0, 0.0, 0.0);
+	return mxp_index == 0
+		? scene::data_lookup_color("GEOMCOLOR0", defaultValue)
+		: defaultValue;
+}
+
+export core::color4 mx_geomcolor_color4(
+	uniform int mxp_index = int(0)
+)
+	[[
+		anno::description("Node Group: geometric")
+	]]
+{
+	float4 defaultValue = float4(0.0, 0.0, 0.0, 0.0);
+	float4 value = mxp_index == 0
+		? scene::data_lookup_float4("GEOMCOLOR0", defaultValue)
+		: defaultValue;
+	return core::mk_color4(value.x, value.y, value.z, value.w);
 }

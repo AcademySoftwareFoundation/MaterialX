@@ -30,6 +30,7 @@ const std::string options =
     "    --envSampleCount [INTEGER]     Specify the environment sample count (defaults to 16)\n"
     "    --envLightIntensity [FLOAT]    Specify the environment light intensity (defaults to 1)\n"
     "    --lightRotation [FLOAT]        Specify the rotation in degrees of the lighting environment about the Y axis (defaults to 0)\n"
+    "    --enableDirectLight [BOOLEAN]  Specify whether direct lighting is enabled (defaults to true)\n"
     "    --shadowMap [BOOLEAN]          Specify whether shadow mapping is enabled (defaults to true)\n"
     "    --path [FILEPATH]              Specify an additional data search path location (e.g. '/projects/MaterialX').  This absolute path will be queried when locating data libraries, XInclude references, and referenced images.\n"
     "    --library [FILEPATH]           Specify an additional data library folder (e.g. 'vendorlib', 'studiolib').  This relative path will be appended to each location in the data search path when loading data libraries.\n"
@@ -91,6 +92,7 @@ int main(int argc, char* const argv[])
     int envSampleCount = mx::DEFAULT_ENV_SAMPLE_COUNT;
     float envLightIntensity = 1.0f;
     float lightRotation = 0.0f;
+    bool enableDirectLight = true;
     bool shadowMap = true;
     DocumentModifiers modifiers;
     int screenWidth = 1280;
@@ -171,6 +173,10 @@ int main(int argc, char* const argv[])
         else if (token == "--lightRotation")
         {
             parseToken(nextToken, "float", lightRotation);
+        }
+        else if (token == "--enableDirectLight")
+        {
+            parseToken(nextToken, "boolean", enableDirectLight);
         }
         else if (token == "--shadowMap")
         {
@@ -296,6 +302,7 @@ int main(int argc, char* const argv[])
         viewer->setEnvSampleCount(envSampleCount);
         viewer->setEnvLightIntensity(envLightIntensity);
         viewer->setLightRotation(lightRotation);
+        viewer->setDirectLightEnable(enableDirectLight);
         viewer->setShadowMapEnable(shadowMap);
         viewer->setDrawEnvironment(drawEnvironment);
         viewer->setDocumentModifiers(modifiers);

@@ -7,6 +7,7 @@
     </roughness_anisotropy>
     <conductor_bsdf name="conductor_brdf1" type="BSDF">
       <input name="roughness" type="vector2" nodename="roughness1" />
+      <input name="retroreflective" type="boolean" value="false" />
       <input name="ior" type="color3" nodename="conductor_brdf1__artistic_ior" output="ior" />
       <input name="extinction" type="color3" nodename="conductor_brdf1__artistic_ior" output="extinction" />
     </conductor_bsdf>

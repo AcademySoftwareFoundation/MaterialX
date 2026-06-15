@@ -5,6 +5,15 @@ if (MATERIALX_BUILD_MONOLITHIC)
     # such that the individual module would have been built if not in monolithic build mode
     add_library(${MATERIALX_MODULE_NAME} "" "" )
 
+    # Apply Perfetto compile flags for monolithic builds
+    # (set_source_files_properties is directory-scoped, must be called here)
+    if(MATERIALX_BUILD_PERFETTO_TRACING)
+        set_source_files_properties("${perfetto_SOURCE_DIR}/sdk/perfetto.cc"
+            PROPERTIES
+            COMPILE_DEFINITIONS "${MATERIALX_PERFETTO_COMPILE_DEFINITIONS}"
+            COMPILE_FLAGS "${MATERIALX_PERFETTO_COMPILE_FLAGS}")
+    endif()
+
     set_target_properties(${MATERIALX_MODULE_NAME} PROPERTIES CXX_VISIBILITY_PRESET hidden)
     set_target_properties(${MATERIALX_MODULE_NAME} PROPERTIES CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 

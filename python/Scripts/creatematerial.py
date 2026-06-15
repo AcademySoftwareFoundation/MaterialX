@@ -256,7 +256,7 @@ def main():
     if options.outputFilename:
         # Write the document to disk.
         if not mtlxFile.getParentPath().exists():
-            mtlxFile.getParentPath().createDirectory()
+            mtlxFile.getParentPath().createDirectory(True)
         mx.writeToXmlFile(doc, mtlxFile.asString())
         print('Wrote MaterialX document to disk:', mtlxFile.asString())
     else:

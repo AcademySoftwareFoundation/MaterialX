@@ -1088,6 +1088,21 @@ void Document::upgradeVersion()
             }
         }
 
+        // In MaterialX 1.39, each node input may have only one binding.  Legacy
+        // 1.38 nodegraph implementations sometimes kept a default value on an
+        // input that was also connected to a nodegraph interface, so preserve the
+        // binding and let the declaration provide any default value.
+        for (ElementPtr elem : traverseTree())
+        {
+            InputPtr input = elem->asA<Input>();
+            if (input && input->getParent()->isA<Node>() && input->hasValue() &&
+                (input->hasNodeName() || input->hasNodeGraphString() ||
+                 input->hasInterfaceName() || input->hasOutputString()))
+            {
+                input->removeAttribute(ValueElement::VALUE_ATTRIBUTE);
+            }
+        }
+
         // Update all nodes.
         vector<NodePtr> unusedNodes;
         for (ElementPtr elem : traverseTree())

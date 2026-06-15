@@ -1,4 +1,4 @@
-void mx_dielectric_bsdf(float weight, color tint, float ior, vector2 roughness, float thinfilm_thickness, float thinfilm_ior, normal N, vector U, string distribution, string scatter_mode, output BSDF bsdf)
+void mx_dielectric_bsdf(float weight, color tint, float ior, vector2 roughness, int retroreflective, float thinfilm_thickness, float thinfilm_ior, normal N, vector U, string distribution, string scatter_mode, output BSDF bsdf)
 {
     color reflection_tint = (scatter_mode == "T") ? color(0.0) : tint;
     color transmission_tint = (scatter_mode == "R") ? color(0.0) : tint;

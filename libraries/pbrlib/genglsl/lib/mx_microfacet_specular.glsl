@@ -61,6 +61,12 @@ vec3 mx_ggx_importance_sample_VNDF(vec2 Xi, vec3 V, vec2 alpha)
     return H;
 }
 
+// PDF of a reflection direction sampled from the GGX VNDF.
+float mx_ggx_VNDF_reflection_PDF(vec3 H, vec2 alpha, float G1V, float NdotV)
+{
+    return mx_ggx_NDF(H, alpha) * G1V / (4.0 * NdotV);
+}
+
 // https://www.cs.cornell.edu/~srm/publications/EGSR07-btdf.pdf
 // Equation 34
 float mx_ggx_smith_G1(float cosTheta, float alpha)
@@ -165,19 +171,6 @@ vec3 mx_ggx_dir_albedo(float NdotV, float alpha, vec3 F0, vec3 F90)
 float mx_ggx_dir_albedo(float NdotV, float alpha, float F0, float F90)
 {
     return mx_ggx_dir_albedo(NdotV, alpha, vec3(F0), vec3(F90)).x;
-}
-
-// https://blog.selfshadow.com/publications/turquin/ms_comp_final.pdf
-// Equations 14 and 16
-vec3 mx_ggx_energy_compensation(float NdotV, float alpha, vec3 Fss)
-{
-    float Ess = mx_ggx_dir_albedo(NdotV, alpha, 1.0, 1.0);
-    return 1.0 + Fss * (1.0 - Ess) / Ess;
-}
-
-float mx_ggx_energy_compensation(float NdotV, float alpha, float Fss)
-{
-    return mx_ggx_energy_compensation(NdotV, alpha, vec3(Fss)).x;
 }
 
 // Compute the average of an anisotropic alpha pair.
@@ -470,10 +463,61 @@ vec3 mx_compute_fresnel(float cosTheta, FresnelData fd)
     {
         return mx_fresnel_conductor(cosTheta, fd.ior, fd.extinction);
     }
-    else
+    else // FRESNEL_MODEL_SCHLICK
     {
         return mx_fresnel_hoffman_schlick(cosTheta, fd);
     }
+}
+
+// Directional albedo accounting for different Fresnel functions.
+vec3 mx_ggx_dir_albedo(float NdotV, float alpha, FresnelData fd)
+{
+    if (fd.airy)
+    {
+        // Approximation using a blend between mirror (alpha = 0)
+        // and rougher cases. This helps to maintain angular
+        // color variation at lower roughness values.
+        vec3 mirrorDirAlbedo = mx_compute_fresnel(NdotV, fd);
+        vec3 F0 = mx_fresnel_airy(1.0, fd);
+        vec3 roughDirAlbedo = mx_ggx_dir_albedo(NdotV, alpha, F0, vec3(1.0));
+        return mix(mirrorDirAlbedo, roughDirAlbedo, sqrt(alpha));
+    }
+    else if (fd.model == FRESNEL_MODEL_DIELECTRIC)
+    {
+        float F0 = mx_ior_to_f0(fd.ior.x);
+        return mx_ggx_dir_albedo(NdotV, alpha, vec3(F0), vec3(1.0));
+    }
+    else if (fd.model == FRESNEL_MODEL_CONDUCTOR)
+    {
+        vec3 F0 = mx_fresnel_conductor(1.0, fd.ior, fd.extinction);
+        return mx_ggx_dir_albedo(NdotV, alpha, F0, vec3(1.0));
+    }
+    else // FRESNEL_MODEL_SCHLICK
+    {
+        return mx_ggx_dir_albedo(NdotV, alpha, fd.F0, fd.F90);
+    }
+}
+
+// Compute the cosine-weighted average of the Fresnel reflectance over the hemisphere.
+// https://blog.selfshadow.com/publications/s2017-shading-course/imageworks/s2017_pbs_imageworks_slides_v2.pdf
+vec3 mx_fresnel_average(FresnelData fd)
+{
+    vec3 F0 = mx_compute_fresnel(1.0, fd);
+    vec3 F90 = (fd.model == FRESNEL_MODEL_SCHLICK && !fd.airy) ? fd.F90 : vec3(1.0);
+
+    // The constant 1/21 is exact for a Schlick term with an exponent of 5, while for
+    // a generalized Schlick exponent n it would be 2 / ((n + 1) * (n + 2)).
+    return F0 + (F90 - F0) * (1.0 / 21.0);
+}
+
+// Multiple-scattering energy compensation for the GGX microfacet model.
+// https://blog.selfshadow.com/publications/turquin/ms_comp_final.pdf
+// Equations 14 and 16
+vec3 mx_ggx_energy_compensation(float NdotV, float alpha, FresnelData fd)
+{
+    vec3 Fss = mx_fresnel_average(fd);
+    float Ess = mx_ggx_dir_albedo(NdotV, alpha, 1.0, 1.0);
+    return 1.0 + Fss * (1.0 - Ess) / Ess;
 }
 
 // Compute the refraction of a ray through a solid sphere.

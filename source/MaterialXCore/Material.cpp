@@ -20,7 +20,19 @@ vector<NodePtr> getShaderNodes(NodePtr materialNode, const string& nodeType, con
         NodePtr shaderNode = input->getConnectedNode();
         if (shaderNode && !shaderNodeSet.count(shaderNode))
         {
-            if (!nodeType.empty() && shaderNode->getType() != nodeType)
+            bool inputMatchesOutputType = !nodeType.empty() && shaderNode->getType() == nodeType;
+            
+            if (shaderNode->isMultiOutputType())
+            {
+                const vector<OutputPtr>& activeOutputs = shaderNode->getActiveOutputs();
+                bool multiOutputMatches = std::any_of(activeOutputs.begin(), activeOutputs.end(), [&nodeType](const OutputPtr& output)
+                {
+                    return output->getType() == nodeType;
+                });
+                inputMatchesOutputType = multiOutputMatches || inputMatchesOutputType;
+            }
+            
+            if (!inputMatchesOutputType)
             {
                 continue;
             }
@@ -76,7 +88,7 @@ vector<NodePtr> getShaderNodes(NodePtr materialNode, const string& nodeType, con
         }
     }
 
-    if (inputs.empty())
+    if (shaderNodeVec.empty())
     {
         // Try to find material nodes in the implementation graph if any.
         // If a target is specified the nodedef for the given target is searched for.

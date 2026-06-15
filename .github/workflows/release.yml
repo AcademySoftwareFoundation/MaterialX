@@ -21,7 +21,7 @@ jobs:
        
     steps:
       - name: Sync Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           submodules: recursive
 
@@ -34,7 +34,7 @@ jobs:
           git archive --prefix ${MATERIALX_ARCHIVE}/ --output ${MATERIALX_ARCHIVE}.tar.gz ${RELEASE_TAG}
 
       - name: Sign and Upload Archives
-        uses: sigstore/gh-action-sigstore-python@v3.0.0
+        uses: sigstore/gh-action-sigstore-python@f514d46b907ebcd5bedc05145c03b69c1edd8b46 # v3.0.0
         with:
           inputs: |
             ${{ env.MATERIALX_ARCHIVE }}.zip

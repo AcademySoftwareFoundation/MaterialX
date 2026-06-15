@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+  <!--
+  Basic flake2d unit test.
+  -->
+  <flake2d name="flake2d" type="multioutput">
+    <input name="coverage" type="float" value="1" />
+    <input name="size" type="float" value="0.001" />
+    <input name="roughness" type="float" value="0.2" />
+    <output name="flakenormal" type="vector3" />
+  </flake2d>
+  <standard_surface name="SR_flake2d" type="surfaceshader">
+    <input name="base" type="float" value="1" />
+    <input name="base_color" type="color3" value="0.1, 0.1, 0.5" />
+    <input name="normal" type="vector3" output="flakenormal" nodename="flake2d" />
+    <input name="metalness" type="float" value="1" />
+    <input name="specular_roughness" type="float" value="0.1" />
+  </standard_surface>
+  <surfacematerial name="test_flake2d" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="SR_flake2d" />
+  </surfacematerial>
+
+  <!--
+  Basic flake3d unit test.
+  -->
+  <flake3d name="flake3d" type="multioutput">
+    <input name="coverage" type="float" value="1" />
+    <input name="size" type="float" value="0.001" />
+    <input name="roughness" type="float" value="0.2" />
+    <output name="flakenormal" type="vector3" />
+  </flake3d>
+  <standard_surface name="SR_flake3d" type="surfaceshader">
+    <input name="base" type="float" value="1" />
+    <input name="base_color" type="color3" value="0.1, 0.1, 0.5" />
+    <input name="normal" type="vector3" output="flakenormal" nodename="flake3d" />
+    <input name="metalness" type="float" value="1" />
+    <input name="specular_roughness" type="float" value="0.1" />
+  </standard_surface>
+  <surfacematerial name="test_flake3d" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="SR_flake3d" />
+  </surfacematerial>
+</materialx>

@@ -349,16 +349,17 @@ class MX_GENSHADER_API ShaderNode
         static const uint32_t EDF           = 1 << 10; /// A EDF node
         static const uint32_t VDF           = 1 << 11; /// A VDF node
         static const uint32_t LAYER         = 1 << 12; /// A node for vertical layering of other closure nodes
+        static const uint32_t MIX           = 1 << 13; /// A node for mixing of other closure nodes
         // Specific shader types
-        static const uint32_t SURFACE       = 1 << 13; /// A surface shader node
-        static const uint32_t VOLUME        = 1 << 14; /// A volume shader node
-        static const uint32_t LIGHT         = 1 << 15; /// A light shader node
-        static const uint32_t UNLIT         = 1 << 16; /// An unlit surface shader node
+        static const uint32_t SURFACE       = 1 << 14; /// A surface shader node
+        static const uint32_t VOLUME        = 1 << 15; /// A volume shader node
+        static const uint32_t LIGHT         = 1 << 16; /// A light shader node
+        static const uint32_t UNLIT         = 1 << 17; /// An unlit surface shader node
         // Types based on nodegroup
-        static const uint32_t SAMPLE2D      = 1 << 17; /// Can be sampled in 2D (uv space)
-        static const uint32_t SAMPLE3D      = 1 << 18; /// Can be sampled in 3D (position)
-        static const uint32_t GEOMETRIC     = 1 << 19; /// Geometric input
-        static const uint32_t DOT           = 1 << 20; /// A dot node
+        static const uint32_t SAMPLE2D      = 1 << 18; /// Can be sampled in 2D (uv space)
+        static const uint32_t SAMPLE3D      = 1 << 19; /// Can be sampled in 3D (position)
+        static const uint32_t GEOMETRIC     = 1 << 20; /// Geometric input
+        static const uint32_t DOT           = 1 << 21; /// A dot node
     };
 
     static const ShaderNodePtr NONE;
@@ -430,6 +431,13 @@ class MX_GENSHADER_API ShaderNode
         return _name;
     }
 
+    /// Return the unique identifier for this node, used as its key
+    /// in the parent graph's node map.
+    const string& getUniqueId() const
+    {
+        return _uniqueId;
+    }
+
     /// Return the implementation used for this node.
     const ShaderNodeImpl& getImplementation() const
     {
@@ -495,6 +503,7 @@ class MX_GENSHADER_API ShaderNode
 
     const ShaderGraph* _parent;
     string _name;
+    string _uniqueId;
     uint32_t _classification;
 
     std::unordered_map<string, ShaderInputPtr> _inputMap;

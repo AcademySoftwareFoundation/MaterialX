@@ -33,7 +33,7 @@ vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 alpha, int distributio
 
         // Sample the environment light from the given direction.
         vec3 Lw = mx_matrix_mul(tangentToWorld, L);
-        float pdf = mx_ggx_NDF(H, alpha) * G1V / (4.0 * NdotV);
+        float pdf = mx_ggx_VNDF_reflection_PDF(H, alpha, G1V, NdotV);
         float lod = mx_latlong_compute_lod(Lw, pdf, float($envRadianceMips - 1), envRadianceSamples);
         vec3 sampleColor = mx_latlong_map_lookup(Lw, $envMatrix, lod, $envRadiance);
 
