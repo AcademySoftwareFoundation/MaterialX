@@ -273,6 +273,7 @@ TEST_CASE("GenShader: GLSL Structural Hash", "[genglsl]")
     hashLog << std::hex << std::setfill('0');
     hashLog << "\n=== Structural Hash Results ===\n";
 
+    size_t numHashed = 0;
     for (size_t docIdx = 0; docIdx < loadedDocuments.size(); ++docIdx)
     {
         mx::DocumentPtr doc = loadedDocuments[docIdx];
@@ -280,10 +281,8 @@ TEST_CASE("GenShader: GLSL Structural Hash", "[genglsl]")
 
         std::string message;
         bool docValid = doc->validate(&message);
-        if (!docValid)
-        {
-            continue;
-        }
+        INFO(documentsPaths[docIdx] << ": " << message);
+        REQUIRE(docValid);
 
         context.getShaderGenerator().registerTypeDefs(doc);
 
@@ -291,15 +290,7 @@ TEST_CASE("GenShader: GLSL Structural Hash", "[genglsl]")
         for (const mx::TypedElementPtr& element : elements)
         {
             mx::ShaderPtr shader;
-            try
-            {
-                shader = context.getShaderGenerator().generate(element->getName(), element, context);
-            }
-            catch (const std::exception&)
-            {
-                continue;
-            }
-
+            REQUIRE_NOTHROW(shader = context.getShaderGenerator().generate(element->getName(), element, context));
             REQUIRE(shader != nullptr);
 
             size_t hash1 = mx::computeStructuralHash(shader->getGraph());
@@ -307,18 +298,11 @@ TEST_CASE("GenShader: GLSL Structural Hash", "[genglsl]")
 
             // Determinism check: generate the same shader again and verify the hash matches.
             mx::ShaderPtr shader2;
-            try
-            {
-                shader2 = context.getShaderGenerator().generate(element->getName(), element, context);
-            }
-            catch (const std::exception&)
-            {
-                continue;
-            }
-
+            REQUIRE_NOTHROW(shader2 = context.getShaderGenerator().generate(element->getName(), element, context));
             REQUIRE(shader2 != nullptr);
             size_t hash2 = mx::computeStructuralHash(shader2->getGraph());
             REQUIRE(hash1 == hash2);
+            ++numHashed;
 
             hashLog << "  " << documentsPaths[docIdx] << " | "
                     << element->getName() << " | 0x"
@@ -330,5 +314,5 @@ TEST_CASE("GenShader: GLSL Structural Hash", "[genglsl]")
 
     // Output to Catch2 INFO so it appears with -s flag
     INFO(hashLog.str());
-    SUCCEED();
+    REQUIRE(numHashed > 0);
 }
