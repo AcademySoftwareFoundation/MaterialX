@@ -72,10 +72,11 @@ void CustomCodeNodeMdl::initializeForInlineSourceCode(const InterfaceElement& el
 
     NodeDefPtr nodeDef = impl.getNodeDef();
     _inlineFunctionName = nodeDef->getName();
-    _hash = std::hash<string>{}(_inlineFunctionName); // make sure we emit the function definition only once
 
     const ShaderGenerator& shadergen = context.getShaderGenerator();
     const MdlSyntax& syntax = static_cast<const MdlSyntax&>(shadergen.getSyntax());
+    syntax.makeValidName(_inlineFunctionName);
+    _hash = std::hash<string>{}(_inlineFunctionName); // make sure we emit the function definition only once
     // Construct the function call template string
     initializeFunctionCallTemplateString(syntax, *nodeDef);
     // Collect information about output names and defaults
