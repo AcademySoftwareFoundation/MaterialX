@@ -99,32 +99,40 @@ void UiNode::buildUiTokenMap()
 {
     _uiTokenMap.clear(); // Assume we want clean slate
 
-    mx::ElementPtr currElem = getNode();
+    const mx::NodePtr node = getNode();
+    if (!node) return; // Early return as no further work is needed
+    
+    mx::ElementPtr currElem = node->asA<mx::Element>(); // Explicit upcast
+    // Traverse upward using parent pointers to collect all active tokens in the current scope
     while (currElem)
     {
-        if (mx::ConstInterfaceElementPtr interfaceElem = currElem->asA<mx::InterfaceElement>())
+        if (mx::ConstInterfaceElementPtr currInterfaceElem = currElem->asA<mx::InterfaceElement>())
         {
-            UiToken::applyTokenMapping(&_uiTokenMap, interfaceElem, currElem);
+            UiToken::applyTokenMapping(&_uiTokenMap, currInterfaceElem, currElem);
 
             // If the node is a nodegraph, check for tokens on corresponding nodedef
-            if (mx::ConstNodeGraphPtr nodegraph = currElem->asA<mx::NodeGraph>())
+            if (mx::ConstNodeGraphPtr currNodeGraph = currElem->asA<mx::NodeGraph>())
             {
-                if (mx::NodeDefPtr nodedef = nodegraph->getNodeDef())
-                    UiToken::applyTokenMapping(&_uiTokenMap, nodedef, nodedef);
+                if (mx::NodeDefPtr currNodedef = currNodeGraph->getNodeDef())
+                {
+                    UiToken::applyTokenMapping(&_uiTokenMap, currNodedef, currNodedef);
+                }
             }
             
             // If the node is a custom node instance, check for tokens on corresponding nodedef
-            if (mx::NodePtr node = currElem->asA<mx::Node>())
+            if (mx::NodePtr currNode = currNode->asA<mx::Node>())
             {
-                if (mx::NodeDefPtr nodedef = node->getNodeDef())
-                    UiToken::applyTokenMapping(&_uiTokenMap, nodedef, nodedef);
+                if (mx::NodeDefPtr currNodedef = currNode->getNodeDef())
+                {
+                    UiToken::applyTokenMapping(&_uiTokenMap, currNodedef, currNodedef);
+                }
             }
         }
         currElem = currElem->getParent();
     }
 
     // Traverse through inputs and determine which tokens their value depends on
-    for (const auto& input : getNode()->getActiveInputs())
+    for (const auto& input : node->getActiveInputs())
     {
         if (input->getType() != "filename")
             continue;
