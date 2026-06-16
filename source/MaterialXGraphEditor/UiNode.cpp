@@ -120,7 +120,7 @@ void UiNode::buildUiTokenMap()
             }
             
             // If the node is a custom node instance, check for tokens on corresponding nodedef
-            if (mx::NodePtr currNode = currNode->asA<mx::Node>())
+            if (mx::NodePtr currNode = currElem->asA<mx::Node>())
             {
                 if (mx::NodeDefPtr currNodedef = currNode->getNodeDef())
                 {
