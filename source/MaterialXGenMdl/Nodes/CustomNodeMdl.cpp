@@ -248,7 +248,14 @@ void CustomCodeNodeMdl::emitFunctionDefinition(const ShaderNode& node, GenContex
 
         // User defined code
         shadergen.emitComment("inlined shader source code:", stage);
-        shadergen.emitLine(_inlineSourceCode, stage, false);
+        if (numOutputs == 1)
+        {
+            shadergen.emitLine(outputs.back().name + " = " + _inlineSourceCode, stage);
+        }
+        else
+        {
+            shadergen.emitLine(_inlineSourceCode, stage, false);
+        }
 
         // Output packing
         shadergen.emitComment("pack (in case of multiple outputs) and return outputs:", stage);
