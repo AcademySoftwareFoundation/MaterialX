@@ -9,8 +9,8 @@
 /// @file
 /// Vulkan GLSL shader generator flavor for WGSL
 
-#include <MaterialXGenGlsl/VkShaderGenerator.h>
-#include <MaterialXGenGlsl/WgslResourceBindingContext.h>
+#include <MaterialXGenGlsl/vk/VkShaderGenerator.h>
+#include <MaterialXGenGlsl/wgsl/WgslResourceBindingContext.h>
 #include <MaterialXGenShader/GenContext.h>
 
 MATERIALX_NAMESPACE_BEGIN

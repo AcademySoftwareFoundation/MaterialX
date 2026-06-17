@@ -13,13 +13,13 @@
 // codebase
 #include <MaterialXGenGlsl/Nodes/SurfaceNodeGlsl.h>
 
-#include <MaterialXGenGlsl/EsslShaderGenerator.h>
-#include <MaterialXGenGlsl/EsslSyntax.h>
+#include <MaterialXGenGlsl/essl/EsslShaderGenerator.h>
+#include <MaterialXGenGlsl/essl/EsslSyntax.h>
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 #include <MaterialXGenGlsl/GlslSyntax.h>
 #include <MaterialXGenGlsl/GlslResourceBindingContext.h>
-#include <MaterialXGenGlsl/VkShaderGenerator.h>
-#include <MaterialXGenGlsl/WgslShaderGenerator.h>
+#include <MaterialXGenGlsl/vk/VkShaderGenerator.h>
+#include <MaterialXGenGlsl/wgsl/WgslShaderGenerator.h>
 #include <MaterialXGenHw/HwConstants.h>
 
 namespace mx = MaterialX;

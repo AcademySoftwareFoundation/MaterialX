@@ -11,7 +11,7 @@
 
 #include <MaterialXGenGlsl/Export.h>
 
-#include <MaterialXGenGlsl/VkShaderGenerator.h>
+#include <MaterialXGenGlsl/vk/VkResourceBindingContext.h>
 
 MATERIALX_NAMESPACE_BEGIN
 

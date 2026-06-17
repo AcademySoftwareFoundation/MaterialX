@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXGenGlsl/VkResourceBindingContext.h>
+#include <MaterialXGenGlsl/vk/VkResourceBindingContext.h>
 
 #include <MaterialXGenShader/GenContext.h>
 

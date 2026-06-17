@@ -7,9 +7,9 @@
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 #include <MaterialXGenGlsl/GlslResourceBindingContext.h>
-#include <MaterialXGenGlsl/EsslShaderGenerator.h>
-#include <MaterialXGenGlsl/VkShaderGenerator.h>
-#include <MaterialXGenGlsl/WgslShaderGenerator.h>
+#include <MaterialXGenGlsl/essl/EsslShaderGenerator.h>
+#include <MaterialXGenGlsl/vk/VkShaderGenerator.h>
+#include <MaterialXGenGlsl/wgsl/WgslShaderGenerator.h>
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 

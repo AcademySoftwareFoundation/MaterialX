@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXGenGlsl/WgslSyntax.h>
+#include <MaterialXGenGlsl/wgsl/WgslSyntax.h>
 
 MATERIALX_NAMESPACE_BEGIN
 

@@ -35,7 +35,7 @@
 #if MATERIALX_BUILD_GEN_OSL
 #include <MaterialXGenOsl/OslShaderGenerator.h>
 #endif
-#include <MaterialXGenGlsl/EsslShaderGenerator.h>
+#include <MaterialXGenGlsl/essl/EsslShaderGenerator.h>
 
 #include <MaterialXFormat/Environ.h>
 #include <MaterialXFormat/Util.h>

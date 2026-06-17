@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXGenGlsl/WgslResourceBindingContext.h>
+#include <MaterialXGenGlsl/wgsl/WgslResourceBindingContext.h>
 
 #include <iostream>
 #include <MaterialXGenShader/GenContext.h>
