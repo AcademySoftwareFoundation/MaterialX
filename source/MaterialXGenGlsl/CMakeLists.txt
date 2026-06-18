@@ -1,5 +1,6 @@
 file(GLOB_RECURSE materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 file(GLOB_RECURSE materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
+list(FILTER materialx_headers EXCLUDE REGEX "wgsl/converter/") # internal WGSL helpers; not installed
 
 mx_add_library(MaterialXGenGlsl
     SOURCE_FILES

@@ -126,12 +126,15 @@ def main():
             genoptions.shaderInterfaceType = mx_gen_shader.ShaderInterfaceType.SHADER_INTERFACE_COMPLETE
 
         print('- Set up CMS ...')
-        cms = mx_gen_shader.DefaultColorManagementSystem.create(shadergen.getTarget())  
+        cmsTarget = shadergen.getTarget()
+        if gentarget == 'wgsl' and cmsTarget not in ('genglsl', 'genmsl', 'genosl'):
+            cmsTarget = 'genglsl'
+        cms = mx_gen_shader.DefaultColorManagementSystem.create(cmsTarget)  
         cms.loadLibrary(doc)
         shadergen.setColorManagementSystem(cms)  
 
         print('- Set up Units ...')
-        unitsystem = mx_gen_shader.UnitSystem.create(shadergen.getTarget())
+        unitsystem = mx_gen_shader.UnitSystem.create(cmsTarget)
         registry = mx.UnitConverterRegistry.create()
         distanceTypeDef = doc.getUnitTypeDef('distance')
         registry.addUnitConverter(distanceTypeDef, mx.LinearUnitConverter.create(distanceTypeDef))
