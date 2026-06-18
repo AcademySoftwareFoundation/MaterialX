@@ -23,6 +23,9 @@
 ///   - ternary operators:   `a ? b : c`                  -> `select(c, b, a)`
 ///   - function signatures: `void f(float x, out int y)` -> `fn f(x: f32) -> i32`
 ///   - out parameters:      body refs to `y` become `(*y)` with `y: ptr<function,T>`
+///   - arrays:              `vec2 c[3]`                  -> `c: array<vec2f, 3>`
+///   - shift counts:        `x << k` (signed `k`)        -> `x << u32(k)`
+///   - float vec ctors:     `vec2(intX, intY)`           -> `vec2f(f32(intX), f32(intY))`
 ///
 /// These are a *targeted* converter for the constrained, machine-generated GLSL the genglsl
 /// node implementations and libraries produce -- not a general-purpose GLSL parser. They
@@ -76,6 +79,11 @@ string rewriteResidualGlslFunctions(const string& shader);
 /// brace balance in generated WGSL.
 string repairEmptyElseCommentBlocks(const string& shader);
 
+/// Split GLSL chained assignment `a = b = c = expr;` (legal GLSL, rejected by WGSL) into
+/// separate right-to-left statements (`c = expr; b = c; a = b;`). Only fires when every
+/// target is a simple lvalue, as in the mx_noise.glsl hash seed.
+string splitChainedAssignments(const string& shader);
+
 /// Scan finished WGSL for residual GLSL tokens (`#version`, `layout(`, `sampler2D `, ...).
 /// Returns one human-readable entry per distinct token found; empty when fully converted.
 StringVec findResidualGlsl(const string& wgsl);
@@ -94,6 +102,10 @@ class LineRewriter
     /// Rewrite one line (without trailing newline). Updates internal scope state.
     string rewrite(const string& line);
 
+    /// Seed the set of functions known to take a pointer (out/inout) parameter. Used when a
+    /// block is rewritten in isolation (see rewriteBlock) and its callees are defined elsewhere.
+    void registerPointerFunctions(const StringSet& fns) { _ptrFuncs.insert(fns.begin(), fns.end()); }
+
   private:
     // Per-line handlers tried in order by rewrite(). Each returns true and fills `out` when
     // it consumes the line; false means "not my case, try the next".
@@ -104,7 +116,7 @@ class LineRewriter
 
     // Enter a function body: record out-parameter names and the mutable `var` copies to
     // inject for value parameters; return the rewritten signature line.
-    string beginFunction(const string& sig, std::vector<string>&& outNames,
+    string beginFunction(const string& sig, StringVec&& outNames,
                          const std::vector<std::pair<string, string>>& valueParams);
     // Leave the current function body and clear its per-function state.
     void leaveFunctionScope();
@@ -116,8 +128,8 @@ class LineRewriter
         bool seenOpenBrace = false; // the body's opening brace has been seen
         int braceDepth = 0;         // net brace nesting within the function
         bool injected = false;      // value-parameter `var` copies already emitted
-        std::vector<string> outParams;       // out-parameter names to dereference
-        std::vector<string> paramInjections; // `var name: T = name_arg;` lines
+        StringVec outParams;       // out-parameter names to dereference
+        StringVec paramInjections; // `var name: T = name_arg;` lines
     };
 
     // A function signature whose parameter list spans several lines.
@@ -155,6 +167,10 @@ class LineRewriter
         bool active() const;             // all enclosing conditionals select the line
         void update(const string& directive);
     };
+
+    // Names of functions seen so far that take a pointer (out/inout) parameter. Used to decide
+    // whether an out-parameter forwarded as a call argument must stay a bare pointer.
+    StringSet _ptrFuncs;
 
     FunctionScope _func;
     SignatureAccum _sig;

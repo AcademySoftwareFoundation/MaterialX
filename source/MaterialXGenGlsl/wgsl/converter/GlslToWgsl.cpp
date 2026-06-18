@@ -89,9 +89,9 @@ int braceDelta(string_view s)
     return d;
 }
 
-std::vector<string> readLines(const string& text)
+StringVec readLines(const string& text)
 {
-    std::vector<string> lines;
+    StringVec lines;
     std::istringstream stream(text);
     string line;
     while (std::getline(stream, line))
@@ -103,7 +103,7 @@ std::vector<string> readLines(const string& text)
     return lines;
 }
 
-string joinLines(const std::vector<string>& lines)
+string joinLines(const StringVec& lines)
 {
     string result;
     result.reserve(lines.size() * 32);
@@ -161,9 +161,9 @@ std::optional<FnDef> parseFnDef(string_view lineIn)
 
 // Split a parameter list (without the enclosing parentheses) on top-level
 // commas, ignoring commas nested inside angle brackets or parens.
-std::vector<string> splitTopLevel(const string& params)
+StringVec splitTopLevel(const string& params)
 {
-    std::vector<string> out;
+    StringVec out;
     int angle = 0, paren = 0;
     size_t start = 0;
     for (size_t i = 0; i < params.size(); ++i)
@@ -229,6 +229,23 @@ int netParens(const string& line)
         if (c == '(')
             net++;
         else if (c == ')')
+            net--;
+    }
+    return net;
+}
+
+// Net parenthesis balance of a line ignoring any trailing `//` line comment, whose
+// parentheses are not code (e.g. `// spherical cap in (-V.z, 1]` has an unmatched `(`).
+int netParensCode(const string& line)
+{
+    int net = 0;
+    for (size_t i = 0; i < line.size(); ++i)
+    {
+        if (line[i] == '/' && i + 1 < line.size() && line[i + 1] == '/')
+            break; // rest of the line is a comment
+        if (line[i] == '(')
+            net++;
+        else if (line[i] == ')')
             net--;
     }
     return net;
@@ -509,6 +526,19 @@ string rewriteTernaries(string line)
 }
 
 // Rewrite "type name = value" to "var name: wgslType = value" for known GLSL types.
+// If a declarator name carries a GLSL array suffix (`name[N]`), strip it into `arraySize`
+// and reduce `name` to the bare identifier. Returns true when an array suffix was present.
+// (WGSL spells the type as `array<T, N>`; the `[N]` never stays on the name.)
+bool splitArrayName(string& name, string& arraySize)
+{
+    const size_t lb = name.find('[');
+    if (lb == string::npos || name.empty() || name.back() != ']')
+        return false;
+    arraySize = trim(name.substr(lb + 1, name.size() - lb - 2));
+    name = trim(name.substr(0, lb));
+    return true;
+}
+
 string rewriteVariableDecl(string line)
 {
     size_t lineStart = 0;
@@ -537,7 +567,30 @@ string rewriteVariableDecl(string line)
                 afterName++;
             const string varName = line.substr(nameStart, nameEnd - nameStart);
             const string leading = line.substr(0, lineStart);
-            const string wgsl = string(wgslType.data(), wgslType.size());
+            string wgsl = string(wgslType.data(), wgslType.size());
+
+            // Array declarator: `vec3 Ap[4];` -> `var Ap: array<vec3f, 4>;`.
+            if (afterName < line.size() && line[afterName] == '[')
+            {
+                const size_t rb = line.find(']', afterName);
+                if (rb == string::npos)
+                    break;
+                const string size = trim(line.substr(afterName + 1, rb - afterName - 1));
+                wgsl = "array<" + wgsl + ", " + size + ">";
+                size_t aft = rb + 1;
+                while (aft < line.size() && isHorizontalSpace(line[aft]))
+                    aft++;
+                if (aft < line.size() && line[aft] == '=')
+                {
+                    size_t rs = aft + 1;
+                    while (rs < line.size() && isHorizontalSpace(line[rs]))
+                        rs++;
+                    return leading + "var " + varName + ": " + wgsl + " = " + line.substr(rs);
+                }
+                if (aft >= line.size() || line[aft] == ';')
+                    return leading + "var " + varName + ": " + wgsl + ";";
+                break;
+            }
             if (afterName < line.size() && line[afterName] == '=')
             {
                 size_t rs = afterName + 1;
@@ -966,9 +1019,9 @@ string rewriteReservedIdents(string line)
 }
 
 // Split a line on top-level `;` (ignoring nested parens/brackets/braces).
-std::vector<string> splitTopLevelSemicolons(const string& line)
+StringVec splitTopLevelSemicolons(const string& line)
 {
-    std::vector<string> out;
+    StringVec out;
     int angle = 0, paren = 0, brace = 0;
     size_t start = 0;
     for (size_t i = 0; i < line.size(); ++i)
@@ -1032,7 +1085,7 @@ bool looksLikeTypedDecl(const string& segIn)
 // `float h = hsv.x; float s = hsv.y; float v = hsv.z;` -> separate WGSL `var` decls.
 string rewriteChainedDecls(string line)
 {
-    std::vector<string> parts;
+    StringVec parts;
     for (const string& p : splitTopLevelSemicolons(line))
     {
         if (!trim(p).empty())
@@ -1199,7 +1252,7 @@ string rewriteMultiDecl(string line)
     if (body.find(',') == string::npos || body.find('=') != string::npos || body.find('(') != string::npos)
         return line; // not a comma-separated declaration list
 
-    std::vector<string> names;
+    StringVec names;
     for (const string& n : splitTopLevel(body))
     {
         const string nm = trim(n);
@@ -1273,7 +1326,7 @@ const char* const ARG_SUFFIX = "_arg";
 // names (for body dereferencing) and copyable value parameters (for the mutable
 // `var` copy injected at body start). Combined samplers are expanded into the
 // split texture/sampler pair.
-string rewriteParam(string p, std::vector<string>& outNames,
+string rewriteParam(string p, StringVec& outNames,
                     std::vector<std::pair<string, string>>& valueParams)
 {
     p = trim(p);
@@ -1322,6 +1375,12 @@ string rewriteParam(string p, std::vector<string>& outNames,
         name = trim(p.substr(sp + 1));
     }
 
+    // Array parameter (`out vec3 Ap[4]` / `vec2 angles[4]`): fold the size into the WGSL type
+    // and keep `name` a bare identifier (out-name dereferencing indexes via `(*name)[i]`).
+    string arraySize;
+    if (splitArrayName(name, arraySize))
+        type = "array<" + type + ", " + arraySize + ">";
+
     if (isOut)
     {
         outNames.push_back(name);
@@ -1342,7 +1401,7 @@ string rewriteParam(string p, std::vector<string>& outNames,
 struct RewrittenSignature
 {
     string sig;
-    std::vector<string> outNames;
+    StringVec outNames;
     std::vector<std::pair<string, string>> valueParams;
 };
 
@@ -1398,7 +1457,7 @@ std::optional<RewrittenSignature> rewriteSignature(const string& line)
         return std::nullopt;
 
     const string paramList = line.substr(paren + 1, close - paren - 1);
-    const std::vector<string> params = splitTopLevel(paramList);
+    const StringVec params = splitTopLevel(paramList);
 
     RewrittenSignature rewritten;
     string wgslParams;
@@ -1448,7 +1507,37 @@ bool looksLikeSignatureStart(const string& line)
 
 // `(*name)` is only wrong as a lone function-call argument; undo that case so the
 // callee still receives `ptr<function,T>`.
-string undoDerefInCallArgs(string line, const std::vector<string>& names)
+// Identifier of the call that directly encloses the argument at `argPos` (i.e. the callee
+// before the `(` containing it), or empty when the enclosing `(` is a grouping paren.
+string enclosingCallee(const string& line, size_t argPos)
+{
+    int depth = 0;
+    size_t i = argPos;
+    while (i > 0)
+    {
+        --i;
+        const char c = line[i];
+        if (c == ')')
+            depth++;
+        else if (c == '(')
+        {
+            if (depth == 0)
+                break; // `i` is the enclosing open paren
+            depth--;
+        }
+    }
+    if (i >= line.size() || line[i] != '(')
+        return {};
+    size_t end = i;
+    while (end > 0 && isHorizontalSpace(line[end - 1]))
+        end--;
+    size_t start = end;
+    while (start > 0 && isIdentChar(line[start - 1]))
+        start--;
+    return line.substr(start, end - start);
+}
+
+string undoDerefInCallArgs(string line, const StringVec& names, const StringSet& ptrFuncs)
 {
     for (const string& name : names)
     {
@@ -1468,7 +1557,13 @@ string undoDerefInCallArgs(string line, const std::vector<string>& names)
                 after++;
             const bool okAfter = (after >= line.size()) || line[after] == ')' || line[after] == ',';
 
-            if (okBefore && okAfter)
+            // Only undo the dereference when the out parameter is forwarded to a function that
+            // actually takes a pointer (out/inout) argument at that position. Value calls and
+            // type constructors (`f32((*i))`, `mx_rotl32((*c), 4)`) read the value, so the
+            // dereference must be kept.
+            const bool forwardsPointer = okBefore && okAfter && ptrFuncs.count(enclosingCallee(line, pos)) > 0;
+
+            if (forwardsPointer)
             {
                 line.replace(pos, deref.size(), name);
                 pos += name.size();
@@ -1482,9 +1577,10 @@ string undoDerefInCallArgs(string line, const std::vector<string>& names)
     return line;
 }
 
-// Dereference out-parameter names in expressions and assignments. Function-call
-// arguments must stay as pointers (undoDerefInCallArgs restores those).
-string derefOutParams(string line, const std::vector<string>& names)
+// Dereference out-parameter names in expressions and assignments. References that forward the
+// out parameter to another pointer-taking function (named in `ptrFuncs`) are restored to bare
+// pointers by undoDerefInCallArgs.
+string derefOutParams(string line, const StringVec& names, const StringSet& ptrFuncs)
 {
     for (const string& name : names)
     {
@@ -1509,7 +1605,7 @@ string derefOutParams(string line, const std::vector<string>& names)
             }
         }
     }
-    return undoDerefInCallArgs(line, names);
+    return undoDerefInCallArgs(line, names, ptrFuncs);
 }
 
 // A braceless control header `if (...)`, `else if (...)`, `for (...)`, `while (...)`
@@ -1661,13 +1757,41 @@ string rewriteTextureSampling(string line)
 
 // Rewrite a whole multi-line GLSL block to WGSL, line by line. `#include` directives are
 // left verbatim so the caller can resolve and rewrite them with path context.
-string rewriteBlock(const string& block)
+// Collect the names of every function in `shader` that declares a pointer (out/inout)
+// parameter, i.e. `name: ptr<function, ...>`. Signatures are single-line at conversion time.
+StringSet collectPointerFunctions(const string& shader)
+{
+    StringSet fns;
+    std::istringstream scan(shader);
+    string sl;
+    while (std::getline(scan, sl))
+    {
+        if (auto d = parseFnDef(sl))
+        {
+            for (const string& p : splitTopLevel(d->params))
+            {
+                const size_t colon = p.find(':');
+                if (colon != string::npos && p.find("ptr<function", colon) != string::npos)
+                {
+                    fns.insert(d->name);
+                    break;
+                }
+            }
+        }
+    }
+    return fns;
+}
+
+string rewriteBlock(const string& block, const StringSet& ptrFuncs = {})
 {
     std::istringstream stream(block);
     string line;
     string result;
     result.reserve(block.size() + block.size() / 8);
     LineRewriter rewriter;
+    // Seed externally-defined pointer-taking functions (e.g. mx_directional_light) so that an
+    // out parameter forwarded to them is restored to a bare pointer rather than dereferenced.
+    rewriter.registerPointerFunctions(ptrFuncs);
     while (std::getline(stream, line))
     {
         bool hadCr = !line.empty() && line.back() == '\r';
@@ -1812,9 +1936,9 @@ string typeCode(const string& type)
 }
 
 // Split a function parameter list into the ordered parameter type strings.
-std::vector<string> paramTypes(const string& params)
+StringVec paramTypes(const string& params)
 {
-    std::vector<string> types;
+    StringVec types;
     for (const string& p : splitTopLevel(params))
     {
         const size_t colon = p.find(':');
@@ -1892,7 +2016,7 @@ string inferArgType(const string& argIn,
             for (const char* p : PRESERVE)
                 if (fn == p)
                 {
-                    const std::vector<string> inner = splitTopLevel(a.substr(lp + 1, a.size() - lp - 2));
+                    const StringVec inner = splitTopLevel(a.substr(lp + 1, a.size() - lp - 2));
                     return inner.empty() ? string() : inferArgType(inner[0], locals, globals, structs);
                 }
             // User-function call: use its recorded return type (globals "fn:" prefix).
@@ -1939,14 +2063,41 @@ string inferArgType(const string& argIn,
         }
     }
 
-    // Swizzle access base.{xyzw|rgba}: 1 component -> f32, 2/3/4 -> vecNf.
+    // Swizzle access base.{xyzw|rgba}: the component scalar follows the base vector's scalar
+    // type (uvec/ivec yield u32/i32, not f32). 1 component -> scalar, 2/3/4 -> vecN of it.
     {
         const size_t dot = a.rfind('.');
         if (dot != string::npos && dot + 1 < a.size())
         {
             const string sw = a.substr(dot + 1);
             if (sw.size() >= 1 && sw.size() <= 4 && sw.find_first_not_of("xyzwrgba") == string::npos)
-                return sw.size() == 1 ? string("f32") : ("vec" + std::to_string(sw.size()) + "f");
+            {
+                string scalar = "f32";
+                const string base = a.substr(0, dot);
+                if (base.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_") == string::npos)
+                {
+                    auto l = locals.find(base);
+                    const string* vt = (l != locals.end()) ? &l->second : nullptr;
+                    if (!vt)
+                    {
+                        auto g = globals.find(base);
+                        if (g != globals.end())
+                            vt = &g->second;
+                    }
+                    if (vt)
+                    {
+                        if (vt->find("u32") != string::npos)
+                            scalar = "u32";
+                        else if (vt->find("i32") != string::npos)
+                            scalar = "i32";
+                    }
+                }
+                if (sw.size() == 1)
+                    return scalar;
+                // Multi-component swizzle: only the float spelling (vecNf) is well-defined here;
+                // leave integer multi-swizzles unknown rather than guess a mismatching type.
+                return scalar == "f32" ? ("vec" + std::to_string(sw.size()) + "f") : string();
+            }
         }
     }
 
@@ -2078,10 +2229,10 @@ string rewriteScalarBroadcast(string line,
             if (depth != 0)
                 break; // unterminated call on this line; nothing more to match
             const size_t close = i - 1;
-            std::vector<string> args = splitTopLevel(line.substr(argStart, close - argStart));
+            StringVec args = splitTopLevel(line.substr(argStart, close - argStart));
 
             string vecType;
-            std::vector<string> types;
+            StringVec types;
             for (const string& a : args)
             {
                 const string t = inferArgType(a, locals, globals, structs);
@@ -2149,7 +2300,7 @@ string rewriteMixToSelect(string line,
             pos += tok.size();
             break;
         }
-        const std::vector<string> args = splitTopLevel(line.substr(argStart, i - 1 - argStart));
+        const StringVec args = splitTopLevel(line.substr(argStart, i - 1 - argStart));
         if (args.size() == 3)
         {
             const string t = inferArgType(args[2], locals, globals, structs);
@@ -2200,7 +2351,7 @@ string addAddressOfToOutArgs(string line,
                 break;
             }
             const size_t close = i - 1;
-            std::vector<string> args = splitTopLevel(line.substr(argStart, close - argStart));
+            StringVec args = splitTopLevel(line.substr(argStart, close - argStart));
 
             const std::vector<bool>* flags = nullptr;
             for (const auto& f : entry.second)
@@ -2248,7 +2399,7 @@ string addAddressOfToOutArgs(string line,
 
 // Rewrite overloaded call sites on a line using the symbol tables.
 string rewriteOverloadCalls(string line,
-                            const std::map<string, std::vector<std::pair<std::vector<string>, string>>>& overloads,
+                            const std::map<string, std::vector<std::pair<StringVec, string>>>& overloads,
                             const std::map<string, string>& locals,
                             const std::map<string, string>& globals,
                             const std::map<string, std::map<string, string>>& structs)
@@ -2284,7 +2435,7 @@ string rewriteOverloadCalls(string line,
                 break;
             }
             const size_t close = i - 1;
-            const std::vector<string> args = splitTopLevel(line.substr(argStart, close - argStart));
+            const StringVec args = splitTopLevel(line.substr(argStart, close - argStart));
 
             // Candidate overloads with the matching argument count.
             string chosen;
@@ -2327,6 +2478,158 @@ string rewriteOverloadCalls(string line,
     }
     return line;
 }
+
+// GLSL `vecN(...)` constructors are always float (ivec/uvec are the integer forms), and GLSL
+// implicitly converts integer arguments. WGSL does neither: `vec2(intExpr, intExpr)` yields
+// vec2<i32>. Emit the explicit float type and cast any integer scalar argument, e.g.
+// `vec2(x+xoff, y+yoff)` -> `vec2f(f32(x+xoff), f32(y+yoff))`. Needs argument-type info, so it
+// runs in the overload-resolution pass where locals/globals/structs are known.
+string rewriteFloatVectorCtors(string line,
+                               const std::map<string, string>& locals,
+                               const std::map<string, string>& globals,
+                               const std::map<string, std::map<string, string>>& structs)
+{
+    for (int n = 2; n <= 4; ++n)
+    {
+        const string token = "vec" + std::to_string(n) + "(";
+        size_t pos = 0;
+        while ((pos = line.find(token, pos)) != string::npos)
+        {
+            // Skip ivec/uvec/bvec and identifier suffixes (`myvec2(` etc.).
+            if (pos > 0 && isIdentChar(line[pos - 1]))
+            {
+                pos += token.size();
+                continue;
+            }
+            const size_t argStart = pos + token.size();
+            int depth = 1;
+            size_t i = argStart;
+            for (; i < line.size() && depth > 0; ++i)
+            {
+                if (line[i] == '(')
+                    depth++;
+                else if (line[i] == ')')
+                    depth--;
+            }
+            if (depth != 0)
+            {
+                pos += token.size();
+                break;
+            }
+            const size_t close = i - 1;
+            const StringVec args = splitTopLevel(line.substr(argStart, close - argStart));
+            string rebuilt;
+            for (size_t a = 0; a < args.size(); ++a)
+            {
+                const string t = inferArgType(args[a], locals, globals, structs);
+                const bool isInt = (t == "i32" || t == "u32");
+                if (a)
+                    rebuilt += ", ";
+                rebuilt += isInt ? ("f32(" + args[a] + ")") : args[a];
+            }
+            const string repl = "vec" + std::to_string(n) + "f(" + rebuilt + ")";
+            line.replace(pos, (close + 1) - pos, repl);
+            pos += repl.size();
+        }
+    }
+    return line;
+}
+
+// WGSL requires the right operand of `<<` / `>>` to be u32, but GLSL allows a signed shift
+// count (`x << k` with `int k`, `h >> 8`). Wrap the shift count in `u32(...)` (idempotent for
+// operands already typed u32). Runs on GLSL-flavoured input where `<<` / `>>` are unambiguous
+// shift operators; a non-value operand (e.g. a stray generic `>>` close) is left untouched.
+string rewriteShiftCounts(string line)
+{
+    for (const char* op : { "<<", ">>" })
+    {
+        size_t pos = 0;
+        while ((pos = line.find(op, pos)) != string::npos)
+        {
+            size_t rhs = pos + 2;
+            while (rhs < line.size() && isHorizontalSpace(line[rhs]))
+                rhs++;
+            if (rhs >= line.size() || line[rhs] == '=') // end of line or compound assign (<<=)
+            {
+                pos += 2;
+                continue;
+            }
+
+            // Extract the shift count: a parenthesized group or a single identifier/number token.
+            size_t end;
+            if (line[rhs] == '(')
+            {
+                int depth = 0;
+                size_t i = rhs;
+                for (; i < line.size(); ++i)
+                {
+                    if (line[i] == '(')
+                        depth++;
+                    else if (line[i] == ')' && --depth == 0)
+                    {
+                        ++i;
+                        break;
+                    }
+                }
+                end = i;
+            }
+            else if (std::isalnum(static_cast<unsigned char>(line[rhs])) || line[rhs] == '_')
+            {
+                size_t i = rhs;
+                while (i < line.size() && (isIdentChar(line[i]) || line[i] == '.'))
+                    i++;
+                end = i;
+            }
+            else
+            {
+                pos += 2; // not a value operand (punctuation / generic close) — leave it
+                continue;
+            }
+
+            const string operand = line.substr(rhs, end - rhs);
+            if (operand.rfind("u32(", 0) == 0) // already wrapped
+            {
+                pos = end;
+                continue;
+            }
+            const string repl = "u32(" + operand + ")";
+            line.replace(rhs, end - rhs, repl);
+            pos = rhs + repl.size();
+        }
+    }
+    return line;
+}
+
+// GLSL screen-space derivative built-ins are spelled differently in WGSL: dFdx -> dpdx,
+// dFdy -> dpdy (fwidth is the same in both). Whole-word rename on library GLSL.
+string rewriteDerivativeBuiltins(string line)
+{
+    static const std::pair<const char*, const char*> RENAMES[] = {
+        { "dFdx", "dpdx" }, { "dFdy", "dpdy" }
+    };
+    for (const auto& r : RENAMES)
+    {
+        const string from = r.first;
+        const string to = r.second;
+        size_t pos = 0;
+        while ((pos = line.find(from, pos)) != string::npos)
+        {
+            const bool boundaryBefore = (pos == 0) || !isIdentChar(line[pos - 1]);
+            const size_t after = pos + from.size();
+            const bool boundaryAfter = (after >= line.size()) || !isIdentChar(line[after]);
+            if (boundaryBefore && boundaryAfter)
+            {
+                line.replace(pos, from.size(), to);
+                pos += to.size();
+            }
+            else
+            {
+                pos = after;
+            }
+        }
+    }
+    return line;
+}
 } // namespace
 
 // ─── Public entry points ────────────────────────────────────────────────────
@@ -2346,6 +2649,9 @@ string rewriteAll(string line)
     if (firstNonSpace != string::npos && line.compare(firstNonSpace, 7, "#define") == 0)
         return rewriteDefine(line);
 
+    // Coerce shift counts to u32 first, while `<<`/`>>` are still unambiguous shift operators
+    // (before type conversion can introduce WGSL `<...>` generics).
+    line = rewriteShiftCounts(std::move(line));
     line = rewriteScalarCasts(std::move(line));
     line = rewriteConst(line);
     line = rewriteTernaries(std::move(line));
@@ -2359,6 +2665,7 @@ string rewriteAll(string line)
     line = rewriteVectorCompare(std::move(line));
     line = rewriteMatrixCtors(std::move(line));
     line = rewriteMathBuiltins(std::move(line));
+    line = rewriteDerivativeBuiltins(std::move(line));
     line = rewriteSampleLightSource(std::move(line));
     line = rewriteBoolUniformCondition(std::move(line));
     line = rewriteFloatLiteralSuffix(std::move(line));
@@ -2370,13 +2677,32 @@ string rewriteAll(string line)
 
 // ─── LineRewriter ───────────────────────────────────────────────────────────
 
-string LineRewriter::beginFunction(const string& sig, std::vector<string>&& outNames,
+string LineRewriter::beginFunction(const string& sig, StringVec&& outNames,
                                    const std::vector<std::pair<string, string>>& valueParams)
 {
     _func.active = true;
     _func.seenOpenBrace = false;
     _func.braceDepth = 0;
     _func.injected = false;
+
+    // Record this function as taking a pointer (out/inout) parameter, so call sites that
+    // forward an out parameter to it are restored to bare pointers (undoDerefInCallArgs).
+    if (!outNames.empty())
+    {
+        const size_t fnPos = sig.find("fn ");
+        if (fnPos != string::npos)
+        {
+            size_t s = fnPos + 3;
+            while (s < sig.size() && isHorizontalSpace(sig[s]))
+                s++;
+            size_t e = s;
+            while (e < sig.size() && isIdentChar(sig[e]))
+                e++;
+            if (e > s)
+                _ptrFuncs.insert(sig.substr(s, e - s));
+        }
+    }
+
     _func.outParams = std::move(outNames);
 
     // Build the mutable `var` copies for value parameters.
@@ -2430,10 +2756,15 @@ static string rewriteStructMember(const string& line)
     if (sp == string::npos)
         return line;
     const string type = mapType(body.substr(0, sp));
-    const string name = body.substr(body.find_first_not_of(" \t", sp));
+    string name = body.substr(body.find_first_not_of(" \t", sp));
     if (name.empty() || name.find_first_of(" \t") != string::npos)
         return line;
-    return indent + name + ": " + type + ",";
+    // Array member (`vec2 coords[3];`) -> `coords: array<vec2f, 3>,`.
+    string arraySize;
+    const string memberType = splitArrayName(name, arraySize)
+                                  ? ("array<" + type + ", " + arraySize + ">")
+                                  : type;
+    return indent + name + ": " + memberType + ",";
 }
 
 bool LineRewriter::Preprocessor::active() const
@@ -2566,8 +2897,8 @@ string LineRewriter::rewriteFunctionBodyLine(const string& line)
         if (bt.empty() || startsWith(bt, "//") || startsWith(bt, "/*"))
             return "";
         _pendingHeader.active = false;
-        const string hdr = rewriteNonSignatureLine(derefOutParams(_pendingHeader.line, _func.outParams));
-        const string body = rewriteNonSignatureLine(derefOutParams(line, _func.outParams));
+        const string hdr = rewriteNonSignatureLine(derefOutParams(_pendingHeader.line, _func.outParams, _ptrFuncs));
+        const string body = rewriteNonSignatureLine(derefOutParams(line, _func.outParams, _ptrFuncs));
         countBraces(line, _func.braceDepth, _func.seenOpenBrace);
         if (_func.seenOpenBrace && _func.braceDepth <= 0)
             leaveFunctionScope();
@@ -2593,7 +2924,7 @@ string LineRewriter::rewriteFunctionBodyLine(const string& line)
             const string joined = _ternary.buffer;
             _ternary.active = false;
             _ternary.buffer.clear();
-            const string done = rewriteNonSignatureLine(derefOutParams(joined, _func.outParams));
+            const string done = rewriteNonSignatureLine(derefOutParams(joined, _func.outParams, _ptrFuncs));
             countBraces(joined, _func.braceDepth, _func.seenOpenBrace);
             if (_func.seenOpenBrace && _func.braceDepth <= 0)
                 leaveFunctionScope();
@@ -2610,7 +2941,7 @@ string LineRewriter::rewriteFunctionBodyLine(const string& line)
 
     // Ordinary body line: dereference out parameters, then apply the shared syntax
     // rewrites (body lines never match the signature heuristic).
-    string out = rewriteNonSignatureLine(derefOutParams(line, _func.outParams));
+    string out = rewriteNonSignatureLine(derefOutParams(line, _func.outParams, _ptrFuncs));
 
     const bool wasOpen = _func.seenOpenBrace;
     countBraces(line, _func.braceDepth, _func.seenOpenBrace);
@@ -2676,10 +3007,14 @@ string derefPointerParams(const string& shader)
     std::ostringstream out;
     string line;
 
-    std::vector<string> fnLines;   // buffered current function
-    std::vector<string> ptrParams; // its ptr<function,...> parameter names
+    StringVec fnLines;   // buffered current function
+    StringVec ptrParams; // its ptr<function,...> parameter names
     bool inFn = false, seenDeref = false;
     int depth = 0;
+
+    // Complete pointer-function set up front so the undo decision is independent of
+    // definition/use order (e.g. forwarding to a function defined later in the shader).
+    const StringSet ptrFuncs = collectPointerFunctions(shader);
 
     auto flush = [&]()
     {
@@ -2687,7 +3022,7 @@ string derefPointerParams(const string& shader)
         // functions already use `(*out1)`. Only deref when no `(*` is present.
         if (!ptrParams.empty() && !seenDeref)
             for (size_t i = 1; i < fnLines.size(); ++i)
-                fnLines[i] = derefOutParams(fnLines[i], ptrParams);
+                fnLines[i] = derefOutParams(fnLines[i], ptrParams, ptrFuncs);
         for (const string& l : fnLines)
             out << l << "\n";
         fnLines.clear();
@@ -2737,7 +3072,7 @@ string dedupDefinitions(const string& shader)
     std::istringstream in(shader);
     std::ostringstream out;
     string line;
-    std::set<string> seenConst, seenAlias, seenStruct, seenFn;
+    StringSet seenConst, seenAlias, seenStruct, seenFn;
     int depth = 0;
     bool skipping = false;
     int skipBase = 0;
@@ -2856,7 +3191,7 @@ string coerceBoolArgs(string line,
                 continue; // unterminated call on this line
             }
             const size_t close = i - 1;
-            std::vector<string> args = splitTopLevel(line.substr(argStart, close - argStart));
+            StringVec args = splitTopLevel(line.substr(argStart, close - argStart));
 
             const std::vector<bool>* flags = nullptr;
             for (const auto& f : entry.second)
@@ -2944,7 +3279,7 @@ string coerceBoolCallSites(const string& shader)
         if (auto def = parseFnDef(line))
         {
             braceDepth = 0;
-            const std::vector<string> types = paramTypes(def->params);
+            const StringVec types = paramTypes(def->params);
             std::vector<bool> boolFlags;
             bool anyBool = false;
             for (const string& ty : types)
@@ -3031,8 +3366,8 @@ string resolveOverloads(const string& shader)
     // Pass 1: struct member types, module-scope globals, and overload groups.
     std::map<string, std::map<string, string>> structs;
     std::map<string, string> globals;
-    std::map<string, std::vector<std::pair<std::vector<string>, string>>> defs; // name -> [(types,_)]
-    std::map<string, std::vector<string>> defRet;                               // name -> [return type per def]
+    std::map<string, std::vector<std::pair<StringVec, string>>> defs; // name -> [(types,_)]
+    std::map<string, StringVec> defRet;                               // name -> [return type per def]
     std::map<string, std::vector<std::vector<bool>>> fnPtr;                     // name -> [per-overload ptr-flags]
     std::map<string, std::vector<std::vector<bool>>> fnBool;                    // name -> [per-overload bool-flags]
     string curStruct;
@@ -3073,7 +3408,7 @@ string resolveOverloads(const string& shader)
         if (auto def = parseFnDef(line))
         {
             braceDepth = 0;
-            const std::vector<string> types = paramTypes(def->params);
+            const StringVec types = paramTypes(def->params);
             defs[def->name].push_back({ types, string() });
             std::vector<bool> ptrFlags;
             std::vector<bool> boolFlags;
@@ -3127,7 +3462,7 @@ string resolveOverloads(const string& shader)
     }
 
     // Determine overloaded names and assign unique type-suffixed names.
-    std::map<string, std::vector<std::pair<std::vector<string>, string>>> overloads;
+    std::map<string, std::vector<std::pair<StringVec, string>>> overloads;
     for (auto& d : defs)
     {
         if (d.second.size() < 2)
@@ -3153,6 +3488,21 @@ string resolveOverloads(const string& shader)
                     fn += "_" + typeCode(ty);
             if (i < defRet[d.first].size())
                 globals["fn:" + fn] = defRet[d.first][i];
+        }
+        // Also record under the original name when every overload shares one return type, so a
+        // call still written with the un-suffixed name (e.g. an argument being type-inferred
+        // before its own renaming) resolves to the right type. Overloads with differing return
+        // types stay ambiguous (unrecorded -> inferArgType yields "unknown").
+        const auto& rets = defRet[d.first];
+        if (!rets.empty())
+        {
+            const bool allSame = std::all_of(rets.begin(), rets.end(),
+                                             [&](const string& r)
+            {
+                return r == rets.front();
+            });
+            if (allSame)
+                globals["fn:" + d.first] = rets.front();
         }
     }
 
@@ -3198,7 +3548,7 @@ string resolveOverloads(const string& shader)
             auto ov = overloads.find(def->name);
             if (ov != overloads.end())
             {
-                const std::vector<string> types = paramTypes(def->params);
+                const StringVec types = paramTypes(def->params);
                 for (const auto& variant : ov->second)
                     if (variant.first == types)
                     {
@@ -3211,7 +3561,19 @@ string resolveOverloads(const string& shader)
         }
         else
         {
+            // Join a statement whose parentheses span several lines (e.g. a multi-line call
+            // such as `mx_bilerp(\n  arg,\n  ...\n)`) so the argument rewriters below see the
+            // whole argument list instead of bailing on the unbalanced opening line. Embedded
+            // newlines are tolerated by the rewriters (their tokenizers trim whitespace).
+            int net = netParensCode(line);
+            string cont;
+            while (net > 0 && std::getline(in, cont))
+            {
+                line += "\n" + cont;
+                net += netParensCode(cont);
+            }
             collectVarDecl(line, locals);
+            line = rewriteFloatVectorCtors(line, locals, globals, structs);
             line = addAddressOfToOutArgs(line, fnPtr, locals);
             line = coerceBoolArgs(line, fnBool, locals, globals, structs);
             line = rewriteOverloadCalls(line, overloads, locals, globals, structs);
@@ -3240,6 +3602,10 @@ string rewriteResidualGlslFunctions(const string& shader)
         "int numActiveLightSources(",
         "void sampleLightSource(",
     };
+
+    // Functions with pointer parameters are defined outside the extracted stub blocks (e.g. the
+    // light shaders the sampler forwards to), so collect them from the whole shader up front.
+    const StringSet ptrFuncs = collectPointerFunctions(shader);
 
     string result = shader;
     for (const char* prefix : GLSL_FUNCS)
@@ -3291,7 +3657,7 @@ string rewriteResidualGlslFunctions(const string& shader)
                 block = sigLine + block.substr(sigEnd);
             }
 
-            const string converted = rewriteBlock(block);
+            const string converted = rewriteBlock(block, ptrFuncs);
             result.replace(blockStart, blockEnd - blockStart, converted);
             searchFrom = blockStart + converted.size();
         }
@@ -3303,8 +3669,8 @@ string rewriteResidualGlslFunctions(const string& shader)
 // breaks brace balance and makes the next `fn` look like it is still inside a function.
 string repairEmptyElseCommentBlocks(const string& shader)
 {
-    const std::vector<string> lines = readLines(shader);
-    std::vector<string> out;
+    const StringVec lines = readLines(shader);
+    StringVec out;
     for (size_t i = 0; i < lines.size(); ++i)
     {
         const string t = trim(lines[i]);
@@ -3329,6 +3695,108 @@ string repairEmptyElseCommentBlocks(const string& shader)
             }
         }
         out.push_back(lines[i]);
+    }
+
+    return joinLines(out);
+}
+
+string splitChainedAssignments(const string& shader)
+{
+    // A chained assignment target must be a simple lvalue: an identifier with optional
+    // `.member` / `[index]` accessors. This is all the genglsl libraries emit, and it keeps
+    // the split from misfiring on arbitrary expressions.
+    auto isSimpleLvalue = [](const string& s)
+    {
+        if (s.empty() || !(std::isalpha(static_cast<unsigned char>(s[0])) || s[0] == '_'))
+            return false;
+        for (char c : s)
+        {
+            if (!(isIdentChar(c) || c == '.' || c == '[' || c == ']'))
+                return false;
+        }
+        return true;
+    };
+
+    const StringVec lines = readLines(shader);
+    StringVec out;
+    for (const string& line : lines)
+    {
+        const size_t indentEnd = line.find_first_not_of(" \t");
+        const string body = trim(line);
+
+        // Only consider plain single-statement `...;` lines (no block braces, no trailing
+        // comment, no second statement) — everything else passes through untouched.
+        if (indentEnd == string::npos || body.empty() || body.back() != ';' ||
+            body.find('{') != string::npos || body.find('}') != string::npos)
+        {
+            out.push_back(line);
+            continue;
+        }
+        const string stmt = trim(body.substr(0, body.size() - 1));
+        if (stmt.find(';') != string::npos)
+        {
+            out.push_back(line);
+            continue;
+        }
+
+        // Collect top-level (paren/bracket depth 0) plain `=` operators, skipping comparisons
+        // (`==`, `!=`, `<=`, `>=`) and compound assignments (`+=`, `<<=`, ...).
+        std::vector<size_t> eqPositions;
+        int depth = 0;
+        for (size_t i = 0; i < stmt.size(); ++i)
+        {
+            const char c = stmt[i];
+            if (c == '(' || c == '[')
+                depth++;
+            else if (c == ')' || c == ']')
+                depth--;
+            else if (c == '=' && depth == 0)
+            {
+                const char prev = i > 0 ? stmt[i - 1] : '\0';
+                const char next = i + 1 < stmt.size() ? stmt[i + 1] : '\0';
+                const bool comparisonOrCompound =
+                    next == '=' || prev == '=' || prev == '!' || prev == '<' || prev == '>' ||
+                    prev == '+' || prev == '-' || prev == '*' || prev == '/' || prev == '%' ||
+                    prev == '&' || prev == '|' || prev == '^';
+                if (!comparisonOrCompound)
+                    eqPositions.push_back(i);
+            }
+        }
+        if (eqPositions.size() < 2)
+        {
+            out.push_back(line);
+            continue;
+        }
+
+        // Segment the statement at the assignment operators: [target0, target1, ..., RHS].
+        StringVec segments;
+        size_t start = 0;
+        for (size_t pos : eqPositions)
+        {
+            segments.push_back(trim(stmt.substr(start, pos - start)));
+            start = pos + 1;
+        }
+        segments.push_back(trim(stmt.substr(start)));
+
+        bool simpleTargets = true;
+        for (size_t i = 0; i + 1 < segments.size(); ++i)
+        {
+            if (!isSimpleLvalue(segments[i]))
+            {
+                simpleTargets = false;
+                break;
+            }
+        }
+        if (!simpleTargets)
+        {
+            out.push_back(line);
+            continue;
+        }
+
+        // Emit one assignment per target, right-to-left: `c = expr; b = c; a = b;`.
+        const string indent = line.substr(0, indentEnd);
+        for (size_t k = segments.size() - 1; k-- > 0;)
+            out.push_back(indent + segments[k] + " = " + segments[k + 1] + ";");
     }
 
     return joinLines(out);

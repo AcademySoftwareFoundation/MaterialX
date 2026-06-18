@@ -656,6 +656,7 @@ void WgslShaderGenerator::finalizeStageSource(ShaderStage& stage) const
     src = GlslToWgsl::resolveOverloads(src);
     src = GlslToWgsl::coerceBoolCallSites(src);
     src = GlslToWgsl::repairEmptyElseCommentBlocks(src);
+    src = GlslToWgsl::splitChainedAssignments(src);
     stage.setSourceCode(src);
 
     for (const string& issue : GlslToWgsl::findResidualGlsl(src))
