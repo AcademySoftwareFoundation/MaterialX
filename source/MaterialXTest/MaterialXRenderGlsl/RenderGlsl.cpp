@@ -93,7 +93,7 @@ void GlslShaderRenderTester::registerLights(mx::DocumentPtr document,
     // Apply light settings for render tests.
     _lightHandler->setEnvRadianceMap(envRadiance);
     _lightHandler->setEnvIrradianceMap(envIrradiance);
-    _lightHandler->setEnvSampleCount(options.enableReferenceQuality ? 4096 : 1024);
+    _lightHandler->setEnvSampleCount(options.getRasterEnvSampleCount());
     _lightHandler->setRefractionTwoSided(true);
 }
 
@@ -345,7 +345,7 @@ RenderUtil::RenderProfileResult GlslShaderRenderTester::runRenderer(
                     }
                 }
 
-                int supersampleFactor = testOptions.enableReferenceQuality ? 8 : 1;
+                int supersampleFactor = testOptions.getRasterSupersampleFactor();
 
                 {
                     MX_TRACE_SCOPE(mx::Tracing::Category::Render, "RenderMaterial");

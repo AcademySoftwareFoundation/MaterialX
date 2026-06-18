@@ -2720,6 +2720,56 @@
   </nodedef>
 
   <!--
+    Node: <mincomponent>
+    Output the minimum component of the incoming vector or color stream.
+  -->
+  <nodedef name="ND_mincomponent_color3" node="mincomponent" nodegroup="math">
+    <input name="in" type="color3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="float" default="0.0" />
+  </nodedef>
+  <nodedef name="ND_mincomponent_color4" node="mincomponent" nodegroup="math">
+    <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0" />
+    <output name="out" type="float" default="0.0" />
+  </nodedef>
+  <nodedef name="ND_mincomponent_vector2" node="mincomponent" nodegroup="math">
+    <input name="in" type="vector2" value="0.0, 0.0" />
+    <output name="out" type="float" default="0.0" />
+  </nodedef>
+  <nodedef name="ND_mincomponent_vector3" node="mincomponent" nodegroup="math">
+    <input name="in" type="vector3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="float" default="0.0" />
+  </nodedef>
+  <nodedef name="ND_mincomponent_vector4" node="mincomponent" nodegroup="math">
+    <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
+    <output name="out" type="float" default="0.0" />
+  </nodedef>
+
+  <!--
+    Node: <maxcomponent>
+    Output the maximum component of the incoming vector or color stream.
+  -->
+  <nodedef name="ND_maxcomponent_color3" node="maxcomponent" nodegroup="math">
+    <input name="in" type="color3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="float" default="0.0" />
+  </nodedef>
+  <nodedef name="ND_maxcomponent_color4" node="maxcomponent" nodegroup="math">
+    <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0" />
+    <output name="out" type="float" default="0.0" />
+  </nodedef>
+  <nodedef name="ND_maxcomponent_vector2" node="maxcomponent" nodegroup="math">
+    <input name="in" type="vector2" value="0.0, 0.0" />
+    <output name="out" type="float" default="0.0" />
+  </nodedef>
+  <nodedef name="ND_maxcomponent_vector3" node="maxcomponent" nodegroup="math">
+    <input name="in" type="vector3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="float" default="0.0" />
+  </nodedef>
+  <nodedef name="ND_maxcomponent_vector4" node="maxcomponent" nodegroup="math">
+    <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
+    <output name="out" type="float" default="0.0" />
+  </nodedef>
+
+  <!--
     Node: <normalize>
     Outputs the normalized vector from the incoming vector stream.
   -->
