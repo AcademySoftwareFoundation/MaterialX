@@ -298,6 +298,35 @@ class Graph
 
     void showHelp() const;
 
+    // A compile-time constant member variable that corresponds to the function below. Defined in header as visibility is desirable here.
+    static constexpr char HELP_MARKER_TEXT[] = "(?)";
+    // Static helper function to draw a marker via ImGui which shows a tooltip when hovered
+    static void drawHelpMarker(const char* content);
+
+    // Static helper function to display tooltips for headers in an ImGui table
+    template <std::size_t N> static void drawTableHeadersRowWithTooltips(const std::array<const char*, N>& tooltips)
+    {
+        const int columnCount = ImGui::TableGetColumnCount();
+        if (columnCount == 0 || columnCount != N)
+            return; // Given array size should match number of columns in table
+
+        ImGui::TableNextRow(ImGuiTableRowFlags_Headers);
+        for (int col = 0; col < columnCount; ++col)
+        {
+            if (!ImGui::TableSetColumnIndex(col))
+                continue;                                       // Do not draw if column is not visible
+            ImGui::TableHeader(ImGui::TableGetColumnName(col)); // Header name
+
+            std::string colTooltip = tooltips[col];
+            if (!colTooltip.empty() && ImGui::IsItemHovered())
+            {
+                ImGui::BeginTooltip();
+                ImGui::TextUnformatted(tooltips[col]);
+                ImGui::EndTooltip();
+            }
+        }
+    }
+
   private:
     mx::StringVec _geomFilter;
     mx::StringVec _mtlxFilter;
@@ -389,5 +418,4 @@ class Graph
     // Current height of the diagnostic panel; adjusted by the resize handle.
     float _diagPanelHeight = 120.f;
 };
-
 #endif
