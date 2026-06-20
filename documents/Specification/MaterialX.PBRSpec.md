@@ -281,6 +281,8 @@ The [&lt;dielectric_bsdf>](#node-dielectric-bsdf), [&lt;conductor_bsdf>](#node-c
 
 Both the BRDF and BTDF share a common normal distribution function $D$ and masking-shadowing function $G_2$, and differ in their geometric and Fresnel terms. The Fresnel reflectance $F$ is defined per node.
 
+The `retroreflective` input of the [&lt;dielectric_bsdf>](#node-dielectric-bsdf), [&lt;conductor_bsdf>](#node-conductor-bsdf), and [&lt;generalized_schlick_bsdf>](#node-generalized-schlick-bsdf) nodes modifies only the reflection lobe. For the [&lt;dielectric_bsdf>](#node-dielectric-bsdf) and [&lt;generalized_schlick_bsdf>](#node-generalized-schlick-bsdf) nodes it therefore applies when `scatter_mode` is `R` or `RT`, and has no effect when `scatter_mode` is `T`. The [&lt;conductor_bsdf>](#node-conductor-bsdf) node has no `scatter_mode` input and is always reflective, so its `retroreflective` input always applies.
+
 #### Microfacet BRDF
 
 ```math
