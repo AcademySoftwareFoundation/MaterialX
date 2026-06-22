@@ -193,23 +193,23 @@ test.describe('Document', () =>
         
         // Create a node graph with a single image node and output.
         const nodeGraph = doc.addNodeGraph('NG_wrapper');
-        expect(doc.getNodeGraphs().length).to.equal(1);
+        expect(doc.getNodeGraphs().length).toBe(1);
         const image = nodeGraph.addNode('image');
         const nodes = nodeGraph.getNodes();
-        expect(nodes.length).to.equal(1);
-        expect(nodes[0]).to.eql(image);
+        expect(nodes.length).toBe(1);
+        expect(nodes[0]).toEqual(image);
 
         image.setInputValueString('file', 'image1.png', 'filename');
         const input = image.getInput('file');
-        expect(input).to.not.be.null;
+        expect(input).not.toBeNull();
 
         const output = nodeGraph.addOutput();
         const outputs = nodeGraph.getOutputs();
-        expect(outputs.length).to.equal(1);
-        expect(outputs[0]).to.eql(output);
+        expect(outputs.length).toBe(1);
+        expect(outputs[0]).toEqual(output);
 
         // Verify the graph is valid
-        expect(doc.validate()).to.be.true;
+        expect(doc.validate()).toBe(true);
         return { doc, nodeGraph };
     }
 
@@ -236,7 +236,7 @@ test.describe('Document', () =>
         const impl = nodeDef.getImplementation();
         expect(impl).toBeTruthy();
         expect(impl.isANodeGraph()).toBe(true);
-        expect(impl.getName()).to.equal('NG_wrapper');
+        expect(impl.getName()).toBe('NG_wrapper');
                 
         // Verify the implementation matches the original node graph
         let diff_options = new mx.ElementEquivalenceOptions();
@@ -273,9 +273,9 @@ test.describe('Document', () =>
         const impl2 = nodeDef2.getImplementation();
         expect(impl2).toBeTruthy();
         expect(impl2.isANodeGraph()).toBe(true);
-        expect(impl2.getName()).to.equal('NG_wrapper_2');
+        expect(impl2.getName()).toBe('NG_wrapper_2');
         const nodedef_string = impl2.getNodeDefString();
-        expect(nodedef_string).to.equal('ND_wrapper_2');
+        expect(nodedef_string).toBe('ND_wrapper_2');
 
         // Cleanup
         options.delete();
