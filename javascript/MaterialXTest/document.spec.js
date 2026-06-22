@@ -213,7 +213,7 @@ test.describe('Document', () =>
         return { doc, nodeGraph };
     }
 
-    it('Create NodeDef from NodeGraph with child implementation', () =>
+    test('Create NodeDef from NodeGraph with child implementation', () =>
     {
         const { doc, nodeGraph } = create_sample_graph();
         
@@ -230,12 +230,12 @@ test.describe('Document', () =>
             options
         );
         
-        expect(nodeDef).to.exist;
+        expect(nodeDef).toBeTruthy();
                 
         // Verify the implementation was created as a child of the nodedef
         const impl = nodeDef.getImplementation();
-        expect(impl).to.exist;
-        expect(impl.isANodeGraph())
+        expect(impl).toBeTruthy();
+        expect(impl.isANodeGraph()).toBe(true);
         expect(impl.getName()).to.equal('NG_wrapper');
                 
         // Verify the implementation matches the original node graph
@@ -243,7 +243,7 @@ test.describe('Document', () =>
         let differences = {};
         options.performValueComparisons = false;
         let result = impl.isEquivalent(nodeGraph, diff_options, differences);
-        expect(result).to.be.true;
+        expect(result).toBe(true);
 
         // Cleanup
         diff_options.delete();
@@ -251,7 +251,7 @@ test.describe('Document', () =>
         doc.delete();
     });
     
-    it('Create NodeDef from NodeGraph with referencing implementation', () =>
+    test('Create NodeDef from NodeGraph with referencing implementation', () =>
     {
         const { doc, nodeGraph } = create_sample_graph();
         
@@ -267,12 +267,12 @@ test.describe('Document', () =>
             options
         );
         
-        expect(nodeDef2).to.exist;
+        expect(nodeDef2).toBeTruthy();
 
         // Verify the implementation was created as a referenced implementation
         const impl2 = nodeDef2.getImplementation();
-        expect(impl2).to.exist;
-        expect(impl2.isANodeGraph())
+        expect(impl2).toBeTruthy();
+        expect(impl2.isANodeGraph()).toBe(true);
         expect(impl2.getName()).to.equal('NG_wrapper_2');
         const nodedef_string = impl2.getNodeDefString();
         expect(nodedef_string).to.equal('ND_wrapper_2');
