@@ -149,10 +149,16 @@ bool PortElement::validate(string* message) const
 {
     bool res = true;
 
+    ConstElementPtr parent = getParent();
+    ConstElementPtr scope = parent ? parent->getParent() : nullptr;
     NodePtr connectedNode = getConnectedNode();
     if (hasNodeName() || hasOutputString())
     {
-        NodeGraphPtr nodeGraph = resolveNameReference<NodeGraph>(getNodeName());
+        NodeGraphPtr nodeGraph = resolveNameReference<NodeGraph>(getNodeName(), scope);
+        if (!nodeGraph)
+        {
+            nodeGraph = resolveNameReference<NodeGraph>(getNodeName());
+        }
         if (!nodeGraph)
         {
             validateRequire(connectedNode != nullptr, res, message, "Invalid port connection");
@@ -176,7 +182,11 @@ bool PortElement::validate(string* message) const
             }
             else if (hasNodeGraphString())
             {
-                NodeGraphPtr nodeGraph = resolveNameReference<NodeGraph>(getNodeGraphString());
+                NodeGraphPtr nodeGraph = resolveNameReference<NodeGraph>(getNodeGraphString(), scope);
+                if (!nodeGraph)
+                {
+                    nodeGraph = resolveNameReference<NodeGraph>(getNodeGraphString());
+                }
                 if (nodeGraph)
                 {
                     output = nodeGraph->getOutput(outputString);
@@ -223,7 +233,9 @@ NodePtr Input::getConnectedNode() const
     // Handle inputs of compound nodegraphs.
     if (getParent()->isA<NodeGraph>())
     {
-        NodePtr rootNode = getDocument()->getNode(getNodeName());
+        ConstElementPtr graphParent = getParent()->getParent();
+        ConstGraphElementPtr parentGraph = graphParent ? graphParent->asA<GraphElement>() : nullptr;
+        NodePtr rootNode = parentGraph ? parentGraph->getNode(getNodeName()) : nullptr;
         if (rootNode)
         {
             return rootNode;
