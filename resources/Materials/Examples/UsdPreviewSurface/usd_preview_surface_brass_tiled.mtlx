@@ -1,5 +1,26 @@
 <?xml version="1.0"?>
 <materialx version="1.39" colorspace="lin_rec709">
+
+  <UsdPrimvarReader name="read_st" type="vector2">
+    <input name="varname" type="string" value="st" />
+  </UsdPrimvarReader>
+  <UsdUVTexture name="image_color" type="multioutput">
+    <input name="file" type="filename" value="../../../Images/brass_color.jpg" colorspace="srgb_texture" />
+    <input name="st" type="vector2" nodename="read_st" />
+  </UsdUVTexture>
+  <UsdUVTexture name="image_roughness" type="multioutput">
+    <input name="file" type="filename" value="../../../Images/brass_roughness.jpg" />
+    <input name="st" type="vector2" nodename="read_st" />
+  </UsdUVTexture>
+  <UsdPreviewSurface name="SR_brass" type="surfaceshader">
+    <input name="diffuseColor" type="color3" nodename="image_color" output="rgb" />
+    <input name="metallic" type="float" value="1" />
+    <input name="roughness" type="float" nodename="image_roughness" output="r" />
+  </UsdPreviewSurface>
+  <surfacematerial name="USD_Brass" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="SR_brass" />
+  </surfacematerial>
+
   <nodegraph name="NG_brass1" fileprefix="../../../Images/">
     <tiledimage name="image_color" type="color3">
       <input name="file" type="filename" value="brass_color.jpg" colorspace="srgb_texture" />

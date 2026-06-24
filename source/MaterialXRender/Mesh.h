@@ -273,7 +273,8 @@ class MX_RENDER_API Mesh
         return _sourceUri;
     }
 
-    /// Get a mesh stream by name
+    /// Get a mesh stream by name. If no stream matches directly, the name is
+    /// resolved through any registered stream aliases.
     /// @param name Name of stream
     /// @return Reference to a mesh stream if found
     MeshStreamPtr getStream(const string& name) const
@@ -285,7 +286,26 @@ class MX_RENDER_API Mesh
                 return stream;
             }
         }
+        auto it = _streamAliases.find(name);
+        if (it != _streamAliases.end())
+        {
+            for (const auto& stream : _streams)
+            {
+                if (stream->getName() == it->second)
+                {
+                    return stream;
+                }
+            }
+        }
         return MeshStreamPtr();
+    }
+
+    /// Register an alias so that getStream(alias) resolves to the stream
+    /// named target. Used to expose a single underlying stream under multiple
+    /// shader-input names (e.g. mapping the USD "st" primvar to UV0).
+    void addStreamAlias(const string& alias, const string& target)
+    {
+        _streamAliases[alias] = target;
     }
 
     /// Get a mesh stream by type and index
@@ -440,6 +460,7 @@ class MX_RENDER_API Mesh
     float _sphereRadius;
 
     MeshStreamList _streams;
+    std::unordered_map<string, string> _streamAliases;
     size_t _vertexCount;
     vector<MeshPartitionPtr> _partitions;
 };
