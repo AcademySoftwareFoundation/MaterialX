@@ -318,10 +318,10 @@ void OslShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderSta
         { "Pworld", "P" },
         { "Nobject", "transform(\"object\", N)" },
         { "Nworld", "N" },
-        { "Tobject", "transform(\"object\", dPdu)" },
-        { "Tworld", "dPdu" },
-        { "Bobject", "transform(\"object\", dPdv)" },
-        { "Bworld", "dPdv" },
+        { "Tobject", "normalize(transform(\"object\", dPdu))" },
+        { "Tworld", "normalize(dPdu)" },
+        { "Bobject", "normalize(cross(transform(\"object\", N), transform(\"object\", dPdu)))" },
+        { "Bworld", "normalize(cross(N, dPdu))" },
         { "UV0", "{u,v}" },
         { "Vworld", "I" }
     };
