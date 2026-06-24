@@ -125,6 +125,12 @@ MdlShaderGenerator::MdlShaderGenerator(TypeSystemPtr typeSystem) :
     registerImplementation("IM_image_vector4_" + MdlShaderGenerator::TARGET, ImageNodeMdl::create);
 }
 
+void MdlShaderGenerator::applyDefaultOptions(GenOptions& options) const
+{
+    ShaderGenerator::applyDefaultOptions(options);
+    options.distributeLayerOverBsdfMix = true;
+}
+
 ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const
 {
     // For MDL we cannot cache node implementations between generation calls,

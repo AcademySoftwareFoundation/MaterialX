@@ -1,7 +1,7 @@
 #include "lib/mx_closure_type.glsl"
 #include "lib/mx_microfacet_specular.glsl"
 
-void mx_generalized_schlick_bsdf(ClosureData closureData, float weight, vec3 color0, vec3 color82, vec3 color90, float exponent, vec2 roughness, float thinfilm_thickness, float thinfilm_ior, vec3 N, vec3 X, int distribution, int scatter_mode, inout BSDF bsdf)
+void mx_generalized_schlick_bsdf(ClosureData closureData, float weight, vec3 color0, vec3 color82, vec3 color90, float exponent, vec2 roughness, bool retroreflective, float thinfilm_thickness, float thinfilm_ior, vec3 N, vec3 X, int distribution, int scatter_mode, inout BSDF bsdf)
 {
     if (weight < M_FLOAT_EPS)
     {
@@ -15,6 +15,10 @@ void mx_generalized_schlick_bsdf(ClosureData closureData, float weight, vec3 col
     vec3 V = closureData.V;
     vec3 L = closureData.L;
 
+    // Retroreflective mode is only supported for reflection and indirect
+    if (retroreflective && (closureData.closureType != CLOSURE_TYPE_TRANSMISSION))
+        V = reflect(-V, N);
+    
     N = mx_forward_facing_normal(N, V);
     float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);
 
@@ -41,7 +45,7 @@ void mx_generalized_schlick_bsdf(ClosureData closureData, float weight, vec3 col
         float D = mx_ggx_NDF(Ht, safeAlpha);
         float G = mx_ggx_smith_G2(NdotL, NdotV, avgAlpha);
 
-        vec3 comp = mx_ggx_energy_compensation(NdotV, avgAlpha, F);
+        vec3 comp = mx_ggx_energy_compensation(NdotV, avgAlpha, fd);
         vec3 dirAlbedo = mx_ggx_dir_albedo(NdotV, avgAlpha, safeColor0, safeColor90) * comp;
         float avgDirAlbedo = dot(dirAlbedo, vec3(1.0 / 3.0));
         bsdf.throughput = vec3(1.0 - avgDirAlbedo * weight);
@@ -51,9 +55,7 @@ void mx_generalized_schlick_bsdf(ClosureData closureData, float weight, vec3 col
     }
     else if (closureData.closureType == CLOSURE_TYPE_TRANSMISSION)
     {
-        vec3 F = mx_compute_fresnel(NdotV, fd);
-
-        vec3 comp = mx_ggx_energy_compensation(NdotV, avgAlpha, F);
+        vec3 comp = mx_ggx_energy_compensation(NdotV, avgAlpha, fd);
         vec3 dirAlbedo = mx_ggx_dir_albedo(NdotV, avgAlpha, safeColor0, safeColor90) * comp;
         float avgDirAlbedo = dot(dirAlbedo, vec3(1.0 / 3.0));
         bsdf.throughput = vec3(1.0 - avgDirAlbedo * weight);
@@ -67,9 +69,7 @@ void mx_generalized_schlick_bsdf(ClosureData closureData, float weight, vec3 col
     }
     else if (closureData.closureType == CLOSURE_TYPE_INDIRECT)
     {
-        vec3 F = mx_compute_fresnel(NdotV, fd);
-
-        vec3 comp = mx_ggx_energy_compensation(NdotV, avgAlpha, F);
+        vec3 comp = mx_ggx_energy_compensation(NdotV, avgAlpha, fd);
         vec3 dirAlbedo = mx_ggx_dir_albedo(NdotV, avgAlpha, safeColor0, safeColor90) * comp;
         float avgDirAlbedo = dot(dirAlbedo, vec3(1.0 / 3.0));
         bsdf.throughput = vec3(1.0 - avgDirAlbedo * weight);

@@ -249,6 +249,13 @@ void Input::setConnectedInterfaceName(const string& interfaceName)
     if (!interfaceName.empty())
     {
         ConstGraphElementPtr graph = getAncestorOfType<GraphElement>();
+        if (graph && graph == getParent())
+        {
+            // This element is a direct child of a graph element, so its
+            // interface name references a value element in the parent scope.
+            ConstElementPtr graphParent = graph->getParent();
+            graph = graphParent ? graphParent->getAncestorOfType<GraphElement>() : nullptr;
+        }
         if (graph && graph->getInput(interfaceName))
         {
             setInterfaceName(interfaceName);

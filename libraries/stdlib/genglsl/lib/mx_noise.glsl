@@ -378,10 +378,16 @@ vec3 mx_cell_noise_vec3(vec3 p)
     int ix = mx_floor(p.x);
     int iy = mx_floor(p.y);
     int iz = mx_floor(p.z);
+    uint a, b, c;
+    a = b = c = uint(0xdeadbeef) + (4u << 2u) + 13u;
+    a += uint(ix);
+    b += uint(iy);
+    c += uint(iz);
+    mx_bjmix(a, b, c);
     return vec3(
-            mx_bits_to_01(mx_hash_int(ix, iy, iz, 0)),
-            mx_bits_to_01(mx_hash_int(ix, iy, iz, 1)),
-            mx_bits_to_01(mx_hash_int(ix, iy, iz, 2))
+            mx_bits_to_01(mx_bjfinal(a,      b, c)),
+            mx_bits_to_01(mx_bjfinal(a + 1u, b, c)),
+            mx_bits_to_01(mx_bjfinal(a + 2u, b, c))
     );
 }
 
@@ -391,10 +397,17 @@ vec3 mx_cell_noise_vec3(vec4 p)
     int iy = mx_floor(p.y);
     int iz = mx_floor(p.z);
     int iw = mx_floor(p.w);
+    uint a, b, c;
+    a = b = c = uint(0xdeadbeef) + (5u << 2u) + 13u;
+    a += uint(ix);
+    b += uint(iy);
+    c += uint(iz);
+    mx_bjmix(a, b, c);
+    a += uint(iw);
     return vec3(
-            mx_bits_to_01(mx_hash_int(ix, iy, iz, iw, 0)),
-            mx_bits_to_01(mx_hash_int(ix, iy, iz, iw, 1)),
-            mx_bits_to_01(mx_hash_int(ix, iy, iz, iw, 2))
+            mx_bits_to_01(mx_bjfinal(a, b,      c)),
+            mx_bits_to_01(mx_bjfinal(a, b + 1u, c)),
+            mx_bits_to_01(mx_bjfinal(a, b + 2u, c))
     );
 }
 

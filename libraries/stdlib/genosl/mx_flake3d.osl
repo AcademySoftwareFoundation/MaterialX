@@ -1,0 +1,18 @@
+#include "lib/mx_flake.osl"
+
+void mx_flake3d(
+    float size,
+    float roughness,
+    float coverage,
+    vector position,
+    vector N,
+    vector tangent,
+    vector bitangent,
+    output int id,
+    output float rand,
+    output float presence,
+    output vector flakenormal
+)
+{
+    mx_flake(size, roughness, coverage, position, N, tangent, bitangent, id, rand, presence, flakenormal);
+}

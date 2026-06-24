@@ -1,0 +1,11 @@
+{
+  "name": "materialx-javascript",
+  "private": true,
+  "workspaces": [
+    "MaterialXTest",
+    "MaterialXView"
+  ],
+  "engines": {
+    "node": ">=18"
+  }
+}

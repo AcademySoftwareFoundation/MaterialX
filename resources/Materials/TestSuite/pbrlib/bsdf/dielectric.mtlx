@@ -4,6 +4,7 @@
     <dielectric_bsdf name="dielectric_R" type="BSDF">
       <input name="weight" type="float" value="1.0" />
       <input name="tint" type="color3" value="0.7, 0.7, 0.7" />
+      <input name="retroreflective" type="boolean" value="false" />
       <input name="scatter_mode" type="string" value="R" />
     </dielectric_bsdf>
     <surface name="surface_R" type="surfaceshader">

@@ -167,13 +167,7 @@
       <input name="mix" type="float" interfacename="transmission" />
     </mix>
 
-    <layer name="dielectric_bsdf" type="BSDF">
-      <input name="top" type="BSDF" nodename="reflection_bsdf" />
-      <input name="base" type="BSDF" nodename="transmission_mix" />
-    </layer>
-
-    <!-- Thin-film + Dielectric
-         Note: Due to limitations in codegen, the base layer BSDF is duplicated (#1035). -->
+    <!-- Thin-film + Dielectric -->
 
     <generalized_schlick_bsdf name="tf_reflection_bsdf" type="BSDF">
       <input name="color0" type="color3" nodename="dielectric_f0" />
@@ -186,17 +180,16 @@
       <input name="thinfilm_ior" type="float" interfacename="iridescence_ior" />
     </generalized_schlick_bsdf>
 
-
-    <layer name="tf_dielectric_bsdf" type="BSDF">
-      <input name="top" type="BSDF" nodename="tf_reflection_bsdf" />
-      <input name="base" type="BSDF" nodename="transmission_mix" />
-    </layer>
-
-    <mix name="mix_iridescent_dielectric_bsdf" type="BSDF">
-      <input name="bg" type="BSDF" nodename="dielectric_bsdf" />
-      <input name="fg" type="BSDF" nodename="tf_dielectric_bsdf" />
+    <mix name="mix_iridescent_dielectric_reflection" type="BSDF">
+      <input name="bg" type="BSDF" nodename="reflection_bsdf" />
+      <input name="fg" type="BSDF" nodename="tf_reflection_bsdf" />
       <input name="mix" type="float" interfacename="iridescence" />
     </mix>
+
+    <layer name="iridescent_dielectric_bsdf" type="BSDF">
+      <input name="top" type="BSDF" nodename="mix_iridescent_dielectric_reflection" />
+      <input name="base" type="BSDF" nodename="transmission_mix" />
+    </layer>
 
     <!-- Metal -->
 
@@ -208,8 +201,7 @@
       <input name="tangent" type="vector3" nodename="selected_tangent" />
     </generalized_schlick_bsdf>
 
-    <!-- Thin-film + Metal
-         Note: Due to limitations in codegen, the base layer BSDF is duplicated (#1035). -->
+    <!-- Thin-film + Metal -->
 
     <generalized_schlick_bsdf name="tf_metal_bsdf" type="BSDF">
       <input name="color0" type="color3" interfacename="base_color" />
@@ -230,7 +222,7 @@
     <!-- Dielectric/metal mix -->
 
     <mix name="base_mix" type="BSDF">
-      <input name="bg" type="BSDF" nodename="mix_iridescent_dielectric_bsdf" />
+      <input name="bg" type="BSDF" nodename="iridescent_dielectric_bsdf" />
       <input name="fg" type="BSDF" nodename="mix_iridescent_metal_bsdf" />
       <input name="mix" type="float" interfacename="metallic" />
     </mix>
@@ -238,30 +230,9 @@
     <!-- Sheen layer -->
 
     <!-- Compute sheen intensity = max(sheen_color.r, sheen_color.g, sheen_color.b) -->
-    <extract name="sheen_color_r" type="float">
+    <maxcomponent name="sheen_intensity" type="float">
       <input name="in" type="color3" interfacename="sheen_color" />
-      <input name="index" type="integer" value="0" />
-    </extract>
-
-    <extract name="sheen_color_g" type="float">
-      <input name="in" type="color3" interfacename="sheen_color" />
-      <input name="index" type="integer" value="1" />
-    </extract>
-
-    <extract name="sheen_color_b" type="float">
-      <input name="in" type="color3" interfacename="sheen_color" />
-      <input name="index" type="integer" value="2" />
-    </extract>
-
-    <max name="sheen_color_max_rg" type="float">
-      <input name="in1" type="float" nodename="sheen_color_r" />
-      <input name="in2" type="float" nodename="sheen_color_g" />
-    </max>
-
-    <max name="sheen_intensity" type="float">
-      <input name="in1" type="float" nodename="sheen_color_max_rg" />
-      <input name="in2" type="float" nodename="sheen_color_b" />
-    </max>
+    </maxcomponent>
 
     <multiply name="sheen_roughness_sq" type="float">
       <input name="in1" type="float" interfacename="sheen_roughness" />

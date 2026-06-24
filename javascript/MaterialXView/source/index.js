@@ -97,6 +97,7 @@ function init()
     // Set up renderer
     renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
     renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.debug.checkShaderErrors = false;
 
     window.addEventListener('resize', onWindowResize);
@@ -129,13 +130,8 @@ function init()
         new Promise(resolve => hdrLoader.load('Lights/san_giuseppe_bridge_split.hdr', resolve)),
         new Promise(resolve => hdrLoader.load('Lights/irradiance/san_giuseppe_bridge_split.hdr', resolve)),
         new Promise(resolve => fileLoader.load('Lights/san_giuseppe_bridge_split.mtlx', resolve)),
-        new Promise(function (resolve)
-        {
-            MaterialX().then((module) =>
-            {
-                resolve(module);
-            });
-        })
+        import(/* webpackIgnore: true */ './JsMaterialXGenShader.js')
+            .then(({ default: MaterialX }) => MaterialX())
     ]).then(async ([radianceTexture, irradianceTexture, lightRigXml, mxIn]) =>
     {
         // Initialize viewer + lighting
