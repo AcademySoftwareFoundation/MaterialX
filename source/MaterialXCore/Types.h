@@ -22,6 +22,7 @@ extern MX_CORE_API const string DEFAULT_TYPE_STRING;
 extern MX_CORE_API const string FILENAME_TYPE_STRING;
 extern MX_CORE_API const string GEOMNAME_TYPE_STRING;
 extern MX_CORE_API const string STRING_TYPE_STRING;
+extern MX_CORE_API const string INTEGER_TYPE_STRING;
 extern MX_CORE_API const string BSDF_TYPE_STRING;
 extern MX_CORE_API const string EDF_TYPE_STRING;
 extern MX_CORE_API const string VDF_TYPE_STRING;
