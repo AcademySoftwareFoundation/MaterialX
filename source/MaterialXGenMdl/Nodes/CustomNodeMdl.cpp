@@ -60,7 +60,7 @@ void CustomCodeNodeMdl::initializeForInlineSourceCode(const InterfaceElement& el
     const Implementation& impl = static_cast<const Implementation&>(element);
     // Store the inline source because the `_functionSource` is used for the function call template string
     // that matched the regular MaterialX to MDL function mapping.
-    _inlineSourceCode = impl.getAttribute("sourcecode");
+    _inlineSourceCode = impl.getSourceCode();
     if (_inlineSourceCode.empty())
     {
         throw ExceptionShaderGenError("No source code was specified for the implementation '" + impl.getName() + "'");
@@ -92,7 +92,7 @@ void CustomCodeNodeMdl::initializeForExternalSourceCode(const InterfaceElement& 
 
     // Map `file` to a qualified MDL module name
     const Implementation& impl = static_cast<const Implementation&>(element);
-    string moduleName = impl.getAttribute("file");
+    string moduleName = impl.getFile();
     if (moduleName.empty())
     {
         throw ExceptionShaderGenError("No source file was specified for the implementation '" + impl.getName() + "'");
