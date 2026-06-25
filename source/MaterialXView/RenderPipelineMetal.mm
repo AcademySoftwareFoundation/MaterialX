@@ -753,7 +753,28 @@ mx::ImagePtr MetalRenderPipeline::getFrameImage()
         memcpy(&resourceBuffer[(height - i - 1) * frame->getRowStride()],
                tmp.data(), frame->getRowStride());
     }
+
+    const unsigned int targetWidth = (unsigned int) _viewer->m_size.x();
+    const unsigned int targetHeight = (unsigned int) _viewer->m_size.y();
+    if (targetWidth > 0 && targetHeight > 0 &&
+        frame->getWidth() != targetWidth && frame->getHeight() != targetHeight &&
+        frame->getWidth() % targetWidth == 0 && frame->getHeight() % targetHeight == 0)
+    {
+        const unsigned int widthFactor = frame->getWidth() / targetWidth;
+        const unsigned int heightFactor = frame->getHeight() / targetHeight;
+        if (widthFactor == heightFactor && widthFactor > 1)
+        {
+            frame = frame->applyBoxDownsample(widthFactor);
+        }
+    }
     
     framebuffer = nullptr;
+    unsigned int downsampleFactor = (unsigned int) std::round(_viewer->m_pixel_ratio);
+    if (downsampleFactor > 1 &&
+        frame->getWidth() == (unsigned int) _viewer->m_size.x() * downsampleFactor &&
+        frame->getHeight() == (unsigned int) _viewer->m_size.y() * downsampleFactor)
+    {
+        frame = frame->applyBoxDownsample(downsampleFactor);
+    }
     return frame;
 }
