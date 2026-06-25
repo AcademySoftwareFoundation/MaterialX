@@ -481,7 +481,10 @@ jobs:
       working-directory: javascript/MaterialXView
 
     - name: Deploy Web Viewer
-      if: github.event_name != 'pull_request'
+      if: >-
+        github.event_name != 'pull_request' &&
+        (github.repository == 'AcademySoftwareFoundation/MaterialX' ||
+         github.event_name == 'workflow_dispatch')
       uses: JamesIves/github-pages-deploy-action@d92aa235d04922e8f08b40ce78cc5442fcfbfa2f # v4.8.0
       with:
         branch: gh-pages
