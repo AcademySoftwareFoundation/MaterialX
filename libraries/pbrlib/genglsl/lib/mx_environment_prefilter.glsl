@@ -10,7 +10,10 @@ float mx_latlong_alpha_to_lod(float alpha)
 vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 alpha, int distribution, FresnelData fd)
 {
     N = mx_forward_facing_normal(N, V);
-    vec3 L = fd.refraction ? mx_refraction_solid_sphere(-V, N, fd.ior.x) : -reflect(V, N);
+    X = normalize(X - dot(X, N) * N);
+    vec3 Y = cross(N, X);
+    vec3 bentNormal = mx_bent_normal_anisotropy(N, V, X, Y, alpha);
+    vec3 L = fd.refraction ? mx_refraction_solid_sphere(-V, N, fd.ior.x) : -reflect(V, bentNormal);
 
     float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);
 

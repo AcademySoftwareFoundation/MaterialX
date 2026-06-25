@@ -5,10 +5,13 @@ vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 alpha, int distributio
     // Generate tangent frame.
     X = normalize(X - dot(X, N) * N);
     vec3 Y = cross(N, X);
-    mat3 tangentToWorld = mat3(X, Y, N);
+    vec3 bentNormal = mx_bent_normal_anisotropy(N, V, X, Y, alpha);
+    X = normalize(X - dot(X, bentNormal) * bentNormal);
+    Y = cross(bentNormal, X);
+    mat3 tangentToWorld = mat3(X, Y, bentNormal);
 
     // Transform the view vector to tangent space.
-    V = vec3(dot(V, X), dot(V, Y), dot(V, N));
+    V = vec3(dot(V, X), dot(V, Y), dot(V, bentNormal));
 
     // Compute derived properties.
     float NdotV = clamp(V.z, M_FLOAT_EPS, 1.0);
