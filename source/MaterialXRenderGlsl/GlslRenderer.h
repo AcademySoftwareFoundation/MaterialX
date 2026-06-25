@@ -125,6 +125,16 @@ class MX_RENDERGLSL_API GlslRenderer : public ShaderRenderer
         return _screenColor;
     }
 
+    /// Restrict draw iteration to meshes whose Mesh::getName() is in
+    /// this set. Empty set (default) renders every mesh exposed by the
+    /// geometry handler.
+    void setActiveMeshes(const StringSet& names) { _activeMeshes = names; }
+
+    /// Skip the framebuffer clear at the top of render(). Used for
+    /// multi-pass renders where pass N>0 must overwrite only the pixels
+    /// it actually rasterises. Defaults to true.
+    void setClearOnRender(bool clear) { _clearOnRender = clear; }
+
     /// @}
 
   protected:
@@ -139,6 +149,8 @@ class MX_RENDERGLSL_API GlslRenderer : public ShaderRenderer
     SimpleWindowPtr _window;
     GLContextPtr _context;
     Color3 _screenColor;
+    StringSet _activeMeshes;
+    bool _clearOnRender = true;
 };
 
 MATERIALX_NAMESPACE_END
