@@ -157,6 +157,207 @@ Materials can inherit from other materials, to add or change shaders connected t
 Inheritance of material-type custom nodes is also allowed, so that new or changed input values can be applied on top of those specified in the inherited material.
 
 
+### Named Constants
+
+The MaterialX data library contains many nodes that have inputs with a number of common semantic default values, for instance zero or one. The MaterialX data library also uses a number of different concrete types, for example `float`, `color3` or `vector4`. These types each have different concrete values to represent these semantic defaults. &lt;typedef> elements can be extended with child &lt;constant> elements defining these named values.
+
+Attributes for &lt;constant> elements:
+
+* `name` (string, required): a unique name for this &lt;constant> element
+* `value` (string, required): the concrete value for the given type that should be used during the substitution.
+
+```xml
+  <typedef name="float">
+    <constant name="zero" value="0.0"/>
+    <constant name="one" value="1.0"/>
+  </typedef>
+  <typedef name="color3">
+    <constant name="zero" value="0.0,0.0,0.0"/>
+    <constant name="one" value="1.0,1.0,1.0"/>
+  </typedef>
+  <typedef name="vector4">
+    <constant name="zero" value="0.0,0.0,0.0,0.0"/>
+    <constant name="one" value="1.0,1.0,1.0,1.0"/>
+  </typedef>
+```
+
+These named constants can be used anywhere a concrete value is accepted, ie. in any `value` or `default` attribute. The named constant is referenced by prefixing the name of the named value with `"Constant:"`.
+
+```xml
+  <input name="in1" type="color3" value="Constant:zero"/>
+  <input name="in2" type="float" value="Constant:one"/>
+```
+
+This example, when combined with the example &lt;typedef> elements above, is functionally identical to:
+
+```xml
+  <input name="in1" type="color3" value="0.0,0.0,0.0"/>
+  <input name="in2" type="float" value="1.0"/>
+```
+
+Not every &lt;typedef> is required to define each named constant. Expansion of a named constant will raise an error if a specified name is not defined for the given &lt;typedef>.
+
+### Templated Definition Elements
+
+To reduce potential repetitive data library elements, any number of elements can be enclosed within a &lt;template> element scope. The elements inside the &lt;template> scope are concretely instantiated using the provided template attributes.
+
+Attributes for &lt;template> elements:
+
+* `name` (string, required): a unique name for this &lt;template>
+* `varnames` (string, required): the names of variables to be used for substitution in the contained elements as a comma-separated list.
+* `options` (string, required): the set of concrete values to be used during the substitution of the specified `varnames` in elements contained within the &lt;template>, specified as a string of comma-separated lists of comma-separated strings surrounded by parentheses.
+
+When a &lt;template> is expanded, all the child elements are instantiated exactly once for each entry in the `options` array. These instances replace the original &lt;template> element in the document. They are placed at the same scope level as the original &lt;template> element in the document.
+
+Each instance of the contents contained inside the &lt;template> is processed as it is instantiated. This processing step inspects all attribute values in all the contained elements and replaces any occurrence of any specified string with the corresponding value from the `options` array. The specific string used for the string replacement matching is constructed by wrapping any of the values in the `varnames` list with `@` characters. For example, if `varnames` has the value `"foo"`, then the matching string would be `"@foo@"`. We surround the value of `varnames` with the `@` characters to ensure we do not have any accidental matches.
+
+```xml
+  <template name="TP_ND_multiply" varames="typeName" options="(float, color3, vector4)">
+    <nodedef name="ND_multiply_@typeName@" node="multiply" nodegroup="math">
+      <input name="in1" type="@typeName@" value="Value:zero" />
+      <input name="in2" type="@typeName@" value="Value:one" />
+      <output name="out" type="@typeName@" defaultinput="in1" />
+    </nodedef>
+  </template>
+```
+
+In this example, the provided `varnames` attribute is `"typeName"`, and so the matching string is `"@typeName@"`. Each instance of this string is then replaced by each element in the `options` string array, `"float"`, `"color3“`, and `"vector4"`.
+
+```xml
+  <nodedef name="ND_multiply_float" node="multiply" nodegroup="math">
+    <input name="in1" type="float" value="Value:zero" />
+    <input name="in2" type="float" value="Value:one" />
+    <output name="out" type="float" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_multiply_color3" node="multiply" nodegroup="math">
+    <input name="in1" type="color3" value="Value:zero" />
+    <input name="in2" type="color3" value="Value:one" />
+    <output name="out" type="color3" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_multiply_vector4" node="multiply" nodegroup="math">
+    <input name="in1" type="vector4" value="Value:zero" />
+    <input name="in2" type="vector4" value="Value:one" />
+    <output name="out" type="vector4" defaultinput="in1" />
+  </nodedef>
+```
+
+When used in combination with the [Named Constants](#named-constants) expansion, this example would become the following concrete set of fully expanded elements.
+
+```xml
+  <nodedef name="ND_multiply_float" node="multiply" nodegroup="math">
+    <input name="in1" type="float" value="0.0" />
+    <input name="in2" type="float" value="1.0" />
+    <output name="out" type="float" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_multiply_color3" node="multiply" nodegroup="math">
+    <input name="in1" type="color3" value="0.0,0.0,0.0" />
+    <input name="in2" type="color3" value="1.0,1.0,1.0" />
+    <output name="out" type="color3" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_multiply_vector4" node="multiply" nodegroup="math">
+    <input name="in1" type="vector4" value="0.0,0.0,0.0,0.0" />
+    <input name="in2" type="vector4" value="1.0,1.0,1.0,1.0" />
+    <output name="out" type="vector4" defaultinput="in1" />
+  </nodedef>
+```
+
+When multiple variable names are specified, each of those variables will be substituted simultaneously. This means that the list of options corresponding to each variable is required to be the same length.
+
+```xml
+<template name="TP_multivariable_example" varnames="numberName, numberValue" options="(one, two, three), (1.0, 2.0, 3.0)">
+    <nodedef name="ND_constantFloat_@numberName@" node="example" nodegroup="math">
+        <input name="in1" type="float" value="@numberValue@" />
+        <output name="out" type="float" defaultinput="in1" />
+    </nodedef>
+</template>
+```
+
+If there is a mismatch in the lengths of the options lists, then an error will be raised during expansion. The example below demonstrates different lengths of options lists; this is invalid syntax.
+
+```xml
+<!-- INVALID EXAMPLE - DO NOT COPY -->
+<template name="TP_invalid_example" varnames="numberName, numberValue" options="(one, two, three, four), (1.0, 2.0)">
+    <nodedef name="ND_constantFloat_@numberName@" node="example" nodegroup="math">
+        <input name="in1" type="float" value="@numberValue@" />
+        <output name="out" type="float" defaultinput="in1" />
+    </nodedef>
+</template>
+```
+
+The `TP_multivariable_example` would be expanded to three concrete instances of the elements it contains, and both `@numberName@` and `@numberValue@` strings would be replaced.
+
+```xml
+<nodedef name="ND_constantFloat_one" node="example" nodegroup="math">
+    <input name="in1" type="float" value="1.0" />
+    <output name="out" type="float" defaultinput="in1" />
+</nodedef>
+<nodedef name="ND_constantFloat_two" node="example" nodegroup="math">
+    <input name="in1" type="float" value="2.0" />
+    <output name="out" type="float" defaultinput="in1" />
+</nodedef>
+<nodedef name="ND_constantFloat_three" node="example" nodegroup="math">
+    <input name="in1" type="float" value="3.0" />
+    <output name="out" type="float" defaultinput="in1" />
+</nodedef>
+```
+
+&lt;template> elements can be nested, and then are expanded sequentially, from the outer scope to the inner scope. This allows &lt;template> element variable substitution to be used to define other template attributes.
+
+```xml
+<template name="TP_ND_add_matrix" varnames="typeName" options="(matrix33, matrix44)">
+    <template name="TP_ND_add_@typeName@FA" varnames="nodeDefExt,floatTypeName" options="(@typeName@,@typeName@FA), (@typeName@,float)">
+        <nodedef name="ND_add_@nodeDefExt@" node="add" nodegroup="math">
+            <input name="in1" type="@typeName@" value="Constant:one" />
+            <input name="in2" type="@floatTypeName@" value="Constant:zero" />
+            <output name="out" type="@typeName@" defaultinput="in1" />
+        </nodedef>
+    </template>
+</template>
+```
+
+Here we have two nested &lt;template> elements. `TP_ND_add_matrix` will be expanded first. This is important as here the inner &lt;template> element uses the `@typeName@` template variable reference in its definition. This first &lt;template> would be expanded resulting in two instances of the contained elements, since the options list `(matrix33, matrix44)` has length two.
+
+```xml
+<template name="TP_ND_add_matrix33FA" varnames="nodeDefExt,floatTypeName" options="(matrix33,matrix33FA), (matrix33,float)">
+    <nodedef name="ND_add_@nodeDefExt@" node="add" nodegroup="math">
+        <input name="in1" type="matrix33" value="Constant:one" />
+        <input name="in2" type="@floatTypeName@" value="Constant:zero" />
+        <output name="out" type="matrix33" defaultinput="in1" />
+    </nodedef>
+</template>
+<template name="TP_ND_add_matrix44FA" varnames="nodeDefExt,floatTypeName" options="(matrix44,matrix44FA), (matrix44,float)">
+    <nodedef name="ND_add_@nodeDefExt@" node="add" nodegroup="math">
+        <input name="in1" type="matrix44" value="Constant:one" />
+        <input name="in2" type="@floatTypeName@" value="Constant:zero" />
+        <output name="out" type="matrix44" defaultinput="in1" />
+    </nodedef>
+</template>
+```
+
+This results in two "inner" scoped &lt;template> elements, `TP_ND_add_matrix33FA` and `TP_ND_add_matrix44FA`. These then both each get expanded and both result in a further two instances of each set of contained elements, because all the options lists for each of the variables are also of length two, `(matrix33,matrix33FA)` and `(matrix33,float)`.
+
+```xml
+<nodedef name="ND_add_matrix33" node="add" nodegroup="math">
+    <input name="in1" type="matrix33" value="Constant:one" />
+    <input name="in2" type="matrix33" value="Constant:zero" />
+    <output name="out" type="matrix33" defaultinput="in1" />
+</nodedef>
+<nodedef name="ND_add_matrix33FA" node="add" nodegroup="math">
+    <input name="in1" type="matrix33" value="Constant:one" />
+    <input name="in2" type="float" value="Constant:zero" />
+    <output name="out" type="matrix33" defaultinput="in1" />
+</nodedef>
+<nodedef name="ND_add_matrix44FA" node="add" nodegroup="math">
+    <input name="in1" type="matrix44" value="Constant:one" />
+    <input name="in2" type="matrix44" value="Constant:zero" />
+    <output name="out" type="matrix44" defaultinput="in1" />
+</nodedef>
+<nodedef name="ND_add_matrix44" node="add" nodegroup="math">
+    <input name="in1" type="matrix44" value="Constant:one" />
+    <input name="in2" type="float" value="Constant:zero" />
+    <output name="out" type="matrix44" defaultinput="in1" />
+</nodedef>
+```
 <p>&nbsp;<p><hr><p>
 
 # Proposals: Stdlib Nodes<a id="propose-stdlib-nodes"></a>
