@@ -33,6 +33,9 @@ class MX_GENHW_API HwSurfaceNode : public HwImplementation
 
     /// Return the name of the opacity input on the node.
     virtual const string& getOpacityInputName() const;
+
+    /// Return the name of the occlusion input on the node.
+    virtual const string& getOcclusionInputName() const;
 };
 
 MATERIALX_NAMESPACE_END
