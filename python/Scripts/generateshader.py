@@ -53,6 +53,8 @@ def main():
     parser.add_argument('--validatorArgs', dest='validatorArgs', nargs='?', const=' ', type=str, help='Optional arguments for code validator.')
     parser.add_argument('--vulkanGlsl', dest='vulkanCompliantGlsl', default=False, type=bool, help='Set to True to generate Vulkan-compliant GLSL when using the genglsl target.')
     parser.add_argument('--shaderInterfaceType', dest='shaderInterfaceType', default=0, type=int, help='Set the type of shader interface to be generated')
+    parser.add_argument('--graph', dest='graph', action='store_true', help='Set to True to generate a Mermaid graph of the shader graph for each shader.')
+    parser.add_argument('--graphValues', dest='graphValues', action='store_true', help='Set to True to output input values for Mermaid graphs.')
     parser.add_argument(dest='inputFilename', help='Path to input document or folder containing input documents.')
     opts = parser.parse_args()
 
@@ -156,6 +158,17 @@ def main():
             elemName = mx.createValidName(elemName)
             shader = shadergen.generate(elemName, elem, context)        
             if shader:
+                # Generate a Mermaid graph of the shader graph if requested
+                if opts.graph:
+                    graphValues = opts.graphValues == True
+                    mermaidGraph = shader.createMermaidGraph(graphValues)
+                    mermaidGraph = "```mermaid\n" + mermaidGraph + "\n```"
+                    filename = pathPrefix + "/" + shader.getName() + "." + gentarget + ".md"
+                    print('--- Wrote Mermaid graph to: ' + filename)
+                    file = open(filename, 'w+')
+                    file.write(mermaidGraph)
+                    file.close()
+
                 # Use extension of .vert and .frag as it's type is
                 # recognized by glslangValidator
                 if gentarget in ['glsl', 'essl', 'vulkan', 'msl', 'wgsl']:

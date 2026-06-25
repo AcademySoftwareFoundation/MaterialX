@@ -100,6 +100,11 @@ class MX_GENSHADER_API Shader
     /// Return the shader source code for a given shader stage.
     const string& getSourceCode(const string& stage = Stage::PIXEL) const { return getStage(stage).getSourceCode(); }
 
+    /// Generate a Mermaid graph representing the shader graph and its nodes.
+    /// @param showInputValues If true, the graph will include the values of any unconnected input sockets
+    /// @return Mermaid graph as a string.
+    string createMermaidGraph(bool showInputValues) const;
+
   protected:
     /// Create a new stage in the shader.
     ShaderStagePtr createStage(const string& name, ConstSyntaxPtr syntax);
