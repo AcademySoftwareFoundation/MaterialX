@@ -42,6 +42,7 @@ void documentToXml(DocumentPtr doc, xml_node& xmlRoot, const XmlWriteOptions* wr
         elemStack.pop_back();
 
         bool writeXIncludeEnable = writeOptions ? writeOptions->writeXIncludeEnable : true;
+        bool writeNodeInstanceAsNode = writeOptions ? writeOptions->writeNodeInstanceAsNode : false;
         ElementPredicate elementPredicate = writeOptions ? writeOptions->elementPredicate : nullptr;
 
         // Store attributes in XML.
@@ -50,7 +51,7 @@ void documentToXml(DocumentPtr doc, xml_node& xmlRoot, const XmlWriteOptions* wr
             xmlNode.append_attribute(Element::NAME_ATTRIBUTE.c_str()) = elem->getName().c_str();
         }
 
-        bool isNode = elem->isA<Node>();
+        bool isNode = writeNodeInstanceAsNode && elem->isA<Node>();
         if (isNode)
         {
             const string& category = elem->getCategory();
@@ -101,7 +102,7 @@ void documentToXml(DocumentPtr doc, xml_node& xmlRoot, const XmlWriteOptions* wr
                 }
             }
 
-            isNode = child->isA<Node>();
+            isNode = writeNodeInstanceAsNode && child->isA<Node>();
             if (isNode)
             {
                 // Push child data onto the stack.
@@ -312,7 +313,8 @@ XmlReadOptions::XmlReadOptions() :
 //
 
 XmlWriteOptions::XmlWriteOptions() :
-    writeXIncludeEnable(true)
+    writeXIncludeEnable(true),
+    writeNodeInstanceAsNode(false)
 {
 }
 
