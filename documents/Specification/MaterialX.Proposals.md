@@ -21,7 +21,7 @@ As such, those forward-looking proposals have been moved from the formal Specifi
 
 **[Introduction](#introduction)**  
 
-**[Proposals: General](#propose-general)**  
+**[Proposals: General](#propose-general)**   
 
 **[Proposals: Elements](#propose-elements)**  
 
@@ -35,6 +35,131 @@ As such, those forward-looking proposals have been moved from the formal Specifi
 <p>&nbsp;<p><hr><p>
 
 # Proposals: General<a id="propose-general"></a>
+
+
+## Standardized Metadata
+
+Many 3D content formats, including glTF and USD, include metadata for display, licensing, provenance, and indexing.  MaterialX should support a small set of universal, optional metadata attributes directly on the root `<materialx>` element.  These would be standard MaterialX attributes rather than custom attributes declared with `attributedef`, and would be valid for both ordinary `.mtlx` documents and packaged `.mtlz` files.
+
+| Attribute | Format | Notes |
+|-------|--------|-------|
+| `assetname` | string | Human-readable material or asset name |
+| `authors` | stringarray | Author or contributor list; email addresses may be included |
+| `license` | string | SPDX identifier such as `CC0-1.0`, `CC-BY-4.0`, or `MIT`; free strings are also allowed |
+| `licenseurl` | URI | Link to the full license text |
+| `sourceuri` | URI | Canonical source location for the material or asset |
+| `assetversion` | string | Material asset version, such as a SemVer value; distinct from the MaterialX document `version` |
+| `description` | string | Free-text material or asset description |
+| `keywords` | stringarray | Search and discovery keywords |
+
+Example:
+
+```xml
+<?xml version="1.0"?>
+<materialx version="1.39" colorspace="lin_rec709"
+  assetname="Marble Cliff"
+  authors="Ben Houston (ben@ben3d.ca), jcaron"
+  license="CC0-1.0"
+  licenseurl="https://creativecommons.org/publicdomain/zero/1.0/"
+  sourceuri="https://example.com/materials/marble-cliff"
+  assetversion="1.0.0"
+  description="A weathered marble cliff face with natural veining and displacement."
+  keywords="marble, cliff, rock, natural, displacement, tiled">
+
+  <!-- material graph ... -->
+</materialx>
+```
+
+## Single-File MaterialX Container
+
+A number of users and developers have discussed the usefulness of a single-file MaterialX container format, along with features that would make such a format practical for online material libraries, publishing workflows, and interchange between applications.  This proposal suggests formalizing the `.mtlx.zip` convention already used by the [AMD Material Library](https://matlib.gpuopen.com/main/materials/all) and [Poly Haven](https://polyhaven.com/materials) as a dedicated `.mtlz` format.
+
+The proposed `.mtlz` format is a zip archive containing one root MaterialX document and its referenced resources.  It is intended as a package format for sharing and delivery, not as a replacement for ordinary `.mtlx` files or directory-based production libraries.
+
+### Motivation
+
+Downloading a single file for a complete MaterialX material, including textures and other referenced files, is convenient for web delivery and content exchange.  Online MaterialX libraries already use `.mtlx.zip` archives for this purpose, since downloading and tracking multiple related files is awkward for browsers, APIs, and asset management systems.
+
+A single-file package also makes it easier to extract one material from a larger local library and share it without preserving the surrounding folder structure.  This mirrors the role of single-file publishing formats such as [USDZ](https://openusd.org/release/spec_usdz.html) for USD content and [GLB](https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#glb-file-format-specification) for glTF content.
+
+A dedicated `.mtlz` extension and media type would make the package recognizable to operating systems, browsers, CDNs, and applications.  The extension communicates that the file is a MaterialX material package, while the archive structure makes the root `.mtlx` file unambiguous.
+
+Specific painpoints:
+
+* The issue with formats that have multiple files instead of containers when it comes to user downloads is that most browsers do not support multi-file downloads, especially if some of those files are intended to have relative paths to each other.  So most websites that allow you to get multi-file formats just zip them up anyhow.
+
+* The issue with multiple files for uploads is two fold.  First one has to run validation on the server to ensure that all of the files expected have been uploaded, which is painful for users and workflows in general.  Second, mtlx files can have relative paths, but a user upload of multiple files will generally result in a flat list, thus necessitating guessing to resolve those relative paths.
+
+* The issue with multiple downloads for consumption by a website (e.g 3D viewer), is that if you have multiple files with dependencies between, you have to download the first mtlx file, parse it, and then make subsequent requests to the server for the textures/resources.  Those subsequent requests best case are around 100ms later because of this sequentialization.  Downloading the file zip at once, especially if you are incrementally parsing, means you avoid that additional roundtrip request.
+
+### Technical Format
+
+An `.mtlz` package is a zip archive with the following baseline rules:
+
+* The archive contains exactly one `.mtlx` file at the root level AND it is also the first file stored in the zip archive.  This file is the root MaterialX document to load.
+* All other content is stored in subdirectories, including textures, included node definitions, and other referenced resources.
+* Relative file references in the root `.mtlx` document are resolved within the package.
+* The file extension is `.mtlz`.
+* The media type is `model/materialx+zip`.
+* Archive must be in ZIP32 format (not ZIP64).
+* Archive must not be encrypted.
+* Resource files in the archive must not be compressed.
+* Resource files in the archive must be aligned at 64 byte boundaries.
+
+A typical package layout might be:
+
+```text
+marble_cliff.mtlz
+|-- marble_cliff.mtlx
+`-- textures/
+    |-- marble_cliff_diff.jpg
+    |-- marble_cliff_nor_gl.exr
+    |-- marble_cliff_rough.exr
+    `-- marble_cliff_disp.png
+```
+
+The rule that exactly one `.mtlx` file appears at the root lets readers identify the package entry point without requiring a manifest.  Other `.mtlx` files may be included in subdirectories when referenced by the root document.
+
+### Efficient Archive Layout
+
+Rational for the archive layout requirements (replicated from the USDZ standard) are:
+
+* For efficient streaming, the root `.mtlx` file must be stored first in the zip archive (not just as the first entry in the zip table of contents).  This lets a streaming reader inspect the MaterialX graph and its referenced resources before the rest of the archive has been downloaded.
+
+* To enable rendering directly from .mtlz files, the resources files must be stored without no compression.  This enables the files to be memory mapped from within the archive for direct access by renders.
+
+* For cache efficiency when memory mapping, it is necessary that the start of assets in the archive be aligned at 64 byte boundaries offset from the beginning of the archive.  64 bytes is the standard cache line for current AMD64/ARM64 processors used across the industry.
+
+### Command-Line Tooling
+
+Official MaterialX tooling could support creating, unpacking, and validating `.mtlz` packages:
+
+```sh
+# Create a .mtlz archive named after the root .mtlx file.
+mtlx pack [path to mtlx]
+
+# Validate a .mtlz or .mtlx file and check that references can be resolved.
+mtlx check [path to mtlz or mtlx file]
+
+# Create a directory named after the .mtlz file and extract its contents.
+mtlx unpack [path to mtlz]
+
+# Apply additional policy checks for a material library or publishing workflow.
+mtlx check --allowed-nodes core \
+           --allowed-surfaces open_pbr_surface,gltf_pbr \
+           --required-metadata author,license \
+           [path to mtlz or mtlx file]
+```
+
+The policy flags above are examples of validation that may be useful to online libraries or production pipelines.  They are not proposed as requirements for all `.mtlz` packages.
+
+### Additional Data
+
+The following image shows example archive layouts from Poly Haven and the AMD Material Library:
+
+![Example MaterialX zip archive layouts from Poly Haven and AMD Material Library](media/MaterialXLayout.webp)
+
+Additional background and discussion are available in [MaterialX Needs a Single-File Container](https://ben3d.ca/blog/materialx-needs-a-single-file-container).
 
 
 ## Color Spaces
