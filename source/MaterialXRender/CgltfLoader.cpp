@@ -398,13 +398,10 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
                                 for (cgltf_size v = 0; v < desiredVectorSize; v++)
                                 {
                                     float floatValue = (v < vectorSize) ? input[v] : 0.0f;
-                                    // Perform v-flip
-                                    if (isTexCoordStream && v == 1)
+                                    // Preserve texture coordinates unless a data-level flip is requested.
+                                    if (isTexCoordStream && v == 1 && texcoordVerticalFlip)
                                     {
-                                        if (!texcoordVerticalFlip)
-                                        {
-                                            floatValue = 1.0f - floatValue;
-                                        }
+                                        floatValue = 1.0f - floatValue;
                                     }
                                     buffer.push_back(floatValue);
                                 }
