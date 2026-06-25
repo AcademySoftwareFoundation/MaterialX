@@ -49,6 +49,16 @@ void documentToXml(DocumentPtr doc, xml_node& xmlRoot, const XmlWriteOptions* wr
         {
             xmlNode.append_attribute(Element::NAME_ATTRIBUTE.c_str()) = elem->getName().c_str();
         }
+
+        bool isNode = elem->isA<Node>();
+        if (isNode)
+        {
+            const string& category = elem->getCategory();
+            const string NODE_TYPE_ATTRIBUTE = "nodetype";
+            xml_attribute xmlAttr = xmlNode.append_attribute(NODE_TYPE_ATTRIBUTE.c_str());
+            xmlAttr.set_value(category.c_str());
+        }
+
         for (const string& attrName : elem->getAttributeNames())
         {
             xml_attribute xmlAttr = xmlNode.append_attribute(attrName.c_str());
@@ -91,33 +101,49 @@ void documentToXml(DocumentPtr doc, xml_node& xmlRoot, const XmlWriteOptions* wr
                 }
             }
 
-            // Handle the interpretation of comments and newlines.
-            if (child->getCategory() == CommentElement::CATEGORY)
+            isNode = child->isA<Node>();
+            if (isNode)
             {
-                xml_node xmlChild = xmlNode.append_child(node_comment);
-                xmlChild.set_value(child->getAttribute(Element::DOC_ATTRIBUTE).c_str());
-                continue;
+                // Push child data onto the stack.
+                const string NODE_CATEGORY = "node";
+                xml_node xmlChild = xmlNode.append_child(NODE_CATEGORY.c_str());
+                elemStack.emplace_back(child, xmlChild);
             }
-            if (child->getCategory() == NewlineElement::CATEGORY)
+            else
             {
-                xml_node xmlChild = xmlNode.append_child(node_newline);
-                xmlChild.set_value("\n");
-                continue;
-            }
+                string category = child->getCategory();
 
-            // Push child data onto the stack.
-            xml_node xmlChild = xmlNode.append_child(child->getCategory().c_str());
-            elemStack.emplace_back(child, xmlChild);
+                // Handle the interpretation of comments and newlines.
+                if (category == CommentElement::CATEGORY)
+                {
+                    xml_node xmlChild = xmlNode.append_child(node_comment);
+                    xmlChild.set_value(child->getAttribute(Element::DOC_ATTRIBUTE).c_str());
+                }
+                else if (category == NewlineElement::CATEGORY)
+                {
+                    xml_node xmlChild = xmlNode.append_child(node_newline);
+                    xmlChild.set_value("\n");
+                }
+                else
+                {
+                    // Push child data onto the stack.
+                    xml_node xmlChild = xmlNode.append_child(category.c_str());
+                    elemStack.emplace_back(child, xmlChild);
+                }
+            }
         }
     }
 }
 
 void elementFromXml(const xml_node& xmlNode, ElementPtr elem, const XmlReadOptions* readOptions, int depth = 1)
 {
+    const string NODETYPE_ATTRIBUTE = "nodetype";
+
     // Store attributes in element.
     for (const xml_attribute& xmlAttr : xmlNode.attributes())
     {
-        if (xmlAttr.name() != Element::NAME_ATTRIBUTE)
+        if (xmlAttr.name() != Element::NAME_ATTRIBUTE &&
+            xmlAttr.name() != NODETYPE_ATTRIBUTE)
         {
             elem->setAttribute(xmlAttr.name(), xmlAttr.value());
         }
@@ -145,6 +171,12 @@ void elementFromXml(const xml_node& xmlNode, ElementPtr elem, const XmlReadOptio
         if (depth >= MAX_XML_TREE_DEPTH)
         {
             throw ExceptionParseError("Maximum tree depth exceeded.");
+        }
+
+        // If name is "node" get category from attribute.
+        if (category == "node")
+        {
+            category = xmlChild.attribute(NODETYPE_ATTRIBUTE.c_str()).value();
         }
 
         // Create the child element.
