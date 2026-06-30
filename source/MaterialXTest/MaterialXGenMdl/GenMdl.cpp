@@ -242,6 +242,9 @@ void MdlShaderGeneratorTester::compileSource(const std::vector<mx::FilePath>& so
     // avoid warning "C350: unused let temporary '...'"
     mdlcCommand += " -W \"350=off\"";
 
+    // avoid warning "C181: unused variable '...'"
+    mdlcCommand += " -W \"181=off\"";
+
     // but treat all other warnings as errors
     mdlcCommand += " -W err";
 
