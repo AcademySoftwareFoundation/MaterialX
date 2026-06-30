@@ -774,10 +774,7 @@ void Graph::updateMaterials(mx::InputPtr input /* = nullptr */, mx::ValuePtr val
     {
         if (!input)
         {
-            mx::ElementPtr elem = nullptr;
-            {
-                elem = _graphDoc->getDescendant(renderablePath);
-            }
+            const mx::ElementPtr elem = _graphDoc->getDescendant(renderablePath);
             mx::TypedElementPtr typedElem = elem ? elem->asA<mx::TypedElement>() : nullptr;
             _renderer->updateMaterials(typedElem);
         }
@@ -1086,6 +1083,8 @@ void Graph::showPropertyEditorValue(UiNodePtr node, mx::InputPtr input, const mx
                 nodeInput->setValueString(temp);
                 nodeInput->setValue(temp, nodeInput->getType());
                 updateMaterials();
+
+                _currUiNode->buildUiTokenMap(); // Re-build token map
             }
         }
     }
@@ -1139,16 +1138,16 @@ void Graph::setUiNodeInfo(UiNodePtr node, const std::string& type, const std::st
     }
     else
     {
-        if (node->getNode())
+        if (mx::ConstNodePtr mxNode = node->getNode())
         {
-            mx::NodeDefPtr nodeDef = node->getNode()->getNodeDef(node->getNode()->getName());
+            mx::NodeDefPtr nodeDef = mxNode->getNodeDef(mxNode->getName());
             if (nodeDef)
             {
                 for (mx::InputPtr input : nodeDef->getActiveInputs())
                 {
-                    if (node->getNode()->getInput(input->getName()))
+                    if (mxNode->getInput(input->getName()))
                     {
-                        input = node->getNode()->getInput(input->getName());
+                        input = mxNode->getInput(input->getName());
                     }
                     UiPinPtr inPin = std::make_shared<UiPin>(_state.nextUiId, node, ax::NodeEditor::PinKind::Input, input);
                     node->getInputPins().push_back(inPin);
@@ -1158,9 +1157,9 @@ void Graph::setUiNodeInfo(UiNodePtr node, const std::string& type, const std::st
 
                 for (mx::OutputPtr output : nodeDef->getActiveOutputs())
                 {
-                    if (node->getNode()->getOutput(output->getName()))
+                    if (mxNode->getOutput(output->getName()))
                     {
-                        output = node->getNode()->getOutput(output->getName());
+                        output = mxNode->getOutput(output->getName());
                     }
                     UiPinPtr outPin = std::make_shared<UiPin>(_state.nextUiId, node, ax::NodeEditor::PinKind::Output, output);
                     node->getOutputPins().push_back(outPin);
@@ -1168,6 +1167,8 @@ void Graph::setUiNodeInfo(UiNodePtr node, const std::string& type, const std::st
                     ++_state.nextUiId;
                 }
             }
+
+            node->buildUiTokenMap(); // Build initial token map
         }
         else if (node->getInput())
         {
@@ -3778,40 +3779,62 @@ void Graph::propertyEditor()
             showPropertyEditorOutputConnections(_currUiNode);
         }
 
-        // Find tokens within currUiNode
-        mx::ConstNodePtr node = _currUiNode->getNode();
-        if (node != nullptr)
+        // Draw token table
+        if (const auto& currTokenMap = _currUiNode->getUiTokenMap(); !currTokenMap.empty())
         {
-            mx::StringResolverPtr resolver = node->createStringResolver();
-            const mx::StringMap& tokens = resolver->getFilenameSubstitutions();
+            ImGui::Text("Tokens");
+            ImGui::SameLine();
+            drawHelpMarker("All tokens that are within scope of the selected node. Token values will be string-substituted into listed 'Affected Inputs'.");
 
-            if (!tokens.empty())
+            int tokenCount = static_cast<int>(currTokenMap.size() + 1u); // Add 1 to account for header row
+            ImVec2 tableHeight(0.0f, TEXT_BASE_HEIGHT * std::min(SCROLL_LINE_COUNT, tokenCount));
+
+            // Use `ImGuiTableFlags_SizingFixedFit` to set default column width to fit content
+            if (ImGui::BeginTable("tokens_node_table", 4, tableFlags | ImGuiTableFlags_SizingFixedFit, tableHeight))
             {
-                ImGui::Text("Tokens");
+                ImGui::SetWindowFontScale(_fontScale);
 
-                ImVec2 tableSize(0.0f, TEXT_BASE_HEIGHT * std::min(SCROLL_LINE_COUNT, static_cast<int>(tokens.size())));
-                bool haveTable = ImGui::BeginTable("tokens_node_table", 2, tableFlags, tableSize);
-                if (haveTable)
+                ImGui::TableSetupColumn("Name");
+                ImGui::TableSetupColumn("Value");
+                ImGui::TableSetupColumn("Source Element");
+                ImGui::TableSetupColumn("Affected Inputs");
+
+                // Set tooltips for each of table's columns
+                constexpr std::array tableHeadersTooltips = { "", "Press <enter> to set token value.", "The graph element where the token is declared.", "Node inputs which reference the token." };
+                drawTableHeadersRowWithTooltips(tableHeadersTooltips);
+
+                for (const auto& [tokenName, tokenPtr] : currTokenMap)
                 {
-                    ImGui::SetWindowFontScale(_fontScale);
+                    ImGui::TableNextRow(); // Start new row
+                    ImGui::PushID(&tokenName);
 
-                    for (const auto& [token, value] : tokens)
+                    // Name
+                    ImGui::TableNextColumn();
+                    ImGui::Text("%s", tokenName.c_str());
+
+                    // Value
+                    ImGui::TableNextColumn();
+                    std::string tokenValue = tokenPtr->getValue();
+
+                    if (ImGui::InputText("##token_value", &tokenValue, ImGuiInputTextFlags_EnterReturnsTrue))
                     {
-
-                        ImGui::TableNextRow();
-                        ImGui::TableNextColumn();
-                        ImGui::PushID(&token);
-
-                        ImGui::Text("%s", token.c_str());
-                        ImGui::TableNextColumn();
-                        ImGui::Text("%s", value.c_str());
-
-                        ImGui::PopID();
+                        tokenPtr->setValue(tokenValue);  // Write out new token value
+                        updateMaterials();               // Trigger update of material
                     }
 
-                    ImGui::EndTable();
-                    ImGui::SetWindowFontScale(1.0f);
+                    // Source Element
+                    ImGui::TableNextColumn();
+                    ImGui::Text("%s", tokenPtr->getSourceElementString().c_str());
+
+                    // Affected Inputs
+                    ImGui::TableNextColumn();
+                    ImGui::Text("%s", tokenPtr->getAffectedInputsString().c_str());
+
+                    ImGui::PopID();
                 }
+
+                ImGui::EndTable();
+                ImGui::SetWindowFontScale(1.0f); // Restore font scale
             }
         }
 
@@ -3875,10 +3898,24 @@ void Graph::showHelp() const
         ImGui::BulletText("\"Node Info\" Will toggle showing node information.");
     }
 }
+void Graph::drawHelpMarker(const char* content)
+{
+    constexpr float WRAP_POSITION = 32.f; // Compile-time definition of text-wrap position
+
+    ImGui::TextDisabled(HELP_MARKER_TEXT); // Draw help marker
+    if (!ImGui::IsItemHovered())
+        return; // If help marker isn't hovered return early
+
+    ImGui::BeginTooltip();
+    ImGui::PushTextWrapPos(ImGui::GetFontSize() * WRAP_POSITION);
+    ImGui::TextUnformatted(content);
+    ImGui::PopTextWrapPos();
+    ImGui::EndTooltip();
+}
 
 void Graph::addNodePopup(bool cursor)
 {
-    bool open_AddPopup = (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootWindow) && ImGui::IsKeyReleased(ImGuiKey_Tab)) ||
+    bool open_AddPopup = (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::IsKeyReleased(ImGuiKey_Tab)) ||
                          (_pinFilterType != mx::EMPTY_STRING && ImGui::IsMouseReleased(0));
     static char input[32]{ "" };
     if (open_AddPopup)
