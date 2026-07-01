@@ -154,8 +154,35 @@ NodeDefPtr OcioColorManagementSystemImpl::getNodeDef(const ColorSpaceTransform& 
         return {};
     }
 
+    // Build a function name from the source/target color space names and the first
+    // six characters of the cache ID.  Each name component is sanitized individually:
+    // invalid characters are replaced with underscores and consecutive underscores are
+    // collapsed to one so that OCIO's own identifier normalizer cannot produce a
+    // different name than the one we register on the node def.
+    auto sanitizeName = [](const string& s) -> string
+    {
+        string result = createValidName(s);
+        string collapsed;
+        bool prevUnderscore = false;
+        for (char c : result)
+        {
+            if (c == '_')
+            {
+                if (!prevUnderscore)
+                    collapsed += c;
+                prevUnderscore = true;
+            }
+            else
+            {
+                collapsed += c;
+                prevUnderscore = false;
+            }
+        }
+        return collapsed;
+    };
     static const auto NODE_NAME = string{ "ocio_color_conversion" };
-    const auto functionName = NODE_NAME + "_" + processor->getCacheID();
+    const string cacheID = processor->getCacheID();
+    const auto functionName = NODE_NAME + "_" + sanitizeName(sourceColorSpace) + "_to_" + sanitizeName(targetColorSpace) + "_" + cacheID.substr(0, 6);
     const auto implName = OcioColorManagementSystem::IMPL_PREFIX + functionName + "_" + transform.type.getName();
     const auto nodeDefName = ND_PREFIX + functionName + "_" + transform.type.getName();
     auto nodeDef = document->getNodeDef(nodeDefName);
