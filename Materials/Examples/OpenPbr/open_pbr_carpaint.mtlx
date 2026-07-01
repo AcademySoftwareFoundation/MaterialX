@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<materialx version="1.39" colorspace="lin_rec709">
+  <surfacematerial name="Car_Paint" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="open_pbr_surface_surfaceshader" />
+  </surfacematerial>
+  <open_pbr_surface name="open_pbr_surface_surfaceshader" type="surfaceshader">
+    <input name="base_color" type="color3" value="0.1, 0.6, 0.9" />
+    <input name="specular_ior" type="float" value="1.6" />
+    <input name="specular_roughness" type="float" value="0.3" />
+    <input name="coat_weight" type="float" value="1" />
+    <input name="coat_roughness" type="float" value="0.02" />
+    <input name="coat_ior" type="float" value="1.6" />
+  </open_pbr_surface>
+</materialx>

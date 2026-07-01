@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<materialx version="1.39" colorspace="lin_rec709">
+  <surfacematerial name="Light_Bulb" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="open_pbr_surface_surfaceshader" />
+  </surfacematerial>
+  <open_pbr_surface name="open_pbr_surface_surfaceshader" type="surfaceshader">
+    <input name="emission_color" type="color3" value="1.000, 0.415, 0.099" />
+    <input name="emission_luminance" type="float" value="10000" />
+  </open_pbr_surface>
+</materialx>
