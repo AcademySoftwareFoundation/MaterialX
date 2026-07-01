@@ -306,6 +306,7 @@ jobs:
         mkdir -p slang-release
         tar -xzf slang.tar.gz -C slang-release
         SLANGC="$PWD/slang-release/bin/slangc"
+        chmod +x "$SLANGC"
         "$SLANGC" -v || true
         python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target slang --validator "$SLANGC"
         python python/Scripts/generateshader.py resources/Materials/TestSuite/stdlib --target slang --validator "$SLANGC"
