@@ -112,6 +112,8 @@ class OslShaderRenderTester : public RenderUtil::ShaderRenderTester
             _skipFiles.insert("vertical_layering.mtlx");
             _skipFiles.insert("mix_bsdf.mtlx");
         }
+
+        RenderUtil::ShaderRenderTester::addSkipFiles();
     }
 
     bool saveImage(const mx::FilePath& filePath, mx::ConstImagePtr image, bool /*verticalFlip*/) const override
