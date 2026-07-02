@@ -128,8 +128,8 @@
     <input name="layer" type="string" value="" uiname="Layer" uniform="true" />
     <input name="default" type="float" value="0.0" uiname="Default Color" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" uiname="Texture Coordinates" />
-    <input name="uaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode U" uniform="true" />
-    <input name="vaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode V" uniform="true" />
+    <input name="uaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" enumvalues="0,1,2,3" uiname="Address Mode U" uniform="true" />
+    <input name="vaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" enumvalues="0,1,2,3" uiname="Address Mode V" uniform="true" />
     <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uiname="Filter Type" uniform="true" />
     <input name="framerange" type="string" value="" uiname="Frame Range" uniform="true" />
     <input name="frameoffset" type="integer" value="0" uiname="Frame Offset" uniform="true" />
@@ -141,8 +141,8 @@
     <input name="layer" type="string" value="" uiname="Layer" uniform="true" />
     <input name="default" type="color3" value="0.0, 0.0, 0.0" uiname="Default Color" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" uiname="Texture Coordinates" />
-    <input name="uaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode U" uniform="true" />
-    <input name="vaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode V" uniform="true" />
+    <input name="uaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" enumvalues="0,1,2,3" uiname="Address Mode U" uniform="true" />
+    <input name="vaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" enumvalues="0,1,2,3" uiname="Address Mode V" uniform="true" />
     <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uiname="Filter Type" uniform="true" />
     <input name="framerange" type="string" value="" uiname="Frame Range" uniform="true" />
     <input name="frameoffset" type="integer" value="0" uiname="Frame Offset" uniform="true" />
@@ -152,23 +152,23 @@
   <nodedef name="ND_image_color4" node="image" nodegroup="texture2d">
     <input name="file" type="filename" value="" uiname="Filename" uniform="true" />
     <input name="layer" type="string" value="" uiname="Layer" uniform="true" />
-    <input name="default" type="color4" value="0.0, 0.0, 0.0, 0.0" uiname="Default Color" />
+    <input name="default" type="color4" value="0.0, 0.0, 0.0, 1.0" uiname="Default Color" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" uiname="Texture Coordinates" />
-    <input name="uaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode U" uniform="true" />
-    <input name="vaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode V" uniform="true" />
+    <input name="uaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" enumvalues="0,1,2,3" uiname="Address Mode U" uniform="true" />
+    <input name="vaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" enumvalues="0,1,2,3" uiname="Address Mode V" uniform="true" />
     <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uiname="Filter Type" uniform="true" />
     <input name="framerange" type="string" value="" uiname="Frame Range" uniform="true" />
     <input name="frameoffset" type="integer" value="0" uiname="Frame Offset" uniform="true" />
     <input name="frameendaction" type="string" value="constant" enum="constant,clamp,periodic,mirror" uiname="Frame End Action" uniform="true" />
-    <output name="out" type="color4" default="0.0, 0.0, 0.0, 0.0" />
+    <output name="out" type="color4" default="0.0, 0.0, 0.0, 1.0" />
   </nodedef>
   <nodedef name="ND_image_vector2" node="image" nodegroup="texture2d">
     <input name="file" type="filename" value="" uiname="Filename" uniform="true" />
     <input name="layer" type="string" value="" uiname="Layer" uniform="true" />
     <input name="default" type="vector2" value="0.0, 0.0" uiname="Default Color" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" uiname="Texture Coordinates" />
-    <input name="uaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode U" uniform="true" />
-    <input name="vaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode V" uniform="true" />
+    <input name="uaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" enumvalues="0,1,2,3" uiname="Address Mode U" uniform="true" />
+    <input name="vaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" enumvalues="0,1,2,3" uiname="Address Mode V" uniform="true" />
     <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uiname="Filter Type" uniform="true" />
     <input name="framerange" type="string" value="" uiname="Frame Range" uniform="true" />
     <input name="frameoffset" type="integer" value="0" uiname="Frame Offset" uniform="true" />
@@ -180,8 +180,8 @@
     <input name="layer" type="string" value="" uiname="Layer" uniform="true" />
     <input name="default" type="vector3" value="0.0, 0.0, 0.0" uiname="Default Color" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" uiname="Texture Coordinates" />
-    <input name="uaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode U" uniform="true" />
-    <input name="vaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode V" uniform="true" />
+    <input name="uaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" enumvalues="0,1,2,3" uiname="Address Mode U" uniform="true" />
+    <input name="vaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" enumvalues="0,1,2,3" uiname="Address Mode V" uniform="true" />
     <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uiname="Filter Type" uniform="true" />
     <input name="framerange" type="string" value="" uiname="Frame Range" uniform="true" />
     <input name="frameoffset" type="integer" value="0" uiname="Frame Offset" uniform="true" />
@@ -191,15 +191,15 @@
   <nodedef name="ND_image_vector4" node="image" nodegroup="texture2d">
     <input name="file" type="filename" value="" uiname="Filename" uniform="true" />
     <input name="layer" type="string" value="" uiname="Layer" uniform="true" />
-    <input name="default" type="vector4" value="0.0, 0.0, 0.0, 0.0" uiname="Default Color" />
+    <input name="default" type="vector4" value="0.0, 0.0, 0.0, 1.0" uiname="Default Color" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" uiname="Texture Coordinates" />
-    <input name="uaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode U" uniform="true" />
-    <input name="vaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode V" uniform="true" />
+    <input name="uaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" enumvalues="0,1,2,3" uiname="Address Mode U" uniform="true" />
+    <input name="vaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" enumvalues="0,1,2,3" uiname="Address Mode V" uniform="true" />
     <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uiname="Filter Type" uniform="true" />
     <input name="framerange" type="string" value="" uiname="Frame Range" uniform="true" />
     <input name="frameoffset" type="integer" value="0" uiname="Frame Offset" uniform="true" />
     <input name="frameendaction" type="string" value="constant" enum="constant,clamp,periodic,mirror" uiname="Frame End Action" uniform="true" />
-    <output name="out" type="vector4" default="0.0, 0.0, 0.0, 0.0" />
+    <output name="out" type="vector4" default="0.0, 0.0, 0.0, 1.0" />
   </nodedef>
 
   <!--
