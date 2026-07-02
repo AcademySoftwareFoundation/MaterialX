@@ -371,3 +371,38 @@ TEST_CASE("Locale region testing", "[xmlio]")
     // Restore the original locale.
     std::locale::global(origLocale);
 }
+
+TEST_CASE("XML strictness", "[xmlio]")
+{
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::DocumentPtr stdlib = mx::createDocument();
+    mx::loadLibraries({ "libraries" }, searchPath, stdlib);
+
+    mx::DocumentPtr doc = mx::createDocument();
+    doc->setDataLibrary(stdlib);
+
+    // Create image node with illegal <> characters
+    mx::NodePtr imageNode = doc->addNode("image", "testImage");
+    imageNode->addInputsFromNodeDef();
+    mx::InputPtr fileInput = imageNode->getInput("file");
+    fileInput->setValue("<>");
+
+    // Write to string with escaped characters
+    mx::XmlWriteOptions writeOptions;
+    std::string output_string = mx::writeToXmlString(doc, &writeOptions);
+    // Make sure there are escaped characters
+    REQUIRE(output_string.find("&lt;&gt;") != std::string::npos);
+
+    // Read in the document with the escaped characters and verify that the value 
+    // is unescaped properly
+    mx::DocumentPtr readDoc = mx::createDocument();
+    readDoc->setDataLibrary(stdlib);
+    mx::readFromXmlString(readDoc , output_string);
+    imageNode = readDoc->getNode("testImage");
+    REQUIRE(imageNode != nullptr);
+    fileInput = imageNode->getInput("file");
+    REQUIRE(fileInput != nullptr);
+    std::string unescaped_string = fileInput->getValueString();
+    // There should not be any escaped characters in the value string
+    REQUIRE(unescaped_string.find("&lt;&gt;") == std::string::npos);
+}
