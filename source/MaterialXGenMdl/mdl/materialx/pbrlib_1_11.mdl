@@ -26,5 +26,280 @@
 
 mdl 1.11;
 
-// forward all unchanged definitions from the previous version
-export using .::pbrlib_1_10 import *;
+import ::anno::*;
+import ::df::*;
+import ::math::*;
+import ::state::*;
+
+import .::core::*;
+
+// Changes since MDL 1.10
+// - handle retroreflectivity in conductor_bsdf, dielectric_bsdf, and generalized_schlick_bsdf
+
+// forward unchanged definitions from the previous versions
+export using .::pbrlib_1_6 import mx_scatter_mode;
+export using .::pbrlib_1_6 import mx_sheen_mode;
+export using .::pbrlib_1_6 import mx_map_scatter_mode;
+export using .::pbrlib_1_6 import mx_burley_diffuse_bsdf;
+export using .::pbrlib_1_6 import mx_translucent_bsdf;
+export using .::pbrlib_1_6 import mx_subsurface_bsdf;
+export using .::pbrlib_1_6 import mx_thin_film_bsdf;
+export using .::pbrlib_1_6 import mx_chiang_hair_bsdf;
+export using .::pbrlib_1_6 import mx_uniform_edf;
+export using .::pbrlib_1_6 import mx_conical_edf;
+export using .::pbrlib_1_6 import mx_measured_edf;
+export using .::pbrlib_1_6 import mx_absorption_vdf;
+export using .::pbrlib_1_6 import mx_anisotropic_vdf;
+export using .::pbrlib_1_6 import mx_light;
+export using .::pbrlib_1_6 import mx_displacement_float;
+export using .::pbrlib_1_6 import mx_displacement_vector3;
+export using .::pbrlib_1_6 import volume_mix_return;
+export using .::pbrlib_1_6 import volume_mix;
+export using .::pbrlib_1_6 import mx_multiply_bsdf_color3;
+export using .::pbrlib_1_6 import mx_multiply_bsdf_float;
+export using .::pbrlib_1_6 import mx_multiply_edf_color3;
+export using .::pbrlib_1_6 import mx_multiply_edf_float;
+export using .::pbrlib_1_6 import mx_multiply_vdf_color3;
+export using .::pbrlib_1_6 import mx_multiply_vdf_float;
+export using .::pbrlib_1_6 import mx_roughness_anisotropy;
+export using .::pbrlib_1_6 import mx_roughness_dual;
+export using .::pbrlib_1_6 import mx_blackbody;
+export using .::pbrlib_1_6 import mx_artistic_ior__result;
+export using .::pbrlib_1_6 import mx_artistic_ior;
+export using .::pbrlib_1_6 import mx_deon_hair_absorption_from_melanin;
+export using .::pbrlib_1_6 import mx_chiang_hair_absorption_from_color;
+export using .::pbrlib_1_6 import mx_chiang_hair_roughness__result;
+export using .::pbrlib_1_6 import mx_chiang_hair_roughness;
+
+export using .::pbrlib_1_7 import mx_add_bsdf;
+export using .::pbrlib_1_7 import mx_add_edf;
+export using .::pbrlib_1_7 import mx_mix_edf;
+export using .::pbrlib_1_7 import mx_add_vdf;
+export using .::pbrlib_1_7 import mx_generalized_schlick_edf;
+export using .::pbrlib_1_7 import mx_volume;
+
+export using .::pbrlib_1_9 import preserve_volume_ior;
+export using .::pbrlib_1_9 import mx_mix_bsdf;
+export using .::pbrlib_1_9 import mx_mix_vdf;
+export using .::pbrlib_1_9 import mx_surface;
+
+export using .::pbrlib_1_10 import mx_f0_to_ior;
+export using .::pbrlib_1_10 import mx_oren_nayar_diffuse_bsdf;
+export using .::pbrlib_1_10 import mx_sheen_bsdf;
+
+export material mx_conductor_bsdf(
+    float  mxp_weight                = 1.0,
+    color  mxp_ior                   = color(0.18, 0.42, 1.37),
+    color  mxp_extinction            = color(3.42, 2.35, 1.77),
+    float2 mxp_roughness             = float2(0.0),
+    uniform bool mxp_retroreflective = false,
+    float3 mxp_normal                = state::normal(),
+    float3 mxp_tangent               = state::texture_tangent_u(0),
+    uniform core::mx_distribution_type mxp_distribution
+        = core::mx_distribution_type_ggx [[ anno::unused() ]],
+    float mxp_thinfilm_thickness     = 0.0,
+    float mxp_thinfilm_ior           = 1.0
+) [[
+    anno::usage( "materialx:bsdf")
+]]
+= let {
+    float coatIor = mxp_thinfilm_ior <= 0.0 ? 1.0 : mxp_thinfilm_ior;
+    df::backscatter_modifier backscatter
+        = mxp_retroreflective ? df::backscatter_reflect : df::backscatter_none;
+    bsdf ggx_model = df::microfacet_ggx_smith_bsdf(
+        roughness_u: mxp_roughness.x,
+        roughness_v: mxp_roughness.y,
+        tint: color(1.0),
+        multiscatter_tint: color(1.0),
+        tangent_u: mxp_tangent,
+        backscatter: backscatter);
+    bsdf conductor = df::fresnel_factor(
+        ior: mxp_ior,
+        extinction_coefficient: mxp_extinction,
+        base: ggx_model,
+        backscatter: backscatter);
+    bsdf thin_film_conductor = df::thin_film(
+        thickness: mxp_thinfilm_thickness,
+        ior: color(coatIor),
+        base: conductor);
+} in material(
+    surface: material_surface(
+        scattering: df::weighted_layer(
+            weight: mxp_weight,
+            layer: thin_film_conductor,
+            normal: mxp_normal
+        )
+    ),
+    ior: mxp_ior,
+);
+
+export material mx_dielectric_bsdf(
+    float  mxp_weight                = 1.0,
+    color  mxp_tint                  = color(1.0),
+    float  mxp_ior                   = 1.5,
+    float2 mxp_roughness             = float2(0.0),
+    uniform bool mxp_retroreflective = false,
+    float3 mxp_normal                = state::normal(),
+    float3 mxp_tangent               = state::texture_tangent_u(0),
+    uniform core::mx_distribution_type mxp_distribution
+        = core::mx_distribution_type_ggx [[ anno::unused() ]],
+    uniform mx_scatter_mode mxp_scatter_mode = mx_scatter_mode_R,
+    material mxp_base                = material() [[ anno::usage( "materialx:bsdf") ]], // layering
+    float mxp_top_weight             = 1.0, // layering for cases where top is scaled using a mix
+    float mxp_thinfilm_thickness     = 0.0,
+    float mxp_thinfilm_ior           = 1.0
+) [[
+    anno::usage( "materialx:bsdf")
+]]
+= let {
+    float coatIor = mxp_thinfilm_ior <= 0.0 ? 1.0 : mxp_thinfilm_ior;
+    // Fresnel layer does not work well if the base is a diffuse transmission. The energy loss is very high.
+    // Therefore we use a custom curve that approximates the Fresnel effect and does not cause energy loss.
+    // Make sure that IOR of 1.0 results in zero reflectance, independent of the roughness.
+    float root_r = (mxp_ior-1)/(mxp_ior+1);
+    float normal_refl = root_r*root_r;
+    float grazing_refl = normal_refl <= 0.0 ? 0.0 : math::max((1.0 - math::average(mxp_roughness)), 0.0);
+    df::backscatter_modifier backscatter
+        = mxp_retroreflective ? df::backscatter_reflect : df::backscatter_none;
+
+    bsdf bsdf_R = df::thin_film(
+        thickness: mxp_thinfilm_thickness,
+        ior: color(coatIor),
+        base: df::custom_curve_layer(
+            normal_reflectivity: normal_refl,
+            grazing_reflectivity: grazing_refl,
+            weight: mxp_weight,
+            layer: df::microfacet_ggx_smith_bsdf(
+                roughness_u: mxp_roughness.x,
+                roughness_v: mxp_roughness.y,
+                tint: mxp_tint * mxp_top_weight,
+                multiscatter_tint: mxp_tint * mxp_top_weight,
+                tangent_u: mxp_tangent,
+                mode: df::scatter_reflect,
+                backscatter: backscatter),
+            base: mxp_base.surface.scattering,
+            normal: mxp_normal,
+            backscatter: backscatter));
+
+    bsdf bsdf_T = df::weighted_layer(
+        weight: mxp_weight,
+        layer: df::microfacet_ggx_smith_bsdf(
+            roughness_u: mxp_roughness.x,
+            roughness_v: mxp_roughness.y,
+            tint: mxp_tint * mxp_top_weight,
+            multiscatter_tint: mxp_tint * mxp_top_weight,
+            tangent_u: mxp_tangent,
+            mode: df::scatter_transmit,
+            backscatter: df::backscatter_none),
+        normal: mxp_normal);
+
+    bsdf bsdf_RT = df::weighted_layer(
+        weight: mxp_weight,
+        layer: df::thin_film(
+            thickness: mxp_thinfilm_thickness,
+            ior: color(coatIor),
+            base: df::microfacet_ggx_smith_bsdf(
+                roughness_u: mxp_roughness.x,
+                roughness_v: mxp_roughness.y,
+                tint: mxp_tint * mxp_top_weight,
+                multiscatter_tint: mxp_tint * mxp_top_weight,
+                tangent_u: mxp_tangent,
+                mode: df::scatter_reflect_transmit,
+                backscatter: backscatter)),
+        normal: mxp_normal);
+
+    bsdf bsdf_selected = (mxp_scatter_mode == mx_scatter_mode_R) ? bsdf_R :
+                         ((mxp_scatter_mode == mx_scatter_mode_T) ? bsdf_T : bsdf_RT);
+} in material(
+    surface: material_surface(
+        scattering: bsdf_selected
+    ),
+    // we need to preserve volume properties, e.g. for SSS
+    ior: preserve_volume_ior(mxp_scatter_mode, mxp_weight, color(mxp_ior), mxp_base.ior),
+    volume: mxp_base.volume
+);
+
+export material mx_generalized_schlick_bsdf(
+    float  mxp_weight                = 1.0,
+    color  mxp_color0                = color(1.0),
+    color  mxp_color82               = color(1.0),
+    color  mxp_color90               = color(1.0),
+    float  mxp_exponent              = 5.0,
+    float2 mxp_roughness             = float2(0.05),
+    uniform bool mxp_retroreflective = false,
+    float3 mxp_normal                = state::normal(),
+    float3 mxp_tangent               = state::texture_tangent_u(0),
+    uniform core::mx_distribution_type mxp_distribution
+        = core::mx_distribution_type_ggx [[ anno::unused() ]],
+    uniform mx_scatter_mode mxp_scatter_mode = mx_scatter_mode_R,
+    material mxp_base                = material() [[ anno::usage( "materialx:bsdf") ]], // layering
+    float mxp_top_weight             = 1.0, // layering for cases where top is scaled using a mix
+    float mxp_thinfilm_thickness     = 0.0,
+    float mxp_thinfilm_ior           = 1.0
+) [[
+    anno::usage( "materialx:bsdf")
+]]
+= let {
+    float coatIor = mxp_thinfilm_ior <= 0.0 ? 1.0 : mxp_thinfilm_ior;
+    df::backscatter_modifier backscatter
+        = mxp_retroreflective ? df::backscatter_reflect : df::backscatter_none;
+
+    bsdf ggx_model_R = df::microfacet_ggx_smith_bsdf(
+        roughness_u: mxp_roughness.x,
+        roughness_v: mxp_roughness.y,
+        tint: color(1.0) * mxp_top_weight,
+        multiscatter_tint: color(1.0) * mxp_top_weight,
+        tangent_u: mxp_tangent,
+        mode: df::scatter_reflect,
+        backscatter: backscatter);
+
+    bsdf ggx_model_T = df::microfacet_ggx_smith_bsdf(
+        roughness_u: mxp_roughness.x,
+        roughness_v: mxp_roughness.y,
+        tint: color(1.0) * mxp_top_weight,
+        multiscatter_tint: color(1.0) * mxp_top_weight,
+        tangent_u: mxp_tangent,
+        mode: df::scatter_transmit,
+        backscatter: df::backscatter_none);
+
+} in material(
+    surface: material_surface(
+        scattering: df::unbounded_mix(
+            df::bsdf_component[](
+            df::bsdf_component(
+                mxp_weight,
+                mxp_scatter_mode == mx_scatter_mode_T
+                ? df::color_custom_curve_layer(
+                    normal_reflectivity: mxp_color0,
+                    grazing_reflectivity: mxp_color90,
+                    f82_factor: mxp_color82,
+                    exponent: mxp_exponent,
+                    layer: bsdf(),
+                    base: ggx_model_T,
+                    normal: mxp_normal,
+                    backscatter: df::backscatter_none)
+                : df::thin_film(
+                    thickness: mxp_thinfilm_thickness,
+                    ior: color(coatIor),
+                    base: df::color_custom_curve_layer(
+                        normal_reflectivity: mxp_color0,
+                        grazing_reflectivity: mxp_color90,
+                        f82_factor: mxp_color82,
+                        exponent: mxp_exponent,
+                        layer: ggx_model_R,
+                        base: mxp_scatter_mode == mx_scatter_mode_R
+                            ? mxp_base.surface.scattering
+                            : ggx_model_T,
+                        normal: mxp_normal,
+                        backscatter: backscatter))
+                ),
+            df::bsdf_component(
+                1.0 - mxp_weight,
+                mxp_base.surface.scattering)
+            )
+        )
+    ),
+    // we need to preserve volume properties, e.g. for SSS
+    ior: preserve_volume_ior(mxp_scatter_mode, mxp_weight, mx_f0_to_ior(mxp_color0), mxp_base.ior),
+    volume: mxp_base.volume
+);
