@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 '''
 Generate shader code for each renderable element in a MaterialX document or folder.
-The currently supported target languages are GLSL, ESSL, MSL, OSL, and MDL.
+The currently supported target languages are GLSL, ESSL, Vulkan, WGSL, MSL, Slang, OSL, and MDL.
 '''
 
 import sys, os, argparse, subprocess
@@ -47,7 +47,7 @@ def main():
     parser = argparse.ArgumentParser(description='Generate shader code for each renderable element in a MaterialX document or folder.')
     parser.add_argument('--path', dest='paths', action='append', nargs='+', help='An additional absolute search path location (e.g. "/projects/MaterialX")')
     parser.add_argument('--library', dest='libraries', action='append', nargs='+', help='An additional relative path to a custom data library folder (e.g. "libraries/custom")')
-    parser.add_argument('--target', dest='target', default='glsl', help='Target shader generator to use (e.g. "glsl, osl, mdl, essl, vulkan, wgsl"). Default is glsl.')
+    parser.add_argument('--target', dest='target', default='glsl', help='Target shader generator to use (e.g. "glsl, essl, vulkan, wgsl, msl, slang, osl, mdl"). Default is glsl.')
     parser.add_argument('--outputPath', dest='outputPath', help='File path to output shaders to. If not specified, is the location of the input document is used.')
     parser.add_argument('--validator', dest='validator', nargs='?', const=' ', type=str, help='Name of executable to perform source code validation.')
     parser.add_argument('--validatorArgs', dest='validatorArgs', nargs='?', const=' ', type=str, help='Optional arguments for code validator.')
@@ -158,7 +158,7 @@ def main():
             if shader:
                 # Use extension of .vert and .frag as it's type is
                 # recognized by glslangValidator
-                if gentarget in ['glsl', 'essl', 'vulkan', 'msl', 'wgsl']:
+                if gentarget in ['glsl', 'essl', 'vulkan', 'msl', 'wgsl', 'slang']:
                     pixelSource = shader.getSourceCode(mx_gen_shader.PIXEL_STAGE)
                     filename = pathPrefix + "/" + shader.getName() + "." + gentarget + ".frag"
                     print('--- Wrote pixel shader to: ' + filename)
