@@ -581,14 +581,14 @@ Nodes are individual data generation or processing "blocks".  Node functionality
 Individual node elements have the form:
 
 ```xml
-  <nodecategory name="nodename" type="outputdatatype" [version="version"]
+  <node name="nodename" nodetype="nodecategory" type="outputdatatype" [version="version"]
                [nodedef="nodedef_name"]>
     <input name="inputname" type="type" [nodename="nodename"] [value="value"]/>
     ...additional input or token elements...
-  </nodecategory>
+  </node>
 ```
 
-where _nodecategory_ is the general "category" of the node (e.g. "image", "add" or "mix"), `name` (string, required) defines the name of this instance of the node, which must be unique within the scope it appears in, and `type` (string, required) specifies the MaterialX type (typically float, color<em>N</em>, or vector<em>N</em>) of the output of that node.  If the application uses a different name for this instance of the node in the user interface, a `uiname` attribute may be added to the &lt;_nodecategory_> element to indicate the name of the node as it appears to the user.
+where _nodecategory_ is the general "category" of the node (e.g. "image", "add" or "mix"), `name` (string, required) defines the name of this instance of the node, which must be unique within the scope it appears in, and `type` (string, required) specifies the MaterialX type (typically float, color<em>N</em>, or vector<em>N</em>) of the output of that node.  If there are more than outputs for the node the output type is `multioutput`. If the application uses a different name for this instance of the node in the user interface, a `uiname` attribute may be added to the &lt;_node_> element to indicate the name of the node as it appears to the user.
 
 Node elements may optionally specify a `version` string attribute in "_major_[._minor_]" format, requesting that a specific version of that node's definition be used instead of the default version.  Normally, the types of a node's inputs and outputs are sufficient to disambiguate which signature of the applicable version of a node is intended, but if necessary, a node instantiation may also declare a specific nodedef name to precisely define exactly which node signature is desired.  Please refer to the [Custom Node Declaration NodeDef Elements](#custom-node-declaration-nodedef-elements) section below for further details.
 
