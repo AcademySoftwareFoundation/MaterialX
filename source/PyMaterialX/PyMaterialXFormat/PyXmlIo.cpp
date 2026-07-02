@@ -24,6 +24,7 @@ void bindPyXmlIo(py::module& mod)
     py::class_<mx::XmlWriteOptions>(mod, "XmlWriteOptions")
         .def(py::init())
         .def_readwrite("writeXIncludeEnable", &mx::XmlWriteOptions::writeXIncludeEnable)
+        .def_readwrite("writeNodeInstanceAsNode", &mx::XmlWriteOptions::writeNodeInstanceAsNode)
         .def_readwrite("elementPredicate", &mx::XmlWriteOptions::elementPredicate);
 
     mod.def("readFromXmlFileBase", &mx::readFromXmlFile,
