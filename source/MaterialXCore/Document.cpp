@@ -69,6 +69,13 @@ class Document::Cache
         return (it != _implementationMap.end()) ? it->second : vector<InterfaceElementPtr>();
     }
 
+    ImplementationPtr getImplementationForNodeGraph(const string& nodeGraphName)
+    {
+        auto lock = refreshWithLock();
+        auto it = _nodeGraphImplMap.find(nodeGraphName);
+        return (it != _nodeGraphImplMap.end()) ? it->second : ImplementationPtr();
+    }
+
   private:
     std::shared_lock<std::shared_mutex> refreshWithLock()
     {
@@ -103,6 +110,7 @@ class Document::Cache
         _portElementMap.clear();
         _nodeDefMap.clear();
         _implementationMap.clear();
+        _nodeGraphImplMap.clear();
 
         // Traverse the document to build a new cache.
         for (ElementPtr elem : doc->traverseTree())
@@ -119,6 +127,14 @@ class Document::Cache
                 if (portElem)
                 {
                     _portElementMap[portElem->getQualifiedName(portKey)].push_back(portElem);
+                }
+            }
+            if (!nodeGraphName.empty())
+            {
+                ImplementationPtr impl = elem->asA<Implementation>();
+                if (impl)
+                {
+                    _nodeGraphImplMap[impl->getQualifiedName(nodeGraphName)] = impl;
                 }
             }
             if (!nodeString.empty())
@@ -152,6 +168,7 @@ class Document::Cache
     std::unordered_map<string, std::vector<PortElementPtr>> _portElementMap;
     std::unordered_map<string, std::vector<NodeDefPtr>> _nodeDefMap;
     std::unordered_map<string, std::vector<InterfaceElementPtr>> _implementationMap;
+    std::unordered_map<string, ImplementationPtr> _nodeGraphImplMap;
 };
 
 //
@@ -378,9 +395,7 @@ vector<OutputPtr> Document::getMaterialOutputs() const
 vector<NodeDefPtr> Document::getMatchingNodeDefs(const string& nodeName) const
 {
     // Recurse to data library if present.
-    vector<NodeDefPtr> matchingNodeDefs = hasDataLibrary() ?
-                                          getDataLibrary()->getMatchingNodeDefs(nodeName) :
-                                          vector<NodeDefPtr>();
+    vector<NodeDefPtr> matchingNodeDefs = hasDataLibrary() ? getDataLibrary()->getMatchingNodeDefs(nodeName) : vector<NodeDefPtr>();
 
     // Append all nodedefs matching the given node name.
     vector<NodeDefPtr> localNodeDefs = _cache->getMatchingNodeDefs(nodeName);
@@ -392,15 +407,26 @@ vector<NodeDefPtr> Document::getMatchingNodeDefs(const string& nodeName) const
 vector<InterfaceElementPtr> Document::getMatchingImplementations(const string& nodeDef) const
 {
     // Recurse to data library if present.
-    vector<InterfaceElementPtr> matchingImplementations = hasDataLibrary() ?
-                                                          getDataLibrary()->getMatchingImplementations(nodeDef) :
-                                                          vector<InterfaceElementPtr>();
+    vector<InterfaceElementPtr> matchingImplementations = hasDataLibrary() ? getDataLibrary()->getMatchingImplementations(nodeDef) : vector<InterfaceElementPtr>();
 
     // Append all implementations matching the given nodedef string.
     vector<InterfaceElementPtr> localImpls = _cache->getMatchingImplementations(nodeDef);
     matchingImplementations.insert(matchingImplementations.end(), localImpls.begin(), localImpls.end());
 
     return matchingImplementations;
+}
+
+ImplementationPtr Document::getImplementationForNodeGraph(const string& nodeGraphName) const
+{
+    if (hasDataLibrary())
+    {
+        ImplementationPtr impl = getDataLibrary()->getImplementationForNodeGraph(nodeGraphName);
+        if (impl)
+        {
+            return impl;
+        }
+    }
+    return _cache->getImplementationForNodeGraph(nodeGraphName);
 }
 
 bool Document::validate(string* message) const
