@@ -10,7 +10,7 @@
 /// Vulkan GLSL shader generator
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
-#include <MaterialXGenGlsl/VkResourceBindingContext.h>
+#include <MaterialXGenGlsl/vk/VkResourceBindingContext.h>
 
 MATERIALX_NAMESPACE_BEGIN
 

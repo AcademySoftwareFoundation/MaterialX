@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXGenGlsl/WgslShaderGenerator.h>
+#include <MaterialXGenGlsl/wgsl/WgslShaderGenerator.h>
 #include <MaterialXGenShader/Util.h>
 
 #include <emscripten/bind.h>

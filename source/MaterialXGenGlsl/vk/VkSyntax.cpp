@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXGenGlsl/VkSyntax.h>
+#include <MaterialXGenGlsl/vk/VkSyntax.h>
 
 MATERIALX_NAMESPACE_BEGIN
 

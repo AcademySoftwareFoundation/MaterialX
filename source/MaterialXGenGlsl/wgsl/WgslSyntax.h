@@ -9,7 +9,7 @@
 /// @file
 /// Vulkan GLSL syntax class for WGSL
 
-#include <MaterialXGenGlsl/VkSyntax.h>
+#include <MaterialXGenGlsl/vk/VkSyntax.h>
 
 MATERIALX_NAMESPACE_BEGIN
 

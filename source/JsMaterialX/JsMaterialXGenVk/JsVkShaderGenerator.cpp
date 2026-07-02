@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXGenGlsl/VkShaderGenerator.h>
+#include <MaterialXGenGlsl/vk/VkShaderGenerator.h>
 #include <MaterialXGenShader/Util.h>
 
 #include <emscripten/bind.h>
