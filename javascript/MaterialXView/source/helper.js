@@ -21,7 +21,9 @@ export function prepareEnvTexture(texture, capabilities)
 {
     let newTexture = new THREE.DataTexture(texture.image.data, texture.image.width, texture.image.height, texture.format, texture.type);
     newTexture.wrapS = THREE.RepeatWrapping;
-    newTexture.anisotropy = capabilities.getMaxAnisotropy();
+    // WebGLRenderer exposes getMaxAnisotropy(); guard for WebGPURenderer capabilities.
+    newTexture.anisotropy = (capabilities && typeof capabilities.getMaxAnisotropy === 'function')
+        ? capabilities.getMaxAnisotropy() : 1;
     newTexture.minFilter = THREE.LinearMipmapLinearFilter;
     newTexture.magFilter = THREE.LinearFilter;
     newTexture.generateMipmaps = true;
@@ -270,7 +272,9 @@ export function getLightRotation()
 export function findLights(doc)
 {
     let lights = [];
-    for (let node of doc.getNodes())
+    const nodes = doc.getNodes();
+    if (!nodes) return lights;
+    for (let node of nodes)
     {
         if (node.getType() === "lightshader")
             lights.push(node);
@@ -292,6 +296,7 @@ export function registerLights(mx, lights, genContext)
     const lightTypesBound = {};
     const lightData = [];
     let lightId = 1;
+    if (!lights) return lightData;
     for (let light of lights)
     {
         let nodeDef = light.getNodeDef();
