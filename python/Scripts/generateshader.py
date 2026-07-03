@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 '''
 Generate shader code for each renderable element in a MaterialX document or folder.
-The currently supported target languages are GLSL, ESSL, MSL, OSL, and MDL.
+The currently supported target languages are GLSL, ESSL, MSL, OSL, MDL, Slang, and WGSL.
 '''
 
 import sys, os, argparse, subprocess
@@ -12,6 +12,7 @@ import MaterialX.PyMaterialXGenMdl as mx_gen_mdl
 import MaterialX.PyMaterialXGenMsl as mx_gen_msl
 import MaterialX.PyMaterialXGenOsl as mx_gen_osl
 import MaterialX.PyMaterialXGenSlang as mx_gen_slang
+import MaterialX.PyMaterialXGenWgsl as mx_gen_wgsl
 import MaterialX.PyMaterialXGenShader as mx_gen_shader
 
 def validateCode(sourceCodeFile, codevalidator, codevalidatorArgs):
@@ -100,7 +101,7 @@ def main():
         elif gentarget == 'vulkan':
             shadergen = mx_gen_glsl.VkShaderGenerator.create()
         elif gentarget == 'wgsl':
-            shadergen = mx_gen_glsl.WgslShaderGenerator.create()
+            shadergen = mx_gen_wgsl.WgslShaderGenerator.create()
         elif gentarget == 'msl':
             shadergen = mx_gen_msl.MslShaderGenerator.create()
         elif gentarget == 'slang':
