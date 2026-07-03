@@ -14,7 +14,8 @@ if(MATERIALX_BUILD_DATA_LIBRARY)
          *.osl
          *.h
          *.metal
-         *.slang)
+         *.slang
+         *.wgsl)
 
     foreach(SOURCE_FILE IN LISTS MATERIALX_DATA_LIBRARY_SOURCE_FILES)
         set(SOURCE_FILEPATH ${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE_FILE})
