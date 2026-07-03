@@ -1,0 +1,89 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+
+  <!-- <oren_nayar_diffuse_bsdf> -->
+  <implementation name="IM_oren_nayar_diffuse_bsdf_genwgsl" nodedef="ND_oren_nayar_diffuse_bsdf" file="mx_oren_nayar_diffuse_bsdf.wgsl" function="mx_oren_nayar_diffuse_bsdf" target="genwgsl" />
+
+  <!-- <burley_diffuse_bsdf> -->
+  <implementation name="IM_burley_diffuse_bsdf_genwgsl" nodedef="ND_burley_diffuse_bsdf" file="mx_burley_diffuse_bsdf.wgsl" function="mx_burley_diffuse_bsdf" target="genwgsl" />
+
+  <!-- <translucent_bsdf> -->
+  <implementation name="IM_translucent_bsdf_genwgsl" nodedef="ND_translucent_bsdf" file="mx_translucent_bsdf.wgsl" function="mx_translucent_bsdf" target="genwgsl" />
+
+  <!-- <dielectric_bsdf> -->
+  <implementation name="IM_dielectric_bsdf_genwgsl" nodedef="ND_dielectric_bsdf" file="mx_dielectric_bsdf.wgsl" function="mx_dielectric_bsdf" target="genwgsl" />
+
+  <!-- <conductor_bsdf> -->
+  <implementation name="IM_conductor_bsdf_genwgsl" nodedef="ND_conductor_bsdf" file="mx_conductor_bsdf.wgsl" function="mx_conductor_bsdf" target="genwgsl" />
+
+  <!-- <generalized_schlick_bsdf> -->
+  <implementation name="IM_generalized_schlick_bsdf_genwgsl" nodedef="ND_generalized_schlick_bsdf" file="mx_generalized_schlick_bsdf.wgsl" function="mx_generalized_schlick_bsdf" target="genwgsl" />
+
+  <!-- <subsurface_bsdf> -->
+  <implementation name="IM_subsurface_bsdf_genwgsl" nodedef="ND_subsurface_bsdf" file="mx_subsurface_bsdf.wgsl" function="mx_subsurface_bsdf" target="genwgsl" />
+
+  <!-- <sheen_bsdf> -->
+  <implementation name="IM_sheen_bsdf_genwgsl" nodedef="ND_sheen_bsdf" file="mx_sheen_bsdf.wgsl" function="mx_sheen_bsdf" target="genwgsl" />
+
+  <!-- <chiang_hair_bsdf> -->
+  <implementation name="IM_chiang_hair_bsdf_genwgsl" nodedef="ND_chiang_hair_bsdf" file="mx_chiang_hair_bsdf.wgsl" function="mx_chiang_hair_bsdf" target="genwgsl" />
+
+  <!-- <anisotropic_vdf> -->
+  <implementation name="IM_anisotropic_vdf_genwgsl" nodedef="ND_anisotropic_vdf" file="mx_anisotropic_vdf.wgsl" function="mx_anisotropic_vdf" target="genwgsl" />
+
+  <!-- <layer> -->
+  <implementation name="IM_layer_bsdf_genwgsl" nodedef="ND_layer_bsdf" file="mx_layer_bsdf.wgsl" function="mx_layer_bsdf" target="genwgsl" />
+  <implementation name="IM_layer_vdf_genwgsl" nodedef="ND_layer_vdf" file="mx_layer_vdf.wgsl" function="mx_layer_vdf" target="genwgsl" />
+
+  <!-- <mix> -->
+  <implementation name="IM_mix_bsdf_genwgsl" nodedef="ND_mix_bsdf" file="mx_mix_bsdf.wgsl" function="mx_mix_bsdf" target="genwgsl" />
+  <implementation name="IM_mix_edf_genwgsl" nodedef="ND_mix_edf" file="mx_mix_edf.wgsl" function="mx_mix_edf" target="genwgsl" />
+
+  <!-- <add> -->
+  <implementation name="IM_add_bsdf_genwgsl" nodedef="ND_add_bsdf" file="mx_add_bsdf.wgsl" function="mx_add_bsdf" target="genwgsl" />
+  <implementation name="IM_add_edf_genwgsl" nodedef="ND_add_edf" file="mx_add_edf.wgsl" function="mx_add_edf" target="genwgsl" />
+
+  <!-- <multiply> -->
+  <implementation name="IM_multiply_bsdfC_genwgsl" nodedef="ND_multiply_bsdfC" file="mx_multiply_bsdf_color3.wgsl" function="mx_multiply_bsdf_color3" target="genwgsl" />
+  <implementation name="IM_multiply_bsdfF_genwgsl" nodedef="ND_multiply_bsdfF" file="mx_multiply_bsdf_float.wgsl" function="mx_multiply_bsdf_float" target="genwgsl" />
+  <implementation name="IM_multiply_edfC_genwgsl" nodedef="ND_multiply_edfC" file="mx_multiply_edf_color3.wgsl" function="mx_multiply_edf_color3" target="genwgsl" />
+  <implementation name="IM_multiply_edfF_genwgsl" nodedef="ND_multiply_edfF" file="mx_multiply_edf_float.wgsl" function="mx_multiply_edf_float" target="genwgsl" />
+
+  <!-- <uniform_edf> -->
+  <implementation name="IM_uniform_edf_genwgsl" nodedef="ND_uniform_edf" file="mx_uniform_edf.wgsl" function="mx_uniform_edf" target="genwgsl" />
+
+  <!-- <generalized_schlick_edf> -->
+  <implementation name="IM_generalized_schlick_edf_genwgsl" nodedef="ND_generalized_schlick_edf" file="mx_generalized_schlick_edf.wgsl" function="mx_generalized_schlick_edf" target="genwgsl" />
+
+  <!-- <surface> -->
+  <implementation name="IM_surface_genwgsl" nodedef="ND_surface" target="genwgsl" />
+
+  <!-- <displacement> -->
+  <implementation name="IM_displacement_float_genwgsl" nodedef="ND_displacement_float" file="mx_displacement_float.wgsl" function="mx_displacement_float" target="genwgsl" />
+  <implementation name="IM_displacement_vector3_genwgsl" nodedef="ND_displacement_vector3" file="mx_displacement_vector3.wgsl" function="mx_displacement_vector3" target="genwgsl" />
+
+  <!-- <light> -->
+  <implementation name="IM_light_genwgsl" nodedef="ND_light" target="genwgsl" />
+
+  <!-- <roughness_anisotropy> -->
+  <implementation name="IM_roughness_anisotropy_genwgsl" nodedef="ND_roughness_anisotropy" file="mx_roughness_anisotropy.wgsl" function="mx_roughness_anisotropy" target="genwgsl" />
+
+  <!-- <roughness_dual> -->
+  <implementation name="IM_roughness_dual_genwgsl" nodedef="ND_roughness_dual" file="mx_roughness_dual.wgsl" function="mx_roughness_dual" target="genwgsl" />
+
+  <!-- <artistic_ior> -->
+  <implementation name="IM_artistic_ior_genwgsl" nodedef="ND_artistic_ior" file="mx_artistic_ior.wgsl" function="mx_artistic_ior" target="genwgsl" />
+
+  <!-- <blackbody> -->
+  <implementation name="IM_blackbody_genwgsl" nodedef="ND_blackbody" file="mx_blackbody.wgsl" function="mx_blackbody" target="genwgsl" />
+
+  <!-- <deon_hair_absorption_from_melanin -->
+  <implementation name="IM_deon_hair_absorption_from_melanin_genwgsl" nodedef="ND_deon_hair_absorption_from_melanin" file="mx_chiang_hair_bsdf.wgsl" function="mx_deon_hair_absorption_from_melanin" target="genwgsl" />
+
+  <!-- <chiang_hair_absorption_from_color -->
+  <implementation name="IM_chiang_hair_absorption_from_color_genwgsl" nodedef="ND_chiang_hair_absorption_from_color" file="mx_chiang_hair_bsdf.wgsl" function="mx_chiang_hair_absorption_from_color" target="genwgsl" />
+
+  <!-- <chiang_hair_roughness -->
+  <implementation name="IM_chiang_hair_roughness_genwgsl" nodedef="ND_chiang_hair_roughness" file="mx_chiang_hair_bsdf.wgsl" function="mx_chiang_hair_roughness" target="genwgsl" />
+
+</materialx>
