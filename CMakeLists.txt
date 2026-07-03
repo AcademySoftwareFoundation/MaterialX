@@ -44,6 +44,7 @@ option(MATERIALX_BUILD_GEN_MDL "Build the MDL shader generator back-end." ON)
 option(MATERIALX_BUILD_GEN_MSL "Build the MSL shader generator back-end." ON)
 option(MATERIALX_BUILD_GEN_SLANG "Build the Slang shader generator back-end." ON)
 option(MATERIALX_BUILD_GEN_WGSL "Build the WGSL (WebGPU) shader generator back-end." ON)
+option(MATERIALX_GENERATE_WGSL_LIBRARY "Regenerate the genwgsl shader-node library from genglsl at build time (requires Python and naga); surfaces transpile/validation failures as build errors." OFF)
 option(MATERIALX_BUILD_RENDER "Build the MaterialX Render modules." ON)
 option(MATERIALX_BUILD_RENDER_PLATFORMS "Build platform-specific render modules for each shader generator." ON)
 option(MATERIALX_BUILD_OIIO "Build OpenImageIO support for MaterialXRender." OFF)
@@ -127,6 +128,8 @@ set(MATERIALX_PYTHON_EXECUTABLE "" CACHE FILEPATH
     "Python executable to be used in building the MaterialX Python package (e.g. 'C:/Python39/python.exe').")
 set(MATERIALX_PYTHON_PYBIND11_DIR "" CACHE PATH
     "Path to a folder containing the PyBind11 source to be used in building MaterialX Python.")
+set(MATERIALX_CARGO_PATH "" CACHE PATH
+    "Path to a Rust cargo installation (the CARGO_HOME directory containing bin/cargo, e.g. '~/.cargo'); used to obtain the naga CLI when MATERIALX_GENERATE_WGSL_LIBRARY is on and naga is not already found.")
 option(MATERIALX_PYTHON_FORCE_REPLACE_DOCS "Force replace existing docstrings when generating Python binding documentation from Doxygen." OFF)
 
 # Settings to define installation layout
@@ -178,6 +181,8 @@ mark_as_advanced(MATERIALX_BUILD_DOCS)
 mark_as_advanced(MATERIALX_BUILD_GEN_GLSL)
 mark_as_advanced(MATERIALX_BUILD_GEN_SLANG)
 mark_as_advanced(MATERIALX_BUILD_GEN_WGSL)
+mark_as_advanced(MATERIALX_GENERATE_WGSL_LIBRARY)
+mark_as_advanced(MATERIALX_CARGO_PATH)
 mark_as_advanced(MATERIALX_BUILD_GEN_OSL)
 mark_as_advanced(MATERIALX_BUILD_GEN_MDL)
 mark_as_advanced(MATERIALX_BUILD_GEN_MSL)
