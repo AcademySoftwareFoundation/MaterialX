@@ -39,7 +39,6 @@ jobs:
           compiler: gcc
           compiler_version: "14"
           python: 3.13
-          generate_wgsl: ON
           extended_build_perfetto: ON
           extended_cmake_config: -DMATERIALX_BUILD_PERFETTO_TRACING=ON
 
@@ -96,7 +95,6 @@ jobs:
           python: 3.14
           test_shaders: ON
           static_analysis: ON
-          generate_wgsl: ON
           cmake_config: -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
         - name: MacOS_Xcode_DynamicAnalysis
@@ -134,7 +132,6 @@ jobs:
           python: 3.14
           cmake_config: -G "Visual Studio 17 2022" -A "x64"
           test_shaders: ON
-          generate_wgsl: ON
           extended_build_oiio: ON
           extended_cmake_config: -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DMATERIALX_BUILD_OIIO=ON
 
@@ -244,11 +241,11 @@ jobs:
       run: find source \( -name *.h -o -name *.cpp -o -name *.mm -o -name *.inl \) ! -path "*/External/*" ! -path "*/NanoGUI/*" | xargs clang-format -i --verbose
 
     - name: Install naga
-      if: matrix.generate_wgsl == 'ON'
+      if: matrix.python != 'None'
       run: cargo install naga-cli --locked --version ${{ env.NAGA_VERSION }}
 
     - name: Generate WGSL library
-      if: matrix.generate_wgsl == 'ON'
+      if: matrix.python != 'None'
       run: python source/MaterialXGenWgsl/tools/glsl_to_wgsl.py --libraries libraries --out libraries
 
     - name: CMake Generate
@@ -259,7 +256,7 @@ jobs:
           -DMATERIALX_BUILD_PYTHON=ON \
           -DMATERIALX_BUILD_TESTS=ON \
           -DMATERIALX_TEST_RENDER=${{ matrix.extended_build_osl == 'ON' && 'ON' || 'OFF' }} \
-          -DMATERIALX_BUILD_GEN_WGSL=${{ matrix.generate_wgsl == 'ON' && 'ON' || 'OFF' }} \
+          -DMATERIALX_BUILD_GEN_WGSL=${{ matrix.python != 'None' && 'ON' || 'OFF' }} \
           -DMATERIALX_WARNINGS_AS_ERRORS=ON \
           ${{ env.IS_EXTENDED_BUILD == 'true' && matrix.extended_cmake_config || '' }} \
           ${{ matrix.cmake_config }} \
@@ -288,9 +285,7 @@ jobs:
         python Scripts/mxdoc.py --docType html ../libraries/bxdf/standard_surface.mtlx
         python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target glsl
         python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target vulkan
-        if: matrix.generate_wgsl == 'ON'
-          run: |
-            python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target wgsl
+        python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target wgsl
         python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target osl
         python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target mdl
         python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target msl
