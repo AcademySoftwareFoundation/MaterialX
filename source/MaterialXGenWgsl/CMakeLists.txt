@@ -15,7 +15,9 @@ mx_add_library(MaterialXGenWgsl
 # Optional build-time regeneration of the genwgsl shader-node library from genglsl. This runs the
 # offline transpiler (tools/glsl_to_wgsl.py) over libraries/ into the build tree purely for
 # validation: transpile or naga errors -- and any previously-generable node that regresses -- make
-# the build fail. The committed genwgsl .wgsl files remain the source of truth (the output goes to
+# the build fail. The generated genwgsl .wgsl node files are NOT committed; they are produced from
+# genglsl (the single source of truth) by CI, which runs the transpiler with `--out libraries` to
+# populate the runtime library. This target is a decoupled local validation aid only (output goes to
 # the build dir, not the source tree). Requires a Python interpreter and the `naga` CLI.
 if(MATERIALX_GENERATE_WGSL_LIBRARY)
     if(MATERIALX_PYTHON_EXECUTABLE)

@@ -14,6 +14,7 @@ permissions:
 env:
   CMAKE_BUILD_PARALLEL_LEVEL: 4
   CTEST_PARALLEL_LEVEL: 4
+  NAGA_VERSION: "29.0.0"
 
 jobs:
 
@@ -38,6 +39,7 @@ jobs:
           compiler: gcc
           compiler_version: "14"
           python: 3.13
+          generate_wgsl: ON
           extended_build_perfetto: ON
           extended_cmake_config: -DMATERIALX_BUILD_PERFETTO_TRACING=ON
 
@@ -94,6 +96,7 @@ jobs:
           python: 3.14
           test_shaders: ON
           static_analysis: ON
+          generate_wgsl: ON
           cmake_config: -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
         - name: MacOS_Xcode_DynamicAnalysis
@@ -131,6 +134,7 @@ jobs:
           python: 3.14
           cmake_config: -G "Visual Studio 17 2022" -A "x64"
           test_shaders: ON
+          generate_wgsl: ON
           extended_build_oiio: ON
           extended_cmake_config: -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DMATERIALX_BUILD_OIIO=ON
 
@@ -239,6 +243,14 @@ jobs:
       if: matrix.clang_format == 'ON'
       run: find source \( -name *.h -o -name *.cpp -o -name *.mm -o -name *.inl \) ! -path "*/External/*" ! -path "*/NanoGUI/*" | xargs clang-format -i --verbose
 
+    - name: Install naga
+      if: matrix.generate_wgsl == 'ON'
+      run: cargo install naga-cli --locked --version ${{ env.NAGA_VERSION }}
+
+    - name: Generate WGSL library
+      if: matrix.generate_wgsl == 'ON'
+      run: python source/MaterialXGenWgsl/tools/glsl_to_wgsl.py --libraries libraries --out libraries
+
     - name: CMake Generate
       shell: bash
       run: |
@@ -247,6 +259,7 @@ jobs:
           -DMATERIALX_BUILD_PYTHON=ON \
           -DMATERIALX_BUILD_TESTS=ON \
           -DMATERIALX_TEST_RENDER=${{ matrix.extended_build_osl == 'ON' && 'ON' || 'OFF' }} \
+          -DMATERIALX_BUILD_GEN_WGSL=${{ matrix.generate_wgsl == 'ON' && 'ON' || 'OFF' }} \
           -DMATERIALX_WARNINGS_AS_ERRORS=ON \
           ${{ env.IS_EXTENDED_BUILD == 'true' && matrix.extended_cmake_config || '' }} \
           ${{ matrix.cmake_config }} \
@@ -275,7 +288,9 @@ jobs:
         python Scripts/mxdoc.py --docType html ../libraries/bxdf/standard_surface.mtlx
         python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target glsl
         python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target vulkan
-        python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target wgsl
+        if: matrix.generate_wgsl == 'ON'
+          run: |
+            python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target wgsl
         python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target osl
         python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target mdl
         python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target msl
@@ -290,7 +305,6 @@ jobs:
         python python/Scripts/generateshader.py resources/Materials/Examples --target glsl --validator C:/vcpkg/installed/x64-windows-release/tools/glslang/glslangValidator.exe
         python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target essl --validator C:/vcpkg/installed/x64-windows-release/tools/glslang/glslangValidator.exe
         python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target vulkan --validator C:/vcpkg/installed/x64-windows-release/tools/glslang/glslangValidator.exe
-        # Native genwgsl emits WGSL; glslangValidator is GLSL/SPIR-V only — re-enable with naga when wired in CI.
 
     - name: Shader Validation Tests (MacOS)
       if: matrix.test_shaders == 'ON' && runner.os == 'macOS'
@@ -459,8 +473,19 @@ jobs:
       with:
          node-version: '22.16.0'
 
+    - name: Install naga
+      run: cargo install naga-cli --locked --version ${{ env.NAGA_VERSION }}
+
+    - name: Install Python
+      uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
+      with:
+        python-version: 3.13
+
+    - name: Generate WGSL library
+      run: python source/MaterialXGenWgsl/tools/glsl_to_wgsl.py --libraries libraries --out libraries
+
     - name: JavaScript CMake Generate
-      run: cmake -S . -B javascript/build -DMATERIALX_BUILD_JS=ON -DMATERIALX_EMSDK_PATH=${{ env.EMSDK }}
+      run: cmake -S . -B javascript/build -DMATERIALX_BUILD_JS=ON -DMATERIALX_BUILD_GEN_WGSL=ON -DMATERIALX_EMSDK_PATH=${{ env.EMSDK }}
 
     - name: JavaScript CMake Build
       run: cmake --build javascript/build --target install --config Release
@@ -510,6 +535,12 @@ jobs:
       uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
       with:
         python-version: 3.11
+
+    - name: Install naga
+      run: cargo install naga-cli --locked --version ${{ env.NAGA_VERSION }}
+
+    - name: Generate WGSL library
+      run: python source/MaterialXGenWgsl/tools/glsl_to_wgsl.py --libraries libraries --out libraries
 
     - name: Build SDist
       id: generate
