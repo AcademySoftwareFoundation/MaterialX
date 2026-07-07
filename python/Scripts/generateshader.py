@@ -12,8 +12,13 @@ import MaterialX.PyMaterialXGenMdl as mx_gen_mdl
 import MaterialX.PyMaterialXGenMsl as mx_gen_msl
 import MaterialX.PyMaterialXGenOsl as mx_gen_osl
 import MaterialX.PyMaterialXGenSlang as mx_gen_slang
-import MaterialX.PyMaterialXGenWgsl as mx_gen_wgsl
 import MaterialX.PyMaterialXGenShader as mx_gen_shader
+
+# The WGSL generator is an optional
+try:
+    import MaterialX.PyMaterialXGenWgsl as mx_gen_wgsl
+except ImportError:
+    mx_gen_wgsl = None
 
 def validateCode(sourceCodeFile, codevalidator, codevalidatorArgs):
     if codevalidator:
@@ -101,6 +106,10 @@ def main():
         elif gentarget == 'vulkan':
             shadergen = mx_gen_glsl.VkShaderGenerator.create()
         elif gentarget == 'wgsl':
+            if mx_gen_wgsl is None:
+                print('WGSL shader generation is not available in this build '
+                      '(MATERIALX_BUILD_GEN_WGSL was disabled).')
+                sys.exit(1)
             shadergen = mx_gen_wgsl.WgslShaderGenerator.create()
         elif gentarget == 'msl':
             shadergen = mx_gen_msl.MslShaderGenerator.create()
