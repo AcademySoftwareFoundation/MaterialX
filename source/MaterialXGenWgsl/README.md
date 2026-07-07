@@ -4,7 +4,9 @@ A native [WGSL](https://www.w3.org/TR/WGSL/) (WebGPU Shading Language) shader ge
 MaterialX, registered under the `genwgsl` target. `WgslShaderGenerator` derives directly from
 `HwShaderGenerator` (not the GLSL hierarchy) and emits standalone WGSL vertex + fragment shaders,
 mirroring the structure of the `MaterialXGenMsl` / `MaterialXGenSlang` back-ends. It is gated behind
-the `MATERIALX_BUILD_GEN_WGSL` CMake option (ON by default).
+the `MATERIALX_BUILD_GEN_WGSL` CMake option (**OFF by default**: its node library is transpiled from
+genglsl and is not committed, so enabling the target requires that library to be generated first —
+see below).
 
 ## What makes this back-end unusual
 
@@ -12,9 +14,10 @@ Every other shader-gen back-end ships a fully hand-written node library. `genwgs
 its node library is a *hybrid*, and that is the main thing to understand before editing it:
 
 * **Most node `.wgsl` files are machine-generated** from their `genglsl` originals by the offline
-  transpiler in [`tools/`](tools/README.md). They are committed (the generator does not run at
-  build time by default) but carry a `// Generated from … do not edit` banner to distinguish them
-  from the hand-written files alongside — do not hand-edit them; regenerate.
+  transpiler in [`tools/`](tools/README.md). They are **not committed** — they are a derived build
+  artifact, transpiled from genglsl (the single source of truth) by CI, so drift between the GLSL and
+  WGSL libraries is impossible by construction. The generated files carry a
+  `// Generated from … do not edit` banner; do not hand-edit them, and do not commit them.
 * **A small number of nodes are hand-written** and intentionally *not* generated, because WGSL has
   no function overloading and a few `genwgsl/lib/` helpers were hand-adapted away from their GLSL
   signatures. These are listed as `EXPECTED_FALLBACK` in `tools/glsl_to_wgsl.py` (currently the
@@ -26,18 +29,26 @@ its node library is a *hybrid*, and that is the main thing to understand before 
 The library lives in `libraries/{stdlib,pbrlib,lights}/genwgsl/` with the target defined in
 `libraries/targets/genwgsl.mtlx`; node implementations are wired up via `*_genwgsl_impl.mtlx`.
 
-## Keeping the generated library in sync with genglsl
+## Generating the library
 
-The generated `.wgsl` files can drift as `genglsl` improves. The transpiler regenerates them and a
-diff surfaces the drift — see [`tools/README.md`](tools/README.md) for the tool, its overload
-mapping table, and its lib-arity self-validation.
+Because the generated node files are not committed, you must produce them before building the WGSL
+target. CI does this automatically (installing the [`naga`](https://github.com/gfx-rs/wgpu/tree/trunk/naga)
+CLI and running the transpiler) on the jobs that build or ship WGSL — the web viewer, the Python
+sdist/wheels, and the tagged-release archives. Locally, populate the library in place with:
 
-For CI / local validation, configure with `-DMATERIALX_GENERATE_WGSL_LIBRARY=ON` (requires Python
-and the [`naga`](https://github.com/gfx-rs/wgpu/tree/trunk/naga) CLI). This adds a
-`MaterialXGenWgslLibrary` build target that re-transpiles the library into the build tree on every
-build and **fails the build** if a node that should generate cleanly does not (a regression or a new
-naga validation error), while tolerating the known `EXPECTED_FALLBACK` nodes. The committed `.wgsl`
-files remain the source of truth; the build-tree output is for validation only.
+```
+python source/MaterialXGenWgsl/tools/glsl_to_wgsl.py --libraries libraries --out libraries
+```
+
+then configure with `-DMATERIALX_BUILD_GEN_WGSL=ON`. The transpiler exits non-zero on an unexpected
+failure (a regression or a new naga validation error), while tolerating the known `EXPECTED_FALLBACK`
+nodes — so CI running it doubles as validation that a change hasn't broken the WGSL target. See
+[`tools/README.md`](tools/README.md) for the tool, its overload mapping table, and its lib-arity
+self-validation.
+
+The separate `-DMATERIALX_GENERATE_WGSL_LIBRARY=ON` option adds a `MaterialXGenWgslLibrary` target
+that re-transpiles into the *build tree* (not the source tree) as a local validation aid; it is
+decoupled from `MATERIALX_BUILD_GEN_WGSL`.
 
 ## Layout
 

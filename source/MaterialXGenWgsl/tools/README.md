@@ -7,13 +7,16 @@ originally hand-ported and repeatedly drifted as genglsl improved, so most of th
 generated, and re-running the tool (then diffing) surfaces drift.
 
 ```
-python source/MaterialXGenWgsl/tools/glsl_to_wgsl.py --libraries libraries --out build/genwgsl_generated
+python source/MaterialXGenWgsl/tools/glsl_to_wgsl.py --libraries libraries --out libraries
 python source/MaterialXGenWgsl/tools/glsl_to_wgsl.py --libraries libraries --only mx_noise3d_float mx_sheen_bsdf
 ```
 
 Requires [`naga`](https://github.com/gfx-rs/wgpu/tree/trunk/naga) (`naga-cli`, v29+) on `PATH` or at
-`%NAGA%`. Output is written to a staging dir (default `build/genwgsl_generated/...`); diff it against
-the committed `libraries/.../genwgsl/*.wgsl` before copying over.
+`%NAGA%`. The generated node files are **not committed** — they are a derived artifact produced from
+genglsl (the single source of truth). Passing `--out libraries` writes each generated file straight
+into `libraries/<lib>/genwgsl/`, populating the runtime library in place alongside the hand-written
+files (the tool never touches `lib/` or the fallback nodes). CI runs exactly this to build/ship WGSL;
+run it locally to work on the WGSL target. Use `--out <dir>` to emit to a staging dir instead.
 
 ## Scope
 
@@ -102,11 +105,17 @@ so configure stays fast) and is cached — it recompiles only if the binary is m
 already be installed; MaterialX does not bootstrap the Rust toolchain. If cargo cannot be found,
 generation is skipped with a warning.
 
-## Sync workflow
+## Local workflow
 
-1. Regenerate to staging: `python glsl_to_wgsl.py --libraries libraries --out build/genwgsl_generated`.
-2. Diff `build/genwgsl_generated/**/*.wgsl` against `libraries/**/genwgsl/*.wgsl`.
-3. Copy the generated files over the committed ones (the hand-written fallbacks and `lib/` are not
-   produced by the tool, so they are preserved).
-4. Rebuild + restage test data, run the `[genwgsl]` tests, and `naga`-validate the emitted
-   `Default.{vertex,pixel}.wgsl`.
+Since the generated files are not committed, there is no baseline to diff against — you simply
+regenerate the library in place whenever genglsl changes:
+
+1. Regenerate in place: `python glsl_to_wgsl.py --libraries libraries --out libraries`. This overwrites
+   the generated node files under `libraries/{stdlib,pbrlib}/genwgsl/` and leaves the hand-written
+   fallbacks and `lib/` helpers untouched. A non-zero exit means an *unexpected* node failed (a
+   regression) — the known `EXPECTED_FALLBACK` nodes failing is normal.
+2. Configure with `-DMATERIALX_BUILD_GEN_WGSL=ON`, rebuild + restage test data, run the `[genwgsl]`
+   tests, and `naga`-validate the emitted `Default.{vertex,pixel}.wgsl`.
+
+CI performs step 1 on every job that builds or ships WGSL (the web viewer, sdist/wheels, and the
+tagged-release archives), so a change that breaks the WGSL target fails CI.
