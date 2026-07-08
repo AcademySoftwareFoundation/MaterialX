@@ -67,6 +67,13 @@ NodeDefPtr DefaultColorManagementSystem::getNodeDef(const ColorSpaceTransform& t
 
     string sourceSpace = COLOR_SPACE_REMAP.count(transform.sourceSpace) ? COLOR_SPACE_REMAP.at(transform.sourceSpace) : transform.sourceSpace;
     string targetSpace = COLOR_SPACE_REMAP.count(transform.targetSpace) ? COLOR_SPACE_REMAP.at(transform.targetSpace) : transform.targetSpace;
+
+    // After remapping, the transform may be a no-op (e.g. lin_rec709_scene -> lin_rec709).
+    if (sourceSpace == targetSpace)
+    {
+        return _document->getNodeDef("ND_dot_" + transform.type.getName());
+    }
+
     string nodeName = sourceSpace + "_to_" + targetSpace;
 
     for (NodeDefPtr nodeDef : _document->getMatchingNodeDefs(nodeName))

@@ -356,11 +356,6 @@ SlangSyntax::SlangSyntax(TypeSystemPtr typeSystem) :
             "#define material surfaceshader"));
 }
 
-bool SlangSyntax::typeSupported(const TypeDesc* type) const
-{
-    return *type != Type::STRING;
-}
-
 void SlangSyntax::makeValidName(string& name) const
 {
     Syntax::makeValidName(name);

@@ -95,6 +95,76 @@ mx::NodeGraphPtr UiNode::getNodeGraph() const
     return _element ? _element->asA<mx::NodeGraph>() : nullptr;
 }
 
+void UiNode::buildUiTokenMap()
+{
+    _uiTokenMap.clear(); // Assume we want clean slate
+
+    const mx::NodePtr node = getNode();
+    if (!node) return; // Early return as no further work is needed
+    
+    mx::ElementPtr currElem = node->asA<mx::Element>(); // Explicit upcast
+    // Traverse upward using parent pointers to collect all active tokens in the current scope
+    while (currElem)
+    {
+        if (mx::ConstInterfaceElementPtr currInterfaceElem = currElem->asA<mx::InterfaceElement>())
+        {
+            UiToken::applyTokenMapping(&_uiTokenMap, currInterfaceElem, currElem);
+
+            // If the node is a nodegraph, check for tokens on corresponding nodedef
+            if (mx::ConstNodeGraphPtr currNodeGraph = currElem->asA<mx::NodeGraph>())
+            {
+                if (mx::NodeDefPtr currNodedef = currNodeGraph->getNodeDef())
+                {
+                    UiToken::applyTokenMapping(&_uiTokenMap, currNodedef, currNodedef);
+                }
+            }
+            
+            // If the node is a custom node instance, check for tokens on corresponding nodedef
+            if (mx::NodePtr currNode = currElem->asA<mx::Node>())
+            {
+                if (mx::NodeDefPtr currNodedef = currNode->getNodeDef())
+                {
+                    UiToken::applyTokenMapping(&_uiTokenMap, currNodedef, currNodedef);
+                }
+            }
+        }
+        currElem = currElem->getParent();
+    }
+
+    // Traverse through inputs and determine which tokens their value depends on
+    for (const auto& input : node->getActiveInputs())
+    {
+        if (input->getType() != "filename")
+            continue;
+
+        mx::StringResolverPtr inputResolver = input->createStringResolver();
+        const mx::StringMap& inputTokens = inputResolver->getFilenameSubstitutions();
+
+        mx::StringMap inputTokensRenormalized;
+        for (const auto& entry : inputTokens)
+        {
+            // Store tokens without excess delimiters
+            inputTokensRenormalized[entry.first] = entry.first.substr(1, entry.first.size() - 2);
+        }
+
+        std::string inputValue = input->getValueString();
+        if (inputValue.empty() && input->hasInterfaceName())
+            inputValue = input->getInterfaceInput()->getValueString(); // Get value from referenced interface
+
+        for (const auto& entry : inputTokens)
+        {
+            if (inputValue.find(entry.first) != std::string::npos)
+            {
+                // Ensure that the token exists in the pre-built map
+                if (auto it = _uiTokenMap.find(inputTokensRenormalized[entry.first]); it != _uiTokenMap.end())
+                {
+                    it->second->addAffectedInput(input); // Append to affected inputs of corresponding entry in token map
+                }
+            }
+        }
+    }
+}
+
 // return the uiNode connected with input name
 UiNodePtr UiNode::getConnectedNode(const std::string& name)
 {

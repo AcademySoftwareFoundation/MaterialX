@@ -243,26 +243,9 @@
       <input name="in1" type="vector3" nodename="extinction_coeff" />
       <input name="in2" type="vector3" nodename="scattering_coeff" />
     </subtract>
-    <extract name="absorption_coeff_x" type="float">
+    <mincomponent name="absorption_coeff_min" type="float">
       <input name="in" type="vector3" nodename="absorption_coeff" />
-      <input name="index" type="integer" value="0" />
-    </extract>
-    <extract name="absorption_coeff_y" type="float">
-      <input name="in" type="vector3" nodename="absorption_coeff" />
-      <input name="index" type="integer" value="1" />
-    </extract>
-    <extract name="absorption_coeff_z" type="float">
-      <input name="in" type="vector3" nodename="absorption_coeff" />
-      <input name="index" type="integer" value="2" />
-    </extract>
-    <min name="absorption_coeff_min_x_y" type="float">
-      <input name="in1" type="float" nodename="absorption_coeff_x" />
-      <input name="in2" type="float" nodename="absorption_coeff_y" />
-    </min>
-    <min name="absorption_coeff_min" type="float">
-      <input name="in1" type="float" nodename="absorption_coeff_min_x_y" />
-      <input name="in2" type="float" nodename="absorption_coeff_z" />
-    </min>
+    </mincomponent>
     <convert name="absorption_coeff_min_vector" type="vector3">
       <input name="in" type="float" nodename="absorption_coeff_min" />
     </convert>

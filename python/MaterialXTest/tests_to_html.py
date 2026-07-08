@@ -87,7 +87,7 @@ def main(args=None):
     fh.write("<style>\n")
     # Preserve inline background-color when printing to PDF, so transparent renders
     # don't vanish into the white page.
-    fh.write("@media print { * { print-color-adjust: exact; -webkit-print-color-adjust: exact; } }")
+    fh.write("@media print { * { print-color-adjust: exact; -webkit-print-color-adjust: exact; } }\n")
     fh.write("td {")
     fh.write("    padding: " + str(args.cellpadding) + ";")
     fh.write("    border: " + str(args.tableborder) + "px solid black;")
@@ -158,13 +158,13 @@ def main(args=None):
     langFiles3 = []
     langPaths3 = []
     preFixLen: int = len(args.inputdir1) + 1  # including the path separator
-    postFix: str = args.lang1 + ".png"
+    postFix: str = f"_{args.lang1}.png"
     for file1, path1 in zip(langFiles1, langPaths1):
         # Allow for just one language to be shown if source and dest are the same.
         # Otherwise add in equivalent name with dest language replacement if
         # pointing to the same directory
         if args.inputdir1 != args.inputdir2 or args.lang1 != args.lang2:
-            file2 = file1[:-len(postFix)] + args.lang2 + ".png"
+            file2 = f"{file1.removesuffix(postFix)}_{args.lang2}.png"
             path2 = os.path.join(args.inputdir2, path1[len(args.inputdir1)+1:])
         else:
             file2 = ""
@@ -173,8 +173,8 @@ def main(args=None):
         langPaths2.append(path2)
 
         if useThirdLang:
-            file3 = file1[:-len(postFix)] + args.lang3 + ".png"
-            path3 = os.path.join(args.inputdir2, path1[len(args.inputdir1)+1:])
+            file3 = f"{file1.removesuffix(postFix)}_{args.lang3}.png"
+            path3 = os.path.join(args.inputdir3, path1[len(args.inputdir1)+1:])
         else:
             file3 = ""
             path3 = None
@@ -192,13 +192,15 @@ def main(args=None):
             diffRms1 = diffRms2 = diffRms3 = None
 
             if file1 and file2 and DIFF_ENABLED and args.CREATE_DIFF:
-                diffPath1 = fullPath1[0:-8] + "_" + args.lang1 + "-1_vs_" + args.lang2 + "-2_diff.png"
+                basePath = fullPath1.removesuffix(postFix)
+                diffPath1 = f"{basePath}_{args.lang1}-1_vs_{args.lang2}-2_diff.png"
                 diffRms1 = computeDiff(fullPath1, fullPath2, diffPath1)
 
             if useThirdLang and file1 and file3 and DIFF_ENABLED and args.CREATE_DIFF:
-                diffPath2 = fullPath1[0:-8] + "_" + args.lang1 + "-1_vs_" + args.lang3 + "-3_diff.png"
+                basePath = fullPath1.removesuffix(postFix)
+                diffPath2 = f"{basePath}_{args.lang1}-1_vs_{args.lang3}-3_diff.png"
                 diffRms2 = computeDiff(fullPath1, fullPath3, diffPath2)
-                diffPath3 = fullPath1[0:-8] + "_" + args.lang2 + "-2_vs_" + args.lang3 + "-3_diff.png"
+                diffPath3 = f"{basePath}_{args.lang2}-2_vs_{args.lang3}-3_diff.png"
                 diffRms3 = computeDiff(fullPath2, fullPath3, diffPath3)
 
             if args.error >= 0:
