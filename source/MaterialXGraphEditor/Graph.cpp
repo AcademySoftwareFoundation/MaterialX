@@ -4,6 +4,7 @@
 //
 
 #include <MaterialXGraphEditor/Graph.h>
+#include <MaterialXGraphEditor/GraphShortcuts.h>
 
 #include <MaterialXRenderGlsl/External/Glad/glad.h>
 #include <MaterialXFormat/Util.h>
@@ -4597,17 +4598,25 @@ void Graph::drawGraph(ImVec2 mousePos)
             }
         }
 
+        GraphShortcutState groupShortcutState;
+        groupShortcutState.shift = io2.KeyShift;
+        groupShortcutState.ctrl = io2.KeyCtrl;
+        groupShortcutState.alt = io2.KeyAlt;
+        groupShortcutState.super = io2.KeySuper;
+        groupShortcutState.keyPressed = ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_C));
+        groupShortcutState.addNodePopupOpen = ImGui::IsPopupOpen("add node");
+        groupShortcutState.searchPopupOpen = ImGui::IsPopupOpen("search");
+        groupShortcutState.fileDialogOpen = _fileDialogSave.isOpened() || _fileDialog.isOpened() || _fileDialogGeom.isOpened();
+        if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) &&
+            isGroupSelectedNodesShortcut(groupShortcutState))
+        {
+            groupSelectedNodesIntoNodeGraph(selectedNodes);
+        }
+
         // Check if keyboard shortcuts for copy/cut/paste have been used
         if (ed::BeginShortcut())
         {
-            bool groupSelectedNodesShortcut = io2.KeyShift && !io2.KeyCtrl && !io2.KeyAlt && !io2.KeySuper &&
-                                              ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_C)) &&
-                                              (!ImGui::IsPopupOpen("add node")) && (!ImGui::IsPopupOpen("search")) && !_fileDialogSave.isOpened();
-            if (groupSelectedNodesShortcut)
-            {
-                groupSelectedNodesIntoNodeGraph(selectedNodes);
-            }
-            else if (ed::AcceptCopy())
+            if (ed::AcceptCopy())
             {
                 _copiedNodes.clear();
                 for (ed::NodeId selected : selectedNodes)
