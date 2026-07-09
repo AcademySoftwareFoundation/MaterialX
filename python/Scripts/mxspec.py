@@ -737,6 +737,25 @@ def resolveSpecPath(specFile):
         raise FileNotFoundError(f'Specification document not found: {path}')
     return path
 
+def printWarnings(warnings):
+    '''Print specification parsing warnings to stderr, grouped by type.'''
+    if not warnings:
+        return
+
+    byType = {}
+    for warning in warnings:
+        byType.setdefault(warning.issueType, []).append(warning)
+
+    print(f'\nSpecification warnings ({len(warnings)}):', file=sys.stderr)
+    for issueType in IssueType:
+        typeWarnings = byType.get(issueType)
+        if not typeWarnings:
+            continue
+        print(f'  {issueType.value} ({len(typeWarnings)}):', file=sys.stderr)
+        for warning in typeWarnings:
+            detail = f': {warning.message}' if warning.message else ''
+            print(f'    {warning.nodeName}{detail}', file=sys.stderr)
+
 def writeOutput(text, specPath, opts):
     '''Write output text to the appropriate destination.'''
     if opts.inplace:
@@ -1012,8 +1031,8 @@ def compareMain(opts):
 # -----------------------------------------------------------------------------
 
 def normalizeSpec(text, typeCtx):
-    '''Normalize table column alignment and default value notation. Returns the updated text.'''
-    nodeSections, _, lines = parseSpec(text, typeCtx)
+    '''Normalize table column alignment and default value notation. Returns (updatedText, warnings).'''
+    nodeSections, warnings, lines = parseSpec(text, typeCtx)
 
     replacements = []
     for nodeName, tables in nodeSections.items():
@@ -1059,7 +1078,7 @@ def normalizeSpec(text, typeCtx):
                 replacementLines = generateMarkdownTable(normalizedRows, table.headers)
                 replacements.append((table.startLine, table.endLine, replacementLines))
 
-    return applyReplacements(lines, replacements)
+    return applyReplacements(lines, replacements), warnings
 
 def normalizeMain(opts):
     '''Run the normalize subcommand.'''
@@ -1067,7 +1086,8 @@ def normalizeMain(opts):
     stdlib = loadStandardLibraries()
     typeCtx = TypeSystemContext(stdlib)
     text = specPath.read_text(encoding='utf-8')
-    text = normalizeSpec(text, typeCtx)
+    text, warnings = normalizeSpec(text, typeCtx)
+    printWarnings(warnings)
     writeOutput(text, specPath, opts)
 
 
@@ -1076,8 +1096,8 @@ def normalizeMain(opts):
 # -----------------------------------------------------------------------------
 
 def expandSpec(text, typeCtx, nodedefNames=None):
-    '''Expand polymorphic tables into concrete per-signature tables. Returns (updatedText, missingSignatures).'''
-    nodeSections, _, lines = parseSpec(text, typeCtx)
+    '''Expand polymorphic tables into concrete per-signature tables. Returns (updatedText, missingSignatures, warnings).'''
+    nodeSections, warnings, lines = parseSpec(text, typeCtx)
 
     replacements = []
     missingSignatures = []
@@ -1114,7 +1134,7 @@ def expandSpec(text, typeCtx, nodedefNames=None):
 
             replacements.append((table.startLine, table.endLine, replacementLines))
 
-    return applyReplacements(lines, replacements), missingSignatures
+    return applyReplacements(lines, replacements), missingSignatures, warnings
 
 def expandMain(opts):
     '''Run the expand subcommand.'''
@@ -1130,7 +1150,8 @@ def expandMain(opts):
                         for ndi in extractNodeDefs(stdlib)}
         print(f'  Found {len(nodedefNames)} nodedefs', file=sys.stderr)
 
-    text, missingSignatures = expandSpec(text, typeCtx, nodedefNames)
+    text, missingSignatures, warnings = expandSpec(text, typeCtx, nodedefNames)
+    printWarnings(warnings)
 
     if missingSignatures:
         print(f'\nSignatures in specification but not in data library ({len(missingSignatures)}):', file=sys.stderr)
