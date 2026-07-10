@@ -797,15 +797,16 @@ def expandSpecToNodes(nodeSections, typeCtx):
     specDefaults = {}
     for nodeName, tables in nodeSections.items():
         sigs = signatures.setdefault(nodeName, set())
-        defaults = specDefaults.setdefault(nodeName, {})
         for table in tables:
             tableSigs = expandSpecSignatures(table.inputs, table.outputs, typeCtx)
             sigs.update(tableSigs)
 
-            # Collect input defaults for default value comparison
-            for name, port in table.inputs.items():
-                if name not in defaults and port.default:
-                    defaults[name] = port.default
+            # Associate this table's input defaults with each signature
+            # expanded from the table, keyed by (nodeName, signature) to
+            # mirror the data library defaults.
+            tableDefaults = {name: port.default for name, port in table.inputs.items() if port.default}
+            for sig in tableSigs:
+                specDefaults.setdefault((nodeName, sig), tableDefaults)
     return signatures, specDefaults
 
 def compareSignatureDefaults(nodeName, signature, specDefaults, libDefaults, typeCtx):
@@ -913,7 +914,7 @@ def compareNodes(specSigs, libSigs, specDefaults, libDefaults, typeCtx, compareD
             if compareDefaults:
                 sigDefaults = libDefaults.get((nodeName, libSig), {})
                 issues.extend(compareSignatureDefaults(
-                    nodeName, specSig, specDefaults.get(nodeName, {}), sigDefaults, typeCtx))
+                    nodeName, specSig, specDefaults.get((nodeName, specSig), {}), sigDefaults, typeCtx))
 
         # Report different input set matches
         for specSig, libSig, extraInLib, extraInSpec in sorted(inputDiffMatches, key=lambda x: str(x[0])):
