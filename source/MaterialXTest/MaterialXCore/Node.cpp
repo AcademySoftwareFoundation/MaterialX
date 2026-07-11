@@ -385,33 +385,6 @@ TEST_CASE("Topological sort", "[nodegraph]")
     REQUIRE(isTopologicalOrder(elemOrder));
 }
 
-TEST_CASE("Nested compound nodegraph connections", "[nodegraph]")
-{
-    mx::DocumentPtr doc = mx::createDocument();
-
-    mx::NodeGraphPtr parentGraph = doc->addNodeGraph("parent");
-    mx::NodePtr upstream = parentGraph->addNode("constant", "upstream", "float");
-    mx::NodeGraphPtr nestedGraph = parentGraph->addChild<mx::NodeGraph>("nested");
-
-    mx::InputPtr nestedInput = nestedGraph->addInput("in", "float");
-    nestedInput->setConnectedNode(upstream);
-
-    mx::NodePtr internal = nestedGraph->addNode("constant", "internal", "float");
-    mx::InputPtr internalInput = internal->addInput("value", "float");
-    internalInput->setConnectedInterfaceName(nestedInput->getName());
-
-    mx::OutputPtr nestedOutput = nestedGraph->addOutput("out", "float");
-    nestedOutput->setConnectedNode(internal);
-
-    mx::NodePtr downstream = parentGraph->addNode("dot", "downstream", "float");
-    mx::InputPtr downstreamInput = downstream->addInput("in", "float");
-    downstreamInput->setConnectedOutput(nestedOutput);
-
-    REQUIRE(nestedInput->getConnectedNode() == upstream);
-    REQUIRE(downstreamInput->getConnectedOutput() == nestedOutput);
-    REQUIRE(downstreamInput->getConnectedNode() == internal);
-    REQUIRE(doc->validate());
-}
 
 TEST_CASE("New nodegraph from output", "[nodegraph]")
 {

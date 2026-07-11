@@ -1995,7 +1995,10 @@ void Graph::groupSelectedNodesIntoNodeGraph(const std::vector<ed::NodeId>& selec
         _popup = true;
         return;
     }
-
+    if (_state.graphElem != _graphDoc)
+    {
+        return;
+    }
     std::vector<UiNodePtr> nodesToGroup;
     if (!collectGroupableNodes(selectedNodes, nodesToGroup))
     {
