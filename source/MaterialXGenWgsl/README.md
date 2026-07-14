@@ -18,13 +18,13 @@ its node library is a *hybrid*, and that is the main thing to understand before 
   artifact, transpiled from genglsl (the single source of truth) by CI, so drift between the GLSL and
   WGSL libraries is impossible by construction. The generated files carry a
   `// Generated from … do not edit` banner; do not hand-edit them, and do not commit them.
-* **A small number of nodes are hand-written** and intentionally *not* generated, because WGSL has
-  no function overloading and a few `genwgsl/lib/` helpers were hand-adapted away from their GLSL
-  signatures. These are listed as `EXPECTED_FALLBACK` in `tools/glsl_to_wgsl.py` (currently the
-  `conductor` / `dielectric` / `generalized_schlick` BSDFs, `subsurface`, and `chiang_hair`).
+* **`lib/` helper files are machine-generated** from `genglsl/lib/` by the same transpiler (run
+  before node transpilation). All 22 `genglsl/lib` files transpile via naga (including prefilter
+  environment helpers). They are also **not committed**.
+* **`mx_chiang_hair_bsdf` is hand-written** and intentionally *not* generated (naga limitation on
+  hair scattering helpers). It is listed in `EXPECTED_FALLBACK` in `tools/glsl_to_wgsl.py`.
 * **Texture / image and light nodes are hand-written** too — the transpiler skips them (naga's GLSL
   front-end has no sampler support, and light shaders use the dynamically generated `LightData`).
-* **Core `lib/` math and closure helpers are hand-maintained** (out of scope for the transpiler).
 
 The library lives in `libraries/{stdlib,pbrlib,lights}/genwgsl/` with the target defined in
 `libraries/targets/genwgsl.mtlx`; node implementations are wired up via `*_genwgsl_impl.mtlx`.
@@ -40,9 +40,9 @@ sdist/wheels, and the tagged-release archives. Locally, populate the library in 
 python source/MaterialXGenWgsl/tools/glsl_to_wgsl.py --libraries libraries --out libraries
 ```
 
-then configure with `-DMATERIALX_BUILD_GEN_WGSL=ON`. The transpiler exits non-zero on an unexpected
-failure (a regression or a new naga validation error), while tolerating the known `EXPECTED_FALLBACK`
-nodes — so CI running it doubles as validation that a change hasn't broken the WGSL target. See
+then configure with `-DMATERIALX_BUILD_GEN_WGSL=ON`. The transpiler exits non-zero on any lib or
+node failure outside `EXPECTED_FALLBACK` — so CI running it doubles as validation that a change
+hasn't broken the WGSL target. See
 [`tools/README.md`](tools/README.md) for the tool, its overload mapping table, and its lib-arity
 self-validation.
 

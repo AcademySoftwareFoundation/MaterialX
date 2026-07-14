@@ -11,11 +11,11 @@ The `genwgsl` uses a **hybrid node library**:
 | Library content | Source | Committed to git? |
 | --- | --- | --- |
 | Most node `.wgsl` files | Transpiled from `genglsl` by `glsl_to_wgsl.py` | No — derived artifact |
-| Core `lib/` math and closure helpers | Hand-maintained | Yes |
+| Core `lib/` math and closure helpers | Transpiled from `genglsl/lib/` by `glsl_to_wgsl.py` | No — derived artifact |
 | Texture, image, and light nodes | Hand-maintained | Yes |
-| A small set of BSDF nodes (`EXPECTED_FALLBACK`) | Hand-maintained | Yes |
+| `mx_chiang_hair_bsdf` (`EXPECTED_FALLBACK`) | Hand-maintained | Yes |
 
-The GLSL node library (`genglsl`) is the **single source of truth** for generated nodes. CI runs the transpiler on every job that generates WGSL to prevent drift between GLSL and WGSL libraries.
+The GLSL node and lib libraries (`genglsl`, `genglsl/lib/`) are the **single source of truth** for generated WGSL. CI runs the transpiler on every job that generates WGSL to prevent drift between GLSL and WGSL libraries.
 
 The library lives under `libraries/{stdlib,pbrlib,lights}/genwgsl/`, with the target defined in `libraries/targets/genwgsl.mtlx`.
 
@@ -69,9 +69,10 @@ A non-zero exit code means an *unexpected* node failed (a regression). Known fal
 
 **Pipeline (per node function):**
 
-1. **Pre-process** — wrap the fragment in a complete GLSL shader naga can parse
-2. **Transpile** — `naga --input-kind glsl --shader-stage frag`
-3. **Post-process** — clean up naga output and remap helper calls to genwgsl names
+1. **Lib helpers** — transpile `genglsl/lib/*.glsl` first (topological include order, `LIB_PREAMBLE`, overload renaming via inverted `CALL_MAP`)
+2. **Pre-process** — wrap the node fragment in a complete GLSL shader naga can parse
+3. **Transpile** — `naga --input-kind glsl --shader-stage frag`
+4. **Post-process** — clean up naga output and remap helper calls to genwgsl names
 
 #### Input: an incomplete node fragment
 
@@ -103,7 +104,7 @@ naga's output is correct but verbose (SSA-style parameter shadows, `vec3<f32>` s
 - Normalizes types (`vec3<f32>` → `vec3f`, `2f` → `2.0`)
 - Remaps overloaded GLSL helper calls via `CALL_MAP` to type-suffixed genwgsl names
 
-WGSL has no function overloading, so the hand-written genwgsl `lib/` gives each GLSL overload a distinct name. For the noise example above, `mx_perlin_noise_float(position)` with a `vec3` argument is rewritten to `mx_perlin_noise_float_3d(position)`.
+WGSL has no function overloading, so the genwgsl `lib/` gives each GLSL overload a distinct name. For the noise example above, `mx_perlin_noise_float(position)` with a `vec3` argument is rewritten to `mx_perlin_noise_float_3d(position)`.
 
 Similarly, GLSL `mx_square` overloads map to `mx_square_f32`, `mx_square_vec2`, or `mx_square_vec3` depending on the argument type.
 
@@ -133,11 +134,15 @@ Generated files carry a `// Generated from … do not edit` banner.
 
 | Category | Example | Reason |
 | --- | --- | --- |
-| Core `lib/` files | `lib/mx_math.glsl` | Hand-maintained; tool never touches `lib/` |
 | Texture / image nodes | `mx_image_color3` | naga's GLSL frontend has no sampler support — auto-skipped by filename pattern (`image`, `hextiled`) |
 | Light shaders | `mx_point_light` | Use dynamically generated `LightData` — auto-skipped (`_light$` pattern) |
-| Adapted BSDF helpers | `mx_dielectric_bsdf`, `mx_conductor_bsdf` | Call lib helpers whose genwgsl signatures diverge from GLSL (e.g. `mx_ggx_energy_compensation` takes a precomputed `vec3f` instead of `FresnelData`) — listed in `EXPECTED_FALLBACK`, kept hand-written |
+| Chiang hair BSDF | `mx_chiang_hair_bsdf` | naga limitation on hair scattering helpers — listed in `EXPECTED_FALLBACK`, kept hand-written |
 | Unmapped overloads | Any call not in `CALL_MAP` | Node stays hand-written; logged as unsupported |
+
+**Specular environment IBL:** `WgslShaderGenerator` supports FIS, prefilter, and none methods
+(`mx_environment_fis.wgsl`, `mx_environment_prefilter.wgsl`, `mx_environment_none.wgsl`). The
+prefilter environment bake pass (`hwWriteEnvPrefilter` / `mx_generate_prefilter_env`) remains
+GLSL-only today.
 
 **Texture node** (auto-skipped — uses samplers naga cannot parse):
 
@@ -151,7 +156,10 @@ void mx_image_color3($texSamplerSignature, int layer, vec3 defaultval, vec2 texc
 }
 ```
 
-The result is a **reduced library**: most nodes are generated from genglsl; texture, light, and a small set of adapted BSDF nodes remain hand-written. The tool exits non-zero only when a node *outside* `EXPECTED_FALLBACK` fails unexpectedly (a regression). If a fallback node starts transpiling cleanly, the tool prints a warning so it can be removed from `EXPECTED_FALLBACK`.
+The result is a **reduced library**: most nodes and all 22 `lib/` helpers are generated from
+genglsl; texture, light, and `mx_chiang_hair_bsdf` remain hand-written. The tool exits non-zero
+only when a file *outside* `EXPECTED_FALLBACK` fails unexpectedly (a regression). If a fallback node
+starts transpiling cleanly, the tool prints a warning so it can be removed from `EXPECTED_FALLBACK`.
 
 For full transpiler internals see [`source/MaterialXGenWgsl/tools/README.md`](../../source/MaterialXGenWgsl/tools/README.md).
 
@@ -237,10 +245,11 @@ This adds the `MaterialXGenWgslLibrary` target, which surfaces transpile and nag
 
 ## Release Artifacts
 
-Generated WGSL node files are not committed to git, but they are included in release archives. The release workflow runs `glsl_to_wgsl.py` before packaging, so `libraries/*/genwgsl/*.wgsl` files ship alongside the hand-written WGSL helpers.
+Generated WGSL node and `lib/` files are not committed to git, but they are included in release archives. The release workflow runs `glsl_to_wgsl.py` before packaging, so `libraries/*/genwgsl/**/*.wgsl` files ship in the archive.
 
 ## Related Documentation
 
+- [WGSL Transpiler Fixes](WGSLTranspilerFixes.md) — generation policy and the naga-reconciliation fixes for full-library generation
 - [Shader Generation](ShaderGeneration.md) — general shader generation framework
 - [`source/MaterialXGenWgsl/README.md`](../../source/MaterialXGenWgsl/README.md) — back-end layout and design
 - [`source/MaterialXGenWgsl/tools/README.md`](../../source/MaterialXGenWgsl/tools/README.md) — transpiler internals, `CALL_MAP`, and `EXPECTED_FALLBACK`
