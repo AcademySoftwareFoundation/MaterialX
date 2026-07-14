@@ -13,6 +13,8 @@
 
 #include <MaterialXFormat/File.h>
 
+#include <MaterialXCore/Types.h>
+
 MATERIALX_NAMESPACE_BEGIN
 
 /// Type of shader interface to be generated
@@ -78,6 +80,10 @@ class MX_GENSHADER_API GenOptions
     GenOptions() :
         shaderInterfaceType(SHADER_INTERFACE_COMPLETE),
         fileTextureVerticalFlip(false),
+        xyzToWorkingSpace(
+            3.2406f, -0.9689f, 0.0557f,
+            -1.5372f, 1.8758f, -0.2040f,
+            -0.4986f, 0.0415f, 1.0570f),
         addUpstreamDependencies(true),
         libraryPrefix("libraries"),
         emitColorTransforms(true),
@@ -116,6 +122,10 @@ class MX_GENSHADER_API GenOptions
     /// file textures need to be flipped vertically to match the target's
     /// texture space convention. By default this option is false.
     bool fileTextureVerticalFlip;
+
+    /// Transform from CIE XYZ to the renderer's linear working color space.
+    /// Defaults to the CIE XYZ to lin_rec709 transform.
+    Matrix33 xyzToWorkingSpace;
 
     /// An optional override for the target color space.
     /// Shader fragments will be generated to transform

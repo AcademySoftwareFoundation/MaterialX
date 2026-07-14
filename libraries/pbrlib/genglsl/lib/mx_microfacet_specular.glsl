@@ -301,9 +301,6 @@ vec3 mx_eval_sensitivity(float opd, vec3 shift)
 // https://belcour.github.io/blog/research/publication/2017/05/01/brdf-thin-film.html
 vec3 mx_fresnel_airy(float cosTheta, FresnelData fd)
 {
-    // XYZ to CIE 1931 RGB color space (using neutral E illuminant)
-    const mat3 XYZ_TO_RGB = mat3(2.3706743, -0.5138850, 0.0052982, -0.9000405, 1.4253036, -0.0146949, -0.4706338, 0.0885814, 1.0093968);
-
     // Assume vacuum on the outside
     float eta1 = 1.0;
     float eta2 = max(fd.tf_ior, eta1);
@@ -393,7 +390,7 @@ vec3 mx_fresnel_airy(float cosTheta, FresnelData fd)
     I *= 0.5;
 
     // Convert back to RGB reflectance
-    I = clamp(mx_matrix_mul(XYZ_TO_RGB, I), 0.0, 1.0);
+    I = clamp(mx_matrix_mul($xyzToWorkingSpace, I), 0.0, 1.0);
 
     return I;
 }
