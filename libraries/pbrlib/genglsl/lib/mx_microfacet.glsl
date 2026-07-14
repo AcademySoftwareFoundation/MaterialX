@@ -107,9 +107,11 @@ float mx_uniform_hemisphere_PDF()
 
 // Construct an orthonormal basis from a unit vector.
 // https://graphics.pixar.com/library/OrthonormalB/paper.pdf
+// Branch at N.z = -1 instead of N.z = 0: a branch at the equator places a tangent-frame
+// discontinuity on Z-up spheres, causing sawtooth artifacts on glossy/metallic materials.
 mat3 mx_orthonormal_basis(vec3 N)
 {
-    float sign = (N.z < 0.0) ? -1.0 : 1.0;
+    float sign = (N.z < -0.9999999) ? -1.0 : 1.0;
     float a = -1.0 / (sign + N.z);
     float b = N.x * N.y * a;
     vec3 X = vec3(1.0 + sign * N.x * N.x * a, sign * b, -sign * N.x);

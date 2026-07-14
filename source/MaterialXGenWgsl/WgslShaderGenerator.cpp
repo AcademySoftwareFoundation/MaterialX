@@ -333,11 +333,18 @@ void WgslShaderGenerator::emitSpecularEnvironment(GenContext& context, ShaderSta
     {
         emitLibraryInclude("pbrlib/genwgsl/lib/mx_environment_fis.wgsl", context, stage);
     }
+    else if (specularMethod == SPECULAR_ENVIRONMENT_PREFILTER)
+    {
+        emitLibraryInclude("pbrlib/genwgsl/lib/mx_environment_prefilter.wgsl", context, stage);
+    }
     else if (specularMethod == SPECULAR_ENVIRONMENT_NONE)
     {
         emitLibraryInclude("pbrlib/genwgsl/lib/mx_environment_none.wgsl", context, stage);
     }
-    // SPECULAR_ENVIRONMENT_PREFILTER is not supported for standalone WGSL shaders.
+    else
+    {
+        throw ExceptionShaderGenError("Invalid hardware specular environment method specified: '" + std::to_string(specularMethod) + "'");
+    }
     emitLineBreak(stage);
 }
 
