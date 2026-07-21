@@ -2,7 +2,3 @@ build
 dist
 .DS_Store
 CMakeUserPresets.json
-
-/libraries/stdlib/genwgsl/*.wgsl
-/libraries/pbrlib/genwgsl/*.wgsl
-/libraries/pbrlib/genwgsl/lib/*.wgsl

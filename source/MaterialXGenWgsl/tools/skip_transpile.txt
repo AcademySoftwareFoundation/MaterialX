@@ -1,0 +1,43 @@
+# Hand-written genwgsl .wgsl files that must NOT be transpiled from genglsl.
+#
+# This is the authoritative list of hand-maintained WGSL, used by mxgenwgsl.py for two things:
+#   * the lib transpile pass skips any genwgsl/lib/*.wgsl listed here (naga can't express them);
+#   * `mxgenwgsl.py --clean` deletes every generated genwgsl *.wgsl EXCEPT the files listed here.
+#
+# Paths are relative to the repository root (a leading `libraries/` is optional). Blank lines and
+# `#` comments are ignored. Node shaders skipped by SKIP_PATTERNS (image/hextiled/light) are also
+# listed here so --clean retains them.
+
+# --- lights: light shaders take the dynamically-generated LightData struct ---
+libraries/lights/genwgsl/mx_directional_light.wgsl
+libraries/lights/genwgsl/mx_point_light.wgsl
+libraries/lights/genwgsl/mx_spot_light.wgsl
+
+# --- stdlib nodes: texture nodes (naga's GLSL frontend has no sampler support) ---
+libraries/stdlib/genwgsl/mx_hextiledimage.wgsl
+libraries/stdlib/genwgsl/mx_hextilednormalmap.wgsl
+libraries/stdlib/genwgsl/mx_image_color3.wgsl
+libraries/stdlib/genwgsl/mx_image_color4.wgsl
+libraries/stdlib/genwgsl/mx_image_float.wgsl
+libraries/stdlib/genwgsl/mx_image_vector2.wgsl
+libraries/stdlib/genwgsl/mx_image_vector3.wgsl
+libraries/stdlib/genwgsl/mx_image_vector4.wgsl
+
+# --- stdlib lib helpers: whole dir maintained by hand (was HANDWRITTEN_LIB_DIRS = {"stdlib"}) ---
+libraries/stdlib/genwgsl/lib/mx_flake.wgsl
+libraries/stdlib/genwgsl/lib/mx_geometry.wgsl
+libraries/stdlib/genwgsl/lib/mx_hextile.wgsl
+libraries/stdlib/genwgsl/lib/mx_hsv.wgsl
+libraries/stdlib/genwgsl/lib/mx_math.wgsl
+libraries/stdlib/genwgsl/lib/mx_noise.wgsl
+libraries/stdlib/genwgsl/lib/mx_transform_uv.wgsl
+libraries/stdlib/genwgsl/lib/mx_transform_uv_vflip.wgsl
+
+# --- pbrlib lib helpers: sampler-bound helpers naga cannot express (was LIB_KEEP_HANDWRITTEN) ---
+libraries/pbrlib/genwgsl/lib/mx_environment_fis.wgsl
+libraries/pbrlib/genwgsl/lib/mx_environment_none.wgsl
+libraries/pbrlib/genwgsl/lib/mx_environment_prefilter.wgsl
+libraries/pbrlib/genwgsl/lib/mx_generate_albedo_table.wgsl
+libraries/pbrlib/genwgsl/lib/mx_generate_prefilter_env.wgsl
+libraries/pbrlib/genwgsl/lib/mx_shadow.wgsl
+libraries/pbrlib/genwgsl/lib/mx_shadow_platform.wgsl
