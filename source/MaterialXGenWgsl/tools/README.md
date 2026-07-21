@@ -1,130 +1,215 @@
 # genwgsl library transpiler
 
-`glsl_to_wgsl.py` transpiles the MaterialX **genglsl shader-node** fragments
-(`libraries/{stdlib,pbrlib,lights}/genglsl/mx_*.glsl`) and **genglsl/lib/** helpers
-(`libraries/{stdlib,pbrlib}/genglsl/lib/*.glsl`) into their **genwgsl** WGSL equivalents.
-It exists to keep the WGSL node library in sync with the GLSL originals: the genwgsl nodes were
-originally hand-ported and repeatedly drifted as genglsl improved, so most of them are now
-generated, and re-running the tool (then diffing) surfaces drift.
+`mxgenwgsl.py` generates the MaterialX **genwgsl** WGSL node library from the existing
+**genglsl** sources, so GLSL stays the single source of truth and the WGSL library never has to be
+hand-ported. It transpiles:
+
+* **shader-node fragments** — `libraries/{stdlib,pbrlib,lights}/genglsl/mx_*.glsl`
+* **`genglsl/lib/` helpers** — `libraries/{stdlib,pbrlib}/genglsl/lib/*.glsl`
+
+into their `genwgsl` equivalents. The generated `.wgsl` files are **derived artifacts** (not
+committed): CI regenerates them before building/shipping WGSL, and you regenerate them locally while
+working on the WGSL target. Re-running is idempotent — the output is deterministic (no timestamps;
+overload stubs indexed by declaration order), so regenerating after a genglsl change just brings
+genwgsl back in sync.
+
+## Requirements
+
+* **Python 3** (standard library only for the core transpile).
+* **[`naga`](https://github.com/gfx-rs/wgpu/tree/trunk/naga) CLI** (`naga-cli`, v29+). Install with
+  `cargo install naga-cli`. Resolved from `--naga <path>`, then `$NAGA`, then `PATH`.
+* **Optional: [`tree-sitter-language-pack`](https://pypi.org/project/tree-sitter-language-pack/)**,
+  for the readability cleanup pass (see [WGSL cleanup](#wgsl-cleanup)). It ships a precompiled WGSL
+  grammar (and pulls the `tree-sitter` runtime), so no Node or `tree-sitter-cli` is needed:
+  `pip install -r source/MaterialXGenWgsl/tools/requirements-transpile.txt`. If it is missing the
+  transpiler still runs and emits (more verbose) naga output.
+
+## Usage
 
 ```
-python source/MaterialXGenWgsl/tools/glsl_to_wgsl.py --libraries libraries --out libraries
-python source/MaterialXGenWgsl/tools/glsl_to_wgsl.py --libraries libraries --only mx_noise3d_float mx_sheen_bsdf
+# Regenerate the whole library in place (what CI runs, and the usual local command):
+python source/MaterialXGenWgsl/tools/mxgenwgsl.py --libraries libraries --out libraries
+
+# Emit to a staging dir instead of overwriting the runtime library:
+python source/MaterialXGenWgsl/tools/mxgenwgsl.py --libraries libraries --out build/genwgsl_generated
+
+# Iterate on specific files (node or lib stems):
+python source/MaterialXGenWgsl/tools/mxgenwgsl.py --libraries libraries --only mx_noise3d_float mx_sheen_bsdf
 ```
 
-Requires [`naga`](https://github.com/gfx-rs/wgpu/tree/trunk/naga) (`naga-cli`, v29+) on `PATH` or at
-`%NAGA%`. The generated node and `lib/` files are **not committed** — they are derived artifacts
-produced from genglsl (the single source of truth). Passing `--out libraries` writes each generated
-file straight into `libraries/<lib>/genwgsl/`, populating the runtime library in place alongside the
-hand-written texture/light/`EXPECTED_FALLBACK` nodes. CI runs exactly this to build/ship WGSL; run it locally
-to work on the WGSL target. Use `--out <dir>` to emit to a staging dir instead.
+`--out libraries` writes each generated file straight into `libraries/<lib>/genwgsl/`, populating
+the runtime library in place alongside the hand-written texture/light/`EXPECTED_FALLBACK` nodes.
+Set `MTLX_DEBUG=1` to dump the failing GLSL fragment for any node that naga rejects (see
+[Troubleshooting](#troubleshooting)).
+
+### Exit codes
+
+`0` on success. A non-zero exit means an **unexpected** failure — a regression such as a genglsl
+change that broke a previously-generable node, a new naga error, or a scan-driven validation
+failure. Nodes listed in `EXPECTED_FALLBACK` failing to transpile is normal and does **not** fail
+the run.
 
 ## Scope
 
-* **In:** standalone node `.glsl` files referenced by `file=` impls in stdlib/pbrlib/lights, and
-  `genglsl/lib/*.glsl` helper files referenced by those nodes.
-* **Out:** texture/image and light nodes (naga's GLSL frontend has no sampler / dynamic-LightData
-  support — auto-skipped), and `mx_chiang_hair_bsdf` (naga limitation — `EXPECTED_FALLBACK`).
+* **In:** standalone node `.glsl` files referenced by `file=` implementations in
+  stdlib/pbrlib/lights, and the `genglsl/lib/*.glsl` helpers they use.
+* **Out (auto-skipped):** texture/image and light nodes — naga's GLSL frontend has no sampler /
+  dynamic-`LightData` support. Also `mx_chiang_hair_bsdf` (a naga limitation), tracked in
+  `EXPECTED_FALLBACK`.
 
-The result is a *reduced* library: generated nodes and `lib/` helpers for everything that resolves
-cleanly against genglsl, hand-written nodes for the rest.
+The result is a *reduced* library by design: generated nodes and `lib/` helpers for everything that
+resolves cleanly against genglsl, and hand-written `.wgsl` for the rest.
 
 ## How it works
 
-**Mental model (read this first).** naga does the actual GLSL→WGSL translation — the `naga`
-subprocess call is a single line. Everything else in the script is two adapters around it:
+**Mental model.** naga does the actual GLSL→WGSL translation — the `naga` subprocess call is a
+single line. Everything else in the script is two adapters around it:
 
 * a **pre-processor** that manufactures a complete, compilable shader naga will accept from an
   incomplete node fragment, and
 * a **post-processor** that reconciles naga's (correct but verbose) output with the conventions of
-  the *hand-written* genwgsl library.
+  the hand-written genwgsl library.
 
-The tool does **not** reimplement transpilation, and it is a *partial* generator by design (see
-Scope): most nodes generate, a known few stay hand-written. The regex/bracket-matching is deliberate
-string surgery, not a real parser — naga's own run is the correctness gate, and output is
-deterministic (no timestamps; overload stubs indexed by declaration order) so re-running is
-byte-identical and `git diff` = drift.
-
-**What a reviewer should focus on:** the two hand-maintained tables — `CALL_MAP` (GLSL overload →
-genwgsl name) and `EXPECTED_FALLBACK` (nodes intentionally not generated). They encode overload
-renaming and known naga limitations; everything else is mechanical.
+The tool does **not** reimplement transpilation. The regex/bracket-matching in the script is
+deliberate string surgery, not a real parser — naga's own run is the correctness gate.
 
 **Execution order in `main()`:**
 
-1. `transpile_libs()` — topological sort of `genglsl/lib/*.glsl` (22 files), per-function naga
-   transpile (or sibling-body path for heavy intra-file deps), `LIB_PREAMBLE`
-   (`DIRECTIONAL_ALBEDO_METHOD 0`, etc.), inverted `CALL_MAP` for overload output names,
-   `LIB_FIELD_RENAMES` (`tf_*` → `thinfilm_*`), texture stubs (`$envPrefilterMip`, etc.), and a
-   special handler for `mx_closure_type` (`LIB_STRUCT_PREAMBLE` aggregates closure structs).
-2. `build_wgsl_lib_symbols()` — reads generated `lib/*.wgsl` from `--out` for arity validation.
-3. `transpile_nodes()` — existing per-node loop.
+0. **Preflight validation** — `validateOverloadCoverage` (every scanned overload resolves via
+   `mangle()`), `validateTokenCoverage` (every `$`-token in transpiled lib sources is declared in
+   `HwConstants.cpp` or has a naga stub in `NAGA_LIB_STUBS`), and, after the lib pass,
+   `validateLibNames` (every `mangle()` name exists in the real genwgsl lib). Any failure is a hard
+   error, so a gap between genglsl, the naming tables, and the genwgsl lib is caught loudly instead
+   of silently mis-emitting a name.
+1. `transpileLibs()` — topological sort of `genglsl/lib/*.glsl`, per-function naga transpile (or the
+   sibling-body path for heavy intra-file call graphs), `LIB_PREAMBLE`
+   (`DIRECTIONAL_ALBEDO_METHOD 0`, etc.), `mangle()` for overload output names, texture stubs (via
+   `NAGA_LIB_STUBS`), and a special handler for `mx_closure_type` (`wgslClosurePreamble()`
+   aggregates closure structs from GLSL + `GlslSyntax.cpp`).
+2. `buildWgslLibSymbols()` — reads the generated `lib/*.wgsl` from `--out` for arity validation.
+3. The per-node loop (`transpile()`) — runs after the lib pass so nodes can `#include` the freshly
+   generated `genwgsl/lib/*.wgsl`.
 
-The pipeline, per node function:
+**Per-node pipeline:**
 
 1. **Pre-process** — a node fragment has no `main`, `#include`s helpers, carries MaterialX
    `$`-tokens, and uses generator-emitted closure structs, so none of it is valid standalone GLSL.
    Build a naga-parseable translation unit: shared `#define`/`const`/`struct` context + function
    *prototypes* (so helper calls resolve) + closure structs (`BSDF`/`surfaceshader`, from
-   `CLOSURE_PREAMBLE`) + `$`-token→placeholder swaps + the one function body + a dummy `main`. The
-   parsing (`parse_functions`, `build_context`) exists only to synthesize that context.
+   `glslClosurePreamble()`, parsed from `GlslSyntax.cpp`) + `$`-token→placeholder swaps + the one
+   function body + a dummy `main`. `parseFunctions` and `buildContext` exist only to synthesize that
+   context.
 2. **Transpile** — run `naga --input-kind glsl --shader-stage frag` (which also validates).
-3. **Post-process** — clean up naga's SSA-style output into a readable fragment (collapse param-copy
-   shadows, inline single-use temps, `vec3<f32>`→`vec3f`, drop float-literal `f` suffixes, ...).
+3. **Post-process** — `mxwgslcleanup.py` collapses naga's param-copy shadows and restores GLSL
+   parameter names; then `mxgenwgsl.py` normalizes types, overload names, and float-literal
+   suffixes, and re-attaches comments.
 
-WGSL has no function overloading. Two post-process passes bridge this:
+### WGSL cleanup
 
-1. **`remap_calls` / `CALL_MAP`** — overloaded GLSL helpers get a distinct type-suffixed name in the
-   genwgsl lib (`mx_square_f32`, `mx_perlin_noise_float_3d`, `mx_matrix_mul_mat4_vec4`, ...).
-   `CALL_MAP` maps `(glsl_helper, parameter_types) → genwgsl name`. For lib transpilation the map
-   is inverted when emitting function definitions. naga numbers overload stubs `_N` by
-   **prototype-declaration order** (kept and indexed deterministically even when unused), and
-   prototypes are emitted sorted, so each call is rewritten to the right lib function.
-   A `None` entry marks an intentionally-unsupported overload.
+`mxwgslcleanup.py` parses naga's WGSL output with a tree-sitter WGSL grammar and applies
+conservative readability edits: collapse param-copy shadows, promote `var`→`let`, flatten else-if
+chains, unwrap redundant compound blocks, etc. The grammar comes from the pip package
+`tree-sitter-language-pack` (precompiled — no Node or `tree-sitter-cli`). If cleanup fails or the
+package is unavailable, the transpiler keeps the verbose naga output and prints a warning — it never
+blocks generation.
 
-2. **`check_lib_arity`** — parses the generated `lib/*.wgsl` signatures and fails any node whose
-   helper-call arity disagrees, so it falls back to hand-written instead of producing a shader that
+### Overload handling
+
+WGSL has no function overloading, so two post-process passes bridge it:
+
+1. **`remapCalls` / `mangle()`** — overloaded GLSL helpers get a distinct type-suffixed name in the
+   genwgsl lib (`mx_square_f32`, `mx_perlin_noise_float_3d`, `mx_matrix_mul_mat4_vec4`, …).
+   `mangle(name, types, overloaded)` derives that name from a per-family `SUFFIX_SCHEME` rule
+   (default: suffix by the first parameter type), with an `EXCEPTIONS` table for irregular/semantic
+   names (the `mx_fresnel_schlick_*` / `mx_ggx_dir_albedo_*` forms, primary unsuffixed overloads).
+   The same function names lib definitions and rewrites node calls. naga numbers overload stubs `_N`
+   by prototype-declaration order, and prototypes are emitted sorted, so each call is rewritten to
+   the right lib function.
+2. **`checkLibArity`** — parses the generated `lib/*.wgsl` signatures and rejects any node whose
+   helper-call arity disagrees, so it falls back to hand-written instead of emitting a shader that
    fails to link.
 
-A node that hits either case is reported as `FAIL ... (kept hand-written)` and left out of the
-generated set — that is expected, not an error in the tool. The set of such nodes is listed in
-`EXPECTED_FALLBACK`; the tool's exit code is non-zero only when a node *outside* that set fails
-(a regression — e.g. a genglsl change that breaks a previously-generable node, or a new naga
-error). If a node in `EXPECTED_FALLBACK` starts transpiling cleanly, the tool prints a `WARN` so it
-can be removed from the set and its generated version committed.
+### naga identifier reconciliation (`denagaName`)
 
-## Build-time validation (CMake)
+naga's `Namer` (`proc/namer.rs`) rewrites identifiers deterministically: the first use of a
+sanitized base gets a trailing `_` when it ends in a digit or is a keyword/builtin, and later
+collisions get `_<N>`. Because the transpiler re-emits some symbols itself (file-scope consts, the
+`F0`/`F82`/`F90` closure-preamble struct fields, prototype names), `denagaName()` maps naga's
+`NAME_` / `NAME_<N>` references back to the clean declaration name.
+
+### Closure preambles and tokens (derived, not duplicated)
+
+Closure struct layouts are emitted from the same sources the C++ generators use:
+`ClosureData`/`FresnelData` from `genglsl/lib/*.glsl`, `BSDF`/`VDF`/shader aliases from
+`MaterialXGenGlsl/GlslSyntax.cpp` (`wgslClosurePreamble()` / `glslClosurePreamble()`). `FresnelData`
+field names match GLSL (`thinfilm_thickness`, `thinfilm_ior` in `mx_microfacet_specular.glsl`).
+MaterialX `$`-token *names* are validated against `HwConstants.cpp`; only the naga-parseable stub
+*values* used during lib transpile live in `NAGA_LIB_STUBS` (plus `$closureDataConstructor`, read
+from `HwConstants.cpp` at runtime).
+
+### Comment preservation
+
+naga discards comments, so the tool re-attaches them from genglsl:
+
+* *Doc / leading comments* (reliable) — the contiguous comment block directly above each function
+  (`parseFunctions` captures it) and a file-level top-of-file block are re-emitted verbatim (GLSL
+  and WGSL comment syntax are identical).
+* *Inline body comments* (best-effort) — whole-line `//` comments inside a body are anchored to a
+  stable token of the following statement and re-inserted above the matching WGSL line
+  (`injectInlineComments`). Because naga reorders/inlines bodies this is approximate: unmatched
+  comments are dropped deterministically and insertion is always whole-line, so output is never
+  corrupted and re-runs stay byte-identical. Struct/const comments are still stripped.
+
+## Extending & maintaining
+
+Most of the tool is mechanical — the overload *keys* are discovered by scanning genglsl
+(`buildContext`), so only the naming rules and known naga limitations are hand-maintained. When
+genglsl changes, the pieces you may need to touch are:
+
+* **Overload naming** — add a family rule to `SUFFIX_SCHEME`, or an individual `(name, types)` entry
+  to `EXCEPTIONS`, when a new overloaded helper appears or an existing one is renamed. A `None` value
+  in `EXCEPTIONS` marks an overload the genwgsl lib deliberately doesn't provide (its callers stay
+  hand-written). `validateOverloadCoverage` / `validateLibNames` will fail loudly if a rule is
+  missing or produces a name absent from the lib.
+* **Expected fallbacks** — `EXPECTED_FALLBACK` lists nodes intentionally left hand-written (naga
+  limitations). If a node there starts transpiling cleanly, the tool prints a `WARN`; remove it from
+  the set. If a *new* node cannot be generated, add it here (with a note on why) so the run stays
+  green.
+* **`$`-tokens** — a new `$`-token used in a transpiled lib source needs a naga-parseable stub in
+  `NAGA_LIB_STUBS`; its name must also be declared in `HwConstants.cpp`. `validateTokenCoverage`
+  enforces both.
+* **Hand-written libs** — `HANDWRITTEN_LIB_DIRS` (whole dirs kept by project choice) and
+  `LIB_KEEP_HANDWRITTEN` (individual sampler-bound helpers naga can't express) are skipped by the
+  lib pass; their nodes are still generated.
+
+## Troubleshooting
+
+* `FAIL <file>::<fn>: <naga error>` — naga rejected the synthesized fragment. Set `MTLX_DEBUG=1` and
+  re-run; the offending GLSL fragment is written next to the output as `_debug_*.frag` for inspection.
+* `FAIL ... calls adapted/unmapped helper(s) ... (kept hand-written)` — the node calls a helper with
+  a signature the genwgsl lib doesn't provide (an `EXCEPTIONS` `None`, or an arity mismatch caught by
+  `checkLibArity`). Expected for nodes that must stay hand-written; add them to `EXPECTED_FALLBACK`
+  if permanent.
+* `WARN mxwgslcleanup: ...` — the tree-sitter cleanup pass failed for one function; the verbose naga
+  output is kept. Non-fatal.
+* `WARN <node>: now transpiles cleanly` — a node in `EXPECTED_FALLBACK` no longer needs to be there.
+
+## Build integration (CMake / CI)
 
 Configure with `-DMATERIALX_GENERATE_WGSL_LIBRARY=ON` (requires `MATERIALX_BUILD_GEN_WGSL`, a Python
 interpreter, and the `naga` CLI) to add a `MaterialXGenWgslLibrary` target that runs this tool over
 `libraries/` on every build, emitting to `${CMAKE_BINARY_DIR}/genwgsl_generated`. Transpile/naga
-errors and regressions then surface as **build errors** (the committed `.wgsl` files stay the source
-of truth — the build-tree output is for validation only). The option defaults `OFF` so ordinary
+errors and regressions then surface as **build errors**. The option defaults `OFF`, so ordinary
 builds need neither Python nor naga.
 
 CMake finds naga from, in order: `-DMATERIALX_NAGA_EXECUTABLE=/path/to/naga`, the `NAGA` environment
 variable, `PATH`, and the standard cargo bin directories (`$CARGO_HOME/bin`, `~/.cargo/bin`,
 `%USERPROFILE%\.cargo\bin`) — so an existing `cargo install naga-cli` is picked up even when
-`~/.cargo/bin` is not on `PATH`.
+`~/.cargo/bin` is not on `PATH`. If naga is still not found, CMake locates **cargo** the same way
+EMSDK is located and builds naga into the build tree (`<build>/naga`) via `cargo install naga-cli` at
+build time (cached; recompiled only if the binary is missing). cargo must already be installed;
+MaterialX does not bootstrap the Rust toolchain. If cargo cannot be found, generation is skipped with
+a warning.
 
-If naga is still not found, CMake locates **cargo** the same way EMSDK is located
-(`-DMATERIALX_CARGO_PATH=<cargo home>`, then `$CARGO_HOME`, then the standard `~/.cargo` /
-`%USERPROFILE%\.cargo` locations, then `PATH`) and builds naga into the build tree
-(`<build>/naga`) via `cargo install naga-cli`. This install runs at **build** time (not configure,
-so configure stays fast) and is cached — it recompiles only if the binary is missing. cargo must
-already be installed; MaterialX does not bootstrap the Rust toolchain. If cargo cannot be found,
-generation is skipped with a warning.
-
-## Local workflow
-
-Since the generated files are not committed, there is no baseline to diff against — you simply
-regenerate the library in place whenever genglsl changes:
-
-1. Regenerate in place: `python glsl_to_wgsl.py --libraries libraries --out libraries`. This overwrites
-   generated node and `lib/` files under `libraries/{stdlib,pbrlib}/genwgsl/` and leaves the
-   hand-written texture/light/`EXPECTED_FALLBACK` nodes untouched. A non-zero exit means an
-   *unexpected* failure (a regression) — the known `EXPECTED_FALLBACK` nodes failing is normal.
-2. Configure with `-DMATERIALX_BUILD_GEN_WGSL=ON`, rebuild + restage test data, run the `[genwgsl]`
-   tests, and `naga`-validate the emitted `Default.{vertex,pixel}.wgsl`.
-
-CI performs step 1 on every job that builds or ships WGSL (the web viewer, sdist/wheels, and the
+CI runs the transpiler on every job that builds or ships WGSL (the web viewer, sdist/wheels, and the
 tagged-release archives), so a change that breaks the WGSL target fails CI.
