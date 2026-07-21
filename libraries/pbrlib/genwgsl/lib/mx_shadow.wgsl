@@ -1,7 +1,10 @@
+// This shader cannot be pre-transpiled since it needs glsl intrinsics .
+
 // Variance shadow mapping utilities.
 // https://developer.nvidia.com/gpugems/gpugems3/part-ii-light-and-shadows/chapter-8-summed-area-variance-shadow-maps
 
-fn mx_variance_shadow_occlusion(moments: vec2f, fragmentDepth: f32) -> f32 {
+fn mx_variance_shadow_occlusion(moments: vec2f, fragmentDepth: f32) -> f32 
+{
     let MIN_VARIANCE = 0.00001;
 
     // One-tailed inequality valid if fragmentDepth > moments.x.

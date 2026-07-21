@@ -22,8 +22,8 @@ struct FresnelData
     float exponent;
 
     // Thin film
-    float tf_thickness;
-    float tf_ior;
+    float thinfilm_thickness;
+    float thinfilm_ior;
 
     // Refraction
     bool refraction;
@@ -306,7 +306,7 @@ vec3 mx_fresnel_airy(float cosTheta, FresnelData fd)
 
     // Assume vacuum on the outside
     float eta1 = 1.0;
-    float eta2 = max(fd.tf_ior, eta1);
+    float eta2 = max(fd.thinfilm_ior, eta1);
     vec3 eta3 = (fd.model == FRESNEL_MODEL_SCHLICK) ? mx_f0_to_ior(fd.F0) : fd.ior;
     vec3 kappa3 = (fd.model == FRESNEL_MODEL_SCHLICK) ? vec3(0.0) : fd.extinction;
     float cosThetaT = sqrt(1.0 - (1.0 - mx_square(cosTheta)) * mx_square(eta1 / eta2));
@@ -356,7 +356,7 @@ vec3 mx_fresnel_airy(float cosTheta, FresnelData fd)
     vec3 Cm, Sm;
 
     // Optical path difference
-    float distMeters = fd.tf_thickness * 1.0e-9;
+    float distMeters = fd.thinfilm_thickness * 1.0e-9;
     float opd = 2.0 * eta2 * cosThetaT * distMeters;
 
     // Iridescence term using spectral antialiasing for Parallel polarization
@@ -398,53 +398,53 @@ vec3 mx_fresnel_airy(float cosTheta, FresnelData fd)
     return I;
 }
 
-FresnelData mx_init_fresnel_dielectric(float ior, float tf_thickness, float tf_ior)
+FresnelData mx_init_fresnel_dielectric(float ior, float thinfilm_thickness, float thinfilm_ior)
 {
     FresnelData fd;
     fd.model = FRESNEL_MODEL_DIELECTRIC;
-    fd.airy = tf_thickness > 0.0;
+    fd.airy = thinfilm_thickness > 0.0;
     fd.ior = vec3(ior);
     fd.extinction = vec3(0.0);
     fd.F0 = vec3(0.0);
     fd.F82 = vec3(0.0);
     fd.F90 = vec3(0.0);
     fd.exponent = 0.0;
-    fd.tf_thickness = tf_thickness;
-    fd.tf_ior = tf_ior;
+    fd.thinfilm_thickness = thinfilm_thickness;
+    fd.thinfilm_ior = thinfilm_ior;
     fd.refraction = false;
     return fd;
 }
 
-FresnelData mx_init_fresnel_conductor(vec3 ior, vec3 extinction, float tf_thickness, float tf_ior)
+FresnelData mx_init_fresnel_conductor(vec3 ior, vec3 extinction, float thinfilm_thickness, float thinfilm_ior)
 {
     FresnelData fd;
     fd.model = FRESNEL_MODEL_CONDUCTOR;
-    fd.airy = tf_thickness > 0.0;
+    fd.airy = thinfilm_thickness > 0.0;
     fd.ior = ior;
     fd.extinction = extinction;
     fd.F0 = vec3(0.0);
     fd.F82 = vec3(0.0);
     fd.F90 = vec3(0.0);
     fd.exponent = 0.0;
-    fd.tf_thickness = tf_thickness;
-    fd.tf_ior = tf_ior;
+    fd.thinfilm_thickness = thinfilm_thickness;
+    fd.thinfilm_ior = thinfilm_ior;
     fd.refraction = false;
     return fd;
 }
 
-FresnelData mx_init_fresnel_schlick(vec3 F0, vec3 F82, vec3 F90, float exponent, float tf_thickness, float tf_ior)
+FresnelData mx_init_fresnel_schlick(vec3 F0, vec3 F82, vec3 F90, float exponent, float thinfilm_thickness, float thinfilm_ior)
 {
     FresnelData fd;
     fd.model = FRESNEL_MODEL_SCHLICK;
-    fd.airy = tf_thickness > 0.0;
+    fd.airy = thinfilm_thickness > 0.0;
     fd.ior = vec3(0.0);
     fd.extinction = vec3(0.0);
     fd.F0 = F0;
     fd.F82 = F82;
     fd.F90 = F90;
     fd.exponent = exponent;
-    fd.tf_thickness = tf_thickness;
-    fd.tf_ior = tf_ior;
+    fd.thinfilm_thickness = thinfilm_thickness;
+    fd.thinfilm_ior = thinfilm_ior;
     fd.refraction = false;
     return fd;
 }
