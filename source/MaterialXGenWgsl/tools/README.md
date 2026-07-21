@@ -67,9 +67,11 @@ the run.
     `SKIP_PATTERNS` (`image`, `hextiled`).
   * *Light shaders* — take the dynamically-generated `LightData` struct the fragment context can't
     supply (`SKIP_PATTERNS` `_light$`).
-  * *`mx_chiang_hair_bsdf`* (in `EXPECTED_FALLBACK`) — array-valued `out` params
-    (`mx_hair_alpha_angles`/`mx_hair_attenuation`), `isinf()` in `mx_hair_azimuthal_scattering`, and
-    an `mx_environment_radiance` (sampler-bound) call in its indirect branch.
+
+There are currently no `EXPECTED_FALLBACK` nodes: everything else transpiles. (`mx_chiang_hair_bsdf`
+was a fallback until its `isinf()` call was replaced by `mx_isinf` — naga rejects GLSL `isinf` with
+`Unsupported relational function: IsInf`; the hand-written `mx_math.wgsl` implements `mx_isinf` as a
+finite-magnitude check.)
 
 The result is a *reduced* library by design: generated nodes and `lib/` helpers for everything that
 resolves cleanly against genglsl, and hand-written `.wgsl` for the rest.
