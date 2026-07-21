@@ -19,8 +19,8 @@ Node transpilation (per mx_*.glsl function):
     lib bodies — keeps parameter names clean and avoids `$`-tokens inside lib implementations.
   - Skipped: image/hextiled texture nodes (combined GLSL sampler2D has no split WGSL
     texture_2d+sampler equivalent) and light shaders (need the dynamic LightData struct).
-  - Expected fallback: mx_chiang_hair_bsdf (array `out` params, isinf, and a sampler-bound
-    indirect term — see EXPECTED_FALLBACK).
+  - Expected fallbacks: none currently. EXPECTED_FALLBACK stays as the regression guard for future
+    naga limitations (mx_chiang_hair_bsdf left it once isinf was replaced by mx_isinf).
 
 Lib transpilation (`transpileLibs`, runs before nodes):
   - Each genglsl/lib/*.glsl becomes genwgsl/lib/*.wgsl in topological #include order (22 files).
@@ -95,22 +95,13 @@ SKIP_PATTERNS = [re.compile(p) for p in (
     r"_light$",    # light shaders take the dynamically-generated LightData struct
 )]
 
-# Nodes that are intentionally NOT generated and remain hand-written, by file stem. They are
-# EXPECTED to fail transpile, so they don't constitute a build error -- only an *unexpected* failure
-# (a previously-generable node that broke, e.g. after a genglsl change) sets a non-zero exit. Keep
-# this in sync with the committed hand-written .wgsl files: if one starts transpiling cleanly, the
-# tool warns so it can be removed here.
-#
-# mx_chiang_hair_bsdf hits three distinct blockers in its genglsl source:
-#   1. array-valued `out` params -- mx_hair_alpha_angles(out vec2 angles[4]) and
-#      mx_hair_attenuation(out vec3 Ap[4]); naga's GLSL frontend can't lower `out` arrays to a WGSL
-#      ptr<function, array<...>> parameter;
-#   2. isinf() in mx_hair_azimuthal_scattering -- no WGSL builtin, and naga doesn't synthesize one;
-#   3. the indirect branch calls mx_environment_radiance(), a sampler-bound helper kept hand-written,
-#      so the post-process arity/unsupported check would reject the node even if 1-2 were solved.
-EXPECTED_FALLBACK = {
-    "mx_chiang_hair_bsdf",
-}
+# Nodes expected to fail transpile and stay hand-written, by file stem. A failure listed here is not
+# a build error; only an *unexpected* failure (a previously-generable node that broke, e.g. after a
+# genglsl change) sets a non-zero exit. If a node here starts transpiling cleanly, the tool warns so
+# it can be removed. Currently empty -- every node either transpiles or is skipped outright by
+# SKIP_PATTERNS. (mx_chiang_hair_bsdf used to live here: naga rejected its isinf() call until it was
+# replaced with mx_isinf -- see libraries/stdlib/genwgsl/lib/mx_math.wgsl.)
+EXPECTED_FALLBACK = set()
 
 # Hand-written genwgsl .wgsl files that must never be transpiled, listed in skip_transpile.txt
 # (next to this script). Covers both whole hand-maintained lib dirs and individual sampler-bound
@@ -546,10 +537,21 @@ def parseFunctions(text):
         closeP = _matchParen(text, openP)
         if closeP < 0:
             continue
-        # Skip whitespace after `)`; a definition has `{` here, a call/prototype has `;` or `,`.
+        # Skip whitespace and comments after `)`; a definition has `{` here, a call/prototype has
+        # `;` or `,`. Comments (e.g. a trailing `// Ap` after the parameter list) must be stepped
+        # over too, or the definition is misread as a prototype and dropped.
         j = closeP + 1
-        while j < len(text) and text[j].isspace():
-            j += 1
+        while j < len(text):
+            if text[j].isspace():
+                j += 1
+            elif text.startswith("//", j):
+                nl = text.find("\n", j)
+                j = len(text) if nl < 0 else nl + 1
+            elif text.startswith("/*", j):
+                end = text.find("*/", j)
+                j = len(text) if end < 0 else end + 2
+            else:
+                break
         if j >= len(text) or text[j] != "{":
             continue  # a call/prototype, not a definition
         end = _matchBrace(text, j)

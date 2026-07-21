@@ -31,6 +31,10 @@ fn mx_square_vec3(x: vec3f) -> vec3f {
     return (x * x);
 }
 
+fn mx_isinf(v: f32) -> bool {
+    return abs(v) > 3.40282347e+38;
+}
+
 // Modulo with GLSL mod() semantics: x - y * floor(x / y)
 // WGSL '%' operator is remainder (fmod), not modulo, so we need explicit functions.
 
