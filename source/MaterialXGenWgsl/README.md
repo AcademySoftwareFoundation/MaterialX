@@ -22,7 +22,7 @@ its node library is a *hybrid*, and that is the main thing to understand before 
   before node transpilation). All 22 `genglsl/lib` files transpile via naga (including prefilter
   environment helpers). They are also **not committed**.
 * **`mx_chiang_hair_bsdf` is hand-written** and intentionally *not* generated (naga limitation on
-  hair scattering helpers). It is listed in `EXPECTED_FALLBACK` in `tools/glsl_to_wgsl.py`.
+  hair scattering helpers). It is listed in `EXPECTED_FALLBACK` in `tools/mxgenwgsl.py`.
 * **Texture / image and light nodes are hand-written** too — the transpiler skips them (naga's GLSL
   front-end has no sampler support, and light shaders use the dynamically generated `LightData`).
 
@@ -37,7 +37,7 @@ CLI and running the transpiler) on the jobs that build or ship WGSL — the web 
 sdist/wheels, and the tagged-release archives. Locally, populate the library in place with:
 
 ```
-python source/MaterialXGenWgsl/tools/glsl_to_wgsl.py --libraries libraries --out libraries
+python source/MaterialXGenWgsl/tools/mxgenwgsl.py --libraries libraries --out libraries
 ```
 
 then configure with `-DMATERIALX_BUILD_GEN_WGSL=ON`. The transpiler exits non-zero on any lib or

@@ -13,7 +13,7 @@ mx_add_library(MaterialXGenWgsl
         MATERIALX_GENWGSL_EXPORTS)
 
 # Optional build-time regeneration of the genwgsl shader-node library from genglsl. This runs the
-# offline transpiler (tools/glsl_to_wgsl.py) over libraries/ into the build tree purely for
+# offline transpiler (tools/mxgenwgsl.py) over libraries/ into the build tree purely for
 # validation: transpile or naga errors -- and any previously-generable node that regresses -- make
 # the build fail. The generated genwgsl .wgsl node files are NOT committed; they are produced from
 # genglsl (the single source of truth) by CI, which runs the transpiler with `--out libraries` to
@@ -83,7 +83,7 @@ if(MATERIALX_GENERATE_WGSL_LIBRARY)
 
         add_custom_target(MaterialXGenWgslLibrary ALL
             COMMAND ${CMAKE_COMMAND} -E env "NAGA=${MATERIALX_NAGA_EXECUTABLE}"
-                    "${_wgsl_python}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/glsl_to_wgsl.py"
+                    "${_wgsl_python}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/mxgenwgsl.py"
                     --libraries "${PROJECT_SOURCE_DIR}/libraries"
                     --out "${CMAKE_BINARY_DIR}/genwgsl_generated"
             WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
