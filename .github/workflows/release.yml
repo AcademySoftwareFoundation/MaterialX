@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
        RELEASE_TAG: ${{ github.ref_name }}
-       NAGA_VERSION: "29.0.0"
+       NAGA_VERSION: "30.0.0"
     permissions:
       contents: write
       id-token: write
@@ -38,7 +38,9 @@ jobs:
         run: cargo install naga-cli --locked --version ${NAGA_VERSION}
 
       - name: Generate WGSL library
-        run: python source/MaterialXGenWgsl/tools/glsl_to_wgsl.py --libraries libraries --out libraries
+        run: |
+          python -m pip install -r source/MaterialXGenWgsl/tools/requirements-transpile.txt
+          python source/MaterialXGenWgsl/tools/mxgenwgsl.py --libraries libraries --out libraries
 
       - name: Generate Archives
         run: |
