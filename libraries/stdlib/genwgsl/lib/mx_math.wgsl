@@ -32,7 +32,11 @@ fn mx_square_vec3(x: vec3f) -> vec3f {
 }
 
 fn mx_isinf(v: f32) -> bool {
-    return abs(v) > 3.40282347e+38;
+    // WGSL has no isInf. +/-inf is the only bit pattern with all exponent bits set and a zero
+    // mantissa; masking the sign bit matches both infinities, while NaN (nonzero mantissa) does
+    // not -- matching GLSL isinf(). A magnitude compare is avoided because the only correct
+    // threshold is exactly FLT_MAX, and that literal overflows f32 const-eval on some drivers.
+    return (bitcast<u32>(v) & 0x7fffffffu) == 0x7f800000u;
 }
 
 // Modulo with GLSL mod() semantics: x - y * floor(x / y)
