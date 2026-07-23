@@ -28,6 +28,23 @@ def _parser():
     return _PARSER
 
 
+_CLEANUP_AVAILABLE = None
+
+
+def cleanupAvailable():
+    '''Whether the tree-sitter WGSL grammar can be loaded (probed once, cached). When False the
+    readability cleanup is skipped and callers keep the raw -- valid but verbose -- naga output.
+    Lets generation run on interpreters with no tree-sitter-language-pack wheel (e.g. Python 3.9).'''
+    global _CLEANUP_AVAILABLE
+    if _CLEANUP_AVAILABLE is None:
+        try:
+            _parser()
+            _CLEANUP_AVAILABLE = True
+        except Exception:
+            _CLEANUP_AVAILABLE = False
+    return _CLEANUP_AVAILABLE
+
+
 def _nodeText(node, src):
     return src[node.start_byte:node.end_byte].decode("utf-8")
 
@@ -741,6 +758,8 @@ def inlineSingleUseTemps(body):
 
 def cleanupFunction(fnText, glslParamNames=None):
     '''Run readability cleanup on one transpiled WGSL function.'''
+    if not cleanupAvailable():
+        return fnText  # no tree-sitter grammar: keep raw naga output (announced once by the caller)
     try:
         # Inline naga temps first so param-mutate patterns like `N_25 = -(_e39)` become
         # `N_25 = -(N_25)` before tree-sitter param-shadow analysis runs.

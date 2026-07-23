@@ -1,4 +1,8 @@
 # Deps for WGSL post-process cleanup (mxwgslcleanup.py).
 # tree-sitter-language-pack ships a precompiled WGSL grammar (and pulls the tree-sitter
 # runtime), so no Node/tree-sitter-cli or vendored grammar is needed.
+#
+# OPTIONAL: only the readability cleanup pass needs this. Generation runs without it (emitting
+# verbose but valid WGSL), so CI installs it best-effort -- interpreters with no wheel (e.g. some
+# early/pre-release Python versions) still generate the library.
 tree-sitter-language-pack>=1.13,<2
