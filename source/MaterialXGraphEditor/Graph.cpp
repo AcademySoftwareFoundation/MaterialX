@@ -297,15 +297,51 @@ ed::PinId Graph::getOutputPin(UiNodePtr node, UiNodePtr upNode, UiPinPtr input)
 {
     if (upNode->getNodeGraph() != nullptr)
     {
-        // For nodegraph need to get the correct output pin according to the names of the output nodes
+        // For nodegraph, resolve the upstream output from either an input port
+        // or an output port so links into output nodes are handled as well.
         mx::OutputPtr output;
-        if (input->getUiNode()->getNode())
+        const std::string desiredOutputName = input->getInput() ?
+            input->getInput()->getOutputString() :
+            (input->getOutput() ? input->getOutput()->getOutputString() : mx::EMPTY_STRING);
+        if (input->getInput())
         {
-            output = input->getUiNode()->getNode()->getConnectedOutput(input->getName());
+            output = input->getInput()->getConnectedOutput();
         }
-        else if (input->getUiNode()->getNodeGraph())
+        else if (input->getOutput())
         {
-            output = input->getUiNode()->getNodeGraph()->getConnectedOutput(input->getName());
+            output = input->getOutput()->getConnectedOutput();
+        }
+
+        // If no explicit output was specified on a nodegraph connection,
+        // resolve by output attribute name first, then default to the first
+        // declared output for single-output graphs.
+        if (!output)
+        {
+            const std::string& nodeGraphName = input->getInput() ?
+                input->getInput()->getNodeGraphString() :
+                (input->getOutput() ? input->getOutput()->getNodeGraphString() : mx::EMPTY_STRING);
+            const std::string& outputName = input->getInput() ?
+                input->getInput()->getOutputString() :
+                (input->getOutput() ? input->getOutput()->getOutputString() : mx::EMPTY_STRING);
+
+            if (!nodeGraphName.empty() && upNode->getNodeGraph() && upNode->getNodeGraph()->getName() == nodeGraphName)
+            {
+                const auto& outputs = upNode->getOutputPins();
+                if (!outputName.empty())
+                {
+                    for (UiPinPtr outPin : outputs)
+                    {
+                        if (outPin->getName() == outputName)
+                        {
+                            return outPin->getPinId();
+                        }
+                    }
+                }
+                if (!outputs.empty())
+                {
+                    return outputs[0]->getPinId();
+                }
+            }
         }
 
         if (output)
@@ -318,6 +354,34 @@ ed::PinId Graph::getOutputPin(UiNodePtr node, UiNodePtr upNode, UiPinPtr input)
                     return outputs->getPinId();
                 }
             }
+
+            // If the connected output resolves deeper than this nodegraph,
+            // prefer the explicit output attribute from the referencing port.
+            if (!desiredOutputName.empty())
+            {
+                for (UiPinPtr outputs : upNode->getOutputPins())
+                {
+                    if (outputs->getName() == desiredOutputName)
+                    {
+                        return outputs->getPinId();
+                    }
+                }
+            }
+
+            // If a referenced output name cannot be resolved in the UI pins,
+            // fall back to the first output to keep links renderable.
+            const auto& outputs = upNode->getOutputPins();
+            if (!outputs.empty())
+            {
+                return outputs[0]->getPinId();
+            }
+        }
+
+        // If no upstream output was explicitly resolved, default to first output.
+        const auto& outputs = upNode->getOutputPins();
+        if (!outputs.empty())
+        {
+            return outputs[0]->getPinId();
         }
         return ed::PinId();
     }
@@ -476,16 +540,35 @@ void Graph::linkGraph()
 
 void Graph::scanNestedGraphDiagnostics()
 {
+    // 
+    // Kick off a recursive scan from each top-level graph. The previous version
+    // only scanned one level deep and could miss deeper nested nodegraphs.
     for (mx::NodeGraphPtr ng : _graphDoc->getNodeGraphs())
     {
-        const std::string& graphName = ng->getName();
-        for (mx::NodePtr node : ng->getNodes())
+        scanNestedGraphDiagnostics(ng, ng->getName());
+    }
+}
+
+void Graph::scanNestedGraphDiagnostics(mx::NodeGraphPtr ng, const std::string& graphPath)
+{
+    // 
+    // Validate all node inputs in the current graph level, and record a path
+    // label so diagnostics can point back into nested graph hierarchies.
+    for (mx::NodePtr node : ng->getNodes())
+    {
+        for (mx::InputPtr input : node->getInputs())
         {
-            for (mx::InputPtr input : node->getInputs())
-            {
-                addInvalidInputDiagnostic(input, node->getName(), -1, graphName, ng);
-            }
+            addInvalidInputDiagnostic(input, node->getName(), -1, graphPath, ng);
         }
+    }
+
+    // 
+    // Recurse into child nodegraphs so diagnostics include arbitrarily nested
+    // subgraphs, not only direct children.
+    for (mx::NodeGraphPtr child : ng->getNodeGraphs())
+    {
+        std::string childPath = graphPath.empty() ? child->getName() : graphPath + "/" + child->getName();
+        scanNestedGraphDiagnostics(child, childPath);
     }
 }
 
@@ -1253,7 +1336,7 @@ void Graph::createNodeUIList(mx::DocumentPtr doc)
     addExtraNodes();
 }
 
-void Graph::buildUiBaseGraph(mx::DocumentPtr doc)
+void Graph::buildUiBaseGraph(mx::GraphElementPtr doc)
 {
     std::vector<mx::NodeGraphPtr> nodeGraphs = doc->getNodeGraphs();
     std::vector<mx::InputPtr> inputNodes = doc->getActiveInputs();
@@ -1273,7 +1356,10 @@ void Graph::buildUiBaseGraph(mx::DocumentPtr doc)
         setUiNodeInfo(currNode, node->getType(), node->getCategory());
     }
 
-    // Create UiNodes for the nodegraph
+    // 
+    // Top-level build only creates top-level nodegraph nodes.
+    // Nested nodegraphs are created when diving into their parent graph,
+    // preventing accidental flattening into the document view.
     for (mx::NodeGraphPtr nodeGraph : nodeGraphs)
     {
         if (!includeElement(nodeGraph))
@@ -1332,160 +1418,96 @@ void Graph::buildUiBaseGraph(mx::DocumentPtr doc)
 
 void Graph::buildUiNodeGraph(const mx::NodeGraphPtr& nodeGraphs)
 {
-    if (nodeGraphs)
+    // 
+    // Use uniform, explicit construction order
+    // (inputs -> nodes -> nested nodegraphs -> outputs) for the current graph
+    // level, then wires edges in dedicated passes.
+    if (!nodeGraphs)
     {
-        mx::NodeGraphPtr nodeGraph = nodeGraphs;
-        std::vector<mx::ElementPtr> children = nodeGraph->topologicalSort();
-        mx::NodeDefPtr nodeDef = nodeGraph->getNodeDef();
+        return;
+    }
 
-        // Create input nodes
-        if (nodeDef)
+    mx::NodeGraphPtr nodeGraph = nodeGraphs;
+    mx::ElementPredicate includeElement = getElementPredicate();
+
+    // 
+    // Use the graph's active interface inputs directly so compound graphs and
+    // nested graphs show their actual editable interface at this level.
+    for (mx::InputPtr input : nodeGraph->getActiveInputs())
+    {
+        if (!includeElement(input))
+            continue;
+        auto currNode = std::make_shared<UiNode>(input->getName(), _state.nextUiId);
+        currNode->setInput(input);
+        setUiNodeInfo(currNode, input->getType(), input->getCategory());
+    }
+
+    // Create regular node instances in this graph level.
+    for (mx::NodePtr node : nodeGraph->getNodes())
+    {
+        if (!includeElement(node))
+            continue;
+        auto currNode = std::make_shared<UiNode>(node->getName(), _state.nextUiId);
+        currNode->setNode(node);
+        setUiNodeInfo(currNode, node->getType(), node->getCategory());
+    }
+
+    // 
+    // Explicitly create child nodegraph nodes so nested graph structure is
+    // represented in the UI and can be entered by the user.
+    for (mx::NodeGraphPtr subGraph : nodeGraph->getNodeGraphs())
+    {
+        if (!includeElement(subGraph))
+            continue;
+        auto currNode = std::make_shared<UiNode>(subGraph->getName(), _state.nextUiId);
+        currNode->setNodeGraph(subGraph);
+        setUiNodeInfo(currNode, "", "nodegraph");
+    }
+
+    // Create output nodes in this graph level.
+    for (mx::OutputPtr output : nodeGraph->getOutputs())
+    {
+        if (!includeElement(output))
+            continue;
+        auto currNode = std::make_shared<UiNode>(output->getName(), _state.nextUiId);
+        currNode->setOutput(output);
+        setUiNodeInfo(currNode, output->getType(), output->getCategory());
+    }
+
+    // 
+    // Build incoming edges from each interface element's active inputs.
+    // This handles node inputs and nested nodegraph inputs with the same logic.
+    for (size_t i = 0; i < _state.nodes.size(); i++)
+    {
+        UiNodePtr& uiNode = _state.nodes[i];
+        mx::ElementPtr elem = uiNode->getElement();
+        mx::InterfaceElementPtr interface = elem ? elem->asA<mx::InterfaceElement>() : nullptr;
+        if (!interface)
         {
-            std::vector<mx::InputPtr> inputs = nodeDef->getActiveInputs();
-
-            for (mx::InputPtr input : inputs)
-            {
-                auto currNode = std::make_shared<UiNode>(input->getName(), _state.nextUiId);
-                currNode->setInput(input);
-                setUiNodeInfo(currNode, input->getType(), input->getCategory());
-            }
+            continue;
         }
 
-        // Search node graph children to create uiNodes
-        for (mx::ElementPtr elem : children)
+        int downNum = static_cast<int>(i);
+        for (mx::InputPtr input : interface->getActiveInputs())
         {
-            mx::NodePtr node = elem->asA<mx::Node>();
-            mx::InputPtr input = elem->asA<mx::Input>();
-            mx::OutputPtr output = elem->asA<mx::Output>();
-            std::string name = elem->getName();
-            auto currNode = std::make_shared<UiNode>(name, _state.nextUiId);
-            if (node)
+            if (!includeElement(input))
+                continue;
+            int upNum = findUpstreamNode(input);
+            if (upNum >= 0)
             {
-                currNode->setNode(node);
-                setUiNodeInfo(currNode, node->getType(), node->getCategory());
-            }
-            else if (input)
-            {
-                currNode->setInput(input);
-                setUiNodeInfo(currNode, input->getType(), input->getCategory());
-            }
-            else if (output)
-            {
-                currNode->setOutput(output);
-                setUiNodeInfo(currNode, output->getType(), output->getCategory());
+                createEdge(_state.nodes[upNum], _state.nodes[downNum], input);
             }
         }
+    }
 
-        // Write out all connections.
-        std::set<mx::Edge> processedEdges;
-        for (mx::OutputPtr output : nodeGraph->getOutputs())
-        {
-            for (mx::Edge edge : output->traverseGraph())
-            {
-                if (!processedEdges.count(edge))
-                {
-                    mx::ElementPtr upstreamElem = edge.getUpstreamElement();
-                    mx::ElementPtr downstreamElem = edge.getDownstreamElement();
-                    mx::ElementPtr connectingElem = edge.getConnectingElement();
-
-                    mx::NodePtr upstreamNode = upstreamElem->asA<mx::Node>();
-                    mx::InputPtr upstreamInput = upstreamElem->asA<mx::Input>();
-                    mx::OutputPtr upstreamOutput = upstreamElem->asA<mx::Output>();
-                    mx::NodePtr downstreamNode = downstreamElem->asA<mx::Node>();
-                    mx::InputPtr downstreamInput = downstreamElem->asA<mx::Input>();
-                    mx::OutputPtr downstreamOutput = downstreamElem->asA<mx::Output>();
-                    std::string upName = upstreamElem->getName();
-                    std::string downName = downstreamElem->getName();
-                    std::string upstreamType;
-                    std::string downstreamType;
-                    if (upstreamNode)
-                    {
-                        upstreamType = "node";
-                    }
-                    else if (upstreamInput)
-                    {
-                        upstreamType = "input";
-                    }
-                    else if (upstreamOutput)
-                    {
-                        upstreamType = "output";
-                    }
-                    if (downstreamNode)
-                    {
-                        downstreamType = "node";
-                    }
-                    else if (downstreamInput)
-                    {
-                        downstreamType = "input";
-                    }
-                    else if (downstreamOutput)
-                    {
-                        downstreamType = "output";
-                    }
-                    int upNum = findNode(upName, upstreamType);
-                    int downNum = findNode(downName, downstreamType);
-
-                    // Create edges for output nodes (no connecting input)
-                    if (downNum >= 0 && upNum >= 0 && _state.nodes[downNum]->getOutput())
-                    {
-                        createEdge(_state.nodes[upNum], _state.nodes[downNum], nullptr);
-                    }
-                    else if (connectingElem && upNum >= 0 && downNum >= 0)
-                    {
-                        mx::InputPtr connectingInput = connectingElem->asA<mx::Input>();
-                        if (connectingInput)
-                        {
-                            createEdge(_state.nodes[upNum], _state.nodes[downNum], connectingInput);
-                        }
-                    }
-
-                    // Connect input nodes for upstream node
-                    if (upstreamNode && upNum >= 0)
-                    {
-                        for (mx::InputPtr input : upstreamNode->getActiveInputs())
-                        {
-                            if (input->hasInterfaceName())
-                            {
-                                int newUp = findNode(input->getInterfaceName(), "input");
-                                if (newUp >= 0)
-                                {
-                                    createEdge(_state.nodes[newUp], _state.nodes[upNum], input);
-                                }
-                            }
-                        }
-                    }
-
-                    processedEdges.insert(edge);
-                }
-            }
-        }
-
-        // Second pass to catch all of the connections that aren't part of an output
-        for (mx::ElementPtr elem : children)
-        {
-            mx::NodePtr node = elem->asA<mx::Node>();
-            mx::OutputPtr output = elem->asA<mx::Output>();
-            if (node)
-            {
-                int downNum = findNode(node->getName(), "node");
-                if (downNum < 0)
-                {
-                    continue;
-                }
-                for (mx::InputPtr input : node->getActiveInputs())
-                {
-                    int upNum = findUpstreamNode(input);
-                    if (upNum >= 0)
-                    {
-                        createEdge(_state.nodes[upNum], _state.nodes[downNum], input);
-                    }
-                }
-            }
-            else if (output)
-            {
-                createEdgeForOutput(output);
-            }
-        }
+    // 
+    // Build output edges in a separate pass so outputs connected through either
+    // nodename or output references are handled consistently.
+    for (mx::OutputPtr output : nodeGraph->getOutputs())
+    {
+        if (!includeElement(output))
+            continue;
+        createEdgeForOutput(output);
     }
 }
 
@@ -1600,6 +1622,16 @@ bool Graph::createEdge(UiNodePtr upNode, UiNodePtr downNode, mx::InputPtr connec
 
 void Graph::createEdgeForOutput(mx::OutputPtr output)
 {
+    // 
+    // Outputs can be connected in two valid forms:
+    // 1) output -> connected node
+    // 2) output -> specific connected output (including from a nodegraph)
+    // Handle both so nested nodegraph output wiring is visible in the UI.
+    if (!output)
+    {
+        return;
+    }
+
     mx::NodePtr connectedNode = output->getConnectedNode();
     if (connectedNode)
     {
@@ -1609,6 +1641,55 @@ void Graph::createEdgeForOutput(mx::OutputPtr output)
         {
             createEdge(_state.nodes[upNum], _state.nodes[downNum], nullptr);
         }
+        return;
+    }
+
+    // 
+    // If no direct node connection exists, fall back to connected-output
+    // references and resolve their parent element type.
+    mx::OutputPtr connectedOutput = output->getConnectedOutput();
+    if (!connectedOutput)
+    {
+        // Handle output connections expressed as nodegraph references without
+        // an explicit output name (valid for single-output nodegraphs).
+        const mx::string& nodeGraphName = output->getNodeGraphString();
+        if (!nodeGraphName.empty())
+        {
+            int upNum = findNode(nodeGraphName, "nodegraph");
+            int downNum = findNode(output->getName(), "output");
+            if (upNum >= 0 && downNum >= 0)
+            {
+                createEdge(_state.nodes[upNum], _state.nodes[downNum], nullptr);
+            }
+        }
+        return;
+    }
+
+    int upNum = -1;
+    mx::ElementPtr parent = connectedOutput->getParent();
+    if (mx::NodePtr upstreamNode = parent ? parent->asA<mx::Node>() : nullptr)
+    {
+        upNum = findNode(upstreamNode->getName(), "node");
+    }
+    else if (mx::NodeGraphPtr upstreamGraph = parent ? parent->asA<mx::NodeGraph>() : nullptr)
+    {
+        upNum = findNode(upstreamGraph->getName(), "nodegraph");
+    }
+
+    // If parent-based resolution fails, fall back to explicit nodegraph attribute.
+    if (upNum < 0)
+    {
+        const mx::string& nodeGraphName = output->getNodeGraphString();
+        if (!nodeGraphName.empty())
+        {
+            upNum = findNode(nodeGraphName, "nodegraph");
+        }
+    }
+
+    int downNum = findNode(output->getName(), "output");
+    if (upNum >= 0 && downNum >= 0)
+    {
+        createEdge(_state.nodes[upNum], _state.nodes[downNum], nullptr);
     }
 }
 
@@ -1618,9 +1699,13 @@ void Graph::copyUiNode(UiNodePtr node)
     ++_state.nextUiId;
     if (node->getNodeGraph())
     {
-        _graphDoc->addNodeGraph();
-        std::string nodeGraphName = _graphDoc->getNodeGraphs().back()->getName();
-        copyNode->setNodeGraph(_graphDoc->getNodeGraphs().back());
+        // 
+        // Create copied nodegraphs under the currently edited graph scope.
+        // Previously this was always created at document scope, which broke
+        // nested graph hierarchy during copy/paste.
+        mx::NodeGraphPtr newNodeGraph = _state.graphElem->addNodeGraph();
+        std::string nodeGraphName = newNodeGraph->getName();
+        copyNode->setNodeGraph(newNodeGraph);
         copyNode->setName(nodeGraphName);
         copyNodeGraph(node, copyNode);
     }
@@ -1663,7 +1748,10 @@ void Graph::copyNodeGraph(UiNodePtr origGraph, UiNodePtr copyGraph)
     std::vector<mx::InputPtr> inputs = copyGraph->getNodeGraph()->getActiveInputs();
     for (mx::InputPtr input : inputs)
     {
-        std::string newName = _graphDoc->createValidChildName(input->getName());
+        // 
+        // Resolve unique input names against the copied graph itself, not the
+        // document root. This keeps copied nested graphs self-consistent.
+        std::string newName = copyGraph->getNodeGraph()->createValidChildName(input->getName());
         input->setName(newName);
     }
 }
@@ -1808,13 +1896,16 @@ void Graph::addNode(const std::string& category, const std::string& name, const 
     }
     else if (category == "nodegraph")
     {
-        // Create new mx::NodeGraph and set as current node graph
-        _graphDoc->addNodeGraph();
-        std::string nodeGraphName = _graphDoc->getNodeGraphs().back()->getName();
+        // Create a new nodegraph as a child of the currently edited graph.
+        // 
+        // Use the current graph scope so adding a nodegraph inside another
+        // nodegraph preserves intended nesting.
+        mx::NodeGraphPtr newNodeGraph = _state.graphElem->addNodeGraph();
+        std::string nodeGraphName = newNodeGraph->getName();
         auto nodeGraphNode = std::make_shared<UiNode>(nodeGraphName, int(++_state.nextUiId));
 
         // Set mx::Nodegraph as node graph for uiNode
-        nodeGraphNode->setNodeGraph(_graphDoc->getNodeGraphs().back());
+        nodeGraphNode->setNodeGraph(newNodeGraph);
 
         setUiNodeInfo(nodeGraphNode, type, "nodegraph");
         return;
@@ -2350,7 +2441,7 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     ImGui::GetCursorScreenPos() + ImVec2(-hdrPadL, 3),
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - hdrPadL - 2.f * hdrInset, ImGui::GetTextLineHeight() + hdrPadB),
-                    ImColor(ImColor(35, 35, 35, 255)), 0);
+                    ImColor(ImColor(135, 206, 250, 255)), 0);
                 ImGui::Indent(hdrTextIndent);
                 ImGui::Text("%s", node->getName().c_str());
                 ImGui::Unindent(hdrTextIndent);
@@ -2688,7 +2779,80 @@ void Graph::addLink(ed::PinId startPinId, ed::PinId endPinId)
     {
         if (_state.nodes[downNode]->getOutput() != nullptr)
         {
-            _state.nodes[downNode]->getOutput()->setConnectedNode(_state.nodes[upNode]->getNode());
+            // 
+            // Output elements in a parent graph can connect to either:
+            // - a node in the same graph
+            // - a specific output on a nested nodegraph
+            // Serialize using connected-output when needed so the exported
+            // MaterialX preserves nodegraph/output attributes correctly.
+            mx::OutputPtr downOutput = _state.nodes[downNode]->getOutput();
+            if (uiUpNode->getNodeGraph())
+            {
+                mx::OutputPtr upstreamOutput = nullptr;
+                for (UiPinPtr outPin : uiUpNode->getOutputPins())
+                {
+                    if (outPin->getPinId() == outputPinId)
+                    {
+                        upstreamOutput = uiUpNode->getNodeGraph()->getOutput(outPin->getName());
+                        break;
+                    }
+                }
+
+                // If no explicit output is selected, default to first output.
+                if (!upstreamOutput)
+                {
+                    if (!uiUpNode->getOutputPins().empty())
+                    {
+                        upstreamOutput = uiUpNode->getNodeGraph()->getOutput(uiUpNode->getOutputPins()[0]->getName());
+                    }
+                }
+
+                if (upstreamOutput)
+                {
+                    downOutput->setConnectedOutput(upstreamOutput);
+                }
+            }
+            else if (uiUpNode->getNode())
+            {
+                mx::NodePtr upstreamNode = uiUpNode->getNode();
+                mx::NodeDefPtr upstreamNodeDef = upstreamNode->getNodeDef();
+                const bool isMultiOutput = upstreamNodeDef ? upstreamNodeDef->getOutputs().size() > 1 : false;
+
+                if (!isMultiOutput)
+                {
+                    downOutput->setConnectedNode(upstreamNode);
+                }
+                else
+                {
+                    mx::OutputPtr upstreamOutput = nullptr;
+                    for (UiPinPtr outPin : uiUpNode->getOutputPins())
+                    {
+                        if (outPin->getPinId() == outputPinId)
+                        {
+                            upstreamOutput = upstreamNode->getOutput(outPin->getName());
+                            break;
+                        }
+                    }
+
+                    // If no explicit output is selected, default to first output.
+                    if (!upstreamOutput)
+                    {
+                        if (!uiUpNode->getOutputPins().empty())
+                        {
+                            upstreamOutput = upstreamNode->getOutput(uiUpNode->getOutputPins()[0]->getName());
+                        }
+                    }
+
+                    if (upstreamOutput)
+                    {
+                        downOutput->setConnectedOutput(upstreamOutput);
+                    }
+                    else
+                    {
+                        downOutput->setConnectedNode(upstreamNode);
+                    }
+                }
+            }
         }
 
         // Create new edge and set edge information.
@@ -2805,7 +2969,12 @@ void Graph::deleteLinkInfo(int startAttr, int endAttr)
             if ((int) pin->getPinId().Get() == endAttr)
             {
                 removeEdge(downNode, upNode, pin);
+                // Clear all serialized connection forms for outputs.
+                // Output links may be encoded as nodename, nodegraph+output,
+                // or nodename+output for multioutput nodes.
                 _state.nodes[downNode]->getOutput()->removeAttribute("nodename");
+                _state.nodes[downNode]->getOutput()->removeAttribute("nodegraph");
+                _state.nodes[downNode]->getOutput()->removeAttribute("output");
                 for (UiPinPtr connect : pin->getConnections())
                 {
                     pin->deleteConnection(connect);
@@ -3973,10 +4142,10 @@ void Graph::addNodePopup(bool cursor)
                 std::string nodeName = node.getName();
 
                 // Disallow creating nested nodegraphs
-                if (_state.isCompoundNodeGraph && node.getGroup() == NODEGRAPH_ENTRY)
-                {
-                    continue;
-                }
+                //if (_state.isCompoundNodeGraph && node.getGroup() == NODEGRAPH_ENTRY)
+                //{
+                //    continue;
+                //}
 
                 // Allow spaces to be used to search for node names
                 std::replace(subs.begin(), subs.end(), ' ', '_');

@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+  <nodegraph name="level1_graph">
+    <nodegraph name="level2_graph">
+      <nodegraph name="level3_graph">
+        <input name="level3_input" type="color3" interfacename="level2_input2" />
+        <output name="level3_output" type="color3" nodename="invert_color3" />
+        <invert name="invert_color3" type="color3">
+          <input name="in" type="color3" interfacename="level3_input" />
+        </invert>
+      </nodegraph>
+      <input name="level2_input" type="color3" interfacename="level1_input" />
+      <input name="level2_input2" type="color3" interfacename="level1_input2" />
+      <output name="level2_output" type="color3" nodename="color3" />
+      <add name="color3" type="color3">
+        <input name="in1" type="color3" interfacename="level2_input2" />
+        <input name="in2" type="color3" interfacename="level2_input" />
+      </add>
+      <output name="level2_output2" type="color3" nodegraph="level3_graph" output="level3_output" />
+    </nodegraph>
+    <input name="level1_input" type="color3" value="0.216726, 0.0162733, 0.128939" />
+    <input name="level1_input2" type="color3" value="0.366403, 0.691541, 0.251566" />
+    <multiply name="color3" type="color3">
+      <input name="in1" type="color3" nodegraph="level2_graph" output="level2_output" />
+    </multiply>
+    <output name="level1_output" type="color3" nodegraph="level2_graph" />
+    <output name="level1_output2" type="color3" output="level2_output2" nodegraph="level2_graph" />
+  </nodegraph>
+  <output name="doc_output" type="color3" nodegraph="level1_graph" output="level1_output2" />
+  <surface_unlit name="surface_unlit" type="surfaceshader">
+    <input name="emission_color" type="color3" output="level1_output" nodegraph="level1_graph" />
+  </surface_unlit>
+  <surface_unlit name="surface_unlit2" type="surfaceshader">
+    <input name="emission_color" type="color3" output="level1_output2" nodegraph="level1_graph" />
+  </surface_unlit>
+</materialx>

@@ -149,7 +149,8 @@ void UiNode::buildUiTokenMap()
 
         std::string inputValue = input->getValueString();
         if (inputValue.empty() && input->hasInterfaceName())
-            inputValue = input->getInterfaceInput()->getValueString(); // Get value from referenced interface
+            if (input->getInterfaceInput())
+                inputValue = input->getInterfaceInput()->getValueString(); // Get value from referenced interface
 
         for (const auto& entry : inputTokens)
         {

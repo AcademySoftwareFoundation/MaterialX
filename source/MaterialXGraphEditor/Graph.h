@@ -132,7 +132,7 @@ class Graph
     void createNodeUIList(mx::DocumentPtr doc);
 
     // Build UiNode nodegraph upon loading a document
-    void buildUiBaseGraph(mx::DocumentPtr doc);
+    void buildUiBaseGraph(mx::GraphElementPtr doc);
 
     // Build UiNode node graph upon diving into a nodegraph node
     void buildUiNodeGraph(const mx::NodeGraphPtr& nodeGraphs);
@@ -145,6 +145,11 @@ class Graph
 
     // Walk all NodeGraph elements in _graphDoc and append invalid-connection diagnostics.
     void scanNestedGraphDiagnostics();
+
+    // Recursive helper used by scanNestedGraphDiagnostics.
+    // Walks nested NodeGraph hierarchies while preserving a slash-delimited
+    // graph path for UI diagnostics.
+    void scanNestedGraphDiagnostics(mx::NodeGraphPtr ng, const std::string& graphPath);
 
     // If the given connected input fails core validation, append a diagnostic and return true.
     bool addInvalidInputDiagnostic(mx::InputPtr input, const std::string& nodeName,
