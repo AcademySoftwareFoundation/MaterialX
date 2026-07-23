@@ -247,7 +247,11 @@ jobs:
     - name: Generate WGSL library
       if: matrix.python != 'None'
       run: |
-        python -m pip install -r source/MaterialXGenWgsl/tools/requirements-transpile.txt
+        # Cleanup deps (tree-sitter) are optional and have no wheel on some interpreters (e.g. 3.9);
+        # install best-effort so their absence doesn't fail the build. Generation degrades to
+        # verbose-but-valid WGSL, and mxgenwgsl.py stays fatal so real failures still surface.
+        python -m pip install -r source/MaterialXGenWgsl/tools/requirements-transpile.txt \
+          || echo "WGSL cleanup deps unavailable; generating verbose WGSL"
         python source/MaterialXGenWgsl/tools/mxgenwgsl.py --libraries libraries --out libraries
 
     - name: Test WGSL cleanup

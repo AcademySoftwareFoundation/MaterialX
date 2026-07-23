@@ -23,8 +23,9 @@ declaration order), so regenerating after a genglsl change just brings genwgsl b
 * **Optional: [`tree-sitter-language-pack`](https://pypi.org/project/tree-sitter-language-pack/)**,
   for the readability cleanup pass (see [WGSL cleanup](#wgsl-cleanup)). It ships a precompiled WGSL
   grammar (and pulls the `tree-sitter` runtime), so no Node or `tree-sitter-cli` is needed:
-  `pip install -r source/MaterialXGenWgsl/tools/requirements-transpile.txt`. If it is missing the
-  transpiler still runs and emits (more verbose) naga output.
+  `pip install -r source/MaterialXGenWgsl/tools/requirements-transpile.txt`. If it is missing (e.g.
+  a Python version with no wheel, such as 3.9), the transpiler prints a single `INFO` line and still
+  runs, emitting (more verbose) naga output; the cleanup test self-skips. CI installs it best-effort.
 
 ## Usage
 
@@ -125,9 +126,10 @@ deliberate string surgery, not a real parser — naga's own run is the correctne
 `mxwgslcleanup.py` parses naga's WGSL output with a tree-sitter WGSL grammar and applies
 conservative readability edits: collapse param-copy shadows, promote `var`→`let`, flatten else-if
 chains, unwrap redundant compound blocks, etc. The grammar comes from the pip package
-`tree-sitter-language-pack` (precompiled — no Node or `tree-sitter-cli`). If cleanup fails or the
-package is unavailable, the transpiler keeps the verbose naga output and prints a warning — it never
-blocks generation.
+`tree-sitter-language-pack` (precompiled — no Node or `tree-sitter-cli`). It never blocks generation:
+if the package is unavailable, the transpiler prints one `INFO` line and keeps the verbose naga
+output for every function; if cleanup raises on an individual function while the grammar *is*
+present, that function keeps its verbose output with a per-function `WARN`.
 
 ### Overload handling
 

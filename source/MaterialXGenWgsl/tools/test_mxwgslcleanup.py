@@ -13,6 +13,14 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import mxwgslcleanup as m
 
+# These tests need the tree-sitter WGSL grammar. On interpreters with no tree-sitter-language-pack
+# wheel (e.g. Python 3.9) skip rather than fail. Only skip at collection when actually running under
+# pytest (`pytest` already imported) -- a plain `python test_mxwgslcleanup.py` run must not call
+# pytest.skip() outside a session; that path is handled by the __main__ guard below.
+if not m.cleanupAvailable() and "pytest" in sys.modules:
+    import pytest
+    pytest.skip("tree-sitter-language-pack unavailable", allow_module_level=True)
+
 
 # --- differential semantic invariant ----------------------------------------
 
@@ -214,6 +222,9 @@ def test_cleanup_is_idempotent():
 
 
 if __name__ == "__main__":
+    if not m.cleanupAvailable():
+        print("SKIP test_mxwgslcleanup: tree-sitter-language-pack unavailable")
+        sys.exit(0)
     failed = 0
     for fn in sorted(k for k in dict(globals()) if k.startswith("test_")):
         try:

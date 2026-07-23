@@ -47,7 +47,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-from mxwgslcleanup import cleanupFunction, fnBase
+from mxwgslcleanup import cleanupAvailable, cleanupFunction, fnBase
 
 # The naga CLI (GLSL->WGSL). Resolved in main() via resolveNaga(): --naga arg, then $NAGA, then a
 # `naga` on PATH; main() overwrites this global before any transpilation runs.
@@ -1897,6 +1897,13 @@ def main():
               file=sys.stderr)
         return 2
     print(f"Using naga: {NAGA} ({version})")
+
+    # tree-sitter (readability cleanup) is optional; announce once if absent so the verbose output
+    # isn't mistaken for a bug. Generation itself does not need it.
+    if not cleanupAvailable():
+        print("INFO: tree-sitter-language-pack not installed; skipping WGSL readability cleanup "
+              "(output is valid WGSL but verbose). Install: pip install -r "
+              "source/MaterialXGenWgsl/tools/requirements-transpile.txt")
 
     libroot, outroot = Path(args.libraries), Path(args.out)
     # Preamble/token helpers resolve repo paths relative to libroot; must run before transpilation.
