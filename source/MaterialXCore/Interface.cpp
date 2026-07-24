@@ -177,10 +177,6 @@ bool PortElement::validate(string* message) const
             else if (hasNodeGraphString())
             {
                 NodeGraphPtr nodeGraph = resolveNameReference<NodeGraph>(getNodeGraphString());
-                if (!nodeGraph)
-                {
-                    nodeGraph = resolveNameReference<NodeGraph>(getNodeGraphString());
-                }
                 if (nodeGraph)
                 {
                     output = nodeGraph->getOutput(outputString);

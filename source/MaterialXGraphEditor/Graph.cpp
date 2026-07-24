@@ -106,174 +106,6 @@ std::string getUserNodeDefName(const std::string& val)
     return result;
 }
 
-void clearPortConnection(mx::PortElementPtr port)
-{
-    if (!port)
-    {
-        return;
-    }
-    port->removeAttribute(mx::PortElement::NODE_NAME_ATTRIBUTE);
-    port->removeAttribute(mx::PortElement::NODE_GRAPH_ATTRIBUTE);
-    port->removeAttribute(mx::PortElement::OUTPUT_ATTRIBUTE);
-    port->removeAttribute(mx::ValueElement::INTERFACE_NAME_ATTRIBUTE);
-}
-
-void copyConnectionAttributes(mx::PortElementPtr source, mx::PortElementPtr dest)
-{
-    if (!source || !dest)
-    {
-        return;
-    }
-
-    clearPortConnection(dest);
-    if (source->hasNodeName())
-    {
-        dest->setNodeName(source->getNodeName());
-    }
-    if (source->hasNodeGraphString())
-    {
-        dest->setNodeGraphString(source->getNodeGraphString());
-    }
-    if (source->hasOutputString())
-    {
-        dest->setOutputString(source->getOutputString());
-    }
-    if (source->hasInterfaceName())
-    {
-        dest->setInterfaceName(source->getInterfaceName());
-    }
-    dest->removeAttribute(mx::ValueElement::VALUE_ATTRIBUTE);
-}
-
-bool inputConnectsOutsideSelection(mx::InputPtr input, const std::unordered_set<std::string>& selectedNodeNames)
-{
-    if (!input)
-    {
-        return false;
-    }
-    if (input->hasNodeName())
-    {
-        return selectedNodeNames.find(input->getNodeName()) == selectedNodeNames.end();
-    }
-    return input->hasNodeGraphString() || input->hasInterfaceName() || input->hasOutputString();
-}
-
-void preserveExternalUpstreamConnections(mx::NodeGraphPtr nodeGraph, const std::unordered_set<std::string>& selectedNodeNames)
-{
-    if (!nodeGraph)
-    {
-        return;
-    }
-
-    for (mx::NodePtr copiedNode : nodeGraph->getNodes())
-    {
-        for (mx::InputPtr input : copiedNode->getInputs())
-        {
-            if (!inputConnectsOutsideSelection(input, selectedNodeNames))
-            {
-                continue;
-            }
-
-            std::string interfaceName = nodeGraph->createValidChildName(copiedNode->getName() + "_" + input->getName());
-            mx::InputPtr interfaceInput = nodeGraph->addInput(interfaceName, input->getType());
-            copyConnectionAttributes(input, interfaceInput);
-            input->setConnectedInterfaceName(interfaceInput->getName());
-        }
-    }
-}
-
-std::string getBoundaryOutputType(mx::NodePtr sourceNode, mx::PortElementPtr downstreamPort)
-{
-    if (downstreamPort && !downstreamPort->getType().empty())
-    {
-        return downstreamPort->getType();
-    }
-    if (sourceNode)
-    {
-        const std::string& outputName = downstreamPort ? downstreamPort->getOutputString() : mx::EMPTY_STRING;
-        if (!outputName.empty())
-        {
-            mx::OutputPtr output = sourceNode->getOutput(outputName);
-            if (!output && sourceNode->getNodeDef())
-            {
-                output = sourceNode->getNodeDef()->getOutput(outputName);
-            }
-            if (output && !output->getType().empty())
-            {
-                return output->getType();
-            }
-        }
-        return sourceNode->getType();
-    }
-    return mx::DEFAULT_TYPE_STRING;
-}
-
-mx::OutputPtr getOrCreateBoundaryOutput(mx::NodeGraphPtr nodeGraph,
-                                        mx::NodePtr sourceNode,
-                                        mx::PortElementPtr downstreamPort,
-                                        std::map<std::string, mx::OutputPtr>& boundaryOutputs)
-{
-    const std::string& sourceOutput = downstreamPort ? downstreamPort->getOutputString() : mx::EMPTY_STRING;
-    std::string key = sourceNode->getName() + "|" + sourceOutput;
-    auto existing = boundaryOutputs.find(key);
-    if (existing != boundaryOutputs.end())
-    {
-        return existing->second;
-    }
-
-    std::string outputBaseName = sourceNode->getName() + (sourceOutput.empty() ? "_out" : "_" + sourceOutput);
-    mx::OutputPtr boundaryOutput = nodeGraph->addOutput(nodeGraph->createValidChildName(outputBaseName),
-                                                        getBoundaryOutputType(sourceNode, downstreamPort));
-    boundaryOutput->setNodeName(sourceNode->getName());
-    if (!sourceOutput.empty())
-    {
-        boundaryOutput->setOutputString(sourceOutput);
-    }
-    boundaryOutput->removeAttribute(mx::ValueElement::VALUE_ATTRIBUTE);
-    boundaryOutputs[key] = boundaryOutput;
-    return boundaryOutput;
-}
-
-void preserveExternalDownstreamConnections(mx::NodeGraphPtr nodeGraph,
-                                           const std::vector<UiNodePtr>& nodesToGroup,
-                                           const std::unordered_set<std::string>& selectedNodeNames)
-{
-    if (!nodeGraph)
-    {
-        return;
-    }
-
-    std::map<std::string, mx::OutputPtr> boundaryOutputs;
-    for (UiNodePtr uiNode : nodesToGroup)
-    {
-        mx::NodePtr sourceNode = uiNode ? uiNode->getNode() : nullptr;
-        if (!sourceNode)
-        {
-            continue;
-        }
-        for (mx::PortElementPtr downstreamPort : sourceNode->getDownstreamPorts())
-        {
-            if (!downstreamPort)
-            {
-                continue;
-            }
-
-            mx::ElementPtr parent = downstreamPort->getParent();
-            if (parent && selectedNodeNames.find(parent->getName()) != selectedNodeNames.end())
-            {
-                continue;
-            }
-
-            mx::OutputPtr boundaryOutput = getOrCreateBoundaryOutput(nodeGraph, sourceNode, downstreamPort, boundaryOutputs);
-            downstreamPort->setNodeGraphString(nodeGraph->getName());
-            downstreamPort->setOutputString(boundaryOutput->getName());
-            downstreamPort->removeAttribute(mx::PortElement::NODE_NAME_ATTRIBUTE);
-            downstreamPort->removeAttribute(mx::ValueElement::INTERFACE_NAME_ATTRIBUTE);
-            downstreamPort->removeAttribute(mx::ValueElement::VALUE_ATTRIBUTE);
-        }
-    }
-}
-
 static void EnableSRGBCallback(const ImDrawList*, const ImDrawCmd*)
 {
     glEnable(GL_FRAMEBUFFER_SRGB);
@@ -2007,30 +1839,20 @@ void Graph::groupSelectedNodesIntoNodeGraph(const std::vector<ed::NodeId>& selec
 
     savePosition();
 
-    std::unordered_set<std::string> selectedNodeNames;
+    std::vector<mx::NodePtr> nodes;
     ImVec2 totalPosition(0.0f, 0.0f);
     for (UiNodePtr uiNode : nodesToGroup)
     {
-        selectedNodeNames.insert(uiNode->getName());
+        nodes.push_back(uiNode->getNode());
         ImVec2 nodePosition = ed::GetNodePosition(uiNode->getId());
         totalPosition.x += nodePosition.x;
         totalPosition.y += nodePosition.y;
     }
 
-    mx::NodeGraphPtr nodeGraph = _state.graphElem->addChild<mx::NodeGraph>();
-    for (UiNodePtr uiNode : nodesToGroup)
+    mx::NodeGraphPtr nodeGraph = _state.graphElem->createNodeGraphFromNodes(nodes);
+    if (!nodeGraph)
     {
-        mx::NodePtr sourceNode = uiNode->getNode();
-        mx::NodePtr copiedNode = nodeGraph->addNode(sourceNode->getCategory(), sourceNode->getName(), sourceNode->getType());
-        copiedNode->copyContentFrom(sourceNode);
-    }
-
-    preserveExternalUpstreamConnections(nodeGraph, selectedNodeNames);
-    preserveExternalDownstreamConnections(nodeGraph, nodesToGroup, selectedNodeNames);
-
-    for (const std::string& nodeName : selectedNodeNames)
-    {
-        _state.graphElem->removeChild(nodeName);
+        return;
     }
 
     ImVec2 averagePosition(totalPosition.x / float(nodesToGroup.size()), totalPosition.y / float(nodesToGroup.size()));

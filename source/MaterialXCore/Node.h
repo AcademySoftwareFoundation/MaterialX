@@ -307,6 +307,19 @@ class MX_CORE_API GraphElement : public InterfaceElement
     ///     should be included and excluded from this process.
     void flattenSubgraphs(const string& target = EMPTY_STRING, NodePredicate filter = nullptr);
 
+    /// Create a new child NodeGraph containing the given nodes, moving them out
+    /// of this graph element. Connections between grouped nodes are preserved;
+    /// connections from outside the group into a grouped node become nodegraph
+    /// interface inputs, and consumers outside the group are rewired to
+    /// nodegraph outputs.
+    /// @param nodes The nodes to group. Entries that are null or are not direct
+    ///     children of this graph element are ignored.
+    /// @param name An optional name for the new NodeGraph.
+    /// @return A shared pointer to the new NodeGraph, or nullptr if no valid
+    ///     nodes were provided.
+    NodeGraphPtr createNodeGraphFromNodes(const vector<NodePtr>& nodes,
+                                          const string& name = EMPTY_STRING);
+
     /// Return a vector of all children (nodes and outputs) sorted in
     /// topological order.
     ElementVec topologicalSort() const;
