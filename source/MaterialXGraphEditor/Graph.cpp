@@ -1950,10 +1950,11 @@ void Graph::drawPinIcon(const std::string& type, bool connected, int alpha, floa
 
     const float iconSize = std::max(MIN_PIN_ICON_SIZE, BASE_PIN_ICON_SIZE * getUiScaleFromFont());
 
+    ImVec2 iconMin = ImGui::GetCursorScreenPos() + ImVec2(xOffset, 0.0f);
+    ImVec2 iconMax = iconMin + ImVec2(iconSize, iconSize);
+
     if (_pinIconShape == (unsigned int)ax::Drawing::IconType::Circle)
     {
-        ImVec2 iconMin = ImGui::GetCursorScreenPos() + ImVec2(xOffset, 0.0f);
-        ImVec2 iconMax = iconMin + ImVec2(iconSize, iconSize);
         ImVec2 center = (iconMin + iconMax) * 0.5f;
         const float radius = iconSize * 0.25f;
         const float outlineScale = iconSize / BASE_PIN_ICON_SIZE;
@@ -1970,21 +1971,29 @@ void Graph::drawPinIcon(const std::string& type, bool connected, int alpha, floa
             drawList->AddCircle(center, radius, ImColor(color), segments, 2.0f * outlineScale);
         }
 
-        // Reserve dummy space only for input pins (they sit inside the node).
-        // Output pins protrude outside and must not affect layout width.
-        float dummyWidth = 0.0f;
-        if (!isOutput)
-        {
-            dummyWidth = (xOffset < 0.0f) ? std::max(0.0f, iconSize + xOffset) : iconSize;
-        }
-        ImGui::Dummy(ImVec2(dummyWidth, iconSize));
-
-        ed::PinRect(iconMin, iconMax);
     }
     else if (_pinIconShape == (unsigned int)ax::Drawing::IconType::Flow)
     {
-        ax::Widgets::Icon(ImVec2(iconSize, iconSize), ax::Drawing::IconType::Flow, connected, color, ImColor(32, 32, 32, alpha));
+        ax::Drawing::DrawIcon(
+            ImGui::GetWindowDrawList(),
+            iconMin,
+            iconMax,
+            ax::Drawing::IconType::Flow,
+            connected,
+            color,
+            ImColor(32, 32, 32, alpha));
     }
+
+    // Reserve dummy space only for input pins (they sit inside the node).
+    // Output pins protrude outside and must not affect layout width.
+    float dummyWidth = 0.0f;
+    if (!isOutput)
+    {
+        dummyWidth = (xOffset < 0.0f) ? std::max(0.0f, iconSize + xOffset) : iconSize;
+    }
+    ImGui::Dummy(ImVec2(dummyWidth, iconSize));
+
+    ed::PinRect(iconMin, iconMax);
 }
 
 void Graph::buildGroupNode(UiNodePtr node)
