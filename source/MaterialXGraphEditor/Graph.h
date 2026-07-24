@@ -108,7 +108,9 @@ class Graph
           const mx::FilePathVec& libraryFolders,
           int viewWidth,
           int viewHeight,
-          float previewWidth);
+          float previewWidth,
+          bool pinsOnBorder,
+          const std::string& pinShape);
     ~Graph() = default;
 
     mx::DocumentPtr loadDocument(const mx::FilePath& filename);
@@ -395,6 +397,10 @@ class Graph
     // used for auto connecting pins if a node is added by drawing a link from a pin
     ed::PinId _pinIdToLinkFrom;
     ed::PinId _pinIdToLinkTo;
+    // Offset pin placement to be on border of node vs inside.
+    bool _pinsOnBorder;
+    // Pin icon shape
+    unsigned int _pinIconShape;
 
     // Layout engine
     Layout _layout;

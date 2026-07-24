@@ -135,7 +135,9 @@ Graph::Graph(const std::string& materialFilename,
              const mx::FilePathVec& libraryFolders,
              int viewWidth,
              int viewHeight,
-             float previewWidth) :
+             float previewWidth,
+             bool pinsOnBorder,
+             const std::string& pinShape) :
     _materialFilename(materialFilename),
     _searchPath(searchPath),
     _libraryFolders(libraryFolders),
@@ -152,9 +154,16 @@ Graph::Graph(const std::string& materialFilename,
     _isCut(false),
     _autoLayout(false),
     _frameCount(INT_MIN),
+    _pinsOnBorder(pinsOnBorder),
     _previewSize(previewWidth),
     _saveNodePositions(true)
 {
+    _pinIconShape = (unsigned int) ax::Drawing::IconType::Circle;
+    if (pinShape == "flow")
+    {
+        _pinIconShape = (unsigned int)ax::Drawing::IconType::Flow;
+    }
+
     loadStandardLibraries();
     setPinColor();
 
@@ -1933,35 +1942,49 @@ void Graph::drawPinIcon(const std::string& type, bool connected, int alpha, floa
 {
     ImColor color = ImColor(0, 0, 0, 255);
     if (_pinColor.find(type) != _pinColor.end())
+    {
         color = _pinColor[type];
+    }
+
     color.Value.w = alpha / 255.0f;
 
     const float iconSize = std::max(MIN_PIN_ICON_SIZE, BASE_PIN_ICON_SIZE * getUiScaleFromFont());
 
-    ImVec2 iconMin = ImGui::GetCursorScreenPos() + ImVec2(xOffset, 0.0f);
-    ImVec2 iconMax = iconMin + ImVec2(iconSize, iconSize);
-    ImVec2 center = (iconMin + iconMax) * 0.5f;
-    const float radius = iconSize * 0.25f;
-    const float outlineScale = iconSize / BASE_PIN_ICON_SIZE;
-    const int segments = 12 + static_cast<int>(2 * outlineScale);
-    ImDrawList* drawList = ImGui::GetWindowDrawList();
-
-    if (connected)
-        drawList->AddCircleFilled(center, radius, ImColor(color));
-    else
+    if (_pinIconShape == (unsigned int)ax::Drawing::IconType::Circle)
     {
-        drawList->AddCircleFilled(center, radius, ImColor(32, 32, 32, alpha));
-        drawList->AddCircle(center, radius, ImColor(color), segments, 2.0f * outlineScale);
+        ImVec2 iconMin = ImGui::GetCursorScreenPos() + ImVec2(xOffset, 0.0f);
+        ImVec2 iconMax = iconMin + ImVec2(iconSize, iconSize);
+        ImVec2 center = (iconMin + iconMax) * 0.5f;
+        const float radius = iconSize * 0.25f;
+        const float outlineScale = iconSize / BASE_PIN_ICON_SIZE;
+        const int segments = 12 + static_cast<int>(2 * outlineScale);
+        ImDrawList* drawList = ImGui::GetWindowDrawList();
+
+        if (connected)
+        {
+            drawList->AddCircleFilled(center, radius, ImColor(color));
+        }
+        else
+        {
+            drawList->AddCircleFilled(center, radius, ImColor(32, 32, 32, alpha));
+            drawList->AddCircle(center, radius, ImColor(color), segments, 2.0f * outlineScale);
+        }
+
+        // Reserve dummy space only for input pins (they sit inside the node).
+        // Output pins protrude outside and must not affect layout width.
+        float dummyWidth = 0.0f;
+        if (!isOutput)
+        {
+            dummyWidth = (xOffset < 0.0f) ? std::max(0.0f, iconSize + xOffset) : iconSize;
+        }
+        ImGui::Dummy(ImVec2(dummyWidth, iconSize));
+
+        ed::PinRect(iconMin, iconMax);
     }
-
-    // Reserve dummy space only for input pins (they sit inside the node).
-    // Output pins protrude outside and must not affect layout width.
-    float dummyWidth = 0.0f;
-    if (!isOutput)
-        dummyWidth = (xOffset < 0.0f) ? std::max(0.0f, iconSize + xOffset) : iconSize;
-    ImGui::Dummy(ImVec2(dummyWidth, iconSize));
-
-    ed::PinRect(iconMin, iconMax);
+    else if (_pinIconShape == (unsigned int)ax::Drawing::IconType::Flow)
+    {
+        ax::Widgets::Icon(ImVec2(iconSize, iconSize), ax::Drawing::IconType::Flow, connected, color, ImColor(32, 32, 32, alpha));
+    }
 }
 
 void Graph::buildGroupNode(UiNodePtr node)
@@ -2053,25 +2076,23 @@ void Graph::drawOutputPins(UiNodePtr node, const std::string& longestInputLabel)
         ImGui::TextUnformatted(pin->getName().c_str());
         if (indent > 0) ImGui::Unindent(indent);
 
-        // The cursor is now at the right edge of the text.
         ImGui::SameLine();
 
-        // Offset the icon so its center lands on the node's right edge.
-        // Node's right edge = contentWidth + rightPadding.
-        // We want icon center = contentWidth + rightPadding.
-        // Icon left = center - iconSize/2.
-        // Cursor is at contentWidth, so xOffset = (contentWidth + rightPadding - iconSize/2) - contentWidth
-        // = rightPadding - iconSize/2.
-        const float pinOffset = rightPadding - iconSize * 0.5f;
+        // Offset the icon so its center lands on the node's right edge
+        // if pin on border option is enabled. 
+        const float pinOffset = _pinsOnBorder ? rightPadding - iconSize * 0.5f : 0.0f;
 
         ed::BeginPin(pin->getPinId(), ed::PinKind::Output);
         bool connected = pin->getConnected();
         if (!_pinFilterType.empty())
-            drawPinIcon(pin->getType(), connected,
-                _pinFilterType == pin->getType() ? DEFAULT_ALPHA : FILTER_ALPHA,
-                pinOffset, true);   // isOutput = true
+        {
+            drawPinIcon(pin->getType(), connected, _pinFilterType == pin->getType() ? DEFAULT_ALPHA : FILTER_ALPHA, pinOffset, _pinsOnBorder);
+        }
         else
-            drawPinIcon(pin->getType(), connected, DEFAULT_ALPHA, pinOffset, true);
+        {
+            drawPinIcon(pin->getType(), connected, DEFAULT_ALPHA, pinOffset, _pinsOnBorder);
+        }
+
         ed::EndPin();
     }
 }
@@ -2079,7 +2100,8 @@ void Graph::drawOutputPins(UiNodePtr node, const std::string& longestInputLabel)
 void Graph::drawInputPin(UiPinPtr pin)
 {
     const float iconSize = std::max(MIN_PIN_ICON_SIZE, BASE_PIN_ICON_SIZE * getUiScaleFromFont());
-    const float pinOffset = -(ed::GetStyle().NodePadding.x + iconSize * 0.5f);
+    const float pinOffset = _pinsOnBorder ?
+        -(ed::GetStyle().NodePadding.x + iconSize * 0.5f) : 0.0f;
 
     ed::BeginPin(pin->getPinId(), ed::PinKind::Input);
     ImGui::PushID(int(pin->getPinId().Get()));

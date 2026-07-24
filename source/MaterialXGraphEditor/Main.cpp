@@ -35,6 +35,8 @@ const std::string options =
     "    --fontSize [SIZE]              Specify font size to use for the custom font.  If not specified a default of 18 will be used.\n"
     "    --captureFilename [FILENAME]   Specify the filename to which the first rendered frame should be written\n"
     "    --previewWidth [WIDTH]         Specify the width for image previews\n"
+    "    --pinsOnBorder [true|false]    Specify whether node pins should be drawn on the border of nodes (true) or inside the node (false).  Default is true.\n"
+    "    --pinShape [circle|square]     Specify the shape of node pins (circle, flow).  Default is circle.\n"
     "    --help                         Display the complete list of command-line options\n";
 
 template <class T> void parseToken(std::string token, std::string type, T& res)
@@ -75,6 +77,8 @@ int main(int argc, char* const argv[])
     int fontSize = 18;
     float previewWidth = 256.0f;
     std::string captureFilename;
+    bool pinsOnBorder = true;
+    std::string pinShape = "circle";
 
     for (size_t i = 0; i < tokens.size(); i++)
     {
@@ -124,6 +128,14 @@ int main(int argc, char* const argv[])
         else if (token == "--captureFilename")
         {
             parseToken(nextToken, "string", captureFilename);
+        }
+        else if (token == "--pinsOnBorder")
+        {
+            parseToken(nextToken, "boolean", pinsOnBorder);
+        }
+        else if (token == "--pinShape")
+        {
+            parseToken(nextToken, "string", pinShape);
         }
         else if (token == "--help")
         {
@@ -238,7 +250,9 @@ int main(int argc, char* const argv[])
                              libraryFolders,
                              viewWidth,
                              viewHeight,
-                             previewWidth);
+                             previewWidth,
+                             pinsOnBorder,
+                             pinShape);
     if (!captureFilename.empty())
     {
         graph->getRenderer()->requestFrameCapture(captureFilename);
