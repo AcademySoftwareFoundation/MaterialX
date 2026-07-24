@@ -168,15 +168,17 @@ export material mx_dielectric_bsdf(
 ]]
 = let {
     float coatIor = mxp_thinfilm_ior <= 0.0 ? 1.0 : mxp_thinfilm_ior;
-    float grazing_refl = math::max((1.0 - math::average(mxp_roughness)), 0.0);
+    // Fresnel layer does not work well if the base is a diffuse transmission. The energy loss is very high.
+    // Therefore we use a custom curve that approximates the Fresnel effect and does not cause energy loss.
+    // Make sure that IOR of 1.0 results in zero reflectance, independent of the roughness.
     float root_r = (mxp_ior-1)/(mxp_ior+1);
+    float normal_refl = root_r*root_r;
+    float grazing_refl = normal_refl <= 0.0 ? 0.0 : math::max((1.0 - math::average(mxp_roughness)), 0.0);
     bsdf bsdf_R = df::thin_film(
         thickness: mxp_thinfilm_thickness,
         ior: color(coatIor),
-        // fresnel layer has issues if base is a diffuse transmission, use custom curve for now
-        // this will break thin_film but improves standard_surface with diffuse transmission
         base: df::custom_curve_layer(
-            normal_reflectivity: root_r*root_r,
+            normal_reflectivity: normal_refl,
             grazing_reflectivity: grazing_refl,
             weight: mxp_weight,
             layer: df::microfacet_ggx_smith_bsdf(

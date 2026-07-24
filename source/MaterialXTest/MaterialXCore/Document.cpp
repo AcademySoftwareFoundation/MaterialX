@@ -271,3 +271,91 @@ TEST_CASE("Document equivalence", "[document]")
     equivalent = doc->isEquivalent(doc2, options, &message);
     REQUIRE(!equivalent);
 }
+
+TEST_CASE("Document createValidChildName", "[document]")
+{
+    // Create a custom library.
+    mx::DocumentPtr customLibrary = mx::createDocument();
+    mx::NodeDefPtr customNodeDef = customLibrary->addNodeDef("ND_simpleSrf", mx::SURFACE_SHADER_TYPE_STRING, "simpleSrf");
+    mx::ImplementationPtr customImpl = customLibrary->addImplementation("IM_custom");
+    customImpl->setNodeDef(customNodeDef);
+    REQUIRE(customLibrary->validate());
+
+    mx::DocumentPtr doc;
+
+    // Create a document and import the data library
+    doc = mx::createDocument();
+    doc->importLibrary(customLibrary);
+
+    // test createValidChildName with imported data library
+    {
+        // add a non-clashing name
+        std::string nodename_01_orig = "non_clashing_name";
+        std::string nodename_01 = doc->createValidChildName(nodename_01_orig);
+        REQUIRE(nodename_01_orig == nodename_01);
+
+        mx::NodePtr node_01 = doc->addNodeInstance(customNodeDef, nodename_01);
+        REQUIRE(doc->validate());
+        REQUIRE(node_01->getName() == nodename_01);
+
+        // add a clashing name - which needs to be uniquified.
+        std::string nodename_02_orig = "non_clashing_name";
+        std::string nodename_02 = doc->createValidChildName(nodename_02_orig);
+        REQUIRE(nodename_02_orig != nodename_02);
+
+        // add the same name this should be uniquified
+        mx::NodePtr node_02 = doc->addNodeInstance(customNodeDef, nodename_02);
+        REQUIRE(doc->validate());
+        REQUIRE(node_02->getName() == nodename_02);
+
+        // add a name that clashes with something that is in the data library
+        std::string nodename_03_orig = "ND_simpleSrf";
+        std::string nodename_03 = doc->createValidChildName(nodename_03_orig);
+        REQUIRE(nodename_03_orig != nodename_03);
+
+        mx::NodePtr node_03 = doc->addNodeInstance(customNodeDef, nodename_03);
+        REQUIRE(doc->validate());
+        REQUIRE(node_03->getName() == nodename_03);
+        
+        // an empty name should be replaced with a valid placeholder
+        REQUIRE(!doc->createValidChildName("").empty());
+    }
+
+    // Create a document and reference the data library
+    doc = mx::createDocument();
+    doc->setDataLibrary(customLibrary);
+
+    // test createValidChildName with referenced data library
+    {
+        // add a non-clashing name
+        std::string nodename_01_orig = "non_clashing_name";
+        std::string nodename_01 = doc->createValidChildName(nodename_01_orig);
+        REQUIRE(nodename_01_orig == nodename_01);
+
+        mx::NodePtr node_01 = doc->addNodeInstance(customNodeDef, nodename_01);
+        REQUIRE(doc->validate());
+        REQUIRE(node_01->getName() == nodename_01);
+
+        // add a clashing name - which needs to be uniquified.
+        std::string nodename_02_orig = "non_clashing_name";
+        std::string nodename_02 = doc->createValidChildName(nodename_02_orig);
+        REQUIRE(nodename_02_orig != nodename_02);
+
+        // add the same name this should be uniquified
+        mx::NodePtr node_02 = doc->addNodeInstance(customNodeDef, nodename_02);
+        REQUIRE(doc->validate());
+        REQUIRE(node_02->getName() == nodename_02);
+
+        // add a name that clashes with something that is in the data library
+        std::string nodename_03_orig = "ND_simpleSrf";
+        std::string nodename_03 = doc->createValidChildName(nodename_03_orig);
+        REQUIRE(nodename_03_orig != nodename_03);
+
+        mx::NodePtr node_03 = doc->addNodeInstance(customNodeDef, nodename_03);
+        REQUIRE(doc->validate());
+        REQUIRE(node_03->getName() == nodename_03);
+
+        // an empty name should be replaced with a valid placeholder
+        REQUIRE(!doc->createValidChildName("").empty());
+    }
+}

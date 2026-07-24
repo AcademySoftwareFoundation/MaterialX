@@ -10,14 +10,18 @@
 
 #include <imgui_node_editor.h>
 
+#include <sstream>
+
 namespace mx = MaterialX;
 namespace ed = ax::NodeEditor;
 
 class UiNode;
 class UiPin;
+class UiToken;
 
 using UiNodePtr = std::shared_ptr<UiNode>;
 using UiPinPtr = std::shared_ptr<UiPin>;
+using UiTokenPtr = std::shared_ptr<UiToken>;
 
 // An edge between two UiNodes, storing the two nodes and connecting input.
 class UiEdge
@@ -160,6 +164,76 @@ class UiPin
     bool _connected;
 };
 
+class UiToken
+{
+  public:
+    UiToken(const mx::TokenPtr& token, const mx::ElementPtr& elem) : _tokenPtr(token), _sourceElement(elem) { }
+
+    std::string getValue() const { return _tokenPtr->getValueString(); }
+    void setValue(const std::string& val) const
+    {
+        _tokenPtr->setValueString(val);
+    }
+
+    std::string getSourceElementString() const
+    {
+        std::string _sourceElementName = _sourceElement->getName();
+        return _sourceElementName.empty() ? "<DOCUMENT>" : _sourceElementName;
+    }
+
+    void addAffectedInput(const mx::InputPtr& input)
+    {
+        _affectedInputs.push_back(input);
+        _isAffectedInputsDirty = true;
+    }
+
+    std::string getAffectedInputsString()
+    {
+        if (_isAffectedInputsDirty)
+            buildAffectedInputsStream();
+        return _affectedInputsStream.str();
+    }
+
+    const std::vector<mx::InputPtr>& getAffectedInputs() const { return _affectedInputs; };
+    
+    // Handle update of given map pointer by iterating through active tokens of an interface element
+    static void applyTokenMapping(std::unordered_map<std::string, UiTokenPtr>* uiTokenMapPtr, const mx::ConstInterfaceElementPtr& interfaceElem, mx::ElementPtr sourceElem)
+    {
+        std::vector<mx::TokenPtr> tokens = interfaceElem->getActiveTokens();
+        for (auto token : tokens)
+        {
+            std::string key = token->getName();
+
+            // Insert into map, but do not allow parent values to override child values
+            uiTokenMapPtr->try_emplace(key, std::make_shared<UiToken>(token, sourceElem));
+        }
+    }
+
+  private:
+    const mx::TokenPtr _tokenPtr;
+    const mx::ElementPtr _sourceElement;
+
+    std::vector<mx::InputPtr> _affectedInputs{};
+    std::ostringstream _affectedInputsStream{};
+
+    // Track whether changes were made to inputs in order to re-build stream accordingly
+    bool _isAffectedInputsDirty{ true };
+
+    void buildAffectedInputsStream()
+    {
+        if (!_isAffectedInputsDirty)
+            return;
+        _affectedInputsStream.str(""); // Clear current contents of `ostringstream` object
+        for (size_t i = 0; i < _affectedInputs.size(); ++i)
+        {
+            _affectedInputsStream << _affectedInputs[i]->getName();
+            if (i < _affectedInputs.size() - 1)
+                _affectedInputsStream << ", ";
+        }
+        _isAffectedInputsDirty = false;
+    }
+};
+
 // The visual representation of a node in a graph.
 class UiNode
 {
@@ -248,6 +322,11 @@ class UiNode
     std::vector<UiPinPtr>& getOutputPins() { return _outputPins; }
     const std::vector<UiPinPtr>& getOutputPins() const { return _outputPins; }
 
+    const std::unordered_map<std::string, UiTokenPtr>& getUiTokenMap() const { return _uiTokenMap; }
+
+    // Build a map of relevant UI info for tokens in scope of this node. Should be called lazily (i.e. only when needed)
+    void buildUiTokenMap();
+
     // Edge collection accessors
     std::vector<UiEdge>& getEdges() { return _edges; }
     const std::vector<UiEdge>& getEdges() const { return _edges; }
@@ -276,6 +355,8 @@ class UiNode
     std::vector<UiPinPtr> _inputPins;
     std::vector<UiPinPtr> _outputPins;
     std::vector<UiEdge> _edges;
+
+    std::unordered_map<std::string, UiTokenPtr> _uiTokenMap;
 
     bool _showAllInputs;
     bool _showOutputsInEditor;

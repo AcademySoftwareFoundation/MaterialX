@@ -107,12 +107,14 @@ void SlangRenderer::setSize(unsigned int width, unsigned int height)
 
 void SlangRenderer::createProgram(ShaderPtr shader)
 {
+    _program = SlangProgram::create(_context);
     _program->setStages(shader);
     _program->build();
 }
 
 void SlangRenderer::createProgram(const StageMap& stages)
 {
+    _program = SlangProgram::create(_context);
     for (const auto& it : stages)
         _program->addStage(it.first, it.second);
 

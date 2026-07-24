@@ -188,5 +188,15 @@
       <input name="base_color" type="color3" nodename="color_lin_displayp3_color3" />
     </standard_surface>
     <output name="color_lin_displayp3_out" type="surfaceshader" nodename="color_lin_displayp3_standard_surface5" />
+    <constant name="color_lin_rec709_scene" type="color4">
+      <input name="value" type="color4" value="0.5, 0.0, 0.0, 1.0" colorspace="lin_rec709_scene" />
+    </constant>
+    <convert name="color_lin_rec709_scene_color3" type="color3">
+      <input name="in" type="color4" nodename="color_lin_rec709_scene" />
+    </convert>
+    <standard_surface name="color_lin_rec709_scene_standard_surface" type="surfaceshader">
+      <input name="base_color" type="color3" nodename="color_lin_rec709_scene_color3" />
+    </standard_surface>
+    <output name="color_lin_rec709_scene_out" type="surfaceshader" nodename="color_lin_rec709_scene_standard_surface" />
   </nodegraph>
 </materialx>

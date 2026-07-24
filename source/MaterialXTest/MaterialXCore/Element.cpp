@@ -6,6 +6,7 @@
 #include <MaterialXTest/External/Catch/catch.hpp>
 
 #include <MaterialXCore/Document.h>
+#include <MaterialXFormat/Util.h>
 
 namespace mx = MaterialX;
 
@@ -59,6 +60,37 @@ TEST_CASE("Element", "[element]")
     REQUIRE_THROWS_AS(doc2->setChildIndex("elem1", 2), mx::Exception);
     REQUIRE_THROWS_AS(doc2->setChildIndex("elem1", 100), mx::Exception);
     REQUIRE(*doc2 == *doc);
+
+    // Check content document membership.
+    mx::DocumentPtr contentDoc = mx::createDocument();
+    contentDoc->setSourceUri("content.mtlx");
+    mx::ElementPtr contentElem = contentDoc->addChildOfCategory("generic", "contentElem");
+    REQUIRE(contentElem->belongsToContentDocument());
+    mx::DocumentPtr lib = mx::createDocument();
+    lib->setSourceUri("library.mtlx");
+    lib->addChildOfCategory("generic", "libElem");
+    contentDoc->importLibrary(lib);
+    mx::ElementPtr libElem = contentDoc->getChild("libElem");
+    REQUIRE(libElem);
+    REQUIRE(!libElem->belongsToContentDocument());
+
+    // Check content document membership for referenced standard library
+    // elements, which remain outside the content document.
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::DocumentPtr stdlib = mx::createDocument();
+    mx::loadLibraries({ "libraries" }, searchPath, stdlib);
+
+    mx::DocumentPtr docWithDataLibrary = mx::createDocument();
+    docWithDataLibrary->setDataLibrary(stdlib);
+    mx::ElementPtr referencedNodeDef = docWithDataLibrary->getChild("ND_image_color3");
+    REQUIRE(referencedNodeDef);
+    REQUIRE(!referencedNodeDef->belongsToContentDocument());
+
+    mx::DocumentPtr docWithImportedLibrary = mx::createDocument();
+    docWithImportedLibrary->importLibrary(stdlib);
+    mx::ElementPtr importedNodeDef = docWithImportedLibrary->getChild("ND_image_color3");
+    REQUIRE(importedNodeDef);
+    REQUIRE(!importedNodeDef->belongsToContentDocument());
 
     // Create and test an orphaned element.
     mx::ElementPtr orphan;

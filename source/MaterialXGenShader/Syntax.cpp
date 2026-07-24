@@ -121,11 +121,6 @@ const string& Syntax::getTypeDefinition(TypeDesc type) const
     return syntax.getTypeDefinition();
 }
 
-bool Syntax::typeSupported(const TypeDesc*) const
-{
-    return true;
-}
-
 string Syntax::getArrayVariableSuffix(TypeDesc type, const Value& value) const
 {
     if (type.isArray())

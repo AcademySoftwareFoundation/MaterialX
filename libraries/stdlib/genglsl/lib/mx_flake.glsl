@@ -23,7 +23,7 @@ vec3 mx_rotate_flake(vec3 p, vec3 i)
         vz * sx          , vz * sy          , 1.0 - z
     );
 
-    return m * p;
+    return mx_matrix_mul(m, p);
 }
 
 // compute a flake probability for a given flake coverage density x
@@ -112,7 +112,8 @@ void mx_flake(
     float xi1 = flake_noise.y;
 
     rand = flake_noise.z;
-    id = int(rand * 2147483647.0);
+    // 2^24 - 1 is exact in float32, keeping id stable across precisions.
+    id = int(rand * 16777215.0);
     presence = flake_priority;
 
     float phi = M_PI * 2.0 * xi0;

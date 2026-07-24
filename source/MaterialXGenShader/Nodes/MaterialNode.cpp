@@ -23,7 +23,8 @@ void MaterialNode::addClassification(ShaderNode& node) const
         // This is a material node with a surfaceshader connected.
         // Add the classification from this shader.
         const ShaderNode* surfaceshaderNode = surfaceshaderInput->getConnection()->getNode();
-        node.addClassification(surfaceshaderNode->getClassification());
+        if (!surfaceshaderNode->isAGraph())
+            node.addClassification(surfaceshaderNode->getClassification());
     }
 }
 
@@ -46,6 +47,11 @@ void MaterialNode::emitFunctionCall(const ShaderNode& _node, GenContext& context
 
         // Emit the function call for upstream surface shader.
         const ShaderNode* surfaceshaderNode = surfaceshaderInput->getConnection()->getNode();
+        if (surfaceshaderNode->isAGraph())
+        {
+            emitOutputVariables(node, context, stage);
+            return;
+        }
         shadergen.emitFunctionCall(*surfaceshaderNode, context, stage);
 
         // Assign this result to the material output variable.

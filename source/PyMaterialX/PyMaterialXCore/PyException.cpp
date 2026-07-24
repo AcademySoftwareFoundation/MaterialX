@@ -12,7 +12,7 @@ namespace mx = MaterialX;
 
 void bindPyException(py::module& mod)
 {
-    static py::exception<mx::Exception> pyException(mod, "Exception");
+    py::register_exception<mx::Exception>(mod, "Exception");
 
     py::register_exception_translator(
         [](std::exception_ptr errPtr)

@@ -2,3 +2,4 @@ build
 **/_build
 **/dist
 **/node_modules
+**/playwright-report

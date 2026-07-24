@@ -1,15 +1,15 @@
-import { expect } from 'chai';
+import { test, expect } from '@playwright/test';
 import Module from './_build/JsMaterialXCore.js';
 
-describe('Traversal', () =>
+test.describe('Traversal', () =>
 {
     let mx;
-    before(async () =>
+    test.beforeAll(async () =>
     {
         mx = await Module();
     });
 
-    it('Traverse Graph', () =>
+    test('Traverse Graph', () =>
     {
         // Create a document.
         const doc = mx.createDocument();
@@ -40,7 +40,7 @@ describe('Traversal', () =>
         mix.setConnectedNode('mask', noise3d);
         output.setConnectedNode(mix);
 
-        expect(doc.validate()).to.be.true;
+        expect(doc.validate()).toBe(true);
 
         // Traverse the document tree (implicit iterator).
         let nodeCount = 0;
@@ -52,7 +52,7 @@ describe('Traversal', () =>
             }
             elem.delete();
         }
-        expect(nodeCount).to.equal(7);
+        expect(nodeCount).toBe(7);
 
         // Traverse the document tree (explicit iterator)
         let treeIter = doc.traverseTree();
@@ -67,8 +67,8 @@ describe('Traversal', () =>
             maxElementDepth = Math.max(maxElementDepth, treeIter.getElementDepth());
             elem.delete();
         }
-        expect(nodeCount).to.equal(7);
-        expect(maxElementDepth).to.equal(3);
+        expect(nodeCount).toBe(7);
+        expect(maxElementDepth).toBe(3);
 
         // Traverse the document tree (prune subtree).
         nodeCount = 0;
@@ -85,7 +85,7 @@ describe('Traversal', () =>
             }
             elem.delete();
         }
-        expect(nodeCount).to.equal(0);
+        expect(nodeCount).toBe(0);
 
         // Traverse upstream from the graph output (implicit iterator)
         nodeCount = 0;
@@ -99,7 +99,7 @@ describe('Traversal', () =>
                 nodeCount++;
                 if (downstreamElem instanceof mx.Node)
                 {
-                    expect(connectingElem instanceof mx.Input).to.be.true;
+                    expect(connectingElem instanceof mx.Input).toBe(true);
                 }
             }
             if (upstreamElem) upstreamElem.delete();
@@ -107,7 +107,7 @@ describe('Traversal', () =>
             if (downstreamElem) downstreamElem.delete();
             if (edge) edge.delete();
         }
-        expect(nodeCount).to.equal(7);
+        expect(nodeCount).toBe(7);
 
         // Traverse upstream from the graph output (explicit iterator)
         nodeCount = 0;
@@ -126,9 +126,9 @@ describe('Traversal', () =>
             if (upstreamElem) upstreamElem.delete();
             if (edge) edge.delete();
         }
-        expect(nodeCount).to.equal(7);
-        expect(maxElementDepth).to.equal(3);
-        expect(maxNodeDepth).to.equal(3);
+        expect(nodeCount).toBe(7);
+        expect(maxElementDepth).toBe(3);
+        expect(maxNodeDepth).toBe(3);
 
         // Traverse upstream from the graph output (prune subgraph)
         nodeCount = 0;
@@ -136,7 +136,7 @@ describe('Traversal', () =>
         for (let edge of graphIter)
         {
             const upstreamElem = edge.getUpstreamElement();
-            expect(upstreamElem.getSelf()).to.be.an.instanceof(mx.Element);
+            expect(upstreamElem.getSelf()).toBeInstanceOf(mx.Element);
             if (upstreamElem instanceof mx.Node)
             {
                 nodeCount++;
@@ -148,23 +148,23 @@ describe('Traversal', () =>
             if (upstreamElem) upstreamElem.delete();
             if (edge) edge.delete();
         }
-        expect(nodeCount).to.equal(5);
+        expect(nodeCount).toBe(5);
 
         // Create and detect a cycle
         multiply.setConnectedNode('in2', mix);
-        expect(output.hasUpstreamCycle()).to.be.true;
-        expect(doc.validate()).to.be.false;
+        expect(output.hasUpstreamCycle()).toBe(true);
+        expect(doc.validate()).toBe(false);
         multiply.setConnectedNode('in2', constant);
-        expect(output.hasUpstreamCycle()).to.be.false;
-        expect(doc.validate()).to.be.true;
+        expect(output.hasUpstreamCycle()).toBe(false);
+        expect(doc.validate()).toBe(true);
 
         // Create and detect a loop
         contrast.setConnectedNode('in', contrast);
-        expect(output.hasUpstreamCycle()).to.be.true;
-        expect(doc.validate()).to.be.false;
+        expect(output.hasUpstreamCycle()).toBe(true);
+        expect(doc.validate()).toBe(false);
         contrast.setConnectedNode('in', image2);
-        expect(output.hasUpstreamCycle()).to.be.false;
-        expect(doc.validate()).to.be.true;
+        expect(output.hasUpstreamCycle()).toBe(false);
+        expect(doc.validate()).toBe(true);
 
         // Cleanup wrappers
         output.delete();
@@ -179,11 +179,11 @@ describe('Traversal', () =>
         doc.delete();
     });
 
-    describe("Traverse inheritance", () =>
+    test.describe("Traverse inheritance", () =>
     {
         let nodeDefInheritanceLevel2, nodeDefInheritanceLevel1, nodeDefParent;
         let doc;
-        beforeEach(() =>
+        test.beforeEach(() =>
         {
             doc = mx.createDocument();
             nodeDefParent = doc.addNodeDef();
@@ -195,7 +195,7 @@ describe('Traversal', () =>
             nodeDefInheritanceLevel2.setInheritsFrom(nodeDefInheritanceLevel1);
             nodeDefInheritanceLevel1.setInheritsFrom(nodeDefParent);
         });
-        afterEach(() =>
+        test.afterEach(() =>
         {
             nodeDefInheritanceLevel2.delete();
             nodeDefInheritanceLevel1.delete();
@@ -203,7 +203,7 @@ describe('Traversal', () =>
             doc.delete();
         });
 
-        it('for of loop', () =>
+        test('for of loop', () =>
         {
             const inheritanceIterator = nodeDefInheritanceLevel2.traverseInheritance();
             let inheritanceChainLength = 0;
@@ -214,10 +214,10 @@ describe('Traversal', () =>
                     inheritanceChainLength++;
                 }
             }
-            expect(inheritanceChainLength).to.equal(2);;
+            expect(inheritanceChainLength).toBe(2);
         });
 
-        it('while loop', () =>
+        test('while loop', () =>
         {
             const inheritanceIterator = nodeDefInheritanceLevel2.traverseInheritance();
             let inheritanceChainLength = 0;
@@ -230,7 +230,7 @@ describe('Traversal', () =>
                 }
                 elem = inheritanceIterator.next();
             }
-            expect(inheritanceChainLength).to.equal(2);;
+            expect(inheritanceChainLength).toBe(2);
         });
     });
 });

@@ -1,4 +1,6 @@
 void mx_cellnoise3d_float(vector position, output float result)
 {
-    result = cellnoise(position);
+    // Use the explicit point overload for deterministic 3D cell lookup.
+    // Avoid relying on implicit vector conversion in the OSL builtin.
+    result = cellnoise(point(position));
 }

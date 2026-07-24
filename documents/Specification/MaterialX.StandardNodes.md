@@ -80,7 +80,7 @@ Standard Texture nodes:
 
 Samples data from a single image, or from a layer within a multi-layer image.  When used in the context of rendering a geometry, the image is mapped onto the geometry based on geometry UV coordinates, with the lower-left corner of an image mapping to the (0,0) UV coordinate (or to the fractional (0,0) UV coordinate for tiled images).
 
-The type of the &lt;image> node determines the number of channels output, which may be less than the number of channels in the image file, outputting the first N channels from the image file.  So a `float` &lt;image> would return the Red channel of an RGB image, and a `color3` &lt;image> would return the RGB channels of an RGBA image.  If the type of the &lt;image> node has more channels than the referenced image file, then the output will contain zero values in all channels beyond the N channels of the image file.
+The type of the &lt;image> node determines the number of channels output, which may be less than the number of channels in the image file, outputting the first N channels from the image file.  So a `float` &lt;image> would return the Red channel of an RGB image, and a `color3` &lt;image> would return the RGB channels of an RGBA image.  If the type of the &lt;image> node has more channels than the referenced image file, then the output will contain zero values in all channels beyond the N channels of the image file, aside from the fourth channel which is populated with 1.
 
 The `file` input value can include one or more substitutions to change the file name that is accessed, as described in the [Filename Substitutions](./MaterialX.Specification.md#filename-substitutions) section in the main Specification document.
 
@@ -517,38 +517,38 @@ A single node supporting 3D Perlin, Cell, Worley or Fractal noise in a unified i
 ### `flake2d`
 Generates a procedural flake pattern in 2D space, suitable for simulating metallic flakes in materials such as car paint.
 
-|Port         |Description                                                                                        |Type   |Default |
-|-------------|---------------------------------------------------------------------------------------------------|-------|--------|
-|`texcoord`   |The 2D texture coordinate at which the flake pattern is evaluated                                  |vector2|_UV0_   |
-|`size`       |The size of individual flakes, with smaller values producing larger flakes                         |float  |0.01    |
-|`roughness`  |The surface roughness of individual flakes, controlling the variation in normal                    |float  |0.1     |
-|`coverage`   |The density of flakes in the pattern, ranging from 0.0 (no flakes) to 1.0 (maximum)                |float  |0.5     |
-|`normal`     |The surface normal vector used as the base for flake normal perturbations                          |vector3|_Nworld_|
-|`tangent`    |The surface tangent vector, used to construct the tangent space                                    |vector3|_Tworld_|
-|`bitangent`  |The surface bitangent vector, used to construct the tangent space                                  |vector3|_Bworld_|
-|`id`         |Output: unique identifier for each flake. 0 for no flake                                           |integer|0       |
-|`rand`       |Output: random value per flake for additional variation. 0.0 for no flake                          |float  |0.0     |
-|`presence`   |Output: presence per flake; a depth-like value (higher is closer to the surface). 0.0 for no flake.|float  |0.0     |
-|`flakenormal`|Output: the computed flake normal. Base normal if no flake present                                 |vector3|_Nworld_|
+|Port         |Description                                                                                                   |Type   |Default |
+|-------------|--------------------------------------------------------------------------------------------------------------|-------|--------|
+|`texcoord`   |The 2D texture coordinate at which the flake pattern is evaluated                                             |vector2|_UV0_   |
+|`size`       |The size of individual flakes, with smaller values producing smaller flakes                                   |float  |0.01    |
+|`roughness`  |The surface roughness of individual flakes, controlling the variation in normal                               |float  |0.1     |
+|`coverage`   |The density of flakes in the pattern, ranging from 0.0 (no flakes) to 1.0 (maximum)                           |float  |0.5     |
+|`normal`     |The surface normal vector used as the base for flake normal perturbations                                     |vector3|_Nworld_|
+|`tangent`    |The surface tangent vector, used to construct the tangent space                                               |vector3|_Tworld_|
+|`bitangent`  |The surface bitangent vector, used to construct the tangent space                                             |vector3|_Bworld_|
+|`id`         |Output: stable pseudo-random integer label for the selected flake, not guaranteed to be unique. 0 for no flake|integer|0       |
+|`rand`       |Output: random value per flake for additional variation. 0.0 for no flake                                     |float  |0.0     |
+|`presence`   |Output: presence per flake; a depth-like value (higher is closer to the surface). 0.0 for no flake            |float  |0.0     |
+|`flakenormal`|Output: the computed flake normal. Base normal if no flake present                                            |vector3|_Nworld_|
 
 <a id="node-flake3d"> </a>
 
 ### `flake3d`
 Generates a procedural flake pattern in 3D space, suitable for simulating metallic flakes in materials such as car paint.
 
-|Port         |Description                                                                                        |Type   |Default  |
-|-------------|---------------------------------------------------------------------------------------------------|-------|---------|
-|`position`   |The 3D position at which the flake pattern is evaluated                                            |vector3|_Pobject_|
-|`size`       |The size of individual flakes, with smaller values producing larger flakes                         |float  |0.01     |
-|`roughness`  |The surface roughness of individual flakes, controlling the variation in normal                    |float  |0.1      |
-|`coverage`   |The density of flakes in the pattern, ranging from 0.0 (no flakes) to 1.0 (maximum)                |float  |0.5      |
-|`normal`     |The surface normal vector used as the base for flake normal perturbations                          |vector3|_Nworld_ |
-|`tangent`    |The surface tangent vector, used to construct the tangent space                                    |vector3|_Tworld_ |
-|`bitangent`  |The surface bitangent vector, used to construct the tangent space                                  |vector3|_Bworld_ |
-|`id`         |Output: unique identifier for each flake. 0 for no flake                                           |integer|0        |
-|`rand`       |Output: random value per flake for additional variation. 0.0 for no flake                          |float  |0.0      |
-|`presence`   |Output: presence per flake; a depth-like value (higher is closer to the surface). 0.0 for no flake.|float  |0.0      |
-|`flakenormal`|Output: the computed flake normal. Base normal if no flake present                                 |vector3|_Nworld_ |
+|Port         |Description                                                                                                   |Type   |Default  |
+|-------------|--------------------------------------------------------------------------------------------------------------|-------|---------|
+|`position`   |The 3D position at which the flake pattern is evaluated                                                       |vector3|_Pobject_|
+|`size`       |The size of individual flakes, with smaller values producing smaller flakes                                   |float  |0.01     |
+|`roughness`  |The surface roughness of individual flakes, controlling the variation in normal                               |float  |0.1      |
+|`coverage`   |The density of flakes in the pattern, ranging from 0.0 (no flakes) to 1.0 (maximum)                           |float  |0.5      |
+|`normal`     |The surface normal vector used as the base for flake normal perturbations                                     |vector3|_Nworld_ |
+|`tangent`    |The surface tangent vector, used to construct the tangent space                                               |vector3|_Tworld_ |
+|`bitangent`  |The surface bitangent vector, used to construct the tangent space                                             |vector3|_Bworld_ |
+|`id`         |Output: stable pseudo-random integer label for the selected flake, not guaranteed to be unique. 0 for no flake|integer|0        |
+|`rand`       |Output: random value per flake for additional variation. 0.0 for no flake                                     |float  |0.0      |
+|`presence`   |Output: presence per flake; a depth-like value (higher is closer to the surface). 0.0 for no flake            |float  |0.0      |
+|`flakenormal`|Output: the computed flake normal. Base normal if no flake present                                            |vector3|_Nworld_ |
 
 ### Noise Node Notes
 
@@ -1228,6 +1228,26 @@ Select the maximum of the two incoming values.
 |`in1`|The first input stream            |float, colorN, vectorN|__zero__|
 |`in2`|The second input stream           |Same as `in1` or float|__zero__|
 |`out`|Output: maximum of `in1` and `in2`|Same as `in1`         |`in1`   |
+
+<a id="node-mincomponent"> </a>
+
+### `mincomponent`
+Output the minimum component of the incoming vectorN or colorN stream as a float value.
+
+|Port |Description                       |Type           |Default |
+|-----|----------------------------------|---------------|--------|
+|`in` |Input vector or color stream      |vectorN, colorN|__zero__|
+|`out`|Output: minimum component of `in` |float          |0.0     |
+
+<a id="node-maxcomponent"> </a>
+
+### `maxcomponent`
+Output the maximum component of the incoming vectorN or colorN stream as a float value.
+
+|Port |Description                       |Type           |Default |
+|-----|----------------------------------|---------------|--------|
+|`in` |Input vector or color stream      |vectorN, colorN|__zero__|
+|`out`|Output: maximum component of `in` |float          |0.0     |
 
 <a id="node-normalize"> </a>
 

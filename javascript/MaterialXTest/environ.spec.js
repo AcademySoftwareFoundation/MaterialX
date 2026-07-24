@@ -1,20 +1,20 @@
-import { expect } from 'chai';;
+import { test, expect } from '@playwright/test';
 import Module from './_build/JsMaterialXCore.js';
 
-describe('Environ', () =>
+test.describe('Environ', () =>
 {
     let mx;
-    before(async () =>
+    test.beforeAll(async () =>
     {
         mx = await Module();
     });
 
-    it('Environment variables', () =>
+    test('Environment variables', () =>
     {
-        expect(mx.getEnviron(mx.MATERIALX_SEARCH_PATH_ENV_VAR)).to.equal('');
+        expect(mx.getEnviron(mx.MATERIALX_SEARCH_PATH_ENV_VAR)).toBe('');
         mx.setEnviron(mx.MATERIALX_SEARCH_PATH_ENV_VAR, 'test');
-        expect(mx.getEnviron(mx.MATERIALX_SEARCH_PATH_ENV_VAR)).to.equal('test');
+        expect(mx.getEnviron(mx.MATERIALX_SEARCH_PATH_ENV_VAR)).toBe('test');
         mx.removeEnviron(mx.MATERIALX_SEARCH_PATH_ENV_VAR);
-        expect(mx.getEnviron(mx.MATERIALX_SEARCH_PATH_ENV_VAR)).to.equal('');
+        expect(mx.getEnviron(mx.MATERIALX_SEARCH_PATH_ENV_VAR)).toBe('');
     });
 });

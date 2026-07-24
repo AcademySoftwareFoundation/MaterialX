@@ -26,8 +26,6 @@ void MetalState::initialize(id<MTLDevice> mtlDevice, id<MTLCommandQueue> mtlCmdQ
     {
         supportsTiledPipeline = [device supportsFamily:MTLGPUFamilyApple4];
     }
-#else
-    supportsTiledPipeline = false;
 #endif
 
     MTLDepthStencilDescriptor* depthStencilDesc = [MTLDepthStencilDescriptor new];

@@ -431,11 +431,10 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     ElementPtr changeChildCategory(ElementPtr child, const string& category);
 
     /// Return the child element, if any, with the given name.
-    ElementPtr getChild(const string& name) const
-    {
-        ElementMap::const_iterator it = _childMap.find(name);
-        return (it != _childMap.end()) ? it->second : ElementPtr();
-    }
+    /// For a Document with an attached data library, this also searches
+    /// the data library when no local child is found, keeping behavior
+    /// consistent with getChildOfType and getChildrenOfType.
+    ElementPtr getChild(const string& name) const;
 
     /// Return the child element, if any, with the given name and subclass.
     /// If a child with the given name exists, but belongs to a different
@@ -750,6 +749,11 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
         return EMPTY_STRING;
     }
 
+    /// Return true if this element belongs to its content document, and not
+    /// to an imported library with a distinct source URI.
+    /// @return True if the active source URI matches the content document URI.
+    bool belongsToContentDocument() const;
+
     /// @}
     /// @name Validation
     /// @{
@@ -774,7 +778,7 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     string createValidChildName(string name) const
     {
         name = name.empty() ? "_" : createValidName(name);
-        while (_childMap.count(name))
+        while (getChild(name))
         {
             name = incrementName(name);
         }

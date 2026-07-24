@@ -17,6 +17,7 @@
 #include <MaterialXRender/OiioImageLoader.h>
 #endif
 
+#include <cstdio>
 #include <fstream>
 #include <iostream>
 #include <limits>
@@ -242,4 +243,32 @@ TEST_CASE("Render: Image Handler Load", "[rendercore]")
     }
     CHECK(imagesLoaded);
     imageHandlerLog.close();
+}
+
+TEST_CASE("Render: StbImage HDR corrupt input", "[rendercore]")
+{
+    // Radiance HDR with valid header and RLE scanline marker but
+    // no channel data following it. Triggers an infinite loop in
+    // stb_image < v2.28
+    // https://github.com/nothings/stb/issues/1224
+    const std::string hdrHeader =
+        "#?RADIANCE\n"
+        "FORMAT=32-bit_rle_rgbe\n"
+        "\n"
+        "-Y 1 +X 8\n";
+
+    const char rleMarker[] = { '\x02', '\x02', '\x00', '\x08' };
+
+    const std::string tempPath = "stb_corrupt_hdr_regression.hdr";
+    {
+        std::ofstream f(tempPath, std::ios::binary);
+        f.write(hdrHeader.data(), static_cast<std::streamsize>(hdrHeader.size()));
+        f.write(rleMarker, sizeof(rleMarker));
+    }
+
+    mx::StbImageLoaderPtr loader = mx::StbImageLoader::create();
+    mx::ImagePtr result = loader->loadImage(mx::FilePath(tempPath));
+    CHECK(!result);
+
+    std::remove(tempPath.c_str());
 }

@@ -26,7 +26,7 @@ void mx_hextiledimage_color4(
         return;
     }
 
-    vector2 coord = mx_transform_uv(texcoord) * tiling;
+    vector2 coord = mx_transform_uv(texcoord * tiling);
 
     HextileData tile_data = mx_hextile_coord(coord, rotation, rotationrange, scale, scalerange, offset, offsetrange);
 
@@ -56,4 +56,11 @@ void mx_hextiledimage_color4(
     // Blend colors
     result.rgb = w[0] * c[0] + w[1] * c[1] + w[2] * c[2];
     result.a = aw[0] * alpha[0] + aw[1] * alpha[1] + aw[2] * alpha[2];
+
+    // Default a missing fourth channel to one, following the MaterialX specification.
+    int channels = 0;
+    if (gettextureinfo(file.filename, "channels", channels) && channels < 4)
+    {
+        result.a = 1.0;
+    }
 }

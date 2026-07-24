@@ -149,8 +149,10 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
     {
         return false;
     }
-    if (cgltf_load_buffers(&options, data, input_filename.c_str()) != cgltf_result_success)
+    if (cgltf_load_buffers(&options, data, input_filename.c_str()) != cgltf_result_success ||
+        cgltf_validate(data) != cgltf_result_success)
     {
+        cgltf_free(data);
         return false;
     }
 
@@ -426,7 +428,7 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
                 }
                 else
                 {
-                    indexCount = positionStream->getData().size();
+                    indexCount = positionStream->getData().size() / MeshStream::STRIDE_3D;
                 }
                 size_t faceCount = indexCount / FACE_VERTEX_COUNT;
                 part->setFaceCount(faceCount);

@@ -206,16 +206,19 @@ class MX_RENDEROSL_API OslRenderer : public ShaderRenderer
         _useOSLCmdStr = useOslCmdstr;
     }
 
-    /// Set the number of rays per pixel to be used for lit surfaces.
-    void setRaysPerPixelLit(int rays)
+    /// Set the testrender `-aa N` value used for lit (closure-color) outputs.
+    /// Note: testrender treats this as the linear AA dimension and traces
+    /// `N * N` samples per pixel, so cost scales quadratically.
+    void setAaLit(int aa)
     {
-        _raysPerPixelLit = rays;
+        _aaLit = aa;
     }
 
-    /// Set the number of rays per pixel to be used for unlit surfaces.
-    void setRaysPerPixelUnlit(int rays)
+    /// Set the testrender `-aa N` value used for unlit (non-closure) outputs.
+    /// Same `N * N` semantics as setAaLit.
+    void setAaUnlit(int aa)
     {
-        _raysPerPixelUnlit = rays;
+        _aaUnlit = aa;
     }
 
     /// Set the osl command string that is to be tested
@@ -271,8 +274,8 @@ class MX_RENDEROSL_API OslRenderer : public ShaderRenderer
     FilePath _dataLibraryOSOPath;
     bool _useTestRender;
     bool _useOSLCmdStr;
-    int _raysPerPixelLit;
-    int _raysPerPixelUnlit;
+    int _aaLit;
+    int _aaUnlit;
     string _oslCmdStr;
 };
 

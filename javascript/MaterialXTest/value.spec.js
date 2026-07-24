@@ -1,15 +1,15 @@
-import { expect } from 'chai';;
+import { test, expect } from '@playwright/test';
 import Module from './_build/JsMaterialXCore.js';
 
-describe('Value', () =>
+test.describe('Value', () =>
 {
     let mx;
-    before(async () =>
+    test.beforeAll(async () =>
     {
         mx = await Module();
     });
 
-    it('Create values of different types', () =>
+    test('Create values of different types', () =>
     {
         const testValues = {
             integer: '1',
@@ -35,8 +35,8 @@ describe('Value', () =>
             const newValue = mx.Value.createValueFromStrings(value, type);
             const typeString = newValue.getTypeString();
             const valueString = newValue.getValueString();
-            expect(typeString).to.equal(type);
-            expect(valueString).to.equal(value);
+            expect(typeString).toBe(type);
+            expect(valueString).toBe(value);
         }
     });
 });

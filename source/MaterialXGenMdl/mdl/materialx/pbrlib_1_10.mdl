@@ -152,7 +152,7 @@ export material mx_sheen_bsdf(
 );
 
 // helper to compute ior for generalized_schlick
-color mx_f0_to_ior(color F0)
+export color mx_f0_to_ior(color F0)
 {
     float3 sqrtF0 = math::sqrt(math::clamp(float3(F0), 0.01, 0.99));
     return color((float3(1.0) + sqrtF0) / (float3(1.0) - sqrtF0));

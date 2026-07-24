@@ -12,6 +12,31 @@ try:
 except Exception:
     DIFF_ENABLED = False
 
+def parseRenderTestPaths(optionsPath):
+    try:
+        import xml.etree.ElementTree as ET
+        tree = ET.parse(optionsPath)
+    except Exception as e:
+        print("Failed to read " + optionsPath + ": " + str(e))
+        return []
+    for elem in tree.getroot().iter():
+        tag = elem.tag.rsplit('}', 1)[-1]
+        if tag == 'input' and elem.get('name') == 'renderTestPaths':
+            value = elem.get('value', '')
+            return [p.strip() for p in value.split(',') if p.strip()]
+    print("renderTestPaths input not found in " + optionsPath)
+    return []
+
+def orderIndexFor(path, orderPaths):
+    # Strip the 'resources/' prefix from option-file entries since the walk is
+    # typically rooted at 'Materials' or deeper.
+    norm = path.replace('\\', '/').strip('/')
+    for i, p in enumerate(orderPaths):
+        bp = p.replace('\\', '/').strip('/').removeprefix('resources/')
+        if norm == bp or norm.startswith(bp + '/'):
+            return i
+    return len(orderPaths)
+
 def computeDiff(image1Path, image2Path, imageDiffPath):
     try:
         if os.path.exists(imageDiffPath):
@@ -53,12 +78,16 @@ def main(args=None):
     parser.add_argument('-l2', '--lang2', dest='lang2', action='store', help='Second target language for comparison. Default is osl', default="osl")
     parser.add_argument('-l3', '--lang3', dest='lang3', action='store', help='Third target language for comparison. Default is empty', default="")
     parser.add_argument('-e', '--error', dest='error', action='store', help='Filter out results with RMS less than this. Negative means all results are kept.', default=-1, type=float)
+    parser.add_argument('-of', '--order-from', dest='order_from', action='store', help='Path to a MaterialX _options.mtlx file. When provided, output sections are ordered to match its renderTestPaths input.', default="")
 
     args = parser.parse_args(args)
 
     fh = open(args.outputfile,"w+")
     fh.write("<html>\n")
     fh.write("<style>\n")
+    # Preserve inline background-color when printing to PDF, so transparent renders
+    # don't vanish into the white page.
+    fh.write("@media print { * { print-color-adjust: exact; -webkit-print-color-adjust: exact; } }\n")
     fh.write("td {")
     fh.write("    padding: " + str(args.cellpadding) + ";")
     fh.write("    border: " + str(args.tableborder) + "px solid black;")
@@ -102,14 +131,26 @@ def main(args=None):
     if args.inputdir3[-1:] == '/' or args.inputdir3[-1:] == '\\':
         args.inputdir3 = args.inputdir3[:-1]
 
-    # Get all source files
+    # Get all source files. Sort dirs for deterministic walk order across platforms.
     langFiles1 = []
     langPaths1 = []
-    for subdir, _, files in os.walk(args.inputdir1):
+    for subdir, dirs, files in os.walk(args.inputdir1):
+        dirs.sort()
         for curFile in sorted(files):
             if curFile.endswith(args.lang1 + ".png"):
                 langFiles1.append(curFile)
                 langPaths1.append(subdir)
+
+    if args.order_from:
+        orderPaths = parseRenderTestPaths(args.order_from)
+        if orderPaths:
+            pairs = sorted(
+                zip(langPaths1, langFiles1),
+                key=lambda pf: (orderIndexFor(pf[0], orderPaths),
+                                pf[0].replace('\\', '/'),
+                                pf[1]))
+            langPaths1 = [p for p, _ in pairs]
+            langFiles1 = [f for _, f in pairs]
 
     # Get all destination files, matching source files
     langFiles2 = []
@@ -117,13 +158,13 @@ def main(args=None):
     langFiles3 = []
     langPaths3 = []
     preFixLen: int = len(args.inputdir1) + 1  # including the path separator
-    postFix: str = args.lang1 + ".png"
+    postFix: str = f"_{args.lang1}.png"
     for file1, path1 in zip(langFiles1, langPaths1):
         # Allow for just one language to be shown if source and dest are the same.
         # Otherwise add in equivalent name with dest language replacement if
         # pointing to the same directory
         if args.inputdir1 != args.inputdir2 or args.lang1 != args.lang2:
-            file2 = file1[:-len(postFix)] + args.lang2 + ".png"
+            file2 = f"{file1.removesuffix(postFix)}_{args.lang2}.png"
             path2 = os.path.join(args.inputdir2, path1[len(args.inputdir1)+1:])
         else:
             file2 = ""
@@ -132,8 +173,8 @@ def main(args=None):
         langPaths2.append(path2)
 
         if useThirdLang:
-            file3 = file1[:-len(postFix)] + args.lang3 + ".png"
-            path3 = os.path.join(args.inputdir2, path1[len(args.inputdir1)+1:])
+            file3 = f"{file1.removesuffix(postFix)}_{args.lang3}.png"
+            path3 = os.path.join(args.inputdir3, path1[len(args.inputdir1)+1:])
         else:
             file3 = ""
             path3 = None
@@ -151,13 +192,15 @@ def main(args=None):
             diffRms1 = diffRms2 = diffRms3 = None
 
             if file1 and file2 and DIFF_ENABLED and args.CREATE_DIFF:
-                diffPath1 = fullPath1[0:-8] + "_" + args.lang1 + "-1_vs_" + args.lang2 + "-2_diff.png"
+                basePath = fullPath1.removesuffix(postFix)
+                diffPath1 = f"{basePath}_{args.lang1}-1_vs_{args.lang2}-2_diff.png"
                 diffRms1 = computeDiff(fullPath1, fullPath2, diffPath1)
 
             if useThirdLang and file1 and file3 and DIFF_ENABLED and args.CREATE_DIFF:
-                diffPath2 = fullPath1[0:-8] + "_" + args.lang1 + "-1_vs_" + args.lang3 + "-3_diff.png"
+                basePath = fullPath1.removesuffix(postFix)
+                diffPath2 = f"{basePath}_{args.lang1}-1_vs_{args.lang3}-3_diff.png"
                 diffRms2 = computeDiff(fullPath1, fullPath3, diffPath2)
-                diffPath3 = fullPath1[0:-8] + "_" + args.lang2 + "-2_vs_" + args.lang3 + "-3_diff.png"
+                diffPath3 = f"{basePath}_{args.lang2}-2_vs_{args.lang3}-3_diff.png"
                 diffRms3 = computeDiff(fullPath2, fullPath3, diffPath3)
 
             if args.error >= 0:

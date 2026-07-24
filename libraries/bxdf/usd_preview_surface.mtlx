@@ -430,14 +430,28 @@
   </nodegraph>
 
   <!-- Node: UsdTransform2d -->
+  <!-- Note : The UsdTransform2d node transforms texture coordinates, not the
+       textures themselves, so to get the effect of moving, resizing, or
+       rotating an image being applied to a surface, one must apply the inverse
+       transformation of how you expect the image to move. -->
   <nodegraph name="IMP_UsdTransform2d" nodedef="ND_UsdTransform2d">
-    <place2d name="placement" type="vector2">
-      <input name="texcoord" type="vector2" interfacename="in" />
-      <input name="scale" type="vector2" interfacename="scale" />
-      <input name="rotate" type="float" interfacename="rotation" />
-      <input name="offset" type="vector2" interfacename="translation" />
-    </place2d>
-    <output name="out" type="vector2" nodename="placement" />
+    <multiply name="N_applyscale" type="vector2">
+      <input name="in1" type="vector2" interfacename="in" />
+      <input name="in2" type="vector2" interfacename="scale" />
+    </multiply>
+    <multiply name="N_invrot" type="float">
+      <input name="in1" type="float" value="-1" />
+      <input name="in2" type="float" interfacename="rotation" />
+    </multiply>
+    <rotate2d name="N_applyrot" type="vector2">
+      <input name="in" type="vector2" nodename="N_applyscale" />
+      <input name="amount" type="float" nodename="N_invrot" />
+    </rotate2d>
+    <add name="N_applyoffset" type="vector2">
+      <input name="in1" type="vector2" nodename="N_applyrot" />
+      <input name="in2" type="vector2" interfacename="translation" />
+    </add>
+    <output name="out" type="vector2" nodename="N_applyoffset" />
   </nodegraph>
 
 </materialx>

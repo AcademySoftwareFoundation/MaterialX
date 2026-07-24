@@ -27,6 +27,8 @@
     <input name="tangent" type="vector3" defaultgeomprop="Tworld" />
     <input name="opacity" type="color3" value="1, 1, 1" />
     <input name="thin_walled" type="boolean" value="false" />
+    <input name="thin_film_thickness" type="float" value="0.0" />
+    <input name="thin_film_IOR" type="float" value="1.5" />
 
     <output name="base_color_out" type="color3" />
     <output name="metallic_out" type="float" />
@@ -44,6 +46,9 @@
     <output name="sheen_roughness_out" type="float" />
     <output name="clearcoat_out" type="float" />
     <output name="clearcoat_roughness_out" type="float" />
+    <output name="iridescence_out" type="float" />
+    <output name="iridescence_ior_out" type="float" />
+    <output name="iridescence_thickness_out" type="float" />
     <output name="dispersion_out" type="float" />
     <output name="emissive_out" type="color3" />
     <output name="emissive_strength_out" type="float" />
@@ -99,26 +104,31 @@
       <input name="in1" type="vector3" nodename="coatColorScaledVector" />
       <input name="in2" type="vector3" nodename="constantOneThirdVector" />
     </dotproduct>
-
-    <!-- Metallic  -->
     <ifequal name="baseColor" type="color3">
       <input name="value1" type="float" nodename="hasCoatColor" />
       <input name="value2" type="float" value="0" />
       <input name="in1" type="color3" nodename="scaledBaseColor" />
       <input name="in2" type="color3" nodename="mixedBaseColor" />
     </ifequal>
+
+    <!-- Transmission influence on BaseColor-->
     <ifgreater name="transmissionBaseColor" type="color3">
       <input name="value1" type="float" interfacename="transmission_depth" />
       <input name="value2" type="float" value="0" />
       <input name="in1" type="color3" value="1, 1, 1" />
       <input name="in2" type="color3" interfacename="transmission_color" />
     </ifgreater>
-    <ifgreater name="base_color" type="color3">
-      <input name="value1" type="float" interfacename="transmission" />
-      <input name="value2" type="float" value="0" />
-      <input name="in1" type="color3" nodename="transmissionBaseColor" />
-      <input name="in2" type="color3" nodename="baseColor" />
-    </ifgreater>
+    <multiply name="transmissionWeightSq" type="float">
+      <input name="in1" type="float" interfacename="transmission" />
+      <input name="in2" type="float" interfacename="transmission" />
+    </multiply>
+    <mix name="transmissionBaseColorMix" type="color3">
+      <input name="fg" type="color3" nodename="transmissionBaseColor" />
+      <input name="bg" type="color3" nodename="baseColor" />
+      <input name="mix" type="float" nodename="transmissionWeightSq" />
+    </mix>
+
+    <!-- Metallic  -->
     <dot name="metallic" type="float">
       <input name="in" type="float" interfacename="metalness" />
     </dot>
@@ -249,6 +259,23 @@
       <input name="in2" type="float" nodename="dispersion_from_abbe" />
     </ifequal>
 
+    <!-- Iridescence -->
+    <ifgreater name="iridescence" type="float">
+      <input name="value1" type="float" interfacename="thin_film_thickness" />
+      <input name="value2" type="float" value="0.0" />
+      <input name="in1" type="float" value="1.0" />
+      <input name="in2" type="float" value="0.0" />
+    </ifgreater>
+    <ifgreater name="iridescence_ior" type="float">
+      <input name="value1" type="float" interfacename="thin_film_thickness" />
+      <input name="value2" type="float" value="0.0" />
+      <input name="in1" type="float" interfacename="thin_film_IOR" />
+      <input name="in2" type="float" value="1.3" />
+    </ifgreater>
+    <dot name="iridescence_thickness" type="float">
+      <input name="in" type="float" interfacename="thin_film_thickness" />
+    </dot>
+
     <!-- Geometry -->
     <dot name="normal" type="vector3">
       <input name="in" type="vector3" interfacename="normal" />
@@ -274,7 +301,7 @@
       <input name="in2" type="integer" value="2" />
     </ifequal>
 
-    <output name="base_color_out" type="color3" nodename="base_color" />
+    <output name="base_color_out" type="color3" nodename="transmissionBaseColorMix" />
     <output name="metallic_out" type="float" nodename="metallic" />
     <output name="roughness_out" type="float" nodename="roughness" />
     <output name="specular_out" type="float" nodename="specular" />
@@ -290,6 +317,9 @@
     <output name="sheen_roughness_out" type="float" nodename="sqrt_sheen_roughness" />
     <output name="clearcoat_out" type="float" nodename="clearcoat" />
     <output name="clearcoat_roughness_out" type="float" nodename="clearcoat_roughness" />
+    <output name="iridescence_out" type="float" nodename="iridescence" />
+    <output name="iridescence_ior_out" type="float" nodename="iridescence_ior" />
+    <output name="iridescence_thickness_out" type="float" nodename="iridescence_thickness" />
     <output name="dispersion_out" type="float" nodename="dispersion" />
     <output name="emissive_out" type="color3" nodename="emissive" />
     <output name="emissive_strength_out" type="float" nodename="emissive_strength" />
