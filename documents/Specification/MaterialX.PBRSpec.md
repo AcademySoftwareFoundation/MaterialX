@@ -344,7 +344,7 @@ E_o = \int_{\Omega_i} f(\omega_i, \omega_o) \cos\theta_i \; d\omega_i
 ```
 <p></p>
 
-The directional albedo is the quantity referenced by the [&lt;layer>](#node-layer) node when performing albedo-scaled vertical layering of a top BSDF over a base.
+Directional albedo measures energy scattered by a BSDF, but it does not distinguish energy reflected away from a layer stack, energy transmitted toward the next layer, and energy absorbed by the top layer. The [&lt;layer>](#node-layer) node therefore uses a separate pass-through quantity supplied by each layerable BSDF.
 
 #### Energy Compensation
 
@@ -1098,7 +1098,7 @@ Because $w \in [0, 1]$, the mix of two individually energy-conserving distributi
 <a id="node-layer"> </a>
 
 ### `layer`
-Vertically layer a layerable BSDF such as [&lt;dielectric_bsdf>](#node-dielectric-bsdf), [&lt;generalized_schlick_bsdf>](#node-generalized-schlick-bsdf) or [&lt;sheen_bsdf>](#node-sheen-bsdf) over a BSDF or VDF. The implementation is target specific, but a standard way of handling this is by albedo scaling, using the function "base*(1-reflectance(top)) + top", where the reflectance function calculates the directional albedo of a given BSDF.
+Vertically layer a layerable BSDF such as [&lt;dielectric_bsdf>](#node-dielectric-bsdf), [&lt;generalized_schlick_bsdf>](#node-generalized-schlick-bsdf) or [&lt;sheen_bsdf>](#node-sheen-bsdf) over a BSDF or VDF. The implementation is target specific, but a standard approximation for a BSDF base is albedo scaling, using the function "top + pass_through(top) * base".
 
 |Port  |Description                     |Type       |Default |
 |------|--------------------------------|-----------|--------|
@@ -1106,16 +1106,49 @@ Vertically layer a layerable BSDF such as [&lt;dielectric_bsdf>](#node-dielectri
 |`base`|The base BSDF or VDF            |BSDF or VDF|__zero__|
 |`out` |Output: the layered distribution|BSDF       |        |
 
-In the equation below, the `top` input corresponds to $f_{\text{top}}$ and the `base` input corresponds to $f_{\text{base}}$. The quantity $E_{\text{top}}$ is the directional albedo of $f_{\text{top}}$, as defined in the [Directional Albedo and Energy Conservation](#directional-albedo-and-energy-conservation) section.
-
-#### Layer Equation
+For each pair of incident and outgoing directions, a layerable top defines a base-directed pass-through factor evaluated independently per color channel:
 
 ```math
-f = f_{\text{top}} + (1 - E_{\text{top}}) f_{\text{base}}
+P_{\text{top}}(\omega_i, \omega_o) \in [0, 1]
 ```
 <p></p>
 
-The base is attenuated by exactly the energy not reflected by the top layer. If both $f_{\text{top}}$ and $f_{\text{base}}$ are individually energy conserving, the layered result is also energy conserving.
+This factor represents the net fraction available to the base after transmission and absorption along both paths through the top layer. For example, Weidlich and Wilkie attenuate a lower-layer BRDF using entry transmission, absorption over the incident and outgoing paths, and return transmission.[^Weidlich2007] A one-direction approximation may instead define a blocking albedo $B_{\text{top}}(\omega_o) = R_{\text{top}}(\omega_o) + A_{\text{top}}(\omega_o)$ and use $P_{\text{top}}(\omega_i, \omega_o) \approx 1 - B_{\text{top}}(\omega_o)$.
+
+The pass-through contract is separate from the directional albedo of the complete top BSDF. In particular, artistic color removed from a reflective lobe may be classified as absorption and must then remain part of the blocking albedo rather than becoming pass-through.
+
+#### Layer Equation
+
+For a BSDF base, the albedo-scaled approximation is:
+
+```math
+f(\omega_i, \omega_o) =
+f_{\text{top}}(\omega_i, \omega_o) +
+P_{\text{top}}(\omega_i, \omega_o)
+f_{\text{base}}(\omega_i, \omega_o)
+```
+<p></p>
+
+For nested albedo-scaled layers, pass-through composes recursively:
+
+```math
+P_{\mathrm{layer(top,base)}}(\omega_i, \omega_o) =
+P_{\text{top}}(\omega_i, \omega_o)
+P_{\text{base}}(\omega_i, \omega_o)
+```
+<p></p>
+
+The factors use the directions appropriate to their respective interfaces. This recursive product makes the result independent of whether a stack is represented as `layer(layer(a, b), c)` or `layer(a, layer(b, c))`.
+
+When the `base` input is a VDF, the node represents a surface boundary bound to an interior medium, rather than an algebraic sum of a BSDF and a VDF. Surface transmission controls entry into the medium, while the VDF controls absorption and scattering after entry. Implementations must not derive medium entry from one minus the complete reflected-plus-transmitted directional albedo of the top BSDF, since that value is zero for a lossless transmissive interface.
+
+**Implementation notes:**
+
+- **GLSL:** Approximates $P(\omega_i, \omega_o)$ using only $\omega_o$, stores it in `BSDF.throughput`, and multiplies it recursively for nested layers. Reflection-only dielectric and sheen keep artistic reflection tint or color out of $P$, while generalized Schlick reduces its color-valued directional albedo to an RGB average.
+- **OSL (`testrender`):** Approximates $P(\omega_i, \omega_o)$ using only $\omega_o$. The MaterialXTest path computes the base weight from each top lobe's `filter_o` and recurses through nested layers. Dielectric uses untinted pass-through, sheen uses a scalar estimate based on the maximum color component, and generalized Schlick uses a scalar energy estimate.
+- **MDL:** Maps compatible layer graphs to native layerers. Weighted layerers use the complement of their scalar or color weight, while curve layerers evaluate both directions and use a symmetric maximum as an approximation motivated by reciprocity and energy conservation. MaterialX sheen uses a scalar weighted-layer approximation based on average color. Unsupported top nodes cannot retain the base.
+
+Conforming implementations of these target-specific representations must preserve the distinction between reflection, absorption, and pass-through described above.
 
 <a id="node-add"> </a>
 
@@ -1911,5 +1944,7 @@ Path Tracing**, <https://media.disneyanimation.com/uploads/production/publicatio
 [^Turquin2019]: Emmanuel Turquin, **Practical multiple scattering compensation for microfacet models**, <https://blog.selfshadow.com/publications/turquin/ms_comp_final.pdf>, 2019.
 
 [^Walter2007]: Bruce Walter et al., **Microfacet Models for Refraction through Rough Surfaces**, <https://www.graphics.cornell.edu/~bjw/microfacetbsdf.pdf>, 2007
+
+[^Weidlich2007]: Andrea Weidlich, Alexander Wilkie, **Arbitrarily Layered Micro-Facet Surfaces**, <https://www.cg.tuwien.ac.at/research/publications/2007/weidlich_2007_almfs/weidlich_2007_almfs-paper.pdf>, 2007
 
 [^Zeltner2022]: Tizian Zeltner et al., **Practical Multiple-Scattering Sheen Using Linearly Transformed Cosines**, <https://tizianzeltner.com/projects/Zeltner2022Practical/>, 2022
