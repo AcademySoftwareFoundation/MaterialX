@@ -100,6 +100,48 @@ TEST_CASE("GenShader: GLSL Unique Names", "[genglsl]")
     GenShaderUtil::testUniqueNames(context, mx::Stage::PIXEL);
 }
 
+TEST_CASE("GenShader: GLSL Surface Opacity Clamp", "[genglsl]")
+{
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::DocumentPtr doc = mx::createDocument();
+    loadLibraries({ "libraries" }, searchPath, doc);
+
+    mx::NodeDefPtr bsdfDef = doc->getNodeDef("ND_oren_nayar_diffuse_bsdf");
+    mx::NodeDefPtr surfaceDef = doc->getNodeDef("ND_surface");
+    mx::NodeDefPtr mixDef = doc->getNodeDef("ND_mix_surfaceshader");
+    REQUIRE(bsdfDef != nullptr);
+    REQUIRE(surfaceDef != nullptr);
+    REQUIRE(mixDef != nullptr);
+
+    mx::NodePtr bsdf = doc->addNodeInstance(bsdfDef, "diffuse");
+
+    mx::NodePtr background = doc->addNodeInstance(surfaceDef, "background");
+    background->setConnectedNode("bsdf", bsdf);
+    background->setInputValue("opacity", 0.2f);
+
+    mx::NodePtr foreground = doc->addNodeInstance(surfaceDef, "foreground");
+    foreground->setConnectedNode("bsdf", bsdf);
+    foreground->setInputValue("opacity", 2.0f);
+
+    mx::NodePtr mix = doc->addNodeInstance(mixDef, "surface_mix");
+    mix->setConnectedNode("bg", background);
+    mix->setConnectedNode("fg", foreground);
+    mix->setInputValue("mix", 0.25f);
+
+    REQUIRE(doc->validate());
+
+    mx::GenContext context(mx::GlslShaderGenerator::create());
+    context.registerSourceCodeSearchPath(searchPath);
+    mx::ShaderPtr shader = context.getShaderGenerator().generate(mix->getName(), mix, context);
+    REQUIRE(shader != nullptr);
+
+    const std::string sourceCode = shader->getSourceCode(mx::Stage::PIXEL);
+    const std::string opacityClamp = "float surfaceOpacity = clamp(";
+    const size_t firstClamp = sourceCode.find(opacityClamp);
+    REQUIRE(firstClamp != std::string::npos);
+    REQUIRE(sourceCode.find(opacityClamp, firstClamp + opacityClamp.size()) != std::string::npos);
+}
+
 TEST_CASE("GenShader: GLSL Light Shaders", "[genglsl]")
 {
     mx::DocumentPtr doc = mx::createDocument();

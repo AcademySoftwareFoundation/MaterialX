@@ -1008,7 +1008,7 @@ If the `edf` input is left unconnected, no emission will occur from the surface.
 |`thin_walled`|Set to true to make the surface thin-walled   |boolean      |false   |
 |`out`        |Output: the computed surface shader           |surfaceshader|        |
 
-In the equations below, the `bsdf` input corresponds to $f$, the `edf` input corresponds to $L_e$, and the `opacity` input corresponds to $O$.
+In the equations below, the `bsdf` input corresponds to $f$, the `edf` input corresponds to $L_e$, and the cutout opacity is $O = \mathrm{clamp}(\mathrm{opacity}, 0, 1)$. Input values below 0 are treated as 0, and input values above 1 are treated as 1, before the surface shader is constructed.
 
 #### Surface Shading Equation
 
