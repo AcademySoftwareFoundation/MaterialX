@@ -2380,6 +2380,13 @@ The scalar signature displaces along the surface normal direction, while the vec
 ### `mix`
 A linear blend between two surface/displacement/volumeshader closures.
 
+For surface shaders, `mix` linearly blends the opacity-scaled BSDF and EDF
+contributions defined by the
+[Surface Shading Equation](./MaterialX.PBRSpec.md#surface-shading-equation). The
+output opacity is the linear blend of the input opacities. Implementations that
+store the BSDF and EDF separately from opacity must divide the blended
+contributions by the output opacity when it is nonzero.
+
 |Port  |Description                                           |Type         |Default|
 |------|------------------------------------------------------|-------------|-------|
 |`bg`  |The background surface closure                        |surfaceshader|       |
