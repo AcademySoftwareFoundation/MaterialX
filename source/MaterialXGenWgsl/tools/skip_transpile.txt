@@ -23,15 +23,11 @@ libraries/stdlib/genwgsl/mx_image_vector2.wgsl
 libraries/stdlib/genwgsl/mx_image_vector3.wgsl
 libraries/stdlib/genwgsl/mx_image_vector4.wgsl
 
-# --- stdlib lib helpers: whole dir maintained by hand (was HANDWRITTEN_LIB_DIRS = {"stdlib"}) ---
-libraries/stdlib/genwgsl/lib/mx_flake.wgsl
-libraries/stdlib/genwgsl/lib/mx_geometry.wgsl
+# --- stdlib lib helpers: naga/WGSL platform gaps (others transpile from genglsl) ---
+# mx_hextile: dFdx/dFdy require uniform control flow in WGSL (deferred; see PR review)
 libraries/stdlib/genwgsl/lib/mx_hextile.wgsl
-libraries/stdlib/genwgsl/lib/mx_hsv.wgsl
-libraries/stdlib/genwgsl/lib/mx_math.wgsl
-libraries/stdlib/genwgsl/lib/mx_noise.wgsl
-libraries/stdlib/genwgsl/lib/mx_transform_uv.wgsl
-libraries/stdlib/genwgsl/lib/mx_transform_uv_vflip.wgsl
+# mx_math_platform: mx_mod overloads + mx_isinf (naga rejects GLSL isinf); mx_math.glsl transpiles
+libraries/stdlib/genwgsl/lib/mx_math_platform.wgsl
 
 # --- pbrlib lib helpers: sampler-bound helpers naga cannot express (was LIB_KEEP_HANDWRITTEN) ---
 libraries/pbrlib/genwgsl/lib/mx_environment_fis.wgsl

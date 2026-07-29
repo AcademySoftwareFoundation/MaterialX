@@ -100,7 +100,7 @@ SKIP_PATTERNS = [re.compile(p) for p in (
 # genglsl change) sets a non-zero exit. If a node here starts transpiling cleanly, the tool warns so
 # it can be removed. Currently empty -- every node either transpiles or is skipped outright by
 # SKIP_PATTERNS. (mx_chiang_hair_bsdf used to live here: naga rejected its isinf() call until it was
-# replaced with mx_isinf -- see libraries/stdlib/genwgsl/lib/mx_math.wgsl.)
+# replaced with mx_isinf -- see libraries/stdlib/genwgsl/lib/mx_math_platform.wgsl.)
 EXPECTED_FALLBACK = set()
 
 # Hand-written genwgsl .wgsl files that must never be transpiled, listed in skip_transpile.txt
@@ -931,10 +931,10 @@ def stripIncludes(text):
 
 
 def generatedBanner(srcRel):
-    '''The two-line "generated, do not edit" header prepended to every emitted .wgsl file.'''
-    return (f"// Generated from {srcRel} by source/MaterialXGenWgsl/tools/mxgenwgsl.py.\n"
-            f"// Do not edit -- re-run the transpiler to regenerate "
-            f"(see source/MaterialXGenWgsl/README.md).\n\n")
+    '''Single-line marker prepended to every emitted .wgsl file.
+
+    Stripped during shader assembly by WgslShaderGenerator (see // @mxgenwgsl).'''
+    return f"// @mxgenwgsl {srcRel}\n"
 
 
 def writeGenerated(outPath, content, label):
@@ -1503,6 +1503,29 @@ def filePreambleBeforeFns(src):
     return stripped[:stripped.index(fns[0]["full"])]
 
 
+def preFilterLibGlsl(stem, raw):
+    '''Remove GLSL that naga cannot transpile before lib parsing/transpile.
+
+    mx_math: mx_isinf uses GLSL isinf(), which naga rejects; it lives in mx_math_platform.wgsl.'''
+    if stem == "mx_math":
+        return re.sub(
+            r"bool\s+mx_isinf\s*\([^)]*\)\s*\{[^}]*\}\s*\n?",
+            "",
+            raw,
+            count=1,
+        )
+    return raw
+
+
+def libTranspileHeader(stem, raw):
+    '''#include block prepended to generated genwgsl/lib/*.wgsl output.'''
+    includes = [f'#include "{inc.replace(".glsl", ".wgsl")}"'
+                for inc in re.findall(r'#include\s+"([^"]+)"', raw)]
+    if stem == "mx_math":
+        includes.insert(0, '#include "mx_math_platform.wgsl"')
+    return ("\n".join(includes) + "\n\n") if includes else ""
+
+
 def applyLibWgslPatches(stem, text):
     '''Stem-specific fixes for transpiled lib output (generator/runtime conventions).'''
     if stem == "mx_microfacet_specular":
@@ -1617,6 +1640,7 @@ def transpileLibFile(glslPath, outPath, base, protos, overloaded, libName, libro
     Dispatches to _transpileClosureTypeLib, transpileLibFileSiblings, or per-function
     transpile (default). Output: generated banner + #include lines + structs/consts + fn bodies.'''
     raw = glslPath.read_text(encoding="utf-8")
+    raw = preFilterLibGlsl(glslPath.stem, raw)
     src = expandLibTokens(raw)
     stem = glslPath.stem
     samplerPreamble = TEXTURE_STUB_PREAMBLE if libNeedsSamplers(raw) else ""
@@ -1625,9 +1649,7 @@ def transpileLibFile(glslPath, outPath, base, protos, overloaded, libName, libro
         return _transpileClosureTypeLib(glslPath, outPath, base, protos, overloaded, libName,
                                            libroot)
 
-    includes = [f'#include "{inc.replace(".glsl", ".wgsl")}"'
-                for inc in re.findall(r'#include\s+"([^"]+)"', raw)]
-    header = ("\n".join(includes) + "\n\n") if includes else ""
+    header = libTranspileHeader(stem, raw)
     gllibDir = glslPath.parent
 
     if stem in LIB_USE_SIBLING_BODIES:
@@ -1684,6 +1706,7 @@ def transpileLibFile(glslPath, outPath, base, protos, overloaded, libName, libro
     banner = generatedBanner(srcRel)
     allConsts = glslConstNames(base) + constNamesFromWgsl(consts)
     body = resolveConstRefs("\n\n".join(outputs), allConsts)
+    body = applyLibWgslPatches(stem, body)
     fileLead = fileLeadComment(raw)
     writeGenerated(outPath, banner + fileLead + header + preamble + body + "\n",
                     f"lib/{glslPath.name}")
