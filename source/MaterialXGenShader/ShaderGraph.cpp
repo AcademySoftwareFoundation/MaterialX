@@ -915,7 +915,16 @@ ShaderGraphEdgeIterator ShaderGraph::traverseUpstream(ShaderOutput* output)
 
 void ShaderGraph::addNode(ShaderNodePtr node)
 {
-    _nodeMap[node->getUniqueId()] = node;
+    // The node map holds the only owning reference to each node, while the node
+    // order holds raw pointers. Overwriting an existing entry would free that
+    // node and leave the dangling pointer behind, so reject duplicate ids.
+    const string& uniqueId = node->getUniqueId();
+    if (_nodeMap.count(uniqueId))
+    {
+        throw ExceptionShaderGenError("A node with unique id '" + uniqueId + "' already exists in graph '" + getName() + "'");
+    }
+
+    _nodeMap[uniqueId] = node;
     _nodeOrder.push_back(node.get());
 }
 
@@ -1382,10 +1391,21 @@ void ShaderGraph::flattenGraph()
 void ShaderGraph::expandCompoundNode(ShaderNode* parentNode, const CompoundNode* compoundNodeImpl)
 {
     string parentNodeName = parentNode->getName();
+    string parentNodeId = parentNode->getUniqueId();
 
     auto getNewNodeName = [parentNodeName](const ShaderNode* node) -> string
     {
         return parentNodeName + "_" + node->getName();
+    };
+
+    // Node names are only unique within their parent graph, so the flattened
+    // copies must be keyed by unique id rather than by name. Otherwise sibling
+    // compound nodes sharing a name would map to the same key, and adding the
+    // second set of copies would release the first set while the graph still
+    // holds raw pointers to them.
+    auto getNewNodeId = [parentNodeId](const ShaderNode* node) -> string
+    {
+        return parentNodeId + "_" + node->getUniqueId();
     };
 
     ShaderGraph* compoundGraph = compoundNodeImpl->getGraph();
@@ -1395,6 +1415,7 @@ void ShaderGraph::expandCompoundNode(ShaderNode* parentNode, const CompoundNode*
     for (ShaderNode* node : compoundGraph->getNodes())
     {
         ShaderNodePtr newNode = ShaderNode::create(this, getNewNodeName(node), node->getImplementationPtr(), node->getClassification());
+        newNode->_uniqueId = getNewNodeId(node);
         addNode(newNode);
 
         for (const ShaderInput* port : node->getInputs())
@@ -1413,7 +1434,7 @@ void ShaderGraph::expandCompoundNode(ShaderNode* parentNode, const CompoundNode*
     // Loop all the newly created nodes and build all necessary connections, or data from the exterior ports.
     for (ShaderNode* node : compoundGraph->getNodes())
     {
-        ShaderNode* newNode = getNode(getNewNodeName(node));
+        ShaderNode* newNode = getNode(getNewNodeId(node));
 
         for (const ShaderInput* port : node->getInputs())
         {
@@ -1435,7 +1456,7 @@ void ShaderGraph::expandCompoundNode(ShaderNode* parentNode, const CompoundNode*
                 // NOTE : we handle connections to the compoundGraph later when we
                 // loop the input sockets.
                 string newUpstreamConnectedNodeName = getNewNodeName(upstreamConnectedNode);
-                ShaderNode* newUpstreamConnectedNode = getNode(newUpstreamConnectedNodeName);
+                ShaderNode* newUpstreamConnectedNode = getNode(getNewNodeId(upstreamConnectedNode));
                 if (!newUpstreamConnectedNode)
                 {
                     throw ExceptionShaderGenError("Could not find expected upstream connected node '"+newUpstreamConnectedNodeName+"'");
@@ -1474,7 +1495,7 @@ void ShaderGraph::expandCompoundNode(ShaderNode* parentNode, const CompoundNode*
                 const ShaderNode* downstreamConnectedNode = downstreamConnection->getNode();
                 string newDownstreamConnectedNodeName = getNewNodeName(downstreamConnectedNode);
 
-                ShaderNode* newDownstreamNode = getNode(newDownstreamConnectedNodeName);
+                ShaderNode* newDownstreamNode = getNode(getNewNodeId(downstreamConnectedNode));
                 if (!newDownstreamNode)
                 {
                     throw ExceptionShaderGenError("Could not find expected downstream node '"+newDownstreamConnectedNodeName+"'");
@@ -1498,7 +1519,7 @@ void ShaderGraph::expandCompoundNode(ShaderNode* parentNode, const CompoundNode*
                 const ShaderNode* downstreamNode = downstreamConnection->getNode();
                 string newDownstreamConnectedNodeName = getNewNodeName(downstreamNode);
 
-                ShaderNode* newDownstreamNode = getNode(newDownstreamConnectedNodeName);
+                ShaderNode* newDownstreamNode = getNode(getNewNodeId(downstreamNode));
                 if (!newDownstreamNode)
                 {
                     throw ExceptionShaderGenError("Could not find expected downstream node '"+newDownstreamConnectedNodeName+"'");
@@ -1526,7 +1547,7 @@ void ShaderGraph::expandCompoundNode(ShaderNode* parentNode, const CompoundNode*
         ShaderNode* upstreamConnectedNode = upstreamConnection->getNode();
         string newUpstreamConnectedNodeName = getNewNodeName(upstreamConnectedNode);
 
-        ShaderNode* newUpstreamNode = getNode(newUpstreamConnectedNodeName);
+        ShaderNode* newUpstreamNode = getNode(getNewNodeId(upstreamConnectedNode));
         if (!newUpstreamNode)
         {
             throw ExceptionShaderGenError("Could not find expected upstream node '"+newUpstreamConnectedNodeName+"'");
