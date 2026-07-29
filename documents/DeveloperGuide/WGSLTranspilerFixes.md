@@ -13,8 +13,10 @@ For the general workflow and tooling see [WGSLShaderGeneration.md](WGSLShaderGen
 | Scope | Handling | Mechanism |
 | --- | --- | --- |
 | `pbrlib/genwgsl/` nodes + most `pbrlib/genwgsl/lib` helpers | **Generated** | transpiled from `genglsl` |
-| `stdlib/genwgsl/lib` helpers | **Hand-written** (project choice) | `HANDWRITTEN_LIB_DIRS` |
-| Environment / shadow / bake lib helpers | **Hand-written** | `LIB_KEEP_HANDWRITTEN` |
+| `stdlib/genwgsl/lib` helpers (noise, flake, hsv, geometry, math, UV) | **Generated** | transpiled from `genglsl` |
+| `stdlib/genwgsl/lib/mx_math_platform.wgsl` | **Hand-written** | `mx_mod_*` + `mx_isinf` (naga rejects GLSL `isinf`; WGSL has no `mod` macro) |
+| `stdlib/genwgsl/lib/mx_hextile.wgsl` | **Hand-written** | `dFdx`/`dFdy` uniform-control-flow (deferred) |
+| Environment / shadow / bake lib helpers | **Hand-written** | `skip_transpile.txt` (sampler `$`-tokens) |
 | Image / hextile / light nodes | **Hand-written** (auto-skipped) | `SKIP_PATTERNS` |
 | `mx_chiang_hair_bsdf` | **Hand-written** | `EXPECTED_FALLBACK` |
 
@@ -63,8 +65,9 @@ above are all instances of that reconciliation.
 
 ## Build / repo workflow
 
-Generated `.wgsl` files carry a `// Generated from … mxgenwgsl.py` banner and are **not
-committed** — they are regenerated from `genglsl` (the single source of truth) in CI and locally.
+Generated `.wgsl` files carry a one-line `// @mxgenwgsl …` marker (stripped during shader
+assembly) and are **not committed** — they are regenerated from `genglsl` (the single source of
+truth) in CI and locally.
 Because `MATERIALX_BUILD_GEN_WGSL` now defaults **OFF**, a clean local build of the web viewer is:
 
 ```sh
