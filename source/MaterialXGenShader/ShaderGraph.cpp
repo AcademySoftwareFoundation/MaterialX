@@ -1473,6 +1473,43 @@ void ShaderGraph::expandCompoundNode(ShaderNode* parentNode, const CompoundNode*
         }
     }
 
+    // Resolve the flattened inputs that a connection from an input socket should be
+    // applied to. Normally this is the matching input on the copy of the child node,
+    // but an input socket may also connect straight to an output socket, in which case
+    // the compound graph just passes the value through. Output sockets are stored as
+    // inputs on the graph itself, so such a connection resolves to the inputs that are
+    // downstream of the parent node's matching output.
+    auto getNewDownstreamInputs = [this, compoundGraph, parentNode, parentNodeName, &getNewNodeName, &getNewNodeId](const ShaderInput* downstreamConnection) -> ShaderInputVec
+    {
+        const ShaderNode* downstreamNode = downstreamConnection->getNode();
+        if (downstreamNode == compoundGraph)
+        {
+            ShaderOutput* parentNodeOutput = parentNode->getOutput(downstreamConnection->getName());
+            if (!parentNodeOutput)
+            {
+                throw ExceptionShaderGenError("Could not find expected output port '"+parentNodeName+"."+downstreamConnection->getName()+"'");
+            }
+
+            // Return a copy, since connecting to these inputs modifies the connection list.
+            return parentNodeOutput->getConnections();
+        }
+
+        string newDownstreamConnectedNodeName = getNewNodeName(downstreamNode);
+        ShaderNode* newDownstreamNode = getNode(getNewNodeId(downstreamNode));
+        if (!newDownstreamNode)
+        {
+            throw ExceptionShaderGenError("Could not find expected downstream node '"+newDownstreamConnectedNodeName+"'");
+        }
+
+        ShaderInput* newDownstreamInput = newDownstreamNode->getInput(downstreamConnection->getName());
+        if (!newDownstreamInput)
+        {
+            throw ExceptionShaderGenError("Could not find expected downstream input '"+newDownstreamConnectedNodeName+"."+downstreamConnection->getName()+"'");
+        }
+
+        return ShaderInputVec{ newDownstreamInput };
+    };
+
     for (ShaderGraphInputSocket* inputSocket : compoundGraph->getInputSockets())
     {
         ShaderInputVec downstreamConnections = inputSocket->getConnections();
@@ -1492,22 +1529,10 @@ void ShaderGraph::expandCompoundNode(ShaderNode* parentNode, const CompoundNode*
             // to all the downstream internal connected inputs
             for (const ShaderInput* downstreamConnection : downstreamConnections)
             {
-                const ShaderNode* downstreamConnectedNode = downstreamConnection->getNode();
-                string newDownstreamConnectedNodeName = getNewNodeName(downstreamConnectedNode);
-
-                ShaderNode* newDownstreamNode = getNode(getNewNodeId(downstreamConnectedNode));
-                if (!newDownstreamNode)
+                for (ShaderInput* newDownstreamInput : getNewDownstreamInputs(downstreamConnection))
                 {
-                    throw ExceptionShaderGenError("Could not find expected downstream node '"+newDownstreamConnectedNodeName+"'");
+                    newDownstreamInput->setValue(parentNodeInput->getValue());
                 }
-
-                ShaderInput* newDownstreamInput = newDownstreamNode->getInput(downstreamConnection->getName());
-                if (!newDownstreamInput)
-                {
-                    throw ExceptionShaderGenError("Could not find expected downstream input '"+newDownstreamConnectedNodeName+"."+downstreamConnection->getName()+"'");
-                }
-
-                newDownstreamInput->setValue(parentNodeInput->getValue());
             }
         }
         else
@@ -1516,21 +1541,10 @@ void ShaderGraph::expandCompoundNode(ShaderNode* parentNode, const CompoundNode*
             // connected inputs
             for (const ShaderInput* downstreamConnection : downstreamConnections)
             {
-                const ShaderNode* downstreamNode = downstreamConnection->getNode();
-                string newDownstreamConnectedNodeName = getNewNodeName(downstreamNode);
-
-                ShaderNode* newDownstreamNode = getNode(getNewNodeId(downstreamNode));
-                if (!newDownstreamNode)
+                for (ShaderInput* newDownstreamInput : getNewDownstreamInputs(downstreamConnection))
                 {
-                    throw ExceptionShaderGenError("Could not find expected downstream node '"+newDownstreamConnectedNodeName+"'");
+                    newDownstreamInput->makeConnection(upstreamConnectedOutput);
                 }
-                ShaderInput* newDownstreamInput = newDownstreamNode->getInput(downstreamConnection->getName());
-                if (!newDownstreamInput)
-                {
-                    throw ExceptionShaderGenError("Could not find expected downstream input '"+newDownstreamConnectedNodeName+"."+downstreamConnection->getName()+"'");
-                }
-
-                newDownstreamInput->makeConnection(upstreamConnectedOutput);
             }
 
             // finally we remove the prior connection
@@ -1545,6 +1559,12 @@ void ShaderGraph::expandCompoundNode(ShaderNode* parentNode, const CompoundNode*
             continue;
 
         ShaderNode* upstreamConnectedNode = upstreamConnection->getNode();
+
+        // A pass-through output socket is fed by an input socket rather than by a child
+        // node, and has already been rewired when the input sockets were processed above.
+        if (upstreamConnectedNode == compoundGraph)
+            continue;
+
         string newUpstreamConnectedNodeName = getNewNodeName(upstreamConnectedNode);
 
         ShaderNode* newUpstreamNode = getNode(getNewNodeId(upstreamConnectedNode));
