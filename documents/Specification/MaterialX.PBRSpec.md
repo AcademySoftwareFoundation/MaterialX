@@ -40,6 +40,7 @@ This document describes a number of shader-semantic nodes implementing widely-us
  [Reflectance Models](#reflectance-models)  
   [Microfacet Model](#microfacet-model)  
   [Directional Albedo and Energy Conservation](#directional-albedo-and-energy-conservation)  
+  [Vertical-Layering Transmittance](#vertical-layering-transmittance)  
   [Thin-Film Iridescence](#thin-film-iridescence)  
  [Light Transport](#light-transport)  
   [The Light Transport Equation](#the-light-transport-equation)  
@@ -130,7 +131,7 @@ In order to simplify authoring of complex materials, our model supports the noti
 
 
 * Horizontal Layering: A simple way of layering is using per-shading-point linear mixing of different BSDFs where a mix factor is given per BSDF controlling its contribution. Since the weight is calculated per shading point it can be used as a mask to hide contributions on different parts of a surface. The weight can also be calculated dependent on view angle to simulate approximate Fresnel behavior. This type of layering can be done both on a BSDF level and on a surface shader level. The latter is useful for mixing complete shaders which internally contain many BSDFs, e.g. to put dirt over a car paint, grease over a rusty metal or adding decals to a plastic surface. We refer to this type of layering as **horizontal layering** and the [&lt;mix>](#node-mix) node in the PBS library can be used to achieve this (see below).
-* Vertical Layering: A more physically correct form of layering is also supported where a top BSDF layer is placed over another base BSDF layer, and the light not reflected by the top layer is assumed to be transmitted to the base layer; for example, adding a dielectric coating layer over a substrate. The refraction index and roughness of the coating will then affect the attenuation of light reaching the substrate. The substrate can be a transmissive BSDF to transmit the light further, or a reflective BSDF to reflect the light back up through the coating. The substrate can in turn be a reflective BSDF to simulate multiple specular lobes. We refer to this type of layering as **vertical layering** and it can be achieved using the [&lt;layer>](#node-layer) node in the PBS library. See [&lt;dielectric_bsdf>](#node-dielectric-bsdf) and [&lt;sheen_bsdf>](#node-sheen-bsdf) below.
+* Vertical Layering: A more physically correct form of layering is also supported where a top BSDF layer is placed over another base BSDF layer, and the light not reflected by the top layer is assumed to be transmitted to the base layer; for example, adding a dielectric coating layer over a substrate. The refraction index and roughness of the coating will then affect the attenuation of light reaching the substrate. The substrate can be a transmissive BSDF, transmitting the light further into lower layers, or a reflective BSDF, reflecting the light back up through the coating to simulate multiple specular lobes. We refer to this type of layering as **vertical layering** and it can be achieved using the [&lt;layer>](#node-layer) node in the PBS library. See [&lt;dielectric_bsdf>](#node-dielectric-bsdf) and [&lt;sheen_bsdf>](#node-sheen-bsdf) below. Every BSDF in the PBS library may be used as the top layer of a vertical layering operation, with the fraction of light it passes on to its base defined by its [vertical-layering transmittance](#vertical-layering-transmittance).
 * Shader Input Blending: Calculating and blending many BSDFs or separate surface shaders can be expensive. In some situations good results can be achieved by blending the texture/value inputs instead, before any illumination calculations. Typically one would use this with an über-shader that can simulate many different materials, and by masking or blending its inputs over the surface you get the appearance of having multiple layers, but with less expensive texture or value blending. Examples of this are given in the main [MaterialX Specification "Pre-Shader Compositing Example"](./MaterialX.Specification.md#example-pre-shader-compositing-material).
 
 
@@ -344,7 +345,7 @@ E_o = \int_{\Omega_i} f(\omega_i, \omega_o) \cos\theta_i \; d\omega_i
 ```
 <p></p>
 
-The directional albedo is the quantity referenced by the [&lt;layer>](#node-layer) node when performing albedo-scaled vertical layering of a top BSDF over a base.
+The directional albedo determines the [vertical-layering transmittance](#vertical-layering-transmittance) of an interface BSDF, referenced by the [&lt;layer>](#node-layer) node when vertically layering a top BSDF over a base.
 
 #### Energy Compensation
 
@@ -356,6 +357,19 @@ f_r^{\text{comp}}(\omega_i, \omega_o) = f_r(\omega_i, \omega_o)\left(1 + F_{\tex
 <p></p>
 
 where $E_{\text{ss}}$ is the directional albedo of the microfacet BRDF evaluated with unit Fresnel ($F = 1$), and $F_{\text{ss}}$ is the cosine-weighted hemispherical average of the Fresnel reflectance of the BSDF being compensated.
+
+
+### Vertical-Layering Transmittance
+
+Every BSDF defines a **vertical-layering transmittance** $T_o$: the fraction of incident light that passes through the BSDF to reach the layers beneath it, when the BSDF is used as the top input of a [&lt;layer>](#node-layer) node. Like the directional albedo, the transmittance is evaluated for a fixed exitant direction $\omega_o$. All BSDFs in the PBS library are therefore layerable, with the transmittance of each elemental BSDF taking one of two forms:
+
+* **Interface BSDFs** — [&lt;dielectric_bsdf>](#node-dielectric-bsdf), [&lt;generalized_schlick_bsdf>](#node-generalized-schlick-bsdf), and [&lt;sheen_bsdf>](#node-sheen-bsdf) — represent thin interfaces and coatings that transmit all of the energy they do not reflect, giving $T_o = 1 - E_o$, where the directional albedo is evaluated over the node's reflection lobes alone, so that light transmitted rather than reflected by a transmissive scatter mode continues to the layers beneath.
+
+* **Opaque BSDFs** — [&lt;oren_nayar_diffuse_bsdf>](#node-oren-nayar-diffuse-bsdf), [&lt;burley_diffuse_bsdf>](#node-burley-diffuse-bsdf), [&lt;conductor_bsdf>](#node-conductor-bsdf), [&lt;subsurface_bsdf>](#node-subsurface-bsdf), [&lt;translucent_bsdf>](#node-translucent-bsdf), and [&lt;chiang_hair_bsdf>](#node-chiang-hair-bsdf) — reflect, scatter, or absorb all of the light reaching them, transmitting none through the lobe itself. For these nodes the `weight` input $w$ acts as a statistical coverage of the surface, with the covered fraction fully occluding lower layers and the uncovered fraction passing light through unchanged, giving $T_o = 1 - w$.
+
+An opaque BSDF with a weight of zero is thus completely transparent with respect to vertical layering, while an opaque BSDF with a weight of one fully occludes its base, and layering an opaque BSDF over a base is equivalent to a [&lt;mix>](#node-mix) of the two BSDFs with the coverage as the mixing weight. Since [&lt;chiang_hair_bsdf>](#node-chiang-hair-bsdf) has no `weight` input, it takes on an implicit unit coverage.
+
+The nodes that combine and modify BSDFs — [&lt;mix>](#node-mix), [&lt;layer>](#node-layer), [&lt;add>](#node-add), and [&lt;multiply>](#node-multiply) — compose the transmittances of their inputs, as given in each node's section, so the vertical-layering transmittance is well-defined for any graph of BSDF nodes. These composition rules define the reference transmittance-scaling model, and targets that directly simulate light transport through the layer stack may refine them, for example by accounting for multiple reflections between layers. For an energy-conserving BSDF, the directional albedo of the reflection lobes never exceeds the occluded fraction of incident light, $E_o \leq 1 - T_o$, ensuring that vertical layering preserves energy conservation.
 
 
 ### Thin-Film Iridescence
@@ -427,7 +441,7 @@ The equations below use the symbols and notation defined in the [Scattering Fram
 <a id="node-oren-nayar-diffuse-bsdf"> </a>
 
 ### `oren_nayar_diffuse_bsdf`
-Constructs a diffuse reflection BSDF based on the Oren-Nayar reflectance model.
+Constructs a diffuse reflection BSDF based on the Oren-Nayar reflectance model. As an opaque BSDF, this node occludes any vertically layered base in proportion to its `weight` input, as described in the [Vertical-Layering Transmittance](#vertical-layering-transmittance) section.
 
 A `roughness` of 0.0 gives Lambertian reflectance.
 
@@ -473,7 +487,7 @@ When `energy_compensation` is enabled, the EON model[^Portsmouth2025] decomposes
 <a id="node-burley-diffuse-bsdf"> </a>
 
 ### `burley_diffuse_bsdf`
-Constructs a diffuse reflection BSDF based on the corresponding component of the Disney Principled model[^Burley2012].
+Constructs a diffuse reflection BSDF based on the corresponding component of the Disney Principled model[^Burley2012]. As an opaque BSDF, this node occludes any vertically layered base in proportion to its `weight` input, as described in the [Vertical-Layering Transmittance](#vertical-layering-transmittance) section.
 
 |Port       |Description                    |Type    |Default         |Accepted Values|
 |-----------|-------------------------------|--------|----------------|---------------|
@@ -566,7 +580,7 @@ When `thinfilm_thickness` is non-zero, the Fresnel reflectance $F$ above is repl
 <a id="node-conductor-bsdf"> </a>
 
 ### `conductor_bsdf`
-Constructs a reflection BSDF based on a microfacet reflectance model[^Burley2012]. Uses a Fresnel curve with complex refraction index for conductors/metals. If an artistic parametrization[^Gulbrandsen2014] is needed the [&lt;artistic_ior>](#node-artistic-ior) utility node can be connected to handle this.
+Constructs a reflection BSDF based on a microfacet reflectance model[^Burley2012]. Uses a Fresnel curve with complex refraction index for conductors/metals. If an artistic parametrization[^Gulbrandsen2014] is needed the [&lt;artistic_ior>](#node-artistic-ior) utility node can be connected to handle this. As an opaque BSDF, this node occludes any vertically layered base in proportion to its `weight` input, as described in the [Vertical-Layering Transmittance](#vertical-layering-transmittance) section.
 
 Implementations are expected to preserve energy as the roughness of the surface increases, with multiple scattering compensation[^Turquin2019] being a popular implementation strategy.
 
@@ -685,7 +699,7 @@ When `thinfilm_thickness` is non-zero, the Fresnel reflectance $F_{\theta}$ abov
 <a id="node-translucent-bsdf"> </a>
 
 ### `translucent_bsdf`
-Constructs a translucent (diffuse transmission) BSDF based on the Lambert reflectance model.
+Constructs a translucent (diffuse transmission) BSDF based on the Lambert reflectance model. As an opaque BSDF, this node occludes any vertically layered base in proportion to its `weight` input, as described in the [Vertical-Layering Transmittance](#vertical-layering-transmittance) section.
 
 |Port     |Description                    |Type   |Default      |Accepted Values|
 |---------|-------------------------------|-------|-------------|---------------|
@@ -708,7 +722,7 @@ f_t(\omega_i, \omega_o) = \frac{\rho}{\pi}
 <a id="node-subsurface-bsdf"> </a>
 
 ### `subsurface_bsdf`
-Constructs a subsurface scattering BSDF for subsurface scattering within a homogeneous medium. The parameterization is chosen to match random walk Monte Carlo methods[^Kulla2017] as well as approximate empirical methods[^Christensen2015]. This node is defined compositionally as a BSDF vertically layered over an [&lt;anisotropic_vdf>](#node-anisotropic-vdf), as detailed below.
+Constructs a subsurface scattering BSDF for subsurface scattering within a homogeneous medium. The parameterization is chosen to match random walk Monte Carlo methods[^Kulla2017] as well as approximate empirical methods[^Christensen2015]. This node is defined compositionally as a BSDF vertically layered over an [&lt;anisotropic_vdf>](#node-anisotropic-vdf), as detailed below. As an opaque BSDF, this node occludes any vertically layered base in proportion to its `weight` input, as described in the [Vertical-Layering Transmittance](#vertical-layering-transmittance) section.
 
 The `radius` input sets the average distance (mean free path) that light propagates below the surface before scattering back out, and can be set independently for each color channel.
 
@@ -732,7 +746,7 @@ The artist-facing `color` and `radius` inputs are converted to the volume's phys
 <a id="node-sheen-bsdf"> </a>
 
 ### `sheen_bsdf`
-Constructs a microfacet BSDF for the back-scattering properties of cloth-like materials. This node may be layered vertically over a base BSDF using a [&lt;layer>](#node-layer) node. All energy that is not reflected will be transmitted to the base layer. A `mode` option selects between two available sheen models, Conty-Kulla[^Conty2017] and Zeltner[^Zeltner2022].
+Constructs a microfacet BSDF for the back-scattering properties of cloth-like materials. As an interface BSDF, this node may be layered vertically over a base BSDF using a [&lt;layer>](#node-layer) node, and all energy that is not reflected will be transmitted to the base layer. A `mode` option selects between two available sheen models, Conty-Kulla[^Conty2017] and Zeltner[^Zeltner2022].
 
 |Port       |Description                                             |Type   |Default      |Accepted Values     |
 |-----------|--------------------------------------------------------|-------|-------------|--------------------|
@@ -764,7 +778,7 @@ When `mode` is set to `zeltner`, the Zeltner sheen model[^Zeltner2022] approxima
 <a id="node-chiang-hair-bsdf"> </a>
 
 ### `chiang_hair_bsdf`
-Constructs a hair BSDF based on the Chiang hair shading model[^Chiang2016]. This node does not support vertical layering.
+Constructs a hair BSDF based on the Chiang hair shading model[^Chiang2016]. As an opaque BSDF with no `weight` input, this node takes on an implicit unit coverage, fully occluding any vertically layered base as described in the [Vertical-Layering Transmittance](#vertical-layering-transmittance) section.
 
 The roughness inputs provide a longitudinal variance $v$ and an azimuthal logistic scale $s$ for each lobe, with (0,0) specifying pure specular scattering. These low-level parameters may be computed from artist-facing longitudinal and azimuthal roughness values using the [&lt;chiang_hair_roughness>](#node-chiang-hair-roughness) utility node. The default `ior` of 1.55 represents the index of refraction for keratin. The `cuticle_angle` is a normalized value in $[0, 1]$, with 0.5 representing no tilt, and values above 0.5 tilting the scales toward the root of the fiber.
 
@@ -1093,12 +1107,19 @@ f = (1 - w) f_{\text{bg}} + w f_{\text{fg}}
 ```
 <p></p>
 
+When mixing BSDFs, the [vertical-layering transmittance](#vertical-layering-transmittance) of the result interpolates in the same manner:
+
+```math
+T = (1 - w) T_{\text{bg}} + w T_{\text{fg}}
+```
+<p></p>
+
 Because $w \in [0, 1]$, the mix of two individually energy-conserving distribution functions is also energy conserving.
 
 <a id="node-layer"> </a>
 
 ### `layer`
-Vertically layer a layerable BSDF such as [&lt;dielectric_bsdf>](#node-dielectric-bsdf), [&lt;generalized_schlick_bsdf>](#node-generalized-schlick-bsdf) or [&lt;sheen_bsdf>](#node-sheen-bsdf) over a BSDF or VDF. The implementation is target specific, but a standard way of handling this is by albedo scaling, using the function "base*(1-reflectance(top)) + top", where the reflectance function calculates the directional albedo of a given BSDF.
+Vertically layer a BSDF over another BSDF or VDF. Light not scattered by the top layer is passed on to the base, attenuated by the [vertical-layering transmittance](#vertical-layering-transmittance) of the top BSDF. The implementation is target specific, but a standard way of handling this is by transmittance scaling — a generalization of the albedo scaling technique for interface BSDFs — using the function "top + base*transmittance(top)", where the transmittance function calculates the vertical-layering transmittance of a given BSDF.
 
 |Port  |Description                     |Type       |Default |
 |------|--------------------------------|-----------|--------|
@@ -1106,16 +1127,23 @@ Vertically layer a layerable BSDF such as [&lt;dielectric_bsdf>](#node-dielectri
 |`base`|The base BSDF or VDF            |BSDF or VDF|__zero__|
 |`out` |Output: the layered distribution|BSDF       |        |
 
-In the equation below, the `top` input corresponds to $f_{\text{top}}$ and the `base` input corresponds to $f_{\text{base}}$. The quantity $E_{\text{top}}$ is the directional albedo of $f_{\text{top}}$, as defined in the [Directional Albedo and Energy Conservation](#directional-albedo-and-energy-conservation) section.
+In the equations below, the `top` input corresponds to $f_{\text{top}}$ and the `base` input corresponds to $f_{\text{base}}$. The quantities $T_{\text{top}}$ and $T_{\text{base}}$ are their respective transmittances, as defined in the [Vertical-Layering Transmittance](#vertical-layering-transmittance) section.
 
-#### Layer Equation
+#### Layer Equations
 
 ```math
-f = f_{\text{top}} + (1 - E_{\text{top}}) f_{\text{base}}
+f = f_{\text{top}} + T_{\text{top}} f_{\text{base}}
 ```
 <p></p>
 
-The base is attenuated by exactly the energy not reflected by the top layer. If both $f_{\text{top}}$ and $f_{\text{base}}$ are individually energy conserving, the layered result is also energy conserving.
+The transmittance of the layered result is the product of the transmittances of its inputs:
+
+```math
+T = T_{\text{top}} T_{\text{base}}
+```
+<p></p>
+
+For an interface BSDF top, the base is attenuated by exactly the energy not reflected by the top layer, while for an opaque BSDF top, the base is occluded over the fraction of the surface statistically covered by the top. In both cases, if $f_{\text{top}}$ and $f_{\text{base}}$ are individually energy conserving, the layered result is also energy conserving.
 
 <a id="node-add"> </a>
 
@@ -1134,6 +1162,13 @@ In the equation below, the `in1` input corresponds to $f_1$ and the `in2` input 
 
 ```math
 f = f_1 + f_2
+```
+<p></p>
+
+When adding BSDFs, the occluded fractions $1 - T$ of the two inputs sum, giving a [vertical-layering transmittance](#vertical-layering-transmittance) for the result of:
+
+```math
+T = \max(T_1 + T_2 - 1, 0)
 ```
 <p></p>
 
@@ -1160,6 +1195,8 @@ f = s f_1
 <p></p>
 
 When $s$ is a `color3`, each color channel of the distribution function is scaled independently.
+
+When multiplying a BSDF, the scaling weight attenuates only the scattered response, so the [vertical-layering transmittance](#vertical-layering-transmittance) of the result is unchanged, with $T = T_1$.
 
 <a id="node-roughness-anisotropy"> </a>
 

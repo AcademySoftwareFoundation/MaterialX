@@ -118,6 +118,21 @@ MdlShaderGenerator::MdlShaderGenerator(TypeSystemPtr typeSystem) :
     // <!-- <sheen_bsdf> -->
     registerImplementation("IM_sheen_bsdf_" + MdlShaderGenerator::TARGET, LayerableNodeMdl::create);
 
+    // <!-- <oren_nayar_diffuse_bsdf> -->
+    registerImplementation("IM_oren_nayar_diffuse_bsdf_" + MdlShaderGenerator::TARGET, LayerableNodeMdl::create);
+
+    // <!-- <burley_diffuse_bsdf> -->
+    registerImplementation("IM_burley_diffuse_bsdf_" + MdlShaderGenerator::TARGET, LayerableNodeMdl::create);
+
+    // <!-- <conductor_bsdf> -->
+    registerImplementation("IM_conductor_bsdf_" + MdlShaderGenerator::TARGET, LayerableNodeMdl::create);
+
+    // <!-- <translucent_bsdf> -->
+    registerImplementation("IM_translucent_bsdf_" + MdlShaderGenerator::TARGET, LayerableNodeMdl::create);
+
+    // <!-- <subsurface_bsdf> -->
+    registerImplementation("IM_subsurface_bsdf_" + MdlShaderGenerator::TARGET, LayerableNodeMdl::create);
+
     // <!-- <image> -->
     registerImplementation("IM_image_float_" + MdlShaderGenerator::TARGET, ImageNodeMdl::create);
     registerImplementation("IM_image_color3_" + MdlShaderGenerator::TARGET, ImageNodeMdl::create);

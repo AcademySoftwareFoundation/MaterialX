@@ -3,7 +3,8 @@
 
 void mx_conductor_bsdf(ClosureData closureData, float weight, vec3 ior_n, vec3 ior_k, vec2 roughness, bool retroreflective, float thinfilm_thickness, float thinfilm_ior, vec3 N, vec3 X, int distribution, inout BSDF bsdf)
 {
-    bsdf.throughput = vec3(0.0);
+    // As an opaque BSDF, transmit light only through the fraction of the surface not covered by the weight.
+    bsdf.throughput = vec3(1.0 - weight);
 
     if (weight < M_FLOAT_EPS)
     {
