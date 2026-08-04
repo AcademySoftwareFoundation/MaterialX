@@ -3148,7 +3148,11 @@ void Graph::graphButtons()
 
     // Menu keys
     ImGuiIO& guiIO = ImGui::GetIO();
-    if (guiIO.KeyCtrl && !_fileDialogSave.isOpened() && !_fileDialog.isOpened() && !_fileDialogGeom.isOpened())
+    if (guiIO.KeyCtrl &&
+        !guiIO.WantTextInput &&
+        !_fileDialogSave.isOpened() &&
+        !_fileDialog.isOpened() &&
+        !_fileDialogGeom.isOpened())
     {
         if (ImGui::IsKeyReleased(ImGuiKey_O))
         {
@@ -3915,7 +3919,10 @@ void Graph::drawHelpMarker(const char* content)
 
 void Graph::addNodePopup(bool cursor)
 {
-    bool open_AddPopup = (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::IsKeyReleased(ImGuiKey_Tab)) ||
+    ImGuiIO& io = ImGui::GetIO();
+    bool open_AddPopup = (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) &&
+                          !io.WantTextInput &&
+                          ImGui::IsKeyReleased(ImGuiKey_Tab)) ||
                          (_pinFilterType != mx::EMPTY_STRING && ImGui::IsMouseReleased(0));
     static char input[32]{ "" };
     if (open_AddPopup)
@@ -4039,7 +4046,11 @@ void Graph::addNodePopup(bool cursor)
 
 void Graph::searchNodePopup(bool cursor)
 {
-    const bool open_search = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::IsKeyDown(ImGuiKey_F) && ImGui::IsKeyDown(ImGuiKey_LeftCtrl);
+    const ImGuiIO& io = ImGui::GetIO();
+    const bool open_search = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) &&
+                             !io.WantTextInput &&
+                             io.KeyCtrl &&
+                             ImGui::IsKeyReleased(ImGuiKey_F);
     if (open_search)
     {
         cursor = true;
@@ -4295,10 +4306,18 @@ void Graph::drawGraph(ImVec2 mousePos)
 
         selectedNodes.resize(nodeCount);
         selectedLinks.resize(linkCount);
-        if (io2.KeyCtrl && io2.MouseDown[0])
-        {
-            _ctrlClick = true;
-        }
+
+        // Keep ctrl-click state frame-local; stale true blocks connection copy in paste.
+        _ctrlClick = io2.KeyCtrl && io2.MouseDown[0];
+
+        const bool graphShortcutContext =
+            ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) &&
+            !io2.WantTextInput &&
+            !_fileDialogSave.isOpened() &&
+            !_fileDialog.isOpened() &&
+            !_fileDialogGeom.isOpened() &&
+            !ImGui::IsPopupOpen("add node") &&
+            !ImGui::IsPopupOpen("search");
 
         // Set current node based off of selected node
         if (selectedNodes.size() > 0)
@@ -4326,7 +4345,7 @@ void Graph::drawGraph(ImVec2 mousePos)
         }
 
         // Check if keyboard shortcuts for copy/cut/paste have been used
-        if (ed::BeginShortcut())
+        if (graphShortcutContext && ed::BeginShortcut())
         {
             if (ed::AcceptCopy())
             {
@@ -4465,7 +4484,7 @@ void Graph::drawGraph(ImVec2 mousePos)
 
         // Delete selected nodes and their links if delete key is pressed
         // or if the shortcut for cut is used
-        if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootWindow))
+        if (graphShortcutContext)
         {
             bool traverseDownstream = ImGui::IsKeyReleased(ImGuiKey_RightArrow);
             bool traverseUpstream = ImGui::IsKeyReleased(ImGuiKey_LeftArrow);
