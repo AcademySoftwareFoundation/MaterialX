@@ -1938,7 +1938,7 @@ UiPinPtr Graph::getPin(ed::PinId pinId)
     return nullPin;
 }
 
-void Graph::drawPinIcon(const std::string& type, bool connected, int alpha, float xOffset, bool isOutput)
+void Graph::drawPinIcon(const std::string& type, bool connected, int alpha, float xOffset, bool offsetInY)
 {
     ImColor color = ImColor(0, 0, 0, 255);
     if (_pinColor.find(type) != _pinColor.end())
@@ -1948,7 +1948,7 @@ void Graph::drawPinIcon(const std::string& type, bool connected, int alpha, floa
 
     color.Value.w = alpha / 255.0f;
 
-    const float iconSize = std::max(MIN_PIN_ICON_SIZE, BASE_PIN_ICON_SIZE * getUiScaleFromFont());
+    const float iconSize = computeIconSize();
 
     ImVec2 iconMin = ImGui::GetCursorScreenPos() + ImVec2(xOffset, 0.0f);
     ImVec2 iconMax = iconMin + ImVec2(iconSize, iconSize);
@@ -1984,14 +1984,13 @@ void Graph::drawPinIcon(const std::string& type, bool connected, int alpha, floa
             ImColor(32, 32, 32, alpha));
     }
 
-    // Reserve dummy space only for input pins (they sit inside the node).
-    // Output pins protrude outside and must not affect layout width.
-    float dummyWidth = 0.0f;
-    if (!isOutput)
+    // Offset pins horizontally inwards in layout.
+    float offsetWidth = 0.0f;
+    if (!offsetInY)
     {
-        dummyWidth = (xOffset < 0.0f) ? std::max(0.0f, iconSize + xOffset) : iconSize;
+        offsetWidth = (xOffset < 0.0f) ? std::max(0.0f, iconSize + xOffset) : iconSize;
     }
-    ImGui::Dummy(ImVec2(dummyWidth, iconSize));
+    ImGui::Dummy(ImVec2(offsetWidth, iconSize));
 
     ed::PinRect(iconMin, iconMax);
 }
@@ -2058,6 +2057,24 @@ bool Graph::readOnly()
     return !_state.graphElem->belongsToContentDocument();
 }
 
+float Graph::computeIconSize()
+{
+    return std::max(MIN_PIN_ICON_SIZE, BASE_PIN_ICON_SIZE * getUiScaleFromFont());
+}
+
+
+float Graph::computePinOffset(bool righAligned)
+{
+    float iconSize = computeIconSize();
+    if (righAligned)
+    {
+        // Center the icon on the node's right border (drawn after a right-aligned label).
+        return ed::GetStyle().NodePadding.z - iconSize * 0.5f;
+    }
+    // Center the icon on the node's left border (drawn before the label).
+    return -(ed::GetStyle().NodePadding.x + iconSize * 0.5f);
+}
+
 void Graph::drawOutputPins(UiNodePtr node, const std::string& longestInputLabel)
 {
     // 1. Find the widest label among input and output pins.
@@ -2071,8 +2088,9 @@ void Graph::drawOutputPins(UiNodePtr node, const std::string& longestInputLabel)
     // Content width = max label width (paddings are handled by the editor)
     const float contentWidth = maxLabelWidth;
 
-    const float iconSize = std::max(MIN_PIN_ICON_SIZE, BASE_PIN_ICON_SIZE * getUiScaleFromFont());
-    const float rightPadding = ed::GetStyle().NodePadding.z;
+    // Offset the icon so its center lands on the node's right edge
+    // if pin on border option is enabled. 
+    const float pinOffset = _pinsOnBorder ? computePinOffset(true) : 0.0f;
 
     // 2. Draw each output pin.
     for (UiPinPtr pin : node->getOutputPins())
@@ -2086,10 +2104,6 @@ void Graph::drawOutputPins(UiNodePtr node, const std::string& longestInputLabel)
         if (indent > 0) ImGui::Unindent(indent);
 
         ImGui::SameLine();
-
-        // Offset the icon so its center lands on the node's right edge
-        // if pin on border option is enabled. 
-        const float pinOffset = _pinsOnBorder ? rightPadding - iconSize * 0.5f : 0.0f;
 
         ed::BeginPin(pin->getPinId(), ed::PinKind::Output);
         bool connected = pin->getConnected();
@@ -2108,9 +2122,7 @@ void Graph::drawOutputPins(UiNodePtr node, const std::string& longestInputLabel)
 
 void Graph::drawInputPin(UiPinPtr pin)
 {
-    const float iconSize = std::max(MIN_PIN_ICON_SIZE, BASE_PIN_ICON_SIZE * getUiScaleFromFont());
-    const float pinOffset = _pinsOnBorder ?
-        -(ed::GetStyle().NodePadding.x + iconSize * 0.5f) : 0.0f;
+    const float pinOffset = _pinsOnBorder ? computePinOffset() : 0.0f;
 
     ed::BeginPin(pin->getPinId(), ed::PinKind::Input);
     ImGui::PushID(int(pin->getPinId().Get()));
@@ -2311,23 +2323,22 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                         pin->setConnected(true);
                     }
                     {
-                        const float iconSz = std::max(MIN_PIN_ICON_SIZE, BASE_PIN_ICON_SIZE * getUiScaleFromFont());
-                        const float pinOff = -(ed::GetStyle().NodePadding.x + iconSz * 0.5f);
+                        const float pinOffset = computePinOffset();
                         ed::BeginPin(pin->getPinId(), ed::PinKind::Input);
                         if (!_pinFilterType.empty())
                         {
                             if (_pinFilterType == pin->getType())
                             {
-                                drawPinIcon(pin->getType(), true, DEFAULT_ALPHA, pinOff);
+                                drawPinIcon(pin->getType(), true, DEFAULT_ALPHA, pinOffset);
                             }
                             else
                             {
-                                drawPinIcon(pin->getType(), true, FILTER_ALPHA, pinOff);
+                                drawPinIcon(pin->getType(), true, FILTER_ALPHA, pinOffset);
                             }
                         }
                         else
                         {
-                            drawPinIcon(pin->getType(), true, DEFAULT_ALPHA, pinOff);
+                            drawPinIcon(pin->getType(), true, DEFAULT_ALPHA, pinOffset);
                         }
 
                         ImGui::SameLine();
@@ -2387,23 +2398,22 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                     }
 
                     {
-                        const float iconSz = std::max(MIN_PIN_ICON_SIZE, BASE_PIN_ICON_SIZE * getUiScaleFromFont());
-                        const float pinOff = -(ed::GetStyle().NodePadding.x + iconSz * 0.5f);
+                        const float pinOffset = computePinOffset();
                         ed::BeginPin(pin->getPinId(), ed::PinKind::Input);
                         if (!_pinFilterType.empty())
                         {
                             if (_pinFilterType == pin->getType())
                             {
-                                drawPinIcon(pin->getType(), true, DEFAULT_ALPHA, pinOff);
+                                drawPinIcon(pin->getType(), true, DEFAULT_ALPHA, pinOffset);
                             }
                             else
                             {
-                                drawPinIcon(pin->getType(), true, FILTER_ALPHA, pinOff);
+                                drawPinIcon(pin->getType(), true, FILTER_ALPHA, pinOffset);
                             }
                         }
                         else
                         {
-                            drawPinIcon(pin->getType(), true, DEFAULT_ALPHA, pinOff);
+                            drawPinIcon(pin->getType(), true, DEFAULT_ALPHA, pinOffset);
                         }
                         ImGui::SameLine();
                         ImGui::TextUnformatted("input");

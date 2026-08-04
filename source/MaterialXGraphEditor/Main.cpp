@@ -36,7 +36,7 @@ const std::string options =
     "    --captureFilename [FILENAME]   Specify the filename to which the first rendered frame should be written\n"
     "    --previewWidth [WIDTH]         Specify the width for image previews\n"
     "    --pinsOnBorder [true|false]    Specify whether node pins should be drawn on the border of nodes (true) or inside the node (false).  Default is true.\n"
-    "    --pinShape [circle|square]     Specify the shape of node pins (circle, flow).  Default is circle.\n"
+    "    --pinShape [circle|flow]       Specify the shape of node pins (circle, flow).  Default is circle.\n"
     "    --help                         Display the complete list of command-line options\n";
 
 template <class T> void parseToken(std::string token, std::string type, T& res)

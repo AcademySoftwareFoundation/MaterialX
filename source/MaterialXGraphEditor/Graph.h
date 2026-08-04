@@ -181,8 +181,13 @@ class Graph
     // Return pin color based on the type of the value of that pin
     void setPinColor();
 
+    // Compute icon size
+    static float computeIconSize();
+    // Compute pin offset based on icon size and aligment (left vs right)
+    static float computePinOffset(bool rightAligned = false);
+
     // Based on the pin icon function in the ImGui Node Editor blueprints-example.cpp
-    void drawPinIcon(const std::string& type, bool connected, int alpha, float xOffset = 0.0f, bool isOutput = false);
+    void drawPinIcon(const std::string& type, bool connected, int alpha, float xOffset = 0.0f, bool offsetInY = false);
 
     UiPinPtr getPin(ed::PinId id);
     void drawInputPin(UiPinPtr pin);
@@ -299,7 +304,7 @@ class Graph
     static constexpr char HELP_MARKER_TEXT[] = "(?)";
     // Helper function to draw a marker via ImGui which shows a tooltip when hovered.
     // Uses instance font scaling for tooltip readability.
-    void drawHelpMarker(const char* content);
+    static void drawHelpMarker(const char* content);
 
     // Static helper function to display tooltips for headers in an ImGui table
     template <std::size_t N> static void drawTableHeadersRowWithTooltips(const std::array<const char*, N>& tooltips)
