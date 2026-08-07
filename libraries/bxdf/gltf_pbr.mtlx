@@ -230,30 +230,9 @@
     <!-- Sheen layer -->
 
     <!-- Compute sheen intensity = max(sheen_color.r, sheen_color.g, sheen_color.b) -->
-    <extract name="sheen_color_r" type="float">
+    <maxcomponent name="sheen_intensity" type="float">
       <input name="in" type="color3" interfacename="sheen_color" />
-      <input name="index" type="integer" value="0" />
-    </extract>
-
-    <extract name="sheen_color_g" type="float">
-      <input name="in" type="color3" interfacename="sheen_color" />
-      <input name="index" type="integer" value="1" />
-    </extract>
-
-    <extract name="sheen_color_b" type="float">
-      <input name="in" type="color3" interfacename="sheen_color" />
-      <input name="index" type="integer" value="2" />
-    </extract>
-
-    <max name="sheen_color_max_rg" type="float">
-      <input name="in1" type="float" nodename="sheen_color_r" />
-      <input name="in2" type="float" nodename="sheen_color_g" />
-    </max>
-
-    <max name="sheen_intensity" type="float">
-      <input name="in1" type="float" nodename="sheen_color_max_rg" />
-      <input name="in2" type="float" nodename="sheen_color_b" />
-    </max>
+    </maxcomponent>
 
     <multiply name="sheen_roughness_sq" type="float">
       <input name="in1" type="float" interfacename="sheen_roughness" />

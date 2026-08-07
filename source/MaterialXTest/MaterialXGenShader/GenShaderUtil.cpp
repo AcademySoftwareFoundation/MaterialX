@@ -741,6 +741,12 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
         context.getOptions().targetDistanceUnit = _defaultDistanceUnit;
     }
 
+    // Define target color space if required
+    if (context.getOptions().targetColorSpaceOverride.empty())
+    {
+        context.getOptions().targetColorSpaceOverride = "lin_rec709";
+    }
+
     // Check if a binding context has been set.
     bool bindingContextUsed = _userData.count(mx::HW::USER_DATA_BINDING_CONTEXT) > 0;
 

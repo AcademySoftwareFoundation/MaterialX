@@ -24,6 +24,9 @@ const ImVec2 DEFAULT_NODE_SIZE = ImVec2(138, 116);
 
 const int DEFAULT_ALPHA = 255;
 const int FILTER_ALPHA = 50;
+const float BASE_UI_FONT_SIZE = 18.0f;
+const float BASE_PIN_ICON_SIZE = 18.0f;
+const float MIN_PIN_ICON_SIZE = 18.0f;
 
 const std::array<std::string, 22> NODE_GROUP_ORDER = {
     "texture2d",
@@ -114,6 +117,12 @@ static void DisableSRGBCallback(const ImDrawList*, const ImDrawCmd*)
     glDisable(GL_FRAMEBUFFER_SRGB);
 }
 
+static float getUiScaleFromFont()
+{
+    const float fontSize = ImGui::GetFontSize();
+    return (fontSize > 0.0f) ? (fontSize / BASE_UI_FONT_SIZE) : 1.0f;
+}
+
 } // anonymous namespace
 
 //
@@ -126,7 +135,9 @@ Graph::Graph(const std::string& materialFilename,
              const mx::FilePathVec& libraryFolders,
              int viewWidth,
              int viewHeight,
-             float previewWidth) :
+             float previewWidth,
+             bool pinsOnBorder,
+             const std::string& pinShape) :
     _materialFilename(materialFilename),
     _searchPath(searchPath),
     _libraryFolders(libraryFolders),
@@ -143,10 +154,16 @@ Graph::Graph(const std::string& materialFilename,
     _isCut(false),
     _autoLayout(false),
     _frameCount(INT_MIN),
-    _fontScale(1.0f),
+    _pinsOnBorder(pinsOnBorder),
     _previewSize(previewWidth),
     _saveNodePositions(true)
 {
+    _pinIconShape = (unsigned int) ax::Drawing::IconType::Circle;
+    if (pinShape == "flow")
+    {
+        _pinIconShape = (unsigned int)ax::Drawing::IconType::Flow;
+    }
+
     loadStandardLibraries();
     setPinColor();
 
@@ -540,7 +557,7 @@ void Graph::applyLayout(const std::vector<int>& outputNodeIndices)
     }
 
     // Compute layout directly from UI types.
-    LayoutResults results = _layout.compute(_state.nodes, _state.edges, outputNodeIds, _fontScale);
+    LayoutResults results = _layout.compute(_state.nodes, _state.edges, outputNodeIds, getUiScaleFromFont());
 
     // Apply results to nodes.
     for (const UiNodePtr& node : _state.nodes)
@@ -774,10 +791,7 @@ void Graph::updateMaterials(mx::InputPtr input /* = nullptr */, mx::ValuePtr val
     {
         if (!input)
         {
-            mx::ElementPtr elem = nullptr;
-            {
-                elem = _graphDoc->getDescendant(renderablePath);
-            }
+            const mx::ElementPtr elem = _graphDoc->getDescendant(renderablePath);
             mx::TypedElementPtr typedElem = elem ? elem->asA<mx::TypedElement>() : nullptr;
             _renderer->updateMaterials(typedElem);
         }
@@ -859,7 +873,9 @@ void Graph::showPropertyEditorValue(UiNodePtr node, mx::InputPtr input, const mx
             ImGui::ColorEdit3("##color", &temp[0], ImGuiColorEditFlags_Uint8);
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
             {
-                ImGui::SetTooltip("Color is selected and rendered to Viewer in sRGB display space, \nbut written to .mtlx file in linear format.");
+                ImGui::BeginTooltip();
+                ImGui::TextUnformatted("Color is selected and rendered to Viewer in sRGB display space, \nbut written to .mtlx file in linear format.");
+                ImGui::EndTooltip();
             }
 
             // Set input value and update materials if different from previous value
@@ -892,7 +908,9 @@ void Graph::showPropertyEditorValue(UiNodePtr node, mx::InputPtr input, const mx
             ImGui::ColorEdit4("##color", &temp[0], ImGuiColorEditFlags_Uint8);
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
             {
-                ImGui::SetTooltip("Color is selected and rendered to Viewer in sRGB display space, \nbut written to .mtlx file in linear format.");
+                ImGui::BeginTooltip();
+                ImGui::TextUnformatted("Color is selected and rendered to Viewer in sRGB display space, \nbut written to .mtlx file in linear format.");
+                ImGui::EndTooltip();
             }
 
             // Set input value and update materials if different from previous value
@@ -1086,6 +1104,8 @@ void Graph::showPropertyEditorValue(UiNodePtr node, mx::InputPtr input, const mx
                 nodeInput->setValueString(temp);
                 nodeInput->setValue(temp, nodeInput->getType());
                 updateMaterials();
+
+                _currUiNode->buildUiTokenMap(); // Re-build token map
             }
         }
     }
@@ -1139,16 +1159,16 @@ void Graph::setUiNodeInfo(UiNodePtr node, const std::string& type, const std::st
     }
     else
     {
-        if (node->getNode())
+        if (mx::ConstNodePtr mxNode = node->getNode())
         {
-            mx::NodeDefPtr nodeDef = node->getNode()->getNodeDef(node->getNode()->getName());
+            mx::NodeDefPtr nodeDef = mxNode->getNodeDef(mxNode->getName());
             if (nodeDef)
             {
                 for (mx::InputPtr input : nodeDef->getActiveInputs())
                 {
-                    if (node->getNode()->getInput(input->getName()))
+                    if (mxNode->getInput(input->getName()))
                     {
-                        input = node->getNode()->getInput(input->getName());
+                        input = mxNode->getInput(input->getName());
                     }
                     UiPinPtr inPin = std::make_shared<UiPin>(_state.nextUiId, node, ax::NodeEditor::PinKind::Input, input);
                     node->getInputPins().push_back(inPin);
@@ -1158,9 +1178,9 @@ void Graph::setUiNodeInfo(UiNodePtr node, const std::string& type, const std::st
 
                 for (mx::OutputPtr output : nodeDef->getActiveOutputs())
                 {
-                    if (node->getNode()->getOutput(output->getName()))
+                    if (mxNode->getOutput(output->getName()))
                     {
-                        output = node->getNode()->getOutput(output->getName());
+                        output = mxNode->getOutput(output->getName());
                     }
                     UiPinPtr outPin = std::make_shared<UiPin>(_state.nextUiId, node, ax::NodeEditor::PinKind::Output, output);
                     node->getOutputPins().push_back(outPin);
@@ -1168,6 +1188,8 @@ void Graph::setUiNodeInfo(UiNodePtr node, const std::string& type, const std::st
                     ++_state.nextUiId;
                 }
             }
+
+            node->buildUiTokenMap(); // Build initial token map
         }
         else if (node->getInput())
         {
@@ -1916,9 +1938,8 @@ UiPinPtr Graph::getPin(ed::PinId pinId)
     return nullPin;
 }
 
-void Graph::drawPinIcon(const std::string& type, bool connected, int alpha)
+void Graph::drawPinIcon(const std::string& type, bool connected, int alpha, float xOffset, bool offsetInY)
 {
-    ax::Drawing::IconType iconType = ax::Drawing::IconType::Flow;
     ImColor color = ImColor(0, 0, 0, 255);
     if (_pinColor.find(type) != _pinColor.end())
     {
@@ -1927,7 +1948,51 @@ void Graph::drawPinIcon(const std::string& type, bool connected, int alpha)
 
     color.Value.w = alpha / 255.0f;
 
-    ax::Widgets::Icon(ImVec2(24, 24), iconType, connected, color, ImColor(32, 32, 32, alpha));
+    const float iconSize = computeIconSize();
+
+    ImVec2 iconMin = ImGui::GetCursorScreenPos() + ImVec2(xOffset, 0.0f);
+    ImVec2 iconMax = iconMin + ImVec2(iconSize, iconSize);
+
+    if (_pinIconShape == (unsigned int)ax::Drawing::IconType::Circle)
+    {
+        ImVec2 center = (iconMin + iconMax) * 0.5f;
+        const float radius = iconSize * 0.25f;
+        const float outlineScale = iconSize / BASE_PIN_ICON_SIZE;
+        const int segments = 12 + static_cast<int>(2 * outlineScale);
+        ImDrawList* drawList = ImGui::GetWindowDrawList();
+
+        if (connected)
+        {
+            drawList->AddCircleFilled(center, radius, ImColor(color));
+        }
+        else
+        {
+            drawList->AddCircleFilled(center, radius, ImColor(32, 32, 32, alpha));
+            drawList->AddCircle(center, radius, ImColor(color), segments, 2.0f * outlineScale);
+        }
+
+    }
+    else if (_pinIconShape == (unsigned int)ax::Drawing::IconType::Flow)
+    {
+        ax::Drawing::DrawIcon(
+            ImGui::GetWindowDrawList(),
+            iconMin,
+            iconMax,
+            ax::Drawing::IconType::Flow,
+            connected,
+            color,
+            ImColor(32, 32, 32, alpha));
+    }
+
+    // Offset pins horizontally inwards in layout.
+    float offsetWidth = 0.0f;
+    if (!offsetInY)
+    {
+        offsetWidth = (xOffset < 0.0f) ? std::max(0.0f, iconSize + xOffset) : iconSize;
+    }
+    ImGui::Dummy(ImVec2(offsetWidth, iconSize));
+
+    ed::PinRect(iconMin, iconMax);
 }
 
 void Graph::buildGroupNode(UiNodePtr node)
@@ -1992,43 +2057,73 @@ bool Graph::readOnly()
     return !_state.graphElem->belongsToContentDocument();
 }
 
+float Graph::computeIconSize()
+{
+    return std::max(MIN_PIN_ICON_SIZE, BASE_PIN_ICON_SIZE * getUiScaleFromFont());
+}
+
+
+float Graph::computePinOffset(bool righAligned)
+{
+    float iconSize = computeIconSize();
+    if (righAligned)
+    {
+        // Center the icon on the node's right border (drawn after a right-aligned label).
+        return ed::GetStyle().NodePadding.z - iconSize * 0.5f;
+    }
+    // Center the icon on the node's left border (drawn before the label).
+    return -(ed::GetStyle().NodePadding.x + iconSize * 0.5f);
+}
+
 void Graph::drawOutputPins(UiNodePtr node, const std::string& longestInputLabel)
 {
-    std::string longestLabel = longestInputLabel;
+    // 1. Find the widest label among input and output pins.
+    float maxLabelWidth = ImGui::CalcTextSize(longestInputLabel.c_str()).x;
     for (UiPinPtr pin : node->getOutputPins())
     {
-        if (pin->getName().size() > longestLabel.size())
-            longestLabel = pin->getName();
+        float w = ImGui::CalcTextSize(pin->getName().c_str()).x;
+        if (w > maxLabelWidth) maxLabelWidth = w;
     }
 
-    // Create output pins with extra right padding
-    const float outputPinExtraPad = 20.0f;
-    float nodeWidth = ImGui::CalcTextSize(longestLabel.c_str()).x + outputPinExtraPad;
+    // Content width = max label width (paddings are handled by the editor)
+    const float contentWidth = maxLabelWidth;
+
+    // Offset the icon so its center lands on the node's right edge
+    // if pin on border option is enabled. 
+    const float pinOffset = _pinsOnBorder ? computePinOffset(true) : 0.0f;
+
+    // 2. Draw each output pin.
     for (UiPinPtr pin : node->getOutputPins())
     {
-        const float indent = nodeWidth - ImGui::CalcTextSize(pin->getName().c_str()).x;
-        ImGui::Indent(indent);
+        float textWidth = ImGui::CalcTextSize(pin->getName().c_str()).x;
+
+        // Indent so that text ends at the right edge of the content area.
+        const float indent = contentWidth - textWidth;
+        if (indent > 0) ImGui::Indent(indent);
         ImGui::TextUnformatted(pin->getName().c_str());
+        if (indent > 0) ImGui::Unindent(indent);
+
         ImGui::SameLine();
 
         ed::BeginPin(pin->getPinId(), ed::PinKind::Output);
         bool connected = pin->getConnected();
         if (!_pinFilterType.empty())
         {
-            drawPinIcon(pin->getType(), connected, _pinFilterType == pin->getType() ? DEFAULT_ALPHA : FILTER_ALPHA);
+            drawPinIcon(pin->getType(), connected, _pinFilterType == pin->getType() ? DEFAULT_ALPHA : FILTER_ALPHA, pinOffset, _pinsOnBorder);
         }
         else
         {
-            drawPinIcon(pin->getType(), connected, DEFAULT_ALPHA);
+            drawPinIcon(pin->getType(), connected, DEFAULT_ALPHA, pinOffset, _pinsOnBorder);
         }
 
         ed::EndPin();
-        ImGui::Unindent(indent);
     }
 }
 
 void Graph::drawInputPin(UiPinPtr pin)
 {
+    const float pinOffset = _pinsOnBorder ? computePinOffset() : 0.0f;
+
     ed::BeginPin(pin->getPinId(), ed::PinKind::Input);
     ImGui::PushID(int(pin->getPinId().Get()));
     bool connected = pin->getConnected();
@@ -2036,21 +2131,21 @@ void Graph::drawInputPin(UiPinPtr pin)
     {
         if (_pinFilterType == pin->getType())
         {
-            drawPinIcon(pin->getType(), connected, DEFAULT_ALPHA);
+            drawPinIcon(pin->getType(), connected, DEFAULT_ALPHA, pinOffset);
         }
         else
         {
-            drawPinIcon(pin->getType(), connected, FILTER_ALPHA);
+            drawPinIcon(pin->getType(), connected, FILTER_ALPHA, pinOffset);
         }
     }
     else
     {
-        drawPinIcon(pin->getType(), connected, DEFAULT_ALPHA);
+        drawPinIcon(pin->getType(), connected, DEFAULT_ALPHA, pinOffset);
     }
     ImGui::PopID();
     ed::EndPin();
 
-    ImGui::SameLine(0, 5.0f);
+    ImGui::SameLine(0, 5.0f * getUiScaleFromFont());
     ImGui::TextUnformatted(pin->getName().c_str());
 }
 
@@ -2119,7 +2214,6 @@ std::vector<int> Graph::createNodes(bool nodegraph)
             {
                 ed::BeginNode(node->getId());
                 ImGui::PushID(node->getId());
-                ImGui::SetWindowFontScale(1.2f * _fontScale);
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     ImGui::GetCursorScreenPos() + ImVec2(-hdrPadL, -hdrPadT),
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - hdrPadL - 2.f * hdrInset, ImGui::GetTextLineHeight() + hdrPadB),
@@ -2131,7 +2225,6 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                 ImGui::Indent(hdrTextIndent);
                 ImGui::Text("%s", node->getName().c_str());
                 ImGui::Unindent(hdrTextIndent);
-                ImGui::SetWindowFontScale(_fontScale);
                 ImGui::Dummy(ImVec2(0, hdrBottomSpacing));
 
                 std::string longestInputLabel = node->getName();
@@ -2190,7 +2283,6 @@ std::vector<int> Graph::createNodes(bool nodegraph)
 
                 ed::BeginNode(node->getId());
                 ImGui::PushID(node->getId());
-                ImGui::SetWindowFontScale(1.2f * _fontScale);
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     ImGui::GetCursorScreenPos() + ImVec2(-hdrPadL, -hdrPadT),
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - hdrPadL - 2.f * hdrInset, ImGui::GetTextLineHeight() + hdrPadB),
@@ -2202,7 +2294,6 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                 ImGui::Indent(hdrTextIndent);
                 ImGui::Text("%s", node->getName().c_str());
                 ImGui::Unindent(hdrTextIndent);
-                ImGui::SetWindowFontScale(_fontScale);
                 ImGui::Dummy(ImVec2(0, hdrBottomSpacing));
 
                 outputType = node->getInput()->getType();
@@ -2231,26 +2322,29 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                         }
                         pin->setConnected(true);
                     }
-                    ed::BeginPin(pin->getPinId(), ed::PinKind::Input);
-                    if (!_pinFilterType.empty())
                     {
-                        if (_pinFilterType == pin->getType())
+                        const float pinOffset = computePinOffset();
+                        ed::BeginPin(pin->getPinId(), ed::PinKind::Input);
+                        if (!_pinFilterType.empty())
                         {
-                            drawPinIcon(pin->getType(), true, DEFAULT_ALPHA);
+                            if (_pinFilterType == pin->getType())
+                            {
+                                drawPinIcon(pin->getType(), true, DEFAULT_ALPHA, pinOffset);
+                            }
+                            else
+                            {
+                                drawPinIcon(pin->getType(), true, FILTER_ALPHA, pinOffset);
+                            }
                         }
                         else
                         {
-                            drawPinIcon(pin->getType(), true, FILTER_ALPHA);
+                            drawPinIcon(pin->getType(), true, DEFAULT_ALPHA, pinOffset);
                         }
-                    }
-                    else
-                    {
-                        drawPinIcon(pin->getType(), true, DEFAULT_ALPHA);
-                    }
 
-                    ImGui::SameLine();
-                    ImGui::TextUnformatted("value");
-                    ed::EndPin();
+                        ImGui::SameLine();
+                        ImGui::TextUnformatted("value");
+                        ed::EndPin();
+                    }
 
                     if (pin->getName().size() > longestInputLabel.size())
                         longestInputLabel = pin->getName();
@@ -2263,7 +2357,6 @@ std::vector<int> Graph::createNodes(bool nodegraph)
 
                 ed::BeginNode(node->getId());
                 ImGui::PushID(node->getId());
-                ImGui::SetWindowFontScale(1.2f * _fontScale);
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     ImGui::GetCursorScreenPos() + ImVec2(-hdrPadL, -hdrPadT),
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - hdrPadL - 2.f * hdrInset, ImGui::GetTextLineHeight() + hdrPadB),
@@ -2275,7 +2368,6 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                 ImGui::Indent(hdrTextIndent);
                 ImGui::Text("%s", node->getName().c_str());
                 ImGui::Unindent(hdrTextIndent);
-                ImGui::SetWindowFontScale(_fontScale);
                 ImGui::Dummy(ImVec2(0, hdrBottomSpacing));
 
                 outputType = node->getOutput()->getType();
@@ -2305,26 +2397,29 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                         }
                     }
 
-                    ed::BeginPin(pin->getPinId(), ed::PinKind::Input);
-                    if (!_pinFilterType.empty())
                     {
-                        if (_pinFilterType == pin->getType())
+                        const float pinOffset = computePinOffset();
+                        ed::BeginPin(pin->getPinId(), ed::PinKind::Input);
+                        if (!_pinFilterType.empty())
                         {
-                            drawPinIcon(pin->getType(), true, DEFAULT_ALPHA);
+                            if (_pinFilterType == pin->getType())
+                            {
+                                drawPinIcon(pin->getType(), true, DEFAULT_ALPHA, pinOffset);
+                            }
+                            else
+                            {
+                                drawPinIcon(pin->getType(), true, FILTER_ALPHA, pinOffset);
+                            }
                         }
                         else
                         {
-                            drawPinIcon(pin->getType(), true, FILTER_ALPHA);
+                            drawPinIcon(pin->getType(), true, DEFAULT_ALPHA, pinOffset);
                         }
-                    }
-                    else
-                    {
-                        drawPinIcon(pin->getType(), true, DEFAULT_ALPHA);
-                    }
-                    ImGui::SameLine();
-                    ImGui::TextUnformatted("input");
+                        ImGui::SameLine();
+                        ImGui::TextUnformatted("input");
 
-                    ed::EndPin();
+                        ed::EndPin();
+                    }
 
                     if (pin->getName().size() > longestInputLabel.size())
                         longestInputLabel = pin->getName();
@@ -2341,7 +2436,6 @@ std::vector<int> Graph::createNodes(bool nodegraph)
 
                 ed::BeginNode(node->getId());
                 ImGui::PushID(node->getId());
-                ImGui::SetWindowFontScale(1.2f * _fontScale);
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     ImGui::GetCursorScreenPos() + ImVec2(-hdrPadL, -hdrPadT),
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - hdrPadL - 2.f * hdrInset, ImGui::GetTextLineHeight() + hdrPadB),
@@ -2353,7 +2447,6 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                 ImGui::Indent(hdrTextIndent);
                 ImGui::Text("%s", node->getName().c_str());
                 ImGui::Unindent(hdrTextIndent);
-                ImGui::SetWindowFontScale(_fontScale);
                 ImGui::Dummy(ImVec2(0, hdrBottomSpacing));
                 for (UiPinPtr pin : node->getInputPins())
                 {
@@ -2377,7 +2470,6 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                 ed::PopStyleColor();
         }
     }
-    ImGui::SetWindowFontScale(_fontScale);
     return outputNum;
 }
 
@@ -3064,7 +3156,6 @@ void Graph::loadGeometry()
 void Graph::graphButtons()
 {
     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(.15f, .15f, .15f, 1.0f));
-    ImGui::SetWindowFontScale(_fontScale);
 
     if (ImGui::BeginMenuBar())
     {
@@ -3147,7 +3238,11 @@ void Graph::graphButtons()
 
     // Menu keys
     ImGuiIO& guiIO = ImGui::GetIO();
-    if (guiIO.KeyCtrl && !_fileDialogSave.isOpened() && !_fileDialog.isOpened() && !_fileDialogGeom.isOpened())
+    if (guiIO.KeyCtrl &&
+        !guiIO.WantTextInput &&
+        !_fileDialogSave.isOpened() &&
+        !_fileDialog.isOpened() &&
+        !_fileDialogGeom.isOpened())
     {
         if (ImGui::IsKeyReleased(ImGuiKey_O))
         {
@@ -3284,7 +3379,6 @@ void Graph::showPropertyEditorOutputConnections(UiNodePtr node)
             bool haveTable = ImGui::BeginTable("outputs_node_table", 2, tableFlags, tableSize);
             if (haveTable)
             {
-                ImGui::SetWindowFontScale(_fontScale);
                 for (UiPinPtr outputPin : node->getOutputPins())
                 {
                     bool firstPin = true;
@@ -3341,7 +3435,6 @@ void Graph::showPropertyEditorOutputConnections(UiNodePtr node)
                     }
                 }
                 ImGui::EndTable();
-                ImGui::SetWindowFontScale(1.0f);
             }
         }
     }
@@ -3553,7 +3646,9 @@ void Graph::propertyEditor()
             }
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
             {
-                ImGui::SetTooltip("%s", _currUiNode->getNode()->getNodeDef()->getDocString().c_str());
+                ImGui::BeginTooltip();
+                ImGui::TextUnformatted(_currUiNode->getNode()->getNodeDef()->getDocString().c_str());
+                ImGui::EndTooltip();
             }
 
             bool showAllInputs = _currUiNode->getShowAllInputs();
@@ -3596,7 +3691,6 @@ void Graph::propertyEditor()
                 bool haveTable = ImGui::BeginTable("inputs_node_table", 2, tableFlags, tableSize);
                 if (haveTable)
                 {
-                    ImGui::SetWindowFontScale(_fontScale);
                     for (UiPinPtr input : _currUiNode->getInputPins())
                     {
                         if (_currUiNode->getShowAllInputs() || (input->getConnected() || _currUiNode->getNode()->getInput(input->getName())))
@@ -3649,7 +3743,6 @@ void Graph::propertyEditor()
                     }
 
                     ImGui::EndTable();
-                    ImGui::SetWindowFontScale(1.0f);
                 }
             }
 
@@ -3668,7 +3761,6 @@ void Graph::propertyEditor()
                                                    ImVec2(0.0f, TEXT_BASE_HEIGHT * std::min(SCROLL_LINE_COUNT, count)));
                 if (haveTable)
                 {
-                    ImGui::SetWindowFontScale(_fontScale);
                     for (size_t i = 0; i < inputs.size(); i++)
                     {
                         ImGui::TableNextRow();
@@ -3697,7 +3789,6 @@ void Graph::propertyEditor()
                         ImGui::PopID();
                     }
                     ImGui::EndTable();
-                    ImGui::SetWindowFontScale(1.0f);
                 }
             }
 
@@ -3738,7 +3829,6 @@ void Graph::propertyEditor()
                                                    ImVec2(0.0f, TEXT_BASE_HEIGHT * std::min(SCROLL_LINE_COUNT, count)));
                 if (haveTable)
                 {
-                    ImGui::SetWindowFontScale(_fontScale);
                     for (UiPinPtr input : inputs)
                     {
                         if (_currUiNode->getShowAllInputs() || (input->getConnected() || _currUiNode->getNodeGraph()->getInput(input->getName())))
@@ -3771,47 +3861,66 @@ void Graph::propertyEditor()
                         }
                     }
                     ImGui::EndTable();
-                    ImGui::SetWindowFontScale(1.0f);
                 }
             }
 
             showPropertyEditorOutputConnections(_currUiNode);
         }
 
-        // Find tokens within currUiNode
-        mx::ConstNodePtr node = _currUiNode->getNode();
-        if (node != nullptr)
+        // Draw token table
+        if (const auto& currTokenMap = _currUiNode->getUiTokenMap(); !currTokenMap.empty())
         {
-            mx::StringResolverPtr resolver = node->createStringResolver();
-            const mx::StringMap& tokens = resolver->getFilenameSubstitutions();
+            ImGui::Text("Tokens");
+            ImGui::SameLine();
+            drawHelpMarker("All tokens that are within scope of the selected node. Token values will be string-substituted into listed 'Affected Inputs'.");
 
-            if (!tokens.empty())
+            int tokenCount = static_cast<int>(currTokenMap.size() + 1u); // Add 1 to account for header row
+            ImVec2 tableHeight(0.0f, TEXT_BASE_HEIGHT * std::min(SCROLL_LINE_COUNT, tokenCount));
+
+            // Use `ImGuiTableFlags_SizingFixedFit` to set default column width to fit content
+            if (ImGui::BeginTable("tokens_node_table", 4, tableFlags | ImGuiTableFlags_SizingFixedFit, tableHeight))
             {
-                ImGui::Text("Tokens");
 
-                ImVec2 tableSize(0.0f, TEXT_BASE_HEIGHT * std::min(SCROLL_LINE_COUNT, static_cast<int>(tokens.size())));
-                bool haveTable = ImGui::BeginTable("tokens_node_table", 2, tableFlags, tableSize);
-                if (haveTable)
+                ImGui::TableSetupColumn("Name");
+                ImGui::TableSetupColumn("Value");
+                ImGui::TableSetupColumn("Source Element");
+                ImGui::TableSetupColumn("Affected Inputs");
+
+                // Set tooltips for each of table's columns
+                constexpr std::array tableHeadersTooltips = { "", "Press <enter> to set token value.", "The graph element where the token is declared.", "Node inputs which reference the token." };
+                drawTableHeadersRowWithTooltips(tableHeadersTooltips);
+
+                for (const auto& [tokenName, tokenPtr] : currTokenMap)
                 {
-                    ImGui::SetWindowFontScale(_fontScale);
+                    ImGui::TableNextRow(); // Start new row
+                    ImGui::PushID(&tokenName);
 
-                    for (const auto& [token, value] : tokens)
+                    // Name
+                    ImGui::TableNextColumn();
+                    ImGui::Text("%s", tokenName.c_str());
+
+                    // Value
+                    ImGui::TableNextColumn();
+                    std::string tokenValue = tokenPtr->getValue();
+
+                    if (ImGui::InputText("##token_value", &tokenValue, ImGuiInputTextFlags_EnterReturnsTrue))
                     {
-
-                        ImGui::TableNextRow();
-                        ImGui::TableNextColumn();
-                        ImGui::PushID(&token);
-
-                        ImGui::Text("%s", token.c_str());
-                        ImGui::TableNextColumn();
-                        ImGui::Text("%s", value.c_str());
-
-                        ImGui::PopID();
+                        tokenPtr->setValue(tokenValue);  // Write out new token value
+                        updateMaterials();               // Trigger update of material
                     }
 
-                    ImGui::EndTable();
-                    ImGui::SetWindowFontScale(1.0f);
+                    // Source Element
+                    ImGui::TableNextColumn();
+                    ImGui::Text("%s", tokenPtr->getSourceElementString().c_str());
+
+                    // Affected Inputs
+                    ImGui::TableNextColumn();
+                    ImGui::Text("%s", tokenPtr->getAffectedInputsString().c_str());
+
+                    ImGui::PopID();
                 }
+
+                ImGui::EndTable();
             }
         }
 
@@ -3825,9 +3934,7 @@ void Graph::propertyEditor()
 
         if (ImGui::BeginPopup("docstring"))
         {
-            ImGui::SetWindowFontScale(_fontScale);
             ImGui::Text("%s", docString.c_str());
-            ImGui::SetWindowFontScale(1.0f);
             ImGui::EndPopup();
         }
     }
@@ -3875,10 +3982,27 @@ void Graph::showHelp() const
         ImGui::BulletText("\"Node Info\" Will toggle showing node information.");
     }
 }
+void Graph::drawHelpMarker(const char* content)
+{
+    constexpr float WRAP_POSITION = 32.f; // Compile-time definition of text-wrap position
+
+    ImGui::TextDisabled(HELP_MARKER_TEXT); // Draw help marker
+    if (!ImGui::IsItemHovered())
+        return; // If help marker isn't hovered return early
+
+    ImGui::BeginTooltip();
+    ImGui::PushTextWrapPos(ImGui::GetFontSize() * WRAP_POSITION);
+    ImGui::TextUnformatted(content);
+    ImGui::PopTextWrapPos();
+    ImGui::EndTooltip();
+}
 
 void Graph::addNodePopup(bool cursor)
 {
-    bool open_AddPopup = (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootWindow) && ImGui::IsKeyReleased(ImGuiKey_Tab)) ||
+    ImGuiIO& io = ImGui::GetIO();
+    bool open_AddPopup = (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) &&
+                          !io.WantTextInput &&
+                          ImGui::IsKeyReleased(ImGuiKey_Tab)) ||
                          (_pinFilterType != mx::EMPTY_STRING && ImGui::IsMouseReleased(0));
     static char input[32]{ "" };
     if (open_AddPopup)
@@ -3965,7 +4089,6 @@ void Graph::addNodePopup(bool cursor)
                 ImGui::SetNextWindowSizeConstraints(ImVec2(100, 10), ImVec2(-1, 300));
                 if (ImGui::BeginMenu(node.getGroup().c_str()))
                 {
-                    ImGui::SetWindowFontScale(_fontScale);
                     std::string name = node.getName();
                     std::string prefix = "ND_";
                     if (name.compare(0, prefix.size(), prefix) == 0 && name.compare(prefix.size(), std::string::npos, node.getCategory()) == 0)
@@ -4002,7 +4125,11 @@ void Graph::addNodePopup(bool cursor)
 
 void Graph::searchNodePopup(bool cursor)
 {
-    const bool open_search = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::IsKeyDown(ImGuiKey_F) && ImGui::IsKeyDown(ImGuiKey_LeftCtrl);
+    const ImGuiIO& io = ImGui::GetIO();
+    const bool open_search = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) &&
+                             !io.WantTextInput &&
+                             io.KeyCtrl &&
+                             ImGui::IsKeyReleased(ImGuiKey_F);
     if (open_search)
     {
         cursor = true;
@@ -4070,7 +4197,9 @@ void Graph::addPinPopup()
             value = "\nValue: " + pin->getInput()->getValueString();
         }
         const std::string message("Name: " + pin->getName() + "\nType: " + pin->getType() + value + connected);
-        ImGui::SetTooltip("%s", message.c_str());
+        ImGui::BeginTooltip();
+        ImGui::TextUnformatted(message.c_str());
+        ImGui::EndTooltip();
         ed::Resume();
     }
 }
@@ -4258,10 +4387,18 @@ void Graph::drawGraph(ImVec2 mousePos)
 
         selectedNodes.resize(nodeCount);
         selectedLinks.resize(linkCount);
-        if (io2.KeyCtrl && io2.MouseDown[0])
-        {
-            _ctrlClick = true;
-        }
+
+        // Keep ctrl-click state frame-local; stale true blocks connection copy in paste.
+        _ctrlClick = io2.KeyCtrl && io2.MouseDown[0];
+
+        const bool graphShortcutContext =
+            ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) &&
+            !io2.WantTextInput &&
+            !_fileDialogSave.isOpened() &&
+            !_fileDialog.isOpened() &&
+            !_fileDialogGeom.isOpened() &&
+            !ImGui::IsPopupOpen("add node") &&
+            !ImGui::IsPopupOpen("search");
 
         // Set current node based off of selected node
         if (selectedNodes.size() > 0)
@@ -4289,7 +4426,7 @@ void Graph::drawGraph(ImVec2 mousePos)
         }
 
         // Check if keyboard shortcuts for copy/cut/paste have been used
-        if (ed::BeginShortcut())
+        if (graphShortcutContext && ed::BeginShortcut())
         {
             if (ed::AcceptCopy())
             {
@@ -4428,7 +4565,7 @@ void Graph::drawGraph(ImVec2 mousePos)
 
         // Delete selected nodes and their links if delete key is pressed
         // or if the shortcut for cut is used
-        if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootWindow))
+        if (graphShortcutContext)
         {
             bool traverseDownstream = ImGui::IsKeyReleased(ImGuiKey_RightArrow);
             bool traverseUpstream = ImGui::IsKeyReleased(ImGuiKey_LeftArrow);

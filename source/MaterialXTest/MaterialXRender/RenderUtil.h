@@ -274,7 +274,13 @@ class ShaderRenderTester
     void addAdditionalTestStreams(mx::MeshPtr mesh);
 
     // Add any paths to explicitly skip here
-    virtual void addSkipFiles() {}
+    virtual void addSkipFiles()
+    {
+#ifndef MATERIALX_BUILD_OCIO
+        // ocio_color_management.mtlx uses color spaces which require OCIO.
+        _skipFiles.insert("ocio_color_management.mtlx");
+#endif
+    }
 
     // Read test suite options and check if this target should run.
     bool loadOptions(const mx::FilePath& optionsFilePath, TestRunState& runState);

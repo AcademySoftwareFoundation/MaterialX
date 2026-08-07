@@ -12,7 +12,6 @@
 
 #include <MaterialXTrace/Tracing.h>
 
-#include <iostream>
 #include <queue>
 
 MATERIALX_NAMESPACE_BEGIN
@@ -1227,8 +1226,8 @@ void ShaderGraph::populateColorTransformMap(ColorManagementSystemPtr colorManage
             }
             else
             {
-                std::cerr << "Unsupported color space transform from " <<
-                              sourceColorSpace << " to " << targetColorSpace << std::endl;
+                throw ExceptionShaderGenError("Unsupported color space transform from '" +
+                                              sourceColorSpace + "' to '" + targetColorSpace + "'.");
             }
         }
     }
