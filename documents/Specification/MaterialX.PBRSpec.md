@@ -345,7 +345,7 @@ E_o = \int_{\Omega_i} f(\omega_i, \omega_o) \cos\theta_i \; d\omega_i
 ```
 <p></p>
 
-The directional albedo determines the [vertical-layering transmittance](#vertical-layering-transmittance) of an interface BSDF, referenced by the [&lt;layer>](#node-layer) node when vertically layering a top BSDF over a base.
+The directional albedo of a node's reflection lobes, evaluated with its physical Fresnel reflectance, determines the [vertical-layering transmittance](#vertical-layering-transmittance) of an interface BSDF, referenced by the [&lt;layer>](#node-layer) node when vertically layering a top BSDF over a base.
 
 #### Energy Compensation
 
@@ -361,15 +361,19 @@ where $E_{\text{ss}}$ is the directional albedo of the microfacet BRDF evaluated
 
 ### Vertical-Layering Transmittance
 
-Every BSDF defines a **vertical-layering transmittance** $T_o$: the fraction of incident light that passes through the BSDF to reach the layers beneath it, when the BSDF is used as the top input of a [&lt;layer>](#node-layer) node. Like the directional albedo, the transmittance is evaluated for a fixed exitant direction $\omega_o$. All BSDFs in the PBS library are therefore layerable, with the transmittance of each elemental BSDF taking one of two forms:
+Every BSDF defines a **vertical-layering transmittance** $T_o$: the fraction of incident light that passes through the BSDF to reach the layers beneath it, when the BSDF is used as the top input of a [&lt;layer>](#node-layer) node. Like the directional albedo, the transmittance is evaluated for a fixed exitant direction $\omega_o$; it is a color quantity, with each channel taking a value in $[0, 1]$. All BSDFs in the PBS library are therefore layerable, with the transmittance of each elemental BSDF taking one of two forms:
 
-* **Interface BSDFs** — [&lt;dielectric_bsdf>](#node-dielectric-bsdf), [&lt;generalized_schlick_bsdf>](#node-generalized-schlick-bsdf), and [&lt;sheen_bsdf>](#node-sheen-bsdf) — represent thin interfaces and coatings that transmit all of the energy they do not reflect, giving $T_o = 1 - E_o$, where the directional albedo is evaluated over the node's reflection lobes alone, so that light transmitted rather than reflected by a transmissive scatter mode continues to the layers beneath.
+* **Interface BSDFs** — [&lt;dielectric_bsdf>](#node-dielectric-bsdf), [&lt;generalized_schlick_bsdf>](#node-generalized-schlick-bsdf), and [&lt;sheen_bsdf>](#node-sheen-bsdf) — represent thin interfaces and coatings that transmit all of the energy they neither reflect nor absorb, giving $T_o = 1 - E_o$, where the directional albedo is evaluated over the node's reflection lobes alone, so that light transmitted rather than reflected by a transmissive scatter mode continues to the layers beneath.
 
 * **Opaque BSDFs** — [&lt;oren_nayar_diffuse_bsdf>](#node-oren-nayar-diffuse-bsdf), [&lt;burley_diffuse_bsdf>](#node-burley-diffuse-bsdf), [&lt;conductor_bsdf>](#node-conductor-bsdf), [&lt;subsurface_bsdf>](#node-subsurface-bsdf), [&lt;translucent_bsdf>](#node-translucent-bsdf), and [&lt;chiang_hair_bsdf>](#node-chiang-hair-bsdf) — reflect, scatter, or absorb all of the light reaching them, transmitting none through the lobe itself. For these nodes the `weight` input $w$ acts as a statistical coverage of the surface, with the covered fraction fully occluding lower layers and the uncovered fraction passing light through unchanged, giving $T_o = 1 - w$.
 
+The directional albedo of an interface BSDF is evaluated for this purpose with the node's physical Fresnel reflectance alone, omitting non-physical color inputs such as the `tint` of [&lt;dielectric_bsdf>](#node-dielectric-bsdf) and the `color` of [&lt;sheen_bsdf>](#node-sheen-bsdf). These inputs attenuate only the scattered response, exactly as in the [&lt;multiply>](#node-multiply) node, and the energy they remove is classified as absorption within the interface rather than transmission to the base. In contrast, the Schlick reflectance inputs of [&lt;generalized_schlick_bsdf>](#node-generalized-schlick-bsdf) parameterize the physical Fresnel curve itself, and thus contribute to a color-valued transmittance for that node, as does the Airy reflectance of a [thin-film](#thin-film-iridescence) interface.
+
 An opaque BSDF with a weight of zero is thus completely transparent with respect to vertical layering, while an opaque BSDF with a weight of one fully occludes its base, and layering an opaque BSDF over a base is equivalent to a [&lt;mix>](#node-mix) of the two BSDFs with the coverage as the mixing weight. Since [&lt;chiang_hair_bsdf>](#node-chiang-hair-bsdf) has no `weight` input, it takes on an implicit unit coverage.
 
-The nodes that combine and modify BSDFs — [&lt;mix>](#node-mix), [&lt;layer>](#node-layer), [&lt;add>](#node-add), and [&lt;multiply>](#node-multiply) — compose the transmittances of their inputs, as given in each node's section, so the vertical-layering transmittance is well-defined for any graph of BSDF nodes. These composition rules define the reference transmittance-scaling model, and targets that directly simulate light transport through the layer stack may refine them, for example by accounting for multiple reflections between layers. For an energy-conserving BSDF, the directional albedo of the reflection lobes never exceeds the occluded fraction of incident light, $E_o \leq 1 - T_o$, ensuring that vertical layering preserves energy conservation.
+The nodes that combine and modify BSDFs — [&lt;mix>](#node-mix), [&lt;layer>](#node-layer), [&lt;add>](#node-add), and [&lt;multiply>](#node-multiply) — compose the transmittances of their inputs, as given in each node's section, so the vertical-layering transmittance is well-defined for any graph of BSDF nodes. These composition rules define the reference transmittance-scaling model. Within this model, the transmittance $T_o$ serves as a fixed-exitant-direction approximation of the ideal pass-through factor $P(\omega_i, \omega_o)$ of the layered microfacet model of Weidlich and Wilkie[^Weidlich2007], in which light reaching the base is attenuated along both its incident and exitant paths through the top layer. Targets that directly simulate light transport through the layer stack may refine the reference model accordingly, for example by evaluating the pass-through of each layer bidirectionally, or by accounting for multiple reflections between layers.
+
+For an energy-conserving BSDF, the directional albedo of the reflection lobes never exceeds the occluded fraction of incident light, $E_o \leq 1 - T_o$, with any difference between the two sides representing energy absorbed by the BSDF. This invariant ensures that vertical layering preserves energy conservation.
 
 
 ### Thin-Film Iridescence
@@ -550,7 +554,7 @@ The `scatter_mode` controls whether the surface reflects light (`R`), transmits 
 
 In the equations below, the `tint` input corresponds to $t$ and the `ior` input corresponds to $\eta$, the real-valued index of refraction of the surface *relative to the exterior medium*. The Fresnel formulation below assumes the exterior medium is air/vacuum ($\eta_i \approx 1$), so $\eta$ is equivalently the ratio of the surface IOR to that of the medium on the incident side of the interface.
 
-The tint $t$ scales the node's reflection and transmission lobes directly, multiplying the [microfacet BRDF and BTDF](#microfacet-model) as $t f_r$ and $t f_t$. It does not modify the Fresnel reflectance $F$ itself, so the Fresnel transmittance $1 - F$ used by the BTDF remains untinted.
+The tint $t$ scales the node's reflection and transmission lobes directly, multiplying the [microfacet BRDF and BTDF](#microfacet-model) as $t f_r$ and $t f_t$. It does not modify the Fresnel reflectance $F$ itself, so the Fresnel transmittance $1 - F$ used by the BTDF remains untinted. The node's [vertical-layering transmittance](#vertical-layering-transmittance) is likewise independent of $t$, with the energy removed by the tint classified as absorption within the interface rather than transmission to the base.
 
 #### Dielectric Fresnel Equations
 
@@ -647,6 +651,8 @@ Constructs a reflection and/or transmission BSDF based on a microfacet model and
 Implementations are expected to preserve energy as the roughness of the surface increases, with multiple scattering compensation[^Turquin2019] being a popular implementation strategy.
 
 The `color82` input provides a multiplier on reflectivity at 82 degrees, useful for capturing the characteristic "dip" in the reflectance curve of metallic surfaces. Setting it to (1,1,1) effectively disables this feature for backward compatibility.
+
+Unlike the artistic `tint` of [&lt;dielectric_bsdf>](#node-dielectric-bsdf), the Schlick reflectance inputs of this node parameterize its physical Fresnel curve, so they contribute to the node's color-valued [vertical-layering transmittance](#vertical-layering-transmittance).
 
 Setting `retroreflective` to true switches the BSDF to retroreflection mode, where light is reflected back toward the incoming direction rather than the mirror reflection direction[^Portsmouth2026].
 
@@ -757,7 +763,7 @@ Constructs a microfacet BSDF for the back-scattering properties of cloth-like ma
 |`mode`     |Selects between `conty_kulla` and `zeltner` sheen models|string |conty_kulla  |conty_kulla, zeltner|
 |`out`      |Output: the computed BSDF                               |BSDF   |             |                    |
 
-In the equations below, the `color` input corresponds to $c$, a non-physical color tint on the sheen lobe, and the `roughness` input corresponds to $r$, the degree to which the microfibers diverge from the surface normal.
+In the equations below, the `color` input corresponds to $c$, a non-physical color tint on the sheen lobe, and the `roughness` input corresponds to $r$, the degree to which the microfibers diverge from the surface normal. As with the `tint` of [&lt;dielectric_bsdf>](#node-dielectric-bsdf), the color $c$ attenuates only the scattered response, and does not contribute to the node's [vertical-layering transmittance](#vertical-layering-transmittance).
 
 #### Conty-Kulla Sheen Equations
 
@@ -1127,23 +1133,31 @@ Vertically layer a BSDF over another BSDF or VDF. Light not scattered by the top
 |`base`|The base BSDF or VDF            |BSDF or VDF|__zero__|
 |`out` |Output: the layered distribution|BSDF       |        |
 
+#### Layering over a BSDF
+
 In the equations below, the `top` input corresponds to $f_{\text{top}}$ and the `base` input corresponds to $f_{\text{base}}$. The quantities $T_{\text{top}}$ and $T_{\text{base}}$ are their respective transmittances, as defined in the [Vertical-Layering Transmittance](#vertical-layering-transmittance) section.
 
-#### Layer Equations
+The response of the layered result is:
 
 ```math
 f = f_{\text{top}} + T_{\text{top}} f_{\text{base}}
 ```
 <p></p>
 
-The transmittance of the layered result is the product of the transmittances of its inputs:
+and its transmittance is the product of the transmittances of its inputs:
 
 ```math
 T = T_{\text{top}} T_{\text{base}}
 ```
 <p></p>
 
+This recursive product makes the transmittance of a layer stack independent of its grouping, so that $\mathrm{layer}(\mathrm{layer}(a, b), c)$ and $\mathrm{layer}(a, \mathrm{layer}(b, c))$ occlude the layers beneath them identically.
+
 For an interface BSDF top, the base is attenuated by exactly the energy not reflected by the top layer, while for an opaque BSDF top, the base is occluded over the fraction of the surface statistically covered by the top. In both cases, if $f_{\text{top}}$ and $f_{\text{base}}$ are individually energy conserving, the layered result is also energy conserving.
+
+#### Layering over a VDF
+
+When the `base` input is a VDF, the layer node represents a surface boundary bound to an interior medium, rather than a vertical stack of two scattering layers. The transmissive scatter mode of the top BSDF governs entry into the medium, while the VDF governs absorption and scattering after entry, so the fraction of light entering the medium is determined by the Fresnel transmittance of the surface interface. In particular, medium entry is never derived from the complete reflected-plus-transmitted albedo of the top BSDF, which would incorrectly forbid entry through a lossless transmissive interface. The vertical-layering transmittance of the composite is the transmittance of the top BSDF, further attenuated by the extinction of the medium along the light's path through it.
 
 <a id="node-add"> </a>
 
@@ -1948,5 +1962,7 @@ Path Tracing**, <https://media.disneyanimation.com/uploads/production/publicatio
 [^Turquin2019]: Emmanuel Turquin, **Practical multiple scattering compensation for microfacet models**, <https://blog.selfshadow.com/publications/turquin/ms_comp_final.pdf>, 2019.
 
 [^Walter2007]: Bruce Walter et al., **Microfacet Models for Refraction through Rough Surfaces**, <https://www.graphics.cornell.edu/~bjw/microfacetbsdf.pdf>, 2007
+
+[^Weidlich2007]: Andrea Weidlich, Alexander Wilkie, **Arbitrarily Layered Micro-Facet Surfaces**, <https://www.cg.tuwien.ac.at/research/publications/2007/weidlich_2007_almfs/weidlich_2007_almfs-paper.pdf>, 2007
 
 [^Zeltner2022]: Tizian Zeltner et al., **Practical Multiple-Scattering Sheen Using Linearly Transformed Cosines**, <https://tizianzeltner.com/projects/Zeltner2022Practical/>, 2022
