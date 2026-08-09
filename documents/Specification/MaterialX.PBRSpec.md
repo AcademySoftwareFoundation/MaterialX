@@ -1419,6 +1419,8 @@ This definition documents version 1.0.1 of the Autodesk Standard Surface model, 
 
 The `transmission_depth`, `transmission_scatter`, `transmission_scatter_anisotropy`, and `transmission_dispersion` inputs describe interior volumetric transport; they are part of the interface but are not implemented by this composition, and so are omitted from its function parameters. In addition, where the originating specification defines `opacity` as a per-channel color, the [&lt;surface>](#node-surface) node accepts only a scalar opacity, so this composition reduces the opacity color to its luminance.
 
+In the originating specification, thin-film iridescence applies to the metal, specular reflection, and specular transmission lobes alike. This composition applies the thin-film inputs to the metal and specular reflection lobes only, so specular transmission does not receive thin-film interference.
+
 ```
 surfaceshader standard_surface(
     float base,
@@ -1894,6 +1896,8 @@ The specular and coat roughness inputs are remapped by `open_pbr_anisotropy` rat
 The `transmission_dispersion_scale` and `transmission_dispersion_abbe_number` inputs are part of the interface but are not implemented by this composition, and so are omitted from its function parameters. The interior transmission medium is realized as an `anisotropic_vdf` whose absorption and scattering are derived from `transmission_color`, `transmission_scatter`, and `transmission_depth` by Beer's law.
 
 In the originating specification, `specular_color` modulates the dielectric Fresnel factor only for light incident from outside the surface, and when `transmission_depth` is zero, `transmission_color` tints only the refraction through the interface, so that internal reflection within a transmissive dielectric receives neither tint. The `tint` input of [&lt;dielectric_bsdf>](#node-dielectric-bsdf) does not distinguish which side of the interface light arrives from, so this composition departs from that prescription: internal reflections are tinted by `specular_color` in the same manner as exterior reflections, a difference visible in transmissive materials whose `specular_color` is not white.
+
+Additionally, the originating specification states that a thin film on a dielectric base should generate color fringes in the transmission lobe as well as in reflection. This composition applies the thin-film inputs to the dielectric reflection and metal lobes only, so specular transmission does not receive thin-film interference.
 
 ```
 surfaceshader open_pbr_surface(
