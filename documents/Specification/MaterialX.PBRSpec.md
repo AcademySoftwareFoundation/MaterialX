@@ -53,11 +53,16 @@ This document describes a number of shader-semantic nodes implementing widely-us
  [PBR Shader Nodes](#pbr-shader-nodes)  
  [Utility Nodes](#utility-nodes)  
 
-**[Shading Model Examples](#shading-model-examples)**  
+**[Shading Models](#shading-models)**  
+ [Shading Model Notation](#shading-model-notation)  
+ [Shared Functions](#shared-functions)  
  [Autodesk Standard Surface](#autodesk-standard-surface)  
  [UsdPreviewSurface](#usdpreviewsurface)  
  [Khronos glTF PBR](#khronos-gltf-pbr)  
  [OpenPBR Surface](#openpbr-surface)  
+ [Additional Reference Implementations](#additional-reference-implementations)  
+
+**[Shading Translation Graphs](#shading-translation-graphs)**  
 
 **[Appendix: Extended Reflectance Models](#appendix-extended-reflectance-models)**  
  [EON Reflectance Model](#eon-reflectance-model)  
@@ -1280,49 +1285,812 @@ Converts the hair scattering color to absorption coefficient using the mapping m
 <br>
 
 
-# Shading Model Examples
+# Shading Models
 
-This section contains examples of shading model implementations using the MaterialX PBS library. For all examples, the shading model is defined via a &lt;nodedef> interface plus a nodegraph implementation. The resulting nodes can be used as shaders by a MaterialX material definition.
+This section presents a set of complete shading models defined as compositions of the BSDF, EDF, and VDF nodes of the [MaterialX PBS Library](#materialx-pbs-library) above, together with the standard math, selection, and utility nodes of the [MaterialX Standard Nodes](./MaterialX.StandardNodes.md) document.
+
+The models defined here are the [Autodesk Standard Surface](#autodesk-standard-surface), [UsdPreviewSurface](#usdpreviewsurface), [Khronos glTF PBR](#khronos-gltf-pbr), and [OpenPBR Surface](#openpbr-surface), ranging from an intentionally compact preview model to full über-shaders. Each model is presented as a table of its inputs followed by a functional definition in the [Shading Model Notation](#shading-model-notation) below, with a link to the corresponding renderable nodegraph in the MaterialX data libraries.
+
+These models originate outside this specification. Each was created and specified by its own authors and organizations, and those originating specifications remain the authoritative source for each model's physical and perceptual foundations. They vary in how prescriptive they are: some are presented as papers or talks that convey a model's design and intent but leave implementation details open, while others are formal specifications accompanied by reference implementations.
+
+In every case, realizing a model as a MaterialX graph requires resolving such details concretely — both the choices its originating specification leaves open and the mapping of its prescribed behavior onto MaterialX node primitives. The definitions in this section serve that purpose, giving each model a single, consistent MaterialX realization that follows its originating specification as closely as the MaterialX node set allows. They are intended to complement the originating specifications, not to replace them; where a MaterialX realization must depart from or extend its originating specification, that difference is noted in the model's definition.
+
+For each model defined in this section, the interface table and the functional definition together are the authoritative statement of its MaterialX realization: the interface table defines the model's interface, defaults, and accepted values, and the functional definition defines its composition. Applications and renderers should rely on these definitions for consistent interchange. The corresponding nodedef and nodegraph in the MaterialX data libraries are a renderable expression of the same definition, equivalent in both composition and shading result. If the two are ever found to disagree, this document takes precedence, and the data libraries should be corrected to match it.
 
 
-## Disney Principled BSDF
+## Shading Model Notation
 
-This shading model was presented by Brent Burley from Walt Disney Animation Studios in 2012[^Burley2012], with additional refinements presented in 2015[^Burley2015].
+The shading models in this section are defined by a compact functional notation that follows the structure of each model's MaterialX nodegraph, so the flow from artist-facing inputs through the composition of node primitives to a final shader can be read directly from the document:
 
-A MaterialX definition and nodegraph implementation of the Disney Principled BSDF can be found here:  
-[https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/libraries/bxdf/disney_principled.mtlx](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/libraries/bxdf/disney_principled.mtlx)
+```
+surfaceshader model_name(
+    float input_a,
+    color3 input_b)
+{
+    BSDF lobe = some_bsdf(input_a, input_b);
+    return surface(bsdf = lobe);
+}
+```
 
+This functional notation uses the following conventions:
+
+* **Types.** The value types (`float`, `color3`, `vector3`, …) are the standard [MaterialX data types](./MaterialX.Specification.md#materialx-data-types); `BSDF`, `EDF`, `VDF`, and `surfaceshader` are the types defined in [Data Types](#data-types).
+
+* **Parameters.** Each parameter is one of the model's inputs, matching an `<input>` of its `<nodedef>`; defaults and accepted values are given in the interface table rather than repeated here. Parameters are listed in interface order, omitting any inputs the composition does not implement, and consecutive parameters of the same type are grouped after a single type name, with long groups wrapping onto indented continuation lines. `Nworld` and `Tworld` denote the default world-space geometric normal and tangent (the `defaultgeomprop` of the corresponding input).
+
+* **Bindings.** A statement `type name = expression;` introduces a named intermediate value, corresponding to a node or small group of nodes in the renderable graph.
+
+* **Node calls.** A call `node_name(...)` instantiates the PBS or standard-library node of that name — including plain math and utility nodes such as `clamp`, `normalize`, and `luminance` — with arguments corresponding to its input ports. Arguments may be positional (in port order) or named as `port = value`; an omitted argument takes its default, so only inputs that differ from their defaults are shown. A node with multiple outputs is bound by destructuring, as in `{ color3 ior, color3 extinction } = artistic_ior(...)`.
+
+* **Operators.** The operators `+`, `-`, `*`, `/`, and `^` denote the `<add>`, `<subtract>`, `<multiply>`, `<divide>`, and `<power>` nodes, following conventional precedence: `^` binds most tightly, then `*` and `/`, then `+` and `-`, with parentheses grouping explicitly. When one operand is a distribution function, `*` scales it by a `float` or `color3`. The constant `PI` may be used wherever a `float` literal is accepted, denoting the mathematical constant π.
+
+* **Mixing.** `mix(fg, bg, w)` is the `<mix>` node: it returns `fg` at `w` = 1 and `bg` at `w` = 0, equal to (1 − `w`)·`bg` + `w`·`fg`. Note that this argument order — foreground first — is reversed from the `mix()` intrinsic of GLSL and related shading languages.
+
+* **Conditionals.** `if (cond) { a } else { b }` selects between two values of the same type — the type of the result — where `cond` is a `boolean` or a comparison using `>`, `>=`, `<`, `<=`, or `==`. A boolean maps to an `<ifequal>` test against `true` (or a `<switch>`); the comparisons map to the `<ifgreater>`, `<ifgreatereq>`, and `<ifequal>` nodes, with `<` and `<=` denoting the mirrored `>` and `>=` comparisons.
+
+* **Constructors and channels.** A constructor `colorN(x)` or `vectorN(x)` broadcasts a scalar to all channels, `color3(a, b, c)` builds a value from components, an N-tuple `(a, b, c)` is a literal of the corresponding type, and indexing `v[i]` selects channel `i`. A `convert(x)` call is the `<convert>` node, carrying a value across types with the same channel count, as from `color3` to `vector3`.
+
+
+## Shared Functions
+
+Several of the models below reuse the same small sub-expressions. To keep their definitions concise and harmonized, these sub-expressions are given here as named functions and called by name in the models that follow.
+
+The `ior_to_f0` function returns the Schlick facing reflectance ($F_0$), the reflectance at normal incidence, of a dielectric interface from its index of refraction:
+
+```
+float ior_to_f0(float ior)
+{
+    return ((ior - 1.0) / (ior + 1.0)) ^ 2.0;
+}
+```
+
+The `coated_emission` function attenuates an emission distribution as it passes through a clear-coat: the uncoated emission is tinted by `coat_color` and faded by a Schlick term built from the coat's $F_0$, and this attenuated emission is blended in by `coat_weight`, fading back to the uncoated emission as the coat is removed:
+
+```
+EDF coated_emission(
+    EDF emission,
+    color3 coat_color,
+    float coat_F0, coat_weight)
+{
+    EDF attenuated = generalized_schlick_edf(
+        color0 = color3(1.0 - coat_F0),
+        color90 = color3(0.0),
+        base = emission * coat_color);
+    return mix(attenuated, emission, coat_weight);
+}
+```
+
+
+<a id="node-standard-surface"> </a>
 
 ## Autodesk Standard Surface
 
-This is a surface shading model used in Autodesk products created by the Solid Angle team for the Arnold renderer. It is an über shader built from ten different BSDF layers[^Georgiev2019].
+This is a surface shading model created by the Solid Angle team for the Arnold renderer and used across Autodesk products. It is an über-shader built from ten components that are layered and mixed hierarchically[^Georgiev2019].
 
-A MaterialX definition and nodegraph implementation of Autodesk Standard Surface can be found here:  
-[https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/libraries/bxdf/standard_surface.mtlx](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/libraries/bxdf/standard_surface.mtlx)
+|Port                             |Description                                           |Type         |Default      |Accepted Values|
+|---------------------------------|------------------------------------------------------|-------------|-------------|---------------|
+|`base`                           |Weight of the diffuse reflection                      |float        |1.0          |[0, 1]         |
+|`base_color`                     |Color of the diffuse reflection                       |color3       |0.8, 0.8, 0.8|               |
+|`diffuse_roughness`              |Roughness of the diffuse reflection                   |float        |0.0          |[0, 1]         |
+|`metalness`                      |Blend from dielectric to metallic reflection          |float        |0.0          |[0, 1]         |
+|`specular`                       |Weight of the specular reflection                     |float        |1.0          |[0, 1]         |
+|`specular_color`                 |Color tint on the specular reflection                 |color3       |1.0, 1.0, 1.0|               |
+|`specular_roughness`             |Roughness of the specular reflection                  |float        |0.2          |[0, 1]         |
+|`specular_IOR`                   |Index of refraction of the specular reflection        |float        |1.5          |               |
+|`specular_anisotropy`            |Anisotropy of the specular reflection                 |float        |0.0          |[0, 1]         |
+|`specular_rotation`              |Rotation of the specular anisotropy axis              |float        |0.0          |[0, 1]         |
+|`transmission`                   |Weight of specular transmission through the surface   |float        |0.0          |[0, 1]         |
+|`transmission_color`             |Color tint on the transmitted light                   |color3       |1.0, 1.0, 1.0|               |
+|`transmission_depth`             |Depth at which light reaches the transmission color   |float        |0.0          |               |
+|`transmission_scatter`           |Scattering coefficient of the interior medium         |color3       |0.0, 0.0, 0.0|               |
+|`transmission_scatter_anisotropy`|Anisotropy of the interior scattering                 |float        |0.0          |[0, 1]         |
+|`transmission_dispersion`        |Dispersion of the index of refraction                 |float        |0.0          |               |
+|`transmission_extra_roughness`   |Extra roughness added to transmission                 |float        |0.0          |[-1, 1]        |
+|`subsurface`                     |Blend from diffuse reflection to subsurface scattering|float        |0.0          |[0, 1]         |
+|`subsurface_color`               |Color of the subsurface scattering                    |color3       |1.0, 1.0, 1.0|               |
+|`subsurface_radius`              |Mean free path of the subsurface scattering           |color3       |1.0, 1.0, 1.0|               |
+|`subsurface_scale`               |Scalar weight on the subsurface radius                |float        |1.0          |               |
+|`subsurface_anisotropy`          |Anisotropy of the subsurface scattering               |float        |0.0          |[-1, 1]        |
+|`sheen`                          |Weight of the sheen layer                             |float        |0.0          |[0, 1]         |
+|`sheen_color`                    |Color of the sheen layer                              |color3       |1.0, 1.0, 1.0|               |
+|`sheen_roughness`                |Roughness of the sheen layer                          |float        |0.3          |[0, 1]         |
+|`coat`                           |Weight of the clear-coat layer                        |float        |0.0          |[0, 1]         |
+|`coat_color`                     |Color tint of the clear-coat layer                    |color3       |1.0, 1.0, 1.0|               |
+|`coat_roughness`                 |Roughness of the clear-coat reflection                |float        |0.1          |[0, 1]         |
+|`coat_anisotropy`                |Anisotropy of the clear-coat reflection               |float        |0.0          |[0, 1]         |
+|`coat_rotation`                  |Rotation of the clear-coat anisotropy axis            |float        |0.0          |[0, 1]         |
+|`coat_IOR`                       |Index of refraction of the clear-coat layer           |float        |1.5          |               |
+|`coat_normal`                    |Normal vector of the clear-coat layer                 |vector3      |Nworld       |               |
+|`coat_affect_color`              |Coat darkening and saturation of the base layers      |float        |0.0          |[0, 1]         |
+|`coat_affect_roughness`          |Coat roughening of the base specular layers           |float        |0.0          |[0, 1]         |
+|`thin_film_thickness`            |Thickness of the thin-film layer in nanometers        |float        |0.0          |               |
+|`thin_film_IOR`                  |Index of refraction of the thin-film layer            |float        |1.5          |               |
+|`emission`                       |Weight of the emitted light                           |float        |0.0          |               |
+|`emission_color`                 |Color of the emitted light                            |color3       |1.0, 1.0, 1.0|               |
+|`opacity`                        |Opacity of the surface                                |color3       |1.0, 1.0, 1.0|               |
+|`thin_walled`                    |Set to true to make the surface thin-walled           |boolean      |false        |               |
+|`normal`                         |Normal vector of the surface                          |vector3      |Nworld       |               |
+|`tangent`                        |Tangent vector of the surface                         |vector3      |Tworld       |               |
+|`out`                            |Output: the surface shader                            |surfaceshader|             |               |
 
+### Autodesk Standard Surface Shader Definition
+
+This definition documents version 1.0.1 of the Autodesk Standard Surface model, and the associated nodegraph implementation is provided in the data libraries as [standard_surface.mtlx](../../libraries/bxdf/standard_surface.mtlx).
+
+The `transmission_depth`, `transmission_scatter`, `transmission_scatter_anisotropy`, and `transmission_dispersion` inputs describe interior volumetric transport; they are part of the interface but are not implemented by this composition, and so are omitted from its function parameters. In addition, where the originating specification defines `opacity` as a per-channel color, the [&lt;surface>](#node-surface) node accepts only a scalar opacity, so this composition reduces the opacity color to its luminance.
+
+In the originating specification, thin-film iridescence applies to the metal, specular reflection, and specular transmission lobes alike. This composition applies the thin-film inputs to the metal and specular reflection lobes only, so specular transmission does not receive thin-film interference.
+
+```
+surfaceshader standard_surface(
+    float base,
+    color3 base_color,
+    float diffuse_roughness, metalness, specular,
+    color3 specular_color,
+    float specular_roughness, specular_IOR, specular_anisotropy, specular_rotation, transmission,
+    color3 transmission_color,
+    float transmission_extra_roughness, subsurface,
+    color3 subsurface_color, subsurface_radius,
+    float subsurface_scale, subsurface_anisotropy, sheen,
+    color3 sheen_color,
+    float sheen_roughness, coat,
+    color3 coat_color,
+    float coat_roughness, coat_anisotropy, coat_rotation, coat_IOR,
+    vector3 coat_normal,
+    float coat_affect_color, coat_affect_roughness, thin_film_thickness, thin_film_IOR, emission,
+    color3 emission_color, opacity,
+    boolean thin_walled,
+    vector3 normal, tangent)
+{
+    // When enabled, the coat darkens and saturates the diffuse and subsurface layers beneath it
+    // by raising their color to the "coat gamma" power (optional; off when 'coat_affect_color' = 0).
+    float coat_gamma = clamp(coat) * coat_affect_color + 1.0;
+    color3 coat_affected_base_color = max(base_color, 0.0) ^ coat_gamma;
+    color3 coat_affected_subsurface_color = max(subsurface_color, 0.0) ^ coat_gamma;
+
+    // Diffuse and subsurface base: thin-walled surfaces scatter through a translucent BSDF,
+    // while closed surfaces use volumetric subsurface scattering.
+    BSDF diffuse_lobe = oren_nayar_diffuse_bsdf(base, coat_affected_base_color, diffuse_roughness, normal);
+    BSDF thin_walled_subsurface_lobe = translucent_bsdf(color = coat_affected_subsurface_color, normal = normal);
+    BSDF closed_subsurface_lobe = subsurface_bsdf(color = coat_affected_subsurface_color,
+        radius = subsurface_radius * subsurface_scale, anisotropy = subsurface_anisotropy, normal = normal);
+    BSDF subsurface_scatter = if (thin_walled) { thin_walled_subsurface_lobe } else { closed_subsurface_lobe };
+    BSDF diffuse_layer = mix(subsurface_scatter, diffuse_lobe, subsurface);
+
+    // Sheen layered over the diffuse/subsurface base.
+    BSDF sheen_lobe = sheen_bsdf(sheen, sheen_color, sheen_roughness, normal);
+    BSDF sheen_layer = layer(sheen_lobe, diffuse_layer);
+
+    // Roughness and anisotropy tangent shared by the transmission, specular, and metal lobes.
+    // The coat can also roughen these lobes, driving their roughness toward fully rough (optional;
+    // off when 'coat_affect_roughness' = 0). The tangent rotates the surface tangent about the
+    // normal, falling back to the geometric tangent when isotropic.
+    float coat_affect_roughness_combined = coat_affect_roughness * coat * coat_roughness;
+    vector2 main_roughness = roughness_anisotropy(
+        mix(1.0, specular_roughness, coat_affect_roughness_combined), specular_anisotropy);
+    vector2 transmission_roughness = roughness_anisotropy(
+        mix(1.0, clamp(specular_roughness + transmission_extra_roughness),
+            coat_affect_roughness_combined), specular_anisotropy);
+    vector3 main_rotated = normalize(rotate3d(tangent, specular_rotation * 360.0, normal));
+    vector3 main_tangent = if (specular_anisotropy > 0.0) { main_rotated } else { tangent };
+
+    // Specular transmission (refraction), blended in by 'transmission'.
+    BSDF transmission_lobe = dielectric_bsdf(
+        tint = transmission_color,
+        ior = specular_IOR,
+        roughness = transmission_roughness,
+        normal = normal,
+        tangent = main_tangent,
+        scatter_mode = "T");
+    BSDF transmission_layer = mix(transmission_lobe, sheen_layer, transmission);
+
+    // Dielectric specular reflection, layered over the result, with optional thin-film.
+    BSDF specular_lobe = dielectric_bsdf(
+        weight = specular,
+        tint = specular_color,
+        ior = specular_IOR,
+        roughness = main_roughness,
+        normal = normal,
+        tangent = main_tangent,
+        thinfilm_thickness = thin_film_thickness,
+        thinfilm_ior = thin_film_IOR);
+    BSDF specular_layer = layer(specular_lobe, transmission_layer);
+
+    // Metallic reflection: the complex IOR is derived from 'base_color' and 'specular_color',
+    // and the 'metalness' weight blends between the dielectric and metal interpretations.
+    { color3 metal_ior, color3 metal_extinction } =
+        artistic_ior(base_color * base, specular_color * specular);
+    BSDF metal_lobe = conductor_bsdf(
+        ior = metal_ior,
+        extinction = metal_extinction,
+        roughness = main_roughness,
+        normal = normal,
+        tangent = main_tangent,
+        thinfilm_thickness = thin_film_thickness,
+        thinfilm_ior = thin_film_IOR);
+    BSDF metal_or_specular = mix(metal_lobe, specular_layer, metalness);
+
+    // Coat: everything beneath is attenuated by 'coat_color', then covered by a
+    // dielectric coat lobe whose tangent rotates the surface tangent about the coat normal,
+    // again falling back to the geometric tangent when isotropic.
+    color3 coat_attenuation = mix(coat_color, color3(1.0), coat);
+    BSDF coat_base = metal_or_specular * coat_attenuation;
+    vector3 coat_rotated = normalize(rotate3d(tangent, coat_rotation * 360.0, coat_normal));
+    vector3 coat_tangent = if (coat_anisotropy > 0.0) { coat_rotated } else { tangent };
+    vector2 coat_roughness_uv = roughness_anisotropy(coat_roughness, coat_anisotropy);
+    BSDF coat_lobe = dielectric_bsdf(
+        weight = coat,
+        ior = coat_IOR,
+        roughness = coat_roughness_uv,
+        normal = coat_normal,
+        tangent = coat_tangent);
+    BSDF coat_layer = layer(coat_lobe, coat_base);
+
+    // Emission, attenuated under the coat by 'coated_emission' (see Shared Functions),
+    // evaluated at the coat's facing reflectance (F0).
+    float coat_F0 = ior_to_f0(coat_IOR);
+    EDF emission_edf = uniform_edf(emission_color * emission);
+    EDF surface_emission = coated_emission(emission_edf, coat_color, coat_F0, coat);
+
+    // Final surface, with a monochrome opacity from the luminance of the opacity color.
+    return surface(
+        bsdf = coat_layer,
+        edf = surface_emission,
+        opacity = luminance(opacity)[0],
+        thin_walled = thin_walled);
+}
+```
+
+
+<a id="node-usd-preview-surface"> </a>
 
 ## UsdPreviewSurface
 
-This is a shading model proposed by Pixar for USD[^Pixar2019]. It is meant to model a physically based surface that strikes a balance between expressiveness and reliable interchange between current day DCC’s and game engines and other real-time rendering clients.
+This is a *preview* shading model defined by Pixar for USD[^Pixar2019]. Rather than an über-shader supporting every possible feature, it is an intentionally constrained, basic set of shading controls designed to interchange reliably across film and game pipelines and to be supported natively by the production renderers that ship with USD and Hydra.
 
-A MaterialX definition and nodegraph implementation of UsdPreviewSurface can be found here:  
-[https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/libraries/bxdf/usd_preview_surface.mtlx](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/libraries/bxdf/usd_preview_surface.mtlx)
+UsdPreviewSurface supports two alternative reflection parameterizations, selected by `useSpecularWorkflow`: a *specular workflow* driven by an explicit `specularColor`, and a *metalness workflow* driven by `metallic`.
 
+|Port                 |Description                                      |Type         |Default         |Accepted Values|
+|---------------------|-------------------------------------------------|-------------|----------------|---------------|
+|`diffuseColor`       |Color of the diffuse reflection                  |color3       |0.18, 0.18, 0.18|               |
+|`emissiveColor`      |Color of the emitted light                       |color3       |0.0, 0.0, 0.0   |               |
+|`useSpecularWorkflow`|Selects the specular or metalness workflow       |integer      |0               |0, 1           |
+|`specularColor`      |Specular color for the specular workflow         |color3       |0.0, 0.0, 0.0   |               |
+|`metallic`           |Blend from dielectric to metallic reflection     |float        |0.0             |[0, 1]         |
+|`roughness`          |Surface roughness                                |float        |0.5             |[0, 1]         |
+|`clearcoat`          |Weight of the clear-coat layer                   |float        |0.0             |[0, 1]         |
+|`clearcoatRoughness` |Roughness of the clear-coat reflection           |float        |0.01            |[0, 1]         |
+|`opacity`            |Opacity of the surface                           |float        |1.0             |[0, 1]         |
+|`opacityMode`        |Transparent or presence interpretation of opacity|integer      |0               |0, 1           |
+|`opacityThreshold`   |Cutout threshold applied to opacity              |float        |0.0             |[0, 1]         |
+|`ior`                |Index of refraction of the surface               |float        |1.5             |               |
+|`normal`             |Tangent-space normal of the surface              |vector3      |0.0, 0.0, 1.0   |               |
+|`displacement`       |Displacement amount of the surface               |float        |0.0             |               |
+|`occlusion`          |Ambient occlusion of the surface                 |float        |1.0             |[0, 1]         |
+|`out`                |Output: the surface shader                       |surfaceshader|                |               |
+
+### UsdPreviewSurface Shader Definition
+
+This definition documents version 2.6 of the UsdPreviewSurface model, and the associated nodegraph implementation is provided in the data libraries as [usd_preview_surface.mtlx](../../libraries/bxdf/usd_preview_surface.mtlx).
+
+The `displacement` and `occlusion` inputs are part of the interface but are not implemented by this composition, and so are omitted from its function parameters; `displacement` drives a separate displacement shader, and `occlusion` is applied by the host renderer.
+
+This composition also goes beyond the Schlick reflectance described by the originating specification in two respects: the metalness workflow blends toward a [&lt;conductor_bsdf>](#node-conductor-bsdf) lobe whose complex index of refraction is derived from `diffuseColor`, rather than remaining a pure Schlick lobe at high `metallic` values; and in transparent mode, a fractional `opacity` is realized as refractive transmission through the surface, where the originating specification instead reduces the diffuse lighting component in favor of transparency.
+
+```
+surfaceshader UsdPreviewSurface(
+    color3 diffuseColor, emissiveColor,
+    integer useSpecularWorkflow,
+    color3 specularColor,
+    float metallic, roughness, clearcoat, clearcoatRoughness, opacity,
+    integer opacityMode,
+    float opacityThreshold, ior,
+    vector3 normal)
+{
+    // Decode the tangent-space normal input into a world-space shading normal.
+    vector3 surface_normal = normalmap(normal * 0.5 + 0.5);
+
+    // Shared roughness, and the dielectric facing reflectance (F0) derived from the
+    // IOR, both reused by the specular, metalness, and clearcoat lobes below.
+    vector2 roughness_uv = roughness_anisotropy(roughness);
+    float dielectric_F0 = ior_to_f0(ior);
+
+    // Diffuse base: in the metalness workflow the diffuse contribution fades out as the
+    // surface becomes metallic; in the specular workflow it stays at full weight.
+    float diffuse_weight = if (useSpecularWorkflow == 1) { 1.0 } else { 1.0 - metallic };
+    BSDF diffuse_lobe = oren_nayar_diffuse_bsdf(weight = diffuse_weight, color = diffuseColor, normal = surface_normal);
+
+    // Refractive transmission, blended into the diffuse base. (opacityMode: 0 =
+    // transparent, 1 = presence.) In transparent mode a fractional 'opacity' reveals the
+    // transmission unless a cutout threshold is set; presence mode is never transmissive.
+    BSDF transmission_lobe = dielectric_bsdf(
+        ior = ior,
+        roughness = (0.0, 0.0),
+        normal = surface_normal,
+        scatter_mode = "T");
+    float transparent_diffuse_amount = if (opacityThreshold > 0.0) { 1.0 } else { opacity };
+    float diffuse_amount = if (opacityMode == 0) { transparent_diffuse_amount } else { 1.0 };
+    BSDF base_substrate = mix(diffuse_lobe, transmission_lobe, diffuse_amount);
+
+    // Specular workflow: a generalized Schlick specular lobe whose facing reflectance (F0)
+    // is 'specularColor', transitioning to a white F90 grazing reflectance.
+    BSDF specular_workflow_lobe = generalized_schlick_bsdf(
+        color0 = specularColor,
+        roughness = roughness_uv,
+        normal = surface_normal);
+    BSDF specular_workflow = layer(specular_workflow_lobe, base_substrate);
+
+    // Metalness workflow: interpolate the Schlick reflectance from a dielectric Fresnel
+    // (F0 from 'ior', white F90 grazing reflectance) toward a metallic Fresnel (both F0 and F90
+    // grazing reflectance 'diffuseColor') as 'metallic' rises, then blend in a conductor lobe whose
+    // complex IOR is derived from 'diffuseColor'.
+    color3 metallic_specular_color = mix(diffuseColor, color3(1.0), metallic);
+    color3 F0 = mix(metallic_specular_color, metallic_specular_color * dielectric_F0, metallic);
+    BSDF metalness_dielectric_lobe = generalized_schlick_bsdf(
+        color0 = F0,
+        color90 = metallic_specular_color,
+        roughness = roughness_uv,
+        normal = surface_normal);
+    BSDF metalness_dielectric_layer = layer(metalness_dielectric_lobe, base_substrate);
+    { color3 metal_ior, color3 metal_extinction } = artistic_ior(diffuseColor, diffuseColor);
+    BSDF metalness_metal_lobe = conductor_bsdf(
+        ior = metal_ior,
+        extinction = metal_extinction,
+        roughness = roughness_uv,
+        normal = surface_normal);
+    BSDF metalness_workflow = mix(metalness_metal_lobe, metalness_dielectric_layer, metallic);
+
+    // Select the active workflow.
+    BSDF selected_workflow = if (useSpecularWorkflow == 1) { specular_workflow } else { metalness_workflow };
+
+    // Clearcoat: a dielectric generalized Schlick lobe layered over the chosen workflow.
+    vector2 coat_roughness_uv = roughness_anisotropy(clearcoatRoughness);
+    BSDF coat_lobe = generalized_schlick_bsdf(
+        weight = clearcoat,
+        color0 = color3(dielectric_F0),
+        roughness = coat_roughness_uv,
+        normal = surface_normal);
+    BSDF coat_layer = layer(coat_lobe, selected_workflow);
+
+    // Emission.
+    EDF emission_edf = uniform_edf(emissiveColor);
+
+    // Cutout opacity: together, 'opacity', 'opacityThreshold', and 'opacityMode' let the
+    // surface behave as a translucent material (transparent mode, where translucency is
+    // instead carried by the transmission lobe above), a fractional-coverage material
+    // (presence mode), or a hard cutout mask (any mode with a non-zero 'opacityThreshold':
+    // opaque at or above the threshold, fully cut out below).
+    float cutout = if (opacity >= opacityThreshold) { 1.0 } else { 0.0 };
+    float presence_opacity = if (opacityThreshold > 0.0) { cutout } else { opacity };
+    float surface_opacity = if (opacityMode == 0) { cutout } else { presence_opacity };
+
+    return surface(bsdf = coat_layer, edf = emission_edf, opacity = surface_opacity);
+}
+```
+
+
+<a id="node-gltf-pbr"> </a>
 
 ## Khronos glTF PBR
 
-This is a shading model using the PBR material extensions in Khronos glTF specification.
+This is a physically based shading model defined by the Khronos Group for the glTF 3D asset format[^Khronos2021]. Its core is a metallic-roughness model designed for compact, portable real-time rendering, augmented by a family of `KHR_materials_*` extensions (adding specular, transmission, sheen, clear-coat, iridescence, anisotropy, interior volume, and emissive strength) whose parameters together make up the interface below.
 
-A MaterialX definition and nodegraph implementation of glTF PBR can be found here:  
-[https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/libraries/bxdf/gltf_pbr.mtlx](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/libraries/bxdf/gltf_pbr.mtlx)
+|Port                   |Description                                        |Type         |Default      |Accepted Values|
+|-----------------------|---------------------------------------------------|-------------|-------------|---------------|
+|`base_color`           |Base color of the surface                          |color3       |1.0, 1.0, 1.0|               |
+|`metallic`             |Blend from dielectric to metallic reflection       |float        |1.0          |[0, 1]         |
+|`roughness`            |Surface roughness                                  |float        |1.0          |[0, 1]         |
+|`normal`               |Normal vector of the surface                       |vector3      |Nworld       |               |
+|`tangent`              |Tangent vector of the surface                      |vector3      |Tworld       |               |
+|`occlusion`            |Ambient occlusion of the surface                   |float        |1.0          |[0, 1]         |
+|`transmission`         |Weight of specular transmission through the surface|float        |0.0          |[0, 1]         |
+|`specular`             |Weight of the specular reflection                  |float        |1.0          |[0, 1]         |
+|`specular_color`       |Color tint on the specular reflection              |color3       |1.0, 1.0, 1.0|               |
+|`ior`                  |Index of refraction of the surface                 |float        |1.5          |               |
+|`alpha`                |Opacity of the surface                             |float        |1.0          |[0, 1]         |
+|`alpha_mode`           |Opaque, mask, or blend interpretation of alpha     |integer      |0            |0, 1, 2        |
+|`alpha_cutoff`         |Cutout threshold applied to alpha                  |float        |0.5          |[0, 1]         |
+|`iridescence`          |Weight of the thin-film iridescence                |float        |0.0          |[0, 1]         |
+|`iridescence_ior`      |Index of refraction of the thin-film               |float        |1.3          |               |
+|`iridescence_thickness`|Thickness of the thin-film layer in nanometers     |float        |100.0        |               |
+|`sheen_color`          |Color of the sheen layer                           |color3       |0.0, 0.0, 0.0|               |
+|`sheen_roughness`      |Roughness of the sheen layer                       |float        |0.0          |[0, 1]         |
+|`clearcoat`            |Weight of the clear-coat layer                     |float        |0.0          |[0, 1]         |
+|`clearcoat_roughness`  |Roughness of the clear-coat reflection             |float        |0.0          |[0, 1]         |
+|`clearcoat_normal`     |Normal vector of the clear-coat layer              |vector3      |Nworld       |               |
+|`emissive`             |Color of the emitted light                         |color3       |0.0, 0.0, 0.0|               |
+|`emissive_strength`    |Weight of the emitted light                        |float        |1.0          |               |
+|`thickness`            |Thickness of the interior volume                   |float        |0.0          |               |
+|`attenuation_distance` |Attenuation distance of the interior volume        |float        |             |               |
+|`attenuation_color`    |Attenuation color of the interior volume           |color3       |1.0, 1.0, 1.0|               |
+|`anisotropy_strength`  |Anisotropy of the specular reflection              |float        |0.0          |[0, 1]         |
+|`anisotropy_rotation`  |Rotation of the specular anisotropy axis           |float        |0.0          |[0, 2π]        |
+|`dispersion`           |Dispersion of the index of refraction              |float        |0.0          |               |
+|`out`                  |Output: the surface shader                         |surfaceshader|             |               |
 
+### Khronos glTF PBR Shader Definition
+
+This definition documents version 2.0 of the glTF material model with the `KHR_materials_*` extensions described above, and the associated nodegraph implementation is provided in the data libraries as [gltf_pbr.mtlx](../../libraries/bxdf/gltf_pbr.mtlx).
+
+The `occlusion`, `thickness`, `attenuation_distance`, `attenuation_color`, and `dispersion` inputs are part of the interface but are not implemented by this composition, and so are omitted from its function parameters; `occlusion` is applied by the host renderer, and the interior-volume inputs (`thickness`, `attenuation_distance`, and `attenuation_color`) are discussed in the note following the definition.
+
+```
+surfaceshader gltf_pbr(
+    color3 base_color,
+    float metallic, roughness,
+    vector3 normal, tangent,
+    float transmission, specular,
+    color3 specular_color,
+    float ior, alpha,
+    integer alpha_mode,
+    float alpha_cutoff, iridescence, iridescence_ior, iridescence_thickness,
+    color3 sheen_color,
+    float sheen_roughness, clearcoat, clearcoat_roughness,
+    vector3 clearcoat_normal,
+    color3 emissive,
+    float emissive_strength, anisotropy_strength, anisotropy_rotation)
+{
+    // Dielectric reflectance: the facing reflectance (F0) is derived from the IOR,
+    // tinted by 'specular_color' and clamped, then both F0 and the white F90 grazing reflectance are
+    // scaled by 'specular'.
+    float ior_F0 = ior_to_f0(ior);
+    color3 dielectric_F0 = min(specular_color * ior_F0, 1.0) * specular;
+    color3 dielectric_F90 = color3(1.0) * specular;
+
+    // Anisotropic roughness: alpha = roughness^2; the along-tangent component is widened
+    // toward fully rough by 'anisotropy_strength', the across-tangent component stays at
+    // alpha, and both are clamped away from zero.
+    float alpha_roughness = roughness * roughness;
+    float roughness_along_tangent = mix(1.0, alpha_roughness, anisotropy_strength * anisotropy_strength);
+    vector2 roughness_uv = (clamp(roughness_along_tangent, 0.00001, 1.0), clamp(alpha_roughness, 0.00001, 1.0));
+
+    // Tangent rotated about the normal by 'anisotropy_rotation' (negated and converted from
+    // radians to degrees by -180/pi), used by the base lobes only when a rotation is set.
+    vector3 rotated_tangent = normalize(rotate3d(tangent, anisotropy_rotation * -180.0 / PI, normal));
+    vector3 selected_tangent = if (absval(anisotropy_rotation) > 0.0) { rotated_tangent } else { tangent };
+
+    // Dielectric base: Oren-Nayar diffuse with refractive transmission blended in by
+    // 'transmission'.
+    BSDF diffuse_lobe = oren_nayar_diffuse_bsdf(color = base_color, normal = normal);
+    BSDF transmission_lobe = dielectric_bsdf(
+        tint = base_color,
+        ior = ior,
+        roughness = roughness_uv,
+        normal = normal,
+        tangent = selected_tangent,
+        scatter_mode = "T");
+    BSDF transmission_base = mix(transmission_lobe, diffuse_lobe, transmission);
+
+    // Specular reflection, with an iridescent thin-film twin blended in by 'iridescence',
+    // layered over the transmissive base.
+    BSDF reflection_lobe = generalized_schlick_bsdf(
+        color0 = dielectric_F0,
+        color90 = dielectric_F90,
+        roughness = roughness_uv,
+        normal = normal,
+        tangent = selected_tangent);
+    BSDF tf_reflection_lobe = generalized_schlick_bsdf(
+        color0 = dielectric_F0,
+        color90 = dielectric_F90,
+        roughness = roughness_uv,
+        normal = normal,
+        tangent = selected_tangent,
+        thinfilm_thickness = iridescence_thickness,
+        thinfilm_ior = iridescence_ior);
+    BSDF iridescent_reflection = mix(tf_reflection_lobe, reflection_lobe, iridescence);
+    BSDF iridescent_dielectric_layer = layer(iridescent_reflection, transmission_base);
+
+    // Metal: a generalized Schlick lobe whose facing reflectance (F0) is 'base_color', with its own
+    // iridescent thin-film twin blended in by 'iridescence'.
+    BSDF metal_lobe = generalized_schlick_bsdf(
+        color0 = base_color,
+        roughness = roughness_uv,
+        normal = normal,
+        tangent = selected_tangent);
+    BSDF tf_metal_lobe = generalized_schlick_bsdf(
+        color0 = base_color,
+        roughness = roughness_uv,
+        normal = normal,
+        tangent = selected_tangent,
+        thinfilm_thickness = iridescence_thickness,
+        thinfilm_ior = iridescence_ior);
+    BSDF iridescent_metal = mix(tf_metal_lobe, metal_lobe, iridescence);
+
+    // Blend between the dielectric and metal interpretations by 'metallic'.
+    BSDF metal_or_dielectric = mix(iridescent_metal, iridescent_dielectric_layer, metallic);
+
+    // Sheen layered over the base; its weight is the maximum component of 'sheen_color' and
+    // its color is that value normalized to unit intensity.
+    float sheen_intensity = maxcomponent(sheen_color);
+    BSDF sheen_lobe = sheen_bsdf(
+        weight = sheen_intensity,
+        color = sheen_color / sheen_intensity,
+        roughness = sheen_roughness * sheen_roughness,
+        normal = normal);
+    BSDF sheen_layer = layer(sheen_lobe, metal_or_dielectric);
+
+    // Clearcoat: a dielectric lobe at a fixed IOR of 1.5 over its own normal, using the
+    // unrotated tangent.
+    vector2 coat_roughness_uv = roughness_anisotropy(clearcoat_roughness);
+    BSDF coat_lobe = dielectric_bsdf(
+        weight = clearcoat,
+        ior = 1.5,
+        roughness = coat_roughness_uv,
+        normal = clearcoat_normal,
+        tangent = tangent);
+    BSDF coat_layer = layer(coat_lobe, sheen_layer);
+
+    // Emission.
+    EDF emission = uniform_edf(emissive * emissive_strength);
+
+    // Opacity. (alpha_mode: 0 = OPAQUE, 1 = MASK, 2 = BLEND.) MASK is a hard cutout at
+    // 'alpha_cutoff', OPAQUE forces full opacity, and BLEND uses 'alpha' directly.
+    float opacity_mask_cutoff = if (alpha >= alpha_cutoff) { 1.0 } else { 0.0 };
+    float opacity_mask = if (alpha_mode == 1) { opacity_mask_cutoff } else { alpha };
+    float opacity = if (alpha_mode == 0) { 1.0 } else { opacity_mask };
+
+    return surface(bsdf = coat_layer, edf = emission, opacity = opacity);
+}
+```
+
+The glTF material model also defines an interior volume, parameterized by `thickness`, `attenuation_distance`, and `attenuation_color`. This volume is not part of the definition above: the current data-library graph derives a Beer's law absorption coefficient from `attenuation_distance` and `attenuation_color`, but leaves the resulting volume unconnected and does not yet consume `thickness`. A future revision of the model may implement it by layering the transmission lobe over the interior volume, as the [OpenPBR Surface](#openpbr-surface) model does, gated by `thickness`. Relatedly, `KHR_materials_transmission` specifies transmission through an infinitely thin surface, without refraction; the composition above instead models refractive transmission through a closed surface, a difference that a future revision may address together with the interior volume.
+
+
+<a id="node-open-pbr-surface"> </a>
 
 ## OpenPBR Surface
 
 This is an open surface shading model that was designed as a collaboration between Adobe, Autodesk, and other companies in the industry, and is currently maintained as a subproject of MaterialX within the Academy Software Foundation[^Andersson2024].
 
-A MaterialX definition and nodegraph implementation of OpenPBR Surface can be found here:  
-[https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/libraries/bxdf/open_pbr_surface.mtlx](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/libraries/bxdf/open_pbr_surface.mtlx)
+|Port                                 |Description                                           |Type         |Default       |Accepted Values|
+|-------------------------------------|------------------------------------------------------|-------------|--------------|---------------|
+|`base_weight`                        |Weight of the diffuse and metallic base               |float        |1.0           |[0, 1]         |
+|`base_color`                         |Color of the diffuse and metallic base                |color3       |0.8, 0.8, 0.8 |               |
+|`base_diffuse_roughness`             |Roughness of the diffuse reflection                   |float        |0.0           |[0, 1]         |
+|`base_metalness`                     |Blend from dielectric to metallic reflection          |float        |0.0           |[0, 1]         |
+|`specular_weight`                    |Weight of the specular reflection                     |float        |1.0           |               |
+|`specular_color`                     |Color of the specular reflection                      |color3       |1.0, 1.0, 1.0 |               |
+|`specular_roughness`                 |Roughness of the specular reflection                  |float        |0.3           |[0, 1]         |
+|`specular_ior`                       |Index of refraction of the dielectric base            |float        |1.5           |               |
+|`specular_roughness_anisotropy`      |Anisotropy of the specular reflection                 |float        |0.0           |[0, 1]         |
+|`transmission_weight`                |Weight of specular transmission through the surface   |float        |0.0           |[0, 1]         |
+|`transmission_color`                 |Color of the transparent base                         |color3       |1.0, 1.0, 1.0 |               |
+|`transmission_depth`                 |Depth at which light reaches the transmission color   |float        |0.0           |               |
+|`transmission_scatter`               |Scattering color of the transparent base              |color3       |0.0, 0.0, 0.0 |               |
+|`transmission_scatter_anisotropy`    |Anisotropy of the interior scattering                 |float        |0.0           |[-1, 1]        |
+|`transmission_dispersion_scale`      |Scale of the transmission dispersion                  |float        |0.0           |[0, 1]         |
+|`transmission_dispersion_abbe_number`|Abbe number of the transmission dispersion            |float        |20.0          |               |
+|`subsurface_weight`                  |Blend from diffuse reflection to subsurface scattering|float        |0.0           |[0, 1]         |
+|`subsurface_color`                   |Color of the subsurface scattering                    |color3       |0.8, 0.8, 0.8 |               |
+|`subsurface_radius`                  |Mean free path of the subsurface scattering           |float        |1.0           |               |
+|`subsurface_radius_scale`            |Per-channel scale on the subsurface radius            |color3       |1.0, 0.5, 0.25|               |
+|`subsurface_scatter_anisotropy`      |Anisotropy of the subsurface scattering               |float        |0.0           |[-1, 1]        |
+|`fuzz_weight`                        |Weight of the fuzz layer                              |float        |0.0           |[0, 1]         |
+|`fuzz_color`                         |Color of the fuzz layer                               |color3       |1.0, 1.0, 1.0 |               |
+|`fuzz_roughness`                     |Roughness of the fuzz layer                           |float        |0.5           |[0, 1]         |
+|`coat_weight`                        |Weight of the clear-coat layer                        |float        |0.0           |[0, 1]         |
+|`coat_color`                         |Color tint of the clear-coat layer                    |color3       |1.0, 1.0, 1.0 |               |
+|`coat_roughness`                     |Roughness of the clear-coat reflection                |float        |0.0           |[0, 1]         |
+|`coat_roughness_anisotropy`          |Anisotropy of the clear-coat reflection               |float        |0.0           |[0, 1]         |
+|`coat_ior`                           |Index of refraction of the clear-coat layer           |float        |1.6           |               |
+|`coat_darkening`                     |Strength of the coat darkening effect                 |float        |1.0           |[0, 1]         |
+|`thin_film_weight`                   |Weight of the thin-film layer                         |float        |0.0           |[0, 1]         |
+|`thin_film_thickness`                |Thickness of the thin-film layer in micrometers       |float        |0.5           |               |
+|`thin_film_ior`                      |Index of refraction of the thin-film layer            |float        |1.4           |               |
+|`emission_luminance`                 |Luminance of the emitted light in nits                |float        |0.0           |               |
+|`emission_color`                     |Color of the emitted light                            |color3       |1.0, 1.0, 1.0 |               |
+|`geometry_opacity`                   |Opacity of the surface                                |float        |1.0           |[0, 1]         |
+|`geometry_thin_walled`               |Set to true to make the surface thin-walled           |boolean      |false         |               |
+|`geometry_normal`                    |Normal vector of the surface                          |vector3      |Nworld        |               |
+|`geometry_coat_normal`               |Normal vector of the clear-coat layer                 |vector3      |Nworld        |               |
+|`geometry_tangent`                   |Tangent vector of the surface                         |vector3      |Tworld        |               |
+|`geometry_coat_tangent`              |Tangent vector of the clear-coat layer                |vector3      |Tworld        |               |
+|`out`                                |Output: the surface shader                            |surfaceshader|              |               |
+
+### OpenPBR Surface Shader Definition
+
+This definition documents version 1.1.1 of the OpenPBR Surface model, and the associated nodegraph implementation is provided in the data libraries as [open_pbr_surface.mtlx](../../libraries/bxdf/open_pbr_surface.mtlx).
+
+The specular and coat roughness inputs are remapped by `open_pbr_anisotropy` rather than the standard [&lt;roughness_anisotropy>](#node-roughness-anisotropy) node used by the other models; its definition follows after the model below.
+
+The `transmission_dispersion_scale` and `transmission_dispersion_abbe_number` inputs are part of the interface but are not implemented by this composition, and so are omitted from its function parameters. The interior transmission medium is realized as an `anisotropic_vdf` whose absorption and scattering are derived from `transmission_color`, `transmission_scatter`, and `transmission_depth` by Beer's law.
+
+In the originating specification, `specular_color` modulates the dielectric Fresnel factor only for light incident from outside the surface, and when `transmission_depth` is zero, `transmission_color` tints only the refraction through the interface, so that internal reflection within a transmissive dielectric receives neither tint. The `tint` input of [&lt;dielectric_bsdf>](#node-dielectric-bsdf) does not distinguish which side of the interface light arrives from, so this composition departs from that prescription: internal reflections are tinted by `specular_color` in the same manner as exterior reflections, a difference visible in transmissive materials whose `specular_color` is not white.
+
+Additionally, the originating specification states that a thin film on a dielectric base should generate color fringes in the transmission lobe as well as in reflection. This composition applies the thin-film inputs to the dielectric reflection and metal lobes only, so specular transmission does not receive thin-film interference.
+
+```
+surfaceshader open_pbr_surface(
+    float base_weight,
+    color3 base_color,
+    float base_diffuse_roughness, base_metalness, specular_weight,
+    color3 specular_color,
+    float specular_roughness, specular_ior, specular_roughness_anisotropy, transmission_weight,
+    color3 transmission_color,
+    float transmission_depth,
+    color3 transmission_scatter,
+    float transmission_scatter_anisotropy, subsurface_weight,
+    color3 subsurface_color,
+    float subsurface_radius,
+    color3 subsurface_radius_scale,
+    float subsurface_scatter_anisotropy, fuzz_weight,
+    color3 fuzz_color,
+    float fuzz_roughness, coat_weight,
+    color3 coat_color,
+    float coat_roughness, coat_roughness_anisotropy, coat_ior, coat_darkening, thin_film_weight,
+          thin_film_thickness, thin_film_ior, emission_luminance,
+    color3 emission_color,
+    float geometry_opacity,
+    boolean geometry_thin_walled,
+    vector3 geometry_normal, geometry_coat_normal, geometry_tangent, geometry_coat_tangent)
+{
+    // Specular roughness, roughened toward fully rough by the coat (combining the coat and
+    // specular roughnesses in the fourth power), faded back to the raw roughness as the coat
+    // is removed, then remapped to an anisotropic (alpha_x, alpha_y) shared by the base lobes.
+    float coat_affected_specular_roughness =
+        min(1.0, 2.0 * coat_roughness ^ 4.0 + specular_roughness ^ 4.0) ^ 0.25;
+    float effective_specular_roughness =
+        mix(coat_affected_specular_roughness, specular_roughness, coat_weight);
+    vector2 main_roughness = open_pbr_anisotropy(effective_specular_roughness, specular_roughness_anisotropy);
+
+    // Coat facing reflectance (F0), reused by the coat-darkening and emission terms below.
+    float coat_F0 = ior_to_f0(coat_ior);
+
+    // Thin-walled subsurface: a translucent reflection/transmission pair scaled by the subsurface
+    // color, with 'subsurface_scatter_anisotropy' shifting weight from reflection toward
+    // transmission, blended in equal measure.
+    color3 ss_color = max(subsurface_color, 0.0);
+    BSDF ss_reflection = oren_nayar_diffuse_bsdf(color = ss_color, roughness = base_diffuse_roughness,
+        normal = geometry_normal) * (subsurface_color * (1.0 - subsurface_scatter_anisotropy));
+    BSDF ss_transmission = translucent_bsdf(color = ss_color, normal = geometry_normal)
+        * (subsurface_color * (1.0 + subsurface_scatter_anisotropy));
+    BSDF subsurface_thin_walled = mix(ss_reflection, ss_transmission, 0.5);
+
+    // Closed (non-thin-walled) subsurface: volumetric scattering over the scaled radius.
+    BSDF subsurface_volume = subsurface_bsdf(color = ss_color,
+        radius = subsurface_radius_scale * subsurface_radius,
+        anisotropy = subsurface_scatter_anisotropy, normal = geometry_normal);
+
+    // Opaque dielectric base: Oren-Nayar diffuse, with the selected subsurface scattering blended
+    // in by 'subsurface_weight'.
+    BSDF diffuse_lobe = oren_nayar_diffuse_bsdf(weight = base_weight, color = max(base_color, 0.0),
+        roughness = base_diffuse_roughness, normal = geometry_normal, energy_compensation = true);
+    BSDF selected_subsurface = if (geometry_thin_walled) { subsurface_thin_walled } else { subsurface_volume };
+    BSDF opaque_base = mix(selected_subsurface, diffuse_lobe, subsurface_weight);
+
+    // Interior volume of the transparent base: extinction and scattering coefficients follow from
+    // Beer's law over 'transmission_depth'; the absorption is shifted so no component is negative,
+    // and both terms are gated off unless a finite depth is set.
+    vector3 extinction_coeff = ln(convert(transmission_color)) / transmission_depth * -1.0;
+    vector3 scattering_coeff = convert(transmission_scatter) / transmission_depth;
+    vector3 absorption_coeff = extinction_coeff - scattering_coeff;
+    float absorption_min = mincomponent(absorption_coeff);
+    vector3 absorption_nonneg =
+        if (absorption_min < 0.0) { absorption_coeff - vector3(absorption_min) } else { absorption_coeff };
+    vector3 volume_absorption = if (transmission_depth > 0.0) { absorption_nonneg } else { vector3(0.0) };
+    vector3 volume_scattering = if (transmission_depth > 0.0) { scattering_coeff } else { vector3(0.0) };
+    VDF dielectric_volume = anisotropic_vdf(absorption = volume_absorption,
+        scattering = volume_scattering, anisotropy = transmission_scatter_anisotropy);
+
+    // Specular IOR relative to the coat: OpenPBR's coat total-internal-reflection fix takes
+    // whichever ratio of 'specular_ior' and 'coat_ior' is greater than one; the result is faded
+    // toward the raw 'specular_ior' as the coat is removed. The facing reflectance F0 is then
+    // derived from this eta and scaled by 'specular_weight', and folded back into a single
+    // modulated IOR that drives the dielectric lobes.
+    float eta_s = mix(
+        if (specular_ior / coat_ior > 1.0) { specular_ior / coat_ior } else { coat_ior / specular_ior },
+        specular_ior, coat_weight);
+    float specular_F0 = ior_to_f0(eta_s);
+    float scaled_F0 = clamp(specular_weight * specular_F0, 0.0, 0.99999);
+    float eta_epsilon = sign(eta_s - 1.0) * sqrt(scaled_F0);
+    float modulated_eta_s = (1.0 + eta_epsilon) / (1.0 - eta_epsilon);
+
+    // Thin-film thickness, converted from micrometers to nanometers for the BSDF inputs.
+    float thin_film_thickness_nm = thin_film_thickness * 1000.0;
+
+    // Specular transmission (refraction) through the interior volume, blended into the opaque base
+    // by 'transmission_weight'. The tint reverts to white once a finite depth carries color through
+    // the volume instead.
+    color3 transmission_tint = if (transmission_depth > 0.0) { color3(1.0) } else { transmission_color };
+    BSDF dielectric_transmission = dielectric_bsdf(
+        tint = transmission_tint, ior = modulated_eta_s, roughness = main_roughness,
+        normal = geometry_normal, tangent = geometry_tangent, scatter_mode = "T");
+    BSDF dielectric_transmission_vol = layer(dielectric_transmission, dielectric_volume);
+    BSDF dielectric_substrate = mix(dielectric_transmission_vol, opaque_base, transmission_weight);
+
+    // Dielectric specular reflection, with a thin-film twin blended in by 'thin_film_weight',
+    // layered over the substrate.
+    BSDF dielectric_reflection = dielectric_bsdf(
+        tint = specular_color, ior = modulated_eta_s, roughness = main_roughness,
+        normal = geometry_normal, tangent = geometry_tangent);
+    BSDF dielectric_reflection_tf = dielectric_bsdf(
+        tint = specular_color, ior = modulated_eta_s, roughness = main_roughness,
+        normal = geometry_normal, tangent = geometry_tangent,
+        thinfilm_thickness = thin_film_thickness_nm, thinfilm_ior = thin_film_ior);
+    BSDF dielectric_reflection_mix = mix(dielectric_reflection_tf, dielectric_reflection, thin_film_weight);
+    BSDF dielectric_base = layer(dielectric_reflection_mix, dielectric_substrate);
+
+    // Metal: a generalized Schlick lobe in the F82-tint parameterization, where 'color0' is the
+    // facing reflectance F0 (base_color scaled by base_weight) and 'color82' the edge tint
+    // ('specular_color'). A thin-film twin is blended in by 'thin_film_weight', and the whole metal
+    // interpretation is blended against the dielectric base by 'base_metalness'.
+    color3 metal_reflectivity = base_color * base_weight;
+    BSDF metal_lobe = generalized_schlick_bsdf(
+        weight = specular_weight, color0 = metal_reflectivity, color82 = specular_color,
+        roughness = main_roughness, normal = geometry_normal, tangent = geometry_tangent);
+    BSDF metal_lobe_tf = generalized_schlick_bsdf(
+        weight = specular_weight, color0 = metal_reflectivity, color82 = specular_color,
+        roughness = main_roughness, normal = geometry_normal, tangent = geometry_tangent,
+        thinfilm_thickness = thin_film_thickness_nm, thinfilm_ior = thin_film_ior);
+    BSDF metal_lobe_mix = mix(metal_lobe_tf, metal_lobe, thin_film_weight);
+    BSDF metal_or_dielectric = mix(metal_lobe_mix, dielectric_base, base_metalness);
+
+    // Physical coat darkening: the coat traps part of the base's reflected light by re-reflecting it
+    // downward (fraction Kcoat), and the repeated bounces are absorbed by the base, so the coated base
+    // is darker than the bare base by the factor (1 - Kcoat) / (1 - Ebase*Kcoat). Kcoat is the coat's
+    // internal diffuse reflectance and Ebase an albedo estimate of the base; the effect is modulated
+    // by 'coat_weight' and the artistic 'coat_darkening' control.
+    float Kcoat = 1.0 - (1.0 - coat_F0) / coat_ior ^ 2.0;
+    color3 Emetal = base_color * specular_weight;
+    color3 Edielectric = mix(subsurface_color, base_color, subsurface_weight);
+    color3 Ebase = mix(Emetal, Edielectric, base_metalness);
+    color3 base_darkening = color3(1.0 - Kcoat) / (color3(1.0) - Ebase * Kcoat);
+    color3 modulated_base_darkening = mix(base_darkening, color3(1.0), coat_weight * coat_darkening);
+    BSDF darkened_base = metal_or_dielectric * modulated_base_darkening;
+
+    // Coat: everything beneath is attenuated by 'coat_color' (faded in by 'coat_weight'), then a
+    // dielectric coat lobe is layered on top over its own normal and tangent.
+    color3 coat_attenuation = mix(coat_color, color3(1.0), coat_weight);
+    BSDF coat_substrate = darkened_base * coat_attenuation;
+    vector2 coat_roughness_uv = open_pbr_anisotropy(coat_roughness, coat_roughness_anisotropy);
+    BSDF coat_lobe = dielectric_bsdf(
+        weight = coat_weight, ior = coat_ior, roughness = coat_roughness_uv,
+        normal = geometry_coat_normal, tangent = geometry_coat_tangent);
+    BSDF coat_layer = layer(coat_lobe, coat_substrate);
+
+    // Fuzz (sheen) layered over the coat, using the Zeltner sheen model.
+    BSDF fuzz_lobe = sheen_bsdf(weight = fuzz_weight, color = fuzz_color,
+        roughness = fuzz_roughness, normal = geometry_normal, mode = "zeltner");
+    BSDF fuzz_layer = layer(fuzz_lobe, coat_layer);
+
+    // Emission, attenuated under the coat by 'coated_emission' (see Shared Functions).
+    EDF uncoated_emission = uniform_edf(emission_color * emission_luminance);
+    EDF emission_edf = coated_emission(uncoated_emission, coat_color, coat_F0, coat_weight);
+
+    // Final surface.
+    return surface(
+        bsdf = fuzz_layer,
+        edf = emission_edf,
+        opacity = geometry_opacity,
+        thin_walled = geometry_thin_walled);
+}
+```
+
+The `open_pbr_anisotropy` function called above remaps a scalar `roughness` and `anisotropy` to the microfacet (&alpha;<sub>x</sub>, &alpha;<sub>y</sub>) pair that the base and coat lobes take as their `roughness` input. As `anisotropy` rises, &alpha;<sub>x</sub> widens and &alpha;<sub>y</sub> narrows, reducing to the isotropic `roughness`<sup>2</sup> in both components when `anisotropy` is 0:
+
+```
+vector2 open_pbr_anisotropy(
+    float roughness, anisotropy)
+{
+    float a = 1.0 - anisotropy;
+    float alpha_x = roughness ^ 2.0 * sqrt(2.0 / (1.0 + a ^ 2.0));
+    float alpha_y = a * alpha_x;
+    return (alpha_x, alpha_y);
+}
+```
+
+
+## Additional Reference Implementations
+
+In addition to the models defined above, the MaterialX data libraries provide renderable nodegraph implementations of the following shading models. These are offered as reference implementations: they may be used as shaders by MaterialX materials in the same manner as the models above, but this specification does not yet provide formal definitions of their compositions, and their data-library nodegraphs remain the authoritative statement of their MaterialX realization.
+
+### Disney Principled BSDF
+
+This shading model was presented by Brent Burley of Walt Disney Animation Studios in 2012[^Burley2012], with additional refinements presented in 2015[^Burley2015]. Its MaterialX interface follows the 2015 BSDF form of the model, which extends the original 2012 BRDF with specular transmission and integrated subsurface scattering, and its nodegraph implementation is provided in the data libraries as [disney_principled.mtlx](../../libraries/bxdf/disney_principled.mtlx).
+
+### MaterialX Lama
+
+MaterialX Lama is a modular material layering system developed at Industrial Light & Magic and distributed publicly as part of Pixar's RenderMan[^Pixar2021]. In place of a single über-shader with a fixed set of layers, Lama provides a set of component nodes from which layered materials of arbitrary structure may be composed: the responses `LamaDiffuse`, `LamaTranslucent`, `LamaConductor`, `LamaDielectric`, `LamaGeneralizedSchlick`, `LamaIridescence`, `LamaSheen`, `LamaSSS`, and `LamaEmission`; the combiners `LamaAdd`, `LamaMix`, and `LamaLayer`; and the `LamaSurface` node, which constructs a surface shader from the composed material. Nodegraph implementations of these nodes are provided in the [bxdf/lama](../../libraries/bxdf/lama) folder of the data libraries.
 
 <br>
 
@@ -1331,8 +2099,10 @@ A MaterialX definition and nodegraph implementation of OpenPBR Surface can be fo
 
 The MaterialX PBS Library includes a number of nodegraphs that can be used to approximately translate the input parameters for one shading model into values to drive the inputs of a different shading model, to produce the same visual results to the degree the differences between the shading models allow. Currently, the library includes translation graphs for:
 
-* Autodesk Standard Surface to UsdPreviewSurface
-* Autodesk Standard Surface to glTF
+* [Autodesk Standard Surface to UsdPreviewSurface](../../libraries/bxdf/translation/standard_surface_to_usd.mtlx)
+* [Autodesk Standard Surface to Khronos glTF PBR](../../libraries/bxdf/translation/standard_surface_to_gltf_pbr.mtlx)
+* [Autodesk Standard Surface to OpenPBR Surface](../../libraries/bxdf/translation/standard_surface_to_open_pbr.mtlx)
+* [OpenPBR Surface to Autodesk Standard Surface](../../libraries/bxdf/translation/open_pbr_to_standard_surface.mtlx)
 
 <br>
 
@@ -1890,6 +2660,8 @@ Path Tracing**, <https://media.disneyanimation.com/uploads/production/publicatio
 
 [^Hoffman2023]: Naty Hoffman, **Generalization of Adobe's Fresnel Model**, <https://renderwonk.com/publications/wp-generalization-adobe/gen-adobe.pdf> 2023
 
+[^Khronos2021]: The Khronos Group, **glTF 2.0 Specification**, <https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html>, 2021.
+
 [^Kulla2017]: Christopher Kulla, Alejandro Conty, **Revisiting Physically Based Shading at Imageworks**, <https://blog.selfshadow.com/publications/s2017-shading-course/imageworks/s2017_pbs_imageworks_slides_v2.pdf>, 2017
 
 [^Lagarde2013]: Sébastien Lagarde, **Memo on Fresnel equations**, <https://seblagarde.wordpress.com/2013/04/29/memo-on-fresnel-equations/>, 2013
@@ -1901,6 +2673,8 @@ Path Tracing**, <https://media.disneyanimation.com/uploads/production/publicatio
 [^Pharr2023]: Matt Pharr et al., **Physically Based Rendering: From Theory To Implementation**, <https://www.pbr-book.org/>, 2023
 
 [^Pixar2019]: Pixar Animation Studios, **UsdPreviewSurface Specification**, <https://openusd.org/release/spec_usdpreviewsurface.html>, 2019.
+
+[^Pixar2021]: Pixar Animation Studios, **MaterialX Lama**, <https://rmanwiki-27.pixar.com/space/REN27/542218994/MaterialX+Lama>, 2021.
 
 [^Portsmouth2025]: Portsmouth et al., **EON: A practical energy-preserving rough diffuse BRDF**, <https://www.jcgt.org/published/0014/01/06/>, 2025.
 
