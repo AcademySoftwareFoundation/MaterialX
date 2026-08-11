@@ -122,6 +122,7 @@ void CompoundNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& conte
                         continue;
 
                     const std::string& fieldName = outputSocket->getName();
+                    const ShaderOutput* nodeOutput = node.getOutput(fieldName);
 
                     // Emit the struct field.
                     const string& outputType = syntax.getTypeName(outputSocket->getType());
@@ -142,6 +143,10 @@ void CompoundNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& conte
 
                     // End function call
                     shadergen.emitString(")", stage);
+                    if (!nodeOutput || nodeOutput->getConnections().empty())
+                    {
+                        shadergen.emitString(" [[ anno::unused() ]]", stage);
+                    }
                     shadergen.emitLineEnd(stage);
                 }
 
