@@ -145,7 +145,7 @@ float mx_hair_azimuthal_scattering(  // Np
         return float(0.5 / M_PI);
 
     float dphi = phi - mx_hair_phi(p, gammaO, gammaT);
-    if (isinf(dphi))
+    if (mx_isinf(dphi))
         return float(0.5 / M_PI);
 
     while (dphi > M_PI)    dphi -= (2.0 * M_PI);
