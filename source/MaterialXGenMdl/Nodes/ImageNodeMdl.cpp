@@ -4,6 +4,7 @@
 //
 
 #include <MaterialXGenMdl/Nodes/ImageNodeMdl.h>
+#include <MaterialXGenMdl/Nodes/HeightToNormalNodeMdl.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/GenContext.h>
@@ -37,6 +38,28 @@ void ImageNodeMdl::emitFunctionCall(const ShaderNode& _node, GenContext& context
     DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
     {
         ShaderNode& node = const_cast<ShaderNode&>(_node);
+
+        ShaderOutput* output = node.getOutput();
+        string outputSuffix;
+        context.getOutputSuffix(output, outputSuffix);
+        if (outputSuffix.empty() && output && !output->getConnections().empty())
+        {
+            bool sampledOnly = true;
+            for (const ShaderInput* connection : output->getConnections())
+            {
+                const ShaderNodeImpl& downstreamImpl = connection->getNode()->getImplementation();
+                if (!dynamic_cast<const HeightToNormalNodeMdl*>(&downstreamImpl))
+                {
+                    sampledOnly = false;
+                    break;
+                }
+            }
+            if (sampledOnly)
+            {
+                return;
+            }
+        }
+
         ShaderInput* flipUInput = node.getInput(ImageNodeMdl::FLIP_V);
         ValuePtr value = TypedValue<bool>::createValue(context.getOptions().fileTextureVerticalFlip);
         if (flipUInput)
