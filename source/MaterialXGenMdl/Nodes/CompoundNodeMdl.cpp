@@ -181,6 +181,7 @@ void CompoundNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& conte
 void CompoundNodeMdl::emitFunctionSignature(const ShaderNode&, GenContext& context, ShaderStage& stage) const
 {
     const ShaderGenerator& shadergen = context.getShaderGenerator();
+    const MdlShaderGenerator& mdlShadergen = static_cast<const MdlShaderGenerator&>(shadergen);
     const MdlSyntax& syntax = static_cast<const MdlSyntax&>(shadergen.getSyntax());
 
     if (!_returnStruct.empty())
@@ -256,7 +257,7 @@ void CompoundNodeMdl::emitFunctionSignature(const ShaderNode&, GenContext& conte
         shadergen.emitLineBegin(stage);
         shadergen.emitString(qualifier + type + " " + input->getVariable() + " = " + value, stage);
 
-        if (input->getConnections().empty())
+        if (!mdlShadergen.isInputUsed(*input))
         {
             shadergen.emitLineEnd(stage, false);
             shadergen.emitLine("[[", stage, false);

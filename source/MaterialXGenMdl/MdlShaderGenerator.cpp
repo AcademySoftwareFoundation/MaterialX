@@ -583,6 +583,20 @@ void disconnectTransmissionIor(ShaderGraph* g)
 
 } // anonymous namespace
 
+bool MdlShaderGenerator::isInputUsed(const ShaderGraphInputSocket& input) const
+{
+    for (const ShaderInput* connection : input.getConnections())
+    {
+        const ShaderNodeImpl& implementation = connection->getNode()->getImplementation();
+        const SourceCodeNodeMdl* sourceCode = dynamic_cast<const SourceCodeNodeMdl*>(&implementation);
+        if (!sourceCode || sourceCode->isInputUsed(*connection))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 ShaderPtr MdlShaderGenerator::createShader(const string& name, ElementPtr element, GenContext& context) const
 {
     // Create the root shader graph
@@ -690,7 +704,7 @@ void emitInputAnnotations(const MdlShaderGenerator& _this, const ShaderPort* var
     _this.emitString(_this.getSyntax().getIndentation() + mtlxParameterPathAnno, stage);
     const ShaderGraphInputSocket* input = static_cast<const ShaderGraphInputSocket*>(variable);
 
-    if (input->getConnections().empty())
+    if (!_this.isInputUsed(*input))
     {
         _this.emitString(",", stage);
         _this.emitLineEnd(stage, false);
