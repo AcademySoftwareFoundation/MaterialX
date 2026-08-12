@@ -161,7 +161,7 @@ collisions get `_<N>`. Because the transpiler re-emits some symbols itself (file
 Closure struct layouts are emitted from the same sources the C++ generators use:
 `ClosureData`/`FresnelData` from `genglsl/lib/*.glsl`, `BSDF`/`VDF`/shader aliases from
 `MaterialXGenGlsl/GlslSyntax.cpp` (`wgslClosurePreamble()` / `glslClosurePreamble()`). `FresnelData`
-field names match GLSL (`thinfilm_thickness`, `thinfilm_ior` in `mx_microfacet_specular.glsl`).
+field names match GLSL (`tf_thickness`, `tf_ior` in `mx_microfacet_specular.glsl`).
 MaterialX `$`-token *names* are validated against `HwConstants.cpp`; only the naga-parseable stub
 *values* used during lib transpile live in `NAGA_LIB_STUBS` (plus `$closureDataConstructor`, read
 from `HwConstants.cpp` at runtime).
@@ -216,11 +216,15 @@ genglsl changes, the pieces you may need to touch are:
 
 ## Build integration (CMake / CI)
 
-Configure with `-DMATERIALX_GENERATE_WGSL_LIBRARY=ON` (requires `MATERIALX_BUILD_GEN_WGSL`, a Python
-interpreter, and the `naga` CLI) to add a `MaterialXGenWgslLibrary` target that runs this tool over
-`libraries/` on every build, emitting to `${CMAKE_BINARY_DIR}/genwgsl_generated`. Transpile/naga
-errors and regressions then surface as **build errors**. The option defaults `OFF`, so ordinary
-builds need neither Python nor naga.
+With `-DMATERIALX_BUILD_GEN_WGSL=ON`, CMake adds a `MaterialXGenWgslLibrary` target that runs this
+tool on every build, emitting in-place to `libraries/`. Transpile/naga errors and regressions surface
+as **build errors**. `JsMaterialXGenShader` and the `[genwgsl]` unit tests depend on that target so
+generated files exist before link or test run.
+
+With only `-DMATERIALX_GENERATE_WGSL_LIBRARY=ON`, the same target writes to
+`${CMAKE_BINARY_DIR}/genwgsl_generated` as a validation aid that does not modify the source tree.
+Both options require a Python interpreter and the `naga` CLI; they default off so ordinary builds
+need neither Python nor naga.
 
 CMake finds naga from, in order: `-DMATERIALX_NAGA_EXECUTABLE=/path/to/naga`, the `NAGA` environment
 variable, `PATH`, and the standard cargo bin directories (`$CARGO_HOME/bin`, `~/.cargo/bin`,
@@ -231,5 +235,6 @@ build time (cached; recompiled only if the binary is missing). cargo must alread
 MaterialX does not bootstrap the Rust toolchain. If cargo cannot be found, generation is skipped with
 a warning.
 
-CI runs the transpiler on every job that builds or ships WGSL (the web viewer, sdist/wheels, and the
-tagged-release archives), so a change that breaks the WGSL target fails CI.
+CI runs the transpiler on every job that builds or ships WGSL (via CMake's `MaterialXGenWgslLibrary`
+target on build jobs, or an explicit `--target MaterialXGenWgslLibrary` on packaging jobs), so a
+change that breaks the WGSL target fails CI.

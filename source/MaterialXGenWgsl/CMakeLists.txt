@@ -12,14 +12,21 @@ mx_add_library(MaterialXGenWgsl
     EXPORT_DEFINE
         MATERIALX_GENWGSL_EXPORTS)
 
-# Optional build-time regeneration of the genwgsl shader-node library from genglsl. This runs the
-# offline transpiler (tools/mxgenwgsl.py) over libraries/ into the build tree purely for
-# validation: transpile or naga errors -- and any previously-generable node that regresses -- make
-# the build fail. The generated genwgsl .wgsl node files are NOT committed; they are produced from
-# genglsl (the single source of truth) by CI, which runs the transpiler with `--out libraries` to
-# populate the runtime library. This target is a decoupled local validation aid only (output goes to
-# the build dir, not the source tree). Requires a Python interpreter and the `naga` CLI.
-if(MATERIALX_GENERATE_WGSL_LIBRARY)
+# Optional build-time regeneration of the genwgsl library from genglsl via tools/mxgenwgsl.py.
+# When MATERIALX_BUILD_GEN_WGSL is ON, output goes in-place to libraries/ (ground truth for
+# runtime, JS preload, and CI). When only MATERIALX_GENERATE_WGSL_LIBRARY is ON, output goes to
+# the build tree as a validation aid that does not modify the source tree. Requires Python and naga.
+set(_materialx_wgsl_generate OFF)
+set(_materialx_wgsl_out_dir "")
+if(MATERIALX_BUILD_GEN_WGSL)
+    set(_materialx_wgsl_generate ON)
+    set(_materialx_wgsl_out_dir "${PROJECT_SOURCE_DIR}/libraries")
+elseif(MATERIALX_GENERATE_WGSL_LIBRARY)
+    set(_materialx_wgsl_generate ON)
+    set(_materialx_wgsl_out_dir "${CMAKE_BINARY_DIR}/genwgsl_generated")
+endif()
+
+if(_materialx_wgsl_generate)
     if(MATERIALX_PYTHON_EXECUTABLE)
         set(_wgsl_python "${MATERIALX_PYTHON_EXECUTABLE}")
     else()
@@ -43,7 +50,7 @@ if(MATERIALX_GENERATE_WGSL_LIBRARY)
                  DOC "Path to the naga CLI used to transpile/validate the genwgsl library.")
 
     # If naga is still not found, obtain it via cargo. cargo is located EMSDK-style (mirrors
-    # MATERIALX_EMSDK_PATH): an explicit MATERIALX_CARGO_PATH, then $CARGO_HOME, then the standard
+    # MATERIALX_CARGO_PATH): an explicit MATERIALX_CARGO_PATH, then $CARGO_HOME, then the standard
     # cargo bin dirs, then PATH. cargo is assumed to already be installed -- we do NOT bootstrap
     # Rust. When found, naga is built into the build tree at *build* time (not configure, so
     # configure stays fast) and cached there across rebuilds.
@@ -85,16 +92,16 @@ if(MATERIALX_GENERATE_WGSL_LIBRARY)
             COMMAND ${CMAKE_COMMAND} -E env "NAGA=${MATERIALX_NAGA_EXECUTABLE}"
                     "${_wgsl_python}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/mxgenwgsl.py"
                     --libraries "${PROJECT_SOURCE_DIR}/libraries"
-                    --out "${CMAKE_BINARY_DIR}/genwgsl_generated"
+                    --out "${_materialx_wgsl_out_dir}"
             WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
-            COMMENT "Transpiling genglsl shader-node library to genwgsl (validation)"
+            COMMENT "Transpiling genglsl to genwgsl (${_materialx_wgsl_out_dir})"
             VERBATIM)
         if(_wgsl_install_naga)
             add_dependencies(MaterialXGenWgslLibrary MaterialXInstallNaga)
         endif()
     else()
         message(WARNING
-            "MATERIALX_GENERATE_WGSL_LIBRARY is ON but a prerequisite was not found "
+            "WGSL library generation was requested but a prerequisite was not found "
             "(Python='${_wgsl_python}', naga='${MATERIALX_NAGA_EXECUTABLE}', "
             "cargo='${MATERIALX_CARGO_EXECUTABLE}'). Install naga (`cargo install naga-cli`) and point "
             "-DMATERIALX_NAGA_EXECUTABLE / the NAGA env var at it, or install cargo and set "

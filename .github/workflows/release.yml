@@ -37,10 +37,13 @@ jobs:
       - name: Install naga
         run: cargo install naga-cli --locked --version ${NAGA_VERSION}
 
+      - name: Install WGSL transpile dependencies
+        run: python -m pip install -r source/MaterialXGenWgsl/tools/requirements-transpile.txt
+
       - name: Generate WGSL library
         run: |
-          python -m pip install -r source/MaterialXGenWgsl/tools/requirements-transpile.txt
-          python source/MaterialXGenWgsl/tools/mxgenwgsl.py --libraries libraries --out libraries
+          cmake -S . -B build -DMATERIALX_BUILD_GEN_WGSL=ON -DMATERIALX_BUILD_TESTS=OFF
+          cmake --build build --target MaterialXGenWgslLibrary
 
       - name: Generate Archives
         run: |
