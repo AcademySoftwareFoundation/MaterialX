@@ -244,7 +244,7 @@ jobs:
       if: matrix.python != 'None'
       run: cargo install naga-cli --locked --version ${{ env.NAGA_VERSION }}
 
-    - name: Generate WGSL library
+    - name: Install WGSL transpile dependencies
       if: matrix.python != 'None'
       run: |
         # Cleanup deps (tree-sitter) are optional and have no wheel on some interpreters (e.g. 3.9);
@@ -252,7 +252,6 @@ jobs:
         # verbose-but-valid WGSL, and mxgenwgsl.py stays fatal so real failures still surface.
         python -m pip install -r source/MaterialXGenWgsl/tools/requirements-transpile.txt \
           || echo "WGSL cleanup deps unavailable; generating verbose WGSL"
-        python source/MaterialXGenWgsl/tools/mxgenwgsl.py --libraries libraries --out libraries
 
     - name: Test WGSL cleanup
       if: matrix.python != 'None'
@@ -486,10 +485,8 @@ jobs:
       with:
         python-version: 3.13
 
-    - name: Generate WGSL library
-      run: |
-        python -m pip install -r source/MaterialXGenWgsl/tools/requirements-transpile.txt
-        python source/MaterialXGenWgsl/tools/mxgenwgsl.py --libraries libraries --out libraries
+    - name: Install WGSL transpile dependencies
+      run: python -m pip install -r source/MaterialXGenWgsl/tools/requirements-transpile.txt
 
     - name: JavaScript CMake Generate
       run: cmake -S . -B javascript/build -DMATERIALX_BUILD_JS=ON -DMATERIALX_BUILD_GEN_WGSL=ON -DMATERIALX_EMSDK_PATH=${{ env.EMSDK }}
@@ -546,10 +543,13 @@ jobs:
     - name: Install naga
       run: cargo install naga-cli --locked --version ${{ env.NAGA_VERSION }}
 
+    - name: Install WGSL transpile dependencies
+      run: python -m pip install -r source/MaterialXGenWgsl/tools/requirements-transpile.txt
+
     - name: Generate WGSL library
       run: |
-        python -m pip install -r source/MaterialXGenWgsl/tools/requirements-transpile.txt
-        python source/MaterialXGenWgsl/tools/mxgenwgsl.py --libraries libraries --out libraries
+        cmake -S . -B build -DMATERIALX_BUILD_GEN_WGSL=ON -DMATERIALX_BUILD_TESTS=OFF
+        cmake --build build --target MaterialXGenWgslLibrary
 
     - name: Build SDist
       id: generate

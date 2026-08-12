@@ -668,8 +668,7 @@ def applyFieldRenames(text, libroot=None):
 
     FresnelData fields F0/F82/F90 end in a digit; naga suffixes references (F0_) but our preamble
     re-emits the clean names. Digit-field names are discovered from wgslClosurePreamble() rather
-    than a hand-maintained list. The former tf_* -> thinfilm_* rename was removed: GLSL FresnelData
-    now uses thinfilm_* field names directly (mx_microfacet_specular.glsl).'''
+    than a hand-maintained list. '''
     if libroot is None:
         libroot = _activeLibroot()
     return denagaName(text, preambleDigitFields(libroot), collisions=False)

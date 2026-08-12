@@ -169,6 +169,9 @@ if (MATERIALX_BUILD_GEN_SLANG)
 endif()
 if (MATERIALX_BUILD_GEN_WGSL)
     target_link_libraries(JsMaterialXGenShader PUBLIC MaterialXGenWgsl)
+    if(TARGET MaterialXGenWgslLibrary)
+        add_dependencies(JsMaterialXGenShader MaterialXGenWgslLibrary)
+    endif()
 endif()
 
 # Install the JavaScript output
