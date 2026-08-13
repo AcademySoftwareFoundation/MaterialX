@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # This script builds MaterialX JavaScript on macOS / Linux. The final command starts a local server, allowing you to
 # run the MaterialX Web Viewer locally by entering 'http://localhost:8080' in the search bar of your browser.
+# Run from the Github root folder.
 echo "--------------------- Setup Emscripten ---------------------"
 # Usage: build_javascript.sh [emsdk_location] [materialx_location]
 # Pass the Emscripten and MaterialX project locations as arguments, or use the defaults below.
