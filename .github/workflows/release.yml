@@ -15,7 +15,6 @@ jobs:
     env:
        RELEASE_TAG: ${{ github.ref_name }}
        NAGA_VERSION: "30.0.0"
-       NAGA_CMAKE_ARGS: -DMATERIALX_NAGA_EXECUTABLE=$HOME/.cargo/bin/naga
     permissions:
       contents: write
       id-token: write
@@ -42,9 +41,7 @@ jobs:
         run: python -m pip install -r source/MaterialXGenWgsl/tools/requirements-transpile.txt
 
       - name: Generate WGSL library
-        run: |
-          cmake -S . -B build -DMATERIALX_BUILD_GEN_WGSL=ON -DMATERIALX_BUILD_TESTS=OFF ${NAGA_CMAKE_ARGS}
-          cmake --build build --target MaterialXGenWgslLibrary
+        run: NAGA=$HOME/.cargo/bin/naga python source/MaterialXGenWgsl/tools/mxgenwgsl.py --libraries libraries --out libraries
 
       - name: Generate Archives
         run: |
