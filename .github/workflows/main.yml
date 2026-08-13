@@ -15,6 +15,7 @@ env:
   CMAKE_BUILD_PARALLEL_LEVEL: 4
   CTEST_PARALLEL_LEVEL: 4
   NAGA_VERSION: "30.0.0"
+  NAGA_CMAKE_ARGS: -DMATERIALX_NAGA_EXECUTABLE=$HOME/.cargo/bin/naga
 
 jobs:
 
@@ -246,6 +247,7 @@ jobs:
 
     - name: Install WGSL transpile dependencies
       if: matrix.python != 'None'
+      shell: bash
       run: |
         # Cleanup deps (tree-sitter) are optional and have no wheel on some interpreters (e.g. 3.9);
         # install best-effort so their absence doesn't fail the build. Generation degrades to
@@ -266,6 +268,7 @@ jobs:
           -DMATERIALX_BUILD_TESTS=ON \
           -DMATERIALX_TEST_RENDER=${{ matrix.extended_build_osl == 'ON' && 'ON' || 'OFF' }} \
           -DMATERIALX_BUILD_GEN_WGSL=${{ matrix.python != 'None' && 'ON' || 'OFF' }} \
+          ${{ matrix.python != 'None' && env.NAGA_CMAKE_ARGS || '' }} \
           -DMATERIALX_WARNINGS_AS_ERRORS=ON \
           ${{ env.IS_EXTENDED_BUILD == 'true' && matrix.extended_cmake_config || '' }} \
           ${{ matrix.cmake_config }} \
@@ -489,7 +492,7 @@ jobs:
       run: python -m pip install -r source/MaterialXGenWgsl/tools/requirements-transpile.txt
 
     - name: JavaScript CMake Generate
-      run: cmake -S . -B javascript/build -DMATERIALX_BUILD_JS=ON -DMATERIALX_BUILD_GEN_WGSL=ON -DMATERIALX_EMSDK_PATH=${{ env.EMSDK }}
+      run: cmake -S . -B javascript/build -DMATERIALX_BUILD_JS=ON -DMATERIALX_BUILD_GEN_WGSL=ON -DMATERIALX_EMSDK_PATH=${{ env.EMSDK }} ${{ env.NAGA_CMAKE_ARGS }}
 
     - name: JavaScript CMake Build
       run: cmake --build javascript/build --target install --config Release
@@ -548,7 +551,7 @@ jobs:
 
     - name: Generate WGSL library
       run: |
-        cmake -S . -B build -DMATERIALX_BUILD_GEN_WGSL=ON -DMATERIALX_BUILD_TESTS=OFF
+        cmake -S . -B build -DMATERIALX_BUILD_GEN_WGSL=ON -DMATERIALX_BUILD_TESTS=OFF ${{ env.NAGA_CMAKE_ARGS }}
         cmake --build build --target MaterialXGenWgslLibrary
 
     - name: Build SDist
