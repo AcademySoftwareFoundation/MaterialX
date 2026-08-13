@@ -15,6 +15,7 @@ jobs:
     env:
        RELEASE_TAG: ${{ github.ref_name }}
        NAGA_VERSION: "30.0.0"
+       NAGA_CMAKE_ARGS: -DMATERIALX_NAGA_EXECUTABLE=$HOME/.cargo/bin/naga
     permissions:
       contents: write
       id-token: write
@@ -42,7 +43,7 @@ jobs:
 
       - name: Generate WGSL library
         run: |
-          cmake -S . -B build -DMATERIALX_BUILD_GEN_WGSL=ON -DMATERIALX_BUILD_TESTS=OFF
+          cmake -S . -B build -DMATERIALX_BUILD_GEN_WGSL=ON -DMATERIALX_BUILD_TESTS=OFF ${NAGA_CMAKE_ARGS}
           cmake --build build --target MaterialXGenWgslLibrary
 
       - name: Generate Archives
