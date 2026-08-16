@@ -1,0 +1,92 @@
+<?xml version="1.0"?>
+<!-- 
+    Test that nodedefs/nodegraphs from prior to the color space rename in 1.39.6 still work.
+    When rendered on a sphere, the result should be a solid orange band with gray at top and bottom.
+ -->
+<materialx version="1.39" colorspace="lin_rec709_scene">
+  <texcoord name="texcoord1" type="vector2" />
+  <extract name="ext_y" type="float">
+    <input name="in" type="vector2" nodename="texcoord1" />
+    <input name="index" type="integer" value="1" />
+  </extract>
+  <remap name="which_raw" type="float">
+    <input name="in" type="float" nodename="ext_y" />
+    <input name="inlow" type="float" value="0.3" />
+    <input name="inhigh" type="float" value="0.7" />
+    <input name="outlow" type="float" value="1" />
+    <input name="outhigh" type="float" value="11" />
+  </remap>
+  <clamp name="which_all" type="float">
+    <input name="in" type="float" nodename="which_raw" />
+    <input name="low" type="float" value="0" />
+    <input name="high" type="float" value="11.9999" />
+  </clamp>
+  <switch name="deprecated_band_0" type="color3">
+    <input name="which" type="float" nodename="which_all" />
+    <input name="in1" type="color3" value="0.18, 0.18, 0.18" />
+    <input name="in2" type="color3" nodename="xform_g18_rec709" />
+    <input name="in3" type="color3" nodename="xform_g22_rec709" />
+    <input name="in4" type="color3" nodename="xform_rec709_display" />
+    <input name="in5" type="color3" nodename="xform_acescg" />
+    <input name="in6" type="color3" nodename="xform_g22_ap1" />
+    <input name="in7" type="color3" nodename="xform_srgb_texture" />
+    <input name="in8" type="color3" nodename="xform_lin_adobergb" />
+    <input name="in9" type="color3" nodename="xform_adobergb" />
+    <input name="in10" type="color3" nodename="xform_srgb_displayp3" />
+  </switch>
+  <g18_rec709_to_lin_rec709 name="xform_g18_rec709" type="color3">
+    <input name="in" type="color3" value="0.737175, 0.318326, 0.147493" />
+  </g18_rec709_to_lin_rec709>
+  <g22_rec709_to_lin_rec709 name="xform_g22_rec709" type="color3">
+    <input name="in" type="color3" value="0.779199, 0.391974, 0.208883" />
+  </g22_rec709_to_lin_rec709>
+  <rec709_display_to_lin_rec709 name="xform_rec709_display" type="color3">
+    <input name="in" type="color3" value="0.795569, 0.423793, 0.238002" />
+  </rec709_display_to_lin_rec709>
+  <acescg_to_lin_rec709 name="xform_acescg" type="color3">
+    <input name="in" type="color3" value="0.398892, 0.157717, 0.0536138" />
+  </acescg_to_lin_rec709>
+  <g22_ap1_to_lin_rec709 name="xform_g22_ap1" type="color3">
+    <input name="in" type="color3" value="0.658523, 0.431917, 0.264484" />
+  </g22_ap1_to_lin_rec709>
+  <srgb_texture_to_lin_rec709 name="xform_srgb_texture" type="color3">
+    <input name="in" type="color3" value="0.784325, 0.392101, 0.196092" />
+  </srgb_texture_to_lin_rec709>
+  <lin_adobergb_to_lin_rec709 name="xform_lin_adobergb" type="color3">
+    <input name="in" type="color3" value="0.44935, 0.1274, 0.035831" />
+  </lin_adobergb_to_lin_rec709>
+  <adobergb_to_lin_rec709 name="xform_adobergb" type="color3">
+    <input name="in" type="color3" value="0.69507, 0.391844, 0.220096" />
+  </adobergb_to_lin_rec709>
+  <srgb_displayp3_to_lin_rec709 name="xform_srgb_displayp3" type="color3">
+    <input name="in" type="color3" value="0.733821, 0.41325, 0.243044" />
+  </srgb_displayp3_to_lin_rec709>
+  <subtract name="deprecated_offset_1" type="float">
+    <input name="in1" type="float" nodename="which_all" />
+    <input name="in2" type="float" value="10" />
+  </subtract>
+  <switch name="deprecated_band_1" type="color3">
+    <input name="which" type="float" nodename="deprecated_offset_1" />
+    <input name="in1" type="color3" nodename="xform_lin_displayp3" />
+    <input name="in2" type="color3" value="0.18, 0.18, 0.18" />
+  </switch>
+  <lin_displayp3_to_lin_rec709 name="xform_lin_displayp3" type="color3">
+    <input name="in" type="color3" value="0.497672, 0.142344, 0.048136" />
+  </lin_displayp3_to_lin_rec709>
+  <divide name="deprecated_outer_which" type="float">
+    <input name="in1" type="float" nodename="which_all" />
+    <input name="in2" type="float" value="10" />
+  </divide>
+  <switch name="deprecated_bands" type="color3">
+    <input name="which" type="float" nodename="deprecated_outer_which" />
+    <input name="in1" type="color3" nodename="deprecated_band_0" />
+    <input name="in2" type="color3" nodename="deprecated_band_1" />
+  </switch>
+  <surface_unlit name="deprecated_color_management_shader" type="surfaceshader">
+    <input name="emission_color" type="color3" nodename="deprecated_bands" />
+    <input name="emission" type="float" value="1" />
+  </surface_unlit>
+  <surfacematerial name="deprecated_color_management" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="deprecated_color_management_shader" />
+  </surfacematerial>
+</materialx>

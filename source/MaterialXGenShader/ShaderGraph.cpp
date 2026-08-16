@@ -1197,9 +1197,7 @@ void ShaderGraph::populateColorTransformMap(ColorManagementSystemPtr colorManage
     if (!shaderPort ||
         sourceColorSpace.empty() ||
         targetColorSpace.empty() ||
-        sourceColorSpace == targetColorSpace ||
-        sourceColorSpace == "none" ||
-        targetColorSpace == "none")
+        sourceColorSpace == targetColorSpace)
     {
         return;
     }
@@ -1209,8 +1207,11 @@ void ShaderGraph::populateColorTransformMap(ColorManagementSystemPtr colorManage
         // Store the source color space on the shader port.
         shaderPort->setColorSpace(sourceColorSpace);
 
-        // Update the color transform map, if a color management system is provided.
-        if (colorManagementSystem)
+        // Update the color transform map, if a color management system is provided
+        // and neither color space is a no-op for that system.
+        if (colorManagementSystem &&
+            !colorManagementSystem->isNoOpColorSpace(sourceColorSpace) &&
+            !colorManagementSystem->isNoOpColorSpace(targetColorSpace))
         {
             ColorSpaceTransform transform(sourceColorSpace, targetColorSpace, shaderPort->getType());
             if (colorManagementSystem->supportsTransform(transform))

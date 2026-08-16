@@ -7,6 +7,18 @@
     Declarations of the default color transforms in MaterialX.
   -->
 
+  <nodedef name="ND_g18_rec709_scene_to_lin_rec709_scene_color3" node="g18_rec709_scene_to_lin_rec709_scene" nodegroup="colortransform">
+    <input name="in" type="color3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="color3" />
+  </nodedef>
+
+  <nodedef name="ND_g18_rec709_scene_to_lin_rec709_scene_color4" node="g18_rec709_scene_to_lin_rec709_scene" nodegroup="colortransform">
+    <input name="in" type="color4" value="0.0, 0.0, 0.0, 1.0" />
+    <output name="out" type="color4" />
+  </nodedef>
+
+  <!-- Deprecated: g18_rec709 was renamed to g18_rec709_scene. Kept for backwards
+       compatibility; see COLOR_SPACE_REMAP in DefaultColorManagementSystem.cpp. -->
   <nodedef name="ND_g18_rec709_to_lin_rec709_color3" node="g18_rec709_to_lin_rec709" nodegroup="colortransform">
     <input name="in" type="color3" value="0.0, 0.0, 0.0" />
     <output name="out" type="color3" />
@@ -17,6 +29,18 @@
     <output name="out" type="color4" />
   </nodedef>
 
+  <nodedef name="ND_g22_rec709_scene_to_lin_rec709_scene_color3" node="g22_rec709_scene_to_lin_rec709_scene" nodegroup="colortransform">
+    <input name="in" type="color3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="color3" />
+  </nodedef>
+
+  <nodedef name="ND_g22_rec709_scene_to_lin_rec709_scene_color4" node="g22_rec709_scene_to_lin_rec709_scene" nodegroup="colortransform">
+    <input name="in" type="color4" value="0.0, 0.0, 0.0, 1.0" />
+    <output name="out" type="color4" />
+  </nodedef>
+
+  <!-- Deprecated: g22_rec709 was renamed to g22_rec709_scene. Kept for backwards
+       compatibility; see COLOR_SPACE_REMAP in DefaultColorManagementSystem.cpp. -->
   <nodedef name="ND_g22_rec709_to_lin_rec709_color3" node="g22_rec709_to_lin_rec709" nodegroup="colortransform">
     <input name="in" type="color3" value="0.0, 0.0, 0.0" />
     <output name="out" type="color3" />
@@ -27,6 +51,18 @@
     <output name="out" type="color4" />
   </nodedef>
 
+  <nodedef name="ND_g24_rec709_scene_to_lin_rec709_scene_color3" node="g24_rec709_scene_to_lin_rec709_scene" nodegroup="colortransform">
+    <input name="in" type="color3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="color3" />
+  </nodedef>
+
+  <nodedef name="ND_g24_rec709_scene_to_lin_rec709_scene_color4" node="g24_rec709_scene_to_lin_rec709_scene" nodegroup="colortransform">
+    <input name="in" type="color4" value="0.0, 0.0, 0.0, 1.0" />
+    <output name="out" type="color4" />
+  </nodedef>
+
+  <!-- Deprecated: rec709_display was renamed to g24_rec709_scene. Kept for backwards
+       compatibility; see COLOR_SPACE_REMAP in DefaultColorManagementSystem.cpp. -->
   <nodedef name="ND_rec709_display_to_lin_rec709_color3" node="rec709_display_to_lin_rec709" nodegroup="colortransform">
     <input name="in" type="color3" value="0.0, 0.0, 0.0" />
     <output name="out" type="color3" />
@@ -37,6 +73,18 @@
     <output name="out" type="color4" />
   </nodedef>
 
+  <nodedef name="ND_lin_ap1_scene_to_lin_rec709_scene_color3" node="lin_ap1_scene_to_lin_rec709_scene" nodegroup="colortransform">
+    <input name="in" type="color3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="color3" />
+  </nodedef>
+
+  <nodedef name="ND_lin_ap1_scene_to_lin_rec709_scene_color4" node="lin_ap1_scene_to_lin_rec709_scene" nodegroup="colortransform">
+    <input name="in" type="color4" value="0.0, 0.0, 0.0, 1.0" />
+    <output name="out" type="color4" />
+  </nodedef>
+
+  <!-- Deprecated: acescg was renamed to lin_ap1_scene. Kept for backwards
+       compatibility; see COLOR_SPACE_REMAP in DefaultColorManagementSystem.cpp. -->
   <nodedef name="ND_acescg_to_lin_rec709_color3" node="acescg_to_lin_rec709" nodegroup="colortransform">
     <input name="in" type="color3" value="0.0, 0.0, 0.0" />
     <output name="out" type="color3" />
@@ -47,6 +95,18 @@
     <output name="out" type="color4" />
   </nodedef>
 
+  <nodedef name="ND_g22_ap1_scene_to_lin_rec709_scene_color3" node="g22_ap1_scene_to_lin_rec709_scene" nodegroup="colortransform">
+    <input name="in" type="color3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="color3" />
+  </nodedef>
+
+  <nodedef name="ND_g22_ap1_scene_to_lin_rec709_scene_color4" node="g22_ap1_scene_to_lin_rec709_scene" nodegroup="colortransform">
+    <input name="in" type="color4" value="0.0, 0.0, 0.0, 1.0" />
+    <output name="out" type="color4" />
+  </nodedef>
+
+  <!-- Deprecated: g22_ap1 was renamed to g22_ap1_scene. Kept for backwards
+       compatibility; see COLOR_SPACE_REMAP in DefaultColorManagementSystem.cpp. -->
   <nodedef name="ND_g22_ap1_to_lin_rec709_color3" node="g22_ap1_to_lin_rec709" nodegroup="colortransform">
     <input name="in" type="color3" value="0.0, 0.0, 0.0" />
     <output name="out" type="color3" />
@@ -57,6 +117,18 @@
     <output name="out" type="color4" />
   </nodedef>
 
+  <nodedef name="ND_srgb_rec709_scene_to_lin_rec709_scene_color3" node="srgb_rec709_scene_to_lin_rec709_scene" nodegroup="colortransform">
+    <input name="in" type="color3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="color3" />
+  </nodedef>
+
+  <nodedef name="ND_srgb_rec709_scene_to_lin_rec709_scene_color4" node="srgb_rec709_scene_to_lin_rec709_scene" nodegroup="colortransform">
+    <input name="in" type="color4" value="0.0, 0.0, 0.0, 1.0" />
+    <output name="out" type="color4" />
+  </nodedef>
+
+  <!-- Deprecated: srgb_texture was renamed to srgb_rec709_scene. Kept for backwards
+       compatibility; see COLOR_SPACE_REMAP in DefaultColorManagementSystem.cpp. -->
   <nodedef name="ND_srgb_texture_to_lin_rec709_color3" node="srgb_texture_to_lin_rec709" nodegroup="colortransform">
     <input name="in" type="color3" value="0.0, 0.0, 0.0" />
     <output name="out" type="color3" />
@@ -67,6 +139,18 @@
     <output name="out" type="color4" />
   </nodedef>
 
+  <nodedef name="ND_lin_adobergb_scene_to_lin_rec709_scene_color3" node="lin_adobergb_scene_to_lin_rec709_scene" nodegroup="colortransform">
+    <input name="in" type="color3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="color3" />
+  </nodedef>
+
+  <nodedef name="ND_lin_adobergb_scene_to_lin_rec709_scene_color4" node="lin_adobergb_scene_to_lin_rec709_scene" nodegroup="colortransform">
+    <input name="in" type="color4" value="0.0, 0.0, 0.0, 1.0" />
+    <output name="out" type="color4" />
+  </nodedef>
+
+  <!-- Deprecated: lin_adobergb was renamed to lin_adobergb_scene. Kept for backwards
+       compatibility; see COLOR_SPACE_REMAP in DefaultColorManagementSystem.cpp. -->
   <nodedef name="ND_lin_adobergb_to_lin_rec709_color3" node="lin_adobergb_to_lin_rec709" nodegroup="colortransform">
     <input name="in" type="color3" value="0.0, 0.0, 0.0" />
     <output name="out" type="color3" />
@@ -77,6 +161,18 @@
     <output name="out" type="color4" />
   </nodedef>
 
+  <nodedef name="ND_g22_adobergb_scene_to_lin_rec709_scene_color3" node="g22_adobergb_scene_to_lin_rec709_scene" nodegroup="colortransform">
+    <input name="in" type="color3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="color3" />
+  </nodedef>
+
+  <nodedef name="ND_g22_adobergb_scene_to_lin_rec709_scene_color4" node="g22_adobergb_scene_to_lin_rec709_scene" nodegroup="colortransform">
+    <input name="in" type="color4" value="0.0, 0.0, 0.0, 1.0" />
+    <output name="out" type="color4" />
+  </nodedef>
+
+  <!-- Deprecated: adobergb was renamed to g22_adobergb_scene. Kept for backwards
+       compatibility; see COLOR_SPACE_REMAP in DefaultColorManagementSystem.cpp. -->
   <nodedef name="ND_adobergb_to_lin_rec709_color3" node="adobergb_to_lin_rec709" nodegroup="colortransform">
     <input name="in" type="color3" value="0.0, 0.0, 0.0" />
     <output name="out" type="color3" />
@@ -87,6 +183,18 @@
     <output name="out" type="color4" />
   </nodedef>
 
+  <nodedef name="ND_srgb_p3d65_scene_to_lin_rec709_scene_color3" node="srgb_p3d65_scene_to_lin_rec709_scene" nodegroup="colortransform">
+    <input name="in" type="color3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="color3" />
+  </nodedef>
+
+  <nodedef name="ND_srgb_p3d65_scene_to_lin_rec709_scene_color4" node="srgb_p3d65_scene_to_lin_rec709_scene" nodegroup="colortransform">
+    <input name="in" type="color4" value="0.0, 0.0, 0.0, 1.0" />
+    <output name="out" type="color4" />
+  </nodedef>
+
+  <!-- Deprecated: srgb_displayp3 was renamed to srgb_p3d65_scene. Kept for backwards
+       compatibility; see COLOR_SPACE_REMAP in DefaultColorManagementSystem.cpp. -->
   <nodedef name="ND_srgb_displayp3_to_lin_rec709_color3" node="srgb_displayp3_to_lin_rec709" nodegroup="colortransform">
     <input name="in" type="color3" value="0.0, 0.0, 0.0" />
     <output name="out" type="color3" />
@@ -97,12 +205,66 @@
     <output name="out" type="color4" />
   </nodedef>
 
+  <nodedef name="ND_lin_p3d65_scene_to_lin_rec709_scene_color3" node="lin_p3d65_scene_to_lin_rec709_scene" nodegroup="colortransform">
+    <input name="in" type="color3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="color3" />
+  </nodedef>
+
+  <nodedef name="ND_lin_p3d65_scene_to_lin_rec709_scene_color4" node="lin_p3d65_scene_to_lin_rec709_scene" nodegroup="colortransform">
+    <input name="in" type="color4" value="0.0, 0.0, 0.0, 1.0" />
+    <output name="out" type="color4" />
+  </nodedef>
+
+  <!-- Deprecated: lin_displayp3 was renamed to lin_p3d65_scene. Kept for backwards
+       compatibility; see COLOR_SPACE_REMAP in DefaultColorManagementSystem.cpp. -->
   <nodedef name="ND_lin_displayp3_to_lin_rec709_color3" node="lin_displayp3_to_lin_rec709" nodegroup="colortransform">
     <input name="in" type="color3" value="0.0, 0.0, 0.0" />
     <output name="out" type="color3" />
   </nodedef>
 
   <nodedef name="ND_lin_displayp3_to_lin_rec709_color4" node="lin_displayp3_to_lin_rec709" nodegroup="colortransform">
+    <input name="in" type="color4" value="0.0, 0.0, 0.0, 1.0" />
+    <output name="out" type="color4" />
+  </nodedef>
+
+  <!-- New color spaces introduced in 1.39.6 -->
+
+  <nodedef name="ND_lin_ap0_scene_to_lin_rec709_scene_color3" node="lin_ap0_scene_to_lin_rec709_scene" nodegroup="colortransform">
+    <input name="in" type="color3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="color3" />
+  </nodedef>
+
+  <nodedef name="ND_lin_ap0_scene_to_lin_rec709_scene_color4" node="lin_ap0_scene_to_lin_rec709_scene" nodegroup="colortransform">
+    <input name="in" type="color4" value="0.0, 0.0, 0.0, 1.0" />
+    <output name="out" type="color4" />
+  </nodedef>
+
+  <nodedef name="ND_lin_rec2020_scene_to_lin_rec709_scene_color3" node="lin_rec2020_scene_to_lin_rec709_scene" nodegroup="colortransform">
+    <input name="in" type="color3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="color3" />
+  </nodedef>
+
+  <nodedef name="ND_lin_rec2020_scene_to_lin_rec709_scene_color4" node="lin_rec2020_scene_to_lin_rec709_scene" nodegroup="colortransform">
+    <input name="in" type="color4" value="0.0, 0.0, 0.0, 1.0" />
+    <output name="out" type="color4" />
+  </nodedef>
+
+  <nodedef name="ND_lin_ciexyzd65_scene_to_lin_rec709_scene_color3" node="lin_ciexyzd65_scene_to_lin_rec709_scene" nodegroup="colortransform">
+    <input name="in" type="color3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="color3" />
+  </nodedef>
+
+  <nodedef name="ND_lin_ciexyzd65_scene_to_lin_rec709_scene_color4" node="lin_ciexyzd65_scene_to_lin_rec709_scene" nodegroup="colortransform">
+    <input name="in" type="color4" value="0.0, 0.0, 0.0, 1.0" />
+    <output name="out" type="color4" />
+  </nodedef>
+
+  <nodedef name="ND_srgb_ap1_scene_to_lin_rec709_scene_color3" node="srgb_ap1_scene_to_lin_rec709_scene" nodegroup="colortransform">
+    <input name="in" type="color3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="color3" />
+  </nodedef>
+
+  <nodedef name="ND_srgb_ap1_scene_to_lin_rec709_scene_color4" node="srgb_ap1_scene_to_lin_rec709_scene" nodegroup="colortransform">
     <input name="in" type="color4" value="0.0, 0.0, 0.0, 1.0" />
     <output name="out" type="color4" />
   </nodedef>

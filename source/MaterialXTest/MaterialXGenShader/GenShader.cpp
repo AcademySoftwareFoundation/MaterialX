@@ -13,7 +13,10 @@
 
 #include <MaterialXGenHw/HwConstants.h>
 
+#include <MaterialXGenShader/DefaultColorManagementSystem.h>
+#include <MaterialXGenShader/Exception.h>
 #include <MaterialXGenShader/GenContext.h>
+#include <MaterialXGenShader/OcioColorManagementSystem.h>
 #include <MaterialXGenShader/ShaderTranslator.h>
 #include <MaterialXGenShader/Util.h>
 
@@ -450,5 +453,101 @@ TEST_CASE("GenShader: Track Application Variables", "[genshader]")
         context.setApplicationVariableHandler(variableTracker);
         mx::ShaderPtr shader = context.getShaderGenerator().generate(testElement, element, context);
     }
+#endif
+}
+
+TEST_CASE("GenShader: No-op Color Spaces", "[genshader]")
+{
+    // DefaultColorManagementSystem treats "none" and "data" as requiring no
+    // color transformation, regardless of the source/target working space.
+    mx::DefaultColorManagementSystemPtr colorManagementSystem =
+        mx::DefaultColorManagementSystem::create("genglsl");
+    CHECK(colorManagementSystem->isNoOpColorSpace("none"));
+    CHECK(colorManagementSystem->isNoOpColorSpace("data"));
+    CHECK(!colorManagementSystem->isNoOpColorSpace("lin_rec709_scene"));
+    // Any unrecognized color space is considered a NoOp.
+    CHECK(!colorManagementSystem->isNoOpColorSpace("Raw"));
+
+#ifdef MATERIALX_BUILD_OCIO
+    // OcioColorManagementSystem inherits the "none"/"data" no-op behavior
+    // from DefaultColorManagementSystem, and additionally treats any OCIO
+    // color space flagged isData() (e.g. "Raw" in the ACES/studio configs)
+    // as a no-op, even though that name means nothing to the default system.
+    //
+    // Unlike the "data"/"bogus_colorspace" shader-generation checks below,
+    // there is no equivalent generate()-based integration test for this
+    // OCIO-specific behavior: OcioColorManagementSystemImpl::getNodeDef()
+    // already substitutes a passthrough <dot> node whenever the underlying
+    // OCIO GPU processor itself reports isNoOp() (see OcioColorManagementSystem.cpp),
+    // independent of ColorManagementSystem::isNoOpColorSpace(). 
+    try
+    {
+        mx::OcioColorManagementSystemPtr ocioColorManagementSystem =
+            mx::OcioColorManagementSystem::createFromBuiltinConfig("ocio://cg-config-latest", "genglsl");
+        CHECK(ocioColorManagementSystem->isNoOpColorSpace("none"));
+        CHECK(ocioColorManagementSystem->isNoOpColorSpace("data"));
+        CHECK(ocioColorManagementSystem->isNoOpColorSpace("Raw"));
+        CHECK(!ocioColorManagementSystem->isNoOpColorSpace("lin_rec709_scene"));
+        CHECK(!ocioColorManagementSystem->isNoOpColorSpace("ACEScg"));
+    }
+    catch (const std::exception& e)
+    {
+        WARN(std::string("Could not create OcioColorManagementSystem from builtin config: ") + e.what());
+    }
+#endif
+
+#ifdef MATERIALX_BUILD_GEN_GLSL
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::DocumentPtr libraries = mx::createDocument();
+    mx::loadLibraries({ "libraries" }, searchPath, libraries);
+
+    mx::GenContext context(mx::GlslShaderGenerator::create());
+    context.registerSourceCodeSearchPath(searchPath);
+    colorManagementSystem = mx::DefaultColorManagementSystem::create(context.getShaderGenerator().getTarget());
+    colorManagementSystem->loadLibrary(libraries);
+    context.getShaderGenerator().setColorManagementSystem(colorManagementSystem);
+
+    // A color3 tagged "data" is not the working color space, and has no
+    // corresponding transform nodedef (e.g. no "data_to_lin_rec709_scene"
+    // node exists). If isNoOpColorSpace() were not consulted before looking
+    // up a transform, ShaderGraph::populateColorTransformMap would throw
+    // ExceptionShaderGenError("Unsupported color space transform ...").
+    std::string noOpDocString =
+    "<?xml version=\"1.0\"?> \
+      <materialx version=\"1.39\" colorspace=\"lin_rec709_scene\"> \
+        <constant name=\"data_constant\" type=\"color3\"> \
+          <input name=\"value\" type=\"color3\" value=\"0.5, 0.5, 0.5\" colorspace=\"data\" /> \
+        </constant> \
+        <surface_unlit name=\"data_surface\" type=\"surfaceshader\"> \
+          <input name=\"emission_color\" type=\"color3\" nodename=\"data_constant\" /> \
+        </surface_unlit> \
+      </materialx>";
+    mx::DocumentPtr noOpDoc = mx::createDocument();
+    mx::readFromXmlString(noOpDoc, noOpDocString);
+    noOpDoc->setDataLibrary(libraries);
+    mx::ElementPtr noOpElement = noOpDoc->getChild("data_surface");
+    REQUIRE(noOpElement);
+    REQUIRE_NOTHROW(context.getShaderGenerator().generate("data_surface", noOpElement, context));
+
+    // Sanity check that the harness above is capable of catching a real
+    // mismatch: an unrecognized, non-no-op color space with no transform
+    // nodedef must still throw.
+    std::string unsupportedDocString =
+    "<?xml version=\"1.0\"?> \
+      <materialx version=\"1.39\" colorspace=\"lin_rec709_scene\"> \
+        <constant name=\"bogus_constant\" type=\"color3\"> \
+          <input name=\"value\" type=\"color3\" value=\"0.5, 0.5, 0.5\" colorspace=\"bogus_colorspace\" /> \
+        </constant> \
+        <surface_unlit name=\"bogus_surface\" type=\"surfaceshader\"> \
+          <input name=\"emission_color\" type=\"color3\" nodename=\"bogus_constant\" /> \
+        </surface_unlit> \
+      </materialx>";
+    mx::DocumentPtr unsupportedDoc = mx::createDocument();
+    mx::readFromXmlString(unsupportedDoc, unsupportedDocString);
+    unsupportedDoc->setDataLibrary(libraries);
+    mx::ElementPtr unsupportedElement = unsupportedDoc->getChild("bogus_surface");
+    REQUIRE(unsupportedElement);
+    REQUIRE_THROWS_AS(context.getShaderGenerator().generate("bogus_surface", unsupportedElement, context),
+                      mx::ExceptionShaderGenError);
 #endif
 }

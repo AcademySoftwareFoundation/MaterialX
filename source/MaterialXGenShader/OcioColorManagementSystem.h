@@ -50,6 +50,9 @@ class MX_GENSHADER_API OcioColorManagementSystem : public DefaultColorManagement
     /// Create an OCIO node
     ShaderNodeImplPtr createImplementation(const string& implName) const override;
 
+    /// Returns true if the given color space name requires no color transformation
+    bool isNoOpColorSpace(const string& colorSpace) const override;
+
     /// Returns shader text for an implementation
     string getGpuProcessorCode(const string& implName, const string& functionName) const;
 

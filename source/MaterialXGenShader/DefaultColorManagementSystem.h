@@ -29,6 +29,9 @@ class MX_GENSHADER_API DefaultColorManagementSystem : public ColorManagementSyst
     /// Return the DefaultColorManagementSystem name
     const string& getName() const override;
 
+    /// Returns true if the given color space name requires no color transformation
+    bool isNoOpColorSpace(const string& colorSpace) const override;
+
   protected:
     /// Returns a nodedef for a given transform
     NodeDefPtr getNodeDef(const ColorSpaceTransform& transform) const override;

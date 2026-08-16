@@ -60,6 +60,10 @@ class MX_GENSHADER_API ColorManagementSystem
     /// Returns whether this color management system supports a provided transform
     bool supportsTransform(const ColorSpaceTransform& transform) const;
 
+    /// Returns true if the given color space name requires no color transformation
+    /// when used as a source or target space.
+    virtual bool isNoOpColorSpace(const string& /*colorSpace*/) const { return false; }
+
     /// Create a node to use to perform the given color space transformation.
     ShaderNodePtr createNode(const ShaderGraph* parent, const ColorSpaceTransform& transform, const string& name,
                              GenContext& context) const;

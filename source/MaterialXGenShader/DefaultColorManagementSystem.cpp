@@ -14,27 +14,29 @@ namespace
 
 const string CMS_NAME = "default_cms";
 
-// Remap from legacy color space names to their ACES 1.2 equivalents.
+// Remap from legacy color space names to their color interop ID equivalents.
+// See https://github.com/AcademySoftwareFoundation/ColorInterop/tree/main/
+//             Recommendations/01_TextureAssetColorSpaces
 const StringMap COLOR_SPACE_REMAP =
 {
-    { "gamma18", "g18_rec709" },
-    { "gamma22", "g22_rec709" },
-    { "gamma24", "rec709_display" },
-    { "lin_ap1", "acescg" },
+    // Map 1.39.5 names to their ASWF Color Interop Forum equivalents.
+    { "g18_rec709",     "g18_rec709_scene" },
+    { "g22_rec709",     "g22_rec709_scene" },
+    { "rec709_display", "g24_rec709_scene" },
+    { "acescg",         "lin_ap1_scene" },
+    { "lin_ap1",        "lin_ap1_scene" },
+    { "g22_ap1",        "g22_ap1_scene" },
+    { "srgb_texture",   "srgb_rec709_scene" },
+    { "lin_adobergb",   "lin_adobergb_scene" },
+    { "adobergb",       "g22_adobergb_scene" },
+    { "srgb_displayp3", "srgb_p3d65_scene" },
+    { "lin_displayp3",  "lin_p3d65_scene" },
+    { "lin_rec709",     "lin_rec709_scene" },
 
-    // In 1.39 we remap namespaces from ASWF recommended color interop spaces
-    //  See https://github.com/AcademySoftwareFoundation/ColorInterop
-    // This should improve interop with the nanocolor spaces found in USD.
-    {"lin_ap1_scene",       "acescg"},
-    {"lin_rec709_scene",    "lin_rec709"},
-    {"lin_p3d65_scene",     "lin_displayp3"},
-    {"lin_adobergb_scene",  "lin_adobergb"},
-    {"srgb_rec709_scene",   "srgb_texture"},
-    {"g22_rec709_scene",    "g22_rec709"},
-    {"g18_rec709_scene",    "g18_rec709"},
-    {"g22_ap1_scene",       "g22_ap1"},
-    {"srgb_p3d65_scene",    "srgb_displayp3"},
-    {"g22_adobergb_scene",  "adobergb"}
+    // These names are from a much earlier version.
+    { "gamma18", "g18_rec709_scene" },
+    { "gamma22", "g22_rec709_scene" },
+    { "gamma24", "g24_rec709_scene" },
 };
 
 } // anonymous namespace
@@ -56,6 +58,11 @@ DefaultColorManagementSystem::DefaultColorManagementSystem(const string& target)
 const string& DefaultColorManagementSystem::getName() const
 {
     return CMS_NAME;
+}
+
+bool DefaultColorManagementSystem::isNoOpColorSpace(const string& colorSpace) const
+{
+    return colorSpace == "none" || colorSpace == "data";
 }
 
 NodeDefPtr DefaultColorManagementSystem::getNodeDef(const ColorSpaceTransform& transform) const

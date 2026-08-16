@@ -41,7 +41,6 @@ const std::map<string, string> COLOR_SPACE_REMAP =
     { "gamma18", "Gamma 1.8 Rec.709 - Texture" },
     { "gamma22", "Gamma 2.2 Rec.709 - Texture" },
     { "gamma24", "Gamma 2.4 Rec.709 - Texture" },
-    // TODO: Add support for adobergb and lin_adobergb
 };
 
 } // anonymous namespace
@@ -57,6 +56,8 @@ class OcioColorManagementSystemImpl
         _config(std::move(config)), _target(std::move(target)) { }
 
     const char* getSupportedColorSpaceName(const char* colorSpace) const;
+
+    bool isNoOpColorSpace(const string& colorSpace) const;
 
     NodeDefPtr getNodeDef(const ColorSpaceTransform& transform, const DocumentPtr& document) const;
 
@@ -97,7 +98,15 @@ const char* OcioColorManagementSystemImpl::getSupportedColorSpaceName(const char
         return getSupportedColorSpaceName(remap->second.c_str());
     }
 
-    auto cgConfig = OCIO::Config::CreateFromBuiltinConfig("ocio://studio-config-latest");
+    // Check if the requested name is known in the built-in ACES config. If so, then
+    // look to see if an equivalent color space is available in the user's config by
+    // checking the math of each color space implementation.
+    // 
+    // TODO: This is somewhat time-consuming and might be better done by the calling
+    // program, if desired, rather than as an always-on fallback here. In any case,
+    // if a match is found, it should be cached to avoid repeated searches.
+
+    auto cgConfig = OCIO::Config::CreateFromBuiltinConfig("ocio://cg-config-latest");
     try
     {
         // Throws on failure:
@@ -107,6 +116,18 @@ const char* OcioColorManagementSystemImpl::getSupportedColorSpaceName(const char
     {
         return nullptr;
     }
+}
+
+bool OcioColorManagementSystemImpl::isNoOpColorSpace(const string& colorSpace) const
+{
+    const char* supportedColorSpace = getSupportedColorSpaceName(colorSpace.c_str());
+    if (!supportedColorSpace)
+    {
+        return false;
+    }
+
+    OCIO::ConstColorSpaceRcPtr colorSpaceObj = _config->getColorSpace(supportedColorSpace);
+    return colorSpaceObj && colorSpaceObj->isData();
 }
 
 NodeDefPtr OcioColorManagementSystemImpl::getNodeDef(const ColorSpaceTransform& transform, const DocumentPtr& document) const
@@ -334,6 +355,15 @@ NodeDefPtr OcioColorManagementSystem::getNodeDef(const ColorSpaceTransform& tran
     }
 
     return _impl->getNodeDef(transform, _document);
+}
+
+bool OcioColorManagementSystem::isNoOpColorSpace(const string& colorSpace) const
+{
+    if (DefaultColorManagementSystem::isNoOpColorSpace(colorSpace))
+    {
+        return true;
+    }
+    return _impl->isNoOpColorSpace(colorSpace);
 }
 
 bool OcioColorManagementSystem::hasImplementation(const string& implName) const
