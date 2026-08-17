@@ -2001,20 +2001,22 @@ void Graph::drawPinIcon(const std::string& type, bool connected, int alpha, floa
 void Graph::drawNodeMenu(UiNodePtr node)
 {
     const float buttonSize = ImGui::GetTextLineHeight();
-    const ImVec2 headerPosition = ImGui::GetCursorScreenPos();
-    const ImVec2 nodeSize = ed::GetNodeSize(node->getId());
-    const ImVec2 buttonPosition = headerPosition + ImVec2(nodeSize.x - buttonSize - 6.0f, -2.0f);
-    const ImVec2 buttonMax = buttonPosition + ImVec2(buttonSize, buttonSize);
-    _nodeMenuRects.emplace_back(buttonPosition.x, buttonPosition.y, buttonMax.x, buttonMax.y);
-    const bool hovered = ImGui::IsMouseHoveringRect(buttonPosition, buttonMax, true);
+    // Place the icon inline to the right of the title as a real layout item, so the node
+    // expands to fit it and the title text is never clipped or overlapped.
+    ImGui::SameLine();
+    ImGui::InvisibleButton("##node_menu", ImVec2(buttonSize, buttonSize));
+    const ImVec2 bbMin = ImGui::GetItemRectMin();
+    const ImVec2 bbMax = ImGui::GetItemRectMax();
+    _nodeMenuRects.emplace_back(bbMin.x, bbMin.y, bbMax.x, bbMax.y);
+    const bool hovered = ImGui::IsMouseHoveringRect(bbMin, bbMax, true);
     ImDrawList* drawList = ImGui::GetWindowDrawList();
     const ImU32 color = hovered ? IM_COL32(255, 255, 255, 255) : IM_COL32(190, 190, 190, 255);
-    const float lineInset = buttonSize * 0.25f;
+    const float barWidth = buttonSize * 0.5f;
+    const float barStart = bbMin.x + (buttonSize - barWidth) * 0.5f;
     for (int line = 0; line < 3; ++line)
     {
-        const float y = buttonPosition.y + buttonSize * (0.3f + line * 0.2f);
-        drawList->AddLine(ImVec2(buttonPosition.x + lineInset, y),
-                          ImVec2(buttonPosition.x + buttonSize - lineInset, y), color, 1.5f);
+        const float y = bbMin.y + buttonSize * (0.3f + line * 0.2f);
+        drawList->AddLine(ImVec2(barStart, y), ImVec2(barStart + barWidth, y), color, 1.5f);
     }
     if (hovered && ImGui::IsMouseReleased(ImGuiMouseButton_Right))
     {
@@ -2042,13 +2044,13 @@ void Graph::buildGroupNode(UiNodePtr node)
 
     ed::BeginNode(node->getId());
     ImGui::PushID(node->getId());
-    drawNodeMenu(node);
 
     std::string temp = node->getMessage();
     ImVec2 messageSize = ImGui::CalcTextSize(temp.c_str());
     ImGui::PushItemWidth(messageSize.x + 15);
     ImGui::InputText("##edit", &temp);
     node->setMessage(temp);
+    drawNodeMenu(node);
     ImGui::PopItemWidth();
     ed::Group(ImVec2(300, 200));
     ImGui::PopID();
@@ -2260,9 +2262,9 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                     ImGui::GetCursorScreenPos() + ImVec2(-hdrPadL, 3),
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - hdrPadL - 2.f * hdrInset, ImGui::GetTextLineHeight() + hdrPadB),
                     ImColor(ImColor(55, 55, 55, 255)), 0.f);
-                drawNodeMenu(node);
                 ImGui::Indent(hdrTextIndent);
-                ImGui::Text("%s", node->getName().c_str());
+                ImGui::TextUnformatted(node->getName().c_str());
+                drawNodeMenu(node);
                 ImGui::Unindent(hdrTextIndent);
                 ImGui::Dummy(ImVec2(0, hdrBottomSpacing));
 
@@ -2330,9 +2332,9 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                     ImGui::GetCursorScreenPos() + ImVec2(-hdrPadL, 3.f),
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - hdrPadL - 2.f * hdrInset, ImGui::GetTextLineHeight() + hdrPadB),
                     ImColor(ImColor(85, 85, 85, 255)), 0.f);
-                drawNodeMenu(node);
                 ImGui::Indent(hdrTextIndent);
-                ImGui::Text("%s", node->getName().c_str());
+                ImGui::TextUnformatted(node->getName().c_str());
+                drawNodeMenu(node);
                 ImGui::Unindent(hdrTextIndent);
                 ImGui::Dummy(ImVec2(0, hdrBottomSpacing));
 
@@ -2405,9 +2407,9 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                     ImGui::GetCursorScreenPos() + ImVec2(-hdrPadL, 3),
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - hdrPadL - 2.f * hdrInset, ImGui::GetTextLineHeight() + hdrPadB),
                     ImColor(ImColor(35, 35, 35, 255)), 0);
-                drawNodeMenu(node);
                 ImGui::Indent(hdrTextIndent);
-                ImGui::Text("%s", node->getName().c_str());
+                ImGui::TextUnformatted(node->getName().c_str());
+                drawNodeMenu(node);
                 ImGui::Unindent(hdrTextIndent);
                 ImGui::Dummy(ImVec2(0, hdrBottomSpacing));
 
@@ -2485,9 +2487,9 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                     ImGui::GetCursorScreenPos() + ImVec2(-hdrPadL, 3),
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - hdrPadL - 2.f * hdrInset, ImGui::GetTextLineHeight() + hdrPadB),
                     ImColor(ImColor(35, 35, 35, 255)), 0);
-                drawNodeMenu(node);
                 ImGui::Indent(hdrTextIndent);
-                ImGui::Text("%s", node->getName().c_str());
+                ImGui::TextUnformatted(node->getName().c_str());
+                drawNodeMenu(node);
                 ImGui::Unindent(hdrTextIndent);
                 ImGui::Dummy(ImVec2(0, hdrBottomSpacing));
                 for (UiPinPtr pin : node->getInputPins())
@@ -3074,6 +3076,51 @@ bool Graph::deleteNodeById(ed::NodeId nodeId)
         _popup = true;
     }
     return false;
+}
+
+void Graph::renameNode(UiNodePtr node, const std::string& newName)
+{
+    if (!node || newName.empty() || node->getName() == newName)
+    {
+        return;
+    }
+
+    std::string validName = newName;
+    if (node->getNode())
+    {
+        validName = node->getNode()->getParent()->createValidChildName(newName);
+        node->getNode()->setName(validName);
+        // Keep downstream references pointing at this node (mirrors the property editor).
+        for (UiNodePtr uiNode : node->getOutputConnections())
+        {
+            if (!uiNode->getInput() && uiNode->getNode())
+            {
+                for (mx::InputPtr input : uiNode->getNode()->getActiveInputs())
+                {
+                    if (input->getConnectedNode() == node->getNode())
+                    {
+                        uiNode->getNode()->setConnectedNode(input->getName(), node->getNode());
+                    }
+                }
+            }
+        }
+    }
+    else if (node->getInput())
+    {
+        validName = node->getInput()->getParent()->createValidChildName(newName);
+        node->getInput()->setName(validName);
+    }
+    else if (node->getOutput())
+    {
+        validName = node->getOutput()->getParent()->createValidChildName(newName);
+        node->getOutput()->setName(validName);
+    }
+    else if (node->getNodeGraph())
+    {
+        validName = node->getNodeGraph()->getParent()->createValidChildName(newName);
+        node->getNodeGraph()->setName(validName);
+    }
+    node->setName(validName);
 }
 
 void Graph::addNodeGraphPins()
@@ -4564,10 +4611,22 @@ void Graph::drawGraph(ImVec2 mousePos)
         {
             _nodeMenuNode = _nodeMenuToOpen;
             _nodeMenuToOpen = -1;
+            const int renamePos = findNode(_nodeMenuNode);
+            _nodeMenuRename = (renamePos >= 0) ? _state.nodes[renamePos]->getName() : std::string();
             ImGui::OpenPopup("node menu");
         }
         if (ImGui::BeginPopup("node menu"))
         {
+            const int renamePos = findNode(_nodeMenuNode);
+            if (renamePos >= 0)
+            {
+                ImGui::Text("Rename");
+                if (ImGui::InputText("##node_rename", &_nodeMenuRename, ImGuiInputTextFlags_EnterReturnsTrue))
+                {
+                    renameNode(_state.nodes[renamePos], _nodeMenuRename);
+                }
+                ImGui::Separator();
+            }
             if (ImGui::MenuItem("Delete"))
             {
                 _nodeToDelete = _nodeMenuNode;

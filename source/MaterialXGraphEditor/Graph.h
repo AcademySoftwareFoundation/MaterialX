@@ -220,6 +220,7 @@ class Graph
 
     void deleteNode(UiNodePtr node);
     bool deleteNodeById(ed::NodeId nodeId);
+    void renameNode(UiNodePtr node, const std::string& newName);
 
     // Build the initial graph of a loaded document including shader, material and nodegraph node
     void setUiNodeInfo(UiNodePtr node, const std::string& type, const std::string& category);
@@ -381,6 +382,7 @@ class Graph
     int _nodeMenuToOpen;
     int _nodeMenuNode;
     int _nodeToDelete;
+    std::string _nodeMenuRename;
 
     // file dialog information
     FileDialog _fileDialog;
