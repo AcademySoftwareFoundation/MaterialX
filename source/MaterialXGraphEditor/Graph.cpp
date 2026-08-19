@@ -3085,40 +3085,156 @@ void Graph::renameNode(UiNodePtr node, const std::string& newName)
         return;
     }
 
+    // Renaming modifies the graph, so mark the material for recompilation and
+    // trigger a render refresh (mirrors deleteNodeById).
+    _renderer->setMaterialCompilation(true);
+    _frameCount = ImGui::GetFrameCount();
+
     std::string validName = newName;
     if (node->getNode())
     {
-        validName = node->getNode()->getParent()->createValidChildName(newName);
-        node->getNode()->setName(validName);
-        // Keep downstream references pointing at this node (mirrors the property editor).
+        mx::NodePtr mxNode = node->getNode();
+        validName = mxNode->getParent()->createValidChildName(newName);
+
+        // Collect downstream references while the node still resolves by its old
+        // name (name-based resolution breaks as soon as the element is renamed).
+        std::vector<std::pair<mx::NodePtr, std::string>> downstreamInputs;
+        std::vector<mx::OutputPtr> downstreamOutputs;
         for (UiNodePtr uiNode : node->getOutputConnections())
         {
-            if (!uiNode->getInput() && uiNode->getNode())
+            if (!uiNode->getInput())
             {
-                for (mx::InputPtr input : uiNode->getNode()->getActiveInputs())
+                if (uiNode->getNode())
                 {
-                    if (input->getConnectedNode() == node->getNode())
+                    for (mx::InputPtr input : uiNode->getNode()->getActiveInputs())
                     {
-                        uiNode->getNode()->setConnectedNode(input->getName(), node->getNode());
+                        if (input->getConnectedNode() == mxNode)
+                        {
+                            downstreamInputs.emplace_back(uiNode->getNode(), input->getName());
+                        }
+                    }
+                }
+                else if (uiNode->getOutput())
+                {
+                    // A graph output port directly connected to this node.
+                    if (uiNode->getOutput()->getConnectedNode() == mxNode)
+                    {
+                        downstreamOutputs.push_back(uiNode->getOutput());
                     }
                 }
             }
         }
+
+        // Now rename the node element.
+        mxNode->setName(validName);
+
+        // Re-point downstream references at the renamed node.
+        for (const auto& entry : downstreamInputs)
+        {
+            entry.first->setConnectedNode(entry.second, mxNode);
+        }
+        for (mx::OutputPtr output : downstreamOutputs)
+        {
+            output->setConnectedNode(mxNode);
+        }
     }
     else if (node->getInput())
     {
-        validName = node->getInput()->getParent()->createValidChildName(newName);
-        node->getInput()->setName(validName);
+        mx::InputPtr uiNodeInput = node->getInput();
+        validName = uiNodeInput->getParent()->createValidChildName(newName);
+
+        // Keep downstream references pointing at this input (mirrors the property editor).
+        for (UiNodePtr uiNode : node->getOutputConnections())
+        {
+            // Is not an input port
+            if (uiNode->getInput() == nullptr)
+            {
+                // Is a node
+                if (uiNode->getNode())
+                {
+                    for (mx::InputPtr input : uiNode->getNode()->getActiveInputs())
+                    {
+                        if (input->getInterfaceInput() == uiNodeInput)
+                        {
+                            uiNodeInput->setName(validName);
+                            input->setConnectedInterfaceName(validName);
+                        }
+                    }
+                }
+                // Is a node graph
+                else if (uiNode->getNodeGraph())
+                {
+                    for (mx::InputPtr input : uiNode->getNodeGraph()->getActiveInputs())
+                    {
+                        if (input->getInterfaceName() == uiNodeInput->getName())
+                        {
+                            uiNodeInput->setName(validName);
+                            input->setConnectedInterfaceName(validName);
+                        }
+                    }
+                }
+                else
+                {
+                    // Is an output port
+                    mx::OutputPtr outputPtr = uiNode->getOutput();
+                    if (outputPtr)
+                    {
+                        outputPtr->setConnectedNode(node->getNode());
+                    }
+                }
+            }
+        }
+        uiNodeInput->setName(validName);
     }
     else if (node->getOutput())
     {
         validName = node->getOutput()->getParent()->createValidChildName(newName);
+        const std::string oldOutputName = node->getOutput()->getName();
+        const std::string nodeGraphName = node->getOutput()->getParent()->getName();
         node->getOutput()->setName(validName);
+
+        // Keep downstream references pointing at this output. External inputs that use
+        // this nodegraph's output are stored via "nodegraph" + "output" attributes, so
+        // update any that reference the old output name (mirrors link setup).
+        mx::DocumentPtr document = node->getOutput()->getDocument();
+        if (document)
+        {
+            for (mx::ElementPtr elem : document->traverseTree())
+            {
+                mx::InputPtr input = elem->asA<mx::Input>();
+                if (input &&
+                    input->getNodeGraphString() == nodeGraphName &&
+                    input->getOutputString() == oldOutputName)
+                {
+                    input->setOutputString(validName);
+                }
+            }
+        }
     }
     else if (node->getNodeGraph())
     {
         validName = node->getNodeGraph()->getParent()->createValidChildName(newName);
         node->getNodeGraph()->setName(validName);
+        // Update the UI name up-front so downstream lookups by name match (mirrors the property editor).
+        node->setName(validName);
+
+        // Keep downstream references pointing at this nodegraph (mirrors the property editor).
+        for (UiNodePtr uiNode : _state.nodes)
+        {
+            if (!uiNode->getInput())
+            {
+                std::vector<UiPinPtr> inputs = uiNode->getInputPins();
+                for (size_t i = 0; i < inputs.size(); i++)
+                {
+                    const std::string& inputName = inputs[i]->getName();
+                    UiNodePtr inputNode = uiNode->getConnectedNode(inputName);
+                    if (inputNode && inputNode->getName() == validName && uiNode->getNode())
+                    {
+                        uiNode->getNode()->getInput(inputName)->setAttribute("nodegraph", validName);
+                    }
+                }
+            }
+        }
     }
     node->setName(validName);
 }
@@ -4250,9 +4366,10 @@ void Graph::addNodePopup(bool cursor)
 void Graph::searchNodePopup(bool cursor)
 {
     const ImGuiIO& io = ImGui::GetIO();
+    const bool searchModifier = io.KeyCtrl || io.KeySuper;
     const bool open_search = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) &&
                              !io.WantTextInput &&
-                             io.KeyCtrl &&
+                             searchModifier &&
                              ImGui::IsKeyReleased(ImGuiKey_F);
     if (open_search)
     {
@@ -4802,8 +4919,8 @@ void Graph::drawGraph(ImVec2 mousePos)
             }
 
             // Hotkey to frame selected node(s). Never fire while the search popup is
-            // open or while Ctrl is held (Ctrl+F is reserved for search).
-            else if (!io2.KeyCtrl && !ImGui::IsPopupOpen("search") &&
+            // open or while a search modifier (Ctrl / Cmd) is held (Ctrl/Cmd+F is search).
+            else if (!io2.KeyCtrl && !io2.KeySuper && !ImGui::IsPopupOpen("search") &&
                      ImGui::IsKeyReleased(ImGuiKey_F) && !_fileDialogSave.isOpened())
             {
                 ed::NavigateToSelection();
@@ -4978,7 +5095,15 @@ void Graph::drawGraph(ImVec2 mousePos)
         ed::Resume();
     }
 
+    // Suppress the node editor's built-in F shortcut when Ctrl/Cmd+F is used for node
+    // search. The editor processes its shortcuts inside ed::End(), so disable them for
+    // this frame and restore them immediately after.
+    if ((io2.KeyCtrl || io2.KeySuper) && ImGui::IsKeyPressed(ImGuiKey_F))
+    {
+        ed::EnableShortcuts(false);
+    }
     ed::End();
+    ed::EnableShortcuts(true);
 
     // Diagnostic panel — drawn below the node editor inside the same right-pane container.
     if (!_diagnostics.empty())
