@@ -57,8 +57,11 @@ class MX_GENSHADER_API ShaderGraph : public ShaderNode
                                  GenContext& context);
 
     /// Create a new shader graph from a nodegraph.
+    /// The optional portImplNames are the port name remappings declared by the
+    /// implementation this nodegraph provides, which may be declared either on the
+    /// nodegraph itself or on an <implementation> element referencing it.
     static ShaderGraphPtr create(const ShaderGraph* parent, const NodeGraph& nodeGraph,
-                                 GenContext& context);
+                                 GenContext& context, const StringMap* portImplNames = nullptr);
 
     /// Return true if this node is a graph.
     bool isAGraph() const override { return true; }
@@ -144,6 +147,17 @@ class MX_GENSHADER_API ShaderGraph : public ShaderNode
     /// Rewire all downstream connections from one output to another.
     void replaceOutput(ShaderOutput* oldOutput, ShaderOutput* newOutput);
 
+    /// Record that the port named portName in the interface element this graph was
+    /// created from is called implName in the graph, as declared by an 'implname'
+    /// attribute. This is used by generators that build a graph directly from a
+    /// nodedef, where the graph itself carries the implementation interface.
+    void addPortImplName(const string& portName, const string& implName);
+
+    /// Return the name used for the given port by this graph. The implementation
+    /// of this graph is consulted first, falling back to the names recorded by
+    /// addPortImplName().
+    const string& getPortName(const string& portName) const override;
+
   protected:
     /// Create node connections corresponding to the connection between a pair of elements.
     /// @param downstreamElement Element representing the node to connect to.
@@ -215,6 +229,9 @@ class MX_GENSHADER_API ShaderGraph : public ShaderNode
     std::vector<std::pair<ShaderOutput*, ColorSpaceTransform>> _outputColorTransformMap;
     // Temporary storage for outputs that require unit transformations
     std::vector<std::pair<ShaderOutput*, UnitTransform>> _outputUnitTransformMap;
+
+  private:
+    std::unordered_map<string, string> _portImplNames;
 };
 
 /// @class ShaderGraphEdge

@@ -17,6 +17,7 @@
   - inside
   - outside
   - mix
+  - overlay
   - premult
   - unpremult
 -->
@@ -369,5 +370,29 @@
       <input name="mix" type="float" value="0.5000" />
     </matte>
     <output name="out" type="color4" nodename="matte1" />
+  </nodegraph>
+  <nodegraph name="overlay_float">
+    <overlay name="overlay1" type="float">
+      <input name="fg" type="float" value="0.4000" />
+      <input name="bg" type="float" value="0.3000" />
+      <input name="mix" type="float" value="0.5000" />
+    </overlay>
+    <output name="out" type="float" nodename="overlay1" />
+  </nodegraph>
+  <nodegraph name="overlay_color3">
+    <overlay name="overlay1" type="color3">
+      <input name="fg" type="color3" value="0.4000, 0.3000, 0.2000" />
+      <input name="bg" type="color3" value="0.3000, 0.2000, 0.1000" />
+      <input name="mix" type="float" value="0.5000" />
+    </overlay>
+    <output name="out" type="color3" nodename="overlay1" />
+  </nodegraph>
+  <nodegraph name="overlay_color4">
+    <overlay name="overlay1" type="color4">
+      <input name="fg" type="color4" value="0.4000, 0.3000, 0.2000, 1.0000" />
+      <input name="bg" type="color4" value="0.3000, 0.2000, 0.1000, 1.0000" />
+      <input name="mix" type="float" value="0.5000" />
+    </overlay>
+    <output name="out" type="color4" nodename="overlay1" />
   </nodegraph>
 </materialx>

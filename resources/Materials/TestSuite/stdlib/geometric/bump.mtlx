@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+  <!--
+  Basic bump mapping unit test. The bump node perturbs the surface normal by a
+  height value, and is intended to be connected to a shader's 'normal' input.
+  -->
+  <nodegraph name="bump_vector3">
+    <fractal3d name="height" type="float">
+      <input name="octaves" type="integer" value="4" />
+    </fractal3d>
+    <bump name="bump1" type="vector3">
+      <input name="height" type="float" nodename="height" />
+      <input name="scale" type="float" value="0.1" />
+    </bump>
+    <output name="out" type="vector3" nodename="bump1" />
+  </nodegraph>
+</materialx>
