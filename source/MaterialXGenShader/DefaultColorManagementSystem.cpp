@@ -38,6 +38,35 @@ const StringMap COLOR_SPACE_REMAP =
     {"g22_adobergb_scene",  "adobergb"}
 };
 
+// User-facing display names for color space IDs, as tabulated in the color space table
+// of MaterialX.Specification.md. Names handled by COLOR_SPACE_REMAP are looked up here
+// by their remapped (base) name, so each display name is only listed once.
+const StringMap COLOR_SPACE_USER_FACING_NAMES =
+{
+    // Base names that COLOR_SPACE_REMAP normalizes onto.
+    { "g18_rec709",     "Gamma 1.8 Encoded Rec.709" },
+    { "g22_rec709",     "Gamma 2.2 Encoded Rec.709" },
+    { "rec709_display", "Gamma 2.4 Encoded Rec.709" },
+    { "acescg",         "ACEScg" },
+    { "lin_rec709",     "Linear Rec.709 (sRGB)" },
+    { "lin_displayp3",  "Linear P3-D65" },
+    { "lin_adobergb",   "Linear AdobeRGB" },
+    { "srgb_texture",   "sRGB Encoded Rec.709 (sRGB)" },
+    { "g22_ap1",        "Gamma 2.2 Encoded AP1" },
+    { "srgb_displayp3", "sRGB Encoded P3-D65" },
+    { "adobergb",       "Gamma 2.2 Encoded AdobeRGB" },
+
+    // Color interop names with no legacy equivalent.
+    { "lin_ap0_scene",       "ACES2065-1" },
+    { "lin_rec2020_scene",   "Linear Rec.2020" },
+    { "lin_ciexyzd65_scene", "CIE XYZ-D65 - Scene-referred" },
+    { "srgb_ap1_scene",      "sRGB Encoded AP1" },
+
+    // No-op color spaces.
+    { "none", "Data" },
+    { "data", "Data" }
+};
+
 } // anonymous namespace
 
 //
@@ -62,6 +91,12 @@ const string& DefaultColorManagementSystem::getName() const
 bool DefaultColorManagementSystem::isNoOpColorSpace(const string& colorSpace) const
 {
     return colorSpace == "none" || colorSpace == "data";
+}
+
+string DefaultColorManagementSystem::getUserFacingName(const string& colorSpace) const
+{
+    string baseSpace = COLOR_SPACE_REMAP.count(colorSpace) ? COLOR_SPACE_REMAP.at(colorSpace) : colorSpace;
+    return COLOR_SPACE_USER_FACING_NAMES.count(baseSpace) ? COLOR_SPACE_USER_FACING_NAMES.at(baseSpace) : colorSpace;
 }
 
 NodeDefPtr DefaultColorManagementSystem::getNodeDef(const ColorSpaceTransform& transform) const

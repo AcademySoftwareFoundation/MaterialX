@@ -551,3 +551,38 @@ TEST_CASE("GenShader: No-op Color Spaces", "[genshader]")
                       mx::ExceptionShaderGenError);
 #endif
 }
+
+TEST_CASE("GenShader: User-Facing Color Space Names", "[genshader]")
+{
+    // DefaultColorManagementSystem translates both color interop forum IDs and their
+    // deprecated legacy equivalents to the same user-facing display name.
+    mx::DefaultColorManagementSystemPtr colorManagementSystem =
+        mx::DefaultColorManagementSystem::create("genglsl");
+    CHECK(colorManagementSystem->getUserFacingName("lin_rec709_scene") == "Linear Rec.709 (sRGB)");
+    CHECK(colorManagementSystem->getUserFacingName("lin_rec709") == "Linear Rec.709 (sRGB)");
+    CHECK(colorManagementSystem->getUserFacingName("lin_ap1_scene") == "ACEScg");
+    CHECK(colorManagementSystem->getUserFacingName("acescg") == "ACEScg");
+    CHECK(colorManagementSystem->getUserFacingName("lin_ap0_scene") == "ACES2065-1");
+    CHECK(colorManagementSystem->getUserFacingName("none") == "None");
+    CHECK(colorManagementSystem->getUserFacingName("data") == "Data");
+    // An unrecognized color space is returned unchanged.
+    CHECK(colorManagementSystem->getUserFacingName("bogus_colorspace") == "bogus_colorspace");
+
+#ifdef MATERIALX_BUILD_OCIO
+    // OcioColorManagementSystem prefers the canonical name reported by the underlying
+    // OCIO config, falling back to DefaultColorManagementSystem's table for names the
+    // config doesn't recognize (e.g. MaterialX-only IDs, or a fully unrecognized name).
+    try
+    {
+        mx::OcioColorManagementSystemPtr ocioColorManagementSystem =
+            mx::OcioColorManagementSystem::createFromBuiltinConfig("ocio://cg-config-latest", "genglsl");
+        CHECK(ocioColorManagementSystem->getUserFacingName("pq_p3d65_display") == "ST2084-P3-D65 - Display");
+        CHECK(ocioColorManagementSystem->getUserFacingName("lin_rec709_scene") == "Linear Rec.709 (sRGB)");
+        CHECK(ocioColorManagementSystem->getUserFacingName("bogus_colorspace") == "bogus_colorspace");
+    }
+    catch (const std::exception& e)
+    {
+        WARN(std::string("Could not create OcioColorManagementSystem from builtin config: ") + e.what());
+    }
+#endif
+}

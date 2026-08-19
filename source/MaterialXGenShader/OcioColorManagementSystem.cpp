@@ -59,6 +59,8 @@ class OcioColorManagementSystemImpl
 
     bool isNoOpColorSpace(const string& colorSpace) const;
 
+    string getUserFacingName(const string& colorSpace) const;
+
     NodeDefPtr getNodeDef(const ColorSpaceTransform& transform, const DocumentPtr& document) const;
 
     bool hasImplementation(const string& implName) const
@@ -128,6 +130,18 @@ bool OcioColorManagementSystemImpl::isNoOpColorSpace(const string& colorSpace) c
 
     OCIO::ConstColorSpaceRcPtr colorSpaceObj = _config->getColorSpace(supportedColorSpace);
     return colorSpaceObj && colorSpaceObj->isData();
+}
+
+string OcioColorManagementSystemImpl::getUserFacingName(const string& colorSpace) const
+{
+    const char* supportedColorSpace = getSupportedColorSpaceName(colorSpace.c_str());
+    if (!supportedColorSpace)
+    {
+        return colorSpace;
+    }
+
+    const char* canonicalName = _config->getCanonicalName(supportedColorSpace);
+    return canonicalName ? canonicalName : colorSpace;
 }
 
 NodeDefPtr OcioColorManagementSystemImpl::getNodeDef(const ColorSpaceTransform& transform, const DocumentPtr& document) const
@@ -364,6 +378,17 @@ bool OcioColorManagementSystem::isNoOpColorSpace(const string& colorSpace) const
         return true;
     }
     return _impl->isNoOpColorSpace(colorSpace);
+}
+
+string OcioColorManagementSystem::getUserFacingName(const string& colorSpace) const
+{
+    // The config author's name takes precedence over the DefaultColorManagementSystem names.
+    string name = _impl->getUserFacingName(colorSpace);
+    if (name != colorSpace)
+    {
+        return name;
+    }
+    return DefaultColorManagementSystem::getUserFacingName(colorSpace);
 }
 
 bool OcioColorManagementSystem::hasImplementation(const string& implName) const

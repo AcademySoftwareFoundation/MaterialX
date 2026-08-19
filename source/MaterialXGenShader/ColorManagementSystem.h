@@ -64,6 +64,11 @@ class MX_GENSHADER_API ColorManagementSystem
     /// when used as a source or target space.
     virtual bool isNoOpColorSpace(const string& /*colorSpace*/) const { return false; }
 
+    /// The colorSpace strings should not be shown directly in a user interface. This function
+    /// converts a colorSpace into a user-facing name. For example, "lin_rec709_scene" becomes
+    /// "Linear Rec.709 (sRGB)". If the colorSpace is not recognized, it is returned unchanged.
+    virtual string getUserFacingName(const string& colorSpace) const { return colorSpace; }
+
     /// Create a node to use to perform the given color space transformation.
     ShaderNodePtr createNode(const ShaderGraph* parent, const ColorSpaceTransform& transform, const string& name,
                              GenContext& context) const;
