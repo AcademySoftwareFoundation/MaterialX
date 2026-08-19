@@ -185,6 +185,8 @@ class Graph
     static float computeIconSize();
     // Compute pin offset based on icon size and aligment (left vs right)
     static float computePinOffset(bool rightAligned = false);
+    // Size of the node hamburger menu button drawn inline after the title.
+    static float computeHamburgerSize();
 
     // Based on the pin icon function in the ImGui Node Editor blueprints-example.cpp
     void drawPinIcon(const std::string& type, bool connected, int alpha, float xOffset = 0.0f, bool offsetInY = false);

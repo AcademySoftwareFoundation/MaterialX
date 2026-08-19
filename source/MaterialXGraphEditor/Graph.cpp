@@ -2000,7 +2000,7 @@ void Graph::drawPinIcon(const std::string& type, bool connected, int alpha, floa
 
 void Graph::drawNodeMenu(UiNodePtr node)
 {
-    const float buttonSize = ImGui::GetTextLineHeight();
+    const float buttonSize = computeHamburgerSize();
     // Place the icon inline to the right of the title as a real layout item, so the node
     // expands to fit it and the title text is never clipped or overlapped.
     ImGui::SameLine();
@@ -2102,6 +2102,11 @@ float Graph::computeIconSize()
     return std::max(MIN_PIN_ICON_SIZE, BASE_PIN_ICON_SIZE * getUiScaleFromFont());
 }
 
+float Graph::computeHamburgerSize()
+{
+    return ImGui::GetTextLineHeight();
+}
+
 
 float Graph::computePinOffset(bool righAligned)
 {
@@ -2125,8 +2130,21 @@ void Graph::drawOutputPins(UiNodePtr node, const std::string& longestInputLabel)
         if (w > maxLabelWidth) maxLabelWidth = w;
     }
 
-    // Content width = max label width (paddings are handled by the editor)
-    const float contentWidth = maxLabelWidth;
+    // Content width = max label width (paddings are handled by the editor).
+    // When pins sit on the node's border, the output row must span the node's full
+    // content width so the pin lands on the right edge. The title row includes the
+    // hamburger button (drawn inline after the node name) which can be wider than
+    // the output labels, so match the title row width here.
+    float contentWidth = maxLabelWidth;
+    if (_pinsOnBorder)
+    {
+        const float titleTextWidth = ImGui::CalcTextSize(node->getName().c_str()).x;
+        const float titleRowWidth = titleTextWidth + ImGui::GetStyle().ItemSpacing.x + computeHamburgerSize();
+        if (titleRowWidth > contentWidth)
+        {
+            contentWidth = titleRowWidth;
+        }
+    }
 
     // Offset the icon so its center lands on the node's right edge
     // if pin on border option is enabled. 
