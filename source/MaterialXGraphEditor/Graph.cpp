@@ -2018,7 +2018,7 @@ void Graph::drawNodeMenu(UiNodePtr node)
         const float y = bbMin.y + buttonSize * (0.3f + line * 0.2f);
         drawList->AddLine(ImVec2(barStart, y), ImVec2(barStart + barWidth, y), color, 1.5f);
     }
-    if (hovered && ImGui::IsMouseReleased(ImGuiMouseButton_Right))
+    if (hovered && ImGui::IsMouseReleased(ImGuiMouseButton_Right) && !readOnly())
     {
         _nodeMenuToOpen = node->getId();
     }
@@ -3103,6 +3103,12 @@ void Graph::renameNode(UiNodePtr node, const std::string& newName)
         return;
     }
 
+    // Read-only graphs cannot be modified.
+    if (readOnly())
+    {
+        return;
+    }
+
     // Renaming modifies the graph, so mark the material for recompilation and
     // trigger a render refresh (mirrors deleteNodeById).
     _renderer->setMaterialCompilation(true);
@@ -3253,6 +3259,12 @@ void Graph::renameNode(UiNodePtr node, const std::string& newName)
                 }
             }
         }
+    }
+    else if (node->getCategory() == "group")
+    {
+        // Group nodes have no backing element; just update the UI name, keeping the
+        // raw name (mirrors the property editor's group handling).
+        validName = newName;
     }
     node->setName(validName);
 }
@@ -3747,130 +3759,25 @@ void Graph::propertyEditor()
         // Set and edit name
         ImGui::Text("Name: ");
         ImGui::SameLine();
+        const bool readOnlyGraph = readOnly();
         std::string original = _currUiNode->getName();
         std::string temp = original;
         float availableWidth = ImGui::GetContentRegionAvail().x;
         ImGui::PushItemWidth(availableWidth);
-        ImGui::InputText("##edit", &temp);
+        // Commit the rename on Enter or when the field loses focus, not on every keystroke.
+        // The name is not editable in read-only graphs.
+        const bool nameSubmitted = ImGui::InputText("##edit", &temp,
+            ImGuiInputTextFlags_EnterReturnsTrue | (readOnlyGraph ? ImGuiInputTextFlags_ReadOnly : 0));
+        const bool nameEdited = ImGui::IsItemDeactivatedAfterEdit();
         ImGui::PopItemWidth();
 
         std::string docString = "NodeDef Doc String: \n";
-        if (_currUiNode->getNode())
-        {
-            if (temp != original)
-            {
-                std::string name = _currUiNode->getNode()->getParent()->createValidChildName(temp);
 
-                std::vector<UiNodePtr> downstreamNodes = _currUiNode->getOutputConnections();
-                for (UiNodePtr uiNode : downstreamNodes)
-                {
-                    if (!uiNode->getInput() && uiNode->getNode())
-                    {
-                        for (mx::InputPtr input : uiNode->getNode()->getActiveInputs())
-                        {
-                            if (input->getConnectedNode() == _currUiNode->getNode())
-                            {
-                                _currUiNode->getNode()->setName(name);
-                                uiNode->getNode()->setConnectedNode(input->getName(), _currUiNode->getNode());
-                            }
-                        }
-                    }
-                }
-                _currUiNode->setName(name);
-                _currUiNode->getNode()->setName(name);
-            }
-        }
-        else if (_currUiNode->getInput())
+        // Rename through the shared renameNode() path so the node menu and the
+        // property editor behave identically.
+        if (!readOnlyGraph && (nameSubmitted || nameEdited) && temp != original)
         {
-            mx::InputPtr currUINodeInput = _currUiNode->getInput();
-
-            if (temp != original)
-            {
-                std::string name = currUINodeInput->getParent()->createValidChildName(temp);
-
-                for (UiNodePtr uiNode : _currUiNode->getOutputConnections())
-                {
-                    // Is not an input port
-                    if (uiNode->getInput() == nullptr)
-                    {
-                        // Is a node
-                        if (uiNode->getNode())
-                        {
-                            for (mx::InputPtr input : uiNode->getNode()->getActiveInputs())
-                            {
-                                if (input->getInterfaceInput() == currUINodeInput)
-                                {
-                                    currUINodeInput->setName(name);
-                                    input->setConnectedInterfaceName(name);
-                                }
-                            }
-                        }
-                        // Is a node graph
-                        else if (uiNode->getNodeGraph())
-                        {
-                            for (mx::InputPtr input : uiNode->getNodeGraph()->getActiveInputs())
-                            {
-                                if (input->getInterfaceName() == currUINodeInput->getName())
-                                {
-                                    currUINodeInput->setName(name);
-                                    input->setConnectedInterfaceName(name);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            // Is an output port
-                            mx::OutputPtr outputPtr = uiNode->getOutput();
-                            if (outputPtr)
-                            {
-                                outputPtr->setConnectedNode(_currUiNode->getNode());
-                            }
-                        }
-                    }
-                }
-
-                currUINodeInput->setName(name);
-                _currUiNode->setName(name);
-            }
-        }
-        else if (_currUiNode->getOutput())
-        {
-            if (temp != original)
-            {
-                std::string name = _currUiNode->getOutput()->getParent()->createValidChildName(temp);
-                _currUiNode->getOutput()->setName(name);
-                _currUiNode->setName(name);
-            }
-        }
-        else if (_currUiNode->getCategory() == "group")
-        {
-            _currUiNode->setName(temp);
-        }
-        else if (_currUiNode->getCategory() == "nodegraph")
-        {
-            if (temp != original)
-            {
-                std::string name = _currUiNode->getNodeGraph()->getParent()->createValidChildName(temp);
-                _currUiNode->getNodeGraph()->setName(name);
-                _currUiNode->setName(name);
-
-                for (UiNodePtr node : _state.nodes)
-                {
-                    if (!node->getInput())
-                    {
-                        std::vector<UiPinPtr> inputs = node->getInputPins();
-                        for (size_t i = 0; i < inputs.size(); i++)
-                        {
-                            const std::string& inputName = inputs[i]->getName();
-                            UiNodePtr inputNode = node->getConnectedNode(inputName);
-                            if (inputNode && inputNode->getName() == name && node->getNode())
-                            {
-                                node->getNode()->getInput(inputName)->setAttribute("nodegraph", name);
-                            }
-                        }
-                    }
-                }
-            }
+            renameNode(_currUiNode, temp);
         }
 
         const float TEXT_BASE_HEIGHT = ImGui::GetTextLineHeightWithSpacing() * 1.3f;
