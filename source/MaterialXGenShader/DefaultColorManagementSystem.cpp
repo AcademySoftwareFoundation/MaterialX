@@ -63,7 +63,7 @@ const StringMap COLOR_SPACE_USER_FACING_NAMES =
     { "srgb_ap1_scene",      "sRGB Encoded AP1" },
 
     // No-op color spaces.
-    { "none", "Data" },
+    { "none", "Data" },  // prefer the new name
     { "data", "Data" }
 };
 

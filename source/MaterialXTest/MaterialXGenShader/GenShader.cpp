@@ -563,7 +563,7 @@ TEST_CASE("GenShader: User-Facing Color Space Names", "[genshader]")
     CHECK(colorManagementSystem->getUserFacingName("lin_ap1_scene") == "ACEScg");
     CHECK(colorManagementSystem->getUserFacingName("acescg") == "ACEScg");
     CHECK(colorManagementSystem->getUserFacingName("lin_ap0_scene") == "ACES2065-1");
-    CHECK(colorManagementSystem->getUserFacingName("none") == "None");
+    CHECK(colorManagementSystem->getUserFacingName("none") == "Data");
     CHECK(colorManagementSystem->getUserFacingName("data") == "Data");
     // An unrecognized color space is returned unchanged.
     CHECK(colorManagementSystem->getUserFacingName("bogus_colorspace") == "bogus_colorspace");
