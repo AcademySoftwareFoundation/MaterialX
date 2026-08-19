@@ -282,6 +282,32 @@ class MX_GENSHADER_API ShaderGenerator
     friend ShaderGraph;
 };
 
+/// Transfer the port name remappings declared by the 'implname' attributes on an
+/// implementation element to the given destination, which may be either a
+/// ShaderNodeImpl or a ShaderGraph.
+template <typename T>
+void addPortImplementationNames(ConstInterfaceElementPtr implElement, T& dest)
+{
+    if (implElement)
+    {
+        for (const auto& port : implElement->getActiveInputs())
+        {
+            if (port->hasImplementationName())
+            {
+                dest.addPortImplName(port->getName(), port->getImplementationName());
+            }
+        }
+
+        for (const auto& port : implElement->getActiveOutputs())
+        {
+            if (port->hasImplementationName())
+            {
+                dest.addPortImplName(port->getName(), port->getImplementationName());
+            }
+        }
+    }
+}
+
 MATERIALX_NAMESPACE_END
 
 #endif // MATERIALX_SHADERGENERATOR_H

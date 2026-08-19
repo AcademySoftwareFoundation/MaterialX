@@ -97,6 +97,16 @@ class MX_GENSHADER_API ShaderNodeImpl
         return true;
     }
 
+    /// Record that the port named portName in the nodedef is called implName
+    /// in this implementation, as declared by an 'implname' attribute.
+    void addPortImplName(const string& portName, const string& implName);
+
+    /// Return the name used for the given port by this implementation.
+    /// If the port has no 'implname' remapping the given portName is returned,
+    /// in which case the returned reference aliases the argument and callers
+    /// must not pass a temporary.
+    const string& getPortName(const string& portName) const;
+
   protected:
     /// Protected constructor
     ShaderNodeImpl();
@@ -106,9 +116,15 @@ class MX_GENSHADER_API ShaderNodeImpl
     /// the appropriate shader code.
     bool nodeOutputIsClosure(const ShaderNode& node) const;
 
+    /// Return all port name remappings declared for this implementation.
+    const StringMap& getPortImplNames() const { return _portImplNames; }
+
   protected:
     string _name;
     size_t _hash;
+
+  private:
+    StringMap _portImplNames;
 };
 
 /// A no operation node, to be used for organizational nodes that has no code to execute.

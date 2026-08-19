@@ -14,4 +14,16 @@
   <!-- <viewdirection> -->
   <implementation name="IM_viewdirection_vector3_genosl" nodedef="ND_viewdirection_vector3" sourcecode="transform({{space}}, I)" target="genosl" />
 
+  <!-- ======================================================================== -->
+  <!-- Nodes with a nodegraph implementation                                    -->
+  <!--                                                                          -->
+  <!-- These nodedefs are implemented by a nodegraph shared by every target, so  -->
+  <!-- the port names that clash with OSL reserved words are remapped here.      -->
+  <!-- ======================================================================== -->
+
+  <implementation name="IM_facingratio_float_genosl" nodedef="ND_facingratio_float" nodegraph="NG_facingratio_float" target="genosl">
+    <input name="normal" type="vector3" implname="normal_value" />
+    <input name="faceforward" type="boolean" implname="faceforward_value" />
+  </implementation>
+
 </materialx>

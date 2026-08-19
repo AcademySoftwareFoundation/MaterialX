@@ -605,3 +605,102 @@ TEST_CASE("GenShader: User-Facing Color Space Names", "[genshader]")
     }
 #endif
 }
+
+// Check that the 'implname' attributes declared on an implementation element are
+// respected when naming the variables of the corresponding node in generated code.
+// The standard libraries declare that the 'default' input of the <image> node is
+// called 'default_value' in the implementations of all our source code targets.
+void checkImplementationNames(mx::DocumentPtr libraries, mx::GenContext& context)
+{
+    const std::string testDocumentString =
+    "<?xml version=\"1.0\"?> \
+      <materialx version=\"1.39\"> \
+      <image name=\"image1\" type=\"color3\" > \
+        <input name=\"default\" type=\"color3\" value=\"0.1, 0.2, 0.3\" /> \
+      </image> \
+      <standard_surface name=\"standard_surface1\" type=\"surfaceshader\" > \
+        <input name=\"base_color\" type=\"color3\" nodename=\"image1\" /> \
+      </standard_surface> \
+      <surfacematerial name=\"surfacematerial1\" type=\"material\" > \
+        <input name=\"surfaceshader\" type=\"surfaceshader\" nodename=\"standard_surface1\" /> \
+      </surfacematerial> \
+    </materialx>";
+
+    const mx::string testElement = "surfacematerial1";
+
+    mx::DocumentPtr testDoc = mx::createDocument();
+    mx::readFromXmlString(testDoc, testDocumentString);
+    testDoc->setDataLibrary(libraries);
+
+    mx::ElementPtr element = testDoc->getChild(testElement);
+    REQUIRE(element);
+
+    mx::ShaderPtr shader = context.getShaderGenerator().generate(testElement, element, context);
+    REQUIRE(shader);
+
+    mx::ShaderNode* imageNode = nullptr;
+    for (mx::ShaderNode* node : shader->getGraph().getNodes())
+    {
+        if (node->getName() == "image1")
+        {
+            imageNode = node;
+        }
+    }
+    REQUIRE(imageNode);
+
+    // The remapped input is named by its 'implname', while an input with no
+    // 'implname' keeps the name given in the nodedef.
+    CHECK(imageNode->getPortName("default") == "default_value");
+    CHECK(imageNode->getPortName("texcoord") == "texcoord");
+
+    mx::ShaderInput* defaultInput = imageNode->getInput("default");
+    REQUIRE(defaultInput);
+    CHECK(defaultInput->getVariable() == "image1_default_value");
+
+    mx::ShaderInput* texcoordInput = imageNode->getInput("texcoord");
+    REQUIRE(texcoordInput);
+    CHECK(texcoordInput->getVariable() == "image1_texcoord");
+}
+
+TEST_CASE("GenShader: Implementation Names", "[genshader]")
+{
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::DocumentPtr libraries = mx::createDocument();
+    mx::loadLibraries({ "libraries" }, searchPath, libraries);
+
+#ifdef MATERIALX_BUILD_GEN_GLSL
+    {
+        mx::GenContext context(mx::GlslShaderGenerator::create());
+        context.registerSourceCodeSearchPath(searchPath);
+        checkImplementationNames(libraries, context);
+    }
+#endif
+#ifdef MATERIALX_BUILD_GEN_OSL
+    {
+        mx::GenContext context(mx::OslShaderGenerator::create());
+        context.registerSourceCodeSearchPath(searchPath);
+        checkImplementationNames(libraries, context);
+    }
+#endif
+#ifdef MATERIALX_BUILD_GEN_MDL
+    {
+        mx::GenContext context(mx::MdlShaderGenerator::create());
+        context.registerSourceCodeSearchPath(searchPath);
+        checkImplementationNames(libraries, context);
+    }
+#endif
+#ifdef MATERIALX_BUILD_GEN_MSL
+    {
+        mx::GenContext context(mx::MslShaderGenerator::create());
+        context.registerSourceCodeSearchPath(searchPath);
+        checkImplementationNames(libraries, context);
+    }
+#endif
+#ifdef MATERIALX_BUILD_GEN_SLANG
+    {
+        mx::GenContext context(mx::SlangShaderGenerator::create());
+        context.registerSourceCodeSearchPath(searchPath);
+        checkImplementationNames(libraries, context);
+    }
+#endif
+}

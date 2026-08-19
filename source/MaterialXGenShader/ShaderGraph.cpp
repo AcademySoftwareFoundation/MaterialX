@@ -436,7 +436,7 @@ void ShaderGraph::addUnitTransformNode(ShaderOutput* output, const UnitTransform
     }
 }
 
-ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const NodeGraph& nodeGraph, GenContext& context)
+ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const NodeGraph& nodeGraph, GenContext& context, const StringMap* portImplNames)
 {
     NodeDefPtr nodeDef = nodeGraph.getNodeDef();
     if (!nodeDef)
@@ -456,6 +456,17 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const NodeGraph& n
 
     // Create output sockets from the nodegraph
     graph->addOutputSockets(nodeGraph, context);
+
+    // Apply the port name remappings declared by this implementation before the
+    // graph is finalized, since finalizing assigns the variable names that become
+    // the parameter names of the generated function.
+    if (portImplNames)
+    {
+        for (const auto& portImplName : *portImplNames)
+        {
+            graph->addPortImplName(portImplName.first, portImplName.second);
+        }
+    }
 
     // Traverse all outputs and create all internal nodes
     for (OutputPtr graphOutput : nodeGraph.getActiveOutputs())
@@ -551,6 +562,27 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
 
         // Create this shader node in the graph.
         ShaderNode* newNode = graph->createNode(node->getName(), node->getNamePath(), nodeDef, context);
+
+        // This graph is a shader for a single node, so the graph interface is the
+        // interface of that node's implementation. Publish the sockets under the
+        // names declared by its 'implname' attributes, so that the parameters of
+        // the generated shader match the names the implementation uses.
+        for (const ShaderInput* nodeInput : newNode->getInputs())
+        {
+            const string& implName = newNode->getPortName(nodeInput->getName());
+            if (implName != nodeInput->getName())
+            {
+                graph->addPortImplName(nodeInput->getName(), implName);
+            }
+        }
+        for (const ShaderOutput* nodeOutput : newNode->getOutputs())
+        {
+            const string& implName = newNode->getPortName(nodeOutput->getName());
+            if (implName != nodeOutput->getName())
+            {
+                graph->addPortImplName(nodeOutput->getName(), implName);
+            }
+        }
 
         // Share metadata.
         graph->setMetadata(newNode->getMetadata());
@@ -823,8 +855,13 @@ ShaderNode* ShaderGraph::inlineNodeBeforeOutput(ShaderGraphOutputSocket* output,
     {
         throw ExceptionShaderGenError("Error while creating node '"+newNodeName+"' of type '"+nodeDefName+"'");
     }
+
+    // This runs after the graph has been finalized, so setVariableNames() has already
+    // assigned the variables of every other node and will not run again. The ports of
+    // the node we are inserting must therefore be named here, using the same formula
+    // so that any 'implname' remapping is applied consistently.
     auto newNodeOutput = newNode->getOutput(outputName);
-    newNodeOutput->setVariable(newNodeOutput->getFullName());
+    newNodeOutput->setVariable(newNode->getPortVariableName(outputName));
     output->makeConnection(newNodeOutput);
 
     // update the type of the graph output port to match the new node output
@@ -838,7 +875,7 @@ ShaderNode* ShaderGraph::inlineNodeBeforeOutput(ShaderGraphOutputSocket* output,
         // update the variable name for the input and connect the original upstream
         // we already validated the types match above.
         auto newNodeInput = newNode->getInput(inputName);
-        newNodeInput->setVariable(newNodeInput->getFullName());
+        newNodeInput->setVariable(newNode->getPortVariableName(inputName));
 
         originalUpstream->makeConnection(newNodeInput);
     }
@@ -1166,25 +1203,25 @@ void ShaderGraph::setVariableNames(GenContext& context)
 
     for (ShaderGraphInputSocket* inputSocket : getInputSockets())
     {
-        const string variable = syntax.getVariableName(inputSocket->getName(), inputSocket->getType(), _identifiers);
+        const string variable = syntax.getVariableName(getPortName(inputSocket->getName()), inputSocket->getType(), _identifiers);
         inputSocket->setVariable(variable);
     }
     for (ShaderGraphOutputSocket* outputSocket : getOutputSockets())
     {
-        const string variable = syntax.getVariableName(outputSocket->getName(), outputSocket->getType(), _identifiers);
+        const string variable = syntax.getVariableName(getPortName(outputSocket->getName()), outputSocket->getType(), _identifiers);
         outputSocket->setVariable(variable);
     }
     for (ShaderNode* node : getNodes())
     {
         for (ShaderInput* input : node->getInputs())
         {
-            string variable = input->getFullName();
+            string variable = node->getPortVariableName(input->getName());
             variable = syntax.getVariableName(variable, input->getType(), _identifiers);
             input->setVariable(variable);
         }
         for (ShaderOutput* output : node->getOutputs())
         {
-            string variable = output->getFullName();
+            string variable = node->getPortVariableName(output->getName());
             variable = syntax.getVariableName(variable, output->getType(), _identifiers);
             output->setVariable(variable);
         }
@@ -1298,6 +1335,22 @@ void ShaderGraph::populateUnitTransformMap(UnitSystemPtr unitSystem, ShaderPort*
             }
         }
     }
+}
+
+void ShaderGraph::addPortImplName(const string& portName, const string& implName)
+{
+    _portImplNames[portName] = implName;
+}
+
+const string& ShaderGraph::getPortName(const string& portName) const
+{
+    if (_impl)
+    {
+        return _impl->getPortName(portName);
+    }
+
+    auto it = _portImplNames.find(portName);
+    return it != _portImplNames.end() ? it->second : portName;
 }
 
 namespace

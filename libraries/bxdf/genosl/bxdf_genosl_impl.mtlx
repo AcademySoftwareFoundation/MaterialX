@@ -1,0 +1,145 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+  <!--
+    Copyright Contributors to the MaterialX Project
+    SPDX-License-Identifier: Apache-2.0
+
+    Declarations for OSL implementations of the physically based shading nodes.
+
+    Each nodedef below is implemented by a nodegraph that is shared by every
+    target, so the port names that clash with OSL reserved words cannot be
+    remapped on that nodegraph. These target specific implementation elements
+    reference the same nodegraph and remap those names for OSL only.
+  -->
+
+  <implementation name="IM_disney_principled_genosl" nodedef="ND_disney_principled" nodegraph="NG_disney_principled" target="genosl">
+    <input name="sheen" type="float" implname="sheen_value" />
+    <input name="subsurface" type="float" implname="subsurface_value" />
+  </implementation>
+
+  <implementation name="IM_UsdPreviewSurface_surfaceshader_genosl" nodedef="ND_UsdPreviewSurface_surfaceshader" nodegraph="IMP_UsdPreviewSurface_surfaceshader" target="genosl">
+    <input name="normal" type="vector3" implname="normal_value" />
+  </implementation>
+
+  <implementation name="IM_standard_surface_surfaceshader_genosl" nodedef="ND_standard_surface_surfaceshader" nodegraph="NG_standard_surface_surfaceshader_100" target="genosl">
+    <input name="subsurface" type="float" implname="subsurface_value" />
+    <input name="sheen" type="float" implname="sheen_value" />
+    <input name="emission" type="float" implname="emission_value" />
+    <input name="normal" type="vector3" implname="normal_value" />
+  </implementation>
+
+  <implementation name="IM_standard_surface_surfaceshader_100_genosl" nodedef="ND_standard_surface_surfaceshader_100" nodegraph="NG_standard_surface_surfaceshader_100" target="genosl">
+    <input name="subsurface" type="float" implname="subsurface_value" />
+    <input name="sheen" type="float" implname="sheen_value" />
+    <input name="emission" type="float" implname="emission_value" />
+    <input name="normal" type="vector3" implname="normal_value" />
+  </implementation>
+
+  <implementation name="IM_gltf_pbr_surfaceshader_genosl" nodedef="ND_gltf_pbr_surfaceshader" nodegraph="IMPL_gltf_pbr_surfaceshader" target="genosl">
+    <input name="normal" type="vector3" implname="normal_value" />
+  </implementation>
+
+  <implementation name="IM_gltf_colorimage_genosl" nodedef="ND_gltf_colorimage" nodegraph="NG_gltf_colorimage" target="genosl">
+    <input name="default" type="color4" implname="default_value" />
+    <input name="rotate" type="float" implname="rotate_value" />
+    <input name="color" type="color4" implname="color_value" />
+  </implementation>
+
+  <implementation name="IM_gltf_image_color3_color3_1_0_genosl" nodedef="ND_gltf_image_color3_color3_1_0" nodegraph="NG_NG_gltf_image_color3_color3_1_0" target="genosl">
+    <input name="default" type="color3" implname="default_value" />
+    <input name="rotate" type="float" implname="rotate_value" />
+  </implementation>
+
+  <implementation name="IM_gltf_image_color4_color4_1_0_genosl" nodedef="ND_gltf_image_color4_color4_1_0" nodegraph="NG_gltf_image_color4_color4_1_0" target="genosl">
+    <input name="default" type="color4" implname="default_value" />
+    <input name="rotate" type="float" implname="rotate_value" />
+  </implementation>
+
+  <implementation name="IM_gltf_image_float_float_1_0_genosl" nodedef="ND_gltf_image_float_float_1_0" nodegraph="NG_gltf_image_float_float_1_0" target="genosl">
+    <input name="default" type="float" implname="default_value" />
+    <input name="rotate" type="float" implname="rotate_value" />
+  </implementation>
+
+  <implementation name="IM_gltf_image_vector3_vector3_1_0_genosl" nodedef="ND_gltf_image_vector3_vector3_1_0" nodegraph="NG_gltf_image_vector3_vector3_1_0" target="genosl">
+    <input name="default" type="vector3" implname="default_value" />
+    <input name="rotate" type="float" implname="rotate_value" />
+  </implementation>
+
+  <implementation name="IM_gltf_normalmap_vector3_1_0_genosl" nodedef="ND_gltf_normalmap_vector3_1_0" nodegraph="NG_gltf_normalmap_vector3_1_0" target="genosl">
+    <input name="default" type="vector3" implname="default_value" />
+    <input name="rotate" type="float" implname="rotate_value" />
+  </implementation>
+
+  <implementation name="IM_gltf_iridescence_thickness_float_1_0_genosl" nodedef="ND_gltf_iridescence_thickness_float_1_0" nodegraph="NG_gltf_iridescence_thickness_float_1_0" target="genosl">
+    <input name="default" type="vector3" implname="default_value" />
+    <input name="rotate" type="float" implname="rotate_value" />
+  </implementation>
+
+  <implementation name="IM_gltf_anisotropy_image_genosl" nodedef="ND_gltf_anisotropy_image" nodegraph="NG_gltf_anisotropy_image_1_0" target="genosl">
+    <input name="default" type="vector3" implname="default_value" />
+    <input name="rotate" type="float" implname="rotate_value" />
+  </implementation>
+
+  <implementation name="IM_standard_surface_to_open_pbr_surface_genosl" nodedef="ND_standard_surface_to_open_pbr_surface" nodegraph="NG_standard_surface_to_open_pbr_surface" target="genosl">
+    <input name="subsurface" type="float" implname="subsurface_value" />
+    <input name="sheen" type="float" implname="sheen_value" />
+    <input name="emission" type="float" implname="emission_value" />
+  </implementation>
+
+  <implementation name="IM_standard_surface_to_UsdPreviewSurface_genosl" nodedef="ND_standard_surface_to_UsdPreviewSurface" nodegraph="NG_standard_surface_to_UsdPreviewSurface" target="genosl">
+    <input name="subsurface" type="float" implname="subsurface_value" />
+    <input name="emission" type="float" implname="emission_value" />
+    <input name="normal" type="vector3" implname="normal_value" />
+  </implementation>
+
+  <implementation name="IM_standard_surface_to_gltf_pbr_genosl" nodedef="ND_standard_surface_to_gltf_pbr" nodegraph="NG_standard_surface_to_gltf_pbr" target="genosl">
+    <input name="sheen" type="float" implname="sheen_value" />
+    <input name="emission" type="float" implname="emission_value" />
+    <input name="normal" type="vector3" implname="normal_value" />
+  </implementation>
+
+  <implementation name="IM_lama_sheen_genosl" nodedef="ND_lama_sheen" nodegraph="IMPL_lama_sheen" target="genosl">
+    <input name="color" type="color3" implname="color_value" />
+    <input name="normal" type="vector3" implname="normal_value" />
+  </implementation>
+
+  <implementation name="IM_lama_sss_genosl" nodedef="ND_lama_sss" nodegraph="IMPL_lama_sss" target="genosl">
+    <input name="color" type="color3" implname="color_value" />
+    <input name="normal" type="vector3" implname="normal_value" />
+  </implementation>
+
+  <implementation name="IM_lama_dielectric_genosl" nodedef="ND_lama_dielectric" nodegraph="IMPL_lama_dielectric" target="genosl">
+    <input name="normal" type="vector3" implname="normal_value" />
+  </implementation>
+
+  <implementation name="IM_lama_diffuse_genosl" nodedef="ND_lama_diffuse" nodegraph="NG_lama_diffuse" target="genosl">
+    <input name="color" type="color3" implname="color_value" />
+    <input name="normal" type="vector3" implname="normal_value" />
+  </implementation>
+
+  <implementation name="IM_lama_mix_bsdf_genosl" nodedef="ND_lama_mix_bsdf" nodegraph="NG_lama_mix_bsdf" target="genosl">
+    <input name="mix" type="float" implname="mix_value" />
+  </implementation>
+
+  <implementation name="IM_lama_mix_edf_genosl" nodedef="ND_lama_mix_edf" nodegraph="NG_lama_mix_edf" target="genosl">
+    <input name="mix" type="float" implname="mix_value" />
+  </implementation>
+
+  <implementation name="IM_lama_conductor_genosl" nodedef="ND_lama_conductor" nodegraph="IMPL_lama_conductor" target="genosl">
+    <input name="normal" type="vector3" implname="normal_value" />
+  </implementation>
+
+  <implementation name="IM_lama_emission_genosl" nodedef="ND_lama_emission" nodegraph="IMPL_lama_emission" target="genosl">
+    <input name="color" type="color3" implname="color_value" />
+  </implementation>
+
+  <implementation name="IM_lama_generalized_schlick_genosl" nodedef="ND_lama_generalized_schlick" nodegraph="IMPL_lama_generalized_schlick" target="genosl">
+    <input name="normal" type="vector3" implname="normal_value" />
+  </implementation>
+
+  <implementation name="IM_lama_translucent_genosl" nodedef="ND_lama_translucent" nodegraph="NG_lama_translucent" target="genosl">
+    <input name="color" type="color3" implname="color_value" />
+    <input name="normal" type="vector3" implname="normal_value" />
+  </implementation>
+
+</materialx>
