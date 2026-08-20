@@ -2001,9 +2001,14 @@ void Graph::drawPinIcon(const std::string& type, bool connected, int alpha, floa
 void Graph::drawNodeMenu(UiNodePtr node)
 {
     const float buttonSize = computeHamburgerSize();
-    // Place the icon inline to the right of the title as a real layout item, so the node
-    // expands to fit it and the title text is never clipped or overlapped.
-    ImGui::SameLine();
+    // Offset the button to the right edge of the node. The node content width is
+    // computed from the title, inputs and outputs (the same width used to place the
+    // output pins on the right border), so the button's right edge aligns with the
+    // node's right edge rather than sitting directly after the title text.
+    const float nodeContentWidth = computeNodeWidth(node, computeLongestInputLabel(node));
+    const float titleWidth = ImGui::CalcTextSize(node->getName().c_str()).x;
+    const float gap = (nodeContentWidth > 0.0f) ? (nodeContentWidth - titleWidth - buttonSize) : 0.0f;
+    ImGui::SameLine(0.0f, std::max(gap, 0.0f));
     ImGui::InvisibleButton("##node_menu", ImVec2(buttonSize, buttonSize));
     const ImVec2 bbMin = ImGui::GetItemRectMin();
     const ImVec2 bbMax = ImGui::GetItemRectMax();
@@ -2107,6 +2112,42 @@ float Graph::computeHamburgerSize()
     return ImGui::GetTextLineHeight();
 }
 
+float Graph::computeNodeWidth(UiNodePtr node, const std::string& longestInputLabel)
+{
+    // Widest of the title, the shown input labels and the output labels. This is the
+    // single source of truth for the node's content width, used to offset the
+    // hamburger to the right edge and to indent output labels onto the right border.
+    float width = ImGui::CalcTextSize(longestInputLabel.c_str()).x;
+    for (UiPinPtr pin : node->getOutputPins())
+    {
+        width = std::max(width, ImGui::CalcTextSize(pin->getName().c_str()).x);
+    }
+    width = std::max(width, ImGui::CalcTextSize(node->getName().c_str()).x);
+    return width;
+}
+
+std::string Graph::computeLongestInputLabel(UiNodePtr node)
+{
+    std::string longest = node->getName();
+    for (UiPinPtr pin : node->getInputPins())
+    {
+        bool shown = true;
+        if (node->getNode())
+        {
+            shown = node->getShowAllInputs() || (pin->getConnected() || node->getNode()->getInput(pin->getName()));
+        }
+        else if (node->getNodeGraph())
+        {
+            shown = node->getShowAllInputs() || (pin->getConnected() || node->getNodeGraph()->getInput(pin->getName()));
+        }
+        if (shown && pin->getName().size() > longest.size())
+        {
+            longest = pin->getName();
+        }
+    }
+    return longest;
+}
+
 
 float Graph::computePinOffset(bool righAligned)
 {
@@ -2122,28 +2163,18 @@ float Graph::computePinOffset(bool righAligned)
 
 void Graph::drawOutputPins(UiNodePtr node, const std::string& longestInputLabel)
 {
-    // 1. Find the widest label among input and output pins.
-    float maxLabelWidth = ImGui::CalcTextSize(longestInputLabel.c_str()).x;
+    // Width the output label row spans. When pins are drawn inside the node, the row
+    // only needs to span the widest pin label so the icons line up in a column. When
+    // pins sit on the node's border, the row must span the node's full content width
+    // (the widest of the title, inputs and outputs) so the pin lands on the right edge.
+    float contentWidth = ImGui::CalcTextSize(longestInputLabel.c_str()).x;
     for (UiPinPtr pin : node->getOutputPins())
     {
-        float w = ImGui::CalcTextSize(pin->getName().c_str()).x;
-        if (w > maxLabelWidth) maxLabelWidth = w;
+        contentWidth = std::max(contentWidth, ImGui::CalcTextSize(pin->getName().c_str()).x);
     }
-
-    // Content width = max label width (paddings are handled by the editor).
-    // When pins sit on the node's border, the output row must span the node's full
-    // content width so the pin lands on the right edge. The title row includes the
-    // hamburger button (drawn inline after the node name) which can be wider than
-    // the output labels, so match the title row width here.
-    float contentWidth = maxLabelWidth;
     if (_pinsOnBorder)
     {
-        const float titleTextWidth = ImGui::CalcTextSize(node->getName().c_str()).x;
-        const float titleRowWidth = titleTextWidth + ImGui::GetStyle().ItemSpacing.x + computeHamburgerSize();
-        if (titleRowWidth > contentWidth)
-        {
-            contentWidth = titleRowWidth;
-        }
+        contentWidth = std::max(contentWidth, computeNodeWidth(node, longestInputLabel));
     }
 
     // Offset the icon so its center lands on the node's right edge
@@ -2383,7 +2414,7 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                         pin->setConnected(true);
                     }
                     {
-                        const float pinOffset = computePinOffset();
+                        const float pinOffset = _pinsOnBorder ? computePinOffset() : 0.0f;
                         ed::BeginPin(pin->getPinId(), ed::PinKind::Input);
                         if (!_pinFilterType.empty())
                         {
@@ -2459,7 +2490,7 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                     }
 
                     {
-                        const float pinOffset = computePinOffset();
+                        const float pinOffset = _pinsOnBorder ? computePinOffset() : 0.0f;
                         ed::BeginPin(pin->getPinId(), ed::PinKind::Input);
                         if (!_pinFilterType.empty())
                         {
