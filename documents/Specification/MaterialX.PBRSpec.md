@@ -795,13 +795,7 @@ f_c(\omega_i, \omega_o) =
 ```
 <p></p>
 
-where $M_p$ is the longitudinal scattering function, $N_p$ is the azimuthal scattering function, and $A_p$ is the attenuation factor combining Fresnel reflectance and volumetric absorption. These one-dimensional distributions contain their own normalization factors, including $N_{TRRT+} = 1/(2\pi)$ for the uniform high-order lobe, so there is no additional global factor of $1/\pi$. The higher-order TRRT+ lobe shares the tint $t_{TRT}$ and the roughness values of the TRT lobe. The full definitions of these components are given in the [Chiang Hair Model](#chiang-hair-model) appendix.
-
-**Implementation notes:**
-
-- **GLSL:** Currently evaluates the same lobe sum and then applies an additional global factor of $1/\pi$, so its normalization differs from the normative equations above.
-- **OSL (`testrender`):** The path used by MaterialXTest does not register `chiang_hair_bsdf`, and the MaterialX OSL network test profile skips its Chiang hair fixture, so this target provides no implementation result for comparison.
-- **MDL:** The current NVIDIA MDL SDK implementation of `df::chiang_hair_bsdf` accumulates the normalized lobe products without the additional factor.
+where $M_p$ is the longitudinal scattering function, $N_p$ is the azimuthal scattering function, and $A_p$ is the attenuation factor combining Fresnel reflectance and volumetric absorption. The longitudinal and azimuthal distributions include the normalization required by the model, so the lobe products require no additional normalization. The higher-order TRRT+ lobe shares the tint $t_{TRT}$ and the roughness values of the TRT lobe. The full definitions of these components are given in the [Chiang Hair Model](#chiang-hair-model) appendix.
 
 
 ## EDF Nodes
