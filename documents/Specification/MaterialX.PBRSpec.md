@@ -343,15 +343,6 @@ G_2(\omega_i, \omega_o) =
 
 This is equivalent to evaluating the Smith $\Lambda$ function with the roughness projected independently onto each direction, as given by Heitz[^Heitz2014]. In the isotropic case, $\alpha_x = \alpha_y = \alpha$, this reduces to the usual scalar-roughness expression.
 
-**Implementation notes:**
-
-- **GLSL:** Currently evaluates this term with the scalar approximation $\alpha = \sqrt{\alpha_x\alpha_y}$, which removes its anisotropic azimuthal dependence.
-- **OSL (`testrender`):** The path used by MaterialXTest registers the MaterialX dielectric closure through BSDL, whose GGX implementation evaluates the anisotropic height-correlated form above.
-- **MDL:** Passes both roughness axes to `df::microfacet_ggx_smith_bsdf`, but the current NVIDIA MDL SDK combines its anisotropic masking terms as the separable product $G_1(\omega_i)G_1(\omega_o)$ rather than as height-correlated $G_2$.
-
-These target-specific differences do not redefine the normative equation above.
-
-
 ### Directional Albedo and Energy Conservation
 
 The **directional albedo** $E_o$ of a BSDF is its integral over all incident directions, for a fixed exitant direction $\omega_o$:
