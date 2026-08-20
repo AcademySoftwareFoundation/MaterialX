@@ -264,6 +264,7 @@ void mx_chiang_hair_bsdf(ClosureData closureData, vec3 tint_R, vec3 tint_TT, vec
             F += Mp * Np * tint[i] * Ap[i];
         }
 
+        // TODO: Remove M_PI_INV to match the PBR specification.
         bsdf.response = F * closureData.occlusion * M_PI_INV;
     }
     else if (closureData.closureType == CLOSURE_TYPE_INDIRECT)
