@@ -187,10 +187,8 @@ class Graph
     static float computePinOffset(bool rightAligned = false);
     // Size of the node hamburger menu button drawn inline after the title.
     static float computeHamburgerSize();
-    // Width of the node's content: the widest of the title, the shown input labels
-    // and the output labels. This is the single source of truth used both to offset
-    // the hamburger menu to the right edge of the node and to indent output labels
-    // so their pins land on the right border.
+    // Deterministic node content width (widest of title, shown inputs and outputs) used
+    // to place the hamburger at the node's right edge without feeding back into layout.
     static float computeNodeWidth(UiNodePtr node, const std::string& longestInputLabel);
     // Longest label among the input pins that will be shown on the node.
     static std::string computeLongestInputLabel(UiNodePtr node);
