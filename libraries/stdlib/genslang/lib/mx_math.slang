@@ -7,6 +7,7 @@
 #define mx_asin asin
 #define mx_acos acos
 #define mx_radians radians
+#define mx_isinf isinf
 #define mx_float_bits_to_int asint
 
 /// The GLSL we are piggybacking on has all its matrices transposed compared to Slang and the MaterialX spec.
