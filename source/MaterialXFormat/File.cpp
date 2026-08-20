@@ -17,6 +17,7 @@
     #include <unistd.h>
     #include <sys/stat.h>
     #include <dirent.h>
+    #include <stdlib.h>
 #endif
 
 #if defined(__linux__)
@@ -31,6 +32,10 @@
 #include <cctype>
 #include <cerrno>
 #include <cstring>
+
+#if defined(_WIN32)
+    #include <random>
+#endif
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -48,6 +53,15 @@ const string PATH_LIST_SEPARATOR = ";";
 const string PATH_LIST_SEPARATOR = ":";
 #endif
 const string MATERIALX_SEARCH_PATH_ENV_VAR = "MATERIALX_SEARCH_PATH";
+
+const string TEMPORARY_DIRECTORY_PREFIX = "materialx_tmp_";
+
+#if defined(_WIN32)
+const int TEMPORARY_DIRECTORY_MAX_ATTEMPTS = 1000;
+#else
+const StringVec TEMPORARY_DIRECTORY_ENV_VARS = { "TMPDIR", "TMP", "TEMP", "TEMPDIR" };
+const string TEMPORARY_DIRECTORY_DEFAULT = "/tmp";
+#endif
 
 inline bool hasWindowsDriveSpecifier(const string& val)
 {
@@ -301,6 +315,77 @@ void FilePath::createDirectory(bool recursive) const
 #endif
 }
 
+bool FilePath::removeDirectory(bool recursive) const
+{
+    if (recursive)
+    {
+        // Remove the contents of the directory, taking care not to follow symbolic
+        // links to locations outside of this directory.
+#if defined(_WIN32)
+        WIN32_FIND_DATAA fd;
+        HANDLE hFind = FindFirstFileA((*this / "*").asString().c_str(), &fd);
+        if (hFind != INVALID_HANDLE_VALUE)
+        {
+            do
+            {
+                string entryName = fd.cFileName;
+                if (entryName == CURRENT_PATH_STRING || entryName == PARENT_PATH_STRING)
+                {
+                    continue;
+                }
+
+                FilePath entryPath = *this / entryName;
+                if ((fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
+                    !(fd.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT))
+                {
+                    entryPath.removeDirectory(true);
+                }
+                else if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+                {
+                    RemoveDirectoryA(entryPath.asString().c_str());
+                }
+                else
+                {
+                    DeleteFileA(entryPath.asString().c_str());
+                }
+            } while (FindNextFileA(hFind, &fd));
+            FindClose(hFind);
+        }
+#else
+        DIR* dir = opendir(asString().c_str());
+        if (dir)
+        {
+            while (struct dirent* entry = readdir(dir))
+            {
+                string entryName = entry->d_name;
+                if (entryName == CURRENT_PATH_STRING || entryName == PARENT_PATH_STRING)
+                {
+                    continue;
+                }
+
+                FilePath entryPath = *this / entryName;
+                struct stat sb;
+                if (lstat(entryPath.asString().c_str(), &sb) == 0 && S_ISDIR(sb.st_mode))
+                {
+                    entryPath.removeDirectory(true);
+                }
+                else
+                {
+                    unlink(entryPath.asString().c_str());
+                }
+            }
+            closedir(dir);
+        }
+#endif
+    }
+
+#if defined(_WIN32)
+    return (RemoveDirectoryA(asString().c_str()) != 0);
+#else
+    return (rmdir(asString().c_str()) == 0);
+#endif
+}
+
 bool FilePath::setCurrentPath()
 {
 #if defined(_WIN32)
@@ -382,6 +467,75 @@ FilePath FilePath::getModulePath()
             return FilePath(buf.data()).getParentPath();
         }
     }
+#endif
+}
+
+FilePath FilePath::createTemporaryDirectory(const FilePath& parentDir)
+{
+    FilePath tempParent = parentDir.isEmpty() ? getSystemTemporaryDirectory() : parentDir;
+    tempParent.createDirectory(true);
+    if (!tempParent.isDirectory())
+    {
+        throw Exception("Error in createTemporaryDirectory: parent path is not a directory: " + tempParent.asString());
+    }
+
+#if defined(_WIN32)
+    // Windows provides no atomic equivalent of mkdtemp, so generate candidate names
+    // until CreateDirectory succeeds.  Because CreateDirectory fails rather than
+    // succeeding when the path already exists, no other process can be given the
+    // same directory.
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<int> dis(100000, 999999);
+
+    for (int attempt = 0; attempt < TEMPORARY_DIRECTORY_MAX_ATTEMPTS; attempt++)
+    {
+        FilePath tempDir = tempParent / (TEMPORARY_DIRECTORY_PREFIX + std::to_string(dis(gen)));
+        if (CreateDirectoryA(tempDir.asString().c_str(), nullptr))
+        {
+            return tempDir;
+        }
+        if (GetLastError() != ERROR_ALREADY_EXISTS)
+        {
+            throw Exception("Error in createTemporaryDirectory: " + std::to_string(GetLastError()));
+        }
+    }
+
+    throw Exception("Error in createTemporaryDirectory: no unique name found in " + tempParent.asString());
+#else
+    // Create the directory with mkdtemp, which generates a unique name, creates the
+    // directory atomically, and restricts access to the current user.
+    string nameTemplate = (tempParent / (TEMPORARY_DIRECTORY_PREFIX + "XXXXXX")).asString();
+    vector<char> buf(nameTemplate.begin(), nameTemplate.end());
+    buf.push_back('\0');
+    if (!mkdtemp(buf.data()))
+    {
+        throw Exception("Error in createTemporaryDirectory: " + string(strerror(errno)));
+    }
+    return FilePath(buf.data());
+#endif
+}
+
+FilePath FilePath::getSystemTemporaryDirectory()
+{
+#if defined(_WIN32)
+    std::array<char, MAX_PATH + 1> buf;
+    DWORD length = GetTempPathA((DWORD) buf.size(), buf.data());
+    if (!length || length > buf.size())
+    {
+        throw Exception("Error in getSystemTemporaryDirectory: " + std::to_string(GetLastError()));
+    }
+    return FilePath(string(buf.data(), length));
+#else
+    for (const string& envVar : TEMPORARY_DIRECTORY_ENV_VARS)
+    {
+        string tempDir = getEnviron(envVar);
+        if (!tempDir.empty())
+        {
+            return FilePath(tempDir);
+        }
+    }
+    return FilePath(TEMPORARY_DIRECTORY_DEFAULT);
 #endif
 }
 

@@ -8,6 +8,15 @@
 #include <MaterialXFormat/File.h>
 #include <MaterialXFormat/Util.h>
 
+#include <MaterialXCore/Exception.h>
+
+#include <fstream>
+
+#if !defined(_WIN32)
+    #include <sys/stat.h>
+    #include <unistd.h>
+#endif
+
 namespace mx = MaterialX;
 
 TEST_CASE("Syntactic operations", "[file]")
@@ -204,4 +213,106 @@ TEST_CASE("Get all files in directory", "[file]")
     {
         REQUIRE(std::find(results.begin(), results.end(), filename) != results.end());
     }
+}
+
+TEST_CASE("System temporary directory", "[file]")
+{
+    mx::FilePath systemTempDir = mx::FilePath::getSystemTemporaryDirectory();
+
+    REQUIRE(!systemTempDir.isEmpty());
+    REQUIRE(systemTempDir.exists());
+    REQUIRE(systemTempDir.isDirectory());
+}
+
+TEST_CASE("Create temporary directory", "[file]")
+{
+    // Create a temporary directory within the system temporary directory.
+    mx::FilePath systemTempDir = mx::FilePath::getSystemTemporaryDirectory();
+    mx::FilePath tempDir = mx::FilePath::createTemporaryDirectory();
+    REQUIRE(tempDir.exists());
+    REQUIRE(tempDir.isDirectory());
+    REQUIRE(tempDir.getParentPath().getNormalized() == systemTempDir.getNormalized());
+
+    // Verify that each temporary directory is unique.
+    mx::FilePath secondTempDir = mx::FilePath::createTemporaryDirectory();
+    REQUIRE(secondTempDir.isDirectory());
+    REQUIRE(secondTempDir != tempDir);
+
+    // Create a temporary directory within an explicit parent directory, which
+    // is itself created on demand.
+    mx::FilePath explicitParent = tempDir / "parent" / "subdirectory";
+    REQUIRE(!explicitParent.exists());
+    mx::FilePath childTempDir = mx::FilePath::createTemporaryDirectory(explicitParent);
+    REQUIRE(childTempDir.isDirectory());
+    REQUIRE(childTempDir.getParentPath().getNormalized() == explicitParent.getNormalized());
+
+    // Verify that a parent path referring to an existing file is rejected.
+    mx::FilePath existingFile = tempDir / "file.txt";
+    std::ofstream(existingFile.asString()) << "content";
+    REQUIRE(existingFile.exists());
+    REQUIRE(!existingFile.isDirectory());
+    REQUIRE_THROWS_AS(mx::FilePath::createTemporaryDirectory(existingFile), mx::Exception);
+
+#if !defined(_WIN32)
+    // Verify that the temporary directory is accessible only to the current user.
+    struct stat sb;
+    REQUIRE(stat(tempDir.asString().c_str(), &sb) == 0);
+    REQUIRE((sb.st_mode & 07777) == 0700);
+
+    // Verify that a failure to create the directory is reported as an exception,
+    // rather than returning a path that does not exist.
+    mx::FilePath readOnlyParent = tempDir / "readOnly";
+    readOnlyParent.createDirectory();
+    REQUIRE(readOnlyParent.isDirectory());
+    REQUIRE(chmod(readOnlyParent.asString().c_str(), 0500) == 0);
+    REQUIRE_THROWS_AS(mx::FilePath::createTemporaryDirectory(readOnlyParent), mx::Exception);
+    REQUIRE(chmod(readOnlyParent.asString().c_str(), 0700) == 0);
+#endif
+
+    REQUIRE(tempDir.removeDirectory(true));
+    REQUIRE(!tempDir.exists());
+    REQUIRE(secondTempDir.removeDirectory(true));
+    REQUIRE(!secondTempDir.exists());
+}
+
+TEST_CASE("Remove directory", "[file]")
+{
+    mx::FilePath tempDir = mx::FilePath::createTemporaryDirectory();
+
+    // Verify that a non-recursive removal leaves a non-empty directory in place.
+    mx::FilePath nestedDir = tempDir / "nested" / "subdirectory";
+    nestedDir.createDirectory(true);
+    std::ofstream((nestedDir / "file.txt").asString()) << "content";
+    REQUIRE(!tempDir.removeDirectory());
+    REQUIRE(tempDir.isDirectory());
+
+    // Verify that a non-recursive removal succeeds for an empty directory.
+    mx::FilePath emptyDir = tempDir / "empty";
+    emptyDir.createDirectory();
+    REQUIRE(emptyDir.removeDirectory());
+    REQUIRE(!emptyDir.exists());
+
+    // Verify that a removal of a path that does not exist is reported as a failure.
+    REQUIRE(!emptyDir.removeDirectory());
+    REQUIRE(!emptyDir.removeDirectory(true));
+
+#if !defined(_WIN32)
+    // Verify that a symbolic link within the directory is removed without following
+    // it to its target.
+    mx::FilePath linkTarget = mx::FilePath::createTemporaryDirectory();
+    std::ofstream((linkTarget / "preserved.txt").asString()) << "content";
+    mx::FilePath link = nestedDir / "link";
+    REQUIRE(symlink(linkTarget.asString().c_str(), link.asString().c_str()) == 0);
+    REQUIRE(link.isDirectory());
+#endif
+
+    // Verify that a recursive removal clears the directory and its contents.
+    REQUIRE(tempDir.removeDirectory(true));
+    REQUIRE(!tempDir.exists());
+
+#if !defined(_WIN32)
+    REQUIRE(linkTarget.isDirectory());
+    REQUIRE((linkTarget / "preserved.txt").exists());
+    REQUIRE(linkTarget.removeDirectory(true));
+#endif
 }
