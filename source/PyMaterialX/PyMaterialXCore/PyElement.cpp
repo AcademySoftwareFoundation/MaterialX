@@ -96,6 +96,7 @@ void bindPyElement(py::module& mod)
         .def("hasSourceUri", &mx::Element::hasSourceUri)
         .def("getSourceUri", &mx::Element::getSourceUri)
         .def("getActiveSourceUri", &mx::Element::getActiveSourceUri)
+        .def("belongsToContentDocument", &mx::Element::belongsToContentDocument)
         .def("validate", [](const mx::Element& elem)
             {
                 std::string message;

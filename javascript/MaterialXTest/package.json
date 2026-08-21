@@ -4,18 +4,13 @@
   "description": "",
   "type": "module",
   "scripts": {
-    "pretest": "node scripts/buildSetup.js",
-    "test": "npm run mocha",
-    "pretest:browser": "node scripts/buildSetup.js",
-    "test:browser": "playwright test",
-    "mocha": "mocha *.spec.js --timeout 5000"
+    "test": "playwright test --project=unit",
+    "test:browser": "playwright test --project=browser"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "chai": "^5.3.3",
-    "mocha": "^11.7.5",
     "@playwright/test": "^1.58.2"
   }
 }

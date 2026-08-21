@@ -1,10 +1,10 @@
-import { expect } from 'chai';
+import { test, expect } from '@playwright/test';
 import Module from './_build/JsMaterialXCore.js';
 import { getMtlxStrings } from './testHelpers.js';
 
-describe('Code Examples', () =>
+test.describe('Code Examples', () =>
 {
-    it('Building a MaterialX Document', async () =>
+    test('Building a MaterialX Document', async () =>
     {
         const mx = await Module();
         // Create a document.
@@ -12,79 +12,79 @@ describe('Code Examples', () =>
 
         // Create a node graph with a single image node and output.
         const nodeGraph = doc.addNodeGraph();
-        expect(doc.getNodeGraphs().length).to.equal(1);
+        expect(doc.getNodeGraphs().length).toBe(1);
         const image = nodeGraph.addNode('image');
         const nodes = nodeGraph.getNodes();
-        expect(nodes.length).to.equal(1);
-        expect(nodes[0]).to.eql(image);
+        expect(nodes.length).toBe(1);
+        expect(nodes[0].equals(image)).toBe(true);
 
         image.setInputValueString('file', 'image1.tif', 'filename');
         const input = image.getInput('file');
-        expect(input).to.not.be.null;
-        expect(input.getValue().getData()).to.equal('image1.tif');
+        expect(input).not.toBeNull();
+        expect(input.getValue().getData()).toBe('image1.tif');
 
         const output = nodeGraph.addOutput();
         const outputs = nodeGraph.getOutputs();
-        expect(outputs.length).to.equal(1);
-        expect(outputs[0]).to.eql(output);
+        expect(outputs.length).toBe(1);
+        expect(outputs[0].equals(output)).toBe(true);
 
         output.setConnectedNode(image);
         const connectedNode = output.getConnectedNode();
-        expect(connectedNode).to.not.be.null;
-        expect(connectedNode instanceof mx.Node).to.be.true;
+        expect(connectedNode).not.toBeNull();
+        expect(connectedNode instanceof mx.Node).toBe(true);
 
         // Create a simple shader interface.
         const simpleSrf = doc.addNodeDef('ND_simpleSrf', 'surfaceshader', 'simpleSrf');
         const nodeDefs = doc.getNodeDefs();
-        expect(nodeDefs.length).to.equal(1);
-        expect(nodeDefs[0]).to.eql(simpleSrf);
+        expect(nodeDefs.length).toBe(1);
+        expect(nodeDefs[0].equals(simpleSrf)).toBe(true);
 
         simpleSrf.setInputValueColor3('diffColor', new mx.Color3(1.0, 1.0, 1.0));
         let inputValue = simpleSrf.getInputValue('diffColor');
-        expect(inputValue).to.not.be.null;
-        expect(inputValue.getData()).to.eql(new mx.Color3(1.0, 1.0, 1.0));
+        expect(inputValue).not.toBeNull();
+        expect(inputValue.getData().equals(new mx.Color3(1.0, 1.0, 1.0))).toBe(true);
 
         simpleSrf.setInputValueColor3('specColor', new mx.Color3(0.0, 0.0, 0.0));
         inputValue = simpleSrf.getInputValue('specColor');
-        expect(inputValue).to.not.be.null;
-        expect(inputValue.getData()).to.eql(new mx.Color3(0.0, 0.0, 0.0));
+        expect(inputValue).not.toBeNull();
+        expect(inputValue.getData().equals(new mx.Color3(0.0, 0.0, 0.0))).toBe(true);
 
         const roughness = simpleSrf.setInputValueFloat('roughness', 0.25);
         inputValue = simpleSrf.getInputValue('roughness');
-        expect(inputValue).to.not.be.null;
-        expect(inputValue.getData()).to.equal(0.25);
+        expect(inputValue).not.toBeNull();
+        expect(inputValue.getData()).toBe(0.25);
 
-        // // Create a material that instantiates the shader.
-        // const material = doc.addMaterial();
-        // const materials = doc.getMaterials();
-        // expect(materials.length).to.equal(1);
-        // expect(materials[0]).to.eql(material);
-        // const refSimpleSrf = material.addShaderRef('SR_simpleSrf', 'simpleSrf');
-        // const shaderRefs = material.getShaderRefs();
-        // expect(shaderRefs.length).to.equal(1);
-        // expect(shaderRefs[0]).to.eql(refSimpleSrf);
-        // expect(shaderRefs[0].getName()).to.equal('SR_simpleSrf');
+        // Instantiate the shader and create a material node that references it.
+        const shaderNode = doc.addNodeInstance(simpleSrf);
+        const materialNode = doc.addMaterialNode('', shaderNode);
+        expect(doc.getMaterialNodes().length).toBe(1);
 
-        // // Bind roughness to a new value within this material.
-        // const bindInput = refSimpleSrf.addBindInput('roughness');
-        // const bindInputs = refSimpleSrf.getBindInputs();
-        // expect(bindInputs.length).to.equal(1);
-        // expect(bindInputs[0]).to.eql(bindInput);
-        // bindInput.setValuefloat(0.5);
-        // expect(bindInput.getValue()).to.not.be.null;
-        // expect(bindInput.getValue().getData()).to.equal(0.5);
+        // Connect the diffuse color of the shader to the image output, and
+        // confirm that the upstream image node is reachable from the shader.
+        shaderNode.setConnectedOutput('diffColor', output);
+        const upstreamNode = shaderNode.getUpstreamElement();
+        expect(upstreamNode).not.toBeNull();
+        expect(upstreamNode.getName()).toBe(image.getName());
 
-        // // Validate the value of roughness in the context of this material.
-        // expect(roughness.getBoundValue(material).getValueString()).to.equal('0.5');
+        // Override roughness on this shader instance; its default value is
+        // inherited from the shader's nodedef.
+        const instanceRoughness = shaderNode.setInputValueFloat('roughness', 0.5);
+        expect(instanceRoughness.getValue().getData()).toBe(0.5);
+        expect(instanceRoughness.getDefaultValue().getData()).toBe(roughness.getValue().getData());
+
         // Cleanup wrappers
         nodeDefs.forEach(nd => nd.delete());
+        upstreamNode.delete();
+        instanceRoughness.delete();
+        materialNode.delete();
+        shaderNode.delete();
         output.delete();
         image.delete();
         nodeGraph.delete();
         doc.delete();
     });
 
-    it('Traversing a Document Tree', async () =>
+    test('Traversing a Document Tree', async () =>
     {
         const xmlStr = getMtlxStrings(
             ['standard_surface_greysphere_calibration.mtlx'],
@@ -106,11 +106,11 @@ describe('Code Examples', () =>
                 imageCount++;
             }
         }
-        expect(imageCount).to.greaterThan(0);
+        expect(imageCount).toBeGreaterThan(0);
         doc.delete();
     });
 
-    it('Building a MaterialX Document', async () =>
+    test('Traversing a Dataflow Graph', async () =>
     {
         const xmlStr = getMtlxStrings(['standard_surface_marble_solid.mtlx'], '../../resources/Materials/Examples/StandardSurface')[0];
         const mx = await Module();
@@ -119,27 +119,49 @@ describe('Code Examples', () =>
         const doc = mx.createDocument();
         await mx.readFromXmlString(doc, xmlStr);
 
-        // let materialCount = 0;
-        // let shaderInputCount = 0;
-        // // Iterate through 1.37 materials for which there should be none
-        // const materials = doc.getMaterials();
-        // materials.forEach((material) => {
-        //     materialCount++;
+        // For each material node, locate its surface shader and traverse the
+        // dataflow graph upstream, gathering the nodes that contribute to the
+        // shading result.  The marble surface is driven by a procedural noise
+        // network bound through a nodegraph, so the traversal crosses from the
+        // top-level document into that nodegraph.
+        const materialNodes = doc.getMaterialNodes();
+        expect(materialNodes.length).toBe(1);
 
-        //     // For each shader input, find all upstream images in the dataflow graph.
-        //     const primaryShaderInputs = material.getPrimaryShaderInputs();
-        //     primaryShaderInputs.forEach((input) => {
-        //         const graphIter = input.traverseGraph(material);
-        //         let edge = graphIter.next();
-        //         while (edge) {
-        //             shaderInputCount++;
-        //             edge = graphIter.next();
-        //         }
-        //     });
-        // });
+        let nodeCount = 0;
+        let crossedIntoNodeGraph = false;
+        for (const materialNode of materialNodes)
+        {
+            const shaderNodes = mx.getShaderNodes(materialNode);
+            for (const shaderNode of shaderNodes)
+            {
+                for (const edge of shaderNode.traverseGraph())
+                {
+                    const upstreamElem = edge.getUpstreamElement();
+                    if (upstreamElem instanceof mx.Node)
+                    {
+                        nodeCount++;
 
-        // expect(materialCount).to.equal(0);
-        // expect(shaderInputCount).to.equal(0);
+                        // An upstream node whose parent is a nodegraph rather
+                        // than the document confirms that the traversal has
+                        // descended into the bound nodegraph.
+                        const parent = upstreamElem.getParent();
+                        if (parent instanceof mx.NodeGraph)
+                        {
+                            crossedIntoNodeGraph = true;
+                        }
+                        if (parent) parent.delete();
+                    }
+                    if (upstreamElem) upstreamElem.delete();
+                    if (edge) edge.delete();
+                }
+            }
+            shaderNodes.forEach(s => s.delete());
+        }
+        expect(nodeCount).toBeGreaterThan(0);
+        expect(crossedIntoNodeGraph).toBe(true);
+
+        // Cleanup wrappers
+        materialNodes.forEach(n => n.delete());
         doc.delete();
     });
 });

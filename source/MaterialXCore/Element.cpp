@@ -359,6 +359,11 @@ ConstDocumentPtr Element::getDocument() const
     return getRoot()->asA<Document>();
 }
 
+bool Element::belongsToContentDocument() const
+{
+    return getActiveSourceUri() == getDocument()->getSourceUri();
+}
+
 bool Element::hasInheritedBase(ConstElementPtr base) const
 {
     for (ConstElementPtr elem : traverseInheritance())

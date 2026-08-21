@@ -45,7 +45,7 @@ void mx_generalized_schlick_bsdf(ClosureData closureData, float weight, vec3 col
         float D = mx_ggx_NDF(Ht, safeAlpha);
         float G = mx_ggx_smith_G2(NdotL, NdotV, avgAlpha);
 
-        vec3 comp = mx_ggx_energy_compensation(NdotV, avgAlpha, F);
+        vec3 comp = mx_ggx_energy_compensation(NdotV, avgAlpha, fd);
         vec3 dirAlbedo = mx_ggx_dir_albedo(NdotV, avgAlpha, safeColor0, safeColor90) * comp;
         float avgDirAlbedo = dot(dirAlbedo, vec3(1.0 / 3.0));
         bsdf.throughput = vec3(1.0 - avgDirAlbedo * weight);
@@ -55,9 +55,7 @@ void mx_generalized_schlick_bsdf(ClosureData closureData, float weight, vec3 col
     }
     else if (closureData.closureType == CLOSURE_TYPE_TRANSMISSION)
     {
-        vec3 F = mx_compute_fresnel(NdotV, fd);
-
-        vec3 comp = mx_ggx_energy_compensation(NdotV, avgAlpha, F);
+        vec3 comp = mx_ggx_energy_compensation(NdotV, avgAlpha, fd);
         vec3 dirAlbedo = mx_ggx_dir_albedo(NdotV, avgAlpha, safeColor0, safeColor90) * comp;
         float avgDirAlbedo = dot(dirAlbedo, vec3(1.0 / 3.0));
         bsdf.throughput = vec3(1.0 - avgDirAlbedo * weight);
@@ -71,9 +69,7 @@ void mx_generalized_schlick_bsdf(ClosureData closureData, float weight, vec3 col
     }
     else if (closureData.closureType == CLOSURE_TYPE_INDIRECT)
     {
-        vec3 F = mx_compute_fresnel(NdotV, fd);
-
-        vec3 comp = mx_ggx_energy_compensation(NdotV, avgAlpha, F);
+        vec3 comp = mx_ggx_energy_compensation(NdotV, avgAlpha, fd);
         vec3 dirAlbedo = mx_ggx_dir_albedo(NdotV, avgAlpha, safeColor0, safeColor90) * comp;
         float avgDirAlbedo = dot(dirAlbedo, vec3(1.0 / 3.0));
         bsdf.throughput = vec3(1.0 - avgDirAlbedo * weight);

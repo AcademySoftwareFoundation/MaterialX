@@ -1,5 +1,7 @@
 # Change Log
 
+## [1.39.6] - Development
+
 ## [1.39.5] - 2026-05-22
 
 ### Added

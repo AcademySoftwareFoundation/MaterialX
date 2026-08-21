@@ -587,6 +587,10 @@ void RenderView::reloadShaders()
             std::cerr << error << std::endl;
         }
     }
+    catch (std::exception& e)   // ExceptionShaderGenError, etc.
+    {
+        std::cerr << e.what() << std::endl;
+    }
 
     _materials.clear();
 }

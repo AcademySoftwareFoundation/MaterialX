@@ -19,7 +19,9 @@ EMSCRIPTEN_BINDINGS(xmlio)
         .constructor<>()
         .property<bool>("readXIncludes",
             [](const mx::XmlReadOptions &self) {
-                return self.readXIncludeFunction == nullptr;
+                // XIncludes are enabled when a read function is installed; the
+                // default-constructed value is mx::readFromXmlFile.
+                return self.readXIncludeFunction != nullptr;
             },
             [](mx::XmlReadOptions &self, bool useIncludes) {
                 if (useIncludes) {

@@ -72,7 +72,7 @@ TEST_CASE("Load content", "[xmlio]")
         doc->flattenSubgraphs();
         for (mx::NodeGraphPtr graph : doc->getNodeGraphs())
         {
-            if (graph->getActiveSourceUri() == doc->getSourceUri())
+            if (graph->belongsToContentDocument())
             {
                 graph->flattenSubgraphs();
             }
@@ -83,7 +83,7 @@ TEST_CASE("Load content", "[xmlio]")
         bool referencesValid = true;
         for (mx::ElementPtr elem : doc->traverseTree())
         {
-            if (elem->getActiveSourceUri() != doc->getSourceUri())
+            if (!elem->belongsToContentDocument())
             {
                 continue;
             }
