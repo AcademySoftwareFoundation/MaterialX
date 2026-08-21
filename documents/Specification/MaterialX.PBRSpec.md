@@ -330,15 +330,23 @@ The pair $(\alpha_x, \alpha_y)$ is supplied directly by the `roughness` input of
 
 #### Height-Correlated Smith Masking-Shadowing
 
-The joint masking-shadowing function is the height-correlated form of the Smith function[^Heitz2014]:
+The joint masking-shadowing function is the height-correlated form of the Smith function[^Heitz2014]. Define the direction-dependent stretched-vector length:
 
 ```math
-G_2(\omega_i, \omega_o) = \frac{2 \cos\theta_i \cos\theta_o}{\lambda_o \cos\theta_i + \lambda_i \cos\theta_o}
+L(\omega) = \sqrt{\alpha_x^2\omega_x^2 + \alpha_y^2\omega_y^2 + \omega_z^2}
 ```
 <p></p>
 
-where $\lambda_i = \lambda(\cos\theta_i)$, $\lambda_o = \lambda(\cos\theta_o)$, $\lambda(\cos\theta) = \sqrt{\alpha^2 + (1 - \alpha^2) \cos^2\theta}$, and $\alpha = \sqrt{\alpha_x \alpha_y}$ when the roughness is anisotropic.
+Then:
 
+```math
+G_2(\omega_i, \omega_o) =
+\frac{2|\omega_{i,z}||\omega_{o,z}|}
+{|\omega_{i,z}|L(\omega_o) + |\omega_{o,z}|L(\omega_i)}
+```
+<p></p>
+
+This is equivalent to evaluating the Smith $\Lambda$ function with the roughness projected independently onto each direction, as given by Heitz[^Heitz2014]. In the isotropic case, $\alpha_x = \alpha_y = \alpha$, this reduces to the usual scalar-roughness expression.
 
 ### Directional Albedo and Energy Conservation
 
