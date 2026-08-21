@@ -27,6 +27,7 @@ const int FILTER_ALPHA = 50;
 const float BASE_UI_FONT_SIZE = 18.0f;
 const float BASE_PIN_ICON_SIZE = 18.0f;
 const float MIN_PIN_ICON_SIZE = 18.0f;
+const float HDR_TEXT_INDENT = 4.0f;
 
 const std::array<std::string, 22> NODE_GROUP_ORDER = {
     "texture2d",
@@ -2001,9 +2002,22 @@ void Graph::drawPinIcon(const std::string& type, bool connected, int alpha, floa
 void Graph::drawNodeMenu(UiNodePtr node)
 {
     const float buttonSize = computeHamburgerSize();
-    // Place the icon inline to the right of the title as a real layout item, so the node
-    // expands to fit it and the title text is never clipped or overlapped.
-    ImGui::SameLine();
+
+    if (node->getCategory() == "group")
+    {
+        // Groups draw their title in a hint above the body, so keep the button inline
+        // next to the message text.
+        ImGui::SameLine();
+    }
+    else
+    {
+        // Right-align the button to the node's content right edge.
+        const float contentWidth = computeNodeContentWidth(node);
+        const float titleWidth = ImGui::CalcTextSize(node->getName().c_str()).x;
+        const float gap = std::max(0.0f, contentWidth - HDR_TEXT_INDENT - titleWidth - buttonSize);
+        ImGui::SameLine(0.0f, gap);
+    }
+
     ImGui::InvisibleButton("##node_menu", ImVec2(buttonSize, buttonSize));
     const ImVec2 bbMin = ImGui::GetItemRectMin();
     const ImVec2 bbMax = ImGui::GetItemRectMax();
@@ -2107,6 +2121,55 @@ float Graph::computeHamburgerSize()
     return ImGui::GetTextLineHeight();
 }
 
+float Graph::computeNodeContentWidth(UiNodePtr node)
+{
+    // Compute the node's content width (widest of the title row, shown
+    // input rows and output rows). 
+    const float iconSize = computeIconSize();
+    const float inputSpacing = 5.0f * getUiScaleFromFont();
+    const float iconOffset = std::max(0.0f, iconSize * 0.5f - ed::GetStyle().NodePadding.x);
+
+    // Title row: indent + title text + item spacing + hamburger button.
+    float width = HDR_TEXT_INDENT
+                + ImGui::CalcTextSize(node->getName().c_str()).x
+                + ImGui::GetStyle().ItemSpacing.x
+                + computeHamburgerSize();
+
+    // Widest shown input row: (icon layout offset) + input spacing + label.
+    width = std::max(width, iconOffset + inputSpacing
+        + ImGui::CalcTextSize(computeLongestInputLabel(node).c_str()).x);
+
+    // Widest output row: label text only (icons contribute no layout width).
+    for (UiPinPtr pin : node->getOutputPins())
+    {
+        width = std::max(width, ImGui::CalcTextSize(pin->getName().c_str()).x);
+    }
+
+    return width;
+}
+
+std::string Graph::computeLongestInputLabel(UiNodePtr node)
+{
+    std::string longest = node->getName();
+    for (UiPinPtr pin : node->getInputPins())
+    {
+        bool shown = true;
+        if (node->getNode())
+        {
+            shown = node->getShowAllInputs() || (pin->getConnected() || node->getNode()->getInput(pin->getName()));
+        }
+        else if (node->getNodeGraph())
+        {
+            shown = node->getShowAllInputs() || (pin->getConnected() || node->getNodeGraph()->getInput(pin->getName()));
+        }
+        if (shown && pin->getName().size() > longest.size())
+        {
+            longest = pin->getName();
+        }
+    }
+    return longest;
+}
+
 
 float Graph::computePinOffset(bool righAligned)
 {
@@ -2138,12 +2201,7 @@ void Graph::drawOutputPins(UiNodePtr node, const std::string& longestInputLabel)
     float contentWidth = maxLabelWidth;
     if (_pinsOnBorder)
     {
-        const float titleTextWidth = ImGui::CalcTextSize(node->getName().c_str()).x;
-        const float titleRowWidth = titleTextWidth + ImGui::GetStyle().ItemSpacing.x + computeHamburgerSize();
-        if (titleRowWidth > contentWidth)
-        {
-            contentWidth = titleRowWidth;
-        }
+        contentWidth = computeNodeContentWidth(node);
     }
 
     // Offset the icon so its center lands on the node's right edge
@@ -2216,7 +2274,7 @@ std::vector<int> Graph::createNodes(bool nodegraph)
     const float hdrPadL = nodeEditorStyle.NodePadding.x - hdrInset;
     const float hdrPadT = nodeEditorStyle.NodePadding.y - hdrInset;
     const float hdrPadB = hdrPadT;
-    const float hdrTextIndent = 4.0f;
+    const float hdrTextIndent = HDR_TEXT_INDENT;
     const float hdrBottomSpacing = hdrPadB;
     const float hdrRounding = std::max(nodeEditorStyle.NodeRounding - hdrInset, 0.0f);
 
@@ -2383,7 +2441,7 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                         pin->setConnected(true);
                     }
                     {
-                        const float pinOffset = computePinOffset();
+                        const float pinOffset = _pinsOnBorder ? computePinOffset() : 0.0;
                         ed::BeginPin(pin->getPinId(), ed::PinKind::Input);
                         if (!_pinFilterType.empty())
                         {
@@ -2459,7 +2517,7 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                     }
 
                     {
-                        const float pinOffset = computePinOffset();
+                        const float pinOffset = _pinsOnBorder ? computePinOffset() : 0.0;
                         ed::BeginPin(pin->getPinId(), ed::PinKind::Input);
                         if (!_pinFilterType.empty())
                         {
@@ -4157,6 +4215,11 @@ void Graph::drawHelpMarker(const char* content)
 
 void Graph::addNodePopup(bool cursor)
 {
+    if (readOnly())
+    {
+        return;
+    }
+
     ImGuiIO& io = ImGui::GetIO();
     // If the hamburger was right-clicked this frame, its menu will be opened below;
     // suppress the generic Add Node popup so the two never conflict.
