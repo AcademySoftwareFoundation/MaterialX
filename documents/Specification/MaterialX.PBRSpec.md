@@ -380,11 +380,11 @@ Every BSDF defines a **vertical-layering transmittance** $T_o$: the fraction of 
 
 * **Opaque BSDFs** — [&lt;oren_nayar_diffuse_bsdf>](#node-oren-nayar-diffuse-bsdf), [&lt;burley_diffuse_bsdf>](#node-burley-diffuse-bsdf), [&lt;conductor_bsdf>](#node-conductor-bsdf), [&lt;subsurface_bsdf>](#node-subsurface-bsdf), [&lt;translucent_bsdf>](#node-translucent-bsdf), and [&lt;chiang_hair_bsdf>](#node-chiang-hair-bsdf) — reflect, scatter, or absorb all of the light reaching them, transmitting none through the lobe itself. For these nodes the `weight` input $w$ acts as a statistical coverage of the surface, with the covered fraction fully occluding lower layers and the uncovered fraction passing light through unchanged, giving $T_o = 1 - w$.
 
-The directional albedo of an interface BSDF is evaluated for this purpose with the node's physical Fresnel reflectance alone, omitting non-physical color inputs such as the `tint` of [&lt;dielectric_bsdf>](#node-dielectric-bsdf) and the `color` of [&lt;sheen_bsdf>](#node-sheen-bsdf). These inputs attenuate only the scattered response, exactly as in the [&lt;multiply>](#node-multiply) node, and the energy they remove is classified as absorption within the interface rather than transmission to the base. In contrast, the Schlick reflectance inputs of [&lt;generalized_schlick_bsdf>](#node-generalized-schlick-bsdf) parameterize the physical Fresnel curve itself, and thus contribute to a color-valued transmittance for that node, as does the Airy reflectance of a [thin-film](#thin-film-iridescence) interface.
+The directional albedo of an interface BSDF is evaluated for this purpose with the node's physical Fresnel reflectance alone, omitting non-physical color inputs such as the `tint` of [&lt;dielectric_bsdf>](#node-dielectric-bsdf) and the `color` of [&lt;sheen_bsdf>](#node-sheen-bsdf). These inputs attenuate only the scattered response, and the energy they remove is classified as absorption within the interface rather than transmission to the base. In contrast, the Schlick reflectance inputs of [&lt;generalized_schlick_bsdf>](#node-generalized-schlick-bsdf) parameterize the physical Fresnel curve itself, and thus contribute to a color-valued transmittance for that node, as does the Airy reflectance of a [thin-film](#thin-film-iridescence) interface.
 
 An opaque BSDF with a weight of zero is thus completely transparent with respect to vertical layering, while an opaque BSDF with a weight of one fully occludes its base, and layering an opaque BSDF over a base is equivalent to a [&lt;mix>](#node-mix) of the two BSDFs with the coverage as the mixing weight. Since [&lt;chiang_hair_bsdf>](#node-chiang-hair-bsdf) has no `weight` input, it takes on an implicit unit coverage.
 
-The nodes that combine and modify BSDFs — [&lt;mix>](#node-mix), [&lt;layer>](#node-layer), [&lt;add>](#node-add), and [&lt;multiply>](#node-multiply) — compose the transmittances of their inputs, as given in each node's section, so the vertical-layering transmittance is well-defined for any graph of BSDF nodes. These composition rules define the reference transmittance-scaling model. Within this model, the transmittance $T_o$ serves as a fixed-exitant-direction approximation of the ideal pass-through factor $P(\omega_i, \omega_o)$ of the layered microfacet model of Weidlich and Wilkie[^Weidlich2007], in which light reaching the base is attenuated along both its incident and exitant paths through the top layer. Targets that directly simulate light transport through the layer stack may refine the reference model accordingly, for example by evaluating the pass-through of each layer bidirectionally, or by accounting for multiple reflections between layers.
+The [&lt;mix>](#node-mix) and [&lt;layer>](#node-layer) nodes compose the transmittances of their inputs, as given in each node's section, so the vertical-layering transmittance is well-defined for any graph of elemental BSDFs combined by these nodes. The composition of transmittance by the [&lt;add>](#node-add) and [&lt;multiply>](#node-multiply) nodes is not yet defined by this specification, and is reserved for a future revision. These composition rules define the reference transmittance-scaling model. Within this model, the transmittance $T_o$ serves as a fixed-exitant-direction approximation of the ideal pass-through factor $P(\omega_i, \omega_o)$ of the layered microfacet model of Weidlich and Wilkie[^Weidlich2007], in which light reaching the base is attenuated along both its incident and exitant paths through the top layer. Targets that directly simulate light transport through the layer stack may refine the reference model accordingly, for example by evaluating the pass-through of each layer bidirectionally, or by accounting for multiple reflections between layers.
 
 For an energy-conserving BSDF, the directional albedo of the reflection lobes never exceeds the occluded fraction of incident light, $E_o \leq 1 - T_o$, with any difference between the two sides representing energy absorbed by the BSDF. This invariant ensures that vertical layering preserves energy conservation.
 
@@ -1193,13 +1193,6 @@ f = f_1 + f_2
 ```
 <p></p>
 
-When adding BSDFs, the occluded fractions $1 - T$ of the two inputs sum, giving a [vertical-layering transmittance](#vertical-layering-transmittance) for the result of:
-
-```math
-T = \max(T_1 + T_2 - 1, 0)
-```
-<p></p>
-
 Note that unlike [&lt;mix>](#node-mix) and [&lt;layer>](#node-layer), the add node does **not** guarantee energy conservation. The sum of two energy-conserving distribution functions may reflect more energy than is incident, so the author is responsible for ensuring that the combined result remains physically plausible.
 
 <a id="node-multiply"> </a>
@@ -1223,8 +1216,6 @@ f = s f_1
 <p></p>
 
 When $s$ is a `color3`, each color channel of the distribution function is scaled independently.
-
-When multiplying a BSDF, the scaling weight attenuates only the scattered response, so the [vertical-layering transmittance](#vertical-layering-transmittance) of the result is unchanged, with $T = T_1$.
 
 <a id="node-roughness-anisotropy"> </a>
 
