@@ -134,8 +134,8 @@ export material mx_conductor_bsdf(
             normal: mxp_normal
         )
     ),
-    ior: mxp_ior,
     // we need to carry volume properties along for SSS
+    ior:    mxp_base.ior,
     volume: mxp_base.volume
 );
 
