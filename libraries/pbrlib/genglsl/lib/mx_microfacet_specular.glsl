@@ -79,6 +79,7 @@ float mx_ggx_smith_G1(float cosTheta, float alpha)
 // Height-correlated Smith masking-shadowing
 // http://jcgt.org/published/0003/02/03/paper.pdf
 // Equations 72 and 99
+// TODO: Add an anisotropic form to match the PBR specification.
 float mx_ggx_smith_G2(float NdotL, float NdotV, float alpha)
 {
     float alpha2 = mx_square(alpha);
