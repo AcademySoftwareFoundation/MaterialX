@@ -1171,7 +1171,23 @@ For an interface BSDF top, the base is attenuated by exactly the energy not refl
 
 #### Layering over a VDF
 
-When the `base` input is a VDF, the layer node represents a surface boundary bound to an interior medium, rather than a vertical stack of two scattering layers. The transmissive scatter mode of the top BSDF governs entry into the medium, while the VDF governs absorption and scattering after entry, so the fraction of light entering the medium is determined by the Fresnel transmittance of the surface interface. In particular, medium entry is never derived from the complete reflected-plus-transmitted albedo of the top BSDF, which would incorrectly forbid entry through a lossless transmissive interface. The vertical-layering transmittance of the composite is the transmittance of the top BSDF, further attenuated by the extinction of the medium along the light's path through it.
+When the `base` input is a VDF, the layer node represents a surface boundary bound to an interior medium, rather than a vertical stack of two scattering layers. The transmissive scatter mode of the top BSDF governs entry into the medium, while the VDF governs absorption and scattering after entry, so the fraction of light entering the medium is determined by the Fresnel transmittance of the surface interface. In particular, medium entry is never derived from the complete reflected-plus-transmitted albedo of the top BSDF, which would incorrectly forbid entry through a lossless transmissive interface.
+
+In the equations below, $f_{r,\text{top}}$ and $f_{t,\text{top}}$ are the reflection and transmission lobes of the top BSDF, $T_{\text{top}}$ is its vertical-layering transmittance, and $T_{\text{vdf}}$ is the transmittance of the medium: the fraction of radiance surviving absorption and out-scattering along the light's path through it, given by $e^{-\sigma_t t}$ for a homogeneous medium traversed over a distance $t$, as defined in the [&lt;absorption_vdf>](#node-absorption-vdf) and [&lt;anisotropic_vdf>](#node-anisotropic-vdf) sections. Within the reference transmittance-scaling model, the reflection lobes of the top BSDF are unaffected by the medium, while light transmitted through the surface is attenuated along its path:
+
+```math
+f = f_{r,\text{top}} + T_{\text{vdf}} \, f_{t,\text{top}}
+```
+<p></p>
+
+and the transmittance of the composite is the product of the transmittances of the surface and the medium:
+
+```math
+T = T_{\text{top}} T_{\text{vdf}}
+```
+<p></p>
+
+This product allows a surface bound to a medium to take part in further vertical layering, whether as a base beneath a coating or as an opaque top such as [&lt;subsurface_bsdf>](#node-subsurface-bsdf). Targets that trace light transport through the medium determine the path length $t$ directly, while targets that do not may approximate it with a fixed distance.
 
 <a id="node-add"> </a>
 
