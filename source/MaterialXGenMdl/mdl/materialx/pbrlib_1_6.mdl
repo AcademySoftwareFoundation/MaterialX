@@ -78,6 +78,27 @@ export df::scatter_mode mx_map_scatter_mode(
     }
 }
 
+// Helper function to mix two scattering volumes:
+// - combined scattering coefficient is just the sum of the two
+// - VDF mixer weight is the relative probability of encountering the corresponding
+//   particle type
+// NOTE: mixer weight should be a color, but due to a bug in current MDL compilers
+//       the color mixers don't accept non-uniform weights yet
+export struct volume_mix_return {
+    color scattering_coefficient;
+    float mix_weight1; // mix_weight2 = 1.0 - mix_weight1, can use any mixer
+};
+export volume_mix_return volume_mix(
+    color scattering_coefficient1,
+    float weight1,
+    color scattering_coefficient2,
+    float weight2)
+{
+    color s1 = weight1 * scattering_coefficient1;
+    color s = s1 + weight2 * scattering_coefficient2;
+    return volume_mix_return(scattering_coefficient: s, mix_weight1: math::average(s1 / s));
+}
+
 export enum mx_sheen_mode {
     mx_sheen_mode_conty_kulla,
     mx_sheen_mode_zeltner
@@ -387,6 +408,7 @@ export material mx_subsurface_bsdf(
     // Phase function eccentricity 'g' has been omitted here since we pass that directly 
     // to anisotropic_vdf(directional_bias: g).
     float w = math::saturate(mxp_weight);
+    float coverage = math::saturate(w * mxp_top_weight);
     color C = mxp_color;
     color albedo = color(4.09712) +
            (4.20863f * C) -
@@ -404,24 +426,35 @@ export material mx_subsurface_bsdf(
     color sigma_s = alpha * radius_inv;
     color sigma_a = radius_inv - sigma_s;
 
+    // As an opaque BSDF, blend the subsurface medium with that of the base by
+    // the coverage, so that the uncovered fraction of the surface retains the
+    // volume properties of the base.
+    volume_mix_return v = volume_mix(
+        sigma_s, coverage,
+        mxp_base.volume.scattering_coefficient, 1.0 - coverage);
+
 } in material(
     volume: material_volume(
-        scattering: df::anisotropic_vdf (
-            directional_bias: mxp_anisotropy
+        scattering: df::clamped_mix(
+            df::vdf_component[](
+                df::vdf_component(v.mix_weight1, df::anisotropic_vdf(directional_bias: mxp_anisotropy)),
+                df::vdf_component(1.0 - v.mix_weight1, mxp_base.volume.scattering))
         ),
-        scattering_coefficient: w * sigma_s,
-        absorption_coefficient: w * sigma_a
+        scattering_coefficient: v.scattering_coefficient,
+        absorption_coefficient: coverage * sigma_a + (1.0 - coverage) * mxp_base.volume.absorption_coefficient
     ),
 
     surface: material_surface(
         // as an opaque BSDF, occlude the base over the fraction of the surface covered by the weight
         scattering: df::weighted_layer(
-            weight: w * mxp_top_weight,
+            weight: coverage,
             layer: df::diffuse_transmission_bsdf(tint: white),
             base: mxp_base.surface.scattering,
             normal: mxp_normal
         )
-    )
+    ),
+    // we need to carry the IOR along with the volume properties for SSS
+    ior: mxp_base.ior
 );
 
 // TODO: MDL's sheen BSDF has no possibility to configure the base BSDF, it is
@@ -717,28 +750,6 @@ export material mx_displacement_vector3(
         displacement: vec * mxp_scale * state::scene_units_per_meter()
     )
 );
-
-
-// helper function to mix two scattering volumes:
-// - combined scattering coefficient is just the sum of the two
-// - VDF mixer weight is the relative probability of encountering the corresponding
-//   particle type
-// NOTE: mixer weight should be a color, but due to a bug in current MDL compilers
-//       the color mixers don't accept non-uniform weights yet
-export struct volume_mix_return {
-    color scattering_coefficient;
-    float mix_weight1; // mix_weight2 = 1.0 - mix_weight1, can use any mixer
-};
-export volume_mix_return volume_mix(
-    color scattering_coefficient1,
-    float weight1,
-    color scattering_coefficient2,
-    float weight2)
-{
-    color s1 = weight1 * scattering_coefficient1;
-    color s = s1 + weight2 * scattering_coefficient2;
-    return volume_mix_return(scattering_coefficient: s, mix_weight1: math::average(s1 / s));
-}
 
 export material mx_mix_bsdf(
     material mxp_fg = material() [[ anno::usage( "materialx:bsdf") ]],
