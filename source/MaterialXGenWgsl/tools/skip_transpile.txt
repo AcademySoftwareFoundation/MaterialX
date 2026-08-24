@@ -14,7 +14,7 @@ libraries/lights/genwgsl/mx_point_light.wgsl
 libraries/lights/genwgsl/mx_spot_light.wgsl
 
 # --- stdlib nodes: texture nodes (naga's GLSL frontend has no sampler support) ---
-libraries/stdlib/genwgsl/mx_hextiledimage.wgsl
+libraries/stdlib/genwgsl/mx_hextiledimage.wgsl          # mirrors genglsl post-PR-2786
 libraries/stdlib/genwgsl/mx_hextilednormalmap.wgsl
 libraries/stdlib/genwgsl/mx_image_color3.wgsl
 libraries/stdlib/genwgsl/mx_image_color4.wgsl
@@ -33,7 +33,8 @@ libraries/stdlib/genwgsl/lib/mx_math_platform.wgsl
 libraries/pbrlib/genwgsl/lib/mx_environment_fis.wgsl
 libraries/pbrlib/genwgsl/lib/mx_environment_none.wgsl
 libraries/pbrlib/genwgsl/lib/mx_environment_prefilter.wgsl
-libraries/pbrlib/genwgsl/lib/mx_generate_albedo_table.wgsl
-libraries/pbrlib/genwgsl/lib/mx_generate_prefilter_env.wgsl
-libraries/pbrlib/genwgsl/lib/mx_shadow.wgsl
-libraries/pbrlib/genwgsl/lib/mx_shadow_platform.wgsl
+
+# --- pbrlib bake/shadow helpers: DEFERRED ---
+# mx_generate_albedo_table, mx_generate_prefilter_env, mx_shadow, mx_shadow_platform
+# Removed from this PR — WgslShaderGenerator does not yet implement hwWriteEnvPrefilter,
+# hwWriteAlbedoTable, or hwShadowMap. Reintroduce with generator + viewer coverage.

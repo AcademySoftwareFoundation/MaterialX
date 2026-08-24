@@ -69,12 +69,9 @@ fn mx_hextiledimage_color4(
     cw = mix(vec3f(1.0), cw, vec3f(falloff_contrast));
 
     let w = mx_hextile_compute_blend_weights(cw, tile_data.weights, falloff);
+    let aw = mx_hextile_compute_blend_weights(vec3f(1.0), tile_data.weights, falloff);
 
-    // Alpha is averaged, then optionally gain-adjusted.
-    var a = (c1.a + c2.a + c3.a) / 3.0;
-    if (falloff != 0.5) {
-        a = mx_schlick_gain(a, falloff);
-    }
-
-    (*result) = vec4f(w.x * c1.rgb + w.y * c2.rgb + w.z * c3.rgb, a);
+    // blend
+    (*result) = vec4f(w.x * c1.rgb + w.y * c2.rgb + w.z * c3.rgb,
+                      aw.x * c1.a + aw.y * c2.a + aw.z * c3.a);
 }

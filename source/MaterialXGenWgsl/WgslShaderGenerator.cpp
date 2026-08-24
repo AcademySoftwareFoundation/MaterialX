@@ -256,7 +256,7 @@ void WgslShaderGenerator::emitDirectives(GenContext&, ShaderStage&) const
 void WgslShaderGenerator::emitConstants(GenContext& context, ShaderStage& stage) const
 {
     emitLine("const M_PI: f32 = 3.1415926535897932", stage);
-    emitLine("const M_FLOAT_EPS: f32 = 1e-6", stage);
+    emitLine("const M_FLOAT_EPS: f32 = 1e-8", stage);
     emitLine("const CLOSURE_TYPE_DEFAULT: i32 = 0", stage);
     emitLine("const CLOSURE_TYPE_REFLECTION: i32 = 1", stage);
     emitLine("const CLOSURE_TYPE_TRANSMISSION: i32 = 2", stage);
