@@ -297,7 +297,7 @@ jobs:
         python Scripts/mxdoc.py --docType html ../libraries/bxdf/standard_surface.mtlx
         python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target glsl
         python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target vulkan
-        python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target wgsl
+        python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target wgsl --validator $HOME/.cargo/bin/naga
         python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target osl
         python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target mdl
         python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target msl
