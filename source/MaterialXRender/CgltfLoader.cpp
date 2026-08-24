@@ -493,6 +493,7 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
                     texcoordStream = mesh->generateTextureCoordinates(positionStream);
                     mesh->addStream(texcoordStream);
                 }
+                mesh->addStreamAlias("i_" + MeshStream::GEOMETRY_PROPERTY_ATTRIBUTE + "_st", texcoordStream->getName());
                 if (!vec4TangentStream)
                 {
                     MeshStreamPtr tangentStream = mesh->generateTangents(positionStream, normalStream, texcoordStream);

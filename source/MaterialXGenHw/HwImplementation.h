@@ -37,7 +37,6 @@ class MX_GENHW_API HwImplementation : public ShaderNodeImpl
     /// Internal string constants
     static const string SPACE;
     static const string INDEX;
-    static const string GEOMPROP;
 };
 
 MATERIALX_NAMESPACE_END

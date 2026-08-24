@@ -56,8 +56,10 @@ void CompoundNode::initialize(const InterfaceElement& element, GenContext& conte
     _hash = std::hash<string>{}(_functionName);
 }
 
-void CompoundNode::createVariables(const ShaderNode&, GenContext& context, Shader& shader) const
+void CompoundNode::createVariables(const ShaderNode& node, GenContext& context, Shader& shader) const
 {
+    ScopedSetCompoundInstanceNode scopedInstance(context, &node);
+
     // Gather shader inputs from all child nodes
     for (const ShaderNode* childNode : _rootGraph->getNodes())
     {
@@ -73,6 +75,8 @@ void CompoundNode::emitFunctionDefinition(const ShaderNode& node, GenContext& co
     DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
     {
         const ShaderGenerator& shadergen = context.getShaderGenerator();
+
+        ScopedSetCompoundInstanceNode scopedInstance(context, &node);
 
         // Emit functions for all child nodes
         shadergen.emitFunctionDefinitions(*_rootGraph, context, stage);
@@ -160,6 +164,7 @@ void CompoundNode::emitFunctionCall(const ShaderNode& node, GenContext& context,
     MX_TRACE_SCOPE(Tracing::Category::ShaderGen, _functionName.c_str());
 
     const ShaderGenerator& shadergen = context.getShaderGenerator();
+    ScopedSetCompoundInstanceNode scopedInstance(context, &node);
 
     DEFINE_SHADER_STAGE(stage, Stage::VERTEX)
     {

@@ -127,6 +127,27 @@ class MX_GENSHADER_API GenContext
         return _parentNodes;
     }
 
+    /// Push a compound instance node onto the stack.
+    void pushCompoundInstanceNode(const ShaderNode* node)
+    {
+        _compoundInstanceNodes.push_back(node);
+    }
+
+    /// Pop the current compound instance node from the stack.
+    void popCompoundInstanceNode()
+    {
+        _compoundInstanceNodes.pop_back();
+    }
+
+    /// Return the compound instance node at the given depth from the
+    /// innermost instance (depth 0), or nullptr if the depth is out of range.
+    const ShaderNode* getCompoundInstanceNode(size_t depth = 0) const
+    {
+        return depth < _compoundInstanceNodes.size()
+                   ? _compoundInstanceNodes[_compoundInstanceNodes.size() - 1 - depth]
+                   : nullptr;
+    }
+
     /// Add user data to the context to make it
     /// available during shader generator.
     void pushUserData(const string& name, GenUserDataPtr data)
@@ -218,6 +239,7 @@ class MX_GENSHADER_API GenContext
     std::unordered_map<const ShaderOutput*, string> _outputSuffix;
 
     vector<ConstNodePtr> _parentNodes;
+    vector<const ShaderNode*> _compoundInstanceNodes;
 
     ApplicationVariableHandler _applicationVariableHandler;
 };
@@ -235,6 +257,29 @@ class MX_GENSHADER_API ScopedSetVariableName
   private:
     ShaderPort* _port;
     string _oldName;
+};
+
+/// A RAII class for tracking the active compound instance node on the
+/// GenContext stack, ensuring the node is popped even if shader generation
+/// throws while the compound is being processed.
+class MX_GENSHADER_API ScopedSetCompoundInstanceNode
+{
+  public:
+    /// Constructor pushing a compound instance node onto the context stack.
+    ScopedSetCompoundInstanceNode(GenContext& context, const ShaderNode* node) :
+        _context(context)
+    {
+        _context.pushCompoundInstanceNode(node);
+    }
+
+    /// Destructor popping the compound instance node from the context stack.
+    ~ScopedSetCompoundInstanceNode()
+    {
+        _context.popCompoundInstanceNode();
+    }
+
+  private:
+    GenContext& _context;
 };
 
 MATERIALX_NAMESPACE_END

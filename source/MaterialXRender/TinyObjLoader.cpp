@@ -174,6 +174,7 @@ bool TinyObjLoader::load(const FilePath& filePath, MeshList& meshList, bool texc
         texcoordStream = mesh->generateTextureCoordinates(positionStream);
     }
     mesh->addStream(texcoordStream);
+    mesh->addStreamAlias("i_" + MeshStream::GEOMETRY_PROPERTY_ATTRIBUTE + "_st", texcoordStream->getName());
 
     MeshStreamPtr tangentStream = mesh->generateTangents(positionStream, normalStream, texcoordStream);
     if (tangentStream)
