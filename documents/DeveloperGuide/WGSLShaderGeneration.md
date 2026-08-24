@@ -42,6 +42,7 @@ The library lives under `libraries/{stdlib,pbrlib,lights}/genwgsl/`, with the ta
 | `MATERIALX_BUILD_GEN_WGSL`        | `OFF`         | Build the `MaterialXGenWgsl` library, enable the `genwgsl` shader target, and run `mxgenwgsl.py` in-place under `libraries/` on every build |
 | `MATERIALX_GENERATE_WGSL_LIBRARY` | `OFF`         | When `MATERIALX_BUILD_GEN_WGSL` is off, add a `MaterialXGenWgslLibrary` target that re-transpiles into the build tree as a validation aid   |
 | `MATERIALX_NAGA_EXECUTABLE`       | (auto-detect) | Path to the `naga` CLI                                                                                                                      |
+| `MATERIALX_NAGA_VERSION`          | `30.0.0`      | Pinned version of `naga-cli` installed by CMake via cargo (matches CI)                                                                      |
 | `MATERIALX_CARGO_PATH`            | (auto-detect) | Path to a Rust cargo home (used to install naga if not found)                                                                               |
 
 
@@ -268,7 +269,35 @@ Output goes to `${CMAKE_BINARY_DIR}/genwgsl_generated`. With `-DMATERIALX_BUILD_
 
 ## Release Artifacts
 
-Generated WGSL node and `lib/` files are not committed to git, but they are included in release archives. The release workflow runs CMake's `MaterialXGenWgslLibrary` target before packaging, so `libraries/*/genwgsl/**/*.wgsl` files ship in the archive.
+Generated WGSL node and `lib/` files are not committed to git, but they are included in release archives. The release workflow runs `mxgenwgsl.py` before packaging and overlays generated files into the archive staging tree, so `libraries/*/genwgsl/**/*.wgsl` files ship alongside hand-written ones.
+
+## Source Control
+
+Generated `.wgsl` files are excluded from git via `.gitignore` rules at the repository root. Only hand-written files listed in `source/MaterialXGenWgsl/tools/skip_transpile.txt` are committed. If you add a new hand-written `.wgsl` file to `skip_transpile.txt`, also add the corresponding `!` negation to `.gitignore`.
+
+## WGSL Validation
+
+CI validates generated WGSL in two layers:
+
+1. **Transpile-time** — `mxgenwgsl.py` runs `naga` for each node; any naga error is fatal.
+2. **Full-shader validation** — `generateshader.py --target wgsl --validator naga` generates complete shaders from example materials and validates each one with `naga-cli`.
+3. **Generator coverage** — the `[genwgsl]` C++ tests include a `WgslShaderGeneratorTester` that walks `TestSuite` and `Examples` materials, verifying `WgslShaderGenerator::generate()` succeeds for each renderable element.
+
+### Local WGSL development tools
+
+| Tool | Install | Purpose |
+|------|---------|---------|
+| [wgsl-analyzer](https://github.com/wgsl-analyzer/wgsl-analyzer) | VS Code extension or build from source | LSP: diagnostics, go-to-def, completion (uses naga internally) |
+| [wgslender](https://github.com/HugoDaniel/wgslender) | `npm install wgslender` / `npx wgslender validate` | Lint rules, uniformity analysis, reflection (independent impl) |
+| naga-cli | `cargo install naga-cli --version 30.0.0` | Validate WGSL parse + semantics: `naga shader.wgsl` |
+
+## Deferred Features
+
+The following are intentionally excluded from the initial WGSL generator and will be added in follow-up PRs:
+
+- **Bake/shadow helpers** (`hwWriteEnvPrefilter`, `hwWriteAlbedoTable`, `hwShadowMap`) — requires porting the corresponding `GlslShaderGenerator` branches to `WgslShaderGenerator` with viewer coverage.
+- **`mx_hextile.wgsl` transpilation** — WGSL enforces uniform control flow for `dFdx`/`dFdy` as a hard error; needs derivative-free rewrite or WGSL-specific workaround.
+- **Render-comparison nightly** — future validation gate, mirroring existing MSL/OSL nightly comparisons.
 
 ## Related Documentation
 
