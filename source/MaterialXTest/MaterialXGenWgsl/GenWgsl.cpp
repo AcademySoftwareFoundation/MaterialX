@@ -5,8 +5,11 @@
 
 #include <MaterialXTest/External/Catch/catch.hpp>
 
+#include <MaterialXTest/MaterialXGenWgsl/GenWgsl.h>
+
 #include <MaterialXGenWgsl/WgslShaderGenerator.h>
 #include <MaterialXGenWgsl/WgslSyntax.h>
+#include <MaterialXGenWgsl/WgslResourceBindingContext.h>
 
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
@@ -46,7 +49,6 @@ TEST_CASE("GenShader: WGSL Shader Generation", "[genwgsl]")
     mx::DocumentPtr doc = mx::createDocument();
     mx::loadLibraries({ "libraries" }, searchPath, doc);
 
-    // Load a representative lit surface material (standard_surface).
     mx::FilePath examplePath = searchPath.find("resources/Materials/Examples/StandardSurface/standard_surface_default.mtlx");
     REQUIRE(!examplePath.isEmpty());
     mx::readFromXmlFile(doc, examplePath);
@@ -79,10 +81,30 @@ TEST_CASE("GenShader: WGSL Shader Generation", "[genwgsl]")
         REQUIRE(pixelCode.find("@fragment") != std::string::npos);
         REQUIRE(pixelCode.find("fn fragmentMain") != std::string::npos);
 
-        // Write the generated WGSL to files for manual inspection / external validation.
         std::ofstream(name + ".vertex.wgsl") << vertexCode;
         std::ofstream(name + ".pixel.wgsl") << pixelCode;
         generated++;
     }
     REQUIRE(generated > 0);
+}
+
+TEST_CASE("GenShader: WGSL TestSuite Generation", "[genwgsl]")
+{
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+
+    mx::FilePathVec testRootPaths;
+    testRootPaths.push_back(searchPath.find("resources/Materials/TestSuite"));
+    testRootPaths.push_back(searchPath.find("resources/Materials/Examples"));
+
+    mx::ShaderGeneratorPtr generator = mx::WgslShaderGenerator::create();
+
+    const mx::FilePath logPath("genwgsl_generate_test.txt");
+    WgslShaderGeneratorTester tester(generator, testRootPaths, searchPath, logPath, false);
+
+    tester.addUserData(mx::HW::USER_DATA_BINDING_CONTEXT,
+                       mx::WgslResourceBindingContext::create(0));
+
+    const mx::GenOptions genOptions;
+    mx::FilePath optionsFilePath = searchPath.find("resources/Materials/TestSuite/_options.mtlx");
+    tester.validate(genOptions, optionsFilePath);
 }
