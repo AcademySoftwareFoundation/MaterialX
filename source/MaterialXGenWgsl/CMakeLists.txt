@@ -16,6 +16,7 @@ mx_add_library(MaterialXGenWgsl
 # When MATERIALX_BUILD_GEN_WGSL is ON, output goes in-place to libraries/ (ground truth for
 # runtime, JS preload, and CI). When only MATERIALX_GENERATE_WGSL_LIBRARY is ON, output goes to
 # the build tree as a validation aid that does not modify the source tree. Requires Python and naga.
+set(MATERIALX_NAGA_VERSION "30.0.0" CACHE STRING "Version of naga-cli to install via cargo for WGSL library generation.")
 set(_materialx_wgsl_generate OFF)
 set(_materialx_wgsl_out_dir "")
 if(MATERIALX_BUILD_GEN_WGSL)
@@ -82,8 +83,8 @@ if(_materialx_wgsl_generate)
         # The custom-command OUTPUT is the naga binary, so it re-runs only when that file is missing.
         if(_wgsl_install_naga)
             add_custom_command(OUTPUT "${MATERIALX_NAGA_EXECUTABLE}"
-                COMMAND "${MATERIALX_CARGO_EXECUTABLE}" install naga-cli --root "${_naga_root}"
-                COMMENT "Installing naga-cli via cargo into ${_naga_root} (one-time; compiles from source)"
+                COMMAND "${MATERIALX_CARGO_EXECUTABLE}" install naga-cli --locked --version ${MATERIALX_NAGA_VERSION} --root "${_naga_root}"
+                COMMENT "Installing naga-cli ${MATERIALX_NAGA_VERSION} via cargo into ${_naga_root} (one-time; compiles from source)"
                 VERBATIM)
             add_custom_target(MaterialXInstallNaga DEPENDS "${MATERIALX_NAGA_EXECUTABLE}")
         endif()
