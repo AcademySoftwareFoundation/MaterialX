@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.39" colorspace="acescg">
+<materialx version="1.39" colorspace="lin_ap1_scene">
   <nodedef name="ND_lama_surface" node="LamaSurface" nodegroup="pbr" version="1.0" isdefaultversion="true">
     <input name="materialFront" uiname="Material Front" type="BSDF" 
            doc="Material used on the front side (as defined by the geometric normal)." />

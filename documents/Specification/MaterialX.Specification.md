@@ -359,7 +359,7 @@ By default, MaterialX supports the following color spaces as defined in the ASWF
 
 The string used for the `colorspace` attribute in the XML file is not intended to be user-facing and should be translated into its user-facing name string before being shown in a user interface.
 
-The above color spaces align with OpenUSD and are used in other ASWF projects. The earlier MaterialX color spaces: `srgb_texture`, `lin_rec709`, `g22_rec709`, `g18_rec709`, `rec709_display`, `acescg`, `lin_ap1`, `g22_ap1`, `g18_ap1`, `lin_srgb`, `adobergb`, `lin_adobergb`, `srgb_displayp3`, `lin_displayp3`, and `none` are currently still supported but are now deprecated.
+The above color spaces align with OpenUSD and are used in other ASWF projects. The earlier MaterialX color spaces: `srgb_texture`, `lin_rec709`, `g22_rec709`, `g18_rec709`, `rec709_display`, `acescg`, `lin_ap1`, `g22_ap1`, `adobergb`, `lin_adobergb`, `srgb_displayp3`, and `lin_displayp3` are currently still supported but are now deprecated, while `none` remains an acceptable alias for `data`.
 
 Applications rendering MaterialX documents are expected to transform input colors and images from these spaces to the color space of their renderer.  One straightforward option for providing this support is to leverage MaterialX code generators, which support these transforms automatically, but applications may use any appropriate means to handle the transforms on their own. Note that the code generators have an optional OpenColorIO integration which allows support for additional color spaces.
 

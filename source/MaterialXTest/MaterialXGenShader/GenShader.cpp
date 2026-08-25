@@ -465,7 +465,7 @@ TEST_CASE("GenShader: No-op Color Spaces", "[genshader]")
     CHECK(colorManagementSystem->isNoOpColorSpace("none"));
     CHECK(colorManagementSystem->isNoOpColorSpace("data"));
     CHECK(!colorManagementSystem->isNoOpColorSpace("lin_rec709_scene"));
-    // Any unrecognized color space is considered a NoOp.
+    // Any unrecognized color space is not considered a NoOp.
     CHECK(!colorManagementSystem->isNoOpColorSpace("Raw"));
 
 #ifdef MATERIALX_BUILD_OCIO
@@ -569,20 +569,39 @@ TEST_CASE("GenShader: User-Facing Color Space Names", "[genshader]")
     CHECK(colorManagementSystem->getUserFacingName("bogus_colorspace") == "bogus_colorspace");
 
 #ifdef MATERIALX_BUILD_OCIO
-    // OcioColorManagementSystem prefers the canonical name reported by the underlying
-    // OCIO config, falling back to DefaultColorManagementSystem's table for names the
-    // config doesn't recognize (e.g. MaterialX-only IDs, or a fully unrecognized name).
     try
     {
+        mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+        mx::FilePath minimalConfigFile = searchPath.find(
+            "resources/Materials/TestSuite/stdlib/color_management/minimal_config.ocio");
+        REQUIRE(minimalConfigFile.exists());
+
         mx::OcioColorManagementSystemPtr ocioColorManagementSystem =
-            mx::OcioColorManagementSystem::createFromBuiltinConfig("ocio://cg-config-latest", "genglsl");
-        CHECK(ocioColorManagementSystem->getUserFacingName("pq_p3d65_display") == "ST2084-P3-D65 - Display");
+            mx::OcioColorManagementSystem::createFromFile(minimalConfigFile.asString(), "genglsl");
+
+        // The OcioColorManagementSystem checks its own config first. This color space is defined
+        // there but not in the built-in cg-config or the DefaultColorManagementSystem.
+        CHECK(ocioColorManagementSystem->getUserFacingName("ocio:arrilogc4_awg4_scene") == "ARRI camera LogC4");
+
+        // This color space is known to both its own config and the DefaultColorManagementSystem
+        // but the config author's name gets first preference.
+        CHECK(ocioColorManagementSystem->getUserFacingName("srgb_rec709_scene") == "sRGB (Scene-referred)");
+
+        // This color space is not in its config, so the fallback will come from the DefaultColorManagementSystem.
         CHECK(ocioColorManagementSystem->getUserFacingName("lin_rec709_scene") == "Linear Rec.709 (sRGB)");
+
+        // In this case, the color space string is not in its own config or the DefaultColorManagementSystem,
+        // so the IdentifyBuiltinColorSpace fallback in getSupportedColorSpaceName is invoked. This will find
+        // a color space for the string in the built-in cg-config. The transform math is then compared against
+        // the color spaces in the minimal_config.ocio, where it finds a match.
+        CHECK(ocioColorManagementSystem->getUserFacingName("srgb_encoded_ap1_tx") == "sRGB AP1");
+
+        // A totally unrecognized color space name is returned unmodified.
         CHECK(ocioColorManagementSystem->getUserFacingName("bogus_colorspace") == "bogus_colorspace");
     }
     catch (const std::exception& e)
     {
-        WARN(std::string("Could not create OcioColorManagementSystem from builtin config: ") + e.what());
+        WARN(std::string("Could not create OcioColorManagementSystem from minimal_config.ocio: ") + e.what());
     }
 #endif
 }

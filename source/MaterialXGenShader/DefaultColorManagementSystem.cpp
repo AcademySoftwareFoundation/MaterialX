@@ -88,11 +88,6 @@ const string& DefaultColorManagementSystem::getName() const
     return CMS_NAME;
 }
 
-bool DefaultColorManagementSystem::isNoOpColorSpace(const string& colorSpace) const
-{
-    return colorSpace == "none" || colorSpace == "data";
-}
-
 string DefaultColorManagementSystem::getUserFacingName(const string& colorSpace) const
 {
     string baseSpace = COLOR_SPACE_REMAP.count(colorSpace) ? COLOR_SPACE_REMAP.at(colorSpace) : colorSpace;

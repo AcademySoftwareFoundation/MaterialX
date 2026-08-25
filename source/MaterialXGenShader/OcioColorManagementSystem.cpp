@@ -85,39 +85,61 @@ class OcioColorManagementSystemImpl
     OCIO::ConstConfigRcPtr _config;
     string _target;
     mutable std::map<string, OCIO::ConstGPUProcessorRcPtr> _implementations;
+
+    // Lazily-created built-in config used to identify color spaces that are not
+    // directly recognized by the user's config (see getSupportedColorSpaceName).
+    mutable OCIO::ConstConfigRcPtr _cgConfig;
+
+    // Memo of color space names already resolved by getSupportedColorSpaceName,
+    // keyed by the requested name. An empty value denotes a name that could not
+    // be resolved. Without this cache, a color space that requires the built-in
+    // config fallback below would re-parse that config on every lookup, and
+    // populateColorTransformMap performs up to four such lookups per color port.
+    mutable std::map<string, string> _resolvedColorSpaceNames;
 };
 
 const char* OcioColorManagementSystemImpl::getSupportedColorSpaceName(const char* colorSpace) const
 {
+    auto cached = _resolvedColorSpaceNames.find(colorSpace);
+    if (cached != _resolvedColorSpaceNames.end())
+    {
+        return cached->second.empty() ? nullptr : cached->second.c_str();
+    }
+
+    string resolved;
     if (_config->getColorSpace(colorSpace))
     {
-        return colorSpace;
+        resolved = colorSpace;
+    }
+    else if (auto remap = COLOR_SPACE_REMAP.find(colorSpace); remap != COLOR_SPACE_REMAP.end())
+    {
+        if (const char* remapped = getSupportedColorSpaceName(remap->second.c_str()))
+        {
+            resolved = remapped;
+        }
+    }
+    else
+    {
+        // Check if the requested name is known in the built-in ACES config. If so, then
+        // look to see if an equivalent color space is available in the user's config by
+        // checking the math of each color space implementation.
+        if (!_cgConfig)
+        {
+            _cgConfig = OCIO::Config::CreateFromBuiltinConfig("ocio://cg-config-latest");
+        }
+        try
+        {
+            // Throws on failure:
+            resolved = OCIO::Config::IdentifyBuiltinColorSpace(_config, _cgConfig, colorSpace);
+        }
+        catch (const std::exception& /*e*/)
+        {
+        }
     }
 
-    auto remap = COLOR_SPACE_REMAP.find(colorSpace);
-    if (remap != COLOR_SPACE_REMAP.end())
-    {
-        return getSupportedColorSpaceName(remap->second.c_str());
-    }
-
-    // Check if the requested name is known in the built-in ACES config. If so, then
-    // look to see if an equivalent color space is available in the user's config by
-    // checking the math of each color space implementation.
-    // 
-    // TODO: This is somewhat time-consuming and might be better done by the calling
-    // program, if desired, rather than as an always-on fallback here. In any case,
-    // if a match is found, it should be cached to avoid repeated searches.
-
-    auto cgConfig = OCIO::Config::CreateFromBuiltinConfig("ocio://cg-config-latest");
-    try
-    {
-        // Throws on failure:
-        return OCIO::Config::IdentifyBuiltinColorSpace(_config, cgConfig, colorSpace);
-    }
-    catch (const std::exception& /*e*/)
-    {
-        return nullptr;
-    }
+    string& cacheEntry = _resolvedColorSpaceNames[colorSpace];
+    cacheEntry = resolved;
+    return cacheEntry.empty() ? nullptr : cacheEntry.c_str();
 }
 
 bool OcioColorManagementSystemImpl::isNoOpColorSpace(const string& colorSpace) const
@@ -373,7 +395,7 @@ NodeDefPtr OcioColorManagementSystem::getNodeDef(const ColorSpaceTransform& tran
 
 bool OcioColorManagementSystem::isNoOpColorSpace(const string& colorSpace) const
 {
-    if (DefaultColorManagementSystem::isNoOpColorSpace(colorSpace))
+    if (isReservedNoOpColorSpace(colorSpace))
     {
         return true;
     }

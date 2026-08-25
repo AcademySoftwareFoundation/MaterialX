@@ -216,7 +216,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--outputFilename', dest='outputFilename', type=str, help='Filename of the output MaterialX document.')
     parser.add_argument('--shadingModel', dest='shadingModel', type=str, default="standard_surface", help='The shading model used in analyzing input textures.')
-    parser.add_argument('--colorSpace', dest='colorSpace', type=str, help='The colorspace in which input textures should be interpreted, defaulting to srgb_texture.')
+    parser.add_argument('--colorSpace', dest='colorSpace', type=str, help='The colorspace in which input textures should be interpreted, defaulting to srgb_rec709_scene.')
     parser.add_argument('--texturePrefix', dest='texturePrefix', type=str, help='Filter input textures by the given prefix.')
     parser.add_argument('--tiledImage', dest='tiledImage', action="store_true", help='Request tiledimage nodes instead of image nodes.')
     parser.add_argument(dest='inputDirectory', nargs='?', help='Input folder that will be scanned for textures, defaulting to the current working directory.')
@@ -241,7 +241,7 @@ def main():
 
     # Get shading model and color space.
     shadingModel = 'standard_surface'
-    colorspace = 'srgb_texture'
+    colorspace = 'srgb_rec709_scene'
     if options.shadingModel:
         shadingModel = options.shadingModel
     if options.colorSpace:
