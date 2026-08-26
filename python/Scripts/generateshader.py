@@ -169,7 +169,7 @@ def main():
                 # Use extension of .vert and .frag as it's type is
                 # recognized by glslangValidator
                 if gentarget in ['glsl', 'essl', 'vulkan', 'msl', 'wgsl']:
-                    pixelValidator = opts.validator + (' --input-kind wgsl --shader-stage frag' if gentarget == 'wgsl' else '')
+                    pixelValidator = (opts.validator + ' --input-kind wgsl --shader-stage frag') if (gentarget == 'wgsl' and opts.validator) else opts.validator
                     pixelSource = shader.getSourceCode(mx_gen_shader.PIXEL_STAGE)
                     filename = pathPrefix + "/" + shader.getName() + "." + gentarget + ".frag"
                     print('--- Wrote pixel shader to: ' + filename)
@@ -178,7 +178,7 @@ def main():
                     file.close()
                     errors = validateCode(filename, pixelValidator, opts.validatorArgs)
 
-                    vertexValidator = opts.validator + (' --input-kind wgsl --shader-stage vert' if gentarget == 'wgsl' else '')
+                    vertexValidator = (opts.validator + ' --input-kind wgsl --shader-stage vert') if (gentarget == 'wgsl' and opts.validator) else opts.validator
                     vertexSource = shader.getSourceCode(mx_gen_shader.VERTEX_STAGE)
                     filename = pathPrefix + "/" + shader.getName() + "." + gentarget + ".vert"
                     print('--- Wrote vertex shader to: ' + filename)
