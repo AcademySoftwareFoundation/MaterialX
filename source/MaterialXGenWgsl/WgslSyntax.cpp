@@ -5,6 +5,7 @@
 
 #include <MaterialXGenWgsl/WgslSyntax.h>
 
+#include <MaterialXGenShader/Exception.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 
 MATERIALX_NAMESPACE_BEGIN
@@ -46,6 +47,23 @@ class WgslAggregateTypeSyntax : public AggregateTypeSyntax
         return valueString.empty() ? valueString : getName() + "(" + valueString + ")";
     }
 };
+
+string getLibraryFunctionSuffixToken(TypeDesc type)
+{
+    if (type == Type::FLOAT)
+        return "f32";
+    if (type == Type::VECTOR2)
+        return "vec2";
+    if (type == Type::VECTOR3)
+        return "vec3";
+    if (type == Type::VECTOR4)
+        return "vec4";
+    if (type == Type::MATRIX33)
+        return "mat3";
+    if (type == Type::MATRIX44)
+        return "mat4";
+    throw ExceptionShaderGenError("Unsupported type for library function suffix in WGSL: " + type.getName());
+}
 
 } // anonymous namespace
 
@@ -308,6 +326,15 @@ WgslSyntax::WgslSyntax(TypeSystemPtr typeSystem) :
             EMPTY_STRING,
             "surfaceshader",
             EMPTY_STRING));
+}
+
+string WgslSyntax::getLibraryFunctionName(const string& name, TypeDesc arg0, TypeDesc arg1) const
+{
+    if (name == "mx_matrix_mul")
+    {
+        return name + "_" + getLibraryFunctionSuffixToken(arg0) + "_" + getLibraryFunctionSuffixToken(arg1);
+    }
+    return name;
 }
 
 void WgslSyntax::makeValidName(string& name) const

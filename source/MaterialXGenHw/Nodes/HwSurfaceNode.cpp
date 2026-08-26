@@ -93,7 +93,7 @@ void HwSurfaceNode::emitFunctionCall(const ShaderNode& node, GenContext& context
         if (!normal->isEmitted())
         {
             normal->setEmitted();
-            shadergen.emitLine(prefix + normal->getVariable() + " = normalize(mx_matrix_mul(" + HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX + ", "+syntax.getTypeName(Type::VECTOR4)+"(" + HW::T_IN_NORMAL + ", 0)).xyz)", stage);
+            shadergen.emitLine(prefix + normal->getVariable() + " = normalize(" + syntax.getLibraryFunctionName("mx_matrix_mul", Type::MATRIX44, Type::VECTOR4) + "(" + HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX + ", "+syntax.getTypeName(Type::VECTOR4)+"(" + HW::T_IN_NORMAL + ", 0)).xyz)", stage);
         }
         if (context.getOptions().hwAmbientOcclusion)
         {

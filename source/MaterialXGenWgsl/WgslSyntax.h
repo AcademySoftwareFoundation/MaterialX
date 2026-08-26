@@ -35,6 +35,9 @@ class MX_GENWGSL_API WgslSyntax : public Syntax
 
     void makeValidName(string& name) const override;
 
+    /// Return the library helper name for the given base name and argument types.
+    string getLibraryFunctionName(const string& name, TypeDesc arg0, TypeDesc arg1) const override;
+
     /// Given an input specification attempt to remap this to an enumeration which is accepted by
     /// the shader generator. The enumeration may be converted to a different type than the input.
     bool remapEnumeration(const string& value, TypeDesc type, const string& enumNames, std::pair<TypeDesc, ValuePtr>& result) const override;
