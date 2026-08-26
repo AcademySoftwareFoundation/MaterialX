@@ -31,8 +31,8 @@ def validateCode(sourceCodeFile, codevalidator, codevalidatorArgs):
             cmd_flatten += c + ' '
         print(cmd_flatten)
         try:
-            output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-            return output.decode(encoding='utf-8')
+            subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+            return ""
         except subprocess.CalledProcessError as out:                                                                                                   
             return (out.output.decode(encoding='utf-8'))
     return ""
