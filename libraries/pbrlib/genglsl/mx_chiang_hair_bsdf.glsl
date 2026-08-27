@@ -145,7 +145,7 @@ float mx_hair_azimuthal_scattering(  // Np
         return float(0.5 / M_PI);
 
     float dphi = phi - mx_hair_phi(p, gammaO, gammaT);
-    if (isinf(dphi))
+    if (mx_isinf(dphi))
         return float(0.5 / M_PI);
 
     while (dphi > M_PI)    dphi -= (2.0 * M_PI);
@@ -264,6 +264,7 @@ void mx_chiang_hair_bsdf(ClosureData closureData, vec3 tint_R, vec3 tint_TT, vec
             F += Mp * Np * tint[i] * Ap[i];
         }
 
+        // TODO: Remove M_PI_INV to match the PBR specification.
         bsdf.response = F * closureData.occlusion * M_PI_INV;
     }
     else if (closureData.closureType == CLOSURE_TYPE_INDIRECT)
