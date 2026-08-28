@@ -106,9 +106,9 @@ In general, a color given as input to the renderer is considered to represent a 
 
 ## Color Management
 
-MaterialX supports the use of [color management systems](./MaterialX.Specification.md#color-spaces-and-color-management-systems) to associate colors with specific color spaces. A MaterialX document typically specifies the working color space that is to be used for the document as well as the color space in which input values and textures are given. If these color spaces are different from the working color space, it is the application's and shader generator's responsibility to transform them.
+MaterialX supports the use of [color management systems](./MaterialX.Specification.md#color-spaces-and-color-management-systems) to associate colors with specific color spaces. A MaterialX document typically specifies the working color space that is to be used for the document as well as the color space in which input values and textures are given. If these color spaces are different from the rendering color space, it is the application's and shader generator's responsibility to transform them.
 
-The ShaderGen module has an interface that can be used to integrate support for different color management systems. A simplified implementation with some popular and commonly used color transformations is supplied and enabled by default. An integration with the relevant portions of OpenColorIO ([http://opencolorio.org](http://opencolorio.org)) is planned for the future.
+The ShaderGen module has an interface that can be used to integrate support for different color management systems. Two implementations are provided: a built-in default color management system that supports a baseline set of ASWF color spaces; and an optional OpenColorIO color management system integration which provides support for a wider set of color spaces.
 
 
 ## Surfaces
