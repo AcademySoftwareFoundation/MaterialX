@@ -824,7 +824,7 @@ The value of the specified uniform geometric property (defined by a &lt;geomprop
 
 ### Geometric Node Notes
 
-A `colorspace` attribute may be specified for color3/color4-type properties of &lt;geomcolor> and &lt;geompropvalue> nodes to declare what colorspace the color property value is in; the default is "none" for no colorspace declaration (and hence no colorspace conversion).
+A `colorspace` attribute may be specified for color3/color4-type properties of &lt;geomcolor> and &lt;geompropvalue> nodes to declare what colorspace the color property value is in; the default is "data" for no colorspace declaration (and hence no colorspace conversion).
 
 
 

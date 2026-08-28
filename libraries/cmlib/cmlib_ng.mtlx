@@ -315,7 +315,7 @@
 
   <nodegraph name="NG_srgb_displayp3_to_lin_rec709_color3" nodedef="ND_srgb_displayp3_to_lin_rec709_color3">
     <constant name="mat" type="matrix33">
-      <input name="value" type="matrix33" value="1.22493029, -0.04205868, -0.01964128, -0.22492968, 1.04205894, -0.07864794, 0.00000006,-0.00000001, 1.09828925" />
+      <input name="value" type="matrix33" value="1.224940176281, -0.04205695470969, -0.01963755459033, -0.2249401762806, 1.042056954710, -0.07863604555063, 0., 0., 1.098273600141" />
     </constant>
     <!--  Use srgb_texture_to_lin_rec709 to convert from sRGB to Lin before passing to the mat conversion -->
     <srgb_texture_to_lin_rec709 name="srgb_transform" type="color3">
@@ -354,7 +354,7 @@
 
   <nodegraph name="NG_lin_displayp3_to_lin_rec709_color3" nodedef="ND_lin_displayp3_to_lin_rec709_color3">
     <constant name="mat" type="matrix33">
-      <input name="value" type="matrix33" value="1.22493029, -0.04205868, -0.01964128, -0.22492968, 1.04205894, -0.07864794, 0.00000006,-0.00000001, 1.09828925" />
+      <input name="value" type="matrix33" value="1.224940176281, -0.04205695470969, -0.01963755459033, -0.2249401762806, 1.042056954710, -0.07863604555063, 0., 0., 1.098273600141" />
     </constant>
     <convert name="asVec" type="vector3">
       <input name="in" type="color3" interfacename="in" />
@@ -376,6 +376,149 @@
     <lin_displayp3_to_lin_rec709 name="transform" type="color3">
       <input name="in" type="color3" nodename="asColor3" />
     </lin_displayp3_to_lin_rec709>
+    <extract name="alpha" type="float">
+      <input name="in" type="color4" interfacename="in" />
+      <input name="index" type="integer" value="3" />
+    </extract>
+    <combine2 name="asColor4" type="color4">
+      <input name="in1" type="color3" nodename="transform" />
+      <input name="in2" type="float" nodename="alpha" />
+    </combine2>
+    <output name="out" type="color4" nodename="asColor4" />
+  </nodegraph>
+
+  <!-- New color spaces introduced with the color interop naming scheme -->
+
+  <!-- ACES2065-1 -->
+
+  <nodegraph name="NG_lin_ap0_scene_to_lin_rec709_color3" nodedef="ND_lin_ap0_scene_to_lin_rec709_color3">
+    <constant name="mat" type="matrix33">
+      <input name="value" type="matrix33" value="2.521686186744, -0.276479914230, -0.015378064966, -1.134130988240,  1.372719087668, -0.152975335867, -0.387555198504, -0.096239173438, 1.16835340083" />
+    </constant>
+    <convert name="asVec" type="vector3">
+      <input name="in" type="color3" interfacename="in" />
+    </convert>
+    <transformmatrix name="transform" type="vector3">
+      <input name="in" type="vector3" nodename="asVec" />
+      <input name="mat" type="matrix33" nodename="mat" />
+    </transformmatrix>
+    <convert name="asColor" type="color3">
+      <input name="in" type="vector3" nodename="transform" />
+    </convert>
+    <output name="out" type="color3" nodename="asColor" />
+  </nodegraph>
+
+  <nodegraph name="NG_lin_ap0_scene_to_lin_rec709_color4" nodedef="ND_lin_ap0_scene_to_lin_rec709_color4">
+    <convert name="asColor3" type="color3">
+      <input name="in" type="color4" interfacename="in" />
+    </convert>
+    <lin_ap0_scene_to_lin_rec709 name="transform" type="color3">
+      <input name="in" type="color3" nodename="asColor3" />
+    </lin_ap0_scene_to_lin_rec709>
+    <extract name="alpha" type="float">
+      <input name="in" type="color4" interfacename="in" />
+      <input name="index" type="integer" value="3" />
+    </extract>
+    <combine2 name="asColor4" type="color4">
+      <input name="in1" type="color3" nodename="transform" />
+      <input name="in2" type="float" nodename="alpha" />
+    </combine2>
+    <output name="out" type="color4" nodename="asColor4" />
+  </nodegraph>
+
+  <!-- Linear Rec.2020 -->
+
+  <nodegraph name="NG_lin_rec2020_scene_to_lin_rec709_color3" nodedef="ND_lin_rec2020_scene_to_lin_rec709_color3">
+    <constant name="mat" type="matrix33">
+      <input name="value" type="matrix33" value="1.660491002108, -0.124550474522, -0.018150763355, -0.587641138788,  1.132899897126, -0.100578898008, -0.072849863320, -0.008349422604, 1.11872966136" />
+    </constant>
+    <convert name="asVec" type="vector3">
+      <input name="in" type="color3" interfacename="in" />
+    </convert>
+    <transformmatrix name="transform" type="vector3">
+      <input name="in" type="vector3" nodename="asVec" />
+      <input name="mat" type="matrix33" nodename="mat" />
+    </transformmatrix>
+    <convert name="asColor" type="color3">
+      <input name="in" type="vector3" nodename="transform" />
+    </convert>
+    <output name="out" type="color3" nodename="asColor" />
+  </nodegraph>
+
+  <nodegraph name="NG_lin_rec2020_scene_to_lin_rec709_color4" nodedef="ND_lin_rec2020_scene_to_lin_rec709_color4">
+    <convert name="asColor3" type="color3">
+      <input name="in" type="color4" interfacename="in" />
+    </convert>
+    <lin_rec2020_scene_to_lin_rec709 name="transform" type="color3">
+      <input name="in" type="color3" nodename="asColor3" />
+    </lin_rec2020_scene_to_lin_rec709>
+    <extract name="alpha" type="float">
+      <input name="in" type="color4" interfacename="in" />
+      <input name="index" type="integer" value="3" />
+    </extract>
+    <combine2 name="asColor4" type="color4">
+      <input name="in1" type="color3" nodename="transform" />
+      <input name="in2" type="float" nodename="alpha" />
+    </combine2>
+    <output name="out" type="color4" nodename="asColor4" />
+  </nodegraph>
+
+  <!-- Standard 1931 CIE XYZ (D65) to linear Rec709/sRGB matrix (IEC 61966-2-1) -->
+
+  <nodegraph name="NG_lin_ciexyzd65_scene_to_lin_rec709_color3" nodedef="ND_lin_ciexyzd65_scene_to_lin_rec709_color3">
+    <constant name="mat" type="matrix33">
+      <input name="value" type="matrix33" value="3.240969941905, -0.969243636281, 0.055630079697, -1.53738317757, 1.875967501508, -0.203976958889, -0.498610760293, 0.041555057407, 1.056971514243" />
+    </constant>
+    <convert name="asVec" type="vector3">
+      <input name="in" type="color3" interfacename="in" />
+    </convert>
+    <transformmatrix name="transform" type="vector3">
+      <input name="in" type="vector3" nodename="asVec" />
+      <input name="mat" type="matrix33" nodename="mat" />
+    </transformmatrix>
+    <convert name="asColor" type="color3">
+      <input name="in" type="vector3" nodename="transform" />
+    </convert>
+    <output name="out" type="color3" nodename="asColor" />
+  </nodegraph>
+
+  <nodegraph name="NG_lin_ciexyzd65_scene_to_lin_rec709_color4" nodedef="ND_lin_ciexyzd65_scene_to_lin_rec709_color4">
+    <convert name="asColor3" type="color3">
+      <input name="in" type="color4" interfacename="in" />
+    </convert>
+    <lin_ciexyzd65_scene_to_lin_rec709 name="transform" type="color3">
+      <input name="in" type="color3" nodename="asColor3" />
+    </lin_ciexyzd65_scene_to_lin_rec709>
+    <extract name="alpha" type="float">
+      <input name="in" type="color4" interfacename="in" />
+      <input name="index" type="integer" value="3" />
+    </extract>
+    <combine2 name="asColor4" type="color4">
+      <input name="in1" type="color3" nodename="transform" />
+      <input name="in2" type="float" nodename="alpha" />
+    </combine2>
+    <output name="out" type="color4" nodename="asColor4" />
+  </nodegraph>
+
+  <!-- sRGB EOTF applied to AP1 primaries -->
+
+  <nodegraph name="NG_srgb_ap1_scene_to_lin_rec709_color3" nodedef="ND_srgb_ap1_scene_to_lin_rec709_color3">
+    <srgb_texture_to_lin_rec709 name="srgb_transform" type="color3">
+      <input name="in" type="color3" interfacename="in" />
+    </srgb_texture_to_lin_rec709>
+    <acescg_to_lin_rec709 name="rec709" type="color3">
+      <input name="in" type="color3" nodename="srgb_transform" />
+    </acescg_to_lin_rec709>
+    <output name="out" type="color3" nodename="rec709" />
+  </nodegraph>
+
+  <nodegraph name="NG_srgb_ap1_scene_to_lin_rec709_color4" nodedef="ND_srgb_ap1_scene_to_lin_rec709_color4">
+    <convert name="asColor3" type="color3">
+      <input name="in" type="color4" interfacename="in" />
+    </convert>
+    <srgb_ap1_scene_to_lin_rec709 name="transform" type="color3">
+      <input name="in" type="color3" nodename="asColor3" />
+    </srgb_ap1_scene_to_lin_rec709>
     <extract name="alpha" type="float">
       <input name="in" type="color4" interfacename="in" />
       <input name="index" type="integer" value="3" />
