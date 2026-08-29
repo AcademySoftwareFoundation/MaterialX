@@ -18,6 +18,7 @@ namespace
 const string INPUT_BSDF = "bsdf";
 const string INPUT_EDF = "edf";
 const string INPUT_OPACITY = "opacity";
+const string INPUT_OCCLUSION = "occlusion";
 
 } // anonymous namespace
 
@@ -43,6 +44,11 @@ const string& HwSurfaceNode::getEdfInputName() const
 const string& HwSurfaceNode::getOpacityInputName() const
 {
     return INPUT_OPACITY;
+}
+
+const string& HwSurfaceNode::getOcclusionInputName() const
+{
+    return INPUT_OCCLUSION;
 }
 
 void HwSurfaceNode::createVariables(const ShaderNode&, GenContext& context, Shader& shader) const
@@ -123,7 +129,7 @@ void HwSurfaceNode::emitFunctionCall(const ShaderNode& node, GenContext& context
         shadergen.emitLine(vec3+" V = normalize(" + HW::T_VIEW_POSITION + " - " + prefix + HW::T_POSITION_WORLD + ")", stage);
         shadergen.emitLine(vec3+" P = " + prefix + HW::T_POSITION_WORLD, stage);
         shadergen.emitLine(vec3+" L = "+vec3_zero, stage);
-        shadergen.emitLine("float occlusion = 1.0", stage);
+        shadergen.emitLine("float closureOcclusion = 1.0", stage);
         shadergen.emitLineBreak(stage);
 
         const string outColor = output->getVariable() + ".color";
@@ -146,7 +152,7 @@ void HwSurfaceNode::emitFunctionCall(const ShaderNode& node, GenContext& context
                 shadergen.emitComment("Shadow occlusion", stage);
                 if (context.getOptions().hwShadowMap)
                 {
-                    shadergen.emitLine("occlusion = mx_shadow_occlusion(" + HW::T_SHADOW_MAP + ", " + HW::T_SHADOW_MATRIX + ", " + prefix + HW::T_POSITION_WORLD + ")", stage);
+                    shadergen.emitLine("closureOcclusion = mx_shadow_occlusion(" + HW::T_SHADOW_MAP + ", " + HW::T_SHADOW_MATRIX + ", " + prefix + HW::T_POSITION_WORLD + ")", stage);
                 }
                 shadergen.emitLineBreak(stage);
 
@@ -164,11 +170,19 @@ void HwSurfaceNode::emitFunctionCall(const ShaderNode& node, GenContext& context
                     {
                         shadergen.emitLine("ambOccUv = "+vec2+"(ambOccUv.x, 1.0 - ambOccUv.y)", stage);
                     }
-                    shadergen.emitLine("occlusion = mix(1.0, texture(" + HW::T_AMB_OCC_MAP + ", ambOccUv).x, " + HW::T_AMB_OCC_GAIN + ")", stage);
+                    shadergen.emitLine("closureOcclusion = mix(1.0, texture(" + HW::T_AMB_OCC_MAP + ", ambOccUv).x, " + HW::T_AMB_OCC_GAIN + ")", stage);
                 }
                 else
                 {
-                    shadergen.emitLine("occlusion = 1.0", stage);
+                    shadergen.emitLine("closureOcclusion = 1.0", stage);
+                }
+                const ShaderInput* occlusionInput = node.getInput(getOcclusionInputName());
+                if (occlusionInput)
+                {
+                    shadergen.emitLineBegin(stage);
+                    shadergen.emitString("closureOcclusion *= ", stage);
+                    shadergen.emitInput(occlusionInput, context, stage);
+                    shadergen.emitLineEnd(stage);
                 }
                 shadergen.emitLineBreak(stage);
 
@@ -178,7 +192,7 @@ void HwSurfaceNode::emitFunctionCall(const ShaderNode& node, GenContext& context
                 // indirect lighting
                 if (bsdf->hasClassification(ShaderNode::Classification::BSDF_R))
                 {
-                    shadergen.emitLine("ClosureData closureData = makeClosureData(CLOSURE_TYPE_INDIRECT, L, V, N, P, occlusion)", stage);
+                    shadergen.emitLine("ClosureData closureData = makeClosureData(CLOSURE_TYPE_INDIRECT, L, V, N, P, closureOcclusion)", stage);
                     shadergen.emitFunctionCall(*bsdf, context, stage);
                 }
                 else
@@ -189,7 +203,7 @@ void HwSurfaceNode::emitFunctionCall(const ShaderNode& node, GenContext& context
                 }
 
                 shadergen.emitLineBreak(stage);
-                shadergen.emitLine(outColor + " += occlusion * " + bsdf->getOutput()->getVariable() + ".response", stage);
+                shadergen.emitLine(outColor + " += closureOcclusion * " + bsdf->getOutput()->getVariable() + ".response", stage);
                 shadergen.emitScopeEnd(stage);
                 shadergen.emitLineBreak(stage);
             }
@@ -208,7 +222,7 @@ void HwSurfaceNode::emitFunctionCall(const ShaderNode& node, GenContext& context
 
                 if (edf->hasClassification(ShaderNode::Classification::EDF))
                 {
-                    shadergen.emitLine("ClosureData closureData = makeClosureData(CLOSURE_TYPE_EMISSION, L, V, N, P, occlusion)", stage);
+                    shadergen.emitLine("ClosureData closureData = makeClosureData(CLOSURE_TYPE_EMISSION, L, V, N, P, closureOcclusion)", stage);
                     shadergen.emitFunctionCall(*edf, context, stage);
                 }
                 else
@@ -234,7 +248,7 @@ void HwSurfaceNode::emitFunctionCall(const ShaderNode& node, GenContext& context
                 shadergen.emitComment("Calculate the BSDF transmission for viewing direction", stage);
                 if (bsdf->hasClassification(ShaderNode::Classification::BSDF_T) || bsdf->hasClassification(ShaderNode::Classification::VDF))
                 {
-                    shadergen.emitLine("ClosureData closureData = makeClosureData(CLOSURE_TYPE_TRANSMISSION, L, V, N, P, occlusion)", stage);
+                    shadergen.emitLine("ClosureData closureData = makeClosureData(CLOSURE_TYPE_TRANSMISSION, L, V, N, P, closureOcclusion)", stage);
                     shadergen.emitFunctionCall(*bsdf, context, stage);
                 }
                 else
@@ -299,7 +313,7 @@ void HwSurfaceNode::emitLightLoop(const ShaderNode& node, GenContext& context, S
         shadergen.emitComment("Calculate the BSDF response for this light source", stage);
         if (bsdf->hasClassification(ShaderNode::Classification::BSDF_R))
         {
-            shadergen.emitLine("ClosureData closureData = makeClosureData(CLOSURE_TYPE_REFLECTION, L, V, N, P, occlusion)", stage);
+            shadergen.emitLine("ClosureData closureData = makeClosureData(CLOSURE_TYPE_REFLECTION, L, V, N, P, closureOcclusion)", stage);
             shadergen.emitFunctionCall(*bsdf, context, stage);
         }
         else
@@ -317,7 +331,7 @@ void HwSurfaceNode::emitLightLoop(const ShaderNode& node, GenContext& context, S
         shadergen.emitLineBreak(stage);
 
         shadergen.emitComment("Clear shadow factor for next light", stage);
-        shadergen.emitLine("occlusion = 1.0", stage);
+        shadergen.emitLine("closureOcclusion = 1.0", stage);
 
         shadergen.emitScopeEnd(stage);
         shadergen.emitLineBreak(stage);
