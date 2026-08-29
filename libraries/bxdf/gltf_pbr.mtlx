@@ -45,9 +45,16 @@
       <input name="in" type="vector3" nodename="attenuation_color_vec" />
     </ln>
 
+    <ifgreater name="safe_attenuation_distance" type="float">
+      <input name="value1" type="float" interfacename="attenuation_distance" />
+      <input name="value2" type="float" value="0.0" />
+      <input name="in1" type="float" interfacename="attenuation_distance" />
+      <input name="in2" type="float" value="1.0" />
+    </ifgreater>
+
     <divide name="ln_attenuation_color_vec_over_distance" type="vector3">
       <input name="in1" type="vector3" nodename="ln_attenuation_color_vec" />
-      <input name="in2" type="float" interfacename="attenuation_distance" />
+      <input name="in2" type="float" nodename="safe_attenuation_distance" />
     </divide>
 
     <multiply name="attenuation_coeff" type="vector3">
@@ -152,6 +159,11 @@
       <input name="scatter_mode" type="string" value="T" />
     </dielectric_bsdf>
 
+    <layer name="volume_transmission_bsdf" type="BSDF">
+      <input name="top" type="BSDF" nodename="transmission_bsdf" />
+      <input name="base" type="VDF" nodename="isotropic_volume" />
+    </layer>
+
     <generalized_schlick_bsdf name="reflection_bsdf" type="BSDF">
       <input name="color0" type="color3" nodename="dielectric_f0" />
       <input name="color90" type="color3" nodename="dielectric_f90" />
@@ -163,7 +175,7 @@
 
     <mix name="transmission_mix" type="BSDF">
       <input name="bg" type="BSDF" nodename="diffuse_bsdf" />
-      <input name="fg" type="BSDF" nodename="transmission_bsdf" />
+      <input name="fg" type="BSDF" nodename="volume_transmission_bsdf" />
       <input name="mix" type="float" interfacename="transmission" />
     </mix>
 
