@@ -141,9 +141,9 @@ class MX_CORE_API PropertyAssign : public ValueElement
 
   public:
     static const string CATEGORY;
-    static const string PROPERTY_ATTRIBUTE;
-    static const string GEOM_ATTRIBUTE;
-    static const string COLLECTION_ATTRIBUTE;
+    static const char* PROPERTY_ATTRIBUTE;
+    static const char* GEOM_ATTRIBUTE;
+    static const char* COLLECTION_ATTRIBUTE;
 };
 
 /// @class PropertySet
@@ -263,7 +263,7 @@ class MX_CORE_API PropertySetAssign : public GeomElement
 
   public:
     static const string CATEGORY;
-    static const string PROPERTY_SET_ATTRIBUTE;
+    static const char* PROPERTY_SET_ATTRIBUTE;
 };
 
 MATERIALX_NAMESPACE_END

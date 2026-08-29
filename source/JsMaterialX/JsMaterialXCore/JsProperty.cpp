@@ -24,6 +24,10 @@ EMSCRIPTEN_BINDINGS(property)
         .smart_ptr<std::shared_ptr<const mx::Property>>("Property")
         .class_property("CATEGORY", &mx::Property::CATEGORY);
 
+    std::string mx__PropertyAssign__PROPERTY_ATTRIBUTE = mx::PropertyAssign::PROPERTY_ATTRIBUTE;
+    std::string mx__PropertyAssign__GEOM_ATTRIBUTE = mx::PropertyAssign::GEOM_ATTRIBUTE;
+    std::string mx__PropertyAssign__COLLECTION_ATTRIBUTE = mx::PropertyAssign::COLLECTION_ATTRIBUTE;
+
     ems::class_<mx::PropertyAssign, ems::base<mx::ValueElement>>("PropertyAssign")
         .smart_ptr_constructor("PropertyAssign", &std::make_shared<mx::PropertyAssign, mx::ElementPtr, const std::string &>)
         .smart_ptr<std::shared_ptr<const mx::PropertyAssign>>("PropertyAssign")
@@ -39,9 +43,9 @@ EMSCRIPTEN_BINDINGS(property)
         .function("setCollection", &mx::PropertyAssign::setCollection)
         .function("getCollection", &mx::PropertyAssign::getCollection)
         .class_property("CATEGORY", &mx::PropertyAssign::CATEGORY)
-        .class_property("PROPERTY_ATTRIBUTE", &mx::PropertyAssign::PROPERTY_ATTRIBUTE)
-        .class_property("GEOM_ATTRIBUTE", &mx::PropertyAssign::GEOM_ATTRIBUTE)
-        .class_property("COLLECTION_ATTRIBUTE", &mx::PropertyAssign::COLLECTION_ATTRIBUTE);
+        .class_property("PROPERTY_ATTRIBUTE", &mx__PropertyAssign__PROPERTY_ATTRIBUTE)
+        .class_property("GEOM_ATTRIBUTE", &mx__PropertyAssign__GEOM_ATTRIBUTE)
+        .class_property("COLLECTION_ATTRIBUTE", &mx__PropertyAssign__COLLECTION_ATTRIBUTE);
 
     ems::class_<mx::PropertySet, ems::base<mx::Element>>("PropertySet")
         .smart_ptr_constructor("PropertySet", &std::make_shared<mx::PropertySet, mx::ElementPtr, const std::string &>)
@@ -67,7 +71,9 @@ EMSCRIPTEN_BINDINGS(property)
         BIND_PROPERTYSET_TYPE_INSTANCE(StringArray, mx::StringVec)
         .function("getPropertyValue", &mx::PropertySet::getPropertyValue)
         .class_property("CATEGORY", &mx::Property::CATEGORY);
-        
+
+    std::string mx__PropertySetAssign__COLLECTION_ATTRIBUTE = mx::PropertySetAssign::PROPERTY_SET_ATTRIBUTE;
+
     ems::class_<mx::PropertySetAssign, ems::base<mx::GeomElement>>("PropertySetAssign")
         .smart_ptr_constructor("PropertySetAssign", &std::make_shared<mx::PropertySetAssign, mx::ElementPtr, const std::string &>)
         .smart_ptr<std::shared_ptr<const mx::PropertySetAssign>>("PropertySetAssign")
@@ -77,5 +83,5 @@ EMSCRIPTEN_BINDINGS(property)
         .function("setPropertySet", &mx::PropertySetAssign::setPropertySet)
         .function("getPropertySet", &mx::PropertySetAssign::getPropertySet)
         .class_property("CATEGORY", &mx::PropertySetAssign::CATEGORY)
-        .class_property("PROPERTY_SET_ATTRIBUTE", &mx::PropertySetAssign::PROPERTY_SET_ATTRIBUTE);
+        .class_property("PROPERTY_SET_ATTRIBUTE", &mx__PropertySetAssign__COLLECTION_ATTRIBUTE);
 }
