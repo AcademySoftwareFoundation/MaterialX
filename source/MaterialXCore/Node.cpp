@@ -192,7 +192,7 @@ vector<PortElementPtr> Node::getDownstreamPorts() const
         }
     }
     std::sort(downstreamPorts.begin(), downstreamPorts.end(), [](const ConstElementPtr& a, const ConstElementPtr& b)
-    {
+              {
         return a->getName() > b->getName();
     });
     return downstreamPorts;
@@ -745,12 +745,10 @@ NodeDefPtr NodeGraph::getNodeDef() const
     // If not directly defined look for an implementation which has a nodedef association
     if (!nodedef)
     {
-        for (auto impl : getDocument()->getImplementations())
+        ImplementationPtr impl = getDocument()->getImplementationForNodeGraph(getQualifiedName(getName()));
+        if (impl)
         {
-            if (impl->getNodeGraph() == getQualifiedName(getName()))
-            {
-                nodedef = impl->getNodeDef();
-            }
+            nodedef = impl->getNodeDef();
         }
     }
     return nodedef;
@@ -775,7 +773,7 @@ vector<PortElementPtr> NodeGraph::getDownstreamPorts() const
         }
     }
     std::sort(downstreamPorts.begin(), downstreamPorts.end(), [](const ConstElementPtr& a, const ConstElementPtr& b)
-    {
+              {
         return a->getName() > b->getName();
     });
     return downstreamPorts;
