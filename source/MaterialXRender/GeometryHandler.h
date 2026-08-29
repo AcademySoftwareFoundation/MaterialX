@@ -46,6 +46,13 @@ class MX_RENDER_API GeometryLoader
     /// @return True if load was successful
     virtual bool load(const FilePath& filePath, MeshList& meshList, bool texcoordVerticalFlip = false) = 0;
 
+    /// Return true if this loader's source texture coordinate convention
+    /// requires a vertical flip for hardware shader generation.
+    virtual bool requiresTexcoordVerticalFlip() const
+    {
+        return false;
+    }
+
   protected:
     // List of supported string extensions
     StringSet _extensions;
@@ -94,6 +101,10 @@ class MX_RENDER_API GeometryHandler
     /// @param filePath Path to geometry
     /// @param texcoordVerticalFlip Flip texture coordinates in V. Default is to not flip.
     bool loadGeometry(const FilePath& filePath, bool texcoordVerticalFlip = false);
+
+    /// Return true if the loader for the given file expects a vertical texture
+    /// coordinate flip for hardware shader generation.
+    bool requiresTexcoordVerticalFlip(const FilePath& filePath) const;
 
     /// Get list of meshes
     const MeshList& getMeshes() const

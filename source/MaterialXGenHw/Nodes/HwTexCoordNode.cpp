@@ -44,9 +44,24 @@ void HwTexCoordNode::emitFunctionCall(const ShaderNode& node, GenContext& contex
         VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
         const string prefix = shadergen.getVertexDataPrefix(vertexData);
         ShaderPort* texcoord = vertexData[variable];
+
+        const string inTexcoord = HW::T_IN_TEXCOORD + "_" + index;
+        const bool flipV = context.getOptions().hwTexcoordVerticalFlip;
+
+        auto emitTexcoordAssign = [&](const string& lhs) {
+            if (flipV)
+            {
+                if (output->getType() == Type::VECTOR2)
+                    return lhs + " = vec2(" + inTexcoord + ".x, 1.0 - " + inTexcoord + ".y)";
+                else
+                    return lhs + " = vec3(" + inTexcoord + ".x, 1.0 - " + inTexcoord + ".y, " + inTexcoord + ".z)";
+            }
+            return lhs + " = " + inTexcoord;
+        };
+
         if (!texcoord->isEmitted())
         {
-            shadergen.emitLine(prefix + texcoord->getVariable() + " = " + HW::T_IN_TEXCOORD + "_" + index, stage);
+            shadergen.emitLine(emitTexcoordAssign(prefix + texcoord->getVariable()), stage);
             texcoord->setEmitted();
         }
     }

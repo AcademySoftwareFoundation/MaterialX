@@ -78,6 +78,7 @@ class MX_GENSHADER_API GenOptions
     GenOptions() :
         shaderInterfaceType(SHADER_INTERFACE_COMPLETE),
         fileTextureVerticalFlip(false),
+        hwTexcoordVerticalFlip(false),
         addUpstreamDependencies(true),
         libraryPrefix("libraries"),
         emitColorTransforms(true),
@@ -116,6 +117,11 @@ class MX_GENSHADER_API GenOptions
     /// file textures need to be flipped vertically to match the target's
     /// texture space convention. By default this option is false.
     bool fileTextureVerticalFlip;
+
+    /// If true the y-component of texture coordinates will be flipped at
+    /// the texcoord node output, before entering the shader graph. This
+    /// affects all downstream UV consumers. By default this option is false.
+    bool hwTexcoordVerticalFlip;
 
     /// An optional override for the target color space.
     /// Shader fragments will be generated to transform
