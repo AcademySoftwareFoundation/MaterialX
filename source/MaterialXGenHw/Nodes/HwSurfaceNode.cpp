@@ -135,8 +135,9 @@ void HwSurfaceNode::emitFunctionCall(const ShaderNode& node, GenContext& context
             if (const ShaderNode* bsdf = bsdfInput->getConnectedSibling())
             {
                 shadergen.emitLineBegin(stage);
-                shadergen.emitString("float surfaceOpacity = ", stage);
+                shadergen.emitString("float surfaceOpacity = clamp(", stage);
                 shadergen.emitInput(node.getInput(getOpacityInputName()), context, stage);
+                shadergen.emitString(", 0.0, 1.0)", stage);
                 shadergen.emitLineEnd(stage);
                 shadergen.emitLineBreak(stage);
 
