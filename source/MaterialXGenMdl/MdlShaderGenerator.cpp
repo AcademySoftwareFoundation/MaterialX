@@ -125,6 +125,13 @@ MdlShaderGenerator::MdlShaderGenerator(TypeSystemPtr typeSystem) :
     registerImplementation("IM_image_vector2_" + MdlShaderGenerator::TARGET, ImageNodeMdl::create);
     registerImplementation("IM_image_vector3_" + MdlShaderGenerator::TARGET, ImageNodeMdl::create);
     registerImplementation("IM_image_vector4_" + MdlShaderGenerator::TARGET, ImageNodeMdl::create);
+
+    // <!-- <hextiledimage> -->
+    registerImplementation("IM_hextiledimage_color3_" + MdlShaderGenerator::TARGET, ImageNodeMdl::create);
+    registerImplementation("IM_hextiledimage_color4_" + MdlShaderGenerator::TARGET, ImageNodeMdl::create);
+
+    // <!-- <hextilednormalmap> -->
+    registerImplementation("IM_hextilednormalmap_vector3_" + MdlShaderGenerator::TARGET, ImageNodeMdl::create);
 }
 
 void MdlShaderGenerator::applyDefaultOptions(GenOptions& options) const
