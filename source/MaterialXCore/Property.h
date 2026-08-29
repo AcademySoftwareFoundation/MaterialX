@@ -141,9 +141,9 @@ class MX_CORE_API PropertyAssign : public ValueElement
 
   public:
     static const string CATEGORY;
-    static const string PROPERTY_ATTRIBUTE;
-    static const string GEOM_ATTRIBUTE;
-    static const string COLLECTION_ATTRIBUTE;
+    static constexpr std::string_view PROPERTY_ATTRIBUTE = "property";
+    static constexpr std::string_view GEOM_ATTRIBUTE = "geom";
+    static constexpr std::string_view COLLECTION_ATTRIBUTE = "collection";
 };
 
 /// @class PropertySet
@@ -263,7 +263,7 @@ class MX_CORE_API PropertySetAssign : public GeomElement
 
   public:
     static const string CATEGORY;
-    static const string PROPERTY_SET_ATTRIBUTE;
+    static constexpr std::string_view PROPERTY_SET_ATTRIBUTE = "propertyset";
 };
 
 MATERIALX_NAMESPACE_END
