@@ -38,8 +38,8 @@ jobs:
           compiler: gcc
           compiler_version: "14"
           python: 3.13
+          cmake_config: -DMATERIALX_BUILD_PERFETTO_TRACING=ON
           extended_build_perfetto: ON
-          extended_cmake_config: -DMATERIALX_BUILD_PERFETTO_TRACING=ON
 
         - name: Linux_GCC_14_Python314
           os: ubuntu-24.04
