@@ -174,6 +174,7 @@ MX_FORMAT_API void writeToXmlStream(DocumentPtr doc, std::ostream& stream, const
 /// @param writeOptions An optional pointer to an XmlWriteOptions object.
 ///    If provided, then the given options will affect the behavior of the
 ///    write function.  Defaults to a null pointer.
+/// @throws ExceptionFileMissing if the file cannot be opened for writing.
 MX_FORMAT_API void writeToXmlFile(DocumentPtr doc, const FilePath& filename, const XmlWriteOptions* writeOptions = nullptr);
 
 /// Write a Document as XML to a new string, returned by value.

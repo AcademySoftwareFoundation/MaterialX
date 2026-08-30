@@ -657,10 +657,17 @@ void Viewer::createSaveMaterialsInterface(ng::ref<Widget> parent, const std::str
 
             mx::XmlWriteOptions writeOptions;
             writeOptions.elementPredicate = getElementPredicate();
-            mx::writeToXmlFile(material->getDocument(), filename, &writeOptions);
+            try
+            {
+                mx::writeToXmlFile(material->getDocument(), filename, &writeOptions);
 
-            // Update material file name
-            _materialFilename = filename;
+                // Update material file name
+                _materialFilename = filename;
+            }
+            catch (std::exception& e)
+            {
+                new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Cannot save material document", e.what());
+            }
         }
         m_process_events = true;
     });

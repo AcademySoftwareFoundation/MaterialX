@@ -360,6 +360,10 @@ void writeToXmlFile(DocumentPtr doc, const FilePath& filename, const XmlWriteOpt
         filename.getParentPath().createDirectory(true);
     }
     std::ofstream ofs(filename.asString());
+    if (!ofs)
+    {
+        throw ExceptionFileMissing("Failed to open file for writing: " + filename.asString());
+    }
     writeToXmlStream(doc, ofs, writeOptions);
 }
 

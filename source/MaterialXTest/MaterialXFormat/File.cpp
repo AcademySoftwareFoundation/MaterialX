@@ -260,13 +260,17 @@ TEST_CASE("Create temporary directory", "[file]")
     REQUIRE((sb.st_mode & 07777) == 0700);
 
     // Verify that a failure to create the directory is reported as an exception,
-    // rather than returning a path that does not exist.
-    mx::FilePath readOnlyParent = tempDir / "readOnly";
-    readOnlyParent.createDirectory();
-    REQUIRE(readOnlyParent.isDirectory());
-    REQUIRE(chmod(readOnlyParent.asString().c_str(), 0500) == 0);
-    REQUIRE_THROWS_AS(mx::FilePath::createTemporaryDirectory(readOnlyParent), mx::Exception);
-    REQUIRE(chmod(readOnlyParent.asString().c_str(), 0700) == 0);
+    // rather than returning a path that does not exist.  The root user bypasses
+    // permission checks, so this case is only meaningful for other users.
+    if (geteuid() != 0)
+    {
+        mx::FilePath readOnlyParent = tempDir / "readOnly";
+        readOnlyParent.createDirectory();
+        REQUIRE(readOnlyParent.isDirectory());
+        REQUIRE(chmod(readOnlyParent.asString().c_str(), 0500) == 0);
+        REQUIRE_THROWS_AS(mx::FilePath::createTemporaryDirectory(readOnlyParent), mx::Exception);
+        REQUIRE(chmod(readOnlyParent.asString().c_str(), 0700) == 0);
+    }
 #endif
 
     REQUIRE(tempDir.removeDirectory(true));

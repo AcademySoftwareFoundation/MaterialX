@@ -9,6 +9,11 @@
 #include <MaterialXFormat/Util.h>
 #include <MaterialXFormat/XmlIo.h>
 
+#if !defined(_WIN32)
+    #include <sys/stat.h>
+    #include <unistd.h>
+#endif
+
 namespace mx = MaterialX;
 
 TEST_CASE("Load content", "[xmlio]")
@@ -382,9 +387,9 @@ TEST_CASE("Write with created directories", "[xmlio]")
     mx::FilePath filename = tempDir / "new" / "nested" / "directory" / "document.mtlx";
     REQUIRE(!filename.getParentPath().exists());
 
-    // By default, no directories are created, and the write is not performed.
+    // By default, no directories are created, and the write fails.
     mx::XmlWriteOptions writeOptions;
-    mx::writeToXmlFile(doc, filename, &writeOptions);
+    REQUIRE_THROWS_AS(mx::writeToXmlFile(doc, filename, &writeOptions), mx::ExceptionFileMissing);
     REQUIRE(!filename.exists());
 
     // With the createDirectories option, the parent hierarchy is created.
@@ -402,6 +407,22 @@ TEST_CASE("Write with created directories", "[xmlio]")
     mx::FilePath secondFilename = filename.getParentPath() / "document2.mtlx";
     mx::writeToXmlFile(doc, secondFilename, &writeOptions);
     REQUIRE(secondFilename.exists());
+
+#if !defined(_WIN32)
+    // Verify that a permission failure is reported as an exception, rather than
+    // silently writing nothing.  The root user bypasses permission checks, so
+    // this case is only meaningful for other users.
+    if (geteuid() != 0)
+    {
+        mx::FilePath readOnlyDir = tempDir / "readOnly";
+        readOnlyDir.createDirectory();
+        REQUIRE(chmod(readOnlyDir.asString().c_str(), 0500) == 0);
+        mx::FilePath deniedFilename = readOnlyDir / "denied" / "document.mtlx";
+        REQUIRE_THROWS_AS(mx::writeToXmlFile(doc, deniedFilename, &writeOptions), mx::ExceptionFileMissing);
+        REQUIRE(!deniedFilename.exists());
+        REQUIRE(chmod(readOnlyDir.asString().c_str(), 0700) == 0);
+    }
+#endif
 
     REQUIRE(tempDir.removeDirectory(true));
     REQUIRE(!tempDir.exists());
