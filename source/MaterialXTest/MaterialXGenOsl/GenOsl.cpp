@@ -12,6 +12,7 @@
 #include <MaterialXGenShader/TypeDesc.h>
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
+#include <MaterialXGenShader/ShaderGraph.h>
 
 #include <MaterialXGenOsl/OslShaderGenerator.h>
 #include <MaterialXGenOsl/OslSyntax.h>
@@ -151,6 +152,57 @@ TEST_CASE("GenShader: OSL Implicit Surfacematerial Port Names", "[genosl]")
     REQUIRE(input);
     CHECK(input->getVariable() == surfaceMaterialNode->getPortVariableName("surfaceshader"));
     CHECK(mx::stringEndsWith(input->getVariable(), "_surfaceshader_value"));
+}
+
+// A shader generated from a nodedef exposes its ports under the names declared by the
+// 'implname' attributes of the implementation, so that the generated shader is
+// interchangeable with the hand written one. In the standard libraries only the OSL
+// implementations declare implnames, so this is only observable for the OSL target.
+TEST_CASE("GenShader: OSL NodeDef Port Names", "[genosl]")
+{
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::DocumentPtr libraries = mx::createDocument();
+    mx::loadLibraries({ "libraries" }, searchPath, libraries);
+
+    // IM_image_float_genosl remaps 'default', which is a reserved word in OSL, and 'layer'.
+    mx::NodeDefPtr nodeDef = libraries->getNodeDef("ND_image_float");
+    REQUIRE(nodeDef);
+
+    mx::GenContext context(mx::OslShaderGenerator::create());
+    context.registerSourceCodeSearchPath(searchPath);
+
+    mx::ShaderGraphPtr graph = mx::ShaderGraph::create(nullptr, "image_float", nodeDef, context);
+    REQUIRE(graph);
+    CHECK(graph->getPortName("default") == "default_value");
+    CHECK(graph->getPortName("layer") == "layer_value");
+
+    // A port with no 'implname' is named as it is in the nodedef.
+    CHECK(graph->getPortName("file") == "file");
+
+    // Both remappings have to appear in the signature of the generated shader.
+    mx::ShaderPtr shader = context.getShaderGenerator().generate("image_float", nodeDef, context);
+    REQUIRE(shader);
+    const std::string& sourceCode = shader->getSourceCode();
+    CHECK(sourceCode.find("default_value") != std::string::npos);
+    CHECK(sourceCode.find("layer_value") != std::string::npos);
+
+    // Outputs are remapped in the same way, but no implementation in the standard
+    // libraries declares an 'implname' on an output, so one is added here. Adding it to a
+    // working implementation keeps the nodedef resolvable.
+    mx::InterfaceElementPtr impl = libraries->getChildOfType<mx::InterfaceElement>("IM_image_float_genosl");
+    REQUIRE(impl);
+    REQUIRE(impl->getActiveOutputs().empty());
+    impl->addOutput("out", "float")->setImplementationName("out_value");
+
+    // A context caches the implementations it has created, so the edit above is only
+    // picked up by a context that has not seen this implementation yet.
+    mx::GenContext editedContext(mx::OslShaderGenerator::create());
+    editedContext.registerSourceCodeSearchPath(searchPath);
+
+    graph = mx::ShaderGraph::create(nullptr, "image_float", nodeDef, editedContext);
+    REQUIRE(graph);
+    CHECK(graph->getPortName("out") == "out_value");
+    CHECK(graph->getPortName("default") == "default_value");
 }
 
 TEST_CASE("GenShader: OSL Metadata", "[genosl]")

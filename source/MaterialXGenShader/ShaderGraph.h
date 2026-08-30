@@ -52,7 +52,7 @@ class MX_GENSHADER_API ShaderGraph : public ShaderNode
     virtual ~ShaderGraph() { }
 
     /// Create a new shader graph from an element.
-    /// Supported elements are outputs and shader nodes.
+    /// Supported elements are outputs, shader nodes and nodedefs.
     static ShaderGraphPtr create(const ShaderGraph* parent, const string& name, ElementPtr element,
                                  GenContext& context);
 

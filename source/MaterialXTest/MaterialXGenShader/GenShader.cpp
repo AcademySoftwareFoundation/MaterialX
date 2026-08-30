@@ -14,6 +14,8 @@
 #include <MaterialXGenHw/HwConstants.h>
 
 #include <MaterialXGenShader/GenContext.h>
+#include <MaterialXGenShader/Shader.h>
+#include <MaterialXGenShader/ShaderGraph.h>
 #include <MaterialXGenShader/ShaderTranslator.h>
 #include <MaterialXGenShader/Util.h>
 
@@ -548,6 +550,347 @@ TEST_CASE("GenShader: Implementation Names", "[genshader]")
         mx::GenContext context(mx::SlangShaderGenerator::create());
         context.registerSourceCodeSearchPath(searchPath);
         checkImplementationNames(libraries, context);
+    }
+#endif
+}
+
+// Create a shader graph directly from a nodedef, which is the path used by generators
+// that emit node graphs rather than source code.
+mx::ShaderGraphPtr createNodeDefGraph(mx::DocumentPtr libraries, const std::string& nodeDefName, mx::GenContext& context)
+{
+    mx::NodeDefPtr nodeDef = libraries->getNodeDef(nodeDefName);
+    REQUIRE(nodeDef);
+
+    mx::ShaderGraphPtr graph = mx::ShaderGraph::create(nullptr, nodeDefName, nodeDef, context);
+    REQUIRE(graph);
+    return graph;
+}
+
+// Check that a graph created from a nodedef publishes the interface of that nodedef,
+// with every input and output socket wired to the matching port on the node that the
+// nodedef declares.
+void checkNodeDefInterface(mx::DocumentPtr libraries, mx::GenContext& context)
+{
+    // These nodedefs cover float, vector, filename, enum and uniform inputs, as well as
+    // single and multi-output nodes, and a nodedef implemented by a nodegraph.
+    const mx::StringVec nodeDefNames =
+    {
+        "ND_add_float",
+        "ND_image_float",
+        "ND_dielectric_bsdf",
+        "ND_generalized_schlick_bsdf",
+        "ND_separate3_vector3",
+        "ND_UsdPreviewSurface_surfaceshader"
+    };
+
+    const std::string& target = context.getShaderGenerator().getTarget();
+    for (const std::string& nodeDefName : nodeDefNames)
+    {
+        INFO(target + ": " + nodeDefName);
+
+        mx::NodeDefPtr nodeDef = libraries->getNodeDef(nodeDefName);
+        REQUIRE(nodeDef);
+
+        mx::ShaderGraphPtr graph = createNodeDefGraph(libraries, nodeDefName, context);
+
+        // The graph wraps the single node declared by the nodedef.
+        REQUIRE(graph->getNodes().size() == 1);
+        mx::ShaderNode* node = graph->getNodes().front();
+
+        // Every input on the nodedef is published as an input socket, is bound to the
+        // matching input on the node, and agrees with it on type and uniformity. The
+        // sockets and the node ports are built by separate traversals of the nodedef,
+        // so a divergence would give a type mismatched connection rather than an error.
+        // Hardware generators publish inputs of their own as well, such as the uv scale
+        // and offset of a texture node, so the nodedef's inputs are a subset here.
+        CHECK(graph->numInputSockets() >= nodeDef->getActiveInputs().size());
+        for (const mx::InputPtr& nodeDefInput : nodeDef->getActiveInputs())
+        {
+            INFO(target + ": " + nodeDefName + "." + nodeDefInput->getName());
+
+            mx::ShaderGraphInputSocket* inputSocket = graph->getInputSocket(nodeDefInput->getName());
+            REQUIRE(inputSocket);
+            mx::ShaderInput* input = node->getInput(nodeDefInput->getName());
+            REQUIRE(input);
+
+            CHECK(input->getConnection() == inputSocket);
+            CHECK(input->isBindInput());
+            CHECK(inputSocket->getType() == input->getType());
+            CHECK(inputSocket->isUniform() == input->isUniform());
+        }
+
+        // Every output on the nodedef is published as an output socket, connected to the
+        // node output of the same name.
+        CHECK(graph->numOutputSockets() == nodeDef->getActiveOutputs().size());
+        for (const mx::OutputPtr& nodeDefOutput : nodeDef->getActiveOutputs())
+        {
+            INFO(target + ": " + nodeDefName + "." + nodeDefOutput->getName());
+
+            mx::ShaderGraphOutputSocket* outputSocket = graph->getOutputSocket(nodeDefOutput->getName());
+            REQUIRE(outputSocket);
+            mx::ShaderOutput* output = node->getOutput(nodeDefOutput->getName());
+            REQUIRE(output);
+
+            CHECK(outputSocket->getConnection() == output);
+            CHECK(outputSocket->getType() == output->getType());
+        }
+    }
+}
+
+// Check that generating a shader from a nodedef emits code, with the interface of the
+// nodedef published on the graph of the generated shader.
+void checkNodeDefGeneration(mx::DocumentPtr libraries, mx::GenContext& context)
+{
+    // A nodedef implemented by source code, and one implemented by a nodegraph, which is
+    // wrapped in a compound node.
+    const mx::StringVec nodeDefNames =
+    {
+        "ND_add_float",
+        "ND_UsdPreviewSurface_surfaceshader"
+    };
+
+    const std::string& target = context.getShaderGenerator().getTarget();
+    for (const std::string& nodeDefName : nodeDefNames)
+    {
+        INFO(target + ": " + nodeDefName);
+
+        mx::NodeDefPtr nodeDef = libraries->getNodeDef(nodeDefName);
+        REQUIRE(nodeDef);
+
+        mx::ShaderPtr shader = context.getShaderGenerator().generate(nodeDefName, nodeDef, context);
+        REQUIRE(shader);
+
+        mx::ShaderGraph& graph = shader->getGraph();
+        CHECK(graph.numInputSockets() >= nodeDef->getActiveInputs().size());
+        CHECK(graph.numOutputSockets() == nodeDef->getActiveOutputs().size());
+
+        // The published interface has to reach the emitted shader, which is the contract
+        // that generating from a nodedef exists to provide.
+        const std::string& sourceCode = shader->getSourceCode();
+        REQUIRE(!sourceCode.empty());
+        for (size_t i = 0; i < graph.numInputSockets(); ++i)
+        {
+            const mx::ShaderGraphInputSocket* inputSocket = graph.getInputSocket(i);
+            INFO(target + ": " + nodeDefName + "." + inputSocket->getName());
+            CHECK(sourceCode.find(inputSocket->getVariable()) != std::string::npos);
+        }
+    }
+}
+
+// Check that a nodedef whose only node is elided by the graph refactoring passes still
+// generates a shader carrying the value that the elision pushed downstream.
+void checkNodeDefNodeElision(mx::DocumentPtr libraries, mx::GenContext& context)
+{
+    // Constant nodes and filename typed dot nodes are bypassed when the graph is
+    // finalized, leaving an empty graph whose output value comes from the elision.
+    const mx::StringVec nodeDefNames =
+    {
+        "ND_constant_float",
+        "ND_constant_color3",
+        "ND_dot_filename"
+    };
+
+    const std::string& target = context.getShaderGenerator().getTarget();
+    for (const std::string& nodeDefName : nodeDefNames)
+    {
+        INFO(target + ": " + nodeDefName);
+
+        mx::NodeDefPtr nodeDef = libraries->getNodeDef(nodeDefName);
+        REQUIRE(nodeDef);
+
+        mx::ShaderGraphPtr graph = createNodeDefGraph(libraries, nodeDefName, context);
+
+        // The node really is gone, but the interface survives and the output socket still
+        // resolves to a source.
+        CHECK(graph->getNodes().empty());
+        CHECK(graph->numInputSockets() >= 1);
+        REQUIRE(graph->numOutputSockets() == 1);
+        mx::ShaderGraphOutputSocket* outputSocket = graph->getOutputSocket(0);
+        REQUIRE(outputSocket);
+        CHECK((outputSocket->getConnection() || outputSocket->getValue()));
+
+        // The value that the elision pushed downstream has to reach the emitted shader.
+        // Without this the elision would silently give a shader with nothing in it.
+        mx::ShaderPtr shader = context.getShaderGenerator().generate(nodeDefName, nodeDef, context);
+        REQUIRE(shader);
+        const std::string& sourceCode = shader->getSourceCode();
+        REQUIRE(!sourceCode.empty());
+        CHECK(sourceCode.find(shader->getGraph().getInputSocket(0)->getVariable()) != std::string::npos);
+    }
+}
+
+// Check that a nodedef with no implementation for the target reports an error, rather
+// than producing an incomplete graph.
+void checkNodeDefWithoutImplementation(mx::DocumentPtr libraries, mx::GenContext& context)
+{
+    mx::DocumentPtr testDoc = mx::createDocument();
+    testDoc->setDataLibrary(libraries);
+
+    mx::NodeDefPtr nodeDef = testDoc->addNodeDef("ND_no_such_implementation", "float", "no_such_implementation");
+    nodeDef->addInput("in", "float");
+
+    CHECK_THROWS_AS(mx::ShaderGraph::create(nullptr, "no_such_implementation", nodeDef, context),
+                    mx::ExceptionShaderGenError);
+}
+
+void checkNodeDefShaderGeneration(mx::DocumentPtr libraries, mx::GenContext& context)
+{
+    checkNodeDefInterface(libraries, context);
+    checkNodeDefGeneration(libraries, context);
+    checkNodeDefNodeElision(libraries, context);
+    checkNodeDefWithoutImplementation(libraries, context);
+}
+
+TEST_CASE("GenShader: NodeDef Shader Generation", "[genshader]")
+{
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::DocumentPtr libraries = mx::createDocument();
+    mx::loadLibraries({ "libraries" }, searchPath, libraries);
+
+#ifdef MATERIALX_BUILD_GEN_GLSL
+    {
+        mx::GenContext context(mx::GlslShaderGenerator::create());
+        context.registerSourceCodeSearchPath(searchPath);
+        checkNodeDefShaderGeneration(libraries, context);
+    }
+#endif
+#ifdef MATERIALX_BUILD_GEN_OSL
+    {
+        mx::GenContext context(mx::OslShaderGenerator::create());
+        context.registerSourceCodeSearchPath(searchPath);
+        checkNodeDefShaderGeneration(libraries, context);
+    }
+#endif
+#ifdef MATERIALX_BUILD_GEN_MDL
+    {
+        mx::GenContext context(mx::MdlShaderGenerator::create());
+        context.registerSourceCodeSearchPath(searchPath);
+        checkNodeDefShaderGeneration(libraries, context);
+    }
+#endif
+#ifdef MATERIALX_BUILD_GEN_MSL
+    {
+        mx::GenContext context(mx::MslShaderGenerator::create());
+        context.registerSourceCodeSearchPath(searchPath);
+        checkNodeDefShaderGeneration(libraries, context);
+    }
+#endif
+#ifdef MATERIALX_BUILD_GEN_SLANG
+    {
+        mx::GenContext context(mx::SlangShaderGenerator::create());
+        context.registerSourceCodeSearchPath(searchPath);
+        checkNodeDefShaderGeneration(libraries, context);
+    }
+#endif
+}
+
+// Check that the metadata declared on a nodedef and its inputs is exported to the graph
+// created from that nodedef, and to the published input sockets of that graph.
+void checkNodeDefMetadata(mx::DocumentPtr libraries, mx::GenContext& context)
+{
+    // Metadata is only created when the context carries a populated metadata registry,
+    // without which the metadata is simply null and any check on it passes for the
+    // wrong reason.
+    context.getShaderGenerator().registerShaderMetadata(libraries, context);
+
+    mx::ShaderGraphPtr graph = createNodeDefGraph(libraries, "ND_add_float", context);
+    REQUIRE(graph->getNodes().size() == 1);
+    mx::ShaderNode* node = graph->getNodes().front();
+
+    // The node picked up the metadata of the nodedef, and the graph shares it since the
+    // graph represents that node.
+    REQUIRE(node->getMetadata());
+    CHECK(graph->getMetadata() == node->getMetadata());
+
+    bool foundNodeMetadata = false;
+    for (const mx::ShaderMetadata& metadata : *graph->getMetadata())
+    {
+        if (metadata.name == "nodedef_test_name")
+        {
+            REQUIRE(metadata.value);
+            CHECK(metadata.value->getValueString() == "AddFloat");
+            foundNodeMetadata = true;
+        }
+    }
+    CHECK(foundNodeMetadata);
+
+    // Input metadata reaches the published socket as well.
+    mx::ShaderGraphInputSocket* inputSocket = graph->getInputSocket("in1");
+    REQUIRE(inputSocket);
+    REQUIRE(inputSocket->getMetadata());
+
+    bool foundInputMetadata = false;
+    for (const mx::ShaderMetadata& metadata : *inputSocket->getMetadata())
+    {
+        if (metadata.name == "nodedef_test_input_name")
+        {
+            REQUIRE(metadata.value);
+            CHECK(metadata.value->getValueString() == "FirstAddend");
+            foundInputMetadata = true;
+        }
+    }
+    CHECK(foundInputMetadata);
+}
+
+TEST_CASE("GenShader: NodeDef Metadata", "[genshader]")
+{
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::DocumentPtr libraries = mx::createDocument();
+    mx::loadLibraries({ "libraries" }, searchPath, libraries);
+
+    // Define custom attributes to be exported as shader metadata, and assign them on the
+    // nodedef under test.
+    mx::AttributeDefPtr adNodeName = libraries->addAttributeDef("AD_nodedef_test_name");
+    adNodeName->setType("string");
+    adNodeName->setAttrName("nodedef_test_name");
+    adNodeName->setExportable(true);
+
+    mx::AttributeDefPtr adInputName = libraries->addAttributeDef("AD_nodedef_test_input_name");
+    adInputName->setType("string");
+    adInputName->setAttrName("nodedef_test_input_name");
+    adInputName->setExportable(true);
+
+    mx::NodeDefPtr nodeDef = libraries->getNodeDef("ND_add_float");
+    REQUIRE(nodeDef);
+    nodeDef->setAttribute("nodedef_test_name", "AddFloat");
+
+    mx::InputPtr in1 = nodeDef->getActiveInput("in1");
+    REQUIRE(in1);
+    in1->setAttribute("nodedef_test_input_name", "FirstAddend");
+
+#ifdef MATERIALX_BUILD_GEN_GLSL
+    {
+        mx::GenContext context(mx::GlslShaderGenerator::create());
+        context.registerSourceCodeSearchPath(searchPath);
+        checkNodeDefMetadata(libraries, context);
+    }
+#endif
+#ifdef MATERIALX_BUILD_GEN_OSL
+    {
+        mx::GenContext context(mx::OslShaderGenerator::create());
+        context.registerSourceCodeSearchPath(searchPath);
+        checkNodeDefMetadata(libraries, context);
+    }
+#endif
+#ifdef MATERIALX_BUILD_GEN_MDL
+    {
+        mx::GenContext context(mx::MdlShaderGenerator::create());
+        context.registerSourceCodeSearchPath(searchPath);
+        checkNodeDefMetadata(libraries, context);
+    }
+#endif
+#ifdef MATERIALX_BUILD_GEN_MSL
+    {
+        mx::GenContext context(mx::MslShaderGenerator::create());
+        context.registerSourceCodeSearchPath(searchPath);
+        checkNodeDefMetadata(libraries, context);
+    }
+#endif
+#ifdef MATERIALX_BUILD_GEN_SLANG
+    {
+        mx::GenContext context(mx::SlangShaderGenerator::create());
+        context.registerSourceCodeSearchPath(searchPath);
+        checkNodeDefMetadata(libraries, context);
     }
 #endif
 }

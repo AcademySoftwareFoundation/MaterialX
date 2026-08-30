@@ -668,6 +668,97 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
         // Set root for upstream dependency traversal
         root = node;
     }
+    else if (element->isA<NodeDef>())
+    {
+        // Generate a shader whose interface is the interface of the nodedef itself,
+        // wrapping a single instance of the node it declares. This is how a library
+        // shader is generated for a nodedef in isolation, with no surrounding
+        // document to bind its inputs.
+        NodeDefPtr nodeDef = element->asA<NodeDef>();
+
+        graph = std::make_shared<ShaderGraph>(parent, name, element->getDocument(), context);
+
+        // Create input sockets
+        graph->addInputSockets(*nodeDef, context);
+
+        // Create output sockets
+        graph->addOutputSockets(*nodeDef, context);
+
+        // Create this shader node in the graph.
+        ShaderNode* newNode = graph->createNode(name, name, nodeDef, context);
+
+        // This graph is a shader for a single nodedef, so the graph interface is the
+        // interface of that nodedef's implementation. Publish the sockets under the
+        // names declared by its 'implname' attributes, so that the parameters of the
+        // generated shader match the names the implementation uses. The names are
+        // taken from the node rather than from the <implementation> element, since a
+        // nodedef implemented by a nodegraph has no <implementation> to read and its
+        // remappings have already been resolved onto the node.
+        for (const ShaderInput* nodeInput : newNode->getInputs())
+        {
+            const string& implName = newNode->getPortName(nodeInput->getName());
+            if (implName != nodeInput->getName())
+            {
+                graph->addPortImplName(nodeInput->getName(), implName);
+            }
+        }
+        for (const ShaderOutput* nodeOutput : newNode->getOutputs())
+        {
+            const string& implName = newNode->getPortName(nodeOutput->getName());
+            if (implName != nodeOutput->getName())
+            {
+                graph->addPortImplName(nodeOutput->getName(), implName);
+            }
+        }
+
+        // Share metadata.
+        graph->setMetadata(newNode->getMetadata());
+
+        // Connect the node's outputs to the graph output sockets. The sockets and the
+        // node's outputs are both derived from the nodedef, but by separate traversals
+        // of it, so they are matched by name rather than by index.
+        for (ShaderOutput* output : newNode->getOutputs())
+        {
+            ShaderGraphOutputSocket* outputSocket = graph->getOutputSocket(output->getName());
+            if (!outputSocket)
+            {
+                throw ExceptionShaderGenError("Output '" + output->getName() + "' on nodedef '" +
+                                              nodeDef->getName() + "' doesn't match an existing output socket on graph '" +
+                                              graph->getName() + "'");
+            }
+            outputSocket->makeConnection(output);
+        }
+
+        // Handle node input ports
+        for (const InputPtr& nodedefInput : nodeDef->getActiveInputs())
+        {
+            ShaderGraphInputSocket* inputSocket = graph->getInputSocket(nodedefInput->getName());
+            ShaderInput* input = newNode->getInput(nodedefInput->getName());
+            if (!inputSocket || !input)
+            {
+                throw ExceptionShaderGenError("Input '" + nodedefInput->getName() + "' on nodedef '" +
+                                              nodeDef->getName() + "' doesn't match an existing input on graph '" +
+                                              graph->getName() + "'");
+            }
+
+            // Every input is bound from outside the shader, through the graph socket.
+            input->setBindInput();
+
+            // Connect graph socket to the node input
+            inputSocket->makeConnection(input);
+
+            // Share metadata.
+            inputSocket->setMetadata(input->getMetadata());
+        }
+
+        // Note that applyInputTransforms() is deliberately not called here. There is no
+        // node instance declaring colorspaces or units to convert from, and a shader
+        // generated for a nodedef in isolation must not bake transforms into the
+        // library implementation it represents.
+
+        // NodeDef generation has no traversal
+        root = nullptr;
+    }
 
     if (!graph)
     {
