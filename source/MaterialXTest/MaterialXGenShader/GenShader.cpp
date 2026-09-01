@@ -17,6 +17,7 @@
 #include <MaterialXGenShader/Exception.h>
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/OcioColorManagementSystem.h>
+#include <MaterialXGenShader/ShaderGraph.h>
 #include <MaterialXGenShader/ShaderTranslator.h>
 #include <MaterialXGenShader/Util.h>
 
@@ -42,6 +43,21 @@
 #include <set>
 
 namespace mx = MaterialX;
+
+class TestShaderGraph : public mx::ShaderGraph
+{
+  public:
+    using mx::ShaderGraph::ShaderGraph;
+
+    size_t addOutputColorTransform(mx::ColorManagementSystemPtr colorManagementSystem,
+                                   mx::ShaderOutput* output,
+                                   const mx::ColorSpaceTransform& transform)
+    {
+        populateColorTransformMap(colorManagementSystem, output,
+                                  transform.sourceSpace, transform.targetSpace, false);
+        return _outputColorTransformMap.size();
+    }
+};
 
 //
 // Base tests
@@ -78,6 +94,33 @@ TEST_CASE("GenShader: Valid Libraries", "[genshader]")
     }
     REQUIRE(valid);
 }
+
+#ifdef MATERIALX_BUILD_GEN_GLSL
+TEST_CASE("GenShader: Duplicate Output Color Transforms", "[genshader]")
+{
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::DocumentPtr doc = mx::createDocument();
+    mx::loadLibraries({ "libraries/targets", "libraries/stdlib", "libraries/cmlib" }, searchPath, doc);
+
+    mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::create();
+    mx::ColorManagementSystemPtr colorManagementSystem =
+        mx::DefaultColorManagementSystem::create(shaderGenerator->getTarget());
+    colorManagementSystem->loadLibrary(doc);
+    shaderGenerator->setColorManagementSystem(colorManagementSystem);
+
+    mx::GenContext context(shaderGenerator);
+    TestShaderGraph graph(nullptr, "testGraph", doc, context);
+    mx::ConstNodeDefPtr nodeDef = doc->getNodeDef("ND_constant_color3");
+    REQUIRE(nodeDef);
+
+    mx::ShaderNode* node = graph.createNode("colorNode", "colorNode", nodeDef, context);
+    mx::ColorSpaceTransform transform("srgb_texture", "lin_rec709", mx::Type::COLOR3);
+
+    REQUIRE(graph.addOutputColorTransform(colorManagementSystem, node->getOutput(), transform) == 1);
+    REQUIRE(graph.addOutputColorTransform(colorManagementSystem, node->getOutput(), transform) == 1);
+    REQUIRE(graph.addOutputColorTransform(colorManagementSystem, node->getOutput(), transform) == 1);
+}
+#endif
 
 TEST_CASE("GenShader: TypeDesc Check", "[genshader]")
 {
