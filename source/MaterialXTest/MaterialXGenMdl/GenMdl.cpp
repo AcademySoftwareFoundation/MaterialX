@@ -302,7 +302,7 @@ TEST_CASE("GenShader: MDL Shader Generation", "[genmdl]")
     tester.addSkipLibraryFiles();
 
     mx::GenOptions genOptions;
-    genOptions.targetColorSpaceOverride = "lin_rec709";
+    genOptions.targetColorSpaceOverride = "lin_rec709_scene";
 
     // Flipping the texture lookups for the test renderer only.
     // This is because OSL testrender does not allow to change the UV layout of their sphere (yet) and the MaterialX test suite

@@ -25,7 +25,7 @@ void initContext(mx::GenContext& context, mx::FileSearchPath searchPath, mx::Doc
     context.registerSourceCodeSearchPath(searchPath);
 
     // Set shader generation options.
-    context.getOptions().targetColorSpaceOverride = "lin_rec709";
+    context.getOptions().targetColorSpaceOverride = "lin_rec709_scene";
     context.getOptions().fileTextureVerticalFlip = false;
     context.getOptions().hwMaxActiveLightSources = 1;
     context.getOptions().hwSpecularEnvironmentMethod = mx::SPECULAR_ENVIRONMENT_FIS;
