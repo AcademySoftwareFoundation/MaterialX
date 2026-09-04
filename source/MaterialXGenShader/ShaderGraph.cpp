@@ -12,6 +12,7 @@
 
 #include <MaterialXTrace/Tracing.h>
 
+#include <algorithm>
 #include <queue>
 
 MATERIALX_NAMESPACE_BEGIN
@@ -1224,13 +1225,25 @@ void ShaderGraph::populateColorTransformMap(ColorManagementSystemPtr colorManage
             ColorSpaceTransform transform(sourceColorSpace, targetColorSpace, shaderPort->getType());
             if (colorManagementSystem->supportsTransform(transform))
             {
+                // A multi-file color node can request the same transform once per filename input.
+                // Retain only unique port and transform pairs to prevent duplicate transform nodes.
                 if (asInput)
                 {
-                    _inputColorTransformMap.emplace_back(static_cast<ShaderInput*>(shaderPort), transform);
+                    const auto entry = std::make_pair(static_cast<ShaderInput*>(shaderPort), transform);
+                    if (std::find(_inputColorTransformMap.begin(), _inputColorTransformMap.end(), entry) ==
+                        _inputColorTransformMap.end())
+                    {
+                        _inputColorTransformMap.push_back(entry);
+                    }
                 }
                 else
                 {
-                    _outputColorTransformMap.emplace_back(static_cast<ShaderOutput*>(shaderPort), transform);
+                    const auto entry = std::make_pair(static_cast<ShaderOutput*>(shaderPort), transform);
+                    if (std::find(_outputColorTransformMap.begin(), _outputColorTransformMap.end(), entry) ==
+                        _outputColorTransformMap.end())
+                    {
+                        _outputColorTransformMap.push_back(entry);
+                    }
                 }
             }
             else
