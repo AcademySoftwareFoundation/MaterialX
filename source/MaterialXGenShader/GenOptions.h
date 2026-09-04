@@ -112,9 +112,13 @@ class MX_GENSHADER_API GenOptions
     ShaderInterfaceType shaderInterfaceType;
 
     /// If true the y-component of texture coordinates used for sampling
-    /// file textures will be flipped before sampling. This can be used if
-    /// file textures need to be flipped vertically to match the target's
-    /// texture space convention. By default this option is false.
+    /// file textures will be flipped before sampling. Set this option when
+    /// the target samples images with their origin at the upper left (e.g.
+    /// textures uploaded to the GPU in scanline order), compensating for
+    /// the lower-left origin of texture space in MaterialX. Leave it false
+    /// when the target samples images with their origin at the lower left
+    /// (e.g. MDL), or when the client compensates by flipping images
+    /// vertically at upload time, as web clients typically do.
     bool fileTextureVerticalFlip;
 
     /// An optional override for the target color space.

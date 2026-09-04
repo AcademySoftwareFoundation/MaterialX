@@ -147,6 +147,21 @@ void ShaderRenderTester::loadDependentLibraries(TestRunState& runState)
     loadAdditionalLibraries(runState.dependLib, runState.options);
 }
 
+mx::FilePath findRenderGeometry(const mx::FilePath& renderGeometry,
+                                const mx::FileSearchPath& searchPath)
+{
+    mx::FilePath geomPath = renderGeometry;
+    if (geomPath.isEmpty())
+    {
+        geomPath = "sphere.obj";
+    }
+    if (!geomPath.isAbsolute())
+    {
+        geomPath = searchPath.find("resources/Geometry") / geomPath;
+    }
+    return geomPath;
+}
+
 // Create a list of generation options based on unit test options
 // These options will override the original generation context options.
 void ShaderRenderTester::getGenerationOptions(const GenShaderUtil::TestSuiteOptions& testOptions,
@@ -166,6 +181,21 @@ void ShaderRenderTester::getGenerationOptions(const GenShaderUtil::TestSuiteOpti
         mx::GenOptions completeOption = originalOptions;
         completeOption.shaderInterfaceType = mx::SHADER_INTERFACE_COMPLETE;
         optionsList.push_back(completeOption);
+    }
+}
+
+void ShaderRenderTester::loadRenderGeometry(mx::GeometryHandlerPtr geomHandler, const mx::FilePath& geomPath)
+{
+    if (geomHandler->hasGeometry(geomPath))
+    {
+        return;
+    }
+
+    geomHandler->clearGeometry();
+    geomHandler->loadGeometry(geomPath);
+    for (mx::MeshPtr mesh : geomHandler->getMeshes())
+    {
+        addAdditionalTestStreams(mesh);
     }
 }
 
@@ -509,6 +539,11 @@ void ShaderRenderTester::initializeGeneratorContext(TestRunState& runState, Test
 
     // Set target unit space
     runState.context->getOptions().targetDistanceUnit = "meter";
+
+    // Set the target color space, along with any target-specific
+    // generation options.
+    runState.context->getOptions().targetColorSpaceOverride = "lin_rec709_scene";
+    setTargetGenerationOptions(runState.context->getOptions());
 
     // Register shader metadata defined in the libraries.
     _shaderGenerator->registerShaderMetadata(runState.dependLib, *runState.context);
