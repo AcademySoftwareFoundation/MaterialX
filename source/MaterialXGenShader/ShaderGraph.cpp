@@ -12,6 +12,7 @@
 
 #include <MaterialXTrace/Tracing.h>
 
+#include <algorithm>
 #include <queue>
 
 MATERIALX_NAMESPACE_BEGIN
@@ -716,8 +717,20 @@ ShaderNode* ShaderGraph::createNode(const string& name, const string& uniqueId, 
     // Create this node in the graph.
     ShaderNodePtr newNode = ShaderNode::create(this, name, *nodeDef, context);
     newNode->_uniqueId = uniqueId;
-    _nodeMap[uniqueId] = newNode;
-    _nodeOrder.push_back(newNode.get());
+    addNode(newNode);
+
+    return newNode.get();
+}
+
+ShaderNode* ShaderGraph::createNode(const string& name, const string& uniqueId, ShaderNodeImplPtr impl,
+                                    uint32_t classification)
+{
+    MX_TRACE_FUNCTION(Tracing::Category::ShaderGen);
+    MX_TRACE_SCOPE(Tracing::Category::ShaderGen, name.c_str());
+
+    ShaderNodePtr newNode = ShaderNode::create(this, name, impl, classification);
+    newNode->_uniqueId = uniqueId;
+    addNode(newNode);
 
     return newNode.get();
 }
@@ -863,8 +876,68 @@ ShaderGraphEdgeIterator ShaderGraph::traverseUpstream(ShaderOutput* output)
 
 void ShaderGraph::addNode(ShaderNodePtr node)
 {
-    _nodeMap[node->getUniqueId()] = node;
+    // The node map holds the only owning reference to each node, while the node
+    // order holds raw pointers. Overwriting an existing entry would free that
+    // node and leave a dangling pointer behind, so reject duplicate identifiers.
+    const string& uniqueId = node->getUniqueId();
+    if (_nodeMap.count(uniqueId))
+    {
+        throw ExceptionShaderGenError("A node with unique id '" + uniqueId +
+                                      "' already exists in graph '" + getName() + "'");
+    }
+
+    _nodeMap[uniqueId] = node;
     _nodeOrder.push_back(node.get());
+}
+
+void ShaderGraph::removeNode(const string& uniqueId)
+{
+    removeNodes(StringSet{ uniqueId });
+}
+
+void ShaderGraph::removeNodes(const StringSet& uniqueIds)
+{
+    // Resolve the identifiers to nodes first. Note that operator[] must not be used
+    // here, since it would insert an empty entry for an unknown identifier and leave
+    // the node map in a broken state.
+    std::set<const ShaderNode*> removedNodes;
+    for (const string& uniqueId : uniqueIds)
+    {
+        auto it = _nodeMap.find(uniqueId);
+        if (it != _nodeMap.end())
+        {
+            removedNodes.insert(it->second.get());
+        }
+    }
+
+    if (removedNodes.empty())
+    {
+        return;
+    }
+
+    // Compact the node order before erasing from the map, and in a single pass rather
+    // than once per removed node. The map holds the only owning reference to each node,
+    // so erasing from it first would leave the node order holding dangling pointers for
+    // the rest of this call.
+    _nodeOrder.erase(std::remove_if(_nodeOrder.begin(), _nodeOrder.end(),
+                                    [&removedNodes](const ShaderNode* node)
+                                    {
+                                        return removedNodes.count(node) != 0;
+                                    }),
+                     _nodeOrder.end());
+
+    for (auto it = _nodeMap.begin(); it != _nodeMap.end();)
+    {
+        if (removedNodes.count(it->second.get()))
+        {
+            disconnect(it->second.get());
+            it = _nodeMap.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
 }
 
 ShaderNode* ShaderGraph::getNode(const string& uniqueId)
