@@ -542,7 +542,7 @@ void ShaderRenderTester::initializeGeneratorContext(TestRunState& runState, Test
 
     // Set the target color space, along with any target-specific
     // generation options.
-    runState.context->getOptions().targetColorSpaceOverride = "lin_rec709";
+    runState.context->getOptions().targetColorSpaceOverride = "lin_rec709_scene";
     setTargetGenerationOptions(runState.context->getOptions());
 
     // Register shader metadata defined in the libraries.

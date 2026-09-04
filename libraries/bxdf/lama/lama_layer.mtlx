@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.39" colorspace="acescg">
+<materialx version="1.39" colorspace="lin_ap1_scene">
   <!-- LamaLayer for BSDFs -->
   <nodedef name="ND_lama_layer_bsdf" node="LamaLayer" nodegroup="pbr" version="1.0" isdefaultversion="true">
     <input name="materialTop" uiname="Material Top" type="BSDF"

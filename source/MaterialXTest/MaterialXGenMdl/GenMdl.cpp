@@ -302,7 +302,7 @@ TEST_CASE("GenShader: MDL Shader Generation", "[genmdl]")
     tester.addSkipLibraryFiles();
 
     mx::GenOptions genOptions;
-    genOptions.targetColorSpaceOverride = "lin_rec709";
+    genOptions.targetColorSpaceOverride = "lin_rec709_scene";
 
     // No texture coordinate flips are required for MDL, since MDL and MaterialX
     // define texture space equally, with the origin at the lower left.
