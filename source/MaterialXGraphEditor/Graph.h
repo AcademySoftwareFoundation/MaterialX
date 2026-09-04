@@ -185,9 +185,17 @@ class Graph
     static float computeIconSize();
     // Compute pin offset based on icon size and aligment (left vs right)
     static float computePinOffset(bool rightAligned = false);
+    // Size of the node hamburger menu button drawn inline after the title.
+    static float computeHamburgerSize();
+    // Determine node content width
+    static float computeNodeContentWidth(UiNodePtr node);
+    // Longest label among the input pins that will be shown on the node.
+    static std::string computeLongestInputLabel(UiNodePtr node);
 
     // Based on the pin icon function in the ImGui Node Editor blueprints-example.cpp
     void drawPinIcon(const std::string& type, bool connected, int alpha, float xOffset = 0.0f, bool offsetInY = false);
+    void drawNodeMenu(UiNodePtr node);
+    bool isNodeMenuHovered() const;
 
     UiPinPtr getPin(ed::PinId id);
     void drawInputPin(UiPinPtr pin);
@@ -217,6 +225,8 @@ class Graph
     void addNode(const std::string& category, const std::string& name, const std::string& type);
 
     void deleteNode(UiNodePtr node);
+    bool deleteNodeById(ed::NodeId nodeId);
+    void renameNode(UiNodePtr node, const std::string& newName);
 
     // Build the initial graph of a loaded document including shader, material and nodegraph node
     void setUiNodeInfo(UiNodePtr node, const std::string& type, const std::string& category);
@@ -375,6 +385,10 @@ class Graph
     bool _layoutPending;
     bool _needsNavigation;
     bool _delete;
+    int _nodeMenuToOpen;
+    int _nodeMenuNode;
+    int _nodeToDelete;
+    std::string _nodeMenuRename;
 
     // file dialog information
     FileDialog _fileDialog;
@@ -415,6 +429,7 @@ class Graph
 
     // Options
     bool _saveNodePositions;
+    std::vector<ImVec4> _nodeMenuRects;
 
     // Diagnostic entries collected by linkGraph() for invalid connections.
     std::vector<LinkDiagnostic> _diagnostics;

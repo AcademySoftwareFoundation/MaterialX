@@ -266,6 +266,9 @@ int main(int argc, char* const argv[])
     // Create editor config and context.
     ed::Config config;
     config.SettingsFile = nullptr;
+    config.DragButtonIndex = 0;
+    config.NavigateButtonIndex = 2;
+    config.ContextMenuButtonIndex = 1;
     ed::EditorContext* editorContext = ed::CreateEditor(&config);
     const float ZOOM_LEVELS[] = { 0.1f, 0.15f, 0.20f, 0.25f, 0.33f, 0.5f, 0.75f, 1.0f };
     for (auto& level : ZOOM_LEVELS)
