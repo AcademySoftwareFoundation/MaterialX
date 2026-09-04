@@ -1,0 +1,29 @@
+# Hand-written genwgsl .wgsl files that must NOT be transpiled from genglsl.
+#
+# Used by mxgenwgsl.py:
+#   * the lib transpile pass skips any genwgsl/lib/*.wgsl listed here;
+#   * `mxgenwgsl.py --clean` deletes every generated *.wgsl EXCEPT files listed here.
+
+# lights: uses dynamically-generated LightData struct
+libraries/lights/genwgsl/mx_directional_light.wgsl
+libraries/lights/genwgsl/mx_point_light.wgsl
+libraries/lights/genwgsl/mx_spot_light.wgsl
+
+# stdlib nodes: uses texture/sampler bindings
+libraries/stdlib/genwgsl/mx_hextiledimage.wgsl
+libraries/stdlib/genwgsl/mx_hextilednormalmap.wgsl
+libraries/stdlib/genwgsl/mx_image_color3.wgsl
+libraries/stdlib/genwgsl/mx_image_color4.wgsl
+libraries/stdlib/genwgsl/mx_image_float.wgsl
+libraries/stdlib/genwgsl/mx_image_vector2.wgsl
+libraries/stdlib/genwgsl/mx_image_vector3.wgsl
+libraries/stdlib/genwgsl/mx_image_vector4.wgsl
+
+# stdlib lib: WGSL platform gaps
+libraries/stdlib/genwgsl/lib/mx_hextile.wgsl             # uses dFdx/dFdy (uniform control flow)
+libraries/stdlib/genwgsl/lib/mx_math_platform.wgsl       # mx_mod, mx_isinf (no WGSL builtin)
+
+# pbrlib lib: uses texture/sampler bindings
+libraries/pbrlib/genwgsl/lib/mx_environment_fis.wgsl
+libraries/pbrlib/genwgsl/lib/mx_environment_none.wgsl
+libraries/pbrlib/genwgsl/lib/mx_environment_prefilter.wgsl

@@ -197,6 +197,10 @@ class MX_GENSHADER_API Syntax
                                                    const string& uniformDefaultValue, const string& typeAlias,
                                                    const string& typeDefinition) const;
 
+    /// Return the library helper name for the given base name and argument types.
+    /// GLSL targets use overloaded names; WGSL uses type-suffixed names.
+    virtual string getLibraryFunctionName(const string& name, TypeDesc, TypeDesc) const { return name; };
+
     /// Constants with commonly used strings.
     static const string NEWLINE;
     static const string SEMICOLON;

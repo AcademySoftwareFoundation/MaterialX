@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
        RELEASE_TAG: ${{ github.ref_name }}
+       NAGA_VERSION: "30.0.0"
     permissions:
       contents: write
       id-token: write
@@ -28,10 +29,40 @@ jobs:
       - name: Create Archive Name
         run: echo "MATERIALX_ARCHIVE=MaterialX-${RELEASE_TAG//v}" >> $GITHUB_ENV
 
+      - name: Install Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
+        with:
+          python-version: 3.11
+
+      - name: Install naga
+        run: cargo install naga-cli --locked --version ${NAGA_VERSION}
+
+      - name: Install WGSL transpile dependencies
+        run: python -m pip install -r source/MaterialXGenWgsl/tools/requirements-transpile.txt
+
+      - name: Generate WGSL library
+        run: NAGA=$HOME/.cargo/bin/naga python source/MaterialXGenWgsl/tools/mxgenwgsl.py --libraries libraries --out libraries
+
       - name: Generate Archives
         run: |
-          git archive --prefix ${MATERIALX_ARCHIVE}/ --output ${MATERIALX_ARCHIVE}.zip ${RELEASE_TAG}
-          git archive --prefix ${MATERIALX_ARCHIVE}/ --output ${MATERIALX_ARCHIVE}.tar.gz ${RELEASE_TAG}
+          # Create staging directory from git archive (tracked files only).
+          mkdir -p staging
+          git archive --prefix ${MATERIALX_ARCHIVE}/ ${RELEASE_TAG} | tar -x -C staging
+
+          # Overlay CI-generated genwgsl library into the staging tree.
+          for dir in stdlib pbrlib lights; do
+            src="libraries/${dir}/genwgsl"
+            dst="staging/${MATERIALX_ARCHIVE}/libraries/${dir}/genwgsl"
+            if [ -d "$src" ]; then
+              mkdir -p "$dst"
+              cp -r "$src"/. "$dst"/
+            fi
+          done
+
+          # Create final archives from staging.
+          cd staging
+          zip -qr ../${MATERIALX_ARCHIVE}.zip ${MATERIALX_ARCHIVE}
+          tar czf ../${MATERIALX_ARCHIVE}.tar.gz ${MATERIALX_ARCHIVE}
 
       - name: Sign and Upload Archives
         uses: sigstore/gh-action-sigstore-python@f514d46b907ebcd5bedc05145c03b69c1edd8b46 # v3.0.0
