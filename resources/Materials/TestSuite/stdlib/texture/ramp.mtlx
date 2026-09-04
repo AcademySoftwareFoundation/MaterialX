@@ -5,6 +5,7 @@
   - Ramp (left-to-right)
   - Ramp (top-to-bottom)
   - Ramp (four corner)
+  - Ramp (multi interval)
   -->
 
   <!-- Left-to-right tests -->
@@ -131,4 +132,24 @@
     <input name="valuebr" type="vector2" value="0.0, 1.0" />
     <input name="valuebl" type="vector2" value="0.0, 0.0" />
   </ramp4>
+
+  <!-- Multi-interval ramp tests -->
+  <output name="ramp_standard_output" type="color4" nodename="ramp_standard" />
+  <ramp name="ramp_standard" type="color4">
+    <input name="num_intervals" type="integer" value="3" />
+    <input name="interval1" type="float" value="0.0" />
+    <input name="color1" type="color4" value="1.0, 0.0, 0.0, 1.0" />
+    <input name="interval2" type="float" value="0.5" />
+    <input name="color2" type="color4" value="0.0, 1.0, 0.0, 1.0" />
+    <input name="interval3" type="float" value="1.0" />
+    <input name="color3" type="color4" value="0.0, 0.0, 1.0, 1.0" />
+  </ramp>
+  <output name="ramp_radial_output" type="color4" nodename="ramp_radial" />
+  <ramp name="ramp_radial" type="color4">
+    <input name="type" type="integer" value="1" />
+    <input name="interpolation" type="integer" value="2" />
+    <input name="color1" type="color4" value="0.0, 0.0, 0.0, 1.0" />
+    <input name="color2" type="color4" value="1.0, 1.0, 1.0, 1.0" />
+  </ramp>
+
 </materialx>

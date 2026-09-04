@@ -67,7 +67,10 @@ ShaderPtr OslNetworkShaderGenerator::generate(const string& name, ElementPtr ele
 
         for (auto&& input : node->getInputs())
         {
-            string inputName = input->getName();
+            // The emitted 'param' and 'connect' statements bind by name against the
+            // compiled oso for this node, so the port's implementation name is used
+            // rather than the name given in the nodedef.
+            string inputName = node->getPortName(input->getName());
             _syntax->makeValidName(inputName);
 
             const ShaderOutput* connection = input->getConnection();
@@ -112,7 +115,7 @@ ShaderPtr OslNetworkShaderGenerator::generate(const string& name, ElementPtr ele
             }
             else
             {
-                string connName = connection->getName();
+                string connName = connection->getNode()->getPortName(connection->getName());
                 _syntax->makeValidName(connName);
 
                 string connect = connectString(connection->getNode()->getName(), connName, nodeName, inputName);

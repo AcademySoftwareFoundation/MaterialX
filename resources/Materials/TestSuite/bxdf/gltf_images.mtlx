@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+  <!--
+  Unit tests for the glTF PBR image nodes that are not exercised by the
+  glTF PBR examples.
+  -->
+  <nodegraph name="gltf_image_float">
+    <gltf_image name="gltf_image1" type="float">
+      <input name="file" type="filename" value="resources/Images/grid.png" />
+      <input name="factor" type="float" value="0.5" />
+      <input name="rotate" type="float" value="45.0" />
+    </gltf_image>
+    <output name="out" type="float" nodename="gltf_image1" />
+  </nodegraph>
+  <nodegraph name="gltf_iridescence_thickness">
+    <gltf_iridescence_thickness name="gltf_iridescence_thickness1" type="float">
+      <input name="file" type="filename" value="resources/Images/grid.png" />
+      <input name="default" type="vector3" value="0.0, 0.5, 0.0" />
+      <input name="rotate" type="float" value="45.0" />
+    </gltf_iridescence_thickness>
+    <output name="out" type="float" nodename="gltf_iridescence_thickness1" />
+  </nodegraph>
+  <nodegraph name="gltf_anisotropy_image">
+    <gltf_anisotropy_image name="gltf_anisotropy_image1" type="multioutput">
+      <input name="file" type="filename" value="resources/Images/grid.png" />
+      <input name="anisotropy_strength" type="float" value="0.5" />
+      <input name="anisotropy_rotation" type="float" value="0.25" />
+    </gltf_anisotropy_image>
+    <output name="strength_out" type="float" nodename="gltf_anisotropy_image1" output="anisotropy_strength_out" />
+    <output name="rotation_out" type="float" nodename="gltf_anisotropy_image1" output="anisotropy_rotation_out" />
+  </nodegraph>
+</materialx>

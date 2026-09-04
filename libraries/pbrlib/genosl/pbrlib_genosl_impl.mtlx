@@ -2,37 +2,62 @@
 <materialx version="1.39">
 
   <!-- <oren_nayar_diffuse_bsdf> -->
-  <implementation name="IM_oren_nayar_diffuse_bsdf_genosl" nodedef="ND_oren_nayar_diffuse_bsdf" sourcecode="{{weight}} * oren_nayar_diffuse_bsdf({{normal}}, {{color}}, {{roughness}})" target="genosl" />
+  <implementation name="IM_oren_nayar_diffuse_bsdf_genosl" nodedef="ND_oren_nayar_diffuse_bsdf" sourcecode="{{weight}} * oren_nayar_diffuse_bsdf({{normal}}, {{color}}, {{roughness}})" target="genosl">
+    <input name="color" type="color3" implname="color_value" />
+    <input name="normal" type="vector3" implname="normal_value" />
+  </implementation>
 
   <!-- <burley_diffuse_bsdf> -->
-  <implementation name="IM_burley_diffuse_bsdf_genosl" nodedef="ND_burley_diffuse_bsdf" sourcecode="{{weight}} * burley_diffuse_bsdf({{normal}}, {{color}}, {{roughness}})" target="genosl" />
+  <implementation name="IM_burley_diffuse_bsdf_genosl" nodedef="ND_burley_diffuse_bsdf" sourcecode="{{weight}} * burley_diffuse_bsdf({{normal}}, {{color}}, {{roughness}})" target="genosl">
+    <input name="color" type="color3" implname="color_value" />
+    <input name="normal" type="vector3" implname="normal_value" />
+  </implementation>
 
   <!-- <translucent_bsdf> -->
-  <implementation name="IM_translucent_bsdf_genosl" nodedef="ND_translucent_bsdf" sourcecode="{{weight}} * translucent_bsdf({{normal}}, {{color}})" target="genosl" />
+  <implementation name="IM_translucent_bsdf_genosl" nodedef="ND_translucent_bsdf" sourcecode="{{weight}} * translucent_bsdf({{normal}}, {{color}})" target="genosl">
+    <input name="color" type="color3" implname="color_value" />
+    <input name="normal" type="vector3" implname="normal_value" />
+  </implementation>
 
   <!-- <dielectric_bsdf> -->
-  <implementation name="IM_dielectric_bsdf_genosl" nodedef="ND_dielectric_bsdf" file="mx_dielectric_bsdf.osl" function="mx_dielectric_bsdf" target="genosl" />
+  <implementation name="IM_dielectric_bsdf_genosl" nodedef="ND_dielectric_bsdf" file="mx_dielectric_bsdf.osl" function="mx_dielectric_bsdf" target="genosl">
+    <input name="normal" type="vector3" implname="normal_value" />
+  </implementation>
 
   <!-- <conductor_bsdf> -->
-  <implementation name="IM_conductor_bsdf_genosl" nodedef="ND_conductor_bsdf" sourcecode="{{weight}} * conductor_bsdf({{normal}}, {{tangent}}, {{roughness}}.x, {{roughness}}.y, {{ior}}, {{extinction}}, {{distribution}}, &quot;thinfilm_thickness&quot;, {{thinfilm_thickness}}, &quot;thinfilm_ior&quot;, {{thinfilm_ior}})" target="genosl" />
+  <implementation name="IM_conductor_bsdf_genosl" nodedef="ND_conductor_bsdf" sourcecode="{{weight}} * conductor_bsdf({{normal}}, {{tangent}}, {{roughness}}.x, {{roughness}}.y, {{ior}}, {{extinction}}, {{distribution}}, &quot;thinfilm_thickness&quot;, {{thinfilm_thickness}}, &quot;thinfilm_ior&quot;, {{thinfilm_ior}})" target="genosl">
+    <input name="normal" type="vector3" implname="normal_value" />
+  </implementation>
 
   <!-- <generalized_schlick_bsdf> -->
-  <implementation name="IM_generalized_schlick_bsdf_genosl" nodedef="ND_generalized_schlick_bsdf" file="mx_generalized_schlick_bsdf.osl" function="mx_generalized_schlick_bsdf" target="genosl" />
+  <implementation name="IM_generalized_schlick_bsdf_genosl" nodedef="ND_generalized_schlick_bsdf" file="mx_generalized_schlick_bsdf.osl" function="mx_generalized_schlick_bsdf" target="genosl">
+    <input name="normal" type="vector3" implname="normal_value" />
+  </implementation>
 
   <!-- <subsurface_bsdf> -->
-  <implementation name="IM_subsurface_bsdf_genosl" nodedef="ND_subsurface_bsdf" file="mx_subsurface_bsdf.osl" function="mx_subsurface_bsdf" target="genosl" />
+  <implementation name="IM_subsurface_bsdf_genosl" nodedef="ND_subsurface_bsdf" file="mx_subsurface_bsdf.osl" function="mx_subsurface_bsdf" target="genosl">
+    <input name="color" type="color3" implname="color_value" />
+    <input name="normal" type="vector3" implname="normal_value" />
+  </implementation>
 
   <!-- <chiang_hair_bsdf> -->
-  <implementation name="IM_chiang_hair_bsdf_genosl" nodedef="ND_chiang_hair_bsdf" file="mx_chiang_hair_bsdf.osl" function="mx_chiang_hair_bsdf" target="genosl" />
+  <implementation name="IM_chiang_hair_bsdf_genosl" nodedef="ND_chiang_hair_bsdf" file="mx_chiang_hair_bsdf.osl" function="mx_chiang_hair_bsdf" target="genosl">
+    <input name="normal" type="vector3" implname="normal_value" />
+  </implementation>
 
   <!-- <sheen_bsdf> -->
-  <implementation name="IM_sheen_bsdf_genosl" nodedef="ND_sheen_bsdf" sourcecode="{{weight}} * sheen_bsdf({{normal}}, {{color}}, {{roughness}})" target="genosl" />
+  <implementation name="IM_sheen_bsdf_genosl" nodedef="ND_sheen_bsdf" sourcecode="{{weight}} * sheen_bsdf({{normal}}, {{color}}, {{roughness}})" target="genosl">
+    <input name="color" type="color3" implname="color_value" />
+    <input name="normal" type="vector3" implname="normal_value" />
+  </implementation>
 
   <!-- <anisotropic_vdf> -->
   <implementation name="IM_anisotropic_vdf_genosl" nodedef="ND_anisotropic_vdf" file="mx_anisotropic_vdf.osl" function="mx_anisotropic_vdf" target="genosl" />
 
   <!-- <uniform_edf> -->
-  <implementation name="IM_uniform_edf_genosl" nodedef="ND_uniform_edf" sourcecode="uniform_edf({{color}})" target="genosl" />
+  <implementation name="IM_uniform_edf_genosl" nodedef="ND_uniform_edf" sourcecode="uniform_edf({{color}})" target="genosl">
+    <input name="color" type="color3" implname="color_value" />
+  </implementation>
 
   <!-- <generalized_schlick_edf> -->
   <implementation name="IM_generalized_schlick_edf_genosl" nodedef="ND_generalized_schlick_edf" file="mx_generalized_schlick_edf.osl" function="mx_generalized_schlick_edf" target="genosl" />
@@ -42,8 +67,12 @@
   <implementation name="IM_layer_vdf_genosl" nodedef="ND_layer_vdf" sourcecode="layer({{top}}, {{base}})" target="genosl" />
 
   <!-- <mix> -->
-  <implementation name="IM_mix_bsdf_genosl" nodedef="ND_mix_bsdf" sourcecode="mix({{bg}}, {{fg}}, {{mix}})" target="genosl" />
-  <implementation name="IM_mix_edf_genosl" nodedef="ND_mix_edf" sourcecode="mix({{bg}}, {{fg}}, {{mix}})" target="genosl" />
+  <implementation name="IM_mix_bsdf_genosl" nodedef="ND_mix_bsdf" sourcecode="mix({{bg}}, {{fg}}, {{mix}})" target="genosl">
+    <input name="mix" type="float" implname="mix_value" />
+  </implementation>
+  <implementation name="IM_mix_edf_genosl" nodedef="ND_mix_edf" sourcecode="mix({{bg}}, {{fg}}, {{mix}})" target="genosl">
+    <input name="mix" type="float" implname="mix_value" />
+  </implementation>
 
   <!-- <add> -->
   <implementation name="IM_add_bsdf_genosl" nodedef="ND_add_bsdf" sourcecode="({{in1}} + {{in2}})" target="genosl" />
@@ -78,7 +107,9 @@
   <implementation name="IM_deon_hair_absorption_from_melanin_genosl" nodedef="ND_deon_hair_absorption_from_melanin" sourcecode="vector(1.0)" target="genosl" />
 
   <!-- <chiang_hair_absorption_from_color> -->
-  <implementation name="IM_chiang_hair_absorption_from_color_genosl" nodedef="ND_chiang_hair_absorption_from_color" sourcecode="vector(1.0)" target="genosl" />
+  <implementation name="IM_chiang_hair_absorption_from_color_genosl" nodedef="ND_chiang_hair_absorption_from_color" sourcecode="vector(1.0)" target="genosl">
+    <input name="color" type="color3" implname="color_value" />
+  </implementation>
 
   <!-- <chiang_hair_roughness> -->
   <implementation name="IM_chiang_hair_roughness_genosl" nodedef="ND_chiang_hair_roughness" file="mx_chiang_hair_roughness.osl" function="mx_chiang_hair_roughness" target="genosl" />

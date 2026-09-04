@@ -359,6 +359,18 @@ ShaderNodeImplPtr ShaderGenerator::getImplementation(const NodeDef& nodedef, Gen
         return nullptr;
     }
 
+    // Transfer the port name remappings declared by the 'implname' attributes before
+    // initializing, since a nodegraph implementation applies them while building its
+    // graph. They are read from the implementation element, and then from the element
+    // that declared it if that is a distinct <implementation> pointing at a nodegraph,
+    // so that a target-specific declaration takes precedence.
+    addPortImplementationNames(implElement, *impl);
+    InterfaceElementPtr declElement = nodedef.getImplementation(getTarget(), false);
+    if (declElement && declElement != implElement)
+    {
+        addPortImplementationNames(declElement, *impl);
+    }
+
     impl->initialize(*implElement, context);
 
     // Cache it.
