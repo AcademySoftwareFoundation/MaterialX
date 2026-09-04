@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<materialx version="1.39" colorspace="lin_rec709">
+  <surfacematerial name="Default" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="open_pbr_surface_surfaceshader" />
+    <input name="displacementshader" type="displacementshader" value="" />
+  </surfacematerial>
+  <open_pbr_surface name="open_pbr_surface_surfaceshader" type="surfaceshader">
+    <input name="base_weight" type="float" value="1.0" />
+    <input name="base_color" type="color3" value="0.8, 0.8, 0.8" />
+    <input name="base_diffuse_roughness" type="float" value="0.0" />
+    <input name="base_metalness" type="float" value="0.0" />
+    <input name="specular_weight" type="float" value="1.0" />
+    <input name="specular_color" type="color3" value="1, 1, 1" />
+    <input name="specular_roughness" type="float" value="0.3" />
+    <input name="specular_ior" type="float" value="1.5" />
+    <input name="specular_roughness_anisotropy" type="float" value="0.0" />
+    <input name="transmission_weight" type="float" value="0.0" />
+    <input name="transmission_color" type="color3" value="1, 1, 1" />
+    <input name="transmission_depth" type="float" value="0.0" />
+    <input name="transmission_scatter" type="color3" value="0, 0, 0" />
+    <input name="transmission_scatter_anisotropy" type="float" value="0.0" />
+    <input name="transmission_dispersion_scale" type="float" value="0.0" />
+    <input name="transmission_dispersion_abbe_number" type="float" value="20.0" />
+    <input name="subsurface_weight" type="float" value="0" />
+    <input name="subsurface_color" type="color3" value="0.8, 0.8, 0.8" />
+    <input name="subsurface_radius" type="float" value="1.0" />
+    <input name="subsurface_radius_scale" type="color3" value="1.0, 0.5, 0.25" />
+    <input name="subsurface_scatter_anisotropy" type="float" value="0.0" />
+    <input name="fuzz_weight" type="float" value="0.0" />
+    <input name="fuzz_color" type="color3" value="1, 1, 1" />
+    <input name="fuzz_roughness" type="float" value="0.5" />
+    <input name="coat_weight" type="float" value="0.0" />
+    <input name="coat_color" type="color3" value="1, 1, 1" />
+    <input name="coat_roughness" type="float" value="0.0" />
+    <input name="coat_roughness_anisotropy" type="float" value="0.0" />
+    <input name="coat_ior" type="float" value="1.6" />
+    <input name="coat_darkening" type="float" value="1.0" />
+    <input name="thin_film_weight" type="float" value="0" />
+    <input name="thin_film_thickness" type="float" value="0.5" />
+    <input name="thin_film_ior" type="float" value="1.4" />
+    <input name="emission_luminance" type="float" value="0.0" />
+    <input name="emission_color" type="color3" value="1, 1, 1" />
+    <input name="geometry_opacity" type="float" value="1" />
+    <input name="geometry_thin_walled" type="boolean" value="false" />
+  </open_pbr_surface>
+</materialx>
