@@ -84,7 +84,7 @@ RenderUtil::RenderProfileResult MdlShaderRenderTester::runRenderer(
                 mx::ScopedTimer genTimer(&result.languageTimes.generationTime);
                 mx::GenOptions& contextOptions = context.getOptions();
                 contextOptions = options;
-                contextOptions.targetColorSpaceOverride = "lin_rec709";
+                contextOptions.targetColorSpaceOverride = "lin_rec709_scene";
                 contextOptions.fileTextureVerticalFlip = true;
 
                 // Specify the MDL target version to be the latest which is also the default.

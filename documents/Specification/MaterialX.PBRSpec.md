@@ -106,9 +106,9 @@ In general, a color given as input to the renderer is considered to represent a 
 
 ## Color Management
 
-MaterialX supports the use of [color management systems](./MaterialX.Specification.md#color-spaces-and-color-management-systems) to associate colors with specific color spaces. A MaterialX document typically specifies the working color space that is to be used for the document as well as the color space in which input values and textures are given. If these color spaces are different from the working color space, it is the application's and shader generator's responsibility to transform them.
+MaterialX supports the use of [color management systems](./MaterialX.Specification.md#color-spaces-and-color-management-systems) to associate colors with specific color spaces. A MaterialX document typically specifies the working color space that is to be used for the document as well as the color space in which input values and textures are given. If these color spaces are different from the rendering color space, it is the application's and shader generator's responsibility to transform them.
 
-The ShaderGen module has an interface that can be used to integrate support for different color management systems. A simplified implementation with some popular and commonly used color transformations is supplied and enabled by default. An integration with the relevant portions of OpenColorIO ([http://opencolorio.org](http://opencolorio.org)) is planned for the future.
+The ShaderGen module has an interface that can be used to integrate support for different color management systems. Two implementations are provided: a built-in default color management system that supports a baseline set of ASWF color spaces; and an optional OpenColorIO color management system integration which provides support for a wider set of color spaces.
 
 
 ## Surfaces
@@ -330,15 +330,23 @@ The pair $(\alpha_x, \alpha_y)$ is supplied directly by the `roughness` input of
 
 #### Height-Correlated Smith Masking-Shadowing
 
-The joint masking-shadowing function is the height-correlated form of the Smith function[^Heitz2014]:
+The joint masking-shadowing function is the height-correlated form of the Smith function[^Heitz2014]. Define the direction-dependent stretched-vector length:
 
 ```math
-G_2(\omega_i, \omega_o) = \frac{2 \cos\theta_i \cos\theta_o}{\lambda_o \cos\theta_i + \lambda_i \cos\theta_o}
+L(\omega) = \sqrt{\alpha_x^2\omega_x^2 + \alpha_y^2\omega_y^2 + \omega_z^2}
 ```
 <p></p>
 
-where $\lambda_i = \lambda(\cos\theta_i)$, $\lambda_o = \lambda(\cos\theta_o)$, $\lambda(\cos\theta) = \sqrt{\alpha^2 + (1 - \alpha^2) \cos^2\theta}$, and $\alpha = \sqrt{\alpha_x \alpha_y}$ when the roughness is anisotropic.
+Then:
 
+```math
+G_2(\omega_i, \omega_o) =
+\frac{2|\omega_{i,z}||\omega_{o,z}|}
+{|\omega_{i,z}|L(\omega_o) + |\omega_{o,z}|L(\omega_i)}
+```
+<p></p>
+
+This is equivalent to evaluating the Smith $\Lambda$ function with the roughness projected independently onto each direction, as given by Heitz[^Heitz2014]. In the isotropic case, $\alpha_x = \alpha_y = \alpha$, this reduces to the usual scalar-roughness expression.
 
 ### Directional Albedo and Energy Conservation
 
@@ -792,14 +800,15 @@ In the equations below, the `tint_R`, `tint_TT`, and `tint_TRT` inputs correspon
 
 #### Chiang Hair Scattering Equations
 
-The Chiang hair model[^Chiang2016] treats a hair fiber as a dielectric cylinder with tilted cuticle scales. Directions at a point on the fiber are parameterized by inclination $\theta$ from the fiber's normal plane and azimuth $\phi$ around the fiber, differing from the surface-normal angles used by planar BSDF nodes. The BCSDF is a sum over four scattering lobes — R (surface reflection), TT (double transmission), TRT (internal reflection), and TRRT+ (higher-order paths):
+The Chiang hair model[^Chiang2016] treats a hair fiber as a dielectric cylinder with tilted cuticle scales. Directions at a point on the fiber are parameterized by inclination $\theta$ from the fiber's normal plane and azimuth $\phi$ around the fiber, differing from the surface-normal angles used by planar BSDF nodes. The BCSDF is a sum over four scattering lobes: R (surface reflection), TT (double transmission), TRT (internal reflection), and TRRT+ (higher-order paths):
 
 ```math
-f_c(\omega_i, \omega_o) = \frac{1}{\pi} \sum_{p \in \{R,TT,TRT,TRRT+\}} t_p A_p M_p N_p
+f_c(\omega_i, \omega_o) =
+\sum_{p \in \{R,TT,TRT,TRRT+\}} t_p A_p M_p N_p
 ```
 <p></p>
 
-where $M_p$ is the longitudinal scattering function, $N_p$ is the azimuthal scattering function, and $A_p$ is the attenuation factor combining Fresnel reflectance and volumetric absorption. The higher-order TRRT+ lobe shares the tint $t_{TRT}$ and the roughness values of the TRT lobe. The full definitions of these components are given in the [Chiang Hair Model](#chiang-hair-model) appendix.
+where $M_p$ is the longitudinal scattering function, $N_p$ is the azimuthal scattering function, and $A_p$ is the attenuation factor combining Fresnel reflectance and volumetric absorption. The longitudinal and azimuthal distributions include the normalization required by the model, so the lobe products require no additional normalization. The higher-order TRRT+ lobe shares the tint $t_{TRT}$ and the roughness values of the TRT lobe. The full definitions of these components are given in the [Chiang Hair Model](#chiang-hair-model) appendix.
 
 
 ## EDF Nodes
