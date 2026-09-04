@@ -195,6 +195,7 @@ void mx_chiang_hair_bsdf(ClosureData closureData, vec3 tint_R, vec3 tint_TT, vec
 
     N = mx_forward_facing_normal(N, V);
 
+    // As an opaque BSDF with no weight input, take on an implicit unit coverage, occluding any base layer.
     bsdf.throughput = vec3(0.0);
 
     if (closureData.closureType == CLOSURE_TYPE_REFLECTION)

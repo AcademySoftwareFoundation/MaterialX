@@ -197,4 +197,147 @@
     <output name="out" type="surfaceshader" nodename="surface1" />
   </nodegraph>
 
+  <!-- An opaque BSDF with partial coverage, layered over a diffuse base. -->
+  <nodegraph name="vertical_layering_ex8" type="surfaceshader">
+    <conductor_bsdf name="conductor" type="BSDF">
+      <input name="weight" type="float" value="0.5" />
+    </conductor_bsdf>
+    <oren_nayar_diffuse_bsdf name="diffuse" type="BSDF">
+      <input name="color" type="color3" value="1, 0, 0" />
+    </oren_nayar_diffuse_bsdf>
+    <layer name="layer" type="BSDF">
+      <input name="top" type="BSDF" nodename="conductor" />
+      <input name="base" type="BSDF" nodename="diffuse" />
+    </layer>
+    <surface name="surface1" type="surfaceshader">
+      <input name="bsdf" type="BSDF" nodename="layer" />
+    </surface>
+    <output name="out" type="surfaceshader" nodename="surface1" />
+  </nodegraph>
+
+  <!-- The equivalent of the graph above, expressed as a mix of the two BSDFs
+       with the coverage as the mixing weight. -->
+  <nodegraph name="vertical_layering_ex9" type="surfaceshader">
+    <conductor_bsdf name="conductor" type="BSDF" />
+    <oren_nayar_diffuse_bsdf name="diffuse" type="BSDF">
+      <input name="color" type="color3" value="1, 0, 0" />
+    </oren_nayar_diffuse_bsdf>
+    <mix name="mix" type="BSDF">
+      <input name="fg" type="BSDF" nodename="conductor" />
+      <input name="bg" type="BSDF" nodename="diffuse" />
+      <input name="mix" type="float" value="0.5" />
+    </mix>
+    <surface name="surface1" type="surfaceshader">
+      <input name="bsdf" type="BSDF" nodename="mix" />
+    </surface>
+    <output name="out" type="surfaceshader" nodename="surface1" />
+  </nodegraph>
+
+  <!-- An opaque BSDF with zero coverage, layered over a diffuse base that
+       should be rendered unoccluded. -->
+  <nodegraph name="vertical_layering_ex10" type="surfaceshader">
+    <oren_nayar_diffuse_bsdf name="uncovered" type="BSDF">
+      <input name="weight" type="float" value="0" />
+    </oren_nayar_diffuse_bsdf>
+    <oren_nayar_diffuse_bsdf name="diffuse" type="BSDF">
+      <input name="color" type="color3" value="1, 0, 0" />
+    </oren_nayar_diffuse_bsdf>
+    <layer name="layer" type="BSDF">
+      <input name="top" type="BSDF" nodename="uncovered" />
+      <input name="base" type="BSDF" nodename="diffuse" />
+    </layer>
+    <surface name="surface1" type="surfaceshader">
+      <input name="bsdf" type="BSDF" nodename="layer" />
+    </surface>
+    <output name="out" type="surfaceshader" nodename="surface1" />
+  </nodegraph>
+
+  <!-- An opaque BSDF with unit coverage, layered over a diffuse base that
+       should be fully occluded, matching the opaque BSDF alone. -->
+  <nodegraph name="vertical_layering_ex11" type="surfaceshader">
+    <conductor_bsdf name="conductor" type="BSDF">
+      <input name="weight" type="float" value="1" />
+    </conductor_bsdf>
+    <oren_nayar_diffuse_bsdf name="diffuse" type="BSDF">
+      <input name="color" type="color3" value="1, 0, 0" />
+    </oren_nayar_diffuse_bsdf>
+    <layer name="layer" type="BSDF">
+      <input name="top" type="BSDF" nodename="conductor" />
+      <input name="base" type="BSDF" nodename="diffuse" />
+    </layer>
+    <surface name="surface1" type="surfaceshader">
+      <input name="bsdf" type="BSDF" nodename="layer" />
+    </surface>
+    <output name="out" type="surfaceshader" nodename="surface1" />
+  </nodegraph>
+
+  <!-- A mix of an opaque BSDF and an interface BSDF, layered over a diffuse
+       base, with the transmittance of the mix interpolating between those
+       of its inputs. -->
+  <nodegraph name="vertical_layering_ex12" type="surfaceshader">
+    <conductor_bsdf name="conductor" type="BSDF" />
+    <dielectric_bsdf name="dielectric" type="BSDF" />
+    <mix name="mix" type="BSDF">
+      <input name="fg" type="BSDF" nodename="conductor" />
+      <input name="bg" type="BSDF" nodename="dielectric" />
+      <input name="mix" type="float" value="0.5" />
+    </mix>
+    <oren_nayar_diffuse_bsdf name="diffuse" type="BSDF">
+      <input name="color" type="color3" value="1, 0, 0" />
+    </oren_nayar_diffuse_bsdf>
+    <layer name="layer" type="BSDF">
+      <input name="top" type="BSDF" nodename="mix" />
+      <input name="base" type="BSDF" nodename="diffuse" />
+    </layer>
+    <surface name="surface1" type="surfaceshader">
+      <input name="bsdf" type="BSDF" nodename="layer" />
+    </surface>
+    <output name="out" type="surfaceshader" nodename="surface1" />
+  </nodegraph>
+
+  <!-- The equivalent of the graph above, expressed as a mix of the opaque
+       BSDF with the interface BSDF layered over the diffuse base. -->
+  <nodegraph name="vertical_layering_ex13" type="surfaceshader">
+    <conductor_bsdf name="conductor" type="BSDF" />
+    <dielectric_bsdf name="dielectric" type="BSDF" />
+    <oren_nayar_diffuse_bsdf name="diffuse" type="BSDF">
+      <input name="color" type="color3" value="1, 0, 0" />
+    </oren_nayar_diffuse_bsdf>
+    <layer name="layer" type="BSDF">
+      <input name="top" type="BSDF" nodename="dielectric" />
+      <input name="base" type="BSDF" nodename="diffuse" />
+    </layer>
+    <mix name="mix" type="BSDF">
+      <input name="fg" type="BSDF" nodename="conductor" />
+      <input name="bg" type="BSDF" nodename="layer" />
+      <input name="mix" type="float" value="0.5" />
+    </mix>
+    <surface name="surface1" type="surfaceshader">
+      <input name="bsdf" type="BSDF" nodename="mix" />
+    </surface>
+    <output name="out" type="surfaceshader" nodename="surface1" />
+  </nodegraph>
+
+  <!-- An opaque BSDF scaled by a mix with an empty background, layered over
+       a diffuse base, with the mix reducing the coverage of the opaque BSDF
+       to match the partial-coverage graphs above. -->
+  <nodegraph name="vertical_layering_ex14" type="surfaceshader">
+    <conductor_bsdf name="conductor" type="BSDF" />
+    <mix name="mix" type="BSDF">
+      <input name="fg" type="BSDF" nodename="conductor" />
+      <input name="mix" type="float" value="0.5" />
+    </mix>
+    <oren_nayar_diffuse_bsdf name="diffuse" type="BSDF">
+      <input name="color" type="color3" value="1, 0, 0" />
+    </oren_nayar_diffuse_bsdf>
+    <layer name="layer" type="BSDF">
+      <input name="top" type="BSDF" nodename="mix" />
+      <input name="base" type="BSDF" nodename="diffuse" />
+    </layer>
+    <surface name="surface1" type="surfaceshader">
+      <input name="bsdf" type="BSDF" nodename="layer" />
+    </surface>
+    <output name="out" type="surfaceshader" nodename="surface1" />
+  </nodegraph>
+
 </materialx>
