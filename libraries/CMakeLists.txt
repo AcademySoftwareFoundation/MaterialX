@@ -11,6 +11,7 @@ if(MATERIALX_BUILD_DATA_LIBRARY)
          *.mtlx
          *.md
          *.glsl
+         *.hlsl
          *.osl
          *.h
          *.metal

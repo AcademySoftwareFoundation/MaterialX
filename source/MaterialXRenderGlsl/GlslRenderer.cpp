@@ -159,7 +159,8 @@ void GlslRenderer::render()
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_FRAMEBUFFER_SRGB);
     glDepthFunc(GL_LESS);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    if (_clearOnRender)
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     try
     {
@@ -202,9 +203,14 @@ void GlslRenderer::render()
                     glDisable(GL_BLEND);
                 }
 
-                // Bind each mesh and draw its partitions.
+                // Bind each mesh and draw its partitions. When the
+                // renderer has been told to restrict to a name set
+                // (multi-pass shaderball-style rendering), skip meshes
+                // whose name isn't listed.
                 for (MeshPtr mesh : _geometryHandler->getMeshes())
                 {
+                    if (!_activeMeshes.empty() && _activeMeshes.count(mesh->getName()) == 0)
+                        continue;
                     _program->bindMesh(mesh);
                     for (size_t i = 0; i < mesh->getPartitionCount(); i++)
                     {
