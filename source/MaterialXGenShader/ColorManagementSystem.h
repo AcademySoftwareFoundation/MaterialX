@@ -60,6 +60,25 @@ class MX_GENSHADER_API ColorManagementSystem
     /// Returns whether this color management system supports a provided transform
     bool supportsTransform(const ColorSpaceTransform& transform) const;
 
+    /// Returns true if the given color space name is one of the no-op color spaces
+    /// ("none" and "data") reserved by the MaterialX specification, independent of
+    /// any particular color management system.
+    static bool isReservedNoOpColorSpace(const string& colorSpace);
+
+    /// Returns true if the given color space name requires no color transformation
+    /// when used as a source or target space. The base implementation defers to
+    /// isReservedNoOpColorSpace(). Subclasses may extend this set with names
+    /// recognized by the color management system itself.
+    virtual bool isNoOpColorSpace(const string& colorSpace) const
+    {
+        return isReservedNoOpColorSpace(colorSpace);
+    }
+
+    /// The colorSpace strings should not be shown directly in a user interface. This function
+    /// converts a colorSpace into a user-facing name. For example, "lin_rec709_scene" becomes
+    /// "Linear Rec.709 (sRGB)". If the colorSpace is not recognized, it is returned unchanged.
+    virtual string getUserFacingName(const string& colorSpace) const { return colorSpace; }
+
     /// Create a node to use to perform the given color space transformation.
     ShaderNodePtr createNode(const ShaderGraph* parent, const ColorSpaceTransform& transform, const string& name,
                              GenContext& context) const;
