@@ -424,7 +424,14 @@ void Viewer::loadEnvironmentLight()
         if (_saveGeneratedLights)
         {
             _imageHandler->saveImage("IndirectRadiance.hdr", envRadianceMap);
-            mx::writeToXmlFile(_lightRigDoc, "DirectLightRig.mtlx");
+            try
+            {
+                mx::writeToXmlFile(_lightRigDoc, "DirectLightRig.mtlx");
+            }
+            catch (std::exception& e)
+            {
+                new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Cannot save direct light rig", e.what());
+            }
         }
     }
 
@@ -657,10 +664,17 @@ void Viewer::createSaveMaterialsInterface(ng::ref<Widget> parent, const std::str
 
             mx::XmlWriteOptions writeOptions;
             writeOptions.elementPredicate = getElementPredicate();
-            mx::writeToXmlFile(material->getDocument(), filename, &writeOptions);
+            try
+            {
+                mx::writeToXmlFile(material->getDocument(), filename, &writeOptions);
 
-            // Update material file name
-            _materialFilename = filename;
+                // Update material file name
+                _materialFilename = filename;
+            }
+            catch (std::exception& e)
+            {
+                new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Cannot save material document", e.what());
+            }
         }
         m_process_events = true;
     });
@@ -2023,9 +2037,16 @@ bool Viewer::keyboard_event(int key, int scancode, int action, int modifiers)
 
             mx::XmlWriteOptions writeOptions;
             writeOptions.elementPredicate = getElementPredicate();
-            mx::writeToXmlFile(translatedDoc, translatedFilename, &writeOptions);
+            try
+            {
+                mx::writeToXmlFile(translatedDoc, translatedFilename, &writeOptions);
 
-            new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved translated material: ", translatedFilename);
+                new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved translated material: ", translatedFilename);
+            }
+            catch (std::exception& e)
+            {
+                new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Cannot save translated material", e.what());
+            }
         }
         return true;
     }

@@ -198,6 +198,13 @@ class MX_FORMAT_API FilePath
     /// If recursive is true, any missing parent directories will be created as well.
     void createDirectory(bool recursive = false) const;
 
+    /// Remove the directory on the file system at the given path.
+    /// @param recursive If true, the contents of the directory will be removed as
+    ///    well; otherwise the directory is only removed if it is empty.  Symbolic
+    ///    links within the directory are removed without following their targets.
+    /// @return True if the directory was removed.
+    bool removeDirectory(bool recursive = false) const;
+
     /// Set the current working directory of the file system.
     bool setCurrentPath();
 
@@ -208,6 +215,21 @@ class MX_FORMAT_API FilePath
 
     /// Return the directory containing the executable module.
     static FilePath getModulePath();
+
+    /// Create a temporary directory with a unique name.
+    /// @param parentDir The parent directory for the temporary directory, which
+    ///    will be created if it does not already exist.  If empty, the system's
+    ///    default temporary directory is used.
+    /// @return A FilePath to the created temporary directory, which is accessible
+    ///    only to the current user on platforms that support this restriction.
+    /// @throws Exception if the temporary directory cannot be created.
+    static FilePath createTemporaryDirectory(const FilePath& parentDir = FilePath());
+
+    /// Return the system's default temporary directory.  This method does not
+    /// create the directory, and its existence is not guaranteed.
+    /// @return A FilePath to the system temporary directory.
+    /// @throws Exception if the system temporary directory cannot be determined.
+    static FilePath getSystemTemporaryDirectory();
 
   private:
     StringVec _vec;
