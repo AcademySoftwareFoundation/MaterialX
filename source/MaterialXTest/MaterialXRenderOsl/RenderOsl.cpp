@@ -225,7 +225,7 @@ RenderUtil::RenderProfileResult OslShaderRenderTester::runRenderer(
                 mx::ScopedTimer genTimer(&result.languageTimes.generationTime);
                 mx::GenOptions& contextOptions = context.getOptions();
                 contextOptions = options;
-                contextOptions.targetColorSpaceOverride = "lin_rec709";
+                contextOptions.targetColorSpaceOverride = "lin_rec709_scene";
                 contextOptions.oslConnectCiWrapper = true;
 
                 // Apply local overrides for shader generation.
