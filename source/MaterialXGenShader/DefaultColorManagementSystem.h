@@ -29,6 +29,11 @@ class MX_GENSHADER_API DefaultColorManagementSystem : public ColorManagementSyst
     /// Return the DefaultColorManagementSystem name
     const string& getName() const override;
 
+    /// The colorSpace strings should not be shown directly in a user interface. This function
+    /// converts a colorSpace into a user-facing name. For example, "lin_rec709_scene" becomes
+    /// "Linear Rec.709 (sRGB)". If the colorSpace is not recognized, it is returned unchanged.
+    string getUserFacingName(const string& colorSpace) const override;
+
   protected:
     /// Returns a nodedef for a given transform
     NodeDefPtr getNodeDef(const ColorSpaceTransform& transform) const override;
