@@ -9,6 +9,7 @@
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/ShaderGraphRefactor.h>
 #include <MaterialXGenShader/Util.h>
+#include <MaterialXGenShader/Nodes/CompoundNode.h>
 
 #include <MaterialXTrace/Tracing.h>
 
@@ -636,6 +637,57 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
         // Set root for upstream dependency traversal
         root = node;
     }
+    else if (element->isA<NodeDef>())
+    {
+        NodeDefPtr nodeDef = element->asA<NodeDef>();
+
+        graph = std::make_shared<ShaderGraph>(parent, name, element->getDocument(), context);
+
+        // Create input sockets
+        graph->addInputSockets(*nodeDef, context);
+
+        // Create output sockets
+        graph->addOutputSockets(*nodeDef, context);
+
+        // Create this shader node in the graph.
+        ShaderNodePtr newNode = ShaderNode::create(graph.get(), name, *nodeDef, context);
+        graph->addNode(newNode);
+
+        // Share metadata.
+        graph->setMetadata(newNode->getMetadata());
+
+        // Connect it to the graph outputs
+        for (size_t i = 0; i < newNode->numOutputs(); ++i)
+        {
+            ShaderGraphOutputSocket* outputSocket = graph->getOutputSocket(i);
+            outputSocket->makeConnection(newNode->getOutput(i));
+        }
+
+        // Handle node input ports
+        for (const InputPtr& nodedefInput : nodeDef->getActiveInputs())
+        {
+            ShaderGraphInputSocket* inputSocket = graph->getInputSocket(nodedefInput->getName());
+            ShaderInput* input = newNode->getInput(nodedefInput->getName());
+            if (!inputSocket || !input)
+            {
+                throw ExceptionShaderGenError("Node input '" + nodedefInput->getName() + "' doesn't match an existing input on graph '" + graph->getName() + "'");
+            }
+
+            input->setBindInput();
+
+            // Connect graph socket to the node input
+            inputSocket->makeConnection(input);
+
+            // Share metadata.
+            inputSocket->setMetadata(input->getMetadata());
+        }
+
+        ImplementationPtr implElement = nodeDef->getImplementation(context.getShaderGenerator().getTarget())->asA<Implementation>();
+        addPortImplementationNames(implElement, *graph);
+
+        // NodeDef generation has no traversal
+        root = nullptr;
+    }
 
     if (!graph)
     {
@@ -863,8 +915,29 @@ ShaderGraphEdgeIterator ShaderGraph::traverseUpstream(ShaderOutput* output)
 
 void ShaderGraph::addNode(ShaderNodePtr node)
 {
-    _nodeMap[node->getUniqueId()] = node;
+    // The node map holds the only owning reference to each node, while the node
+    // order holds raw pointers. Overwriting an existing entry would free that
+    // node and leave the dangling pointer behind, so reject duplicate ids.
+    const string& uniqueId = node->getUniqueId();
+    if (_nodeMap.count(uniqueId))
+    {
+        throw ExceptionShaderGenError("A node with unique id '" + uniqueId + "' already exists in graph '" + getName() + "'");
+    }
+
+    _nodeMap[uniqueId] = node;
     _nodeOrder.push_back(node.get());
+}
+
+void ShaderGraph::removeNode(const string& uniqueId)
+{
+    ShaderNodePtr nodePtr = _nodeMap[uniqueId];
+    if (nodePtr)
+    {
+        disconnect(nodePtr.get());
+        _nodeMap.erase(uniqueId);
+        auto it = std::find(_nodeOrder.begin(), _nodeOrder.end(), nodePtr.get());
+        _nodeOrder.erase(it);
+    }
 }
 
 ShaderNode* ShaderGraph::getNode(const string& uniqueId)
@@ -1166,25 +1239,25 @@ void ShaderGraph::setVariableNames(GenContext& context)
 
     for (ShaderGraphInputSocket* inputSocket : getInputSockets())
     {
-        const string variable = syntax.getVariableName(inputSocket->getName(), inputSocket->getType(), _identifiers);
+        const string variable = syntax.getVariableName(getPortName(inputSocket->getName()), inputSocket->getType(), _identifiers);
         inputSocket->setVariable(variable);
     }
     for (ShaderGraphOutputSocket* outputSocket : getOutputSockets())
     {
-        const string variable = syntax.getVariableName(outputSocket->getName(), outputSocket->getType(), _identifiers);
+        const string variable = syntax.getVariableName(getPortName(outputSocket->getName()), outputSocket->getType(), _identifiers);
         outputSocket->setVariable(variable);
     }
     for (ShaderNode* node : getNodes())
     {
         for (ShaderInput* input : node->getInputs())
         {
-            string variable = input->getFullName();
+            string variable = node->getName() + "_" + node->getPortName(input->getName());
             variable = syntax.getVariableName(variable, input->getType(), _identifiers);
             input->setVariable(variable);
         }
         for (ShaderOutput* output : node->getOutputs())
         {
-            string variable = output->getFullName();
+            string variable = node->getName() + "_" + node->getPortName(output->getName());
             variable = syntax.getVariableName(variable, output->getType(), _identifiers);
             output->setVariable(variable);
         }
@@ -1298,6 +1371,251 @@ void ShaderGraph::populateUnitTransformMap(UnitSystemPtr unitSystem, ShaderPort*
             }
         }
     }
+}
+
+void ShaderGraph::flattenGraph()
+{
+    bool foundCompoundNode = true;
+    // Use a while loop to handle the nested compound nodes
+    while (foundCompoundNode)
+    {
+        foundCompoundNode = false;
+        vector<ShaderNode*> nodes = getNodes();
+        for (ShaderNode* node : nodes)
+        {
+            if (!node)
+                continue;
+
+            const ShaderNodeImpl& impl = node->getImplementation();
+            const CompoundNode* compoundNodeImpl = dynamic_cast<const CompoundNode*>(&impl);
+            if (!compoundNodeImpl)
+                continue;
+
+            expandCompoundNode(node, compoundNodeImpl);
+            foundCompoundNode = true;
+        }
+    }
+}
+
+void ShaderGraph::expandCompoundNode(ShaderNode* parentNode, const CompoundNode* compoundNodeImpl)
+{
+    string parentNodeName = parentNode->getName();
+    string parentNodeId = parentNode->getUniqueId();
+
+    auto getNewNodeName = [parentNodeName](const ShaderNode* node) -> string
+    {
+        return parentNodeName + "_" + node->getName();
+    };
+
+    // Node names are only unique within their parent graph, so the flattened
+    // copies must be keyed by unique id rather than by name. Otherwise sibling
+    // compound nodes sharing a name would map to the same key, and adding the
+    // second set of copies would release the first set while the graph still
+    // holds raw pointers to them.
+    auto getNewNodeId = [parentNodeId](const ShaderNode* node) -> string
+    {
+        return parentNodeId + "_" + node->getUniqueId();
+    };
+
+    ShaderGraph* compoundGraph = compoundNodeImpl->getGraph();
+
+    // Initially just create copies of each of the nodes inside the compound graph with
+    // a prefixed name and copy all the non-connection data.
+    for (ShaderNode* node : compoundGraph->getNodes())
+    {
+        ShaderNodePtr newNode = ShaderNode::create(this, getNewNodeName(node), node->getImplementationPtr(), node->getClassification());
+        newNode->_uniqueId = getNewNodeId(node);
+        addNode(newNode);
+
+        for (const ShaderInput* port : node->getInputs())
+        {
+            ShaderInput* newPort = newNode->addInput(port->getName(), port->getType());
+            port->copyToPort(newPort);
+        }
+
+        for (const ShaderOutput* port : node->getOutputs())
+        {
+            ShaderOutput* newPort = newNode->addOutput(port->getName(), port->getType());
+            port->copyToPort(newPort);
+        }
+    }
+
+    // Loop all the newly created nodes and build all necessary connections, or data from the exterior ports.
+    for (ShaderNode* node : compoundGraph->getNodes())
+    {
+        ShaderNode* newNode = getNode(getNewNodeId(node));
+
+        for (const ShaderInput* port : node->getInputs())
+        {
+            const ShaderOutput* upstreamConnection = port->getConnection();
+            if (!upstreamConnection)
+                continue;
+
+            ShaderInput* newDownstreamInput = newNode->getInput(port->getName());
+            if (!newDownstreamInput)
+            {
+                throw ExceptionShaderGenError("Could not find expected input port on new node '"+port->getName()+"'");
+            }
+
+            const ShaderNode* upstreamConnectedNode = upstreamConnection->getNode();
+
+            if (upstreamConnectedNode != compoundGraph)
+            {
+                // Connect to another node inside the graph
+                // NOTE : we handle connections to the compoundGraph later when we
+                // loop the input sockets.
+                string newUpstreamConnectedNodeName = getNewNodeName(upstreamConnectedNode);
+                ShaderNode* newUpstreamConnectedNode = getNode(getNewNodeId(upstreamConnectedNode));
+                if (!newUpstreamConnectedNode)
+                {
+                    throw ExceptionShaderGenError("Could not find expected upstream connected node '"+newUpstreamConnectedNodeName+"'");
+                }
+
+                ShaderOutput* newUpstreamConnectedOutput = newUpstreamConnectedNode->getOutput(upstreamConnection->getName());
+                if (!newUpstreamConnectedOutput)
+                {
+                    throw ExceptionShaderGenError("Could not find expected upstream output '"+newUpstreamConnectedNodeName+"."+upstreamConnection->getName()+"'");
+                }
+
+                newDownstreamInput->makeConnection(newUpstreamConnectedOutput);
+            }
+        }
+    }
+
+    // Resolve the flattened inputs that a connection from an input socket should be
+    // applied to. Normally this is the matching input on the copy of the child node,
+    // but an input socket may also connect straight to an output socket, in which case
+    // the compound graph just passes the value through. Output sockets are stored as
+    // inputs on the graph itself, so such a connection resolves to the inputs that are
+    // downstream of the parent node's matching output.
+    auto getNewDownstreamInputs = [this, compoundGraph, parentNode, parentNodeName, &getNewNodeName, &getNewNodeId](const ShaderInput* downstreamConnection) -> ShaderInputVec
+    {
+        const ShaderNode* downstreamNode = downstreamConnection->getNode();
+        if (downstreamNode == compoundGraph)
+        {
+            ShaderOutput* parentNodeOutput = parentNode->getOutput(downstreamConnection->getName());
+            if (!parentNodeOutput)
+            {
+                throw ExceptionShaderGenError("Could not find expected output port '"+parentNodeName+"."+downstreamConnection->getName()+"'");
+            }
+
+            // Return a copy, since connecting to these inputs modifies the connection list.
+            return parentNodeOutput->getConnections();
+        }
+
+        string newDownstreamConnectedNodeName = getNewNodeName(downstreamNode);
+        ShaderNode* newDownstreamNode = getNode(getNewNodeId(downstreamNode));
+        if (!newDownstreamNode)
+        {
+            throw ExceptionShaderGenError("Could not find expected downstream node '"+newDownstreamConnectedNodeName+"'");
+        }
+
+        ShaderInput* newDownstreamInput = newDownstreamNode->getInput(downstreamConnection->getName());
+        if (!newDownstreamInput)
+        {
+            throw ExceptionShaderGenError("Could not find expected downstream input '"+newDownstreamConnectedNodeName+"."+downstreamConnection->getName()+"'");
+        }
+
+        return ShaderInputVec{ newDownstreamInput };
+    };
+
+    for (ShaderGraphInputSocket* inputSocket : compoundGraph->getInputSockets())
+    {
+        ShaderInputVec downstreamConnections = inputSocket->getConnections();
+        if (downstreamConnections.empty())
+            continue;
+
+        ShaderInput* parentNodeInput = parentNode->getInput(inputSocket->getName());
+        if (!parentNodeInput)
+        {
+            throw ExceptionShaderGenError("Could not find expected input port '"+parentNodeName+"."+inputSocket->getName()+"'");
+        }
+
+        ShaderOutput* upstreamConnectedOutput = parentNodeInput->getConnection();
+        if (!upstreamConnectedOutput)
+        {
+            // If we have no upstream incoming connection then we have to copy the value
+            // to all the downstream internal connected inputs
+            for (const ShaderInput* downstreamConnection : downstreamConnections)
+            {
+                for (ShaderInput* newDownstreamInput : getNewDownstreamInputs(downstreamConnection))
+                {
+                    newDownstreamInput->setValue(parentNodeInput->getValue());
+                }
+            }
+        }
+        else
+        {
+            // connect the upstream output port to each of the downstream internal
+            // connected inputs
+            for (const ShaderInput* downstreamConnection : downstreamConnections)
+            {
+                for (ShaderInput* newDownstreamInput : getNewDownstreamInputs(downstreamConnection))
+                {
+                    newDownstreamInput->makeConnection(upstreamConnectedOutput);
+                }
+            }
+
+            // finally we remove the prior connection
+            upstreamConnectedOutput->breakConnection(parentNodeInput);
+        }
+    }
+
+    for (ShaderGraphOutputSocket* outputSocket : compoundGraph->getOutputSockets())
+    {
+        ShaderOutput* upstreamConnection = outputSocket->getConnection();
+        if (!upstreamConnection)
+            continue;
+
+        ShaderNode* upstreamConnectedNode = upstreamConnection->getNode();
+
+        // A pass-through output socket is fed by an input socket rather than by a child
+        // node, and has already been rewired when the input sockets were processed above.
+        if (upstreamConnectedNode == compoundGraph)
+            continue;
+
+        string newUpstreamConnectedNodeName = getNewNodeName(upstreamConnectedNode);
+
+        ShaderNode* newUpstreamNode = getNode(getNewNodeId(upstreamConnectedNode));
+        if (!newUpstreamNode)
+        {
+            throw ExceptionShaderGenError("Could not find expected upstream node '"+newUpstreamConnectedNodeName+"'");
+        }
+        ShaderOutput* newUpstreamOutput = newUpstreamNode->getOutput(upstreamConnection->getName());
+        if (!newUpstreamOutput)
+        {
+            throw ExceptionShaderGenError("Could not find expected upstream output '"+newUpstreamConnectedNodeName+"."+upstreamConnection->getName()+"'");
+        }
+
+        ShaderOutput* parentNodeOutput = parentNode->getOutput(outputSocket->getName());
+        if (!parentNodeOutput)
+        {
+            throw ExceptionShaderGenError("Could not find expected output port '"+parentNodeName+"."+outputSocket->getName()+"'");
+        }
+
+        // Loop all downstream connected inputs and connect to the corresponding output on the newly created nodes
+        ShaderInputVec downstreamConnectedInputs = parentNodeOutput->getConnections();
+        for (ShaderInput* downstreamConnectedInput : downstreamConnectedInputs)
+        {
+            downstreamConnectedInput->makeConnection(newUpstreamOutput);
+        }
+    }
+
+    removeNode(parentNode->getUniqueId());
+}
+
+void ShaderGraph::addPortImplName(const string& portName, const string& implName)
+{
+    _portImplNames[portName] = implName;
+}
+
+const string& ShaderGraph::getPortName(const string& portName) const
+{
+    if (_impl)
+        return _impl->getPortName(portName);
+
+    auto it = _portImplNames.find(portName);
+    return it != _portImplNames.end() ? it->second : portName;
 }
 
 namespace

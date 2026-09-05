@@ -27,6 +27,7 @@ class ShaderGraphEdge;
 class ShaderGraphEdgeIterator;
 class GenOptions;
 class ShaderGraphRefactor;
+class CompoundNode;
 
 /// An internal input socket in a shader graph,
 /// used for connecting internal nodes to the outside
@@ -144,6 +145,13 @@ class MX_GENSHADER_API ShaderGraph : public ShaderNode
     /// Rewire all downstream connections from one output to another.
     void replaceOutput(ShaderOutput* oldOutput, ShaderOutput* newOutput);
 
+    /// Inplace expands all Compound nodes, which can be created by nodegraph
+    /// elements in the document or nodes that use a nodegraph implementation
+    void flattenGraph();
+
+    void addPortImplName(const string& portName, const string& implName);
+    const string& getPortName(const string& portName) const override;
+
   protected:
     /// Create node connections corresponding to the connection between a pair of elements.
     /// @param downstreamElement Element representing the node to connect to.
@@ -157,6 +165,9 @@ class MX_GENSHADER_API ShaderGraph : public ShaderNode
 
     /// Add a node to the graph, keyed by the node's unique identifier.
     void addNode(ShaderNodePtr node);
+
+    /// Remove a node from the graph by its unique identifier.
+    void removeNode(const string& uniqueId);
 
     /// Add input sockets from an interface element (nodedef, nodegraph or node)
     void addInputSockets(const InterfaceElement& elem, GenContext& context);
@@ -201,6 +212,12 @@ class MX_GENSHADER_API ShaderGraph : public ShaderNode
     /// Break all connections on a node
     void disconnect(ShaderNode* node) const;
 
+private:
+    void expandCompoundNode(ShaderNode* shaderNode, const CompoundNode* compoundNodeImpl);
+
+    // This "protected" should probably be "private" - this change compiles fine for the MaterialX codebase
+    // but would change possible downstream use of the class outside the project.
+protected:
     ConstDocumentPtr _document;
     std::unordered_map<string, ShaderNodePtr> _nodeMap;
     std::vector<ShaderNode*> _nodeOrder;
@@ -215,6 +232,9 @@ class MX_GENSHADER_API ShaderGraph : public ShaderNode
     std::vector<std::pair<ShaderOutput*, ColorSpaceTransform>> _outputColorTransformMap;
     // Temporary storage for outputs that require unit transformations
     std::vector<std::pair<ShaderOutput*, UnitTransform>> _outputUnitTransformMap;
+
+private:
+    std::unordered_map<string, string> _portImplNames;
 };
 
 /// @class ShaderGraphEdge

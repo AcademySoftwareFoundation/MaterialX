@@ -35,6 +35,11 @@ if(MATERIALX_BUILD_DATA_LIBRARY)
 
         set(SENTINEL_FILE ${CMAKE_CURRENT_BINARY_DIR}/buildosos.sentinel)
 
+        set(SKIP_BUILDING_NODEGRAPHS "")
+        if (NOT MATERIALX_BUILD_NODEGRAPH_OSOS)
+            set(SKIP_BUILDING_NODEGRAPHS "--skipConvertingNodegraphs")
+        endif()
+
         add_custom_command(
                 OUTPUT ${SENTINEL_FILE}
                 COMMAND touch ${SENTINEL_FILE}
@@ -46,7 +51,7 @@ if(MATERIALX_BUILD_DATA_LIBRARY)
                             --oslCompilerPath ${MATERIALX_OSL_BINARY_OSLC}
                             --oslIncludePath ${MATERIALX_OSL_INCLUDE_PATH}
                             --libraryRelativeOsoPath libraries/targets/genoslnetwork/osos
-                            --removeNdPrefix true
+                            ${SKIP_BUILDING_NODEGRAPHS}
                 DEPENDS ${MATERIALX_DATA_LIBRARY_SOURCE_FILES} MaterialXGenOsl_LibsToOso
         )
 
