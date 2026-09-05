@@ -24,6 +24,7 @@ def main():
     parser.add_argument('-u', '--upgrade', dest='upgrade', action="store_true", help='Upgrade documents to the latest version of the standard.')
     parser.add_argument('-v', '--validate', dest='validate', action="store_true", help='Perform MaterialX validation on documents after reformatting.')
     parser.add_argument('-x', '--xml_syntax', dest='xml_syntax', action="store_true", help='Check XML syntax after reformatting.')
+    parser.add_argument('-n', '--node_types', dest='node_types', action="store_true", help='Write nodes instances using "node" type.')
     parser.add_argument(dest="inputFolder", help="An input folder to scan for MaterialX documents.")
     opts = parser.parse_args()
 
@@ -70,9 +71,14 @@ def main():
     xml_syntax = opts.xml_syntax
     if xml_syntax:
         print(f'- Check XML syntax')
+    node_types = opts.node_types
+    writeOptions = mx.XmlWriteOptions()
+    if node_types:
+        writeOptions.writeNodeInstanceAsNode = True
+        print(f'- Write nodes using "node" type')
     for (filename, doc) in validDocs.items():
         if xml_syntax:
-            xml_string = mx.writeToXmlString(doc)
+            xml_string = mx.writeToXmlString(doc, writeOptions)
             errors = is_well_formed(xml_string)
             if errors:
                 print(f'- Warning: Document {filename} is not well-formed XML: {errors}') 
@@ -80,7 +86,8 @@ def main():
             is_valid, errors = doc.validate()
             if not is_valid:
                 print(f'- Warning: Document {filename} is invalid. Errors {errors}.')
-        mx.writeToXmlFile(doc, filename)
+
+        mx.writeToXmlFile(doc, filename, writeOptions)
 
     if opts.upgrade:
         print('Upgraded %i documents to MaterialX v%i.%i' % (len(validDocs), mxVersion[0], mxVersion[1]))
