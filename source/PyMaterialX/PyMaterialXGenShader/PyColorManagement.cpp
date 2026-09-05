@@ -33,6 +33,26 @@ class PyColorManagementSystem : public mx::ColorManagementSystem
         );
     }
 
+    bool isNoOpColorSpace(const std::string& colorSpace) const override
+    {
+        PYBIND11_OVERLOAD(
+            bool,
+            mx::ColorManagementSystem,
+            isNoOpColorSpace,
+            colorSpace
+        );
+    }
+
+    std::string getUserFacingName(const std::string& colorSpace) const override
+    {
+        PYBIND11_OVERLOAD(
+            std::string,
+            mx::ColorManagementSystem,
+            getUserFacingName,
+            colorSpace
+        );
+    }
+
   protected:
     mx::NodeDefPtr getNodeDef(const mx::ColorSpaceTransform& transform) const override
     {
@@ -57,7 +77,9 @@ void bindPyColorManagement(py::module& mod)
         .def(py::init<>())
         .def("getName", &mx::ColorManagementSystem::getName)
         .def("loadLibrary", &mx::ColorManagementSystem::loadLibrary)
-        .def("supportsTransform", &mx::ColorManagementSystem::supportsTransform);
+        .def("supportsTransform", &mx::ColorManagementSystem::supportsTransform)
+        .def("isNoOpColorSpace", &mx::ColorManagementSystem::isNoOpColorSpace)
+        .def("getUserFacingName", &mx::ColorManagementSystem::getUserFacingName);
 
     py::class_<mx::DefaultColorManagementSystem, mx::DefaultColorManagementSystemPtr, mx::ColorManagementSystem>(mod, "DefaultColorManagementSystem")
         .def_static("create", &mx::DefaultColorManagementSystem::create)
