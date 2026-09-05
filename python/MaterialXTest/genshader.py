@@ -122,5 +122,60 @@ class TestGenShader(unittest.TestCase):
 
         print()
 
+    def test_ColorManagementSystem(self):
+        # DefaultColorManagementSystem recognizes "none"/"data" as no-op color spaces,
+        # and translates color interop forum IDs to user-facing display names.
+        cms = mx_gen_shader.DefaultColorManagementSystem.create("genglsl")
+        self.assertTrue(cms.isNoOpColorSpace("none"))
+        self.assertTrue(cms.isNoOpColorSpace("data"))
+        self.assertFalse(cms.isNoOpColorSpace("lin_rec709_scene"))
+        self.assertEqual(cms.getUserFacingName("lin_rec709_scene"), "Linear Rec.709 (sRGB)")
+        self.assertEqual(cms.getUserFacingName("bogus_colorspace"), "bogus_colorspace")
+
+        # A bare ColorManagementSystem, i.e. the Python trampoline with no Python-side
+        # overrides, must still inherit the base C++ implementation of isNoOpColorSpace
+        # and getUserFacingName, so "none"/"data" are recognized without requiring every
+        # Python CMS subclass to reimplement that logic.
+        baseCms = mx_gen_shader.ColorManagementSystem()
+        self.assertTrue(baseCms.isNoOpColorSpace("none"))
+        self.assertTrue(baseCms.isNoOpColorSpace("data"))
+        self.assertFalse(baseCms.isNoOpColorSpace("lin_rec709_scene"))
+        # The base ColorManagementSystem does not even recognize the default names,
+        # so they are returned unmodified.
+        self.assertEqual(baseCms.getUserFacingName("lin_rec709_scene"), "lin_rec709_scene")
+
+        # A Python subclass may override isNoOpColorSpace and getUserFacingName, and the
+        # C++ trampoline must dispatch to those Python overrides.
+        class CustomColorManagementSystem(mx_gen_shader.ColorManagementSystem):
+            def getName(self):
+                return "custom_cms"
+            def isNoOpColorSpace(self, colorSpace):
+                return colorSpace == "custom_noop"
+            def getUserFacingName(self, colorSpace):
+                return "Custom: " + colorSpace
+
+        customCms = CustomColorManagementSystem()
+        self.assertEqual(customCms.getName(), "custom_cms")
+        self.assertTrue(customCms.isNoOpColorSpace("custom_noop"))
+        self.assertFalse(customCms.isNoOpColorSpace("none"))
+        self.assertEqual(customCms.getUserFacingName("lin_rec709_scene"), "Custom: lin_rec709_scene")
+
+        # OcioColorManagementSystem is only present in the module when MaterialX is
+        # built with OCIO support.
+        if hasattr(mx_gen_shader, 'OcioColorManagementSystem'):
+            try:
+                ocioCms = mx_gen_shader.OcioColorManagementSystem.createFromBuiltinConfig(
+                    "ocio://cg-config-latest", "genglsl")
+            except Exception as e:
+                self.skipTest("Could not create OcioColorManagementSystem from builtin config: " + str(e))
+            self.assertTrue(ocioCms.isNoOpColorSpace("none"))
+            self.assertTrue(ocioCms.isNoOpColorSpace("data"))
+            self.assertTrue(ocioCms.isNoOpColorSpace("Raw"))
+            self.assertFalse(ocioCms.isNoOpColorSpace("lin_rec709_scene"))
+            self.assertFalse(ocioCms.isNoOpColorSpace("ACEScg"))
+            self.assertEqual(ocioCms.getUserFacingName("lin_rec709_scene"), "Linear Rec.709 (sRGB)")
+            self.assertEqual(ocioCms.getUserFacingName("pq_p3d65_display"), "ST2084-P3-D65 - Display")
+            self.assertEqual(ocioCms.getUserFacingName("bogus_colorspace"), "bogus_colorspace")
+
 if __name__ == '__main__':
     unittest.main()
