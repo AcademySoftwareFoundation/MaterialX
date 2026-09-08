@@ -1204,28 +1204,22 @@ void ShaderGraph::setVariableNames(GenContext& context)
 void ShaderGraph::populateColorTransformMap(ColorManagementSystemPtr colorManagementSystem, ShaderPort* shaderPort,
                                             const string& sourceColorSpace, const string& targetColorSpace, bool asInput)
 {
-    // A no-op color space (e.g. the spec-reserved "none"/"data" names, or any additional
-    // name recognized by the color management system) requires no transform, so the port's
-    // color space is left unset, just as it is for an empty or matching source/target pair.
-    auto isNoOpColorSpace = [&colorManagementSystem](const string& colorSpace)
+    if (!shaderPort || sourceColorSpace.empty() || targetColorSpace.empty())
     {
-        return colorManagementSystem ? colorManagementSystem->isNoOpColorSpace(colorSpace) :
-                                        ColorManagementSystem::isReservedNoOpColorSpace(colorSpace);
-    };
+        return;
+    }
 
-    // A source and target pair that the color management system considers equivalent
-    // (e.g. a legacy color space name and its color interop equivalent) likewise requires
-    // no transform, and in particular must not introduce a pass-through node into the graph.
+    // A transform that the color management system considers a no-op, such as one between
+    // a legacy color space name and its color interop equivalent, or one involving a no-op
+    // color space such as "data", is omitted from the graph and leaves the port's color
+    // space unset. Without a color management system, only identical names and the
+    // spec-reserved no-op color spaces are recognized.
     const bool isNoOpTransform = colorManagementSystem ?
                                  colorManagementSystem->isNoOpTransform(sourceColorSpace, targetColorSpace) :
-                                 sourceColorSpace == targetColorSpace;
-
-    if (!shaderPort ||
-        sourceColorSpace.empty() ||
-        targetColorSpace.empty() ||
-        isNoOpTransform ||
-        isNoOpColorSpace(sourceColorSpace) ||
-        isNoOpColorSpace(targetColorSpace))
+                                 sourceColorSpace == targetColorSpace ||
+                                 ColorManagementSystem::isReservedNoOpColorSpace(sourceColorSpace) ||
+                                 ColorManagementSystem::isReservedNoOpColorSpace(targetColorSpace);
+    if (isNoOpTransform)
     {
         return;
     }

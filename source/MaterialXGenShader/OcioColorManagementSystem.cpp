@@ -57,7 +57,7 @@ class OcioColorManagementSystemImpl
 
     const char* getSupportedColorSpaceName(const char* colorSpace) const;
 
-    bool isNoOpColorSpace(const string& colorSpace) const;
+    bool isDataColorSpace(const string& colorSpace) const;
 
     string getUserFacingName(const string& colorSpace) const;
 
@@ -142,7 +142,7 @@ const char* OcioColorManagementSystemImpl::getSupportedColorSpaceName(const char
     return cacheEntry.empty() ? nullptr : cacheEntry.c_str();
 }
 
-bool OcioColorManagementSystemImpl::isNoOpColorSpace(const string& colorSpace) const
+bool OcioColorManagementSystemImpl::isDataColorSpace(const string& colorSpace) const
 {
     const char* supportedColorSpace = getSupportedColorSpaceName(colorSpace.c_str());
     if (!supportedColorSpace)
@@ -393,13 +393,11 @@ NodeDefPtr OcioColorManagementSystem::getNodeDef(const ColorSpaceTransform& tran
     return _impl->getNodeDef(transform, _document);
 }
 
-bool OcioColorManagementSystem::isNoOpColorSpace(const string& colorSpace) const
+bool OcioColorManagementSystem::isNoOpTransform(const string& sourceColorSpace, const string& targetColorSpace) const
 {
-    if (isReservedNoOpColorSpace(colorSpace))
-    {
-        return true;
-    }
-    return _impl->isNoOpColorSpace(colorSpace);
+    return DefaultColorManagementSystem::isNoOpTransform(sourceColorSpace, targetColorSpace) ||
+           _impl->isDataColorSpace(sourceColorSpace) ||
+           _impl->isDataColorSpace(targetColorSpace);
 }
 
 string OcioColorManagementSystem::getUserFacingName(const string& colorSpace) const

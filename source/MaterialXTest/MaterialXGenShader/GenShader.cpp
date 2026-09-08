@@ -462,33 +462,28 @@ TEST_CASE("GenShader: No-op Color Spaces", "[genshader]")
     // color transformation, regardless of the source/target working space.
     mx::DefaultColorManagementSystemPtr colorManagementSystem =
         mx::DefaultColorManagementSystem::create("genglsl");
-    CHECK(colorManagementSystem->isNoOpColorSpace("none"));
-    CHECK(colorManagementSystem->isNoOpColorSpace("data"));
-    CHECK(!colorManagementSystem->isNoOpColorSpace("lin_rec709_scene"));
-    // Any unrecognized color space is not considered a NoOp.
-    CHECK(!colorManagementSystem->isNoOpColorSpace("Raw"));
+    CHECK(colorManagementSystem->isNoOpTransform("none", "lin_rec709_scene"));
+    CHECK(colorManagementSystem->isNoOpTransform("data", "lin_rec709_scene"));
+    CHECK(colorManagementSystem->isNoOpTransform("lin_rec709_scene", "none"));
+    CHECK(colorManagementSystem->isNoOpTransform("lin_rec709_scene", "data"));
+    CHECK(!colorManagementSystem->isNoOpTransform("srgb_texture", "lin_rec709_scene"));
+    // Any unrecognized color space is not considered a no-op.
+    CHECK(!colorManagementSystem->isNoOpTransform("Raw", "lin_rec709_scene"));
 
 #ifdef MATERIALX_BUILD_OCIO
-    // OcioColorManagementSystem inherits the "none"/"data" no-op behavior
-    // from DefaultColorManagementSystem, and additionally treats any OCIO
-    // color space flagged isData() (e.g. "Raw" in the ACES/studio configs)
-    // as a no-op, even though that name means nothing to the default system.
-    //
-    // Unlike the "data"/"bogus_colorspace" shader-generation checks below,
-    // there is no equivalent generate()-based integration test for this
-    // OCIO-specific behavior: OcioColorManagementSystemImpl::getNodeDef()
-    // already substitutes a passthrough <dot> node whenever the underlying
-    // OCIO GPU processor itself reports isNoOp() (see OcioColorManagementSystem.cpp),
-    // independent of ColorManagementSystem::isNoOpColorSpace(). 
+    // OcioColorManagementSystem inherits the "none"/"data" no-op behavior and the
+    // legacy name equivalences from DefaultColorManagementSystem, and additionally
+    // treats any OCIO color space flagged isData() (e.g. "Raw" in the ACES/studio
+    // configs) as a no-op, even though that name means nothing to the default system.
     try
     {
         mx::OcioColorManagementSystemPtr ocioColorManagementSystem =
             mx::OcioColorManagementSystem::createFromBuiltinConfig("ocio://cg-config-latest", "genglsl");
-        CHECK(ocioColorManagementSystem->isNoOpColorSpace("none"));
-        CHECK(ocioColorManagementSystem->isNoOpColorSpace("data"));
-        CHECK(ocioColorManagementSystem->isNoOpColorSpace("Raw"));
-        CHECK(!ocioColorManagementSystem->isNoOpColorSpace("lin_rec709_scene"));
-        CHECK(!ocioColorManagementSystem->isNoOpColorSpace("ACEScg"));
+        CHECK(ocioColorManagementSystem->isNoOpTransform("none", "lin_rec709_scene"));
+        CHECK(ocioColorManagementSystem->isNoOpTransform("data", "lin_rec709_scene"));
+        CHECK(ocioColorManagementSystem->isNoOpTransform("Raw", "lin_rec709_scene"));
+        CHECK(ocioColorManagementSystem->isNoOpTransform("lin_rec709", "lin_rec709_scene"));
+        CHECK(!ocioColorManagementSystem->isNoOpTransform("ACEScg", "lin_rec709_scene"));
     }
     catch (const std::exception& e)
     {
@@ -509,7 +504,7 @@ TEST_CASE("GenShader: No-op Color Spaces", "[genshader]")
 
     // A color3 tagged "data" is not the working color space, and has no
     // corresponding transform nodedef (e.g. no "data_to_lin_rec709_scene"
-    // node exists). If isNoOpColorSpace() were not consulted before looking
+    // node exists). If isNoOpTransform() were not consulted before looking
     // up a transform, ShaderGraph::populateColorTransformMap would throw
     // ExceptionShaderGenError("Unsupported color space transform ...").
     std::string noOpDocString =
@@ -555,7 +550,7 @@ TEST_CASE("GenShader: No-op Color Spaces", "[genshader]")
 TEST_CASE("GenShader: Equivalent Color Spaces", "[genshader]")
 {
     // A legacy color space name and its color interop equivalent refer to the same
-    // color space, so DefaultColorManagementSystem requires no transform between them.
+    // color space, so DefaultColorManagementSystem reports no transform between them.
     mx::DefaultColorManagementSystemPtr colorManagementSystem =
         mx::DefaultColorManagementSystem::create("genglsl");
     CHECK(colorManagementSystem->isNoOpTransform("lin_rec709", "lin_rec709"));
@@ -572,39 +567,39 @@ TEST_CASE("GenShader: Equivalent Color Spaces", "[genshader]")
     mx::loadLibraries({ "libraries" }, searchPath, libraries);
 
     // A document authored in the legacy "lin_rec709" working space, generated for the
-    // equivalent "lin_rec709_scene" target, must not acquire pass-through color transform
-    // nodes. The glTF PBR attenuation_color input is uniform, and a pass-through node
-    // inserted here would publish it as a varying value, which fails to compile in MDL.
-    std::string legacyDocString =
-    "<?xml version=\"1.0\"?> \
-      <materialx version=\"1.39\" colorspace=\"lin_rec709\"> \
-        <gltf_pbr name=\"legacy_shader\" type=\"surfaceshader\"> \
-          <input name=\"base_color\" type=\"color3\" value=\"0.5, 0.5, 0.5\" /> \
-          <input name=\"attenuation_color\" type=\"color3\" value=\"0, 0, 0\" /> \
-        </gltf_pbr> \
-        <surfacematerial name=\"legacy_material\" type=\"material\"> \
-          <input name=\"surfaceshader\" type=\"surfaceshader\" nodename=\"legacy_shader\" /> \
-        </surfacematerial> \
-      </materialx>";
+    // equivalent "lin_rec709_scene" target, must produce the same graph as a document
+    // authored in the target space: no color transform nodes are inserted. The uniform
+    // attenuation_color input of glTF PBR is included so that the MDL checks below can
+    // confirm that its published value remains uniform.
+    const std::string legacyDocString = R"(<?xml version="1.0"?>
+      <materialx version="1.39" colorspace="lin_rec709">
+        <gltf_pbr name="legacy_shader" type="surfaceshader">
+          <input name="base_color" type="color3" value="0.5, 0.5, 0.5" />
+          <input name="attenuation_color" type="color3" value="0, 0, 0" />
+        </gltf_pbr>
+        <surfacematerial name="legacy_material" type="material">
+          <input name="surfaceshader" type="surfaceshader" nodename="legacy_shader" />
+        </surfacematerial>
+      </materialx>)";
     mx::DocumentPtr legacyDoc = mx::createDocument();
     mx::readFromXmlString(legacyDoc, legacyDocString);
     legacyDoc->setDataLibrary(libraries);
     mx::ElementPtr legacyElement = legacyDoc->getChild("legacy_material");
     REQUIRE(legacyElement);
 
-    // When a genuine transform is required, the inserted color transform node must
-    // preserve the uniform flag of the input that it replaces.
-    std::string transformDocString =
-    "<?xml version=\"1.0\"?> \
-      <materialx version=\"1.39\" colorspace=\"lin_rec709_scene\"> \
-        <gltf_pbr name=\"transform_shader\" type=\"surfaceshader\"> \
-          <input name=\"base_color\" type=\"color3\" value=\"0.5, 0.5, 0.5\" colorspace=\"srgb_texture\" /> \
-          <input name=\"attenuation_color\" type=\"color3\" value=\"0, 0, 0\" colorspace=\"srgb_texture\" /> \
-        </gltf_pbr> \
-        <surfacematerial name=\"transform_material\" type=\"material\"> \
-          <input name=\"surfaceshader\" type=\"surfaceshader\" nodename=\"transform_shader\" /> \
-        </surfacematerial> \
-      </materialx>";
+    // When the source and target color spaces differ, a color transform node is inserted
+    // between the published value and the shader input. The transform node's input must
+    // carry the same uniform flag as the shader input that it feeds.
+    const std::string transformDocString = R"(<?xml version="1.0"?>
+      <materialx version="1.39" colorspace="lin_rec709_scene">
+        <gltf_pbr name="transform_shader" type="surfaceshader">
+          <input name="base_color" type="color3" value="0.5, 0.5, 0.5" colorspace="srgb_texture" />
+          <input name="attenuation_color" type="color3" value="0, 0, 0" colorspace="srgb_texture" />
+        </gltf_pbr>
+        <surfacematerial name="transform_material" type="material">
+          <input name="surfaceshader" type="surfaceshader" nodename="transform_shader" />
+        </surfacematerial>
+      </materialx>)";
     mx::DocumentPtr transformDoc = mx::createDocument();
     mx::readFromXmlString(transformDoc, transformDocString);
     transformDoc->setDataLibrary(libraries);
