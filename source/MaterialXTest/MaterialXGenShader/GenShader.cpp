@@ -507,16 +507,15 @@ TEST_CASE("GenShader: No-op Color Spaces", "[genshader]")
     // node exists). If isNoOpTransform() were not consulted before looking
     // up a transform, ShaderGraph::populateColorTransformMap would throw
     // ExceptionShaderGenError("Unsupported color space transform ...").
-    std::string noOpDocString =
-    "<?xml version=\"1.0\"?> \
-      <materialx version=\"1.39\" colorspace=\"lin_rec709_scene\"> \
-        <constant name=\"data_constant\" type=\"color3\"> \
-          <input name=\"value\" type=\"color3\" value=\"0.5, 0.5, 0.5\" colorspace=\"data\" /> \
-        </constant> \
-        <surface_unlit name=\"data_surface\" type=\"surfaceshader\"> \
-          <input name=\"emission_color\" type=\"color3\" nodename=\"data_constant\" /> \
-        </surface_unlit> \
-      </materialx>";
+    const std::string noOpDocString = R"(<?xml version="1.0"?>
+      <materialx version="1.39" colorspace="lin_rec709_scene">
+        <constant name="data_constant" type="color3">
+          <input name="value" type="color3" value="0.5, 0.5, 0.5" colorspace="data" />
+        </constant>
+        <surface_unlit name="data_surface" type="surfaceshader">
+          <input name="emission_color" type="color3" nodename="data_constant" />
+        </surface_unlit>
+      </materialx>)";
     mx::DocumentPtr noOpDoc = mx::createDocument();
     mx::readFromXmlString(noOpDoc, noOpDocString);
     noOpDoc->setDataLibrary(libraries);
@@ -527,16 +526,15 @@ TEST_CASE("GenShader: No-op Color Spaces", "[genshader]")
     // Sanity check that the harness above is capable of catching a real
     // mismatch: an unrecognized, non-no-op color space with no transform
     // nodedef must still throw.
-    std::string unsupportedDocString =
-    "<?xml version=\"1.0\"?> \
-      <materialx version=\"1.39\" colorspace=\"lin_rec709_scene\"> \
-        <constant name=\"bogus_constant\" type=\"color3\"> \
-          <input name=\"value\" type=\"color3\" value=\"0.5, 0.5, 0.5\" colorspace=\"bogus_colorspace\" /> \
-        </constant> \
-        <surface_unlit name=\"bogus_surface\" type=\"surfaceshader\"> \
-          <input name=\"emission_color\" type=\"color3\" nodename=\"bogus_constant\" /> \
-        </surface_unlit> \
-      </materialx>";
+    const std::string unsupportedDocString = R"(<?xml version="1.0"?>
+      <materialx version="1.39" colorspace="lin_rec709_scene">
+        <constant name="bogus_constant" type="color3">
+          <input name="value" type="color3" value="0.5, 0.5, 0.5" colorspace="bogus_colorspace" />
+        </constant>
+        <surface_unlit name="bogus_surface" type="surfaceshader">
+          <input name="emission_color" type="color3" nodename="bogus_constant" />
+        </surface_unlit>
+      </materialx>)";
     mx::DocumentPtr unsupportedDoc = mx::createDocument();
     mx::readFromXmlString(unsupportedDoc, unsupportedDocString);
     unsupportedDoc->setDataLibrary(libraries);
