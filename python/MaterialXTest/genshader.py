@@ -180,6 +180,7 @@ class TestGenShader(unittest.TestCase):
             self.assertTrue(ocioCms.isNoOpTransform("data", "lin_rec709_scene"))
             self.assertTrue(ocioCms.isNoOpTransform("Raw", "lin_rec709_scene"))
             self.assertTrue(ocioCms.isNoOpTransform("lin_rec709", "lin_rec709_scene"))
+            self.assertTrue(ocioCms.isNoOpTransform("ACES - ACES2065-1", "lin_ap0"))
             self.assertFalse(ocioCms.isNoOpTransform("ACEScg", "lin_rec709_scene"))
             self.assertEqual(ocioCms.getUserFacingName("lin_rec709_scene"), "Linear Rec.709 (sRGB)")
             self.assertEqual(ocioCms.getUserFacingName("pq_p3d65_display"), "ST2084-P3-D65 - Display")

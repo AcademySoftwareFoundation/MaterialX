@@ -456,7 +456,7 @@ TEST_CASE("GenShader: Track Application Variables", "[genshader]")
 #endif
 }
 
-TEST_CASE("GenShader: No-op Color Spaces", "[genshader]")
+TEST_CASE("GenShader: No-op Color Transforms", "[genshader]")
 {
     // DefaultColorManagementSystem treats "none" and "data" as requiring no
     // color transformation, regardless of the source/target working space.
@@ -475,6 +475,8 @@ TEST_CASE("GenShader: No-op Color Spaces", "[genshader]")
     // legacy name equivalences from DefaultColorManagementSystem, and additionally
     // treats any OCIO color space flagged isData() (e.g. "Raw" in the ACES/studio
     // configs) as a no-op, even though that name means nothing to the default system.
+    // It also recognizes names that resolve to the same color space in the active
+    // config, such as two aliases of ACES2065-1 that are unknown to the default system.
     try
     {
         mx::OcioColorManagementSystemPtr ocioColorManagementSystem =
@@ -483,6 +485,7 @@ TEST_CASE("GenShader: No-op Color Spaces", "[genshader]")
         CHECK(ocioColorManagementSystem->isNoOpTransform("data", "lin_rec709_scene"));
         CHECK(ocioColorManagementSystem->isNoOpTransform("Raw", "lin_rec709_scene"));
         CHECK(ocioColorManagementSystem->isNoOpTransform("lin_rec709", "lin_rec709_scene"));
+        CHECK(ocioColorManagementSystem->isNoOpTransform("ACES - ACES2065-1", "lin_ap0"));
         CHECK(!ocioColorManagementSystem->isNoOpTransform("ACEScg", "lin_rec709_scene"));
     }
     catch (const std::exception& e)
