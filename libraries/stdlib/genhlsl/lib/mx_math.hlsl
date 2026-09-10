@@ -25,10 +25,26 @@ float2 mx_ddy(float2 p) { return ddy(p); }
 float3 mx_ddy(float3 p) { return ddy(p); }
 float4 mx_ddy(float4 p) { return ddy(p); }
 
-/// The GLSL we are piggybacking on has all its matrices transposed compared to HLSL and the MaterialX spec.
-/// (The matrices are defined like mat3(1, 2, 3, 4, 5, 6, 7, 8, 9) where the spec says it should be row-major order, but GLSL creates it as col-major)
-/// So when GLSL code says "mul(M, v)" it means "v * transpose(M)", and since in HLSL the matrices are stored
-/// in row-major order (when declared without a layout qualifier), we need to reverse the order of multiplication to get the same result.
+/// Matrix convention and host upload contract.
+///
+/// Generated HLSL uses the MaterialX row-vector convention, v' = v * M, with M
+/// in row-major order as in the specification. The vertex stage computes
+/// mul(float4(position, 1.0), u_worldMatrix), and shared GLSL library code
+/// reaches HLSL through the mx_matrix_mul() overloads below.
+///
+/// Host contract: inside the shader, every matrix uniform must hold M itself.
+/// Constant buffers use the default HLSL column_major packing, so a host that
+/// keeps M in row-major memory uploads its transpose, or compiles with -Zpr
+/// (or prepends "#pragma pack_matrix(row_major)") and uploads M unchanged.
+/// This is the usual Direct3D arrangement: row-vector matrices, transposed on
+/// upload. The bytes the GLSL renderer passes to glUniformMatrix4fv are M in
+/// row-major order, and would read transposed here.
+///
+/// Shared GLSL code writes mx_matrix_mul(M, v) for the GLSL product M * v, and
+/// GLSL matrix constructors fill columns where HLSL constructors fill rows.
+/// Uniforms and matrices built in shader code therefore arrive here as the
+/// transpose of their GLSL counterparts, and swapping the operands of mul()
+/// gives the same result as the GLSL expression.
 float2 mx_matrix_mul(float2 v, float2x2 m) { return mul(m, v); }
 float3 mx_matrix_mul(float3 v, float3x3 m) { return mul(m, v); }
 float4 mx_matrix_mul(float4 v, float4x4 m) { return mul(m, v); }
