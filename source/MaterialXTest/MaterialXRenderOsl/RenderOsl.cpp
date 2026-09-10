@@ -112,6 +112,8 @@ class OslShaderRenderTester : public RenderUtil::ShaderRenderTester
             _skipFiles.insert("vertical_layering.mtlx");
             _skipFiles.insert("mix_bsdf.mtlx");
         }
+
+        RenderUtil::ShaderRenderTester::addSkipFiles();
     }
 
     bool saveImage(const mx::FilePath& filePath, mx::ConstImagePtr image, bool /*verticalFlip*/) const override
@@ -223,7 +225,7 @@ RenderUtil::RenderProfileResult OslShaderRenderTester::runRenderer(
                 mx::ScopedTimer genTimer(&result.languageTimes.generationTime);
                 mx::GenOptions& contextOptions = context.getOptions();
                 contextOptions = options;
-                contextOptions.targetColorSpaceOverride = "lin_rec709";
+                contextOptions.targetColorSpaceOverride = "lin_rec709_scene";
                 contextOptions.oslConnectCiWrapper = true;
 
                 // Apply local overrides for shader generation.

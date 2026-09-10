@@ -199,7 +199,13 @@ class ShaderGeneratorTester
     virtual void setTestStages() = 0;
 
     // Add files in to not examine
-    virtual void addSkipFiles() { };
+    virtual void addSkipFiles()
+    {
+#ifndef MATERIALX_BUILD_OCIO
+        // ocio_color_management.mtlx uses color spaces which require OCIO.
+        _skipFiles.insert("ocio_color_management.mtlx");
+#endif
+    };
 
     // Add nodedefs to not examine
     virtual void addSkipNodeDefs() { };

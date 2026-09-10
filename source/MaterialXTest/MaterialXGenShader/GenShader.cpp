@@ -13,7 +13,10 @@
 
 #include <MaterialXGenHw/HwConstants.h>
 
+#include <MaterialXGenShader/DefaultColorManagementSystem.h>
+#include <MaterialXGenShader/Exception.h>
 #include <MaterialXGenShader/GenContext.h>
+#include <MaterialXGenShader/OcioColorManagementSystem.h>
 #include <MaterialXGenShader/ShaderTranslator.h>
 #include <MaterialXGenShader/Util.h>
 
@@ -449,6 +452,266 @@ TEST_CASE("GenShader: Track Application Variables", "[genshader]")
         context.registerSourceCodeSearchPath(searchPath);
         context.setApplicationVariableHandler(variableTracker);
         mx::ShaderPtr shader = context.getShaderGenerator().generate(testElement, element, context);
+    }
+#endif
+}
+
+TEST_CASE("GenShader: No-op Color Transforms", "[genshader]")
+{
+    // DefaultColorManagementSystem treats "none" and "data" as requiring no
+    // color transformation, regardless of the source/target working space.
+    mx::DefaultColorManagementSystemPtr colorManagementSystem =
+        mx::DefaultColorManagementSystem::create("genglsl");
+    CHECK(colorManagementSystem->isNoOpTransform("none", "lin_rec709_scene"));
+    CHECK(colorManagementSystem->isNoOpTransform("data", "lin_rec709_scene"));
+    CHECK(colorManagementSystem->isNoOpTransform("lin_rec709_scene", "none"));
+    CHECK(colorManagementSystem->isNoOpTransform("lin_rec709_scene", "data"));
+    CHECK(!colorManagementSystem->isNoOpTransform("srgb_texture", "lin_rec709_scene"));
+    // Any unrecognized color space is not considered a no-op.
+    CHECK(!colorManagementSystem->isNoOpTransform("Raw", "lin_rec709_scene"));
+
+#ifdef MATERIALX_BUILD_OCIO
+    // OcioColorManagementSystem inherits the "none"/"data" no-op behavior and the
+    // legacy name equivalences from DefaultColorManagementSystem, and additionally
+    // treats any OCIO color space flagged isData() (e.g. "Raw" in the ACES/studio
+    // configs) as a no-op, even though that name means nothing to the default system.
+    // It also recognizes names that resolve to the same color space in the active
+    // config, such as two aliases of ACES2065-1 that are unknown to the default system.
+    try
+    {
+        mx::OcioColorManagementSystemPtr ocioColorManagementSystem =
+            mx::OcioColorManagementSystem::createFromBuiltinConfig("ocio://cg-config-latest", "genglsl");
+        CHECK(ocioColorManagementSystem->isNoOpTransform("none", "lin_rec709_scene"));
+        CHECK(ocioColorManagementSystem->isNoOpTransform("data", "lin_rec709_scene"));
+        CHECK(ocioColorManagementSystem->isNoOpTransform("Raw", "lin_rec709_scene"));
+        CHECK(ocioColorManagementSystem->isNoOpTransform("lin_rec709", "lin_rec709_scene"));
+        CHECK(ocioColorManagementSystem->isNoOpTransform("ACES - ACES2065-1", "lin_ap0"));
+        CHECK(!ocioColorManagementSystem->isNoOpTransform("ACEScg", "lin_rec709_scene"));
+    }
+    catch (const std::exception& e)
+    {
+        WARN(std::string("Could not create OcioColorManagementSystem from builtin config: ") + e.what());
+    }
+#endif
+
+#ifdef MATERIALX_BUILD_GEN_GLSL
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::DocumentPtr libraries = mx::createDocument();
+    mx::loadLibraries({ "libraries" }, searchPath, libraries);
+
+    mx::GenContext context(mx::GlslShaderGenerator::create());
+    context.registerSourceCodeSearchPath(searchPath);
+    colorManagementSystem = mx::DefaultColorManagementSystem::create(context.getShaderGenerator().getTarget());
+    colorManagementSystem->loadLibrary(libraries);
+    context.getShaderGenerator().setColorManagementSystem(colorManagementSystem);
+
+    // A color3 tagged "data" is not the working color space, and has no
+    // corresponding transform nodedef (e.g. no "data_to_lin_rec709_scene"
+    // node exists). If isNoOpTransform() were not consulted before looking
+    // up a transform, ShaderGraph::populateColorTransformMap would throw
+    // ExceptionShaderGenError("Unsupported color space transform ...").
+    const std::string noOpDocString = R"(<?xml version="1.0"?>
+      <materialx version="1.39" colorspace="lin_rec709_scene">
+        <constant name="data_constant" type="color3">
+          <input name="value" type="color3" value="0.5, 0.5, 0.5" colorspace="data" />
+        </constant>
+        <surface_unlit name="data_surface" type="surfaceshader">
+          <input name="emission_color" type="color3" nodename="data_constant" />
+        </surface_unlit>
+      </materialx>)";
+    mx::DocumentPtr noOpDoc = mx::createDocument();
+    mx::readFromXmlString(noOpDoc, noOpDocString);
+    noOpDoc->setDataLibrary(libraries);
+    mx::ElementPtr noOpElement = noOpDoc->getChild("data_surface");
+    REQUIRE(noOpElement);
+    REQUIRE_NOTHROW(context.getShaderGenerator().generate("data_surface", noOpElement, context));
+
+    // Sanity check that the harness above is capable of catching a real
+    // mismatch: an unrecognized, non-no-op color space with no transform
+    // nodedef must still throw.
+    const std::string unsupportedDocString = R"(<?xml version="1.0"?>
+      <materialx version="1.39" colorspace="lin_rec709_scene">
+        <constant name="bogus_constant" type="color3">
+          <input name="value" type="color3" value="0.5, 0.5, 0.5" colorspace="bogus_colorspace" />
+        </constant>
+        <surface_unlit name="bogus_surface" type="surfaceshader">
+          <input name="emission_color" type="color3" nodename="bogus_constant" />
+        </surface_unlit>
+      </materialx>)";
+    mx::DocumentPtr unsupportedDoc = mx::createDocument();
+    mx::readFromXmlString(unsupportedDoc, unsupportedDocString);
+    unsupportedDoc->setDataLibrary(libraries);
+    mx::ElementPtr unsupportedElement = unsupportedDoc->getChild("bogus_surface");
+    REQUIRE(unsupportedElement);
+    REQUIRE_THROWS_AS(context.getShaderGenerator().generate("bogus_surface", unsupportedElement, context),
+                      mx::ExceptionShaderGenError);
+#endif
+}
+
+TEST_CASE("GenShader: Equivalent Color Spaces", "[genshader]")
+{
+    // A legacy color space name and its color interop equivalent refer to the same
+    // color space, so DefaultColorManagementSystem reports no transform between them.
+    mx::DefaultColorManagementSystemPtr colorManagementSystem =
+        mx::DefaultColorManagementSystem::create("genglsl");
+    CHECK(colorManagementSystem->isNoOpTransform("lin_rec709", "lin_rec709"));
+    CHECK(colorManagementSystem->isNoOpTransform("lin_rec709", "lin_rec709_scene"));
+    CHECK(colorManagementSystem->isNoOpTransform("lin_rec709_scene", "lin_rec709"));
+    CHECK(colorManagementSystem->isNoOpTransform("srgb_texture", "srgb_rec709_scene"));
+    CHECK(colorManagementSystem->isNoOpTransform("acescg", "lin_ap1_scene"));
+    CHECK(!colorManagementSystem->isNoOpTransform("lin_rec709", "acescg"));
+    CHECK(!colorManagementSystem->isNoOpTransform("srgb_texture", "lin_rec709_scene"));
+    CHECK(!colorManagementSystem->isNoOpTransform("lin_rec709", "bogus_colorspace"));
+
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::DocumentPtr libraries = mx::createDocument();
+    mx::loadLibraries({ "libraries" }, searchPath, libraries);
+
+    // A document authored in the legacy "lin_rec709" working space, generated for the
+    // equivalent "lin_rec709_scene" target, must produce the same graph as a document
+    // authored in the target space: no color transform nodes are inserted. The uniform
+    // attenuation_color input of glTF PBR is included so that the MDL checks below can
+    // confirm that its published value remains uniform.
+    const std::string legacyDocString = R"(<?xml version="1.0"?>
+      <materialx version="1.39" colorspace="lin_rec709">
+        <gltf_pbr name="legacy_shader" type="surfaceshader">
+          <input name="base_color" type="color3" value="0.5, 0.5, 0.5" />
+          <input name="attenuation_color" type="color3" value="0, 0, 0" />
+        </gltf_pbr>
+        <surfacematerial name="legacy_material" type="material">
+          <input name="surfaceshader" type="surfaceshader" nodename="legacy_shader" />
+        </surfacematerial>
+      </materialx>)";
+    mx::DocumentPtr legacyDoc = mx::createDocument();
+    mx::readFromXmlString(legacyDoc, legacyDocString);
+    legacyDoc->setDataLibrary(libraries);
+    mx::ElementPtr legacyElement = legacyDoc->getChild("legacy_material");
+    REQUIRE(legacyElement);
+
+    // When the source and target color spaces differ, a color transform node is inserted
+    // between the published value and the shader input. The transform node's input must
+    // carry the same uniform flag as the shader input that it feeds.
+    const std::string transformDocString = R"(<?xml version="1.0"?>
+      <materialx version="1.39" colorspace="lin_rec709_scene">
+        <gltf_pbr name="transform_shader" type="surfaceshader">
+          <input name="base_color" type="color3" value="0.5, 0.5, 0.5" colorspace="srgb_texture" />
+          <input name="attenuation_color" type="color3" value="0, 0, 0" colorspace="srgb_texture" />
+        </gltf_pbr>
+        <surfacematerial name="transform_material" type="material">
+          <input name="surfaceshader" type="surfaceshader" nodename="transform_shader" />
+        </surfacematerial>
+      </materialx>)";
+    mx::DocumentPtr transformDoc = mx::createDocument();
+    mx::readFromXmlString(transformDoc, transformDocString);
+    transformDoc->setDataLibrary(libraries);
+    mx::ElementPtr transformElement = transformDoc->getChild("transform_material");
+    REQUIRE(transformElement);
+
+    auto createContext = [&](mx::ShaderGeneratorPtr generator)
+    {
+        mx::GenContext context(generator);
+        context.registerSourceCodeSearchPath(searchPath);
+        mx::DefaultColorManagementSystemPtr cms = mx::DefaultColorManagementSystem::create(generator->getTarget());
+        cms->loadLibrary(libraries);
+        generator->setColorManagementSystem(cms);
+        context.getOptions().targetColorSpaceOverride = "lin_rec709_scene";
+        return context;
+    };
+
+#ifdef MATERIALX_BUILD_GEN_GLSL
+    {
+        mx::GenContext context = createContext(mx::GlslShaderGenerator::create());
+
+        mx::ShaderPtr legacyShader = context.getShaderGenerator().generate("legacy_material", legacyElement, context);
+        REQUIRE(legacyShader);
+        for (const mx::ShaderNode* node : legacyShader->getGraph().getNodes())
+        {
+            CHECK(!mx::stringEndsWith(node->getName(), "_cm"));
+        }
+
+        mx::ShaderPtr transformShader = context.getShaderGenerator().generate("transform_material", transformElement, context);
+        REQUIRE(transformShader);
+        const mx::ShaderNode* baseColorTransform = transformShader->getGraph().getNode("transform_shader_base_color_cm");
+        REQUIRE(baseColorTransform);
+        CHECK(!baseColorTransform->getInput(0)->isUniform());
+        const mx::ShaderNode* attenuationColorTransform = transformShader->getGraph().getNode("transform_shader_attenuation_color_cm");
+        REQUIRE(attenuationColorTransform);
+        CHECK(attenuationColorTransform->getInput(0)->isUniform());
+    }
+#endif
+
+#ifdef MATERIALX_BUILD_GEN_MDL
+    {
+        // MDL distinguishes uniform and varying values, so the published value for a uniform
+        // input must be declared uniform whether or not a color transform is applied to it.
+        mx::GenContext context = createContext(mx::MdlShaderGenerator::create());
+
+        mx::ShaderPtr legacyShader = context.getShaderGenerator().generate("legacy_material", legacyElement, context);
+        REQUIRE(legacyShader);
+        const std::string& legacyCode = legacyShader->getSourceCode();
+        CHECK(legacyCode.find("_cm") == std::string::npos);
+        CHECK(legacyCode.find("uniform color legacy_shader_attenuation_color =") != std::string::npos);
+
+        mx::ShaderPtr transformShader = context.getShaderGenerator().generate("transform_material", transformElement, context);
+        REQUIRE(transformShader);
+        const std::string& transformCode = transformShader->getSourceCode();
+        CHECK(transformCode.find("uniform color transform_shader_attenuation_color_cm_in =") != std::string::npos);
+        CHECK(transformCode.find("uniform color transform_shader_base_color_cm_in =") == std::string::npos);
+        CHECK(transformCode.find("color transform_shader_base_color_cm_in =") != std::string::npos);
+    }
+#endif
+}
+
+TEST_CASE("GenShader: User-Facing Color Space Names", "[genshader]")
+{
+    // DefaultColorManagementSystem translates both color interop forum IDs and their
+    // deprecated legacy equivalents to the same user-facing display name.
+    mx::DefaultColorManagementSystemPtr colorManagementSystem =
+        mx::DefaultColorManagementSystem::create("genglsl");
+    CHECK(colorManagementSystem->getUserFacingName("lin_rec709_scene") == "Linear Rec.709 (sRGB)");
+    CHECK(colorManagementSystem->getUserFacingName("lin_rec709") == "Linear Rec.709 (sRGB)");
+    CHECK(colorManagementSystem->getUserFacingName("lin_ap1_scene") == "ACEScg");
+    CHECK(colorManagementSystem->getUserFacingName("acescg") == "ACEScg");
+    CHECK(colorManagementSystem->getUserFacingName("lin_ap0_scene") == "ACES2065-1");
+    CHECK(colorManagementSystem->getUserFacingName("none") == "Data");
+    CHECK(colorManagementSystem->getUserFacingName("data") == "Data");
+    // An unrecognized color space is returned unchanged.
+    CHECK(colorManagementSystem->getUserFacingName("bogus_colorspace") == "bogus_colorspace");
+
+#ifdef MATERIALX_BUILD_OCIO
+    try
+    {
+        mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+        mx::FilePath minimalConfigFile = searchPath.find(
+            "resources/Materials/TestSuite/stdlib/color_management/minimal_config.ocio");
+        REQUIRE(minimalConfigFile.exists());
+
+        mx::OcioColorManagementSystemPtr ocioColorManagementSystem =
+            mx::OcioColorManagementSystem::createFromFile(minimalConfigFile.asString(), "genglsl");
+
+        // The OcioColorManagementSystem checks its own config first. This color space is defined
+        // there but not in the built-in cg-config or the DefaultColorManagementSystem.
+        CHECK(ocioColorManagementSystem->getUserFacingName("ocio:arrilogc4_awg4_scene") == "ARRI camera LogC4");
+
+        // This color space is known to both its own config and the DefaultColorManagementSystem
+        // but the config author's name gets first preference.
+        CHECK(ocioColorManagementSystem->getUserFacingName("srgb_rec709_scene") == "sRGB (Scene-referred)");
+
+        // This color space is not in its config, so the fallback will come from the DefaultColorManagementSystem.
+        CHECK(ocioColorManagementSystem->getUserFacingName("lin_rec709_scene") == "Linear Rec.709 (sRGB)");
+
+        // In this case, the color space string is not in its own config or the DefaultColorManagementSystem,
+        // so the IdentifyBuiltinColorSpace fallback in getSupportedColorSpaceName is invoked. This will find
+        // a color space for the string in the built-in cg-config. The transform math is then compared against
+        // the color spaces in the minimal_config.ocio, where it finds a match.
+        CHECK(ocioColorManagementSystem->getUserFacingName("srgb_encoded_ap1_tx") == "sRGB AP1");
+
+        // A totally unrecognized color space name is returned unmodified.
+        CHECK(ocioColorManagementSystem->getUserFacingName("bogus_colorspace") == "bogus_colorspace");
+    }
+    catch (const std::exception& e)
+    {
+        WARN(std::string("Could not create OcioColorManagementSystem from minimal_config.ocio: ") + e.what());
     }
 #endif
 }

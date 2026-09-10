@@ -91,7 +91,7 @@
            doc="The color of the emitted light." />
     <input name="opacity" type="color3" value="1, 1, 1" uimin="0,0,0" uimax="1,1,1" uiname="Opacity" uifolder="Geometry"
            doc="The opacity of the entire material." />
-    <input name="thin_walled" type="boolean" value="false" uiname="Thin Walled" uifolder="Geometry" uiadvanced="true"
+    <input name="thin_walled" type="boolean" value="false" uniform="true" uiname="Thin Walled" uifolder="Geometry" uiadvanced="true"
            doc="If true the surface is double-sided and represents an infinitely thin shell. Suitable for thin objects such as tree leaves or paper." />
     <input name="normal" type="vector3" defaultgeomprop="Nworld" uiname="Normal" uifolder="Geometry"
            doc="Input geometric normal" />
@@ -421,6 +421,7 @@
       <input name="bsdf" type="BSDF" nodename="coat_layer" />
       <input name="edf" type="EDF" nodename="blended_coat_emission_edf" />
       <input name="opacity" type="float" nodename="opacity_luminance_float" />
+      <input name="thin_walled" type="boolean" interfacename="thin_walled" />
     </surface>
 
     <!-- Output -->

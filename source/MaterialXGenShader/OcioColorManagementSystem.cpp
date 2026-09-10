@@ -41,7 +41,6 @@ const std::map<string, string> COLOR_SPACE_REMAP =
     { "gamma18", "Gamma 1.8 Rec.709 - Texture" },
     { "gamma22", "Gamma 2.2 Rec.709 - Texture" },
     { "gamma24", "Gamma 2.4 Rec.709 - Texture" },
-    // TODO: Add support for adobergb and lin_adobergb
 };
 
 } // anonymous namespace
@@ -57,6 +56,10 @@ class OcioColorManagementSystemImpl
         _config(std::move(config)), _target(std::move(target)) { }
 
     const char* getSupportedColorSpaceName(const char* colorSpace) const;
+
+    bool isNoOpTransform(const string& sourceColorSpace, const string& targetColorSpace) const;
+
+    string getUserFacingName(const string& colorSpace) const;
 
     NodeDefPtr getNodeDef(const ColorSpaceTransform& transform, const DocumentPtr& document) const;
 
@@ -82,31 +85,100 @@ class OcioColorManagementSystemImpl
     OCIO::ConstConfigRcPtr _config;
     string _target;
     mutable std::map<string, OCIO::ConstGPUProcessorRcPtr> _implementations;
+
+    // Lazily-created built-in config used to identify color spaces that are not
+    // directly recognized by the user's config (see getSupportedColorSpaceName).
+    mutable OCIO::ConstConfigRcPtr _cgConfig;
+
+    // Memo of color space names already resolved by getSupportedColorSpaceName,
+    // keyed by the requested name. An empty value denotes a name that could not
+    // be resolved. Without this cache, a color space that requires the built-in
+    // config fallback below would re-parse that config on every lookup, and
+    // populateColorTransformMap performs up to four such lookups per color port.
+    mutable std::map<string, string> _resolvedColorSpaceNames;
 };
 
 const char* OcioColorManagementSystemImpl::getSupportedColorSpaceName(const char* colorSpace) const
 {
+    auto cached = _resolvedColorSpaceNames.find(colorSpace);
+    if (cached != _resolvedColorSpaceNames.end())
+    {
+        return cached->second.empty() ? nullptr : cached->second.c_str();
+    }
+
+    string resolved;
     if (_config->getColorSpace(colorSpace))
+    {
+        resolved = colorSpace;
+    }
+    else if (auto remap = COLOR_SPACE_REMAP.find(colorSpace); remap != COLOR_SPACE_REMAP.end())
+    {
+        if (const char* remapped = getSupportedColorSpaceName(remap->second.c_str()))
+        {
+            resolved = remapped;
+        }
+    }
+    else
+    {
+        // Check if the requested name is known in the built-in ACES config. If so, then
+        // look to see if an equivalent color space is available in the user's config by
+        // checking the math of each color space implementation.
+        if (!_cgConfig)
+        {
+            _cgConfig = OCIO::Config::CreateFromBuiltinConfig("ocio://cg-config-latest");
+        }
+        try
+        {
+            // Throws on failure:
+            resolved = OCIO::Config::IdentifyBuiltinColorSpace(_config, _cgConfig, colorSpace);
+        }
+        catch (const std::exception& /*e*/)
+        {
+        }
+    }
+
+    string& cacheEntry = _resolvedColorSpaceNames[colorSpace];
+    cacheEntry = resolved;
+    return cacheEntry.empty() ? nullptr : cacheEntry.c_str();
+}
+
+bool OcioColorManagementSystemImpl::isNoOpTransform(const string& sourceColorSpace, const string& targetColorSpace) const
+{
+    const char* supportedSource = getSupportedColorSpaceName(sourceColorSpace.c_str());
+    if (!supportedSource)
+    {
+        return false;
+    }
+    const char* supportedTarget = getSupportedColorSpaceName(targetColorSpace.c_str());
+    if (!supportedTarget)
+    {
+        return false;
+    }
+
+    OCIO::ConstColorSpaceRcPtr sourceObj = _config->getColorSpace(supportedSource);
+    OCIO::ConstColorSpaceRcPtr targetObj = _config->getColorSpace(supportedTarget);
+    if (!sourceObj || !targetObj)
+    {
+        return false;
+    }
+
+    // A color space flagged as data in the config requires no transform, and two names
+    // that resolve to the same color space, such as an alias and its canonical name,
+    // refer to the same color space.
+    return sourceObj->isData() || targetObj->isData() ||
+           string(sourceObj->getName()) == string(targetObj->getName());
+}
+
+string OcioColorManagementSystemImpl::getUserFacingName(const string& colorSpace) const
+{
+    const char* supportedColorSpace = getSupportedColorSpaceName(colorSpace.c_str());
+    if (!supportedColorSpace)
     {
         return colorSpace;
     }
 
-    auto remap = COLOR_SPACE_REMAP.find(colorSpace);
-    if (remap != COLOR_SPACE_REMAP.end())
-    {
-        return getSupportedColorSpaceName(remap->second.c_str());
-    }
-
-    auto cgConfig = OCIO::Config::CreateFromBuiltinConfig("ocio://studio-config-latest");
-    try
-    {
-        // Throws on failure:
-        return OCIO::Config::IdentifyBuiltinColorSpace(_config, cgConfig, colorSpace);
-    }
-    catch (const std::exception& /*e*/)
-    {
-        return nullptr;
-    }
+    const char* canonicalName = _config->getCanonicalName(supportedColorSpace);
+    return canonicalName ? canonicalName : colorSpace;
 }
 
 NodeDefPtr OcioColorManagementSystemImpl::getNodeDef(const ColorSpaceTransform& transform, const DocumentPtr& document) const
@@ -154,8 +226,35 @@ NodeDefPtr OcioColorManagementSystemImpl::getNodeDef(const ColorSpaceTransform& 
         return {};
     }
 
+    // Build a function name from the source/target color space names and the first
+    // six characters of the cache ID.  Each name component is sanitized individually:
+    // invalid characters are replaced with underscores and consecutive underscores are
+    // collapsed to one so that OCIO's own identifier normalizer cannot produce a
+    // different name than the one we register on the node def.
+    auto sanitizeName = [](const string& s) -> string
+    {
+        string result = createValidName(s);
+        string collapsed;
+        bool prevUnderscore = false;
+        for (char c : result)
+        {
+            if (c == '_')
+            {
+                if (!prevUnderscore)
+                    collapsed += c;
+                prevUnderscore = true;
+            }
+            else
+            {
+                collapsed += c;
+                prevUnderscore = false;
+            }
+        }
+        return collapsed;
+    };
     static const auto NODE_NAME = string{ "ocio_color_conversion" };
-    const auto functionName = NODE_NAME + "_" + processor->getCacheID();
+    const string cacheID = processor->getCacheID();
+    const auto functionName = NODE_NAME + "_" + sanitizeName(sourceColorSpace) + "_to_" + sanitizeName(targetColorSpace) + "_" + cacheID.substr(0, 6);
     const auto implName = OcioColorManagementSystem::IMPL_PREFIX + functionName + "_" + transform.type.getName();
     const auto nodeDefName = ND_PREFIX + functionName + "_" + transform.type.getName();
     auto nodeDef = document->getNodeDef(nodeDefName);
@@ -307,6 +406,23 @@ NodeDefPtr OcioColorManagementSystem::getNodeDef(const ColorSpaceTransform& tran
     }
 
     return _impl->getNodeDef(transform, _document);
+}
+
+bool OcioColorManagementSystem::isNoOpTransform(const string& sourceColorSpace, const string& targetColorSpace) const
+{
+    return DefaultColorManagementSystem::isNoOpTransform(sourceColorSpace, targetColorSpace) ||
+           _impl->isNoOpTransform(sourceColorSpace, targetColorSpace);
+}
+
+string OcioColorManagementSystem::getUserFacingName(const string& colorSpace) const
+{
+    // The config author's name takes precedence over the DefaultColorManagementSystem names.
+    string name = _impl->getUserFacingName(colorSpace);
+    if (name != colorSpace)
+    {
+        return name;
+    }
+    return DefaultColorManagementSystem::getUserFacingName(colorSpace);
 }
 
 bool OcioColorManagementSystem::hasImplementation(const string& implName) const
