@@ -1621,16 +1621,16 @@ Linearly remap incoming values from one range of values [`inlow`, `inhigh`] to a
 ### `range`
 Remap incoming values from one range of values to another, optionally applying a gamma correction "in the middle". 
 
-|Port     |Description                                             |Type                  |Default |
-|---------|--------------------------------------------------------|----------------------|--------|
-|`in`     |The input stream to be adjusted                         |float, colorN, vectorN|__zero__|
-|`inlow`  |Low value for the input range                           |Same as `in` or float |__zero__|
-|`inhigh` |High value for the input range                          |Same as `inlow`       |__one__ |
-|`gamma`  |Reciprocal of the exponent applied to the remapped input|Same as `inlow`       |__one__ |
-|`outlow` |Low value for the output range                          |Same as `inlow`       |__zero__|
-|`outhigh`|High value for the output range                         |Same as `inlow`       |__one__ |
-|`doclamp`|If true, the output is clamped to [`outlow`, `outhigh`] |boolean               |false   |
-|`out`    |Output: the adjusted value                              |Same as `in`          |`in`    |
+|Port     |Description                                                                                 |Type                  |Default |
+|---------|--------------------------------------------------------------------------------------------|----------------------|--------|
+|`in`     |The input stream to be adjusted                                                             |float, colorN, vectorN|__zero__|
+|`inlow`  |Low value for the input range                                                               |Same as `in` or float |__zero__|
+|`inhigh` |High value for the input range                                                              |Same as `inlow`       |__one__ |
+|`gamma`  |Reciprocal of the exponent applied to the remapped input                                    |Same as `inlow`       |__one__ |
+|`outlow` |Low value for the output range                                                              |Same as `inlow`       |__zero__|
+|`outhigh`|High value for the output range                                                             |Same as `inlow`       |__one__ |
+|`doclamp`|If true, the output is clamped between `outlow` and `outhigh`, regardless of which is larger|boolean               |false   |
+|`out`    |Output: the adjusted value                                                                  |Same as `in`          |`in`    |
 
 <a id="node-smoothstep"> </a>
 
