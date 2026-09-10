@@ -4,6 +4,7 @@
 //
 
 #include <MaterialXRenderHlsl/HlslRenderer.h>
+#include <MaterialXRenderHlsl/HlslRenderUtil.h>
 
 #include <MaterialXGenHw/HwConstants.h>
 #include <MaterialXGenShader/Shader.h>
@@ -48,6 +49,38 @@ void releaseAndNull(IUnknown** ptr)
         *ptr = nullptr;
     }
 }
+
+// Route the shared binding helpers into an HlslMaterial. patchVariable
+// searches every cbuffer of the stage, so this works both in default mode
+// (one stage-named cbuffer) and with a binding context that splits
+// uniforms across PrivateUniforms / PublicUniforms / LightData.
+class MaterialUniformWriter : public HlslUniformWriter
+{
+  public:
+    explicit MaterialUniformWriter(HlslMaterial& material) :
+        _material(material)
+    {
+    }
+
+    bool writeVertexUniform(const std::string& name, const void* data, std::size_t count) override
+    {
+        return _material.patchVariable(HlslMaterial::Stage::Vertex, name, data, count);
+    }
+
+    bool writePixelUniform(const std::string& name, const void* data, std::size_t count) override
+    {
+        return _material.patchVariable(HlslMaterial::Stage::Pixel, name, data, count);
+    }
+
+    bool writePixelArrayMember(const std::string& arrayName, std::size_t index,
+                               const std::string& memberName, const void* data, std::size_t count) override
+    {
+        return _material.patchArrayMember(HlslMaterial::Stage::Pixel, arrayName, index, memberName, data, count);
+    }
+
+  private:
+    HlslMaterial& _material;
+};
 
 } // namespace
 
@@ -314,112 +347,19 @@ void HlslRenderer::bindCameraToVertexCbuffer()
 {
     if (!_camera || !_material)
         return;
-
-    // Reflected names match what HlslShaderGenerator emits via HW::T_*.
-    // patchVariable searches every vertex-stage cbuffer, so the renderer
-    // works in both default mode (one stage-named cbuffer) and the
-    // binding-context path that splits uniforms across separate cbuffers.
-    // Two corrections applied here:
-    //
-    // (1) Matrix transpose. MaterialX stores matrices row-major and the
-    //     HLSL VS uses row-vector math (`mul(vec, M)`). HLSL's default
-    //     column-major cbuffer layout would read our row-major bytes
-    //     transposed - which mangles the projection. Transposing at
-    //     upload time gives HLSL bytes whose column-major
-    //     interpretation equals MaterialX's intended row-vector matrix.
-    //     (Equivalent to the D3DCOMPILE_PACK_MATRIX_ROW_MAJOR flag, but
-    //     keeps the cbuffer layout that D3D reflection reports for the
-    //     default-compiled shader, so existing reflection-based code
-    //     stays correct.)
-    // (2) X-flip on the projection. Camera::createPerspectiveMatrix is
-    //     a right-handed projection (the GLSL renderer's convention).
-    //     D3D11 rasterises in left-handed clip space, so feeding the RH
-    //     matrix through unchanged horizontally mirrors the render.
-    //     Composing with a diagonal X-flip on the right side of the
-    //     projection corrects it, matching what GlslRenderer produces
-    //     visually.
-    // GL projection produces clip Z in [-w, w] (NDC [-1, 1]).
-    // D3D11 rasterizer clips against [0, w] (NDC [0, 1]). Without
-    // remapping, vertices with NDC z < 0 (front of sphere) get
-    // clipped, leaving only back-facing surfaces visible - which then
-    // appear X-mirrored under lighting because their normals point
-    // away from the actual lit side of the scene.
-    //
-    // Compose with a remap matrix that converts z_gl in [-w, w] to
-    // z_d3d in [0, w]:  z_new = (z + w) / 2.
-    Matrix44 zRemap = Matrix44::IDENTITY;
-    zRemap[2][2] = 0.5f;
-    zRemap[3][2] = 0.5f;
-    Matrix44 proj = _camera->getProjectionMatrix();
-    Matrix44 viewProj = _camera->getViewMatrix() * (proj * zRemap);
-    const std::array<std::pair<const char*, Matrix44>, 3> entries = { {
-        { "u_worldMatrix",                  _camera->getWorldMatrix().getTranspose() },
-        { "u_viewProjectionMatrix",         viewProj.getTranspose() },
-        { "u_worldInverseTransposeMatrix",  _camera->getWorldMatrix().getInverse() },
-    } };
-    for (const auto& e : entries)
-    {
-        _material->patchVariable(HlslMaterial::Stage::Vertex, e.first,
-                                 e.second.data(), sizeof(float) * 16);
-    }
-
-    // u_viewPosition / u_viewDirection live on the pixel stage and feed
-    // the PS view-direction calculation (Fresnel, half-vector for the
-    // Cook-Torrance specular). Without them the PS computes view from
-    // the world origin, biasing every glossy material's highlight.
-    const Vector3 viewPos = _camera->getViewPosition();
-    _material->patchVariable(HlslMaterial::Stage::Pixel, "u_viewPosition",
-                             viewPos.data(), sizeof(float) * 3);
-    const Vector3 viewDir = _camera->getViewDirection();
-    _material->patchVariable(HlslMaterial::Stage::Pixel, "u_viewDirection",
-                             viewDir.data(), sizeof(float) * 3);
+    MaterialUniformWriter writer(*_material);
+    bindHlslCamera(writer, _camera);
 }
 
 void HlslRenderer::bindFileTexturesFromImageHandler()
 {
     if (!_material || !_imageHandler || !_shader)
         return;
-
-    // PUBLIC_UNIFORMS exists on every HW shader stage; the canonical
-    // copy lives on the pixel stage.
-    const ShaderStage& ps = _shader->getStage(Stage::PIXEL);
-    const VariableBlockMap& blocks = ps.getUniformBlocks();
-    auto it = blocks.find(HW::PUBLIC_UNIFORMS);
-    if (it == blocks.end() || !it->second)
-        return;
-    const VariableBlock& block = *it->second;
-
-    for (size_t i = 0; i < block.size(); ++i)
-    {
-        const ShaderPort* port = block[i];
-        if (!port || port->getType() != Type::FILENAME)
-            continue;
-        const std::string& uniformName = port->getName();
-        // Skip lighting textures; those are bound by future LightHandler
-        // integration with their own samplers and filter rules.
-        if (uniformName == HW::ENV_RADIANCE || uniformName == HW::ENV_IRRADIANCE)
-            continue;
-
-        ImagePtr image;
-        if (port->getValue())
-        {
-            const std::string filePath = port->getValue()->getValueString();
-            if (!filePath.empty())
-                image = _imageHandler->acquireImage(FilePath(filePath));
-        }
-        if (!image)
-            continue;
-        // Pull per-uniform sampling properties (uaddressmode,
-        // vaddressmode, filtertype, defaultcolor) from the cbuffer
-        // sibling uniforms so the sampler matches the material's
-        // intent. Without this, every texture binds with the default
-        // CLAMP/LINEAR sampler, which makes UV-tiled materials (e.g.
-        // wood with uvtiling=4,4) sample at the texture edge instead
-        // of repeating the pattern.
-        ImageSamplingProperties sp;
-        sp.setProperties(uniformName, block);
-        bindImage(uniformName, image, &sp);
-    }
+    bindHlslFileTextures(_shader, _imageHandler,
+                         [this](const std::string& name, ImagePtr image, const ImageSamplingProperties* sp)
+                         {
+                             return bindImage(name, image, sp);
+                         });
 }
 
 void HlslRenderer::render()
@@ -496,251 +436,48 @@ void HlslRenderer::renderTextureSpace(const Vector2& /*uvMin*/, const Vector2& /
     _geometryHandler = saved;
 }
 
-ImagePtr HlslRenderer::captureImage(ImagePtr /*image*/)
+ImagePtr HlslRenderer::captureImage(ImagePtr image)
 {
     if (!_framebuffer)
         return nullptr;
-    return _framebuffer->readColor();
+    // Fill the caller's image when it matches the framebuffer, as the
+    // TextureBaker captures into its own pre-allocated image.
+    return copyHlslCapturedImage(_framebuffer->readColor(), image);
 }
-
-namespace
-{
-
-// Patch a single pixel-stage uniform regardless of which reflected
-// cbuffer it lives in. patchVariable searches every pixel cbuffer and
-// writes into whichever one owns the uniform, so the renderer works
-// in both default mode (one stage-named cbuffer) and the binding-
-// context mode that splits uniforms across PrivateUniforms /
-// PublicUniforms / LightData.
-void writePixelCbufferMember(HlslMaterial& mat, const std::string& memberName,
-                             const void* bytes, std::size_t count)
-{
-    mat.patchVariable(HlslMaterial::Stage::Pixel, memberName, bytes, count);
-}
-
-} // namespace
 
 void HlslRenderer::bindLightingScalarsFromHandlers()
 {
     if (!_material)
         return;
-
-    // u_numActiveLightSources defaults to 0; only set non-zero when a
-    // LightHandler is attached and direct lighting is on. Per-light
-    // parameter binding lives in a follow-up.
-    int activeLights = 0;
-    if (_lightHandler && _lightHandler->getDirectLighting())
-        activeLights = static_cast<int>(_lightHandler->getLightSources().size());
-    writePixelCbufferMember(*_material, HW::NUM_ACTIVE_LIGHT_SOURCES,
-                            &activeLights, sizeof(int));
-
-    if (!_lightHandler)
-        return;
-
-    // Env matrix: standard MaterialX convention is rotateY(PI) *
-    // transpose(lightTransform); the GLSL renderer uses exactly this.
-    static const float kPi = 3.14159265358979323846f;
-    Matrix44 envMatrix = Matrix44::createRotationY(kPi) *
-                         _lightHandler->getLightTransform().getTranspose();
-    writePixelCbufferMember(*_material, HW::ENV_MATRIX,
-                            envMatrix.data(), sizeof(float) * 16);
-
-    const int   sampleCount    = _lightHandler->getEnvSampleCount();
-    const float lightIntensity = _lightHandler->getEnvLightIntensity();
-    const int   refractTwoSide = _lightHandler->getRefractionTwoSided();
-    writePixelCbufferMember(*_material, HW::ENV_RADIANCE_SAMPLES,
-                            &sampleCount, sizeof(int));
-    writePixelCbufferMember(*_material, HW::ENV_LIGHT_INTENSITY,
-                            &lightIntensity, sizeof(float));
-    writePixelCbufferMember(*_material, HW::REFRACTION_TWO_SIDED,
-                            &refractTwoSide, sizeof(int));
-
-    // ENV_RADIANCE_MIPS comes from the radiance image, not the handler.
-    if (_lightHandler->getIndirectLighting())
-    {
-        ImagePtr rad = _lightHandler->getUsePrefilteredMap()
-                     ? _lightHandler->getEnvPrefilteredMap()
-                     : _lightHandler->getEnvRadianceMap();
-        if (rad)
-        {
-            const int mips = static_cast<int>(rad->getMaxMipCount());
-            writePixelCbufferMember(*_material, HW::ENV_RADIANCE_MIPS,
-                                    &mips, sizeof(int));
-        }
-    }
+    MaterialUniformWriter writer(*_material);
+    bindHlslLightingScalars(writer, _lightHandler);
 }
-
-namespace
-{
-
-// Convert a MaterialX value into raw bytes the cbuffer expects. Returns
-// the number of bytes written into `out`, or 0 if the value type isn't
-// one we know how to pack.
-std::size_t valueToBytes(ConstValuePtr value, uint8_t out[64])
-{
-    if (!value)
-        return 0;
-    if (value->isA<int>())
-    {
-        const int v = value->asA<int>();
-        std::memcpy(out, &v, sizeof(int));
-        return sizeof(int);
-    }
-    if (value->isA<float>())
-    {
-        const float v = value->asA<float>();
-        std::memcpy(out, &v, sizeof(float));
-        return sizeof(float);
-    }
-    if (value->isA<bool>())
-    {
-        const int v = value->asA<bool>() ? 1 : 0;  // HLSL bool packs as 4 bytes.
-        std::memcpy(out, &v, sizeof(int));
-        return sizeof(int);
-    }
-    if (value->isA<Color3>())
-    {
-        const Color3& c = value->asA<Color3>();
-        std::memcpy(out, c.data(), sizeof(float) * 3);
-        return sizeof(float) * 3;
-    }
-    if (value->isA<Color4>())
-    {
-        const Color4& c = value->asA<Color4>();
-        std::memcpy(out, c.data(), sizeof(float) * 4);
-        return sizeof(float) * 4;
-    }
-    if (value->isA<Vector2>())
-    {
-        const Vector2& v = value->asA<Vector2>();
-        std::memcpy(out, v.data(), sizeof(float) * 2);
-        return sizeof(float) * 2;
-    }
-    if (value->isA<Vector3>())
-    {
-        const Vector3& v = value->asA<Vector3>();
-        std::memcpy(out, v.data(), sizeof(float) * 3);
-        return sizeof(float) * 3;
-    }
-    if (value->isA<Vector4>())
-    {
-        const Vector4& v = value->asA<Vector4>();
-        std::memcpy(out, v.data(), sizeof(float) * 4);
-        return sizeof(float) * 4;
-    }
-    if (value->isA<Matrix44>())
-    {
-        const Matrix44& m = value->asA<Matrix44>();
-        std::memcpy(out, m.data(), sizeof(float) * 16);
-        return sizeof(float) * 16;
-    }
-    return 0;
-}
-
-} // namespace
 
 void HlslRenderer::bindLightSourcesFromLightHandler()
 {
-    if (!_material || !_lightHandler || !_lightHandler->getDirectLighting())
+    if (!_material)
         return;
-
-    const auto& lights = _lightHandler->getLightSources();
-    if (lights.empty())
-        return;
-
-    LightIdMap idMap = _lightHandler->computeLightIdMap(lights);
-
-    for (std::size_t i = 0; i < lights.size(); ++i)
-    {
-        NodePtr light = lights[i];
-        if (!light)
-            continue;
-        NodeDefPtr nodeDef = light->getNodeDef();
-        if (!nodeDef)
-            continue;
-
-        // Light type id, then each input value on the light node.
-        // patchArrayMember resolves "<HW::LIGHT_DATA_INSTANCE>[i].<name>"
-        // by walking the reflected LightData struct - composing the name
-        // and feeding patchVariable would silently fail because D3D
-        // reflection doesn't expose array element members by name.
-        {
-            auto it = idMap.find(nodeDef->getName());
-            const int typeValue = (it != idMap.end()) ? static_cast<int>(it->second) : 0;
-            _material->patchArrayMember(HlslMaterial::Stage::Pixel,
-                                        HW::LIGHT_DATA_INSTANCE, i, "type",
-                                        &typeValue, sizeof(int));
-        }
-        for (InputPtr input : light->getInputs())
-        {
-            if (!input || !input->hasValue())
-                continue;
-            uint8_t buf[64];
-            const std::size_t n = valueToBytes(input->getValue(), buf);
-            if (n == 0)
-                continue;
-            _material->patchArrayMember(HlslMaterial::Stage::Pixel,
-                                        HW::LIGHT_DATA_INSTANCE, i,
-                                        input->getName(),
-                                        buf, n);
-        }
-    }
+    MaterialUniformWriter writer(*_material);
+    bindHlslLightSources(writer, _lightHandler);
 }
 
 void HlslRenderer::bindMaterialUniformsFromShader()
 {
     if (!_material || !_shader)
         return;
-    const ShaderStage& ps = _shader->getStage(Stage::PIXEL);
-    const VariableBlockMap& blocks = ps.getUniformBlocks();
-    auto it = blocks.find(HW::PUBLIC_UNIFORMS);
-    if (it == blocks.end() || !it->second)
-        return;
-    const VariableBlock& block = *it->second;
-    for (size_t i = 0; i < block.size(); ++i)
-    {
-        const ShaderPort* port = block[i];
-        if (!port || !port->getValue())
-            continue;
-        // FILENAME inputs are bound as textures elsewhere
-        // (bindFileTexturesFromImageHandler). Closure types and other
-        // structural inputs (surfaceshader, displacementshader, BSDF,
-        // EDF, ...) don't have packable byte representations and will
-        // be skipped by valueToBytes returning 0.
-        if (port->getType() == Type::FILENAME)
-            continue;
-        uint8_t buf[64];
-        const std::size_t n = valueToBytes(port->getValue(), buf);
-        if (n == 0)
-            continue;
-        _material->patchVariable(HlslMaterial::Stage::Pixel,
-                                 port->getName(), buf, n);
-    }
+    MaterialUniformWriter writer(*_material);
+    bindHlslMaterialUniforms(writer, _shader);
 }
 
 void HlslRenderer::bindEnvironmentImagesFromLightHandler()
 {
-    if (!_material || !_imageHandler)
+    if (!_material)
         return;
-
-    // Resolve env images. With a LightHandler that has indirect lighting
-    // enabled use its maps; otherwise (and as fallback when those maps
-    // are null) use the image handler's stock zero image so the GPU
-    // never samples a null SRV.
-    ImagePtr radiance;
-    ImagePtr irradiance;
-    if (_lightHandler && _lightHandler->getIndirectLighting())
-    {
-        radiance = _lightHandler->getUsePrefilteredMap()
-                 ? _lightHandler->getEnvPrefilteredMap()
-                 : _lightHandler->getEnvRadianceMap();
-        irradiance = _lightHandler->getEnvIrradianceMap();
-    }
-    if (!radiance)   radiance   = _imageHandler->getZeroImage();
-    if (!irradiance) irradiance = _imageHandler->getZeroImage();
-
-    if (radiance)   bindImage(HW::ENV_RADIANCE,   radiance);
-    if (irradiance) bindImage(HW::ENV_IRRADIANCE, irradiance);
+    bindHlslEnvironmentImages(_lightHandler, _imageHandler,
+                              [this](const std::string& name, ImagePtr image, const ImageSamplingProperties* sp)
+                              {
+                                  return bindImage(name, image, sp);
+                              });
 }
 
 bool HlslRenderer::bindImage(const std::string& uniformName, ImagePtr image,

@@ -18,12 +18,14 @@ mx_add_library(MaterialXRenderHlsl
 # Link against the Windows SDK D3D libraries we use directly:
 #   d3dcompiler  - FXC backend (D3DCompile, D3DReflect)
 #   d3d11        - HlslContext device + immediate context
+#   d3d12, dxgi  - HlslD3D12Context device, adapter selection, root
+#                  signature serialization
 # The dxcompiler entry points used for the DXC backend are loaded
 # dynamically via LoadLibrary at first use, so we deliberately do NOT
 # add dxcompiler to the link line - that would create a hard build-time
 # dependency on the DXC redistributable. The dynamic load still works on
 # any system that has dxcompiler.dll on PATH or alongside the executable.
-target_link_libraries(MaterialXRenderHlsl PUBLIC d3dcompiler d3d11)
+target_link_libraries(MaterialXRenderHlsl PUBLIC d3dcompiler d3d11 d3d12 dxgi)
 
 # Locate dxcompiler.dll / dxil.dll in the Windows SDK and stage them next
 # to consumer binaries (currently MaterialXTest) so the DXC backend can

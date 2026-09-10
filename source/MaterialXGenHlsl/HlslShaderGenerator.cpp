@@ -1041,24 +1041,6 @@ void HlslShaderGenerator::HlslSyntaxFromGlsl(ShaderStage& shaderStage) const
     // mx_luminance_color4 - get rewritten too.
     sourceCode = rewriteHlslSplats(sourceCode);
 
-    // The shared GLSL helper mx_rotate_flake() in
-    // libraries/stdlib/genglsl/lib/mx_flake.glsl builds a 3x3 rotation
-    // matrix locally and returns "m * p". GLSL treats that as M*p
-    // (the constructor arguments map to columns); HLSL has no overload of
-    // mat3*vec3 and stores the same constructor arguments as rows, so the
-    // equivalent expression is mul(p, m) - argument order reversed to
-    // compensate for the storage transposition.
-    {
-        const std::string from = "return m * p;";
-        const std::string to   = "return mul(p, m);";
-        std::size_t p = 0;
-        while ((p = sourceCode.find(from, p)) != std::string::npos)
-        {
-            sourceCode.replace(p, from.size(), to);
-            p += to.size();
-        }
-    }
-
     // HLSL has no Type(args) constructor for user structs and does not allow
     // brace-init expressions in a return statement. The shared makeClosureData()
     // helper from libraries/pbrlib/genglsl/lib/mx_closure_type.glsl ends with

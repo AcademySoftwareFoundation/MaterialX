@@ -47,6 +47,7 @@ const std::string options =
     "    --remap [TOKEN1:TOKEN2]        Specify the remapping from one token to another when MaterialX document is loaded\n"
     "    --skip [NAME]                  Specify to skip elements matching the given name attribute\n"
     "    --terminator [STRING]          Specify to enforce the given terminator string for file prefixes\n"
+    "    --renderer [STRING]            Specify the rendering backend, gl or d3d12 (defaults to gl; d3d12 requires a Windows build with HLSL rendering)\n"
     "    --help                         Display the complete list of command-line options\n";
 
 template <class T> void parseToken(std::string token, std::string type, T& res)
@@ -105,6 +106,7 @@ int main(int argc, char* const argv[])
     std::string bakeFilename;
     float refresh = 50.0f;
     bool frameTiming = false;
+    std::string renderer = "gl";
 
     for (size_t i = 0; i < tokens.size(); i++)
     {
@@ -254,6 +256,10 @@ int main(int argc, char* const argv[])
         {
             modifiers.filePrefixTerminator = nextToken;
         }
+        else if (token == "--renderer")
+        {
+            renderer = nextToken;
+        }
         else if (token == "--help")
         {
             std::cout << " MaterialXView version " << mx::getVersionString() << std::endl;
@@ -280,6 +286,14 @@ int main(int argc, char* const argv[])
     // Append the standard library folder, giving it a lower precedence than user-supplied libraries.
     libraryFolders.push_back("libraries");
 
+#ifndef MATERIALXVIEW_D3D12_BACKEND
+    if (renderer == "d3d12")
+    {
+        std::cout << "The d3d12 renderer is not available in this build; using gl." << std::endl;
+    }
+    renderer = "gl";
+#endif
+
     ng::init();
     {
         ng::ref<Viewer> viewer = new Viewer(materialFilename,
@@ -289,7 +303,8 @@ int main(int argc, char* const argv[])
                                             libraryFolders,
                                             screenWidth,
                                             screenHeight,
-                                            screenColor);
+                                            screenColor,
+                                            renderer);
         viewer->setMeshRotation(meshRotation);
         viewer->setMeshScale(meshScale);
         viewer->setTurntableEnabled(turntableEnabled);

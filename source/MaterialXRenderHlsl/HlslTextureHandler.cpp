@@ -4,6 +4,7 @@
 //
 
 #include <MaterialXRenderHlsl/HlslTextureHandler.h>
+#include <MaterialXRenderHlsl/HlslRenderUtil.h>
 
 #include <atomic>
 #include <vector>
@@ -150,17 +151,10 @@ bool HlslTextureHandler::bindImage(ImagePtr image, const ImageSamplingProperties
     if (!image || !_context || !_context->getDevice())
         return false;
 
-    // Assign a unique resource id if the image does not already have one.
     // Image::_resourceId defaults to 0 for every newly-loaded Image, so
-    // without this assignment the cache would alias every image to the
-    // first one ever uploaded - producing the same texture (and sampler)
-    // for every call after the first. We start at 1 to keep 0 reserved
-    // as "no resource".
-    if (image->getResourceId() == 0)
-    {
-        static std::atomic<unsigned int> s_nextId{1};
-        image->setResourceId(s_nextId.fetch_add(1));
-    }
+    // without a unique id the cache would alias every image to the first
+    // one ever uploaded.
+    assignHlslImageResourceId(image);
 
     // Fast path: image already cached with a current SRV. Refresh only
     // the sampler if the supplied sampling properties might differ.

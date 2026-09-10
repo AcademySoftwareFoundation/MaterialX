@@ -34,7 +34,10 @@ class Viewer : public ng::Screen
     friend class RenderPipeline;
     friend class GLRenderPipeline;
     friend class MetalRenderPipeline;
+    friend class D3D12RenderPipeline;
   public:
+    // The renderer is "gl" (the default), or "d3d12" in Windows builds with
+    // HLSL rendering.
     Viewer(const std::string& materialFilename,
            const std::string& meshFilename,
            const std::string& envRadianceFilename,
@@ -42,7 +45,8 @@ class Viewer : public ng::Screen
            const mx::FilePathVec& libraryFolders,
            int screenWidth,
            int screenHeight,
-           const mx::Color3& screenColor);
+           const mx::Color3& screenColor,
+           const std::string& renderer = "gl");
     ~Viewer() { }
 
     // Initialize the viewer for rendering.

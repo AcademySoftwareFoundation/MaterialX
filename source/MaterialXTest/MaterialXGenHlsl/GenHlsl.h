@@ -29,6 +29,13 @@ class HlslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
         _testStages.push_back(mx::Stage::PIXEL);
     }
 
+    void addSkipFiles() override
+    {
+        // ocio_color_management.mtlx uses color spaces which require OCIO and is not supported by HLSL.
+        _skipFiles.insert("ocio_color_management.mtlx");
+        ParentClass::addSkipFiles();
+    }
+
     // Ignore trying to create shader code for displacementshaders
     void addSkipNodeDefs() override
     {

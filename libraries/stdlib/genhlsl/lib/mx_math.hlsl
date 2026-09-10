@@ -8,6 +8,7 @@
 #define mx_acos acos
 #define mx_radians radians
 #define mx_float_bits_to_int asint
+#define mx_isinf isinf
 
 // Namespaced derivative wrappers. Some shared GLSL library code declares
 // local variables named ddx / ddy (e.g. mx_hextile.glsl), so we cannot

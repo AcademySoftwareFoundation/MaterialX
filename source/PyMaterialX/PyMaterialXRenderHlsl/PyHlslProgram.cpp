@@ -29,8 +29,29 @@ void bindPyHlslProgram(py::module& mod)
         .def_readwrite("space", &mx::HlslResourceBinding::space)
         .def_readwrite("count", &mx::HlslResourceBinding::count);
 
+    py::enum_<mx::HlslComponentType>(mod, "HlslComponentType")
+        .value("Float", mx::HlslComponentType::Float)
+        .value("SInt",  mx::HlslComponentType::SInt)
+        .value("UInt",  mx::HlslComponentType::UInt);
+
+    py::class_<mx::HlslInputParameter>(mod, "HlslInputParameter")
+        .def_readonly("semanticName",   &mx::HlslInputParameter::semanticName)
+        .def_readonly("semanticIndex",  &mx::HlslInputParameter::semanticIndex)
+        .def_readonly("componentCount", &mx::HlslInputParameter::componentCount)
+        .def_readonly("componentType",  &mx::HlslInputParameter::componentType);
+
+    py::class_<mx::HlslStageReflection>(mod, "HlslStageReflection")
+        .def("isValid",      &mx::HlslStageReflection::isValid)
+        .def("getBindings",  &mx::HlslStageReflection::getBindings)
+        .def("getInputs",    &mx::HlslStageReflection::getInputs)
+        .def("findCbuffer",  &mx::HlslStageReflection::findCbuffer)
+        .def("getSlotCount", &mx::HlslStageReflection::getSlotCount, py::arg("type"), py::arg("space") = 0);
+
     py::class_<mx::HlslProgram, mx::HlslProgramPtr>(mod, "HlslProgram")
         .def_static("create", &mx::HlslProgram::create)
+        .def_static("isDxcAvailable", &mx::HlslProgram::isDxcAvailable)
+        .def("getVertexReflection", &mx::HlslProgram::getVertexReflection)
+        .def("getPixelReflection",  &mx::HlslProgram::getPixelReflection)
         .def("setCompilerBackend",  &mx::HlslProgram::setCompilerBackend)
         .def("getCompilerBackend",  &mx::HlslProgram::getCompilerBackend)
         .def("setShaderModel",      &mx::HlslProgram::setShaderModel)

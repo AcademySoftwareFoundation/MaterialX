@@ -16,4 +16,12 @@ TextureBakerHlsl::TextureBakerHlsl(unsigned int width, unsigned int height,
 {
 }
 
+TextureBakerHlslD3D12::TextureBakerHlslD3D12(unsigned int width, unsigned int height,
+                                             Image::BaseType baseType) :
+    // D3D12 read-back images are top-down like D3D11, so saved images are
+    // flipped the same way.
+    TextureBaker<HlslD3D12Renderer, HlslShaderGenerator>(width, height, baseType, true)
+{
+}
+
 MATERIALX_NAMESPACE_END

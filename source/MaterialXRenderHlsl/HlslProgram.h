@@ -10,6 +10,7 @@
 /// HLSL program object built from a generated MaterialX shader
 
 #include <MaterialXRenderHlsl/Export.h>
+#include <MaterialXRenderHlsl/HlslShaderReflection.h>
 
 #include <MaterialXGenShader/Shader.h>
 
@@ -25,26 +26,6 @@ MATERIALX_NAMESPACE_BEGIN
 
 class HlslProgram;
 using HlslProgramPtr = shared_ptr<class HlslProgram>;
-
-/// Class of a HLSL resource as reported by D3D shader reflection. Only the
-/// classes we care about for graphics shaders are exposed.
-enum class HlslResourceType
-{
-    CBuffer,        ///< Constant buffer (b#)
-    Texture,        ///< Shader resource view (t#)
-    Sampler,        ///< Sampler (s#)
-    Other           ///< Any other binding D3D reports (uavs, structured buffers, ...)
-};
-
-/// One reflected resource binding from a compiled HLSL stage.
-struct HlslResourceBinding
-{
-    std::string name;        ///< Binding name as seen in the source.
-    HlslResourceType type = HlslResourceType::Other;
-    unsigned int slot = 0;   ///< Register slot index (b#, t#, s# depending on type).
-    unsigned int space = 0;  ///< Register space (D3D12 root signatures).
-    unsigned int count = 1;  ///< Array count, or 1 for scalar bindings.
-};
 
 /// Compiler backend used to translate HLSL source into bytecode.
 enum class HlslCompilerBackend
@@ -148,6 +129,20 @@ class MX_RENDERHLSL_API HlslProgram
     /// Reflect a raw bytecode buffer. Public for test code that wants to
     /// inspect bytecode without going through build().
     static std::vector<HlslResourceBinding> reflectBindings(const std::vector<uint8_t>& bytecode);
+
+    /// Reflect the bindings, constant buffer layouts and input signature of
+    /// the most recently built vertex or pixel stage. The returned object
+    /// holds no D3D state and reports isValid() == false if the stage has
+    /// not been built or reflection failed.
+    HlslStageReflection getVertexReflection() const;
+    HlslStageReflection getPixelReflection() const;
+
+    /// Reflect a raw DXIL or DXBC bytecode buffer.
+    static HlslStageReflection reflectStage(const std::vector<uint8_t>& bytecode);
+
+    /// Return true if dxcompiler.dll can be loaded, i.e. if the DXC backend
+    /// is usable on this machine.
+    static bool isDxcAvailable();
 
     /// Instantiate a GPU vertex shader from the most-recently-built vertex
     /// bytecode. Returns nullptr if the program is not built or the device

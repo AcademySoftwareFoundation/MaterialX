@@ -405,4 +405,186 @@ std::vector<HlslResourceBinding> HlslProgram::reflectBindings(const std::vector<
     return out;
 }
 
+namespace
+{
+
+unsigned int bindSpace(const D3D12_SHADER_INPUT_BIND_DESC& desc) { return desc.Space; }
+unsigned int bindSpace(const D3D11_SHADER_INPUT_BIND_DESC&) { return 0; }
+
+unsigned int maskComponentCount(BYTE mask)
+{
+    unsigned int count = 0;
+    for (; mask; mask >>= 1)
+        count += mask & 1u;
+    return count;
+}
+
+HlslComponentType toComponentType(D3D_REGISTER_COMPONENT_TYPE type)
+{
+    switch (type)
+    {
+        case D3D_REGISTER_COMPONENT_SINT32: return HlslComponentType::SInt;
+        case D3D_REGISTER_COMPONENT_UINT32: return HlslComponentType::UInt;
+        default:                            return HlslComponentType::Float;
+    }
+}
+
+// Capture bindings, constant buffer layouts and the input signature from a
+// reflection interface. Templated over the D3D11 and D3D12 reflection
+// interfaces, whose methods and descriptor structs mirror each other.
+template <typename Reflection, typename ShaderDesc, typename BindDesc, typename BufferDesc,
+          typename VariableDesc, typename TypeDesc, typename ParamDesc>
+bool walkReflection(Reflection* refl,
+                    std::vector<HlslResourceBinding>& bindings,
+                    std::vector<HlslReflectedCbuffer>& cbuffers,
+                    std::vector<HlslInputParameter>& inputs)
+{
+    ShaderDesc desc = {};
+    if (FAILED(refl->GetDesc(&desc)))
+        return false;
+
+    for (UINT i = 0; i < desc.BoundResources; ++i)
+    {
+        BindDesc bd = {};
+        if (FAILED(refl->GetResourceBindingDesc(i, &bd)))
+            continue;
+        HlslResourceBinding b;
+        b.name  = bd.Name ? bd.Name : std::string();
+        b.slot  = bd.BindPoint;
+        b.space = bindSpace(bd);
+        b.count = bd.BindCount ? bd.BindCount : 1;
+        b.type  = classifyBindingType(bd.Type);
+        bindings.push_back(std::move(b));
+    }
+
+    for (UINT i = 0; i < desc.ConstantBuffers; ++i)
+    {
+        auto* cb = refl->GetConstantBufferByIndex(i);
+        BufferDesc cbd = {};
+        if (!cb || FAILED(cb->GetDesc(&cbd)))
+            continue;
+
+        HlslReflectedCbuffer out;
+        out.name = cbd.Name ? cbd.Name : std::string();
+        out.size = cbd.Size;
+        for (const HlslResourceBinding& b : bindings)
+        {
+            if (b.type == HlslResourceType::CBuffer && b.name == out.name)
+            {
+                out.slot = b.slot;
+                out.space = b.space;
+                break;
+            }
+        }
+
+        for (UINT v = 0; v < cbd.Variables; ++v)
+        {
+            auto* var = cb->GetVariableByIndex(v);
+            VariableDesc vd = {};
+            if (!var || FAILED(var->GetDesc(&vd)))
+                continue;
+
+            HlslReflectedVariable rv;
+            rv.name = vd.Name ? vd.Name : std::string();
+            rv.offset = vd.StartOffset;
+            rv.size = vd.Size;
+
+            auto* type = var->GetType();
+            TypeDesc td = {};
+            if (type && SUCCEEDED(type->GetDesc(&td)))
+            {
+                rv.elements = td.Elements;
+                if (td.Class == D3D_SVC_STRUCT)
+                {
+                    for (UINT m = 0; m < td.Members; ++m)
+                    {
+                        auto* memberType = type->GetMemberTypeByIndex(m);
+                        const char* memberName = type->GetMemberTypeName(m);
+                        TypeDesc mtd = {};
+                        if (!memberType || !memberName || FAILED(memberType->GetDesc(&mtd)))
+                            continue;
+                        rv.members.push_back({ memberName, mtd.Offset });
+                    }
+                }
+            }
+            out.variables.push_back(std::move(rv));
+        }
+        cbuffers.push_back(std::move(out));
+    }
+
+    for (UINT i = 0; i < desc.InputParameters; ++i)
+    {
+        ParamDesc pd = {};
+        if (FAILED(refl->GetInputParameterDesc(i, &pd)) || pd.SystemValueType != D3D_NAME_UNDEFINED)
+            continue;
+        HlslInputParameter p;
+        p.semanticName = pd.SemanticName ? pd.SemanticName : std::string();
+        p.semanticIndex = pd.SemanticIndex;
+        p.componentCount = maskComponentCount(pd.Mask);
+        p.componentType = toComponentType(pd.ComponentType);
+        inputs.push_back(std::move(p));
+    }
+    return true;
+}
+
+} // namespace
+
+HlslStageReflection HlslProgram::reflectStage(const std::vector<uint8_t>& bytecode)
+{
+    HlslStageReflection out;
+    if (bytecode.empty())
+        return out;
+
+    // DXIL first, through DXC's reflection. It fails on DXBC containers, in
+    // which case D3DReflect handles the bytecode.
+    std::string ignoredLog;
+    DxcCreateInstanceProc createInstance = loadDxcCreateInstance(ignoredLog);
+    if (createInstance)
+    {
+        ComPtr<IDxcUtils> utils;
+        if (SUCCEEDED(createInstance(CLSID_DxcUtils, IID_PPV_ARGS(utils.GetAddressOf()))))
+        {
+            DxcBuffer buf{};
+            buf.Ptr = bytecode.data();
+            buf.Size = bytecode.size();
+            buf.Encoding = DXC_CP_ACP;
+            ComPtr<ID3D12ShaderReflection> refl;
+            if (SUCCEEDED(utils->CreateReflection(&buf, IID_PPV_ARGS(refl.GetAddressOf()))) && refl)
+            {
+                out._valid = walkReflection<ID3D12ShaderReflection, D3D12_SHADER_DESC, D3D12_SHADER_INPUT_BIND_DESC,
+                                            D3D12_SHADER_BUFFER_DESC, D3D12_SHADER_VARIABLE_DESC, D3D12_SHADER_TYPE_DESC,
+                                            D3D12_SIGNATURE_PARAMETER_DESC>(refl.Get(), out._bindings, out._cbuffers, out._inputs);
+                if (out._valid)
+                    return out;
+            }
+        }
+    }
+
+    out = HlslStageReflection();
+    ComPtr<ID3D11ShaderReflection> refl;
+    if (SUCCEEDED(::D3DReflect(bytecode.data(), bytecode.size(), IID_PPV_ARGS(refl.GetAddressOf()))) && refl)
+    {
+        out._valid = walkReflection<ID3D11ShaderReflection, D3D11_SHADER_DESC, D3D11_SHADER_INPUT_BIND_DESC,
+                                    D3D11_SHADER_BUFFER_DESC, D3D11_SHADER_VARIABLE_DESC, D3D11_SHADER_TYPE_DESC,
+                                    D3D11_SIGNATURE_PARAMETER_DESC>(refl.Get(), out._bindings, out._cbuffers, out._inputs);
+    }
+    return out;
+}
+
+HlslStageReflection HlslProgram::getVertexReflection() const
+{
+    return reflectStage(_vsBytecode);
+}
+
+HlslStageReflection HlslProgram::getPixelReflection() const
+{
+    return reflectStage(_psBytecode);
+}
+
+bool HlslProgram::isDxcAvailable()
+{
+    std::string ignoredLog;
+    return loadDxcCreateInstance(ignoredLog) != nullptr;
+}
+
 MATERIALX_NAMESPACE_END

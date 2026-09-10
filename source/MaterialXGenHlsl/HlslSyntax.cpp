@@ -174,7 +174,10 @@ HlslSyntax::HlslSyntax(TypeSystemPtr typeSystem) :
                             "ConsumeStructuredBuffer", "RWTexture1D", "RWTexture1DArray",
                             "RWTexture2D", "RWTexture2DArray", "RWTexture3D",
                             "InputPatch", "OutputPatch", "PointStream", "LineStream",
-                            "TriangleStream", "ConstantBuffer" });
+                            "TriangleStream", "ConstantBuffer",
+                            // HLSL codegen translates GLSL mix() calls to lerp(), so protect both the source token
+                            // and the target intrinsic from generated variable names.
+                            "mix", "lerp" });
 
     //
     // Register syntax handlers for each data type.
@@ -380,11 +383,6 @@ HlslSyntax::HlslSyntax(TypeSystemPtr typeSystem) :
             EMPTY_STRING,
             "surfaceshader",
             "#define material surfaceshader"));
-}
-
-bool HlslSyntax::typeSupported(const TypeDesc* type) const
-{
-    return *type != Type::STRING;
 }
 
 void HlslSyntax::makeValidName(string& name) const
