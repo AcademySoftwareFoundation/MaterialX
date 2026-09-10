@@ -54,6 +54,44 @@ Select the `MATERIALX_BUILD_VIEWER` option to build the MaterialX Viewer.  Insta
 
 To generate HTML documentation for the MaterialX C++ API, make sure a version of [Doxygen](https://www.doxygen.org/) is on your path, and select the advanced option `MATERIALX_BUILD_DOCS` in CMake.  This option will add a target named `MaterialXDocs` to your project, which can be built as an independent step from your development environment.
 
+### Building Fuzz Tests
+
+Select the `MATERIALX_BUILD_FUZZ_TESTS` option to build the [Google FuzzTest](https://github.com/google/fuzztest) fuzz target for the XML I/O layer.  The fuzz target is located in `source/MaterialXFuzz/` and is fetched automatically via CMake's FetchContent.
+
+**Unit-test mode** (any compiler, no special toolchain required):
+
+```sh
+cmake -B build -DMATERIALX_BUILD_FUZZ_TESTS=ON
+cmake --build build --target MaterialXFuzz
+./build/bin/MaterialXFuzz
+```
+
+In this mode the fuzz target runs as a standard GoogleTest case.
+
+**Coverage-guided fuzzing mode** (requires Clang and libFuzzer):
+
+```sh
+cmake -B build \
+  -DMATERIALX_BUILD_FUZZ_TESTS=ON \
+  -DFUZZTEST_FUZZING_MODE=ON \
+  -DMATERIALX_DYNAMIC_ANALYSIS=ON \
+  -DCMAKE_C_COMPILER=clang \
+  -DCMAKE_CXX_COMPILER=clang++
+cmake --build build --target MaterialXFuzz
+./build/bin/MaterialXFuzz --fuzz=MaterialXXmlIoFuzz.ParseXmlString
+```
+
+Setting `FUZZTEST_FUZZING_MODE=ON` enables SanitizerCoverage instrumentation across all MaterialX libraries, allowing FuzzTest's mutation engine to explore new code paths.  Adding `MATERIALX_DYNAMIC_ANALYSIS=ON` further enables AddressSanitizer and UndefinedBehaviorSanitizer for more thorough bug detection.
+
+To persist the corpus between runs and limit fuzzing duration:
+
+```sh
+./build/bin/MaterialXFuzz \
+  --fuzz=MaterialXXmlIoFuzz.ParseXmlString \
+  --fuzz_for=300s \
+  --corpus_database=./corpus/
+```
+
 ## Editor Setup
 
 MaterialX should work in any editor that supports CMake, or that CMake can generate a project for.
