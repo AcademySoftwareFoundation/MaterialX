@@ -57,7 +57,7 @@ class OcioColorManagementSystemImpl
 
     const char* getSupportedColorSpaceName(const char* colorSpace) const;
 
-    bool isNoOpColorSpace(const string& colorSpace) const;
+    bool isNoOpTransform(const string& sourceColorSpace, const string& targetColorSpace) const;
 
     string getUserFacingName(const string& colorSpace) const;
 
@@ -142,16 +142,31 @@ const char* OcioColorManagementSystemImpl::getSupportedColorSpaceName(const char
     return cacheEntry.empty() ? nullptr : cacheEntry.c_str();
 }
 
-bool OcioColorManagementSystemImpl::isNoOpColorSpace(const string& colorSpace) const
+bool OcioColorManagementSystemImpl::isNoOpTransform(const string& sourceColorSpace, const string& targetColorSpace) const
 {
-    const char* supportedColorSpace = getSupportedColorSpaceName(colorSpace.c_str());
-    if (!supportedColorSpace)
+    const char* supportedSource = getSupportedColorSpaceName(sourceColorSpace.c_str());
+    if (!supportedSource)
+    {
+        return false;
+    }
+    const char* supportedTarget = getSupportedColorSpaceName(targetColorSpace.c_str());
+    if (!supportedTarget)
     {
         return false;
     }
 
-    OCIO::ConstColorSpaceRcPtr colorSpaceObj = _config->getColorSpace(supportedColorSpace);
-    return colorSpaceObj && colorSpaceObj->isData();
+    OCIO::ConstColorSpaceRcPtr sourceObj = _config->getColorSpace(supportedSource);
+    OCIO::ConstColorSpaceRcPtr targetObj = _config->getColorSpace(supportedTarget);
+    if (!sourceObj || !targetObj)
+    {
+        return false;
+    }
+
+    // A color space flagged as data in the config requires no transform, and two names
+    // that resolve to the same color space, such as an alias and its canonical name,
+    // refer to the same color space.
+    return sourceObj->isData() || targetObj->isData() ||
+           string(sourceObj->getName()) == string(targetObj->getName());
 }
 
 string OcioColorManagementSystemImpl::getUserFacingName(const string& colorSpace) const
@@ -393,13 +408,10 @@ NodeDefPtr OcioColorManagementSystem::getNodeDef(const ColorSpaceTransform& tran
     return _impl->getNodeDef(transform, _document);
 }
 
-bool OcioColorManagementSystem::isNoOpColorSpace(const string& colorSpace) const
+bool OcioColorManagementSystem::isNoOpTransform(const string& sourceColorSpace, const string& targetColorSpace) const
 {
-    if (isReservedNoOpColorSpace(colorSpace))
-    {
-        return true;
-    }
-    return _impl->isNoOpColorSpace(colorSpace);
+    return DefaultColorManagementSystem::isNoOpTransform(sourceColorSpace, targetColorSpace) ||
+           _impl->isNoOpTransform(sourceColorSpace, targetColorSpace);
 }
 
 string OcioColorManagementSystem::getUserFacingName(const string& colorSpace) const
