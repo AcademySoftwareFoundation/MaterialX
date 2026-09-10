@@ -874,7 +874,11 @@ ShaderGraphEdgeIterator ShaderGraph::traverseUpstream(ShaderOutput* output)
 
 void ShaderGraph::addNode(ShaderNodePtr node)
 {
-    _nodeMap[node->getUniqueId()] = node;
+    // Replacing an existing node would leave dangling pointers in the node order and connections.
+    if (!_nodeMap.emplace(node->getUniqueId(), node).second)
+    {
+        throw ExceptionShaderGenError("Shader graph already contains a node with unique ID '" + node->getUniqueId() + "'.");
+    }
     _nodeOrder.push_back(node.get());
 }
 
@@ -1236,21 +1240,17 @@ void ShaderGraph::populateColorTransformMap(ColorManagementSystemPtr colorManage
             ColorSpaceTransform transform(sourceColorSpace, targetColorSpace, shaderPort->getType());
             if (colorManagementSystem->supportsTransform(transform))
             {
-                // A multi-file color node can request the same transform once per filename input.
-                // Retain only unique port and transform pairs to prevent duplicate transform nodes.
                 if (asInput)
                 {
-                    const auto entry = std::make_pair(static_cast<ShaderInput*>(shaderPort), transform);
-                    if (std::find(_inputColorTransformMap.begin(), _inputColorTransformMap.end(), entry) ==
-                        _inputColorTransformMap.end())
-                    {
-                        _inputColorTransformMap.push_back(entry);
-                    }
+                    _inputColorTransformMap.emplace_back(static_cast<ShaderInput*>(shaderPort), transform);
                 }
                 else
                 {
                     const auto entry = std::make_pair(static_cast<ShaderOutput*>(shaderPort), transform);
-                    if (std::find(_outputColorTransformMap.begin(), _outputColorTransformMap.end(), entry) ==
+                    // An output can carry only one transform, even when filename inputs use different color spaces.
+                    // Retain the first request until per-image transforms inside compound nodes are supported.
+                    if (std::find_if(_outputColorTransformMap.begin(), _outputColorTransformMap.end(),
+                                     [shaderPort](const auto& request) { return request.first == shaderPort; }) ==
                         _outputColorTransformMap.end())
                     {
                         _outputColorTransformMap.push_back(entry);
