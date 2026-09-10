@@ -150,7 +150,7 @@ TEST_CASE("GenShader: OpenPBR Thin-Walled Subsurface", "[genshader]")
     mx::NodeGraphPtr graph = nodeDef->getImplementation()->asA<mx::NodeGraph>();
     REQUIRE(graph);
 
-    for (const std::string& name : { "subsurface_thin_walled_brdf_factor", "subsurface_thin_walled_btdf_factor" })
+    for (const char* name : { "subsurface_thin_walled_brdf_factor", "subsurface_thin_walled_btdf_factor" })
     {
         mx::NodePtr factor = graph->getNode(name);
         REQUIRE(factor);
