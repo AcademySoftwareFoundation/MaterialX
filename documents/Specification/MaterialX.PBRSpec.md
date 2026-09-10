@@ -106,9 +106,9 @@ In general, a color given as input to the renderer is considered to represent a 
 
 ## Color Management
 
-MaterialX supports the use of [color management systems](./MaterialX.Specification.md#color-spaces-and-color-management-systems) to associate colors with specific color spaces. A MaterialX document typically specifies the working color space that is to be used for the document as well as the color space in which input values and textures are given. If these color spaces are different from the working color space, it is the application's and shader generator's responsibility to transform them.
+MaterialX supports the use of [color management systems](./MaterialX.Specification.md#color-spaces-and-color-management-systems) to associate colors with specific color spaces. A MaterialX document typically specifies the working color space that is to be used for the document as well as the color space in which input values and textures are given. If these color spaces are different from the rendering color space, it is the application's and shader generator's responsibility to transform them.
 
-The ShaderGen module has an interface that can be used to integrate support for different color management systems. A simplified implementation with some popular and commonly used color transformations is supplied and enabled by default. An integration with the relevant portions of OpenColorIO ([http://opencolorio.org](http://opencolorio.org)) is planned for the future.
+The ShaderGen module has an interface that can be used to integrate support for different color management systems. Two implementations are provided: a built-in default color management system that supports a baseline set of ASWF color spaces; and an optional OpenColorIO color management system integration which provides support for a wider set of color spaces.
 
 
 ## Surfaces
@@ -800,14 +800,15 @@ In the equations below, the `tint_R`, `tint_TT`, and `tint_TRT` inputs correspon
 
 #### Chiang Hair Scattering Equations
 
-The Chiang hair model[^Chiang2016] treats a hair fiber as a dielectric cylinder with tilted cuticle scales. Directions at a point on the fiber are parameterized by inclination $\theta$ from the fiber's normal plane and azimuth $\phi$ around the fiber, differing from the surface-normal angles used by planar BSDF nodes. The BCSDF is a sum over four scattering lobes — R (surface reflection), TT (double transmission), TRT (internal reflection), and TRRT+ (higher-order paths):
+The Chiang hair model[^Chiang2016] treats a hair fiber as a dielectric cylinder with tilted cuticle scales. Directions at a point on the fiber are parameterized by inclination $\theta$ from the fiber's normal plane and azimuth $\phi$ around the fiber, differing from the surface-normal angles used by planar BSDF nodes. The BCSDF is a sum over four scattering lobes: R (surface reflection), TT (double transmission), TRT (internal reflection), and TRRT+ (higher-order paths):
 
 ```math
-f_c(\omega_i, \omega_o) = \frac{1}{\pi} \sum_{p \in \{R,TT,TRT,TRRT+\}} t_p A_p M_p N_p
+f_c(\omega_i, \omega_o) =
+\sum_{p \in \{R,TT,TRT,TRRT+\}} t_p A_p M_p N_p
 ```
 <p></p>
 
-where $M_p$ is the longitudinal scattering function, $N_p$ is the azimuthal scattering function, and $A_p$ is the attenuation factor combining Fresnel reflectance and volumetric absorption. The higher-order TRRT+ lobe shares the tint $t_{TRT}$ and the roughness values of the TRT lobe. The full definitions of these components are given in the [Chiang Hair Model](#chiang-hair-model) appendix.
+where $M_p$ is the longitudinal scattering function, $N_p$ is the azimuthal scattering function, and $A_p$ is the attenuation factor combining Fresnel reflectance and volumetric absorption. The longitudinal and azimuthal distributions include the normalization required by the model, so the lobe products require no additional normalization. The higher-order TRRT+ lobe shares the tint $t_{TRT}$ and the roughness values of the TRT lobe. The full definitions of these components are given in the [Chiang Hair Model](#chiang-hair-model) appendix.
 
 
 ## EDF Nodes

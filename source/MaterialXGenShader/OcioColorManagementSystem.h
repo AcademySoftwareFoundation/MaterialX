@@ -50,6 +50,19 @@ class MX_GENSHADER_API OcioColorManagementSystem : public DefaultColorManagement
     /// Create an OCIO node
     ShaderNodeImplPtr createImplementation(const string& implName) const override;
 
+    /// Returns true if no color transformation is required between the given source
+    /// and target color spaces. In addition to the base class behavior, this treats any
+    /// color space flagged as data in the OCIO config (e.g. "Raw") as a no-op, and
+    /// recognizes names that resolve to the same color space in the active config,
+    /// such as an alias and its canonical name.
+    bool isNoOpTransform(const string& sourceColorSpace, const string& targetColorSpace) const override;
+
+    /// The colorSpace strings should not be shown directly in a user interface. This function
+    /// converts a colorSpace into a user-facing name using OCIO's getCanonicalName function.
+    /// This allows the config author to control the name artists see. This applies even for
+    /// color spaces that are in the base MaterialX and Color Interop Forum set.
+    string getUserFacingName(const string& colorSpace) const override;
+
     /// Returns shader text for an implementation
     string getGpuProcessorCode(const string& implName, const string& functionName) const;
 
