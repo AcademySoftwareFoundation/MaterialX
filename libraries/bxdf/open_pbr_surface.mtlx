@@ -147,7 +147,7 @@
       <input name="in2" type="float" interfacename="subsurface_scatter_anisotropy" />
     </subtract>
     <multiply name="subsurface_thin_walled_brdf_factor" type="color3">
-      <input name="in1" type="color3" interfacename="subsurface_color" />
+      <input name="in1" type="color3" value="1.0, 1.0, 1.0" />
       <input name="in2" type="float" nodename="one_minus_subsurface_scatter_anisotropy" />
     </multiply>
     <multiply name="subsurface_thin_walled_reflection" type="BSDF">
@@ -163,7 +163,7 @@
       <input name="in2" type="float" interfacename="subsurface_scatter_anisotropy" />
     </add>
     <multiply name="subsurface_thin_walled_btdf_factor" type="color3">
-      <input name="in1" type="color3" interfacename="subsurface_color" />
+      <input name="in1" type="color3" value="1.0, 1.0, 1.0" />
       <input name="in2" type="float" nodename="one_plus_subsurface_scatter_anisotropy" />
     </multiply>
     <multiply name="subsurface_thin_walled_transmission" type="BSDF">

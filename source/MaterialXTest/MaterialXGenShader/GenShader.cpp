@@ -139,6 +139,28 @@ TEST_CASE("GenShader: Duplicate Output Color Transforms", "[genshader]")
 }
 #endif
 
+TEST_CASE("GenShader: OpenPBR Thin-Walled Subsurface", "[genshader]")
+{
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::DocumentPtr libraries = mx::createDocument();
+    mx::loadLibraries({ "libraries" }, searchPath, libraries);
+
+    mx::NodeDefPtr nodeDef = libraries->getNodeDef("ND_open_pbr_surface_surfaceshader");
+    REQUIRE(nodeDef);
+    mx::NodeGraphPtr graph = nodeDef->getImplementation()->asA<mx::NodeGraph>();
+    REQUIRE(graph);
+
+    for (const std::string& name : { "subsurface_thin_walled_brdf_factor", "subsurface_thin_walled_btdf_factor" })
+    {
+        mx::NodePtr factor = graph->getNode(name);
+        REQUIRE(factor);
+        mx::InputPtr color = factor->getInput("in1");
+        REQUIRE(color);
+        REQUIRE(color->getInterfaceName().empty());
+        REQUIRE(color->getValueString() == "1.0, 1.0, 1.0");
+    }
+}
+
 TEST_CASE("GenShader: TypeDesc Check", "[genshader]")
 {
     mx::TypeSystemPtr ts = mx::TypeSystem::create();
