@@ -63,7 +63,7 @@
     <input name="weight" type="float" value="1.0" uimin="0.0" uimax="1.0" />
     <input name="tint" type="color3" value="1.0, 1.0, 1.0" />
     <input name="ior" type="float" value="1.5" />
-    <input name="roughness" type="vector2" value="0.05, 0.05" />
+    <input name="roughness" type="vector2" value="0.05, 0.05" doc="Anisotropic surface roughness along the surface tangent and bitangent. The roughness values are supplied directly to the microfacet distribution, with no internal remapping." />
     <input name="retroreflective" type="boolean" value="false" uniform="true" />
     <input name="thinfilm_thickness" type="float" value="0" unittype="distance" unit="nanometer" />
     <input name="thinfilm_ior" type="float" value="1.5" />
@@ -82,7 +82,7 @@
     <input name="weight" type="float" value="1.0" uimin="0.0" uimax="1.0" />
     <input name="ior" type="color3" value="0.183, 0.421, 1.373" />
     <input name="extinction" type="color3" value="3.424, 2.346, 1.770" />
-    <input name="roughness" type="vector2" value="0.05, 0.05" />
+    <input name="roughness" type="vector2" value="0.05, 0.05" doc="Anisotropic surface roughness along the surface tangent and bitangent. The roughness values are supplied directly to the microfacet distribution, with no internal remapping." />
     <input name="retroreflective" type="boolean" value="false" uniform="true" />
     <input name="thinfilm_thickness" type="float" value="0" unittype="distance" unit="nanometer" />
     <input name="thinfilm_ior" type="float" value="1.5" />
@@ -102,7 +102,7 @@
     <input name="color82" type="color3" value="1.0, 1.0, 1.0" />
     <input name="color90" type="color3" value="1.0, 1.0, 1.0" />
     <input name="exponent" type="float" value="5.0" />
-    <input name="roughness" type="vector2" value="0.05, 0.05" />
+    <input name="roughness" type="vector2" value="0.05, 0.05" doc="Anisotropic surface roughness along the surface tangent and bitangent. The roughness values are supplied directly to the microfacet distribution, with no internal remapping." />
     <input name="retroreflective" type="boolean" value="false" uniform="true" />
     <input name="thinfilm_thickness" type="float" value="0" unittype="distance" unit="nanometer" />
     <input name="thinfilm_ior" type="float" value="1.5" />
@@ -148,9 +148,9 @@
     <input name="tint_TT" type="color3" value="1, 1, 1" />
     <input name="tint_TRT" type="color3" value="1, 1, 1" />
     <input name="ior" type="float" value="1.55" />
-    <input name="roughness_R" type="vector2" value="0.1, 0.1" />
-    <input name="roughness_TT" type="vector2" value="0.05, 0.05" />
-    <input name="roughness_TRT" type="vector2" value="0.2, 0.2" />
+    <input name="roughness_R" type="vector2" value="0.1, 0.1" doc="Longitudinal variance and azimuthal logistic scale for the R lobe." />
+    <input name="roughness_TT" type="vector2" value="0.05, 0.05" doc="Longitudinal variance and azimuthal logistic scale for the TT lobe." />
+    <input name="roughness_TRT" type="vector2" value="0.2, 0.2" doc="Longitudinal variance and azimuthal logistic scale for the TRT lobe." />
     <input name="cuticle_angle" type="float" value="0.5" />
     <input name="absorption_coefficient" type="vector3" value="0.0, 0.0, 0.0" />
     <input name="normal" type="vector3" defaultgeomprop="Nworld" />
@@ -382,8 +382,8 @@
     Calculates anisotropic surface roughness from a scalar roughness and anisotropy parameterization.
   -->
   <nodedef name="ND_roughness_anisotropy" node="roughness_anisotropy" nodegroup="pbr" doc="Calculates anisotropic surface roughness from a scalar roughness/anisotropy parameterization.">
-    <input name="roughness" type="float" value="0.0" />
-    <input name="anisotropy" type="float" value="0.0" />
+    <input name="roughness" type="float" value="0.0" doc="Isotropic roughness from which the anisotropic roughness pair is computed along the surface tangent and bitangent." />
+    <input name="anisotropy" type="float" value="0.0" doc="Amount of anisotropy. A value of 0.0 gives isotropic roughness; positive values stretch the roughness along the surface tangent." />
     <output name="out" type="vector2" />
   </nodedef>
 
@@ -392,7 +392,7 @@
     Calculates anisotropic surface roughness from a dual surface roughness parameterization.
   -->
   <nodedef name="ND_roughness_dual" node="roughness_dual" nodegroup="pbr" doc="Calculates anisotropic surface roughness from a dual surface roughness parameterization.">
-    <input name="roughness" type="vector2" value="0.0, 0.0" />
+    <input name="roughness" type="vector2" value="0.0, 0.0" doc="Anisotropic surface roughness along the surface tangent and bitangent. The values are supplied directly, with no internal remapping." />
     <output name="out" type="vector2" />
   </nodedef>
 
@@ -401,8 +401,8 @@
     Calculates anisotropic surface roughness from a scalar glossiness and anisotropy parameterization.
   -->
   <nodedef name="ND_glossiness_anisotropy" node="glossiness_anisotropy" nodegroup="pbr" doc="Calculates anisotropic surface roughness from a scalar glossiness/anisotropy parameterization.">
-    <input name="glossiness" type="float" value="1.0" uimin="0.0" uimax="1.0" />
-    <input name="anisotropy" type="float" value="0.0" uimin="0.0" uimax="1.0" />
+    <input name="glossiness" type="float" value="1.0" uimin="0.0" uimax="1.0" doc="Isotropic glossiness from which the anisotropic roughness pair is computed along the surface tangent and bitangent." />
+    <input name="anisotropy" type="float" value="0.0" uimin="0.0" uimax="1.0" doc="Amount of anisotropy. A value of 0.0 gives isotropic roughness; positive values stretch the roughness along the surface tangent." />
     <output name="out" type="vector2" />
   </nodedef>
 
