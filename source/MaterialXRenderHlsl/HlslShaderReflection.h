@@ -47,7 +47,7 @@ struct HlslReflectedMember
 };
 
 /// One variable declared in a constant buffer.
-struct HlslReflectedVariable
+struct MX_RENDERHLSL_API HlslReflectedVariable
 {
     std::string name;
     unsigned int offset = 0;   ///< Byte offset within the constant buffer.
