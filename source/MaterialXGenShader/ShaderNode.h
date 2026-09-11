@@ -251,6 +251,12 @@ class MX_GENSHADER_API ShaderPort : public std::enable_shared_from_this<ShaderPo
     /// Get the metadata vector.
     const ShaderMetadataVecPtr& getMetadata() const { return _metadata; }
 
+    /// Copy the value, flags and descriptive data on this port to the given target port.
+    /// The name, type, variable name and connection state of either port are left
+    /// untouched, since those identify the port within its own node and graph rather
+    /// than describing the data it carries.
+    void copyToPort(ShaderPort* to) const;
+
   protected:
     ShaderNode* _node;
     TypeDesc _type;
@@ -442,6 +448,12 @@ class MX_GENSHADER_API ShaderNode
     const ShaderNodeImpl& getImplementation() const
     {
         return *_impl;
+    }
+
+    /// Return a shared pointer to the implementation used for this node.
+    ShaderNodeImplPtr getImplementationPtr() const
+    {
+        return _impl;
     }
 
     /// Initialize this shader node with all required data

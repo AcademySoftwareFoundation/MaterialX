@@ -131,7 +131,25 @@ class MX_GENSHADER_API ShaderGraph : public ShaderNode
     ConstDocumentPtr getDocument() const { return _document; }
 
     /// Create a new node in the graph from a node definition.
+    /// @throws ExceptionShaderGenError if a node with the given unique identifier already exists.
     ShaderNode* createNode(const string& name, const string& uniqueId, ConstNodeDefPtr nodeDef, GenContext& context);
+
+    /// Create a new node in the graph from an existing node implementation.
+    /// The node is created without any ports, which the caller is responsible for adding.
+    /// This is intended for graph transformations that clone or synthesize nodes from
+    /// implementations that have already been resolved.
+    /// @throws ExceptionShaderGenError if a node with the given unique identifier already exists.
+    ShaderNode* createNode(const string& name, const string& uniqueId, ShaderNodeImplPtr impl,
+                           uint32_t classification);
+
+    /// Remove a node from the graph by its unique identifier, breaking all of its
+    /// connections. Does nothing if no such node exists.
+    void removeNode(const string& uniqueId);
+
+    /// Remove a set of nodes from the graph by their unique identifiers, breaking all
+    /// of their connections. Unknown identifiers are ignored. Removing a batch this way
+    /// compacts the node order once for the whole set rather than once per node.
+    void removeNodes(const StringSet& uniqueIds);
 
     /// Bypass a node for a particular input and output,
     /// effectively connecting the input's upstream connection

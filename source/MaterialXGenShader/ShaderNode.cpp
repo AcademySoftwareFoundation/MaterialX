@@ -39,6 +39,22 @@ string ShaderPort::getValueString() const
     return getValue() ? getValue()->getValueString() : EMPTY_STRING;
 }
 
+void ShaderPort::copyToPort(ShaderPort* to) const
+{
+    to->setPath(getPath());
+    to->setSemantic(getSemantic());
+    to->setValue(getValue());
+    to->setUnit(getUnit());
+    to->setColorSpace(getColorSpace());
+    to->setGeomProp(getGeomProp());
+    to->setMetadata(getMetadata());
+
+    // Copy the flags last. setValue() above raises the AUTHORED_VALUE flag
+    // unconditionally, so the flags of the source port must be applied after
+    // it in order to preserve an unauthored value.
+    to->setFlags(getFlags());
+}
+
 //
 // ShaderInput methods
 //

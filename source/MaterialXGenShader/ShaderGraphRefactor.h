@@ -75,6 +75,25 @@ class MX_GENSHADER_API DistributeLayerOverMixRefactor : public ShaderGraphRefact
     size_t execute(ShaderGraph& graph, GenContext& context) override;
 };
 
+/// @class CompoundFlatteningRefactor
+/// Expands compound nodes in place, replacing each one with copies of the nodes
+/// inside its graph, rewired to the compound node's external connections.
+/// Compound nodes are produced by nodegraph elements in the document and by
+/// nodes whose nodedef is implemented by a nodegraph. Expansion is applied
+/// repeatedly, so nested compound nodes are fully flattened.
+///
+/// This pass is not registered by default, since inlining a nodegraph discards
+/// the emission behavior of its compound implementation. Backends that cannot
+/// emit nodegraphs as function calls register it explicitly.
+class MX_GENSHADER_API CompoundFlatteningRefactor : public ShaderGraphRefactor
+{
+  public:
+    const string& getName() const override;
+
+    /// Expand every compound node in the graph, returning the number expanded.
+    size_t execute(ShaderGraph& graph, GenContext& context) override;
+};
+
 MATERIALX_NAMESPACE_END
 
 #endif
