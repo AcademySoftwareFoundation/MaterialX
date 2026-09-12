@@ -27,7 +27,7 @@ GLFramebuffer::GLFramebuffer(unsigned int width, unsigned int height, unsigned i
     _height(height),
     _channelCount(channelCount),
     _baseType(baseType),
-    _encodeSrgb(false),
+    _encodeSrgb(true),
     _framebuffer(0),
     _colorTexture(0),
     _depthTexture(0)
