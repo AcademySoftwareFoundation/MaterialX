@@ -1195,11 +1195,13 @@ void Document::upgradeVersion()
                 if (which && which->hasValue())
                 {
                     auto whichValue = which->getValue();
-                    if (whichValue->isA<int>() && whichValue->asA<int>() >= 5)
+                    // whichValue is null when the stored value string can't be parsed
+                    // as the input's declared type (e.g. a non-numeric "which" value).
+                    if (whichValue && whichValue->isA<int>() && whichValue->asA<int>() >= 5)
                     {
                         which->setValue(0);
                     }
-                    else if (whichValue->isA<float>() && whichValue->asA<float>() >= 5)
+                    else if (whichValue && whichValue->isA<float>() && whichValue->asA<float>() >= 5)
                     {
                         which->setValue(0.0);
                     }
@@ -1283,8 +1285,9 @@ void Document::upgradeVersion()
                                     continue;
                                 }
                             }
-                            // Invalid channel name, or missing channel name:
-                            newValueTokens.push_back(origValueTokens[0]);
+                            // Invalid channel name, or missing channel name: fall back to the
+                            // first original token, or "0" if the original value was empty.
+                            newValueTokens.push_back(origValueTokens.empty() ? "0" : origValueTokens[0]);
                         }
                         InputPtr valueInput = node->addInput("value", node->getType());
                         valueInput->setValueString(joinStrings(newValueTokens, ", "));
