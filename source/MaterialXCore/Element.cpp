@@ -190,8 +190,9 @@ void Element::removeChild(const string& name)
     unregisterChildElement(it->second);
 }
 
-void Element::setAttribute(const string& attrib, const string& value)
+void Element::setAttribute(std::string_view attrib_sv, const string& value)
 {
+    string attrib = string(attrib_sv);
     getDocument()->invalidateCache();
 
     if (!_attributeMap.count(attrib))
@@ -201,9 +202,9 @@ void Element::setAttribute(const string& attrib, const string& value)
     _attributeMap[attrib] = value;
 }
 
-void Element::removeAttribute(const string& attrib)
+void Element::removeAttribute(std::string_view attrib)
 {
-    StringMap::iterator it = _attributeMap.find(attrib);
+    StringMap::iterator it = _attributeMap.find(string(attrib));
     if (it != _attributeMap.end())
     {
         getDocument()->invalidateCache();

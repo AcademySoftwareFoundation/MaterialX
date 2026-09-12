@@ -135,11 +135,19 @@ EMSCRIPTEN_BINDINGS(element)
         BIND_ELEMENT_CHILD_FUNC_INSTANCE(VariantAssign, mx::VariantAssign)
         BIND_ELEMENT_CHILD_FUNC_INSTANCE(VariantSet, mx::VariantSet)
         BIND_ELEMENT_CHILD_FUNC_INSTANCE(Variant, mx::Variant)
-        .function("setAttribute", &mx::Element::setAttribute)
-        .function("hasAttribute", &mx::Element::hasAttribute)
-        .function("getAttribute", &mx::Element::getAttribute)
+        .function("setAttribute", ems::optional_override([](mx::Element& self, const std::string& attrib, const std::string& value) {
+            self.setAttribute(attrib, value);
+        }))
+        .function("hasAttribute", ems::optional_override([](const mx::Element& self, const std::string& attrib) {
+            return self.hasAttribute(attrib);
+        }))
+        .function("getAttribute", ems::optional_override([](const mx::Element& self, const std::string& attrib) -> const std::string& {
+            return self.getAttribute(attrib);
+        }))
         .function("getAttributeNames", &mx::Element::getAttributeNames)
-        .function("removeAttribute", &mx::Element::removeAttribute)
+        .function("removeAttribute", ems::optional_override([](mx::Element& self, const std::string& attrib) {
+            self.removeAttribute(attrib);
+        }))
         .function("getSelf", ems::select_overload<mx::ConstElementPtr()const>(&mx::Element::getSelf))
         .function("getParent", ems::select_overload<mx::ConstElementPtr()const>(&mx::Element::getParent))
         .function("getRoot", ems::select_overload<mx::ConstElementPtr()const>(&mx::Element::getRoot))
