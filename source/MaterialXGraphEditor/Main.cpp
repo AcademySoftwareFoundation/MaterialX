@@ -30,11 +30,13 @@ const std::string options =
     "    --mesh [FILENAME]              Specify the filename of the OBJ or glTF mesh to be displayed in the graph editor\n"
     "    --path [FILEPATH]              Specify an additional data search path location (e.g. '/projects/MaterialX').  This absolute path will be queried when locating data libraries, XInclude references, and referenced images.\n"
     "    --library [FILEPATH]           Specify an additional data library folder (e.g. 'vendorlib', 'studiolib').  This relative path will be appended to each location in the data search path when loading data libraries.\n"
-    "    --uiScale [FACTOR]             Manually specify a UI scaling factor\n"
+    "    --uiScale [FACTOR]             Additional UI scale multiplier applied on top of detected device scale\n"
     "    --font [FILENAME]              Specify the name of the custom font file to use.  If not specified the default font will be used.\n"
     "    --fontSize [SIZE]              Specify font size to use for the custom font.  If not specified a default of 18 will be used.\n"
     "    --captureFilename [FILENAME]   Specify the filename to which the first rendered frame should be written\n"
     "    --previewWidth [WIDTH]         Specify the width for image previews\n"
+    "    --pinsOnBorder [true|false]    Specify whether node pins should be drawn on the border of nodes (true) or inside the node (false).  Default is true.\n"
+    "    --pinShape [circle|flow]       Specify the shape of node pins (circle, flow).  Default is circle.\n"
     "    --help                         Display the complete list of command-line options\n";
 
 template <class T> void parseToken(std::string token, std::string type, T& res)
@@ -70,11 +72,13 @@ int main(int argc, char* const argv[])
     mx::FilePathVec libraryFolders;
     int viewWidth = 256;
     int viewHeight = 256;
-    float uiScale = 0.0f;
+    float uiScale = 1.0f;
     std::string fontFilename;
     int fontSize = 18;
     float previewWidth = 256.0f;
     std::string captureFilename;
+    bool pinsOnBorder = true;
+    std::string pinShape = "circle";
 
     for (size_t i = 0; i < tokens.size(); i++)
     {
@@ -124,6 +128,14 @@ int main(int argc, char* const argv[])
         else if (token == "--captureFilename")
         {
             parseToken(nextToken, "string", captureFilename);
+        }
+        else if (token == "--pinsOnBorder")
+        {
+            parseToken(nextToken, "boolean", pinsOnBorder);
+        }
+        else if (token == "--pinShape")
+        {
+            parseToken(nextToken, "string", pinShape);
         }
         else if (token == "--help")
         {
@@ -198,10 +210,17 @@ int main(int argc, char* const argv[])
     io.IniFilename = NULL;
     io.LogFilename = NULL;
 
+    // Derive a single effective UI scale from device DPI and optional CLI multiplier.
+    float xscale = 1.0f, yscale = 1.0f;
+    glfwGetWindowContentScale(window, &xscale, &yscale);
+    const float deviceScale = (xscale > yscale) ? xscale : yscale;
+    const float effectiveUiScale = deviceScale * ((uiScale > 0.0f) ? uiScale : 1.0f);
+    const float scaledFontSize = std::max(1.0f, fontSize * effectiveUiScale);
+
     ImFont* customFont = nullptr;
     if (!fontFilename.empty())
     {
-        customFont = io.Fonts->AddFontFromFileTTF(fontFilename.c_str(), fontSize);
+        customFont = io.Fonts->AddFontFromFileTTF(fontFilename.c_str(), scaledFontSize);
     }
     if (!customFont)
     {
@@ -209,7 +228,7 @@ int main(int argc, char* const argv[])
         mx::FilePath resolvedFontPath = searchPath.find(defaultFontFile);
         if (!resolvedFontPath.isEmpty())
         {
-            customFont = io.Fonts->AddFontFromFileTTF(resolvedFontPath.asString().c_str(), fontSize);
+            customFont = io.Fonts->AddFontFromFileTTF(resolvedFontPath.asString().c_str(), scaledFontSize);
         }
     }
     if (!customFont)
@@ -231,31 +250,18 @@ int main(int argc, char* const argv[])
                              libraryFolders,
                              viewWidth,
                              viewHeight,
-                             previewWidth);
+                             previewWidth,
+                             pinsOnBorder,
+                             pinShape);
     if (!captureFilename.empty())
     {
         graph->getRenderer()->requestFrameCapture(captureFilename);
         graph->getRenderer()->requestExit();
     }
 
-    // Handle DPI scaling
-    // Note that ScaleAllSizes() only handles things like spacing of elements.
-    // Fonts are not handled, so a global font scale factor is set.
-    // There appears to be no multi-monitor solution so use the primary monitor
-    // for now.
-    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-    if (monitor)
-    {
-        float xscale = 1.0f, yscale = 1.0f;
-        glfwGetMonitorContentScale(monitor, &xscale, &yscale);
-        ImGuiStyle& style = ImGui::GetStyle();
-        if (uiScale <= 0.0f)
-        {
-            uiScale = (xscale > yscale) ? xscale : yscale;
-        }
-        style.ScaleAllSizes(uiScale);
-        graph->setFontScale(uiScale);
-    }
+    // Handle DPI scaling for ImGui style metrics.
+    ImGuiStyle& style = ImGui::GetStyle();
+    style.ScaleAllSizes(effectiveUiScale);
 
     // Create editor config and context.
     ed::Config config;
@@ -268,8 +274,9 @@ int main(int argc, char* const argv[])
     }
     ed::SetCurrentEditor(editorContext);
     ed::Style& editorStyle = ed::GetStyle();
-    editorStyle.NodeRounding  = 5.0f;
+    editorStyle.NodeRounding  = 8.0f;
     editorStyle.PinRounding   = 2.0f;
+    editorStyle.PinArrowSize = 0.0f;
     editorStyle.GroupRounding = 3.0f;
     editorStyle.LinkStrength  = 125.0f;
 
