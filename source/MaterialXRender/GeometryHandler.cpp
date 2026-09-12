@@ -118,6 +118,19 @@ bool GeometryHandler::loadGeometry(const FilePath& filePath, bool texcoordVertic
     return loaded;
 }
 
+bool GeometryHandler::requiresTexcoordVerticalFlip(const FilePath& filePath) const
+{
+    std::pair<GeometryLoaderMap::const_iterator, GeometryLoaderMap::const_iterator> range;
+    string extension = filePath.getExtension();
+    range = _geometryLoaders.equal_range(extension);
+    for (auto it = range.second; it != range.first;)
+    {
+        --it;
+        return it->second->requiresTexcoordVerticalFlip();
+    }
+    return false;
+}
+
 MeshPtr GeometryHandler::findParentMesh(MeshPartitionPtr part)
 {
     for (MeshPtr mesh : getMeshes())

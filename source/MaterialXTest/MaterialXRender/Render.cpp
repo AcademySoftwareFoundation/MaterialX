@@ -7,6 +7,8 @@
 #include <MaterialXTest/MaterialXRender/RenderUtil.h>
 
 #include <MaterialXRender/ShaderRenderer.h>
+#include <MaterialXRender/CgltfLoader.h>
+#include <MaterialXRender/Mesh.h>
 #include <MaterialXRender/StbImageLoader.h>
 #include <MaterialXRender/TinyObjLoader.h>
 #include <MaterialXRender/Types.h>
@@ -114,6 +116,37 @@ void testGeomHandler(GeomHandlerTestOptions& options)
     CHECK(loadFailed == 0);
 }
 
+mx::MeshFloatBuffer loadTexcoords(mx::GeometryLoaderPtr loader, const mx::FilePath& filePath, bool texcoordVerticalFlip)
+{
+    mx::MeshList meshes;
+    REQUIRE(loader->load(filePath, meshes, texcoordVerticalFlip));
+    REQUIRE(!meshes.empty());
+
+    mx::MeshStreamPtr texcoordStream = meshes[0]->getStream(mx::MeshStream::TEXCOORD_ATTRIBUTE, 0);
+    REQUIRE(texcoordStream);
+    return texcoordStream->getData();
+}
+
+void testTexcoordVerticalFlip(mx::GeometryLoaderPtr loader, const mx::FilePath& filePath)
+{
+    const size_t texcoordStride = 2;
+    mx::MeshFloatBuffer texcoords = loadTexcoords(loader, filePath, false);
+    mx::MeshFloatBuffer flippedTexcoords = loadTexcoords(loader, filePath, true);
+    REQUIRE(texcoords.size() == flippedTexcoords.size());
+    REQUIRE(texcoords.size() >= texcoordStride);
+
+    bool foundNonBoundaryTexcoord = false;
+    for (size_t i = 1; i < texcoords.size(); i += texcoordStride)
+    {
+        CHECK(std::abs(flippedTexcoords[i] - (1.0f - texcoords[i])) < 1e-6f);
+        if (texcoords[i] > 0.0f && texcoords[i] < 1.0f)
+        {
+            foundNonBoundaryTexcoord = true;
+        }
+    }
+    CHECK(foundNonBoundaryTexcoord);
+}
+
 TEST_CASE("Render: Geometry Handler Load", "[rendercore]")
 {
     std::ofstream geomHandlerLog;
@@ -147,6 +180,21 @@ TEST_CASE("Render: Geometry Handler Load", "[rendercore]")
     }
     CHECK(geomLoaded);
     geomHandlerLog.close();
+}
+
+TEST_CASE("Render: Geometry Loader Texcoord Flip", "[rendercore]")
+{
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::FilePath geometryPath = searchPath.find("resources/Geometry/");
+
+    testTexcoordVerticalFlip(mx::TinyObjLoader::create(), geometryPath / "sphere.obj");
+    testTexcoordVerticalFlip(mx::CgltfLoader::create(), geometryPath / "shaderball.glb");
+
+    mx::GeometryHandlerPtr handler = mx::GeometryHandler::create();
+    handler->addLoader(mx::TinyObjLoader::create());
+    handler->addLoader(mx::CgltfLoader::create());
+    CHECK(!handler->requiresTexcoordVerticalFlip(geometryPath / "sphere.obj"));
+    CHECK(handler->requiresTexcoordVerticalFlip(geometryPath / "shaderball.glb"));
 }
 
 struct ImageHandlerTestOptions
