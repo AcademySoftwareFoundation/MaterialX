@@ -209,6 +209,18 @@ class MX_FORMAT_API FilePath
     /// Return the directory containing the executable module.
     static FilePath getModulePath();
 
+    /// Create a temporary directory with a unique name.
+    /// @param parentDir The parent directory for the temporary directory.
+    ///    If empty, uses the system's default temporary directory.
+    /// @return A FilePath to the created temporary directory.
+    /// @throws Exception if the temporary directory cannot be created.
+    static FilePath createTemporaryDirectory(const FilePath& parentDir = FilePath());
+
+    /// Return the system's default temporary directory.
+    /// @return A FilePath to the system temporary directory.
+    /// @throws Exception if the system temporary directory cannot be determined.
+    static FilePath getSystemTemporaryDirectory();
+
   private:
     StringVec _vec;
     Type _type;

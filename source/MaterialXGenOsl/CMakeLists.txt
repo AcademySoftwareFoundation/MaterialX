@@ -14,6 +14,20 @@ mx_add_library(MaterialXGenOsl
     EXPORT_DEFINE
         MATERIALX_GENOSL_EXPORTS)
 
+if (OSL_FOUND)
+    target_link_libraries(${TARGET_NAME}
+            PRIVATE
+            OSL::oslcomp)
+    target_compile_definitions(${TARGET_NAME}
+            PRIVATE
+            USE_OSLCOMP)
+endif()
+
+target_compile_definitions(${TARGET_NAME} PRIVATE
+        MATERIALX_OSL_BINARY_OSLC=\"${MATERIALX_OSL_BINARY_OSLC}\"
+        MATERIALX_OSL_INCLUDE_PATH=\"${MATERIALX_OSL_INCLUDE_PATH}\"
+)
+
 if (MATERIALX_BUILD_OSOS)
     file(GLOB GenNodes_SRC "${CMAKE_CURRENT_SOURCE_DIR}/LibsToOso.cpp")
 

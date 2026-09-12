@@ -251,6 +251,9 @@ class MX_GENSHADER_API ShaderPort : public std::enable_shared_from_this<ShaderPo
     /// Get the metadata vector.
     const ShaderMetadataVecPtr& getMetadata() const { return _metadata; }
 
+    /// Copy all the local data to the target port.
+    void copyToPort(ShaderPort* to) const;
+
   protected:
     ShaderNode* _node;
     TypeDesc _type;
@@ -443,6 +446,10 @@ class MX_GENSHADER_API ShaderNode
     {
         return *_impl;
     }
+    ShaderNodeImplPtr getImplementationPtr() const
+    {
+        return _impl;
+    }
 
     /// Initialize this shader node with all required data
     /// from the given node and nodedef.
@@ -496,6 +503,8 @@ class MX_GENSHADER_API ShaderNode
     {
         return (!_impl || _impl->isEditable(input));
     }
+
+    virtual const string& getPortName(const string& portName) const;
 
   protected:
     /// Create metadata from the nodedef according to registered metadata.

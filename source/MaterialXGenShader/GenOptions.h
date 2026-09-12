@@ -99,7 +99,8 @@ class MX_GENSHADER_API GenOptions
         hwWriteEnvPrefilter(false),
         hwImplicitBitangents(true),
         oslImplicitSurfaceShaderConversion(true),
-        oslConnectCiWrapper(false)
+        oslConnectCiWrapper(false),
+        oslTempOsoPath("")
     {
     }
     virtual ~GenOptions() { }
@@ -225,6 +226,9 @@ class MX_GENSHADER_API GenOptions
     // for OSL targets.
     // Defaults to false.
     bool oslConnectCiWrapper;
+
+    // Directory used to write temporary oso files to.
+    FilePath oslTempOsoPath;
 };
 
 MATERIALX_NAMESPACE_END
