@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+  <nodegraph name="NG_test_colorcorrect_reference">
+    <multiply name="AlphaGain" type="float">
+      <input name="in1" type="float" nodename="inputAlpha" />
+      <input name="in2" type="float" interfacename="AlphaGain_in2" />
+    </multiply>
+    <add name="AlphaOffset" type="float">
+      <input name="in1" type="float" nodename="AlphaGain" />
+      <input name="in2" type="float" interfacename="AlphaOffset_in2" />
+    </add>
+    <multiply name="ColorGain" type="color3">
+      <input name="in1" type="color3" nodename="inputColor" />
+      <input name="in2" type="color3" interfacename="ColorGain_in2" />
+    </multiply>
+    <add name="ColorOffset" type="color3">
+      <input name="in1" type="color3" nodename="ColorGain" />
+      <input name="in2" type="color3" interfacename="ColorOffset_in2" />
+    </add>
+    <constant name="inputColor" type="color3">
+      <input name="value" type="color3" interfacename="inputColor_value" />
+    </constant>
+    <constant name="inputAlpha" type="float">
+      <input name="value" type="float" interfacename="inputAlpha_value" />
+    </constant>
+    <output name="out" type="color3" nodename="ColorOffset" />
+    <output name="out1" type="float" nodename="AlphaOffset" />
+    <input name="AlphaGain_in2" type="float" value="0.8" uiname="AlphaGain in2" uifolder="Common" />
+    <input name="AlphaOffset_in2" type="float" value="1" uiname="AlphaOffset in2" uifolder="Common" />
+    <input name="ColorGain_in2" type="color3" value="0.9, 0.9, 0.9" uiname="ColorGain in2" uifolder="Common" />
+    <input name="ColorOffset_in2" type="color3" value="0.379147, 0.0341412, 0.0341412" uiname="ColorOffset in2" uifolder="Common" />
+    <input name="inputColor_value" type="color3" value="0.5, 0.5, 0.5" uiname="inputColor value" uifolder="Common" />
+    <input name="inputAlpha_value" type="float" value="1" uiname="inputAlpha value" uifolder="Common" />
+  </nodegraph>
+  <nodedef name="ND_test_colorcorrect" node="test_colorcorrect" version="1.0" isdefaultversion="false" nodegroup="adjustment" uiname="test_colorcorrect Version: 1.0" doc="This is version 1 of the definition for the graph: NG_test_colorcorrect">
+    <nodegraph name="NG_test_colorcorrect">
+      <multiply name="AlphaGain" type="float">
+        <input name="in1" type="float" nodename="inputAlpha" />
+        <input name="in2" type="float" interfacename="AlphaGain_in2" />
+      </multiply>
+      <add name="AlphaOffset" type="float">
+        <input name="in1" type="float" nodename="AlphaGain" />
+        <input name="in2" type="float" interfacename="AlphaOffset_in2" />
+      </add>
+      <multiply name="ColorGain" type="color3">
+        <input name="in1" type="color3" nodename="inputColor" />
+        <input name="in2" type="color3" interfacename="ColorGain_in2" />
+      </multiply>
+      <add name="ColorOffset" type="color3">
+        <input name="in1" type="color3" nodename="ColorGain" />
+        <input name="in2" type="color3" interfacename="ColorOffset_in2" />
+      </add>
+      <constant name="inputColor" type="color3">
+        <input name="value" type="color3" interfacename="inputColor_value" />
+      </constant>
+      <constant name="inputAlpha" type="float">
+        <input name="value" type="float" interfacename="inputAlpha_value" />
+      </constant>
+      <output name="out" type="color3" nodename="ColorOffset" />
+      <output name="out1" type="float" nodename="AlphaOffset" />
+    </nodegraph>
+    <input name="AlphaGain_in2" type="float" value="0.8" uiname="AlphaGain in2" uifolder="Common" />
+    <input name="AlphaOffset_in2" type="float" value="1" uiname="AlphaOffset in2" uifolder="Common" />
+    <input name="ColorGain_in2" type="color3" value="0.9, 0.9, 0.9" uiname="ColorGain in2" uifolder="Common" />
+    <input name="ColorOffset_in2" type="color3" value="0.379147, 0.0341412, 0.0341412" uiname="ColorOffset in2" uifolder="Common" />
+    <input name="inputColor_value" type="color3" value="0.5, 0.5, 0.5" uiname="inputColor value" uifolder="Common" />
+    <input name="inputAlpha_value" type="float" value="1" uiname="inputAlpha value" uifolder="Common" />
+    <output name="out" type="color3" />
+    <output name="out1" type="float" />
+  </nodedef>
+  <test_colorcorrect name="test_colorcorrect_instance" version="1.0" type="multioutput">
+    <input name="inputColor_value" type="color3" value="0.0, 0.0, 0.0" />
+    <input name="ColorOffset_in2" type="color3" value="1.0, 0.0, 0.0" />
+    <output name="out" type="color3" />
+  </test_colorcorrect>
+  <surface_unlit name="surface_unlit" type="surfaceshader">
+    <input name="emission_color" type="color3" output="out" nodename="test_colorcorrect_instance" />
+  </surface_unlit>
+</materialx>
