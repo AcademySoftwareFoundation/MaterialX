@@ -4,7 +4,6 @@
 //
 
 #include <MaterialXGraphEditor/Graph.h>
-#include <MaterialXGraphEditor/GraphShortcuts.h>
 
 #include <MaterialXRenderGlsl/External/Glad/glad.h>
 #include <MaterialXFormat/Util.h>
@@ -494,10 +493,8 @@ void Graph::linkGraph()
 
 void Graph::scanNestedGraphDiagnostics()
 {
-    std::vector<mx::NodeGraphPtr> nodeGraphs = _graphDoc->getNodeGraphs();
-    for (size_t i = 0; i < nodeGraphs.size(); ++i)
+    for (mx::NodeGraphPtr ng : _graphDoc->getNodeGraphs())
     {
-        mx::NodeGraphPtr ng = nodeGraphs[i];
         const std::string& graphName = ng->getName();
         for (mx::NodePtr node : ng->getNodes())
         {
@@ -505,10 +502,6 @@ void Graph::scanNestedGraphDiagnostics()
             {
                 addInvalidInputDiagnostic(input, node->getName(), -1, graphName, ng);
             }
-        }
-        for (mx::NodeGraphPtr childGraph : ng->getChildrenOfType<mx::NodeGraph>())
-        {
-            nodeGraphs.push_back(childGraph);
         }
     }
 }
@@ -1383,7 +1376,6 @@ void Graph::buildUiNodeGraph(const mx::NodeGraphPtr& nodeGraphs)
         for (mx::ElementPtr elem : children)
         {
             mx::NodePtr node = elem->asA<mx::Node>();
-            mx::NodeGraphPtr childNodeGraph = elem->asA<mx::NodeGraph>();
             mx::InputPtr input = elem->asA<mx::Input>();
             mx::OutputPtr output = elem->asA<mx::Output>();
             std::string name = elem->getName();
@@ -1392,11 +1384,6 @@ void Graph::buildUiNodeGraph(const mx::NodeGraphPtr& nodeGraphs)
             {
                 currNode->setNode(node);
                 setUiNodeInfo(currNode, node->getType(), node->getCategory());
-            }
-            else if (childNodeGraph)
-            {
-                currNode->setNodeGraph(childNodeGraph);
-                setUiNodeInfo(currNode, "", "nodegraph");
             }
             else if (input)
             {
@@ -1423,11 +1410,9 @@ void Graph::buildUiNodeGraph(const mx::NodeGraphPtr& nodeGraphs)
                     mx::ElementPtr connectingElem = edge.getConnectingElement();
 
                     mx::NodePtr upstreamNode = upstreamElem->asA<mx::Node>();
-                    mx::NodeGraphPtr upstreamNodeGraph = upstreamElem->asA<mx::NodeGraph>();
                     mx::InputPtr upstreamInput = upstreamElem->asA<mx::Input>();
                     mx::OutputPtr upstreamOutput = upstreamElem->asA<mx::Output>();
                     mx::NodePtr downstreamNode = downstreamElem->asA<mx::Node>();
-                    mx::NodeGraphPtr downstreamNodeGraph = downstreamElem->asA<mx::NodeGraph>();
                     mx::InputPtr downstreamInput = downstreamElem->asA<mx::Input>();
                     mx::OutputPtr downstreamOutput = downstreamElem->asA<mx::Output>();
                     std::string upName = upstreamElem->getName();
@@ -1437,10 +1422,6 @@ void Graph::buildUiNodeGraph(const mx::NodeGraphPtr& nodeGraphs)
                     if (upstreamNode)
                     {
                         upstreamType = "node";
-                    }
-                    else if (upstreamNodeGraph)
-                    {
-                        upstreamType = "nodegraph";
                     }
                     else if (upstreamInput)
                     {
@@ -1453,10 +1434,6 @@ void Graph::buildUiNodeGraph(const mx::NodeGraphPtr& nodeGraphs)
                     if (downstreamNode)
                     {
                         downstreamType = "node";
-                    }
-                    else if (downstreamNodeGraph)
-                    {
-                        downstreamType = "nodegraph";
                     }
                     else if (downstreamInput)
                     {
@@ -1508,17 +1485,15 @@ void Graph::buildUiNodeGraph(const mx::NodeGraphPtr& nodeGraphs)
         for (mx::ElementPtr elem : children)
         {
             mx::NodePtr node = elem->asA<mx::Node>();
-            mx::NodeGraphPtr childNodeGraph = elem->asA<mx::NodeGraph>();
             mx::OutputPtr output = elem->asA<mx::Output>();
-            mx::InterfaceElementPtr interface = elem->asA<mx::InterfaceElement>();
-            if (node || childNodeGraph)
+            if (node)
             {
-                int downNum = findNode(elem->getName(), node ? "node" : "nodegraph");
+                int downNum = findNode(node->getName(), "node");
                 if (downNum < 0)
                 {
                     continue;
                 }
-                for (mx::InputPtr input : interface->getActiveInputs())
+                for (mx::InputPtr input : node->getActiveInputs())
                 {
                     int upNum = findUpstreamNode(input);
                     if (upNum >= 0)
@@ -1664,9 +1639,9 @@ void Graph::copyUiNode(UiNodePtr node)
     ++_state.nextUiId;
     if (node->getNodeGraph())
     {
-        mx::NodeGraphPtr nodeGraph = _state.graphElem->addChild<mx::NodeGraph>();
-        std::string nodeGraphName = nodeGraph->getName();
-        copyNode->setNodeGraph(nodeGraph);
+        _graphDoc->addNodeGraph();
+        std::string nodeGraphName = _graphDoc->getNodeGraphs().back()->getName();
+        copyNode->setNodeGraph(_graphDoc->getNodeGraphs().back());
         copyNode->setName(nodeGraphName);
         copyNodeGraph(node, copyNode);
     }
@@ -1935,13 +1910,13 @@ void Graph::addNode(const std::string& category, const std::string& name, const 
     }
     else if (category == "nodegraph")
     {
-        // Create a nodegraph at the current graph level.
-        mx::NodeGraphPtr nodeGraph = _state.graphElem->addChild<mx::NodeGraph>();
-        std::string nodeGraphName = nodeGraph->getName();
+        // Create new mx::NodeGraph and set as current node graph
+        _graphDoc->addNodeGraph();
+        std::string nodeGraphName = _graphDoc->getNodeGraphs().back()->getName();
         auto nodeGraphNode = std::make_shared<UiNode>(nodeGraphName, int(++_state.nextUiId));
 
         // Set mx::Nodegraph as node graph for uiNode
-        nodeGraphNode->setNodeGraph(nodeGraph);
+        nodeGraphNode->setNodeGraph(_graphDoc->getNodeGraphs().back());
 
         setUiNodeInfo(nodeGraphNode, type, "nodegraph");
         return;
@@ -4167,6 +4142,10 @@ void Graph::addNodePopup(bool cursor)
         ImGui::InputText("##input", input, sizeof(input));
         std::string subs(input);
 
+        // Input string length
+        // Filter extra nodes - includes inputs, outputs, groups, and node graphs
+        const std::string NODEGRAPH_ENTRY = "Node Graph";
+
         // Filter nodedefs and add to menu if matches filter
         for (auto node : _nodesToAdd)
         {
@@ -4199,6 +4178,12 @@ void Graph::addNodePopup(bool cursor)
                 ImGui::SetNextWindowSizeConstraints(ImVec2(250.0f, 300.0f), ImVec2(-1.0f, 500.0f));
                 std::string str(node.getName());
                 std::string nodeName = node.getName();
+
+                // Disallow creating nested nodegraphs
+                if (_state.isCompoundNodeGraph && node.getGroup() == NODEGRAPH_ENTRY)
+                {
+                    continue;
+                }
 
                 // Allow spaces to be used to search for node names
                 std::replace(subs.begin(), subs.end(), ' ', '_');
@@ -4560,17 +4545,9 @@ void Graph::drawGraph(ImVec2 mousePos)
             }
         }
 
-        GraphShortcutState groupShortcutState;
-        groupShortcutState.shift = io2.KeyShift;
-        groupShortcutState.ctrl = io2.KeyCtrl;
-        groupShortcutState.alt = io2.KeyAlt;
-        groupShortcutState.super = io2.KeySuper;
-        groupShortcutState.keyPressed = ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_C));
-        groupShortcutState.addNodePopupOpen = ImGui::IsPopupOpen("add node");
-        groupShortcutState.searchPopupOpen = ImGui::IsPopupOpen("search");
-        groupShortcutState.fileDialogOpen = _fileDialogSave.isOpened() || _fileDialog.isOpened() || _fileDialogGeom.isOpened();
-        if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) &&
-            isGroupSelectedNodesShortcut(groupShortcutState))
+        if (graphShortcutContext && io2.KeyShift &&
+            !io2.KeyCtrl && !io2.KeyAlt && !io2.KeySuper &&
+            ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_C)))
         {
             groupSelectedNodesIntoNodeGraph(selectedNodes);
         }
@@ -4715,7 +4692,7 @@ void Graph::drawGraph(ImVec2 mousePos)
 
         // Delete selected nodes and their links if delete key is pressed
         // or if the shortcut for cut is used
-        if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows))
+        if (graphShortcutContext)
         {
             bool traverseDownstream = ImGui::IsKeyReleased(ImGuiKey_RightArrow);
             bool traverseUpstream = ImGui::IsKeyReleased(ImGuiKey_LeftArrow);
