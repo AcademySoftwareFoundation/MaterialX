@@ -47,8 +47,9 @@ void ImageNodeMdl::emitFunctionCall(const ShaderNode& _node, GenContext& context
             bool sampledOnly = true;
             for (const ShaderInput* connection : output->getConnections())
             {
-                const ShaderNodeImpl& downstreamImpl = connection->getNode()->getImplementation();
-                if (!dynamic_cast<const HeightToNormalNodeMdl*>(&downstreamImpl))
+                const ShaderNode* downstreamNode = connection->getNode();
+                if (downstreamNode->isAGraph() ||
+                    !dynamic_cast<const HeightToNormalNodeMdl*>(&downstreamNode->getImplementation()))
                 {
                     sampledOnly = false;
                     break;
