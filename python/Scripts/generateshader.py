@@ -53,6 +53,7 @@ def main():
     parser.add_argument('--validatorArgs', dest='validatorArgs', nargs='?', const=' ', type=str, help='Optional arguments for code validator.')
     parser.add_argument('--vulkanGlsl', dest='vulkanCompliantGlsl', default=False, type=bool, help='Set to True to generate Vulkan-compliant GLSL when using the genglsl target.')
     parser.add_argument('--shaderInterfaceType', dest='shaderInterfaceType', default=0, type=int, help='Set the type of shader interface to be generated')
+    parser.add_argument('--dumpHash', dest='dumpHash', action='store_true', default=False, help='Print the structural graph hash for each generated shader.')
     parser.add_argument(dest='inputFilename', help='Path to input document or folder containing input documents.')
     opts = parser.parse_args()
 
@@ -156,6 +157,10 @@ def main():
             elemName = mx.createValidName(elemName)
             shader = shadergen.generate(elemName, elem, context)        
             if shader:
+                if opts.dumpHash:
+                    structHash = mx_gen_shader.computeStructuralHash(shader)
+                    print(f'--- Structural hash: 0x{structHash:016x}')
+
                 # Use extension of .vert and .frag as it's type is
                 # recognized by glslangValidator
                 if gentarget in ['glsl', 'essl', 'vulkan', 'msl', 'wgsl']:
