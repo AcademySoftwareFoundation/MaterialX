@@ -337,6 +337,23 @@ string WgslSyntax::getLibraryFunctionName(const string& name, TypeDesc arg0, Typ
     return name;
 }
 
+string WgslSyntax::getLocalVariableDeclaration(const string& typeName, const string& varName,
+                                               const string& initializer) const
+{
+    if (initializer.empty())
+    {
+        return "var " + varName + ": " + typeName;
+    }
+    return "var " + varName + ": " + typeName + " = " + initializer;
+}
+
+string WgslSyntax::getForLoopHeader(const string& indexVar, const string& start,
+                                    const string& endExclusive, const string& /*increment*/) const
+{
+    return "for (var " + indexVar + ": i32 = " + start + "; " + indexVar + " < " + endExclusive +
+           "; " + indexVar + " += 1)";
+}
+
 void WgslSyntax::makeValidName(string& name) const
 {
     Syntax::makeValidName(name);

@@ -201,6 +201,17 @@ class MX_GENSHADER_API Syntax
     /// GLSL targets use overloaded names; WGSL uses type-suffixed names.
     virtual string getLibraryFunctionName(const string& name, TypeDesc, TypeDesc) const { return name; };
 
+    /// Emit a local variable declaration (GLSL/Msl: "type name = init"; WGSL: "var name: type = init").
+    virtual string getLocalVariableDeclaration(const string& typeName, const string& varName,
+                                               const string& initializer) const;
+
+    /// Emit a counted for-loop header opening ("for (...)" without trailing brace).
+    virtual string getForLoopHeader(const string& indexVar, const string& start,
+                                    const string& endExclusive, const string& increment) const;
+
+    /// Prefix for out/inout aggregate parameters (WGSL uses "&").
+    virtual string getOutParameterPrefix() const { return EMPTY_STRING; }
+
     /// Constants with commonly used strings.
     static const string NEWLINE;
     static const string SEMICOLON;

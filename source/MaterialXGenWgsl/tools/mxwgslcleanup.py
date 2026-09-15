@@ -2,7 +2,8 @@
 
 Uses tree-sitter (the `tree-sitter-language-pack` WGSL grammar) for statement/identifier
 analysis, then applies conservative source edits: collapse param-copy shadows, restore GLSL
-parameter names, promote readonly/mutable locals, unwrap naga's redundant compound blocks,
+parameter names, promote readonly/mutable locals, localize loop hoists into the loop body,
+unwrap naga's redundant compound blocks,
 flatten else-if chains, and simplify ptr/assignment parens. Parsing only — emission is
 byte-range surgery on naga output.
 '''
@@ -740,6 +741,291 @@ def _cleanupReadonlyLocals(fnText, glslParamNames=None):
     return text
 
 
+def _loopBodyAndContinuing(loopStmt):
+    body = None
+    continuing = None
+    for child in loopStmt.children:
+        if child.type == "continuing_statement":
+            continuing = child
+        elif child.type == "compound_statement":
+            body = child
+    return body, continuing
+
+
+def _collectLoops(root):
+    loops = []
+    stack = [root]
+    while stack:
+        node = stack.pop()
+        if node.type == "loop_statement":
+            body, continuing = _loopBodyAndContinuing(node)
+            if body is not None:
+                loops.append({"body": body, "continuing": continuing})
+        stack.extend(node.children)
+    return loops
+
+
+def _assignInRange(assignNode, start, end):
+    return assignNode.start_byte >= start and assignNode.end_byte <= end
+
+
+def _identUsesOutsideRange(body, src, name, insideRange, skipRanges):
+    start, end = insideRange
+    count = 0
+    stack = [body]
+    while stack:
+        node = stack.pop()
+        if node.type == "identifier" and _nodeText(node, src) == name:
+            pos = node.start_byte
+            if any(s <= pos < e for s, e in skipRanges):
+                continue
+            if not (start <= pos < end):
+                count += 1
+        stack.extend(node.children)
+    return count
+
+
+def _ifConditionExpr(ifStmt, src):
+    for child in ifStmt.children:
+        if child.type in ("if", "else", "else_statement", "compound_statement"):
+            continue
+        if child.is_named:
+            return _nodeText(child, src)
+    return None
+
+
+def _ifElseBranchCompounds(ifStmt):
+    thenCompound = None
+    elseCompound = None
+    for child in ifStmt.children:
+        if child.type == "compound_statement":
+            thenCompound = child
+        elif child.type == "else_statement":
+            for branch in child.children:
+                if branch.type == "compound_statement":
+                    elseCompound = branch
+    return thenCompound, elseCompound
+
+
+def _singleWholeAssignRhs(compound, src, name):
+    stmts = _stmtList(compound)
+    if len(stmts) != 1 or stmts[0].type != "assignment_statement":
+        return None
+    assignNode = stmts[0]
+    if not _isWholeVarAssign(assignNode, src, name):
+        return None
+    return _assignmentRhsText(assignNode, src)
+
+
+def _wholeAssignConsumer(assignStmt, src):
+    if assignStmt.type != "assignment_statement":
+        return None, None
+    lhs = rhs = None
+    kids = list(assignStmt.children)
+    if len(kids) < 3 or kids[0].type != "lhs_expression":
+        return None, None
+    lhs = _firstIdent(kids[0], src)
+    if not lhs or _nodeText(kids[0], src).strip() != lhs:
+        return None, None
+    rhsNode = kids[-1]
+    if rhsNode.type == "identifier":
+        rhs = _nodeText(rhsNode, src)
+    return lhs, rhs
+
+
+def _loopOwningAllAssigns(loops, allAssigns):
+    for loopInfo in loops:
+        body = loopInfo["body"]
+        bodyRange = (body.start_byte, body.end_byte)
+        continuing = loopInfo["continuing"]
+        contRange = ((continuing.start_byte, continuing.end_byte)
+                     if continuing is not None else None)
+        if not allAssigns:
+            continue
+        if not all(_assignInRange(a, *bodyRange) or
+                   (contRange and _assignInRange(a, *contRange))
+                   for a in allAssigns):
+            continue
+        if contRange and any(_assignInRange(a, *contRange) for a in allAssigns):
+            continue
+        if all(_assignInRange(a, *bodyRange) for a in allAssigns):
+            return loopInfo
+    return None
+
+
+def _localizeLoopVariables(fnText, glslParamNames=None):
+    '''Relocate naga's function-scope loop hoists into the loop body as `let` bindings.
+
+    Single-assignment loop temps become `let` at the assignment site. If/else dual assigns
+    followed by `consumer = temp` fold into `let consumer = select(else, then, cond)`.'''
+    src = fnText.encode("utf-8")
+    tree = _parser().parse(src)
+    fnDecl = _functionDecl(tree.root_node)
+    if fnDecl is None:
+        return fnText
+    body = _compoundBody(fnDecl)
+    if body is None:
+        return fnText
+
+    wgslParams = _paramNames(fnDecl, src)
+    reserved = set(wgslParams)
+    if glslParamNames:
+        reserved.update(glslParamNames)
+
+    varDecls = {}
+    for stmt in _statements(body):
+        name = _varDeclName(stmt, src)
+        if name and b"=" not in src[stmt.start_byte:stmt.end_byte]:
+            varDecls[name] = stmt
+
+    if not varDecls:
+        return fnText
+
+    assignTargets = _assignmentTargets(body, src)
+    loops = _collectLoops(body)
+    if not loops:
+        return fnText
+
+    deleteRanges = []
+    replacements = []
+    renames = {}
+    taken = set(reserved)
+    consumed = set()
+
+    stack = [body]
+    while stack:
+        node = stack.pop()
+        if node.type != "if_statement":
+            stack.extend(node.children)
+            continue
+
+        cond = _ifConditionExpr(node, src)
+        thenCompound, elseCompound = _ifElseBranchCompounds(node)
+        if not cond or thenCompound is None or elseCompound is None:
+            stack.extend(node.children)
+            continue
+
+        parent = node.parent
+        if parent is None or parent.type != "compound_statement":
+            stack.extend(node.children)
+            continue
+        parentStmts = _stmtList(parent)
+        idx = next((i for i, stmt in enumerate(parentStmts)
+                    if stmt.start_byte == node.start_byte), None)
+        if idx is None or idx + 1 >= len(parentStmts):
+            stack.extend(node.children)
+            continue
+        consumerStmt = parentStmts[idx + 1]
+        consumer, temp = _wholeAssignConsumer(consumerStmt, src)
+        if not consumer or not temp or temp not in varDecls:
+            stack.extend(node.children)
+            continue
+        if consumer not in varDecls:
+            stack.extend(node.children)
+            continue
+
+        thenRhs = _singleWholeAssignRhs(thenCompound, src, temp)
+        elseRhs = _singleWholeAssignRhs(elseCompound, src, temp)
+        if not thenRhs or not elseRhs:
+            stack.extend(node.children)
+            continue
+
+        tempAssigns = [a for a in assignTargets.get(temp, [])
+                       if _isWholeVarAssign(a, src, temp)]
+        consumerAssigns = [a for a in assignTargets.get(consumer, [])
+                           if _isWholeVarAssign(a, src, consumer)]
+        if len(tempAssigns) != 2 or len(consumerAssigns) != 1:
+            stack.extend(node.children)
+            continue
+
+        loopInfo = _loopOwningAllAssigns(loops, tempAssigns + consumerAssigns)
+        if loopInfo is None:
+            stack.extend(node.children)
+            continue
+
+        bodyRange = (loopInfo["body"].start_byte, loopInfo["body"].end_byte)
+        tempVarStmt = varDecls[temp]
+        consumerVarStmt = varDecls[consumer]
+        skip = [(tempVarStmt.start_byte, tempVarStmt.end_byte),
+                (consumerVarStmt.start_byte, consumerVarStmt.end_byte)]
+        for assignNode in tempAssigns + consumerAssigns:
+            for child in assignNode.children:
+                if child.type == "lhs_expression":
+                    skip.append((child.start_byte, child.end_byte))
+        if (_identUsesOutsideRange(body, src, temp, bodyRange, skip) > 0 or
+                _identUsesOutsideRange(body, src, consumer, bodyRange, skip) > 0):
+            stack.extend(node.children)
+            continue
+
+        cleanConsumer = _pickLocalName(consumer, wgslParams, taken)
+        taken.add(cleanConsumer)
+        deleteRanges.append(_lineRange(tempVarStmt, src))
+        deleteRanges.append(_lineRange(consumerVarStmt, src))
+        indent = _lineIndent(node, src)
+        mergeStart = _lineRange(node, src)[0]
+        mergeEnd = _lineRange(consumerStmt, src)[1]
+        replacements.append((
+            mergeStart,
+            mergeEnd,
+            f"{indent}let {cleanConsumer} = select({elseRhs}, {thenRhs}, {cond});\n"))
+        consumed.update({temp, consumer})
+        if consumer != cleanConsumer:
+            renames[consumer] = cleanConsumer
+        stack.extend(node.children)
+
+    for name in sorted(varDecls):
+        if name in consumed:
+            continue
+        allAssigns = assignTargets.get(name, [])
+        wholeAssigns = [a for a in allAssigns if _isWholeVarAssign(a, src, name)]
+        if len(wholeAssigns) != 1:
+            continue
+
+        loopInfo = _loopOwningAllAssigns(loops, wholeAssigns)
+        if loopInfo is None:
+            continue
+
+        assignNode = wholeAssigns[0]
+        assignStmt = _stmtContaining(body, assignNode)
+        varStmt = varDecls[name]
+        if assignStmt is None:
+            continue
+        rhs = _assignmentRhsText(assignNode, src)
+        if not rhs:
+            continue
+
+        bodyRange = (loopInfo["body"].start_byte, loopInfo["body"].end_byte)
+        skip = [(varStmt.start_byte, varStmt.end_byte),
+                (assignNode.start_byte, assignNode.end_byte)]
+        for child in assignNode.children:
+            if child.type == "lhs_expression":
+                skip.append((child.start_byte, child.end_byte))
+        if _identUsesOutsideRange(body, src, name, bodyRange, skip) > 0:
+            continue
+
+        clean = _pickLocalName(name, wgslParams, taken)
+        taken.add(clean)
+        deleteRanges.append(_lineRange(varStmt, src))
+        indent = _lineIndent(assignStmt, src)
+        replacements.append((
+            *_lineRange(assignStmt, src),
+            f"{indent}let {clean} = {rhs};\n"))
+        if name != clean:
+            renames[name] = clean
+
+    if not deleteRanges and not replacements:
+        return fnText
+
+    text = _applyEdits(fnText, deleteRanges, replacements)
+    text = _applyRenames(text, renames)
+    while True:
+        cleaned = re.sub(r"\n[ \t]*\n[ \t]*\n", "\n\n", text)
+        if cleaned == text:
+            break
+        text = cleaned
+    return text
+
+
 def inlineSingleUseTemps(body):
     '''Inline naga's single-use `let _eN = expr;` temporaries.'''
     changed = True
@@ -765,6 +1051,7 @@ def cleanupFunction(fnText, glslParamNames=None):
         # `N_25 = -(N_25)` before tree-sitter param-shadow analysis runs.
         text = inlineSingleUseTemps(fnText)
         text = _collapseParamShadows(text, glslParamNames)
+        text = _localizeLoopVariables(text, glslParamNames)
         while True:
             newText = _cleanupReadonlyLocals(text, glslParamNames)
             if newText == text:
