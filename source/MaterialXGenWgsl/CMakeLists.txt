@@ -12,103 +12,138 @@ mx_add_library(MaterialXGenWgsl
     EXPORT_DEFINE
         MATERIALX_GENWGSL_EXPORTS)
 
-# Optional build-time regeneration of the genwgsl library from genglsl via tools/mxgenwgsl.py.
-# When MATERIALX_BUILD_GEN_WGSL is ON, output goes in-place to libraries/ (ground truth for
-# runtime, JS preload, and CI). When only MATERIALX_GENERATE_WGSL_LIBRARY is ON, output goes to
-# the build tree as a validation aid that does not modify the source tree. Requires Python and naga.
-set(MATERIALX_NAGA_VERSION "30.0.0" CACHE STRING "Version of naga-cli to install via cargo for WGSL library generation.")
-set(_materialx_wgsl_generate OFF)
-set(_materialx_wgsl_out_dir "")
+# ---------------------------------------------------------------------------
+# Optional build-time regeneration of the genwgsl library from genglsl.
+#
+# MATERIALX_BUILD_GEN_WGSL      -> output in-place to libraries/  (CI, JS builds)
+# MATERIALX_GENERATE_WGSL_LIBRARY -> output to build tree only    (local validation)
+#
+# Requires Python and naga.  Optional tree-sitter cleanup deps are installed
+# only when Python >= 3.10 (tree-sitter-language-pack has no wheel for 3.9).
+# ---------------------------------------------------------------------------
+
+set(MATERIALX_NAGA_VERSION "30.0.0" CACHE STRING
+    "Version of naga-cli to install via cargo for WGSL library generation.")
+
+set(_wgsl_generate OFF)
+set(_wgsl_out_dir  "")
 if(MATERIALX_BUILD_GEN_WGSL)
-    set(_materialx_wgsl_generate ON)
-    set(_materialx_wgsl_out_dir "${PROJECT_SOURCE_DIR}/libraries")
+    set(_wgsl_generate ON)
+    set(_wgsl_out_dir "${PROJECT_SOURCE_DIR}/libraries")
 elseif(MATERIALX_GENERATE_WGSL_LIBRARY)
-    set(_materialx_wgsl_generate ON)
-    set(_materialx_wgsl_out_dir "${CMAKE_BINARY_DIR}/genwgsl_generated")
+    set(_wgsl_generate ON)
+    set(_wgsl_out_dir "${CMAKE_BINARY_DIR}/genwgsl_generated")
 endif()
 
-if(_materialx_wgsl_generate)
-    if(MATERIALX_PYTHON_EXECUTABLE)
-        set(_wgsl_python "${MATERIALX_PYTHON_EXECUTABLE}")
-    else()
-        find_package(Python3 COMPONENTS Interpreter)
-        set(_wgsl_python "${Python3_EXECUTABLE}")
-    endif()
+if(NOT _wgsl_generate)
+    return()
+endif()
 
-    # Locate the naga CLI. Precedence: an explicit -D/cache value, then the NAGA env var, then a
-    # search of PATH and the standard cargo bin directories. `cargo install naga-cli` lands naga in
-    # ~/.cargo/bin (or $CARGO_HOME/bin), which is frequently NOT on PATH in CI / IDE / GUI shells --
-    # so a developer who installed naga still hits "not found" without these hints.
-    if(NOT MATERIALX_NAGA_EXECUTABLE AND DEFINED ENV{NAGA})
-        set(MATERIALX_NAGA_EXECUTABLE "$ENV{NAGA}" CACHE FILEPATH
-            "Path to the naga CLI used to transpile/validate the genwgsl library." FORCE)
-    endif()
-    find_program(MATERIALX_NAGA_EXECUTABLE NAMES naga naga.exe
-                 HINTS
-                     "$ENV{CARGO_HOME}/bin"      # custom cargo home (all platforms)
-                     "$ENV{HOME}/.cargo/bin"     # default on Linux / macOS
-                     "$ENV{USERPROFILE}/.cargo/bin"  # default on Windows
-                 DOC "Path to the naga CLI used to transpile/validate the genwgsl library.")
+# -- Python ----------------------------------------------------------------
 
-    # If naga is still not found, obtain it via cargo. cargo is located EMSDK-style (mirrors
-    # MATERIALX_CARGO_PATH): an explicit MATERIALX_CARGO_PATH, then $CARGO_HOME, then the standard
-    # cargo bin dirs, then PATH. cargo is assumed to already be installed -- we do NOT bootstrap
-    # Rust. When found, naga is built into the build tree at *build* time (not configure, so
-    # configure stays fast) and cached there across rebuilds.
-    set(_wgsl_install_naga OFF)
-    if(NOT MATERIALX_NAGA_EXECUTABLE)
-        find_program(MATERIALX_CARGO_EXECUTABLE NAMES cargo cargo.exe
-                     HINTS
-                         "${MATERIALX_CARGO_PATH}/bin"   # explicit -DMATERIALX_CARGO_PATH
-                         "$ENV{CARGO_HOME}/bin"          # custom cargo home
-                         "$ENV{HOME}/.cargo/bin"         # default on Linux / macOS
-                         "$ENV{USERPROFILE}/.cargo/bin"  # default on Windows
-                     DOC "Path to the Rust cargo executable used to install the naga CLI.")
-        if(MATERIALX_CARGO_EXECUTABLE)
-            if(CMAKE_HOST_WIN32)
-                set(_naga_exe "naga.exe")
-            else()
-                set(_naga_exe "naga")
-            endif()
-            set(_naga_root "${CMAKE_BINARY_DIR}/naga")
-            # Predicted install location -- the file may not exist yet; a plain set() (not
-            # find_program) so the generation target can reference it before it is built.
-            set(MATERIALX_NAGA_EXECUTABLE "${_naga_root}/bin/${_naga_exe}")
-            set(_wgsl_install_naga ON)
+if(MATERIALX_PYTHON_EXECUTABLE)
+    set(_wgsl_python "${MATERIALX_PYTHON_EXECUTABLE}")
+    execute_process(
+        COMMAND "${_wgsl_python}" -c
+                "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')"
+        OUTPUT_VARIABLE _wgsl_py_ver
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        RESULT_VARIABLE _wgsl_py_ver_rc)
+else()
+    find_package(Python3 COMPONENTS Interpreter)
+    set(_wgsl_python  "${Python3_EXECUTABLE}")
+    set(_wgsl_py_ver  "${Python3_VERSION}")
+    set(_wgsl_py_ver_rc 0)
+endif()
+
+# -- Naga ------------------------------------------------------------------
+# Precedence: explicit -D, NAGA env var, PATH + standard cargo bin dirs.
+
+if(NOT MATERIALX_NAGA_EXECUTABLE AND DEFINED ENV{NAGA})
+    set(MATERIALX_NAGA_EXECUTABLE "$ENV{NAGA}" CACHE FILEPATH
+        "Path to the naga CLI for genwgsl transpilation." FORCE)
+endif()
+
+find_program(MATERIALX_NAGA_EXECUTABLE NAMES naga naga.exe
+    HINTS
+        "$ENV{CARGO_HOME}/bin"
+        "$ENV{HOME}/.cargo/bin"
+        "$ENV{USERPROFILE}/.cargo/bin"
+    DOC "Path to the naga CLI for genwgsl transpilation.")
+
+# If naga is still missing, try to install it via cargo at build time.
+set(_wgsl_install_naga OFF)
+if(NOT MATERIALX_NAGA_EXECUTABLE)
+    find_program(MATERIALX_CARGO_EXECUTABLE NAMES cargo cargo.exe
+        HINTS
+            "${MATERIALX_CARGO_PATH}/bin"
+            "$ENV{CARGO_HOME}/bin"
+            "$ENV{HOME}/.cargo/bin"
+            "$ENV{USERPROFILE}/.cargo/bin"
+        DOC "Path to the Rust cargo executable (used to install naga-cli).")
+    if(MATERIALX_CARGO_EXECUTABLE)
+        set(_naga_root "${CMAKE_BINARY_DIR}/naga")
+        if(CMAKE_HOST_WIN32)
+            set(MATERIALX_NAGA_EXECUTABLE "${_naga_root}/bin/naga.exe")
+        else()
+            set(MATERIALX_NAGA_EXECUTABLE "${_naga_root}/bin/naga")
         endif()
+        set(_wgsl_install_naga ON)
     endif()
+endif()
 
-    if(_wgsl_python AND MATERIALX_NAGA_EXECUTABLE)
-        # Build-time, one-time cargo install of naga-cli (only when resolved to a cargo location).
-        # The custom-command OUTPUT is the naga binary, so it re-runs only when that file is missing.
-        if(_wgsl_install_naga)
-            add_custom_command(OUTPUT "${MATERIALX_NAGA_EXECUTABLE}"
-                COMMAND "${MATERIALX_CARGO_EXECUTABLE}" install naga-cli --locked --version ${MATERIALX_NAGA_VERSION} --root "${_naga_root}"
-                COMMENT "Installing naga-cli ${MATERIALX_NAGA_VERSION} via cargo into ${_naga_root} (one-time; compiles from source)"
-                VERBATIM)
-            add_custom_target(MaterialXInstallNaga DEPENDS "${MATERIALX_NAGA_EXECUTABLE}")
-        endif()
+# -- Guard: both Python and naga are required ------------------------------
 
-        add_custom_target(MaterialXGenWgslLibrary ALL
-            COMMAND "${_wgsl_python}" -m pip install -q -r
-                    "${CMAKE_CURRENT_SOURCE_DIR}/tools/requirements-transpile.txt"
-            COMMAND ${CMAKE_COMMAND} -E env "NAGA=${MATERIALX_NAGA_EXECUTABLE}"
-                    "${_wgsl_python}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/mxgenwgsl.py"
-                    --libraries "${PROJECT_SOURCE_DIR}/libraries"
-                    --out "${_materialx_wgsl_out_dir}"
-            WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
-            COMMENT "Transpiling genglsl to genwgsl (${_materialx_wgsl_out_dir})"
-            VERBATIM)
-        if(_wgsl_install_naga)
-            add_dependencies(MaterialXGenWgslLibrary MaterialXInstallNaga)
-        endif()
-    else()
-        message(WARNING
-            "WGSL library generation was requested but a prerequisite was not found "
-            "(Python='${_wgsl_python}', naga='${MATERIALX_NAGA_EXECUTABLE}', "
-            "cargo='${MATERIALX_CARGO_EXECUTABLE}'). Install naga (`cargo install naga-cli`) and point "
-            "-DMATERIALX_NAGA_EXECUTABLE / the NAGA env var at it, or install cargo and set "
-            "-DMATERIALX_CARGO_PATH to its home so naga can be built into the tree. "
-            "Skipping genwgsl library generation.")
-    endif()
+if(NOT _wgsl_python OR NOT MATERIALX_NAGA_EXECUTABLE)
+    message(WARNING
+        "WGSL library generation was requested but a prerequisite was not found "
+        "(Python='${_wgsl_python}', naga='${MATERIALX_NAGA_EXECUTABLE}', "
+        "cargo='${MATERIALX_CARGO_EXECUTABLE}'). "
+        "Skipping genwgsl library generation.")
+    return()
+endif()
+
+# -- Optional dependency targets -------------------------------------------
+
+# Naga: build-time cargo install (only when resolved to a cargo location).
+if(_wgsl_install_naga)
+    add_custom_command(OUTPUT "${MATERIALX_NAGA_EXECUTABLE}"
+        COMMAND "${MATERIALX_CARGO_EXECUTABLE}" install naga-cli
+                --locked --version ${MATERIALX_NAGA_VERSION} --root "${_naga_root}"
+        COMMENT "Installing naga-cli ${MATERIALX_NAGA_VERSION} via cargo (one-time)"
+        VERBATIM)
+    add_custom_target(MaterialXInstallNaga DEPENDS "${MATERIALX_NAGA_EXECUTABLE}")
+endif()
+
+# tree-sitter cleanup deps: only available on Python >= 3.10.
+set(_wgsl_install_cleanup OFF)
+if(_wgsl_py_ver_rc EQUAL 0 AND _wgsl_py_ver VERSION_GREATER_EQUAL "3.10")
+    set(_wgsl_install_cleanup ON)
+    add_custom_target(MaterialXInstallWgslCleanupDeps
+        COMMAND "${_wgsl_python}" -m pip install -q -r
+                "${CMAKE_CURRENT_SOURCE_DIR}/tools/requirements-transpile.txt"
+        COMMENT "Installing optional WGSL cleanup deps (tree-sitter)"
+        VERBATIM)
+elseif(_wgsl_py_ver_rc EQUAL 0)
+    message(STATUS
+        "MaterialXGenWgsl: Python ${_wgsl_py_ver} - skipping optional cleanup deps "
+        "(tree-sitter-language-pack requires 3.10+)")
+endif()
+
+# -- Main transpile target -------------------------------------------------
+
+add_custom_target(MaterialXGenWgslLibrary ALL
+    COMMAND ${CMAKE_COMMAND} -E env "NAGA=${MATERIALX_NAGA_EXECUTABLE}"
+            "${_wgsl_python}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/mxgenwgsl.py"
+            --libraries "${PROJECT_SOURCE_DIR}/libraries"
+            --out "${_wgsl_out_dir}"
+    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+    COMMENT "Transpiling genglsl to genwgsl (${_wgsl_out_dir})"
+    VERBATIM)
+
+if(_wgsl_install_naga)
+    add_dependencies(MaterialXGenWgslLibrary MaterialXInstallNaga)
+endif()
+if(_wgsl_install_cleanup)
+    add_dependencies(MaterialXGenWgslLibrary MaterialXInstallWgslCleanupDeps)
 endif()
