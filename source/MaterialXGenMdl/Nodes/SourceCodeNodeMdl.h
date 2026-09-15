@@ -25,7 +25,7 @@ class MX_GENMDL_API SourceCodeNodeMdl : public SourceCodeNode
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
     /// Return whether an input is referenced by the inline source expression.
-    bool isInputUsed(const ShaderInput& input) const;
+    bool isInputUsed(const ShaderInput& input) const override;
 
   protected:
     void resolveSourceCode(const InterfaceElement& element, GenContext& context) override;

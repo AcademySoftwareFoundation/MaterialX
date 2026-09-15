@@ -26,6 +26,11 @@ ShaderNodeImplPtr SourceCodeNodeMdl::create()
 
 bool SourceCodeNodeMdl::isInputUsed(const ShaderInput& input) const
 {
+    if (!_inlined)
+    {
+        return true;
+    }
+
     const string marker = "{{" + input.getName() + "}}";
     return _functionSource.find(marker) != string::npos;
 }

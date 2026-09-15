@@ -587,9 +587,14 @@ bool MdlShaderGenerator::isInputUsed(const ShaderGraphInputSocket& input) const
 {
     for (const ShaderInput* connection : input.getConnections())
     {
-        const ShaderNodeImpl& implementation = connection->getNode()->getImplementation();
-        const SourceCodeNodeMdl* sourceCode = dynamic_cast<const SourceCodeNodeMdl*>(&implementation);
-        if (!sourceCode || sourceCode->isInputUsed(*connection))
+        const ShaderNode* node = connection->getNode();
+        if (node->isAGraph())
+        {
+            return true;
+        }
+
+        const ShaderNodeImpl& implementation = node->getImplementation();
+        if (implementation.isInputUsed(*connection))
         {
             return true;
         }
