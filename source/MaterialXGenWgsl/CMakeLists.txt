@@ -90,6 +90,8 @@ if(_materialx_wgsl_generate)
         endif()
 
         add_custom_target(MaterialXGenWgslLibrary ALL
+            COMMAND "${_wgsl_python}" -m pip install -q -r
+                    "${CMAKE_CURRENT_SOURCE_DIR}/tools/requirements-transpile.txt"
             COMMAND ${CMAKE_COMMAND} -E env "NAGA=${MATERIALX_NAGA_EXECUTABLE}"
                     "${_wgsl_python}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/mxgenwgsl.py"
                     --libraries "${PROJECT_SOURCE_DIR}/libraries"

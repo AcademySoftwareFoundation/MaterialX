@@ -38,6 +38,14 @@ class MX_GENWGSL_API WgslSyntax : public Syntax
     /// Return the library helper name for the given base name and argument types.
     string getLibraryFunctionName(const string& name, TypeDesc arg0, TypeDesc arg1) const override;
 
+    string getLocalVariableDeclaration(const string& typeName, const string& varName,
+                                       const string& initializer) const override;
+
+    string getForLoopHeader(const string& indexVar, const string& start,
+                            const string& endExclusive, const string& increment) const override;
+
+    string getOutParameterPrefix() const override { return "&"; }
+
     /// Given an input specification attempt to remap this to an enumeration which is accepted by
     /// the shader generator. The enumeration may be converted to a different type than the input.
     bool remapEnumeration(const string& value, TypeDesc type, const string& enumNames, std::pair<TypeDesc, ValuePtr>& result) const override;

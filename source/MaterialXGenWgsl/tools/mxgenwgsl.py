@@ -17,15 +17,13 @@ in-place tree with `--clean`. Re-running keeps genwgsl in sync with genglsl.
 Node transpilation (per mx_*.glsl function):
   - ONE function body per naga call; lib context is *prototypes + #defines + structs*, not full
     lib bodies — keeps parameter names clean and avoids `$`-tokens inside lib implementations.
-  - Skipped: image/hextiled texture nodes (combined GLSL sampler2D has no split WGSL
-    texture_2d+sampler equivalent) and light shaders (need the dynamic LightData struct).
-  - Expected fallbacks: none currently. EXPECTED_FALLBACK stays as the regression guard for future
-    naga limitations (mx_chiang_hair_bsdf left it once isinf was replaced by mx_isinf).
+  - Skipped: nodes listed in skip_transpile.txt (image/hextiled texture nodes with combined GLSL
+    sampler2D, light shaders needing the dynamic LightData struct).
 
 Lib transpilation (`transpileLibs`, runs before nodes):
   - Each genglsl/lib/*.glsl becomes genwgsl/lib/*.wgsl in topological #include order (22 files).
   - Default: per-function transpile with full bodies of #included lib deps inlined, plus
-    LIB_PREAMBLE (generator-option pins), texture stubs, and mangle() overload renaming.
+    LIB_PREAMBLE (generator-option pins), token expansions, and mangle() overload renaming.
   - Sibling-body path for mx_microfacet_specular, mx_microfacet_sheen, mx_flake, mx_noise
     (heavy intra-file call graphs: transitive in-file callees + overload-aware topo sort).
   - Special case: mx_closure_type (static struct preamble + transpiled makeClosureData).
@@ -39,6 +37,7 @@ Usage:
 '''
 
 import argparse
+import functools
 import os
 import re
 import shutil
@@ -49,159 +48,130 @@ from pathlib import Path
 
 from mxwgslcleanup import cleanupAvailable, cleanupFunction, fnBase
 
-# The naga CLI (GLSL->WGSL). Resolved in main() via resolveNaga(): --naga arg, then $NAGA, then a
-# `naga` on PATH; main() overwrites this global before any transpilation runs.
-# Install with `cargo install naga-cli` (see https://github.com/gfx-rs/wgpu/tree/trunk/naga).
-NAGA = "naga"
 
+# =============================================================================
+# Section 1: Token expansion tables
+# =============================================================================
+#
+# MaterialX genglsl code uses $-tokens (e.g. $envRadiance) that the C++ generator substitutes at
+# runtime. Naga needs real GLSL, so each $-token expands to a placeholder expression for transpile,
+# then gets restored in the output. These flat lookup tables are the single source of truth.
 
-def resolveNaga(explicit=None):
-    '''Return a runnable naga command: explicit --naga, else $NAGA, else `naga` from PATH.'''
-    return explicit or os.environ.get("NAGA") or shutil.which("naga") or "naga"
+# $-token → naga-parseable GLSL expression. This is what naga sees during transpile.
+TOKEN_EXPANSIONS = {
+    "$texSamplerSignature": "int mtlx_sampler_stub",
+    "$texSamplerSampler2D": "mtlx_tex_sampler",
+    "$albedoTable": "mtlx_albedo_table",
+    "$albedoTableSize": "vec2(256.0)",
+    "$envRadianceSamples": "mtlx_env_radiance_samples()",
+    "$envRadianceMips": "mtlx_env_radiance_mips()",
+    "$envMatrix": "mtlx_env_matrix()",
+    "$envRadiance": "mtlx_env_radiance_tex()",
+    "$envIrradiance": "mtlx_env_irradiance_tex()",
+    "$envLightIntensity": "mtlx_env_light_intensity()",
+    "$envPrefilterMip": "mtlx_env_prefilter_mip()",
+    "$envRadianceSampler2D": "mtlx_tex_sampler",
+    "$refractionTwoSided": "false",
+    "$closureDataConstructor": "ClosureData(closureType, L, V, N, P, occlusion)",
+}
 
-
-def nagaVersion(naga):
-    '''Return naga's version string if it runs, else None (used to fail early with guidance).'''
-    try:
-        r = subprocess.run([naga, "--version"], capture_output=True, text=True)
-        return r.stdout.strip() if r.returncode == 0 else None
-    except OSError:
-        return None
-
-
-def discoverLibs(libroot):
-    '''Library folders to process: every immediate subdirectory of --libraries that has a `genglsl`
-    node directory. Today that is stdlib/pbrlib/lights (bxdf is nodegraph-based, nprlib/targets have
-    no genglsl node fragments), but auto-discovering means new or downstream libraries are picked up
-    without editing this tool. Sorted for stable output ordering.'''
-    libroot = Path(libroot)
-    if not libroot.is_dir():
-        return []
-    return sorted(p.name for p in libroot.iterdir() if (p / "genglsl").is_dir())
-
-
-# Node shaders that can't be transpiled and stay hand-written, matched by file-stem regex. Two
-# root causes:
-#   * Texture nodes -- the genglsl uses the generator tokens $texSamplerSignature/$texSamplerSampler2D
-#     (see mx_image_*.glsl, mx_hextiledimage.glsl), which the GLSL backend substitutes as ONE combined
-#     `sampler2D`. WGSL instead needs SEPARATE `texture_2d<f32>` + `sampler` params and textureSample*
-#     calls (cf. the hand-written mx_hextiledimage.wgsl). naga's GLSL frontend models the combined
-#     sampler and won't split it, so any signature it emits is wrong -- skip rather than mis-emit.
-#   * Light shaders -- take the dynamically-generated `LightData` struct the fragment context can't
-#     supply, so they can't be assembled into a standalone naga-parseable shader.
-SKIP_PATTERNS = [re.compile(p) for p in (
-    r"image",      # texture nodes: combined sampler2D has no split texture_2d+sampler equivalent
-    r"hextiled",   # texture nodes (same combined-sampler limitation)
-    r"_light$",    # light shaders take the dynamically-generated LightData struct
-)]
-
-# Nodes expected to fail transpile and stay hand-written, by file stem. A failure listed here is not
-# a build error; only an *unexpected* failure (a previously-generable node that broke, e.g. after a
-# genglsl change) sets a non-zero exit. If a node here starts transpiling cleanly, the tool warns so
-# it can be removed. Currently empty -- every node either transpiles or is skipped outright by
-# SKIP_PATTERNS. (mx_chiang_hair_bsdf used to live here: naga rejected its isinf() call until it was
-# replaced with mx_isinf -- see libraries/stdlib/genwgsl/lib/mx_math_platform.wgsl.)
-EXPECTED_FALLBACK = set()
-
-# Hand-written genwgsl .wgsl files that must never be transpiled, listed in skip_transpile.txt
-# (next to this script). Covers both whole hand-maintained lib dirs and individual sampler-bound
-# helpers naga's GLSL frontend cannot express (environment radiance/prefilter, shadow-map lookups),
-# plus the SKIP_PATTERNS node shaders so `--clean` retains them. Entries are repo-relative paths;
-# keyed here as libroot-relative POSIX (e.g. stdlib/genwgsl/lib/mx_math.wgsl).
-DO_NOT_TRANSPILE_FILE = Path(__file__).with_name("skip_transpile.txt")
-_doNotTranspile = None
-
-
-def loadDoNotTranspile():
-    '''Set of hand-written genwgsl .wgsl files (libroot-relative POSIX paths) that must never be
-    transpiled or removed by --clean. Parsed once from skip_transpile.txt; a leading
-    `libraries/` component is stripped so the keys are anchored at --libraries.'''
-    global _doNotTranspile
-    if _doNotTranspile is None:
-        keep = set()
-        for raw in DO_NOT_TRANSPILE_FILE.read_text(encoding="utf-8").splitlines():
-            line = raw.split("#", 1)[0].strip().replace("\\", "/").lstrip("/")
-            if not line:
-                continue
-            if line.startswith("libraries/"):
-                line = line[len("libraries/"):]
-            keep.add(line)
-        _doNotTranspile = keep
-    return _doNotTranspile
-
-
-def isHandWrittenLib(lib, stem):
-    '''True if genwgsl/lib/<stem>.wgsl for this library is hand-written (in skip_transpile.txt)
-    and must be left untouched rather than transpiled from its genglsl source.'''
-    return f"{lib}/genwgsl/lib/{stem}.wgsl" in loadDoNotTranspile()
-
-TYPE_FIXUPS = [
-    (re.compile(r"\bvec([234])<f32>"), r"vec\1f"),
-    (re.compile(r"\bvec([234])<i32>"), r"vec\1i"),
-    (re.compile(r"\bvec([234])<u32>"), r"vec\1u"),
-    (re.compile(r"\bmat([234])x\1<f32>"), r"mat\1x\1f"),
+# Inverse of TOKEN_EXPANSIONS: restore $-tokens from mtlx_* expansions after naga transpile.
+# Applied sequentially by applyWgslLibPostRestore(); first match wins.
+TOKEN_RESTORE_RULES = [
+    (re.compile(re.escape("mtlx_env_radiance_samples()")), "$envRadianceSamples"),
+    (re.compile(re.escape("mtlx_env_radiance_mips()")), "$envRadianceMips"),
+    (re.compile(re.escape("mtlx_env_matrix()")), "$envMatrix"),
+    (re.compile(re.escape("mtlx_env_radiance_tex()")), "$envRadiance"),
+    (re.compile(re.escape("mtlx_env_irradiance_tex()")), "$envIrradiance"),
+    (re.compile(re.escape("mtlx_env_light_intensity()")), "$envLightIntensity"),
+    (re.compile(re.escape("mtlx_env_prefilter_mip()")), "$envPrefilterMip"),
+    (re.compile(r"\bmtlx_tex_sampler\b"), "$texSamplerSampler2D"),
+    (re.compile(r"\bmtlx_albedo_table\b"), "$albedoTable"),
+    (re.compile(r"\bmtlx_env_radiance_stub\b"), "$envRadiance"),
+    (re.compile(r"\bmtlx_env_irradiance_stub\b"), "$envIrradiance"),
 ]
 
-# -----------------------------------------------------------------------------
-# overload name mangling
-# -----------------------------------------------------------------------------
-#
-# WGSL has no function overloading, so each GLSL overload needs a distinct genwgsl name. The *keys*
-# (name + parameter types) are discovered by scanning genglsl (buildContext's `overloaded` set),
-# so they are never hand-listed. Only the *naming* is specified here, and only for the families
-# whose hand-written stdlib names don't follow the default first-parameter-type rule:
-#
-#   * SUFFIX_SCHEME - families with a regular, rule-based suffix (keyed by base name).
-#   * EXCEPTIONS    - individual (name, types) whose genwgsl name is semantic/irregular, or a
-#                     primary overload that stays unsuffixed. A None value means "intentionally
-#                     unsupported" (a node calling it stays hand-written).
-#
-# mangle() is the single source of truth for both emitting lib definitions (wgslFnName) and
-# rewriting node calls (remapCalls). The generated names are validated against the real genwgsl
-# lib after generation (buildWgslLibSymbols / checkLibArity), so a wrong rule fails loudly.
+# WGSL split texture/sampler companion tokens with no HwConstants T_* entry;
+# must match WgslShaderGenerator.cpp _tokenSubstitutions overrides.
+WGSL_ONLY_TOKENS = {
+    "$envRadianceSampler": "u_envRadiance_sampler",
+    "$envIrradianceSampler": "u_envIrradiance_sampler",
+}
+
+# $-tokens whose runtime values are i32 uniforms (naga `int - 1.0` → `int - 1i` fixup).
+INT_UNIFORM_TOKENS = ("$envRadianceMips", "$envRadianceSamples")
+
+# GLSL preamble with placeholder declarations and functions naga accepts in lib fragments.
+# =============================================================================
+# Section 2: Overload mangling (WGSL has no function overloading)
+# =============================================================================
+
+GLSL_TO_NAGA_TYPE = {
+    "float": "f32",
+    "int": "i32",
+    "uint": "u32",
+    "bool": "bool",
+    "vec2": "vec2<f32>",
+    "vec3": "vec3<f32>",
+    "vec4": "vec4<f32>",
+    "ivec2": "vec2<i32>",
+    "ivec3": "vec3<i32>",
+    "ivec4": "vec4<i32>",
+    "uvec2": "vec2<u32>",
+    "uvec3": "vec3<u32>",
+    "uvec4": "vec4<u32>",
+    "mat2": "mat2x2<f32>",
+    "mat3": "mat3x3<f32>",
+    "mat4": "mat4x4<f32>",
+}
+
+NAGA_TO_GLSL_TYPE = {v: k for k, v in GLSL_TO_NAGA_TYPE.items()}
+
+
+# Suffix generation strategies for OVERLOAD_SUFFIX_SCHEME below.
+# Each takes a GLSL param type tuple and returns a disambiguating suffix string.
 
 def _suffixToken(t):
-    '''GLSL type -> the token used in a genwgsl overload suffix (float -> f32, else the GLSL name).'''
+    '''Map GLSL "float" to WGSL "f32"; pass other type names through.'''
     return "f32" if t == "float" else t
 
 
 def _firstTypeSuffix(types):
-    '''`_<type of first param>`, e.g. mx_square(vec3) -> _vec3, mx_bilerp(float,...) -> _f32.'''
-    return "_" + _suffixToken(types[0])
+    '''Suffix by first param type: (float,float) → "_f32".'''
+    return f"_{_suffixToken(types[0])}"
 
 
 def _allTypesSuffix(types):
-    '''`_<t0>_<t1>...` for every param, e.g. mx_matrix_mul(vec2,mat2) -> _vec2_mat2.'''
-    return "".join("_" + _suffixToken(t) for t in types)
+    '''Suffix by all param types: (mat3,vec3) → "_mat3_vec3".'''
+    return "".join(f"_{_suffixToken(t)}" for t in types)
 
 
 def _vecDimSuffix(types):
-    '''`_2d`/`_3d` from the first vector param's dimension (mx_perlin_noise_float(vec3) -> _3d).'''
+    '''Suffix by vector dimension: (vec2,) → "_2d", (vec3,) → "_3d".'''
     for t in types:
         m = re.match(r"u?vec([234])$", t)
         if m:
-            return "_" + m.group(1) + "d"
+            return f"_{m.group(1)}d"
     raise ValueError(f"vec_dim scheme: no vector parameter in {types}")
 
 
 def _gradientDimSuffix(types):
-    '''`_2d`/`_3d` from coordinate count (hash + N coords): 3 params -> _2d, 4 params -> _3d.'''
-    return "_" + str(len(types) - 1) + "d"
+    '''Suffix by gradient dimensionality: 3 params → "_2d" (params minus 1).'''
+    return f"_{len(types) - 1}d"
 
 
 def _cellposDimSuffix(types):
-    '''`_2d`/`_3d` from cell-position arg count: 5 params -> _2d, 7 params -> _3d.'''
-    return "_" + str((len(types) - 1) // 2) + "d"
+    '''Suffix by cell-position dimensionality: 3 params → "_1d" ((params-1)/2).'''
+    return f"_{(len(types) - 1) // 2}d"
 
 
 def _argcountISuffix(types):
-    '''`_i<N>` from parameter count, e.g. mx_hash_int(int,int) -> _i2.'''
-    return "_i" + str(len(types))
+    '''Suffix by integer arg count: 4 params → "_i4".'''
+    return f"_i{len(types)}"
 
 
-# Base name -> suffix scheme. Overloaded families not listed use _firstTypeSuffix. Every entry
-# is a GLSL-overloaded helper; the scheme reproduces the hand-written stdlib naming exactly.
-SUFFIX_SCHEME = {
+# Mapping of function base names to suffix generation schemes for overload disambiguation
+OVERLOAD_SUFFIX_SCHEME = {
     "mx_square": _firstTypeSuffix,
     "mx_cell_noise_float": _firstTypeSuffix,
     "mx_cell_noise_vec3": _firstTypeSuffix,
@@ -209,7 +179,7 @@ SUFFIX_SCHEME = {
     "mx_trilerp": _firstTypeSuffix,
     "mx_gradient_scale2d": _firstTypeSuffix,
     "mx_gradient_scale3d": _firstTypeSuffix,
-    "mx_f0_to_ior": _firstTypeSuffix,   # vec3 form; the float form is a primary EXCEPTION below
+    "mx_f0_to_ior": _firstTypeSuffix,
     "mx_matrix_mul": _allTypesSuffix,
     "mx_perlin_noise_float": _vecDimSuffix,
     "mx_perlin_noise_vec3": _vecDimSuffix,
@@ -224,44 +194,38 @@ SUFFIX_SCHEME = {
     "mx_hash_vec3": _argcountISuffix,
 }
 
-# Individual overloads whose genwgsl name is semantic/irregular or a primary unsuffixed form. A
-# None value marks a signature the genwgsl lib deliberately doesn't provide (node stays
-# hand-written). Keyed exactly as buildContext extracts (name, GLSL param types).
-EXCEPTIONS = {
+# Manual overrides for overloads too irregular for a suffix scheme.
+OVERLOAD_SUFFIX_OVERRIDES = {
     ("mx_f0_to_ior", ("float",)): "mx_f0_to_ior",
-
     ("mx_fresnel_schlick", ("float", "float")): "mx_fresnel_schlick_f32",
     ("mx_fresnel_schlick", ("float", "vec3")): "mx_fresnel_schlick_vec3",
     ("mx_fresnel_schlick", ("float", "float", "float")): "mx_fresnel_schlick_f32_f90",
     ("mx_fresnel_schlick", ("float", "vec3", "vec3")): "mx_fresnel_schlick_vec3_f90",
     ("mx_fresnel_schlick", ("float", "float", "float", "float")): "mx_fresnel_schlick_f32_exp",
     ("mx_fresnel_schlick", ("float", "vec3", "vec3", "float")): "mx_fresnel_schlick_vec3_exp",
-
     ("mx_ggx_dir_albedo", ("float", "float", "vec3", "vec3")): "mx_ggx_dir_albedo",
     ("mx_ggx_dir_albedo", ("float", "float", "float", "float")): "mx_ggx_dir_albedo_scalar",
     ("mx_ggx_dir_albedo", ("float", "float", "FresnelData")): "mx_ggx_dir_albedo_fresnel",
 }
 
-# Bases mangle() can resolve (drives call remapping). Every such base is GLSL-overloaded.
-SUPPORTED_BASES = set(SUFFIX_SCHEME) | {b for (b, _t) in EXCEPTIONS}
+# Base names handled by either the suffix scheme or manual overrides.
+SUPPORTED_BASES = set(OVERLOAD_SUFFIX_SCHEME) | {b for (b, _t) in OVERLOAD_SUFFIX_OVERRIDES}
 
 
 def _isMapped(base, types):
-    '''True if (base, types) has an explicit or scheme-derived genwgsl name.'''
-    return (base, types) in EXCEPTIONS or base in SUFFIX_SCHEME
+    return (base, types) in OVERLOAD_SUFFIX_OVERRIDES or base in OVERLOAD_SUFFIX_SCHEME
 
 
 def mangle(name, types, overloaded):
-    '''Return the genwgsl name for a GLSL overload, or None if intentionally unsupported.
+    '''Derive a unique WGSL name for an overloaded GLSL function.
 
-    Resolution order: an explicit EXCEPTIONS entry, then the family's SUFFIX_SCHEME rule, else the
-    name is returned unchanged (non-overloaded / not a renamed helper). An overloaded base with no
-    scheme and no exception for this signature is unsupported (None), so the caller stays
-    hand-written -- matching the previous CALL_MAP 'missing key' behavior.'''
+    Checks OVERLOAD_SUFFIX_OVERRIDES first (exact match), then OVERLOAD_SUFFIX_SCHEME
+    (pattern-based suffix). Returns None if the function is overloaded but has no mapping;
+    returns the original name unchanged if it is not overloaded.'''
     key = (name, types)
-    if key in EXCEPTIONS:
-        return EXCEPTIONS[key]
-    scheme = SUFFIX_SCHEME.get(name)
+    if key in OVERLOAD_SUFFIX_OVERRIDES:
+        return OVERLOAD_SUFFIX_OVERRIDES[key]
+    scheme = OVERLOAD_SUFFIX_SCHEME.get(name)
     if scheme is not None:
         return name + scheme(types)
     if name in overloaded:
@@ -269,90 +233,222 @@ def mangle(name, types, overloaded):
     return name
 
 
-# -----------------------------------------------------------------------------
-# lib transpilation tables
-# -----------------------------------------------------------------------------
-
-# Lib files where per-function transpile without in-file siblings fails because helpers call
-# each other in the same file. These use transpileLibFileSiblings (transitive in-file
-# callee bodies + overload-aware topo sort) instead of one-function-at-a-time.
-LIB_USE_SIBLING_BODIES = {
-    "mx_microfacet_specular", "mx_microfacet_sheen", "mx_flake", "mx_noise",
-}
-
-# Pin preprocessor branches to match current genwgsl behavior. Method 0 = analytic directional
-# albedo (table/MC paths in microfacet libs are excluded from the WGSL port).
-LIB_PREAMBLE = """
-#define DIRECTIONAL_ALBEDO_METHOD 0
-#define AIRY_FRESNEL_ITERATIONS 2
-"""
-
-# naga's GLSL frontend rejects `uniform sampler2D` and real texture ops in lib fragments.
-# These stubs let the shader parse; only the function bodies we extract matter for output.
-TEXTURE_STUB_PREAMBLE = """
-vec3 mtlx_tex_lookup_rgb(vec2 uv, float lod) { return vec3(0.0); }
-vec2 mtlx_tex_lookup_rg(vec2 uv) { return vec2(0.0); }
-float mtlx_tex_lookup_b(vec2 uv) { return 0.0; }
-float mtlx_tex_size_x() { return 256.0; }
-"""
-
-# naga's GLSL frontend requires a staged shader with an entry point; every wrapped fragment ends
-# with this do-nothing fragment `main`. naga keeps the non-entry function bodies we actually want.
-FRAG_MAIN_EPILOGUE = "\nlayout(location=0) out vec4 mtlx_o;\nvoid main() { mtlx_o = vec4(0.0); }\n"
-
-# MaterialX $-tokens are not valid GLSL identifiers. Lib transpile expands a subset to
-# naga-parseable GLSL stubs (NAGA_LIB_STUBS) before calling naga. Token *names* are validated
-# against HwConstants.cpp (loadHwTokenNames); stub *values* are transpiler policy only.
-#
-# Replaces the former monolithic LIB_TOKEN_FIXUPS table: names come from the C++ generator,
-# values stay here because naga needs parseable placeholders (sampler stubs, literal defaults).
-NAGA_LIB_STUBS = {
-    "$texSamplerSignature": "sampler2D mtlx_tex_sampler",
-    "$texSamplerSampler2D": "mtlx_tex_sampler",
-    "$albedoTable": "mtlx_albedo_table",
-    "$albedoTableSize": "vec2(256.0)",
-    "$envRadianceSamples": "16",
-    "$envRadianceMips": "8",
-    "$envMatrix": "mat4(1.0)",
-    "$envRadiance": "mtlx_env_radiance_stub",
-    "$envIrradiance": "mtlx_env_irradiance_stub",
-    "$envLightIntensity": "vec3(1.0)",
-    "$envPrefilterMip": "0.0",
-    "$envRadianceSampler2D": "mtlx_tex_sampler",
-    "$refractionTwoSided": "false",
-}
-
-# Struct types emitted centrally into mx_closure_type.wgsl (and skipped when transpiling other
-# lib files). surfaceshader is emitted by WgslShaderGenerator::emitTypeDefinitions, not here.
-# Layouts are derived from genglsl + GlslSyntax.cpp (wgslClosurePreamble), not hand-listed.
-LIB_PREAMBLE_STRUCTS = {"surfaceshader", "ClosureData", "BSDF", "VDF", "FresnelData"}
-
-# Aggregate/shader struct names parsed from MaterialXGenGlsl/GlslSyntax.cpp definition strings.
-# Used by glslClosurePreamble (node context) and wgslClosurePreamble (BSDF/VDF only).
-_GLSL_SYNTAX_STRUCT_NAMES = (
-    "BSDF", "VDF", "surfaceshader", "volumeshader", "displacementshader", "lightshader",
-)
-
-# Set by main() before transpilation; used for preamble/token stub resolution.
-_ACTIVE_LIBROOT = None
-
-# Cached preambles keyed by resolved libroot path (replaces hand-written CLOSURE_PREAMBLE /
-# LIB_STRUCT_PREAMBLE tables).
-_WGSL_CLOSURE_PREAMBLE = {}
-_GLSL_CLOSURE_PREAMBLE = {}
-
-GLSL_TO_WGSL_TYPE = {
-    # Used by transpileGlslStructs/consts when emitting WGSL struct/const preamble for lib files.
-    "float": "f32", "int": "i32", "bool": "bool",
-    "vec2": "vec2f", "vec3": "vec3f", "vec4": "vec4f",
-    "mat2": "mat2x2f", "mat3": "mat3x3f", "mat4": "mat4x4f",
-    "mat3x3": "mat3x3f", "mat2x2": "mat2x2f", "mat4x4": "mat4x4f",
-}
+def wgslFnName(glslName, types, overloaded):
+    '''Return the WGSL function name for a GLSL function: mangled if overloaded, original otherwise.'''
+    return mangle(glslName, types, overloaded) or glslName
 
 
-# -----------------------------------------------------------------------------
-# parsing
-# -----------------------------------------------------------------------------
+def validateOverloadCoverage(protos, overloaded):
+    '''Find overloaded functions that have no OVERLOAD_SUFFIX_SCHEME or OVERLOAD_SUFFIX_OVERRIDES
+    entry. Returns a list of (name, types) tuples that would fail mangling.'''
+    missing = []
+    for key in sorted(protos):
+        name, types = key
+        if name in overloaded and key not in OVERLOAD_SUFFIX_OVERRIDES and mangle(name, types, overloaded) is None:
+            missing.append(key)
+    return missing
+
+
+def validateLibNames(protos, libSymbols):
+    '''Find mangled names that don't appear in the genwgsl lib .wgsl files. These indicate a
+    mangle() rule that produces a name no lib actually defines — likely a stale or wrong entry.'''
+    missing = []
+    for (name, types) in sorted(protos):
+        if name not in SUPPORTED_BASES:
+            continue
+        target = mangle(name, types, {name})
+        if target and target not in libSymbols:
+            missing.append(f"{name}{types} -> {target}")
+    return missing
+
+
+def topLevelFns(wgsl):
+    '''Return each top-level `fn` in WGSL source as a (name, full_text) pair.
+    Used to extract function signatures from naga output for overload resolution.'''
+    for m in re.finditer(r"\bfn\s+([A-Za-z_]\w*)\s*\(", wgsl):
+        brace = wgsl.index("{", m.start())
+        yield m.group(1), wgsl[m.start():_matchBrace(wgsl, brace)]
+
+
+def remapCalls(text, nodeFnName, protos, overloaded):
+    '''Rewrite overloaded helper calls in transpiled WGSL to their mangled names.
+
+    Naga numbers overloads by declaration order (foo, foo_1, foo_2, ...); this replaces each
+    with the suffix-scheme or override name. Skips calls to the node's own function (nodeFnName)
+    and reports unsupported overloads it couldn't map.'''
+    byBase = {}
+    for (nm, types) in protos:
+        byBase.setdefault(nm, []).append(types)
+    for nm in byBase:
+        byBase[nm] = sorted(byBase[nm])
+    unsupported = []
+    for base in sorted(SUPPORTED_BASES, key=len, reverse=True):
+        if base == nodeFnName or base not in byBase:
+            continue
+        for i, types in enumerate(byBase[base]):
+            callname = base if i == 0 else f"{base}_{i}"
+            if not re.search(r"\b" + re.escape(callname) + r"\s*\(", text):
+                continue
+            target = mangle(base, types, overloaded)
+            if not target:
+                unsupported.append(callname + "(" + ", ".join(types) + ")")
+                continue
+            text = re.sub(r"\b" + re.escape(callname) + r"\s*\(", target + "(", text)
+    return text, unsupported
+
+
+def remapCallsByNagaSig(text, wgslModule, selfBase, overloaded):
+    '''Rewrite overloaded calls using naga's actual per-module signatures.
+
+    Unlike remapCalls (which assumes sorted declaration order), this reads the real WGSL
+    parameter types from naga output. Used by the sibling-body lib path where naga's
+    numbering is topological, not sorted.'''
+    sigs = {}
+    for name, t in topLevelFns(wgslModule):
+        wt = _wgslSigTypes(t)
+        sigs[name] = tuple(NAGA_TO_GLSL_TYPE.get(x, x) for x in wt)
+    unsupported = []
+    for name in sorted(sigs, key=len, reverse=True):
+        base = fnBase(name)
+        if base == selfBase or base not in SUPPORTED_BASES:
+            continue
+        if not re.search(r"\b" + re.escape(name) + r"\s*\(", text):
+            continue
+        if not _isMapped(base, sigs[name]):
+            continue
+        target = mangle(base, sigs[name], overloaded)
+        if not target:
+            unsupported.append(name + "(" + ", ".join(sigs[name]) + ")")
+            continue
+        text = re.sub(r"\b" + re.escape(name) + r"\s*\(", target + "(", text)
+    return text, unsupported
+
+
+# =============================================================================
+# Section 3: $-token sentinel pipeline (pre/post naga transpile)
+# =============================================================================
+
+
+def replaceTokenSentinels(text):
+    '''Replace MaterialX $-tokens with MTLXTOK_* placeholders; return (text, reverse map).'''
+    tokenMap = {}
+
+    def sentinel(m):
+        s = "MTLXTOK_" + m.group(1)
+        tokenMap[s] = m.group(0)
+        return s
+
+    text = re.sub(r"\$([A-Za-z_]\w*)", sentinel, text)
+    return text, tokenMap
+
+
+def restoreTokenSentinels(text, tokenMap):
+    '''Restore MTLXTOK_* placeholders to original $-tokens in transpiled WGSL.'''
+    for s, tok in sorted(tokenMap.items(), key=lambda x: len(x[0]), reverse=True):
+        text = text.replace(s, tok)
+    return text
+
+
+# Temporary #define blocks for naga's GLSL preprocessor. These map MTLXTOK_* sentinels to
+# real GLSL expressions so naga can parse the source. The defines are consumed by the
+# preprocessor and never appear in the transpiled WGSL output.
+
+def nagaTextureTokenDefinePreamble():
+    '''Minimal #defines for node transpile — only the two sampler tokens nodes reference.
+    The full lib preamble would break naga on nodes due to conflicting placeholder bodies.'''
+    return ("#define MTLXTOK_texSamplerSampler2D mtlx_tex_sampler\n"
+            "#define MTLXTOK_texSamplerSignature int mtlx_sampler_stub\n")
+
+
+def nagaTokenDefinePreamble(libroot=None):
+    '''Full #defines for lib transpile — every TOKEN_EXPANSIONS entry, longest token first.'''
+    lines = []
+    for tok, repl in sorted(TOKEN_EXPANSIONS.items(), key=lambda x: len(x[0]), reverse=True):
+        lines.append(f"#define MTLXTOK_{tok[1:]} {repl}")
+    return "\n".join(lines) + "\n" if lines else ""
+
+
+# Post-transpile fixups: patch WGSL output for texture/sampler splitting and type correctness.
+
+def patchWgslEnvLatlongCalls(text):
+    '''Expand combined env texture tokens to split texture+sampler args for WGSL.'''
+    for env, samp in (("$envRadiance", "$envRadianceSampler"),
+                      ("$envIrradiance", "$envIrradianceSampler")):
+        text = re.sub(
+            rf"mx_latlong_map_lookup\(([^)]*,\s*{re.escape(env)})\s*\)",
+            rf"mx_latlong_map_lookup(\1, {samp})",
+            text)
+    return text
+
+
+def patchIntUniformTokenArithmetic(text):
+    '''Rewrite `$intToken - 1.0` to `$intToken - 1i` so link-time i32 uniforms type-check.'''
+    for tok in INT_UNIFORM_TOKENS:
+        text = re.sub(rf"({re.escape(tok)})\s*-\s*1\.0", r"\1 - 1i", text)
+    return text
+
+
+def libNeedsSamplers(src):
+    '''True if this lib references samplers or $-token texture uniforms.'''
+    return bool(re.search(r"\btexture\w*\s*\(|\$texSampler|\$albedoTable|\$envRadiance|\$envIrradiance",
+                          src))
+
+
+def libNeedsTextureExpansions(src):
+    '''True if src needs TEXTURE_EXPANSION_PREAMBLE.'''
+    return bool(libNeedsSamplers(src) or re.search(r"\bmtlx_tex_lookup_\w+\s*\(", src))
+
+
+
+def discoverLibs(libroot):
+    '''Library folders to process: every immediate subdirectory of --libraries that has a `genglsl`
+    node directory. Today that is stdlib/pbrlib/lights (bxdf is nodegraph-based, nprlib/targets have
+    no genglsl node fragments), but auto-discovering means new or downstream libraries are picked up
+    without editing this tool. Sorted for stable output ordering.'''
+    libroot = Path(libroot)
+    if not libroot.is_dir():
+        return []
+    return sorted(p.name for p in libroot.iterdir() if (p / "genglsl").is_dir())
+
+
+# Hand-written genwgsl .wgsl files that must never be transpiled, listed in skip_transpile.txt
+# (next to this script). This is the single source of truth for skipping — covers hand-maintained
+# lib helpers, sampler-bound nodes naga cannot express, light shaders needing the dynamic LightData
+# struct, and WGSL platform gaps. `--clean` deletes every generated *.wgsl EXCEPT files listed here.
+# Entries are repo-relative paths; keyed as libroot-relative POSIX (e.g. stdlib/genwgsl/lib/mx_math.wgsl).
+SKIP_LIST_FILE = Path(__file__).with_name("skip_transpile.txt")
+@functools.lru_cache(maxsize=1)
+def readSkipList():
+    '''Set of hand-written genwgsl .wgsl files (libroot-relative POSIX paths) that must never be
+    transpiled or removed by --clean. Parsed once from skip_transpile.txt; a leading
+    `libraries/` component is stripped so the keys are anchored at --libraries.'''
+    keep = set()
+    for raw in SKIP_LIST_FILE.read_text(encoding="utf-8").splitlines():
+        line = raw.split("#", 1)[0].strip().replace("\\", "/").lstrip("/")
+        if not line:
+            continue
+        if line.startswith("libraries/"):
+            line = line[len("libraries/"):]
+        keep.add(line)
+    return frozenset(keep)
+
+
+def isHandWritten(lib, stem, subdir=""):
+    '''True if the .wgsl file is hand-written (listed in skip_transpile.txt).
+    subdir is "lib" for lib helpers, empty for node fragments.'''
+    parts = f"{lib}/genwgsl/{subdir + '/' if subdir else ''}{stem}.wgsl"
+    return parts in readSkipList()
+
+TYPE_FIXUPS = [
+    (re.compile(r"\bvec([234])<f32>"), r"vec\1f"),
+    (re.compile(r"\bvec([234])<i32>"), r"vec\1i"),
+    (re.compile(r"\bvec([234])<u32>"), r"vec\1u"),
+    (re.compile(r"\bmat([234])x\1<f32>"), r"mat\1x\1f"),
+]
+
+# =============================================================================
+# Section 4: GLSL/WGSL parsing utilities
+# =============================================================================
 
 # These two scanners do depth-aware bracket matching so we can carve functions and argument lists
 # out of source text without a full parser. They are the foundation the rest of the parsing relies
@@ -443,31 +539,121 @@ def fileLeadComment(text):
     return ""
 
 
-def _stableAnchor(stmt):
-    '''Pick a token from a GLSL statement likely to survive naga's restructuring, or None.
+# --- Regex patterns for matching GLSL statement features ---
 
-    Preference order (most to least stable): an assignment's LHS name, a distinctive mx_* call, a
-    returned identifier. Pure literals are intentionally excluded -- they recur too often to place
-    a comment reliably. Used only to re-anchor best-effort inline comments; a miss just drops the
-    comment, never corrupts output.'''
-    m = re.match(r"(?:[A-Za-z_]\w*\s+)?([A-Za-z_]\w*)\s*(?:\[[^\]]*\])?\s*=(?!=)", stmt)
+# Matches: "result += expr" or "color -= expr"  →  captures (variable, operator)
+_RE_COMPOUND_ASSIGN = re.compile(r"""
+    ([A-Za-z_]\w*)          # variable name
+    \s*
+    (\+= | -= | \*= | /=)  # compound-assign operator
+""", re.VERBOSE)
+
+# Matches: "mx_fresnel(..." or "mx_pow(..."  →  captures the function name
+_RE_MX_CALL = re.compile(r"""
+    \b (mx_\w+) \s* \(      # mx_-prefixed function call
+""", re.VERBOSE)
+
+# Matches: "float result = ..." or "result[i] = ..." or "result = ..."
+#   →  captures the variable name (group 1)
+_RE_DECLARATION = re.compile(r"""
+    (?: [A-Za-z_]\w* \s+ )? # optional type name (e.g. "float ")
+    ( [A-Za-z_]\w* )        # variable name
+    \s*
+    (?: \[ [^\]]* \] )?     # optional array index (e.g. "[i]")
+    \s*
+    = (?!=)                 # assignment "=" but not comparison "=="
+""", re.VERBOSE)
+
+# Matches: "return color"  →  captures the returned identifier
+_RE_RETURN_IDENT = re.compile(r"return\s+([A-Za-z_]\w*)")
+
+# Maps GLSL compound operators to their arithmetic symbol (escaped for regex).
+# Used to match naga's lowered form: `x += expr` may become `x = (x + expr)`.
+_COMPOUND_OP_RE = {
+    "+=": r"\+",
+    "-=": r"-",
+    "*=": r"\*",
+    "/=": r"/",
+}
+
+
+def _statementAnchor(stmt):
+    '''Build a regex that finds the WGSL line corresponding to a GLSL statement.
+
+    After naga transpiles GLSL → WGSL, variable names may be renamed (e.g. `X` → `X_f`)
+    and compound assignments may be lowered (e.g. `x += e` → `x = (x + e)`). This function
+    produces a regex flexible enough to match the WGSL output so inline comments from the
+    original GLSL can be re-attached to the correct line.
+
+    Returns None if no reliable anchor can be found (the comment is simply dropped).
+
+    Examples:
+      "result += mx_pow(x)"  →  regex matching `result = (result +` or `result +=`
+      "mx_fresnel(n, ior)"   →  regex matching `mx_fresnel...(`  (with optional mangle suffix)
+      "float weight = 1.0"   →  regex matching `let weight` / `var weight` / `weight =`
+      "return color"         →  regex matching `return`
+    '''
+    s = stmt.strip()
+    if not s:
+        return None
+    # 1. Compound assignment: "x += expr" → naga may lower to "x = (x + expr)"
+    m = _RE_COMPOUND_ASSIGN.match(s)
+    if m and m.group(1) not in GLSL_KEYWORDS:
+        var = re.escape(m.group(1))
+        op = m.group(2)
+        op_re = _COMPOUND_OP_RE.get(op)
+        if op_re:
+            lowered = rf"\b{var}\s*=\s*\(\s*{var}\s*{op_re}"   # x = (x + ...
+            direct  = rf"\b{var}\s*{re.escape(op)}\s*"          # x += ...
+            return rf"{lowered}|{direct}"
+    # 2. mx_* call: prefix match so mangle suffixes still hit (mx_foo → mx_foo_f32)
+    m = _RE_MX_CALL.search(s)
+    if m:
+        return rf"\b{re.escape(m.group(1))}\w*\s*\("
+    # 3. Declaration: "float name = ..." → WGSL "let name..." / "var name" / "name... ="
+    m = _RE_DECLARATION.match(s)
+    if m and m.group(1) not in GLSL_KEYWORDS:
+        name = re.escape(m.group(1))
+        return rf"(?:\blet\s+{name}\w*\b|\bvar\s+{name}\b|\b{name}\w*\s*=)"
+    # 4. return statement (last resort — matches any return line)
+    if s.startswith("return"):
+        return r"\breturn\b"
+    return None
+
+
+def _stableAnchor(stmt):
+    '''Pick a single identifier from a GLSL statement that is likely to survive naga transpilation.
+
+    Used to re-anchor best-effort inline comments. A miss just drops the comment — never
+    corrupts output. Pure literals (e.g. `return 1.0`) are excluded because they recur
+    too often to place a comment reliably.
+
+    Examples:
+      "float result = mx_pow(x)"  →  "result"     (assignment LHS)
+      "mx_fresnel(n, ior)"        →  "mx_fresnel"  (function name)
+      "return color"              →  "color"        (returned identifier)
+      "return 1.0"                →  None           (literal, unreliable)
+    '''
+    # 1. Assignment LHS: "float result = ..." → "result"
+    m = _RE_DECLARATION.match(stmt)
     if m and m.group(1) not in GLSL_KEYWORDS:
         return m.group(1)
-    m = re.search(r"\b(mx_\w+)\s*\(", stmt)
+    # 2. mx_* call: "mx_fresnel(...)" → "mx_fresnel"
+    m = _RE_MX_CALL.search(stmt)
     if m:
         return m.group(1)
-    m = re.match(r"return\s+([A-Za-z_]\w*)", stmt)
+    # 3. Returned identifier: "return color" → "color"
+    m = _RE_RETURN_IDENT.match(stmt)
     if m and m.group(1) not in GLSL_KEYWORDS:
         return m.group(1)
     return None
 
 
 def extractInlineComments(glslFull):
-    '''Return [(anchor, [comment_line, ...])] for whole-line // comments inside a GLSL body.
+    '''Return [(pattern, [comment_line, ...])] for whole-line // comments inside a GLSL body.
 
-    Each contiguous run of `// ...` lines is anchored to a stable token of the next statement, so
-    it can be re-placed in naga's output. Best-effort: runs whose following statement has no stable
-    anchor are dropped. Only whole-line comments are considered (trailing comments are ignored).'''
+    Each contiguous run of `// ...` lines is anchored to a regex matching the next statement's
+    transpiled WGSL line. Best-effort: runs whose following statement has no anchor are dropped.'''
     groups = []
     pending = []
     started = False
@@ -482,34 +668,44 @@ def extractInlineComments(glslFull):
         elif s == "" or s.startswith("/*") or s.endswith("*/"):
             continue  # blank / block comment -- keep pending attached to the next statement
         elif pending:
-            anchor = _stableAnchor(s)
-            if anchor:
-                groups.append((anchor, list(pending)))
+            pattern = _statementAnchor(s)
+            if pattern:
+                groups.append((pattern, list(pending)))
             pending = []
     return groups
+
+
+def _commentsAlreadyAbove(lines, idx, comments):
+    '''True when `comments` already sit on the lines directly above `lines[idx]`.'''
+    if idx < len(comments):
+        return False
+    for off, comment in enumerate(comments):
+        if lines[idx - len(comments) + off].strip() != comment:
+            return False
+    return True
 
 
 def injectInlineComments(glslFull, wgslText):
     '''Re-attach GLSL inline comments to the transpiled WGSL body (best-effort, never corrupting).
 
     naga discards comments and restructures bodies, so each comment run is placed on its own line(s)
-    above the first WGSL line (at or after the previous placement) containing its anchor token.
-    Anchors are matched monotonically so ordering is preserved and deterministic; an unmatched
-    anchor's comments are dropped. Only whole-line insertion -- never mid-expression.'''
+    above the first WGSL line matching the statement anchor regex (after the function signature).
+    Unmatched anchors are dropped; already-present comment runs are not duplicated.'''
     groups = extractInlineComments(glslFull)
     if not groups:
         return wgslText
     lines = wgslText.split("\n")
-    searchFrom = 1  # skip the `fn ...(` signature line
+    searchStart = 1 if lines and lines[0].lstrip().startswith("fn ") else 0
     inserts = []
-    for anchor, comments in groups:
-        pat = re.compile(r"\b" + re.escape(anchor) + r"\b")
-        found = next((i for i in range(searchFrom, len(lines)) if pat.search(lines[i])), -1)
+    for pattern, comments in groups:
+        pat = re.compile(pattern)
+        found = next((i for i in range(searchStart, len(lines)) if pat.search(lines[i])), -1)
         if found < 0:
-            continue  # deterministic drop
+            continue
+        if _commentsAlreadyAbove(lines, found, comments):
+            continue
         inserts.append((found, comments))
-        searchFrom = found + 1
-    for idx, comments in reversed(inserts):
+    for idx, comments in sorted(inserts, key=lambda item: item[0], reverse=True):
         indent = lines[idx][:len(lines[idx]) - len(lines[idx].lstrip())]
         for c in reversed(comments):
             lines.insert(idx, indent + c)
@@ -590,53 +786,6 @@ def fnSigKey(fn):
     return (fn["name"], fnParamTypes(fn["params"]))
 
 
-def expandLibTokens(text, libroot=None):
-    '''Replace MaterialX $-tokens and texture/sampler calls with naga-parseable GLSL.
-
-    Node transpile uses per-function MTLXTOK_* sentinels; lib transpile uses libTokenFixups()
-    (NAGA_LIB_STUBS + $closureDataConstructor from HwConstants.cpp) plus the regex rewrites below
-    that stub sampler types and texture ops naga's GLSL frontend cannot parse.'''
-    if libroot is None:
-        libroot = _activeLibroot()
-    for rx, repl in libTokenFixups(libroot):
-        text = rx.sub(repl, text)
-    # Replace sampler types and texture ops with stubs naga accepts.
-    text = re.sub(r"\bsampler2D\s+mtlx_\w+\b", "int mtlx_sampler_stub", text)
-    text = re.sub(r"textureLod\s*\(\s*mtlx_tex_sampler\s*,\s*([^,]+),\s*([^)]+)\)",
-                  r"mtlx_tex_lookup_rgb(\1, \2)", text)
-    text = re.sub(r"texture\s*\(\s*mtlx_tex_sampler\s*,\s*([^)]+)\)\.xy",
-                  r"mtlx_tex_lookup_rg(\1)", text)
-    text = re.sub(r"texture\s*\(\s*mtlx_albedo_table\s*,\s*([^)]+)\)\.rg",
-                  r"mtlx_tex_lookup_rg(\1)", text)
-    text = re.sub(r"texture\s*\(\s*mtlx_albedo_table\s*,\s*([^)]+)\)\.b",
-                  r"mtlx_tex_lookup_b(\1)", text)
-    text = re.sub(r"textureSize\s*\(\s*mtlx_tex_sampler\s*,\s*0\s*\)",
-                  r"vec2(256.0)", text)
-    text = re.sub(r"textureSize\s*\(\s*mtlx_albedo_table\s*,\s*0\s*\)\.x",
-                  r"mtlx_tex_size_x()", text)
-    text = re.sub(r"textureSize\s*\(\s*mtlx_env_radiance_stub\s*,\s*0\s*\)\.x",
-                  r"mtlx_tex_size_x()", text)
-    text = re.sub(r"texture\s*\(\s*mtlx_env_radiance_stub\s*,\s*([^)]+)\)\.rgb",
-                  r"mtlx_tex_lookup_rgb(\1, 0.0)", text)
-    text = re.sub(r"texture\s*\(\s*mtlx_env_irradiance_stub\s*,\s*([^)]+)\)\.rgb",
-                  r"mtlx_tex_lookup_rgb(\1, 0.0)", text)
-    text = re.sub(r"mx_latlong_map_lookup\s*\(([^,]+),\s*([^,]+),\s*([^,]+),\s*mtlx_env_radiance_stub\s*\)",
-                  r"mtlx_tex_lookup_rgb(vec2(0.0), \3)", text)
-    text = re.sub(r"mx_latlong_map_lookup\s*\(([^,]+),\s*([^,]+),\s*([^,]+),\s*mtlx_env_irradiance_stub\s*\)",
-                  r"mtlx_tex_lookup_rgb(vec2(0.0), \3)", text)
-    return text
-
-
-def wgslFnName(glslName, types, overloaded):
-    '''Return the genwgsl function name for a GLSL overload.
-
-    Delegates to mangle(): scheme/exception families are renamed (e.g. mx_square -> mx_square_f32),
-    everything else is unchanged. Used for lib *definitions*; remapCalls() applies the same map to
-    node *calls*. A None result (intentionally unsupported) falls back to the plain name here, since
-    a definition always needs a name; unsupported *calls* are handled in remapCalls.'''
-    return mangle(glslName, types, overloaded) or glslName
-
-
 def denagaName(text, knownNames, collisions=True):
     '''Reverse naga's identifier renaming for symbols the transpiler re-emits with clean names.
 
@@ -699,14 +848,52 @@ def glslTypeToWgsl(typename):
     return GLSL_TO_WGSL_TYPE.get(typename, typename)
 
 
-# -----------------------------------------------------------------------------
-# derived preambles & token registry
-# -----------------------------------------------------------------------------
+# =============================================================================
+# Section 5: Closure preambles (derived from GlslSyntax.cpp + genglsl/lib)
+# =============================================================================
 #
-# Closure struct layouts and MaterialX $-token handling were previously duplicated as hand-written
-# tables (CLOSURE_PREAMBLE, LIB_STRUCT_PREAMBLE, LIB_TOKEN_FIXUPS, LIB_FIELD_RENAMES). These helpers
-# derive the same output from the canonical C++/GLSL sources so genglsl and the WGSL generator stay
-# the single source of truth.
+# Closure struct layouts are derived from the canonical C++/GLSL sources so genglsl and the WGSL
+# generator stay the single source of truth.
+
+# Struct types emitted centrally into mx_closure_type.wgsl (and skipped when transpiling other
+# lib files). surfaceshader is emitted by WgslShaderGenerator::emitTypeDefinitions, not here.
+# Layouts are derived from genglsl + GlslSyntax.cpp (wgslClosurePreamble), not hand-listed.
+LIB_PREAMBLE_STRUCTS = {
+    "surfaceshader",
+    "ClosureData", 
+    "BSDF",
+    "VDF",
+    "FresnelData"
+}
+
+# Aggregate/shader struct names parsed from MaterialXGenGlsl/GlslSyntax.cpp definition strings.
+# Used by glslClosurePreamble (node context) and wgslClosurePreamble (BSDF/VDF only).
+_GLSL_SYNTAX_STRUCT_NAMES = (
+    "BSDF",
+    "VDF", 
+    "surfaceshader",
+    "volumeshader",
+    "displacementshader",
+    "lightshader",
+)
+
+GLSL_TO_WGSL_TYPE = {
+    "float": "f32",
+    "int": "i32",
+    "bool": "bool",
+    "vec2": "vec2f",
+    "vec3": "vec3f",
+    "vec4": "vec4f",
+    "mat2": "mat2x2f",
+    "mat3": "mat3x3f",
+    "mat4": "mat4x4f",
+    "mat3x3": "mat3x3f",
+    "mat2x2": "mat2x2f",
+    "mat4x4": "mat4x4f",
+}
+
+# Set by main() before transpilation; used for preamble/token expansion resolution.
+_ACTIVE_LIBROOT = None
 
 
 def setActiveLibroot(libroot):
@@ -725,6 +912,95 @@ def _activeLibroot():
     return _ACTIVE_LIBROOT
 
 
+# Sampler identifiers that appear in genglsl lib sources after $-token expansion.
+# Each gets texture operation rewrites applied via TEXTURE_REWRITE_RULES below.
+TEXTURE_SAMPLER_NAMES = [
+    "MTLXTOK_texSamplerSampler2D", "mtlx_tex_sampler",
+    "mtlx_env_radiance_stub", "mtlx_env_irradiance_stub", "mtlx_albedo_table",
+    "MTLXTOK_envRadianceSampler2D",
+]
+
+# GLSL texture → placeholder rewrite rules. Applied for each sampler name above.
+# {S} is replaced with the escaped sampler name at apply time.
+# Rules are applied in order — swizzle-specific patterns must come before the no-swizzle fallback.
+TEXTURE_REWRITE_RULES = [
+    # textureLod(sampler, uv, lod) → mtlx_tex_lookup_rgb(uv, lod)
+    (r"textureLod\s*\(\s*{S}\s*,\s*([^,)]+),\s*([^,)]+)\)",
+     r"mtlx_tex_lookup_rgb(\1, \2)"),
+    # texture(sampler, uv).rgb → mtlx_tex_lookup_rgb(uv, 0.0)
+    (r"texture\s*\(\s*{S}\s*,\s*([^,)]+)\)\.rgb",
+     r"mtlx_tex_lookup_rgb(\1, 0.0)"),
+    # texture(sampler, uv).xy or .rg → mtlx_tex_lookup_rg(uv)
+    (r"texture\s*\(\s*{S}\s*,\s*([^,)]+)\)\.(?:rg|xy)",
+     r"mtlx_tex_lookup_rg(\1)"),
+    # texture(sampler, uv).b → mtlx_tex_lookup_b(uv)
+    (r"texture\s*\(\s*{S}\s*,\s*([^,)]+)\)\.b",
+     r"mtlx_tex_lookup_b(\1)"),
+    # texture(sampler, uv).r → mtlx_tex_lookup_r(uv)
+    (r"texture\s*\(\s*{S}\s*,\s*([^,)]+)\)\.r",
+     r"mtlx_tex_lookup_r(\1)"),
+    # textureGrad(sampler, uv, dx, dy).rgb → mtlx_tex_lookup_rgb(uv, 0.0)
+    (r"textureGrad\s*\(\s*{S}\s*,\s*([^,)]+),\s*([^,)]+),\s*([^,)]+)\)\.rgb",
+     r"mtlx_tex_lookup_rgb(\1, 0.0)"),
+    # textureGrad(sampler, uv, dx, dy) → mtlx_tex_lookup_rgba(uv)
+    (r"textureGrad\s*\(\s*{S}\s*,\s*([^,)]+),\s*([^,)]+),\s*([^,)]+)\)",
+     r"mtlx_tex_lookup_rgba(\1)"),
+    # texture(sampler, uv) with no swizzle → mtlx_tex_lookup_rgba(uv)
+    (r"texture\s*\(\s*{S}\s*,\s*([^,)]+)\)(?!\.)",
+     r"mtlx_tex_lookup_rgba(\1)"),
+    # textureSize(sampler, 0).x → mtlx_tex_size_x()
+    (r"textureSize\s*\(\s*{S}\s*,\s*0\s*\)\.x",
+     r"mtlx_tex_size_x()"),
+    # textureSize(sampler, 0) → vec2(256.0)
+    (r"textureSize\s*\(\s*{S}\s*,\s*0\s*\)",
+     r"vec2(256.0)"),
+]
+
+
+def expandLibTokens(text, libroot=None):
+    '''Replace MaterialX $-tokens with MTLXTOK sentinels and rewrite GLSL texture ops to
+    naga-parseable placeholder functions. After transpile, applyWgslLibPostRestore converts
+    these placeholders back to proper WGSL textureSample() calls.'''
+    if libroot is None:
+        libroot = _activeLibroot()
+    text, tokenMap = replaceTokenSentinels(text)
+    # Replace sampler2D declarations with int stubs (naga doesn't need real samplers).
+    text = re.sub(r"\bsampler2D\s+mtlx_\w+\b", "int mtlx_sampler_stub", text)
+    # Apply texture rewrite rules for each known sampler name.
+    for sampler in TEXTURE_SAMPLER_NAMES:
+        escaped = re.escape(sampler)
+        for pattern, replacement in TEXTURE_REWRITE_RULES:
+            text = re.sub(pattern.replace("{S}", escaped), replacement, text)
+    return text, tokenMap
+
+
+def applyWgslLibPostRestore(text, libroot=None):
+    '''WGSL-specific fixes applied after $-token restoration on generated lib/node output.'''
+    for rx, token in TOKEN_RESTORE_RULES:
+        text = rx.sub(token, text)
+    text = re.sub(r"mtlx_tex_lookup_rgb\(([^,)]+),\s*[^)]+\)",
+                  r"textureSample($texSamplerSampler2D, \1).rgb", text)
+    text = re.sub(r"mtlx_tex_lookup_rgba\(([^)]+)\)",
+                  r"textureSample($texSamplerSampler2D, \1)", text)
+    text = re.sub(r"mtlx_tex_lookup_rg\(([^)]+)\)",
+                  r"textureSample($texSamplerSampler2D, \1).rg", text)
+    text = re.sub(r"mtlx_tex_lookup_b\(([^)]+)\)",
+                  r"textureSample($texSamplerSampler2D, \1).b", text)
+    text = re.sub(r"mtlx_tex_lookup_r\(([^)]+)\)",
+                  r"textureSample($texSamplerSampler2D, \1).r", text)
+    text = re.sub(r"\bdFdx\b", "dpdx", text)
+    text = re.sub(r"\bdFdy\b", "dpdy", text)
+    text = re.sub(r"\$texSamplerSignature:\s*i32\b", "$texSamplerSignature", text)
+    text = re.sub(
+        r"fn mx_image_\w+\(\s*i32 mtlx_sampler_stub",
+        lambda m: m.group(0).replace("i32 mtlx_sampler_stub", "$texSamplerSignature"),
+        text,
+    )
+    text = patchIntUniformTokenArithmetic(text)
+    text = patchWgslEnvLatlongCalls(text)
+    return text
+
+
 def _repoRoot(libroot):
     '''Parent of libroot (the MaterialX repo root when libroot is `libraries/`).'''
     return Path(libroot).resolve().parent
@@ -733,43 +1009,6 @@ def _repoRoot(libroot):
 def _readSourceText(path):
     '''Read a repo source file as UTF-8 text.'''
     return path.read_text(encoding="utf-8")
-
-
-def loadHwTokenNames(libroot):
-    '''Return every MaterialX $-token name declared in HwConstants.cpp (T_* constants).
-
-    Used by validateTokenCoverage to ensure lib GLSL only references tokens the C++ generator
-    knows about. Does not include stub values -- those are transpiler policy (NAGA_LIB_STUBS).'''
-    path = _repoRoot(libroot) / "source" / "MaterialXGenHw" / "HwConstants.cpp"
-    if not path.is_file():
-        return set()
-    text = _readSourceText(path)
-    return set(re.findall(r'const string T_\w+\s*=\s*"(\$[^"]+)"', text))
-
-
-def nagaLibStubs(libroot):
-    '''Merge NAGA_LIB_STUBS with HwConstants values needed for naga-parseable lib transpile.
-
-    Currently adds $closureDataConstructor (the makeClosureData function name string) so lib
-    sources using that token expand to a real GLSL identifier before naga runs.'''
-    stubs = dict(NAGA_LIB_STUBS)
-    hw = _repoRoot(libroot) / "source" / "MaterialXGenHw" / "HwConstants.cpp"
-    if hw.is_file():
-        text = _readSourceText(hw)
-        m = re.search(r'const string CLOSURE_DATA_CONSTRUCTOR\s*=\s*"([^"]+)"', text)
-        if m:
-            stubs["$closureDataConstructor"] = m.group(1)
-    return stubs
-
-
-def libTokenFixups(libroot):
-    '''(compiled_regex, replacement) pairs for expandLibTokens, longest token first.
-
-    Longest-first ordering prevents a short $-token prefix from partially matching a longer one
-    (e.g. $texSampler vs $texSamplerSignature).'''
-    stubs = nagaLibStubs(libroot)
-    return [(re.compile(re.escape(tok)), repl)
-            for tok, repl in sorted(stubs.items(), key=lambda x: len(x[0]), reverse=True)]
 
 
 def loadGlslSyntaxSnippets(repoRoot):
@@ -854,12 +1093,11 @@ def _buildWgslClosurePreamble(libroot):
     return "\n\n".join(parts) + "\n"
 
 
+@functools.lru_cache(maxsize=None)
 def wgslClosurePreamble(libroot):
     '''Cached WGSL closure preamble for mx_closure_type.wgsl (see _buildWgslClosurePreamble).'''
-    key = str(Path(libroot).resolve())
-    if key not in _WGSL_CLOSURE_PREAMBLE:
-        _WGSL_CLOSURE_PREAMBLE[key] = _buildWgslClosurePreamble(libroot)
-    return _WGSL_CLOSURE_PREAMBLE[key]
+    libroot = str(Path(libroot).resolve())
+    return _buildWgslClosurePreamble(libroot)
 
 
 def _buildGlslClosurePreamble(libroot):
@@ -876,12 +1114,11 @@ def _buildGlslClosurePreamble(libroot):
     return "\n".join(lines) + "\n"
 
 
+@functools.lru_cache(maxsize=None)
 def glslClosurePreamble(libroot):
     '''Cached GLSL closure preamble for node transpile (see _buildGlslClosurePreamble).'''
-    key = str(Path(libroot).resolve())
-    if key not in _GLSL_CLOSURE_PREAMBLE:
-        _GLSL_CLOSURE_PREAMBLE[key] = _buildGlslClosurePreamble(libroot)
-    return _GLSL_CLOSURE_PREAMBLE[key]
+    libroot = str(Path(libroot).resolve())
+    return _buildGlslClosurePreamble(libroot)
 
 
 def preambleDigitFields(libroot):
@@ -938,6 +1175,7 @@ def generatedBanner(srcRel):
 
 def writeGenerated(outPath, content, label):
     '''Create parent dirs, write a generated .wgsl file, and log its OK line.'''
+    assertValidWgslSyntax(content, label)
     outPath.parent.mkdir(parents=True, exist_ok=True)
     outPath.write_text(content, encoding="utf-8")
     print(f"  OK   {label} -> {outPath}")
@@ -990,37 +1228,30 @@ def postprocessWgslFn(text, fnName, protos, overloaded, libSymbols=None, remap=T
             unsupported += checkLibArity(text, libSymbols)
         if unsupported:
             return None, unsupported
-    return text, []
+    return assertValidWgslSyntax(text, fnName or "wgsl"), []
 
 
-def nagaTranspileGlsl(glslSrc, debugPath=None):
-    '''Run naga on a complete GLSL fragment shader; return (WGSL text, None) or (None, error).
-
-    When MTLX_DEBUG is set, callers may pass debugPath to persist the failing GLSL input.'''
-    with tempfile.TemporaryDirectory() as td:
-        frag = Path(td) / "in.frag"
-        wtmp = Path(td) / "out.wgsl"
-        frag.write_text(glslSrc, encoding="utf-8")
-        r = subprocess.run([NAGA, "--input-kind", "glsl", "--shader-stage", "frag",
-                            str(frag), str(wtmp)], capture_output=True, text=True)
-        if r.returncode != 0:
-            if debugPath:
-                debugPath.parent.mkdir(parents=True, exist_ok=True)
-                debugPath.write_text(glslSrc, encoding="utf-8")
-            err = next((l for l in r.stderr.splitlines() if "error" in l.lower()), "naga error")
-            return None, err.strip()
-        return wtmp.read_text(encoding="utf-8"), None
+# WGSL syntax patterns that are never valid — checked by assertValidWgslSyntax after every
+# transpile to catch regressions before they reach WebGPU shader compilation.
+INVALID_WGSL_PATTERNS = (
+    (re.compile(r"let\s+\w+\s*=\s*if\b"), "let cannot use if-expression initializer"),
+    (re.compile(r"var\s+\w+\s*=\s*if\b"), "var cannot use if-expression initializer"),
+) + tuple(
+    (re.compile(rf"{re.escape(tok)}\s*-\s*1\.0"), f"{tok} is i32; cannot subtract float literal")
+    for tok in INT_UNIFORM_TOKENS
+)
 
 
-# naga renders GLSL scalar/vector/matrix types in this canonical form; used to match a target
-# overload's GLSL parameter types against a naga output function's signature.
-GLSL_TO_NAGA_TYPE = {
-    "float": "f32", "int": "i32", "uint": "u32", "bool": "bool",
-    "vec2": "vec2<f32>", "vec3": "vec3<f32>", "vec4": "vec4<f32>",
-    "ivec2": "vec2<i32>", "ivec3": "vec3<i32>", "ivec4": "vec4<i32>",
-    "uvec2": "vec2<u32>", "uvec3": "vec3<u32>", "uvec4": "vec4<u32>",
-    "mat2": "mat2x2<f32>", "mat3": "mat3x3<f32>", "mat4": "mat4x4<f32>",
-}
+def assertValidWgslSyntax(text, label=""):
+    '''Fail fast on WGSL syntax patterns known to be invalid. Returns text unchanged on success.'''
+    patterns = INVALID_WGSL_PATTERNS
+    for rx, msg in patterns:
+        m = rx.search(text)
+        if m:
+            line = text[:m.start()].count("\n") + 1
+            snippet = m.group(0).strip()
+            raise ValueError(f"{label}: {msg} (line {line}): {snippet!r}")
+    return text
 
 
 def _wgslSigTypes(fnText):
@@ -1037,7 +1268,7 @@ def _wgslSigTypes(fnText):
 
 
 def extractTranspiledFn(wgsl, glslName, wgslName, glslTypes=None):
-    '''Pull one non-stub function from naga output and rename to the target genwgsl name.
+    '''Pull one non-placeholder function from naga output and rename to the target genwgsl name.
 
     Per-function lib/node transpile feeds naga a module with one real body; this extracts that
     body and renames it (e.g. mx_square -> mx_square_f32) via wgslFnName. When several same-named
@@ -1056,9 +1287,6 @@ def extractTranspiledFn(wgsl, glslName, wgslName, glslTypes=None):
     name, t = chosen
     return re.sub(r"(\bfn\s+)" + re.escape(name) + r"\b", r"\1" + wgslName, t)
 
-
-# Closure/shader types for node transpile are built from GlslSyntax.cpp (glslClosurePreamble).
-# WGSL lib types for mx_closure_type.wgsl use wgslClosurePreamble (genglsl/lib + GlslSyntax.cpp).
 
 
 def nagaProtoParams(paramsStr):
@@ -1102,10 +1330,10 @@ def buildContext(libroot, libs, nodes=True):
         if gldir.is_dir():
             sources += sorted((gldir / "lib").glob("*.glsl"))
             if nodes:
-                # Node files too (for cross-node prototypes), minus the skipped ones (light shaders
+                # Node files too (for cross-node prototypes), minus hand-written ones (light shaders
                 # reference the dynamic LightData struct; texture nodes carry $-tokens).
                 sources += [f for f in sorted(gldir.glob("mx_*.glsl"))
-                            if not any(p.search(f.stem) for p in SKIP_PATTERNS)]
+                            if not isHandWritten(lib, f.stem)]
     # Collect #defines, consts, struct definitions, and function prototypes across all sources.
     # `setdefault` keeps the first occurrence, so a symbol defined in several files is deduped.
     for f in sources:
@@ -1135,12 +1363,9 @@ def buildContext(libroot, libs, nodes=True):
     return base, protos, overloaded
 
 
-# -----------------------------------------------------------------------------
-# cleanup (see mxwgslcleanup.py)
-# -----------------------------------------------------------------------------
-#
-# Param-copy shadow collapse lives in mxwgslcleanup (tree-sitter). inlineSingleUseTemps runs there
-# after collapse; nothing else to define in this module.
+# =============================================================================
+# Section 6: Scan context and symbol tables
+# =============================================================================
 
 
 def _countItems(s, brackets="()[]<>"):
@@ -1201,159 +1426,225 @@ def checkLibArity(text, libSymbols):
     return bad
 
 
-# -----------------------------------------------------------------------------
-# scan-driven validation
-# -----------------------------------------------------------------------------
+# =============================================================================
+# Section 7: Validation (preflight checks)
+# =============================================================================
 #
-# These run off the same scan buildContext performs, so gaps between genglsl and the mangling
+# These run off the same scan buildContext performs, so gaps between genglsl and the expansion
 # tables (or the genwgsl lib) surface loudly instead of silently mis-emitting a name.
 
-def validateOverloadCoverage(protos, overloaded):
-    '''Return sorted overloaded (name, types) that mangle() cannot resolve.
-
-    Every GLSL-overloaded helper must map to a genwgsl name (scheme or exception); an unresolved
-    overload would leak naga's `_N`-suffixed name into the output. A genuinely unsupported overload
-    should be an explicit `None` in EXCEPTIONS (which this treats as covered).'''
-    missing = []
-    for key in sorted(protos):
-        name, types = key
-        if name in overloaded and key not in EXCEPTIONS and mangle(name, types, overloaded) is None:
-            missing.append(key)
-    return missing
-
-
 def validateTokenCoverage(libroot, libs):
-    '''Return $-tokens in transpiled genglsl/lib sources missing from HwConstants or NAGA_LIB_STUBS.
+    '''Return $-tokens in transpiled genglsl/lib sources missing from TOKEN_EXPANSIONS.
 
-    Two-tier check (replaces a single hand-maintained LIB_TOKEN_FIXUPS list):
-      1. Token must be declared in HwConstants.cpp (loadHwTokenNames) -- same names the C++
-         generator substitutes at shader link time.
-      2. If the lib file is transpiled (not hand-written), token must also have a naga
-         stub (nagaLibStubs) so expandLibTokens can produce parseable GLSL before naga runs.
-    Hand-written lib files (skip_transpile.txt) are skipped (they are not fed to naga).'''
-    known = loadHwTokenNames(libroot)
-    stubs = set(nagaLibStubs(libroot))
-    unhandled = {}
+    Checks every $-token in non-hand-written genglsl/lib sources against TOKEN_EXPANSIONS
+    and WGSL_ONLY_TOKENS. Unknown tokens indicate a new HwConstants entry needs an expansion.'''
+    known = set(TOKEN_EXPANSIONS) | set(WGSL_ONLY_TOKENS)
+    lib_tokens: set[str] = set()
     for lib in libs:
         gllib = libroot / lib / "genglsl" / "lib"
         if not gllib.is_dir():
             continue
         for f in sorted(gllib.glob("*.glsl")):
-            if isHandWrittenLib(lib, f.stem):
+            if isHandWritten(lib, f.stem, "lib"):
                 continue
             txt = f.read_text(encoding="utf-8")
-            for tok in re.findall(r"\$[A-Za-z_]\w*", txt):
-                if tok not in known:
-                    unhandled.setdefault(tok, f"{f.name} (unknown to HwConstants)")
-                elif tok not in stubs:
-                    # Declared in C++ but no naga-parseable stub for lib transpile.
-                    unhandled.setdefault(tok, f"{f.name} (no NAGA stub)")
+            lib_tokens.update(re.findall(r"\$[A-Za-z_]\w*", txt))
+    unhandled = {}
+    for tok in sorted(lib_tokens):
+        if tok not in known:
+            unhandled[tok] = "no TOKEN_EXPANSIONS entry"
     return unhandled
 
 
-def validateLibNames(protos, libSymbols):
-    '''Return mangle() targets that are absent from the genwgsl lib symbol table.
+def _parseHwConstantsCpp(repoRoot):
+    '''Parse HwConstants.cpp T_* constants for validation. Returns {$token: cpp_name}.'''
+    path = Path(repoRoot) / "source" / "MaterialXGenHw" / "HwConstants.cpp"
+    if not path.is_file():
+        return {}
+    text = path.read_text(encoding="utf-8")
+    tokens = {}
+    for m in re.finditer(r'const string (\w+)\s*=\s*"([^"]*)";', text):
+        name, value = m.group(1), m.group(2)
+        if name.startswith("T_") and value.startswith("$"):
+            tokens[value] = name
+    return tokens
 
-    libSymbols should union the generated output and the hand-written stdlib names, so a scheme
-    that produces a name the real lib does not define (e.g. after a hand-written rename) fails
-    loudly. Overloads mangle() marks unsupported (None) are skipped -- their nodes stay hand-written.'''
-    missing = []
-    for (name, types) in sorted(protos):
-        if name not in SUPPORTED_BASES:
+
+def validateWgslGeneratorParity(repoRoot):
+    '''Check WgslShaderGenerator.cpp _tokenSubstitutions against known tokens.'''
+    path = Path(repoRoot) / "source" / "MaterialXGenWgsl" / "WgslShaderGenerator.cpp"
+    if not path.is_file():
+        return [f"missing {path}"]
+    text = path.read_text(encoding="utf-8")
+    cpp_tokens = _parseHwConstantsCpp(repoRoot)
+    errors = []
+
+    hw_keys = set(re.findall(r'_tokenSubstitutions\[HW::(T_\w+)\]', text))
+    for cpp_name in sorted(hw_keys):
+        if not any(tok_cpp == cpp_name for tok_cpp in cpp_tokens.values()):
+            errors.append(f"WgslShaderGenerator uses HW::{cpp_name} not found in HwConstants.cpp")
+
+    string_keys = set(re.findall(r'_tokenSubstitutions\["(\$[^"]+)"\]', text))
+    for tok in sorted(string_keys):
+        if tok not in cpp_tokens and tok not in WGSL_ONLY_TOKENS:
+            errors.append(f"WgslShaderGenerator substitution {tok!r} not in HwConstants or WGSL_ONLY_TOKENS")
+
+    for tok in WGSL_ONLY_TOKENS:
+        if tok not in string_keys:
+            errors.append(f"WGSL_ONLY_TOKENS {tok!r} missing from WgslShaderGenerator.cpp")
+
+    return errors
+
+
+def validateExpansionSymmetry():
+    '''Ensure every restorable expansion in TOKEN_EXPANSIONS has a TOKEN_RESTORE_RULES entry.
+
+    Skips literal expansions ("false", "vec2(256.0)", "int mtlx_sampler_stub") and the
+    closure constructor — these are not restored to $-tokens in output.'''
+    restored_patterns = set()
+    for rx, _tok in TOKEN_RESTORE_RULES:
+        restored_patterns.add(rx.pattern.replace("\\", ""))
+    # Tokens that are intentionally not restored (literals, sampler sig, closure ctor).
+    skip_tokens = {"$texSamplerSignature", "$albedoTableSize", "$refractionTwoSided",
+                   "$closureDataConstructor"}
+    errors = []
+    for token, expr in TOKEN_EXPANSIONS.items():
+        if token in skip_tokens:
             continue
-        target = mangle(name, types, {name})  # name treated as overloaded for resolution
-        if target and target not in libSymbols:
-            missing.append(f"{name}{types} -> {target}")
-    return missing
+        if expr.endswith("()") and expr not in restored_patterns:
+            errors.append(f"TOKEN_EXPANSIONS {token!r} -> {expr!r} has no TOKEN_RESTORE_RULES entry")
+        elif re.match(r"^[a-z_]+$", expr):
+            # Variable-name expansions: check a word-boundary pattern exists
+            word_pat = r"\b" + re.escape(expr) + r"\b"
+            if not any(rx.pattern == word_pat for rx, _ in TOKEN_RESTORE_RULES):
+                errors.append(f"TOKEN_EXPANSIONS {token!r} -> {expr!r} has no TOKEN_RESTORE_RULES entry")
+    return errors
 
 
-def remapCalls(text, nodeFnName, protos, overloaded):
-    '''Rewrite overloaded/diverged helper calls to their genwgsl names via mangle().
-
-    naga numbers overload stubs (`mx_foo`, `mx_foo_1`, ...) by prototype-declaration order, and
-    protoBlock is emitted sorted by (name, types), so the i-th call name corresponds to the i-th
-    entry of the base's sorted type list. Returns (text, unsupported) where unsupported lists any
-    call mangle() resolves to None -- the caller fails the node so it stays hand-written.
-    '''
-    byBase = {}
-    for (nm, types) in protos:
-        byBase.setdefault(nm, []).append(types)
-    for nm in byBase:
-        byBase[nm] = sorted(byBase[nm])
-
-    unsupported = []
-    for base in sorted(SUPPORTED_BASES, key=len, reverse=True):
-        if base == nodeFnName or base not in byBase:
-            continue
-        for i, types in enumerate(byBase[base]):
-            callname = base if i == 0 else f"{base}_{i}"
-            if not re.search(r"\b" + re.escape(callname) + r"\s*\(", text):
-                continue
-            target = mangle(base, types, overloaded)
-            if not target:  # None (adapted) or unmapped overload -> keep hand-written
-                unsupported.append(callname + "(" + ", ".join(types) + ")")
-                continue
-            text = re.sub(r"\b" + re.escape(callname) + r"\s*\(", target + "(", text)
-    return text, unsupported
+def runPreflight(repoRoot):
+    '''Run all preflight validations; return hard errors.'''
+    errors = []
+    errors.extend(validateExpansionSymmetry())
+    errors.extend(validateWgslGeneratorParity(repoRoot))
+    return errors
 
 
-# naga's canonical type spelling -> GLSL type used to key the mangle tables (inverse of
-# GLSL_TO_NAGA_TYPE).
-NAGA_TO_GLSL_TYPE = {v: k for k, v in GLSL_TO_NAGA_TYPE.items()}
-
-
-def remapCallsByNagaSig(text, wgslModule, selfBase, overloaded):
-    '''Remap overloaded helper calls using the signatures naga actually assigned in wgslModule.
-
-    The sibling-body path defines several overloads of a name in one module, and naga numbers the
-    stubs (`mx_foo`, `mx_foo_1`, ...) in an order that depends on its internal processing -- not the
-    sorted-proto order remapCalls assumes. Rather than guess the index, read each naga function's
-    real parameter signature straight from the module, recover its GLSL types, and resolve
-    (base, types) through mangle(). Longest names first so `mx_foo_1` isn't clobbered by `mx_foo`.
-    `selfBase` is the target's own name (skip, so a recursive call isn't misrouted). Returns
-    (text, unsupported) where unsupported lists calls mangle() resolves to None.'''
-    sigs = {}
-    for name, t in topLevelFns(wgslModule):
-        wt = _wgslSigTypes(t)
-        sigs[name] = tuple(NAGA_TO_GLSL_TYPE.get(x, x) for x in wt)
-    unsupported = []
-    for name in sorted(sigs, key=len, reverse=True):
-        base = fnBase(name)
-        if base == selfBase or base not in SUPPORTED_BASES:
-            continue
-        if not re.search(r"\b" + re.escape(name) + r"\s*\(", text):
-            continue
-        if not _isMapped(base, sigs[name]):
-            continue  # this exact overload isn't mapped (e.g. a same-base local helper)
-        target = mangle(base, sigs[name], overloaded)
-        if not target:  # None -> adapted signature, keep hand-written
-            unsupported.append(name + "(" + ", ".join(sigs[name]) + ")")
-            continue
-        text = re.sub(r"\b" + re.escape(name) + r"\s*\(", target + "(", text)
-    return text, unsupported
-
-
-def topLevelFns(wgsl):
-    '''Yield (name, text) for each top-level `fn` in a WGSL module.'''
-    for m in re.finditer(r"\bfn\s+([A-Za-z_]\w*)\s*\(", wgsl):
-        brace = wgsl.index("{", m.start())
-        yield m.group(1), wgsl[m.start():_matchBrace(wgsl, brace)]
-
-
-# -----------------------------------------------------------------------------
-# lib driver
-# -----------------------------------------------------------------------------
+# =============================================================================
+# Section 8: Naga invocation and transpile drivers
+# =============================================================================
 #
 # transpileLibs() walks genglsl/lib/*.glsl in include order and writes genwgsl/lib/*.wgsl.
 # Strategy mirrors nodes (wrap -> naga -> cleanup) but emits full helper libraries:
 #   - default: one naga invocation per function, with #included deps inlined as bodies
-#   - LIB_USE_SIBLING_BODIES: transitive in-file callee bodies (overload-aware topo sort)
+#   - NEEDS_SIBLING_TRANSPILE: transitive in-file callee bodies (overload-aware topo sort)
 #   - mx_closure_type: static struct preamble + transpiled makeClosureData only
 
-def libNeedsSamplers(src):
-    '''True if this lib references samplers or $-token texture uniforms (needs TEXTURE_STUB_PREAMBLE).'''
-    return bool(re.search(r"\btexture\w*\s*\(|\$texSampler|\$albedoTable|\$envRadiance|\$envIrradiance",
-                          src))
+# GLSL stub preamble injected before naga transpilation. Declares placeholder sampler variables
+# and dummy functions so naga can parse lib/node GLSL that references texture operations.
+# The real WGSL texture bindings are emitted by the runtime; these stubs just keep naga happy.
+TEXTURE_EXPANSION_PREAMBLE = """\
+int mtlx_tex_sampler;
+int mtlx_albedo_table;
+int mtlx_env_radiance_stub;
+int mtlx_env_irradiance_stub;
+mat4 mtlx_env_matrix() { return mat4(1.0); }
+int mtlx_env_radiance_samples() { return 16; }
+float mtlx_env_radiance_mips() { return 8.0; }
+int mtlx_env_radiance_tex() { return mtlx_env_radiance_stub; }
+int mtlx_env_irradiance_tex() { return mtlx_env_irradiance_stub; }
+vec3 mtlx_env_light_intensity() { return vec3(1.0); }
+float mtlx_env_prefilter_mip() { return 0.0; }
+vec3 mtlx_tex_lookup_rgb(vec2 uv, float lod) { return vec3(0.0); }
+vec4 mtlx_tex_lookup_rgba(vec2 uv) { return vec4(0.0); }
+vec2 mtlx_tex_lookup_rg(vec2 uv) { return vec2(0.0); }
+float mtlx_tex_lookup_b(vec2 uv) { return 0.0; }
+float mtlx_tex_lookup_r(vec2 uv) { return 0.0; }
+float mtlx_tex_size_x() { return 256.0; }
+"""
+
+# Resolved naga CLI path. Set by main() before any transpilation runs.
+# Install with `cargo install naga-cli` (see https://github.com/gfx-rs/wgpu/tree/trunk/naga).
+NAGA = None
+
+
+def nagaVersion(naga):
+    '''Return naga's version string if it runs, else None (used to fail early with guidance).'''
+    try:
+        r = subprocess.run([naga, "--version"], capture_output=True, text=True)
+        return r.stdout.strip() if r.returncode == 0 else None
+    except OSError:
+        return None
+
+
+def nagaTranspileGlsl(glslSrc, debugPath=None):
+    '''Run naga on a complete GLSL fragment shader; return (WGSL text, None) or (None, error).
+
+    When MTLX_DEBUG is set, callers may pass debugPath to persist the failing GLSL input.'''
+    with tempfile.TemporaryDirectory() as td:
+        frag = Path(td) / "in.frag"
+        wtmp = Path(td) / "out.wgsl"
+        frag.write_text(glslSrc, encoding="utf-8")
+        r = subprocess.run([NAGA, "--input-kind", "glsl", "--shader-stage", "frag",
+                            str(frag), str(wtmp)], capture_output=True, text=True)
+        if r.returncode != 0:
+            if debugPath:
+                debugPath.parent.mkdir(parents=True, exist_ok=True)
+                debugPath.write_text(glslSrc, encoding="utf-8")
+            err = next((l for l in r.stderr.splitlines() if "error" in l.lower()), "naga error")
+            return None, err.strip()
+        return wtmp.read_text(encoding="utf-8"), None
+
+
+# Pin preprocessor branches to match current genwgsl behavior. Method 0 = analytic directional
+# albedo (table/MC paths in microfacet libs are excluded from the WGSL port).
+LIB_PREAMBLE = """
+#define DIRECTIONAL_ALBEDO_METHOD 0
+#define AIRY_FRESNEL_ITERATIONS 2
+"""
+
+# naga's GLSL frontend requires a staged shader with an entry point; every wrapped fragment ends
+# with this do-nothing fragment `main`. naga keeps the non-entry function bodies we actually want.
+# (Also used by the node transpile driver.)
+FRAG_MAIN_EPILOGUE = "\nlayout(location=0) out vec4 mtlx_o;\nvoid main() { mtlx_o = vec4(0.0); }\n"
+
+
+def sortDepFunctionBodies(depSrc):
+    '''Reorder inlined #include function bodies so callees precede callers (naga requirement).'''
+    depFns = parseFunctions(depSrc)
+    if not depFns:
+        return depSrc
+    depPreamble = depSrc[:depSrc.index(depFns[0]["full"])]
+    return depPreamble + rebuildFnBody(sortFunctionsTopo(depFns))
+
+
+def filterDepToCalledClosure(targetFn, depSrc):
+    '''Keep only inlined #include bodies transitively called from targetFn (drop unused deps).'''
+    depFns = parseFunctions(depSrc)
+    if not depFns:
+        return depSrc
+    depPreamble = depSrc[:depSrc.index(depFns[0]["full"])]
+    byName = {}
+    keyToFn = {}
+    for fn in depFns:
+        byName.setdefault(fn["name"], []).append(fn)
+        keyToFn[fnSigKey(fn)] = fn
+    depNames = set(byName.keys())
+
+    neededKeys = set()
+    stack = list(_extractMxCalls(targetFn["full"], depNames))
+    while stack:
+        callee = stack.pop()
+        for fn in byName.get(callee, []):
+            k = fnSigKey(fn)
+            if k in neededKeys:
+                continue
+            neededKeys.add(k)
+            stack.extend(_extractMxCalls(fn["full"], depNames))
+
+    kept = [keyToFn[k] for k in neededKeys if k in keyToFn]
+    if not kept:
+        return depPreamble
+    return depPreamble + rebuildFnBody(sortFunctionsTopo(kept))
 
 
 def _extractMxCalls(fnBody, knownNames):
@@ -1417,24 +1708,28 @@ def rebuildFnBody(fns):
 
 
 def expandLibIncludes(text, gllibDir, seen=None):
-    '''Inline `#include \"lib/...\"` bodies so naga sees full dependency definitions.
+    '''Inline `#include \"...\"` bodies from the same genglsl/lib directory so naga sees callees.
 
-    Recursive with `seen` to break include cycles. Only `lib/` includes are expanded (not
-    cross-library paths). Used for per-function dep context and whole-file transpile.'''
+    Handles both `lib/foo.glsl` and same-directory `foo.glsl` includes (e.g. environment
+    helpers that pull in mx_microfacet_specular.glsl). Recursive with `seen` for cycles.'''
     seen = seen or set()
 
     def replacer(match):
         incPath = match.group(1)
-        if not incPath.startswith("lib/"):
+        if incPath.startswith("lib/"):
+            stem = Path(incPath).stem
+            incFile = gllibDir / (stem + ".glsl")
+        elif incPath.endswith(".glsl"):
+            stem = Path(incPath).stem
+            incFile = gllibDir / incPath
+        else:
             return match.group(0)
-        stem = Path(incPath).stem
         if stem in seen:
             return ""
         seen.add(stem)
-        incFile = gllibDir / (stem + ".glsl")
         if not incFile.is_file():
             return ""
-        incText = expandLibTokens(incFile.read_text(encoding="utf-8"))
+        incText, _ = expandLibTokens(incFile.read_text(encoding="utf-8"))
         incText = expandLibIncludes(incText, gllibDir, seen)
         incText = stripIncludes(incText)
         return incText + "\n"
@@ -1527,39 +1822,20 @@ def libTranspileHeader(stem, raw):
 
 def applyLibWgslPatches(stem, text):
     '''Stem-specific fixes for transpiled lib output (generator/runtime conventions).'''
-    if stem == "mx_microfacet_specular":
-        # Generator emits split env texture + sampler; match hand-port latlong signature.
-        text = re.sub(
-            r"fn mx_latlong_map_lookup\([^)]+\)[^{]*\{[^}]*\}",
-            """fn mx_latlong_map_lookup(dir: vec3f, transform: mat4x4f, lod: f32, envTex: texture_2d<f32>, envSampler: sampler) -> vec3f {
-    let envDir = normalize((transform * vec4f(dir, 0.0)).xyz);
-    let uv = mx_latlong_projection(envDir);
-    return textureSampleLevel(envTex, envSampler, uv, lod).rgb;
-}""",
-            text,
-            count=1,
-            flags=re.S,
-        )
     return text
 
 
 def transpileLibFileSiblings(glslPath, outPath, base, protos, overloaded, libName, src, raw,
-                                header, samplerPreamble, gllibDir):
+                                header, samplerPreamble, gllibDir, tokenMap, libroot, depSrc):
     '''Per-function transpile with transitive in-file callee bodies (naga ordering fix).'''
     stem = glslPath.stem
+    tokenDefines = nagaTokenDefinePreamble(libroot)
     stripped = stripIncludes(src)
     localFns = parseFunctions(stripped)
     if not localFns:
         return False
 
     filePreamble = filePreambleBeforeFns(src)
-    incLines = "\n".join(
-        f'#include "{i}"\n' for i in re.findall(r'#include\s+"([^"]+)"', raw) if i.startswith("lib/"))
-    depSrc = expandLibIncludes(incLines, gllibDir) if incLines else ""
-    depSrc = stripIncludes(depSrc)
-    for f in localFns:
-        depSrc = depSrc.replace(f["full"], "")
-
     depFns = parseFunctions(depSrc) if depSrc else []
     depPreamble = ""
     if depFns:
@@ -1596,8 +1872,8 @@ def transpileLibFileSiblings(glslPath, outPath, base, protos, overloaded, libNam
         definedSigs = siblingSigs
         combined = filePreamble + depPreamble + siblingBody
         protoBlock = protoBlockForBody(combined, protos, definedSigs)
-        glsl = ("#version 450\n" + LIB_PREAMBLE + samplerPreamble + base + "\n" +
-                filePreamble + depPreamble + "\n" + protoBlock + "\n" + siblingBody +
+        glsl = ("#version 450\n" + LIB_PREAMBLE + tokenDefines + samplerPreamble + base + "\n" +
+                filePreamble + "\n" + protoBlock + "\n" + depPreamble + siblingBody +
                 FRAG_MAIN_EPILOGUE)
         wgsl, err = nagaTranspileGlsl(
             glsl, outPath.parent / f"_debug_lib_{stem}_{targetFn['name']}.frag"
@@ -1609,7 +1885,7 @@ def transpileLibFileSiblings(glslPath, outPath, base, protos, overloaded, libNam
         if text is None:
             print(f"  FAIL lib/{glslPath.name}::{targetFn['name']}: not found in naga output")
             return False
-        # Overloaded calls: resolve by naga's actual per-module signatures (its stub numbering here
+        # Overloaded calls: resolve by naga's actual per-module signatures (its numbering here
         # is topological, not the sorted order remapCalls assumes), then run the shared cleanup.
         text, unsupported = remapCallsByNagaSig(text, wgsl, targetFn["name"], overloaded)
         if unsupported:
@@ -1617,6 +1893,7 @@ def transpileLibFileSiblings(glslPath, outPath, base, protos, overloaded, libNam
             return False
         text, _ = postprocessWgslFn(text, targetFn["name"], protos, overloaded, remap=False,
                                       glslParamNames=fnParamNames(targetFn["params"]))
+        text = restoreTokenSentinels(text, tokenMap)
         outputs.append(targetFn.get("lead", "") + injectInlineComments(targetFn["full"], text))
 
     structs = transpileGlslStructs(stripped)
@@ -1626,7 +1903,7 @@ def transpileLibFileSiblings(glslPath, outPath, base, protos, overloaded, libNam
     banner = generatedBanner(srcRel)
     allConsts = glslConstNames(base) + constNamesFromWgsl(consts)
     body = resolveConstRefs("\n\n".join(outputs), allConsts)
-    body = applyLibWgslPatches(stem, body)
+    body = applyWgslLibPostRestore(body)
     fileLead = fileLeadComment(raw)
     writeGenerated(outPath, banner + fileLead + header + preamble + body + "\n",
                     f"lib/{glslPath.name}")
@@ -1638,53 +1915,85 @@ def transpileLibFile(glslPath, outPath, base, protos, overloaded, libName, libro
 
     Dispatches to _transpileClosureTypeLib, transpileLibFileSiblings, or per-function
     transpile (default). Output: generated banner + #include lines + structs/consts + fn bodies.'''
+    # Lib files with intra-file call graphs that need all functions transpiled together
+    # (transitive in-file callees + overload-aware topo sort) instead of one-at-a-time.
+    NEEDS_SIBLING_TRANSPILE = {
+        "mx_microfacet_specular",
+        "mx_microfacet_sheen", 
+        "mx_microfacet_diffuse",
+        "mx_flake",
+        "mx_noise",
+        "mx_environment_fis",
+        "mx_environment_prefilter",
+        "mx_generate_albedo_table",
+        "mx_generate_prefilter_env",
+    }
+    # --- Read and prepare the GLSL source ---
     raw = glslPath.read_text(encoding="utf-8")
-    raw = preFilterLibGlsl(glslPath.stem, raw)
-    src = expandLibTokens(raw)
-    stem = glslPath.stem
-    samplerPreamble = TEXTURE_STUB_PREAMBLE if libNeedsSamplers(raw) else ""
+    fileStem = glslPath.stem
+    raw = preFilterLibGlsl(fileStem, raw)
+    # Replace $-tokens with MTLXTOK_* sentinels so naga sees valid GLSL identifiers.
+    src, tokenMap = expandLibTokens(raw)
+    tokenDefines = nagaTokenDefinePreamble(libroot)
+    gllibDir = glslPath.parent
 
-    if stem == "mx_closure_type":
+    # --- Parse local functions and resolve #include dependencies ---
+    stripped = stripIncludes(src)
+    localFns = parseFunctions(stripped)
+    incLines = "\n".join(
+        f'#include "{i}"\n' for i in re.findall(r'#include\s+"([^"]+)"', raw)
+        if i.startswith("lib/") or (i.endswith(".glsl") and "/" not in i.replace("\\", "/")))
+    # Inline #included dependency bodies (callees from other lib files this file uses).
+    depSrc = expandLibIncludes(incLines, gllibDir) if incLines else ""
+    depSrc = stripIncludes(depSrc)
+    # Remove local functions from the dependency source to avoid duplicates.
+    for f in localFns:
+        depSrc = depSrc.replace(f["full"], "")
+    depSrc = sortDepFunctionBodies(depSrc)
+    # Only include texture placeholders if the source actually references texture operations.
+    samplerPreamble = (TEXTURE_EXPANSION_PREAMBLE
+                         if libNeedsTextureExpansions(raw) or libNeedsTextureExpansions(depSrc) else "")
+
+    # --- Dispatch to the appropriate transpile strategy ---
+
+    if fileStem == "mx_closure_type":
+        # Special case: static struct preamble + transpiled makeClosureData only.
         return _transpileClosureTypeLib(glslPath, outPath, base, protos, overloaded, libName,
                                            libroot)
 
-    header = libTranspileHeader(stem, raw)
-    gllibDir = glslPath.parent
+    header = libTranspileHeader(fileStem, raw)
 
-    if stem in LIB_USE_SIBLING_BODIES:
+    if fileStem in NEEDS_SIBLING_TRANSPILE:
+        # Intra-file call graph: transpile all functions together with topo-sorted callees.
         return transpileLibFileSiblings(glslPath, outPath, base, protos, overloaded, libName,
-                                           src, raw, header, samplerPreamble, gllibDir)
+                                           src, raw, header, samplerPreamble, gllibDir,
+                                           tokenMap, libroot, depSrc)
 
-    stripped = stripIncludes(src)
-    localFns = parseFunctions(stripped)
     if not localFns:
         print(f"  SKIP lib/{glslPath.name}: no functions found")
         return False
 
-    incLines = "\n".join(
-        f'#include "{i}"\n' for i in re.findall(r'#include\s+"([^"]+)"', raw) if i.startswith("lib/"))
-    depSrc = expandLibIncludes(incLines, gllibDir) if incLines else ""
-    depSrc = stripIncludes(depSrc)
-    # Remove local function bodies from depSrc — only the target fn body is transpiled per pass.
-    for f in localFns:
-        depSrc = depSrc.replace(f["full"], "")
-
+    # --- Default path: transpile each function independently ---
     outputs = []
     for fn in localFns:
         types = fnParamTypes(fn["params"])
         outName = wgslFnName(fn["name"], types, overloaded)
-        protoBlock = "\n".join(
-            p for (nm, t), p in sorted(protos.items())
-            if not (nm == fn["name"] and t == types))
-        glsl = ("#version 450\n" + LIB_PREAMBLE + samplerPreamble + base + "\n" +
-                depSrc + "\n" + protoBlock + "\n" + fn["full"] +
+        # Build the dependency context: inlined callee bodies + forward-declaration prototypes.
+        fnDepSrc = filterDepToCalledClosure(fn, depSrc)
+        definedSigs = {fnSigKey(f) for f in parseFunctions(fnDepSrc)} | {fnSigKey(fn)}
+        protoBlock = protoBlockForBody(fnDepSrc + "\n" + fn["full"], protos, definedSigs)
+        # Assemble the complete GLSL fragment shader for naga.
+        glsl = ("#version 450\n" + LIB_PREAMBLE + tokenDefines + samplerPreamble + base + "\n" +
+                protoBlock + "\n" + fnDepSrc + "\n" + fn["full"] +
                 FRAG_MAIN_EPILOGUE)
+        # Run naga: GLSL → WGSL.
         wgsl, err = nagaTranspileGlsl(
-            glsl, outPath.parent / f"_debug_lib_{stem}_{fn['name']}.frag"
+            glsl, outPath.parent / f"_debug_lib_{fileStem}_{fn['name']}.frag"
             if os.environ.get("MTLX_DEBUG") else None)
         if wgsl is None:
             print(f"  FAIL lib/{glslPath.name}::{fn['name']}: {err}")
             return False
+        # Extract the target function from naga output and apply post-processing.
         text = extractTranspiledFn(wgsl, fn["name"], outName)
         if text is None:
             print(f"  FAIL lib/{glslPath.name}::{fn['name']}: not found in naga output")
@@ -1694,8 +2003,11 @@ def transpileLibFile(glslPath, outPath, base, protos, overloaded, libName, libro
         if unsupported:
             print(f"  FAIL lib/{glslPath.name}::{fn['name']}: unmapped call(s) {unsupported}")
             return False
+        # Restore $-tokens and re-attach GLSL comments to the transpiled WGSL.
+        text = restoreTokenSentinels(text, tokenMap)
         outputs.append(fn.get("lead", "") + injectInlineComments(fn["full"], text))
 
+    # --- Assemble the final .wgsl output file ---
     structs = transpileGlslStructs(stripped)
     consts = transpileGlslConsts(stripped)
     preambleParts = structs + consts
@@ -1705,7 +2017,7 @@ def transpileLibFile(glslPath, outPath, base, protos, overloaded, libName, libro
     banner = generatedBanner(srcRel)
     allConsts = glslConstNames(base) + constNamesFromWgsl(consts)
     body = resolveConstRefs("\n\n".join(outputs), allConsts)
-    body = applyLibWgslPatches(stem, body)
+    body = applyWgslLibPostRestore(body)
     fileLead = fileLeadComment(raw)
     writeGenerated(outPath, banner + fileLead + header + preamble + body + "\n",
                     f"lib/{glslPath.name}")
@@ -1720,7 +2032,8 @@ def _transpileClosureTypeLib(glslPath, outPath, base, protos, overloaded, libNam
     mx_closure_type.glsl, mx_microfacet_specular.glsl, and GlslSyntax.cpp -- not a hand-written
     preamble. Function bodies still come from naga.'''
     raw = glslPath.read_text(encoding="utf-8")
-    src = expandLibTokens(raw)
+    src, tokenMap = expandLibTokens(raw)
+    tokenDefines = nagaTokenDefinePreamble(libroot)
     outputs = []
     for fn in parseFunctions(src):
         types = fnParamTypes(fn["params"])
@@ -1728,7 +2041,7 @@ def _transpileClosureTypeLib(glslPath, outPath, base, protos, overloaded, libNam
         protoBlock = "\n".join(
             p for (nm, t), p in sorted(protos.items())
             if not (nm == fn["name"] and t == types))
-        glsl = ("#version 450\n" + LIB_PREAMBLE + base + "\n" + protoBlock +
+        glsl = ("#version 450\n" + LIB_PREAMBLE + tokenDefines + base + "\n" + protoBlock +
                 "\n" + fn["full"] + FRAG_MAIN_EPILOGUE)
         wgsl, err = nagaTranspileGlsl(glsl)
         if wgsl is None:
@@ -1743,7 +2056,8 @@ def _transpileClosureTypeLib(glslPath, outPath, base, protos, overloaded, libNam
         if unsupported:
             print(f"  FAIL lib/{glslPath.name}::{fn['name']}: {unsupported}")
             return False
-        outputs.append(fn.get("lead", "") + injectInlineComments(fn["full"], applyFieldRenames(text)))
+        text = restoreTokenSentinels(applyFieldRenames(text), tokenMap)
+        outputs.append(fn.get("lead", "") + injectInlineComments(fn["full"], text))
 
     srcRel = f"libraries/{libName}/genglsl/lib/{glslPath.name}"
     banner = generatedBanner(srcRel)
@@ -1771,7 +2085,7 @@ def transpileLibs(libroot, outroot, libs, base, protos, only=None):
             continue
         libFiles = topoSortLibFiles(sorted(gllib.glob("*.glsl")))
         for glsl in libFiles:
-            if isHandWrittenLib(lib, glsl.stem):
+            if isHandWritten(lib, glsl.stem, "lib"):
                 print(f"  KEEP lib/{glsl.name} (hand-written; in skip_transpile.txt)")
                 continue
             if only and glsl.stem not in only:
@@ -1786,9 +2100,9 @@ def transpileLibs(libroot, outroot, libs, base, protos, only=None):
     return unexpected
 
 
-# -----------------------------------------------------------------------------
-# node driver
-# -----------------------------------------------------------------------------
+# =============================================================================
+# Section 9: Node transpile driver
+# =============================================================================
 
 def transpile(nodePath, outPath, base, protos, overloaded, libSymbols):
     nodeSrc = nodePath.read_text(encoding="utf-8")
@@ -1798,30 +2112,23 @@ def transpile(nodePath, outPath, base, protos, overloaded, libSymbols):
         return False
 
     outputs = []
+    libroot = _activeLibroot()
     for fn in nodeFns:
         # Supply every known prototype except the function being defined here (siblings and
         # cross-node helpers are all in `protos`, keyed by name+types).
         # Emit sorted by (name, types) so each overloaded base's prototypes are declared in the
         # same order remapCalls indexes them (naga numbers overload stubs by declaration order).
         protoBlock = "\n".join(p for (nm, _t), p in sorted(protos.items()) if nm != fn["name"])
-        body = fn["full"]
-
-        # MaterialX `$`-tokens (e.g. $blur, $albedoTable) aren't valid GLSL identifiers, so naga
-        # can't parse them. Swap each `$tok` for a legal placeholder `MTLXTOK_tok` before transpiling
-        # and restore it afterwards; tokenMap records the reverse mapping for this function.
-        tokenMap = {}
-
-        def sentinel(m):
-            s = "MTLXTOK_" + m.group(1)
-            tokenMap[s] = m.group(0)
-            return s
-        body = re.sub(r"\$([A-Za-z_]\w*)", sentinel, body)
-
-        # Assemble a complete, naga-parseable fragment shader: version + shared context (structs,
-        # #defines, prototypes) + this one real function body + a do-nothing entry point. naga's GLSL
-        # frontend requires a staged shader with a main(); it keeps non-entry functions in the output,
-        # which is exactly the one body we want back.
-        glsl = "#version 450\n" + base + "\n" + protoBlock + "\n" + body + FRAG_MAIN_EPILOGUE
+        if libNeedsSamplers(fn["full"]):
+            body, tokenMap = expandLibTokens(fn["full"])
+            tokenDefines = nagaTextureTokenDefinePreamble()
+            samplerPreamble = TEXTURE_EXPANSION_PREAMBLE
+        else:
+            body, tokenMap = replaceTokenSentinels(fn["full"])
+            tokenDefines = ""
+            samplerPreamble = ""
+        glsl = ("#version 450\n" + base + "\n" + tokenDefines + samplerPreamble + protoBlock + "\n" +
+                body + FRAG_MAIN_EPILOGUE)
 
         wgsl, err = nagaTranspileGlsl(
             glsl, outPath.parent / f"_debug_{fn['name']}.frag" if os.environ.get("MTLX_DEBUG") else None)
@@ -1849,8 +2156,8 @@ def transpile(nodePath, outPath, base, protos, overloaded, libSymbols):
             return False
 
         # Restore MaterialX $-tokens last; sentinels are untouched by remap/arity (which match mx_*).
-        for s, tok in tokenMap.items():
-            text = text.replace(s, tok)
+        text = restoreTokenSentinels(text, tokenMap)
+        text = applyWgslLibPostRestore(text)
 
         outputs.append(fn.get("lead", "") + injectInlineComments(fn["full"], text))
 
@@ -1869,7 +2176,8 @@ def transpile(nodePath, outPath, base, protos, overloaded, libSymbols):
     banner = generatedBanner(srcRel)
 
     fileLead = fileLeadComment(nodeSrc)
-    writeGenerated(outPath, banner + fileLead + header + "\n\n".join(outputs) + "\n",
+    body = applyWgslLibPostRestore("\n\n".join(outputs))
+    writeGenerated(outPath, banner + fileLead + header + body + "\n",
                     nodePath.name)
     return True
 
@@ -1879,7 +2187,7 @@ def cleanGenerated(libroot):
     listed in skip_transpile.txt. Restores a hand-written-only library after an in-place
     (`--out libraries`) generation run. Needs no naga.'''
     libroot = Path(libroot)
-    keep = loadDoNotTranspile()
+    keep = readSkipList()
     removed = kept = 0
     print(f"Cleaning generated genwgsl .wgsl under {libroot} ...")
     for wgsl in sorted(libroot.glob("*/genwgsl/**/*.wgsl")):
@@ -1908,9 +2216,9 @@ def main():
         cleanGenerated(args.libraries)
         return 0
 
-    # Resolve and preflight naga so a missing tool fails once, with guidance, instead of per node.
+    # Resolve naga CLI so a missing tool fails once, with guidance, instead of per node.
     global NAGA
-    NAGA = resolveNaga(args.naga)
+    NAGA = args.naga or os.environ.get("NAGA") or shutil.which("naga") or "naga"
     version = nagaVersion(NAGA)
     if not version:
         print(f"ERROR: naga CLI not found or not runnable (tried '{NAGA}').\n"
@@ -1933,19 +2241,25 @@ def main():
     libs = discoverLibs(libroot)
     base, protos, overloaded = buildContext(libroot, libs)
 
-    # Scan-driven preflight: unresolved overloads or unhandled $-tokens are hard errors (they would
-    # mis-emit a name or fail naga later, with a more obscure message).
+    # Scan-driven preflight: unresolved overloads, expansion/restore drift, or unhandled $-tokens.
     validationFailed = False
+    repo = _repoRoot(libroot)
+    preflight_errors = runPreflight(repo)
+    if preflight_errors:
+        validationFailed = True
+        print("ERROR: preflight validation failed:")
+        for msg in preflight_errors:
+            print(f"       {msg}")
     uncovered = validateOverloadCoverage(protos, overloaded)
     if uncovered:
         validationFailed = True
-        print("ERROR: overloaded helpers with no mangle() mapping (add a SUFFIX_SCHEME/EXCEPTIONS "
-              "entry): " + ", ".join(f"{n}{t}" for n, t in uncovered))
+        print("ERROR: overloaded helpers with no mangle() mapping (add an OVERLOAD_SUFFIX_SCHEME "
+              "or OVERLOAD_SUFFIX_OVERRIDES entry): " + ", ".join(f"{n}{t}" for n, t in uncovered))
     unhandledTokens = validateTokenCoverage(libroot, libs)
     if unhandledTokens:
         validationFailed = True
-        print("ERROR: $-tokens in transpiled lib sources not covered by HwConstants/NAGA_LIB_STUBS: "
-              + ", ".join(f"{tok} ({src})" for tok, src in sorted(unhandledTokens.items())))
+        print("ERROR: $-tokens in transpiled lib sources not covered by TOKEN_EXPANSIONS: "
+              + ", ".join(f"{tok} ({reason})" for tok, reason in sorted(unhandledTokens.items())))
 
     # Lib helpers first: nodes #include genwgsl/lib/*.wgsl and checkLibArity reads fresh output.
     libUnexpected = transpileLibs(libroot, outroot, libs, base, protos, only=args.only)
@@ -1964,7 +2278,7 @@ def main():
                   + ", ".join(missingNames))
 
     ok = skip = 0
-    nodeExpected, nodeUnexpected = [], []
+    nodeUnexpected = []
     print("\nTranspiling genglsl node fragments...")
     for lib in libs:
         gldir = libroot / lib / "genglsl"
@@ -1974,25 +2288,18 @@ def main():
             baseName = glsl.stem
             if args.only and baseName not in args.only:
                 continue
-            if any(p.search(baseName) for p in SKIP_PATTERNS):
-                print(f"  SKIP {glsl.name}: texture/sampler node (unsupported by naga)")
+            if isHandWritten(lib, baseName):
+                print(f"  SKIP {glsl.name}: hand-written (in skip_transpile.txt)")
                 skip += 1
                 continue
             out = outroot / lib / "genwgsl" / (baseName + ".wgsl")
             if transpile(glsl, out, base, protos, overloaded, libSymbols):
                 ok += 1
-                if baseName in EXPECTED_FALLBACK:
-                    # A node we expected to stay hand-written now transpiles cleanly -- the lib
-                    # divergence it depended on was probably resolved. Not fatal, but worth flagging.
-                    print(f"  WARN {glsl.name}: now transpiles cleanly; remove it from "
-                          f"EXPECTED_FALLBACK and commit the generated version.")
-            elif baseName in EXPECTED_FALLBACK:
-                nodeExpected.append(baseName)
             else:
                 nodeUnexpected.append(baseName)
 
     print(f"\nDone: {ok} nodes transpiled, {skip} skipped, "
-          f"{len(nodeExpected)} expected fallbacks, {len(nodeUnexpected)} unexpected failures.")
+          f"{len(nodeUnexpected)} unexpected failures.")
     allUnexpected = libUnexpected + nodeUnexpected
     if allUnexpected:
         print("ERROR: files that should transpile failed: " + ", ".join(sorted(set(allUnexpected))))

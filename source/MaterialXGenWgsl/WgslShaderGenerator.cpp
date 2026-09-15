@@ -7,7 +7,7 @@
 
 #include <MaterialXGenWgsl/WgslSyntax.h>
 #include <MaterialXGenWgsl/WgslResourceBindingContext.h>
-#include <MaterialXGenWgsl/Nodes/WgslSurfaceNode.h>
+#include <MaterialXGenHw/Nodes/HwSurfaceNode.h>
 #include <MaterialXGenWgsl/Nodes/WgslCompoundNode.h>
 #include <MaterialXGenWgsl/Nodes/WgslLightNodes.h>
 #include <MaterialXGenWgsl/Nodes/WgslSourceCodeNode.h>
@@ -107,6 +107,10 @@ WgslShaderGenerator::WgslShaderGenerator(TypeSystemPtr typeSystem) :
     _tokenSubstitutions[HW::T_ENV_IRRADIANCE] = HW::ENV_IRRADIANCE + "_texture";
     _tokenSubstitutions["$envIrradianceSampler"] = HW::ENV_IRRADIANCE + "_sampler";
 
+    // Image/texture nodes: split combined sampler2D into texture_2d + sampler (see MslShaderGenerator).
+    _tokenSubstitutions[HW::T_TEX_SAMPLER_SAMPLER2D] = HW::TEX_SAMPLER_SAMPLER2D_WGSL;
+    _tokenSubstitutions[HW::T_TEX_SAMPLER_SIGNATURE] = HW::TEX_SAMPLER_SIGNATURE_WGSL;
+
     _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "numActiveLightSources", WgslNumLightsNode::create()));
     _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "sampleLightSource", WgslLightSamplerNode::create()));
 }
@@ -143,7 +147,7 @@ void WgslShaderGenerator::registerImplementations(const string& target)
     registerImplementation("IM_time_float_" + target, HwTimeNode::create);
     registerImplementation("IM_viewdirection_vector3_" + target, HwViewDirectionNode::create);
 
-    registerImplementation("IM_surface_" + target, WgslSurfaceNode::create);
+    registerImplementation("IM_surface_" + target, HwSurfaceNode::create);
     registerImplementation("IM_light_" + target, HwLightNode::create);
     registerImplementation("IM_point_light_" + target, HwLightShaderNode::create);
     registerImplementation("IM_directional_light_" + target, HwLightShaderNode::create);

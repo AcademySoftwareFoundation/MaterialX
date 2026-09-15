@@ -12,6 +12,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import mxwgslcleanup as m
+from mxgenwgsl import assertValidWgslSyntax
 
 # These tests need the tree-sitter WGSL grammar. On interpreters with no tree-sitter-language-pack
 # wheel (e.g. Python 3.9) skip rather than fail. Only skip at collection when actually running under
@@ -151,11 +152,50 @@ NESTED_REASSIGN_SHADOW = (
 )
 NESTED_PARAMS = ["X", "flag"]
 
+# Naga hoists per-iteration loop temps to function scope; localize should move them into the body.
+LOOP_HOISTS = (
+    "fn mx_environment_radiance(N: vec3f, V: vec3f, alpha: vec2f, fd: FresnelData) -> vec3f {\n"
+    "    var radiance: vec3f = vec3(0.0);\n"
+    "    var i_4: i32 = 0i;\n"
+    "    var Xi_2: vec2f;\n"
+    "    var H_5: vec3f;\n"
+    "    var local_6: vec3f;\n"
+    "    var L: vec3f;\n"
+    "    var local_7: vec3f;\n"
+    "    var FG: vec3f;\n"
+    "    let envRadianceSamples = 4i;\n"
+    "    loop {\n"
+    "        if !(i_4 < envRadianceSamples) { break; }\n"
+    "        {\n"
+    "            Xi_2 = mx_spherical_fibonacci(i_4, envRadianceSamples);\n"
+    "            H_5 = mx_ggx_importance_sample_VNDF(Xi_2, V, alpha);\n"
+    "            if fd.refraction {\n"
+    "                local_6 = vec3(1.0);\n"
+    "            } else {\n"
+    "                local_6 = vec3(0.0);\n"
+    "            }\n"
+    "            L = local_6;\n"
+    "            if fd.refraction {\n"
+    "                local_7 = vec3(1.0);\n"
+    "            } else {\n"
+    "                local_7 = vec3(0.0);\n"
+    "            }\n"
+    "            FG = local_7;\n"
+    "            radiance = radiance + (L * FG);\n"
+    "        }\n"
+    "        continuing { i_4 = i_4 + 1i; }\n"
+    "    }\n"
+    "    return radiance;\n"
+    "}\n"
+)
+LOOP_HOIST_PARAMS = ["N", "V", "alpha", "fd"]
+
 FIXTURES = [
     ("fd_refract_field_shadow", FD_REFRACT_SHADOW, FD_REFRACT_PARAMS),
     ("readonly_shadow", READONLY_SHADOW, READONLY_PARAMS),
     ("struct_builder", STRUCT_BUILDER, None),
     ("nested_reassign_shadow", NESTED_REASSIGN_SHADOW, NESTED_PARAMS),
+    ("loop_hoists", LOOP_HOISTS, LOOP_HOIST_PARAMS),
 ]
 
 
@@ -166,6 +206,7 @@ def test_cleanup_introduces_no_uninitialized_reads():
     is read while uninitialized. Would have caught the fd_8 glass-transmission bug."""
     for name, raw, params in FIXTURES:
         cleaned = m.cleanupFunction(raw, params)
+        assertValidWgslSyntax(cleaned, name)
         before = uninitialized_whole_reads(raw)
         after = uninitialized_whole_reads(cleaned)
         assert after <= before, (
@@ -211,6 +252,20 @@ def test_struct_builder_unchanged_shape():
 
 def test_nested_reassign_keeps_copy_in():
     cleaned = m.cleanupFunction(NESTED_REASSIGN_SHADOW, NESTED_PARAMS)
+    assert uninitialized_whole_reads(cleaned) == 0, cleaned
+
+
+def test_loop_hoists_localized_into_body():
+    cleaned = m.cleanupFunction(LOOP_HOISTS, LOOP_HOIST_PARAMS)
+    assert "var Xi_2" not in cleaned, cleaned
+    assert "var H_5" not in cleaned, cleaned
+    assert "var local_6" not in cleaned, cleaned
+    assert "var L:" not in cleaned, cleaned
+    assert "let Xi = " in cleaned, cleaned
+    assert "let H = " in cleaned, cleaned
+    assert "let L = select(" in cleaned, cleaned
+    assert "let FG = select(" in cleaned, cleaned
+    assertValidWgslSyntax(cleaned, "loop_hoists")
     assert uninitialized_whole_reads(cleaned) == 0, cleaned
 
 
