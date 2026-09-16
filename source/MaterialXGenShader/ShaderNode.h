@@ -497,6 +497,18 @@ class MX_GENSHADER_API ShaderNode
         return (!_impl || _impl->isEditable(input));
     }
 
+    /// Return the name used for the given port by this node's implementation,
+    /// as declared by an 'implname' attribute. If there is no remapping for the
+    /// port the given portName is returned, in which case the returned reference
+    /// aliases the argument and callers must not pass a temporary.
+    virtual const string& getPortName(const string& portName) const;
+
+    /// Return the base name to use when naming variables for the given port of
+    /// this node, which is the node name combined with the port's implementation
+    /// name. This is the single source of truth for variable naming, and must be
+    /// used by any code that assigns port variables.
+    string getPortVariableName(const string& portName) const;
+
   protected:
     /// Create metadata from the nodedef according to registered metadata.
     void createMetadata(const NodeDef& nodeDef, GenContext& context);

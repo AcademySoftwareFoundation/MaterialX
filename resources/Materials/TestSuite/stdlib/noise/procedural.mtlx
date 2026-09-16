@@ -104,4 +104,22 @@
       <input name="in2" type="vector2" value="50.0000, 50.0000" />
     </multiply>
   </nodegraph>
+  <nodegraph name="randomfloat_float">
+    <randomfloat name="randomfloat1" type="float">
+      <input name="in" type="float" value="0.5000" />
+      <input name="min" type="float" value="0.2500" />
+      <input name="max" type="float" value="0.7500" />
+      <input name="seed" type="integer" value="1" />
+    </randomfloat>
+    <output name="out" type="float" nodename="randomfloat1" />
+  </nodegraph>
+  <nodegraph name="randomfloat_integer">
+    <randomfloat name="randomfloat1" type="float">
+      <input name="in" type="integer" value="3" />
+      <input name="min" type="float" value="0.2500" />
+      <input name="max" type="float" value="0.7500" />
+      <input name="seed" type="integer" value="1" />
+    </randomfloat>
+    <output name="out" type="float" nodename="randomfloat1" />
+  </nodegraph>
 </materialx>

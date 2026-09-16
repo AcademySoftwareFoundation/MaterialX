@@ -48,7 +48,7 @@ void CompoundNode::initialize(const InterfaceElement& element, GenContext& conte
     // so always use the reduced interface for this graph.
     const ShaderInterfaceType oldShaderInterfaceType = context.getOptions().shaderInterfaceType;
     context.getOptions().shaderInterfaceType = SHADER_INTERFACE_REDUCED;
-    _rootGraph = ShaderGraph::create(nullptr, graph, context);
+    _rootGraph = ShaderGraph::create(nullptr, graph, context, &getPortImplNames());
     context.getOptions().shaderInterfaceType = oldShaderInterfaceType;
 
     // Set hash using the function name.

@@ -481,6 +481,33 @@ int main(int argc, char* const argv[])
                 impl->setFunction(oslShaderName);
                 impl->setAttribute("sourcecode", "dummy");
                 impl->setTarget(target);
+
+                // Carry over the port name remappings declared by the source implementation.
+                // The parameters of the compiled oso are named by their 'implname', so this
+                // implementation has to declare them too for consumers of the oso to bind
+                // against the right names.
+                for (const mx::InputPtr& implInput : nodeImpl->getActiveInputs())
+                {
+                    if (!implInput->hasImplementationName())
+                    {
+                        continue;
+                    }
+                    mx::InputPtr nodeDefInput = nodeDef->getActiveInput(implInput->getName());
+                    const std::string& inputType = nodeDefInput ? nodeDefInput->getType() : implInput->getType();
+                    mx::InputPtr input = impl->addInput(implInput->getName(), inputType);
+                    input->setImplementationName(implInput->getImplementationName());
+                }
+                for (const mx::OutputPtr& implOutput : nodeImpl->getActiveOutputs())
+                {
+                    if (!implOutput->hasImplementationName())
+                    {
+                        continue;
+                    }
+                    mx::OutputPtr nodeDefOutput = nodeDef->getActiveOutput(implOutput->getName());
+                    const std::string& outputType = nodeDefOutput ? nodeDefOutput->getType() : implOutput->getType();
+                    mx::OutputPtr output = impl->addOutput(implOutput->getName(), outputType);
+                    output->setImplementationName(implOutput->getImplementationName());
+                }
             }
         }
         // Catch any codegen/compilation related exceptions.

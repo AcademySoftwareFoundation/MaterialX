@@ -561,4 +561,14 @@ ShaderOutput* ShaderNode::addOutput(const string& name, TypeDesc type)
     return output.get();
 }
 
+const string& ShaderNode::getPortName(const string& portName) const
+{
+    return _impl ? _impl->getPortName(portName) : portName;
+}
+
+string ShaderNode::getPortVariableName(const string& portName) const
+{
+    return _name + "_" + getPortName(portName);
+}
+
 MATERIALX_NAMESPACE_END

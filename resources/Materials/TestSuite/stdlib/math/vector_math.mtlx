@@ -199,4 +199,11 @@
     </mincomponent>
     <output name="out" type="float" nodename="mincomponent1" />
   </nodegraph>
+  <nodegraph name="refract_vector3">
+    <refract name="refract1" type="vector3">
+      <input name="in" type="vector3" value="1.0000, 0.5000, 0.0" />
+      <input name="ior" type="float" value="1.5000" />
+    </refract>
+    <output name="out" type="vector3" nodename="refract1" />
+  </nodegraph>
 </materialx>

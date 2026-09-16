@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+  <!--
+  Basic latitude-longitude environment image unit test.
+  -->
+  <output name="latlongimage_default_output" type="color3" nodename="latlongimage_default" />
+  <latlongimage name="latlongimage_default" type="color3">
+    <input name="file" type="filename" value="resources/Images/grid.png" />
+  </latlongimage>
+  <output name="latlongimage_rotated_output" type="color3" nodename="latlongimage_rotated" />
+  <latlongimage name="latlongimage_rotated" type="color3">
+    <input name="file" type="filename" value="resources/Images/grid.png" />
+    <input name="default" type="color3" value="0.5, 0.5, 0.5" />
+    <input name="viewdir" type="vector3" value="0.0, 0.0, 1.0" />
+    <input name="rotation" type="float" value="90.0" />
+  </latlongimage>
+</materialx>

@@ -100,6 +100,59 @@ TEST_CASE("GenShader: OSL Unique Names", "[genosl]")
     GenShaderUtil::testUniqueNames(context, mx::Stage::PIXEL);
 }
 
+// The OSL generator implicitly inserts a <surfacematerial> node when a material outputs a
+// single surfaceshader. That node is inserted after the graph has been finalized, so it names
+// its own port variables, and must apply the same 'implname' remapping that finalizing does.
+// The standard libraries declare that the 'surfaceshader' input of <surfacematerial> is called
+// 'surfaceshader_value' in the OSL implementation.
+TEST_CASE("GenShader: OSL Implicit Surfacematerial Port Names", "[genosl]")
+{
+    const std::string testDocumentString =
+    "<?xml version=\"1.0\"?> \
+      <materialx version=\"1.39\"> \
+      <standard_surface name=\"standard_surface1\" type=\"surfaceshader\" /> \
+    </materialx>";
+
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::DocumentPtr libraries = mx::createDocument();
+    mx::loadLibraries({ "libraries" }, searchPath, libraries);
+
+    mx::DocumentPtr doc = mx::createDocument();
+    mx::readFromXmlString(doc, testDocumentString);
+    doc->setDataLibrary(libraries);
+
+    mx::ElementPtr element = doc->getChild("standard_surface1");
+    REQUIRE(element);
+
+    mx::GenContext context(mx::OslShaderGenerator::create());
+    context.registerSourceCodeSearchPath(searchPath);
+    REQUIRE(context.getOptions().oslImplicitSurfaceShaderConversion);
+
+    mx::ShaderPtr shader = context.getShaderGenerator().generate("test", element, context);
+    REQUIRE(shader);
+
+    // Find the implicitly inserted surfacematerial node, which is the only node in the graph
+    // carrying a 'surfaceshader' input.
+    mx::ShaderNode* surfaceMaterialNode = nullptr;
+    for (mx::ShaderNode* node : shader->getGraph().getNodes())
+    {
+        if (node->getInput("surfaceshader"))
+        {
+            surfaceMaterialNode = node;
+        }
+    }
+    REQUIRE(surfaceMaterialNode);
+
+    // The port is remapped by its 'implname', and the variable assigned when the node was
+    // inserted must reflect that remapping.
+    CHECK(surfaceMaterialNode->getPortName("surfaceshader") == "surfaceshader_value");
+
+    mx::ShaderInput* input = surfaceMaterialNode->getInput("surfaceshader");
+    REQUIRE(input);
+    CHECK(input->getVariable() == surfaceMaterialNode->getPortVariableName("surfaceshader"));
+    CHECK(mx::stringEndsWith(input->getVariable(), "_surfaceshader_value"));
+}
+
 TEST_CASE("GenShader: OSL Metadata", "[genosl]")
 {
     mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();

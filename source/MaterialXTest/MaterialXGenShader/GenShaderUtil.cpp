@@ -438,6 +438,7 @@ void ShaderGeneratorTester::checkImplementationUsage(const mx::StringSet& usedIm
 
     unsigned int implementationUseCount = 0;
     mx::StringVec skippedImplementations;
+    mx::StringVec nodeGraphImplementations;
     mx::StringVec missedImplementations;
     for (const auto& targetImpl : targetImpls)
     {
@@ -460,22 +461,31 @@ void ShaderGeneratorTester::checkImplementationUsage(const mx::StringSet& usedIm
             continue;
         }
 
-        if (usedImpls.count(implName))
-        {
-            implementationUseCount++;
-            continue;
-        }
+        // An implementation that references a nodegraph is resolved to that nodegraph
+        // before shader generation sees it, so it is the nodegraph that gets recorded
+        // as used. Test such an implementation through the nodegraph it references.
+        const bool viaNodeGraph = targetImpl->hasNodeGraph();
+        const std::string& usageName = viaNodeGraph ? targetImpl->getNodeGraph() : implName;
 
-        if (context.findNodeImplementation(implName))
+        if (usedImpls.count(usageName) || context.findNodeImplementation(usageName))
         {
             implementationUseCount++;
+            if (viaNodeGraph)
+            {
+                nodeGraphImplementations.push_back(implName + " (nodegraph " + usageName + ")");
+            }
             continue;
         }
-        missedImplementations.push_back(implName);
+        missedImplementations.push_back(viaNodeGraph ? implName + " (nodegraph " + usageName + ")" : implName);
     }
 
     size_t count = targetImpls.size();
     stream << "Tested: " << implementationUseCount << " out of: " << count << " library implementations." << std::endl;
+    stream << "Tested via a nodegraph: " << nodeGraphImplementations.size() << " implementations." << std::endl;
+    for (const auto& implName : nodeGraphImplementations)
+    {
+        stream << "\t" << implName << std::endl;
+    }
     stream << "Skipped: " << skippedImplementations.size() << " implementations." << std::endl;
     if (skippedImplementations.size())
     {
