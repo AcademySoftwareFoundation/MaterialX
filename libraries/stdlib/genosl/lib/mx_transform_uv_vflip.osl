@@ -5,10 +5,10 @@ vector2 mx_transform_uv(vector2 texcoord)
 
 vector2 mx_transform_uv(vector2 texcoord, string filename)
 {
-    if (regex_search(filename, "<UDIM>"))
+    if (regex_search(filename, "<UDIM>|<UVTILE>"))
     {
-        // For UDIM filenames, flip the V coordinate within each tile,
-        // preserving the integer portion that selects the UDIM tile
+        // For UDIM and UVTILE filenames, flip the V coordinate within each tile,
+        // preserving the integer portion that selects the tile
         // at lookup time.
         return vector2(texcoord.x, 2.0 * floor(texcoord.y) + 1.0 - texcoord.y);
     }
