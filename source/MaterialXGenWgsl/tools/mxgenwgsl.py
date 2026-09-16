@@ -378,6 +378,12 @@ def patchWgslEnvLatlongCalls(text):
             rf"mx_latlong_map_lookup\(([^)]*,\s*{re.escape(env)})\s*\)",
             rf"mx_latlong_map_lookup(\1, {samp})",
             text)
+        # Naga hoists env textures to a temp; expand the following latlong call.
+        text = re.sub(
+            rf"let\s+\w+\s*=\s*{re.escape(env)};\s*\n"
+            rf"(\s*let\s+\w+\s*=\s*)mx_latlong_map_lookup\(([^)]*,\s*)\w+\s*\)",
+            rf"\1mx_latlong_map_lookup(\2{env}, {samp})",
+            text)
     return text
 
 
@@ -385,6 +391,7 @@ def patchIntUniformTokenArithmetic(text):
     '''Rewrite `$intToken - 1.0` to `$intToken - 1i` so link-time i32 uniforms type-check.'''
     for tok in INT_UNIFORM_TOKENS:
         text = re.sub(rf"({re.escape(tok)})\s*-\s*1\.0", r"\1 - 1i", text)
+    text = re.sub(r"f32\(\(\s*(\w+)\s*-\s*1\.0\s*\)\)", r"f32(\1 - 1i)", text)
     return text
 
 
@@ -974,28 +981,75 @@ def expandLibTokens(text, libroot=None):
     return text, tokenMap
 
 
+# Texture-lookup helper → textureSample() rewrite rules.
+# Each entry: (regex matching the naga placeholder call, replacement with $texSamplerSampler2D).
+_TEX_LOOKUP_RULES = [
+    (re.compile(r"mtlx_tex_lookup_rgb\(([^,)]+),\s*[^)]+\)"),  r"textureSample($texSamplerSampler2D, \1).rgb"),
+    (re.compile(r"mtlx_tex_lookup_rgba\(([^)]+)\)"),            r"textureSample($texSamplerSampler2D, \1)"),
+    (re.compile(r"mtlx_tex_lookup_rg\(([^)]+)\)"),              r"textureSample($texSamplerSampler2D, \1).rg"),
+    (re.compile(r"mtlx_tex_lookup_b\(([^)]+)\)"),               r"textureSample($texSamplerSampler2D, \1).b"),
+    (re.compile(r"mtlx_tex_lookup_r\(([^)]+)\)"),               r"textureSample($texSamplerSampler2D, \1).r"),
+]
+
+# Sampler-stub patterns emitted by naga for the `$texSamplerSignature` placeholder.
+# GLSL order (`i32 mtlx_sampler_stub`) appears with cleanup; WGSL order
+# (`mtlx_sampler_stub: i32`) appears without it. Both need restoration.
+_SAMPLER_STUB_GLSL_ORDER = re.compile(r"\bi32 mtlx_sampler_stub(?:_\d+)?\b")
+_SAMPLER_STUB_WGSL_ORDER = re.compile(r"mtlx_sampler_stub(?:_\d+)?:\s*i32\b")
+_SAMPLER_STUB_VAR_DECL   = re.compile(r"^\s*var mtlx_sampler_stub(?:_\d+)?:\s*i32;\s*\n", re.M)
+_SAMPLER_STUB_COPY_IN    = re.compile(
+    r"^\s*mtlx_sampler_stub(?:_\d+)?\s*=\s*mtlx_sampler_stub(?:_\d+)?;\s*\n", re.M)
+
+
+def _restoreTexLookups(text):
+    '''Replace naga placeholder calls with WGSL textureSample($texSamplerSampler2D, …).'''
+    for rx, repl in _TEX_LOOKUP_RULES:
+        text = rx.sub(repl, text)
+    return text
+
+
+def _restoreSamplerSignatures(text):
+    '''Restore $texSamplerSignature in function signatures and remove naga's param-copy shadows.
+
+    Naga replaces the `int mtlx_sampler_stub` placeholder with either GLSL-order (`i32 name`)
+    or WGSL-order (`name: i32`) depending on the transpile path. It also emits a `var` shadow
+    and copy-in assignment that tree-sitter cleanup normally removes.'''
+    # Already-restored token followed by `: i32` (from a prior token restore pass).
+    text = re.sub(r"\$texSamplerSignature:\s*i32\b", "$texSamplerSignature", text)
+    # Replace sampler stubs inside function signatures only (not var declarations).
+    text = re.sub(
+        r"(fn\s+\w+\s*\()([^)]*)(\))",
+        lambda m: m.group(1)
+                  + _SAMPLER_STUB_WGSL_ORDER.sub("$texSamplerSignature",
+                    _SAMPLER_STUB_GLSL_ORDER.sub("$texSamplerSignature", m.group(2)))
+                  + m.group(3),
+        text)
+    # Strip naga's param-copy shadows for the sampler stub.
+    text = _SAMPLER_STUB_VAR_DECL.sub("", text)
+    text = _SAMPLER_STUB_COPY_IN.sub("", text)
+    return text
+
+
 def applyWgslLibPostRestore(text, libroot=None):
-    '''WGSL-specific fixes applied after $-token restoration on generated lib/node output.'''
+    '''WGSL-specific fixes applied after $-token restoration on generated lib/node output.
+
+    Runs four phases in order:
+      1. Restore mtlx_* placeholders → $-tokens  (TOKEN_RESTORE_RULES)
+      2. Rewrite texture lookups → textureSample() calls
+      3. Restore $texSamplerSignature in fn params and clean up naga shadows
+      4. Fix i32 uniform arithmetic and split env texture/sampler args
+    '''
+    # Phase 1: bulk $-token restoration.
     for rx, token in TOKEN_RESTORE_RULES:
         text = rx.sub(token, text)
-    text = re.sub(r"mtlx_tex_lookup_rgb\(([^,)]+),\s*[^)]+\)",
-                  r"textureSample($texSamplerSampler2D, \1).rgb", text)
-    text = re.sub(r"mtlx_tex_lookup_rgba\(([^)]+)\)",
-                  r"textureSample($texSamplerSampler2D, \1)", text)
-    text = re.sub(r"mtlx_tex_lookup_rg\(([^)]+)\)",
-                  r"textureSample($texSamplerSampler2D, \1).rg", text)
-    text = re.sub(r"mtlx_tex_lookup_b\(([^)]+)\)",
-                  r"textureSample($texSamplerSampler2D, \1).b", text)
-    text = re.sub(r"mtlx_tex_lookup_r\(([^)]+)\)",
-                  r"textureSample($texSamplerSampler2D, \1).r", text)
+    # Phase 2: texture-lookup helpers → textureSample().
+    text = _restoreTexLookups(text)
+    # Phase 3: GLSL→WGSL derivative rename.
     text = re.sub(r"\bdFdx\b", "dpdx", text)
     text = re.sub(r"\bdFdy\b", "dpdy", text)
-    text = re.sub(r"\$texSamplerSignature:\s*i32\b", "$texSamplerSignature", text)
-    text = re.sub(
-        r"fn mx_image_\w+\(\s*i32 mtlx_sampler_stub",
-        lambda m: m.group(0).replace("i32 mtlx_sampler_stub", "$texSamplerSignature"),
-        text,
-    )
+    # Phase 4: sampler signature restoration.
+    text = _restoreSamplerSignatures(text)
+    # Phase 5: arithmetic and env-latlong fixups.
     text = patchIntUniformTokenArithmetic(text)
     text = patchWgslEnvLatlongCalls(text)
     return text
