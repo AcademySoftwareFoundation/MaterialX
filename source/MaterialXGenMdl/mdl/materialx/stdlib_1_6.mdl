@@ -655,6 +655,11 @@ export color mx_hextiledimage_color3(
 	color mxp_lumacoeffs = color(0.2126, 0.7152, 0.0722)
 	[[
 		anno::display_name("Luma Coefficients")
+	]],
+	uniform bool mxp_flip_v = false
+	[[
+		anno::usage("for applying the 'fileTextureVerticalFlip' shader generator option."),
+		anno::hidden()
 	]]
 )
 	[[
@@ -677,9 +682,12 @@ export color mx_hextiledimage_color3(
 	);
 
 	// lookup texture
-	color c1 = tex::lookup_color(tex: mxp_file, coord: tile_data.coords[0]);
-	color c2 = tex::lookup_color(tex: mxp_file, coord: tile_data.coords[1]);
-	color c3 = tex::lookup_color(tex: mxp_file, coord: tile_data.coords[2]);
+	float2 coord1 = mxp_flip_v ? float2(tile_data.coords[0].x, 1.0 - tile_data.coords[0].y) : tile_data.coords[0];
+	float2 coord2 = mxp_flip_v ? float2(tile_data.coords[1].x, 1.0 - tile_data.coords[1].y) : tile_data.coords[1];
+	float2 coord3 = mxp_flip_v ? float2(tile_data.coords[2].x, 1.0 - tile_data.coords[2].y) : tile_data.coords[2];
+	color c1 = tex::lookup_color(tex: mxp_file, coord: coord1);
+	color c2 = tex::lookup_color(tex: mxp_file, coord: coord2);
+	color c3 = tex::lookup_color(tex: mxp_file, coord: coord3);
 
 	// luminance as weight
 	float3 cw = float3(math::dot(float3(c1), float3(mxp_lumacoeffs)),
@@ -745,6 +753,11 @@ export core::color4 mx_hextiledimage_color4(
 	color mxp_lumacoeffs = color(0.2126, 0.7152, 0.0722)
 	[[
 		anno::display_name("Luma Coefficients")
+	]],
+	uniform bool mxp_flip_v = false
+	[[
+		anno::usage("for applying the 'fileTextureVerticalFlip' shader generator option."),
+		anno::hidden()
 	]]
 )
 	[[
@@ -767,9 +780,12 @@ export core::color4 mx_hextiledimage_color4(
 	);
 
 	// lookup texture
-	core::color4 c1 = core::mk_color4(tex::lookup_float4(tex: mxp_file, coord: tile_data.coords[0]));
-	core::color4 c2 = core::mk_color4(tex::lookup_float4(tex: mxp_file, coord: tile_data.coords[1]));
-	core::color4 c3 = core::mk_color4(tex::lookup_float4(tex: mxp_file, coord: tile_data.coords[2]));
+	float2 coord1 = mxp_flip_v ? float2(tile_data.coords[0].x, 1.0 - tile_data.coords[0].y) : tile_data.coords[0];
+	float2 coord2 = mxp_flip_v ? float2(tile_data.coords[1].x, 1.0 - tile_data.coords[1].y) : tile_data.coords[1];
+	float2 coord3 = mxp_flip_v ? float2(tile_data.coords[2].x, 1.0 - tile_data.coords[2].y) : tile_data.coords[2];
+	core::color4 c1 = core::mk_color4(tex::lookup_float4(tex: mxp_file, coord: coord1));
+	core::color4 c2 = core::mk_color4(tex::lookup_float4(tex: mxp_file, coord: coord2));
+	core::color4 c3 = core::mk_color4(tex::lookup_float4(tex: mxp_file, coord: coord3));
 
 	// luminance as weight
 	float3 cw = float3(math::dot(float3(c1.rgb), float3(mxp_lumacoeffs)),
@@ -2455,7 +2471,12 @@ export float3 mx_hextilednormalmap_vector3(
 	]],
 	float3 mxp_normal,
 	float3 mxp_tangent,
-	float3 mxp_bitangent
+	float3 mxp_bitangent,
+	uniform bool mxp_flip_v = false
+	[[
+		anno::usage("for applying the 'fileTextureVerticalFlip' shader generator option."),
+		anno::hidden()
+	]]
 )
 	[[
 		anno::description("Node Group: math")
@@ -2480,9 +2501,12 @@ export float3 mx_hextilednormalmap_vector3(
 	);
 
 	// lookup normalmap
-	float3 nm1 = tex::lookup_float3(tex: mxp_file, coord: tile_data.coords[0]);
-	float3 nm2 = tex::lookup_float3(tex: mxp_file, coord: tile_data.coords[1]);
-	float3 nm3 = tex::lookup_float3(tex: mxp_file, coord: tile_data.coords[2]);
+	float2 coord1 = mxp_flip_v ? float2(tile_data.coords[0].x, 1.0 - tile_data.coords[0].y) : tile_data.coords[0];
+	float2 coord2 = mxp_flip_v ? float2(tile_data.coords[1].x, 1.0 - tile_data.coords[1].y) : tile_data.coords[1];
+	float2 coord3 = mxp_flip_v ? float2(tile_data.coords[2].x, 1.0 - tile_data.coords[2].y) : tile_data.coords[2];
+	float3 nm1 = tex::lookup_float3(tex: mxp_file, coord: coord1);
+	float3 nm2 = tex::lookup_float3(tex: mxp_file, coord: coord2);
+	float3 nm3 = tex::lookup_float3(tex: mxp_file, coord: coord3);
 	nm1.y = mxp_flip_g ? 1.0 - nm1.y : nm1.y;
 	nm2.y = mxp_flip_g ? 1.0 - nm2.y : nm2.y;
 	nm3.y = mxp_flip_g ? 1.0 - nm3.y : nm3.y;
