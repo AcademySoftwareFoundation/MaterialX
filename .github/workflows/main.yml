@@ -245,15 +245,19 @@ jobs:
       if: matrix.python != 'None'
       run: cargo install naga-cli --locked --version ${{ env.NAGA_VERSION }}
 
-    - name: Install WGSL transpile dependencies
+    - name: Install WGSL transpile dependencies (Python ${{ matrix.python }})
       if: matrix.python != 'None'
       shell: bash
       run: |
-        # Cleanup deps (tree-sitter) are optional and have no wheel on some interpreters (e.g. 3.9);
-        # install best-effort so their absence doesn't fail the build. Generation degrades to
-        # verbose-but-valid WGSL, and mxgenwgsl.py stays fatal so real failures still surface.
-        python -m pip install -r source/MaterialXGenWgsl/tools/requirements-transpile.txt \
-          || echo "WGSL cleanup deps unavailable; generating verbose WGSL"
+        python --version
+        # Optional readability cleanup only (tree-sitter-language-pack>=1.13 needs Python 3.10+).
+        # CI installs here — not in CMake. On Python 3.9 there is usually no wheel; best-effort
+        # install so the job continues. mxgenwgsl.py still emits valid (verbose) WGSL without it.
+        if python -m pip install -r source/MaterialXGenWgsl/tools/requirements-transpile.txt; then
+          echo "WGSL cleanup deps installed for Python ${{ matrix.python }}"
+        else
+          echo "WGSL cleanup deps unavailable on Python ${{ matrix.python }}; generating verbose WGSL"
+        fi
 
     - name: Test WGSL cleanup
       if: matrix.python != 'None'
@@ -488,7 +492,7 @@ jobs:
       with:
         python-version: 3.13
 
-    - name: Install WGSL transpile dependencies
+    - name: Install WGSL transpile dependencies (Python 3.13)
       run: python -m pip install -r source/MaterialXGenWgsl/tools/requirements-transpile.txt
 
     - name: JavaScript CMake Generate
@@ -546,7 +550,7 @@ jobs:
     - name: Install naga
       run: cargo install naga-cli --locked --version ${{ env.NAGA_VERSION }}
 
-    - name: Install WGSL transpile dependencies
+    - name: Install WGSL transpile dependencies (Python 3.11)
       run: python -m pip install -r source/MaterialXGenWgsl/tools/requirements-transpile.txt
 
     - name: Generate WGSL library

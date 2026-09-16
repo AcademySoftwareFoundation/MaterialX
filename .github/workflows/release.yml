@@ -37,7 +37,7 @@ jobs:
       - name: Install naga
         run: cargo install naga-cli --locked --version ${NAGA_VERSION}
 
-      - name: Install WGSL transpile dependencies
+      - name: Install WGSL transpile dependencies (Python 3.11)
         run: python -m pip install -r source/MaterialXGenWgsl/tools/requirements-transpile.txt
 
       - name: Generate WGSL library

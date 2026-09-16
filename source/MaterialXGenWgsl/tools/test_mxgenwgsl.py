@@ -174,6 +174,9 @@ def test_post_restore_int_uniform_mips_arithmetic():
     out = gen.applyWgslLibPostRestore(raw)
     assert "$envRadianceMips - 1i" in out, out
     assert "1.0" not in out, out
+    raw2 = "let _e154 = mx_latlong_compute_lod(_e146, _e147, f32((_e148 - 1.0)), _e153);"
+    out2 = gen.applyWgslLibPostRestore(raw2)
+    assert "f32(_e148 - 1i)" in out2, out2
     gen.assertValidWgslSyntax(out.replace("$envRadianceMips", "u_envRadianceMips"), "mips_arith")
 
 
@@ -185,6 +188,34 @@ def test_post_restore_expands_env_latlong_calls():
     out = gen.applyWgslLibPostRestore(raw)
     assert "mx_latlong_map_lookup(Lw, $envMatrix, lod, $envRadiance, $envRadianceSampler)" in out, out
     assert "mx_latlong_map_lookup(N, $envMatrix, 0.0, $envIrradiance, $envIrradianceSampler)" in out, out
+    raw2 = (
+        "let _e159 = $envRadiance;\n"
+        "let _e160 = mx_latlong_map_lookup(_e156, _e157, _e158, _e159);"
+    )
+    out2 = gen.applyWgslLibPostRestore(raw2)
+    assert "mx_latlong_map_lookup(_e156, _e157, _e158, $envRadiance, $envRadianceSampler)" in out2, out2
+    assert "_e159" not in out2, out2
+
+
+def test_post_restore_wgsl_order_sampler_stub():
+    """Raw naga output uses WGSL param order (name: type); must restore without tree-sitter."""
+    raw = (
+        "fn mx_image_color3(mtlx_sampler_stub: i32, layer: i32, defaultval: vec3f) {\n"
+        "    var mtlx_sampler_stub_1: i32;\n"
+        "    mtlx_sampler_stub_1 = mtlx_sampler_stub;\n"
+        "    (*result) = textureSample($texSamplerSampler2D, uv).rgb;\n"
+        "}\n"
+        "fn mx_latlong_map_lookup(dir: vec3f, transform: mat4x4f, lod: f32, mtlx_sampler_stub_1: i32) -> vec3f {\n"
+        "    var mtlx_sampler_stub_2: i32;\n"
+        "    mtlx_sampler_stub_2 = mtlx_sampler_stub_1;\n"
+        "    return textureSample($texSamplerSampler2D, uv).rgb;\n"
+        "}"
+    )
+    out = gen.applyWgslLibPostRestore(raw)
+    assert "mtlx_sampler_stub" not in out, out
+    assert "var $texSamplerSignature" not in out, out
+    assert "fn mx_image_color3($texSamplerSignature, layer: i32" in out, out
+    assert "fn mx_latlong_map_lookup(dir: vec3f, transform: mat4x4f, lod: f32, $texSamplerSignature)" in out, out
 
 
 def test_post_restore_tex_lookup_swizzles():
