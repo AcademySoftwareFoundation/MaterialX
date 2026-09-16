@@ -13,6 +13,7 @@
 
 #include <MaterialXGenShader/GenOptions.h>
 #include <MaterialXGenShader/GenUserData.h>
+#include <MaterialXGenShader/NodeGraphTopology.h>
 #include <MaterialXGenShader/ShaderNode.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 
@@ -30,7 +31,7 @@ class MX_GENSHADER_API GenContext
 {
   public:
     /// Constructor.
-    GenContext(ShaderGeneratorPtr sg);
+    explicit GenContext(ShaderGeneratorPtr sg);
 
     /// Return shader generatior.
     ShaderGenerator& getShaderGenerator()
@@ -204,6 +205,12 @@ class MX_GENSHADER_API GenContext
         return _applicationVariableHandler;
     }
 
+    /// Return the node graph topology cache for early pruning optimizations.
+    NodeGraphTopologyCache& getNodeGraphTopologyCache()
+    {
+        return _nodeGraphTopologyCache;
+    }
+
   protected:
     GenContext() = delete;
 
@@ -218,6 +225,8 @@ class MX_GENSHADER_API GenContext
     std::unordered_map<const ShaderOutput*, string> _outputSuffix;
 
     vector<ConstNodePtr> _parentNodes;
+
+    NodeGraphTopologyCache _nodeGraphTopologyCache;
 
     ApplicationVariableHandler _applicationVariableHandler;
 };

@@ -15,11 +15,14 @@ MATERIALX_NAMESPACE_BEGIN
 class MX_GENMDL_API ClosureCompoundNodeMdl : public CompoundNodeMdl
 {
   public:
-    static ShaderNodeImplPtr create();
+    /// Create with permutation (may be nullptr).
+    static ShaderNodeImplPtr create(std::unique_ptr<NodeGraphPermutation> permutation);
 
     void addClassification(ShaderNode& node) const override;
     void emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
+
+    explicit ClosureCompoundNodeMdl(std::unique_ptr<NodeGraphPermutation> permutation);
 };
 
 MATERIALX_NAMESPACE_END
