@@ -36,7 +36,7 @@
             #pragma warning(disable : 4661)
             #define MATERIALX_SYMBOL_EXPORT __declspec(dllexport)
             #define MATERIALX_SYMBOL_IMPORT __declspec(dllimport)
-            #define MATERIALX_EXPORT_EXTERN_TEMPLATE(...) template class __VA_ARGS_
+            #define MATERIALX_EXPORT_EXTERN_TEMPLATE(...) template class __VA_ARGS__
             #define MATERIALX_IMPORT_EXTERN_TEMPLATE(...) extern template class __VA_ARGS__
         #elif defined(__MINGW32__)
             #define MATERIALX_SYMBOL_EXPORT __declspec(dllexport)
