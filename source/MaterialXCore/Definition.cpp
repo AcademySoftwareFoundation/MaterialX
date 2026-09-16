@@ -23,11 +23,13 @@ const string NodeDef::TRANSLATION_NODE_GROUP = "translation";
 
 const string NodeDef::NODE_ATTRIBUTE = "node";
 const string NodeDef::NODE_GROUP_ATTRIBUTE = "nodegroup";
+const string NodeDef::BSDF_ATTRIBUTE = "bsdf";
 const string TypeDef::SEMANTIC_ATTRIBUTE = "semantic";
 const string TypeDef::CONTEXT_ATTRIBUTE = "context";
 const string Implementation::FILE_ATTRIBUTE = "file";
 const string Implementation::FUNCTION_ATTRIBUTE = "function";
 const string Implementation::NODE_GRAPH_ATTRIBUTE = "nodegraph";
+const string Implementation::SOURCE_CODE_ATTRIBUTE = "sourcecode";
 const string UnitDef::UNITTYPE_ATTRIBUTE = "unittype";
 const string AttributeDef::ATTRNAME_ATTRIBUTE = "attrname";
 const string AttributeDef::VALUE_ATTRIBUTE = "value";
