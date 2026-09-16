@@ -18,8 +18,9 @@ mx_add_library(MaterialXGenWgsl
 # MATERIALX_BUILD_GEN_WGSL      -> output in-place to libraries/  (CI, JS builds)
 # MATERIALX_GENERATE_WGSL_LIBRARY -> output to build tree only    (local validation)
 #
-# Requires Python and naga.  Optional tree-sitter cleanup deps are installed
-# only when Python >= 3.10 (tree-sitter-language-pack has no wheel for 3.9).
+# Requires Python and naga.  Optional tree-sitter cleanup deps are not installed
+# by CMake; mxgenwgsl.py skips readability cleanup when tree-sitter is absent.
+# CI installs source/MaterialXGenWgsl/tools/requirements-transpile.txt when needed.
 # ---------------------------------------------------------------------------
 
 set(MATERIALX_NAGA_VERSION "30.0.0" CACHE STRING
@@ -115,19 +116,10 @@ if(_wgsl_install_naga)
     add_custom_target(MaterialXInstallNaga DEPENDS "${MATERIALX_NAGA_EXECUTABLE}")
 endif()
 
-# tree-sitter cleanup deps: only available on Python >= 3.10.
-set(_wgsl_install_cleanup OFF)
-if(_wgsl_py_ver_rc EQUAL 0 AND _wgsl_py_ver VERSION_GREATER_EQUAL "3.10")
-    set(_wgsl_install_cleanup ON)
-    add_custom_target(MaterialXInstallWgslCleanupDeps
-        COMMAND "${_wgsl_python}" -m pip install -q -r
-                "${CMAKE_CURRENT_SOURCE_DIR}/tools/requirements-transpile.txt"
-        COMMENT "Installing optional WGSL cleanup deps (tree-sitter)"
-        VERBATIM)
-elseif(_wgsl_py_ver_rc EQUAL 0)
+if(_wgsl_py_ver_rc EQUAL 0 AND _wgsl_py_ver VERSION_LESS "3.10")
     message(STATUS
-        "MaterialXGenWgsl: Python ${_wgsl_py_ver} - skipping optional cleanup deps "
-        "(tree-sitter-language-pack requires 3.10+)")
+        "MaterialXGenWgsl: Python ${_wgsl_py_ver} - tree-sitter cleanup unavailable "
+        "(tree-sitter-language-pack requires 3.10+); mxgenwgsl.py will emit verbose WGSL")
 endif()
 
 # -- Main transpile target -------------------------------------------------
@@ -143,7 +135,4 @@ add_custom_target(MaterialXGenWgslLibrary ALL
 
 if(_wgsl_install_naga)
     add_dependencies(MaterialXGenWgslLibrary MaterialXInstallNaga)
-endif()
-if(_wgsl_install_cleanup)
-    add_dependencies(MaterialXGenWgslLibrary MaterialXInstallWgslCleanupDeps)
 endif()
