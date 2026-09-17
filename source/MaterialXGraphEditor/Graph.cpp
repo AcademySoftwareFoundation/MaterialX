@@ -5073,6 +5073,7 @@ void Graph::saveDocument(mx::FilePath filePath)
     }
 
     mx::XmlWriteOptions writeOptions;
+    writeOptions.writeNodeInstanceAsNode = true;
     writeOptions.elementPredicate = getElementPredicate();
     mx::writeToXmlFile(writeDoc, filePath, &writeOptions);
 }
