@@ -2403,8 +2403,32 @@ bool Graph::checkCanAddLink(ed::PinId startPinId, ed::PinId endPinId)
             mx::InputPtr nodeDefInput = nodeDef->getInput(inputPin->getName());
             if (nodeDefInput && nodeDefInput->getIsUniform())
             {
-                showLabel("Invalid connection: Cannot connect to a uniform input", ImColor(50, 50, 50, 255));
-                return false;
+                bool sourceIsUniform = false;
+                if(uiUpNode->getNode())
+                {
+                    // constant nodes are uniform-compatible 
+                    if (uiUpNode->getNode()->getCategory() == "constant")
+                    {
+                        sourceIsUniform = true;
+                    }
+                    else
+                    {
+                        mx::NodeDefPtr upNodeDef = uiUpNode->getNode()->getNodeDef();
+                        if (upNodeDef)
+                        {
+                            mx::OutputPtr upOutput = upNodeDef->getOutput(outputPin->getName());
+                            if (upOutput && upOutput->getIsUniform())
+                            {
+                                sourceIsUniform = true;
+                            }
+                        }
+                    }
+                }
+                if (!sourceIsUniform)
+                {
+                    showLabel("Invalid connection: Cannot connect to a uniform input", ImColor(50, 50, 50, 255));
+                    return false;
+                }
             }
         }
     }
