@@ -93,22 +93,29 @@ export material mx_oren_nayar_diffuse_bsdf(
     color  mxp_color     = color(0.18),
     float  mxp_roughness = 0.0,
     float3 mxp_normal    = state::normal(),
-    uniform bool mxp_energy_compensation = false
-) [[ 
-    anno::usage( "materialx:bsdf") 
+    uniform bool mxp_energy_compensation = false,
+    material mxp_base = material() [[ anno::usage( "materialx:bsdf") ]], // layering
+    float mxp_top_weight = 1.0 // layering for cases where top is scaled using a mix
+) [[
+    anno::usage( "materialx:bsdf")
 ]]
 = material(
-    surface: material_surface( 
+    surface: material_surface(
+        // as an opaque BSDF, occlude the base over the fraction of the surface covered by the weight
         scattering: df::weighted_layer(
-            weight: mxp_weight,
+            weight: mxp_weight * mxp_top_weight,
             layer: df::diffuse_reflection_bsdf(
                 tint: mxp_color,
                 roughness: mxp_roughness,
                 multiscatter_tint: mxp_energy_compensation ? color(1.0) : color(0.0)
             ),
+            base: mxp_base.surface.scattering,
             normal: mxp_normal
         )
-    )
+    ),
+    // we need to carry volume properties along for SSS
+    ior:    mxp_base.ior,
+    volume: mxp_base.volume
 );
 
 // To match with OSL, the sheen weight is scaled with average color as approximation of albedo.

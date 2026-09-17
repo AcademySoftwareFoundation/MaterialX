@@ -78,6 +78,27 @@ export df::scatter_mode mx_map_scatter_mode(
     }
 }
 
+// Helper function to mix two scattering volumes:
+// - combined scattering coefficient is just the sum of the two
+// - VDF mixer weight is the relative probability of encountering the corresponding
+//   particle type
+// NOTE: mixer weight should be a color, but due to a bug in current MDL compilers
+//       the color mixers don't accept non-uniform weights yet
+export struct volume_mix_return {
+    color scattering_coefficient;
+    float mix_weight1; // mix_weight2 = 1.0 - mix_weight1, can use any mixer
+};
+export volume_mix_return volume_mix(
+    color scattering_coefficient1,
+    float weight1,
+    color scattering_coefficient2,
+    float weight2)
+{
+    color s1 = weight1 * scattering_coefficient1;
+    color s = s1 + weight2 * scattering_coefficient2;
+    return volume_mix_return(scattering_coefficient: s, mix_weight1: math::average(s1 / s));
+}
+
 export enum mx_sheen_mode {
     mx_sheen_mode_conty_kulla,
     mx_sheen_mode_zeltner
@@ -88,21 +109,28 @@ export material mx_oren_nayar_diffuse_bsdf(
     color  mxp_color     = color(0.18),
     float  mxp_roughness = 0.0,
     float3 mxp_normal    = state::normal(),
-    uniform bool mxp_energy_compensation = false [[ anno::unused() ]] // MDL 1.10
-) [[ 
-    anno::usage( "materialx:bsdf") 
+    uniform bool mxp_energy_compensation = false [[ anno::unused() ]], // MDL 1.10
+    material mxp_base = material() [[ anno::usage( "materialx:bsdf") ]], // layering
+    float mxp_top_weight = 1.0 // layering for cases where top is scaled using a mix
+) [[
+    anno::usage( "materialx:bsdf")
 ]]
 = material(
-    surface: material_surface( 
+    surface: material_surface(
+        // as an opaque BSDF, occlude the base over the fraction of the surface covered by the weight
         scattering: df::weighted_layer(
-            weight: mxp_weight,
+            weight: mxp_weight * mxp_top_weight,
             layer: df::diffuse_reflection_bsdf(
                 tint: mxp_color,
                 roughness: mxp_roughness
             ),
+            base: mxp_base.surface.scattering,
             normal: mxp_normal
         )
-    )
+    ),
+    // we need to carry volume properties along for SSS
+    ior:    mxp_base.ior,
+    volume: mxp_base.volume
 );
 
 // NOTE: Approximate Burley with df::diffuse_reflection_bsdf, the difference isn't big
@@ -110,40 +138,54 @@ export material mx_burley_diffuse_bsdf(
     float  mxp_weight    = 1.0,
     color  mxp_color     = color(0.18),
     float  mxp_roughness = 0.0,
-    float3 mxp_normal    = state::normal()
-) [[ 
-    anno::usage( "materialx:bsdf") 
+    float3 mxp_normal    = state::normal(),
+    material mxp_base = material() [[ anno::usage( "materialx:bsdf") ]], // layering
+    float mxp_top_weight = 1.0 // layering for cases where top is scaled using a mix
+) [[
+    anno::usage( "materialx:bsdf")
 ]]
 = material(
-    surface: material_surface( 
+    surface: material_surface(
+        // as an opaque BSDF, occlude the base over the fraction of the surface covered by the weight
         scattering: df::weighted_layer(
-            weight: mxp_weight,
+            weight: mxp_weight * mxp_top_weight,
             layer: df::diffuse_reflection_bsdf(
                 tint: mxp_color,
                 roughness: mxp_roughness
             ),
+            base: mxp_base.surface.scattering,
             normal: mxp_normal
         )
-    )
+    ),
+    // we need to carry volume properties along for SSS
+    ior:    mxp_base.ior,
+    volume: mxp_base.volume
 );
 
 export material mx_translucent_bsdf(
     float  mxp_weight    = 1.0,
     color  mxp_color     = color(1.0),
-    float3 mxp_normal    = state::normal()
-) [[ 
-    anno::usage( "materialx:bsdf") 
+    float3 mxp_normal    = state::normal(),
+    material mxp_base = material() [[ anno::usage( "materialx:bsdf") ]], // layering
+    float mxp_top_weight = 1.0 // layering for cases where top is scaled using a mix
+) [[
+    anno::usage( "materialx:bsdf")
 ]]
 = material(
-    surface: material_surface( 
+    surface: material_surface(
+        // as an opaque BSDF, occlude the base over the fraction of the surface covered by the weight
         scattering: df::weighted_layer(
-            weight: mxp_weight,
+            weight: mxp_weight * mxp_top_weight,
             layer: df::diffuse_transmission_bsdf(
                 tint: mxp_color
             ),
+            base: mxp_base.surface.scattering,
             normal: mxp_normal
         )
-    )
+    ),
+    // we need to carry volume properties along for SSS
+    ior:    mxp_base.ior,
+    volume: mxp_base.volume
 );
 
 // TODO MDL 1.8 
@@ -239,9 +281,11 @@ export material mx_conductor_bsdf(
     float3 mxp_tangent    = state::texture_tangent_u(0),
     uniform core::mx_distribution_type mxp_distribution = core::mx_distribution_type_ggx [[ anno::unused() ]],
     float mxp_thinfilm_thickness = 0.0,
-    float mxp_thinfilm_ior = 1.0
-) [[ 
-    anno::usage( "materialx:bsdf") 
+    float mxp_thinfilm_ior = 1.0,
+    material mxp_base = material() [[ anno::usage( "materialx:bsdf") ]], // layering
+    float mxp_top_weight = 1.0 // layering for cases where top is scaled using a mix
+) [[
+    anno::usage( "materialx:bsdf")
 ]]
 = let {
     float coatIor = mxp_thinfilm_ior <= 0.0 ? 1.0 : mxp_thinfilm_ior;
@@ -253,7 +297,7 @@ export material mx_conductor_bsdf(
         tangent_u: mxp_tangent);
     bsdf conductor = df::fresnel_factor(
         ior: mxp_ior,
-        extinction_coefficient: mxp_extinction, 
+        extinction_coefficient: mxp_extinction,
         base: ggx_model);
     bsdf thin_film_conductor = df::thin_film(
         thickness: mxp_thinfilm_thickness,
@@ -261,12 +305,17 @@ export material mx_conductor_bsdf(
         base: conductor);
 } in material(
     surface: material_surface(
+        // as an opaque BSDF, occlude the base over the fraction of the surface covered by the weight
         scattering: df::weighted_layer(
-            weight: mxp_weight,
+            weight: mxp_weight * mxp_top_weight,
             layer: thin_film_conductor,
+            base: mxp_base.surface.scattering,
             normal: mxp_normal
         )
-    )
+    ),
+    // we need to carry volume properties along for SSS
+    ior:    mxp_base.ior,
+    volume: mxp_base.volume
 );
 
 // MDL 1.8 
@@ -349,15 +398,18 @@ export material mx_subsurface_bsdf(
     color  mxp_color     = color(0.18),
     color  mxp_radius    = color(1.0),
     float  mxp_anisotropy = 0.0,
-    float3 mxp_normal    = state::normal()
-) [[ 
-    anno::usage( "materialx:bsdf") 
+    float3 mxp_normal    = state::normal(),
+    material mxp_base = material() [[ anno::usage( "materialx:bsdf") ]], // layering
+    float mxp_top_weight = 1.0 // layering for cases where top is scaled using a mix
+) [[
+    anno::usage( "materialx:bsdf")
 ]]
 = let {
     // https://blog.selfshadow.com/publications/s2017-shading-course/imageworks/s2017_pbs_imageworks_slides_v2.pdf
     // Phase function eccentricity 'g' has been omitted here since we pass that directly 
     // to anisotropic_vdf(directional_bias: g).
     float w = math::saturate(mxp_weight);
+    float coverage = math::saturate(w * mxp_top_weight);
     color C = mxp_color;
     color albedo = color(4.09712) +
            (4.20863f * C) -
@@ -375,22 +427,35 @@ export material mx_subsurface_bsdf(
     color sigma_s = alpha * radius_inv;
     color sigma_a = radius_inv - sigma_s;
 
+    // As an opaque BSDF, blend the subsurface medium with that of the base by
+    // the coverage, so that the uncovered fraction of the surface retains the
+    // volume properties of the base.
+    volume_mix_return v = volume_mix(
+        sigma_s, coverage,
+        mxp_base.volume.scattering_coefficient, 1.0 - coverage);
+
 } in material(
     volume: material_volume(
-        scattering: df::anisotropic_vdf (
-            directional_bias: mxp_anisotropy
+        scattering: df::clamped_mix(
+            df::vdf_component[](
+                df::vdf_component(v.mix_weight1, df::anisotropic_vdf(directional_bias: mxp_anisotropy)),
+                df::vdf_component(1.0 - v.mix_weight1, mxp_base.volume.scattering))
         ),
-        scattering_coefficient: w * sigma_s,
-        absorption_coefficient: w * sigma_a
-    ), 
+        scattering_coefficient: v.scattering_coefficient,
+        absorption_coefficient: coverage * sigma_a + (1.0 - coverage) * mxp_base.volume.absorption_coefficient
+    ),
 
     surface: material_surface(
+        // as an opaque BSDF, occlude the base over the fraction of the surface covered by the weight
         scattering: df::weighted_layer(
-            weight: w,
+            weight: coverage,
             layer: df::diffuse_transmission_bsdf(tint: white),
+            base: mxp_base.surface.scattering,
             normal: mxp_normal
         )
-    )
+    ),
+    // we need to carry the IOR along with the volume properties for SSS
+    ior: mxp_base.ior
 );
 
 // TODO: MDL's sheen BSDF has no possibility to configure the base BSDF, it is
@@ -686,28 +751,6 @@ export material mx_displacement_vector3(
         displacement: vec * mxp_scale * state::scene_units_per_meter()
     )
 );
-
-
-// helper function to mix two scattering volumes:
-// - combined scattering coefficient is just the sum of the two
-// - VDF mixer weight is the relative probability of encountering the corresponding
-//   particle type
-// NOTE: mixer weight should be a color, but due to a bug in current MDL compilers
-//       the color mixers don't accept non-uniform weights yet
-export struct volume_mix_return {
-    color scattering_coefficient;
-    float mix_weight1; // mix_weight2 = 1.0 - mix_weight1, can use any mixer
-};
-export volume_mix_return volume_mix(
-    color scattering_coefficient1,
-    float weight1,
-    color scattering_coefficient2,
-    float weight2)
-{
-    color s1 = weight1 * scattering_coefficient1;
-    color s = s1 + weight2 * scattering_coefficient2;
-    return volume_mix_return(scattering_coefficient: s, mix_weight1: math::average(s1 / s));
-}
 
 export material mx_mix_bsdf(
     material mxp_fg = material() [[ anno::usage( "materialx:bsdf") ]],
