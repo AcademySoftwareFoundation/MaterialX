@@ -1783,6 +1783,87 @@ void Graph::copyInputs()
     }
 }
 
+bool Graph::collectGroupableNodes(const std::vector<ed::NodeId>& selectedNodes, std::vector<UiNodePtr>& nodesToGroup)
+{
+    nodesToGroup.clear();
+
+    if (selectedNodes.empty())
+    {
+        return false;
+    }
+
+    std::unordered_set<int> seenNodes;
+    for (ed::NodeId selected : selectedNodes)
+    {
+        int pos = findNode(int(selected.Get()));
+        if (pos < 0)
+        {
+            return false;
+        }
+
+        UiNodePtr node = _state.nodes[pos];
+        if (!node || !node->getNode())
+        {
+            return false;
+        }
+
+        if (seenNodes.insert(node->getId()).second)
+        {
+            nodesToGroup.push_back(node);
+        }
+    }
+
+    return !nodesToGroup.empty();
+}
+
+void Graph::groupSelectedNodesIntoNodeGraph(const std::vector<ed::NodeId>& selectedNodes)
+{
+    if (readOnly())
+    {
+        _popup = true;
+        return;
+    }
+    if (_state.graphElem != _graphDoc)
+    {
+        return;
+    }
+    std::vector<UiNodePtr> nodesToGroup;
+    if (!collectGroupableNodes(selectedNodes, nodesToGroup))
+    {
+        return;
+    }
+
+    savePosition();
+
+    std::vector<mx::NodePtr> nodes;
+    ImVec2 totalPosition(0.0f, 0.0f);
+    for (UiNodePtr uiNode : nodesToGroup)
+    {
+        nodes.push_back(uiNode->getNode());
+        ImVec2 nodePosition = ed::GetNodePosition(uiNode->getId());
+        totalPosition.x += nodePosition.x;
+        totalPosition.y += nodePosition.y;
+    }
+
+    mx::NodeGraphPtr nodeGraph = _state.graphElem->createNodeGraphFromNodes(nodes);
+    if (!nodeGraph)
+    {
+        return;
+    }
+
+    ImVec2 averagePosition(totalPosition.x / float(nodesToGroup.size()), totalPosition.y / float(nodesToGroup.size()));
+    nodeGraph->setAttribute(mx::Element::XPOS_ATTRIBUTE, std::to_string(averagePosition.x / DEFAULT_NODE_SIZE.x));
+    nodeGraph->setAttribute(mx::Element::YPOS_ATTRIBUTE, std::to_string(averagePosition.y / DEFAULT_NODE_SIZE.y));
+
+    rebuildCurrentGraph();
+    linkGraph();
+    restorePositions();
+    _needsLayout = false;
+    _layoutPending = false;
+    _needsNavigation = false;
+    updateMaterials();
+}
+
 void Graph::addNode(const std::string& category, const std::string& name, const std::string& type)
 {
     mx::NodePtr node = nullptr;
@@ -3115,6 +3196,44 @@ void Graph::initializeGraph()
     _state.name = materialPath.getBaseName();
 }
 
+void Graph::rebuildCurrentGraph()
+{
+    mx::GraphElementPtr graphElem = _state.graphElem;
+    bool isCompoundNodeGraph = _state.isCompoundNodeGraph;
+    std::string graphName = _state.name;
+
+    _state = GraphState();
+    if (graphElem == _graphDoc)
+    {
+        buildUiBaseGraph(_graphDoc);
+        _state.graphElem = _graphDoc;
+        _state.isCompoundNodeGraph = false;
+        if (graphName.empty())
+        {
+            mx::FilePath materialPath(_materialFilename);
+            materialPath.removeExtension();
+            graphName = materialPath.getBaseName();
+        }
+        _state.name = graphName;
+    }
+    else if (mx::NodeGraphPtr nodeGraph = graphElem ? graphElem->asA<mx::NodeGraph>() : nullptr)
+    {
+        buildUiNodeGraph(nodeGraph);
+        _state.graphElem = nodeGraph;
+        _state.isCompoundNodeGraph = isCompoundNodeGraph;
+        _state.name = graphName.empty() ? nodeGraph->getName() : graphName;
+    }
+    else
+    {
+        initializeGraph();
+        return;
+    }
+
+    _prevUiNode = nullptr;
+    _currUiNode = nullptr;
+    _currRenderNode = nullptr;
+}
+
 void Graph::loadGraphFromFile(bool prompt)
 {
     // Deselect node before loading new file
@@ -3956,6 +4075,7 @@ void Graph::showHelp() const
         if (ImGui::TreeNode("Editing"))
         {
             ImGui::BulletText("TAB : Show popup menu to add new nodes.");
+            ImGui::BulletText("SHIFT-C : Group selected nodes into a node graph.");
             ImGui::BulletText("CTRL-C : Copy selected nodes to clipboard.");
             ImGui::BulletText("CTRL-V : Paste clipboard to graph.");
             ImGui::BulletText("CTRL-F : Find a node by name.");
@@ -4423,6 +4543,13 @@ void Graph::drawGraph(ImVec2 mousePos)
                     _prevUiNode = _currUiNode;
                 }
             }
+        }
+
+        if (graphShortcutContext && io2.KeyShift &&
+            !io2.KeyCtrl && !io2.KeyAlt && !io2.KeySuper &&
+            ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_C)))
+        {
+            groupSelectedNodesIntoNodeGraph(selectedNodes);
         }
 
         // Check if keyboard shortcuts for copy/cut/paste have been used
