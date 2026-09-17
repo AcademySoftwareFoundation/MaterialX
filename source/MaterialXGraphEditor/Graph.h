@@ -287,6 +287,7 @@ class Graph
     void addPinPopup();
     bool readOnly();
     void readOnlyPopup();
+    void nodeMenuPopup();
 
     // Compiling shaders message
     void shaderPopup();

@@ -29,6 +29,17 @@ const float BASE_PIN_ICON_SIZE = 18.0f;
 const float MIN_PIN_ICON_SIZE = 18.0f;
 const float HDR_TEXT_INDENT = 4.0f;
 
+// Padding applied to every editor popup so its contents are not flush to the border.
+// Owned by the popup-drawing functions so call sites cannot change it by reordering.
+const ImVec2 POPUP_WINDOW_PADDING(8.0f, 8.0f);
+
+// Size bounds for the "Add Node" popup window and for its group submenus.
+// A negative maximum is treated as unbounded by ImGui::CalcNextWindowSizeConstraints.
+const ImVec2 ADD_NODE_POPUP_MIN_SIZE(250.0f, 300.0f);
+const ImVec2 ADD_NODE_POPUP_MAX_SIZE(-1.0f, 500.0f);
+const ImVec2 ADD_NODE_SUBMENU_MIN_SIZE(100.0f, 10.0f);
+const ImVec2 ADD_NODE_SUBMENU_MAX_SIZE(-1.0f, 300.0f);
+
 const std::array<std::string, 22> NODE_GROUP_ORDER = {
     "texture2d",
     "texture3d",
@@ -2025,7 +2036,6 @@ void Graph::drawNodeMenu(UiNodePtr node)
     const bool hovered = ImGui::IsItemHovered();
     ImDrawList* drawList = ImGui::GetWindowDrawList();
     // Highlight on hover.
-    const ImVec4 hoverColor = ImVec4(0.4f, 0.6f, 1.0f, 1.0f);
     const ImU32 color = hovered ? IM_COL32(160, 192, 255, 255) : IM_COL32(190, 190, 190, 255);
     const float barWidth = buttonSize * 0.5f;
     const float barStart = bbMin.x + (buttonSize - barWidth) * 0.5f;
@@ -4238,6 +4248,8 @@ void Graph::addNodePopup(bool cursor)
         ImGui::OpenPopup("add node");
         _menuFilterType = _pinFilterType;
     }
+    ImGui::SetNextWindowSizeConstraints(ADD_NODE_POPUP_MIN_SIZE, ADD_NODE_POPUP_MAX_SIZE);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, POPUP_WINDOW_PADDING);
     if (ImGui::BeginPopup("add node"))
     {
         ImGui::Text("Add Node");
@@ -4282,7 +4294,6 @@ void Graph::addNodePopup(bool cursor)
             // Filter out list of nodes
             if (subs.size() > 0)
             {
-                ImGui::SetNextWindowSizeConstraints(ImVec2(250.0f, 300.0f), ImVec2(-1.0f, 500.0f));
                 std::string str(node.getName());
                 std::string nodeName = node.getName();
 
@@ -4313,7 +4324,7 @@ void Graph::addNodePopup(bool cursor)
             }
             else
             {
-                ImGui::SetNextWindowSizeConstraints(ImVec2(100, 10), ImVec2(-1, 300));
+                ImGui::SetNextWindowSizeConstraints(ADD_NODE_SUBMENU_MIN_SIZE, ADD_NODE_SUBMENU_MAX_SIZE);
                 if (ImGui::BeginMenu(node.getGroup().c_str()))
                 {
                     std::string name = node.getName();
@@ -4348,6 +4359,7 @@ void Graph::addNodePopup(bool cursor)
         ImGui::EndPopup();
         open_AddPopup = false;
     }
+    ImGui::PopStyleVar();
 }
 
 void Graph::searchNodePopup(bool cursor)
@@ -4363,6 +4375,7 @@ void Graph::searchNodePopup(bool cursor)
         cursor = true;
         ImGui::OpenPopup("search");
     }
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, POPUP_WINDOW_PADDING);
     if (ImGui::BeginPopup("search"))
     {
         static ImGuiTextFilter filter;
@@ -4392,6 +4405,7 @@ void Graph::searchNodePopup(bool cursor)
         }
         ImGui::EndPopup();
     }
+    ImGui::PopStyleVar();
 }
 
 bool Graph::isPinHovered()
@@ -4424,9 +4438,11 @@ void Graph::addPinPopup()
             value = "\nValue: " + pin->getInput()->getValueString();
         }
         const std::string message("Name: " + pin->getName() + "\nType: " + pin->getType() + value + connected);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, POPUP_WINDOW_PADDING);
         ImGui::BeginTooltip();
         ImGui::TextUnformatted(message.c_str());
         ImGui::EndTooltip();
+        ImGui::PopStyleVar();
         ed::Resume();
     }
 }
@@ -4439,11 +4455,13 @@ void Graph::readOnlyPopup()
         ImGui::OpenPopup("Read Only");
         _popup = false;
     }
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, POPUP_WINDOW_PADDING);
     if (ImGui::BeginPopup("Read Only"))
     {
         ImGui::Text("This graph is Read Only");
         ImGui::EndPopup();
     }
+    ImGui::PopStyleVar();
 }
 
 void Graph::shaderPopup()
@@ -4706,10 +4724,7 @@ void Graph::drawGraph(ImVec2 mousePos)
 
         // Open the node menu after node rendering so the popup does not affect node layout.
         ed::Suspend();
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8.f, 8.f));
-        ImGui::SetNextWindowSizeConstraints(ImVec2(250.0f, 300.0f), ImVec2(-1.0f, 500.0f));
         addNodePopup(TextCursor);
-        ImGui::PopStyleVar();
         if (_nodeMenuToOpen > 0)
         {
             _nodeMenuNode = _nodeMenuToOpen;
@@ -4718,6 +4733,7 @@ void Graph::drawGraph(ImVec2 mousePos)
             _nodeMenuRename = (renamePos >= 0) ? _state.nodes[renamePos]->getName() : std::string();
             ImGui::OpenPopup("node menu");
         }
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, POPUP_WINDOW_PADDING);
         if (ImGui::BeginPopup("node menu"))
         {
             const int renamePos = findNode(_nodeMenuNode);
@@ -4737,6 +4753,7 @@ void Graph::drawGraph(ImVec2 mousePos)
             }
             ImGui::EndPopup();
         }
+        ImGui::PopStyleVar();
         ed::Resume();
 
         if (_nodeToDelete > 0)
