@@ -94,7 +94,7 @@ export function dragOverHandler(ev)
     ev.preventDefault();
 }
 
-// wraps a FileSystemEntry-like object so fullPath is just the basename, discarding any folder structure
+// updates the file entry object so fullpath is basename, discarding any folder structure
 function flattenFileEntry(entry)
 {
     return {
@@ -179,7 +179,13 @@ async function handleFilesystemEntries(entries)
             {
                 continue;
             }
-            allFiles.push(flattenFileEntry(entry));
+            const flattenedFile = flattenFileEntry(entry)
+            if (allFiles.some(f => f.name === flattenedFile.name))
+            {
+                console.warn("Duplicate file detected:", flattenedFile);
+                continue;
+            }
+            allFiles.push(flattenedFile);
 
             if (entry.name.endsWith('glb'))
             {
@@ -201,7 +207,13 @@ async function handleFilesystemEntries(entries)
                 {
                     continue;
                 }
-                allFiles.push(flattenFileEntry(file));
+                const flattenedFile = flattenFileEntry(file);
+                if (allFiles.some(f => f.name === flattenedFile.name))
+                {
+                    console.warn("Duplicate file detected:", flattenedFile);
+                    continue;
+                }
+                allFiles.push(flattenedFile);
             }
         }
     }
