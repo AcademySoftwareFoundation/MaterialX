@@ -17,6 +17,7 @@
 #include <MaterialXGenShader/Exception.h>
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/OcioColorManagementSystem.h>
+#include <MaterialXGenShader/ShaderGraph.h>
 #include <MaterialXGenShader/ShaderTranslator.h>
 #include <MaterialXGenShader/Util.h>
 
@@ -78,6 +79,65 @@ TEST_CASE("GenShader: Valid Libraries", "[genshader]")
     }
     REQUIRE(valid);
 }
+
+#ifdef MATERIALX_BUILD_GEN_GLSL
+TEST_CASE("GenShader: Duplicate Output Color Transforms", "[genshader]")
+{
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::DocumentPtr libraries = mx::createDocument();
+    mx::loadLibraries({ "libraries" }, searchPath, libraries);
+
+    mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::create();
+    mx::ColorManagementSystemPtr colorManagementSystem =
+        mx::DefaultColorManagementSystem::create(shaderGenerator->getTarget());
+    colorManagementSystem->loadLibrary(libraries);
+    shaderGenerator->setColorManagementSystem(colorManagementSystem);
+
+    mx::GenContext context(shaderGenerator);
+    context.registerSourceCodeSearchPath(searchPath);
+    context.getOptions().targetColorSpaceOverride = "lin_rec709";
+
+    const std::string docString = R"(<?xml version="1.0"?>
+      <materialx version="1.39" colorspace="lin_rec709">
+        <triplanarprojection name="triplanar" type="color3">
+          <input name="filex" type="filename" value="" colorspace="srgb_texture" />
+          <input name="filey" type="filename" value="" colorspace="srgb_texture" />
+          <input name="filez" type="filename" value="" colorspace="srgb_texture" />
+        </triplanarprojection>
+        <surface_unlit name="surface" type="surfaceshader">
+          <input name="emission_color" type="color3" nodename="triplanar" />
+        </surface_unlit>
+      </materialx>)";
+    mx::DocumentPtr doc = mx::createDocument();
+    mx::readFromXmlString(doc, docString);
+    doc->setDataLibrary(libraries);
+
+    SECTION("Identical input color spaces")
+    {
+        // All three filename inputs request the same output transform.
+    }
+    SECTION("Different input color spaces")
+    {
+        doc->getNode("triplanar")->getInput("filey")->setColorSpace("acescg");
+        doc->getNode("triplanar")->getInput("filez")->setColorSpace("acescg");
+    }
+
+    REQUIRE(doc->validate());
+    mx::ShaderPtr shader;
+    REQUIRE_NOTHROW(shader = shaderGenerator->generate("surface", doc->getNode("surface"), context));
+    REQUIRE(shader);
+    size_t transformCount = 0;
+    for (const mx::ShaderNode* node : shader->getGraph().getNodes())
+    {
+        if (mx::stringEndsWith(node->getName(), "_cm"))
+        {
+            ++transformCount;
+            CHECK(node->getImplementation().getName() == "NG_srgb_texture_to_lin_rec709_color3");
+        }
+    }
+    CHECK(transformCount == 1);
+}
+#endif
 
 TEST_CASE("GenShader: TypeDesc Check", "[genshader]")
 {
