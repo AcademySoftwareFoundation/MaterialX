@@ -195,7 +195,6 @@ class Graph
     // Based on the pin icon function in the ImGui Node Editor blueprints-example.cpp
     void drawPinIcon(const std::string& type, bool connected, int alpha, float xOffset = 0.0f, bool offsetInY = false);
     void drawNodeMenu(UiNodePtr node);
-    bool isNodeMenuHovered() const;
 
     UiPinPtr getPin(ed::PinId id);
     void drawInputPin(UiPinPtr pin);
@@ -429,7 +428,6 @@ class Graph
 
     // Options
     bool _saveNodePositions;
-    std::vector<ImVec4> _nodeMenuRects;
 
     // Diagnostic entries collected by linkGraph() for invalid connections.
     std::vector<LinkDiagnostic> _diagnostics;

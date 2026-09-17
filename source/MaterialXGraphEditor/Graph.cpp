@@ -2018,13 +2018,15 @@ void Graph::drawNodeMenu(UiNodePtr node)
         ImGui::SameLine(0.0f, gap);
     }
 
-    ImGui::InvisibleButton("##node_menu", ImVec2(buttonSize, buttonSize));
+    // Give "hamburger" button priority if pressed. 
+    // While up, ignores other mouse interaction like node draggin, or "add node".
+    const bool pressed = ImGui::InvisibleButton("##node_menu", ImVec2(buttonSize, buttonSize));
     const ImVec2 bbMin = ImGui::GetItemRectMin();
-    const ImVec2 bbMax = ImGui::GetItemRectMax();
-    _nodeMenuRects.emplace_back(bbMin.x, bbMin.y, bbMax.x, bbMax.y);
-    const bool hovered = ImGui::IsMouseHoveringRect(bbMin, bbMax, true);
+    const bool hovered = ImGui::IsItemHovered();
     ImDrawList* drawList = ImGui::GetWindowDrawList();
-    const ImU32 color = hovered ? IM_COL32(255, 255, 255, 255) : IM_COL32(190, 190, 190, 255);
+    // Highlight on hover.
+    const ImVec4 hoverColor = ImVec4(0.4f, 0.6f, 1.0f, 1.0f);
+    const ImU32 color = hovered ? IM_COL32(160, 192, 255, 255) : IM_COL32(190, 190, 190, 255);
     const float barWidth = buttonSize * 0.5f;
     const float barStart = bbMin.x + (buttonSize - barWidth) * 0.5f;
     for (int line = 0; line < 3; ++line)
@@ -2032,20 +2034,10 @@ void Graph::drawNodeMenu(UiNodePtr node)
         const float y = bbMin.y + buttonSize * (0.3f + line * 0.2f);
         drawList->AddLine(ImVec2(barStart, y), ImVec2(barStart + barWidth, y), color, 1.5f);
     }
-    if (hovered && ImGui::IsMouseReleased(ImGuiMouseButton_Right) && !readOnly())
+    if (pressed && !readOnly())
     {
         _nodeMenuToOpen = node->getId();
     }
-}
-
-bool Graph::isNodeMenuHovered() const
-{
-    const ImVec2 mousePosition = ImGui::GetMousePos();
-    return std::any_of(_nodeMenuRects.begin(), _nodeMenuRects.end(), [mousePosition](const ImVec4& rect)
-    {
-        return mousePosition.x >= rect.x && mousePosition.x <= rect.z &&
-               mousePosition.y >= rect.y && mousePosition.y <= rect.w;
-    });
 }
 
 void Graph::buildGroupNode(UiNodePtr node)
@@ -4221,17 +4213,22 @@ void Graph::addNodePopup(bool cursor)
     }
 
     ImGuiIO& io = ImGui::GetIO();
-    // If the hamburger was right-clicked this frame, its menu will be opened below;
-    // suppress the generic Add Node popup so the two never conflict.
-    const bool rmbOnHamburger = _nodeMenuToOpen > 0 || isNodeMenuHovered();
     bool open_AddPopup = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) &&
                          !io.WantTextInput &&
-                         (ImGui::IsKeyReleased(ImGuiKey_Tab) ||
-                          (ImGui::IsMouseReleased(1) && !rmbOnHamburger));
+                         ImGui::IsKeyReleased(ImGuiKey_Tab);
     // Link-drag to add a node uses the left mouse button (drag button). Release on the
     // background with a pending pin filter to offer adding a new node of that type.
     open_AddPopup = open_AddPopup ||
                     (_pinFilterType != mx::EMPTY_STRING && ImGui::IsMouseReleased(0));
+
+    // Clicking a node or the canvas with the context menu button (RMB) 
+    // brings up "Add Node". Ignores click+drag. 
+    // While up menu prevents other menus (like hamburger menu) from coming up).
+    ed::NodeId contextNodeId;
+    const bool contextMenuOnNode = ed::ShowNodeContextMenu(&contextNodeId);
+    const bool contextMenuOnBackground = ed::ShowBackgroundContextMenu();
+    open_AddPopup = open_AddPopup || contextMenuOnNode || contextMenuOnBackground;
+
     static char input[32]{ "" };
     if (open_AddPopup)
     {
@@ -4596,7 +4593,6 @@ void Graph::drawGraph(ImVec2 mousePos)
         searchNodePopup(TextCursor);
         addPinPopup();
         readOnlyPopup();
-        _nodeMenuRects.clear();
 
         ed::Resume();
 
