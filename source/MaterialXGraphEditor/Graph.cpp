@@ -2393,6 +2393,22 @@ bool Graph::checkCanAddLink(ed::PinId startPinId, ed::PinId endPinId)
             return false;
         }
     }
+
+    // Prevent varying outputs from connecting to uniform inputs
+    if (uiDownNode->getNode())
+    {
+        mx::NodeDefPtr nodeDef = uiDownNode->getNode()->getNodeDef();
+        if (nodeDef)
+        {
+            mx::InputPtr nodeDefInput = nodeDef->getInput(inputPin->getName());
+            if (nodeDefInput && nodeDefInput->getIsUniform())
+            {
+                showLabel("Invalid connection: Cannot connect to a uniform input", ImColor(50, 50, 50, 255));
+                return false;
+            }
+        }
+    }
+
     return true;
 }
 
