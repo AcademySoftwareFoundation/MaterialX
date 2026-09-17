@@ -4155,14 +4155,16 @@ void Graph::showHelp() const
         if (ImGui::TreeNode("Navigation"))
         {
             ImGui::BulletText("F : Frame selected nodes in graph.");
-            ImGui::BulletText("LEFT MOUSE button to drag nodes; MIDDLE MOUSE button to pan.");
-            ImGui::BulletText("RIGHT MOUSE button to add a node; right-click a node hamburger for its menu.");
+            ImGui::BulletText("LEFT MOUSE button to drag nodes..");
+            ImGui::BulletText("RIGHT MOUSE button drag to pan");
             ImGui::BulletText("SCROLL WHEEL to zoom.");
             ImGui::BulletText("\"<\" BUTTON to view parent of current graph");
             ImGui::TreePop();
         }
         if (ImGui::TreeNode("Editing"))
         {
+            ImGui::BulletText("LEFT MOUSE button click on node hamburger icon for node menu.");
+            ImGui::BulletText("RIGHT MOUSE button click to add a node.");
             ImGui::BulletText("TAB : Show popup menu to add new nodes.");
             ImGui::BulletText("CTRL-C : Copy selected nodes to clipboard.");
             ImGui::BulletText("CTRL-V : Paste clipboard to graph.");
