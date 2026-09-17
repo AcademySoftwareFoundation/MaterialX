@@ -161,19 +161,22 @@ function init()
     document.addEventListener('drop', dropHandler, false);
     document.addEventListener('dragover', dragOverHandler, false);
 
-    setLoadingCallback(file =>
+    setLoadingCallback(async(fileEntry) =>
     {
-        materialFilename = file.fullPath || file.name;
+        let file = await new Promise(resolve => fileEntry.file(resolve));
+        let materialBlobURL = URL.createObjectURL(file);
         viewer.getEditor().initialize();
-        viewer.getMaterial().loadMaterials(viewer, materialFilename);
+        viewer.getMaterial().loadMaterials(viewer, materialBlobURL);
         viewer.getEditor().updateProperties(0.9);
     });
 
-    setSceneLoadingCallback(file =>
+    setSceneLoadingCallback(async(fileEntry) =>
     {
+        let file = await new Promise(resolve => fileEntry.file(resolve));
         let glbFileName = file.fullPath || file.name;
+        let glbBlobURL = URL.createObjectURL(file);
         console.log('Drop geometry to:', glbFileName);
-        scene.setGeometryURL(glbFileName);
+        scene.setGeometryURL(glbBlobURL);
         scene.loadGeometry(viewer, orbitControls);
     });
 
