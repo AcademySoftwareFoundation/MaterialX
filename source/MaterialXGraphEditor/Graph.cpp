@@ -3340,7 +3340,7 @@ void Graph::graphButtons()
     // Display the node currently being viewed above the render view.
     if (_currRenderNode != nullptr)
     {
-        ImGui::Text("%sPreview: %s", (_lockRenderPreviewNode ? "[Locked] " : ""), (_currRenderNode->getNode()->getNamePath()).c_str());
+        ImGui::TextWrapped("%sPreview: %s", (_lockRenderPreviewNode ? "[Locked] " : ""), (_currRenderNode->getNode()->getNamePath()).c_str());
     }
 
     // RenderView window
