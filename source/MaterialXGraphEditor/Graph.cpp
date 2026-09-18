@@ -3003,6 +3003,12 @@ void Graph::deleteNode(UiNodePtr node)
         }
     }
 
+    // Disable lock render preview if we delete the current locked render preview node.
+    if (_lockRenderPreviewNode && _currRenderNode == node)
+    {
+        _lockRenderPreviewNode = false;
+    }
+
     // Remove from NodeGraph
     // All link information is handled in delete link which is called before this
     int nodeNum = findNode(node->getId());
