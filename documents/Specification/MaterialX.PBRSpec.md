@@ -2005,15 +2005,16 @@ surfaceshader open_pbr_surface(
     // Coat facing reflectance (F0), reused by the coat-darkening and emission terms below.
     float coat_F0 = ior_to_f0(coat_ior);
 
-    // Thin-walled subsurface: a translucent reflection/transmission pair scaled by the subsurface
+    // Thin-walled subsurface: a translucent reflection/transmission pair tinted by the subsurface
     // color, with 'subsurface_scatter_anisotropy' shifting weight from reflection toward
-    // transmission, blended in equal measure.
+    // transmission. Since the two lobe weights 0.5 * (1 - g) and 0.5 * (1 + g) sum to one, the
+    // OpenPBR equations are exactly a mix, which also keeps every weight within [0, 1].
     color3 ss_color = max(subsurface_color, 0.0);
     BSDF ss_reflection = oren_nayar_diffuse_bsdf(color = ss_color, roughness = base_diffuse_roughness,
-        normal = geometry_normal) * (subsurface_color * (1.0 - subsurface_scatter_anisotropy));
-    BSDF ss_transmission = translucent_bsdf(color = ss_color, normal = geometry_normal)
-        * (subsurface_color * (1.0 + subsurface_scatter_anisotropy));
-    BSDF subsurface_thin_walled = mix(ss_reflection, ss_transmission, 0.5);
+        normal = geometry_normal);
+    BSDF ss_transmission = translucent_bsdf(color = ss_color, normal = geometry_normal);
+    BSDF subsurface_thin_walled = mix(ss_transmission, ss_reflection,
+        0.5 * (1.0 + subsurface_scatter_anisotropy));
 
     // Closed (non-thin-walled) subsurface: volumetric scattering over the scaled radius.
     BSDF subsurface_volume = subsurface_bsdf(color = ss_color,
