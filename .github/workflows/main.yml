@@ -141,6 +141,12 @@ jobs:
           cmake_config: -G "Visual Studio 17 2022" -A "x64" -DMATERIALX_BUILD_SHARED_LIBS=ON
           upload_shaders: ON
 
+        - name: Windows_MinGW_GCC14_SharedLibs
+          os: windows-2022
+          architecture: x64
+          python: None
+          cmake_config: -G "Ninja" -DMATERIALX_BUILD_SHARED_LIBS=ON -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++
+
     steps:
     - name: Sync Repository
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -179,7 +185,7 @@ jobs:
       run: |
         Add-Content $env:GITHUB_PATH "$PWD/build/installed/bin"
         # MSVC /MP already parallelizes within each project, so build projects serially.
-        Add-Content $env:GITHUB_ENV "CMAKE_BUILD_PARALLEL_LEVEL=1"
+        if ("${{ contains(matrix.cmake_config, 'Visual Studio') }}" -eq "true") { Add-Content $env:GITHUB_ENV "CMAKE_BUILD_PARALLEL_LEVEL=1" }
 
     - name: Install OpenImageIO
       if: env.IS_EXTENDED_BUILD == 'true' && matrix.extended_build_oiio == 'ON' && runner.os == 'Windows'
