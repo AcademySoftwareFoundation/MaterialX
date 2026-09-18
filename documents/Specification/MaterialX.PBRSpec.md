@@ -2005,10 +2005,9 @@ surfaceshader open_pbr_surface(
     // Coat facing reflectance (F0), reused by the coat-darkening and emission terms below.
     float coat_F0 = ior_to_f0(coat_ior);
 
-    // Thin-walled subsurface: a translucent reflection/transmission pair tinted by the subsurface
-    // color, with 'subsurface_scatter_anisotropy' shifting weight from reflection toward
-    // transmission. Since the two lobe weights 0.5 * (1 - g) and 0.5 * (1 + g) sum to one, the
-    // OpenPBR equations are exactly a mix, which also keeps every weight within [0, 1].
+    // Thin-walled subsurface: diffuse reflection and transmission lobes that share the subsurface
+    // color as their albedo, with 'subsurface_scatter_anisotropy' shifting weight from reflection
+    // toward transmission. The two weights sum to one, so the total albedo is the subsurface color.
     color3 ss_color = max(subsurface_color, 0.0);
     BSDF ss_reflection = oren_nayar_diffuse_bsdf(color = ss_color, roughness = base_diffuse_roughness,
         normal = geometry_normal);
