@@ -3337,6 +3337,12 @@ void Graph::graphButtons()
     cursorInRenderView &= hasScrollbar ? mousePos.x < (tempWindowPos.x + screenSize.x - ImGui::GetStyle().ScrollbarSize) : true;
     cursorInRenderView &= hasScrollbar ? mousePos.y < (tempWindowPos.y + screenSize.y - ImGui::GetScrollY()) : true;
 
+    // Display the node currently being viewed above the render view.
+    if (_currRenderNode != nullptr)
+    {
+        ImGui::Text("%sPreview: %s", (_lockRenderPreviewNode ? "[Locked] " : ""), (_currRenderNode->getNode()->getNamePath()).c_str());
+    }
+
     // RenderView window
     ImVec2 wsize = ImVec2((float) _renderer->getViewWidth(), (float) _renderer->getViewHeight());
     _renderer->setViewWidth((int) screenSize[0]);
