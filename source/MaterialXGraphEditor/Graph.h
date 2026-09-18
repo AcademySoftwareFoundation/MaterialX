@@ -300,6 +300,9 @@ class Graph
 
     void showHelp() const;
 
+    // Update the current render node.
+    void updateRenderNode(UiNodePtr node);
+
     // A compile-time constant member variable that corresponds to the function below. Defined in header as visibility is desirable here.
     static constexpr char HELP_MARKER_TEXT[] = "(?)";
     // Helper function to draw a marker via ImGui which shows a tooltip when hovered.
@@ -361,6 +364,9 @@ class Graph
     UiNodePtr _currUiNode;
     UiNodePtr _prevUiNode;
     UiNodePtr _currRenderNode;
+    bool _lockRenderPreviewNode; // Lock preview render to use the
+                                 // current render node not allowing
+                                 // _currRenderNode to change
 
     // for adding new nodes
     std::vector<MenuItem> _nodesToAdd;
