@@ -669,7 +669,11 @@ bool TypedElement::validate(string* message) const
         const string& type = getType();
         if (!type.empty() && type != MULTI_OUTPUT_TYPE_STRING)
         {
-            validateRequire(getTypeDef() != nullptr, res, message, "Type '" + type + "' does not exist");
+            DocumentPtr doc = getDocument();
+            if (doc && !doc->getTypeDefs().empty())
+            {
+                validateRequire(getTypeDef() != nullptr, res, message, "Type '" + type + "' does not exist");
+            }
         }
     }
     return Element::validate(message) && res;
