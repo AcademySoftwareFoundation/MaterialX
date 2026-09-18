@@ -141,6 +141,7 @@ Graph::Graph(const std::string& materialFilename,
     _materialFilename(materialFilename),
     _searchPath(searchPath),
     _libraryFolders(libraryFolders),
+    _lockRenderPreviewNode(false),
     _needsLayout(false),
     _layoutPending(false),
     _needsNavigation(false),
@@ -608,6 +609,21 @@ void Graph::setPinColor()
     _pinColor.emplace("stringarray", ImColor(120, 180, 100));
 }
 
+void Graph::updateRenderNode(UiNodePtr node)
+{
+    // If the lock on render node is enabled, do nothing.
+    if (_lockRenderPreviewNode)
+        return;
+
+    // If the new node is identical to the current one, do nothing.
+    if (_currRenderNode == node)
+        return;
+
+    _currRenderNode = node;
+    _frameCount = ImGui::GetFrameCount();
+    _renderer->setMaterialCompilation(true);
+}
+
 void Graph::setRenderMaterial(UiNodePtr node)
 {
     // For now only surface shaders and materials are considered renderable.
@@ -618,13 +634,7 @@ void Graph::setRenderMaterial(UiNodePtr node)
     // Set render node right away is node is renderable
     if (node->getNode() && RENDERABLE_TYPES.count(node->getNode()->getType()))
     {
-        // Only set new render node if different material has been selected
-        if (_currRenderNode != node)
-        {
-            _currRenderNode = node;
-            _frameCount = ImGui::GetFrameCount();
-            _renderer->setMaterialCompilation(true);
-        }
+        updateRenderNode(node);
     }
 
     // Traverse downstream looking for the first renderable element.
@@ -643,12 +653,7 @@ void Graph::setRenderMaterial(UiNodePtr node)
             else if (parent->isA<mx::Document>())
             {
                 // Document-scope outputs are directly renderable.
-                if (_currRenderNode != node)
-                {
-                    _currRenderNode = node;
-                    _frameCount = ImGui::GetFrameCount();
-                    _renderer->setMaterialCompilation(true);
-                }
+                updateRenderNode(node);
                 return;
             }
         }
@@ -751,9 +756,7 @@ void Graph::setRenderMaterial(UiNodePtr node)
                 {
                     if (_currRenderNode != uiNode)
                     {
-                        _currRenderNode = uiNode;
-                        _frameCount = ImGui::GetFrameCount();
-                        _renderer->setMaterialCompilation(true);
+                        updateRenderNode(uiNode);
                     }
                     break;
                 }
@@ -761,9 +764,7 @@ void Graph::setRenderMaterial(UiNodePtr node)
         }
         else
         {
-            _currRenderNode = nullptr;
-            _frameCount = ImGui::GetFrameCount();
-            _renderer->setMaterialCompilation(true);
+            updateRenderNode(nullptr);
         }
     }
 }
@@ -2214,14 +2215,20 @@ std::vector<int> Graph::createNodes(bool nodegraph)
             {
                 ed::BeginNode(node->getId());
                 ImGui::PushID(node->getId());
+                ImColor nodeHeaderBackgroundColor = ImColor(55, 55, 55, 255);
+                if (_lockRenderPreviewNode && _currRenderNode == node)
+                {
+                    // Display the current node pinned for render pre
+                    nodeHeaderBackgroundColor = ImColor(255, 176, 50, 255);
+                }
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     ImGui::GetCursorScreenPos() + ImVec2(-hdrPadL, -hdrPadT),
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - hdrPadL - 2.f * hdrInset, ImGui::GetTextLineHeight() + hdrPadB),
-                    ImColor(ImColor(55, 55, 55, 255)), hdrRounding);
+                    nodeHeaderBackgroundColor, hdrRounding);
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     ImGui::GetCursorScreenPos() + ImVec2(-hdrPadL, 3),
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - hdrPadL - 2.f * hdrInset, ImGui::GetTextLineHeight() + hdrPadB),
-                    ImColor(ImColor(55, 55, 55, 255)), 0.f);
+                    nodeHeaderBackgroundColor, 0.f);
                 ImGui::Indent(hdrTextIndent);
                 ImGui::Text("%s", node->getName().c_str());
                 ImGui::Unindent(hdrTextIndent);
@@ -2996,6 +3003,12 @@ void Graph::deleteNode(UiNodePtr node)
         }
     }
 
+    // Disable lock render preview if we delete the current locked render preview node.
+    if (_lockRenderPreviewNode && _currRenderNode == node)
+    {
+        _lockRenderPreviewNode = false;
+    }
+
     // Remove from NodeGraph
     // All link information is handled in delete link which is called before this
     int nodeNum = findNode(node->getId());
@@ -3323,6 +3336,12 @@ void Graph::graphButtons()
     bool hasScrollbar = context->CurrentWindow->ScrollbarY;
     cursorInRenderView &= hasScrollbar ? mousePos.x < (tempWindowPos.x + screenSize.x - ImGui::GetStyle().ScrollbarSize) : true;
     cursorInRenderView &= hasScrollbar ? mousePos.y < (tempWindowPos.y + screenSize.y - ImGui::GetScrollY()) : true;
+
+    // Display the node currently being viewed above the render view.
+    if (_currRenderNode != nullptr)
+    {
+        ImGui::TextWrapped("%sPreview: %s", (_lockRenderPreviewNode ? "[Locked] " : ""), (_currRenderNode->getNode()->getNamePath()).c_str());
+    }
 
     // RenderView window
     ImVec2 wsize = ImVec2((float) _renderer->getViewWidth(), (float) _renderer->getViewHeight());
@@ -3961,6 +3980,11 @@ void Graph::showHelp() const
             ImGui::BulletText("CTRL-F : Find a node by name.");
             ImGui::BulletText("CTRL-X : Delete selected nodes and add to clipboard.");
             ImGui::BulletText("DELETE : Delete selected nodes or connections.");
+            ImGui::TreePop();
+        }
+        if (ImGui::TreeNode("Viewing"))
+        {
+            ImGui::BulletText("R : Pin the preview render to the currently selected node.");
             ImGui::TreePop();
         }
     }
@@ -4662,6 +4686,16 @@ void Graph::drawGraph(ImVec2 mousePos)
             else if (ImGui::IsKeyReleased(ImGuiKey_F) && !_fileDialogSave.isOpened())
             {
                 ed::NavigateToSelection();
+            }
+
+            // Hotkey to lock/unlock current render node
+            else if (ImGui::IsKeyReleased(ImGuiKey_R) && !_fileDialogSave.isOpened())
+            {
+                if (_currUiNode != nullptr)
+                {
+                    _lockRenderPreviewNode = !_lockRenderPreviewNode;
+                    setRenderMaterial(_currUiNode);
+                }
             }
 
             // Go back up from inside a subgraph
