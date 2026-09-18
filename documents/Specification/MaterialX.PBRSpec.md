@@ -1488,8 +1488,6 @@ This definition documents version 1.0.1 of the Autodesk Standard Surface model, 
 
 The `transmission_depth`, `transmission_scatter`, `transmission_scatter_anisotropy`, and `transmission_dispersion` inputs describe interior volumetric transport; they are part of the interface but are not implemented by this composition, and so are omitted from its function parameters. In addition, where the originating specification defines `opacity` as a per-channel color, the [&lt;surface>](#node-surface) node accepts only a scalar opacity, so this composition reduces the opacity color to its luminance.
 
-In the originating specification, thin-film iridescence applies to the metal, specular reflection, and specular transmission lobes alike. This composition applies the thin-film inputs to the metal and specular reflection lobes only, so specular transmission does not receive thin-film interference.
-
 ```
 surfaceshader standard_surface(
     float base,
@@ -1550,7 +1548,9 @@ surfaceshader standard_surface(
         roughness = transmission_roughness,
         normal = normal,
         tangent = main_tangent,
-        scatter_mode = "T");
+        scatter_mode = "T",
+        thinfilm_thickness = thin_film_thickness,
+        thinfilm_ior = thin_film_IOR);
     BSDF transmission_layer = mix(transmission_lobe, sheen_layer, transmission);
 
     // Dielectric specular reflection, layered over the result, with optional thin-film.
