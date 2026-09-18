@@ -88,7 +88,7 @@
   <implementation name="IM_roughness_dual_genmdl" nodedef="ND_roughness_dual" sourcecode="materialx::pbrlib_{{MDL_VERSION_SUFFIX}}::mx_roughness_dual(mxp_roughness:{{roughness}})" target="genmdl" />
 
   <!-- <artistic_ior> -->
-  <implementation name="IM_artistic_ior_genmdl" nodedef="ND_artistic_ior" sourcecode="materialx::pbrlib_{{MDL_VERSION_SUFFIX}}::mx_artistic_ior(mxp_reflectivity:math::clamp({{reflectivity}}, color(0.0), color(0.99)), mxp_edge_color:math::clamp({{edge_color}}, color(0.0), color(1.0)))" target="genmdl" />
+  <implementation name="IM_artistic_ior_genmdl" nodedef="ND_artistic_ior" sourcecode="materialx::pbrlib_{{MDL_VERSION_SUFFIX}}::mx_artistic_ior(mxp_reflectivity:{{reflectivity}}, mxp_edge_color:{{edge_color}})" target="genmdl" />
 
   <!-- <blackbody> -->
   <implementation name="IM_blackbody_genmdl" nodedef="ND_blackbody" sourcecode="materialx::pbrlib_{{MDL_VERSION_SUFFIX}}::mx_blackbody(mxp_temperature:{{temperature}})" target="genmdl" />
