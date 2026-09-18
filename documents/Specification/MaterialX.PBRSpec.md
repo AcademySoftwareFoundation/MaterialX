@@ -547,7 +547,7 @@ The `scatter_mode` controls whether the surface reflects light (`R`), transmits 
 |`scatter_mode`      |Surface Scatter mode, specifying reflection and/or transmission|string |R            |R, T, RT       |
 |`out`               |Output: the computed BSDF                                      |BSDF   |             |               |
 
-In the equations below, the `tint` input corresponds to $t$ and the `ior` input corresponds to $\eta$, the real-valued index of refraction of the surface *relative to the exterior medium*. The Fresnel formulation below assumes the exterior medium is air/vacuum ($\eta_i \approx 1$), so $\eta$ is equivalently the ratio of the surface IOR to that of the medium on the incident side of the interface. The `roughness` input provides the pair $(\alpha_x, \alpha_y)$ of anisotropic roughness values along the surface tangent and bitangent, supplied directly to the microfacet model with no internal remapping as described in [GGX Normal Distribution Function](#ggx-normal-distribution-function). Perceptual roughness values may be converted to this form using the [`roughness_anisotropy`](#node-roughness-anisotropy) or [`roughness_dual`](#node-roughness-dual) utility nodes.
+In the equations below, the `tint` input corresponds to $t$ and the `ior` input corresponds to $\eta$, the real-valued index of refraction of the surface *relative to the exterior medium*. The Fresnel formulation below assumes the exterior medium is air/vacuum ($\eta_i \approx 1$), so $\eta$ is equivalently the ratio of the surface IOR to that of the medium on the incident side of the interface. The `roughness` input provides the pair $(\alpha_x, \alpha_y)$ of anisotropic roughness values along the surface tangent and bitangent, supplied directly to the microfacet model with no internal remapping as described in [GGX Normal Distribution Function](#ggx-normal-distribution-function).
 
 The tint $t$ scales the node's reflection and transmission lobes directly, multiplying the [microfacet BRDF and BTDF](#microfacet-model) as $t f_r$ and $t f_t$. It does not modify the Fresnel reflectance $F$ itself, so the Fresnel transmittance $1 - F$ used by the BTDF remains untinted.
 
@@ -603,7 +603,7 @@ Thin-film iridescence effects[^Belcour2017] may be enabled by setting `thinfilm_
 |`distribution`      |Microfacet distribution type                             |string |ggx                   |ggx            |
 |`out`               |Output: the computed BSDF                                |BSDF   |                      |               |
 
-In the equations below, the `ior` input corresponds to $\eta$, the index of refraction per color channel, and the `extinction` input corresponds to $\kappa$, the extinction coefficient per color channel. Together, these define the complex index of refraction $\eta + i\kappa$ of the conductor. The `roughness` input provides the pair $(\alpha_x, \alpha_y)$ of anisotropic roughness values along the surface tangent and bitangent, supplied directly to the microfacet model with no internal remapping as described in [GGX Normal Distribution Function](#ggx-normal-distribution-function). Perceptual roughness values may be converted to this form using the [`roughness_anisotropy`](#node-roughness-anisotropy) or [`roughness_dual`](#node-roughness-dual) utility nodes.
+In the equations below, the `ior` input corresponds to $\eta$, the index of refraction per color channel, and the `extinction` input corresponds to $\kappa$, the extinction coefficient per color channel. Together, these define the complex index of refraction $\eta + i\kappa$ of the conductor. The `roughness` input provides the pair $(\alpha_x, \alpha_y)$ of anisotropic roughness values along the surface tangent and bitangent, supplied directly to the microfacet model with no internal remapping as described in [GGX Normal Distribution Function](#ggx-normal-distribution-function).
 
 #### Conductor Fresnel Equations
 
@@ -670,7 +670,7 @@ The `scatter_mode` behavior matches that of `dielectric_bsdf`: in `RT` mode, ref
 |`scatter_mode`      |Surface Scatter mode, specifying reflection and/or transmission|string |R            |R, T, RT       |
 |`out`               |Output: the computed BSDF                                      |BSDF   |             |               |
 
-In the equations below, the `color0` and `color90` inputs correspond to $r_0$ and $r_{90}$, the `color82` input corresponds to $t$, and the `exponent` input corresponds to $q$ in the generalized Schlick model. The `roughness` input provides the pair $(\alpha_x, \alpha_y)$ of anisotropic roughness values along the surface tangent and bitangent, supplied directly to the microfacet model with no internal remapping as described in [GGX Normal Distribution Function](#ggx-normal-distribution-function). Perceptual roughness values may be converted to this form using the [`roughness_anisotropy`](#node-roughness-anisotropy) or [`roughness_dual`](#node-roughness-dual) utility nodes.
+In the equations below, the `color0` and `color90` inputs correspond to $r_0$ and $r_{90}$, the `color82` input corresponds to $t$, and the `exponent` input corresponds to $q$ in the generalized Schlick model. The `roughness` input provides the pair $(\alpha_x, \alpha_y)$ of anisotropic roughness values along the surface tangent and bitangent, supplied directly to the microfacet model with no internal remapping as described in [GGX Normal Distribution Function](#ggx-normal-distribution-function).
 
 #### Generalized Schlick Equations
 
@@ -1178,11 +1178,11 @@ When $s$ is a `color3`, each color channel of the distribution function is scale
 <a id="node-roughness-anisotropy"> </a>
 
 ### `roughness_anisotropy`
-Calculates anisotropic surface roughness from a scalar roughness and anisotropy parameterization. An anisotropy value above 0.0 stretches the roughness in the direction of the surface's "tangent" vector. An anisotropy value of 0.0 gives isotropic roughness. The roughness value is squared to achieve a more linear roughness look over the input range [0,1]. The computed output is the roughness pair $(\alpha_x, \alpha_y)$ supplied directly to the `roughness` input of the microfacet BSDF nodes ([&lt;dielectric_bsdf>](#node-dielectric-bsdf), [&lt;conductor_bsdf>](#node-conductor-bsdf), and [&lt;generalized_schlick_bsdf>](#node-generalized-schlick-bsdf)) with no internal remapping.
+Calculates anisotropic surface roughness from a scalar roughness and anisotropy parameterization. An anisotropy value above 0.0 stretches the roughness in the direction of the surface's "tangent" vector. An anisotropy value of 0.0 gives isotropic roughness. The roughness value is squared to achieve a more linear roughness look over the input range [0,1]. The computed output is the roughness pair $(\alpha_x, \alpha_y)$ supplied directly to the `roughness` input of the microfacet BSDF nodes with no internal remapping, as described in [GGX Normal Distribution Function](#ggx-normal-distribution-function).
 
 |Port        |Description                         |Type    |Default |Accepted Values|
 |------------|------------------------------------|--------|--------|---------------|
-|`roughness` |Isotropic roughness value           |float   |0.0     |[0, 1]         |
+|`roughness` |Perceptual roughness value          |float   |0.0     |[0, 1]         |
 |`anisotropy`|Amount of anisotropy                |float   |0.0     |[0, 1]         |
 |`out`       |Output: the computed roughness pair |vector2 |0.0, 0.0|               |
 
@@ -1191,10 +1191,10 @@ Calculates anisotropic surface roughness from a scalar roughness and anisotropy 
 ### `roughness_dual`
 Calculates anisotropic surface roughness from a dual surface roughness parameterization. The roughness is squared to achieve a more linear roughness look over the input range [0,1]. The computed output is the roughness pair $(\alpha_x, \alpha_y)$ supplied directly to the `roughness` input of the microfacet BSDF nodes with no internal remapping, as described in [GGX Normal Distribution Function](#ggx-normal-distribution-function).
 
-|Port       |Description                                                         |Type    |Default |Accepted Values|
-|-----------|--------------------------------------------------------------------|--------|--------|---------------|
-|`roughness`|Perceptual roughness along the surface tangent (x) and bitangent (y)|vector2 |0.0, 0.0|[0, 1]         |
-|`out`      |Output: the computed roughness pair                                 |vector2 |0.0, 0.0|               |
+|Port       |Description                                         |Type    |Default |Accepted Values|
+|-----------|----------------------------------------------------|--------|--------|---------------|
+|`roughness`|Perceptual roughness along the tangent and bitangent|vector2 |0.0, 0.0|[0, 1]         |
+|`out`      |Output: the computed roughness pair                 |vector2 |0.0, 0.0|               |
 
 <a id="node-glossiness-anisotropy"> </a>
 
