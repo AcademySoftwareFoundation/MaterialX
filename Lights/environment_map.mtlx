@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<materialx version="1.39" colorspace="lin_rec709">
+  <nodegraph name="envMap">
+    <viewdirection name="viewDir" type="vector3" />
+
+    <latlongimage name="envImage" type="color3">
+      <input name="file" type="filename" value="resources/Lights/san_giuseppe_bridge.hdr" />
+      <input name="viewdir" type="vector3" nodename="viewDir" />
+      <input name="rotation" type="float" value="0.0" />
+    </latlongimage>
+
+    <multiply name="envImageAdjusted" type="color3">
+      <input name="in1" type="color3" nodename="envImage" />
+      <input name="in2" type="float" value="1.0" />
+    </multiply>
+
+    <output name="out" type="color3" nodename="envImageAdjusted" />
+  </nodegraph>
+</materialx>
