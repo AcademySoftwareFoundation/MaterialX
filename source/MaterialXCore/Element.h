@@ -923,6 +923,10 @@ class MX_CORE_API TypedElement : public Element
     /// matching TypeDef is found, then an empty shared pointer is returned.
     TypeDefPtr getTypeDef() const;
 
+    /// Validate that the given element tree, including all descendants, is
+    /// consistent with the MaterialX specification.
+    bool validate(string* message = nullptr) const override;
+
     /// @}
 
   public:
