@@ -359,3 +359,51 @@ TEST_CASE("Document createValidChildName", "[document]")
         REQUIRE(!doc->createValidChildName("").empty());
     }
 }
+
+TEST_CASE("Document upgrade switch null value", "[document]")
+{
+    // https://github.com/AcademySoftwareFoundation/MaterialX/issues/3067
+    // A "which" value that fails to parse as its declared type (e.g. a
+    // non-numeric string on an integer input) makes getValue() return
+    // null; the 1.38-1.39 switch upgrade must not dereference it.
+    mx::DocumentPtr doc = mx::createDocument();
+    mx::XmlReadOptions readOptions;
+    readOptions.upgradeVersion = false;
+    mx::readFromXmlString(
+        doc,
+        R"(<?xml version="1.0"?>
+<materialx version="1.38">
+  <nodegraph name="NG1">
+    <switch name="sw1" type="integer" nodedef="ND_switch">
+      <input name="which" type="integer" value="abc"/>
+    </switch>
+  </nodegraph>
+</materialx>
+)",
+        mx::FileSearchPath(),
+        &readOptions);
+    REQUIRE_NOTHROW(doc->upgradeVersion());
+}
+
+TEST_CASE("Document upgrade swizzle empty value", "[document]")
+{
+    // https://github.com/AcademySoftwareFoundation/MaterialX/issues/3068
+    // A swizzle "in" input with an empty value ("") makes the 1.38-1.39
+    // upgrade's origValueTokens empty; a missing/invalid channel name
+    // must not index into it out of range.
+    mx::DocumentPtr doc = mx::createDocument();
+    mx::XmlReadOptions readOptions;
+    readOptions.upgradeVersion = false;
+    mx::readFromXmlString(doc,
+                          "<?xml version=\"1.0\"?>"
+                          "<materialx version=\"1.38\">"
+                          "  <nodegraph name=\"NG1\">"
+                          "    <swizzle name=\"swz1\" type=\"color3\" nodedef=\"ND_swizzle\">"
+                          "      <input name=\"in\" type=\"color3\" value=\"\"/>"
+                          "      <input name=\"channels\" type=\"string\" value=\"\"/>"
+                          "    </swizzle>"
+                          "  </nodegraph>"
+                          "</materialx>",
+                          mx::FileSearchPath(), &readOptions);
+    REQUIRE_NOTHROW(doc->upgradeVersion());
+}
