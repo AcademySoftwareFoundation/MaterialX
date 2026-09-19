@@ -10,6 +10,8 @@ import { HDRLoader } from 'three/examples/jsm/loaders/HDRLoader.js';
 import { prepareEnvTexture, getLightRotation, findLights, registerLights, getUniformValues } from './helper.js'
 import { Group } from 'three';
 import GUI from 'lil-gui';
+import { createMxWgslMaterial, createMxWgslGUI, normalizeReflection } from './mxtsladapter.js';
+import { buildWgslManifest } from './wgslmanifest.js';
 
 const ALL_GEOMETRY_SPECIFIER = "*";
 const NO_GEOMETRY_SPECIFIER = "";
@@ -17,6 +19,96 @@ const DAG_PATH_SEPERATOR = "/";
 
 // Logging toggle
 var logDetailedTime = false;
+
+/**
+ * Configure genContext for WebGPU material generation.
+ * @returns {boolean} Whether the surface is transparent.
+ */
+function configureWebGPUGenContext(mx, gen, genContext, elem)
+{
+    // WebGPU: leave surface color linear; WebGPURenderer converts working space → sRGB for the canvas.
+    // WebGL RawShaderMaterial writes shader output directly, so that path keeps hwSrgbEncodeOutput=true.
+    genContext.getOptions().hwSrgbEncodeOutput = false;
+    const isTransparent = mx.isTransparentSurface(elem, gen.getTarget());
+    genContext.getOptions().hwTransparency = isTransparent;
+    genContext.getOptions().shaderInterfaceType = mx.ShaderInterfaceType.SHADER_INTERFACE_COMPLETE;
+    return isTransparent;
+}
+
+/**
+ * Generate WGSL pixel shader and manifest for a renderable element.
+ */
+function generateWebGPUShader(mx, gen, genContext, elem)
+{
+    const shader = gen.generate(elem.getNamePath(), elem, genContext);
+    const wgsl = shader.getSourceCode('pixel');
+    // The in-repo WgslShaderGenerator does not emit a manifest; reconstruct it in JS from
+    // the generated WGSL text + the Shader's uniform ports (see wgslmanifest.js).
+    const manifest = buildWgslManifest(shader, wgsl);
+    return { shader, wgsl, manifest };
+}
+
+/**
+ * Build the first directional light payload for the TSL bridge.
+ */
+function buildDirectionalLight(lightData)
+{
+    if (!lightData || !lightData.length) return null;
+    const l = lightData[0];
+    return {
+        direction: l.direction.clone(),
+        color: l.color.clone().multiplyScalar(l.intensity)
+    };
+}
+
+/**
+ * Build IBL environment payload for the TSL bridge.
+ */
+function buildEnvironment(radianceTexture, irradianceTexture, matrix, THREE)
+{
+    // HDR env maps are linear radiance data; disable Three.js sRGB decode on the TSL path
+    // (same rationale as buildTextureMap for material textures).
+    radianceTexture.colorSpace = THREE.NoColorSpace;
+    irradianceTexture.colorSpace = THREE.NoColorSpace;
+    const mips = Math.trunc(Math.log2(Math.max(radianceTexture.image.width, radianceTexture.image.height))) + 1;
+    return {
+        radiance: radianceTexture,
+        irradiance: irradianceTexture,
+        samples: 16,
+        mips,
+        intensity: 1.0,
+        matrix
+    };
+}
+
+/**
+ * Map manifest texture keys to loaded THREE.Texture objects.
+ *
+ * MaterialXView registers no color-management system, so the generated shader performs no
+ * sRGB->linear input transform, and the WebGL RawShaderMaterial samples textures raw (the
+ * stored sRGB bytes are used directly). A TSL `texture()` node, by contrast, decodes to
+ * linear working space when `texture.colorSpace` is sRGB. To stay pixel-identical with the
+ * WebGL reference we therefore force `NoColorSpace` so WebGPU samples raw as well. (Proper
+ * color management would mean registering a CMS so BOTH backends convert in-shader; that is
+ * a separate change that would alter the existing WebGL appearance.)
+ */
+function buildTextureMap(manifest, uniforms, THREE)
+{
+    // C++ reflection uses { bindings: [...] }; normalize before reading textures[].
+    manifest = normalizeReflection(manifest);
+    const textures = {};
+    for (const tex of (manifest.textures || []))
+    {
+        if (tex.semantic !== 'texture') continue;
+        const u = uniforms[tex.key];
+        if (u && u.value)
+        {
+            u.value.colorSpace = THREE.NoColorSpace;
+            textures[tex.key] = u.value;
+        }
+    }
+    return textures;
+}
 
 /*
     Scene management
@@ -243,11 +335,18 @@ export class Scene
     updateObjectUniforms(child, material, camera)
     {
         if (!child || !material || !camera) return;
+
+        // The WebGPU NodeMaterial has no `material.uniforms` block: its per-object world
+        // transforms come from TSL accessors (positionWorld / normalWorld / cameraPosition)
+        // and editor edits drive the TSL uniform nodes directly, so this path is a no-op for
+        // it. The guards below keep the WebGL (RawShaderMaterial) updates working unchanged.
         const uniforms = material.uniforms;
         if (!uniforms) return;
 
-        uniforms.u_worldMatrix.value = child.matrixWorld;
-        uniforms.u_viewProjectionMatrix.value = this.#_viewProjMat.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
+        if (uniforms.u_worldMatrix)
+            uniforms.u_worldMatrix.value = child.matrixWorld;
+        if (uniforms.u_viewProjectionMatrix)
+            uniforms.u_viewProjectionMatrix.value = this.#_viewProjMat.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
 
         if (uniforms.u_viewPosition)
             uniforms.u_viewPosition.value = camera.getWorldPosition(this.#_worldViewPos);
@@ -900,6 +999,9 @@ export class Material
     //
     generateMaterial(matassign, viewer, searchPath, closeUI)
     {
+        if (viewer.getBackend() === 'webgpu')
+            return this.generateMaterialWebGPU(matassign, viewer, searchPath, closeUI);
+
         var elem = matassign.getMaterial();
 
         var startGenerateMat = performance.now();
@@ -985,6 +1087,68 @@ export class Material
         return newMaterial;
     }
 
+    //
+    // WebGPU material generation: emit WGSL with the upstream WgslShaderGenerator, reshape it
+    // into a TSL NodeMaterial via the bridge, and reuse the existing property Editor by
+    // exposing a RawShaderMaterial-style `uniforms` map plus a per-frame sync into the TSL
+    // nodes. Lighting reuses the rig's first directional light + the prepared IBL textures.
+    //
+    generateMaterialWebGPU(matassign, viewer, searchPath, closeUI)
+    {
+        const mx = viewer.getMx();
+        const TSL = viewer.getTSL();
+        const elem = matassign.getMaterial();
+        const gen = viewer.getGenerator();
+        const genContext = viewer.getGenContext();
+        const textureLoader = new THREE.TextureLoader();
+
+        try
+        {
+            const isTransparent = configureWebGPUGenContext(mx, gen, genContext, elem);
+            const { shader, wgsl, manifest } = generateWebGPUShader(mx, gen, genContext, elem);
+
+            const flipV = viewer.getScene().getFlipGeometryV();
+            const uniforms = getUniformValues(shader.getStage('pixel'), textureLoader, searchPath, flipV);
+            const textures = buildTextureMap(manifest, uniforms, THREE);
+
+            const environment = buildEnvironment(
+                viewer.getRadianceTexture(),
+                viewer.getIrradianceTexture(),
+                getLightRotation(),
+                THREE
+            );
+            const light = buildDirectionalLight(viewer.getLightData());
+            const lightData = viewer.getLightData();
+            const numLights = viewer.getLights()?.length ?? 0;
+
+            // Indexed geometry gets computed tangents in updateScene(); use them for anisotropic parity.
+            const material = createMxWgslMaterial({
+                THREE, TSL, wgsl, manifest, light, lightData, numLights, environment, textures,
+                useGeometryTangent: true
+            });
+            material.side = THREE.DoubleSide;
+            material.transparent = isTransparent;
+            material.name = elem.getName();
+
+            const gui = viewer.getEditor().getGUI();
+            this.updateEditorWebGPU(matassign, material, manifest, gui, closeUI, viewer);
+            return material;
+        }
+        catch (error)
+        {
+            // WGSL generation or TSL assembly failed (e.g. an unsupported node). Surface it and
+            // return a visible magenta fallback so the viewer stays usable instead of crashing.
+            const name = elem ? elem.getName() : '<unknown>';
+            console.error(`WebGPU material generation failed for '${name}':`,
+                Number.isInteger(error) ? mx.getExceptionMessage(error) : error);
+            const fallback = new THREE.MeshBasicNodeMaterial();
+            fallback.colorNode = TSL.vec3(1.0, 0.0, 1.0);
+            fallback.side = THREE.DoubleSide;
+            fallback.name = name;
+            return fallback;
+        }
+    }
+
     clearSoloMaterialUI()
     {
         for (let i = 0; i < this._materials.length; ++i)
@@ -1043,31 +1207,18 @@ export class Material
     // Update property editor for a given MaterialX element, it's shader, and
     // Three material
     //
-    updateEditor(matassign, shader, material, gui, closeUI, viewer)
+    setupMaterialFolder(matassign, elem, gui, closeUI, viewer)
     {
-        var elem = matassign.getMaterial();
-        var materials = this._materials;
-
-        const DEFAULT_MIN = 0;
-        const DEFAULT_MAX = 100;
-
-        var startTime = performance.now();
-
+        const materials = this._materials;
         const elemPath = elem.getNamePath();
-
-        // Create and cache associated UI
-        var matUI = gui.addFolder(elemPath);
+        const matUI = gui.addFolder(elemPath);
         matassign.setMaterialUI(matUI);
 
-        let matTitle = matUI.domElement.getElementsByClassName('title')[0];
-        // Add a icon to the title to allow for assigning the material to geometry
-        // Clicking on the icon will "solo" the material to the geometry.
-        // Clicking on the title will open/close the material folder.
+        const matTitle = matUI.domElement.getElementsByClassName('title')[0];
         matTitle.innerHTML = "<img id='" + elemPath + "' src='public/shader_ball.svg' width='16' height='16' style='vertical-align:middle; margin-right: 5px;'>" + elem.getNamePath();
-        let img = matTitle.getElementsByTagName('img')[0];
+        const img = matTitle.getElementsByTagName('img')[0];
         if (img)
         {
-            // Add event listener to icon to call updateSoloMaterial function
             img.addEventListener('click', function (event)
             {
                 Material.updateSoloMaterial(viewer, elemPath, materials, event);
@@ -1075,9 +1226,33 @@ export class Material
         }
 
         if (closeUI)
-        {
             matUI.close();
-        }
+
+        return matUI;
+    }
+
+    //
+    // WebGPU property editor: manifest-driven TSL uniform nodes via createMxWgslGUI.
+    //
+    updateEditorWebGPU(matassign, material, manifest, gui, closeUI, viewer)
+    {
+        const elem = matassign.getMaterial();
+        const matUI = this.setupMaterialFolder(matassign, elem, gui, closeUI, viewer);
+        createMxWgslGUI({ GUI, THREE, material, manifest, gui: matUI });
+    }
+
+    updateEditor(matassign, shader, material, gui, closeUI, viewer)
+    {
+        var elem = matassign.getMaterial();
+
+        const DEFAULT_MIN = 0;
+        const DEFAULT_MAX = 100;
+
+        var startTime = performance.now();
+
+        var matUI = this.setupMaterialFolder(matassign, elem, gui, closeUI, viewer);
+        const elemPath = elem.getNamePath();
+
         const uniformBlocks = Object.values(shader.getStage('pixel').getUniformBlocks());
         var uniformToUpdate;
         const ignoreList = ['u_envRadianceMips', 'u_envRadianceSamples', 'u_alphaThreshold'];
@@ -1539,19 +1714,24 @@ export class Viewer
     // Create shader generator, generation context and "base" document which
     // contains the standard definition libraries and lighting elements.
     //
-    async initialize(mtlxIn, renderer, radianceTexture, irradianceTexture, lightRigXml)
+    async initialize(mtlxIn, renderer, radianceTexture, irradianceTexture, lightRigXml, opts = {})
     {
         this.mx = mtlxIn;
+        this.backend = opts.backend || 'webgl';
+        this.tsl = opts.TSL || null;
 
-        // Initialize base document
-        this.generator = this.mx.EsslShaderGenerator.create();
+        // Initialize base document. The WebGPU backend uses the upstream WgslShaderGenerator
+        // (WGSL, consumed by the TSL bridge); WebGL uses the ESSL generator (GLSL).
+        this.generator = (this.backend === 'webgpu')
+            ? this.mx.WgslShaderGenerator.create()
+            : this.mx.EsslShaderGenerator.create();
         this.genContext = new this.mx.GenContext(this.generator);
 
         this.document = this.mx.createDocument();
         this.stdlib = this.mx.loadStandardLibraries(this.genContext);
         this.document.setDataLibrary(this.stdlib);
 
-        this.initializeLighting(renderer, radianceTexture, irradianceTexture, lightRigXml);
+        await this.initializeLighting(renderer, radianceTexture, irradianceTexture, lightRigXml);
 
         radianceTexture.mapping = THREE.EquirectangularReflectionMapping;
         this.getScene().setBackgroundTexture(radianceTexture);
@@ -1624,6 +1804,16 @@ export class Viewer
     getMx()
     {
         return this.mx;
+    }
+
+    getBackend()
+    {
+        return this.backend;
+    }
+
+    getTSL()
+    {
+        return this.tsl;
     }
 
     getGenerator()

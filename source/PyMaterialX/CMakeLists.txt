@@ -37,7 +37,7 @@ endif()
 
 add_subdirectory(PyMaterialXCore)
 add_subdirectory(PyMaterialXFormat)
-if (MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL OR MATERIALX_BUILD_GEN_MDL OR MATERIALX_BUILD_GEN_MSL OR MATERIALX_BUILD_GEN_SLANG)
+if (MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL OR MATERIALX_BUILD_GEN_MDL OR MATERIALX_BUILD_GEN_MSL OR MATERIALX_BUILD_GEN_SLANG OR MATERIALX_BUILD_GEN_WGSL)
     add_subdirectory(PyMaterialXGenShader)
     if (MATERIALX_BUILD_GEN_GLSL)
         add_subdirectory(PyMaterialXGenGlsl)
@@ -53,6 +53,9 @@ if (MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL OR MATERIALX_BUILD_GEN_M
     endif()
     if (MATERIALX_BUILD_GEN_SLANG)
         add_subdirectory(PyMaterialXGenSlang)
+    endif()
+    if (MATERIALX_BUILD_GEN_WGSL)
+        add_subdirectory(PyMaterialXGenWgsl)
     endif()
 endif()
 if (MATERIALX_BUILD_RENDER)
@@ -87,7 +90,8 @@ if (MATERIALX_BUILD_DOCS)
     # are integrated prior to building the Python extension modules.
     foreach(_py_mod IN ITEMS PyMaterialXCore PyMaterialXFormat PyMaterialXGenShader
                               PyMaterialXGenGlsl PyMaterialXGenMsl PyMaterialXGenMdl
-                              PyMaterialXGenOsl PyMaterialXRender PyMaterialXRenderGlsl
+                              PyMaterialXGenOsl PyMaterialXGenSlang PyMaterialXGenWgsl
+                              PyMaterialXRender PyMaterialXRenderGlsl
                               PyMaterialXRenderOsl PyMaterialXRenderMsl)
         if(TARGET ${_py_mod})
             add_dependencies(${_py_mod} PyBindDocs)
