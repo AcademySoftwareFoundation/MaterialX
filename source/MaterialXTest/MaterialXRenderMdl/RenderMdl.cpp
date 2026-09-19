@@ -29,6 +29,13 @@ class MdlShaderRenderTester : public RenderUtil::ShaderRenderTester
     }
 
   protected:
+    void setTargetGenerationOptions(mx::GenOptions& /*options*/) override
+    {
+        // No texture coordinate flips are required for MDL, since MDL and
+        // MaterialX define texture space equally, with the origin at the
+        // lower left.
+    }
+
     void createRenderer(std::ostream& /*log*/) override { };
 
     RenderUtil::RenderProfileResult runRenderer(
@@ -82,10 +89,7 @@ RenderUtil::RenderProfileResult MdlShaderRenderTester::runRenderer(
             try
             {
                 mx::ScopedTimer genTimer(&result.languageTimes.generationTime);
-                mx::GenOptions& contextOptions = context.getOptions();
-                contextOptions = options;
-                contextOptions.targetColorSpaceOverride = "lin_rec709_scene";
-                contextOptions.fileTextureVerticalFlip = true;
+                context.getOptions() = options;
 
                 // Specify the MDL target version to be the latest which is also the default.
                 mx::GenMdlOptionsPtr genMdlOptions = std::make_shared<mx::GenMdlOptions>();
@@ -167,7 +171,14 @@ RenderUtil::RenderProfileResult MdlShaderRenderTester::runRenderer(
                 // Set scene
                 command += " --camera 0 0 3 0 0 0";
                 command += " --fov 45";
-                command += " --materialxtest_mode"; // align texcoord space with OSL
+
+                // Since no scene geometry is specified, df_vulkan renders its
+                // built-in sphere, whose texture coordinates span (0, 0) to
+                // (2, 1).  Halve its U range to align it with the sphere
+                // geometry used by other renderers in the test suite.  The
+                // default V orientation of df_vulkan matches the MaterialX
+                // convention, with the origin at the lower left.
+                command += " --uv_scale 0.5 1";
 
                 // Application setup
                 command += " --noaux";

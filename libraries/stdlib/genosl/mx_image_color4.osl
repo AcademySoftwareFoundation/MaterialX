@@ -12,7 +12,7 @@ void mx_image_color4(textureresource file, string layer, color4 default_value, v
 
     color missingColor = default_value.rgb;
     float missingAlpha = default_value.a;
-    vector2 st = mx_transform_uv(texcoord);
+    vector2 st = mx_transform_uv(texcoord, file.filename);
     float alpha;
     color rgb = texture(file.filename, st.x, st.y, "alpha", alpha,
                         "subimage", layer, "interp", filtertype,
