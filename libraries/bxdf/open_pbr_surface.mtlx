@@ -142,38 +142,22 @@
       <input name="roughness" type="float" interfacename="base_diffuse_roughness" />
       <input name="normal" type="vector3" interfacename="geometry_normal" />
     </oren_nayar_diffuse_bsdf>
-    <subtract name="one_minus_subsurface_scatter_anisotropy" type="float">
-      <input name="in1" type="float" value="1.0" />
-      <input name="in2" type="float" interfacename="subsurface_scatter_anisotropy" />
-    </subtract>
-    <multiply name="subsurface_thin_walled_brdf_factor" type="color3">
-      <input name="in1" type="color3" interfacename="subsurface_color" />
-      <input name="in2" type="float" nodename="one_minus_subsurface_scatter_anisotropy" />
-    </multiply>
-    <multiply name="subsurface_thin_walled_reflection" type="BSDF">
-      <input name="in1" type="BSDF" nodename="subsurface_thin_walled_reflection_bsdf" />
-      <input name="in2" type="color3" nodename="subsurface_thin_walled_brdf_factor" />
-    </multiply>
     <translucent_bsdf name="subsurface_thin_walled_transmission_bsdf" type="BSDF">
       <input name="color" type="color3" nodename="subsurface_color_nonnegative" />
       <input name="normal" type="vector3" interfacename="geometry_normal" />
     </translucent_bsdf>
-    <add name="one_plus_subsurface_scatter_anisotropy" type="float">
-      <input name="in1" type="float" value="1.0" />
-      <input name="in2" type="float" interfacename="subsurface_scatter_anisotropy" />
+    <multiply name="subsurface_scatter_anisotropy_half" type="float">
+      <input name="in1" type="float" interfacename="subsurface_scatter_anisotropy" />
+      <input name="in2" type="float" value="0.5" />
+    </multiply>
+    <add name="subsurface_thin_walled_mix" type="float">
+      <input name="in1" type="float" value="0.5" />
+      <input name="in2" type="float" nodename="subsurface_scatter_anisotropy_half" />
     </add>
-    <multiply name="subsurface_thin_walled_btdf_factor" type="color3">
-      <input name="in1" type="color3" interfacename="subsurface_color" />
-      <input name="in2" type="float" nodename="one_plus_subsurface_scatter_anisotropy" />
-    </multiply>
-    <multiply name="subsurface_thin_walled_transmission" type="BSDF">
-      <input name="in1" type="BSDF" nodename="subsurface_thin_walled_transmission_bsdf" />
-      <input name="in2" type="color3" nodename="subsurface_thin_walled_btdf_factor" />
-    </multiply>
     <mix name="subsurface_thin_walled" type="BSDF">
-      <input name="fg" type="BSDF" nodename="subsurface_thin_walled_reflection" />
-      <input name="bg" type="BSDF" nodename="subsurface_thin_walled_transmission" />
-      <input name="mix" type="float" value="0.5" />
+      <input name="fg" type="BSDF" nodename="subsurface_thin_walled_transmission_bsdf" />
+      <input name="bg" type="BSDF" nodename="subsurface_thin_walled_reflection_bsdf" />
+      <input name="mix" type="float" nodename="subsurface_thin_walled_mix" />
     </mix>
 
     <!-- Subsurface (non-thin-walled) -->
