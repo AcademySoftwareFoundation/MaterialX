@@ -2394,7 +2394,7 @@ bool Graph::checkCanAddLink(ed::PinId startPinId, ed::PinId endPinId)
         }
     }
 
-    // Prevent connections to uniform inputs
+    // Prevent non-uniform outputs from connecting to uniform inputs
     if (uiDownNode->getNode())
     {
         mx::NodeDefPtr nodeDef = uiDownNode->getNode()->getNodeDef();
@@ -2403,13 +2403,58 @@ bool Graph::checkCanAddLink(ed::PinId startPinId, ed::PinId endPinId)
             mx::InputPtr nodeDefInput = nodeDef->getInput(inputPin->getName());
             if (nodeDefInput && nodeDefInput->getIsUniform())
             {
-                showLabel("Invalid connection: Cannot connect to a uniform input", ImColor(50, 50, 50, 255));
-                return false;
+                if(!isUniformSource(uiUpNode, outputPin->getName()))
+                {
+                    showLabel("Invalid connection: Cannot connect to a uniform input", ImColor(50, 50, 50, 255));
+                    return false;
+                }
             }
         }
     }
 
     return true;
+}
+
+bool Graph::isUniformSource(UiNodePtr node, const std::string& outputName)
+{
+    if (!node)
+        return false;
+
+    // Case: nodegraph interface inputs are valid uniform sources
+    if (node->getInput())
+        return true;
+
+    // Confirm given node not null
+    if (!node->getNode())
+        return false;
+
+    // Case: constant nodes are uniform-compatible by spec definition
+    if(node->getNode()->getCategory()=="constant")
+        return true;
+
+    // Case: node with explicitly declared uniform outputs
+    mx::NodeDefPtr nodeDef = node->getNode()->getNodeDef();
+    if (nodeDef)
+    {
+        mx::OutputPtr output = nodeDef->getOutput(outputName);
+        if(output && output->getIsUniform())
+            return true;
+    }
+
+    // Case: trace dot node to source to confirm uniform status
+    if (node->getNode()->getCategory() == "dot")
+    {
+        for (const auto& inputPin : node->getInputPins())
+        {
+            const auto& connections = inputPin->getConnections();
+            if (!connections.empty())
+            {
+                return isUniformSource(connections[0]->getUiNode(), connections[0]->getName());
+            }
+        }
+    }
+
+    return false;
 }
 
 void Graph::addLink(ed::PinId startPinId, ed::PinId endPinId)
