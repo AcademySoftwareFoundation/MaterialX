@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<materialx version="1.39" colorspace="srgb_texture">
+  <!--
+  Image channel promotion test, reading a single-channel image through each output type.
+  Channels beyond those in the image file are expected to be zero, aside from the fourth
+  channel, which is expected to be one.
+  -->
+  <image name="image_gray_float" type="float">
+    <input name="file" type="filename" value="resources/Images/brick_base_gray.jpg" />
+  </image>
+  <output name="image_gray_float_output" type="float" nodename="image_gray_float" />
+  <image name="image_gray_vector2" type="vector2">
+    <input name="file" type="filename" value="resources/Images/brick_base_gray.jpg" />
+  </image>
+  <output name="image_gray_vector2_output" type="vector2" nodename="image_gray_vector2" />
+  <image name="image_gray_color3" type="color3">
+    <input name="file" type="filename" value="resources/Images/brick_base_gray.jpg" />
+  </image>
+  <output name="image_gray_color3_output" type="color3" nodename="image_gray_color3" />
+  <image name="image_gray_color4" type="color4">
+    <input name="file" type="filename" value="resources/Images/brick_base_gray.jpg" />
+  </image>
+  <output name="image_gray_color4_output" type="color4" nodename="image_gray_color4" />
+  <image name="image_rgb_color4" type="color4">
+    <input name="file" type="filename" value="resources/Images/grid.png" />
+  </image>
+  <output name="image_rgb_color4_output" type="color4" nodename="image_rgb_color4" />
+</materialx>
