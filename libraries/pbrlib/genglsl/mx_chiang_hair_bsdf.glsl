@@ -195,6 +195,7 @@ void mx_chiang_hair_bsdf(ClosureData closureData, vec3 tint_R, vec3 tint_TT, vec
 
     N = mx_forward_facing_normal(N, V);
 
+    // As an opaque BSDF with no weight input, take on an implicit unit coverage, occluding any base layer.
     bsdf.throughput = vec3(0.0);
 
     if (closureData.closureType == CLOSURE_TYPE_REFLECTION)
@@ -264,6 +265,7 @@ void mx_chiang_hair_bsdf(ClosureData closureData, vec3 tint_R, vec3 tint_TT, vec
             F += Mp * Np * tint[i] * Ap[i];
         }
 
+        // TODO: Remove M_PI_INV to match the PBR specification.
         bsdf.response = F * closureData.occlusion * M_PI_INV;
     }
     else if (closureData.closureType == CLOSURE_TYPE_INDIRECT)

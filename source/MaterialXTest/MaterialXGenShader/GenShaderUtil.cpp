@@ -730,6 +730,8 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     // Create our context
     mx::GenContext context(_shaderGenerator);
     context.getOptions() = generateOptions;
+    // Reapply target-specific defaults after replacing the context options.
+    _shaderGenerator->applyDefaultOptions(context.getOptions());
     context.registerSourceCodeSearchPath(_searchPath);
 
     // Register shader metadata defined in the libraries.
@@ -744,7 +746,7 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     // Define target color space if required
     if (context.getOptions().targetColorSpaceOverride.empty())
     {
-        context.getOptions().targetColorSpaceOverride = "lin_rec709";
+        context.getOptions().targetColorSpaceOverride = "lin_rec709_scene";
     }
 
     // Check if a binding context has been set.

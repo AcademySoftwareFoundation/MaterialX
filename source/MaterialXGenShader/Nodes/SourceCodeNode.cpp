@@ -147,7 +147,7 @@ void SourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext& contex
                 }
                 else
                 {
-                    string variableName = node.getName() + "_" + input->getName() + "_tmp";
+                    string variableName = input->getVariable() + "_tmp";
                     if (!variableNames.count(variableName))
                     {
                         ShaderPort v(nullptr, input->getType(), variableName, input->getValue());
