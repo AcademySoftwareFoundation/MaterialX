@@ -26,11 +26,27 @@ declaration order), so regenerating after a genglsl change just brings genwgsl b
   environment bindings (`HwConstants` + `_tokenSubstitutions`). Generated libraries keep tokens;
   concrete WGSL types and binding names appear only in final stitched shaders.
 
+### Texture LOD and gradient preservation
+
+GLSL `textureLod(S, uv, lod)` and `textureGrad(S, uv, dx, dy)` calls carry LOD bias or explicit
+gradient arguments that must survive transpilation. The transpiler uses **distinct placeholder
+function names** for each variant:
+
+| GLSL call | Placeholder | Restored WGSL call |
+| --- | --- | --- |
+| `texture(S, uv)` | `mtlx_tex_lookup_{rgb,rgba}` | `textureSample(...)` |
+| `textureLod(S, uv, lod)` | `mtlx_tex_lookup_level_{rgb,rgba}` | `textureSampleLevel(...)` |
+| `textureGrad(S, uv, dx, dy)` | `mtlx_tex_lookup_grad_{rgb,rgba}` | `textureSampleGrad(...)` |
+
+Placeholders are valid GLSL stubs (declared in `TEXTURE_EXPANSION_PREAMBLE`) so naga accepts them.
+After transpile, `_TEX_LOOKUP_RULES` regex-restores each placeholder to the correct WGSL texture
+function with all arguments intact.
+
 ## Requirements
 
 * **Python 3** (standard library only for the core transpile).
-* **[`naga`](https://github.com/gfx-rs/wgpu/tree/trunk/naga) CLI** (`naga-cli`, v29+). Install with
-  `cargo install naga-cli`. Resolved from `--naga <path>`, then `$NAGA`, then `PATH`.
+* **[`naga`](https://github.com/gfx-rs/wgpu/tree/trunk/naga) CLI** (`naga-cli`, v30.0.0). Install with
+  `cargo install naga-cli --version 30.0.0`. Resolved from `--naga <path>`, then `$NAGA`, then `PATH`.
 * **Optional: [`tree-sitter-language-pack`](https://pypi.org/project/tree-sitter-language-pack/)**,
   for the readability cleanup pass (see [WGSL cleanup](#wgsl-cleanup)). It ships a precompiled WGSL
   grammar (and pulls the `tree-sitter` runtime), so no Node or `tree-sitter-cli` is needed:
@@ -56,7 +72,7 @@ python source/MaterialXGenWgsl/tools/mxgenwgsl.py --libraries libraries --clean
 ```
 
 `--out libraries` writes each generated file straight into `libraries/<lib>/genwgsl/`, populating
-the runtime library in place alongside the hand-written texture/light/`EXPECTED_FALLBACK` nodes.
+the runtime library in place alongside the hand-written light nodes listed in `skip_transpile.txt`.
 Set `MTLX_DEBUG=1` to dump the failing GLSL fragment for any node that naga rejects (see
 [Troubleshooting](#troubleshooting)).
 
@@ -64,7 +80,7 @@ Set `MTLX_DEBUG=1` to dump the failing GLSL fragment for any node that naga reje
 
 `0` on success. A non-zero exit means an **unexpected** failure — a regression such as a genglsl
 change that broke a previously-generable node, a new naga error, or a scan-driven validation
-failure. Nodes listed in `EXPECTED_FALLBACK` failing to transpile is normal and does **not** fail
+failure. Nodes listed in `skip_transpile.txt` are skipped entirely and do **not** fail
 the run.
 
 ## Scope
@@ -79,13 +95,11 @@ Texture, image, hextile, and pbrlib environment lib/node shaders are transpiled 
 transpiler preserves MaterialX `$`-tokens in generated output for runtime substitution by
 `WgslShaderGenerator`.
 
-There are currently no `EXPECTED_FALLBACK` nodes: everything else transpiles. (`mx_chiang_hair_bsdf`
-was a fallback until its `isinf()` call was replaced by `mx_isinf` — naga rejects GLSL `isinf` with
-`Unsupported relational function: IsInf`; `mx_math_platform.wgsl` implements `mx_isinf` as a
-finite-magnitude check.)
-
-The result is a *reduced* library by design: generated nodes and `lib/` helpers for everything that
-resolves cleanly against genglsl, and hand-written `.wgsl` for the rest.
+There are currently no fallback nodes: everything transpiles. (`mx_chiang_hair_bsdf`
+was a former fallback until its `isinf()` call was replaced by `mx_isinf` — naga rejects GLSL
+`isinf` with `Unsupported relational function: IsInf`; `mx_math_platform.wgsl` implements
+`mx_isinf` as a finite-magnitude check.) Only light nodes and `mx_math_platform.wgsl` remain
+hand-written (see `skip_transpile.txt`).
 
 ## How it works
 
@@ -209,10 +223,8 @@ genglsl changes, the pieces you may need to touch are:
   genwgsl lib deliberately doesn't provide (its callers stay hand-written).
   `validateOverloadCoverage` / `validateLibNames` will fail loudly if a rule is missing or
   produces a name absent from the lib.
-* **Expected fallbacks** — `EXPECTED_FALLBACK` lists nodes intentionally left hand-written (naga
-  limitations). If a node there starts transpiling cleanly, the tool prints a `WARN`; remove it from
-  the set. If a *new* node cannot be generated, add it here (with a note on why) so the run stays
-  green.
+* **Nodes that cannot transpile** — if a new node cannot be transpiled, add it to
+  `skip_transpile.txt` with a comment explaining why.
 * **`$`-tokens** — see [When you change HwConstants](#when-you-change-hwconstants) below.
 * **Hand-written `.wgsl`** — [`skip_transpile.txt`](skip_transpile.txt) lists every hand-maintained
   genwgsl file (the three light shaders and `mx_math_platform.wgsl`). The lib pass leaves any
@@ -236,8 +248,8 @@ After editing `HwConstants.cpp`:
   re-run; the offending GLSL fragment is written next to the output as `_debug_*.frag` for inspection.
 * `FAIL ... calls adapted/unmapped helper(s) ... (kept hand-written)` — the node calls a helper with
   a signature the genwgsl lib doesn't provide (an `OVERLOAD_SUFFIX_OVERRIDES` `None`, or an arity mismatch caught by
-  `checkLibArity`). Expected for nodes that must stay hand-written; add them to `EXPECTED_FALLBACK`
+  `checkLibArity`). Expected for nodes that must stay hand-written; add them to `skip_transpile.txt`
   if permanent.
 * `WARN mxwgslcleanup: ...` — the tree-sitter cleanup pass failed for one function; the verbose naga
   output is kept. Non-fatal.
-* `WARN <node>: now transpiles cleanly` — a node in `EXPECTED_FALLBACK` no longer needs to be there.
+* `WARN <node>: now transpiles cleanly` — a node in `skip_transpile.txt` no longer needs to be there.

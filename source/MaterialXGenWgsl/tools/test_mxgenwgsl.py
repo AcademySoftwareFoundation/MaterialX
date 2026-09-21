@@ -228,3 +228,34 @@ def test_post_restore_tex_lookup_swizzles():
     assert "textureSample($texSamplerSampler2D, uv).rgb" in out, out
     assert "textureSample($texSamplerSampler2D, uv).rg" in out, out
     assert "textureSample($texSamplerSampler2D, uv).r" in out, out
+
+
+def test_texture_lod_grad_roundtrip():
+    """textureLod and textureGrad arguments must survive the expand/restore round-trip.
+
+    textureLod  → mtlx_tex_lookup_level_* → textureSampleLevel (LOD preserved)
+    textureGrad → mtlx_tex_lookup_grad_*  → textureSampleGrad  (dx, dy preserved)
+    texture     → mtlx_tex_lookup_*       → textureSample      (no regression)
+    """
+    # textureLod: LOD argument must appear in the restored textureSampleLevel call.
+    raw_lod = "(*result) = mtlx_tex_lookup_level_rgb(uv, lod);"
+    out_lod = gen.applyWgslLibPostRestore(raw_lod)
+    assert "textureSampleLevel($texSamplerSampler2D, uv, lod).rgb" in out_lod, out_lod
+
+    raw_lod_rgba = "(*result) = mtlx_tex_lookup_level_rgba(uv, lod);"
+    out_lod_rgba = gen.applyWgslLibPostRestore(raw_lod_rgba)
+    assert "textureSampleLevel($texSamplerSampler2D, uv, lod)" in out_lod_rgba, out_lod_rgba
+
+    # textureGrad: both derivative arguments must appear in the restored textureSampleGrad call.
+    raw_grad = "(*result) = mtlx_tex_lookup_grad_rgb(uv, ddx, ddy);"
+    out_grad = gen.applyWgslLibPostRestore(raw_grad)
+    assert "textureSampleGrad($texSamplerSampler2D, uv, ddx, ddy).rgb" in out_grad, out_grad
+
+    raw_grad_rgba = "(*result) = mtlx_tex_lookup_grad_rgba(uv, ddx, ddy);"
+    out_grad_rgba = gen.applyWgslLibPostRestore(raw_grad_rgba)
+    assert "textureSampleGrad($texSamplerSampler2D, uv, ddx, ddy)" in out_grad_rgba, out_grad_rgba
+
+    # Plain texture: implicit-derivative path still works (no regression).
+    raw_plain = "(*result) = mtlx_tex_lookup_rgb(uv, 0.0);"
+    out_plain = gen.applyWgslLibPostRestore(raw_plain)
+    assert "textureSample($texSamplerSampler2D, uv).rgb" in out_plain, out_plain

@@ -107,16 +107,54 @@ function collectUniformPorts( shader ) {
 }
 
 // Matches `@group(N) @binding(M) var[<addr>] name: type;` lines emitted by
-// WgslResourceBindingContext. `var<uniform>` covers scalar/vector/matrix/array uniforms;
-// bare `var` covers texture_2d<f32> and sampler bindings.
+// WgslResourceBindingContext. `var<uniform>` covers struct UBOs (PublicUniforms,
+// PrivateUniforms) and light-data arrays; bare `var` covers texture_2d<f32> and sampler.
 const BINDING_RE = /@group\(\s*(\d+)\s*\)\s*@binding\(\s*(\d+)\s*\)\s*var(?:<[^>]*>)?\s+([A-Za-z_]\w*)\s*:\s*([^;]+);/g;
+
+// Matches a struct definition `struct Name { member: type, ... }` and captures
+// the body. Used to expand struct-type uniform bindings into per-member entries.
+const STRUCT_DEF_RE = /\bstruct\s+(\w+)\s*\{([^}]*)\}/g;
+
+/**
+ * Parse struct definitions from WGSL text.
+ * @return {Map<string, Array<{name: string, type: string}>>}
+ */
+function parseStructDefs( wgsl ) {
+
+	const structs = new Map();
+	STRUCT_DEF_RE.lastIndex = 0;
+	for ( let m = STRUCT_DEF_RE.exec( wgsl ); m !== null; m = STRUCT_DEF_RE.exec( wgsl ) ) {
+
+		const sName = m[ 1 ];
+		const members = [];
+		for ( const rawLine of m[ 2 ].split( '\n' ) ) {
+
+			const line = rawLine.trim().replace( /,$/, '' );
+			if ( ! line ) continue;
+			const colon = line.indexOf( ':' );
+			if ( colon < 0 ) continue;
+			const name = line.slice( 0, colon ).trim();
+			const type = line.slice( colon + 1 ).trim();
+			if ( name && type ) members.push( { name, type } );
+
+		}
+		if ( members.length ) structs.set( sName, members );
+
+	}
+	return structs;
+
+}
 
 /**
  * Parse the `@group/@binding` resource declarations out of the WGSL text into manifest
  * bindings, attaching role + default value from the uniform-port map.
+ *
+ * Struct-type uniform bindings (PublicUniforms, PrivateUniforms) are expanded into
+ * per-member entries so the adapter sees the same flat list it did before struct packing.
  */
 function parseBindings( wgsl, portMap ) {
 
+	const structDefs = parseStructDefs( wgsl );
 	const bindings = [];
 	BINDING_RE.lastIndex = 0;
 	for ( let m = BINDING_RE.exec( wgsl ); m !== null; m = BINDING_RE.exec( wgsl ) ) {
@@ -139,6 +177,24 @@ function parseBindings( wgsl, portMap ) {
 			// Light-data array (struct array). The adapter re-parses the struct itself,
 			// so no per-member value is needed here.
 			bindings.push( { stage: 'pixel', group, binding, name, type, role: 'lightData' } );
+
+		} else if ( structDefs.has( type ) ) {
+
+			// Struct-packed uniform block (PublicUniforms or PrivateUniforms). Expand
+			// the struct members into individual binding entries so the adapter sees the
+			// same flat shape it did with per-field bindings.
+			const members = structDefs.get( type );
+			for ( const member of members ) {
+
+				const info = portMap.get( member.name );
+				const role = info ? info.role : 'host';
+				const value = info ? portValueToJson( info.port ) : null;
+				bindings.push( {
+					stage: 'pixel', group, binding, name: member.name, type: member.type,
+					role, value, structInstance: name, structType: type
+				} );
+
+			}
 
 		} else {
 

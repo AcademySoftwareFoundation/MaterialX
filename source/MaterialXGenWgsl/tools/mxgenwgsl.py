@@ -931,9 +931,23 @@ TEXTURE_SAMPLER_NAMES = [
 # {S} is replaced with the escaped sampler name at apply time.
 # Rules are applied in order — swizzle-specific patterns must come before the no-swizzle fallback.
 TEXTURE_REWRITE_RULES = [
-    # textureLod(sampler, uv, lod) → mtlx_tex_lookup_rgb(uv, lod)
+    # textureLod rules — use distinct _level_ placeholders so the LOD argument survives
+    # the naga round-trip and is restored as textureSampleLevel on the WGSL side.
+    # textureLod(sampler, uv, lod).rgb → mtlx_tex_lookup_level_rgb(uv, lod)
+    (r"textureLod\s*\(\s*{S}\s*,\s*([^,)]+),\s*([^,)]+)\)\.rgb",
+     r"mtlx_tex_lookup_level_rgb(\1, \2)"),
+    # textureLod(sampler, uv, lod) [no swizzle] → mtlx_tex_lookup_level_rgba(uv, lod)
     (r"textureLod\s*\(\s*{S}\s*,\s*([^,)]+),\s*([^,)]+)\)",
-     r"mtlx_tex_lookup_rgb(\1, \2)"),
+     r"mtlx_tex_lookup_level_rgba(\1, \2)"),
+    # textureGrad rules — use distinct _grad_ placeholders so both derivative arguments
+    # survive the naga round-trip and are restored as textureSampleGrad on the WGSL side.
+    # textureGrad(sampler, uv, dx, dy).rgb → mtlx_tex_lookup_grad_rgb(uv, dx, dy)
+    (r"textureGrad\s*\(\s*{S}\s*,\s*([^,)]+),\s*([^,)]+),\s*([^,)]+)\)\.rgb",
+     r"mtlx_tex_lookup_grad_rgb(\1, \2, \3)"),
+    # textureGrad(sampler, uv, dx, dy) [no swizzle] → mtlx_tex_lookup_grad_rgba(uv, dx, dy)
+    (r"textureGrad\s*\(\s*{S}\s*,\s*([^,)]+),\s*([^,)]+),\s*([^,)]+)\)",
+     r"mtlx_tex_lookup_grad_rgba(\1, \2, \3)"),
+    # texture rules — implicit-derivative sampling (textureSample on restore).
     # texture(sampler, uv).rgb → mtlx_tex_lookup_rgb(uv, 0.0)
     (r"texture\s*\(\s*{S}\s*,\s*([^,)]+)\)\.rgb",
      r"mtlx_tex_lookup_rgb(\1, 0.0)"),
@@ -946,12 +960,6 @@ TEXTURE_REWRITE_RULES = [
     # texture(sampler, uv).r → mtlx_tex_lookup_r(uv)
     (r"texture\s*\(\s*{S}\s*,\s*([^,)]+)\)\.r",
      r"mtlx_tex_lookup_r(\1)"),
-    # textureGrad(sampler, uv, dx, dy).rgb → mtlx_tex_lookup_rgb(uv, 0.0)
-    (r"textureGrad\s*\(\s*{S}\s*,\s*([^,)]+),\s*([^,)]+),\s*([^,)]+)\)\.rgb",
-     r"mtlx_tex_lookup_rgb(\1, 0.0)"),
-    # textureGrad(sampler, uv, dx, dy) → mtlx_tex_lookup_rgba(uv)
-    (r"textureGrad\s*\(\s*{S}\s*,\s*([^,)]+),\s*([^,)]+),\s*([^,)]+)\)",
-     r"mtlx_tex_lookup_rgba(\1)"),
     # texture(sampler, uv) with no swizzle → mtlx_tex_lookup_rgba(uv)
     (r"texture\s*\(\s*{S}\s*,\s*([^,)]+)\)(?!\.)",
      r"mtlx_tex_lookup_rgba(\1)"),
@@ -981,9 +989,17 @@ def expandLibTokens(text, libroot=None):
     return text, tokenMap
 
 
-# Texture-lookup helper → textureSample() rewrite rules.
+# Texture-lookup helper → WGSL texture call rewrite rules.
 # Each entry: (regex matching the naga placeholder call, replacement with $texSamplerSampler2D).
+# Level and grad rules must come before the plain rules to avoid partial matches.
 _TEX_LOOKUP_RULES = [
+    # textureSampleLevel restores (from textureLod placeholders)
+    (re.compile(r"mtlx_tex_lookup_level_rgb\(([^,)]+),\s*([^)]+)\)"),  r"textureSampleLevel($texSamplerSampler2D, \1, \2).rgb"),
+    (re.compile(r"mtlx_tex_lookup_level_rgba\(([^,)]+),\s*([^)]+)\)"), r"textureSampleLevel($texSamplerSampler2D, \1, \2)"),
+    # textureSampleGrad restores (from textureGrad placeholders)
+    (re.compile(r"mtlx_tex_lookup_grad_rgb\(([^,)]+),\s*([^,)]+),\s*([^)]+)\)"),  r"textureSampleGrad($texSamplerSampler2D, \1, \2, \3).rgb"),
+    (re.compile(r"mtlx_tex_lookup_grad_rgba\(([^,)]+),\s*([^,)]+),\s*([^)]+)\)"), r"textureSampleGrad($texSamplerSampler2D, \1, \2, \3)"),
+    # textureSample restores (from texture placeholders — implicit derivatives)
     (re.compile(r"mtlx_tex_lookup_rgb\(([^,)]+),\s*[^)]+\)"),  r"textureSample($texSamplerSampler2D, \1).rgb"),
     (re.compile(r"mtlx_tex_lookup_rgba\(([^)]+)\)"),            r"textureSample($texSamplerSampler2D, \1)"),
     (re.compile(r"mtlx_tex_lookup_rg\(([^)]+)\)"),              r"textureSample($texSamplerSampler2D, \1).rg"),
@@ -1223,7 +1239,8 @@ def stripIncludes(text):
 def generatedBanner(srcRel):
     '''Single-line marker prepended to every emitted .wgsl file.
 
-    Stripped during shader assembly by WgslShaderGenerator (see // @mxgenwgsl).'''
+    The // @mxgenwgsl marker identifies machine-generated files so developers
+    know not to hand-edit them; it is not stripped at runtime.'''
     return f"// @mxgenwgsl {srcRel}\n"
 
 
@@ -1613,6 +1630,10 @@ vec4 mtlx_tex_lookup_rgba(vec2 uv) { return vec4(0.0); }
 vec2 mtlx_tex_lookup_rg(vec2 uv) { return vec2(0.0); }
 float mtlx_tex_lookup_b(vec2 uv) { return 0.0; }
 float mtlx_tex_lookup_r(vec2 uv) { return 0.0; }
+vec3 mtlx_tex_lookup_level_rgb(vec2 uv, float lod) { return vec3(0.0); }
+vec4 mtlx_tex_lookup_level_rgba(vec2 uv, float lod) { return vec4(0.0); }
+vec3 mtlx_tex_lookup_grad_rgb(vec2 uv, vec2 dx, vec2 dy) { return vec3(0.0); }
+vec4 mtlx_tex_lookup_grad_rgba(vec2 uv, vec2 dx, vec2 dy) { return vec4(0.0); }
 float mtlx_tex_size_x() { return 256.0; }
 """
 
