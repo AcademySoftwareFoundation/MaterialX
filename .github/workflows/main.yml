@@ -269,6 +269,10 @@ jobs:
       if: matrix.python != 'None'
       run: python source/MaterialXGenWgsl/tools/test_mxwgslcleanup.py
 
+    - name: Test WGSL transpiler
+      if: matrix.python != 'None'
+      run: python -m pytest source/MaterialXGenWgsl/tools/test_mxgenwgsl.py -v
+
     - name: CMake Generate
       shell: bash
       run: |

@@ -120,7 +120,13 @@ function parseStructArrayType( typeStr, wgslSource, numLights, lightData, layout
 
 }
 
-/** Parse `struct LightData { ... }` from generated WGSL. */
+/**
+ * Parse `struct LightData { ... }` from generated WGSL.
+ *
+ * @param {string} wgsl - Generated WGSL source.
+ * @return {{ placements: Array, structSize: number, vec4Stride: number } | null}
+ *     Uniform-struct layout, or null if no LightData struct is found.
+ */
 export function parseLightDataStruct( wgsl ) {
 
 	const m = wgsl.match( /struct\s+LightData\s*\{([^}]+)\}/ );
@@ -220,6 +226,11 @@ function floatFromIntBits( i32 ) {
 /**
  * Pack light slots into a flat vec4 array matching WGSL uniform struct layout.
  * Inactive slots are zeroed so the WGSL light loop can skip them via u_numActiveLightSources.
+ *
+ * @param {Array|null} lightData - Per-light property objects.
+ * @param {number} maxCount - Maximum number of light slots.
+ * @param {{ placements: Array, vec4Stride: number }} layout - Struct layout from parseLightDataStruct.
+ * @return {Array<{x:number, y:number, z:number, w:number}>} Flat vec4 array for uniformArray.
  */
 export function packLightDataToVec4Array( lightData, maxCount, layout ) {
 
@@ -347,13 +358,55 @@ function extractFunction( src, name ) {
 
 }
 
-/** Remove every line that declares a `@group(...) @binding(...)` resource. */
-function removeBindingDecls( src ) {
+/**
+ * Remove every line that declares a `@group(...) @binding(...)` resource, strip the
+ * `const name = instance.member;` alias lines emitted alongside struct-packed uniform blocks
+ * (the adapter hoists uniform members as entry-function parameters instead), and remove the
+ * struct definitions for the uniform blocks themselves.
+ *
+ * @param {string} src - WGSL source text.
+ * @param {Object} [manifest] - Normalized manifest; when supplied, uniform-block struct
+ *     names are read from `structType` fields on the bindings so the function stays in sync
+ *     with the generator rather than hardcoding block names.
+ * @return {string} The cleaned source.
+ */
+function removeBindingDecls( src, manifest ) {
 
-	return src
+	// Strip @group/@binding lines and const alias lines.
+	let out = src
 		.split( '\n' )
 		.filter( ( line ) => ! /^\s*@group\s*\(/.test( line ) )
+		.filter( ( line ) => ! /^\s*const\s+\w+\s*=\s*u_\w+\.\w+\s*;/.test( line ) )
 		.join( '\n' );
+
+	// Collect uniform-block struct names from the manifest when available, falling back
+	// to the well-known names emitted by the current WgslResourceBindingContext.
+	const structTypes = new Set();
+	if ( manifest && manifest.bindings ) {
+
+		for ( const b of manifest.bindings ) {
+
+			if ( b.structType ) structTypes.add( b.structType );
+
+		}
+
+	}
+	if ( structTypes.size === 0 ) {
+
+		structTypes.add( 'PublicUniforms' );
+		structTypes.add( 'PrivateUniforms' );
+
+	}
+
+	// Strip the uniform-block struct definitions (no longer needed in TSL includes
+	// since members are passed as individual entry parameters).
+	for ( const name of structTypes ) {
+
+		out = out.replace( new RegExp( `struct\\s+${ escapeRegExp( name ) }\\s*\\{[^}]*\\}\\s*`, 'g' ), '' );
+
+	}
+
+	return out;
 
 }
 
@@ -460,7 +513,9 @@ export function threadEnvResources( wgsl, manifest ) {
 
 		const openParen = m.index + m[ 0 ].length - 1;
 		const closeParen = matchParen( wgsl, openParen );
+		if ( closeParen < 0 ) continue;
 		const braceOpen = wgsl.indexOf( '{', closeParen );
+		if ( braceOpen < 0 ) continue;
 		// Match the body braces to know where this function ends.
 		let depth = 0, braceEnd = - 1;
 		for ( let i = braceOpen; i < wgsl.length; i ++ ) {
@@ -469,18 +524,36 @@ export function threadEnvResources( wgsl, manifest ) {
 			else if ( wgsl[ i ] === '}' ) { depth --; if ( depth === 0 ) { braceEnd = i; break; } }
 
 		}
-		fns.push( { name: m[ 1 ], openParen, closeParen, bodyStart: braceOpen, bodyEnd: braceEnd } );
+		if ( braceEnd < 0 ) continue;
+		fns.push( { name: m[ 1 ], start: m.index, openParen, closeParen, bodyStart: braceOpen, bodyEnd: braceEnd } );
 
 	}
 
-	const byName = Object.fromEntries( fns.map( ( f ) => [ f.name, f ] ) );
 	const bodyOf = ( f ) => wgsl.slice( f.bodyStart, f.bodyEnd + 1 );
+
+	// Pre-compile resource-name regexes (avoids re-creating them on every iteration
+	// of the fixpoint loop below, which matters for shaders with many uniforms).
+	const resourceRegexes = resourceNames.map( ( n ) => new RegExp( `\\b${ escapeRegExp( n ) }\\b` ) );
+	const refsResource = ( body ) => resourceRegexes.some( ( re ) => re.test( body ) );
 
 	// Fixpoint: a function "needs" resources if its body references one directly, or
 	// calls another function that needs them.
 	const needs = new Set();
-	const refsResource = ( body ) => resourceNames.some( ( n ) => new RegExp( `\\b${ escapeRegExp( n ) }\\b` ).test( body ) );
 	for ( const f of fns ) if ( refsResource( bodyOf( f ) ) ) needs.add( f.name );
+
+	// Pre-compile callee-call regexes; cache lazily as functions enter the `needs` set.
+	const callRegexCache = new Map();
+	const getCallRegex = ( name ) => {
+
+		if ( ! callRegexCache.has( name ) ) {
+
+			callRegexCache.set( name, new RegExp( `\\b${ escapeRegExp( name ) }\\s*\\(` ) );
+
+		}
+		return callRegexCache.get( name );
+
+	};
+	for ( const n of needs ) getCallRegex( n );
 
 	for ( let changed = true; changed; ) {
 
@@ -491,7 +564,14 @@ export function threadEnvResources( wgsl, manifest ) {
 			const body = bodyOf( f );
 			for ( const callee of needs ) {
 
-				if ( new RegExp( `\\b${ escapeRegExp( callee ) }\\s*\\(` ).test( body ) ) { needs.add( f.name ); changed = true; break; }
+				if ( getCallRegex( callee ).test( body ) ) {
+
+					needs.add( f.name );
+					getCallRegex( f.name );
+					changed = true;
+					break;
+
+				}
 
 			}
 
@@ -502,6 +582,12 @@ export function threadEnvResources( wgsl, manifest ) {
 	if ( needs.size === 0 ) return wgsl;
 
 	const entryName = manifest.entry;
+
+	// Build a set of definition-header character ranges so call-site detection can
+	// reliably distinguish `fn foo(` (definition) from `foo(` (call) without a
+	// fragile fixed-width lookbehind.
+	const defRanges = fns.map( ( f ) => ( { from: f.start, to: f.openParen } ) );
+	const isInsideDefinition = ( idx ) => defRanges.some( ( r ) => idx >= r.from && idx <= r.to );
 
 	// Collect insertions (index -> text). Apply right-to-left so indices stay valid.
 	const inserts = [];
@@ -521,9 +607,7 @@ export function threadEnvResources( wgsl, manifest ) {
 		const callRe = new RegExp( `\\b${ escapeRegExp( callee ) }\\s*\\(`, 'g' );
 		for ( let m = callRe.exec( wgsl ); m !== null; m = callRe.exec( wgsl ) ) {
 
-			// Skip the definition itself (`fn callee(`).
-			const before = wgsl.slice( Math.max( 0, m.index - 4 ), m.index );
-			if ( /\bfn\s$/.test( before ) ) continue;
+			if ( isInsideDefinition( m.index ) ) continue;
 			const open = m.index + m[ 0 ].length - 1;
 			const close = matchParen( wgsl, open );
 			if ( close < 0 ) continue;
@@ -787,7 +871,7 @@ export function convertToTslPortable( wgsl, manifest ) {
 
 	// Includes: the original module minus the entry and the binding declarations.
 	let includes = wgsl.slice( 0, fn.start ) + wgsl.slice( fn.end );
-	includes = removeBindingDecls( includes ).trim();
+	includes = removeBindingDecls( includes, manifest ).trim();
 
 	// The generator emits the stage attribute on the line *before* `fn <entry>` (e.g.
 	// `@fragment\nfn fragmentMain(...)`) for standalone WGSL validation. `extractFunction`
@@ -813,7 +897,12 @@ export function convertToTslPortable( wgsl, manifest ) {
 
 }
 
-/** Split a WGSL parameter list ("a: T1, b: T2") into [{name,type}]. */
+/**
+ * Split a WGSL parameter list ("a: T1, b: T2") into [{name,type}].
+ *
+ * @param {string} params - The raw parameter-list text (without surrounding parentheses).
+ * @return {Array<{name:string, type:string}>}
+ */
 function splitParams( params ) {
 
 	const out = [];
@@ -856,7 +945,12 @@ function splitParams( params ) {
  * @param {boolean} [options.useGeometryTangent] - Use TSL `tangentWorld` when geometry tangents exist.
  * @return {NodeMaterial}
  */
-export function createMxWgslMaterial( { THREE, TSL, wgsl, manifest, textures = {}, uvNode = null, light = null, lightData = null, numLights = null, environment = null, useGeometryTangent = false } ) {
+export function createMxWgslMaterial( {
+	THREE, TSL, wgsl, manifest,
+	textures = {}, uvNode = null,
+	light = null, lightData = null, numLights = null,
+	environment = null, useGeometryTangent = false
+} ) {
 
 	manifest = normalizeReflection( manifest );
 

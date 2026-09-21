@@ -34,46 +34,71 @@ void WgslResourceBindingContext::emitResourceBindings(GenContext& context, const
     const Syntax& syntax = generator.getSyntax();
     const string groupStr = std::to_string(_group);
 
+    // Separate texture/sampler bindings (kept as individual resources) from value
+    // uniforms (packed into a single struct UBO to stay within WebGPU's default
+    // maxUniformBuffersPerShaderStage limit of 12).
+    std::vector<const ShaderPort*> textureUniforms;
+    std::vector<const ShaderPort*> valueUniforms;
     for (const ShaderPort* uniform : uniforms.getVariableOrder())
     {
         const TypeDesc type = uniform->getType();
-
-        // Closure / shader types are internal MaterialX types, not CPU-supplied uniforms.
         if (type.isClosure())
-        {
             continue;
-        }
-
-        const string& name = uniform->getVariable();
-
         if (type == Type::FILENAME)
-        {
-            // File textures split into a texture + sampler, each with its own binding.
-            generator.emitLine("@group(" + groupStr + ") @binding(" + std::to_string(_binding++) +
-                                   ") var " + name + "_texture: texture_2d<f32>",
-                               stage);
-            generator.emitLine("@group(" + groupStr + ") @binding(" + std::to_string(_binding++) +
-                                   ") var " + name + "_sampler: sampler",
-                               stage);
-            continue;
-        }
+            textureUniforms.push_back(uniform);
+        else
+            valueUniforms.push_back(uniform);
+    }
 
-        // Value uniform: emit individually so node code references it by its plain name.
-        // WGSL: bool is not host-shareable in the uniform address space, so use u32.
-        string typeName = syntax.getTypeName(type);
-        if (type == Type::BOOLEAN)
-        {
-            typeName = "u32";
-        }
-        if (type.isArray() && uniform->getValue())
-        {
-            // array<T, N> form.
-            typeName = "array<" + typeName + ", " + std::to_string(uniform->getValue()->asA<vector<float>>().size()) + ">";
-        }
+    // Emit texture + sampler pairs as individual bindings.
+    for (const ShaderPort* uniform : textureUniforms)
+    {
+        const string& name = uniform->getVariable();
         generator.emitLine("@group(" + groupStr + ") @binding(" + std::to_string(_binding++) +
-                               ") var<uniform> " + name + ": " + typeName,
+                               ") var " + name + "_texture: texture_2d<f32>",
+                           stage);
+        generator.emitLine("@group(" + groupStr + ") @binding(" + std::to_string(_binding++) +
+                               ") var " + name + "_sampler: sampler",
                            stage);
     }
+
+    // Pack all value uniforms into a single struct bound once.
+    if (!valueUniforms.empty())
+    {
+        const string structName = uniforms.getName();
+        const string instanceName = uniforms.getInstance();
+
+        // Emit the struct definition.
+        generator.emitLine("struct " + structName + " ", stage, false);
+        generator.emitScopeBegin(stage);
+        for (size_t i = 0; i < valueUniforms.size(); ++i)
+        {
+            const ShaderPort* port = valueUniforms[i];
+            string typeName = syntax.getTypeName(port->getType());
+            if (port->getType() == Type::BOOLEAN)
+                typeName = "u32";
+            if (port->getType().isArray() && port->getValue())
+                typeName = "array<" + typeName + ", " + std::to_string(port->getValue()->asA<vector<float>>().size()) + ">";
+            const string comma = (i + 1 < valueUniforms.size()) ? "," : "";
+            generator.emitLine("    " + port->getVariable() + ": " + typeName + comma, stage, false);
+        }
+        generator.emitScopeEnd(stage, false, false);
+        generator.emitLineBreak(stage);
+
+        // Bind the struct as a single uniform buffer.
+        generator.emitLine("@group(" + groupStr + ") @binding(" + std::to_string(_binding++) +
+                               ") var<uniform> " + instanceName + ": " + structName,
+                           stage);
+        generator.emitLineBreak(stage);
+
+        // Emit alias `let` bindings so that the shader body can continue to
+        // reference uniforms by their bare names (no qualified access needed).
+        for (const ShaderPort* port : valueUniforms)
+        {
+            generator.emitLine("const " + port->getVariable() + " = " + instanceName + "." + port->getVariable(), stage);
+        }
+    }
+
     generator.emitLineBreak(stage);
 }
 

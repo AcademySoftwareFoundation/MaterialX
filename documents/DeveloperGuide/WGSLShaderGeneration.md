@@ -72,7 +72,7 @@ python source/MaterialXGenWgsl/tools/mxgenwgsl.py --libraries libraries --out li
 python source/MaterialXGenWgsl/tools/mxgenwgsl.py --libraries libraries --out libraries --only mx_noise3d_float mx_sheen_bsdf
 ```
 
-A non-zero exit code means an unexpected node failed (a regression). Known fallback nodes in `EXPECTED_FALLBACK` are tolerated.
+A non-zero exit code means an unexpected node failed (a regression). Nodes listed in `skip_transpile.txt` are skipped entirely.
 
 ### What the transpiler does
 
@@ -248,5 +248,5 @@ CI validates generated WGSL at three levels:
 
 - [Shader Generation](ShaderGeneration.md) — general shader generation framework
 - [`source/MaterialXGenWgsl/README.md`](../../source/MaterialXGenWgsl/README.md) — back-end layout and design
-- [`source/MaterialXGenWgsl/tools/README.md`](../../source/MaterialXGenWgsl/tools/README.md) — transpiler internals, overload naming, and `EXPECTED_FALLBACK`
+- [`source/MaterialXGenWgsl/tools/README.md`](../../source/MaterialXGenWgsl/tools/README.md) — transpiler internals, overload naming, and `skip_transpile.txt`
 - [`javascript/README.md`](../../javascript/README.md) — JavaScript bindings and viewer setup

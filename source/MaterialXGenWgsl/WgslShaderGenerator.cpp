@@ -47,33 +47,6 @@ namespace
 // Name of the @builtin(position) member of the vertex-data struct.
 const string WGSL_CLIP_POSITION = "clipPosition";
 
-// User data to track emitted WGSL function names and prevent duplicate definitions.
-class WgslEmittedFunctions : public GenUserData
-{
-  public:
-    std::set<string> names;
-};
-const string WGSL_EMITTED_FUNCTIONS = "WGSL_EMITTED_FUNCTIONS";
-
-// Scan WGSL source for "fn NAME(" and collect the function names.
-void trackEmittedFunctions(const string& source, std::set<string>& names)
-{
-    size_t pos = 0;
-    while (pos < source.size())
-    {
-        size_t fnPos = source.find("fn ", pos);
-        if (fnPos == string::npos)
-            break;
-        size_t nameStart = fnPos + 3;
-        size_t nameEnd = source.find_first_of("( \t\n", nameStart);
-        if (nameEnd != string::npos && nameEnd > nameStart)
-        {
-            names.insert(source.substr(nameStart, nameEnd - nameStart));
-        }
-        pos = (nameEnd != string::npos) ? nameEnd : fnPos + 3;
-    }
-}
-
 // Wrap a non-vec4 value in a vec4f for the final pixel output.
 void toVec4Wgsl(const TypeDesc& type, string& variable)
 {
@@ -767,17 +740,6 @@ void WgslShaderGenerator::emitClosureDataParameter(const ShaderNode& node, GenCo
 void WgslShaderGenerator::emitBlock(const string& str, const FilePath& sourceFilename, GenContext& context, ShaderStage& stage) const
 {
     stage.addBlock(str, sourceFilename, context);
-
-    if (sourceFilename.getExtension() == "wgsl" && !str.empty())
-    {
-        auto data = context.getUserData<WgslEmittedFunctions>(WGSL_EMITTED_FUNCTIONS);
-        if (!data)
-        {
-            data = std::make_shared<WgslEmittedFunctions>();
-            context.pushUserData(WGSL_EMITTED_FUNCTIONS, data);
-        }
-        trackEmittedFunctions(str, data->names);
-    }
 }
 
 MATERIALX_NAMESPACE_END
