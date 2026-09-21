@@ -32,6 +32,10 @@ ShaderNodeImplPtr HeightToNormalNodeMdl::create()
     return std::make_shared<HeightToNormalNodeMdl>();
 }
 
+void HeightToNormalNodeMdl::createVariables(const ShaderNode&, GenContext&, Shader&) const
+{
+}
+
 void HeightToNormalNodeMdl::computeSampleOffsetStrings(const string& sampleSizeName, const string& offsetTypeString,
                                                        unsigned int, StringVec& offsetStrings) const
 {
