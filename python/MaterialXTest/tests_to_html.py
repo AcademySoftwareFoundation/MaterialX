@@ -4,6 +4,7 @@ import sys
 import os
 import datetime
 import argparse
+import re
 
 try:
     # Install pillow via pip to enable image differencing and statistics.
@@ -78,9 +79,15 @@ def main(args=None):
     parser.add_argument('-l2', '--lang2', dest='lang2', action='store', help='Second target language for comparison. Default is osl', default="osl")
     parser.add_argument('-l3', '--lang3', dest='lang3', action='store', help='Third target language for comparison. Default is empty', default="")
     parser.add_argument('-e', '--error', dest='error', action='store', help='Filter out results with RMS less than this. Negative means all results are kept.', default=-1, type=float)
+    parser.add_argument('-r', '--regex', dest='regex', action='store', help='Filter out results whose relative paths do not match this case-insensitive regular expression.', default="")
     parser.add_argument('-of', '--order-from', dest='order_from', action='store', help='Path to a MaterialX _options.mtlx file. When provided, output sections are ordered to match its renderTestPaths input.', default="")
 
     args = parser.parse_args(args)
+
+    try:
+        resultRegex = re.compile(args.regex, re.IGNORECASE)
+    except re.error as e:
+        parser.error("invalid regular expression: " + str(e))
 
     fh = open(args.outputfile,"w+")
     fh.write("<html>\n")
@@ -134,10 +141,16 @@ def main(args=None):
     # Get all source files. Sort dirs for deterministic walk order across platforms.
     langFiles1 = []
     langPaths1 = []
+    langSuffix = args.lang1 + ".png"
     for subdir, dirs, files in os.walk(args.inputdir1):
         dirs.sort()
         for curFile in sorted(files):
-            if curFile.endswith(args.lang1 + ".png"):
+            if not curFile.endswith(langSuffix):
+                continue
+            resultPath = os.path.relpath(
+                os.path.join(subdir, curFile.removesuffix(langSuffix)),
+                args.inputdir1).replace('\\', '/')
+            if resultRegex.search(resultPath):
                 langFiles1.append(curFile)
                 langPaths1.append(subdir)
 
