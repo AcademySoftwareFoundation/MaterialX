@@ -211,9 +211,17 @@ int main(int argc, char* const argv[])
     io.LogFilename = NULL;
 
     // Derive a single effective UI scale from device DPI and optional CLI multiplier.
+    float deviceScale = 1.0f;
+#if !defined(__APPLE__)
+    // On macOS (Retina) the framebuffer tracks the content scale, and ImGui
+    // already converts logical units to pixels using io.DisplayFramebufferScale,
+    // so scaling the UI by the content scale as well would double the size.
+    // On Windows and X11 the framebuffer is unscaled, so the content scale is
+    // the only way to account for DPI.
     float xscale = 1.0f, yscale = 1.0f;
     glfwGetWindowContentScale(window, &xscale, &yscale);
-    const float deviceScale = (xscale > yscale) ? xscale : yscale;
+    deviceScale = (xscale > yscale) ? xscale : yscale;
+#endif
     const float effectiveUiScale = deviceScale * ((uiScale > 0.0f) ? uiScale : 1.0f);
     const float scaledFontSize = std::max(1.0f, fontSize * effectiveUiScale);
 
