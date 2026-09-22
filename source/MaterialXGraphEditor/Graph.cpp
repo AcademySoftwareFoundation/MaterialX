@@ -4769,7 +4769,7 @@ void Graph::drawGraph(ImVec2 mousePos)
             // Hotkey to lock/unlock current render node
             else if (ImGui::IsKeyReleased(ImGuiKey_R) && !_fileDialogSave.isOpened())
             {
-                if (_currUiNode != nullptr)
+                if (!readOnly() && _currUiNode != nullptr)
                 {
                     _lockRenderPreviewNode = !_lockRenderPreviewNode;
                     setRenderMaterial(_currUiNode);
