@@ -383,6 +383,11 @@ TEST_CASE("Document upgrade switch null value", "[document]")
         mx::FileSearchPath(),
         &readOptions);
     REQUIRE_NOTHROW(doc->upgradeVersion());
+
+    // An unparseable "which" value is left untouched by the upgrade, rather
+    // than being silently cleared or otherwise modified.
+    mx::NodePtr node = doc->getNodeGraph("NG1")->getNode("sw1");
+    REQUIRE(node->getInput("which")->getValueString() == "abc");
 }
 
 TEST_CASE("Document upgrade swizzle empty value", "[document]")
@@ -394,16 +399,26 @@ TEST_CASE("Document upgrade swizzle empty value", "[document]")
     mx::DocumentPtr doc = mx::createDocument();
     mx::XmlReadOptions readOptions;
     readOptions.upgradeVersion = false;
-    mx::readFromXmlString(doc,
-                          "<?xml version=\"1.0\"?>"
-                          "<materialx version=\"1.38\">"
-                          "  <nodegraph name=\"NG1\">"
-                          "    <swizzle name=\"swz1\" type=\"color3\" nodedef=\"ND_swizzle\">"
-                          "      <input name=\"in\" type=\"color3\" value=\"\"/>"
-                          "      <input name=\"channels\" type=\"string\" value=\"\"/>"
-                          "    </swizzle>"
-                          "  </nodegraph>"
-                          "</materialx>",
-                          mx::FileSearchPath(), &readOptions);
+    mx::readFromXmlString(
+        doc,
+        R"(<?xml version="1.0"?>
+<materialx version="1.38">
+  <nodegraph name="NG1">
+    <swizzle name="swz1" type="color3" nodedef="ND_swizzle">
+      <input name="in" type="color3" value=""/>
+      <input name="channels" type="string" value=""/>
+    </swizzle>
+  </nodegraph>
+</materialx>
+)",
+        mx::FileSearchPath(),
+        &readOptions);
     REQUIRE_NOTHROW(doc->upgradeVersion());
+
+    // The empty "in" value and missing/invalid channel name fall back to "0",
+    // matching this function's existing convention elsewhere for a
+    // missing/unparseable value.
+    mx::NodePtr node = doc->getNodeGraph("NG1")->getNode("swz1");
+    REQUIRE(node->getCategory() == "constant");
+    REQUIRE(node->getInput("value")->getValueString() == "0, 0, 0");
 }
