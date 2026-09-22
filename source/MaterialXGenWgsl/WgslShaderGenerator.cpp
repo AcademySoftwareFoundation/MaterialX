@@ -84,6 +84,41 @@ WgslShaderGenerator::WgslShaderGenerator(TypeSystemPtr typeSystem) :
     _tokenSubstitutions[HW::T_TEX_SAMPLER_SAMPLER2D] = HW::TEX_SAMPLER_SAMPLER2D_WGSL;
     _tokenSubstitutions[HW::T_TEX_SAMPLER_SIGNATURE] = HW::TEX_SAMPLER_SIGNATURE_WGSL;
 
+    // Private-uniform tokens resolve to struct-qualified access (e.g. $envMatrix -> u_prv.u_envMatrix).
+    static const string PRV = "u_prv.";
+    // Matrix uniforms
+    _tokenSubstitutions[HW::T_WORLD_MATRIX] = PRV + HW::WORLD_MATRIX;
+    _tokenSubstitutions[HW::T_WORLD_INVERSE_MATRIX] = PRV + HW::WORLD_INVERSE_MATRIX;
+    _tokenSubstitutions[HW::T_WORLD_TRANSPOSE_MATRIX] = PRV + HW::WORLD_TRANSPOSE_MATRIX;
+    _tokenSubstitutions[HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX] = PRV + HW::WORLD_INVERSE_TRANSPOSE_MATRIX;
+    _tokenSubstitutions[HW::T_VIEW_MATRIX] = PRV + HW::VIEW_MATRIX;
+    _tokenSubstitutions[HW::T_VIEW_INVERSE_MATRIX] = PRV + HW::VIEW_INVERSE_MATRIX;
+    _tokenSubstitutions[HW::T_VIEW_TRANSPOSE_MATRIX] = PRV + HW::VIEW_TRANSPOSE_MATRIX;
+    _tokenSubstitutions[HW::T_VIEW_INVERSE_TRANSPOSE_MATRIX] = PRV + HW::VIEW_INVERSE_TRANSPOSE_MATRIX;
+    _tokenSubstitutions[HW::T_PROJ_MATRIX] = PRV + HW::PROJ_MATRIX;
+    _tokenSubstitutions[HW::T_PROJ_INVERSE_MATRIX] = PRV + HW::PROJ_INVERSE_MATRIX;
+    _tokenSubstitutions[HW::T_PROJ_TRANSPOSE_MATRIX] = PRV + HW::PROJ_TRANSPOSE_MATRIX;
+    _tokenSubstitutions[HW::T_PROJ_INVERSE_TRANSPOSE_MATRIX] = PRV + HW::PROJ_INVERSE_TRANSPOSE_MATRIX;
+    _tokenSubstitutions[HW::T_WORLD_VIEW_MATRIX] = PRV + HW::WORLD_VIEW_MATRIX;
+    _tokenSubstitutions[HW::T_VIEW_PROJECTION_MATRIX] = PRV + HW::VIEW_PROJECTION_MATRIX;
+    _tokenSubstitutions[HW::T_WORLD_VIEW_PROJECTION_MATRIX] = PRV + HW::WORLD_VIEW_PROJECTION_MATRIX;
+    _tokenSubstitutions[HW::T_SHADOW_MATRIX] = PRV + HW::SHADOW_MATRIX;
+    _tokenSubstitutions[HW::T_ENV_MATRIX] = PRV + HW::ENV_MATRIX;
+    // Scalar/vector uniforms
+    _tokenSubstitutions[HW::T_VIEW_POSITION] = PRV + HW::VIEW_POSITION;
+    _tokenSubstitutions[HW::T_VIEW_DIRECTION] = PRV + HW::VIEW_DIRECTION;
+    _tokenSubstitutions[HW::T_FRAME] = PRV + HW::FRAME;
+    _tokenSubstitutions[HW::T_TIME] = PRV + HW::TIME;
+    _tokenSubstitutions[HW::T_ALPHA_THRESHOLD] = PRV + HW::ALPHA_THRESHOLD;
+    _tokenSubstitutions[HW::T_NUM_ACTIVE_LIGHT_SOURCES] = PRV + HW::NUM_ACTIVE_LIGHT_SOURCES;
+    _tokenSubstitutions[HW::T_ENV_RADIANCE_MIPS] = PRV + HW::ENV_RADIANCE_MIPS;
+    _tokenSubstitutions[HW::T_ENV_RADIANCE_SAMPLES] = PRV + HW::ENV_RADIANCE_SAMPLES;
+    _tokenSubstitutions[HW::T_ENV_LIGHT_INTENSITY] = PRV + HW::ENV_LIGHT_INTENSITY;
+    _tokenSubstitutions[HW::T_REFRACTION_TWO_SIDED] = PRV + HW::REFRACTION_TWO_SIDED;
+    _tokenSubstitutions[HW::T_ENV_PREFILTER_MIP] = PRV + HW::ENV_PREFILTER_MIP;
+    _tokenSubstitutions[HW::T_AMB_OCC_GAIN] = PRV + HW::AMB_OCC_GAIN;
+    _tokenSubstitutions[HW::T_ALBEDO_TABLE_SIZE] = PRV + HW::ALBEDO_TABLE_SIZE;
+
     _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "numActiveLightSources", WgslNumLightsNode::create()));
     _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "sampleLightSource", WgslLightSamplerNode::create()));
 }
@@ -286,6 +321,25 @@ void WgslShaderGenerator::emitUniforms(GenContext& context, ShaderStage& stage) 
         if (uniforms.empty() || uniforms.getName() == HW::LIGHT_DATA)
             continue;
         binding->emitResourceBindings(context, uniforms, stage);
+    }
+
+    // Prefix public-uniform port variables with struct instance
+    auto pubIt = stage.getUniformBlocks().find(HW::PUBLIC_UNIFORMS);
+    if (pubIt != stage.getUniformBlocks().end())
+    {
+        VariableBlock& block = *pubIt->second;
+        const string& inst = block.getInstance();
+        for (size_t i = 0; i < block.size(); ++i)
+        {
+            ShaderPort* port = block[i];
+            const TypeDesc type = port->getType();
+            if (type.isClosure() || type == Type::FILENAME)
+                continue;
+            const string& var = port->getVariable();
+            if (!var.empty() && var[0] == '$')
+                continue;
+            port->setVariable(inst + "." + var);
+        }
     }
 }
 

@@ -32,11 +32,10 @@ void WgslResourceBindingContext::emitResourceBindings(GenContext& context, const
 {
     const ShaderGenerator& generator = context.getShaderGenerator();
     const Syntax& syntax = generator.getSyntax();
+    const StringMap& tokenSubs = generator.getTokenSubstitutions();
     const string groupStr = std::to_string(_group);
 
-    // Separate texture/sampler bindings (kept as individual resources) from value
-    // uniforms (packed into a single struct UBO to stay within WebGPU's default
-    // maxUniformBuffersPerShaderStage limit of 12).
+    // Separate textures (individual bindings) from value uniforms (struct-packed UBO).
     std::vector<const ShaderPort*> textureUniforms;
     std::vector<const ShaderPort*> valueUniforms;
     for (const ShaderPort* uniform : uniforms.getVariableOrder())
@@ -68,19 +67,32 @@ void WgslResourceBindingContext::emitResourceBindings(GenContext& context, const
         const string structName = uniforms.getName();
         const string instanceName = uniforms.getInstance();
 
-        // Emit the struct definition.
+        // Resolve $-token variable names to literal identifiers for struct members.
         generator.emitLine("struct " + structName + " ", stage, false);
         generator.emitScopeBegin(stage);
         for (size_t i = 0; i < valueUniforms.size(); ++i)
         {
             const ShaderPort* port = valueUniforms[i];
+            string memberName = port->getVariable();
+            auto it = tokenSubs.find(memberName);
+            if (it != tokenSubs.end())
+            {
+                memberName = it->second;
+                // Strip struct instance prefix added by token overrides (e.g. "u_prv.u_envMatrix" -> "u_envMatrix").
+                const string qualPrefix = instanceName + ".";
+                if (memberName.size() > qualPrefix.size() &&
+                    memberName.compare(0, qualPrefix.size(), qualPrefix) == 0)
+                {
+                    memberName = memberName.substr(qualPrefix.size());
+                }
+            }
             string typeName = syntax.getTypeName(port->getType());
             if (port->getType() == Type::BOOLEAN)
                 typeName = "u32";
             if (port->getType().isArray() && port->getValue())
                 typeName = "array<" + typeName + ", " + std::to_string(port->getValue()->asA<vector<float>>().size()) + ">";
             const string comma = (i + 1 < valueUniforms.size()) ? "," : "";
-            generator.emitLine("    " + port->getVariable() + ": " + typeName + comma, stage, false);
+            generator.emitLine("    " + memberName + ": " + typeName + comma, stage, false);
         }
         generator.emitScopeEnd(stage, false, false);
         generator.emitLineBreak(stage);
@@ -90,13 +102,6 @@ void WgslResourceBindingContext::emitResourceBindings(GenContext& context, const
                                ") var<uniform> " + instanceName + ": " + structName,
                            stage);
         generator.emitLineBreak(stage);
-
-        // Emit alias `let` bindings so that the shader body can continue to
-        // reference uniforms by their bare names (no qualified access needed).
-        for (const ShaderPort* port : valueUniforms)
-        {
-            generator.emitLine("const " + port->getVariable() + " = " + instanceName + "." + port->getVariable(), stage);
-        }
     }
 
     generator.emitLineBreak(stage);
@@ -140,11 +145,7 @@ void WgslResourceBindingContext::emitStructuredResourceBindings(GenContext& cont
         storeType = "array<" + uniforms.getName() + ", " + count + ">";
     }
 
-    // Bind the structured array (e.g. the light-data array) as read-only storage
-    // rather than uniform: the WGSL uniform address space requires array element
-    // strides to be a multiple of 16, which a minimal element struct (e.g. a single
-    // i32 light_type) does not satisfy. The storage address space relaxes this and
-    // is the idiomatic choice for variable-length light arrays.
+    // Use storage (not uniform) address space: uniform requires 16-byte aligned strides.
     generator.emitLine("@group(" + groupStr + ") @binding(" + std::to_string(_binding++) +
                            ") var<storage, read> " + structInstanceName + ": " + storeType,
                        stage);
