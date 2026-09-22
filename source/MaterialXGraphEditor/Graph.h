@@ -294,6 +294,7 @@ class Graph
     void loadGraphFromFile(bool prompt);
     void saveGraphToFile();
     void loadGeometry();
+    void loadEnvironment();
 
     // Initialize the graph state from the current document.
     void initializeGraph();
@@ -381,6 +382,7 @@ class Graph
     FileDialog _fileDialogSave;
     FileDialog _fileDialogImage;
     FileDialog _fileDialogGeom;
+    FileDialog _fileDialogEnv;
     std::string _fileDialogImageInputName;
 
     // popup up variables

@@ -210,6 +210,9 @@ class RenderView
 
     void loadMesh(const mx::FilePath& filename);
 
+    void loadEnvironmentLight();
+    void loadEnvironmentLight(const mx::FilePath& filename);
+
     unsigned int getFrame() const
     {
         return _frame;
@@ -222,7 +225,6 @@ class RenderView
 
   private:
     void initContext(mx::GenContext& context);
-    void loadEnvironmentLight();
     void applyDirectLights(mx::DocumentPtr doc);
 
     // Mark the given material as currently selected in the view.
