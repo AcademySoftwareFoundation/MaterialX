@@ -107,6 +107,31 @@ TEST_CASE("Interface Input Validation", "[node]")
     REQUIRE(!valid);
 }
 
+TEST_CASE("Interface Name Cycle Validation", "[node]")
+{
+    mx::DocumentPtr doc = mx::createDocument();
+
+    // Test that an input whose interface name refers to itself is rejected
+    // rather than followed.
+    mx::InputPtr selfRef = doc->addInput("self_ref", "color3");
+    selfRef->setNodeName("missing");
+    selfRef->setInterfaceName("self_ref");
+    REQUIRE(selfRef->getInterfaceInput() == selfRef);
+    REQUIRE(selfRef->getConnectedNode() == nullptr);
+    REQUIRE(!doc->validate());
+
+    // Test that a pair of inputs whose interface names refer to one another
+    // is rejected as well.
+    mx::InputPtr first = doc->addInput("first", "color3");
+    mx::InputPtr second = doc->addInput("second", "color3");
+    first->setNodeName("missing");
+    second->setNodeName("missing");
+    first->setInterfaceName("second");
+    second->setInterfaceName("first");
+    REQUIRE(first->getConnectedNode() == nullptr);
+    REQUIRE(second->getConnectedNode() == nullptr);
+}
+
 TEST_CASE("Node Type Multioutput Validation", "[Node]")
 {
     // Create a document
