@@ -156,7 +156,10 @@ Graph::Graph(const std::string& materialFilename,
     _frameCount(INT_MIN),
     _pinsOnBorder(pinsOnBorder),
     _previewSize(previewWidth),
-    _saveNodePositions(true)
+    _saveNodePositions(true),
+    _envSettingsPopup(false),
+    _envSettingsIsOpen(false),
+    _lightRotation(0.0f)
 {
     _pinIconShape = (unsigned int) ax::Drawing::IconType::Circle;
     if (pinShape == "flow")
@@ -3158,6 +3161,9 @@ void Graph::loadEnvironment()
     _fileDialogEnv.setTitle("Load Environment");
     _fileDialogEnv.setTypeFilters(_imageFilter);
     _fileDialogEnv.open();
+    // reset light rotation setting
+    _lightRotation = 0.0f;
+    _renderer->setLightRotation(_lightRotation);
 }
 
 void Graph::graphButtons()
@@ -3225,6 +3231,10 @@ void Graph::graphButtons()
             {
                 loadEnvironment();
             }
+            if (ImGui::MenuItem("Environment Settings"))
+            {
+                _envSettingsPopup = true;
+            }
             ImGui::EndMenu();
         }
 
@@ -3246,6 +3256,7 @@ void Graph::graphButtons()
 
         ImGui::EndMenuBar();
     }
+    environmentSettingsPopup();
 
     // Menu keys
     ImGuiIO& guiIO = ImGui::GetIO();
@@ -4246,6 +4257,34 @@ void Graph::shaderPopup()
         {
             ImGui::CloseCurrentPopup();
         }
+        ImGui::EndPopup();
+    }
+}
+
+void Graph::environmentSettingsPopup()
+{
+    if (_envSettingsPopup)
+    {
+        ImGui::OpenPopup("Environment Settings");
+        _envSettingsPopup = false;
+        _envSettingsIsOpen = true;
+    }
+    if (ImGui::BeginPopupModal("Environment Settings", &_envSettingsIsOpen, ImGuiWindowFlags_AlwaysAutoResize))
+    {
+        // Light Rotation setting
+        bool valueChanged = ImGui::DragFloat("Light Rotation", &_lightRotation, 0.5f, 0.0f, 360.0f, "%.2f");
+        if (valueChanged)
+        {
+            _renderer->setLightRotation(_lightRotation);
+        }
+
+        ImGui::Separator();
+
+        if (ImGui::Button("Close"))
+        {
+            ImGui::CloseCurrentPopup();
+        }
+
         ImGui::EndPopup();
     }
 }
