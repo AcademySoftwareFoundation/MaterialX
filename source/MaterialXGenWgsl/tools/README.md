@@ -240,7 +240,7 @@ After editing `HwConstants.cpp`:
 3. Add the corresponding inverse entry to **`TOKEN_RESTORE_RULES`** so `$`-tokens are restored after transpile.
 4. If the token needs WGSL split texture/sampler companions (like `$envRadianceSampler`): add to **`WGSL_ONLY_TOKENS`** in `mxgenwgsl.py` **and** matching `_tokenSubstitutions` in [`WgslShaderGenerator.cpp`](../WgslShaderGenerator.cpp).
 5. If the token is an i32 uniform that uses `- 1.0` in genglsl: add to **`INT_UNIFORM_TOKENS`** in `mxgenwgsl.py`.
-6. Run `python mxgenwgsl.py --libraries libraries --out libraries` (or `pytest test_mxgenwgsl.py`) — preflight errors name the missing piece.
+6. Run `python mxgenwgsl.py --libraries libraries --out libraries` (or `python test_mxgenwgsl.py`) — preflight errors name the missing piece.
 
 ## Troubleshooting
 

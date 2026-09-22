@@ -4,8 +4,6 @@ re-attachment, and post-restore fixups. No naga required."""
 import os
 import sys
 
-import pytest
-
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import mxgenwgsl as gen
 
@@ -259,3 +257,16 @@ def test_texture_lod_grad_roundtrip():
     raw_plain = "(*result) = mtlx_tex_lookup_rgb(uv, 0.0);"
     out_plain = gen.applyWgslLibPostRestore(raw_plain)
     assert "textureSample($texSamplerSampler2D, uv).rgb" in out_plain, out_plain
+
+
+if __name__ == "__main__":
+    failed = 0
+    for fn in sorted(k for k in globals() if k.startswith("test_")):
+        try:
+            globals()[fn]()
+            print(f"PASS {fn}")
+        except AssertionError as exc:
+            failed += 1
+            print(f"FAIL {fn}: {exc}")
+    print(f"\n{'OK' if not failed else str(failed) + ' FAILED'}")
+    sys.exit(1 if failed else 0)
