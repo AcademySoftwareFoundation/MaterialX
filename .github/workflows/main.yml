@@ -271,7 +271,7 @@ jobs:
 
     - name: Test WGSL transpiler
       if: matrix.python != 'None'
-      run: python -m pytest source/MaterialXGenWgsl/tools/test_mxgenwgsl.py -v
+      run: python source/MaterialXGenWgsl/tools/test_mxgenwgsl.py
 
     - name: CMake Generate
       shell: bash
