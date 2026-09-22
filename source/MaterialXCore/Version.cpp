@@ -1191,17 +1191,20 @@ void Document::upgradeVersion()
             {
                 // Upgrade switch nodes from 5 to 10 inputs, handling the fallback behavior for
                 // constant "which" values that were previously out of range.
+                //
+                // getValue() returns null when the stored value string can't be parsed as the
+                // input's declared type (e.g. a non-numeric "which" value), so testing the
+                // pointer itself also covers the no-value case and makes the separate
+                // hasValue() check above redundant.
                 InputPtr which = node->getInput("which");
-                if (which && which->hasValue())
+                ValuePtr whichValue = which ? which->getValue() : nullptr;
+                if (whichValue)
                 {
-                    auto whichValue = which->getValue();
-                    // whichValue is null when the stored value string can't be parsed
-                    // as the input's declared type (e.g. a non-numeric "which" value).
-                    if (whichValue && whichValue->isA<int>() && whichValue->asA<int>() >= 5)
+                    if (whichValue->isA<int>() && whichValue->asA<int>() >= 5)
                     {
                         which->setValue(0);
                     }
-                    else if (whichValue && whichValue->isA<float>() && whichValue->asA<float>() >= 5)
+                    else if (whichValue->isA<float>() && whichValue->asA<float>() >= 5)
                     {
                         which->setValue(0.0);
                     }
