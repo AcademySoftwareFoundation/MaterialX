@@ -32,8 +32,6 @@ class MX_GENMSL_API MslSyntax : public Syntax
 
     string getOutputTypeName(TypeDesc type) const override;
 
-    bool typeSupported(const TypeDesc* type) const override;
-
     /// Given an input specification attempt to remap this to an enumeration which is accepted by
     /// the shader generator. The enumeration may be converted to a different type than the input.
     bool remapEnumeration(const string& value, TypeDesc type, const string& enumNames, std::pair<TypeDesc, ValuePtr>& result) const override;

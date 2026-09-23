@@ -193,10 +193,10 @@
   <implementation name="IM_normal_vector3_genosl" nodedef="ND_normal_vector3" target="genosl" sourcecode="transform({{space}}, N)" />
 
   <!-- <tangent> -->
-  <implementation name="IM_tangent_vector3_genosl" nodedef="ND_tangent_vector3" target="genosl" sourcecode="transform({{space}}, normalize(dPdu))" />
+  <implementation name="IM_tangent_vector3_genosl" nodedef="ND_tangent_vector3" target="genosl" sourcecode="normalize(transform({{space}}, dPdu))" />
 
   <!-- <bitangent> -->
-  <implementation name="IM_bitangent_vector3_genosl" nodedef="ND_bitangent_vector3" target="genosl" sourcecode="transform({{space}}, normalize(dPdv))" />
+  <implementation name="IM_bitangent_vector3_genosl" nodedef="ND_bitangent_vector3" target="genosl" sourcecode="normalize(transform({{space}}, cross(N, normalize(dPdu))))" />
 
   <!-- <texcoord> -->
   <implementation name="IM_texcoord_vector2_genosl" nodedef="ND_texcoord_vector2" target="genosl" sourcecode="vector2(u,v)" />
@@ -504,7 +504,7 @@
   <!-- <transformmatrix> -->
   <implementation name="IM_transformmatrix_vector2M3_genosl" nodedef="ND_transformmatrix_vector2M3" function="mx_transformmatrix_vector2M3" file="mx_transformmatrix_vector2M3.osl" target="genosl" />
   <implementation name="IM_transformmatrix_vector3_genosl" nodedef="ND_transformmatrix_vector3" target="genosl" sourcecode="transform({{mat}}, {{in}})" />
-  <implementation name="IM_transformmatrix_vector3M4_genosl" nodedef="ND_transformmatrix_vector3M4" target="genosl" sourcecode="transform({{mat}}, {{in}})" />
+  <implementation name="IM_transformmatrix_vector3M4_genosl" nodedef="ND_transformmatrix_vector3M4" target="genosl" sourcecode="transform({{mat}}, point({{in}}))" />
   <implementation name="IM_transformmatrix_vector4_genosl" nodedef="ND_transformmatrix_vector4" target="genosl" sourcecode="transform({{mat}}, {{in}})" />
 
   <!-- <transpose> -->

@@ -23,5 +23,12 @@ void mx_image_color4(textureresource file, string layer, color4 default_value, v
 #endif
                         );
 
+    // Default a missing fourth channel to one, following the MaterialX specification.
+    int channels = 0;
+    if (gettextureinfo(file.filename, "channels", channels) && channels < 4)
+    {
+        alpha = 1.0;
+    }
+
     out = color4(rgb, alpha);
 }

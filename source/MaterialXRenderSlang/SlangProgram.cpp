@@ -129,7 +129,7 @@ bool SlangProgram::build()
             diagnosticVec.push_back((const char*) diagnosticsBlob->getBufferPointer());
 
         if (!module)
-            throw ExceptionRenderError("Failed to compile frament shaders", diagnosticVec);
+            throw ExceptionRenderError("Failed to compile fragment shaders", diagnosticVec);
 
         ComPtr<slang::IEntryPoint> entryPoint;
         SLANG_RETURN_ON_FAIL(module->findEntryPointByName("fragmentMain", entryPoint.writeRef()));
@@ -979,23 +979,27 @@ const SlangProgram::UniformInputMap& SlangProgram::updateUniformsList()
             cursor = cursor.getDereferenced();
 
         unsigned fieldIndex = 0;
+        const VariableBlock* lightData = nullptr;
+        /// varName must be either portName, or portName + a digit (in case the portName is a reserved keyword)
+        auto checkName = [](const std::string& varName, const std::string& portName) -> bool
+        {
+            if (varName == portName)
+                return true;
+            if (varName.size() < portName.size())
+                return false;
+            if (varName.compare(0, portName.size(), portName) != 0)
+                return false;
+            return std::all_of(varName.begin() + portName.size(), varName.end(), ::isdigit);
+        };
+
         for (auto& uniformMap : variableBlocks)
         {
-            /// varName must be either portName, or portName + a digit (in case the portName is a reserved keyword)
-            auto checkName = [](const std::string& varName, const std::string& portName) -> bool
-            {
-                if (varName == portName)
-                    return true;
-                if (varName.size() < portName.size())
-                    return false;
-                if (varName.compare(0, portName.size(), portName) != 0)
-                    return false;
-                return std::all_of(varName.begin() + portName.size(), varName.end(), ::isdigit);
-            };
-
             const VariableBlock& uniforms = *uniformMap.second;
             if (uniforms.getName() == HW::LIGHT_DATA)
+            {
+                lightData = &uniforms;
                 continue;
+            }
 
             for (size_t i = 0; i < uniforms.size(); ++i, ++fieldIndex)
             {
@@ -1010,6 +1014,50 @@ const SlangProgram::UniformInputMap& SlangProgram::updateUniformsList()
                     throw ExceptionRenderError("Expected variable " + name + " but instead found ShaderPort " + shaderPort->getName() + ".");
 
                 populateUniformInput(slangCursor, typeDesc, name, value, shaderPort, populateUniformInput);
+            }
+        }
+
+        if (lightData && fieldIndex < cursor.m_typeLayout->getFieldCount())
+        {
+            slang::VariableLayoutReflection* slangVariable = cursor.m_typeLayout->getFieldByIndex(fieldIndex);
+            std::string name = slangVariable->getName();
+            if (name == HW::LIGHT_DATA_INSTANCE)
+            {
+                auto lightArrayCursor = cursor[fieldIndex];
+                unsigned int lightCount = (unsigned int) lightArrayCursor.m_typeLayout->getElementCount();
+                for (unsigned int lightIndex = 0; lightIndex < lightCount; ++lightIndex)
+                {
+                    auto lightCursor = lightArrayCursor[lightIndex];
+                    if (lightCursor.m_typeLayout->getFieldCount() != lightData->size())
+                    {
+                        throw ExceptionRenderError(
+                            "Slang light data has " + std::to_string(lightCursor.m_typeLayout->getFieldCount()) +
+                            " members, while MaterialX LightData has " + std::to_string(lightData->size()) + " ports."
+                        );
+                    }
+                    for (size_t memberIndex = 0; memberIndex < lightData->size(); ++memberIndex)
+                    {
+                        auto shaderPort = (*lightData)[memberIndex];
+                        slang::VariableLayoutReflection* memberVariable = lightCursor.m_typeLayout->getFieldByIndex((unsigned int) memberIndex);
+                        if (!checkName(memberVariable->getName(), shaderPort->getName()))
+                        {
+                            throw ExceptionRenderError(
+                                "Expected light variable " + std::string(memberVariable->getName()) +
+                                " but instead found ShaderPort " + shaderPort->getName() + "."
+                            );
+                        }
+                        std::string memberName = HW::LIGHT_DATA_INSTANCE + "[" + std::to_string(lightIndex) + "]." + shaderPort->getName();
+                        populateUniformInput(
+                            lightCursor[(unsigned int) memberIndex],
+                            shaderPort->getType(),
+                            memberName,
+                            shaderPort->getValue(),
+                            shaderPort,
+                            populateUniformInput
+                        );
+                    }
+                }
+                ++fieldIndex;
             }
         }
 

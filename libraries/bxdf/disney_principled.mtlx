@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.39" colorspace="lin_rec709">
+<materialx version="1.39" colorspace="lin_rec709_scene">
 
   <nodedef name="ND_disney_principled" node="disney_principled" nodegroup="pbr" doc="The Disney Principled BSDF">
     <input name="baseColor" type="color3" value="0.16, 0.16, 0.16" uiname="Base Color" uifolder="Base" />

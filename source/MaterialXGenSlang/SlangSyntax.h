@@ -29,8 +29,6 @@ class MX_GENSLANG_API SlangSyntax : public Syntax
     const string& getUniformQualifier() const override { return UNIFORM_QUALIFIER; };
     const string& getSourceFileExtension() const override { return SOURCE_FILE_EXTENSION; };
 
-    bool typeSupported(const TypeDesc* type) const override;
-
     void makeValidName(string& name) const override;
 
     /// Given an input specification attempt to remap this to an enumeration which is accepted by

@@ -356,11 +356,6 @@ GlslSyntax::GlslSyntax(TypeSystemPtr typeSystem) :
             "#define material surfaceshader"));
 }
 
-bool GlslSyntax::typeSupported(const TypeDesc* type) const
-{
-    return *type != Type::STRING;
-}
-
 bool GlslSyntax::remapEnumeration(const string& value, TypeDesc type, const string& enumNames, std::pair<TypeDesc, ValuePtr>& result) const
 {
     // Early out if not an enum input.

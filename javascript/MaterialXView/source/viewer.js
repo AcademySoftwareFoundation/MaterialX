@@ -1113,7 +1113,7 @@ export class Material
                     }
 
                     // Skip elements from the referenced data library
-                    if (currentElem.getActiveSourceUri() !== elem.getDocument().getSourceUri())
+                    if (!currentElem.belongsToContentDocument())
                     {
                         continue;
                     }

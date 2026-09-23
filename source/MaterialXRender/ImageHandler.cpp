@@ -179,7 +179,7 @@ ImageVec ImageHandler::getReferencedImages(ConstDocumentPtr doc)
     ImageVec imageVec;
     for (ElementPtr elem : doc->traverseTree())
     {
-        if (elem->getActiveSourceUri() != doc->getSourceUri())
+        if (!elem->belongsToContentDocument())
         {
             continue;
         }

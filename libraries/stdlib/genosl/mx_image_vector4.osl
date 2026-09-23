@@ -19,5 +19,12 @@ void mx_image_vector4(textureresource file, string layer, vector4 default_value,
                         "missingcolor", missingColor, "missingalpha", missingAlpha,
                         "swrap", uaddressmode, "twrap", vaddressmode);
 
+    // Default a missing fourth channel to one, following the MaterialX specification.
+    int channels = 0;
+    if (gettextureinfo(file.filename, "channels", channels) && channels < 4)
+    {
+        alpha = 1.0;
+    }
+
     out = vector4(rgb[0], rgb[1], rgb[2], alpha);
 }

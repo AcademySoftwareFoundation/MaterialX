@@ -84,6 +84,10 @@ TEST_CASE("GenShader: Slang Syntax Check", "[genslang]")
     mx::ValuePtr intArrayValue = mx::Value::createValue<std::vector<int>>(intArray);
     value = syntax->getValue(mx::Type::INTEGERARRAY, *intArrayValue);
     REQUIRE(value == "{1, 2, 3, 4, 5, 6, 7}");
+
+    mx::IdentifierMap identifiers;
+    REQUIRE(syntax->getVariableName("mix", mx::Type::FLOAT, identifiers) == "mix1");
+    REQUIRE(syntax->getVariableName("lerp", mx::Type::FLOAT, identifiers) == "lerp1");
 }
 
 TEST_CASE("GenShader: Slang Implementation Check", "[genslang]")
@@ -131,7 +135,7 @@ TEST_CASE("GenShader: Slang Light Shaders", "[genslang]")
 TEST_CASE("GenShader: Slang Performance Test", "[genslang]")
 {
     mx::GenContext context(mx::SlangShaderGenerator::create());
-    BENCHMARK("Load documents, validate and generate shader") 
+    BENCHMARK("Load documents, validate and generate shader")
     {
         return GenShaderUtil::shaderGenPerformanceTest(context);
     };

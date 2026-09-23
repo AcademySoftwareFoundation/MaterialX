@@ -3,7 +3,8 @@
 
 void mx_conductor_bsdf(ClosureData closureData, float weight, vec3 ior_n, vec3 ior_k, vec2 roughness, bool retroreflective, float thinfilm_thickness, float thinfilm_ior, vec3 N, vec3 X, int distribution, inout BSDF bsdf)
 {
-    bsdf.throughput = vec3(0.0);
+    // As an opaque BSDF, transmit light only through the fraction of the surface not covered by the weight.
+    bsdf.throughput = vec3(1.0 - weight);
 
     if (weight < M_FLOAT_EPS)
     {
@@ -37,15 +38,14 @@ void mx_conductor_bsdf(ClosureData closureData, float weight, vec3 ior_n, vec3 i
         float D = mx_ggx_NDF(Ht, safeAlpha);
         float G = mx_ggx_smith_G2(NdotL, NdotV, avgAlpha);
 
-        vec3 comp = mx_ggx_energy_compensation(NdotV, avgAlpha, F);
+        vec3 comp = mx_ggx_energy_compensation(NdotV, avgAlpha, fd);
 
         // Note: NdotL is cancelled out
         bsdf.response = D * F * G * comp * closureData.occlusion * weight / (4.0 * NdotV);
     }
     else if (closureData.closureType == CLOSURE_TYPE_INDIRECT)
     {
-        vec3 F = mx_compute_fresnel(NdotV, fd);
-        vec3 comp = mx_ggx_energy_compensation(NdotV, avgAlpha, F);
+        vec3 comp = mx_ggx_energy_compensation(NdotV, avgAlpha, fd);
         vec3 Li = mx_environment_radiance(N, V, X, safeAlpha, distribution, fd);
         bsdf.response = Li * comp * weight;
     }

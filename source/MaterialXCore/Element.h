@@ -749,6 +749,11 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
         return EMPTY_STRING;
     }
 
+    /// Return true if this element belongs to its content document, and not
+    /// to an imported library with a distinct source URI.
+    /// @return True if the active source URI matches the content document URI.
+    bool belongsToContentDocument() const;
+
     /// @}
     /// @name Validation
     /// @{
