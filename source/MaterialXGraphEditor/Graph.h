@@ -163,9 +163,6 @@ class Graph
     // Check if link can be added. Show a diagnostic message as the label.
     bool checkCanAddLink(ed::PinId startPinId, ed::PinId endPinId);
 
-    // Return true if a given UiNode is a valid uniform source
-    bool isUniformSource(UiNodePtr node, const std::string& outputName);
-
     // Add link to nodegraph and set up connections between UiNodes and
     // MaterialX Nodes to update shader
     // startPinId - where the link was initiated

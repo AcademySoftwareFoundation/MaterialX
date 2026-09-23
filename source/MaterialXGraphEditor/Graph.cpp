@@ -123,6 +123,67 @@ static float getUiScaleFromFont()
     return (fontSize > 0.0f) ? (fontSize / BASE_UI_FONT_SIZE) : 1.0f;
 }
 
+bool isUniformInput(UiNodePtr node, const std::string& inputName)
+{
+    if (node->getNode())
+    {
+        mx::NodeDefPtr nodeDef = node->getNode()->getNodeDef();
+        mx::InputPtr nodeDefInput = nodeDef ? nodeDef->getActiveInput(inputName) : nullptr;
+        return nodeDefInput && nodeDefInput->getIsUniform();
+    }
+    if (node->getNodeGraph())
+    {
+        mx::InputPtr input = node->getNodeGraph()->getInput(inputName);
+        return input && input->getIsUniform();
+    }
+    return false;
+}
+
+bool isUniformSource(UiNodePtr node, const std::string& outputName, int depth)
+{
+    // arbitrary depth limit of 32 for dot node chains
+    if (!node || depth > 32)
+        return false;
+
+    // Case: nodegraph interface inputs are valid uniform sources
+    if (node->getInput())
+        return true;
+
+    // Confirm given node not null
+    if (!node->getNode())
+        return false;
+
+    // Case: constant nodes are uniform-compatible by spec definition
+    if(node->getNode()->getCategory()=="constant")
+        return true;
+
+    // Case: node with explicitly declared uniform outputs
+    mx::NodeDefPtr nodeDef = node->getNode()->getNodeDef();
+    if (nodeDef)
+    {
+        mx::OutputPtr output = nodeDef->getActiveOutput(outputName);
+        if(output && output->getIsUniform())
+            return true;
+    }
+
+    // Case: trace dot node to source to confirm uniform status
+    if (node->getNode()->getCategory() == "dot")
+    {
+        for (const auto& inputPin : node->getInputPins())
+        {
+            if(inputPin->getName() == "in") {
+                const auto& connections = inputPin->getConnections();
+                if (!connections.empty())
+                {
+                    return isUniformSource(connections[0]->getUiNode(), connections[0]->getName(), depth + 1);
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
 } // anonymous namespace
 
 //
@@ -2604,77 +2665,13 @@ bool Graph::checkCanAddLink(ed::PinId startPinId, ed::PinId endPinId)
     }
 
     // Prevent non-uniform outputs from connecting to uniform inputs
-    if (uiDownNode->getNode())
+    if (isUniformInput(uiDownNode, inputPin->getName()) && !isUniformSource(uiUpNode, outputPin->getName()))
     {
-        mx::NodeDefPtr nodeDef = uiDownNode->getNode()->getNodeDef();
-        if (nodeDef)
-        {
-            mx::InputPtr nodeDefInput = nodeDef->getActiveInput(inputPin->getName());
-            if (nodeDefInput && nodeDefInput->getIsUniform())
-            {
-                if(!isUniformSource(uiUpNode, outputPin->getName()))
-                {
-                    showLabel("Invalid connection: Cannot connect to a uniform input", ImColor(50, 50, 50, 255));
-                    return false;
-                }
-            }
-        }
-    }
-    // Fallback for compound nodegraph inputs which carry uniform="true" directly
-    else if (inputPin->getInput() && inputPin->getInput()->getIsUniform())
-    {
-        if (!isUniformSource(uiUpNode, outputPin->getName()))
-        {
-            showLabel("Invalid connection: Cannot connect to a uniform input", ImColor(50, 50, 50, 255));
-            return false;
-        }
+        showLabel("Uniform inputs accept only constant or uniform sources", ImColor(50, 50, 50, 255));
+        return false;
     }
 
     return true;
-}
-
-bool Graph::isUniformSource(UiNodePtr node, const std::string& outputName)
-{
-    if (!node)
-        return false;
-
-    // Case: nodegraph interface inputs are valid uniform sources
-    if (node->getInput())
-        return true;
-
-    // Confirm given node not null
-    if (!node->getNode())
-        return false;
-
-    // Case: constant nodes are uniform-compatible by spec definition
-    if(node->getNode()->getCategory()=="constant")
-        return true;
-
-    // Case: node with explicitly declared uniform outputs
-    mx::NodeDefPtr nodeDef = node->getNode()->getNodeDef();
-    if (nodeDef)
-    {
-        mx::OutputPtr output = nodeDef->getActiveOutput(outputName);
-        if(output && output->getIsUniform())
-            return true;
-    }
-
-    // Case: trace dot node to source to confirm uniform status
-    if (node->getNode()->getCategory() == "dot")
-    {
-        for (const auto& inputPin : node->getInputPins())
-        {
-            if(inputPin->getName() == "in") {
-                const auto& connections = inputPin->getConnections();
-                if (!connections.empty())
-                {
-                    return isUniformSource(connections[0]->getUiNode(), connections[0]->getName());
-                }
-            }
-        }
-    }
-
-    return false;
 }
 
 void Graph::addLink(ed::PinId startPinId, ed::PinId endPinId)
@@ -2750,9 +2747,7 @@ void Graph::addLink(ed::PinId startPinId, ed::PinId endPinId)
                     else if (uiUpNode->getInput() != nullptr)
                     {
                         nodeInput->setConnectedInterfaceName(uiUpNode->getName());
-                        mx::NodeDefPtr nodeDef = uiDownNode->getNode() ? uiDownNode->getNode()->getNodeDef() : nullptr;
-                        mx::InputPtr nodeDefInput = nodeDef ? nodeDef->getActiveInput(nodeInput->getName()) : nullptr;
-                        if (nodeDefInput && nodeDefInput->getIsUniform())
+                        if (isUniformInput(uiDownNode, nodeInput->getName()))
                         {
                             uiUpNode->getInput()->setIsUniform(true);
                         }
@@ -2800,9 +2795,7 @@ void Graph::addLink(ed::PinId startPinId, ed::PinId endPinId)
                     if (uiUpNode->getInput())
                     {
                         nodeInput->setConnectedInterfaceName(uiUpNode->getName());
-                        mx::NodeDefPtr nodeDef = uiDownNode->getNode() ? uiDownNode->getNode()->getNodeDef() : nullptr;
-                        mx::InputPtr nodeDefInput = nodeDef ? nodeDef->getActiveInput(nodeInput->getName()) : nullptr;
-                        if (nodeDefInput && nodeDefInput->getIsUniform())
+                        if (isUniformInput(uiDownNode, nodeInput->getName()))
                         {
                             uiUpNode->getInput()->setIsUniform(true);
                         }
