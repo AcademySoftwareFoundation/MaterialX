@@ -118,13 +118,12 @@ bool GLTextureHandler::createRenderResources(ImagePtr image, bool generateMipMap
     mapTextureFormatToGL(image->getBaseType(), image->getChannelCount(), false,
                          glType, glFormat, glInternalFormat);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+    // Upload the image data in its native channel count.  Channels beyond those in
+    // the image are sampled as zero, aside from alpha, which is sampled as one,
+    // matching the channel promotion rule for image nodes.
     glTexImage2D(GL_TEXTURE_2D, 0, glInternalFormat, image->getWidth(), image->getHeight(),
                  0, glFormat, glType, image->getResourceBuffer());
-    if (image->getChannelCount() == 1)
-    {
-        GLint swizzleMask[] = { GL_RED, GL_RED, GL_RED, GL_ONE };
-        glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask);
-    }
 
     if (generateMipMaps)
     {
