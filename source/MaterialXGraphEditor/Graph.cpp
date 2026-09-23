@@ -2665,7 +2665,7 @@ bool Graph::checkCanAddLink(ed::PinId startPinId, ed::PinId endPinId)
     }
 
     // Prevent non-uniform outputs from connecting to uniform inputs
-    if (isUniformInput(uiDownNode, inputPin->getName()) && !isUniformSource(uiUpNode, outputPin->getName()))
+    if (isUniformInput(uiDownNode, inputPin->getName()) && !isUniformSource(uiUpNode, outputPin->getName(), 0))
     {
         showLabel("Uniform inputs accept only constant or uniform sources", ImColor(50, 50, 50, 255));
         return false;
