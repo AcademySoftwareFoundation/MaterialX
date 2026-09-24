@@ -36,16 +36,17 @@ function configureWebGPUGenContext(mx, gen, genContext, elem)
 }
 
 /**
- * Generate WGSL pixel shader and manifest for a renderable element.
+ * Generate WGSL vertex + pixel shaders and manifest for a renderable element.
  */
 function generateWebGPUShader(mx, gen, genContext, elem)
 {
     const shader = gen.generate(elem.getNamePath(), elem, genContext);
-    const wgsl = shader.getSourceCode('pixel');
+    const vertexWgsl = shader.getSourceCode('vertex');
+    const pixelWgsl = shader.getSourceCode('pixel');
     // The in-repo WgslShaderGenerator does not emit a manifest; reconstruct it in JS from
     // the generated WGSL text + the Shader's uniform ports (see wgslmanifest.js).
-    const manifest = buildWgslManifest(shader, wgsl);
-    return { shader, wgsl, manifest };
+    const manifest = buildWgslManifest(shader, pixelWgsl, vertexWgsl);
+    return { shader, vertexWgsl, pixelWgsl, manifest };
 }
 
 /**
@@ -293,8 +294,52 @@ export class Scene
                 child.geometry.attributes.i_position = child.geometry.attributes.position;
                 if (child.geometry.attributes.normal)
                     child.geometry.attributes.i_normal = child.geometry.attributes.normal;
+
+                // MaterialX WGSL vertex shader expects i_tangent as vec3f.
+                // Three.js computeTangents() produces vec4 (xyz + handedness sign w).
+                // Extract xyz into a vec3 attribute for MaterialX compatibility.
+                // For non-indexed geometry where computeTangents cannot run, derive
+                // an arbitrary tangent from the normal so the attribute always exists.
                 if (child.geometry.attributes.tangent)
-                    child.geometry.attributes.i_tangent = child.geometry.attributes.tangent;
+                {
+                    const tangent4 = child.geometry.attributes.tangent;
+                    const count = tangent4.count;
+                    const tangent3 = new Float32Array(count * 3);
+                    for (let ti = 0; ti < count; ti++) {
+                        tangent3[ti * 3]     = tangent4.getX(ti);
+                        tangent3[ti * 3 + 1] = tangent4.getY(ti);
+                        tangent3[ti * 3 + 2] = tangent4.getZ(ti);
+                    }
+                    child.geometry.setAttribute('i_tangent',
+                        new THREE.BufferAttribute(tangent3, 3));
+                }
+                else if (child.geometry.attributes.normal)
+                {
+                    // Derive an orthonormal tangent from the normal for non-indexed
+                    // geometry. For isotropic BSDFs the exact direction is irrelevant;
+                    // MaterialX will orthogonalize it against the shading normal.
+                    const normal = child.geometry.attributes.normal;
+                    const count = normal.count;
+                    const tangent3 = new Float32Array(count * 3);
+                    for (let ti = 0; ti < count; ti++) {
+                        const nx = normal.getX(ti), ny = normal.getY(ti), nz = normal.getZ(ti);
+                        // Cross with the axis least aligned to the normal.
+                        let tx, ty, tz;
+                        if (Math.abs(ny) < 0.99) {
+                            // cross(normal, (0,1,0))
+                            tx = nz; ty = 0; tz = -nx;
+                        } else {
+                            // cross(normal, (1,0,0))
+                            tx = 0; ty = -nz; tz = ny;
+                        }
+                        const len = Math.sqrt(tx * tx + ty * ty + tz * tz) || 1;
+                        tangent3[ti * 3]     = tx / len;
+                        tangent3[ti * 3 + 1] = ty / len;
+                        tangent3[ti * 3 + 2] = tz / len;
+                    }
+                    child.geometry.setAttribute('i_tangent',
+                        new THREE.BufferAttribute(tangent3, 3));
+                }
                 if (child.geometry.attributes.color)
                     child.geometry.attributes.i_color_0 = child.geometry.attributes.color;
                 if (child.geometry.attributes.color_1)
@@ -336,10 +381,24 @@ export class Scene
     {
         if (!child || !material || !camera) return;
 
-        // The WebGPU NodeMaterial has no `material.uniforms` block: its per-object world
-        // transforms come from TSL accessors (positionWorld / normalWorld / cameraPosition)
-        // and editor edits drive the TSL uniform nodes directly, so this path is a no-op for
-        // it. The guards below keep the WebGL (RawShaderMaterial) updates working unchanged.
+        // ── WebGPU path (NodeMaterial) ──────────────────────────────────────
+        // The TSL uniform nodes for vertex-stage matrices live in
+        // material.userData.mxArgs (shared between vertex and pixel stages).
+        const mxArgs = material.userData?.mxArgs;
+        if (mxArgs) {
+            if (mxArgs.u_worldMatrix)
+                mxArgs.u_worldMatrix.value = child.matrixWorld;
+            if (mxArgs.u_viewProjectionMatrix)
+                mxArgs.u_viewProjectionMatrix.value = this.#_viewProjMat.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
+            if (mxArgs.u_viewPosition)
+                mxArgs.u_viewPosition.value = camera.getWorldPosition(this.#_worldViewPos);
+            if (mxArgs.u_worldInverseTransposeMatrix)
+                mxArgs.u_worldInverseTransposeMatrix.value =
+                    new THREE.Matrix4().setFromMatrix3(this.#_normalMat.getNormalMatrix(child.matrixWorld));
+            return;
+        }
+
+        // ── WebGL path (RawShaderMaterial) ──────────────────────────────────
         const uniforms = material.uniforms;
         if (!uniforms) return;
 
@@ -371,16 +430,24 @@ export class Scene
 
         scene.traverse((child) =>
         {
-            if (child.isMesh && child.material && child.material.uniforms)
+            if (!child.isMesh || !child.material) return;
+
+            // WebGPU path: TSL uniform nodes in userData.mxArgs.
+            const mxArgs = child.material.userData?.mxArgs;
+            if (mxArgs) {
+                if (mxArgs.u_time) mxArgs.u_time.value = time;
+                if (mxArgs.u_frame) mxArgs.u_frame.value = frame;
+                return;
+            }
+
+            // WebGL path: RawShaderMaterial uniforms.
+            const uniforms = child.material.uniforms;
+            if (uniforms)
             {
-                const uniforms = child.material.uniforms;
-                if (uniforms)
-                {
-                    if (uniforms.u_time)
-                        uniforms.u_time.value = time;
-                    if (uniforms.u_frame)
-                        uniforms.u_frame.value = frame;
-                }
+                if (uniforms.u_time)
+                    uniforms.u_time.value = time;
+                if (uniforms.u_frame)
+                    uniforms.u_frame.value = frame;
             }
         });
     }
@@ -1105,10 +1172,13 @@ export class Material
         try
         {
             const isTransparent = configureWebGPUGenContext(mx, gen, genContext, elem);
-            const { shader, wgsl, manifest } = generateWebGPUShader(mx, gen, genContext, elem);
+            const { shader, vertexWgsl, pixelWgsl, manifest } = generateWebGPUShader(mx, gen, genContext, elem);
 
             const flipV = viewer.getScene().getFlipGeometryV();
-            const uniforms = getUniformValues(shader.getStage('pixel'), textureLoader, searchPath, flipV);
+            const uniforms = {
+                ...getUniformValues(shader.getStage('vertex'), textureLoader, searchPath, flipV),
+                ...getUniformValues(shader.getStage('pixel'), textureLoader, searchPath, flipV),
+            };
             const textures = buildTextureMap(manifest, uniforms, THREE);
 
             const environment = buildEnvironment(
@@ -1121,10 +1191,8 @@ export class Material
             const lightData = viewer.getLightData();
             const numLights = viewer.getLights()?.length ?? 0;
 
-            // Indexed geometry gets computed tangents in updateScene(); use them for anisotropic parity.
             const material = createMxWgslMaterial({
-                THREE, TSL, wgsl, manifest, light, lightData, numLights, environment, textures,
-                useGeometryTangent: true
+                THREE, TSL, vertexWgsl, pixelWgsl, manifest, light, lightData, numLights, environment, textures,
             });
             material.side = THREE.DoubleSide;
             material.transparent = isTransparent;

@@ -457,6 +457,22 @@ export function threadEnvResources( wgsl, manifest ) {
 	// parameters forwarded from the entry. `\bvd\.` only matches the vertex-data instance.
 	wgsl = wgsl.replace( /\bvd\./g, '' );
 
+	// Uniform struct instances (e.g. `u_prv`, `u_pub`) use struct-member access like
+	// `u_prv.u_envRadianceSamples`. The manifest expands these into flat member entries
+	// (bare names like `u_envRadianceSamples`), so flatten the struct-instance access in
+	// the WGSL to match. Only flatten when the binding type has a matching struct definition.
+	const uniformBindRe = /@group\(\s*\d+\s*\)\s*@binding\(\s*\d+\s*\)\s*var<uniform>\s+(\w+)\s*:\s*(\w+)\s*;/g;
+	for ( let m = uniformBindRe.exec( wgsl ); m !== null; m = uniformBindRe.exec( wgsl ) ) {
+
+		const instanceName = m[ 1 ];
+		if ( wgsl.includes( `struct ${ m[ 2 ] }` ) ) {
+
+			wgsl = wgsl.replace( new RegExp( `\\b${ escapeRegExp( instanceName ) }\\.`, 'g' ), '' );
+
+		}
+
+	}
+
 	// The native WgslShaderGenerator threads the whole `vd: VertexData` struct into closure /
 	// surface-shader functions as an explicit parameter (and forwards `vd` at each call site),
 	// because standalone WGSL has no module-scope varyings. The TSL bridge instead threads the
@@ -673,12 +689,13 @@ function buildTslSemantics( binding ) {
 }
 
 /**
- * Normalize generator reflection into the legacy manifest shape expected by the
- * TSL bridge. Accepts both the old manifest (entry string + uniforms/textures)
- * and the new neutral format (entry object + bindings + struct entryParams).
+ * Normalize generator reflection into the manifest shape expected by the TSL bridge.
+ * Accepts both the old manifest (entry string + uniforms/textures) and the new neutral
+ * format (entry object + bindings + struct entryParams + optional vertex reflection).
  *
  * @param {Object} reflection - Generator reflection or legacy manifest.
- * @return {Object} Manifest with TSL semantics on uniforms, textures, entryParams.
+ * @return {Object} Manifest with TSL semantics on uniforms, textures, entryParams,
+ *     and optionally vertexUniforms, vertexInputs, vertexOutputs.
  */
 export function normalizeReflection( reflection ) {
 
@@ -693,6 +710,7 @@ export function normalizeReflection( reflection ) {
 	const entry = typeof reflection.entry === 'string'
 		? reflection.entry
 		: reflection.entry?.pixel;
+	const vertexEntry = typeof reflection.entry === 'object' ? reflection.entry?.vertex : null;
 
 	const uniforms = [];
 	const textures = [];
@@ -757,12 +775,46 @@ export function normalizeReflection( reflection ) {
 
 	}
 
+	// Normalize vertex-stage bindings into flat uniforms with 'vertex:host' semantic.
+	const vertexUniforms = [];
+	for ( const b of ( reflection.vertexBindings || [] ) ) {
+
+		vertexUniforms.push( {
+			name: b.name,
+			type: b.type,
+			semantic: 'vertex:host',
+			value: b.value
+		} );
+
+	}
+
+	// Normalize vertex inputs with attribute:* semantics.
+	const vertexInputs = ( reflection.vertexInputs || [] ).map( ( vi ) => ( {
+		name: vi.name,
+		type: vi.type,
+		location: vi.location,
+		semantic: `attribute:${ vi.name }`
+	} ) );
+
+	// Pass through vertex outputs (varyings from vertex to fragment).
+	const vertexOutputs = ( reflection.vertexOutputs || [] ).map( ( vo ) => ( {
+		name: vo.name,
+		type: vo.type,
+		location: vo.location,
+		semantic: varyingSemantic( vo.name )
+	} ) );
+
 	return {
 		entry,
+		vertexEntry,
 		output: reflection.output,
 		entryParams,
 		uniforms,
-		textures
+		textures,
+		vertexUniforms,
+		vertexInputs,
+		vertexOutputs,
+		vertexWgsl: reflection.vertexWgsl || null
 	};
 
 }
@@ -898,6 +950,86 @@ export function convertToTslPortable( wgsl, manifest ) {
 }
 
 /**
+ * Convert MaterialX vertex WGSL into TSL-portable form for `vertexNode`.
+ *
+ * Rewrites the entry so that struct-based inputs/uniforms/outputs become flat parameters,
+ * varying writes go through `varyings.<name>` for TSL `varyingProperty`, and the function
+ * returns clip position (vec4f).
+ *
+ * @param {string} wgsl - The generated vertex-stage WGSL module.
+ * @param {Object} manifest - Normalized manifest (must include vertexInputs, vertexOutputs, vertexUniforms).
+ * @return {{ name:string, entry:string, includes:string, params:Array }}
+ */
+export function convertVertexToTslPortable( wgsl, manifest ) {
+
+	manifest = normalizeReflection( manifest );
+
+	const entryName = manifest.vertexEntry || 'vertexMain';
+	const fn = extractFunction( wgsl, entryName );
+
+	const vertexInputs = manifest.vertexInputs || [];
+	const vertexUniforms = manifest.vertexUniforms || [];
+	const vertexOutputs = manifest.vertexOutputs || [];
+
+	// Flatten struct-member access to bare names (u_prv.u_worldMatrix → u_worldMatrix).
+	let body = fn.body;
+	body = body.replace( /\bu_prv\./g, '' );
+	// Flatten vsIn.i_* → i_*; then strip the resulting self-assignments
+	// (`var i_position = i_position;`) since the inputs are now flat parameters.
+	body = body.replace( /\bvsIn\./g, '' );
+	body = body.replace( /\bvar\s+(i_\w+)\s*=\s*\1\s*;/g, '' );
+
+	// Rewrite vd.member → varyings.member for TSL varyingProperty.
+	for ( const vo of vertexOutputs ) {
+
+		body = body.replace(
+			new RegExp( `\\bvd\\.${ escapeRegExp( vo.name ) }\\b`, 'g' ),
+			`varyings.${ vo.name }`
+		);
+
+	}
+	// Replace vd.clipPosition with a local return variable and rewrite the VertexData decl.
+	body = body.replace( /\bvd\.clipPosition\b/g, 'mx_clipPosition' );
+	body = body.replace( /\bvar\s+vd\s*:\s*VertexData\s*;/g, 'var mx_clipPosition: vec4f;' );
+	body = body.replace( /\breturn\s+vd\s*;/g, 'return mx_clipPosition;' );
+
+	// Build parameter list: vertex inputs + vertex uniforms.
+	const newParams = [];
+	const params = [];
+
+	for ( const vi of vertexInputs ) {
+
+		newParams.push( `${ vi.name }: ${ vi.type }` );
+		params.push( { name: vi.name, type: vi.type, semantic: vi.semantic || `attribute:${ vi.name }` } );
+
+	}
+
+	for ( const vu of vertexUniforms ) {
+
+		newParams.push( `${ vu.name }: ${ vu.type }` );
+		params.push( { name: vu.name, type: vu.type, semantic: vu.semantic || 'vertex:host' } );
+
+	}
+
+	const entry = `fn ${ entryName }( ${ newParams.join( ', ' ) } ) -> vec4f {${ body }}`;
+
+	// Includes: everything except the entry and binding/struct declarations.
+	let includes = wgsl.slice( 0, fn.start ) + wgsl.slice( fn.end );
+	includes = removeBindingDecls( includes, manifest ).trim();
+	includes = includes.replace( /@(?:fragment|vertex|compute)\b\s*/g, '' ).trim();
+
+	// Remove VertexInputs and VertexData struct definitions (no longer needed;
+	// members are flat parameters or varyingProperty writes).
+	includes = includes
+		.replace( /struct\s+VertexInputs\s*\{[^}]*\}\s*/g, '' )
+		.replace( /struct\s+VertexData\s*\{[^}]*\}\s*/g, '' )
+		.trim();
+
+	return { name: entryName, entry, includes, params };
+
+}
+
+/**
  * Split a WGSL parameter list ("a: T1, b: T2") into [{name,type}].
  *
  * @param {string} params - The raw parameter-list text (without surrounding parentheses).
@@ -935,26 +1067,33 @@ function splitParams( params ) {
 /**
  * Build a Three.js NodeMaterial from MaterialX WGSL + manifest.
  *
+ * When both `vertexWgsl` and `pixelWgsl` are supplied, the material uses
+ * MaterialX-generated vertex WGSL (via `material.vertexNode`) and pixel WGSL
+ * (via `material.colorNode`), connected through TSL `varyingProperty` nodes.
+ * This mirrors the WebGL path where both stages come from MaterialX.
+ *
  * @param {Object} options
  * @param {Object} options.THREE - The `three/webgpu` namespace.
  * @param {Object} options.TSL - The `three/tsl` namespace.
- * @param {string} options.wgsl - Generated WGSL module.
+ * @param {string} [options.pixelWgsl] - Generated pixel-stage WGSL module.
+ * @param {string} [options.vertexWgsl] - Generated vertex-stage WGSL module.
+ * @param {string} [options.wgsl] - Legacy: pixel WGSL (used when pixelWgsl is not provided).
  * @param {Object} options.manifest - Generator manifest.
  * @param {Object<string,Texture>} [options.textures] - Map of texture key -> Texture.
  * @param {Node} [options.uvNode] - Optional uv node (defaults to TSL `uv()`).
- * @param {boolean} [options.useGeometryTangent] - Use TSL `tangentWorld` when geometry tangents exist.
  * @return {NodeMaterial}
  */
 export function createMxWgslMaterial( {
-	THREE, TSL, wgsl, manifest,
+	THREE, TSL, wgsl, pixelWgsl, vertexWgsl, manifest,
 	textures = {}, uvNode = null,
 	light = null, lightData = null, numLights = null,
-	environment = null, useGeometryTangent = false
+	environment = null
 } ) {
 
 	manifest = normalizeReflection( manifest );
+	pixelWgsl = pixelWgsl || wgsl;
 
-	const { wgslFn, wgsl: wgslCode, uniform, uniformArray, texture, sampler, uv, normalWorld, positionWorld, cameraPosition, tangentWorld: tangentWorldBuiltin, vec3, float, select } = TSL;
+	const { wgslFn, wgsl: wgslCode, uniform, uniformArray, texture, sampler, uv, cameraPosition, attribute, varyingProperty } = TSL;
 
 	// IBL environment: equirect radiance (mipped) + irradiance maps and FIS parameters.
 	// When the shader was generated with FIS but no environment is supplied, bind a 1×1
@@ -1000,41 +1139,7 @@ export function createMxWgslMaterial( {
 
 	};
 
-	// A robust world-space tangent. MaterialX BSDFs orthogonalize the tangent against
-	// the normal (`normalize(T - dot(T,N)*N)`), which yields NaN if T is zero or parallel
-	// to N — and most geometries (e.g. TorusKnotGeometry) carry no tangent attribute, so
-	// a raw `tangentWorld` accessor would be degenerate. Derive an arbitrary orthonormal
-	// tangent from the normal instead; for isotropic GGX the exact direction is irrelevant.
-	function derivedTangentWorld() {
-
-		const n = normalWorld.normalize();
-		// Reference axis least aligned with the normal, to avoid a parallel cross product.
-		const ref = select( n.y.abs().lessThan( float( 0.99 ) ), vec3( 0, 1, 0 ), vec3( 1, 0, 0 ) );
-		return ref.cross( n ).normalize();
-
-	}
-	// MaterialXView computes tangents for indexed geometry; use them when available for
-	// anisotropic parity with the WebGL path. Fall back to a derived tangent otherwise.
-	const tangentWorld = useGeometryTangent ? tangentWorldBuiltin : derivedTangentWorld();
-
-	const converted = convertToTslPortable( wgsl, manifest );
-	const wgslForConsts = converted.includes + '\n' + converted.entry;
-
-	const includesNode = converted.includes.length ? [ wgslCode( converted.includes ) ] : [];
-	const entryFn = wgslFn( converted.entry, includesNode );
-
-	const builtin = {
-		'varying:uv': () => ( uvNode || uv() ),
-		'varying:normalWorld': () => normalWorld,
-		'varying:positionWorld': () => positionWorld,
-		'varying:tangentWorld': () => tangentWorld,
-		'camera:viewPosition': () => cameraPosition
-	};
-
-	const args = {};
-	// One TSL texture() node per manifest texture key. wgslFn passes texture and sampler as
-	// separate WGSL parameters; calling texture() twice (even with the same THREE.Texture)
-	// creates two binding slots (nodeUniformN + nodeUniformN+1_sampler) and breaks pairing.
+	// Shared texture-node cache: one TSL texture() node per manifest texture key.
 	const textureNodes = {};
 	const textureNodeFor = ( key, threeTex ) => {
 
@@ -1042,6 +1147,70 @@ export function createMxWgslMaterial( {
 		return textureNodes[ key ];
 
 	};
+
+	// Shared between vertex and pixel stages so per-frame uniform updates are single-source.
+	const args = {};
+
+	// ── Vertex stage ──────────────────────────────────────────────────────────
+	const varyingNodes = {};
+	let vertexConverted = null;
+	if ( vertexWgsl && manifest.vertexOutputs && manifest.vertexOutputs.length > 0 ) {
+
+		vertexConverted = convertVertexToTslPortable( vertexWgsl, manifest );
+
+		for ( const vo of manifest.vertexOutputs ) {
+
+			const tslType = vo.type === 'vec3f' ? 'vec3' : ( vo.type === 'vec2f' ? 'vec2' : 'vec4' );
+			varyingNodes[ vo.name ] = varyingProperty( tslType, vo.name );
+
+		}
+
+		for ( const p of vertexConverted.params ) {
+
+			if ( p.semantic === 'vertex:host' ) {
+
+				args[ p.name ] = uniform( new THREE.Matrix4() );
+
+			}
+
+		}
+
+	}
+
+	// ── Pixel stage ──────────────────────────────────────────────────────────
+	const converted = convertToTslPortable( pixelWgsl, manifest );
+	const wgslForConsts = converted.includes + '\n' + converted.entry;
+
+	const includesNode = converted.includes.length ? [ wgslCode( converted.includes ) ] : [];
+	const entryFn = wgslFn( converted.entry, includesNode );
+
+	// Varying/camera builtins: vertex-written varyingProperty when available, else TSL builtins.
+	const builtin = {
+		'varying:uv': () => ( uvNode || uv() ),
+		'camera:viewPosition': () => cameraPosition
+	};
+
+	const VARYING_FALLBACKS = {
+		'varying:normalWorld': 'normalWorld',
+		'varying:tangentWorld': 'tangentWorld',
+		'varying:positionWorld': 'positionWorld'
+	};
+	for ( const [ semantic, varName ] of Object.entries( VARYING_FALLBACKS ) ) {
+
+		if ( varyingNodes[ varName ] ) {
+
+			builtin[ semantic ] = () => varyingNodes[ varName ];
+
+		} else {
+
+			const tslNode = TSL[ varName ];
+			if ( tslNode ) builtin[ semantic ] = () => tslNode;
+
+		}
+
+	}
+
+	const pixelArgs = {};
 
 	for ( const p of converted.params ) {
 
@@ -1119,13 +1288,42 @@ export function createMxWgslMaterial( {
 
 		}
 
+		pixelArgs[ p.name ] = args[ p.name ];
+
 	}
 
 	const material = new THREE.MeshBasicNodeMaterial();
 	// MaterialX WGSL already includes direct lights + IBL; do not run Three.js scene lighting.
 	material.lights = false;
 	material.fog = false;
-	material.colorNode = entryFn( args );
+
+	if ( vertexConverted ) {
+
+		const vertexIncludesNode = vertexConverted.includes.length ? [ wgslCode( vertexConverted.includes ) ] : [];
+
+		const varyingDeps = Object.values( varyingNodes );
+		const vertexEntryFn = wgslFn( vertexConverted.entry, [ ...vertexIncludesNode, ...varyingDeps ] );
+
+		const vertexArgs = {};
+		for ( const p of vertexConverted.params ) {
+
+			if ( p.semantic && p.semantic.startsWith( 'attribute:' ) ) {
+
+				vertexArgs[ p.name ] = attribute( p.name );
+
+			} else if ( p.semantic === 'vertex:host' ) {
+
+				vertexArgs[ p.name ] = args[ p.name ];
+
+			}
+
+		}
+
+		material.vertexNode = vertexEntryFn( vertexArgs );
+
+	}
+
+	material.colorNode = entryFn( pixelArgs );
 	// Bound argument nodes, keyed by parameter name. `createMxWgslGUI` reads these to
 	// drive live uniform edits, so this is a functional binding handle, not debug state.
 	material.userData.mxArgs = args;

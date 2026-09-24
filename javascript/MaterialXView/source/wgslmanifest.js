@@ -65,17 +65,21 @@ function portValueToJson( port ) {
 }
 
 /**
- * Build a name -> { role, port } map from the pixel stage's uniform blocks.
+ * Build a name -> { role, port } map from a shader stage's uniform blocks.
  * The block name determines the role; LightData members are not enumerated individually
  * (the light-data array is exposed as a single `var<uniform>` binding instead).
+ *
+ * @param {Object} shader - The mx.Shader object.
+ * @param {string} stageName - 'pixel' or 'vertex'.
+ * @return {Map<string, {role: string, port: Object}>}
  */
-function collectUniformPorts( shader ) {
+function collectUniformPorts( shader, stageName ) {
 
 	const map = new Map();
 	let stage;
 	try {
 
-		stage = shader.getStage( 'pixel' );
+		stage = shader.getStage( stageName );
 
 	} catch ( e ) {
 
@@ -96,7 +100,13 @@ function collectUniformPorts( shader ) {
 
 			const port = block.get( i );
 			if ( ! port ) continue;
-			map.set( port.getVariable(), { role, port } );
+			const varName = port.getVariable();
+			map.set( varName, { role, port } );
+			// The C++ binding returns struct-qualified names (e.g. "u_pub.base")
+			// but parseBindings looks up bare struct member names ("base").
+			// Store both forms so the lookup succeeds either way.
+			const dotIdx = varName.lastIndexOf( '.' );
+			if ( dotIdx >= 0 ) map.set( varName.slice( dotIdx + 1 ), { role, port } );
 
 		}
 
@@ -151,9 +161,14 @@ function parseStructDefs( wgsl ) {
  *
  * Struct-type uniform bindings (PublicUniforms, PrivateUniforms) are expanded into
  * per-member entries so the adapter sees the same flat list it did before struct packing.
+ *
+ * @param {string} wgsl - WGSL source text for one stage.
+ * @param {Map} portMap - Uniform-port map from collectUniformPorts().
+ * @param {string} [stageName='pixel'] - 'pixel' or 'vertex'; tags each returned binding.
  */
-function parseBindings( wgsl, portMap ) {
+function parseBindings( wgsl, portMap, stageName ) {
 
+	stageName = stageName || 'pixel';
 	const structDefs = parseStructDefs( wgsl );
 	const bindings = [];
 	BINDING_RE.lastIndex = 0;
@@ -166,23 +181,18 @@ function parseBindings( wgsl, portMap ) {
 
 		if ( name.endsWith( '_texture' ) || type.startsWith( 'texture_' ) ) {
 
-			bindings.push( { stage: 'pixel', group, binding, name, type, role: 'texture', key: name.replace( /_texture$/, '' ) } );
+			bindings.push( { stage: stageName, group, binding, name, type, role: 'texture', key: name.replace( /_texture$/, '' ) } );
 
 		} else if ( name.endsWith( '_sampler' ) || type === 'sampler' ) {
 
-			bindings.push( { stage: 'pixel', group, binding, name, type, role: 'sampler', key: name.replace( /_sampler$/, '' ) } );
+			bindings.push( { stage: stageName, group, binding, name, type, role: 'sampler', key: name.replace( /_sampler$/, '' ) } );
 
 		} else if ( type.startsWith( 'array<' ) ) {
 
-			// Light-data array (struct array). The adapter re-parses the struct itself,
-			// so no per-member value is needed here.
-			bindings.push( { stage: 'pixel', group, binding, name, type, role: 'lightData' } );
+			bindings.push( { stage: stageName, group, binding, name, type, role: 'lightData' } );
 
 		} else if ( structDefs.has( type ) ) {
 
-			// Struct-packed uniform block (PublicUniforms or PrivateUniforms). Expand
-			// the struct members into individual binding entries so the adapter sees the
-			// same flat shape it did with per-field bindings.
 			const members = structDefs.get( type );
 			for ( const member of members ) {
 
@@ -190,7 +200,7 @@ function parseBindings( wgsl, portMap ) {
 				const role = info ? info.role : 'host';
 				const value = info ? portValueToJson( info.port ) : null;
 				bindings.push( {
-					stage: 'pixel', group, binding, name: member.name, type: member.type,
+					stage: stageName, group, binding, name: member.name, type: member.type,
 					role, value, structInstance: name, structType: type
 				} );
 
@@ -201,7 +211,7 @@ function parseBindings( wgsl, portMap ) {
 			const info = portMap.get( name );
 			const role = info ? info.role : 'host';
 			const value = info ? portValueToJson( info.port ) : null;
-			bindings.push( { stage: 'pixel', group, binding, name, type, role, value } );
+			bindings.push( { stage: stageName, group, binding, name, type, role, value } );
 
 		}
 
@@ -255,20 +265,105 @@ function parseEntryParams( wgsl ) {
 }
 
 /**
+ * Parse `struct VertexInputs { @location(N) name: type, ... }` from vertex WGSL.
+ * Returns an array of { name, type, location } for each vertex attribute.
+ */
+function parseVertexInputs( vertexWgsl ) {
+
+	if ( ! vertexWgsl ) return [];
+	const structRe = /\bstruct\s+VertexInputs\s*\{([^}]*)\}/;
+	const structMatch = structRe.exec( vertexWgsl );
+	if ( ! structMatch ) return [];
+
+	const inputs = [];
+	for ( const rawLine of structMatch[ 1 ].split( '\n' ) ) {
+
+		const line = rawLine.trim().replace( /,$/, '' );
+		if ( ! line ) continue;
+		const colon = line.indexOf( ':' );
+		if ( colon < 0 ) continue;
+		const decl = line.slice( 0, colon );
+		const type = line.slice( colon + 1 ).trim();
+		const locMatch = /@location\s*\(\s*(\d+)\s*\)/.exec( decl );
+		const name = decl.replace( /@\w+\s*\([^)]*\)/g, '' ).trim();
+		if ( name && type ) {
+
+			inputs.push( { name, type, location: locMatch ? Number( locMatch[ 1 ] ) : inputs.length } );
+
+		}
+
+	}
+	return inputs;
+
+}
+
+/**
+ * Parse `struct VertexData { @builtin(position) clipPosition: vec4f, @location(N) name: type, ... }`
+ * from vertex WGSL. Returns an array of { name, type, location } for each non-builtin output.
+ */
+function parseVertexOutputs( vertexWgsl ) {
+
+	if ( ! vertexWgsl ) return [];
+	const structRe = /\bstruct\s+VertexData\s*\{([^}]*)\}/;
+	const structMatch = structRe.exec( vertexWgsl );
+	if ( ! structMatch ) return [];
+
+	const outputs = [];
+	for ( const rawLine of structMatch[ 1 ].split( '\n' ) ) {
+
+		const line = rawLine.trim().replace( /,$/, '' );
+		if ( ! line ) continue;
+		const colon = line.indexOf( ':' );
+		if ( colon < 0 ) continue;
+		const decl = line.slice( 0, colon );
+		const type = line.slice( colon + 1 ).trim();
+		if ( /@builtin\b/.test( decl ) ) continue;
+		const locMatch = /@location\s*\(\s*(\d+)\s*\)/.exec( decl );
+		const name = decl.replace( /@\w+\s*\([^)]*\)/g, '' ).trim();
+		if ( name && type ) {
+
+			outputs.push( { name, type, location: locMatch ? Number( locMatch[ 1 ] ) : outputs.length } );
+
+		}
+
+	}
+	return outputs;
+
+}
+
+/**
  * Build the WGSL reflection manifest (bindings format) from a generated Shader + its WGSL.
  *
+ * When both vertex and pixel WGSL are supplied, the manifest includes vertex-stage
+ * reflection (inputs, outputs, bindings) so the TSL bridge can wire both stages.
+ *
  * @param {Object} shader - The mx.Shader returned by WgslShaderGenerator.generate().
- * @param {string} wgsl - The generated pixel-stage WGSL source.
+ * @param {string} pixelWgsl - The generated pixel-stage WGSL source.
+ * @param {string} [vertexWgsl] - The generated vertex-stage WGSL source (optional).
  * @return {Object} Manifest consumable by normalizeReflection() / convertToTslPortable().
  */
-export function buildWgslManifest( shader, wgsl ) {
+export function buildWgslManifest( shader, pixelWgsl, vertexWgsl ) {
 
-	const portMap = collectUniformPorts( shader );
-	return {
+	const pixelPortMap = collectUniformPorts( shader, 'pixel' );
+	const pixelBindings = parseBindings( pixelWgsl, pixelPortMap, 'pixel' );
+
+	const result = {
 		entry: { vertex: VERTEX_ENTRY, pixel: PIXEL_ENTRY },
 		output: 'vec4f',
-		entryParams: parseEntryParams( wgsl ),
-		bindings: parseBindings( wgsl, portMap )
+		entryParams: parseEntryParams( pixelWgsl ),
+		bindings: pixelBindings
 	};
+
+	if ( vertexWgsl ) {
+
+		const vertexPortMap = collectUniformPorts( shader, 'vertex' );
+		result.vertexBindings = parseBindings( vertexWgsl, vertexPortMap, 'vertex' );
+		result.vertexInputs = parseVertexInputs( vertexWgsl );
+		result.vertexOutputs = parseVertexOutputs( vertexWgsl );
+		result.vertexWgsl = vertexWgsl;
+
+	}
+
+	return result;
 
 }
