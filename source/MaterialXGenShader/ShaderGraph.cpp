@@ -12,6 +12,7 @@
 
 #include <MaterialXTrace/Tracing.h>
 
+#include <algorithm>
 #include <queue>
 
 MATERIALX_NAMESPACE_BEGIN
@@ -323,6 +324,12 @@ void ShaderGraph::addColorTransformNode(ShaderInput* input, const ColorSpaceTran
         shaderInput->setValue(input->getValue());
         shaderInput->setPath(input->getPath());
         shaderInput->setUnit(EMPTY_STRING);
+        if (input->isUniform())
+        {
+            // Preserve the uniform flag, so that targets which distinguish uniform
+            // and varying values (e.g. MDL) declare the published value as uniform.
+            shaderInput->setUniform();
+        }
 
         if (input->isBindInput())
         {
@@ -394,6 +401,10 @@ void ShaderGraph::addUnitTransformNode(ShaderInput* input, const UnitTransform& 
         shaderInput->setPath(input->getPath());
         shaderInput->setUnit(input->getUnit());
         shaderInput->setColorSpace(input->getColorSpace());
+        if (input->isUniform())
+        {
+            shaderInput->setUniform();
+        }
 
         if (input->isBindInput())
         {
@@ -863,7 +874,11 @@ ShaderGraphEdgeIterator ShaderGraph::traverseUpstream(ShaderOutput* output)
 
 void ShaderGraph::addNode(ShaderNodePtr node)
 {
-    _nodeMap[node->getUniqueId()] = node;
+    // Replacing an existing node would leave dangling pointers in the node order and connections.
+    if (!_nodeMap.emplace(node->getUniqueId(), node).second)
+    {
+        throw ExceptionShaderGenError("Shader graph already contains a node with unique ID '" + node->getUniqueId() + "'.");
+    }
     _nodeOrder.push_back(node.get());
 }
 
@@ -1194,21 +1209,22 @@ void ShaderGraph::setVariableNames(GenContext& context)
 void ShaderGraph::populateColorTransformMap(ColorManagementSystemPtr colorManagementSystem, ShaderPort* shaderPort,
                                             const string& sourceColorSpace, const string& targetColorSpace, bool asInput)
 {
-    // A no-op color space (e.g. the spec-reserved "none"/"data" names, or any additional
-    // name recognized by the color management system) requires no transform, so the port's
-    // color space is left unset, just as it is for an empty or matching source/target pair.
-    auto isNoOpColorSpace = [&colorManagementSystem](const string& colorSpace)
+    if (!shaderPort || sourceColorSpace.empty() || targetColorSpace.empty())
     {
-        return colorManagementSystem ? colorManagementSystem->isNoOpColorSpace(colorSpace) :
-                                        ColorManagementSystem::isReservedNoOpColorSpace(colorSpace);
-    };
+        return;
+    }
 
-    if (!shaderPort ||
-        sourceColorSpace.empty() ||
-        targetColorSpace.empty() ||
-        sourceColorSpace == targetColorSpace ||
-        isNoOpColorSpace(sourceColorSpace) ||
-        isNoOpColorSpace(targetColorSpace))
+    // A transform that the color management system considers a no-op, such as one between
+    // a legacy color space name and its color interop equivalent, or one involving a no-op
+    // color space such as "data", is omitted from the graph and leaves the port's color
+    // space unset. Without a color management system, only identical names and the
+    // spec-reserved no-op color spaces are recognized.
+    const bool isNoOpTransform = colorManagementSystem ?
+                                 colorManagementSystem->isNoOpTransform(sourceColorSpace, targetColorSpace) :
+                                 sourceColorSpace == targetColorSpace ||
+                                 ColorManagementSystem::isReservedNoOpColorSpace(sourceColorSpace) ||
+                                 ColorManagementSystem::isReservedNoOpColorSpace(targetColorSpace);
+    if (isNoOpTransform)
     {
         return;
     }
@@ -1230,7 +1246,15 @@ void ShaderGraph::populateColorTransformMap(ColorManagementSystemPtr colorManage
                 }
                 else
                 {
-                    _outputColorTransformMap.emplace_back(static_cast<ShaderOutput*>(shaderPort), transform);
+                    const auto entry = std::make_pair(static_cast<ShaderOutput*>(shaderPort), transform);
+                    // An output can carry only one transform, even when filename inputs use different color spaces.
+                    // Retain the first request until per-image transforms inside compound nodes are supported.
+                    if (std::find_if(_outputColorTransformMap.begin(), _outputColorTransformMap.end(),
+                                     [shaderPort](const auto& request) { return request.first == shaderPort; }) ==
+                        _outputColorTransformMap.end())
+                    {
+                        _outputColorTransformMap.push_back(entry);
+                    }
                 }
             }
             else

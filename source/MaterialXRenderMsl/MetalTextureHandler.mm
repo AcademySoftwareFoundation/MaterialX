@@ -145,26 +145,12 @@ bool MetalTextureHandler::createRenderResources(ImagePtr image, bool generateMip
         texDesc.usage = MTLTextureUsageShaderRead |
                         (useAsRenderTarget ? MTLTextureUsageRenderTarget : 0);
         texDesc.resourceOptions = MTLResourceStorageModePrivate;
+
+        // Use the pixel format for the image's native channel count.  Channels beyond
+        // those in the image are sampled as zero, aside from alpha, which is sampled
+        // as one, matching the channel promotion rule for image nodes.
         texDesc.pixelFormat = pixelFormat;
-        if (generateMipMaps)
-        {
-            if (image->getChannelCount() == 1)
-            {
-                texDesc.swizzle = MTLTextureSwizzleChannelsMake(
-                    MTLTextureSwizzleRed,
-                    MTLTextureSwizzleRed,
-                    MTLTextureSwizzleRed,
-                    MTLTextureSwizzleRed);
-            }
-            else if (image->getChannelCount() == 2)
-            {
-                texDesc.swizzle = MTLTextureSwizzleChannelsMake(
-                    MTLTextureSwizzleRed,
-                    MTLTextureSwizzleGreen,
-                    MTLTextureSwizzleRed,
-                    MTLTextureSwizzleGreen);
-            }
-        }
+
         texture = [_device newTextureWithDescriptor:texDesc];
         _metalTextureMap[resourceId] = texture;
         image->setResourceId(resourceId);

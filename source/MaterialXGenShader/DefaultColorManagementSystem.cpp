@@ -67,6 +67,14 @@ const StringMap COLOR_SPACE_USER_FACING_NAMES =
     { "data", "Data" }
 };
 
+// Return the base color space name for the given color space, resolving any
+// legacy or color interop alias through COLOR_SPACE_REMAP.
+string remapColorSpace(const string& colorSpace)
+{
+    auto it = COLOR_SPACE_REMAP.find(colorSpace);
+    return it != COLOR_SPACE_REMAP.end() ? it->second : colorSpace;
+}
+
 } // anonymous namespace
 
 //
@@ -90,8 +98,14 @@ const string& DefaultColorManagementSystem::getName() const
 
 string DefaultColorManagementSystem::getUserFacingName(const string& colorSpace) const
 {
-    string baseSpace = COLOR_SPACE_REMAP.count(colorSpace) ? COLOR_SPACE_REMAP.at(colorSpace) : colorSpace;
+    const string baseSpace = remapColorSpace(colorSpace);
     return COLOR_SPACE_USER_FACING_NAMES.count(baseSpace) ? COLOR_SPACE_USER_FACING_NAMES.at(baseSpace) : colorSpace;
+}
+
+bool DefaultColorManagementSystem::isNoOpTransform(const string& sourceColorSpace, const string& targetColorSpace) const
+{
+    return ColorManagementSystem::isNoOpTransform(sourceColorSpace, targetColorSpace) ||
+           remapColorSpace(sourceColorSpace) == remapColorSpace(targetColorSpace);
 }
 
 NodeDefPtr DefaultColorManagementSystem::getNodeDef(const ColorSpaceTransform& transform) const
@@ -101,16 +115,18 @@ NodeDefPtr DefaultColorManagementSystem::getNodeDef(const ColorSpaceTransform& t
         throw ExceptionShaderGenError("No library loaded for color management system");
     }
 
-    string sourceSpace = COLOR_SPACE_REMAP.count(transform.sourceSpace) ? COLOR_SPACE_REMAP.at(transform.sourceSpace) : transform.sourceSpace;
-    string targetSpace = COLOR_SPACE_REMAP.count(transform.targetSpace) ? COLOR_SPACE_REMAP.at(transform.targetSpace) : transform.targetSpace;
-
-    // After remapping, the transform may be a no-op (e.g. lin_rec709_scene -> lin_rec709).
-    if (sourceSpace == targetSpace)
+    // A transform that requires no color transformation (e.g. lin_rec709_scene -> lin_rec709)
+    // is represented by a pass-through node. ShaderGraph consults isNoOpTransform before
+    // requesting a nodedef and omits the transform entirely, so this fallback serves callers
+    // of supportsTransform and createNode that request such a transform directly.
+    if (isNoOpTransform(transform.sourceSpace, transform.targetSpace))
     {
         return _document->getNodeDef("ND_dot_" + transform.type.getName());
     }
 
-    string nodeName = sourceSpace + "_to_" + targetSpace;
+    const string sourceSpace = remapColorSpace(transform.sourceSpace);
+    const string targetSpace = remapColorSpace(transform.targetSpace);
+    const string nodeName = sourceSpace + "_to_" + targetSpace;
 
     for (NodeDefPtr nodeDef : _document->getMatchingNodeDefs(nodeName))
     {
