@@ -2300,7 +2300,9 @@ std::vector<int> Graph::createNodes(bool nodegraph)
 
             // Check if the node we're drawing is a parent of the currentRenderNode
             // to highlight it in case the render node is locked.
-            ImColor highlightNodeHeaderColor = ImColor(255, 176, 50, 255);
+            ImColor highlightNodeHeaderColor = ImColor(0, 167, 191, 255);
+            // For a node who's child is the locked render node.
+            ImColor mutedHighlightNodeHeaderColor = ImColor(55, 98, 117, 255);
             bool isParentOfCurrRenderNode = isNodeChildOfOther(_currRenderNode, node);
             // Color for output pin
             std::string outputType;
@@ -2311,8 +2313,18 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                 ImColor nodeHeaderBackgroundColor = ImColor(55, 55, 55, 255);
                 if (_lockRenderPreviewNode && (_currRenderNode == node || isParentOfCurrRenderNode))
                 {
-                    // Display the current node pinned for render pre
-                    nodeHeaderBackgroundColor = highlightNodeHeaderColor;
+                    if (_currRenderNode == node)
+                    {
+                        // Display the current node pinned for render preview with a
+                        // highlighted header color.
+                        nodeHeaderBackgroundColor = highlightNodeHeaderColor;
+                    }
+                    else if (isParentOfCurrRenderNode)
+                    {
+                        // Display the current parent of the node pinned for render
+                        // prepreview with a muted highlighted header color.
+                        nodeHeaderBackgroundColor = mutedHighlightNodeHeaderColor;
+                    }
                 }
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     ImGui::GetCursorScreenPos() + ImVec2(-hdrPadL, -hdrPadT),
@@ -2539,7 +2551,7 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                 ImColor rectColor = ImColor(35, 35, 35, 255);
                 if (_lockRenderPreviewNode && isParentOfCurrRenderNode)
                 {
-                    rectColor = highlightNodeHeaderColor;
+                    rectColor = mutedHighlightNodeHeaderColor;
                 }
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     ImGui::GetCursorScreenPos() + ImVec2(-hdrPadL, -hdrPadT),
