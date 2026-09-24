@@ -1191,10 +1191,12 @@ void Document::upgradeVersion()
             {
                 // Upgrade switch nodes from 5 to 10 inputs, handling the fallback behavior for
                 // constant "which" values that were previously out of range.
+                //
+                // getValue() returns null for both a missing and an unparseable value.
                 InputPtr which = node->getInput("which");
-                if (which && which->hasValue())
+                ValuePtr whichValue = which ? which->getValue() : nullptr;
+                if (whichValue)
                 {
-                    auto whichValue = which->getValue();
                     if (whichValue->isA<int>() && whichValue->asA<int>() >= 5)
                     {
                         which->setValue(0);
@@ -1283,8 +1285,9 @@ void Document::upgradeVersion()
                                     continue;
                                 }
                             }
-                            // Invalid channel name, or missing channel name:
-                            newValueTokens.push_back(origValueTokens[0]);
+                            // Invalid channel name, or missing channel name: fall back to the
+                            // first original token, or "0" if the original value was empty.
+                            newValueTokens.push_back(origValueTokens.empty() ? "0" : origValueTokens[0]);
                         }
                         InputPtr valueInput = node->addInput("value", node->getType());
                         valueInput->setValueString(joinStrings(newValueTokens, ", "));
