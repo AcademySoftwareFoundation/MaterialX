@@ -661,6 +661,24 @@ TypeDefPtr TypedElement::getTypeDef() const
     return resolveNameReference<TypeDef>(getType());
 }
 
+bool TypedElement::validate(string* message) const
+{
+    bool res = true;
+    if (hasType())
+    {
+        const string& type = getType();
+        if (!type.empty() && type != MULTI_OUTPUT_TYPE_STRING)
+        {
+            DocumentPtr doc = getDocument();
+            if (doc && !doc->getTypeDefs().empty())
+            {
+                validateRequire(getTypeDef() != nullptr, res, message, "Type '" + type + "' does not exist");
+            }
+        }
+    }
+    return Element::validate(message) && res;
+}
+
 //
 // ValueElement methods
 //
