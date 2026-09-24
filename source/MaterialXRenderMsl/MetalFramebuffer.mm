@@ -54,12 +54,6 @@ MetalFramebuffer::MetalFramebuffer(id<MTLDevice> device,
     resize(width, height, true, pixelFormat, colorTexture);
 }
 
-MetalFramebuffer::~MetalFramebuffer()
-{
-    [_colorTexture release];
-    [_depthTexture release];
-}
-
 void MetalFramebuffer::resize(unsigned int width, unsigned int height, bool forceRecreate,
                               MTLPixelFormat pixelFormat,
                               id<MTLTexture> extColorTexture)
@@ -86,12 +80,10 @@ void MetalFramebuffer::resize(unsigned int width, unsigned int height, bool forc
         if (extColorTexture == nil)
         {
             _colorTexture = [_device newTextureWithDescriptor:texDescriptor];
-            _colorTextureOwned = true;
         }
         else
         {
             _colorTexture = extColorTexture;
-            _colorTextureOwned = false;
         }
 
         texDescriptor.pixelFormat = MTLPixelFormatDepth32Float;
@@ -121,6 +113,20 @@ void MetalFramebuffer::bind(MTLRenderPassDescriptor* renderpassDesc)
 
 void MetalFramebuffer::unbind()
 {
+}
+
+void MetalFramebuffer::setColorTexture(id<MTLTexture> newColorTexture)
+{
+    auto sameDim = [](id<MTLTexture> tex0, id<MTLTexture> tex1) -> bool
+    {
+        return [tex0 width] == [tex1 width] &&
+               [tex0 height] == [tex1 height];
+    };
+    if (sameDim(newColorTexture, _colorTexture) &&
+        sameDim(newColorTexture, _depthTexture))
+    {
+        _colorTexture = newColorTexture;
+    }
 }
 
 ImagePtr MetalFramebuffer::getColorImage(id<MTLCommandQueue> cmdQueue, ImagePtr image)
@@ -179,7 +185,6 @@ ImagePtr MetalFramebuffer::getColorImage(id<MTLCommandQueue> cmdQueue, ImagePtr 
     }
 
     memcpy(image->getResourceBuffer(), imageData.data(), bytesPerImage);
-    [buffer release];
 
     return image;
 }
