@@ -400,8 +400,10 @@ template <class M, class S, size_t N> class MatrixN : public MatrixBase
     using ConstIterator = typename std::array<RowArray, N>::const_iterator;
 
   public:
-    MatrixN() : _arr{} { }
-    explicit MatrixN(Uninit) { }
+    constexpr MatrixN() : _arr{} { }
+    constexpr explicit MatrixN(Uninit) { }
+    template<typename... T>
+    constexpr explicit MatrixN(const T... ts) : _arr{static_cast<S>(ts)...} {}
     explicit MatrixN(S s) { std::fill_n(&_arr[0][0], N * N, s); }
     explicit MatrixN(const S* begin, const S* end) { std::copy(begin, end, &_arr[0][0]); }
 
@@ -615,16 +617,13 @@ class MX_CORE_API Matrix33 : public MatrixN<Matrix33, float, 3>
 {
   public:
     using MatrixN<Matrix33, float, 3>::MatrixN;
-    Matrix33() = default;
-    Matrix33(float m00, float m01, float m02,
+    constexpr Matrix33() = default;
+    constexpr Matrix33(float m00, float m01, float m02,
              float m10, float m11, float m12,
              float m20, float m21, float m22) :
-        MatrixN(Uninit{})
-    {
-        _arr = { RowArray{ m00, m01, m02 },
-                 RowArray{ m10, m11, m12 },
-                 RowArray{ m20, m21, m22 } };
-    }
+        MatrixN{m00, m01, m02,
+                m10, m11, m12,
+                m20, m21, m22} {}
 
     /// @name Matrix Operations
     /// @{
@@ -686,17 +685,14 @@ class MX_CORE_API Matrix44 : public MatrixN<Matrix44, float, 4>
   public:
     using MatrixN<Matrix44, float, 4>::MatrixN;
     Matrix44() = default;
-    Matrix44(float m00, float m01, float m02, float m03,
+    constexpr Matrix44(float m00, float m01, float m02, float m03,
              float m10, float m11, float m12, float m13,
              float m20, float m21, float m22, float m23,
              float m30, float m31, float m32, float m33) :
-        MatrixN(Uninit{})
-    {
-        _arr = { RowArray{ m00, m01, m02, m03 },
-                 RowArray{ m10, m11, m12, m13 },
-                 RowArray{ m20, m21, m22, m23 },
-                 RowArray{ m30, m31, m32, m33 } };
-    }
+        MatrixN{m00, m01, m02, m03,
+                 m10, m11, m12, m13,
+                 m20, m21, m22, m23,
+                m30, m31, m32, m33} {}
 
     /// @name Matrix Operations
     /// @{
