@@ -41,6 +41,17 @@ Another type of node present in the `Add Node` pop-up is the group, or backgroun
 
 To search the editor window for a specific node use `CTRL` + `F` to bring up the search bar.
 
+A menu of actions that can be performed on a node can accessed by clicking with the `LEFT` mouse button on the "hamburger" icon 
+( <span>&#9776;</span> ) located at the upper right corner of the node. Current actions include renaming and deleting the node.
+
+### Mouse Actions
+
+- `LEFT MOUSE button` : Drag to position nodes.
+- `RIGHT MOUSE button` : Click to bring up "Add Node" menu.
+- `RIGHT MOUSE button` : Drag to pan.
+- `SCROLL WHEEL` : To zoom.
+- `LEFT MOUSE button` : Click on node's <span>&#9776;</span> icon to bring up action menu.
+
 ## Node Property Editor
 When a node is selected in the graph, its information is displayed on the left-hand column in the `Node Property Editor`.  This editor displays the name of the node, its category, its inputs, the input name, types and values.  Inputs that are connected to other nodes will not display a value.
 
