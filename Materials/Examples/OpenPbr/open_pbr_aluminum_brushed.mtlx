@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<materialx version="1.39" colorspace="lin_rec709">
+  <surfacematerial name="Aluminum_Brushed" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="open_pbr_surface_surfaceshader" />
+  </surfacematerial>
+  <open_pbr_surface name="open_pbr_surface_surfaceshader" type="surfaceshader">
+    <input name="base_color" type="color3" value="0.912, 0.914, 0.920" />
+    <input name="base_metalness" type="float" value="1.0" />
+    <input name="specular_color" type="color3" value="0.970, 0.979, 0.988" />
+    <input name="specular_roughness" type="float" value="0.2" />
+    <input name="specular_roughness_anisotropy" type="float" value="0.9" />
+  </open_pbr_surface>
+</materialx>
