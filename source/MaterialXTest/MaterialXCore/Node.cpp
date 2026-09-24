@@ -385,6 +385,7 @@ TEST_CASE("Topological sort", "[nodegraph]")
     REQUIRE(isTopologicalOrder(elemOrder));
 }
 
+
 TEST_CASE("New nodegraph from output", "[nodegraph]")
 {
     // Create a document.
@@ -959,4 +960,67 @@ TEST_CASE("Set Name Global", "[node, nodegraph]")
             REQUIRE(downstreamInput->getNodeGraphString() == new_name);
         }
     }
+}
+
+TEST_CASE("Group nodes into nodegraph", "[nodegraph]")
+{
+    mx::DocumentPtr doc = mx::createDocument();
+
+    // External upstream source (not grouped).
+    mx::NodePtr src = doc->addNode("constant", "src", "float");
+
+    // Nodes to group: a -> b (internal link).
+    mx::NodePtr a = doc->addNode("add", "a", "float");
+    mx::InputPtr aIn = a->addInput("in1", "float");
+    aIn->setConnectedNode(src); // external upstream into the group
+
+    mx::NodePtr b = doc->addNode("multiply", "b", "float");
+    mx::InputPtr bIn = b->addInput("in1", "float");
+    bIn->setConnectedNode(a); // internal link within the group
+
+    // Two external downstream consumers of b (not grouped).
+    mx::NodePtr c1 = doc->addNode("add", "c1", "float");
+    mx::InputPtr c1In = c1->addInput("in1", "float");
+    c1In->setConnectedNode(b);
+    mx::NodePtr c2 = doc->addNode("add", "c2", "float");
+    mx::InputPtr c2In = c2->addInput("in1", "float");
+    c2In->setConnectedNode(b);
+
+    mx::NodeGraphPtr ng = doc->createNodeGraphFromNodes({ a, b });
+    REQUIRE(ng != nullptr);
+
+    // Originals moved out of the document, copies present in the nodegraph.
+    REQUIRE(!doc->getNode("a"));
+    REQUIRE(!doc->getNode("b"));
+    REQUIRE(ng->getNode("a"));
+    REQUIRE(ng->getNode("b"));
+
+    // Internal link preserved inside the nodegraph.
+    REQUIRE(ng->getNode("b")->getInput("in1")->getConnectedNode() == ng->getNode("a"));
+
+    // Upstream boundary: a's input now references an interface input that
+    // connects to the external source node.
+    mx::InputPtr aCopyIn = ng->getNode("a")->getInput("in1");
+    REQUIRE(!aCopyIn->getInterfaceName().empty());
+    REQUIRE(!aCopyIn->hasNodeName());
+    mx::InputPtr iface = ng->getInput(aCopyIn->getInterfaceName());
+    REQUIRE(iface != nullptr);
+    REQUIRE(iface->getNodeName() == "src");
+
+    // Downstream boundary: both consumers rewired to the nodegraph, sharing a
+    // single boundary output (fan-out dedup).
+    REQUIRE(c1In->getNodeGraphString() == ng->getName());
+    REQUIRE(c2In->getNodeGraphString() == ng->getName());
+    REQUIRE(!c1In->hasNodeName());
+    REQUIRE(!c1In->getOutputString().empty());
+    REQUIRE(c1In->getOutputString() == c2In->getOutputString());
+    REQUIRE(ng->getOutput(c1In->getOutputString()) != nullptr);
+
+    REQUIRE(doc->validate());
+}
+
+TEST_CASE("Group nodes with empty selection", "[nodegraph]")
+{
+    mx::DocumentPtr doc = mx::createDocument();
+    REQUIRE(doc->createNodeGraphFromNodes({}) == nullptr);
 }
