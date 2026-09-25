@@ -282,6 +282,9 @@ class Graph
     // Compiling shaders message
     void shaderPopup();
 
+    // Settings modal
+    void environmentSettingsPopup();
+
     void updateMaterials(mx::InputPtr input = nullptr, mx::ValuePtr value = nullptr);
 
     // Allow for camera manipulation of render view window
@@ -294,6 +297,7 @@ class Graph
     void loadGraphFromFile(bool prompt);
     void saveGraphToFile();
     void loadGeometry();
+    void loadEnvironment();
 
     // Initialize the graph state from the current document.
     void initializeGraph();
@@ -381,17 +385,21 @@ class Graph
     FileDialog _fileDialogSave;
     FileDialog _fileDialogImage;
     FileDialog _fileDialogGeom;
+    FileDialog _fileDialogEnv;
     std::string _fileDialogImageInputName;
 
     // popup up variables
     bool _popup;
     bool _shaderPopup;
+    bool _envSettingsPopup;
     int _searchNodeId;
     bool _addNewNode;
     bool _ctrlClick;
     bool _isCut;
     // auto layout button clicked
     bool _autoLayout;
+    // used by ImGui for modal state
+    bool _envSettingsIsOpen;
 
     // used when updating materials
     int _frameCount;
@@ -421,5 +429,8 @@ class Graph
 
     // Current height of the diagnostic panel; adjusted by the resize handle.
     float _diagPanelHeight = 120.f;
+
+    // Environment Settings
+    float _lightRotation;
 };
 #endif

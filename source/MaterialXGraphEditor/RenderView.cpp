@@ -703,17 +703,25 @@ void RenderView::applyDirectLights(mx::DocumentPtr doc)
 
 void RenderView::loadEnvironmentLight()
 {
+    loadEnvironmentLight(_envRadianceFilename);
+}
+
+void RenderView::loadEnvironmentLight(const mx::FilePath& filename)
+{
     // Load the requested radiance map.
-    mx::ImagePtr envRadianceMap = _imageHandler->acquireImage(_envRadianceFilename);
+    mx::ImagePtr envRadianceMap = _imageHandler->acquireImage(filename);
     if (!envRadianceMap)
     {
         return;
     }
 
     // Look for an irradiance map using an expected filename convention.
-    mx::ImagePtr envIrradianceMap;
-    mx::FilePath envIrradiancePath = _envRadianceFilename.getParentPath() / IRRADIANCE_MAP_FOLDER / _envRadianceFilename.getBaseName();
-    envIrradianceMap = _imageHandler->acquireImage(envIrradiancePath);
+    mx::ImagePtr envIrradianceMap = _imageHandler->getZeroImage();
+    mx::FilePath envIrradiancePath = filename.getParentPath() / IRRADIANCE_MAP_FOLDER / filename.getBaseName();
+    if (envIrradiancePath.exists())
+    {
+        envIrradianceMap = _imageHandler->acquireImage(envIrradiancePath);
+    }
 
     // If not found, then generate an irradiance map via spherical harmonics.
     if (envIrradianceMap == _imageHandler->getZeroImage())
@@ -729,7 +737,7 @@ void RenderView::loadEnvironmentLight()
     _lightHandler->setEnvIrradianceMap(envIrradianceMap);
 
     // Look for a light rig using an expected filename convention.
-    _lightRigFilename = _envRadianceFilename;
+    _lightRigFilename = filename;
     _lightRigFilename.removeExtension();
     _lightRigFilename.addExtension(mx::MTLX_EXTENSION);
     _lightRigFilename = _searchPath.find(_lightRigFilename);
