@@ -114,9 +114,13 @@ void OslRenderer::renderOSL(const FilePath& dirPath, const string& shaderName, c
     const string INPUT_SHADER_PARAMETER_OVERRIDES("%input_shader_parameter_overrides%");
     const string INPUT_SHADER_OUTPUT_STRING("%input_shader_output%");
     const string BACKGROUND_COLOR_STRING("%background_color%");
+    const string RENDER_GEOMETRY_STRING("%render_geometry%");
 
     StringMap replacementMap;
     replacementMap[OUTPUT_SHADER_TYPE_STRING] = outputShader;
+    // Format the geometry path with POSIX-style separators, which testrender
+    // supports on all platforms, including Windows.
+    replacementMap[RENDER_GEOMETRY_STRING] = _renderGeometry.asString(FilePath::FormatPosix);
     replacementMap[OUTPUT_SHADER_INPUT_STRING] = OUTPUT_SHADER_INPUT_VALUE_STRING;
     replacementMap[INPUT_SHADER_TYPE_STRING] = shaderName;
     string overrideString;
@@ -250,8 +254,12 @@ void OslRenderer::renderOSLNetwork(const FilePath& dirPath, const string& shader
     const string ENVIRONMENT_SHADER_PARAMETER_OVERRIDES("%environment_shader_parameter_overrides%");
     const string BACKGROUND_COLOR_STRING("%background_color%");
     const string OSL_COMMANDS("%oslCmd%");
+    const string RENDER_GEOMETRY_STRING("%render_geometry%");
 
     StringMap replacementMap;
+    // Format the geometry path with POSIX-style separators, which testrender
+    // supports on all platforms, including Windows.
+    replacementMap[RENDER_GEOMETRY_STRING] = _renderGeometry.asString(FilePath::FormatPosix);
 
     string envOverrideString;
     for (const auto& param : _envOslShaderParameterOverrides)
