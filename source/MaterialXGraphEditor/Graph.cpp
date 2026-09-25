@@ -123,7 +123,7 @@ static float getUiScaleFromFont()
     return (fontSize > 0.0f) ? (fontSize / BASE_UI_FONT_SIZE) : 1.0f;
 }
 
-static bool isNodeChildOfOther(const UiNodePtr node, const UiNodePtr other)
+static bool isChildOfNodeGraph(const UiNodePtr node, const UiNodePtr other)
 {
     if (node == nullptr || other == nullptr)
     {
@@ -2303,7 +2303,7 @@ std::vector<int> Graph::createNodes(bool nodegraph)
             ImColor highlightNodeHeaderColor = ImColor(0, 167, 191, 255);
             // For a node who's child is the locked render node.
             ImColor mutedHighlightNodeHeaderColor = ImColor(55, 98, 117, 255);
-            bool isParentOfCurrRenderNode = isNodeChildOfOther(_currRenderNode, node);
+            bool isParentOfCurrRenderNode = isChildOfNodeGraph(_currRenderNode, node);
             // Color for output pin
             std::string outputType;
             if (node->getNode() != nullptr)
@@ -3231,6 +3231,7 @@ void Graph::clearGraph()
     }
     _prevUiNode = nullptr;
     _currRenderNode = nullptr;
+    _lockRenderPreviewNode = false;
 
     _renderer->setDocument(_graphDoc);
     _renderer->updateMaterials(nullptr);
@@ -3247,6 +3248,7 @@ void Graph::initializeGraph()
     _prevUiNode = nullptr;
     _currUiNode = nullptr;
     _currRenderNode = nullptr;
+    _lockRenderPreviewNode = false;
 
     // Set the display name from the current material filename.
     mx::FilePath materialPath(_materialFilename);
@@ -3464,7 +3466,7 @@ void Graph::graphButtons()
     cursorInRenderView &= hasScrollbar ? mousePos.y < (tempWindowPos.y + screenSize.y - ImGui::GetScrollY()) : true;
 
     // Display the node currently being viewed above the render view.
-    if (_currRenderNode != nullptr)
+    if (_currRenderNode != nullptr && _currRenderNode->getNode() != nullptr)
     {
         ImGui::TextWrapped("%sPreview: %s", (_lockRenderPreviewNode ? "[Locked] " : ""), (_currRenderNode->getNode()->getNamePath()).c_str());
     }
