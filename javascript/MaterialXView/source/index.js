@@ -165,7 +165,7 @@ function init()
     {
         materialFilename = file.fullPath || file.name;
         viewer.getEditor().initialize();
-        viewer.getMaterial().loadMaterials(viewer, materialFilename);
+        viewer.getMaterial().loadMaterials(viewer, materialFilename, true);
         viewer.getEditor().updateProperties(0.9);
     });
 
