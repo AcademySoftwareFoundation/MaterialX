@@ -8,11 +8,11 @@ This directory contains geometry resources used in MaterialX examples, tests, an
 
 ## Cube
 
-`cube.obj` is a 1 cm cube. It's used for UDIM examples and tests. Its 6 faces are mapped to separate UDIM tiles across 1001-1003 and 1011-1013. It was added in 2025 from PR [#2113](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2113) as part of a UDIM example and Graph Editor update.
+`cube.obj` is a unit cube centered at the origin. It's used for UDIM examples and tests. Its 6 faces are mapped to separate UDIM tiles across 1001-1003 and 1011-1013. It was added in 2025 from PR [#2113](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2113) as part of a UDIM example and Graph Editor update. The corresponding UDIM test material is [`udim.mtlx`](../Materials/TestSuite/stdlib/texture/udim.mtlx).
 
 ## Shader Ball
 
-`shaderball.glb` is the default geometry used by the MaterialX Viewer and Graph Editor for previewing materials. The Shader Ball was added in 2019 as `shaderball.obj`, as part of the merge of Autodesk's ShaderX extensions from PR [#187](https://github.com/AcademySoftwareFoundation/MaterialX/pull/187). The current `shaderball.glb` was added in 2022 from PR [#709](https://github.com/AcademySoftwareFoundation/MaterialX/pull/709).
+`shaderball.glb` is the default geometry used by the MaterialX Viewer and Graph Editor for previewing materials. The Shader Ball was added in 2019 as `shaderball.obj`, as part of the merge of Autodesk's ShaderX extensions from PR [#187](https://github.com/AcademySoftwareFoundation/MaterialX/pull/187). The current `shaderball.glb` was added in 2022 from PR [#709](https://github.com/AcademySoftwareFoundation/MaterialX/pull/709). The GLB contains two meshes, `Preview_Mesh` and `Calibration_Mesh`, which can be assigned separate materials by example looks. These geometry groups were added to the Shader Ball in 2019 from commit [6633d5da](https://github.com/AcademySoftwareFoundation/MaterialX/commit/6633d5da121d7641bfda36ddda32fecacf015210) as part of the Shader Ball updates for ambient occlusion generation.
 
 `shaderball_ao.png` is a pre-baked ambient occlusion texture associated with the Shader Ball geometry and used in MaterialXView. It was added in 2019 from commit [6633d5da](https://github.com/AcademySoftwareFoundation/MaterialX/commit/6633d5da121d7641bfda36ddda32fecacf015210), and the Shader Ball mesh was modified for ambient occlusion generation with contributions from Ben Nadler at Lucasfilm.
 
@@ -30,8 +30,8 @@ This directory contains geometry resources used in MaterialX examples, tests, an
 
 ## Plane
 
-`plane.obj` is a 1 x 1 plane centered at the origin, subdivided into a 30 x 30 grid. This makes it suitable for per-vertex effects such as displacement. Its geometry was updated from PR [#819](https://github.com/AcademySoftwareFoundation/MaterialX/pull/819) so its UVs aren't flipped in the V direction, removing the need for an extra UV transform.
+`plane.obj` is a 1 x 1 plane centered at the origin, lying in the XY plane and facing +Z. The plane is subdivided into a 30 x 30 grid, making it suitable for per-vertex effects such as displacement. Its geometry was updated from PR [#819](https://github.com/AcademySoftwareFoundation/MaterialX/pull/819) so its UVs aren't flipped in the V direction, removing the need for an extra UV transform.
 
 ## Teapot
 
-`teapot.obj` is a sample teapot mesh that was formerly used in MaterialXView as the default geometry when added on May 3, 2019, from PR [#198](https://github.com/AcademySoftwareFoundation/MaterialX/pull/198), and was replaced by the Shader Ball on May 18, 2019 from PR [#215](https://github.com/AcademySoftwareFoundation/MaterialX/pull/215).
+`teapot.obj` is a sample teapot mesh that was added to MaterialX in 2019 from PR [#187](https://github.com/AcademySoftwareFoundation/MaterialX/pull/187). It was formerly the default geometry for MaterialXView when the viewer was introduced in PR [#198](https://github.com/AcademySoftwareFoundation/MaterialX/pull/198). The Teapot was then replaced by the Shader Ball as the default geometry in PR [#215](https://github.com/AcademySoftwareFoundation/MaterialX/pull/215).
