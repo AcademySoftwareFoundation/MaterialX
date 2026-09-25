@@ -30,7 +30,7 @@ This directory contains geometry resources used in MaterialX examples, tests, an
 
 ## Plane
 
-`plane.obj` is a 1 x 1 plane centered at the origin, lying in the XY plane and facing +Z. The plane is subdivided into a 30 x 30 grid, making it suitable for per-vertex effects such as displacement. Its geometry was updated from PR [#819](https://github.com/AcademySoftwareFoundation/MaterialX/pull/819) so its UVs aren't flipped in the V direction, removing the need for an extra UV transform.
+`plane.obj` is a 1 x 1 plane centered at the origin, lying in the XY plane and facing +Z. The plane is subdivided into a 30 x 30 grid, making it suitable for per-vertex effects such as displacement. Its geometry was updated in 2022 from PR [#819](https://github.com/AcademySoftwareFoundation/MaterialX/pull/819) so its UVs aren't flipped in the V direction, removing the need for an extra UV transform.
 
 ## Teapot
 
