@@ -154,7 +154,7 @@ bool isUniformSource(UiNodePtr node, const std::string& outputName, int depth)
         return false;
 
     // Case: constant nodes are uniform-compatible by spec definition
-    if(node->getNode()->getCategory()=="constant")
+    if (node->getNode()->getCategory() == "constant")
         return true;
 
     // Case: node with explicitly declared uniform outputs
@@ -162,7 +162,7 @@ bool isUniformSource(UiNodePtr node, const std::string& outputName, int depth)
     if (nodeDef)
     {
         mx::OutputPtr output = nodeDef->getActiveOutput(outputName);
-        if(output && output->getIsUniform())
+        if (output && output->getIsUniform())
             return true;
     }
 
@@ -171,7 +171,8 @@ bool isUniformSource(UiNodePtr node, const std::string& outputName, int depth)
     {
         for (const auto& inputPin : node->getInputPins())
         {
-            if(inputPin->getName() == "in") {
+            if (inputPin->getName() == "in")
+            {
                 const auto& connections = inputPin->getConnections();
                 if (!connections.empty())
                 {
