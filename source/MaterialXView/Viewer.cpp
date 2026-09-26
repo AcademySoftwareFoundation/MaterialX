@@ -15,6 +15,10 @@
 #include <MaterialXView/RenderPipelineGL.h>
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 #endif
+#ifdef MATERIALXVIEW_D3D12_BACKEND
+#include <MaterialXView/RenderPipelineD3D12.h>
+#include <MaterialXGenHlsl/HlslShaderGenerator.h>
+#endif
 
 #include <MaterialXRender/ShaderRenderer.h>
 #include <MaterialXRender/CgltfLoader.h>
@@ -164,7 +168,8 @@ Viewer::Viewer(const std::string& materialFilename,
                const mx::FilePathVec& libraryFolders,
                int screenWidth,
                int screenHeight,
-               const mx::Color3& screenColor) :
+               const mx::Color3& screenColor,
+               const std::string& renderer) :
     ng::Screen(ng::Vector2i(screenWidth, screenHeight), "MaterialXView",
         true, false, true, true, USE_FLOAT_BUFFER, 4, 0),
     _materialFilename(materialFilename),
@@ -250,6 +255,16 @@ Viewer::Viewer(const std::string& materialFilename,
     // Set the requested background color.
     set_background(ng::Color(screenColor[0], screenColor[1], screenColor[2], 1.0f));
 
+#ifdef MATERIALXVIEW_D3D12_BACKEND
+    // The D3D12 pipeline renders shaders from the HLSL generator.
+    if (renderer == "d3d12")
+    {
+        _genContext = mx::GenContext(mx::HlslShaderGenerator::create(_typeSystem));
+    }
+#else
+    (void) renderer;
+#endif
+
     // Set default Glsl generator options.
     _genContext.getOptions().targetColorSpaceOverride = "lin_rec709_scene";
     _genContext.getOptions().fileTextureVerticalFlip = true;
@@ -261,7 +276,17 @@ Viewer::Viewer(const std::string& materialFilename,
     _renderPipeline->initialize(ng::metal_device(),
                                 ng::metal_command_queue());
 #else
-    _renderPipeline = GLRenderPipeline::create(this);
+#ifdef MATERIALXVIEW_D3D12_BACKEND
+    if (renderer == "d3d12")
+    {
+        _renderPipeline = D3D12RenderPipeline::create(this);
+        _renderPipeline->initialize(nullptr, nullptr);
+    }
+    else
+#endif
+    {
+        _renderPipeline = GLRenderPipeline::create(this);
+    }
     
     // Set Essl generator options
     _genContextEssl.getOptions().targetColorSpaceOverride = "lin_rec709_scene";
@@ -1668,6 +1693,18 @@ void Viewer::saveShaderSource(mx::GenContext& context)
                 new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved ESSL source: ",
                     sourceFilename.asString() + "_essl_*.glsl");
             }
+#ifdef MATERIALXVIEW_D3D12_BACKEND
+            else if (context.getShaderGenerator().getTarget() == mx::HlslShaderGenerator::TARGET)
+            {
+                mx::ShaderPtr shader = material->getShader();
+                const std::string& pixelShader = shader->getSourceCode(mx::Stage::PIXEL);
+                const std::string& vertexShader = shader->getSourceCode(mx::Stage::VERTEX);
+                writeTextFile(pixelShader, sourceFilename.asString() + "_ps.hlsl");
+                writeTextFile(vertexShader, sourceFilename.asString() + "_vs.hlsl");
+                new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved HLSL source: ",
+                    sourceFilename.asString() + "_*.hlsl");
+            }
+#endif
 #else
             if (context.getShaderGenerator().getTarget() == mx::MslShaderGenerator::TARGET)
             {
@@ -1717,8 +1754,15 @@ void Viewer::loadShaderSource()
         if (elem)
         {
             mx::FilePath sourceFilename = getBaseOutputPath();
-            mx::FilePath pixelSourceFilename = sourceFilename.asString() + "_ps.glsl";
-            mx::FilePath vertexSourceFilename = sourceFilename.asString() + "_vs.glsl";
+            std::string extension = ".glsl";
+#ifdef MATERIALXVIEW_D3D12_BACKEND
+            if (_genContext.getShaderGenerator().getTarget() == mx::HlslShaderGenerator::TARGET)
+            {
+                extension = ".hlsl";
+            }
+#endif
+            mx::FilePath pixelSourceFilename = sourceFilename.asString() + "_ps" + extension;
+            mx::FilePath vertexSourceFilename = sourceFilename.asString() + "_vs" + extension;
             if (material->loadSource(vertexSourceFilename, pixelSourceFilename, material->hasTransparency()))
             {
                 assignMaterial(getSelectedGeometry(), material);
