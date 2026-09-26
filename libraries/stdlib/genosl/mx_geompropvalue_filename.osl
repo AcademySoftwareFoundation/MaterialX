@@ -1,10 +1,14 @@
 void mx_geompropvalue_filename(string geomprop, textureresource defaultVal, output textureresource out)
 {
-    // Initialize to the default
     out = defaultVal;
 
-    // Replace the filename component from the geomprop
-    string defaultFilename = defaultVal.filename;
-    if (getattribute(geomprop, defaultFilename) == 0)
-        out.filename = defaultFilename;
+    // getattribute writes the geomprop into filename and returns 0 only when
+    // the attribute is absent, so the fetched value belongs in the else branch.
+    // Assigning it in the failure branch left out.filename at defaultVal, which
+    // out already held, and the geomprop was never returned.
+    string filename = defaultVal.filename;
+    if (getattribute(geomprop, filename) == 0)
+        out.filename = defaultVal.filename;
+    else
+        out.filename = filename;
 }
