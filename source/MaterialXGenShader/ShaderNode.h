@@ -123,6 +123,8 @@ class MX_GENSHADER_API ShaderPortFlag
 class MX_GENSHADER_API ShaderPort : public std::enable_shared_from_this<ShaderPort>
 {
   public:
+    virtual ~ShaderPort() { }
+
     /// Constructor.
     ShaderPort(ShaderNode* node, TypeDesc type, const string& name, ValuePtr value = nullptr);
 
