@@ -17,7 +17,7 @@
       <input name="weight" type="float" nodename="invert1" />
       <input name="color" type="color3" value="0.9600, 0.1, 0.1" />
       <input name="roughness" type="float" value="0.0" />
-      <input name="normal" type="vector3" value="0.0, 0.0, 0.0" />
+      <input name="normal" type="vector3" value="0.0, 0.0, 1.0" />
     </oren_nayar_diffuse_bsdf>
     <dielectric_bsdf name="dielectric_brdf1" type="BSDF">
       <input name="weight" type="float" nodename="clamp1" />
