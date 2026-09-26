@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+  <!--
+    Copyright Contributors to the MaterialX Project
+    SPDX-License-Identifier: Apache-2.0
+
+    Declarations for genwgsl (WGSL) implementations of light shaders.
+  -->
+
+  <!-- <point_light> -->
+  <implementation name="IM_point_light_genwgsl" nodedef="ND_point_light" file="mx_point_light.wgsl" function="mx_point_light" target="genwgsl" />
+
+  <!-- <directional_light> -->
+  <implementation name="IM_directional_light_genwgsl" nodedef="ND_directional_light" file="mx_directional_light.wgsl" function="mx_directional_light" target="genwgsl" />
+
+  <!-- <spot_light> -->
+  <implementation name="IM_spot_light_genwgsl" nodedef="ND_spot_light" file="mx_spot_light.wgsl" function="mx_spot_light" target="genwgsl" />
+
+</materialx>

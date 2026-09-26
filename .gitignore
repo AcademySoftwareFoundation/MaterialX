@@ -2,3 +2,11 @@ build
 dist
 .DS_Store
 CMakeUserPresets.json
+
+# Generated genwgsl library — CI/local transpile output from mxgenwgsl.py.
+# Only hand-written .wgsl (listed in skip_transpile.txt) should be committed.
+libraries/**/genwgsl/**/*.wgsl
+!libraries/lights/genwgsl/mx_directional_light.wgsl
+!libraries/lights/genwgsl/mx_point_light.wgsl
+!libraries/lights/genwgsl/mx_spot_light.wgsl
+!libraries/stdlib/genwgsl/lib/mx_math_platform.wgsl

@@ -1,0 +1,768 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+  <!--
+    Copyright Contributors to the MaterialX Project
+    SPDX-License-Identifier: Apache-2.0
+
+    Declarations for WGSL implementations of standard nodes included in the MaterialX specification.
+  -->
+
+  <!-- ======================================================================== -->
+  <!-- Shader nodes                                                             -->
+  <!-- ======================================================================== -->
+
+  <!-- <surfacematerial> -->
+  <implementation name="IM_surfacematerial_genwgsl" nodedef="ND_surfacematerial" target="genwgsl" />
+
+  <!-- <surface_unlit> -->
+  <implementation name="IM_surface_unlit_genwgsl" nodedef="ND_surface_unlit" file="mx_surface_unlit.wgsl" function="mx_surface_unlit" target="genwgsl" />
+
+  <!-- ======================================================================== -->
+  <!-- Texture nodes                                                            -->
+  <!-- ======================================================================== -->
+
+  <!-- <image> -->
+  <implementation name="IM_image_float_genwgsl" nodedef="ND_image_float" file="mx_image_float.wgsl" function="mx_image_float" target="genwgsl">
+    <input name="default" type="float" implname="default_value" />
+  </implementation>
+  <implementation name="IM_image_color3_genwgsl" nodedef="ND_image_color3" file="mx_image_color3.wgsl" function="mx_image_color3" target="genwgsl">
+    <input name="default" type="color3" implname="default_value" />
+  </implementation>
+  <implementation name="IM_image_color4_genwgsl" nodedef="ND_image_color4" file="mx_image_color4.wgsl" function="mx_image_color4" target="genwgsl">
+    <input name="default" type="color4" implname="default_value" />
+  </implementation>
+  <implementation name="IM_image_vector2_genwgsl" nodedef="ND_image_vector2" file="mx_image_vector2.wgsl" function="mx_image_vector2" target="genwgsl">
+    <input name="default" type="vector2" implname="default_value" />
+  </implementation>
+  <implementation name="IM_image_vector3_genwgsl" nodedef="ND_image_vector3" file="mx_image_vector3.wgsl" function="mx_image_vector3" target="genwgsl">
+    <input name="default" type="vector3" implname="default_value" />
+  </implementation>
+  <implementation name="IM_image_vector4_genwgsl" nodedef="ND_image_vector4" file="mx_image_vector4.wgsl" function="mx_image_vector4" target="genwgsl">
+    <input name="default" type="vector4" implname="default_value" />
+  </implementation>
+
+  <!-- <hextiledimage> -->
+  <implementation name="IM_hextiledimage_color3_genwgsl" nodedef="ND_hextiledimage_color3" file="mx_hextiledimage.wgsl" function="mx_hextiledimage_color3" target="genwgsl">
+    <input name="default" type="color3" implname="default_value" />
+  </implementation>
+  <implementation name="IM_hextiledimage_color4_genwgsl" nodedef="ND_hextiledimage_color4" file="mx_hextiledimage.wgsl" function="mx_hextiledimage_color4" target="genwgsl">
+    <input name="default" type="color4" implname="default_value" />
+  </implementation>
+
+  <!-- <normalmap> -->
+  <implementation name="IM_normalmap_float_genwgsl" nodedef="ND_normalmap_float" file="mx_normalmap.wgsl" function="mx_normalmap_float" target="genwgsl" />
+  <implementation name="IM_normalmap_vector2_genwgsl" nodedef="ND_normalmap_vector2" file="mx_normalmap.wgsl" function="mx_normalmap_vector2" target="genwgsl" />
+
+  <!-- <hextilednormalmap> -->
+  <implementation name="IM_hextilednormalmap_vector3_genwgsl" nodedef="ND_hextilednormalmap_vector3" file="mx_hextilednormalmap.wgsl" function="mx_hextilednormalmap_vector3" target="genwgsl">
+    <input name="default" type="vector3" implname="default_value" />
+  </implementation>
+
+  <!-- ======================================================================== -->
+  <!-- Procedural nodes                                                         -->
+  <!-- ======================================================================== -->
+
+  <!-- <constant> -->
+  <implementation name="IM_constant_float_genwgsl" nodedef="ND_constant_float" target="genwgsl" sourcecode="{{value}}" />
+  <implementation name="IM_constant_color3_genwgsl" nodedef="ND_constant_color3" target="genwgsl" sourcecode="{{value}}" />
+  <implementation name="IM_constant_color4_genwgsl" nodedef="ND_constant_color4" target="genwgsl" sourcecode="{{value}}" />
+  <implementation name="IM_constant_vector2_genwgsl" nodedef="ND_constant_vector2" target="genwgsl" sourcecode="{{value}}" />
+  <implementation name="IM_constant_vector3_genwgsl" nodedef="ND_constant_vector3" target="genwgsl" sourcecode="{{value}}" />
+  <implementation name="IM_constant_vector4_genwgsl" nodedef="ND_constant_vector4" target="genwgsl" sourcecode="{{value}}" />
+  <implementation name="IM_constant_boolean_genwgsl" nodedef="ND_constant_boolean" target="genwgsl" sourcecode="{{value}}" />
+  <implementation name="IM_constant_integer_genwgsl" nodedef="ND_constant_integer" target="genwgsl" sourcecode="{{value}}" />
+  <implementation name="IM_constant_matrix33_genwgsl" nodedef="ND_constant_matrix33" target="genwgsl" sourcecode="{{value}}" />
+  <implementation name="IM_constant_matrix44_genwgsl" nodedef="ND_constant_matrix44" target="genwgsl" sourcecode="{{value}}" />
+  <implementation name="IM_constant_string_genwgsl" nodedef="ND_constant_string" target="genwgsl" sourcecode="{{value}}" />
+  <implementation name="IM_constant_filename_genwgsl" nodedef="ND_constant_filename" target="genwgsl" sourcecode="{{value}}" />
+
+  <!-- <ramplr> -->
+  <implementation name="IM_ramplr_float_genwgsl" nodedef="ND_ramplr_float" file="mx_ramplr_float.wgsl" function="mx_ramplr_float" target="genwgsl" />
+  <implementation name="IM_ramplr_color3_genwgsl" nodedef="ND_ramplr_color3" file="mx_ramplr_vector3.wgsl" function="mx_ramplr_vector3" target="genwgsl" />
+  <implementation name="IM_ramplr_color4_genwgsl" nodedef="ND_ramplr_color4" file="mx_ramplr_vector4.wgsl" function="mx_ramplr_vector4" target="genwgsl" />
+  <implementation name="IM_ramplr_vector2_genwgsl" nodedef="ND_ramplr_vector2" file="mx_ramplr_vector2.wgsl" function="mx_ramplr_vector2" target="genwgsl" />
+  <implementation name="IM_ramplr_vector3_genwgsl" nodedef="ND_ramplr_vector3" file="mx_ramplr_vector3.wgsl" function="mx_ramplr_vector3" target="genwgsl" />
+  <implementation name="IM_ramplr_vector4_genwgsl" nodedef="ND_ramplr_vector4" file="mx_ramplr_vector4.wgsl" function="mx_ramplr_vector4" target="genwgsl" />
+
+  <!-- <ramptb> -->
+  <implementation name="IM_ramptb_float_genwgsl" nodedef="ND_ramptb_float" file="mx_ramptb_float.wgsl" function="mx_ramptb_float" target="genwgsl" />
+  <implementation name="IM_ramptb_color3_genwgsl" nodedef="ND_ramptb_color3" file="mx_ramptb_vector3.wgsl" function="mx_ramptb_vector3" target="genwgsl" />
+  <implementation name="IM_ramptb_color4_genwgsl" nodedef="ND_ramptb_color4" file="mx_ramptb_vector4.wgsl" function="mx_ramptb_vector4" target="genwgsl" />
+  <implementation name="IM_ramptb_vector2_genwgsl" nodedef="ND_ramptb_vector2" file="mx_ramptb_vector2.wgsl" function="mx_ramptb_vector2" target="genwgsl" />
+  <implementation name="IM_ramptb_vector3_genwgsl" nodedef="ND_ramptb_vector3" file="mx_ramptb_vector3.wgsl" function="mx_ramptb_vector3" target="genwgsl" />
+  <implementation name="IM_ramptb_vector4_genwgsl" nodedef="ND_ramptb_vector4" file="mx_ramptb_vector4.wgsl" function="mx_ramptb_vector4" target="genwgsl" />
+
+  <!-- <splitlr> -->
+  <implementation name="IM_splitlr_float_genwgsl" nodedef="ND_splitlr_float" file="mx_splitlr_float.wgsl" function="mx_splitlr_float" target="genwgsl" />
+  <implementation name="IM_splitlr_color3_genwgsl" nodedef="ND_splitlr_color3" file="mx_splitlr_vector3.wgsl" function="mx_splitlr_vector3" target="genwgsl" />
+  <implementation name="IM_splitlr_color4_genwgsl" nodedef="ND_splitlr_color4" file="mx_splitlr_vector4.wgsl" function="mx_splitlr_vector4" target="genwgsl" />
+  <implementation name="IM_splitlr_vector2_genwgsl" nodedef="ND_splitlr_vector2" file="mx_splitlr_vector2.wgsl" function="mx_splitlr_vector2" target="genwgsl" />
+  <implementation name="IM_splitlr_vector3_genwgsl" nodedef="ND_splitlr_vector3" file="mx_splitlr_vector3.wgsl" function="mx_splitlr_vector3" target="genwgsl" />
+  <implementation name="IM_splitlr_vector4_genwgsl" nodedef="ND_splitlr_vector4" file="mx_splitlr_vector4.wgsl" function="mx_splitlr_vector4" target="genwgsl" />
+
+  <!-- <splittb> -->
+  <implementation name="IM_splittb_float_genwgsl" nodedef="ND_splittb_float" file="mx_splittb_float.wgsl" function="mx_splittb_float" target="genwgsl" />
+  <implementation name="IM_splittb_color3_genwgsl" nodedef="ND_splittb_color3" file="mx_splittb_vector3.wgsl" function="mx_splittb_vector3" target="genwgsl" />
+  <implementation name="IM_splittb_color4_genwgsl" nodedef="ND_splittb_color4" file="mx_splittb_vector4.wgsl" function="mx_splittb_vector4" target="genwgsl" />
+  <implementation name="IM_splittb_vector2_genwgsl" nodedef="ND_splittb_vector2" file="mx_splittb_vector2.wgsl" function="mx_splittb_vector2" target="genwgsl" />
+  <implementation name="IM_splittb_vector3_genwgsl" nodedef="ND_splittb_vector3" file="mx_splittb_vector3.wgsl" function="mx_splittb_vector3" target="genwgsl" />
+  <implementation name="IM_splittb_vector4_genwgsl" nodedef="ND_splittb_vector4" file="mx_splittb_vector4.wgsl" function="mx_splittb_vector4" target="genwgsl" />
+
+  <!-- <noise2d> -->
+  <implementation name="IM_noise2d_float_genwgsl" nodedef="ND_noise2d_float" file="mx_noise2d_float.wgsl" function="mx_noise2d_float" target="genwgsl" />
+  <implementation name="IM_noise2d_vector2_genwgsl" nodedef="ND_noise2d_vector2" file="mx_noise2d_vector2.wgsl" function="mx_noise2d_vector2" target="genwgsl" />
+  <implementation name="IM_noise2d_vector3_genwgsl" nodedef="ND_noise2d_vector3" file="mx_noise2d_vector3.wgsl" function="mx_noise2d_vector3" target="genwgsl" />
+  <implementation name="IM_noise2d_vector4_genwgsl" nodedef="ND_noise2d_vector4" file="mx_noise2d_vector4.wgsl" function="mx_noise2d_vector4" target="genwgsl" />
+
+  <!-- <noise3d> -->
+  <implementation name="IM_noise3d_float_genwgsl" nodedef="ND_noise3d_float" file="mx_noise3d_float.wgsl" function="mx_noise3d_float" target="genwgsl" />
+  <implementation name="IM_noise3d_vector2_genwgsl" nodedef="ND_noise3d_vector2" file="mx_noise3d_vector2.wgsl" function="mx_noise3d_vector2" target="genwgsl" />
+  <implementation name="IM_noise3d_vector3_genwgsl" nodedef="ND_noise3d_vector3" file="mx_noise3d_vector3.wgsl" function="mx_noise3d_vector3" target="genwgsl" />
+  <implementation name="IM_noise3d_vector4_genwgsl" nodedef="ND_noise3d_vector4" file="mx_noise3d_vector4.wgsl" function="mx_noise3d_vector4" target="genwgsl" />
+
+  <!-- <fractal2d> -->
+  <implementation name="IM_fractal2d_float_genwgsl" nodedef="ND_fractal2d_float" file="mx_fractal2d_float.wgsl" function="mx_fractal2d_float" target="genwgsl" />
+  <implementation name="IM_fractal2d_vector2_genwgsl" nodedef="ND_fractal2d_vector2" file="mx_fractal2d_vector2.wgsl" function="mx_fractal2d_vector2" target="genwgsl" />
+  <implementation name="IM_fractal2d_vector3_genwgsl" nodedef="ND_fractal2d_vector3" file="mx_fractal2d_vector3.wgsl" function="mx_fractal2d_vector3" target="genwgsl" />
+  <implementation name="IM_fractal2d_vector4_genwgsl" nodedef="ND_fractal2d_vector4" file="mx_fractal2d_vector4.wgsl" function="mx_fractal2d_vector4" target="genwgsl" />
+
+  <!-- <fractal3d> -->
+  <implementation name="IM_fractal3d_float_genwgsl" nodedef="ND_fractal3d_float" file="mx_fractal3d_float.wgsl" function="mx_fractal3d_float" target="genwgsl" />
+  <implementation name="IM_fractal3d_vector2_genwgsl" nodedef="ND_fractal3d_vector2" file="mx_fractal3d_vector2.wgsl" function="mx_fractal3d_vector2" target="genwgsl" />
+  <implementation name="IM_fractal3d_vector3_genwgsl" nodedef="ND_fractal3d_vector3" file="mx_fractal3d_vector3.wgsl" function="mx_fractal3d_vector3" target="genwgsl" />
+  <implementation name="IM_fractal3d_vector4_genwgsl" nodedef="ND_fractal3d_vector4" file="mx_fractal3d_vector4.wgsl" function="mx_fractal3d_vector4" target="genwgsl" />
+
+  <!-- <cellnoise2d> -->
+  <implementation name="IM_cellnoise2d_float_genwgsl" nodedef="ND_cellnoise2d_float" file="mx_cellnoise2d_float.wgsl" function="mx_cellnoise2d_float" target="genwgsl" />
+
+  <!-- <cellnoise3d> -->
+  <implementation name="IM_cellnoise3d_float_genwgsl" nodedef="ND_cellnoise3d_float" file="mx_cellnoise3d_float.wgsl" function="mx_cellnoise3d_float" target="genwgsl" />
+
+  <!-- <worleynoise2d> -->
+  <implementation name="IM_worleynoise2d_float_genwgsl" nodedef="ND_worleynoise2d_float" file="mx_worleynoise2d_float.wgsl" function="mx_worleynoise2d_float" target="genwgsl" />
+  <implementation name="IM_worleynoise2d_vector2_genwgsl" nodedef="ND_worleynoise2d_vector2" file="mx_worleynoise2d_vector2.wgsl" function="mx_worleynoise2d_vector2" target="genwgsl" />
+  <implementation name="IM_worleynoise2d_vector3_genwgsl" nodedef="ND_worleynoise2d_vector3" file="mx_worleynoise2d_vector3.wgsl" function="mx_worleynoise2d_vector3" target="genwgsl" />
+
+  <!-- <worleynoise3d> -->
+  <implementation name="IM_worleynoise3d_float_genwgsl" nodedef="ND_worleynoise3d_float" file="mx_worleynoise3d_float.wgsl" function="mx_worleynoise3d_float" target="genwgsl" />
+  <implementation name="IM_worleynoise3d_vector2_genwgsl" nodedef="ND_worleynoise3d_vector2" file="mx_worleynoise3d_vector2.wgsl" function="mx_worleynoise3d_vector2" target="genwgsl" />
+  <implementation name="IM_worleynoise3d_vector3_genwgsl" nodedef="ND_worleynoise3d_vector3" file="mx_worleynoise3d_vector3.wgsl" function="mx_worleynoise3d_vector3" target="genwgsl" />
+
+  <!-- <flake2d> -->
+  <implementation name="IM_flake2d_genwgsl" nodedef="ND_flake2d" file="mx_flake2d.wgsl" function="mx_flake2d" target="genwgsl" />
+
+  <!-- <flake3d> -->
+  <implementation name="IM_flake3d_genwgsl" nodedef="ND_flake3d" file="mx_flake3d.wgsl" function="mx_flake3d" target="genwgsl" />
+
+  <!-- ======================================================================== -->
+  <!-- Geometric nodes                                                          -->
+  <!-- ======================================================================== -->
+
+  <!-- <position> -->
+  <implementation name="IM_position_vector3_genwgsl" nodedef="ND_position_vector3" target="genwgsl" />
+
+  <!-- <normal> -->
+  <implementation name="IM_normal_vector3_genwgsl" nodedef="ND_normal_vector3" target="genwgsl" />
+
+  <!-- <tangent> -->
+  <implementation name="IM_tangent_vector3_genwgsl" nodedef="ND_tangent_vector3" target="genwgsl" />
+
+  <!-- <bitangent> -->
+  <implementation name="IM_bitangent_vector3_genwgsl" nodedef="ND_bitangent_vector3" target="genwgsl" />
+
+  <!-- <texcoord> -->
+  <implementation name="IM_texcoord_vector2_genwgsl" nodedef="ND_texcoord_vector2" target="genwgsl" />
+  <implementation name="IM_texcoord_vector3_genwgsl" nodedef="ND_texcoord_vector3" target="genwgsl" />
+
+  <!-- <geomcolor> -->
+  <implementation name="IM_geomcolor_float_genwgsl" nodedef="ND_geomcolor_float" target="genwgsl" />
+  <implementation name="IM_geomcolor_color3_genwgsl" nodedef="ND_geomcolor_color3" target="genwgsl" />
+  <implementation name="IM_geomcolor_color4_genwgsl" nodedef="ND_geomcolor_color4" target="genwgsl" />
+
+  <!-- <geompropvalue> -->
+  <implementation name="IM_geompropvalue_integer_genwgsl" nodedef="ND_geompropvalue_integer" function="mx_geompropvalue_int" target="genwgsl" />
+  <implementation name="IM_geompropvalue_boolean_genwgsl" nodedef="ND_geompropvalue_boolean" function="mx_geompropvalue_bool" target="genwgsl" />
+  <implementation name="IM_geompropvalue_float_genwgsl" nodedef="ND_geompropvalue_float" function="mx_geompropvalue_float" target="genwgsl" />
+  <implementation name="IM_geompropvalue_color3_genwgsl" nodedef="ND_geompropvalue_color3" function="mx_geompropvalue_color" target="genwgsl" />
+  <implementation name="IM_geompropvalue_color4_genwgsl" nodedef="ND_geompropvalue_color4" function="mx_geompropvalue_color4" target="genwgsl" />
+  <implementation name="IM_geompropvalue_vector2_genwgsl" nodedef="ND_geompropvalue_vector2" function="mx_geompropvalue_vector2" target="genwgsl" />
+  <implementation name="IM_geompropvalue_vector3_genwgsl" nodedef="ND_geompropvalue_vector3" function="mx_geompropvalue_vector" target="genwgsl" />
+  <implementation name="IM_geompropvalue_vector4_genwgsl" nodedef="ND_geompropvalue_vector4" function="mx_geompropvalue_vector4" target="genwgsl" />
+
+  <!-- <geompropvalueuniform> -->
+  <implementation name="IM_geompropvalue_string_genwgsl" nodedef="ND_geompropvalueuniform_string" function="mx_geompropvalue_string" target="genwgsl" />
+  <implementation name="IM_geompropvalue_filename_genwgsl" nodedef="ND_geompropvalueuniform_filename" function="mx_geompropvalue_string" target="genwgsl" />
+
+  <!-- ======================================================================== -->
+  <!-- Application nodes                                                        -->
+  <!-- ======================================================================== -->
+
+  <!-- <frame> -->
+  <implementation name="IM_frame_float_genwgsl" nodedef="ND_frame_float" function="mx_frame_float" target="genwgsl" />
+
+  <!-- <time> -->
+  <implementation name="IM_time_float_genwgsl" nodedef="ND_time_float" function="mx_time_float" target="genwgsl" />
+
+  <!-- ======================================================================== -->
+  <!-- Math nodes                                                               -->
+  <!-- ======================================================================== -->
+
+  <!-- <add> -->
+  <implementation name="IM_add_float_genwgsl" nodedef="ND_add_float" target="genwgsl" sourcecode="{{in1}} + {{in2}}" />
+  <implementation name="IM_add_integer_genwgsl" nodedef="ND_add_integer" target="genwgsl" sourcecode="{{in1}} + {{in2}}" />
+  <implementation name="IM_add_color3_genwgsl" nodedef="ND_add_color3" target="genwgsl" sourcecode="{{in1}} + {{in2}}" />
+  <implementation name="IM_add_color3FA_genwgsl" nodedef="ND_add_color3FA" target="genwgsl" sourcecode="{{in1}} + {{in2}}" />
+  <implementation name="IM_add_color4_genwgsl" nodedef="ND_add_color4" target="genwgsl" sourcecode="{{in1}} + {{in2}}" />
+  <implementation name="IM_add_color4FA_genwgsl" nodedef="ND_add_color4FA" target="genwgsl" sourcecode="{{in1}} + {{in2}}" />
+  <implementation name="IM_add_vector2_genwgsl" nodedef="ND_add_vector2" target="genwgsl" sourcecode="{{in1}} + {{in2}}" />
+  <implementation name="IM_add_vector2FA_genwgsl" nodedef="ND_add_vector2FA" target="genwgsl" sourcecode="{{in1}} + {{in2}}" />
+  <implementation name="IM_add_vector3_genwgsl" nodedef="ND_add_vector3" target="genwgsl" sourcecode="{{in1}} + {{in2}}" />
+  <implementation name="IM_add_vector3FA_genwgsl" nodedef="ND_add_vector3FA" target="genwgsl" sourcecode="{{in1}} + {{in2}}" />
+  <implementation name="IM_add_vector4_genwgsl" nodedef="ND_add_vector4" target="genwgsl" sourcecode="{{in1}} + {{in2}}" />
+  <implementation name="IM_add_vector4FA_genwgsl" nodedef="ND_add_vector4FA" target="genwgsl" sourcecode="{{in1}} + {{in2}}" />
+  <implementation name="IM_add_matrix33_genwgsl" nodedef="ND_add_matrix33" target="genwgsl" sourcecode="{{in1}} + {{in2}}" />
+  <implementation name="IM_add_matrix33FA_genwgsl" nodedef="ND_add_matrix33FA" target="genwgsl" sourcecode="{{in1}} + {{in2}}" />
+  <implementation name="IM_add_matrix44_genwgsl" nodedef="ND_add_matrix44" target="genwgsl" sourcecode="{{in1}} + {{in2}}" />
+  <implementation name="IM_add_matrix44FA_genwgsl" nodedef="ND_add_matrix44FA" target="genwgsl" sourcecode="{{in1}} + {{in2}}" />
+
+  <!-- <subtract> -->
+  <implementation name="IM_subtract_float_genwgsl" nodedef="ND_subtract_float" target="genwgsl" sourcecode="{{in1}} - {{in2}}" />
+  <implementation name="IM_subtract_integer_genwgsl" nodedef="ND_subtract_integer" target="genwgsl" sourcecode="{{in1}} - {{in2}}" />
+  <implementation name="IM_subtract_color3_genwgsl" nodedef="ND_subtract_color3" target="genwgsl" sourcecode="{{in1}} - {{in2}}" />
+  <implementation name="IM_subtract_color3FA_genwgsl" nodedef="ND_subtract_color3FA" target="genwgsl" sourcecode="{{in1}} - {{in2}}" />
+  <implementation name="IM_subtract_color4_genwgsl" nodedef="ND_subtract_color4" target="genwgsl" sourcecode="{{in1}} - {{in2}}" />
+  <implementation name="IM_subtract_color4FA_genwgsl" nodedef="ND_subtract_color4FA" target="genwgsl" sourcecode="{{in1}} - {{in2}}" />
+  <implementation name="IM_subtract_vector2_genwgsl" nodedef="ND_subtract_vector2" target="genwgsl" sourcecode="{{in1}} - {{in2}}" />
+  <implementation name="IM_subtract_vector2FA_genwgsl" nodedef="ND_subtract_vector2FA" target="genwgsl" sourcecode="{{in1}} - {{in2}}" />
+  <implementation name="IM_subtract_vector3_genwgsl" nodedef="ND_subtract_vector3" target="genwgsl" sourcecode="{{in1}} - {{in2}}" />
+  <implementation name="IM_subtract_vector3FA_genwgsl" nodedef="ND_subtract_vector3FA" target="genwgsl" sourcecode="{{in1}} - {{in2}}" />
+  <implementation name="IM_subtract_vector4_genwgsl" nodedef="ND_subtract_vector4" target="genwgsl" sourcecode="{{in1}} - {{in2}}" />
+  <implementation name="IM_subtract_vector4FA_genwgsl" nodedef="ND_subtract_vector4FA" target="genwgsl" sourcecode="{{in1}} - {{in2}}" />
+  <implementation name="IM_subtract_matrix33_genwgsl" nodedef="ND_subtract_matrix33" target="genwgsl" sourcecode="{{in1}} - {{in2}}" />
+  <implementation name="IM_subtract_matrix33FA_genwgsl" nodedef="ND_subtract_matrix33FA" target="genwgsl" sourcecode="{{in1}} - {{in2}}" />
+  <implementation name="IM_subtract_matrix44_genwgsl" nodedef="ND_subtract_matrix44" target="genwgsl" sourcecode="{{in1}} - {{in2}}" />
+  <implementation name="IM_subtract_matrix44FA_genwgsl" nodedef="ND_subtract_matrix44FA" target="genwgsl" sourcecode="{{in1}} - {{in2}}" />
+
+  <!-- <multiply> -->
+  <implementation name="IM_multiply_float_genwgsl" nodedef="ND_multiply_float" target="genwgsl" sourcecode="{{in1}} * {{in2}}" />
+  <implementation name="IM_multiply_color3_genwgsl" nodedef="ND_multiply_color3" target="genwgsl" sourcecode="{{in1}} * {{in2}}" />
+  <implementation name="IM_multiply_color3FA_genwgsl" nodedef="ND_multiply_color3FA" target="genwgsl" sourcecode="{{in1}} * {{in2}}" />
+  <implementation name="IM_multiply_color4_genwgsl" nodedef="ND_multiply_color4" target="genwgsl" sourcecode="{{in1}} * {{in2}}" />
+  <implementation name="IM_multiply_color4FA_genwgsl" nodedef="ND_multiply_color4FA" target="genwgsl" sourcecode="{{in1}} * {{in2}}" />
+  <implementation name="IM_multiply_vector2_genwgsl" nodedef="ND_multiply_vector2" target="genwgsl" sourcecode="{{in1}} * {{in2}}" />
+  <implementation name="IM_multiply_vector2FA_genwgsl" nodedef="ND_multiply_vector2FA" target="genwgsl" sourcecode="{{in1}} * {{in2}}" />
+  <implementation name="IM_multiply_vector3_genwgsl" nodedef="ND_multiply_vector3" target="genwgsl" sourcecode="{{in1}} * {{in2}}" />
+  <implementation name="IM_multiply_vector3FA_genwgsl" nodedef="ND_multiply_vector3FA" target="genwgsl" sourcecode="{{in1}} * {{in2}}" />
+  <implementation name="IM_multiply_vector4_genwgsl" nodedef="ND_multiply_vector4" target="genwgsl" sourcecode="{{in1}} * {{in2}}" />
+  <implementation name="IM_multiply_vector4FA_genwgsl" nodedef="ND_multiply_vector4FA" target="genwgsl" sourcecode="{{in1}} * {{in2}}" />
+  <implementation name="IM_multiply_matrix33_genwgsl" nodedef="ND_multiply_matrix33" target="genwgsl" sourcecode="({{in2}} * {{in1}})" />
+  <implementation name="IM_multiply_matrix44_genwgsl" nodedef="ND_multiply_matrix44" target="genwgsl" sourcecode="({{in2}} * {{in1}})" />
+
+  <!-- <divide> -->
+  <implementation name="IM_divide_float_genwgsl" nodedef="ND_divide_float" target="genwgsl" sourcecode="{{in1}} / {{in2}}" />
+  <implementation name="IM_divide_color3_genwgsl" nodedef="ND_divide_color3" target="genwgsl" sourcecode="{{in1}} / {{in2}}" />
+  <implementation name="IM_divide_color3FA_genwgsl" nodedef="ND_divide_color3FA" target="genwgsl" sourcecode="{{in1}} / {{in2}}" />
+  <implementation name="IM_divide_color4_genwgsl" nodedef="ND_divide_color4" target="genwgsl" sourcecode="{{in1}} / {{in2}}" />
+  <implementation name="IM_divide_color4FA_genwgsl" nodedef="ND_divide_color4FA" target="genwgsl" sourcecode="{{in1}} / {{in2}}" />
+  <implementation name="IM_divide_vector2_genwgsl" nodedef="ND_divide_vector2" target="genwgsl" sourcecode="{{in1}} / {{in2}}" />
+  <implementation name="IM_divide_vector2FA_genwgsl" nodedef="ND_divide_vector2FA" target="genwgsl" sourcecode="{{in1}} / {{in2}}" />
+  <implementation name="IM_divide_vector3_genwgsl" nodedef="ND_divide_vector3" target="genwgsl" sourcecode="{{in1}} / {{in2}}" />
+  <implementation name="IM_divide_vector3FA_genwgsl" nodedef="ND_divide_vector3FA" target="genwgsl" sourcecode="{{in1}} / {{in2}}" />
+  <implementation name="IM_divide_vector4_genwgsl" nodedef="ND_divide_vector4" target="genwgsl" sourcecode="{{in1}} / {{in2}}" />
+  <implementation name="IM_divide_vector4FA_genwgsl" nodedef="ND_divide_vector4FA" target="genwgsl" sourcecode="{{in1}} / {{in2}}" />
+  <implementation name="IM_divide_matrix33_genwgsl" nodedef="ND_divide_matrix33" target="genwgsl" sourcecode="(mx_inverse({{in2}}) * {{in1}})" />
+  <implementation name="IM_divide_matrix44_genwgsl" nodedef="ND_divide_matrix44" target="genwgsl" sourcecode="(mx_inverse({{in2}}) * {{in1}})" />
+
+  <!-- <modulo> — WGSL has no built-in mod(); use mx_mod_* wrappers from mx_math.wgsl -->
+  <implementation name="IM_modulo_float_genwgsl" nodedef="ND_modulo_float" target="genwgsl" sourcecode="mx_mod_f32({{in1}}, {{in2}})" />
+  <implementation name="IM_modulo_color3_genwgsl" nodedef="ND_modulo_color3" target="genwgsl" sourcecode="mx_mod_vec3({{in1}}, {{in2}})" />
+  <implementation name="IM_modulo_color3FA_genwgsl" nodedef="ND_modulo_color3FA" target="genwgsl" sourcecode="mx_mod_vec3_f32({{in1}}, {{in2}})" />
+  <implementation name="IM_modulo_color4_genwgsl" nodedef="ND_modulo_color4" target="genwgsl" sourcecode="mx_mod_vec4({{in1}}, {{in2}})" />
+  <implementation name="IM_modulo_color4FA_genwgsl" nodedef="ND_modulo_color4FA" target="genwgsl" sourcecode="mx_mod_vec4_f32({{in1}}, {{in2}})" />
+  <implementation name="IM_modulo_vector2_genwgsl" nodedef="ND_modulo_vector2" target="genwgsl" sourcecode="mx_mod_vec2({{in1}}, {{in2}})" />
+  <implementation name="IM_modulo_vector2FA_genwgsl" nodedef="ND_modulo_vector2FA" target="genwgsl" sourcecode="mx_mod_vec2_f32({{in1}}, {{in2}})" />
+  <implementation name="IM_modulo_vector3_genwgsl" nodedef="ND_modulo_vector3" target="genwgsl" sourcecode="mx_mod_vec3({{in1}}, {{in2}})" />
+  <implementation name="IM_modulo_vector3FA_genwgsl" nodedef="ND_modulo_vector3FA" target="genwgsl" sourcecode="mx_mod_vec3_f32({{in1}}, {{in2}})" />
+  <implementation name="IM_modulo_vector4_genwgsl" nodedef="ND_modulo_vector4" target="genwgsl" sourcecode="mx_mod_vec4({{in1}}, {{in2}})" />
+  <implementation name="IM_modulo_vector4FA_genwgsl" nodedef="ND_modulo_vector4FA" target="genwgsl" sourcecode="mx_mod_vec4_f32({{in1}}, {{in2}})" />
+
+  <!-- <fract> -->
+  <implementation name="IM_fract_float_genwgsl" nodedef="ND_fract_float" target="genwgsl" sourcecode="fract({{in}})" />
+  <implementation name="IM_fract_color3_genwgsl" nodedef="ND_fract_color3" target="genwgsl" sourcecode="fract({{in}})" />
+  <implementation name="IM_fract_color4_genwgsl" nodedef="ND_fract_color4" target="genwgsl" sourcecode="fract({{in}})" />
+  <implementation name="IM_fract_vector2_genwgsl" nodedef="ND_fract_vector2" target="genwgsl" sourcecode="fract({{in}})" />
+  <implementation name="IM_fract_vector3_genwgsl" nodedef="ND_fract_vector3" target="genwgsl" sourcecode="fract({{in}})" />
+  <implementation name="IM_fract_vector4_genwgsl" nodedef="ND_fract_vector4" target="genwgsl" sourcecode="fract({{in}})" />
+
+  <!-- <invert> -->
+  <implementation name="IM_invert_float_genwgsl" nodedef="ND_invert_float" target="genwgsl" sourcecode="{{amount}} - {{in}}" />
+  <implementation name="IM_invert_color3_genwgsl" nodedef="ND_invert_color3" target="genwgsl" sourcecode="{{amount}} - {{in}}" />
+  <implementation name="IM_invert_color3FA_genwgsl" nodedef="ND_invert_color3FA" target="genwgsl" sourcecode="{{amount}} - {{in}}" />
+  <implementation name="IM_invert_color4_genwgsl" nodedef="ND_invert_color4" target="genwgsl" sourcecode="{{amount}} - {{in}}" />
+  <implementation name="IM_invert_color4FA_genwgsl" nodedef="ND_invert_color4FA" target="genwgsl" sourcecode="{{amount}} - {{in}}" />
+  <implementation name="IM_invert_vector2_genwgsl" nodedef="ND_invert_vector2" target="genwgsl" sourcecode="{{amount}} - {{in}}" />
+  <implementation name="IM_invert_vector2FA_genwgsl" nodedef="ND_invert_vector2FA" target="genwgsl" sourcecode="{{amount}} - {{in}}" />
+  <implementation name="IM_invert_vector3_genwgsl" nodedef="ND_invert_vector3" target="genwgsl" sourcecode="{{amount}} - {{in}}" />
+  <implementation name="IM_invert_vector3FA_genwgsl" nodedef="ND_invert_vector3FA" target="genwgsl" sourcecode="{{amount}} - {{in}}" />
+  <implementation name="IM_invert_vector4_genwgsl" nodedef="ND_invert_vector4" target="genwgsl" sourcecode="{{amount}} - {{in}}" />
+  <implementation name="IM_invert_vector4FA_genwgsl" nodedef="ND_invert_vector4FA" target="genwgsl" sourcecode="{{amount}} - {{in}}" />
+
+  <!-- <absval> -->
+  <implementation name="IM_absval_float_genwgsl" nodedef="ND_absval_float" target="genwgsl" sourcecode="abs({{in}})" />
+  <implementation name="IM_absval_color3_genwgsl" nodedef="ND_absval_color3" target="genwgsl" sourcecode="abs({{in}})" />
+  <implementation name="IM_absval_color4_genwgsl" nodedef="ND_absval_color4" target="genwgsl" sourcecode="abs({{in}})" />
+  <implementation name="IM_absval_vector2_genwgsl" nodedef="ND_absval_vector2" target="genwgsl" sourcecode="abs({{in}})" />
+  <implementation name="IM_absval_vector3_genwgsl" nodedef="ND_absval_vector3" target="genwgsl" sourcecode="abs({{in}})" />
+  <implementation name="IM_absval_vector4_genwgsl" nodedef="ND_absval_vector4" target="genwgsl" sourcecode="abs({{in}})" />
+
+  <!-- <floor> -->
+  <implementation name="IM_floor_float_genwgsl" nodedef="ND_floor_float" target="genwgsl" sourcecode="floor({{in}})" />
+  <implementation name="IM_floor_color3_genwgsl" nodedef="ND_floor_color3" target="genwgsl" sourcecode="floor({{in}})" />
+  <implementation name="IM_floor_color4_genwgsl" nodedef="ND_floor_color4" target="genwgsl" sourcecode="floor({{in}})" />
+  <implementation name="IM_floor_vector2_genwgsl" nodedef="ND_floor_vector2" target="genwgsl" sourcecode="floor({{in}})" />
+  <implementation name="IM_floor_vector3_genwgsl" nodedef="ND_floor_vector3" target="genwgsl" sourcecode="floor({{in}})" />
+  <implementation name="IM_floor_vector4_genwgsl" nodedef="ND_floor_vector4" target="genwgsl" sourcecode="floor({{in}})" />
+  <implementation name="IM_floor_integer_genwgsl" nodedef="ND_floor_integer" target="genwgsl" sourcecode="i32(floor({{in}}))" />
+
+  <!-- <ceil> -->
+  <implementation name="IM_ceil_float_genwgsl" nodedef="ND_ceil_float" target="genwgsl" sourcecode="ceil({{in}})" />
+  <implementation name="IM_ceil_color3_genwgsl" nodedef="ND_ceil_color3" target="genwgsl" sourcecode="ceil({{in}})" />
+  <implementation name="IM_ceil_color4_genwgsl" nodedef="ND_ceil_color4" target="genwgsl" sourcecode="ceil({{in}})" />
+  <implementation name="IM_ceil_vector2_genwgsl" nodedef="ND_ceil_vector2" target="genwgsl" sourcecode="ceil({{in}})" />
+  <implementation name="IM_ceil_vector3_genwgsl" nodedef="ND_ceil_vector3" target="genwgsl" sourcecode="ceil({{in}})" />
+  <implementation name="IM_ceil_vector4_genwgsl" nodedef="ND_ceil_vector4" target="genwgsl" sourcecode="ceil({{in}})" />
+  <implementation name="IM_ceil_integer_genwgsl" nodedef="ND_ceil_integer" target="genwgsl" sourcecode="i32(ceil({{in}}))" />
+
+  <!-- <round> -->
+  <implementation name="IM_round_float_genwgsl" nodedef="ND_round_float" target="genwgsl" sourcecode="round({{in}})" />
+  <implementation name="IM_round_color3_genwgsl" nodedef="ND_round_color3" target="genwgsl" sourcecode="round({{in}})" />
+  <implementation name="IM_round_color4_genwgsl" nodedef="ND_round_color4" target="genwgsl" sourcecode="round({{in}})" />
+  <implementation name="IM_round_vector2_genwgsl" nodedef="ND_round_vector2" target="genwgsl" sourcecode="round({{in}})" />
+  <implementation name="IM_round_vector3_genwgsl" nodedef="ND_round_vector3" target="genwgsl" sourcecode="round({{in}})" />
+  <implementation name="IM_round_vector4_genwgsl" nodedef="ND_round_vector4" target="genwgsl" sourcecode="round({{in}})" />
+  <implementation name="IM_round_integer_genwgsl" nodedef="ND_round_integer" target="genwgsl" sourcecode="i32(round({{in}}))" />
+
+  <!-- <power> -->
+  <implementation name="IM_power_float_genwgsl" nodedef="ND_power_float" target="genwgsl" sourcecode="pow({{in1}}, {{in2}})" />
+  <implementation name="IM_power_color3_genwgsl" nodedef="ND_power_color3" target="genwgsl" sourcecode="pow({{in1}}, {{in2}})" />
+  <implementation name="IM_power_color3FA_genwgsl" nodedef="ND_power_color3FA" target="genwgsl" sourcecode="pow({{in1}}, vec3f({{in2}}))" />
+  <implementation name="IM_power_color4_genwgsl" nodedef="ND_power_color4" target="genwgsl" sourcecode="pow({{in1}}, {{in2}})" />
+  <implementation name="IM_power_color4FA_genwgsl" nodedef="ND_power_color4FA" target="genwgsl" sourcecode="pow({{in1}}, vec4f({{in2}}))" />
+  <implementation name="IM_power_vector2_genwgsl" nodedef="ND_power_vector2" target="genwgsl" sourcecode="pow({{in1}}, {{in2}})" />
+  <implementation name="IM_power_vector2FA_genwgsl" nodedef="ND_power_vector2FA" target="genwgsl" sourcecode="pow({{in1}}, vec2f({{in2}}))" />
+  <implementation name="IM_power_vector3_genwgsl" nodedef="ND_power_vector3" target="genwgsl" sourcecode="pow({{in1}}, {{in2}})" />
+  <implementation name="IM_power_vector3FA_genwgsl" nodedef="ND_power_vector3FA" target="genwgsl" sourcecode="pow({{in1}}, vec3f({{in2}}))" />
+  <implementation name="IM_power_vector4_genwgsl" nodedef="ND_power_vector4" target="genwgsl" sourcecode="pow({{in1}}, {{in2}})" />
+  <implementation name="IM_power_vector4FA_genwgsl" nodedef="ND_power_vector4FA" target="genwgsl" sourcecode="pow({{in1}}, vec4f({{in2}}))" />
+
+  <!-- <sin>, <cos>, <tan>, <asin>, <acos>, <atan2> — use WGSL built-ins directly (atan2 replaces GLSL atan) -->
+  <implementation name="IM_sin_float_genwgsl" nodedef="ND_sin_float" target="genwgsl" sourcecode="sin({{in}})" />
+  <implementation name="IM_cos_float_genwgsl" nodedef="ND_cos_float" target="genwgsl" sourcecode="cos({{in}})" />
+  <implementation name="IM_tan_float_genwgsl" nodedef="ND_tan_float" target="genwgsl" sourcecode="tan({{in}})" />
+  <implementation name="IM_asin_float_genwgsl" nodedef="ND_asin_float" target="genwgsl" sourcecode="asin({{in}})" />
+  <implementation name="IM_acos_float_genwgsl" nodedef="ND_acos_float" target="genwgsl" sourcecode="acos({{in}})" />
+  <implementation name="IM_atan2_float_genwgsl" nodedef="ND_atan2_float" target="genwgsl" sourcecode="atan2({{iny}}, {{inx}})" />
+  <implementation name="IM_sin_vector2_genwgsl" nodedef="ND_sin_vector2" target="genwgsl" sourcecode="sin({{in}})" />
+  <implementation name="IM_cos_vector2_genwgsl" nodedef="ND_cos_vector2" target="genwgsl" sourcecode="cos({{in}})" />
+  <implementation name="IM_tan_vector2_genwgsl" nodedef="ND_tan_vector2" target="genwgsl" sourcecode="tan({{in}})" />
+  <implementation name="IM_asin_vector2_genwgsl" nodedef="ND_asin_vector2" target="genwgsl" sourcecode="asin({{in}})" />
+  <implementation name="IM_acos_vector2_genwgsl" nodedef="ND_acos_vector2" target="genwgsl" sourcecode="acos({{in}})" />
+  <implementation name="IM_atan2_vector2_genwgsl" nodedef="ND_atan2_vector2" target="genwgsl" sourcecode="atan2({{iny}}, {{inx}})" />
+  <implementation name="IM_sin_vector3_genwgsl" nodedef="ND_sin_vector3" target="genwgsl" sourcecode="sin({{in}})" />
+  <implementation name="IM_cos_vector3_genwgsl" nodedef="ND_cos_vector3" target="genwgsl" sourcecode="cos({{in}})" />
+  <implementation name="IM_tan_vector3_genwgsl" nodedef="ND_tan_vector3" target="genwgsl" sourcecode="tan({{in}})" />
+  <implementation name="IM_asin_vector3_genwgsl" nodedef="ND_asin_vector3" target="genwgsl" sourcecode="asin({{in}})" />
+  <implementation name="IM_acos_vector3_genwgsl" nodedef="ND_acos_vector3" target="genwgsl" sourcecode="acos({{in}})" />
+  <implementation name="IM_atan2_vector3_genwgsl" nodedef="ND_atan2_vector3" target="genwgsl" sourcecode="atan2({{iny}}, {{inx}})" />
+  <implementation name="IM_sin_vector4_genwgsl" nodedef="ND_sin_vector4" target="genwgsl" sourcecode="sin({{in}})" />
+  <implementation name="IM_cos_vector4_genwgsl" nodedef="ND_cos_vector4" target="genwgsl" sourcecode="cos({{in}})" />
+  <implementation name="IM_tan_vector4_genwgsl" nodedef="ND_tan_vector4" target="genwgsl" sourcecode="tan({{in}})" />
+  <implementation name="IM_asin_vector4_genwgsl" nodedef="ND_asin_vector4" target="genwgsl" sourcecode="asin({{in}})" />
+  <implementation name="IM_acos_vector4_genwgsl" nodedef="ND_acos_vector4" target="genwgsl" sourcecode="acos({{in}})" />
+  <implementation name="IM_atan2_vector4_genwgsl" nodedef="ND_atan2_vector4" target="genwgsl" sourcecode="atan2({{iny}}, {{inx}})" />
+
+  <!-- <sqrt> -->
+  <implementation name="IM_sqrt_float_genwgsl" nodedef="ND_sqrt_float" target="genwgsl" sourcecode="sqrt({{in}})" />
+  <implementation name="IM_sqrt_vector2_genwgsl" nodedef="ND_sqrt_vector2" target="genwgsl" sourcecode="sqrt({{in}})" />
+  <implementation name="IM_sqrt_vector3_genwgsl" nodedef="ND_sqrt_vector3" target="genwgsl" sourcecode="sqrt({{in}})" />
+  <implementation name="IM_sqrt_vector4_genwgsl" nodedef="ND_sqrt_vector4" target="genwgsl" sourcecode="sqrt({{in}})" />
+
+  <!-- <ln> -->
+  <implementation name="IM_ln_float_genwgsl" nodedef="ND_ln_float" target="genwgsl" sourcecode="log({{in}})" />
+  <implementation name="IM_ln_vector2_genwgsl" nodedef="ND_ln_vector2" target="genwgsl" sourcecode="log({{in}})" />
+  <implementation name="IM_ln_vector3_genwgsl" nodedef="ND_ln_vector3" target="genwgsl" sourcecode="log({{in}})" />
+  <implementation name="IM_ln_vector4_genwgsl" nodedef="ND_ln_vector4" target="genwgsl" sourcecode="log({{in}})" />
+
+  <!-- <exp> -->
+  <implementation name="IM_exp_float_genwgsl" nodedef="ND_exp_float" target="genwgsl" sourcecode="exp({{in}})" />
+  <implementation name="IM_exp_vector2_genwgsl" nodedef="ND_exp_vector2" target="genwgsl" sourcecode="exp({{in}})" />
+  <implementation name="IM_exp_vector3_genwgsl" nodedef="ND_exp_vector3" target="genwgsl" sourcecode="exp({{in}})" />
+  <implementation name="IM_exp_vector4_genwgsl" nodedef="ND_exp_vector4" target="genwgsl" sourcecode="exp({{in}})" />
+
+  <!-- sign -->
+  <implementation name="IM_sign_float_genwgsl" nodedef="ND_sign_float" target="genwgsl" sourcecode="sign({{in}})" />
+  <implementation name="IM_sign_color3_genwgsl" nodedef="ND_sign_color3" target="genwgsl" sourcecode="sign({{in}})" />
+  <implementation name="IM_sign_color4_genwgsl" nodedef="ND_sign_color4" target="genwgsl" sourcecode="sign({{in}})" />
+  <implementation name="IM_sign_vector2_genwgsl" nodedef="ND_sign_vector2" target="genwgsl" sourcecode="sign({{in}})" />
+  <implementation name="IM_sign_vector3_genwgsl" nodedef="ND_sign_vector3" target="genwgsl" sourcecode="sign({{in}})" />
+  <implementation name="IM_sign_vector4_genwgsl" nodedef="ND_sign_vector4" target="genwgsl" sourcecode="sign({{in}})" />
+
+  <!-- <clamp> -->
+  <implementation name="IM_clamp_float_genwgsl" nodedef="ND_clamp_float" target="genwgsl" sourcecode="clamp({{in}}, {{low}}, {{high}})" />
+  <implementation name="IM_clamp_color3_genwgsl" nodedef="ND_clamp_color3" target="genwgsl" sourcecode="clamp({{in}}, {{low}}, {{high}})" />
+  <implementation name="IM_clamp_color3FA_genwgsl" nodedef="ND_clamp_color3FA" target="genwgsl" sourcecode="clamp({{in}}, vec3f({{low}}), vec3f({{high}}))" />
+  <implementation name="IM_clamp_color4_genwgsl" nodedef="ND_clamp_color4" target="genwgsl" sourcecode="clamp({{in}}, {{low}}, {{high}})" />
+  <implementation name="IM_clamp_color4FA_genwgsl" nodedef="ND_clamp_color4FA" target="genwgsl" sourcecode="clamp({{in}}, vec4f({{low}}), vec4f({{high}}))" />
+  <implementation name="IM_clamp_vector2_genwgsl" nodedef="ND_clamp_vector2" target="genwgsl" sourcecode="clamp({{in}}, {{low}}, {{high}})" />
+  <implementation name="IM_clamp_vector2FA_genwgsl" nodedef="ND_clamp_vector2FA" target="genwgsl" sourcecode="clamp({{in}}, vec2f({{low}}), vec2f({{high}}))" />
+  <implementation name="IM_clamp_vector3_genwgsl" nodedef="ND_clamp_vector3" target="genwgsl" sourcecode="clamp({{in}}, {{low}}, {{high}})" />
+  <implementation name="IM_clamp_vector3FA_genwgsl" nodedef="ND_clamp_vector3FA" target="genwgsl" sourcecode="clamp({{in}}, vec3f({{low}}), vec3f({{high}}))" />
+  <implementation name="IM_clamp_vector4_genwgsl" nodedef="ND_clamp_vector4" target="genwgsl" sourcecode="clamp({{in}}, {{low}}, {{high}})" />
+  <implementation name="IM_clamp_vector4FA_genwgsl" nodedef="ND_clamp_vector4FA" target="genwgsl" sourcecode="clamp({{in}}, vec4f({{low}}), vec4f({{high}}))" />
+
+  <!-- <min> -->
+  <implementation name="IM_min_float_genwgsl" nodedef="ND_min_float" target="genwgsl" sourcecode="min({{in1}}, {{in2}})" />
+  <implementation name="IM_min_color3_genwgsl" nodedef="ND_min_color3" target="genwgsl" sourcecode="min({{in1}}, {{in2}})" />
+  <implementation name="IM_min_color3FA_genwgsl" nodedef="ND_min_color3FA" target="genwgsl" sourcecode="min({{in1}}, vec3f({{in2}}))" />
+  <implementation name="IM_min_color4_genwgsl" nodedef="ND_min_color4" target="genwgsl" sourcecode="min({{in1}}, {{in2}})" />
+  <implementation name="IM_min_color4FA_genwgsl" nodedef="ND_min_color4FA" target="genwgsl" sourcecode="min({{in1}}, vec4f({{in2}}))" />
+  <implementation name="IM_min_vector2_genwgsl" nodedef="ND_min_vector2" target="genwgsl" sourcecode="min({{in1}}, {{in2}})" />
+  <implementation name="IM_min_vector2FA_genwgsl" nodedef="ND_min_vector2FA" target="genwgsl" sourcecode="min({{in1}}, vec2f({{in2}}))" />
+  <implementation name="IM_min_vector3_genwgsl" nodedef="ND_min_vector3" target="genwgsl" sourcecode="min({{in1}}, {{in2}})" />
+  <implementation name="IM_min_vector3FA_genwgsl" nodedef="ND_min_vector3FA" target="genwgsl" sourcecode="min({{in1}}, vec3f({{in2}}))" />
+  <implementation name="IM_min_vector4_genwgsl" nodedef="ND_min_vector4" target="genwgsl" sourcecode="min({{in1}}, {{in2}})" />
+  <implementation name="IM_min_vector4FA_genwgsl" nodedef="ND_min_vector4FA" target="genwgsl" sourcecode="min({{in1}}, vec4f({{in2}}))" />
+
+  <!-- <max> -->
+  <implementation name="IM_max_float_genwgsl" nodedef="ND_max_float" target="genwgsl" sourcecode="max({{in1}}, {{in2}})" />
+  <implementation name="IM_max_color3_genwgsl" nodedef="ND_max_color3" target="genwgsl" sourcecode="max({{in1}}, {{in2}})" />
+  <implementation name="IM_max_color3FA_genwgsl" nodedef="ND_max_color3FA" target="genwgsl" sourcecode="max({{in1}}, vec3f({{in2}}))" />
+  <implementation name="IM_max_color4_genwgsl" nodedef="ND_max_color4" target="genwgsl" sourcecode="max({{in1}}, {{in2}})" />
+  <implementation name="IM_max_color4FA_genwgsl" nodedef="ND_max_color4FA" target="genwgsl" sourcecode="max({{in1}}, vec4f({{in2}}))" />
+  <implementation name="IM_max_vector2_genwgsl" nodedef="ND_max_vector2" target="genwgsl" sourcecode="max({{in1}}, {{in2}})" />
+  <implementation name="IM_max_vector2FA_genwgsl" nodedef="ND_max_vector2FA" target="genwgsl" sourcecode="max({{in1}}, vec2f({{in2}}))" />
+  <implementation name="IM_max_vector3_genwgsl" nodedef="ND_max_vector3" target="genwgsl" sourcecode="max({{in1}}, {{in2}})" />
+  <implementation name="IM_max_vector3FA_genwgsl" nodedef="ND_max_vector3FA" target="genwgsl" sourcecode="max({{in1}}, vec3f({{in2}}))" />
+  <implementation name="IM_max_vector4_genwgsl" nodedef="ND_max_vector4" target="genwgsl" sourcecode="max({{in1}}, {{in2}})" />
+  <implementation name="IM_max_vector4FA_genwgsl" nodedef="ND_max_vector4FA" target="genwgsl" sourcecode="max({{in1}}, vec4f({{in2}}))" />
+
+  <!-- <normalize> -->
+  <implementation name="IM_normalize_vector2_genwgsl" nodedef="ND_normalize_vector2" target="genwgsl" sourcecode="normalize({{in}})" />
+  <implementation name="IM_normalize_vector3_genwgsl" nodedef="ND_normalize_vector3" target="genwgsl" sourcecode="normalize({{in}})" />
+  <implementation name="IM_normalize_vector4_genwgsl" nodedef="ND_normalize_vector4" target="genwgsl" sourcecode="normalize({{in}})" />
+
+  <!-- <magnitude> -->
+  <implementation name="IM_magnitude_vector2_genwgsl" nodedef="ND_magnitude_vector2" target="genwgsl" sourcecode="length({{in}})" />
+  <implementation name="IM_magnitude_vector3_genwgsl" nodedef="ND_magnitude_vector3" target="genwgsl" sourcecode="length({{in}})" />
+  <implementation name="IM_magnitude_vector4_genwgsl" nodedef="ND_magnitude_vector4" target="genwgsl" sourcecode="length({{in}})" />
+
+  <!-- <dotproduct> -->
+  <implementation name="IM_dotproduct_vector2_genwgsl" nodedef="ND_dotproduct_vector2" target="genwgsl" sourcecode="dot({{in1}}, {{in2}})" />
+  <implementation name="IM_dotproduct_vector3_genwgsl" nodedef="ND_dotproduct_vector3" target="genwgsl" sourcecode="dot({{in1}}, {{in2}})" />
+  <implementation name="IM_dotproduct_vector4_genwgsl" nodedef="ND_dotproduct_vector4" target="genwgsl" sourcecode="dot({{in1}}, {{in2}})" />
+
+  <!-- <crossproduct> -->
+  <implementation name="IM_crossproduct_vector3_genwgsl" nodedef="ND_crossproduct_vector3" target="genwgsl" sourcecode="cross({{in1}}, {{in2}})" />
+
+  <!-- <transformpoint> -->
+  <implementation name="IM_transformpoint_vector3_genwgsl" nodedef="ND_transformpoint_vector3" target="genwgsl" />
+
+  <!-- <transformvector> -->
+  <implementation name="IM_transformvector_vector3_genwgsl" nodedef="ND_transformvector_vector3" target="genwgsl" />
+
+  <!-- <transformnormal> -->
+  <implementation name="IM_transformnormal_vector3_genwgsl" nodedef="ND_transformnormal_vector3" target="genwgsl" />
+
+  <!-- <transformmatrix> -->
+  <implementation name="IM_transformmatrix_vector2M3_genwgsl" nodedef="ND_transformmatrix_vector2M3" function="mx_transformmatrix_vector2M3" file="mx_transformmatrix_vector2M3.wgsl" target="genwgsl" />
+  <implementation name="IM_transformmatrix_vector3_genwgsl" nodedef="ND_transformmatrix_vector3" target="genwgsl" sourcecode="({{mat}} * {{in}})" />
+  <implementation name="IM_transformmatrix_vector3M4_genwgsl" nodedef="ND_transformmatrix_vector3M4" function="mx_transformmatrix_vector3M4" file="mx_transformmatrix_vector3M4.wgsl" target="genwgsl" />
+  <implementation name="IM_transformmatrix_vector4_genwgsl" nodedef="ND_transformmatrix_vector4" target="genwgsl" sourcecode="({{mat}} * {{in}})" />
+
+  <!-- <transpose> -->
+  <implementation name="IM_transpose_matrix33_genwgsl" nodedef="ND_transpose_matrix33" target="genwgsl" sourcecode="transpose({{in}})" />
+  <implementation name="IM_transpose_matrix44_genwgsl" nodedef="ND_transpose_matrix44" target="genwgsl" sourcecode="transpose({{in}})" />
+
+  <!-- <determinant> -->
+  <implementation name="IM_determinant_matrix33_genwgsl" nodedef="ND_determinant_matrix33" target="genwgsl" sourcecode="determinant({{in}})" />
+  <implementation name="IM_determinant_matrix44_genwgsl" nodedef="ND_determinant_matrix44" target="genwgsl" sourcecode="determinant({{in}})" />
+
+  <!-- <invertmatrix> -->
+  <implementation name="IM_invertmatrix_matrix33_genwgsl" nodedef="ND_invertmatrix_matrix33" target="genwgsl" sourcecode="mx_inverse({{in}})" />
+  <implementation name="IM_invertmatrix_matrix44_genwgsl" nodedef="ND_invertmatrix_matrix44" target="genwgsl" sourcecode="mx_inverse({{in}})" />
+
+  <!-- <rotate2d> -->
+  <implementation name="IM_rotate2d_vector2_genwgsl" nodedef="ND_rotate2d_vector2" file="mx_rotate_vector2.wgsl" function="mx_rotate_vector2" target="genwgsl" />
+
+  <!-- <rotate3d> -->
+  <implementation name="IM_rotate3d_vector3_genwgsl" nodedef="ND_rotate3d_vector3" file="mx_rotate_vector3.wgsl" function="mx_rotate_vector3" target="genwgsl" />
+
+  <!-- ======================================================================== -->
+  <!-- Adjustment nodes                                                         -->
+  <!-- ======================================================================== -->
+
+  <!-- <contrast> -->
+
+  <!-- <remap> -->
+  <implementation name="IM_remap_float_genwgsl" nodedef="ND_remap_float" target="genwgsl" sourcecode="{{outlow}} + ({{in}} - {{inlow}}) * ({{outhigh}} - {{outlow}}) / ({{inhigh}} - {{inlow}})" />
+  <implementation name="IM_remap_color3_genwgsl" nodedef="ND_remap_color3" target="genwgsl" sourcecode="{{outlow}} + ({{in}} - {{inlow}}) * ({{outhigh}} - {{outlow}}) / ({{inhigh}} - {{inlow}})" />
+  <implementation name="IM_remap_color3FA_genwgsl" nodedef="ND_remap_color3FA" target="genwgsl" sourcecode="{{outlow}} + ({{in}} - {{inlow}}) * ({{outhigh}} - {{outlow}}) / ({{inhigh}} - {{inlow}})" />
+  <implementation name="IM_remap_color4_genwgsl" nodedef="ND_remap_color4" target="genwgsl" sourcecode="{{outlow}} + ({{in}} - {{inlow}}) * ({{outhigh}} - {{outlow}}) / ({{inhigh}} - {{inlow}})" />
+  <implementation name="IM_remap_color4FA_genwgsl" nodedef="ND_remap_color4FA" target="genwgsl" sourcecode="{{outlow}} + ({{in}} - {{inlow}}) * ({{outhigh}} - {{outlow}}) / ({{inhigh}} - {{inlow}})" />
+  <implementation name="IM_remap_vector2_genwgsl" nodedef="ND_remap_vector2" target="genwgsl" sourcecode="{{outlow}} + ({{in}} - {{inlow}}) * ({{outhigh}} - {{outlow}}) / ({{inhigh}} - {{inlow}})" />
+  <implementation name="IM_remap_vector2FA_genwgsl" nodedef="ND_remap_vector2FA" target="genwgsl" sourcecode="{{outlow}} + ({{in}} - {{inlow}}) * ({{outhigh}} - {{outlow}}) / ({{inhigh}} - {{inlow}})" />
+  <implementation name="IM_remap_vector3_genwgsl" nodedef="ND_remap_vector3" target="genwgsl" sourcecode="{{outlow}} + ({{in}} - {{inlow}}) * ({{outhigh}} - {{outlow}}) / ({{inhigh}} - {{inlow}})" />
+  <implementation name="IM_remap_vector3FA_genwgsl" nodedef="ND_remap_vector3FA" target="genwgsl" sourcecode="{{outlow}} + ({{in}} - {{inlow}}) * ({{outhigh}} - {{outlow}}) / ({{inhigh}} - {{inlow}})" />
+  <implementation name="IM_remap_vector4_genwgsl" nodedef="ND_remap_vector4" target="genwgsl" sourcecode="{{outlow}} + ({{in}} - {{inlow}}) * ({{outhigh}} - {{outlow}}) / ({{inhigh}} - {{inlow}})" />
+  <implementation name="IM_remap_vector4FA_genwgsl" nodedef="ND_remap_vector4FA" target="genwgsl" sourcecode="{{outlow}} + ({{in}} - {{inlow}}) * ({{outhigh}} - {{outlow}}) / ({{inhigh}} - {{inlow}})" />
+
+  <!-- <smoothstep> -->
+  <implementation name="IM_smoothstep_float_genwgsl" nodedef="ND_smoothstep_float" file="mx_smoothstep_float.wgsl" function="mx_smoothstep_float" target="genwgsl" />
+
+  <!-- <luminance> -->
+  <implementation name="IM_luminance_color3_genwgsl" nodedef="ND_luminance_color3" file="mx_luminance_color3.wgsl" function="mx_luminance_color3" target="genwgsl" />
+  <implementation name="IM_luminance_color4_genwgsl" nodedef="ND_luminance_color4" file="mx_luminance_color4.wgsl" function="mx_luminance_color4" target="genwgsl" />
+
+  <!-- <rgbtohsv> -->
+  <implementation name="IM_rgbtohsv_color3_genwgsl" nodedef="ND_rgbtohsv_color3" file="mx_rgbtohsv_color3.wgsl" function="mx_rgbtohsv_color3" target="genwgsl" />
+  <implementation name="IM_rgbtohsv_color4_genwgsl" nodedef="ND_rgbtohsv_color4" file="mx_rgbtohsv_color4.wgsl" function="mx_rgbtohsv_color4" target="genwgsl" />
+
+  <!-- <hsvtorgb> -->
+  <implementation name="IM_hsvtorgb_color3_genwgsl" nodedef="ND_hsvtorgb_color3" file="mx_hsvtorgb_color3.wgsl" function="mx_hsvtorgb_color3" target="genwgsl" />
+  <implementation name="IM_hsvtorgb_color4_genwgsl" nodedef="ND_hsvtorgb_color4" file="mx_hsvtorgb_color4.wgsl" function="mx_hsvtorgb_color4" target="genwgsl" />
+
+  <!-- ======================================================================== -->
+  <!-- Compositing nodes                                                        -->
+  <!-- ======================================================================== -->
+
+  <!-- <premult> -->
+  <implementation name="IM_premult_color4_genwgsl" nodedef="ND_premult_color4" file="mx_premult_color4.wgsl" function="mx_premult_color4" target="genwgsl" />
+
+  <!-- <unpremult> -->
+  <implementation name="IM_unpremult_color4_genwgsl" nodedef="ND_unpremult_color4" file="mx_unpremult_color4.wgsl" function="mx_unpremult_color4" target="genwgsl" />
+
+  <!-- <plus> -->
+  <implementation name="IM_plus_float_genwgsl" nodedef="ND_plus_float" target="genwgsl" sourcecode="({{mix}}*({{bg}} + {{fg}})) + ((1.0-{{mix}})*{{bg}})" />
+  <implementation name="IM_plus_color3_genwgsl" nodedef="ND_plus_color3" target="genwgsl" sourcecode="({{mix}}*({{bg}} + {{fg}})) + ((1.0-{{mix}})*{{bg}})" />
+  <implementation name="IM_plus_color4_genwgsl" nodedef="ND_plus_color4" target="genwgsl" sourcecode="({{mix}}*({{bg}} + {{fg}})) + ((1.0-{{mix}})*{{bg}})" />
+
+  <!-- <minus> -->
+  <implementation name="IM_minus_float_genwgsl" nodedef="ND_minus_float" target="genwgsl" sourcecode="({{mix}}*({{bg}} - {{fg}})) + ((1.0-{{mix}})*{{bg}})" />
+  <implementation name="IM_minus_color3_genwgsl" nodedef="ND_minus_color3" target="genwgsl" sourcecode="({{mix}}*({{bg}} - {{fg}})) + ((1.0-{{mix}})*{{bg}})" />
+  <implementation name="IM_minus_color4_genwgsl" nodedef="ND_minus_color4" target="genwgsl" sourcecode="({{mix}}*({{bg}} - {{fg}})) + ((1.0-{{mix}})*{{bg}})" />
+
+  <!-- <difference> -->
+  <implementation name="IM_difference_float_genwgsl" nodedef="ND_difference_float" target="genwgsl" sourcecode="({{mix}}*abs({{bg}} - {{fg}})) + ((1.0-{{mix}})*{{bg}})" />
+  <implementation name="IM_difference_color3_genwgsl" nodedef="ND_difference_color3" target="genwgsl" sourcecode="({{mix}}*abs({{bg}} - {{fg}})) + ((1.0-{{mix}})*{{bg}})" />
+  <implementation name="IM_difference_color4_genwgsl" nodedef="ND_difference_color4" target="genwgsl" sourcecode="({{mix}}*abs({{bg}} - {{fg}})) + ((1.0-{{mix}})*{{bg}})" />
+
+  <!-- <burn> -->
+  <implementation name="IM_burn_float_genwgsl" nodedef="ND_burn_float" file="mx_burn_float.wgsl" function="mx_burn_float" target="genwgsl" />
+  <implementation name="IM_burn_color3_genwgsl" nodedef="ND_burn_color3" file="mx_burn_color3.wgsl" function="mx_burn_color3" target="genwgsl" />
+  <implementation name="IM_burn_color4_genwgsl" nodedef="ND_burn_color4" file="mx_burn_color4.wgsl" function="mx_burn_color4" target="genwgsl" />
+
+  <!-- <dodge> -->
+  <implementation name="IM_dodge_float_genwgsl" nodedef="ND_dodge_float" file="mx_dodge_float.wgsl" function="mx_dodge_float" target="genwgsl" />
+  <implementation name="IM_dodge_color3_genwgsl" nodedef="ND_dodge_color3" file="mx_dodge_color3.wgsl" function="mx_dodge_color3" target="genwgsl" />
+  <implementation name="IM_dodge_color4_genwgsl" nodedef="ND_dodge_color4" file="mx_dodge_color4.wgsl" function="mx_dodge_color4" target="genwgsl" />
+
+  <!-- <screen> -->
+  <implementation name="IM_screen_float_genwgsl" nodedef="ND_screen_float" target="genwgsl" sourcecode="({{mix}}*((1.0 - (1.0 - {{fg}}) * (1.0 - {{bg}})))) + ((1.0-{{mix}})*{{bg}})" />
+  <implementation name="IM_screen_color3_genwgsl" nodedef="ND_screen_color3" target="genwgsl" sourcecode="({{mix}}*((1.0 - (1.0 - {{fg}}) * (1.0 - {{bg}})))) + ((1.0-{{mix}})*{{bg}})" />
+  <implementation name="IM_screen_color4_genwgsl" nodedef="ND_screen_color4" target="genwgsl" sourcecode="({{mix}}*((1.0 - (1.0 - {{fg}}) * (1.0 - {{bg}})))) + ((1.0-{{mix}})*{{bg}})" />
+
+  <!-- <disjointover> -->
+  <implementation name="IM_disjointover_color4_genwgsl" nodedef="ND_disjointover_color4" file="mx_disjointover_color4.wgsl" function="mx_disjointover_color4" target="genwgsl" />
+
+  <!-- <in> -->
+  <implementation name="IM_in_color4_genwgsl" nodedef="ND_in_color4" target="genwgsl" sourcecode="({{fg}}*{{bg}}.a  * {{mix}}) + ({{bg}} * (1.0-{{mix}}));" />
+
+  <!-- <mask> -->
+  <implementation name="IM_mask_color4_genwgsl" nodedef="ND_mask_color4" target="genwgsl" sourcecode="({{bg}}*{{fg}}.a  * {{mix}}) + ({{bg}} * (1.0-{{mix}}));" />
+
+  <!-- <matte> -->
+  <implementation name="IM_matte_color4_genwgsl" nodedef="ND_matte_color4" target="genwgsl" sourcecode="vec4f( {{fg}}.xyz*{{fg}}.w + {{bg}}.xyz*(1.0-{{fg}}.w), {{fg}}.w + ({{bg}}.w*(1.0-{{fg}}.w)) ) * {{mix}} + ({{bg}} * (1.0-{{mix}}));" />
+
+  <!-- <out> -->
+  <implementation name="IM_out_color4_genwgsl" nodedef="ND_out_color4" target="genwgsl" sourcecode="({{fg}}*(1.0-{{bg}}.a)  * {{mix}}) + ({{bg}} * (1.0-{{mix}}));" />
+
+  <!-- <over> -->
+  <implementation name="IM_over_color4_genwgsl" nodedef="ND_over_color4" target="genwgsl" sourcecode="({{fg}} + ({{bg}}*(1.0-{{fg}}[3]))) * {{mix}} + {{bg}} * (1.0-{{mix}})" />
+
+  <!-- <inside> -->
+  <implementation name="IM_inside_float_genwgsl" nodedef="ND_inside_float" target="genwgsl" sourcecode="{{in}} * {{mask}}" />
+  <implementation name="IM_inside_color3_genwgsl" nodedef="ND_inside_color3" target="genwgsl" sourcecode="{{in}} * {{mask}}" />
+  <implementation name="IM_inside_color4_genwgsl" nodedef="ND_inside_color4" target="genwgsl" sourcecode="{{in}} * {{mask}}" />
+
+  <!-- <outside> -->
+  <implementation name="IM_outside_float_genwgsl" nodedef="ND_outside_float" target="genwgsl" sourcecode="{{in}} * (1.0 - {{mask}})" />
+  <implementation name="IM_outside_color3_genwgsl" nodedef="ND_outside_color3" target="genwgsl" sourcecode="{{in}} * (1.0 - {{mask}})" />
+  <implementation name="IM_outside_color4_genwgsl" nodedef="ND_outside_color4" target="genwgsl" sourcecode="{{in}} * (1.0 - {{mask}})" />
+
+  <!-- <mix> -->
+  <implementation name="IM_mix_float_genwgsl" nodedef="ND_mix_float" target="genwgsl" sourcecode="mix({{bg}}, {{fg}}, {{mix}})" />
+  <implementation name="IM_mix_color3_genwgsl" nodedef="ND_mix_color3" target="genwgsl" sourcecode="mix({{bg}}, {{fg}}, {{mix}})" />
+  <implementation name="IM_mix_color3_color3_genwgsl" nodedef="ND_mix_color3_color3" target="genwgsl" sourcecode="mix({{bg}}, {{fg}}, {{mix}})" />
+  <implementation name="IM_mix_color4_genwgsl" nodedef="ND_mix_color4" target="genwgsl" sourcecode="mix({{bg}}, {{fg}}, {{mix}})" />
+  <implementation name="IM_mix_color4_color4_genwgsl" nodedef="ND_mix_color4_color4" target="genwgsl" sourcecode="mix({{bg}}, {{fg}}, {{mix}})" />
+  <implementation name="IM_mix_vector2_genwgsl" nodedef="ND_mix_vector2" target="genwgsl" sourcecode="mix({{bg}}, {{fg}}, {{mix}})" />
+  <implementation name="IM_mix_vector2_vector2_genwgsl" nodedef="ND_mix_vector2_vector2" target="genwgsl" sourcecode="mix({{bg}}, {{fg}}, {{mix}})" />
+  <implementation name="IM_mix_vector3_genwgsl" nodedef="ND_mix_vector3" target="genwgsl" sourcecode="mix({{bg}}, {{fg}}, {{mix}})" />
+  <implementation name="IM_mix_vector3_vector3_genwgsl" nodedef="ND_mix_vector3_vector3" target="genwgsl" sourcecode="mix({{bg}}, {{fg}}, {{mix}})" />
+  <implementation name="IM_mix_vector4_genwgsl" nodedef="ND_mix_vector4" target="genwgsl" sourcecode="mix({{bg}}, {{fg}}, {{mix}})" />
+  <implementation name="IM_mix_vector4_vector4_genwgsl" nodedef="ND_mix_vector4_vector4" target="genwgsl" sourcecode="mix({{bg}}, {{fg}}, {{mix}})" />
+  <implementation name="IM_mix_surfaceshader_genwgsl" nodedef="ND_mix_surfaceshader" function="mx_mix_surfaceshader" file="mx_mix_surfaceshader.wgsl" target="genwgsl" />
+
+  <!-- ======================================================================== -->
+  <!-- Conditional nodes                                                        -->
+  <!-- ======================================================================== -->
+
+  <!-- <ifgreater -->
+  <implementation name="IM_ifgreater_float_genwgsl" nodedef="ND_ifgreater_float" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} > {{value2}}))" />
+  <implementation name="IM_ifgreater_integer_genwgsl" nodedef="ND_ifgreater_integer" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} > {{value2}}))" />
+  <implementation name="IM_ifgreater_color3_genwgsl" nodedef="ND_ifgreater_color3" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} > {{value2}}))" />
+  <implementation name="IM_ifgreater_color4_genwgsl" nodedef="ND_ifgreater_color4" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} > {{value2}}))" />
+  <implementation name="IM_ifgreater_vector2_genwgsl" nodedef="ND_ifgreater_vector2" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} > {{value2}}))" />
+  <implementation name="IM_ifgreater_vector3_genwgsl" nodedef="ND_ifgreater_vector3" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} > {{value2}}))" />
+  <implementation name="IM_ifgreater_vector4_genwgsl" nodedef="ND_ifgreater_vector4" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} > {{value2}}))" />
+  <implementation name="IM_ifgreater_matrix33_genwgsl" nodedef="ND_ifgreater_matrix33" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} > {{value2}}))" />
+  <implementation name="IM_ifgreater_matrix44_genwgsl" nodedef="ND_ifgreater_matrix44" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} > {{value2}}))" />
+  <implementation name="IM_ifgreater_boolean_genwgsl" nodedef="ND_ifgreater_boolean" target="genwgsl" sourcecode="select(false, true, ({{value1}} > {{value2}}))" />
+  <implementation name="IM_ifgreater_floatI_genwgsl" nodedef="ND_ifgreater_floatI" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} > {{value2}}))" />
+  <implementation name="IM_ifgreater_integerI_genwgsl" nodedef="ND_ifgreater_integerI" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} > {{value2}}))" />
+  <implementation name="IM_ifgreater_color3I_genwgsl" nodedef="ND_ifgreater_color3I" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} > {{value2}}))" />
+  <implementation name="IM_ifgreater_color4I_genwgsl" nodedef="ND_ifgreater_color4I" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} > {{value2}}))" />
+  <implementation name="IM_ifgreater_vector2I_genwgsl" nodedef="ND_ifgreater_vector2I" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} > {{value2}}))" />
+  <implementation name="IM_ifgreater_vector3I_genwgsl" nodedef="ND_ifgreater_vector3I" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} > {{value2}}))" />
+  <implementation name="IM_ifgreater_vector4I_genwgsl" nodedef="ND_ifgreater_vector4I" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} > {{value2}}))" />
+  <implementation name="IM_ifgreater_matrix33I_genwgsl" nodedef="ND_ifgreater_matrix33I" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} > {{value2}}))" />
+  <implementation name="IM_ifgreater_matrix44I_genwgsl" nodedef="ND_ifgreater_matrix44I" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} > {{value2}}))" />
+  <implementation name="IM_ifgreater_booleanI_genwgsl" nodedef="ND_ifgreater_booleanI" target="genwgsl" sourcecode="select(false, true, ({{value1}} > {{value2}}))" />
+
+  <!-- <ifgreatereq -->
+  <implementation name="IM_ifgreatereq_float_genwgsl" nodedef="ND_ifgreatereq_float" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} >= {{value2}}))" />
+  <implementation name="IM_ifgreatereq_integer_genwgsl" nodedef="ND_ifgreatereq_integer" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} >= {{value2}}))" />
+  <implementation name="IM_ifgreatereq_color3_genwgsl" nodedef="ND_ifgreatereq_color3" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} >= {{value2}}))" />
+  <implementation name="IM_ifgreatereq_color4_genwgsl" nodedef="ND_ifgreatereq_color4" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} >= {{value2}}))" />
+  <implementation name="IM_ifgreatereq_vector2_genwgsl" nodedef="ND_ifgreatereq_vector2" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} >= {{value2}}))" />
+  <implementation name="IM_ifgreatereq_vector3_genwgsl" nodedef="ND_ifgreatereq_vector3" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} >= {{value2}}))" />
+  <implementation name="IM_ifgreatereq_vector4_genwgsl" nodedef="ND_ifgreatereq_vector4" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} >= {{value2}}))" />
+  <implementation name="IM_ifgreatereq_matrix33_genwgsl" nodedef="ND_ifgreatereq_matrix33" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} >= {{value2}}))" />
+  <implementation name="IM_ifgreatereq_matrix44_genwgsl" nodedef="ND_ifgreatereq_matrix44" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} >= {{value2}}))" />
+  <implementation name="IM_ifgreatereq_boolean_genwgsl" nodedef="ND_ifgreatereq_boolean" target="genwgsl" sourcecode="select(false, true, ({{value1}} >= {{value2}}))" />
+  <implementation name="IM_ifgreatereq_floatI_genwgsl" nodedef="ND_ifgreatereq_floatI" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} >= {{value2}}))" />
+  <implementation name="IM_ifgreatereq_integerI_genwgsl" nodedef="ND_ifgreatereq_integerI" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} >= {{value2}}))" />
+  <implementation name="IM_ifgreatereq_color3I_genwgsl" nodedef="ND_ifgreatereq_color3I" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} >= {{value2}}))" />
+  <implementation name="IM_ifgreatereq_color4I_genwgsl" nodedef="ND_ifgreatereq_color4I" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} >= {{value2}}))" />
+  <implementation name="IM_ifgreatereq_vector2I_genwgsl" nodedef="ND_ifgreatereq_vector2I" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} >= {{value2}}))" />
+  <implementation name="IM_ifgreatereq_vector3I_genwgsl" nodedef="ND_ifgreatereq_vector3I" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} >= {{value2}}))" />
+  <implementation name="IM_ifgreatereq_vector4I_genwgsl" nodedef="ND_ifgreatereq_vector4I" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} >= {{value2}}))" />
+  <implementation name="IM_ifgreatereq_matrix33I_genwgsl" nodedef="ND_ifgreatereq_matrix33I" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} >= {{value2}}))" />
+  <implementation name="IM_ifgreatereq_matrix44I_genwgsl" nodedef="ND_ifgreatereq_matrix44I" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} >= {{value2}}))" />
+  <implementation name="IM_ifgreatereq_booleanI_genwgsl" nodedef="ND_ifgreatereq_booleanI" target="genwgsl" sourcecode="select(false, true, ({{value1}} >= {{value2}}))" />
+
+  <!-- <ifequal -->
+  <implementation name="IM_ifequal_float_genwgsl" nodedef="ND_ifequal_float" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} == {{value2}}))" />
+  <implementation name="IM_ifequal_integer_genwgsl" nodedef="ND_ifequal_integer" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} == {{value2}}))" />
+  <implementation name="IM_ifequal_color3_genwgsl" nodedef="ND_ifequal_color3" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} == {{value2}}))" />
+  <implementation name="IM_ifequal_color4_genwgsl" nodedef="ND_ifequal_color4" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} == {{value2}}))" />
+  <implementation name="IM_ifequal_vector2_genwgsl" nodedef="ND_ifequal_vector2" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} == {{value2}}))" />
+  <implementation name="IM_ifequal_vector3_genwgsl" nodedef="ND_ifequal_vector3" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} == {{value2}}))" />
+  <implementation name="IM_ifequal_vector4_genwgsl" nodedef="ND_ifequal_vector4" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} == {{value2}}))" />
+  <implementation name="IM_ifequal_matrix33_genwgsl" nodedef="ND_ifequal_matrix33" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} == {{value2}}))" />
+  <implementation name="IM_ifequal_matrix44_genwgsl" nodedef="ND_ifequal_matrix44" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} == {{value2}}))" />
+  <implementation name="IM_ifequal_boolean_genwgsl" nodedef="ND_ifequal_boolean" target="genwgsl" sourcecode="select(false, true, ({{value1}} == {{value2}}))" />
+  <implementation name="IM_ifequal_floatI_genwgsl" nodedef="ND_ifequal_floatI" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} == {{value2}}))" />
+  <implementation name="IM_ifequal_integerI_genwgsl" nodedef="ND_ifequal_integerI" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} == {{value2}}))" />
+  <implementation name="IM_ifequal_color3I_genwgsl" nodedef="ND_ifequal_color3I" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} == {{value2}}))" />
+  <implementation name="IM_ifequal_color4I_genwgsl" nodedef="ND_ifequal_color4I" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} == {{value2}}))" />
+  <implementation name="IM_ifequal_vector2I_genwgsl" nodedef="ND_ifequal_vector2I" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} == {{value2}}))" />
+  <implementation name="IM_ifequal_vector3I_genwgsl" nodedef="ND_ifequal_vector3I" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} == {{value2}}))" />
+  <implementation name="IM_ifequal_vector4I_genwgsl" nodedef="ND_ifequal_vector4I" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} == {{value2}}))" />
+  <implementation name="IM_ifequal_matrix33I_genwgsl" nodedef="ND_ifequal_matrix33I" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} == {{value2}}))" />
+  <implementation name="IM_ifequal_matrix44I_genwgsl" nodedef="ND_ifequal_matrix44I" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} == {{value2}}))" />
+  <implementation name="IM_ifequal_booleanI_genwgsl" nodedef="ND_ifequal_booleanI" target="genwgsl" sourcecode="select(false, true, ({{value1}} == {{value2}}))" />
+  <implementation name="IM_ifequal_floatB_genwgsl" nodedef="ND_ifequal_floatB" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} == {{value2}}))" />
+  <implementation name="IM_ifequal_integerB_genwgsl" nodedef="ND_ifequal_integerB" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} == {{value2}}))" />
+  <implementation name="IM_ifequal_color3B_genwgsl" nodedef="ND_ifequal_color3B" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} == {{value2}}))" />
+  <implementation name="IM_ifequal_color4B_genwgsl" nodedef="ND_ifequal_color4B" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} == {{value2}}))" />
+  <implementation name="IM_ifequal_vector2B_genwgsl" nodedef="ND_ifequal_vector2B" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} == {{value2}}))" />
+  <implementation name="IM_ifequal_vector3B_genwgsl" nodedef="ND_ifequal_vector3B" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} == {{value2}}))" />
+  <implementation name="IM_ifequal_vector4B_genwgsl" nodedef="ND_ifequal_vector4B" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} == {{value2}}))" />
+  <implementation name="IM_ifequal_matrix33B_genwgsl" nodedef="ND_ifequal_matrix33B" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} == {{value2}}))" />
+  <implementation name="IM_ifequal_matrix44B_genwgsl" nodedef="ND_ifequal_matrix44B" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} == {{value2}}))" />
+  <implementation name="IM_ifequal_booleanB_genwgsl" nodedef="ND_ifequal_booleanB" target="genwgsl" sourcecode="select(false, true, ({{value1}} == {{value2}}))" />
+
+  <!-- ======================================================================== -->
+  <!-- Channel nodes                                                            -->
+  <!-- ======================================================================== -->
+
+  <!-- <convert> -->
+  <implementation name="IM_convert_boolean_float_genwgsl" nodedef="ND_convert_boolean_float" target="genwgsl" sourcecode="f32({{in}})" />
+  <implementation name="IM_convert_integer_float_genwgsl" nodedef="ND_convert_integer_float" target="genwgsl" sourcecode="f32({{in}})" />
+
+  <!-- <combine2> -->
+  <implementation name="IM_combine2_vector2_genwgsl" nodedef="ND_combine2_vector2" target="genwgsl" sourcecode="vec2f({{in1}},{{in2}})" />
+  <implementation name="IM_combine2_color4CF_genwgsl" nodedef="ND_combine2_color4CF" target="genwgsl" sourcecode="vec4f({{in1}}[0],{{in1}}[1],{{in1}}[2],{{in2}})" />
+  <implementation name="IM_combine2_vector4VF_genwgsl" nodedef="ND_combine2_vector4VF" target="genwgsl" sourcecode="vec4f({{in1}}[0],{{in1}}[1],{{in1}}[2],{{in2}})" />
+  <implementation name="IM_combine2_vector4VV_genwgsl" nodedef="ND_combine2_vector4VV" target="genwgsl" sourcecode="vec4f({{in1}}[0],{{in1}}[1],{{in2}}[0],{{in2}}[1])" />
+
+  <!-- <combine3> -->
+  <implementation name="IM_combine3_color3_genwgsl" nodedef="ND_combine3_color3" target="genwgsl" sourcecode="vec3f({{in1}},{{in2}},{{in3}})" />
+  <implementation name="IM_combine3_vector3_genwgsl" nodedef="ND_combine3_vector3" target="genwgsl" sourcecode="vec3f({{in1}},{{in2}},{{in3}})" />
+
+  <!-- <combine4> -->
+  <implementation name="IM_combine4_color4_genwgsl" nodedef="ND_combine4_color4" target="genwgsl" sourcecode="vec4f({{in1}},{{in2}},{{in3}},{{in4}})" />
+  <implementation name="IM_combine4_vector4_genwgsl" nodedef="ND_combine4_vector4" target="genwgsl" sourcecode="vec4f({{in1}},{{in2}},{{in3}},{{in4}})" />
+
+  <!-- <creatematrix> -->
+  <implementation name="IM_creatematrix_vector3_matrix33_genwgsl" nodedef="ND_creatematrix_vector3_matrix33" file="mx_creatematrix_vector3_matrix33.wgsl" function="mx_creatematrix_vector3_matrix33" target="genwgsl" />
+  <implementation name="IM_creatematrix_vector3_matrix44_genwgsl" nodedef="ND_creatematrix_vector3_matrix44" file="mx_creatematrix_vector3_matrix44.wgsl" function="mx_creatematrix_vector3_matrix44" target="genwgsl" />
+  <implementation name="IM_creatematrix_vector4_matrix44_genwgsl" nodedef="ND_creatematrix_vector4_matrix44" file="mx_creatematrix_vector4_matrix44.wgsl" function="mx_creatematrix_vector4_matrix44" target="genwgsl" />
+
+  <!-- <extract> -->
+  <implementation name="IM_extract_color3_genwgsl" nodedef="ND_extract_color3" sourcecode="{{in}}[{{index}}]" target="genwgsl" />
+  <implementation name="IM_extract_color4_genwgsl" nodedef="ND_extract_color4" sourcecode="{{in}}[{{index}}]" target="genwgsl" />
+  <implementation name="IM_extract_vector2_genwgsl" nodedef="ND_extract_vector2" sourcecode="{{in}}[{{index}}]" target="genwgsl" />
+  <implementation name="IM_extract_vector3_genwgsl" nodedef="ND_extract_vector3" sourcecode="{{in}}[{{index}}]" target="genwgsl" />
+  <implementation name="IM_extract_vector4_genwgsl" nodedef="ND_extract_vector4" sourcecode="{{in}}[{{index}}]" target="genwgsl" />
+  <implementation name="IM_extract_matrix33_genwgsl" nodedef="ND_extract_matrix33" sourcecode="{{in}}[{{index}}]" target="genwgsl" />
+  <implementation name="IM_extract_matrix44_genwgsl" nodedef="ND_extract_matrix44" sourcecode="{{in}}[{{index}}]" target="genwgsl" />
+
+  <!-- ======================================================================== -->
+  <!-- Convolution nodes                                                        -->
+  <!-- ======================================================================== -->
+
+  <!-- <heighttonormal> -->
+  <implementation name="IM_heighttonormal_vector3_genwgsl" nodedef="ND_heighttonormal_vector3" file="mx_heighttonormal_vector3.wgsl" function="mx_heighttonormal_vector3" target="genwgsl" />
+
+  <!-- ======================================================================== -->
+  <!-- Logical operator nodes                                                   -->
+  <!-- ======================================================================== -->
+
+  <implementation name="IM_logical_and_genwgsl" nodedef="ND_logical_and" target="genwgsl" sourcecode="{{in1}} &amp;&amp; {{in2}}" />
+  <implementation name="IM_logical_or_genwgsl" nodedef="ND_logical_or" target="genwgsl" sourcecode="{{in1}} || {{in2}}" />
+  <implementation name="IM_logical_not_genwgsl" nodedef="ND_logical_not" target="genwgsl" sourcecode="!{{in}}" />
+
+  <!-- ======================================================================== -->
+  <!-- Organization nodes                                                       -->
+  <!-- ======================================================================== -->
+
+  <!-- <dot> -->
+  <implementation name="IM_dot_float_genwgsl" nodedef="ND_dot_float" target="genwgsl" sourcecode="{{in}}" />
+  <implementation name="IM_dot_color3_genwgsl" nodedef="ND_dot_color3" target="genwgsl" sourcecode="{{in}}" />
+  <implementation name="IM_dot_color4_genwgsl" nodedef="ND_dot_color4" target="genwgsl" sourcecode="{{in}}" />
+  <implementation name="IM_dot_vector2_genwgsl" nodedef="ND_dot_vector2" target="genwgsl" sourcecode="{{in}}" />
+  <implementation name="IM_dot_vector3_genwgsl" nodedef="ND_dot_vector3" target="genwgsl" sourcecode="{{in}}" />
+  <implementation name="IM_dot_vector4_genwgsl" nodedef="ND_dot_vector4" target="genwgsl" sourcecode="{{in}}" />
+  <implementation name="IM_dot_integer_genwgsl" nodedef="ND_dot_integer" target="genwgsl" sourcecode="{{in}}" />
+  <implementation name="IM_dot_boolean_genwgsl" nodedef="ND_dot_boolean" target="genwgsl" sourcecode="{{in}}" />
+  <implementation name="IM_dot_matrix33_genwgsl" nodedef="ND_dot_matrix33" target="genwgsl" sourcecode="{{in}}" />
+  <implementation name="IM_dot_matrix44_genwgsl" nodedef="ND_dot_matrix44" target="genwgsl" sourcecode="{{in}}" />
+  <implementation name="IM_dot_string_genwgsl" nodedef="ND_dot_string" target="genwgsl" sourcecode="{{in}}" />
+  <implementation name="IM_dot_filename_genwgsl" nodedef="ND_dot_filename" target="genwgsl" sourcecode="{{in}}" />
+  <implementation name="IM_dot_surfaceshader_genwgsl" nodedef="ND_dot_surfaceshader" target="genwgsl" sourcecode="{{in}}" />
+  <implementation name="IM_dot_displacementshader_genwgsl" nodedef="ND_dot_displacementshader" target="genwgsl" sourcecode="{{in}}" />
+  <implementation name="IM_dot_volumeshader_genwgsl" nodedef="ND_dot_volumeshader" target="genwgsl" sourcecode="{{in}}" />
+  <implementation name="IM_dot_lightshader_genwgsl" nodedef="ND_dot_lightshader" target="genwgsl" sourcecode="{{in}}" />
+</materialx>

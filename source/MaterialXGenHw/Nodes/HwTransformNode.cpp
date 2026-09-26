@@ -35,6 +35,7 @@ void HwTransformNode::emitFunctionCall(const ShaderNode& node, GenContext& conte
     DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
     {
         const ShaderGenerator& shadergen = context.getShaderGenerator();
+        const Syntax& syntax = shadergen.getSyntax();
 
         const ShaderOutput* output = node.getOutput();
         const ShaderInput* inInput = node.getInput("in");
@@ -55,7 +56,7 @@ void HwTransformNode::emitFunctionCall(const ShaderNode& node, GenContext& conte
         }
         else
         {
-            shadergen.emitString(" = mx_matrix_mul(" + matrix + ", ", stage);
+            shadergen.emitString(" = " + syntax.getLibraryFunctionName("mx_matrix_mul", Type::MATRIX44, Type::VECTOR4) + "(" + matrix + ", ", stage);
         }
 
         const string type = shadergen.getSyntax().getTypeName(Type::VECTOR4);
