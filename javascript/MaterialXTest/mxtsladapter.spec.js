@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { convertVertexToTslPortable, normalizeReflection } from '../MaterialXView/source/mxtsladapter.js';
+import { convertVertexToTslPortable, normalizeReflection } from '../MaterialXView/source/mxtsladapter.mjs';
 
 /**
  * Minimal vertex WGSL matching the shape emitted by WgslShaderGenerator.
@@ -54,7 +54,9 @@ const MANIFEST = {
 	output: 'vec4f',
 	bindings: [],
 	vertexBindings: [
-		{ group: 0, binding: 0, name: 'u_prv', type: 'PrivateUniforms', stage: 'vertex' }
+		{ group: 0, binding: 0, name: 'u_worldMatrix', type: 'mat4x4f', stage: 'vertex', structInstance: 'u_prv', structType: 'PrivateUniforms' },
+		{ group: 0, binding: 0, name: 'u_viewProjectionMatrix', type: 'mat4x4f', stage: 'vertex', structInstance: 'u_prv', structType: 'PrivateUniforms' },
+		{ group: 0, binding: 0, name: 'u_worldInverseTransposeMatrix', type: 'mat4x4f', stage: 'vertex', structInstance: 'u_prv', structType: 'PrivateUniforms' }
 	],
 	vertexInputs: [
 		{ name: 'i_position', type: 'vec3f', location: 0 },
