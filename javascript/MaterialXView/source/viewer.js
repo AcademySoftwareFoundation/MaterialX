@@ -10,7 +10,7 @@ import { HDRLoader } from 'three/examples/jsm/loaders/HDRLoader.js';
 import { prepareEnvTexture, getLightRotation, findLights, registerLights, getUniformValues } from './helper.js'
 import { Group } from 'three';
 import GUI from 'lil-gui';
-import { createMxWgslMaterial, createMxWgslGUI, normalizeReflection } from './mxtsladapter.js';
+import { createMxWgslMaterial, createMxWgslGUI, normalizeReflection } from './mxtsladapter.mjs';
 import { buildWgslManifest } from './wgslmanifest.js';
 
 const ALL_GEOMETRY_SPECIFIER = "*";
