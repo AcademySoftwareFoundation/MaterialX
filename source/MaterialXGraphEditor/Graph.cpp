@@ -4112,7 +4112,7 @@ void Graph::showHelp() const
         }
         if (ImGui::TreeNode("Viewing"))
         {
-            ImGui::BulletText("R : Pin the preview render to the currently selected node.");
+            ImGui::BulletText("P : Pin (lock/unlock) the preview to the current render node.");
             ImGui::TreePop();
         }
     }
@@ -4817,12 +4817,19 @@ void Graph::drawGraph(ImVec2 mousePos)
             }
 
             // Hotkey to lock/unlock current render node
-            else if (ImGui::IsKeyReleased(ImGuiKey_R) && !_fileDialogSave.isOpened())
+            else if (ImGui::IsKeyReleased(ImGuiKey_P) && !_fileDialogSave.isOpened())
             {
-                if (!readOnly() && _currUiNode != nullptr)
+                if (_lockRenderPreviewNode)
                 {
-                    _lockRenderPreviewNode = !_lockRenderPreviewNode;
-                    setRenderMaterial(_currUiNode);
+                    _lockRenderPreviewNode = false;
+                    if (_currUiNode)
+                    {
+                        setRenderMaterial(_currUiNode);
+                    }
+                }
+                else if (_currRenderNode && !readOnly())
+                {
+                    _lockRenderPreviewNode = true;
                 }
             }
 
