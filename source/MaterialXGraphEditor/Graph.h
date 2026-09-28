@@ -428,4 +428,14 @@ class Graph
     // Current height of the diagnostic panel; adjusted by the resize handle.
     float _diagPanelHeight = 120.f;
 };
+
+namespace nodeHeaderColor
+{
+const ImColor DEFAULT =  ImColor(55, 55, 55, 255);
+const ImColor INPUT = ImColor(85, 85, 85, 255);
+const ImColor OUTPUT = ImColor(35, 35, 35, 255);
+const ImColor NODEGRAPH = ImColor(35, 35, 35, 255);
+const ImColor HIGHLIGHT = ImColor(0, 167, 191, 255);
+const ImColor MUTED_HIGHLIGHT = ImColor(55, 98, 117, 255);
+}
 #endif

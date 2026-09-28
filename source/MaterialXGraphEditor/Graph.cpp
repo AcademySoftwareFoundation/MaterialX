@@ -2298,11 +2298,8 @@ std::vector<int> Graph::createNodes(bool nodegraph)
             else if (hasNestedErrors)
                 ed::PushStyleColor(ed::StyleColor_NodeBorder, ImVec4(1.f, 0.55f, 0.1f, 1.f));
 
-            // Check if the node we're drawing is a parent of the currentRenderNode
-            // to highlight it in case the render node is locked.
-            ImColor highlightNodeHeaderColor = ImColor(0, 167, 191, 255);
-            // For a node who's child is the locked render node.
-            ImColor mutedHighlightNodeHeaderColor = ImColor(55, 98, 117, 255);
+            // Check if the node we're drawing is the currently locked render node
+            // or if it's a parent of the currently locked render node.
             bool isParentOfCurrRenderNode = isChildOfNodeGraph(_currRenderNode, node);
             // Color for output pin
             std::string outputType;
@@ -2310,20 +2307,20 @@ std::vector<int> Graph::createNodes(bool nodegraph)
             {
                 ed::BeginNode(node->getId());
                 ImGui::PushID(node->getId());
-                ImColor nodeHeaderBackgroundColor = ImColor(55, 55, 55, 255);
+                ImColor nodeHeaderBackgroundColor = nodeHeaderColor::DEFAULT;
                 if (_lockRenderPreviewNode && (_currRenderNode == node || isParentOfCurrRenderNode))
                 {
                     if (_currRenderNode == node)
                     {
                         // Display the current node pinned for render preview with a
                         // highlighted header color.
-                        nodeHeaderBackgroundColor = highlightNodeHeaderColor;
+                        nodeHeaderBackgroundColor = nodeHeaderColor::HIGHLIGHT;
                     }
                     else if (isParentOfCurrRenderNode)
                     {
                         // Display the current parent of the node pinned for render
                         // prepreview with a muted highlighted header color.
-                        nodeHeaderBackgroundColor = mutedHighlightNodeHeaderColor;
+                        nodeHeaderBackgroundColor = nodeHeaderColor::MUTED_HIGHLIGHT;
                     }
                 }
                 ImGui::GetWindowDrawList()->AddRectFilled(
@@ -2398,11 +2395,11 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     ImGui::GetCursorScreenPos() + ImVec2(-hdrPadL, -hdrPadT),
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - hdrPadL - 2.f * hdrInset, ImGui::GetTextLineHeight() + hdrPadB),
-                    ImColor(ImColor(85, 85, 85, 255)), hdrRounding);
+                    nodeHeaderColor::INPUT, hdrRounding);
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     ImGui::GetCursorScreenPos() + ImVec2(-hdrPadL, 3.f),
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - hdrPadL - 2.f * hdrInset, ImGui::GetTextLineHeight() + hdrPadB),
-                    ImColor(ImColor(85, 85, 85, 255)), 0.f);
+                    nodeHeaderColor::INPUT, 0.f);
                 ImGui::Indent(hdrTextIndent);
                 ImGui::Text("%s", node->getName().c_str());
                 ImGui::Unindent(hdrTextIndent);
@@ -2472,11 +2469,11 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     ImGui::GetCursorScreenPos() + ImVec2(-hdrPadL, -hdrPadT),
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - hdrPadL - 2.f * hdrInset, ImGui::GetTextLineHeight() + hdrPadB),
-                    ImColor(ImColor(35, 35, 35, 255)), hdrRounding);
+                    nodeHeaderColor::OUTPUT, hdrRounding);
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     ImGui::GetCursorScreenPos() + ImVec2(-hdrPadL, 3),
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - hdrPadL - 2.f * hdrInset, ImGui::GetTextLineHeight() + hdrPadB),
-                    ImColor(ImColor(35, 35, 35, 255)), 0);
+                    nodeHeaderColor::OUTPUT, 0);
                 ImGui::Indent(hdrTextIndent);
                 ImGui::Text("%s", node->getName().c_str());
                 ImGui::Unindent(hdrTextIndent);
@@ -2548,10 +2545,10 @@ std::vector<int> Graph::createNodes(bool nodegraph)
 
                 ed::BeginNode(node->getId());
                 ImGui::PushID(node->getId());
-                ImColor rectColor = ImColor(35, 35, 35, 255);
+                ImColor rectColor = nodeHeaderColor::NODEGRAPH;
                 if (_lockRenderPreviewNode && isParentOfCurrRenderNode)
                 {
-                    rectColor = mutedHighlightNodeHeaderColor;
+                    rectColor = nodeHeaderColor::MUTED_HIGHLIGHT;
                 }
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     ImGui::GetCursorScreenPos() + ImVec2(-hdrPadL, -hdrPadT),
