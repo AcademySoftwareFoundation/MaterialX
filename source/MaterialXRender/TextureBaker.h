@@ -45,10 +45,11 @@ class TextureBaker : public Renderer
 
     /// Set the color space in which color textures are encoded.
     ///
-    /// By default, this color space is srgb_texture, and color inputs are
-    /// automatically transformed to this space by the baker.  If another color
-    /// space is set, then the input graph is responsible for transforming
-    /// colors to this space.
+    /// By default, this color space is srgb_rec709_scene, and color inputs are
+    /// automatically transformed to this space by the baker.  The legacy name
+    /// srgb_texture is accepted as an equivalent.  If another color space is
+    /// set, then the input graph is responsible for transforming colors to
+    /// this space.
     void setColorSpace(const string& colorSpace)
     {
         _colorSpace = colorSpace;

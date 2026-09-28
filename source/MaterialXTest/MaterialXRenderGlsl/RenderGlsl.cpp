@@ -204,7 +204,7 @@ RenderUtil::RenderProfileResult GlslShaderRenderTester::runRenderer(
                 MX_TRACE_SCOPE(mx::Tracing::Category::ShaderGen, "GenerateShader");
                 mx::GenOptions& contextOptions = context.getOptions();
                 contextOptions = options;
-                contextOptions.targetColorSpaceOverride = "lin_rec709";
+                contextOptions.targetColorSpaceOverride = "lin_rec709_scene";
                 shader = shadergen.generate(shaderName, element, context);
                 generationTimer.endTimer();
             }

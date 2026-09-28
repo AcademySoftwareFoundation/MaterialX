@@ -558,10 +558,10 @@ if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL OR MATERIALX_BUILD_GEN_MD
 endif()
 
 # Add rendering and viewer subdirectories
+set(MATERIALX_BUILD_RENDER_HW OFF)
 if(MATERIALX_BUILD_RENDER)
     add_subdirectory(source/MaterialXRender)
     if(MATERIALX_BUILD_RENDER_PLATFORMS)
-        set(MATERIALX_BUILD_RENDER_HW OFF)
         if(MATERIALX_BUILD_GEN_GLSL AND NOT MATERIALX_BUILD_APPLE_EMBEDDED)
             set(MATERIALX_BUILD_RENDER_HW ON)
             add_subdirectory(source/MaterialXRenderGlsl)

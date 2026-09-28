@@ -29,7 +29,13 @@ vec3 mx_generate_prefilter_env()
     // Compute derived properties.
     vec2 uv = gl_FragCoord.xy * pow(2.0, $envPrefilterMip) / vec2(textureSize($envRadianceSampler2D, 0));
     vec3 worldN = mx_latlong_map_projection_inverse(uv);
-    mat3 tangentToWorld = mx_orthonormal_basis(worldN);
+
+    // Build a continuous tangent frame from the latlong parameterization,
+    // avoiding the tangent-frame flip in mx_orthonormal_basis at N.z == 0.
+    float longitude = (uv.x - 0.5) * M_PI * 2.0;
+    vec3 T = normalize(vec3(-mx_cos(longitude), 0.0, -mx_sin(longitude)));
+    vec3 B = cross(worldN, T);
+    mat3 tangentToWorld = mat3(T, B, worldN);
     float alpha = mx_latlong_lod_to_alpha(float($envPrefilterMip));
     float G1V = mx_ggx_smith_G1(NdotV, alpha);
 

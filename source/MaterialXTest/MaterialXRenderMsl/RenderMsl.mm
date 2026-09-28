@@ -208,7 +208,7 @@ RenderUtil::RenderProfileResult MslShaderRenderTester::runRenderer(
                 mx::ScopedTimer generationTimer(&result.languageTimes.generationTime);
                 mx::GenOptions& contextOptions = context.getOptions();
                 contextOptions = options;
-                contextOptions.targetColorSpaceOverride = "lin_rec709";
+                contextOptions.targetColorSpaceOverride = "lin_rec709_scene";
                 shader = shadergen.generate(shaderName, element, context);
                 generationTimer.endTimer();
             }

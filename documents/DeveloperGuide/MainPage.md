@@ -54,19 +54,51 @@ Select the `MATERIALX_BUILD_VIEWER` option to build the MaterialX Viewer.  Insta
 
 To generate HTML documentation for the MaterialX C++ API, make sure a version of [Doxygen](https://www.doxygen.org/) is on your path, and select the advanced option `MATERIALX_BUILD_DOCS` in CMake.  This option will add a target named `MaterialXDocs` to your project, which can be built as an independent step from your development environment.
 
-## Editor Setup
+## Build Methods
 
-MaterialX should work in any editor that supports CMake, or that CMake can generate a project for.
-Some common Editors are listed here to help developers get started.
+MaterialX can be built through the CMake GUI, the CMake command line, or any IDE that supports CMake.  The following sections describe each of these workflows.  The MaterialX Viewer and Graph Editor depend on Git submodules, so the repository should be cloned recursively before building these components.
 
-### CLion
+### CMake GUI
 
-[CLion](https://www.jetbrains.com/clion/) is a cross-platform IDE that can be used to develop MaterialX.
-Additionally, it includes CMake and is free for non-commercial Use.
+The CMake GUI can be used to configure MaterialX and generate project files for your platform and compiler:
 
-To get started with CLion, open the MaterialX repository directly, and it will load the CMake project for you.
-If you want to enable features like Python, go to `Settings -> Build, Execution and Deployment -> CMake` and configure
-the CMake Options, for example:
+1. Set **Where is the source code** to the root of the MaterialX repository.
+2. Set **Where to build the binaries** to a new build folder (e.g. `MaterialX/build`).
+3. Click **Configure**, and select a generator for your platform and compiler when prompted.
+4. Enable any desired build options, such as `MATERIALX_BUILD_VIEWER`, and click **Configure** again to apply them.
+5. Click **Generate** to create the project files.
+6. Click **Open Project** to build MaterialX in your development environment, or build from the command line as described below.
+
+### CMake Command Line
+
+The following commands configure and build MaterialX with the default generator and compiler for your system, enabling the MaterialX Viewer and Graph Editor:
+
+```
+cd MaterialX
+cmake -S . -B build -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON
+cmake --build build --config Release
+```
+
+The `--config` option selects the build configuration when using a multi-configuration generator such as Visual Studio or Xcode, and is ignored by single-configuration generators such as Makefiles and Ninja.
+
+To select a specific generator and compiler, use the `-G` option and the `CMAKE_C_COMPILER` and `CMAKE_CXX_COMPILER` variables.  For example, the following commands configure MaterialX with the Ninja generator and the Clang compiler:
+
+```
+cmake -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -S . -B build
+cmake --build build
+```
+
+Additional examples of command-line builds on each supported platform may be found in the [MaterialX CI workflow](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/.github/workflows/main.yml).
+
+### IDEs
+
+MaterialX should work in any IDE that supports CMake, or that CMake can generate a project for.  Some common IDEs are listed here to help developers get started.
+
+#### CLion
+
+[CLion](https://www.jetbrains.com/clion/) is a cross-platform IDE that can be used to develop MaterialX.  Additionally, it includes CMake and is free for non-commercial use.
+
+To get started with CLion, open the MaterialX repository directly, and it will load the CMake project for you.  If you want to enable features like Python, go to `Settings -> Build, Execution and Deployment -> CMake` and configure the CMake Options, for example:
 
 ```
 -DMATERIALX_BUILD_PYTHON=ON
@@ -74,8 +106,7 @@ the CMake Options, for example:
 -DMATERIALX_BUILD_GRAPH_EDITOR=ON
 ```
 
-To build, either select `Build -> Build Project` or select a specific configuration to build.
-To install, select `Build -> Install`
+To build, either select `Build -> Build Project` or select a specific configuration to build.  To install, select `Build -> Install`.
 
 ## Installing MaterialX
 
