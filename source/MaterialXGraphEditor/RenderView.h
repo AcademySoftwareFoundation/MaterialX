@@ -209,9 +209,9 @@ class RenderView
     void setMaterial(mx::TypedElementPtr elem);
 
     void loadMesh(const mx::FilePath& filename);
-
-    void loadEnvironmentLight();
     void loadEnvironmentLight(const mx::FilePath& filename);
+
+    void invalidateShadowMap();
 
     unsigned int getFrame() const
     {

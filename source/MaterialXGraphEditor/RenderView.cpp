@@ -188,7 +188,7 @@ void RenderView::initialize()
     loadMesh(_searchPath.find(_meshFilename));
 
     // Initialize environment light.
-    loadEnvironmentLight();
+    loadEnvironmentLight(_envRadianceFilename);
 
     // Initialize camera.
     initCamera();
@@ -701,11 +701,6 @@ void RenderView::applyDirectLights(mx::DocumentPtr doc)
     }
 }
 
-void RenderView::loadEnvironmentLight()
-{
-    loadEnvironmentLight(_envRadianceFilename);
-}
-
 void RenderView::loadEnvironmentLight(const mx::FilePath& filename)
 {
     // Load the requested radiance map.
@@ -716,7 +711,7 @@ void RenderView::loadEnvironmentLight(const mx::FilePath& filename)
     }
 
     // Look for an irradiance map using an expected filename convention.
-    mx::ImagePtr envIrradianceMap = _imageHandler->getZeroImage();
+    mx::ImagePtr envIrradianceMap;
     mx::FilePath envIrradiancePath = filename.getParentPath() / IRRADIANCE_MAP_FOLDER / filename.getBaseName();
     if (envIrradiancePath.exists())
     {
@@ -724,7 +719,7 @@ void RenderView::loadEnvironmentLight(const mx::FilePath& filename)
     }
 
     // If not found, then generate an irradiance map via spherical harmonics.
-    if (envIrradianceMap == _imageHandler->getZeroImage())
+    if (!envIrradianceMap || envIrradianceMap->getWidth() == 1)
     {
         mx::Sh3ColorCoeffs shIrradiance = mx::projectEnvironment(envRadianceMap, true);
         envIrradianceMap = mx::renderEnvironment(shIrradiance, IRRADIANCE_MAP_WIDTH, IRRADIANCE_MAP_HEIGHT);
@@ -1039,4 +1034,13 @@ mx::ImagePtr RenderView::getShadowMap()
     }
 
     return _shadowMap;
+}
+
+void RenderView::invalidateShadowMap()
+{
+    if (_shadowMap)
+    {
+        _imageHandler->releaseRenderResources(_shadowMap);
+        _shadowMap = nullptr;
+    }
 }

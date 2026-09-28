@@ -4276,6 +4276,7 @@ void Graph::environmentSettingsPopup()
         if (valueChanged)
         {
             _renderer->setLightRotation(_lightRotation);
+            _renderer->invalidateShadowMap();
         }
 
         ImGui::Separator();
