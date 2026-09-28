@@ -123,24 +123,20 @@ static float getUiScaleFromFont()
     return (fontSize > 0.0f) ? (fontSize / BASE_UI_FONT_SIZE) : 1.0f;
 }
 
-static bool isChildOfNodeGraph(const UiNodePtr node, const UiNodePtr other)
+static bool isDescendantOf(const UiNodePtr node, const UiNodePtr other)
 {
     if (node == nullptr || other == nullptr)
     {
         return false;
     }
-    if (node->getNode() == nullptr)
+    if (node->getElement() == nullptr || other->getElement() == nullptr)
     {
         return false;
     }
-    if (other->getNode() == nullptr && other->getNodeGraph() == nullptr)
-    {
-        return false;
-    }
-    mx::ElementPtr parent = node->getNode();
+    mx::ElementPtr parent = node->getElement()->getParent();
     while (parent != nullptr)
     {
-        if (parent == other->getNode() || parent == other->getNodeGraph())
+        if (parent == other->getElement())
         {
             return true;
         }
@@ -2300,7 +2296,9 @@ std::vector<int> Graph::createNodes(bool nodegraph)
 
             // Check if the node we're drawing is the currently locked render node
             // or if it's a parent of the currently locked render node.
-            bool isParentOfCurrRenderNode = isChildOfNodeGraph(_currRenderNode, node);
+            bool isParentOfCurrRenderNode = isDescendantOf(_currRenderNode, node);
+            bool isCurrRenderNode = (_currRenderNode != nullptr && _currRenderNode->getElement() == node->getElement());
+
             // Color for output pin
             std::string outputType;
             if (node->getNode() != nullptr)
@@ -2308,15 +2306,15 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                 ed::BeginNode(node->getId());
                 ImGui::PushID(node->getId());
                 ImColor nodeHeaderBackgroundColor = nodeHeaderColor::DEFAULT;
-                if (_lockRenderPreviewNode && (_currRenderNode == node || isParentOfCurrRenderNode))
+                if (_lockRenderPreviewNode && (isCurrRenderNode || isParentOfCurrRenderNode))
                 {
-                    if (_currRenderNode == node)
+                    if (isCurrRenderNode)
                     {
                         // Display the current node pinned for render preview with a
                         // highlighted header color.
                         nodeHeaderBackgroundColor = nodeHeaderColor::HIGHLIGHT;
                     }
-                    else if (isParentOfCurrRenderNode)
+                    else
                     {
                         // Display the current parent of the node pinned for render
                         // prepreview with a muted highlighted header color.
@@ -2466,14 +2464,30 @@ std::vector<int> Graph::createNodes(bool nodegraph)
 
                 ed::BeginNode(node->getId());
                 ImGui::PushID(node->getId());
+                ImColor nodeHeaderBackgroundColor = nodeHeaderColor::OUTPUT;
+                if (_lockRenderPreviewNode && (isCurrRenderNode || isParentOfCurrRenderNode))
+                {
+                    if (isCurrRenderNode)
+                    {
+                        // Display the current node pinned for render preview with a
+                        // highlighted header color.
+                        nodeHeaderBackgroundColor = nodeHeaderColor::HIGHLIGHT;
+                    }
+                    else
+                    {
+                        // Display the current parent of the node pinned for render
+                        // prepreview with a muted highlighted header color.
+                        nodeHeaderBackgroundColor = nodeHeaderColor::MUTED_HIGHLIGHT;
+                    }
+                }
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     ImGui::GetCursorScreenPos() + ImVec2(-hdrPadL, -hdrPadT),
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - hdrPadL - 2.f * hdrInset, ImGui::GetTextLineHeight() + hdrPadB),
-                    nodeHeaderColor::OUTPUT, hdrRounding);
+                    nodeHeaderBackgroundColor, hdrRounding);
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     ImGui::GetCursorScreenPos() + ImVec2(-hdrPadL, 3),
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - hdrPadL - 2.f * hdrInset, ImGui::GetTextLineHeight() + hdrPadB),
-                    nodeHeaderColor::OUTPUT, 0);
+                    nodeHeaderBackgroundColor, 0);
                 ImGui::Indent(hdrTextIndent);
                 ImGui::Text("%s", node->getName().c_str());
                 ImGui::Unindent(hdrTextIndent);
@@ -3463,9 +3477,9 @@ void Graph::graphButtons()
     cursorInRenderView &= hasScrollbar ? mousePos.y < (tempWindowPos.y + screenSize.y - ImGui::GetScrollY()) : true;
 
     // Display the node currently being viewed above the render view.
-    if (_currRenderNode != nullptr && _currRenderNode->getNode() != nullptr)
+    if (_currRenderNode != nullptr && _currRenderNode->getElement() != nullptr)
     {
-        ImGui::TextWrapped("%sPreview: %s", (_lockRenderPreviewNode ? "[Locked] " : ""), (_currRenderNode->getNode()->getNamePath()).c_str());
+        ImGui::TextWrapped("%sPreview: %s", (_lockRenderPreviewNode ? "[Locked] " : ""), (_currRenderNode->getElement()->getNamePath()).c_str());
     }
 
     // RenderView window
