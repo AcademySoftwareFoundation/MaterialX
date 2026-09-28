@@ -148,13 +148,11 @@ Graph::Graph(const std::string& materialFilename,
     _fileDialogSave(FileDialog::EnterNewFilename),
     _popup(false),
     _shaderPopup(false),
-    _envSettingsPopup(false),
     _searchNodeId(-1),
     _addNewNode(false),
     _ctrlClick(false),
     _isCut(false),
     _autoLayout(false),
-    _envSettingsIsOpen(false),
     _frameCount(INT_MIN),
     _pinsOnBorder(pinsOnBorder),
     _previewSize(previewWidth),
@@ -3161,9 +3159,6 @@ void Graph::loadEnvironment()
     _fileDialogEnv.setTitle("Load Environment");
     _fileDialogEnv.setTypeFilters(_imageFilter);
     _fileDialogEnv.open();
-    // reset light rotation setting
-    _lightRotation = 0.0f;
-    _renderer->setLightRotation(_lightRotation);
 }
 
 void Graph::graphButtons()
@@ -3231,9 +3226,11 @@ void Graph::graphButtons()
             {
                 loadEnvironment();
             }
-            if (ImGui::MenuItem("Environment Settings"))
+            ImGui::Separator();
+            if (ImGui::BeginMenu("Lighting"))
             {
-                _envSettingsPopup = true;
+                lightingSettings();
+                ImGui::EndMenu();
             }
             ImGui::EndMenu();
         }
@@ -3256,7 +3253,6 @@ void Graph::graphButtons()
 
         ImGui::EndMenuBar();
     }
-    environmentSettingsPopup();
 
     // Menu keys
     ImGuiIO& guiIO = ImGui::GetIO();
@@ -4261,32 +4257,14 @@ void Graph::shaderPopup()
     }
 }
 
-void Graph::environmentSettingsPopup()
+void Graph::lightingSettings()
 {
-    if (_envSettingsPopup)
+    // Light Rotation setting
+    bool valueChanged = ImGui::DragFloat("Light Rotation", &_lightRotation, 0.5f, 0.0f, 360.0f, "%.2f");
+    if (valueChanged)
     {
-        ImGui::OpenPopup("Environment Settings");
-        _envSettingsPopup = false;
-        _envSettingsIsOpen = true;
-    }
-    if (ImGui::BeginPopupModal("Environment Settings", &_envSettingsIsOpen, ImGuiWindowFlags_AlwaysAutoResize))
-    {
-        // Light Rotation setting
-        bool valueChanged = ImGui::DragFloat("Light Rotation", &_lightRotation, 0.5f, 0.0f, 360.0f, "%.2f");
-        if (valueChanged)
-        {
-            _renderer->setLightRotation(_lightRotation);
-            _renderer->invalidateShadowMap();
-        }
-
-        ImGui::Separator();
-
-        if (ImGui::Button("Close"))
-        {
-            ImGui::CloseCurrentPopup();
-        }
-
-        ImGui::EndPopup();
+        _renderer->setLightRotation(_lightRotation);
+        _renderer->invalidateShadowMap();
     }
 }
 

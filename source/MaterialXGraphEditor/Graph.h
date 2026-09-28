@@ -282,8 +282,8 @@ class Graph
     // Compiling shaders message
     void shaderPopup();
 
-    // Settings modal
-    void environmentSettingsPopup();
+    // Settings Menu
+    void lightingSettings();
 
     void updateMaterials(mx::InputPtr input = nullptr, mx::ValuePtr value = nullptr);
 
@@ -391,15 +391,12 @@ class Graph
     // popup up variables
     bool _popup;
     bool _shaderPopup;
-    bool _envSettingsPopup;
     int _searchNodeId;
     bool _addNewNode;
     bool _ctrlClick;
     bool _isCut;
     // auto layout button clicked
     bool _autoLayout;
-    // used by ImGui for modal state
-    bool _envSettingsIsOpen;
 
     // used when updating materials
     int _frameCount;
