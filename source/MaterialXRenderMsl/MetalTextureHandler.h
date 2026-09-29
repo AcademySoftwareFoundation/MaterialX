@@ -93,6 +93,7 @@ class MX_RENDERMSL_API MetalTextureHandler : public ImageHandler
     std::unordered_map<ImageSamplingProperties, id<MTLSamplerState>, ImageSamplingKeyHasher> _imageSamplerStateMap;
 
     id<MTLDevice> _device = nil;
+    id<MTLCommandQueue> _commandQueue = nil;
 };
 
 MATERIALX_NAMESPACE_END
