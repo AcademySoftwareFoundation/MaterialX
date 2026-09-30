@@ -143,15 +143,15 @@ def main(args=None):
     # Get all source files. Sort dirs for deterministic walk order across platforms.
     langFiles1 = []
     langPaths1 = []
-    langSuffix = args.lang1 + ".png"
+    postFix: str = f"_{args.lang1}.png"
     for subdir, dirs, files in os.walk(args.inputdir1):
         dirs.sort()
         for curFile in sorted(files):
-            if not curFile.endswith(langSuffix):
+            if not curFile.endswith(postFix):
                 continue
             if resultRegex is not None:
                 resultPath = os.path.relpath(
-                    os.path.join(subdir, curFile.removesuffix(langSuffix)),
+                    os.path.join(subdir, curFile.removesuffix(postFix)),
                     args.inputdir1).replace('\\', '/')
                 if not resultRegex.search(resultPath):
                     continue
@@ -175,7 +175,6 @@ def main(args=None):
     langFiles3 = []
     langPaths3 = []
     preFixLen: int = len(args.inputdir1) + 1  # including the path separator
-    postFix: str = f"_{args.lang1}.png"
     for file1, path1 in zip(langFiles1, langPaths1):
         # Allow for just one language to be shown if source and dest are the same.
         # Otherwise add in equivalent name with dest language replacement if
