@@ -1063,7 +1063,7 @@ export mx_artistic_ior__result mx_artistic_ior(
     color r_sqrt = math::sqrt(r);
     color n_min = (1.0 - r) / (1.0 + r);
     color n_max = (1.0 + r_sqrt) / (1.0 - r_sqrt);
-    color n = math::lerp(n_max, n_min, mxp_edge_color);
+    color n = math::lerp(n_max, n_min, math::clamp(mxp_edge_color, color(0.0), color(1.0)));
     color np1 = n + 1.0;
     color nm1 = n - 1.0;
     color k2 = (np1*np1 * r - nm1*nm1) / (1.0 - r);
