@@ -144,18 +144,6 @@ export class Scene
         this.#_worldViewPos = new THREE.Vector3();
     }
 
-    // Set whether to flip UVs in V for loaded geometry
-    setFlipGeometryV(val)
-    {
-        this.#_flipV = val;
-    }
-
-    // Get whether to flip UVs in V for loaded geometry
-    getFlipGeometryV()
-    {
-        return this.#_flipV;
-    }
-
     // Utility to perform geometry file load
     loadGeometryFile(geometryFilename, loader)
     {
@@ -237,10 +225,6 @@ export class Scene
         bbox.getBoundingSphere(bsphere);
         bboxTime = performance.now() - startBboxTime;
 
-        let theScene = viewer.getScene();
-        let flipV = theScene.getFlipGeometryV();
-
-
         this._scene.traverse((child) =>
         {
             if (child.isMesh)
@@ -260,8 +244,11 @@ export class Scene
 
                     child.geometry.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(uvs), 2));
                 }
-                else if (flipV)
+                else
                 {
+                    // Convert texture coordinates from the glTF convention, with the
+                    // origin at the upper left, to the MaterialX convention, with the
+                    // origin at the lower left.
                     const uvCount = child.geometry.attributes.position.count;
                     const uvs = child.geometry.attributes.uv.array;
                     for (let i = 0; i < uvCount; i++)
@@ -594,9 +581,6 @@ export class Scene
     #_geometryURL = '';
     // Geometry loader
     #_gltfLoader = null;
-    // Flip V coordinate of texture coordinates.
-    // Set to true to be consistent with desktop viewer.
-    #_flipV = true;
 
     // Scene
     #_scene = null;
@@ -1109,11 +1093,9 @@ export class Material
         let vShader = shader.getSourceCode("vertex").replace(/^#version\s+.*\n/, '');
         let fShader = shader.getSourceCode("pixel").replace(/^#version\s+.*\n/, '');
 
-        let theScene = viewer.getScene();
-        let flipV = theScene.getFlipGeometryV();
         let uniforms = {
-            ...getUniformValues(shader.getStage('vertex'), textureLoader, searchPath, flipV),
-            ...getUniformValues(shader.getStage('pixel'), textureLoader, searchPath, flipV),
+            ...getUniformValues(shader.getStage('vertex'), textureLoader, searchPath),
+            ...getUniformValues(shader.getStage('pixel'), textureLoader, searchPath),
         }
 
         Object.assign(uniforms, {
