@@ -32,7 +32,7 @@ class MX_RENDER_API CgltfLoader : public GeometryLoader
     static CgltfLoaderPtr create() { return std::make_shared<CgltfLoader>(); }
 
     /// Load geometry from file path
-    bool load(const FilePath& filePath, MeshList& meshList, bool texcoordVerticalFlip = false) override;
+    bool load(const FilePath& filePath, MeshList& meshList) override;
 
   private:
     unsigned int _debugLevel;
