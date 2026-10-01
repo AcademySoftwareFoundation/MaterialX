@@ -302,14 +302,14 @@ if(MATERIALX_MDL_SDK_DIR)
     find_package(mdl QUIET CONFIG REQUIRED PATHS ${MATERIALX_MDL_SDK_DIR})
     get_target_property(MATERIALX_MDL_BINARY_MDLC mdl::mdlc LOCATION)
     set(MATERIALX_MDL_BINARY_MDLC ${MATERIALX_MDL_BINARY_MDLC} CACHE FILEPATH "Full path to the mdlc binary." FORCE)
-    if((${mdl_VERSION} VERSION_GREATER_EQUAL "2025.0.3") OR (${mdl_VERSION} STREQUAL "trunk"))
+    if((${mdl_VERSION} VERSION_GREATER_EQUAL "2026.0.2") OR (${mdl_VERSION} STREQUAL "trunk"))
         find_program(MATERIALX_MDL_BINARY_TESTRENDER
             NAMES df_vulkan
             HINTS
                 ${MATERIALX_MDL_SDK_DIR}/examples/mdl_sdk/df_vulkan   # regular install layout
                 ${MATERIALX_MDL_SDK_DIR}/tools/mdl-sdk)               # vcpkg layout
     else()
-        message(WARNING "The MDL df_vulkan test renderer requires an MDL SDK >= 2025.0.3 (found ${mdl_VERSION}).")
+        message(WARNING "The MDL df_vulkan test renderer requires an MDL SDK >= 2026.0.2 (found ${mdl_VERSION}).")
         set(MATERIALX_MDL_BINARY_TESTRENDER "" CACHE FILEPATH "Full path to the MDL df_vulkan test renderer.")
     endif()
 endif()
