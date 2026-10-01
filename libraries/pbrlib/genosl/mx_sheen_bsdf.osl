@@ -1,0 +1,10 @@
+void mx_sheen_bsdf(float weight, color albedo, float roughness,
+                   normal N, string mode, output BSDF bsdf)
+{
+    int modeInt = mode == "zeltner" ? 1 : 0;
+#if (OSL_VERSION_MAJOR == 1 && OSL_VERSION_MINOR >= 14) || (OSL_VERSION_MAJOR > 1)
+    bsdf = weight * sheen_bsdf(N, albedo, roughness, "mode", modeInt);
+#else
+    bsdf = weight * sheen_bsdf(N, albedo, roughness);
+#endif
+}
