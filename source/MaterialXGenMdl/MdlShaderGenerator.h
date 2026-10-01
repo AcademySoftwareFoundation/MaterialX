@@ -109,6 +109,9 @@ class MX_GENMDL_API MdlShaderGenerator : public ShaderGenerator
     /// Emit type definitions for all data types that need them.
     void emitTypeDefinitions(GenContext& context, ShaderStage& stage) const override;
 
+    /// Return whether a graph input is referenced by generated MDL code.
+    bool isInputUsed(const ShaderGraphInputSocket& input) const;
+
   protected:
     // Create and initialize a new MDL shader for shader generation.
     ShaderPtr createShader(const string& name, ElementPtr element, GenContext& context) const;
