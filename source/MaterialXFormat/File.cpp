@@ -317,6 +317,13 @@ void FilePath::createDirectory(bool recursive) const
 
 bool FilePath::removeDirectory(bool recursive) const
 {
+    // Guard against an empty path, which would otherwise resolve against the
+    // current working directory.
+    if (isEmpty())
+    {
+        return false;
+    }
+
     if (recursive)
     {
         // Remove the contents of the directory, taking care not to follow symbolic

@@ -300,6 +300,10 @@ TEST_CASE("Remove directory", "[file]")
     REQUIRE(!emptyDir.removeDirectory());
     REQUIRE(!emptyDir.removeDirectory(true));
 
+    // Verify that a removal of an empty path is reported as a failure.
+    REQUIRE(!mx::FilePath().removeDirectory());
+    REQUIRE(!mx::FilePath().removeDirectory(true));
+
 #if !defined(_WIN32)
     // Verify that a symbolic link within the directory is removed without following
     // it to its target.
