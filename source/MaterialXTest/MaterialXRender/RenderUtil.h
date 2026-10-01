@@ -7,6 +7,7 @@
 #define RENDER_UTIL_H
 
 #include <MaterialXTest/MaterialXGenShader/GenShaderUtil.h>
+#include <MaterialXTest/MaterialXRender/RenderJobs.h>
 
 #include <MaterialXRender/GeometryHandler.h>
 #include <MaterialXRender/Mesh.h>
@@ -85,16 +86,18 @@ class RenderProfileTimes
   public:
     void print(std::ostream& output) const
     {
-        output << "Overall time: " << languageTimes.totalTime << " seconds" << std::endl;
+        output << "Overall time: " << totalTime << " seconds" << std::endl;
         output << "\tI/O time: " << ioTime << " seconds" << std::endl;
         output << "\tValidation time: " << validateTime << " seconds" << std::endl;
         output << "\tRenderable search time: " << renderableSearchTime << " seconds" << std::endl;
 
-        languageTimes.print("Profile Times:", output);
+        output << "Accumulated external job time: " << jobTime << " seconds" << std::endl;
+        languageTimes.print("Profile Times (accumulated work):", output);
 
         output << "Elements tested: " << elementsTested << std::endl;
     }
 
+    double jobTime = 0.0;
     LanguageProfileTimes languageTimes;
     double totalTime = 0;
     double ioTime = 0.0;
@@ -175,11 +178,12 @@ struct TestRunState
 };
 
 // Read-only test configuration for the entire validate() run.
-// Note: the log stream requires synchronization for concurrent use.
+// Only the main thread may use the log stream or generation state.
 struct RenderSession
 {
     const GenShaderUtil::TestSuiteOptions& testOptions;
     std::ostream& log;
+    RenderJobDispatcher& jobs;
 };
 
 // Per-element data passed to each runRenderer call.
@@ -261,12 +265,14 @@ class ShaderRenderTester
     // Code validation methods (compile and render)
     //
 
+    virtual unsigned int getRenderWorkerCount(const GenShaderUtil::TestSuiteOptions&) const { return 1; }
+
     // Create a renderer for the generated code
     virtual void createRenderer(std::ostream& log) = 0;
 
     // Run the renderer.
     // GenContext is a separate argument because it is mutable (written per-element)
-    // and must be cloned per-thread for future parallel execution.
+    // and stays on the main thread when external render jobs are dispatched.
     virtual RenderProfileResult runRenderer(
         const RenderSession& session,
         const RenderItem& item,

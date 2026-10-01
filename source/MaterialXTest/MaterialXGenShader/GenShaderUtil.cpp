@@ -1002,6 +1002,9 @@ void TestSuiteOptions::print(std::ostream& output) const
     output << "\tCheck Implementation Usage Count: " << checkImplCount << std::endl;
     output << "\tDump Generated Code: " << dumpGeneratedCode << std::endl;
     output << "\tShader Interfaces: " << shaderInterfaces << std::endl;
+    output << "\tOSL render workers: " << oslRenderWorkers << std::endl;
+    output << "\tMDL render workers: " << mdlRenderWorkers << std::endl;
+    output << "\tOSL threads per worker (0 = auto): " << oslThreadsPerWorker << std::endl;
     output << "\tRender Size: " << renderSize[0] << "," << renderSize[1] << std::endl;
     output << "\tDump uniforms and Attributes  " << dumpUniformsAndAttributes << std::endl;
     output << "\tRender Geometry: " << renderGeometry.asString() << std::endl;
@@ -1050,6 +1053,9 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
     const std::string OUTPUT_DIRECTORY_STRING("outputDirectory");
     const std::string ENABLE_TRACING_STRING("enableTracing");
 
+    oslRenderWorkers = 1;
+    mdlRenderWorkers = 1;
+    oslThreadsPerWorker = 0;
     overrideFiles.clear();
     dumpGeneratedCode = false;
     renderGeometry = SPHERE_GEOMETRY;
@@ -1082,6 +1088,20 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
                     else if (name == SHADER_INTERFACES_STRING)
                     {
                         shaderInterfaces = val->asA<int>();
+                    }
+                    else if (name == "oslRenderWorkers" || name == "mdlRenderWorkers" || name == "oslThreadsPerWorker")
+                    {
+                        if (!val->isA<int>())
+                            throw mx::Exception(name + " must be an integer");
+                        int count = val->asA<int>();
+                        if (count < (name == "oslThreadsPerWorker" ? 0 : 1))
+                            throw mx::Exception("Invalid " + name + ": " + std::to_string(count));
+                        if (name == "oslRenderWorkers")
+                            oslRenderWorkers = count;
+                        else if (name == "mdlRenderWorkers")
+                            mdlRenderWorkers = count;
+                        else
+                            oslThreadsPerWorker = count;
                     }
                     else if (name == RENDER_SIZE_STRING)
                     {
