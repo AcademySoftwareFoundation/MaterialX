@@ -72,10 +72,11 @@ void CustomCodeNodeMdl::initializeForInlineSourceCode(const InterfaceElement& el
 
     NodeDefPtr nodeDef = impl.getNodeDef();
     _inlineFunctionName = nodeDef->getName();
-    _hash = std::hash<string>{}(_inlineFunctionName); // make sure we emit the function definition only once
 
     const ShaderGenerator& shadergen = context.getShaderGenerator();
     const MdlSyntax& syntax = static_cast<const MdlSyntax&>(shadergen.getSyntax());
+    syntax.makeValidName(_inlineFunctionName);
+    _hash = std::hash<string>{}(_inlineFunctionName); // make sure we emit the function definition only once
     // Construct the function call template string
     initializeFunctionCallTemplateString(syntax, *nodeDef);
     // Collect information about output names and defaults
@@ -248,7 +249,14 @@ void CustomCodeNodeMdl::emitFunctionDefinition(const ShaderNode& node, GenContex
 
         // User defined code
         shadergen.emitComment("inlined shader source code:", stage);
-        shadergen.emitLine(_inlineSourceCode, stage, false);
+        if (numOutputs == 1)
+        {
+            shadergen.emitLine(outputs.back().name + " = " + _inlineSourceCode, stage);
+        }
+        else
+        {
+            shadergen.emitLine(_inlineSourceCode, stage, false);
+        }
 
         // Output packing
         shadergen.emitComment("pack (in case of multiple outputs) and return outputs:", stage);

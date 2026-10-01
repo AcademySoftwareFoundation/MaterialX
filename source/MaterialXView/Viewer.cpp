@@ -251,7 +251,7 @@ Viewer::Viewer(const std::string& materialFilename,
     set_background(ng::Color(screenColor[0], screenColor[1], screenColor[2], 1.0f));
 
     // Set default Glsl generator options.
-    _genContext.getOptions().targetColorSpaceOverride = "lin_rec709";
+    _genContext.getOptions().targetColorSpaceOverride = "lin_rec709_scene";
     _genContext.getOptions().fileTextureVerticalFlip = true;
     _genContext.getOptions().hwShadowMap = true;
     _genContext.getOptions().hwImplicitBitangents = false;
@@ -263,19 +263,24 @@ Viewer::Viewer(const std::string& materialFilename,
 #else
     _renderPipeline = GLRenderPipeline::create(this);
     
-    // Set Essl generator options
-    _genContextEssl.getOptions().targetColorSpaceOverride = "lin_rec709";
+    // Set Essl generator options, with file texture lookups left unflipped,
+    // matching web clients such as the MaterialX Web Viewer, which flip
+    // images vertically on upload.
+    _genContextEssl.getOptions().targetColorSpaceOverride = "lin_rec709_scene";
     _genContextEssl.getOptions().fileTextureVerticalFlip = false;
     _genContextEssl.getOptions().hwMaxActiveLightSources = 1;
 #endif
 #if MATERIALX_BUILD_GEN_OSL
-    // Set OSL generator options.
-    _genContextOsl.getOptions().targetColorSpaceOverride = "lin_rec709";
-    _genContextOsl.getOptions().fileTextureVerticalFlip = false;
+    // Set OSL generator options, with file texture lookups compensating for
+    // the top-left image origin of OSL texture lookups.
+    _genContextOsl.getOptions().targetColorSpaceOverride = "lin_rec709_scene";
+    _genContextOsl.getOptions().fileTextureVerticalFlip = true;
 #endif
 #if MATERIALX_BUILD_GEN_MDL
-    // Set MDL generator options.
-    _genContextMdl.getOptions().targetColorSpaceOverride = "lin_rec709";
+    // Set MDL generator options, with file texture lookups left unflipped,
+    // since MDL and MaterialX define texture space equally, with the origin
+    // at the lower left.
+    _genContextMdl.getOptions().targetColorSpaceOverride = "lin_rec709_scene";
     _genContextMdl.getOptions().fileTextureVerticalFlip = false;
 #endif
 }

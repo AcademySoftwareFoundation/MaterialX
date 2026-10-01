@@ -37,16 +37,6 @@ As such, those forward-looking proposals have been moved from the formal Specifi
 # Proposals: General<a id="propose-general"></a>
 
 
-## Color Spaces
-
-When the OCIO NanoColor library (provide link) becomes available, MaterialX should support the official colorspace names in that spec, with the current MaterialX colorspace names supported as aliases.
-
-MaterialX should also support the following color spaces:
-* `lin_rec2020`
-* `g22_rec2020`
-
-
-
 <p>&nbsp;<p><hr><p>
 
 # Proposals: Elements<a id="propose-elements"></a>

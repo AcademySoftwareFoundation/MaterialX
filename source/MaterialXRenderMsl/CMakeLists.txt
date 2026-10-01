@@ -29,6 +29,9 @@ mx_add_library(MaterialXRenderMsl
 
 if(APPLE)
     target_compile_definitions(${TARGET_NAME} PRIVATE -DGL_SILENCE_DEPRECATION)
+    set_source_files_properties(${materialx_source}
+        TARGET_DIRECTORY ${TARGET_NAME}
+        PROPERTIES COMPILE_OPTIONS "-fobjc-arc")
 elseif(UNIX)
     # public or private here?
     target_include_directories(${TARGET_NAME} PRIVATE ${X11_INCLUDE_DIR})
