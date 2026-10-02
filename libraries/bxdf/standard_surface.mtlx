@@ -277,6 +277,8 @@
       <input name="tangent" type="vector3" nodename="main_tangent" />
       <input name="distribution" type="string" value="ggx" />
       <input name="scatter_mode" type="string" value="T" />
+      <input name="thinfilm_thickness" type="float" interfacename="thin_film_thickness" />
+      <input name="thinfilm_ior" type="float" interfacename="thin_film_IOR" />
     </dielectric_bsdf>
     <mix name="transmission_mix" type="BSDF">
       <input name="fg" type="BSDF" nodename="transmission_bsdf" />

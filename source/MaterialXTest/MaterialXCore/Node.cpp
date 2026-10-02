@@ -334,6 +334,28 @@ TEST_CASE("Inheritance", "[nodedef]")
         nodedefSpecularInput->getAttribute(mx::ValueElement::VALUE_ATTRIBUTE));
 }
 
+TEST_CASE("Standard Surface transmission thin film connections", "[nodegraph]")
+{
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::DocumentPtr doc = mx::createDocument();
+    mx::loadLibraries({ "libraries" }, searchPath, doc);
+    REQUIRE(doc->validate());
+
+    mx::NodeGraphPtr graph = doc->getNodeGraph("NG_standard_surface_surfaceshader_100");
+    REQUIRE(graph);
+
+    mx::NodePtr transmission = graph->getNode("transmission_bsdf");
+    REQUIRE(transmission);
+
+    mx::InputPtr thickness = transmission->getInput("thinfilm_thickness");
+    mx::InputPtr ior = transmission->getInput("thinfilm_ior");
+
+    REQUIRE(thickness);
+    REQUIRE(ior);
+    CHECK(thickness->getInterfaceName() == "thin_film_thickness");
+    CHECK(ior->getInterfaceName() == "thin_film_IOR");
+}
+
 TEST_CASE("Topological sort", "[nodegraph]")
 {
     // Create a document.
