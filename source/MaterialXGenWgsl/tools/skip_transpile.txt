@@ -1,0 +1,14 @@
+# Hand-written genwgsl .wgsl files that must NOT be transpiled from genglsl.
+#
+# This is the single skip list used by mxgenwgsl.py:
+#   * the lib transpile pass skips any genwgsl/lib/*.wgsl listed here;
+#   * the node transpile pass skips any genwgsl/*.wgsl listed here;
+#   * `mxgenwgsl.py --clean` deletes every generated *.wgsl EXCEPT files listed here.
+
+# lights: uses dynamically-generated LightData struct
+libraries/lights/genwgsl/mx_directional_light.wgsl
+libraries/lights/genwgsl/mx_point_light.wgsl
+libraries/lights/genwgsl/mx_spot_light.wgsl
+
+# stdlib lib: WGSL platform gaps (mx_mod, mx_isinf; naga rejects GLSL isinf/mod)
+libraries/stdlib/genwgsl/lib/mx_math_platform.wgsl

@@ -70,7 +70,7 @@ void HwViewDirectionNode::emitFunctionCall(const ShaderNode& node, GenContext& c
         }
         else
         {
-            shadergen.emitString(" = normalize(mx_matrix_mul(" + HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX + ", "+vec4+"(" + prefix + position->getVariable() + " - " + HW::T_VIEW_POSITION + ", 0.0)).xyz)", stage);
+            shadergen.emitString(" = normalize(" + syntax.getLibraryFunctionName("mx_matrix_mul", Type::MATRIX44, Type::VECTOR4) + "(" + HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX + ", "+vec4+"(" + prefix + position->getVariable() + " - " + HW::T_VIEW_POSITION + ", 0.0)).xyz)", stage);
         }
         shadergen.emitLineEnd(stage);
     }

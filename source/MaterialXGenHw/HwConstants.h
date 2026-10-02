@@ -216,9 +216,11 @@ extern MX_GENHW_API const string LIGHT_DATA_MAX_LIGHT_SOURCES;
 extern MX_GENHW_API const string TEX_SAMPLER_SAMPLER2D;
 extern MX_GENHW_API const string TEX_SAMPLER_SAMPLER2D_SPLIT;
 extern MX_GENHW_API const string TEX_SAMPLER_SAMPLER2D_MSL;
+extern MX_GENHW_API const string TEX_SAMPLER_SAMPLER2D_WGSL;
 extern MX_GENHW_API const string TEX_SAMPLER_SIGNATURE;
 extern MX_GENHW_API const string TEX_SAMPLER_SIGNATURE_SPLIT;
 extern MX_GENHW_API const string TEX_SAMPLER_SIGNATURE_MSL;
+extern MX_GENHW_API const string TEX_SAMPLER_SIGNATURE_WGSL;
 
 /// Variable blocks names.
 extern MX_GENHW_API const string VERTEX_INPUTS;    // Geometric inputs for vertex stage.
