@@ -213,17 +213,26 @@ bool PortElement::validate(string* message) const
 
 NodePtr Input::getConnectedNode() const
 {
-    // Handle interface name references.
-    InputPtr graphInput = getInterfaceInput();
-    if (graphInput && (graphInput->hasNodeName() || graphInput->hasNodeGraphString()))
+    // Handle interface name references.  The chain is followed iteratively,
+    // tracking the inputs already visited, so that a set of interface names
+    // that refers back to itself terminates instead of recursing forever.
+    const Input* input = this;
+    std::set<const Input*> visitedInputs = { input };
+    for (InputPtr graphInput = input->getInterfaceInput();
+         graphInput && (graphInput->hasNodeName() || graphInput->hasNodeGraphString());
+         graphInput = input->getInterfaceInput())
     {
-        return graphInput->getConnectedNode();
+        if (!visitedInputs.insert(graphInput.get()).second)
+        {
+            return NodePtr();
+        }
+        input = graphInput.get();
     }
 
     // Handle inputs of compound nodegraphs.
-    if (getParent()->isA<NodeGraph>())
+    if (input->getParent()->isA<NodeGraph>())
     {
-        NodePtr rootNode = getDocument()->getNode(getNodeName());
+        NodePtr rootNode = input->getDocument()->getNode(input->getNodeName());
         if (rootNode)
         {
             return rootNode;
@@ -231,7 +240,7 @@ NodePtr Input::getConnectedNode() const
     }
 
     // Handle transitive connections via outputs.
-    OutputPtr output = getConnectedOutput();
+    OutputPtr output = input->getConnectedOutput();
     if (output)
     {
         NodePtr node = output->getConnectedNode();
@@ -241,7 +250,7 @@ NodePtr Input::getConnectedNode() const
         }
     }
 
-    return PortElement::getConnectedNode();
+    return input->PortElement::getConnectedNode();
 }
 
 void Input::setConnectedInterfaceName(const string& interfaceName)
