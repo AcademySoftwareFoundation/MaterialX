@@ -519,7 +519,22 @@ int main(int argc, char* const argv[])
     {
         // We only write the MaterialX document containing the implementations out if requested.
         mx::FilePath implMtlxDocFilePath = outputMtlxPath / "genoslnetwork_impl.mtlx";
-        mx::writeToXmlFile(implMtlxDoc, implMtlxDocFilePath);
+        mx::XmlWriteOptions writeOptions;
+        writeOptions.createDirectories = true;
+        try
+        {
+            mx::writeToXmlFile(implMtlxDoc, implMtlxDocFilePath, &writeOptions);
+        }
+        // Catch any file writing related exceptions.
+        catch (mx::Exception& exc)
+        {
+            std::cerr << "Encountered an exception while writing the implementation document to the "
+                         "following path: "
+                      << implMtlxDocFilePath.asString() << std::endl;
+            std::cerr << exc.what() << std::endl;
+
+            hasFailed = true;
+        }
     }
 
     // If something went wrong, return an appropriate error code.
