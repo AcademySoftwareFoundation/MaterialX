@@ -2306,20 +2306,11 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                 ed::BeginNode(node->getId());
                 ImGui::PushID(node->getId());
                 ImColor nodeHeaderBackgroundColor = nodeHeaderColor::DEFAULT;
-                if (_lockRenderPreviewNode && (isCurrRenderNode || isParentOfCurrRenderNode))
+                if (_lockRenderPreviewNode && isCurrRenderNode)
                 {
-                    if (isCurrRenderNode)
-                    {
-                        // Display the current node pinned for render preview with a
-                        // highlighted header color.
-                        nodeHeaderBackgroundColor = nodeHeaderColor::HIGHLIGHT;
-                    }
-                    else
-                    {
-                        // Display the current parent of the node pinned for render
-                        // prepreview with a muted highlighted header color.
-                        nodeHeaderBackgroundColor = nodeHeaderColor::MUTED_HIGHLIGHT;
-                    }
+                    // Display the current node pinned for render preview with a
+                    // highlighted header color.
+                    nodeHeaderBackgroundColor = nodeHeaderColor::HIGHLIGHT;
                 }
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     ImGui::GetCursorScreenPos() + ImVec2(-hdrPadL, -hdrPadT),
@@ -2465,20 +2456,11 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                 ed::BeginNode(node->getId());
                 ImGui::PushID(node->getId());
                 ImColor nodeHeaderBackgroundColor = nodeHeaderColor::OUTPUT;
-                if (_lockRenderPreviewNode && (isCurrRenderNode || isParentOfCurrRenderNode))
+                if (_lockRenderPreviewNode && isParentOfCurrRenderNode)
                 {
-                    if (isCurrRenderNode)
-                    {
-                        // Display the current node pinned for render preview with a
-                        // highlighted header color.
-                        nodeHeaderBackgroundColor = nodeHeaderColor::HIGHLIGHT;
-                    }
-                    else
-                    {
-                        // Display the current parent of the node pinned for render
-                        // prepreview with a muted highlighted header color.
-                        nodeHeaderBackgroundColor = nodeHeaderColor::MUTED_HIGHLIGHT;
-                    }
+                    // Display the current parent of the node pinned for render
+                    // prepreview with a muted highlighted header color.
+                    nodeHeaderBackgroundColor = nodeHeaderColor::MUTED_HIGHLIGHT;
                 }
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     ImGui::GetCursorScreenPos() + ImVec2(-hdrPadL, -hdrPadT),
@@ -3140,8 +3122,9 @@ void Graph::deleteNode(UiNodePtr node)
         }
     }
 
-    // Disable lock render preview if we delete the current locked render preview node.
-    if (_lockRenderPreviewNode && _currRenderNode == node)
+    // Release the render node lock if the locked node or one of its ancestors is deleted.
+    if (_lockRenderPreviewNode && _currRenderNode &&
+        (_currRenderNode->getElement() == node->getElement() || isDescendantOf(_currRenderNode, node)))
     {
         _lockRenderPreviewNode = false;
     }
@@ -3476,12 +3459,6 @@ void Graph::graphButtons()
     cursorInRenderView &= hasScrollbar ? mousePos.x < (tempWindowPos.x + screenSize.x - ImGui::GetStyle().ScrollbarSize) : true;
     cursorInRenderView &= hasScrollbar ? mousePos.y < (tempWindowPos.y + screenSize.y - ImGui::GetScrollY()) : true;
 
-    // Display the node currently being viewed above the render view.
-    if (_currRenderNode != nullptr && _currRenderNode->getElement() != nullptr)
-    {
-        ImGui::TextWrapped("%sPreview: %s", (_lockRenderPreviewNode ? "[Locked] " : ""), (_currRenderNode->getElement()->getNamePath()).c_str());
-    }
-
     // RenderView window
     ImVec2 wsize = ImVec2((float) _renderer->getViewWidth(), (float) _renderer->getViewHeight());
     _renderer->setViewWidth((int) screenSize[0]);
@@ -3500,6 +3477,16 @@ void Graph::graphButtons()
 
         // Disable sRGB conversion for all other imgui ui components.
         ImGui::GetWindowDrawList()->AddCallback(DisableSRGBCallback, nullptr);
+    }
+
+    // Display the node currently being viewed under the render view.
+    // Note: we display it under the render view so it doesn't interfere with the
+    // bounds for "cursorInRenderView" defined above, as this can be an emtpy text
+    // or multi line, and so would change the position of the render view dynamically
+    // if placed above it.
+    if (_currRenderNode != nullptr && _currRenderNode->getElement() != nullptr)
+    {
+        ImGui::TextWrapped("%sPreview: %s", (_lockRenderPreviewNode ? "[Locked] " : ""), (_currRenderNode->getElement()->getNamePath()).c_str());
     }
 
     ImGui::Separator();
