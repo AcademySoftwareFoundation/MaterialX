@@ -114,6 +114,16 @@ if("${NANOGUI_PREFERRED_BACKEND}" STREQUAL "Metal")
     LIST(APPEND materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/RenderPipelineMetal.mm")
 endif()
 
+# On Windows, add the Direct3D 12 render pipeline when HLSL rendering is
+# built. It is selected at runtime with --renderer d3d12.
+if(WIN32 AND TARGET MaterialXRenderHlsl AND NOT "${NANOGUI_PREFERRED_BACKEND}" STREQUAL "Metal")
+    LIST(APPEND MATERIALX_LIBRARIES MaterialXGenHlsl MaterialXRenderHlsl)
+    add_definitions(-DMATERIALXVIEW_D3D12_BACKEND=1)
+    set(MATERIALXVIEW_D3D12_BACKEND ON)
+else()
+    LIST(REMOVE_ITEM materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/RenderPipelineD3D12.cpp")
+endif()
+
 if (MATERIALX_BUILD_GEN_OSL)
     LIST(APPEND MATERIALX_LIBRARIES MaterialXGenOsl)
 endif()
@@ -128,6 +138,18 @@ target_link_libraries(
     ${MATERIALX_LIBRARIES}
     ${NANOGUI_LIBRARIES}
     ${NANOGUI_EXTRA_LIBS})
+
+# Stage the DXC redistributable next to the viewer so that the D3D12
+# pipeline can compile shader model 6 shaders. The paths are discovered by
+# MaterialXRenderHlsl; missing DLLs are skipped.
+if(MATERIALXVIEW_D3D12_BACKEND)
+    foreach(dll ${MATERIALX_HLSL_DXCOMPILER_DLL} ${MATERIALX_HLSL_DXIL_DLL})
+        if(dll)
+            add_custom_command(TARGET MaterialXView POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different "${dll}" "$<TARGET_FILE_DIR:MaterialXView>/")
+        endif()
+    endforeach()
+endif()
 
 target_include_directories(
     MaterialXView
