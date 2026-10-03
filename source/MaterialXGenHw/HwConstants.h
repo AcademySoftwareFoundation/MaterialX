@@ -23,8 +23,8 @@ a listing of the variables with a description of what data they should be bound 
 However, different renderers can have different requirements on naming conventions for these variables.
 In order to facilitate this the generators will use token substitution for naming the variables. The
 first column below shows the token names that should be used in source code before the token substitution
-is done. The second row shows the real identifier names that will be used by default after substitution.
-An generator can override these identifier names in order to use a custom naming convention for these.
+is done. The second column shows the real identifier names that will be used by default after substitution.
+A generator can override these identifier names in order to use a custom naming convention for these.
 Overriding identifier names is done by changing the entries in the identifiers map given to the function
 replaceIdentifiers(), which is handling the token substitution on a shader stage.
 
@@ -67,6 +67,8 @@ Uniform variables :
     $lightData[]                        u_lightData[]                       struct     Array of struct LightData holding parameters for active light sources.
                                                                                        The LightData struct is built dynamically depending on requirements for
                                                                                        bound light shaders.
+    $xyzToWorkingSpace                  u_xyzToWorkingSpace                 mat3       Transform from CIE XYZ to the renderer's linear working color space,
+                                                                                       initialized from GenOptions.xyzToWorkingSpace.
     $envMatrix                          u_envMatrix                         mat4       Rotation matrix for the environment.
     $envIrradiance                      u_envIrradiance                     sampler2D  Sampler for the texture used for diffuse environment lighting.
     $envIrradianceSampler2D             u_envIrradiance                     sampler2D  For split texture and sampler, takes form of sampler2D(tex, sampler)
@@ -125,6 +127,7 @@ extern MX_GENHW_API const string T_TIME;
 extern MX_GENHW_API const string T_GEOMPROP;
 extern MX_GENHW_API const string T_ALPHA_THRESHOLD;
 extern MX_GENHW_API const string T_NUM_ACTIVE_LIGHT_SOURCES;
+extern MX_GENHW_API const string T_XYZ_TO_WORKING_SPACE;
 extern MX_GENHW_API const string T_ENV_MATRIX;
 extern MX_GENHW_API const string T_ENV_RADIANCE;
 extern MX_GENHW_API const string T_ENV_RADIANCE_SAMPLER2D;
@@ -188,6 +191,7 @@ extern MX_GENHW_API const string TIME;
 extern MX_GENHW_API const string GEOMPROP;
 extern MX_GENHW_API const string ALPHA_THRESHOLD;
 extern MX_GENHW_API const string NUM_ACTIVE_LIGHT_SOURCES;
+extern MX_GENHW_API const string XYZ_TO_WORKING_SPACE;
 extern MX_GENHW_API const string ENV_MATRIX;
 extern MX_GENHW_API const string ENV_RADIANCE;
 extern MX_GENHW_API const string ENV_RADIANCE_SPLIT;
