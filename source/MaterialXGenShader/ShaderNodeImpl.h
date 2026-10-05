@@ -79,6 +79,12 @@ class MX_GENSHADER_API ShaderNodeImpl
     /// or returns nullptr otherwise.
     virtual ShaderGraph* getGraph() const;
 
+    /// Return whether an input is referenced by the generated source code.
+    virtual bool isInputUsed(const ShaderInput& /*input*/) const
+    {
+        return true;
+    }
+
     /// Returns true if an input is editable by users.
     /// Editable inputs are allowed to be published as shader uniforms
     /// and hence must be presentable in a user interface.
