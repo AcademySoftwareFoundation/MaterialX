@@ -16,9 +16,14 @@ MATERIALX_NAMESPACE_BEGIN
 
 const string CompoundNodeMdl::GEN_USER_DATA_RETURN_STRUCT_FIELD_NAME = "returnStructFieldName";
 
-ShaderNodeImplPtr CompoundNodeMdl::create()
+ShaderNodeImplPtr CompoundNodeMdl::create(std::unique_ptr<NodeGraphPermutation> permutation)
 {
-    return std::make_shared<CompoundNodeMdl>();
+    return std::make_shared<CompoundNodeMdl>(std::move(permutation));
+}
+
+CompoundNodeMdl::CompoundNodeMdl(std::unique_ptr<NodeGraphPermutation> permutation) :
+    CompoundNode(std::move(permutation))
+{
 }
 
 void CompoundNodeMdl::initialize(const InterfaceElement& element, GenContext& context)

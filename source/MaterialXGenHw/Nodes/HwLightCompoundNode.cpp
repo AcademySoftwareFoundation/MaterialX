@@ -11,6 +11,7 @@
 MATERIALX_NAMESPACE_BEGIN
 
 HwLightCompoundNode::HwLightCompoundNode() :
+    CompoundNode(nullptr),
     _lightUniforms(HW::LIGHT_DATA, EMPTY_STRING)
 {
 }
