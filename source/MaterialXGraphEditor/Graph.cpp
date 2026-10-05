@@ -28,6 +28,14 @@ const float BASE_UI_FONT_SIZE = 18.0f;
 const float BASE_PIN_ICON_SIZE = 18.0f;
 const float MIN_PIN_ICON_SIZE = 18.0f;
 
+// Node header colors
+const ImColor DEFAULT_HEADER_COLOR = ImColor(55, 55, 55, 255);
+const ImColor INPUT_HEADER_COLOR = ImColor(85, 85, 85, 255);
+const ImColor OUTPUT_HEADER_COLOR = ImColor(35, 35, 35, 255);
+const ImColor NODEGRAPH_HEADER_COLOR = ImColor(35, 35, 35, 255);
+const ImColor HIGHLIGHT_HEADER_COLOR = ImColor(0, 167, 191, 255);
+const ImColor MUTED_HIGHLIGHT_HEADER_COLOR = ImColor(55, 98, 117, 255);
+
 const std::array<std::string, 22> NODE_GROUP_ORDER = {
     "texture2d",
     "texture3d",
@@ -2305,12 +2313,12 @@ std::vector<int> Graph::createNodes(bool nodegraph)
             {
                 ed::BeginNode(node->getId());
                 ImGui::PushID(node->getId());
-                ImColor nodeHeaderBackgroundColor = nodeHeaderColor::DEFAULT;
+                ImColor nodeHeaderBackgroundColor = DEFAULT_HEADER_COLOR;
                 if (_lockRenderPreviewNode && isCurrRenderNode)
                 {
                     // Display the current node pinned for render preview with a
                     // highlighted header color.
-                    nodeHeaderBackgroundColor = nodeHeaderColor::HIGHLIGHT;
+                    nodeHeaderBackgroundColor = HIGHLIGHT_HEADER_COLOR;
                 }
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     ImGui::GetCursorScreenPos() + ImVec2(-hdrPadL, -hdrPadT),
@@ -2384,11 +2392,11 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     ImGui::GetCursorScreenPos() + ImVec2(-hdrPadL, -hdrPadT),
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - hdrPadL - 2.f * hdrInset, ImGui::GetTextLineHeight() + hdrPadB),
-                    nodeHeaderColor::INPUT, hdrRounding);
+                    INPUT_HEADER_COLOR, hdrRounding);
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     ImGui::GetCursorScreenPos() + ImVec2(-hdrPadL, 3.f),
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - hdrPadL - 2.f * hdrInset, ImGui::GetTextLineHeight() + hdrPadB),
-                    nodeHeaderColor::INPUT, 0.f);
+                    INPUT_HEADER_COLOR, 0.f);
                 ImGui::Indent(hdrTextIndent);
                 ImGui::Text("%s", node->getName().c_str());
                 ImGui::Unindent(hdrTextIndent);
@@ -2455,12 +2463,12 @@ std::vector<int> Graph::createNodes(bool nodegraph)
 
                 ed::BeginNode(node->getId());
                 ImGui::PushID(node->getId());
-                ImColor nodeHeaderBackgroundColor = nodeHeaderColor::OUTPUT;
-                if (_lockRenderPreviewNode && isParentOfCurrRenderNode)
+                ImColor nodeHeaderBackgroundColor = OUTPUT_HEADER_COLOR;
+                if (_lockRenderPreviewNode && isCurrRenderNode)
                 {
-                    // Display the current parent of the node pinned for render
-                    // prepreview with a muted highlighted header color.
-                    nodeHeaderBackgroundColor = nodeHeaderColor::MUTED_HIGHLIGHT;
+                    // Display the current node pinned for render preview with a
+                    // highlighted header color.
+                    nodeHeaderBackgroundColor = HIGHLIGHT_HEADER_COLOR;
                 }
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     ImGui::GetCursorScreenPos() + ImVec2(-hdrPadL, -hdrPadT),
@@ -2541,10 +2549,10 @@ std::vector<int> Graph::createNodes(bool nodegraph)
 
                 ed::BeginNode(node->getId());
                 ImGui::PushID(node->getId());
-                ImColor rectColor = nodeHeaderColor::NODEGRAPH;
+                ImColor rectColor = NODEGRAPH_HEADER_COLOR;
                 if (_lockRenderPreviewNode && isParentOfCurrRenderNode)
                 {
-                    rectColor = nodeHeaderColor::MUTED_HIGHLIGHT;
+                    rectColor = MUTED_HIGHLIGHT_HEADER_COLOR;
                 }
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     ImGui::GetCursorScreenPos() + ImVec2(-hdrPadL, -hdrPadT),
@@ -3481,7 +3489,7 @@ void Graph::graphButtons()
 
     // Display the node currently being viewed under the render view.
     // Note: we display it under the render view so it doesn't interfere with the
-    // bounds for "cursorInRenderView" defined above, as this can be an emtpy text
+    // bounds for "cursorInRenderView" defined above, as this can be an empty text
     // or multi line, and so would change the position of the render view dynamically
     // if placed above it.
     if (_currRenderNode != nullptr && _currRenderNode->getElement() != nullptr)
