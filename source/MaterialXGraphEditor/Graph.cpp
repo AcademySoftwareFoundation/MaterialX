@@ -218,7 +218,8 @@ Graph::Graph(const std::string& materialFilename,
     _frameCount(INT_MIN),
     _pinsOnBorder(pinsOnBorder),
     _previewSize(previewWidth),
-    _saveNodePositions(true)
+    _saveNodePositions(true),
+    _lightRotation(0.0f)
 {
     _pinIconShape = (unsigned int) ax::Drawing::IconType::Circle;
     if (pinShape == "flow")
@@ -3231,6 +3232,13 @@ void Graph::loadGeometry()
     _fileDialogGeom.open();
 }
 
+void Graph::loadEnvironment()
+{
+    _fileDialogEnv.setTitle("Load Environment");
+    _fileDialogEnv.setTypeFilters(_imageFilter);
+    _fileDialogEnv.open();
+}
+
 void Graph::graphButtons()
 {
     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(.15f, .15f, .15f, 1.0f));
@@ -3292,6 +3300,16 @@ void Graph::graphButtons()
             {
                 loadGeometry();
             }
+            if (ImGui::MenuItem("Load Environment"))
+            {
+                loadEnvironment();
+            }
+            ImGui::Separator();
+            if (ImGui::BeginMenu("Lighting"))
+            {
+                lightingSettings();
+                ImGui::EndMenu();
+            }
             ImGui::EndMenu();
         }
 
@@ -3320,7 +3338,8 @@ void Graph::graphButtons()
         !guiIO.WantTextInput &&
         !_fileDialogSave.isOpened() &&
         !_fileDialog.isOpened() &&
-        !_fileDialogGeom.isOpened())
+        !_fileDialogGeom.isOpened() &&
+        !_fileDialogEnv.isOpened())
     {
         if (ImGui::IsKeyReleased(ImGuiKey_O))
         {
@@ -4316,6 +4335,17 @@ void Graph::shaderPopup()
     }
 }
 
+void Graph::lightingSettings()
+{
+    // Light Rotation setting
+    bool valueChanged = ImGui::DragFloat("Light Rotation", &_lightRotation, 0.5f, 0.0f, 360.0f, "%.2f");
+    if (valueChanged)
+    {
+        _renderer->setLightRotation(_lightRotation);
+        _renderer->invalidateShadowMap();
+    }
+}
+
 void Graph::handleRenderViewInputs()
 {
     ImVec2 mousePos = ImGui::GetMousePos();
@@ -4359,7 +4389,11 @@ void Graph::handleRenderViewInputs()
     }
 
     // Scrolling not possible if open or save file dialog is open
-    if (scrollAmt != 0 && !_fileDialogSave.isOpened() && !_fileDialog.isOpened() && !_fileDialogGeom.isOpened())
+    if (scrollAmt != 0 && 
+        !_fileDialogSave.isOpened() &&
+        !_fileDialog.isOpened() &&
+        !_fileDialogGeom.isOpened() &&
+        !_fileDialogEnv.isOpened())
     {
         _renderer->setScrollEvent(scrollAmt);
     }
@@ -5042,6 +5076,14 @@ void Graph::drawGraph(ImVec2 mousePos)
         _fileDialogGeom.clearSelected();
         _renderer->loadMesh(fileName);
         _renderer->updateMaterials(nullptr);
+    }
+
+    _fileDialogEnv.display();
+    if (_fileDialogEnv.hasSelected())
+    {
+        mx::FilePath fileName = _fileDialogEnv.getSelected();
+        _fileDialogEnv.clearSelected();
+        _renderer->loadEnvironmentLight(fileName);
     }
 
     _fileDialogImage.display();
