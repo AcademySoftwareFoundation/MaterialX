@@ -3135,6 +3135,7 @@ void Graph::deleteNode(UiNodePtr node)
         (_currRenderNode->getElement() == node->getElement() || isDescendantOf(_currRenderNode, node)))
     {
         _lockRenderPreviewNode = false;
+        _currRenderNode = nullptr;
     }
 
     // Remove from NodeGraph
