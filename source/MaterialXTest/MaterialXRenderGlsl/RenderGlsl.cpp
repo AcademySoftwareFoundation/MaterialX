@@ -19,10 +19,7 @@
 
 #include <MaterialXFormat/Util.h>
 
-
 namespace mx = MaterialX;
-
- // MATERIALX_BUILD_PERFETTO_TRACING
 
 //
 // Render validation tester for the GLSL shading language
