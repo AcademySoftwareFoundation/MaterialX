@@ -18,15 +18,18 @@ elseif(UNIX)
     find_package(OpenGL REQUIRED)
 endif()
 
+set(RENDERGLSL_MTLX_MODULES MaterialXRenderHw MaterialXGenGlsl)
+if(MATERIALX_BUILD_PERFETTO_TRACING)
+    list(APPEND RENDERGLSL_MTLX_MODULES MaterialXTrace)
+endif()
+
 mx_add_library(MaterialXRenderGlsl
     SOURCE_FILES
         ${materialx_source}
     HEADER_FILES
         ${materialx_headers}
     MTLX_MODULES
-        MaterialXRenderHw
-        MaterialXGenGlsl
-        MaterialXTrace
+        ${RENDERGLSL_MTLX_MODULES}
     EXPORT_DEFINE
         MATERIALX_RENDERGLSL_EXPORTS
     ADD_OBJECTIVE_C_CODE)
