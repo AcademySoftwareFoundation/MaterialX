@@ -108,7 +108,9 @@ class Graph
           const mx::FilePathVec& libraryFolders,
           int viewWidth,
           int viewHeight,
-          float previewWidth);
+          float previewWidth,
+          bool pinsOnBorder,
+          const std::string& pinShape);
     ~Graph() = default;
 
     mx::DocumentPtr loadDocument(const mx::FilePath& filename);
@@ -117,11 +119,6 @@ class Graph
     RenderViewPtr getRenderer()
     {
         return _renderer;
-    }
-
-    void setFontScale(float val)
-    {
-        _fontScale = val;
     }
 
   private:
@@ -184,8 +181,13 @@ class Graph
     // Return pin color based on the type of the value of that pin
     void setPinColor();
 
+    // Compute icon size
+    static float computeIconSize();
+    // Compute pin offset based on icon size and aligment (left vs right)
+    static float computePinOffset(bool rightAligned = false);
+
     // Based on the pin icon function in the ImGui Node Editor blueprints-example.cpp
-    void drawPinIcon(const std::string& type, bool connected, int alpha);
+    void drawPinIcon(const std::string& type, bool connected, int alpha, float xOffset = 0.0f, bool offsetInY = false);
 
     UiPinPtr getPin(ed::PinId id);
     void drawInputPin(UiPinPtr pin);
@@ -298,6 +300,36 @@ class Graph
 
     void showHelp() const;
 
+    // A compile-time constant member variable that corresponds to the function below. Defined in header as visibility is desirable here.
+    static constexpr char HELP_MARKER_TEXT[] = "(?)";
+    // Helper function to draw a marker via ImGui which shows a tooltip when hovered.
+    // Uses instance font scaling for tooltip readability.
+    static void drawHelpMarker(const char* content);
+
+    // Static helper function to display tooltips for headers in an ImGui table
+    template <std::size_t N> static void drawTableHeadersRowWithTooltips(const std::array<const char*, N>& tooltips)
+    {
+        const int columnCount = ImGui::TableGetColumnCount();
+        if (columnCount == 0 || columnCount != N)
+            return; // Given array size should match number of columns in table
+
+        ImGui::TableNextRow(ImGuiTableRowFlags_Headers);
+        for (int col = 0; col < columnCount; ++col)
+        {
+            if (!ImGui::TableSetColumnIndex(col))
+                continue;                                       // Do not draw if column is not visible
+            ImGui::TableHeader(ImGui::TableGetColumnName(col)); // Header name
+
+            std::string colTooltip = tooltips[col];
+            if (!colTooltip.empty() && ImGui::IsItemHovered())
+            {
+                ImGui::BeginTooltip();
+                ImGui::TextUnformatted(tooltips[col]);
+                ImGui::EndTooltip();
+            }
+        }
+    }
+
   private:
     mx::StringVec _geomFilter;
     mx::StringVec _mtlxFilter;
@@ -370,9 +402,10 @@ class Graph
     // used for auto connecting pins if a node is added by drawing a link from a pin
     ed::PinId _pinIdToLinkFrom;
     ed::PinId _pinIdToLinkTo;
-
-    // DPI scaling for fonts
-    float _fontScale;
+    // Offset pin placement to be on border of node vs inside.
+    bool _pinsOnBorder;
+    // Pin icon shape
+    unsigned int _pinIconShape;
 
     // Layout engine
     Layout _layout;
@@ -389,5 +422,4 @@ class Graph
     // Current height of the diagnostic panel; adjusted by the resize handle.
     float _diagPanelHeight = 120.f;
 };
-
 #endif

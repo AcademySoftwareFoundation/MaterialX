@@ -80,7 +80,7 @@ Standard Texture nodes:
 
 Samples data from a single image, or from a layer within a multi-layer image.  When used in the context of rendering a geometry, the image is mapped onto the geometry based on geometry UV coordinates, with the lower-left corner of an image mapping to the (0,0) UV coordinate (or to the fractional (0,0) UV coordinate for tiled images).
 
-The type of the &lt;image> node determines the number of channels output, which may be less than the number of channels in the image file, outputting the first N channels from the image file.  So a `float` &lt;image> would return the Red channel of an RGB image, and a `color3` &lt;image> would return the RGB channels of an RGBA image.  If the type of the &lt;image> node has more channels than the referenced image file, then the output will contain zero values in all channels beyond the N channels of the image file.
+The type of the &lt;image> node determines the number of channels output, which may be less than the number of channels in the image file, outputting the first N channels from the image file.  So a `float` &lt;image> would return the Red channel of an RGB image, and a `color3` &lt;image> would return the RGB channels of an RGBA image.  If the type of the &lt;image> node has more channels than the referenced image file, then the output will contain zero values in all channels beyond the N channels of the image file, aside from the fourth channel which is populated with 1.
 
 The `file` input value can include one or more substitutions to change the file name that is accessed, as described in the [Filename Substitutions](./MaterialX.Specification.md#filename-substitutions) section in the main Specification document.
 
@@ -824,7 +824,7 @@ The value of the specified uniform geometric property (defined by a &lt;geomprop
 
 ### Geometric Node Notes
 
-A `colorspace` attribute may be specified for color3/color4-type properties of &lt;geomcolor> and &lt;geompropvalue> nodes to declare what colorspace the color property value is in; the default is "none" for no colorspace declaration (and hence no colorspace conversion).
+A `colorspace` attribute may be specified for color3/color4-type properties of &lt;geomcolor> and &lt;geompropvalue> nodes to declare what colorspace the color property value is in; the default is "data" for no colorspace declaration (and hence no colorspace conversion).
 
 
 
@@ -1621,16 +1621,16 @@ Linearly remap incoming values from one range of values [`inlow`, `inhigh`] to a
 ### `range`
 Remap incoming values from one range of values to another, optionally applying a gamma correction "in the middle". 
 
-|Port     |Description                                             |Type                  |Default |
-|---------|--------------------------------------------------------|----------------------|--------|
-|`in`     |The input stream to be adjusted                         |float, colorN, vectorN|__zero__|
-|`inlow`  |Low value for the input range                           |Same as `in` or float |__zero__|
-|`inhigh` |High value for the input range                          |Same as `inlow`       |__one__ |
-|`gamma`  |Reciprocal of the exponent applied to the remapped input|Same as `inlow`       |__one__ |
-|`outlow` |Low value for the output range                          |Same as `inlow`       |__zero__|
-|`outhigh`|High value for the output range                         |Same as `inlow`       |__one__ |
-|`doclamp`|If true, the output is clamped to [`outlow`, `outhigh`] |boolean               |false   |
-|`out`    |Output: the adjusted value                              |Same as `in`          |`in`    |
+|Port     |Description                                                                                 |Type                  |Default |
+|---------|--------------------------------------------------------------------------------------------|----------------------|--------|
+|`in`     |The input stream to be adjusted                                                             |float, colorN, vectorN|__zero__|
+|`inlow`  |Low value for the input range                                                               |Same as `in` or float |__zero__|
+|`inhigh` |High value for the input range                                                              |Same as `inlow`       |__one__ |
+|`gamma`  |Reciprocal of the exponent applied to the remapped input                                    |Same as `inlow`       |__one__ |
+|`outlow` |Low value for the output range                                                              |Same as `inlow`       |__zero__|
+|`outhigh`|High value for the output range                                                             |Same as `inlow`       |__one__ |
+|`doclamp`|If true, the output is clamped between `outlow` and `outhigh`, regardless of which is larger|boolean               |false   |
+|`out`    |Output: the adjusted value                                                                  |Same as `in`          |`in`    |
 
 <a id="node-smoothstep"> </a>
 

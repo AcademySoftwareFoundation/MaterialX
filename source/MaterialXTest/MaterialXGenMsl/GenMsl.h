@@ -45,6 +45,7 @@ class MslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
     {
         // To skip specific files for this render target, add them as below:
         // _skipFiles.insert("example.mtlx");
+        ParentClass::addSkipFiles();
     }
 
     void setupDependentLibraries() override

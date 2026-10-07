@@ -32,10 +32,48 @@ const StringMap COLOR_SPACE_REMAP =
     {"srgb_rec709_scene",   "srgb_texture"},
     {"g22_rec709_scene",    "g22_rec709"},
     {"g18_rec709_scene",    "g18_rec709"},
+    {"g24_rec709_scene",    "rec709_display"},
     {"g22_ap1_scene",       "g22_ap1"},
     {"srgb_p3d65_scene",    "srgb_displayp3"},
     {"g22_adobergb_scene",  "adobergb"}
 };
+
+// User-facing display names for color space IDs, as tabulated in the color space table
+// of MaterialX.Specification.md. Names handled by COLOR_SPACE_REMAP are looked up here
+// by their remapped (base) name, so each display name is only listed once.
+const StringMap COLOR_SPACE_USER_FACING_NAMES =
+{
+    // Base names that COLOR_SPACE_REMAP normalizes onto.
+    { "g18_rec709",     "Gamma 1.8 Encoded Rec.709" },
+    { "g22_rec709",     "Gamma 2.2 Encoded Rec.709" },
+    { "rec709_display", "Gamma 2.4 Encoded Rec.709" },
+    { "acescg",         "ACEScg" },
+    { "lin_rec709",     "Linear Rec.709 (sRGB)" },
+    { "lin_displayp3",  "Linear P3-D65" },
+    { "lin_adobergb",   "Linear AdobeRGB" },
+    { "srgb_texture",   "sRGB Encoded Rec.709 (sRGB)" },
+    { "g22_ap1",        "Gamma 2.2 Encoded AP1" },
+    { "srgb_displayp3", "sRGB Encoded P3-D65" },
+    { "adobergb",       "Gamma 2.2 Encoded AdobeRGB" },
+
+    // Color interop names with no legacy equivalent.
+    { "lin_ap0_scene",       "ACES2065-1" },
+    { "lin_rec2020_scene",   "Linear Rec.2020" },
+    { "lin_ciexyzd65_scene", "CIE XYZ-D65 - Scene-referred" },
+    { "srgb_ap1_scene",      "sRGB Encoded AP1" },
+
+    // No-op color spaces.
+    { "none", "Data" },  // prefer the new name
+    { "data", "Data" }
+};
+
+// Return the base color space name for the given color space, resolving any
+// legacy or color interop alias through COLOR_SPACE_REMAP.
+string remapColorSpace(const string& colorSpace)
+{
+    auto it = COLOR_SPACE_REMAP.find(colorSpace);
+    return it != COLOR_SPACE_REMAP.end() ? it->second : colorSpace;
+}
 
 } // anonymous namespace
 
@@ -58,6 +96,18 @@ const string& DefaultColorManagementSystem::getName() const
     return CMS_NAME;
 }
 
+string DefaultColorManagementSystem::getUserFacingName(const string& colorSpace) const
+{
+    const string baseSpace = remapColorSpace(colorSpace);
+    return COLOR_SPACE_USER_FACING_NAMES.count(baseSpace) ? COLOR_SPACE_USER_FACING_NAMES.at(baseSpace) : colorSpace;
+}
+
+bool DefaultColorManagementSystem::isNoOpTransform(const string& sourceColorSpace, const string& targetColorSpace) const
+{
+    return ColorManagementSystem::isNoOpTransform(sourceColorSpace, targetColorSpace) ||
+           remapColorSpace(sourceColorSpace) == remapColorSpace(targetColorSpace);
+}
+
 NodeDefPtr DefaultColorManagementSystem::getNodeDef(const ColorSpaceTransform& transform) const
 {
     if (!_document)
@@ -65,9 +115,18 @@ NodeDefPtr DefaultColorManagementSystem::getNodeDef(const ColorSpaceTransform& t
         throw ExceptionShaderGenError("No library loaded for color management system");
     }
 
-    string sourceSpace = COLOR_SPACE_REMAP.count(transform.sourceSpace) ? COLOR_SPACE_REMAP.at(transform.sourceSpace) : transform.sourceSpace;
-    string targetSpace = COLOR_SPACE_REMAP.count(transform.targetSpace) ? COLOR_SPACE_REMAP.at(transform.targetSpace) : transform.targetSpace;
-    string nodeName = sourceSpace + "_to_" + targetSpace;
+    // A transform that requires no color transformation (e.g. lin_rec709_scene -> lin_rec709)
+    // is represented by a pass-through node. ShaderGraph consults isNoOpTransform before
+    // requesting a nodedef and omits the transform entirely, so this fallback serves callers
+    // of supportsTransform and createNode that request such a transform directly.
+    if (isNoOpTransform(transform.sourceSpace, transform.targetSpace))
+    {
+        return _document->getNodeDef("ND_dot_" + transform.type.getName());
+    }
+
+    const string sourceSpace = remapColorSpace(transform.sourceSpace);
+    const string targetSpace = remapColorSpace(transform.targetSpace);
+    const string nodeName = sourceSpace + "_to_" + targetSpace;
 
     for (NodeDefPtr nodeDef : _document->getMatchingNodeDefs(nodeName))
     {

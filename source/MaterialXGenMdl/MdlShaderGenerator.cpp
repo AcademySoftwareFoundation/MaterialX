@@ -52,11 +52,13 @@ const string MDL_VERSION_1_7 = "1.7";
 const string MDL_VERSION_1_8 = "1.8";
 const string MDL_VERSION_1_9 = "1.9";
 const string MDL_VERSION_1_10 = "1.10";
+const string MDL_VERSION_1_11 = "1.11";
 const string MDL_VERSION_SUFFIX_1_6 = "1_6";
 const string MDL_VERSION_SUFFIX_1_7 = "1_7";
 const string MDL_VERSION_SUFFIX_1_8 = "1_8";
 const string MDL_VERSION_SUFFIX_1_9 = "1_9";
 const string MDL_VERSION_SUFFIX_1_10 = "1_10";
+const string MDL_VERSION_SUFFIX_1_11 = "1_11";
 
 } // anonymous namespace
 
@@ -115,6 +117,21 @@ MdlShaderGenerator::MdlShaderGenerator(TypeSystemPtr typeSystem) :
 
     // <!-- <sheen_bsdf> -->
     registerImplementation("IM_sheen_bsdf_" + MdlShaderGenerator::TARGET, LayerableNodeMdl::create);
+
+    // <!-- <oren_nayar_diffuse_bsdf> -->
+    registerImplementation("IM_oren_nayar_diffuse_bsdf_" + MdlShaderGenerator::TARGET, LayerableNodeMdl::create);
+
+    // <!-- <burley_diffuse_bsdf> -->
+    registerImplementation("IM_burley_diffuse_bsdf_" + MdlShaderGenerator::TARGET, LayerableNodeMdl::create);
+
+    // <!-- <conductor_bsdf> -->
+    registerImplementation("IM_conductor_bsdf_" + MdlShaderGenerator::TARGET, LayerableNodeMdl::create);
+
+    // <!-- <translucent_bsdf> -->
+    registerImplementation("IM_translucent_bsdf_" + MdlShaderGenerator::TARGET, LayerableNodeMdl::create);
+
+    // <!-- <subsurface_bsdf> -->
+    registerImplementation("IM_subsurface_bsdf_" + MdlShaderGenerator::TARGET, LayerableNodeMdl::create);
 
     // <!-- <image> -->
     registerImplementation("IM_image_float_" + MdlShaderGenerator::TARGET, ImageNodeMdl::create);
@@ -752,10 +769,13 @@ void MdlShaderGenerator::emitMdlVersionNumber(GenContext& context, ShaderStage& 
         case GenMdlOptions::MdlVersion::MDL_1_9:
             emitString(MDL_VERSION_1_9, stage);
             break;
-        default:
-            // GenMdlOptions::MdlVersion::MDL_1_10
-            // GenMdlOptions::MdlVersion::MDL_LATEST
+        case GenMdlOptions::MdlVersion::MDL_1_10:
             emitString(MDL_VERSION_1_10, stage);
+            break;
+        default:
+            // GenMdlOptions::MdlVersion::MDL_1_11
+            // GenMdlOptions::MdlVersion::MDL_LATEST
+            emitString(MDL_VERSION_1_11, stage);
             break;
     }
     emitLineEnd(stage, true);
@@ -776,10 +796,12 @@ const string& MdlShaderGenerator::getMdlVersionFilenameSuffix(GenContext& contex
             return MDL_VERSION_SUFFIX_1_8;
         case GenMdlOptions::MdlVersion::MDL_1_9:
             return MDL_VERSION_SUFFIX_1_9;
-        default:
-            // GenMdlOptions::MdlVersion::MDL_1_10
-            // GenMdlOptions::MdlVersion::MDL_LATEST
+        case GenMdlOptions::MdlVersion::MDL_1_10:
             return MDL_VERSION_SUFFIX_1_10;
+        default:
+            // GenMdlOptions::MdlVersion::MDL_1_11
+            // GenMdlOptions::MdlVersion::MDL_LATEST
+            return MDL_VERSION_SUFFIX_1_11;
     }
 }
 

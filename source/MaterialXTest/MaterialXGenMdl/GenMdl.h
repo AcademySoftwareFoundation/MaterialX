@@ -76,7 +76,8 @@ class MdlShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
     // Ignore certain .mtlx files
     void addSkipFiles() override
     {
-        // no additional files are skipped
+        // ocio_color_management.mtlx uses color spaces which require OCIO and is not supported by MDL.
+        _skipFiles.insert("ocio_color_management.mtlx");
         ShaderGeneratorTester::addSkipFiles();
     }
 

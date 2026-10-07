@@ -762,7 +762,7 @@ void SlangShaderGenerator::SlangSyntaxFromGlsl(ShaderStage& shaderStage) const
     size_t pos = 0;
     auto isAllowedAfterToken = [](char ch) -> bool
     {
-        return std::isspace(ch) || ch == '(' || ch == ')' || ch == ',';
+        return std::isspace(ch) || ch == '(' || ch == ')' || ch == ',' || ch == ';';
     };
 
     auto isAllowedBeforeToken = [](char ch) -> bool

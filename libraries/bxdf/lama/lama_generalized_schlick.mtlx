@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.39" colorspace="acescg">
+<materialx version="1.39" colorspace="lin_ap1_scene">
   <nodedef name="ND_lama_generalized_schlick" node="LamaGeneralizedSchlick" nodegroup="pbr" doc="Lama generalized schlick" version="1.0" isdefaultversion="true">
     <input name="reflectionTint" type="color3" value="1.0, 1.0, 1.0" uiname="Reflection Tint" uifolder="Main"
            doc="Color multiplier for external reflection. It should be used with parsimony, as a non-white value breaks physicality." />

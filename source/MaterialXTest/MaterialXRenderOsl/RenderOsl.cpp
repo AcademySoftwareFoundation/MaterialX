@@ -44,7 +44,7 @@ class TangentOsl : public mx::ShaderNodeImpl
         {
             shadergen.emitLineBegin(stage);
             shadergen.emitOutput(node.getOutput(), true, false, context, stage);
-            shadergen.emitString(" = normalize(vector(N[2], 0, -N[0]))", stage);
+            shadergen.emitString(" = normalize(dPdu)", stage);
             shadergen.emitLineEnd(stage);
         }
     }
@@ -66,7 +66,7 @@ class BitangentOsl : public mx::ShaderNodeImpl
         {
             shadergen.emitLineBegin(stage);
             shadergen.emitOutput(node.getOutput(), true, false, context, stage);
-            shadergen.emitString(" = normalize(cross(N, vector(N[2], 0, -N[0])))", stage);
+            shadergen.emitString(" = normalize(cross(N, normalize(dPdu)))", stage);
             shadergen.emitLineEnd(stage);
         }
     }
@@ -90,6 +90,17 @@ class OslShaderRenderTester : public RenderUtil::ShaderRenderTester
     }
 
   protected:
+    void setTargetGenerationOptions(mx::GenOptions& options) override
+    {
+        // Flip file texture lookups vertically, compensating for the top-left
+        // image origin of OSL texture lookups.
+        options.fileTextureVerticalFlip = true;
+
+        // Generate a wrapper shader connecting the output to Ci, as required
+        // for rendering with testrender.
+        options.oslConnectCiWrapper = true;
+    }
+
     void createRenderer(std::ostream& log) override;
 
     RenderUtil::RenderProfileResult runRenderer(
@@ -112,6 +123,8 @@ class OslShaderRenderTester : public RenderUtil::ShaderRenderTester
             _skipFiles.insert("vertical_layering.mtlx");
             _skipFiles.insert("mix_bsdf.mtlx");
         }
+
+        RenderUtil::ShaderRenderTester::addSkipFiles();
     }
 
     bool saveImage(const mx::FilePath& filePath, mx::ConstImagePtr image, bool /*verticalFlip*/) const override
@@ -221,10 +234,7 @@ RenderUtil::RenderProfileResult OslShaderRenderTester::runRenderer(
             try
             {
                 mx::ScopedTimer genTimer(&result.languageTimes.generationTime);
-                mx::GenOptions& contextOptions = context.getOptions();
-                contextOptions = options;
-                contextOptions.targetColorSpaceOverride = "lin_rec709";
-                contextOptions.oslConnectCiWrapper = true;
+                context.getOptions() = options;
 
                 // Apply local overrides for shader generation.
                 shadergen.registerImplementation("IM_tangent_vector3_" + mx::OslShaderGenerator::TARGET, TangentOsl::create);
@@ -336,6 +346,17 @@ RenderUtil::RenderProfileResult OslShaderRenderTester::runRenderer(
                     mx::FilePath sceneTemplatePath = searchPath.find("resources/Utilities/");
                     sceneTemplatePath = sceneTemplatePath / sceneTemplateFile;
                     _renderer->setOslTestRenderSceneTemplateFile(sceneTemplatePath.asString());
+
+                    // Set the render geometry. OSL testrender currently loads
+                    // only OBJ geometry, so fall back to the default sphere
+                    // for other formats.
+                    mx::FilePath renderGeometry = testOptions.renderGeometry;
+                    if (renderGeometry.getExtension() != "obj")
+                    {
+                        renderGeometry = mx::FilePath();
+                    }
+                    mx::FilePath geomPath = RenderUtil::findRenderGeometry(renderGeometry, searchPath);
+                    _renderer->setRenderGeometry(geomPath);
 
                     // Validate rendering
                     {

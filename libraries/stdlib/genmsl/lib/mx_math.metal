@@ -6,6 +6,7 @@
 #define mx_tan metal::tan
 #define mx_asin metal::asin
 #define mx_acos metal::acos
+#define mx_isinf metal::isinf
 #define mx_float_bits_to_int as_type<int>
 
 float2 mx_matrix_mul(float2 v, float2x2 m) { return v * m; }

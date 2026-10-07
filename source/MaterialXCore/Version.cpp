@@ -58,6 +58,33 @@ void copyInputWithBindings(NodePtr sourceNode, const string& sourceInputName,
     }
 }
 
+InputPtr removeUnboundInput(NodePtr node, const string& inputName)
+{
+    InputPtr input = node->getInput(inputName);
+    if (input && !input->hasNodeName() && !input->hasNodeGraphString() &&
+        !input->hasOutputString() && !input->hasInterfaceName())
+    {
+        node->removeInput(inputName);
+        input = nullptr;
+    }
+    return input;
+}
+
+void copyInputOrConnectWorldGeomProp(NodePtr sourceNode, const string& sourceInputName,
+                                     NodePtr destNode, const string& destInputName,
+                                     GraphElementPtr graph, const string& geomCategory)
+{
+    if (sourceNode->getInput(sourceInputName))
+    {
+        copyInputWithBindings(sourceNode, sourceInputName, destNode, destInputName);
+        return;
+    }
+
+    NodePtr geomNode = graph->addNode(geomCategory, graph->createValidChildName("normalmap_" + geomCategory), "vector3");
+    geomNode->setInputValue("space", string("world"));
+    destNode->addInput(destInputName, "vector3")->setConnectedNode(geomNode);
+}
+
 } // anonymous namespace
 
 void Document::upgradeVersion()
@@ -1088,6 +1115,21 @@ void Document::upgradeVersion()
             }
         }
 
+        // In MaterialX 1.39, each node input may have only one binding.  Legacy
+        // 1.38 nodegraph implementations sometimes kept a default value on an
+        // input that was also connected to a nodegraph interface, so preserve the
+        // binding and let the declaration provide any default value.
+        for (ElementPtr elem : traverseTree())
+        {
+            InputPtr input = elem->asA<Input>();
+            if (input && input->getParent()->isA<Node>() && input->hasValue() &&
+                (input->hasNodeName() || input->hasNodeGraphString() ||
+                 input->hasInterfaceName() || input->hasOutputString()))
+            {
+                input->removeAttribute(ValueElement::VALUE_ATTRIBUTE);
+            }
+        }
+
         // Update all nodes.
         vector<NodePtr> unusedNodes;
         for (ElementPtr elem : traverseTree())
@@ -1149,10 +1191,12 @@ void Document::upgradeVersion()
             {
                 // Upgrade switch nodes from 5 to 10 inputs, handling the fallback behavior for
                 // constant "which" values that were previously out of range.
+                //
+                // getValue() returns null for both a missing and an unparseable value.
                 InputPtr which = node->getInput("which");
-                if (which && which->hasValue())
+                ValuePtr whichValue = which ? which->getValue() : nullptr;
+                if (whichValue)
                 {
-                    auto whichValue = which->getValue();
                     if (whichValue->isA<int>() && whichValue->asA<int>() >= 5)
                     {
                         which->setValue(0);
@@ -1241,8 +1285,9 @@ void Document::upgradeVersion()
                                     continue;
                                 }
                             }
-                            // Invalid channel name, or missing channel name:
-                            newValueTokens.push_back(origValueTokens[0]);
+                            // Invalid channel name, or missing channel name: fall back to the
+                            // first original token, or "0" if the original value was empty.
+                            newValueTokens.push_back(origValueTokens.empty() ? "0" : origValueTokens[0]);
                         }
                         InputPtr valueInput = node->addInput("value", node->getType());
                         valueInput->setValueString(joinStrings(newValueTokens, ", "));
@@ -1390,17 +1435,20 @@ void Document::upgradeVersion()
                     // Clear tangent-space input.
                     node->removeInput("space");
 
-                    // If the normal or tangent inputs are set and the bitangent input is not, 
-                    // the bitangent should be set to normalize(cross(N, T))
-                    InputPtr normalInput = node->getInput("normal");
-                    InputPtr tangentInput = node->getInput("tangent");
-                    InputPtr bitangentInput = node->getInput("bitangent");
+                    // Normalmap frame inputs have 1.39 default geometric properties, so any
+                    // unbound legacy literal should be ignored in favor of those geomprops.
+                    InputPtr normalInput = removeUnboundInput(node, "normal");
+                    InputPtr tangentInput = removeUnboundInput(node, "tangent");
+                    InputPtr bitangentInput = removeUnboundInput(node, "bitangent");
+
+                    // If the normal or tangent inputs are set and the bitangent input is not,
+                    // the bitangent should be set to normalize(cross(N, T)).
                     if ((normalInput || tangentInput) && !bitangentInput)
                     {
                         GraphElementPtr graph = node->getAncestorOfType<GraphElement>();
                         NodePtr crossNode = graph->addNode("crossproduct", graph->createValidChildName("normalmap_cross"), "vector3");
-                        copyInputWithBindings(node, "normal", crossNode, "in1");
-                        copyInputWithBindings(node, "tangent", crossNode, "in2");
+                        copyInputOrConnectWorldGeomProp(node, "normal", crossNode, "in1", graph, "normal");
+                        copyInputOrConnectWorldGeomProp(node, "tangent", crossNode, "in2", graph, "tangent");
 
                         NodePtr normalizeNode = graph->addNode("normalize", graph->createValidChildName("normalmap_cross_norm"), "vector3");
                         normalizeNode->addInput("in", "vector3")->setConnectedNode(crossNode);

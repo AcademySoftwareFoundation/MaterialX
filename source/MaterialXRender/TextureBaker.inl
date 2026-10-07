@@ -19,8 +19,12 @@ MATERIALX_NAMESPACE_BEGIN
 namespace
 {
 
-const string SRGB_TEXTURE = "srgb_texture";
-const string LIN_REC709 = "lin_rec709";
+// Color interop names for the spaces in which baked textures are encoded, along
+// with the legacy MaterialX name for the sRGB texture space, which is still
+// accepted by TextureBaker::setColorSpace.
+const string SRGB_TEXTURE = "srgb_rec709_scene";
+const string SRGB_TEXTURE_LEGACY = "srgb_texture";
+const string LIN_REC709 = "lin_rec709_scene";
 const string SHADER_PREFIX = "SR_";
 const string DEFAULT_UDIM_PREFIX = "_";
 
@@ -225,7 +229,7 @@ void TextureBaker<Renderer, ShaderGen>::bakeGraphOutput(OutputPtr output, GenCon
         return;
     }
 
-    bool encodeSrgb = _colorSpace == SRGB_TEXTURE && output->isColorType();
+    bool encodeSrgb = (_colorSpace == SRGB_TEXTURE || _colorSpace == SRGB_TEXTURE_LEGACY) && output->isColorType();
     Renderer::getFramebuffer()->setEncodeSrgb(encodeSrgb);
 
     ShaderPtr shader = _generator->generate("BakingShader", output, context);

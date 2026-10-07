@@ -23,7 +23,7 @@ vec3 mx_rotate_flake(vec3 p, vec3 i)
         vz * sx          , vz * sy          , 1.0 - z
     );
 
-    return m * p;
+    return mx_matrix_mul(m, p);
 }
 
 // compute a flake probability for a given flake coverage density x

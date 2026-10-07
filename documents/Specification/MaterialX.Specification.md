@@ -328,7 +328,7 @@ Each XIncluded document must itself be a valid MTLX file, containing an XML head
 Attributes for a &lt;materialx> element:
 
 * `version` (string, required): a string containing the version number of the MaterialX specification that this document conforms to, specified as a major and minor number separated by a dot.  The MaterialX library automatically upgrades older-versioned documents to the current MaterialX version at load time.
-* `colorspace` (string, optional): the name of the "working color space" for this element and all of its descendants.  This is the default color space for all image inputs and color values, and the color space in which all color computations will be performed.  The default is "none", for no color management.
+* `colorspace` (string, optional): the name of the "working color space" for this element and all of its descendants.  This is the default color space for all image inputs and color values. (However, it may differ from the rendering color space in which all color computations will be performed.)  The default is "data", for no color management.
 * `namespace` (string, optional): defines the namespace for all elements defined within this &lt;materialx> scope.  Please see the [MaterialX Namespaces](#materialx-namespaces) section below for details.
 
 
@@ -337,36 +337,48 @@ Attributes for a &lt;materialx> element:
 
 MaterialX supports the use of color management systems to associate RGB colors and images with specific color spaces.  MaterialX documents typically specify the working color space of the application that created them, and any input color or image described in the document can specify the name of its color space if different from the working color space.  This allows applications using MaterialX to transform color values within input colors and images from their original color space into a desired working color space upon ingest.  MaterialX does not specify _how_ or _when_ color values should be transformed: that is up to the host application, which can use any appropriate method including code generation, conversion when loading images into memory, maintaining cached or pre-converted image textures, etc.  It is generally presumed that the working color space of a MaterialX document will be linear (as opposed to log, a display-referred space such as sRGB, or some other non-linear encoding), although this is not a firm requirement.
 
-By default, MaterialX supports the following color spaces as defined in ACES 1.2 ([http://www.oscars.org/science-technology/sci-tech-projects/aces)](http://www.oscars.org/science-technology/sci-tech-projects/aces), and applications rendering MaterialX documents are expected to transform input colors and images from these spaces to the color space of their renderer.  One straightforward option for providing this support is to leverage MaterialX code generators, which support these transforms automatically, but applications may use any appropriate means to handle the transforms on their own.
+By default, MaterialX supports the following color spaces as defined in the ASWF Color Interop Forum Recommendation [Color Space Encodings for Texture Assets and CG Rendering](https://github.com/AcademySoftwareFoundation/ColorInterop/blob/main/Recommendations/01_TextureAssetColorSpaces/TextureAssetColorSpaces.md). 
 
-* `srgb_texture`
-* `lin_rec709`
-* `g22_rec709`
-* `g18_rec709`
-* `acescg`
-* `lin_ap1 (alias for "acescg")`
-* `g22_ap1`
-* `g18_ap1`
-* `lin_srgb`
-* `adobergb`
-* `lin_adobergb`
-* `srgb_displayp3`
-* `lin_displayp3`
+| User-facing Name | Color Space Attribute | Transfer Function | Primaries | White Point | Image State |
+| :---- | :---- | :---- | :---- | :---- | :---- |
+| ACEScg | `lin_ap1_scene` | Linear | AP1 | D60 | Scene-referred |
+| ACES2065-1 | `lin_ap0_scene` | Linear | AP0 | D60 | Scene-referred |
+| Linear Rec.709 (sRGB) | `lin_rec709_scene` | Linear | Rec.709 | D65 | Scene-referred |
+| Linear P3-D65 | `lin_p3d65_scene` | Linear | DCI-P3 | D65 | Scene-referred |
+| Linear Rec.2020 | `lin_rec2020_scene` | Linear | Rec.2020 | D65 | Scene-referred |
+| Linear AdobeRGB | `lin_adobergb_scene` | Linear | AdobeRGB | D65 | Scene-referred |
+| CIE XYZ-D65 - Scene-referred | `lin_ciexyzd65_scene` | Linear | XYZ 1931 | D65 | Scene-referred |
+| sRGB Encoded Rec.709 (sRGB) | `srgb_rec709_scene` | sRGB | Rec.709 | D65 | Scene-referred |
+| Gamma 2.4 Encoded Rec.709 | `g24_rec709_scene` | 2.4 power | Rec.709 | D65 | Scene-referred |
+| Gamma 2.2 Encoded Rec.709 | `g22_rec709_scene` | 2.2 power | Rec.709 | D65 | Scene-referred |
+| Gamma 1.8 Encoded Rec.709 | `g18_rec709_scene` | 1.8 power | Rec.709 | D65 | Scene-referred |
+| sRGB Encoded AP1 | `srgb_ap1_scene` | sRGB | AP1 | D60 | Scene-referred |
+| Gamma 2.2 Encoded AP1 | `g22_ap1_scene` | 2.2 power | AP1 | D60 | Scene-referred |
+| sRGB Encoded P3-D65 | `srgb_p3d65_scene` | sRGB | DCI-P3 | D65 | Scene-referred |
+| Gamma 2.2 Encoded AdobeRGB | `g22_adobergb_scene` | \~2.2 power | AdobeRGB | D65 | Scene-referred |
 
-The working color space of a MaterialX document is defined by the `colorspace` attribute of its root &lt;materialx> element, and it is strongly recommended that all &lt;materialx> elements define a specific `colorspace` if they wish to use a color-managed workflow rather than relying on a default color space setting from an external configuration file.  If a MaterialX document is xi:included into another MaterialX document, it will inherit the working color space setting of the parent document, unless it itself declares a specific working color space.
+The string used for the `colorspace` attribute in the XML file is not intended to be user-facing and should be translated into its user-facing name string before being shown in a user interface.
 
-The color space of individual color image files and values may be defined via a `colorspace` attribute in an input which defines a filename or value.  Other elements, such as &lt;nodegraph> or a node instance, are allowed to define a `colorspace` attribute that will apply to elements within their scope; color values in inputs and files that do not explicitly provide a `colorspace` attribute will be treated as if they are in the color space of the nearest enclosing scope which does define a `colorspace` attribute.  Color images and values in spaces other than the working color space are expected to be transformed by the application into the working space before computations are performed.  In the example below, an image file has been defined in the “srgb_texture” color space, while its default value has been defined in “lin_rec709”; both should be transformed to the application’s working color space before being applied to any computations.
+The above color spaces align with OpenUSD and are used in other ASWF projects. The earlier MaterialX color spaces: `srgb_texture`, `lin_rec709`, `g22_rec709`, `g18_rec709`, `rec709_display`, `acescg`, `lin_ap1`, `g22_ap1`, `adobergb`, `lin_adobergb`, `srgb_displayp3`, and `lin_displayp3` are currently still supported but are now deprecated, while `none` remains an acceptable alias for `data`.
+
+Applications rendering MaterialX documents are expected to transform input colors and images from these spaces to the color space of their renderer.  One straightforward option for providing this support is to leverage MaterialX code generators, which support these transforms automatically, but applications may use any appropriate means to handle the transforms on their own. Note that the code generators have an optional OpenColorIO integration which allows support for additional color spaces.
+
+The working color space of a MaterialX document is defined by the `colorspace` attribute of its root &lt;materialx> element, and it is strongly recommended that all &lt;materialx> elements define a specific `colorspace` if they wish to use a color-managed workflow.  If a MaterialX document is xi:included into another MaterialX document, it will inherit the working color space setting of the parent document, unless it itself declares a specific working color space.
+
+The color space of individual color image files and values may be defined via a `colorspace` attribute in an input which defines a filename or value.  Other elements, such as &lt;nodegraph> or a node instance, are allowed to define a `colorspace` attribute that will apply to elements within their scope; color values in inputs and files that do not explicitly provide a `colorspace` attribute will be treated as if they are in the color space of the nearest enclosing scope which does define a `colorspace` attribute.  Color images and values in spaces other than the rendering color space are expected to be transformed by the application before computations are performed.  In the example below, an image file has been defined in the “srgb_rec709_scene” color space, while its default value has been defined in “lin_rec709_scene”; both should be transformed to the application’s rendering color space before being applied to any computations.
 
 ```xml
   <image name="in1" type="color3">
     <input name="file" type="filename" value="input1.tif"
-         colorspace="srgb_texture"/>
+         colorspace="srgb_rec709_scene"/>
     <input name="default" type="color3" value="0.5,0.5,0.5"
-         colorspace="lin_rec709"/>
+         colorspace="lin_rec709_scene"/>
   </image>
 ```
 
-MaterialX reserves the color space name "none" to mean no color space conversion should be applied to the images and color values within their scope, regardless of any differences between stated color spaces at the local scope and document or application working color space settings.
+Ideally, a material will be rendered in the document's working color space. However, materials may be incorporated into a larger scene and it's possible that the rendering color space may be different than any given MaterialX document's working color space. Care should be taken in such situations to ensure that the creative intent is preserved.
+
+MaterialX reserves the color space name "data" to mean no color space conversion should be applied to the images and color values within their scope, regardless of any differences between stated color spaces at the local scope and document or application working color space settings. This effectively means that they are considered to be in whatever color space is used for rendering.
 
 
 
@@ -708,7 +720,7 @@ All node types (sources, operators, shader nodes and material nodes) as well as 
 
 <a id="attr-uicolor"> </a>
 
-* `uicolor` (color3 attribute): the display-referred color of the node as drawn in the UI, normalized to 0.0-1.0 range; default is to not specify a particular color so the application's default node color would be used.  `uicolor` values are expressed as color3 values in "none" colorspace, and thus are not affected by the current `colorspace`.
+* `uicolor` (color3 attribute): the display-referred color of the node as drawn in the UI, normalized to 0.0-1.0 range; default is to not specify a particular color so the application's default node color would be used.  `uicolor` values are expressed as color3 values in "data" colorspace, and thus are not affected by the current `colorspace`.
 
 All positioning and sizing attribute values are specified relative to an application's default size for drawing a node including any minimal-length connection edges and arrows.  So a node drawn at position (xpos, ypos) will "look good" if connected to nodes drawn at position (xpos+width, ypos) and at position (xpos, ypos+height), and a node specifying `width="2"` would be drawn twice as wide (including outside whitespace for a minimal connecting arrow) as a node with the default width.  It is not necessary that nodes be placed exactly on integer grid boundaries; this merely states the scale of nodes. It is also not assumed that the pixel scaling factors for X and Y are the same: the actual UI unit "grid" does not have to be square.  If xpos and ypos are not both specified, placement of the node when drawn in a UI is undefined, and it is up to the application to figure out placement (which could mean "all piled up in the center in a tangled mess").
 

@@ -167,10 +167,6 @@ class MX_GENSHADER_API Syntax
     virtual string getArrayVariableSuffix(TypeDesc type, const Value& value) const;
     [[deprecated]] string getArrayVariableSuffix(const TypeDesc* type, const Value& value) const { return getArrayVariableSuffix(*type, value); }
 
-    /// Query if given type is supported in the syntax.
-    /// By default all types are assumed to be supported.
-    [[deprecated]] virtual bool typeSupported(const TypeDesc* type) const;
-
     /// Modify the given name string to remove any invalid characters or tokens.
     virtual void makeValidName(string& name) const;
 
