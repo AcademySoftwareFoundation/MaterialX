@@ -26,6 +26,7 @@ mx_add_library(MaterialXRenderGlsl
     MTLX_MODULES
         MaterialXRenderHw
         MaterialXGenGlsl
+        MaterialXTrace
     EXPORT_DEFINE
         MATERIALX_RENDERGLSL_EXPORTS
     ADD_OBJECTIVE_C_CODE)

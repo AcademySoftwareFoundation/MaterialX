@@ -19,53 +19,10 @@
 
 #include <MaterialXFormat/Util.h>
 
-#ifdef MATERIALX_BUILD_PERFETTO_TRACING
-#include <MaterialXRenderGlsl/External/Glad/glad.h>
-#endif
 
 namespace mx = MaterialX;
 
-#ifdef MATERIALX_BUILD_PERFETTO_TRACING
-namespace {
-
-constexpr mx::Tracing::AsyncTrackId GPU_TRACK_ID = 0;
-
-class GpuTimerQuery
-{
-  public:
-    GpuTimerQuery()
-    {
-        glGenQueries(1, &_query);
-    }
-
-    ~GpuTimerQuery()
-    {
-        glDeleteQueries(1, &_query);
-    }
-
-    void begin()
-    {
-        glBeginQuery(GL_TIME_ELAPSED, _query);
-    }
-
-    void end()
-    {
-        glEndQuery(GL_TIME_ELAPSED);
-    }
-
-    uint64_t getDurationNs()
-    {
-        GLuint64 elapsedTime;
-        glGetQueryObjectui64v(_query, GL_QUERY_RESULT, &elapsedTime);
-        return elapsedTime;
-    }
-
-  private:
-    GLuint _query;
-};
-
-} // anonymous namespace
-#endif // MATERIALX_BUILD_PERFETTO_TRACING
+ // MATERIALX_BUILD_PERFETTO_TRACING
 
 //
 // Render validation tester for the GLSL shading language
@@ -378,20 +335,7 @@ RenderUtil::RenderProfileResult GlslShaderRenderTester::runRenderer(
                     unsigned int height = (unsigned int) testOptions.renderSize[1] * supersampleFactor;
                     _renderer->setSize(width, height);
 
-#ifdef MATERIALX_BUILD_PERFETTO_TRACING
-                    GpuTimerQuery gpuTimer;
-                    gpuTimer.begin();
-#endif
                     _renderer->render();
-
-#ifdef MATERIALX_BUILD_PERFETTO_TRACING
-                    gpuTimer.end();
-                    // Reading GL_QUERY_RESULT blocks until the GPU work is done,
-                    // so "now" in the trace clock is a safe end-of-slice marker.
-                    uint64_t gpuDurationNs = gpuTimer.getDurationNs();
-                    uint64_t nowNs = mx::Tracing::Dispatcher::getInstance().getTraceTimeNs();
-                    MX_TRACE_ASYNC(GPU_TRACK_ID, mx::Tracing::Category::Render, shaderName.c_str(), nowNs - gpuDurationNs, gpuDurationNs);
-#endif
                 }
 
                 {
