@@ -93,7 +93,7 @@ class MX_TRACE_API Sink
     /// @param startNs Start timestamp in nanoseconds (can be approximate)
     /// @param durationNs Duration in nanoseconds (should be accurate)
     virtual void asyncEvent(AsyncTrack track, Category category,
-                           const char* eventName, uint64_t startNs, uint64_t durationNs) = 0;
+                           const char* eventName, uint64_t startNs, uint64_t durationNs) { }
 
     /// Set the current thread's name for trace visualization.
     virtual void setThreadName(const char* name) = 0;
