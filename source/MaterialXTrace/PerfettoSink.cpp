@@ -205,6 +205,11 @@ void PerfettoSink::asyncEvent(AsyncTrackId track, Category category,
     }
 }
 
+uint64_t PerfettoSink::getTraceTimeNs()
+{
+    return perfetto::TrackEvent::GetTraceTimeNs();
+}
+
 void PerfettoSink::setThreadName(const char* name)
 {
     // Set thread name for trace visualization

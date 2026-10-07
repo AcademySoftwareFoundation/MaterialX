@@ -21,7 +21,6 @@
 
 #ifdef MATERIALX_BUILD_PERFETTO_TRACING
 #include <MaterialXRenderGlsl/External/Glad/glad.h>
-#include <chrono>
 #endif
 
 namespace mx = MaterialX;
@@ -30,12 +29,6 @@ namespace mx = MaterialX;
 namespace {
 
 constexpr mx::Tracing::AsyncTrackId GPU_TRACK_ID = 0;
-
-uint64_t getCurrentTimeNs()
-{
-    using namespace std::chrono;
-    return duration_cast<nanoseconds>(steady_clock::now().time_since_epoch()).count();
-}
 
 class GpuTimerQuery
 {
@@ -386,7 +379,6 @@ RenderUtil::RenderProfileResult GlslShaderRenderTester::runRenderer(
                     _renderer->setSize(width, height);
 
 #ifdef MATERIALX_BUILD_PERFETTO_TRACING
-                    uint64_t cpuStartNs = getCurrentTimeNs();
                     GpuTimerQuery gpuTimer;
                     gpuTimer.begin();
 #endif
@@ -394,9 +386,11 @@ RenderUtil::RenderProfileResult GlslShaderRenderTester::runRenderer(
 
 #ifdef MATERIALX_BUILD_PERFETTO_TRACING
                     gpuTimer.end();
-                    glFinish();
+                    // Reading GL_QUERY_RESULT blocks until the GPU work is done,
+                    // so "now" in the trace clock is a safe end-of-slice marker.
                     uint64_t gpuDurationNs = gpuTimer.getDurationNs();
-                    MX_TRACE_ASYNC(GPU_TRACK_ID, mx::Tracing::Category::Render, shaderName.c_str(), cpuStartNs, gpuDurationNs);
+                    uint64_t nowNs = mx::Tracing::Dispatcher::getInstance().getTraceTimeNs();
+                    MX_TRACE_ASYNC(GPU_TRACK_ID, mx::Tracing::Category::Render, shaderName.c_str(), nowNs - gpuDurationNs, gpuDurationNs);
 #endif
                 }
 

@@ -76,6 +76,7 @@ class PerfettoSink : public Sink
     void counter(Category category, const char* name, double value) override;
     void asyncEvent(AsyncTrackId track, Category category,
                    const char* eventName, uint64_t startNs, uint64_t durationNs) override;
+    uint64_t getTraceTimeNs() override;
     void setThreadName(const char* name) override;
 
   private:

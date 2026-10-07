@@ -90,11 +90,17 @@ class MX_TRACE_API Sink
     /// @param track The async track ID (must have been registered at sink creation)
     /// @param category The trace category for filtering
     /// @param eventName Name of the event (e.g., material name)
-    /// @param startNs Start timestamp in nanoseconds (can be approximate)
-    /// @param durationNs Duration in nanoseconds (should be accurate)
+    /// @param startNs Start timestamp in nanoseconds (in the sink's trace clock;
+    ///   use getTraceTimeNs() to obtain a compatible value)
+    /// @param durationNs Duration in nanoseconds
     virtual void asyncEvent(AsyncTrackId /*track*/, Category /*category*/,
                            const char* /*eventName*/, uint64_t /*startNs*/,
                            uint64_t /*durationNs*/) { }
+
+    /// Return the current time in the sink's trace clock (nanoseconds).
+    /// Use this to obtain timestamps compatible with asyncEvent's startNs.
+    /// Returns 0 if the sink has no notion of a trace clock.
+    virtual uint64_t getTraceTimeNs() { return 0; }
 
     /// Set the current thread's name for trace visualization.
     virtual void setThreadName(const char* name) = 0;
@@ -170,6 +176,12 @@ class MX_TRACE_API Dispatcher
     {
         if (_sink)
             _sink->asyncEvent(track, category, eventName, startNs, durationNs);
+    }
+
+    /// Return the current time in the sink's trace clock (nanoseconds).
+    uint64_t getTraceTimeNs()
+    {
+        return _sink ? _sink->getTraceTimeNs() : 0;
     }
 
   private:
