@@ -9,7 +9,6 @@
 
 #include <cstdint>
 #include <fstream>
-#include <limits>
 #include <mutex>
 
 // Define Perfetto trace categories for MaterialX
@@ -33,11 +32,9 @@ MATERIALX_NAMESPACE_BEGIN
 namespace Tracing
 {
 
-// Stable Perfetto track IDs for async tracks (must not collide with thread IDs).
-// Use max uint64_t minus small offsets -- no OS will assign these as thread IDs.
-constexpr uint64_t GPU_TRACK_ID = std::numeric_limits<uint64_t>::max();
-
-PerfettoSink::PerfettoSink(std::string outputPath, size_t bufferSizeKb)
+PerfettoSink::PerfettoSink(std::string outputPath,
+                           const AsyncTrackMap& asyncTracks,
+                           size_t bufferSizeKb)
     : _outputPath(std::move(outputPath))
 {
     // One-time global Perfetto initialization
@@ -47,15 +44,17 @@ PerfettoSink::PerfettoSink(std::string outputPath, size_t bufferSizeKb)
         args.backends |= perfetto::kInProcessBackend;
         perfetto::Tracing::Initialize(args);
         perfetto::TrackEvent::Register();
-
-        // Initialize async track descriptors with stable IDs and names
-        {
-            perfetto::Track gpuTrack(GPU_TRACK_ID);
-            auto desc = gpuTrack.Serialize();
-            desc.set_name("GPU");
-            perfetto::TrackEvent::SetTrackDescriptor(gpuTrack, desc);
-        }
     });
+
+    // Register async track descriptors from the caller-provided map
+    for (const auto& [id, name] : asyncTracks)
+    {
+        perfetto::Track perfTrack(id);
+        auto desc = perfTrack.Serialize();
+        desc.set_name(name);
+        perfetto::TrackEvent::SetTrackDescriptor(perfTrack, desc);
+        _asyncTracks.emplace(id, perfTrack);
+    }
 
     // Create and start a tracing session
     perfetto::TraceConfig cfg;
@@ -169,30 +168,39 @@ void PerfettoSink::counter(Category category, const char* name, double value)
     }
 }
 
-void PerfettoSink::asyncEvent(AsyncTrack track, Category category,
+void PerfettoSink::asyncEvent(AsyncTrackId track, Category category,
                               const char* eventName, uint64_t startNs, uint64_t durationNs)
 {
-    assert(track == AsyncTrack::GPU && "Only AsyncTrack::GPU is currently supported");
-    (void) track;
-    perfetto::Track perfTrack(GPU_TRACK_ID);
+    auto it = _asyncTracks.find(track);
+    if (it == _asyncTracks.end())
+        return;
 
-    // Emit begin and end events with explicit timestamps
+    const auto& perfTrack = it->second;
+    uint64_t endNs = startNs + durationNs;
+
     switch (category)
     {
         case Category::Render:
             TRACE_EVENT_BEGIN("mx.render", nullptr, perfTrack, startNs,
                 [&](perfetto::EventContext ctx) { ctx.event()->set_name(eventName); });
-            TRACE_EVENT_END("mx.render", perfTrack, startNs + durationNs);
+            TRACE_EVENT_END("mx.render", perfTrack, endNs);
             break;
         case Category::ShaderGen:
             TRACE_EVENT_BEGIN("mx.shadergen", nullptr, perfTrack, startNs,
                 [&](perfetto::EventContext ctx) { ctx.event()->set_name(eventName); });
-            TRACE_EVENT_END("mx.shadergen", perfTrack, startNs + durationNs);
+            TRACE_EVENT_END("mx.shadergen", perfTrack, endNs);
+            break;
+        case Category::Optimize:
+            TRACE_EVENT_BEGIN("mx.optimize", nullptr, perfTrack, startNs,
+                [&](perfetto::EventContext ctx) { ctx.event()->set_name(eventName); });
+            TRACE_EVENT_END("mx.optimize", perfTrack, endNs);
+            break;
+        case Category::Material:
+            TRACE_EVENT_BEGIN("mx.material", nullptr, perfTrack, startNs,
+                [&](perfetto::EventContext ctx) { ctx.event()->set_name(eventName); });
+            TRACE_EVENT_END("mx.material", perfTrack, endNs);
             break;
         default:
-            TRACE_EVENT_BEGIN("mx.render", nullptr, perfTrack, startNs,
-                [&](perfetto::EventContext ctx) { ctx.event()->set_name(eventName); });
-            TRACE_EVENT_END("mx.render", perfTrack, startNs + durationNs);
             break;
     }
 }
@@ -207,9 +215,11 @@ void PerfettoSink::setThreadName(const char* name)
 }
 
 // Factory function - the exported entry point
-std::unique_ptr<Sink> createPerfettoSink(const std::string& outputPath, size_t bufferSizeKb)
+std::unique_ptr<Sink> createPerfettoSink(const std::string& outputPath,
+                                          const AsyncTrackMap& asyncTracks,
+                                          size_t bufferSizeKb)
 {
-    return std::make_unique<PerfettoSink>(outputPath, bufferSizeKb);
+    return std::make_unique<PerfettoSink>(outputPath, asyncTracks, bufferSizeKb);
 }
 
 } // namespace Tracing

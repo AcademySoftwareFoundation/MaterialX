@@ -29,6 +29,8 @@ namespace mx = MaterialX;
 #ifdef MATERIALX_BUILD_PERFETTO_TRACING
 namespace {
 
+constexpr mx::Tracing::AsyncTrackId GPU_TRACK_ID = 0;
+
 uint64_t getCurrentTimeNs()
 {
     using namespace std::chrono;
@@ -394,7 +396,7 @@ RenderUtil::RenderProfileResult GlslShaderRenderTester::runRenderer(
                     gpuTimer.end();
                     glFinish();
                     uint64_t gpuDurationNs = gpuTimer.getDurationNs();
-                    MX_TRACE_ASYNC(mx::Tracing::AsyncTrack::GPU, mx::Tracing::Category::Render, shaderName.c_str(), cpuStartNs, gpuDurationNs);
+                    MX_TRACE_ASYNC(GPU_TRACK_ID, mx::Tracing::Category::Render, shaderName.c_str(), cpuStartNs, gpuDurationNs);
 #endif
                 }
 

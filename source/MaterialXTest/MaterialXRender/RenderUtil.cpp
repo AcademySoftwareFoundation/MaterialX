@@ -710,7 +710,7 @@ void TestRunTracer::start(const std::string& target, const GenShaderUtil::TestSu
     {
         mx::FilePath tracePath = options.resolveOutputPath(target + "_render_trace.perfetto-trace");
         mx::Tracing::Dispatcher::getInstance().setSink(
-            mx::Tracing::createPerfettoSink(tracePath.asString()));
+            mx::Tracing::createPerfettoSink(tracePath.asString(), {{0, "GPU"}}));
         // Scope guard ensures tracing is shut down on any exit path (return, exception, etc.)
         _state->guard.emplace();
     }

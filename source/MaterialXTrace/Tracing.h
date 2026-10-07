@@ -25,6 +25,7 @@
 #include <cstdint>
 #include <memory>
 #include <string>
+#include <unordered_map>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -56,14 +57,14 @@ enum class Category
     Count
 };
 
-/// @enum AsyncTrack
-/// Async track identifiers for operations with explicit timing (e.g., GPU work).
-enum class AsyncTrack
-{
-    /// GPU render operations (measured via GL timer queries)
-    GPU = 0
-    // Add more tracks here as needed (e.g., Compile, Transfer)
-};
+/// Numeric identifier for an async track (e.g., GPU, Compile, Transfer).
+/// Callers define their own IDs and pass an {id -> name} map when creating
+/// a sink. The sink uses the map to set up track descriptors; asyncEvent
+/// then routes events by ID without the sink needing to know the semantics.
+using AsyncTrackId = uint64_t;
+
+/// Map of async track definitions: {id -> display name}.
+using AsyncTrackMap = std::unordered_map<AsyncTrackId, std::string>;
 
 /// @class Sink
 /// Abstract tracing sink interface.
@@ -85,15 +86,15 @@ class MX_TRACE_API Sink
     virtual void counter(Category category, const char* name, double value) = 0;
 
     /// Record an async event with explicit timing (e.g., GPU operations).
-    /// This creates a slice on a separate track, useful for GPU work that
-    /// runs asynchronously from CPU traces.
-    /// @param track The async track to record on (e.g., AsyncTrack::GPU)
+    /// The sink places the slice on the track identified by @p track.
+    /// @param track The async track ID (must have been registered at sink creation)
     /// @param category The trace category for filtering
     /// @param eventName Name of the event (e.g., material name)
     /// @param startNs Start timestamp in nanoseconds (can be approximate)
     /// @param durationNs Duration in nanoseconds (should be accurate)
-    virtual void asyncEvent(AsyncTrack track, Category category,
-                           const char* eventName, uint64_t startNs, uint64_t durationNs) { }
+    virtual void asyncEvent(AsyncTrackId /*track*/, Category /*category*/,
+                           const char* /*eventName*/, uint64_t /*startNs*/,
+                           uint64_t /*durationNs*/) { }
 
     /// Set the current thread's name for trace visualization.
     virtual void setThreadName(const char* name) = 0;
@@ -164,7 +165,7 @@ class MX_TRACE_API Dispatcher
     }
 
     /// Record an async event with explicit timing.
-    void asyncEvent(AsyncTrack track, Category category,
+    void asyncEvent(AsyncTrackId track, Category category,
                    const char* eventName, uint64_t startNs, uint64_t durationNs)
     {
         if (_sink)
@@ -221,16 +222,21 @@ class Scope
 /// visualized at https://ui.perfetto.dev
 ///
 /// @param outputPath Path to write the trace file when the sink is destroyed
+/// @param asyncTracks Map of async track definitions {id -> display name}.
+///   Each entry creates a named track in the trace for asyncEvent calls.
 /// @param bufferSizeKb Size of the trace buffer in KB (default 32MB)
 /// @return A unique_ptr to the Perfetto sink
 ///
 /// Usage:
-///   Dispatcher::getInstance().setSink(createPerfettoSink("trace.perfetto-trace"));
+///   Dispatcher::getInstance().setSink(
+///       createPerfettoSink("trace.perfetto-trace", {{0, "GPU"}}));
 ///   Dispatcher::ShutdownGuard guard;
 ///   // ... traced work ...
 ///   // guard destructor writes the trace file
 MX_TRACE_API std::unique_ptr<Sink> createPerfettoSink(
-    const std::string& outputPath, size_t bufferSizeKb = 32768);
+    const std::string& outputPath,
+    const AsyncTrackMap& asyncTracks = {},
+    size_t bufferSizeKb = 32768);
 
 #endif // MATERIALX_BUILD_PERFETTO_TRACING
 
