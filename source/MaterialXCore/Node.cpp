@@ -87,6 +87,7 @@ NodeDefPtr Node::getNodeDef(const string& target, bool allowRoughMatch) const
     }
     vector<NodeDefPtr> nodeDefs = getDocument()->getMatchingNodeDefs(getQualifiedName(getCategory()));
     vector<NodeDefPtr> secondary = getDocument()->getMatchingNodeDefs(getCategory());
+    vector<NodeDefPtr> exactMatches;
     vector<NodeDefPtr> roughMatches;
     nodeDefs.insert(nodeDefs.end(), secondary.begin(), secondary.end());
     for (NodeDefPtr nodeDef : nodeDefs)
@@ -105,10 +106,35 @@ NodeDefPtr Node::getNodeDef(const string& target, bool allowRoughMatch) const
             }
             continue;
         }
-        return nodeDef;
+        exactMatches.push_back(nodeDef);
+    }
+
+    if (!exactMatches.empty())
+    {
+        if (getVersionString().empty())
+        {
+            for (NodeDefPtr nodeDef : exactMatches)
+            {
+                if (nodeDef->getDefaultVersion())
+                {
+                    return nodeDef;
+                }
+            }
+        }
+        return exactMatches[0];
     }
     if (!roughMatches.empty())
     {
+        if (getVersionString().empty())
+        {
+            for (NodeDefPtr nodeDef : roughMatches)
+            {
+                if (nodeDef->getDefaultVersion())
+                {
+                    return nodeDef;
+                }
+            }
+        }
         return roughMatches[0];
     }
     return NodeDefPtr();
