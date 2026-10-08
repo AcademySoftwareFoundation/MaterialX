@@ -46,7 +46,7 @@ class GpuTimerScope
         glGetQueryObjectui64v(_query, GL_QUERY_RESULT, &gpuDurationNs);
         glDeleteQueries(1, &_query);
         uint64_t nowNs = Tracing::Dispatcher::getInstance().getTraceTimeNs();
-        MX_TRACE_ASYNC(1, Tracing::Category::Render, "GPU Frame",
+        MX_TRACE_ASYNC(Tracing::GPU_ASYNC_TRACK, Tracing::Category::Render, "GPU Frame",
                        nowNs - gpuDurationNs, gpuDurationNs);
     }
 

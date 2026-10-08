@@ -61,7 +61,11 @@ enum class Category
 /// Callers define their own IDs and pass an {id -> name} map when creating
 /// a sink. The sink uses the map to set up track descriptors; asyncEvent
 /// then routes events by ID without the sink needing to know the semantics.
+/// Note: ID 0 is reserved (Perfetto treats uuid 0 as "no track").
 using AsyncTrackId = uint64_t;
+
+/// Well-known async track ID for GPU timing events.
+constexpr AsyncTrackId GPU_ASYNC_TRACK = 1;
 
 /// Map of async track definitions: {id -> display name}.
 using AsyncTrackMap = std::unordered_map<AsyncTrackId, std::string>;
