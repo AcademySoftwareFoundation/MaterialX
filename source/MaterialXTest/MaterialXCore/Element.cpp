@@ -10,6 +10,30 @@
 
 namespace mx = MaterialX;
 
+TEST_CASE("Target string matching", "[element]")
+{
+    // Compare with token membership, including empty lists and non-separator whitespace.
+    const mx::StringVec targets = { "", "genglsl", "genosl", "genglsl,genosl",
+                                   " genglsl,, genosl ", "genglsl,genglsl", ",", " , , ",
+                                   "genglsl\tgenosl", "genglsl\ngenosl", "\t", "\n" };
+    for (const std::string& first : targets)
+    {
+        for (const std::string& second : targets)
+        {
+            bool expected = first.empty() || second.empty();
+            for (const std::string& a : mx::splitString(first, mx::ARRAY_VALID_SEPARATORS))
+            {
+                for (const std::string& b : mx::splitString(second, mx::ARRAY_VALID_SEPARATORS))
+                {
+                    expected |= a == b;
+                }
+            }
+            CAPTURE(first, second);
+            REQUIRE(mx::targetStringsMatch(first, second) == expected);
+        }
+    }
+}
+
 TEST_CASE("Element", "[element]")
 {
     // Create a document.

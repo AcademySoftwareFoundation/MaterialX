@@ -953,15 +953,22 @@ bool targetStringsMatch(const string& target1, const string& target2)
     if (target1.empty() || target2.empty())
         return true;
 
-    StringVec vec1 = splitString(target1, ARRAY_VALID_SEPARATORS);
-    StringVec vec2 = splitString(target2, ARRAY_VALID_SEPARATORS);
-    StringSet set1(vec1.begin(), vec1.end());
-    StringSet set2(vec2.begin(), vec2.end());
+    if (target1.find_first_of(ARRAY_VALID_SEPARATORS) == string::npos &&
+        target2.find_first_of(ARRAY_VALID_SEPARATORS) == string::npos)
+    {
+        return target1 == target2;
+    }
 
-    StringSet matches;
-    std::set_intersection(set1.begin(), set1.end(), set2.begin(), set2.end(),
-                          std::inserter(matches, matches.end()));
-    return !matches.empty();
+    StringVec vec1 = splitString(target1, ARRAY_VALID_SEPARATORS);
+    StringSet set1(vec1.begin(), vec1.end());
+    for (const string& target : splitString(target2, ARRAY_VALID_SEPARATORS))
+    {
+        if (set1.find(target) != set1.end())
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 string prettyPrint(ConstElementPtr elem)
