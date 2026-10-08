@@ -376,6 +376,11 @@ InputPtr InterfaceElement::getActiveInput(const string& name) const
 
 vector<InputPtr> InterfaceElement::getActiveInputs() const
 {
+    // Document children may contain duplicate names from an attached data library.
+    if (!hasInheritString() && !isA<Document>())
+    {
+        return getInputs();
+    }
     vector<InputPtr> activeInputs;
     StringSet activeInputNamesSet;
     for (ConstElementPtr elem : traverseInheritance())
@@ -407,6 +412,11 @@ OutputPtr InterfaceElement::getActiveOutput(const string& name) const
 
 vector<OutputPtr> InterfaceElement::getActiveOutputs() const
 {
+    // Document children may contain duplicate names from an attached data library.
+    if (!hasInheritString() && !isA<Document>())
+    {
+        return getOutputs();
+    }
     vector<OutputPtr> activeOutputs;
     StringSet activeOutputNamesSet;
     for (ConstElementPtr elem : traverseInheritance())

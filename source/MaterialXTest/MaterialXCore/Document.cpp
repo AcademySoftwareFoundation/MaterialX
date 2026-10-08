@@ -422,3 +422,60 @@ TEST_CASE("Document upgrade swizzle empty value", "[document]")
     REQUIRE(node->getCategory() == "constant");
     REQUIRE(node->getInput("value")->getValueString() == "0, 0, 0");
 }
+
+TEST_CASE("Active interface inheritance", "[nodedef]")
+{
+    auto doc = mx::createDocument();
+    auto base = doc->addNodeDef("ND_base", mx::EMPTY_STRING);
+    base->addInput("shared", "float");
+    auto baseOnlyInput = base->addInput("base_only", "float");
+    base->addOutput("shared_output", "float");
+    auto baseOnlyOutput = base->addOutput("base_only_output", "float");
+    auto derived = doc->addNodeDef("ND_derived", mx::EMPTY_STRING);
+    auto input = derived->addInput("shared", "color3");
+    auto output = derived->addOutput("shared_output", "color3");
+    REQUIRE(derived->getActiveInputs() == derived->getInputs());
+    REQUIRE(derived->getActiveOutputs() == derived->getOutputs());
+
+    derived->setInheritString("ND_base");
+    REQUIRE(derived->getActiveInputs() == std::vector<mx::InputPtr>{ input, baseOnlyInput });
+    REQUIRE(derived->getActiveOutputs() == std::vector<mx::OutputPtr>{ output, baseOnlyOutput });
+    derived->setInheritString("missing");
+    REQUIRE(derived->getActiveInputs() == derived->getInputs());
+    REQUIRE(derived->getActiveOutputs() == derived->getOutputs());
+    doc->addNodeGraph("wrong_category");
+    derived->setInheritString("wrong_category");
+    REQUIRE(derived->getActiveInputs() == derived->getInputs());
+    REQUIRE(derived->getActiveOutputs() == derived->getOutputs());
+    derived->setInheritString("");
+    REQUIRE(derived->getActiveInputs() == derived->getInputs());
+    REQUIRE(derived->getActiveOutputs() == derived->getOutputs());
+    derived->setInheritString("ND_base");
+    base->setInheritString("ND_derived");
+    REQUIRE_THROWS_AS(derived->getActiveInputs(), mx::ExceptionFoundCycle);
+    REQUIRE_THROWS_AS(derived->getActiveOutputs(), mx::ExceptionFoundCycle);
+}
+
+TEST_CASE("Active document library interfaces", "[document]")
+{
+    auto lib = mx::createDocument();
+    auto libraryInput = lib->addInput("shared", "float");
+    auto libraryOutput = lib->addOutput("shared_output", "float");
+    auto doc = mx::createDocument();
+    doc->addInput("shared", "color3");
+    auto localInput = doc->addInput("local", "float");
+    doc->addOutput("shared_output", "color3");
+    auto localOutput = doc->addOutput("local_output", "float");
+    REQUIRE(doc->getActiveInputs() == doc->getInputs());
+    REQUIRE(doc->getActiveOutputs() == doc->getOutputs());
+    doc->setDataLibrary(lib);
+    REQUIRE(doc->getInputs().size() == 3);
+    REQUIRE(doc->getOutputs().size() == 3);
+    // Enumeration is library first, and active interfaces keep the first name.
+    REQUIRE(doc->getActiveInputs() == std::vector<mx::InputPtr>{ libraryInput, localInput });
+    REQUIRE(doc->getActiveOutputs() == std::vector<mx::OutputPtr>{ libraryOutput, localOutput });
+    auto node = doc->addNode("constant");
+    node->addInput("shared", "float");
+    REQUIRE(node->getActiveInputs() == node->getInputs());
+    REQUIRE(node->getActiveOutputs() == node->getOutputs());
+}
