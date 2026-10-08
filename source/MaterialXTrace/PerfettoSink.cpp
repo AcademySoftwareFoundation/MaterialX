@@ -7,6 +7,7 @@
 
 #ifdef MATERIALX_BUILD_PERFETTO_TRACING
 
+#include <cstdint>
 #include <fstream>
 #include <mutex>
 
@@ -31,7 +32,72 @@ MATERIALX_NAMESPACE_BEGIN
 namespace Tracing
 {
 
-PerfettoSink::PerfettoSink(std::string outputPath, size_t bufferSizeKb)
+// ---------------------------------------------------------------------------
+// Per-category Perfetto operations.
+//
+// Perfetto trace macros require compile-time category string literals, so
+// we stamp out a thin ops struct per category and dispatch through a generic
+// lambda.  Adding a new Category means adding one DEFINE line and one switch
+// case in withCategory() below.
+// ---------------------------------------------------------------------------
+namespace
+{
+
+#define MX_DEFINE_PERFETTO_OPS(Name, perfettoCategory)                           \
+struct Name                                                                      \
+{                                                                                \
+    static void beginEvent(const char* name)                                     \
+    {                                                                            \
+        TRACE_EVENT_BEGIN(perfettoCategory, nullptr,                              \
+            [&](perfetto::EventContext ctx) { ctx.event()->set_name(name); });    \
+    }                                                                            \
+    static void endEvent()                                                       \
+    {                                                                            \
+        TRACE_EVENT_END(perfettoCategory);                                       \
+    }                                                                            \
+    static void counter(perfetto::CounterTrack track, double value)              \
+    {                                                                            \
+        TRACE_COUNTER(perfettoCategory, track, value);                           \
+    }                                                                            \
+    static void asyncBegin(const perfetto::Track& track, uint64_t startNs,       \
+                           const char* name)                                     \
+    {                                                                            \
+        TRACE_EVENT_BEGIN(perfettoCategory, nullptr, track, startNs,             \
+            [&](perfetto::EventContext ctx) { ctx.event()->set_name(name); });   \
+    }                                                                            \
+    static void asyncEnd(const perfetto::Track& track, uint64_t endNs)           \
+    {                                                                            \
+        TRACE_EVENT_END(perfettoCategory, track, endNs);                         \
+    }                                                                            \
+};
+
+MX_DEFINE_PERFETTO_OPS(RenderOps,    "mx.render")
+MX_DEFINE_PERFETTO_OPS(ShaderGenOps, "mx.shadergen")
+MX_DEFINE_PERFETTO_OPS(OptimizeOps,  "mx.optimize")
+MX_DEFINE_PERFETTO_OPS(MaterialOps,  "mx.material")
+
+#undef MX_DEFINE_PERFETTO_OPS
+
+/// Dispatch a generic callable by category.  The callable receives a
+/// category-ops tag whose static methods wrap the Perfetto trace macros.
+template<typename Fn>
+void withCategory(Category category, Fn&& fn)
+{
+    switch (category)
+    {
+        case Category::Render:    fn(RenderOps{}); break;
+        case Category::ShaderGen: fn(ShaderGenOps{}); break;
+        case Category::Optimize:  fn(OptimizeOps{}); break;
+        case Category::Material:  fn(MaterialOps{}); break;
+        default: break;
+    }
+}
+
+} // anonymous namespace
+
+PerfettoSink::PerfettoSink(std::string outputPath,
+                           const AsyncTrackMap& asyncTracks,
+                           size_t bufferSizeKb)
     : _outputPath(std::move(outputPath))
 {
     // One-time global Perfetto initialization
@@ -42,6 +108,17 @@ PerfettoSink::PerfettoSink(std::string outputPath, size_t bufferSizeKb)
         perfetto::Tracing::Initialize(args);
         perfetto::TrackEvent::Register();
     });
+
+    // Register async track descriptors from the caller-provided map.
+    // Explicitly parent to the process track to avoid hierarchy loops.
+    for (const auto& [id, name] : asyncTracks)
+    {
+        perfetto::Track perfTrack(id, perfetto::ProcessTrack::Current());
+        auto desc = perfTrack.Serialize();
+        desc.set_name(name);
+        perfetto::TrackEvent::SetTrackDescriptor(perfTrack, desc);
+        _asyncTracks.emplace(id, perfTrack);
+    }
 
     // Create and start a tracing session
     perfetto::TraceConfig cfg;
@@ -77,82 +154,44 @@ PerfettoSink::~PerfettoSink()
 
 void PerfettoSink::beginEvent(Category category, const char* name)
 {
-    // Perfetto requires compile-time category names for TRACE_EVENT macros.
-    // Switch on the enum lets the compiler optimize to a jump table.
-    switch (category)
-    {
-        case Category::Render:
-            TRACE_EVENT_BEGIN("mx.render", nullptr, [&](perfetto::EventContext ctx) {
-                ctx.event()->set_name(name);
-            });
-            break;
-        case Category::ShaderGen:
-            TRACE_EVENT_BEGIN("mx.shadergen", nullptr, [&](perfetto::EventContext ctx) {
-                ctx.event()->set_name(name);
-            });
-            break;
-        case Category::Optimize:
-            TRACE_EVENT_BEGIN("mx.optimize", nullptr, [&](perfetto::EventContext ctx) {
-                ctx.event()->set_name(name);
-            });
-            break;
-        case Category::Material:
-            TRACE_EVENT_BEGIN("mx.material", nullptr, [&](perfetto::EventContext ctx) {
-                ctx.event()->set_name(name);
-            });
-            break;
-        default:
-            // Fallback for any future categories
-            TRACE_EVENT_BEGIN("mx.render", nullptr, [&](perfetto::EventContext ctx) {
-                ctx.event()->set_name(name);
-            });
-            break;
-    }
+    withCategory(category, [name](auto ops) {
+        decltype(ops)::beginEvent(name);
+    });
 }
 
 void PerfettoSink::endEvent(Category category)
 {
-    switch (category)
-    {
-        case Category::Render:
-            TRACE_EVENT_END("mx.render");
-            break;
-        case Category::ShaderGen:
-            TRACE_EVENT_END("mx.shadergen");
-            break;
-        case Category::Optimize:
-            TRACE_EVENT_END("mx.optimize");
-            break;
-        case Category::Material:
-            TRACE_EVENT_END("mx.material");
-            break;
-        default:
-            TRACE_EVENT_END("mx.render");
-            break;
-    }
+    withCategory(category, [](auto ops) {
+        decltype(ops)::endEvent();
+    });
 }
 
 void PerfettoSink::counter(Category category, const char* name, double value)
 {
-    auto track = perfetto::CounterTrack(name);
-    switch (category)
-    {
-        case Category::Render:
-            TRACE_COUNTER("mx.render", track, value);
-            break;
-        case Category::ShaderGen:
-            TRACE_COUNTER("mx.shadergen", track, value);
-            break;
-        case Category::Optimize:
-            TRACE_COUNTER("mx.optimize", track, value);
-            break;
-        case Category::Material:
-            TRACE_COUNTER("mx.material", track, value);
-            break;
-        default:
-            TRACE_COUNTER("mx.render", track, value);
-            break;
-    }
+    withCategory(category, [name, value](auto ops) {
+        decltype(ops)::counter(perfetto::CounterTrack(name), value);
+    });
+}
+
+void PerfettoSink::asyncEvent(AsyncTrackId track, Category category,
+                              const char* eventName, uint64_t startNs, uint64_t durationNs)
+{
+    auto it = _asyncTracks.find(track);
+    if (it == _asyncTracks.end())
+        return;
+
+    const auto& perfTrack = it->second;
+    uint64_t endNs = startNs + durationNs;
+
+    withCategory(category, [&](auto ops) {
+        decltype(ops)::asyncBegin(perfTrack, startNs, eventName);
+        decltype(ops)::asyncEnd(perfTrack, endNs);
+    });
+}
+
+uint64_t PerfettoSink::getTraceTimeNs()
+{
+    return perfetto::TrackEvent::GetTraceTimeNs();
 }
 
 void PerfettoSink::setThreadName(const char* name)
@@ -165,9 +204,11 @@ void PerfettoSink::setThreadName(const char* name)
 }
 
 // Factory function - the exported entry point
-std::unique_ptr<Sink> createPerfettoSink(const std::string& outputPath, size_t bufferSizeKb)
+std::unique_ptr<Sink> createPerfettoSink(const std::string& outputPath,
+                                          const AsyncTrackMap& asyncTracks,
+                                          size_t bufferSizeKb)
 {
-    return std::make_unique<PerfettoSink>(outputPath, bufferSizeKb);
+    return std::make_unique<PerfettoSink>(outputPath, asyncTracks, bufferSizeKb);
 }
 
 } // namespace Tracing

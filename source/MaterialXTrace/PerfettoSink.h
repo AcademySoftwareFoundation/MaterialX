@@ -35,6 +35,7 @@
 
 #include <memory>
 #include <string>
+#include <unordered_map>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -54,8 +55,11 @@ class PerfettoSink : public Sink
   public:
     /// Construct and start a Perfetto tracing session.
     /// @param outputPath Path to write the trace file when destroyed
+    /// @param asyncTracks Map of async track definitions {id -> display name}
     /// @param bufferSizeKb Size of the trace buffer in KB (default 32MB)
-    explicit PerfettoSink(std::string outputPath, size_t bufferSizeKb = 32768);
+    explicit PerfettoSink(std::string outputPath,
+                          const AsyncTrackMap& asyncTracks = {},
+                          size_t bufferSizeKb = 32768);
     
     /// Stop tracing and write the trace to the output path.
     ~PerfettoSink() override;
@@ -70,11 +74,15 @@ class PerfettoSink : public Sink
     void beginEvent(Category category, const char* name) override;
     void endEvent(Category category) override;
     void counter(Category category, const char* name, double value) override;
+    void asyncEvent(AsyncTrackId track, Category category,
+                   const char* eventName, uint64_t startNs, uint64_t durationNs) override;
+    uint64_t getTraceTimeNs() override;
     void setThreadName(const char* name) override;
 
   private:
     const std::string _outputPath;
     std::unique_ptr<perfetto::TracingSession> _session;
+    std::unordered_map<AsyncTrackId, perfetto::Track> _asyncTracks;
 };
 
 } // namespace Tracing
