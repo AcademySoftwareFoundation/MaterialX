@@ -745,9 +745,10 @@ NodeDefPtr NodeGraph::getNodeDef() const
     // If not directly defined look for an implementation which has a nodedef association
     if (!nodedef)
     {
-        for (auto impl : getDocument()->getImplementations())
+        const string qualifiedName = getQualifiedName(getName());
+        for (const auto& impl : getDocument()->getImplementations())
         {
-            if (impl->getNodeGraph() == getQualifiedName(getName()))
+            if (impl->getNodeGraph() == qualifiedName)
             {
                 nodedef = impl->getNodeDef();
             }
