@@ -314,6 +314,68 @@ TEST_CASE("Flatten", "[nodegraph]")
     REQUIRE(newRootNodes == expectedRootNodes);
 }
 
+TEST_CASE("Qualified definition lookup", "[nodedef]")
+{
+    auto doc = mx::createDocument();
+    auto plain = doc->addNodeDef("ND_plain", "float", "custom");
+    plain->addInput("value", "float");
+    auto qualified = doc->addNodeDef("ND_qualified", "float", "custom");
+    qualified->setNamespace("test");
+    qualified->addInput("value", "float");
+    auto node = doc->addNode("custom", "node", "float");
+    node->addInput("value", "float");
+    REQUIRE(node->getNodeDef() == plain);
+    node->setNamespace("test");
+    REQUIRE(node->getNodeDef() == qualified);
+    node->setCategory("test:custom");
+    REQUIRE(node->getNodeDef() == qualified);
+    node->setCategory("custom");
+    qualified->setVersionString("2.0");
+    REQUIRE(node->getNodeDef() == plain);
+    node->setVersionString("2.0");
+    REQUIRE(node->getNodeDef() == qualified);
+    node->removeAttribute(mx::InterfaceElement::VERSION_ATTRIBUTE);
+    qualified->removeAttribute(mx::InterfaceElement::VERSION_ATTRIBUTE);
+    qualified->getOutput("out")->setType("color3");
+    REQUIRE(node->getNodeDef() == plain);
+    qualified->getOutput("out")->setType("float");
+    qualified->getInput("value")->setType("color3");
+    REQUIRE(node->getNodeDef() == plain);
+    plain->getInput("value")->setType("color3");
+    REQUIRE(node->getNodeDef() == nullptr);
+    REQUIRE(node->getNodeDef(mx::EMPTY_STRING, true) == qualified);
+    node->removeAttribute(mx::Element::NAMESPACE_ATTRIBUTE);
+    REQUIRE(node->getNodeDef(mx::EMPTY_STRING, true) == plain);
+}
+
+TEST_CASE("Qualified implementation lookup", "[nodedef]")
+{
+    auto doc = mx::createDocument();
+    auto def = doc->addNodeDef("ND_custom", "float", "custom");
+    auto plain = doc->addImplementation("IM_plain");
+    plain->setNodeDefString("ND_custom");
+    auto qualified = doc->addImplementation("IM_qualified");
+    qualified->setNodeDefString("test:ND_custom");
+    REQUIRE(def->getImplementation() == plain);
+    def->setNamespace("test");
+    REQUIRE(def->getImplementation() == qualified);
+    auto parent = doc->addTargetDef("parent");
+    auto child = doc->addTargetDef("child");
+    child->setInheritString(parent->getName());
+    qualified->setTarget("parent,other");
+    REQUIRE(def->getImplementation("child") == qualified);
+    REQUIRE(def->getImplementation("missing") == plain);
+    plain->setTarget("child");
+    REQUIRE(def->getImplementation("child") == plain);
+    REQUIRE(def->getImplementation("missing") == nullptr);
+    auto graph = doc->addNodeGraph("NG_custom");
+    qualified->setNodeGraph(graph->getName());
+    REQUIRE(def->getImplementation(mx::EMPTY_STRING, false) == qualified);
+    REQUIRE(def->getImplementation() == graph);
+    doc->removeImplementation("IM_qualified");
+    REQUIRE(def->getImplementation() == plain);
+}
+
 TEST_CASE("Inheritance", "[nodedef]")
 {
     mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();

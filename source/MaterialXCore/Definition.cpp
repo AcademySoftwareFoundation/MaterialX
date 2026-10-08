@@ -59,9 +59,13 @@ const string& NodeDef::getType() const
 
 InterfaceElementPtr NodeDef::getImplementation(const string& target, bool resolveNodeGraph) const
 {
-    vector<InterfaceElementPtr> interfaces = getDocument()->getMatchingImplementations(getQualifiedName(getName()));
-    vector<InterfaceElementPtr> secondary = getDocument()->getMatchingImplementations(getName());
-    interfaces.insert(interfaces.end(), secondary.begin(), secondary.end());
+    const string qualifiedName = getQualifiedName(getName());
+    vector<InterfaceElementPtr> interfaces = getDocument()->getMatchingImplementations(qualifiedName);
+    if (qualifiedName != getName())
+    {
+        vector<InterfaceElementPtr> secondary = getDocument()->getMatchingImplementations(getName());
+        interfaces.insert(interfaces.end(), secondary.begin(), secondary.end());
+    }
 
     // If requested, resolve Implementation elements to their linked NodeGraph elements.
     if (resolveNodeGraph)

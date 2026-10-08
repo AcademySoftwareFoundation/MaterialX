@@ -85,10 +85,14 @@ NodeDefPtr Node::getNodeDef(const string& target, bool allowRoughMatch) const
     {
         return resolveNameReference<NodeDef>(getNodeDefString());
     }
-    vector<NodeDefPtr> nodeDefs = getDocument()->getMatchingNodeDefs(getQualifiedName(getCategory()));
-    vector<NodeDefPtr> secondary = getDocument()->getMatchingNodeDefs(getCategory());
+    const string qualifiedName = getQualifiedName(getCategory());
+    vector<NodeDefPtr> nodeDefs = getDocument()->getMatchingNodeDefs(qualifiedName);
+    if (qualifiedName != getCategory())
+    {
+        vector<NodeDefPtr> secondary = getDocument()->getMatchingNodeDefs(getCategory());
+        nodeDefs.insert(nodeDefs.end(), secondary.begin(), secondary.end());
+    }
     vector<NodeDefPtr> roughMatches;
-    nodeDefs.insert(nodeDefs.end(), secondary.begin(), secondary.end());
     for (NodeDefPtr nodeDef : nodeDefs)
     {
         if (!targetStringsMatch(nodeDef->getTarget(), target) ||
