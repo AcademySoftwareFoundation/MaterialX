@@ -29,6 +29,15 @@ TEST_CASE("GenShader: GLSL Syntax Check", "[genglsl]")
     mx::TypeSystemPtr ts = mx::TypeSystem::create();
     mx::SyntaxPtr syntax = mx::GlslSyntax::create(ts);
 
+    for (const auto& names : std::vector<std::pair<std::string, std::string>>{
+             { "float", "float1" }, { "ordinary_name", "ordinary_name" },
+             { "a-b", "a_b" }, { "uniform1", "uniform1" } })
+    {
+        std::string name = names.first;
+        syntax->makeValidName(name);
+        REQUIRE(name == names.second);
+    }
+
     REQUIRE(syntax->getTypeName(mx::Type::FLOAT) == "float");
     REQUIRE(syntax->getTypeName(mx::Type::COLOR3) == "vec3");
     REQUIRE(syntax->getTypeName(mx::Type::VECTOR3) == "vec3");
