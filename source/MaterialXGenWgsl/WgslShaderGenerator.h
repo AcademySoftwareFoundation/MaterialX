@@ -140,7 +140,15 @@ class MX_GENWGSL_API WgslShaderGenerator : public HwShaderGenerator
     /// Register the genwgsl node implementations.
     void registerImplementations(const string& target);
 
+    /// Apply _boolUniformCastSubstitutions to the stage source code only.
+    void applyBoolUniformCasts(ShaderStage& stage) const;
+
     vector<ShaderNodePtr> _lightSamplingNodes;
+
+    /// Private boolean uniforms are u32 in the WGSL uniform struct, so their use sites need a
+    /// bool() cast. Applied to source code before _tokenSubstitutions, leaving struct members and
+    /// the reflected shader interface with the plain member name.
+    StringMap _boolUniformCastSubstitutions;
 };
 
 MATERIALX_NAMESPACE_END

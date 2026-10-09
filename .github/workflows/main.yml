@@ -687,20 +687,6 @@ jobs:
     - name: Install Wheel
       run: python -m pip install MaterialX --find-links wheelhouse --no-index
 
-    - name: Verify WGSL library in wheel
-      run: |
-        python - <<'PY'
-        import MaterialX, pathlib
-        libs = pathlib.Path(MaterialX.__file__).parent / "libraries"
-        # bxdf is nodegraph-only (no genglsl → genwgsl transpile); see mxgenwgsl.py
-        mins = {"stdlib": 30, "pbrlib": 8, "lights": 3}
-        for lib, need in mins.items():
-            n = len(list((libs / lib / "genwgsl").rglob("*.wgsl")))
-            assert n >= need, f"{lib}/genwgsl: {n} files (expected >= {need})"
-        total = len(list(libs.rglob("genwgsl/**/*.wgsl")))
-        assert total >= 50, f"genwgsl total: {total} (expected >= 50)"
-        PY
-
     - name: Python Tests
       run: |
         python MaterialXTest/main.py

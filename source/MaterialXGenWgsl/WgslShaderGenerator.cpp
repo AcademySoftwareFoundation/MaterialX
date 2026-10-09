@@ -91,7 +91,7 @@ WgslShaderGenerator::WgslShaderGenerator(TypeSystemPtr typeSystem) :
     _tokenSubstitutions[HW::T_TEX_SAMPLER_SAMPLER2D] = HW::TEX_SAMPLER_SAMPLER2D_WGSL;
     _tokenSubstitutions[HW::T_TEX_SAMPLER_SIGNATURE] = HW::TEX_SAMPLER_SIGNATURE_WGSL;
 
-    // Private uniform $-tokens map to u_prv.<member> (booleans are u32 in the struct; cast at use sites, not here — see emitInput).
+    // Private uniform $-tokens map to u_prv.<member> (booleans are u32 in the struct; use sites are cast via _boolUniformCastSubstitutions).
     static const string PRV = "u_prv.";
     _tokenSubstitutions[HW::T_WORLD_MATRIX] = PRV + HW::WORLD_MATRIX;
     _tokenSubstitutions[HW::T_WORLD_INVERSE_MATRIX] = PRV + HW::WORLD_INVERSE_MATRIX;
@@ -126,6 +126,8 @@ WgslShaderGenerator::WgslShaderGenerator(TypeSystemPtr typeSystem) :
     _tokenSubstitutions[HW::T_GEOMPROP] = PRV + HW::GEOMPROP;
     _tokenSubstitutions["$directionalAlbedoMethod"] = "MTLX_DIRECTIONAL_ALBEDO_METHOD";
     _tokenSubstitutions["$airyFresnelIterations"] = "MTLX_AIRY_FRESNEL_ITERATIONS";
+
+    _boolUniformCastSubstitutions[HW::T_REFRACTION_TWO_SIDED] = "bool(" + PRV + HW::REFRACTION_TWO_SIDED + ")";
 
     _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "numActiveLightSources", WgslNumLightsNode::create()));
     _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "sampleLightSource", WgslLightSamplerNode::create()));
@@ -254,15 +256,24 @@ ShaderPtr WgslShaderGenerator::generate(const string& name, ElementPtr element, 
     ShaderStage& vs = shader->getStage(Stage::VERTEX);
     setDataSemantics(vs.getOutputBlock(HW::VERTEX_DATA));
     emitVertexStage(shader->getGraph(), context, vs);
+    applyBoolUniformCasts(vs);
     replaceTokens(_tokenSubstitutions, vs);
 
     // Pixel stage.
     ShaderStage& ps = shader->getStage(Stage::PIXEL);
     setDataSemantics(ps.getInputBlock(HW::VERTEX_DATA));
     emitPixelStage(shader->getGraph(), context, ps);
+    applyBoolUniformCasts(ps);
     replaceTokens(_tokenSubstitutions, ps);
 
     return shader;
+}
+
+void WgslShaderGenerator::applyBoolUniformCasts(ShaderStage& stage) const
+{
+    string code = stage.getSourceCode();
+    tokenSubstitution(_boolUniformCastSubstitutions, code);
+    stage.setSourceCode(code);
 }
 
 string WgslShaderGenerator::getVertexDataPrefix(const VariableBlock& vertexData) const

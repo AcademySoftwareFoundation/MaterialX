@@ -1177,12 +1177,6 @@ def applyWgslLibPostRestore(text, libroot=None):
     # Phase 5: arithmetic and env-latlong fixups.
     text = patchIntUniformTokenArithmetic(text)
     text = patchWgslEnvLatlongCalls(text)
-    # Phase 6: u32 bool uniforms restored as $-tokens need bool() when stored in locals for if().
-    text = re.sub(
-        r"(\blet _\w+ = )(\$refractionTwoSided)\s*;",
-        r"\1bool(\2);",
-        text,
-    )
     text = _hollowDeadPlaceholderIfFalse(text)
     return text
 
